@@ -1,3 +1,10 @@
+metacity (1:2.8.6-1) unstable; urgency=low
+
+  * New upstream release.
+  * Upload to unstable.
+
+ -- Sebastien Bacher <seb128@debian.org>  Thu, 18 Nov 2004 13:23:27 +0100
+
 metacity (1:2.8.5-2) experimental; urgency=low
 
   * debian/metacity.postinst:
