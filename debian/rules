@@ -15,3 +15,4 @@ binary-install/metacity::
 	mkdir -p debian/metacity/usr/share/metacity/
 	install -m 644 doc/metacity-theme.dtd  debian/metacity/usr/share/sgml/dtd/
 	install -m 644 debian/metacity.catalog debian/metacity/usr/share/metacity/
+	rm -rf debian/metacity/usr/share/control-center-2.0
