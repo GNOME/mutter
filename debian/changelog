@@ -1,16 +1,33 @@
-metacity (1:2.6.5-1) unstable; urgency=low
+metacity (1:2.8.0-2) experimental; urgency=low
 
-  * New upstream release
-    + fix bug with out-of-context windows on keyboard switch (Closes: #220222).
-  * debian/control.in:
-    + added Build-Depends on libxml-parser-perl.
+  * Added Build-Depends on gnome-pkg-tools and libxml-parser-perl 
+    (Closes: #240639).
+
+ -- Sebastien Bacher <seb128@debian.org>  Sat,  3 Apr 2004 23:46:56 +0200
+
+metacity (1:2.8.0-1) experimental; urgency=low
+
+  * New upstream release:
+    + converts "show desktop mode" to "all windows are minimized" when 
+      you open a new window (Closes: #217467).    
+    + fixes bug with panel not listed before clicking on them 
+      (Closes: #224054).  
+    + fixes multi-tab handling (Closes: #227708).  
+    + includes always on top menu entry (Closes: #204212).
+    + includes wireframes support (Closes: #184849).
+    + should fix bug with applications changing workspace 
+      (Closes: #224156, #230782).
+    + switches window truncates title (Closes: #186324).
+  * debian/control.in, debian/rules:
+    + adapted for the Gnome Team.
   * debian/patches/000_metacity-debian-xinerama-pic.patch:
-    + updated
+    + updated.
   * debian/patches/001_metacity-focus.patch:
-    + removed since the changes are in the new version.
-  * Gnome Team Upload.
+    + removed since the changes are included in the new version.
+  * debian/watch:
+    + updated to 2.8 branch.
 
- -- Sebastien Bacher <seb128@debian.org>  Mon, 16 Feb 2004 21:37:21 +0100
+ -- Sebastien Bacher <seb128@debian.org>  Sun, 28 Mar 2004 12:26:22 +0200
 
 metacity (1:2.6.3-2) unstable; urgency=low
 

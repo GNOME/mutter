@@ -3,6 +3,8 @@
 # GNU copyright 1997 to 1999 by Joey Hess.
 
 include debian/scripts/vars
+include /usr/share/gnome-pkg-tools/1/rules/uploaders.mk
+
 BUILD_DIR=$(SOURCE_DIR)/$(TAR_DIR)
 
 # Uncomment this to turn on verbose mode.
@@ -12,7 +14,6 @@ BUILD_DIR=$(SOURCE_DIR)/$(TAR_DIR)
 # from having to guess our platform (since we know it already)
 DEB_HOST_GNU_TYPE	?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE	?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0
@@ -34,7 +35,7 @@ cfiles := $(shell $(call _echo_cfiles, $(wildcard debian/lib*@SONAME@*)))
 debian/control:
 	dh_testdir
 
-	sed -e 's/@SONAME@/${soname}/g' -e 's/@VERSION@/${version}/g' $@.in > $@
+	sed -e 's/@SONAME@/${soname}/g' -e 's/@VERSION@/${version}/g' -e 's/@GNOME_TEAM@/${uploaders}/' $@.in > $@
 
 configure: $(STAMP_DIR)/configure-stamp
 $(STAMP_DIR)/configure-stamp:
@@ -88,7 +89,7 @@ $(STAMP_DIR)/build-stamp:
 
 	touch $@
 
-clean: debian/control
+clean:: debian/control
 	dh_testdir
 	dh_testroot
 

@@ -1,27 +1,27 @@
---- metacity-2.6.5/configure.in.orig	2004-02-16 22:27:18.000000000 +0100
-+++ metacity-2.6.5/configure.in	2004-02-16 22:28:41.000000000 +0100
-@@ -210,9 +210,9 @@
-     *)
-         # Check for XFree
-         use_xfree_xinerama=yes
--        AC_CHECK_LIB(Xinerama, XineramaQueryExtension,
-+        AC_CHECK_LIB(Xinerama_pic, XineramaQueryExtension,
-             [AC_CHECK_HEADER(X11/extensions/Xinerama.h,
--       	                     X_EXTRA_LIBS="-lXinerama $X_EXTRA_LIBS"   
-+       	                     X_EXTRA_LIBS="-Wl,-lXinerama_pic $X_EXTRA_LIBS"   
-       	                     if test -z "`echo $ALL_X_LIBS | grep "\-lXext" 2> /dev/null`"; then
-              	                 X_EXTRA_LIBS="-lXext $X_EXTRA_LIBS"
-       	                     fi
---- metacity-2.6.5/configure.orig	2004-02-16 22:27:07.000000000 +0100
-+++ metacity-2.6.5/configure	2004-02-16 22:33:58.000000000 +0100
-@@ -26109,13 +26109,13 @@
-     *)
-         # Check for XFree
-         use_xfree_xinerama=yes
--        echo "$as_me:$LINENO: checking for XineramaQueryExtension in -lXinerama" >&5
+--- metacity-2.8.0/configure.in.orig	2004-03-28 12:58:55.000000000 +0200
++++ metacity-2.8.0/configure.in	2004-03-28 13:00:20.000000000 +0200
+@@ -242,9 +242,9 @@
+         *)
+             # Check for XFree
+             use_xfree_xinerama=yes
+-            AC_CHECK_LIB(Xinerama, XineramaQueryExtension,
++            AC_CHECK_LIB(Xinerama_pic, XineramaQueryExtension,
+                 [AC_CHECK_HEADER(X11/extensions/Xinerama.h,
+-                                 X_EXTRA_LIBS="-lXinerama $X_EXTRA_LIBS"   
++				 X_EXTRA_LIBS="-Wl,-lXinerama_pic $X_EXTRA_LIBS"
+                                  if test -z "`echo $ALL_X_LIBS | grep "\-lXext" 2> /dev/null`"; then
+                                      X_EXTRA_LIBS="-lXext $X_EXTRA_LIBS"
+                                  fi
+--- metacity-2.8.0/configure.orig	2004-03-28 13:00:34.000000000 +0200
++++ metacity-2.8.0/configure	2004-03-28 13:03:55.000000000 +0200
+@@ -24676,13 +24676,13 @@
+         *)
+             # Check for XFree
+             use_xfree_xinerama=yes
+-            echo "$as_me:$LINENO: checking for XineramaQueryExtension in -lXinerama" >&5
 -echo $ECHO_N "checking for XineramaQueryExtension in -lXinerama... $ECHO_C" >&6
 -if test "${ac_cv_lib_Xinerama_XineramaQueryExtension+set}" = set; then
-+        echo "$as_me:$LINENO: checking for XineramaQueryExtension in -lXinerama_pic" >&5
++	    echo "$as_me:$LINENO: checking for XineramaQueryExtension in -lXinerama_pic" >&5
 +echo $ECHO_N "checking for XineramaQueryExtension in -lXinerama_pic... $ECHO_C" >&6
 +if test "${ac_cv_lib_Xinerama_pic_XineramaQueryExtension+set}" = set; then
    echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -30,9 +30,9 @@
 -LIBS="-lXinerama -lXext $ALL_X_LIBS $LIBS"
 +LIBS="-lXinerama_pic -lXext $ALL_X_LIBS $LIBS"
  cat >conftest.$ac_ext <<_ACEOF
+ #line $LINENO "configure"
  /* confdefs.h.  */
- _ACEOF
-@@ -26160,20 +26160,20 @@
+@@ -24718,19 +24718,19 @@
    ac_status=$?
    echo "$as_me:$LINENO: \$? = $ac_status" >&5
    (exit $ac_status); }; }; then
@@ -45,8 +45,7 @@
 -ac_cv_lib_Xinerama_XineramaQueryExtension=no
 +ac_cv_lib_Xinerama_pic_XineramaQueryExtension=no
  fi
- rm -f conftest.err conftest.$ac_objext \
-       conftest$ac_exeext conftest.$ac_ext
+ rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
  LIBS=$ac_check_lib_save_LIBS
  fi
 -echo "$as_me:$LINENO: result: $ac_cv_lib_Xinerama_XineramaQueryExtension" >&5
@@ -58,12 +57,12 @@
    echo "$as_me:$LINENO: checking for X11/extensions/Xinerama.h" >&5
  echo $ECHO_N "checking for X11/extensions/Xinerama.h... $ECHO_C" >&6
  if test "${ac_cv_header_X11_extensions_Xinerama_h+set}" = set; then
-@@ -26223,7 +26223,7 @@
+@@ -24771,7 +24771,7 @@
  echo "$as_me:$LINENO: result: $ac_cv_header_X11_extensions_Xinerama_h" >&5
  echo "${ECHO_T}$ac_cv_header_X11_extensions_Xinerama_h" >&6
  if test $ac_cv_header_X11_extensions_Xinerama_h = yes; then
 -  X_EXTRA_LIBS="-lXinerama $X_EXTRA_LIBS"
 +  X_EXTRA_LIBS="-Wl,-lXinerama_pic $X_EXTRA_LIBS"
-       	                     if test -z "`echo $ALL_X_LIBS | grep "\-lXext" 2> /dev/null`"; then
-              	                 X_EXTRA_LIBS="-lXext $X_EXTRA_LIBS"
-       	                     fi
+                                  if test -z "`echo $ALL_X_LIBS | grep "\-lXext" 2> /dev/null`"; then
+                                      X_EXTRA_LIBS="-lXext $X_EXTRA_LIBS"
+                                  fi

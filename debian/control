@@ -2,8 +2,8 @@ Source: metacity
 Section: x11
 Priority: optional
 Maintainer: Akira TAGOH <tagoh@debian.org>
-Uploaders: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>, Andrew Lau <netsnipe@users.sourceforge.net>, Edd Dumbill <ejad@debian.org>, Emil Soleyman-Zomalan <emil@nishra.com>, Gustavo Noronha Silva <kov@debian.org>, Johannes Rohr <j.rohr@comlink.apc.org>, Jordi Mallach <jordi@debian.org>, Josselin Mouette <joss@debian.org>, Rob Bradford <rob@debianplanet.org>, Robert McQueen <robot101@debian.org>, Ross Burton <ross@burtonini.com>, Sebastien Bacher <seb128@debian.org>, Takuo KITAME <kitame@debian.org>
-Build-Depends: debhelper (>> 4.0.0), gettext, libgtk2.0-dev (>= 2.2.0-2), liborbit2-dev (>= 1:2.8.0), libpopt-dev, libxml2-dev (>= 2.4.23), libgconf2-dev (>= 2.4), libglade2-dev (>= 2.0.0-2), xlibs-dev, xlibs-pic (>= 4.2.1-6), libstartup-notification0-dev (>= 0.4), libxml-parser-perl
+Uploaders: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>, Andreas Rottmann <rotty@debian.org>, Andrew Lau <netsnipe@users.sourceforge.net>, Carlos Perelló Marín <carlos@pemas.net>, Edd Dumbill <ejad@debian.org>, Emil Soleyman-Zomalan <emil@nishra.com>, Gustavo Noronha Silva <kov@debian.org>, J.H.M. Dassen (Ray) <jdassen@debian.org>, Johannes Rohr <j.rohr@comlink.org>, Jordi Mallach <jordi@debian.org>, Jose Carlos Garcia Sogo <jsogo@debian.org>, Josselin Mouette <joss@debian.org>, Ondřej Surý <ondrej@debian.org>, Rob Bradford <rob@debianplanet.org>, Rob Taylor <robtaylor@fastmail.fm>, Robert McQueen <robot101@debian.org>, Ross Burton <ross@debian.org>, Sebastien Bacher <seb128@debian.org>, Takuo KITAME <kitame@debian.org>
+Build-Depends: debhelper (>> 4.0.0), gettext, libgtk2.0-dev (>= 2.4), liborbit2-dev (>= 1:2.10.0), libpopt-dev, libxml2-dev (>= 2.4.23), libgconf2-dev (>= 2.6), libglade2-dev (>= 2.0.0-2), xlibs-dev, xlibs-pic (>= 4.2.1-6), libstartup-notification0-dev (>= 0.4), libxml-parser-perl, gnome-pkg-tools
 Standards-Version: 3.6.1.0
 
 Package: libmetacity0
@@ -24,7 +24,7 @@ Section: x11
 Architecture: any
 Depends: sgml-base, ${shlibs:Depends}, ${misc:Depends}
 Provides: x-window-manager
-Suggests: gnome-control-center (>= 1:2.2.1-2)
+Suggests: gnome-control-center (>= 1:2.5.4)
 Description: A lightweight GTK2 based Window Manager
  Metacity is a small window manager, using gtk2 to do everything.
  .
@@ -37,7 +37,7 @@ Description: A lightweight GTK2 based Window Manager
 Package: libmetacity-dev
 Section: libdevel
 Architecture: any
-Depends: libmetacity0 (= ${Source-Version}), libgtk2.0-dev (>= 2.2.0-2)
+Depends: libmetacity0 (= ${Source-Version}), libgtk2.0-dev (>= 2.4)
 Description: Development files of lightweight GTK2 based Window Manager
  Metacity is a small window manager, using gtk2 to do everything.
  .

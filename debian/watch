@@ -1,4 +1,4 @@
 version=2
-ftp://ftp.gnome.org/pub/GNOME/sources/metacity/2.6/ \
+ftp://ftp.gnome.org/pub/GNOME/sources/metacity/2.8/ \
 	metacity-(.*)\.tar\.gz \
 	debian uupdate
