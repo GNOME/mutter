@@ -10,7 +10,7 @@ metacity (1:2.8.5-1) experimental; urgency=low
     - [debian/control.in] Bumped libstartup-notification0-dev as
       configure requires 0.7.
   * Jordi Mallach:
-    - debian/control.in: adjust a few more build-deps.
+    - debian/control.in: add cdbs to build-deps.
 
  -- Jordi Mallach <jordi@debian.org>  Tue, 14 Sep 2004 20:30:36 +0200
 
