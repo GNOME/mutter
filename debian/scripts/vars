@@ -8,7 +8,7 @@
 SOURCE_DIR=build-tree
 # For a single pkg, this is the directory that is embedded in the tarball.
 # For multiple pkgs, this is null.
-TAR_DIR=metacity-2.6.2
+TAR_DIR=metacity-2.6.3
 # Where to place all the stamp files.  This directory can be removed, and
 # all the targets will then be rerun.
 STAMP_DIR=debian/stampdir

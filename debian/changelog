@@ -1,3 +1,10 @@
+metacity (1:2.6.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Gnome Team Upload.
+  
+ -- Sebastien Bacher <seb128@debian.org>  Sat, 20 Dec 2003 23:17:21 +0100
+
 metacity (1:2.6.2-2) unstable; urgency=low
 
   * debian/patches/000_metacity-debian-xinerama-pic.patch: 
