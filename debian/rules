@@ -1,161 +1,18 @@
 #!/usr/bin/make -f
-# Sample debian/rules that uses debhelper.
-# GNU copyright 1997 to 1999 by Joey Hess.
 
-include debian/scripts/vars
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/rules/simple-patchsys.mk
+include /usr/share/cdbs/1/class/gnome.mk
+
 include /usr/share/gnome-pkg-tools/1/rules/uploaders.mk
 
-BUILD_DIR=$(SOURCE_DIR)/$(TAR_DIR)
+DEB_CONFIGURE_EXTRA_FLAGS := --enable-startup-notification=yes --enable-xsync=yes
+DEB_DH_MAKESHLIBS_ARGS_libmetacity0 := -V 'libmetacity0 (>= 1:2.8.1)'
+DEB_INSTALL_DOCS_metacity := doc/theme-format.txt
 
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
-
-# These are used for cross-compiling and for saving the configure script
-# from having to guess our platform (since we know it already)
-DEB_HOST_GNU_TYPE	?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_BUILD_GNU_TYPE	?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
-else
-	CFLAGS += -O2
-endif
-ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	INSTALL_PROGRAM += -s
-endif
-
-##
-version=$(shell dpkg-parsechangelog | grep '^Version: ' | sed -e 's/^Version: //' -e 's/[0-9]*:\(.*\)/\1/g' -e 's/-[A-Za-z0-9\.]*$$//g' -e 's/+[A-Za-z0-9\.]*$$//g')
-soname=0
-libpath=$(CURDIR)/$(BUILD_DIR)/src/.libs
-_echo_cfiles = for f in ${1}; do if [ -f $$f ]; then echo $$f; fi; done
-cfiles := $(shell $(call _echo_cfiles, $(wildcard debian/lib*@SONAME@*)))
-
-
-debian/control:
-	dh_testdir
-
-	sed -e 's/@SONAME@/${soname}/g' -e 's/@VERSION@/${version}/g' -e 's/@GNOME_TEAM@/${uploaders}/' $@.in > $@
-
-configure: $(STAMP_DIR)/configure-stamp
-$(STAMP_DIR)/configure-stamp:
-	dh_testdir
-
-	$(MAKE) -f debian/sys-build.mk source.make
-
-	-test -r /usr/share/misc/config.sub && \
-	   cp -f /usr/share/misc/config.sub $(BUILD_DIR)/config.sub
-	-test -r /usr/share/misc/config.guess && \
-	   cp -f /usr/share/misc/config.guess $(BUILD_DIR)/config.guess
-
-	# When install the shared libraries, don't relink it
-	#cp debian/fixed-ltmain.sh $(BUILD_DIR)/ltmain.sh
-
-	# Add here commands to configure the package.
-	cd $(BUILD_DIR) && \
-	./configure	--host=$(DEB_HOST_GNU_TYPE) \
-			--build=$(DEB_BUILD_GNU_TYPE) \
-			--prefix=/usr \
-			--mandir=\$${prefix}/share/man \
-			--infodir=\$${prefix}/share/info \
-			--libexecdir=\$${prefix}/lib/metacity \
-			--sysconfdir=/etc \
-			--enable-startup-notification=yes \
-			--enable-xsync=yes
-
-	cd $(BUILD_DIR) && \
-	sed < libtool > libtool-2 \
-	 -e 's/^hardcode_libdir_flag_spec.*$$/hardcode_libdir_flag_spec=" -D__LIBTOOL_IS_A_FOOL__ "/' \
-	 -e '/^archive_cmds="/s/"$$/ \\$$deplibs"/' && \
-	mv libtool-2 libtool
-
-	touch $@
-
-build: debian/control configure $(STAMP_DIR)/build-stamp
-$(STAMP_DIR)/build-stamp:
-	dh_testdir
-
-	# generating debian files from .in
-	for f in ${cfiles}; do \
-		cp $$f `echo $$f | sed -e "s/@SONAME@/${soname}/g"`; \
-	done
-	for f in `find debian/ -name "[^c]*.in"`; do \
-		sed -e "s/@VERSION@/${version}/g" $$f > `echo $$f | sed -e "s/\.in//"`; \
-	done
-
-	# Add here commands to compile the package.
-	$(MAKE) -C $(BUILD_DIR) \
-		LD_LIBRARY_PATH=$(libpath):$(LD_LIBRARY_PATH)
-
-	touch $@
-
-clean:: debian/control
-	dh_testdir
-	dh_testroot
-
-	# Add here commands to clean up after the build process.
-	$(MAKE) -f debian/sys-build.mk source.clean
-	-rm -rf $(STAMP_DIR)
-
-	dh_clean
-
-install: build
-	dh_testdir
-	dh_testroot
-	dh_clean -k
-	dh_installdirs
-
-	# Add here commands to install the package into debian/metacity.
-	GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=yes \
-	$(MAKE) -C $(BUILD_DIR) install \
-		prefix=$(CURDIR)/debian/libmetacity$(soname)/usr \
-		sysconfdir=$(CURDIR)/debian/libmetacity$(soname)/etc
-
-	# copy dtd file
-	install -m 644 $(BUILD_DIR)/doc/metacity-theme.dtd \
-		       $(CURDIR)/debian/libmetacity$(soname)/usr/share/sgml/dtd/
-	# copy catalog file
-	install -m 644 $(CURDIR)/debian/metacity.catalog \
-		       $(CURDIR)/debian/libmetacity$(soname)/usr/share/metacity/
-
-	dh_movefiles --sourcedir=debian/libmetacity$(soname)
-	-find $(CURDIR)/debian/ -type d -empty | xargs rmdir -p 2>&1 > /dev/null
-
-# Build architecture-independent files here.
-binary-indep: build install
-# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: build install
-	dh_testdir
-	dh_testroot
-#	dh_installdebconf	
-	dh_installdocs
-	dh_link
-
-	dh_installexamples
-	dh_installmenu
-#	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
-#	dh_installinit
-#	dh_installwm -pmetacity --priority=40 /usr/bin/metacity
-	dh_installcron
-	dh_installman
-	dh_installinfo
-	dh_installchangelogs $(BUILD_DIR)/ChangeLog
-	dh_gconf
-	dh_strip
-	dh_compress
-	dh_fixperms
-	dh_makeshlibs -plibmetacity$(soname) -V "libmetacity${soname} (>= 1:${version})"
-	dh_installdeb
-#	dh_perl
-	dh_shlibdeps -l$(libpath)
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
-
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install configure debian/control
+binary-install/metacity::
+	mkdir -p debian/metacity/usr/share/sgml/dtd/
+	mkdir -p debian/metacity/usr/share/metacity/
+	install -m 644 doc/metacity-theme.dtd  debian/metacity/usr/share/sgml/dtd/
+	install -m 644 debian/metacity.catalog debian/metacity/usr/share/metacity/
+	rm -rf debian/metacity/usr/share/control-center-2.0

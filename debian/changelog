@@ -1,15 +1,42 @@
-metacity (1:2.8.2-1) unstable; urgency=low
+metacity (1:2.8.6-1) unstable; urgency=low
 
-  * UNRELEASED
   * New upstream release.
-  * [debian/control.in] Bumped libstartup-notification0-dev as configure
-    requires 0.7.
+  * Upload to unstable.
 
- -- J.H.M. Dassen (Ray) <jdassen@debian.org>  Wed, 11 Aug 2004 19:55:53 +0200
+ -- Sebastien Bacher <seb128@debian.org>  Thu, 18 Nov 2004 13:23:27 +0100
+
+metacity (1:2.8.5-2) experimental; urgency=low
+
+  * debian/metacity.postinst:
+    - removed the static gconf registration.
+  * debian/metacity-theme-viewer.1:
+    - manpage written by Jose M. Moya" <josem@die.upm.es> (Closes: #252108).
+  * debian/metacity-window-demo.1:
+    - manpage written by Jose M. Moya" <josem@die.upm.es> (Closes: #252110).
+  * debian/metacity.manpages:
+    - updated.
+
+ -- Sebastien Bacher <seb128@debian.org>  Fri, 17 Sep 2004 22:11:51 +0200
+
+metacity (1:2.8.5-1) experimental; urgency=low
+
+  * GNOME team upload.
+  * New upstream release.
+  * Sebastien Bacher:
+    - Switched to CDBS.
+    - debian/rules: converted to CDBS
+    - debian/*.files: replaced with .install files.
+  * J.H.M. Dassen (Ray):
+    - [debian/control.in] Bumped libstartup-notification0-dev as
+      configure requires 0.7.
+  * Jordi Mallach:
+    - debian/control.in: add cdbs to build-deps.
+
+ -- Jordi Mallach <jordi@debian.org>  Tue, 14 Sep 2004 20:30:36 +0200
 
 metacity (1:2.8.1-4) unstable; urgency=low
 
-  * debian/rules: 
+  * debian/rules:
     - added a dh_gconf call.
   * debian/metacity.postinst:
     - removed the static schemas registration, dh_gconf handles that right.

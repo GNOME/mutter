@@ -1,2 +1,4 @@
 debian/metacity.1
 debian/metacity-message.1
+debian/metacity-theme-viewer.1
+debian/metacity-window-demo.1
