@@ -1,0 +1,198 @@
+#!/bin/sh
+if [ $(basename $0) = lib ];then
+	make -C debian/scripts sh.vars
+	. debian/scripts/sh.vars
+fi
+fetchmsg() {
+	local msg
+	msg=$1;shift
+	eval echo $(sed -ne "s/^$(BASENAME):$msg://p" debian/scripts/messages)
+}
+START() {
+	echo -n "$(fetchmsg START "$@") "
+}
+OK() {
+	fetchmsg OK "$@"
+}
+FAILED() {
+	fetchmsg FAILED "$@"
+}
+ALREADY_DONE() {
+	fetchmsg ALREADY_DONE "$@"
+}
+
+BASENAME() {
+	local base
+	if [ "$cmd" ];then
+		base=$cmd
+	else
+		base=${0##*/}
+	fi
+	if [ x$base = x ];then
+		echo "Danger, Will Robinson, Danger!" 1>&2
+		echo "Bash is very confused." 1>&2
+		exit 1
+	fi
+	if [ x$base = xlib ];then
+		echo "You can't call this directly." 1>&2
+		echo "This is a library that should be sourced." 1>&2
+		exit 1
+	fi
+	echo $base
+}
+file2cat() {
+	$(decompress_prog $1) $1
+}
+debug() {
+	echo "$@"
+	eval "$@"
+}
+decompress_prog() {
+	local which
+	which="cat"
+	[ $1 != ${1%.tgz} -o $1 != ${1%.gz} -o $1 != ${1%.Z} ] && which="gunzip -c"
+	[ $1 != ${1%.bz2} ] && which="bunzip2 -c"
+	[ $1 != ${1%.bz} ] && which="bunzip -c"
+	echo $which
+}
+compress_ext() {
+	local which
+	which=""
+	[ $1 != ${1%.gz} ] && which=gz
+	[ $1 != ${1%.Z} ] && which=Z
+	[ $1 != ${1%.bz2} ] && which=bz2
+	[ $1 != ${1%.bz} ] && which=bz
+	echo $which
+}
+filetype_detect() {
+	local which f
+	which=""
+	f=$(echo "$1" | sed 's|:::.*||')
+	[ $f != ${f%.jar} ] && which=jarfile
+	[ $f != ${f%.zip} ] && which=zipfile
+	[ $f != ${f%.tgz} ] && which=tarball
+	[ $f != ${f%.tar.$(compress_ext $f)} ] && which=tarball
+	[ $f != ${f%.tar} ] && which=tarball
+	[ $f != ${f%.diff.$(compress_ext $f)} -o $1 != ${1%.patch.$(compress_ext $1)} ] && which=patch
+	[ $f != ${f%.diff} -o $1 != ${1%.patch} ] && which=patch
+	[ $f != ${f%.dsc} ] && which=dsc
+	echo $which
+}
+extract_tar() {
+	local which file dir curd
+	dir="$1"
+	shift
+	curd=$(pwd)
+	while [ $# -gt 0 ];do
+		file="$1"
+		[ "$file" = "${1#/}" ] && file="$curd/$file"
+		case "$(filetype_detect $file)" in
+			"jarfile")	(cd $dir;fastjar -xf $file);;
+			"zipfile")	(cd $dir;miniunzip -x $file);;
+			"tarball")	$(decompress_prog $file) $file | (cd $dir;tar xv);;
+			*)		echo "unsupported tarball";;
+		esac
+		shift
+	done
+}
+
+do.patching() {
+	filetmpl=\$d/\$f
+	reversesort=""
+	reversepatch=""
+
+	case "$cmd" in
+		source.patch)
+			mkdir -p $SOURCE_DIR/$TAR_DIR
+			patch_dirs="$SRC_PATCH_DIR $SRC_ADD_PATCH_DIR"
+			stampfiletmpl=\$STAMP_DIR/\$d/\$f
+			logtmpl=\$STAMP_DIR/log/\$d/\$f
+			dirprep="\$STAMP_DIR/log/\$d \$STAMP_DIR/\$d"
+			patchapplydirtmpl=\$SOURCE_DIR/\$TAR_DIR
+			;;
+		patch.apply)
+			mkdir -p $SOURCE_DIR/$TAR_DIR $STAMP_DIR/patches
+			patch_dirs="$PATCH_DIR $ADD_PATCH_DIR"
+			stampfiletmpl=\$STAMP_DIR/patches/\$f
+			logtmpl=\$STAMP_DIR/log/\$d/\$f
+			dirprep=\$STAMP_DIR/log/\$d
+			patchapplydirtmpl=\$SOURCE_DIR/\$TAR_DIR
+			;;
+		fix.source.patch)
+			if [ "$DBS_UNIFIED" -o ! -e debian/fixpatch ];then
+				exit
+			fi
+			mkdir -p $STAMP_DIR/fixpatch
+			patch_dirs=debian/fixpatch
+			stampfiletmpl="$STAMP_DIR/fixpatch/\$(basename \$f)"
+			logtmpl=\$STAMP_DIR/log/fixpatch/\$f
+			dirprep=\$STAMP_DIR/log/fixpatch
+			patchapplydirtmpl=upstream
+			;;
+		unfix.source.patch)
+			if [ "$DBS_UNIFIED" -o ! -e debian/fixpatch ];then
+				exit
+			fi
+			mkdir -p $STAMP_DIR/fixpatch
+			patch_dirs=debian/fixpatch
+			stampfiletmpl="$STAMP_DIR/fixpatch/\$(basename \$f)"
+			logtmpl=\$STAMP_DIR/log/fixpatch/\$f
+			dirprep=\$STAMP_DIR/log/fixpatch
+			patchapplydirtmpl=upstream
+			reversesort=-r
+			reversepatch=-R
+			;;
+	esac
+	for d in $patch_dirs;do
+		if [ ! -d $d ];then
+			continue
+		fi
+		eval mkdir -p $dirprep
+		for f in `(cd $d;find -type f ! -name 'chk-*' 2>/dev/null )|sort $reversesort`;do
+			eval stampfile=$stampfiletmpl
+			eval log=$logtmpl
+			eval file=$filetmpl
+			eval patchapplydir=$patchapplydirtmpl
+			if [ ! -e $stampfile ];then
+				START $file
+				if file2cat $file | (cd $patchapplydir;patch -p1 $reversepatch) > $log;then
+					OK $file
+					touch $stampfile
+				else
+					FAILED $file
+					exit 1
+				fi
+			else
+				ALREADY_DONE $file
+			fi
+		done
+	done
+
+}
+#
+# External api functions.
+#
+
+source.clean() {
+	if [ "$DBS_UNIFIED" ];then
+		exit
+	fi
+	rm -rf $SOURCE_DIR $STAMP_DIR/upstream $STAMP_DIR/patches
+	rm -f $STAMP_DIR/{source.{clean,build,make}}
+	return
+if [ x$SOURCE_DIR = x ];then
+	files=`find -type f -maxdepth 1 -mindepth 1`
+	dirs=`find -type d -maxdepth 1 -mindepth 1 ! -name 'debian' ! -name 'upstream'`
+        echo files=\"$files\"
+        echo dirs=\"$dirs\"
+fi
+
+}
+source.patch()		{ cmd=source.patch; do.patching; }
+fix.source.patch()	{ cmd=fix.source.patch; do.patching; }
+unfix.source.patch()	{ cmd=unfix.source.patch; do.patching; }
+patch.apply()		{ cmd=patch.apply; do.patching; }
+
+if [ $(basename $0) = lib ];then
+	$1
+fi

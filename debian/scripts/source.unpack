@@ -1,0 +1,32 @@
+#!/bin/sh
+make -C debian/scripts sh.vars
+. debian/scripts/sh.vars
+. debian/scripts/lib
+
+mkdir -p $STAMP_DIR/upstream/tarballs/ $SOURCE_DIR
+if [ ! -z "$SRC_TAR_DIR" -a -d "$SRC_TAR_DIR" ];then
+	files=$(find $SRC_TAR_DIR -type f|sort)
+else
+	VER=$(dpkg-parsechangelog 2>&1|egrep ^Version|cut -d " " -f 2|cut -d "-" -f 1)
+	SRC=$(dpkg-parsechangelog 2>&1|egrep ^Source|cut -d " " -f 2-)
+	files=../${SRC}_${VER}.orig.tar.gz
+fi
+for f in $files;do
+	stampfile=$STAMP_DIR/upstream/tarballs/`basename $f`
+	if [ ! -e $stampfile ];then
+		START $f
+		if extract_tar ${SOURCE_DIR:-.} $f > $stampfile.log;then
+			if [ x$SOURCE_DIR = x ];then
+				mkdir -p $STAMP_DIR/upstream/files/tarballs
+				cp $stampfile.log $STAMP_DIR/upstream/files/tarballs/`basename $f`.list
+			fi
+			OK $f
+			touch $stampfile
+		else
+			FAILED $f
+			exit 1
+		fi
+	else
+		ALREADY_DONE $f
+	fi
+done

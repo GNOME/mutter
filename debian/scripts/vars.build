@@ -1,0 +1,17 @@
+#!/usr/bin/make -f
+
+sed_cmd=''
+cat $1 | while read REPLY; do
+	case "$REPLY" in
+		\#*|"")	continue;;
+		*)
+			var=$(echo $REPLY|sed 's/\([^=]*\)=.*/\1/')
+			eval $REPLY
+			if [ $2 = "make" ]; then
+				eval echo "$var=\$$var"
+			else
+				eval echo "$var=\\\"\$$var\\\""
+			fi
+			;;
+	esac
+done

@@ -1,0 +1,322 @@
+metacity (1:2.6.2-2) unstable; urgency=low
+
+  * debian/patches/000_metacity-debian-xinerama-pic.patch: 
+    - updated to fix a link problem (Closes: #216693).    
+
+ -- Sebastien Bacher <seb128@debian.org>  Tue, 21 Oct 2003 13:56:24 +0200
+
+metacity (1:2.6.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/patches/:
+    - 000_metacity-2.4.34-usage.patch: removed.
+    - 000_metacity-debian-xinerama-pic.patch: updated.
+    - 001_metacity-2.4.55-non-weak-symbols.patch: removed.   
+  * Update Build-Depends.
+  * Gnome Team Upload.
+
+ -- Sebastien Bacher <seb128@debian.org>  Sat, 18 Oct 2003 19:33:23 +0200
+
+metacity (1:2.4.55-3) unstable; urgency=low
+
+  * debian/metacity.1:
+    - fixed the incorrect option. (closes: Bug#209159)
+  * debian/metacity.prerm:
+    - fixed removing alternatives issue. (closes: Bug#211502)
+
+ -- Akira TAGOH <tagoh@debian.org>  Wed,  8 Oct 2003 18:44:56 +0900
+
+metacity (1:2.4.55-2) unstable; urgency=low
+
+  * debian/patches/000_metacity-debian-xinerama-pic.patch:
+    - update to fix the unnecessary library dependencies in .la.
+      (closes: Bug#195774)
+
+ -- Akira TAGOH <tagoh@debian.org>  Thu, 12 Jun 2003 01:25:45 +0900
+
+metacity (1:2.4.55-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/patches/:
+    - 000_metacity-2.4.34-save-workspace.patch: removed.
+    - 001_metacity-2.4.55-non-weak-symbols.patch: updated.
+
+ -- Akira TAGOH <tagoh@debian.org>  Mon,  2 Jun 2003 02:50:50 +0900
+
+metacity (1:2.4.34-3) unstable; urgency=low
+
+  * debian/control:
+    - suggests gnome-control-center instead of metacity-properties.
+      (closes: Bug#192752)
+    - bumped Standards-Version to 3.5.10.0.
+  * debian/patches/001_metacity-2.4.34-non-weak-symbols.patch:
+    - applied a backported patch to fix undefined non-weak symbols.
+      (closes: Bug#187347)
+  * debian/metacity.postinst:
+    - set a priority to 60 for x-window-manager according to the latest
+      policy.
+
+ -- Akira TAGOH <tagoh@debian.org>  Mon, 19 May 2003 06:30:37 +0900
+
+metacity (1:2.4.34-2) unstable; urgency=low
+
+  * Revert to 2.4.34 to use stable release.
+    - should works now. (closes: Bug#187749, Bug#187387, Bug#187982) 
+  * debian/README.Debian:
+    - described NVidia drivers issue. (closes: Bug#181056)
+  * debian/patches/:
+    - 000_metacity-2.4.34-usage.patch: applied it again.
+    - 000_metacity-2.4.34-save-workspace.patch: applied a backported patch
+      from CVS to really fix Bug#186033 in 2.4.34.
+    - 000_metacity-2.5.0-noframe-window.patch: removed.
+
+ -- Akira TAGOH <tagoh@debian.org>  Mon, 14 Apr 2003 00:29:52 +0900
+
+metacity (2.5.0-2) unstable; urgency=low
+
+  * debian/patches/:
+    - 000_metacity-debian-xinerama-pic.patch:
+      use libXinerama_pic.a instead of libXinerama.a.
+    - 000_metacity-2.5.0-noframe-window.patch:
+      applied a backported patch from CVS to work no frame window.
+      (closes: Bug#187316)
+  * debian/control:
+    - requires xlibs-pic >= 4.2.1-6.
+
+ -- Akira TAGOH <tagoh@debian.org>  Fri,  4 Apr 2003 04:26:49 +0900
+
+metacity (2.5.0-1) unstable; urgency=low
+
+  * New upsream release.
+    - Workspace names are saved now. (closes: Bug#186033)
+  * debian/control:
+    - bumped Standards-Version to 3.5.9.
+    - changed a section for libmetacity-dev to libdevel.
+  * debian/compat:
+    - use it instead of DH_COMPAT.
+  * debian/patches/
+    - 000_metacity-2.4.34-usage.patch: removed.
+
+ -- Akira TAGOH <tagoh@debian.org>  Wed,  2 Apr 2003 00:16:38 +0900
+
+metacity (2.4.34-1) unstable; urgency=low
+
+  * New upstream release.
+    - contains a fix of 64-bit bug. so should be fixed. (closes: Bug#179698)
+    - should be fixed. (closes: Bug#177814)
+  * debian/patches/000_metacity-2.4.34-usage.patch:
+    applied to fix a typo in usage. (closes: Bug#179699)
+
+ -- Akira TAGOH <tagoh@debian.org>  Fri,  7 Feb 2003 04:38:32 +0900
+
+metacity (2.4.21-2) unstable; urgency=low
+
+  * debian/control:
+    - suggests metacity-properties instead of gnome-control-center.
+  * debian/metacity.docs:
+    - moved from libmetacity0. (closes: Bug#178966)
+  * debian/metacity.postinst:
+    - run gconftool-2 with HOME=/root
+
+ -- Akira TAGOH <tagoh@debian.org>  Sun,  2 Feb 2003 16:50:02 +0900
+
+metacity (2.4.21-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/patches/:
+    - 000_metacity-2.4.13-args.patch: removed, because it was merged to the
+      upstream.
+    - 000_metacity-2.4.8-properties.patch: removed.
+  * debian/control: add Suggests: gnome-control-center.
+  * debian/rules: drop --enable-config-dialog. metacity-properties is
+    obsolete. use gnome-window-properties in gnome-control-center instead of.
+
+ -- Akira TAGOH <tagoh@debian.org>  Wed, 29 Jan 2003 00:39:57 +0900
+
+metacity (2.4.13-2) unstable; urgency=low
+
+  * debian/docs: add NEWS file (closes: Bug#176317)
+
+ -- Akira TAGOH <tagoh@debian.org>  Tue, 14 Jan 2003 23:15:48 +0900
+
+metacity (2.4.13-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control:
+    - updated Build-Depends.
+    - add libgtk2.0-dev to Depends for libmetacity-dev
+  * debian/rules: enable startup-notification.
+  * debian/patches/:
+    - 000_metacity-2.4.8-dont-pass-NULL.patch:
+      removed.
+    - 000_metacity-2.4.13-args.patch:
+      applied to fix the working of configure options.
+
+ -- Akira TAGOH <tagoh@debian.org>  Sat, 11 Jan 2003 07:06:24 +0900
+
+metacity (2.4.8-4) unstable; urgency=low
+
+  * upstream bug was closed. so it should be fixed. (closes: Bug#152075)
+  * debian/rules: don't use dh_installwm until it will supports the
+    registration of manpage as slave.
+  * debian/metacity.postinst: runs update-alternatives. (closes: Bug#175756)
+  * debian/metacity.prerm: runs update-alternatives.
+
+ -- Akira TAGOH <tagoh@debian.org>  Thu,  9 Jan 2003 03:40:15 +0900
+
+metacity (2.4.8-3) unstable; urgency=low
+
+  * debian/metacity.postinst:
+    fix the wrong registration. (closes: Bug#173789, Bug#174358)
+
+ -- Akira TAGOH <tagoh@debian.org>  Fri, 27 Dec 2002 05:01:25 +0900
+
+metacity (2.4.8-2) unstable; urgency=low
+
+  * debian/patches/000_metacity-2.4.8-dont-pass-NULL.patch:
+    applied to fix the segfault at startup. (closes: Bug#173594, Bug#173604)
+
+ -- Akira TAGOH <tagoh@debian.org>  Fri, 20 Dec 2002 01:08:43 +0900
+
+metacity (2.4.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/patches/000_metacity-2.4.3-stack.patch:
+    removed, because this release contains it.
+  * debian/control:
+    - fix description-synopsis-ends-with-full-stop.
+    - add libmetacity0 and libmetacity-dev
+  * debian/rules:
+    - install metacity-theme.dtd as a sgml catalog. (closes: Bug#170041)
+    - build with --enable-config-dialog until we upload GNOME 2.2.
+  * debian/metacity.postinst:
+    - use gconftool-2 --get-default-source to get GCONF_CONFIG_SOURCE
+    - runs update-catalog.
+  * debian/patches/000_metacity-2.4.8-properties.patch:
+    applied to fix the missing file.
+
+ -- Akira TAGOH <tagoh@debian.org>  Thu, 12 Dec 2002 09:21:35 +0900
+
+metacity (2.4.3-2) unstable; urgency=low
+
+  * debian/patches/000_metacity-2.4.3-stack.patch: backported to fix the
+    random crashes. (closes: Bug#168653)
+
+ -- Akira TAGOH <tagoh@debian.org>  Wed, 13 Nov 2002 00:32:14 +0900
+
+metacity (2.4.3-1) unstable; urgency=low
+
+  * New upstream release. (closes: Bug#166919)
+  * debian/rules: support noopt option for DEB_BUILD_OPTIONS.
+  * debian/control: improve a description. Thanks stephen farrell.
+
+ -- Akira TAGOH <tagoh@debian.org>  Thu,  7 Nov 2002 23:16:47 +0900
+
+metacity (2.4.1-1) unstable; urgency=low
+
+  * New upstream release. (closes: Bug#160535)
+    - Should be fixed. (closes: Bug#157995)
+  * Set a priority to 40 for x-window-manager according to Bug#155680.
+    (closes: Bug#155494)
+  * debian/metacity.1: updated.
+  * debian/metacity-message.1: added.
+  * debian/control:
+    - bumped Standards-Version to 3.5.7.
+    - updated Build-Depends.
+
+ -- Akira TAGOH <tagoh@debian.org>  Sat, 14 Sep 2002 20:01:35 +0900
+
+metacity (2.4.0-1) unstable; urgency=low
+
+  * New upstream release.
+    - switching the workspaces should works now. (closes: Bug#151500)
+  * debian/control: update Build-Depends for libgtk2.0-dev.
+
+ -- Akira TAGOH <tagoh@debian.org>  Fri,  9 Aug 2002 02:35:15 +0900
+
+metacity (2.3.987-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control: add libglade2-dev to Build-Depends (closes: Bug#149489)
+
+ -- Akira TAGOH <tagoh@debian.org>  Tue, 11 Jun 2002 14:38:06 +0900
+
+metacity (2.3.610-1) unstable; urgency=low
+
+  * New upstream release.
+    - Should be fixed in this release. (closes: Bug#146127)
+
+ -- Akira TAGOH <tagoh@debian.org>  Wed,  5 Jun 2002 19:15:41 +0900
+
+metacity (2.3.377-2) unstable; urgency=low
+
+  * debian/docs: includes theme-format.txt (closes: Bug#147644)
+
+ -- Akira TAGOH <tagoh@debian.org>  Tue, 21 May 2002 19:24:00 +0900
+
+metacity (2.3.377-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Akira TAGOH <tagoh@debian.org>  Tue, 21 May 2002 11:02:28 +0900
+
+metacity (2.3.233-2) unstable; urgency=low
+
+  * debian/control: fix the misleading description. (closes: Bug#145942)
+
+ -- Akira TAGOH <tagoh@debian.org>  Tue,  7 May 2002 14:29:36 +0900
+
+metacity (2.3.233-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Akira TAGOH <tagoh@debian.org>  Sun,  5 May 2002 03:21:05 +0900
+
+metacity (2.3.144-2) unstable; urgency=low
+
+  * debian/control: Add Provides: x-window-manager.
+
+ -- Akira TAGOH <tagoh@debian.org>  Fri,  3 May 2002 07:31:17 +0900
+
+metacity (2.3.144-1) unstable; urgency=low
+
+  * New upstream release.
+    - keybindings are configurable now. (closes: Bug#144657)
+
+ -- Akira TAGOH <tagoh@debian.org>  Tue, 30 Apr 2002 03:32:36 +0900
+
+metacity (2.3.89-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/scripts/vars.build: fix bashism.
+  * debian/rules: add GCONF_DISABLE_MAKEFILE_SCHEMA_INSTALL=yes to install
+    rule.
+  * debian/metacity.manpages: remove metacity-restart.1 entry. this command
+    no longer exists.
+
+ -- Akira TAGOH <tagoh@debian.org>  Tue, 16 Apr 2002 21:35:19 +0900
+
+metacity (2.3.55-1) unstable; urgency=low
+
+  * I have taken over from Thom.
+  * New upstream release.
+  * Build against the latest libraries (closes: Bug#139215)
+  * debian/rules:
+    - support DEB_HOST_GNU_TYPE and DEB_BUILD_GNU_TYPE.
+    - support debug and nostrip options for DEB_BUILD_OPTIONS.
+    - copying the latest config.sub and config.guess.
+
+ -- Akira TAGOH <tagoh@debian.org>  Tue, 26 Mar 2002 02:18:26 +0900
+
+metacity (2.3.34-2) unstable; urgency=low
+
+  * Added build-depend on docbook-to-man (Closes: #134433) 
+
+ -- Thom May <thom@debian.org>  Sun, 17 Feb 2002 20:14:28 +0000
+
+metacity (2.3.34-1) unstable; urgency=low
+
+  * Initial Release. (Closes: #107181)
+
+ -- Thom May <thom@debian.org>  Sun, 10 Feb 2002 12:03:22 +0000
+

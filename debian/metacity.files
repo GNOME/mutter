@@ -1,0 +1,11 @@
+usr/bin/*
+usr/share/control-center-2.0/*
+usr/share/metacity/*
+usr/share/pixmaps/*
+usr/share/sgml/*
+usr/share/themes/*
+usr/share/gnome/*
+usr/share/locale/*
+usr/lib/metacity/*
+etc/gconf/*
+

@@ -1,0 +1,68 @@
+--- metacity-2.6.2.orig/configure.in	2003-10-21 13:54:12.000000000 +0200
++++ metacity-2.6.2/configure.in	2003-10-21 13:54:49.000000000 +0200
+@@ -210,9 +210,9 @@
+     *)
+         # Check for XFree
+         use_xfree_xinerama=yes
+-        AC_CHECK_LIB(Xinerama, XineramaQueryExtension,
++        AC_CHECK_LIB(Xinerama_pic, XineramaQueryExtension,
+             [AC_CHECK_HEADER(X11/extensions/Xinerama.h,
+-       	                     X_EXTRA_LIBS="-lXinerama $X_EXTRA_LIBS"   
++       	                     X_EXTRA_LIBS="-Wl,-lXinerama_pic $X_EXTRA_LIBS"   
+       	                     if test -z "`echo $ALL_X_LIBS | grep "\-lXext" 2> /dev/null`"; then
+              	                 X_EXTRA_LIBS="-lXext $X_EXTRA_LIBS"
+       	                     fi
+--- metacity-2.6.2.orig/configure	2003-10-21 13:54:06.000000000 +0200
++++ metacity-2.6.2/configure	2003-10-21 13:55:39.000000000 +0200
+@@ -24541,13 +24541,13 @@
+     *)
+         # Check for XFree
+         use_xfree_xinerama=yes
+-        echo "$as_me:$LINENO: checking for XineramaQueryExtension in -lXinerama" >&5
+-echo $ECHO_N "checking for XineramaQueryExtension in -lXinerama... $ECHO_C" >&6
+-if test "${ac_cv_lib_Xinerama_XineramaQueryExtension+set}" = set; then
++        echo "$as_me:$LINENO: checking for XineramaQueryExtension in -lXinerama_pic" >&5
++echo $ECHO_N "checking for XineramaQueryExtension in -lXinerama_pic... $ECHO_C" >&6
++if test "${ac_cv_lib_Xinerama_pic_XineramaQueryExtension+set}" = set; then
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+   ac_check_lib_save_LIBS=$LIBS
+-LIBS="-lXinerama -lXext $ALL_X_LIBS $LIBS"
++LIBS="-lXinerama_pic -lXext $ALL_X_LIBS $LIBS"
+ cat >conftest.$ac_ext <<_ACEOF
+ #line $LINENO "configure"
+ /* confdefs.h.  */
+@@ -24583,19 +24583,19 @@
+   ac_status=$?
+   echo "$as_me:$LINENO: \$? = $ac_status" >&5
+   (exit $ac_status); }; }; then
+-  ac_cv_lib_Xinerama_XineramaQueryExtension=yes
++  ac_cv_lib_Xinerama_pic_XineramaQueryExtension=yes
+ else
+   echo "$as_me: failed program was:" >&5
+ sed 's/^/| /' conftest.$ac_ext >&5
+ 
+-ac_cv_lib_Xinerama_XineramaQueryExtension=no
++ac_cv_lib_Xinerama_pic_XineramaQueryExtension=no
+ fi
+ rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+ LIBS=$ac_check_lib_save_LIBS
+ fi
+-echo "$as_me:$LINENO: result: $ac_cv_lib_Xinerama_XineramaQueryExtension" >&5
+-echo "${ECHO_T}$ac_cv_lib_Xinerama_XineramaQueryExtension" >&6
+-if test $ac_cv_lib_Xinerama_XineramaQueryExtension = yes; then
++echo "$as_me:$LINENO: result: $ac_cv_lib_Xinerama_pic_XineramaQueryExtension" >&5
++echo "${ECHO_T}$ac_cv_lib_Xinerama_pic_XineramaQueryExtension" >&6
++if test $ac_cv_lib_Xinerama_pic_XineramaQueryExtension = yes; then
+   echo "$as_me:$LINENO: checking for X11/extensions/Xinerama.h" >&5
+ echo $ECHO_N "checking for X11/extensions/Xinerama.h... $ECHO_C" >&6
+ if test "${ac_cv_header_X11_extensions_Xinerama_h+set}" = set; then
+@@ -24636,7 +24636,7 @@
+ echo "$as_me:$LINENO: result: $ac_cv_header_X11_extensions_Xinerama_h" >&5
+ echo "${ECHO_T}$ac_cv_header_X11_extensions_Xinerama_h" >&6
+ if test $ac_cv_header_X11_extensions_Xinerama_h = yes; then
+-  X_EXTRA_LIBS="-lXinerama $X_EXTRA_LIBS"
++  X_EXTRA_LIBS="-Wl,-lXinerama_pic $X_EXTRA_LIBS"
+       	                     if test -z "`echo $ALL_X_LIBS | grep "\-lXext" 2> /dev/null`"; then
+              	                 X_EXTRA_LIBS="-lXext $X_EXTRA_LIBS"
+       	                     fi

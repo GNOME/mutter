@@ -1,0 +1,12 @@
+This package was debianized by Thom May <thom@debian.org> on
+Sun, 10 Feb 2002 12:03:22 +0000.
+
+It was downloaded from http://people.redhat.com/~hp/metacity/
+
+Upstream Author: Havoc Pennington - hp@redhat.com
+
+Copyright:
+
+GPLv2. On Debian GNU/Linux systems, the complete text of
+the GNU General Public License can be found in
+/usr/share/common-licenses/GPL.

@@ -1,0 +1,22 @@
+#!/bin/sh
+# i486 i386 i486 i586 pentium pentiumpro
+if [ $(basename $0) = archmap ];then
+	if [ -z $1 ];then
+        	arch=$(dpkg --print-gnu-build-architecture)
+	else
+		arch=$1
+	fi
+else
+	if [ -z $arch ];then
+        	arch=$(dpkg --print-gnu-build-architecture)
+	fi
+fi
+set -- $(egrep ".* $arch( .*|$)" debian/scripts/archmap)
+if [ -z $2 ];then
+       	arch=$arch
+else
+       	arch=$2
+fi
+if [ $(basename $0) = archmap ];then
+	echo $arch
+fi

@@ -1,0 +1,29 @@
+fix.source.patch:START:"Fixing upstream patch $1"
+fix.source.patch:OK:"successful."
+fix.source.patch:FAILED:"failed!"
+fix.source.patch:ALREADY_DONE:"upstream patch fixup $1 already applied!"
+
+unfix.source.patch:START:"Unfixing upstream patch $1
+unfix.source.patch:OK:"successful."
+unfix.source.patch:FAILED:"failed!
+unfix.source.patch:ALREADY_DONE:"upstream patch fixup $1 already reversed!"
+
+patch.unapply:START:"Reversing patch $1"
+patch.unapply:OK:"successful."
+patch.unapply:FAILED:"failed!"
+patch.unapply:ALREADY_DONE:"Patch $1 not applied!"
+
+patch.apply:START:"Applying patch $1"
+patch.apply:OK:"successful."
+patch.apply:FAILED:"failed!"
+patch.apply:ALREADY_DONE:"Patch $1 already applied!"
+
+source.patch:START:"Applying upstream patch $1"
+source.patch:OK:"successful."
+source.patch:FAILED:"failed!"
+source.patch:ALREADY_DONE:"upstream patch $1 already applied!"
+
+source.unpack:START:"Extracting upstream tarball $1"
+source.unpack:OK:"successful."
+source.unpack:FAILED:"failed!"
+source.unpack:ALREADY_DONE:"upstream tarball $1 already extracted!"

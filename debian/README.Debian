@@ -1,0 +1,12 @@
+metacity for Debian
+--------------------
+
+NVidia drivers issue
+=====================
+Older X driver from NVidia causes a problem, like rendering is slow. it seems
+to be fixed in 4349 for now. if you use the NVidia drivers older than that,
+please update it. see Bug#181056 for more info.
+
+
+ -- Akira TAGOH <tagoh@debian.org>, Fri, 04 Apr 2003 18:24:40 +0900
+
