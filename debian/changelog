@@ -1,3 +1,12 @@
+metacity (1:2.6.3-2) unstable; urgency=low
+
+  * debian/patches/001_metacity-focus.patch :
+    + new patch to fix focus problem with panels in mouse and sloppy modes
+      (Closes: #224858).
+  * Gnome Team Upload.
+
+ -- Sebastien Bacher <seb128@debian.org>  Sun, 18 Jan 2004 19:31:49 +0100
+
 metacity (1:2.6.3-1) unstable; urgency=low
 
   * New upstream release.
