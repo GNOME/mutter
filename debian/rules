@@ -145,6 +145,7 @@ binary-arch: build install
 	dh_installman
 	dh_installinfo
 	dh_installchangelogs $(BUILD_DIR)/ChangeLog
+	dh_gconf
 	dh_strip
 	dh_compress
 	dh_fixperms
