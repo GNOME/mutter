@@ -1,3 +1,10 @@
+metacity (1:2.8.8-1) unstable; urgency=low
+
+  * GNOME team upload.
+  * New upstream release.
+
+ -- Jordi Mallach <jordi@debian.org>  Wed, 29 Dec 2004 17:18:05 +0100
+
 metacity (1:2.8.6-1) unstable; urgency=low
 
   * New upstream release.
