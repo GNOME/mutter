@@ -1,3 +1,16 @@
+metacity (1:2.8.5-2) experimental; urgency=low
+
+  * debian/metacity.postinst:
+    - removed the static gconf registration.
+  * debian/metacity-theme-viewer.1:
+    - manpage written by Jose M. Moya" <josem@die.upm.es> (Closes: #252108).
+  * debian/metacity-window-demo.1:
+    - manpage written by Jose M. Moya" <josem@die.upm.es> (Closes: #252110).
+  * debian/metacity.manpages:
+    - updated.
+
+ -- Sebastien Bacher <seb128@debian.org>  Fri, 17 Sep 2004 22:11:51 +0200
+
 metacity (1:2.8.5-1) experimental; urgency=low
 
   * GNOME team upload.

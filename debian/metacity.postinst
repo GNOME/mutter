@@ -14,8 +14,6 @@ case "$1" in
 		--slave /usr/share/man/man1/x-window-manager.1.gz \
 		x-window-manager.1.gz /usr/share/man/man1/metacity.1.gz
 
-	export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-	HOME=/root /usr/bin/gconftool-2 --makefile-install-rule /etc/gconf/schemas/metacity.schemas > /dev/null
 	/usr/sbin/install-sgmlcatalog --quiet --remove ${PACKAGE} || true
 
 	## fix the wrong registration...
