@@ -3,7 +3,7 @@ Section: x11
 Priority: optional
 Maintainer: Akira TAGOH <tagoh@debian.org>
 Uploaders: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>, Andrew Lau <netsnipe@users.sourceforge.net>, Edd Dumbill <ejad@debian.org>, Emil Soleyman-Zomalan <emil@nishra.com>, Gustavo Noronha Silva <kov@debian.org>, Johannes Rohr <j.rohr@comlink.apc.org>, Jordi Mallach <jordi@debian.org>, Josselin Mouette <joss@debian.org>, Rob Bradford <rob@debianplanet.org>, Robert McQueen <robot101@debian.org>, Ross Burton <ross@burtonini.com>, Sebastien Bacher <seb128@debian.org>, Takuo KITAME <kitame@debian.org>
-Build-Depends: debhelper (>> 4.0.0), gettext, libgtk2.0-dev (>= 2.2.0-2), liborbit2-dev (>= 1:2.8.0), libpopt-dev, libxml2-dev (>= 2.4.23), libgconf2-dev (>= 2.4), libglade2-dev (>= 2.0.0-2), xlibs-dev, xlibs-pic (>= 4.2.1-6), libstartup-notification0-dev (>= 0.4)
+Build-Depends: debhelper (>> 4.0.0), gettext, libgtk2.0-dev (>= 2.2.0-2), liborbit2-dev (>= 1:2.8.0), libpopt-dev, libxml2-dev (>= 2.4.23), libgconf2-dev (>= 2.4), libglade2-dev (>= 2.0.0-2), xlibs-dev, xlibs-pic (>= 4.2.1-6), libstartup-notification0-dev (>= 0.4), libxml-parser-perl
 Standards-Version: 3.6.1.0
 
 Package: libmetacity@SONAME@
