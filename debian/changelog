@@ -12,7 +12,6 @@ metacity (1:2.8.1-2) experimental; urgency=low
       the focus in mouse and sloppy modes. (Closes: #228768).
       The gconf key to use is /apps/metacity/general/raise_on_click.
   * Gnome Team Upload.
-  * i
 
  -- Sebastien Bacher <seb128@debian.org>  Wed, 26 May 2004 14:19:51 +0200
 
