@@ -1,3 +1,11 @@
+metacity (1:2.8.0-3) experimental; urgency=low
+
+  * GNOME team upload.
+  * debian/rules: get the epoch included in the shlib version for
+    libmetacity0.
+
+ -- Jordi Mallach <jordi@debian.org>  Tue,  6 Apr 2004 14:04:36 +0200
+
 metacity (1:2.8.0-2) experimental; urgency=low
 
   * Added Build-Depends on gnome-pkg-tools and libxml-parser-perl 

@@ -148,7 +148,7 @@ binary-arch: build install
 	dh_strip
 	dh_compress
 	dh_fixperms
-	dh_makeshlibs -plibmetacity$(soname) -V "libmetacity${soname} (>= ${version})"
+	dh_makeshlibs -plibmetacity$(soname) -V "libmetacity${soname} (>= 1:${version})"
 	dh_installdeb
 #	dh_perl
 	dh_shlibdeps -l$(libpath)
