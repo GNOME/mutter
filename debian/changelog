@@ -1,3 +1,12 @@
+metacity (1:2.8.1-1) experimental; urgency=low
+
+  * New upstream release.
+  * debian/patches/000_metacity-debian-xinerama-pic.patch:
+    + updated
+  * GNOME Team Upload.
+
+ -- Sebastien Bacher <seb128@debian.org>  Wed,  5 May 2004 21:17:15 +0200
+
 metacity (1:2.8.0-3) experimental; urgency=low
 
   * GNOME team upload.
