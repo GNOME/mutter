@@ -1,3 +1,13 @@
+metacity (1:2.10.0-1) experimental; urgency=low
+
+  * New upstream version.
+  * debian/patches/000_raise-on-click.patch:
+    - updated.
+  * debian/watch:
+    - updated.
+
+ -- Sebastien Bacher <seb128@debian.org>  Fri,  8 Apr 2005 21:33:44 +0200
+
 metacity (1:2.8.8-1) unstable; urgency=low
 
   * GNOME team upload.
