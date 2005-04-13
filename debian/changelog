@@ -1,3 +1,9 @@
+metacity (1:2.10.1-1) experimental; urgency=low
+
+  * New upstream version.
+
+ -- Sebastien Bacher <seb128@debian.org>  Wed, 13 Apr 2005 17:35:20 +0200
+
 metacity (1:2.10.0-1) experimental; urgency=low
 
   * New upstream version.
