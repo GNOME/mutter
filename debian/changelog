@@ -1,3 +1,9 @@
+metacity (1:2.10.1-2) unstable; urgency=low
+
+  * Upload to unstable.
+
+ -- Jordi Mallach <jordi@debian.org>  Sun, 12 Jun 2005 19:03:18 +0200
+
 metacity (1:2.10.1-1) experimental; urgency=low
 
   * New upstream version.
