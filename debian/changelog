@@ -1,3 +1,11 @@
+metacity (1:2.10.3-1) unstable; urgency=low
+
+  * New upstream version.
+  * Bump Standards-Version to 3.6.2.
+  * Add CDBS' utils to rules.
+
+ -- Loic Minier <lool@dooz.org>  Fri, 29 Jul 2005 10:56:05 +0200
+
 metacity (1:2.10.2-1) unstable; urgency=low
 
   * New upstream version.
