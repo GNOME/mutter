@@ -1,3 +1,13 @@
+metacity (1:2.10.3-2) unstable; urgency=low
+
+  * debian/control.in:
+    - don't Build-Depends on xlibs-pic, Build-Depend on libxinerama-dev 
+      (Closes: #320589).
+  * debian/patches/000_metacity-debian-xinerama-pic.patch:
+    - not useful with xorg.
+
+ -- Sebastien Bacher <seb128@debian.org>  Tue,  2 Aug 2005 17:40:43 +0200
+
 metacity (1:2.10.3-1) unstable; urgency=low
 
   * New upstream version.
