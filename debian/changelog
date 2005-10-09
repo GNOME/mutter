@@ -1,3 +1,10 @@
+metacity (1:2.12.1-1) experimental; urgency=low
+
+  * New upstream release.
+  * watch: update for 2.12.
+
+ -- Josselin Mouette <joss@debian.org>  Sun,  9 Oct 2005 16:11:49 +0200
+
 metacity (1:2.10.3-2) unstable; urgency=low
 
   * debian/control.in:
