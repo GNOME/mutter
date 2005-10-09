@@ -3,8 +3,9 @@ metacity (1:2.12.1-1) experimental; urgency=low
   * New upstream release.
   * watch: update for 2.12.
   * 000_raise-on-click.patch: update to make patch apply cleanly.
+  * rules: bump shlibs for new symbols.
 
- -- Josselin Mouette <joss@debian.org>  Sun,  9 Oct 2005 16:19:59 +0200
+ -- Josselin Mouette <joss@debian.org>  Sun,  9 Oct 2005 16:50:22 +0200
 
 metacity (1:2.10.3-2) unstable; urgency=low
 
