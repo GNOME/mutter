@@ -1,3 +1,12 @@
+metacity (1:2.12.2-3) unstable; urgency=high
+
+  * Add xorg build-deps (libice-dev, libsm-dev, libx11-dev, libxext-dev,
+    libxinerama-dev, libxrandr-dev, x-dev) thanks to "xlibs-split".
+    (Closes: #347000)
+    [debian/control, debian/control.in]
+
+ -- Loic Minier <lool@dooz.org>  Mon,  9 Jan 2006 22:29:55 +0100
+
 metacity (1:2.12.2-2) unstable; urgency=low
 
   * Upload to unstable.
