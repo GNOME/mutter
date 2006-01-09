@@ -4,8 +4,11 @@ metacity (1:2.12.2-3) unstable; urgency=high
     libxinerama-dev, libxrandr-dev, x-dev) thanks to "xlibs-split".
     (Closes: #347000)
     [debian/control, debian/control.in]
+  * Relibtoolizing would get Debian's AC_PATH_XTRA, but I add a libxt-dev
+    build-dep and pass --as-needed because the patch was like uh 1.1 MB.
+    [debian/control, debian/control.in, debian/rules]
 
- -- Loic Minier <lool@dooz.org>  Mon,  9 Jan 2006 22:29:55 +0100
+ -- Loic Minier <lool@dooz.org>  Mon,  9 Jan 2006 22:47:36 +0100
 
 metacity (1:2.12.2-2) unstable; urgency=low
 
