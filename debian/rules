@@ -20,3 +20,7 @@ binary-install/metacity-common::
 	install -m 644 doc/metacity-theme.dtd  debian/metacity/usr/share/sgml/dtd/
 	install -m 644 debian/metacity-common.catalog debian/metacity/usr/share/metacity/
 	rm -rf debian/metacity/usr/share/control-center-2.0
+
+binary-post-install/metacity-common::
+	dh_installcatalogs
+

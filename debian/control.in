@@ -9,7 +9,7 @@ Standards-Version: 3.6.2
 Package: libmetacity0
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, metacity-common
+Depends: ${shlibs:Depends}, ${misc:Depends}, metacity-common (= ${Source-Version})
 Description: library of lightweight GTK2 based Window Manager
  Metacity is a small window manager, using gtk2 to do everything.
  .
@@ -22,7 +22,7 @@ Description: library of lightweight GTK2 based Window Manager
 Package: metacity
 Section: x11
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, metacity-common
+Depends: ${shlibs:Depends}, ${misc:Depends}, metacity-common (= ${Source-Version})
 Provides: x-window-manager
 Suggests: gnome-control-center (>= 1:2.5.4)
 Description: A lightweight GTK2 based Window Manager
