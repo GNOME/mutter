@@ -6,8 +6,20 @@ metacity (1:2.12.3-1) unstable; urgency=low
   * Update patch to support a new raise on click mode and choice of this mode
     to apply without fuzz.  Also note this patch has been rejected upstream.
     [debian/patches/000_raise-on-click.patch]
+  * New metacity-common package holds arch-independent files and registers
+    schemas. (Closes: #218365, #234665, #240211)
+    [debian/metacity.dirs, debian/metacity-common.links,
+    debian/metacity.install, debian/control, debian/control.in,
+    debian/metacity-common.postinst, debian/metacity.catalog,
+    debian/metacity-common.manpages, debian/metacity.postrm,
+    debian/metacity-common.dirs, debian/metacity-common.install,
+    debian/metacity-common.catalog, debian/changelog,
+    debian/metacity-common.postrm, debian/rules, debian/metacity.links,
+    debian/metacity.postinst, debian/metacity.manpages]
+  * Actually ship license information.
+    [debian/copyright]
 
- -- Loic Minier <lool@dooz.org>  Sat, 11 Feb 2006 13:31:08 +0100
+ -- Loic Minier <lool@dooz.org>  Sat, 11 Feb 2006 19:39:53 +0100
 
 metacity (1:2.12.2-3) unstable; urgency=high
 

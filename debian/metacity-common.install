@@ -1,0 +1,7 @@
+debian/tmp/usr/share/control-center-2.0/*
+debian/tmp/usr/share/metacity/*
+debian/tmp/usr/share/pixmaps/*
+debian/tmp/usr/share/sgml/*
+debian/tmp/usr/share/themes/*
+debian/tmp/usr/share/gnome/*
+debian/tmp/usr/share/locale/*
