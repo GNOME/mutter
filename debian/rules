@@ -17,7 +17,6 @@ DEB_CONFIGURE_SCRIPT_ENV += LDFLAGS="-Wl,-O1 -Wl,--as-needed"
 binary-install/metacity-common::
 	mkdir -p debian/metacity-common/usr/share/sgml/metacity-common
 	install -m 644 doc/metacity-theme.dtd  debian/metacity-common/usr/share/sgml/metacity-common
-	rm -rf debian/metacity/usr/share/control-center-2.0
 
 binary-post-install/metacity-common::
 	dh_installcatalogs -pmetacity-common
