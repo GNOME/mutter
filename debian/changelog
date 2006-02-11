@@ -1,8 +1,6 @@
 metacity (1:2.12.3-1) unstable; urgency=low
 
   * New upstream release.
-    - Relibtoolize.
-      [debian/patches/70_relibtoolize.patch]
   * Update patch to support a new raise on click mode and choice of this mode
     to apply without fuzz.  Also note this patch has been rejected upstream.
     [debian/patches/000_raise-on-click.patch]
