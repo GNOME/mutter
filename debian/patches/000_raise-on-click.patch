@@ -1,7 +1,8 @@
-diff -PruN metacity-2.12.1.old/src/display.c metacity-2.12.1/src/display.c
---- metacity-2.12.1.old/src/display.c	2005-10-03 19:57:32.000000000 +0200
-+++ metacity-2.12.1/src/display.c	2005-10-09 16:12:46.000000000 +0200
-@@ -1641,7 +1641,8 @@
+This patch has been rejected upstream.
+diff -urN metacity-2.12.3/src/display.c metacity-2.12.3.new/src/display.c
+--- metacity-2.12.3/src/display.c	2006-01-13 04:08:48.000000000 +0100
++++ metacity-2.12.3.new/src/display.c	2006-02-11 13:23:23.000000000 +0100
+@@ -1646,7 +1646,8 @@
                     * in click to focus mode? The debate rages.
                     * Feel free to change TRUE to FALSE or vice versa
                     */
@@ -11,9 +12,9 @@ diff -PruN metacity-2.12.1.old/src/display.c metacity-2.12.1/src/display.c
                      meta_window_raise (window);
                    else
                      meta_topic (META_DEBUG_FOCUS,
-diff -PruN metacity-2.12.1.old/src/metacity.schemas.in metacity-2.12.1/src/metacity.schemas.in
---- metacity-2.12.1.old/src/metacity.schemas.in	2005-09-29 17:53:52.000000000 +0200
-+++ metacity-2.12.1/src/metacity.schemas.in	2005-10-09 16:12:46.000000000 +0200
+diff -urN metacity-2.12.3/src/metacity.schemas.in metacity-2.12.3.new/src/metacity.schemas.in
+--- metacity-2.12.3/src/metacity.schemas.in	2005-11-28 23:55:50.000000000 +0100
++++ metacity-2.12.3.new/src/metacity.schemas.in	2006-02-11 13:23:23.000000000 +0100
 @@ -95,6 +95,20 @@
      </schema>
  
@@ -35,9 +36,9 @@ diff -PruN metacity-2.12.1.old/src/metacity.schemas.in metacity-2.12.1/src/metac
        <key>/schemas/apps/metacity/general/auto_raise_delay</key>
        <applyto>/apps/metacity/general/auto_raise_delay</applyto>
        <owner>metacity</owner>
-diff -PruN metacity-2.12.1.old/src/prefs.c metacity-2.12.1/src/prefs.c
---- metacity-2.12.1.old/src/prefs.c	2005-09-29 17:53:52.000000000 +0200
-+++ metacity-2.12.1/src/prefs.c	2005-10-09 16:14:26.000000000 +0200
+diff -urN metacity-2.12.3/src/prefs.c metacity-2.12.3.new/src/prefs.c
+--- metacity-2.12.3/src/prefs.c	2005-11-28 23:55:50.000000000 +0100
++++ metacity-2.12.3.new/src/prefs.c	2006-02-11 13:23:23.000000000 +0100
 @@ -53,6 +53,7 @@
  #define KEY_BUTTON_LAYOUT "/apps/metacity/general/button_layout"
  #define KEY_REDUCED_RESOURCES "/apps/metacity/general/reduced_resources"
@@ -147,9 +148,9 @@ diff -PruN metacity-2.12.1.old/src/prefs.c metacity-2.12.1/src/prefs.c
  int
  meta_prefs_get_auto_raise_delay (void)
  {
-diff -PruN metacity-2.12.1.old/src/prefs.h metacity-2.12.1/src/prefs.h
---- metacity-2.12.1.old/src/prefs.h	2005-09-29 17:53:52.000000000 +0200
-+++ metacity-2.12.1/src/prefs.h	2005-10-09 16:15:29.000000000 +0200
+diff -urN metacity-2.12.3/src/prefs.h metacity-2.12.3.new/src/prefs.h
+--- metacity-2.12.3/src/prefs.h	2005-11-28 23:55:50.000000000 +0100
++++ metacity-2.12.3.new/src/prefs.h	2006-02-11 13:23:23.000000000 +0100
 @@ -50,7 +50,8 @@
    META_PREF_REDUCED_RESOURCES,
    META_PREF_GNOME_ACCESSIBILITY,
