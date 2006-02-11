@@ -1,3 +1,4 @@
+debian/tmp/etc
 debian/tmp/usr/share/control-center-2.0/*
 debian/tmp/usr/share/metacity/*
 debian/tmp/usr/share/pixmaps/*
