@@ -19,8 +19,19 @@ metacity (1:2.12.3-1) unstable; urgency=low
   * Version the metacity and libmetacity dependency on metacity-common with
     Source-Version.
     [debian/control, debian/control.in]
+  * Install SGML catalogs with dh_installcatalogs, move them below
+    /usr/share/sgml/metacity-common, in the metacity-common package.
+    [debian/control, debian/control, debian/metacity-common.catalog,
+    debian/metacity-common.postinst, debian/metacity-common.postrm,
+    debian/metacity-common.sgmlcatalogs, debian/rules]
+  * Drop the /usr/share/metacity/dtd symlink.
+    [debian/metacity-common.links]
+  * Drop /usr/share/sgml/dtd creation.
+    [debian/metacity-common.dirs]
+  * Drop useless /usr/share/metacity from metacity-common.
+    [debian/metacity-common.install]
 
- -- Loic Minier <lool@dooz.org>  Sat, 11 Feb 2006 20:06:15 +0100
+ -- Loic Minier <lool@dooz.org>  Sat, 11 Feb 2006 21:00:34 +0100
 
 metacity (1:2.12.2-3) unstable; urgency=high
 

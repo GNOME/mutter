@@ -37,7 +37,7 @@ Description: A lightweight GTK2 based Window Manager
 Package: metacity-common
 Section: misc
 Architecture: all
-Depends: sgml-base, ${misc:Depends}
+Depends: ${misc:Depends}
 Conflicts: metacity (<< 1:2.12.3-1)
 Description: Shared files of lightweight GTK2 based Window Manager
  Metacity is a small window manager, using gtk2 to do everything.
