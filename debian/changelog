@@ -1,3 +1,9 @@
+metacity (1:2.12.3-2) unstable; urgency=low
+
+  * Clean up metacity's postinst.
+
+ -- Loic Minier <lool@dooz.org>  Sun, 12 Feb 2006 16:35:07 +0100
+
 metacity (1:2.12.3-1) unstable; urgency=low
 
   * New upstream release.

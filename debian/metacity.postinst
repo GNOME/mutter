@@ -2,8 +2,6 @@
 
 set -e
 
-PACKAGE=metacity
-
 case "$1" in
     configure)
     	# register the alternatives of x-window-manager manually
