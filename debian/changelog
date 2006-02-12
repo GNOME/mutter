@@ -1,3 +1,10 @@
+metacity (1:2.12.3-3) unstable; urgency=low
+
+  * Also explicitely remove catalogs installed by past metacity packages.
+    [debian/metacity-common.preinst]
+
+ -- Loic Minier <lool@dooz.org>  Sun, 12 Feb 2006 16:53:48 +0100
+
 metacity (1:2.12.3-2) unstable; urgency=low
 
   * Clean up metacity's postinst.
