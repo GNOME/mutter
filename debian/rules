@@ -14,10 +14,6 @@ DEB_INSTALL_DOCS_metacity := doc/theme-format.txt
 # Compile options
 DEB_CONFIGURE_SCRIPT_ENV += LDFLAGS="-Wl,-O1 -Wl,--as-needed"
 
-binary-install/metacity-common::
-	mkdir -p debian/metacity-common/usr/share/sgml/metacity-common
-	install -m 644 doc/metacity-theme.dtd  debian/metacity-common/usr/share/sgml/metacity-common
-
 binary-post-install/metacity-common::
 	dh_installcatalogs -pmetacity-common
 

@@ -5,3 +5,4 @@ debian/tmp/usr/share/sgml/*
 debian/tmp/usr/share/themes/*
 debian/tmp/usr/share/gnome/*
 debian/tmp/usr/share/locale/*
+doc/metacity-theme.dtd usr/share/sgml/metacity-common
