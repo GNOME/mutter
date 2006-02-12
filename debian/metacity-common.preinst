@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+rm -f /etc/sgml/metacity.cat
+rm -f /etc/sgml/metacity.cat.old
+
+#DEBHELPER#
+
+exit 0
+

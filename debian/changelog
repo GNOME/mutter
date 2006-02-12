@@ -1,6 +1,9 @@
 metacity (1:2.12.3-2) unstable; urgency=low
 
   * Clean up metacity's postinst.
+    [debian/metacity.postinst]
+  * Clean up /etc/sgml/metacity.cat and .old left over by metacity.
+    [debian/metacity-common.preinst]
 
  -- Loic Minier <lool@dooz.org>  Sun, 12 Feb 2006 16:35:07 +0100
 
