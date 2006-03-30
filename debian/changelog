@@ -1,3 +1,10 @@
+metacity (1:2.14.1-1) unstable; urgency=low
+
+  * New upstram version.
+  * patches/000_raise-on-click.patch: Fixed upstream.
+
+ -- Dafydd Harries <daf@debian.org>  Thu, 30 Mar 2006 19:50:23 +0100
+
 metacity (1:2.12.3-3) unstable; urgency=low
 
   * Also explicitely remove catalogs installed by past metacity packages.
