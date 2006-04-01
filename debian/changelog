@@ -2,7 +2,7 @@ metacity (1:2.14.1-1) unstable; urgency=low
 
   * New upstram version.
     * Adds edge resistance. Closes: #191649.
-  * patches/000_raise-on-click.patch: Fixed upstream.
+  * patches/000_raise-on-click.patch: Fixed upstream; dropped.
 
  -- Dafydd Harries <daf@debian.org>  Thu, 30 Mar 2006 19:50:23 +0100
 
