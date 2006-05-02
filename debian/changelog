@@ -1,3 +1,9 @@
+metacity (1:2.14.1-2) unstable; urgency=low
+
+  * Simple rebuild to get rid of references to Xcursor.la / Xrender.la.
+
+ -- Loic Minier <lool@dooz.org>  Tue,  2 May 2006 16:45:22 +0200
+
 metacity (1:2.14.1-1) unstable; urgency=low
 
   * New upstram version.
