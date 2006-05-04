@@ -1,8 +1,15 @@
 metacity (1:2.14.3-1) UNRELEASED; urgency=low
 
+  [ Gustavo Noronha Silva ]
   * New upstream release.
 
- -- Gustavo Noronha Silva <kov@debian.org>  Tue,  2 May 2006 22:17:57 -0300
+  [ Josselin Mouette ]
+  * Make the package binNMU-safe.
+    + Build-depend on gnome-pkg-tools 0.4.
+    + Use ${Arch-all-Version}.
+    + Include the arch-all.mk rule file.
+
+ -- Josselin Mouette <joss@debian.org>  Thu,  4 May 2006 23:28:47 +0200
 
 metacity (1:2.14.1-2) unstable; urgency=low
 
