@@ -9,7 +9,11 @@ metacity (1:2.14.3-1) UNRELEASED; urgency=low
     + Use ${Arch-all-Version}.
     + Include the arch-all.mk rule file.
 
- -- Josselin Mouette <joss@debian.org>  Thu,  4 May 2006 23:28:47 +0200
+  [ Loic Minier ]
+  * Stop shipping /usr/lib/*.la files in libmetacity-dev.
+    [debian/libmetacity-dev.install]
+
+ -- Loic Minier <lool@dooz.org>  Fri,  5 May 2006 19:01:40 +0200
 
 metacity (1:2.14.1-2) unstable; urgency=low
 
