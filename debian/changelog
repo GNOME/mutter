@@ -5,15 +5,14 @@ metacity (1:2.14.3-1) UNRELEASED; urgency=low
 
   [ Josselin Mouette ]
   * Make the package binNMU-safe.
-    + Build-depend on gnome-pkg-tools 0.4.
-    + Use ${Arch-all-Version}.
-    + Include the arch-all.mk rule file.
+    + Build-depend on dpkg-dev 1.13.19.
+    + Use ${source:Version}.
 
   [ Loic Minier ]
   * Stop shipping /usr/lib/*.la files in libmetacity-dev.
     [debian/libmetacity-dev.install]
 
- -- Loic Minier <lool@dooz.org>  Fri,  5 May 2006 19:01:40 +0200
+ -- Josselin Mouette <joss@debian.org>  Sat,  6 May 2006 08:28:56 +0200
 
 metacity (1:2.14.1-2) unstable; urgency=low
 
