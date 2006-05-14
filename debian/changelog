@@ -1,7 +1,8 @@
-metacity (1:2.14.3-1) UNRELEASED; urgency=low
+metacity (1:2.14.3-1) unstable; urgency=low
 
   [ Gustavo Noronha Silva ]
   * New upstream release.
+    + Doesn't steal focus (closes: #361273).
 
   [ Josselin Mouette ]
   * Make the package binNMU-safe.
@@ -12,7 +13,7 @@ metacity (1:2.14.3-1) UNRELEASED; urgency=low
   * Stop shipping /usr/lib/*.la files in libmetacity-dev.
     [debian/libmetacity-dev.install]
 
- -- Josselin Mouette <joss@debian.org>  Sat,  6 May 2006 08:28:56 +0200
+ -- Josselin Mouette <joss@debian.org>  Sun, 14 May 2006 23:22:49 +0200
 
 metacity (1:2.14.1-2) unstable; urgency=low
 
