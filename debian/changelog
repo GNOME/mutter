@@ -7,13 +7,15 @@ metacity (1:2.14.3-1) unstable; urgency=low
   [ Josselin Mouette ]
   * Make the package binNMU-safe.
     + Build-depend on dpkg-dev 1.13.19.
-    + Use ${source:Version}.
+    + Use ${source:Version} and ${binary:Version}.
+  * Standards version is 3.7.2.
+  * Bump shlibs version to 2.14.
 
   [ Loic Minier ]
   * Stop shipping /usr/lib/*.la files in libmetacity-dev.
     [debian/libmetacity-dev.install]
 
- -- Josselin Mouette <joss@debian.org>  Sun, 14 May 2006 23:22:49 +0200
+ -- Josselin Mouette <joss@debian.org>  Sun, 14 May 2006 23:30:56 +0200
 
 metacity (1:2.14.1-2) unstable; urgency=low
 
