@@ -14,6 +14,3 @@ DEB_INSTALL_DOCS_metacity := doc/theme-format.txt
 # Compile options
 DEB_CONFIGURE_SCRIPT_ENV += LDFLAGS="-Wl,-O1 -Wl,--as-needed"
 
-binary-post-install/metacity-common::
-	dh_installcatalogs -pmetacity-common
-
