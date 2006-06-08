@@ -3,8 +3,11 @@ metacity (1:2.14.5-2) UNRELEASED; urgency=low
   * Remove superfluous dh_installcatalogs call and bump cdbs build-dep to
     >= 0.4.37, thanks Peter Eisentraut. (Closes: #361156)
     [debian/control, debian/control.in, debian/rules]
+  * Don't mention non-existing Info documentation in the metacity and
+    metacity-message man pages, thanks Piotr Engelking. (Closes: #365450)
+    [debian/metacity.1, debian/metacity-message.1]
 
- -- Loic Minier <lool@dooz.org>  Wed,  7 Jun 2006 23:36:51 +0200
+ -- Loic Minier <lool@dooz.org>  Thu,  8 Jun 2006 11:31:02 +0200
 
 metacity (1:2.14.5-1) unstable; urgency=low
 
