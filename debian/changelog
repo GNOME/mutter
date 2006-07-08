@@ -6,8 +6,9 @@ metacity (1:2.14.5-2) UNRELEASED; urgency=low
   * Don't mention non-existing Info documentation in the metacity and
     metacity-message man pages, thanks Piotr Engelking. (Closes: #365450)
     [debian/metacity.1, debian/metacity-message.1]
+  * Fix watch file.
 
- -- Loic Minier <lool@dooz.org>  Thu,  8 Jun 2006 11:31:02 +0200
+ -- Loic Minier <lool@dooz.org>  Sat,  8 Jul 2006 10:32:23 +0200
 
 metacity (1:2.14.5-1) unstable; urgency=low
 
