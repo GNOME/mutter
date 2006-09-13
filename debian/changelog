@@ -1,4 +1,4 @@
-metacity (1:2.16.1-1) UNRELEASED; urgency=low
+metacity (1:2.16.1-1) experimental; urgency=low
   
   [ Loïc Minier ]
   * Remove superfluous dh_installcatalogs call and bump cdbs build-dep to
@@ -10,9 +10,10 @@ metacity (1:2.16.1-1) UNRELEASED; urgency=low
   * Fix watch file.
 
   [ Marco Cabizza ]
-  * New upstream release:
+  * New upstream release, target experimental:
     - Bumping up libgtk2.0-dev build-dep to 2.10
-
+  * Setting myself as the maintainer.
+  
  -- Marco Cabizza <marco87@gmail.com>  Wed, 13 Sep 2006 18:46:45 +0200
 
 metacity (1:2.14.5-1) unstable; urgency=low
