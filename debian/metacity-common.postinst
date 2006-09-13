@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+# clean up old catalogs installed by the metacity package in the past
+# (to be dropped after etch releases)
+/usr/sbin/install-sgmlcatalog --quiet --remove metacity || true
+/usr/sbin/update-catalog --quiet --remove --super /etc/sgml/metacity.cat || true
+rm -f /etc/sgml/metacity.cat /etc/sgml/metacity.cat.old
+
+#DEBHELPER#
+
+exit 0
+

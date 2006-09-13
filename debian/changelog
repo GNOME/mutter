@@ -1,3 +1,134 @@
+metacity (1:2.16.1-1) UNRELEASED; urgency=low
+  
+  [ Loïc Minier ]
+  * Remove superfluous dh_installcatalogs call and bump cdbs build-dep to
+    >= 0.4.37, thanks Peter Eisentraut. (Closes: #361156)
+    [debian/control, debian/control.in, debian/rules]
+  * Don't mention non-existing Info documentation in the metacity and
+    metacity-message man pages, thanks Piotr Engelking. (Closes: #365450)
+    [debian/metacity.1, debian/metacity-message.1]
+  * Fix watch file.
+
+  [ Marco Cabizza ]
+  * New upstream release:
+    - Bumping up libgtk2.0-dev build-dep to 2.10
+
+ -- Marco Cabizza <marco87@gmail.com>  Wed, 13 Sep 2006 18:46:45 +0200
+
+metacity (1:2.14.5-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Loic Minier <lool@dooz.org>  Tue, 30 May 2006 15:47:36 +0200
+
+metacity (1:2.14.3-1) unstable; urgency=low
+
+  [ Gustavo Noronha Silva ]
+  * New upstream release.
+    + Doesn't steal focus (closes: #361273).
+
+  [ Josselin Mouette ]
+  * Make the package binNMU-safe.
+    + Build-depend on dpkg-dev 1.13.19.
+    + Use ${source:Version} and ${binary:Version}.
+  * Standards version is 3.7.2.
+  * Bump shlibs version to 2.14.
+
+  [ Loic Minier ]
+  * Stop shipping /usr/lib/*.la files in libmetacity-dev.
+    [debian/libmetacity-dev.install]
+
+ -- Josselin Mouette <joss@debian.org>  Sun, 14 May 2006 23:30:56 +0200
+
+metacity (1:2.14.1-2) unstable; urgency=low
+
+  * Simple rebuild to get rid of references to Xcursor.la / Xrender.la.
+
+ -- Loic Minier <lool@dooz.org>  Tue,  2 May 2006 16:45:22 +0200
+
+metacity (1:2.14.1-1) unstable; urgency=low
+
+  * New upstram version.
+    * Adds edge resistance. Closes: #191649.
+  * patches/000_raise-on-click.patch: Fixed upstream; dropped.
+
+ -- Dafydd Harries <daf@debian.org>  Thu, 30 Mar 2006 19:50:23 +0100
+
+metacity (1:2.12.3-3) unstable; urgency=low
+
+  * Also explicitely remove catalogs installed by past metacity packages.
+    [debian/metacity-common.preinst]
+  * Move these clenaups to postinst.
+    [debian/metacity-common.preinst, debian/metacity-common.postinst]
+
+ -- Loic Minier <lool@dooz.org>  Sun, 12 Feb 2006 16:53:48 +0100
+
+metacity (1:2.12.3-2) unstable; urgency=low
+
+  * Clean up metacity's postinst.
+    [debian/metacity.postinst]
+  * Clean up /etc/sgml/metacity.cat and .old left over by metacity.
+    [debian/metacity-common.preinst]
+
+ -- Loic Minier <lool@dooz.org>  Sun, 12 Feb 2006 16:35:07 +0100
+
+metacity (1:2.12.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Update patch to support a new raise on click mode and choice of this mode
+    to apply without fuzz.  Also note this patch has been rejected upstream.
+    [debian/patches/000_raise-on-click.patch]
+  * New metacity-common package holds arch-independent files and registers
+    schemas. (Closes: #218365, #234665, #240211)
+    [debian/metacity.dirs, debian/metacity-common.links,
+    debian/metacity.install, debian/control, debian/control.in,
+    debian/metacity-common.postinst, debian/metacity.catalog,
+    debian/metacity-common.manpages, debian/metacity.postrm,
+    debian/metacity-common.dirs, debian/metacity-common.install,
+    debian/metacity-common.catalog, debian/changelog,
+    debian/metacity-common.postrm, debian/rules, debian/metacity.links,
+    debian/metacity.postinst, debian/metacity.manpages]
+  * Actually ship license information.
+    [debian/copyright]
+  * Version the metacity and libmetacity dependency on metacity-common with
+    Source-Version.
+    [debian/control, debian/control.in]
+  * Install SGML catalogs with dh_installcatalogs, move them below
+    /usr/share/sgml/metacity-common, in the metacity-common package.
+    [debian/control, debian/control, debian/metacity-common.catalog,
+    debian/metacity-common.postinst, debian/metacity-common.postrm,
+    debian/metacity-common.sgmlcatalogs, debian/rules]
+  * Drop the /usr/share/metacity/dtd symlink.
+    [debian/metacity-common.links]
+  * Drop /usr/share/sgml/dtd creation.
+    [debian/metacity-common.dirs]
+  * Drop useless /usr/share/metacity from metacity-common.
+    [debian/metacity-common.install]
+  * Drop obsolete cleanup "rm -rf".
+    [debian/rules]
+  * Give .dtd installation to dh_install.
+    [debian/metacity-common.install, debian/rules]
+
+ -- Loic Minier <lool@dooz.org>  Sat, 11 Feb 2006 21:10:40 +0100
+
+metacity (1:2.12.2-3) unstable; urgency=high
+
+  * Add xorg build-deps (libice-dev, libsm-dev, libx11-dev, libxext-dev,
+    libxinerama-dev, libxrandr-dev, x-dev) thanks to "xlibs-split".
+    (Closes: #347000)
+    [debian/control, debian/control.in]
+  * Relibtoolizing would get Debian's AC_PATH_XTRA, but I add a libxt-dev
+    build-dep and pass --as-needed because the patch was like uh 1.1 MB.
+    [debian/control, debian/control.in, debian/rules]
+
+ -- Loic Minier <lool@dooz.org>  Mon,  9 Jan 2006 22:47:36 +0100
+
+metacity (1:2.12.2-2) unstable; urgency=low
+
+  * Upload to unstable.
+
+ -- Josselin Mouette <joss@debian.org>  Sun,  8 Jan 2006 01:49:55 +0100
+
 metacity (1:2.12.2-1) experimental; urgency=low
 
   * New upstream release.

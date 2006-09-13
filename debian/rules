@@ -7,13 +7,10 @@ include /usr/share/cdbs/1/rules/utils.mk
 
 include /usr/share/gnome-pkg-tools/1/rules/uploaders.mk
 
-DEB_CONFIGURE_EXTRA_FLAGS := --enable-startup-notification=yes --enable-xsync=yes
-DEB_DH_MAKESHLIBS_ARGS_libmetacity0 := -V 'libmetacity0 (>= 1:2.12)'
+DEB_CONFIGURE_EXTRA_FLAGS += --enable-startup-notification=yes --enable-xsync=yes
+DEB_DH_MAKESHLIBS_ARGS_libmetacity0 += -V 'libmetacity0 (>= 1:2.14)'
 DEB_INSTALL_DOCS_metacity := doc/theme-format.txt
 
-binary-install/metacity::
-	mkdir -p debian/metacity/usr/share/sgml/dtd/
-	mkdir -p debian/metacity/usr/share/metacity/
-	install -m 644 doc/metacity-theme.dtd  debian/metacity/usr/share/sgml/dtd/
-	install -m 644 debian/metacity.catalog debian/metacity/usr/share/metacity/
-	rm -rf debian/metacity/usr/share/control-center-2.0
+# Compile options
+DEB_CONFIGURE_SCRIPT_ENV += LDFLAGS="-Wl,-O1 -Wl,--as-needed"
+
