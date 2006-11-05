@@ -1,3 +1,9 @@
+metacity (1:2.16.3-1) UNRELEASED; urgency=low
+
+  * New upstream release.
+
+ -- Marco Cabizza <marco87@gmail.com>  Sun,  5 Nov 2006 01:31:59 +0100
+
 metacity (1:2.16.2-1) experimental; urgency=low
 
   * New upstream release, with backwards incompatible changes in internal API.
