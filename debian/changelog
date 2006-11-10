@@ -1,8 +1,12 @@
 metacity (1:2.16.3-1) UNRELEASED; urgency=low
 
+  [ Marco Cabizza ]
   * New upstream release.
 
- -- Marco Cabizza <marco87@gmail.com>  Sun,  5 Nov 2006 01:31:59 +0100
+  [ Loic Minier ]
+  * Merge 1:2.14.5-2.
+
+ -- Loic Minier <lool@dooz.org>  Fri, 10 Nov 2006 11:08:20 +0100
 
 metacity (1:2.16.2-1) experimental; urgency=low
 
@@ -27,6 +31,19 @@ metacity (1:2.16.1-1) experimental; urgency=low
   * Setting myself as the maintainer.
   
  -- Marco Cabizza <marco87@gmail.com>  Wed, 13 Sep 2006 18:46:45 +0200
+
+metacity (1:2.14.5-2) unstable; urgency=low
+
+  * Remove superfluous dh_installcatalogs call and bump cdbs build-dep to
+    >= 0.4.37, thanks Peter Eisentraut. (Closes: #361156)
+    [debian/control, debian/control.in, debian/rules]
+  * Don't mention non-existing Info documentation in the metacity and
+    metacity-message man pages, thanks Piotr Engelking. (Closes: #365450)
+    [debian/metacity.1, debian/metacity-message.1]
+  * Fix watch file.
+  * Fix typo in debian/metacity-message.1; thanks Per Bojsen; closes: #397864.
+
+ -- Loic Minier <lool@dooz.org>  Fri, 10 Nov 2006 09:38:49 +0100
 
 metacity (1:2.14.5-1) unstable; urgency=low
 
