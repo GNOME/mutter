@@ -1,8 +1,14 @@
-metacity (1:2.14.5-3) UNRELEASED; urgency=low
+metacity (1:2.14.5-3) unstable; urgency=medium
 
+  [ Loic Minier ]
   * Add a get-orig-source target to retrieve the upstream tarball.
 
- -- Loic Minier <lool@dooz.org>  Sat, 13 Jan 2007 23:33:48 +0100
+  [ Josselin Mouette ]
+  * 01_session_tolerate_missing_file.patch: register differently to the 
+    session, in order to handle gracefully the case where a session file 
+    is missing on the disk (closes: #315169, #391287).
+
+ -- Josselin Mouette <joss@debian.org>  Sun, 18 Feb 2007 17:59:14 +0100
 
 metacity (1:2.14.5-2) unstable; urgency=low
 
