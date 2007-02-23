@@ -1,3 +1,9 @@
+metacity (1:2.14.5-4) unstable; urgency=low
+
+  * 01_session_tolerate_missing_file.patch: fix typo, .sm -> .ms.
+
+ -- Josselin Mouette <joss@debian.org>  Fri, 23 Feb 2007 19:45:56 +0100
+
 metacity (1:2.14.5-3) unstable; urgency=medium
 
   [ Loic Minier ]

@@ -6,7 +6,7 @@
      }
 +  else if (previous_client_id)
 +    {
-+      char *save_file = g_strconcat (previous_client_id, ".sm", NULL);
++      char *save_file = g_strconcat (previous_client_id, ".ms", NULL);
 +      saved_client_id = load_state (save_file);
 +      g_free (save_file);
 +    }
