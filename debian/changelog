@@ -1,3 +1,10 @@
+metacity (1:2.18.0-1) experimental; urgency=low
+
+  * New upstream release:
+    - enabling compositor ( thus build-depending on libcm-dev )
+
+ -- Marco Cabizza <marco87@gmail.com>  Mon, 19 Mar 2007 22:04:38 +0100
+
 metacity (1:2.16.5-1) experimental; urgency=low
 
   [ Loic Minier ]
