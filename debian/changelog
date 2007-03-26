@@ -7,7 +7,11 @@ metacity (1:2.18.0-1) experimental; urgency=low
   [ Riccardo Setti ]
   * Updated debhelper compatibility to 5
 
- -- Marco Cabizza <marco87@gmail.com>  Sun, 25 Mar 2007 18:54:15 +0200
+  [ Loic Minier ]
+  * Set LDFLAGS directly instead of via DEB_CONFIGURE_SCRIPT_ENV; build-dep on
+    cdbs >= 0.4.41.
+
+ -- Loic Minier <lool@dooz.org>  Mon, 26 Mar 2007 21:20:07 +0200
 
 metacity (1:2.16.5-1) experimental; urgency=low
 
