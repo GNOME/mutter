@@ -1,65 +1,20 @@
-metacity (1:2.18.0-1) experimental; urgency=low
+metacity (1:2.14.5-4) unstable; urgency=low
 
-  * New upstream release:
-    - enabling compositor ( thus build-depending on libcm-dev )
+  * 01_session_tolerate_missing_file.patch: fix typo, .sm -> .ms.
 
- -- Marco Cabizza <marco87@gmail.com>  Mon, 19 Mar 2007 22:04:38 +0100
+ -- Josselin Mouette <joss@debian.org>  Fri, 23 Feb 2007 19:45:56 +0100
 
-metacity (1:2.16.5-1) experimental; urgency=low
+metacity (1:2.14.5-3) unstable; urgency=medium
 
   [ Loic Minier ]
   * Add a get-orig-source target to retrieve the upstream tarball.
-  * Include the new check-dist Makefile to prevent accidental uploads to
-    unstable; bump build-dep on gnome-pkg-tools to >= 0.10.
 
   [ Josselin Mouette ]
-  * 01_session_tolerate_missing_file.patch: register differently to the
-    session, in order to handle gracefully the case where a session file
+  * 01_session_tolerate_missing_file.patch: register differently to the 
+    session, in order to handle gracefully the case where a session file 
     is missing on the disk (closes: #315169, #391287).
-  * New upstream release.
 
- -- Josselin Mouette <joss@debian.org>  Sun,  4 Mar 2007 10:29:40 +0100
-
-metacity (1:2.16.3-1) experimental; urgency=low
-
-  [ Marco Cabizza ]
-  * New upstream release.
-
-  [ Loic Minier ]
-  * Merge 1:2.14.5-2.
-
-  [ Josselin Mouette ]
-  * Use ${gnome:Version} and ${gnome:NextVersion} to loosen the 
-    dependencies.
-  * Build-depend on gnome-pkg-tools 0.6.
-  * Call gnome-version.mk.
-  * Replace the x-dev build-dependency by x11proto-core-dev.
-
- -- Josselin Mouette <joss@debian.org>  Tue, 21 Nov 2006 20:50:05 +0100
-
-metacity (1:2.16.2-1) experimental; urgency=low
-
-  * New upstream release, with backwards incompatible changes in internal API.
-
- -- Loic Minier <lool@dooz.org>  Mon, 25 Sep 2006 17:47:56 +0200
-
-metacity (1:2.16.1-1) experimental; urgency=low
-  
-  [ Loïc Minier ]
-  * Remove superfluous dh_installcatalogs call and bump cdbs build-dep to
-    >= 0.4.37, thanks Peter Eisentraut. (Closes: #361156)
-    [debian/control, debian/control.in, debian/rules]
-  * Don't mention non-existing Info documentation in the metacity and
-    metacity-message man pages, thanks Piotr Engelking. (Closes: #365450)
-    [debian/metacity.1, debian/metacity-message.1]
-  * Fix watch file.
-
-  [ Marco Cabizza ]
-  * New upstream release, target experimental:
-    - Bumping up libgtk2.0-dev build-dep to 2.10
-  * Setting myself as the maintainer.
-  
- -- Marco Cabizza <marco87@gmail.com>  Wed, 13 Sep 2006 18:46:45 +0200
+ -- Josselin Mouette <joss@debian.org>  Sun, 18 Feb 2007 17:59:14 +0100
 
 metacity (1:2.14.5-2) unstable; urgency=low
 
