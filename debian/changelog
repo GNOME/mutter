@@ -1,23 +1,6 @@
-metacity (1:2.14.5-4) unstable; urgency=low
-
-  * 01_session_tolerate_missing_file.patch: fix typo, .sm -> .ms.
-
- -- Josselin Mouette <joss@debian.org>  Fri, 23 Feb 2007 19:45:56 +0100
-
-metacity (1:2.14.5-3) unstable; urgency=medium
-
-  [ Loic Minier ]
-  * Add a get-orig-source target to retrieve the upstream tarball.
-
-  [ Josselin Mouette ]
-  * 01_session_tolerate_missing_file.patch: register differently to the 
-    session, in order to handle gracefully the case where a session file 
-    is missing on the disk (closes: #315169, #391287).
-
- -- Josselin Mouette <joss@debian.org>  Sun, 18 Feb 2007 17:59:14 +0100
-
-metacity (1:2.14.5-2) unstable; urgency=low
-
+metacity (1:2.16.1-1) experimental; urgency=low
+  
+  [ Loïc Minier ]
   * Remove superfluous dh_installcatalogs call and bump cdbs build-dep to
     >= 0.4.37, thanks Peter Eisentraut. (Closes: #361156)
     [debian/control, debian/control.in, debian/rules]
@@ -25,9 +8,13 @@ metacity (1:2.14.5-2) unstable; urgency=low
     metacity-message man pages, thanks Piotr Engelking. (Closes: #365450)
     [debian/metacity.1, debian/metacity-message.1]
   * Fix watch file.
-  * Fix typo in debian/metacity-message.1; thanks Per Bojsen; closes: #397864.
 
- -- Loic Minier <lool@dooz.org>  Fri, 10 Nov 2006 09:38:49 +0100
+  [ Marco Cabizza ]
+  * New upstream release, target experimental:
+    - Bumping up libgtk2.0-dev build-dep to 2.10
+  * Setting myself as the maintainer.
+  
+ -- Marco Cabizza <marco87@gmail.com>  Wed, 13 Sep 2006 18:46:45 +0200
 
 metacity (1:2.14.5-1) unstable; urgency=low
 
