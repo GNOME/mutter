@@ -1,3 +1,9 @@
+metacity (1:2.16.3-2) UNRELEASED; urgency=low
+
+  * Add a get-orig-source target to retrieve the upstream tarball.
+
+ -- Loic Minier <lool@dooz.org>  Tue,  9 Jan 2007 15:07:04 +0100
+
 metacity (1:2.16.3-1) experimental; urgency=low
 
   [ Marco Cabizza ]
