@@ -1,3 +1,14 @@
+metacity (1:2.18.0-1) experimental; urgency=low
+
+  [ Marco Cabizza ]
+  * New upstream release: not enabling compositor, too unstable, and libcm
+    seems dead upstream.
+
+  [ Riccardo Setti ]
+  * Updated debhelper compatibility to 5
+
+ -- Marco Cabizza <marco87@gmail.com>  Sun, 25 Mar 2007 18:54:15 +0200
+
 metacity (1:2.16.5-1) experimental; urgency=low
 
   [ Loic Minier ]
