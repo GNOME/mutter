@@ -1,4 +1,4 @@
-metacity (1:2.16.3-2) UNRELEASED; urgency=low
+metacity (1:2.16.5-1) experimental; urgency=low
 
   [ Loic Minier ]
   * Add a get-orig-source target to retrieve the upstream tarball.
@@ -6,11 +6,12 @@ metacity (1:2.16.3-2) UNRELEASED; urgency=low
     unstable; bump build-dep on gnome-pkg-tools to >= 0.10.
 
   [ Josselin Mouette ]
-  * 01_session_tolerate_missing_file.patch: register differently to the 
-    session, in order to handle gracefully the case where a session file 
+  * 01_session_tolerate_missing_file.patch: register differently to the
+    session, in order to handle gracefully the case where a session file
     is missing on the disk (closes: #315169, #391287).
+  * New upstream release.
 
- -- Josselin Mouette <joss@debian.org>  Sun, 18 Feb 2007 17:32:38 +0100
+ -- Josselin Mouette <joss@debian.org>  Sun,  4 Mar 2007 10:29:40 +0100
 
 metacity (1:2.16.3-1) experimental; urgency=low
 
