@@ -6,7 +6,14 @@ metacity (1:2.16.3-1) experimental; urgency=low
   [ Loic Minier ]
   * Merge 1:2.14.5-2.
 
- -- Loic Minier <lool@dooz.org>  Fri, 10 Nov 2006 11:08:20 +0100
+  [ Josselin Mouette ]
+  * Use ${gnome:Version} and ${gnome:NextVersion} to loosen the 
+    dependencies.
+  * Build-depend on gnome-pkg-tools 0.6.
+  * Call gnome-version.mk.
+  * Replace the x-dev build-dependency by x11proto-core-dev.
+
+ -- Josselin Mouette <joss@debian.org>  Tue, 21 Nov 2006 20:50:05 +0100
 
 metacity (1:2.16.2-1) experimental; urgency=low
 
