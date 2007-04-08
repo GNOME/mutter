@@ -1,8 +1,9 @@
 metacity (1:2.18.1-1) experimental; urgency=low
 
   * New upstream stable release; no API change; bug fixes and translations.
+  * Drop obsolete README.Debian; misc cleanups.
 
- -- Loic Minier <lool@dooz.org>  Sun, 08 Apr 2007 09:15:25 +0200
+ -- Loic Minier <lool@dooz.org>  Sun, 08 Apr 2007 09:23:44 +0200
 
 metacity (1:2.18.0-1) experimental; urgency=low
 
