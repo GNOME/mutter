@@ -13,5 +13,5 @@ DEB_CONFIGURE_EXTRA_FLAGS += --enable-startup-notification=yes --enable-xsync=ye
 DEB_DH_MAKESHLIBS_ARGS_libmetacity0 += -V 'libmetacity0 (>= 1:2.14)'
 DEB_INSTALL_DOCS_metacity += doc/theme-format.txt
 
-LDFLAGS += -Wl,-O1 -Wl,--as-needed
+LDFLAGS += -Wl,-z,defs -Wl,-O1 -Wl,--as-needed
 
