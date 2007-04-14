@@ -2,7 +2,7 @@ Source: metacity
 Section: x11
 Priority: optional
 Maintainer: Marco Cabizza <marco87@gmail.com>
-Uploaders: Dafydd Harries <daf@debian.org>, Josselin Mouette <joss@debian.org>, Loic Minier <lool@dooz.org>
+Uploaders: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>, Josselin Mouette <joss@debian.org>, Loic Minier <lool@dooz.org>
 Build-Depends: cdbs (>= 0.4.41), debhelper (>= 5), gettext, libgtk2.0-dev (>= 2.10.0-1), liborbit2-dev (>= 1:2.10.2-1.1), libpopt-dev, libxml2-dev (>= 2.4.23), libgconf2-dev (>= 2.6.1-2), libglade2-dev (>= 2.4.0-1), libice-dev, libsm-dev, libx11-dev, libxt-dev, libxext-dev, libxinerama-dev, libxrandr-dev, x11proto-core-dev, libxinerama-dev, libstartup-notification0-dev (>= 0.7), libxml-parser-perl, gnome-pkg-tools (>= 0.10), dpkg-dev (>= 1.13.19)
 Standards-Version: 3.7.2
 
@@ -51,7 +51,7 @@ Description: Shared files of lightweight GTK2 based Window Manager
 Package: libmetacity-dev
 Section: libdevel
 Architecture: any
-Depends: libmetacity0 (= ${binary:Version}), libgtk2.0-dev (>= 2.4)
+Depends: ${misc:Depends}, libmetacity0 (= ${binary:Version}), libgtk2.0-dev (>= 2.4)
 Description: Development files of lightweight GTK2 based Window Manager
  Metacity is a small window manager, using gtk2 to do everything.
  .

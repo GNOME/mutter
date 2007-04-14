@@ -2,8 +2,9 @@ metacity (1:2.18.2-2) UNRELEASED; urgency=low
 
   * Add -z defs to LDFLAGS; cleanups.
   * Upload to unstable; drop check-dist include.
+  * Add a ${misc:Depends}.
 
- -- Loic Minier <lool@dooz.org>  Sat, 14 Apr 2007 15:04:27 +0200
+ -- Loic Minier <lool@dooz.org>  Sat, 14 Apr 2007 15:05:58 +0200
 
 metacity (1:2.18.2-1) experimental; urgency=low
 

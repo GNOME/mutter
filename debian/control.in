@@ -51,7 +51,7 @@ Description: Shared files of lightweight GTK2 based Window Manager
 Package: libmetacity-dev
 Section: libdevel
 Architecture: any
-Depends: libmetacity0 (= ${binary:Version}), libgtk2.0-dev (>= 2.4)
+Depends: ${misc:Depends}, libmetacity0 (= ${binary:Version}), libgtk2.0-dev (>= 2.4)
 Description: Development files of lightweight GTK2 based Window Manager
  Metacity is a small window manager, using gtk2 to do everything.
  .
