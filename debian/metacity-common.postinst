@@ -8,5 +8,3 @@ rm -f /etc/sgml/metacity.cat /etc/sgml/metacity.cat.old
 
 #DEBHELPER#
 
-exit 0
-

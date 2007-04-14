@@ -1,15 +1,15 @@
 Source: metacity
 Section: x11
 Priority: optional
-Maintainer: Akira TAGOH <tagoh@debian.org>
+Maintainer: Marco Cabizza <marco87@gmail.com>
 Uploaders: @GNOME_TEAM@
-Build-Depends: cdbs (>= 0.4.37), debhelper (>= 4.1.0), gettext, libgtk2.0-dev (>= 2.4.1-3), liborbit2-dev (>= 1:2.10.2-1.1), libpopt-dev, libxml2-dev (>= 2.4.23), libgconf2-dev (>= 2.6.1-2), libglade2-dev (>= 2.4.0-1), libice-dev, libsm-dev, libx11-dev, libxt-dev, libxext-dev, libxinerama-dev, libxrandr-dev, x-dev, libxinerama-dev, libstartup-notification0-dev (>= 0.7), libxml-parser-perl, gnome-pkg-tools, dpkg-dev (>= 1.13.19)
+Build-Depends: cdbs (>= 0.4.41), debhelper (>= 5), gettext, libgtk2.0-dev (>= 2.10.0-1), liborbit2-dev (>= 1:2.10.2-1.1), libpopt-dev, libxml2-dev (>= 2.4.23), libgconf2-dev (>= 2.6.1-2), libglade2-dev (>= 2.4.0-1), libice-dev, libsm-dev, libx11-dev, libxt-dev, libxext-dev, libxinerama-dev, libxrandr-dev, x11proto-core-dev, libxinerama-dev, libstartup-notification0-dev (>= 0.7), libxml-parser-perl, gnome-pkg-tools (>= 0.10), dpkg-dev (>= 1.13.19)
 Standards-Version: 3.7.2
 
 Package: libmetacity0
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, metacity-common (= ${source:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, metacity-common (>= ${gnome:Version}), metacity-common (<< ${gnome:NextVersion})
 Description: library of lightweight GTK2 based Window Manager
  Metacity is a small window manager, using gtk2 to do everything.
  .
@@ -22,7 +22,7 @@ Description: library of lightweight GTK2 based Window Manager
 Package: metacity
 Section: x11
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, metacity-common (= ${source:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, metacity-common (>= ${gnome:Version}), metacity-common (<< ${gnome:NextVersion})
 Provides: x-window-manager
 Suggests: gnome-control-center (>= 1:2.5.4)
 Description: A lightweight GTK2 based Window Manager

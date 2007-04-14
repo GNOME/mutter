@@ -1,2 +1,2 @@
-debian/tmp/usr/bin/*
-debian/tmp/usr/lib/metacity/*
+debian/tmp/usr/bin
+debian/tmp/usr/lib/metacity
