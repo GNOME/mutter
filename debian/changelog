@@ -4,8 +4,9 @@ metacity (1:2.18.2-2) UNRELEASED; urgency=low
   * Upload to unstable; drop check-dist include.
   * Add a ${misc:Depends}.
   * Drop useless --enable-xsync=yes from configure flags.
+  * Wrap biuld-deps and deps.
 
- -- Loic Minier <lool@dooz.org>  Sat, 14 Apr 2007 15:10:55 +0200
+ -- Loic Minier <lool@dooz.org>  Sat, 14 Apr 2007 15:12:15 +0200
 
 metacity (1:2.18.2-1) experimental; urgency=low
 
