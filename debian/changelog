@@ -3,8 +3,9 @@ metacity (1:2.18.2-2) UNRELEASED; urgency=low
   * Add -z defs to LDFLAGS; cleanups.
   * Upload to unstable; drop check-dist include.
   * Add a ${misc:Depends}.
+  * Drop useless --enable-xsync=yes from configure flags.
 
- -- Loic Minier <lool@dooz.org>  Sat, 14 Apr 2007 15:05:58 +0200
+ -- Loic Minier <lool@dooz.org>  Sat, 14 Apr 2007 15:10:55 +0200
 
 metacity (1:2.18.2-1) experimental; urgency=low
 
