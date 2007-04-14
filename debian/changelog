@@ -1,12 +1,13 @@
-metacity (1:2.18.2-2) UNRELEASED; urgency=low
+metacity (1:2.18.2-2) unstable; urgency=low
 
   * Add -z defs to LDFLAGS; cleanups.
   * Upload to unstable; drop check-dist include.
   * Add a ${misc:Depends}.
   * Drop useless --enable-xsync=yes from configure flags.
   * Wrap build-deps and deps.
+  * Bump dep on libgtk2.0-dev to >= 2.10.0-1.
 
- -- Loic Minier <lool@dooz.org>  Sat, 14 Apr 2007 15:12:15 +0200
+ -- Loic Minier <lool@dooz.org>  Sat, 14 Apr 2007 15:12:50 +0200
 
 metacity (1:2.18.2-1) experimental; urgency=low
 
