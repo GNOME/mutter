@@ -1,0 +1,22 @@
+diff -Nur metacity-2.18.2/src/session.c metacity-2.18.2.new/src/session.c
+--- metacity-2.18.2/src/session.c	2007-04-08 20:46:17.000000000 +0200
++++ metacity-2.18.2.new/src/session.c	2007-04-26 00:18:24.000000000 +0200
+@@ -1824,8 +1824,6 @@
+ 
+       display_iter = display_iter->next;
+     }
+-  /* don't need to free displays */
+-  displays = NULL;
+ 
+   if (lame == NULL)
+     {
+@@ -1839,6 +1837,9 @@
+   timestamp = meta_display_get_current_time_roundtrip (displays->data);  
+   sprintf (timestampbuf, "%u", timestamp);
+ 
++  /* don't need to free displays */
++  displays = NULL;
++
+   len = g_slist_length (lame);
+   len *= 2; /* titles and also classes */
+   len += 2; /* --timestamp flag and actual timestamp */

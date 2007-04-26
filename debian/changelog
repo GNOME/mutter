@@ -1,3 +1,11 @@
+metacity (1:2.18.2-3) unstable; urgency=low
+
+  * New patch 02_fix_crash_on_session_saving.patch, taken from Ubuntu.
+    Fix a crash that would occur when the current session is saved and would
+    corrupt ~/.gnome2/session. Gnome bug #433253
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 26 Apr 2007 15:44:10 +0200
+
 metacity (1:2.18.2-2) unstable; urgency=low
 
   * Add -z defs to LDFLAGS; cleanups.

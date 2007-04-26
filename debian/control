@@ -2,7 +2,7 @@ Source: metacity
 Section: x11
 Priority: optional
 Maintainer: Marco Cabizza <marco87@gmail.com>
-Uploaders: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>, Josselin Mouette <joss@debian.org>, Loic Minier <lool@dooz.org>
+Uploaders: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>, Josselin Mouette <joss@debian.org>, Loic Minier <lool@dooz.org>, Sebastian Dröge <slomo@debian.org>
 Build-Depends: cdbs (>= 0.4.41),
                debhelper (>= 5),
                gettext,
