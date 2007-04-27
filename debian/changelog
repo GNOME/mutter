@@ -1,3 +1,12 @@
+metacity (1:2.18.2-4) UNRELEASED; urgency=low
+
+  * Drop metacity-common postinst as it was scheduled to be dropped post-etch.
+  * Rewrite metacity postinst and prerm to use safer individual if tests
+    instead of trying to list all possible args in a case; reported by
+    Lior Kaplan; closes: #421206.
+
+ -- Loic Minier <lool@dooz.org>  Fri, 27 Apr 2007 11:49:14 +0200
+
 metacity (1:2.18.2-3) unstable; urgency=low
 
   * New patch 02_fix_crash_on_session_saving.patch, taken from Ubuntu.
