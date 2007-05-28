@@ -1,11 +1,12 @@
-metacity (1:2.18.2-4) UNRELEASED; urgency=low
+metacity (1:2.18.3-1) unstable; urgency=low
 
   * Drop metacity-common postinst as it was scheduled to be dropped post-etch.
   * Rewrite metacity postinst and prerm to use safer individual if tests
     instead of trying to list all possible args in a case; reported by
     Lior Kaplan; closes: #421206.
+  * New upstream stable release; no API change.
 
- -- Loic Minier <lool@dooz.org>  Fri, 27 Apr 2007 11:49:14 +0200
+ -- Loic Minier <lool@dooz.org>  Mon, 28 May 2007 17:48:18 +0200
 
 metacity (1:2.18.2-3) unstable; urgency=low
 
