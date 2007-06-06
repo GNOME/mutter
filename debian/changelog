@@ -1,3 +1,10 @@
+metacity (1:2.18.3-2) unstable; urgency=low
+
+  * 99_ltmain_as-needed.patch: make --as-needed work for the library
+    too.
+
+ -- Josselin Mouette <joss@debian.org>  Wed, 06 Jun 2007 23:40:52 +0200
+
 metacity (1:2.18.3-1) unstable; urgency=low
 
   * Drop metacity-common postinst as it was scheduled to be dropped post-etch.
