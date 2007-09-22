@@ -1,3 +1,15 @@
+metacity (1:2.20.0-1) unstable; urgency=low
+
+  * New upstream release:
+    + debian/control.in:
+      - Build depend on libgnome-settings-daemon-dev (>= 2.20.0) for
+        keybindings support.
+    + debian/patches/01_session_tolerate_missing_file.patch,
+      debian/patches/02_fix_crash_on_session_saving.patch:
+      - Dropped, merged upstream.
+
+ -- Sebastian Dröge <slomo@debian.org>  Sat, 22 Sep 2007 10:46:36 +0200
+
 metacity (1:2.18.5-1) unstable; urgency=low
 
   * New upstream stable release; no API change.
