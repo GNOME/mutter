@@ -8,6 +8,8 @@ metacity (1:2.20.0-1) unstable; urgency=low
       - Bump shlibs to >= 2.19.5.
     + debian/metacity-common.install:
       - Ship keybinding stuff.
+  * debian/control.in:
+    + Drop duplicated libxinerama-dev build dependency.
 
  -- Sebastian Dröge <slomo@debian.org>  Sat, 22 Sep 2007 10:46:36 +0200
 
