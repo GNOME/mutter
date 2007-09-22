@@ -24,8 +24,7 @@ Build-Depends: cdbs (>= 0.4.41),
                libstartup-notification0-dev (>= 0.7),
                libxml-parser-perl,
                gnome-pkg-tools (>= 0.10),
-               dpkg-dev (>= 1.13.19),
-               libgnome-settings-daemon-dev (>= 2.20.0)
+               dpkg-dev (>= 1.13.19)
 Standards-Version: 3.7.2
 
 Package: libmetacity0
