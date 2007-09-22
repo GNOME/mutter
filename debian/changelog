@@ -4,6 +4,10 @@ metacity (1:2.20.0-1) unstable; urgency=low
     + debian/patches/01_session_tolerate_missing_file.patch,
       debian/patches/02_fix_crash_on_session_saving.patch:
       - Dropped, merged upstream.
+    + debian/rules:
+      - Bump shlibs to >= 2.19.5.
+    + debian/metacity-common.install:
+      - Ship keybinding stuff.
 
  -- Sebastian Dröge <slomo@debian.org>  Sat, 22 Sep 2007 10:46:36 +0200
 

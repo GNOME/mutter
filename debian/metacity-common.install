@@ -4,4 +4,5 @@ debian/tmp/usr/share/locale
 debian/tmp/usr/share/man
 debian/tmp/usr/share/metacity
 debian/tmp/usr/share/themes
+debian/tmp/usr/share/gnome-control-center/keybindings
 doc/metacity-theme.dtd usr/share/sgml/metacity-common
