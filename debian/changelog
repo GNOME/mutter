@@ -1,3 +1,10 @@
+metacity (1:2.20.0-2) UNRELEASED; urgency=low
+
+  * Recommend gnome-session | x-session-manager. Closes: #225640.
+  * Remove metacity.menu. Closes: #397645.
+
+ -- Josselin Mouette <joss@debian.org>  Thu, 01 Nov 2007 15:50:43 +0100
+
 metacity (1:2.20.0-1) unstable; urgency=low
 
   * New upstream release:

@@ -1,2 +1,0 @@
-?package(metacity):needs="wm" section="WindowManagers"\
-  title="Metacity" command="/usr/bin/metacity"
