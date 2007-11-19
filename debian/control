@@ -50,6 +50,7 @@ Depends: ${shlibs:Depends},
          metacity-common (>= ${gnome:Version}),
          metacity-common (<< ${gnome:NextVersion})
 Provides: x-window-manager
+Recommends: gnome-session | x-session-manager
 Suggests: gnome-control-center (>= 1:2.5.4)
 Description: A lightweight GTK2 based Window Manager
  Metacity is a small window manager, using gtk2 to do everything.
