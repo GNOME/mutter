@@ -1,3 +1,10 @@
+metacity (1:2.20.1-2) UNRELEASED; urgency=low
+
+  * Let metacity-common replace metacity instead of conflicting to ease
+    upgrades.
+
+ -- Loic Minier <lool@dooz.org>  Wed, 28 Nov 2007 19:00:45 +0100
+
 metacity (1:2.20.1-1) unstable; urgency=low
 
   [ Josselin Mouette ]
