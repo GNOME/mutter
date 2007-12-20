@@ -2,22 +2,15 @@
 
 set -e
 
-case "$1" in
-  configure)
+action="$1"
+
+if [ "$action" = configure ]; then
     # register the alternatives of x-window-manager manually
     # because dh_installwm doesn't register manpage as slave yet.
     update-alternatives --install /usr/bin/x-window-manager \
         x-window-manager /usr/bin/metacity 60 \
         --slave /usr/share/man/man1/x-window-manager.1.gz \
         x-window-manager.1.gz /usr/share/man/man1/metacity.1.gz
-    ;;
-    abort-upgrade|abort-remove|abort-deconfigure)
-    ;;
-    *)
-      echo "postinst called with unknown argument \`$1'" >&2
-      exit 1
-    ;;
-esac
+fi
 
 #DEBHELPER#
-

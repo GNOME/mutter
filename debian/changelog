@@ -1,8 +1,84 @@
-metacity (1:2.18.2-2) UNRELEASED; urgency=low
+metacity (1:2.21.5-1) experimental; urgency=low
+
+  * New metacity package.
+  * build with compositor extension.
+
+ -- Riccardo Setti <giskard@debian.org>  Thu, 20 Dec 2007 02:29:13 +0100
+
+metacity (1:2.20.1-2) UNRELEASED; urgency=low
+
+  * Let metacity-common replace metacity instead of conflicting to ease
+    upgrades.
+
+ -- Loic Minier <lool@dooz.org>  Wed, 28 Nov 2007 19:00:45 +0100
+
+metacity (1:2.20.1-1) unstable; urgency=low
+
+  [ Josselin Mouette ]
+  * Recommend gnome-session | x-session-manager. Closes: #225640.
+  * Remove metacity.menu. Closes: #397645.
+
+  [ Sebastian Dröge ]
+  * New upstream bugfix release.
+
+ -- Sebastian Dröge <slomo@debian.org>  Mon, 19 Nov 2007 13:57:21 +0100
+
+metacity (1:2.20.0-1) unstable; urgency=low
+
+  * New upstream release:
+    + debian/patches/01_session_tolerate_missing_file.patch,
+      debian/patches/02_fix_crash_on_session_saving.patch:
+      - Dropped, merged upstream.
+    + debian/rules:
+      - Bump shlibs to >= 2.19.5.
+    + debian/metacity-common.install:
+      - Ship keybinding stuff.
+  * debian/control.in:
+    + Drop duplicated libxinerama-dev build dependency.
+
+ -- Sebastian Dröge <slomo@debian.org>  Sat, 22 Sep 2007 10:46:36 +0200
+
+metacity (1:2.18.5-1) unstable; urgency=low
+
+  * New upstream stable release; no API change.
+
+ -- Loic Minier <lool@dooz.org>  Tue, 19 Jun 2007 12:07:17 +0200
+
+metacity (1:2.18.3-2) unstable; urgency=low
+
+  * 99_ltmain_as-needed.patch: make --as-needed work for the library
+    too.
+
+ -- Josselin Mouette <joss@debian.org>  Wed, 06 Jun 2007 23:40:52 +0200
+
+metacity (1:2.18.3-1) unstable; urgency=low
+
+  * Drop metacity-common postinst as it was scheduled to be dropped post-etch.
+  * Rewrite metacity postinst and prerm to use safer individual if tests
+    instead of trying to list all possible args in a case; reported by
+    Lior Kaplan; closes: #421206.
+  * New upstream stable release; no API change.
+
+ -- Loic Minier <lool@dooz.org>  Mon, 28 May 2007 17:48:18 +0200
+
+metacity (1:2.18.2-3) unstable; urgency=low
+
+  * New patch 02_fix_crash_on_session_saving.patch, taken from Ubuntu.
+    Fix a crash that would occur when the current session is saved and would
+    corrupt ~/.gnome2/session. Gnome bug #433253
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 26 Apr 2007 15:44:10 +0200
+
+metacity (1:2.18.2-2) unstable; urgency=low
 
   * Add -z defs to LDFLAGS; cleanups.
+  * Upload to unstable; drop check-dist include.
+  * Add a ${misc:Depends}.
+  * Drop useless --enable-xsync=yes from configure flags.
+  * Wrap build-deps and deps.
+  * Bump dep on libgtk2.0-dev to >= 2.10.0-1.
 
- -- Loic Minier <lool@dooz.org>  Mon, 09 Apr 2007 09:06:34 +0200
+ -- Loic Minier <lool@dooz.org>  Sat, 14 Apr 2007 15:12:50 +0200
 
 metacity (1:2.18.2-1) experimental; urgency=low
 
