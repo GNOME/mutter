@@ -1,7 +1,12 @@
 metacity (1:2.21.5-1) experimental; urgency=low
 
+  [ Riccardo Setti ]
   * New metacity package.
   * build with compositor extension.
+
+  [ Bradley Smith ]
+  * Update Standards Version to 3.7.3. (No changes)
+  * Add check-dist.
 
  -- Riccardo Setti <giskard@debian.org>  Thu, 20 Dec 2007 02:29:13 +0100
 
