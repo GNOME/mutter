@@ -1,8 +1,6 @@
-Index: nautilus-2.18.1/ltmain.sh
-===================================================================
---- nautilus-2.18.1.orig/ltmain.sh	2006-07-13 09:12:13.000000000 +0200
-+++ nautilus-2.18.1/ltmain.sh	2007-06-06 23:36:38.899175453 +0200
-@@ -1784,6 +1784,11 @@
+--- ltmain.sh.old	2007-10-09 07:38:25.000000000 +0200
++++ ltmain.sh	2007-10-09 07:39:25.000000000 +0200
+@@ -1794,6 +1794,11 @@
  	arg=`$echo "X$arg" | $Xsed -e "s/^ //"`
  	;;
  
@@ -10,11 +8,11 @@ Index: nautilus-2.18.1/ltmain.sh
 +	deplibs="$deplibs $arg"
 +	continue
 +	;;
-+      
++
        -Wl,*)
  	args=`$echo "X$arg" | $Xsed -e "$sed_quote_subst" -e 's/^-Wl,//'`
  	arg=
-@@ -2124,6 +2129,15 @@
+@@ -2137,6 +2142,15 @@
  	lib=
  	found=no
  	case $deplib in
@@ -27,6 +25,6 @@ Index: nautilus-2.18.1/ltmain.sh
 +	  fi
 +	  continue
 +	  ;;
- 	-mt|-mthreads|-kthread|-Kthread|-pthread|-pthreads|--thread-safe)
+ 	-mt|-mthreads|-kthread|-Kthread|-pthread|-pthreads|--thread-safe|-threads)
  	  if test "$linkmode,$pass" = "prog,link"; then
  	    compile_deplibs="$deplib $compile_deplibs"
