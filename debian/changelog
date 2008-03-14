@@ -1,15 +1,31 @@
-metacity (1:2.20.2-1) unstable; urgency=low
+metacity (1:2.21.21-1) UNRELEASED; urgency=low
 
-  [ Loic Minier ]
+  [ Bradley Smith ]
+  * New upstream development release.
+
+  [ Sam Morris ]
+  * Build-depend on libxcomposite-dev for composite manager.
+
+ -- Bradley Smith <brad@brad-smith.co.uk>  Thu, 14 Feb 2008 20:58:15 +0000
+
+metacity (1:2.21.5-1) experimental; urgency=low
+
+  [ Riccardo Setti ]
+  * New metacity package.
+  * build with compositor extension.
+
+  [ Bradley Smith ]
+  * Update Standards Version to 3.7.3. (No changes)
+  * Add check-dist.
+
+ -- Riccardo Setti <giskard@debian.org>  Thu, 20 Dec 2007 02:29:13 +0100
+
+metacity (1:2.20.1-2) UNRELEASED; urgency=low
+
   * Let metacity-common replace metacity instead of conflicting to ease
     upgrades.
 
-  [ Sebastian Dröge ]
-  * New upstream bugfix release.
-  * Update Standards-Version to 3.7.3, no additional changes needed.
-  * 99_ltmain_as-needed.patch: Updated to apply cleanly again.
-
- -- Sebastian Dröge <slomo@debian.org>  Sat, 12 Jan 2008 07:27:20 +0100
+ -- Loic Minier <lool@dooz.org>  Wed, 28 Nov 2007 19:00:45 +0100
 
 metacity (1:2.20.1-1) unstable; urgency=low
 
