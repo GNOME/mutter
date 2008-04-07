@@ -1,0 +1,20 @@
+Metacity Compositor
+===================
+
+Since version 2.22 Metacity includes a simple compositor. It's only
+intended to add a set of non-customisable simple effects. Currently
+these include a drop-shadow around windows, and thumbnail previews in
+the window switcher dialog.
+
+Contrary to Compiz, the Metacity compositor uses the XRender extension
+to draw to the screen. This means that no 3D acceleration is
+needed. This should in theory make it suitable to run on a larger selection of
+hardware, but only if your video driver implements sufficient Render
+performance.
+
+The compositor can be enabled on the fly by setting the gconf key
+/apps/metacity/general/compositing_manager to true by using
+gconf-editor or gconftool-2.
+
+Before enabling the compositor, you need to make sure your X server
+configuration has the composite extension loaded and enabled.

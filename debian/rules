@@ -10,7 +10,7 @@ include /usr/share/gnome-pkg-tools/1/rules/gnome-version.mk
 
 DEB_CONFIGURE_EXTRA_FLAGS += --enable-startup-notification=yes
 DEB_DH_MAKESHLIBS_ARGS_libmetacity0 += -V 'libmetacity0 (>= 1:2.22.0)'
-DEB_INSTALL_DOCS_metacity += doc/theme-format.txt
+DEB_INSTALL_DOCS_metacity += doc/theme-format.txt debian/README.Debian
 
 LDFLAGS += -Wl,-z,defs -Wl,-O1 -Wl,--as-needed
 

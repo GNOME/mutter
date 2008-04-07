@@ -1,3 +1,10 @@
+metacity (1:2.22.0-1.1) UNRELEASED; urgency=low
+
+  * Add README.Debian, describing how to enable the compositor. Update
+    debian/rules to install it for the metacity package. (Closes: #471442)
+
+ -- Sven Arvidsson <sa@whiz.se>  Mon, 07 Apr 2008 23:47:10 +0200
+
 metacity (1:2.22.0-1) unstable; urgency=low
 
   [ Bradley Smith ]
