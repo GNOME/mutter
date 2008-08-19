@@ -1,7 +1,13 @@
 metacity (1:2.22.0-2) UNRELEASED; urgency=low
 
+  [ Sven Arvidsson ]
   * Add README.Debian, describing how to enable the compositor.
     (Closes: #471442)
+
+  [ Josselin Mouette ]
+  * 01_doublefree_maximize.patch: stolen upstream (r3817). Fixes 
+    vertical maximisation bug caused by an invalid free.
+    Closes: #452139.
 
  -- Sven Arvidsson <sa@whiz.se>  Mon, 07 Apr 2008 23:47:10 +0200
 
