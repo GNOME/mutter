@@ -8,6 +8,8 @@ metacity (1:2.22.0-2) unstable; urgency=low
   * 01_doublefree_maximize.patch: stolen upstream (r3817). Fixes 
     vertical maximisation bug caused by an invalid free.
     Closes: #452139.
+  * control.in: make metacity the first package so that it gets the 
+    README.Debian.
 
  -- Josselin Mouette <joss@debian.org>  Thu, 18 Sep 2008 16:53:19 +0200
 

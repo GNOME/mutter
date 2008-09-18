@@ -30,22 +30,6 @@ Build-Depends: cdbs (>= 0.4.41),
                dpkg-dev (>= 1.13.19)
 Standards-Version: 3.7.3
 
-Package: libmetacity0
-Section: libs
-Architecture: any
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
-         metacity-common (>= ${gnome:Version}),
-         metacity-common (<< ${gnome:NextVersion})
-Description: library of lightweight GTK2 based Window Manager
- Metacity is a small window manager, using gtk2 to do everything.
- .
- As the author says, metacity is a "Boring window manager for the adult in
- you. Many window managers are like Marshmallow Froot Loops; Metacity is
- like Cheerios."
- .
- This package contains the shared library.
-
 Package: metacity
 Section: x11
 Architecture: any
@@ -64,6 +48,22 @@ Description: A lightweight GTK2 based Window Manager
  like Cheerios."
  .
  This package contains the core binaries.
+
+Package: libmetacity0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         metacity-common (>= ${gnome:Version}),
+         metacity-common (<< ${gnome:NextVersion})
+Description: library of lightweight GTK2 based Window Manager
+ Metacity is a small window manager, using gtk2 to do everything.
+ .
+ As the author says, metacity is a "Boring window manager for the adult in
+ you. Many window managers are like Marshmallow Froot Loops; Metacity is
+ like Cheerios."
+ .
+ This package contains the shared library.
 
 Package: metacity-common
 Section: misc
