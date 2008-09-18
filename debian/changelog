@@ -1,4 +1,4 @@
-metacity (1:2.22.0-2) UNRELEASED; urgency=low
+metacity (1:2.22.0-2) unstable; urgency=low
 
   [ Sven Arvidsson ]
   * Add README.Debian, describing how to enable the compositor.
@@ -9,7 +9,7 @@ metacity (1:2.22.0-2) UNRELEASED; urgency=low
     vertical maximisation bug caused by an invalid free.
     Closes: #452139.
 
- -- Sven Arvidsson <sa@whiz.se>  Mon, 07 Apr 2008 23:47:10 +0200
+ -- Josselin Mouette <joss@debian.org>  Thu, 18 Sep 2008 16:53:19 +0200
 
 metacity (1:2.22.0-1) unstable; urgency=low
 
