@@ -28,7 +28,7 @@ Build-Depends: cdbs (>= 0.4.41),
                libxml-parser-perl,
                gnome-pkg-tools (>= 0.10),
                dpkg-dev (>= 1.13.19)
-Standards-Version: 3.7.3
+Standards-Version: 3.8.0
 
 Package: metacity
 Section: x11
