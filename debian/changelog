@@ -1,4 +1,19 @@
-metacity (1:2.21.21-1) UNRELEASED; urgency=low
+metacity (1:2.22.0-2) unstable; urgency=low
+
+  [ Sven Arvidsson ]
+  * Add README.Debian, describing how to enable the compositor.
+    (Closes: #471442)
+
+  [ Josselin Mouette ]
+  * 01_doublefree_maximize.patch: stolen upstream (r3817). Fixes 
+    vertical maximisation bug caused by an invalid free.
+    Closes: #452139.
+  * control.in: make metacity the first package so that it gets the 
+    README.Debian.
+
+ -- Josselin Mouette <joss@debian.org>  Thu, 18 Sep 2008 16:53:19 +0200
+
+metacity (1:2.22.0-1) unstable; urgency=low
 
   [ Bradley Smith ]
   * New upstream development release.
@@ -6,7 +21,13 @@ metacity (1:2.21.21-1) UNRELEASED; urgency=low
   [ Sam Morris ]
   * Build-depend on libxcomposite-dev for composite manager.
 
- -- Bradley Smith <brad@brad-smith.co.uk>  Thu, 14 Feb 2008 20:58:15 +0000
+  [ Sebastian Dröge ]
+  * New upstream stable release:
+    + debian/rules:
+      - Drop check-dist include.
+      - Update shlibs to >= 2.22.0 because of new API.
+
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 14 Mar 2008 13:54:19 +0100
 
 metacity (1:2.21.5-1) experimental; urgency=low
 

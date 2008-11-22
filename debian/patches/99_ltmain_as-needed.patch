@@ -1,0 +1,30 @@
+--- ltmain.sh	2007-08-14 18:43:36.000000000 +0100
++++ ltmain.sh.new	2007-12-20 12:07:00.000000000 +0000
+@@ -1793,6 +1793,11 @@
+ 	IFS="$save_ifs"
+ 	arg=`$echo "X$arg" | $Xsed -e "s/^ //"`
+ 	;;
++        
++       -Wl,--as-needed)
++        deplibs="$deplibs $arg"
++        continue
++        ;;
+ 
+       -Wl,*)
+ 	args=`$echo "X$arg" | $Xsed -e "$sed_quote_subst" -e 's/^-Wl,//'`
+@@ -2137,6 +2142,15 @@
+ 	lib=
+ 	found=no
+ 	case $deplib in
++        -Wl,--as-needed)
++          if test "$linkmode,$pass" = "prog,link"; then
++            compile_deplibs="$deplib $compile_deplibs"
++            finalize_deplibs="$deplib $finalize_deplibs"
++          else
++            deplibs="$deplib $deplibs"
++          fi
++          continue
++          ;;
+ 	-mt|-mthreads|-kthread|-Kthread|-pthread|-pthreads|--thread-safe|-threads)
+ 	  if test "$linkmode,$pass" = "prog,link"; then
+ 	    compile_deplibs="$deplib $compile_deplibs"

@@ -1,0 +1,17 @@
+--- trunk/src/core/workspace.c	2008/08/16 03:09:40	3816
++++ trunk/src/core/workspace.c	2008/08/18 02:48:36	3817
+@@ -514,9 +514,12 @@
+       MetaWindow *win = tmp->data;
+       GSList *s_iter;
+ 
+-      for (s_iter = win->struts; s_iter != NULL; s_iter = s_iter->next)
++      for (s_iter = win->struts; s_iter != NULL; s_iter = s_iter->next) {
++        MetaStrut *cpy = g_new (MetaStrut, 1);
++        *cpy = *((MetaStrut *)s_iter->data);
+         workspace->all_struts = g_slist_prepend (workspace->all_struts,
+-                                                 s_iter->data);
++                                                 cpy);
++      }
+     }
+   g_list_free (windows);
+ 
