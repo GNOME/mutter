@@ -49,13 +49,15 @@ Description: A lightweight GTK2 based Window Manager
  .
  This package contains the core binaries.
 
-Package: libmetacity0
+Package: libmetacity0a
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          metacity-common (>= ${gnome:Version}),
          metacity-common (<< ${gnome:NextVersion})
+Conflicts: libmetacity0
+Replaces: libmetacity0
 Description: library of lightweight GTK2 based Window Manager
  Metacity is a small window manager, using gtk2 to do everything.
  .
@@ -83,7 +85,7 @@ Package: libmetacity-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends},
-         libmetacity0 (= ${binary:Version}),
+         libmetacity0a (= ${binary:Version}),
          libgtk2.0-dev (>= 2.10.0-1)
 Description: Development files of lightweight GTK2 based Window Manager
  Metacity is a small window manager, using gtk2 to do everything.
