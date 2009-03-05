@@ -1,8 +1,14 @@
+metacity (1:2.24.0-3) UNRELEASED; urgency=low
+
+  * Fix typo in changelog entry.
+
+ -- Josselin Mouette <joss@debian.org>  Thu, 05 Mar 2009 17:51:30 +0100
+
 metacity (1:2.24.0-2) unstable; urgency=low
 
   * Rename libmetacity0 to libmetacity-private0 because of an 
     unexpected ABI change. Closes: #510096.
-  * Remove traling -1's in build-depends.
+  * Remove trailing -1's in build-depends.
   * debian/copyright: write complete list of copyright holders.
   * Upload to unstable.
 
