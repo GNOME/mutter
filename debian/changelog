@@ -2,6 +2,8 @@ metacity (1:2.24.0-2) unstable; urgency=low
 
   * Rename libmetacity0 to libmetacity-private0 because of an 
     unexpected ABI change. Closes: #510096.
+  * Remove traling -1's in build-depends.
+  * debian/copyright: write complete list of copyright holders.
   * Upload to unstable.
 
  -- Josselin Mouette <joss@debian.org>  Mon, 16 Feb 2009 18:03:57 +0100
