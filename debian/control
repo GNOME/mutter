@@ -40,7 +40,8 @@ Depends: ${shlibs:Depends},
 Provides: x-window-manager
 Recommends: gnome-session | x-session-manager
 Suggests: gnome-control-center (>= 1:2.5.4),
-          gnome-themes
+          gnome-themes,
+          xdg-user-dirs
 Description: A lightweight GTK2 based Window Manager
  Metacity is a small window manager, using gtk2 to do everything.
  .
