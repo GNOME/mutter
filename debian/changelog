@@ -1,6 +1,11 @@
 metacity (1:2.24.0-3) UNRELEASED; urgency=low
 
+  [ Josselin Mouette ]
   * Fix typo in changelog entry.
+
+  [ Loic Minier ]
+  * Let metacity suggest gnome-themes as it attempts to use the Clearlooks
+    Metacity theme by default and logs a warning when it can't be used.
 
  -- Josselin Mouette <joss@debian.org>  Thu, 05 Mar 2009 17:51:30 +0100
 
