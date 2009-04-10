@@ -1,7 +1,7 @@
 Source: metacity
 Section: x11
 Priority: optional
-Maintainer: Marco Cabizza <marco87@gmail.com>
+Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
 Uploaders: @GNOME_TEAM@
 Build-Depends: cdbs (>= 0.4.41),
                debhelper (>= 5),

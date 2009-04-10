@@ -10,6 +10,9 @@ metacity (1:2.24.0-3) UNRELEASED; urgency=low
     .config/metacity sub-directory and logs a warning if .config isn't created
     by xdg-user-dirs.
 
+  [ Josselin Mouette ]
+  * Set the team as primary maintainer. Closes: #523545.
+
  -- Josselin Mouette <joss@debian.org>  Thu, 05 Mar 2009 17:51:30 +0100
 
 metacity (1:2.24.0-2) unstable; urgency=low
