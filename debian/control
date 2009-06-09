@@ -2,33 +2,32 @@ Source: metacity
 Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
-Uploaders: Josselin Mouette <joss@debian.org>, Loic Minier <lool@dooz.org>, Riccardo Setti <giskard@debian.org>, Sebastian Dröge <slomo@debian.org>
+Uploaders: Josselin Mouette <joss@debian.org>, Loic Minier <lool@dooz.org>, Sebastian Dröge <slomo@debian.org>
 Build-Depends: cdbs (>= 0.4.41),
                debhelper (>= 5),
-               gettext,
+               intltool (>= 0.34.90),
                libgtk2.0-dev (>= 2.10.0),
-               liborbit2-dev (>= 1:2.10.2),
-               libpopt-dev,
-               libxml2-dev (>= 2.4.23),
-               libxcomposite-dev,
+               libpango1.0-dev (>= 1.2.0),
                libgconf2-dev (>= 2.6.1-2),
-               libglade2-dev (>= 2.4.0),
-               libice-dev,
-               libsm-dev,
-               libx11-dev,
-               libxt-dev,
-               libxdamage-dev,
-               libxext-dev,
-               libxfixes-dev,
-               libxrandr-dev,
-               libxrender-dev,
-               x11proto-core-dev,
-               libxinerama-dev,
+               libglib2.0-dev (>= 2.6.0),
                libstartup-notification0-dev (>= 0.7),
-               libxml-parser-perl,
+               libxcomposite-dev (>= 1:0.2),
+               libxfixes-dev,
+               libxrender-dev,
+               libxdamage-dev,
+               libxcursor-dev,
+               libxt-dev,
+               libx11-dev,
+               libxinerama-dev,
+               libxext-dev,
+               libxrandr-dev,
+               libsm-dev,
+               libice-dev,
+               zenity,
+               gnome-doc-utils (>= 0.8),
                gnome-pkg-tools (>= 0.10),
                dpkg-dev (>= 1.13.19)
-Standards-Version: 3.8.0
+Standards-Version: 3.8.1
 
 Package: metacity
 Section: x11
@@ -36,14 +35,15 @@ Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          metacity-common (>= ${gnome:Version}),
-         metacity-common (<< ${gnome:NextVersion})
+         metacity-common (<< ${gnome:NextVersion}),
+         zenity
 Provides: x-window-manager
 Recommends: gnome-session | x-session-manager
 Suggests: gnome-control-center (>= 1:2.5.4),
           gnome-themes,
           xdg-user-dirs
-Description: A lightweight GTK2 based Window Manager
- Metacity is a small window manager, using gtk2 to do everything.
+Description: lightweight GTK+ window manager
+ Metacity is a small window manager, using GTK+ to do everything.
  .
  As the author says, metacity is a "Boring window manager for the adult in
  you. Many window managers are like Marshmallow Froot Loops; Metacity is
@@ -60,8 +60,8 @@ Depends: ${shlibs:Depends},
          metacity-common (<< ${gnome:NextVersion})
 Conflicts: libmetacity0
 Replaces: libmetacity0
-Description: library of lightweight GTK2 based Window Manager
- Metacity is a small window manager, using gtk2 to do everything.
+Description: library for the Metacity window manager
+ Metacity is a small window manager, using GTK+ to do everything.
  .
  As the author says, metacity is a "Boring window manager for the adult in
  you. Many window managers are like Marshmallow Froot Loops; Metacity is
@@ -74,8 +74,8 @@ Section: misc
 Architecture: all
 Depends: ${misc:Depends}
 Replaces: metacity (<< 1:2.16.3)
-Description: Shared files of lightweight GTK2 based Window Manager
- Metacity is a small window manager, using gtk2 to do everything.
+Description: shared files for the Metacity window manager
+ Metacity is a small window manager, using GTK+ to do everything.
  .
  As the author says, metacity is a "Boring window manager for the adult in
  you. Many window managers are like Marshmallow Froot Loops; Metacity is
@@ -89,8 +89,8 @@ Architecture: any
 Depends: ${misc:Depends},
          libmetacity-private0 (= ${binary:Version}),
          libgtk2.0-dev (>= 2.10.0-1)
-Description: Development files of lightweight GTK2 based Window Manager
- Metacity is a small window manager, using gtk2 to do everything.
+Description: Development files for the Metacity window manager
+ Metacity is a small window manager, using GTK+ to do everything.
  .
  As the author says, metacity is a "Boring window manager for the adult in
  you. Many window managers are like Marshmallow Froot Loops; Metacity is

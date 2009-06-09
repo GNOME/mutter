@@ -1,4 +1,4 @@
-metacity (1:2.24.0-3) UNRELEASED; urgency=low
+metacity (1:2.26.0-1) unstable; urgency=low
 
   [ Josselin Mouette ]
   * Fix typo in changelog entry.
@@ -12,8 +12,12 @@ metacity (1:2.24.0-3) UNRELEASED; urgency=low
 
   [ Josselin Mouette ]
   * Set the team as primary maintainer. Closes: #523545.
+  * Fixup in the descriptions.
+  * New upstream release.
+  * Update build-dependencies.
+  * Bump shlibs for libmetacity-private0.
 
- -- Josselin Mouette <joss@debian.org>  Thu, 05 Mar 2009 17:51:30 +0100
+ -- Josselin Mouette <joss@debian.org>  Tue, 09 Jun 2009 20:36:03 +0200
 
 metacity (1:2.24.0-2) unstable; urgency=low
 
