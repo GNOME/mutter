@@ -5,6 +5,7 @@ Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.
 Uploaders: Josselin Mouette <joss@debian.org>, Loic Minier <lool@dooz.org>, Sebastian Dröge <slomo@debian.org>
 Build-Depends: cdbs (>= 0.4.41),
                debhelper (>= 5),
+               quilt,
                intltool (>= 0.34.90),
                libgtk2.0-dev (>= 2.10.0),
                libpango1.0-dev (>= 1.2.0),

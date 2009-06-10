@@ -1,8 +1,10 @@
---- ltmain.sh	2007-08-14 18:43:36.000000000 +0100
-+++ ltmain.sh.new	2007-12-20 12:07:00.000000000 +0000
-@@ -1793,6 +1793,11 @@
- 	IFS="$save_ifs"
- 	arg=`$echo "X$arg" | $Xsed -e "s/^ //"`
+Index: metacity-2.26.0/ltmain.sh
+===================================================================
+--- metacity-2.26.0.orig/ltmain.sh	2009-06-10 21:49:59.573656104 +0200
++++ metacity-2.26.0/ltmain.sh	2009-06-10 21:52:17.821406220 +0200
+@@ -1684,6 +1684,11 @@ func_mode_execute ()
+ 	func_dirname "$file" "" "."
+ 	dir="$func_dirname_result"
  	;;
 +        
 +       -Wl,--as-needed)
@@ -10,9 +12,9 @@
 +        continue
 +        ;;
  
-       -Wl,*)
- 	args=`$echo "X$arg" | $Xsed -e "$sed_quote_subst" -e 's/^-Wl,//'`
-@@ -2137,6 +2142,15 @@
+       *)
+ 	func_warning "\`-dlopen' is ignored for non-libtool libraries and objects"
+@@ -5070,6 +5075,15 @@ func_mode_link ()
  	lib=
  	found=no
  	case $deplib in

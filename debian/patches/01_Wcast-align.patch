@@ -1,0 +1,16 @@
+Index: metacity-2.26.0/configure.in
+===================================================================
+--- metacity-2.26.0.orig/configure.in	2009-06-10 21:47:21.761908229 +0200
++++ metacity-2.26.0/configure.in	2009-06-10 21:47:36.365408387 +0200
+@@ -84,11 +84,6 @@ if test "x$GCC" = "xyes"; then
+   esac
+ 
+   case " $CFLAGS " in
+-  *[\ \	]-Wcast-align[\ \	]*) ;;
+-  *) CFLAGS="$CFLAGS -Wcast-align" ;;
+-  esac
+-
+-  case " $CFLAGS " in
+   *[\ \	]-Wsign-compare[\ \	]*) ;;
+   *) CFLAGS="$CFLAGS -Wsign-compare" ;;
+   esac

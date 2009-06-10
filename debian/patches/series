@@ -1,0 +1,3 @@
+01_Wcast-align.patch
+90_autotools.patch
+99_ltmain_as-needed.patch

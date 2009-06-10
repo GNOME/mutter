@@ -1,3 +1,13 @@
+metacity (1:2.26.0-2) unstable; urgency=low
+
+  * Use patchsys-quilt; build-depend on quilt.
+  * 01_Wcast-align.patch: don’t use -Wcast-align, it gives incorrect 
+    warnings (errors thanks to -Werror) when some pointers are converted 
+    back and forth to XPointers. Closes: #532655.
+  * 90_autotools.patch: relibtoolize the whole package.
+
+ -- Josselin Mouette <joss@debian.org>  Wed, 10 Jun 2009 21:52:35 +0200
+
 metacity (1:2.26.0-1) unstable; urgency=low
 
   [ Josselin Mouette ]
