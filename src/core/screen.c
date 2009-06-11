@@ -2115,7 +2115,7 @@ meta_screen_queue_workarea_recalc (MetaScreen *screen)
       meta_topic (META_DEBUG_WORKAREA,
                   "Adding work area hint idle function\n");
       screen->work_area_idle =
-        g_idle_add_full (META_PRIORITY_WORK_AREA_HINT,
+        g_idle_add_full (META_PRIORITY_BEFORE_REDRAW,
                          (GSourceFunc) set_work_area_idle_func,
                          screen,
                          NULL);

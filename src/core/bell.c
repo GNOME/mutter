@@ -210,7 +210,12 @@ bell_flash_window_frame (MetaWindow *window)
   g_assert (window->frame != NULL);
   window->frame->is_flashing = 1;
   meta_frame_queue_draw (window->frame);
-  g_timeout_add_full (G_PRIORITY_DEFAULT_IDLE, 100, 
+  /* Since this idle is added after the Clutter clock source, with
+   * the same priority, it will be executed after it as well, so
+   * we are guaranteed to get at least one frame drawn in the
+   * flashed state, no matter how loaded we are.
+   */
+  g_timeout_add_full (META_PRIORITY_REDRAW, 100, 
       bell_unflash_frame, window->frame, NULL);
 }
 

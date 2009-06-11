@@ -71,7 +71,8 @@ sigchld_handler (MetaNexus *nexus, guint arg1, gpointer arg2, gpointer user_data
   if (GPOINTER_TO_INT (arg2) == ours->dialog_pid)
     {
       if (arg1 == 1 /* pressed "force quit" */)
-        g_idle_add (delete_window_callback, user_data);
+        g_idle_add_full (G_PRIORITY_DEFAULT,
+                         delete_window_callback, user_data, NULL);
 
       ours->dialog_pid = -1; /* forget it anyway */
     }

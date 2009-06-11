@@ -1987,9 +1987,9 @@ meta_window_queue (MetaWindow *window, guint queuebits)
 
           const gint window_queue_idle_priority[NUMBER_OF_QUEUES] =
             {
-              G_PRIORITY_DEFAULT_IDLE,  /* CALC_SHOWING */
-              META_PRIORITY_RESIZE,     /* MOVE_RESIZE */
-              G_PRIORITY_DEFAULT_IDLE   /* UPDATE_ICON */
+              META_PRIORITY_BEFORE_REDRAW, /* CALC_SHOWING */
+              META_PRIORITY_RESIZE,        /* MOVE_RESIZE */
+              META_PRIORITY_BEFORE_REDRAW  /* UPDATE_ICON */
             };
 
           const GSourceFunc window_queue_idle_handler[NUMBER_OF_QUEUES] =
