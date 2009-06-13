@@ -457,6 +457,10 @@ create_guard_window (Display *xdisplay, MetaScreen *screen)
 		   CopyFromParent, /* visual */
 		   CWEventMask|CWOverrideRedirect|CWBackPixel,
 		   &attributes);
+  meta_stack_tracker_record_add (screen->stack_tracker,
+                                 guard_window,
+                                 XNextRequest(xdisplay) - 1);
+
   XLowerWindow (xdisplay, guard_window);
   XMapWindow (xdisplay, guard_window);
   return guard_window;
@@ -730,6 +734,7 @@ meta_screen_new (MetaDisplay *display,
   screen->ws_popup = NULL;
   
   screen->stack = meta_stack_new (screen);
+  screen->stack_tracker = meta_stack_tracker_new (screen);
 
   meta_prefs_add_listener (prefs_changed_callback, screen);
 
@@ -807,6 +812,7 @@ meta_screen_free (MetaScreen *screen,
   meta_ui_free (screen->ui);
 
   meta_stack_free (screen->stack);
+  meta_stack_tracker_free (screen->stack_tracker);
 
   meta_error_trap_push_with_return (screen->display);
   XSelectInput (screen->display->xdisplay, screen->xroot, 0);
