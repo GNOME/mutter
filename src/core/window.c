@@ -2308,7 +2308,7 @@ window_would_be_covered (const MetaWindow *newbie)
 }
 
 /* XXX META_EFFECT_*_MAP */
-void
+static void
 meta_window_show (MetaWindow *window)
 {
   gboolean did_show;
