@@ -812,13 +812,19 @@ meta_display_open (void)
   return TRUE;
 }
 
+typedef struct {
+  GSList *winlist;
+  gboolean include_override_redirect;
+} ListifyClosure;
+
 static void
 listify_func (gpointer key, gpointer value, gpointer data)
 {
-  GSList **listp;
+  ListifyClosure *closure = data;
+  MetaWindow *window = value;
 
-  listp = data;
-  *listp = g_slist_prepend (*listp, value);
+  if (closure->include_override_redirect || !window->override_redirect)
+    closure->winlist = g_slist_prepend (closure->winlist, window);
 }
 
 static gint
@@ -832,17 +838,21 @@ ptrcmp (gconstpointer a, gconstpointer b)
     return 0;
 }
 
-GSList*
-meta_display_list_windows (MetaDisplay *display)
+static GSList*
+list_windows (MetaDisplay *display,
+              gboolean     include_override_redirect)
 {
+  ListifyClosure closure;
   GSList *winlist;
   GSList *tmp;
   GSList *prev;
-  
-  winlist = NULL;
+
+  closure.winlist = NULL;
+  closure.include_override_redirect = include_override_redirect;
   g_hash_table_foreach (display->window_ids,
                         listify_func,
-                        &winlist);
+                        &closure);
+  winlist = closure.winlist;
 
   /* Uniquify the list, since both frame windows and plain
    * windows are in the hash
@@ -881,6 +891,40 @@ meta_display_list_windows (MetaDisplay *display)
     }
 
   return winlist;
+}
+
+/**
+ * meta_display_list_windows:
+ * @display: a #MetaDisplay
+ *
+ * Lists windows for the display, excluding override-redirect
+ * windows.
+ *
+ * Return value: (transfer container): the list of windows.
+ */
+GSList*
+meta_display_list_windows (MetaDisplay *display)
+{
+  return list_windows (display, FALSE);
+}
+
+/**
+ * meta_display_list_all_windows:
+ * @display: a #MetaDisplay
+ *
+ * Lists windows for the display, including override-redirect
+ * windows. You usually want to use meta_display_list_windows()
+ * instead, since override-redirect windows are by definition
+ * outside the scope of window management. This function is most
+ * useful if you are interested in how things are displayed on
+ * the screen.
+ *
+ * Return value: (transfer container): the list of windows.
+ */
+GSList*
+meta_display_list_all_windows (MetaDisplay *display)
+{
+  return list_windows (display, TRUE);
 }
 
 void
@@ -4824,7 +4868,7 @@ meta_display_unmanage_windows_for_screen (MetaDisplay *display,
   GSList *tmp;
   GSList *winlist;
 
-  winlist = meta_display_list_windows (display);
+  winlist = meta_display_list_all_windows (display);
   winlist = g_slist_sort (winlist, meta_display_stack_cmp);
 
   /* Unmanage all windows */

@@ -934,7 +934,7 @@ meta_screen_composite_all_windows (MetaScreen *screen)
   if (!display->compositor)
     return;
 
-  windows = meta_display_list_windows (display);
+  windows = meta_display_list_all_windows (display);
   for (tmp = windows; tmp != NULL; tmp = tmp->next)
     meta_compositor_add_window (display->compositor, tmp->data);
   g_slist_free (windows);

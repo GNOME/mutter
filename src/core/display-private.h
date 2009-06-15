@@ -367,6 +367,7 @@ gboolean    meta_display_xwindow_is_a_no_focus_window (MetaDisplay *display,
                                                        Window xwindow);
 
 GSList*     meta_display_list_windows        (MetaDisplay *display);
+GSList*     meta_display_list_all_windows    (MetaDisplay *display);
 
 MetaDisplay* meta_display_for_x_display  (Display     *xdisplay);
 MetaDisplay* meta_get_display            (void);
