@@ -1,6 +1,6 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-/* Metacity common types shared by core.h and ui.h */
+/* Mutter common types shared by core.h and ui.h */
 
 /* 
  * Copyright (C) 2001 Havoc Pennington

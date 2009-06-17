@@ -1,6 +1,6 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-/* Metacity visual bell */
+/* Mutter visual bell */
 
 /* 
  * Copyright (C) 2002 Sun Microsystems Inc.
@@ -25,7 +25,7 @@
 /**
  * \file bell.c Ring the bell or flash the screen
  *
- * Sometimes, X programs "ring the bell", whatever that means. Metacity lets
+ * Sometimes, X programs "ring the bell", whatever that means. Mutter lets
  * the user configure the bell to be audible or visible (aka visual), and
  * if it's visual it can be configured to be frame-flash or fullscreen-flash.
  * We never get told about audible bells; X handles them just fine by itself.
@@ -215,7 +215,7 @@ bell_flash_window_frame (MetaWindow *window)
    * we are guaranteed to get at least one frame drawn in the
    * flashed state, no matter how loaded we are.
    */
-  g_timeout_add_full (META_PRIORITY_REDRAW, 100, 
+  g_timeout_add_full (META_PRIORITY_REDRAW, 100,
       bell_unflash_frame, window->frame, NULL);
 }
 

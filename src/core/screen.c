@@ -1,6 +1,6 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-/* Metacity X screen handler */
+/* Mutter X screen handler */
 
 /* 
  * Copyright (C) 2001, 2002 Havoc Pennington
@@ -328,7 +328,7 @@ reload_xinerama_infos (MetaScreen *screen)
     }
 #else
   meta_topic (META_DEBUG_XINERAMA,
-              "Metacity compiled without XFree86 Xinerama support\n");
+              "Mutter compiled without XFree86 Xinerama support\n");
 #endif /* HAVE_XFREE_XINERAMA */
 
 #ifdef HAVE_SOLARIS_XINERAMA
@@ -387,7 +387,7 @@ reload_xinerama_infos (MetaScreen *screen)
     }
 #else
   meta_topic (META_DEBUG_XINERAMA,
-              "Metacity compiled without Solaris Xinerama support\n");
+              "Mutter compiled without Solaris Xinerama support\n");
 #endif /* HAVE_SOLARIS_XINERAMA */
 
   
@@ -396,7 +396,7 @@ reload_xinerama_infos (MetaScreen *screen)
    */
   if (screen->n_xinerama_infos == 0)
     {
-      if (g_getenv ("METACITY_DEBUG_XINERAMA"))
+      if (g_getenv ("MUTTER_DEBUG_XINERAMA"))
         {
           meta_topic (META_DEBUG_XINERAMA,
                       "Pretending a single monitor has two Xinerama screens\n");
@@ -1218,7 +1218,7 @@ set_desktop_viewport_hint (MetaScreen *screen)
     return;
 
   /*
-   * Metacity does not implement viewports, so this is a fixed 0,0
+   * Mutter does not implement viewports, so this is a fixed 0,0
    */
   data[0] = 0;
   data[1] = 0;
