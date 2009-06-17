@@ -515,12 +515,12 @@ stack_tracker_event_received (MetaStackTracker *tracker,
 
   while (tracker->queued_requests->head)
     {
-      MetaStackOp *op = tracker->queued_requests->head->data;
-      if (op->any.serial > op->any.serial)
+      MetaStackOp *queued_op = tracker->queued_requests->head->data;
+      if (queued_op->any.serial > op->any.serial)
 	break;
 
       g_queue_pop_head (tracker->queued_requests);
-      meta_stack_op_free (op);
+      meta_stack_op_free (queued_op);
     }
 
   if (tracker->predicted_stack)
