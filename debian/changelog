@@ -1,4 +1,4 @@
-metacity (1:2.26.0-3) unstable; urgency=low
+metacity (1:2.26.0-3) unstable; urgency=high
 
   * 10_ignore_callbacks.patch: stolen upstream. Fix a bug leading to 
     some callbacks being ignored. Closes: #533917.
