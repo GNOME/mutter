@@ -43,7 +43,6 @@ Recommends: gnome-session | x-session-manager
 Suggests: gnome-control-center (>= 1:2.5.4),
           gnome-themes,
           xdg-user-dirs
-Breaks: gnome-panel (<< 2.26)
 Description: lightweight GTK+ window manager
  Metacity is a small window manager, using GTK+ to do everything.
  .
