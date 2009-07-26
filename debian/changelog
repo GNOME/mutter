@@ -7,8 +7,12 @@ mutter (2.27.1-1) UNRELEASED; urgency=low
   - renamed packages
   * debian/patches/10_ignore_callbacks.patch:
   - removed; applied upstream
+  * debian/mutter-common.install:
+  - this package no longer provides themes and gnome-control-center
+    keybindings capplet; this will come in a separate module in the
+    future, it seems, and we may want to make sure it is installed
 
- -- Gustavo Noronha Silva <kov@debian.org>  Sun, 26 Jul 2009 13:20:32 +0200
+ -- Gustavo Noronha Silva <kov@debian.org>  Sun, 26 Jul 2009 13:33:08 +0200
 
 metacity (1:2.26.0-3) unstable; urgency=high
 
