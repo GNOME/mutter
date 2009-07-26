@@ -2,7 +2,7 @@ debian/tmp/etc
 debian/tmp/usr/share/gnome
 debian/tmp/usr/share/locale
 debian/tmp/usr/share/man
-debian/tmp/usr/share/metacity
+debian/tmp/usr/share/mutter
 debian/tmp/usr/share/themes
 debian/tmp/usr/share/gnome-control-center/keybindings
-doc/metacity-theme.dtd usr/share/sgml/metacity-common
+doc/metacity-theme.dtd usr/share/sgml/mutter-common

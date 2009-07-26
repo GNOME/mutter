@@ -6,7 +6,7 @@ action="$1"
 
 if [ "$action" = remove ]; then
     update-alternatives --remove x-window-manager \
-        /usr/bin/metacity
+        /usr/bin/mutter
 fi
 
 #DEBHELPER#
