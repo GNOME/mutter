@@ -1,8 +1,8 @@
-Index: metacity-2.26.0/ltmain.sh
+Index: mutter-2.27.1/ltmain.sh
 ===================================================================
---- metacity-2.26.0.orig/ltmain.sh	2009-06-10 21:49:59.573656104 +0200
-+++ metacity-2.26.0/ltmain.sh	2009-06-10 21:52:17.821406220 +0200
-@@ -1684,6 +1684,11 @@ func_mode_execute ()
+--- mutter-2.27.1.orig/ltmain.sh	2009-07-26 13:22:50.645790616 +0200
++++ mutter-2.27.1/ltmain.sh	2009-07-26 13:23:14.265327137 +0200
+@@ -1684,6 +1684,11 @@
  	func_dirname "$file" "" "."
  	dir="$func_dirname_result"
  	;;
@@ -14,7 +14,7 @@ Index: metacity-2.26.0/ltmain.sh
  
        *)
  	func_warning "\`-dlopen' is ignored for non-libtool libraries and objects"
-@@ -5070,6 +5075,15 @@ func_mode_link ()
+@@ -5074,6 +5079,15 @@
  	lib=
  	found=no
  	case $deplib in
