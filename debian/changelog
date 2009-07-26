@@ -1,3 +1,13 @@
+mutter (2.27.1-1) UNRELEASED; urgency=low
+
+  * First mutter release
+  * debian/control.in:
+  - adapted descriptions
+  - added build-deps on gobject-introspection, and clutter-0.9
+  - renamed packages
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Sun, 26 Jul 2009 13:10:24 +0200
+
 metacity (1:2.26.0-3) unstable; urgency=high
 
   * 10_ignore_callbacks.patch: stolen upstream. Fix a bug leading to 

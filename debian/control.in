@@ -1,4 +1,4 @@
-Source: metacity
+Source: mutter
 Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
@@ -7,6 +7,8 @@ Build-Depends: cdbs (>= 0.4.41),
                debhelper (>= 5),
                quilt,
                intltool (>= 0.34.90),
+               gobject-introspection-repository (>= 0.6.3),
+               libclutter-0.9-dev,
                libgtk2.0-dev (>= 2.10.0),
                libpango1.0-dev (>= 1.2.0),
                libgconf2-dev (>= 2.6.1-2),
@@ -30,13 +32,13 @@ Build-Depends: cdbs (>= 0.4.41),
                dpkg-dev (>= 1.13.19)
 Standards-Version: 3.8.1
 
-Package: metacity
+Package: mutter
 Section: x11
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         metacity-common (>= ${gnome:Version}),
-         metacity-common (<< ${gnome:NextVersion}),
+         mutter-common (>= ${gnome:Version}),
+         mutter-common (<< ${gnome:NextVersion}),
          zenity
 Provides: x-window-manager
 Recommends: gnome-session | x-session-manager
@@ -44,57 +46,66 @@ Suggests: gnome-control-center (>= 1:2.5.4),
           gnome-themes,
           xdg-user-dirs
 Description: lightweight GTK+ window manager
- Metacity is a small window manager, using GTK+ to do everything.
+ Mutter is a small window manager, using GTK+ and Clutter to do
+ everything.
  .
- As the author says, metacity is a "Boring window manager for the adult in
- you. Many window managers are like Marshmallow Froot Loops; Metacity is
- like Cheerios."
+ Mutter is the clutter-based evolution of Metacity, which, as the
+ author says, is a "Boring window manager for the adult in you. Many
+ window managers are like Marshmallow Froot Loops; Metacity is like
+ Cheerios."
  .
  This package contains the core binaries.
 
-Package: libmetacity-private0
+Package: libmutter-private0
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         metacity-common (>= ${gnome:Version}),
-         metacity-common (<< ${gnome:NextVersion})
-Conflicts: libmetacity0
-Replaces: libmetacity0
-Description: library for the Metacity window manager
- Metacity is a small window manager, using GTK+ to do everything.
+         mutter-common (>= ${gnome:Version}),
+         mutter-common (<< ${gnome:NextVersion})
+Conflicts: libmutter0
+Replaces: libmutter0
+Description: library for the Mutter window manager
+ Mutter is a small window manager, using GTK+ and Clutter to do
+ everything.
  .
- As the author says, metacity is a "Boring window manager for the adult in
- you. Many window managers are like Marshmallow Froot Loops; Metacity is
- like Cheerios."
+ Mutter is the clutter-based evolution of Metacity, which, as the
+ author says, is a "Boring window manager for the adult in you. Many
+ window managers are like Marshmallow Froot Loops; Metacity is like
+ Cheerios."
  .
  This package contains the shared library.
 
-Package: metacity-common
+Package: mutter-common
 Section: misc
 Architecture: all
 Depends: ${misc:Depends}
-Replaces: metacity (<< 1:2.16.3)
-Description: shared files for the Metacity window manager
- Metacity is a small window manager, using GTK+ to do everything.
+Replaces: mutter (<< 1:2.16.3)
+Description: shared files for the Mutter window manager
+ Mutter is a small window manager, using GTK+ and Clutter to do
+ everything.
  .
- As the author says, metacity is a "Boring window manager for the adult in
- you. Many window managers are like Marshmallow Froot Loops; Metacity is
- like Cheerios."
+ Mutter is the clutter-based evolution of Metacity, which, as the
+ author says, is a "Boring window manager for the adult in you. Many
+ window managers are like Marshmallow Froot Loops; Metacity is like
+ Cheerios."
  .
  This package contains the shared files.
 
-Package: libmetacity-dev
+Package: libmutter-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends},
-         libmetacity-private0 (= ${binary:Version}),
+         libmutter-private0 (= ${binary:Version}),
+         liclutter-0.9-dev,
          libgtk2.0-dev (>= 2.10.0-1)
-Description: Development files for the Metacity window manager
- Metacity is a small window manager, using GTK+ to do everything.
+Description: Development files for the Mutter window manager
+ Mutter is a small window manager, using GTK+ and Clutter to do
+ everything.
  .
- As the author says, metacity is a "Boring window manager for the adult in
- you. Many window managers are like Marshmallow Froot Loops; Metacity is
- like Cheerios."
+ Mutter is the clutter-based evolution of Metacity, which, as the
+ author says, is a "Boring window manager for the adult in you. Many
+ window managers are like Marshmallow Froot Loops; Metacity is like
+ Cheerios."
  .
  This package contains the development files.
