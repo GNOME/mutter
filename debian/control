@@ -8,7 +8,7 @@ Build-Depends: cdbs (>= 0.4.41),
                quilt,
                intltool (>= 0.34.90),
                gobject-introspection-repository (>= 0.6.3),
-               libclutter-0.9-dev,
+               libclutter-dev (>= 1.0.0),
                libgtk2.0-dev (>= 2.10.0),
                libpango1.0-dev (>= 1.2.0),
                libgconf2-dev (>= 2.6.1-2),
@@ -97,7 +97,7 @@ Section: libdevel
 Architecture: any
 Depends: ${misc:Depends},
          libmutter-private0 (= ${binary:Version}),
-         libclutter-0.9-dev,
+         libclutter-dev (>= 1.0.0),
          libgtk2.0-dev (>= 2.10.0-1)
 Description: Development files for the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
