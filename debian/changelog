@@ -1,6 +1,7 @@
-mutter (2.27.2-1) UNRELEASED; urgency=low
+mutter (2.27.2-1) unstable; urgency=low
 
   * First mutter release for Debian
+  - no ITP since this is in practice a branch of metacity
   * debian/control.in:
   - adapted descriptions
   - added build-deps on gobject-introspection, and clutter >= 1.0
