@@ -97,7 +97,7 @@ Section: libdevel
 Architecture: any
 Depends: ${misc:Depends},
          libmutter-private0 (= ${binary:Version}),
-         libclutter-dev (>= 1.0.0),
+         libclutter-1.0-dev (>= 1.0.0),
          libgtk2.0-dev (>= 2.10.0-1)
 Description: Development files for the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
