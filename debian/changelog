@@ -1,3 +1,9 @@
+mutter (2.27.2-2) UNRELEASED; urgency=low
+
+  * Update list of copyright holders.
+
+ -- Josselin Mouette <joss@debian.org>  Wed, 26 Aug 2009 10:28:24 +0200
+
 mutter (2.27.2-1) unstable; urgency=low
 
   * First mutter release for Debian
