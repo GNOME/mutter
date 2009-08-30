@@ -4,7 +4,12 @@ mutter (2.27.3-2) unstable; urgency=low
   * debian/control.in:
   - adding missing build-dep to fix FTBFS (Closes: #544342)
 
- -- Gustavo Noronha Silva <kov@debian.org>  Sat, 29 Aug 2009 22:43:08 -0300
+  [ Gustavo Noronha Silva ]
+  * debian/control.in:
+  - also add gobject-introspection, which was also missing, to
+    build-depends
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Sun, 30 Aug 2009 19:02:46 -0300
 
 mutter (2.27.3-1) unstable; urgency=low
 
