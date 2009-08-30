@@ -1,8 +1,12 @@
-mutter (2.27.2-2) UNRELEASED; urgency=low
+mutter (2.27.3-1) unstable; urgency=low
 
+  [ Josselin Mouette ]
   * Update list of copyright holders.
 
- -- Josselin Mouette <joss@debian.org>  Wed, 26 Aug 2009 10:28:24 +0200
+  [ Gustavo Noronha Silva ]
+  * New upstream release
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Sat, 29 Aug 2009 21:53:05 -0300
 
 mutter (2.27.2-1) unstable; urgency=low
 
