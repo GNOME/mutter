@@ -1,2 +1,2 @@
 version=3
-http://ftp.gnome.org/pub/GNOME/sources/metacity/([\d\.]+)[02468]/ metacity-(.*)\.tar\.gz debian uupdate
+http://ftp.gnome.org/pub/GNOME/sources/mutter/([\d\.]+)\d/ mutter-(.*)\.tar\.gz debian uupdate
