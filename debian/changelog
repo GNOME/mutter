@@ -1,3 +1,9 @@
+mutter (2.28.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Fri, 09 Oct 2009 13:23:25 -0300
+
 mutter (2.27.5-1) unstable; urgency=low
 
   * New upstream release
