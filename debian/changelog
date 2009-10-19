@@ -1,4 +1,4 @@
-mutter (2.28.0-2) UNRELEASED; urgency=low
+mutter (2.28.0-2) unstable; urgency=low
 
   * debian/control.in:
   - adapt for the new GObject introspection policy
