@@ -1,8 +1,9 @@
 mutter (2.28.0-2) UNRELEASED; urgency=low
 
-  * NOT RELEASED YET
+  * debian/control.in:
+  - adapt for the new GObject introspection policy
 
- -- Gustavo Noronha Silva <kov@debian.org>  Fri, 09 Oct 2009 13:54:55 -0300
+ -- Gustavo Noronha Silva <kov@debian.org>  Mon, 19 Oct 2009 15:59:57 -0200
 
 mutter (2.28.0-1) unstable; urgency=low
 
