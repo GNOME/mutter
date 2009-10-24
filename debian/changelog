@@ -1,3 +1,12 @@
+mutter (2.28.1~git20091024-1) unstable; urgency=low
+
+  * Upstream snapshot
+  * debian/control.in:
+  - fixed typo in description
+  - bump Standards-Version to 3.8.3
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Sat, 24 Oct 2009 12:59:03 -0200
+
 mutter (2.28.0-2) unstable; urgency=low
 
   * debian/control.in:
