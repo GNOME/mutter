@@ -1,3 +1,9 @@
+mutter (2.28.1~git20091208-1) unstable; urgency=low
+
+  * New upstream snapshot
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Sat, 24 Oct 2009 13:16:53 -0200
+
 mutter (2.28.1~git20091024-1) unstable; urgency=low
 
   * Upstream snapshot
