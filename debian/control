@@ -7,7 +7,7 @@ Source: mutter
 Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
-Uploaders: Gustavo Noronha Silva <kov@debian.org>, Josselin Mouette <joss@debian.org>
+Uploaders: Gustavo Noronha Silva <kov@debian.org>
 Build-Depends: cdbs (>= 0.4.41),
                debhelper (>= 5),
                quilt,
