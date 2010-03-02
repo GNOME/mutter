@@ -1,3 +1,11 @@
+mutter (2.29.0-1) unstable; urgency=low
+
+  * New upstream development release.
+  * debian/rules:
+  - update makeshlibs argument to require >= 2.29.0
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Tue, 02 Mar 2010 19:19:44 -0300
+
 mutter (2.28.1~git20100129-1) unstable; urgency=low
 
   * Upstream snapshot
