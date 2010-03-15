@@ -1,3 +1,10 @@
+mutter (2.29.0-2) unstable; urgency=low
+
+  * debian/control:
+  - fix gir package name, because the typelib has changed its name
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Mon, 15 Mar 2010 17:27:59 -0300
+
 mutter (2.29.0-1) unstable; urgency=low
 
   * New upstream development release.
