@@ -126,8 +126,8 @@ Architecture: any
 Depends: ${gir:Depends},
          ${shlib:Depends},
          ${misc:Depends}
-Conflicts: libmutter-private0 (<= 2.28.0-1)
-Replaces: libmutter-private0 (<= 2.28.0-1)
+Conflicts: libmutter-private0 (<= 2.28.0-1), gir1.0-mutter-2.28
+Replaces: libmutter-private0 (<= 2.28.0-1), gir1.0-mutter-2.28
 Description: GObject introspection data for Mutter
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
