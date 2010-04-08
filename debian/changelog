@@ -1,3 +1,9 @@
+mutter (2.29.1-1) unstable; urgency=low
+
+  * New development release.
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Thu, 08 Apr 2010 20:48:38 -0300
+
 mutter (2.29.0-2) unstable; urgency=low
 
   * debian/control:
