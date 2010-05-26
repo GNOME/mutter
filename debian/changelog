@@ -1,3 +1,10 @@
+mutter (2.31.2-2) experimental; urgency=low
+
+  * debian/control:
+  - fix GIR package name to account for GIR API name change
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Wed, 26 May 2010 15:15:34 -0300
+
 mutter (2.31.2-1) experimental; urgency=low
 
   * New development release
