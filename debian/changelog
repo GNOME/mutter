@@ -1,3 +1,10 @@
+mutter (2.31.2-3) experimental; urgency=low
+
+  * debian/gir1.0-mutter-2.{29->31}.install:
+  - actually install the typelib file
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Mon, 31 May 2010 11:37:33 -0300
+
 mutter (2.31.2-2) experimental; urgency=low
 
   * debian/control:
