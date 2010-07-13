@@ -1,3 +1,13 @@
+mutter (2.31.5-1) experimental; urgency=low
+
+  * New upstream release
+  - refreshed patches
+  - added a hack to rules to work-around the build trying to install
+    locale files to /usr/lib/locale
+  - bumped shlib minimum version to 2.31.5 (see #586124)
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Tue, 13 Jul 2010 11:36:29 -0300
+
 mutter (2.31.2-3) experimental; urgency=low
 
   * debian/gir1.0-mutter-2.{29->31}.install:
