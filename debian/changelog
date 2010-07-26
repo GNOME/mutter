@@ -1,3 +1,13 @@
+mutter (2.29.0-3) UNRELEASED; urgency=low
+
+  * debian/rules:
+    - Build with -Wno-deprecated-declarations, otherwise -Werror will
+      make us fail to build when a library deprecates some functions.
+      Closes: #590347.
+  * Switch to source format 3.0 (quilt).
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Mon, 26 Jul 2010 22:35:30 +0200
+
 mutter (2.29.0-2) unstable; urgency=low
 
   * debian/control:

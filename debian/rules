@@ -1,7 +1,6 @@
 #!/usr/bin/make -f
 
 include /usr/share/cdbs/1/rules/debhelper.mk
-include /usr/share/cdbs/1/rules/patchsys-quilt.mk
 include /usr/share/cdbs/1/class/gnome.mk
 include /usr/share/cdbs/1/rules/utils.mk
 include /usr/share/gnome-pkg-tools/1/rules/uploaders.mk
@@ -18,3 +17,5 @@ $(patsubst %,binary-predeb/%,$(DEB_ALL_PACKAGES)) ::
 # This does not work with mutter; disabled, for now.
 # LDFLAGS += -Wl,-z,defs -Wl,-O1 -Wl,--as-needed
 
+# This with -Werror is too much, see #590347
+CFLAGS += -Wno-deprecated-declarations
