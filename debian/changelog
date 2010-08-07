@@ -1,12 +1,14 @@
-mutter (2.29.0-3) UNRELEASED; urgency=low
+mutter (2.29.0-3) unstable; urgency=low
 
   * debian/rules:
     - Build with -Wno-deprecated-declarations, otherwise -Werror will
       make us fail to build when a library deprecates some functions.
       Closes: #590347.
   * Switch to source format 3.0 (quilt).
+  * The rebuild gets rid of the ClutterJson requirement, so this also
+    closes: #589879.
 
- -- Emilio Pozuelo Monfort <pochu@debian.org>  Mon, 26 Jul 2010 22:35:30 +0200
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sat, 07 Aug 2010 14:58:34 +0200
 
 mutter (2.29.0-2) unstable; urgency=low
 
