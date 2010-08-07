@@ -5,6 +5,7 @@ Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.
 Uploaders: @GNOME_TEAM@
 Build-Depends: cdbs (>= 0.4.41),
                debhelper (>= 5),
+               quilt,
                intltool (>= 0.34.90),
                gobject-introspection (>= 0.6.5-3),
                gir1.0-clutter-1.0,
