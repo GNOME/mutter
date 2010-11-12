@@ -629,10 +629,16 @@ meta_window_actor_get_shape_bounds (MetaWindowActor       *self,
 {
   MetaWindowActorPrivate *priv = self->priv;
 
-  if (priv->shaped)
+  /* We need to be defensive here because there are corner cases
+   * where getting the shape fails on a window being destroyed
+   * and similar.
+   */
+  if (priv->shaped && priv->shape_region)
     cairo_region_get_extents (priv->shape_region, bounds);
-  else
+  else if (priv->bounding_region)
     cairo_region_get_extents (priv->bounding_region, bounds);
+  else
+    bounds->x = bounds->y = bounds->width = bounds->height = 0;
 }
 
 static void
@@ -694,6 +700,10 @@ meta_window_actor_get_paint_volume (ClutterActor       *actor,
   cairo_rectangle_int_t bounds;
   gboolean appears_focused = meta_window_appears_focused (priv->window);
   ClutterVertex origin;
+
+  /* The paint volume is computed before paint functions are called
+   * so our bounds might not be updated yet. Force an update. */
+  meta_window_actor_pre_paint (self);
 
   meta_window_actor_get_shape_bounds (self, &bounds);
 
