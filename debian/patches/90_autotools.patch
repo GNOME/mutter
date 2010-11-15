@@ -6,10 +6,10 @@ autoheader
 autoconf
 rm -rf config.h.in~ autom4te.cache/
 
-Index: mutter-2.31.5/config.guess
+Index: mutter-2.91.2/config.guess
 ===================================================================
---- mutter-2.31.5.orig/config.guess	2010-07-01 16:58:56.000000000 -0300
-+++ mutter-2.31.5/config.guess	2010-07-13 11:48:26.688677286 -0300
+--- mutter-2.91.2.orig/config.guess	2010-10-28 18:28:40.000000000 -0200
++++ mutter-2.91.2/config.guess	2010-11-11 10:13:50.530060890 -0200
 @@ -1,10 +1,10 @@
  #! /bin/sh
  # Attempt to guess a canonical system name.
@@ -35,10 +35,10 @@ Index: mutter-2.31.5/config.guess
  
  This is free software; see the source for copying conditions.  There is NO
  warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
-Index: mutter-2.31.5/config.sub
+Index: mutter-2.91.2/config.sub
 ===================================================================
---- mutter-2.31.5.orig/config.sub	2010-07-01 16:58:56.000000000 -0300
-+++ mutter-2.31.5/config.sub	2010-07-13 11:48:26.696608435 -0300
+--- mutter-2.91.2.orig/config.sub	2010-10-28 18:28:40.000000000 -0200
++++ mutter-2.91.2/config.sub	2010-11-11 10:13:50.534061014 -0200
 @@ -1,10 +1,10 @@
  #! /bin/sh
  # Configuration validation subroutine script.
@@ -95,490 +95,11 @@ Index: mutter-2.31.5/config.sub
  	-none)
  		;;
  	*)
-Index: mutter-2.31.5/configure
+Index: mutter-2.91.2/ltmain.sh
 ===================================================================
---- mutter-2.31.5.orig/configure	2010-07-12 12:40:41.000000000 -0300
-+++ mutter-2.31.5/configure	2010-07-13 11:48:25.192606780 -0300
-@@ -818,6 +818,8 @@
- GLIB_GENMARSHAL
- GLIB_LIBS
- GLIB_CFLAGS
-+PKG_CONFIG_LIBDIR
-+PKG_CONFIG_PATH
- PKG_CONFIG
- OTOOL64
- OTOOL
-@@ -1013,6 +1015,8 @@
- CPPFLAGS
- CPP
- PKG_CONFIG
-+PKG_CONFIG_PATH
-+PKG_CONFIG_LIBDIR
- ALL_CFLAGS
- ALL_LIBS
- MUTTER_MESSAGE_CFLAGS
-@@ -1710,6 +1714,10 @@
-               you have headers in a nonstandard directory <include dir>
-   CPP         C preprocessor
-   PKG_CONFIG  path to pkg-config utility
-+  PKG_CONFIG_PATH
-+              directories to add to pkg-config's search path
-+  PKG_CONFIG_LIBDIR
-+              path overriding pkg-config's built-in search path
-   ALL_CFLAGS  C compiler flags for ALL, overriding pkg-config
-   ALL_LIBS    linker flags for ALL, overriding pkg-config
-   MUTTER_MESSAGE_CFLAGS
-@@ -6756,13 +6764,13 @@
- else
-   lt_cv_nm_interface="BSD nm"
-   echo "int some_variable = 0;" > conftest.$ac_ext
--  (eval echo "\"\$as_me:6759: $ac_compile\"" >&5)
-+  (eval echo "\"\$as_me:6767: $ac_compile\"" >&5)
-   (eval "$ac_compile" 2>conftest.err)
-   cat conftest.err >&5
--  (eval echo "\"\$as_me:6762: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
-+  (eval echo "\"\$as_me:6770: $NM \\\"conftest.$ac_objext\\\"\"" >&5)
-   (eval "$NM \"conftest.$ac_objext\"" 2>conftest.err > conftest.out)
-   cat conftest.err >&5
--  (eval echo "\"\$as_me:6765: output\"" >&5)
-+  (eval echo "\"\$as_me:6773: output\"" >&5)
-   cat conftest.out >&5
-   if $GREP 'External.*some_variable' conftest.out > /dev/null; then
-     lt_cv_nm_interface="MS dumpbin"
-@@ -7225,11 +7233,11 @@
-   ;;
- 
- # This must be Linux ELF.
--linux* | k*bsd*-gnu)
-+linux* | k*bsd*-gnu | kopensolaris*-gnu)
-   lt_cv_deplibs_check_method=pass_all
-   ;;
- 
--netbsd*)
-+netbsd* | netbsdelf*-gnu)
-   if echo __ELF__ | $CC -E - | $GREP __ELF__ > /dev/null; then
-     lt_cv_deplibs_check_method='match_pattern /lib[^/]+(\.so\.[0-9]+\.[0-9]+|_pic\.a)$'
-   else
-@@ -7964,7 +7972,7 @@
-   ;;
- *-*-irix6*)
-   # Find out which ABI we are using.
--  echo '#line 7967 "configure"' > conftest.$ac_ext
-+  echo '#line 7975 "configure"' > conftest.$ac_ext
-   if { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_compile\""; } >&5
-   (eval $ac_compile) 2>&5
-   ac_status=$?
-@@ -9238,11 +9246,11 @@
-    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
-    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
-    -e 's:$: $lt_compiler_flag:'`
--   (eval echo "\"\$as_me:9241: $lt_compile\"" >&5)
-+   (eval echo "\"\$as_me:9249: $lt_compile\"" >&5)
-    (eval "$lt_compile" 2>conftest.err)
-    ac_status=$?
-    cat conftest.err >&5
--   echo "$as_me:9245: \$? = $ac_status" >&5
-+   echo "$as_me:9253: \$? = $ac_status" >&5
-    if (exit $ac_status) && test -s "$ac_outfile"; then
-      # The compiler can only warn and ignore the option if not recognized
-      # So say no if there are warnings other than the usual output.
-@@ -9407,7 +9415,7 @@
-       lt_prog_compiler_static='-non_shared'
-       ;;
- 
--    linux* | k*bsd*-gnu)
-+    linux* | k*bsd*-gnu | kopensolaris*-gnu)
-       case $cc_basename in
-       # old Intel for x86_64 which still supported -KPIC.
-       ecc*)
-@@ -9577,11 +9585,11 @@
-    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
-    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
-    -e 's:$: $lt_compiler_flag:'`
--   (eval echo "\"\$as_me:9580: $lt_compile\"" >&5)
-+   (eval echo "\"\$as_me:9588: $lt_compile\"" >&5)
-    (eval "$lt_compile" 2>conftest.err)
-    ac_status=$?
-    cat conftest.err >&5
--   echo "$as_me:9584: \$? = $ac_status" >&5
-+   echo "$as_me:9592: \$? = $ac_status" >&5
-    if (exit $ac_status) && test -s "$ac_outfile"; then
-      # The compiler can only warn and ignore the option if not recognized
-      # So say no if there are warnings other than the usual output.
-@@ -9682,11 +9690,11 @@
-    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
-    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
-    -e 's:$: $lt_compiler_flag:'`
--   (eval echo "\"\$as_me:9685: $lt_compile\"" >&5)
-+   (eval echo "\"\$as_me:9693: $lt_compile\"" >&5)
-    (eval "$lt_compile" 2>out/conftest.err)
-    ac_status=$?
-    cat out/conftest.err >&5
--   echo "$as_me:9689: \$? = $ac_status" >&5
-+   echo "$as_me:9697: \$? = $ac_status" >&5
-    if (exit $ac_status) && test -s out/conftest2.$ac_objext
-    then
-      # The compiler can only warn and ignore the option if not recognized
-@@ -9737,11 +9745,11 @@
-    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
-    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
-    -e 's:$: $lt_compiler_flag:'`
--   (eval echo "\"\$as_me:9740: $lt_compile\"" >&5)
-+   (eval echo "\"\$as_me:9748: $lt_compile\"" >&5)
-    (eval "$lt_compile" 2>out/conftest.err)
-    ac_status=$?
-    cat out/conftest.err >&5
--   echo "$as_me:9744: \$? = $ac_status" >&5
-+   echo "$as_me:9752: \$? = $ac_status" >&5
-    if (exit $ac_status) && test -s out/conftest2.$ac_objext
-    then
-      # The compiler can only warn and ignore the option if not recognized
-@@ -9856,6 +9864,9 @@
-   openbsd*)
-     with_gnu_ld=no
-     ;;
-+  linux* | k*bsd*-gnu)
-+    link_all_deplibs=no
-+    ;;
-   esac
- 
-   ld_shlibs=yes
-@@ -9877,6 +9888,7 @@
-     fi
-     supports_anon_versioning=no
-     case `$LD -v 2>&1` in
-+      *GNU\ gold*) supports_anon_versioning=yes ;;
-       *\ [01].* | *\ 2.[0-9].* | *\ 2.10.*) ;; # catch versions < 2.11
-       *\ 2.11.93.0.2\ *) supports_anon_versioning=yes ;; # RH7.3 ...
-       *\ 2.11.92.0.12\ *) supports_anon_versioning=yes ;; # Mandrake 8.2 ...
-@@ -9968,7 +9980,7 @@
-       archive_expsym_cmds='sed "s,^,_," $export_symbols >$output_objdir/$soname.expsym~$CC -shared $pic_flag $libobjs $deplibs $compiler_flags ${wl}-h,$soname ${wl}--retain-symbols-file,$output_objdir/$soname.expsym ${wl}--image-base,`expr ${RANDOM-$$} % 4096 / 2 \* 262144 + 1342177280` -o $lib'
-       ;;
- 
--    gnu* | linux* | tpf* | k*bsd*-gnu)
-+    gnu* | linux* | tpf* | k*bsd*-gnu | kopensolaris*-gnu)
-       tmp_diet=no
-       if test "$host_os" = linux-dietlibc; then
- 	case $cc_basename in
-@@ -10038,7 +10050,7 @@
-       fi
-       ;;
- 
--    netbsd*)
-+    netbsd* | netbsdelf*-gnu)
-       if echo __ELF__ | $CC -E - | $GREP __ELF__ >/dev/null; then
- 	archive_cmds='$LD -Bshareable $libobjs $deplibs $linker_flags -o $lib'
- 	wlarc=
-@@ -10213,6 +10225,7 @@
- 	if test "$aix_use_runtimelinking" = yes; then
- 	  shared_flag="$shared_flag "'${wl}-G'
- 	fi
-+	link_all_deplibs=no
-       else
- 	# not using gcc
- 	if test "$host_cpu" = ia64; then
-@@ -10539,7 +10552,7 @@
-       link_all_deplibs=yes
-       ;;
- 
--    netbsd*)
-+    netbsd* | netbsdelf*-gnu)
-       if echo __ELF__ | $CC -E - | $GREP __ELF__ >/dev/null; then
- 	archive_cmds='$LD -Bshareable -o $lib $libobjs $deplibs $linker_flags'  # a.out
-       else
-@@ -11429,7 +11442,7 @@
-   ;;
- 
- # This must be Linux ELF.
--linux* | k*bsd*-gnu)
-+linux* | k*bsd*-gnu | kopensolaris*-gnu)
-   version_type=linux
-   need_lib_prefix=no
-   need_version=no
-@@ -11469,13 +11482,10 @@
-   # before this can be enabled.
-   hardcode_into_libs=yes
- 
--  # Add ABI-specific directories to the system library path.
--  sys_lib_dlsearch_path_spec="/lib64 /usr/lib64 /lib /usr/lib"
--
-   # Append ld.so.conf contents to the search path
-   if test -f /etc/ld.so.conf; then
-     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
--    sys_lib_dlsearch_path_spec="$sys_lib_dlsearch_path_spec $lt_ld_extra"
-+    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
-   fi
- 
-   # We used to test for /lib/ld.so.1 and disable shared libraries on
-@@ -11487,6 +11497,18 @@
-   dynamic_linker='GNU/Linux ld.so'
-   ;;
- 
-+netbsdelf*-gnu)
-+  version_type=linux
-+  need_lib_prefix=no
-+  need_version=no
-+  library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${release}${shared_ext}$major ${libname}${shared_ext}'
-+  soname_spec='${libname}${release}${shared_ext}$major'
-+  shlibpath_var=LD_LIBRARY_PATH
-+  shlibpath_overrides_runpath=no
-+  hardcode_into_libs=yes
-+  dynamic_linker='NetBSD ld.elf_so'
-+  ;;
-+
- netbsd*)
-   version_type=sunos
-   need_lib_prefix=no
-@@ -12107,7 +12129,7 @@
-   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
-   lt_status=$lt_dlunknown
-   cat > conftest.$ac_ext <<_LT_EOF
--#line 12110 "configure"
-+#line 12132 "configure"
- #include "confdefs.h"
- 
- #if HAVE_DLFCN_H
-@@ -12203,7 +12225,7 @@
-   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
-   lt_status=$lt_dlunknown
-   cat > conftest.$ac_ext <<_LT_EOF
--#line 12206 "configure"
-+#line 12228 "configure"
- #include "confdefs.h"
- 
- #if HAVE_DLFCN_H
-@@ -12464,6 +12486,10 @@
- 
- 
- 
-+
-+
-+
-+
- if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
- 	if test -n "$ac_tool_prefix"; then
-   # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
-@@ -12576,7 +12602,6 @@
- $as_echo "no" >&6; }
- 		PKG_CONFIG=""
- 	fi
--
- fi
- 
-   no_glib=""
-@@ -13299,11 +13324,6 @@
-     esac
- 
-     case " $CFLAGS " in
--    *[\ \	]-Wcast-align[\ \	]*) ;;
--    *) CFLAGS="$CFLAGS -Wcast-align" ;;
--    esac
--
--    case " $CFLAGS " in
-     *[\ \	]-Wsign-compare[\ \	]*) ;;
-     *) CFLAGS="$CFLAGS -Wsign-compare" ;;
-     esac
-@@ -14201,6 +14221,8 @@
- 
- 
- if test $pkg_failed = yes; then
-+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-+$as_echo "no" >&6; }
- 
- if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-         _pkg_short_errors_supported=yes
-@@ -14224,9 +14246,10 @@
- 
- Alternatively, you may set the environment variables ALL_CFLAGS
- and ALL_LIBS to avoid the need to call pkg-config.
--See the pkg-config man page for more details.
--" "$LINENO" 5
-+See the pkg-config man page for more details." "$LINENO" 5
- elif test $pkg_failed = untried; then
-+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-+$as_echo "no" >&6; }
- 	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
- $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
- as_fn_error "The pkg-config script could not be found or is too old.  Make sure it
-@@ -14244,7 +14267,7 @@
- 	ALL_LIBS=$pkg_cv_ALL_LIBS
-         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
- $as_echo "yes" >&6; }
--	:
-+
- fi
- # gtk_window_set_icon_name requires gtk2+-2.6.0
- 
-@@ -14288,6 +14311,8 @@
- 
- 
- if test $pkg_failed = yes; then
-+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-+$as_echo "no" >&6; }
- 
- if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-         _pkg_short_errors_supported=yes
-@@ -14311,9 +14336,10 @@
- 
- Alternatively, you may set the environment variables MUTTER_MESSAGE_CFLAGS
- and MUTTER_MESSAGE_LIBS to avoid the need to call pkg-config.
--See the pkg-config man page for more details.
--" "$LINENO" 5
-+See the pkg-config man page for more details." "$LINENO" 5
- elif test $pkg_failed = untried; then
-+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-+$as_echo "no" >&6; }
- 	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
- $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
- as_fn_error "The pkg-config script could not be found or is too old.  Make sure it
-@@ -14331,7 +14357,7 @@
- 	MUTTER_MESSAGE_LIBS=$pkg_cv_MUTTER_MESSAGE_LIBS
-         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
- $as_echo "yes" >&6; }
--	:
-+
- fi
- 
- pkg_failed=no
-@@ -14374,6 +14400,8 @@
- 
- 
- if test $pkg_failed = yes; then
-+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-+$as_echo "no" >&6; }
- 
- if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-         _pkg_short_errors_supported=yes
-@@ -14397,9 +14425,10 @@
- 
- Alternatively, you may set the environment variables MUTTER_WINDOW_DEMO_CFLAGS
- and MUTTER_WINDOW_DEMO_LIBS to avoid the need to call pkg-config.
--See the pkg-config man page for more details.
--" "$LINENO" 5
-+See the pkg-config man page for more details." "$LINENO" 5
- elif test $pkg_failed = untried; then
-+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-+$as_echo "no" >&6; }
- 	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
- $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
- as_fn_error "The pkg-config script could not be found or is too old.  Make sure it
-@@ -14417,7 +14446,7 @@
- 	MUTTER_WINDOW_DEMO_LIBS=$pkg_cv_MUTTER_WINDOW_DEMO_LIBS
-         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
- $as_echo "yes" >&6; }
--	:
-+
- fi
- 
- # Unconditionally use this dir to avoid a circular dep with gnomecc
-@@ -14541,6 +14570,8 @@
- 
- 
- if test $pkg_failed = yes; then
-+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-+$as_echo "no" >&6; }
- 
- if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-         _pkg_short_errors_supported=yes
-@@ -14564,9 +14595,10 @@
- 
- Alternatively, you may set the environment variables CLUTTER_CFLAGS
- and CLUTTER_LIBS to avoid the need to call pkg-config.
--See the pkg-config man page for more details.
--" "$LINENO" 5
-+See the pkg-config man page for more details." "$LINENO" 5
- elif test $pkg_failed = untried; then
-+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-+$as_echo "no" >&6; }
- 	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
- $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
- as_fn_error "The pkg-config script could not be found or is too old.  Make sure it
-@@ -14584,7 +14616,7 @@
- 	CLUTTER_LIBS=$pkg_cv_CLUTTER_LIBS
-         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
- $as_echo "yes" >&6; }
--	:
-+
- fi
- 
- $as_echo "#define WITH_CLUTTER /**/" >>confdefs.h
-@@ -14653,6 +14685,8 @@
- 
- 
- if test $pkg_failed = yes; then
-+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-+$as_echo "no" >&6; }
- 
- if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-         _pkg_short_errors_supported=yes
-@@ -14667,10 +14701,10 @@
- 	# Put the nasty error message in config.log where it belongs
- 	echo "$INTROSPECTION_PKG_ERRORS" >&5
- 
--	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
--$as_echo "no" >&6; }
--                have_introspection=no
-+	have_introspection=no
- elif test $pkg_failed = untried; then
-+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-+$as_echo "no" >&6; }
- 	have_introspection=no
- else
- 	INTROSPECTION_CFLAGS=$pkg_cv_INTROSPECTION_CFLAGS
-@@ -14764,6 +14798,8 @@
- 
- 
- if test $pkg_failed = yes; then
-+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-+$as_echo "no" >&6; }
- 
- if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-         _pkg_short_errors_supported=yes
-@@ -14787,9 +14823,10 @@
- 
- Alternatively, you may set the environment variables MUTTER_CFLAGS
- and MUTTER_LIBS to avoid the need to call pkg-config.
--See the pkg-config man page for more details.
--" "$LINENO" 5
-+See the pkg-config man page for more details." "$LINENO" 5
- elif test $pkg_failed = untried; then
-+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-+$as_echo "no" >&6; }
- 	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
- $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
- as_fn_error "The pkg-config script could not be found or is too old.  Make sure it
-@@ -14807,7 +14844,7 @@
- 	MUTTER_LIBS=$pkg_cv_MUTTER_LIBS
-         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
- $as_echo "yes" >&6; }
--	:
-+
- fi
- 
- { $as_echo "$as_me:${as_lineno-$LINENO}: checking for X" >&5
-Index: mutter-2.31.5/ltmain.sh
-===================================================================
---- mutter-2.31.5.orig/ltmain.sh	2010-07-01 16:58:52.000000000 -0300
-+++ mutter-2.31.5/ltmain.sh	2010-07-13 11:48:21.572108247 -0300
-@@ -65,7 +65,7 @@
- #       compiler:		$LTCC
- #       compiler flags:		$LTCFLAGS
- #       linker:		$LD (gnu? $with_gnu_ld)
--#       $progname:		(GNU libtool) 2.2.6b
-+#       $progname:		(GNU libtool) 2.2.6b Debian-2.2.6b-2
- #       automake:		$automake_version
- #       autoconf:		$autoconf_version
- #
-@@ -73,7 +73,7 @@
- 
- PROGRAM=ltmain.sh
- PACKAGE=libtool
--VERSION=2.2.6b
-+VERSION="2.2.6b Debian-2.2.6b-2"
- TIMESTAMP=""
- package_revision=1.3017
- 
-@@ -5033,7 +5033,10 @@
+--- mutter-2.91.2.orig/ltmain.sh	2010-10-28 18:28:36.000000000 -0200
++++ mutter-2.91.2/ltmain.sh	2010-11-11 10:13:50.542061262 -0200
+@@ -5359,7 +5359,10 @@
  	case $pass in
  	dlopen) libs="$dlfiles" ;;
  	dlpreopen) libs="$dlprefiles" ;;
@@ -590,7 +111,7 @@ Index: mutter-2.31.5/ltmain.sh
  	esac
        fi
        if test "$linkmode,$pass" = "lib,dlpreopen"; then
-@@ -5344,19 +5347,19 @@
+@@ -5671,19 +5674,19 @@
  	    # It is a libtool convenience library, so add in its objects.
  	    convenience="$convenience $ladir/$objdir/$old_library"
  	    old_convenience="$old_convenience $ladir/$objdir/$old_library"
@@ -620,21 +141,21 @@ Index: mutter-2.31.5/ltmain.sh
  	  continue
  	fi # $pass = conv
  
-@@ -5893,6 +5896,7 @@
- 	  if test "$link_all_deplibs" != no; then
- 	    # Add the search paths of all dependency libraries
+@@ -8373,6 +8376,7 @@
+ 	    # Replace all uninstalled libtool libraries with the installed ones
+ 	    newdependency_libs=
  	    for deplib in $dependency_libs; do
 +	      path=
  	      case $deplib in
- 	      -L*) path="$deplib" ;;
  	      *.la)
-@@ -6206,6 +6210,9 @@
- 	    revision="$number_minor"
- 	    lt_irix_increment=no
+ 		func_basename "$deplib"
+@@ -8658,6 +8662,9 @@
+ 	    # add $file without .exe
+ 	    rmfiles="$rmfiles $file"
  	    ;;
 +	  *)
 +	    func_fatal_configuration "$modename: unknown library version type \`$version_type'"
 +	    ;;
  	  esac
- 	  ;;
- 	no)
+ 	  # Do a test to see if this is a libtool program.
+ 	  if func_ltwrapper_p "$file"; then

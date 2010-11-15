@@ -1,8 +1,8 @@
-Index: mutter-2.27.1/ltmain.sh
+Index: mutter-2.91.2/ltmain.sh
 ===================================================================
---- mutter-2.27.1.orig/ltmain.sh	2009-07-26 13:22:50.645790616 +0200
-+++ mutter-2.27.1/ltmain.sh	2009-07-26 13:23:14.265327137 +0200
-@@ -1684,6 +1684,11 @@
+--- mutter-2.91.2.orig/ltmain.sh	2010-11-11 10:13:50.542061262 -0200
++++ mutter-2.91.2/ltmain.sh	2010-11-11 10:14:08.694624284 -0200
+@@ -1884,6 +1884,11 @@
  	func_dirname "$file" "" "."
  	dir="$func_dirname_result"
  	;;
@@ -14,7 +14,7 @@ Index: mutter-2.27.1/ltmain.sh
  
        *)
  	func_warning "\`-dlopen' is ignored for non-libtool libraries and objects"
-@@ -5074,6 +5079,15 @@
+@@ -5397,6 +5402,15 @@
  	lib=
  	found=no
  	case $deplib in
