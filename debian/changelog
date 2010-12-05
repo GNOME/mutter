@@ -1,4 +1,4 @@
-mutter (2.91.2-1) UNRELEASED; urgency=low
+mutter (2.91.3-1) UNRELEASED; urgency=low
 
   [ Gustavo Noronha Silva ]
   * New development release
@@ -7,6 +7,8 @@ mutter (2.91.2-1) UNRELEASED; urgency=low
   - build-depend on GTK+3
 
   [ Emilio Pozuelo Monfort ]
+  * New upstream release.
+    - Rename gir1.0-mutter-2.31 to gir1.0-mutter-2.91.
   * debian/control.in:
     - Build depend on libjson-glib-dev and gir1.0-json-glib-1.0.
   * debian/rules,

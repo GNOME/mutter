@@ -116,7 +116,7 @@ Description: Development files for the Mutter window manager
  .
  This package contains the development files.
 
-Package: gir1.0-mutter-2.31
+Package: gir1.0-mutter-2.91
 Section: libs
 Architecture: any
 Depends: ${gir:Depends},
