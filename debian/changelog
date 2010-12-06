@@ -1,4 +1,4 @@
-mutter (2.91.3-1) UNRELEASED; urgency=low
+mutter (2.91.3-1) experimental; urgency=low
 
   [ Gustavo Noronha Silva ]
   * New development release
@@ -14,9 +14,11 @@ mutter (2.91.3-1) UNRELEASED; urgency=low
   * debian/rules,
     debian/control.in,
     debian/source/format:
-    + Switch to source format 3.0 (quilt).
+    - Switch to source format 3.0 (quilt).
+  * debian/rules:
+    - Bump the shlib version.
 
- -- Gustavo Noronha Silva <kov@debian.org>  Thu, 11 Nov 2010 10:08:06 -0200
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Mon, 06 Dec 2010 00:59:42 +0100
 
 mutter (2.31.5-1) experimental; urgency=low
 

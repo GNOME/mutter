@@ -8,7 +8,7 @@ include /usr/share/gnome-pkg-tools/1/rules/gnome-version.mk
 -include /usr/share/gnome-pkg-tools/1/rules/gnome-get-source.mk
 
 DEB_CONFIGURE_EXTRA_FLAGS += --enable-startup-notification=yes
-DEB_DH_MAKESHLIBS_ARGS_libmetacity-private0 += -V 'libmutter-private0 (>= 2.31.5)'
+DEB_DH_MAKESHLIBS_ARGS_libmetacity-private0 += -V 'libmutter-private0 (>= 2.91.3)'
 DEB_INSTALL_DOCS_metacity += doc/theme-format.txt
 
 # Hack to make sure mo files end up in /usr/share/locale while I figure
