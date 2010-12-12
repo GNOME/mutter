@@ -1,3 +1,14 @@
+mutter (2.91.3-2) UNRELEASED; urgency=low
+
+  * Update to the new gir policy:
+    - Rename gir1.0-mutter-2.91 to gir1.2-mutter-2.91.
+    - Bump the gobject-introspection build dependency.
+    - Build depend on gir1.2 packages.
+  * debian/control.in:
+    - Fix typo, s/shlib/shlibs/.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 12 Dec 2010 16:43:17 +0100
+
 mutter (2.91.3-1) experimental; urgency=low
 
   [ Gustavo Noronha Silva ]
