@@ -6,6 +6,10 @@ mutter (2.91.3-2) UNRELEASED; urgency=low
     - Build depend on gir1.2 packages.
   * debian/control.in:
     - Fix typo, s/shlib/shlibs/.
+  * debian/rules:
+    - Remove hack to get translations in /usr/share, no longer needed.
+    - Pass the path to the typelibs to dh_girepository to get correct
+      dependencies.
 
  -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 12 Dec 2010 16:43:17 +0100
 
