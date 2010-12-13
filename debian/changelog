@@ -1,4 +1,4 @@
-mutter (2.91.3-2) UNRELEASED; urgency=low
+mutter (2.91.3-2) experimental; urgency=low
 
   * Update to the new gir policy:
     - Rename gir1.0-mutter-2.91 to gir1.2-mutter-2.91.
@@ -10,8 +10,14 @@ mutter (2.91.3-2) UNRELEASED; urgency=low
     - Remove hack to get translations in /usr/share, no longer needed.
     - Pass the path to the typelibs to dh_girepository to get correct
       dependencies.
+  * debian/rules,
+    debian/control.in:
+    - Use dh-autoreconf.
+  * debian/patches/90_autotools.patch,
+    debian/patches/99_ltmain_as-needed.patch:
+    - Removed, no longer needed with dh-autoreconf.
 
- -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 12 Dec 2010 16:43:17 +0100
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Tue, 14 Dec 2010 00:52:38 +0100
 
 mutter (2.91.3-1) experimental; urgency=low
 

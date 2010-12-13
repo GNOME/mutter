@@ -1,5 +1,6 @@
 #!/usr/bin/make -f
 
+include /usr/share/cdbs/1/rules/autoreconf.mk
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/gnome.mk
 include /usr/share/cdbs/1/rules/utils.mk
@@ -16,4 +17,3 @@ $(patsubst %,binary-predeb/%,$(DEB_ALL_PACKAGES)) ::
 
 # This does not work with mutter; disabled, for now.
 # LDFLAGS += -Wl,-z,defs -Wl,-O1 -Wl,--as-needed
-

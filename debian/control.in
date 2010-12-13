@@ -5,6 +5,7 @@ Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.
 Uploaders: @GNOME_TEAM@
 Build-Depends: cdbs (>= 0.4.41),
                debhelper (>= 5),
+               dh-autoreconf,
                intltool (>= 0.34.90),
                libgtk3.0-dev (>= 2.91.3),
                gir1.2-gtk-3.0,
