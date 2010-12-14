@@ -16,6 +16,14 @@ mutter (2.91.3-2) experimental; urgency=low
   * debian/patches/90_autotools.patch,
     debian/patches/99_ltmain_as-needed.patch:
     - Removed, no longer needed with dh-autoreconf.
+  * debian/rules,
+    debian/copyright:
+    - Fix some metacity leftovers.
+  * debian/mutter.1,
+    debian/mutter-message.1,
+    debian/mutter-theme-viewer.1,
+    debian/mutter-window-demo.1:
+    - Removed, shipped upstream.
 
  -- Emilio Pozuelo Monfort <pochu@debian.org>  Tue, 14 Dec 2010 00:52:38 +0100
 
