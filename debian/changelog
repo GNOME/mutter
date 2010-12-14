@@ -22,7 +22,8 @@ mutter (2.91.3-2) experimental; urgency=low
   * debian/mutter.1,
     debian/mutter-message.1,
     debian/mutter-theme-viewer.1,
-    debian/mutter-window-demo.1:
+    debian/mutter-window-demo.1,
+    debian/mutter-common.manpages:
     - Removed, shipped upstream.
 
  -- Emilio Pozuelo Monfort <pochu@debian.org>  Tue, 14 Dec 2010 00:52:38 +0100
