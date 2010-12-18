@@ -1,3 +1,14 @@
+mutter (2.91.3-3) experimental; urgency=low
+
+  * debian/patches/02_gdk_removed_macro.patch,
+  * debian/patches/03_handle_new_gtk_states.patch,
+  * debian/patches/04_fix_gradient_example.patch:
+    - Patches from upstream git, fix the build with latest GTK+ 3.
+  * debian/control.in:
+    - Bump the libgtk3.0-dev build dependency accordingly.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sat, 18 Dec 2010 23:39:24 +0000
+
 mutter (2.91.3-2) experimental; urgency=low
 
   * Update to the new gir policy:
