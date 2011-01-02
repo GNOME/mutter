@@ -9,7 +9,7 @@ include /usr/share/gnome-pkg-tools/1/rules/gnome-version.mk
 -include /usr/share/gnome-pkg-tools/1/rules/gnome-get-source.mk
 
 DEB_CONFIGURE_EXTRA_FLAGS += --enable-startup-notification=yes
-DEB_DH_MAKESHLIBS_ARGS_libmutter-private0 += -V 'libmutter-private0 (>= 2.91.3)'
+DEB_DH_MAKESHLIBS_ARGS_libmutter-private0 += -V -- -c4
 DEB_INSTALL_DOCS_mutter += doc/theme-format.txt
 
 $(patsubst %,binary-predeb/%,$(DEB_ALL_PACKAGES)) ::

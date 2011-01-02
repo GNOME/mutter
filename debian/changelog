@@ -8,6 +8,12 @@ mutter (2.91.4-1) UNRELEASED; urgency=low
       debian/patches/03_handle_new_gtk_states.patch,
       debian/patches/04_fix_gradient_example.patch:
       - Removed, included upstream.
+  * debian/libmutter-private0.symbols:
+    + Add a symbols file.
+  * debian/rules:
+    + Make the shlibs always depend on the latest upstream version.
+      We have symbols file anyway, and manually bumping the shver is
+      error prone.
 
  -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 02 Jan 2011 19:18:59 +0000
 
