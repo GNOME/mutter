@@ -1,3 +1,16 @@
+mutter (2.91.4-1) UNRELEASED; urgency=low
+
+  * New upstream release.
+    + debian/control.in:
+      - Update build dependencies.
+      - Remove unneeded libgtk2.0-dev build dependency.
+    + debian/patches/02_gdk_removed_macro.patch,
+      debian/patches/03_handle_new_gtk_states.patch,
+      debian/patches/04_fix_gradient_example.patch:
+      - Removed, included upstream.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 02 Jan 2011 19:18:59 +0000
+
 mutter (2.91.3-3) experimental; urgency=low
 
   * debian/patches/02_gdk_removed_macro.patch,

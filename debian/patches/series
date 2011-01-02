@@ -1,4 +1,1 @@
 01_Wcast-align.patch
-02_gdk_removed_macro.patch
-03_handle_new_gtk_states.patch
-04_fix_gradient_example.patch
