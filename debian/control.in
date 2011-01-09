@@ -36,7 +36,7 @@ Build-Depends: cdbs (>= 0.4.41),
                gnome-doc-utils (>= 0.8),
                gnome-pkg-tools (>= 0.10),
                dpkg-dev (>= 1.13.19)
-Standards-Version: 3.8.3
+Standards-Version: 3.9.1
 
 Package: mutter
 Section: x11
