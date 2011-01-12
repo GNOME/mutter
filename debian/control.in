@@ -7,7 +7,7 @@ Build-Depends: cdbs (>= 0.4.41),
                debhelper (>= 5),
                dh-autoreconf,
                intltool (>= 0.34.90),
-               libgtk3.0-dev (>= 2.91.7),
+               libgtk3.0-dev (>= 2.99.1),
                gir1.2-gtk-3.0,
                gir1.2-clutter-1.0 (>= 1.4.0),
                gir1.2-json-glib-1.0 (>= 0.12.0-1~),
@@ -104,7 +104,7 @@ Architecture: any
 Depends: ${misc:Depends},
          libmutter-private0 (= ${binary:Version}),
          libclutter-1.0-dev (>= 1.0.0),
-         libgtk3.0-dev (>= 2.91.7)
+         libgtk3.0-dev (>= 2.99.1)
 Description: Development files for the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.

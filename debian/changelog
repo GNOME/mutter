@@ -1,4 +1,4 @@
-mutter (2.91.5-1) UNRELEASED; urgency=low
+mutter (2.91.5-1) experimental; urgency=low
 
   [ Emilio Pozuelo Monfort ]
   * New upstream release.
@@ -19,7 +19,7 @@ mutter (2.91.5-1) UNRELEASED; urgency=low
   [ Laurent Bigonville ]
   * debian/control: Bump Standards-Version to 3.9.1
 
- -- Laurent Bigonville <bigon@debian.org>  Sun, 09 Jan 2011 21:26:29 +0100
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Wed, 12 Jan 2011 23:06:20 +0000
 
 mutter (2.91.3-3) experimental; urgency=low
 
