@@ -1,3 +1,13 @@
+mutter (2.91.6-1) UNRELEASED; urgency=low
+
+  * New upstream release.
+  * debian/control.in:
+    - Remove duplicate Section
+    - Drop gir1.2-mutter-2.91 Conflicts/Replaces against libmutter-private0
+      package
+
+ -- Laurent Bigonville <bigon@debian.org>  Sun, 06 Feb 2011 13:50:17 +0100
+
 mutter (2.91.5-1) experimental; urgency=low
 
   [ Emilio Pozuelo Monfort ]
