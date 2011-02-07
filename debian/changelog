@@ -5,8 +5,9 @@ mutter (2.91.6-1) UNRELEASED; urgency=low
     - Remove duplicate Section
     - Drop gir1.2-mutter-2.91 Conflicts/Replaces against libmutter-private0
       package
+  * debian/watch: Drop call to uupdate
 
- -- Laurent Bigonville <bigon@debian.org>  Sun, 06 Feb 2011 13:50:17 +0100
+ -- Laurent Bigonville <bigon@debian.org>  Mon, 07 Feb 2011 10:54:09 +0100
 
 mutter (2.91.5-1) experimental; urgency=low
 
