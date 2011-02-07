@@ -6,8 +6,10 @@ mutter (2.91.6-1) UNRELEASED; urgency=low
     - Drop gir1.2-mutter-2.91 Conflicts/Replaces against libmutter-private0
       package
   * debian/watch: Drop call to uupdate
+  * debian/mutter.lintian-overrides: Add overrides for manpages shipped
+    in mutter-common
 
- -- Laurent Bigonville <bigon@debian.org>  Mon, 07 Feb 2011 10:54:09 +0100
+ -- Laurent Bigonville <bigon@debian.org>  Mon, 07 Feb 2011 11:22:52 +0100
 
 mutter (2.91.5-1) experimental; urgency=low
 

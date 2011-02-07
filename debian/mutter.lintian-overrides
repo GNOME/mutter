@@ -1,0 +1,5 @@
+# Manpages shipped in mutter-common
+mutter: binary-without-manpage usr/bin/mutter
+mutter: binary-without-manpage usr/bin/mutter-message
+mutter: binary-without-manpage usr/bin/mutter-theme-viewer
+mutter: binary-without-manpage usr/bin/mutter-window-demo
