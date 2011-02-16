@@ -8,12 +8,10 @@ include /usr/share/gnome-pkg-tools/1/rules/uploaders.mk
 include /usr/share/gnome-pkg-tools/1/rules/gnome-version.mk
 -include /usr/share/gnome-pkg-tools/1/rules/gnome-get-source.mk
 
-DEB_CONFIGURE_EXTRA_FLAGS += --enable-startup-notification=yes
+DEB_CONFIGURE_EXTRA_FLAGS += --enable-startup-notification=yes \
+			--without-introspection
 DEB_DH_MAKESHLIBS_ARGS_libmetacity-private0 += -V 'libmutter-private0 (>= 2.29.0)'
 DEB_INSTALL_DOCS_metacity += doc/theme-format.txt
-
-$(patsubst %,binary-predeb/%,$(DEB_ALL_PACKAGES)) ::
-	dh_girepository -p$(cdbs_curpkg)
 
 # This does not work with mutter; disabled, for now.
 # LDFLAGS += -Wl,-z,defs -Wl,-O1 -Wl,--as-needed
