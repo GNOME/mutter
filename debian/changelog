@@ -1,5 +1,6 @@
-mutter (2.91.6-1) UNRELEASED; urgency=low
+mutter (2.91.6-1) experimental; urgency=low
 
+  [ Laurent Bigonville ]
   * New upstream release.
   * debian/control.in:
     - Remove duplicate Section
@@ -9,7 +10,11 @@ mutter (2.91.6-1) UNRELEASED; urgency=low
   * debian/mutter.lintian-overrides: Add overrides for manpages shipped
     in mutter-common
 
- -- Laurent Bigonville <bigon@debian.org>  Mon, 07 Feb 2011 11:22:52 +0100
+  [ Emilio Pozuelo Monfort ]
+  * debian/control.in:
+    + Update for the new gtk+ 3 package names.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sat, 19 Feb 2011 15:20:42 +0000
 
 mutter (2.91.5-1) experimental; urgency=low
 
