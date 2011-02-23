@@ -1,3 +1,9 @@
+mutter (2.91.90-1) experimental; urgency=low
+
+  * New upstream release.
+
+ -- Frederic Peters <fpeters@debian.org>  Wed, 23 Feb 2011 09:29:08 +0100
+
 mutter (2.91.6-1) experimental; urgency=low
 
   [ Laurent Bigonville ]
