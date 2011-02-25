@@ -1,3 +1,9 @@
+mutter (2.91.90-2) UNRELEASED; urgency=low
+
+  * debian/control.in: Add Vcs-Svn and Vcs-Browser fields
+
+ -- Laurent Bigonville <bigon@debian.org>  Fri, 25 Feb 2011 21:43:35 +0100
+
 mutter (2.91.90-1) experimental; urgency=low
 
   * New upstream release.
