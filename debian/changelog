@@ -12,8 +12,10 @@ mutter (2.91.91-1) UNRELEASED; urgency=low
   * debian/patches/20_libmutter_export_symbols.patch: Limit list of symbols
     exported by libmutter-{wm,private} (but don't add it to series as it makes
     gnome-shell segfault)
+  * debian/mutter.install, debian/mutter-common.install: move mutter-wm.desktop
+    from mutter-common to mutter.
 
- -- Frederic Peters <fpeters@debian.org>  Sat, 12 Mar 2011 16:42:47 +0100
+ -- Frederic Peters <fpeters@debian.org>  Sat, 12 Mar 2011 22:06:55 +0100
 
 mutter (2.91.90-1) experimental; urgency=low
 
