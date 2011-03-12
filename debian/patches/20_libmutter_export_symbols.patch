@@ -1,0 +1,25 @@
+Description: Limit the list of symbols exported in libmutter*
+
+https://bugzilla.gnome.org/show_bug.cgi?id=644564
+Index: mutter-2.91.91/src/Makefile.am
+===================================================================
+--- mutter-2.91.91.orig/src/Makefile.am	2011-03-12 14:24:10.664843001 +0000
++++ mutter-2.91.91/src/Makefile.am	2011-03-12 14:46:42.964843001 +0000
+@@ -152,7 +152,7 @@
+ 	core/all-keybindings.h			\
+ 	$(mutter_built_sources)
+ 
+-libmutter_wm_la_LDFLAGS = -no-undefined
++libmutter_wm_la_LDFLAGS = -no-undefined -export-symbols-regex "^(meta|ag)_.*"
+ libmutter_wm_la_LIBADD  = $(MUTTER_LIBS)
+ 
+ # by setting libmutter_private_la_CFLAGS, the files shared with
+@@ -172,7 +172,7 @@
+ 	ui/theme.c				\
+ 	meta/theme.h
+ 
+-libmutter_private_la_LDFLAGS = -no-undefined
++libmutter_private_la_LDFLAGS = -no-undefined -export-symbols-regex ^meta_
+ libmutter_private_la_LIBADD  = $(MUTTER_LIBS)
+ 
+ # Headers installed for plugins; introspected information will

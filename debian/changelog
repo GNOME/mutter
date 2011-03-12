@@ -1,8 +1,18 @@
-mutter (2.91.90-2) UNRELEASED; urgency=low
+mutter (2.91.91-1) UNRELEASED; urgency=low
 
+  * New upstream release.
+
+  [Laurent Bigonville]
   * debian/control.in: Add Vcs-Svn and Vcs-Browser fields
 
- -- Laurent Bigonville <bigon@debian.org>  Fri, 25 Feb 2011 21:43:35 +0100
+  [Frederic Peters]
+  * debian/control.in, libmutter-wm0.install, libmutter-wm0.symbols:
+    Add a libmutter-wm0 library
+  * debian/patches/10_mutter-ldflags.patch: Fix linking of mutter binary
+  * debian/patches/20_libmutter_export_symbols.patch: Limit list of symbols
+    exported by libmutter-{wm,private}
+
+ -- Frederic Peters <fpeters@debian.org>  Sat, 12 Mar 2011 16:42:47 +0100
 
 mutter (2.91.90-1) experimental; urgency=low
 
