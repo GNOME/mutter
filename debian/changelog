@@ -14,6 +14,8 @@ mutter (2.91.91-1) UNRELEASED; urgency=low
     gnome-shell segfault)
   * debian/mutter.install, debian/mutter-common.install: move mutter-wm.desktop
     from mutter-common to mutter.
+  * debian/control.in: add replaces/breaks in mutter, against previous
+    versions of mutter-common, for the move of mutter-wm.desktop.
 
  -- Frederic Peters <fpeters@debian.org>  Sat, 12 Mar 2011 22:06:55 +0100
 
