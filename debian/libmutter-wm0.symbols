@@ -1,5 +1,8 @@
 libmutter-wm.so.0 libmutter-wm0 #MINVER#
 * Build-Depends-Package: libmutter-dev
+ __window_is_terminal@Base 2.91.91
+ _meta_plugin_effect_started@Base 2.91.91
+ _mutter_marshal_VOID__INT_INT_ENUM@Base 2.91.91
  ag_Xmalloc0@Base 2.91.91
  ag_Xmalloc@Base 2.91.91
  ag_get_next_completed_task@Base 2.91.91
@@ -9,6 +12,8 @@ libmutter-wm.so.0 libmutter-wm0 #MINVER#
  ag_task_get_reply_and_free@Base 2.91.91
  ag_task_get_window@Base 2.91.91
  ag_task_have_reply@Base 2.91.91
+ default_shadow_classes@Base 2.91.91
+ get_focussed_group@Base 2.91.91
  meta_accel_label_get_type@Base 2.91.91
  meta_accel_label_new_with_mnemonic@Base 2.91.91
  meta_accel_label_set_accelerator@Base 2.91.91
@@ -913,3 +918,5 @@ libmutter-wm.so.0 libmutter-wm0 #MINVER#
  meta_workspace_remove_window@Base 2.91.91
  meta_workspace_set_builtin_struts@Base 2.91.91
  meta_workspace_update_window_hints@Base 2.91.91
+ preference_update_handler@Base 2.91.91
+ wnck_draw_workspace@Base 2.91.91
