@@ -1,4 +1,4 @@
-mutter (2.91.91-1) UNRELEASED; urgency=low
+mutter (2.91.91-1) experimental; urgency=low
 
   * New upstream release.
 
@@ -17,7 +17,7 @@ mutter (2.91.91-1) UNRELEASED; urgency=low
   * debian/control.in: add replaces/breaks in mutter, against previous
     versions of mutter-common, for the move of mutter-wm.desktop.
 
- -- Frederic Peters <fpeters@debian.org>  Sat, 12 Mar 2011 22:06:55 +0100
+ -- Frederic Peters <fpeters@debian.org>  Mon, 14 Mar 2011 19:09:58 +0100
 
 mutter (2.91.90-1) experimental; urgency=low
 
