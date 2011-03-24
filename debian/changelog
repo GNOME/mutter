@@ -1,3 +1,19 @@
+mutter (2.91.92-1) experimental; urgency=low
+
+  * New upstream release
+
+  [ Rico Tzschichholz ]
+  * debian/patches:
+    + drop 02_arm_include_clutter_x11.patch, is upstream
+    + drop 10_mutter-ldflags.patch, is upstream
+  * debian/control.in,debian/rules:
+    + add libmutter0 which replaces libmutter-wm0 and libmutter-private0
+
+  [ Frederic Peters ]
+  * debian/control.in: mention gnome-shell in libmutter0 package description.
+
+ -- Frederic Peters <fpeters@debian.org>  Thu, 24 Mar 2011 19:56:48 +0100
+
 mutter (2.91.91-1) experimental; urgency=low
 
   * New upstream release.

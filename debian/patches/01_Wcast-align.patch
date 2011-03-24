@@ -1,6 +1,8 @@
---- a/configure.in
-+++ b/configure.in
-@@ -499,11 +499,6 @@
+Index: mutter-2.91.92/configure.in
+===================================================================
+--- mutter-2.91.92.orig/configure.in
++++ mutter-2.91.92/configure.in
+@@ -485,11 +485,6 @@
      esac
  
      case " $CFLAGS " in
