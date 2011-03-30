@@ -854,6 +854,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_window_new_with_attrs@Base 2.91.92
  meta_window_notify_focus@Base 2.91.92
  meta_window_place@Base 2.91.92
+ meta_window_propagate_focus_appearance@Base 2.91.93
  meta_window_property_notify@Base 2.91.92
  meta_window_queue@Base 2.91.92
  meta_window_raise@Base 2.91.92

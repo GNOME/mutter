@@ -1,3 +1,10 @@
+mutter (2.91.93-1) UNRELEASED; urgency=low
+
+  * New upstream release.
+  * debian/libmutter0.symbols: new symbol.
+
+ -- Frederic Peters <fpeters@debian.org>  Wed, 30 Mar 2011 10:11:10 +0530
+
 mutter (2.91.92-1) experimental; urgency=low
 
   * New upstream release
