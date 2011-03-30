@@ -1,7 +1,11 @@
 mutter (2.91.93-1) UNRELEASED; urgency=low
 
+  [ Frederic Peters ]
   * New upstream release.
   * debian/libmutter0.symbols: new symbol.
+
+  [ Josselin Mouette ]
+  * Make the -dev package depend on the gir package.
 
  -- Frederic Peters <fpeters@debian.org>  Wed, 30 Mar 2011 10:11:10 +0530
 
