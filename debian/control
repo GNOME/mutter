@@ -41,7 +41,7 @@ Build-Depends: cdbs (>= 0.4.41),
                gnome-doc-utils (>= 0.8),
                gnome-pkg-tools (>= 0.10),
                dpkg-dev (>= 1.13.19)
-Standards-Version: 3.9.1
+Standards-Version: 3.9.2
 Vcs-Svn: svn://svn.debian.org/svn/pkg-gnome/packages/unstable/mutter
 Vcs-Browser: http://svn.debian.org/viewsvn/pkg-gnome/packages/unstable/mutter
 

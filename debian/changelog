@@ -1,3 +1,10 @@
+mutter (3.0.1-1) UNRELEASED; urgency=low
+
+  * New upstream release (3.0.0).
+  * debian/control.in: Bump Standards-Version to 3.9.2 (no further changes)
+
+ -- Laurent Bigonville <bigon@debian.org>  Fri, 06 May 2011 23:30:27 +0200
+
 mutter (3.0.0-2) experimental; urgency=low
 
   * Rename gir1.2-mutter-2.91 package to gir1.2-mutter-3.0
