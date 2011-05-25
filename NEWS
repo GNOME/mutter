@@ -1,3 +1,26 @@
+3.0.2
+=====
+
+* Fix a crash when running without XKB support [Adam]
+  https://bugzilla.gnome.org/show_bug.cgi?id=647777
+* Fix smallish memory leaks [Colin]
+  https://bugzilla.gnome.org/show_bug.cgi?id=649500
+  https://bugzilla.gnome.org/show_bug.cgi?id=649504
+* Ignore mirrored monitors when listing monitors, fixing
+  drag-and-drop problems in GNOME Shell [Owen]
+  https://bugzilla.gnome.org/show_bug.cgi?id=649299
+* Don't allow side-by-side tiling of non-maximizable windows
+  like dialogs and utility windows [Dan]
+* Fix interaction of _NET_WM_WINDOW_OPACITY with window effects,
+  making it work again with GNOME Shell
+  https://bugzilla.gnome.org/show_bug.cgi?id=648613
+
+Contributors:
+ Adam Jackson, Colin Walters, Dan Winship
+
+Translations:
+ Abduxukur Abdurixit [ug]
+
 3.0.1
 =====
 
