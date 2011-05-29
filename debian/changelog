@@ -1,15 +1,13 @@
-mutter (3.0.2.1-2) UNRELEASED; urgency=low
+mutter (3.0.2.1-1) UNRELEASED; urgency=low
 
-  * Depend on libgnome2-common for the GConf schemas. This will be 
-    necessary until mutter is ported to GSettings.
-
- -- Josselin Mouette <joss@debian.org>  Sun, 29 May 2011 09:30:43 +0200
-
-mutter (3.0.2.1-1) experimental; urgency=low
-
+  [ Rico Tzschichholz ]
   * New upstream release
   * debian/watch:
     - Look for bzip2 tarballs
+
+  [ Josselin Mouette ]
+  * Depend on libgnome2-common for the GConf schemas. This will be 
+    necessary until mutter is ported to GSettings.
 
  -- Rico Tzschichholz <ricotz@ubuntu.com>  Fri, 27 May 2011 14:34:49 +0200
 
