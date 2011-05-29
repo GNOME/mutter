@@ -1,3 +1,10 @@
+mutter (3.0.2.1-2) UNRELEASED; urgency=low
+
+  * Depend on libgnome2-common for the GConf schemas. This will be 
+    necessary until mutter is ported to GSettings.
+
+ -- Josselin Mouette <joss@debian.org>  Sun, 29 May 2011 09:30:43 +0200
+
 mutter (3.0.2.1-1) experimental; urgency=low
 
   * New upstream release

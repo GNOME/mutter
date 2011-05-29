@@ -45,6 +45,7 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          mutter-common (>= ${gnome:Version}),
          mutter-common (<< ${gnome:NextVersion}),
+         libgnome2-common,
          zenity
 Provides: x-window-manager
 Recommends: gnome-session | x-session-manager
