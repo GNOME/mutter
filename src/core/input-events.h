@@ -60,5 +60,8 @@ gboolean meta_input_event_get_state         (MetaDisplay *display,
 gboolean meta_input_event_get_keycode       (MetaDisplay *display,
                                              XEvent      *ev,
                                              guint       *keycode);
+gboolean meta_input_event_get_button        (MetaDisplay *display,
+                                             XEvent      *event,
+                                             guint       *button);
 
 #endif /* META_EVENT_H */

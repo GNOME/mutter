@@ -1940,6 +1940,7 @@ event_callback (XEvent   *event,
     {
       Window xwindow = meta_input_event_get_window (display, event);
       Time evtime = meta_input_event_get_time (display, event);
+      guint n_button;
 
       if (window && !window->override_redirect &&
           ((evtype == KeyPress) || (evtype == ButtonPress)))
@@ -1978,18 +1979,20 @@ event_callback (XEvent   *event,
             filter_out_event = bypass_compositor = TRUE;
           break;
         case ButtonPress:
+          meta_input_event_get_button (display, event, &n_button);
+
           if (display->grab_op == META_GRAB_OP_COMPOSITOR)
             break;
 
           display->overlay_key_only_pressed = FALSE;
 
-          if (event->xbutton.button == 4 || event->xbutton.button == 5)
+          if (n_button == 4 || n_button == 5)
             /* Scrollwheel event, do nothing and deliver event to compositor below */
             break;
 
           if ((window &&
                grab_op_is_mouse (display->grab_op) &&
-               display->grab_button != (int) event->xbutton.button &&
+               display->grab_button != (int) n_button &&
                display->grab_window == window) ||
               grab_op_is_keyboard (display->grab_op))
             {
@@ -2029,9 +2032,7 @@ event_callback (XEvent   *event,
                * button 1.  So for all such events we focus the window.
                */
               unmodified = (event->xbutton.state & grab_mask) == 0;
-          
-              if (unmodified ||
-                  event->xbutton.button == 1)
+              if (unmodified || n_button == 1)
                 {
                   /* don't focus if frame received, will be lowered in
                    * frames.c or special-cased if the click was on a
@@ -2052,7 +2053,7 @@ event_callback (XEvent   *event,
                         {
                           meta_topic (META_DEBUG_FOCUS,
                                       "Focusing %s due to unmodified button %u press (display.c)\n",
-                                      window->desc, event->xbutton.button);
+                                      window->desc, n_button);
                           meta_window_focus (window, evtime);
                         }
                       else
@@ -2068,7 +2069,7 @@ event_callback (XEvent   *event,
                   if (!unmodified)
                     begin_move = TRUE;
                 }
-              else if (!unmodified && event->xbutton.button == meta_prefs_get_mouse_button_resize())
+              else if (!unmodified && n_button == meta_prefs_get_mouse_button_resize())
                 {
                   if (window->has_resize_func)
                     {
@@ -2110,21 +2111,21 @@ event_callback (XEvent   *event,
                                                     op,
                                                     TRUE,
                                                     FALSE,
-                                                    event->xbutton.button,
+                                                    n_button,
                                                     0,
                                                     evtime,
                                                     event->xbutton.x_root,
                                                     event->xbutton.y_root);
                     }
                 }
-              else if (event->xbutton.button == meta_prefs_get_mouse_button_menu())
+              else if (n_button == meta_prefs_get_mouse_button_menu())
                 {
                   if (meta_prefs_get_raise_on_click ())
                     meta_window_raise (window);
                   meta_window_show_menu (window,
                                          event->xbutton.x_root,
                                          event->xbutton.y_root,
-                                         event->xbutton.button,
+                                         n_button,
                                          evtime);
                 }
 
@@ -2167,7 +2168,7 @@ event_callback (XEvent   *event,
                                               META_GRAB_OP_MOVING,
                                               TRUE,
                                               FALSE,
-                                              event->xbutton.button,
+                                              n_button,
                                               0,
                                               evtime,
                                               event->xbutton.x_root,
