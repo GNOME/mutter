@@ -1938,6 +1938,8 @@ event_callback (XEvent   *event,
 
   if (meta_input_event_get_type (display, event, &evtype))
     {
+      Window xwindow = meta_input_event_get_window (display, event);
+
       if (window && !window->override_redirect &&
           ((evtype == KeyPress) || (evtype == ButtonPress)))
         {
@@ -2001,8 +2003,8 @@ event_callback (XEvent   *event,
                   MetaScreen *screen;
                   meta_topic (META_DEBUG_WINDOW_OPS, 
                               "Syncing to old stack positions.\n");
-                  screen = 
-                    meta_display_screen_for_root (display, event->xany.window);
+                  screen =
+                    meta_display_screen_for_root (display, xwindow);
 
                   if (screen!=NULL)
                     meta_stack_set_positions (screen->stack,
@@ -2207,8 +2209,9 @@ event_callback (XEvent   *event,
            * actually appear on the right screen.
            */
           {
-            MetaScreen *new_screen = 
-              meta_display_screen_for_root (display, event->xcrossing.root);
+            Window xroot = meta_input_event_get_root_window (display, event);
+            MetaScreen *new_screen =
+              meta_display_screen_for_root (display, xroot);
 
             if (new_screen != NULL && display->active_screen != new_screen)
               meta_workspace_focus_default_window (new_screen->active_workspace, 
@@ -2282,8 +2285,7 @@ event_callback (XEvent   *event,
             {
               meta_window_notify_focus (window, event);
             }
-          else if (meta_display_xwindow_is_a_no_focus_window (display,
-                                                              event->xany.window))
+          else if (meta_display_xwindow_is_a_no_focus_window (display, xwindow))
             {
               meta_topic (META_DEBUG_FOCUS,
                           "Focus %s event received on no_focus_window 0x%lx "
@@ -2291,15 +2293,15 @@ event_callback (XEvent   *event,
                           evtype == FocusIn ? "in" :
                           evtype == FocusOut ? "out" :
                           "???",
-                          event->xany.window,
+                          xwindow,
                           meta_event_mode_to_string (event->xfocus.mode),
                           meta_event_detail_to_string (event->xfocus.detail));
             }
           else
             {
               MetaScreen *screen =
-                meta_display_screen_for_root(display,
-                                             event->xany.window);
+                meta_display_screen_for_root(display, xwindow);
+
               if (screen == NULL)
                 break;
 
@@ -2309,7 +2311,7 @@ event_callback (XEvent   *event,
                           evtype == FocusIn ? "in" :
                           evtype == FocusOut ? "out" :
                           "???",
-                          event->xany.window,
+                          xwindow,
                           meta_event_mode_to_string (event->xfocus.mode),
                           meta_event_detail_to_string (event->xfocus.detail));
           
