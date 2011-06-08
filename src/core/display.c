@@ -1730,7 +1730,7 @@ event_callback (XEvent   *event,
     {
       Window xwindow = meta_input_event_get_window (display, event);
       Time evtime = meta_input_event_get_time (display, event);
-      guint n_button;
+      guint n_button, state;
 
       if (window && !window->override_redirect &&
           ((evtype == KeyPress) || (evtype == ButtonPress)))
@@ -1770,6 +1770,7 @@ event_callback (XEvent   *event,
           break;
         case ButtonPress:
           meta_input_event_get_button (display, event, &n_button);
+          meta_input_event_get_state (display, event, &state);
 
           if (display->grab_op == META_GRAB_OP_COMPOSITOR)
             break;
@@ -1819,7 +1820,7 @@ event_callback (XEvent   *event,
                * frame, the other is our focus_window_grab on unmodified
                * button 1.  So for all such events we focus the window.
                */
-              unmodified = (event->xbutton.state & grab_mask) == 0;
+              unmodified = (state & grab_mask) == 0;
 
               if (unmodified || n_button == 1)
                 {
