@@ -1939,6 +1939,7 @@ event_callback (XEvent   *event,
   if (meta_input_event_get_type (display, event, &evtype))
     {
       Window xwindow = meta_input_event_get_window (display, event);
+      Time evtime = meta_input_event_get_time (display, event);
 
       if (window && !window->override_redirect &&
           ((evtype == KeyPress) || (evtype == ButtonPress)))
@@ -2010,8 +2011,7 @@ event_callback (XEvent   *event,
                     meta_stack_set_positions (screen->stack,
                                               display->grab_old_window_stacking);
                 }
-              meta_display_end_grab_op (display,
-                                        event->xbutton.time);
+              meta_display_end_grab_op (display, evtime);
             }
           else if (window && display->grab_op == META_GRAB_OP_NONE)
             {
@@ -2053,7 +2053,7 @@ event_callback (XEvent   *event,
                           meta_topic (META_DEBUG_FOCUS,
                                       "Focusing %s due to unmodified button %u press (display.c)\n",
                                       window->desc, event->xbutton.button);
-                          meta_window_focus (window, event->xbutton.time);
+                          meta_window_focus (window, evtime);
                         }
                       else
                         /* However, do allow terminals to lose focus due to new
@@ -2112,7 +2112,7 @@ event_callback (XEvent   *event,
                                                     FALSE,
                                                     event->xbutton.button,
                                                     0,
-                                                    event->xbutton.time,
+                                                    evtime,
                                                     event->xbutton.x_root,
                                                     event->xbutton.y_root);
                     }
@@ -2125,7 +2125,7 @@ event_callback (XEvent   *event,
                                          event->xbutton.x_root,
                                          event->xbutton.y_root,
                                          event->xbutton.button,
-                                         event->xbutton.time);
+                                         evtime);
                 }
 
               if (!frame_was_receiver && unmodified)
@@ -2153,10 +2153,10 @@ event_callback (XEvent   *event,
 
                   meta_verbose ("Allowing events mode %s time %u\n",
                                 mode == AsyncPointer ? "AsyncPointer" : "ReplayPointer",
-                                (unsigned int)event->xbutton.time);
-              
+                                (unsigned int) evtime);
+
                   XAllowEvents (display->xdisplay,
-                                mode, event->xbutton.time);
+                                mode, evtime);
                 }
 
               if (begin_move && window->has_move_func)
@@ -2169,7 +2169,7 @@ event_callback (XEvent   *event,
                                               FALSE,
                                               event->xbutton.button,
                                               0,
-                                              event->xbutton.time,
+                                              evtime,
                                               event->xbutton.x_root,
                                               event->xbutton.y_root);
                 }
@@ -2216,7 +2216,7 @@ event_callback (XEvent   *event,
             if (new_screen != NULL && display->active_screen != new_screen)
               meta_workspace_focus_default_window (new_screen->active_workspace, 
                                                    NULL,
-                                                   event->xcrossing.time);
+                                                   evtime);
           }
 
           /* Check if we've entered a window; do this even if window->has_focus to
@@ -2241,7 +2241,7 @@ event_callback (XEvent   *event,
                                   "and setting display->mouse_mode to TRUE.\n",
                                   window->desc,
                                   event->xany.serial,
-                                  event->xcrossing.time);
+                                  evtime);
 
                       if (meta_prefs_get_focus_change_on_pointer_rest())
                         meta_display_queue_focus_callback (display, window,
@@ -2249,7 +2249,7 @@ event_callback (XEvent   *event,
                                                            event->xcrossing.y_root);
                       else
                         meta_display_mouse_mode_focus (display, window,
-                                                       event->xcrossing.time);
+                                                       evtime);
 
                       /* stop ignoring stuff */
                       reset_ignored_crossing_serials (display);
