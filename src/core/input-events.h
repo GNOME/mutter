@@ -38,6 +38,9 @@
 gboolean meta_input_event_get_type          (MetaDisplay *display,
                                              XEvent      *ev,
                                              guint       *ev_type);
+gboolean meta_input_event_is_type           (MetaDisplay *display,
+                                             XEvent      *ev,
+                                             guint        ev_type);
 
 Window   meta_input_event_get_window        (MetaDisplay *display,
                                              XEvent      *ev);
@@ -63,5 +66,10 @@ gboolean meta_input_event_get_keycode       (MetaDisplay *display,
 gboolean meta_input_event_get_button        (MetaDisplay *display,
                                              XEvent      *event,
                                              guint       *button);
+gboolean meta_input_event_get_crossing_details (MetaDisplay *display,
+                                                XEvent      *ev,
+                                                guint       *mode_out,
+                                                guint       *detail_out);
+
 
 #endif /* META_EVENT_H */
