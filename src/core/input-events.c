@@ -495,3 +495,48 @@ meta_input_event_get_keycode (MetaDisplay *display,
 
   return FALSE;
 }
+
+gboolean
+meta_input_event_get_button (MetaDisplay *display,
+                             XEvent      *ev,
+                             guint       *button)
+{
+#ifdef HAVE_XINPUT2
+  if (ev->type == GenericEvent &&
+      ev->xcookie.extension == display->xinput2_opcode)
+    {
+      XIEvent *xev;
+
+      g_assert (display->have_xinput2 == TRUE);
+
+      xev = (XIEvent *) ev->xcookie.data;
+
+      if (xev->evtype == XI_ButtonPress ||
+          xev->evtype == XI_ButtonRelease)
+        {
+          if (button)
+            {
+              /* The detail field contains
+               * button number for button events
+               */
+              *button = ((XIDeviceEvent *) xev)->detail;
+            }
+
+          return TRUE;
+        }
+    }
+  else
+#endif /* HAVE_XINPUT2 */
+    {
+      if (ev->type == ButtonPress ||
+          ev->type == ButtonRelease)
+        {
+          if (button)
+            *button = ev->xbutton.button;
+
+          return TRUE;
+        }
+    }
+
+  return FALSE;
+}
