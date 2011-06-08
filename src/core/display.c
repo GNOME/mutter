@@ -1833,14 +1833,20 @@ event_callback (XEvent   *event,
                       event->xany.serial);
         }
     }
-  else if (event->type == LeaveNotify &&
-           event->xcrossing.mode == NotifyUngrab &&
-           modified == display->ungrab_should_not_cause_focus_window)
+  else if (meta_input_event_is_type (display, event, LeaveNotify))
     {
-      meta_display_add_ignored_crossing_serial (display, event->xany.serial);
-      meta_topic (META_DEBUG_FOCUS,
-                  "Adding LeaveNotify serial %lu to ignored focus serials\n",
-                  event->xany.serial);
+      guint mode;
+
+      meta_input_event_get_crossing_details (display, event, &mode, NULL);
+
+      if (mode == NotifyUngrab &&
+          modified == display->ungrab_should_not_cause_focus_window)
+        {
+          meta_display_add_ignored_crossing_serial (display, event->xany.serial);
+          meta_topic (META_DEBUG_FOCUS,
+                      "Adding LeaveNotify serial %lu to ignored focus serials\n",
+                      event->xany.serial);
+        }
     }
 
   if (modified != None)
@@ -1940,8 +1946,8 @@ event_callback (XEvent   *event,
     {
       Window xwindow = meta_input_event_get_window (display, event);
       Time evtime = meta_input_event_get_time (display, event);
+      guint n_button, state, mode, detail;
       gdouble ev_root_x, ev_root_y;
-      guint n_button, state;
 
       if (window && !window->override_redirect &&
           ((evtype == KeyPress) || (evtype == ButtonPress)))
@@ -2226,13 +2232,14 @@ event_callback (XEvent   *event,
                                                    evtime);
           }
 
+          meta_input_event_get_crossing_details (display, event, &mode, &detail);
+
           /* Check if we've entered a window; do this even if window->has_focus to
            * avoid races.
            */
           if (window && !crossing_serial_is_ignored (display, event->xany.serial) &&
-              event->xcrossing.mode != NotifyGrab && 
-              event->xcrossing.mode != NotifyUngrab &&
-              event->xcrossing.detail != NotifyInferior &&
+              mode != NotifyGrab && mode != NotifyUngrab &&
+              detail != NotifyInferior &&
               meta_display_focus_sentinel_clear (display))
             {
               switch (meta_prefs_get_focus_mode ())
@@ -2279,15 +2286,19 @@ event_callback (XEvent   *event,
             meta_window_handle_mouse_grab_op_event (window, event);
           else if (window != NULL)
             {
+              meta_input_event_get_crossing_details (display, event,
+                                                     &mode, &detail);
+
               if (window->type == META_WINDOW_DOCK &&
-                  event->xcrossing.mode != NotifyGrab &&
-                  event->xcrossing.mode != NotifyUngrab &&
+                  mode != NotifyGrab && mode != NotifyUngrab &&
                   !window->has_focus)
                 meta_window_lower (window);
             }
           break;
         case FocusIn:
         case FocusOut:
+          meta_input_event_get_crossing_details (display, event,
+                                                 &mode, &detail);
           if (window)
             {
               meta_window_notify_focus (window, event);
@@ -2301,8 +2312,8 @@ event_callback (XEvent   *event,
                           evtype == FocusOut ? "out" :
                           "???",
                           xwindow,
-                          meta_event_mode_to_string (event->xfocus.mode),
-                          meta_event_detail_to_string (event->xfocus.detail));
+                          meta_event_mode_to_string (mode),
+                          meta_event_detail_to_string (detail));
             }
           else
             {
@@ -2319,11 +2330,11 @@ event_callback (XEvent   *event,
                           evtype == FocusOut ? "out" :
                           "???",
                           xwindow,
-                          meta_event_mode_to_string (event->xfocus.mode),
-                          meta_event_detail_to_string (event->xfocus.detail));
-          
+                          meta_event_mode_to_string (mode),
+                          meta_event_detail_to_string (detail));
+
               if (evtype == FocusIn &&
-                  event->xfocus.detail == NotifyDetailNone)
+                  detail == NotifyDetailNone)
                 {
                   meta_topic (META_DEBUG_FOCUS, 
                               "Focus got set to None, probably due to "
@@ -2334,8 +2345,8 @@ event_callback (XEvent   *event,
                                                        meta_display_get_current_time_roundtrip (display));
                 }
               else if (evtype == FocusIn &&
-                       event->xfocus.mode == NotifyNormal &&
-                       event->xfocus.detail == NotifyInferior)
+                       mode == NotifyNormal &&
+                       detail == NotifyInferior)
                 {
                   meta_topic (META_DEBUG_FOCUS,
                               "Focus got set to root window, probably due to "

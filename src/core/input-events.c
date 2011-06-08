@@ -122,6 +122,18 @@ meta_input_event_get_type (MetaDisplay *display,
     return FALSE;
 }
 
+gboolean
+meta_input_event_is_type (MetaDisplay *display,
+                          XEvent      *ev,
+                          guint        ev_type)
+{
+  guint type;
+
+  if (!meta_input_event_get_type (display, ev, &type))
+    return FALSE;
+
+  return (type == ev_type);
+}
 
 Window
 meta_input_event_get_window (MetaDisplay *display,
@@ -539,4 +551,66 @@ meta_input_event_get_button (MetaDisplay *display,
     }
 
   return FALSE;
+}
+
+/* NB: Also works for focus in/out events */
+gboolean
+meta_input_event_get_crossing_details (MetaDisplay *display,
+                                       XEvent      *ev,
+                                       guint       *mode_out,
+                                       guint       *detail_out)
+{
+  gboolean retval = TRUE;
+  guint mode, detail;
+
+#ifdef HAVE_XINPUT2
+  if (ev->type == GenericEvent &&
+      ev->xcookie.extension == display->xinput2_opcode)
+    {
+      XIEvent *xev;
+
+      g_assert (display->have_xinput2 == TRUE);
+
+      xev = (XIEvent *) ev->xcookie.data;
+
+      if (xev->evtype == XI_Enter ||
+          xev->evtype == XI_Leave ||
+          xev->evtype == XI_FocusIn ||
+          xev->evtype == XI_FocusOut)
+        {
+          mode = ((XIEnterEvent *) xev)->mode;
+          detail = ((XIEnterEvent *) xev)->detail;
+        }
+      else
+        retval = FALSE;
+    }
+  else
+#endif /* HAVE_XINPUT2 */
+    {
+      if (ev->type == EnterNotify ||
+          ev->type == LeaveNotify)
+        {
+          mode = ev->xcrossing.mode;
+          detail = ev->xcrossing.detail;
+        }
+      else if (ev->type == FocusIn ||
+               ev->type == FocusOut)
+        {
+          mode = ev->xfocus.mode;
+          detail = ev->xfocus.detail;
+        }
+      else
+        retval = FALSE;
+    }
+
+  if (retval)
+    {
+      if (mode_out)
+        *mode_out = mode;
+
+      if (detail_out)
+        *detail_out = detail;
+    }
+
+  return retval;
 }
