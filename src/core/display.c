@@ -1721,6 +1721,7 @@ event_callback (XEvent   *event,
     {
       Window xwindow = meta_input_event_get_window (display, event);
       Time evtime = meta_input_event_get_time (display, event);
+      gdouble ev_root_x, ev_root_y;
       guint n_button, state;
 
       if (window && !window->override_redirect &&
@@ -1762,6 +1763,10 @@ event_callback (XEvent   *event,
         case ButtonPress:
           meta_input_event_get_button (display, event, &n_button);
           meta_input_event_get_state (display, event, &state);
+          meta_input_event_get_coordinates (display, event,
+                                            NULL, NULL,
+                                            &ev_root_x,
+                                            &ev_root_y);
 
           if (display->grab_op == META_GRAB_OP_COMPOSITOR)
             break;
@@ -1861,10 +1866,10 @@ event_callback (XEvent   *event,
 
                       meta_window_get_position (window, &root_x, &root_y);
 
-                      west = event->xbutton.x_root <  (root_x + 1 * window->rect.width  / 3);
-                      east = event->xbutton.x_root >  (root_x + 2 * window->rect.width  / 3);
-                      north = event->xbutton.y_root < (root_y + 1 * window->rect.height / 3);
-                      south = event->xbutton.y_root > (root_y + 2 * window->rect.height / 3);
+                      west = ev_root_x <  (root_x + 1 * window->rect.width  / 3);
+                      east = ev_root_x >  (root_x + 2 * window->rect.width  / 3);
+                      north = ev_root_y < (root_y + 1 * window->rect.height / 3);
+                      south = ev_root_y > (root_y + 2 * window->rect.height / 3);
 
                       if (north && west)
                         op = META_GRAB_OP_RESIZING_NW;
@@ -1895,8 +1900,8 @@ event_callback (XEvent   *event,
                                                     n_button,
                                                     0,
                                                     evtime,
-                                                    event->xbutton.x_root,
-                                                    event->xbutton.y_root);
+                                                    ev_root_x,
+                                                    ev_root_y);
                     }
                 }
               else if (n_button == meta_prefs_get_mouse_button_menu())
@@ -1904,8 +1909,8 @@ event_callback (XEvent   *event,
                   if (meta_prefs_get_raise_on_click ())
                     meta_window_raise (window);
                   meta_window_show_menu (window,
-                                         event->xbutton.x_root,
-                                         event->xbutton.y_root,
+                                         ev_root_x,
+                                         ev_root_y,
                                          n_button,
                                          evtime);
                 }
@@ -1952,8 +1957,8 @@ event_callback (XEvent   *event,
                                               n_button,
                                               0,
                                               evtime,
-                                              event->xbutton.x_root,
-                                              event->xbutton.y_root);
+                                              ev_root_x,
+                                              ev_root_y);
                 }
             }
           break;
