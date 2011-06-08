@@ -295,6 +295,12 @@ struct _MetaDisplay
   int shape_event_base;
   int shape_error_base;
 #endif
+
+#ifdef HAVE_XINPUT2
+  int xinput2_opcode;
+  unsigned int have_xinput2 : 1;
+#endif
+
 #ifdef HAVE_XSYNC
   unsigned int have_xsync : 1;
 #define META_DISPLAY_HAS_XSYNC(display) ((display)->have_xsync)
