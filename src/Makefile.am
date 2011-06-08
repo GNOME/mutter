@@ -97,6 +97,8 @@ libmutter_la_SOURCES =				\
 	meta/group.h				\
 	core/iconcache.c			\
 	core/iconcache.h			\
+	core/input-events.c			\
+	core/input-events.h			\
 	core/keybindings.c			\
 	core/keybindings-private.h		\
 	core/main.c				\
