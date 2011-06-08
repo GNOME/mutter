@@ -2657,15 +2657,11 @@ static Window
 event_get_modified_window (MetaDisplay *display,
                            XEvent *event)
 {
+  if (meta_input_event_get_type (display, event, NULL))
+    return meta_input_event_get_window (display, event);
+
   switch (event->type)
     {
-    case KeyPress:
-    case KeyRelease:
-    case ButtonPress:
-    case ButtonRelease:
-    case MotionNotify:
-    case FocusIn:
-    case FocusOut:
     case KeymapNotify:
     case Expose:
     case GraphicsExpose:
@@ -2678,8 +2674,6 @@ event_get_modified_window (MetaDisplay *display,
     case SelectionNotify:
     case ColormapNotify:
     case ClientMessage:
-    case EnterNotify:
-    case LeaveNotify:
       return event->xany.window;
 
     case CreateNotify:
@@ -2736,19 +2730,11 @@ static guint32
 event_get_time (MetaDisplay *display,
                 XEvent      *event)
 {
+  if (meta_input_event_get_type (display, event, NULL))
+    return meta_input_event_get_time (display, event);
+
   switch (event->type)
     {
-    case KeyPress:
-    case KeyRelease:
-      return event->xkey.time;
-      
-    case ButtonPress:
-    case ButtonRelease:
-      return event->xbutton.time;
-      
-    case MotionNotify:
-      return event->xmotion.time;
-
     case PropertyNotify:
       return event->xproperty.time;
 
@@ -2757,13 +2743,7 @@ event_get_time (MetaDisplay *display,
     case SelectionNotify:
       return event->xselection.time;
 
-    case EnterNotify:
-    case LeaveNotify:
-      return event->xcrossing.time;
-
-    case FocusIn:
-    case FocusOut:
-    case KeymapNotify:      
+    case KeymapNotify:
     case Expose:
     case GraphicsExpose:
     case NoExpose:
