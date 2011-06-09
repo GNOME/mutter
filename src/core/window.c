@@ -43,6 +43,7 @@
 #include <meta/group.h>
 #include "window-props.h"
 #include "constraints.h"
+#include "input-events.h"
 #include "mutter-enum-types.h"
 #include "input-events.h"
 
@@ -50,6 +51,10 @@
 #include <X11/Xlibint.h> /* For display->resource_mask */
 #include <string.h>
 #include <math.h>
+
+#ifdef HAVE_XINPUT2
+#include <X11/extensions/XInput2.h>
+#endif
 
 #ifdef HAVE_SHAPE
 #include <X11/extensions/shape.h>
@@ -9150,7 +9155,10 @@ update_resize (MetaWindow *window,
 
 typedef struct
 {
-  const XEvent *current_event;
+  guint         current_event_type;
+  Window        current_event_window;
+  MetaDisplay  *display;
+  MetaDevice   *device;
   int           count;
   guint32       last_time;
 } EventScannerData;
@@ -9161,13 +9169,33 @@ find_last_time_predicate (Display  *display,
                           XPointer  arg)
 {
   EventScannerData *esd = (void*) arg;
+  Window xwindow;
 
-  if (esd->current_event->type == xevent->type &&
-      esd->current_event->xany.window == xevent->xany.window)
-    {
-      esd->count += 1;
-      esd->last_time = xevent->xmotion.time;
-    }
+#ifdef HAVE_XINPUT2
+  /* We are peeking into events not yet handled by GDK,
+   * Allocate cookie events here so we can handle XI2.
+   *
+   * GDK will handle later these events, and eventually
+   * free the cookie data itself.
+   */
+  XGetEventData (display, &xevent->xcookie);
+#endif
+
+  if (!meta_input_event_is_type (esd->display, xevent,
+                                 esd->current_event_type))
+    return False;
+
+  xwindow = meta_input_event_get_window (esd->display, xevent);
+
+  if (xwindow == None ||
+      xwindow != esd->current_event_window)
+    return False;
+
+  if (esd->device != meta_input_event_get_device (esd->display, xevent))
+    return False;
+
+  esd->count += 1;
+  esd->last_time = meta_input_event_get_time (esd->display, xevent);
 
   return False;
 }
@@ -9177,19 +9205,25 @@ check_use_this_motion_notify (MetaWindow *window,
                               XEvent     *event)
 {
   EventScannerData esd;
+  MetaDevice *device;
   XEvent useless;
+
+  device = meta_input_event_get_device (window->display, event);
 
   /* This code is copied from Owen's GDK code. */
 
   if (window->display->grab_motion_notify_time != 0)
     {
+      Time evtime;
+
+      evtime = meta_input_event_get_time (window->display, event);
+
       /* == is really the right test, but I'm all for paranoia */
-      if (window->display->grab_motion_notify_time <=
-          event->xmotion.time)
+      if (window->display->grab_motion_notify_time <= evtime)
         {
           meta_topic (META_DEBUG_RESIZING,
                       "Arrived at event with time %u (waiting for %u), using it\n",
-                      (unsigned int)event->xmotion.time,
+                      (unsigned int) evtime,
                       window->display->grab_motion_notify_time);
           window->display->grab_motion_notify_time = 0;
           return TRUE;
@@ -9198,7 +9232,11 @@ check_use_this_motion_notify (MetaWindow *window,
         return FALSE; /* haven't reached the saved timestamp yet */
     }
 
-  esd.current_event = event;
+  esd.current_event_window = meta_input_event_get_window (window->display,
+                                                          event);
+  esd.device = device;
+  esd.current_event_type = MotionNotify;
+  esd.display = window->display;
   esd.count = 0;
   esd.last_time = 0;
 
@@ -9246,6 +9284,10 @@ void
 meta_window_handle_mouse_grab_op_event (MetaWindow *window,
                                         XEvent     *event)
 {
+  gdouble x_root, y_root;
+  guint evtype, state;
+  Window xroot;
+
 #ifdef HAVE_XSYNC
   if (event->type == (window->display->xsync_event_base + XSyncAlarmNotify))
     {
@@ -9295,12 +9337,19 @@ meta_window_handle_mouse_grab_op_event (MetaWindow *window,
     }
 #endif /* HAVE_XSYNC */
 
-  switch (event->type)
+  if (!meta_input_event_get_type (window->display, event, &evtype) ||
+      !meta_input_event_get_state (window->display, event, &state) ||
+      !meta_input_event_get_coordinates (window->display, event,
+                                         NULL, NULL, &x_root, &y_root))
+    return;
+
+  xroot = meta_input_event_get_root_window (window->display, event);
+
+  switch (evtype)
     {
     case ButtonRelease:
       meta_display_check_threshold_reached (window->display,
-                                            event->xbutton.x_root,
-                                            event->xbutton.y_root);
+                                            x_root, y_root);
       /* If the user was snap moving then ignore the button release
        * because they may have let go of shift before releasing the
        * mouse button and they almost certainly do not want a
@@ -9312,17 +9361,17 @@ meta_window_handle_mouse_grab_op_event (MetaWindow *window,
             {
               if (window->tile_mode != META_TILE_NONE)
                 meta_window_tile (window);
-              else if (event->xbutton.root == window->screen->xroot)
-                update_move (window, event->xbutton.state & ShiftMask,
-                             event->xbutton.x_root, event->xbutton.y_root);
+              else if (xroot == window->screen->xroot)
+                update_move (window,
+                             state & ShiftMask,
+                             x_root, y_root);
             }
           else if (meta_grab_op_is_resizing (window->display->grab_op))
             {
-              if (event->xbutton.root == window->screen->xroot)
+              if (xroot == window->screen->xroot)
                 update_resize (window,
-                               event->xbutton.state & ShiftMask,
-                               event->xbutton.x_root,
-                               event->xbutton.y_root,
+                               state & ShiftMask,
+                               x_root, y_root,
                                TRUE);
 	      if (window->display->compositor)
 		meta_compositor_set_updates (window->display->compositor, window, TRUE);
@@ -9338,35 +9387,34 @@ meta_window_handle_mouse_grab_op_event (MetaWindow *window,
             }
         }
 
-      meta_display_end_grab_op (window->display, event->xbutton.time);
+      meta_display_end_grab_op (window->display,
+                                meta_input_event_get_time (window->display,
+                                                           event));
       break;
 
     case MotionNotify:
       meta_display_check_threshold_reached (window->display,
-                                            event->xmotion.x_root,
-                                            event->xmotion.y_root);
+                                            x_root, y_root);
       if (meta_grab_op_is_moving (window->display->grab_op))
         {
-          if (event->xmotion.root == window->screen->xroot)
+          if (xroot == window->screen->xroot)
             {
               if (check_use_this_motion_notify (window,
                                                 event))
                 update_move (window,
-                             event->xmotion.state & ShiftMask,
-                             event->xmotion.x_root,
-                             event->xmotion.y_root);
+                             state & ShiftMask,
+                             x_root, y_root);
             }
         }
       else if (meta_grab_op_is_resizing (window->display->grab_op))
         {
-          if (event->xmotion.root == window->screen->xroot)
+          if (xroot == window->screen->xroot)
             {
               if (check_use_this_motion_notify (window,
                                                 event))
                 update_resize (window,
-                               event->xmotion.state & ShiftMask,
-                               event->xmotion.x_root,
-                               event->xmotion.y_root,
+                               state & ShiftMask,
+                               x_root, y_root,
                                FALSE);
             }
         }
