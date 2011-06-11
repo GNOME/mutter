@@ -38,6 +38,7 @@
 #include <meta/boxes.h>
 #include <meta/display.h>
 #include "keybindings-private.h"
+#include "device-map.h"
 #include <meta/prefs.h>
 
 #ifdef HAVE_STARTUP_NOTIFICATION
@@ -271,6 +272,9 @@ struct _MetaDisplay
 
   /* Managed by compositor.c */
   MetaCompositor *compositor;
+
+  /* Managed by device-map.c */
+  MetaDeviceMap *device_map;
 
   int render_event_base;
   int render_error_base;
