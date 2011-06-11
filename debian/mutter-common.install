@@ -1,5 +1,4 @@
 debian/tmp/etc
-debian/tmp/usr/share/gnome
 debian/tmp/usr/share/locale
 debian/tmp/usr/share/man
 debian/tmp/usr/share/mutter

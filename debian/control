@@ -7,14 +7,20 @@ Source: mutter
 Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
-Uploaders: Emilio Pozuelo Monfort <pochu@debian.org>, Gustavo Noronha Silva <kov@debian.org>
+Uploaders: Emilio Pozuelo Monfort <pochu@debian.org>, Frederic Peters <fpeters@debian.org>, Laurent Bigonville <bigon@debian.org>
 Build-Depends: cdbs (>= 0.4.41),
                debhelper (>= 5),
-               quilt,
+               dh-autoreconf,
                intltool (>= 0.34.90),
-               gobject-introspection (>= 0.6.5-3),
-               libclutter-1.0-dev (>= 1.0.0),
-               libgtk2.0-dev (>= 2.10.0),
+               libgtk-3-dev (>= 3.0.0),
+               gir1.2-gtk-3.0,
+               gir1.2-clutter-1.0 (>= 1.4.0),
+               gir1.2-json-glib-1.0 (>= 0.12.0-1~),
+               libcanberra-gtk3-dev,
+               gobject-introspection (>= 0.9.12-5~),
+               libgirepository1.0-dev (>= 0.9.12),
+               libjson-glib-dev (>= 0.12.0-1~),
+               libclutter-1.0-dev (>= 1.4.0),
                libpango1.0-dev (>= 1.2.0),
                libgconf2-dev (>= 2.6.1-2),
                libglib2.0-dev (>= 2.6.0),
@@ -33,20 +39,23 @@ Build-Depends: cdbs (>= 0.4.41),
                libice-dev,
                zenity,
                gnome-doc-utils (>= 0.8),
-               gnome-pkg-tools (>= 0.10),
-               dpkg-dev (>= 1.13.19)
-Standards-Version: 3.8.3
+               gnome-pkg-tools (>= 0.10)
+Standards-Version: 3.9.2
+Vcs-Svn: svn://svn.debian.org/svn/pkg-gnome/packages/unstable/mutter
+Vcs-Browser: http://svn.debian.org/viewsvn/pkg-gnome/packages/unstable/mutter
 
 Package: mutter
-Section: x11
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          mutter-common (>= ${gnome:Version}),
          mutter-common (<< ${gnome:NextVersion}),
+         libgnome2-common,
          zenity
 Provides: x-window-manager
 Recommends: gnome-session | x-session-manager
+Replaces: mutter-common (<< 2.91.91-1)
+Breaks: mutter-common (<< 2.91.91-1)
 Suggests: gnome-control-center (>= 1:2.5.4),
           gnome-themes,
           xdg-user-dirs
@@ -61,16 +70,14 @@ Description: lightweight GTK+ window manager
  .
  This package contains the core binaries.
 
-Package: libmutter-private0
+Package: libmutter0
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          mutter-common (>= ${gnome:Version}),
          mutter-common (<< ${gnome:NextVersion})
-Conflicts: libmutter0
-Replaces: libmutter0
-Description: library for the Mutter window manager
+Description: window manager library from the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
  .
@@ -79,7 +86,8 @@ Description: library for the Mutter window manager
  window managers are like Marshmallow Froot Loops; Metacity is like
  Cheerios."
  .
- This package contains the shared library.
+ This package contains the window manager shared library, used by mutter
+ itself, and gnome-shell.
 
 Package: mutter-common
 Section: misc
@@ -101,9 +109,10 @@ Package: libmutter-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends},
-         libmutter-private0 (= ${binary:Version}),
+         libmutter0 (= ${binary:Version}),
+         gir1.2-mutter-3.0 (= ${binary:Version}),
          libclutter-1.0-dev (>= 1.0.0),
-         libgtk2.0-dev (>= 2.10.0-1)
+         libgtk-3-dev (>= 3.0.0)
 Description: Development files for the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
@@ -114,3 +123,23 @@ Description: Development files for the Mutter window manager
  Cheerios."
  .
  This package contains the development files.
+
+Package: gir1.2-mutter-3.0
+Section: libs
+Architecture: any
+Depends: ${gir:Depends},
+         ${shlibs:Depends},
+         ${misc:Depends}
+Conflicts: gir1.2-mutter-2.91
+Replaces: gir1.2-mutter-2.91
+Description: GObject introspection data for Mutter
+ Mutter is a small window manager, using GTK+ and Clutter to do
+ everything.
+ .
+ Mutter is the clutter-based evolution of Metacity, which, as the
+ author says, is a "Boring window manager for the adult in you. Many
+ window managers are like Marshmallow Froot Loops; Metacity is like
+ Cheerios."
+ .
+ This package contains the GObject introspection data which may be
+ used to generate dynamic bindings.

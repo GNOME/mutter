@@ -1,3 +1,4 @@
 debian/tmp/usr/bin
 debian/tmp/usr/lib/mutter/plugins
 debian/tmp/usr/share/applications
+debian/tmp/usr/share/gnome

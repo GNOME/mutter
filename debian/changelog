@@ -1,20 +1,237 @@
-mutter (2.29.0-4) unstable; urgency=low
+mutter (3.0.2.1-2) UNRELEASED; urgency=low
 
-  * Remove gir1.0-mutter-2.29 to ease the gir1.2 transition, since
-    nothing uses it.
+  * Drop debian/mutter.lintian-overrides: Missing manpages are now installed
 
- -- Emilio Pozuelo Monfort <pochu@debian.org>  Wed, 16 Feb 2011 20:34:44 +0000
+ -- Laurent Bigonville <bigon@debian.org>  Sat, 11 Jun 2011 14:51:05 +0200
 
-mutter (2.29.0-3) unstable; urgency=low
+mutter (3.0.2.1-1) experimental; urgency=low
 
+  [ Rico Tzschichholz ]
+  * New upstream release
+  * debian/watch:
+    - Look for bzip2 tarballs
+
+  [ Josselin Mouette ]
+  * Depend on libgnome2-common for the GConf schemas. This will be 
+    necessary until mutter is ported to GSettings.
+
+ -- Laurent Bigonville <bigon@debian.org>  Sat, 11 Jun 2011 14:39:59 +0200
+
+mutter (3.0.1-1) experimental; urgency=low
+
+  * New upstream release (3.0.0).
+  * debian/control.in:
+    - Bump Standards-Version to 3.9.2 (no further changes)
+    - Drop versionized dpkg-dev build-dependency
+
+ -- Laurent Bigonville <bigon@debian.org>  Fri, 06 May 2011 23:47:25 +0200
+
+mutter (3.0.0-2) experimental; urgency=low
+
+  * Rename gir1.2-mutter-2.91 package to gir1.2-mutter-3.0
+
+ -- Laurent Bigonville <bigon@debian.org>  Mon, 11 Apr 2011 11:19:27 +0200
+
+mutter (3.0.0-1) experimental; urgency=low
+
+  * Team upload.
+
+  [ Frederic Peters ]
+  * New upstream release (2.91.93).
+  * debian/libmutter0.symbols: new symbol.
+
+  [ Josselin Mouette ]
+  * Make the -dev package depend on the gir package.
+
+  [ Raphaël Hertzog ]
+  * New upstream release (3.0.0).
+
+ -- Raphaël Hertzog <hertzog@debian.org>  Sun, 10 Apr 2011 19:38:04 +0000
+
+mutter (2.91.92-1) experimental; urgency=low
+
+  * New upstream release
+
+  [ Rico Tzschichholz ]
+  * debian/patches:
+    + drop 02_arm_include_clutter_x11.patch, is upstream
+    + drop 10_mutter-ldflags.patch, is upstream
+  * debian/control.in,debian/rules:
+    + add libmutter0 which replaces libmutter-wm0 and libmutter-private0
+
+  [ Frederic Peters ]
+  * debian/control.in: mention gnome-shell in libmutter0 package description.
+
+ -- Frederic Peters <fpeters@debian.org>  Thu, 24 Mar 2011 19:56:48 +0100
+
+mutter (2.91.91-1) experimental; urgency=low
+
+  * New upstream release.
+
+  [Laurent Bigonville]
+  * debian/control.in: Add Vcs-Svn and Vcs-Browser fields
+
+  [Frederic Peters]
+  * debian/control.in, libmutter-wm0.install, libmutter-wm0.symbols:
+    Add a libmutter-wm0 library
+  * debian/patches/10_mutter-ldflags.patch: Fix linking of mutter binary
+  * debian/patches/20_libmutter_export_symbols.patch: Limit list of symbols
+    exported by libmutter-{wm,private} (but don't add it to series as it makes
+    gnome-shell segfault)
+  * debian/mutter.install, debian/mutter-common.install: move mutter-wm.desktop
+    from mutter-common to mutter.
+  * debian/control.in: add replaces/breaks in mutter, against previous
+    versions of mutter-common, for the move of mutter-wm.desktop.
+
+ -- Frederic Peters <fpeters@debian.org>  Mon, 14 Mar 2011 19:09:58 +0100
+
+mutter (2.91.90-1) experimental; urgency=low
+
+  * New upstream release.
+
+ -- Frederic Peters <fpeters@debian.org>  Wed, 23 Feb 2011 09:29:08 +0100
+
+mutter (2.91.6-1) experimental; urgency=low
+
+  [ Laurent Bigonville ]
+  * New upstream release.
+  * debian/control.in:
+    - Remove duplicate Section
+    - Drop gir1.2-mutter-2.91 Conflicts/Replaces against libmutter-private0
+      package
+  * debian/watch: Drop call to uupdate
+  * debian/mutter.lintian-overrides: Add overrides for manpages shipped
+    in mutter-common
+
+  [ Emilio Pozuelo Monfort ]
+  * debian/control.in:
+    + Update for the new gtk+ 3 package names.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sat, 19 Feb 2011 15:20:42 +0000
+
+mutter (2.91.5-1) experimental; urgency=low
+
+  [ Emilio Pozuelo Monfort ]
+  * New upstream release.
+    + debian/control.in:
+      - Update build dependencies.
+      - Remove unneeded libgtk2.0-dev build dependency.
+    + debian/patches/02_gdk_removed_macro.patch,
+      debian/patches/03_handle_new_gtk_states.patch,
+      debian/patches/04_fix_gradient_example.patch:
+      - Removed, included upstream.
+  * debian/libmutter-private0.symbols:
+    + Add a symbols file.
   * debian/rules:
-    - Build with -Wno-deprecated-declarations, otherwise -Werror will
-      make us fail to build when a library deprecates some functions.
-      Closes: #590347.
-  * The rebuild gets rid of the ClutterJson requirement, so this also
-    closes: #589879.
+    + Make the shlibs always depend on the latest upstream version.
+      We have symbols file anyway, and manually bumping the shver is
+      error prone.
 
- -- Emilio Pozuelo Monfort <pochu@debian.org>  Sat, 07 Aug 2010 20:38:11 +0200
+  [ Laurent Bigonville ]
+  * debian/control: Bump Standards-Version to 3.9.1
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Wed, 12 Jan 2011 23:06:20 +0000
+
+mutter (2.91.3-3) experimental; urgency=low
+
+  * debian/patches/02_gdk_removed_macro.patch,
+  * debian/patches/03_handle_new_gtk_states.patch,
+  * debian/patches/04_fix_gradient_example.patch:
+    - Patches from upstream git, fix the build with latest GTK+ 3.
+  * debian/control.in:
+    - Bump the libgtk3.0-dev build dependency accordingly.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sat, 18 Dec 2010 23:39:24 +0000
+
+mutter (2.91.3-2) experimental; urgency=low
+
+  * Update to the new gir policy:
+    - Rename gir1.0-mutter-2.91 to gir1.2-mutter-2.91.
+    - Bump the gobject-introspection build dependency.
+    - Build depend on gir1.2 packages.
+  * debian/control.in:
+    - Fix typo, s/shlib/shlibs/.
+  * debian/rules:
+    - Remove hack to get translations in /usr/share, no longer needed.
+    - Pass the path to the typelibs to dh_girepository to get correct
+      dependencies.
+  * debian/rules,
+    debian/control.in:
+    - Use dh-autoreconf.
+  * debian/patches/90_autotools.patch,
+    debian/patches/99_ltmain_as-needed.patch:
+    - Removed, no longer needed with dh-autoreconf.
+  * debian/rules,
+    debian/copyright:
+    - Fix some metacity leftovers.
+  * debian/mutter.1,
+    debian/mutter-message.1,
+    debian/mutter-theme-viewer.1,
+    debian/mutter-window-demo.1,
+    debian/mutter-common.manpages:
+    - Removed, shipped upstream.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Tue, 14 Dec 2010 00:52:38 +0100
+
+mutter (2.91.3-1) experimental; urgency=low
+
+  [ Gustavo Noronha Silva ]
+  * New development release
+  * debian/control:
+  - update build-dependencies on GObject-Introspection packages
+  - build-depend on GTK+3
+
+  [ Emilio Pozuelo Monfort ]
+  * New upstream release.
+    - Rename gir1.0-mutter-2.31 to gir1.0-mutter-2.91.
+  * debian/control.in:
+    - Build depend on libjson-glib-dev and gir1.0-json-glib-1.0.
+  * debian/rules,
+    debian/control.in,
+    debian/source/format:
+    - Switch to source format 3.0 (quilt).
+  * debian/rules:
+    - Bump the shlib version.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Mon, 06 Dec 2010 00:59:42 +0100
+
+mutter (2.31.5-1) experimental; urgency=low
+
+  * New upstream release
+  - refreshed patches
+  - added a hack to rules to work-around the build trying to install
+    locale files to /usr/lib/locale
+  - bumped shlib minimum version to 2.31.5 (see #586124)
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Tue, 13 Jul 2010 11:36:29 -0300
+
+mutter (2.31.2-3) experimental; urgency=low
+
+  * debian/gir1.0-mutter-2.{29->31}.install:
+  - actually install the typelib file
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Mon, 31 May 2010 11:37:33 -0300
+
+mutter (2.31.2-2) experimental; urgency=low
+
+  * debian/control:
+  - fix GIR package name to account for GIR API name change
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Wed, 26 May 2010 15:15:34 -0300
+
+mutter (2.31.2-1) experimental; urgency=low
+
+  * New development release
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Wed, 26 May 2010 10:51:58 -0300
+
+mutter (2.29.1-1) experimental; urgency=low
+
+  * New development release.
+  * debian/control:
+  - build-dep on clutter >= 1.2
+
+ -- Gustavo Noronha Silva <kov@debian.org>  Thu, 08 Apr 2010 20:48:38 -0300
 
 mutter (2.29.0-2) unstable; urgency=low
 
