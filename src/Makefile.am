@@ -81,6 +81,8 @@ libmutter_la_SOURCES =				\
 	core/device-keyboard.h			\
 	core/device-pointer.c			\
 	core/device-pointer.h			\
+	core/devices-core.c			\
+	core/devices-core.h			\
 	core/display.c				\
 	core/display-private.h			\
 	meta/display.h				\
