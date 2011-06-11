@@ -33,7 +33,7 @@
 #include <config.h>
 #include <X11/Xlib.h>
 #include "display-private.h"
-
+#include "device-map.h"
 
 gboolean meta_input_event_get_type          (MetaDisplay *display,
                                              XEvent      *ev,
@@ -70,6 +70,9 @@ gboolean meta_input_event_get_crossing_details (MetaDisplay *display,
                                                 XEvent      *ev,
                                                 guint       *mode_out,
                                                 guint       *detail_out);
+
+MetaDevice *meta_input_event_get_device        (MetaDisplay *display,
+                                                XEvent      *ev);
 
 
 #endif /* META_EVENT_H */
