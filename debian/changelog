@@ -1,4 +1,4 @@
-mutter (3.0.2.1-1) UNRELEASED; urgency=low
+mutter (3.0.2.1-1) experimental; urgency=low
 
   [ Rico Tzschichholz ]
   * New upstream release
@@ -9,7 +9,7 @@ mutter (3.0.2.1-1) UNRELEASED; urgency=low
   * Depend on libgnome2-common for the GConf schemas. This will be 
     necessary until mutter is ported to GSettings.
 
- -- Rico Tzschichholz <ricotz@ubuntu.com>  Fri, 27 May 2011 14:34:49 +0200
+ -- Laurent Bigonville <bigon@debian.org>  Sat, 11 Jun 2011 14:39:59 +0200
 
 mutter (3.0.1-1) experimental; urgency=low
 
