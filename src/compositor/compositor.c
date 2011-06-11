@@ -18,6 +18,7 @@
 #include "meta-background-actor.h"
 #include "window-private.h" /* to check window->hidden */
 #include "display-private.h" /* for meta_display_lookup_x_window() */
+#include "input-events.h"
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xcomposite.h>
 
@@ -658,9 +659,15 @@ meta_compositor_set_updates (MetaCompositor *compositor,
 }
 
 static gboolean
-is_grabbed_event (XEvent *event)
+is_grabbed_event (MetaDisplay *display,
+                  XEvent      *event)
 {
-  switch (event->xany.type)
+  guint evtype;
+
+  if (!meta_input_event_get_type (display, event, &evtype))
+    return FALSE;
+
+  switch (evtype)
     {
     case ButtonPress:
     case ButtonRelease:
@@ -683,7 +690,8 @@ meta_compositor_process_event (MetaCompositor *compositor,
                                XEvent         *event,
                                MetaWindow     *window)
 {
-  if (compositor->modal_plugin && is_grabbed_event (event))
+  if (compositor->modal_plugin &&
+      is_grabbed_event (compositor->display, event))
     {
       MetaPluginClass *klass = META_PLUGIN_GET_CLASS (compositor->modal_plugin);
 
