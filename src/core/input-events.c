@@ -23,6 +23,8 @@
 
 #include <config.h>
 #include "input-events.h"
+#include "devices-core.h"
+#include "device-map.h"
 #include <X11/Xlib.h>
 
 #ifdef HAVE_XINPUT2
@@ -613,4 +615,63 @@ meta_input_event_get_crossing_details (MetaDisplay *display,
     }
 
   return retval;
+}
+
+MetaDevice *
+meta_input_event_get_device (MetaDisplay *display,
+                             XEvent      *ev)
+{
+  guint evtype;
+
+  if (!meta_input_event_get_type (display, ev, &evtype))
+    return NULL;
+
+#ifdef HAVE_XINPUT2
+  if (ev->type == GenericEvent &&
+      ev->xcookie.extension == display->xinput2_opcode)
+    {
+      XIEvent *xev;
+
+      g_assert (display->have_xinput2 == TRUE);
+
+      xev = (XIEvent *) ev->xcookie.data;
+
+      switch (evtype)
+        {
+        case XI_Motion:
+        case XI_ButtonPress:
+        case XI_ButtonRelease:
+        case XI_KeyPress:
+        case XI_KeyRelease:
+          return meta_device_map_lookup (display->device_map,
+                                         ((XIDeviceEvent *) xev)->deviceid);
+        case XI_FocusIn:
+        case XI_FocusOut:
+        case XI_Enter:
+        case XI_Leave:
+          return meta_device_map_lookup (display->device_map,
+                                         ((XIEnterEvent *) xev)->deviceid);
+        default:
+          break;
+        }
+    }
+  else
+#endif
+    {
+      switch (ev->type)
+        {
+        case KeyPress:
+        case KeyRelease:
+        case FocusIn:
+        case FocusOut:
+          return meta_device_map_lookup (display->device_map,
+                                         META_CORE_KEYBOARD_ID);
+        default:
+          /* All other events are pointers' */
+          return meta_device_map_lookup (display->device_map,
+                                         META_CORE_POINTER_ID);
+        }
+    }
+
+  return NULL;
 }
