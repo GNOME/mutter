@@ -34,6 +34,7 @@
 #include "ui.h"
 #include "frame.h"
 #include "place.h"
+#include "input-events.h"
 #include <meta/prefs.h>
 #include <meta/util.h>
 
@@ -1394,10 +1395,16 @@ process_event (MetaKeyBinding       *bindings,
                KeySym                keysym,
                gboolean              on_window)
 {
+  guint evtype, keycode, state;
   int i;
 
   /* we used to have release-based bindings but no longer. */
-  if (event->type == KeyRelease)
+  if (!meta_input_event_get_type (display, event, &evtype) ||
+      !meta_input_event_get_keycode (display, event, &keycode) ||
+      !meta_input_event_get_state (display, event, &state))
+    return FALSE;
+
+  if (evtype == KeyRelease)
     return FALSE;
 
   /*
@@ -1409,9 +1416,9 @@ process_event (MetaKeyBinding       *bindings,
       MetaKeyHandler *handler = bindings[i].handler;
 
       if ((!on_window && handler->flags & META_KEY_BINDING_PER_WINDOW) ||
-          event->type != KeyPress ||
-          bindings[i].keycode != event->xkey.keycode ||
-          ((event->xkey.state & 0xff & ~(display->ignored_modifier_mask)) !=
+          evtype != KeyPress ||
+          bindings[i].keycode != keycode ||
+          ((state & 0xff & ~(display->ignored_modifier_mask)) !=
            bindings[i].mask))
         continue;
 
@@ -1424,7 +1431,7 @@ process_event (MetaKeyBinding       *bindings,
       meta_topic (META_DEBUG_KEYBINDINGS,
                   "Binding keycode 0x%x mask 0x%x matches event 0x%x state 0x%x\n",
                   bindings[i].keycode, bindings[i].mask,
-                  event->xkey.keycode, event->xkey.state);
+                  keycode, state);
 
       if (handler == NULL)
         meta_bug ("Binding %s has no handler\n", bindings[i].name);
@@ -1455,9 +1462,18 @@ process_overlay_key (MetaDisplay *display,
                      XEvent *event,
                      KeySym keysym)
 {
+  guint evtype, keycode;
+  Time evtime;
+
+  if (!meta_input_event_get_type (display, event, &evtype) ||
+      !meta_input_event_get_keycode (display, event, &keycode))
+    return FALSE;
+
+  evtime = meta_input_event_get_time (display, event);
+
   if (display->overlay_key_only_pressed)
     {
-      if (event->xkey.keycode != display->overlay_key_combo.keycode)
+      if (keycode != display->overlay_key_combo.keycode)
         {
           display->overlay_key_only_pressed = FALSE;
 
@@ -1482,33 +1498,33 @@ process_overlay_key (MetaDisplay *display,
                * binding, we unfreeze the keyboard but keep the grab
                * (this is important for something like cycling
                * windows */
-              XAllowEvents (display->xdisplay, AsyncKeyboard, event->xkey.time);
+              XAllowEvents (display->xdisplay, AsyncKeyboard, evtime);
             }
           else
             {
               /* Replay the event so it gets delivered to our
                * per-window key bindings or to the application */
-              XAllowEvents (display->xdisplay, ReplayKeyboard, event->xkey.time);
+              XAllowEvents (display->xdisplay, ReplayKeyboard, evtime);
             }
         }
-      else if (event->xkey.type == KeyRelease)
+      else if (evtype == KeyRelease)
         {
           display->overlay_key_only_pressed = FALSE;
           /* We want to unfreeze events, but keep the grab so that if the user
            * starts typing into the overlay we get all the keys */
-          XAllowEvents (display->xdisplay, AsyncKeyboard, event->xkey.time);
+          XAllowEvents (display->xdisplay, AsyncKeyboard, evtime);
           meta_display_overlay_key_activate (display);
         }
 
       return TRUE;
     }
-  else if (event->xkey.type == KeyPress &&
-           event->xkey.keycode == display->overlay_key_combo.keycode)
+  else if (evtype == KeyPress &&
+           keycode == display->overlay_key_combo.keycode)
     {
       display->overlay_key_only_pressed = TRUE;
       /* We keep the keyboard frozen - this allows us to use ReplayKeyboard
        * on the next event if it's not the release of the overlay key */
-      XAllowEvents (display->xdisplay, SyncKeyboard, event->xkey.time);
+      XAllowEvents (display->xdisplay, SyncKeyboard, evtime);
 
       return TRUE;
     }
@@ -1541,6 +1557,16 @@ meta_display_process_key_event (MetaDisplay *display,
   gboolean handled;
   const char *str;
   MetaScreen *screen;
+  guint evtype, keycode, state;
+  Window xwindow;
+  Time evtime;
+
+  if (!meta_input_event_get_type (display, event, &evtype) ||
+      !meta_input_event_get_keycode (display, event, &keycode) ||
+      !meta_input_event_get_state (display, event, &state))
+    return FALSE;
+
+  evtime = meta_input_event_get_time (display, event);
 
   if (all_bindings_disabled)
     {
@@ -1552,36 +1578,37 @@ meta_display_process_key_event (MetaDisplay *display,
        * poorly defined how this mode is supposed to interact with
        * plugins.
        */
-      XAllowEvents (display->xdisplay, ReplayKeyboard, event->xkey.time);
+      XAllowEvents (display->xdisplay, ReplayKeyboard, evtime);
       return FALSE;
     }
 
+  xwindow = meta_input_event_get_window (display, event);
+
   /* if key event was on root window, we have a shortcut */
-  screen = meta_display_screen_for_root (display, event->xkey.window);
-  
+  screen = meta_display_screen_for_root (display, xwindow);
+
   /* else round-trip to server */
   if (screen == NULL)
-    screen = meta_display_screen_for_xwindow (display,
-                                              event->xany.window);
+    screen = meta_display_screen_for_xwindow (display, xwindow);
 
   if (screen == NULL)
     return FALSE; /* event window is destroyed */
-  
+
   /* ignore key events on popup menus and such. */
-  if (meta_ui_window_is_widget (screen->ui, event->xany.window))
+  if (meta_ui_window_is_widget (screen->ui, xwindow))
     return FALSE;
-  
+
   /* window may be NULL */
-  
-  keysym = XKeycodeToKeysym (display->xdisplay, event->xkey.keycode, 0);
+
+  keysym = XKeycodeToKeysym (display->xdisplay, keycode, 0);
 
   str = XKeysymToString (keysym);
   
   /* was topic */
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Processing key %s event, keysym: %s state: 0x%x window: %s\n",
-              event->type == KeyPress ? "press" : "release",
-              str ? str : "none", event->xkey.state,
+              evtype == KeyPress ? "press" : "release",
+              str ? str : "none", state,
               window ? window->desc : "(no window)");
 
   all_keys_grabbed = window ? window->all_keys_grabbed : screen->all_keys_grabbed;
@@ -1674,7 +1701,8 @@ meta_display_process_key_event (MetaDisplay *display,
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Ending grab op %u on key event sym %s\n",
                       display->grab_op, XKeysymToString (keysym));
-          meta_display_end_grab_op (display, event->xkey.time);
+          meta_display_end_grab_op (display,
+                                    meta_input_event_get_time (display, event));
         }
 
       return TRUE;
@@ -1695,7 +1723,7 @@ process_mouse_move_resize_grab (MetaDisplay *display,
                                 KeySym       keysym)
 {
   /* don't care about releases, but eat them, don't end grab */
-  if (event->type == KeyRelease)
+  if (meta_input_event_is_type (display, event, KeyRelease))
     return TRUE;
 
   if (keysym == XK_Escape)
@@ -1745,27 +1773,31 @@ process_keyboard_move_grab (MetaDisplay *display,
   int x, y;
   int incr;
   gboolean smart_snap;
-  
+  guint keycode, state;
+
   handled = FALSE;
 
   /* don't care about releases, but eat them, don't end grab */
-  if (event->type == KeyRelease)
+  if (meta_input_event_is_type (display, event, KeyRelease))
     return TRUE;
 
+  meta_input_event_get_keycode (display, event, &keycode);
+  meta_input_event_get_state (display, event, &state);
+
   /* don't end grab on modifier key presses */
-  if (is_modifier (display, event->xkey.keycode))
+  if (is_modifier (display, keycode))
     return TRUE;
 
   meta_window_get_position (window, &x, &y);
 
-  smart_snap = (event->xkey.state & ShiftMask) != 0;
+  smart_snap = (state & ShiftMask) != 0;
   
 #define SMALL_INCREMENT 1
 #define NORMAL_INCREMENT 10
 
   if (smart_snap)
     incr = 1;
-  else if (event->xkey.state & ControlMask)
+  else if (state & ControlMask)
     incr = SMALL_INCREMENT;
   else
     incr = NORMAL_INCREMENT;
@@ -1991,15 +2023,19 @@ process_keyboard_resize_grab (MetaDisplay *display,
   int width, height;
   gboolean smart_snap;
   int gravity;
-  
+  guint keycode, state;
+
   handled = FALSE;
 
   /* don't care about releases, but eat them, don't end grab */
-  if (event->type == KeyRelease)
+  if (meta_input_event_is_type (display, event, KeyRelease))
     return TRUE;
 
+  meta_input_event_get_keycode (display, event, &keycode);
+  meta_input_event_get_state (display, event, &state);
+
   /* don't end grab on modifier key presses */
-  if (is_modifier (display, event->xkey.keycode))
+  if (is_modifier (display, keycode))
     return TRUE;
 
   if (keysym == XK_Escape)
@@ -2024,7 +2060,7 @@ process_keyboard_resize_grab (MetaDisplay *display,
 
   gravity = meta_resize_gravity_from_grab_op (display->grab_op);
 
-  smart_snap = (event->xkey.state & ShiftMask) != 0;
+  smart_snap = (state & ShiftMask) != 0;
   
 #define SMALL_INCREMENT 1
 #define NORMAL_INCREMENT 10
@@ -2034,7 +2070,7 @@ process_keyboard_resize_grab (MetaDisplay *display,
       height_inc = 1;
       width_inc = 1;
     }
-  else if (event->xkey.state & ControlMask)
+  else if (state & ControlMask)
     {
       width_inc = SMALL_INCREMENT;
       height_inc = SMALL_INCREMENT;
@@ -2253,13 +2289,18 @@ process_tab_grab (MetaDisplay *display,
   gboolean backward;
   gboolean key_used;
   MetaWindow *prev_window;
+  guint evtype, keycode;
 
   if (screen != display->grab_screen)
     return FALSE;
 
+  if (!meta_input_event_get_type (display, event, &evtype) ||
+      !meta_input_event_get_keycode (display, event, &keycode))
+    return FALSE;
+
   binding = display_get_keybinding (display,
                                     keysym,
-                                    event->xkey.keycode,
+                                    keycode,
                                     display->grab_mask);
   if (binding)
     action = meta_prefs_get_keybinding_action (binding->name);
@@ -2273,9 +2314,9 @@ process_tab_grab (MetaDisplay *display,
    */
   if (!screen->tab_popup)
     {
-      if (event->type == KeyRelease)
+      if (evtype == KeyRelease)
         {
-          if (end_keyboard_grab (display, event->xkey.keycode))
+          if (end_keyboard_grab (display, keycode))
             {
               invoke_handler_by_name (display, screen, "tab-popup-select", NULL, event);
 
@@ -2324,7 +2365,7 @@ process_tab_grab (MetaDisplay *display,
              * If this is simply user pressing the Shift key, we do not want
              * to cancel the grab.
              */
-            if (is_modifier (display, event->xkey.keycode))
+            if (is_modifier (display, keycode))
               return TRUE;
           }
 
@@ -2337,8 +2378,8 @@ process_tab_grab (MetaDisplay *display,
       return FALSE;
     }
 
-  if (event->type == KeyRelease &&
-      end_keyboard_grab (display, event->xkey.keycode))
+  if (evtype == KeyRelease &&
+      end_keyboard_grab (display, keycode))
     {
       /* We're done, move to the new window. */
       MetaWindow *target_window;
@@ -2350,6 +2391,9 @@ process_tab_grab (MetaDisplay *display,
       
       if (target_window)
         {
+          Time evtime;
+
+          evtime = meta_input_event_get_time (display, event);
           target_window->tab_unminimized = FALSE;
 
           meta_topic (META_DEBUG_KEYBINDINGS,
@@ -2359,11 +2403,11 @@ process_tab_grab (MetaDisplay *display,
                       "selection and turning mouse_mode off\n",
                       target_window->desc);
           display->mouse_mode = FALSE;
-          meta_window_activate (target_window, event->xkey.time);
+          meta_window_activate (target_window, evtime);
 
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Ending grab early so we can focus the target window\n");
-          meta_display_end_grab_op (display, event->xkey.time);
+          meta_display_end_grab_op (display, evtime);
 
           return TRUE; /* we already ended the grab */
         }
@@ -2372,11 +2416,11 @@ process_tab_grab (MetaDisplay *display,
     }
   
   /* don't care about other releases, but eat them, don't end grab */
-  if (event->type == KeyRelease)
+  if (evtype == KeyRelease)
     return TRUE;
 
   /* don't end grab on modifier key presses */
-  if (is_modifier (display, event->xkey.keycode))
+  if (is_modifier (display, keycode))
     return TRUE;
 
   prev_window = meta_screen_tab_popup_get_selected (screen);
@@ -2492,10 +2536,14 @@ process_tab_grab (MetaDisplay *display,
   
   if (key_used)
     {
+      guint state;
+
       meta_topic (META_DEBUG_KEYBINDINGS,
                   "Key pressed, moving tab focus in popup\n");
 
-      if (event->xkey.state & ShiftMask)
+      meta_input_event_get_state (display, event, &state);
+
+      if (state & ShiftMask)
         backward = !backward;
 
       if (backward)
@@ -2582,14 +2630,14 @@ handle_switch_to_workspace (MetaDisplay    *display,
   
   if (workspace)
     {
-      meta_workspace_activate (workspace, event->xkey.time);
+      meta_workspace_activate (workspace,
+                               meta_input_event_get_time (display, event));
     }
   else
     {
       /* We could offer to create it I suppose */
     }
 }
-
 
 static void
 handle_maximize_vertically (MetaDisplay    *display,
@@ -2795,12 +2843,20 @@ process_workspace_switch_grab (MetaDisplay *display,
                                KeySym       keysym)
 {
   MetaWorkspace *workspace;
+  guint evtype, keycode;
+  Time evtime;
 
   if (screen != display->grab_screen || !screen->ws_popup)
     return FALSE;
 
-  if (event->type == KeyRelease &&
-      end_keyboard_grab (display, event->xkey.keycode))
+  if (!meta_input_event_get_type (display, event, &evtype) ||
+      !meta_input_event_get_keycode (display, event, &keycode))
+    return FALSE;
+
+  evtime = meta_input_event_get_time (display, event);
+
+  if (evtype == KeyRelease &&
+      end_keyboard_grab (display, keycode))
     {
       /* We're done, move to the new workspace. */
       MetaWorkspace *target_workspace;
@@ -2814,14 +2870,14 @@ process_workspace_switch_grab (MetaDisplay *display,
         {
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Ending grab so we can focus on the target workspace\n");
-          meta_display_end_grab_op (display, event->xkey.time);
+          meta_display_end_grab_op (display, evtime);
 
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Focusing default window on target workspace\n");
 
           meta_workspace_focus_default_window (target_workspace, 
                                                NULL,
-                                               event->xkey.time);
+                                               evtime);
 
           return TRUE; /* we already ended the grab */
         }
@@ -2833,11 +2889,11 @@ process_workspace_switch_grab (MetaDisplay *display,
     }
   
   /* don't care about other releases, but eat them, don't end grab */
-  if (event->type == KeyRelease)
+  if (evtype == KeyRelease)
     return TRUE;
 
   /* don't end grab on modifier key presses */
-  if (is_modifier (display, event->xkey.keycode))
+  if (is_modifier (display, keycode))
     return TRUE;
 
   /* select the next workspace in the popup */
@@ -2849,7 +2905,7 @@ process_workspace_switch_grab (MetaDisplay *display,
       MetaKeyBindingAction action;
 
       action = meta_display_get_keybinding_action (display,
-                                                   event->xkey.keycode,
+                                                   keycode,
                                                    display->grab_mask);
 
       switch (action)
@@ -2888,7 +2944,7 @@ process_workspace_switch_grab (MetaDisplay *display,
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Activating target workspace\n");
 
-          meta_workspace_activate (target_workspace, event->xkey.time);
+          meta_workspace_activate (target_workspace, evtime);
 
           return TRUE; /* we already ended the grab */
         }
@@ -2898,7 +2954,7 @@ process_workspace_switch_grab (MetaDisplay *display,
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Ending workspace tabbing & focusing default window; uninteresting key pressed\n");
   workspace = meta_screen_workspace_popup_get_selected (screen);
-  meta_workspace_focus_default_window (workspace, NULL, event->xkey.time);
+  meta_workspace_focus_default_window (workspace, NULL, evtime);
   return FALSE;
 }
 
@@ -2910,15 +2966,18 @@ handle_show_desktop (MetaDisplay    *display,
                        MetaKeyBinding *binding,
                        gpointer        dummy)
 {
+  Time evtime;
+
+  evtime = meta_input_event_get_time (display, event);
+
   if (screen->active_workspace->showing_desktop)
     {
       meta_screen_unshow_desktop (screen);
-      meta_workspace_focus_default_window (screen->active_workspace, 
-                                           NULL,
-                                           event->xkey.time);
+      meta_workspace_focus_default_window (screen->active_workspace,
+                                           NULL, evtime);
     }
   else
-    meta_screen_show_desktop (screen, event->xkey.time);
+    meta_screen_show_desktop (screen, evtime);
 }
 
 static void
@@ -2932,6 +2991,7 @@ handle_panel (MetaDisplay    *display,
   MetaKeyBindingAction action = binding->handler->data;
   Atom action_atom;
   XClientMessageEvent ev;
+  Time evtime;
 
   action_atom = None;
   switch (action)
@@ -2946,23 +3006,25 @@ handle_panel (MetaDisplay    *display,
     default:
       return;
     }
-   
+
+  evtime = meta_input_event_get_time (display, event);
+
   ev.type = ClientMessage;
   ev.window = screen->xroot;
   ev.message_type = display->atom__GNOME_PANEL_ACTION;
   ev.format = 32;
   ev.data.l[0] = action_atom;
-  ev.data.l[1] = event->xkey.time;
+  ev.data.l[1] = evtime;
 
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Sending panel message with timestamp %lu, and turning mouse_mode "
-              "off due to keybinding press\n", event->xkey.time);
+              "off due to keybinding press\n", evtime);
   display->mouse_mode = FALSE;
 
   meta_error_trap_push (display);
 
   /* Release the grab for the panel before sending the event */
-  XUngrabKeyboard (display->xdisplay, event->xkey.time);
+  XUngrabKeyboard (display->xdisplay, evtime);
 
   XSendEvent (display->xdisplay,
 	      screen->xroot,
@@ -2983,6 +3045,7 @@ handle_activate_window_menu (MetaDisplay    *display,
 {
   if (display->focus_window)
     {
+      Time evtime;
       int x, y;
 
       meta_window_get_position (display->focus_window,
@@ -2991,10 +3054,12 @@ handle_activate_window_menu (MetaDisplay    *display,
       if (meta_ui_get_direction() == META_UI_DIRECTION_RTL)
 	  x += display->focus_window->rect.width;
 
+      evtime = meta_input_event_get_time (display, event);
+
       meta_window_show_menu (display->focus_window,
                              x, y,
                              0,
-                             event->xkey.time);
+                             evtime);
     }
 }
 
@@ -3049,14 +3114,21 @@ do_choose_window (MetaDisplay    *display,
 {
   MetaTabList type = binding->handler->data;
   MetaWindow *initial_selection;
+  guint state;
+  Time evtime;
 
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Tab list = %u show_popup = %d\n", type, show_popup);
-  
+
+  if (!meta_input_event_get_state (display, event, &state))
+    return;
+
   /* reverse direction if shift is down */
-  if (event->xkey.state & ShiftMask)
+  if (state & ShiftMask)
     backward = !backward;
-  
+
+  evtime = meta_input_event_get_time (display, event);
+
   initial_selection = meta_display_get_tab_next (display,
                                                  type,
                                                  screen,
@@ -3087,7 +3159,7 @@ do_choose_window (MetaDisplay    *display,
                   "switch/cycle windows with no modifiers\n",
                   initial_selection->desc);
       display->mouse_mode = FALSE;
-      meta_window_activate (initial_selection, event->xkey.time);
+      meta_window_activate (initial_selection, evtime);
       return;
     }
 
@@ -3107,7 +3179,7 @@ do_choose_window (MetaDisplay    *display,
                                    FALSE,
                                    0,
                                    binding->mask,
-                                   event->xkey.time,
+                                   evtime,
                                    0, 0))
     return;
 
@@ -3122,9 +3194,10 @@ do_choose_window (MetaDisplay    *display,
                   "mouse_mode due to switch/cycle windows where "
                   "modifier was released prior to grab\n",
                   initial_selection->desc);
-      meta_display_end_grab_op (display, event->xkey.time);
+
+      meta_display_end_grab_op (display, evtime);
       display->mouse_mode = FALSE;
-      meta_window_activate (initial_selection, event->xkey.time);
+      meta_window_activate (initial_selection, evtime);
       return;
     }
 
@@ -3314,10 +3387,14 @@ handle_toggle_shaded      (MetaDisplay    *display,
                            MetaKeyBinding *binding,
                            gpointer        dummy)
 {
+  Time evtime;
+
+  evtime = meta_input_event_get_time (display, event);
+
   if (window->shaded)
-    meta_window_unshade (window, event->xkey.time);
+    meta_window_unshade (window, evtime);
   else if (window->has_shade_func)
-    meta_window_shade (window, event->xkey.time);
+    meta_window_shade (window, evtime);
 }
 
 static void
@@ -3329,7 +3406,9 @@ handle_close              (MetaDisplay    *display,
                            gpointer        dummy)
 {
   if (window->has_close_func)
-    meta_window_delete (window, event->xkey.time);
+    meta_window_delete (window,
+                        meta_input_event_get_time (display,
+                                                   event));
 }
 
 static void
@@ -3357,7 +3436,7 @@ handle_begin_move         (MetaDisplay    *display,
       meta_window_begin_grab_op (window,
                                  META_GRAB_OP_KEYBOARD_MOVING,
                                  FALSE,
-                                 event->xkey.time);
+                                 meta_input_event_get_time (display, event));
     }
 }
 
@@ -3374,7 +3453,7 @@ handle_begin_resize       (MetaDisplay    *display,
       meta_window_begin_grab_op (window,
                                  META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN,
                                  FALSE,
-                                 event->xkey.time);
+                                 meta_input_event_get_time (display, event));
     }
 }
 
@@ -3432,13 +3511,13 @@ handle_move_to_workspace  (MetaDisplay    *display,
       meta_window_change_workspace (window, workspace);
       if (flip)
         {
+          Time evtime = meta_input_event_get_time (display, event);
+
           meta_topic (META_DEBUG_FOCUS,
                       "Resetting mouse_mode to FALSE due to "
                       "handle_move_to_workspace() call with flip set.\n");
           meta_display_clear_mouse_mode (workspace->screen->display);
-          meta_workspace_activate_with_focus (workspace,
-                                              window,
-                                              event->xkey.time);
+          meta_workspace_activate_with_focus (workspace, window, evtime);
         }
     }
   else
@@ -3528,15 +3607,21 @@ handle_workspace_switch  (MetaDisplay    *display,
   unsigned int grab_mask;
   MetaWorkspace *next;
   gboolean grabbed_before_release;
+  guint state;
+  Time evtime;
 
   g_assert (motion < 0); 
 
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Starting tab between workspaces, showing popup\n");
 
+  if (!meta_input_event_get_state (display, event, &state))
+    return;
+
   /* FIXME should we use binding->mask ? */
-  grab_mask = event->xkey.state & ~(display->ignored_modifier_mask);
-  
+  grab_mask = state & ~(display->ignored_modifier_mask);
+  evtime = meta_input_event_get_time (display, event);
+
   if (!meta_display_begin_grab_op (display,
                                    screen,
                                    NULL,
@@ -3545,7 +3630,7 @@ handle_workspace_switch  (MetaDisplay    *display,
                                    FALSE,
                                    0,
                                    grab_mask,
-                                   event->xkey.time,
+                                   evtime,
                                    0, 0))
     return;
 
@@ -3563,10 +3648,10 @@ handle_workspace_switch  (MetaDisplay    *display,
        * release event. Must end grab before we can switch
        * spaces.
        */
-      meta_display_end_grab_op (display, event->xkey.time);
+      meta_display_end_grab_op (display, evtime);
     }
 
-  meta_workspace_activate (next, event->xkey.time);
+  meta_workspace_activate (next, evtime);
 
   if (grabbed_before_release && !meta_prefs_get_no_tab_popup ())
     meta_screen_workspace_popup_create (screen, next);
@@ -3591,19 +3676,6 @@ meta_set_keybindings_disabled (gboolean setting)
               "Keybindings %s\n", all_bindings_disabled ? "disabled" : "enabled");
 }
 
-/**
- * meta_keybindings_set_custom_handler:
- * @name: The name of the keybinding to set
- * @handler: (allow-none): The new handler function
- * @user_data: User data to pass to the callback
- * @free_data: Will be called when this handler is overridden.
- *
- * Allows users to register a custom handler for a
- * builtin key binding.
- *
- * Returns: %TRUE if the binding known as @name was found,
- * %FALSE otherwise.
- */
 gboolean
 meta_keybindings_set_custom_handler (const gchar        *name,
                                      MetaKeyHandlerFunc  handler,
