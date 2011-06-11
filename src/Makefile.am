@@ -75,6 +75,12 @@ libmutter_la_SOURCES =				\
 	core/constraints.h			\
 	core/core.c				\
 	core/delete.c				\
+	core/device.c				\
+	core/device.h				\
+	core/device-keyboard.c			\
+	core/device-keyboard.h			\
+	core/device-pointer.c			\
+	core/device-pointer.h			\
 	core/display.c				\
 	core/display-private.h			\
 	meta/display.h				\
