@@ -84,4 +84,9 @@ GType       meta_device_keyboard_xi2_get_type (void) G_GNUC_CONST;
 MetaDevice *meta_device_keyboard_xi2_new      (MetaDisplay *display,
                                                gint         device_id);
 
+/* Helper function for translating event masks */
+guchar * meta_device_xi2_translate_event_mask (guint        evmask,
+                                               gint        *len);
+
+
 #endif /* META_DEVICES_XI2_H */
