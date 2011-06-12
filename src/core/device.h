@@ -86,4 +86,8 @@ gboolean     meta_device_grab         (MetaDevice *device,
 void         meta_device_ungrab       (MetaDevice *device,
                                        Time        time);
 
+void         meta_device_pair_devices      (MetaDevice *device,
+                                            MetaDevice *other_device);
+MetaDevice * meta_device_get_paired_device (MetaDevice *device);
+
 #endif /* META_DEVICE_H */
