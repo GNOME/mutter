@@ -29,7 +29,8 @@ G_DEFINE_ABSTRACT_TYPE (MetaDevice, meta_device, G_TYPE_OBJECT)
 enum {
   PROP_0,
   PROP_DEVICE_ID,
-  PROP_DISPLAY
+  PROP_DISPLAY,
+  PROP_PAIRED_DEVICE
 };
 
 typedef struct MetaDevicePrivate MetaDevicePrivate;
@@ -37,6 +38,7 @@ typedef struct MetaDevicePrivate MetaDevicePrivate;
 struct MetaDevicePrivate
 {
   MetaDisplay *display;
+  MetaDevice *paired_device;
   gint device_id;
 };
 
@@ -55,6 +57,10 @@ meta_device_get_property (GObject    *object,
     case PROP_DISPLAY:
       g_value_set_object (value,
                           meta_device_get_display (META_DEVICE (object)));
+      break;
+    case PROP_PAIRED_DEVICE:
+      g_value_set_object (value,
+                          meta_device_get_paired_device (META_DEVICE (object)));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -77,6 +83,10 @@ meta_device_set_property (GObject      *object,
       break;
     case PROP_DISPLAY:
       priv->display = g_value_get_object (value);
+      break;
+    case PROP_PAIRED_DEVICE:
+      meta_device_pair_devices (META_DEVICE (object),
+                                g_value_get_object (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, param_id, pspec);
@@ -108,6 +118,13 @@ meta_device_class_init (MetaDeviceClass *klass)
                                                         META_TYPE_DISPLAY,
                                                         G_PARAM_READWRITE |
                                                         G_PARAM_CONSTRUCT_ONLY));
+  g_object_class_install_property (object_class,
+                                   PROP_PAIRED_DEVICE,
+                                   g_param_spec_object ("paired-device",
+                                                        "Paired device",
+                                                        "Paired device",
+                                                        META_TYPE_DEVICE,
+                                                        G_PARAM_READWRITE));
 
   g_type_class_add_private (klass, sizeof (MetaDevicePrivate));
 }
@@ -192,4 +209,46 @@ meta_device_ungrab (MetaDevice *device,
 
   if (klass->ungrab)
     (klass->ungrab) (device, time);
+}
+
+void
+meta_device_pair_devices (MetaDevice *device,
+                          MetaDevice *other_device)
+{
+  MetaDevicePrivate *priv1, *priv2;
+
+  g_return_if_fail (META_IS_DEVICE (device));
+  g_return_if_fail (META_IS_DEVICE (other_device));
+
+  priv1 = device->priv;
+  priv2 = other_device->priv;
+
+  /* Consider safe multiple calls
+   * on already paired devices
+   */
+  if (priv1->paired_device != NULL &&
+      priv2->paired_device != NULL &&
+      priv1->paired_device == other_device &&
+      priv2->paired_device == device)
+    return;
+
+  g_return_if_fail (priv1->paired_device == NULL);
+  g_return_if_fail (priv2->paired_device == NULL);
+
+  priv1->paired_device = g_object_ref (other_device);
+  priv2->paired_device = g_object_ref (device);
+
+  g_object_notify (G_OBJECT (device), "paired-device");
+  g_object_notify (G_OBJECT (other_device), "paired-device");
+}
+
+MetaDevice *
+meta_device_get_paired_device (MetaDevice *device)
+{
+  MetaDevicePrivate *priv;
+
+  g_return_val_if_fail (META_IS_DEVICE (device), NULL);
+
+  priv = device->priv;
+  return priv->paired_device;
 }
