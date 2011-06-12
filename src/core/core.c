@@ -30,6 +30,11 @@
 #include <meta/prefs.h>
 #include <meta/errors.h>
 
+#ifdef HAVE_XINPUT2
+#include <X11/extensions/XInput2.h>
+#include "devices-xi2.h"
+#endif
+
 /* Looks up the MetaWindow representing the frame of the given X window.
  * Used as a helper function by a bunch of the functions below.
  *
@@ -775,3 +780,69 @@ meta_invalidate_default_icons (void)
   g_slist_free (windows);
 }
 
+/* Selects events on an xwindow, using XInput2 if available/in use,
+ * this function doesn't require the xwindow to have a backing
+ * MetaWindow.
+ */
+void
+meta_core_select_events (Display  *xdisplay,
+                         Window    xwindow,
+                         gint      evmask,
+                         gboolean  preserve_old_mask)
+{
+  MetaDisplay *display;
+
+  display = meta_display_for_x_display (xdisplay);
+
+#ifdef HAVE_XINPUT2
+  if (display->have_xinput2)
+    {
+      XIEventMask mask;
+
+      mask.deviceid = XIAllMasterDevices;
+      mask.mask = meta_device_xi2_translate_event_mask (evmask,
+                                                        &mask.mask_len);
+
+      if (preserve_old_mask)
+        {
+          XIEventMask *prev;
+          gint n_masks, i, j;
+
+          prev = XIGetSelectedEvents (xdisplay, xwindow, &n_masks);
+
+          for (i = 0; i < n_masks; i++)
+            {
+              if (prev[i].deviceid != XIAllMasterDevices)
+                continue;
+
+              for (j = 0; j < MIN (mask.mask_len, prev[i].mask_len); j++)
+                mask.mask[j] |= prev[i].mask[j];
+            }
+
+          XFree (prev);
+        }
+
+      XISelectEvents (xdisplay, xwindow, &mask, 1);
+
+      /* Unset any input event so they are only handled via XInput2 */
+      evmask &= ~(KeyPressMask | KeyReleaseMask |
+                  ButtonPressMask | ButtonReleaseMask |
+                  EnterWindowMask | LeaveWindowMask |
+                  PointerMotionMask | PointerMotionHintMask |
+                  Button1MotionMask | Button2MotionMask |
+                  Button3MotionMask | Button4MotionMask |
+                  Button5MotionMask | ButtonMotionMask |
+                  FocusChangeMask);
+    }
+#endif
+
+  if (preserve_old_mask)
+    {
+      XWindowAttributes attr;
+
+      if (XGetWindowAttributes (xdisplay, xwindow, &attr))
+        evmask |= attr.your_event_mask;
+    }
+
+  XSelectInput (xdisplay, xwindow, evmask);
+}

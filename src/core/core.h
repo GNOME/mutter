@@ -197,6 +197,12 @@ void       meta_core_set_screen_cursor (Display *xdisplay,
                                         Window   frame_on_screen,
                                         MetaCursor cursor);
 
+void       meta_core_select_events     (Display  *xdisplay,
+                                        Window    xwindow,
+                                        gint      evmask,
+                                        gboolean  preserve_old_mask);
+
+
 /* Used because we ignore EnterNotify when a window is unmapped that
  * really shouldn't cause focus changes, by comparing the event serial
  * of the EnterNotify and the UnmapNotify.
