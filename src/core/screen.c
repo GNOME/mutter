@@ -37,6 +37,7 @@
 #include "workspace-private.h"
 #include "keybindings-private.h"
 #include "stack.h"
+#include "core.h"
 #include "xprops.h"
 #include <meta/compositor.h>
 #include "mutter-enum-types.h"
@@ -621,7 +622,6 @@ meta_screen_new (MetaDisplay *display,
   MetaScreen *screen;
   Window xroot;
   Display *xdisplay;
-  XWindowAttributes attr;
   Window new_wm_sn_owner;
   Window current_wm_sn_owner;
   gboolean replace_current_wm;
@@ -736,15 +736,15 @@ meta_screen_new (MetaDisplay *display,
   /* We need to or with the existing event mask since
    * gtk+ may be interested in other events.
    */
-  XGetWindowAttributes (xdisplay, xroot, &attr);
-  XSelectInput (xdisplay,
-                xroot,
-                SubstructureRedirectMask | SubstructureNotifyMask |
-                ColormapChangeMask | PropertyChangeMask |
-                LeaveWindowMask | EnterWindowMask |
-                KeyPressMask | KeyReleaseMask |
-                FocusChangeMask | StructureNotifyMask |
-                ExposureMask | attr.your_event_mask);
+  meta_core_select_events (xdisplay, xroot,
+                           (SubstructureRedirectMask | SubstructureNotifyMask |
+                            ColormapChangeMask | PropertyChangeMask |
+                            LeaveWindowMask | EnterWindowMask |
+                            KeyPressMask | KeyReleaseMask |
+                            FocusChangeMask | StructureNotifyMask |
+                            ExposureMask),
+                           TRUE);
+
   if (meta_error_trap_pop_with_return (display) != Success)
     {
       meta_warning (_("Screen %d on display \"%s\" already has a window manager\n"),
@@ -930,7 +930,10 @@ meta_screen_free (MetaScreen *screen,
   meta_stack_tracker_free (screen->stack_tracker);
 
   meta_error_trap_push_with_return (screen->display);
-  XSelectInput (screen->display->xdisplay, screen->xroot, 0);
+  meta_core_select_events (screen->display->xdisplay,
+                           screen->xroot, NoEventMask,
+                           FALSE);
+
   if (meta_error_trap_pop_with_return (screen->display) != Success)
     meta_warning (_("Could not release screen %d on display \"%s\"\n"),
                   screen->number, screen->display->name);

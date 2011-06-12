@@ -18,6 +18,7 @@
 #include "meta-background-actor-private.h"
 #include "window-private.h" /* to check window->hidden */
 #include "display-private.h" /* for meta_display_lookup_x_window() */
+#include "core.h" /* for meta_core_select_events() */
 #include "input-events.h"
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xcomposite.h>
@@ -156,7 +157,6 @@ get_output_window (MetaScreen *screen)
   MetaDisplay *display = meta_screen_get_display (screen);
   Display     *xdisplay = meta_display_get_xdisplay (display);
   Window       output, xroot;
-  XWindowAttributes attr;
   long         event_mask;
 
   xroot = meta_screen_get_xroot (screen);
@@ -170,13 +170,7 @@ get_output_window (MetaScreen *screen)
                KeyPressMask | KeyReleaseMask;
 
   output = XCompositeGetOverlayWindow (xdisplay, xroot);
-
-  if (XGetWindowAttributes (xdisplay, output, &attr))
-      {
-        event_mask |= attr.your_event_mask;
-      }
-
-  XSelectInput (xdisplay, output, event_mask);
+  meta_core_select_events (xdisplay, output, event_mask, TRUE);
 
   return output;
 }
@@ -457,7 +451,6 @@ meta_compositor_manage_screen (MetaCompositor *compositor,
   Window          xroot         = meta_screen_get_xroot (screen);
   Window          xwin;
   gint            width, height;
-  XWindowAttributes attr;
   long            event_mask;
   guint           n_retries;
   guint           max_retries;
@@ -534,12 +527,7 @@ meta_compositor_manage_screen (MetaCompositor *compositor,
                KeyPressMask | KeyReleaseMask |
                StructureNotifyMask;
 
-  if (XGetWindowAttributes (xdisplay, xwin, &attr))
-      {
-        event_mask |= attr.your_event_mask;
-      }
-
-  XSelectInput (xdisplay, xwin, event_mask);
+  meta_core_select_events (xdisplay, xwin, event_mask, TRUE);
 
   info->window_group = meta_window_group_new (screen);
   info->background_actor = meta_background_actor_new_for_screen (screen);
