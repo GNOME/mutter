@@ -64,9 +64,9 @@ meta_device_xi2_common_allow_events (MetaDevice *device,
   XIAllowEvents (display->xdisplay, device_id, mode, time);
 }
 
-static guchar *
-translate_event_mask (guint  evmask,
-                      gint  *len)
+guchar *
+meta_device_xi2_translate_event_mask (guint  evmask,
+                                      gint  *len)
 {
   guchar *mask;
 
@@ -119,7 +119,7 @@ meta_device_xi2_common_grab (MetaDevice *device,
   xcursor = meta_display_create_x_cursor (display, cursor);
 
   mask.deviceid = device_id;
-  mask.mask = translate_event_mask (evmask, &mask.mask_len);
+  mask.mask = meta_device_xi2_translate_event_mask (evmask, &mask.mask_len);
 
   retval = XIGrabDevice (display->xdisplay,
                          device_id, xwindow,
