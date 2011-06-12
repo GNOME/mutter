@@ -45,6 +45,7 @@
 #include "constraints.h"
 #include "input-events.h"
 #include "mutter-enum-types.h"
+#include "core.h"
 
 #include <X11/Xatom.h>
 #include <X11/Xlibint.h> /* For display->resource_mask */
@@ -835,7 +836,9 @@ meta_window_new_with_attrs (MetaDisplay       *display,
    * the event mask, not replace it. For windows from other clients,
    * attrs->your_event_mask will be empty at this point.
    */
-  XSelectInput (display->xdisplay, xwindow, attrs->your_event_mask | event_mask);
+  meta_core_select_events (display->xdisplay, xwindow,
+                           attrs->your_event_mask | event_mask,
+                           TRUE);
 
   has_shape = FALSE;
 #ifdef HAVE_SHAPE
