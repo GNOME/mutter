@@ -165,6 +165,12 @@ libmutter_la_SOURCES =				\
 	ui/preview-widget.c			\
 	$(mutter_built_sources)
 
+if HAVE_XINPUT2
+libmutter_la_SOURCES += 			\
+	core/devices-xi2.c			\
+	core/devices-xi2.h
+endif
+
 libmutter_la_LDFLAGS = -no-undefined
 libmutter_la_LIBADD  = $(MUTTER_LIBS)
 

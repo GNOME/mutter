@@ -224,6 +224,8 @@ if test x$have_xinput2 = xyes; then
   AC_DEFINE(HAVE_XINPUT2, , [Building with XInput2 support])
 fi
 
+AM_CONDITIONAL(HAVE_XINPUT2, test "$have_xinput2" = "yes")
+
 PKG_CHECK_MODULES(MUTTER, $MUTTER_PC_MODULES)
 
 # This is used for plugins
