@@ -167,6 +167,8 @@ libmutter_la_SOURCES =				\
 
 if HAVE_XINPUT2
 libmutter_la_SOURCES += 			\
+	core/device-map-xi2.c			\
+	core/device-map-xi2.h			\
 	core/devices-xi2.c			\
 	core/devices-xi2.h
 endif

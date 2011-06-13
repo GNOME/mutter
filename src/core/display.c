@@ -69,6 +69,10 @@
 #ifdef HAVE_XCURSOR
 #include <X11/Xcursor/Xcursor.h>
 #endif
+#ifdef HAVE_XINPUT2
+#include <X11/extensions/XInput2.h>
+#include "device-map-xi2.h"
+#endif
 #include <X11/extensions/Xrender.h>
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
@@ -1944,6 +1948,17 @@ event_callback (XEvent   *event,
     }
 #endif /* HAVE_SHAPE */
 
+#ifdef HAVE_XINPUT2
+  if (display->have_xinput2 &&
+      meta_device_map_xi2_handle_hierarchy_event (META_DEVICE_MAP_XI2 (display->device_map),
+                                                  event))
+    {
+      /* Let GDK Handle the event too for its own device accounting */
+      filter_out_event = FALSE;
+      bypass_compositor = FALSE;
+    }
+  else
+#endif
   if (meta_input_event_get_type (display, event, &evtype))
     {
       Window xwindow = meta_input_event_get_window (display, event);

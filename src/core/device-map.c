@@ -25,6 +25,14 @@
 #include "device-map.h"
 #include "device-map-core.h"
 
+#ifdef HAVE_XINPUT2
+#include <X11/extensions/XInput2.h>
+#include "device-map-xi2.h"
+
+#define XINPUT2_VERSION_MAJOR 2
+#define XINPUT2_VERSION_MINOR 2
+#endif
+
 G_DEFINE_TYPE (MetaDeviceMap, meta_device_map, G_TYPE_OBJECT)
 
 typedef struct MetaDeviceMapPrivate MetaDeviceMapPrivate;
@@ -192,11 +200,52 @@ meta_device_map_remove_device (MetaDeviceMap *device_map,
     }
 }
 
+
+#ifdef HAVE_XINPUT2
+
+static gboolean
+initialize_xinput (MetaDisplay *display)
+{
+  int major, minor, opcode;
+  int unused;
+
+  if (!XQueryExtension (display->xdisplay,
+                        "XInputExtension",
+                        &opcode, &unused, &unused))
+    return FALSE;
+
+  major = XINPUT2_VERSION_MAJOR;
+  minor = XINPUT2_VERSION_MINOR;
+
+  XIQueryVersion (display->xdisplay, &major, &minor);
+
+  if (major == XINPUT2_VERSION_MAJOR &&
+      minor == XINPUT2_VERSION_MINOR)
+    {
+      display->have_xinput2 = TRUE;
+      display->xinput2_opcode = opcode;
+
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+#endif /* HAVE_XINPUT2 */
+
 MetaDeviceMap *
 meta_device_map_new (MetaDisplay *display,
                      gboolean     force_core)
 {
-  return g_object_new (META_TYPE_DEVICE_MAP_CORE,
+  GType type = META_TYPE_DEVICE_MAP_CORE;
+
+#ifdef HAVE_XINPUT2
+  if (!force_core &&
+      initialize_xinput (display))
+    type = META_TYPE_DEVICE_MAP_XI2;
+#endif
+
+  return g_object_new (type,
                        "display", display,
                        NULL);
 }
