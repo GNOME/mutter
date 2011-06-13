@@ -831,16 +831,16 @@ meta_change_keygrab (MetaDisplay *display,
 
       if (meta_is_debugging ())
         meta_error_trap_push_with_return (display);
+
       if (grab)
-        XGrabKey (display->xdisplay, keycode,
-                  modmask | ignored_mask,
-                  xwindow,
-                  True,
-                  GrabModeAsync, GrabModeSync);
+        meta_device_map_grab_key (display->device_map,
+                                  xwindow, keycode,
+                                  modmask | ignored_mask,
+                                  TRUE);
       else
-        XUngrabKey (display->xdisplay, keycode,
-                    modmask | ignored_mask,
-                    xwindow);
+        meta_device_map_ungrab_key (display->device_map,
+                                    xwindow, keycode,
+                                    modmask | ignored_mask);
 
       if (meta_is_debugging ())
         {
