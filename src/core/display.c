@@ -4108,16 +4108,16 @@ meta_change_button_grab (MetaDisplay *display,
       /* GrabModeSync means freeze until X(I)AllowEvents */
       
       if (grab)
-        XGrabButton (display->xdisplay, button, modmask | ignored_mask,
-                     xwindow, False,
-                     ButtonPressMask | ButtonReleaseMask |    
-                     PointerMotionMask | PointerMotionHintMask,
-                     sync ? GrabModeSync : GrabModeAsync,
-                     GrabModeAsync,
-                     False, None);
+        meta_device_map_grab_button (display->device_map,
+                                     xwindow, button,
+                                     modmask | ignored_mask,
+                                     ButtonPressMask | ButtonReleaseMask |
+                                     PointerMotionMask | PointerMotionHintMask,
+                                     sync);
       else
-        XUngrabButton (display->xdisplay, button, modmask | ignored_mask,
-                       xwindow);
+        meta_device_map_ungrab_button (display->device_map,
+                                       xwindow, button,
+                                       modmask | ignored_mask);
 
       if (meta_is_debugging ())
         {
