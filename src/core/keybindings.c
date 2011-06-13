@@ -1369,6 +1369,7 @@ process_overlay_key (MetaDisplay *display,
                      KeySym keysym)
 {
   guint evtype, keycode;
+  MetaDevice *keyboard;
   Time evtime;
 
   if (!meta_input_event_get_type (display, event, &evtype) ||
@@ -1376,6 +1377,7 @@ process_overlay_key (MetaDisplay *display,
     return FALSE;
 
   evtime = meta_input_event_get_time (display, event);
+  keyboard = meta_input_event_get_device (display, event);
 
   if (display->overlay_key_only_pressed)
     {
@@ -1404,13 +1406,13 @@ process_overlay_key (MetaDisplay *display,
                * binding, we unfreeze the keyboard but keep the grab
                * (this is important for something like cycling
                * windows */
-              XAllowEvents (display->xdisplay, AsyncKeyboard, evtime);
+              meta_device_allow_events (keyboard, AsyncKeyboard, evtime);
             }
           else
             {
               /* Replay the event so it gets delivered to our
                * per-window key bindings or to the application */
-              XAllowEvents (display->xdisplay, ReplayKeyboard, evtime);
+              meta_device_allow_events (keyboard, ReplayKeyboard, evtime);
             }
         }
       else if (evtype == KeyRelease)
@@ -1418,7 +1420,7 @@ process_overlay_key (MetaDisplay *display,
           display->overlay_key_only_pressed = FALSE;
           /* We want to unfreeze events, but keep the grab so that if the user
            * starts typing into the overlay we get all the keys */
-          XAllowEvents (display->xdisplay, AsyncKeyboard, evtime);
+          meta_device_allow_events (keyboard, AsyncKeyboard, evtime);
           meta_display_overlay_key_activate (display);
         }
 
@@ -1430,7 +1432,7 @@ process_overlay_key (MetaDisplay *display,
       display->overlay_key_only_pressed = TRUE;
       /* We keep the keyboard frozen - this allows us to use ReplayKeyboard
        * on the next event if it's not the release of the overlay key */
-      XAllowEvents (display->xdisplay, SyncKeyboard, evtime);
+      meta_device_allow_events (keyboard, SyncKeyboard, evtime);
 
       return TRUE;
     }
@@ -1464,6 +1466,7 @@ meta_display_process_key_event (MetaDisplay *display,
   const char *str;
   MetaScreen *screen;
   guint evtype, keycode, state;
+  MetaDevice *keyboard;
   Window xwindow;
   Time evtime;
 
@@ -1473,6 +1476,7 @@ meta_display_process_key_event (MetaDisplay *display,
     return FALSE;
 
   evtime = meta_input_event_get_time (display, event);
+  keyboard = meta_input_event_get_device (display, event);
 
   if (all_bindings_disabled)
     {
@@ -1484,7 +1488,7 @@ meta_display_process_key_event (MetaDisplay *display,
        * poorly defined how this mode is supposed to interact with
        * plugins.
        */
-      XAllowEvents (display->xdisplay, ReplayKeyboard, evtime);
+      meta_device_allow_events (keyboard, ReplayKeyboard, evtime);
       return FALSE;
     }
 
@@ -1525,7 +1529,7 @@ meta_display_process_key_event (MetaDisplay *display,
         return TRUE;
     }
 
-  XAllowEvents (display->xdisplay, AsyncKeyboard, evtime);
+  meta_device_allow_events (keyboard, AsyncKeyboard, evtime);
 
   keep_grab = TRUE;
   if (all_keys_grabbed)

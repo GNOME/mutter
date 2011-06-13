@@ -1740,6 +1740,7 @@ event_callback (XEvent   *event,
       Time evtime = meta_input_event_get_time (display, event);
       guint n_button, state, mode, detail;
       gdouble ev_root_x, ev_root_y;
+      MetaDevice *device;
 
       if (window && !window->override_redirect &&
           ((evtype == KeyPress) || (evtype == ButtonPress)))
@@ -1760,6 +1761,8 @@ event_callback (XEvent   *event,
               sanity_check_timestamps (display, display->current_time);
             }
         }
+
+      device = meta_input_event_get_device (display, event);
 
       switch (evtype)
         {
@@ -1959,8 +1962,7 @@ event_callback (XEvent   *event,
                                 mode == AsyncPointer ? "AsyncPointer" : "ReplayPointer",
                                 (unsigned int) evtime);
 
-                  XAllowEvents (display->xdisplay,
-                            mode, evtime);
+                  meta_device_allow_events (device, mode, evtime);
                 }
 
               if (begin_move && window->has_move_func)
@@ -3891,7 +3893,7 @@ meta_change_button_grab (MetaDisplay *display,
       if (meta_is_debugging ())
         meta_error_trap_push_with_return (display);
 
-      /* GrabModeSync means freeze until XAllowEvents */
+      /* GrabModeSync means freeze until X(I)AllowEvents */
       
       if (grab)
         XGrabButton (display->xdisplay, button, modmask | ignored_mask,
