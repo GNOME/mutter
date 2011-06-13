@@ -1419,6 +1419,7 @@ meta_display_process_key_event (MetaDisplay *display,
   const char *str;
   MetaScreen *screen;
   guint evtype, keycode, state;
+  MetaDevice *keyboard;
   Window xwindow;
   Time evtime;
 
@@ -1428,9 +1429,11 @@ meta_display_process_key_event (MetaDisplay *display,
     return FALSE;
 
   evtime = meta_input_event_get_time (display, event);
-  XAllowEvents (display->xdisplay,
-                all_bindings_disabled ? ReplayKeyboard : AsyncKeyboard,
-                evtime);
+  keyboard = meta_input_event_get_device (display, event);
+
+  meta_device_allow_events (keyboard,
+                            all_bindings_disabled ? ReplayKeyboard : AsyncKeyboard,
+                            evtime);
   if (all_bindings_disabled)
     return FALSE;
 
