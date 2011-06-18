@@ -28,6 +28,7 @@
 #include <meta/types.h>
 #include <meta/prefs.h>
 #include <meta/common.h>
+#include <meta/device-map.h>
 
 typedef enum
 {
@@ -154,5 +155,7 @@ GSList *meta_display_sort_windows_by_stacking (MetaDisplay *display,
                                                GSList      *windows);
 
 Window meta_display_get_leader_window (MetaDisplay *display);
+
+MetaDeviceMap * meta_display_get_device_map (MetaDisplay *display);
 
 #endif

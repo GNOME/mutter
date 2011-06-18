@@ -22,7 +22,7 @@
  */
 
 #include "config.h"
-#include "device-map.h"
+#include "device-map-private.h"
 #include "device-map-core.h"
 
 #ifdef HAVE_XINPUT2
@@ -250,6 +250,15 @@ meta_device_map_new (MetaDisplay *display,
                        NULL);
 }
 
+/**
+ * meta_device_map_lookup:
+ * @device_map: a #MetaDeviceMap
+ * @device_id: ID for a device
+ *
+ * returns the device corresponding to @device_id
+ *
+ * Returns: (transfer none): (allow-none): The matching device, or %NULL.
+ **/
 MetaDevice *
 meta_device_map_lookup (MetaDeviceMap *device_map,
                         gint           device_id)
@@ -263,6 +272,14 @@ meta_device_map_lookup (MetaDeviceMap *device_map,
                               GINT_TO_POINTER (device_id));
 }
 
+/**
+ * meta_device_map_get_display:
+ * @device_map: a #MetaDeviceMap
+ *
+ * Returns the #MetaDisplay to which @device_map belongs to.
+ *
+ * Returns: (transfer none): The #MetaDisplay.
+ **/
 MetaDisplay *
 meta_device_map_get_display (MetaDeviceMap *device_map)
 {

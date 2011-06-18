@@ -32,6 +32,8 @@ typedef struct _MetaFrame       MetaFrame;
 typedef struct _MetaScreen      MetaScreen;
 typedef struct _MetaWindow      MetaWindow;
 typedef struct _MetaWorkspace   MetaWorkspace;
+typedef struct _MetaDevice      MetaDevice;
+typedef struct _MetaDeviceMap   MetaDeviceMap;
 /**
  * MetaGroup: (skip)
  *

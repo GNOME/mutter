@@ -27,20 +27,11 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_DEVICE_H
-#define META_DEVICE_H
+#ifndef META_DEVICE_PRIVATE_H
+#define META_DEVICE_PRIVATE_H
 
-typedef struct _MetaDevice MetaDevice;
-typedef struct _MetaDeviceClass MetaDeviceClass;
-
+#include <meta/device.h>
 #include "display-private.h"
-
-#define META_TYPE_DEVICE            (meta_device_get_type ())
-#define META_DEVICE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_DEVICE, MetaDevice))
-#define META_DEVICE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_DEVICE, MetaDeviceClass))
-#define META_IS_DEVICE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_DEVICE))
-#define META_IS_DEVICE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_DEVICE))
-#define META_DEVICE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_DEVICE, MetaDeviceClass))
 
 struct _MetaDevice
 {
@@ -69,9 +60,6 @@ struct _MetaDeviceClass
 
 GType        meta_device_get_type     (void) G_GNUC_CONST;
 
-int          meta_device_get_id       (MetaDevice  *device);
-MetaDisplay *meta_device_get_display  (MetaDevice *device);
-
 void         meta_device_allow_events (MetaDevice  *device,
                                        int          mode,
                                        Time         time);
@@ -88,6 +76,5 @@ void         meta_device_ungrab       (MetaDevice *device,
 
 void         meta_device_pair_devices      (MetaDevice *device,
                                             MetaDevice *other_device);
-MetaDevice * meta_device_get_paired_device (MetaDevice *device);
 
-#endif /* META_DEVICE_H */
+#endif /* META_DEVICE_PRIVATE_H */
