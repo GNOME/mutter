@@ -112,6 +112,7 @@ MetaWindow* meta_display_get_tab_current (MetaDisplay   *display,
 gboolean meta_display_begin_grab_op (MetaDisplay *display,
                                      MetaScreen  *screen,
                                      MetaWindow  *window,
+                                     MetaDevice  *device,
                                      MetaGrabOp   op,
                                      gboolean     pointer_already_grabbed,
                                      gboolean     frame_action,
@@ -121,9 +122,13 @@ gboolean meta_display_begin_grab_op (MetaDisplay *display,
                                      int          root_x,
                                      int          root_y);
 void     meta_display_end_grab_op   (MetaDisplay *display,
+                                     MetaDevice  *device,
                                      guint32      timestamp);
 
 MetaGrabOp meta_display_get_grab_op (MetaDisplay *display);
+
+MetaGrabOp meta_display_get_device_grab_op (MetaDisplay *display,
+                                            MetaDevice  *device);
 
 MetaKeyBindingAction meta_display_get_keybinding_action (MetaDisplay  *display,
                                                          unsigned int  keycode,

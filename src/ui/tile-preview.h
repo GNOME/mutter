@@ -24,6 +24,7 @@
 #define META_TILE_PREVIEW_H
 
 #include <meta/boxes.h>
+#include <meta/device.h>
 
 typedef struct _MetaTilePreview MetaTilePreview;
 
@@ -31,6 +32,7 @@ MetaTilePreview   *meta_tile_preview_new    (int                screen_number,
                                              gboolean           composited);
 void               meta_tile_preview_free   (MetaTilePreview   *preview);
 void               meta_tile_preview_show   (MetaTilePreview   *preview,
+                                             MetaDevice        *pointer,
                                              MetaRectangle     *rect);
 void               meta_tile_preview_hide   (MetaTilePreview   *preview);
 Window             meta_tile_preview_get_xwindow (MetaTilePreview   *preview,

@@ -110,16 +110,20 @@ static void meta_window_move_resize_now (MetaWindow  *window);
 static void meta_window_unqueue (MetaWindow *window, guint queuebits);
 
 static void     update_move           (MetaWindow   *window,
+                                       MetaDevice   *device,
                                        gboolean      snap,
                                        int           x,
                                        int           y);
-static gboolean update_move_timeout   (gpointer data);
+static gboolean update_move_timeout   (MetaWindow   *window,
+                                       MetaDevice   *device);
 static void     update_resize         (MetaWindow   *window,
+                                       MetaDevice   *device,
                                        gboolean      snap,
                                        int           x,
                                        int           y,
                                        gboolean      force);
-static gboolean update_resize_timeout (gpointer data);
+static gboolean update_resize_timeout (MetaWindow   *window,
+                                       MetaDevice   *device);
 static gboolean should_be_on_all_workspaces (MetaWindow *window);
 
 static void meta_window_flush_calc_showing   (MetaWindow *window);
@@ -1567,10 +1571,12 @@ meta_window_unmanage (MetaWindow  *window,
       invalidate_work_areas (window);
     }
 
-  if (window->display->grab_window == window)
-    meta_display_end_grab_op (window->display, timestamp);
+  if (window->cur_grab != NULL)
+    meta_display_end_grab_op (window->display,
+                              window->cur_grab->grab_pointer,
+                              timestamp);
 
-  g_assert (window->display->grab_window != window);
+  g_assert (window->cur_grab == NULL);
 
   if (window->display->focus_window == window)
     {
@@ -3586,6 +3592,7 @@ meta_window_unmaximize_internal (MetaWindow        *window,
       (unmaximize_vertically   && window->maximized_vertically))
     {
       MetaRectangle target_rect;
+      MetaGrabInfo *grab_info;
 
       meta_topic (META_DEBUG_WINDOW_OPS,
                   "Unmaximizing %s%s\n",
@@ -3598,6 +3605,8 @@ meta_window_unmaximize_internal (MetaWindow        *window,
         window->maximized_horizontally && !unmaximize_horizontally;
       window->maximized_vertically =
         window->maximized_vertically   && !unmaximize_vertically;
+
+      grab_info = window->cur_grab;
 
       /* Reset the tile mode for maximized tiled windows for consistency
        * with "normal" maximized windows, but keep other tile modes,
@@ -3668,10 +3677,11 @@ meta_window_unmaximize_internal (MetaWindow        *window,
        * it after the actual operation, as the window may have been moved
        * by constraints.
        */
-      if (meta_grab_op_is_moving (window->display->grab_op) &&
-          window->display->grab_window == window)
+      if (grab_info &&
+          meta_grab_op_is_moving (grab_info->grab_op) &&
+          grab_info->grab_window == window)
         {
-          window->display->grab_anchor_window_pos = window->user_rect;
+          grab_info->grab_anchor_window_pos = window->user_rect;
         }
 
       recalc_window_features (window);
@@ -4657,6 +4667,8 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   if (mask != 0)
     {
+      MetaGrabInfo *grab_info;
+
       {
         int newx, newy;
         meta_window_get_position (window, &newx, &newy);
@@ -4670,10 +4682,11 @@ meta_window_move_resize_internal (MetaWindow          *window,
       }
 
       meta_error_trap_push (window->display);
+      grab_info = window->cur_grab;
 
 #ifdef HAVE_XSYNC
       if (window->sync_request_counter != None &&
-	  window->display->grab_sync_request_alarm != None &&
+          grab_info && grab_info->grab_sync_request_alarm != None &&
 	  window->sync_request_time.tv_usec == 0 &&
 	  window->sync_request_time.tv_sec == 0)
 	{
@@ -5214,6 +5227,8 @@ meta_window_focus (MetaWindow  *window,
                    guint32      timestamp)
 {
   MetaWindow *modal_transient;
+  MetaGrabInfo *grab_info;
+  MetaDevice *device;
 
   g_return_if_fail (!window->override_redirect);
 
@@ -5221,12 +5236,19 @@ meta_window_focus (MetaWindow  *window,
               "Setting input focus to window %s, input: %d take_focus: %d\n",
               window->desc, window->input, window->take_focus);
 
-  if (window->display->grab_window &&
-      window->display->grab_window->all_keys_grabbed)
+  device = meta_window_guess_grab_pointer (window);
+  grab_info = meta_display_get_grab_info (window->display, device);
+
+  if (grab_info &&
+      grab_info->grab_window &&
+      grab_info->grab_window->all_keys_grabbed)
     {
       meta_topic (META_DEBUG_FOCUS,
-                  "Current focus window %s has global keygrab, not focusing window %s after all\n",
-                  window->display->grab_window->desc, window->desc);
+                  "Current focus window %s for device %d has global "
+                  "keygrab, not focusing window %s after all\n",
+                  grab_info->grab_window->desc,
+                  meta_device_get_id (device),
+                  window->desc);
       return;
     }
 
@@ -5643,6 +5665,7 @@ meta_window_move_resize_request (MetaWindow *window,
   gboolean allow_position_change;
   gboolean in_grab_op;
   MetaMoveResizeFlags flags;
+  MetaGrabInfo *grab_info;
 
   /* We ignore configure requests while the user is moving/resizing
    * the window, since these represent the app sucking and fighting
@@ -5653,10 +5676,11 @@ meta_window_move_resize_request (MetaWindow *window,
    * app asked for the current size/position instead of the new one.
    */
   in_grab_op = FALSE;
-  if (window->display->grab_op != META_GRAB_OP_NONE &&
-      window == window->display->grab_window)
+  grab_info = window->cur_grab;
+
+  if (grab_info != NULL)
     {
-      switch (window->display->grab_op)
+      switch (grab_info->grab_op)
         {
         case META_GRAB_OP_MOVING:
         case META_GRAB_OP_RESIZING_SE:
@@ -6223,6 +6247,7 @@ meta_window_client_message (MetaWindow *window,
       MetaGrabOp op;
       int button;
       guint32 timestamp;
+      MetaDevice *device;
 
       /* _NET_WM_MOVERESIZE messages are almost certainly going to come from
        * clients when users click on the fake "frame" that the client has,
@@ -6289,15 +6314,26 @@ meta_window_client_message (MetaWindow *window,
           break;
         }
 
+      if (window->cur_grab != NULL)
+        device = window->cur_grab->grab_pointer;
+      else
+        {
+          /* No current device grab, find out
+           * the best device to operate on
+           */
+          device = meta_window_guess_grab_pointer (window);
+        }
+
+
       if (action == _NET_WM_MOVERESIZE_CANCEL)
         {
-          meta_display_end_grab_op (window->display, timestamp);
+          meta_display_end_grab_op (window->display, device, timestamp);
         }
       else if (op != META_GRAB_OP_NONE &&
           ((window->has_move_func && op == META_GRAB_OP_KEYBOARD_MOVING) ||
            (window->has_resize_func && op == META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN)))
         {
-          meta_window_begin_grab_op (window, op, frame_action, timestamp);
+          meta_window_begin_grab_op (window, device, op, frame_action, timestamp);
         }
       else if (op != META_GRAB_OP_NONE &&
                ((window->has_move_func && op == META_GRAB_OP_MOVING) ||
@@ -6344,6 +6380,7 @@ meta_window_client_message (MetaWindow *window,
               meta_display_begin_grab_op (window->display,
                                           window->screen,
                                           window,
+                                          device,
                                           op,
                                           FALSE,
                                           frame_action,
@@ -7782,6 +7819,13 @@ menu_callback (MetaWindowMenu *menu,
 
   if (window != NULL) /* window can be NULL */
     {
+      MetaDevice *device;
+
+      if (window->cur_grab != NULL)
+        device = window->cur_grab->grab_pointer;
+      else
+        device = meta_window_guess_grab_pointer (window);
+
       meta_verbose ("Menu op %u on %s\n", op, window->desc);
 
       switch (op)
@@ -7860,14 +7904,14 @@ menu_callback (MetaWindowMenu *menu,
           break;
 
         case META_MENU_OP_MOVE:
-          meta_window_begin_grab_op (window,
+          meta_window_begin_grab_op (window, device,
                                      META_GRAB_OP_KEYBOARD_MOVING,
                                      TRUE,
                                      timestamp);
           break;
 
         case META_MENU_OP_RESIZE:
-          meta_window_begin_grab_op (window,
+          meta_window_begin_grab_op (window, device,
                                      META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN,
                                      TRUE,
                                      timestamp);
@@ -8150,16 +8194,17 @@ time_diff (const GTimeVal *first,
 }
 
 static gboolean
-check_moveresize_frequency (MetaWindow *window,
-			    gdouble    *remaining)
+check_moveresize_frequency (MetaWindow   *window,
+                            MetaGrabInfo *grab_info,
+			    gdouble      *remaining)
 {
   GTimeVal current_time;
 
   g_get_current_time (&current_time);
 
 #ifdef HAVE_XSYNC
-  if (!window->disable_sync &&
-      window->display->grab_sync_request_alarm != None)
+  if (!window->disable_sync && grab_info &&
+      grab_info->grab_sync_request_alarm != None)
     {
       if (window->sync_request_time.tv_sec != 0 ||
 	  window->sync_request_time.tv_usec != 0)
@@ -8201,7 +8246,7 @@ check_moveresize_frequency (MetaWindow *window,
       const double ms_between_resizes = 1000.0 / max_resizes_per_second;
       double elapsed;
 
-      elapsed = time_diff (&current_time, &window->display->grab_last_moveresize_time);
+      elapsed = time_diff (&current_time, &grab_info->grab_last_moveresize_time);
 
       if (elapsed >= 0.0 && elapsed < ms_between_resizes)
 	{
@@ -8224,20 +8269,25 @@ check_moveresize_frequency (MetaWindow *window,
 }
 
 static gboolean
-update_move_timeout (gpointer data)
+update_move_timeout (MetaWindow *window,
+                     MetaDevice *device)
 {
-  MetaWindow *window = data;
+  MetaGrabInfo *grab_info;
 
-  update_move (window,
-               window->display->grab_last_user_action_was_snap,
-               window->display->grab_latest_motion_x,
-               window->display->grab_latest_motion_y);
+  grab_info = meta_display_get_grab_info (window->display, device);
+  g_assert (grab_info != NULL);
+
+  update_move (window, device,
+               grab_info->grab_last_user_action_was_snap,
+               grab_info->grab_latest_motion_x,
+               grab_info->grab_latest_motion_y);
 
   return FALSE;
 }
 
 static void
 update_move (MetaWindow  *window,
+             MetaDevice  *device,
              gboolean     snap,
              int          x,
              int          y)
@@ -8247,22 +8297,25 @@ update_move (MetaWindow  *window,
   MetaRectangle old;
   int shake_threshold;
   MetaDisplay *display = window->display;
+  MetaGrabInfo *grab_info;
 
-  display->grab_latest_motion_x = x;
-  display->grab_latest_motion_y = y;
+  grab_info = meta_display_get_grab_info (display, device);
 
-  dx = x - display->grab_anchor_root_x;
-  dy = y - display->grab_anchor_root_y;
+  grab_info->grab_latest_motion_x = x;
+  grab_info->grab_latest_motion_y = y;
 
-  new_x = display->grab_anchor_window_pos.x + dx;
-  new_y = display->grab_anchor_window_pos.y + dy;
+  dx = x - grab_info->grab_anchor_root_x;
+  dy = y - grab_info->grab_anchor_root_y;
+
+  new_x = grab_info->grab_anchor_window_pos.x + dx;
+  new_y = grab_info->grab_anchor_window_pos.y + dy;
 
   meta_verbose ("x,y = %d,%d anchor ptr %d,%d anchor pos %d,%d dx,dy %d,%d\n",
                 x, y,
-                display->grab_anchor_root_x,
-                display->grab_anchor_root_y,
-                display->grab_anchor_window_pos.x,
-                display->grab_anchor_window_pos.y,
+                grab_info->grab_anchor_root_x,
+                grab_info->grab_anchor_root_y,
+                grab_info->grab_anchor_window_pos.x,
+                grab_info->grab_anchor_window_pos.y,
                 dx, dy);
 
   /* Don't bother doing anything if no move has been specified.  (This
@@ -8337,22 +8390,22 @@ update_move (MetaWindow  *window,
 
       /* move the unmaximized window to the cursor */
       prop =
-        ((double)(x - display->grab_initial_window_pos.x)) /
-        ((double)display->grab_initial_window_pos.width);
+        ((double)(x - grab_info->grab_initial_window_pos.x)) /
+        ((double)grab_info->grab_initial_window_pos.width);
 
-      display->grab_initial_window_pos.x =
+      grab_info->grab_initial_window_pos.x =
         x - window->saved_rect.width * prop;
-      display->grab_initial_window_pos.y = y;
+      grab_info->grab_initial_window_pos.y = y;
 
       if (window->frame)
         {
-          display->grab_initial_window_pos.y += window->frame->child_y / 2;
+          grab_info->grab_initial_window_pos.y += window->frame->child_y / 2;
         }
 
-      window->saved_rect.x = display->grab_initial_window_pos.x;
-      window->saved_rect.y = display->grab_initial_window_pos.y;
-      display->grab_anchor_root_x = x;
-      display->grab_anchor_root_y = y;
+      window->saved_rect.x = grab_info->grab_initial_window_pos.x;
+      window->saved_rect.y = grab_info->grab_initial_window_pos.y;
+      grab_info->grab_anchor_root_x = x;
+      grab_info->grab_anchor_root_y = y;
 
       meta_window_unmaximize (window,
                               META_MAXIMIZE_HORIZONTAL |
@@ -8406,9 +8459,9 @@ update_move (MetaWindow  *window,
                                           META_MAXIMIZE_VERTICAL);
                 }
 
-              display->grab_initial_window_pos = work_area;
-              display->grab_anchor_root_x = x;
-              display->grab_anchor_root_y = y;
+              grab_info->grab_initial_window_pos = work_area;
+              grab_info->grab_anchor_root_x = x;
+              grab_info->grab_anchor_root_y = y;
               window->shaken_loose = FALSE;
 
               meta_window_maximize (window,
@@ -8437,6 +8490,7 @@ update_move (MetaWindow  *window,
 
   /* Do any edge resistance/snapping */
   meta_window_edge_resistance_for_move (window,
+                                        device,
                                         old.x,
                                         old.y,
                                         &new_x,
@@ -8457,11 +8511,13 @@ update_move (MetaWindow  *window,
  */
 static MetaMaximizeFlags
 check_resize_unmaximize(MetaWindow *window,
+                        MetaDevice *device,
                         int         dx,
                         int         dy)
 {
   int threshold;
   MetaMaximizeFlags new_unmaximize;
+  MetaGrabInfo *grab_info;
 
 #define DRAG_THRESHOLD_TO_RESIZE_THRESHOLD_FACTOR 3
 
@@ -8469,9 +8525,12 @@ check_resize_unmaximize(MetaWindow *window,
     DRAG_THRESHOLD_TO_RESIZE_THRESHOLD_FACTOR;
   new_unmaximize = 0;
 
+  grab_info = meta_display_get_grab_info (window->display, device);
+  g_assert (grab_info != NULL);
+
   if (window->maximized_horizontally ||
       window->tile_mode != META_TILE_NONE ||
-      (window->display->grab_resize_unmaximize & META_MAXIMIZE_HORIZONTAL) != 0)
+      (grab_info->grab_resize_unmaximize & META_MAXIMIZE_HORIZONTAL) != 0)
     {
       int x_amount;
 
@@ -8480,7 +8539,7 @@ check_resize_unmaximize(MetaWindow *window,
        * monitor. If we wanted to only allow resizing smaller than the
        * monitor, we'd use - dx for NE/E/SE and dx for SW/W/NW.
        */
-      switch (window->display->grab_op)
+      switch (grab_info->grab_op)
         {
         case META_GRAB_OP_RESIZING_NE:
         case META_GRAB_OP_KEYBOARD_RESIZING_NE:
@@ -8506,11 +8565,11 @@ check_resize_unmaximize(MetaWindow *window,
     }
 
   if (window->maximized_vertically ||
-      (window->display->grab_resize_unmaximize & META_MAXIMIZE_VERTICAL) != 0)
+      (grab_info->grab_resize_unmaximize & META_MAXIMIZE_VERTICAL) != 0)
     {
       int y_amount;
 
-      switch (window->display->grab_op)
+      switch (grab_info->grab_op)
         {
         case META_GRAB_OP_RESIZING_N:
         case META_GRAB_OP_KEYBOARD_RESIZING_N:
@@ -8545,10 +8604,10 @@ check_resize_unmaximize(MetaWindow *window,
       new_unmaximize = 0;
 
       if (window->maximized_horizontally ||
-          (window->display->grab_resize_unmaximize & META_MAXIMIZE_HORIZONTAL) != 0)
+          (grab_info->grab_resize_unmaximize & META_MAXIMIZE_HORIZONTAL) != 0)
         new_unmaximize |= META_MAXIMIZE_HORIZONTAL;
       if (window->maximized_vertically ||
-          (window->display->grab_resize_unmaximize & META_MAXIMIZE_VERTICAL) != 0)
+          (grab_info->grab_resize_unmaximize & META_MAXIMIZE_VERTICAL) != 0)
         new_unmaximize |= META_MAXIMIZE_VERTICAL;
     }
 
@@ -8556,20 +8615,39 @@ check_resize_unmaximize(MetaWindow *window,
 }
 
 static gboolean
-update_resize_timeout (gpointer data)
+update_resize_timeout (MetaWindow *window,
+                       MetaDevice *device)
 {
-  MetaWindow *window = data;
+  MetaGrabInfo *grab_info;
 
-  update_resize (window,
-                 window->display->grab_last_user_action_was_snap,
-                 window->display->grab_latest_motion_x,
-                 window->display->grab_latest_motion_y,
+  grab_info = meta_display_get_grab_info (window->display, device);
+  g_assert (grab_info != NULL);
+
+  update_resize (window, device,
+                 grab_info->grab_last_user_action_was_snap,
+                 grab_info->grab_latest_motion_x,
+                 grab_info->grab_latest_motion_y,
                  TRUE);
   return FALSE;
 }
 
+typedef struct
+{
+  MetaWindow *window;
+  MetaDevice *device;
+} ResizeTimeoutData;
+
+static gboolean
+update_resize_timeout_cb (gpointer user_data)
+{
+  ResizeTimeoutData *data = user_data;
+
+  return update_resize_timeout (data->window, data->device);
+}
+
 static void
 update_resize (MetaWindow *window,
+               MetaDevice *device,
                gboolean    snap,
                int x, int y,
                gboolean force)
@@ -8580,12 +8658,16 @@ update_resize (MetaWindow *window,
   MetaRectangle old;
   double remaining;
   MetaMaximizeFlags new_unmaximize;
+  MetaGrabInfo *grab_info;
 
-  window->display->grab_latest_motion_x = x;
-  window->display->grab_latest_motion_y = y;
+  grab_info = meta_display_get_grab_info (window->display,
+                                          device);
 
-  dx = x - window->display->grab_anchor_root_x;
-  dy = y - window->display->grab_anchor_root_y;
+  grab_info->grab_latest_motion_x = x;
+  grab_info->grab_latest_motion_y = y;
+
+  dx = x - grab_info->grab_anchor_root_x;
+  dy = y - grab_info->grab_anchor_root_y;
 
   /* Attached modal dialogs are special in that horizontal
    * size changes apply to both sides, so that the dialog
@@ -8596,8 +8678,8 @@ update_resize (MetaWindow *window,
       meta_window_get_transient_for (window) != NULL)
     dx *= 2;
 
-  new_w = window->display->grab_anchor_window_pos.width;
-  new_h = window->display->grab_anchor_window_pos.height;
+  new_w = grab_info->grab_anchor_window_pos.width;
+  new_h = grab_info->grab_anchor_window_pos.height;
 
   /* Don't bother doing anything if no move has been specified.  (This
    * happens often, even in keyboard resizing, due to the warping of the
@@ -8606,53 +8688,53 @@ update_resize (MetaWindow *window,
   if (dx == 0 && dy == 0)
     return;
 
-  if (window->display->grab_op == META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN)
+  if (grab_info->grab_op == META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN)
     {
       if ((dx > 0) && (dy > 0))
         {
-          window->display->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_SE;
-          meta_window_update_keyboard_resize (window, TRUE);
+          grab_info->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_SE;
+          meta_window_update_keyboard_resize (window, device, TRUE);
         }
       else if ((dx < 0) && (dy > 0))
         {
-          window->display->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_SW;
-          meta_window_update_keyboard_resize (window, TRUE);
+          grab_info->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_SW;
+          meta_window_update_keyboard_resize (window, device, TRUE);
         }
       else if ((dx > 0) && (dy < 0))
         {
-          window->display->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_NE;
-          meta_window_update_keyboard_resize (window, TRUE);
+          grab_info->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_NE;
+          meta_window_update_keyboard_resize (window, device, TRUE);
         }
       else if ((dx < 0) && (dy < 0))
         {
-          window->display->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_NW;
-          meta_window_update_keyboard_resize (window, TRUE);
+          grab_info->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_NW;
+          meta_window_update_keyboard_resize (window, device, TRUE);
         }
       else if (dx < 0)
         {
-          window->display->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_W;
-          meta_window_update_keyboard_resize (window, TRUE);
+          grab_info->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_W;
+          meta_window_update_keyboard_resize (window, device, TRUE);
         }
       else if (dx > 0)
         {
-          window->display->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_E;
-          meta_window_update_keyboard_resize (window, TRUE);
+          grab_info->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_E;
+          meta_window_update_keyboard_resize (window, device, TRUE);
         }
       else if (dy > 0)
         {
-          window->display->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_S;
-          meta_window_update_keyboard_resize (window, TRUE);
+          grab_info->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_S;
+          meta_window_update_keyboard_resize (window, device, TRUE);
         }
       else if (dy < 0)
         {
-          window->display->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_N;
-          meta_window_update_keyboard_resize (window, TRUE);
+          grab_info->grab_op = META_GRAB_OP_KEYBOARD_RESIZING_N;
+          meta_window_update_keyboard_resize (window, device, TRUE);
         }
     }
 
-  new_unmaximize = check_resize_unmaximize (window, dx, dy);
+  new_unmaximize = check_resize_unmaximize (window, device, dx, dy);
 
-  switch (window->display->grab_op)
+  switch (grab_info->grab_op)
     {
     case META_GRAB_OP_RESIZING_SE:
     case META_GRAB_OP_RESIZING_NE:
@@ -8675,7 +8757,7 @@ update_resize (MetaWindow *window,
 	  break;
 	}
 
-  switch (window->display->grab_op)
+  switch (grab_info->grab_op)
     {
     case META_GRAB_OP_RESIZING_SE:
     case META_GRAB_OP_RESIZING_S:
@@ -8698,17 +8780,25 @@ update_resize (MetaWindow *window,
       break;
     }
 
-  if (!check_moveresize_frequency (window, &remaining) && !force)
+  if (!check_moveresize_frequency (window, grab_info, &remaining) && !force)
     {
       /* we are ignoring an event here, so we schedule a
        * compensation event when we would otherwise not ignore
        * an event. Otherwise we can become stuck if the user never
        * generates another event.
        */
-      if (!window->display->grab_resize_timeout_id)
+      if (!grab_info->grab_resize_timeout_id)
 	{
-	  window->display->grab_resize_timeout_id =
-	    g_timeout_add ((int)remaining, update_resize_timeout, window);
+          ResizeTimeoutData *data;
+
+          data = g_new (ResizeTimeoutData, 1);
+          data->window = window;
+          data->device = device;
+
+	  grab_info->grab_resize_timeout_id =
+	    g_timeout_add_full (G_PRIORITY_DEFAULT,
+                                (int)remaining, update_resize_timeout_cb,
+                                data, (GDestroyNotify) g_free);
 	}
 
       return;
@@ -8719,10 +8809,10 @@ update_resize (MetaWindow *window,
     meta_compositor_set_updates (window->display->compositor, window, TRUE);
 
   /* Remove any scheduled compensation events */
-  if (window->display->grab_resize_timeout_id)
+  if (grab_info->grab_resize_timeout_id)
     {
-      g_source_remove (window->display->grab_resize_timeout_id);
-      window->display->grab_resize_timeout_id = 0;
+      g_source_remove (grab_info->grab_resize_timeout_id);
+      grab_info->grab_resize_timeout_id = 0;
     }
 
   old = window->rect;  /* Don't actually care about x,y */
@@ -8731,7 +8821,7 @@ update_resize (MetaWindow *window,
    * aspect ratio windows don't interact nicely with the above stuff.  So,
    * to avoid some nasty flicker, we enforce that.
    */
-  switch (window->display->grab_op)
+  switch (grab_info->grab_op)
     {
     case META_GRAB_OP_RESIZING_S:
     case META_GRAB_OP_RESIZING_N:
@@ -8748,11 +8838,12 @@ update_resize (MetaWindow *window,
     }
 
   /* compute gravity of client during operation */
-  gravity = meta_resize_gravity_from_grab_op (window->display->grab_op);
+  gravity = meta_resize_gravity_from_grab_op (grab_info->grab_op);
   g_assert (gravity >= 0);
 
   /* Do any edge resistance/snapping */
   meta_window_edge_resistance_for_resize (window,
+                                          device,
                                           old.width,
                                           old.height,
                                           &new_w,
@@ -8762,40 +8853,40 @@ update_resize (MetaWindow *window,
                                           snap,
                                           FALSE);
 
-  if (new_unmaximize == window->display->grab_resize_unmaximize)
+  if (new_unmaximize == grab_info->grab_resize_unmaximize)
     {
       /* We don't need to update unless the specified width and height
        * are actually different from what we had before.
        */
       if (old.width != new_w || old.height != new_h)
         {
-          if ((window->display->grab_resize_unmaximize == new_unmaximize))
+          if ((grab_info->grab_resize_unmaximize == new_unmaximize))
             meta_window_resize_with_gravity (window, TRUE, new_w, new_h, gravity);
         }
     }
   else
     {
-      if ((new_unmaximize & ~window->display->grab_resize_unmaximize) != 0)
+      if ((new_unmaximize & ~grab_info->grab_resize_unmaximize) != 0)
         {
           meta_window_unmaximize_with_gravity (window,
-                                               (new_unmaximize & ~window->display->grab_resize_unmaximize),
+                                               (new_unmaximize & ~grab_info->grab_resize_unmaximize),
                                                new_w, new_h, gravity);
         }
 
-      if ((window->display->grab_resize_unmaximize & ~new_unmaximize))
+      if ((grab_info->grab_resize_unmaximize & ~new_unmaximize))
         {
           MetaRectangle saved_rect = window->saved_rect;
           meta_window_maximize (window,
-                                (window->display->grab_resize_unmaximize & ~new_unmaximize));
+                                (grab_info->grab_resize_unmaximize & ~new_unmaximize));
           window->saved_rect = saved_rect;
         }
     }
 
-  window->display->grab_resize_unmaximize = new_unmaximize;
+  grab_info->grab_resize_unmaximize = new_unmaximize;
 
   /* Store the latest resize time, if we actually resized. */
   if (window->rect.width != old.width || window->rect.height != old.height)
-    g_get_current_time (&window->display->grab_last_moveresize_time);
+    g_get_current_time (&grab_info->grab_last_moveresize_time);
 }
 
 typedef struct
@@ -8850,24 +8941,32 @@ check_use_this_motion_notify (MetaWindow *window,
                               XEvent     *event)
 {
   EventScannerData esd;
+  MetaDevice *device;
+  MetaGrabInfo *grab_info;
   XEvent useless;
+
+  device = meta_input_event_get_device (window->display, event);
+  grab_info = meta_display_get_grab_info (window->display, device);
+
+  if (!grab_info)
+    return FALSE;
 
   /* This code is copied from Owen's GDK code. */
 
-  if (window->display->grab_motion_notify_time != 0)
+  if (grab_info->grab_motion_notify_time != 0)
     {
       Time evtime;
 
       evtime = meta_input_event_get_time (window->display, event);
 
       /* == is really the right test, but I'm all for paranoia */
-      if (window->display->grab_motion_notify_time <= evtime)
+      if (grab_info->grab_motion_notify_time <= evtime)
         {
           meta_topic (META_DEBUG_RESIZING,
                       "Arrived at event with time %u (waiting for %u), using it\n",
                       (unsigned int) evtime,
-                      window->display->grab_motion_notify_time);
-          window->display->grab_motion_notify_time = 0;
+                      grab_info->grab_motion_notify_time);
+          grab_info->grab_motion_notify_time = 0;
           return TRUE;
         }
       else
@@ -8900,7 +8999,7 @@ check_use_this_motion_notify (MetaWindow *window,
       /* Save this timestamp, and ignore all motion notify
        * until we get to the one with this stamp.
        */
-      window->display->grab_motion_notify_time = esd.last_time;
+      grab_info->grab_motion_notify_time = esd.last_time;
       return FALSE;
     }
 }
@@ -8928,15 +9027,20 @@ meta_window_handle_mouse_grab_op_event (MetaWindow *window,
 {
   gdouble x_root, y_root;
   guint evtype, state;
+  MetaDevice *device;
+  MetaGrabInfo *grab_info;
   Window xroot;
 
 #ifdef HAVE_XSYNC
   if (event->type == (window->display->xsync_event_base + XSyncAlarmNotify))
     {
+      grab_info = window->cur_grab;
+      g_assert (grab_info != NULL);
+
       meta_topic (META_DEBUG_RESIZING,
                   "Alarm event received last motion x = %d y = %d\n",
-                  window->display->grab_latest_motion_x,
-                  window->display->grab_latest_motion_y);
+                  grab_info->grab_latest_motion_x,
+                  grab_info->grab_latest_motion_y);
 
       /* If sync was previously disabled, turn it back on and hope
        * the application has come to its senses (maybe it was just
@@ -8947,7 +9051,7 @@ meta_window_handle_mouse_grab_op_event (MetaWindow *window,
       window->sync_request_time.tv_usec = 0;
 
       /* This means we are ready for another configure. */
-      switch (window->display->grab_op)
+      switch (grab_info->grab_op)
         {
         case META_GRAB_OP_RESIZING_E:
         case META_GRAB_OP_RESIZING_W:
@@ -8967,9 +9071,10 @@ meta_window_handle_mouse_grab_op_event (MetaWindow *window,
         case META_GRAB_OP_KEYBOARD_RESIZING_NW:
           /* no pointer round trip here, to keep in sync */
           update_resize (window,
-                         window->display->grab_last_user_action_was_snap,
-                         window->display->grab_latest_motion_x,
-                         window->display->grab_latest_motion_y,
+                         grab_info->grab_pointer,
+                         grab_info->grab_last_user_action_was_snap,
+                         grab_info->grab_latest_motion_x,
+                         grab_info->grab_latest_motion_y,
                          TRUE);
           break;
 
@@ -8986,32 +9091,34 @@ meta_window_handle_mouse_grab_op_event (MetaWindow *window,
     return;
 
   xroot = meta_input_event_get_root_window (window->display, event);
+  device = meta_input_event_get_device (window->display, event);
+  grab_info = meta_display_get_grab_info (window->display, device);
 
   switch (evtype)
     {
     case ButtonRelease:
-      meta_display_check_threshold_reached (window->display,
+      meta_display_check_threshold_reached (window->display, device,
                                             x_root, y_root);
       /* If the user was snap moving then ignore the button release
        * because they may have let go of shift before releasing the
        * mouse button and they almost certainly do not want a
        * non-snapped movement to occur from the button release.
        */
-      if (!window->display->grab_last_user_action_was_snap)
+      if (!grab_info->grab_last_user_action_was_snap)
         {
-          if (meta_grab_op_is_moving (window->display->grab_op))
+          if (meta_grab_op_is_moving (grab_info->grab_op))
             {
               if (window->tile_mode != META_TILE_NONE)
                 meta_window_tile (window);
               else if (xroot == window->screen->xroot)
-                update_move (window,
+                update_move (window, device,
                              state & ShiftMask,
                              x_root, y_root);
             }
-          else if (meta_grab_op_is_resizing (window->display->grab_op))
+          else if (meta_grab_op_is_resizing (grab_info->grab_op))
             {
               if (xroot == window->screen->xroot)
-                update_resize (window,
+                update_resize (window, device,
                                state & ShiftMask,
                                x_root, y_root,
                                TRUE);
@@ -9029,32 +9136,32 @@ meta_window_handle_mouse_grab_op_event (MetaWindow *window,
             }
         }
 
-      meta_display_end_grab_op (window->display,
+      meta_display_end_grab_op (window->display, device,
                                 meta_input_event_get_time (window->display,
                                                            event));
       break;
 
     case MotionNotify:
-      meta_display_check_threshold_reached (window->display,
+      meta_display_check_threshold_reached (window->display, device,
                                             x_root, y_root);
-      if (meta_grab_op_is_moving (window->display->grab_op))
+      if (meta_grab_op_is_moving (grab_info->grab_op))
         {
           if (xroot == window->screen->xroot)
             {
               if (check_use_this_motion_notify (window,
                                                 event))
-                update_move (window,
+                update_move (window, device,
                              state & ShiftMask,
                              x_root, y_root);
             }
         }
-      else if (meta_grab_op_is_resizing (window->display->grab_op))
+      else if (meta_grab_op_is_resizing (grab_info->grab_op))
         {
           if (xroot == window->screen->xroot)
             {
               if (check_use_this_motion_notify (window,
                                                 event))
-                update_resize (window,
+                update_resize (window, device,
                                state & ShiftMask,
                                x_root, y_root,
                                FALSE);
@@ -9226,13 +9333,14 @@ meta_window_same_client (MetaWindow *window,
 void
 meta_window_refresh_resize_popup (MetaWindow *window)
 {
-  if (window->display->grab_op == META_GRAB_OP_NONE)
+  MetaGrabInfo *grab_info;
+
+  grab_info = window->cur_grab;
+
+  if (!grab_info)
     return;
 
-  if (window->display->grab_window != window)
-    return;
-
-  switch (window->display->grab_op)
+  switch (grab_info->grab_op)
     {
     case META_GRAB_OP_RESIZING_SE:
     case META_GRAB_OP_RESIZING_S:
@@ -9258,29 +9366,29 @@ meta_window_refresh_resize_popup (MetaWindow *window)
       return;
     }
 
-  if (window->display->grab_resize_popup == NULL)
+  if (grab_info->grab_resize_popup == NULL)
     {
       if (window->size_hints.width_inc > 1 ||
           window->size_hints.height_inc > 1)
-        window->display->grab_resize_popup =
+        grab_info->grab_resize_popup =
           meta_ui_resize_popup_new (window->display->xdisplay,
                                     window->screen->number);
     }
 
-  if (window->display->grab_resize_popup != NULL)
+  if (grab_info->grab_resize_popup != NULL)
     {
       MetaRectangle rect;
 
       meta_window_get_client_root_coords (window, &rect);
 
-      meta_ui_resize_popup_set (window->display->grab_resize_popup,
+      meta_ui_resize_popup_set (grab_info->grab_resize_popup,
                                 rect,
                                 window->size_hints.base_width,
                                 window->size_hints.base_height,
                                 window->size_hints.width_inc,
                                 window->size_hints.height_inc);
 
-      meta_ui_resize_popup_set_showing (window->display->grab_resize_popup,
+      meta_ui_resize_popup_set_showing (grab_info->grab_resize_popup,
                                         TRUE);
     }
 }
@@ -9403,17 +9511,22 @@ meta_window_is_ancestor_of_transient (MetaWindow *window,
  */
 static gboolean
 warp_grab_pointer (MetaWindow          *window,
+                   MetaDevice          *device,
                    MetaGrabOp           grab_op,
                    int                 *x,
                    int                 *y)
 {
   MetaRectangle  rect;
   MetaDisplay   *display;
+  MetaGrabInfo *grab_info;
 
   display = window->display;
+  grab_info = meta_display_get_grab_info (display, device);
 
   /* We may not have done begin_grab_op yet, i.e. may not be in a grab
    */
+  if (!grab_info)
+    grab_info = meta_display_create_grab_info (display, device);
 
   meta_window_get_outer_rect (window, &rect);
 
@@ -9486,12 +9599,12 @@ warp_grab_pointer (MetaWindow          *window,
    * events generated by the XWarpPointer() call below don't cause complete
    * funkiness.  See bug 124582 and bug 122670.
    */
-  display->grab_anchor_root_x = *x;
-  display->grab_anchor_root_y = *y;
-  display->grab_latest_motion_x = *x;
-  display->grab_latest_motion_y = *y;
+  grab_info->grab_anchor_root_x = *x;
+  grab_info->grab_anchor_root_y = *y;
+  grab_info->grab_latest_motion_x = *x;
+  grab_info->grab_latest_motion_y = *y;
   meta_window_get_client_root_coords (window,
-                                      &display->grab_anchor_window_pos);
+                                      &grab_info->grab_anchor_window_pos);
 
   XWarpPointer (display->xdisplay,
                 None,
@@ -9511,18 +9624,20 @@ warp_grab_pointer (MetaWindow          *window,
 
 void
 meta_window_begin_grab_op (MetaWindow *window,
+                           MetaDevice *device,
                            MetaGrabOp  op,
                            gboolean    frame_action,
                            guint32     timestamp)
 {
   int x, y;
 
-  warp_grab_pointer (window,
+  warp_grab_pointer (window, device,
                      op, &x, &y);
 
   meta_display_begin_grab_op (window->display,
                               window->screen,
                               window,
+                              device,
                               op,
                               FALSE,
                               frame_action,
@@ -9534,12 +9649,17 @@ meta_window_begin_grab_op (MetaWindow *window,
 
 void
 meta_window_update_keyboard_resize (MetaWindow *window,
+                                    MetaDevice *device,
                                     gboolean    update_cursor)
 {
+  MetaGrabInfo *grab_info;
   int x, y;
 
-  warp_grab_pointer (window,
-                     window->display->grab_op,
+  grab_info = meta_display_get_grab_info (window->display, device);
+  g_assert (grab_info != NULL);
+
+  warp_grab_pointer (window, device,
+                     grab_info->grab_op,
                      &x, &y);
 
   if (update_cursor)
@@ -9548,21 +9668,25 @@ meta_window_update_keyboard_resize (MetaWindow *window,
       /* FIXME: Using CurrentTime is really bad mojo */
       timestamp = CurrentTime;
       meta_display_set_grab_op_cursor (window->display,
-                                       NULL,
-                                       window->display->grab_op,
+                                       NULL, device,
+                                       grab_info->grab_op,
                                        TRUE,
-                                       window->display->grab_xwindow,
+                                       grab_info->grab_xwindow,
                                        timestamp);
     }
 }
 
 void
-meta_window_update_keyboard_move (MetaWindow *window)
+meta_window_update_keyboard_move (MetaWindow *window,
+                                  MetaDevice *device)
 {
+  MetaGrabInfo *grab_info;
   int x, y;
 
-  warp_grab_pointer (window,
-                     window->display->grab_op,
+  grab_info = meta_display_get_grab_info (window->display, device);
+
+  warp_grab_pointer (window, device,
+                     grab_info->grab_op,
                      &x, &y);
 }
 
@@ -10312,4 +10436,19 @@ meta_window_get_frame_bounds (MetaWindow *window)
     }
 
   return window->frame_bounds;
+}
+
+/* Guesses the better device to grab on if a grab is to be started,
+ * only should be be used in circumstances where we don't know a
+ * device at all.
+ */
+MetaDevice *
+meta_window_guess_grab_pointer (MetaWindow *window)
+{
+  /* FIXME: This ought to be the very last resort, ideally
+   * the current/last focus device should be used to find
+   * this out, or the client pointer.
+   */
+  return meta_device_map_lookup (window->display->device_map,
+                                 META_CORE_POINTER_ID);
 }
