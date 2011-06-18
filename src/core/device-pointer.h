@@ -32,7 +32,7 @@
 
 #include "display-private.h"
 #include <meta/screen.h>
-#include "device.h"
+#include "device-private.h"
 
 #define META_TYPE_DEVICE_POINTER            (meta_device_pointer_get_type ())
 #define META_DEVICE_POINTER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_DEVICE_POINTER, MetaDevicePointer))

@@ -31,7 +31,7 @@
 #define META_DEVICE_KEYBOARD_H
 
 #include "display-private.h"
-#include "device.h"
+#include "device-private.h"
 
 #define META_TYPE_DEVICE_KEYBOARD            (meta_device_keyboard_get_type ())
 #define META_DEVICE_KEYBOARD(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_DEVICE_KEYBOARD, MetaDeviceKeyboard))

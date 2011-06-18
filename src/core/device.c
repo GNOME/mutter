@@ -22,7 +22,7 @@
  */
 
 #include <config.h>
-#include "device.h"
+#include "device-private.h"
 
 G_DEFINE_ABSTRACT_TYPE (MetaDevice, meta_device, G_TYPE_OBJECT)
 
@@ -148,6 +148,14 @@ meta_device_get_id (MetaDevice *device)
   return priv->device_id;
 }
 
+/**
+ * meta_device_get_display:
+ * @device: a #MetaDevice
+ *
+ * Returns the #MetaDisplay to which the device belongs
+ *
+ * Returns: (transfer none): the #MetaDisplay to which the device belongs
+ **/
 MetaDisplay *
 meta_device_get_display (MetaDevice *device)
 {
@@ -242,6 +250,14 @@ meta_device_pair_devices (MetaDevice *device,
   g_object_notify (G_OBJECT (other_device), "paired-device");
 }
 
+/**
+ * meta_device_get_paired_device:
+ * @device: a #MetaDevice
+ *
+ * Returns the paired device. Devices come in keyboard/pointer pairs.
+ *
+ * Returns: (transfer none): The paired device.
+ **/
 MetaDevice *
 meta_device_get_paired_device (MetaDevice *device)
 {

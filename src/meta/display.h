@@ -28,6 +28,7 @@
 #include <meta/types.h>
 #include <meta/prefs.h>
 #include <meta/common.h>
+#include <meta/device-map.h>
 
 typedef enum
 {
@@ -161,5 +162,7 @@ void meta_display_add_ignored_crossing_serial (MetaDisplay  *display,
 void meta_display_unmanage_screen (MetaDisplay *display,
                                    MetaScreen  *screen,
                                    guint32      timestamp);
+
+MetaDeviceMap * meta_display_get_device_map (MetaDisplay *display);
 
 #endif

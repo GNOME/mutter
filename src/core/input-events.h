@@ -33,7 +33,7 @@
 #include <config.h>
 #include <X11/Xlib.h>
 #include "display-private.h"
-#include "device-map.h"
+#include <meta/device-map.h>
 
 gboolean meta_input_event_get_type          (MetaDisplay *display,
                                              XEvent      *ev,

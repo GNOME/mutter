@@ -24,7 +24,7 @@
 #include <config.h>
 #include "input-events.h"
 #include "devices-core.h"
-#include "device-map.h"
+#include "device-map-private.h"
 #include <X11/Xlib.h>
 
 #ifdef HAVE_XINPUT2
