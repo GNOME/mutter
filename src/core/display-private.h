@@ -38,7 +38,7 @@
 #include <meta/boxes.h>
 #include <meta/display.h>
 #include "keybindings-private.h"
-#include "device-map.h"
+#include "device-map-private.h"
 #include <meta/prefs.h>
 
 #ifdef HAVE_STARTUP_NOTIFICATION

@@ -28,6 +28,7 @@
 #include <meta/types.h>
 #include <meta/prefs.h>
 #include <meta/common.h>
+#include <meta/device-map.h>
 
 typedef enum
 {
@@ -176,5 +177,6 @@ void meta_display_unmanage_screen (MetaDisplay *display,
                                    guint32      timestamp);
 
 void meta_display_clear_mouse_mode (MetaDisplay *display);
+MetaDeviceMap * meta_display_get_device_map (MetaDisplay *display);
 
 #endif

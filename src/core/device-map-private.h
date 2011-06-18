@@ -27,21 +27,13 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_DEVICE_MAP_H
-#define META_DEVICE_MAP_H
+#ifndef META_DEVICE_MAP_PRIVATE_H
+#define META_DEVICE_MAP_PRIVATE_H
 
-typedef struct _MetaDeviceMap MetaDeviceMap;
-typedef struct _MetaDeviceMapClass MetaDeviceMapClass;
-
+#include <meta/device-map.h>
+#include <meta/device.h>
 #include "display-private.h"
-#include "device.h"
-
-#define META_TYPE_DEVICE_MAP            (meta_device_map_get_type ())
-#define META_DEVICE_MAP(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_DEVICE_MAP, MetaDeviceMap))
-#define META_DEVICE_MAP_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_DEVICE_MAP, MetaDeviceMapClass))
-#define META_IS_DEVICE_MAP(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_DEVICE_MAP))
-#define META_IS_DEVICE_MAP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_DEVICE_MAP))
-#define META_DEVICE_MAP_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_DEVICE_MAP, MetaDeviceMapClass))
+#include "device-private.h"
 
 struct _MetaDeviceMap
 {
@@ -90,11 +82,6 @@ void            meta_device_map_add_device    (MetaDeviceMap *device_map,
 void            meta_device_map_remove_device (MetaDeviceMap *device_map,
                                                MetaDevice    *device);
 
-MetaDevice *    meta_device_map_lookup (MetaDeviceMap *device_map,
-                                        gint           device_id);
-
-MetaDisplay *   meta_device_map_get_display (MetaDeviceMap *device_map);
-
 gboolean meta_device_map_grab_key        (MetaDeviceMap      *device_map,
                                           Window              xwindow,
                                           guint               keycode,
@@ -115,5 +102,4 @@ void     meta_device_map_ungrab_button   (MetaDeviceMap      *device_map,
                                           guint               n_button,
                                           guint               modifiers);
 
-
-#endif /* META_DEVICE_MAP_H */
+#endif /* META_DEVICE_MAP_PRIVATE_H */

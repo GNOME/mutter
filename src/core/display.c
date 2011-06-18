@@ -49,7 +49,7 @@
 #include "xprops.h"
 #include "workspace-private.h"
 #include "bell.h"
-#include "device.h"
+#include "device-private.h"
 #include "input-events.h"
 #include <meta/compositor.h>
 #include <meta/compositor-mutter.h>
@@ -5732,4 +5732,20 @@ void
 meta_display_clear_mouse_mode (MetaDisplay *display)
 {
   display->mouse_mode = FALSE;
+}
+
+/**
+ * meta_display_get_device_map:
+ * @display: a #MetaDisplay
+ *
+ * Returns the MetaDeviceMap used to handle the display devices.
+ *
+ * Returns: (transfer none): The display's #MetaDeviceMap
+ **/
+MetaDeviceMap *
+meta_display_get_device_map (MetaDisplay *display)
+{
+  g_return_val_if_fail (META_IS_DISPLAY (display), NULL);
+
+  return display->device_map;
 }

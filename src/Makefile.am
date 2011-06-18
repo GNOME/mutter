@@ -76,13 +76,15 @@ libmutter_la_SOURCES =				\
 	core/core.c				\
 	core/delete.c				\
 	core/device.c				\
-	core/device.h				\
+	meta/device.h				\
 	core/device-keyboard.c			\
 	core/device-keyboard.h			\
 	core/device-pointer.c			\
 	core/device-pointer.h			\
+	core/device-private.h			\
 	core/device-map.c			\
-	core/device-map.h			\
+	meta/device-map.h			\
+	core/device-map-private.h		\
 	core/device-map-core.c			\
 	core/device-map-core.h			\
 	core/devices-core.c			\
@@ -183,6 +185,8 @@ libmutterinclude_base_headers =		\
 	meta/common.h				\
 	meta/compositor-mutter.h		\
 	meta/compositor.h			\
+	meta/device.h				\
+	meta/device-map.h			\
 	meta/display.h				\
 	meta/errors.h				\
 	meta/gradient.h				\

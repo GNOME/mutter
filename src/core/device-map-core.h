@@ -32,7 +32,7 @@
 typedef struct _MetaDeviceMapCore MetaDeviceMapCore;
 typedef struct _MetaDeviceMapCoreClass MetaDeviceMapCoreClass;
 
-#include "device-map.h"
+#include "device-map-private.h"
 
 #define META_TYPE_DEVICE_MAP_CORE            (meta_device_map_core_get_type ())
 #define META_DEVICE_MAP_CORE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_DEVICE_MAP_CORE, MetaDeviceMapCore))
