@@ -347,8 +347,17 @@ meta_begin_modal_for_plugin (MetaScreen       *screen,
   gboolean pointer_grabbed = FALSE;
   gboolean keyboard_grabbed = FALSE;
   int result;
+  MetaDevice     *device;
+  MetaGrabInfo   *grab_info;
 
-  if (compositor->modal_plugin != NULL || display->grab_op != META_GRAB_OP_NONE)
+  /* FIXME: need a real device here, and probably
+   * some exclusion mode for other devices */
+  device = meta_device_map_lookup (display->device_map,
+                                   META_CORE_POINTER_ID);
+
+  grab_info = meta_display_get_grab_info (display, device);
+
+  if (compositor->modal_plugin != NULL || grab_info != NULL)
     return FALSE;
 
   if ((options & META_MODAL_POINTER_ALREADY_GRABBED) == 0)
@@ -380,11 +389,13 @@ meta_begin_modal_for_plugin (MetaScreen       *screen,
       keyboard_grabbed = TRUE;
     }
 
-  display->grab_op = META_GRAB_OP_COMPOSITOR;
-  display->grab_window = NULL;
-  display->grab_screen = screen;
-  display->grab_have_pointer = TRUE;
-  display->grab_have_keyboard = TRUE;
+  grab_info = meta_display_create_grab_info (display, device);
+
+  grab_info->grab_op = META_GRAB_OP_COMPOSITOR;
+  grab_info->grab_window = NULL;
+  grab_info->grab_screen = screen;
+  grab_info->grab_have_pointer = TRUE;
+  grab_info->grab_have_keyboard = TRUE;
 
   compositor->modal_plugin = plugin;
 
@@ -407,18 +418,18 @@ meta_end_modal_for_plugin (MetaScreen     *screen,
   MetaDisplay    *display    = meta_screen_get_display (screen);
   Display        *xdpy = meta_display_get_xdisplay (display);
   MetaCompositor *compositor = display->compositor;
+  MetaDevice     *device;
 
   g_return_if_fail (compositor->modal_plugin == plugin);
+
+  /* FIXME: need a real device here */
+  device = meta_device_map_lookup (display->device_map,
+                                   META_CORE_POINTER_ID);
 
   XUngrabPointer (xdpy, timestamp);
   XUngrabKeyboard (xdpy, timestamp);
 
-  display->grab_op = META_GRAB_OP_NONE;
-  display->grab_window = NULL;
-  display->grab_screen = NULL;
-  display->grab_have_pointer = FALSE;
-  display->grab_have_keyboard = FALSE;
-
+  meta_display_remove_grab_info (display, device);
   compositor->modal_plugin = NULL;
 }
 

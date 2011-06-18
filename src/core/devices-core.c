@@ -24,6 +24,7 @@
 #include <config.h>
 #include "screen-private.h"
 #include "devices-core.h"
+#include "device-map-private.h"
 
 /* Common functions */
 static void

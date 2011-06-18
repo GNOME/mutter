@@ -538,7 +538,9 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
   MetaWorkspaceLayout layout1, layout2;
   gint num_workspaces, current_space, new_space;
   MetaMotionDirection direction;
-  
+  MetaGrabInfo *grab_info;
+  GHashTableIter iter;
+
   meta_verbose ("Activating workspace %d\n",
                 meta_workspace_index (workspace));
   
@@ -547,7 +549,7 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
 
   /* Free any cached pointers to the workspaces's edges from
    * a current resize or move operation */
-  meta_display_cleanup_edges (workspace->screen->display);
+  meta_display_cleanup_edges (workspace->screen->display, workspace->screen);
 
   if (workspace->screen->active_workspace)
     workspace_switch_sound (workspace->screen->active_workspace, workspace);
@@ -570,10 +572,22 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
     return;
 
   move_window = NULL;
-  if (workspace->screen->display->grab_op == META_GRAB_OP_MOVING ||
-      workspace->screen->display->grab_op == META_GRAB_OP_KEYBOARD_MOVING)
-    move_window = workspace->screen->display->grab_window;
-      
+
+  /* FIXME: not quite multidevice friendly, but the whole
+   * "move window to another workspace" isn't.
+   */
+  g_hash_table_iter_init (&iter, workspace->screen->display->current_grabs);
+
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &grab_info))
+    {
+      if (grab_info->grab_op == META_GRAB_OP_MOVING ||
+          grab_info->grab_op == META_GRAB_OP_KEYBOARD_MOVING)
+        {
+          move_window = grab_info->grab_window;
+          break;
+        }
+    }
+
   if (move_window != NULL)
     {
       if (move_window->on_all_workspaces)
@@ -774,7 +788,7 @@ meta_workspace_invalidate_work_area (MetaWorkspace *workspace)
   /* If we are in the middle of a resize or move operation, we
    * might have cached pointers to the workspace's edges */
   if (workspace == workspace->screen->active_workspace)
-    meta_display_cleanup_edges (workspace->screen->display);
+    meta_display_cleanup_edges (workspace->screen->display, workspace->screen);
 
   g_free (workspace->work_area_monitor);
   workspace->work_area_monitor = NULL;

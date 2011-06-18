@@ -118,6 +118,7 @@ void meta_core_user_focus   (Display *xdisplay,
 
 void meta_core_lower_beneath_grab_window (Display *xdisplay,
                                           Window   xwindow,
+                                          int      device_id,
                                           guint32  timestamp);
 
 void meta_core_minimize         (Display *xdisplay,
@@ -175,6 +176,7 @@ void meta_core_get_menu_accelerator (MetaMenuOp           menu_op,
 
 gboolean   meta_core_begin_grab_op (Display    *xdisplay,
                                     Window      frame_xwindow,
+                                    int         device_id,
                                     MetaGrabOp  op,
                                     gboolean    pointer_already_grabbed,
                                     gboolean    frame_action,
@@ -184,11 +186,15 @@ gboolean   meta_core_begin_grab_op (Display    *xdisplay,
                                     int         root_x,
                                     int         root_y);
 void       meta_core_end_grab_op   (Display    *xdisplay,
+                                    int         device_id,
                                     guint32     timestamp);
-MetaGrabOp meta_core_get_grab_op     (Display    *xdisplay);
-Window     meta_core_get_grab_frame  (Display   *xdisplay);
-int        meta_core_get_grab_button (Display  *xdisplay);
 
+MetaGrabOp meta_core_frame_has_grab  (Display    *xdisplay,
+                                      Window      frame_xwindow,
+                                      gint       *device_id,
+                                      gint       *button_ret);
+Window     meta_core_get_frame       (Display    *xdisplay,
+                                      Window      client_xwindow);
 
 void       meta_core_grab_buttons  (Display *xdisplay,
                                     Window   frame_xwindow);
