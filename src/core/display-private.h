@@ -57,6 +57,8 @@ typedef struct _MetaWindowPropHooks MetaWindowPropHooks;
 
 typedef struct MetaEdgeResistanceData MetaEdgeResistanceData;
 
+typedef struct _MetaGrabInfo MetaGrabInfo;
+
 typedef void (* MetaWindowPingFunc) (MetaDisplay *display,
 				     Window       xwindow,
 				     guint32      timestamp,
@@ -86,6 +88,47 @@ typedef enum {
   META_TILE_RIGHT,
   META_TILE_MAXIMIZED
 } MetaTileMode;
+
+struct _MetaGrabInfo
+{
+  MetaDevice *grab_pointer;
+  MetaDevice *grab_keyboard;
+
+  MetaGrabOp  grab_op;
+  MetaScreen *grab_screen;
+  MetaWindow *grab_window;
+  Window      grab_xwindow;
+  int         grab_button;
+  int         grab_anchor_root_x;
+  int         grab_anchor_root_y;
+  MetaRectangle grab_anchor_window_pos;
+  MetaTileMode  grab_tile_mode;
+  int           grab_tile_monitor_number;
+  int         grab_latest_motion_x;
+  int         grab_latest_motion_y;
+  gulong      grab_mask;
+  guint       grab_have_pointer : 1;
+  guint       grab_have_keyboard : 1;
+  guint       grab_frame_action : 1;
+  /* During a resize operation, the directions in which we've broken
+   * out of the initial maximization state */
+  guint       grab_resize_unmaximize : 2; /* MetaMaximizeFlags */
+  MetaRectangle grab_initial_window_pos;
+  int         grab_initial_x, grab_initial_y;  /* These are only relevant for */
+  gboolean    grab_threshold_movement_reached; /* raise_on_click == FALSE.    */
+  MetaResizePopup *grab_resize_popup;
+  GTimeVal    grab_last_moveresize_time;
+  guint32     grab_motion_notify_time;
+  GList*      grab_old_window_stacking;
+  unsigned int grab_last_user_action_was_snap;
+  MetaEdgeResistanceData *grab_edge_resistance_data;
+
+#ifdef HAVE_XSYNC
+  /* alarm monitoring client's _NET_WM_SYNC_REQUEST_COUNTER */
+  XSyncAlarm  grab_sync_request_alarm;
+#endif
+  int	      grab_resize_timeout_id;
+};
 
 struct _MetaDisplay
 {
@@ -183,35 +226,11 @@ struct _MetaDisplay
   /* Alt+click button grabs */
   unsigned int window_grab_modifiers;
   
-  /* current window operation */
-  MetaGrabOp  grab_op;
-  MetaScreen *grab_screen;
-  MetaWindow *grab_window;
-  Window      grab_xwindow;
-  int         grab_button;
-  int         grab_anchor_root_x;
-  int         grab_anchor_root_y;
-  MetaRectangle grab_anchor_window_pos;
-  MetaTileMode  grab_tile_mode;
-  int           grab_tile_monitor_number;
-  int         grab_latest_motion_x;
-  int         grab_latest_motion_y;
-  gulong      grab_mask;
-  guint       grab_have_pointer : 1;
-  guint       grab_have_keyboard : 1;
-  guint       grab_frame_action : 1;
-  /* During a resize operation, the directions in which we've broken
-   * out of the initial maximization state */
-  guint       grab_resize_unmaximize : 2; /* MetaMaximizeFlags */
-  MetaRectangle grab_initial_window_pos;
-  int         grab_initial_x, grab_initial_y;  /* These are only relevant for */
-  gboolean    grab_threshold_movement_reached; /* raise_on_click == FALSE.    */
-  MetaResizePopup *grab_resize_popup;
-  GTimeVal    grab_last_moveresize_time;
-  guint32     grab_motion_notify_time;
-  GList*      grab_old_window_stacking;
-  MetaEdgeResistanceData *grab_edge_resistance_data;
-  unsigned int grab_last_user_action_was_snap;
+  /* per-device current window operation */
+  GHashTable *current_grabs;
+
+  /* per-screen edge resistance cache */
+  GHashTable *edge_resistance_info;
 
   /* we use property updates as sentinels for certain window focus events
    * to avoid some race conditions on EnterNotify events
@@ -222,11 +241,6 @@ struct _MetaDisplay
   int         xkb_base_event_type;
   guint32     last_bell_time;
 #endif
-#ifdef HAVE_XSYNC
-  /* alarm monitoring client's _NET_WM_SYNC_REQUEST_COUNTER */
-  XSyncAlarm  grab_sync_request_alarm;
-#endif
-  int	      grab_resize_timeout_id;
 
   /* Keybindings stuff */
   MetaKeyBinding *key_bindings;
@@ -390,12 +404,14 @@ Cursor         meta_display_create_x_cursor (MetaDisplay *display,
 
 void     meta_display_set_grab_op_cursor (MetaDisplay *display,
                                           MetaScreen  *screen,
+                                          MetaDevice  *device,
                                           MetaGrabOp   op,
                                           gboolean     change_pointer,
                                           Window       grab_xwindow,
                                           guint32      timestamp);
 
 void    meta_display_check_threshold_reached (MetaDisplay *display,
+                                              MetaDevice  *device,
                                               int          x,
                                               int          y);
 void     meta_display_grab_window_buttons    (MetaDisplay *display,
@@ -409,7 +425,8 @@ void meta_display_ungrab_focus_window_button (MetaDisplay *display,
                                               MetaWindow  *window);
 
 /* Next function is defined in edge-resistance.c */
-void meta_display_cleanup_edges              (MetaDisplay *display);
+void meta_display_cleanup_edges              (MetaDisplay *display,
+                                              MetaScreen  *screen);
 
 /* make a request to ensure the event serial has changed */
 void     meta_display_increment_event_serial (MetaDisplay *display);
@@ -456,5 +473,13 @@ void meta_display_overlay_key_activate (MetaDisplay *display);
 
 /* In above-tab-keycode.c */
 guint meta_display_get_above_tab_keycode (MetaDisplay *display);
+
+MetaGrabInfo * meta_display_create_grab_info         (MetaDisplay  *display,
+                                                      MetaDevice   *device);
+void           meta_display_remove_grab_info         (MetaDisplay  *display,
+                                                      MetaDevice   *device);
+
+MetaGrabInfo * meta_display_get_grab_info            (MetaDisplay  *display,
+                                                      MetaDevice   *device);
 
 #endif

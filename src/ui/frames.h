@@ -156,7 +156,8 @@ void meta_frames_move_resize_frame (MetaFrames *frames,
 void meta_frames_queue_draw (MetaFrames *frames,
                              Window      xwindow);
 
-void meta_frames_notify_menu_hide (MetaFrames *frames);
+void meta_frames_notify_menu_hide (MetaFrames *frames,
+                                   Window      client_xwindow);
 
 Window meta_frames_get_moving_frame (MetaFrames *frames);
 

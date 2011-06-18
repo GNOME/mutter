@@ -413,6 +413,9 @@ struct _MetaWindow
 
   /* The currently complementary tiled window, if any */
   MetaWindow *tile_match;
+
+  /* Current grab op for this window, or NULL */
+  MetaGrabInfo *cur_grab;
 };
 
 struct _MetaWindowClass
@@ -618,8 +621,10 @@ void meta_window_free_delete_dialog (MetaWindow *window);
 
 
 void meta_window_update_keyboard_resize (MetaWindow *window,
+                                         MetaDevice *device,
                                          gboolean    update_cursor);
-void meta_window_update_keyboard_move   (MetaWindow *window);
+void meta_window_update_keyboard_move   (MetaWindow *window,
+                                         MetaDevice *device);
 
 void meta_window_update_layer (MetaWindow *window);
 
@@ -647,5 +652,7 @@ gboolean meta_window_should_attach_to_parent (MetaWindow *window);
 gboolean meta_window_can_tile_side_by_side   (MetaWindow *window);
 
 void meta_window_compute_tile_match (MetaWindow *window);
+
+MetaDevice * meta_window_guess_grab_pointer (MetaWindow *window);
 
 #endif

@@ -1853,8 +1853,20 @@ static gboolean
 meta_screen_tile_preview_update_timeout (gpointer data)
 {
   MetaScreen *screen = data;
-  MetaWindow *window = screen->display->grab_window;
+  MetaWindow *window = NULL;
   gboolean needs_preview = FALSE;
+  MetaGrabInfo *grab_info;
+  MetaDevice *pointer = NULL;
+  GHashTableIter iter;
+
+  /* FIXME: we're just handling the first grab we find */
+  g_hash_table_iter_init (&iter, screen->display->current_grabs);
+
+  if (g_hash_table_iter_next (&iter, NULL, (gpointer *) &grab_info))
+    {
+      window = grab_info->grab_window;
+      pointer = grab_info->grab_pointer;
+    }
 
   screen->tile_preview_timeout_id = 0;
 
@@ -1897,7 +1909,7 @@ meta_screen_tile_preview_update_timeout (gpointer data)
       MetaRectangle tile_rect;
 
       meta_window_get_current_tile_area (window, &tile_rect);
-      meta_tile_preview_show (screen->tile_preview, &tile_rect);
+      meta_tile_preview_show (screen->tile_preview, pointer, &tile_rect);
     }
   else
     meta_tile_preview_hide (screen->tile_preview);

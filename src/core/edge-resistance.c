@@ -30,12 +30,12 @@
 /* A simple macro for whether a given window's edges are potentially
  * relevant for resistance/snapping during a move/resize operation
  */
-#define WINDOW_EDGES_RELEVANT(window, display) \
-  meta_window_should_be_showing (window) &&    \
-  window->screen == display->grab_screen &&    \
-  window         != display->grab_window &&    \
-  window->type   != META_WINDOW_DESKTOP &&     \
-  window->type   != META_WINDOW_MENU    &&     \
+#define WINDOW_EDGES_RELEVANT(window, display, screen) \
+  meta_window_should_be_showing (window) &&            \
+  window->screen == screen &&                          \
+  window->cur_grab == NULL &&                          \
+  window->type   != META_WINDOW_DESKTOP &&             \
+  window->type   != META_WINDOW_MENU    &&             \
   window->type   != META_WINDOW_SPLASHSCREEN
 
 struct ResistanceDataForAnEdge
@@ -44,8 +44,9 @@ struct ResistanceDataForAnEdge
   guint        timeout_id;
   int          timeout_edge_pos;
   gboolean     timeout_over;
-  GSourceFunc  timeout_func;
+  MetaEdgeResistanceFunc timeout_func;
   MetaWindow  *window;
+  MetaDevice  *device;
   int          keyboard_buildup;
 };
 typedef struct ResistanceDataForAnEdge ResistanceDataForAnEdge;
@@ -63,7 +64,9 @@ struct MetaEdgeResistanceData
   ResistanceDataForAnEdge bottom_data;
 };
 
-static void compute_resistance_and_snapping_edges (MetaDisplay *display);
+static MetaEdgeResistanceData *
+        compute_resistance_and_snapping_edges (MetaDisplay *display,
+                                               MetaScreen  *screen);
 
 /* !WARNING!: this function can return invalid indices (namely, either -1 or
  * edges->len); this is by design, but you need to remember this.
@@ -318,20 +321,22 @@ edge_resistance_timeout (gpointer data)
 
   resistance_data->timeout_over = TRUE;
   resistance_data->timeout_id = 0;
-  (*resistance_data->timeout_func)(resistance_data->window);
+  (*resistance_data->timeout_func) (resistance_data->window,
+                                    resistance_data->device);
 
   return FALSE;
 }
 
 static int
 apply_edge_resistance (MetaWindow                *window,
+                       MetaDevice                *device,
                        int                        old_pos,
                        int                        new_pos,
                        const MetaRectangle       *old_rect,
                        const MetaRectangle       *new_rect,
                        GArray                    *edges,
                        ResistanceDataForAnEdge   *resistance_data,
-                       GSourceFunc                timeout_func,
+                       MetaEdgeResistanceFunc     timeout_func,
                        gboolean                   xdir,
                        gboolean                   keyboard_op)
 {
@@ -445,6 +450,7 @@ apply_edge_resistance (MetaWindow                *window,
                   resistance_data->timeout_over = FALSE;
                   resistance_data->timeout_func = timeout_func;
                   resistance_data->window = window;
+                  resistance_data->device = device;
                 }
               if (!resistance_data->timeout_over &&
                   timeout_length_ms != 0)
@@ -533,29 +539,28 @@ apply_edge_snapping (int                  old_pos,
  * a proposed new position (ignoring edge resistance/snapping), and then
  * applies edge resistance to EACH edge (separately) updating new_outer.
  * It returns true if new_outer is modified, false otherwise.
- *
- * display->grab_edge_resistance_data MUST already be setup or calling this
- * function will cause a crash.
  */
 static gboolean 
-apply_edge_resistance_to_each_side (MetaDisplay         *display,
-                                    MetaWindow          *window,
-                                    const MetaRectangle *old_outer,
-                                    MetaRectangle       *new_outer,
-                                    GSourceFunc          timeout_func,
-                                    gboolean             auto_snap,
-                                    gboolean             keyboard_op,
-                                    gboolean             is_resize)
+apply_edge_resistance_to_each_side (MetaDisplay            *display,
+                                    MetaWindow             *window,
+                                    MetaDevice             *device,
+                                    const MetaRectangle    *old_outer,
+                                    MetaRectangle          *new_outer,
+                                    MetaEdgeResistanceFunc  timeout_func,
+                                    gboolean                auto_snap,
+                                    gboolean                keyboard_op,
+                                    gboolean                is_resize)
 {
   MetaEdgeResistanceData *edge_data;
   MetaRectangle           modified_rect;
   gboolean                modified;
   int new_left, new_right, new_top, new_bottom;
 
-  if (display->grab_edge_resistance_data == NULL)
-    compute_resistance_and_snapping_edges (display);
+  edge_data = g_hash_table_lookup (display->edge_resistance_info,
+                                   window->screen);
 
-  edge_data = display->grab_edge_resistance_data;
+  if (!edge_data)
+    edge_data = compute_resistance_and_snapping_edges (display, window->screen);
 
   if (auto_snap)
     {
@@ -601,7 +606,7 @@ apply_edge_resistance_to_each_side (MetaDisplay         *display,
       if (!is_resize || window->size_hints.width_inc == 1)
         {
           /* Now, apply the normal horizontal edge resistance */
-          new_left   = apply_edge_resistance (window,
+          new_left   = apply_edge_resistance (window, device,
                                               BOX_LEFT (*old_outer),
                                               BOX_LEFT (*new_outer),
                                               old_outer,
@@ -611,7 +616,7 @@ apply_edge_resistance_to_each_side (MetaDisplay         *display,
                                               timeout_func,
                                               TRUE,
                                               keyboard_op);
-          new_right  = apply_edge_resistance (window,
+          new_right  = apply_edge_resistance (window, device,
                                               BOX_RIGHT (*old_outer),
                                               BOX_RIGHT (*new_outer),
                                               old_outer,
@@ -630,7 +635,7 @@ apply_edge_resistance_to_each_side (MetaDisplay         *display,
       /* Same for vertical resizes... */
       if (!is_resize || window->size_hints.height_inc == 1)
         {
-          new_top    = apply_edge_resistance (window,
+          new_top    = apply_edge_resistance (window, device,
                                               BOX_TOP (*old_outer),
                                               BOX_TOP (*new_outer),
                                               old_outer,
@@ -640,7 +645,7 @@ apply_edge_resistance_to_each_side (MetaDisplay         *display,
                                               timeout_func,
                                               FALSE,
                                               keyboard_op);
-          new_bottom = apply_edge_resistance (window,
+          new_bottom = apply_edge_resistance (window, device,
                                               BOX_BOTTOM (*old_outer),
                                               BOX_BOTTOM (*new_outer),
                                               old_outer,
@@ -669,14 +674,19 @@ apply_edge_resistance_to_each_side (MetaDisplay         *display,
 }
 
 void
-meta_display_cleanup_edges (MetaDisplay *display)
+meta_display_cleanup_edges (MetaDisplay *display,
+                            MetaScreen  *screen)
 {
   guint i,j;
-  MetaEdgeResistanceData *edge_data = display->grab_edge_resistance_data;
+  MetaEdgeResistanceData *edge_data;
   GHashTable *edges_to_be_freed;
+
+  edge_data = g_hash_table_lookup (display->edge_resistance_info, screen);
 
   if (edge_data == NULL) /* Not currently cached */
     return;
+
+  g_hash_table_steal (display->edge_resistance_info, screen);
 
   /* We first need to clean out any window edges */
   edges_to_be_freed = g_hash_table_new_full (g_direct_hash, g_direct_equal,
@@ -750,8 +760,7 @@ meta_display_cleanup_edges (MetaDisplay *display)
       edge_data->bottom_data.timeout_id != 0)
     g_source_remove (edge_data->bottom_data.timeout_id);
 
-  g_free (display->grab_edge_resistance_data);
-  display->grab_edge_resistance_data = NULL;
+  g_free (edge_data);
 }
 
 static int
@@ -763,8 +772,9 @@ stupid_sort_requiring_extra_pointer_dereference (gconstpointer a,
   return meta_rectangle_edge_cmp_ignore_type (*a_edge, *b_edge);
 }
 
-static void
+static MetaEdgeResistanceData *
 cache_edges (MetaDisplay *display,
+             MetaScreen  *screen,
              GList *window_edges,
              GList *monitor_edges,
              GList *screen_edges)
@@ -848,9 +858,8 @@ cache_edges (MetaDisplay *display,
   /*
    * 2nd: Allocate the edges
    */
-  g_assert (display->grab_edge_resistance_data == NULL);
-  display->grab_edge_resistance_data = g_new0 (MetaEdgeResistanceData, 1);
-  edge_data = display->grab_edge_resistance_data;
+  edge_data = g_new0 (MetaEdgeResistanceData, 1);
+
   edge_data->left_edges   = g_array_sized_new (FALSE,
                                                FALSE,
                                                sizeof(MetaEdge*),
@@ -917,21 +926,21 @@ cache_edges (MetaDisplay *display,
    * avoided this sort by sticking them into the array with some simple
    * merging of the lists).
    */
-  g_array_sort (display->grab_edge_resistance_data->left_edges, 
+  g_array_sort (edge_data->left_edges,
                 stupid_sort_requiring_extra_pointer_dereference);
-  g_array_sort (display->grab_edge_resistance_data->right_edges, 
+  g_array_sort (edge_data->right_edges,
                 stupid_sort_requiring_extra_pointer_dereference);
-  g_array_sort (display->grab_edge_resistance_data->top_edges, 
+  g_array_sort (edge_data->top_edges,
                 stupid_sort_requiring_extra_pointer_dereference);
-  g_array_sort (display->grab_edge_resistance_data->bottom_edges, 
+  g_array_sort (edge_data->bottom_edges,
                 stupid_sort_requiring_extra_pointer_dereference);
+
+  return edge_data;
 }
 
 static void
-initialize_grab_edge_resistance_data (MetaDisplay *display)
+initialize_grab_edge_resistance_data (MetaEdgeResistanceData *edge_data)
 {
-  MetaEdgeResistanceData *edge_data = display->grab_edge_resistance_data;
-
   edge_data->left_data.timeout_setup   = FALSE;
   edge_data->right_data.timeout_setup  = FALSE;
   edge_data->top_data.timeout_setup    = FALSE;
@@ -943,8 +952,9 @@ initialize_grab_edge_resistance_data (MetaDisplay *display)
   edge_data->bottom_data.keyboard_buildup = 0;
 }
 
-static void
-compute_resistance_and_snapping_edges (MetaDisplay *display)
+static MetaEdgeResistanceData *
+compute_resistance_and_snapping_edges (MetaDisplay *display,
+                                       MetaScreen  *screen)
 {
   GList *stacked_windows;
   GList *cur_window_iter;
@@ -956,18 +966,17 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
    * in the layer that we are working on
    */
   GSList *rem_windows, *rem_win_stacking;
+  MetaEdgeResistanceData *edge_data;
 
-  g_assert (display->grab_window != NULL);
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Computing edges to resist-movement or snap-to for %s.\n",
-              display->grab_window->desc);
+              "Computing edges to resist-movement or snap-to for screen %s.\n",
+              screen->screen_name);
 
   /*
    * 1st: Get the list of relevant windows, from bottom to top
    */
   stacked_windows = 
-    meta_stack_list_windows (display->grab_screen->stack,
-                             display->grab_screen->active_workspace);
+    meta_stack_list_windows (screen->stack, screen->active_workspace);
 
   /*
    * 2nd: we need to separate that stacked list into a list of windows that
@@ -981,7 +990,7 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
   while (cur_window_iter != NULL)
     {
       MetaWindow *cur_window = cur_window_iter->data;
-      if (WINDOW_EDGES_RELEVANT (cur_window, display))
+      if (WINDOW_EDGES_RELEVANT (cur_window, display, screen))
         {
           MetaRectangle *new_rect;
           new_rect = g_new (MetaRectangle, 1);
@@ -1016,7 +1025,7 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
        * resistance (note that dock edges are considered screen edges
        * which are handled separately
        */
-      if (WINDOW_EDGES_RELEVANT (cur_window, display) &&
+      if (WINDOW_EDGES_RELEVANT (cur_window, display, screen) &&
           cur_window->type != META_WINDOW_DOCK)
         {
           GList *new_edges;
@@ -1028,7 +1037,7 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
            * by other windows or DOCKS, but that's handled below).
            */
           meta_rectangle_intersect (&cur_rect, 
-                                    &display->grab_screen->rect,
+                                    &screen->rect,
                                     &reduced);
 
           new_edges = NULL;
@@ -1123,32 +1132,36 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
    * monitor edges in an array for quick access.  Free the edges since
    * they've been cached elsewhere.
    */
-  cache_edges (display,
-               edges,
-               display->grab_screen->active_workspace->monitor_edges,
-               display->grab_screen->active_workspace->screen_edges);
+  edge_data = cache_edges (display, screen,
+                           edges,
+                           screen->active_workspace->monitor_edges,
+                           screen->active_workspace->screen_edges);
   g_list_free (edges);
 
   /*
    * 6th: Initialize the resistance timeouts and buildups
    */
-  initialize_grab_edge_resistance_data (display);
+  initialize_grab_edge_resistance_data (edge_data);
+
+  return edge_data;
 }
 
 /* Note that old_[xy] and new_[xy] are with respect to inner positions of
  * the window.
  */
 void
-meta_window_edge_resistance_for_move (MetaWindow  *window,
-                                      int          old_x,
-                                      int          old_y,
-                                      int         *new_x,
-                                      int         *new_y,
-                                      GSourceFunc  timeout_func,
-                                      gboolean     snap,
-                                      gboolean     is_keyboard_op)
+meta_window_edge_resistance_for_move (MetaWindow             *window,
+                                      MetaDevice             *device,
+                                      int                     old_x,
+                                      int                     old_y,
+                                      int                    *new_x,
+                                      int                    *new_y,
+                                      MetaEdgeResistanceFunc  timeout_func,
+                                      gboolean                snap,
+                                      gboolean                is_keyboard_op)
 {
   MetaRectangle old_outer, proposed_outer, new_outer;
+  MetaGrabInfo *grab_info;
   gboolean is_resize;
 
   meta_window_get_outer_rect (window, &old_outer);
@@ -1158,10 +1171,14 @@ meta_window_edge_resistance_for_move (MetaWindow  *window,
   proposed_outer.y += (*new_y - old_y);
   new_outer = proposed_outer;
 
-  window->display->grab_last_user_action_was_snap = snap;
+  grab_info = meta_display_get_grab_info (window->display, device);
+  g_assert (grab_info != NULL);
+
+  grab_info->grab_last_user_action_was_snap = snap;
   is_resize = FALSE;
   if (apply_edge_resistance_to_each_side (window->display,
                                           window,
+                                          device,
                                           &old_outer,
                                           &new_outer,
                                           timeout_func,
@@ -1223,18 +1240,20 @@ meta_window_edge_resistance_for_move (MetaWindow  *window,
  * sizes of the inner window.
  */
 void
-meta_window_edge_resistance_for_resize (MetaWindow  *window,
-                                        int          old_width,
-                                        int          old_height,
-                                        int         *new_width,
-                                        int         *new_height,
-                                        int          gravity,
-                                        GSourceFunc  timeout_func,
-                                        gboolean     snap,
-                                        gboolean     is_keyboard_op)
+meta_window_edge_resistance_for_resize (MetaWindow             *window,
+                                        MetaDevice             *device,
+                                        int                     old_width,
+                                        int                     old_height,
+                                        int                    *new_width,
+                                        int                    *new_height,
+                                        int                     gravity,
+                                        MetaEdgeResistanceFunc  timeout_func,
+                                        gboolean                snap,
+                                        gboolean                is_keyboard_op)
 {
   MetaRectangle old_outer, new_outer;
   int proposed_outer_width, proposed_outer_height;
+  MetaGrabInfo *grab_info;
   gboolean is_resize;
 
   meta_window_get_outer_rect (window, &old_outer);
@@ -1246,10 +1265,14 @@ meta_window_edge_resistance_for_resize (MetaWindow  *window,
                                       proposed_outer_width,
                                       proposed_outer_height);
 
-  window->display->grab_last_user_action_was_snap = snap;
+  grab_info = meta_display_get_grab_info (window->display, device);
+  g_assert (grab_info != NULL);
+
+  grab_info->grab_last_user_action_was_snap = snap;
   is_resize = TRUE;
   if (apply_edge_resistance_to_each_side (window->display,
                                           window,
+                                          device,
                                           &old_outer,
                                           &new_outer,
                                           timeout_func,

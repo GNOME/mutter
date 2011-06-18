@@ -137,7 +137,7 @@ menu_closed (GtkMenu *widget,
   
   menu = data;
 
-  meta_frames_notify_menu_hide (menu->frames);
+  meta_frames_notify_menu_hide (menu->frames, menu->client_xwindow);
   (* menu->func) (menu,
                   GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                   menu->client_xwindow,
@@ -157,7 +157,7 @@ activate_cb (GtkWidget *menuitem, gpointer data)
   
   md = data;
 
-  meta_frames_notify_menu_hide (md->menu->frames);
+  meta_frames_notify_menu_hide (md->menu->frames, md->menu->client_xwindow);
   (* md->menu->func) (md->menu,
                       GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                       md->menu->client_xwindow,

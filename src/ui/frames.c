@@ -1182,7 +1182,9 @@ meta_frames_button_press_event (GtkWidget      *widget,
   MetaFrames *frames;
   MetaFrameControl control;
   Display *display;
-  
+  GdkDevice *device;
+  int device_id;
+
   frames = META_FRAMES (widget);
   display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
 
@@ -1213,7 +1215,10 @@ meta_frames_button_press_event (GtkWidget      *widget,
   /* don't do the rest of this if on client area */
   if (control == META_FRAME_CONTROL_CLIENT_AREA)
     return FALSE; /* not on the frame, just passed through from client */
-  
+
+  device = gdk_event_get_device ((GdkEvent *) event);
+  device_id = gdk_x11_device_get_id (device);
+
   /* We want to shade even if we have a GrabOp, since we'll have a move grab
    * if we double click the titlebar.
    */
@@ -1221,13 +1226,13 @@ meta_frames_button_press_event (GtkWidget      *widget,
       event->button == 1 &&
       event->type == GDK_2BUTTON_PRESS)
     {
-      meta_core_end_grab_op (display, event->time);
+      meta_core_end_grab_op (display, device_id, event->time);
       return meta_frame_double_click_event (frame, event);
     }
 
-  if (meta_core_get_grab_op (display) !=
+  if (meta_core_frame_has_grab (display, frame->xwindow, NULL, NULL) !=
       META_GRAB_OP_NONE)
-    return FALSE; /* already up to something */  
+    return FALSE; /* already up to something */
 
   if (event->button == 1 &&
       (control == META_FRAME_CONTROL_MAXIMIZE ||
@@ -1286,6 +1291,7 @@ meta_frames_button_press_event (GtkWidget      *widget,
 
       meta_core_begin_grab_op (display,
                                frame->xwindow,
+                               device_id,
                                op,
                                TRUE,
                                TRUE,
@@ -1371,6 +1377,7 @@ meta_frames_button_press_event (GtkWidget      *widget,
 
       meta_core_begin_grab_op (display,
                                frame->xwindow,
+                               device_id,
                                op,
                                TRUE,
                                TRUE,
@@ -1393,6 +1400,7 @@ meta_frames_button_press_event (GtkWidget      *widget,
         {          
           meta_core_begin_grab_op (display,
                                    frame->xwindow,
+                                   device_id,
                                    META_GRAB_OP_MOVING,
                                    TRUE,
                                    TRUE,
@@ -1416,28 +1424,28 @@ meta_frames_button_press_event (GtkWidget      *widget,
 }
 
 void
-meta_frames_notify_menu_hide (MetaFrames *frames)
+meta_frames_notify_menu_hide (MetaFrames *frames,
+                              Window      client_xwindow)
 {
   Display *display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
-  if (meta_core_get_grab_op (display) ==
+  Window frame_xwindow;
+  int device_id;
+
+  frame_xwindow = meta_core_get_frame (display, client_xwindow);
+
+  if (frame_xwindow != None &&
+      meta_core_frame_has_grab (display, frame_xwindow, &device_id, NULL) ==
       META_GRAB_OP_CLICKING_MENU)
     {
-      Window grab_frame;
+      MetaUIFrame *frame;
 
-      grab_frame = meta_core_get_grab_frame (display);
+      frame = meta_frames_lookup_window (frames, frame_xwindow);
 
-      if (grab_frame != None)
+      if (frame)
         {
-          MetaUIFrame *frame;
-
-          frame = meta_frames_lookup_window (frames, grab_frame);
-
-          if (frame)
-            {
-              redraw_control (frames, frame,
-                              META_FRAME_CONTROL_MENU);
-              meta_core_end_grab_op (display, CurrentTime);
-            }
+          redraw_control (frames, frame,
+                          META_FRAME_CONTROL_MENU);
+          meta_core_end_grab_op (display, device_id, CurrentTime);
         }
     }
 }
@@ -1450,7 +1458,10 @@ meta_frames_button_release_event    (GtkWidget           *widget,
   MetaFrames *frames;
   MetaGrabOp op;
   Display *display;
-  
+  int grab_button;
+  GdkDevice *device;
+  int device_id, grab_device_id;
+
   frames = META_FRAMES (widget);
   display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
   
@@ -1458,17 +1469,21 @@ meta_frames_button_release_event    (GtkWidget           *widget,
   if (frame == NULL)
     return FALSE;
 
-  op = meta_core_get_grab_op (display);
+  op = meta_core_frame_has_grab (display, frame->xwindow,
+                                 &grab_device_id, &grab_button);
 
-  if (op == META_GRAB_OP_NONE)
+  device = gdk_event_get_device ((GdkEvent *) event);
+  device_id = gdk_x11_device_get_id (device);
+
+  if (op == META_GRAB_OP_NONE ||
+      grab_device_id != device_id)
     return FALSE;
 
   /* We only handle the releases we handled the presses for (things
    * involving frame controls). Window ops that don't require a
    * frame are handled in the Xlib part of the code, display.c/window.c
    */
-  if (frame->xwindow == meta_core_get_grab_frame (display) &&
-      ((int) event->button) == meta_core_get_grab_button (display))
+  if (((int) event->button) == grab_button)
     {
       MetaFrameControl control;
 
@@ -1479,8 +1494,8 @@ meta_frames_button_release_event    (GtkWidget           *widget,
         case META_GRAB_OP_CLICKING_MINIMIZE:
           if (control == META_FRAME_CONTROL_MINIMIZE)
             meta_core_minimize (display, frame->xwindow);
-          
-          meta_core_end_grab_op (display, event->time);
+
+          meta_core_end_grab_op (display, device_id, event->time);
           break;
 
         case META_GRAB_OP_CLICKING_MAXIMIZE:
@@ -1492,67 +1507,67 @@ meta_frames_button_release_event    (GtkWidget           *widget,
                             event->time);      
             meta_core_maximize (display, frame->xwindow);
           }
-          meta_core_end_grab_op (display, event->time);
+          meta_core_end_grab_op (display, device_id, event->time);
           break;
 
         case META_GRAB_OP_CLICKING_UNMAXIMIZE:
           if (control == META_FRAME_CONTROL_UNMAXIMIZE)
             meta_core_unmaximize (display, frame->xwindow);
-          
-          meta_core_end_grab_op (display, event->time);
+
+          meta_core_end_grab_op (display, device_id, event->time);
           break;
           
         case META_GRAB_OP_CLICKING_DELETE:
           if (control == META_FRAME_CONTROL_DELETE)
             meta_core_delete (display, frame->xwindow, event->time);
-          
-          meta_core_end_grab_op (display, event->time);
+
+          meta_core_end_grab_op (display, device_id, event->time);
           break;
           
         case META_GRAB_OP_CLICKING_MENU:
-          meta_core_end_grab_op (display, event->time);
+          meta_core_end_grab_op (display, device_id, event->time);
           break;
 
         case META_GRAB_OP_CLICKING_SHADE:
           if (control == META_FRAME_CONTROL_SHADE)
             meta_core_shade (display, frame->xwindow, event->time);
-          
-          meta_core_end_grab_op (display, event->time);
+
+          meta_core_end_grab_op (display, device_id, event->time);
           break;
  
         case META_GRAB_OP_CLICKING_UNSHADE:
           if (control == META_FRAME_CONTROL_UNSHADE)
             meta_core_unshade (display, frame->xwindow, event->time);
 
-          meta_core_end_grab_op (display, event->time);
+          meta_core_end_grab_op (display, device_id, event->time);
           break;
 
         case META_GRAB_OP_CLICKING_ABOVE:
           if (control == META_FRAME_CONTROL_ABOVE)
             meta_core_make_above (display, frame->xwindow);
-          
-          meta_core_end_grab_op (display, event->time);
+
+          meta_core_end_grab_op (display, device_id, event->time);
           break;
  
         case META_GRAB_OP_CLICKING_UNABOVE:
           if (control == META_FRAME_CONTROL_UNABOVE)
             meta_core_unmake_above (display, frame->xwindow);
 
-          meta_core_end_grab_op (display, event->time);
+          meta_core_end_grab_op (display, device_id, event->time);
           break;
 
         case META_GRAB_OP_CLICKING_STICK:
           if (control == META_FRAME_CONTROL_STICK)
             meta_core_stick (display, frame->xwindow);
 
-          meta_core_end_grab_op (display, event->time);
+          meta_core_end_grab_op (display, device_id, event->time);
           break;
  
         case META_GRAB_OP_CLICKING_UNSTICK:
           if (control == META_FRAME_CONTROL_UNSTICK)
             meta_core_unstick (display, frame->xwindow);
 
-          meta_core_end_grab_op (display, event->time);
+          meta_core_end_grab_op (display, device_id, event->time);
           break;
           
         default:
@@ -1696,8 +1711,8 @@ meta_frames_motion_notify_event     (GtkWidget           *widget,
 
   frames->last_motion_frame = frame;
 
-  grab_op = meta_core_get_grab_op (display);
-  
+  grab_op = meta_core_frame_has_grab (display, frame->xwindow, NULL, NULL);
+
   switch (grab_op)
     {
     case META_GRAB_OP_CLICKING_MENU:
@@ -1909,7 +1924,6 @@ meta_frames_paint (MetaFrames   *frames,
   GdkPixbuf *icon;
   int w, h;
   MetaButtonState button_states[META_BUTTON_TYPE_LAST];
-  Window grab_frame;
   int i;
   MetaButtonLayout button_layout;
   MetaGrabOp grab_op;
@@ -1920,11 +1934,8 @@ meta_frames_paint (MetaFrames   *frames,
   for (i = 0; i < META_BUTTON_TYPE_LAST; i++)
     button_states[i] = META_BUTTON_STATE_NORMAL;
 
-  grab_frame = meta_core_get_grab_frame (display);
-  grab_op = meta_core_get_grab_op (display);
-  if (grab_frame != frame->xwindow)
-    grab_op = META_GRAB_OP_NONE;
-  
+  grab_op = meta_core_frame_has_grab (display, frame->xwindow, NULL, NULL);
+
   /* Set prelight state */
   switch (frame->prelit_control)
     {

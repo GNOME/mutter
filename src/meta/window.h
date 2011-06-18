@@ -189,6 +189,7 @@ void        meta_window_focus              (MetaWindow  *window,
                                             guint32      timestamp);
 
 void meta_window_begin_grab_op (MetaWindow *window,
+                                MetaDevice *device,
                                 MetaGrabOp  op,
                                 gboolean    frame_action,
                                 guint32     timestamp);

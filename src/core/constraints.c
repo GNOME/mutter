@@ -1365,15 +1365,18 @@ constrain_titlebar_visible (MetaWindow         *window,
   int bottom_amount;
   int horiz_amount_offscreen, vert_amount_offscreen;
   int horiz_amount_onscreen,  vert_amount_onscreen;
+  MetaGrabInfo *grab_info;
 
   if (priority > PRIORITY_TITLEBAR_VISIBLE)
     return TRUE;
+
+  grab_info = window->cur_grab;
 
   /* Allow the titlebar beyond the top of the screen only if the user wasn't
    * clicking on the frame to start the move.
    */
   unconstrained_user_action =
-    info->is_user_action && !window->display->grab_frame_action;
+    info->is_user_action && (!grab_info || !grab_info->grab_frame_action);
 
   /* Exit early if we know the constraint won't apply--note that this constraint
    * is only meant for normal windows (e.g. we don't want docks to be shoved 

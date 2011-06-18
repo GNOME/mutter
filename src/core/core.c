@@ -268,16 +268,21 @@ meta_core_user_lower_and_unfocus (Display *xdisplay,
 void
 meta_core_lower_beneath_grab_window (Display *xdisplay,
                                      Window   xwindow,
+                                     int      device_id,
                                      guint32  timestamp)
 {
   XWindowChanges changes;
   MetaDisplay *display;
   MetaScreen *screen;
   MetaWindow *grab_window;
+  MetaDevice *pointer;
+  MetaGrabInfo *grab_info;
 
   display = meta_display_for_x_display (xdisplay);
   screen = meta_display_screen_for_xwindow (display, xwindow);
-  grab_window = display->grab_window;
+  pointer = meta_device_map_lookup (display->device_map, device_id);
+  grab_info = meta_display_get_grab_info (display, pointer);
+  grab_window = grab_info->grab_window;
 
   if (grab_window == NULL)
     return;
@@ -643,6 +648,7 @@ meta_core_get_workspace_name_with_index (Display *xdisplay,
 gboolean
 meta_core_begin_grab_op (Display    *xdisplay,
                          Window      frame_xwindow,
+                         int         device_id,
                          MetaGrabOp  op,
                          gboolean    pointer_already_grabbed,
                          gboolean    frame_action,
@@ -655,13 +661,16 @@ meta_core_begin_grab_op (Display    *xdisplay,
   MetaWindow *window = get_window (xdisplay, frame_xwindow);
   MetaDisplay *display;
   MetaScreen *screen;
-  
+  MetaDevice *device;
+
   display = meta_display_for_x_display (xdisplay);
   screen = meta_display_screen_for_xwindow (display, frame_xwindow);
 
   g_assert (screen != NULL);
-  
-  return meta_display_begin_grab_op (display, screen, window,
+
+  device = meta_device_map_lookup (display->device_map, device_id);
+
+  return meta_display_begin_grab_op (display, screen, window, device,
                                      op, pointer_already_grabbed,
                                      frame_action,
                                      button, modmask,
@@ -670,57 +679,58 @@ meta_core_begin_grab_op (Display    *xdisplay,
 
 void
 meta_core_end_grab_op (Display *xdisplay,
+                       int      device_id,
                        guint32  timestamp)
 {
   MetaDisplay *display;
-  
-  display = meta_display_for_x_display (xdisplay);
+  MetaDevice *device;
 
-  meta_display_end_grab_op (display, timestamp);
+  display = meta_display_for_x_display (xdisplay);
+  device = meta_device_map_lookup (display->device_map, device_id);
+
+  meta_display_end_grab_op (display, device, timestamp);
 }
 
 MetaGrabOp
-meta_core_get_grab_op (Display *xdisplay)
+meta_core_frame_has_grab (Display    *xdisplay,
+                          Window      frame_xwindow,
+                          gint       *device_id,
+                          gint       *button_ret)
 {
-  MetaDisplay *display;
-  
-  display = meta_display_for_x_display (xdisplay);
+  MetaWindow *window;
 
-  return display->grab_op;
+  window = get_window (xdisplay, frame_xwindow);
+
+  if (window != NULL &&
+      window->cur_grab != NULL)
+    {
+      if (button_ret)
+        *button_ret = window->cur_grab->grab_button;
+
+      if (device_id)
+        *device_id = meta_device_get_id (window->cur_grab->grab_pointer);
+
+      return window->cur_grab->grab_op;
+    }
+
+  return META_GRAB_OP_NONE;
 }
 
 Window
-meta_core_get_grab_frame (Display *xdisplay)
+meta_core_get_frame (Display *xdisplay,
+                     Window   client_xwindow)
 {
   MetaDisplay *display;
-  
+  MetaWindow *window;
+
   display = meta_display_for_x_display (xdisplay);
+  window = meta_display_lookup_x_window (display, client_xwindow);
 
-  g_assert (display != NULL);
-  g_assert (display->grab_op == META_GRAB_OP_NONE || 
-            display->grab_screen != NULL);
-  g_assert (display->grab_op == META_GRAB_OP_NONE ||
-            display->grab_screen->display->xdisplay == xdisplay);
-  
-  if (display->grab_op != META_GRAB_OP_NONE &&
-      display->grab_window &&
-      display->grab_window->frame)
-    return display->grab_window->frame->xwindow;
-  else
-    return None;
-}
+  if (window &&
+      window->frame)
+    return window->frame->xwindow;
 
-int
-meta_core_get_grab_button (Display  *xdisplay)
-{
-  MetaDisplay *display;
-  
-  display = meta_display_for_x_display (xdisplay);
-
-  if (display->grab_op == META_GRAB_OP_NONE)
-    return -1;
-  
-  return display->grab_button;
+  return None;
 }
 
 void

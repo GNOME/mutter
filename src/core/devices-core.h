@@ -32,11 +32,6 @@
 #include "device-pointer.h"
 #include "device-keyboard.h"
 
-/* These IDs are the same than those of the
- * VCP/VCK in XInput2, to keep consistency */
-#define META_CORE_POINTER_ID  2
-#define META_CORE_KEYBOARD_ID 3
-
 /* Pointer */
 #define META_TYPE_DEVICE_POINTER_CORE            (meta_device_pointer_core_get_type ())
 #define META_DEVICE_POINTER_CORE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_DEVICE_POINTER_CORE, MetaDevicePointerCore))

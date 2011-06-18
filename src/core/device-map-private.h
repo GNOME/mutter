@@ -35,6 +35,12 @@
 #include "display-private.h"
 #include "device-private.h"
 
+/* Device IDs for Virtual Core Pointer/Keyboard,
+ * use only in case of emergency.
+ */
+#define META_CORE_POINTER_ID  2
+#define META_CORE_KEYBOARD_ID 3
+
 struct _MetaDeviceMap
 {
   GObject parent_instance;

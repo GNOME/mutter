@@ -382,8 +382,7 @@ meta_frame_sync_to_window (MetaFrame *frame,
       /* If we're interactively resizing the frame, repaint
        * it immediately so we don't start to lag.
        */
-      if (frame->window->display->grab_window ==
-          frame->window)
+      if (frame->window->cur_grab != NULL)
         meta_ui_repaint_frame (frame->window->screen->ui,
                                frame->xwindow);
     }

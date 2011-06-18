@@ -26,23 +26,28 @@
 
 #include "window-private.h"
 
-void        meta_window_edge_resistance_for_move   (MetaWindow  *window,
-                                                    int          old_x,
-                                                    int          old_y,
-                                                    int         *new_x,
-                                                    int         *new_y,
-                                                    GSourceFunc  timeout_func,
-                                                    gboolean     snap,
-                                                    gboolean     is_keyboard_op);
-void        meta_window_edge_resistance_for_resize (MetaWindow  *window,
-                                                    int          old_width,
-                                                    int          old_height,
-                                                    int         *new_width,
-                                                    int         *new_height,
-                                                    int          gravity,
-                                                    GSourceFunc  timeout_func,
-                                                    gboolean     snap,
-                                                    gboolean     is_keyboard_op);
+typedef gboolean (* MetaEdgeResistanceFunc) (MetaWindow *window,
+                                             MetaDevice *device);
+
+void meta_window_edge_resistance_for_move   (MetaWindow             *window,
+                                             MetaDevice             *device,
+                                             int                     old_x,
+                                             int                     old_y,
+                                             int                    *new_x,
+                                             int                    *new_y,
+                                             MetaEdgeResistanceFunc  func,
+                                             gboolean                snap,
+                                             gboolean                is_keyboard_op);
+void meta_window_edge_resistance_for_resize (MetaWindow             *window,
+                                             MetaDevice             *device,
+                                             int                     old_width,
+                                             int                     old_height,
+                                             int                    *new_width,
+                                             int                    *new_height,
+                                             int                     gravity,
+                                             MetaEdgeResistanceFunc  func,
+                                             gboolean                snap,
+                                             gboolean                is_keyboard_op);
 
 #endif /* META_EDGE_RESISTANCE_H */
 

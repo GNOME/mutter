@@ -148,6 +148,7 @@ meta_tile_preview_free (MetaTilePreview *preview)
 
 void
 meta_tile_preview_show (MetaTilePreview *preview,
+                        MetaDevice      *pointer,
                         MetaRectangle   *tile_rect)
 {
   GdkWindow *window;
@@ -164,6 +165,7 @@ meta_tile_preview_show (MetaTilePreview *preview,
   window = gtk_widget_get_window (preview->preview_window);
   meta_core_lower_beneath_grab_window (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                                        GDK_WINDOW_XID (window),
+                                       meta_device_get_id (pointer),
                                        gtk_get_current_event_time ());
 
   old_rect.x = old_rect.y = 0;
