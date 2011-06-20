@@ -30,6 +30,7 @@
 #include "menu.h"
 #include "core.h"
 #include "theme-private.h"
+#include "input-events.h"
 
 #include "inlinepixbufs.h"
 
@@ -113,23 +114,25 @@ maybe_redirect_mouse_event (XEvent *xevent)
   GdkEvent *gevent;
   GdkWindow *gdk_window;
   Window window;
+  MetaDisplay *display;
+  MetaDevice *device;
+  gdouble x, y, x_root, y_root;
+  guint evtype, n_button;
+  Time evtime;
 
-  switch (xevent->type)
-    {
-    case ButtonPress:
-    case ButtonRelease:
-      window = xevent->xbutton.window;
-      break;
-    case MotionNotify:
-      window = xevent->xmotion.window;
-      break;
-    case EnterNotify:
-    case LeaveNotify:
-      window = xevent->xcrossing.window;
-      break;
-    default:
-      return FALSE;
-    }
+  display = meta_display_for_x_display (xevent->xany.display);
+
+  if (!meta_input_event_get_type (display, xevent, &evtype))
+    return FALSE;
+
+  if (evtype != ButtonPress &&
+      evtype != ButtonRelease &&
+      evtype != EnterNotify &&
+      evtype != LeaveNotify &&
+      evtype != MotionNotify)
+    return FALSE;
+
+  window = meta_input_event_get_window (display, xevent);
 
   gdisplay = gdk_x11_lookup_xdisplay (xevent->xany.display);
   ui = g_object_get_data (G_OBJECT (gdisplay), "meta-ui");
@@ -140,8 +143,14 @@ maybe_redirect_mouse_event (XEvent *xevent)
   if (gdk_window == NULL)
     return FALSE;
 
+  device = meta_input_event_get_device (display, xevent);
+
+  if (!device)
+    return FALSE;
+
   gmanager = gdk_display_get_device_manager (gdisplay);
-  gdevice = gdk_device_manager_get_client_pointer (gmanager);
+  gdevice = gdk_x11_device_manager_lookup (gmanager,
+                                           meta_device_get_id (device));
 
   /* If GDK already thinks it has a grab, we better let it see events; this
    * is the menu-navigation case and events need to get sent to the appropriate
@@ -150,11 +159,16 @@ maybe_redirect_mouse_event (XEvent *xevent)
   if (gdk_display_device_is_grabbed (gdisplay, gdevice))
     return FALSE;
 
-  switch (xevent->type)
+  evtime = meta_input_event_get_time (display, xevent);
+  meta_input_event_get_coordinates (display, xevent,
+                                    &x, &y, &x_root, &y_root);
+  switch (evtype)
     {
     case ButtonPress:
     case ButtonRelease:
-      if (xevent->type == ButtonPress)
+      meta_input_event_get_button (display, xevent, &n_button);
+
+      if (evtype == ButtonPress)
         {
           GtkSettings *settings = gtk_settings_get_default ();
           int double_click_time;
@@ -165,11 +179,11 @@ maybe_redirect_mouse_event (XEvent *xevent)
                         "gtk-double-click-distance", &double_click_distance,
                         NULL);
 
-          if (xevent->xbutton.button == ui->button_click_number &&
-              xevent->xbutton.window == ui->button_click_window &&
-              xevent->xbutton.time < ui->button_click_time + double_click_time &&
-              ABS (xevent->xbutton.x - ui->button_click_x) <= double_click_distance &&
-              ABS (xevent->xbutton.y - ui->button_click_y) <= double_click_distance)
+          if (n_button == ui->button_click_number &&
+              window == ui->button_click_window &&
+              evtime < ui->button_click_time + double_click_time &&
+              ABS ((int) x - ui->button_click_x) <= double_click_distance &&
+              ABS ((int) y - ui->button_click_y) <= double_click_distance)
             {
               gevent = gdk_event_new (GDK_2BUTTON_PRESS);
 
@@ -178,11 +192,11 @@ maybe_redirect_mouse_event (XEvent *xevent)
           else
             {
               gevent = gdk_event_new (GDK_BUTTON_PRESS);
-              ui->button_click_number = xevent->xbutton.button;
-              ui->button_click_window = xevent->xbutton.window;
-              ui->button_click_time = xevent->xbutton.time;
-              ui->button_click_x = xevent->xbutton.x;
-              ui->button_click_y = xevent->xbutton.y;
+              ui->button_click_number = n_button;
+              ui->button_click_window = window;
+              ui->button_click_time = evtime;
+              ui->button_click_x = (int) x;
+              ui->button_click_y = (int) y;
             }
         }
       else
@@ -191,12 +205,12 @@ maybe_redirect_mouse_event (XEvent *xevent)
         }
 
       gevent->button.window = g_object_ref (gdk_window);
-      gevent->button.button = xevent->xbutton.button;
-      gevent->button.time = xevent->xbutton.time;
-      gevent->button.x = xevent->xbutton.x;
-      gevent->button.y = xevent->xbutton.y;
-      gevent->button.x_root = xevent->xbutton.x_root;
-      gevent->button.y_root = xevent->xbutton.y_root;
+      gevent->button.button = n_button;
+      gevent->button.time = evtime;
+      gevent->button.x = x;
+      gevent->button.y = y;
+      gevent->button.x_root = x_root;
+      gevent->button.y_root = y_root;
 
       break;
     case MotionNotify:
@@ -206,10 +220,10 @@ maybe_redirect_mouse_event (XEvent *xevent)
       break;
     case EnterNotify:
     case LeaveNotify:
-      gevent = gdk_event_new (xevent->type == EnterNotify ? GDK_ENTER_NOTIFY : GDK_LEAVE_NOTIFY);
+      gevent = gdk_event_new (evtype == EnterNotify ? GDK_ENTER_NOTIFY : GDK_LEAVE_NOTIFY);
       gevent->crossing.window = g_object_ref (gdk_window);
-      gevent->crossing.x = xevent->xcrossing.x;
-      gevent->crossing.y = xevent->xcrossing.y;
+      gevent->crossing.x = x;
+      gevent->crossing.y = y;
       break;
     default:
       g_assert_not_reached ();
