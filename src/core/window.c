@@ -46,6 +46,7 @@
 #include "mutter-enum-types.h"
 #include "input-events.h"
 #include "core.h"
+#include "device-pointer.h"
 
 #include <X11/Xatom.h>
 #include <X11/Xlibint.h> /* For display->resource_mask */
@@ -9964,11 +9965,8 @@ warp_grab_pointer (MetaWindow          *window,
   meta_window_get_client_root_coords (window,
                                       &grab_info->grab_anchor_window_pos);
 
-  XWarpPointer (display->xdisplay,
-                None,
-                window->screen->xroot,
-                0, 0, 0, 0,
-                *x, *y);
+  meta_device_pointer_warp (META_DEVICE_POINTER (grab_info->grab_pointer),
+                            window->screen, *x, *y);
 
   if (meta_error_trap_pop_with_return (display) != Success)
     {
