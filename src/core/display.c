@@ -3413,12 +3413,12 @@ meta_display_create_x_cursor (MetaDisplay *display,
   return xcursor;
 }
 
-static Cursor
-xcursor_for_op (MetaDisplay *display,
-                MetaGrabOp   op)
+static MetaCursor
+cursor_for_op (MetaDisplay *display,
+               MetaGrabOp   op)
 {
   MetaCursor cursor = META_CURSOR_DEFAULT;
-  
+
   switch (op)
     {
     case META_GRAB_OP_RESIZING_SE:
@@ -3463,9 +3463,7 @@ xcursor_for_op (MetaDisplay *display,
       break;
     }
 
-  if (cursor == META_CURSOR_DEFAULT)
-    return None;
-  return meta_display_create_x_cursor (display, cursor);
+  return cursor;
 }
 
 void
@@ -3478,9 +3476,9 @@ meta_display_set_grab_op_cursor (MetaDisplay *display,
                                  guint32      timestamp)
 {
   MetaGrabInfo *grab_info;
-  Cursor cursor;
+  MetaCursor cursor;
 
-  cursor = xcursor_for_op (display, op);
+  cursor = cursor_for_op (display, op);
   grab_info = meta_display_get_grab_info (display, device);
 
 #define GRAB_MASK (PointerMotionMask |                          \
@@ -3489,6 +3487,10 @@ meta_display_set_grab_op_cursor (MetaDisplay *display,
 
   if (change_pointer)
     {
+      Cursor xcursor;
+
+      xcursor = meta_display_create_x_cursor (display, cursor);
+
       meta_error_trap_push_with_return (display);
       XChangeActivePointerGrab (display->xdisplay,
                                 GRAB_MASK,
@@ -3505,39 +3507,37 @@ meta_display_set_grab_op_cursor (MetaDisplay *display,
           if (grab_info->grab_have_pointer)
             grab_info->grab_have_pointer = FALSE;
         }
+
+      if (xcursor != None)
+        XFreeCursor (display->xdisplay, xcursor);
     }
   else
     {
       g_assert (screen != NULL);
 
       meta_error_trap_push (display);
-      if (XGrabPointer (display->xdisplay,
-                        grab_xwindow,
-                        False,
-                        GRAB_MASK,
-                        GrabModeAsync, GrabModeAsync,
-                        screen->xroot,
-                        cursor,
-                        timestamp) == GrabSuccess)
+      if (meta_device_grab (grab_info->grab_pointer,
+                            grab_xwindow,
+                            GRAB_MASK,
+                            cursor,
+                            FALSE,
+                            FALSE,
+                            timestamp))
         {
           grab_info->grab_have_pointer = TRUE;
           meta_topic (META_DEBUG_WINDOW_OPS,
-                      "XGrabPointer() returned GrabSuccess time %u\n",
+                      "grabbing pointer succeeded time %u\n",
                       timestamp);
         }
       else
         {
           meta_topic (META_DEBUG_WINDOW_OPS,
-                      "XGrabPointer() failed time %u\n",
+                      "grabbing pointer failed time %u\n",
                       timestamp);
         }
       meta_error_trap_pop (display);
     }
-
 #undef GRAB_MASK
-  
-  if (cursor != None)
-    XFreeCursor (display->xdisplay, cursor);
 }
 
 gboolean
@@ -3623,7 +3623,7 @@ meta_display_begin_grab_op (MetaDisplay *display,
   if (!grab_info->grab_have_pointer && !grab_op_is_keyboard (op))
     {
       meta_topic (META_DEBUG_WINDOW_OPS,
-                  "XGrabPointer() failed\n");
+                  "grabbing pointer failed\n");
       return FALSE;
     }
 
@@ -3646,7 +3646,7 @@ meta_display_begin_grab_op (MetaDisplay *display,
         {
           meta_topic (META_DEBUG_WINDOW_OPS,
                       "grabbing all keys failed, ungrabbing pointer\n");
-          XUngrabPointer (display->xdisplay, timestamp);
+          meta_device_ungrab (grab_info->grab_pointer, timestamp);
           grab_info->grab_have_pointer = FALSE;
           return FALSE;
         }
@@ -3853,7 +3853,7 @@ meta_display_end_grab_op (MetaDisplay *display,
     {
       meta_topic (META_DEBUG_WINDOW_OPS,
                   "Ungrabbing pointer with timestamp %u\n", timestamp);
-      XUngrabPointer (display->xdisplay, timestamp);
+      meta_device_ungrab (grab_info->grab_pointer, timestamp);
     }
 
   if (grab_info->grab_have_keyboard)
