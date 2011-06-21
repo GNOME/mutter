@@ -41,6 +41,10 @@ void meta_keybindings_switch_window (MetaDisplay    *display,
 				     MetaKeyBinding *binding);
 
 
-void     meta_screen_ungrab_all_keys (MetaScreen *screen, guint32 timestamp);
-gboolean meta_screen_grab_all_keys (MetaScreen *screen, guint32 timestamp);
+void     meta_screen_ungrab_all_keys (MetaScreen *screen,
+                                      MetaDevice *device,
+                                      guint32     timestamp);
+gboolean meta_screen_grab_all_keys   (MetaScreen *screen,
+                                      MetaDevice *device,
+                                      guint32     timestamp);
 #endif

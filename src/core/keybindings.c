@@ -1020,6 +1020,7 @@ meta_window_ungrab_keys (MetaWindow  *window)
     }
 }
 
+#if 0
 #ifdef WITH_VERBOSE_MODE
 static const char*
 grab_status_to_string (int status)
@@ -1041,31 +1042,32 @@ grab_status_to_string (int status)
     }
 }
 #endif /* WITH_VERBOSE_MODE */
+#endif /* 0 */
 
 static gboolean
 grab_keyboard (MetaDisplay *display,
                Window       xwindow,
+               MetaDevice  *device,
                guint32      timestamp)
 {
+  MetaGrabInfo *grab_info;
   int result;
-  int grab_status;
-  
+
   /* Grab the keyboard, so we get key releases and all key
    * presses
    */
   meta_error_trap_push_with_return (display);
+  grab_info = meta_display_get_grab_info (display, device);
 
-  grab_status = XGrabKeyboard (display->xdisplay,
-                               xwindow, True,
-                               GrabModeAsync, GrabModeAsync,
-                               timestamp);
-  
-  if (grab_status != GrabSuccess)
+  if (!meta_device_grab (grab_info->grab_keyboard,
+                         xwindow,
+                         KeyPressMask | KeyReleaseMask,
+                         META_CURSOR_DEFAULT,
+                         TRUE, FALSE, timestamp))
     {
       meta_error_trap_pop_with_return (display);
       meta_topic (META_DEBUG_KEYBINDINGS,
-                  "XGrabKeyboard() returned failure status %s time %u\n",
-                  grab_status_to_string (grab_status),
+                  "grabbing keyboard failed time %u\n",
                   timestamp);
       return FALSE;
     }
@@ -1075,7 +1077,7 @@ grab_keyboard (MetaDisplay *display,
       if (result != Success)
         {
           meta_topic (META_DEBUG_KEYBINDINGS,
-                      "XGrabKeyboard() resulted in an error\n");
+                      "grabbing keyboard resulted in an error\n");
           return FALSE;
         }
     }
@@ -1086,19 +1088,27 @@ grab_keyboard (MetaDisplay *display,
 }
 
 static void
-ungrab_keyboard (MetaDisplay *display, guint32 timestamp)
+ungrab_keyboard (MetaDisplay *display,
+                 MetaDevice  *device,
+                 guint32      timestamp)
 {
+  MetaGrabInfo *grab_info;
+
+  grab_info = meta_display_get_grab_info (display, device);
+
   meta_error_trap_push (display);
 
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Ungrabbing keyboard with timestamp %u\n",
               timestamp);
-  XUngrabKeyboard (display->xdisplay, timestamp);
+  meta_device_ungrab (grab_info->grab_keyboard, timestamp);
   meta_error_trap_pop (display);
 }
 
 gboolean
-meta_screen_grab_all_keys (MetaScreen *screen, guint32 timestamp)
+meta_screen_grab_all_keys (MetaScreen *screen,
+                           MetaDevice *device,
+                           guint32     timestamp)
 {
   gboolean retval;
 
@@ -1110,7 +1120,7 @@ meta_screen_grab_all_keys (MetaScreen *screen, guint32 timestamp)
 
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Grabbing all keys on RootWindow\n");
-  retval = grab_keyboard (screen->display, screen->xroot, timestamp);
+  retval = grab_keyboard (screen->display, screen->xroot, device, timestamp);
   if (retval)
     {
       screen->all_keys_grabbed = TRUE;
@@ -1123,11 +1133,13 @@ meta_screen_grab_all_keys (MetaScreen *screen, guint32 timestamp)
 }
 
 void
-meta_screen_ungrab_all_keys (MetaScreen *screen, guint32 timestamp)
+meta_screen_ungrab_all_keys (MetaScreen *screen,
+                             MetaDevice *device,
+                             guint32     timestamp)
 {
   if (screen->all_keys_grabbed)
     {
-      ungrab_keyboard (screen->display, timestamp);
+      ungrab_keyboard (screen->display, device, timestamp);
 
       screen->all_keys_grabbed = FALSE;
       screen->keys_grabbed = FALSE;
@@ -1140,6 +1152,7 @@ meta_screen_ungrab_all_keys (MetaScreen *screen, guint32 timestamp)
 
 gboolean
 meta_window_grab_all_keys (MetaWindow  *window,
+                           MetaDevice  *device,
                            guint32      timestamp)
 {
   Window grabwindow;
@@ -1163,7 +1176,7 @@ meta_window_grab_all_keys (MetaWindow  *window,
 
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Grabbing all keys on window %s\n", window->desc);
-  retval = grab_keyboard (window->display, grabwindow, timestamp);
+  retval = grab_keyboard (window->display, grabwindow, device, timestamp);
   if (retval)
     {
       window->keys_grabbed = FALSE;
@@ -1175,11 +1188,13 @@ meta_window_grab_all_keys (MetaWindow  *window,
 }
 
 void
-meta_window_ungrab_all_keys (MetaWindow *window, guint32 timestamp)
+meta_window_ungrab_all_keys (MetaWindow *window,
+                             MetaDevice *device,
+                             guint32     timestamp)
 {
   if (window->all_keys_grabbed)
     {
-      ungrab_keyboard (window->display, timestamp);
+      ungrab_keyboard (window->display, device, timestamp);
 
       window->grab_on_frame = FALSE;
       window->all_keys_grabbed = FALSE;
