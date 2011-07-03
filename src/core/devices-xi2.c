@@ -193,7 +193,7 @@ meta_device_pointer_xi2_set_window_cursor (MetaDevicePointer *pointer,
     XIUndefineCursor (display->xdisplay, device_id, xwindow);
 }
 
-static void
+static gboolean
 meta_device_pointer_xi2_query_position (MetaDevicePointer *pointer,
                                         Window             xwindow,
                                         Window            *root_ret,
@@ -210,16 +210,17 @@ meta_device_pointer_xi2_query_position (MetaDevicePointer *pointer,
   XIButtonState buttons;
   gdouble root_x, root_y, x, y;
   int device_id;
+  gboolean retval;
 
   display = meta_device_get_display (META_DEVICE (pointer));
   device_id = meta_device_get_id (META_DEVICE (pointer));
 
-  XIQueryPointer (display->xdisplay,
-                  device_id, xwindow,
-                  root_ret, child_ret,
-                  &root_x, &root_y, &x, &y,
-                  &buttons, &mods,
-                  &group_unused);
+  retval = XIQueryPointer (display->xdisplay,
+                           device_id, xwindow,
+                           root_ret, child_ret,
+                           &root_x, &root_y, &x, &y,
+                           &buttons, &mods,
+                           &group_unused);
   if (mask_ret)
     {
       *mask_ret = mods.effective;
@@ -243,6 +244,8 @@ meta_device_pointer_xi2_query_position (MetaDevicePointer *pointer,
 
   if (y_ret)
     *y_ret = (int) y;
+
+  return retval;
 }
 
 static void

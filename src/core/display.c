@@ -1655,12 +1655,13 @@ window_focus_on_pointer_rest_callback (gpointer data)
   if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
     goto out;
 
-  meta_device_pointer_query_position (META_DEVICE_POINTER (device),
-                                      screen->xroot,
-                                      NULL,
-                                      &child,
-                                      &root_x, &root_y,
-                                      NULL, NULL, NULL);
+  if (!meta_device_pointer_query_position (META_DEVICE_POINTER (device),
+                                           screen->xroot,
+                                           NULL,
+                                           &child,
+                                           &root_x, &root_y,
+                                           NULL, NULL, NULL))
+    goto out;
 
   if (root_x != focus_data->pointer_x ||
       root_y != focus_data->pointer_y)

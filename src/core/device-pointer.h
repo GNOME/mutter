@@ -61,7 +61,7 @@ struct _MetaDevicePointerClass
   void (* set_window_cursor)  (MetaDevicePointer *pointer,
                                Window             xwindow,
                                MetaCursor         cursor);
-  void (* query_position)     (MetaDevicePointer *pointer,
+  gboolean (* query_position) (MetaDevicePointer *pointer,
                                Window             xwindow,
                                Window            *root,
                                Window            *child,
@@ -82,7 +82,7 @@ void     meta_device_pointer_set_window_cursor (MetaDevicePointer *pointer,
 						Window             xwindow,
 						MetaCursor         cursor);
 
-void     meta_device_pointer_query_position    (MetaDevicePointer *pointer,
+gboolean meta_device_pointer_query_position    (MetaDevicePointer *pointer,
                                                 Window             xwindow,
                                                 Window            *root,
                                                 Window            *child,
