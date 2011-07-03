@@ -6727,8 +6727,6 @@ meta_window_client_message (MetaWindow *window,
            */
           if (button == 0)
             {
-              int x, y, query_root_x, query_root_y;
-              Window root, child;
               guint mask;
 
               /* The race conditions in this _NET_WM_MOVERESIZE thing
@@ -6736,12 +6734,11 @@ meta_window_client_message (MetaWindow *window,
                */
               mask = 0;
               meta_error_trap_push (window->display);
-              XQueryPointer (window->display->xdisplay,
-                             window->xwindow,
-                             &root, &child,
-                             &query_root_x, &query_root_y,
-                             &x, &y,
-                             &mask);
+              meta_device_pointer_query_position (META_DEVICE_POINTER (device),
+                                                  window->xwindow,
+                                                  NULL, NULL, NULL,
+                                                  NULL, NULL, NULL,
+                                                  &mask);
               meta_error_trap_pop (window->display);
 
               if (mask & Button1Mask)
