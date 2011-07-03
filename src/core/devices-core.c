@@ -200,10 +200,41 @@ meta_device_keyboard_core_ungrab (MetaDevice *device,
   XUngrabKeyboard (display->xdisplay, time);
 }
 
+static Window
+meta_device_keyboard_core_get_focus_window (MetaDeviceKeyboard *keyboard)
+{
+  MetaDisplay *display;
+  Window xwindow;
+  int unused;
+
+  display = meta_device_get_display (META_DEVICE (keyboard));
+  XGetInputFocus (display->xdisplay, &xwindow, &unused);
+
+  return xwindow;
+}
+
+static void
+meta_device_keyboard_core_set_focus_window (MetaDeviceKeyboard *keyboard,
+                                            Window              xwindow,
+                                            Time                timestamp)
+{
+  MetaDisplay *display;
+
+  display = meta_device_get_display (META_DEVICE (keyboard));
+  XSetInputFocus (display->xdisplay,
+                  xwindow,
+                  RevertToPointerRoot,
+                  timestamp);
+}
+
 static void
 meta_device_keyboard_core_class_init (MetaDeviceKeyboardCoreClass *klass)
 {
+  MetaDeviceKeyboardClass *keyboard_class = META_DEVICE_KEYBOARD_CLASS (klass);
   MetaDeviceClass *device_class = META_DEVICE_CLASS (klass);
+
+  keyboard_class->get_focus_window = meta_device_keyboard_core_get_focus_window;
+  keyboard_class->set_focus_window = meta_device_keyboard_core_set_focus_window;
 
   device_class->allow_events = meta_device_core_common_allow_events;
   device_class->grab = meta_device_keyboard_core_grab;

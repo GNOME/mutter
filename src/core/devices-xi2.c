@@ -281,10 +281,43 @@ G_DEFINE_TYPE (MetaDeviceKeyboardXI2,
                meta_device_keyboard_xi2,
                META_TYPE_DEVICE_KEYBOARD)
 
+static Window
+meta_device_keyboard_xi2_get_focus_window (MetaDeviceKeyboard *keyboard)
+{
+  MetaDisplay *display;
+  Window xwindow;
+
+  display = meta_device_get_display (META_DEVICE (keyboard));
+  XIGetFocus (display->xdisplay,
+              meta_device_get_id (META_DEVICE (keyboard)),
+              &xwindow);
+
+  return xwindow;
+}
+
+static void
+meta_device_keyboard_xi2_set_focus_window (MetaDeviceKeyboard *keyboard,
+                                           Window              xwindow,
+                                           Time                timestamp)
+{
+  MetaDisplay *display;
+
+  display = meta_device_get_display (META_DEVICE (keyboard));
+
+  XISetFocus (display->xdisplay,
+              meta_device_get_id (META_DEVICE (keyboard)),
+              xwindow,
+              timestamp);
+}
+
 static void
 meta_device_keyboard_xi2_class_init (MetaDeviceKeyboardXI2Class *klass)
 {
+  MetaDeviceKeyboardClass *keyboard_class = META_DEVICE_KEYBOARD_CLASS (klass);
   MetaDeviceClass *device_class = META_DEVICE_CLASS (klass);
+
+  keyboard_class->get_focus_window = meta_device_keyboard_xi2_get_focus_window;
+  keyboard_class->set_focus_window = meta_device_keyboard_xi2_set_focus_window;
 
   device_class->allow_events = meta_device_xi2_common_allow_events;
   device_class->grab = meta_device_xi2_common_grab;
