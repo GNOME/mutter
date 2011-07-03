@@ -35,6 +35,7 @@
 #include "frame.h"
 #include "place.h"
 #include "input-events.h"
+#include "device-pointer.h"
 #include <meta/prefs.h>
 #include <meta/util.h>
 
@@ -1330,11 +1331,10 @@ keycode_is_primary_modifier (MetaDisplay *display,
 
 static gboolean
 primary_modifier_still_pressed (MetaDisplay *display,
+                                MetaDevice  *device,
                                 unsigned int entire_binding_mask)
 {
   unsigned int primary_modifier;
-  int x, y, root_x, root_y;
-  Window root, child;
   guint mask;
   MetaScreen *random_screen;
   Window      random_xwindow;
@@ -1343,12 +1343,11 @@ primary_modifier_still_pressed (MetaDisplay *display,
   
   random_screen = display->screens->data;
   random_xwindow = random_screen->no_focus_window;
-  XQueryPointer (display->xdisplay,
-                 random_xwindow, /* some random window */
-                 &root, &child,
-                 &root_x, &root_y,
-                 &x, &y,
-                 &mask);
+  meta_device_pointer_query_position (META_DEVICE_POINTER (device),
+                                      random_xwindow, /* some random window */
+                                      NULL, NULL, NULL,
+                                      NULL, NULL, NULL,
+                                      &mask);
 
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Primary modifier 0x%x full grab mask 0x%x current state 0x%x\n",
@@ -3260,7 +3259,7 @@ do_choose_window (MetaDisplay    *display,
                                    0, 0))
     return;
 
-  if (!primary_modifier_still_pressed (display, binding->mask))
+  if (!primary_modifier_still_pressed (display, device, binding->mask))
     {
       /* This handles a race where modifier might be released before
        * we establish the grab. must end grab prior to trying to focus
@@ -3719,7 +3718,8 @@ handle_workspace_switch  (MetaDisplay    *display,
   next = meta_workspace_get_neighbor (screen->active_workspace, motion);
   g_assert (next); 
 
-  grabbed_before_release = primary_modifier_still_pressed (display, grab_mask);
+  grabbed_before_release = primary_modifier_still_pressed (display, device,
+                                                           grab_mask);
 
   meta_topic (META_DEBUG_KEYBINDINGS, "Activating target workspace\n");
 
