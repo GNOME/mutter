@@ -42,6 +42,7 @@
 #include <meta/compositor.h>
 #include "mutter-marshal.h"
 #include "mutter-enum-types.h"
+#include "device-pointer.h"
 
 #ifdef HAVE_SOLARIS_XINERAMA
 #include <X11/extensions/xinerama.h>
@@ -1941,13 +1942,17 @@ meta_screen_tile_preview_update_timeout (gpointer data)
   gboolean composited = screen->display->compositor != NULL;
   gboolean needs_preview = FALSE;
   MetaGrabInfo *grab_info;
+  MetaDevice *pointer = NULL;
   GHashTableIter iter;
 
   /* FIXME: we're just handling the first grab we find */
   g_hash_table_iter_init (&iter, screen->display->current_grabs);
 
   if (g_hash_table_iter_next (&iter, NULL, (gpointer *) &grab_info))
-    window = grab_info->grab_window;
+    {
+      window = grab_info->grab_window;
+      pointer = grab_info->grab_pointer;
+    }
 
   screen->tile_preview_timeout_id = 0;
 
@@ -2153,12 +2158,16 @@ meta_screen_get_natural_monitor_list (MetaScreen *screen,
   const MetaMonitorInfo* current;
   const MetaMonitorInfo* tmp;
   GQueue* monitor_queue;
+  MetaDevice *pointer;
   int* visited;
   int cur = 0;
   int i;
 
   *n_monitors = screen->n_monitor_infos;
   *monitors_list = g_new (int, screen->n_monitor_infos);
+
+  pointer = meta_device_map_lookup (screen->display->device_map,
+                                    META_CORE_POINTER_ID);
 
   /* we calculate a natural ordering by which to choose monitors for
    * window placement.  We start at the current monitor, and perform
@@ -2174,7 +2183,7 @@ meta_screen_get_natural_monitor_list (MetaScreen *screen,
       visited[i] = FALSE;
     }
 
-  current = meta_screen_get_current_monitor (screen);
+  current = meta_screen_get_current_monitor (screen, pointer);
   monitor_queue = g_queue_new ();
   g_queue_push_tail (monitor_queue, (gpointer) current);
   visited[current->number] = TRUE;
@@ -2241,7 +2250,8 @@ meta_screen_get_natural_monitor_list (MetaScreen *screen,
 }
 
 const MetaMonitorInfo*
-meta_screen_get_current_monitor (MetaScreen *screen)
+meta_screen_get_current_monitor (MetaScreen *screen,
+                                 MetaDevice *pointer)
 {
   if (screen->n_monitor_infos == 1)
     return &screen->monitor_infos[0];
@@ -2251,24 +2261,18 @@ meta_screen_get_current_monitor (MetaScreen *screen)
   
   if (screen->display->monitor_cache_invalidated)
     {
-      Window root_return, child_return;
-      int win_x_return, win_y_return;
-      unsigned int mask_return;
       int i;
       MetaRectangle pointer_position;
       
       screen->display->monitor_cache_invalidated = FALSE;
       
       pointer_position.width = pointer_position.height = 1;
-      XQueryPointer (screen->display->xdisplay,
-                     screen->xroot,
-                     &root_return,
-                     &child_return,
-                     &pointer_position.x,
-                     &pointer_position.y,
-                     &win_x_return,
-                     &win_y_return,
-                     &mask_return);
+      meta_device_pointer_query_position (META_DEVICE_POINTER (pointer),
+                                          screen->xroot,
+                                          NULL, NULL,
+                                          &pointer_position.x,
+                                          &pointer_position.y,
+                                          NULL, NULL, NULL);
 
       screen->last_monitor_index = 0;
       for (i = 0; i < screen->n_monitor_infos; i++)
