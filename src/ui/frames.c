@@ -1293,10 +1293,12 @@ meta_frame_titlebar_event (MetaUIFrame    *frame,
                            int            action)
 {
   MetaFrameFlags flags;
+  GdkDevice *pointer;
   Display *display;
 
   display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
-  
+  pointer = gdk_event_get_device ((GdkEvent *) event);
+
   switch (action)
     {
     case META_ACTION_TITLEBAR_TOGGLE_SHADE:
@@ -1378,6 +1380,7 @@ meta_frame_titlebar_event (MetaUIFrame    *frame,
     case META_ACTION_TITLEBAR_LOWER:
       meta_core_user_lower_and_unfocus (display,
                                         frame->xwindow,
+                                        gdk_x11_device_get_id (pointer),
                                         event->time);
       break;
 

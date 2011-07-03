@@ -110,6 +110,7 @@ void meta_core_user_raise   (Display *xdisplay,
                              Window   frame_xwindow);
 void meta_core_user_lower_and_unfocus (Display *xdisplay,
                                        Window   frame_xwindow,
+                                       int      device_id,
                                        guint32  timestamp);
 
 void meta_core_user_focus   (Display *xdisplay,
