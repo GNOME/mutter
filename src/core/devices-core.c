@@ -114,7 +114,7 @@ meta_device_pointer_core_set_window_cursor (MetaDevicePointer *pointer,
     XFreeCursor (display->xdisplay, xcursor);
 }
 
-static void
+static gboolean
 meta_device_pointer_core_query_position (MetaDevicePointer *pointer,
                                          Window             xwindow,
                                          Window            *root,
@@ -128,9 +128,9 @@ meta_device_pointer_core_query_position (MetaDevicePointer *pointer,
   MetaDisplay *display;
 
   display = meta_device_get_display (META_DEVICE (pointer));
-  XQueryPointer (display->xdisplay, xwindow,
-                 root, child, root_x, root_y,
-                 x, y, mask);
+  return XQueryPointer (display->xdisplay, xwindow,
+                        root, child, root_x, root_y,
+                        x, y, mask);
 }
 
 static void
