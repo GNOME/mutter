@@ -318,6 +318,12 @@ struct _MetaWindow
   /* if TRUE, application is buggy and SYNC resizing is turned off */
   guint disable_sync : 1;
 
+  /* if TRUE, window didn't yet get the FocusIn for window->focus_keyboard */
+  guint expecting_focus_in : 1;
+
+  /* Keyboard currently owning the window focus, or NULL */
+  MetaDevice *focus_keyboard;
+
   /* if non-NULL, the bounds of the window frame */
   cairo_region_t *frame_bounds;
 
@@ -398,6 +404,9 @@ struct _MetaWindow
 
   /* Current grab op for this window, or NULL */
   MetaGrabInfo *cur_grab;
+
+  /* Focus info if the window is focused, or NULL */
+  MetaFocusInfo *cur_focus;
 };
 
 struct _MetaWindowClass
@@ -647,6 +656,7 @@ void meta_window_update_monitor (MetaWindow *window);
 void meta_window_update_on_all_workspaces (MetaWindow *window);
 
 void meta_window_propagate_focus_appearance (MetaWindow *window,
+                                             MetaDevice *keyboard,
                                              gboolean    focused);
 
 MetaDevice * meta_window_guess_grab_pointer (MetaWindow *window);

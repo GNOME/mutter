@@ -354,10 +354,17 @@ avoid_being_obscured_as_second_modal_dialog (MetaWindow *window,
    * know about the modal-to-the-main-window part.
    */
 
-  MetaWindow *focus_window;
+  MetaWindow *focus_window = NULL;
+  MetaFocusInfo *focus_info;
   MetaRectangle overlap;
+  MetaDevice *pointer, *keyboard;
 
-  focus_window = window->display->focus_window;
+  pointer = meta_window_guess_grab_pointer (window);
+  keyboard = meta_device_get_paired_device (pointer);
+  focus_info = meta_display_get_focus_info (window->display, keyboard);
+
+  if (focus_window)
+    focus_window = focus_info->focus_window;
 
   if (window->denied_focus_and_not_transient &&
       window->wm_state_modal && /* FIXME: Maybe do this for all transients? */
@@ -913,8 +920,16 @@ meta_window_place (MetaWindow        *window,
       gboolean       found_fit;
       MetaWindow    *focus_window;
       MetaRectangle  overlap;
+      MetaDevice    *pointer, *keyboard;
+      MetaFocusInfo *focus_info;
 
-      focus_window = window->display->focus_window;
+      pointer = meta_window_guess_grab_pointer (window);
+      keyboard = meta_device_get_paired_device (pointer);
+
+      focus_info = meta_display_get_focus_info (window->display, keyboard);
+      g_assert (focus_info != NULL);
+
+      focus_window = focus_info->focus_window;
       g_assert (focus_window != NULL);
 
       /* No need to do anything if the window doesn't overlap at all */
