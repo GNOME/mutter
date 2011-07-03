@@ -604,6 +604,7 @@ void meta_window_get_work_area_all_monitors    (MetaWindow    *window,
                                                 MetaRectangle *area);
 
 void meta_window_get_current_tile_area         (MetaWindow    *window,
+                                                MetaDevice    *device,
                                                 MetaRectangle *tile_area);
 
 

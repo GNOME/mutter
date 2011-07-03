@@ -885,6 +885,7 @@ constrain_tiling (MetaWindow         *window,
   gboolean hminbad, vminbad;
   gboolean horiz_equal, vert_equal;
   gboolean constraint_already_satisfied;
+  MetaDevice *pointer;
 
   if (priority > PRIORITY_TILING)
     return TRUE;
@@ -893,10 +894,12 @@ constrain_tiling (MetaWindow         *window,
   if (!META_WINDOW_TILED_SIDE_BY_SIDE (window))
     return TRUE;
 
+  pointer = meta_window_guess_grab_pointer (window);
+
   /* Calculate target_size - as the tile previews need this as well, we
    * use an external function for the actual calculation
    */
-  meta_window_get_current_tile_area (window, &target_size);
+  meta_window_get_current_tile_area (window, pointer, &target_size);
   unextend_by_frame (&target_size, info->fgeom);
 
   /* Check min size constraints; max size constraints are ignored as for
