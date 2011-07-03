@@ -211,13 +211,23 @@ meta_stack_thaw (MetaStack *stack)
   stack_sync_to_server (stack);
 }
 
+typedef struct _FocusedForeachData FocusedForeachData;
+
+struct _FocusedForeachData
+{
+  MetaWindow *window;
+  gboolean focused_transient;
+};
+
 static gboolean
 is_focused_foreach (MetaWindow *window,
                     void       *data)
 {
-  if (window == window->display->expected_focus_window)
+  FocusedForeachData *focused_data = data;
+
+  if (window == focused_data->window)
     {
-      *((gboolean*) data) = TRUE;
+      focused_data->focused_transient = TRUE;
       return FALSE;
     }
   return TRUE;
@@ -239,7 +249,9 @@ static MetaStackLayer
 get_standalone_layer (MetaWindow *window)
 {
   MetaStackLayer layer;
-  gboolean focused_transient = FALSE;
+  MetaFocusInfo *focus_info;
+  MetaDevice *keyboard;
+  FocusedForeachData focused_data = { NULL, FALSE };
 
   switch (window->type)
     {
@@ -263,20 +275,33 @@ get_standalone_layer (MetaWindow *window)
     case META_WINDOW_OVERRIDE_OTHER:
       layer = META_LAYER_OVERRIDE_REDIRECT;
       break;
-    default:       
-      meta_window_foreach_transient (window,
-                                     is_focused_foreach,
-                                     &focused_transient);
+    default:
+      /* FIXME: How about other keyboards? should
+       * we allow fullscreen for non-VCP/K anyway?
+       */
+      keyboard = meta_device_map_lookup (window->display->device_map,
+                                         META_CORE_KEYBOARD_ID);
+
+      focus_info = meta_display_get_focus_info (window->display, keyboard);
+
+      if (focus_info)
+        {
+          focused_data.window = focus_info->expected_focus_window;
+          meta_window_foreach_transient (window,
+                                         is_focused_foreach,
+                                         &focused_data);
+        }
 
       if (window->wm_state_below)
         layer = META_LAYER_BOTTOM;
       else if (window->fullscreen &&
-               (focused_transient ||
-                window == window->display->expected_focus_window ||
-                window->display->expected_focus_window == NULL ||
-                (window->display->expected_focus_window != NULL &&
+               (focused_data.focused_transient ||
+                !focus_info ||
+                window == focus_info->expected_focus_window ||
+                focus_info->expected_focus_window == NULL ||
+                (focus_info->expected_focus_window != NULL &&
                  windows_on_different_monitor (window,
-                                               window->display->expected_focus_window))))
+                                               focus_info->expected_focus_window))))
         layer = META_LAYER_FULLSCREEN;
       else if (window->wm_state_above)
         layer = META_LAYER_TOP;
