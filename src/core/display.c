@@ -1554,22 +1554,26 @@ window_raise_with_delay_callback (void *data)
   if (window == NULL) 
     return FALSE;
 
+  if (window->cur_grab == NULL)
+    return FALSE;
+
   /* If we aren't already on top, check whether the pointer is inside
    * the window and raise the window if so.
    */      
   if (meta_stack_get_top (window->screen->stack) != window) 
     {
-      int x, y, root_x, root_y;
-      Window root, child;
-      unsigned int mask;
+      int root_x, root_y;
       gboolean same_screen;
       gboolean point_in_window;
+      MetaDevicePointer *pointer;
 
       meta_error_trap_push (window->display);
-      same_screen = XQueryPointer (window->display->xdisplay,
-				   window->xwindow,
-				   &root, &child,
-				   &root_x, &root_y, &x, &y, &mask);
+      pointer = META_DEVICE_POINTER (window->cur_grab->grab_pointer);
+      same_screen = meta_device_pointer_query_position (pointer,
+                                                        window->xwindow,
+                                                        NULL, NULL,
+                                                        &root_x, &root_y,
+                                                        NULL, NULL, NULL);
       meta_error_trap_pop (window->display);
 
       point_in_window = 
