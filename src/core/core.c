@@ -250,9 +250,19 @@ lower_window_and_transients (MetaWindow *window,
 void
 meta_core_user_lower_and_unfocus (Display *xdisplay,
                                   Window   frame_xwindow,
+                                  int      device_id,
                                   guint32  timestamp)
 {
   MetaWindow *window = get_window (xdisplay, frame_xwindow);
+  MetaDevice *pointer;
+
+  pointer = meta_device_map_lookup (window->display->device_map, device_id);
+
+  if (pointer == NULL)
+    return;
+
+  if (!META_IS_DEVICE_POINTER (pointer))
+    pointer = meta_device_get_paired_device (pointer);
 
   lower_window_and_transients (window, NULL);
 
@@ -261,6 +271,7 @@ meta_core_user_lower_and_unfocus (Display *xdisplay,
   * this will be invoked via keyboard action or by a mouse action;
   * in either case the window or a modal child will have been focused.) */
   meta_workspace_focus_default_window (window->screen->active_workspace,
+                                       pointer,
                                        NULL,
                                        timestamp);
 }

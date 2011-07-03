@@ -687,8 +687,13 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
     }
   else
     {
+      MetaDevice *pointer;
+
+      pointer = meta_device_map_lookup (screen->display->device_map,
+                                        META_CORE_POINTER_ID);
       meta_topic (META_DEBUG_FOCUS, "Focusing default window on new workspace\n");
-      meta_workspace_focus_default_window (workspace, NULL, timestamp);
+      meta_workspace_focus_default_window (workspace, pointer,
+                                           NULL, timestamp);
     }
 
    /* Emit switched signal from screen.c */
@@ -1212,6 +1217,7 @@ meta_workspace_get_name (MetaWorkspace *workspace)
 
 void
 meta_workspace_focus_default_window (MetaWorkspace *workspace,
+                                     MetaDevice    *pointer,
                                      MetaWindow    *not_this_one,
                                      guint32        timestamp)
 {
@@ -1228,7 +1234,8 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
   else
     {
       MetaWindow * window;
-      window = meta_screen_get_mouse_window (workspace->screen, not_this_one);
+      window = meta_screen_get_mouse_window (workspace->screen,
+                                             pointer, not_this_one);
       if (window &&
           window->type != META_WINDOW_DOCK &&
           window->type != META_WINDOW_DESKTOP)

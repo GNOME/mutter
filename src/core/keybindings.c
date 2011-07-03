@@ -2906,12 +2906,13 @@ process_workspace_switch_grab (MetaDisplay *display,
 {
   MetaWorkspace *workspace;
   guint evtype, keycode;
-  MetaDevice *device;
+  MetaDevice *pointer, *keyboard;
   MetaGrabInfo *grab_info;
   Time evtime;
 
-  device = meta_input_event_get_device (display, event);
-  grab_info = meta_display_get_grab_info (display, device);
+  keyboard = meta_input_event_get_device (display, event);
+  pointer = meta_device_get_paired_device (keyboard);
+  grab_info = meta_display_get_grab_info (display, pointer);
 
   if (screen != grab_info->grab_screen || !screen->ws_popup)
     return FALSE;
@@ -2923,7 +2924,7 @@ process_workspace_switch_grab (MetaDisplay *display,
   evtime = meta_input_event_get_time (display, event);
 
   if (evtype == KeyRelease &&
-      end_keyboard_grab (display, device, keycode))
+      end_keyboard_grab (display, keyboard, keycode))
     {
       /* We're done, move to the new workspace. */
       MetaWorkspace *target_workspace;
@@ -2937,12 +2938,13 @@ process_workspace_switch_grab (MetaDisplay *display,
         {
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Ending grab so we can focus on the target workspace\n");
-          meta_display_end_grab_op (display, device, evtime);
+          meta_display_end_grab_op (display, pointer, evtime);
 
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Focusing default window on target workspace\n");
 
-          meta_workspace_focus_default_window (target_workspace, 
+          meta_workspace_focus_default_window (target_workspace,
+                                               pointer,
                                                NULL,
                                                evtime);
 
@@ -3021,7 +3023,7 @@ process_workspace_switch_grab (MetaDisplay *display,
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Ending workspace tabbing & focusing default window; uninteresting key pressed\n");
   workspace = meta_screen_workspace_popup_get_selected (screen);
-  meta_workspace_focus_default_window (workspace, NULL, evtime);
+  meta_workspace_focus_default_window (workspace, pointer, NULL, evtime);
   return FALSE;
 }
 
@@ -3039,8 +3041,13 @@ handle_show_desktop (MetaDisplay    *display,
 
   if (screen->active_workspace->showing_desktop)
     {
+      MetaDevice *keyboard;
+
+      keyboard = meta_input_event_get_device (display, event);
+
       meta_screen_unshow_desktop (screen);
       meta_workspace_focus_default_window (screen->active_workspace,
+                                           meta_device_get_paired_device (keyboard),
                                            NULL, evtime);
     }
   else

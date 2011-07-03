@@ -182,6 +182,7 @@ void          meta_screen_tile_preview_update          (MetaScreen    *screen,
 void          meta_screen_tile_preview_hide            (MetaScreen    *screen);
 
 MetaWindow*   meta_screen_get_mouse_window     (MetaScreen                 *screen,
+                                                MetaDevice                 *pointer,
                                                 MetaWindow                 *not_this_one);
 
 const MetaMonitorInfo* meta_screen_get_current_monitor_info   (MetaScreen    *screen,

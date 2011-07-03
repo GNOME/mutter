@@ -1955,28 +1955,23 @@ meta_screen_tile_preview_hide (MetaScreen *screen)
 
 MetaWindow*
 meta_screen_get_mouse_window (MetaScreen  *screen,
+                              MetaDevice  *pointer,
                               MetaWindow  *not_this_one)
 {
   MetaWindow *window;
-  Window root_return, child_return;
   int root_x_return, root_y_return;
-  int win_x_return, win_y_return;
-  unsigned int mask_return;
-  
+
   if (not_this_one)
     meta_topic (META_DEBUG_FOCUS,
                 "Focusing mouse window excluding %s\n", not_this_one->desc);
 
   meta_error_trap_push (screen->display);
-  XQueryPointer (screen->display->xdisplay,
-                 screen->xroot,
-                 &root_return,
-                 &child_return,
-                 &root_x_return,
-                 &root_y_return,
-                 &win_x_return,
-                 &win_y_return,
-                 &mask_return);
+  meta_device_pointer_query_position (META_DEVICE_POINTER (pointer),
+                                      screen->xroot,
+                                      NULL, NULL,
+                                      &root_x_return,
+                                      &root_y_return,
+                                      NULL, NULL, NULL);
   meta_error_trap_pop (screen->display);
 
   window = meta_stack_get_default_focus_window_at_point (screen->stack,

@@ -1741,6 +1741,17 @@ meta_window_unmanage (MetaWindow  *window,
 
   if (window->focus_keyboard)
     {
+      meta_topic (META_DEBUG_FOCUS,
+                  "Focusing default window since we're unmanaging %s\n",
+                  window->desc);
+      meta_workspace_focus_default_window (window->screen->active_workspace,
+                                           meta_device_get_paired_device (window->focus_keyboard),
+                                           window,
+                                           timestamp);
+    }
+  else if (window->focus_keyboard &&
+           window->expecting_focus_in)
+    {
       if (window->expecting_focus_in)
         {
           meta_topic (META_DEBUG_FOCUS,
@@ -1754,6 +1765,7 @@ meta_window_unmanage (MetaWindow  *window,
                     window->desc);
 
       meta_workspace_focus_default_window (window->screen->active_workspace,
+                                           meta_device_get_paired_device (window->focus_keyboard),
                                            window,
                                            timestamp);
     }
@@ -3334,7 +3346,7 @@ meta_window_hide (MetaWindow *window)
    * gotten FocusIn/FocusOut events. A more complete comprehensive
    * fix for these type of issues is described in the bug.
    */
-  if (window->has_focus && window->expecting_focus_in)
+  if (window->focus_keyboard && window->expecting_focus_in)
     {
       MetaWindow *not_this_one = NULL;
       MetaWorkspace *my_workspace = meta_window_get_workspace (window);
@@ -3355,6 +3367,7 @@ meta_window_hide (MetaWindow *window)
         not_this_one = window;
 
       meta_workspace_focus_default_window (window->screen->active_workspace,
+                                           meta_device_get_paired_device (window->focus_keyboard),
                                            not_this_one,
                                            timestamp);
     }
