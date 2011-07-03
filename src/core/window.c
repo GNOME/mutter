@@ -1662,6 +1662,7 @@ void
 meta_window_unmanage (MetaWindow  *window,
                       guint32      timestamp)
 {
+  MetaFocusInfo *focus_info = NULL;
   GList *tmp;
 
   meta_verbose ("Unmanaging 0x%lx\n", window->xwindow);
@@ -1723,6 +1724,10 @@ meta_window_unmanage (MetaWindow  *window,
                                         * group if window->unmanaging
                                         */
 
+  if (window->focus_keyboard)
+    focus_info = meta_display_get_focus_info (window->display,
+                                              window->focus_keyboard);
+
   /* If we have the focus, focus some other window.
    * This is done first, so that if the unmap causes
    * an EnterNotify the EnterNotify will have final say
@@ -1730,22 +1735,24 @@ meta_window_unmanage (MetaWindow  *window,
    * invariants.
    */
   if (meta_window_appears_focused (window))
-    meta_window_propagate_focus_appearance (window, FALSE);
-  if (window->has_focus)
+    meta_window_propagate_focus_appearance (window,
+                                            window->focus_keyboard,
+                                            FALSE);
+
+  if (window->focus_keyboard)
     {
-      meta_topic (META_DEBUG_FOCUS,
-                  "Focusing default window since we're unmanaging %s\n",
-                  window->desc);
-      meta_workspace_focus_default_window (window->screen->active_workspace,
-                                           window,
-                                           timestamp);
-    }
-  else if (window->display->expected_focus_window == window)
-    {
-      meta_topic (META_DEBUG_FOCUS,
-                  "Focusing default window since expected focus window freed %s\n",
-                  window->desc);
-      window->display->expected_focus_window = NULL;
+      if (window->expecting_focus_in)
+        {
+          meta_topic (META_DEBUG_FOCUS,
+                      "Focusing default window since expected focus window freed %s\n",
+                      window->desc);
+          focus_info->expected_focus_window = NULL;
+        }
+      else
+        meta_topic (META_DEBUG_FOCUS,
+                    "Focusing default window since we're unmanaging %s\n",
+                    window->desc);
+
       meta_workspace_focus_default_window (window->screen->active_workspace,
                                            window,
                                            timestamp);
@@ -1775,10 +1782,14 @@ meta_window_unmanage (MetaWindow  *window,
 
   g_assert (window->cur_grab == NULL);
 
-  if (window->display->focus_window == window)
+  if (focus_info &&
+      focus_info->focus_window == window)
     {
-      window->display->focus_window = NULL;
-      g_object_notify (G_OBJECT (window->display), "focus-window");
+      focus_info->focus_window = NULL;
+
+      if (window->focus_keyboard &&
+          meta_device_get_id (window->focus_keyboard) == META_CORE_KEYBOARD_ID)
+        g_object_notify (G_OBJECT (window->display), "focus-window");
     }
 
   if (window->maximized_horizontally || window->maximized_vertically)
@@ -2556,12 +2567,17 @@ meta_window_queue (MetaWindow *window, guint queuebits)
 }
 
 static gboolean
-intervening_user_event_occurred (MetaWindow *window)
+intervening_user_event_occurred (MetaWindow *window,
+                                 MetaDevice *keyboard)
 {
   guint32 compare;
-  MetaWindow *focus_window;
+  MetaWindow *focus_window = NULL;
+  MetaFocusInfo *focus_info;
 
-  focus_window = window->display->focus_window;
+  focus_info = meta_display_get_focus_info (window->display, keyboard);
+
+  if (focus_info)
+    focus_window = focus_info->focus_window;
 
   meta_topic (META_DEBUG_STARTUP,
               "COMPARISON:\n"
@@ -2710,12 +2726,15 @@ __window_is_terminal (MetaWindow *window)
  */
 static void
 window_state_on_map (MetaWindow *window,
-                     gboolean *takes_focus,
-                     gboolean *places_on_top)
+                     MetaDevice *keyboard,
+                     gboolean   *takes_focus,
+                     gboolean   *places_on_top)
 {
   gboolean intervening_events;
+  MetaFocusInfo *focus_info;
 
-  intervening_events = intervening_user_event_occurred (window);
+  intervening_events = intervening_user_event_occurred (window, keyboard);
+  focus_info = meta_display_get_focus_info (window->display, keyboard);
 
   *takes_focus = !intervening_events;
   *places_on_top = *takes_focus;
@@ -2737,11 +2756,11 @@ window_state_on_map (MetaWindow *window,
    * terminals due to new window map, but the latter is a much easier
    * approximation to enforce so we do that.
    */
-  if (*takes_focus &&
+  if (*takes_focus && focus_info &&
       meta_prefs_get_focus_new_windows () == G_DESKTOP_FOCUS_NEW_WINDOWS_STRICT &&
       !window->display->allow_terminal_deactivation &&
-      __window_is_terminal (window->display->focus_window) &&
-      !meta_window_is_ancestor_of_transient (window->display->focus_window,
+      __window_is_terminal (focus_info->focus_window) &&
+      !meta_window_is_ancestor_of_transient (focus_info->focus_window,
                                              window))
     {
       meta_topic (META_DEBUG_FOCUS,
@@ -2958,20 +2977,30 @@ meta_window_show (MetaWindow *window)
   gboolean takes_focus_on_map;
   gboolean place_on_top_on_map;
   gboolean needs_stacking_adjustment;
-  MetaWindow *focus_window;
+  MetaWindow *focus_window = NULL;
   gboolean toplevel_was_mapped;
   gboolean toplevel_now_mapped;
   gboolean notify_demands_attention = FALSE;
+  MetaDevice *pointer, *keyboard;
+  MetaFocusInfo *focus_info;
 
   meta_topic (META_DEBUG_WINDOW_STATE,
               "Showing window %s, shaded: %d iconic: %d placed: %d\n",
               window->desc, window->shaded, window->iconic, window->placed);
 
+  pointer = meta_window_guess_grab_pointer (window);
+  keyboard = meta_device_get_paired_device (pointer);
+
   toplevel_was_mapped = meta_window_toplevel_is_mapped (window);
 
-  focus_window = window->display->focus_window;  /* May be NULL! */
+  focus_info = meta_display_get_focus_info (window->display, keyboard);
+
+  if (focus_info)
+    focus_window = focus_info->focus_window;
+
   did_show = FALSE;
-  window_state_on_map (window, &takes_focus_on_map, &place_on_top_on_map);
+  window_state_on_map (window, keyboard,
+                       &takes_focus_on_map, &place_on_top_on_map);
   needs_stacking_adjustment = FALSE;
 
   meta_topic (META_DEBUG_WINDOW_STATE,
@@ -3299,14 +3328,13 @@ meta_window_hide (MetaWindow *window)
       invalidate_work_areas (window);
     }
 
-  /* The check on expected_focus_window is a temporary workaround for
+  /* The check on expected_focus_in is a temporary workaround for
    *  https://bugzilla.gnome.org/show_bug.cgi?id=597352
    * We may have already switched away from this window but not yet
    * gotten FocusIn/FocusOut events. A more complete comprehensive
    * fix for these type of issues is described in the bug.
    */
-  if (window->has_focus &&
-      window == window->display->expected_focus_window)
+  if (window->has_focus && window->expecting_focus_in)
     {
       MetaWindow *not_this_one = NULL;
       MetaWorkspace *my_workspace = meta_window_get_workspace (window);
@@ -5650,13 +5678,22 @@ meta_window_focus (MetaWindow  *window,
 
       if (window->take_focus)
         {
+          MetaFocusInfo *focus_info;
+          MetaDevice *keyboard;
+
           meta_topic (META_DEBUG_FOCUS,
                       "Sending WM_TAKE_FOCUS to %s since take_focus = true\n",
                       window->desc);
           meta_window_send_icccm_message (window,
                                           window->display->atom_WM_TAKE_FOCUS,
                                           timestamp);
-          window->display->expected_focus_window = window;
+
+          keyboard = meta_device_get_paired_device (device);
+          focus_info = meta_display_get_focus_info (window->display, keyboard);
+
+          focus_info->expected_focus_window = window;
+          window->focus_keyboard = keyboard;
+          window->expecting_focus_in = TRUE;
         }
     }
 
@@ -6198,7 +6235,16 @@ meta_window_configure_request (MetaWindow *window,
   if (event->xconfigurerequest.value_mask & CWStackMode)
     {
       MetaWindow *active_window;
-      active_window = window->display->expected_focus_window;
+      MetaDevice *pointer, *keyboard;
+      MetaFocusInfo *focus_info;
+
+      pointer = meta_window_guess_grab_pointer (window);
+      keyboard = meta_device_get_paired_device (pointer);
+      focus_info = meta_display_get_focus_info (window->display, keyboard);
+
+      if (focus_info)
+        active_window = focus_info->expected_focus_window;
+
       if (meta_prefs_get_disable_workarounds ())
         {
           meta_topic (META_DEBUG_STACK,
@@ -6822,14 +6868,23 @@ meta_window_appears_focused_changed (MetaWindow *window)
  */
 void
 meta_window_propagate_focus_appearance (MetaWindow *window,
+                                        MetaDevice *keyboard,
                                         gboolean    focused)
 {
   MetaWindow *child, *parent, *focus_window;
-
-  focus_window = window->display->focus_window;
+  MetaFocusInfo *focus_info;
 
   child = window;
   parent = meta_window_get_transient_for (child);
+
+  if (keyboard)
+    {
+      focus_info = meta_display_get_focus_info (window->display, keyboard);
+      focus_window = focus_info->focus_window;
+    }
+  else
+    focus_window = NULL;
+
   while (parent && (!focused || meta_window_is_attached_dialog (child)))
     {
       gboolean child_focus_state_changed;
@@ -6850,7 +6905,7 @@ meta_window_propagate_focus_appearance (MetaWindow *window,
         }
 
       if (child_focus_state_changed && !parent->has_focus &&
-          parent != window->display->expected_focus_window)
+          (!focus_info || parent != focus_info->expected_focus_window))
         {
           meta_window_appears_focused_changed (parent);
         }
@@ -6865,6 +6920,8 @@ meta_window_notify_focus (MetaWindow *window,
                           XEvent     *event)
 {
   guint evtype, mode, detail;
+  MetaFocusInfo *focus_info = NULL;
+  MetaDevice *keyboard;
   Window xwindow;
 
   /* note the event can be on either the window or the frame,
@@ -6890,13 +6947,18 @@ meta_window_notify_focus (MetaWindow *window,
       meta_input_event_get_crossing_details (window->display, event,
                                              &mode, &detail);
       xwindow = meta_input_event_get_window (window->display, event);
+      keyboard = meta_input_event_get_device (window->display, event);
     }
   else
     {
       xwindow = event->xany.window;
       evtype = event->type;
       mode = detail = 0;
+      keyboard = window->focus_keyboard;
     }
+
+  if (keyboard)
+    focus_info = meta_display_get_focus_info (window->display, keyboard);
 
   meta_topic (META_DEBUG_FOCUS,
               "Focus %s event received on %s 0x%lx (%s) "
@@ -6951,17 +7013,22 @@ meta_window_notify_focus (MetaWindow *window,
     {
       if (window->override_redirect)
         {
-          window->display->focus_window = NULL;
-          g_object_notify (G_OBJECT (window->display), "focus-window");
+          focus_info->focus_window = NULL;
+
+          if (meta_device_get_id (keyboard) == META_CORE_KEYBOARD_ID)
+            g_object_notify (G_OBJECT (window->display), "focus-window");
+
           return FALSE;
         }
 
-      if (window != window->display->focus_window)
+      if (window != focus_info->focus_window)
         {
           meta_topic (META_DEBUG_FOCUS,
                       "* Focus --> %s\n", window->desc);
-          window->display->focus_window = window;
+          focus_info->focus_window = window;
           window->has_focus = TRUE;
+          window->focus_keyboard = keyboard;
+          window->expecting_focus_in = FALSE;
 
           /* Move to the front of the focusing workspace's MRU list.
            * We should only be "removing" it from the MRU list if it's
@@ -7019,12 +7086,14 @@ meta_window_notify_focus (MetaWindow *window,
             meta_display_ungrab_focus_window_button (window->display, window);
 
           g_signal_emit (window, window_signals[FOCUS], 0);
-          g_object_notify (G_OBJECT (window->display), "focus-window");
+
+          if (meta_device_get_id (keyboard) == META_CORE_KEYBOARD_ID)
+            g_object_notify (G_OBJECT (window->display), "focus-window");
 
           if (!window->attached_focus_window)
             meta_window_appears_focused_changed (window);
 
-          meta_window_propagate_focus_appearance (window, TRUE);
+          meta_window_propagate_focus_appearance (window, keyboard, TRUE);
         }
     }
   else if (evtype == FocusOut ||
@@ -7040,7 +7109,8 @@ meta_window_notify_focus (MetaWindow *window,
           return TRUE;
         }
 
-      if (window == window->display->focus_window)
+      if (focus_info &&
+          window == focus_info->focus_window)
         {
           meta_topic (META_DEBUG_FOCUS,
                       "%s is now the previous focus window due to being focused out or unmapped\n",
@@ -7049,11 +7119,18 @@ meta_window_notify_focus (MetaWindow *window,
           meta_topic (META_DEBUG_FOCUS,
                       "* Focus --> NULL (was %s)\n", window->desc);
 
-          meta_window_propagate_focus_appearance (window, FALSE);
+          meta_window_propagate_focus_appearance (window, keyboard, FALSE);
+          focus_info->focus_window = NULL;
 
-          window->display->focus_window = NULL;
-          g_object_notify (G_OBJECT (window->display), "focus-window");
+          if (meta_device_get_id (keyboard) == META_CORE_KEYBOARD_ID)
+            g_object_notify (G_OBJECT (window->display), "focus-window");
+
           window->has_focus = FALSE;
+          window->focus_keyboard = NULL;
+          window->expecting_focus_in = FALSE;
+
+          if (meta_device_get_id (keyboard) == META_CORE_KEYBOARD_ID)
+            g_object_notify (G_OBJECT (window->display), "focus-window");
 
           if (!window->attached_focus_window)
             meta_window_appears_focused_changed (window);

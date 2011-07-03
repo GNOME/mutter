@@ -58,6 +58,7 @@ typedef struct _MetaWindowPropHooks MetaWindowPropHooks;
 typedef struct MetaEdgeResistanceData MetaEdgeResistanceData;
 
 typedef struct _MetaGrabInfo MetaGrabInfo;
+typedef struct _MetaFocusInfo MetaFocusInfo;
 
 typedef void (* MetaWindowPingFunc) (MetaDisplay *display,
 				     Window       xwindow,
@@ -130,6 +131,26 @@ struct _MetaGrabInfo
   int	      grab_resize_timeout_id;
 };
 
+struct _MetaFocusInfo
+{
+  /* This is the actual window from focus events,
+   * not the one we last set
+   */
+  MetaWindow *focus_window;
+
+  /* window we are expecting a FocusIn event for or the current focus
+   * window if we are not expecting any FocusIn/FocusOut events; not
+   * perfect because applications can call XSetInputFocus directly.
+   * (It could also be messed up if a timestamp later than current
+   * time is sent to meta_display_set_input_focus_window, though that
+   * would be a programming error).  See bug 154598 for more info.
+   */
+  MetaWindow *expected_focus_window;
+
+  /* last timestamp passed to XSetInputFocus */
+  guint32 last_focus_time;
+};
+
 struct _MetaDisplay
 {
   GObject parent_instance;
@@ -148,22 +169,8 @@ struct _MetaDisplay
 #include <meta/atomnames.h>
 #undef item
 
-  /* This is the actual window from focus events,
-   * not the one we last set
-   */
-  MetaWindow *focus_window;
-
-  /* window we are expecting a FocusIn event for or the current focus
-   * window if we are not expecting any FocusIn/FocusOut events; not
-   * perfect because applications can call XSetInputFocus directly.
-   * (It could also be messed up if a timestamp later than current
-   * time is sent to meta_display_set_input_focus_window, though that
-   * would be a programming error).  See bug 154598 for more info.
-   */
-  MetaWindow *expected_focus_window;
-
-  /* last timestamp passed to XSetInputFocus */
-  guint32 last_focus_time;
+  /* keyboard -> MetaFocusInfo hashtable */
+  GHashTable *focus_info;
 
   /* last user interaction time in any app */
   guint32 last_user_time;
@@ -481,5 +488,8 @@ void           meta_display_remove_grab_info         (MetaDisplay  *display,
 
 MetaGrabInfo * meta_display_get_grab_info            (MetaDisplay  *display,
                                                       MetaDevice   *device);
+MetaFocusInfo * meta_display_get_focus_info          (MetaDisplay  *display,
+                                                      MetaDevice   *device);
+
 
 #endif

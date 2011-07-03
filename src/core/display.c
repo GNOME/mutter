@@ -134,6 +134,7 @@ typedef struct
 {
   MetaDisplay *display;
   MetaWindow *window;
+  MetaDevice *device;
   int pointer_x;
   int pointer_y;
 } MetaFocusData;
@@ -203,8 +204,9 @@ static void    prefs_changed_callback    (MetaPreference pref,
 
 static void    sanity_check_timestamps   (MetaDisplay *display,
                                           guint32      known_good_timestamp);
- 
-MetaGroup*     get_focussed_group (MetaDisplay *display);
+
+MetaGroup*     get_focussed_group (MetaDisplay *display,
+                                   MetaDevice  *keyboard);
 
 static void
 meta_display_get_property(GObject         *object,
@@ -217,7 +219,16 @@ meta_display_get_property(GObject         *object,
   switch (prop_id)
     {
     case PROP_FOCUS_WINDOW:
-      g_value_set_object (value, display->focus_window);
+      {
+        MetaFocusInfo *focus_info;
+        MetaDevice *device;
+
+        /* Always follow the VCK focus */
+        device = meta_device_map_lookup (display->device_map,
+                                         META_CORE_KEYBOARD_ID);
+        focus_info = meta_display_get_focus_info (display, device);
+        g_value_set_object (value, focus_info->focus_window);
+      }
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -532,8 +543,6 @@ meta_display_open (void)
   the_display->pending_pings = NULL;
   the_display->autoraise_timeout_id = 0;
   the_display->autoraise_window = NULL;
-  the_display->focus_window = NULL;
-  the_display->expected_focus_window = NULL;
 
   the_display->mouse_mode = TRUE; /* Only relevant for mouse or sloppy focus */
   the_display->allow_terminal_deactivation = TRUE; /* Only relevant for when a
@@ -615,6 +624,8 @@ meta_display_open (void)
 
   the_display->current_grabs = g_hash_table_new_full (NULL, NULL, NULL,
                                                       (GDestroyNotify) g_free);
+  the_display->focus_info = g_hash_table_new_full (NULL, NULL, NULL,
+                                                   (GDestroyNotify) g_free);
   the_display->edge_resistance_info = g_hash_table_new (NULL, NULL);
 
 #ifdef HAVE_XSYNC
@@ -846,7 +857,6 @@ meta_display_open (void)
                                   DefaultRootWindow (the_display->xdisplay),
                                   PropertyChangeMask);
 
-  the_display->last_focus_time = timestamp;
   the_display->last_user_time = timestamp;
   the_display->compositor = NULL;
   
@@ -1577,8 +1587,16 @@ window_raise_with_delay_callback (void *data)
 
 static void
 meta_display_mouse_mode_focus (MetaDisplay *display,
+                               MetaDevice  *device,
                                MetaWindow  *window,
-                               guint32      timestamp) {
+                               guint32      timestamp)
+{
+  MetaFocusInfo *focus_info;
+  MetaDevice *keyboard;
+
+  keyboard = meta_device_get_paired_device (device);
+  focus_info = meta_display_get_focus_info (display, keyboard);
+
   if (window->type != META_WINDOW_DESKTOP)
     {
       meta_topic (META_DEBUG_FOCUS,
@@ -1603,12 +1621,12 @@ meta_display_mouse_mode_focus (MetaDisplay *display,
        * alternative mechanism works great.
        */
       if (meta_prefs_get_focus_mode() == G_DESKTOP_FOCUS_MODE_MOUSE &&
-          display->expected_focus_window != NULL)
+          focus_info->expected_focus_window != NULL)
         {
           meta_topic (META_DEBUG_FOCUS,
                       "Unsetting focus from %s due to mouse entering "
                       "the DESKTOP window\n",
-                      display->expected_focus_window->desc);
+                      focus_info->expected_focus_window->desc);
           meta_display_focus_the_no_focus_window (display,
                                                   window->screen,
                                                   timestamp);
@@ -1617,19 +1635,23 @@ meta_display_mouse_mode_focus (MetaDisplay *display,
 }
 
 static gboolean
-window_focus_on_pointer_rest_callback (gpointer data) {
+window_focus_on_pointer_rest_callback (gpointer data)
+{
   MetaFocusData *focus_data;
   MetaDisplay *display;
+  MetaDevice *device;
   MetaScreen *screen;
   MetaWindow *window;
-  Window root, child;
-  int root_x, root_y, x, y;
+  Window child, root;
+  int root_x, root_y;
+  int x, y;
   guint32 timestamp;
   guint mask;
 
   focus_data = data;
   display = focus_data->display;
   screen = focus_data->window->screen;
+  device = focus_data->device;
 
   if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
     goto out;
@@ -1665,7 +1687,7 @@ window_focus_on_pointer_rest_callback (gpointer data) {
     goto out;
 
   timestamp = meta_display_get_current_time_roundtrip (display);
-  meta_display_mouse_mode_focus (display, window, timestamp);
+  meta_display_mouse_mode_focus (display, device, window, timestamp);
 
 out:
   display->focus_timeout_id = 0;
@@ -1707,17 +1729,22 @@ meta_display_queue_autoraise_callback (MetaDisplay *display,
 
 static void
 meta_display_queue_focus_callback (MetaDisplay *display,
+                                   MetaDevice  *device,
                                    MetaWindow  *window,
-                                   int          pointer_x,
-                                   int          pointer_y)
+                                   XEvent      *event)
 {
   MetaFocusData *focus_data;
+  gdouble xroot, yroot;
+
+  if (!meta_input_event_get_coordinates (display, event, NULL, NULL, &xroot, &yroot))
+    return;
 
   focus_data = g_new (MetaFocusData, 1);
   focus_data->display = display;
   focus_data->window = window;
-  focus_data->pointer_x = pointer_x;
-  focus_data->pointer_y = pointer_y;
+  focus_data->device = device;
+  focus_data->pointer_x = (int) xroot;
+  focus_data->pointer_y = (int) yroot;
 
   if (display->focus_timeout_id != 0)
     g_source_remove (display->focus_timeout_id);
@@ -2173,8 +2200,14 @@ event_callback (XEvent   *event,
                   /* This is from our synchronous grab since
                    * it has no modifiers and was on the client window
                    */
+                  MetaFocusInfo *focus_info;
+                  MetaDevice *keyboard;
                   int mode;
-              
+
+                  /* This is a pointer event, get the paired keyboard */
+                  keyboard = meta_device_get_paired_device (device);
+                  focus_info = meta_display_get_focus_info (display, keyboard);
+
                   /* When clicking a different app in click-to-focus
                    * in application-based mode, and the different
                    * app is not a dock or desktop, eat the focus click.
@@ -2184,9 +2217,9 @@ event_callback (XEvent   *event,
                       !window->has_focus &&
                       window->type != META_WINDOW_DOCK &&
                       window->type != META_WINDOW_DESKTOP &&
-                      (display->focus_window == NULL ||
+                      (focus_info == NULL || focus_info->focus_window == NULL ||
                        !meta_window_same_application (window,
-                                                      display->focus_window)))
+                                                      focus_info->focus_window)))
                     mode = AsyncPointer; /* eat focus click */
                   else
                     mode = ReplayPointer; /* give event back */
@@ -2288,21 +2321,29 @@ event_callback (XEvent   *event,
                                   evtime);
 
                       if (meta_prefs_get_focus_change_on_pointer_rest())
-                        meta_display_queue_focus_callback (display, window,
-                                                           event->xcrossing.x_root,
-                                                           event->xcrossing.y_root);
+                        meta_display_queue_focus_callback (display, device, window, event);
                       else
-                        meta_display_mouse_mode_focus (display, window,
-                                                       evtime);
+                        meta_display_mouse_mode_focus (display, device, window, evtime);
 
                       /* stop ignoring stuff */
                       reset_ignored_crossing_serials (display);
+
+                      if (meta_prefs_get_auto_raise ())
+                        {
+                          meta_display_queue_autoraise_callback (display, window);
+                        }
+                      else
+                        {
+                          meta_topic (META_DEBUG_FOCUS,
+                                      "Auto raise is disabled\n");
+                        }
                     }
                   break;
+
                 case G_DESKTOP_FOCUS_MODE_CLICK:
                   break;
                 }
-          
+
               if (window->type == META_WINDOW_DOCK)
                 meta_window_raise (window);
             }
@@ -4375,12 +4416,18 @@ meta_display_increment_event_serial (MetaDisplay *display)
 void
 meta_display_update_active_window_hint (MetaDisplay *display)
 {
+  MetaFocusInfo *focus_info;
+  MetaDevice *keyboard;
   GSList *tmp;
   
   gulong data[1];
 
-  if (display->focus_window)
-    data[0] = display->focus_window->xwindow;
+  keyboard = meta_device_map_lookup (display->device_map,
+                                     META_CORE_KEYBOARD_ID);
+  focus_info = meta_display_get_focus_info (display, keyboard);
+
+  if (focus_info && focus_info->focus_window)
+    data[0] = focus_info->focus_window->xwindow;
   else
     data[0] = None;
   
@@ -4756,17 +4803,22 @@ meta_display_window_has_pending_pings (MetaDisplay *display,
 }
 
 MetaGroup*
-get_focussed_group (MetaDisplay *display)
+get_focussed_group (MetaDisplay *display,
+                    MetaDevice  *keyboard)
 {
-  if (display->focus_window)
-    return display->focus_window->group;
+  MetaFocusInfo *focus_info;
+
+  focus_info = meta_display_get_focus_info (display, keyboard);
+
+  if (focus_info && focus_info->focus_window)
+    return focus_info->focus_window->group;
   else
     return NULL;
 }
 
-#define IN_TAB_CHAIN(w,t) (((t) == META_TAB_LIST_NORMAL && META_WINDOW_IN_NORMAL_TAB_CHAIN (w)) \
+#define IN_TAB_CHAIN(w,d,t) (((t) == META_TAB_LIST_NORMAL && META_WINDOW_IN_NORMAL_TAB_CHAIN (w)) \
     || ((t) == META_TAB_LIST_DOCKS && META_WINDOW_IN_DOCK_TAB_CHAIN (w)) \
-    || ((t) == META_TAB_LIST_GROUP && META_WINDOW_IN_GROUP_TAB_CHAIN (w, get_focussed_group(w->display))) \
+    || ((t) == META_TAB_LIST_GROUP && META_WINDOW_IN_GROUP_TAB_CHAIN (w, get_focussed_group(w->display, d))) \
     || ((t) == META_TAB_LIST_NORMAL_ALL && META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w)))
 
 static MetaWindow*
@@ -4774,6 +4826,7 @@ find_tab_forward (MetaDisplay   *display,
                   MetaTabList    type,
                   MetaScreen    *screen, 
                   MetaWorkspace *workspace,
+                  MetaDevice    *device,
                   GList         *start,
                   gboolean       skip_first)
 {
@@ -4791,7 +4844,7 @@ find_tab_forward (MetaDisplay   *display,
       MetaWindow *window = tmp->data;
 
       if (window->screen == screen &&
-	  IN_TAB_CHAIN (window, type))
+	  IN_TAB_CHAIN (window, device, type))
         return window;
 
       tmp = tmp->next;
@@ -4802,7 +4855,7 @@ find_tab_forward (MetaDisplay   *display,
     {
       MetaWindow *window = tmp->data;
 
-      if (IN_TAB_CHAIN (window, type))
+      if (IN_TAB_CHAIN (window, device, type))
         return window;
 
       tmp = tmp->next;
@@ -4816,6 +4869,7 @@ find_tab_backward (MetaDisplay   *display,
                    MetaTabList    type,
                    MetaScreen    *screen, 
                    MetaWorkspace *workspace,
+                   MetaDevice    *device,
                    GList         *start,
                    gboolean       skip_last)
 {
@@ -4832,7 +4886,7 @@ find_tab_backward (MetaDisplay   *display,
       MetaWindow *window = tmp->data;
 
       if (window->screen == screen &&
-	  IN_TAB_CHAIN (window, type))
+	  IN_TAB_CHAIN (window, device, type))
         return window;
 
       tmp = tmp->prev;
@@ -4843,7 +4897,7 @@ find_tab_backward (MetaDisplay   *display,
     {
       MetaWindow *window = tmp->data;
 
-      if (IN_TAB_CHAIN (window, type))
+      if (IN_TAB_CHAIN (window, device, type))
         return window;
 
       tmp = tmp->prev;
@@ -4853,11 +4907,12 @@ find_tab_backward (MetaDisplay   *display,
 }
 
 /**
- * meta_display_get_tab_list:
+ * meta_display_get_device_tab_list:
  * @display: a #MetaDisplay
  * @type: type of tab list
  * @screen: a #MetaScreen
  * @workspace: origin workspace
+ * @device: keyboard triggering Alt-TAB
  *
  * Determine the list of windows that should be displayed for Alt-TAB
  * functionality.  The windows are returned in most recently used order.
@@ -4865,10 +4920,11 @@ find_tab_backward (MetaDisplay   *display,
  * Returns: (transfer container) (element-type Meta.Window): List of windows
  */
 GList*
-meta_display_get_tab_list (MetaDisplay   *display,
-                           MetaTabList    type,
-                           MetaScreen    *screen,
-                           MetaWorkspace *workspace)
+meta_display_get_device_tab_list (MetaDisplay   *display,
+                                  MetaTabList    type,
+                                  MetaScreen    *screen,
+                                  MetaWorkspace *workspace,
+                                  MetaDevice    *device)
 {
   GList *tab_list;
 
@@ -4888,7 +4944,7 @@ meta_display_get_tab_list (MetaDisplay   *display,
         
         if (!window->minimized &&
             window->screen == screen &&
-            IN_TAB_CHAIN (window, type))
+            IN_TAB_CHAIN (window, device, type))
           tab_list = g_list_prepend (tab_list, window);
         
         tmp = tmp->next;
@@ -4905,7 +4961,7 @@ meta_display_get_tab_list (MetaDisplay   *display,
         
         if (window->minimized &&
             window->screen == screen &&
-            IN_TAB_CHAIN (window, type))
+            IN_TAB_CHAIN (window, device, type))
           tab_list = g_list_prepend (tab_list, window);
         
         tmp = tmp->next;
@@ -4929,7 +4985,7 @@ meta_display_get_tab_list (MetaDisplay   *display,
         /* Check to see if it demands attention */
         if (l_window->wm_state_demands_attention && 
             l_window->workspace!=workspace &&
-            IN_TAB_CHAIN (l_window, type)) 
+            IN_TAB_CHAIN (l_window, device, type))
           {
             /* if it does, add it to the popup */
             tab_list = g_list_prepend (tab_list, l_window);
@@ -4942,6 +4998,107 @@ meta_display_get_tab_list (MetaDisplay   *display,
   }
   
   return tab_list;
+}
+
+/**
+ * meta_display_get_tab_list:
+ * @display: a #MetaDisplay
+ * @type: type of tab list
+ * @screen: a #MetaScreen
+ * @workspace: origin workspace
+ *
+ * Determine the list of windows that should be displayed for Alt-TAB
+ * functionality.  The windows are returned in most recently used order.
+ *
+ * Returns: (transfer container) (element-type Meta.Window): List of windows
+ */
+GList*
+meta_display_get_tab_list (MetaDisplay   *display,
+                           MetaTabList    type,
+                           MetaScreen    *screen,
+                           MetaWorkspace *workspace)
+{
+  MetaDevice *keyboard;
+
+  keyboard = meta_device_map_lookup (display->device_map,
+                                     META_CORE_KEYBOARD_ID);
+
+  return meta_display_get_device_tab_list (display, type,
+                                           screen, workspace,
+                                           keyboard);
+}
+
+/**
+ * meta_display_get_device_tab_next:
+ * @display: a #MetaDisplay
+ * @type: type of tab list
+ * @screen: a #MetaScreen
+ * @workspace: origin workspace
+ * @window: (allow-none): starting window
+ * @device: keyboard triggering Alt-TAB
+ * @backward: If %TRUE, look for the previous window.
+ *
+ * Determine the next window that should be displayed for Alt-TAB
+ * functionality.
+ *
+ * Returns: (transfer none): Next window
+ *
+ */
+MetaWindow*
+meta_display_get_device_tab_next (MetaDisplay   *display,
+                                  MetaTabList    type,
+                                  MetaScreen    *screen,
+                                  MetaWorkspace *workspace,
+                                  MetaWindow    *window,
+                                  MetaDevice    *device,
+                                  gboolean       backward)
+{
+  gboolean skip;
+  GList *tab_list;
+  MetaWindow *ret;
+  tab_list = meta_display_get_tab_list(display,
+                                       type,
+                                       screen,
+                                       workspace);
+
+  if (tab_list == NULL)
+    return NULL;
+  
+  if (window != NULL)
+    {
+      g_assert (window->display == display);
+      
+      if (backward)
+        ret = find_tab_backward (display, type, screen, workspace,
+                                 device,
+                                 g_list_find (tab_list,
+                                              window),
+                                 TRUE);
+      else
+        ret = find_tab_forward (display, type, screen, workspace,
+                                device,
+                                g_list_find (tab_list,
+                                             window),
+                                TRUE);
+    }
+  else
+    {
+      MetaFocusInfo *focus_info;
+
+      focus_info = meta_display_get_focus_info (display, device);
+
+      skip = focus_info->focus_window != NULL && 
+             tab_list->data == focus_info->focus_window;
+      if (backward)
+        ret = find_tab_backward (display, type, screen, workspace,
+                                 device, tab_list, skip);
+      else
+        ret = find_tab_forward (display, type, screen, workspace,
+                                device, tab_list, skip);
+    }
+
+  g_list_free (tab_list);
+  return ret;
 }
 
 /**
@@ -4967,46 +5124,51 @@ meta_display_get_tab_next (MetaDisplay   *display,
                            MetaWindow    *window,
                            gboolean       backward)
 {
-  gboolean skip;
-  GList *tab_list;
-  MetaWindow *ret;
-  tab_list = meta_display_get_tab_list(display,
-                                       type,
-                                       screen,
-                                       workspace);
+  MetaDevice *keyboard;
 
-  if (tab_list == NULL)
-    return NULL;
-  
-  if (window != NULL)
-    {
-      g_assert (window->display == display);
-      
-      if (backward)
-        ret = find_tab_backward (display, type, screen, workspace,
-                                 g_list_find (tab_list,
-                                              window),
-                                 TRUE);
-      else
-        ret = find_tab_forward (display, type, screen, workspace,
-                                g_list_find (tab_list,
-                                             window),
-                                TRUE);
-    }
+  keyboard = meta_device_map_lookup (display->device_map,
+                                     META_CORE_KEYBOARD_ID);
+
+  return meta_display_get_device_tab_next (display, type,
+                                           screen, workspace,
+                                           window, keyboard,
+                                           backward);
+}
+
+/**
+ * meta_display_get_device_tab_current:
+ * @display: a #MetaDisplay
+ * @type: type of tab list
+ * @screen: a #MetaScreen
+ * @workspace: origin workspace
+ * @device: keyboard triggering alt-TAB
+ *
+ * Determine the active window that should be displayed for Alt-TAB.
+ *
+ * Returns: (transfer none): Current window
+ *
+ */
+MetaWindow*
+meta_display_get_device_tab_current (MetaDisplay   *display,
+                                     MetaTabList    type,
+                                     MetaScreen    *screen,
+                                     MetaWorkspace *workspace,
+                                     MetaDevice    *device)
+{
+  MetaFocusInfo *focus_info;
+  MetaWindow *window;
+
+  focus_info = meta_display_get_focus_info (display, device);
+  window = focus_info->focus_window;
+
+  if (window != NULL &&
+      window->screen == screen &&
+      IN_TAB_CHAIN (window, device, type) &&
+      (workspace == NULL ||
+       meta_window_located_on_workspace (window, workspace)))
+    return window;
   else
-    {
-      skip = display->focus_window != NULL && 
-             tab_list->data == display->focus_window;
-      if (backward)
-        ret = find_tab_backward (display, type, screen, workspace,
-                                 tab_list, skip);
-      else
-        ret = find_tab_forward (display, type, screen, workspace,
-                                tab_list, skip);
-    }
-
-  g_list_free (tab_list);
-  return ret;
+    return NULL;
 }
 
 /**
@@ -5027,18 +5189,14 @@ meta_display_get_tab_current (MetaDisplay   *display,
                               MetaScreen    *screen,
                               MetaWorkspace *workspace)
 {
-  MetaWindow *window;
+  MetaDevice *keyboard;
 
-  window = display->focus_window;
-  
-  if (window != NULL &&
-      window->screen == screen &&
-      IN_TAB_CHAIN (window, type) &&
-      (workspace == NULL ||
-       meta_window_located_on_workspace (window, workspace)))
-    return window;
-  else
-    return NULL;
+  keyboard = meta_device_map_lookup (display->device_map,
+                                     META_CORE_KEYBOARD_ID);
+
+  return meta_display_get_device_tab_current (display, type,
+                                              screen, workspace,
+                                              keyboard);
 }
 
 int
@@ -5534,15 +5692,29 @@ static void
 sanity_check_timestamps (MetaDisplay *display,
                          guint32      timestamp)
 {
-  if (XSERVER_TIME_IS_BEFORE (timestamp, display->last_focus_time))
+  MetaFocusInfo *focus_info;
+  MetaDevice *keyboard;
+  GHashTableIter iter;
+
+  g_hash_table_iter_init (&iter, display->focus_info);
+
+  while (g_hash_table_iter_next (&iter,
+                                 (gpointer *) &keyboard,
+                                 (gpointer *) &focus_info))
     {
-      meta_warning ("last_focus_time (%u) is greater than comparison "
-                    "timestamp (%u).  This most likely represents a buggy "
-                    "client sending inaccurate timestamps in messages such as "
-                    "_NET_ACTIVE_WINDOW.  Trying to work around...\n",
-                    display->last_focus_time, timestamp);
-      display->last_focus_time = timestamp;
+      if (XSERVER_TIME_IS_BEFORE (timestamp, focus_info->last_focus_time))
+        {
+          meta_warning ("last_focus_time (%u) for device %d is greater than comparison "
+                        "timestamp (%u).  This most likely represents a buggy "
+                        "client sending inaccurate timestamps in messages such as "
+                        "_NET_ACTIVE_WINDOW.  Trying to work around...\n",
+                        focus_info->last_focus_time,
+                        meta_device_get_id (keyboard),
+                        timestamp);
+          focus_info->last_focus_time = timestamp;
+        }
     }
+
   if (XSERVER_TIME_IS_BEFORE (timestamp, display->last_user_time))
     {
       GSList *windows;
@@ -5579,13 +5751,18 @@ sanity_check_timestamps (MetaDisplay *display,
 static gboolean
 timestamp_too_old (MetaDisplay *display,
                    MetaWindow  *window,
+                   MetaDevice  *device,
                    guint32     *timestamp)
 {
+  MetaFocusInfo *focus_info;
+
   /* FIXME: If Soeren's suggestion in bug 151984 is implemented, it will allow
    * us to sanity check the timestamp here and ensure it doesn't correspond to
    * a future time (though we would want to rename to 
    * timestamp_too_old_or_in_future).
    */
+
+  focus_info = meta_display_get_focus_info (display, device);
 
   if (*timestamp == CurrentTime)
     {
@@ -5595,31 +5772,34 @@ timestamp_too_old (MetaDisplay *display,
       *timestamp = meta_display_get_current_time_roundtrip (display);
       return FALSE;
     }
-  else if (XSERVER_TIME_IS_BEFORE (*timestamp, display->last_focus_time))
+  else if (XSERVER_TIME_IS_BEFORE (*timestamp, focus_info->last_focus_time))
     {
       if (XSERVER_TIME_IS_BEFORE (*timestamp, display->last_user_time))
         {
           meta_topic (META_DEBUG_FOCUS,
-                      "Ignoring focus request for %s since %u "
+                      "Ignoring focus request for device %d, %s since %u "
                       "is less than %u and %u.\n",
+                      meta_device_get_id (device),
                       window ? window->desc : "the no_focus_window",
                       *timestamp,
                       display->last_user_time,
-                      display->last_focus_time);
+                      focus_info->last_focus_time);
           return TRUE;
         }
       else
         {
           meta_topic (META_DEBUG_FOCUS,
-                      "Received focus request for %s which is newer than most "
+                      "Received focus request for device %d, %s "
+                      "which is newer than most "
                       "recent user_time, but less recent than "
                       "last_focus_time (%u < %u < %u); adjusting "
                       "accordingly.  (See bug 167358)\n",
+                      meta_device_get_id (device),
                       window ? window->desc : "the no_focus_window",
                       display->last_user_time,
                       *timestamp,
-                      display->last_focus_time);
-          *timestamp = display->last_focus_time;
+                      focus_info->last_focus_time);
+          *timestamp = focus_info->last_focus_time;
           return FALSE;
         }
     }
@@ -5628,23 +5808,29 @@ timestamp_too_old (MetaDisplay *display,
 }
 
 void
-meta_display_set_input_focus_window (MetaDisplay *display, 
-                                     MetaWindow  *window,
-                                     gboolean     focus_frame,
-                                     guint32      timestamp)
+meta_display_set_keyboard_focus (MetaDisplay *display,
+                                 MetaWindow  *window,
+                                 MetaDevice  *keyboard,
+                                 gboolean     focus_frame,
+                                 guint32      timestamp)
 {
-  if (timestamp_too_old (display, window, &timestamp))
+  MetaFocusInfo *focus_info;
+  Window xwindow;
+
+  if (timestamp_too_old (display, window, keyboard, &timestamp))
     return;
 
+  xwindow = focus_frame ? window->frame->xwindow : window->xwindow;
+
   meta_error_trap_push (display);
-  XSetInputFocus (display->xdisplay,
-                  focus_frame ? window->frame->xwindow : window->xwindow,
-                  RevertToPointerRoot,
-                  timestamp);
+  meta_device_keyboard_set_focus_window (META_DEVICE_KEYBOARD (keyboard),
+                                         xwindow, timestamp);
   meta_error_trap_pop (display);
 
-  display->expected_focus_window = window;
-  display->last_focus_time = timestamp;
+  focus_info = meta_display_get_focus_info (display, keyboard);
+
+  focus_info->expected_focus_window = window;
+  focus_info->last_focus_time = timestamp;
   display->active_screen = window->screen;
 
   if (window != display->autoraise_window)
@@ -5652,22 +5838,54 @@ meta_display_set_input_focus_window (MetaDisplay *display,
 }
 
 void
-meta_display_focus_the_no_focus_window (MetaDisplay *display, 
-                                        MetaScreen  *screen,
-                                        guint32      timestamp)
+meta_display_unset_keyboard_focus (MetaDisplay *display,
+                                   MetaScreen  *screen,
+                                   MetaDevice  *keyboard,
+                                   guint32      timestamp)
 {
-  if (timestamp_too_old (display, NULL, &timestamp))
+  MetaFocusInfo *focus_info;
+
+  if (timestamp_too_old (display, NULL, keyboard, &timestamp))
     return;
 
-  XSetInputFocus (display->xdisplay,
-                  screen->no_focus_window,
-                  RevertToPointerRoot,
-                  timestamp);
-  display->expected_focus_window = NULL;
-  display->last_focus_time = timestamp;
+  meta_device_keyboard_set_focus_window (META_DEVICE_KEYBOARD (keyboard),
+                                         screen->no_focus_window,
+                                         timestamp);
+
+  focus_info = meta_display_get_focus_info (display, keyboard);
+
+  focus_info->expected_focus_window = NULL;
+  focus_info->last_focus_time = timestamp;
   display->active_screen = screen;
 
   meta_display_remove_autoraise_callback (display);
+}
+
+void
+meta_display_set_input_focus_window (MetaDisplay *display,
+                                     MetaWindow  *window,
+                                     gboolean     focus_frame,
+                                     guint32      timestamp)
+{
+  MetaDevice *keyboard;
+
+  keyboard = meta_device_map_lookup (display->device_map,
+                                     META_CORE_KEYBOARD_ID);
+  meta_display_set_keyboard_focus (display, window, keyboard,
+                                   focus_frame, timestamp);
+}
+
+void
+meta_display_focus_the_no_focus_window (MetaDisplay *display,
+                                        MetaScreen  *screen,
+                                        guint32      timestamp)
+{
+  MetaDevice *keyboard;
+
+  keyboard = meta_device_map_lookup (display->device_map,
+                                     META_CORE_KEYBOARD_ID);
+  meta_display_unset_keyboard_focus (display, screen, keyboard,
+                                     timestamp);
 }
 
 void
@@ -5735,6 +5953,30 @@ meta_display_has_shape (MetaDisplay *display)
 }
 
 /**
+ * meta_display_get_keyboard_focus_window:
+ * @display: a #MetaDisplay
+ * @keyboard: keyboard to get current focus window for
+ *
+ * Returns the window that is currently receiving events for
+ * the keyboard @keyboard. We may have already sent a request
+ * to the X server to move the focus window elsewhere. (The
+ * expected_focus_window records where we've last set the input
+ * focus.)
+ *
+ * Returns: (transfer none): window receiving @keyboard focus
+ **/
+MetaWindow *
+meta_display_get_keyboard_focus_window (MetaDisplay *display,
+                                        MetaDevice  *keyboard)
+{
+  MetaFocusInfo *focus_info;
+
+  focus_info = meta_display_get_focus_info (display, keyboard);
+
+  return focus_info->focus_window;
+}
+
+/**
  * meta_display_get_focus_window:
  * @display: a #MetaDisplay
  *
@@ -5749,7 +5991,12 @@ meta_display_has_shape (MetaDisplay *display)
 MetaWindow *
 meta_display_get_focus_window (MetaDisplay *display)
 {
-  return display->focus_window;
+  MetaDevice *keyboard;
+
+  keyboard = meta_device_map_lookup (display->device_map,
+                                     META_CORE_KEYBOARD_ID);
+
+  return meta_display_get_keyboard_focus_window (display, keyboard);
 }
 
 int 
@@ -5883,6 +6130,31 @@ meta_display_get_grab_info (MetaDisplay *display,
       device = meta_device_get_paired_device (device);
       info = g_hash_table_lookup (display->current_grabs,
                                   GINT_TO_POINTER (meta_device_get_id (device)));
+    }
+
+  return info;
+}
+
+MetaFocusInfo *
+meta_display_get_focus_info (MetaDisplay *display,
+                             MetaDevice  *device)
+{
+  MetaFocusInfo *info;
+
+  if (!device)
+    return NULL;
+
+  info = g_hash_table_lookup (display->focus_info, device);
+
+  if (!info)
+    {
+      if (!META_IS_DEVICE_KEYBOARD (device))
+        device = meta_device_get_paired_device (device);
+
+      info = g_slice_new0 (MetaFocusInfo);
+      info->last_focus_time = display->current_time;
+
+      g_hash_table_insert (display->focus_info, device, info);
     }
 
   return info;

@@ -1438,6 +1438,13 @@ reload_transient_for (MetaWindow    *window,
   MetaWindow *parent = NULL;
   Window transient_for, old_transient_for;
 
+  if (meta_window_appears_focused (window) && window->xtransient_for != None)
+    meta_window_propagate_focus_appearance (window,
+                                            window->focus_keyboard,
+                                            FALSE);
+
+  window->xtransient_for = None;
+  
   if (value->type != META_PROP_VALUE_INVALID)
     {
       transient_for = value->v.xwindow;
@@ -1474,7 +1481,9 @@ reload_transient_for (MetaWindow    *window,
     return;
 
   if (meta_window_appears_focused (window) && window->xtransient_for != None)
-    meta_window_propagate_focus_appearance (window, FALSE);
+    meta_window_propagate_focus_appearance (window,
+                                            window->focus_keyboard,
+                                            FALSE);
 
   old_transient_for = window->xtransient_for;
   window->xtransient_for = transient_for;
@@ -1527,7 +1536,9 @@ reload_transient_for (MetaWindow    *window,
     meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
 
   if (meta_window_appears_focused (window) && window->xtransient_for != None)
-    meta_window_propagate_focus_appearance (window, TRUE);
+    meta_window_propagate_focus_appearance (window,
+                                            window->focus_keyboard,
+                                            TRUE);
 }
 
 static void

@@ -239,6 +239,35 @@ bell_flash_window_frame (MetaWindow *window)
       bell_unflash_frame, window->frame, NULL);
 }
 
+static MetaWindow *
+get_flash_window (MetaDisplay *display,
+                  XkbAnyEvent *xkb_ev)
+{
+  XkbBellNotifyEvent *xkb_bell_event;
+  MetaWindow *window;
+
+  g_assert (xkb_ev->xkb_type == XkbBellNotify);
+
+  xkb_bell_event = (XkbBellNotifyEvent *) xkb_ev;
+  window = meta_display_lookup_x_window (display, xkb_bell_event->window);
+
+  if (!window &&
+      g_hash_table_size (display->focus_info) == 1)
+    {
+      GHashTableIter iter;
+      MetaFocusInfo *info;
+
+      /* If there is only one focused window, use it */
+      g_hash_table_iter_init (&iter, display->focus_info);
+
+      if (g_hash_table_iter_next (&iter, NULL, (gpointer *) &info) &&
+          info->focus_window && info->focus_window->frame)
+        window = info->focus_window;
+    }
+
+  return window;
+}
+
 /**
  * bell_flash_frame:
  * @display:  The display the bell event came in on
@@ -251,15 +280,11 @@ static void
 bell_flash_frame (MetaDisplay *display, 
 		  XkbAnyEvent *xkb_ev)
 {
-  XkbBellNotifyEvent *xkb_bell_event = (XkbBellNotifyEvent *) xkb_ev;
   MetaWindow *window;
   
   g_assert (xkb_ev->xkb_type == XkbBellNotify);
-  window = meta_display_lookup_x_window (display, xkb_bell_event->window);
-  if (!window && (display->focus_window))
-    {
-      window = display->focus_window;
-    }
+  window = get_flash_window (display, xkb_ev);
+
   if (window && window->frame)
     {
       bell_flash_window_frame (window);
@@ -320,9 +345,7 @@ meta_bell_notify (MetaDisplay *display,
       ca_proplist_sets (p, CA_PROP_EVENT_DESCRIPTION, _("Bell event"));
       ca_proplist_sets (p, CA_PROP_CANBERRA_CACHE_CONTROL, "permanent");
 
-      window = meta_display_lookup_x_window (display, xkb_bell_event->window);
-      if (!window && (display->focus_window) && (display->focus_window->frame))
-        window = display->focus_window;
+      window = get_flash_window (display, xkb_ev);
 
       if (window)
         {

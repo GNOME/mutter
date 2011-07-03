@@ -3111,20 +3111,26 @@ handle_activate_window_menu (MetaDisplay    *display,
                       MetaKeyBinding *binding,
                       gpointer        dummy)
 {
-  if (display->focus_window)
+  MetaFocusInfo *focus_info;
+  MetaDevice *device;
+
+  device = meta_input_event_get_device (display, event);
+  focus_info = meta_display_get_focus_info (display, device);
+
+  if (focus_info->focus_window)
     {
       Time evtime;
       int x, y;
 
-      meta_window_get_position (display->focus_window,
+      meta_window_get_position (focus_info->focus_window,
                                 &x, &y);
       
       if (meta_ui_get_direction() == META_UI_DIRECTION_RTL)
-	  x += display->focus_window->rect.width;
+	  x += focus_info->focus_window->rect.width;
 
       evtime = meta_input_event_get_time (display, event);
 
-      meta_window_show_menu (display->focus_window,
+      meta_window_show_menu (focus_info->focus_window,
                              x, y,
                              0,
                              evtime);

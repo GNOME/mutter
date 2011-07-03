@@ -855,12 +855,21 @@ static WnckWindowDisplayInfo
 meta_convert_meta_to_wnck (MetaWindow *window, MetaScreen *screen)
 {
   WnckWindowDisplayInfo wnck_window;
+  MetaFocusInfo *focus_info;
+  GHashTableIter iter;
+
   wnck_window.icon = window->icon;
   wnck_window.mini_icon = window->mini_icon;
   
   wnck_window.is_active = FALSE;
-  if (window == window->display->expected_focus_window)
-    wnck_window.is_active = TRUE;
+
+  g_hash_table_iter_init (&iter, window->display->focus_info);
+
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &focus_info))
+    {
+      if (window == focus_info->expected_focus_window)
+        wnck_window.is_active = TRUE;
+    }
 
   if (window->frame)
     {

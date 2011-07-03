@@ -76,6 +76,9 @@ gboolean meta_display_has_shape (MetaDisplay *display);
 
 MetaScreen *meta_display_screen_for_root (MetaDisplay *display,
                                           Window       xroot);
+
+MetaWindow *meta_display_get_keyboard_focus_window (MetaDisplay *display,
+                                                    MetaDevice  *keyboard);
 MetaWindow *meta_display_get_focus_window (MetaDisplay *display);
 
 gboolean  meta_display_xwindow_is_a_no_focus_window (MetaDisplay *display,
@@ -112,6 +115,26 @@ MetaWindow* meta_display_get_tab_current (MetaDisplay   *display,
                                           MetaScreen    *screen,
                                           MetaWorkspace *workspace);
 
+GList* meta_display_get_device_tab_list (MetaDisplay   *display,
+                                         MetaTabList    type,
+                                         MetaScreen    *screen,
+                                         MetaWorkspace *workspace,
+                                         MetaDevice    *device);
+
+MetaWindow* meta_display_get_device_tab_next (MetaDisplay   *display,
+                                              MetaTabList    type,
+                                              MetaScreen    *screen,
+                                              MetaWorkspace *workspace,
+                                              MetaWindow    *window,
+                                              MetaDevice    *device,
+                                              gboolean       backward);
+
+MetaWindow* meta_display_get_device_tab_current (MetaDisplay   *display,
+                                                 MetaTabList    type,
+                                                 MetaScreen    *screen,
+                                                 MetaWorkspace *workspace,
+                                                 MetaDevice    *device);
+
 gboolean meta_display_begin_grab_op (MetaDisplay *display,
                                      MetaScreen  *screen,
                                      MetaWindow  *window,
@@ -146,6 +169,16 @@ MetaGrabOp meta_display_get_device_grab_op (MetaDisplay *display,
 MetaKeyBindingAction meta_display_get_keybinding_action (MetaDisplay  *display,
                                                          unsigned int  keycode,
                                                          unsigned long mask);
+
+void meta_display_set_keyboard_focus   (MetaDisplay        *display,
+                                        MetaWindow         *window,
+                                        MetaDevice         *keyboard,
+                                        gboolean            focus_frame,
+                                        guint32             timestamp);
+void meta_display_unset_keyboard_focus (MetaDisplay        *display,
+                                        MetaScreen         *screen,
+                                        MetaDevice         *keyboard,
+                                        guint32             timestamp);
 
 /* meta_display_set_input_focus_window is like XSetInputFocus, except
  * that (a) it can't detect timestamps later than the current time,
