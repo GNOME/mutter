@@ -37,3 +37,33 @@ static void
 meta_device_keyboard_init (MetaDeviceKeyboard *keyboard)
 {
 }
+
+Window
+meta_device_keyboard_get_focus_window (MetaDeviceKeyboard *keyboard)
+{
+  MetaDeviceKeyboardClass *klass;
+
+  g_return_val_if_fail (META_IS_DEVICE_KEYBOARD (keyboard), None);
+
+  klass = META_DEVICE_KEYBOARD_GET_CLASS (keyboard);
+
+  if (!klass->get_focus_window)
+    return None;
+
+  return (klass->get_focus_window) (keyboard);
+}
+
+void
+meta_device_keyboard_set_focus_window (MetaDeviceKeyboard *keyboard,
+                                       Window              xwindow,
+                                       Time                timestamp)
+{
+  MetaDeviceKeyboardClass *klass;
+
+  g_return_if_fail (META_IS_DEVICE_KEYBOARD (keyboard));
+
+  klass = META_DEVICE_KEYBOARD_GET_CLASS (keyboard);
+
+  if (klass->set_focus_window)
+    (klass->set_focus_window) (keyboard, xwindow, timestamp);
+}

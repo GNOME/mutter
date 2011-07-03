@@ -51,9 +51,19 @@ struct _MetaDeviceKeyboard
 struct _MetaDeviceKeyboardClass
 {
   MetaDeviceClass parent_instance;
+
+  Window (* get_focus_window) (MetaDeviceKeyboard *keyboard);
+  void   (* set_focus_window) (MetaDeviceKeyboard *keyboard,
+                               Window              xwindow,
+                               Time                timestamp);
 };
 
 GType    meta_device_keyboard_get_type   (void) G_GNUC_CONST;
+
+Window   meta_device_keyboard_get_focus_window (MetaDeviceKeyboard *keyboard);
+void     meta_device_keyboard_set_focus_window (MetaDeviceKeyboard *keyboard,
+                                                Window              xwindow,
+                                                Time                timestamp);
 
 
 #endif /* META_DEVICE_KEYBOARD_H */
