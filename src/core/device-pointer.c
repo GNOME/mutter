@@ -71,7 +71,7 @@ meta_device_pointer_set_window_cursor (MetaDevicePointer *pointer,
     (klass->set_window_cursor) (pointer, xwindow, cursor);
 }
 
-void
+gboolean
 meta_device_pointer_query_position (MetaDevicePointer *pointer,
                                     Window             xwindow,
                                     Window            *root_ret,
@@ -85,18 +85,19 @@ meta_device_pointer_query_position (MetaDevicePointer *pointer,
   MetaDevicePointerClass *klass;
   gint root_x, root_y, x, y;
   Window root, child;
+  gboolean retval;
   guint mask;
 
-  g_return_if_fail (META_IS_DEVICE_POINTER (pointer));
-  g_return_if_fail (xwindow != None);
+  g_return_val_if_fail (META_IS_DEVICE_POINTER (pointer), FALSE);
+  g_return_val_if_fail (xwindow != None, FALSE);
 
   klass = META_DEVICE_POINTER_GET_CLASS (pointer);
 
   if (!klass->query_position)
-    return;
+    return FALSE;
 
-  (klass->query_position) (pointer, xwindow, &root, &child,
-                           &root_x, &root_y, &x, &y, &mask);
+  retval = (klass->query_position) (pointer, xwindow, &root, &child,
+                                    &root_x, &root_y, &x, &y, &mask);
 
   if (root_ret)
     *root_ret = root;
@@ -118,4 +119,6 @@ meta_device_pointer_query_position (MetaDevicePointer *pointer,
 
   if (mask_ret)
     *mask_ret = mask;
+
+  return retval;
 }
