@@ -90,6 +90,7 @@ northwestcmp (gconstpointer a, gconstpointer b)
 
 static void
 find_next_cascade (MetaWindow *window,
+                   MetaDevice *pointer,
                    MetaFrameBorders *borders,
                    /* visible windows on relevant workspaces */
                    GList      *windows,
@@ -136,7 +137,7 @@ find_next_cascade (MetaWindow *window,
    * of NW corner of window frame.
    */
 
-  current = meta_screen_get_current_monitor (window->screen);
+  current = meta_screen_get_current_monitor (window->screen, pointer);
   meta_window_get_work_area_for_monitor (window, current, &work_area);
 
   cascade_x = MAX (0, work_area.x);
@@ -667,6 +668,7 @@ meta_window_place (MetaWindow        *window,
 {
   GList *windows;
   const MetaMonitorInfo *xi;
+  MetaDevice *pointer, *keyboard;
 
   /* frame member variables should NEVER be used in here, only
    * MetaFrameBorders. But remember borders == NULL
@@ -678,7 +680,9 @@ meta_window_place (MetaWindow        *window,
   meta_topic (META_DEBUG_PLACEMENT, "Placing window %s\n", window->desc);
 
   windows = NULL;
-  
+  pointer = meta_window_guess_grab_pointer (window);
+  keyboard = meta_device_get_paired_device (pointer);
+
   switch (window->type)
     {
       /* Run placement algorithm on these. */
@@ -822,7 +826,7 @@ meta_window_place (MetaWindow        *window,
       int w, h;
 
       /* Warning, this function is a round trip! */
-      xi = meta_screen_get_current_monitor_info (window->screen);
+      xi = meta_screen_get_current_monitor_info (window->screen, pointer);
 
       w = xi->rect.width;
       h = xi->rect.height;
@@ -867,8 +871,8 @@ meta_window_place (MetaWindow        *window,
   }
 
   /* Warning, this is a round trip! */
-  xi = meta_screen_get_current_monitor_info (window->screen);
-  
+  xi = meta_screen_get_current_monitor_info (window->screen, pointer);
+
   /* "Origin" placement algorithm */
   x = xi->rect.x;
   y = xi->rect.y;
@@ -906,8 +910,8 @@ meta_window_place (MetaWindow        *window,
   /* If no placement has been done, revert to cascade to avoid 
    * fully overlapping window (e.g. starting multiple terminals)
    * */
-  if (x == xi->rect.x && y == xi->rect.y)  
-    find_next_cascade (window, borders, windows, x, y, &x, &y);
+  if (x == xi->rect.x && y == xi->rect.y)
+    find_next_cascade (window, pointer, borders, windows, x, y, &x, &y);
 
  done_check_denied_focus:
   /* If the window is being denied focus and isn't a transient of the
@@ -920,11 +924,7 @@ meta_window_place (MetaWindow        *window,
       gboolean       found_fit;
       MetaWindow    *focus_window;
       MetaRectangle  overlap;
-      MetaDevice    *pointer, *keyboard;
       MetaFocusInfo *focus_info;
-
-      pointer = meta_window_guess_grab_pointer (window);
-      keyboard = meta_device_get_paired_device (pointer);
 
       focus_info = meta_display_get_focus_info (window->display, keyboard);
       g_assert (focus_info != NULL);

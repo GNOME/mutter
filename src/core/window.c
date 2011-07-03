@@ -3724,7 +3724,8 @@ meta_window_can_tile_maximized (MetaWindow *window)
 }
 
 gboolean
-meta_window_can_tile_side_by_side (MetaWindow *window)
+meta_window_can_tile_side_by_side (MetaWindow *window,
+                                   MetaDevice *pointer)
 {
   int monitor;
   MetaRectangle tile_area;
@@ -3733,7 +3734,7 @@ meta_window_can_tile_side_by_side (MetaWindow *window)
   if (!meta_window_can_tile_maximized (window))
     return FALSE;
 
-  monitor = meta_screen_get_current_monitor (window->screen);
+  monitor = meta_screen_get_current_monitor (window->screen, pointer);
   meta_window_get_work_area_for_monitor (window, monitor, &tile_area);
 
   /* Do not allow tiling in portrait orientation */
@@ -8778,7 +8779,7 @@ update_move (MetaWindow  *window,
        * refers to the monitor which contains the largest part of the window,
        * the latter to the one where the pointer is located.
        */
-      monitor = meta_screen_get_current_monitor_info (window->screen);
+      monitor = meta_screen_get_current_monitor_info (window->screen, device);
       meta_window_get_work_area_for_monitor (window,
                                              monitor->number,
                                              &work_area);
@@ -8786,10 +8787,10 @@ update_move (MetaWindow  *window,
       /* Check if the cursor is in a position which triggers tiling
        * and set tile_mode accordingly.
        */
-      if (meta_window_can_tile_side_by_side (window) &&
+      if (meta_window_can_tile_side_by_side (window, device) &&
           x >= monitor->rect.x && x < (work_area.x + shake_threshold))
         window->tile_mode = META_TILE_LEFT;
-      else if (meta_window_can_tile_side_by_side (window) &&
+      else if (meta_window_can_tile_side_by_side (window, device) &&
                x >= work_area.x + work_area.width - shake_threshold &&
                x < (monitor->rect.x + monitor->rect.width))
         window->tile_mode = META_TILE_RIGHT;

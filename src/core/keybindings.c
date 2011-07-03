@@ -3378,6 +3378,8 @@ handle_toggle_tiled (MetaDisplay    *display,
                      gpointer        dummy)
 {
   MetaTileMode mode = binding->handler->data;
+  MetaDevice *device = meta_input_event_get_device (display, event);
+  MetaDevice *pointer = meta_device_get_paired_device (device);
 
   if ((META_WINDOW_TILED_LEFT (window) && mode == META_TILE_LEFT) ||
       (META_WINDOW_TILED_RIGHT (window) && mode == META_TILE_RIGHT))
@@ -3394,7 +3396,7 @@ handle_toggle_tiled (MetaDisplay    *display,
         meta_window_unmaximize (window, META_MAXIMIZE_VERTICAL |
                                         META_MAXIMIZE_HORIZONTAL);
     }
-  else if (meta_window_can_tile_side_by_side (window))
+  else if (meta_window_can_tile_side_by_side (window, pointer))
     {
       window->tile_monitor_number = window->monitor->number;
       window->tile_mode = mode;
