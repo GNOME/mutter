@@ -2057,7 +2057,7 @@ event_callback (XEvent   *event,
 
             if (new_screen != NULL && display->active_screen != new_screen)
               meta_workspace_focus_default_window (new_screen->active_workspace,
-                                                   NULL,
+                                                   device, NULL,
                                                    evtime);
           }
 
@@ -2206,6 +2206,7 @@ event_callback (XEvent   *event,
                               "brain-damage in the X protocol (see bug "
                               "125492).  Setting the default focus window.\n");
                   meta_workspace_focus_default_window (screen->active_workspace,
+                                                       meta_device_get_paired_device (device),
                                                        NULL,
                                                        meta_display_get_current_time_roundtrip (display));
                 }
@@ -2218,6 +2219,7 @@ event_callback (XEvent   *event,
                               "gnome-session logout dialog usage (see bug "
                               "153220).  Setting the default focus window.\n");
                   meta_workspace_focus_default_window (screen->active_workspace,
+                                                       meta_device_get_paired_device (device),
                                                        NULL,
                                                        meta_display_get_current_time_roundtrip (display));
                 }
@@ -2619,8 +2621,15 @@ event_callback (XEvent   *event,
                         meta_screen_show_desktop (screen, timestamp);
                       else
                         {
+                          MetaDevice *pointer;
+
+                          pointer = meta_device_map_lookup (screen->display->device_map,
+                                                            META_CORE_POINTER_ID);
+
                           meta_screen_unshow_desktop (screen);
-                          meta_workspace_focus_default_window (screen->active_workspace, NULL, timestamp);
+                          meta_workspace_focus_default_window (screen->active_workspace,
+                                                               pointer,
+                                                               NULL, timestamp);
                         }
                     }
                   else if (event->xclient.message_type ==
