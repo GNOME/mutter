@@ -342,11 +342,10 @@ meta_begin_modal_for_plugin (MetaScreen       *screen,
    * merge the two.
    */
   MetaDisplay    *display    = meta_screen_get_display (screen);
-  Display        *xdpy       = meta_display_get_xdisplay (display);
   MetaCompositor *compositor = display->compositor;
   gboolean pointer_grabbed = FALSE;
   gboolean keyboard_grabbed = FALSE;
-  int result;
+  gboolean result;
   MetaDevice     *device;
   MetaGrabInfo   *grab_info;
 
@@ -362,15 +361,15 @@ meta_begin_modal_for_plugin (MetaScreen       *screen,
 
   if ((options & META_MODAL_POINTER_ALREADY_GRABBED) == 0)
     {
-      result = XGrabPointer (xdpy, grab_window,
-                             False, /* owner_events */
-                             (ButtonPressMask | ButtonReleaseMask |
-                              EnterWindowMask | LeaveWindowMask | PointerMotionMask),
-                             GrabModeAsync, GrabModeAsync,
-                             None, /* confine to */
-                             cursor,
-                             timestamp);
-      if (result != Success)
+      result = meta_device_grab (device,
+                                 grab_window,
+                                 (ButtonPressMask | ButtonReleaseMask |
+                                  EnterWindowMask | LeaveWindowMask | PointerMotionMask),
+                                 cursor,
+                                 FALSE,
+                                 FALSE,
+                                 timestamp);
+      if (!result)
         goto fail;
 
       pointer_grabbed = TRUE;
@@ -378,12 +377,13 @@ meta_begin_modal_for_plugin (MetaScreen       *screen,
 
   if ((options & META_MODAL_KEYBOARD_ALREADY_GRABBED) == 0)
     {
-      result = XGrabKeyboard (xdpy, grab_window,
-                              False, /* owner_events */
-                              GrabModeAsync, GrabModeAsync,
-                              timestamp);
-
-      if (result != Success)
+      result = meta_device_grab (meta_device_get_paired_device (device),
+                                 grab_window,
+                                 (KeyPressMask | KeyReleaseMask),
+                                 META_CURSOR_DEFAULT,
+                                 FALSE, FALSE,
+                                 timestamp);
+      if (!result)
         goto fail;
 
       keyboard_grabbed = TRUE;
@@ -403,9 +403,9 @@ meta_begin_modal_for_plugin (MetaScreen       *screen,
 
  fail:
   if (pointer_grabbed)
-    XUngrabPointer (xdpy, timestamp);
+    meta_device_ungrab (device, timestamp);
   if (keyboard_grabbed)
-    XUngrabKeyboard (xdpy, timestamp);
+    meta_device_ungrab (meta_device_get_paired_device (device), timestamp);
 
   return FALSE;
 }
@@ -416,7 +416,6 @@ meta_end_modal_for_plugin (MetaScreen     *screen,
                            guint32         timestamp)
 {
   MetaDisplay    *display    = meta_screen_get_display (screen);
-  Display        *xdpy = meta_display_get_xdisplay (display);
   MetaCompositor *compositor = display->compositor;
   MetaDevice     *device;
 
@@ -426,8 +425,8 @@ meta_end_modal_for_plugin (MetaScreen     *screen,
   device = meta_device_map_lookup (display->device_map,
                                    META_CORE_POINTER_ID);
 
-  XUngrabPointer (xdpy, timestamp);
-  XUngrabKeyboard (xdpy, timestamp);
+  meta_device_ungrab (device, timestamp);
+  meta_device_ungrab (meta_device_get_paired_device (device), timestamp);
 
   meta_display_remove_grab_info (display, device);
   compositor->modal_plugin = NULL;
