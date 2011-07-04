@@ -41,5 +41,6 @@ MetaDevice *    meta_device_map_lookup      (MetaDeviceMap *device_map,
 					     gint           device_id);
 
 MetaDisplay *   meta_device_map_get_display (MetaDeviceMap *device_map);
+GList *         meta_device_map_list_devices (MetaDeviceMap *device_map);
 
 #endif
