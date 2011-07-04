@@ -45,7 +45,7 @@ struct _MetaFrame
   /* reparent window */
   Window xwindow;
 
-  MetaCursor current_cursor;
+  GHashTable *cursors;
 
   /* This rect is trusted info from where we put the
    * frame, not the result of ConfigureNotify
@@ -80,7 +80,8 @@ gboolean meta_frame_sync_to_window (MetaFrame         *frame,
 
 cairo_region_t *meta_frame_get_frame_bounds (MetaFrame *frame);
 
-void meta_frame_set_screen_cursor (MetaFrame	*frame,
+void meta_frame_set_screen_cursor (MetaFrame   *frame,
+                                   MetaDevice  *pointer,
 				   MetaCursor	cursor);
 
 #endif
