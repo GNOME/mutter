@@ -734,10 +734,18 @@ meta_frames_unmanage_window (MetaFrames *frames,
        */
       invalidate_all_caches (frames);
       
+#if 0
+      /* This function is only called when destroying the frame
+       * in core/frame.c, ideally this should be done for every
+       * device with a cursor on the frame, but in practical
+       * effects it doesn't matter.
+       */
+
       /* restore the cursor */
       meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                                    frame->xwindow,
                                    META_CURSOR_DEFAULT);
+#endif
 
       gdk_window_set_user_data (frame->window, NULL);
 
@@ -1848,8 +1856,10 @@ meta_frames_update_prelit_control (MetaFrames      *frames,
                                    MetaFrameControl control)
 {
   MetaFrameControl old_control;
+  GdkDevice *device;
   MetaCursor cursor;
 
+  device = gtk_get_current_event_device ();
 
   meta_verbose ("Updating prelit control from %u to %u\n",
                 frame->prelit_control, control);
@@ -1915,6 +1925,7 @@ meta_frames_update_prelit_control (MetaFrames      *frames,
   /* set/unset the prelight cursor */
   meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                                frame->xwindow,
+                               gdk_x11_device_get_id (device),
                                cursor);  
 
   switch (control)

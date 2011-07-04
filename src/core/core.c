@@ -757,13 +757,24 @@ meta_core_grab_buttons  (Display *xdisplay,
 }
 
 void
-meta_core_set_screen_cursor (Display *xdisplay,
-                             Window   frame_on_screen,
-                             MetaCursor cursor)
+meta_core_set_screen_cursor (Display    *xdisplay,
+                             Window      frame_on_screen,
+                             gint        device_id,
+                             MetaCursor  cursor)
 {
   MetaWindow *window = get_window (xdisplay, frame_on_screen);
+  MetaDevice *pointer;
 
-  meta_frame_set_screen_cursor (window->frame, cursor);
+  pointer = meta_device_map_lookup (window->display->device_map,
+                                    device_id);
+
+  if (pointer == NULL)
+    return;
+
+  if (!META_IS_DEVICE_POINTER (pointer))
+    pointer = meta_device_get_paired_device (pointer);
+
+  meta_frame_set_screen_cursor (window->frame, pointer, cursor);
 }
 
 void

@@ -200,9 +200,10 @@ Window     meta_core_get_frame       (Display    *xdisplay,
 void       meta_core_grab_buttons  (Display *xdisplay,
                                     Window   frame_xwindow);
 
-void       meta_core_set_screen_cursor (Display *xdisplay,
-                                        Window   frame_on_screen,
-                                        MetaCursor cursor);
+void       meta_core_set_screen_cursor (Display    *xdisplay,
+                                        Window      frame_on_screen,
+                                        int         device_id,
+                                        MetaCursor  cursor);
 
 void       meta_core_select_events     (Display  *xdisplay,
                                         Window    xwindow,
