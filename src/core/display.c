@@ -4497,22 +4497,29 @@ meta_display_set_cursor_theme (const char *theme,
 {
 #ifdef HAVE_XCURSOR     
   GSList *tmp;
-
+  GList *devices, *d;
   MetaDisplay *display = meta_get_display ();
 
   XcursorSetTheme (display->xdisplay, theme);
   XcursorSetDefaultSize (display->xdisplay, size);
 
+  devices = meta_device_map_list_devices (display->device_map);
   tmp = display->screens;
+
   while (tmp != NULL)
     {
       MetaScreen *screen = tmp->data;
-	  	  
-      meta_screen_update_cursor (screen);
+
+      for (d = devices; d; d = d->next)
+        {
+          if (META_IS_DEVICE_POINTER (d->data))
+            meta_screen_update_cursor (screen, d->data);
+        }
 
       tmp = tmp->next;
     }
 
+  g_list_free (devices);
 #endif
 }
 

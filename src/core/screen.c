@@ -767,10 +767,10 @@ meta_screen_new (MetaDisplay *display,
   screen->rect.x = screen->rect.y = 0;
   screen->rect.width = WidthOfScreen (screen->xscreen);
   screen->rect.height = HeightOfScreen (screen->xscreen);
-  screen->current_cursor = -1; /* invalid/unset */
   screen->default_xvisual = DefaultVisualOfScreen (screen->xscreen);
   screen->default_depth = DefaultDepthOfScreen (screen->xscreen);
   screen->flash_window = None;
+  screen->cursors = g_hash_table_new (NULL, NULL);
 
   screen->wm_sn_selection_window = new_wm_sn_owner;
   screen->wm_sn_atom = wm_sn_atom;
@@ -795,8 +795,6 @@ meta_screen_new (MetaDisplay *display,
   screen->last_monitor_index = 0;  
   
   reload_monitor_infos (screen);
-  
-  meta_screen_set_cursor (screen, META_CURSOR_DEFAULT);
 
   /* Handle creating a no_focus_window for this screen */  
   screen->no_focus_window =
@@ -957,6 +955,8 @@ meta_screen_free (MetaScreen *screen,
     meta_tile_preview_free (screen->tile_preview);
   
   g_free (screen->screen_name);
+
+  g_hash_table_destroy (screen->cursors);
 
   g_object_unref (screen);
 
@@ -1576,31 +1576,33 @@ update_focus_mode (MetaScreen *screen)
 
 void
 meta_screen_set_cursor (MetaScreen *screen,
+                        MetaDevice *pointer,
                         MetaCursor  cursor)
 {
-  Cursor xcursor;
+  MetaCursor old_cursor;
 
-  if (cursor == screen->current_cursor)
+  old_cursor = GPOINTER_TO_UINT (g_hash_table_lookup (screen->cursors, pointer));
+
+  if (cursor == old_cursor)
     return;
 
-  screen->current_cursor = cursor;
-  
-  xcursor = meta_display_create_x_cursor (screen->display, cursor);
-  XDefineCursor (screen->display->xdisplay, screen->xroot, xcursor);
-  XFlush (screen->display->xdisplay);
-  XFreeCursor (screen->display->xdisplay, xcursor);
+  g_hash_table_insert (screen->cursors, pointer,
+                       GUINT_TO_POINTER (cursor));
+
+  meta_screen_update_cursor (screen, pointer);
 }
 
 void
-meta_screen_update_cursor (MetaScreen *screen)
+meta_screen_update_cursor (MetaScreen *screen,
+                           MetaDevice *pointer)
 {
-  Cursor xcursor;
+  MetaCursor cursor;
 
-  xcursor = meta_display_create_x_cursor (screen->display, 
-					  screen->current_cursor);
-  XDefineCursor (screen->display->xdisplay, screen->xroot, xcursor);
+  cursor = GPOINTER_TO_UINT (g_hash_table_lookup (screen->cursors, pointer));
+  meta_device_pointer_set_window_cursor (META_DEVICE_POINTER (pointer),
+                                         screen->xroot,
+                                         cursor);
   XFlush (screen->display->xdisplay);
-  XFreeCursor (screen->display->xdisplay, xcursor);
 }
 
 void
@@ -3071,17 +3073,22 @@ static gboolean startup_sequence_timeout (void *data);
 static void
 update_startup_feedback (MetaScreen *screen)
 {
+  MetaDevice *pointer;
+
+  pointer = meta_device_map_lookup (screen->display->device_map,
+                                    META_CORE_POINTER_ID);
+
   if (screen->startup_sequences != NULL)
     {
       meta_topic (META_DEBUG_STARTUP,
                   "Setting busy cursor\n");
-      meta_screen_set_cursor (screen, META_CURSOR_BUSY);
+      meta_screen_set_cursor (screen, pointer, META_CURSOR_BUSY);
     }
   else
     {
       meta_topic (META_DEBUG_STARTUP,
                   "Setting default cursor\n");
-      meta_screen_set_cursor (screen, META_CURSOR_DEFAULT);
+      meta_screen_set_cursor (screen, pointer, META_CURSOR_DEFAULT);
     }
 }
 
