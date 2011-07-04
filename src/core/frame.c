@@ -28,6 +28,7 @@
 #include "bell.h"
 #include <meta/errors.h>
 #include "keybindings-private.h"
+#include "device-pointer.h"
 
 #include <X11/extensions/Xrender.h>
 
@@ -64,7 +65,7 @@ meta_window_ensure_frame (MetaWindow *window)
   frame->child_y = 0;
   frame->bottom_height = 0;
   frame->right_width = 0;
-  frame->current_cursor = 0;
+  frame->cursors = g_hash_table_new (NULL, NULL);
 
   frame->mapped = FALSE;
   frame->is_flashing = FALSE;
@@ -228,9 +229,10 @@ meta_window_destroy_frame (MetaWindow *window)
 
   /* Move keybindings to window instead of frame */
   meta_window_grab_keys (window);
-  
+
+  g_hash_table_destroy (frame->cursors);
   g_free (frame);
-  
+
   /* Put our state back where it should be */
   meta_window_queue (window, META_QUEUE_CALC_SHOWING);
   meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
@@ -407,22 +409,22 @@ meta_frame_queue_draw (MetaFrame *frame)
 }
 
 void
-meta_frame_set_screen_cursor (MetaFrame	*frame,
-			      MetaCursor cursor)
+meta_frame_set_screen_cursor (MetaFrame	 *frame,
+                              MetaDevice *pointer,
+			      MetaCursor  cursor)
 {
-  Cursor xcursor;
-  if (cursor == frame->current_cursor)
+  MetaCursor old_cursor;
+
+  old_cursor = GPOINTER_TO_UINT (g_hash_table_lookup (frame->cursors, pointer));
+
+  if (cursor == old_cursor)
     return;
-  frame->current_cursor = cursor;
-  if (cursor == META_CURSOR_DEFAULT)
-    XUndefineCursor (frame->window->display->xdisplay, frame->xwindow);
-  else
-    { 
-      xcursor = meta_display_create_x_cursor (frame->window->display, cursor);
-      XDefineCursor (frame->window->display->xdisplay, frame->xwindow, xcursor);
-      XFlush (frame->window->display->xdisplay);
-      XFreeCursor (frame->window->display->xdisplay, xcursor);
-    }
+
+  g_hash_table_insert (frame->cursors, pointer,
+                       GUINT_TO_POINTER (cursor));
+  meta_device_pointer_set_window_cursor (META_DEVICE_POINTER (pointer),
+                                         frame->xwindow, cursor);
+  XFlush (frame->window->display->xdisplay);
 }
 
 Window

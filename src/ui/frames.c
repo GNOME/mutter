@@ -637,10 +637,12 @@ meta_frames_unmanage_window (MetaFrames *frames,
 
   if (frame)
     {
+#if 0
       /* restore the cursor */
       meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                                    frame->xwindow,
                                    META_CURSOR_DEFAULT);
+#endif
 
       gdk_window_set_user_data (frame->window, NULL);
 
@@ -1594,8 +1596,10 @@ meta_frames_update_prelit_control (MetaFrames      *frames,
                                    MetaFrameControl control)
 {
   MetaFrameControl old_control;
+  GdkDevice *device;
   MetaCursor cursor;
 
+  device = gtk_get_current_event_device ();
 
   meta_verbose ("Updating prelit control from %u to %u\n",
                 frame->prelit_control, control);
@@ -1661,6 +1665,7 @@ meta_frames_update_prelit_control (MetaFrames      *frames,
   /* set/unset the prelight cursor */
   meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                                frame->xwindow,
+                               gdk_x11_device_get_id (device),
                                cursor);  
 
   switch (control)
