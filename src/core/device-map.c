@@ -291,6 +291,28 @@ meta_device_map_get_display (MetaDeviceMap *device_map)
   return priv->display;
 }
 
+/**
+ * meta_device_map_list_devices:
+ * @device_map: a #MetaDeviceMap
+ *
+ * Returns the list of devices that @device_map holds.
+ *
+ * Returns: (element-type Meta.Device) (transfer container): the list
+ *          of devices, the contained objects are owned by @device_map
+ *          and should not be unref'ed. The list must be freed with
+ *          g_list_free().
+ **/
+GList *
+meta_device_map_list_devices (MetaDeviceMap *device_map)
+{
+  MetaDeviceMapPrivate *priv;
+
+  g_return_val_if_fail (META_IS_DEVICE_MAP (device_map), NULL);
+
+  priv = device_map->priv;
+  return g_hash_table_get_values (priv->devices);
+}
+
 gboolean
 meta_device_map_grab_key (MetaDeviceMap *device_map,
                           Window         xwindow,
