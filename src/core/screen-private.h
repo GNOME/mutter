@@ -90,7 +90,8 @@ struct _MetaScreen
   MetaStack *stack;
   MetaStackTracker *stack_tracker;
 
-  MetaCursor current_cursor;
+  /* per-pointer cursors */
+  GHashTable *cursors;
 
   Window flash_window;
 
@@ -158,8 +159,10 @@ void          meta_screen_queue_frame_redraws (MetaScreen                 *scree
 void          meta_screen_queue_window_resizes (MetaScreen                 *screen);
 
 void          meta_screen_set_cursor          (MetaScreen                 *screen,
+                                               MetaDevice                 *pointer,
                                                MetaCursor                  cursor);
-void          meta_screen_update_cursor       (MetaScreen                 *screen);
+void          meta_screen_update_cursor       (MetaScreen                 *screen,
+                                               MetaDevice                 *pointer);
 
 void          meta_screen_tab_popup_create       (MetaScreen              *screen,
                                                   MetaTabList              list_type,
