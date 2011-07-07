@@ -7,9 +7,9 @@ Source: mutter
 Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
-Uploaders: Emilio Pozuelo Monfort <pochu@debian.org>, Frederic Peters <fpeters@debian.org>, Laurent Bigonville <bigon@debian.org>
+Uploaders: Emilio Pozuelo Monfort <pochu@debian.org>, Frederic Peters <fpeters@debian.org>, Laurent Bigonville <bigon@debian.org>, Michael Biebl <biebl@debian.org>
 Build-Depends: cdbs (>= 0.4.41),
-               debhelper (>= 5),
+               debhelper (>= 8),
                dh-autoreconf,
                intltool (>= 0.34.90),
                libgtk-3-dev (>= 3.0.8-1~),

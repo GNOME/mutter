@@ -1,4 +1,4 @@
-debian/tmp/usr/bin
-debian/tmp/usr/lib/mutter/plugins
-debian/tmp/usr/share/applications
-debian/tmp/usr/share/gnome
+usr/bin
+usr/lib/mutter/plugins
+usr/share/applications
+usr/share/gnome
