@@ -1,8 +1,15 @@
 mutter (3.0.2.1-2) UNRELEASED; urgency=low
 
+  [ Laurent Bigonville ]
   * Drop debian/mutter.lintian-overrides: Missing manpages are now installed
 
- -- Laurent Bigonville <bigon@debian.org>  Sat, 11 Jun 2011 14:51:05 +0200
+  [ Michael Biebl ]
+  * debian/control.in:
+    - Drop Build-Depends on gir1.2-gtk-3.0, gir1.2-clutter-1.0 and
+      gir1.2-json-glib-1.0 and let their corresponding -dev package pull it in
+      automatically. Bump the Build-Depends on the -dev packages accordingly.
+
+ -- Michael Biebl <biebl@debian.org>  Thu, 07 Jul 2011 21:48:37 +0200
 
 mutter (3.0.2.1-1) unstable; urgency=low
 
