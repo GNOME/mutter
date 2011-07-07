@@ -1,4 +1,4 @@
-mutter (3.0.2.1-2) UNRELEASED; urgency=low
+mutter (3.0.2.1-2) unstable; urgency=low
 
   [ Laurent Bigonville ]
   * Drop debian/mutter.lintian-overrides: Missing manpages are now installed
@@ -16,7 +16,7 @@ mutter (3.0.2.1-2) UNRELEASED; urgency=low
     - Remove custom dh_girepository rules from debian/rules.
     - Set DEB_DH_GIREPOSITORY_ARGS_ALL to /usr/lib/mutter.
 
- -- Michael Biebl <biebl@debian.org>  Thu, 07 Jul 2011 21:48:37 +0200
+ -- Michael Biebl <biebl@debian.org>  Thu, 07 Jul 2011 22:45:20 +0200
 
 mutter (3.0.2.1-1) unstable; urgency=low
 
