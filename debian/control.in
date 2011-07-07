@@ -3,7 +3,7 @@ Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
 Uploaders: @GNOME_TEAM@
-Build-Depends: cdbs (>= 0.4.41),
+Build-Depends: cdbs (>= 0.4.90),
                debhelper (>= 8),
                dh-autoreconf,
                intltool (>= 0.34.90),

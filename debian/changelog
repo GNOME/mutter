@@ -11,6 +11,10 @@ mutter (3.0.2.1-2) UNRELEASED; urgency=low
   * Bump debhelper compatibility level to 8.
     - Update Build-Depends on debhelper.
     - Strip debian/tmp/ from .install files.
+  * Let cdbs call dh_girepository.
+    - Bump Build-Depends on cdbs to (>= 0.4.90).
+    - Remove custom dh_girepository rules from debian/rules.
+    - Set DEB_DH_GIREPOSITORY_ARGS_ALL to /usr/lib/mutter.
 
  -- Michael Biebl <biebl@debian.org>  Thu, 07 Jul 2011 21:48:37 +0200
 
