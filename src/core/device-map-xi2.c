@@ -49,9 +49,12 @@ meta_device_map_xi2_grab_key (MetaDeviceMap *device_map,
   mask.mask = meta_device_xi2_translate_event_mask (KeyPressMask |
                                                     KeyReleaseMask,
                                                     &mask.mask_len);
-
+  /* FIXME: Doesn't seem to work with
+   * XIAllMasterDevices, use the VCK
+   * at the moment
+   */
   retval = XIGrabKeycode (display->xdisplay,
-                          XIAllMasterDevices,
+                          META_CORE_KEYBOARD_ID,
                           keycode, xwindow,
                           (sync) ? GrabModeSync : GrabModeAsync,
                           GrabModeAsync, /* Never care about the other device */
@@ -71,7 +74,7 @@ meta_device_map_xi2_ungrab_key (MetaDeviceMap *device_map,
 
   display = meta_device_map_get_display (device_map);
   XIUngrabKeycode (display->xdisplay,
-                   XIAllMasterDevices,
+                   META_CORE_KEYBOARD_ID,
                    keycode, xwindow,
                    1, &mods);
 }
@@ -115,7 +118,8 @@ meta_device_map_xi2_ungrab_button (MetaDeviceMap *device_map,
 
   display = meta_device_map_get_display (device_map);
   XIUngrabButton (display->xdisplay,
-                  XIAllMasterDevices,
+                  META_CORE_POINTER_ID,
+                  //XIAllMasterDevices,
                   n_button, xwindow, 1, &mods);
 }
 
