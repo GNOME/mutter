@@ -2020,6 +2020,13 @@ event_callback (XEvent   *event,
         }
 
       device = meta_input_event_get_device (display, event);
+
+      /* Ignore unknown devices, most likely
+       * slave devices we don't care about
+       */
+      if (!device)
+        return FALSE;
+
       grab_info = meta_display_get_grab_info (display, device);
 
       switch (evtype)
