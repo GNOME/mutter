@@ -553,7 +553,8 @@ meta_display_open (void)
   the_display->static_gravity_works = g_getenv ("MUTTER_USE_STATIC_GRAVITY") != NULL;
   
   meta_bell_init (the_display);
-  the_display->device_map = meta_device_map_new (the_display, TRUE);
+  the_display->device_map = meta_device_map_new (the_display,
+                                                 meta_get_use_core_devices ());
 
   meta_display_init_keys (the_display);
 

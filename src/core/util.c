@@ -50,6 +50,7 @@ meta_topic_real_valist (MetaDebugTopic topic,
 static gint verbose_topics = 0;
 static gboolean is_debugging = FALSE;
 static gboolean replace_current = FALSE;
+static gboolean use_core_devices = FALSE;
 static int no_prefix = 0;
 
 #ifdef WITH_VERBOSE_MODE
@@ -176,6 +177,18 @@ meta_set_debugging (gboolean setting)
 #endif
 
   is_debugging = setting;
+}
+
+gboolean
+meta_get_use_core_devices (void)
+{
+  return use_core_devices;
+}
+
+void
+meta_set_use_core_devices (gboolean setting)
+{
+  use_core_devices = setting;
 }
 
 gboolean

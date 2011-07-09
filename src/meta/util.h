@@ -38,6 +38,9 @@ gboolean meta_is_syncing (void);
 void     meta_set_syncing (gboolean setting);
 void     meta_set_replace_current_wm (gboolean setting);
 
+gboolean meta_get_use_core_devices (void);
+void     meta_set_use_core_devices (gboolean setting);
+
 void meta_debug_spew_real (const char *format,
                            ...) G_GNUC_PRINTF (1, 2);
 void meta_verbose_real    (const char *format,

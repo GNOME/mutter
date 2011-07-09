@@ -301,9 +301,12 @@ static GSourceFuncs event_funcs = {
 static void
 meta_clutter_init (void)
 {
+  if (!meta_get_use_core_devices ())
+    clutter_x11_enable_xinput ();
+
   clutter_x11_set_display (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()));
   clutter_x11_disable_event_retrieval ();
-  
+
   if (CLUTTER_INIT_SUCCESS == clutter_init (NULL, NULL))
     {
       GSource *source = g_source_new (&event_funcs, sizeof (GSource));
@@ -414,6 +417,8 @@ meta_init (void)
     meta_set_verbose (TRUE);
   if (g_getenv ("MUTTER_DEBUG"))
     meta_set_debugging (TRUE);
+  if (g_getenv ("MUTTER_USE_CORE_DEVICES"))
+    meta_set_use_core_devices (TRUE);
 
   if (g_get_home_dir ())
     if (chdir (g_get_home_dir ()) < 0)
