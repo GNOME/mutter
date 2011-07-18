@@ -1539,7 +1539,7 @@ meta_window_unmanage (MetaWindow  *window,
    * invariants.
    */
   if (meta_window_appears_focused (window))
-    meta_window_propagate_focus_appearance (window, FALSE);
+    meta_window_propagate_focus_appearance (window, window->focus_keyboard, FALSE);
 
   if (window->focus_keyboard)
     {
