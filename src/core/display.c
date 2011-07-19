@@ -561,8 +561,7 @@ meta_display_open (void)
 
   the_display->current_grabs = g_hash_table_new_full (NULL, NULL, NULL,
                                                       (GDestroyNotify) g_free);
-  the_display->focus_info = g_hash_table_new_full (NULL, NULL, NULL,
-                                                   (GDestroyNotify) g_free);
+  the_display->focus_info = g_hash_table_new (NULL, NULL);
   the_display->edge_resistance_info = g_hash_table_new (NULL, NULL);
 
 #ifdef HAVE_XSYNC
@@ -5958,13 +5957,13 @@ meta_display_get_focus_info (MetaDisplay *display,
   if (!device)
     return NULL;
 
+  if (!META_IS_DEVICE_KEYBOARD (device))
+    device = meta_device_get_paired_device (device);
+
   info = g_hash_table_lookup (display->focus_info, device);
 
   if (!info)
     {
-      if (!META_IS_DEVICE_KEYBOARD (device))
-        device = meta_device_get_paired_device (device);
-
       info = g_slice_new0 (MetaFocusInfo);
       info->last_focus_time = display->current_time;
 
