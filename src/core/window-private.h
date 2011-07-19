@@ -660,6 +660,10 @@ void meta_window_propagate_focus_appearance (MetaWindow *window,
                                              MetaDevice *keyboard,
                                              gboolean    focused);
 
+void         meta_window_set_client_pointer (MetaWindow *window,
+                                             MetaDevice *pointer);
+MetaDevice * meta_window_get_client_pointer (MetaWindow *window);
+
 MetaDevice * meta_window_guess_grab_pointer (MetaWindow *window);
 
 #endif
