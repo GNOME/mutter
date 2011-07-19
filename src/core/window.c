@@ -7096,6 +7096,8 @@ meta_window_notify_focus (MetaWindow *window,
               !meta_prefs_get_raise_on_click())
             meta_display_ungrab_focus_window_button (window->display, window);
 
+          meta_window_set_client_pointer (window,
+                                          meta_device_get_paired_device (keyboard));
           g_signal_emit (window, window_signals[FOCUS], 0);
 
           if (meta_device_get_id (keyboard) == META_CORE_KEYBOARD_ID)
@@ -11065,6 +11067,32 @@ meta_window_compute_tile_match (MetaWindow *window)
 
       window->tile_match = match;
     }
+}
+
+void
+meta_window_set_client_pointer (MetaWindow *window,
+                                MetaDevice *pointer)
+{
+#ifdef HAVE_XINPUT2
+  XISetClientPointer (window->display->xdisplay,
+                      window->xwindow,
+                      meta_device_get_id (pointer));
+#endif
+}
+
+MetaDevice *
+meta_window_get_client_pointer (MetaWindow *window)
+{
+  int device_id = META_CORE_POINTER_ID;
+
+#ifdef HAVE_XINPUT2
+  if (window->display->have_xinput2)
+    XIGetClientPointer (window->display->xdisplay,
+                        window->xwindow, &device_id);
+#endif
+
+  return meta_device_map_lookup (window->display->device_map,
+                                 device_id);
 }
 
 /* Guesses the better device to grab on if a grab is to be started,

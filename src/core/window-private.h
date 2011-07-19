@@ -664,6 +664,10 @@ gboolean meta_window_can_tile_side_by_side   (MetaWindow *window,
 
 void meta_window_compute_tile_match (MetaWindow *window);
 
+void         meta_window_set_client_pointer (MetaWindow *window,
+                                             MetaDevice *pointer);
+MetaDevice * meta_window_get_client_pointer (MetaWindow *window);
+
 MetaDevice * meta_window_guess_grab_pointer (MetaWindow *window);
 
 #endif
