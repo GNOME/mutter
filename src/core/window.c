@@ -11102,10 +11102,8 @@ meta_window_get_client_pointer (MetaWindow *window)
 MetaDevice *
 meta_window_guess_grab_pointer (MetaWindow *window)
 {
-  /* FIXME: This ought to be the very last resort, ideally
-   * the current/last focus device should be used to find
-   * this out, or the client pointer.
-   */
-  return meta_device_map_lookup (window->display->device_map,
-                                 META_CORE_POINTER_ID);
+  if (window->focus_keyboard)
+    return meta_device_get_paired_device (window->focus_keyboard);
+
+  return meta_window_get_client_pointer (window);
 }
