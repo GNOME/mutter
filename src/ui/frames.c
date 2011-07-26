@@ -1998,10 +1998,9 @@ meta_frames_motion_notify_event     (GtkWidget           *widget,
     case META_GRAB_OP_CLICKING_UNSTICK:
       {
         MetaFrameControl control;
-        int x, y;
-        
-        gdk_window_get_device_position (frame->window, event->device,
-                                        &x, &y, NULL);
+        gdouble x, y;
+
+        gdk_event_get_coords ((GdkEvent *) event, &x, &y);
 
         /* Control is set to none unless it matches
          * the current grab
@@ -2040,11 +2039,9 @@ meta_frames_motion_notify_event     (GtkWidget           *widget,
     case META_GRAB_OP_NONE:
       {
         MetaFrameControl control;
-        int x, y;
-        
-        gdk_window_get_device_position (frame->window, event->device,
-                                        &x, &y, NULL);
+        gdouble x, y;
 
+        gdk_event_get_coords ((GdkEvent *) event, &x, &y);
         control = get_control (frames, frame, x, y);
 
         /* Update prelit control and cursor */
