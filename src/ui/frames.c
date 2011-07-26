@@ -52,6 +52,7 @@ static void meta_frames_unmap         (GtkWidget       *widget);
 
 static void meta_frames_update_prelit_control (MetaFrames      *frames,
                                                MetaUIFrame     *frame,
+                                               GdkDevice       *device,
                                                MetaFrameControl control);
 static gboolean meta_frames_button_press_event    (GtkWidget           *widget,
                                                    GdkEventButton      *event);
@@ -1844,7 +1845,9 @@ meta_frames_button_release_event    (GtkWidget           *widget,
        * prelit so to let the user know that it can now be pressed.
        * :)
        */
-      meta_frames_update_prelit_control (frames, frame, control);
+      meta_frames_update_prelit_control (frames, frame, 
+                                         gdk_event_get_device ((GdkEvent *) event),
+                                         control);
     }
   
   return TRUE;
@@ -1853,13 +1856,11 @@ meta_frames_button_release_event    (GtkWidget           *widget,
 static void
 meta_frames_update_prelit_control (MetaFrames      *frames,
                                    MetaUIFrame     *frame,
+                                   GdkDevice       *device,
                                    MetaFrameControl control)
 {
   MetaFrameControl old_control;
-  GdkDevice *device;
   MetaCursor cursor;
-
-  device = gtk_get_current_event_device ();
 
   meta_verbose ("Updating prelit control from %u to %u\n",
                 frame->prelit_control, control);
@@ -2031,7 +2032,9 @@ meta_frames_motion_notify_event     (GtkWidget           *widget,
            control = META_FRAME_CONTROL_NONE;
         
         /* Update prelit control and cursor */
-        meta_frames_update_prelit_control (frames, frame, control);
+        meta_frames_update_prelit_control (frames, frame, 
+                                           gdk_event_get_device ((GdkEvent *) event),
+                                           control);
 
         /* No tooltip while in the process of clicking */
       }
@@ -2045,7 +2048,9 @@ meta_frames_motion_notify_event     (GtkWidget           *widget,
         control = get_control (frames, frame, x, y);
 
         /* Update prelit control and cursor */
-        meta_frames_update_prelit_control (frames, frame, control);
+        meta_frames_update_prelit_control (frames, frame, 
+                                           gdk_event_get_device ((GdkEvent *) event),
+                                           control);
         
         queue_tip (frames);
       }
@@ -2568,7 +2573,9 @@ meta_frames_enter_notify_event      (GtkWidget           *widget,
     return FALSE;
 
   control = get_control (frames, frame, event->x, event->y);
-  meta_frames_update_prelit_control (frames, frame, control);
+  meta_frames_update_prelit_control (frames, frame, 
+                                     gdk_event_get_device ((GdkEvent *) event),
+                                     control);
   
   return TRUE;
 }
@@ -2586,7 +2593,9 @@ meta_frames_leave_notify_event      (GtkWidget           *widget,
   if (frame == NULL)
     return FALSE;
 
-  meta_frames_update_prelit_control (frames, frame, META_FRAME_CONTROL_NONE);
+  meta_frames_update_prelit_control (frames, frame, 
+                                     gdk_event_get_device ((GdkEvent *) event),
+                                     META_FRAME_CONTROL_NONE);
   
   clear_tip (frames);
 
