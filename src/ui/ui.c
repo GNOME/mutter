@@ -413,7 +413,8 @@ meta_ui_create_frame_window (MetaUI *ui,
 		    &attrs, attributes_mask);
 
   gdk_window_resize (window, width, height);
-  
+  gdk_window_set_support_multidevice (window, TRUE);
+
   meta_frames_manage_window (ui->frames, GDK_WINDOW_XID (window), window);
 
   return GDK_WINDOW_XID (window);
