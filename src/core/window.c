@@ -8043,6 +8043,7 @@ menu_callback (MetaWindowMenu *menu,
 
 void
 meta_window_show_menu (MetaWindow *window,
+                       MetaDevice *device,
                        int         root_x,
                        int         root_y,
                        int         button,
@@ -8173,7 +8174,7 @@ meta_window_show_menu (MetaWindow *window,
 
   meta_verbose ("Popping up window menu for %s\n", window->desc);
 
-  meta_ui_window_menu_popup (menu, root_x, root_y, button, timestamp);
+  meta_ui_window_menu_popup (menu, device, root_x, root_y, button, timestamp);
 }
 
 void

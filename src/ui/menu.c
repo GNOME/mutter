@@ -498,13 +498,17 @@ meta_window_menu_new   (MetaFrames         *frames,
 
 void
 meta_window_menu_popup (MetaWindowMenu     *menu,
+                        MetaDevice         *device,
                         int                 root_x,
                         int                 root_y,
                         int                 button,
                         guint32             timestamp)
 {
+  GdkDeviceManager *device_manager;
+  GdkDevice *gdkdevice;
+  GdkDisplay *display;
   GdkPoint *pt;
-  
+
   pt = g_new (GdkPoint, 1);
 
   g_object_set_data_full (G_OBJECT (menu->menu),
@@ -514,12 +518,18 @@ meta_window_menu_popup (MetaWindowMenu     *menu,
 
   pt->x = root_x;
   pt->y = root_y;
-  
-  gtk_menu_popup (GTK_MENU (menu->menu),
-                  NULL, NULL,
-                  popup_position_func, pt,
-                  button,
-                  timestamp);
+
+  display = gtk_widget_get_display (menu->menu);
+  device_manager = gdk_display_get_device_manager (display);
+  gdkdevice = gdk_x11_device_manager_lookup (device_manager,
+                                             meta_device_get_id (device));
+
+  gtk_menu_popup_for_device (GTK_MENU (menu->menu),
+                             gdkdevice,
+                             NULL, NULL,
+                             popup_position_func, pt, NULL,
+                             button,
+                             timestamp);
 
   if (!gtk_widget_get_visible (menu->menu))
     meta_warning ("GtkMenu failed to grab the pointer\n");

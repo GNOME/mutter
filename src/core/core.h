@@ -165,6 +165,7 @@ const char* meta_core_get_workspace_name_with_index (Display *xdisplay,
 
 void meta_core_show_window_menu (Display *xdisplay,
                                  Window   frame_xwindow,
+                                 int      device_id,
                                  int      root_x,
                                  int      root_y,
                                  int      button,
