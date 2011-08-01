@@ -237,6 +237,9 @@ meta_window_finalize (GObject *object)
   if (window->frame_bounds)
     cairo_region_destroy (window->frame_bounds);
 
+  if (window->menu)
+    meta_ui_window_menu_free (window->menu);
+
   meta_icon_cache_free (&window->icon_cache);
 
   g_free (window->sm_client_id);
@@ -1678,9 +1681,9 @@ meta_window_unmanage (MetaWindow  *window,
 
   if (window->display->window_with_menu == window)
     {
-      meta_ui_window_menu_free (window->display->window_menu);
-      window->display->window_menu = NULL;
-      window->display->window_with_menu = NULL;
+      meta_ui_window_menu_free (window->menu);
+      window->menu_device = NULL;
+      window->menu = NULL;
     }
 
   if (destroying_windows_disallowed > 0)
@@ -8381,13 +8384,12 @@ menu_callback (MetaWindowMenu *menu,
       meta_verbose ("Menu callback on nonexistent window\n");
     }
 
-  if (display->window_menu == menu)
+  if (window && window->menu)
     {
-      display->window_menu = NULL;
-      display->window_with_menu = NULL;
+      meta_ui_window_menu_free (menu);
+      window->menu_device = NULL;
+      window->menu = NULL;
     }
-
-  meta_ui_window_menu_free (menu);
 }
 
 void
@@ -8406,11 +8408,11 @@ meta_window_show_menu (MetaWindow *window,
 
   g_return_if_fail (!window->override_redirect);
 
-  if (window->display->window_menu)
+  if (window->menu)
     {
-      meta_ui_window_menu_free (window->display->window_menu);
-      window->display->window_menu = NULL;
-      window->display->window_with_menu = NULL;
+      meta_ui_window_menu_free (window->menu);
+      window->menu_device = NULL;
+      window->menu = NULL;
     }
 
   ops = META_MENU_OP_NONE;
@@ -8511,8 +8513,8 @@ meta_window_show_menu (MetaWindow *window,
                              menu_callback,
                              NULL);
 
-  window->display->window_menu = menu;
-  window->display->window_with_menu = window;
+  window->menu_device = device;
+  window->menu = menu;
 
   meta_verbose ("Popping up window menu for %s\n", window->desc);
 

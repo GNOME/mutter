@@ -587,9 +587,6 @@ meta_display_open (void)
 
   the_display->groups_by_leader = NULL;
 
-  the_display->window_with_menu = NULL;
-  the_display->window_menu = NULL;
-  
   the_display->screens = NULL;
   the_display->active_screen = NULL;
   
@@ -2195,7 +2192,8 @@ event_callback (XEvent   *event,
                                                     ev_root_y);
                     }
                 }
-              else if (n_button == meta_prefs_get_mouse_button_menu())
+              else if (!window->menu &&
+                       n_button == meta_prefs_get_mouse_button_menu())
                 {
                   if (meta_prefs_get_raise_on_click ())
                     meta_window_raise (window);
@@ -3817,7 +3815,29 @@ meta_display_begin_grab_op (MetaDisplay *display,
               root_x, root_y);
 
   grab_info = meta_display_get_grab_info (display, device);
-  
+
+  if (window && window->cur_grab &&
+      window->cur_grab != grab_info)
+    {
+      meta_verbose ("Attempt to perform window operation %u on window %s while"
+                    " operation %u is already in effect on the same window for"
+                    " the device pair %d/%d\n",
+                    op, window->desc, window->cur_grab->grab_op,
+                    meta_device_get_id (window->cur_grab->grab_pointer),
+                    meta_device_get_id (window->cur_grab->grab_keyboard));
+      return FALSE;
+    }
+
+  if (window && window->menu != NULL &&
+      window->menu_device != device)
+    {
+      meta_verbose ("Attempt to perform window operation %u on window %s while"
+                    " context menu is opened on that window for pointer %d\n",
+                    op, window->desc,
+                    meta_device_get_id (window->menu_device));
+      return FALSE;
+    }
+
   if (grab_info != NULL &&
       grab_info->grab_op != META_GRAB_OP_NONE)
     {

@@ -115,6 +115,10 @@ struct _MetaWindow
   Window xgroup_leader;
   Window xclient_leader;
 
+  /* window menu if any, and the pointer that popped it up */
+  MetaWindowMenu *menu;
+  MetaDevice *menu_device;
+
   /* Initial workspace property */
   int initial_workspace;  
   

@@ -3123,7 +3123,8 @@ handle_activate_window_menu (MetaDisplay    *display,
   device = meta_input_event_get_device (display, event);
   focus_info = meta_display_get_focus_info (display, device);
 
-  if (focus_info->focus_window)
+  if (focus_info->focus_window &&
+      !focus_info->focus_window->menu)
     {
       Time evtime;
       int x, y;
