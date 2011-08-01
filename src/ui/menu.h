@@ -25,6 +25,7 @@
 #define META_MENU_H
 
 #include <gtk/gtk.h>
+#include <meta/device.h>
 #include "frames.h"
 
 /* Stock icons */
@@ -52,6 +53,7 @@ MetaWindowMenu* meta_window_menu_new      (MetaFrames         *frames,
                                            MetaWindowMenuFunc  func,
                                            gpointer            data);
 void            meta_window_menu_popup    (MetaWindowMenu     *menu,
+                                           MetaDevice         *device,
                                            int                 root_x,
                                            int                 root_y,
                                            int                 button,
