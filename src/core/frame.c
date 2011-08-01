@@ -246,6 +246,12 @@ meta_frame_get_flags (MetaFrame *frame)
 
   flags = 0;
 
+  /* Disallow frame operations
+   * while the popup menu is open.
+   */
+  if (frame->window->menu)
+    return flags;
+
   if (frame->window->border_only)
     {
       ; /* FIXME this may disable the _function_ as well as decor
