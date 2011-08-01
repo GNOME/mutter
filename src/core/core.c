@@ -518,7 +518,13 @@ meta_core_show_window_menu (Display *xdisplay,
                             guint32  timestamp)
 {
   MetaWindow *window = get_window (xdisplay, frame_xwindow);
-  
+
+  /* There is already a menu popped up,
+   * most likely from another device
+   */
+  if (window->menu)
+    return;
+
   if (meta_prefs_get_raise_on_click ())
     meta_window_raise (window);
   meta_window_focus (window, timestamp);
