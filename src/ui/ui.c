@@ -542,12 +542,13 @@ meta_ui_window_menu_new  (MetaUI             *ui,
 
 void
 meta_ui_window_menu_popup (MetaWindowMenu     *menu,
+                           MetaDevice         *device,
                            int                 root_x,
                            int                 root_y,
                            int                 button,
                            guint32             timestamp)
 {
-  meta_window_menu_popup (menu, root_x, root_y, button, timestamp);
+  meta_window_menu_popup (menu, device, root_x, root_y, button, timestamp);
 }
 
 void

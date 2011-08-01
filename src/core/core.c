@@ -512,12 +512,14 @@ meta_core_get_active_workspace (Screen *xscreen)
 void
 meta_core_show_window_menu (Display *xdisplay,
                             Window   frame_xwindow,
+                            int      device_id,
                             int      root_x,
                             int      root_y,
                             int      button,
                             guint32  timestamp)
 {
   MetaWindow *window = get_window (xdisplay, frame_xwindow);
+  MetaDevice *device;
 
   /* There is already a menu popped up,
    * most likely from another device
@@ -529,7 +531,8 @@ meta_core_show_window_menu (Display *xdisplay,
     meta_window_raise (window);
   meta_window_focus (window, timestamp);
 
-  meta_window_show_menu (window, root_x, root_y, button, timestamp);
+  device = meta_device_map_lookup (window->display->device_map, device_id);
+  meta_window_show_menu (window, device, root_x, root_y, button, timestamp);
 }
 
 void

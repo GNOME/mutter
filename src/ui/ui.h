@@ -26,6 +26,7 @@
 
 /* Don't include gtk.h or gdk.h here */
 #include <meta/common.h>
+#include <meta/device.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <cairo.h>
@@ -131,6 +132,7 @@ MetaWindowMenu* meta_ui_window_menu_new   (MetaUI             *ui,
                                            MetaWindowMenuFunc  func,
                                            gpointer            data);
 void            meta_ui_window_menu_popup (MetaWindowMenu     *menu,
+                                           MetaDevice         *device,
                                            int                 root_x,
                                            int                 root_y,
                                            int                 button,

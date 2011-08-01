@@ -585,6 +585,7 @@ void     meta_window_set_current_workspace_hint (MetaWindow *window);
 unsigned long meta_window_get_net_wm_desktop (MetaWindow *window);
 
 void meta_window_show_menu (MetaWindow *window,
+                            MetaDevice *device,
                             int         root_x,
                             int         root_y,
                             int         button,

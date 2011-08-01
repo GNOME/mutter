@@ -3138,6 +3138,7 @@ handle_activate_window_menu (MetaDisplay    *display,
       evtime = meta_input_event_get_time (display, event);
 
       meta_window_show_menu (focus_info->focus_window,
+                             meta_device_get_paired_device (device),
                              x, y,
                              0,
                              evtime);

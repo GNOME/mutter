@@ -2198,6 +2198,7 @@ event_callback (XEvent   *event,
                   if (meta_prefs_get_raise_on_click ())
                     meta_window_raise (window);
                   meta_window_show_menu (window,
+                                         device,
                                          ev_root_x,
                                          ev_root_y,
                                          n_button,
