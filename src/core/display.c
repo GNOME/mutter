@@ -4372,6 +4372,36 @@ meta_display_ungrab_window_buttons  (MetaDisplay *display,
     }
 }
 
+void
+meta_display_grab_window_touches (MetaDisplay *display,
+                                  MetaWindow  *window)
+{
+  if (!window->frame)
+    return;
+
+  meta_error_trap_push_with_return (display);
+  meta_device_map_grab_touch (display->device_map,
+                              window->frame->xwindow);
+
+  if (meta_error_trap_pop_with_return (display) != Success)
+    {
+      meta_verbose ("Unable to add a passive touch grab on window '%s'\n",
+                    window->desc);
+      return;
+    }
+}
+
+void
+meta_display_ungrab_window_touches (MetaDisplay *display,
+                                    MetaWindow  *window)
+{
+  if (!window->frame)
+    return;
+
+  meta_device_map_ungrab_touch (display->device_map,
+                                window->frame->xwindow);
+}
+
 /* Grab buttons we only grab while unfocused in click-to-focus mode */
 #define MAX_FOCUS_BUTTON 4
 void

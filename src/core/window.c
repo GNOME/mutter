@@ -1297,6 +1297,14 @@ meta_window_new_with_attrs (MetaDisplay       *display,
       meta_display_grab_focus_window_button (window->display, window);
     }
 
+  if (window->frame &&
+      (window->type == META_WINDOW_NORMAL ||
+       window->type == META_WINDOW_DIALOG ||
+       window->type == META_WINDOW_MODAL_DIALOG))
+    {
+      meta_display_grab_window_touches (window->display, window);
+    }
+
   if (window->type == META_WINDOW_DESKTOP ||
       window->type == META_WINDOW_DOCK)
     {
@@ -1905,6 +1913,7 @@ meta_window_unmanage (MetaWindow  *window,
   meta_window_ungrab_keys (window);
   meta_display_ungrab_window_buttons (window->display, window->xwindow);
   meta_display_ungrab_focus_window_button (window->display, window);
+  meta_display_ungrab_window_touches (window->display, window);
 
   meta_display_unregister_x_window (window->display, window->xwindow);
 

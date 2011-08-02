@@ -35,6 +35,11 @@
 #include "display-private.h"
 #include <meta/device-map.h>
 
+/* Add an extra flag for touch events in
+ * evmasks, an arbitrarily high bit is taken.
+ */
+#define META_INPUT_TOUCH_EVENTS_MASK (1L<<31)
+
 gboolean meta_input_event_get_type          (MetaDisplay *display,
                                              XEvent      *ev,
                                              guint       *ev_type);

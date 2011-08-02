@@ -25,6 +25,7 @@
 #include "devices-xi2.h"
 #include "display-private.h"
 #include "screen-private.h"
+#include "input-events.h"
 #include <X11/extensions/XInput2.h>
 
 /* Common functions */
@@ -95,6 +96,13 @@ meta_device_xi2_translate_event_mask (guint  evmask,
     {
       XISetMask (mask, XI_FocusIn);
       XISetMask (mask, XI_FocusOut);
+    }
+
+  if (evmask & META_INPUT_TOUCH_EVENTS_MASK)
+    {
+      XISetMask (mask, XI_TouchBegin);
+      XISetMask (mask, XI_TouchEnd);
+      XISetMask (mask, XI_TouchUpdate);
     }
 
   return mask;
