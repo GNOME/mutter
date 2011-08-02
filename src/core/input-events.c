@@ -146,6 +146,34 @@ meta_input_event_is_type (MetaDisplay *display,
   return (type == ev_type);
 }
 
+gboolean
+meta_input_event_ignore (MetaDisplay *display,
+                         XEvent      *ev)
+{
+  if (ev->type == GenericEvent &&
+      ev->xcookie.extension == display->xinput2_opcode)
+    {
+      XIEvent *xev;
+
+      g_assert (display->have_xinput2 == TRUE);
+      xev = (XIEvent *) ev->xcookie.data;
+
+      switch (xev->evtype)
+        {
+        case XI_Motion:
+        case XI_ButtonPress:
+        case XI_ButtonRelease:
+          if (((XIDeviceEvent *) xev)->flags & XIPointerEmulated)
+            return TRUE;
+
+        default:
+          return FALSE;
+        }
+    }
+
+  return FALSE;
+}
+
 Window
 meta_input_event_get_window (MetaDisplay *display,
                              XEvent      *ev)
