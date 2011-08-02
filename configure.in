@@ -252,6 +252,23 @@ fi
 
 AM_CONDITIONAL(HAVE_XINPUT2, test "$have_xinput2" = "yes")
 
+if test x$have_xinput2 = xyes; then
+  mutter_save_libs="$LIBS"
+  LIBS="-lXi $LIBS"
+
+  AC_CHECK_FUNC(XIAllowTouchEvents,
+                have_xtouch=yes,
+                have_xtouch=no)
+
+  LIBS="$mutter_save_libs"
+else
+  have_xtouch=no
+fi
+
+if test x$have_xtouch = xyes; then
+  AC_DEFINE(HAVE_XTOUCH, , [Building with X touch events])
+fi
+
 PKG_CHECK_MODULES(MUTTER, $MUTTER_PC_MODULES)
 
 AC_PATH_XTRA
@@ -572,6 +589,7 @@ mutter-$VERSION
 	Xsync:                    ${found_xsync}
 	Xcursor:                  ${have_xcursor}
 	XInput2:                  ${have_xinput2}
+	Touch events:             ${have_xtouch}
 "
 
 
