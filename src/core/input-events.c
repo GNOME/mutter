@@ -160,36 +160,6 @@ meta_input_event_is_type (MetaDisplay *display,
 }
 
 gboolean
-meta_input_event_ignore (MetaDisplay *display,
-                         XEvent      *ev)
-{
-#if defined(HAVE_XINPUT2) && defined(HAVE_XTOUCH)
-  if (ev->type == GenericEvent &&
-      ev->xcookie.extension == display->xinput2_opcode)
-    {
-      XIEvent *xev;
-
-      g_assert (display->have_xinput2 == TRUE);
-      xev = (XIEvent *) ev->xcookie.data;
-
-      switch (xev->evtype)
-        {
-        case XI_Motion:
-        case XI_ButtonPress:
-        case XI_ButtonRelease:
-          if (((XIDeviceEvent *) xev)->flags & XIPointerEmulated)
-            return TRUE;
-
-        default:
-          return FALSE;
-        }
-    }
-#endif /* HAVE_XINPUT2 && HAVE_XTOUCH */
-
-      return FALSE;
-}
-
-gboolean
 meta_input_event_get_touch_id (MetaDisplay *display,
                                XEvent      *ev,
                                guint       *touch_id)

@@ -47,9 +47,6 @@ gboolean meta_input_event_is_type           (MetaDisplay *display,
                                              XEvent      *ev,
                                              guint        ev_type);
 
-gboolean meta_input_event_ignore            (MetaDisplay *display,
-                                             XEvent      *ev);
-
 gboolean meta_input_event_get_touch_id      (MetaDisplay *display,
                                              XEvent      *ev,
                                              guint       *touch_id);
