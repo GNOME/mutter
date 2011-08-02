@@ -2043,6 +2043,14 @@ event_callback (XEvent   *event,
             filter_out_event = bypass_compositor = TRUE;
           break;
         case ButtonPress:
+          if (window &&
+              meta_input_event_get_touch_id (display, event, NULL))
+            {
+              meta_window_update_touch (window, event);
+              filter_out_event = TRUE;
+              break;
+            }
+
           meta_input_event_get_button (display, event, &n_button);
           meta_input_event_get_state (display, event, &state);
           meta_input_event_get_coordinates (display, event,
@@ -2259,6 +2267,14 @@ event_callback (XEvent   *event,
             }
           break;
         case ButtonRelease:
+          if (window &&
+              meta_input_event_get_touch_id (display, event, NULL))
+            {
+              meta_window_end_touch (window, event);
+              filter_out_event = TRUE;
+              break;
+            }
+
           if (grab_info && grab_info->grab_op == META_GRAB_OP_COMPOSITOR)
             break;
 
@@ -2270,6 +2286,14 @@ event_callback (XEvent   *event,
             meta_window_handle_mouse_grab_op_event (window, event);
           break;
         case MotionNotify:
+          if (window &&
+              meta_input_event_get_touch_id (display, event, NULL))
+            {
+              meta_window_update_touch (window, event);
+              filter_out_event = TRUE;
+              break;
+            }
+
           if (grab_info && grab_info->grab_op == META_GRAB_OP_COMPOSITOR)
             break;
 

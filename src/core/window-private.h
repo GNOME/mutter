@@ -429,6 +429,8 @@ struct _MetaWindow
 
   /* Focus info if the window is focused, or NULL */
   MetaFocusInfo *cur_focus;
+
+  GHashTable *cur_touches;
 };
 
 struct _MetaWindowClass
@@ -674,5 +676,10 @@ void         meta_window_set_client_pointer (MetaWindow *window,
 MetaDevice * meta_window_get_client_pointer (MetaWindow *window);
 
 MetaDevice * meta_window_guess_grab_pointer (MetaWindow *window);
+
+gboolean     meta_window_update_touch (MetaWindow *window,
+                                       XEvent     *event);
+void         meta_window_end_touch    (MetaWindow *window,
+                                       XEvent     *event);
 
 #endif

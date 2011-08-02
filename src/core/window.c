@@ -240,6 +240,9 @@ meta_window_finalize (GObject *object)
   if (window->menu)
     meta_ui_window_menu_free (window->menu);
 
+  if (window->cur_touches)
+    g_hash_table_destroy (window->cur_touches);
+
   meta_icon_cache_free (&window->icon_cache);
 
   g_free (window->sm_client_id);
@@ -11118,4 +11121,235 @@ meta_window_guess_grab_pointer (MetaWindow *window)
     return meta_device_get_paired_device (window->focus_keyboard);
 
   return meta_window_get_client_pointer (window);
+}
+
+typedef struct
+{
+  gdouble top_left_x;
+  gdouble top_left_y;
+  gdouble bottom_right_x;
+  gdouble bottom_right_y;
+} BoundingRectCoords;
+
+static void
+calculate_touch_bounding_rect (gpointer key,
+                               gpointer value,
+                               gpointer user_data)
+{
+  BoundingRectCoords *bounding_rect = user_data;
+  MetaTouchInfo *touch_info = value;
+
+  if (touch_info->root_x < bounding_rect->top_left_x)
+    bounding_rect->top_left_x = touch_info->root_x;
+  if (touch_info->root_x > bounding_rect->bottom_right_x)
+    bounding_rect->bottom_right_x = touch_info->root_x;
+
+  if (touch_info->root_y < bounding_rect->top_left_y)
+    bounding_rect->top_left_y = touch_info->root_y;
+  if (touch_info->root_y > bounding_rect->bottom_right_y)
+    bounding_rect->bottom_right_y = touch_info->root_y;
+}
+
+static void
+notify_touch (MetaWindow *window,
+              MetaDevice *source,
+              guint       touch_id,
+              gboolean    accept_events)
+{
+  meta_error_trap_push_with_return (window->display);
+
+  XIAllowTouchEvents (window->display->xdisplay,
+                      meta_device_get_id (source),
+                      touch_id,
+                      (accept_events) ?
+                      XITouchOwnerAccept :
+                      XITouchOwnerRejectEnd);
+
+  if (meta_error_trap_pop_with_return (window->display) != Success)
+    meta_warning ("XIAllowTouchEvents failed on touch sequence %d\n", touch_id);
+}
+
+static void
+notify_touch_events (MetaWindow *window,
+                     MetaDevice *source,
+                     gboolean    accept_events)
+{
+  GHashTableIter iter;
+  gpointer key, value;
+
+  g_hash_table_iter_init (&iter, window->cur_touches);
+
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      guint touch_id = GPOINTER_TO_UINT (key);
+      MetaTouchInfo *info = value;
+
+      if (!info->notified)
+        {
+          notify_touch (window, source, touch_id, accept_events);
+          info->notified = TRUE;
+        }
+    }
+}
+
+gboolean
+meta_window_update_touch (MetaWindow *window,
+                          XEvent     *event)
+{
+  gdouble root_x, root_y;
+  MetaTouchInfo *touch_info;
+  gboolean new_touch = FALSE;
+  MetaDevice *device, *source;
+  guint touch_id, n_touches;
+  Time evtime;
+
+  if (!window->cur_touches)
+    window->cur_touches = g_hash_table_new (NULL, NULL);
+
+  meta_input_event_get_touch_id (window->display,
+                                 event, &touch_id);
+
+  touch_info = g_hash_table_lookup (window->cur_touches,
+                                    GUINT_TO_POINTER (touch_id));
+
+  meta_input_event_get_coordinates (window->display, event,
+                                    NULL, NULL,
+                                    &root_x, &root_y);
+
+  evtime = meta_input_event_get_time (window->display, event);
+  device = meta_input_event_get_device (window->display, event);
+  source = meta_input_event_get_source_device (window->display, event);
+
+  if (!touch_info)
+    {
+      touch_info = g_slice_new (MetaTouchInfo);
+      touch_info->initial_root_x = root_x;
+      touch_info->initial_root_y = root_y;
+
+      g_hash_table_insert (window->cur_touches,
+                           GUINT_TO_POINTER (touch_id),
+                           touch_info);
+      new_touch = TRUE;
+    }
+
+  touch_info->root_x = root_x;
+  touch_info->root_y = root_y;
+
+  n_touches = g_hash_table_size (window->cur_touches);
+
+  if (!new_touch && n_touches < 3 &&
+      (ABS (touch_info->initial_root_x - touch_info->root_x) >= 16 ||
+       ABS (touch_info->initial_root_y - touch_info->root_y) >= 16))
+    {
+      /* There aren't yet enough touches on the window to trigger
+       * window moving, and one of the touches moved past the
+       * threshold, so the current touch sequences could actually
+       * be meant for the client window, release all touches
+       * altogether.
+       */
+      notify_touch_events (window, source, FALSE);
+      return TRUE;
+    }
+  else if (n_touches >= 3)
+    {
+      gdouble x, y, width, height;
+      BoundingRectCoords bounding_rect = { DBL_MAX, DBL_MAX,
+                                           DBL_MIN, DBL_MIN };
+
+      if (n_touches == 3 && new_touch)
+        {
+          /* Accept all touches for the move operation */
+          notify_touch_events (window, source, TRUE);
+        }
+      else if (!touch_info->notified)
+        {
+          /* All other touch sequences have been already
+           * accepted, so only deal with the current one */
+          notify_touch (window, source, touch_id, TRUE);
+          touch_info->notified = TRUE;
+        }
+
+      g_hash_table_foreach (window->cur_touches,
+                            calculate_touch_bounding_rect,
+                            &bounding_rect);
+
+      /* Get x/y coordinates at the middle of the bounding box,
+       * this will be the hotspot for the window moving operation
+       */
+      width = bounding_rect.bottom_right_x - bounding_rect.top_left_x;
+      height = bounding_rect.bottom_right_y - bounding_rect.top_left_y;
+      x = bounding_rect.top_left_x + (width / 2);
+      y = bounding_rect.top_left_y + (height / 2);
+
+      if (new_touch)
+        {
+          if (n_touches == 3)
+            {
+              /* Start window move operation with the
+               * bounding rectangle center as the hotspot
+               */
+              meta_display_begin_grab_op (window->display,
+                                          window->screen,
+                                          window,
+                                          device,
+                                          META_GRAB_OP_MOVING,
+                                          TRUE, FALSE,
+                                          1, 0,
+                                          evtime,
+                                          x, y);
+            }
+
+          window->initial_touch_area_width = width;
+          window->initial_touch_area_height = height;
+        }
+      else if (window->cur_grab)
+        {
+          window->cur_touch_area_width = width;
+          window->cur_touch_area_height = height;
+
+          update_move (window, device, FALSE, x, y);
+        }
+
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+void
+meta_window_end_touch (MetaWindow *window,
+                       XEvent     *event)
+{
+  MetaTouchInfo *info;
+  MetaDevice *source;
+  guint touch_id, n_touches;
+  Time evtime;
+
+  meta_input_event_get_touch_id (window->display, event, &touch_id);
+  evtime = meta_input_event_get_time (window->display, event);
+  source = meta_input_event_get_source_device (window->display, event);
+
+  info = g_hash_table_lookup (window->cur_touches,
+                              GUINT_TO_POINTER (touch_id));
+  if (!info)
+    return;
+
+  if (!info->notified)
+    {
+      notify_touch (window, source, touch_id, FALSE);
+      info->notified = TRUE;
+    }
+
+  g_hash_table_remove (window->cur_touches,
+                       GUINT_TO_POINTER (touch_id));
+
+  n_touches = g_hash_table_size (window->cur_touches);
+
+  if (n_touches == 2)
+    {
+      MetaDevice *device;
+
+      device = meta_input_event_get_device (window->display, event);
+      meta_display_end_grab_op (window->display, device, evtime);
+    }
 }

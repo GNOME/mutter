@@ -59,6 +59,7 @@ typedef struct MetaEdgeResistanceData MetaEdgeResistanceData;
 
 typedef struct _MetaGrabInfo MetaGrabInfo;
 typedef struct _MetaFocusInfo MetaFocusInfo;
+typedef struct _MetaTouchInfo MetaTouchInfo;
 
 typedef void (* MetaWindowPingFunc) (MetaDisplay *display,
 				     Window       xwindow,
@@ -149,6 +150,17 @@ struct _MetaFocusInfo
 
   /* last timestamp passed to XSetInputFocus */
   guint32 last_focus_time;
+};
+
+struct _MetaTouchInfo
+{
+  gdouble root_x;
+  gdouble root_y;
+
+  gdouble initial_root_x;
+  gdouble initial_root_y;
+
+  guint notified : 1;
 };
 
 struct _MetaDisplay
