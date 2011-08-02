@@ -42,6 +42,9 @@ gboolean meta_input_event_is_type           (MetaDisplay *display,
                                              XEvent      *ev,
                                              guint        ev_type);
 
+gboolean meta_input_event_ignore            (MetaDisplay *display,
+                                             XEvent      *ev);
+
 Window   meta_input_event_get_window        (MetaDisplay *display,
                                              XEvent      *ev);
 Window   meta_input_event_get_root_window   (MetaDisplay *display,
