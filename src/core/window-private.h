@@ -431,6 +431,10 @@ struct _MetaWindow
   MetaFocusInfo *cur_focus;
 
   GHashTable *cur_touches;
+  gdouble initial_touch_area_width;
+  gdouble initial_touch_area_height;
+  gdouble cur_touch_area_width;
+  gdouble cur_touch_area_height;
 };
 
 struct _MetaWindowClass

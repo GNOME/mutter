@@ -8827,6 +8827,27 @@ update_move (MetaWindow  *window,
       else if (meta_window_can_tile_maximized (window) &&
                y >= monitor->rect.y && y <= work_area.y)
         window->tile_mode = META_TILE_MAXIMIZED;
+      else if (window->cur_touches &&
+               g_hash_table_size (window->cur_touches) == 3)
+        {
+          window->tile_mode = META_TILE_NONE;
+
+          if (window->cur_touch_area_height >
+              window->initial_touch_area_height * 1.5)
+            {
+              if (window->cur_touch_area_width >
+                  window->initial_touch_area_width * 1.5 &&
+                  meta_window_can_tile_maximized (window))
+                window->tile_mode = META_TILE_MAXIMIZED;
+              else if (meta_window_can_tile_side_by_side (window, device))
+                {
+                  if (x < (monitor->rect.x + (monitor->rect.width / 2)))
+                    window->tile_mode = META_TILE_LEFT;
+                  else
+                    window->tile_mode = META_TILE_RIGHT;
+                }
+            }
+        }
       else
         window->tile_mode = META_TILE_NONE;
 
@@ -11345,11 +11366,22 @@ meta_window_end_touch (MetaWindow *window,
 
   n_touches = g_hash_table_size (window->cur_touches);
 
+  window->initial_touch_area_width = 0;
+  window->initial_touch_area_height = 0;
+  window->cur_touch_area_width = 0;
+  window->cur_touch_area_height = 0;
+
   if (n_touches == 2)
     {
       MetaDevice *device;
 
       device = meta_input_event_get_device (window->display, event);
       meta_display_end_grab_op (window->display, device, evtime);
+    }
+  else if (n_touches == 0 &&
+           window->tile_mode != META_TILE_NONE)
+    {
+      meta_window_tile (window);
+      update_tile_mode (window);
     }
 }
