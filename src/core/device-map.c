@@ -214,15 +214,24 @@ initialize_xinput (MetaDisplay *display)
                         &opcode, &unused, &unused))
     return FALSE;
 
-  major = XINPUT2_VERSION_MAJOR;
-  minor = XINPUT2_VERSION_MINOR;
+  major = XI_2_Major;
+#ifdef HAVE_XTOUCH
+  minor = XI_2_1_Minor;
+#else
+  minor = XI_2_Minor;
+#endif /* HAVE_XTOUCH */
 
   XIQueryVersion (display->xdisplay, &major, &minor);
 
-  if (major == XINPUT2_VERSION_MAJOR &&
-      minor == XINPUT2_VERSION_MINOR)
+  if (major == XI_2_Major &&
+      (
+#ifdef HAVE_XTOUCH
+       minor == XI_2_1_Minor ||
+#endif /* HAVE_XTOUCH */
+       minor == XI_2_Minor))
     {
       display->have_xinput2 = TRUE;
+      display->have_xtouch = (minor >= XI_2_1_Minor);
       display->xinput2_opcode = opcode;
 
       return TRUE;

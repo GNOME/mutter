@@ -320,6 +320,9 @@ struct _MetaDisplay
 #ifdef HAVE_XINPUT2
   int xinput2_opcode;
   unsigned int have_xinput2 : 1;
+#ifdef HAVE_XTOUCH
+  unsigned int have_xtouch : 1;
+#endif /* HAVE_XTOUCH */
 #endif
 
 #ifdef HAVE_XSYNC
