@@ -27,6 +27,7 @@
 #include "core.h"
 #include "frame.h"
 #include "workspace-private.h"
+#include "input-events.h"
 #include <meta/prefs.h>
 #include <meta/errors.h>
 
@@ -866,7 +867,8 @@ meta_core_select_events (Display  *xdisplay,
       XISelectEvents (xdisplay, xwindow, &mask, 1);
 
       /* Unset any input event so they are only handled via XInput2 */
-      evmask &= ~(KeyPressMask | KeyReleaseMask |
+      evmask &= ~(META_INPUT_TOUCH_EVENTS_MASK |
+                  KeyPressMask | KeyReleaseMask |
                   ButtonPressMask | ButtonReleaseMask |
                   EnterWindowMask | LeaveWindowMask |
                   PointerMotionMask | PointerMotionHintMask |
