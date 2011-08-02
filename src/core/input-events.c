@@ -178,6 +178,37 @@ meta_input_event_ignore (MetaDisplay *display,
       return FALSE;
 }
 
+gboolean
+meta_input_event_get_touch_id (MetaDisplay *display,
+                               XEvent      *ev,
+                               guint       *touch_id)
+{
+#if defined(HAVE_XINPUT2) && defined(HAVE_XTOUCH)
+  if (ev->type == GenericEvent &&
+      ev->xcookie.extension == display->xinput2_opcode)
+    {
+      XIEvent *xev;
+
+      g_assert (display->have_xinput2 == TRUE);
+      xev = (XIEvent *) ev->xcookie.data;
+
+      switch (xev->evtype)
+        {
+        case XI_TouchBegin:
+        case XI_TouchEnd:
+        case XI_TouchUpdate:
+          if (touch_id)
+            *touch_id = ((XIDeviceEvent *) xev)->detail;
+          return TRUE;
+        default:
+          return FALSE;
+        }
+    }
+#endif /* HAVE_XINPUT2 && HAVE_XTOUCH */
+
+  return FALSE;
+}
+
 Window
 meta_input_event_get_window (MetaDisplay *display,
                              XEvent      *ev)
