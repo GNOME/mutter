@@ -86,6 +86,17 @@ meta_input_event_get_type (MetaDisplay *display,
         case XI_Leave:
           type = LeaveNotify;
           break;
+#ifdef HAVE_XTOUCH
+        case XI_TouchBegin:
+          type = ButtonPress;
+          break;
+        case XI_TouchEnd:
+          type = ButtonRelease;
+          break;
+        case XI_TouchUpdate:
+          type = MotionNotify;
+          break;
+#endif /* HAVE_XTOUCH */
         default:
           retval = FALSE;
           break;
@@ -159,6 +170,11 @@ meta_input_event_get_window (MetaDisplay *display,
         case XI_ButtonRelease:
         case XI_KeyPress:
         case XI_KeyRelease:
+#ifdef HAVE_XTOUCH
+        case XI_TouchBegin:
+        case XI_TouchEnd:
+        case XI_TouchUpdate:
+#endif /* HAVE_XTOUCH */
           return ((XIDeviceEvent *) xev)->event;
         case XI_FocusIn:
         case XI_FocusOut:
@@ -195,6 +211,11 @@ meta_input_event_get_root_window (MetaDisplay *display,
         case XI_ButtonRelease:
         case XI_KeyPress:
         case XI_KeyRelease:
+#ifdef HAVE_XTOUCH
+        case XI_TouchBegin:
+        case XI_TouchEnd:
+        case XI_TouchUpdate:
+#endif /* HAVE_XTOUCH */
           return ((XIDeviceEvent *) xev)->root;
         case XI_FocusIn:
         case XI_FocusOut:
@@ -250,6 +271,11 @@ meta_input_event_get_time (MetaDisplay *display,
         case XI_ButtonRelease:
         case XI_KeyPress:
         case XI_KeyRelease:
+#ifdef HAVE_XTOUCH
+        case XI_TouchBegin:
+        case XI_TouchEnd:
+        case XI_TouchUpdate:
+#endif /* HAVE_XTOUCH */
           return ((XIDeviceEvent *) xev)->time;
         case XI_FocusIn:
         case XI_FocusOut:
@@ -312,6 +338,11 @@ meta_input_event_get_coordinates (MetaDisplay *display,
         case XI_ButtonRelease:
         case XI_KeyPress:
         case XI_KeyRelease:
+#ifdef HAVE_XTOUCH
+        case XI_TouchBegin:
+        case XI_TouchEnd:
+        case XI_TouchUpdate:
+#endif /* HAVE_XTOUCH */
           {
             XIDeviceEvent *event = (XIDeviceEvent *) xev;
 
@@ -422,6 +453,11 @@ meta_input_event_get_state (MetaDisplay *display,
         case XI_ButtonRelease:
         case XI_KeyPress:
         case XI_KeyRelease:
+#ifdef HAVE_XTOUCH
+        case XI_TouchBegin:
+        case XI_TouchEnd:
+        case XI_TouchUpdate:
+#endif /* HAVE_XTOUCH */
           s = ((XIDeviceEvent *) xev)->mods.effective;
           break;
         case XI_FocusIn:
@@ -643,6 +679,11 @@ meta_input_event_get_device (MetaDisplay *display,
         case XI_ButtonRelease:
         case XI_KeyPress:
         case XI_KeyRelease:
+#ifdef HAVE_XTOUCH
+        case XI_TouchBegin:
+        case XI_TouchEnd:
+        case XI_TouchUpdate:
+#endif /* HAVE_XTOUCH */
           return meta_device_map_lookup (display->device_map,
                                          ((XIDeviceEvent *) xev)->deviceid);
         case XI_FocusIn:
