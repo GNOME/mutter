@@ -24,7 +24,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_alpha_gradient_spec_new@Base 2.91.92
  meta_atom_get_type@Base 2.91.92
  meta_background_actor_get_type@Base 2.91.92
- meta_background_actor_new@Base 2.91.92
+ meta_background_actor_new_for_screen@Base 3.1.90
  meta_background_actor_screen_size_changed@Base 2.91.92
  meta_background_actor_set_visible_region@Base 2.91.92
  meta_background_actor_update@Base 2.91.92
@@ -68,6 +68,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_compositor_unmaximize_window@Base 2.91.92
  meta_compositor_update_workspace_geometry@Base 2.91.92
  meta_compositor_window_mapped@Base 2.91.92
+ meta_compositor_window_shape_changed@Base 3.1.90
  meta_compositor_window_unmapped@Base 2.91.92
  meta_core_begin_grab_op@Base 2.91.92
  meta_core_change_workspace@Base 2.91.92
@@ -83,7 +84,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_core_get_workspace_name_with_index@Base 2.91.92
  meta_core_grab_buttons@Base 2.91.92
  meta_core_increment_event_serial@Base 2.91.92
- meta_core_lower_beneath_focus_window@Base 2.91.92
+ meta_core_lower_beneath_grab_window@Base 3.1.90
  meta_core_make_above@Base 2.91.92
  meta_core_maximize@Base 2.91.92
  meta_core_minimize@Base 2.91.92
@@ -111,6 +112,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_debug_spew_real@Base 2.91.92
  meta_debug_topic_get_type@Base 2.91.92
  meta_direction_get_type@Base 2.91.92
+ meta_disable_unredirect_for_screen@Base 3.1.90
  meta_display_begin_grab_op@Base 2.91.92
  meta_display_check_threshold_reached@Base 2.91.92
  meta_display_cleanup_edges@Base 2.91.92
@@ -201,6 +203,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_draw_spec_new@Base 2.91.92
  meta_edge_type_get_type@Base 2.91.92
  meta_empty_stage_input_region@Base 2.91.92
+ meta_enable_unredirect_for_screen@Base 3.1.90
  meta_end_modal_for_plugin@Base 2.91.92
  meta_error_trap_pop@Base 2.91.92
  meta_error_trap_pop_with_return@Base 2.91.92
@@ -217,11 +220,14 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_fixed_tip_show@Base 2.91.92
  meta_focus_mode_get_type@Base 2.91.92
  meta_focus_new_windows_get_type@Base 2.91.92
- meta_frame_calc_geometry@Base 2.91.92
+ meta_frame_borders_clear@Base 3.1.90
+ meta_frame_calc_borders@Base 3.1.90
  meta_frame_flags_get_type@Base 2.91.92
  meta_frame_focus_from_string@Base 2.91.92
  meta_frame_focus_to_string@Base 2.91.92
+ meta_frame_get_corner_radiuses@Base 3.1.90
  meta_frame_get_flags@Base 2.91.92
+ meta_frame_get_frame_bounds@Base 3.1.90
  meta_frame_get_xwindow@Base 2.91.92
  meta_frame_layout_calc_geometry@Base 2.91.92
  meta_frame_layout_copy@Base 2.91.92
@@ -252,8 +258,9 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_frame_type_from_string@Base 2.91.92
  meta_frame_type_get_type@Base 2.91.92
  meta_frame_type_to_string@Base 2.91.92
- meta_frames_apply_shapes@Base 2.91.92
- meta_frames_get_geometry@Base 2.91.92
+ meta_frames_get_borders@Base 3.1.90
+ meta_frames_get_corner_radiuses@Base 3.1.90
+ meta_frames_get_frame_bounds@Base 3.1.90
  meta_frames_get_type@Base 2.91.92
  meta_frames_manage_window@Base 2.91.92
  meta_frames_move_resize_frame@Base 2.91.92
@@ -267,6 +274,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_frames_set_title@Base 2.91.92
  meta_frames_unflicker_bg@Base 2.91.92
  meta_frames_unmanage_window@Base 2.91.92
+ meta_frames_update_frame_style@Base 3.1.90
  meta_free_gslist_and_elements@Base 2.91.92
  meta_g_utf8_strndup@Base 2.91.92
  meta_gdk_pixbuf_get_from_pixmap@Base 2.91.92
@@ -307,6 +315,8 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_gtk_shadow_to_string@Base 2.91.92
  meta_gtk_state_from_string@Base 2.91.92
  meta_gtk_state_to_string@Base 2.91.92
+ meta_gtk_style_get_dark_color@Base 3.1.90
+ meta_gtk_style_get_light_color@Base 3.1.90
  meta_gtk_widget_get_font_desc@Base 2.91.92
  meta_icon_cache_free@Base 2.91.92
  meta_icon_cache_get_icon_invalidated@Base 2.91.92
@@ -388,6 +398,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_prefs_get_cursor_size@Base 2.91.92
  meta_prefs_get_cursor_theme@Base 2.91.92
  meta_prefs_get_disable_workarounds@Base 2.91.92
+ meta_prefs_get_draggable_border_width@Base 3.1.90
  meta_prefs_get_edge_tiling@Base 2.91.92
  meta_prefs_get_focus_mode@Base 2.91.92
  meta_prefs_get_focus_new_windows@Base 2.91.92
@@ -578,14 +589,14 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_shadow_paint@Base 2.91.92
  meta_shadow_ref@Base 2.91.92
  meta_shadow_unref@Base 2.91.92
- meta_shaped_texture_add_rectangle@Base 2.91.92
- meta_shaped_texture_add_rectangles@Base 2.91.92
  meta_shaped_texture_clear@Base 2.91.92
- meta_shaped_texture_clear_rectangles@Base 2.91.92
  meta_shaped_texture_get_type@Base 2.91.92
+ meta_shaped_texture_get_visible_pixels_region@Base 3.1.90
  meta_shaped_texture_new@Base 2.91.92
  meta_shaped_texture_set_clip_region@Base 2.91.92
  meta_shaped_texture_set_create_mipmaps@Base 2.91.92
+ meta_shaped_texture_set_overlay_path@Base 3.1.90
+ meta_shaped_texture_set_shape_region@Base 3.1.90
  meta_show_dialog@Base 2.91.92
  meta_side_get_type@Base 2.91.92
  meta_stack_add@Base 2.91.92
@@ -628,6 +639,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_tab_list_get_type@Base 2.91.92
  meta_tab_show_type_get_type@Base 2.91.92
  meta_text_property_to_utf8@Base 2.91.92
+ meta_texture_rectangle_new@Base 3.1.90
  meta_texture_tower_free@Base 2.91.92
  meta_texture_tower_get_paint_texture@Base 2.91.92
  meta_texture_tower_new@Base 2.91.92
@@ -671,16 +683,17 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_topic_real@Base 2.91.92
  meta_ui_accelerator_name@Base 2.91.92
  meta_ui_add_event_func@Base 2.91.92
- meta_ui_apply_frame_shape@Base 2.91.92
  meta_ui_create_frame_window@Base 2.91.92
  meta_ui_destroy_frame_window@Base 2.91.92
  meta_ui_free@Base 2.91.92
+ meta_ui_get_corner_radiuses@Base 3.1.90
  meta_ui_get_default_mini_icon@Base 2.91.92
  meta_ui_get_default_window_icon@Base 2.91.92
  meta_ui_get_direction@Base 2.91.92
  meta_ui_get_display@Base 2.91.92
  meta_ui_get_drag_threshold@Base 2.91.92
- meta_ui_get_frame_geometry@Base 2.91.92
+ meta_ui_get_frame_borders@Base 3.1.90
+ meta_ui_get_frame_bounds@Base 3.1.90
  meta_ui_have_a_theme@Base 2.91.92
  meta_ui_init@Base 2.91.92
  meta_ui_map_frame@Base 2.91.92
@@ -710,6 +723,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_ui_theme_get_frame_borders@Base 2.91.92
  meta_ui_unflicker_frame_bg@Base 2.91.92
  meta_ui_unmap_frame@Base 2.91.92
+ meta_ui_update_frame_style@Base 3.1.90
  meta_ui_window_is_widget@Base 2.91.92
  meta_ui_window_menu_free@Base 2.91.92
  meta_ui_window_menu_new@Base 2.91.92
@@ -729,6 +743,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_window_actor_get_description@Base 2.91.92
  meta_window_actor_get_meta_window@Base 2.91.92
  meta_window_actor_get_obscured_region@Base 2.91.92
+ meta_window_actor_get_shape_bounds@Base 3.1.90
  meta_window_actor_get_texture@Base 2.91.92
  meta_window_actor_get_type@Base 2.91.92
  meta_window_actor_get_workspace@Base 2.91.92
@@ -743,8 +758,10 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_window_actor_pre_paint@Base 2.91.92
  meta_window_actor_process_damage@Base 2.91.92
  meta_window_actor_reset_visible_regions@Base 2.91.92
+ meta_window_actor_set_redirected@Base 3.1.90
  meta_window_actor_set_visible_region@Base 2.91.92
  meta_window_actor_set_visible_region_beneath@Base 2.91.92
+ meta_window_actor_should_unredirect@Base 3.1.90
  meta_window_actor_show@Base 2.91.92
  meta_window_actor_showing_on_its_workspace@Base 2.91.92
  meta_window_actor_sync_actor_position@Base 2.91.92
@@ -780,11 +797,13 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_window_get_description@Base 2.91.92
  meta_window_get_display@Base 2.91.92
  meta_window_get_frame@Base 2.91.92
+ meta_window_get_frame_bounds@Base 3.1.90
  meta_window_get_frame_type@Base 2.91.92
  meta_window_get_geometry@Base 2.91.92
  meta_window_get_gravity_position@Base 2.91.92
  meta_window_get_group@Base 2.91.92
  meta_window_get_icon_geometry@Base 2.91.92
+ meta_window_get_input_rect@Base 3.1.90
  meta_window_get_layer@Base 2.91.92
  meta_window_get_maximized@Base 2.91.92
  meta_window_get_monitor@Base 2.91.92
@@ -821,6 +840,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_window_handle_mouse_grab_op_event@Base 2.91.92
  meta_window_has_focus@Base 2.91.92
  meta_window_is_ancestor_of_transient@Base 2.91.92
+ meta_window_is_attached_dialog@Base 3.1.90
  meta_window_is_fullscreen@Base 2.91.92
  meta_window_is_hidden@Base 2.91.92
  meta_window_is_mapped@Base 2.91.92
@@ -884,6 +904,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_window_shape_ref@Base 2.91.92
  meta_window_shape_to_region@Base 2.91.92
  meta_window_shape_unref@Base 2.91.92
+ meta_window_should_attach_to_parent@Base 3.1.90
  meta_window_should_be_showing@Base 2.91.92
  meta_window_shove_titlebar_onscreen@Base 2.91.92
  meta_window_show_menu@Base 2.91.92

@@ -1,10 +1,34 @@
-mutter (3.0.2.1-2) UNRELEASED; urgency=low
+mutter (3.1.90-1) UNRELEADED; urgency=low
 
+  * New upstream version
+  * debian/control.in
+    - Updated clutter dependency
+  * debian/libmutter0.symbols
+    - Updated
+
+ -- Jean Schurger <jean@schurger.org>  Tue, 30 Aug 2011 10:45:55 -0400
+
+mutter (3.0.2.1-2) unstable; urgency=low
+
+  [ Laurent Bigonville ]
   * Drop debian/mutter.lintian-overrides: Missing manpages are now installed
 
- -- Laurent Bigonville <bigon@debian.org>  Sat, 11 Jun 2011 14:51:05 +0200
+  [ Michael Biebl ]
+  * debian/control.in:
+    - Drop Build-Depends on gir1.2-gtk-3.0, gir1.2-clutter-1.0 and
+      gir1.2-json-glib-1.0 and let their corresponding -dev package pull it in
+      automatically. Bump the Build-Depends on the -dev packages accordingly.
+  * Bump debhelper compatibility level to 8.
+    - Update Build-Depends on debhelper.
+    - Strip debian/tmp/ from .install files.
+  * Let cdbs call dh_girepository.
+    - Bump Build-Depends on cdbs to (>= 0.4.90).
+    - Remove custom dh_girepository rules from debian/rules.
+    - Set DEB_DH_GIREPOSITORY_ARGS_ALL to /usr/lib/mutter.
 
-mutter (3.0.2.1-1) experimental; urgency=low
+ -- Michael Biebl <biebl@debian.org>  Thu, 07 Jul 2011 22:45:20 +0200
+
+mutter (3.0.2.1-1) unstable; urgency=low
 
   [ Rico Tzschichholz ]
   * New upstream release
@@ -108,6 +132,13 @@ mutter (2.91.6-1) experimental; urgency=low
     + Update for the new gtk+ 3 package names.
 
  -- Emilio Pozuelo Monfort <pochu@debian.org>  Sat, 19 Feb 2011 15:20:42 +0000
+
+mutter (2.29.0-4) unstable; urgency=low
+
+  * Remove gir1.0-mutter-2.29 to ease the gir1.2 transition, since
+    nothing uses it.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Wed, 16 Feb 2011 20:34:44 +0000
 
 mutter (2.91.5-1) experimental; urgency=low
 

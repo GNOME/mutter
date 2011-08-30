@@ -1,5 +1,5 @@
-debian/tmp/usr/include
-debian/tmp/usr/lib/lib*.a
-debian/tmp/usr/lib/lib*.so
-debian/tmp/usr/lib/pkgconfig/*.pc
-debian/tmp/usr/lib/mutter/Meta-*.gir
+usr/include
+usr/lib/lib*.a
+usr/lib/lib*.so
+usr/lib/pkgconfig/*.pc
+usr/lib/mutter/Meta-*.gir
