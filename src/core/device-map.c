@@ -388,3 +388,33 @@ meta_device_map_ungrab_button (MetaDeviceMap *device_map,
   if (klass->ungrab_button)
     (klass->ungrab_button) (device_map, xwindow, n_button, modifiers);
 }
+
+void
+meta_device_map_grab_touch (MetaDeviceMap *device_map,
+                            Window         xwindow)
+{
+  MetaDeviceMapClass *klass;
+
+  g_return_if_fail (META_IS_DEVICE_MAP (device_map));
+  g_return_if_fail (xwindow != None);
+
+  klass = META_DEVICE_MAP_GET_CLASS (device_map);
+
+  if (klass->grab_touch)
+    (klass->grab_touch) (device_map, xwindow);
+}
+
+void
+meta_device_map_ungrab_touch (MetaDeviceMap *device_map,
+                              Window         xwindow)
+{
+  MetaDeviceMapClass *klass;
+
+  g_return_if_fail (META_IS_DEVICE_MAP (device_map));
+  g_return_if_fail (xwindow != None);
+
+  klass = META_DEVICE_MAP_GET_CLASS (device_map);
+
+  if (klass->ungrab_touch)
+    (klass->ungrab_touch) (device_map, xwindow);
+}
