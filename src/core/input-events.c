@@ -759,3 +759,44 @@ meta_input_event_get_device (MetaDisplay *display,
 
   return NULL;
 }
+
+MetaDevice *
+meta_input_event_get_source_device (MetaDisplay *display,
+                                    XEvent      *ev)
+{
+#ifdef HAVE_XINPUT2
+  if (ev->type == GenericEvent &&
+      ev->xcookie.extension == display->xinput2_opcode)
+    {
+      XIEvent *xev;
+
+      g_assert (display->have_xinput2 == TRUE);
+
+      xev = (XIEvent *) ev->xcookie.data;
+
+      switch (xev->evtype)
+        {
+        case XI_Motion:
+        case XI_ButtonPress:
+        case XI_ButtonRelease:
+        case XI_KeyPress:
+        case XI_KeyRelease:
+        case XI_TouchBegin:
+        case XI_TouchEnd:
+        case XI_TouchUpdate:
+          return meta_device_map_lookup (display->device_map,
+                                         ((XIDeviceEvent *) xev)->sourceid);
+        case XI_FocusIn:
+        case XI_FocusOut:
+        case XI_Enter:
+        case XI_Leave:
+          return meta_device_map_lookup (display->device_map,
+                                         ((XIEnterEvent *) xev)->sourceid);
+        default:
+          break;
+        }
+    }
+#endif
+
+  return NULL;
+}
