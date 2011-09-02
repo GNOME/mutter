@@ -93,7 +93,18 @@ meta_input_event_get_type (MetaDisplay *display,
           type = ButtonRelease;
           break;
         case XI_TouchUpdate:
-          type = MotionNotify;
+          if (((XIDeviceEvent *) xev)->flags & XITouchPendingEnd)
+            {
+              /* Consider these events like TouchEnd, as we
+               * could still need to call XIAllowTouchEvents()
+               * for this touch sequence so we get the real
+               * TouchEnd event, handling this event type the
+               * second time it arrives should be a NO-OP.
+               */
+              type = ButtonRelease;
+            }
+          else
+            type = MotionNotify;
           break;
         default:
           retval = FALSE;
