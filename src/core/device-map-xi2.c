@@ -25,6 +25,7 @@
 #include "device-map-xi2.h"
 #include <X11/extensions/XInput2.h>
 #include "devices-xi2.h"
+#include "input-events.h"
 
 #define XINPUT2_VERSION_MAJOR 2
 #define XINPUT2_VERSION_MINOR 2
@@ -123,26 +124,23 @@ meta_device_map_xi2_ungrab_button (MetaDeviceMap *device_map,
                   n_button, xwindow, 1, &mods);
 }
 
-static void
-add_device_from_info (MetaDeviceMap *device_map,
-                      gint           use,
-                      gint           device_id)
+static MetaDevice *
+create_device_from_info (MetaDeviceMap *device_map,
+                         gint           use,
+                         gint           device_id)
 {
-  MetaDevice *device;
+  MetaDevice *device = NULL;
   MetaDisplay *display;
 
   display = meta_device_map_get_display (device_map);
 
-  if (use == XIMasterPointer)
+  if (use == XIMasterPointer ||
+      use == XISlavePointer)
     device = meta_device_pointer_xi2_new (display, device_id);
   else if (use == XIMasterKeyboard)
     device = meta_device_keyboard_xi2_new (display, device_id);
 
-  if (device)
-    {
-      meta_device_map_add_device (device_map, device);
-      g_object_unref (device);
-    }
+  return device;
 }
 
 static void
@@ -175,15 +173,27 @@ meta_device_map_xi2_constructed (GObject *object)
    * detached slave devices are left for applications
    * to handle.
    */
-  info = XIQueryDevice (display->xdisplay, XIAllMasterDevices, &n_devices);
+  info = XIQueryDevice (display->xdisplay, XIAllDevices, &n_devices);
   pairs = g_hash_table_new (NULL, NULL);
 
   for (i = 0; i < n_devices; i++)
     {
-      add_device_from_info (device_map, info[i].use, info[i].deviceid);
-      g_hash_table_insert (pairs,
-                           GINT_TO_POINTER (info[i].deviceid),
-                           GINT_TO_POINTER (info[i].attachment));
+      MetaDevice *device;
+
+      device = create_device_from_info (device_map, info[i].use,
+                                        info[i].deviceid);
+      if (device)
+        {
+          meta_device_map_add_device (device_map, device);
+
+          if (info[i].use == XIMasterPointer ||
+              info[i].use == XIMasterKeyboard)
+            g_hash_table_insert (pairs,
+                                 GINT_TO_POINTER (info[i].deviceid),
+                                 GINT_TO_POINTER (info[i].attachment));
+
+          g_object_unref (device);
+        }
     }
 
   g_hash_table_foreach (pairs, pair_devices, device_map);
@@ -278,16 +288,23 @@ meta_device_map_xi2_handle_hierarchy_event (MetaDeviceMapXI2 *device_map,
 
       for (i = 0; i < xev->num_info; i++)
         {
-          if (xev->info[i].flags & XIMasterAdded)
+          if (xev->info[i].flags & XIMasterAdded ||
+              xev->info[i].flags & XISlaveAdded)
             {
-              add_device_from_info (META_DEVICE_MAP (device_map),
-                                    xev->info[i].use,
-                                    xev->info[i].deviceid);
-              g_hash_table_insert (pairs,
-                                   GINT_TO_POINTER (xev->info[i].deviceid),
-                                   GINT_TO_POINTER (xev->info[i].attachment));
+              MetaDevice *device;
+
+              device = create_device_from_info (META_DEVICE_MAP (device_map),
+                                                xev->info[i].use,
+                                                xev->info[i].deviceid);
+
+              if (device &&
+                  xev->info[i].flags & XIMasterAdded)
+                g_hash_table_insert (pairs,
+                                     GINT_TO_POINTER (xev->info[i].deviceid),
+                                     GINT_TO_POINTER (xev->info[i].attachment));
             }
-          else if (xev->info[i].flags & XIMasterRemoved)
+          else if (xev->info[i].flags & XIMasterRemoved ||
+                   xev->info[i].flags & XISlaveRemoved)
             {
               MetaDevice *device;
 
