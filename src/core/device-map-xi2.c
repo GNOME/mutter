@@ -193,6 +193,45 @@ meta_device_map_xi2_constructed (GObject *object)
 }
 
 static void
+meta_device_map_xi2_grab_touch (MetaDeviceMap *device_map,
+                                Window         xwindow)
+{
+  XIGrabModifiers unused = { 0 };
+  MetaDisplay *display;
+  XIEventMask mask;
+
+  display = meta_device_map_get_display (device_map);
+
+  g_message ("Grabbing passively on touch begin\n");
+
+  mask.deviceid = XIAllMasterDevices;
+  mask.mask = meta_device_xi2_translate_event_mask (META_INPUT_TOUCH_EVENTS_MASK |
+                                                    ButtonPressMask |
+                                                    ButtonReleaseMask |
+                                                    PointerMotionMask |
+                                                    KeyPressMask |
+                                                    KeyReleaseMask,
+                                                    &mask.mask_len);
+  XIGrabTouchBegin (display->xdisplay,
+                    XIAllMasterDevices,
+                    xwindow, True,
+                    &mask, 1, &unused);
+}
+
+static void
+meta_device_map_xi2_ungrab_touch (MetaDeviceMap *device_map,
+                                  Window         xwindow)
+{
+  XIGrabModifiers unused = { 0 };
+  MetaDisplay *display;
+
+  display = meta_device_map_get_display (device_map);
+  XIUngrabTouchBegin (display->xdisplay,
+                      XIAllMasterDevices,
+                      xwindow, 0, &unused);
+}
+
+static void
 meta_device_map_xi2_class_init (MetaDeviceMapXI2Class *klass)
 {
   MetaDeviceMapClass *device_map_class = META_DEVICE_MAP_CLASS (klass);
@@ -204,6 +243,8 @@ meta_device_map_xi2_class_init (MetaDeviceMapXI2Class *klass)
   device_map_class->ungrab_key = meta_device_map_xi2_ungrab_key;
   device_map_class->grab_button = meta_device_map_xi2_grab_button;
   device_map_class->ungrab_button = meta_device_map_xi2_ungrab_button;
+  device_map_class->grab_touch = meta_device_map_xi2_grab_touch;
+  device_map_class->ungrab_touch = meta_device_map_xi2_ungrab_touch;
 }
 
 static void
