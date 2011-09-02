@@ -80,6 +80,7 @@ gboolean meta_input_event_get_crossing_details (MetaDisplay *display,
 
 MetaDevice *meta_input_event_get_device        (MetaDisplay *display,
                                                 XEvent      *ev);
-
+MetaDevice *meta_input_event_get_source_device (MetaDisplay *display,
+                                                XEvent      *ev);
 
 #endif /* META_EVENT_H */
