@@ -76,6 +76,10 @@ struct _MetaDeviceMapClass
                                Window         xwindow,
                                guint          n_button,
                                guint          modifiers);
+  void     (* grab_touch)     (MetaDeviceMap *pointer,
+                               Window         xwindow);
+  void     (* ungrab_touch)   (MetaDeviceMap *pointer,
+                               Window         xwindow);
 };
 
 GType           meta_device_map_get_type (void) G_GNUC_CONST;
@@ -107,5 +111,10 @@ void     meta_device_map_ungrab_button   (MetaDeviceMap      *device_map,
                                           Window              xwindow,
                                           guint               n_button,
                                           guint               modifiers);
+
+void     meta_device_map_grab_touch      (MetaDeviceMap      *device_map,
+                                          Window              xwindow);
+void     meta_device_map_ungrab_touch    (MetaDeviceMap      *device_map,
+                                          Window              xwindow);
 
 #endif /* META_DEVICE_MAP_PRIVATE_H */
