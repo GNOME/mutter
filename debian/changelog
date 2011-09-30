@@ -1,10 +1,16 @@
-mutter (3.1.90-1) UNRELEADED; urgency=low
+mutter (3.1.90-1) UNRELEASED; urgency=low
 
+  [ Jean Schurger ]
   * New upstream version
   * debian/control.in
     - Updated clutter dependency
   * debian/libmutter0.symbols
     - Updated
+
+  [ Josselin Mouette ]
+  * Tighten shlibs to the major GNOME version, libcamel-style.
+  * libmutter0.symbols: dropped, upstream ABI stability guarantees are 
+    not sufficient.
 
  -- Jean Schurger <jean@schurger.org>  Tue, 30 Aug 2011 10:45:55 -0400
 
