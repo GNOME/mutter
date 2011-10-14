@@ -1,0 +1,101 @@
+From 4167ef870c9a03b360bb6d0eead230ea40559927 Mon Sep 17 00:00:00 2001
+From: Neil Roberts <neil@linux.intel.com>
+Date: Wed, 13 Jul 2011 14:01:05 +0100
+Subject: [PATCH] meta-window-group: Use clutter_stage_get_redraw_clip_bounds
+
+Clutter now has some API to get the bounds of the current redraw clip
+so Mutter no longer needs to make direct GL calls to get the scissor
+rect. This should make it more robust against Cogl or Clutter changing
+how it does the clipping.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=654551
+---
+ configure.in                       |    2 +-
+ src/compositor/meta-window-group.c |   50 +++++++++--------------------------
+ 2 files changed, 14 insertions(+), 38 deletions(-)
+
+diff --git a/configure.in b/configure.in
+index 27e650f..25bcc86 100644
+--- a/configure.in
++++ b/configure.in
+@@ -185,7 +185,7 @@ else
+   AC_MSG_ERROR([no. Mutter requires the Xcomposite extension to build.])
+ fi
+ 
+-CLUTTER_VERSION=1.2.0
++CLUTTER_VERSION=1.7.5
+ CLUTTER_PACKAGE=clutter-1.0
+ AC_SUBST(CLUTTER_PACKAGE)
+ if $PKG_CONFIG --atleast-version $CLUTTER_VERSION $CLUTTER_PACKAGE ; then
+diff --git a/src/compositor/meta-window-group.c b/src/compositor/meta-window-group.c
+index 857eab0..c5fc397 100644
+--- a/src/compositor/meta-window-group.c
++++ b/src/compositor/meta-window-group.c
+@@ -103,11 +103,9 @@ actor_is_untransformed (ClutterActor *actor,
+ static void
+ meta_window_group_paint (ClutterActor *actor)
+ {
+-  MetaWindowGroup *window_group = META_WINDOW_GROUP (actor);
+   cairo_region_t *visible_region;
+-  GLboolean scissor_test;
+-  cairo_rectangle_int_t screen_rect = { 0 };
+-  cairo_rectangle_int_t scissor_rect;
++  ClutterActor *stage;
++  cairo_rectangle_int_t visible_rect;
+   GList *children, *l;
+ 
+   /* We walk the list from top to bottom (opposite of painting order),
+@@ -117,39 +115,17 @@ meta_window_group_paint (ClutterActor *actor)
+   children = clutter_container_get_children (CLUTTER_CONTAINER (actor));
+   children = g_list_reverse (children);
+ 
+-  /* Start off with the full screen area (for a multihead setup, we
+-   * might want to use a more accurate union of the monitors to avoid
+-   * painting in holes from mismatched monitor sizes. That's just an
+-   * optimization, however.)
+-   */
+-  meta_screen_get_size (window_group->screen, &screen_rect.width, &screen_rect.height);
+-
+-  /* When doing a partial stage paint, Clutter will set the GL scissor
+-   * box to the clip rectangle for the partial repaint. We combine the screen
+-   * rectangle with the scissor box to get the region we need to
+-   * paint. (Strangely, the scissor box sometimes seems to be bigger
+-   * than the stage ... Clutter should probably be clampimg)
+-   */
+-  glGetBooleanv (GL_SCISSOR_TEST, &scissor_test);
+-
+-  if (scissor_test)
+-    {
+-      GLint scissor_box[4];
+-      glGetIntegerv (GL_SCISSOR_BOX, scissor_box);
+-
+-      scissor_rect.x = scissor_box[0];
+-      scissor_rect.y = screen_rect.height - (scissor_box[1] + scissor_box[3]);
+-      scissor_rect.width = scissor_box[2];
+-      scissor_rect.height = scissor_box[3];
+-
+-      gdk_rectangle_intersect (&scissor_rect, &screen_rect, &scissor_rect);
+-    }
+-  else
+-    {
+-      scissor_rect = screen_rect;
+-    }
+-
+-  visible_region = cairo_region_create_rectangle (&scissor_rect);
++  /* Get the clipped redraw bounds from Clutter so that we can avoid
++   * painting shadows on windows that don't need to be painted in this
++   * frame. In the case of a multihead setup with mismatched monitor
++   * sizes, we could intersect this with an accurate union of the
++   * monitors to avoid painting shadows that are visible only in the
++   * holes. */
++  stage = clutter_actor_get_stage (actor);
++  clutter_stage_get_redraw_clip_bounds (CLUTTER_STAGE (stage),
++                                        &visible_rect);
++
++  visible_region = cairo_region_create_rectangle (&visible_rect);
+ 
+   for (l = children; l; l = l->next)
+     {
+-- 
+1.7.5.4
+
