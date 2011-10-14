@@ -628,7 +628,7 @@ libmutter.so.0 libmutter0 #MINVER#
  meta_tab_list_get_type@Base 2.91.92
  meta_tab_show_type_get_type@Base 2.91.92
  meta_text_property_to_utf8@Base 2.91.92
- meta_texture_rectangle_new@Base 3.0.2.1-3
+ meta_texture_rectangle_new@Base 3.0.2.1-3~
  meta_texture_tower_free@Base 2.91.92
  meta_texture_tower_get_paint_texture@Base 2.91.92
  meta_texture_tower_new@Base 2.91.92
