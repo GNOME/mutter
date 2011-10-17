@@ -1,0 +1,41 @@
+From: Owen W. Taylor <otaylor@fishsoup.net>
+Subject: Don't lose application redraws
+
+Our usage of DamageReportBoundingBox was causing us to miss some
+updates when an area of the screen was drawn twice in rapid
+succession. Add an explicit XSync() call to force the server
+to flush rendering to the kernel before we draw.
+
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=657071
+Origin: upstream, http://git.gnome.org/browse/mutter/commit/?id=2dc5693c60a2952fdb703098c5e50d80eb976f86
+---
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -2107,6 +2107,27 @@ meta_window_actor_pre_paint (MetaWindowA
+       meta_error_trap_push (display);
+       XDamageSubtract (xdisplay, priv->damage, None, None);
+       meta_error_trap_pop (display);
++
++      /* We need to make sure that any X drawing that happens before the
++       * XDamageSubtract() above is visible to subsequent GL rendering;
++       * the only standardized way to do this is EXT_x11_sync_object,
++       * which isn't yet widely available. For now, we count on details
++       * of Xorg and the open source drivers, and hope for the best
++       * otherwise.
++       *
++       * Xorg and open source driver specifics:
++       *
++       * The X server makes sure to flush drawing to the kernel before
++       * sending out damage events, but since we use DamageReportBoundingBox
++       * there may be drawing between the last damage event and the
++       * XDamageSubtract() that needs to be flushed as well.
++       *
++       * Xorg always makes sure that drawing is flushed to the kernel
++       * before writing events or responses to the client, so any round trip
++       * request at this point is sufficient to flush the GLX buffers.
++       */
++      XSync (xdisplay, False);
++
+       priv->received_damage = FALSE;
+     }
+ 
