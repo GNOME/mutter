@@ -1,4 +1,4 @@
-mutter (3.1.90-1) UNRELEASED; urgency=low
+mutter (3.2.0-1) UNRELEASED; urgency=low
 
   [ Jean Schurger ]
   * New upstream version
@@ -12,7 +12,10 @@ mutter (3.1.90-1) UNRELEASED; urgency=low
   * libmutter0.symbols: dropped, upstream ABI stability guarantees are 
     not sufficient.
 
- -- Jean Schurger <jean@schurger.org>  Tue, 30 Aug 2011 10:45:55 -0400
+  [ Sjoerd Simons ]
+  * New upstream release (3.2.0)
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Mon, 17 Oct 2011 16:50:16 +0100
 
 mutter (3.0.2.1-2) unstable; urgency=low
 
