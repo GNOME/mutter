@@ -2147,10 +2147,8 @@ parse_draw_op_element (GMarkupParseContext  *context,
       const char *y;
       const char *width;
       const char *height;
-      const char *alpha;
       const char *colorize;
       const char *fill_type;
-      MetaAlphaGradientSpec *alpha_spec;
       GdkPixbuf *pixbuf;
       MetaColorSpec *colorize_spec = NULL;
       MetaImageFillType fill_type_val;
@@ -2162,7 +2160,7 @@ parse_draw_op_element (GMarkupParseContext  *context,
                               error,
                               "!x", &x, "!y", &y,
                               "!width", &width, "!height", &height,
-                              "alpha", &alpha, "!filename", &filename,
+                              "!filename", &filename,
                               "colorize", &colorize,
                               "fill_type", &fill_type,
                               NULL))
@@ -2220,13 +2218,6 @@ parse_draw_op_element (GMarkupParseContext  *context,
               return;
             }
         }
-
-      alpha_spec = NULL;
-      if (alpha && !parse_alpha (alpha, &alpha_spec, context, error))
-        {
-          g_object_unref (G_OBJECT (pixbuf));
-          return;
-        }
       
       op = meta_draw_op_new (META_DRAW_IMAGE);
 
@@ -2238,7 +2229,6 @@ parse_draw_op_element (GMarkupParseContext  *context,
       op->data.image.width = meta_draw_spec_new (info->theme, width, NULL);
       op->data.image.height = meta_draw_spec_new (info->theme, height, NULL);
 
-      op->data.image.alpha_spec = alpha_spec;
       op->data.image.fill_type = fill_type_val;
       
       /* Check for vertical & horizontal stripes */
@@ -2529,16 +2519,13 @@ parse_draw_op_element (GMarkupParseContext  *context,
       const char *y;
       const char *width;
       const char *height;
-      const char *alpha;
       const char *fill_type;
-      MetaAlphaGradientSpec *alpha_spec;
       MetaImageFillType fill_type_val;
       
       if (!locate_attributes (context, element_name, attribute_names, attribute_values,
                               error,
                               "!x", &x, "!y", &y,
                               "!width", &width, "!height", &height,
-                              "alpha", &alpha,
                               "fill_type", &fill_type,
                               NULL))
         return;
@@ -2570,9 +2557,6 @@ parse_draw_op_element (GMarkupParseContext  *context,
             }
         }
       
-      alpha_spec = NULL;
-      if (alpha && !parse_alpha (alpha, &alpha_spec, context, error))
-        return;
       
       op = meta_draw_op_new (META_DRAW_ICON);
       
@@ -2581,7 +2565,6 @@ parse_draw_op_element (GMarkupParseContext  *context,
       op->data.icon.width = meta_draw_spec_new (info->theme, width, NULL);
       op->data.icon.height = meta_draw_spec_new (info->theme, height, NULL);
 
-      op->data.icon.alpha_spec = alpha_spec;
       op->data.icon.fill_type = fill_type_val;
       
       g_assert (info->op_list);
