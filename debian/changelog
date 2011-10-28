@@ -1,4 +1,4 @@
-mutter (3.2.1-1) UNRELEASED; urgency=low
+mutter (3.2.1-1) experimental; urgency=low
 
   [ Jean Schurger ]
   * New upstream version
@@ -9,13 +9,13 @@ mutter (3.2.1-1) UNRELEASED; urgency=low
 
   [ Josselin Mouette ]
   * Tighten shlibs to the major GNOME version, libcamel-style.
-  * libmutter0.symbols: dropped, upstream ABI stability guarantees are 
+  * libmutter0.symbols: dropped, upstream ABI stability guarantees are
     not sufficient.
 
   [ Sjoerd Simons ]
   * New upstream release (3.2.1)
 
- -- Sjoerd Simons <sjoerd@debian.org>  Tue, 18 Oct 2011 07:46:06 +0100
+ -- Sjoerd Simons <sjoerd@debian.org>  Fri, 28 Oct 2011 20:19:30 +0200
 
 mutter (3.0.2.1-2) unstable; urgency=low
 
