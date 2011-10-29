@@ -3406,18 +3406,6 @@ draw_op_as_pixbuf (const MetaDrawOp    *op,
 
   switch (op->type)
     {
-    case META_DRAW_LINE:
-      break;
-
-    case META_DRAW_RECTANGLE:
-      break;
-
-    case META_DRAW_ARC:
-      break;
-
-    case META_DRAW_CLIP:
-      break;
-      
     case META_DRAW_TINT:
       {
         GdkRGBA color;
@@ -3452,9 +3440,6 @@ draw_op_as_pixbuf (const MetaDrawOp    *op,
             gdk_pixbuf_fill (pixbuf, rgba);
           }
       }
-      break;
-
-    case META_DRAW_GRADIENT:
       break;
 
     case META_DRAW_IMAGE:
@@ -3499,12 +3484,6 @@ draw_op_as_pixbuf (const MetaDrawOp    *op,
 	  }
         break;
       }
-      
-    case META_DRAW_GTK_ARROW:
-    case META_DRAW_GTK_BOX:
-    case META_DRAW_GTK_VLINE:
-      break;
-
     case META_DRAW_ICON:
       if (info->mini_icon &&
           width <= gdk_pixbuf_get_width (info->mini_icon) &&
@@ -3520,12 +3499,16 @@ draw_op_as_pixbuf (const MetaDrawOp    *op,
                                          FALSE, FALSE);
       break;
 
+    case META_DRAW_LINE:
+    case META_DRAW_RECTANGLE:
+    case META_DRAW_ARC:
+    case META_DRAW_CLIP:
+    case META_DRAW_GRADIENT:
+    case META_DRAW_GTK_ARROW:
+    case META_DRAW_GTK_BOX:
+    case META_DRAW_GTK_VLINE:
     case META_DRAW_TITLE:
-      break;
-
     case META_DRAW_OP_LIST:
-      break;
-
     case META_DRAW_TILE:
       break;
     }
