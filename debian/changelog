@@ -1,3 +1,11 @@
+mutter (3.2.1-2) UNRELEASED; urgency=low
+
+  * debian/watch:
+    - Fix URL regex to correctly detect latest tarballs
+    - Switch to .xz tarballs
+
+ -- Laurent Bigonville <bigon@debian.org>  Sun, 30 Oct 2011 16:57:48 +0100
+
 mutter (3.2.1-1) experimental; urgency=low
 
   [ Jean Schurger ]
