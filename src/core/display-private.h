@@ -160,6 +160,7 @@ struct _MetaTouchInfo
   gdouble initial_root_y;
 
   guint notified : 1;
+  guint use_for_hotspot : 1;
 };
 
 struct _MetaDisplay
