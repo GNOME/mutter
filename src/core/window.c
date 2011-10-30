@@ -61,6 +61,10 @@
 #include <X11/extensions/shape.h>
 #endif
 
+#define N_TOUCHES_FOR_GRAB 3
+#define TOUCH_THRESHOLD 16
+#define TILING_ZOOM_FACTOR 1.5
+
 #include <X11/extensions/Xcomposite.h>
 
 /* Windows that unmaximize to a size bigger than that fraction of the workarea
@@ -8828,23 +8832,26 @@ update_move (MetaWindow  *window,
                y >= monitor->rect.y && y <= work_area.y)
         window->tile_mode = META_TILE_MAXIMIZED;
       else if (window->cur_touches &&
-               g_hash_table_size (window->cur_touches) == 3)
+               g_hash_table_size (window->cur_touches) >= N_TOUCHES_FOR_GRAB)
         {
-          window->tile_mode = META_TILE_NONE;
-
-          if (window->cur_touch_area_height >
-              window->initial_touch_area_height * 1.5)
+          if (!window->touch_hold_tiling_mode)
             {
-              if (window->cur_touch_area_width >
-                  window->initial_touch_area_width * 1.5 &&
-                  meta_window_can_tile_maximized (window))
-                window->tile_mode = META_TILE_MAXIMIZED;
-              else if (meta_window_can_tile_side_by_side (window, device))
+              window->tile_mode = META_TILE_NONE;
+
+              if (window->cur_touch_area_height >
+                  window->initial_touch_area_height * TILING_ZOOM_FACTOR)
                 {
-                  if (x < (monitor->rect.x + (monitor->rect.width / 2)))
-                    window->tile_mode = META_TILE_LEFT;
-                  else
-                    window->tile_mode = META_TILE_RIGHT;
+                  if (window->cur_touch_area_width >
+                      window->initial_touch_area_width * TILING_ZOOM_FACTOR &&
+                      meta_window_can_tile_maximized (window))
+                    window->tile_mode = META_TILE_MAXIMIZED;
+                  else if (meta_window_can_tile_side_by_side (window, device))
+                    {
+                      if (x < (monitor->rect.x + (monitor->rect.width / 2)))
+                        window->tile_mode = META_TILE_LEFT;
+                      else
+                        window->tile_mode = META_TILE_RIGHT;
+                    }
                 }
             }
         }
@@ -11150,6 +11157,7 @@ typedef struct
   gdouble top_left_y;
   gdouble bottom_right_x;
   gdouble bottom_right_y;
+  gboolean only_hotspot;
 } BoundingRectCoords;
 
 static void
@@ -11160,6 +11168,10 @@ calculate_touch_bounding_rect (gpointer key,
   BoundingRectCoords *bounding_rect = user_data;
   MetaTouchInfo *touch_info = value;
 
+  if (bounding_rect->only_hotspot &&
+      !touch_info->use_for_hotspot)
+    return;
+
   if (touch_info->root_x < bounding_rect->top_left_x)
     bounding_rect->top_left_x = touch_info->root_x;
   if (touch_info->root_x > bounding_rect->bottom_right_x)
@@ -11169,6 +11181,55 @@ calculate_touch_bounding_rect (gpointer key,
     bounding_rect->top_left_y = touch_info->root_y;
   if (touch_info->root_y > bounding_rect->bottom_right_y)
     bounding_rect->bottom_right_y = touch_info->root_y;
+}
+
+static gboolean
+window_get_touch_area (MetaWindow *window,
+                       gdouble    *center_x,
+                       gdouble    *center_y,
+                       gdouble    *width,
+                       gdouble    *height)
+{
+  if (g_hash_table_size (window->cur_touches) == 0)
+    return FALSE;
+
+  if (width || height)
+    {
+      BoundingRectCoords bounding_rect = { DBL_MAX, DBL_MAX,
+                                           DBL_MIN, DBL_MIN,
+                                           FALSE };
+
+      g_hash_table_foreach (window->cur_touches,
+                            calculate_touch_bounding_rect,
+                            &bounding_rect);
+
+      if (width)
+        *width = bounding_rect.bottom_right_x - bounding_rect.top_left_x;
+      if (height)
+        *height = bounding_rect.bottom_right_y - bounding_rect.top_left_y;
+    }
+
+  if (center_x || center_y)
+    {
+      gdouble w, h;
+      BoundingRectCoords bounding_rect = { DBL_MAX, DBL_MAX,
+                                           DBL_MIN, DBL_MIN,
+                                           TRUE };
+
+      g_hash_table_foreach (window->cur_touches,
+                            calculate_touch_bounding_rect,
+                            &bounding_rect);
+
+      w = bounding_rect.bottom_right_x - bounding_rect.top_left_x;
+      h = bounding_rect.bottom_right_y - bounding_rect.top_left_y;
+
+      if (center_x)
+        *center_x = bounding_rect.top_left_x + (w / 2);
+      if (center_y)
+        *center_y = bounding_rect.top_left_y + (h / 2);
+    }
+
+  return TRUE;
 }
 
 static void
@@ -11246,6 +11307,8 @@ meta_window_update_touch (MetaWindow *window,
       touch_info = g_slice_new (MetaTouchInfo);
       touch_info->initial_root_x = root_x;
       touch_info->initial_root_y = root_y;
+      touch_info->use_for_hotspot =
+        (g_hash_table_size (window->cur_touches) < N_TOUCHES_FOR_GRAB);
 
       g_hash_table_insert (window->cur_touches,
                            GUINT_TO_POINTER (touch_id),
@@ -11258,9 +11321,9 @@ meta_window_update_touch (MetaWindow *window,
 
   n_touches = g_hash_table_size (window->cur_touches);
 
-  if (!new_touch && n_touches < 3 &&
-      (ABS (touch_info->initial_root_x - touch_info->root_x) >= 16 ||
-       ABS (touch_info->initial_root_y - touch_info->root_y) >= 16))
+  if (!new_touch && n_touches < N_TOUCHES_FOR_GRAB &&
+      (ABS (touch_info->initial_root_x - touch_info->root_x) >= TOUCH_THRESHOLD ||
+       ABS (touch_info->initial_root_y - touch_info->root_y) >= TOUCH_THRESHOLD))
     {
       /* There aren't yet enough touches on the window to trigger
        * window moving, and one of the touches moved past the
@@ -11271,13 +11334,11 @@ meta_window_update_touch (MetaWindow *window,
       notify_touch_events (window, source, FALSE);
       return TRUE;
     }
-  else if (n_touches >= 3)
+  else if (n_touches >= N_TOUCHES_FOR_GRAB)
     {
-      gdouble x, y, width, height;
-      BoundingRectCoords bounding_rect = { DBL_MAX, DBL_MAX,
-                                           DBL_MIN, DBL_MIN };
+      gdouble center_x, center_y, width, height;
 
-      if (n_touches == 3 && new_touch)
+      if (n_touches == N_TOUCHES_FOR_GRAB && new_touch)
         {
           /* Accept all touches for the move operation */
           notify_touch_events (window, source, TRUE);
@@ -11290,21 +11351,24 @@ meta_window_update_touch (MetaWindow *window,
           touch_info->notified = TRUE;
         }
 
-      g_hash_table_foreach (window->cur_touches,
-                            calculate_touch_bounding_rect,
-                            &bounding_rect);
-
-      /* Get x/y coordinates at the middle of the bounding box,
+      /* Set grab x/y coordinates at the middle of the bounding box,
        * this will be the hotspot for the window moving operation
        */
-      width = bounding_rect.bottom_right_x - bounding_rect.top_left_x;
-      height = bounding_rect.bottom_right_y - bounding_rect.top_left_y;
-      x = bounding_rect.top_left_x + (width / 2);
-      y = bounding_rect.top_left_y + (height / 2);
+      window_get_touch_area (window, &center_x, &center_y, &width, &height);
+      window->cur_touch_area_width = width;
+      window->cur_touch_area_height = height;
 
       if (new_touch)
         {
-          if (n_touches == 3)
+          window->touch_hold_tiling_mode = FALSE;
+
+          /* (re)set initial bounding box
+           * so the new touch is included
+           */
+          window->initial_touch_area_width = width;
+          window->initial_touch_area_height = height;
+
+          if (n_touches == N_TOUCHES_FOR_GRAB)
             {
               /* Start window move operation with the
                * bounding rectangle center as the hotspot
@@ -11317,18 +11381,37 @@ meta_window_update_touch (MetaWindow *window,
                                           TRUE, FALSE,
                                           1, 0,
                                           evtime,
-                                          x, y);
+                                          center_x, center_y);
             }
+          else
+            {
+              /* Update hotspot for grab */
+              window->cur_grab->grab_anchor_root_x = center_x;
+              window->cur_grab->grab_anchor_root_y = center_y;
+              window->cur_grab->grab_latest_motion_x = center_x;
+              window->cur_grab->grab_latest_motion_y = center_y;
+              meta_window_get_client_root_coords (window,
+                                                  &window->cur_grab->grab_anchor_window_pos);
 
-          window->initial_touch_area_width = width;
-          window->initial_touch_area_height = height;
+              /* Update window, and tiling mode */
+              update_move (window, device, FALSE, center_x, center_y);
+            }
         }
       else if (window->cur_grab)
         {
-          window->cur_touch_area_width = width;
-          window->cur_touch_area_height = height;
+          /* Unset tiling mode as the remaining touches moved past the threshold */
+          if (window->touch_hold_tiling_mode &&
+              ((window->cur_touch_area_width >
+                (window->initial_touch_area_width + (2 * TOUCH_THRESHOLD))) ||
+               (window->cur_touch_area_height >
+                (window->initial_touch_area_height + (2 * TOUCH_THRESHOLD))) ||
+               (ABS (window->cur_grab->grab_anchor_root_x -
+                     window->cur_grab->grab_latest_motion_x) > TOUCH_THRESHOLD) ||
+               (ABS (window->cur_grab->grab_anchor_root_y -
+                     window->cur_grab->grab_latest_motion_y) > TOUCH_THRESHOLD)))
+            window->touch_hold_tiling_mode = FALSE;
 
-          update_move (window, device, FALSE, x, y);
+          update_move (window, device, FALSE, center_x, center_y);
         }
 
       return TRUE;
@@ -11344,6 +11427,7 @@ meta_window_end_touch (MetaWindow *window,
   MetaTouchInfo *info;
   MetaDevice *source;
   guint touch_id, n_touches;
+  MetaDevice *device;
   Time evtime;
 
   meta_input_event_get_touch_id (window->display, event, &touch_id);
@@ -11365,17 +11449,42 @@ meta_window_end_touch (MetaWindow *window,
                        GUINT_TO_POINTER (touch_id));
 
   n_touches = g_hash_table_size (window->cur_touches);
+  device = meta_input_event_get_device (window->display, event);
 
-  window->initial_touch_area_width = 0;
-  window->initial_touch_area_height = 0;
-  window->cur_touch_area_width = 0;
-  window->cur_touch_area_height = 0;
-
-  if (n_touches == 2)
+  if (n_touches >= N_TOUCHES_FOR_GRAB)
     {
-      MetaDevice *device;
+      gdouble center_x, center_y, width, height;
 
-      device = meta_input_event_get_device (window->display, event);
+      window_get_touch_area (window, &center_x, &center_y, &width, &height);
+
+      window->initial_touch_area_width = width;
+      window->initial_touch_area_height = height;
+      window->cur_touch_area_width = width;
+      window->cur_touch_area_height = height;
+
+      /* Update hotspot to the new bounding box center */
+      window->cur_grab->grab_anchor_root_x = center_x;
+      window->cur_grab->grab_anchor_root_y = center_y;
+      window->cur_grab->grab_latest_motion_x = center_x;
+      window->cur_grab->grab_latest_motion_y = center_y;
+      meta_window_get_client_root_coords (window,
+                                          &window->cur_grab->grab_anchor_window_pos);
+
+      /* Hold tiling mode until the remaining
+       * touches moved past some threshold
+       */
+      window->touch_hold_tiling_mode = TRUE;
+
+      update_move (window, device, FALSE, center_x, center_y);
+    }
+  else if (n_touches == N_TOUCHES_FOR_GRAB - 1)
+    {
+      /* We just lost the last touch to hold the grab */
+      window->initial_touch_area_width = 0;
+      window->initial_touch_area_height = 0;
+      window->cur_touch_area_width = 0;
+      window->cur_touch_area_height = 0;
+
       meta_display_end_grab_op (window->display, device, evtime);
     }
   else if (n_touches == 0 &&

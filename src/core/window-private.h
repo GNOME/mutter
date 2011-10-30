@@ -340,6 +340,9 @@ struct _MetaWindow
   /* if TRUE, window didn't yet get the FocusIn for window->focus_keyboard */
   guint expecting_focus_in : 1;
 
+  /* if TRUE, tiling mode is held regardless of newer touch updates */
+  guint touch_hold_tiling_mode : 1;
+
   /* Keyboard currently owning the window focus, or NULL */
   MetaDevice *focus_keyboard;
 
