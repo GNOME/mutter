@@ -1,4 +1,2 @@
-00git-meta-window-group-Use-clutter_stage_get_redraw_clip_.patch
-00git-Use-a-utility-function-to-create-GL_ARB_texture_rect.patch
-00git-dont-lose-application-redraws.patch
 01_Wcast-align.patch
+04_ignore_shadow_and_padding.patch
