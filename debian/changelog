@@ -12,6 +12,7 @@ mutter (3.2.1-2) UNRELEASED; urgency=low
 
   [ Michael Biebl ]
   * Upload to unstable.
+  * Refresh debian/patches/01_Wcast-align.patch.
 
  -- Michael Biebl <biebl@debian.org>  Sat, 19 Nov 2011 00:56:13 +0100
 
