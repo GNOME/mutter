@@ -5,11 +5,6 @@ mutter (3.2.1-2) UNRELEASED; urgency=low
     - Fix URL regex to correctly detect latest tarballs
     - Switch to .xz tarballs
 
-  [ Jeremy Bicha ]
-  * debian/patches/04_ignore_shadow_and_padding.patch:
-    - Patch from Ubuntu to ignore unrecognized elements instead of
-      showing the ugly fallback theme
-
   [ Michael Biebl ]
   * Upload to unstable.
   * Refresh debian/patches/01_Wcast-align.patch.
