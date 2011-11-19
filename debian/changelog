@@ -13,6 +13,9 @@ mutter (3.2.1-2) UNRELEASED; urgency=low
   [ Michael Biebl ]
   * Upload to unstable.
   * Refresh debian/patches/01_Wcast-align.patch.
+  * debian/control.in:
+    - Add explicit Build-Depends on libcairo2-dev.
+    - Bump Build-Depends on libglib2.0-dev.
 
  -- Michael Biebl <biebl@debian.org>  Sat, 19 Nov 2011 00:56:13 +0100
 

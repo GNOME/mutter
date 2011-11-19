@@ -7,7 +7,7 @@ Source: mutter
 Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
-Uploaders: Emilio Pozuelo Monfort <pochu@debian.org>, Frederic Peters <fpeters@debian.org>, Laurent Bigonville <bigon@debian.org>, Michael Biebl <biebl@debian.org>, Sjoerd Simons <sjoerd@debian.org>
+Uploaders: Frederic Peters <fpeters@debian.org>, Laurent Bigonville <bigon@debian.org>, Michael Biebl <biebl@debian.org>, Sjoerd Simons <sjoerd@debian.org>
 Build-Depends: cdbs (>= 0.4.90),
                debhelper (>= 8),
                dh-autoreconf,
@@ -19,8 +19,9 @@ Build-Depends: cdbs (>= 0.4.90),
                libjson-glib-dev (>= 0.13.2-1~),
                libclutter-1.0-dev (>= 1.7.12),
                libpango1.0-dev (>= 1.2.0),
+               libcairo2-dev (>= 1.2.0),
                libgconf2-dev (>= 2.6.1-2),
-               libglib2.0-dev (>= 2.6.0),
+               libglib2.0-dev (>= 2.14.0),
                libstartup-notification0-dev (>= 0.7),
                libxcomposite-dev (>= 1:0.2),
                libxfixes-dev,
