@@ -1,4 +1,4 @@
-mutter (3.2.1-2) UNRELEASED; urgency=low
+mutter (3.2.1-2) unstable; urgency=low
 
   [ Laurent Bigonville ]
   * debian/watch:
@@ -12,7 +12,7 @@ mutter (3.2.1-2) UNRELEASED; urgency=low
     - Add explicit Build-Depends on libcairo2-dev.
     - Bump Build-Depends on libglib2.0-dev.
 
- -- Michael Biebl <biebl@debian.org>  Sat, 19 Nov 2011 00:56:13 +0100
+ -- Michael Biebl <biebl@debian.org>  Sat, 19 Nov 2011 01:21:32 +0100
 
 mutter (3.2.1-1) experimental; urgency=low
 
