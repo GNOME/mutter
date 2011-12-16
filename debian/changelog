@@ -1,3 +1,9 @@
+mutter (3.2.1-3) UNRELEASED; urgency=low
+
+  * Change section of gir1.2-mutter-3.0 to introspection.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 16 Dec 2011 23:12:12 +0100
+
 mutter (3.2.1-2) unstable; urgency=low
 
   [ Laurent Bigonville ]
