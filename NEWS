@@ -1,3 +1,14 @@
+3.2.2
+=====
+* Fix a crash that could occur when unredirected full-screen windows [Adel]
+* Fix a memory leak [Jasper; #642652]
+
+Contributors:
+ Jasper St. Pierre, Adel Gadllah
+
+Translations
+ Krishnababu Krothapalli [te], Nguyễn Thái Ngọc Duy [vi]
+
 3.2.1
 =====
 * Allow keyboard window switching (alt-Tab) during drag-and-drop
@@ -16,7 +27,7 @@
 * Misc bug fixes [Adel, Jasper, Rui; #660464, #660854, #662053]
 
 Contributors:
- Matthias Clasen, Sandro Mani, Rui Matos, Jasper St. Pierre, Owen Taylor
+ Matthias Clasen, Adel Gadllah, Sandro Mani, Rui Matos, Jasper St. Pierre, Owen Taylor
 
 Translations:
  Tommi Vainikainen [fi], Miroslav Nikolić [sr, sr@latin], Muhammet Kara [tr]
