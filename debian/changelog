@@ -1,4 +1,4 @@
-mutter (3.2.2-1) UNRELEASED; urgency=low
+mutter (3.2.2-1) unstable; urgency=low
 
   [ Michael Biebl ]
   * Change section of gir1.2-mutter-3.0 to introspection.
@@ -10,7 +10,7 @@ mutter (3.2.2-1) UNRELEASED; urgency=low
   * New upstream release.
   * debian/watch: Track stable releases.
 
- -- Michael Biebl <biebl@debian.org>  Tue, 24 Jan 2012 07:45:52 +0100
+ -- Michael Biebl <biebl@debian.org>  Tue, 24 Jan 2012 07:49:20 +0100
 
 mutter (3.2.1-2) unstable; urgency=low
 
