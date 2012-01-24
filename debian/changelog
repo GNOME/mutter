@@ -8,8 +8,9 @@ mutter (3.2.2-1) UNRELEASED; urgency=low
 
   [ Michael Biebl ]
   * New upstream release.
+  * debian/watch: Track stable releases.
 
- -- Michael Biebl <biebl@debian.org>  Tue, 24 Jan 2012 07:44:33 +0100
+ -- Michael Biebl <biebl@debian.org>  Tue, 24 Jan 2012 07:45:52 +0100
 
 mutter (3.2.1-2) unstable; urgency=low
 
