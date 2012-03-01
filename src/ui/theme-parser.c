@@ -2147,10 +2147,8 @@ parse_draw_op_element (GMarkupParseContext  *context,
       const char *y;
       const char *width;
       const char *height;
-      const char *colorize;
       const char *fill_type;
       GdkPixbuf *pixbuf;
-      MetaColorSpec *colorize_spec = NULL;
       MetaImageFillType fill_type_val;
       int h, w, c;
       int pixbuf_width, pixbuf_height, pixbuf_n_channels, pixbuf_rowstride;
@@ -2161,7 +2159,6 @@ parse_draw_op_element (GMarkupParseContext  *context,
                               "!x", &x, "!y", &y,
                               "!width", &width, "!height", &height,
                               "!filename", &filename,
-                              "colorize", &colorize,
                               "fill_type", &fill_type,
                               NULL))
         return;
@@ -2206,23 +2203,9 @@ parse_draw_op_element (GMarkupParseContext  *context,
           add_context_to_error (error, context);
           return;
         }
-
-      if (colorize)
-        {
-          colorize_spec = parse_color (info->theme, colorize, error);
-          
-          if (colorize_spec == NULL)
-            {
-              add_context_to_error (error, context);
-              g_object_unref (G_OBJECT (pixbuf));
-              return;
-            }
-        }
-      
       op = meta_draw_op_new (META_DRAW_IMAGE);
 
       op->data.image.pixbuf = pixbuf;
-      op->data.image.colorize_spec = colorize_spec;
 
       op->data.image.x = meta_draw_spec_new (info->theme, x, NULL);
       op->data.image.y = meta_draw_spec_new (info->theme, y, NULL);
