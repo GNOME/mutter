@@ -4596,6 +4596,82 @@ meta_theme_set_current (const char *name,
     }
 }
 
+/* owns style context */
+static MetaThemeVariant *
+meta_theme_variant_new (MetaTheme *theme,
+                        GtkStyleContext *style_context)
+{
+  MetaThemeVariant *tv = g_slice_new (MetaThemeVariant);
+  tv->theme = theme;
+  tv->style_context = style_context;
+  return tv;
+}
+
+static void
+meta_theme_variant_free (gpointer data)
+{
+  MetaThemeVariant *tv = data;
+
+  g_object_unref (tv->style_context);
+  g_slice_free (MetaThemeVariant, tv);
+}
+
+static GtkStyleContext *
+create_style_context (gchar *variant)
+{
+  GtkStyleContext *style;
+  GdkScreen *screen;
+  GtkWidgetPath *path;
+  char *theme_name;
+
+  screen = gdk_screen_get_default ();
+  g_object_get (gtk_settings_get_for_screen (screen),
+                "gtk-theme-name", &theme_name,
+                NULL);
+
+  path = gtk_widget_path_new ();
+  gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
+
+  style = gtk_style_context_new ();
+  gtk_style_context_set_path (style, path);
+
+  gtk_widget_path_unref (path);
+
+  if (theme_name && *theme_name)
+    {
+      GtkCssProvider *provider;
+
+      provider = gtk_css_provider_get_named (theme_name, variant);
+      gtk_style_context_add_provider (style,
+                                      GTK_STYLE_PROVIDER (provider),
+                                      GTK_STYLE_PROVIDER_PRIORITY_THEME);
+    }
+
+  g_free (theme_name);
+
+  return style;
+}
+
+MetaThemeVariant *
+meta_theme_get_variant (MetaTheme *theme,
+                        gchar     *variant)
+{
+  MetaThemeVariant *tv;
+
+  if (variant == NULL || strcmp (variant, "normal") == 0)
+    return theme->normal_variant;
+
+  tv = g_hash_table_lookup (theme->theme_variants, variant);
+  if (tv == NULL)
+    {
+      GtkStyleContext *style = create_style_context (variant);
+      tv = meta_theme_variant_new (theme, style);
+      g_hash_table_insert (theme->theme_variants, g_strdup (variant), tv);
+    }
+
+  return tv;
+}
+
 /**
  * meta_theme_new: (skip)
  *
@@ -4636,6 +4712,10 @@ meta_theme_new (void)
                            g_str_equal,
                            g_free,
                            (GDestroyNotify) meta_frame_style_set_unref);
+
+  theme->normal_variant = meta_theme_variant_new (theme, create_style_context (NULL));
+  theme->theme_variants = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                                 g_free, meta_theme_variant_free);
   
   /* Create our variable quarks so we can look up variables without
      having to strcmp for the names */

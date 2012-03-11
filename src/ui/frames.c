@@ -35,6 +35,8 @@
 #include <meta/prefs.h>
 #include "ui.h"
 
+#include "theme-private.h"
+
 #include <cairo-xlib.h>
 
 #ifdef HAVE_SHAPE
@@ -73,9 +75,6 @@ static void meta_frames_attach_style (MetaFrames  *frames,
 static void meta_frames_paint        (MetaFrames   *frames,
                                       MetaUIFrame  *frame,
                                       cairo_t      *cr);
-
-static void meta_frames_set_window_background (MetaFrames   *frames,
-                                               MetaUIFrame  *frame);
 
 static void meta_frames_calc_geometry (MetaFrames        *frames,
                                        MetaUIFrame         *frame,
@@ -186,74 +185,6 @@ prefs_changed_callback (MetaPreference pref,
     }
 }
 
-static GtkStyleContext *
-create_style_context (MetaFrames  *frames,
-                      const gchar *variant)
-{
-  GtkStyleContext *style;
-  GdkScreen *screen;
-  char *theme_name;
-
-  screen = gtk_widget_get_screen (GTK_WIDGET (frames));
-  g_object_get (gtk_settings_get_for_screen (screen),
-                "gtk-theme-name", &theme_name,
-                NULL);
-
-  style = gtk_style_context_new ();
-  gtk_style_context_set_path (style,
-                              gtk_widget_get_path (GTK_WIDGET (frames)));
-
-  if (theme_name && *theme_name)
-    {
-      GtkCssProvider *provider;
-
-      provider = gtk_css_provider_get_named (theme_name, variant);
-      gtk_style_context_add_provider (style,
-                                      GTK_STYLE_PROVIDER (provider),
-                                      GTK_STYLE_PROVIDER_PRIORITY_THEME);
-    }
-
-  g_free (theme_name);
-
-  return style;
-}
-
-static GtkStyleContext *
-meta_frames_get_theme_variant (MetaFrames  *frames,
-                               const gchar *variant)
-{
-  GtkStyleContext *style;
-
-  style = g_hash_table_lookup (frames->style_variants, variant);
-  if (style == NULL)
-    {
-      style = create_style_context (frames, variant);
-      g_hash_table_insert (frames->style_variants, g_strdup (variant), style);
-    }
-
-  return style;
-}
-
-static void
-update_style_contexts (MetaFrames *frames)
-{
-  GtkStyleContext *style;
-  GList *variants, *variant;
-
-  if (frames->normal_style)
-    g_object_unref (frames->normal_style);
-  frames->normal_style = create_style_context (frames, NULL);
-
-  variants = g_hash_table_get_keys (frames->style_variants);
-  for (variant = variants; variant; variant = variants->next)
-    {
-      style = create_style_context (frames, (char *)variant->data);
-      g_hash_table_insert (frames->style_variants,
-                           g_strdup (variant->data), style);
-    }
-  g_list_free (variants);
-}
-
 static void
 meta_frames_init (MetaFrames *frames)
 {
@@ -266,10 +197,6 @@ meta_frames_init (MetaFrames *frames)
   frames->invalidate_cache_timeout_id = 0;
   frames->invalidate_frames = NULL;
   frames->cache = g_hash_table_new (g_direct_hash, g_direct_equal);
-
-  frames->style_variants = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                  g_free, g_object_unref);
-  update_style_contexts (frames);
 
   gtk_widget_set_double_buffered (GTK_WIDGET (frames), FALSE);
 
@@ -307,18 +234,6 @@ meta_frames_destroy (GtkWidget *object)
       meta_frames_unmanage_window (frames, frame->xwindow);
     }
   g_slist_free (winlist);
-
-  if (frames->normal_style)
-    {
-      g_object_unref (frames->normal_style);
-      frames->normal_style = NULL;
-    }
-
-  if (frames->style_variants)
-    {
-      g_hash_table_destroy (frames->style_variants);
-      frames->style_variants = NULL;
-    }
 
   GTK_WIDGET_CLASS (meta_frames_parent_class)->destroy (object);
 }
@@ -425,12 +340,6 @@ queue_recalc_func (gpointer key, gpointer value, gpointer data)
 
   frames = META_FRAMES (data);
   frame = value;
-
-  /* If a resize occurs it will cause a redraw, but the
-   * resize may not actually be needed so we always redraw
-   * in case of color change.
-   */
-  meta_frames_set_window_background (frames, frame);
   
   invalidate_whole_window (frames, frame);
   meta_core_queue_frame_resize (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
@@ -471,12 +380,6 @@ queue_draw_func (gpointer key, gpointer value, gpointer data)
   frames = META_FRAMES (data);
   frame = value;
 
-  /* If a resize occurs it will cause a redraw, but the
-   * resize may not actually be needed so we always redraw
-   * in case of color change.
-   */
-  meta_frames_set_window_background (frames, frame);
-
   invalidate_whole_window (frames, frame);
 }
 
@@ -508,8 +411,6 @@ meta_frames_style_updated  (GtkWidget *widget)
 
   meta_frames_font_changed (frames);
 
-  update_style_contexts (frames);
-
   g_hash_table_foreach (frames->frames,
                         reattach_style_func, frames);
 
@@ -523,7 +424,6 @@ meta_frames_ensure_layout (MetaFrames  *frames,
   GtkWidget *widget;
   MetaFrameFlags flags;
   MetaFrameType type;
-  MetaFrameStyle *style;
 
   widget = GTK_WIDGET (frames);
 
@@ -533,25 +433,6 @@ meta_frames_ensure_layout (MetaFrames  *frames,
                  META_CORE_GET_FRAME_FLAGS, &flags,
                  META_CORE_GET_FRAME_TYPE, &type,
                  META_CORE_GET_END);
-
-  style = meta_theme_get_frame_style (meta_theme_get_current (),
-                                      type, flags);
-
-  if (style != frame->cache_style)
-    {
-      if (frame->layout)
-        {
-          /* save title to recreate layout */
-          g_free (frame->title);
-          
-          frame->title = g_strdup (pango_layout_get_text (frame->layout));
-
-          g_object_unref (G_OBJECT (frame->layout));
-          frame->layout = NULL;
-        }
-    }
-
-  frame->cache_style = style;
   
   if (frame->layout == NULL)
     {
@@ -560,10 +441,10 @@ meta_frames_ensure_layout (MetaFrames  *frames,
       double scale;
       int size;
       
-      scale = meta_theme_get_title_scale (meta_theme_get_current (),
+      scale = meta_theme_get_title_scale (frame->tv->theme,
                                           type,
                                           flags);
-      
+
       frame->layout = gtk_widget_create_pango_layout (widget, frame->title);
 
       pango_layout_set_ellipsize (frame->layout, PANGO_ELLIPSIZE_END);
@@ -623,7 +504,7 @@ meta_frames_calc_geometry (MetaFrames        *frames,
 
   meta_prefs_get_button_layout (&button_layout);
   
-  meta_theme_calc_geometry (meta_theme_get_current (),
+  meta_theme_calc_geometry (frame->tv->theme,
                             type,
                             frame->text_height,
                             flags,
@@ -655,23 +536,15 @@ static void
 meta_frames_attach_style (MetaFrames  *frames,
                           MetaUIFrame *frame)
 {
-  gboolean has_frame;
   char *variant = NULL;
-
-  if (frame->style != NULL)
-    g_object_unref (frame->style);
 
   meta_core_get (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                  frame->xwindow,
-                 META_CORE_WINDOW_HAS_FRAME, &has_frame,
                  META_CORE_GET_THEME_VARIANT, &variant,
                  META_CORE_GET_END);
 
-  if (variant == NULL || strcmp(variant, "normal") == 0)
-    frame->style = g_object_ref (frames->normal_style);
-  else
-    frame->style = g_object_ref (meta_frames_get_theme_variant (frames,
-                                                                variant));
+  frame->tv = meta_theme_get_variant (meta_theme_get_current (),
+                                      variant);
 }
 
 void
@@ -689,12 +562,9 @@ meta_frames_manage_window (MetaFrames *frames,
 
   gdk_window_set_user_data (frame->window, frames);
 
-  frame->style = NULL;
-
   /* Don't set event mask here, it's in frame.c */
   
   frame->xwindow = xwindow;
-  frame->cache_style = NULL;
   frame->layout = NULL;
   frame->text_height = -1;
   frame->title = NULL;
@@ -738,8 +608,6 @@ meta_frames_unmanage_window (MetaFrames *frames,
         frames->last_motion_frame = NULL;
       
       g_hash_table_remove (frames->frames, &frame->xwindow);
-
-      g_object_unref (frame->style);
 
       gdk_window_destroy (frame->window);
 
@@ -810,7 +678,7 @@ meta_frames_get_borders (MetaFrames *frames,
    * by the core move/resize code to decide on the client
    * window size
    */
-  meta_theme_get_frame_borders (meta_theme_get_current (),
+  meta_theme_get_frame_borders (frame->tv->theme,
                                 type,
                                 frame->text_height,
                                 flags,
@@ -855,11 +723,6 @@ void
 meta_frames_reset_bg (MetaFrames *frames,
                       Window  xwindow)
 {
-  MetaUIFrame *frame;
-  
-  frame = meta_frames_lookup_window (frames, xwindow);
-
-  meta_frames_set_window_background (frames, frame);
 }
 
 static void
@@ -1966,7 +1829,7 @@ populate_cache (MetaFrames *frames,
       return;
     }
   
-  meta_theme_get_frame_borders (meta_theme_get_current (),
+  meta_theme_get_frame_borders (frame->tv->theme,
                                 frame_type,
                                 frame->text_height,
                                 frame_flags,
@@ -2082,7 +1945,7 @@ subtract_client_area (cairo_region_t *region,
                  META_CORE_GET_CLIENT_WIDTH, &area.width,
                  META_CORE_GET_CLIENT_HEIGHT, &area.height,
                  META_CORE_GET_END);
-  meta_theme_get_frame_borders (meta_theme_get_current (),
+  meta_theme_get_frame_borders (frame->tv->theme,
                                 type, frame->text_height, flags, 
                                 &borders);
 
@@ -2203,7 +2066,7 @@ meta_frames_paint (MetaFrames   *frames,
   MetaButtonLayout button_layout;
   MetaGrabOp grab_op;
   Display *display;
-  
+
   display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
 
   for (i = 0; i < META_BUTTON_TYPE_LAST; i++)
@@ -2300,8 +2163,8 @@ meta_frames_paint (MetaFrames   *frames,
 
   meta_prefs_get_button_layout (&button_layout);
 
-  meta_theme_draw_frame_with_style (meta_theme_get_current (),
-                                    frame->style,
+  meta_theme_draw_frame_with_style (frame->tv->theme,
+                                    frame->tv->style_context,
                                     cr,
                                     type,
                                     flags,
@@ -2312,52 +2175,6 @@ meta_frames_paint (MetaFrames   *frames,
                                     button_states,
                                     mini_icon, icon);
 }
-
-static void
-meta_frames_set_window_background (MetaFrames   *frames,
-                                   MetaUIFrame  *frame)
-{
-  MetaFrameFlags flags;
-  MetaFrameType type;
-  MetaFrameStyle *style = NULL;
-  gboolean frame_exists;
-
-  meta_core_get (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow,
-                 META_CORE_WINDOW_HAS_FRAME, &frame_exists,
-                 META_CORE_GET_FRAME_FLAGS, &flags,
-                 META_CORE_GET_FRAME_TYPE, &type,
-                 META_CORE_GET_END);
-
-  if (frame_exists)
-    {
-      style = meta_theme_get_frame_style (meta_theme_get_current (),
-                                          type, flags);
-    }
-
-  if (frame_exists && style->window_background_color != NULL)
-    {
-      GdkRGBA color;
-      GdkVisual *visual;
-
-      meta_color_spec_render (style->window_background_color,
-                              frame->style,
-                              &color);
-
-      /* Set A in ARGB to window_background_alpha, if we have ARGB */
-
-      visual = gtk_widget_get_visual (GTK_WIDGET (frames));
-      if (gdk_visual_get_depth (visual) == 32) /* we have ARGB */
-        {
-          color.alpha = style->window_background_alpha / 255.0;
-        }
-
-      gdk_window_set_background_rgba (frame->window, &color);
-    }
-  else
-    {
-      gtk_style_context_set_background (frame->style, frame->window);
-    }
- }
 
 static gboolean
 meta_frames_enter_notify_event      (GtkWidget           *widget,
