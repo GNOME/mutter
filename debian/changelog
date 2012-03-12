@@ -1,6 +1,18 @@
 mutter (3.3.90-1) UNRELEASED; urgency=low
 
+  [ Michael Biebl ]
   * New upstream development release.
+
+  [ Rico Tzschichholz ]
+  * debian/control.in:
+    - Bump minimum GTK, cogl, clutter & gsettings-desktop-schemas
+    - Add mutter-dbg package
+  * debian/mutter-common.install:
+    - Install gsettings schemas
+  * debian/rules: Enable compile warnings
+
+  [ Jeremy Bicha ]
+  * debian/control.in: Drop gconf dependency
 
  -- Michael Biebl <biebl@debian.org>  Mon, 05 Mar 2012 02:58:33 +0100
 
