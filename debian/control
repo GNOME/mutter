@@ -54,7 +54,7 @@ Depends: ${shlibs:Depends},
 Provides: x-window-manager
 Recommends: gnome-session | x-session-manager
 Replaces: mutter-common (<< 2.91.91-1)
-Breaks: mutter-common (<< 2.91.91-1)
+Breaks: mutter-common (<< 2.91.91-1), gnome-shell (<< 3.3.92~)
 Suggests: gnome-control-center (>= 1:2.5.4),
           gnome-themes,
           xdg-user-dirs
@@ -95,6 +95,7 @@ Depends: ${shlibs:Depends},
          gsettings-desktop-schemas (>= 3.3.2),
          mutter-common (>= ${gnome:Version}),
          mutter-common (<< ${gnome:NextVersion})
+Breaks: gnome-shell (<< 3.3.92~)
 Description: window manager library from the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
@@ -112,6 +113,7 @@ Section: misc
 Architecture: all
 Depends: ${misc:Depends}
 Replaces: mutter (<< 1:2.16.3)
+Breaks: gnome-shell (<< 3.3.92~)
 Description: shared files for the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
