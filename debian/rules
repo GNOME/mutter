@@ -8,9 +8,7 @@ include /usr/share/gnome-pkg-tools/1/rules/uploaders.mk
 include /usr/share/gnome-pkg-tools/1/rules/gnome-version.mk
 -include /usr/share/gnome-pkg-tools/1/rules/gnome-get-source.mk
 
-DEB_CONFIGURE_EXTRA_FLAGS += \
-	--enable-startup-notification=yes \
-	--enable-compile-warnings=yes
+DEB_CONFIGURE_EXTRA_FLAGS += --enable-startup-notification=yes
 DEB_DH_MAKESHLIBS_ARGS_libmutter0 += -V'libmutter0 (>= $(DEB_GNOME_VERSION)), libmutter0 (<< $(DEB_GNOME_NEXTVERSION))' -- -c4
 DEB_INSTALL_DOCS_mutter += doc/theme-format.txt
 DEB_DH_GIREPOSITORY_ARGS_ALL := /usr/lib/mutter

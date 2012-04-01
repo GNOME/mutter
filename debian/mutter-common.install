@@ -1,5 +1,4 @@
-usr/share/GConf
-usr/share/glib-2.0
+etc
 usr/share/locale
 usr/share/man
 usr/share/mutter
