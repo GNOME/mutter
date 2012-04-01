@@ -1,0 +1,61 @@
+From 162213be0d1ce5d0cf1d6c40f7a65a8ab5861b57 Mon Sep 17 00:00:00 2001
+From: "Jasper St. Pierre" <jstpierre@mecheye.net>
+Date: Wed, 9 Nov 2011 15:12:06 -0500
+Subject: [PATCH] Fix cogl crash from updating non-existent texture
+
+The code here was always incorrect - we were processing damage events for
+windows without having a texture. Before, this didn't matter, as
+cogl_texture_get_width silently returned 0 for invalid handles. Cogl commit
+4c3dadd35e4657a151025118814534d05091d4db changed this.
+
+The fix here involves two strategies. First, we try to guard MetaTextureTower
+from invalid textures. Second, we try not to go down the path that eventually
+calls meta_shaped_texture_update_area by not handling damage events if we
+don't have a texture for the window.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=660941
+---
+ src/compositor/meta-texture-tower.c |    3 +++
+ src/compositor/meta-window-actor.c  |    5 +++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/src/compositor/meta-texture-tower.c b/src/compositor/meta-texture-tower.c
+index 8dbe62e..0025472 100644
+--- a/src/compositor/meta-texture-tower.c
++++ b/src/compositor/meta-texture-tower.c
+@@ -198,6 +198,9 @@ meta_texture_tower_update_area (MetaTextureTower *tower,
+ 
+   g_return_if_fail (tower != NULL);
+ 
++  if (tower->textures[0] == COGL_INVALID_HANDLE)
++    return;
++
+   texture_width = cogl_texture_get_width (tower->textures[0]);
+   texture_height = cogl_texture_get_height (tower->textures[0]);
+ 
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index ef47bc8..b69049f 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -958,6 +958,9 @@ meta_window_actor_damage_all (MetaWindowActor *self)
+                 "pixmap-height", &pixmap_height,
+                 NULL);
+ 
++  if (!priv->mapped || priv->needs_pixmap)
++    return;
++
+   clutter_x11_texture_pixmap_update_area (texture_x11,
+                                           0,
+                                           0,
+@@ -2029,6 +2032,8 @@ meta_window_actor_process_damage (MetaWindowActor    *self,
+       return;
+     }
+ 
++  if (!priv->mapped || priv->needs_pixmap)
++    return;
+ 
+   clutter_x11_texture_pixmap_update_area (texture_x11,
+                                           event->area.x,
+-- 
+1.7.9.5
+

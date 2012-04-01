@@ -1,1 +1,3 @@
 01_Wcast-align.patch
+02_Fix-cogl-crash-from-updating-non-existent-texture.patch
+03_fix_compilation_with_new_cogl.patch
