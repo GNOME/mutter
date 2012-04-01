@@ -1,4 +1,4 @@
-mutter (3.2.2-2) UNRELEASED; urgency=low
+mutter (3.2.2-2) unstable; urgency=low
 
   * d/p/02_Fix-cogl-crash-from-updating-non-existent-texture.patch:
     + Added. In 1.8 cogl would prevent attempts to update textures with
@@ -7,7 +7,7 @@ mutter (3.2.2-2) UNRELEASED; urgency=low
   * d/p/03_fix_compilation_with_new_cogl.patch
     + Added. Adapt to changes made in the experimental patch of the cogl API
 
- -- Sjoerd Simons <sjoerd@debian.org>  Sun, 01 Apr 2012 15:02:29 +0200
+ -- Sjoerd Simons <sjoerd@debian.org>  Sun, 01 Apr 2012 16:25:02 +0200
 
 mutter (3.2.2-1) unstable; urgency=low
 
