@@ -154,7 +154,6 @@ void meta_window_change_workspace_by_index (MetaWindow *window,
 void meta_window_change_workspace          (MetaWindow  *window,
                                             MetaWorkspace *workspace);
 GObject *meta_window_get_compositor_private (MetaWindow *window);
-void meta_window_set_compositor_private (MetaWindow *window, GObject *priv);
 void meta_window_configure_notify (MetaWindow *window, XConfigureEvent *event);
 const char *meta_window_get_role (MetaWindow *window);
 MetaStackLayer meta_window_get_layer (MetaWindow *window);

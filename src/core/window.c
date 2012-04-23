@@ -1193,7 +1193,8 @@ meta_window_new_with_attrs (MetaDisplay       *display,
   window->initial_workspace = 0; /* not used */
   window->initial_timestamp = 0; /* not used */
 
-  window->compositor_private = NULL;
+  window->core_actor = NULL;
+  window->actors = NULL;
 
   window->monitor = meta_screen_get_monitor_for_window (window->screen, window);
 
@@ -11064,24 +11065,15 @@ meta_window_get_gtk_menubar_object_path (MetaWindow *window)
  * meta_window_get_compositor_private:
  * @window: a #MetaWindow
  *
- * Gets the compositor's wrapper object for @window.
- *
- * Return value: (transfer none): the wrapper object.
- **/
+ * Return value: (transfer none):
+ */
 GObject *
 meta_window_get_compositor_private (MetaWindow *window)
 {
   if (!window)
     return NULL;
-  return window->compositor_private;
-}
 
-void
-meta_window_set_compositor_private (MetaWindow *window, GObject *priv)
-{
-  if (!window)
-    return;
-  window->compositor_private = priv;
+  return G_OBJECT (window->core_actor);
 }
 
 const char *
