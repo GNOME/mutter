@@ -686,41 +686,6 @@ parse_boolean (const char          *str,
 }
 
 static gboolean
-parse_rounding (const char          *str,
-                guint               *val,
-                GMarkupParseContext *context,
-                MetaTheme           *theme,
-                GError             **error)
-{
-  if (strcmp ("true", str) == 0)
-    *val = 5; /* historical "true" value */
-  else if (strcmp ("false", str) == 0)
-    *val = 0;
-  else
-    {
-      int tmp;
-      gboolean result;
-       if (!META_THEME_ALLOWS (theme, META_THEME_VARIED_ROUND_CORNERS))
-         {
-           /* Not known in this version, so bail. */
-           set_error (error, context, G_MARKUP_ERROR,
-                      G_MARKUP_ERROR_PARSE,
-                      _("Boolean values must be \"true\" or \"false\" not \"%s\""),
-                      str);
-           return FALSE;
-         }
-   
-      result = parse_positive_integer (str, &tmp, context, theme, error);
-
-      *val = tmp;
-
-      return result;    
-    }
-  
-  return TRUE;
-}
-
-static gboolean
 parse_angle (const char          *str,
              double              *val,
              GMarkupParseContext *context,
@@ -961,16 +926,8 @@ parse_toplevel_element (GMarkupParseContext  *context,
       const char *parent = NULL;
       const char *has_title = NULL;
       const char *title_scale = NULL;
-      const char *rounded_top_left = NULL;
-      const char *rounded_top_right = NULL;
-      const char *rounded_bottom_left = NULL;
-      const char *rounded_bottom_right = NULL;
       const char *hide_buttons = NULL;
       gboolean has_title_val;
-      guint rounded_top_left_val;
-      guint rounded_top_right_val;
-      guint rounded_bottom_left_val;
-      guint rounded_bottom_right_val;
       gboolean hide_buttons_val;
       double title_scale_val;
       MetaFrameLayout *parent_layout;
@@ -979,10 +936,6 @@ parse_toplevel_element (GMarkupParseContext  *context,
                               error,
                               "!name", &name, "parent", &parent,
                               "has_title", &has_title, "title_scale", &title_scale,
-                              "rounded_top_left", &rounded_top_left,
-                              "rounded_top_right", &rounded_top_right,
-                              "rounded_bottom_left", &rounded_bottom_left,
-                              "rounded_bottom_right", &rounded_bottom_right,
                               "hide_buttons", &hide_buttons,
                               NULL))
         return;
@@ -993,20 +946,6 @@ parse_toplevel_element (GMarkupParseContext  *context,
 
       hide_buttons_val = FALSE;
       if (hide_buttons && !parse_boolean (hide_buttons, &hide_buttons_val, context, error))
-        return;
-
-      rounded_top_left_val = 0;
-      rounded_top_right_val = 0;
-      rounded_bottom_left_val = 0;
-      rounded_bottom_right_val = 0;
-
-      if (rounded_top_left && !parse_rounding (rounded_top_left, &rounded_top_left_val, context, info->theme, error))
-        return;
-      if (rounded_top_right && !parse_rounding (rounded_top_right, &rounded_top_right_val, context, info->theme, error))
-        return;
-      if (rounded_bottom_left && !parse_rounding (rounded_bottom_left, &rounded_bottom_left_val, context, info->theme, error))
-        return;      
-      if (rounded_bottom_right && !parse_rounding (rounded_bottom_right, &rounded_bottom_right_val, context, info->theme, error))
         return;
       
       title_scale_val = 1.0;
@@ -1050,18 +989,6 @@ parse_toplevel_element (GMarkupParseContext  *context,
       if (title_scale)
 	info->layout->title_scale = title_scale_val;
 
-      if (rounded_top_left)
-        info->layout->top_left_corner_rounded_radius = rounded_top_left_val;
-
-      if (rounded_top_right)
-        info->layout->top_right_corner_rounded_radius = rounded_top_right_val;
-
-      if (rounded_bottom_left)
-        info->layout->bottom_left_corner_rounded_radius = rounded_bottom_left_val;
-
-      if (rounded_bottom_right)
-        info->layout->bottom_right_corner_rounded_radius = rounded_bottom_right_val;
-      
       meta_theme_insert_layout (info->theme, name, info->layout);
 
       push_state (info, STATE_FRAME_GEOMETRY);

@@ -188,15 +188,6 @@ struct _MetaFrameLayout
 
   /** Whether we should hide the buttons */
   guint hide_buttons : 1;
-
-  /** Radius of the top left-hand corner; 0 if not rounded */
-  guint top_left_corner_rounded_radius;
-  /** Radius of the top right-hand corner; 0 if not rounded */
-  guint top_right_corner_rounded_radius;
-  /** Radius of the bottom left-hand corner; 0 if not rounded */
-  guint bottom_left_corner_rounded_radius;
-  /** Radius of the bottom right-hand corner; 0 if not rounded */
-  guint bottom_right_corner_rounded_radius;
 };
 
 /**
