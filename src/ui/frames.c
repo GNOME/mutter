@@ -505,6 +505,7 @@ meta_frames_calc_geometry (MetaFrames        *frames,
   meta_prefs_get_button_layout (&button_layout);
   
   meta_theme_calc_geometry (frame->tv->theme,
+                            frame->tv->style_context,
                             type,
                             frame->text_height,
                             flags,

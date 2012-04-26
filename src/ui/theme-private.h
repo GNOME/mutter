@@ -1086,6 +1086,7 @@ void meta_theme_get_frame_borders (MetaTheme         *theme,
                                    MetaFrameBorders  *borders);
 
 void meta_theme_calc_geometry (MetaTheme              *theme,
+                               GtkStyleContext        *ctx,
                                MetaFrameType           type,
                                int                     text_height,
                                MetaFrameFlags          flags,
