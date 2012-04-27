@@ -4625,6 +4625,8 @@ meta_theme_variant_free (gpointer data)
   g_slice_free (MetaThemeVariant, tv);
 }
 
+extern GType meta_window_get_type (void);
+
 static GtkStyleContext *
 create_style_context (gchar *variant)
 {
@@ -4639,7 +4641,7 @@ create_style_context (gchar *variant)
                 NULL);
 
   path = gtk_widget_path_new ();
-  gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
+  gtk_widget_path_append_type (path, meta_window_get_type ());
 
   style = gtk_style_context_new ();
   gtk_style_context_set_path (style, path);
