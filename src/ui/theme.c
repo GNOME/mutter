@@ -4107,6 +4107,7 @@ button_rect (MetaButtonType           type,
 static void
 meta_frame_style_draw_with_style (MetaFrameStyle          *style,
                                   GtkStyleContext         *style_gtk,
+                                  MetaFrameFlags           flags,
                                   cairo_t                 *cr,
                                   const MetaFrameGeometry *fgeom,
                                   int                      client_width,
@@ -4117,16 +4118,8 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
                                   GdkPixbuf               *mini_icon,
                                   GdkPixbuf               *icon)
 {
-  int i, j;
+  GtkStateFlags gtk_flags;
   GdkRectangle visible_rect;
-  GdkRectangle titlebar_rect;
-  GdkRectangle left_titlebar_edge;
-  GdkRectangle right_titlebar_edge;
-  GdkRectangle bottom_titlebar_edge;
-  GdkRectangle top_titlebar_edge;
-  GdkRectangle left_edge, right_edge, bottom_edge;
-  PangoRectangle logical_rect;
-  MetaDrawInfo draw_info;
   const MetaFrameBorders *borders;
 
   borders = &fgeom->borders;
@@ -4135,6 +4128,40 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
   visible_rect.y = borders->invisible.top;
   visible_rect.width = fgeom->width - borders->invisible.left - borders->invisible.right;
   visible_rect.height = fgeom->height - borders->invisible.top - borders->invisible.bottom;
+
+  gtk_flags = GTK_STATE_FLAG_NORMAL;
+
+  if ((flags & META_FRAME_HAS_FOCUS) == 0)
+    gtk_flags |= GTK_STATE_FLAG_BACKDROP;
+
+  gtk_style_context_save (style_gtk);
+
+  gtk_style_context_set_state (style_gtk, gtk_flags);
+
+  gtk_render_background (style_gtk, cr,
+                         visible_rect.x,
+                         visible_rect.y,
+                         visible_rect.width,
+                         visible_rect.height);
+
+  gtk_render_frame (style_gtk, cr,
+                    visible_rect.x,
+                    visible_rect.y,
+                    visible_rect.width,
+                    visible_rect.height);
+
+  gtk_style_context_restore (style_gtk);
+
+#if 0
+  int i, j;
+  GdkRectangle titlebar_rect;
+  GdkRectangle left_titlebar_edge;
+  GdkRectangle right_titlebar_edge;
+  GdkRectangle bottom_titlebar_edge;
+  GdkRectangle top_titlebar_edge;
+  GdkRectangle left_edge, right_edge, bottom_edge;
+  PangoRectangle logical_rect;
+  MetaDrawInfo draw_info;
 
   titlebar_rect.x = visible_rect.x;
   titlebar_rect.y = visible_rect.y;
@@ -4342,6 +4369,7 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
 
       ++i;
     }
+#endif
 }
 
 MetaFrameStyleSet*
@@ -5069,6 +5097,7 @@ meta_theme_draw_frame_with_style (MetaTheme              *theme,
 
   meta_frame_style_draw_with_style (style,
                                     style_gtk,
+                                    flags,
                                     cr,
                                     &fgeom,
                                     client_width, client_height,
