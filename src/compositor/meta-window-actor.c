@@ -1991,6 +1991,67 @@ meta_window_actor_sync_visibility (MetaWindowActor *self)
 }
 
 static void
+install_corners (MetaWindow       *window,
+                 MetaFrameBorders *borders,
+                 cairo_t          *cr)
+{
+  float top_left, top_right, bottom_left, bottom_right;
+  int x, y;
+  MetaRectangle outer;
+
+  meta_frame_get_corner_radiuses (window->frame,
+                                  &top_left,
+                                  &top_right,
+                                  &bottom_left,
+                                  &bottom_right);
+
+  meta_window_get_outer_rect (window, &outer);
+
+  /* top left */
+  x = borders->invisible.left;
+  y = borders->invisible.top;
+
+  cairo_arc (cr,
+             x + top_left,
+             y + top_left,
+             top_left,
+             0, M_PI*2);
+
+  /* top right */
+  x = borders->invisible.left + outer.width - top_right;
+  y = borders->invisible.top;
+
+  cairo_arc (cr,
+             x,
+             y + top_right,
+             top_right,
+             0, M_PI*2);
+
+  /* bottom right */
+  x = borders->invisible.left + outer.width - bottom_right;
+  y = borders->invisible.top + outer.height - bottom_right;
+
+  cairo_arc (cr,
+             x,
+             y,
+             bottom_right,
+             0, M_PI*2);
+
+  /* bottom left */
+  x = borders->invisible.left;
+  y = borders->invisible.top + outer.height - bottom_left;
+
+  cairo_arc (cr,
+             x + bottom_left,
+             y,
+             bottom_left,
+             0, M_PI*2);
+
+  cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
+  cairo_set_source_rgba (cr, 1, 1, 1, 1);
+  cairo_fill (cr);
+}
+
 static void
 generate_mask (MetaWindowActor  *self,
                MetaFrameBorders *borders,
@@ -2039,6 +2100,24 @@ generate_mask (MetaWindowActor  *self,
            y1 < y2;
            y1++, p += stride)
         memset (p, 255, x2 - x1);
+    }
+
+  if (priv->window->frame != NULL)
+    {
+      cairo_t *cr;
+      cairo_surface_t *surface;
+
+      surface = cairo_image_surface_create_for_data (mask_data,
+                                                     CAIRO_FORMAT_A8,
+                                                     tex_width,
+                                                     tex_height,
+                                                     stride);
+      cr = cairo_create (surface);
+
+      install_corners (priv->window, borders, cr);
+
+      cairo_destroy (cr);
+      cairo_surface_destroy (surface);
     }
 
   if (meta_texture_rectangle_check (paint_tex))
