@@ -71,8 +71,6 @@ gboolean meta_frame_sync_to_window (MetaFrame         *frame,
                                     gboolean           need_move,
                                     gboolean           need_resize);
 
-cairo_region_t *meta_frame_get_frame_bounds (MetaFrame *frame);
-
 void meta_frame_set_screen_cursor (MetaFrame	*frame,
 				   MetaCursor	cursor);
 

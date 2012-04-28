@@ -252,12 +252,6 @@ struct _MetaFrameGeometry
   MetaButtonLayout button_layout;
   int n_left_buttons;
   int n_right_buttons;
-  
-  /* Round corners */
-  guint top_left_corner_rounded_radius;
-  guint top_right_corner_rounded_radius;
-  guint bottom_left_corner_rounded_radius;
-  guint bottom_right_corner_rounded_radius;
 };
 
 typedef enum

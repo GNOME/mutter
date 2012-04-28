@@ -217,9 +217,6 @@ meta_window_finalize (GObject *object)
   if (window->mini_icon)
     g_object_unref (G_OBJECT (window->mini_icon));
 
-  if (window->frame_bounds)
-    cairo_region_destroy (window->frame_bounds);
-
   meta_icon_cache_free (&window->icon_cache);
 
   g_free (window->sm_client_id);
@@ -4581,7 +4578,6 @@ meta_window_move_resize_internal (MetaWindow          *window,
   gboolean need_resize_frame = FALSE;
   int size_dx;
   int size_dy;
-  gboolean frame_shape_changed = FALSE;
   gboolean is_configure_request;
   gboolean do_gravity_adjust;
   gboolean is_user_action;
@@ -4880,9 +4876,9 @@ meta_window_move_resize_internal (MetaWindow          *window,
     meta_window_set_gravity (window, StaticGravity);
 
   if (configure_frame_first && window->frame)
-    frame_shape_changed = meta_frame_sync_to_window (window->frame,
-                                                     gravity,
-                                                     need_move_frame, need_resize_frame);
+    meta_frame_sync_to_window (window->frame,
+                               gravity,
+                               need_move_frame, need_resize_frame);
 
   values.border_width = 0;
   values.x = client_move_x;
@@ -4937,9 +4933,9 @@ meta_window_move_resize_internal (MetaWindow          *window,
     }
 
   if (!configure_frame_first && window->frame)
-    frame_shape_changed = meta_frame_sync_to_window (window->frame,
-                                                     gravity,
-                                                     need_move_frame, need_resize_frame);
+    meta_frame_sync_to_window (window->frame,
+                               gravity,
+                               need_move_frame, need_resize_frame);
 
   /* Put gravity back to be nice to lesser window managers */
   if (use_static_gravity)
@@ -4981,12 +4977,6 @@ meta_window_move_resize_internal (MetaWindow          *window,
    *      server-side size/pos of window->xwindow and frame->xwindow
    *   b) all constraints are obeyed by window->rect and frame->rect
    */
-
-  if (frame_shape_changed && window->frame_bounds)
-    {
-      cairo_region_destroy (window->frame_bounds);
-      window->frame_bounds = NULL;
-    }
 
   meta_window_foreach_transient (window, maybe_move_attached_dialog, NULL);
 
@@ -10647,27 +10637,6 @@ meta_window_get_frame_type (MetaWindow *window)
     {
       return base_type;
     }
-}
-
-/**
- * meta_window_get_frame_bounds:
- *
- * Gets a region representing the outer bounds of the window's frame.
- *
- * Return value: (transfer none) (allow-none): a #cairo_region_t
- *  holding the outer bounds of the window, or %NULL if the window
- *  doesn't have a frame.
- */
-cairo_region_t *
-meta_window_get_frame_bounds (MetaWindow *window)
-{
-  if (!window->frame_bounds)
-    {
-      if (window->frame)
-        window->frame_bounds = meta_frame_get_frame_bounds (window->frame);
-    }
-
-  return window->frame_bounds;
 }
 
 /**

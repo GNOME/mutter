@@ -95,11 +95,6 @@ void meta_ui_unflicker_frame_bg (MetaUI *ui,
 void meta_ui_reset_frame_bg     (MetaUI *ui,
                                  Window  xwindow);
 
-cairo_region_t *meta_ui_get_frame_bounds (MetaUI  *ui,
-                                          Window   xwindow,
-                                          int      window_width,
-                                          int      window_height);
-
 void meta_ui_render_background (MetaUI  *ui,
                                 Window   xwindow,
                                 cairo_t *cr);

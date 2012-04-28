@@ -220,11 +220,6 @@ meta_window_destroy_frame (MetaWindow *window)
                                     frame->xwindow);
   
   window->frame = NULL;
-  if (window->frame_bounds)
-    {
-      cairo_region_destroy (window->frame_bounds);
-      window->frame_bounds = NULL;
-    }
 
   /* Move keybindings to window instead of frame */
   meta_window_grab_keys (window);
@@ -385,15 +380,6 @@ meta_frame_sync_to_window (MetaFrame *frame,
     }
 
   return need_resize;
-}
-
-cairo_region_t *
-meta_frame_get_frame_bounds (MetaFrame *frame)
-{
-  return meta_ui_get_frame_bounds (frame->window->screen->ui,
-                                   frame->xwindow,
-                                   frame->rect.width,
-                                   frame->rect.height);
 }
 
 void

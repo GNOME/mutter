@@ -543,8 +543,6 @@ meta_frame_layout_calc_geometry (const MetaFrameLayout  *layout,
   int title_right_edge;
   int width, height;
   int button_width, button_height;
-  int min_size_for_rounding;
-  double tl, tr, bl, br;
   
   /* the left/right rects in order; the max # of rects
    * is the number of button functions
@@ -874,33 +872,6 @@ meta_frame_layout_calc_geometry (const MetaFrameLayout  *layout,
       fgeom->title_rect.width = 0;
       fgeom->title_rect.height = 0;
     }
-
-  if (flags & META_FRAME_SHADED)
-    min_size_for_rounding = 0;
-  else
-    min_size_for_rounding = 5;
-
-  fgeom->top_left_corner_rounded_radius = 0;
-  fgeom->top_right_corner_rounded_radius = 0;
-  fgeom->bottom_left_corner_rounded_radius = 0;
-  fgeom->bottom_right_corner_rounded_radius = 0;
-
-  gtk_style_context_get (ctx,
-                         GTK_STATE_ACTIVE,
-                         "border-top-left-radius", &tl,
-                         "border-top-right-radius", &tr,
-                         "border-bottom-left-radius", &bl,
-                         "border-bottom-right-radius", &br,
-                         NULL);
-
-  if (borders.visible.top + borders.visible.left >= min_size_for_rounding)
-    fgeom->top_left_corner_rounded_radius = tl;
-  if (borders.visible.top + borders.visible.right >= min_size_for_rounding)
-    fgeom->top_right_corner_rounded_radius = tr;
-  if (borders.visible.bottom + borders.visible.left >= min_size_for_rounding)
-    fgeom->bottom_left_corner_rounded_radius = bl;
-  if (borders.visible.bottom + borders.visible.right >= min_size_for_rounding)
-    fgeom->bottom_right_corner_rounded_radius = br;
 }
 
 /**

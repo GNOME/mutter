@@ -138,11 +138,6 @@ void meta_frames_unflicker_bg (MetaFrames *frames,
                                int         target_width,
                                int         target_height);
 
-cairo_region_t *meta_frames_get_frame_bounds (MetaFrames *frames,
-                                              Window      xwindow,
-                                              int         window_width,
-                                              int         window_height);
-
 void meta_frames_render_background (MetaFrames *frames,
                                     Window      xwindow,
                                     cairo_t    *cr);
