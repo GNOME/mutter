@@ -118,15 +118,8 @@ meta_frame_layout_new  (void)
 
   layout->refcount = 1;
 
-  /* Fill with -1 values to detect invalid themes */
-  layout->left_width = -1;
-  layout->right_width = -1;
-  layout->bottom_height = -1;
-
   init_border (&layout->title_border);
 
-  layout->title_vertical_pad = -1;
-  
   layout->right_titlebar_edge = -1;
   layout->left_titlebar_edge = -1;
 
@@ -221,13 +214,7 @@ meta_frame_layout_validate (const MetaFrameLayout *layout,
 
 #define CHECK_GEOMETRY_BORDER(bname) if (!validate_geometry_border (&layout->bname, #bname, error)) return FALSE
 
-  CHECK_GEOMETRY_VALUE (left_width);
-  CHECK_GEOMETRY_VALUE (right_width);
-  CHECK_GEOMETRY_VALUE (bottom_height);
-
   CHECK_GEOMETRY_BORDER (title_border);
-
-  CHECK_GEOMETRY_VALUE (title_vertical_pad);
 
   CHECK_GEOMETRY_VALUE (right_titlebar_edge);
   CHECK_GEOMETRY_VALUE (left_titlebar_edge);
@@ -311,15 +298,17 @@ get_style_flags (MetaFrameFlags flags)
   return gtk_flags;
 }
 
-void
+static void
 meta_frame_layout_get_borders (const MetaFrameLayout *layout,
+                               GtkStyleContext       *style_context,
                                int                    text_height,
                                MetaFrameFlags         flags,
                                MetaFrameType          type,
                                MetaFrameBorders      *borders)
 {
-  int buttons_height, title_height, draggable_borders;
-  
+  int draggable_borders;
+  GtkBorder padding;
+
   meta_frame_borders_clear (borders);
 
   /* For a full-screen window, we don't have any borders, visible or not. */
@@ -330,17 +319,19 @@ meta_frame_layout_get_borders (const MetaFrameLayout *layout,
 
   if (!layout->has_title)
     text_height = 0;
-  
-  buttons_height = layout->button_height +
-    layout->button_border.top + layout->button_border.bottom;
-  title_height = text_height +
-    layout->title_vertical_pad +
-    layout->title_border.top + layout->title_border.bottom;
 
-  borders->visible.top    = MAX (buttons_height, title_height);
-  borders->visible.left   = layout->left_width;
-  borders->visible.right  = layout->right_width;
-  borders->visible.bottom = layout->bottom_height;
+  gtk_style_context_get_border (style_context,
+                                get_style_flags (flags),
+                                &borders->visible);
+
+  gtk_style_context_get_padding (style_context,
+                                 get_style_flags (flags),
+                                 &padding);
+
+  borders->visible.left += padding.left;
+  borders->visible.right += padding.right;
+  borders->visible.top += padding.top;
+  borders->visible.bottom += padding.bottom;
 
   draggable_borders = meta_prefs_get_draggable_border_width ();
 
@@ -556,7 +547,7 @@ meta_frame_layout_calc_geometry (const MetaFrameLayout  *layout,
 
   MetaFrameBorders borders;
   
-  meta_frame_layout_get_borders (layout, text_height,
+  meta_frame_layout_get_borders (layout, ctx, text_height,
                                  flags, type,
                                  &borders);
 
@@ -800,7 +791,7 @@ meta_frame_layout_calc_geometry (const MetaFrameLayout  *layout,
           rect->clickable.height = button_height + button_y;
 
           if (i == n_right - 1)
-            rect->clickable.width += layout->right_titlebar_edge + layout->right_width + layout->button_border.right;
+            rect->clickable.width += layout->right_titlebar_edge + borders.visible.right + layout->button_border.right;
 
         }
       else
@@ -5119,6 +5110,7 @@ meta_theme_draw_frame (MetaTheme              *theme,
 
 void
 meta_theme_get_frame_borders (MetaTheme        *theme,
+                              GtkStyleContext  *style_context,
                               MetaFrameType     type,
                               int               text_height,
                               MetaFrameFlags    flags,
@@ -5137,6 +5129,7 @@ meta_theme_get_frame_borders (MetaTheme        *theme,
     return;
 
   meta_frame_layout_get_borders (style->layout,
+                                 style_context,
                                  text_height,
                                  flags, type,
                                  borders);

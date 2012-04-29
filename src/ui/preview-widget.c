@@ -169,6 +169,7 @@ ensure_info (MetaPreview *preview)
     {
       if (preview->theme)
         meta_theme_get_frame_borders (preview->theme,
+                                      meta_theme_get_variant (preview->theme, NULL)->style_context,
                                       preview->type,
                                       preview->text_height,
                                       preview->flags,

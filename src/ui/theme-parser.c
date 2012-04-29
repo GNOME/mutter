@@ -1331,15 +1331,7 @@ parse_distance (GMarkupParseContext  *context,
   g_assert (val >= 0); /* yeah, "non-negative" not "positive" get over it */
   g_assert (info->layout);
 
-  if (strcmp (name, "left_width") == 0)
-    info->layout->left_width = val;
-  else if (strcmp (name, "right_width") == 0)
-    info->layout->right_width = val;
-  else if (strcmp (name, "bottom_height") == 0)
-    info->layout->bottom_height = val;
-  else if (strcmp (name, "title_vertical_pad") == 0)
-    info->layout->title_vertical_pad = val;
-  else if (strcmp (name, "right_titlebar_edge") == 0)
+  if (strcmp (name, "right_titlebar_edge") == 0)
     info->layout->right_titlebar_edge = val;
   else if (strcmp (name, "left_titlebar_edge") == 0)
     info->layout->left_titlebar_edge = val;

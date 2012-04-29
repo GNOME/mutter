@@ -680,6 +680,7 @@ meta_frames_get_borders (MetaFrames *frames,
    * window size
    */
   meta_theme_get_frame_borders (frame->tv->theme,
+                                frame->tv->style_context,
                                 type,
                                 frame->text_height,
                                 flags,
@@ -1687,6 +1688,7 @@ populate_cache (MetaFrames *frames,
     }
   
   meta_theme_get_frame_borders (frame->tv->theme,
+                                frame->tv->style_context,
                                 frame_type,
                                 frame->text_height,
                                 frame_flags,
@@ -1803,6 +1805,7 @@ subtract_client_area (cairo_region_t *region,
                  META_CORE_GET_CLIENT_HEIGHT, &area.height,
                  META_CORE_GET_END);
   meta_theme_get_frame_borders (frame->tv->theme,
+                                frame->tv->style_context,
                                 type, frame->text_height, flags, 
                                 &borders);
 

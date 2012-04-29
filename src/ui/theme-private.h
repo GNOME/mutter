@@ -134,22 +134,12 @@ struct _MetaFrameLayout
 {
   /** Reference count. */
   int refcount;
-  
-  /** Size of left side */
-  int left_width;
-  /** Size of right side */
-  int right_width;
-  /** Size of bottom side */
-  int bottom_height;
-  
+
   /** Border of blue title region
    * \bug (blue?!)
    **/
   GtkBorder title_border;
 
-  /** Extra height for inside of title region, above the font height */
-  int title_vertical_pad;
-  
   /** Right indent of buttons from edges of frame */
   int right_titlebar_edge;
   /** Left indent of buttons from edges of frame */
@@ -918,11 +908,6 @@ MetaFrameLayout* meta_frame_layout_new           (void);
 MetaFrameLayout* meta_frame_layout_copy          (const MetaFrameLayout *src);
 void             meta_frame_layout_ref           (MetaFrameLayout       *layout);
 void             meta_frame_layout_unref         (MetaFrameLayout       *layout);
-void             meta_frame_layout_get_borders   (const MetaFrameLayout *layout,
-                                                  int                    text_height,
-                                                  MetaFrameFlags         flags,
-                                                  MetaFrameType          type,
-                                                  MetaFrameBorders      *borders);
 gboolean         meta_frame_layout_validate      (const MetaFrameLayout *layout,
                                                   GError               **error);
 
@@ -1058,6 +1043,7 @@ void meta_theme_draw_frame_with_style (MetaTheme              *theme,
                                        GdkPixbuf              *icon);
 
 void meta_theme_get_frame_borders (MetaTheme         *theme,
+                                   GtkStyleContext   *style_context,
                                    MetaFrameType      type,
                                    int                text_height,
                                    MetaFrameFlags     flags,
