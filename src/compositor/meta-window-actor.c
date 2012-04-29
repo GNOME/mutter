@@ -2096,7 +2096,15 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
       gdk_cairo_region (cr, frame_paint_region);
       cairo_clip (cr);
 
+      /* XXX: work around cairo bug. remove when released
+       * http://cgit.freedesktop.org/cairo/commit/?id=ec400daf9ec3bbd8403324db7fcdaf175e185e7b
+       */
+      cairo_push_group (cr);
+
       meta_frame_render_background (priv->window->frame, cr);
+
+      cairo_pop_group_to_source (cr);
+      cairo_paint (cr);
 
       cairo_surface_flush (surface);
       scan_visible_region (mask_data, stride, frame_paint_region, shape_region);
