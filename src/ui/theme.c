@@ -4117,19 +4117,11 @@ button_rect (MetaButtonType           type,
     }
 }
 
-static void
-meta_frame_style_draw_with_style (MetaFrameStyle          *style,
-                                  GtkStyleContext         *style_gtk,
-                                  MetaFrameFlags           flags,
-                                  cairo_t                 *cr,
-                                  const MetaFrameGeometry *fgeom,
-                                  int                      client_width,
-                                  int                      client_height,
-                                  PangoLayout             *title_layout,
-                                  int                      text_height,
-                                  MetaButtonState          button_states[META_BUTTON_TYPE_LAST],
-                                  GdkPixbuf               *mini_icon,
-                                  GdkPixbuf               *icon)
+void
+meta_theme_render_background (GtkStyleContext *style_gtk,
+                              cairo_t         *cr,
+                              MetaFrameFlags   flags,
+                              const MetaFrameGeometry *fgeom)
 {
   GdkRectangle visible_rect;
   const MetaFrameBorders *borders;
@@ -4158,6 +4150,23 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
                     visible_rect.height);
 
   gtk_style_context_restore (style_gtk);
+}
+
+static void
+meta_frame_style_draw_with_style (MetaFrameStyle          *style,
+                                  GtkStyleContext         *style_gtk,
+                                  MetaFrameFlags           flags,
+                                  cairo_t                 *cr,
+                                  const MetaFrameGeometry *fgeom,
+                                  int                      client_width,
+                                  int                      client_height,
+                                  PangoLayout             *title_layout,
+                                  int                      text_height,
+                                  MetaButtonState          button_states[META_BUTTON_TYPE_LAST],
+                                  GdkPixbuf               *mini_icon,
+                                  GdkPixbuf               *icon)
+{
+  meta_theme_render_background (style_gtk, cr, flags, fgeom);
 
 #if 0
   int i, j;

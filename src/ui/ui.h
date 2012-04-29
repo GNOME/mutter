@@ -100,12 +100,9 @@ cairo_region_t *meta_ui_get_frame_bounds (MetaUI  *ui,
                                           int      window_width,
                                           int      window_height);
 
-void meta_ui_get_corner_radiuses (MetaUI *ui,
-                                  Window  xwindow,
-                                  float  *top_left,
-                                  float  *top_right,
-                                  float  *bottom_left,
-                                  float  *bottom_right);
+void meta_ui_render_background (MetaUI  *ui,
+                                Window   xwindow,
+                                cairo_t *cr);
 
 void meta_ui_queue_frame_draw (MetaUI *ui,
                                Window xwindow);

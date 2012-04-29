@@ -687,28 +687,22 @@ meta_frames_get_borders (MetaFrames *frames,
 }
 
 void
-meta_frames_get_corner_radiuses (MetaFrames *frames,
-                                 Window      xwindow,
-                                 float      *top_left,
-                                 float      *top_right,
-                                 float      *bottom_left,
-                                 float      *bottom_right)
+meta_frames_render_background (MetaFrames *frames,
+                               Window      xwindow,
+                               cairo_t    *cr)
 {
   MetaUIFrame *frame;
   MetaFrameGeometry fgeom;
+  MetaFrameFlags flags;
 
   frame = meta_frames_lookup_window (frames, xwindow);
 
-  meta_frames_calc_geometry (frames, frame, &fgeom);
+  meta_core_get (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow,
+                 META_CORE_GET_FRAME_FLAGS, &flags,
+                 META_CORE_GET_END);
 
-  if (top_left)
-    *top_left = fgeom.top_left_corner_rounded_radius;
-  if (top_right)
-    *top_right = fgeom.top_right_corner_rounded_radius;
-  if (bottom_left)
-    *bottom_left = fgeom.bottom_left_corner_rounded_radius;
-  if (bottom_right)
-    *bottom_right = fgeom.bottom_right_corner_rounded_radius;
+  meta_frames_calc_geometry (frames, frame, &fgeom);
+  meta_theme_render_background (frame->tv->style_context, cr, flags, &fgeom);
 }
 
 void

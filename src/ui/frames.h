@@ -143,12 +143,9 @@ cairo_region_t *meta_frames_get_frame_bounds (MetaFrames *frames,
                                               int         window_width,
                                               int         window_height);
 
-void meta_frames_get_corner_radiuses (MetaFrames *frames,
-                                      Window      xwindow,
-                                      float      *top_left,
-                                      float      *top_right,
-                                      float      *bottom_left,
-                                      float      *bottom_right);
+void meta_frames_render_background (MetaFrames *frames,
+                                    Window      xwindow,
+                                    cairo_t    *cr);
 
 void meta_frames_move_resize_frame (MetaFrames *frames,
 				    Window      xwindow,

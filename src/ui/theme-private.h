@@ -1030,6 +1030,11 @@ double meta_theme_get_title_scale (MetaTheme     *theme,
                                    MetaFrameType  type,
                                    MetaFrameFlags flags);
 
+void meta_theme_render_background (GtkStyleContext *style,
+                                   cairo_t         *cr,
+                                   MetaFrameFlags   flags,
+                                   const MetaFrameGeometry *fgeom);
+
 void meta_theme_draw_frame (MetaTheme              *theme,
                             GtkWidget              *widget,
                             cairo_t                *cr,

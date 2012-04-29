@@ -318,16 +318,11 @@ meta_ui_get_frame_borders (MetaUI *ui,
 }
 
 void
-meta_ui_get_corner_radiuses (MetaUI *ui,
-                             Window  xwindow,
-                             float  *top_left,
-                             float  *top_right,
-                             float  *bottom_left,
-                             float  *bottom_right)
+meta_ui_render_background (MetaUI  *ui,
+                           Window   xwindow,
+                           cairo_t *cr)
 {
-  meta_frames_get_corner_radiuses (ui->frames, xwindow,
-                                   top_left, top_right,
-                                   bottom_left, bottom_right);
+  meta_frames_render_background (ui->frames, xwindow, cr);
 }
 
 Window

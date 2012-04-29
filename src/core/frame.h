@@ -63,11 +63,8 @@ Window         meta_frame_get_xwindow (MetaFrame *frame);
 void meta_frame_calc_borders      (MetaFrame        *frame,
                                    MetaFrameBorders *borders);
 
-void meta_frame_get_corner_radiuses (MetaFrame *frame,
-                                     float     *top_left,
-                                     float     *top_right,
-                                     float     *bottom_left,
-                                     float     *bottom_right);
+void meta_frame_render_background (MetaFrame *frame,
+                                   cairo_t   *cr);
 
 gboolean meta_frame_sync_to_window (MetaFrame         *frame,
                                     int                gravity,

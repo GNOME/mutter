@@ -333,16 +333,12 @@ meta_frame_calc_borders (MetaFrame        *frame,
 }
 
 void
-meta_frame_get_corner_radiuses (MetaFrame *frame,
-                                float     *top_left,
-                                float     *top_right,
-                                float     *bottom_left,
-                                float     *bottom_right)
+meta_frame_render_background (MetaFrame *frame,
+                              cairo_t   *cr)
 {
-  meta_ui_get_corner_radiuses (frame->window->screen->ui,
-                               frame->xwindow,
-                               top_left, top_right,
-                               bottom_left, bottom_right);
+  meta_ui_render_background (frame->window->screen->ui,
+                             frame->xwindow,
+                             cr);
 }
 
 gboolean
