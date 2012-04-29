@@ -26,6 +26,7 @@
 #include "meta-shadow-factory-private.h"
 #include "meta-window-actor-private.h"
 #include "meta-texture-rectangle.h"
+#include "region-utils.h"
 
 enum {
   POSITION_CHANGED,
@@ -2006,14 +2007,15 @@ meta_window_actor_sync_visibility (MetaWindowActor *self)
     }
 }
 
-static void
+static cairo_region_t *
 scan_visible_region (guchar         *mask_data,
                      int             stride,
-                     cairo_region_t *scan_area,
-                     cairo_region_t *union_against)
+                     cairo_region_t *scan_area)
 {
-  int i, n_rects;
-  n_rects = cairo_region_num_rectangles (scan_area);
+  int i, n_rects = cairo_region_num_rectangles (scan_area);
+  MetaRegionBuilder builder;
+
+  meta_region_builder_init (&builder);
 
   for (i = 0; i < n_rects; i++)
     {
@@ -2032,13 +2034,14 @@ scan_visible_region (guchar         *mask_data,
 
               if (w > 0)
                 {
-                  cairo_rectangle_int_t tmp = { x, y, w - x, 1 };
-                  cairo_region_union_rectangle (union_against, &tmp);
+                  meta_region_builder_add_rectangle (&builder, x, y, w - x, 1);
                   x = w;
                 }
             }
         }
     }
+
+  return meta_region_builder_finish (&builder);
 }
 
 static void
@@ -2078,7 +2081,7 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
 
   if (priv->window->frame != NULL)
     {
-      cairo_region_t *frame_paint_region;
+      cairo_region_t *frame_paint_region, *scanned_region;
       cairo_rectangle_int_t rect = { 0, 0, tex_width, tex_height };
 
       /* Make sure we don't paint the frame over the client window. */
@@ -2099,7 +2102,9 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
       cairo_paint (cr);
 
       cairo_surface_flush (surface);
-      scan_visible_region (mask_data, stride, frame_paint_region, shape_region);
+      scanned_region = scan_visible_region (mask_data, stride, frame_paint_region);
+      cairo_region_union (shape_region, scanned_region);
+      cairo_region_destroy (scanned_region);
     }
 
   cairo_destroy (cr);

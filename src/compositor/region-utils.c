@@ -43,25 +43,10 @@
 /* Optimium performance seems to be with MAX_CHUNK_RECTANGLES=4; 8 is about 10% slower.
  * But using 8 may be more robust to systems with slow malloc(). */
 #define MAX_CHUNK_RECTANGLES 8
+/* XXX: keep in sync with region-utils.h */
 #define MAX_LEVELS 16
 
-typedef struct
-{
-  /* To merge regions in binary tree order, we need to keep track of
-   * the regions that we've already merged together at different
-   * levels of the tree. We fill in an array in the pattern:
-   *
-   * |a  |
-   * |b  |a  |
-   * |c  |   |ab |
-   * |d  |c  |ab |
-   * |e  |   |   |abcd|
-   */
-  cairo_region_t *levels[MAX_LEVELS];
-  int n_levels;
-} MetaRegionBuilder;
-
-static void
+void
 meta_region_builder_init (MetaRegionBuilder *builder)
 {
   int i;
@@ -70,7 +55,7 @@ meta_region_builder_init (MetaRegionBuilder *builder)
   builder->n_levels = 1;
 }
 
-static void
+void
 meta_region_builder_add_rectangle (MetaRegionBuilder *builder,
                                    int                x,
                                    int                y,
@@ -115,7 +100,7 @@ meta_region_builder_add_rectangle (MetaRegionBuilder *builder,
     }
 }
 
-static cairo_region_t *
+cairo_region_t *
 meta_region_builder_finish (MetaRegionBuilder *builder)
 {
   cairo_region_t *result = NULL;
