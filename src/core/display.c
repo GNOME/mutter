@@ -4385,10 +4385,9 @@ process_request_frame_extents (MetaDisplay    *display,
         }
 
       /* Return estimated frame extents for a normal window. */
-      meta_ui_theme_get_frame_borders (screen->ui,
-                                       META_FRAME_TYPE_NORMAL,
-                                       0,
-                                       &borders);
+      meta_ui_get_frame_borders (screen->ui,
+                                 xwindow,
+                                 &borders);
       data[0] = borders.visible.left;
       data[1] = borders.visible.right;
       data[2] = borders.visible.top;

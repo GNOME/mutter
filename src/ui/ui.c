@@ -707,43 +707,6 @@ meta_text_property_to_utf8 (Display             *xdisplay,
 }
 
 void
-meta_ui_theme_get_frame_borders (MetaUI *ui,
-                                 MetaFrameType      type,
-                                 MetaFrameFlags     flags,
-                                 MetaFrameBorders  *borders)
-{
-  int text_height;
-  GtkStyleContext *style = NULL;
-  PangoContext *context;
-  const PangoFontDescription *font_desc;
-
-  if (meta_ui_have_a_theme ())
-    {
-      context = gtk_widget_get_pango_context (GTK_WIDGET (ui->frames));
-      font_desc = meta_prefs_get_titlebar_font ();
-
-      if (!font_desc)
-        {
-          style = gtk_style_context_new ();
-          font_desc = gtk_style_context_get_font (style, 0);
-        }
-
-      text_height = meta_pango_font_desc_get_text_height (font_desc, context);
-
-      meta_theme_get_frame_borders (meta_theme_get_current (),
-                                    type, text_height, flags,
-                                    borders);
-    }
-  else
-    {
-      meta_frame_borders_clear (borders);
-    }
-
-  if (style != NULL)
-    g_object_unref (style);
-}
-
-void
 meta_ui_set_current_theme (const char *name,
                            gboolean    force_reload)
 {
