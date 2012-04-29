@@ -651,15 +651,14 @@ meta_window_actor_paint (ClutterActor *actor)
       /* The frame bounds are already subtracted from priv->shadow_clip
        * if that exists.
        */
-      if (!clip && clip_shadow_under_window (self))
+      if (!clip && clip_shadow_under_window (self) && priv->shape_region != NULL)
         {
-          cairo_region_t *frame_bounds = meta_window_get_frame_bounds (priv->window);
           cairo_rectangle_int_t bounds;
 
           meta_window_actor_get_shadow_bounds (self, appears_focused, &bounds);
           clip = cairo_region_create_rectangle (&bounds);
 
-          cairo_region_subtract (clip, frame_bounds);
+          cairo_region_subtract (clip, priv->shape_region);
         }
 
       meta_shadow_paint (shadow,
@@ -1744,11 +1743,8 @@ meta_window_actor_set_visible_region_beneath (MetaWindowActor *self,
       meta_window_actor_clear_shadow_clip (self);
       priv->shadow_clip = cairo_region_copy (beneath_region);
 
-      if (clip_shadow_under_window (self))
-        {
-          cairo_region_t *frame_bounds = meta_window_get_frame_bounds (priv->window);
-          cairo_region_subtract (priv->shadow_clip, frame_bounds);
-        }
+      if (clip_shadow_under_window (self) && priv->shape_region != NULL)
+        cairo_region_subtract (priv->shadow_clip, priv->shape_region);
     }
 }
 
