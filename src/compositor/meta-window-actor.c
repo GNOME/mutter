@@ -2185,6 +2185,7 @@ check_needs_reshape (MetaWindowActor *self)
     {
       Display *xdisplay = meta_display_get_xdisplay (display);
       XRectangle *rects;
+      cairo_rectangle_int_t *cairo_rects = NULL;
       int n_rects, ordering;
       cairo_rectangle_int_t client_area;
 
@@ -2206,17 +2207,20 @@ check_needs_reshape (MetaWindowActor *self)
 
       if (rects)
         {
+          cairo_rects = g_new (cairo_rectangle_int_t, n_rects);
           int i;
           for (i = 0; i < n_rects; i ++)
             {
-              cairo_rectangle_int_t rect = { rects[i].x + client_area.x,
-                                             rects[i].y + client_area.y,
-                                             rects[i].width,
-                                             rects[i].height };
-              cairo_region_union_rectangle (region, &rect);
+              cairo_rects[i].x = client_area.x + rects[i].x;
+              cairo_rects[i].y = client_area.y + rects[i].y;
+              cairo_rects[i].width = rects[i].width;
+              cairo_rects[i].height = rects[i].height;
             }
           XFree (rects);
         }
+
+      region = cairo_region_create_rectangles (cairo_rects, n_rects);
+      g_free (cairo_rects);
     }
 #endif
 
