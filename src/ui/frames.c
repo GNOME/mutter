@@ -1852,7 +1852,6 @@ meta_frames_draw (GtkWidget *widget,
   CachedPixels *pixels;
   cairo_region_t *region;
   cairo_rectangle_int_t clip;
-  int i, n_areas;
   cairo_surface_t *target;
 
   frames = META_FRAMES (widget);
@@ -1877,34 +1876,28 @@ meta_frames_draw (GtkWidget *widget,
   
   pixels = get_cache (frames, frame);
 
+  /* cached_pixels_draw will subtract the painted
+   * parts from the region. */
   cached_pixels_draw (pixels, cr, region);
-  
+
+  if (cairo_region_num_rectangles (region) == 0)
+    goto out;
+
   clip_to_screen (region, frame);
   subtract_client_area (region, frame);
 
-  n_areas = cairo_region_num_rectangles (region);
+  if (cairo_region_num_rectangles (region) == 0)
+    goto out;
 
-  for (i = 0; i < n_areas; i++)
-    {
-      cairo_rectangle_int_t area;
+  /* OK. Now that we've painted the cached frame
+   * pixels, paint the actual pixels that are left over. */
 
-      cairo_region_get_rectangle (region, i, &area);
+  gdk_cairo_region (cr, region);
+  cairo_clip (cr);
 
-      cairo_save (cr);
+  meta_frames_paint (frames, frame, cr);
 
-      cairo_rectangle (cr, area.x, area.y, area.width, area.height);
-      cairo_clip (cr);
-
-      cairo_push_group (cr);
-
-      meta_frames_paint (frames, frame, cr);
-
-      cairo_pop_group_to_source (cr);
-      cairo_paint (cr);
-
-      cairo_restore (cr);
-    }
-
+ out:
   cairo_region_destroy (region);
   
   return TRUE;
