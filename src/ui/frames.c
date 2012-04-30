@@ -96,7 +96,6 @@ static MetaFrameControl get_control  (MetaFrames        *frames,
                                       MetaUIFrame       *frame,
                                       int                x,
                                       int                y);
-static void invalidate_all_caches (MetaFrames *frames);
 static void invalidate_whole_window (MetaFrames *frames,
                                      MetaUIFrame *frame);
 
@@ -194,9 +193,6 @@ meta_frames_init (MetaFrames *frames)
 
   frames->expose_delay_count = 0;
 
-  frames->invalidate_frames = NULL;
-  frames->cache = g_hash_table_new (g_direct_hash, g_direct_equal);
-
   gtk_widget_set_double_buffered (GTK_WIDGET (frames), FALSE);
 
   meta_prefs_add_listener (prefs_changed_callback, frames);
@@ -247,76 +243,11 @@ meta_frames_finalize (GObject *object)
   meta_prefs_remove_listener (prefs_changed_callback, frames);
   
   g_hash_table_destroy (frames->text_heights);
-
-  invalidate_all_caches (frames);
   
   g_assert (g_hash_table_size (frames->frames) == 0);
   g_hash_table_destroy (frames->frames);
-  g_hash_table_destroy (frames->cache);
 
   G_OBJECT_CLASS (meta_frames_parent_class)->finalize (object);
-}
-
-typedef struct
-{
-  cairo_rectangle_int_t rect;
-  cairo_surface_t *pixmap;
-} CachedFramePiece;
-
-typedef struct
-{
-  /* Caches of the four rendered sides in a MetaFrame.
-   * Order: top (titlebar), left, right, bottom.
-   */
-  CachedFramePiece piece[4];
-} CachedPixels;
-
-static CachedPixels *
-get_cache (MetaFrames *frames,
-           MetaUIFrame *frame)
-{
-  CachedPixels *pixels;
-  
-  pixels = g_hash_table_lookup (frames->cache, frame);
-
-  if (!pixels)
-    {
-      pixels = g_new0 (CachedPixels, 1);
-      g_hash_table_insert (frames->cache, frame, pixels);
-    }
-
-  return pixels;
-}
-
-static void
-invalidate_cache (MetaFrames *frames,
-                  MetaUIFrame *frame)
-{
-  CachedPixels *pixels = get_cache (frames, frame);
-  int i;
-  
-  for (i = 0; i < 4; i++)
-    if (pixels->piece[i].pixmap)
-      cairo_surface_destroy (pixels->piece[i].pixmap);
-  
-  g_free (pixels);
-  g_hash_table_remove (frames->cache, frame);
-}
-
-static void
-invalidate_all_caches (MetaFrames *frames)
-{
-  GList *l;
-
-  for (l = frames->invalidate_frames; l; l = l->next)
-    {
-      MetaUIFrame *frame = l->data;
-
-      invalidate_cache (frames, frame);
-    }
-  
-  g_list_free (frames->invalidate_frames);
-  frames->invalidate_frames = NULL;
 }
 
 static void
@@ -580,11 +511,6 @@ meta_frames_unmanage_window (MetaFrames *frames,
 
   if (frame)
     {
-      /* invalidating all caches ensures the frame
-       * is not actually referenced anymore
-       */
-      invalidate_all_caches (frames);
-      
       /* restore the cursor */
       meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                                    frame->xwindow,
@@ -836,7 +762,6 @@ redraw_control (MetaFrames *frames,
   rect = control_rect (control, &fgeom);
 
   gdk_window_invalidate_rect (frame->window, rect, FALSE);
-  invalidate_cache (frames, frame);
 }
 
 static gboolean
@@ -1587,151 +1512,6 @@ meta_frames_destroy_event           (GtkWidget           *widget,
   return TRUE;
 }
 
-
-static void
-setup_bg_cr (cairo_t *cr, GdkWindow *window, int x_offset, int y_offset)
-{
-  GdkWindow *parent = gdk_window_get_parent (window);
-  cairo_pattern_t *bg_pattern;
-
-  bg_pattern = gdk_window_get_background_pattern (window);
-  if (bg_pattern == NULL && parent)
-    {
-      gint window_x, window_y;
-
-      gdk_window_get_position (window, &window_x, &window_y);
-      setup_bg_cr (cr, parent, x_offset + window_x, y_offset + window_y);
-    }
-  else if (bg_pattern)
-    {
-      cairo_translate (cr, - x_offset, - y_offset);
-      cairo_set_source (cr, bg_pattern);
-      cairo_translate (cr, x_offset, y_offset);
-    }
-}
-
-/* Returns a pixmap with a piece of the windows frame painted on it.
-*/
-
-static cairo_surface_t *
-generate_pixmap (MetaFrames            *frames,
-                 MetaUIFrame           *frame,
-                 cairo_rectangle_int_t *rect)
-{
-  cairo_surface_t *result;
-  cairo_t *cr;
-
-  /* do not create a pixmap for nonexisting areas */
-  if (rect->width <= 0 || rect->height <= 0)
-    return NULL;
-
-  result = gdk_window_create_similar_surface (frame->window,
-                                              CAIRO_CONTENT_COLOR,
-                                              rect->width, rect->height);
-  
-  cr = cairo_create (result);
-  cairo_translate (cr, -rect->x, -rect->y);
-
-  setup_bg_cr (cr, frame->window, 0, 0);
-  cairo_paint (cr);
-
-  meta_frames_paint (frames, frame, cr);
-
-  cairo_destroy (cr);
-
-  return result;
-}
-
-
-static void
-populate_cache (MetaFrames *frames,
-                MetaUIFrame *frame)
-{
-  MetaFrameBorders borders;
-  int width, height;
-  int frame_width, frame_height, screen_width, screen_height;
-  CachedPixels *pixels;
-  MetaFrameType frame_type;
-  MetaFrameFlags frame_flags;
-  int i;
-
-  meta_core_get (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
-                 frame->xwindow,
-                 META_CORE_GET_FRAME_WIDTH, &frame_width,
-                 META_CORE_GET_FRAME_HEIGHT, &frame_height,
-                 META_CORE_GET_SCREEN_WIDTH, &screen_width,
-                 META_CORE_GET_SCREEN_HEIGHT, &screen_height,
-                 META_CORE_GET_CLIENT_WIDTH, &width,
-                 META_CORE_GET_CLIENT_HEIGHT, &height,
-                 META_CORE_GET_FRAME_TYPE, &frame_type,
-                 META_CORE_GET_FRAME_FLAGS, &frame_flags,
-                 META_CORE_GET_END);
-
-  /* don't cache extremely large windows */
-  if (frame_width > 2 * screen_width ||
-      frame_height > 2 * screen_height)
-    {
-      return;
-    }
-  
-  meta_theme_get_frame_borders (frame->tv->theme,
-                                frame->tv->style_context,
-                                frame_type,
-                                frame->text_height,
-                                frame_flags,
-                                &borders);
-
-  pixels = get_cache (frames, frame);
-
-  /* Setup the rectangles for the four visible frame borders. First top, then
-   * left, right and bottom. Top and bottom extend to the invisible borders
-   * while left and right snugly fit in between:
-   *   -----
-   *   |   |
-   *   -----
-   */
-
-  /* width and height refer to the client window's
-   * size without any border added. */
-
-  /* top */
-  pixels->piece[0].rect.x = borders.invisible.left;
-  pixels->piece[0].rect.y = borders.invisible.top;
-  pixels->piece[0].rect.width = width + borders.visible.left + borders.visible.right;
-  pixels->piece[0].rect.height = borders.visible.top;
-
-  /* left */
-  pixels->piece[1].rect.x = borders.invisible.left;
-  pixels->piece[1].rect.y = borders.total.top;
-  pixels->piece[1].rect.height = height;
-  pixels->piece[1].rect.width = borders.visible.left;
-
-  /* right */
-  pixels->piece[2].rect.x = borders.total.left + width;
-  pixels->piece[2].rect.y = borders.total.top;
-  pixels->piece[2].rect.width = borders.visible.right;
-  pixels->piece[2].rect.height = height;
-
-  /* bottom */
-  pixels->piece[3].rect.x = borders.invisible.left;
-  pixels->piece[3].rect.y = borders.total.top + height;
-  pixels->piece[3].rect.width = width + borders.visible.left + borders.visible.right;
-  pixels->piece[3].rect.height = borders.visible.bottom;
-
-  for (i = 0; i < 4; i++)
-    {
-      CachedFramePiece *piece = &pixels->piece[i];
-      /* generate_pixmap() returns NULL for 0 width/height pieces, but
-       * does so cheaply so we don't need to cache the NULL return */
-      if (!piece->pixmap)
-        piece->pixmap = generate_pixmap (frames, frame, &piece->rect);
-    }
-
-  if (!g_list_find (frames->invalidate_frames, frame))
-    frames->invalidate_frames =
-      g_list_prepend (frames->invalidate_frames, frame);
-}
-
 static void
 clip_to_screen (cairo_region_t *region,
                 MetaUIFrame    *frame)
@@ -1799,39 +1579,12 @@ subtract_client_area (cairo_region_t *region,
   cairo_region_destroy (tmp_region);
 }
 
-static void
-cached_pixels_draw (CachedPixels   *pixels,
-                    cairo_t        *cr,
-                    cairo_region_t *region)
-{
-  cairo_region_t *region_piece;
-  int i;
-
-  for (i = 0; i < 4; i++)
-    {
-      CachedFramePiece *piece;
-      piece = &pixels->piece[i];
-      
-      if (piece->pixmap)
-        {
-          cairo_set_source_surface (cr, piece->pixmap,
-                                    piece->rect.x, piece->rect.y);
-          cairo_paint (cr);
-          
-          region_piece = cairo_region_create_rectangle (&piece->rect);
-          cairo_region_subtract (region, region_piece);
-          cairo_region_destroy (region_piece);
-        }
-    }
-}
-
 static gboolean
 meta_frames_draw (GtkWidget *widget,
                   cairo_t   *cr)
 {
   MetaUIFrame *frame;
   MetaFrames *frames;
-  CachedPixels *pixels;
   cairo_region_t *region;
   cairo_rectangle_int_t clip;
   cairo_surface_t *target;
@@ -1852,18 +1605,7 @@ meta_frames_draw (GtkWidget *widget,
       return TRUE;
     }
 
-  populate_cache (frames, frame);
-
   region = cairo_region_create_rectangle (&clip);
-  
-  pixels = get_cache (frames, frame);
-
-  /* cached_pixels_draw will subtract the painted
-   * parts from the region. */
-  cached_pixels_draw (pixels, cr, region);
-
-  if (cairo_region_num_rectangles (region) == 0)
-    goto out;
 
   clip_to_screen (region, frame);
   subtract_client_area (region, frame);
@@ -1871,12 +1613,8 @@ meta_frames_draw (GtkWidget *widget,
   if (cairo_region_num_rectangles (region) == 0)
     goto out;
 
-  /* OK. Now that we've painted the cached frame
-   * pixels, paint the actual pixels that are left over. */
-
   gdk_cairo_region (cr, region);
   cairo_clip (cr);
-
   meta_frames_paint (frames, frame, cr);
 
  out:
@@ -2321,5 +2059,4 @@ invalidate_whole_window (MetaFrames *frames,
                          MetaUIFrame *frame)
 {
   gdk_window_invalidate_rect (frame->window, NULL, FALSE);
-  invalidate_cache (frames, frame);
 }
