@@ -97,7 +97,6 @@ struct _MetaFrames
 
   int expose_delay_count;
 
-  int invalidate_cache_timeout_id;
   GList *invalidate_frames;
   GHashTable *cache;
 };

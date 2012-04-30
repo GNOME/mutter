@@ -194,7 +194,6 @@ meta_frames_init (MetaFrames *frames)
 
   frames->expose_delay_count = 0;
 
-  frames->invalidate_cache_timeout_id = 0;
   frames->invalidate_frames = NULL;
   frames->cache = g_hash_table_new (g_direct_hash, g_direct_equal);
 
@@ -250,8 +249,6 @@ meta_frames_finalize (GObject *object)
   g_hash_table_destroy (frames->text_heights);
 
   invalidate_all_caches (frames);
-  if (frames->invalidate_cache_timeout_id)
-    g_source_remove (frames->invalidate_cache_timeout_id);
   
   g_assert (g_hash_table_size (frames->frames) == 0);
   g_hash_table_destroy (frames->frames);
@@ -320,16 +317,6 @@ invalidate_all_caches (MetaFrames *frames)
   
   g_list_free (frames->invalidate_frames);
   frames->invalidate_frames = NULL;
-}
-
-static gboolean
-invalidate_cache_timeout (gpointer data)
-{
-  MetaFrames *frames = data;
-  
-  invalidate_all_caches (frames);
-  frames->invalidate_cache_timeout_id = 0;
-  return FALSE;
 }
 
 static void
@@ -1739,11 +1726,6 @@ populate_cache (MetaFrames *frames,
       if (!piece->pixmap)
         piece->pixmap = generate_pixmap (frames, frame, &piece->rect);
     }
-  
-  if (frames->invalidate_cache_timeout_id)
-    g_source_remove (frames->invalidate_cache_timeout_id);
-  
-  frames->invalidate_cache_timeout_id = g_timeout_add (1000, invalidate_cache_timeout, frames);
 
   if (!g_list_find (frames->invalidate_frames, frame))
     frames->invalidate_frames =
