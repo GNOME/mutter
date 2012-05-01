@@ -1,0 +1,57 @@
+From d249cfd040c6df402730b12b990666cfee52a2d2 Mon Sep 17 00:00:00 2001
+From: Robert Bragg <robert@linux.intel.com>
+Date: Tue, 21 Feb 2012 16:31:53 +0000
+Subject: [PATCH] Pass CoglContext to cogl_texture_pixmap_x11_new()
+
+The experimental Cogl api cogl_texture_pixmap_new() was recently changed
+so it now expects an explicit CoglContext argument and it can also
+return exceptions now via a GError. This patch updates mutters use of
+the api accordingly.
+---
+ src/compositor/meta-background-actor.c |   13 ++++++++++++-
+ src/compositor/meta-shaped-texture.c   |   10 ++++++++--
+ 2 files changed, 20 insertions(+), 3 deletions(-)
+
+diff --git a/src/compositor/meta-background-actor.c b/src/compositor/meta-background-actor.c
+index 349f9b9..d70ae1b 100644
+--- a/src/compositor/meta-background-actor.c
++++ b/src/compositor/meta-background-actor.c
+@@ -28,6 +28,9 @@
+ #define COGL_ENABLE_EXPERIMENTAL_API
+ #include <cogl/cogl-texture-pixmap-x11.h>
+ 
++#define CLUTTER_ENABLE_EXPERIMENTAL_API
++#include <clutter/clutter.h>
++
+ #include <X11/Xatom.h>
+ 
+ #include "cogl-utils.h"
+@@ -539,9 +542,11 @@ meta_background_actor_update (MetaScreen *screen)
+   if (root_pixmap_id != None)
+     {
+       CoglHandle texture;
++      CoglContext *ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
++      GError *error = NULL;
+ 
+       meta_error_trap_push (display);
+-      texture = cogl_texture_pixmap_x11_new (root_pixmap_id, FALSE);
++      texture = cogl_texture_pixmap_x11_new (ctx, root_pixmap_id, FALSE, &error);
+       meta_error_trap_pop (display);
+ 
+       if (texture != COGL_INVALID_HANDLE)
+@@ -552,6 +557,12 @@ meta_background_actor_update (MetaScreen *screen)
+           background->have_pixmap = True;
+           return;
+         }
++      else
++        {
++          g_warning ("Failed to create background texture from pixmap: %s",
++                     error->message);
++          g_error_free (error);
++        }
+     }
+ 
+   background->have_pixmap = False;
+-- 
+1.7.9.5
+

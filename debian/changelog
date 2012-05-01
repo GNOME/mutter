@@ -1,3 +1,14 @@
+mutter (3.2.2-2) experimental; urgency=low
+
+  * d/p/02_Fix-cogl-crash-from-updating-non-existent-texture.patch:
+    + Added. In 1.8 cogl would prevent attempts to update textures with
+    an invalid handle from crashing buggy programs. Cogl 1.10 no longer does
+    so. This patch prevents mutter from updating invalid textures
+  * d/p/03_fix_compilation_with_new_cogl.patch
+    + Added. Adapt to changes made in the experimental patch of the cogl API
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Sun, 01 Apr 2012 16:32:27 +0200
+
 mutter (3.2.2-1) unstable; urgency=low
 
   [ Michael Biebl ]
