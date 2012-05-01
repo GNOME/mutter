@@ -1,8 +1,8 @@
-mutter (3.2.2-3) UNRELEASED; urgency=low
+mutter (3.2.2-3) unstable; urgency=low
 
   * Upload to unstable.
 
- -- Michael Biebl <biebl@debian.org>  Wed, 02 May 2012 00:09:52 +0200
+ -- Michael Biebl <biebl@debian.org>  Wed, 02 May 2012 00:10:17 +0200
 
 mutter (3.2.2-2) experimental; urgency=low
 
