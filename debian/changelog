@@ -1,3 +1,9 @@
+mutter (3.2.2-3) UNRELEASED; urgency=low
+
+  * Upload to unstable.
+
+ -- Michael Biebl <biebl@debian.org>  Wed, 02 May 2012 00:09:52 +0200
+
 mutter (3.2.2-2) experimental; urgency=low
 
   * d/p/02_Fix-cogl-crash-from-updating-non-existent-texture.patch:
