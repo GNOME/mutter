@@ -1584,6 +1584,13 @@ meta_frames_draw (GtkWidget *widget,
 
   gdk_cairo_region (cr, region);
   cairo_clip (cr);
+
+  cairo_save (cr);
+  cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+  cairo_set_source_rgba (cr, 1, 1, 1, 1);
+  cairo_paint (cr);
+  cairo_restore (cr);
+
   meta_frames_paint (frames, frame, cr);
 
  out:
