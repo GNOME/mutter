@@ -127,13 +127,6 @@ void meta_frames_get_borders (MetaFrames *frames,
                               Window xwindow,
                               MetaFrameBorders *borders);
 
-void meta_frames_reset_bg     (MetaFrames *frames,
-                               Window      xwindow);
-void meta_frames_unflicker_bg (MetaFrames *frames,
-                               Window      xwindow,
-                               int         target_width,
-                               int         target_height);
-
 void meta_frames_render_background (MetaFrames *frames,
                                     Window      xwindow,
                                     cairo_t    *cr);
