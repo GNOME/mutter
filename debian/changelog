@@ -1,13 +1,22 @@
-mutter (3.2.2-2) experimental; urgency=low
+mutter (3.3.92-1) UNRELEASED; urgency=low
 
-  * d/p/02_Fix-cogl-crash-from-updating-non-existent-texture.patch:
-    + Added. In 1.8 cogl would prevent attempts to update textures with
-    an invalid handle from crashing buggy programs. Cogl 1.10 no longer does
-    so. This patch prevents mutter from updating invalid textures
-  * d/p/03_fix_compilation_with_new_cogl.patch
-    + Added. Adapt to changes made in the experimental patch of the cogl API
+  [ Michael Biebl ]
+  * New upstream development release.
 
- -- Sjoerd Simons <sjoerd@debian.org>  Sun, 01 Apr 2012 16:32:27 +0200
+  [ Rico Tzschichholz ]
+  * debian/control.in:
+    - Bump minimum GTK, cogl, clutter & gsettings-desktop-schemas
+    - Add mutter-dbg package
+  * debian/mutter-common.install:
+    - Install gsettings schemas
+  * debian/rules: Enable compile warnings
+
+  [ Jeremy Bicha ]
+  * debian/control.in:
+    - Drop gconf dependency
+    - Break gnome-shell (<< 3.3.92~) since these need to be updated together
+
+ -- Michael Biebl <biebl@debian.org>  Mon, 05 Mar 2012 02:58:33 +0100
 
 mutter (3.2.2-1) unstable; urgency=low
 
