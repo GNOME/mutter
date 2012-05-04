@@ -146,10 +146,6 @@ ensure_info (MetaPreview *preview)
       
       font_desc = meta_gtk_widget_get_font_desc (widget, scale, NULL);
       
-      preview->text_height =
-        meta_pango_font_desc_get_text_height (font_desc,
-                                              gtk_widget_get_pango_context (widget));
-          
       attrs = pango_attr_list_new ();
       
       attr = pango_attr_size_new (pango_font_description_get_size (font_desc));
@@ -171,7 +167,6 @@ ensure_info (MetaPreview *preview)
         meta_theme_get_frame_borders (preview->theme,
                                       meta_theme_get_variant (preview->theme, NULL)->style_context,
                                       preview->type,
-                                      preview->text_height,
                                       preview->flags,
                                       &preview->borders);
       else
@@ -219,7 +214,6 @@ meta_preview_draw (GtkWidget *widget,
                              preview->flags,
                              client_width, client_height,
                              preview->layout,
-                             preview->text_height,
                              &preview->button_layout,
                              button_states,
                              meta_preview_get_mini_icon (),

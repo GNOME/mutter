@@ -924,18 +924,6 @@ get_flags (GtkWidget *widget)
     META_FRAME_ALLOWS_MOVE;
 }
 
-static int
-get_text_height (GtkWidget *widget)
-{
-  GtkStyleContext *style;
-  const PangoFontDescription *font_desc;
-
-  style = gtk_widget_get_style_context (widget);
-  font_desc = gtk_style_context_get_font (style, 0);
-  return meta_pango_font_desc_get_text_height (font_desc,
-                                               gtk_widget_get_pango_context (widget));
-}
-
 static PangoLayout*
 create_title_layout (GtkWidget *widget)
 {
@@ -977,7 +965,6 @@ run_theme_benchmark (void)
   meta_theme_get_frame_borders (global_theme,
                                 meta_theme_get_variant (global_theme, NULL)->style_context,
                                 META_FRAME_TYPE_NORMAL,
-                                get_text_height (widget),
                                 get_flags (widget),
                                 &borders);
   
@@ -1026,7 +1013,6 @@ run_theme_benchmark (void)
                              get_flags (widget),
                              client_width, client_height,
                              layout,
-                             get_text_height (widget),
                              &button_layout,
                              button_states,
                              meta_preview_get_mini_icon (),

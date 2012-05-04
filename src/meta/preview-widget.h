@@ -50,7 +50,6 @@ struct _MetaPreview
   MetaFrameFlags flags;  
 
   PangoLayout *layout;
-  int text_height;
 
   MetaFrameBorders borders;
   guint            borders_cached : 1;

@@ -301,7 +301,6 @@ get_style_flags (MetaFrameFlags flags)
 static void
 meta_frame_layout_get_borders (const MetaFrameLayout *layout,
                                GtkStyleContext       *style_context,
-                               int                    text_height,
                                MetaFrameFlags         flags,
                                MetaFrameType          type,
                                MetaFrameBorders      *borders)
@@ -316,9 +315,6 @@ meta_frame_layout_get_borders (const MetaFrameLayout *layout,
     return;
 
   g_return_if_fail (layout != NULL);
-
-  if (!layout->has_title)
-    text_height = 0;
 
   gtk_style_context_get_border (style_context,
                                 get_style_flags (flags),
@@ -519,7 +515,6 @@ strip_button (MetaButtonSpace *func_rects[MAX_BUTTONS_PER_CORNER],
 static void
 meta_frame_layout_calc_geometry (const MetaFrameLayout  *layout,
                                  GtkStyleContext        *ctx,
-                                 int                     text_height,
                                  MetaFrameFlags          flags,
                                  int                     client_width,
                                  int                     client_height,
@@ -547,8 +542,7 @@ meta_frame_layout_calc_geometry (const MetaFrameLayout  *layout,
 
   MetaFrameBorders borders;
   
-  meta_frame_layout_get_borders (layout, ctx, text_height,
-                                 flags, type,
+  meta_frame_layout_get_borders (layout, ctx, flags, type,
                                  &borders);
 
   fgeom->borders = borders;
@@ -4137,7 +4131,6 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
                                   int                      client_width,
                                   int                      client_height,
                                   PangoLayout             *title_layout,
-                                  int                      text_height,
                                   MetaButtonState          button_states[META_BUTTON_TYPE_LAST],
                                   GdkPixbuf               *mini_icon,
                                   GdkPixbuf               *icon)
@@ -4761,8 +4754,6 @@ meta_theme_new (void)
   theme->quark_mini_icon_height = g_quark_from_static_string ("mini_icon_height");
   theme->quark_icon_width = g_quark_from_static_string ("icon_width");
   theme->quark_icon_height = g_quark_from_static_string ("icon_height");
-  theme->quark_title_width = g_quark_from_static_string ("title_width");
-  theme->quark_title_height = g_quark_from_static_string ("title_height");
   theme->quark_frame_x_center = g_quark_from_static_string ("frame_x_center");
   theme->quark_frame_y_center = g_quark_from_static_string ("frame_y_center");
   return theme;
@@ -5059,7 +5050,6 @@ meta_theme_draw_frame_with_style (MetaTheme              *theme,
                                   int                     client_width,
                                   int                     client_height,
                                   PangoLayout            *title_layout,
-                                  int                     text_height,
                                   const MetaButtonLayout *button_layout,
                                   MetaButtonState         button_states[META_BUTTON_TYPE_LAST],
                                   GdkPixbuf              *mini_icon,
@@ -5078,7 +5068,6 @@ meta_theme_draw_frame_with_style (MetaTheme              *theme,
   
   meta_frame_layout_calc_geometry (style->layout,
                                    style_gtk,
-                                   text_height,
                                    flags,
                                    client_width, client_height,
                                    button_layout,
@@ -5093,7 +5082,6 @@ meta_theme_draw_frame_with_style (MetaTheme              *theme,
                                     &fgeom,
                                     client_width, client_height,
                                     title_layout,
-                                    text_height,
                                     button_states,
                                     mini_icon, icon);
 }
@@ -5107,7 +5095,6 @@ meta_theme_draw_frame (MetaTheme              *theme,
                        int                     client_width,
                        int                     client_height,
                        PangoLayout            *title_layout,
-                       int                     text_height,
                        const MetaButtonLayout *button_layout,
                        MetaButtonState         button_states[META_BUTTON_TYPE_LAST],
                        GdkPixbuf              *mini_icon,
@@ -5116,7 +5103,7 @@ meta_theme_draw_frame (MetaTheme              *theme,
   meta_theme_draw_frame_with_style (theme, gtk_widget_get_style_context (widget),
                                     cr, type,flags,
                                     client_width, client_height,
-                                    title_layout, text_height,
+                                    title_layout,
                                     button_layout, button_states,
                                     mini_icon, icon);
 }
@@ -5125,7 +5112,6 @@ void
 meta_theme_get_frame_borders (MetaTheme        *theme,
                               GtkStyleContext  *style_context,
                               MetaFrameType     type,
-                              int               text_height,
                               MetaFrameFlags    flags,
                               MetaFrameBorders *borders)
 {
@@ -5143,7 +5129,6 @@ meta_theme_get_frame_borders (MetaTheme        *theme,
 
   meta_frame_layout_get_borders (style->layout,
                                  style_context,
-                                 text_height,
                                  flags, type,
                                  borders);
 }
@@ -5152,7 +5137,6 @@ void
 meta_theme_calc_geometry (MetaTheme              *theme,
                           GtkStyleContext        *ctx,
                           MetaFrameType           type,
-                          int                     text_height,
                           MetaFrameFlags          flags,
                           int                     client_width,
                           int                     client_height,
@@ -5171,7 +5155,6 @@ meta_theme_calc_geometry (MetaTheme              *theme,
 
   meta_frame_layout_calc_geometry (style->layout,
                                    ctx,
-                                   text_height,
                                    flags,
                                    client_width, client_height,
                                    button_layout,
@@ -5468,34 +5451,6 @@ meta_gtk_widget_get_font_desc (GtkWidget *widget,
                                    MAX (pango_font_description_get_size (font_desc) * scale, 1));
 
   return font_desc;
-}
-
-/**
- * meta_pango_font_desc_get_text_height:
- * @font_desc: the font
- * @context: the context of the font
- *
- * Returns the height of the letters in a particular font.
- *
- * Returns: the height of the letters
- */
-int
-meta_pango_font_desc_get_text_height (const PangoFontDescription *font_desc,
-                                      PangoContext         *context)
-{
-  PangoFontMetrics *metrics;
-  PangoLanguage *lang;
-  int retval;
-
-  lang = pango_context_get_language (context);
-  metrics = pango_context_get_metrics (context, font_desc, lang);
-
-  retval = PANGO_PIXELS (pango_font_metrics_get_ascent (metrics) + 
-                         pango_font_metrics_get_descent (metrics));
-  
-  pango_font_metrics_unref (metrics);
-  
-  return retval;
 }
 
 MetaGtkColorComponent

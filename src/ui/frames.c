@@ -183,8 +183,6 @@ prefs_changed_callback (MetaPreference pref,
 static void
 meta_frames_init (MetaFrames *frames)
 {
-  frames->text_heights = g_hash_table_new (NULL, NULL);
-  
   frames->frames = g_hash_table_new (unsigned_long_hash, unsigned_long_equal);
 
   frames->expose_delay_count = 0;
@@ -237,8 +235,6 @@ meta_frames_finalize (GObject *object)
   frames = META_FRAMES (object);
 
   meta_prefs_remove_listener (prefs_changed_callback, frames);
-  
-  g_hash_table_destroy (frames->text_heights);
   
   g_assert (g_hash_table_size (frames->frames) == 0);
   g_hash_table_destroy (frames->frames);
@@ -344,7 +340,6 @@ meta_frames_calc_geometry (MetaFrames        *frames,
   meta_theme_calc_geometry (frame->tv->theme,
                             frame->tv->style_context,
                             type,
-                            frame->text_height,
                             flags,
                             width, height,
                             &button_layout,
@@ -404,7 +399,6 @@ meta_frames_manage_window (MetaFrames *frames,
   
   frame->xwindow = xwindow;
   frame->layout = NULL;
-  frame->text_height = -1;
   frame->title = NULL;
   frame->expose_delayed = FALSE;
   frame->shape_applied = FALSE;
@@ -514,7 +508,6 @@ meta_frames_get_borders (MetaFrames *frames,
   meta_theme_get_frame_borders (frame->tv->theme,
                                 frame->tv->style_context,
                                 type,
-                                frame->text_height,
                                 flags,
                                 borders);
 }
@@ -1456,7 +1449,7 @@ subtract_client_area (cairo_region_t *region,
                  META_CORE_GET_END);
   meta_theme_get_frame_borders (frame->tv->theme,
                                 frame->tv->style_context,
-                                type, frame->text_height, flags, 
+                                type, flags,
                                 &borders);
 
   area.x = borders.total.left;
@@ -1638,7 +1631,6 @@ meta_frames_paint (MetaFrames   *frames,
                                     flags,
                                     w, h,
                                     frame->layout,
-                                    frame->text_height,
                                     &button_layout,
                                     button_states,
                                     mini_icon, icon);
