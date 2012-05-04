@@ -1,4 +1,4 @@
-mutter (3.4.1-1) UNRELEASED; urgency=low
+mutter (3.4.1-1) experimental; urgency=low
 
   [ Michael Biebl ]
   * New upstream release.
@@ -22,7 +22,7 @@ mutter (3.4.1-1) UNRELEASED; urgency=low
     package this work is based on.
   * Refresh debian/patches/01_Wcast-align.patch.
 
- -- Michael Biebl <biebl@debian.org>  Fri, 04 May 2012 21:44:03 +0200
+ -- Michael Biebl <biebl@debian.org>  Fri, 04 May 2012 21:48:47 +0200
 
 mutter (3.2.2-3) unstable; urgency=low
 
