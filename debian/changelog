@@ -20,8 +20,9 @@ mutter (3.4.1-1) UNRELEASED; urgency=low
   * Update Vcs-* URLs.
   * Drop Suggests: gnome-themes. This is a remnant of the old metacity
     package this work is based on.
+  * Refresh debian/patches/01_Wcast-align.patch.
 
- -- Michael Biebl <biebl@debian.org>  Fri, 04 May 2012 21:38:06 +0200
+ -- Michael Biebl <biebl@debian.org>  Fri, 04 May 2012 21:44:03 +0200
 
 mutter (3.2.2-3) unstable; urgency=low
 
