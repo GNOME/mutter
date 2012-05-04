@@ -5009,38 +5009,6 @@ theme_get_style (MetaTheme     *theme,
   return style;
 }
 
-MetaFrameStyle*
-meta_theme_get_frame_style (MetaTheme     *theme,
-                            MetaFrameType  type,
-                            MetaFrameFlags flags)
-{
-  MetaFrameStyle *style;
-
-  g_return_val_if_fail (type < META_FRAME_TYPE_LAST, NULL);
-  
-  style = theme_get_style (theme, type, flags);
-
-  return style;
-}
-
-double
-meta_theme_get_title_scale (MetaTheme     *theme,
-                            MetaFrameType  type,
-                            MetaFrameFlags flags)
-{
-  MetaFrameStyle *style;
-
-  g_return_val_if_fail (type < META_FRAME_TYPE_LAST, 1.0);
-  
-  style = theme_get_style (theme, type, flags);
-  
-  /* Parser is not supposed to allow this currently */
-  if (style == NULL)
-    return 1.0;
-
-  return style->layout->title_scale;
-}
-
 void
 meta_theme_draw_frame_with_style (MetaTheme              *theme,
                                   GtkStyleContext        *style_gtk,

@@ -1001,14 +1001,6 @@ GdkPixbuf* meta_theme_load_image (MetaTheme  *theme,
                                   guint       size_of_theme_icons,
                                   GError    **error);
 
-MetaFrameStyle* meta_theme_get_frame_style (MetaTheme     *theme,
-                                            MetaFrameType  type,
-                                            MetaFrameFlags flags);
-
-double meta_theme_get_title_scale (MetaTheme     *theme,
-                                   MetaFrameType  type,
-                                   MetaFrameFlags flags);
-
 void meta_theme_render_background (GtkStyleContext *style,
                                    cairo_t         *cr,
                                    MetaFrameFlags   flags,
