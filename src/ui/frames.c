@@ -86,7 +86,6 @@ static void meta_frames_ensure_layout (MetaFrames      *frames,
 static MetaUIFrame* meta_frames_lookup_window (MetaFrames *frames,
                                                Window      xwindow);
 
-static void meta_frames_font_changed          (MetaFrames *frames);
 static void meta_frames_button_layout_changed (MetaFrames *frames);
 
 
@@ -173,9 +172,6 @@ prefs_changed_callback (MetaPreference pref,
 {
   switch (pref)
     {
-    case META_PREF_TITLEBAR_FONT:
-      meta_frames_font_changed (META_FRAMES (data));
-      break;
     case META_PREF_BUTTON_LAYOUT:
       meta_frames_button_layout_changed (META_FRAMES (data));
       break;
@@ -251,45 +247,6 @@ meta_frames_finalize (GObject *object)
 }
 
 static void
-queue_recalc_func (gpointer key, gpointer value, gpointer data)
-{
-  MetaUIFrame *frame;
-  MetaFrames *frames;
-
-  frames = META_FRAMES (data);
-  frame = value;
-  
-  invalidate_whole_window (frames, frame);
-  meta_core_queue_frame_resize (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
-                                frame->xwindow);
-  if (frame->layout)
-    {
-      /* save title to recreate layout */
-      g_free (frame->title);
-      
-      frame->title = g_strdup (pango_layout_get_text (frame->layout));
-
-      g_object_unref (G_OBJECT (frame->layout));
-      frame->layout = NULL;
-    }
-}
-
-static void
-meta_frames_font_changed (MetaFrames *frames)
-{
-  if (g_hash_table_size (frames->text_heights) > 0)
-    {
-      g_hash_table_destroy (frames->text_heights);
-      frames->text_heights = g_hash_table_new (NULL, NULL);
-    }
-  
-  /* Queue a draw/resize on all frames */
-  g_hash_table_foreach (frames->frames,
-                        queue_recalc_func, frames);
-
-}
-
-static void
 queue_draw_func (gpointer key, gpointer value, gpointer data)
 {
   MetaUIFrame *frame;
@@ -327,8 +284,6 @@ meta_frames_style_updated  (GtkWidget *widget)
 
   frames = META_FRAMES (widget);
 
-  meta_frames_font_changed (frames);
-
   g_hash_table_foreach (frames->frames,
                         reattach_style_func, frames);
 
@@ -354,46 +309,10 @@ meta_frames_ensure_layout (MetaFrames  *frames,
   
   if (frame->layout == NULL)
     {
-      gpointer key, value;
-      PangoFontDescription *font_desc;
-      double scale;
-      int size;
-      
-      scale = meta_theme_get_title_scale (frame->tv->theme,
-                                          type,
-                                          flags);
-
       frame->layout = gtk_widget_create_pango_layout (widget, frame->title);
 
       pango_layout_set_ellipsize (frame->layout, PANGO_ELLIPSIZE_END);
       pango_layout_set_auto_dir (frame->layout, FALSE);
-      
-      font_desc = meta_gtk_widget_get_font_desc (widget, scale,
-                                                 meta_prefs_get_titlebar_font ());
-
-      size = pango_font_description_get_size (font_desc);
-
-      if (g_hash_table_lookup_extended (frames->text_heights,
-                                        GINT_TO_POINTER (size),
-                                        &key, &value))
-        {
-          frame->text_height = GPOINTER_TO_INT (value);
-        }
-      else
-        {
-          frame->text_height =
-            meta_pango_font_desc_get_text_height (font_desc,
-                                                  gtk_widget_get_pango_context (widget));
-
-          g_hash_table_replace (frames->text_heights,
-                                GINT_TO_POINTER (size),
-                                GINT_TO_POINTER (frame->text_height));
-        }
-      
-      pango_layout_set_font_description (frame->layout, 
-                                         font_desc);
-      
-      pango_font_description_free (font_desc);
 
       /* Save some RAM */
       g_free (frame->title);
