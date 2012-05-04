@@ -1,3 +1,11 @@
+mutter (3.4.1-2) UNRELEASED; urgency=low
+
+  * Drop debian/mutter-common.catalog and debian/mutter-common.sgmlcatalogs.
+    This is another leftover from the metacity package, mutter doesn't ship
+    any DTD.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 04 May 2012 22:15:36 +0200
+
 mutter (3.4.1-1) experimental; urgency=low
 
   [ Michael Biebl ]
