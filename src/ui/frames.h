@@ -59,51 +59,45 @@ typedef enum
  * as subwindows.
  */
 
-#define META_TYPE_FRAMES            (meta_frames_get_type ())
-#define META_FRAMES(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_FRAMES, MetaFrames))
-#define META_FRAMES_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), META_TYPE_FRAMES, MetaFramesClass))
-#define META_IS_FRAMES(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_FRAMES))
-#define META_IS_FRAMES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), META_TYPE_FRAMES))
-#define META_FRAMES_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), META_TYPE_FRAMES, MetaFramesClass))
+#define META_TYPE_UIFRAME            (meta_uiframe_get_type ())
+#define META_UIFRAME(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_UIFRAME, MetaUIFrame))
+#define META_UIFRAME_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), META_TYPE_UIFRAME, MetaUIFrameClass))
+#define META_IS_UIFRAME(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_UIFRAME))
+#define META_IS_UIFRAME_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), META_TYPE_UIFRAME))
+#define META_UIFRAME_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), META_TYPE_UIFRAME, MetaUIFrameClass))
 
-typedef struct _MetaFrames        MetaFrames;
-typedef struct _MetaFramesClass   MetaFramesClass;
-
-typedef struct _MetaUIFrame         MetaUIFrame;
+typedef struct _MetaUIFrame        MetaUIFrame;
+typedef struct _MetaUIFrameClass   MetaUIFrameClass;
 
 struct _MetaUIFrame
 {
+  GtkWindow parent_instance;
+
   Window xwindow;
   GdkWindow *window;
   MetaThemeVariant *tv;
   PangoLayout *layout;
   char *title; /* NULL once we have a layout */
-  guint expose_delayed : 1;
   guint shape_applied : 1;
-
-  /* FIXME get rid of this, it can just be in the MetaFrames struct */
   MetaFrameControl prelit_control;
 };
 
-struct _MetaFrames
-{
-  GtkWindow parent_instance;
-
-  GHashTable *frames;
-  MetaUIFrame *last_motion_frame;
-
-  int expose_delay_count;
-};
-
-struct _MetaFramesClass
+struct _MetaUIFrameClass
 {
   GtkWindowClass parent_class;
-
 };
 
-GType        meta_frames_get_type               (void) G_GNUC_CONST;
+typedef struct _MetaFrames         MetaFrames;
 
-MetaFrames *meta_frames_new (int screen_number);
+struct _MetaFrames
+{
+  GHashTable *frames;
+};
+
+GType        meta_uiframe_get_type (void) G_GNUC_CONST;
+
+MetaFrames *meta_frames_new ();
+void        meta_frames_free (MetaFrames *frames);
 
 void meta_frames_manage_window (MetaFrames *frames,
                                 Window      xwindow,
@@ -140,8 +134,5 @@ void meta_frames_queue_draw (MetaFrames *frames,
 void meta_frames_notify_menu_hide (MetaFrames *frames);
 
 Window meta_frames_get_moving_frame (MetaFrames *frames);
-
-void meta_frames_push_delay_exposes (MetaFrames *frames);
-void meta_frames_pop_delay_exposes  (MetaFrames *frames);
 
 #endif

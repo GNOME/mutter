@@ -284,11 +284,7 @@ meta_ui_new (Display *xdisplay,
   gdisplay = gdk_x11_lookup_xdisplay (xdisplay);
   g_assert (gdisplay == gdk_display_get_default ());
 
-  ui->frames = meta_frames_new (XScreenNumberOfScreen (screen));
-  /* This does not actually show any widget. MetaFrames has been hacked so
-   * that showing it doesn't actually do anything. But we need the flags
-   * set for GTK to deliver events properly. */
-  gtk_widget_show (GTK_WIDGET (ui->frames));
+  ui->frames = meta_frames_new ();
 
   g_object_set_data (G_OBJECT (gdisplay), "meta-ui", ui);
 
@@ -300,7 +296,7 @@ meta_ui_free (MetaUI *ui)
 {
   GdkDisplay *gdisplay;
 
-  gtk_widget_destroy (GTK_WIDGET (ui->frames));
+  meta_frames_free (ui->frames);
 
   gdisplay = gdk_x11_lookup_xdisplay (ui->xdisplay);
   g_object_set_data (G_OBJECT (gdisplay), "meta-ui", NULL);
@@ -554,18 +550,6 @@ meta_gdk_pixbuf_get_from_pixmap (Pixmap       xpixmap,
   cairo_surface_destroy (surface);
 
   return retval;
-}
-
-void
-meta_ui_push_delay_exposes (MetaUI *ui)
-{
-  meta_frames_push_delay_exposes (ui->frames);
-}
-
-void
-meta_ui_pop_delay_exposes  (MetaUI *ui)
-{
-  meta_frames_pop_delay_exposes (ui->frames);
 }
 
 GdkPixbuf*
@@ -907,7 +891,7 @@ meta_ui_window_is_widget (MetaUI *ui,
     {
       void *user_data = NULL;
       gdk_window_get_user_data (window, &user_data);
-      return user_data != NULL && user_data != ui->frames;
+      return user_data != NULL && !META_IS_UIFRAME (user_data);
     }
   else
     return FALSE;
@@ -961,7 +945,7 @@ meta_ui_get_drag_threshold (MetaUI *ui)
   GtkSettings *settings;
   int threshold;
 
-  settings = gtk_widget_get_settings (GTK_WIDGET (ui->frames));
+  settings = gtk_settings_get_default ();
 
   threshold = 8;
   g_object_get (G_OBJECT (settings), "gtk-dnd-drag-threshold", &threshold, NULL);
