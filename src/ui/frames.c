@@ -616,7 +616,7 @@ meta_frames_render_background (MetaFrames *frames,
                  META_CORE_GET_END);
 
   meta_frames_calc_geometry (frames, frame, &fgeom);
-  meta_theme_render_background (frame->tv->style_context, cr, flags, &fgeom);
+  meta_theme_render_background (frame->tv->style_context, cr, flags, &fgeom, frame->layout);
 }
 
 /* The client rectangle surrounds client window; it subtracts both

@@ -4083,7 +4083,8 @@ void
 meta_theme_render_background (GtkStyleContext *style_gtk,
                               cairo_t         *cr,
                               MetaFrameFlags   flags,
-                              const MetaFrameGeometry *fgeom)
+                              const MetaFrameGeometry *fgeom,
+                              PangoLayout     *title_layout)
 {
   GdkRectangle visible_rect;
   const MetaFrameBorders *borders;
@@ -4111,6 +4112,19 @@ meta_theme_render_background (GtkStyleContext *style_gtk,
                     visible_rect.width,
                     visible_rect.height);
 
+  if (title_layout != NULL)
+    {
+      PangoRectangle title_rect;
+
+      pango_layout_get_pixel_extents (title_layout,
+                                      NULL, &title_rect);
+
+      gtk_render_layout (style_gtk, cr,
+                         borders->invisible.left + fgeom->width / 2.0 - title_rect.width / 2.0,
+                         borders->invisible.top + borders->visible.top / 2.0 - title_rect.height / 2.0,
+                         title_layout);
+    }
+
   gtk_style_context_restore (style_gtk);
 }
 
@@ -4128,7 +4142,7 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
                                   GdkPixbuf               *mini_icon,
                                   GdkPixbuf               *icon)
 {
-  meta_theme_render_background (style_gtk, cr, flags, fgeom);
+  meta_theme_render_background (style_gtk, cr, flags, fgeom, title_layout);
 
 #if 0
   int i, j;
@@ -4138,7 +4152,6 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
   GdkRectangle bottom_titlebar_edge;
   GdkRectangle top_titlebar_edge;
   GdkRectangle left_edge, right_edge, bottom_edge;
-  PangoRectangle logical_rect;
   MetaDrawInfo draw_info;
 
   titlebar_rect.x = visible_rect.x;
