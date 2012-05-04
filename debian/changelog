@@ -18,8 +18,10 @@ mutter (3.4.1-1) UNRELEASED; urgency=low
   [ Michael Biebl ]
   * Bump Standards-Version to 3.9.3.
   * Update Vcs-* URLs.
+  * Drop Suggests: gnome-themes. This is a remnant of the old metacity
+    package this work is based on.
 
- -- Michael Biebl <biebl@debian.org>  Fri, 04 May 2012 21:33:43 +0200
+ -- Michael Biebl <biebl@debian.org>  Fri, 04 May 2012 21:38:06 +0200
 
 mutter (3.2.2-1) unstable; urgency=low
 

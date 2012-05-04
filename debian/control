@@ -56,7 +56,6 @@ Recommends: gnome-session | x-session-manager
 Replaces: mutter-common (<< 2.91.91-1)
 Breaks: mutter-common (<< 2.91.91-1)
 Suggests: gnome-control-center (>= 1:2.5.4),
-          gnome-themes,
           xdg-user-dirs
 Description: lightweight GTK+ window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
