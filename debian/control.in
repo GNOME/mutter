@@ -34,9 +34,9 @@ Build-Depends: cdbs (>= 0.4.90),
                zenity,
                gnome-doc-utils (>= 0.8),
                gnome-pkg-tools (>= 0.10)
-Standards-Version: 3.9.2
-Vcs-Svn: svn://svn.debian.org/svn/pkg-gnome/desktop/unstable/mutter
-Vcs-Browser: http://svn.debian.org/viewsvn/pkg-gnome/desktop/unstable/mutter
+Standards-Version: 3.9.3
+Vcs-Svn: svn://anonscm.debian.org/svn/pkg-gnome/desktop/unstable/mutter
+Vcs-Browser: http://anonscm.debian.org/viewvc/pkg-gnome/desktop/unstable/mutter
 
 Package: mutter
 Architecture: any

@@ -15,7 +15,11 @@ mutter (3.4.1-1) UNRELEASED; urgency=low
   * debian/control.in:
     - Drop gconf dependency
 
- -- Michael Biebl <biebl@debian.org>  Mon, 05 Mar 2012 02:58:33 +0100
+  [ Michael Biebl ]
+  * Bump Standards-Version to 3.9.3.
+  * Update Vcs-* URLs.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 04 May 2012 21:33:43 +0200
 
 mutter (3.2.2-1) unstable; urgency=low
 
