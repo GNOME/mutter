@@ -128,38 +128,8 @@ ensure_info (MetaPreview *preview)
   widget = GTK_WIDGET (preview);
   
   if (preview->layout == NULL)
-    {
-      PangoFontDescription *font_desc;
-      double scale;
-      PangoAttrList *attrs;
-      PangoAttribute *attr;
-
-      if (preview->theme)        
-        scale = meta_theme_get_title_scale (preview->theme,
-                                            preview->type,
-                                            preview->flags);
-      else
-        scale = 1.0;
-      
-      preview->layout = gtk_widget_create_pango_layout (widget,
-                                                        preview->title);
-      
-      font_desc = meta_gtk_widget_get_font_desc (widget, scale, NULL);
-      
-      attrs = pango_attr_list_new ();
-      
-      attr = pango_attr_size_new (pango_font_description_get_size (font_desc));
-      attr->start_index = 0;
-      attr->end_index = G_MAXINT;
-      
-      pango_attr_list_insert (attrs, attr);
-      
-      pango_layout_set_attributes (preview->layout, attrs);
-      
-      pango_attr_list_unref (attrs);      
-  
-      pango_font_description_free (font_desc);
-    }
+    preview->layout = gtk_widget_create_pango_layout (widget,
+                                                      preview->title);
 
   if (!preview->borders_cached)
     {

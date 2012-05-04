@@ -1104,13 +1104,6 @@ gboolean     meta_theme_replace_constants     (MetaTheme    *theme,
                                                int           n_tokens,
                                                GError      **err);
 
-/* random stuff */
-
-PangoFontDescription* meta_gtk_widget_get_font_desc        (GtkWidget            *widget,
-                                                            double                scale,
-							    const PangoFontDescription *override);
-
-
 /* Enum converters */
 MetaGtkColorComponent meta_color_component_from_string (const char            *str);
 const char*           meta_color_component_to_string   (MetaGtkColorComponent  component);
