@@ -14,7 +14,6 @@ mutter (3.3.92-1) UNRELEASED; urgency=low
   [ Jeremy Bicha ]
   * debian/control.in:
     - Drop gconf dependency
-    - Break gnome-shell (<< 3.3.92~) since these need to be updated together
 
  -- Michael Biebl <biebl@debian.org>  Mon, 05 Mar 2012 02:58:33 +0100
 
