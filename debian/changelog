@@ -1,7 +1,7 @@
-mutter (3.3.92-1) UNRELEASED; urgency=low
+mutter (3.4.1-1) UNRELEASED; urgency=low
 
   [ Michael Biebl ]
-  * New upstream development release.
+  * New upstream release.
 
   [ Rico Tzschichholz ]
   * debian/control.in:
