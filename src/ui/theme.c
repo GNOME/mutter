@@ -36,6 +36,7 @@
  */
 
 #include <config.h>
+#include "uiframe.h"
 #include "theme-private.h"
 #include <meta/util.h>
 #include <meta/prefs.h>
@@ -4618,8 +4619,6 @@ meta_theme_variant_free (gpointer data)
   g_slice_free (MetaThemeVariant, tv);
 }
 
-extern GType meta_window_get_type (void);
-
 static GtkStyleContext *
 create_style_context (gchar *variant)
 {
@@ -4634,7 +4633,7 @@ create_style_context (gchar *variant)
                 NULL);
 
   path = gtk_widget_path_new ();
-  gtk_widget_path_append_type (path, meta_window_get_type ());
+  gtk_widget_path_append_type (path, META_TYPE_UIFRAME);
 
   style = gtk_style_context_new ();
   gtk_style_context_set_path (style, path);
