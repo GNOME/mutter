@@ -1007,19 +1007,6 @@ void meta_theme_render_background (GtkStyleContext *style,
                                    const MetaFrameGeometry *fgeom,
                                    PangoLayout     *title_layout);
 
-void meta_theme_draw_frame (MetaTheme              *theme,
-                            GtkWidget              *widget,
-                            cairo_t                *cr,
-                            MetaFrameType           type,
-                            MetaFrameFlags          flags,
-                            int                     client_width,
-                            int                     client_height,
-                            PangoLayout            *title_layout,
-                            const MetaButtonLayout *button_layout,
-                            MetaButtonState         button_states[META_BUTTON_TYPE_LAST],
-                            GdkPixbuf              *mini_icon,
-                            GdkPixbuf              *icon);
-
 void meta_theme_draw_frame_with_style (MetaTheme              *theme,
                                        GtkStyleContext        *style_gtk,
                                        cairo_t                *cr,

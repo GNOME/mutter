@@ -1006,17 +1006,17 @@ run_theme_benchmark (void)
 
       cr = cairo_create (pixmap);
 
-      meta_theme_draw_frame (global_theme,
-                             widget,
-                             cr,
-                             META_FRAME_TYPE_NORMAL,
-                             get_flags (widget),
-                             client_width, client_height,
-                             layout,
-                             &button_layout,
-                             button_states,
-                             meta_preview_get_mini_icon (),
-                             meta_preview_get_icon ());
+      meta_theme_draw_frame_with_style (global_theme,
+                                        gtk_widget_get_style_context (widget),
+                                        cr,
+                                        META_FRAME_TYPE_NORMAL,
+                                        get_flags (widget),
+                                        client_width, client_height,
+                                        layout,
+                                        &button_layout,
+                                        button_states,
+                                        meta_preview_get_mini_icon (),
+                                        meta_preview_get_icon ());
 
       cairo_destroy (cr);
       cairo_surface_destroy (pixmap);

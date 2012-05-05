@@ -177,17 +177,18 @@ meta_preview_draw (GtkWidget *widget,
       if (client_height < 0)
         client_height = 1;  
       
-      meta_theme_draw_frame (preview->theme,
-                             widget,
-                             cr,
-                             preview->type,
-                             preview->flags,
-                             client_width, client_height,
-                             preview->layout,
-                             &preview->button_layout,
-                             button_states,
-                             meta_preview_get_mini_icon (),
-                             meta_preview_get_icon ());
+      meta_theme_draw_frame_with_style (preview->theme,
+                                        gtk_widget_get_style_context (widget),
+                                        cr,
+                                        preview->type,
+                                        preview->flags,
+                                        client_width,
+                                        client_height,
+                                        preview->layout,
+                                        &preview->button_layout,
+                                        button_states,
+                                        meta_preview_get_mini_icon (),
+                                        meta_preview_get_icon ());
 
       cairo_restore (cr);
     }

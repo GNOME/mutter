@@ -5055,28 +5055,6 @@ meta_theme_draw_frame_with_style (MetaTheme              *theme,
 }
 
 void
-meta_theme_draw_frame (MetaTheme              *theme,
-                       GtkWidget              *widget,
-                       cairo_t                *cr,
-                       MetaFrameType           type,
-                       MetaFrameFlags          flags,
-                       int                     client_width,
-                       int                     client_height,
-                       PangoLayout            *title_layout,
-                       const MetaButtonLayout *button_layout,
-                       MetaButtonState         button_states[META_BUTTON_TYPE_LAST],
-                       GdkPixbuf              *mini_icon,
-                       GdkPixbuf              *icon)
-{
-  meta_theme_draw_frame_with_style (theme, gtk_widget_get_style_context (widget),
-                                    cr, type,flags,
-                                    client_width, client_height,
-                                    title_layout,
-                                    button_layout, button_states,
-                                    mini_icon, icon);
-}
-
-void
 meta_theme_get_frame_borders (MetaTheme        *theme,
                               GtkStyleContext  *style_context,
                               MetaFrameType     type,
