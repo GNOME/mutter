@@ -59,17 +59,20 @@ meta_uiframe_finalize (GObject *obj)
 
   if (frame->window)
     g_object_unref (frame->window);
-
-  if (frame->layout)
-    g_object_unref (G_OBJECT (frame->layout));
-
-  if (frame->title)
-    g_free (frame->title);
 }
 
 static void
 meta_uiframe_init (MetaUIFrame *frame)
 {
+  GtkWidget *container, *label;
+
+  frame->container = container = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+  frame->label = label = gtk_label_new ("");
+
+  gtk_container_add (GTK_CONTAINER (frame), container);
+  gtk_container_add (GTK_CONTAINER (container), frame->label);
+
+  gtk_widget_show_all (GTK_WIDGET (container));
 }
 
 /* In order to use a style with a window it has to be attached to that
@@ -93,30 +96,6 @@ meta_uiframe_attach_style (MetaUIFrame *frame)
 }
 
 void
-meta_uiframe_ensure_layout (MetaUIFrame *frame)
-{
-  MetaFrameFlags flags;
-  MetaFrameType type;
-
-  meta_core_get (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow,
-                 META_CORE_GET_FRAME_FLAGS, &flags,
-                 META_CORE_GET_FRAME_TYPE, &type,
-                 META_CORE_GET_END);
-  
-  if (frame->layout == NULL)
-    {
-      frame->layout = gtk_widget_create_pango_layout (GTK_WIDGET (frame), frame->title);
-
-      pango_layout_set_ellipsize (frame->layout, PANGO_ELLIPSIZE_END);
-      pango_layout_set_auto_dir (frame->layout, FALSE);
-
-      /* Save some RAM */
-      g_free (frame->title);
-      frame->title = NULL;
-    }
-}
-
-void
 meta_uiframe_calc_geometry (MetaUIFrame       *frame,
                             MetaFrameGeometry *fgeom)
 {
@@ -131,8 +110,6 @@ meta_uiframe_calc_geometry (MetaUIFrame       *frame,
                  META_CORE_GET_FRAME_FLAGS, &flags,
                  META_CORE_GET_FRAME_TYPE, &type,
                  META_CORE_GET_END);
-
-  meta_uiframe_ensure_layout (frame);
 
   meta_prefs_get_button_layout (&button_layout);
   
@@ -164,16 +141,7 @@ void
 meta_uiframe_set_title (MetaUIFrame *frame,
                         const char  *title)
 {
-  g_free (frame->title);
-  frame->title = g_strdup (title);
-  
-  if (frame->layout)
-    {
-      g_object_unref (frame->layout);
-      frame->layout = NULL;
-    }
-
-  gtk_widget_queue_draw (GTK_WIDGET (frame));
+  gtk_label_set_text (GTK_LABEL (frame->label), title);
 }
 
 static void
@@ -1052,8 +1020,6 @@ meta_uiframe_paint (MetaUIFrame  *frame,
                  META_CORE_GET_CLIENT_HEIGHT, &h,
                  META_CORE_GET_END);
 
-  meta_uiframe_ensure_layout (frame);
-
   meta_prefs_get_button_layout (&button_layout);
 
   meta_theme_draw_frame_with_style (frame->tv->theme,
@@ -1062,7 +1028,6 @@ meta_uiframe_paint (MetaUIFrame  *frame,
                                     type,
                                     flags,
                                     w, h,
-                                    frame->layout,
                                     &button_layout,
                                     button_states,
                                     mini_icon, icon);

@@ -924,16 +924,6 @@ get_flags (GtkWidget *widget)
     META_FRAME_ALLOWS_MOVE;
 }
 
-static PangoLayout*
-create_title_layout (GtkWidget *widget)
-{
-  PangoLayout *layout;
-
-  layout = gtk_widget_create_pango_layout (widget, _("Window Title Goes Here"));
-
-  return layout;
-}
-
 static void
 run_theme_benchmark (void)
 {
@@ -947,7 +937,6 @@ run_theme_benchmark (void)
     META_BUTTON_STATE_NORMAL,
     META_BUTTON_STATE_NORMAL
   };
-  PangoLayout *layout;
   clock_t start;
   clock_t end;
   GTimer *timer;
@@ -967,8 +956,6 @@ run_theme_benchmark (void)
                                 META_FRAME_TYPE_NORMAL,
                                 get_flags (widget),
                                 &borders);
-  
-  layout = create_title_layout (widget);
   
   i = 0;
   while (i < MAX_BUTTONS_PER_CORNER)
@@ -1012,7 +999,6 @@ run_theme_benchmark (void)
                                         META_FRAME_TYPE_NORMAL,
                                         get_flags (widget),
                                         client_width, client_height,
-                                        layout,
                                         &button_layout,
                                         button_states,
                                         meta_preview_get_mini_icon (),
@@ -1039,7 +1025,6 @@ run_theme_benchmark (void)
            milliseconds_to_draw_frame);
 
   g_timer_destroy (timer);
-  g_object_unref (G_OBJECT (layout));
   gtk_widget_destroy (widget);
 
 #undef ITERATIONS

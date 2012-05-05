@@ -382,8 +382,6 @@ meta_ui_get_frame_borders (MetaUI *ui,
                  META_CORE_GET_END);
 
   g_return_if_fail (type < META_FRAME_TYPE_LAST);
-
-  meta_uiframe_ensure_layout (frame);
   
   /* We can't get the full geometry, because that depends on
    * the client window size and probably we're being called
@@ -413,7 +411,7 @@ meta_ui_render_background (MetaUI  *ui,
                  META_CORE_GET_END);
 
   meta_uiframe_calc_geometry (frame, &fgeom);
-  meta_theme_render_background (frame->tv->style_context, cr, flags, &fgeom, frame->layout);
+  meta_theme_render_background (frame->tv->style_context, cr, flags, &fgeom);
 }
 
 Window
@@ -506,9 +504,6 @@ meta_ui_create_frame_window (MetaUI *ui,
   /* Don't set event mask here, it's in frame.c */
   frame->window = g_object_ref (window);
   frame->xwindow = GDK_WINDOW_XID (window);
-  frame->layout = NULL;
-  frame->title = NULL;
-  frame->shape_applied = FALSE;
   frame->prelit_control = META_FRAME_CONTROL_NONE;
 
   /* Don't set the window background yet; we need frame->xwindow to be

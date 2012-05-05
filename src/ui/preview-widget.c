@@ -126,10 +126,6 @@ ensure_info (MetaPreview *preview)
   GtkWidget *widget;
 
   widget = GTK_WIDGET (preview);
-  
-  if (preview->layout == NULL)
-    preview->layout = gtk_widget_create_pango_layout (widget,
-                                                      preview->title);
 
   if (!preview->borders_cached)
     {
@@ -184,7 +180,6 @@ meta_preview_draw (GtkWidget *widget,
                                         preview->flags,
                                         client_width,
                                         client_height,
-                                        preview->layout,
                                         &preview->button_layout,
                                         button_states,
                                         meta_preview_get_mini_icon (),
@@ -293,12 +288,6 @@ meta_preview_size_allocate (GtkWidget         *widget,
 static void
 clear_cache (MetaPreview *preview)
 {
-  if (preview->layout)
-    {
-      g_object_unref (G_OBJECT (preview->layout));
-      preview->layout = NULL;
-    }
-
   preview->borders_cached = FALSE;
 }
 

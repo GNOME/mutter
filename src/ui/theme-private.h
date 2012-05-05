@@ -1004,8 +1004,7 @@ GdkPixbuf* meta_theme_load_image (MetaTheme  *theme,
 void meta_theme_render_background (GtkStyleContext *style,
                                    cairo_t         *cr,
                                    MetaFrameFlags   flags,
-                                   const MetaFrameGeometry *fgeom,
-                                   PangoLayout     *title_layout);
+                                   const MetaFrameGeometry *fgeom);
 
 void meta_theme_draw_frame_with_style (MetaTheme              *theme,
                                        GtkStyleContext        *style_gtk,
@@ -1014,7 +1013,6 @@ void meta_theme_draw_frame_with_style (MetaTheme              *theme,
                                        MetaFrameFlags          flags,
                                        int                     client_width,
                                        int                     client_height,
-                                       PangoLayout            *title_layout,
                                        const MetaButtonLayout *button_layout,
                                        MetaButtonState         button_states[META_BUTTON_TYPE_LAST],
                                        GdkPixbuf              *mini_icon,

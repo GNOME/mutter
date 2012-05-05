@@ -76,10 +76,10 @@ struct _MetaUIFrame
   Window xwindow;
   GdkWindow *window;
   MetaThemeVariant *tv;
-  PangoLayout *layout;
-  char *title; /* NULL once we have a layout */
-  guint shape_applied : 1;
   MetaFrameControl prelit_control;
+
+  GtkWidget *label;
+  GtkWidget *container;
 };
 
 struct _MetaUIFrameClass
@@ -93,8 +93,6 @@ void meta_uiframe_set_title (MetaUIFrame *frame,
                              const char  *title);
 
 void meta_uiframe_attach_style (MetaUIFrame *frame);
-
-void meta_uiframe_ensure_layout (MetaUIFrame *frame);
 
 void meta_uiframe_calc_geometry (MetaUIFrame       *frame,
                                  MetaFrameGeometry *fgeom);

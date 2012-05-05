@@ -4077,8 +4077,7 @@ void
 meta_theme_render_background (GtkStyleContext *style_gtk,
                               cairo_t         *cr,
                               MetaFrameFlags   flags,
-                              const MetaFrameGeometry *fgeom,
-                              PangoLayout     *title_layout)
+                              const MetaFrameGeometry *fgeom)
 {
   GdkRectangle visible_rect;
   const MetaFrameBorders *borders;
@@ -4106,19 +4105,6 @@ meta_theme_render_background (GtkStyleContext *style_gtk,
                     visible_rect.width,
                     visible_rect.height);
 
-  if (title_layout != NULL)
-    {
-      PangoRectangle title_rect;
-
-      pango_layout_get_pixel_extents (title_layout,
-                                      NULL, &title_rect);
-
-      gtk_render_layout (style_gtk, cr,
-                         borders->invisible.left + fgeom->width / 2.0 - title_rect.width / 2.0,
-                         borders->invisible.top + borders->visible.top / 2.0 - title_rect.height / 2.0,
-                         title_layout);
-    }
-
   gtk_style_context_restore (style_gtk);
 }
 
@@ -4130,12 +4116,11 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
                                   const MetaFrameGeometry *fgeom,
                                   int                      client_width,
                                   int                      client_height,
-                                  PangoLayout             *title_layout,
                                   MetaButtonState          button_states[META_BUTTON_TYPE_LAST],
                                   GdkPixbuf               *mini_icon,
                                   GdkPixbuf               *icon)
 {
-  meta_theme_render_background (style_gtk, cr, flags, fgeom, title_layout);
+  meta_theme_render_background (style_gtk, cr, flags, fgeom);
 
 #if 0
   int i, j;
@@ -4186,10 +4171,6 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
   bottom_edge.y = visible_rect.y + visible_rect.height - borders->visible.bottom;
   bottom_edge.width = visible_rect.width;
   bottom_edge.height = borders->visible.bottom;
-
-  if (title_layout)
-    pango_layout_get_pixel_extents (title_layout,
-                                    NULL, &logical_rect);
 
   draw_info.mini_icon = mini_icon;
   draw_info.icon = icon;
@@ -5017,7 +4998,6 @@ meta_theme_draw_frame_with_style (MetaTheme              *theme,
                                   MetaFrameFlags          flags,
                                   int                     client_width,
                                   int                     client_height,
-                                  PangoLayout            *title_layout,
                                   const MetaButtonLayout *button_layout,
                                   MetaButtonState         button_states[META_BUTTON_TYPE_LAST],
                                   GdkPixbuf              *mini_icon,
@@ -5049,7 +5029,6 @@ meta_theme_draw_frame_with_style (MetaTheme              *theme,
                                     cr,
                                     &fgeom,
                                     client_width, client_height,
-                                    title_layout,
                                     button_states,
                                     mini_icon, icon);
 }

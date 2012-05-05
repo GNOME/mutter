@@ -49,8 +49,6 @@ struct _MetaPreview
   MetaFrameType type;
   MetaFrameFlags flags;  
 
-  PangoLayout *layout;
-
   MetaFrameBorders borders;
   guint            borders_cached : 1;
 
