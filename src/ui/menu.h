@@ -25,7 +25,7 @@
 #define META_MENU_H
 
 #include <gtk/gtk.h>
-#include "frames.h"
+#include "ui.h"
 
 /* Stock icons */
 #define METACITY_STOCK_DELETE   "metacity-delete"
@@ -34,7 +34,7 @@
 
 struct _MetaWindowMenu
 {
-  MetaFrames *frames;
+  MetaUI *ui;
   Window client_xwindow;
   GtkWidget *menu;
   MetaWindowMenuFunc func;
@@ -43,7 +43,9 @@ struct _MetaWindowMenu
   MetaMenuOp insensitive;
 };
 
-MetaWindowMenu* meta_window_menu_new      (MetaFrames         *frames,
+MetaWindowMenu* meta_window_menu_new      (MetaUI             *ui,
+                                           Display            *display,
+                                           gint                screen_no,
                                            MetaMenuOp          ops,
                                            MetaMenuOp          insensitive,
                                            Window              client_xwindow,

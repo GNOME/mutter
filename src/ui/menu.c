@@ -137,7 +137,7 @@ menu_closed (GtkMenu *widget,
   
   menu = data;
 
-  meta_frames_notify_menu_hide (menu->frames);
+  meta_ui_notify_menu_hide (menu->ui);
   (* menu->func) (menu,
                   GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                   menu->client_xwindow,
@@ -157,7 +157,7 @@ activate_cb (GtkWidget *menuitem, gpointer data)
   
   md = data;
 
-  meta_frames_notify_menu_hide (md->menu->frames);
+  meta_ui_notify_menu_hide (md->menu->ui);
   (* md->menu->func) (md->menu,
                       GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                       md->menu->client_xwindow,
@@ -321,7 +321,9 @@ menu_item_new (MenuItem *menuitem, int workspace_id)
 }
 
 MetaWindowMenu*
-meta_window_menu_new   (MetaFrames         *frames,
+meta_window_menu_new   (MetaUI             *ui,
+                        Display            *display,
+                        gint                screen_no,
                         MetaMenuOp          ops,
                         MetaMenuOp          insensitive,
                         Window              client_xwindow,
@@ -332,6 +334,8 @@ meta_window_menu_new   (MetaFrames         *frames,
 {
   int i;
   MetaWindowMenu *menu;
+  GdkDisplay *gdkdisplay = gdk_x11_lookup_xdisplay (display);
+  GdkScreen *screen = gdk_display_get_screen (gdkdisplay, screen_no);
 
   /* FIXME: Modifications to 'ops' should happen in meta_window_show_menu */
   if (n_workspaces < 2)
@@ -341,7 +345,7 @@ meta_window_menu_new   (MetaFrames         *frames,
     ops &= ~(META_MENU_OP_WORKSPACES);
   
   menu = g_new (MetaWindowMenu, 1);
-  menu->frames = frames;
+  menu->ui = ui;
   menu->client_xwindow = client_xwindow;
   menu->func = func;
   menu->data = data;
@@ -350,8 +354,7 @@ meta_window_menu_new   (MetaFrames         *frames,
   
   menu->menu = gtk_menu_new ();
 
-  gtk_menu_set_screen (GTK_MENU (menu->menu),
-                       gtk_widget_get_screen (GTK_WIDGET (frames)));
+  gtk_menu_set_screen (GTK_MENU (menu->menu), screen);
 
   for (i = 0; i < (int) G_N_ELEMENTS (menuitems); i++)
     {
@@ -384,10 +387,7 @@ meta_window_menu_new   (MetaFrames         *frames,
             {
               if (ops & META_MENU_OP_WORKSPACES)
                 {
-                  Display *display;
                   Window xroot;
-                  GdkScreen *screen;
-                  GdkWindow *window;
                   GtkWidget *submenu;
                   int j;
 
@@ -400,10 +400,6 @@ meta_window_menu_new   (MetaFrames         *frames,
                   meta_verbose ("Creating %d-workspace menu current space %lu\n",
                       n_workspaces, active_workspace);
 
-                  window = gtk_widget_get_window (GTK_WIDGET (frames));
-                  display = GDK_WINDOW_XDISPLAY (window);
-
-                  screen = gdk_window_get_screen (window);
                   xroot = GDK_WINDOW_XID (gdk_screen_get_root_window (screen));
 
                   submenu = gtk_menu_new ();

@@ -102,6 +102,8 @@ void meta_ui_repaint_frame (MetaUI *ui,
                             Window xwindow);
 
 MetaWindowMenu* meta_ui_window_menu_new   (MetaUI             *ui,
+                                           Display            *display,
+                                           gint                screen_no,
                                            Window              client_xwindow,
                                            MetaMenuOp          ops,
                                            MetaMenuOp          insensitive,
@@ -159,6 +161,8 @@ gboolean meta_ui_window_is_widget (MetaUI *ui,
 int      meta_ui_get_drag_threshold       (MetaUI *ui);
 
 MetaUIDirection meta_ui_get_direction (void);
+
+void meta_ui_notify_menu_hide (MetaUI *ui);
 
 #include "tabpopup.h"
 #include "tile-preview.h"

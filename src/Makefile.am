@@ -128,8 +128,8 @@ libmutter_la_SOURCES =				\
 	core/core.h				\
 	ui/ui.h					\
 	inlinepixbufs.h				\
-	ui/frames.c				\
-	ui/frames.h				\
+	ui/uiframe.c				\
+	ui/uiframe.h				\
 	ui/menu.c				\
 	ui/menu.h				\
 	ui/metaaccellabel.c			\

@@ -25,7 +25,7 @@
 #include <config.h>
 #include <meta/prefs.h>
 #include "ui.h"
-#include "frames.h"
+#include "uiframe.h"
 #include <meta/util.h>
 #include "menu.h"
 #include "core.h"
@@ -47,7 +47,7 @@ struct _MetaUI
 {
   Display *xdisplay;
   Screen *xscreen;
-  MetaFrames *frames;
+  GHashTable *frames;
 
   /* For double-click tracking */
   guint button_click_number;
@@ -82,7 +82,7 @@ meta_ui_get_display (void)
   return GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
 }
 
-/* We do some of our event handling in frames.c, which expects
+/* We do some of our event handling in uiframe.c, which expects
  * GDK events delivered by GTK+.  However, since the transition to
  * client side windows, we can't let GDK see button events, since the
  * client-side tracking of implicit and explicit grabs it does will
@@ -93,7 +93,7 @@ meta_ui_get_display (void)
  * through the normal GDK event handling.
  *
  * To reduce the amount of code, the only events fields filled out
- * below are the ones that frames.c uses. If frames.c is modified to
+ * below are the ones that uiframe.c uses. If uiframe.c is modified to
  * use more fields, more fields need to be filled out below.
  */
 
@@ -270,6 +270,60 @@ meta_ui_remove_event_func (Display       *xdisplay,
   ef = NULL;
 }
 
+
+static void
+queue_draw_func (gpointer key, gpointer value, gpointer data)
+{
+  gtk_widget_queue_draw (GTK_WIDGET (value));
+}
+
+static void
+button_layout_changed (MetaUI *ui)
+{
+  g_hash_table_foreach (ui->frames, queue_draw_func, NULL);
+}
+
+static void
+prefs_changed_callback (MetaPreference pref,
+                        void          *data)
+{
+  switch (pref)
+    {
+    case META_PREF_BUTTON_LAYOUT:
+      button_layout_changed ((MetaUI *) data);
+      break;
+    default:
+      break;
+    }
+}
+
+static gint
+unsigned_long_equal (gconstpointer v1,
+                     gconstpointer v2)
+{
+  return *((const gulong*) v1) == *((const gulong*) v2);
+}
+
+static guint
+unsigned_long_hash (gconstpointer v)
+{
+  gulong val = * (const gulong *) v;
+
+  /* I'm not sure this works so well. */
+#if GLIB_SIZEOF_LONG > 4
+  return (guint) (val ^ (val >> 32));
+#else
+  return val;
+#endif
+}
+
+static MetaUIFrame*
+meta_ui_lookup_window (MetaUI *ui,
+                       Window  xwindow)
+{
+  return g_hash_table_lookup (ui->frames, &xwindow);
+}
+
 MetaUI*
 meta_ui_new (Display *xdisplay,
              Screen  *screen)
@@ -284,7 +338,9 @@ meta_ui_new (Display *xdisplay,
   gdisplay = gdk_x11_lookup_xdisplay (xdisplay);
   g_assert (gdisplay == gdk_display_get_default ());
 
-  ui->frames = meta_frames_new ();
+  ui->frames = g_hash_table_new_full (unsigned_long_hash, unsigned_long_equal,
+                                      NULL, (GDestroyNotify) gtk_widget_destroy);
+  meta_prefs_add_listener (prefs_changed_callback, ui);
 
   g_object_set_data (G_OBJECT (gdisplay), "meta-ui", ui);
 
@@ -296,7 +352,9 @@ meta_ui_free (MetaUI *ui)
 {
   GdkDisplay *gdisplay;
 
-  meta_frames_free (ui->frames);
+  g_assert (g_hash_table_size (ui->frames) == 0);
+  meta_prefs_remove_listener (prefs_changed_callback, ui);
+  g_hash_table_unref (ui->frames);
 
   gdisplay = gdk_x11_lookup_xdisplay (ui->xdisplay);
   g_object_set_data (G_OBJECT (gdisplay), "meta-ui", NULL);
@@ -306,11 +364,37 @@ meta_ui_free (MetaUI *ui)
 
 void
 meta_ui_get_frame_borders (MetaUI *ui,
-                           Window frame_xwindow,
+                           Window xwindow,
                            MetaFrameBorders *borders)
 {
-  meta_frames_get_borders (ui->frames, frame_xwindow,
-                           borders);
+  MetaFrameFlags flags;
+  MetaUIFrame *frame;
+  MetaFrameType type;
+  
+  frame = meta_ui_lookup_window (ui, xwindow);
+
+  if (frame == NULL)
+    meta_bug ("No such frame 0x%lx\n", xwindow);
+  
+  meta_core_get (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow,
+                 META_CORE_GET_FRAME_FLAGS, &flags,
+                 META_CORE_GET_FRAME_TYPE, &type,
+                 META_CORE_GET_END);
+
+  g_return_if_fail (type < META_FRAME_TYPE_LAST);
+
+  meta_uiframe_ensure_layout (frame);
+  
+  /* We can't get the full geometry, because that depends on
+   * the client window size and probably we're being called
+   * by the core move/resize code to decide on the client
+   * window size
+   */
+  meta_theme_get_frame_borders (frame->tv->theme,
+                                frame->tv->style_context,
+                                type,
+                                flags,
+                                borders);
 }
 
 void
@@ -318,7 +402,18 @@ meta_ui_render_background (MetaUI  *ui,
                            Window   xwindow,
                            cairo_t *cr)
 {
-  meta_frames_render_background (ui->frames, xwindow, cr);
+  MetaUIFrame *frame;
+  MetaFrameGeometry fgeom;
+  MetaFrameFlags flags;
+
+  frame = meta_ui_lookup_window (ui, xwindow);
+
+  meta_core_get (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow,
+                 META_CORE_GET_FRAME_FLAGS, &flags,
+                 META_CORE_GET_END);
+
+  meta_uiframe_calc_geometry (frame, &fgeom);
+  meta_theme_render_background (frame->tv->style_context, cr, flags, &fgeom, frame->layout);
 }
 
 Window
@@ -338,6 +433,7 @@ meta_ui_create_frame_window (MetaUI *ui,
   gint attributes_mask;
   GdkWindow *window;
   GdkVisual *visual;
+  MetaUIFrame *frame;
   
   /* Default depth/visual handles clients with weird visuals; they can
    * always be children of the root depth/visual obviously, but
@@ -387,28 +483,80 @@ meta_ui_create_frame_window (MetaUI *ui,
 		    &attrs, attributes_mask);
 
   gdk_window_resize (window, width, height);
-  
-  meta_frames_manage_window (ui->frames, GDK_WINDOW_XID (window), window);
 
-  return GDK_WINDOW_XID (window);
+  frame = g_object_new (META_TYPE_UIFRAME,
+                        "type", GTK_WINDOW_POPUP,
+                        "app-paintable", TRUE,
+                        NULL);
+
+  /* This fakes out the widget so it won't actually
+   * get realized as a server-side window. */
+
+  /* XXX: the gtk_widget_set_parent_window call unsets is_toplevel,
+   * leading to the widget not being realized, which triggers all sorts
+   * of assertions. Company suggested the below hack until we have
+   * something better. */
+
+  /* gtk_widget_set_parent_window (GTK_WIDGET (frame), window); */
+  g_object_set_data (G_OBJECT (frame), "gtk-parent-window", g_object_ref (window));
+
+  gdk_window_set_user_data (window, frame);
+  gtk_widget_show (GTK_WIDGET (frame));
+
+  /* Don't set event mask here, it's in frame.c */
+  frame->window = g_object_ref (window);
+  frame->xwindow = GDK_WINDOW_XID (window);
+  frame->layout = NULL;
+  frame->title = NULL;
+  frame->shape_applied = FALSE;
+  frame->prelit_control = META_FRAME_CONTROL_NONE;
+
+  /* Don't set the window background yet; we need frame->xwindow to be
+   * registered with its MetaWindow, which happens after this function
+   * and meta_ui_create_frame_window() return to meta_window_ensure_frame().
+   */
+  meta_core_grab_buttons (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow);
+
+  g_hash_table_replace (ui->frames, &frame->xwindow, frame);
+
+  return frame->xwindow;
 }
 
 void
 meta_ui_destroy_frame_window (MetaUI *ui,
 			      Window  xwindow)
 {
-  meta_frames_unmanage_window (ui->frames, xwindow);
+  MetaUIFrame *frame;
+
+  frame = g_hash_table_lookup (ui->frames, &xwindow);
+
+  if (frame)
+    {
+      /* restore the cursor */
+      meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
+                                   frame->xwindow,
+                                   META_CURSOR_DEFAULT);
+
+      gdk_window_set_user_data (frame->window, NULL);
+
+      g_hash_table_remove (ui->frames, &frame->xwindow);
+    }
+  else
+    meta_warning ("Frame 0x%lx not managed, can't unmanage\n", xwindow);
 }
 
 void
 meta_ui_move_resize_frame (MetaUI *ui,
-			   Window frame,
+			   Window xwindow,
 			   int x,
 			   int y,
 			   int width,
 			   int height)
 {
-  meta_frames_move_resize_frame (ui->frames, frame, x, y, width, height);
+  MetaUIFrame *frame = meta_ui_lookup_window (ui, xwindow);
+
+  gdk_window_move_resize (frame->window, x, y, width, height);
+  gtk_widget_set_size_request (GTK_WIDGET (frame), width, height);
 }
 
 void
@@ -443,21 +591,17 @@ void
 meta_ui_update_frame_style (MetaUI  *ui,
                             Window   xwindow)
 {
-  meta_frames_update_frame_style (ui->frames, xwindow);
-}
-
-void
-meta_ui_repaint_frame (MetaUI *ui,
-                       Window xwindow)
-{
-  meta_frames_repaint_frame (ui->frames, xwindow);
+  MetaUIFrame *frame = meta_ui_lookup_window (ui, xwindow);
+  meta_uiframe_attach_style (frame);
+  gtk_widget_queue_draw (GTK_WIDGET (frame));
 }
 
 void
 meta_ui_queue_frame_draw (MetaUI *ui,
                           Window xwindow)
 {
-  meta_frames_queue_draw (ui->frames, xwindow);
+  MetaUIFrame *frame = meta_ui_lookup_window (ui, xwindow);
+  gtk_widget_queue_draw (GTK_WIDGET (frame));
 }
 
 void
@@ -465,11 +609,14 @@ meta_ui_set_frame_title (MetaUI     *ui,
                          Window      xwindow,
                          const char *title)
 {
-  meta_frames_set_title (ui->frames, xwindow, title);
+  MetaUIFrame *frame = meta_ui_lookup_window (ui, xwindow);
+  meta_uiframe_set_title (frame, title);
 }
 
 MetaWindowMenu*
 meta_ui_window_menu_new  (MetaUI             *ui,
+                          Display            *display,
+                          gint                screen_no,
                           Window              client_xwindow,
                           MetaMenuOp          ops,
                           MetaMenuOp          insensitive,
@@ -478,7 +625,7 @@ meta_ui_window_menu_new  (MetaUI             *ui,
                           MetaWindowMenuFunc  func,
                           gpointer            data)
 {
-  return meta_window_menu_new (ui->frames,
+  return meta_window_menu_new (ui, display, screen_no,
                                ops, insensitive,
                                client_xwindow,
                                active_workspace,
@@ -962,3 +1109,29 @@ meta_ui_get_direction (void)
   return META_UI_DIRECTION_LTR;
 }
 
+void
+meta_ui_notify_menu_hide (MetaUI *ui)
+{
+  Display *display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
+  if (meta_core_get_grab_op (display) ==
+      META_GRAB_OP_CLICKING_MENU)
+    {
+      Window grab_frame;
+
+      grab_frame = meta_core_get_grab_frame (display);
+
+      if (grab_frame != None)
+        {
+          MetaUIFrame *frame;
+          frame = meta_ui_lookup_window (ui, grab_frame);
+
+          if (frame)
+            {
+              /* XXX: will redo redraw_control with GTK+ widgets
+               * soon enough */
+              /* redraw_control (frame, META_FRAME_CONTROL_MENU); */
+              meta_core_end_grab_op (display, CurrentTime);
+            }
+        }
+    }
+}

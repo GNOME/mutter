@@ -27,7 +27,7 @@
 #include <math.h>
 #include <string.h>
 #include <meta/boxes.h>
-#include "frames.h"
+#include "uiframe.h"
 #include <meta/util.h>
 #include "core.h"
 #include "menu.h"
@@ -43,19 +43,6 @@
 
 static void meta_uiframe_update_prelit_control (MetaUIFrame     *frame,
                                                 MetaFrameControl control);
-
-static void meta_uiframe_attach_style (MetaUIFrame *frame);
-
-static void meta_uiframe_calc_geometry (MetaUIFrame         *frame,
-                                        MetaFrameGeometry *fgeom);
-
-static void meta_uiframe_ensure_layout (MetaUIFrame     *frame);
-
-static MetaUIFrame* meta_frames_lookup_window (MetaFrames *frames,
-                                               Window      xwindow);
-
-static void meta_frames_button_layout_changed (MetaFrames *frames);
-
 
 static GdkRectangle*    control_rect (MetaFrameControl   control,
                                       MetaFrameGeometry *fgeom);
@@ -80,74 +67,9 @@ meta_uiframe_finalize (GObject *obj)
     g_free (frame->title);
 }
 
-static gint
-unsigned_long_equal (gconstpointer v1,
-                     gconstpointer v2)
-{
-  return *((const gulong*) v1) == *((const gulong*) v2);
-}
-
-static guint
-unsigned_long_hash (gconstpointer v)
-{
-  gulong val = * (const gulong *) v;
-
-  /* I'm not sure this works so well. */
-#if GLIB_SIZEOF_LONG > 4
-  return (guint) (val ^ (val >> 32));
-#else
-  return val;
-#endif
-}
-
-static void
-prefs_changed_callback (MetaPreference pref,
-                        void          *data)
-{
-  switch (pref)
-    {
-    case META_PREF_BUTTON_LAYOUT:
-      meta_frames_button_layout_changed ((MetaFrames *) data);
-      break;
-    default:
-      break;
-    }
-}
-
-MetaFrames*
-meta_frames_new ()
-{
-  MetaFrames *frames = g_slice_new (MetaFrames);
-  frames->frames = g_hash_table_new_full (unsigned_long_hash, unsigned_long_equal,
-                                          NULL, (GDestroyNotify) gtk_widget_destroy);
-  meta_prefs_add_listener (prefs_changed_callback, frames);
-  return frames;
-}
-
-void
-meta_frames_free (MetaFrames *frames)
-{
-  g_assert (g_hash_table_size (frames->frames) == 0);
-  meta_prefs_remove_listener (prefs_changed_callback, frames);
-  g_hash_table_unref (frames->frames);
-  g_slice_free (MetaFrames, frames);
-}
-
 static void
 meta_uiframe_init (MetaUIFrame *frame)
 {
-}
-
-static void
-queue_draw_func (gpointer key, gpointer value, gpointer data)
-{
-  gtk_widget_queue_draw (GTK_WIDGET (value));
-}
-
-static void
-meta_frames_button_layout_changed (MetaFrames *frames)
-{
-  g_hash_table_foreach (frames->frames, queue_draw_func, NULL);
 }
 
 /* In order to use a style with a window it has to be attached to that
@@ -156,7 +78,7 @@ meta_frames_button_layout_changed (MetaFrames *frames)
  * to multiple windows with the same colormap, we can just go ahead
  * and attach separately for each window.
  */
-static void
+void
 meta_uiframe_attach_style (MetaUIFrame *frame)
 {
   char *variant = NULL;
@@ -170,7 +92,7 @@ meta_uiframe_attach_style (MetaUIFrame *frame)
                                       variant);
 }
 
-static void
+void
 meta_uiframe_ensure_layout (MetaUIFrame *frame)
 {
   MetaFrameFlags flags;
@@ -194,7 +116,7 @@ meta_uiframe_ensure_layout (MetaUIFrame *frame)
     }
 }
 
-static void
+void
 meta_uiframe_calc_geometry (MetaUIFrame       *frame,
                             MetaFrameGeometry *fgeom)
 {
@@ -223,141 +145,6 @@ meta_uiframe_calc_geometry (MetaUIFrame       *frame,
                             fgeom);
 }
 
-void
-meta_frames_manage_window (MetaFrames *frames,
-                           Window      xwindow,
-                           GdkWindow  *window)
-{
-  MetaUIFrame *frame;
-
-  g_assert (window);
-
-  frame = g_object_new (META_TYPE_UIFRAME,
-                        "type", GTK_WINDOW_POPUP,
-                        "app-paintable", TRUE,
-                        NULL);
-
-  /* This fakes out the widget so it won't actually
-   * get realized as a server-side window. */
-
-  /* XXX: the gtk_widget_set_parent_window call unsets is_toplevel,
-   * leading to the widget not being realized, which triggers all sorts
-   * of assertions. Company suggested the below hack until we have
-   * something better. */
-
-  /* gtk_widget_set_parent_window (GTK_WIDGET (frame), window); */
-  g_object_set_data (G_OBJECT (frame), "gtk-parent-window", g_object_ref (window));
-
-
-  gdk_window_set_user_data (window, frame);
-  gtk_widget_show (GTK_WIDGET (frame));
-
-  /* Don't set event mask here, it's in frame.c */
-  frame->window = g_object_ref (window);
-  frame->xwindow = xwindow;
-  frame->layout = NULL;
-  frame->title = NULL;
-  frame->shape_applied = FALSE;
-  frame->prelit_control = META_FRAME_CONTROL_NONE;
-
-  /* Don't set the window background yet; we need frame->xwindow to be
-   * registered with its MetaWindow, which happens after this function
-   * and meta_ui_create_frame_window() return to meta_window_ensure_frame().
-   */
-  
-  meta_core_grab_buttons (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow);
-
-  g_hash_table_replace (frames->frames, &frame->xwindow, frame);
-}
-
-void
-meta_frames_unmanage_window (MetaFrames *frames,
-                             Window      xwindow)
-{
-  MetaUIFrame *frame;
-
-  frame = g_hash_table_lookup (frames->frames, &xwindow);
-
-  if (frame)
-    {
-      /* restore the cursor */
-      meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
-                                   frame->xwindow,
-                                   META_CURSOR_DEFAULT);
-
-      gdk_window_set_user_data (frame->window, NULL);
-
-      g_hash_table_remove (frames->frames, &frame->xwindow);
-    }
-  else
-    meta_warning ("Frame 0x%lx not managed, can't unmanage\n", xwindow);
-}
-
-static MetaUIFrame*
-meta_frames_lookup_window (MetaFrames *frames,
-                           Window      xwindow)
-{
-  MetaUIFrame *frame;
-
-  frame = g_hash_table_lookup (frames->frames, &xwindow);
-
-  return frame;
-}
-
-void
-meta_frames_get_borders (MetaFrames *frames,
-                         Window xwindow,
-                         MetaFrameBorders *borders)
-{
-  MetaFrameFlags flags;
-  MetaUIFrame *frame;
-  MetaFrameType type;
-  
-  frame = meta_frames_lookup_window (frames, xwindow);
-
-  if (frame == NULL)
-    meta_bug ("No such frame 0x%lx\n", xwindow);
-  
-  meta_core_get (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow,
-                 META_CORE_GET_FRAME_FLAGS, &flags,
-                 META_CORE_GET_FRAME_TYPE, &type,
-                 META_CORE_GET_END);
-
-  g_return_if_fail (type < META_FRAME_TYPE_LAST);
-
-  meta_uiframe_ensure_layout (frame);
-  
-  /* We can't get the full geometry, because that depends on
-   * the client window size and probably we're being called
-   * by the core move/resize code to decide on the client
-   * window size
-   */
-  meta_theme_get_frame_borders (frame->tv->theme,
-                                frame->tv->style_context,
-                                type,
-                                flags,
-                                borders);
-}
-
-void
-meta_frames_render_background (MetaFrames *frames,
-                               Window      xwindow,
-                               cairo_t    *cr)
-{
-  MetaUIFrame *frame;
-  MetaFrameGeometry fgeom;
-  MetaFrameFlags flags;
-
-  frame = meta_frames_lookup_window (frames, xwindow);
-
-  meta_core_get (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow,
-                 META_CORE_GET_FRAME_FLAGS, &flags,
-                 META_CORE_GET_END);
-
-  meta_uiframe_calc_geometry (frame, &fgeom);
-  meta_theme_render_background (frame->tv->style_context, cr, flags, &fgeom, frame->layout);
-}
-
 /* The client rectangle surrounds client window; it subtracts both
  * the visible and invisible borders from the frame window's size.
  */
@@ -374,38 +161,9 @@ get_client_rect (MetaFrameGeometry     *fgeom,
 }
 
 void
-meta_frames_move_resize_frame (MetaFrames *frames,
-                               Window      xwindow,
-                               int         x,
-                               int         y,
-                               int         width,
-                               int         height)
+meta_uiframe_set_title (MetaUIFrame *frame,
+                        const char  *title)
 {
-  MetaUIFrame *frame = meta_frames_lookup_window (frames, xwindow);
-
-  gdk_window_move_resize (frame->window, x, y, width, height);
-  gtk_widget_set_size_request (GTK_WIDGET (frame), width, height);
-}
-
-void
-meta_frames_queue_draw (MetaFrames *frames,
-                        Window      xwindow)
-{
-  MetaUIFrame *frame = meta_frames_lookup_window (frames, xwindow);
-  gtk_widget_queue_draw (GTK_WIDGET (frame));
-}
-
-void
-meta_frames_set_title (MetaFrames *frames,
-                       Window      xwindow,
-                       const char *title)
-{
-  MetaUIFrame *frame;
-  
-  frame = meta_frames_lookup_window (frames, xwindow);
-
-  g_assert (frame);
-  
   g_free (frame->title);
   frame->title = g_strdup (title);
   
@@ -415,28 +173,6 @@ meta_frames_set_title (MetaFrames *frames,
       frame->layout = NULL;
     }
 
-  gtk_widget_queue_draw (GTK_WIDGET (frame));
-}
-
-void
-meta_frames_update_frame_style (MetaFrames *frames,
-                                Window      xwindow)
-{
-  MetaUIFrame *frame;
-  frame = meta_frames_lookup_window (frames, xwindow);
-  g_assert (frame);
-
-  meta_uiframe_attach_style (frame);
-  gtk_widget_queue_draw (GTK_WIDGET (frame));
-}
-
-void
-meta_frames_repaint_frame (MetaFrames *frames,
-                           Window      xwindow)
-{
-  MetaUIFrame *frame;
-  frame = meta_frames_lookup_window (frames, xwindow);
-  g_assert (frame);
   gtk_widget_queue_draw (GTK_WIDGET (frame));
 }
 
@@ -822,32 +558,6 @@ meta_uiframe_button_press_event (GtkWidget      *widget,
     }
   
   return TRUE;
-}
-
-void
-meta_frames_notify_menu_hide (MetaFrames *frames)
-{
-  Display *display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
-  if (meta_core_get_grab_op (display) ==
-      META_GRAB_OP_CLICKING_MENU)
-    {
-      Window grab_frame;
-
-      grab_frame = meta_core_get_grab_frame (display);
-
-      if (grab_frame != None)
-        {
-          MetaUIFrame *frame;
-
-          frame = meta_frames_lookup_window (frames, grab_frame);
-
-          if (frame)
-            {
-              redraw_control (frame, META_FRAME_CONTROL_MENU);
-              meta_core_end_grab_op (display, CurrentTime);
-            }
-        }
-    }
 }
 
 static gboolean

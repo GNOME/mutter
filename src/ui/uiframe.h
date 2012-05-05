@@ -21,8 +21,8 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_FRAMES_H
-#define META_FRAMES_H
+#ifndef META_UIFRAME_H
+#define META_UIFRAME_H
 
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
@@ -87,52 +87,16 @@ struct _MetaUIFrameClass
   GtkWindowClass parent_class;
 };
 
-typedef struct _MetaFrames         MetaFrames;
-
-struct _MetaFrames
-{
-  GHashTable *frames;
-};
-
 GType        meta_uiframe_get_type (void) G_GNUC_CONST;
 
-MetaFrames *meta_frames_new ();
-void        meta_frames_free (MetaFrames *frames);
+void meta_uiframe_set_title (MetaUIFrame *frame,
+                             const char  *title);
 
-void meta_frames_manage_window (MetaFrames *frames,
-                                Window      xwindow,
-				GdkWindow  *window);
-void meta_frames_unmanage_window (MetaFrames *frames,
-                                  Window      xwindow);
-void meta_frames_set_title (MetaFrames *frames,
-                            Window      xwindow,
-                            const char *title);
+void meta_uiframe_attach_style (MetaUIFrame *frame);
 
-void meta_frames_update_frame_style (MetaFrames *frames,
-                                     Window      xwindow);
+void meta_uiframe_ensure_layout (MetaUIFrame *frame);
 
-void meta_frames_repaint_frame (MetaFrames *frames,
-                                Window      xwindow);
-
-void meta_frames_get_borders (MetaFrames *frames,
-                              Window xwindow,
-                              MetaFrameBorders *borders);
-
-void meta_frames_render_background (MetaFrames *frames,
-                                    Window      xwindow,
-                                    cairo_t    *cr);
-
-void meta_frames_move_resize_frame (MetaFrames *frames,
-				    Window      xwindow,
-				    int         x,
-				    int         y,
-				    int         width,
-				    int         height);
-void meta_frames_queue_draw (MetaFrames *frames,
-                             Window      xwindow);
-
-void meta_frames_notify_menu_hide (MetaFrames *frames);
-
-Window meta_frames_get_moving_frame (MetaFrames *frames);
+void meta_uiframe_calc_geometry (MetaUIFrame       *frame,
+                                 MetaFrameGeometry *fgeom);
 
 #endif

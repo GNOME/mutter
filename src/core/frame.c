@@ -362,8 +362,8 @@ meta_frame_sync_to_window (MetaFrame *frame,
        */
       if (frame->window->display->grab_window ==
           frame->window)
-        meta_ui_repaint_frame (frame->window->screen->ui,
-                               frame->xwindow);
+        meta_ui_queue_frame_draw (frame->window->screen->ui,
+                                  frame->xwindow);
     }
 
   return need_resize;
