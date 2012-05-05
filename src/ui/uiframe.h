@@ -27,7 +27,6 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 #include <meta/common.h>
-#include "theme-private.h"
 
 typedef enum
 {
@@ -75,11 +74,12 @@ struct _MetaUIFrame
 
   Window xwindow;
   GdkWindow *window;
-  MetaThemeVariant *tv;
   MetaFrameControl prelit_control;
 
   GtkWidget *label;
   GtkWidget *container;
+
+  gboolean style_context_initialized;
 };
 
 struct _MetaUIFrameClass
@@ -92,9 +92,10 @@ GType        meta_uiframe_get_type (void) G_GNUC_CONST;
 void meta_uiframe_set_title (MetaUIFrame *frame,
                              const char  *title);
 
-void meta_uiframe_attach_style (MetaUIFrame *frame);
+void meta_uiframe_paint (MetaUIFrame  *frame,
+                         cairo_t      *cr);
 
-void meta_uiframe_calc_geometry (MetaUIFrame       *frame,
-                                 MetaFrameGeometry *fgeom);
+void meta_uiframe_get_frame_borders (MetaUIFrame      *frame,
+                                     MetaFrameBorders *borders);
 
 #endif

@@ -926,5 +926,43 @@ meta_later_remove (guint later_id)
     }
 }
 
+/**
+ * meta_frame_type_to_string:
+ *
+ * Converts a frame type enum value to the name string that would
+ * appear in the theme definition file.
+ *
+ * Return value: the string value
+ */
+const char*
+meta_frame_type_to_string (MetaFrameType type)
+{
+  switch (type)
+    {
+    case META_FRAME_TYPE_NORMAL:
+      return "normal";
+    case META_FRAME_TYPE_DIALOG:
+      return "dialog";
+    case META_FRAME_TYPE_MODAL_DIALOG:
+      return "modal_dialog";
+    case META_FRAME_TYPE_UTILITY:
+      return "utility";
+    case META_FRAME_TYPE_MENU:
+      return "menu";
+    case META_FRAME_TYPE_BORDER:
+      return "border";
+    case META_FRAME_TYPE_ATTACHED:
+      return "attached";
+#if 0
+    case META_FRAME_TYPE_TOOLBAR:
+      return "toolbar";
+#endif
+    case  META_FRAME_TYPE_LAST:
+      break;
+    }
+
+  return "<unknown>";
+}
+
 /* eof util.c */
 

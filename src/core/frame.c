@@ -118,11 +118,6 @@ meta_window_ensure_frame (MetaWindow *window)
   
   meta_display_register_x_window (window->display, &frame->xwindow, window);
 
-  /* Now that frame->xwindow is registered with window, we can set its
-   * style and background.
-   */
-  meta_ui_update_frame_style (window->screen->ui, frame->xwindow);
-
   meta_ui_realize_frame_window (window->screen->ui, frame->xwindow);
 
   if (window->title)
@@ -162,7 +157,6 @@ meta_window_ensure_frame (MetaWindow *window)
                    window->rect.y);
   /* FIXME handle this error */
   meta_error_trap_pop (window->display);
-  
 
   /* Move keybindings to frame instead of window */
   meta_window_grab_keys (window);

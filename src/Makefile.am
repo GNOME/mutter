@@ -140,13 +140,7 @@ libmutter_la_SOURCES =				\
 	ui/tabpopup.h				\
 	ui/tile-preview.c			\
 	ui/tile-preview.h			\
-	ui/theme-parser.c			\
-	ui/theme.c				\
-	meta/theme.h				\
-	ui/theme-private.h			\
 	ui/ui.c					\
-	meta/preview-widget.h			\
-	ui/preview-widget.c			\
 	$(mutter_built_sources)
 
 libmutter_la_LDFLAGS = -no-undefined
@@ -171,7 +165,6 @@ libmutterinclude_base_headers =		\
 	meta/meta-window-actor.h		\
 	meta/prefs.h				\
 	meta/screen.h				\
-	meta/theme.h				\
 	meta/types.h				\
 	meta/util.h				\
 	meta/window.h				\
@@ -180,7 +173,6 @@ libmutterinclude_base_headers =		\
 # Excluded from scanning for introspection but installed
 # atomnames.h: macros cause problems for scanning process
 libmutterinclude_extra_headers =		\
-	meta/preview-widget.h			\
 	meta/atomnames.h
 
 libmutterincludedir = $(includedir)/mutter/meta
@@ -189,10 +181,7 @@ libmutterinclude_HEADERS =			\
 	$(libmutterinclude_base_headers)	\
 	$(libmutterinclude_extra_headers)
 
-mutter_theme_viewer_SOURCES=  \
-	ui/theme-viewer.c
-
-bin_PROGRAMS=mutter mutter-theme-viewer
+bin_PROGRAMS=mutter
 
 mutter_SOURCES = core/mutter.c
 mutter_LDADD = $(MUTTER_LIBS) libmutter.la
@@ -229,8 +218,6 @@ Meta-$(api_version).gir: libmutter.la
 @META_GIR@_SCANNERFLAGS = --warn-all --warn-error
 
 endif
-
-mutter_theme_viewer_LDADD= $(MUTTER_LIBS) libmutter.la
 
 testboxes_SOURCES = core/testboxes.c
 testasyncgetprop_SOURCES = core/testasyncgetprop.c

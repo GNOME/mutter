@@ -26,7 +26,6 @@
  */
 
 #include "draw-workspace.h"
-#include "theme-private.h"
 
 
 static void
@@ -75,11 +74,8 @@ draw_window (GtkWidget                   *widget,
 {
   GdkPixbuf *icon;
   int icon_x, icon_y, icon_w, icon_h;
-  gboolean is_active;
   GdkRGBA color;
   GtkStyleContext *style;
-
-  is_active = win->is_active;
   
   cairo_save (cr);
 
@@ -87,10 +83,7 @@ draw_window (GtkWidget                   *widget,
   cairo_clip (cr);
 
   style = gtk_widget_get_style_context (widget);
-  if (is_active)
-    meta_gtk_style_get_light_color (style, state, &color);
-  else
-    gtk_style_context_get_background_color (style, state, &color);
+  gtk_style_context_get_background_color (style, state, &color);
   gdk_cairo_set_source_rgba (cr, &color);
 
   cairo_rectangle (cr,
@@ -197,7 +190,7 @@ wnck_draw_workspace (GtkWidget                   *widget,
     {
       GdkRGBA color;
 
-      meta_gtk_style_get_dark_color (style,state, &color);
+      gtk_style_context_get_background_color (style, state, &color);
       gdk_cairo_set_source_rgba (cr, &color);
       cairo_rectangle (cr, x, y, width, height);
       cairo_fill (cr);

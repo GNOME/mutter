@@ -29,7 +29,6 @@
 #include <meta/util.h>
 #include "menu.h"
 #include "core.h"
-#include "theme-private.h"
 
 #include "inlinepixbufs.h"
 
@@ -367,32 +366,12 @@ meta_ui_get_frame_borders (MetaUI *ui,
                            Window xwindow,
                            MetaFrameBorders *borders)
 {
-  MetaFrameFlags flags;
-  MetaUIFrame *frame;
-  MetaFrameType type;
-  
-  frame = meta_ui_lookup_window (ui, xwindow);
+  MetaUIFrame *frame = meta_ui_lookup_window (ui, xwindow);
 
   if (frame == NULL)
     meta_bug ("No such frame 0x%lx\n", xwindow);
   
-  meta_core_get (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow,
-                 META_CORE_GET_FRAME_FLAGS, &flags,
-                 META_CORE_GET_FRAME_TYPE, &type,
-                 META_CORE_GET_END);
-
-  g_return_if_fail (type < META_FRAME_TYPE_LAST);
-  
-  /* We can't get the full geometry, because that depends on
-   * the client window size and probably we're being called
-   * by the core move/resize code to decide on the client
-   * window size
-   */
-  meta_theme_get_frame_borders (frame->tv->theme,
-                                frame->tv->style_context,
-                                type,
-                                flags,
-                                borders);
+  meta_uiframe_get_frame_borders (frame, borders);
 }
 
 void
@@ -400,18 +379,8 @@ meta_ui_render_background (MetaUI  *ui,
                            Window   xwindow,
                            cairo_t *cr)
 {
-  MetaUIFrame *frame;
-  MetaFrameGeometry fgeom;
-  MetaFrameFlags flags;
-
-  frame = meta_ui_lookup_window (ui, xwindow);
-
-  meta_core_get (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow,
-                 META_CORE_GET_FRAME_FLAGS, &flags,
-                 META_CORE_GET_END);
-
-  meta_uiframe_calc_geometry (frame, &fgeom);
-  meta_theme_render_background (frame->tv->style_context, cr, flags, &fgeom);
+  MetaUIFrame *frame = meta_ui_lookup_window (ui, xwindow);
+  meta_uiframe_paint (frame, cr);
 }
 
 Window
@@ -587,15 +556,6 @@ meta_ui_unmap_frame (MetaUI *ui,
 
   if (window)
     gdk_window_hide (window);
-}
-
-void
-meta_ui_update_frame_style (MetaUI  *ui,
-                            Window   xwindow)
-{
-  MetaUIFrame *frame = meta_ui_lookup_window (ui, xwindow);
-  meta_uiframe_attach_style (frame);
-  gtk_widget_queue_draw (GTK_WIDGET (frame));
 }
 
 void
@@ -823,20 +783,6 @@ meta_text_property_to_utf8 (Display             *xdisplay,
   g_strfreev (list);
 
   return retval;
-}
-
-void
-meta_ui_set_current_theme (const char *name,
-                           gboolean    force_reload)
-{
-  meta_theme_set_current (name, force_reload);
-  meta_invalidate_default_icons ();
-}
-
-gboolean
-meta_ui_have_a_theme (void)
-{
-  return meta_theme_get_current () != NULL;
 }
 
 static void

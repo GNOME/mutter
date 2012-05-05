@@ -97,12 +97,6 @@ void meta_ui_set_frame_title (MetaUI *ui,
                               Window xwindow,
                               const char *title);
 
-void meta_ui_update_frame_style (MetaUI  *ui,
-                                 Window   window);
-
-void meta_ui_repaint_frame (MetaUI *ui,
-                            Window xwindow);
-
 MetaWindowMenu* meta_ui_window_menu_new   (MetaUI             *ui,
                                            Display            *display,
                                            gint                screen_no,
@@ -136,10 +130,6 @@ gboolean  meta_ui_window_should_not_cause_focus (Display *xdisplay,
 
 char*     meta_text_property_to_utf8 (Display             *xdisplay,
                                       const XTextProperty *prop);
-
-void     meta_ui_set_current_theme (const char *name,
-                                    gboolean    force_reload);
-gboolean meta_ui_have_a_theme      (void);
 
 /* Not a real key symbol but means "key above the tab key"; this is
  * used as the default keybinding for cycle_group.
