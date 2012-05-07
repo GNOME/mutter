@@ -408,7 +408,6 @@ const char* meta_event_mode_to_string   (int m);
 const char* meta_event_detail_to_string (int d);
 
 void meta_display_queue_retheme_all_windows (MetaDisplay *display);
-void meta_display_retheme_all (void);
 
 void meta_display_set_cursor_theme (const char *theme, 
 				    int         size);
