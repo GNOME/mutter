@@ -499,7 +499,6 @@ meta_ui_create_frame_window (MetaUI *ui,
   g_object_set_data (G_OBJECT (frame), "gtk-parent-window", g_object_ref (window));
 
   gdk_window_set_user_data (window, frame);
-  gtk_widget_show (GTK_WIDGET (frame));
 
   /* Don't set event mask here, it's in frame.c */
   frame->window = g_object_ref (window);
@@ -515,6 +514,14 @@ meta_ui_create_frame_window (MetaUI *ui,
   g_hash_table_replace (ui->frames, &frame->xwindow, frame);
 
   return frame->xwindow;
+}
+
+void
+meta_ui_realize_frame_window (MetaUI  *ui,
+                            Window   xwindow)
+{
+  MetaUIFrame *frame = meta_ui_lookup_window (ui, xwindow);
+  gtk_widget_show (GTK_WIDGET (frame));
 }
 
 void

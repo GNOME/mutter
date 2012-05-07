@@ -113,8 +113,22 @@ meta_window_ensure_frame (MetaWindow *window)
   attrs.event_mask = EVENT_MASK;
   XChangeWindowAttributes (window->display->xdisplay,
 			   frame->xwindow, CWEventMask, &attrs);
+  /* stick frame to the window */
+  window->frame = frame;
   
   meta_display_register_x_window (window->display, &frame->xwindow, window);
+
+  /* Now that frame->xwindow is registered with window, we can set its
+   * style and background.
+   */
+  meta_ui_update_frame_style (window->screen->ui, frame->xwindow);
+
+  meta_ui_realize_frame_window (window->screen->ui, frame->xwindow);
+
+  if (window->title)
+    meta_ui_set_frame_title (window->screen->ui,
+                             window->frame->xwindow,
+                             window->title);
 
   /* Reparent the client window; it may be destroyed,
    * thus the error trap. We'll get a destroy notify later
@@ -149,18 +163,6 @@ meta_window_ensure_frame (MetaWindow *window)
   /* FIXME handle this error */
   meta_error_trap_pop (window->display);
   
-  /* stick frame to the window */
-  window->frame = frame;
-
-  /* Now that frame->xwindow is registered with window, we can set its
-   * style and background.
-   */
-  meta_ui_update_frame_style (window->screen->ui, frame->xwindow);
-  
-  if (window->title)
-    meta_ui_set_frame_title (window->screen->ui,
-                             window->frame->xwindow,
-                             window->title);
 
   /* Move keybindings to frame instead of window */
   meta_window_grab_keys (window);
