@@ -44,7 +44,7 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          mutter-common (>= ${gnome:Version}),
          mutter-common (<< ${gnome:NextVersion}),
-         libgnome2-common,
+         gsettings-desktop-schemas (>= 3.3.2),
          zenity
 Provides: x-window-manager
 Recommends: gnome-session | x-session-manager
