@@ -1,3 +1,39 @@
+mutter (3.4.1-2) experimental; urgency=low
+
+  * Drop debian/mutter-common.catalog and debian/mutter-common.sgmlcatalogs.
+    This is another leftover from the metacity package, mutter doesn't ship
+    any DTD.
+  * Replace another occurence of libgnome2-common with
+    gsettings-desktop-schemas.
+
+ -- Michael Biebl <biebl@debian.org>  Mon, 14 May 2012 19:11:48 +0200
+
+mutter (3.4.1-1) experimental; urgency=low
+
+  [ Michael Biebl ]
+  * New upstream release.
+
+  [ Rico Tzschichholz ]
+  * debian/control.in:
+    - Bump minimum GTK, cogl, clutter & gsettings-desktop-schemas
+    - Add mutter-dbg package
+  * debian/mutter-common.install:
+    - Install gsettings schemas
+  * debian/rules: Enable compile warnings
+
+  [ Jeremy Bicha ]
+  * debian/control.in:
+    - Drop gconf dependency
+
+  [ Michael Biebl ]
+  * Bump Standards-Version to 3.9.3.
+  * Update Vcs-* URLs.
+  * Drop Suggests: gnome-themes. This is a remnant of the old metacity
+    package this work is based on.
+  * Refresh debian/patches/01_Wcast-align.patch.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 04 May 2012 21:48:47 +0200
+
 mutter (3.2.2-3) unstable; urgency=low
 
   * Upload to unstable.
