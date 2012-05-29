@@ -47,8 +47,7 @@ Package: mutter
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         mutter-common (>= ${gnome:Version}),
-         mutter-common (<< ${gnome:NextVersion}),
+         mutter-common (= ${source:Version}),
          gsettings-desktop-schemas (>= 3.3.2),
          zenity
 Provides: x-window-manager
@@ -92,8 +91,7 @@ Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          gsettings-desktop-schemas (>= 3.3.2),
-         mutter-common (>= ${gnome:Version}),
-         mutter-common (<< ${gnome:NextVersion})
+         mutter-common (= ${source:Version})
 Description: window manager library from the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
