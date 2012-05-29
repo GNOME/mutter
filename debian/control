@@ -49,6 +49,7 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          mutter-common (= ${source:Version}),
          gsettings-desktop-schemas (>= 3.3.2),
+         gnome-themes-standard,
          zenity
 Provides: x-window-manager
 Recommends: gnome-session | x-session-manager
