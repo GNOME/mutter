@@ -7,6 +7,10 @@ mutter (3.4.1-3) UNRELEASED; urgency=low
   * libmutter-dev: add dependency on gsettings-desktop-schemas-dev and
     libx11-dev as pc-file requests
 
+  [ Michael Biebl ]
+  * Bump Suggests: gnome-control-center to (>= 1:3.4.0) as we want a recent
+    enough version which can handle keybindings based on GSettings.
+
  -- Rico Tzschichholz <ricotz@ubuntu.com>  Tue, 29 May 2012 17:02:41 +0200
 
 mutter (3.4.1-2) experimental; urgency=low
