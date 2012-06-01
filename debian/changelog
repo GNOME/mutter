@@ -1,3 +1,10 @@
+mutter (3.4.1-4) UNRELEASED; urgency=low
+
+  * Clean up obsolete /etc/sgml/metacity-common.cat conffile on upgrades.
+    Closes: #675309
+
+ -- Michael Biebl <biebl@debian.org>  Wed, 30 May 2012 12:31:41 +0200
+
 mutter (3.4.1-3) unstable; urgency=low
 
   [ Michael Biebl ]
