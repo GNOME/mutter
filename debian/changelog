@@ -1,7 +1,7 @@
 mutter (3.4.1-4) unstable; urgency=low
 
-  * Clean up obsolete /etc/sgml/mutter-common.cat conffile on upgrades.
-    Closes: #675309
+  * Clean up /etc/sgml/mutter-common.cat and /etc/sgml/mutter-common.cat.old
+    on upgrades. Closes: #675309
 
  -- Michael Biebl <biebl@debian.org>  Fri, 01 Jun 2012 12:49:07 +0200
 
