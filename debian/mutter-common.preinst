@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+case "$1" in
+    install|upgrade)
+        if dpkg --compare-versions "$2" lt "3.4.1-4"; then
+            rm -f /etc/sgml/mutter-common.cat /etc/sgml/mutter-common.cat.old
+        fi
+    ;;
+esac
+
+#DEBHELPER#
