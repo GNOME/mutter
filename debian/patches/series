@@ -1,1 +1,2 @@
+00_meta_window_move_frame-fix-crash-when-frame-is-NULL.patch
 01_Wcast-align.patch
