@@ -539,6 +539,7 @@ static gboolean
 add_keybinding_internal (MetaDisplay          *display,
                          const char           *name,
                          GSettings            *settings,
+                         const char           *hardcoded_key,
                          MetaKeyBindingFlags   flags,
                          MetaKeyBindingAction  action,
                          MetaKeyHandlerFunc    func,
@@ -548,7 +549,7 @@ add_keybinding_internal (MetaDisplay          *display,
 {
   MetaKeyHandler *handler;
 
-  if (!meta_prefs_add_keybinding (name, settings, action, flags))
+  if (!meta_prefs_add_keybinding (name, settings, hardcoded_key, action, flags))
     return FALSE;
 
   handler = g_new0 (MetaKeyHandler, 1);
@@ -574,7 +575,7 @@ add_builtin_keybinding (MetaDisplay          *display,
                         MetaKeyHandlerFunc    handler,
                         int                   handler_arg)
 {
-  return add_keybinding_internal (display, name, settings,
+  return add_keybinding_internal (display, name, settings, NULL,
                                   flags | META_KEY_BINDING_BUILTIN,
                                   action, handler, handler_arg, NULL, NULL);
 }
@@ -615,9 +616,56 @@ meta_display_add_keybinding (MetaDisplay         *display,
                              gpointer             user_data,
                              GDestroyNotify       free_data)
 {
-  return add_keybinding_internal (display, name, settings, flags,
-                                  META_KEYBINDING_ACTION_NONE,
+  return add_keybinding_internal (display, name, settings, NULL,
+                                  flags, META_KEYBINDING_ACTION_NONE,
                                   handler, 0, user_data, free_data);
+}
+
+/**
+ * meta_display_add_grabbed_key:
+ * @display: a #MetaDisplay
+ * @name: the binding's name
+ * @keyval: the key combination that should trigger this keybinding
+ * @flags: flags to specify binding details
+ * @handler: function to run when the keybinding is invoked
+ * @user_data: the data to pass to @handler
+ * @free_data: function to free @user_data
+ *
+ * This function is similar to meta_display_add_keybinding(), except
+ * that the keybinding is hardcoded to @keyval, which should be a GTK
+ * key string combination.
+ */
+gboolean
+meta_display_add_grabbed_key (MetaDisplay         *display,
+                              const char          *name,
+                              const char          *keyval,
+                              MetaKeyBindingFlags  flags,
+                              MetaKeyHandlerFunc   handler,
+                              gpointer             user_data,
+                              GDestroyNotify       free_data)
+{
+  return add_keybinding_internal (display, name, NULL, keyval,
+                                  flags, META_KEYBINDING_ACTION_NONE,
+                                  handler, 0, user_data, free_data);
+}
+
+/**
+ * meta_display_remove_grabbed_key:
+ * @display: the #MetaDisplay
+ * @name: the name that was passed to meta_display_add_grabbed_key()
+ *
+ * Undoes the effect of meta_display_add_grabbed_key()
+ */
+gboolean
+meta_display_remove_grabbed_key (MetaDisplay *display,
+                                 const char  *name)
+{
+  if (!meta_prefs_remove_keybinding (name))
+    return FALSE;
+
+  g_hash_table_remove (key_handlers, name);
+
+  return TRUE;
 }
 
 /**

@@ -110,12 +110,11 @@ static gboolean workspaces_only_on_primary = FALSE;
 
 static gboolean no_tab_popup = FALSE;
 
+static GHashTable *key_bindings;
 
 static void handle_preference_update_enum (GSettings *settings,
                                            gchar     *key);
 static gboolean update_binding         (MetaKeyPref *binding,
-                                        gchar      **strokes);
-static gboolean update_key_binding     (const char  *key,
                                         gchar      **strokes);
 static gboolean update_workspace_names (void);
 
@@ -1052,13 +1051,30 @@ bindings_changed (GSettings *settings,
                   gchar *key,
                   gpointer data)
 {
+  gchar  *static_strokes[2];
   gchar **strokes;
-  strokes = g_settings_get_strv (settings, key);
+  MetaKeyPref *pref;
 
-  if (update_key_binding (key, strokes))
-    queue_changed (META_PREF_KEYBINDINGS);
+  pref = g_hash_table_lookup (key_bindings, key);
+  if (!pref)
+    return;
 
-  g_strfreev (strokes);
+  if (pref->is_single)
+    {
+      static_strokes[0] = g_settings_get_string (settings, key);
+      static_strokes[1] = NULL;
+      strokes = static_strokes;
+    }
+  else
+    strokes = g_settings_get_strv (settings, key);
+
+  update_binding (pref, strokes);
+  queue_changed (META_PREF_KEYBINDINGS);
+
+  if (strokes != static_strokes)
+    g_strfreev(strokes);
+  else
+    g_free(static_strokes[0]);
 }
 
 /**
@@ -1693,7 +1709,9 @@ meta_key_pref_free (MetaKeyPref *pref)
   update_binding (pref, NULL);
 
   g_free (pref->name);
-  g_object_unref (pref->settings);
+  if (pref->settings)
+    g_object_unref (pref->settings);
+  g_free (pref->hardcoded_key);
 
   g_free (pref);
 }
@@ -1783,18 +1801,6 @@ update_binding (MetaKeyPref *binding,
     }
 
   return changed;
-}
-
-static gboolean
-update_key_binding (const char *key,
-                    gchar     **strokes)
-{
-  MetaKeyPref *pref = g_hash_table_lookup (key_bindings, key);
-
-  if (pref)
-    return update_binding (pref, strokes);
-  else
-    return FALSE;
 }
 
 static gboolean
@@ -1929,11 +1935,13 @@ meta_prefs_get_visual_bell_type (void)
 gboolean
 meta_prefs_add_keybinding (const char           *name,
                            GSettings            *settings,
+                           const char           *hardcoded_key,
                            MetaKeyBindingAction  action,
                            MetaKeyBindingFlags   flags)
 {
   MetaKeyPref  *pref;
   char        **strokes;
+  char         *static_strokes[2];
   guint         id;
 
   if (g_hash_table_lookup (key_bindings, name))
@@ -1944,18 +1952,43 @@ meta_prefs_add_keybinding (const char           *name,
 
   pref = g_new0 (MetaKeyPref, 1);
   pref->name = g_strdup (name);
-  pref->settings = g_object_ref (settings);
+  pref->settings = settings ? g_object_ref (settings) : NULL;
+  pref->hardcoded_key = g_strdup (hardcoded_key);
   pref->action = action;
   pref->bindings = NULL;
   pref->add_shift = (flags & META_KEY_BINDING_REVERSES) != 0;
   pref->per_window = (flags & META_KEY_BINDING_PER_WINDOW) != 0;
   pref->builtin = (flags & META_KEY_BINDING_BUILTIN) != 0;
+  pref->is_single = (flags & META_KEY_BINDING_IS_SINGLE) != 0;
 
-  strokes = g_settings_get_strv (settings, name);
+  if (settings)
+    {
+      if (pref->is_single)
+        {
+          static_strokes[0] = g_settings_get_string (settings, name);
+          static_strokes[1] = NULL;
+          strokes = static_strokes;
+        }
+      else
+        strokes = g_settings_get_strv (settings, name);
+    }
+  else
+    {
+      static_strokes[0] = (char*)hardcoded_key;
+      static_strokes[1] = NULL;
+      strokes = static_strokes;
+    }
+
   update_binding (pref, strokes);
-  g_strfreev (strokes);
-
   g_hash_table_insert (key_bindings, g_strdup (name), pref);
+
+  if (strokes != static_strokes)
+    g_strfreev (strokes);
+  else if (static_strokes[0] != hardcoded_key)
+    g_free (static_strokes[0]);
+
+  if (!settings)
+    return TRUE;
 
   if (pref->builtin)
     {

@@ -134,6 +134,15 @@ gboolean meta_display_add_keybinding    (MetaDisplay         *display,
                                          MetaKeyHandlerFunc   handler,
                                          gpointer             user_data,
                                          GDestroyNotify       free_data);
+gboolean meta_display_add_grabbed_key   (MetaDisplay         *display,
+                                         const char          *name,
+                                         const char          *keyval,
+                                         MetaKeyBindingFlags  flags,
+                                         MetaKeyHandlerFunc   handler,
+                                         gpointer             user_data,
+                                         GDestroyNotify       free_data);
+gboolean meta_display_remove_grabbed_key(MetaDisplay         *display,
+                                         const char          *name);
 gboolean meta_display_remove_keybinding (MetaDisplay         *display,
                                          const char          *name);
 

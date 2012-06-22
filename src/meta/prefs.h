@@ -234,7 +234,8 @@ typedef enum
   META_KEY_BINDING_PER_WINDOW  = 1 << 0,
   META_KEY_BINDING_BUILTIN     = 1 << 1,
   META_KEY_BINDING_REVERSES    = 1 << 2,
-  META_KEY_BINDING_IS_REVERSED = 1 << 3
+  META_KEY_BINDING_IS_REVERSED = 1 << 3,
+  META_KEY_BINDING_IS_SINGLE   = 1 << 4,
 } MetaKeyBindingFlags;
 
 typedef struct
@@ -262,6 +263,7 @@ typedef struct
 {
   char *name;
   GSettings *settings;
+  char *hardcoded_key;
 
   MetaKeyBindingAction action;
 
@@ -280,6 +282,10 @@ typedef struct
 
   /** for keybindings not added with meta_display_add_keybinding() */
   gboolean      builtin:1;
+
+  /** for keybindings that are stored as a single value, not
+      as a list */
+  gboolean      is_single:1;
 } MetaKeyPref;
 
 GType meta_key_binding_get_type    (void);
