@@ -539,6 +539,7 @@ static gboolean
 add_keybinding_internal (MetaDisplay          *display,
                          const char           *name,
                          GSettings            *settings,
+                         const char           *setting_key,
                          const char           *hardcoded_key,
                          MetaKeyBindingFlags   flags,
                          MetaKeyBindingAction  action,
@@ -549,7 +550,7 @@ add_keybinding_internal (MetaDisplay          *display,
 {
   MetaKeyHandler *handler;
 
-  if (!meta_prefs_add_keybinding (name, settings, hardcoded_key, action, flags))
+  if (!meta_prefs_add_keybinding (name, settings, setting_key, hardcoded_key, action, flags))
     return FALSE;
 
   handler = g_new0 (MetaKeyHandler, 1);
@@ -568,16 +569,20 @@ add_keybinding_internal (MetaDisplay          *display,
 
 static gboolean
 add_builtin_keybinding (MetaDisplay          *display,
-                        const char           *name,
+                        const char           *key,
                         GSettings            *settings,
                         MetaKeyBindingFlags   flags,
                         MetaKeyBindingAction  action,
                         MetaKeyHandlerFunc    handler,
                         int                   handler_arg)
 {
-  return add_keybinding_internal (display, name, settings, NULL,
+  char *name = g_strdup_printf ("internal-keybinding-%s", key);
+
+  return add_keybinding_internal (display, name, settings, key, NULL,
                                   flags | META_KEY_BINDING_BUILTIN,
                                   action, handler, handler_arg, NULL, NULL);
+
+  g_free (name);
 }
 
 /**
@@ -609,16 +614,20 @@ add_builtin_keybinding (MetaDisplay          *display,
  */
 gboolean
 meta_display_add_keybinding (MetaDisplay         *display,
-                             const char          *name,
+                             const char          *key,
                              GSettings           *settings,
                              MetaKeyBindingFlags  flags,
                              MetaKeyHandlerFunc   handler,
                              gpointer             user_data,
                              GDestroyNotify       free_data)
 {
-  return add_keybinding_internal (display, name, settings, NULL,
+  char *name = g_strdup_printf("custom-keybinding-%p-%s", settings, key);
+
+  return add_keybinding_internal (display, name, settings, key, NULL,
                                   flags, META_KEYBINDING_ACTION_NONE,
                                   handler, 0, user_data, free_data);
+
+  g_free (name);
 }
 
 /**
@@ -644,7 +653,7 @@ meta_display_add_grabbed_key (MetaDisplay         *display,
                               gpointer             user_data,
                               GDestroyNotify       free_data)
 {
-  return add_keybinding_internal (display, name, NULL, keyval,
+  return add_keybinding_internal (display, name, NULL, NULL, keyval,
                                   flags, META_KEYBINDING_ACTION_NONE,
                                   handler, 0, user_data, free_data);
 }
@@ -672,6 +681,7 @@ meta_display_remove_grabbed_key (MetaDisplay *display,
  * meta_display_remove_keybinding:
  * @display: the #MetaDisplay
  * @name: name of the keybinding to remove
+ * @settings: (allow-none): the #GSettings object on which the keybinding is registered
  *
  * Remove keybinding @name; the function will fail if @name is not a known
  * keybinding or has not been added with meta_display_add_keybinding().
@@ -681,14 +691,28 @@ meta_display_remove_grabbed_key (MetaDisplay *display,
  */
 gboolean
 meta_display_remove_keybinding (MetaDisplay *display,
-                                const char  *name)
+                                const char  *key,
+                                GSettings   *settings)
 {
+  gboolean retval;
+  char *name;
+
+  if (settings)
+    name = g_strdup_printf ("custom-keybinding-%p-%s", settings, key);
+  else
+    name = g_strdup (key);
+
+  retval = FALSE;
   if (!meta_prefs_remove_keybinding (name))
-    return FALSE;
+    goto out;
 
   g_hash_table_remove (key_handlers, name);
 
-  return TRUE;
+  retval = TRUE;
+
+ out:
+  g_free (name);
+  return retval;
 }
 
 /**

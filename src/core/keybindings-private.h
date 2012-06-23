@@ -75,6 +75,7 @@ void     meta_display_process_mapping_event (MetaDisplay *display,
 
 gboolean meta_prefs_add_keybinding          (const char           *name,
                                              GSettings            *settings,
+                                             const char           *setting_key,
                                              const char           *hardcoded_key,
                                              MetaKeyBindingAction  action,
                                              MetaKeyBindingFlags   flags);

@@ -264,6 +264,7 @@ typedef struct
 {
   char *name;
   GSettings *settings;
+  char *setting_key;
   char *hardcoded_key;
 
   MetaKeyBindingAction action;

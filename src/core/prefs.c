@@ -1711,6 +1711,7 @@ meta_key_pref_free (MetaKeyPref *pref)
   g_free (pref->name);
   if (pref->settings)
     g_object_unref (pref->settings);
+  g_free (pref->setting_key);
   g_free (pref->hardcoded_key);
 
   g_free (pref);
@@ -1935,6 +1936,7 @@ meta_prefs_get_visual_bell_type (void)
 gboolean
 meta_prefs_add_keybinding (const char           *name,
                            GSettings            *settings,
+                           const char           *setting_key,
                            const char           *hardcoded_key,
                            MetaKeyBindingAction  action,
                            MetaKeyBindingFlags   flags)
@@ -1953,6 +1955,7 @@ meta_prefs_add_keybinding (const char           *name,
   pref = g_new0 (MetaKeyPref, 1);
   pref->name = g_strdup (name);
   pref->settings = settings ? g_object_ref (settings) : NULL;
+  pref->setting_key = g_strdup (setting_key);
   pref->hardcoded_key = g_strdup (hardcoded_key);
   pref->action = action;
   pref->bindings = NULL;
@@ -1965,12 +1968,12 @@ meta_prefs_add_keybinding (const char           *name,
     {
       if (pref->is_single)
         {
-          static_strokes[0] = g_settings_get_string (settings, name);
+          static_strokes[0] = g_settings_get_string (settings, setting_key);
           static_strokes[1] = NULL;
           strokes = static_strokes;
         }
       else
-        strokes = g_settings_get_strv (settings, name);
+        strokes = g_settings_get_strv (settings, setting_key);
     }
   else
     {
@@ -2001,7 +2004,7 @@ meta_prefs_add_keybinding (const char           *name,
     }
   else
     {
-      char *changed_signal = g_strdup_printf ("changed::%s", name);
+      char *changed_signal = g_strdup_printf ("changed::%s", setting_key);
       id = g_signal_connect (settings, changed_signal,
                              G_CALLBACK (bindings_changed), NULL);
       g_free (changed_signal);

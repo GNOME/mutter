@@ -144,7 +144,8 @@ gboolean meta_display_add_grabbed_key   (MetaDisplay         *display,
 gboolean meta_display_remove_grabbed_key(MetaDisplay         *display,
                                          const char          *name);
 gboolean meta_display_remove_keybinding (MetaDisplay         *display,
-                                         const char          *name);
+                                         const char          *name,
+                                         GSettings           *settings);
 
 MetaKeyBindingAction meta_display_get_keybinding_action (MetaDisplay  *display,
                                                          unsigned int  keycode,
