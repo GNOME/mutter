@@ -236,6 +236,7 @@ typedef enum
   META_KEY_BINDING_REVERSES    = 1 << 2,
   META_KEY_BINDING_IS_REVERSED = 1 << 3,
   META_KEY_BINDING_IS_SINGLE   = 1 << 4,
+  META_KEY_BINDING_HANDLE_WHEN_GRABBED = 1 << 5,
 } MetaKeyBindingFlags;
 
 typedef struct

@@ -1463,6 +1463,10 @@ process_event (MetaKeyBinding       *bindings,
            bindings[i].mask))
         continue;
 
+      if (display->grab_op != META_GRAB_OP_NONE &&
+          (handler->flags & META_KEY_BINDING_HANDLE_WHEN_GRABBED) == 0)
+        continue;
+
       /*
        * window must be non-NULL for on_window to be true,
        * and so also window must be non-NULL if we get here and
@@ -1712,6 +1716,11 @@ meta_display_process_key_event (MetaDisplay *display,
                           "Processing event for keyboard workspace switching\n");
               keep_grab = process_workspace_switch_grab (display, screen, event, keysym);
               break;
+
+            case META_GRAB_OP_COMPOSITOR:
+              /* Compositor grabs don't go through meta_display_begin_grab_op(),
+                 so all_keys_grabbed is always false for them */
+              g_assert_not_reached ();
  
             default:
               break;
@@ -3774,28 +3783,28 @@ init_builtin_key_bindings (MetaDisplay *display)
   add_builtin_keybinding (display,
                           "switch-to-workspace-left",
                           common_keybindings,
-                          META_KEY_BINDING_NONE,
+                          META_KEY_BINDING_HANDLE_WHEN_GRABBED,
                           META_KEYBINDING_ACTION_WORKSPACE_LEFT,
                           handle_switch_to_workspace, META_MOTION_LEFT);
 
   add_builtin_keybinding (display,
                           "switch-to-workspace-right",
                           common_keybindings,
-                          META_KEY_BINDING_NONE,
+                          META_KEY_BINDING_HANDLE_WHEN_GRABBED,
                           META_KEYBINDING_ACTION_WORKSPACE_RIGHT,
                           handle_switch_to_workspace, META_MOTION_RIGHT);
 
   add_builtin_keybinding (display,
                           "switch-to-workspace-up",
                           common_keybindings,
-                          META_KEY_BINDING_NONE,
+                          META_KEY_BINDING_HANDLE_WHEN_GRABBED,
                           META_KEYBINDING_ACTION_WORKSPACE_UP,
                           handle_switch_to_workspace, META_MOTION_UP);
 
   add_builtin_keybinding (display,
                           "switch-to-workspace-down",
                           common_keybindings,
-                          META_KEY_BINDING_NONE,
+                          META_KEY_BINDING_HANDLE_WHEN_GRABBED,
                           META_KEYBINDING_ACTION_WORKSPACE_DOWN,
                           handle_switch_to_workspace, META_MOTION_DOWN);
 
@@ -3841,14 +3850,14 @@ init_builtin_key_bindings (MetaDisplay *display)
   add_builtin_keybinding (display,
                           "switch-panels",
                           common_keybindings,
-                          META_KEY_BINDING_REVERSES,
+                          META_KEY_BINDING_REVERSES | META_KEY_BINDING_HANDLE_WHEN_GRABBED,
                           META_KEYBINDING_ACTION_SWITCH_PANELS,
                           handle_switch, META_TAB_LIST_DOCKS);
 
   add_builtin_keybinding (display,
                           "switch-panels-backward",
                           common_keybindings,
-                          REVERSES_AND_REVERSED,
+                          REVERSES_AND_REVERSED | META_KEY_BINDING_HANDLE_WHEN_GRABBED,
                           META_KEYBINDING_ACTION_SWITCH_PANELS_BACKWARD,
                           handle_switch, META_TAB_LIST_DOCKS);
 
@@ -3926,14 +3935,14 @@ init_builtin_key_bindings (MetaDisplay *display)
   add_builtin_keybinding (display,
                           "panel-main-menu",
                           common_keybindings,
-                          META_KEY_BINDING_NONE,
+                          META_KEY_BINDING_HANDLE_WHEN_GRABBED,
                           META_KEYBINDING_ACTION_PANEL_MAIN_MENU,
                           handle_panel, META_KEYBINDING_ACTION_PANEL_MAIN_MENU);
 
   add_builtin_keybinding (display,
                           "panel-run-dialog",
                           common_keybindings,
-                          META_KEY_BINDING_NONE,
+                          META_KEY_BINDING_HANDLE_WHEN_GRABBED,
                           META_KEYBINDING_ACTION_PANEL_RUN_DIALOG,
                           handle_panel, META_KEYBINDING_ACTION_PANEL_RUN_DIALOG);
 
