@@ -99,12 +99,12 @@ meta_key_binding_get_mask (MetaKeyBinding *binding)
  * handler functions and have some kind of flag to say they're unbindable.
  */
 
-static void handle_workspace_switch  (MetaDisplay    *display,
-                                      MetaScreen     *screen,
-                                      MetaWindow     *window,
-                                      XEvent         *event,
-                                      MetaKeyBinding *binding,
-                                      gpointer        dummy);
+static gboolean handle_workspace_switch  (MetaDisplay    *display,
+                                          MetaScreen     *screen,
+                                          MetaWindow     *window,
+                                          XEvent         *event,
+                                          MetaKeyBinding *binding,
+                                          gpointer        dummy);
 
 static gboolean process_mouse_move_resize_grab (MetaDisplay *display,
                                                 MetaScreen  *screen,
@@ -1392,7 +1392,7 @@ primary_modifier_still_pressed (MetaDisplay *display,
     return TRUE;
 }
 
-static void
+static gboolean
 invoke_handler (MetaDisplay    *display,
                 MetaScreen     *screen,
                 MetaKeyHandler *handler,
@@ -1402,22 +1402,22 @@ invoke_handler (MetaDisplay    *display,
 
 {
   if (handler->func)
-    (* handler->func) (display, screen,
-                       handler->flags & META_KEY_BINDING_PER_WINDOW ?
-                           window : NULL,
-                       event,
-                       binding,
-                       handler->user_data);
+    return (* handler->func) (display, screen,
+                              handler->flags & META_KEY_BINDING_PER_WINDOW ?
+                              window : NULL,
+                              event,
+                              binding,
+                              handler->user_data);
   else
-    (* handler->default_func) (display, screen,
-                               handler->flags & META_KEY_BINDING_PER_WINDOW ?
-                                   window: NULL,
-                               event,
-                               binding,
-                               NULL);
+    return (* handler->default_func) (display, screen,
+                                      handler->flags & META_KEY_BINDING_PER_WINDOW ?
+                                      window: NULL,
+                                      event,
+                                      binding,
+                                      NULL);
 }
 
-static void
+static gboolean
 invoke_handler_by_name (MetaDisplay    *display,
                         MetaScreen     *screen,
                         const char     *handler_name,
@@ -1428,7 +1428,8 @@ invoke_handler_by_name (MetaDisplay    *display,
 
   handler = HANDLER (handler_name);
   if (handler)
-    invoke_handler (display, screen, handler, window, event, NULL);
+    return invoke_handler (display, screen, handler, window, event, NULL);
+  return FALSE;
 }
 
 /* now called from only one place, may be worth merging */
@@ -1491,9 +1492,7 @@ process_event (MetaKeyBinding       *bindings,
        */
       display->allow_terminal_deactivation = TRUE;
 
-      invoke_handler (display, screen, handler, window, event, &bindings[i]);
-
-      return TRUE;
+      return invoke_handler (display, screen, handler, window, event, &bindings[i]);
     }
 
   meta_topic (META_DEBUG_KEYBINDINGS,
@@ -2607,7 +2606,7 @@ process_tab_grab (MetaDisplay *display,
   return key_used;
 }
 
-static void
+static gboolean
 handle_switch_to_workspace (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *event_window,
@@ -2632,7 +2631,7 @@ handle_switch_to_workspace (MetaDisplay    *display,
        */
       handle_workspace_switch (display, screen, event_window, event, binding,
                                dummy);
-      return;
+      return TRUE;
     }
 
   workspace = meta_screen_get_workspace_by_index (screen, which);
@@ -2645,10 +2644,12 @@ handle_switch_to_workspace (MetaDisplay    *display,
     {
       /* We could offer to create it I suppose */
     }
+
+  return TRUE;
 }
 
 
-static void
+static gboolean
 handle_maximize_vertically (MetaDisplay    *display,
                       MetaScreen     *screen,
                       MetaWindow     *window,
@@ -2663,9 +2664,11 @@ handle_maximize_vertically (MetaDisplay    *display,
       else
         meta_window_maximize (window, META_MAXIMIZE_VERTICAL);
     }
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_maximize_horizontally (MetaDisplay    *display,
                        MetaScreen     *screen,
                        MetaWindow     *window,
@@ -2680,6 +2683,8 @@ handle_maximize_horizontally (MetaDisplay    *display,
       else
         meta_window_maximize (window, META_MAXIMIZE_HORIZONTAL);
     }
+
+  return TRUE;
 }
 
 /* Move a window to a corner; to_bottom/to_right are FALSE for the
@@ -2729,7 +2734,7 @@ handle_move_to_corner_backend (MetaDisplay    *display,
                           new_y);
 }
 
-static void
+static gboolean
 handle_move_to_corner_nw  (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -2738,9 +2743,10 @@ handle_move_to_corner_nw  (MetaDisplay    *display,
                            gpointer        dummy)
 {
   handle_move_to_corner_backend (display, screen, window, TRUE, TRUE, FALSE, FALSE, dummy);
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_move_to_corner_ne  (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -2749,9 +2755,10 @@ handle_move_to_corner_ne  (MetaDisplay    *display,
                            gpointer        dummy)
 {
   handle_move_to_corner_backend (display, screen, window, TRUE, TRUE, TRUE, FALSE, dummy);
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_move_to_corner_sw  (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -2760,9 +2767,10 @@ handle_move_to_corner_sw  (MetaDisplay    *display,
                            gpointer        dummy)
 {
   handle_move_to_corner_backend (display, screen, window, TRUE, TRUE, FALSE, TRUE, dummy);
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_move_to_corner_se  (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -2771,9 +2779,10 @@ handle_move_to_corner_se  (MetaDisplay    *display,
                            gpointer        dummy)
 {
   handle_move_to_corner_backend (display, screen, window, TRUE, TRUE, TRUE, TRUE, dummy);
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_move_to_side_n     (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -2782,9 +2791,10 @@ handle_move_to_side_n     (MetaDisplay    *display,
                            gpointer        dummy)
 {
   handle_move_to_corner_backend (display, screen, window, FALSE, TRUE, FALSE, FALSE, dummy);
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_move_to_side_s     (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -2793,9 +2803,10 @@ handle_move_to_side_s     (MetaDisplay    *display,
                            gpointer        dummy)
 {
   handle_move_to_corner_backend (display, screen, window, FALSE, TRUE, FALSE, TRUE, dummy);
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_move_to_side_e     (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -2804,9 +2815,10 @@ handle_move_to_side_e     (MetaDisplay    *display,
                            gpointer        dummy)
 {
   handle_move_to_corner_backend (display, screen, window, TRUE, FALSE, TRUE, FALSE, dummy);
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_move_to_side_w     (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -2815,9 +2827,10 @@ handle_move_to_side_w     (MetaDisplay    *display,
                            gpointer        dummy)
 {
   handle_move_to_corner_backend (display, screen, window, TRUE, FALSE, FALSE, FALSE, dummy);
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_move_to_center  (MetaDisplay    *display,
                         MetaScreen     *screen,
                         MetaWindow     *window,
@@ -2843,6 +2856,8 @@ handle_move_to_center  (MetaDisplay    *display,
           work_area.y + (work_area.height+frame_height-outer.height)/2,
           window->rect.width,
           window->rect.height);
+
+  return FALSE;
 }
 
 static gboolean
@@ -2959,7 +2974,7 @@ process_workspace_switch_grab (MetaDisplay *display,
   return FALSE;
 }
 
-static void
+static gboolean
 handle_show_desktop (MetaDisplay    *display,
                        MetaScreen     *screen,
                        MetaWindow     *window,
@@ -2976,9 +2991,11 @@ handle_show_desktop (MetaDisplay    *display,
     }
   else
     meta_screen_show_desktop (screen, event->xkey.time);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_panel (MetaDisplay    *display,
                          MetaScreen     *screen,
                          MetaWindow     *window,
@@ -3001,7 +3018,7 @@ handle_panel (MetaDisplay    *display,
       action_atom = display->atom__GNOME_PANEL_ACTION_RUN_DIALOG;
       break;
     default:
-      return;
+      return FALSE;
     }
    
   ev.type = ClientMessage;
@@ -3028,9 +3045,11 @@ handle_panel (MetaDisplay    *display,
 	      (XEvent*) &ev);
 
   meta_error_trap_pop (display);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_activate_window_menu (MetaDisplay    *display,
                       MetaScreen     *screen,
                       MetaWindow     *event_window,
@@ -3053,6 +3072,8 @@ handle_activate_window_menu (MetaDisplay    *display,
                              0,
                              event->xkey.time);
     }
+
+  return TRUE;
 }
 
 static MetaGrabOp
@@ -3199,7 +3220,7 @@ do_choose_window (MetaDisplay    *display,
     }
 }
 
-static void
+static gboolean
 handle_switch (MetaDisplay    *display,
                     MetaScreen     *screen,
                     MetaWindow     *event_window,
@@ -3211,9 +3232,10 @@ handle_switch (MetaDisplay    *display,
 
   do_choose_window (display, screen, event_window, event, binding,
                     backwards, TRUE);
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_cycle (MetaDisplay    *display,
                     MetaScreen     *screen,
                     MetaWindow     *event_window,
@@ -3225,9 +3247,10 @@ handle_cycle (MetaDisplay    *display,
 
   do_choose_window (display, screen, event_window, event, binding,
                     backwards, FALSE);
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_tab_popup_select (MetaDisplay    *display,
                          MetaScreen     *screen,
                          MetaWindow     *window,
@@ -3236,9 +3259,10 @@ handle_tab_popup_select (MetaDisplay    *display,
                          gpointer        dummy)
 {
   /* Stub for custom handlers; no default implementation */
+  return FALSE;
 }
 
-static void
+static gboolean
 handle_tab_popup_cancel (MetaDisplay    *display,
                          MetaScreen     *screen,
                          MetaWindow     *window,
@@ -3247,9 +3271,10 @@ handle_tab_popup_cancel (MetaDisplay    *display,
                          gpointer        dummy)
 {
   /* Stub for custom handlers; no default implementation */
+  return FALSE;
 }
 
-static void
+static gboolean
 handle_toggle_fullscreen  (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -3261,9 +3286,11 @@ handle_toggle_fullscreen  (MetaDisplay    *display,
     meta_window_unmake_fullscreen (window);
   else if (window->has_fullscreen_func)
     meta_window_make_fullscreen (window);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_toggle_above       (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -3275,9 +3302,11 @@ handle_toggle_above       (MetaDisplay    *display,
     meta_window_unmake_above (window);
   else
     meta_window_make_above (window);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_toggle_tiled (MetaDisplay    *display,
                      MetaScreen     *screen,
                      MetaWindow     *window,
@@ -3315,9 +3344,11 @@ handle_toggle_tiled (MetaDisplay    *display,
       window->maximized_horizontally = FALSE;
       meta_window_tile (window);
     }
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_toggle_maximized    (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -3333,9 +3364,11 @@ handle_toggle_maximized    (MetaDisplay    *display,
     meta_window_maximize (window,
                           META_MAXIMIZE_HORIZONTAL |
                           META_MAXIMIZE_VERTICAL);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_maximize           (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -3347,9 +3380,11 @@ handle_maximize           (MetaDisplay    *display,
     meta_window_maximize (window,
                           META_MAXIMIZE_HORIZONTAL |
                           META_MAXIMIZE_VERTICAL);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_unmaximize         (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -3361,9 +3396,11 @@ handle_unmaximize         (MetaDisplay    *display,
     meta_window_unmaximize (window,
                             META_MAXIMIZE_HORIZONTAL |
                             META_MAXIMIZE_VERTICAL);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_toggle_shaded      (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -3375,9 +3412,11 @@ handle_toggle_shaded      (MetaDisplay    *display,
     meta_window_unshade (window, event->xkey.time);
   else if (window->has_shade_func)
     meta_window_shade (window, event->xkey.time);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_close              (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -3387,9 +3426,11 @@ handle_close              (MetaDisplay    *display,
 {
   if (window->has_close_func)
     meta_window_delete (window, event->xkey.time);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_minimize        (MetaDisplay    *display,
                         MetaScreen     *screen,
                         MetaWindow     *window,
@@ -3399,9 +3440,11 @@ handle_minimize        (MetaDisplay    *display,
 {
   if (window->has_minimize_func)
     meta_window_minimize (window);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_begin_move         (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -3416,9 +3459,11 @@ handle_begin_move         (MetaDisplay    *display,
                                  FALSE,
                                  event->xkey.time);
     }
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_begin_resize       (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -3433,9 +3478,11 @@ handle_begin_resize       (MetaDisplay    *display,
                                  FALSE,
                                  event->xkey.time);
     }
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_toggle_on_all_workspaces (MetaDisplay    *display,
                            MetaScreen     *screen,
                            MetaWindow     *window,
@@ -3447,13 +3494,15 @@ handle_toggle_on_all_workspaces (MetaDisplay    *display,
     meta_window_unstick (window);
   else
     meta_window_stick (window);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_move_to_workspace  (MetaDisplay    *display,
-                              MetaScreen     *screen,
-                              MetaWindow     *window,
-                              XEvent         *event,
+                           MetaScreen     *screen,
+                           MetaWindow     *window,
+                           XEvent         *event,
                            MetaKeyBinding *binding,
                            gpointer        dummy)
 {
@@ -3470,11 +3519,11 @@ handle_move_to_workspace  (MetaDisplay    *display,
    */
 
   if (window->always_sticky)
-    return;
-  
+    return FALSE;
+
   workspace = NULL;
   if (flip)
-    {      
+    {
       workspace = meta_workspace_get_neighbor (screen->active_workspace,
                                                which);
     }
@@ -3482,7 +3531,7 @@ handle_move_to_workspace  (MetaDisplay    *display,
     {
       workspace = meta_screen_get_workspace_by_index (screen, which);
     }
-  
+
   if (workspace)
     {
       /* Activate second, so the window is never unmapped */
@@ -3501,10 +3550,12 @@ handle_move_to_workspace  (MetaDisplay    *display,
   else
     {
       /* We could offer to create it I suppose */
-    }  
+    }
+
+  return TRUE;
 }
 
-static void 
+static gboolean
 handle_raise_or_lower (MetaDisplay    *display,
                        MetaScreen     *screen,
 		       MetaWindow     *window,
@@ -3520,7 +3571,7 @@ handle_raise_or_lower (MetaDisplay    *display,
   if (meta_stack_get_top (window->screen->stack) == window)
     {
       meta_window_lower (window);
-      return;
+      return TRUE;
     }
       
   /* else check if windows in same layer are intersecting it */
@@ -3540,7 +3591,7 @@ handle_raise_or_lower (MetaDisplay    *display,
           if (meta_rectangle_intersect (&win_rect, &above_rect, &tmp))
             {
               meta_window_raise (window);
-              return;
+              return TRUE;
             }
         }
 	  
@@ -3549,9 +3600,10 @@ handle_raise_or_lower (MetaDisplay    *display,
 
   /* window is not obscured */
   meta_window_lower (window);
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_raise (MetaDisplay    *display,
               MetaScreen     *screen,
               MetaWindow     *window,
@@ -3560,9 +3612,11 @@ handle_raise (MetaDisplay    *display,
               gpointer        dummy)
 {
   meta_window_raise (window);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_lower (MetaDisplay    *display,
               MetaScreen     *screen,
               MetaWindow     *window,
@@ -3571,9 +3625,11 @@ handle_lower (MetaDisplay    *display,
               gpointer        dummy)
 {
   meta_window_lower (window);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_workspace_switch  (MetaDisplay    *display,
                           MetaScreen     *screen,
                           MetaWindow     *window,
@@ -3604,7 +3660,7 @@ handle_workspace_switch  (MetaDisplay    *display,
                                    grab_mask,
                                    event->xkey.time,
                                    0, 0))
-    return;
+    return FALSE;
 
   next = meta_workspace_get_neighbor (screen->active_workspace, motion);
   g_assert (next); 
@@ -3627,17 +3683,21 @@ handle_workspace_switch  (MetaDisplay    *display,
 
   if (grabbed_before_release && !meta_prefs_get_no_tab_popup ())
     meta_screen_workspace_popup_create (screen, next);
+
+  return TRUE;
 }
 
-static void
+static gboolean
 handle_set_spew_mark (MetaDisplay    *display,
-                  MetaScreen     *screen,
-                  MetaWindow     *window,
-                  XEvent         *event,
+                      MetaScreen     *screen,
+                      MetaWindow     *window,
+                      XEvent         *event,
                       MetaKeyBinding *binding,
                       gpointer        dummy)
 {
   meta_verbose ("-- MARK MARK MARK MARK --\n");
+
+  return TRUE;
 }
 
 void

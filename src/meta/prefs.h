@@ -251,12 +251,12 @@ typedef struct
  * @event: (type gpointer):
  *
  */
-typedef void (* MetaKeyHandlerFunc) (MetaDisplay    *display,
-                                     MetaScreen     *screen,
-                                     MetaWindow     *window,
-                                     XEvent         *event,
-                                     MetaKeyBinding *binding,
-                                     gpointer        user_data);
+typedef gboolean (* MetaKeyHandlerFunc) (MetaDisplay    *display,
+                                         MetaScreen     *screen,
+                                         MetaWindow     *window,
+                                         XEvent         *event,
+                                         MetaKeyBinding *binding,
+                                         gpointer        user_data);
 
 typedef struct _MetaKeyHandler MetaKeyHandler;
 
