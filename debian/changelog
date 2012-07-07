@@ -1,4 +1,4 @@
-mutter (3.4.1-6) UNRELEASED; urgency=low
+mutter (3.4.1-6) unstable; urgency=low
 
   [ Rico Tzschichholz ]
   * debian/patches: Add upstream patch
@@ -10,7 +10,7 @@ mutter (3.4.1-6) UNRELEASED; urgency=low
     Closes: #680004
   * Use list-missing to list files missing from the package.
 
- -- Michael Biebl <biebl@debian.org>  Sat, 07 Jul 2012 19:46:27 +0200
+ -- Michael Biebl <biebl@debian.org>  Sat, 07 Jul 2012 20:03:06 +0200
 
 mutter (3.4.1-4) unstable; urgency=low
 
