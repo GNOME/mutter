@@ -17,3 +17,5 @@ DEB_DH_GIREPOSITORY_ARGS_ALL := /usr/lib/mutter
 
 # This does not work with mutter; disabled, for now.
 # LDFLAGS += -Wl,-z,defs -Wl,-O1 -Wl,--as-needed
+
+common-binary-post-install-arch:: list-missing
