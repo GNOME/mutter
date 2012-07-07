@@ -1,4 +1,4 @@
-mutter (3.4.1-6) unstable; urgency=low
+mutter (3.4.1-5) unstable; urgency=low
 
   [ Rico Tzschichholz ]
   * debian/patches: Add upstream patch
