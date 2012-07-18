@@ -3764,6 +3764,8 @@ meta_display_end_grab_op (MetaDisplay *display,
   g_signal_emit (display, display_signals[GRAB_OP_END], 0,
                  display->grab_screen, display->grab_window, display->grab_op);
 
+  display->grab_frame_action = FALSE;
+
   if (display->grab_window != NULL)
     display->grab_window->shaken_loose = FALSE;
   
