@@ -1,3 +1,45 @@
+mutter (3.4.1-5) unstable; urgency=low
+
+  [ Rico Tzschichholz ]
+  * debian/patches: Add upstream patch
+    00_meta_window_move_frame-fix-crash-when-frame-is-NULL.patch 
+
+  [ Michael Biebl ]
+  * Install missing keybindings file 50-mutter-windows.xml which is required
+    to configure mutter specific keyboard shortcuts in gnome-control-center.
+    Closes: #680004
+  * Use list-missing to list files missing from the package.
+
+ -- Michael Biebl <biebl@debian.org>  Sat, 07 Jul 2012 20:03:06 +0200
+
+mutter (3.4.1-4) unstable; urgency=low
+
+  * Clean up /etc/sgml/mutter-common.cat and /etc/sgml/mutter-common.cat.old
+    on upgrades. Closes: #675309
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 01 Jun 2012 12:49:07 +0200
+
+mutter (3.4.1-3) unstable; urgency=low
+
+  [ Michael Biebl ]
+  * Upload to unstable.
+
+  [ Rico Tzschichholz ]
+  * libmutter-dev: add dependency on gsettings-desktop-schemas-dev and
+    libx11-dev as pc-file requests
+
+  [ Michael Biebl ]
+  * Bump Suggests: gnome-control-center to (>= 1:3.4.0) as we want a recent
+    enough version which can handle keybindings based on GSettings.
+  * Use strict dependency between mutter/libmutter0 and mutter-common to
+    ensure we have the correct version of mutter-common providing the
+    org.gnome.mutter gsettings schema.
+  * Add Depends on gnome-themes-standard to mutter. Adwaita is the preferred
+    window manager theme and without a theme installed mutter refuses to
+    start. Closes: #658823
+
+ -- Michael Biebl <biebl@debian.org>  Wed, 30 May 2012 12:25:26 +0200
+
 mutter (3.4.1-2) experimental; urgency=low
 
   * Drop debian/mutter-common.catalog and debian/mutter-common.sgmlcatalogs.
