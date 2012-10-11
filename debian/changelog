@@ -1,3 +1,13 @@
+mutter (3.6.0-1) UNRELEASED; urgency=low
+
+  * New upstream release
+  * Sync with Ubuntu:
+    - Drop unnecessary gnome-doc-utils install
+  * d/p/00_meta_window_move_frame-fix-crash-when-frame-is-NULL.patch:
+    Dropped: fixed upstream
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Thu, 11 Oct 2012 21:36:05 +0200
+
 mutter (3.4.1-5) unstable; urgency=low
 
   [ Rico Tzschichholz ]
