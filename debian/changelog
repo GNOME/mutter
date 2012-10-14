@@ -1,4 +1,4 @@
-mutter (3.6.0-1) UNRELEASED; urgency=low
+mutter (3.6.0-1) experimental; urgency=low
 
   * New upstream release
   * Sync with Ubuntu:
@@ -8,7 +8,7 @@ mutter (3.6.0-1) UNRELEASED; urgency=low
   * debian/control.in: Rename libmutter0 to libmutter0a as the libmutter ABI
     broke
 
- -- Sjoerd Simons <sjoerd@debian.org>  Sun, 14 Oct 2012 19:10:10 +0200
+ -- Sjoerd Simons <sjoerd@debian.org>  Sun, 14 Oct 2012 19:24:21 +0200
 
 mutter (3.4.1-5) unstable; urgency=low
 
