@@ -5,10 +5,10 @@ mutter (3.6.0-1) UNRELEASED; urgency=low
     - Drop unnecessary gnome-doc-utils install
   * d/p/00_meta_window_move_frame-fix-crash-when-frame-is-NULL.patch:
     Dropped: fixed upstream
-  * debian/control.in: libmutter0 breaks gnome-shell (<< 3.6.0) as it broke
-    ABI... Final solution pending
+  * debian/control.in: Rename libmutter0 to libmutter0a as the libmutter ABI
+    broke
 
- -- Sjoerd Simons <sjoerd@debian.org>  Thu, 11 Oct 2012 22:56:08 +0200
+ -- Sjoerd Simons <sjoerd@debian.org>  Sun, 14 Oct 2012 19:10:10 +0200
 
 mutter (3.4.1-5) unstable; urgency=low
 
