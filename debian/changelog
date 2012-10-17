@@ -1,3 +1,9 @@
+mutter (3.6.1-1) experimental; urgency=low
+
+  * New upstream release
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Wed, 17 Oct 2012 19:58:10 +0200
+
 mutter (3.6.0-1) experimental; urgency=low
 
   * New upstream release
