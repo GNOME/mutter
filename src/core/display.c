@@ -49,6 +49,7 @@
 #include "xprops.h"
 #include "workspace-private.h"
 #include "bell.h"
+#include "device-pointer.h"
 #include "device-keyboard.h"
 #include "device-private.h"
 #include "input-events.h"
@@ -1642,11 +1643,9 @@ window_focus_on_pointer_rest_callback (gpointer data)
   MetaDevice *device;
   MetaScreen *screen;
   MetaWindow *window;
-  Window child, root;
+  Window child;
   int root_x, root_y;
-  int x, y;
   guint32 timestamp;
-  guint mask;
 
   focus_data = data;
   display = focus_data->display;
@@ -1656,12 +1655,12 @@ window_focus_on_pointer_rest_callback (gpointer data)
   if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
     goto out;
 
-  meta_error_trap_push (display);
-  XQueryPointer (display->xdisplay,
-                 screen->xroot,
-                 &root, &child,
-                 &root_x, &root_y, &x, &y, &mask);
-  meta_error_trap_pop (display);
+  meta_device_pointer_query_position (META_DEVICE_POINTER (device),
+                                      screen->xroot,
+                                      NULL,
+                                      &child,
+                                      &root_x, &root_y,
+                                      NULL, NULL, NULL);
 
   if (root_x != focus_data->pointer_x ||
       root_y != focus_data->pointer_y)
