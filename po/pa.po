@@ -16,15 +16,15 @@ msgstr ""
 "Project-Id-Version: metacity.gnome-2-26\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=mutter&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2012-08-06 23:35+0000\n"
-"PO-Revision-Date: 2012-08-22 08:59+0530\n"
+"POT-Creation-Date: 2012-10-16 21:27+0000\n"
+"PO-Revision-Date: 2012-11-04 09:24+0530\n"
 "Last-Translator: A S Alam <aalam@users.sf.net>\n"
 "Language-Team: Punjabi/Panjabi <punjabi-users@lists.sf.net>\n"
 "Language: pa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.4\n"
+"X-Generator: Lokalize 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "\n"
 
@@ -60,17 +60,16 @@ msgstr "ਘੰਟੀ ਈਵੈਂਟ"
 msgid "Unknown window information request: %d"
 msgstr "ਅਣਜਾਣ ਵਿੰਡੋ ਜਾਣਕਾਰੀ ਮੰਗ: %d"
 
-#: ../src/core/delete.c:114
+#: ../src/core/delete.c:113
 #, c-format
-#| msgid "<tt>%s</tt> is not responding."
 msgid "%s is not responding."
 msgstr "%s ਜਵਾਬ ਨਹੀਂ ਦੇ ਰਹੀ ਹੈ।"
 
-#: ../src/core/delete.c:118
+#: ../src/core/delete.c:117
 msgid "Application is not responding."
 msgstr "ਐਪਲੀਕੇਸ਼ਨ ਜਵਾਬ ਨਹੀਂ ਦੇ ਰਹੀ ਹੈ।"
 
-#: ../src/core/delete.c:123
+#: ../src/core/delete.c:122
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -78,25 +77,25 @@ msgstr ""
 "ਤੁਸੀਂ ਇਸ ਲਈ ਕੁਝ ਸਮੇਂ ਵਾਸਤੇ ਉਡੀਕ ਕਰ ਸਕਦੇ ਹੋ ਜਾਂ ਕਾਰਜ ਨੂੰ ਧੱਕੇ ਨਾਲ ਬੰਦ ਕਰ ਸਕਦੇ "
 "ਹੋ।"
 
-#: ../src/core/delete.c:130
+#: ../src/core/delete.c:129
 msgid "_Wait"
 msgstr "ਉਡੀਕੋ(_W)"
 
-#: ../src/core/delete.c:130
+#: ../src/core/delete.c:129
 msgid "_Force Quit"
 msgstr "ਧੱਕੇ ਨਾਲ ਬੰਦ(_F)"
 
-#: ../src/core/display.c:380
+#: ../src/core/display.c:396
 #, c-format
 msgid "Missing %s extension required for compositing"
 msgstr "ਕੰਪੋਜ਼ਿਸ਼ਨਿੰਗ ਲਈ %s ਐਕਸਟੈਨਸ਼ਨ ਗੁੰਮ ਹੈ"
 
-#: ../src/core/display.c:446
+#: ../src/core/display.c:493
 #, c-format
 msgid "Failed to open X Window System display '%s'\n"
 msgstr "X ਵਿੰਡੋ ਸਿਸਟਮ ਡਿਸਪਲੇਅ '%s' ਨੂੰ ਖੋਲਣ ਵਿੱਚ ਅਸਮਰਥ\n"
 
-#: ../src/core/keybindings.c:844
+#: ../src/core/keybindings.c:853
 #, c-format
 msgid ""
 "Some other program is already using the key %s with modifiers %x as a "
@@ -159,11 +158,10 @@ msgid "Print version"
 msgstr "ਵਰਜਨ ਛਾਪੋ"
 
 #: ../src/core/mutter.c:60
-#| msgid "Clutter Plugins"
 msgid "Mutter plugin to use"
 msgstr "ਵਰਤਣ ਲਈ ਮੁੱਟਰ ਪਲੱਗਇਨ"
 
-#: ../src/core/prefs.c:1065
+#: ../src/core/prefs.c:1079
 msgid ""
 "Workarounds for broken applications disabled. Some applications may not "
 "behave properly.\n"
@@ -171,13 +169,13 @@ msgstr ""
 "ਖਰਾਬ ਐਪਲੀਕੇਸ਼ਨ ਲਈ ਜੁਗਾੜ ਬੰਦ ਕੀਤਾ ਹੈ। ਕੁਝ ਐਪਲੀਕੇਸ਼ਨ ਚੰਗੀ ਤਰਾਂ ਕੰਮ ਨਹੀਂ ਕਰ ਸਕਦੇ "
 "ਹਨ।\n"
 
-#: ../src/core/prefs.c:1140
+#: ../src/core/prefs.c:1154
 #, c-format
 msgid "Could not parse font description \"%s\" from GSettings key %s\n"
 msgstr ""
 "GSettings ਸਵਿੱਚ \"%2$s\" ਤੋਂ ਫੋਂਟ ਵੇਰਵੇ \"%1$s\" ਨੂੰ ਪਾਰਸ ਨਹੀਂ ਕਰ ਸਕਿਆ\n"
 
-#: ../src/core/prefs.c:1206
+#: ../src/core/prefs.c:1220
 #, c-format
 msgid ""
 "\"%s\" found in configuration database is not a valid value for mouse button "
@@ -185,7 +183,7 @@ msgid ""
 msgstr ""
 "ਸੰਰਚਨਾ ਡਾਟਾਬੇਸ ਵਿੱਚ ਲੱਭੀ ਹੋਈ \"%s\" ਮਾਊਸ ਬਟਨ ਸੋਧਕ ਲਈ ਯੋਗ ਕੀਮਤ ਨਹੀਂ ਹੈ\n"
 
-#: ../src/core/prefs.c:1724
+#: ../src/core/prefs.c:1747
 #, c-format
 msgid ""
 "\"%s\" found in configuration database is not a valid value for keybinding "
@@ -194,7 +192,7 @@ msgstr ""
 "ਸੰਰਚਨਾ ਡਾਟਾਬੇਸ ਵਿੱਚ  ਲੱਭੀ ਹੋਈ \"%s\" ਸਵਿੱਚ-ਬਾਈਡਿੰਗ \"%s\" ਲਈ ਯੋਗ ਕੀਮਤ ਨਹੀਂ "
 "ਹੈ\n"
 
-#: ../src/core/prefs.c:1821
+#: ../src/core/prefs.c:1844
 #, c-format
 msgid "Workspace %d"
 msgstr "ਵਰਕਸਪੇਸ %d"
@@ -323,7 +321,7 @@ msgid "Window manager error: "
 msgstr "ਵਿੰਡੋ ਮੈਨੇਜਰ ਗਲਤੀ: "
 
 #. first time through
-#: ../src/core/window.c:7234
+#: ../src/core/window.c:7237
 #, c-format
 msgid ""
 "Window %s sets SM_CLIENT_ID on itself, instead of on the WM_CLIENT_LEADER "
@@ -339,7 +337,7 @@ msgstr ""
 #. * MWM but not WM_NORMAL_HINTS are basically broken. We complain
 #. * about these apps but make them work.
 #.
-#: ../src/core/window.c:7899
+#: ../src/core/window.c:7902
 #, c-format
 msgid ""
 "Window %s sets an MWM hint indicating it isn't resizable, but sets min size "
@@ -349,22 +347,22 @@ msgstr ""
 "ਆਕਾਰ %d x %d ਅਤੇ "
 "ਵੱਧ ਤੋਂ ਵੱਧ ਆਕਾਰ %d x %d ਸੈੱਟ ਕਰਦਾ ਹੈ, ਪਰ ਇਹ ਦਾ ਜ਼ਿਆਦਾ ਮਤਲਬ ਨਹੀਂ ਹੈ।\n"
 
-#: ../src/core/window-props.c:310
+#: ../src/core/window-props.c:274
 #, c-format
 msgid "Application set a bogus _NET_WM_PID %lu\n"
 msgstr "ਐਪਲੀਕੇਸ਼ਨ ਨੇ ਇੱਕ ਫਰਜ਼ੀ _NET_WM_PID %lu ਦਿੱਤਾ ਹੈ\n"
 
-#: ../src/core/window-props.c:429
+#: ../src/core/window-props.c:393
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s ਉੱਤੇ)"
 
-#: ../src/core/window-props.c:1484
+#: ../src/core/window-props.c:1448
 #, c-format
 msgid "Invalid WM_TRANSIENT_FOR window 0x%lx specified for %s.\n"
 msgstr "ਗਲਤ WM_TRANSIENT_FOR ਵਿੰਡੋ 0x%lx %s ਲਈ ਦਿੱਤਾ ਗਿਆ ਹੈ।\n"
 
-#: ../src/core/window-props.c:1495
+#: ../src/core/window-props.c:1459
 #, c-format
 msgid "WM_TRANSIENT_FOR window 0x%lx for %s would create loop.\n"
 msgstr "WM_TRANSIENT_FOR ਵਿੰਡੋ 0x%lx %s ਲੂਪ ਬਣਾਏਗਾ।\n"
@@ -486,10 +484,30 @@ msgstr ""
 "ਕਰਨਾ ਹੈ।"
 
 #: ../src/org.gnome.mutter.gschema.xml.in.h:13
+msgid "Delay focus changes until the pointer stops moving"
+msgstr "ਜਦੋਂ ਤੱਕ ਪੁਆਇੰਟਰ ਹਿਲ-ਜੁਲ ਤੋਂ ਨਾ ਰੁਕੇ ਤਦ ਤੱਕ ਫੋਕਸ ਬਦਲਾਅ ਨੂੰ ਰੋਕੀ ਰੱਖੋ"
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:14
+#| msgid ""
+#| "If set to true, and the focus mode is either \"sloppy\" or \"mouse\" then "
+#| "the focused window will be automatically raised after a delay specified "
+#| "by the auto_raise_delay key. This is not related to clicking on a window "
+#| "to raise it, nor to entering a window during drag-and-drop."
+msgid ""
+"If set to true, and the focus mode is either \"sloppy\" or \"mouse\" then "
+"the focus will not be changed immediately when entering a window, but only "
+"after the pointer stops moving."
+msgstr ""
+"ਜੇ ਇਹ ਸਹੀਂ ਹੋਵੇ ਤਾਂ ਫੋਕਸ ਢੰਗ ਜਾਂ ਤਾਂ \"ਸਲੋਪੀ\" ਜਾਂ \"ਮਾਊਂਸ\" ਹੁੰਦਾ ਹੈ ਤਾਂ "
+"ਫੋਕਸ ਤੁਰੰਤ ਬਦਲਿਆ ਨਹੀਂ ਜਾਵੇਗਾ "
+"ਜਦੋਂ ਵਿੰਡੋ ਵਿੱਚ ਦਾਖਿਲ ਹੋਇਆ ਜਾ ਰਿਹਾ ਹੋਵੇਗਾ, ਪਰ ਕੇਵਲ ਪੁਆਇੰਟ ਦੇ ਰੁਕਣ ਉੱਤੇ ਹੀ "
+"ਹੋਵੇਗਾ।"
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:15
 msgid "Draggable border width"
 msgstr "ਡਰੈਗ ਹੋਣ ਯੋਗ ਬਾਰਡਰ ਚੌੜਾਈ"
 
-#: ../src/org.gnome.mutter.gschema.xml.in.h:14
+#: ../src/org.gnome.mutter.gschema.xml.in.h:16
 msgid ""
 "The amount of total draggable borders. If the theme's visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -498,11 +516,11 @@ msgstr ""
 "ਅਦਿੱਖ ਬਾਰਡਰ "
 "ਨੂੰ ਇਹ ਮੁੱਲ ਦੇ ਬਰਾਬਰ ਕਰਨ ਲਈ ਵਧਾਇਆ ਜਾਵੇਗਾ।"
 
-#: ../src/org.gnome.mutter.gschema.xml.in.h:15
+#: ../src/org.gnome.mutter.gschema.xml.in.h:17
 msgid "Select window from tab popup"
 msgstr "ਟੈਬ ਪੋਪਅੱਪ ਤੋਂ ਵਿੰਡੋ ਚੁਣੋ"
 
-#: ../src/org.gnome.mutter.gschema.xml.in.h:16
+#: ../src/org.gnome.mutter.gschema.xml.in.h:18
 msgid "Cancel tab popup"
 msgstr "ਟੈਬ ਪੋਪਅੱਪ ਰੱਦ ਕਰੋ"
 
@@ -2097,16 +2115,6 @@ msgstr "%d ਕੋਆਰਡੀਨੇਟਰ ਸਮੀਕਰਨ ਪਾਰਸ %g ਸ
 
 #~ msgid "Enable Visual Bell"
 #~ msgstr "ਦਿੱਖ ਘੰਟੀ ਯੋਗ ਕਰੋ"
-
-#~ msgid ""
-#~ "If set to true, and the focus mode is either \"sloppy\" or \"mouse\" then "
-#~ "the focused window will be automatically raised after a delay specified "
-#~ "by the auto_raise_delay key. This is not related to clicking on a window "
-#~ "to raise it, nor to entering a window during drag-and-drop."
-#~ msgstr ""
-#~ "ਜੇ ਇਹ ਸਹੀਂ ਹੋਵੇ ਤਾਂ ਫੋਕਸ ਢੰਗ ਜਾਂ ਤਾਂ \"ਸਲੋਪੀ\" ਜਾਂ \"ਮਾਊਂਸ\" ਹੁੰਦਾ ਹੈ ਤਾਂ ਫੋਕਸ ਹੋਇਆ ਵਿੰਡੋ "
-#~ "auto_raise_delay ਕੁੰਜੀ ਵਲੋਂ ਦਿੱਤੇ ਇੱਕ ਅੰਤਰਾਲ ਬਾਅਦ ਆਟੋਮੈਟਿਕ ਹੀ ਉਭਾਰਿਆ ਜਾਵੇਗਾ। ਇਹ "
-#~ "ਉਭਾਰਨ ਲਈ ਵਿੰਡੋ ਉੱਤੇ ਨਿਰਭਰ ਨਹੀਂ ਹੈ ਅਤੇ ਨਾ ਹੀ ਚੁੱਕਣ ਅਤੇ ਸੁੱਟਣ ਸਮੇਂ ਇੱਕ ਵਿੰਡੋ ਉੱਤੇ ਵੀ ਨਹੀਂ।"
 
 #~ msgid ""
 #~ "If true, ignore the titlebar_font option, and use the standard "
