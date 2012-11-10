@@ -117,21 +117,6 @@ process_property_notify (MetaCompositor	*compositor,
 {
   MetaWindowActor *window_actor;
 
-  if (event->atom == compositor->atom_x_root_pixmap)
-    {
-      GSList *l;
-
-      for (l = meta_display_get_screens (compositor->display); l; l = l->next)
-        {
-	  MetaScreen  *screen = l->data;
-          if (event->window == meta_screen_get_xroot (screen))
-            {
-              meta_background_actor_update (screen);
-              return;
-            }
-        }
-    }
-
   if (window == NULL)
     return;
 

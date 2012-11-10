@@ -34,6 +34,8 @@
 #include <meta/errors.h>
 #include "meta-background-actor-private.h"
 
+#define CROSSFADE_DURATION 1000
+
 /* We allow creating multiple MetaBackgroundActors for the same MetaScreen to
  * allow different rendering options to be set for different copies.
  * But we want to share the same underlying CoglTexture for efficiency and
@@ -55,6 +57,7 @@ struct _MetaScreenBackground
 
   float texture_width;
   float texture_height;
+  CoglTexture *old_texture;
   CoglTexture *texture;
   CoglMaterialWrapMode wrap_mode;
 
@@ -64,10 +67,14 @@ struct _MetaScreenBackground
 struct _MetaBackgroundActorPrivate
 {
   MetaScreenBackground *background;
+  CoglPipeline *single_pipeline;
+  CoglPipeline *crossfade_pipeline;
   CoglPipeline *pipeline;
 
   cairo_region_t *visible_region;
   float dim_factor;
+  float crossfade_progress;
+  guint is_crossfading : 1;
 };
 
 enum
@@ -75,6 +82,7 @@ enum
   PROP_0,
 
   PROP_DIM_FACTOR,
+  PROP_CROSSFADE_PROGRESS,
 
   PROP_LAST
 };
@@ -83,6 +91,7 @@ static GParamSpec *obj_props[PROP_LAST];
 
 G_DEFINE_TYPE (MetaBackgroundActor, meta_background_actor, CLUTTER_TYPE_ACTOR);
 
+static void clear_old_texture          (MetaScreenBackground *background);
 static void set_texture                (MetaScreenBackground *background,
                                         CoglHandle            texture);
 
@@ -150,18 +159,85 @@ meta_screen_background_get (MetaScreen *screen)
 }
 
 static void
-update_wrap_mode_of_actor (MetaBackgroundActor *self)
+update_actor_pipeline (MetaBackgroundActor *self,
+                       gboolean             crossfade)
 {
   MetaBackgroundActorPrivate *priv = self->priv;
 
-  cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, priv->background->wrap_mode);
+  if (crossfade)
+    {
+      priv->pipeline = priv->crossfade_pipeline;
+      priv->is_crossfading = TRUE;
+
+      cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->background->old_texture);
+      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, priv->background->wrap_mode);
+
+      cogl_pipeline_set_layer_texture (priv->pipeline, 1, priv->background->texture);
+      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 1, priv->background->wrap_mode);
+    }
+  else
+    {
+      priv->pipeline = priv->single_pipeline;
+      priv->is_crossfading = FALSE;
+
+      cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->background->texture);
+      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, priv->background->wrap_mode);
+    }
+
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
 }
 
 static void
-update_wrap_mode (MetaScreenBackground *background)
+crossfade_completed (ClutterTimeline     *timeline,
+                     MetaBackgroundActor *actor)
+{
+  clear_old_texture (actor->priv->background);
+  update_actor_pipeline (actor, FALSE);
+}
+
+static void
+clear_old_texture (MetaScreenBackground *background)
+{
+  if (background->old_texture != COGL_INVALID_HANDLE)
+    {
+      cogl_handle_unref (background->old_texture);
+      background->old_texture = COGL_INVALID_HANDLE;
+    }
+}
+
+static void
+set_texture (MetaScreenBackground *background,
+             CoglHandle            texture)
 {
   GSList *l;
+  gboolean crossfade;
   int width, height;
+
+  if (background->old_texture != COGL_INVALID_HANDLE)
+    {
+      cogl_handle_unref (background->old_texture);
+      background->old_texture = COGL_INVALID_HANDLE;
+    }
+
+  if (texture != COGL_INVALID_HANDLE)
+    {
+      background->old_texture = background->texture;
+      background->texture = cogl_handle_ref (texture);
+    }
+  else if (background->texture != COGL_INVALID_HANDLE)
+    {
+      cogl_handle_unref (background->texture);
+      background->texture = COGL_INVALID_HANDLE;
+    }
+
+  if (texture != COGL_INVALID_HANDLE &&
+      background->old_texture != COGL_INVALID_HANDLE)
+    crossfade = TRUE;
+  else
+    crossfade = FALSE;
+
+  background->texture_width = cogl_texture_get_width (background->texture);
+  background->texture_height = cogl_texture_get_height (background->texture);
 
   meta_screen_get_size (background->screen, &width, &height);
 
@@ -175,53 +251,55 @@ update_wrap_mode (MetaScreenBackground *background)
     background->wrap_mode = COGL_MATERIAL_WRAP_MODE_REPEAT;
 
   for (l = background->actors; l; l = l->next)
-    update_wrap_mode_of_actor (l->data);
-}
-
-static void
-set_texture_on_actor (MetaBackgroundActor *self)
-{
-  MetaBackgroundActorPrivate *priv = self->priv;
-  MetaDisplay *display = meta_screen_get_display (priv->background->screen);
-
-  /* This may trigger destruction of an old texture pixmap, which, if
-   * the underlying X pixmap is already gone has the tendency to trigger
-   * X errors inside DRI. For safety, trap errors */
-  meta_error_trap_push (display);
-  cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->background->texture);
-  meta_error_trap_pop (display);
-
-  clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
-}
-
-static void
-set_texture (MetaScreenBackground *background,
-             CoglHandle            texture)
-{
-  MetaDisplay *display = meta_screen_get_display (background->screen);
-  GSList *l;
-
-  /* This may trigger destruction of an old texture pixmap, which, if
-   * the underlying X pixmap is already gone has the tendency to trigger
-   * X errors inside DRI. For safety, trap errors */
-  meta_error_trap_push (display);
-  if (background->texture != COGL_INVALID_HANDLE)
     {
-      cogl_handle_unref (background->texture);
-      background->texture = COGL_INVALID_HANDLE;
+      MetaBackgroundActor *actor = l->data;
+
+      update_actor_pipeline (actor, crossfade);
+
+      if (crossfade)
+        {
+          ClutterTransition *transition;
+          ClutterInterval *interval;
+
+          interval = clutter_interval_new (G_TYPE_FLOAT, 0.0, 1.0);
+          transition = g_object_new (CLUTTER_TYPE_PROPERTY_TRANSITION,
+                                     "animatable", actor,
+                                     "property-name", "crossfade-progress",
+                                     "interval", interval,
+                                     "remove-on-complete", TRUE,
+                                     "duration", CROSSFADE_DURATION,
+                                     "progress-mode", CLUTTER_EASE_OUT_QUAD,
+                                     NULL);
+
+          g_signal_connect_object (transition, "completed",
+                                   G_CALLBACK (crossfade_completed), actor, 0);
+
+          clutter_actor_remove_transition (CLUTTER_ACTOR (actor), "crossfade");
+          clutter_actor_add_transition (CLUTTER_ACTOR (actor), "crossfade",
+                                        transition);
+        }
     }
-  meta_error_trap_pop (display);
+}
 
-  if (texture != COGL_INVALID_HANDLE)
-    background->texture = cogl_handle_ref (texture);
+static void
+update_wrap_mode (MetaScreenBackground *background)
+{
+  GSList *l;
+  int width, height;
 
-  background->texture_width = cogl_texture_get_width (background->texture);
-  background->texture_height = cogl_texture_get_height (background->texture);
+  meta_screen_get_size (background->screen, &width, &height);
 
-  for (l = background->actors; l; l = l->next)
-    set_texture_on_actor (l->data);
+  if (width == background->texture_width && height == background->texture_height)
+    background->wrap_mode = COGL_MATERIAL_WRAP_MODE_CLAMP_TO_EDGE;
+  else
+    background->wrap_mode = COGL_MATERIAL_WRAP_MODE_REPEAT;
 
-  update_wrap_mode (background);
+  for (l = background->actors; l != NULL; l++)
+    {
+      MetaBackgroundActor *actor = l->data;
+
+      update_actor_pipeline (actor, actor->priv->is_crossfading);
+    }
 }
 
 static inline void
@@ -248,7 +326,8 @@ meta_background_actor_dispose (GObject *object)
       priv->background = NULL;
     }
 
-  g_clear_pointer(&priv->pipeline, cogl_object_unref);
+  g_clear_pointer(&priv->single_pipeline, cogl_object_unref);
+  g_clear_pointer(&priv->crossfade_pipeline, cogl_object_unref);
 
   G_OBJECT_CLASS (meta_background_actor_parent_class)->dispose (object);
 }
@@ -298,6 +377,7 @@ meta_background_actor_paint (ClutterActor *actor)
   guint8 opacity = clutter_actor_get_paint_opacity (actor);
   guint8 color_component;
   int width, height;
+  CoglColor crossfade_color;
 
   meta_background_ensure_rendered (priv->background);
 
@@ -310,6 +390,17 @@ meta_background_actor_paint (ClutterActor *actor)
                               color_component,
                               color_component,
                               opacity);
+
+  if (priv->is_crossfading)
+    {
+      cogl_color_init_from_4f (&crossfade_color,
+                               priv->crossfade_progress,
+                               priv->crossfade_progress,
+                               priv->crossfade_progress,
+                               priv->crossfade_progress);
+      cogl_pipeline_set_layer_combine_constant (priv->pipeline,
+                                                1, &crossfade_color);
+    }
 
   cogl_set_source (priv->pipeline);
 
@@ -358,6 +449,22 @@ meta_background_actor_get_paint_volume (ClutterActor       *actor,
 }
 
 static void
+meta_background_actor_set_crossfade_progress (MetaBackgroundActor *self,
+                                              gfloat               crossfade_progress)
+{
+  MetaBackgroundActorPrivate *priv = self->priv;
+
+  if (priv->crossfade_progress == crossfade_progress)
+    return;
+
+  priv->crossfade_progress = crossfade_progress;
+
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
+
+  g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_CROSSFADE_PROGRESS]);
+}
+
+static void
 meta_background_actor_set_dim_factor (MetaBackgroundActor *self,
                                       gfloat               dim_factor)
 {
@@ -387,6 +494,8 @@ meta_background_actor_get_property(GObject         *object,
     case PROP_DIM_FACTOR:
       g_value_set_float (value, priv->dim_factor);
       break;
+    case PROP_CROSSFADE_PROGRESS:
+      g_value_set_float (value, priv->crossfade_progress);
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -405,6 +514,9 @@ meta_background_actor_set_property(GObject         *object,
     {
     case PROP_DIM_FACTOR:
       meta_background_actor_set_dim_factor (self, g_value_get_float (value));
+      break;
+    case PROP_CROSSFADE_PROGRESS:
+      meta_background_actor_set_crossfade_progress (self, g_value_get_float (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -443,7 +555,18 @@ meta_background_actor_class_init (MetaBackgroundActorClass *klass)
                               1.0,
                               G_PARAM_READWRITE);
   obj_props[PROP_DIM_FACTOR] = pspec;
-  g_object_class_install_property (object_class, PROP_DIM_FACTOR, pspec);
+
+  /**
+   * MetaBackgroundActor:crossfade-progress: (skip)
+   */
+  pspec = g_param_spec_float ("crossfade-progress",
+                              "", "",
+                              0.0, 1.0,
+                              1.0,
+                              G_PARAM_READWRITE);
+  obj_props[PROP_CROSSFADE_PROGRESS] = pspec;
+
+  g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 }
 
 static void
@@ -479,11 +602,12 @@ meta_background_actor_new_for_screen (MetaScreen *screen)
   priv->background = meta_screen_background_get (screen);
   priv->background->actors = g_slist_prepend (priv->background->actors, self);
 
-  /* A CoglMaterial and a CoglPipeline are the same thing */
-  priv->pipeline = (CoglPipeline*) meta_create_texture_material (NULL);
+  priv->single_pipeline = meta_create_texture_material (priv->background->texture);
+  priv->crossfade_pipeline = meta_create_crossfade_material (priv->background->old_texture,
+                                                             priv->background->texture);
 
-  set_texture_on_actor (self);
-  update_wrap_mode_of_actor (self);
+  if (priv->background->texture != COGL_INVALID_HANDLE)
+    update_actor_pipeline (self, FALSE);
 
   return CLUTTER_ACTOR (self);
 }
@@ -520,7 +644,7 @@ on_background_drawn (GObject      *object,
     }
   else
     {
-      g_warning ("Failed to create background texture from pixmap: %s",
+      g_warning ("Failed to render background: %s",
                  error->message);
       g_error_free (error);
     }
@@ -650,9 +774,17 @@ meta_background_actor_add_glsl_snippet (MetaBackgroundActor *actor,
 
   if (hook == META_SNIPPET_HOOK_VERTEX ||
       hook == META_SNIPPET_HOOK_FRAGMENT)
-    cogl_pipeline_add_snippet (priv->pipeline, snippet);
+    {
+      cogl_pipeline_add_snippet (priv->single_pipeline, snippet);
+      cogl_pipeline_add_snippet (priv->crossfade_pipeline, snippet);
+    }
   else
-    cogl_pipeline_add_layer_snippet (priv->pipeline, 0, snippet);
+    {
+      /* In case of crossfading, apply the snippet only to the new texture.
+         We can't apply it to both because declarations would be doubled. */
+      cogl_pipeline_add_layer_snippet (priv->single_pipeline, 0, snippet);
+      cogl_pipeline_add_layer_snippet (priv->crossfade_pipeline, 1, snippet);
+    }
 
   cogl_object_unref (snippet);
 }
@@ -686,8 +818,12 @@ meta_background_actor_set_uniform_float (MetaBackgroundActor *actor,
 
   priv = actor->priv;
 
-  cogl_pipeline_set_uniform_float (priv->pipeline,
-                                   cogl_pipeline_get_uniform_location (priv->pipeline,
+  cogl_pipeline_set_uniform_float (priv->single_pipeline,
+                                   cogl_pipeline_get_uniform_location (priv->single_pipeline,
+                                                                       uniform_name),
+                                   n_components, count, uniform);
+  cogl_pipeline_set_uniform_float (priv->crossfade_pipeline,
+                                   cogl_pipeline_get_uniform_location (priv->crossfade_pipeline,
                                                                        uniform_name),
                                    n_components, count, uniform);
 }

@@ -23,47 +23,8 @@
 
 #include "cogl-utils.h"
 
-/**
- * meta_create_color_texture_4ub:
- * @red:
- * @green:
- * @blue:
- * @alpha:
- * @flags: Optional flags for the texture, or %COGL_TEXTURE_NONE;
- *   %COGL_TEXTURE_NO_SLICING is useful if the texture will be
- *   repeated to create a constant color fill, since hardware
- *   repeat can't be used for a sliced texture.
- *
- * Creates a texture that is a single pixel with the specified
- * unpremultiplied color components.
- *
- * Return value: (transfer full): a newly created Cogl texture
- */
-CoglHandle
-meta_create_color_texture_4ub (guint8           red,
-                               guint8           green,
-                               guint8           blue,
-                               guint8           alpha,
-                               CoglTextureFlags flags)
-{
-  CoglColor color;
-  guint8 pixel[4];
-
-  cogl_color_set_from_4ub (&color, red, green, blue, alpha);
-  cogl_color_premultiply (&color);
-
-  pixel[0] = cogl_color_get_red_byte (&color);
-  pixel[1] = cogl_color_get_green_byte (&color);
-  pixel[2] = cogl_color_get_blue_byte (&color);
-  pixel[3] = cogl_color_get_alpha_byte (&color);
-
-  return cogl_texture_new_from_data (1, 1,
-                                     flags,
-                                     COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                                     COGL_PIXEL_FORMAT_ANY,
-                                     4, pixel);
-}
-
+#define CLUTTER_ENABLE_EXPERIMENTAL_API
+#include <clutter/clutter.h>
 
 /* Based on gnome-shell/src/st/st-private.c:_st_create_texture_material.c */
 
@@ -79,32 +40,69 @@ meta_create_color_texture_4ub (guint8           red,
  *
  * Return value: (transfer full): a newly created Cogl material
  */
-CoglHandle
+CoglPipeline *
 meta_create_texture_material (CoglHandle src_texture)
 {
-  static CoglHandle texture_material_template = COGL_INVALID_HANDLE;
-  CoglHandle material;
+  static CoglPipeline *texture_material_template = NULL;
+  CoglPipeline *material;
 
-  /* We use a material that has a dummy texture as a base for all
-     texture materials. The idea is that only the Cogl texture object
-     would be different in the children so it is likely that Cogl will
-     be able to share GL programs between all the textures. */
-  if (G_UNLIKELY (texture_material_template == COGL_INVALID_HANDLE))
+  if (G_UNLIKELY (texture_material_template == NULL))
     {
-      CoglHandle dummy_texture;
+      ClutterBackend *backend = clutter_get_default_backend ();
+      CoglContext *context = clutter_backend_get_cogl_context (backend);
 
-      dummy_texture = meta_create_color_texture_4ub (0xff, 0xff, 0xff, 0xff,
-                                                     COGL_TEXTURE_NONE);
-
-      texture_material_template = cogl_material_new ();
-      cogl_material_set_layer (texture_material_template, 0, dummy_texture);
-      cogl_handle_unref (dummy_texture);
+      texture_material_template = cogl_pipeline_new (context);
+      cogl_pipeline_set_layer_null_texture (texture_material_template,
+                                            0, COGL_TEXTURE_TYPE_2D);
     }
 
-  material = cogl_material_copy (texture_material_template);
+  material = cogl_pipeline_copy (texture_material_template);
 
   if (src_texture != COGL_INVALID_HANDLE)
-    cogl_material_set_layer (material, 0, src_texture);
+    cogl_pipeline_set_layer_texture (material, 0, src_texture);
+
+  return material;
+}
+
+/**
+ * meta_create_crossfade_material:
+ * @src_texture_0: (allow-none): the texture to crossfade from
+ * @src_texture_1: (allow-none): the texture to crossfade to
+ *
+ * Creates a material with two layers, using a combine constant to
+ * crossfade between them.
+ *
+ * Return value: (transfer full): a newly created Cogl material
+ */
+CoglPipeline *
+meta_create_crossfade_material (CoglHandle src_texture_0,
+                                CoglHandle src_texture_1)
+{
+  static CoglPipeline *texture_material_template = NULL;
+  CoglPipeline *material;
+
+  if (G_UNLIKELY (texture_material_template == NULL))
+    {
+      ClutterBackend *backend = clutter_get_default_backend ();
+      CoglContext *context = clutter_backend_get_cogl_context (backend);
+
+      texture_material_template = cogl_pipeline_new (context);
+
+      cogl_pipeline_set_layer_null_texture (texture_material_template,
+                                            0, COGL_TEXTURE_TYPE_2D);
+      cogl_pipeline_set_layer_null_texture (texture_material_template,
+                                            1, COGL_TEXTURE_TYPE_2D);
+      cogl_pipeline_set_layer_combine (texture_material_template,
+                                       1, "RGBA = INTERPOLATE (TEXTURE, PREVIOUS, CONSTANT[A])",
+                                       NULL);
+    }
+
+  material = cogl_pipeline_copy (texture_material_template);
+
+  if (src_texture_0 != COGL_INVALID_HANDLE)
+    cogl_pipeline_set_layer_texture (material, 0, src_texture_0);
+  if (src_texture_1 != COGL_INVALID_HANDLE)
+    cogl_pipeline_set_layer_texture (material, 1, src_texture_1);
 
   return material;
 }
