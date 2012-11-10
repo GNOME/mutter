@@ -48,6 +48,7 @@ libmutter_la_SOURCES =				\
 	compositor/compositor-private.h		\
 	compositor/meta-background-actor.c	\
 	compositor/meta-background-actor-private.h	\
+	compositor/meta-background.c		\
 	compositor/meta-module.c		\
 	compositor/meta-module.h		\
 	compositor/meta-plugin.c		\
