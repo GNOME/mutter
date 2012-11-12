@@ -45,6 +45,9 @@ struct _MetaCompScreen
   GHashTable            *windows_by_xid;
   Window                 output;
 
+  CoglOnscreen          *onscreen;
+  CoglFrameClosure      *frame_closure;
+
   /* Used for unredirecting fullscreen windows */
   guint                   disable_unredirect_count;
   MetaWindowActor             *unredirected_window;
@@ -56,6 +59,8 @@ struct _MetaCompScreen
 
   MetaPluginManager *plugin_mgr;
 };
+
+#define META_SYNC_DELAY 2
 
 void meta_switch_workspace_completed (MetaScreen    *screen);
 

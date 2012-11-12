@@ -550,7 +550,7 @@ meta_compositor_manage_screen (MetaCompositor *compositor,
                           G_CALLBACK (after_stage_paint), info);
 
   /* Wait 6-ms after vblank before starting to draw next frame */
-  clutter_stage_set_sync_delay (CLUTTER_STAGE (info->stage), 2);
+  clutter_stage_set_sync_delay (CLUTTER_STAGE (info->stage), META_SYNC_DELAY);
 
   meta_screen_get_size (screen, &width, &height);
   clutter_actor_realize (info->stage);
@@ -1206,11 +1206,53 @@ meta_compositor_sync_screen_size (MetaCompositor  *compositor,
 }
 
 static void
+frame_callback (CoglOnscreen  *onscreen,
+                CoglFrameEvent event,
+                CoglFrameInfo *frame_info,
+                void          *user_data)
+{
+  MetaCompScreen *info = user_data;
+  GList *l;
+
+  if (event == COGL_FRAME_EVENT_COMPLETE)
+    {
+      gint64 presentation_time_cogl = cogl_frame_info_get_presentation_time (frame_info);
+      gint64 presentation_time;
+
+      if (presentation_time_cogl != 0)
+        {
+          CoglContext *context = cogl_framebuffer_get_context (COGL_FRAMEBUFFER (onscreen));
+          gint64 current_time_cogl = cogl_get_clock_time (context);
+          gint64 now = g_get_monotonic_time ();
+
+          presentation_time =
+            now + (presentation_time_cogl - current_time_cogl) / 1000;
+        }
+      else
+        {
+          presentation_time = 0;
+        }
+
+      for (l = info->windows; l; l = l->next)
+        meta_window_actor_frame_complete (l->data, frame_info, presentation_time);
+    }
+}
+
+static void
 pre_paint_windows (MetaCompScreen *info)
 {
   GList *l;
   MetaWindowActor *top_window;
   MetaWindowActor *expected_unredirected_window = NULL;
+
+  if (info->onscreen == NULL)
+    {
+      info->onscreen = COGL_ONSCREEN (cogl_get_draw_framebuffer ());
+      info->frame_closure = cogl_onscreen_add_frame_callback (info->onscreen,
+                                                              frame_callback,
+                                                              info,
+                                                              NULL);
+    }
 
   if (info->windows == NULL)
     return;
