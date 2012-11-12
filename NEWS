@@ -1,3 +1,15 @@
+3.6.2
+=====
+* Only process keyboard mapping events for the core X keyboard [Rui; #674859]
+
+Contributor:
+  Rui Matos
+
+Translations:
+  Marek Černocký [cs], Мирослав Николић [sr, sr@latin], Mattias Põldaru [et],
+  Nilamdyuti Goswami [as], Sweta Kothari [gu], Tobias Endrigkeit [de],
+  A S Alam [pa]
+
 3.6.1
 =====
 * Fix crash when opening large popup menus [Jasper; #681676]
