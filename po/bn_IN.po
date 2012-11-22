@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=mutter&keywords=I18N+L10N&component=general\n"
 "POT-Creation-Date: 2012-10-16 21:27+0000\n"
-"PO-Revision-Date: 2012-11-16 17:18+0530\n"
+"PO-Revision-Date: 2012-11-22 18:37+0530\n"
 "Last-Translator: Runa Bhattacharjee <runab@redhat.com>\n"
 "Language-Team: Bengali (India) <anubad@lists.ankur.org.in>\n"
 "Language: bn_IN\n"
@@ -359,6 +359,9 @@ msgid ""
 "Window %s sets an MWM hint indicating it isn't resizable, but sets min size "
 "%d x %d and max size %d x %d; this doesn't make much sense.\n"
 msgstr ""
+"মাপের পরিবর্তন সম্ভব না হওয়ার ইঙ্গিত করার উদ্দেশ্যে %s উইন্ডো দ্বারা MWM "
+"হিন্ট নির্ধারণ করা হয়, কিন্তু সর্বনিম্ন মাপ হিসাবে  "
+"%d x %d ও সর্বাধিক মাপ হিসাবে %d x %d নির্ধারণ করা হয়; যা অর্থহীন।\n"
 
 #: ../src/core/window-props.c:274
 #, c-format
@@ -392,6 +395,11 @@ msgid ""
 "This is most likely an application bug, not a window manager bug.\n"
 "The window has title=\"%s\" class=\"%s\" name=\"%s\"\n"
 msgstr ""
+"0x%lx উইন্ডোর জন্য %s বৈশিষ্ট্য উপস্থিত রয়েছে\n"
+"যার জন্য %s ধরন ও %d বিন্যাস প্রত্যাশিত\n"
+"কিন্তু প্রকৃত রূপে %s ধরন ও %d n_items %d বিন্যাস উপস্থিত রয়েছে।\n"
+"এটি সম্ভবত একটি অ্যাপ্লিকেশন বাগ, উইন্ডো বাগ নয়।\n"
+"উইন্ডোর শিরোনাম=\"%s\" ক্লাস=\"%s\" নাম=\"%s\"\n"
 
 #: ../src/core/xprops.c:411
 #, c-format
@@ -427,6 +435,12 @@ msgid ""
 "\"Windows key\" on PC hardware. It's expected that this binding either the "
 "default or set to the empty string."
 msgstr ""
+"এই কি-র সাহায্যে \"overlay\" আরম্ভ করা হবে, যার মূলত উইন্ডোর সম্পূর্ণ তথ্য "
+"উপলব্ধকারী "
+"ও অ্যাপ্লিকেশন আরম্ভের ব্যবস্থা। PC হার্ডওয়্যারে ডিফল্ট মান \"Windows key\" "
+"হওয়া উচিত। "
+"এই বাইন্ডিংয়ের ক্ষেত্রে ডিফল্ট মান অথবা ফাঁকা স্ট্রিং নির্ধারণ হওয়া "
+"প্রত্যাশিত।"
 
 #: ../src/org.gnome.mutter.gschema.xml.in.h:3
 msgid "Attach modal dialogs"
@@ -438,6 +452,10 @@ msgid ""
 "attached to the titlebar of the parent window and are moved together with "
 "the parent window."
 msgstr ""
+"মান true (সত্য) হলে, স্বতন্ত্র শিরোনাম বারের পরিবর্তে, ঊর্ধ্বতন উইন্ডোর "
+"শিরোনাম বারের সাথে "
+"যুক্ত মোডাল ডায়লগ প্রদর্শন করা হয় ও সেগুলি ঊর্ধ্বতন উইন্ডোর সাথে স্থানান্তর "
+"করা হয়।"
 
 #: ../src/org.gnome.mutter.gschema.xml.in.h:5
 msgid "Enable edge tiling when dropping windows on screen edges"
@@ -449,6 +467,10 @@ msgid ""
 "vertically and resizes them horizontally to cover half of the available "
 "area. Dropping windows on the top screen edge maximizes them completely."
 msgstr ""
+"সক্রিয় করা হলে, পর্দার উলম্ব প্রান্তে উইন্ডো স্থাপন করা হলে উইন্ডোগুলির উলম্ব "
+"দিশায় সর্বাধিক মাপ স্থাপন করা হবে ও উপলব্ধ অর্ধেক পরিমান অঞ্চল প্রয়োগ করার "
+"উদ্দেশ্যে অনুভূমিক দিশায় মাপ পরিবর্তন করা হয়। পর্দার উপরের প্রান্তে উইন্ডো "
+"স্থাপন করা হলে সেটি সম্পূর্ণ সর্বাধিক পরিমানে বৃদ্ধি করা হবে।"
 
 #: ../src/org.gnome.mutter.gschema.xml.in.h:7
 msgid "Workspaces are managed dynamically"
@@ -460,6 +482,10 @@ msgid ""
 "static number of workspaces (determined by the num-workspaces key in org."
 "gnome.desktop.wm.preferences)."
 msgstr ""
+"কর্মক্ষেত্রে পরিবর্তনশূল রূপে পরিচালিত হবে নাকি সুনির্দিষ্ট সংখ্যক "
+"কর্মক্ষেত্র "
+"(org.gnome.desktop.wm.preferences-র মধ্যে num-workspaces "
+"কি দ্বারা চিহ্নিত) উপস্থিত থাকবে, তা নির্ধারণ করে।"
 
 #: ../src/org.gnome.mutter.gschema.xml.in.h:9
 msgid "Workspaces only on primary"
@@ -470,6 +496,9 @@ msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
 msgstr ""
+"সকল মনিটরের মধ্যে উপস্থিত সকল উইন্ডোর ক্ষেত্রে কর্মক্ষেত্র পরিবর্তন করা হবে "
+"নাকি শুধুমাত্র প্রধান মনিটরের মধ্যে উপস্থিত উইন্ডোর ক্ষেত্রে কর্মক্ষেত্র "
+"পরিবর্তন করা হবে।‌"
 
 #: ../src/org.gnome.mutter.gschema.xml.in.h:11
 msgid "No tab popup"
@@ -480,6 +509,8 @@ msgid ""
 "Determines whether the use of popup and highlight frame should be disabled "
 "for window cycling."
 msgstr ""
+"উইন্ডো সাইক্লিংয়ের ক্ষেত্রে পপ-আপ ও হাইলাইট ফ্রেমের ব্যবহার নিষ্ক্রিয় করা হবে "
+"কি না।"
 
 #: ../src/org.gnome.mutter.gschema.xml.in.h:13
 msgid "Delay focus changes until the pointer stops moving"
@@ -509,6 +540,8 @@ msgid ""
 "The amount of total draggable borders. If the theme's visible borders are "
 "not enough, invisible borders will be added to meet this value."
 msgstr ""
+"সম্পূর্ণ রূপে টেনে মাপ পরিবর্তনযোগ্য প্রান্তের পরিমান। থিমের প্রদর্শিত "
+"প্রান্তগুলি পর্যাপ্ত না হলে, এই মান পূরণ করার জন্য অদৃশ্য প্রান্ত যোগ করা হবে।"
 
 #: ../src/org.gnome.mutter.gschema.xml.in.h:17
 #| msgid "Remove Window From Top"
@@ -771,6 +804,9 @@ msgid ""
 "GTK custom color specification must have color name and fallback in "
 "parentheses, e.g. gtk:custom(foo,bar); could not parse \"%s\""
 msgstr ""
+"GTK-র রং নির্ধারণের জন্য রংয়ের নাম ও বিকল্প নামগুলি বন্ধনীচিহ্নের মধ্যে "
+"উল্লেখ করা আবশ্যক, উদাহরণস্বরূপ,e.g. gtk:custom(foo,bar); \"%s\" পার্স করতে "
+"ব্যর্থ"
 
 #: ../src/ui/theme.c:1217
 #, c-format
@@ -778,6 +814,9 @@ msgid ""
 "Invalid character '%c' in color_name parameter of gtk:custom, only A-Za-z0-9-"
 "_ are valid"
 msgstr ""
+"gtk:custom-র color_name পরিমিতির মধ্যে অবৈধ অক্ষর '%c' উপস্থিত রয়েছে, "
+"শুধুমাত্র A-Za-z0-9-"
+"_ বৈধ।"
 
 #: ../src/ui/theme.c:1231
 #, c-format
@@ -797,6 +836,9 @@ msgid ""
 "GTK color specification must have the state in brackets, e.g. gtk:fg[NORMAL] "
 "where NORMAL is the state; could not parse \"%s\""
 msgstr ""
+"GTK-র রং নির্ধারণের জন্য অবস্থাটি বন্ধনীচিহ্নের মধ্যে উল্লেখ করা আবশ্যক, "
+"উদাহরণস্বরূপ, gtk:fg[NORMAL] "
+"এই ক্ষেত্রে NORMAL একটি অবস্থা; \"%s\" পার্স করতে ব্যর্থ"
 
 #: ../src/ui/theme.c:1290
 #, c-format
@@ -804,6 +846,9 @@ msgid ""
 "GTK color specification must have a close bracket after the state, e.g. gtk:"
 "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
 msgstr ""
+"GTK-র রং নির্ধারণের জন্য অবস্থা উল্লেখ করার পরে একটি সমাপ্তির বন্ধনী উপস্থিত "
+"থাকা আবশ্যক, উদাহরণস্বরূপ, gtk:fg[NORMAL] "
+"এই ক্ষেত্রে NORMAL একটি অবস্থা; \"%s\" পার্স করতে ব্যর্থ"
 
 #: ../src/ui/theme.c:1301
 #, c-format
@@ -1583,6 +1628,10 @@ msgid ""
 "seconds wall clock time including X server resources (%g milliseconds per "
 "frame)\n"
 msgstr ""
+"%d ফ্রেমগুলি %g client-side সেকেন্ডে (প্রতি ফ্রেমে %g মিলি-সেকেন্ড) ও দেওয়াল "
+"ঘড়ির %g "
+"সেকেন্ডে আঁকা হয়েছে। এর মধ্যে X সার্ভারের রিসোর্স অন্তর্ভুক্ত রয়েছে (প্রতি "
+"ফ্রেমে %g মিলি-সেকেন্ড)\n"
 
 #: ../src/ui/theme-viewer.c:1266
 msgid "position expression test returned TRUE but set error"
