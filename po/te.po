@@ -12,15 +12,15 @@ msgstr ""
 "Project-Id-Version: metacity.gnome-2-26\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=mutter&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2012-08-06 23:35+0000\n"
-"PO-Revision-Date: 2012-09-21 21:19+0530\n"
+"POT-Creation-Date: 2012-11-22 13:10+0000\n"
+"PO-Revision-Date: 2012-11-28 17:18+0530\n"
 "Last-Translator: Krishnababu Krothapalli <kkrothap@redhat.com>\n"
 "Language-Team: Telugu <Fedora-trans-te@redhat.com>\n"
 "Language: te\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.4\n"
+"X-Generator: Lokalize 1.5\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 
 #: ../src/50-mutter-windows.xml.in.h:1
@@ -55,17 +55,16 @@ msgstr "బెల్ సన్నివేశము"
 msgid "Unknown window information request: %d"
 msgstr "తెలియని కిటికీ సమాచార మనవి: %d"
 
-#: ../src/core/delete.c:114
+#: ../src/core/delete.c:113
 #, c-format
-#| msgid "<tt>%s</tt> is not responding."
 msgid "%s is not responding."
 msgstr "%s స్పందించుటలేదు."
 
-#: ../src/core/delete.c:118
+#: ../src/core/delete.c:117
 msgid "Application is not responding."
 msgstr "అనువర్తనం స్పందించుటలేదు."
 
-#: ../src/core/delete.c:123
+#: ../src/core/delete.c:122
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -74,25 +73,25 @@ msgstr ""
 "అనువర్తనమును బలవంతముగా "
 "త్యజించుము"
 
-#: ../src/core/delete.c:130
+#: ../src/core/delete.c:129
 msgid "_Wait"
 msgstr "నిరీక్షించండి (_W)"
 
-#: ../src/core/delete.c:130
+#: ../src/core/delete.c:129
 msgid "_Force Quit"
 msgstr "బలవంతముగా త్యజించు (_F)"
 
-#: ../src/core/display.c:380
+#: ../src/core/display.c:399
 #, c-format
 msgid "Missing %s extension required for compositing"
 msgstr "కూర్పునకు తొలిగించిన %s పొడిగింపు అవసరమున్నది"
 
-#: ../src/core/display.c:446
+#: ../src/core/display.c:496
 #, c-format
 msgid "Failed to open X Window System display '%s'\n"
 msgstr "X కిటికీ సిస్టమ్ ప్రదర్శన '%s'ను తెరుచుట విఫలమైనది\n"
 
-#: ../src/core/keybindings.c:844
+#: ../src/core/keybindings.c:853
 #, c-format
 msgid ""
 "Some other program is already using the key %s with modifiers %x as a "
@@ -163,7 +162,7 @@ msgstr "వివరణము ముద్రించు"
 msgid "Mutter plugin to use"
 msgstr "ఉపయోగించుటకు మట్టర్ చొప్పింత"
 
-#: ../src/core/prefs.c:1065
+#: ../src/core/prefs.c:1079
 msgid ""
 "Workarounds for broken applications disabled. Some applications may not "
 "behave properly.\n"
@@ -172,12 +171,12 @@ msgstr ""
 "అనువర్తనములు సరైన రీతిలో "
 "వ్యవహరించకపోవచ్చు.\n"
 
-#: ../src/core/prefs.c:1140
+#: ../src/core/prefs.c:1154
 #, c-format
 msgid "Could not parse font description \"%s\" from GSettings key %s\n"
 msgstr "%s జికాన్‌ఫ్ కీ నుండి \"%s\" పార్స్ ఖతి వివరించలేకపోవుచున్నది\n"
 
-#: ../src/core/prefs.c:1206
+#: ../src/core/prefs.c:1220
 #, c-format
 msgid ""
 "\"%s\" found in configuration database is not a valid value for mouse button "
@@ -186,7 +185,7 @@ msgstr ""
 "మోస్ బటన్‌  మార్చునదికి రూపకరించిన దత్తాంశస్థానములో కనుగొనిన \"%s\"కు "
 "విలువలేదు\n"
 
-#: ../src/core/prefs.c:1724
+#: ../src/core/prefs.c:1747
 #, c-format
 msgid ""
 "\"%s\" found in configuration database is not a valid value for keybinding "
@@ -194,7 +193,7 @@ msgid ""
 msgstr ""
 "కీబంధించునదికి రూపకరించిన దత్తాంశస్థానములో కనుగొనిన \"%s\"కు విలువలేదు\"%s\"\n"
 
-#: ../src/core/prefs.c:1821
+#: ../src/core/prefs.c:1844
 #, c-format
 msgid "Workspace %d"
 msgstr "%d కార్యక్షేత్రము"
@@ -326,7 +325,7 @@ msgid "Window manager error: "
 msgstr "కిటికీ నిర్వాహకం దోషము: "
 
 #. first time through
-#: ../src/core/window.c:7234
+#: ../src/core/window.c:7237
 #, c-format
 msgid ""
 "Window %s sets SM_CLIENT_ID on itself, instead of on the WM_CLIENT_LEADER "
@@ -343,7 +342,7 @@ msgstr ""
 #. * MWM but not WM_NORMAL_HINTS are basically broken. We complain
 #. * about these apps but make them work.
 #.
-#: ../src/core/window.c:7899
+#: ../src/core/window.c:7902
 #, c-format
 msgid ""
 "Window %s sets an MWM hint indicating it isn't resizable, but sets min size "
@@ -353,22 +352,22 @@ msgstr ""
 "కనిష్ఠ పరిమాణం %d x "
 "%d మరియు గనిష్ఠ పరిమాణం %d x %d ను అమర్చినది; ఇది అర్దవంతమైనదికాదు.\n"
 
-#: ../src/core/window-props.c:310
+#: ../src/core/window-props.c:274
 #, c-format
 msgid "Application set a bogus _NET_WM_PID %lu\n"
 msgstr "అనువర్తనమును నకిలీ _NET_WM_PID %luను అమర్చెను\n"
 
-#: ../src/core/window-props.c:429
+#: ../src/core/window-props.c:393
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s పై)"
 
-#: ../src/core/window-props.c:1484
+#: ../src/core/window-props.c:1448
 #, c-format
 msgid "Invalid WM_TRANSIENT_FOR window 0x%lx specified for %s.\n"
 msgstr "నిస్సారమైన WM_TRANSIENT_FOR కిటికీ 0x%lxని %s కొఱకు పేర్కొనబడినది.\n"
 
-#: ../src/core/window-props.c:1495
+#: ../src/core/window-props.c:1459
 #, c-format
 msgid "WM_TRANSIENT_FOR window 0x%lx for %s would create loop.\n"
 msgstr "WM_TRANSIENT_FOR కిటికీ 0x%lx %s కొఱకు లూప్‌ని స్రుష్ఠించును.\n"
@@ -495,10 +494,24 @@ msgstr ""
 "చేయాలి లేదో నిర్ణయిస్తుంది."
 
 #: ../src/org.gnome.mutter.gschema.xml.in.h:13
+msgid "Delay focus changes until the pointer stops moving"
+msgstr "సూచకి కదులుట ఆగునంతవరకు ఫోకస్ మార్పులను జాగుచేయి"
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:14
+msgid ""
+"If set to true, and the focus mode is either \"sloppy\" or \"mouse\" then "
+"the focus will not be changed immediately when entering a window, but only "
+"after the pointer stops moving."
+msgstr ""
+"true కు అమర్చితే, మరియు ఫోకస్ రీతి \"sloppy\" లేదా \"mouse\" అయితే అప్పుడు "
+"విండోకు ప్రవేశించునప్పుడు "
+"ఫోకస్ తక్షణమే మారబోదు, అయితే సూచకి కదులుట ఆగిన తరువాత మాత్రమే మారును."
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:15
 msgid "Draggable border width"
 msgstr "కదుల్చుటకు వీలుగా ఉన్న సరిహద్దు వెడల్పు"
 
-#: ../src/org.gnome.mutter.gschema.xml.in.h:14
+#: ../src/org.gnome.mutter.gschema.xml.in.h:16
 msgid ""
 "The amount of total draggable borders. If the theme's visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -507,11 +520,11 @@ msgstr ""
 "సరిహద్దులుసరిపోనిచో, ఈ "
 "విలువకు చేరుటకు అగోచరమైన సరిహద్దులను జోడించబడును"
 
-#: ../src/org.gnome.mutter.gschema.xml.in.h:15
+#: ../src/org.gnome.mutter.gschema.xml.in.h:17
 msgid "Select window from tab popup"
 msgstr "పాప్అప్ టాబ్ నుండి కిటికీ ఎంచుకోండి"
 
-#: ../src/org.gnome.mutter.gschema.xml.in.h:16
+#: ../src/org.gnome.mutter.gschema.xml.in.h:18
 msgid "Cancel tab popup"
 msgstr "టాబ్ పాప్అప్ రద్దు"
 
