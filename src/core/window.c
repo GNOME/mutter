@@ -233,8 +233,6 @@ meta_window_finalize (GObject *object)
   if (window->transient_for)
     g_object_unref (window->transient_for);
 
-  meta_icon_cache_free (&window->icon_cache);
-
   g_free (window->sm_client_id);
   g_free (window->wm_client_machine);
   g_free (window->startup_id);
@@ -818,7 +816,6 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->icon_name = NULL;
   window->icon = NULL;
   window->mini_icon = NULL;
-  meta_icon_cache_init (&window->icon_cache);
   window->wm_hints_pixmap = None;
   window->wm_hints_mask = None;
   window->wm_hints_urgent = FALSE;
@@ -6793,25 +6790,13 @@ meta_window_update_icon_now (MetaWindow *window)
   icon = NULL;
   mini_icon = NULL;
 
-  if (meta_read_icons (window->screen,
-                       window->xwindow,
-                       &window->icon_cache,
-                       window->wm_hints_pixmap,
-                       window->wm_hints_mask,
-                       &icon,
-                       META_ICON_WIDTH, META_ICON_HEIGHT,
-                       &mini_icon,
-                       META_MINI_ICON_WIDTH,
-                       META_MINI_ICON_HEIGHT))
+  if (read_icons (window->screen,
+                  window->xwindow,
+                  window->wm_hints_pixmap,
+                  window->wm_hints_mask,
+                  &window->icon))
     {
-      if (window->icon)
-        g_object_unref (G_OBJECT (window->icon));
-
-      if (window->mini_icon)
-        g_object_unref (G_OBJECT (window->mini_icon));
-
       window->icon = icon;
-      window->mini_icon = mini_icon;
 
       g_object_freeze_notify (G_OBJECT (window));
       g_object_notify (G_OBJECT (window), "icon");

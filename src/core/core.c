@@ -737,31 +737,6 @@ meta_core_increment_event_serial (Display *xdisplay)
 }
 
 void
-meta_invalidate_default_icons (void)
-{
-  MetaDisplay *display = meta_get_display ();
-  GSList *windows;
-  GSList *l;
-
-  if (display == NULL)
-    return; /* We can validly be called before the display is opened. */
-
-  windows = meta_display_list_windows (display, META_LIST_DEFAULT);
-  for (l = windows; l != NULL; l = l->next)
-    {
-      MetaWindow *window = (MetaWindow*)l->data;
-
-      if (window->icon_cache.origin == USING_FALLBACK_ICON)
-        {
-          meta_icon_cache_free (&(window->icon_cache));
-          meta_window_update_icon_now (window);
-        }
-    }
-
-  g_slist_free (windows);
-}
-
-void
 meta_core_add_old_event_mask (Display     *xdisplay,
                               Window       xwindow,
                               XIEventMask *mask)

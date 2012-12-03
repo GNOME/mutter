@@ -199,8 +199,6 @@ void       meta_core_set_screen_cursor (Display *xdisplay,
  */
 void meta_core_increment_event_serial (Display *display);
 
-void meta_invalidate_default_icons (void);
-
 void meta_core_add_old_event_mask (Display     *xdisplay,
                                    Window       xwindow,
                                    XIEventMask *mask);
