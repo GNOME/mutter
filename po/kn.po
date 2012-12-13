@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=mutter&keywords=I18N+L10N&component=general\n"
 "POT-Creation-Date: 2012-08-06 23:35+0000\n"
-"PO-Revision-Date: 2012-12-13 17:23+0530\n"
+"PO-Revision-Date: 2012-12-13 17:24+0530\n"
 "Last-Translator: Shankar Prasad <svenkate@redhat.com>\n"
 "Language-Team: Kannada <en@li.org>\n"
 "Language: kn\n"
@@ -123,7 +123,7 @@ msgstr "X ಕರೆಗಳನ್ನು ಮೇಳೈಸುವಂತೆ ಮಾಡ�
 #: ../src/core/main.c:494
 #, c-format
 msgid "Failed to scan themes directory: %s\n"
-msgstr "ಥೀಮ್‍ಗಳನ್ನು ಶೋಧಿಸುವಲ್ಲಿ ಕೋಶವನ್ನು ವಿಫಲಗೊಂಡಿದೆ: %s\n"
+msgstr "ಪರಿಸರವಿನ್ಯಾಸಗಳನ್ನು ಶೋಧಿಸುವಲ್ಲಿ ಕೋಶವನ್ನು ವಿಫಲಗೊಂಡಿದೆ: %s\n"
 
 #: ../src/core/main.c:510
 #, c-format
