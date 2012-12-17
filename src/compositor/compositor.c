@@ -573,7 +573,7 @@ meta_compositor_manage_screen (MetaCompositor *compositor,
   }
 
   info->window_group = meta_window_group_new (screen);
-  info->background_actor = meta_background_actor_new_for_screen (screen);
+  info->background_actor = meta_background_actor_new (screen, NULL);
   info->overlay_group = clutter_group_new ();
 
   clutter_container_add (CLUTTER_CONTAINER (info->window_group),
@@ -1182,8 +1182,6 @@ meta_compositor_sync_screen_size (MetaCompositor  *compositor,
   xwin = clutter_x11_get_stage_window (CLUTTER_STAGE (info->stage));
 
   XResizeWindow (xdisplay, xwin, width, height);
-
-  meta_background_actor_screen_size_changed (screen);
 
   meta_verbose ("Changed size for stage on screen %d to %dx%d\n",
 		meta_screen_get_screen_number (screen),

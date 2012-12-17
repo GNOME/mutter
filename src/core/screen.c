@@ -239,7 +239,7 @@ meta_screen_class_init (MetaScreenClass *klass)
 		  G_TYPE_FROM_CLASS (object_class),
 		  G_SIGNAL_RUN_LAST,
 		  G_STRUCT_OFFSET (MetaScreenClass, monitors_changed),
-          NULL, NULL, NULL,
+                  NULL, NULL, NULL,
 		  G_TYPE_NONE, 0);
 
   g_object_class_install_property (object_class,

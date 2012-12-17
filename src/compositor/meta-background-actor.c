@@ -36,40 +36,39 @@
 
 #define CROSSFADE_DURATION 1000
 
-/* We allow creating multiple MetaBackgroundActors for the same MetaScreen to
+/* We allow creating multiple MetaBackgroundActors for the same MetaScreen and GnomeBG to
  * allow different rendering options to be set for different copies.
- * But we want to share the same underlying CoglTexture for efficiency and
- * to avoid driver bugs that might occur if we created multiple CoglTexturePixmaps
- * for the same pixmap.
+ * But we want to share the same underlying CoglTexture for efficiency.
  *
  * This structure holds common information.
  */
-typedef struct _MetaScreenBackground MetaScreenBackground;
+typedef struct _MetaBackground MetaBackground;
 
-struct _MetaScreenBackground
+struct _MetaBackground
 {
-  MetaScreen *screen;
   GSList *actors;
 
-  GSettings *settings;
-  GnomeBG *bg;
+  MetaScreen   *screen;
   GCancellable *cancellable;
 
   float texture_width;
   float texture_height;
   CoglTexture *old_texture;
   CoglTexture *texture;
-  CoglMaterialWrapMode wrap_mode;
 
   GTask *rendering_task;
 };
 
 struct _MetaBackgroundActorPrivate
 {
-  MetaScreenBackground *background;
+  MetaScreen     *screen;
+  MetaBackground *background;
+  GnomeBG        *settings;
+
   CoglPipeline *single_pipeline;
   CoglPipeline *crossfade_pipeline;
   CoglPipeline *pipeline;
+  CoglMaterialWrapMode wrap_mode;
 
   cairo_region_t *visible_region;
   float dim_factor;
@@ -81,6 +80,9 @@ enum
 {
   PROP_0,
 
+  PROP_SCREEN,
+  PROP_SETTINGS,
+
   PROP_DIM_FACTOR,
   PROP_CROSSFADE_PROGRESS,
 
@@ -91,68 +93,89 @@ static GParamSpec *obj_props[PROP_LAST];
 
 G_DEFINE_TYPE (MetaBackgroundActor, meta_background_actor, CLUTTER_TYPE_ACTOR);
 
-static void clear_old_texture          (MetaScreenBackground *background);
-static void set_texture                (MetaScreenBackground *background,
-                                        CoglHandle            texture);
+static void meta_background_update                    (GnomeBG             *bg,
+                                                       MetaBackground      *background);
+static void meta_background_actor_screen_size_changed (MetaScreen          *screen,
+                                                       MetaBackgroundActor *actor);
+static void meta_background_actor_constructed         (GObject             *object);
+
+static void clear_old_texture          (MetaBackground *background);
+static void set_texture                (MetaBackground *background,
+                                        CoglHandle      texture);
 
 static void
-free_screen_background (MetaScreenBackground *background)
+meta_background_free (MetaBackground *background)
 {
   set_texture (background, COGL_INVALID_HANDLE);
 
   g_cancellable_cancel (background->cancellable);
   g_object_unref (background->cancellable);
 
-  g_object_unref (background->bg);
-  g_object_unref (background->settings);
+  g_clear_object (&background->rendering_task);
+
+  g_slice_free (MetaBackground, background);
 }
 
 static void
-on_settings_changed (GSettings            *settings,
-                     const char           *key,
-                     MetaScreenBackground *background)
+on_settings_changed (GSettings   *settings,
+                     const char  *key,
+                     GnomeBG     *bg)
 {
-  gnome_bg_load_from_preferences (background->bg,
-                                  background->settings);
+  gnome_bg_load_from_preferences (bg, settings);
 }
 
-static MetaScreenBackground *
-meta_screen_background_get (MetaScreen *screen)
+static GnomeBG *
+meta_background_get_default_settings (void)
 {
-  MetaScreenBackground *background;
+  GSettings *settings;
+  GnomeBG *bg;
 
-  background = g_object_get_data (G_OBJECT (screen), "meta-screen-background");
-  if (background == NULL)
+  settings = g_settings_new ("org.gnome.desktop.background");
+  bg = gnome_bg_new ();
+
+  g_signal_connect (settings, "changed",
+                    G_CALLBACK (on_settings_changed), bg);
+  on_settings_changed (settings, NULL, bg);
+
+  /* Just to keep settings alive */
+  g_object_set_data_full (G_OBJECT (bg), "g-settings",
+                          g_object_ref (settings), g_object_unref);
+  g_object_unref (settings);
+
+  return bg;
+}
+
+static MetaBackground *
+meta_background_get (MetaScreen *screen,
+                     GnomeBG    *bg)
+{
+  static GQuark background_quark;
+  MetaBackground *background;
+
+  if (G_UNLIKELY (background_quark == 0))
+    background_quark = g_quark_from_static_string ("meta-background");
+
+  background = g_object_get_qdata (G_OBJECT (bg), background_quark);
+  if (G_UNLIKELY (background == NULL))
     {
-      background = g_new0 (MetaScreenBackground, 1);
+      background = g_slice_new0 (MetaBackground);
+      g_object_set_qdata_full (G_OBJECT (bg), background_quark,
+                               background, (GDestroyNotify) meta_background_free);
 
       background->screen = screen;
-      g_object_set_data_full (G_OBJECT (screen), "meta-screen-background",
-                              background, (GDestroyNotify) free_screen_background);
-
-      background->settings = g_settings_new ("org.gnome.desktop.background");
-      g_signal_connect (background->settings, "changed",
-                        G_CALLBACK (on_settings_changed), background);
-
-      background->bg = gnome_bg_new ();
-      g_signal_connect_object (background->bg, "transitioned",
-                               G_CALLBACK (meta_background_actor_update),
-                               screen, G_CONNECT_SWAPPED);
-      g_signal_connect_object (background->bg, "changed",
-                               G_CALLBACK (meta_background_actor_update),
-                               screen, G_CONNECT_SWAPPED);
-
       background->texture_width = -1;
       background->texture_height = -1;
-      background->wrap_mode = COGL_MATERIAL_WRAP_MODE_REPEAT;
 
-      on_settings_changed (background->settings, NULL, background);
+      g_signal_connect (bg, "transitioned",
+                        G_CALLBACK (meta_background_update), background);
+      g_signal_connect (bg, "changed",
+                        G_CALLBACK (meta_background_update), background);
 
       /* GnomeBG has queued a changed event, but we need to start rendering now,
          or it will be too late when we paint the first frame.
       */
-      g_object_set_data (G_OBJECT (background->bg), "ignore-pending-change", GINT_TO_POINTER (TRUE));
-      meta_background_actor_update (screen);
+      g_object_set_data (G_OBJECT (bg), "ignore-pending-change", GINT_TO_POINTER (TRUE));
+      meta_background_update (bg, background);
     }
 
   return background;
@@ -170,10 +193,10 @@ update_actor_pipeline (MetaBackgroundActor *self,
       priv->is_crossfading = TRUE;
 
       cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->background->old_texture);
-      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, priv->background->wrap_mode);
+      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, priv->wrap_mode);
 
       cogl_pipeline_set_layer_texture (priv->pipeline, 1, priv->background->texture);
-      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 1, priv->background->wrap_mode);
+      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 1, priv->wrap_mode);
     }
   else
     {
@@ -181,7 +204,7 @@ update_actor_pipeline (MetaBackgroundActor *self,
       priv->is_crossfading = FALSE;
 
       cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->background->texture);
-      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, priv->background->wrap_mode);
+      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, priv->wrap_mode);
     }
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
@@ -196,7 +219,7 @@ crossfade_completed (ClutterTimeline     *timeline,
 }
 
 static void
-clear_old_texture (MetaScreenBackground *background)
+clear_old_texture (MetaBackground *background)
 {
   if (background->old_texture != COGL_INVALID_HANDLE)
     {
@@ -206,12 +229,13 @@ clear_old_texture (MetaScreenBackground *background)
 }
 
 static void
-set_texture (MetaScreenBackground *background,
-             CoglHandle            texture)
+set_texture (MetaBackground *background,
+             CoglHandle      texture)
 {
   GSList *l;
   gboolean crossfade;
   int width, height;
+  CoglMaterialWrapMode wrap_mode;
 
   if (background->old_texture != COGL_INVALID_HANDLE)
     {
@@ -246,14 +270,15 @@ set_texture (MetaScreenBackground *background,
    * side of the image via bilinear filtering.
    */
   if (width == background->texture_width && height == background->texture_height)
-    background->wrap_mode = COGL_MATERIAL_WRAP_MODE_CLAMP_TO_EDGE;
+    wrap_mode = COGL_MATERIAL_WRAP_MODE_CLAMP_TO_EDGE;
   else
-    background->wrap_mode = COGL_MATERIAL_WRAP_MODE_REPEAT;
+    wrap_mode = COGL_MATERIAL_WRAP_MODE_REPEAT;
 
   for (l = background->actors; l; l = l->next)
     {
       MetaBackgroundActor *actor = l->data;
 
+      actor->priv->wrap_mode = wrap_mode;
       update_actor_pipeline (actor, crossfade);
 
       if (crossfade)
@@ -281,29 +306,8 @@ set_texture (MetaScreenBackground *background,
     }
 }
 
-static void
-update_wrap_mode (MetaScreenBackground *background)
-{
-  GSList *l;
-  int width, height;
-
-  meta_screen_get_size (background->screen, &width, &height);
-
-  if (width == background->texture_width && height == background->texture_height)
-    background->wrap_mode = COGL_MATERIAL_WRAP_MODE_CLAMP_TO_EDGE;
-  else
-    background->wrap_mode = COGL_MATERIAL_WRAP_MODE_REPEAT;
-
-  for (l = background->actors; l != NULL; l++)
-    {
-      MetaBackgroundActor *actor = l->data;
-
-      update_actor_pipeline (actor, actor->priv->is_crossfading);
-    }
-}
-
 static inline void
-meta_background_ensure_rendered (MetaScreenBackground *background)
+meta_background_ensure_rendered (MetaBackground *background)
 {
   if (G_LIKELY (background->rendering_task == NULL ||
                 background->texture != COGL_INVALID_HANDLE))
@@ -326,8 +330,9 @@ meta_background_actor_dispose (GObject *object)
       priv->background = NULL;
     }
 
-  g_clear_pointer(&priv->single_pipeline, cogl_object_unref);
-  g_clear_pointer(&priv->crossfade_pipeline, cogl_object_unref);
+  g_clear_pointer (&priv->single_pipeline, cogl_object_unref);
+  g_clear_pointer (&priv->crossfade_pipeline, cogl_object_unref);
+  g_clear_object (&priv->settings);
 
   G_OBJECT_CLASS (meta_background_actor_parent_class)->dispose (object);
 }
@@ -342,7 +347,7 @@ meta_background_actor_get_preferred_width (ClutterActor *actor,
   MetaBackgroundActorPrivate *priv = self->priv;
   int width, height;
 
-  meta_screen_get_size (priv->background->screen, &width, &height);
+  meta_screen_get_size (priv->screen, &width, &height);
 
   if (min_width_p)
     *min_width_p = width;
@@ -361,7 +366,7 @@ meta_background_actor_get_preferred_height (ClutterActor *actor,
   MetaBackgroundActorPrivate *priv = self->priv;
   int width, height;
 
-  meta_screen_get_size (priv->background->screen, &width, &height);
+  meta_screen_get_size (priv->screen, &width, &height);
 
   if (min_height_p)
     *min_height_p = height;
@@ -381,7 +386,7 @@ meta_background_actor_paint (ClutterActor *actor)
 
   meta_background_ensure_rendered (priv->background);
 
-  meta_screen_get_size (priv->background->screen, &width, &height);
+  meta_screen_get_size (priv->screen, &width, &height);
 
   color_component = (int)(0.5 + opacity * priv->dim_factor);
 
@@ -440,7 +445,7 @@ meta_background_actor_get_paint_volume (ClutterActor       *actor,
   MetaBackgroundActorPrivate *priv = self->priv;
   int width, height;
 
-  meta_screen_get_size (priv->background->screen, &width, &height);
+  meta_screen_get_size (priv->screen, &width, &height);
 
   clutter_paint_volume_set_width (volume, width);
   clutter_paint_volume_set_height (volume, height);
@@ -481,6 +486,31 @@ meta_background_actor_set_dim_factor (MetaBackgroundActor *self,
 }
 
 static void
+meta_background_actor_set_screen (MetaBackgroundActor *self,
+                                  MetaScreen          *screen)
+{
+  self->priv->screen = screen;
+  g_object_add_weak_pointer (G_OBJECT (screen), (void**) &self->priv->screen);
+
+  g_signal_connect_object (screen, "monitors-changed",
+                           G_CALLBACK (meta_background_actor_screen_size_changed), self, 0);
+}
+
+static void
+meta_background_actor_set_settings (MetaBackgroundActor *self,
+                                    GnomeBG             *settings)
+{
+  MetaBackgroundActorPrivate *priv;
+
+  priv = self->priv;
+
+  if (settings)
+    priv->settings = g_object_ref (settings);
+  else
+    priv->settings = meta_background_get_default_settings ();
+}
+
+static void
 meta_background_actor_get_property(GObject         *object,
                                    guint            prop_id,
                                    GValue          *value,
@@ -496,6 +526,13 @@ meta_background_actor_get_property(GObject         *object,
       break;
     case PROP_CROSSFADE_PROGRESS:
       g_value_set_float (value, priv->crossfade_progress);
+      break;
+    case PROP_SETTINGS:
+      g_value_set_object (value, priv->settings);
+      break;
+    case PROP_SCREEN:
+      g_value_set_object (value, priv->screen);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -518,6 +555,12 @@ meta_background_actor_set_property(GObject         *object,
     case PROP_CROSSFADE_PROGRESS:
       meta_background_actor_set_crossfade_progress (self, g_value_get_float (value));
       break;
+    case PROP_SETTINGS:
+      meta_background_actor_set_settings (self, GNOME_BG (g_value_get_object (value)));
+      break;
+    case PROP_SCREEN:
+      meta_background_actor_set_screen (self, META_SCREEN (g_value_get_object (value)));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -536,11 +579,36 @@ meta_background_actor_class_init (MetaBackgroundActorClass *klass)
   object_class->dispose = meta_background_actor_dispose;
   object_class->get_property = meta_background_actor_get_property;
   object_class->set_property = meta_background_actor_set_property;
+  object_class->constructed = meta_background_actor_constructed;
 
   actor_class->get_preferred_width = meta_background_actor_get_preferred_width;
   actor_class->get_preferred_height = meta_background_actor_get_preferred_height;
   actor_class->paint = meta_background_actor_paint;
   actor_class->get_paint_volume = meta_background_actor_get_paint_volume;
+
+  /**
+   * MetaBackgroundActor:screen:
+   *
+   * The #MetaScreen this actor is operating on.
+   */
+  pspec = g_param_spec_object ("screen",
+                               "Screen",
+                               "The screen the actor is on",
+                               META_TYPE_SCREEN,
+                               G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_SCREEN] = pspec;
+
+  /**
+   * MetaBackgroundActor:settings:
+   *
+   * The #GnomeBG object holding settings for this background.
+   */
+  pspec = g_param_spec_object ("settings",
+                               "Settings",
+                               "Object holding required information to render a background",
+                               GNOME_TYPE_BG,
+                               G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_SETTINGS] = pspec;
 
   /**
    * MetaBackgroundActor:dim-factor:
@@ -578,28 +646,22 @@ meta_background_actor_init (MetaBackgroundActor *self)
                                                    META_TYPE_BACKGROUND_ACTOR,
                                                    MetaBackgroundActorPrivate);
   priv->dim_factor = 1.0;
+  priv->crossfade_progress = 0.0;
+  priv->wrap_mode = COGL_MATERIAL_WRAP_MODE_REPEAT;
 }
 
-/**
- * meta_background_actor_new:
- * @screen: the #MetaScreen
- *
- * Creates a new actor to draw the background for the given screen.
- *
- * Return value: the newly created background actor
- */
-ClutterActor *
-meta_background_actor_new_for_screen (MetaScreen *screen)
+static void
+meta_background_actor_constructed (GObject *object)
 {
   MetaBackgroundActor *self;
   MetaBackgroundActorPrivate *priv;
 
-  g_return_val_if_fail (META_IS_SCREEN (screen), NULL);
+  G_OBJECT_CLASS (meta_background_actor_parent_class)->constructed (object);
 
-  self = g_object_new (META_TYPE_BACKGROUND_ACTOR, NULL);
+  self = META_BACKGROUND_ACTOR (object);
   priv = self->priv;
 
-  priv->background = meta_screen_background_get (screen);
+  priv->background = meta_background_get (priv->screen, priv->settings);
   priv->background->actors = g_slist_prepend (priv->background->actors, self);
 
   priv->single_pipeline = meta_create_texture_material (priv->background->texture);
@@ -608,8 +670,28 @@ meta_background_actor_new_for_screen (MetaScreen *screen)
 
   if (priv->background->texture != COGL_INVALID_HANDLE)
     update_actor_pipeline (self, FALSE);
+}
 
-  return CLUTTER_ACTOR (self);
+/**
+ * meta_background_actor_new:
+ * @screen: the #MetaScreen
+ * @settings: (allow-none): a #GnomeBG holding the background configuration,
+ *            or %NULL to pick the default one.
+ *
+ * Creates a new actor to draw the background for the given screen.
+ *
+ * Return value: the newly created background actor
+ */
+ClutterActor *
+meta_background_actor_new (MetaScreen *screen,
+                           GnomeBG    *settings)
+{
+  g_return_val_if_fail (META_IS_SCREEN (screen), NULL);
+
+  return g_object_new (META_TYPE_BACKGROUND_ACTOR,
+                       "screen", screen,
+                       "settings", settings,
+                       NULL);
 }
 
 static void
@@ -617,24 +699,25 @@ on_background_drawn (GObject      *object,
                      GAsyncResult *result,
                      gpointer      user_data)
 {
-  MetaScreen *screen = META_SCREEN (object);
-  MetaScreenBackground *background;
+  MetaBackground *background;
   CoglHandle texture;
   GError *error;
 
-  background = meta_screen_background_get (screen);
-
-  g_clear_object (&background->rendering_task);
-  g_clear_object (&background->cancellable);
-
   error = NULL;
-  texture = meta_background_draw_finish (screen, result, &error);
+  texture = meta_background_draw_finish (META_SCREEN (object), result, &error);
 
+  /* Don't even access user_data if cancelled, it might be already
+     freed */
   if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
     {
       g_error_free (error);
       return;
     }
+
+  background = user_data;
+
+  g_clear_object (&background->rendering_task);
+  g_clear_object (&background->cancellable);
 
   if (texture != COGL_INVALID_HANDLE)
     {
@@ -650,21 +733,19 @@ on_background_drawn (GObject      *object,
     }
 }
 
-/**
- * meta_background_actor_update:
- * @screen: a #MetaScreen
+/*
+ * meta_background_update:
+ * @bg: the #GnomeBG that triggered the update
+ * @background: a #MetaBackground
  *
  * Forces a redraw of the background. The redraw happens asynchronously in
  * a thread, and the actual on screen change is therefore delayed until
  * the redraw is finished.
  */
 void
-meta_background_actor_update (MetaScreen *screen)
+meta_background_update (GnomeBG        *bg,
+                        MetaBackground *background)
 {
-  MetaScreenBackground *background;
-
-  background = meta_screen_background_get (screen);
-
   if (background->cancellable)
     {
       g_cancellable_cancel (background->cancellable);
@@ -674,10 +755,10 @@ meta_background_actor_update (MetaScreen *screen)
   g_clear_object (&background->rendering_task);
 
   background->cancellable = g_cancellable_new ();
-  background->rendering_task = meta_background_draw_async (screen,
-                                                           background->bg,
+  background->rendering_task = meta_background_draw_async (background->screen,
+                                                           bg,
                                                            background->cancellable,
-                                                           on_background_drawn, NULL);
+                                                           on_background_drawn, background);
 }
 
 /**
@@ -708,7 +789,7 @@ meta_background_actor_set_visible_region (MetaBackgroundActor *self,
   if (visible_region)
     {
       cairo_rectangle_int_t screen_rect = { 0 };
-      meta_screen_get_size (priv->background->screen, &screen_rect.width, &screen_rect.height);
+      meta_screen_get_size (priv->screen, &screen_rect.width, &screen_rect.height);
 
       /* Doing the intersection here is probably unnecessary - MetaWindowGroup
        * should never compute a visible area that's larger than the root screen!
@@ -719,22 +800,26 @@ meta_background_actor_set_visible_region (MetaBackgroundActor *self,
     }
 }
 
-/**
- * meta_background_actor_screen_size_changed:
- * @screen: a #MetaScreen
- *
- * Called by the compositor when the size of the #MetaScreen changes
- */
-void
-meta_background_actor_screen_size_changed (MetaScreen *screen)
+static void
+meta_background_actor_screen_size_changed (MetaScreen          *screen,
+                                           MetaBackgroundActor *actor)
 {
-  MetaScreenBackground *background = meta_screen_background_get (screen);
-  GSList *l;
+  MetaBackgroundActorPrivate *priv;
+  MetaBackground *background;
+  int width, height;
 
-  update_wrap_mode (background);
+  priv = actor->priv;
+  background = priv->background;
 
-  for (l = background->actors; l; l = l->next)
-    clutter_actor_queue_relayout (l->data);
+  meta_screen_get_size (screen, &width, &height);
+
+  if (width == background->texture_width && height == background->texture_height)
+    priv->wrap_mode = COGL_MATERIAL_WRAP_MODE_CLAMP_TO_EDGE;
+  else
+    priv->wrap_mode = COGL_MATERIAL_WRAP_MODE_REPEAT;
+
+  update_actor_pipeline (actor, actor->priv->is_crossfading);
+  clutter_actor_queue_relayout (CLUTTER_ACTOR (actor));
 }
 
 /**
