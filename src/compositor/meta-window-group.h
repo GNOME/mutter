@@ -6,6 +6,7 @@
 #include <clutter/clutter.h>
 
 #include <meta/screen.h>
+#include <meta/meta-background-actor.h>
 
 /**
  * MetaWindowGroup:
@@ -48,5 +49,8 @@ typedef struct _MetaWindowGroupPrivate MetaWindowGroupPrivate;
 GType meta_window_group_get_type (void);
 
 ClutterActor *meta_window_group_new (MetaScreen *screen);
+
+void  meta_window_group_set_background (MetaWindowGroup     *group,
+                                        MetaBackgroundActor *background);
 
 #endif /* META_WINDOW_GROUP_H */

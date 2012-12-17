@@ -576,9 +576,8 @@ meta_compositor_manage_screen (MetaCompositor *compositor,
   info->background_actor = meta_background_actor_new (screen, NULL);
   info->overlay_group = clutter_group_new ();
 
-  clutter_container_add (CLUTTER_CONTAINER (info->window_group),
-                         info->background_actor,
-                         NULL);
+  meta_window_group_set_background (META_WINDOW_GROUP (info->window_group),
+                                    META_BACKGROUND_ACTOR (info->background_actor));
 
   clutter_container_add (CLUTTER_CONTAINER (info->stage),
                          info->window_group,

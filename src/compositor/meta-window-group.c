@@ -22,6 +22,13 @@ struct _MetaWindowGroup
   ClutterGroup parent;
 
   MetaScreen *screen;
+  MetaBackgroundActor *background;
+};
+
+enum {
+  PROP_0,
+  PROP_BACKGROUND,
+  PROP_LAST
 };
 
 G_DEFINE_TYPE (MetaWindowGroup, meta_window_group, CLUTTER_TYPE_GROUP);
@@ -270,7 +277,8 @@ meta_window_group_paint (ClutterActor *actor)
       if (clutter_actor_has_effects (l->data))
         continue;
 
-      if (META_IS_WINDOW_ACTOR (l->data))
+      if (l->data != window_group->background &&
+          META_IS_WINDOW_ACTOR (l->data))
         {
           MetaWindowActor *window_actor = l->data;
           int x, y;
@@ -296,7 +304,7 @@ meta_window_group_paint (ClutterActor *actor)
           meta_window_actor_set_visible_region_beneath (window_actor, visible_region);
           cairo_region_translate (visible_region, x, y);
         }
-      else if (META_IS_BACKGROUND_ACTOR (l->data))
+      else if (l->data == window_group->background)
         {
           MetaBackgroundActor *background_actor = l->data;
           int x, y;
@@ -322,12 +330,13 @@ meta_window_group_paint (ClutterActor *actor)
    */
   for (l = children; l; l = l->next)
     {
-      if (META_IS_WINDOW_ACTOR (l->data))
+      if (l->data != window_group->background &&
+          META_IS_WINDOW_ACTOR (l->data))
         {
           MetaWindowActor *window_actor = l->data;
           meta_window_actor_reset_visible_regions (window_actor);
         }
-      else if (META_IS_BACKGROUND_ACTOR (l->data))
+      else if (l->data == window_group->background)
         {
           MetaBackgroundActor *background_actor = l->data;
           meta_background_actor_set_visible_region (background_actor, NULL);
@@ -337,12 +346,70 @@ meta_window_group_paint (ClutterActor *actor)
   g_list_free (children);
 }
 
+void
+meta_window_group_set_background (MetaWindowGroup     *self,
+                                  MetaBackgroundActor *actor)
+{
+  self->background = actor;
+  clutter_actor_add_child (CLUTTER_ACTOR (self),
+                           CLUTTER_ACTOR (actor));
+}
+
+static void
+meta_window_group_get_property (GObject         *object,
+                                guint            prop_id,
+                                GValue          *value,
+                                GParamSpec      *pspec)
+{
+  MetaWindowGroup *self = META_WINDOW_GROUP (object);
+
+  switch (prop_id)
+    {
+    case PROP_BACKGROUND:
+      g_value_set_object (value, self->background);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_window_group_set_property (GObject         *object,
+                                guint            prop_id,
+                                const GValue    *value,
+                                GParamSpec      *pspec)
+{
+  MetaWindowGroup *self = META_WINDOW_GROUP (object);
+
+  switch (prop_id)
+    {
+    case PROP_BACKGROUND:
+      meta_window_group_set_background (self, g_value_get_object (value));
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
 static void
 meta_window_group_class_init (MetaWindowGroupClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
 
+  object_class->get_property = meta_window_group_get_property;
+  object_class->set_property = meta_window_group_set_property;
+
   actor_class->paint = meta_window_group_paint;
+
+  g_object_class_install_property (object_class, PROP_BACKGROUND,
+                                   g_param_spec_object ("background",
+                                                        "Background actor",
+                                                        "The primary background actor",
+                                                        META_TYPE_BACKGROUND_ACTOR,
+                                                        G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
 static void
