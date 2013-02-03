@@ -69,8 +69,6 @@ struct _MetaBackgroundActorPrivate
   MetaBackground *background;
   GSettings      *settings;
 
-  CoglPipeline *single_pipeline;
-  CoglPipeline *crossfade_pipeline;
   CoglPipeline *pipeline;
   CoglMaterialWrapMode wrap_mode;
 
@@ -182,25 +180,8 @@ update_actor_pipeline (MetaBackgroundActor *self,
 {
   MetaBackgroundActorPrivate *priv = self->priv;
 
-  if (crossfade)
-    {
-      priv->pipeline = priv->crossfade_pipeline;
-      priv->is_crossfading = TRUE;
-
-      cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->background->old_texture);
-      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, priv->wrap_mode);
-
-      cogl_pipeline_set_layer_texture (priv->pipeline, 1, priv->background->texture);
-      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 1, priv->wrap_mode);
-    }
-  else
-    {
-      priv->pipeline = priv->single_pipeline;
-      priv->is_crossfading = FALSE;
-
-      cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->background->texture);
-      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, priv->wrap_mode);
-    }
+  priv->is_crossfading = crossfade;
+  cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, priv->wrap_mode);
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
 }
@@ -325,8 +306,7 @@ meta_background_actor_dispose (GObject *object)
       priv->background = NULL;
     }
 
-  g_clear_pointer (&priv->single_pipeline, cogl_object_unref);
-  g_clear_pointer (&priv->crossfade_pipeline, cogl_object_unref);
+  g_clear_pointer (&priv->pipeline, cogl_object_unref);
   g_clear_object (&priv->settings);
 
   G_OBJECT_CLASS (meta_background_actor_parent_class)->dispose (object);
@@ -370,39 +350,14 @@ meta_background_actor_get_preferred_height (ClutterActor *actor,
 }
 
 static void
-meta_background_actor_paint (ClutterActor *actor)
+paint_background (MetaBackgroundActor *self)
 {
-  MetaBackgroundActor *self = META_BACKGROUND_ACTOR (actor);
   MetaBackgroundActorPrivate *priv = self->priv;
-  guint8 opacity = clutter_actor_get_paint_opacity (actor);
-  guint8 color_component;
-  int width, height;
-  CoglColor crossfade_color;
+  float width, height;
+  ClutterActorBox alloc;
 
-  meta_background_ensure_rendered (priv->background);
-
-  meta_screen_get_size (priv->screen, &width, &height);
-
-  color_component = (int)(0.5 + opacity * priv->dim_factor);
-
-  cogl_pipeline_set_color4ub (priv->pipeline,
-                              color_component,
-                              color_component,
-                              color_component,
-                              opacity);
-
-  if (priv->is_crossfading)
-    {
-      cogl_color_init_from_4f (&crossfade_color,
-                               priv->crossfade_progress,
-                               priv->crossfade_progress,
-                               priv->crossfade_progress,
-                               priv->crossfade_progress);
-      cogl_pipeline_set_layer_combine_constant (priv->pipeline,
-                                                1, &crossfade_color);
-    }
-
-  cogl_set_source (priv->pipeline);
+  clutter_actor_get_allocation_box (CLUTTER_ACTOR (self), &alloc);
+  clutter_actor_box_get_size (&alloc, &width, &height);
 
   if (priv->visible_region)
     {
@@ -430,6 +385,53 @@ meta_background_actor_paint (ClutterActor *actor)
                                           width / priv->background->texture_width,
                                           height / priv->background->texture_height);
     }
+}
+
+static void
+meta_background_actor_paint (ClutterActor *actor)
+{
+  MetaBackgroundActor *self = META_BACKGROUND_ACTOR (actor);
+  MetaBackgroundActorPrivate *priv = self->priv;
+  guint8 opacity = clutter_actor_get_paint_opacity (actor);
+  float crossfade_progress;
+  float first_color_factor, first_alpha_factor,
+    second_color_factor, second_alpha_factor;
+
+  meta_background_ensure_rendered (priv->background);
+
+  if (priv->is_crossfading)
+    crossfade_progress = priv->crossfade_progress;
+  else
+    crossfade_progress = 1.0;
+
+  first_color_factor = (opacity / 256.f) * priv->dim_factor * crossfade_progress;
+  first_alpha_factor = (opacity / 256.f) * crossfade_progress;
+  second_color_factor = (opacity / 256.f) * priv->dim_factor * (1 - crossfade_progress);
+  second_alpha_factor = (opacity / 256.f) * (1 - crossfade_progress);
+
+  cogl_set_source (priv->pipeline);
+
+  if (priv->is_crossfading)
+    {
+      cogl_pipeline_set_color4f (priv->pipeline,
+                                 second_color_factor,
+                                 second_color_factor,
+                                 second_color_factor,
+                                 second_alpha_factor);
+      cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->background->old_texture);
+
+      paint_background (self);
+    }
+
+
+  cogl_pipeline_set_color4f (priv->pipeline,
+                             first_color_factor,
+                             first_color_factor,
+                             first_color_factor,
+                             first_alpha_factor);
+  cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->background->texture);
+
+  paint_background (self);
 }
 
 static gboolean
@@ -659,9 +661,7 @@ meta_background_actor_constructed (GObject *object)
   priv->background = meta_background_get (priv->screen, priv->settings);
   priv->background->actors = g_slist_prepend (priv->background->actors, self);
 
-  priv->single_pipeline = meta_create_texture_material (priv->background->texture);
-  priv->crossfade_pipeline = meta_create_crossfade_material (priv->background->old_texture,
-                                                             priv->background->texture);
+  priv->pipeline = meta_create_texture_material (priv->background->texture);
 
   if (priv->background->texture != COGL_INVALID_HANDLE)
     update_actor_pipeline (self, FALSE);
@@ -855,15 +855,11 @@ meta_background_actor_add_glsl_snippet (MetaBackgroundActor *actor,
   if (hook == META_SNIPPET_HOOK_VERTEX ||
       hook == META_SNIPPET_HOOK_FRAGMENT)
     {
-      cogl_pipeline_add_snippet (priv->single_pipeline, snippet);
-      cogl_pipeline_add_snippet (priv->crossfade_pipeline, snippet);
+      cogl_pipeline_add_snippet (priv->pipeline, snippet);
     }
   else
     {
-      /* In case of crossfading, apply the snippet only to the new texture.
-         We can't apply it to both because declarations would be doubled. */
-      cogl_pipeline_add_layer_snippet (priv->single_pipeline, 0, snippet);
-      cogl_pipeline_add_layer_snippet (priv->crossfade_pipeline, 1, snippet);
+      cogl_pipeline_add_layer_snippet (priv->pipeline, 0, snippet);
     }
 
   cogl_object_unref (snippet);
@@ -898,12 +894,8 @@ meta_background_actor_set_uniform_float (MetaBackgroundActor *actor,
 
   priv = actor->priv;
 
-  cogl_pipeline_set_uniform_float (priv->single_pipeline,
-                                   cogl_pipeline_get_uniform_location (priv->single_pipeline,
-                                                                       uniform_name),
-                                   n_components, count, uniform);
-  cogl_pipeline_set_uniform_float (priv->crossfade_pipeline,
-                                   cogl_pipeline_get_uniform_location (priv->crossfade_pipeline,
+  cogl_pipeline_set_uniform_float (priv->pipeline,
+                                   cogl_pipeline_get_uniform_location (priv->pipeline,
                                                                        uniform_name),
                                    n_components, count, uniform);
 }
