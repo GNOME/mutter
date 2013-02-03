@@ -24,8 +24,6 @@
 #define META_BACKGROUND_ACTOR_H
 
 #include <clutter/clutter.h>
-#define GNOME_DESKTOP_USE_UNSTABLE_API
-#include <libgnome-desktop/gnome-bg.h>
 
 #include <meta/screen.h>
 
@@ -63,7 +61,7 @@ struct _MetaBackgroundActor
 GType meta_background_actor_get_type (void);
 
 ClutterActor *meta_background_actor_new (MetaScreen *screen,
-                                         GnomeBG    *settings);
+                                         GSettings  *settings);
 
 /**
  * MetaSnippetHook:

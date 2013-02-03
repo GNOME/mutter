@@ -29,6 +29,9 @@
 
 #include <clutter/clutter.h>
 
+#define GNOME_DESKTOP_USE_UNSTABLE_API
+#include <libgnome-desktop/gnome-bg.h>
+
 #include "cogl-utils.h"
 #include "compositor-private.h"
 #include <meta/errors.h>
@@ -55,6 +58,7 @@ struct _MetaBackground
   float texture_height;
   CoglTexture *old_texture;
   CoglTexture *texture;
+  GnomeBG     *bg;
 
   GTask *rendering_task;
 };
@@ -63,7 +67,7 @@ struct _MetaBackgroundActorPrivate
 {
   MetaScreen     *screen;
   MetaBackground *background;
-  GnomeBG        *settings;
+  GSettings      *settings;
 
   CoglPipeline *single_pipeline;
   CoglPipeline *crossfade_pipeline;
@@ -124,30 +128,15 @@ on_settings_changed (GSettings   *settings,
   gnome_bg_load_from_preferences (bg, settings);
 }
 
-static GnomeBG *
+static GSettings *
 meta_background_get_default_settings (void)
 {
-  GSettings *settings;
-  GnomeBG *bg;
-
-  settings = g_settings_new ("org.gnome.desktop.background");
-  bg = gnome_bg_new ();
-
-  g_signal_connect (settings, "changed",
-                    G_CALLBACK (on_settings_changed), bg);
-  on_settings_changed (settings, NULL, bg);
-
-  /* Just to keep settings alive */
-  g_object_set_data_full (G_OBJECT (bg), "g-settings",
-                          g_object_ref (settings), g_object_unref);
-  g_object_unref (settings);
-
-  return bg;
+  return g_settings_new ("org.gnome.desktop.background");
 }
 
 static MetaBackground *
 meta_background_get (MetaScreen *screen,
-                     GnomeBG    *bg)
+                     GSettings  *settings)
 {
   static GQuark background_quark;
   MetaBackground *background;
@@ -155,27 +144,33 @@ meta_background_get (MetaScreen *screen,
   if (G_UNLIKELY (background_quark == 0))
     background_quark = g_quark_from_static_string ("meta-background");
 
-  background = g_object_get_qdata (G_OBJECT (bg), background_quark);
+  background = g_object_get_qdata (G_OBJECT (settings), background_quark);
   if (G_UNLIKELY (background == NULL))
     {
       background = g_slice_new0 (MetaBackground);
-      g_object_set_qdata_full (G_OBJECT (bg), background_quark,
+      g_object_set_qdata_full (G_OBJECT (settings), background_quark,
                                background, (GDestroyNotify) meta_background_free);
+
+      background->bg = gnome_bg_new ();
+
+      g_signal_connect (settings, "changed",
+                        G_CALLBACK (on_settings_changed), background->bg);
+      on_settings_changed (settings, NULL, background->bg);
 
       background->screen = screen;
       background->texture_width = -1;
       background->texture_height = -1;
 
-      g_signal_connect (bg, "transitioned",
+      g_signal_connect (background->bg, "transitioned",
                         G_CALLBACK (meta_background_update), background);
-      g_signal_connect (bg, "changed",
+      g_signal_connect (background->bg, "changed",
                         G_CALLBACK (meta_background_update), background);
 
       /* GnomeBG has queued a changed event, but we need to start rendering now,
          or it will be too late when we paint the first frame.
       */
-      g_object_set_data (G_OBJECT (bg), "ignore-pending-change", GINT_TO_POINTER (TRUE));
-      meta_background_update (bg, background);
+      g_object_set_data (G_OBJECT (background->bg), "ignore-pending-change", GINT_TO_POINTER (TRUE));
+      meta_background_update (background->bg, background);
     }
 
   return background;
@@ -498,7 +493,7 @@ meta_background_actor_set_screen (MetaBackgroundActor *self,
 
 static void
 meta_background_actor_set_settings (MetaBackgroundActor *self,
-                                    GnomeBG             *settings)
+                                    GSettings           *settings)
 {
   MetaBackgroundActorPrivate *priv;
 
@@ -556,7 +551,7 @@ meta_background_actor_set_property(GObject         *object,
       meta_background_actor_set_crossfade_progress (self, g_value_get_float (value));
       break;
     case PROP_SETTINGS:
-      meta_background_actor_set_settings (self, GNOME_BG (g_value_get_object (value)));
+      meta_background_actor_set_settings (self, G_SETTINGS (g_value_get_object (value)));
       break;
     case PROP_SCREEN:
       meta_background_actor_set_screen (self, META_SCREEN (g_value_get_object (value)));
@@ -601,12 +596,12 @@ meta_background_actor_class_init (MetaBackgroundActorClass *klass)
   /**
    * MetaBackgroundActor:settings:
    *
-   * The #GnomeBG object holding settings for this background.
+   * The #GSettings object holding settings for this background.
    */
   pspec = g_param_spec_object ("settings",
                                "Settings",
                                "Object holding required information to render a background",
-                               GNOME_TYPE_BG,
+                               G_TYPE_SETTINGS,
                                G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
   obj_props[PROP_SETTINGS] = pspec;
 
@@ -675,7 +670,7 @@ meta_background_actor_constructed (GObject *object)
 /**
  * meta_background_actor_new:
  * @screen: the #MetaScreen
- * @settings: (allow-none): a #GnomeBG holding the background configuration,
+ * @settings: (allow-none): a #GSettings object holding the background configuration,
  *            or %NULL to pick the default one.
  *
  * Creates a new actor to draw the background for the given screen.
@@ -684,7 +679,7 @@ meta_background_actor_constructed (GObject *object)
  */
 ClutterActor *
 meta_background_actor_new (MetaScreen *screen,
-                           GnomeBG    *settings)
+                           GSettings  *settings)
 {
   g_return_val_if_fail (META_IS_SCREEN (screen), NULL);
 
