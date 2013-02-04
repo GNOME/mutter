@@ -75,7 +75,6 @@ MUTTER_PC_MODULES="
    xcomposite >= 0.2 xfixes xrender xdamage xi >= 1.6.0
    $CLUTTER_PACKAGE >= 1.13.5
    cogl-1.0 >= 1.13.3
-   gnome-desktop-3.0
 "
 
 GLIB_GSETTINGS

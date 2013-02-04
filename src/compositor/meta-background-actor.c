@@ -25,12 +25,7 @@
 
 #include <config.h>
 
-#include <cogl/cogl-texture-pixmap-x11.h>
-
 #include <clutter/clutter.h>
-
-#define GNOME_DESKTOP_USE_UNSTABLE_API
-#include <libgnome-desktop/gnome-bg.h>
 
 #include "cogl-utils.h"
 #include "compositor-private.h"
@@ -47,6 +42,19 @@
  */
 typedef struct _MetaBackground MetaBackground;
 
+typedef struct {
+  CoglTexture                *texture;
+  float                       texture_width;
+  float                       texture_height;
+
+  /* ClutterColor, not CoglColor, because
+     the latter is opaque... */
+  ClutterColor                colors[2];
+  GDesktopBackgroundStyle     style;
+  GDesktopBackgroundShading   shading;
+  char                       *picture_uri;
+} MetaBackgroundState;
+
 struct _MetaBackground
 {
   GSList *actors;
@@ -54,11 +62,9 @@ struct _MetaBackground
   MetaScreen   *screen;
   GCancellable *cancellable;
 
-  float texture_width;
-  float texture_height;
-  CoglTexture *old_texture;
-  CoglTexture *texture;
-  GnomeBG     *bg;
+  MetaBackgroundState old_state;
+  MetaBackgroundState state;
+  GSettings   *settings;
 
   GTask *rendering_task;
 };
@@ -69,8 +75,8 @@ struct _MetaBackgroundActorPrivate
   MetaBackground *background;
   GSettings      *settings;
 
+  CoglPipeline *solid_pipeline;
   CoglPipeline *pipeline;
-  CoglMaterialWrapMode wrap_mode;
 
   cairo_region_t *visible_region;
   float dim_factor;
@@ -95,20 +101,22 @@ static GParamSpec *obj_props[PROP_LAST];
 
 G_DEFINE_TYPE (MetaBackgroundActor, meta_background_actor, CLUTTER_TYPE_ACTOR);
 
-static void meta_background_update                    (GnomeBG             *bg,
-                                                       MetaBackground      *background);
+static void meta_background_update                    (MetaBackground      *background,
+                                                       const char          *picture_uri);
 static void meta_background_actor_screen_size_changed (MetaScreen          *screen,
                                                        MetaBackgroundActor *actor);
 static void meta_background_actor_constructed         (GObject             *object);
 
-static void clear_old_texture          (MetaBackground *background);
-static void set_texture                (MetaBackground *background,
-                                        CoglHandle      texture);
+static void clear_state                (MetaBackgroundState *state);
+static void set_texture                (MetaBackground  *background,
+                                        CoglHandle       texture,
+                                        const char      *picture_uri);
 
 static void
 meta_background_free (MetaBackground *background)
 {
-  set_texture (background, COGL_INVALID_HANDLE);
+  clear_state (&background->old_state);
+  clear_state (&background->state);
 
   g_cancellable_cancel (background->cancellable);
   g_object_unref (background->cancellable);
@@ -119,11 +127,15 @@ meta_background_free (MetaBackground *background)
 }
 
 static void
-on_settings_changed (GSettings   *settings,
-                     const char  *key,
-                     GnomeBG     *bg)
+on_settings_changed (GSettings      *settings,
+                     const char     *key,
+                     MetaBackground *background)
 {
-  gnome_bg_load_from_preferences (bg, settings);
+  char *picture_uri;
+
+  picture_uri = g_settings_get_string (settings, "picture-uri");
+  meta_background_update (background, picture_uri);
+  g_free (picture_uri);
 }
 
 static GSettings *
@@ -149,26 +161,12 @@ meta_background_get (MetaScreen *screen,
       g_object_set_qdata_full (G_OBJECT (settings), background_quark,
                                background, (GDestroyNotify) meta_background_free);
 
-      background->bg = gnome_bg_new ();
+      background->settings = settings;
+      background->screen = screen;
 
       g_signal_connect (settings, "changed",
-                        G_CALLBACK (on_settings_changed), background->bg);
-      on_settings_changed (settings, NULL, background->bg);
-
-      background->screen = screen;
-      background->texture_width = -1;
-      background->texture_height = -1;
-
-      g_signal_connect (background->bg, "transitioned",
-                        G_CALLBACK (meta_background_update), background);
-      g_signal_connect (background->bg, "changed",
-                        G_CALLBACK (meta_background_update), background);
-
-      /* GnomeBG has queued a changed event, but we need to start rendering now,
-         or it will be too late when we paint the first frame.
-      */
-      g_object_set_data (G_OBJECT (background->bg), "ignore-pending-change", GINT_TO_POINTER (TRUE));
-      meta_background_update (background->bg, background);
+                        G_CALLBACK (on_settings_changed), background);
+      on_settings_changed (settings, NULL, background);
     }
 
   return background;
@@ -181,80 +179,79 @@ update_actor_pipeline (MetaBackgroundActor *self,
   MetaBackgroundActorPrivate *priv = self->priv;
 
   priv->is_crossfading = crossfade;
-  cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, priv->wrap_mode);
-
   clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
+}
+
+static inline void
+clear_state (MetaBackgroundState *state)
+{
+  g_clear_pointer (&state->texture, cogl_handle_unref);
+  g_free (state->picture_uri);
+  state->picture_uri = NULL;
 }
 
 static void
 crossfade_completed (ClutterTimeline     *timeline,
                      MetaBackgroundActor *actor)
 {
-  clear_old_texture (actor->priv->background);
+  clear_state (&actor->priv->background->old_state);
   update_actor_pipeline (actor, FALSE);
 }
 
-static void
-clear_old_texture (MetaBackground *background)
+static inline gboolean
+state_is_valid (MetaBackgroundState *state)
 {
-  if (background->old_texture != COGL_INVALID_HANDLE)
-    {
-      cogl_handle_unref (background->old_texture);
-      background->old_texture = COGL_INVALID_HANDLE;
-    }
+  return state->texture != COGL_INVALID_HANDLE;
+}
+
+static inline void
+get_color_from_settings (GSettings    *settings,
+                         const char   *key,
+                         ClutterColor *color)
+{
+  char *str;
+
+  str = g_settings_get_string (settings, key);
+  clutter_color_from_string (color, str);
+
+  g_free (str);
 }
 
 static void
 set_texture (MetaBackground *background,
-             CoglHandle      texture)
+             CoglHandle      texture,
+             const char     *picture_uri)
 {
   GSList *l;
   gboolean crossfade;
   int width, height;
-  CoglMaterialWrapMode wrap_mode;
 
-  if (background->old_texture != COGL_INVALID_HANDLE)
-    {
-      cogl_handle_unref (background->old_texture);
-      background->old_texture = COGL_INVALID_HANDLE;
-    }
+  g_assert (texture != COGL_INVALID_HANDLE);
 
-  if (texture != COGL_INVALID_HANDLE)
-    {
-      background->old_texture = background->texture;
-      background->texture = cogl_handle_ref (texture);
-    }
-  else if (background->texture != COGL_INVALID_HANDLE)
-    {
-      cogl_handle_unref (background->texture);
-      background->texture = COGL_INVALID_HANDLE;
-    }
+  clear_state (&background->old_state);
 
-  if (texture != COGL_INVALID_HANDLE &&
-      background->old_texture != COGL_INVALID_HANDLE)
-    crossfade = TRUE;
-  else
-    crossfade = FALSE;
+  if (state_is_valid (&background->state))
+    background->old_state = background->state;
 
-  background->texture_width = cogl_texture_get_width (background->texture);
-  background->texture_height = cogl_texture_get_height (background->texture);
+  background->state.texture = cogl_handle_ref (texture);
+  get_color_from_settings (background->settings, "primary-color",
+                           &background->state.colors[0]);
+  get_color_from_settings (background->settings, "secondary-color",
+                           &background->state.colors[1]);
+  background->state.style = g_settings_get_enum (background->settings, "picture-options");
+  background->state.shading = g_settings_get_enum (background->settings, "color-shading-type");
+  background->state.texture_width = cogl_texture_get_width (background->state.texture);
+  background->state.texture_height = cogl_texture_get_height (background->state.texture);
+  background->state.picture_uri = g_strdup (picture_uri);
+
+  crossfade = state_is_valid (&background->old_state);
 
   meta_screen_get_size (background->screen, &width, &height);
-
-  /* We turn off repeating when we have a full-screen pixmap to keep from
-   * getting artifacts from one side of the image sneaking into the other
-   * side of the image via bilinear filtering.
-   */
-  if (width == background->texture_width && height == background->texture_height)
-    wrap_mode = COGL_MATERIAL_WRAP_MODE_CLAMP_TO_EDGE;
-  else
-    wrap_mode = COGL_MATERIAL_WRAP_MODE_REPEAT;
 
   for (l = background->actors; l; l = l->next)
     {
       MetaBackgroundActor *actor = l->data;
 
-      actor->priv->wrap_mode = wrap_mode;
       update_actor_pipeline (actor, crossfade);
 
       if (crossfade)
@@ -286,7 +283,7 @@ static inline void
 meta_background_ensure_rendered (MetaBackground *background)
 {
   if (G_LIKELY (background->rendering_task == NULL ||
-                background->texture != COGL_INVALID_HANDLE))
+                background->state.texture != COGL_INVALID_HANDLE))
     return;
 
   g_task_wait_sync (background->rendering_task);
@@ -306,6 +303,7 @@ meta_background_actor_dispose (GObject *object)
       priv->background = NULL;
     }
 
+  g_clear_pointer (&priv->solid_pipeline, cogl_object_unref);
   g_clear_pointer (&priv->pipeline, cogl_object_unref);
   g_clear_object (&priv->settings);
 
@@ -350,40 +348,345 @@ meta_background_actor_get_preferred_height (ClutterActor *actor,
 }
 
 static void
-paint_background (MetaBackgroundActor *self)
+paint_gradient (MetaBackgroundState *state,
+                CoglPipeline        *pipeline,
+                float                color_factor,
+                float                alpha_factor,
+                ClutterActorBox     *monitor_box,
+                float                actor_width,
+                float                actor_height,
+                float                screen_width,
+                float                screen_height)
+{
+  ClutterBackend *backend = clutter_get_default_backend ();
+  CoglContext *context = clutter_backend_get_cogl_context (backend);
+  CoglPrimitive *primitive;
+  int i;
+
+  /* Order is:
+   * 1 -- 0
+   * |    |
+   * 3 -- 2
+   *
+   * (tri strip with counter-clockwise winding)
+   */
+  CoglVertexP2C4 vertices[4] = {
+    { monitor_box->x2 * (actor_width / screen_width), monitor_box->y1 * (actor_height / screen_height),
+      state->colors[0].red, state->colors[0].green, state->colors[0].blue, state->colors[0].alpha },
+
+    { monitor_box->x1 * (actor_width / screen_width), monitor_box->y1 * (actor_height / screen_height),
+      state->colors[0].red, state->colors[0].green, state->colors[0].blue, state->colors[0].alpha },
+
+    { monitor_box->x2 * (actor_width / screen_width), monitor_box->y2 * (actor_height / screen_height),
+      state->colors[0].red, state->colors[0].green, state->colors[0].blue, state->colors[0].alpha },
+
+    { monitor_box->x1 * (actor_width / screen_width), monitor_box->y2 * (actor_height / screen_height),
+      state->colors[0].red, state->colors[0].green, state->colors[0].blue, state->colors[0].alpha },
+  };
+
+  /* These styles cover the entire screen */
+  if (state->style == G_DESKTOP_BACKGROUND_STYLE_WALLPAPER ||
+      state->style == G_DESKTOP_BACKGROUND_STYLE_STRETCHED ||
+      state->style == G_DESKTOP_BACKGROUND_STYLE_ZOOM)
+    return;
+
+  if (state->shading != G_DESKTOP_BACKGROUND_SHADING_SOLID)
+    {
+      if (state->shading == G_DESKTOP_BACKGROUND_SHADING_HORIZONTAL)
+        {
+          vertices[2].r = vertices[3].r = state->colors[1].red;
+          vertices[2].g = vertices[3].g = state->colors[1].green;
+          vertices[2].b = vertices[3].b = state->colors[1].blue;
+          vertices[2].a = vertices[3].a = state->colors[1].alpha;
+        }
+      else
+        {
+          vertices[0].r = vertices[2].r = state->colors[1].red;
+          vertices[0].g = vertices[2].g = state->colors[1].green;
+          vertices[0].b = vertices[2].b = state->colors[1].blue;
+          vertices[0].a = vertices[2].a = state->colors[1].alpha;
+        }
+    }
+
+  for (i = 0; i < 4; i++)
+    {
+      vertices[i].r *= color_factor;
+      vertices[i].g *= color_factor;
+      vertices[i].b *= color_factor;
+      vertices[i].a *= alpha_factor;
+    }
+
+  primitive = cogl_primitive_new_p2c4 (context,
+                                       COGL_VERTICES_MODE_TRIANGLE_STRIP,
+                                       4, vertices);
+  cogl_framebuffer_draw_primitive (cogl_get_draw_framebuffer (),
+                                   pipeline, primitive);
+  cogl_object_unref (primitive);
+}
+
+static void
+paint_background_box (MetaBackgroundState *state,
+                      CoglPipeline        *pipeline,
+                      float                color_factor,
+                      float                alpha_factor,
+                      ClutterActorBox     *monitor_box,
+                      float                actor_width,
+                      float                actor_height,
+                      float                screen_width,
+                      float                screen_height)
+{
+  CoglPrimitive *primitive;
+  CoglPipeline *pipeline_copy;
+  ClutterBackend *backend = clutter_get_default_backend ();
+  CoglContext *context = clutter_backend_get_cogl_context (backend);
+  int i;
+  float monitor_width, monitor_height;
+  float image_width, image_height;
+
+  /* Order is:
+   * 1 -- 0
+   * |    |
+   * 3 -- 2
+   *
+   * (tri strip with counter-clockwise winding)
+   */
+  CoglVertexP2T2 vertices[4];
+
+  if (state->style == G_DESKTOP_BACKGROUND_STYLE_NONE)
+    return;
+
+  vertices[0].s = 1.0;
+  vertices[0].t = 0.0;
+  vertices[1].s = 0.0;
+  vertices[1].t = 0.0;
+  vertices[2].s = 1.0;
+  vertices[2].t = 1.0;
+  vertices[3].s = 0.0;
+  vertices[3].t = 1.0;
+
+  clutter_actor_box_get_size (monitor_box, &monitor_width, &monitor_height);
+
+  switch (state->style) {
+  case G_DESKTOP_BACKGROUND_STYLE_STRETCHED:
+    /* Stretched:
+       The easy case: the image is stretched to cover the monitor fully.
+    */
+    image_width = monitor_width;
+    image_height = monitor_height;
+    break;
+
+  case G_DESKTOP_BACKGROUND_STYLE_SPANNED:
+    /* Spanned:
+       The image is scaled to fit and drawn across all monitors.
+       If this is the case, monitor_box is actually the union of all monitors,
+       and we can fall through to scaled.
+    */
+  case G_DESKTOP_BACKGROUND_STYLE_SCALED:
+    /* Scaled:
+       The image is scaled to fit (so one dimension is always covered)
+    */
+    {
+      float scaling_factor = MIN (monitor_width / state->texture_width,
+                                  monitor_height / state->texture_height);
+      image_width = state->texture_width * scaling_factor;
+      image_height = state->texture_height * scaling_factor;
+    }
+    break;
+
+  case G_DESKTOP_BACKGROUND_STYLE_ZOOM:
+    /* Zoom:
+       The image is zoomed to fill the screen.
+    */
+    {
+      float scaling_factor = MAX (monitor_width / state->texture_width,
+                                  monitor_height / state->texture_height);
+      image_width = state->texture_width * scaling_factor;
+      image_height = state->texture_height * scaling_factor;
+    }
+    break;
+
+  case G_DESKTOP_BACKGROUND_STYLE_CENTERED:
+    /* Centered:
+       The image is centered and not scaled.
+    */
+  case G_DESKTOP_BACKGROUND_STYLE_WALLPAPER:
+    /* Wallpaper:
+       The image is not scaled but tiled.
+    */
+
+    image_width = state->texture_width;
+    image_height = state->texture_height;
+    break;
+
+  default:
+    g_assert_not_reached ();
+  }
+
+  pipeline_copy = cogl_pipeline_copy (pipeline);
+  cogl_pipeline_set_color4f (pipeline_copy,
+                             color_factor,
+                             color_factor,
+                             color_factor,
+                             alpha_factor);
+
+  if (state->style == G_DESKTOP_BACKGROUND_STYLE_WALLPAPER)
+    {
+      for (i = 0; i < 4; i++)
+        {
+          vertices[i].s *= (monitor_width / image_width);
+          vertices[i].t *= (monitor_height / image_height);
+        }
+
+      vertices[0].x = monitor_width;
+      vertices[0].y = 0;
+      vertices[1].x = 0;
+      vertices[1].y = 0;
+      vertices[2].x = monitor_width;
+      vertices[2].y = monitor_height;
+      vertices[3].x = 0;
+      vertices[3].y = monitor_height;
+
+      cogl_pipeline_set_layer_wrap_mode (pipeline_copy, 0, COGL_PIPELINE_WRAP_MODE_REPEAT);
+    }
+  else
+    {
+      /* Coordinates of the vertices, relative to the image */
+      float x0, x1, y0, y1;
+
+      x0 = (monitor_width - image_width) / 2;
+      y0 = (monitor_height - image_height) / 2;
+      x1 = x0 + image_width;
+      y1 = y0 + image_height;
+
+      vertices[0].x = x1;
+      vertices[0].y = y0;
+      vertices[1].x = x0;
+      vertices[1].y = y0;
+      vertices[2].x = x1;
+      vertices[2].y = y1;
+      vertices[3].x = x0;
+      vertices[3].y = y1;
+    }
+
+  for (i = 0; i < 4; i++)
+    {
+      vertices[i].x *= (actor_width / screen_width);
+      vertices[i].y *= (actor_height / screen_height);
+    }
+
+  primitive = cogl_primitive_new_p2t2 (context,
+                                       COGL_VERTICES_MODE_TRIANGLE_STRIP,
+                                       4, vertices);
+  cogl_framebuffer_draw_primitive (cogl_get_draw_framebuffer (),
+                                   pipeline_copy, primitive);
+  cogl_object_unref (primitive);
+  cogl_object_unref (pipeline_copy);
+}
+
+static void
+paint_background_unclipped (MetaBackgroundActor *self,
+                            MetaBackgroundState *state,
+                            float                color_factor,
+                            float                alpha_factor)
+{
+  MetaBackgroundActorPrivate *priv;
+  int screen_width, screen_height;
+  float actor_width, actor_height;
+  ClutterActorBox monitor_box;
+
+  priv = self->priv;
+  clutter_actor_get_size (CLUTTER_ACTOR (self), &actor_width, &actor_height);
+  meta_screen_get_size (priv->screen, &screen_width, &screen_height);
+
+  if (state->style == G_DESKTOP_BACKGROUND_STYLE_SPANNED)
+    {
+      /* Prepare a box covering the screen */
+      monitor_box.x1 = 0;
+      monitor_box.y1 = 0;
+      monitor_box.x2 = screen_width;
+      monitor_box.y2 = screen_height;
+
+      paint_gradient (state, priv->solid_pipeline,
+                      color_factor, alpha_factor,
+                      &monitor_box,
+                      actor_width, actor_height,
+                      screen_width, screen_height);
+      paint_background_box (state, priv->pipeline,
+                            color_factor, alpha_factor,
+                            &monitor_box,
+                            actor_width, actor_height,
+                            screen_width, screen_height);
+    }
+  else
+    {
+      /* Iterate each monitor */
+      int i, n;
+      MetaRectangle monitor_rect;
+
+      n = meta_screen_get_n_monitors (priv->screen);
+      for (i = 0; i < n; i++)
+        {
+          meta_screen_get_monitor_geometry (priv->screen, i, &monitor_rect);
+          monitor_box.x1 = monitor_rect.x;
+          monitor_box.y1 = monitor_rect.y;
+          monitor_box.x2 = monitor_rect.x + monitor_rect.width;
+          monitor_box.y2 = monitor_rect.y + monitor_rect.height;
+
+          /* Sad truth: we need to paint twice to get the border of the image
+             right.
+
+             A similar effect could be obtained with GL_CLAMP_TO_BORDER, but
+             Cogl doesn't expose that.
+          */
+          paint_gradient (state, priv->solid_pipeline,
+                          color_factor, alpha_factor,
+                          &monitor_box,
+                          actor_width, actor_height,
+                          screen_width, screen_height);
+          paint_background_box (state, priv->pipeline,
+                                color_factor, alpha_factor,
+                                &monitor_box,
+                                actor_width, actor_height,
+                                screen_width, screen_height);
+        }
+    }
+}
+
+static void
+paint_background (MetaBackgroundActor *self,
+                  MetaBackgroundState *state,
+                  float                color_factor,
+                  float                alpha_factor)
 {
   MetaBackgroundActorPrivate *priv = self->priv;
-  float width, height;
-  ClutterActorBox alloc;
 
-  clutter_actor_get_allocation_box (CLUTTER_ACTOR (self), &alloc);
-  clutter_actor_box_get_size (&alloc, &width, &height);
+  cogl_pipeline_set_layer_texture (priv->pipeline, 0, state->texture);
 
   if (priv->visible_region)
     {
       int n_rectangles = cairo_region_num_rectangles (priv->visible_region);
       int i;
 
+      cogl_path_new ();
+
       for (i = 0; i < n_rectangles; i++)
         {
           cairo_rectangle_int_t rect;
           cairo_region_get_rectangle (priv->visible_region, i, &rect);
 
-          cogl_rectangle_with_texture_coords (rect.x, rect.y,
-                                              rect.x + rect.width, rect.y + rect.height,
-                                              rect.x / priv->background->texture_width,
-                                              rect.y / priv->background->texture_height,
-                                              (rect.x + rect.width) / priv->background->texture_width,
-                                              (rect.y + rect.height) / priv->background->texture_height);
+          cogl_path_rectangle (rect.x,
+                               rect.y,
+                               rect.x + rect.width,
+                               rect.y + rect.height);
         }
+
+      cogl_clip_push_from_path ();
+      paint_background_unclipped (self, state, color_factor, alpha_factor);
+      cogl_clip_pop ();
     }
   else
     {
-      cogl_rectangle_with_texture_coords (0.0f, 0.0f,
-                                          width, height,
-                                          0.0f, 0.0f,
-                                          width / priv->background->texture_width,
-                                          height / priv->background->texture_height);
+      paint_background_unclipped (self, state, color_factor, alpha_factor);
     }
 }
 
@@ -409,29 +712,16 @@ meta_background_actor_paint (ClutterActor *actor)
   second_color_factor = (opacity / 256.f) * priv->dim_factor * (1 - crossfade_progress);
   second_alpha_factor = (opacity / 256.f) * (1 - crossfade_progress);
 
-  cogl_set_source (priv->pipeline);
-
   if (priv->is_crossfading)
     {
-      cogl_pipeline_set_color4f (priv->pipeline,
-                                 second_color_factor,
-                                 second_color_factor,
-                                 second_color_factor,
-                                 second_alpha_factor);
-      cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->background->old_texture);
-
-      paint_background (self);
+      paint_background (self, &priv->background->old_state,
+                        second_color_factor,
+                        second_alpha_factor);
     }
 
-
-  cogl_pipeline_set_color4f (priv->pipeline,
-                             first_color_factor,
-                             first_color_factor,
-                             first_color_factor,
-                             first_alpha_factor);
-  cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->background->texture);
-
-  paint_background (self);
+  paint_background (self, &priv->background->state,
+                    first_color_factor,
+                    first_alpha_factor);
 }
 
 static gboolean
@@ -644,12 +934,13 @@ meta_background_actor_init (MetaBackgroundActor *self)
                                                    MetaBackgroundActorPrivate);
   priv->dim_factor = 1.0;
   priv->crossfade_progress = 0.0;
-  priv->wrap_mode = COGL_MATERIAL_WRAP_MODE_REPEAT;
 }
 
 static void
 meta_background_actor_constructed (GObject *object)
 {
+  ClutterBackend *backend = clutter_get_default_backend ();
+  CoglContext *context = clutter_backend_get_cogl_context (backend);
   MetaBackgroundActor *self;
   MetaBackgroundActorPrivate *priv;
 
@@ -661,10 +952,12 @@ meta_background_actor_constructed (GObject *object)
   priv->background = meta_background_get (priv->screen, priv->settings);
   priv->background->actors = g_slist_prepend (priv->background->actors, self);
 
-  priv->pipeline = meta_create_texture_material (priv->background->texture);
-
-  if (priv->background->texture != COGL_INVALID_HANDLE)
-    update_actor_pipeline (self, FALSE);
+  priv->solid_pipeline = cogl_pipeline_new (context);
+  priv->pipeline = meta_create_texture_material (COGL_INVALID_HANDLE);
+  cogl_pipeline_set_layer_filters (priv->pipeline, 0,
+                                   COGL_MATERIAL_FILTER_LINEAR_MIPMAP_LINEAR,
+                                   COGL_MATERIAL_FILTER_LINEAR_MIPMAP_LINEAR);
+  update_actor_pipeline (self, FALSE);
 }
 
 /**
@@ -697,9 +990,10 @@ on_background_drawn (GObject      *object,
   MetaBackground *background;
   CoglHandle texture;
   GError *error;
+  char *picture_uri;
 
   error = NULL;
-  texture = meta_background_draw_finish (META_SCREEN (object), result, &error);
+  texture = meta_background_draw_finish (META_SCREEN (object), result, &picture_uri, &error);
 
   /* Don't even access user_data if cancelled, it might be already
      freed */
@@ -716,8 +1010,9 @@ on_background_drawn (GObject      *object,
 
   if (texture != COGL_INVALID_HANDLE)
     {
-      set_texture (background, texture);
+      set_texture (background, texture, picture_uri);
       cogl_handle_unref (texture);
+      g_free (picture_uri);
       return;
     }
   else
@@ -730,17 +1025,20 @@ on_background_drawn (GObject      *object,
 
 /*
  * meta_background_update:
- * @bg: the #GnomeBG that triggered the update
  * @background: a #MetaBackground
+ * @picture_uri: the new image URI
  *
  * Forces a redraw of the background. The redraw happens asynchronously in
  * a thread, and the actual on screen change is therefore delayed until
  * the redraw is finished.
  */
 void
-meta_background_update (GnomeBG        *bg,
-                        MetaBackground *background)
+meta_background_update (MetaBackground *background,
+                        const char     *picture_uri)
 {
+  if (g_strcmp0 (background->state.picture_uri, picture_uri) == 0)
+    return;
+
   if (background->cancellable)
     {
       g_cancellable_cancel (background->cancellable);
@@ -750,8 +1048,9 @@ meta_background_update (GnomeBG        *bg,
   g_clear_object (&background->rendering_task);
 
   background->cancellable = g_cancellable_new ();
+
   background->rendering_task = meta_background_draw_async (background->screen,
-                                                           bg,
+                                                           picture_uri,
                                                            background->cancellable,
                                                            on_background_drawn, background);
 }
@@ -799,21 +1098,6 @@ static void
 meta_background_actor_screen_size_changed (MetaScreen          *screen,
                                            MetaBackgroundActor *actor)
 {
-  MetaBackgroundActorPrivate *priv;
-  MetaBackground *background;
-  int width, height;
-
-  priv = actor->priv;
-  background = priv->background;
-
-  meta_screen_get_size (screen, &width, &height);
-
-  if (width == background->texture_width && height == background->texture_height)
-    priv->wrap_mode = COGL_MATERIAL_WRAP_MODE_CLAMP_TO_EDGE;
-  else
-    priv->wrap_mode = COGL_MATERIAL_WRAP_MODE_REPEAT;
-
-  update_actor_pipeline (actor, actor->priv->is_crossfading);
   clutter_actor_queue_relayout (CLUTTER_ACTOR (actor));
 }
 
