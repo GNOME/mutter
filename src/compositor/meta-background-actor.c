@@ -113,6 +113,8 @@ static void meta_background_actor_screen_size_changed (MetaScreen          *scre
 static void meta_background_actor_constructed         (GObject             *object);
 
 static void clear_state                (MetaBackgroundState *state);
+static void init_state_from_settings   (MetaBackgroundState *state,
+                                        GSettings           *settings);
 static void set_texture                (MetaBackground          *background,
                                         CoglHandle               texture,
                                         MetaBackgroundSlideshow *slideshow);
@@ -176,6 +178,8 @@ meta_background_get (MetaScreen *screen,
 
       g_signal_connect (settings, "changed",
                         G_CALLBACK (on_settings_changed), background);
+
+      init_state_from_settings (&background->state, settings);
       on_settings_changed (settings, "picture-uri", background);
     }
 
@@ -227,6 +231,18 @@ get_color_from_settings (GSettings    *settings,
 }
 
 static void
+init_state_from_settings (MetaBackgroundState *state,
+                          GSettings           *settings)
+{
+  get_color_from_settings (settings, "primary-color",
+                           &state->colors[0]);
+  get_color_from_settings (settings, "secondary-color",
+                           &state->colors[1]);
+  state->style = g_settings_get_enum (settings, "picture-options");
+  state->shading = g_settings_get_enum (settings, "color-shading-type");
+}
+
+static void
 set_texture (MetaBackground          *background,
              CoglHandle               texture,
              MetaBackgroundSlideshow *slideshow)
@@ -244,14 +260,10 @@ set_texture (MetaBackground          *background,
     background->old_state = background->state;
 
   background->state.texture = cogl_handle_ref (texture);
-  get_color_from_settings (background->settings, "primary-color",
-                           &background->state.colors[0]);
-  get_color_from_settings (background->settings, "secondary-color",
-                           &background->state.colors[1]);
-  background->state.style = g_settings_get_enum (background->settings, "picture-options");
-  background->state.shading = g_settings_get_enum (background->settings, "color-shading-type");
   background->state.texture_width = cogl_texture_get_width (background->state.texture);
   background->state.texture_height = cogl_texture_get_height (background->state.texture);
+  init_state_from_settings (&background->state,
+                            background->settings);
   background->state.slideshow = g_object_ref (slideshow);
 
   timeout = meta_background_slideshow_get_next_timeout (slideshow);
@@ -303,16 +315,6 @@ set_texture (MetaBackground          *background,
                                         transition);
         }
     }
-}
-
-static inline void
-meta_background_ensure_rendered (MetaBackground *background)
-{
-  if (G_LIKELY (background->rendering_task == NULL ||
-                background->state.texture != COGL_INVALID_HANDLE))
-    return;
-
-  g_task_wait_sync (background->rendering_task);
 }
 
 static void
@@ -479,6 +481,9 @@ paint_background_box (MetaBackgroundState *state,
   CoglVertexP2T2 vertices[4];
 
   if (state->style == G_DESKTOP_BACKGROUND_STYLE_NONE)
+    return;
+
+  if (state->texture == COGL_INVALID_HANDLE)
     return;
 
   vertices[0].s = 1.0;
@@ -725,8 +730,6 @@ meta_background_actor_paint (ClutterActor *actor)
   float crossfade_progress;
   float first_color_factor, first_alpha_factor,
     second_color_factor, second_alpha_factor;
-
-  meta_background_ensure_rendered (priv->background);
 
   if (priv->is_crossfading)
     crossfade_progress = priv->crossfade_progress;
