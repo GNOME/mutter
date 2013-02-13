@@ -1,3 +1,16 @@
+3.6.3
+=====
+* Fix maximized windows jumping between monitors [Alban; #556696]
+* Fix windows turning black when redirected again [Adel; #693042]
+
+Contributors:
+  Alban Crequy, Adel Gadllah
+
+Translations:
+  Runa Bhattacharjee [bn_IN], Rajesh Ranjan [hi], Krishnababu Krothapalli [te],
+  ManojKumar Giri [or], Dr.T.Vasudevan [ta], Shankar Prasad [kn],
+  Rafael Ferreira [pt_BR]
+
 3.6.2
 =====
 * Only process keyboard mapping events for the core X keyboard [Rui; #674859]
