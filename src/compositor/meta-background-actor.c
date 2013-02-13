@@ -25,6 +25,8 @@
 
 #include <config.h>
 
+#include <string.h>
+
 #include <clutter/clutter.h>
 
 #include "cogl-utils.h"
@@ -43,6 +45,7 @@
 typedef struct _MetaBackground MetaBackground;
 
 typedef struct {
+  MetaBackgroundSlideshow    *slideshow;
   CoglTexture                *texture;
   float                       texture_width;
   float                       texture_height;
@@ -52,7 +55,6 @@ typedef struct {
   ClutterColor                colors[2];
   GDesktopBackgroundStyle     style;
   GDesktopBackgroundShading   shading;
-  char                       *picture_uri;
 } MetaBackgroundState;
 
 struct _MetaBackground
@@ -65,6 +67,8 @@ struct _MetaBackground
   MetaBackgroundState old_state;
   MetaBackgroundState state;
   GSettings   *settings;
+  MetaBackgroundSlideshow *pending_slideshow;
+  GSource                 *timeout;
 
   GTask *rendering_task;
 };
@@ -101,16 +105,17 @@ static GParamSpec *obj_props[PROP_LAST];
 
 G_DEFINE_TYPE (MetaBackgroundActor, meta_background_actor, CLUTTER_TYPE_ACTOR);
 
-static void meta_background_update                    (MetaBackground      *background,
+static void meta_background_uri_changed               (MetaBackground      *background,
                                                        const char          *picture_uri);
+static gboolean meta_background_update                (MetaBackground      *background);
 static void meta_background_actor_screen_size_changed (MetaScreen          *screen,
                                                        MetaBackgroundActor *actor);
 static void meta_background_actor_constructed         (GObject             *object);
 
 static void clear_state                (MetaBackgroundState *state);
-static void set_texture                (MetaBackground  *background,
-                                        CoglHandle       texture,
-                                        const char      *picture_uri);
+static void set_texture                (MetaBackground          *background,
+                                        CoglHandle               texture,
+                                        MetaBackgroundSlideshow *slideshow);
 
 static void
 meta_background_free (MetaBackground *background)
@@ -131,11 +136,16 @@ on_settings_changed (GSettings      *settings,
                      const char     *key,
                      MetaBackground *background)
 {
-  char *picture_uri;
+  if (strcmp (key, "picture-uri") == 0)
+    {
+      char *picture_uri;
 
-  picture_uri = g_settings_get_string (settings, "picture-uri");
-  meta_background_update (background, picture_uri);
-  g_free (picture_uri);
+      picture_uri = g_settings_get_string (settings, "picture-uri");
+      meta_background_uri_changed (background, picture_uri);
+      g_free (picture_uri);
+    }
+  else
+    meta_background_update (background);
 }
 
 static GSettings *
@@ -166,7 +176,7 @@ meta_background_get (MetaScreen *screen,
 
       g_signal_connect (settings, "changed",
                         G_CALLBACK (on_settings_changed), background);
-      on_settings_changed (settings, NULL, background);
+      on_settings_changed (settings, "picture-uri", background);
     }
 
   return background;
@@ -186,8 +196,7 @@ static inline void
 clear_state (MetaBackgroundState *state)
 {
   g_clear_pointer (&state->texture, cogl_handle_unref);
-  g_free (state->picture_uri);
-  state->picture_uri = NULL;
+  g_clear_object (&state->slideshow);
 }
 
 static void
@@ -218,13 +227,14 @@ get_color_from_settings (GSettings    *settings,
 }
 
 static void
-set_texture (MetaBackground *background,
-             CoglHandle      texture,
-             const char     *picture_uri)
+set_texture (MetaBackground          *background,
+             CoglHandle               texture,
+             MetaBackgroundSlideshow *slideshow)
 {
   GSList *l;
   gboolean crossfade;
   int width, height;
+  int timeout;
 
   g_assert (texture != COGL_INVALID_HANDLE);
 
@@ -242,7 +252,23 @@ set_texture (MetaBackground *background,
   background->state.shading = g_settings_get_enum (background->settings, "color-shading-type");
   background->state.texture_width = cogl_texture_get_width (background->state.texture);
   background->state.texture_height = cogl_texture_get_height (background->state.texture);
-  background->state.picture_uri = g_strdup (picture_uri);
+  background->state.slideshow = g_object_ref (slideshow);
+
+  timeout = meta_background_slideshow_get_next_timeout (slideshow);
+
+  if (background->timeout != NULL)
+    g_source_destroy (background->timeout);
+
+  if (timeout > 0)
+    {
+      background->timeout = g_timeout_source_new (timeout * 1000);
+      g_source_set_callback (background->timeout,
+                             (GSourceFunc) (meta_background_update),
+                             background, NULL);
+      g_source_attach (background->timeout, NULL);
+    }
+  else
+    background->timeout = NULL;
 
   crossfade = state_is_valid (&background->old_state);
 
@@ -987,13 +1013,14 @@ on_background_drawn (GObject      *object,
                      GAsyncResult *result,
                      gpointer      user_data)
 {
+  MetaBackgroundSlideshow *slideshow;
   MetaBackground *background;
   CoglHandle texture;
   GError *error;
-  char *picture_uri;
 
   error = NULL;
-  texture = meta_background_draw_finish (META_SCREEN (object), result, &picture_uri, &error);
+  slideshow = META_BACKGROUND_SLIDESHOW (object);
+  texture = meta_background_slideshow_draw_finish (slideshow, result, &error);
 
   /* Don't even access user_data if cancelled, it might be already
      freed */
@@ -1010,9 +1037,8 @@ on_background_drawn (GObject      *object,
 
   if (texture != COGL_INVALID_HANDLE)
     {
-      set_texture (background, texture, picture_uri);
+      set_texture (background, texture, slideshow);
       cogl_handle_unref (texture);
-      g_free (picture_uri);
       return;
     }
   else
@@ -1024,7 +1050,7 @@ on_background_drawn (GObject      *object,
 }
 
 /*
- * meta_background_update:
+ * meta_background_uri_changed:
  * @background: a #MetaBackground
  * @picture_uri: the new image URI
  *
@@ -1032,11 +1058,15 @@ on_background_drawn (GObject      *object,
  * a thread, and the actual on screen change is therefore delayed until
  * the redraw is finished.
  */
-void
-meta_background_update (MetaBackground *background,
-                        const char     *picture_uri)
+static void
+meta_background_uri_changed (MetaBackground *background,
+                             const char     *picture_uri)
 {
-  if (g_strcmp0 (background->state.picture_uri, picture_uri) == 0)
+  MetaBackgroundSlideshow *current_slideshow;
+
+  current_slideshow = background->pending_slideshow;
+  if (current_slideshow &&
+      strcmp (meta_background_slideshow_get_uri (current_slideshow), picture_uri) == 0)
     return;
 
   if (background->cancellable)
@@ -1046,13 +1076,38 @@ meta_background_update (MetaBackground *background,
     }
 
   g_clear_object (&background->rendering_task);
+  g_clear_object (&background->pending_slideshow);
 
   background->cancellable = g_cancellable_new ();
+  background->pending_slideshow = meta_background_slideshow_new (background->screen,
+                                                                 picture_uri);
 
-  background->rendering_task = meta_background_draw_async (background->screen,
-                                                           picture_uri,
-                                                           background->cancellable,
-                                                           on_background_drawn, background);
+  background->rendering_task = meta_background_slideshow_draw_async (background->pending_slideshow,
+                                                                     background->cancellable,
+                                                                     on_background_drawn, background);
+}
+
+static gboolean
+meta_background_update (MetaBackground *background)
+{
+  if (background->timeout)
+    {
+      g_source_destroy (background->timeout);
+      background->timeout = NULL;
+    }
+
+  if (background->cancellable)
+    {
+      g_cancellable_cancel (background->cancellable);
+      g_object_unref (background->cancellable);
+    }
+
+  g_clear_object (&background->rendering_task);
+  background->rendering_task = meta_background_slideshow_draw_async (background->state.slideshow,
+                                                                     background->cancellable,
+                                                                     on_background_drawn, background);
+
+  return FALSE;
 }
 
 /**
