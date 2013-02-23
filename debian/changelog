@@ -1,22 +1,49 @@
 mutter (3.7.90-1) UNRELEASED; urgency=low
 
+  * New upstream release (3.7.90)
+  * Sync from  Ubuntu
+    + d/p/04_ignore_shadow_and_padding.patch:
+      * Dropped, Ubuntu specific
+  * debian/control.in: Bump b-d on glib
+  * debian/control.in: Rename libmutter0a to libmutter0b for more ABI fun
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Sat, 23 Feb 2013 19:22:58 +0100
+
+mutter (3.7.5-0ubuntu1~raring1) raring; urgency=medium
+
   [ Jeremy Bicha ]
-  * New upstream release
+  * New upstream release.
   * debian/control.in:
     - Bump minimum clutter & gsettings-desktop-schemas
- 
+
   [ Rico Tzschichholz ]
   * debian/control.in:
     - Build-depend on libxi-dev
   * debian/patches/01_Wcast-align.patch: Refreshed
+  * debian/patches/05_ignore_num_workspaces.patch:
+    - Dropped, applied in new version
 
- -- Jeremy Bicha <jbicha@ubuntu.com>  Sat, 23 Feb 2013 12:36:21 -0500
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 05 Feb 2013 20:58:05 -0500
 
-mutter (3.6.2-1) experimental; urgency=low
+mutter (3.6.2-0ubuntu1) raring; urgency=low
 
-  * New upstream release
+  * New upstream release (LP: #1078155)
 
- -- Sjoerd Simons <sjoerd@debian.org>  Sat, 17 Nov 2012 12:29:09 +0100
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 12 Nov 2012 22:09:47 -0500
+
+mutter (3.6.1-1ubuntu2) raring; urgency=low
+
+  * Added 05_ignore_num_workspaces.patch (LP: #1067933)
+
+ -- Brandon Snider <brandonjsnider@gmail.com>  Wed, 17 Oct 2012 20:23:11 -0400
+
+mutter (3.6.1-1ubuntu1) raring; urgency=low
+
+  * Sync with Debian. Remaining change:
+    - 04_ignore_shadow_and_padding.patch: Silently ignore
+      padding and shadow tags
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Thu, 08 Nov 2012 08:37:27 -0500
 
 mutter (3.6.1-1) experimental; urgency=low
 

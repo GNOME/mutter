@@ -90,7 +90,7 @@ Section: libs
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         gsettings-desktop-schemas (>= 3.6.0),
+         gsettings-desktop-schemas (>= 3.7.3),
          mutter-common (= ${source:Version})
 Conflicts: libmutter0
 Description: window manager library from the Mutter window manager

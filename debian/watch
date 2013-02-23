@@ -1,2 +1,2 @@
 version=3
-http://ftp.gnome.org/pub/GNOME/sources/mutter/([\d\.]+[02468])/mutter-(.*)\.tar\.xz
+http://ftp.gnome.org/pub/GNOME/sources/mutter/([\d\.]+)/mutter-(.*)\.tar\.xz
