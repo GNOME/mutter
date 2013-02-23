@@ -1,3 +1,17 @@
+mutter (3.7.90-1) UNRELEASED; urgency=low
+
+  [ Jeremy Bicha ]
+  * New upstream release
+  * debian/control.in:
+    - Bump minimum clutter & gsettings-desktop-schemas
+ 
+  [ Rico Tzschichholz ]
+  * debian/control.in:
+    - Build-depend on libxi-dev
+  * debian/patches/01_Wcast-align.patch: Refreshed
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Sat, 23 Feb 2013 12:36:21 -0500
+
 mutter (3.6.2-1) experimental; urgency=low
 
   * New upstream release
