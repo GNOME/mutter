@@ -15,6 +15,7 @@ DEB_DH_MAKESHLIBS_ARGS_libmutter0b += -V'libmutter0b (>= $(DEB_GNOME_VERSION)), 
 DEB_INSTALL_DOCS_mutter += doc/theme-format.txt
 DEB_DH_GIREPOSITORY_ARGS_ALL := /usr/lib/mutter
 
+LDFLAGS += -Wl,-O1 -Wl,--as-needed
 # This does not work with mutter; disabled, for now.
 # LDFLAGS += -Wl,-z,defs -Wl,-O1 -Wl,--as-needed
 
