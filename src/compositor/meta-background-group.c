@@ -73,13 +73,12 @@ void
 meta_background_group_set_visible_region (MetaBackgroundGroup *self,
                                           cairo_region_t      *region)
 {
-  GList *children, *l;
+  ClutterActorIter iter;
+  ClutterActor *actor;
 
-  children = clutter_actor_get_children (CLUTTER_ACTOR (self));
-  for (l = children; l; l = l->next)
+  clutter_actor_iter_init (&iter, CLUTTER_ACTOR (self));
+  while (clutter_actor_iter_next (&iter, &actor))
     {
-      ClutterActor *actor = l->data;
-
       if (META_IS_BACKGROUND_ACTOR (actor))
         {
           meta_background_actor_set_visible_region (META_BACKGROUND_ACTOR (actor), region);
@@ -96,7 +95,6 @@ meta_background_group_set_visible_region (MetaBackgroundGroup *self,
           cairo_region_translate (region, x, y);
         }
     }
-  g_list_free (children);
 }
 
 ClutterActor *
