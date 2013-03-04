@@ -6,8 +6,11 @@ mutter (3.7.90-1) UNRELEASED; urgency=low
       * Dropped, Ubuntu specific
   * debian/control.in: Bump b-d on glib
   * debian/control.in: Rename libmutter0a to libmutter0b for more ABI fun
+  * d/p/10_Always-send-_NET_WM_FRAME_DRAWN-for-newly-created-wi.patch:
+    + Added. Fix a race causing _NET_WM_FRAME_DRAWN to not be sent in context
+    menus. (From upstream git, BGO#694771)
 
- -- Sjoerd Simons <sjoerd@debian.org>  Sat, 23 Feb 2013 19:22:58 +0100
+ -- Sjoerd Simons <sjoerd@debian.org>  Mon, 04 Mar 2013 22:12:55 +0100
 
 mutter (3.7.5-0ubuntu1~raring1) raring; urgency=medium
 
