@@ -1,5 +1,6 @@
-mutter (3.7.90-1) UNRELEASED; urgency=low
+mutter (3.7.92-1) UNRELEASED; urgency=low
 
+  [ Sjoerd Simons ]
   * New upstream release (3.7.90)
   * Sync from  Ubuntu
     + d/p/04_ignore_shadow_and_padding.patch:
@@ -9,6 +10,9 @@ mutter (3.7.90-1) UNRELEASED; urgency=low
   * d/p/10_Always-send-_NET_WM_FRAME_DRAWN-for-newly-created-wi.patch:
     + Added. Fix a race causing _NET_WM_FRAME_DRAWN to not be sent in context
     menus. (From upstream git, BGO#694771)
+
+  [ Emilio Pozuelo Monfort ]
+  * New upstream release.
 
  -- Sjoerd Simons <sjoerd@debian.org>  Mon, 04 Mar 2013 22:12:55 +0100
 
