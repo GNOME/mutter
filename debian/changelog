@@ -15,6 +15,8 @@ mutter (3.7.92-1) UNRELEASED; urgency=low
   * New upstream release.
     + debian/control.in:
       - Add gtk-doc-tools to build-depends.
+    + debian/libmutter-dev.install:
+      - Ship the API reference.
     + d/p/10_Always-send-_NET_WM_FRAME_DRAWN-for-newly-created-wi.patch:
       - Removed, included upstream.
     + debian/patches/02-dont-select-for-XI2-events.patch:
