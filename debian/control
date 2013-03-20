@@ -10,8 +10,10 @@ Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.
 Uploaders: Jeremy Bicha <jbicha@ubuntu.com>, Michael Biebl <biebl@debian.org>, Sjoerd Simons <sjoerd@debian.org>
 Build-Depends: cdbs (>= 0.4.90),
                debhelper (>= 8),
+               gnome-pkg-tools (>= 0.10),
                dh-autoreconf,
                intltool (>= 0.34.90),
+               gtk-doc-tools (>= 1.15),
                libgtk-3-dev (>= 3.3.7),
                libcanberra-gtk3-dev,
                gobject-introspection (>= 0.9.12-5~),
@@ -37,8 +39,7 @@ Build-Depends: cdbs (>= 0.4.90),
                libxrandr-dev,
                libsm-dev,
                libice-dev,
-               zenity,
-               gnome-pkg-tools (>= 0.10)
+               zenity
 Standards-Version: 3.9.3
 Vcs-Svn: svn://anonscm.debian.org/svn/pkg-gnome/desktop/unstable/mutter
 Vcs-Browser: http://anonscm.debian.org/viewvc/pkg-gnome/desktop/unstable/mutter

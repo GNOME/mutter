@@ -13,6 +13,8 @@ mutter (3.7.92-1) UNRELEASED; urgency=low
 
   [ Emilio Pozuelo Monfort ]
   * New upstream release.
+    + debian/control.in:
+      - Add gtk-doc-tools to build-depends.
 
  -- Sjoerd Simons <sjoerd@debian.org>  Mon, 04 Mar 2013 22:12:55 +0100
 
