@@ -23,6 +23,8 @@ mutter (3.7.92-1) experimental; urgency=low
       - New patch, revert an upstream change to receive XI2 events
         until #696272 is fixed. Thanks to Sjoerd Simons and
         Frédéric Péters for the info and the patch.
+    + debian/copyright:
+      - Updated.
 
  -- Emilio Pozuelo Monfort <pochu@debian.org>  Wed, 20 Mar 2013 18:12:12 +0100
 
