@@ -17,6 +17,10 @@ mutter (3.7.92-1) UNRELEASED; urgency=low
       - Add gtk-doc-tools to build-depends.
     + d/p/10_Always-send-_NET_WM_FRAME_DRAWN-for-newly-created-wi.patch:
       - Removed, included upstream.
+    + debian/patches/02-dont-select-for-XI2-events.patch:
+      - New patch, revert an upstream change to receive XI2 events
+        until #696272 is fixed. Thanks to Sjoerd Simons and
+        Frédéric Péters for the info and the patch.
 
  -- Sjoerd Simons <sjoerd@debian.org>  Mon, 04 Mar 2013 22:12:55 +0100
 
