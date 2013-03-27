@@ -1,8 +1,8 @@
-mutter (3.8.0-1) UNRELEASED; urgency=low
+mutter (3.8.0-1) experimental; urgency=low
 
   * New upstream release.
 
- -- Emilio Pozuelo Monfort <pochu@debian.org>  Wed, 27 Mar 2013 00:11:39 +0100
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Wed, 27 Mar 2013 00:15:13 +0100
 
 mutter (3.7.92-1) experimental; urgency=low
 
