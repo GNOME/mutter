@@ -55,6 +55,7 @@
 #define KEY_GNOME_ANIMATIONS "enable-animations"
 #define KEY_GNOME_CURSOR_THEME "cursor-theme"
 #define KEY_GNOME_CURSOR_SIZE "cursor-size"
+#define KEY_XKB_OPTIONS "xkb-options"
 
 #define KEY_OVERLAY_KEY "overlay-key"
 #define KEY_WORKSPACES_ONLY_ON_PRIMARY "workspaces-only-on-primary"
@@ -65,6 +66,7 @@
 #define SCHEMA_GENERAL         "org.gnome.desktop.wm.preferences"
 #define SCHEMA_MUTTER          "org.gnome.mutter"
 #define SCHEMA_INTERFACE       "org.gnome.desktop.interface"
+#define SCHEMA_INPUT_SOURCES   "org.gnome.desktop.input-sources"
 
 #define SETTINGS(s) g_hash_table_lookup (settings_schemas, (s))
 
@@ -115,6 +117,7 @@ static gboolean workspaces_only_on_primary = FALSE;
 
 static gboolean no_tab_popup = FALSE;
 
+static char *iso_next_group_option = NULL;
 
 static void handle_preference_update_enum (GSettings *settings,
                                            gchar     *key);
@@ -140,6 +143,7 @@ static gboolean theme_name_handler (GVariant*, gpointer*, gpointer);
 static gboolean mouse_button_mods_handler (GVariant*, gpointer*, gpointer);
 static gboolean button_layout_handler (GVariant*, gpointer*, gpointer);
 static gboolean overlay_key_handler (GVariant*, gpointer*, gpointer);
+static gboolean iso_next_group_handler (GVariant*, gpointer*, gpointer);
 
 static void     do_override               (char *key, char *schema);
 
@@ -431,6 +435,14 @@ static MetaStringPreference preferences_string[] =
         META_PREF_KEYBINDINGS,
       },
       overlay_key_handler,
+      NULL,
+    },
+    {
+      { "xkb-options",
+        SCHEMA_INPUT_SOURCES,
+        META_PREF_KEYBINDINGS,
+      },
+      iso_next_group_handler,
       NULL,
     },
     { { NULL, 0, 0 }, NULL },
@@ -857,6 +869,11 @@ meta_prefs_init (void)
                     G_CALLBACK (settings_changed), NULL);
   g_hash_table_insert (settings_schemas, g_strdup (SCHEMA_INTERFACE), settings);
 
+  settings = g_settings_new (SCHEMA_INPUT_SOURCES);
+  g_signal_connect (settings, "changed::" KEY_XKB_OPTIONS,
+                    G_CALLBACK (settings_changed), NULL);
+  g_hash_table_insert (settings_schemas, g_strdup (SCHEMA_INPUT_SOURCES), settings);
+
 
   for (tmp = overridden_keys; tmp; tmp = tmp->next)
     {
@@ -1035,7 +1052,8 @@ settings_changed (GSettings *settings,
     handle_preference_update_bool (settings, key);
   else if (g_variant_type_equal (type, G_VARIANT_TYPE_INT32))
     handle_preference_update_int (settings, key);
-  else if (g_variant_type_equal (type, G_VARIANT_TYPE_STRING))
+  else if (g_variant_type_equal (type, G_VARIANT_TYPE_STRING) ||
+           g_variant_type_equal (type, G_VARIANT_TYPE_STRING_ARRAY))
     {
       cursor = preferences_enum;
       found_enum = FALSE;
@@ -1550,6 +1568,44 @@ overlay_key_handler (GVariant *value,
       overlay_key_combo = combo;
       queue_changed (META_PREF_KEYBINDINGS);
     }
+
+  return TRUE;
+}
+
+static void
+set_iso_next_group_option (const char *option)
+{
+  if (g_strcmp0 (option, iso_next_group_option) == 0)
+    return;
+
+  g_free (iso_next_group_option);
+  iso_next_group_option = g_strdup (option);
+
+  queue_changed (META_PREF_KEYBINDINGS);
+}
+
+static gboolean
+iso_next_group_handler (GVariant *value,
+                        gpointer *result,
+                        gpointer  data)
+{
+  const char **xkb_options, **p;
+
+  *result = NULL; /* ignored */
+  xkb_options = g_variant_get_strv (value, NULL);
+
+  for (p = xkb_options; p && *p; ++p)
+    if (g_str_has_prefix (*p, "grp:"))
+      {
+        set_iso_next_group_option (*p + 4);
+        break;
+      }
+
+  /* If we didn't find it, it still needs to be disabled. */
+  if (p && *p == NULL)
+    set_iso_next_group_option (NULL);
+
+  g_free (xkb_options);
 
   return TRUE;
 }
@@ -2095,6 +2151,12 @@ void
 meta_prefs_get_overlay_binding (MetaKeyCombo *combo)
 {
   *combo = overlay_key_combo;
+}
+
+char *
+meta_prefs_get_iso_next_group_option (void)
+{
+  return g_strdup (iso_next_group_option);
 }
 
 GDesktopTitlebarAction

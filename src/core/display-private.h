@@ -458,6 +458,7 @@ void meta_display_overlay_key_activate (MetaDisplay *display);
 void meta_display_accelerator_activate (MetaDisplay *display,
                                         guint        action,
                                         guint        deviceid);
+void meta_display_modifiers_accelerator_activate (MetaDisplay *display);
 
 /* In above-tab-keycode.c */
 guint meta_display_get_above_tab_keycode (MetaDisplay *display);

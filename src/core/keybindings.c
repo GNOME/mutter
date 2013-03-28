@@ -153,6 +153,10 @@ static void regrab_key_bindings         (MetaDisplay *display);
 static GHashTable *key_handlers;
 static GHashTable *external_grabs;
 
+static char         *iso_next_group_option;
+static MetaKeyCombo *iso_next_group_combos;
+static int           n_iso_next_group_combos;
+
 #define HANDLER(name) g_hash_table_lookup (key_handlers, (name))
 
 static void
@@ -301,6 +305,168 @@ reload_modmap (MetaDisplay *display)
               display->meta_mask);
 }
 
+static int
+get_keycodes_for_keysym (MetaDisplay  *display,
+                         int           keysym,
+                         int         **keycodes)
+{
+  GArray *retval;
+  int n_keycodes;
+  int keycode;
+
+  retval = g_array_new (FALSE, FALSE, sizeof (int));
+
+  keycode = display->min_keycode;
+  while (keycode <= display->max_keycode)
+    {
+      const KeySym *syms = display->keymap + (keycode - display->min_keycode) * display->keysyms_per_keycode;
+      int i = 0;
+
+      while (i < display->keysyms_per_keycode)
+        {
+          if (syms[i] == (unsigned int)keysym)
+            g_array_append_val (retval, keycode);
+
+          ++i;
+        }
+
+      ++keycode;
+    }
+
+  n_keycodes = retval->len;
+  *keycodes = (int*) g_array_free (retval, n_keycodes == 0 ? TRUE : FALSE);
+
+  return n_keycodes;
+}
+
+static void
+reload_iso_next_group_combos (MetaDisplay *display)
+{
+  MetaKeyCombo *combos;
+  int *keycodes;
+  int n_keycodes;
+  int n_combos;
+  int i;
+
+  g_clear_pointer (&iso_next_group_combos, g_free);
+  n_iso_next_group_combos = 0;
+
+  if (iso_next_group_option == NULL)
+    return;
+
+  n_keycodes = get_keycodes_for_keysym (display, XK_ISO_Next_Group, &keycodes);
+
+  if (g_str_equal (iso_next_group_option, "toggle") ||
+      g_str_equal (iso_next_group_option, "lalt_toggle") ||
+      g_str_equal (iso_next_group_option, "lwin_toggle") ||
+      g_str_equal (iso_next_group_option, "rwin_toggle") ||
+      g_str_equal (iso_next_group_option, "lshift_toggle") ||
+      g_str_equal (iso_next_group_option, "rshift_toggle") ||
+      g_str_equal (iso_next_group_option, "lctrl_toggle") ||
+      g_str_equal (iso_next_group_option, "rctrl_toggle") ||
+      g_str_equal (iso_next_group_option, "sclk_toggle") ||
+      g_str_equal (iso_next_group_option, "menu_toggle") ||
+      g_str_equal (iso_next_group_option, "caps_toggle"))
+    {
+      n_combos = n_keycodes;
+      combos = g_new (MetaKeyCombo, n_combos);
+
+      for (i = 0; i < n_keycodes; ++i)
+        {
+          combos[i].keysym = XK_ISO_Next_Group;
+          combos[i].keycode = keycodes[i];
+          combos[i].modifiers = 0;
+        }
+    }
+  else if (g_str_equal (iso_next_group_option, "shift_caps_toggle") ||
+           g_str_equal (iso_next_group_option, "shifts_toggle"))
+    {
+      n_combos = n_keycodes;
+      combos = g_new (MetaKeyCombo, n_combos);
+
+      for (i = 0; i < n_keycodes; ++i)
+        {
+          combos[i].keysym = XK_ISO_Next_Group;
+          combos[i].keycode = keycodes[i];
+          combos[i].modifiers = ShiftMask;
+        }
+    }
+  else if (g_str_equal (iso_next_group_option, "alt_caps_toggle") ||
+           g_str_equal (iso_next_group_option, "alt_space_toggle"))
+    {
+      n_combos = n_keycodes;
+      combos = g_new (MetaKeyCombo, n_combos);
+
+      for (i = 0; i < n_keycodes; ++i)
+        {
+          combos[i].keysym = XK_ISO_Next_Group;
+          combos[i].keycode = keycodes[i];
+          combos[i].modifiers = Mod1Mask;
+        }
+    }
+  else if (g_str_equal (iso_next_group_option, "ctrl_shift_toggle") ||
+           g_str_equal (iso_next_group_option, "lctrl_lshift_toggle") ||
+           g_str_equal (iso_next_group_option, "rctrl_rshift_toggle"))
+    {
+      n_combos = n_keycodes * 2;
+      combos = g_new (MetaKeyCombo, n_combos);
+
+      for (i = 0; i < n_keycodes; ++i)
+        {
+          combos[i].keysym = XK_ISO_Next_Group;
+          combos[i].keycode = keycodes[i];
+          combos[i].modifiers = ShiftMask;
+
+          combos[i + n_keycodes].keysym = XK_ISO_Next_Group;
+          combos[i + n_keycodes].keycode = keycodes[i];
+          combos[i + n_keycodes].modifiers = ControlMask;
+        }
+    }
+  else if (g_str_equal (iso_next_group_option, "ctrl_alt_toggle"))
+    {
+      n_combos = n_keycodes * 2;
+      combos = g_new (MetaKeyCombo, n_combos);
+
+      for (i = 0; i < n_keycodes; ++i)
+        {
+          combos[i].keysym = XK_ISO_Next_Group;
+          combos[i].keycode = keycodes[i];
+          combos[i].modifiers = Mod1Mask;
+
+          combos[i + n_keycodes].keysym = XK_ISO_Next_Group;
+          combos[i + n_keycodes].keycode = keycodes[i];
+          combos[i + n_keycodes].modifiers = ControlMask;
+        }
+    }
+  else if (g_str_equal (iso_next_group_option, "alt_shift_toggle") ||
+           g_str_equal (iso_next_group_option, "lalt_lshift_toggle"))
+    {
+      n_combos = n_keycodes * 2;
+      combos = g_new (MetaKeyCombo, n_combos);
+
+      for (i = 0; i < n_keycodes; ++i)
+        {
+          combos[i].keysym = XK_ISO_Next_Group;
+          combos[i].keycode = keycodes[i];
+          combos[i].modifiers = Mod1Mask;
+
+          combos[i + n_keycodes].keysym = XK_ISO_Next_Group;
+          combos[i + n_keycodes].keycode = keycodes[i];
+          combos[i + n_keycodes].modifiers = ShiftMask;
+        }
+    }
+  else
+    {
+      n_combos = 0;
+      combos = NULL;
+    }
+
+  g_free (keycodes);
+
+  n_iso_next_group_combos = n_combos;
+  iso_next_group_combos = combos;
+}
+
 static guint
 keysym_to_keycode (MetaDisplay *display,
                    guint        keysym)
@@ -326,6 +492,8 @@ reload_keycodes (MetaDisplay *display)
     {
       display->overlay_key_combo.keycode = 0;
     }
+
+  reload_iso_next_group_combos (display);
 
   if (display->key_bindings)
     {
@@ -528,6 +696,9 @@ rebuild_special_bindings (MetaDisplay *display)
 
   meta_prefs_get_overlay_binding (&combo);
   display->overlay_key_combo = combo;
+
+  g_free (iso_next_group_option);
+  iso_next_group_option = meta_prefs_get_iso_next_group_option ();
 }
 
 static void
@@ -1029,6 +1200,22 @@ meta_screen_grab_keys (MetaScreen *screen)
                    display->overlay_key_combo.keysym,
                    display->overlay_key_combo.keycode,
                    display->overlay_key_combo.modifiers);
+
+  if (iso_next_group_combos)
+    {
+      int i = 0;
+      while (i < n_iso_next_group_combos)
+        {
+          if (iso_next_group_combos[i].keycode != 0)
+            {
+              meta_grab_key (display, screen->xroot,
+                             iso_next_group_combos[i].keysym,
+                             iso_next_group_combos[i].keycode,
+                             iso_next_group_combos[i].modifiers);
+            }
+          ++i;
+        }
+    }
 
   grab_keys (screen->display->key_bindings,
              screen->display->n_key_bindings,
@@ -1788,6 +1975,38 @@ process_overlay_key (MetaDisplay *display,
     return FALSE;
 }
 
+static gboolean
+process_iso_next_group (MetaDisplay *display,
+                        MetaScreen *screen,
+                        XIDeviceEvent *event,
+                        KeySym keysym)
+{
+  gboolean activate;
+  unsigned int mods;
+  int i;
+
+  if (event->evtype != XI_KeyPress)
+    return FALSE;
+
+  activate = FALSE;
+  mods = (event->mods.effective & 0xff & ~(display->ignored_modifier_mask));
+
+  for (i = 0; i < n_iso_next_group_combos; ++i)
+    {
+      if (event->detail == (int)iso_next_group_combos[i].keycode &&
+          mods == iso_next_group_combos[i].modifiers)
+        {
+          activate = TRUE;
+          break;
+        }
+    }
+
+  if (activate)
+      meta_display_modifiers_accelerator_activate (display);
+
+  return activate;
+}
+
 /* Handle a key event. May be called recursively: some key events cause
  * grabs to be ended and then need to be processed again in their own
  * right. This cannot cause infinite recursion because we never call
@@ -1860,6 +2079,10 @@ meta_display_process_key_event (MetaDisplay   *display,
   if (!all_keys_grabbed)
     {
       handled = process_overlay_key (display, screen, event, keysym);
+      if (handled)
+        return TRUE;
+
+      handled = process_iso_next_group (display, screen, event, keysym);
       if (handled)
         return TRUE;
     }
@@ -4554,6 +4777,12 @@ meta_display_init_keys (MetaDisplay *display)
   handler->flags = META_KEY_BINDING_BUILTIN;
 
   g_hash_table_insert (key_handlers, g_strdup ("overlay-key"), handler);
+
+  handler = g_new0 (MetaKeyHandler, 1);
+  handler->name = g_strdup ("iso-next-group");
+  handler->flags = META_KEY_BINDING_BUILTIN;
+
+  g_hash_table_insert (key_handlers, g_strdup ("iso-next-group"), handler);
 
   handler = g_new0 (MetaKeyHandler, 1);
   handler->name = g_strdup ("external-grab");
