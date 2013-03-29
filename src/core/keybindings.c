@@ -1248,7 +1248,8 @@ grab_status_to_string (int status)
 static gboolean
 grab_keyboard (MetaDisplay *display,
                Window       xwindow,
-               guint32      timestamp)
+               guint32      timestamp,
+               int          grab_mode)
 {
   int result;
   int grab_status;
@@ -1269,7 +1270,7 @@ grab_keyboard (MetaDisplay *display,
                               xwindow,
                               timestamp,
                               None,
-                              XIGrabModeAsync, XIGrabModeAsync,
+                              grab_mode, grab_mode,
                               True, /* owner_events */
                               &mask);
 
@@ -1323,7 +1324,7 @@ meta_screen_grab_all_keys (MetaScreen *screen, guint32 timestamp)
 
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Grabbing all keys on RootWindow\n");
-  retval = grab_keyboard (screen->display, screen->xroot, timestamp);
+  retval = grab_keyboard (screen->display, screen->xroot, timestamp, XIGrabModeAsync);
   if (retval)
     {
       screen->all_keys_grabbed = TRUE;
@@ -1376,7 +1377,7 @@ meta_window_grab_all_keys (MetaWindow  *window,
 
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Grabbing all keys on window %s\n", window->desc);
-  retval = grab_keyboard (window->display, grabwindow, timestamp);
+  retval = grab_keyboard (window->display, grabwindow, timestamp, XIGrabModeAsync);
   if (retval)
     {
       window->keys_grabbed = FALSE;
@@ -1401,6 +1402,44 @@ meta_window_ungrab_all_keys (MetaWindow *window, guint32 timestamp)
       /* Re-establish our standard bindings */
       meta_window_grab_keys (window);
     }
+}
+
+void
+meta_display_grab_keyboard (MetaDisplay *display, guint32 timestamp)
+{
+  grab_keyboard (display, DefaultRootWindow (display->xdisplay), timestamp, XIGrabModeSync);
+}
+
+void
+meta_display_ungrab_keyboard (MetaDisplay *display, guint32 timestamp)
+{
+  ungrab_keyboard (display, timestamp);
+}
+
+void
+meta_display_freeze_keyboard (MetaDisplay *display, guint32 timestamp)
+{
+  meta_error_trap_push (display);
+
+  meta_topic (META_DEBUG_KEYBINDINGS,
+              "Freezing keyboard with timestamp %u\n",
+              timestamp);
+  XIAllowEvents (display->xdisplay, META_VIRTUAL_CORE_KEYBOARD_ID,
+                 XISyncDevice, timestamp);
+  meta_error_trap_pop (display);
+}
+
+void
+meta_display_unfreeze_keyboard (MetaDisplay *display, guint32 timestamp)
+{
+  meta_error_trap_push (display);
+
+  meta_topic (META_DEBUG_KEYBINDINGS,
+              "Unfreezing keyboard with timestamp %u\n",
+              timestamp);
+  XIAllowEvents (display->xdisplay, META_VIRTUAL_CORE_KEYBOARD_ID,
+                 XIAsyncDevice, timestamp);
+  meta_error_trap_pop (display);
 }
 
 static gboolean

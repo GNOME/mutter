@@ -187,4 +187,12 @@ void meta_display_unmanage_screen (MetaDisplay *display,
 
 void meta_display_clear_mouse_mode (MetaDisplay *display);
 
+void meta_display_grab_keyboard (MetaDisplay *display,
+                                 guint32      timestamp);
+void meta_display_ungrab_keyboard (MetaDisplay *display,
+                                   guint32      timestamp);
+void meta_display_freeze_keyboard (MetaDisplay *display,
+                                   guint32      timestamp);
+void meta_display_unfreeze_keyboard (MetaDisplay *display,
+                                     guint32      timestamp);
 #endif
