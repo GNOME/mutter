@@ -147,7 +147,8 @@ static gboolean process_workspace_switch_grab (MetaDisplay   *display,
                                                XIDeviceEvent *event,
                                                KeySym         keysym);
 
-static void regrab_key_bindings         (MetaDisplay *display);
+static void grab_key_bindings           (MetaDisplay *display);
+static void ungrab_key_bindings         (MetaDisplay *display);
 
 
 static GHashTable *key_handlers;
@@ -702,7 +703,7 @@ rebuild_special_bindings (MetaDisplay *display)
 }
 
 static void
-regrab_key_bindings (MetaDisplay *display)
+ungrab_key_bindings (MetaDisplay *display)
 {
   GSList *tmp;
   GSList *windows;
@@ -715,7 +716,6 @@ regrab_key_bindings (MetaDisplay *display)
       MetaScreen *screen = tmp->data;
 
       meta_screen_ungrab_keys (screen);
-      meta_screen_grab_keys (screen);
 
       tmp = tmp->next;
     }
@@ -727,6 +727,38 @@ regrab_key_bindings (MetaDisplay *display)
       MetaWindow *w = tmp->data;
 
       meta_window_ungrab_keys (w);
+
+      tmp = tmp->next;
+    }
+  meta_error_trap_pop (display);
+
+  g_slist_free (windows);
+}
+
+static void
+grab_key_bindings (MetaDisplay *display)
+{
+  GSList *tmp;
+  GSList *windows;
+
+  meta_error_trap_push (display); /* for efficiency push outer trap */
+
+  tmp = display->screens;
+  while (tmp != NULL)
+    {
+      MetaScreen *screen = tmp->data;
+
+      meta_screen_grab_keys (screen);
+
+      tmp = tmp->next;
+    }
+
+  windows = meta_display_list_windows (display, META_LIST_DEFAULT);
+  tmp = windows;
+  while (tmp != NULL)
+    {
+      MetaWindow *w = tmp->data;
+
       meta_window_grab_keys (w);
 
       tmp = tmp->next;
@@ -967,6 +999,8 @@ meta_display_process_mapping_event (MetaDisplay *display,
 
   if (keymap_changed || modmap_changed)
     {
+      ungrab_key_bindings (display);
+
       if (keymap_changed)
         reload_keymap (display);
 
@@ -980,7 +1014,7 @@ meta_display_process_mapping_event (MetaDisplay *display,
 
       reload_modifiers (display);
 
-      regrab_key_bindings (display);
+      grab_key_bindings (display);
     }
 }
 
@@ -995,11 +1029,12 @@ bindings_changed_callback (MetaPreference pref,
   switch (pref)
     {
     case META_PREF_KEYBINDINGS:
+      ungrab_key_bindings (display);
       rebuild_key_binding_table (display);
       rebuild_special_bindings (display);
       reload_keycodes (display);
       reload_modifiers (display);
-      regrab_key_bindings (display);
+      grab_key_bindings (display);
       break;
     default:
       break;
@@ -1118,21 +1153,12 @@ meta_change_keygrab (MetaDisplay *display,
 }
 
 static void
-meta_grab_key (MetaDisplay *display,
-               Window       xwindow,
-               int          keysym,
-               unsigned int keycode,
-               int          modmask)
-{
-  meta_change_keygrab (display, xwindow, TRUE, keysym, keycode, modmask);
-}
-
-static void
-grab_keys (MetaKeyBinding *bindings,
-           int             n_bindings,
-           MetaDisplay    *display,
-           Window          xwindow,
-           gboolean        binding_per_window)
+change_binding_keygrabs (MetaKeyBinding *bindings,
+                         int             n_bindings,
+                         MetaDisplay    *display,
+                         Window          xwindow,
+                         gboolean        binding_per_window,
+                         gboolean        grab)
 {
   int i;
 
@@ -1147,10 +1173,10 @@ grab_keys (MetaKeyBinding *bindings,
           !!(bindings[i].handler->flags & META_KEY_BINDING_PER_WINDOW) &&
           bindings[i].keycode != 0)
         {
-          meta_grab_key (display, xwindow,
-                         bindings[i].keysym,
-                         bindings[i].keycode,
-                         bindings[i].mask);
+          meta_change_keygrab (display, xwindow, grab,
+                               bindings[i].keysym,
+                               bindings[i].keycode,
+                               bindings[i].mask);
         }
 
       ++i;
@@ -1160,46 +1186,16 @@ grab_keys (MetaKeyBinding *bindings,
 }
 
 static void
-ungrab_all_keys (MetaDisplay *display,
-                 Window       xwindow)
-{
-  if (meta_is_debugging ())
-    meta_error_trap_push_with_return (display);
-  else
-    meta_error_trap_push (display);
-
-  XUngrabKey (display->xdisplay, AnyKey, AnyModifier,
-              xwindow);
-
-  if (meta_is_debugging ())
-    {
-      int result;
-
-      result = meta_error_trap_pop_with_return (display);
-
-      if (result != Success)
-        meta_topic (META_DEBUG_KEYBINDINGS,
-                    "Ungrabbing all keys on 0x%lx failed\n", xwindow);
-    }
-  else
-    meta_error_trap_pop (display);
-}
-
-void
-meta_screen_grab_keys (MetaScreen *screen)
+meta_screen_change_keygrabs (MetaScreen *screen,
+                             gboolean    grab)
 {
   MetaDisplay *display = screen->display;
-  if (screen->all_keys_grabbed)
-    return;
-
-  if (screen->keys_grabbed)
-    return;
 
   if (display->overlay_key_combo.keycode != 0)
-    meta_grab_key (display, screen->xroot,
-                   display->overlay_key_combo.keysym,
-                   display->overlay_key_combo.keycode,
-                   display->overlay_key_combo.modifiers);
+    meta_change_keygrab (display, screen->xroot, grab,
+                         display->overlay_key_combo.keysym,
+                         display->overlay_key_combo.keycode,
+                         display->overlay_key_combo.modifiers);
 
   if (iso_next_group_combos)
     {
@@ -1208,19 +1204,31 @@ meta_screen_grab_keys (MetaScreen *screen)
         {
           if (iso_next_group_combos[i].keycode != 0)
             {
-              meta_grab_key (display, screen->xroot,
-                             iso_next_group_combos[i].keysym,
-                             iso_next_group_combos[i].keycode,
-                             iso_next_group_combos[i].modifiers);
+              meta_change_keygrab (display, screen->xroot, grab,
+                                   iso_next_group_combos[i].keysym,
+                                   iso_next_group_combos[i].keycode,
+                                   iso_next_group_combos[i].modifiers);
             }
           ++i;
         }
     }
 
-  grab_keys (screen->display->key_bindings,
-             screen->display->n_key_bindings,
-             screen->display, screen->xroot,
-             FALSE);
+  change_binding_keygrabs (screen->display->key_bindings,
+                           screen->display->n_key_bindings,
+                           screen->display, screen->xroot,
+                           FALSE, grab);
+}
+
+void
+meta_screen_grab_keys (MetaScreen *screen)
+{
+  if (screen->all_keys_grabbed)
+    return;
+
+  if (screen->keys_grabbed)
+    return;
+
+  meta_screen_change_keygrabs (screen, TRUE);
 
   screen->keys_grabbed = TRUE;
 }
@@ -1228,11 +1236,23 @@ meta_screen_grab_keys (MetaScreen *screen)
 void
 meta_screen_ungrab_keys (MetaScreen  *screen)
 {
-  if (screen->keys_grabbed)
-    {
-      ungrab_all_keys (screen->display, screen->xroot);
-      screen->keys_grabbed = FALSE;
-    }
+  if (!screen->keys_grabbed)
+    return;
+
+  meta_screen_change_keygrabs (screen, FALSE);
+
+  screen->keys_grabbed = FALSE;
+}
+
+static void
+meta_window_change_keygrabs (MetaWindow *window,
+                             Window      xwindow,
+                             gboolean    grab)
+{
+  change_binding_keygrabs (window->display->key_bindings,
+                           window->display->n_key_bindings,
+                           window->display, xwindow,
+                           TRUE, grab);
 }
 
 void
@@ -1245,7 +1265,7 @@ meta_window_grab_keys (MetaWindow  *window)
       || window->override_redirect)
     {
       if (window->keys_grabbed)
-        ungrab_all_keys (window->display, window->xwindow);
+        meta_window_change_keygrabs (window, window->xwindow, FALSE);
       window->keys_grabbed = FALSE;
       return;
     }
@@ -1253,7 +1273,7 @@ meta_window_grab_keys (MetaWindow  *window)
   if (window->keys_grabbed)
     {
       if (window->frame && !window->grab_on_frame)
-        ungrab_all_keys (window->display, window->xwindow);
+        meta_window_change_keygrabs (window, window->xwindow, FALSE);
       else if (window->frame == NULL &&
                window->grab_on_frame)
         ; /* continue to regrab on client window */
@@ -1261,11 +1281,9 @@ meta_window_grab_keys (MetaWindow  *window)
         return; /* already all good */
     }
 
-  grab_keys (window->display->key_bindings,
-             window->display->n_key_bindings,
-             window->display,
-             window->frame ? window->frame->xwindow : window->xwindow,
-             TRUE);
+  meta_window_change_keygrabs (window,
+                               window->frame ? window->frame->xwindow : window->xwindow,
+                               TRUE);
 
   window->keys_grabbed = TRUE;
   window->grab_on_frame = window->frame != NULL;
@@ -1278,11 +1296,9 @@ meta_window_ungrab_keys (MetaWindow  *window)
     {
       if (window->grab_on_frame &&
           window->frame != NULL)
-        ungrab_all_keys (window->display,
-                         window->frame->xwindow);
+        meta_window_change_keygrabs (window, window->frame->xwindow, FALSE);
       else if (!window->grab_on_frame)
-        ungrab_all_keys (window->display,
-                         window->xwindow);
+        meta_window_change_keygrabs (window, window->xwindow, FALSE);
 
       window->keys_grabbed = FALSE;
     }
@@ -1338,7 +1354,7 @@ meta_display_grab_accelerator (MetaDisplay *display,
   for (l = display->screens; l; l = l->next)
     {
       MetaScreen *screen = l->data;
-      meta_grab_key (display, screen->xroot, keysym, keycode, mask);
+      meta_change_keygrab (display, screen->xroot, TRUE, keysym, keycode, mask);
     }
 
   grab = g_new0 (MetaKeyGrab, 1);
