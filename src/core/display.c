@@ -4175,20 +4175,6 @@ meta_display_end_grab_op (MetaDisplay *display,
       if (!display->grab_threshold_movement_reached)
         meta_window_raise (display->grab_window);
     }
-
-  if (GRAB_OP_IS_WINDOW_SWITCH (display->grab_op) ||
-      display->grab_op == META_GRAB_OP_KEYBOARD_WORKSPACE_SWITCHING)
-    {
-      if (GRAB_OP_IS_WINDOW_SWITCH (display->grab_op))
-        meta_screen_tab_popup_destroy (display->grab_screen);
-      else
-        meta_screen_workspace_popup_destroy (display->grab_screen);
-
-      /* If the ungrab here causes an EnterNotify, ignore it for
-       * sloppy focus
-       */
-      display->ungrab_should_not_cause_focus_window = display->grab_xwindow;
-    }
   
   /* If this was a move or resize clear out the edge cache */
   if (meta_grab_op_is_resizing (display->grab_op) || 
