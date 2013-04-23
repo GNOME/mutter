@@ -111,7 +111,6 @@ gint  meta_unsigned_long_equal (gconstpointer v1,
                                 gconstpointer v2);
 guint meta_unsigned_long_hash  (gconstpointer v);
 
-const char* meta_frame_type_to_string (MetaFrameType type);
 const char* meta_gravity_to_string (int gravity);
 
 char* meta_external_binding_name_for_action (guint keybinding_action);

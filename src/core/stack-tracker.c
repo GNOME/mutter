@@ -711,9 +711,7 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
        * XID => window table. (Wine uses a toplevel for _NET_WM_USER_TIME_WINDOW;
        * see window-prop.c:reload_net_wm_user_time_window() for registration.)
        */
-      if (meta_window &&
-          (windows[i] == meta_window->xwindow ||
-           (meta_window->frame && windows[i] == meta_window->frame->xwindow)))
+      if (meta_window && windows[i] == meta_window->xwindow)
         meta_windows = g_list_prepend (meta_windows, meta_window);
     }
 

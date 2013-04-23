@@ -523,42 +523,6 @@ meta_run (void)
 
   if (g_getenv ("MUTTER_G_FATAL_WARNINGS") != NULL)
     g_log_set_always_fatal (G_LOG_LEVEL_MASK);
-  
-  meta_ui_set_current_theme (meta_prefs_get_theme ());
-
-  /* Try to find some theme that'll work if the theme preference
-   * doesn't exist.  First try Simple (the default theme) then just
-   * try anything in the themes directory.
-   */
-  if (!meta_ui_have_a_theme ())
-    meta_ui_set_current_theme ("Simple");
-  
-  if (!meta_ui_have_a_theme ())
-    {
-      const char *dir_entry = NULL;
-      GError *err = NULL;
-      GDir   *themes_dir = NULL;
-      
-      if (!(themes_dir = g_dir_open (MUTTER_DATADIR"/themes", 0, &err)))
-        {
-          meta_fatal (_("Failed to scan themes directory: %s\n"), err->message);
-          g_error_free (err);
-        } 
-      else 
-        {
-          while (((dir_entry = g_dir_read_name (themes_dir)) != NULL) && 
-                 (!meta_ui_have_a_theme ()))
-            {
-              meta_ui_set_current_theme (dir_entry);
-            }
-          
-          g_dir_close (themes_dir);
-        }
-    }
-  
-  if (!meta_ui_have_a_theme ())
-    meta_fatal (_("Could not find a theme! Be sure %s exists and contains the usual themes.\n"),
-                MUTTER_DATADIR"/themes");
 
   if (!meta_display_open ())
     meta_exit (META_EXIT_ERROR);
@@ -606,12 +570,6 @@ prefs_changed_callback (MetaPreference pref,
 {
   switch (pref)
     {
-    case META_PREF_THEME:
-    case META_PREF_DRAGGABLE_BORDER_WIDTH:
-      meta_ui_set_current_theme (meta_prefs_get_theme ());
-      meta_display_retheme_all ();
-      break;
-
     case META_PREF_CURSOR_THEME:
     case META_PREF_CURSOR_SIZE:
       meta_display_set_cursor_theme (meta_prefs_get_cursor_theme (),

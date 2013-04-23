@@ -24,7 +24,6 @@
 #include <clutter/clutter.h>
 #include <cogl/cogl.h>
 
-#include <meta/gradient.h>
 #include <meta/screen.h>
 
 #include <gsettings-desktop-schemas/gdesktop-enums.h>

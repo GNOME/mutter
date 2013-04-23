@@ -61,16 +61,6 @@ void meta_ui_theme_get_frame_borders (MetaUI *ui,
                                       MetaFrameType      type,
                                       MetaFrameFlags     flags,
                                       MetaFrameBorders *borders);
-void meta_ui_get_frame_borders (MetaUI *ui,
-                                Window frame_xwindow,
-                                MetaFrameBorders *borders);
-
-void meta_ui_get_frame_mask (MetaUI *ui,
-                             Window frame_xwindow,
-                             guint width,
-                             guint height,
-                             cairo_t *cr);
-
 Window meta_ui_create_frame_window (MetaUI *ui,
                                     Display *xdisplay,
                                     Visual *xvisual,
@@ -88,54 +78,12 @@ void meta_ui_move_resize_frame (MetaUI *ui,
 				int y,
 				int width,
 				int height);
-
-/* GDK insists on tracking map/unmap */
-void meta_ui_map_frame   (MetaUI *ui,
-                          Window  xwindow);
-void meta_ui_unmap_frame (MetaUI *ui,
-                          Window  xwindow);
-
-void meta_ui_unflicker_frame_bg (MetaUI *ui,
-                                 Window  xwindow,
-                                 int     target_width,
-                                 int     target_height);
-void meta_ui_reset_frame_bg     (MetaUI *ui,
-                                 Window  xwindow);
-
-cairo_region_t *meta_ui_get_frame_bounds (MetaUI  *ui,
-                                          Window   xwindow,
-                                          int      window_width,
-                                          int      window_height);
-
-void meta_ui_queue_frame_draw (MetaUI *ui,
-                               Window xwindow);
-
 void meta_ui_set_frame_title (MetaUI *ui,
                               Window xwindow,
                               const char *title);
 
 void meta_ui_update_frame_style (MetaUI  *ui,
                                  Window   window);
-
-void meta_ui_repaint_frame (MetaUI *ui,
-                            Window xwindow);
-
-MetaWindowMenu* meta_ui_window_menu_new   (MetaUI             *ui,
-                                           Window              client_xwindow,
-                                           MetaMenuOp          ops,
-                                           MetaMenuOp          insensitive,
-                                           unsigned long       active_workspace,
-                                           int                 n_workspaces,
-                                           MetaWindowMenuFunc  func,
-                                           gpointer            data);
-void            meta_ui_window_menu_popup (MetaWindowMenu     *menu,
-                                           int                 root_x,
-                                           int                 root_y,
-                                           int                 button,
-                                           guint32             timestamp);
-void            meta_ui_window_menu_free  (MetaWindowMenu     *menu);
-
-
 /* FIXME these lack a display arg */
 GdkPixbuf* meta_gdk_pixbuf_get_from_pixmap (Pixmap       xpixmap,
                                             int          src_x,
@@ -151,9 +99,6 @@ gboolean  meta_ui_window_should_not_cause_focus (Display *xdisplay,
 
 char*     meta_text_property_to_utf8 (Display             *xdisplay,
                                       const XTextProperty *prop);
-
-void     meta_ui_set_current_theme (const char *name);
-gboolean meta_ui_have_a_theme      (void);
 
 /* Not a real key symbol but means "key above the tab key"; this is
  * used as the default keybinding for cycle_group.
@@ -171,8 +116,6 @@ gboolean meta_ui_parse_modifier    (const char          *accel,
 /* Caller responsible for freeing return string of meta_ui_accelerator_name! */
 gchar*   meta_ui_accelerator_name  (unsigned int        keysym,
                                     MetaVirtualModifier mask);
-gboolean meta_ui_window_is_widget (MetaUI *ui,
-                                   Window  xwindow);
 
 int      meta_ui_get_drag_threshold       (MetaUI *ui);
 

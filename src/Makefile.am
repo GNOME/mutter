@@ -102,8 +102,6 @@ libmutter_la_SOURCES =				\
 	meta/errors.h				\
 	core/frame.c				\
 	core/frame.h				\
-	ui/gradient.c				\
-	meta/gradient.h				\
 	core/group-private.h			\
 	core/group-props.c			\
 	core/group-props.h			\
@@ -152,20 +150,12 @@ libmutter_la_SOURCES =				\
 	core/xprops.h				\
 	meta/common.h				\
 	core/core.h				\
+	ui/ui.c					\
 	ui/ui.h					\
-	ui/frames.c				\
-	ui/frames.h				\
-	ui/menu.c				\
-	ui/menu.h				\
 	ui/metaaccellabel.c			\
 	ui/metaaccellabel.h			\
 	ui/resizepopup.c			\
-	ui/resizepopup.h			\
-	ui/theme-parser.c			\
-	ui/theme.c				\
-	meta/theme.h				\
-	ui/theme-private.h			\
-	ui/ui.c
+	ui/resizepopup.h
 
 nodist_libmutter_la_SOURCES =			\
 	$(mutter_built_sources)
@@ -183,7 +173,6 @@ libmutterinclude_base_headers =		\
 	meta/compositor.h			\
 	meta/display.h				\
 	meta/errors.h				\
-	meta/gradient.h				\
 	meta/group.h				\
 	meta/keybindings.h			\
 	meta/main.h				\
@@ -198,7 +187,6 @@ libmutterinclude_base_headers =		\
 	meta/meta-window-actor.h		\
 	meta/prefs.h				\
 	meta/screen.h				\
-	meta/theme.h				\
 	meta/types.h				\
 	meta/util.h				\
 	meta/window.h				\
@@ -254,13 +242,11 @@ Meta-$(api_version).gir: libmutter.la
 endif
 
 testboxes_SOURCES = core/testboxes.c
-testgradient_SOURCES = ui/testgradient.c
 testasyncgetprop_SOURCES = core/testasyncgetprop.c
 
-noinst_PROGRAMS=testboxes testgradient testasyncgetprop
+noinst_PROGRAMS=testboxes testasyncgetprop
 
 testboxes_LDADD = $(MUTTER_LIBS) libmutter.la
-testgradient_LDADD = $(MUTTER_LIBS) libmutter.la
 testasyncgetprop_LDADD = $(MUTTER_LIBS) libmutter.la
 
 @INTLTOOL_DESKTOP_RULE@

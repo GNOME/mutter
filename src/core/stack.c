@@ -1189,10 +1189,7 @@ stack_sync_to_server (MetaStack *stack)
       else
 	g_array_prepend_val (stacked, w->xwindow);
       
-      if (w->frame)
-	top_level_window = w->frame->xwindow;
-      else
-	top_level_window = w->xwindow;
+      top_level_window = w->xwindow;
 
       /* We don't restack hidden windows along with the rest, though they are
        * reflected in the _NET hints. Hidden windows all get pushed below

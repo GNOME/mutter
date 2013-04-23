@@ -361,6 +361,7 @@ meta_window_actor_dispose (GObject *object)
   xdisplay = meta_display_get_xdisplay (display);
   info     = meta_screen_get_compositor_data (screen);
 
+  meta_window_actor_set_redirected (self, FALSE);
   meta_window_actor_detach (self);
 
   if (priv->send_frame_messages_timer != 0)
@@ -482,6 +483,36 @@ meta_window_actor_get_property (GObject      *object,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
     }
+}
+
+static const char*
+meta_frame_type_to_string (MetaFrameType type)
+{
+  switch (type)
+    {
+    case META_FRAME_TYPE_NORMAL:
+      return "normal";
+    case META_FRAME_TYPE_DIALOG:
+      return "dialog";
+    case META_FRAME_TYPE_MODAL_DIALOG:
+      return "modal_dialog";
+    case META_FRAME_TYPE_UTILITY:
+      return "utility";
+    case META_FRAME_TYPE_MENU:
+      return "menu";
+    case META_FRAME_TYPE_BORDER:
+      return "border";
+    case META_FRAME_TYPE_ATTACHED:
+      return "attached";
+#if 0
+    case META_FRAME_TYPE_TOOLBAR:
+      return "toolbar";
+#endif
+    case  META_FRAME_TYPE_LAST:
+      break;
+    }
+
+  return "<unknown>";
 }
 
 static const char *
@@ -1842,43 +1873,6 @@ meta_window_actor_sync_visibility (MetaWindowActor *self)
     }
 }
 
-static cairo_region_t *
-scan_visible_region (guchar         *mask_data,
-                     int             stride,
-                     cairo_region_t *scan_area)
-{
-  int i, n_rects = cairo_region_num_rectangles (scan_area);
-  MetaRegionBuilder builder;
-
-  meta_region_builder_init (&builder);
-
-  for (i = 0; i < n_rects; i++)
-    {
-      int x, y;
-      cairo_rectangle_int_t rect;
-
-      cairo_region_get_rectangle (scan_area, i, &rect);
-
-      for (y = rect.y; y < (rect.y + rect.height); y++)
-        {
-          for (x = rect.x; x < (rect.x + rect.width); x++)
-            {
-              int x2 = x;
-              while (mask_data[y * stride + x2] == 255 && x2 < (rect.x + rect.width))
-                x2++;
-
-              if (x2 > x)
-                {
-                  meta_region_builder_add_rectangle (&builder, x, y, x2 - x, 1);
-                  x = x2;
-                }
-            }
-        }
-    }
-
-  return meta_region_builder_finish (&builder);
-}
-
 static void
 build_and_scan_frame_mask (MetaWindowActor       *self,
                            cairo_rectangle_int_t *client_area,
@@ -1913,27 +1907,6 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
 
   gdk_cairo_region (cr, shape_region);
   cairo_fill (cr);
-
-  if (priv->window->frame != NULL)
-    {
-      cairo_region_t *frame_paint_region, *scanned_region;
-      cairo_rectangle_int_t rect = { 0, 0, tex_width, tex_height };
-
-      /* Make sure we don't paint the frame over the client window. */
-      frame_paint_region = cairo_region_create_rectangle (&rect);
-      cairo_region_subtract_rectangle (frame_paint_region, client_area);
-
-      gdk_cairo_region (cr, frame_paint_region);
-      cairo_clip (cr);
-
-      meta_frame_get_mask (priv->window->frame, cr);
-
-      cairo_surface_flush (surface);
-      scanned_region = scan_visible_region (mask_data, stride, frame_paint_region);
-      cairo_region_union (shape_region, scanned_region);
-      cairo_region_destroy (scanned_region);
-      cairo_region_destroy (frame_paint_region);
-    }
 
   cairo_destroy (cr);
   cairo_surface_destroy (surface);

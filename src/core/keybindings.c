@@ -1983,10 +1983,6 @@ meta_display_process_key_event (MetaDisplay   *display,
   if (screen == NULL)
     return FALSE; /* event window is destroyed */
 
-  /* ignore key events on popup menus and such. */
-  if (meta_ui_window_is_widget (screen->ui, event->event))
-    return FALSE;
-
   /* window may be NULL */
 
   keysym = XKeycodeToKeysym (display->xdisplay, event->detail, 0);
