@@ -1,3 +1,11 @@
+mutter (3.4.1-6) unstable; urgency=low
+
+  * Team upload
+  * Add debian/patches/02_switch_to_gtk-doc_syntax.patch:
+    - from upstream, fixes FTBFS with new gobject-introspection.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Mon, 13 May 2013 11:03:34 +0200
+
 mutter (3.4.1-5) unstable; urgency=low
 
   [ Rico Tzschichholz ]
