@@ -1,3 +1,15 @@
+3.8.2
+=====
+* Fix miscellaneous memory leaks [Pavel; #698710]
+* Fix binding remaining grabbed after clearing all strokes [Rui; #697000]
+* Misc fixes [Stef; #698179]
+
+Contributors:
+  Rui Matos, Pavel Vasin, Stef Walter
+
+Translations:
+  Kjartan Maraas [nb]
+
 3.8.1
 =====
 * Fix crash when getting default font [Bastien; #696814]
