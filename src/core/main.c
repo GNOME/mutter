@@ -56,6 +56,7 @@
 #include <meta/prefs.h>
 #include <meta/compositor.h>
 
+#include <glib-unix.h>
 #include <glib-object.h>
 #include <gdk/gdkx.h>
 
@@ -328,23 +329,8 @@ meta_finalize (void)
                         CurrentTime); /* I doubt correct timestamps matter here */
 }
 
-static int sigterm_pipe_fds[2] = { -1, -1 };
-
-static void
-sigterm_handler (int signum)
-{
-  if (sigterm_pipe_fds[1] >= 0)
-    {
-      int G_GNUC_UNUSED dummy;
-
-      dummy = write (sigterm_pipe_fds[1], "", 1);
-      close (sigterm_pipe_fds[1]);
-      sigterm_pipe_fds[1] = -1;
-    }
-}
-
 static gboolean
-on_sigterm (void)
+on_sigterm (gpointer user_data)
 {
   meta_quit (META_EXIT_SUCCESS);
   return FALSE;
@@ -361,8 +347,7 @@ meta_init (void)
 {
   struct sigaction act;
   sigset_t empty_mask;
-  GIOChannel *channel;
-  
+
   sigemptyset (&empty_mask);
   act.sa_handler = SIG_IGN;
   act.sa_mask    = empty_mask;
@@ -376,20 +361,7 @@ meta_init (void)
                 g_strerror (errno));
 #endif
 
-  if (pipe (sigterm_pipe_fds) != 0)
-    g_printerr ("Failed to create SIGTERM pipe: %s\n",
-                g_strerror (errno));
-
-  channel = g_io_channel_unix_new (sigterm_pipe_fds[0]);
-  g_io_channel_set_flags (channel, G_IO_FLAG_NONBLOCK, NULL);
-  g_io_add_watch (channel, G_IO_IN, (GIOFunc) on_sigterm, NULL);
-  g_io_channel_set_close_on_unref (channel, TRUE);
-  g_io_channel_unref (channel);
-
-  act.sa_handler = &sigterm_handler;
-  if (sigaction (SIGTERM, &act, NULL) < 0)
-    g_printerr ("Failed to register SIGTERM handler: %s\n",
-		g_strerror (errno));
+  g_unix_signal_add (SIGTERM, on_sigterm, NULL);
 
   meta_debug_init ();
 
