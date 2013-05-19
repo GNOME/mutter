@@ -389,91 +389,85 @@ meta_topic_real (MetaDebugTopic topic,
 }
 #endif /* WITH_VERBOSE_MODE */
 
+#ifdef WITH_VERBOSE_MODE
+static void
+logfile_log_handler (const gchar *log_domain,
+                     GLogLevelFlags log_level,
+                     const gchar *message,
+                     gpointer user_data)
+{
+  switch (log_level & G_LOG_LEVEL_MASK) {
+  case G_LOG_LEVEL_ERROR:
+    utf8_fputs ("ERROR: ", logfile);
+    break;
+
+  case G_LOG_LEVEL_CRITICAL:
+    utf8_fputs ("CRITICAL: ", logfile);
+    break;
+
+  case G_LOG_LEVEL_WARNING:
+    utf8_fputs ("WARNING: ", logfile);
+    break;
+
+  default:
+    /* the other levels don't go through
+       g_log, they go directly to the log file */
+    ;
+  }
+
+  utf8_fputs (message, logfile);
+}
+
+void
+meta_debug_init (void)
+{
+  ensure_logfile ();
+
+  if (logfile)
+    g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_MASK,
+                       logfile_log_handler, NULL);
+}
+#else
+void
+meta_debug_init (void)
+{
+}
+#endif
+
 void
 meta_bug (const char *format, ...)
 {
   va_list args;
-  gchar *str;
-  FILE *out;
 
   g_return_if_fail (format != NULL);
-  
+
   va_start (args, format);
-  str = g_strdup_vprintf (format, args);
+  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_ERROR, format, args);
   va_end (args);
-
-#ifdef WITH_VERBOSE_MODE
-  out = logfile ? logfile : stderr;
-#else
-  out = stderr;
-#endif
-
-  if (no_prefix == 0)
-    utf8_fputs (_("Bug in window manager: "), out);
-  utf8_fputs (str, out);
-
-  fflush (out);
-  
-  g_free (str);
-  
-  /* stop us in a debugger */
-  abort ();
 }
 
 void
 meta_warning (const char *format, ...)
 {
   va_list args;
-  gchar *str;
-  FILE *out;
-  
+
   g_return_if_fail (format != NULL);
-  
+
   va_start (args, format);
-  str = g_strdup_vprintf (format, args);
+  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, format, args);
   va_end (args);
-
-#ifdef WITH_VERBOSE_MODE
-  out = logfile ? logfile : stderr;
-#else
-  out = stderr;
-#endif
-
-  if (no_prefix == 0)
-    utf8_fputs (_("Window manager warning: "), out);
-  utf8_fputs (str, out);
-
-  fflush (out);
-  
-  g_free (str);
 }
 
 void
 meta_fatal (const char *format, ...)
 {
   va_list args;
-  gchar *str;
-  FILE *out;
-  
+
   g_return_if_fail (format != NULL);
-  
+
   va_start (args, format);
-  str = g_strdup_vprintf (format, args);
+  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL, format, args);
   va_end (args);
-
-#ifdef WITH_VERBOSE_MODE
-  out = logfile ? logfile : stderr;
-#else
-  out = stderr;
-#endif
-
-  if (no_prefix == 0)
-    utf8_fputs (_("Window manager error: "), out);
-  utf8_fputs (str, out);
-
-  fflush (out);
-  
-  g_free (str);
 
   meta_exit (META_EXIT_ERROR);
 }
@@ -495,7 +489,6 @@ meta_pop_no_msg_prefix (void)
 void
 meta_exit (MetaExitCode code)
 {
-  
   exit (code);
 }
 

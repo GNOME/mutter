@@ -94,26 +94,6 @@ static void prefs_changed_callback (MetaPreference pref,
                                     gpointer       data);
 
 /**
- * log_handler:
- * @log_domain: the domain the error occurred in (we ignore this)
- * @log_level: the log level so that we can filter out less
- *             important messages
- * @message: the message to log
- * @user_data: arbitrary data (we ignore this)
- *
- * Prints log messages. If Mutter was compiled with backtrace support,
- * also prints a backtrace (see meta_print_backtrace()).
- */
-static void
-log_handler (const gchar   *log_domain,
-             GLogLevelFlags log_level,
-             const gchar   *message,
-             gpointer       user_data)
-{
-  meta_warning ("Log level %d: %s\n", log_level, message);
-}
-
-/**
  * meta_print_compilation_info:
  *
  * Prints a list of which configure script options were used to
@@ -411,6 +391,8 @@ meta_init (void)
     g_printerr ("Failed to register SIGTERM handler: %s\n",
 		g_strerror (errno));
 
+  meta_debug_init ();
+
   if (g_getenv ("MUTTER_VERBOSE"))
     meta_set_verbose (TRUE);
   if (g_getenv ("MUTTER_DEBUG"))
@@ -496,24 +478,10 @@ meta_register_with_session (void)
 int
 meta_run (void)
 {
-  const gchar *log_domains[] = {
-    NULL, G_LOG_DOMAIN, "Gtk", "Gdk", "GLib",
-    "Pango", "GLib-GObject", "GThread"
-  };
-  guint i;
-
   /* Load prefs */
   meta_prefs_init ();
   meta_prefs_add_listener (prefs_changed_callback, NULL);
 
-  for (i=0; i<G_N_ELEMENTS(log_domains); i++)
-    g_log_set_handler (log_domains[i],
-                       G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION,
-                       log_handler, NULL);
-
-  if (g_getenv ("MUTTER_G_FATAL_WARNINGS") != NULL)
-    g_log_set_always_fatal (G_LOG_LEVEL_MASK);
-  
   meta_ui_set_current_theme (meta_prefs_get_theme ());
 
   /* Try to find some theme that'll work if the theme preference

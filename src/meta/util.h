@@ -109,6 +109,8 @@ void meta_topic_real      (MetaDebugTopic topic,
 void meta_add_verbose_topic    (MetaDebugTopic topic);
 void meta_remove_verbose_topic (MetaDebugTopic topic);
 
+void meta_debug_init      (void);
+
 void meta_push_no_msg_prefix (void);
 void meta_pop_no_msg_prefix  (void);
 
