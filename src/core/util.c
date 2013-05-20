@@ -437,37 +437,52 @@ meta_debug_init (void)
 void
 meta_bug (const char *format, ...)
 {
+  char *stripped;
   va_list args;
 
   g_return_if_fail (format != NULL);
 
+  stripped = g_strstrip (g_strdup (format));
+
   va_start (args, format);
-  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_ERROR, format, args);
+  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_ERROR, stripped, args);
   va_end (args);
+
+  g_free (stripped);
 }
 
 void
 meta_warning (const char *format, ...)
 {
+  char *stripped;
   va_list args;
 
   g_return_if_fail (format != NULL);
 
+  stripped = g_strstrip (g_strdup (format));
+
   va_start (args, format);
-  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, format, args);
+  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, stripped, args);
   va_end (args);
+
+  g_free (stripped);
 }
 
 void
 meta_fatal (const char *format, ...)
 {
+  char *stripped;
   va_list args;
 
   g_return_if_fail (format != NULL);
 
+  stripped = g_strstrip (g_strdup (format));
+
   va_start (args, format);
-  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL, format, args);
+  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_CRITICAL, stripped, args);
   va_end (args);
+
+  g_free (stripped);
 
   meta_exit (META_EXIT_ERROR);
 }
