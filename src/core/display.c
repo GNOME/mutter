@@ -1876,11 +1876,12 @@ get_input_event (MetaDisplay *display,
 static void
 update_focus_window (MetaDisplay *display,
                      MetaWindow  *window,
+                     Window       xwindow,
                      gulong       serial)
 {
   display->focus_serial = serial;
 
-  if (window == display->focus_window)
+  if (display->focus_xwindow == xwindow)
     return;
 
   if (display->focus_window)
@@ -1897,11 +1898,13 @@ update_focus_window (MetaDisplay *display,
        */
       previous = display->focus_window;
       display->focus_window = NULL;
+      display->focus_xwindow = None;
 
       meta_window_set_focused_internal (previous, FALSE);
     }
 
   display->focus_window = window;
+  display->focus_xwindow = xwindow;
 
   if (display->focus_window)
     {
@@ -1991,6 +1994,7 @@ request_xserver_input_focus_change (MetaDisplay *display,
 
   update_focus_window (display,
                        meta_window,
+                       xwindow,
                        serial);
 
   meta_error_trap_pop (display);
@@ -2107,7 +2111,9 @@ handle_window_focus_event (MetaDisplay  *display,
 
   if (display->server_focus_serial >= display->focus_serial)
     {
-      update_focus_window (display, focus_window,
+      update_focus_window (display,
+                           focus_window,
+                           focus_window ? focus_window->xwindow : None,
                            display->server_focus_serial);
     }
 }
@@ -2163,6 +2169,7 @@ event_callback (XEvent   *event,
                   display->focus_window->desc);
       update_focus_window (display,
                            meta_display_lookup_x_window (display, display->server_focus_window),
+                           display->server_focus_window,
                            display->server_focus_serial);
     }
 
