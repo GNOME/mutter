@@ -1952,6 +1952,7 @@ request_xserver_input_focus_change (MetaDisplay *display,
                                     guint32      timestamp)
 {
   MetaWindow *meta_window;
+  gulong serial;
 
   if (timestamp_too_old (display, &timestamp))
     return;
@@ -1959,14 +1960,39 @@ request_xserver_input_focus_change (MetaDisplay *display,
   meta_window = meta_display_lookup_x_window (display, xwindow);
 
   meta_error_trap_push (display);
-  update_focus_window (display,
-                       meta_window,
-                       XNextRequest (display->xdisplay));
+
+  /* In order for mutter to know that the focus request succeeded, we track
+   * the serial of the "focus request" we made, but if we take the serial
+   * of the XSetInputFocus request, then there's no way to determine the
+   * difference between focus events as a result of the SetInputFocus and
+   * focus events that other clients send around the same time. Ensure that
+   * we know which is which by making two requests that the server will
+   * process at the same time.
+   */
+  meta_display_grab (display);
 
   XSetInputFocus (display->xdisplay,
                   xwindow,
                   RevertToPointerRoot,
                   timestamp);
+
+  serial = XNextRequest (display->xdisplay);
+
+  {
+    unsigned long data[1] = { 0 };
+
+    XChangeProperty (display->xdisplay, display->timestamp_pinging_window,
+                     display->atom__MUTTER_FOCUS_SET,
+                     XA_CARDINAL,
+                     32, PropModeReplace, (guchar*) data, 1);
+  }
+
+  meta_display_ungrab (display);
+
+  update_focus_window (display,
+                       meta_window,
+                       serial);
+
   meta_error_trap_pop (display);
 
   display->last_focus_time = timestamp;
