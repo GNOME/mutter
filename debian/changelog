@@ -1,10 +1,10 @@
-mutter (3.4.1-7) UNRELEASED; urgency=low
+mutter (3.4.1-7) unstable; urgency=low
 
   * d/p/0001-meta-texture-rectangle-Use-Cogl-s-API-to-create-a-re.patch:
     + Patch from upstream git, don't use GL types as cogl doesn't expose
       GL headers in newer releases. This will ease the cogl transition.
 
- -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 26 May 2013 13:50:11 +0200
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 26 May 2013 17:54:55 +0200
 
 mutter (3.4.1-6) unstable; urgency=low
 
