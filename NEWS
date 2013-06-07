@@ -1,7 +1,14 @@
 3.8.4
 =====
 * Workaround failure to bring back shell interface after fullscreen game in some situations [Adel; #701224]
-* 
+* Fix sluggish and stuck pointers moving windows [Adel, Jasper: #699777]
+* Reduce log spew [Adel, Jasper; #702564, #703970]
+* Touch screen fixes [Jasper: #697192]
+* Fix rendering of large background images [Jasper, Ray: #702283]
+
+Contributors:
+ Adel Gadllah, Jasper St. Pierre, Ray Strode
+
 3.8.3
 =====
 * Add support for string-array preferences [Florian; #700223]
