@@ -1,10 +1,10 @@
-mutter (3.8.3-1) UNRELEASED; urgency=low
+mutter (3.8.3-1) experimental; urgency=low
 
   * New upstream release.
   * debian/control.in:
     + Bump clutter requirement.
 
- -- Emilio Pozuelo Monfort <pochu@debian.org>  Sat, 08 Jun 2013 18:03:50 +0200
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sat, 08 Jun 2013 18:09:14 +0200
 
 mutter (3.8.2-1) experimental; urgency=low
 
