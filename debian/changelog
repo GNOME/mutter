@@ -1,8 +1,13 @@
 mutter (3.8.3-2) UNRELEASED; urgency=low
 
+  [ Jeremy Bicha ]
   * debian/control.in:
     - Use standard Breaks/Replaces instead of Conflicts against older mutter
       libraries
+
+  [ Emilio Pozuelo Monfort ]
+  * debian/control.in:
+    + Standards-Version is 3.8.4, no changes needed.
 
  -- Jeremy Bicha <jbicha@ubuntu.com>  Sat, 08 Jun 2013 13:30:38 -0400
 
