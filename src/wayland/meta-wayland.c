@@ -24,6 +24,7 @@
 #include <clutter/clutter.h>
 #include <clutter/wayland/clutter-wayland-compositor.h>
 #include <clutter/wayland/clutter-wayland-surface.h>
+#include <clutter/evdev/clutter-evdev.h>
 
 #include <glib.h>
 #include <sys/time.h>
@@ -1406,6 +1407,8 @@ on_our_vt_enter (MetaTTY               *tty,
       g_warning ("Failed to become DRM master: %s", error->message);
       g_error_free (error);
     }
+
+  clutter_evdev_reclaim_devices ();
 }
 
 static void
@@ -1422,7 +1425,19 @@ on_our_vt_leave (MetaTTY               *tty,
       g_error_free (error);
     }
 
-  /* FIXME: we must release input devices as well! */
+  clutter_evdev_release_devices ();
+}
+
+static int
+on_evdev_device_open (const char  *path,
+		      int          flags,
+		      gpointer     user_data,
+		      GError     **error)
+{
+  MetaWaylandCompositor *compositor = user_data;
+
+  return meta_weston_launch_open_input_device (compositor->weston_launch,
+					       path, flags, error);
 }
 
 void
@@ -1433,6 +1448,7 @@ meta_wayland_init (void)
   ClutterBackend *backend;
   CoglContext *cogl_context;
   CoglRenderer *cogl_renderer;
+  int weston_launch_fd;
 
   memset (compositor, 0, sizeof (MetaWaylandCompositor));
 
@@ -1469,6 +1485,13 @@ meta_wayland_init (void)
 
   clutter_wayland_set_compositor_display (compositor->wayland_display);
 
+  /* We need to set this before clutter_init(), so we do it unconditionally.
+     It doesn't harm anyway to do it under X11 */
+  weston_launch_fd = env_get_fd ("WESTON_LAUNCHER_SOCK");
+  if (weston_launch_fd >= 0)
+    compositor->weston_launch = g_socket_new_from_fd (weston_launch_fd, NULL);
+  clutter_evdev_set_open_callback (on_evdev_device_open, compositor);
+
   if (clutter_init (NULL, NULL) != CLUTTER_INIT_SUCCESS)
     g_error ("Failed to initialize Clutter");
 
@@ -1484,12 +1507,6 @@ meta_wayland_init (void)
   if (compositor->drm_fd >= 0)
     {
       /* Running on bare metal, let's initalize DRM master and VT handling */
-      int weston_launch_fd;
-
-      weston_launch_fd = env_get_fd ("WESTON_LAUNCHER_SOCK");
-      if (weston_launch_fd >= 0)
-	compositor->weston_launch = g_socket_new_from_fd (weston_launch_fd, NULL);
-
       compositor->tty = meta_tty_new ();
       if (compositor->tty)
 	{
