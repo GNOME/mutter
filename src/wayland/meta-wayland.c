@@ -48,6 +48,7 @@
 #include <meta/types.h>
 #include <meta/main.h>
 #include "frame.h"
+#include "meta-weston-launch.h"
 
 static MetaWaylandCompositor _meta_wayland_compositor;
 
@@ -1379,11 +1380,59 @@ event_emission_hook_cb (GSignalInvocationHint *ihint,
   return TRUE /* stay connected */;
 }
 
+static int
+env_get_fd (const char *env)
+{
+  const char *value;
+
+  value = g_getenv (env);
+
+  if (value == NULL)
+    return -1;
+  else
+    return g_ascii_strtoll (env, NULL, 10);
+}
+
+static void
+on_our_vt_enter (MetaTTY               *tty,
+		 MetaWaylandCompositor *compositor)
+{
+  GError *error;
+
+  error = NULL;
+  if (!meta_weston_launch_set_master (compositor->weston_launch,
+				      compositor->drm_fd, TRUE, &error))
+    {
+      g_warning ("Failed to become DRM master: %s", error->message);
+      g_error_free (error);
+    }
+}
+
+static void
+on_our_vt_leave (MetaTTY               *tty,
+		 MetaWaylandCompositor *compositor)
+{
+  GError *error;
+
+  error = NULL;
+  if (!meta_weston_launch_set_master (compositor->weston_launch,
+				      compositor->drm_fd, FALSE, &error))
+    {
+      g_warning ("Failed to release DRM master: %s", error->message);
+      g_error_free (error);
+    }
+
+  /* FIXME: we must release input devices as well! */
+}
+
 void
 meta_wayland_init (void)
 {
   MetaWaylandCompositor *compositor = &_meta_wayland_compositor;
   guint event_signal;
+  ClutterBackend *backend;
+  CoglContext *cogl_context;
+  CoglRenderer *cogl_renderer;
 
   memset (compositor, 0, sizeof (MetaWaylandCompositor));
 
@@ -1422,6 +1471,34 @@ meta_wayland_init (void)
 
   if (clutter_init (NULL, NULL) != CLUTTER_INIT_SUCCESS)
     g_error ("Failed to initialize Clutter");
+
+  backend = clutter_get_default_backend ();
+  cogl_context = clutter_backend_get_cogl_context (backend);
+  cogl_renderer = cogl_display_get_renderer (cogl_context_get_display (cogl_context));
+
+  if (cogl_renderer_get_winsys_id (cogl_renderer) == COGL_WINSYS_ID_EGL_KMS)
+    compositor->drm_fd = cogl_kms_renderer_get_kms_fd (cogl_renderer);
+  else
+    compositor->drm_fd = -1;
+
+  if (compositor->drm_fd >= 0)
+    {
+      /* Running on bare metal, let's initalize DRM master and VT handling */
+      int weston_launch_fd;
+
+      weston_launch_fd = env_get_fd ("WESTON_LAUNCHER_SOCK");
+      if (weston_launch_fd >= 0)
+	compositor->weston_launch = g_socket_new_from_fd (weston_launch_fd, NULL);
+
+      compositor->tty = meta_tty_new ();
+      if (compositor->tty)
+	{
+	  g_signal_connect (compositor->tty, "enter", G_CALLBACK (on_our_vt_enter), compositor);
+	  g_signal_connect (compositor->tty, "leave", G_CALLBACK (on_our_vt_leave), compositor);
+	}
+
+      on_our_vt_enter (compositor->tty, compositor);
+    }
 
   compositor->stage = meta_wayland_stage_new ();
   clutter_stage_set_user_resizable (CLUTTER_STAGE (compositor->stage), FALSE);
@@ -1480,5 +1557,10 @@ meta_wayland_init (void)
 void
 meta_wayland_finalize (void)
 {
-  meta_xwayland_stop (meta_wayland_compositor_get_default ());
+  MetaWaylandCompositor *compositor;
+
+  compositor = meta_wayland_compositor_get_default ();
+
+  meta_xwayland_stop (compositor);
+  g_clear_object (&compositor->tty);
 }

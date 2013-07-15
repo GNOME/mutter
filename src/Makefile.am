@@ -173,6 +173,8 @@ libmutter_la_SOURCES =				\
 
 if HAVE_WAYLAND
 libmutter_la_SOURCES +=				\
+	wayland/meta-tty.c			\
+	wayland/meta-tty.h			\
 	wayland/meta-wayland.c			\
 	wayland/meta-wayland-private.h		\
 	wayland/meta-xwayland-private.h		\
@@ -186,7 +188,9 @@ libmutter_la_SOURCES +=				\
 	wayland/meta-wayland-seat.c		\
 	wayland/meta-wayland-seat.h		\
 	wayland/meta-wayland-stage.h		\
-	wayland/meta-wayland-stage.c
+	wayland/meta-wayland-stage.c		\
+	wayland/meta-weston-launch.c		\
+	wayland/meta-weston-launch.h
 endif
 
 libmutter_la_LDFLAGS = -no-undefined
@@ -236,6 +240,19 @@ bin_PROGRAMS=mutter
 
 mutter_SOURCES = core/mutter.c
 mutter_LDADD = $(MUTTER_LIBS) libmutter.la
+
+if HAVE_WAYLAND
+bin_PROGRAMS+=mutter-launch
+
+mutter_launch_SOURCES = wayland/weston-launch.c wayland/weston-launch.h
+
+mutter_launch_CFLAGS = $(MUTTER_LAUNCH_CFLAGS)
+mutter_launch_LDFLAGS = $(MUTTER_LAUNCH_LIBS) -lpam
+
+install-exec-hook:
+	-chown root $(DESTDIR)$(bindir)/mutter-launch
+	-chmod u+s $(DESTDIR)$(bindir)/mutter-launch
+endif
 
 if HAVE_INTROSPECTION
 include $(INTROSPECTION_MAKEFILE)
