@@ -1391,7 +1391,7 @@ env_get_fd (const char *env)
   if (value == NULL)
     return -1;
   else
-    return g_ascii_strtoll (env, NULL, 10);
+    return g_ascii_strtoll (value, NULL, 10);
 }
 
 static void
@@ -1506,6 +1506,8 @@ meta_wayland_init (void)
 
   if (compositor->drm_fd >= 0)
     {
+      GError *error;
+
       /* Running on bare metal, let's initalize DRM master and VT handling */
       compositor->tty = meta_tty_new ();
       if (compositor->tty)
@@ -1514,7 +1516,13 @@ meta_wayland_init (void)
 	  g_signal_connect (compositor->tty, "leave", G_CALLBACK (on_our_vt_leave), compositor);
 	}
 
-      on_our_vt_enter (compositor->tty, compositor);
+      error = NULL;
+      if (!meta_weston_launch_set_master (compositor->weston_launch,
+					  compositor->drm_fd, TRUE, &error))
+	{
+	  g_error ("Failed to become DRM master: %s", error->message);
+	  g_error_free (error);
+	}
     }
 
   compositor->stage = meta_wayland_stage_new ();

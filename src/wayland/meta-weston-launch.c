@@ -79,14 +79,14 @@ send_message_to_wl (GSocket                *weston_launch,
 	g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ok),
 		     "Got failure from weston-launch: %s", strerror (-ok));
 
-      for (i = 0; in_all_cmsg[i]; i++)
+      for (i = 0; in_all_cmsg && in_all_cmsg[i]; i++)
 	g_object_unref (in_all_cmsg[i]);
       g_free (in_all_cmsg);
 
       return FALSE;
     }
 
-  if (in_all_cmsg[0])
+  if (in_all_cmsg && in_all_cmsg[0])
     {
       for (i = 1; in_all_cmsg[i]; i++)
 	g_object_unref (in_all_cmsg[i]);
@@ -156,17 +156,18 @@ meta_weston_launch_open_input_device (GSocket    *weston_launch,
       struct weston_launcher_open *message;
       GSocketControlMessage *cmsg;
       gboolean ok;
+      gsize size;
       int *fds, n_fd;
       int ret;
 
-      message = g_malloc (sizeof (struct weston_launcher_open) +
-			  strlen (name));
+      size = sizeof (struct weston_launcher_open) + strlen (name) + 1;
+      message = g_malloc (size);
       message->header.opcode = WESTON_LAUNCHER_OPEN;
       message->flags = flags;
       strcpy (message->path, name);
+      message->path[strlen(name)] = 0;
 
-      ok = send_message_to_wl (weston_launch, message,
-			       sizeof (struct weston_launcher_open) + strlen (name),
+      ok = send_message_to_wl (weston_launch, message, size,
 			       NULL, &cmsg, error);
 
       if (ok)
@@ -178,12 +179,12 @@ meta_weston_launch_open_input_device (GSocket    *weston_launch,
 
 	  ret = fds[0];
 	  g_free (fds);
+	  g_object_unref (cmsg);
 	}
       else
 	ret = -1;
 
       g_free (message);
-      g_object_unref (cmsg);
       return ret;
     }
   else

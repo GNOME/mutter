@@ -59,9 +59,12 @@ struct _MetaTTY
   int fd;
   struct termios terminal_attributes;
 
-  int input_source, vt_source;
+  GMainContext *nested_context;
+  GMainLoop *nested_loop;
+
+  int input_source;
+  GSource *vt_enter_source, *vt_leave_source;
   int vt, starting_vt;
-  gboolean has_vt;
   int kb_mode;
 };
 
@@ -79,27 +82,35 @@ G_DEFINE_TYPE_WITH_CODE (MetaTTY, meta_tty, G_TYPE_OBJECT,
 			 G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
 						meta_tty_initable_iface_init));
 
-static int
-vt_handler (gpointer user_data)
+static gboolean
+vt_acquire_handler (gpointer user_data)
 {
   MetaTTY *tty = user_data;
 
-  if (tty->has_vt)
-    {
-      tty->has_vt = FALSE;
-      g_signal_emit (tty, signals[SIGNAL_LEAVE], 0);
+  g_main_loop_quit (tty->nested_loop);
 
-      ioctl (tty->fd, VT_RELDISP, 1);
-    }
-  else
-    {
-      ioctl (tty->fd, VT_RELDISP, VT_ACKACQ);
+  return FALSE;
+}
 
-      tty->has_vt = 1;
-      g_signal_emit (tty, signals[SIGNAL_ENTER], 0);
-    }
+static gboolean
+vt_release_handler (gpointer user_data)
+{
+  MetaTTY *tty = user_data;
 
-  return 1;
+  g_signal_emit (tty, signals[SIGNAL_LEAVE], 0);
+
+  ioctl (tty->fd, VT_RELDISP, 1);
+
+  /* We can't do anything at this point, because we don't
+     have input devices and we don't have the DRM master,
+     so let's run a nested busy loop until the VT is reentered */
+  g_main_loop_run (tty->nested_loop);
+
+  ioctl (tty->fd, VT_RELDISP, VT_ACKACQ);
+
+  g_signal_emit (tty, signals[SIGNAL_ENTER], 0);
+
+  return FALSE;
 }
 
 static int
@@ -164,7 +175,7 @@ env_get_fd (const char *env)
   if (value == NULL)
     return -1;
   else
-    return g_ascii_strtoll (env, NULL, 10);
+    return g_ascii_strtoll (value, NULL, 10);
 }
 
 static gboolean
@@ -271,10 +282,9 @@ meta_tty_initable_init(GInitable     *initable,
       goto err_kdkbmode;
     }
 
-  tty->has_vt = 1;
   mode.mode = VT_PROCESS;
   mode.relsig = SIGUSR1;
-  mode.acqsig = SIGUSR1;
+  mode.acqsig = SIGUSR2;
   if (ioctl(tty->fd, VT_SETMODE, &mode) < 0)
     {
       g_set_error (error, G_IO_ERROR,
@@ -283,7 +293,16 @@ meta_tty_initable_init(GInitable     *initable,
       goto err_kdmode;
     }
 
-  tty->vt_source = g_unix_signal_add (SIGUSR1, vt_handler, tty);
+  tty->vt_enter_source = g_unix_signal_source_new (SIGUSR2);
+  g_source_set_callback (tty->vt_enter_source, vt_acquire_handler, tty, NULL);
+  tty->vt_leave_source = g_unix_signal_source_new (SIGUSR1);
+  g_source_set_callback (tty->vt_leave_source, vt_release_handler, tty, NULL);
+
+  tty->nested_context = g_main_context_new ();
+  tty->nested_loop = g_main_loop_new (tty->nested_context, FALSE);
+
+  g_source_attach (tty->vt_leave_source, NULL);
+  g_source_attach (tty->vt_enter_source, tty->nested_context);
 
   return TRUE;
 
@@ -321,7 +340,7 @@ tty_reset (MetaTTY *tty)
   if (ioctl (tty->fd, VT_SETMODE, &mode) < 0)
     g_warning ("could not reset vt handling\n");
 
-  if (tty->has_vt && tty->vt != tty->starting_vt)
+  if (tty->vt != tty->starting_vt)
     {
       ioctl(tty->fd, VT_ACTIVATE, tty->starting_vt);
       ioctl(tty->fd, VT_WAITACTIVE, tty->starting_vt);
@@ -336,7 +355,11 @@ meta_tty_finalize (GObject *object)
   if (tty->input_source)
     g_source_remove (tty->input_source);
 
-  g_source_remove (tty->vt_source);
+  g_source_destroy (tty->vt_enter_source);
+  g_source_destroy (tty->vt_leave_source);
+
+  g_main_loop_unref (tty->nested_loop);
+  g_main_context_unref (tty->nested_context);
 
   tty_reset (tty);
 
