@@ -334,22 +334,23 @@ meta_tty_initable_init(GInitable     *initable,
   return FALSE;
 }
 
-static void
-tty_reset (MetaTTY *tty)
+void
+meta_tty_reset (MetaTTY  *tty,
+		gboolean  warn_if_fail)
 {
   struct vt_mode mode = { 0 };
 
-  if (ioctl (tty->fd, KDSKBMODE, tty->kb_mode))
+  if (ioctl (tty->fd, KDSKBMODE, tty->kb_mode) && warn_if_fail)
     g_warning ("failed to restore keyboard mode: %s", strerror (errno));
 
-  if (ioctl (tty->fd, KDSETMODE, KD_TEXT))
+  if (ioctl (tty->fd, KDSETMODE, KD_TEXT) && warn_if_fail)
     g_warning ("failed to set KD_TEXT mode on tty: %s", strerror (errno));
 
-  if (tcsetattr (tty->fd, TCSANOW, &tty->terminal_attributes) < 0)
+  if (tcsetattr (tty->fd, TCSANOW, &tty->terminal_attributes) < 0 && warn_if_fail)
     g_warning ("could not restore terminal to canonical mode");
 
   mode.mode = VT_AUTO;
-  if (ioctl (tty->fd, VT_SETMODE, &mode) < 0)
+  if (ioctl (tty->fd, VT_SETMODE, &mode) < 0 && warn_if_fail)
     g_warning ("could not reset vt handling\n");
 
   if (tty->vt != tty->starting_vt)
@@ -374,7 +375,7 @@ meta_tty_finalize (GObject *object)
   g_main_loop_unref (tty->nested_loop);
   g_main_context_unref (tty->nested_context);
 
-  tty_reset (tty);
+  meta_tty_reset (tty, TRUE);
 
   close (tty->fd);
 

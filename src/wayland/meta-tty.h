@@ -42,6 +42,9 @@ gboolean          meta_tty_activate_vt             (MetaTTY  *self,
 						    int       number,
 						    GError  **error);
 
+void              meta_tty_reset                   (MetaTTY  *self,
+						    gboolean  warn_if_fail);
+
 G_END_DECLS
 
 #endif /* META_TTY_H */
