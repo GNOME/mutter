@@ -157,12 +157,19 @@ try_open_vt (MetaTTY  *tty,
   return fd;
 }
 
-/* FIXME? */
-static int
-tty_activate_vt (MetaTTY *tty,
-		 int      vt)
+gboolean
+meta_tty_activate_vt (MetaTTY  *tty,
+		      int       vt,
+		      GError  **error)
 {
-  return ioctl(tty->fd, VT_ACTIVATE, vt);
+  if (ioctl(tty->fd, VT_ACTIVATE, vt) < 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+		   strerror (errno));
+      return FALSE;
+    }
+  else
+    return TRUE;
 }
 
 static int

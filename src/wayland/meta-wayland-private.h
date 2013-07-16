@@ -359,6 +359,8 @@ void                    meta_wayland_compositor_repick          (MetaWaylandComp
 void                    meta_wayland_compositor_set_input_focus (MetaWaylandCompositor *compositor,
                                                                  MetaWindow            *window);
 
+MetaTTY                *meta_wayland_compositor_get_tty         (MetaWaylandCompositor *compositor);
+
 void                    meta_wayland_surface_free               (MetaWaylandSurface    *surface);
 
 #endif /* META_WAYLAND_PRIVATE_H */

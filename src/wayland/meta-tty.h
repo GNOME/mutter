@@ -38,6 +38,10 @@ GType             meta_tty_get_type                (void) G_GNUC_CONST;
 
 MetaTTY          *meta_tty_new                     (void);
 
+gboolean          meta_tty_activate_vt             (MetaTTY  *self,
+						    int       number,
+						    GError  **error);
+
 G_END_DECLS
 
 #endif /* META_TTY_H */
