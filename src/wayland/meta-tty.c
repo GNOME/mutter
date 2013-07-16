@@ -64,6 +64,7 @@ struct _MetaTTY
 
   int input_source;
   GSource *vt_enter_source, *vt_leave_source;
+  GSource *nested_term;
   int vt, starting_vt;
   int kb_mode;
 };
@@ -83,7 +84,7 @@ G_DEFINE_TYPE_WITH_CODE (MetaTTY, meta_tty, G_TYPE_OBJECT,
 						meta_tty_initable_iface_init));
 
 static gboolean
-vt_acquire_handler (gpointer user_data)
+quit_nested_loop (gpointer user_data)
 {
   MetaTTY *tty = user_data;
 
@@ -300,16 +301,20 @@ meta_tty_initable_init(GInitable     *initable,
       goto err_kdmode;
     }
 
-  tty->vt_enter_source = g_unix_signal_source_new (SIGUSR2);
-  g_source_set_callback (tty->vt_enter_source, vt_acquire_handler, tty, NULL);
   tty->vt_leave_source = g_unix_signal_source_new (SIGUSR1);
   g_source_set_callback (tty->vt_leave_source, vt_release_handler, tty, NULL);
+
+  tty->vt_enter_source = g_unix_signal_source_new (SIGUSR2);
+  g_source_set_callback (tty->vt_enter_source, quit_nested_loop, tty, NULL);
+  tty->nested_term = g_unix_signal_source_new (SIGTERM);
+  g_source_set_callback (tty->nested_term, quit_nested_loop, tty, NULL);
 
   tty->nested_context = g_main_context_new ();
   tty->nested_loop = g_main_loop_new (tty->nested_context, FALSE);
 
   g_source_attach (tty->vt_leave_source, NULL);
   g_source_attach (tty->vt_enter_source, tty->nested_context);
+  g_source_attach (tty->nested_term, tty->nested_context);
 
   return TRUE;
 
@@ -364,6 +369,7 @@ meta_tty_finalize (GObject *object)
 
   g_source_destroy (tty->vt_enter_source);
   g_source_destroy (tty->vt_leave_source);
+  g_source_destroy (tty->nested_term);
 
   g_main_loop_unref (tty->nested_loop);
   g_main_context_unref (tty->nested_context);

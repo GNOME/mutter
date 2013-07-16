@@ -60,6 +60,7 @@
 #endif
 
 #include <glib-object.h>
+#include <glib-unix.h>
 #include <gdk/gdkx.h>
 
 #include <stdlib.h>
@@ -356,59 +357,12 @@ meta_finalize (void)
 #endif
 }
 
-static int signal_pipe_fds[2] = { -1, -1 };
-
-static void
-signal_handler (int signum)
-{
-  if (signal_pipe_fds[1] >= 0)
-    {
-      switch (signum)
-        {
-        case SIGTERM:
-          write (signal_pipe_fds[1], "T", 1);
-          break;
-        default:
-          break;
-        }
-    }
-}
-
 static gboolean
-on_signal (GIOChannel *source,
-           GIOCondition condition,
-           void *data)
+on_sigterm (gpointer user_data)
 {
-  char signal;
-  int count;
+  meta_quit (EXIT_SUCCESS);
 
-  for (;;)
-    {
-      count = read (signal_pipe_fds[0], &signal, 1);
-      if (count == EINTR)
-        continue;
-      if (count < 0)
-        {
-          const char *msg = strerror (errno);
-          g_warning ("Error handling signal: %s", msg);
-        }
-      if (count != 1)
-        {
-          g_warning ("Unexpectedly failed to read byte from signal pipe\n");
-          return TRUE;
-        }
-      break;
-    }
-  switch (signal)
-    {
-    case 'T': /* SIGTERM */
-      meta_quit (META_EXIT_SUCCESS);
-      break;
-    default:
-      g_warning ("Spurious character '%c' read from signal pipe", signal);
-    }
-
-  return TRUE;
+  return G_SOURCE_REMOVE;
 }
 
 /**
@@ -422,7 +376,6 @@ meta_init (void)
 {
   struct sigaction act;
   sigset_t empty_mask;
-  GIOChannel *channel;
   
   sigemptyset (&empty_mask);
   act.sa_handler = SIG_IGN;
@@ -437,20 +390,7 @@ meta_init (void)
                 g_strerror (errno));
 #endif
 
-  if (pipe (signal_pipe_fds) != 0)
-    g_printerr ("Failed to create signal pipe: %s\n",
-                g_strerror (errno));
-
-  channel = g_io_channel_unix_new (signal_pipe_fds[0]);
-  g_io_channel_set_flags (channel, G_IO_FLAG_NONBLOCK, NULL);
-  g_io_add_watch (channel, G_IO_IN, (GIOFunc) on_signal, NULL);
-  g_io_channel_set_close_on_unref (channel, TRUE);
-  g_io_channel_unref (channel);
-
-  act.sa_handler = &signal_handler;
-  if (sigaction (SIGTERM, &act, NULL) < 0)
-    g_printerr ("Failed to register SIGTERM handler: %s\n",
-		g_strerror (errno));
+  g_unix_signal_add (SIGTERM, on_sigterm, NULL);
 
   if (g_getenv ("MUTTER_VERBOSE"))
     meta_set_verbose (TRUE);
