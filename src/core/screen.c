@@ -354,61 +354,115 @@ set_wm_icon_size_hint (MetaScreen *screen)
 #undef N_VALS
 }
 
-/* The list of monitors reported by the windowing system might include
- * mirrored monitors with identical bounds. Since mirrored monitors
- * shouldn't be treated as separate monitors for most purposes, we
- * filter them out here. (We ignore the possibility of partially
- * overlapping monitors because they are rare and it's hard to come
- * up with any sensible interpretation.)
+/*
+ * meta_has_dummy_output:
+ *
+ * Returns TRUE if the only available monitor is the dummy one
+ * backing the ClutterStage window.
  */
-static void
-filter_mirrored_monitors (MetaScreen *screen)
+static gboolean
+has_dummy_output (void)
 {
-  int i, j;
+  MetaWaylandCompositor *compositor;
 
-  /* Currently always true and simplifies things */
-  g_assert (screen->primary_monitor_index == 0);
+  if (!meta_is_wayland_compositor ())
+    return FALSE;
 
-  for (i = 1; i < screen->n_monitor_infos; i++)
+  /* FIXME: actually, even in EGL-KMS mode, Cogl does not
+     expose the outputs through CoglOutput - yet */
+  compositor = meta_wayland_compositor_get_default ();
+  return !meta_wayland_compositor_is_native (compositor);
+}
+
+static void
+make_dummy_monitor_config (MetaScreen *screen)
+{
+  screen->outputs = g_new0 (MetaOutput, 1);
+  screen->n_outputs = 1;
+
+  screen->outputs[0].name = g_strdup ("LVDS");
+  screen->outputs[0].width_mm = 222;
+  screen->outputs[0].height_mm = 125;
+  screen->outputs[0].subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
+
+  screen->monitor_infos = g_new0 (MetaMonitorInfo, 1);
+  screen->n_monitor_infos = 1;
+
+  screen->monitor_infos[0].number = 0;
+  screen->monitor_infos[0].xinerama_index = 0;
+  screen->monitor_infos[0].rect.x = 0;
+  screen->monitor_infos[0].rect.y = 0;
+  screen->monitor_infos[0].rect.width = screen->rect.width;
+  screen->monitor_infos[0].rect.height = screen->rect.height;
+  screen->monitor_infos[0].refresh_rate = 60.0f;
+  screen->monitor_infos[0].is_primary = TRUE;
+  screen->monitor_infos[0].in_fullscreen = -1;
+  screen->monitor_infos[0].output_id = 1;
+
+  screen->has_xinerama_indices = TRUE;
+}
+
+static void
+meta_screen_ensure_xinerama_indices (MetaScreen *screen)
+{
+  XineramaScreenInfo *infos;
+  int n_infos, i, j;
+
+  if (screen->has_xinerama_indices)
+    return;
+
+  screen->has_xinerama_indices = TRUE;
+
+  if (!XineramaIsActive (screen->display->xdisplay))
+    return;
+
+  infos = XineramaQueryScreens (screen->display->xdisplay, &n_infos);
+  if (n_infos <= 0 || infos == NULL)
     {
-      /* In case we've filtered previous monitors */
-      screen->monitor_infos[i].number = i;
+      meta_XFree (infos);
+      return;
+    }
 
-      for (j = 0; j < i; j++)
+  for (i = 0; i < screen->n_monitor_infos; ++i)
+    {
+      for (j = 0; j < n_infos; ++j)
         {
-          if (meta_rectangle_equal (&screen->monitor_infos[i].rect,
-                                    &screen->monitor_infos[j].rect))
-            {
-              memmove (&screen->monitor_infos[i],
-                       &screen->monitor_infos[i + 1],
-                       (screen->n_monitor_infos - i - 1) * sizeof (MetaMonitorInfo));
-              screen->n_monitor_infos--;
-              i--;
-
-              continue;
-            }
+          if (screen->monitor_infos[i].rect.x == infos[j].x_org &&
+	      screen->monitor_infos[i].rect.y == infos[j].y_org &&
+	      screen->monitor_infos[i].rect.width == infos[j].width &&
+	      screen->monitor_infos[i].rect.height == infos[j].height)
+            screen->monitor_infos[i].xinerama_index = j;
         }
     }
+
+  meta_XFree (infos);
+}
+
+int
+meta_screen_monitor_index_to_xinerama_index (MetaScreen *screen,
+                                             int         index)
+{
+  meta_screen_ensure_xinerama_indices (screen);
+
+  return screen->monitor_infos[index].xinerama_index;
+}
+
+int
+meta_screen_xinerama_index_to_monitor_index (MetaScreen *screen,
+                                             int         index)
+{
+  int i;
+
+  meta_screen_ensure_xinerama_indices (screen);
+
+  for (i = 0; i < screen->n_monitor_infos; i++)
+    if (screen->monitor_infos[i].xinerama_index == index)
+      return i;
+
+  return -1;
 }
 
 #ifdef HAVE_RANDR
-static MetaMonitorInfo *
-find_monitor_with_rect (MetaScreen *screen, int x, int y, int w, int h)
-{
-  MetaMonitorInfo *info;
-  int i;
-
-  for (i = 0; i < screen->n_monitor_infos; i++)
-    {
-      info = &screen->monitor_infos[i];
-      if (x == info->rect.x &&
-          y == info->rect.y &&
-          w == info->rect.width &&
-          h == info->rect.height)
-        return info;
-    }
-  return NULL;
-}
 
 /* In the case of multiple outputs of a single crtc (mirroring), we consider one of the
  * outputs the "main". This is the one we consider "owning" the windows, so if
@@ -416,188 +470,201 @@ find_monitor_with_rect (MetaScreen *screen, int x, int y, int w, int h)
  * crtc that now has that main output. If one of the outputs is the primary that is
  * always the main, otherwise we just use the first.
  */
-static XID
-find_main_output_for_crtc (MetaScreen *screen, XRRScreenResources *resources, XRRCrtcInfo *crtc)
+static void
+find_main_output_for_crtc (MetaScreen         *screen,
+                           XRRScreenResources *resources,
+                           XRRCrtcInfo        *crtc,
+                           MetaMonitorInfo    *info,
+                           GArray             *outputs)
 {
   XRROutputInfo *output;
   RROutput primary_output;
   int i;
-  XID res;
 
   primary_output = XRRGetOutputPrimary (screen->display->xdisplay, screen->xroot);
 
-  res = None;
   for (i = 0; i < crtc->noutput; i++)
     {
       output = XRRGetOutputInfo (screen->display->xdisplay, resources, crtc->outputs[i]);
-      if (output->connection != RR_Disconnected &&
-          (res == None || crtc->outputs[i] == primary_output))
-        res = crtc->outputs[i];
+
+      if (output->connection != RR_Disconnected)
+        {
+          MetaOutput meta_output;
+
+          meta_output.name = g_strdup (output->name);
+          meta_output.width_mm = output->mm_width;
+          meta_output.height_mm = output->mm_height;
+          meta_output.subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
+
+          g_array_append_val (outputs, meta_output);
+
+          if (crtc->outputs[i] == primary_output)
+            {
+              info->output_id = crtc->outputs[i];
+              info->is_primary = TRUE;
+              screen->primary_monitor_index = info->number;
+            }
+          else if (info->output_id == 0)
+            {
+              info->output_id = crtc->outputs[i];
+            }
+        }
+
       XRRFreeOutputInfo (output);
     }
+}
 
-  return res;
+static void
+read_monitor_infos_from_xrandr (MetaScreen *screen)
+{
+    XRRScreenResources *resources;
+    GArray *outputs;
+    int i, j;
+
+    resources = XRRGetScreenResourcesCurrent (screen->display->xdisplay, screen->xroot);
+    if (!resources)
+      return make_dummy_monitor_config (screen);
+
+    outputs = g_array_new (FALSE, TRUE, sizeof (MetaOutput));
+
+    screen->n_outputs = 0;
+    screen->n_monitor_infos = resources->ncrtc;
+
+    screen->monitor_infos = g_new0 (MetaMonitorInfo, screen->n_monitor_infos);
+
+    for (i = 0; i < resources->ncrtc; i++)
+      {
+        XRRCrtcInfo *crtc;
+        MetaMonitorInfo *info;
+
+        crtc = XRRGetCrtcInfo (screen->display->xdisplay, resources, resources->crtcs[i]);
+
+        info = &screen->monitor_infos[i];
+
+        info->number = i;
+        info->rect.x = crtc->x;
+        info->rect.y = crtc->y;
+        info->rect.width = crtc->width;
+        info->rect.height = crtc->height;
+        info->in_fullscreen = -1;
+
+        for (j = 0; j < resources->nmode; j++)
+          {
+            if (resources->modes[j].id == crtc->mode)
+              info->refresh_rate = (resources->modes[j].dotClock /
+                                    ((float)resources->modes[j].hTotal *
+                                     resources->modes[j].vTotal));
+          }
+
+        find_main_output_for_crtc (screen, resources, crtc, info, outputs);
+
+        XRRFreeCrtcInfo (crtc);
+      }
+
+    screen->n_outputs = outputs->len;
+    screen->outputs = (void*)g_array_free (outputs, FALSE);
+
+    XRRFreeScreenResources (resources);
 }
 
 #endif
 
+typedef struct {
+  GArray *monitor_infos;
+  GArray *outputs;
+} ReadMonitorCoglClosure;
+
+static void
+read_monitor_from_cogl_helper (CoglOutput *output,
+                               void       *user_data)
+{
+  ReadMonitorCoglClosure *closure = user_data;
+  MetaMonitorInfo info;
+  MetaOutput meta_output;
+
+  info.number = closure->monitor_infos->len;
+  info.rect.x = cogl_output_get_x (output);
+  info.rect.y = cogl_output_get_y (output);
+  info.rect.width = cogl_output_get_width (output);
+  info.rect.height = cogl_output_get_height (output);
+  info.refresh_rate = cogl_output_get_refresh_rate (output);
+  info.is_primary = (info.number == 0);
+  info.in_fullscreen = -1;
+  info.output_id = 0; /* unknown */
+
+  g_array_append_val (closure->monitor_infos, info);
+
+  meta_output.monitor = &g_array_index (closure->monitor_infos,
+                                        MetaMonitorInfo,
+                                        closure->monitor_infos->len - 1);
+  meta_output.name = NULL;
+  meta_output.width_mm = cogl_output_get_mm_width (output);
+  meta_output.height_mm = cogl_output_get_mm_height (output);
+  meta_output.subpixel_order = cogl_output_get_subpixel_order (output);
+
+  g_array_append_val (closure->outputs, meta_output);
+}
+
+static void
+read_monitor_infos_from_cogl (MetaScreen *screen)
+{
+  ReadMonitorCoglClosure closure;
+  ClutterBackend *backend;
+  CoglContext *cogl_context;
+  CoglRenderer *cogl_renderer;
+
+  backend = clutter_get_default_backend ();
+  cogl_context = clutter_backend_get_cogl_context (backend);
+  cogl_renderer = cogl_display_get_renderer (cogl_context_get_display (cogl_context));
+
+  closure.monitor_infos = g_array_new (FALSE, TRUE, sizeof (MetaMonitorInfo));
+  closure.outputs = g_array_new (FALSE, TRUE, sizeof (MetaOutput));
+
+  cogl_renderer_foreach_output (cogl_renderer,
+                                read_monitor_from_cogl_helper, &closure);
+
+  screen->n_monitor_infos = closure.monitor_infos->len;
+  screen->monitor_infos = (void*)g_array_free (closure.monitor_infos, FALSE);
+  screen->n_outputs = closure.outputs->len;
+  screen->outputs = (void*)g_array_free (closure.outputs, FALSE);
+
+  screen->primary_monitor_index = 0;
+}
+
 static void
 reload_monitor_infos (MetaScreen *screen)
 {
-  MetaDisplay *display;
+  GList *tmp;
 
-  {
-    GList *tmp;
+  tmp = screen->workspaces;
+  while (tmp != NULL)
+    {
+      MetaWorkspace *space = tmp->data;
 
-    tmp = screen->workspaces;
-    while (tmp != NULL)
-      {
-        MetaWorkspace *space = tmp->data;
+      meta_workspace_invalidate_work_area (space);
+      
+      tmp = tmp->next;
+    }
 
-        meta_workspace_invalidate_work_area (space);
-        
-        tmp = tmp->next;
-      }
-  }
+  /* Any previous screen->monitor_infos or screen->outputs is freed by the caller */
 
-  display = screen->display;
-
-  /* Any previous screen->monitor_infos is freed by the caller */
-
+  screen->outputs = NULL;
+  screen->n_outputs = 0;
   screen->monitor_infos = NULL;
   screen->n_monitor_infos = 0;
   screen->last_monitor_index = 0;
-
-  /* Xinerama doesn't have a concept of primary monitor, however XRandR
-   * does. However, the XRandR xinerama compat code always sorts the
-   * primary output first, so we rely on that here. We could use the
-   * native XRandR calls instead of xinerama, but that would be
-   * slightly problematic for _NET_WM_FULLSCREEN_MONITORS support, as
-   * that is defined in terms of xinerama monitor indexes.
-   * So, since we don't need anything in xrandr except the primary
-   * we can keep using xinerama and use the first monitor as the
-   * primary.
-   */
-  screen->primary_monitor_index = 0;
-
+  screen->has_xinerama_indices = FALSE;
   screen->display->monitor_cache_invalidated = TRUE;
 
-  if (g_getenv ("MUTTER_DEBUG_XINERAMA"))
-    {
-      meta_topic (META_DEBUG_XINERAMA,
-                  "Pretending a single monitor has two Xinerama screens\n");
-
-      screen->monitor_infos = g_new0 (MetaMonitorInfo, 2);
-      screen->n_monitor_infos = 2;
-
-      screen->monitor_infos[0].number = 0;
-      screen->monitor_infos[0].rect = screen->rect;
-      screen->monitor_infos[0].rect.width = screen->rect.width / 2;
-      screen->monitor_infos[0].in_fullscreen = -1;
-
-      screen->monitor_infos[1].number = 1;
-      screen->monitor_infos[1].rect = screen->rect;
-      screen->monitor_infos[1].rect.x = screen->rect.width / 2;
-      screen->monitor_infos[1].rect.width = screen->rect.width / 2;
-      screen->monitor_infos[0].in_fullscreen = -1;
-    }
-
-  if (screen->n_monitor_infos == 0 &&
-      XineramaIsActive (display->xdisplay))
-    {
-      XineramaScreenInfo *infos;
-      int n_infos;
-      int i;
-      
-      n_infos = 0;
-      infos = XineramaQueryScreens (display->xdisplay, &n_infos);
-
-      meta_topic (META_DEBUG_XINERAMA,
-                  "Found %d Xinerama screens on display %s\n",
-                  n_infos, display->name);
-
-      if (n_infos > 0)
-        {
-          screen->monitor_infos = g_new0 (MetaMonitorInfo, n_infos);
-          screen->n_monitor_infos = n_infos;
-          
-          i = 0;
-          while (i < n_infos)
-            {
-              screen->monitor_infos[i].number = infos[i].screen_number;
-              screen->monitor_infos[i].rect.x = infos[i].x_org;
-              screen->monitor_infos[i].rect.y = infos[i].y_org;
-              screen->monitor_infos[i].rect.width = infos[i].width;
-              screen->monitor_infos[i].rect.height = infos[i].height;
-              screen->monitor_infos[i].in_fullscreen = -1;
-
-              meta_topic (META_DEBUG_XINERAMA,
-                          "Monitor %d is %d,%d %d x %d\n",
-                          screen->monitor_infos[i].number,
-                          screen->monitor_infos[i].rect.x,
-                          screen->monitor_infos[i].rect.y,
-                          screen->monitor_infos[i].rect.width,
-                          screen->monitor_infos[i].rect.height);
-              
-              ++i;
-            }
-        }
-      
-      meta_XFree (infos);
+  if (has_dummy_output ())
+    return make_dummy_monitor_config (screen);
 
 #ifdef HAVE_RANDR
-      {
-        XRRScreenResources *resources;
-
-        resources = XRRGetScreenResourcesCurrent (display->xdisplay, screen->xroot);
-        if (resources)
-          {
-            for (i = 0; i < resources->ncrtc; i++)
-              {
-                XRRCrtcInfo *crtc;
-                MetaMonitorInfo *info;
-
-                crtc = XRRGetCrtcInfo (display->xdisplay, resources, resources->crtcs[i]);
-                info = find_monitor_with_rect (screen, crtc->x, crtc->y, (int)crtc->width, (int)crtc->height);
-                if (info)
-                  info->output = find_main_output_for_crtc (screen, resources, crtc);
-
-                XRRFreeCrtcInfo (crtc);
-              }
-            XRRFreeScreenResources (resources);
-          }
-      }
+  if (!meta_is_wayland_compositor ())
+    return read_monitor_infos_from_xrandr (screen);
 #endif
-    }
-  else if (screen->n_monitor_infos > 0)
-    {
-      meta_topic (META_DEBUG_XINERAMA,
-                  "No Xinerama extension or Xinerama inactive on display %s\n",
-                  display->name);
-    }
 
-  /* If no Xinerama, fill in the single screen info so
-   * we can use the field unconditionally
-   */
-  if (screen->n_monitor_infos == 0)
-    {
-      meta_topic (META_DEBUG_XINERAMA,
-                  "No Xinerama screens, using default screen info\n");
-          
-      screen->monitor_infos = g_new0 (MetaMonitorInfo, 1);
-      screen->n_monitor_infos = 1;
-          
-      screen->monitor_infos[0].number = 0;
-      screen->monitor_infos[0].rect = screen->rect;
-      screen->monitor_infos[0].in_fullscreen = -1;
-    }
-
-  filter_mirrored_monitors (screen);
-
-  screen->monitor_infos[screen->primary_monitor_index].is_primary = TRUE;
-
-  g_assert (screen->n_monitor_infos > 0);
-  g_assert (screen->monitor_infos != NULL);
+  return read_monitor_infos_from_cogl (screen);
 }
 
 /* The guard window allows us to leave minimized windows mapped so
@@ -676,7 +743,7 @@ meta_screen_new (MetaDisplay *display,
   guint32 manager_timestamp;
   gulong current_workspace;
 #ifdef HAVE_WAYLAND
-  MetaWaylandCompositor *compositor;
+  MetaWaylandCompositor *compositor = NULL;
 #endif
   
   replace_current_wm = meta_get_replace_current_wm ();
@@ -875,10 +942,6 @@ meta_screen_new (MetaDisplay *display,
   screen->compositor_data = NULL;
   screen->guard_window = None;
 
-  screen->monitor_infos = NULL;
-  screen->n_monitor_infos = 0;
-  screen->last_monitor_index = 0;  
-  
   reload_monitor_infos (screen);
 
   meta_cursor_tracker_get_for_screen (screen);
@@ -965,7 +1028,13 @@ meta_screen_new (MetaDisplay *display,
 
   meta_verbose ("Added screen %d ('%s') root 0x%lx\n",
                 screen->number, screen->screen_name, screen->xroot);
-  
+
+#ifdef HAVE_WAYLAND
+  if (meta_is_wayland_compositor ())
+    meta_wayland_compositor_init_screen (compositor,
+                                         screen);
+#endif
+
   return screen;
 }
 
@@ -3019,12 +3088,16 @@ meta_screen_resize (MetaScreen *screen,
                     int         height)
 {
   GSList *windows, *tmp;
+  MetaOutput *old_outputs;
   MetaMonitorInfo *old_monitor_infos;
+  int n_old_outputs, i;
 
   screen->rect.width = width;
   screen->rect.height = height;
 
   /* Save the old monitor infos, so they stay valid during the update */
+  old_outputs = screen->outputs;
+  n_old_outputs = screen->n_outputs;
   old_monitor_infos = screen->monitor_infos;
 
   reload_monitor_infos (screen);
@@ -3070,6 +3143,10 @@ meta_screen_resize (MetaScreen *screen,
   meta_screen_queue_check_fullscreen (screen);
 
   g_signal_emit (screen, screen_signals[MONITORS_CHANGED], 0);
+
+  for (i = 0; i < n_old_outputs; i++)
+    g_free (old_outputs[i].name);
+  g_free (old_outputs);
 }
 
 void

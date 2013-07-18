@@ -636,78 +636,46 @@ bind_output (struct wl_client *client,
              guint32 version,
              guint32 id)
 {
-  MetaWaylandOutput *output = data;
-  struct wl_resource *resource =
-    wl_resource_create (client, &wl_output_interface, version, id);
-  GList *l;
+  MetaOutput *output = data;
+  struct wl_resource *resource;
+
+  resource = wl_resource_create (client, &wl_output_interface, version, id);
 
   wl_resource_post_event (resource,
                           WL_OUTPUT_GEOMETRY,
-                          output->x, output->y,
-                          output->width_mm,
+                          (int)output->monitor->rect.x,
+			  (int)output->monitor->rect.y,
+			  output->width_mm,
                           output->height_mm,
-                          0, /* subpixel: unknown */
+			  /* Cogl values reflect XRandR values,
+			     and so does wayland */
+			  output->subpixel_order,
                           "unknown", /* make */
-                          "unknown"); /* model */
+                          "unknown", /* model */
+			  WL_OUTPUT_TRANSFORM_NORMAL);
 
-  for (l = output->modes; l; l = l->next)
-    {
-      MetaWaylandMode *mode = l->data;
-      wl_resource_post_event (resource,
-                              WL_OUTPUT_MODE,
-                              mode->flags,
-                              mode->width,
-                              mode->height,
-                              mode->refresh);
-    }
+  wl_resource_post_event (resource,
+			  WL_OUTPUT_MODE,
+			  WL_OUTPUT_MODE_PREFERRED | WL_OUTPUT_MODE_CURRENT,
+			  (int)output->monitor->rect.width,
+			  (int)output->monitor->rect.height,
+			  (int)output->monitor->refresh_rate);
+
+  wl_resource_post_event (resource,
+			  WL_OUTPUT_DONE);
 }
 
 static void
-meta_wayland_compositor_create_output (MetaWaylandCompositor *compositor,
-                                       int x,
-                                       int y,
-                                       int width,
-                                       int height,
-                                       int width_mm,
-                                       int height_mm)
+meta_wayland_compositor_create_outputs (MetaWaylandCompositor *compositor)
 {
-  MetaWaylandOutput *output = g_slice_new0 (MetaWaylandOutput);
-  MetaWaylandMode *mode;
-  float final_width, final_height;
+  MetaScreen *screen = compositor->screen;
+  int i;
 
-  /* XXX: eventually we will support sliced stages and an output should
-   * correspond to a slice/CoglFramebuffer, but for now we only support
-   * one output so we make sure it always matches the size of the stage
-   */
-  clutter_actor_set_size (compositor->stage, width, height);
-
-  /* Read back the actual size we were given.
-   * XXX: This really needs re-thinking later though so we know the
-   * correct output geometry to use. */
-  clutter_actor_get_size (compositor->stage, &final_width, &final_height);
-  width = final_width;
-  height = final_height;
-
-  output->wayland_output.interface = &wl_output_interface;
-
-  output->x = x;
-  output->y = y;
-  output->width_mm = width_mm;
-  output->height_mm = height_mm;
-
-  wl_global_create (compositor->wayland_display,
-		    &wl_output_interface, 2,
-		    output, bind_output);
-
-  mode = g_slice_new0 (MetaWaylandMode);
-  mode->flags = WL_OUTPUT_MODE_CURRENT | WL_OUTPUT_MODE_PREFERRED;
-  mode->width = width;
-  mode->height = height;
-  mode->refresh = 60;
-
-  output->modes = g_list_prepend (output->modes, mode);
-
-  compositor->outputs = g_list_prepend (compositor->outputs, output);
+  for (i = 0; i < screen->n_outputs; i++)
+    compositor->outputs = g_list_prepend (compositor->outputs,
+					  wl_global_create (compositor->wayland_display,
+							    &wl_output_interface, 2,
+							    &screen->outputs[i], bind_output));
 }
 
 const static struct wl_compositor_interface meta_wayland_compositor_interface = {
@@ -1578,8 +1546,6 @@ meta_wayland_init (void)
                               compositor, /* hook_data */
                               NULL /* data_destroy */);
 
-  meta_wayland_compositor_create_output (compositor, 0, 0, 1024, 600, 222, 125);
-
   if (wl_global_create (compositor->wayland_display,
 			&wl_shell_interface, 1,
 			compositor, bind_shell) == NULL)
@@ -1621,4 +1587,30 @@ MetaTTY *
 meta_wayland_compositor_get_tty (MetaWaylandCompositor *compositor)
 {
   return compositor->tty;
+}
+
+gboolean
+meta_wayland_compositor_is_native (MetaWaylandCompositor *compositor)
+{
+  return compositor->drm_fd >= 0;
+}
+
+static void
+on_monitors_changed (MetaScreen            *screen,
+		     MetaWaylandCompositor *compositor)
+{
+  g_list_free_full (compositor->outputs, (GDestroyNotify) wl_global_destroy);
+  meta_wayland_compositor_create_outputs (compositor);
+}
+
+void
+meta_wayland_compositor_init_screen (MetaWaylandCompositor *compositor,
+				     MetaScreen            *screen)
+{
+  compositor->screen = screen;
+
+  g_signal_connect (compositor->screen, "monitors-changed",
+		    G_CALLBACK (on_monitors_changed), compositor);
+
+  meta_wayland_compositor_create_outputs (compositor);
 }

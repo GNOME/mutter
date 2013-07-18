@@ -39,15 +39,32 @@
 #include "stack-tracker.h"
 #include "ui.h"
 
+#include <cogl/cogl.h>
+
+typedef struct _MetaOutput MetaOutput;
 typedef struct _MetaMonitorInfo MetaMonitorInfo;
+
+struct _MetaOutput
+{
+  MetaMonitorInfo *monitor;
+  char *name;
+  int width_mm;
+  int height_mm;
+  CoglSubpixelOrder subpixel_order;
+};
 
 struct _MetaMonitorInfo
 {
   int number;
+  int xinerama_index;
   MetaRectangle rect;
   gboolean is_primary;
   gboolean in_fullscreen;
-  XID output; /* The primary or first output for this crtc, None if no xrandr */
+  float refresh_rate;
+
+  /* The primary or first output for this crtc, 0 if we can't figure out.
+     This is a XID when using XRandR, otherwise a KMS id (not implemented) */
+  glong output_id;
 };
 
 typedef void (* MetaScreenWindowFunc) (MetaScreen *screen, MetaWindow *window,
@@ -101,10 +118,18 @@ struct _MetaScreen
   Window wm_sn_selection_window;
   Atom wm_sn_atom;
   guint32 wm_sn_timestamp;
-  
+
+  /* Outputs refers to physical screens,
+     while monitor_infos refer to logical ones (aka CRTC)
+     They can be different if two outputs are
+     in clone mode
+  */
+  MetaOutput *outputs;
   MetaMonitorInfo *monitor_infos;
   int primary_monitor_index;
+  int n_outputs;
   int n_monitor_infos;
+  gboolean has_xinerama_indices;
 
   /* Cache the current monitor */
   int last_monitor_index;
@@ -259,6 +284,11 @@ void     meta_screen_workspace_switched (MetaScreen         *screen,
 void meta_screen_set_active_workspace_hint (MetaScreen *screen);
 
 Window   meta_screen_create_guard_window (Display *xdisplay, MetaScreen *screen);
+
+int meta_screen_xinerama_index_to_monitor_index (MetaScreen *screen,
+                                                 int         index);
+int meta_screen_monitor_index_to_xinerama_index (MetaScreen *screen,
+                                                 int         index);
 
 gboolean meta_screen_handle_xevent (MetaScreen *screen,
                                     XEvent     *xevent);
