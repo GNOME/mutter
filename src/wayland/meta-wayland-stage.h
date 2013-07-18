@@ -65,6 +65,8 @@ GType             meta_wayland_stage_get_type                (void) G_GNUC_CONST
 
 ClutterActor     *meta_wayland_stage_new                     (void);
 
+void              meta_wayland_stage_apply_monitor_config    (MetaWaylandStage *self);
+
 G_END_DECLS
 
 #endif /* META_WAYLAND_STAGE_H */

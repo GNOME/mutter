@@ -1424,6 +1424,7 @@ on_monitors_changed (MetaMonitorManager    *monitors,
 {
   g_list_free_full (compositor->outputs, (GDestroyNotify) wl_global_destroy);
   meta_wayland_compositor_create_outputs (compositor, monitors);
+  meta_wayland_stage_apply_monitor_config (META_WAYLAND_STAGE (compositor->stage));
 }
 
 void
@@ -1532,20 +1533,19 @@ meta_wayland_init (void)
       dup2 (fd, STDIN_FILENO);
     }
 
-  compositor->stage = meta_wayland_stage_new ();
-  /* FIXME */
-  clutter_actor_set_size (CLUTTER_ACTOR (compositor->stage), 1024, 768);
-  clutter_stage_set_user_resizable (CLUTTER_STAGE (compositor->stage), FALSE);
-  g_signal_connect_after (compositor->stage, "paint",
-                          G_CALLBACK (paint_finished_cb), compositor);
-  g_signal_connect (compositor->stage, "destroy",
-                    G_CALLBACK (stage_destroy_cb), NULL);
-
   meta_monitor_manager_initialize (NULL);
   monitors = meta_monitor_manager_get ();
   g_signal_connect (monitors, "monitors-changed",
 		    G_CALLBACK (on_monitors_changed), compositor);
   meta_wayland_compositor_create_outputs (compositor, monitors);
+
+  compositor->stage = meta_wayland_stage_new ();
+  meta_wayland_stage_apply_monitor_config (META_WAYLAND_STAGE (compositor->stage));
+
+  g_signal_connect_after (compositor->stage, "paint",
+                          G_CALLBACK (paint_finished_cb), compositor);
+  g_signal_connect (compositor->stage, "destroy",
+                    G_CALLBACK (stage_destroy_cb), NULL);
 
   meta_wayland_data_device_manager_init (compositor->wayland_display);
 

@@ -55,6 +55,7 @@ meta_wayland_stage_class_init (MetaWaylandStageClass *klass)
 static void
 meta_wayland_stage_init (MetaWaylandStage *self)
 {
+  clutter_stage_set_user_resizable (CLUTTER_STAGE (self), FALSE);
 }
 
 ClutterActor *
@@ -63,4 +64,23 @@ meta_wayland_stage_new (void)
   return g_object_new (META_WAYLAND_TYPE_STAGE,
                        "cursor-visible", FALSE,
                        NULL);
+}
+
+void
+meta_wayland_stage_apply_monitor_config (MetaWaylandStage *stage)
+{
+  MetaMonitorManager *manager;
+  MetaMonitorInfo *infos;
+  int n_infos;
+
+  manager = meta_monitor_manager_get ();
+  infos = meta_monitor_manager_get_monitor_infos (manager, &n_infos);
+
+  g_assert (n_infos == 1);
+
+  /* FIXME: when we support a sliced stage, this is the place to do it
+     But! This is not the place to apply KMS config, here we only
+     notify Clutter/Cogl/GL that the framebuffer sizes changed */
+  clutter_actor_set_size (CLUTTER_ACTOR (stage),
+			  infos[0].rect.width, infos[0].rect.height);
 }
