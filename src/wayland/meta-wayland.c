@@ -661,21 +661,25 @@ bind_output (struct wl_client *client,
 			  (int)output->monitor->rect.height,
 			  (int)output->monitor->refresh_rate);
 
-  wl_resource_post_event (resource,
-			  WL_OUTPUT_DONE);
+  if (version >= 2)
+    wl_resource_post_event (resource,
+			    WL_OUTPUT_DONE);
 }
 
 static void
-meta_wayland_compositor_create_outputs (MetaWaylandCompositor *compositor)
+meta_wayland_compositor_create_outputs (MetaWaylandCompositor *compositor,
+					MetaMonitorManager    *monitors)
 {
-  MetaScreen *screen = compositor->screen;
-  int i;
+  MetaOutput *outputs;
+  int i, n_outputs;
 
-  for (i = 0; i < screen->n_outputs; i++)
+  outputs = meta_monitor_manager_get_outputs (monitors, &n_outputs);
+
+  for (i = 0; i < n_outputs; i++)
     compositor->outputs = g_list_prepend (compositor->outputs,
 					  wl_global_create (compositor->wayland_display,
 							    &wl_output_interface, 2,
-							    &screen->outputs[i], bind_output));
+							    &outputs[i], bind_output));
 }
 
 const static struct wl_compositor_interface meta_wayland_compositor_interface = {
@@ -1414,6 +1418,14 @@ on_evdev_device_open (const char  *path,
 					       path, flags, error);
 }
 
+static void
+on_monitors_changed (MetaMonitorManager    *monitors,
+		     MetaWaylandCompositor *compositor)
+{
+  g_list_free_full (compositor->outputs, (GDestroyNotify) wl_global_destroy);
+  meta_wayland_compositor_create_outputs (compositor, monitors);
+}
+
 void
 meta_wayland_init (void)
 {
@@ -1423,6 +1435,7 @@ meta_wayland_init (void)
   CoglContext *cogl_context;
   CoglRenderer *cogl_renderer;
   int weston_launch_fd;
+  MetaMonitorManager *monitors;
 
   memset (compositor, 0, sizeof (MetaWaylandCompositor));
 
@@ -1520,11 +1533,19 @@ meta_wayland_init (void)
     }
 
   compositor->stage = meta_wayland_stage_new ();
+  /* FIXME */
+  clutter_actor_set_size (CLUTTER_ACTOR (compositor->stage), 1024, 768);
   clutter_stage_set_user_resizable (CLUTTER_STAGE (compositor->stage), FALSE);
   g_signal_connect_after (compositor->stage, "paint",
                           G_CALLBACK (paint_finished_cb), compositor);
   g_signal_connect (compositor->stage, "destroy",
                     G_CALLBACK (stage_destroy_cb), NULL);
+
+  meta_monitor_manager_initialize (NULL);
+  monitors = meta_monitor_manager_get ();
+  g_signal_connect (monitors, "monitors-changed",
+		    G_CALLBACK (on_monitors_changed), compositor);
+  meta_wayland_compositor_create_outputs (compositor, monitors);
 
   meta_wayland_data_device_manager_init (compositor->wayland_display);
 
@@ -1593,24 +1614,4 @@ gboolean
 meta_wayland_compositor_is_native (MetaWaylandCompositor *compositor)
 {
   return compositor->drm_fd >= 0;
-}
-
-static void
-on_monitors_changed (MetaScreen            *screen,
-		     MetaWaylandCompositor *compositor)
-{
-  g_list_free_full (compositor->outputs, (GDestroyNotify) wl_global_destroy);
-  meta_wayland_compositor_create_outputs (compositor);
-}
-
-void
-meta_wayland_compositor_init_screen (MetaWaylandCompositor *compositor,
-				     MetaScreen            *screen)
-{
-  compositor->screen = screen;
-
-  g_signal_connect (compositor->screen, "monitors-changed",
-		    G_CALLBACK (on_monitors_changed), compositor);
-
-  meta_wayland_compositor_create_outputs (compositor);
 }

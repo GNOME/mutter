@@ -38,34 +38,7 @@
 #include <X11/Xutil.h>
 #include "stack-tracker.h"
 #include "ui.h"
-
-#include <cogl/cogl.h>
-
-typedef struct _MetaOutput MetaOutput;
-typedef struct _MetaMonitorInfo MetaMonitorInfo;
-
-struct _MetaOutput
-{
-  MetaMonitorInfo *monitor;
-  char *name;
-  int width_mm;
-  int height_mm;
-  CoglSubpixelOrder subpixel_order;
-};
-
-struct _MetaMonitorInfo
-{
-  int number;
-  int xinerama_index;
-  MetaRectangle rect;
-  gboolean is_primary;
-  gboolean in_fullscreen;
-  float refresh_rate;
-
-  /* The primary or first output for this crtc, 0 if we can't figure out.
-     This is a XID when using XRandR, otherwise a KMS id (not implemented) */
-  glong output_id;
-};
+#include "monitor-private.h"
 
 typedef void (* MetaScreenWindowFunc) (MetaScreen *screen, MetaWindow *window,
                                        gpointer user_data);
@@ -119,16 +92,9 @@ struct _MetaScreen
   Atom wm_sn_atom;
   guint32 wm_sn_timestamp;
 
-  /* Outputs refers to physical screens,
-     while monitor_infos refer to logical ones (aka CRTC)
-     They can be different if two outputs are
-     in clone mode
-  */
-  MetaOutput *outputs;
   MetaMonitorInfo *monitor_infos;
-  int primary_monitor_index;
-  int n_outputs;
   int n_monitor_infos;
+  int primary_monitor_index;
   gboolean has_xinerama_indices;
 
   /* Cache the current monitor */

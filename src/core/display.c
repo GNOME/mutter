@@ -517,7 +517,7 @@ meta_display_open (void)
 
   if (meta_is_syncing ())
     XSynchronize (xdisplay, True);
-  
+
   g_assert (the_display == NULL);
   the_display = g_object_new (META_TYPE_DISPLAY, NULL);
 
