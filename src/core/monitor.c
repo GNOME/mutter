@@ -145,6 +145,8 @@ make_dummy_monitor_config (MetaMonitorManager *manager)
   manager->outputs[0].n_possible_crtcs = 1;
   manager->outputs[0].possible_crtcs = g_new0 (MetaCRTC *, 1);
   manager->outputs[0].possible_crtcs[0] = &manager->crtcs[0];
+  manager->outputs[0].n_possible_clones = 0;
+  manager->outputs[0].possible_clones = g_new0 (MetaOutput *, 0);
 }
 
 #ifdef HAVE_RANDR
@@ -273,6 +275,17 @@ read_monitor_infos_from_xrandr (MetaMonitorManager *manager)
                   }
               }
 
+            meta_output->n_possible_clones = output->nclone;
+            meta_output->possible_clones = g_new0 (MetaOutput *, meta_output->n_possible_clones);
+            /* We can build the list of clones now, because we don't have the list of outputs
+               yet, so temporarily set the pointers to the bare XIDs, and then we'll fix them
+               in a second pass
+            */
+            for (j = 0; j < (unsigned)output->nclone; j++)
+              {
+                meta_output->possible_clones = GINT_TO_POINTER (output->clones[j]);
+              }
+
             meta_output->is_primary = ((XID)meta_output->output_id == primary_output);
             meta_output->is_presentation = FALSE;
 
@@ -283,6 +296,28 @@ read_monitor_infos_from_xrandr (MetaMonitorManager *manager)
       }
 
     manager->n_outputs = n_actual_outputs;
+
+    /* Now fix the clones */
+    for (i = 0; i < manager->n_outputs; i++)
+      {
+        MetaOutput *meta_output;
+
+        meta_output = &manager->outputs[i];
+
+        for (j = 0; j < meta_output->n_possible_clones; j++)
+          {
+            RROutput clone = GPOINTER_TO_INT (meta_output->possible_clones[j]);
+
+            for (k = 0; k < manager->n_outputs; k++)
+              {
+                if (clone == (XID)manager->outputs[k].output_id)
+                  {
+                    meta_output->possible_clones[j] = &manager->outputs[k];
+                    break;
+                  }
+              }
+          }
+      }
 
     XRRFreeScreenResources (resources);
 }
@@ -404,6 +439,8 @@ read_monitor_infos_from_cogl (MetaMonitorManager *manager)
       meta_output.n_possible_crtcs = 1;
       meta_output.possible_crtcs = g_new (MetaCRTC *, 1);
       meta_output.possible_crtcs[0] = meta_output.crtc;
+      meta_output.n_possible_clones = 0;
+      meta_output.possible_clones = g_new (MetaOutput *, 0);
       meta_output.is_primary = (iter == output_list);
       meta_output.is_presentation = FALSE;
 
@@ -612,6 +649,7 @@ free_output_array (MetaOutput *old_outputs,
       g_free (old_outputs[i].serial);
       g_free (old_outputs[i].modes);
       g_free (old_outputs[i].possible_crtcs);
+      g_free (old_outputs[i].possible_clones);
     }
 
   g_free (old_outputs);
@@ -716,7 +754,7 @@ handle_get_resources (MetaDBusDisplayConfig *skeleton,
   unsigned int i, j;
 
   g_variant_builder_init (&crtc_builder, G_VARIANT_TYPE ("a(uxiiiiiuaua{sv})"));
-  g_variant_builder_init (&output_builder, G_VARIANT_TYPE ("a(uxiausaua{sv})"));
+  g_variant_builder_init (&output_builder, G_VARIANT_TYPE ("a(uxiausauaua{sv})"));
   g_variant_builder_init (&mode_builder, G_VARIANT_TYPE ("a(uxuud)"));
 
   for (i = 0; i < manager->n_crtcs; i++)
@@ -743,7 +781,7 @@ handle_get_resources (MetaDBusDisplayConfig *skeleton,
   for (i = 0; i < manager->n_outputs; i++)
     {
       MetaOutput *output = &manager->outputs[i];
-      GVariantBuilder crtcs, modes, properties;
+      GVariantBuilder crtcs, modes, clones, properties;
 
       g_variant_builder_init (&crtcs, G_VARIANT_TYPE ("au"));
       for (j = 0; j < output->n_possible_crtcs; j++)
@@ -754,6 +792,11 @@ handle_get_resources (MetaDBusDisplayConfig *skeleton,
       for (j = 0; j < output->n_modes; j++)
         g_variant_builder_add (&modes, "u",
                                (unsigned)(output->modes[j] - manager->modes));
+
+      g_variant_builder_init (&clones, G_VARIANT_TYPE ("au"));
+      for (j = 0; j < output->n_possible_clones; j++)
+        g_variant_builder_add (&clones, "u",
+                               (unsigned)(output->possible_clones[j] - manager->outputs));
 
       g_variant_builder_init (&properties, G_VARIANT_TYPE ("a{sv}"));
       g_variant_builder_add (&properties, "{sv}", "vendor",
@@ -769,13 +812,14 @@ handle_get_resources (MetaDBusDisplayConfig *skeleton,
       g_variant_builder_add (&properties, "{sv}", "presentation",
                              g_variant_new_boolean (output->is_presentation));
 
-      g_variant_builder_add (&output_builder, "(uxiausaua{sv})",
+      g_variant_builder_add (&output_builder, "(uxiausauaua{sv})",
                              i, /* ID */
                              output->output_id,
                              (int)(output->crtc ? output->crtc - manager->crtcs : -1),
                              &crtcs,
                              output->name,
                              &modes,
+                             &clones,
                              &properties);
     }
 
