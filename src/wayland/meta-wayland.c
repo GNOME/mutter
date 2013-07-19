@@ -641,25 +641,31 @@ bind_output (struct wl_client *client,
 
   resource = wl_resource_create (client, &wl_output_interface, version, id);
 
+  meta_verbose ("Binding output %p/%s (%u, %u, %u, %u) x %f\n",
+		output, output->name,
+		output->crtc->rect.x, output->crtc->rect.y,
+		output->crtc->rect.width, output->crtc->rect.height,
+		output->crtc->current_mode->refresh_rate);
+
   wl_resource_post_event (resource,
                           WL_OUTPUT_GEOMETRY,
-                          (int)output->monitor->rect.x,
-			  (int)output->monitor->rect.y,
+                          (int)output->crtc->rect.x,
+			  (int)output->crtc->rect.y,
 			  output->width_mm,
                           output->height_mm,
 			  /* Cogl values reflect XRandR values,
 			     and so does wayland */
 			  output->subpixel_order,
-                          "unknown", /* make */
-                          "unknown", /* model */
+			  output->vendor,
+			  output->product,
 			  WL_OUTPUT_TRANSFORM_NORMAL);
 
   wl_resource_post_event (resource,
 			  WL_OUTPUT_MODE,
 			  WL_OUTPUT_MODE_PREFERRED | WL_OUTPUT_MODE_CURRENT,
-			  (int)output->monitor->rect.width,
-			  (int)output->monitor->rect.height,
-			  (int)output->monitor->refresh_rate);
+			  (int)output->crtc->rect.width,
+			  (int)output->crtc->rect.height,
+			  (int)output->crtc->current_mode->refresh_rate);
 
   if (version >= 2)
     wl_resource_post_event (resource,
@@ -676,10 +682,20 @@ meta_wayland_compositor_create_outputs (MetaWaylandCompositor *compositor,
   outputs = meta_monitor_manager_get_outputs (monitors, &n_outputs);
 
   for (i = 0; i < n_outputs; i++)
-    compositor->outputs = g_list_prepend (compositor->outputs,
-					  wl_global_create (compositor->wayland_display,
-							    &wl_output_interface, 2,
-							    &outputs[i], bind_output));
+    {
+      MetaOutput *output = &outputs[i];
+      struct wl_global *global;
+
+      /* wayland does not expose disabled outputs */
+      if (output->crtc == NULL)
+	continue;
+
+      global = wl_global_create (compositor->wayland_display,
+				 &wl_output_interface, 2,
+				 output, bind_output);
+      compositor->outputs = g_list_prepend (compositor->outputs, global);
+    }
+
 }
 
 const static struct wl_compositor_interface meta_wayland_compositor_interface = {
@@ -1423,6 +1439,7 @@ on_monitors_changed (MetaMonitorManager    *monitors,
 		     MetaWaylandCompositor *compositor)
 {
   g_list_free_full (compositor->outputs, (GDestroyNotify) wl_global_destroy);
+  compositor->outputs = NULL;
   meta_wayland_compositor_create_outputs (compositor, monitors);
   meta_wayland_stage_apply_monitor_config (META_WAYLAND_STAGE (compositor->stage));
 }

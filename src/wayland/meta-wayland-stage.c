@@ -76,7 +76,7 @@ meta_wayland_stage_apply_monitor_config (MetaWaylandStage *stage)
   manager = meta_monitor_manager_get ();
   infos = meta_monitor_manager_get_monitor_infos (manager, &n_infos);
 
-  g_assert (n_infos == 1);
+  g_assert (n_infos == 1 || g_getenv ("META_DEBUG_MULTIMONITOR"));
 
   /* FIXME: when we support a sliced stage, this is the place to do it
      But! This is not the place to apply KMS config, here we only
