@@ -94,6 +94,9 @@ struct _MetaCRTC
      from the HW one
   */
   MetaMonitorInfo *logical_monitor;
+
+  /* Used when changing configuration */
+  gboolean dirty;
 };
 
 struct _MetaMonitorMode
