@@ -70,17 +70,19 @@ void
 meta_wayland_stage_apply_monitor_config (MetaWaylandStage *stage)
 {
   MetaMonitorManager *manager;
-  MetaMonitorInfo *infos;
-  int n_infos;
+  int width, height;
 
   manager = meta_monitor_manager_get ();
-  infos = meta_monitor_manager_get_monitor_infos (manager, &n_infos);
-
-  g_assert (n_infos == 1 || g_getenv ("META_DEBUG_MULTIMONITOR"));
+  meta_monitor_manager_get_screen_size (manager, &width, &height);
 
   /* FIXME: when we support a sliced stage, this is the place to do it
      But! This is not the place to apply KMS config, here we only
-     notify Clutter/Cogl/GL that the framebuffer sizes changed */
-  clutter_actor_set_size (CLUTTER_ACTOR (stage),
-			  infos[0].rect.width, infos[0].rect.height);
+     notify Clutter/Cogl/GL that the framebuffer sizes changed.
+
+     And because for now clutter does not do sliced, we use one
+     framebuffer the size of the whole screen, and when running on
+     bare metal MetaMonitorManager will do the necessary tricks to
+     show the right portions on the right screens.
+  */
+  clutter_actor_set_size (CLUTTER_ACTOR (stage), width, height);
 }

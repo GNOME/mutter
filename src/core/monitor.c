@@ -57,16 +57,17 @@ enum wl_output_transform {
 #endif
 
 typedef enum {
+  META_BACKEND_UNSPECIFIED,
   META_BACKEND_DUMMY,
   META_BACKEND_XRANDR,
   META_BACKEND_COGL
-} MetaBackend;
+} MetaMonitorBackend;
 
 struct _MetaMonitorManager
 {
   GObject parent_instance;
 
-  MetaBackend backend;
+  MetaMonitorBackend backend;
 
   /* XXX: this structure is very badly
      packed, but I like the logical organization
@@ -76,6 +77,8 @@ struct _MetaMonitorManager
 
   int max_screen_width;
   int max_screen_height;
+  int screen_width;
+  int screen_height;
 
   /* Outputs refer to physical screens,
      CRTCs refer to stuff that can drive outputs
@@ -101,6 +104,8 @@ struct _MetaMonitorManager
   Display *xdisplay;
   XRRScreenResources *resources;
   int time;
+  int rr_event_base;
+  int rr_error_base;
 #endif
 
   int dbus_name_id;
@@ -126,23 +131,17 @@ make_dummy_monitor_config (MetaMonitorManager *manager)
 {
   manager->backend = META_BACKEND_DUMMY;
 
+  manager->max_screen_width = 65535;
+  manager->max_screen_height = 65535;
+  manager->screen_width = 1024;
+  manager->screen_height = 768;
+
   manager->modes = g_new0 (MetaMonitorMode, 1);
   manager->n_modes = 1;
 
   manager->modes[0].mode_id = 1;
-  if (manager->xdisplay)
-    {
-      Screen *screen = ScreenOfDisplay (manager->xdisplay,
-                                        DefaultScreen (manager->xdisplay));
-
-      manager->modes[0].width = WidthOfScreen (screen);
-      manager->modes[0].height = HeightOfScreen (screen);
-    }
-  else
-    {
-      manager->modes[0].width = 1024;
-      manager->modes[0].height = 768;
-    }
+  manager->modes[0].width = manager->screen_width;
+  manager->modes[0].height = manager->screen_height;
   manager->modes[0].refresh_rate = 60.0;
 
   manager->crtcs = g_new0 (MetaCRTC, 1);
@@ -178,9 +177,6 @@ make_dummy_monitor_config (MetaMonitorManager *manager)
   manager->outputs[0].possible_crtcs[0] = &manager->crtcs[0];
   manager->outputs[0].n_possible_clones = 0;
   manager->outputs[0].possible_clones = g_new0 (MetaOutput *, 0);
-
-  manager->max_screen_width = manager->modes[0].width;
-  manager->max_screen_height = manager->modes[0].height;
 }
 
 #ifdef HAVE_RANDR
@@ -193,6 +189,7 @@ read_monitor_infos_from_xrandr (MetaMonitorManager *manager)
     unsigned int i, j, k;
     unsigned int n_actual_outputs;
     int min_width, min_height;
+    Screen *screen;
 
     if (manager->resources)
       XRRFreeScreenResources (manager->resources);
@@ -204,12 +201,17 @@ read_monitor_infos_from_xrandr (MetaMonitorManager *manager)
                            &manager->max_screen_width,
                            &manager->max_screen_height);
 
+    screen = ScreenOfDisplay (manager->xdisplay,
+                              DefaultScreen (manager->xdisplay));
+    /* This is updated because we called RRUpdateConfiguration below */
+    manager->screen_width = WidthOfScreen (screen);
+    manager->screen_height = HeightOfScreen (screen);
+
     resources = XRRGetScreenResourcesCurrent (manager->xdisplay,
                                               DefaultRootWindow (manager->xdisplay));
     if (!resources)
       return make_dummy_monitor_config (manager);
 
-    manager->backend = META_BACKEND_XRANDR;
     manager->resources = resources;
     manager->time = resources->configTimestamp;
     manager->n_outputs = resources->noutput;
@@ -432,8 +434,6 @@ read_monitor_infos_from_cogl (MetaMonitorManager *manager)
   if (output_list == NULL)
     return make_dummy_monitor_config (manager);
 
-  manager->backend = META_BACKEND_COGL;
-
   n = g_list_length (output_list);
   modes = g_array_new (FALSE, TRUE, sizeof (MetaMonitorMode));
   crtcs = g_array_sized_new (FALSE, TRUE, sizeof (MetaCRTC), n);
@@ -527,7 +527,7 @@ has_dummy_output (void)
   compositor = meta_wayland_compositor_get_default ();
   return !meta_wayland_compositor_is_native (compositor);
 #else
-  return FALSE
+  return FALSE;
 #endif
 }
 
@@ -536,7 +536,7 @@ meta_monitor_manager_init (MetaMonitorManager *manager)
 {
 }
 
-static gboolean
+static MetaMonitorBackend
 make_debug_config (MetaMonitorManager *manager)
 {
   const char *env;
@@ -544,17 +544,17 @@ make_debug_config (MetaMonitorManager *manager)
   env = g_getenv ("META_DEBUG_MULTIMONITOR");
 
   if (env == NULL)
-    return FALSE;
+    return META_BACKEND_UNSPECIFIED;
 
 #ifdef HAVE_RANDR
   if (strcmp (env, "xrandr") == 0)
-    read_monitor_infos_from_xrandr (manager);
+    return META_BACKEND_XRANDR;
   else
 #endif
     if (strcmp (env, "cogl") == 0)
-      read_monitor_infos_from_cogl (manager);
+      return META_BACKEND_COGL;
     else
-      make_dummy_monitor_config (manager);
+      return META_BACKEND_DUMMY;
 
   return TRUE;
 }
@@ -562,18 +562,15 @@ make_debug_config (MetaMonitorManager *manager)
 static void
 read_current_config (MetaMonitorManager *manager)
 {
-  if (make_debug_config (manager))
-    return;
-
-  if (has_dummy_output ())
-    return make_dummy_monitor_config (manager);
-
 #ifdef HAVE_RANDR
-  if (!meta_is_wayland_compositor ())
+  if (manager->backend == META_BACKEND_XRANDR)
     return read_monitor_infos_from_xrandr (manager);
 #endif
 
-  return read_monitor_infos_from_cogl (manager);
+  if (manager->backend == META_BACKEND_COGL)
+    return read_monitor_infos_from_cogl (manager);
+  else
+    return make_dummy_monitor_config (manager);
 }
 
 /*
@@ -679,6 +676,42 @@ meta_monitor_manager_new (Display *display)
   manager = g_object_new (META_TYPE_MONITOR_MANAGER, NULL);
 
   manager->xdisplay = display;
+
+  manager->backend = make_debug_config (manager);
+
+  if (manager->backend == META_BACKEND_UNSPECIFIED)
+    {
+#ifdef HAVE_XRANDR
+      if (display)
+        manager->backend = META_BACKEND_XRANDR;
+      else
+#endif
+        if (has_dummy_output ())
+          manager->backend = META_BACKEND_DUMMY;
+        else
+          manager->backend = META_BACKEND_COGL;
+    }
+
+#ifdef HAVE_XRANDR
+  if (manager->backend == META_BACKEND_XRANDR)
+    {
+      if (!XRRQueryExtension (display,
+                              &manager->rr_event_base,
+                              &manager->rr_error_base))
+        {
+          manager->backend = META_BACKEND_DUMMY;
+        }
+      else
+        {
+          /* We only use ScreenChangeNotify, but GDK uses the others,
+             and we don't want to step on its toes */
+          XRRSelectInput (display, DefaultRootWindow (display),
+                          RRScreenChangeNotifyMask
+                          | RRCrtcChangeNotifyMask
+                          | RROutputPropertyNotifyMask);
+        }
+    }
+#endif
 
   read_current_config (manager);
   make_logical_config (manager);
@@ -1311,13 +1344,32 @@ meta_monitor_manager_get_primary_index (MetaMonitorManager *manager)
 }
 
 void
-meta_monitor_manager_invalidate (MetaMonitorManager *manager)
+meta_monitor_manager_get_screen_size (MetaMonitorManager *manager,
+                                      int                *width,
+                                      int                *height)
+{
+  *width = manager->screen_width;
+  *height = manager->screen_height;
+}
+
+gboolean
+meta_monitor_manager_handle_xevent (MetaMonitorManager *manager,
+                                    XEvent             *event)
 {
   MetaOutput *old_outputs;
   MetaCRTC *old_crtcs;
   MetaMonitorInfo *old_monitor_infos;
   MetaMonitorMode *old_modes;
   int n_old_outputs;
+
+  if (manager->backend != META_BACKEND_XRANDR)
+    return FALSE;
+
+#ifdef HAVE_RANDR
+  if ((event->type - manager->rr_event_base) != RRScreenChangeNotify)
+    return FALSE;
+
+  XRRUpdateConfiguration (event);
 
   /* Save the old structures, so they stay valid during the update */
   old_outputs = manager->outputs;
@@ -1336,5 +1388,10 @@ meta_monitor_manager_invalidate (MetaMonitorManager *manager)
   free_output_array (old_outputs, n_old_outputs);
   g_free (old_modes);
   g_free (old_crtcs);
+
+  return TRUE;
+#else
+  return FALSE;
+#endif
 }
 

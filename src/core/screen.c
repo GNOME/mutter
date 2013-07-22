@@ -517,9 +517,7 @@ meta_screen_new (MetaDisplay *display,
   char buf[128];
   guint32 manager_timestamp;
   gulong current_workspace;
-#ifdef HAVE_WAYLAND
-  MetaWaylandCompositor *compositor = NULL;
-#endif
+  MetaMonitorManager *manager;
   
   replace_current_wm = meta_get_replace_current_wm ();
   
@@ -680,18 +678,17 @@ meta_screen_new (MetaDisplay *display,
   screen->rect.x = screen->rect.y = 0;
   
 #ifdef HAVE_WAYLAND
-  if (meta_is_wayland_compositor ())
-    {
-      compositor = meta_wayland_compositor_get_default ();
-      screen->rect.width = clutter_actor_get_width (compositor->stage);
-      screen->rect.height = clutter_actor_get_height (compositor->stage);
-    }
-  else
+  if (!meta_is_wayland_compositor ())
 #endif
-    {
-      screen->rect.width = WidthOfScreen (screen->xscreen);
-      screen->rect.height = HeightOfScreen (screen->xscreen);
-    }
+    meta_monitor_manager_initialize (screen->display->xdisplay);
+
+  manager = meta_monitor_manager_get ();
+  g_signal_connect (manager, "monitors-changed",
+                    G_CALLBACK (on_monitors_changed), screen);
+
+  meta_monitor_manager_get_screen_size (manager,
+                                        &screen->rect.width,
+                                        &screen->rect.height);
 
   screen->current_cursor = -1; /* invalid/unset */
   screen->default_xvisual = DefaultVisualOfScreen (screen->xscreen);
@@ -717,19 +714,8 @@ meta_screen_new (MetaDisplay *display,
   screen->compositor_data = NULL;
   screen->guard_window = None;
 
-  {
-    MetaMonitorManager *manager;
-
-    if (!meta_is_wayland_compositor ())
-      meta_monitor_manager_initialize (screen->display->xdisplay);
-
-    reload_monitor_infos (screen);
-
-    manager = meta_monitor_manager_get ();
-    g_signal_connect (manager, "monitors-changed",
-                      G_CALLBACK (on_monitors_changed), screen);
-  }
-
+  reload_monitor_infos (screen);
+  
   meta_cursor_tracker_get_for_screen (screen);  
   meta_screen_set_cursor (screen, META_CURSOR_DEFAULT);
 
@@ -2862,22 +2848,15 @@ meta_screen_resize_func (MetaScreen *screen,
   meta_window_recalc_features (window);
 }
 
-void
-meta_screen_resize (MetaScreen *screen,
-                    int         width,
-                    int         height)
-{
-  screen->rect.width = width;
-  screen->rect.height = height;
-
-  meta_monitor_manager_invalidate (meta_monitor_manager_get ());
-}
-
 static void
 on_monitors_changed (MetaMonitorManager *manager,
                      MetaScreen         *screen)
 {
   GSList *tmp, *windows;
+
+  meta_monitor_manager_get_screen_size (manager,
+                                        &screen->rect.width,
+                                        &screen->rect.height);
 
   reload_monitor_infos (screen);
   set_desktop_geometry_hint (screen);
