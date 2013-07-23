@@ -54,7 +54,7 @@ typedef enum {
 
 struct _MetaMonitorManager
 {
-  GObject parent_instance;
+  MetaDBusDisplayConfigSkeleton parent_instance;
 
   MetaMonitorBackend backend;
 
@@ -98,12 +98,11 @@ struct _MetaMonitorManager
 #endif
 
   int dbus_name_id;
-  MetaDBusDisplayConfig *skeleton;
 };
 
 struct _MetaMonitorManagerClass
 {
-  GObjectClass parent_class;
+  MetaDBusDisplayConfigSkeletonClass parent_class;
 };
 
 enum {
@@ -113,7 +112,10 @@ enum {
 
 static int signals[SIGNALS_LAST];
 
-G_DEFINE_TYPE (MetaMonitorManager, meta_monitor_manager, G_TYPE_OBJECT);
+static void meta_monitor_manager_display_config_init (MetaDBusDisplayConfigIface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (MetaMonitorManager, meta_monitor_manager, META_DBUS_TYPE_DISPLAY_CONFIG_SKELETON,
+                         G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_DISPLAY_CONFIG, meta_monitor_manager_display_config_init));
 
 static void invalidate_logical_config (MetaMonitorManager *manager);
 
@@ -908,8 +910,6 @@ meta_monitor_manager_dispose (GObject *object)
       manager->dbus_name_id = 0;
     }
 
-  g_clear_object (&manager->skeleton);
-
   G_OBJECT_CLASS (meta_monitor_manager_parent_class)->dispose (object);
 }
 
@@ -975,10 +975,10 @@ make_display_name (MetaOutput *output)
 }
 
 static gboolean
-handle_get_resources (MetaDBusDisplayConfig *skeleton,
-                      GDBusMethodInvocation *invocation,
-                      MetaMonitorManager    *manager)
+meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
+                                           GDBusMethodInvocation *invocation)
 {
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (skeleton);
   GVariantBuilder crtc_builder, output_builder, mode_builder;
   unsigned int i, j;
 
@@ -1362,14 +1362,14 @@ apply_config_dummy (MetaMonitorManager *manager,
 }
 
 static gboolean
-handle_apply_configuration  (MetaDBusDisplayConfig *skeleton,
-                             GDBusMethodInvocation *invocation,
-                             guint                  serial,
-                             gboolean               persistent,
-                             GVariant              *crtcs,
-                             GVariant              *outputs,
-                             MetaMonitorManager    *manager)
+meta_monitor_manager_handle_apply_configuration  (MetaDBusDisplayConfig *skeleton,
+                                                  GDBusMethodInvocation *invocation,
+                                                  guint                  serial,
+                                                  gboolean               persistent,
+                                                  GVariant              *crtcs,
+                                                  GVariant              *outputs)
 {
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (skeleton);
   GVariantIter crtc_iter, output_iter, *nested_outputs;
   guint crtc_id;
   int new_mode, x, y;
@@ -1520,20 +1520,20 @@ handle_apply_configuration  (MetaDBusDisplayConfig *skeleton,
 }
 
 static void
+meta_monitor_manager_display_config_init (MetaDBusDisplayConfigIface *iface)
+{
+  iface->handle_get_resources = meta_monitor_manager_handle_get_resources;
+  iface->handle_apply_configuration = meta_monitor_manager_handle_apply_configuration;
+}
+
+static void
 on_bus_acquired (GDBusConnection *connection,
                  const char      *name,
                  gpointer         user_data)
 {
   MetaMonitorManager *manager = user_data;
 
-  manager->skeleton = META_DBUS_DISPLAY_CONFIG (meta_dbus_display_config_skeleton_new ());
-
-  g_signal_connect_object (manager->skeleton, "handle-get-resources",
-                           G_CALLBACK (handle_get_resources), manager, 0);
-  g_signal_connect_object (manager->skeleton, "handle-apply-configuration",
-                           G_CALLBACK (handle_apply_configuration), manager, 0);
-
-  g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (manager->skeleton),
+  g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (manager),
                                     connection,
                                     "/org/gnome/Mutter/DisplayConfig",
                                     NULL);
