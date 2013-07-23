@@ -1441,7 +1441,6 @@ on_monitors_changed (MetaMonitorManager    *monitors,
   g_list_free_full (compositor->outputs, (GDestroyNotify) wl_global_destroy);
   compositor->outputs = NULL;
   meta_wayland_compositor_create_outputs (compositor, monitors);
-  meta_wayland_stage_apply_monitor_config (META_WAYLAND_STAGE (compositor->stage));
 }
 
 void
@@ -1557,7 +1556,6 @@ meta_wayland_init (void)
   meta_wayland_compositor_create_outputs (compositor, monitors);
 
   compositor->stage = meta_wayland_stage_new ();
-  meta_wayland_stage_apply_monitor_config (META_WAYLAND_STAGE (compositor->stage));
 
   g_signal_connect_after (compositor->stage, "paint",
                           G_CALLBACK (paint_finished_cb), compositor);
@@ -1588,8 +1586,6 @@ meta_wayland_init (void)
 			&wl_shell_interface, 1,
 			compositor, bind_shell) == NULL)
     g_error ("Failed to register a global shell object");
-
-  clutter_actor_show (compositor->stage);
 
   if (wl_display_add_socket (compositor->wayland_display, "wayland-0"))
     g_error ("Failed to create socket");
