@@ -658,7 +658,7 @@ bind_output (struct wl_client *client,
 			  output->subpixel_order,
 			  output->vendor,
 			  output->product,
-			  WL_OUTPUT_TRANSFORM_NORMAL);
+			  output->crtc->transform);
 
   wl_resource_post_event (resource,
 			  WL_OUTPUT_MODE,
