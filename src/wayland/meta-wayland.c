@@ -677,7 +677,7 @@ meta_wayland_compositor_create_outputs (MetaWaylandCompositor *compositor,
 					MetaMonitorManager    *monitors)
 {
   MetaOutput *outputs;
-  int i, n_outputs;
+  unsigned int i, n_outputs;
 
   outputs = meta_monitor_manager_get_outputs (monitors, &n_outputs);
 

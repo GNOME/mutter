@@ -128,6 +128,7 @@ libmutter_la_SOURCES =				\
 	core/meta-cursor-tracker-private.h	\
 	core/meta-xrandr-shared.h		\
 	core/monitor.c				\
+	core/monitor-config.c			\
 	core/monitor-private.h			\
 	core/mutter-Xatomtype.h			\
 	core/place.c				\
