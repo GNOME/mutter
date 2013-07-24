@@ -50,8 +50,8 @@ typedef enum {
   META_BACKEND_UNSPECIFIED,
   META_BACKEND_DUMMY,
   META_BACKEND_XRANDR,
-  META_BACKEND_COGL
 } MetaMonitorBackend;
+
 
 struct _MetaMonitorManager
 {
@@ -557,142 +557,6 @@ read_monitor_infos_from_xrandr (MetaMonitorManager *manager)
 
 #endif
 
-static MetaMonitorMode *
-find_or_create_monitor_mode (GArray          *modes,
-                             int              width,
-                             int              height,
-                             float            refresh)
-{
-  unsigned int i;
-  MetaMonitorMode new;
-
-  for (i = 0; i < modes->len; i++)
-    {
-      MetaMonitorMode *existing;
-
-      existing = &g_array_index (modes, MetaMonitorMode, i);
-      if (existing->width == width &&
-          existing->height == height &&
-          existing->refresh_rate == refresh)
-        return existing;
-    }
-
-  new.mode_id = 1 + modes->len;
-  new.width = width;
-  new.height = height;
-  new.refresh_rate = refresh;
-
-  g_array_append_val (modes, new);
-  return &g_array_index (modes, MetaMonitorMode, modes->len - 1);
-}
-    
-static void
-read_monitor_from_cogl_helper (CoglOutput *output,
-                               void       *user_data)
-{
-  GList **closure = user_data;
-
-  *closure = g_list_prepend (*closure, cogl_object_ref (output));
-}
-
-static void
-read_monitor_infos_from_cogl (MetaMonitorManager *manager)
-{
-  GList *iter, *output_list;
-  GArray *modes;
-  GArray *crtcs;
-  GArray *outputs;
-  ClutterBackend *backend;
-  CoglContext *cogl_context;
-  CoglRenderer *cogl_renderer;
-  int n;
-
-  backend = clutter_get_default_backend ();
-  cogl_context = clutter_backend_get_cogl_context (backend);
-  cogl_renderer = cogl_display_get_renderer (cogl_context_get_display (cogl_context));
-
-  output_list = NULL;
-  cogl_renderer_foreach_output (cogl_renderer,
-                                read_monitor_from_cogl_helper, &output_list);
-
-  if (output_list == NULL)
-    return make_dummy_monitor_config (manager);
-
-  n = g_list_length (output_list);
-  modes = g_array_new (FALSE, TRUE, sizeof (MetaMonitorMode));
-  crtcs = g_array_sized_new (FALSE, TRUE, sizeof (MetaCRTC), n);
-  outputs = g_array_sized_new (FALSE, TRUE, sizeof (MetaOutput), n);
-  
-  for (iter = output_list; iter; iter = iter->next)
-    {
-      /* First create all modes, so that we can reference them later
-         without the risk to resize the array
-      */
-      find_or_create_monitor_mode (modes,
-                                   cogl_output_get_width (iter->data),
-                                   cogl_output_get_height (iter->data),
-                                   cogl_output_get_refresh_rate (iter->data));
-    }
-
-  for (iter = output_list; iter; iter = iter->next)
-    {
-      CoglOutput *output;
-      MetaCRTC meta_crtc;
-      MetaOutput meta_output;
-
-      output = iter->data;
-
-      meta_crtc.crtc_id = 1 + crtcs->len;
-      meta_crtc.rect.x = cogl_output_get_x (output);
-      meta_crtc.rect.y = cogl_output_get_y (output);
-      meta_crtc.rect.width = cogl_output_get_width (output);
-      meta_crtc.rect.height = cogl_output_get_height (output);
-      meta_crtc.current_mode = find_or_create_monitor_mode (modes,
-                                                            cogl_output_get_width (output),
-                                                            cogl_output_get_height (output),
-                                                            cogl_output_get_refresh_rate (output));
-      meta_crtc.transform = WL_OUTPUT_TRANSFORM_NORMAL;
-      meta_crtc.all_transforms = 1 << WL_OUTPUT_TRANSFORM_NORMAL;
-      meta_crtc.logical_monitor = NULL;
-      meta_crtc.dirty = FALSE;
-
-      /* This will never resize the array because we preallocated with g_array_sized_new() */
-      g_array_append_val (crtcs, meta_crtc);
-
-      meta_output.output_id = 1 + n + crtcs->len;
-      meta_output.crtc = &g_array_index (crtcs, MetaCRTC, crtcs->len - 1);
-      meta_output.name = g_strdup ("unknown");
-      meta_output.vendor = g_strdup ("unknown");
-      meta_output.product = g_strdup ("unknown");
-      meta_output.serial = g_strdup ("");
-      meta_output.width_mm = cogl_output_get_mm_width (output);
-      meta_output.height_mm = cogl_output_get_mm_height (output);
-      meta_output.subpixel_order = cogl_output_get_subpixel_order (output);
-      meta_output.preferred_mode = meta_crtc.current_mode;
-      meta_output.n_modes = 1;
-      meta_output.modes = g_new (MetaMonitorMode *, 1);
-      meta_output.modes[0] = meta_output.preferred_mode;
-      meta_output.n_possible_crtcs = 1;
-      meta_output.possible_crtcs = g_new (MetaCRTC *, 1);
-      meta_output.possible_crtcs[0] = meta_output.crtc;
-      meta_output.n_possible_clones = 0;
-      meta_output.possible_clones = g_new (MetaOutput *, 0);
-      meta_output.is_primary = (iter == output_list);
-      meta_output.is_presentation = FALSE;
-
-      g_array_append_val (outputs, meta_output);
-    }
-
-  manager->n_modes = modes->len;
-  manager->modes = (void*)g_array_free (modes, FALSE);
-  manager->n_crtcs = crtcs->len;
-  manager->crtcs = (void*)g_array_free (crtcs, FALSE);
-  manager->n_outputs = outputs->len;
-  manager->outputs = (void*)g_array_free (outputs, FALSE);
-
-  g_list_free_full (output_list, cogl_object_unref);
-}
-
 /*
  * meta_has_dummy_output:
  *
@@ -737,10 +601,7 @@ make_debug_config (MetaMonitorManager *manager)
     return META_BACKEND_XRANDR;
   else
 #endif
-    if (strcmp (env, "cogl") == 0)
-      return META_BACKEND_COGL;
-    else
-      return META_BACKEND_DUMMY;
+    return META_BACKEND_DUMMY;
 
   return TRUE;
 }
@@ -753,10 +614,7 @@ read_current_config (MetaMonitorManager *manager)
     return read_monitor_infos_from_xrandr (manager);
 #endif
 
-  if (manager->backend == META_BACKEND_COGL)
-    return read_monitor_infos_from_cogl (manager);
-  else
-    return make_dummy_monitor_config (manager);
+  return make_dummy_monitor_config (manager);
 }
 
 /*
@@ -874,8 +732,6 @@ meta_monitor_manager_new (Display *display)
 #endif
         if (has_dummy_output ())
           manager->backend = META_BACKEND_DUMMY;
-        else
-          manager->backend = META_BACKEND_COGL;
     }
 
 #ifdef HAVE_XRANDR
@@ -1624,14 +1480,6 @@ meta_monitor_manager_handle_apply_configuration  (MetaDBusDisplayConfig *skeleto
 
   g_variant_iter_init (&crtc_iter, crtcs);
   g_variant_iter_init (&output_iter, outputs);
-
-  if (manager->backend == META_BACKEND_COGL)
-    {
-      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
-                                             G_DBUS_ERROR_NOT_SUPPORTED,
-                                             "Changing configuration is not supported by the backend");
-      return TRUE;
-    }
 
   if (manager->backend == META_BACKEND_XRANDR)
     apply_config_xrandr (manager, &crtc_iter, &output_iter);
