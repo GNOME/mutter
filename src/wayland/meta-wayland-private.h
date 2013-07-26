@@ -130,7 +130,7 @@ typedef struct
 
 struct _MetaWaylandCompositor
 {
-  GList *outputs;
+  GHashTable *outputs;
 
   struct wl_display *wayland_display;
   struct wl_event_loop *wayland_loop;
