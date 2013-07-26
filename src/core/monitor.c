@@ -1581,6 +1581,7 @@ meta_monitor_manager_handle_apply_configuration  (MetaDBusDisplayConfig *skeleto
   GVariant *properties;
   guint crtc_id;
   int new_mode, x, y;
+  int new_screen_width, new_screen_height;
   guint transform;
   guint output_id;
   GPtrArray *crtc_infos, *output_infos;
@@ -1599,6 +1600,7 @@ meta_monitor_manager_handle_apply_configuration  (MetaDBusDisplayConfig *skeleto
                                        (GDestroyNotify) meta_output_info_free);
 
   /* Validate all arguments */
+  new_screen_width = 0; new_screen_height = 0;
   g_variant_iter_init (&crtc_iter, crtcs);
   while (g_variant_iter_loop (&crtc_iter, "(uiiiuaua{sv})",
                               &crtc_id, &new_mode, &x, &y, &transform,
@@ -1633,19 +1635,29 @@ meta_monitor_manager_handle_apply_configuration  (MetaDBusDisplayConfig *skeleto
       mode = new_mode != -1 ? &manager->modes[new_mode] : NULL;
       crtc_info->mode = mode;
 
-      if (mode &&
-          (x < 0 ||
-           x + mode->width > manager->max_screen_width ||
-           y < 0 ||
-           y + mode->height > manager->max_screen_height))
+      if (mode)
         {
-          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
-                                                 G_DBUS_ERROR_INVALID_ARGS,
-                                                 "Invalid CRTC geometry");
-          return TRUE;
+          if (x < 0 ||
+              x + mode->width > manager->max_screen_width ||
+              y < 0 ||
+              y + mode->height > manager->max_screen_height)
+            {
+              g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                                     G_DBUS_ERROR_INVALID_ARGS,
+                                                     "Invalid CRTC geometry");
+              return TRUE;
+            }
+
+          new_screen_width = MAX (new_screen_width, x + mode->width);
+          new_screen_height = MAX (new_screen_height, y + mode->height);
+          crtc_info->x = x;
+          crtc_info->y = y;
         }
-      crtc_info->x = x;
-      crtc_info->y = y;
+      else
+        {
+          crtc_info->x = 0;
+          crtc_info->y = 0;
+        }
 
       if (transform < WL_OUTPUT_TRANSFORM_NORMAL ||
           transform > WL_OUTPUT_TRANSFORM_FLIPPED_270)
@@ -1703,6 +1715,14 @@ meta_monitor_manager_handle_apply_configuration  (MetaDBusDisplayConfig *skeleto
         }
 
       g_ptr_array_add (crtc_infos, crtc_info);
+    }
+
+  if (new_screen_width == 0 || new_screen_height == 0)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_INVALID_ARGS,
+                                             "Refusing to disable all outputs");
+      return TRUE;
     }
 
   g_variant_iter_init (&output_iter, outputs);
