@@ -36,7 +36,7 @@ Build-Depends: cdbs (>= 0.4.90),
                libice-dev,
                zenity
 Standards-Version: 3.9.4
-Vcs-Svn: svn://anonscm.debian.org/svn/pkg-gnome/desktop/unstable/mutter
+Vcs-Svn: svn://anonscm.debian.org/pkg-gnome/desktop/unstable/mutter
 Vcs-Browser: http://anonscm.debian.org/viewvc/pkg-gnome/desktop/unstable/mutter
 
 Package: mutter
