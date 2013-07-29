@@ -7399,6 +7399,9 @@ void
 meta_window_set_focused_internal (MetaWindow *window,
                                   gboolean    focused)
 {
+  if (window->unmanaging)
+    return;
+
   if (focused)
     {
       window->has_focus = TRUE;
