@@ -680,7 +680,7 @@ meta_screen_new (MetaDisplay *display,
 #ifdef HAVE_WAYLAND
   if (!meta_is_wayland_compositor ())
 #endif
-    meta_monitor_manager_initialize (screen->display->xdisplay);
+    meta_monitor_manager_initialize ();
 
   manager = meta_monitor_manager_get ();
   g_signal_connect (manager, "monitors-changed",

@@ -1657,7 +1657,7 @@ meta_wayland_init (void)
       dup2 (fd, STDIN_FILENO);
     }
 
-  meta_monitor_manager_initialize (NULL);
+  meta_monitor_manager_initialize ();
   monitors = meta_monitor_manager_get ();
   g_signal_connect (monitors, "monitors-changed",
 		    G_CALLBACK (on_monitors_changed), compositor);
