@@ -1,3 +1,7 @@
+3.8.4
+=====
+* Workaround failure to bring back shell interface after fullscreen game in some situations [Adel; #701224]
+* 
 3.8.3
 =====
 * Add support for string-array preferences [Florian; #700223]
