@@ -32,6 +32,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/wait.h>
 
 #include <wayland-server.h>
@@ -1256,6 +1258,55 @@ bind_shell (struct wl_client *client,
 }
 
 static void
+gnome_session_died (GPid     pid,
+		    gint     status,
+		    gpointer user_data)
+{
+  if (!WIFEXITED (status))
+    g_error ("gnome-session crashed; aborting");
+  else
+    {
+      /* A clean exit of gnome-session implies a logout, exit cleanly */
+      meta_quit (META_EXIT_SUCCESS);
+    }
+}
+
+static void
+start_gnome_session (MetaWaylandCompositor *compositor)
+{
+  GPid pid;
+  char *args[6];
+  GError *error;
+
+  args[0] = "setsid";
+  args[1] = "gnome-session";
+  args[2] = "--session";
+  args[3] = "gnome-wayland";
+  args[4] = "--debug";
+  args[5] = NULL;
+
+  error = NULL;
+  if (g_spawn_async (NULL, /* cwd */
+		     args,
+		     NULL,
+		     G_SPAWN_SEARCH_PATH |
+		     G_SPAWN_DO_NOT_REAP_CHILD,
+		     NULL,
+		     NULL,
+		     &pid,
+		     &error))
+    {
+      g_message ("forked gnome-session, pid %d\n", pid);
+
+      g_child_watch_add (pid, gnome_session_died, NULL);
+    }
+  else
+    {
+      g_error ("Failed to fork gnome-session server: %s", error->message);
+    }
+}
+
+static void
 stage_destroy_cb (void)
 {
   meta_quit (META_EXIT_SUCCESS);
@@ -1565,6 +1616,21 @@ on_monitors_changed (MetaMonitorManager    *monitors,
   compositor->outputs = meta_wayland_compositor_update_outputs (compositor, monitors);
 }
 
+static void
+on_display_config_ready (GObject      *object,
+			 GAsyncResult *result,
+			 gpointer      user_data)
+{
+  gboolean ok;
+
+  ok = meta_monitor_manager_init_dbus_finish (META_MONITOR_MANAGER (object), result, NULL);
+  g_assert (ok);
+
+  /* Now we have X and DBus, and our stuff is on the bus.
+     The only thing missing is gnome-session! */
+  start_gnome_session (user_data);
+}
+
 void
 meta_wayland_init (void)
 {
@@ -1575,6 +1641,8 @@ meta_wayland_init (void)
   CoglRenderer *cogl_renderer;
   int weston_launch_fd;
   MetaMonitorManager *monitors;
+  GDBusConnection *session_bus;
+  char *session_bus_address;
 
   memset (compositor, 0, sizeof (MetaWaylandCompositor));
 
@@ -1728,6 +1796,23 @@ meta_wayland_init (void)
     g_error ("Failed to start X Wayland");
 
   putenv (g_strdup_printf ("DISPLAY=:%d", compositor->xwayland_display_index));
+
+  /* Now xwayland is ready. Get ourselves a dbus daemon. This will autolaunch
+     if no bus is found.
+  */
+  session_bus = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+  if (!session_bus)
+    meta_fatal ("Could not connect to the session bus\n");
+
+  session_bus_address = g_dbus_address_get_for_bus_sync (G_BUS_TYPE_SESSION, NULL, NULL);
+  putenv (g_strdup_printf ("DBUS_SESSION_BUS_ADDRESS=%s", session_bus_address));
+  g_free (session_bus_address);
+
+  /* Now get our interface on the dbus (or gnome-settings-daemon will refuse
+     to start, which in turn will stall gnome-session from launching the rest
+     of the session)
+  */
+  meta_monitor_manager_init_dbus (monitors, on_display_config_ready, compositor);
 }
 
 void

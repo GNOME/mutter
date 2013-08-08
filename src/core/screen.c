@@ -690,6 +690,11 @@ meta_screen_new (MetaDisplay *display,
                                         &screen->rect.width,
                                         &screen->rect.height);
 
+#ifdef HAVE_WAYLAND
+  if (!meta_is_wayland_compositor ())
+#endif
+    meta_monitor_manager_init_dbus (manager, NULL, NULL);
+
   screen->current_cursor = -1; /* invalid/unset */
   screen->default_xvisual = DefaultVisualOfScreen (screen->xscreen);
   screen->default_depth = DefaultDepthOfScreen (screen->xscreen);

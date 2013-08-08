@@ -61,7 +61,6 @@ G_DEFINE_TYPE_WITH_CODE (MetaMonitorManager, meta_monitor_manager, META_DBUS_TYP
 static void free_output_array (MetaOutput *old_outputs,
                                int         n_old_outputs);
 static void invalidate_logical_config (MetaMonitorManager *manager);
-static void initialize_dbus_interface (MetaMonitorManager *manager);
 
 static void
 read_current_dummy (MetaMonitorManager *manager)
@@ -525,7 +524,6 @@ meta_monitor_manager_constructed (GObject *object)
     }
 
   make_logical_config (manager);
-  initialize_dbus_interface (manager);
 
   manager->in_init = FALSE;
 }
@@ -1321,7 +1319,8 @@ on_bus_acquired (GDBusConnection *connection,
                  const char      *name,
                  gpointer         user_data)
 {
-  MetaMonitorManager *manager = user_data;
+  GTask *task = user_data;
+  MetaMonitorManager *manager = g_task_get_task_data (task);
 
   g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (manager),
                                     connection,
@@ -1334,7 +1333,11 @@ on_name_acquired (GDBusConnection *connection,
                   const char      *name,
                   gpointer         user_data)
 {
+  GTask *task = user_data;
+
   meta_topic (META_DEBUG_DBUS, "Acquired name %s\n", name);
+
+  g_task_return_boolean (task, TRUE);
 }
 
 static void
@@ -1345,9 +1348,14 @@ on_name_lost (GDBusConnection *connection,
   meta_topic (META_DEBUG_DBUS, "Lost or failed to acquire name %s\n", name);
 }
 
-static void
-initialize_dbus_interface (MetaMonitorManager *manager)
+void
+meta_monitor_manager_init_dbus (MetaMonitorManager   *manager,
+                                GAsyncReadyCallback   callback,
+                                gpointer              user_data)
 {
+  GTask *task = g_task_new (manager, NULL, callback, user_data);
+  g_task_set_task_data (task, g_object_ref (manager), g_object_unref);
+
   manager->dbus_name_id = g_bus_own_name (G_BUS_TYPE_SESSION,
                                           "org.gnome.Mutter.DisplayConfig",
                                           G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT |
@@ -1356,8 +1364,16 @@ initialize_dbus_interface (MetaMonitorManager *manager)
                                           on_bus_acquired,
                                           on_name_acquired,
                                           on_name_lost,
-                                          g_object_ref (manager),
+                                          task,
                                           g_object_unref);
+}
+
+gboolean
+meta_monitor_manager_init_dbus_finish (MetaMonitorManager  *manager,
+                                       GAsyncResult        *result,
+                                       GError             **error)
+{
+  return g_task_propagate_boolean (G_TASK (result), error);
 }
 
 static MetaMonitorManager *global_manager;

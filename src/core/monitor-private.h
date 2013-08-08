@@ -299,6 +299,13 @@ GType meta_monitor_manager_get_type (void);
 void                meta_monitor_manager_initialize (void);
 MetaMonitorManager *meta_monitor_manager_get  (void);
 
+void                meta_monitor_manager_init_dbus         (MetaMonitorManager *manager,
+                                                            GAsyncReadyCallback callback,
+                                                            gpointer            user_data);
+gboolean            meta_monitor_manager_init_dbus_finish  (MetaMonitorManager *manager,
+                                                            GAsyncResult       *result,
+                                                            GError            **error);
+
 MetaMonitorInfo    *meta_monitor_manager_get_monitor_infos (MetaMonitorManager *manager,
 							    unsigned int       *n_infos);
 
