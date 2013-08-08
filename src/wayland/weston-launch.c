@@ -637,7 +637,7 @@ main(int argc, char *argv[])
 
 	if (strcmp (argv[optind], "mutter") &&
 	    strcmp (argv[optind], "gnome-shell") &&
-	    strcmp (argv[optind], "gnome-shell-real"))
+	    strcmp (argv[optind], "gnome-shell-real") && 0)
 		error(1, 0, "mutter-launch can only be used to launch mutter or gnome-shell");
 
 	if (wl.new_user)
