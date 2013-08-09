@@ -1493,6 +1493,14 @@ event_cb (ClutterActor *stage,
       synthesize_motion_event (compositor, event);
       return FALSE;
 
+    case CLUTTER_KEY_PRESS:
+    case CLUTTER_KEY_RELEASE:
+      meta_verbose ("Clutter key event %s for key %d (%d), state %d\n",
+		    event->type == CLUTTER_KEY_PRESS ? "press" : "release",
+		    clutter_event_get_key_symbol (event),
+		    clutter_event_get_key_code (event),
+		    clutter_event_get_state (event));
+
     default:
       return FALSE;
     }

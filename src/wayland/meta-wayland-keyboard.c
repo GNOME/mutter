@@ -470,7 +470,7 @@ meta_wayland_keyboard_handle_event (MetaWaylandKeyboard *keyboard,
             goto found;
           }
 
-      g_warning ("unexpected key release event for key 0x%x", evdev_code);
+      g_warning ("unexpected key release event for key 0x%x (%d)", evdev_code, event->keyval);
 
     found:
       (void) 0;
