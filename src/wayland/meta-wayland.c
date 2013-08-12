@@ -1500,6 +1500,12 @@ event_cb (ClutterActor *stage,
 		    clutter_event_get_key_symbol (event),
 		    clutter_event_get_key_code (event),
 		    clutter_event_get_state (event));
+      return FALSE;
+
+    case CLUTTER_SCROLL:
+      meta_verbose ("Clutter scroll event %s\n",
+		    clutter_event_get_scroll_direction (event) == CLUTTER_SCROLL_DOWN ? "down" : "up");
+      return FALSE;
 
     default:
       return FALSE;
