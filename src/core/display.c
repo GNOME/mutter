@@ -1910,6 +1910,7 @@ update_focus_window (MetaDisplay   *display,
   display->focus_serial = serial;
 
   if (display->focus_xwindow == xwindow &&
+      display->focus_type == type &&
       display->focus_window == window)
     return;
 

@@ -565,3 +565,54 @@ meta_wayland_keyboard_release (MetaWaylandKeyboard *keyboard)
     wl_list_remove (&keyboard->focus_listener.link);
   wl_array_release (&keyboard->keys);
 }
+
+static void
+modal_key (MetaWaylandKeyboardGrab *grab,
+	   uint32_t                 time,
+	   uint32_t                 key,
+	   uint32_t                 state)
+{
+}
+
+static void
+modal_modifiers (MetaWaylandKeyboardGrab *grab,
+		 uint32_t                 serial,
+		 uint32_t                 mods_depressed,
+		 uint32_t                 mods_latched,
+		 uint32_t                 mods_locked,
+		 uint32_t                 group)
+{
+}
+
+static MetaWaylandKeyboardGrabInterface modal_grab = {
+  modal_key,
+  modal_modifiers,
+};
+
+gboolean
+meta_wayland_keyboard_begin_modal (MetaWaylandKeyboard *keyboard)
+{
+  MetaWaylandKeyboardGrab *grab;
+
+  if (keyboard->grab != &keyboard->default_grab)
+    return FALSE;
+
+  grab = g_slice_new0 (MetaWaylandKeyboardGrab);
+  grab->interface = &modal_grab;
+  meta_wayland_keyboard_start_grab (keyboard, grab);
+
+  return TRUE;
+}
+
+void
+meta_wayland_keyboard_end_modal (MetaWaylandKeyboard *keyboard)
+{
+  MetaWaylandKeyboardGrab *grab;
+
+  grab = keyboard->grab;
+
+  g_assert (grab->interface == &modal_grab);
+
+  meta_wayland_keyboard_end_grab (keyboard);
+  g_slice_free (MetaWaylandKeyboardGrab, grab);
+}
