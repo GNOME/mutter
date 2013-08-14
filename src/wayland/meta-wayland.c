@@ -1660,6 +1660,8 @@ on_display_config_ready (GObject      *object,
   ok = meta_monitor_manager_init_dbus_finish (META_MONITOR_MANAGER (object), result, NULL);
   g_assert (ok);
 
+  meta_idle_monitor_init_dbus ();
+
   /* Now we have X and DBus, and our stuff is on the bus.
      The only thing missing is gnome-session! */
   start_gnome_session (user_data);
