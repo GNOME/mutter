@@ -53,6 +53,7 @@
 #include <meta/main.h>
 #include "frame.h"
 #include "meta-weston-launch.h"
+#include "meta-idle-monitor-private.h"
 
 static MetaWaylandCompositor _meta_wayland_compositor;
 
@@ -1425,6 +1426,23 @@ synthesize_motion_event (MetaWaylandCompositor *compositor,
   meta_display_handle_event (display, (XEvent *) &generic_event);
 }
 
+static void
+reset_idletimes (const ClutterEvent *event)
+{
+  ClutterInputDevice *device;
+  MetaIdleMonitor *core_monitor, *device_monitor;
+  int device_id;
+
+  device = clutter_event_get_source_device (event);
+  device_id = clutter_input_device_get_device_id (device);
+
+  core_monitor = meta_idle_monitor_get_core ();
+  device_monitor = meta_idle_monitor_get_for_device (device_id);
+
+  meta_idle_monitor_reset_idletime (core_monitor);
+  meta_idle_monitor_reset_idletime (device_monitor);
+}
+
 static gboolean
 event_cb (ClutterActor *stage,
           const ClutterEvent *event,
@@ -1434,6 +1452,8 @@ event_cb (ClutterActor *stage,
   MetaWaylandPointer *pointer = &seat->pointer;
   MetaWaylandSurface *surface;
   MetaDisplay *display;
+
+  reset_idletimes (event);
 
   meta_wayland_seat_handle_event (compositor->seat, event);
 
