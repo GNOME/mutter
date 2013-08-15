@@ -3197,7 +3197,9 @@ event_callback (XEvent  *event,
      translation altogether by directly using the Clutter events */
   if (meta_is_wayland_compositor () &&
       event->type == GenericEvent &&
-      event->xcookie.evtype == XI_Motion)
+      (event->xcookie.evtype == XI_Motion ||
+       event->xcookie.evtype == XI_KeyPress ||
+       event->xcookie.evtype == XI_KeyRelease))
     return FALSE;
 
   return meta_display_handle_event (display, event);

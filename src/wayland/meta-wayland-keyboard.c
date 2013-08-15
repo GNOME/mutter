@@ -388,6 +388,83 @@ set_modifiers (MetaWaylandKeyboard *keyboard,
                               new_state.group);
 }
 
+#define N_BUTTONS 5
+
+static gboolean
+process_keybinding (MetaWaylandKeyboard   *keyboard,
+		    const ClutterEvent    *event)
+{
+  MetaWaylandSurface *surface;
+  XGenericEventCookie generic_event;
+  XIDeviceEvent device_event;
+  unsigned char button_mask[(N_BUTTONS + 7) / 8] = { 0 };
+  MetaDisplay *display = meta_get_display ();
+  ClutterModifierType button_state;
+  int i;
+
+  if (!display) /* not initialized yet */
+    return FALSE;
+
+  generic_event.type = GenericEvent;
+  generic_event.serial = 0;
+  generic_event.send_event = False;
+  generic_event.display = display->xdisplay;
+  generic_event.extension = display->xinput_opcode;
+  if (clutter_event_type (event) == CLUTTER_KEY_PRESS)
+    generic_event.evtype = XI_KeyPress;
+  else
+    generic_event.evtype = XI_KeyRelease;
+  /* Mutter assumes the data for the event is already retrieved by GDK
+   * so we don't need the cookie */
+  generic_event.cookie = 0;
+  generic_event.data = &device_event;
+
+  memcpy (&device_event, &generic_event, sizeof (XGenericEvent));
+
+  /* Can't use clutter_event_get_time() here, because evdev timestamps
+     have nothing to do with X timestamps */
+  device_event.time = meta_display_get_current_time_roundtrip (display);
+  device_event.deviceid = clutter_event_get_device_id (event);
+  device_event.sourceid = 0; /* not used, not sure what this should be */
+  device_event.detail = clutter_event_get_key_code (event);
+  device_event.root = DefaultRootWindow (display->xdisplay);
+  device_event.flags = 0;
+
+  surface = keyboard->focus;
+  if (surface)
+    device_event.event = surface->window ? surface->window->xwindow : device_event.root;
+  else
+    device_event.event = device_event.root;
+
+  /* Mutter doesn't really know about the sub-windows. This assumes it
+     doesn't care either */
+  device_event.child = device_event.event;
+  device_event.root_x = 0;
+  device_event.root_y = 0;
+
+  clutter_event_get_state_full (event,
+				&button_state,
+				(ClutterModifierType*)&device_event.mods.base,
+				(ClutterModifierType*)&device_event.mods.latched,
+				(ClutterModifierType*)&device_event.mods.locked,
+				(ClutterModifierType*)&device_event.mods.effective);
+  device_event.mods.effective &= ~button_state;
+  memset (&device_event.group, 0, sizeof (device_event.group));
+  device_event.group.effective = (device_event.mods.effective >> 13) & 0x3;
+
+  for (i = 0; i < N_BUTTONS; i++)
+    if ((button_state & (CLUTTER_BUTTON1_MASK << i)))
+      XISetMask (button_mask, i + 1);
+  device_event.buttons.mask_len = N_BUTTONS + 1;
+  device_event.buttons.mask = button_mask;
+
+  device_event.valuators.mask_len = 0;
+  device_event.valuators.mask = NULL;
+  device_event.valuators.values = NULL;
+
+  return meta_display_process_key_event (display, surface ? surface->window : NULL, &device_event);
+}
+
 static gboolean
 update_pressed_keys (MetaWaylandKeyboard   *keyboard,
 		     uint32_t               evdev_code,
@@ -459,6 +536,10 @@ meta_wayland_keyboard_handle_event (MetaWaylandKeyboard *keyboard,
 		is_press ? "press" : "release",
 		autorepeat ? " (autorepeat)" : "",
 		xkb_keycode);
+
+  /* Give a chance to process keybindings */
+  if (process_keybinding (keyboard, (ClutterEvent*) event))
+    return TRUE;
 
   if (autorepeat)
     return FALSE;
