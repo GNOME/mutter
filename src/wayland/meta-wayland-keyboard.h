@@ -126,7 +126,7 @@ meta_wayland_keyboard_init (MetaWaylandKeyboard *keyboard,
                             struct wl_display   *display,
 			    gboolean             is_evdev);
 
-void
+gboolean
 meta_wayland_keyboard_handle_event (MetaWaylandKeyboard *keyboard,
                                     const ClutterKeyEvent *event);
 

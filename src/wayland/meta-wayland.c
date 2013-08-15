@@ -681,7 +681,8 @@ event_cb (ClutterActor *stage,
 
   reset_idletimes (event);
 
-  meta_wayland_seat_handle_event (compositor->seat, event);
+  if (meta_wayland_seat_handle_event (compositor->seat, event))
+    return TRUE;
 
   /* HACK: for now, the surfaces from Wayland clients aren't
      integrated into Mutter's event handling and Mutter won't give them

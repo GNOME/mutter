@@ -2065,22 +2065,22 @@ meta_display_process_key_event (MetaDisplay   *display,
   gboolean handled;
   const char *str;
   MetaScreen *screen;
+  gboolean was_current_time;
 
-  /* if key event was on root window, we have a shortcut */
-  screen = meta_display_screen_for_root (display, event->event);
-
-  /* else round-trip to server */
-  if (screen == NULL)
-    screen = meta_display_screen_for_xwindow (display, event->event);
-
-  if (screen == NULL)
-    return FALSE; /* event window is destroyed */
+  /* We only ever have one screen */
+  screen = display->screens->data;
 
   /* ignore key events on popup menus and such. */
   if (meta_ui_window_is_widget (screen->ui, event->event))
     return FALSE;
 
-  /* window may be NULL */
+  if (display->current_time == CurrentTime)
+    {
+      display->current_time = event->time;
+      was_current_time = TRUE;
+    }
+  else
+    was_current_time = FALSE;
 
   keysym = XKeycodeToKeysym (display->xdisplay, event->detail, 0);
 
@@ -2098,11 +2098,11 @@ meta_display_process_key_event (MetaDisplay   *display,
     {
       handled = process_overlay_key (display, screen, event, keysym);
       if (handled)
-        return TRUE;
+        goto out;
 
       handled = process_iso_next_group (display, screen, event, keysym);
       if (handled)
-        return TRUE;
+        goto out;
     }
 
   XIAllowEvents (display->xdisplay, event->deviceid,
@@ -2112,7 +2112,11 @@ meta_display_process_key_event (MetaDisplay   *display,
   if (all_keys_grabbed)
     {
       if (display->grab_op == META_GRAB_OP_NONE)
-        return TRUE;
+        {
+          handled = TRUE;
+          goto out;
+        }
+
       /* If we get here we have a global grab, because
        * we're in some special keyboard mode such as window move
        * mode.
@@ -2191,14 +2195,20 @@ meta_display_process_key_event (MetaDisplay   *display,
           meta_display_end_grab_op (display, event->time);
         }
 
-      return TRUE;
+      handled = TRUE;
+      goto out;
     }
 
   /* Do the normal keybindings */
-  return process_event (display->key_bindings,
-                        display->n_key_bindings,
-                        display, screen, window, event, keysym,
-                        !all_keys_grabbed && window);
+  handled = process_event (display->key_bindings,
+                           display->n_key_bindings,
+                           display, screen, window, event, keysym,
+                           !all_keys_grabbed && window);
+
+ out:
+  if (was_current_time)
+    display->current_time = CurrentTime;
+  return handled;
 }
 
 static gboolean

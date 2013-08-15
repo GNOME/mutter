@@ -442,7 +442,86 @@ set_modifiers (MetaWaylandKeyboard *keyboard,
                               new_state.group);
 }
 
-void
+#define N_BUTTONS 5
+
+static gboolean
+process_keybinding (MetaWaylandKeyboard   *keyboard,
+		    const ClutterEvent    *event)
+{
+  MetaWaylandSurface *surface;
+  XGenericEventCookie generic_event;
+  XIDeviceEvent device_event;
+  unsigned char button_mask[(N_BUTTONS + 7) / 8] = { 0 };
+  MetaDisplay *display = meta_get_display ();
+  ClutterModifierType state;
+  int i;
+
+  if (!display) /* not initialized yet */
+    return FALSE;
+
+  generic_event.type = GenericEvent;
+  generic_event.serial = 0;
+  generic_event.send_event = False;
+  generic_event.display = display->xdisplay;
+  generic_event.extension = display->xinput_opcode;
+  if (clutter_event_type (event) == CLUTTER_KEY_PRESS)
+    generic_event.evtype = XI_KeyPress;
+  else
+    generic_event.evtype = XI_KeyRelease;
+  /* Mutter assumes the data for the event is already retrieved by GDK
+   * so we don't need the cookie */
+  generic_event.cookie = 0;
+  generic_event.data = &device_event;
+
+  memcpy (&device_event, &generic_event, sizeof (XGenericEvent));
+
+  /* Can't use clutter_event_get_time() here, because evdev timestamps
+     have nothing to do with X timestamps */
+  device_event.time = meta_display_get_current_time_roundtrip (display);
+  device_event.deviceid = clutter_event_get_device_id (event);
+  device_event.sourceid = 0; /* not used, not sure what this should be */
+  device_event.detail = clutter_event_get_key_code (event);
+  device_event.root = DefaultRootWindow (display->xdisplay);
+  device_event.flags = 0;
+
+  surface = keyboard->focus;
+  if (surface)
+    device_event.event = surface->window ? surface->window->xwindow : device_event.root;
+  else
+    device_event.event = device_event.root;
+
+  /* Mutter doesn't really know about the sub-windows. This assumes it
+     doesn't care either */
+  device_event.child = device_event.event;
+  device_event.root_x = 0;
+  device_event.root_y = 0;
+
+  state = clutter_event_get_state (event);
+
+  for (i = 0; i < N_BUTTONS; i++)
+    if ((state & (CLUTTER_BUTTON1_MASK << i)))
+      XISetMask (button_mask, i + 1);
+  device_event.buttons.mask_len = N_BUTTONS + 1;
+  device_event.buttons.mask = button_mask;
+
+  device_event.valuators.mask_len = 0;
+  device_event.valuators.mask = NULL;
+  device_event.valuators.values = NULL;
+
+  device_event.mods.base = xkb_state_serialize_mods (keyboard->xkb_state,
+						       XKB_STATE_MODS_DEPRESSED);
+  device_event.mods.latched = xkb_state_serialize_mods (keyboard->xkb_state,
+							XKB_STATE_MODS_LATCHED);
+  device_event.mods.locked = xkb_state_serialize_mods (keyboard->xkb_state,
+						       XKB_STATE_MODS_LOCKED);
+  device_event.mods.effective = xkb_state_serialize_mods (keyboard->xkb_state,
+							  XKB_STATE_MODS_EFFECTIVE);
+  memset (&device_event.group, 0, sizeof (device_event.group));
+
+  return meta_display_process_key_event (display, surface ? surface->window : NULL, &device_event);
+}
+
+gboolean
 meta_wayland_keyboard_handle_event (MetaWaylandKeyboard *keyboard,
                                     const ClutterKeyEvent *event)
 {
@@ -456,7 +535,11 @@ meta_wayland_keyboard_handle_event (MetaWaylandKeyboard *keyboard,
       !clutter_input_device_keycode_to_evdev (event->device,
                                               event->hardware_keycode,
                                               &evdev_code))
-    return;
+    return FALSE;
+
+  /* Give a chance to process keybindings */
+  if (process_keybinding (keyboard, (ClutterEvent*) event))
+    return TRUE;
 
   /* We want to ignore events that are sent because of auto-repeat. In
      the Clutter event stream these appear as a single key press
@@ -471,7 +554,7 @@ meta_wayland_keyboard_handle_event (MetaWaylandKeyboard *keyboard,
       /* Ignore the event if the key is already down */
       for (k = keyboard->keys.data; k < end; k++)
         if (*k == evdev_code)
-          return;
+          return FALSE;
 
       /* Otherwise add the key to the list of pressed keys */
       k = wl_array_add (&keyboard->keys, sizeof (*k));
@@ -507,6 +590,7 @@ meta_wayland_keyboard_handle_event (MetaWaylandKeyboard *keyboard,
                                   event->time,
                                   evdev_code,
                                   state);
+  return FALSE;
 }
 
 void
