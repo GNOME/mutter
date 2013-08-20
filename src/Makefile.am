@@ -65,8 +65,6 @@ libmutter_la_SOURCES =				\
 	compositor/meta-shaped-texture.c	\
 	compositor/meta-texture-rectangle.c	\
 	compositor/meta-texture-rectangle.h	\
-	compositor/meta-texture-tower.c		\
-	compositor/meta-texture-tower.h		\
 	compositor/meta-window-actor.c		\
 	compositor/meta-window-actor-private.h	\
 	compositor/meta-window-group.c		\

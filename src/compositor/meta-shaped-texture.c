@@ -30,7 +30,6 @@
 #include <config.h>
 
 #include <meta/meta-shaped-texture.h>
-#include "meta-texture-tower.h"
 
 #include <clutter/clutter.h>
 #include <cogl/cogl.h>
@@ -64,7 +63,6 @@ G_DEFINE_TYPE (MetaShapedTexture, meta_shaped_texture,
 
 struct _MetaShapedTexturePrivate
 {
-  MetaTextureTower *paint_tower;
   Pixmap pixmap;
   CoglTexturePixmapX11 *texture;
   CoglTexture *mask_texture;
@@ -74,8 +72,6 @@ struct _MetaShapedTexturePrivate
   cairo_region_t *clip_region;
 
   guint tex_width, tex_height;
-
-  guint create_mipmaps : 1;
 };
 
 static void
@@ -102,10 +98,8 @@ meta_shaped_texture_init (MetaShapedTexture *self)
 
   priv = self->priv = META_SHAPED_TEXTURE_GET_PRIVATE (self);
 
-  priv->paint_tower = meta_texture_tower_new ();
   priv->texture = NULL;
   priv->mask_texture = NULL;
-  priv->create_mipmaps = TRUE;
 }
 
 static void
@@ -113,10 +107,6 @@ meta_shaped_texture_dispose (GObject *object)
 {
   MetaShapedTexture *self = (MetaShapedTexture *) object;
   MetaShapedTexturePrivate *priv = self->priv;
-
-  if (priv->paint_tower)
-    meta_texture_tower_free (priv->paint_tower);
-  priv->paint_tower = NULL;
 
   g_clear_pointer (&priv->pipeline, cogl_object_unref);
   g_clear_pointer (&priv->pipeline_unshaped, cogl_object_unref);
@@ -133,7 +123,6 @@ meta_shaped_texture_paint (ClutterActor *actor)
 {
   MetaShapedTexture *stex = (MetaShapedTexture *) actor;
   MetaShapedTexturePrivate *priv = stex->priv;
-  CoglTexture *paint_tex;
   guint tex_width, tex_height;
   ClutterActorBox alloc;
 
@@ -147,29 +136,6 @@ meta_shaped_texture_paint (ClutterActor *actor)
 
   if (!CLUTTER_ACTOR_IS_REALIZED (CLUTTER_ACTOR (stex)))
     clutter_actor_realize (CLUTTER_ACTOR (stex));
-
-  /* The GL EXT_texture_from_pixmap extension does allow for it to be
-   * used together with SGIS_generate_mipmap, however this is very
-   * rarely supported. Also, even when it is supported there
-   * are distinct performance implications from:
-   *
-   *  - Updating mipmaps that we don't need
-   *  - Having to reallocate pixmaps on the server into larger buffers
-   *
-   * So, we just unconditionally use our mipmap emulation code. If we
-   * wanted to use SGIS_generate_mipmap, we'd have to  query COGL to
-   * see if it was supported (no API currently), and then if and only
-   * if that was the case, set the clutter texture quality to HIGH.
-   * Setting the texture quality to high without SGIS_generate_mipmap
-   * support for TFP textures will result in fallbacks to XGetImage.
-   */
-  if (priv->create_mipmaps)
-    paint_tex = meta_texture_tower_get_paint_texture (priv->paint_tower);
-  else
-    paint_tex = COGL_TEXTURE (priv->texture);
-
-  if (paint_tex == NULL)
-    return;
 
   tex_width = priv->tex_width;
   tex_height = priv->tex_height;
@@ -212,7 +178,10 @@ meta_shaped_texture_paint (ClutterActor *actor)
       cogl_pipeline_set_layer_texture (pipeline, 1, priv->mask_texture);
     }
 
-  cogl_pipeline_set_layer_texture (pipeline, 0, paint_tex);
+  cogl_pipeline_set_layer_filters (pipeline, 0,
+                                   COGL_PIPELINE_FILTER_LINEAR_MIPMAP_LINEAR,
+                                   COGL_PIPELINE_FILTER_LINEAR);
+  cogl_pipeline_set_layer_texture (pipeline, 0, priv->texture);
 
   {
     CoglColor color;
@@ -374,28 +343,6 @@ meta_shaped_texture_new (void)
 }
 
 void
-meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
-					gboolean           create_mipmaps)
-{
-  MetaShapedTexturePrivate *priv;
-
-  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
-
-  priv = stex->priv;
-
-  create_mipmaps = create_mipmaps != FALSE;
-
-  if (create_mipmaps != priv->create_mipmaps)
-    {
-      CoglTexture *base_texture;
-      priv->create_mipmaps = create_mipmaps;
-      base_texture = create_mipmaps ?
-        COGL_TEXTURE (priv->texture) : NULL;
-      meta_texture_tower_set_base_texture (priv->paint_tower, base_texture);
-    }
-}
-
-void
 meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
                                       CoglTexture       *mask_texture)
 {
@@ -433,8 +380,6 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
 
   cogl_texture_pixmap_x11_update_area (priv->texture,
                                        x, y, width, height);
-
-  meta_texture_tower_update_area (priv->paint_tower, x, y, width, height);
 
   clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stex), &clip);
 }
@@ -514,10 +459,6 @@ meta_shaped_texture_set_pixmap (MetaShapedTexture *stex,
     }
   else
     set_cogl_texture (stex, NULL);
-
-  if (priv->create_mipmaps)
-    meta_texture_tower_set_base_texture (priv->paint_tower,
-                                         COGL_TEXTURE (priv->texture));
 }
 
 /**

@@ -1782,10 +1782,6 @@ check_needs_pixmap (MetaWindowActor *self)
           goto out;
         }
 
-      if (compositor->no_mipmaps)
-        meta_shaped_texture_set_create_mipmaps (META_SHAPED_TEXTURE (priv->actor),
-                                                FALSE);
-
       meta_shaped_texture_set_pixmap (META_SHAPED_TEXTURE (priv->actor),
                                       priv->back_pixmap);
 

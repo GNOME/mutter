@@ -31,7 +31,6 @@ struct _MetaCompositor
   guint           server_time_is_monotonic_time : 1;
   guint           show_redraw : 1;
   guint           debug       : 1;
-  guint           no_mipmaps  : 1;
 };
 
 struct _MetaCompScreen

@@ -1532,9 +1532,6 @@ meta_compositor_new (MetaDisplay *display)
 
   compositor->display = display;
 
-  if (g_getenv("META_DISABLE_MIPMAPS"))
-    compositor->no_mipmaps = TRUE;
-
   meta_verbose ("Creating %d atoms\n", (int) G_N_ELEMENTS (atom_names));
   XInternAtoms (xdisplay, atom_names, G_N_ELEMENTS (atom_names),
                 False, atoms);
