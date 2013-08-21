@@ -386,6 +386,9 @@ meta_init (void)
                 g_strerror (errno));
 #endif
 
+  if (getenv ("MUTTER_SLEEP_INIT"))
+    sleep (60);
+
   g_unix_signal_add (SIGTERM, on_sigterm, NULL);
 
   if (g_getenv ("MUTTER_VERBOSE"))
