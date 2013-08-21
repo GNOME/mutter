@@ -883,6 +883,9 @@ meta_wayland_init (void)
   if (clutter_init (NULL, NULL) != CLUTTER_INIT_SUCCESS)
     g_error ("Failed to initialize Clutter");
 
+  unsetenv ("CLUTTER_BACKEND");
+  unsetenv ("CLUTTER_INPUT_BACKEND");
+
   backend = clutter_get_default_backend ();
   cogl_context = clutter_backend_get_cogl_context (backend);
   cogl_renderer = cogl_display_get_renderer (cogl_context_get_display (cogl_context));

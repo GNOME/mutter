@@ -249,6 +249,17 @@ meta_get_option_context (void)
   bindtextdomain (GETTEXT_PACKAGE, MUTTER_LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
+  /* We must set the variables here, because Clutter creates the backend
+     when the first call is made.
+
+     We consider running from mutter-launch equivalent to running from bare metal.
+  */
+  if (getenv ("WESTON_LAUNCHER_SOCK"))
+    {
+      g_setenv ("CLUTTER_BACKEND", "eglnative", TRUE);
+      g_setenv ("CLUTTER_INPUT_BACKEND", "evdev", TRUE);
+    }
+
   ctx = g_option_context_new (NULL);
   g_option_context_add_main_entries (ctx, meta_options, GETTEXT_PACKAGE);
   g_option_context_add_group (ctx, clutter_get_option_group_without_init ());
