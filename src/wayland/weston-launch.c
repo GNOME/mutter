@@ -46,6 +46,7 @@
 #include <termios.h>
 #include <linux/vt.h>
 #include <linux/major.h>
+#include <linux/kd.h>
 
 #include <pwd.h>
 #include <grp.h>
@@ -58,6 +59,12 @@
 #include "weston-launch.h"
 
 #define MAX_ARGV_SIZE 256
+
+enum vt_state {
+	VT_HAS_VT,
+	VT_PENDING_CONFIRM,
+	VT_NOT_HAVE_VT,
+};
 
 struct weston_launch {
 	struct pam_conv pc;
@@ -72,9 +79,16 @@ struct weston_launch {
 	pid_t child;
 	int verbose;
 	char *new_user;
+
+	struct termios terminal_attributes;
+	int kb_mode;
+	enum vt_state vt_state;
+	int expect_drop_master;
 };
 
 union cmsg_data { unsigned char b[4]; int fd; };
+
+static void quit (struct weston_launch *wl, int status);
 
 static int
 weston_launch_allowed(struct weston_launch *wl)
@@ -132,6 +146,7 @@ setup_signals(struct weston_launch *wl)
 	sigaddset(&mask, SIGCHLD);
 	sigaddset(&mask, SIGINT);
 	sigaddset(&mask, SIGTERM);
+	sigaddset(&mask, SIGUSR1);
 	ret = sigprocmask(SIG_BLOCK, &mask, NULL);
 	assert(ret == 0);
 
@@ -184,6 +199,11 @@ handle_setmaster(struct weston_launch *wl, struct msghdr *msg, ssize_t len)
 		ret = drmSetMaster(data->fd);
 	else
 		ret = drmDropMaster(data->fd);
+	if (ret == -1)
+		ret = -errno;
+
+	if (message->set_master == 0)
+		wl->expect_drop_master = 0;
 
 	close(data->fd);
 
@@ -200,6 +220,70 @@ out:
 
 	return 0;
 }
+
+static int
+handle_confirm_vt_switch(struct weston_launch *wl, struct msghdr *msg, ssize_t len)
+{
+	int ret = -1;
+
+	if (wl->vt_state != VT_PENDING_CONFIRM) {
+		error(0, 0, "unexpected CONFIRM_VT_SWITCH");
+		goto out;
+	}
+
+	if (wl->expect_drop_master) {
+		error(0, 0, "drmDropMaster not called for VT switch");
+		quit(wl, 1);
+	}
+
+	wl->vt_state = VT_NOT_HAVE_VT;
+	ioctl(wl->tty, VT_RELDISP, 1);
+
+	if (wl->verbose)
+		fprintf(stderr, "weston-launcher: confirmed VT switch\n");
+
+	ret = 0;
+
+out:
+	do {
+		len = send(wl->sock[0], &ret, sizeof ret, 0);
+	} while (len < 0 && errno == EINTR);
+	if (len < 0)
+		return -1;
+
+	return 0;
+}
+
+static int
+handle_activate_vt(struct weston_launch *wl, struct msghdr *msg, ssize_t len)
+{
+	int ret = -1;
+	struct weston_launcher_activate_vt *message;
+
+	if (len != sizeof(*message)) {
+		error(0, 0, "missing value in activate_vt request");
+		goto out;
+	}
+
+	message = msg->msg_iov->iov_base;
+
+	ret = ioctl(wl->tty, VT_ACTIVATE, message->vt);
+	if (ret < 0)
+		ret = -errno;
+
+	if (wl->verbose)
+		fprintf(stderr, "weston-launch: activate VT, ret: %d\n", ret);
+
+out:
+	do {
+		len = send(wl->sock[0], &ret, sizeof ret, 0);
+	} while (len < 0 && errno == EINTR);
+	if (len < 0)
+		return -1;
+
+	return 0;
+}
+
 
 static int
 handle_open(struct weston_launch *wl, struct msghdr *msg, ssize_t len)
@@ -306,9 +390,34 @@ handle_socket_msg(struct weston_launch *wl)
 	case WESTON_LAUNCHER_DRM_SET_MASTER:
 		ret = handle_setmaster(wl, &msg, len);
 		break;
+	case WESTON_LAUNCHER_CONFIRM_VT_SWITCH:
+		ret = handle_confirm_vt_switch(wl, &msg, len);
+		break;
+	case WESTON_LAUNCHER_ACTIVATE_VT:
+		ret = handle_activate_vt(wl, &msg, len);
+		break;
 	}
 
 	return ret;
+}
+
+static void
+tty_reset(struct weston_launch *wl)
+{
+	struct vt_mode mode = { 0 };
+
+	if (ioctl(wl->tty, KDSKBMODE, wl->kb_mode))
+		fprintf(stderr, "failed to restore keyboard mode: %m\n");
+
+	if (ioctl(wl->tty, KDSETMODE, KD_TEXT))
+		fprintf(stderr, "failed to set KD_TEXT mode on tty: %m\n");
+
+	if (tcsetattr(wl->tty, TCSANOW, &wl->terminal_attributes) < 0)
+		fprintf(stderr, "could not restore terminal to canonical mode\n");
+
+	mode.mode = VT_AUTO;
+	if (ioctl(wl->tty, VT_SETMODE, &mode) < 0)
+		fprintf(stderr, "could not reset vt handling\n");
 }
 
 static void
@@ -316,8 +425,13 @@ quit(struct weston_launch *wl, int status)
 {
 	int err;
 
+	if (wl->child > 0)
+		kill(wl->child, SIGKILL);
+
 	close(wl->signalfd);
 	close(wl->sock[0]);
+
+	tty_reset(wl);
 
 	if (wl->new_user) {
 		err = pam_close_session(wl->ph, 0);
@@ -329,6 +443,32 @@ quit(struct weston_launch *wl, int status)
 
 	exit(status);
 }
+
+static int
+handle_vt_switch(struct weston_launch *wl)
+{
+	struct weston_launcher_message message;
+	ssize_t len;
+
+	if (wl->vt_state == VT_HAS_VT) {
+		wl->vt_state = VT_PENDING_CONFIRM;
+		wl->expect_drop_master = 1;
+		message.opcode = WESTON_LAUNCHER_SERVER_REQUEST_VT_SWITCH;
+	} else if (wl->vt_state == VT_NOT_HAVE_VT) {
+		wl->vt_state = VT_HAS_VT;
+		ioctl(wl->tty, VT_RELDISP, VT_ACKACQ);
+
+		message.opcode = WESTON_LAUNCHER_SERVER_VT_ENTER;
+	} else
+		return -1;
+
+	do {
+		len = send(wl->sock[0], &message, sizeof(message), 0);
+	} while (len < 0 && errno == EINTR);
+
+	return 0;
+}
+
 
 static int
 handle_signal(struct weston_launch *wl)
@@ -366,6 +506,8 @@ handle_signal(struct weston_launch *wl)
 		if (wl->child)
 			kill(wl->child, sig.ssi_signo);
 		break;
+	case SIGUSR1:
+		return handle_vt_switch(wl);
 	default:
 		return -1;
 	}
@@ -377,6 +519,8 @@ static int
 setup_tty(struct weston_launch *wl)
 {
 	struct stat buf;
+	struct termios raw_attributes;
+	struct vt_mode mode = { 0 };
 	char *session, *tty;
 	char path[PATH_MAX];
 	int ok;
@@ -388,7 +532,7 @@ setup_tty(struct weston_launch *wl)
 	ok = sd_session_get_tty(session, &tty);
 	if (ok == 0) {
 		snprintf(path, PATH_MAX, "/dev/%s", tty);
-		wl->tty = open(path, O_RDWR | O_NOCTTY);
+		wl->tty = open(path, O_RDWR | O_NOCTTY | O_CLOEXEC);
 		free(tty);
 #ifdef HAVE_SD_SESSION_GET_VT
 	} else if (ok == -ENOENT) {
@@ -404,7 +548,7 @@ setup_tty(struct weston_launch *wl)
 			error(1, -ok, "could not determine current TTY");
 
 		snprintf(path, PATH_MAX, "/dev/tty%s", tty);
-		wl->tty = open(path, O_RDWR | O_NOCTTY);
+		wl->tty = open(path, O_RDWR | O_NOCTTY | O_CLOEXEC);
 		free(tty);
 #endif
 	} else
@@ -420,6 +564,41 @@ setup_tty(struct weston_launch *wl)
 		error(1, 0, "invalid tty device: %s", path);
 
 	wl->ttynr = minor(buf.st_rdev);
+
+	if (tcgetattr(wl->tty, &wl->terminal_attributes) < 0)
+		error(1, errno, "could not get terminal attributes");
+
+	/* Ignore control characters and disable echo */
+	raw_attributes = wl->terminal_attributes;
+	cfmakeraw(&raw_attributes);
+
+	/* Fix up line endings to be normal (cfmakeraw hoses them) */
+	raw_attributes.c_oflag |= OPOST | OCRNL;
+	/* Don't generate ttou signals */
+	raw_attributes.c_oflag &= ~TOSTOP;
+
+	if (tcsetattr(wl->tty, TCSANOW, &raw_attributes) < 0)
+	        error(1, errno, "could not put terminal into raw mode");
+
+	ioctl(wl->tty, KDGKBMODE, &wl->kb_mode);
+	ok = ioctl(wl->tty, KDSKBMODE, K_OFF);
+	if (ok < 0) {
+		ok = ioctl(wl->tty, KDSKBMODE, K_RAW);
+		if (ok < 0)
+			error(1, errno, "failed to set keyboard mode on tty");
+	}
+
+	ok = ioctl(wl->tty, KDSETMODE, KD_GRAPHICS);
+	if (ok < 0)
+		error(1, errno, "failed to set KD_GRAPHICS mode on tty");
+
+	wl->vt_state = VT_HAS_VT;
+	mode.mode = VT_PROCESS;
+	mode.relsig = SIGUSR1;
+	mode.acqsig = SIGUSR1;
+	ok = ioctl(wl->tty, VT_SETMODE, &mode);
+	if (ok < 0)
+		error(1, errno, "failed to take control of vt handling");
 
 	return 0;
 }
@@ -448,7 +627,6 @@ launch_compositor(struct weston_launch *wl, int argc, char *argv[])
 
 	drop_privileges(wl);
 
-	setenv_fd("WESTON_TTY_FD", wl->tty);
 	setenv_fd("WESTON_LAUNCHER_SOCK", wl->sock[1]);
 	setenv("LD_LIBRARY_PATH", LIBDIR, 1);
 	unsetenv("DISPLAY");
@@ -458,6 +636,7 @@ launch_compositor(struct weston_launch *wl, int argc, char *argv[])
 	sigaddset(&mask, SIGTERM);
 	sigaddset(&mask, SIGCHLD);
 	sigaddset(&mask, SIGINT);
+	sigaddset(&mask, SIGUSR1);
 	sigprocmask(SIG_UNBLOCK, &mask, NULL);
 
 	snprintf (command, PATH_MAX, "%s \"$@\"", argv[0]);
@@ -540,7 +719,6 @@ main(int argc, char *argv[])
 		launch_compositor(&wl, argc - optind, argv + optind);
 
 	close(wl.sock[1]);
-	close(wl.tty);
 
 	while (1) {
 		struct pollfd fds[2];
