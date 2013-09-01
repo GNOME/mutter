@@ -2000,12 +2000,16 @@ meta_window_move_resize_request (MetaWindow *window,
   if (flags & (META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION))
     {
       MetaRectangle rect, monitor_rect;
+      MetaRectangle old_frame_rect, old_buffer_rect;
+      gboolean legacy_fullscreen;
 
       rect.x = x;
       rect.y = y;
       rect.width = width;
       rect.height = height;
 
+      meta_window_get_frame_rect (window, &old_frame_rect);
+      meta_window_get_buffer_rect (window, &old_buffer_rect);
       meta_screen_get_monitor_geometry (window->screen, window->monitor->number, &monitor_rect);
 
       /* Workaround braindead legacy apps that don't know how to
@@ -2015,12 +2019,14 @@ meta_window_move_resize_request (MetaWindow *window,
        * if there are no struts making the workarea smaller than
        * the monitor.
        */
-      if (meta_prefs_get_force_fullscreen() &&
-          !window->hide_titlebar_when_maximized &&
-          (window->decorated || !meta_window_is_client_decorated (window)) &&
-          meta_rectangle_equal (&rect, &monitor_rect) &&
-          window->has_fullscreen_func &&
-          !window->fullscreen)
+      legacy_fullscreen = (meta_prefs_get_force_fullscreen() &&
+                           !window->hide_titlebar_when_maximized &&
+                           (window->decorated || !meta_window_is_client_decorated (window)) &&
+                           meta_rectangle_equal (&rect, &monitor_rect) &&
+                           window->has_fullscreen_func &&
+                           !window->fullscreen);
+
+      if (legacy_fullscreen)
         {
           /*
           meta_topic (META_DEBUG_GEOMETRY,
@@ -2030,11 +2036,17 @@ meta_window_move_resize_request (MetaWindow *window,
                       "fullscreen request\n",
                       window->desc);
           meta_window_make_fullscreen_internal (window);
+          flags |= META_MOVE_RESIZE_DONT_SYNC_COMPOSITOR;
         }
 
       adjust_for_gravity (window, TRUE, gravity, &rect);
       meta_window_client_rect_to_frame_rect (window, &rect, &rect);
       meta_window_move_resize_internal (window, flags, gravity, rect);
+
+      if (legacy_fullscreen)
+        meta_compositor_size_change_window (window->display->compositor,
+                                            window, META_SIZE_CHANGE_FULLSCREEN,
+                                            &old_frame_rect, &old_buffer_rect);
     }
 }
 
