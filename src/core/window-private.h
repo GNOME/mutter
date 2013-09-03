@@ -127,6 +127,7 @@ struct _MetaWindow
   Window xtransient_for;
   Window xgroup_leader;
   Window xclient_leader;
+  MetaWindow *transient_for;
 
   /* Initial workspace property */
   int initial_workspace;  
@@ -403,6 +404,12 @@ struct _MetaWindow
    */
   MetaRectangle rect;
 
+  /* The size we want the window to be (i.e. what we last asked
+   * the client to configure).
+   * This is only used for wayland clients.
+   */
+  MetaRectangle expected_rect;
+
   gboolean has_custom_frame_extents;
   GtkBorder custom_frame_extents;
 
@@ -600,6 +607,11 @@ void     meta_window_move_resize_request(MetaWindow *window,
                                          int         y,
                                          int         width,
                                          int         height);
+void     meta_window_move_resize_wayland (MetaWindow *window,
+                                          int         width,
+                                          int         height,
+                                          int         dx,
+                                          int         dy);
 gboolean meta_window_configure_request (MetaWindow *window,
                                         XEvent     *event);
 gboolean meta_window_property_notify   (MetaWindow *window,
@@ -715,5 +727,8 @@ void meta_window_set_gtk_dbus_properties  (MetaWindow *window,
                                            const char *menubar_path,
                                            const char *application_object_path,
                                            const char *window_object_path);
+
+void meta_window_set_transient_for        (MetaWindow *window,
+                                           MetaWindow *parent);
 
 #endif
