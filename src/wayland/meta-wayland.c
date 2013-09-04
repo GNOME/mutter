@@ -697,12 +697,7 @@ event_cb (ClutterActor *stage,
 
       if (surface && surface->window &&
 	  surface->window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
-        {
-	  MetaDisplay *display = meta_get_display ();
-	  guint32 timestamp = meta_display_get_current_time_roundtrip (display);
-
-	  meta_window_focus (surface->window, timestamp);
-        }
+	meta_window_focus (surface->window, clutter_event_get_time (event));
     }
 
   if (seat->cursor_tracker)

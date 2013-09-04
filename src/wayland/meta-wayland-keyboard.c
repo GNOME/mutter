@@ -445,9 +445,7 @@ process_keybinding (MetaWaylandKeyboard   *keyboard,
 
   memcpy (&device_event, &generic_event, sizeof (XGenericEvent));
 
-  /* Can't use clutter_event_get_time() here, because evdev timestamps
-     have nothing to do with X timestamps */
-  device_event.time = meta_display_get_current_time_roundtrip (display);
+  device_event.time = clutter_event_get_time (event);
   device_event.deviceid = clutter_event_get_device_id (event);
   device_event.sourceid = 0; /* not used, not sure what this should be */
   device_event.detail = clutter_event_get_key_code (event);
