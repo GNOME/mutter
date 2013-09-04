@@ -1515,20 +1515,27 @@ guint32
 meta_display_get_current_time_roundtrip (MetaDisplay *display)
 {
   guint32 timestamp;
-  
-  timestamp = meta_display_get_current_time (display);
-  if (timestamp == CurrentTime)
-    {
-      XEvent property_event;
 
-      XChangeProperty (display->xdisplay, display->timestamp_pinging_window,
-                       display->atom__MUTTER_TIMESTAMP_PING,
-                       XA_STRING, 8, PropModeAppend, NULL, 0);
-      XIfEvent (display->xdisplay,
-                &property_event,
-                find_timestamp_predicate,
-                (XPointer) display);
-      timestamp = property_event.xproperty.time;
+  if (meta_is_wayland_compositor ())
+    {
+      timestamp = g_get_monotonic_time () / 1000;
+    }
+  else
+    {
+      timestamp = meta_display_get_current_time (display);
+      if (timestamp == CurrentTime)
+        {
+          XEvent property_event;
+
+          XChangeProperty (display->xdisplay, display->timestamp_pinging_window,
+                           display->atom__MUTTER_TIMESTAMP_PING,
+                           XA_STRING, 8, PropModeAppend, NULL, 0);
+          XIfEvent (display->xdisplay,
+                    &property_event,
+                    find_timestamp_predicate,
+                    (XPointer) display);
+          timestamp = property_event.xproperty.time;
+        }
     }
 
   sanity_check_timestamps (display, timestamp);
