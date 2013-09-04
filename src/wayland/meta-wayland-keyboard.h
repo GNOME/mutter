@@ -50,8 +50,8 @@
 
 struct _MetaWaylandKeyboardGrabInterface
 {
-  void (*key) (MetaWaylandKeyboardGrab * grab, uint32_t time,
-               uint32_t key, uint32_t state);
+  gboolean (*key) (MetaWaylandKeyboardGrab * grab, uint32_t time,
+		   uint32_t key, uint32_t state);
   void (*modifiers) (MetaWaylandKeyboardGrab * grab, uint32_t serial,
                      uint32_t mods_depressed, uint32_t mods_latched,
                      uint32_t mods_locked, uint32_t group);
@@ -111,9 +111,7 @@ struct _MetaWaylandKeyboard
   struct wl_display *display;
 
   struct xkb_context *xkb_context;
-  struct xkb_state *xkb_state;
   gboolean is_evdev;
-
   MetaWaylandXkbInfo xkb_info;
   struct xkb_rule_names xkb_names;
 
