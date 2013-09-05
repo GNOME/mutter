@@ -357,7 +357,7 @@ handle_button_event (MetaWaylandSeat *seat,
       break;
     }
 
-  /* FIXME: synth a XI2 event and handle in display.c */
+  /* FIXME: Handle in display.c */
   if (state && pointer->button_count == 1)
     {
       MetaWaylandSurface *surface = pointer->current;
