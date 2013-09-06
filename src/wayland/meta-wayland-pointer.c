@@ -49,6 +49,7 @@
 
 #include "meta-wayland-pointer.h"
 #include "meta-wayland-private.h"
+#include "barrier-private.h"
 
 #include <string.h>
 
@@ -165,10 +166,10 @@ static const MetaWaylandPointerGrabInterface default_pointer_grab_interface = {
  */
 
 static gboolean
-check_all_screen_monitors(MetaMonitorInfo *monitors,
-			  unsigned         n_monitors,
-			  float            x,
-			  float            y)
+check_all_screen_monitors (MetaMonitorInfo *monitors,
+			   unsigned         n_monitors,
+			   float            x,
+			   float            y)
 {
   unsigned int i;
 
@@ -193,13 +194,12 @@ static void
 constrain_all_screen_monitors (ClutterInputDevice *device,
 			       MetaMonitorInfo    *monitors,
 			       unsigned            n_monitors,
+			       float               current_x,
+			       float               current_y,
 			       float              *x,
 			       float              *y)
 {
-  ClutterPoint current;
   unsigned int i;
-
-  clutter_input_device_get_coords (device, NULL, &current);
 
   /* if we're trying to escape, clamp to the CRTC we're coming from */
   for (i = 0; i < n_monitors; i++)
@@ -213,8 +213,8 @@ constrain_all_screen_monitors (ClutterInputDevice *device,
       top = monitor->rect.y;
       bottom = left + monitor->rect.height;
 
-      nx = current.x;
-      ny = current.y;
+      nx = current_x;
+      ny = current_y;
 
       if ((nx >= left) && (nx < right) && (ny >= top) && (ny < bottom))
 	{
@@ -239,21 +239,32 @@ pointer_constrain_callback (ClutterInputDevice *device,
 			    float              *new_y,
 			    gpointer            user_data)
 {
+  MetaBarrierManager *barrier_manager;
   MetaMonitorManager *monitor_manager;
   MetaMonitorInfo *monitors;
   unsigned int n_monitors;
   gboolean ret;
+  ClutterPoint current;
 
+  clutter_input_device_get_coords (device, NULL, &current);
+
+  barrier_manager = meta_barrier_manager_get ();
   monitor_manager = meta_monitor_manager_get ();
   monitors = meta_monitor_manager_get_monitor_infos (monitor_manager, &n_monitors);
 
+  meta_barrier_manager_constrain_cursor (barrier_manager, time,
+					 current.x, current.y,
+					 new_x, new_y);
+
   /* if we're moving inside a monitor, we're fine */
   ret = check_all_screen_monitors(monitors, n_monitors, *new_x, *new_y);
-  if (ret == TRUE)
+  if (ret)
     return;
 
   /* if we're trying to escape, clamp to the CRTC we're coming from */
-  constrain_all_screen_monitors(device, monitors, n_monitors, new_x, new_y);
+  constrain_all_screen_monitors(device, monitors, n_monitors,
+				current.x, current.y,
+				new_x, new_y);
 }
 
 void

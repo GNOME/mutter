@@ -94,6 +94,7 @@ typedef enum {
 struct _MetaBarrierEvent {
   /* < private > */
   volatile guint ref_count;
+  MetaBarrier *barrier;
 
   /* < public > */
   int event_id;

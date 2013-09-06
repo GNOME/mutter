@@ -52,6 +52,7 @@ libmutter_wayland_la_SOURCES =			\
 	core/async-getprop.h			\
 	core/barrier.c				\
 	meta/barrier.h				\
+	core/barrier-private.h			\
 	core/bell.c				\
 	core/bell.h				\
 	core/boxes.c				\
