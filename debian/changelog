@@ -10,6 +10,9 @@ mutter (3.8.4-1) UNRELEASED; urgency=low
     + Standards-Version is 3.9.4, no changes needed.
   * New upstream release.
 
+  [ Michael Biebl ]
+  * debian/watch: Track stable releases.
+
  -- Jeremy Bicha <jbicha@ubuntu.com>  Sat, 08 Jun 2013 13:30:38 -0400
 
 mutter (3.8.3-1) experimental; urgency=low
