@@ -127,6 +127,22 @@ mutter (3.6.0-1) experimental; urgency=low
 
  -- Sjoerd Simons <sjoerd@debian.org>  Sun, 14 Oct 2012 19:24:21 +0200
 
+mutter (3.4.1-7) unstable; urgency=low
+
+  * d/p/0001-meta-texture-rectangle-Use-Cogl-s-API-to-create-a-re.patch:
+    + Patch from upstream git, don't use GL types as cogl doesn't expose
+      GL headers in newer releases. This will ease the cogl transition.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 26 May 2013 17:54:55 +0200
+
+mutter (3.4.1-6) unstable; urgency=low
+
+  * Team upload
+  * Add debian/patches/02_switch_to_gtk-doc_syntax.patch:
+    - from upstream, fixes FTBFS with new gobject-introspection.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Mon, 13 May 2013 11:03:34 +0200
+
 mutter (3.4.1-5) unstable; urgency=low
 
   [ Rico Tzschichholz ]
