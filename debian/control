@@ -9,7 +9,7 @@ Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
 Uploaders: Emilio Pozuelo Monfort <pochu@debian.org>, Jeremy Bicha <jbicha@ubuntu.com>, Sjoerd Simons <sjoerd@debian.org>
 Build-Depends: cdbs (>= 0.4.90),
-               debhelper (>= 8),
+               debhelper (>= 9),
                gnome-pkg-tools (>= 0.10),
                dh-autoreconf,
                intltool (>= 0.34.90),
@@ -40,7 +40,7 @@ Build-Depends: cdbs (>= 0.4.90),
                libsm-dev,
                libice-dev,
                zenity
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Vcs-Svn: svn://anonscm.debian.org/pkg-gnome/desktop/unstable/mutter
 Vcs-Browser: http://anonscm.debian.org/viewvc/pkg-gnome/desktop/unstable/mutter
 
