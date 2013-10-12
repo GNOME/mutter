@@ -1,4 +1,1 @@
-00_meta_window_move_frame-fix-crash-when-frame-is-NULL.patch
 01_Wcast-align.patch
-02_switch_to_gtk-doc_syntax.patch
-0001-meta-texture-rectangle-Use-Cogl-s-API-to-create-a-re.patch

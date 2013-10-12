@@ -3,3 +3,4 @@ usr/lib/lib*.a
 usr/lib/lib*.so
 usr/lib/pkgconfig/*.pc
 usr/lib/mutter/Meta-*.gir
+usr/share/gtk-doc
