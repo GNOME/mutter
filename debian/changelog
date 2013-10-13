@@ -1,3 +1,9 @@
+mutter (3.8.4-2) unstable; urgency=low
+
+  * Upload to unstable.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 13 Oct 2013 17:26:39 +0200
+
 mutter (3.8.4-1) experimental; urgency=low
 
   [ Jeremy Bicha ]
