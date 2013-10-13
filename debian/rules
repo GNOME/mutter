@@ -11,7 +11,7 @@ include /usr/share/gnome-pkg-tools/1/rules/gnome-version.mk
 DEB_CONFIGURE_EXTRA_FLAGS += \
 	--enable-startup-notification=yes \
 	--enable-compile-warnings=yes
-DEB_DH_MAKESHLIBS_ARGS_libmutter0b += -V'libmutter0b (>= $(DEB_GNOME_VERSION)), libmutter0b (<< $(DEB_GNOME_NEXTVERSION))' -- -c4
+DEB_DH_MAKESHLIBS_ARGS_libmutter0c += -V'libmutter0c (>= $(DEB_GNOME_VERSION)), libmutter0c (<< $(DEB_GNOME_NEXTVERSION))' -- -c0
 DEB_INSTALL_DOCS_mutter += doc/theme-format.txt
 DEB_DH_GIREPOSITORY_ARGS_ALL := /usr/lib/mutter
 
