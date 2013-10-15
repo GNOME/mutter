@@ -1,3 +1,10 @@
+3.10.1.1
+========
+* Don't assert that at least one output is connected [Giovanni; #709009]
+
+Contributors:
+  Giovanni Campagna
+
 3.10.1
 ======
 * Don't apply fullscreen workarounds to CSD windows [Giovanni; #708718]
