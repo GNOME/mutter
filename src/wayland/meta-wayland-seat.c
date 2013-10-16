@@ -280,30 +280,8 @@ handle_button_event (MetaWaylandSeat    *seat,
                      const ClutterEvent *event)
 {
   MetaWaylandPointer *pointer = &seat->pointer;
-  gboolean state = event->type == CLUTTER_BUTTON_PRESS;
-  uint32_t button;
-  MetaWaylandSurface *surface;
 
   notify_motion (seat, event);
-
-  if (state && pointer->button_count == 1)
-    {
-      button = clutter_event_get_button (event);
-      pointer->grab_button = button;
-      pointer->grab_time = clutter_event_get_time (event);
-      pointer->grab_x = pointer->x;
-      pointer->grab_y = pointer->y;
-
-      /* FIXME: synth a XI2 event and handle in display.c */
-      surface = pointer->current;
-      if (button == CLUTTER_BUTTON_PRIMARY &&
-	  surface &&
-	  surface->window &&
-	  surface->window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
-	{
-	  meta_window_raise (surface->window);
-	}
-    }
 
   pointer->grab->interface->button (pointer->grab, event);
 
