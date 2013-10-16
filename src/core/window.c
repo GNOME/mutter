@@ -234,9 +234,6 @@ meta_window_finalize (GObject *object)
   if (window->frame_bounds)
     cairo_region_destroy (window->frame_bounds);
 
-  if (window->shape_region)
-    cairo_region_destroy (window->shape_region);
-
   if (window->opaque_region)
     cairo_region_destroy (window->opaque_region);
 
