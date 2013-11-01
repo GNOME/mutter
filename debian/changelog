@@ -1,11 +1,11 @@
-mutter (3.10.1-1) UNRELEASED; urgency=low
+mutter (3.10.1-1) experimental; urgency=low
 
   * New upstream release
   * Sync with Ubuntu (3.10.0-0ubuntu1~saucy1)
     + Update library name to libmutter0c
     + Bump build-depends
 
- -- Sjoerd Simons <sjoerd@debian.org>  Mon, 21 Oct 2013 10:35:11 +0200
+ -- Sjoerd Simons <sjoerd@debian.org>  Fri, 01 Nov 2013 22:34:51 +0100
 
 mutter (3.8.4-2) unstable; urgency=low
 
