@@ -1,3 +1,9 @@
+mutter (3.10.1-2) experimental; urgency=low
+
+  * Force build against G3.10 version of gnome-desktop
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Sun, 03 Nov 2013 11:19:44 +0100
+
 mutter (3.10.1-1) experimental; urgency=low
 
   * New upstream release
