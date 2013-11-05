@@ -1,0 +1,15 @@
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -9566,7 +9566,11 @@
+    * GDK will handle later these events, and eventually
+    * free the cookie data itself.
+    */
+-  XGetEventData (display, &ev->xcookie);
++   /* We do NOT call XGetEventData (display, &ev->xcookie); here
++     because we're not supposed to call X functions from within a predicate.
++     XGetEventData has a lock, which fails as XCheckIfEvent has
++     already locked.  */
++  _XFetchEventCookie(display, &ev->xcookie);
+   xev = (XIEvent *) ev->xcookie.data;
+ 
+   if (xev->evtype != XI_Motion)

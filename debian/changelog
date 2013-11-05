@@ -1,3 +1,12 @@
+mutter (3.10.1-3) UNRELEASED; urgency=low
+
+  * debian/patches/prevent-double-lock-deadlock.patch:
+    + Added. Don't call X functions that lock the display in code paths that
+      have already locked the display if X threads have been initialized
+      (bgo#704101)
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Tue, 05 Nov 2013 10:55:32 +0100
+
 mutter (3.10.1-2) experimental; urgency=low
 
   * Force build against G3.10 version of gnome-desktop
