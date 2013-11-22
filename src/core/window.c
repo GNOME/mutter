@@ -6025,7 +6025,7 @@ meta_window_focus (MetaWindow  *window,
    */
   if (window->frame &&
       (window->shaded ||
-       !(window->input || window->take_focus)))
+       (!window->input && !window->take_focus)))
     {
       if (window->frame)
         {
