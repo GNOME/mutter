@@ -701,4 +701,7 @@ void meta_window_handle_enter (MetaWindow  *window,
                                guint        root_x,
                                guint        root_y);
 
+void meta_window_focus_implicitly (MetaWindow *window,
+                                   guint32     timestamp);
+
 #endif

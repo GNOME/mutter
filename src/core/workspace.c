@@ -1256,7 +1256,7 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
             {
               meta_topic (META_DEBUG_FOCUS,
                           "Focusing mouse window %s\n", window->desc);
-              meta_window_focus (window, timestamp);
+              meta_window_focus_explicitly (window, timestamp);
             }
 
           if (workspace->screen->display->autoraise_window != window &&
@@ -1319,7 +1319,7 @@ focus_ancestor_or_top_window (MetaWorkspace *workspace,
                       "Focusing %s, ancestor of %s\n", 
                       ancestor->desc, not_this_one->desc);
       
-          meta_window_focus (ancestor, timestamp);
+          meta_window_focus_explicitly (ancestor, timestamp);
 
           /* Also raise the window if in click-to-focus */
           if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
@@ -1338,7 +1338,7 @@ focus_ancestor_or_top_window (MetaWorkspace *workspace,
       meta_topic (META_DEBUG_FOCUS,
                   "Focusing workspace MRU window %s\n", window->desc);
       
-      meta_window_focus (window, timestamp);
+      meta_window_focus_explicitly (window, timestamp);
 
       /* Also raise the window if in click-to-focus */
       if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)

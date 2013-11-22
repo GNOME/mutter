@@ -303,7 +303,7 @@ meta_core_user_focus (Display *xdisplay,
 {
   MetaWindow *window = get_window (xdisplay, frame_xwindow);
   
-  meta_window_focus (window, timestamp);
+  meta_window_focus_implicitly (window, timestamp);
 }
 
 void
@@ -482,7 +482,7 @@ meta_core_show_window_menu (Display *xdisplay,
   
   if (meta_prefs_get_raise_on_click ())
     meta_window_raise (window);
-  meta_window_focus (window, timestamp);
+  meta_window_focus_implicitly (window, timestamp);
 
   meta_window_show_menu (window, root_x, root_y, button, timestamp);
 }

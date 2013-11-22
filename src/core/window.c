@@ -3183,7 +3183,7 @@ meta_window_show (MetaWindow *window)
 
           timestamp = meta_display_get_current_time_roundtrip (window->display);
 
-          meta_window_focus (window, timestamp);
+          meta_window_focus_explicitly (window, timestamp);
         }
       else
         {
@@ -4225,7 +4225,7 @@ meta_window_shade (MetaWindow  *window,
       meta_topic (META_DEBUG_FOCUS,
                   "Re-focusing window %s after shading it\n",
                   window->desc);
-      meta_window_focus (window, timestamp);
+      meta_window_focus_explicitly (window, timestamp);
 
       set_net_wm_state (window);
     }
@@ -4249,7 +4249,7 @@ meta_window_unshade (MetaWindow  *window,
       meta_topic (META_DEBUG_FOCUS,
                   "Focusing window %s after unshading it\n",
                   window->desc);
-      meta_window_focus (window, timestamp);
+      meta_window_focus_explicitly (window, timestamp);
 
       set_net_wm_state (window);
     }
@@ -4348,7 +4348,7 @@ window_activate (MetaWindow     *window,
   meta_topic (META_DEBUG_FOCUS,
               "Focusing window %s due to activation\n",
               window->desc);
-  meta_window_focus (window, timestamp);
+  meta_window_focus_explicitly (window, timestamp);
 
   meta_window_check_alive (window, timestamp);
 }
@@ -5972,17 +5972,18 @@ get_modal_transient (MetaWindow *window)
 }
 
 /* XXX META_EFFECT_FOCUS */
-void
-meta_window_focus (MetaWindow  *window,
-                   guint32      timestamp)
+static void
+meta_window_focus_internal (MetaWindow  *window,
+                            guint32      timestamp,
+                            gboolean     explicit_focus)
 {
   MetaWindow *modal_transient;
 
   g_return_if_fail (!window->override_redirect);
 
   meta_topic (META_DEBUG_FOCUS,
-              "Setting input focus to window %s, input: %d take_focus: %d\n",
-              window->desc, window->input, window->take_focus);
+              "%s setting input focus to window %s, input: %d take_focus: %d\n",
+              explicit_focus ? "Explicitly" : "Implicitly", window->desc, window->input, window->take_focus);
 
   if (window->display->grab_window &&
       window->display->grab_window->all_keys_grabbed)
@@ -6017,15 +6018,16 @@ meta_window_focus (MetaWindow  *window,
       return;
     }
 
-  /* For output-only or shaded windows, focus the frame.
-   * This seems to result in the client window getting key events
-   * though, so I don't know if it's icccm-compliant.
+  /* For output-only or shaded windows, focus the frame if it was
+   * an explicit focus event. This seems to result in the client
+   * window getting key events though, so I don't know if it's
+   * icccm-compliant.
    *
    * Still, we have to do this or keynav breaks for these windows.
    */
   if (window->frame &&
       (window->shaded ||
-       (!window->input && !window->take_focus)))
+       (explicit_focus && !window->input && !window->take_focus)))
     {
       if (window->frame)
         {
@@ -6066,6 +6068,40 @@ meta_window_focus (MetaWindow  *window,
     meta_window_unset_demands_attention(window);
 
 /*  meta_effect_run_focus(window, NULL, NULL); */
+}
+
+/**
+ * meta_window_focus_explicitly:
+ * @window: A #MetaWindow
+ * @timestamp: The timestamp to focus the window with
+ *
+ * Explicitly grab the window's focus. This should be used in cases
+ * where the user wants to focus the window with Alt-Tab, pagers,
+ * or other means like that, as opposed to simply clicking on the
+ * window or other focus-modes like focus-follows-mouse.
+ */
+void
+meta_window_focus_explicitly (MetaWindow *window,
+                              guint32     timestamp)
+{
+  meta_window_focus_internal (window, timestamp, TRUE);
+}
+
+/**
+ * meta_window_focus_implicitly:
+ * @window: A #MetaWindow
+ * @timestamp: The timestamp to focus the window with
+ *
+ * Implicitly focus the window. This should be done if the user
+ * simply clicks on the window. Most of the time, this should be
+ * handled by mutter internally, and you should never have to
+ * call this.
+ */
+void
+meta_window_focus_implicitly (MetaWindow *window,
+                              guint32     timestamp)
+{
+  meta_window_focus_internal (window, timestamp, FALSE);
 }
 
 static void
@@ -11467,7 +11503,7 @@ mouse_mode_focus (MetaWindow  *window,
       meta_topic (META_DEBUG_FOCUS,
                   "Focusing %s at time %u.\n", window->desc, timestamp);
 
-      meta_window_focus (window, timestamp);
+      meta_window_focus_implicitly (window, timestamp);
 
       if (meta_prefs_get_auto_raise ())
         meta_display_queue_autoraise_callback (display, window);

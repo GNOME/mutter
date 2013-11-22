@@ -2244,7 +2244,7 @@ event_callback (XEvent   *event,
                           meta_topic (META_DEBUG_FOCUS,
                                       "Focusing %s due to unmodified button %u press (display.c)\n",
                                       window->desc, device_event->detail);
-                          meta_window_focus (window, device_event->time);
+                          meta_window_focus_implicitly (window, device_event->time);
                         }
                       else
                         /* However, do allow terminals to lose focus due to new

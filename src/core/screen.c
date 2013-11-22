@@ -2984,7 +2984,7 @@ meta_screen_show_desktop (MetaScreen *screen,
       if (w->screen == screen  && 
           w->type == META_WINDOW_DESKTOP)
         {
-          meta_window_focus (w, timestamp);
+          meta_window_focus_explicitly (w, timestamp);
           break;
         }
       

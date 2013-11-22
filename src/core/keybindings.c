@@ -1578,7 +1578,7 @@ meta_window_grab_all_keys (MetaWindow  *window,
   meta_topic (META_DEBUG_FOCUS,
               "Focusing %s because we're grabbing all its keys\n",
               window->desc);
-  meta_window_focus (window, timestamp);
+  meta_window_focus_implicitly (window, timestamp);
 
   grabwindow = window->frame ? window->frame->xwindow : window->xwindow;
 
