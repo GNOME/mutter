@@ -62,6 +62,18 @@ void meta_surface_actor_set_input_region (MetaSurfaceActor *self,
 void meta_surface_actor_set_opaque_region (MetaSurfaceActor *self,
                                            cairo_region_t   *region);
 
+void meta_surface_actor_subsurface_set_position (MetaSurfaceActor *self,
+                                                 MetaSurfaceActor *subsurface,
+                                                 int32_t           x,
+                                                 int32_t           y);
+void meta_surface_actor_subsurface_place_above (MetaSurfaceActor *self,
+                                                MetaSurfaceActor *subsurface,
+                                                MetaSurfaceActor *sibling);
+void meta_surface_actor_subsurface_place_below (MetaSurfaceActor *self,
+                                                MetaSurfaceActor *subsurface,
+                                                MetaSurfaceActor *sibling);
+void meta_surface_actor_commit (MetaSurfaceActor *self);
+
 G_END_DECLS
 
 #endif /* META_SURFACE_ACTOR_PRIVATE_H */

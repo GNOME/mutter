@@ -24,6 +24,8 @@ struct _MetaSurfaceActorPrivate
 {
   MetaShapedTexture *texture;
   MetaWaylandBuffer *buffer;
+
+  GSList *ops;
 };
 
 static void cullable_iface_init (MetaCullableInterface *iface);
@@ -31,9 +33,23 @@ static void cullable_iface_init (MetaCullableInterface *iface);
 G_DEFINE_TYPE_WITH_CODE (MetaSurfaceActor, meta_surface_actor, CLUTTER_TYPE_ACTOR,
                          G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
 
+static void meta_surface_actor_free_ops (MetaSurfaceActor *self);
+
+static void
+meta_surface_actor_dispose (GObject *object)
+{
+  MetaSurfaceActor *self = META_SURFACE_ACTOR (object);
+
+  meta_surface_actor_free_ops (self);
+}
+
 static void
 meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = meta_surface_actor_dispose;
+
   g_type_class_add_private (klass, sizeof (MetaSurfaceActorPrivate));
 }
 
@@ -180,4 +196,128 @@ MetaSurfaceActor *
 meta_surface_actor_new (void)
 {
   return g_object_new (META_TYPE_SURFACE_ACTOR, NULL);
+}
+
+typedef enum {
+  OP_SET_POSITION,
+  OP_PLACE_ABOVE,
+  OP_PLACE_BELOW,
+} MetaSurfaceActorOpType;
+
+typedef struct {
+  MetaSurfaceActorOpType type;
+} MetaSurfaceActorOp;
+
+typedef struct {
+  MetaSurfaceActorOpType type;
+  ClutterActor *subsurface;
+  int32_t x;
+  int32_t y;
+} MetaSurfaceActorOp_SetPosition;
+
+typedef struct {
+  MetaSurfaceActorOpType type;
+  ClutterActor *subsurface;
+  ClutterActor *sibling;
+} MetaSurfaceActorOp_Stack;
+
+void
+meta_surface_actor_subsurface_set_position (MetaSurfaceActor *self,
+                                            MetaSurfaceActor *subsurface,
+                                            int32_t           x,
+                                            int32_t           y)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+  MetaSurfaceActorOp_SetPosition *op = g_slice_new0 (MetaSurfaceActorOp_SetPosition);
+
+  op->type = OP_SET_POSITION;
+  op->subsurface = CLUTTER_ACTOR (subsurface);
+  op->x = x;
+  op->y = y;
+
+  priv->ops = g_slist_append (priv->ops, op);
+}
+
+static void
+meta_surface_actor_stack_op (MetaSurfaceActor       *self,
+                             MetaSurfaceActorOpType  type,
+                             MetaSurfaceActor       *subsurface,
+                             MetaSurfaceActor       *sibling)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+  MetaSurfaceActorOp_Stack *op = g_slice_new0 (MetaSurfaceActorOp_Stack);
+
+  op->type = type;
+  op->subsurface = CLUTTER_ACTOR (subsurface);
+  op->sibling = CLUTTER_ACTOR (sibling);
+
+  priv->ops = g_slist_append (priv->ops, op);
+}
+
+void
+meta_surface_actor_subsurface_place_above (MetaSurfaceActor *self,
+                                           MetaSurfaceActor *subsurface,
+                                           MetaSurfaceActor *sibling)
+{
+  meta_surface_actor_stack_op (self, OP_PLACE_ABOVE, subsurface, sibling);
+}
+
+void
+meta_surface_actor_subsurface_place_below (MetaSurfaceActor *self,
+                                           MetaSurfaceActor *subsurface,
+                                           MetaSurfaceActor *sibling)
+{
+  meta_surface_actor_stack_op (self, OP_PLACE_BELOW, subsurface, sibling);
+}
+
+static void
+meta_surface_actor_do_op (MetaSurfaceActor   *self,
+                          MetaSurfaceActorOp *op)
+{
+  MetaSurfaceActorOp_SetPosition *op_pos = (MetaSurfaceActorOp_SetPosition *) op;
+  MetaSurfaceActorOp_Stack *op_stack = (MetaSurfaceActorOp_Stack *) op;
+
+  switch (op->type)
+    {
+    case OP_SET_POSITION:
+      clutter_actor_set_position (op_pos->subsurface, op_pos->x, op_pos->y);
+      break;
+    case OP_PLACE_ABOVE:
+      clutter_actor_set_child_above_sibling (CLUTTER_ACTOR (self), op_stack->subsurface, op_stack->sibling);
+      break;
+    case OP_PLACE_BELOW:
+      clutter_actor_set_child_below_sibling (CLUTTER_ACTOR (self), op_stack->subsurface, op_stack->sibling);
+      break;
+    }
+}
+
+static void
+meta_surface_actor_op_free (MetaSurfaceActorOp *op)
+{
+  g_slice_free (MetaSurfaceActorOp, op);
+}
+
+static void
+meta_surface_actor_free_ops (MetaSurfaceActor *self)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  g_slist_free_full (priv->ops, (GDestroyNotify) meta_surface_actor_op_free);
+  priv->ops = NULL;
+}
+
+static void
+meta_surface_actor_do_ops (MetaSurfaceActor *self)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+  GSList *l;
+
+  for (l = priv->ops; l; l = l->next)
+    meta_surface_actor_do_op (self, ((MetaSurfaceActorOp *) l->data));
+}
+
+void
+meta_surface_actor_commit (MetaSurfaceActor *self)
+{
+  meta_surface_actor_do_ops (self);
 }
