@@ -34,6 +34,8 @@
 #include "monitor-private.h"
 #include "meta-cullable.h"
 
+static void meta_window_actor_queue_create_pixmap (MetaWindowActor *self);
+
 struct _MetaWindowActorPrivate
 {
   MetaWindow       *window;
@@ -250,6 +252,9 @@ meta_window_actor_init (MetaWindowActor *self)
 						   MetaWindowActorPrivate);
   priv->opacity = 0xff;
   priv->shadow_class = NULL;
+
+  priv->last_width = -1;
+  priv->last_height = -1;
 }
 
 static void
@@ -344,10 +349,26 @@ meta_window_actor_constructed (GObject *object)
     }
 
   meta_window_actor_update_opacity (self);
+  meta_window_actor_sync_actor_position (self);
+
+  priv->mapped = meta_window_toplevel_is_mapped (priv->window);
+  if (priv->mapped)
+    meta_window_actor_queue_create_pixmap (self);
+
+  meta_window_actor_set_updates_frozen (self,
+                                        meta_window_updates_are_frozen (priv->window));
+
+  /* If a window doesn't start off with updates frozen, we should
+   * we should send a _NET_WM_FRAME_DRAWN immediately after the first drawn.
+   */
+  if (priv->window->extended_sync_request_counter && !priv->updates_frozen)
+    meta_window_actor_queue_frame_drawn (self, FALSE);
 
   /* Start off with an empty region to maintain the invariant that
      the shape region is always set */
   priv->shape_region = cairo_region_create ();
+
+  G_OBJECT_CLASS (meta_window_actor_parent_class)->constructed (object);
 }
 
 static void
@@ -1463,39 +1484,9 @@ meta_window_actor_unmaximize (MetaWindowActor   *self,
 MetaWindowActor *
 meta_window_actor_new (MetaWindow *window)
 {
-  MetaWindowActor        *self;
-  MetaWindowActorPrivate *priv;
-
-  self = g_object_new (META_TYPE_WINDOW_ACTOR,
+  return g_object_new (META_TYPE_WINDOW_ACTOR,
                        "meta-window", window,
                        NULL);
-
-  priv = self->priv;
-
-  priv->last_width = -1;
-  priv->last_height = -1;
-
-  priv->mapped = meta_window_toplevel_is_mapped (priv->window);
-  if (priv->mapped)
-    meta_window_actor_queue_create_pixmap (self);
-
-  meta_window_actor_set_updates_frozen (self,
-                                        meta_window_updates_are_frozen (priv->window));
-
-  /* If a window doesn't start off with updates frozen, we should
-   * we should send a _NET_WM_FRAME_DRAWN immediately after the first drawn.
-   */
-  if (priv->window->extended_sync_request_counter && !priv->updates_frozen)
-    meta_window_actor_queue_frame_drawn (self, FALSE);
-
-  meta_window_actor_sync_actor_geometry (self, priv->window->placed);
-
-  /* Initial position in the stack is arbitrary; stacking will be synced
-   * before we first paint.
-   */
-  info->windows = g_list_append (info->windows, self);
-
-  return self;
 }
 
 void
