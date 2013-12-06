@@ -37,7 +37,6 @@
 struct _MetaWindowActorPrivate
 {
   MetaWindow       *window;
-  Window            xwindow;
   MetaScreen       *screen;
 
   ClutterActor     *actor;
@@ -147,7 +146,6 @@ enum
 {
   PROP_META_WINDOW = 1,
   PROP_META_SCREEN,
-  PROP_X_WINDOW,
   PROP_NO_SHADOW,
   PROP_SHADOW_CLASS
 };
@@ -229,18 +227,6 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
 
   g_object_class_install_property (object_class,
                                    PROP_META_SCREEN,
-                                   pspec);
-
-  pspec = g_param_spec_ulong ("x-window",
-			      "Window",
-			      "Window",
-			      0,
-			      G_MAXULONG,
-			      0,
-			      G_PARAM_READWRITE | G_PARAM_CONSTRUCT);
-
-  g_object_class_install_property (object_class,
-                                   PROP_X_WINDOW,
                                    pspec);
 
   pspec = g_param_spec_boolean ("no-shadow",
@@ -330,10 +316,12 @@ meta_window_actor_constructed (GObject *object)
   MetaWindowActorPrivate *priv     = self->priv;
   MetaScreen             *screen   = priv->screen;
   MetaDisplay            *display  = meta_screen_get_display (screen);
-  Window                  xwindow  = priv->xwindow;
   MetaWindow             *window   = priv->window;
   Display                *xdisplay = meta_display_get_xdisplay (display);
   XRenderPictFormat      *format;
+  Window                  xwindow;
+
+  xwindow = meta_window_get_toplevel_xwindow (window);
 
   priv->damage = XDamageCreate (xdisplay, xwindow,
                                 XDamageReportBoundingBox);
@@ -463,9 +451,6 @@ meta_window_actor_set_property (GObject      *object,
     case PROP_META_SCREEN:
       priv->screen = g_value_get_pointer (value);
       break;
-    case PROP_X_WINDOW:
-      priv->xwindow = g_value_get_ulong (value);
-      break;
     case PROP_NO_SHADOW:
       {
         gboolean newv = g_value_get_boolean (value);
@@ -512,9 +497,6 @@ meta_window_actor_get_property (GObject      *object,
       break;
     case PROP_META_SCREEN:
       g_value_set_pointer (value, priv->screen);
-      break;
-    case PROP_X_WINDOW:
-      g_value_set_ulong (value, priv->xwindow);
       break;
     case PROP_NO_SHADOW:
       g_value_set_boolean (value, priv->no_shadow);
@@ -781,20 +763,6 @@ meta_window_actor_has_shadow (MetaWindowActor *self)
 #endif
 
   return FALSE;
-}
-
-/**
- * meta_window_actor_get_x_window: (skip)
- * @self: a #MetaWindowActor
- *
- */
-Window
-meta_window_actor_get_x_window (MetaWindowActor *self)
-{
-  if (!self)
-    return None;
-
-  return self->priv->xwindow;
 }
 
 /**
@@ -1279,7 +1247,7 @@ meta_window_actor_set_redirected (MetaWindowActor *self, gboolean state)
   MetaDisplay *display = meta_window_get_display (metaWindow);
 
   Display *xdisplay = meta_display_get_xdisplay (display);
-  Window  xwin = meta_window_actor_get_x_window (self);
+  Window  xwin = meta_window_get_toplevel_xwindow (metaWindow);
 
   if (state)
     {
@@ -1531,16 +1499,11 @@ meta_window_actor_new (MetaWindow *window)
   MetaCompScreen         *info = meta_screen_get_compositor_data (screen);
   MetaWindowActor        *self;
   MetaWindowActorPrivate *priv;
-  Window		  top_window;
   ClutterActor           *window_group;
 
-  top_window = meta_window_get_toplevel_xwindow (window);
-  meta_verbose ("add window: Meta %p, xwin 0x%x\n", window, (guint)top_window);
-
   self = g_object_new (META_TYPE_WINDOW_ACTOR,
-                       "meta-window",         window,
-                       "x-window",            top_window,
-                       "meta-screen",         screen,
+                       "meta-window", window,
+                       "meta-screen", screen,
                        NULL);
 
   priv = self->priv;
@@ -1808,8 +1771,8 @@ check_needs_pixmap (MetaWindowActor *self)
   MetaDisplay         *display  = meta_screen_get_display (screen);
   Display             *xdisplay = meta_display_get_xdisplay (display);
   MetaCompScreen      *info     = meta_screen_get_compositor_data (screen);
+  Window               xwindow  = meta_window_get_toplevel_xwindow (priv->window);
   MetaCompositor      *compositor;
-  Window               xwindow  = priv->xwindow;
 
   if (!priv->needs_pixmap)
     return;
