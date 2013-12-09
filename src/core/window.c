@@ -1447,9 +1447,6 @@ meta_window_new_with_attrs (MetaDisplay       *display,
       set_net_wm_state (window);
     }
 
-  if (screen->display->compositor)
-    meta_compositor_add_window (screen->display->compositor, window);
-
   /* Sync stack changes */
   meta_stack_thaw (window->screen->stack);
 
@@ -1672,8 +1669,6 @@ meta_window_unmanage (MetaWindow  *window,
       if (window->visible_to_compositor)
         meta_compositor_hide_window (window->display->compositor, window,
                                      META_COMP_EFFECT_DESTROY);
-
-      meta_compositor_remove_window (window->display->compositor, window);
     }
 
   if (window->display->window_with_menu == window)
@@ -3143,7 +3138,7 @@ meta_window_show (MetaWindow *window)
   if (toplevel_now_mapped != toplevel_was_mapped)
     {
       if (window->display->compositor)
-        meta_compositor_window_mapped (window->display->compositor, window);
+        meta_compositor_add_window (window->display->compositor, window);
     }
 
   if (!window->visible_to_compositor)
@@ -3292,13 +3287,7 @@ meta_window_hide (MetaWindow *window)
   if (toplevel_now_mapped != toplevel_was_mapped)
     {
       if (window->display->compositor)
-        {
-          /* As above, we may be *mapping* live hidden windows */
-          if (toplevel_now_mapped)
-            meta_compositor_window_mapped (window->display->compositor, window);
-          else
-            meta_compositor_window_unmapped (window->display->compositor, window);
-        }
+        meta_compositor_remove_window (window->display->compositor, window);
     }
 
   set_net_wm_state (window);
