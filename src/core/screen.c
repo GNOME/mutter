@@ -884,8 +884,6 @@ meta_screen_manage_all_windows (MetaScreen *screen)
   Window *children;
   int n_children, i;
 
-  meta_display_grab (screen->display);
-
   if (screen->guard_window == None)
     screen->guard_window = create_guard_window (screen->display->xdisplay,
                                                 screen);
@@ -904,8 +902,6 @@ meta_screen_manage_all_windows (MetaScreen *screen)
 
   g_free (children);
   meta_stack_thaw (screen->stack);
-
-  meta_display_ungrab (screen->display);
 }
 
 /**
