@@ -880,9 +880,9 @@ meta_screen_free (MetaScreen *screen,
 void
 meta_screen_manage_all_windows (MetaScreen *screen)
 {
-  Window ignored1, ignored2;
+  Window *_children;
   Window *children;
-  guint n_children, i;
+  int n_children, i;
 
   meta_display_grab (screen->display);
 
@@ -891,10 +891,10 @@ meta_screen_manage_all_windows (MetaScreen *screen)
                                                 screen);
 
   meta_stack_freeze (screen->stack);
+  meta_stack_tracker_get_stack (screen->stack_tracker, &_children, &n_children);
 
-  XQueryTree (screen->display->xdisplay,
-              screen->xroot,
-              &ignored1, &ignored2, &children, &n_children);
+  /* Copy the stack as it will be modified as part of the loop */
+  children = g_memdup (_children, sizeof (Window) * n_children);
 
   for (i = 0; i < n_children; ++i)
     {
@@ -902,9 +902,7 @@ meta_screen_manage_all_windows (MetaScreen *screen)
                        META_COMP_EFFECT_NONE);
     }
 
-  if (children)
-    XFree (children);
-
+  g_free (children);
   meta_stack_thaw (screen->stack);
 
   meta_display_ungrab (screen->display);
