@@ -52,7 +52,7 @@
 #include <meta/main.h>
 #include "frame.h"
 #include "meta-idle-monitor-private.h"
-#include "meta-weston-launch.h"
+#include "meta-login1.h"
 #include "monitor-private.h"
 
 static MetaWaylandCompositor _meta_wayland_compositor;
@@ -644,10 +644,10 @@ meta_wayland_init (void)
   clutter_wayland_set_compositor_display (compositor->wayland_display);
 
   /* If we're running on bare metal, we're a display server,
-   * so start talking to weston-launch. */
+   * so start talking to logind. */
 #if defined(CLUTTER_WINDOWING_EGL)
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_EGL))
-    compositor->launcher = meta_launcher_new ();
+    compositor->login1 = meta_login1_new ();
 #endif
 
   if (clutter_init (NULL, NULL) != CLUTTER_INIT_SUCCESS)
@@ -704,8 +704,8 @@ meta_wayland_finalize (void)
 
   meta_xwayland_stop (&compositor->xwayland_manager);
 
-  if (compositor->launcher)
-    meta_launcher_free (compositor->launcher);
+  if (compositor->login1)
+    meta_login1_free (compositor->login1);
 }
 
 gboolean
@@ -713,9 +713,9 @@ meta_wayland_compositor_activate_vt (MetaWaylandCompositor  *compositor,
                                      int                     vt,
                                      GError                **error)
 {
-  if (compositor->launcher)
+  if (compositor->login1)
     {
-      return meta_launcher_activate_vt (compositor->launcher, vt, error);
+      return meta_login1_activate_vt (compositor->login1, vt, error);
     }
   else
     {
@@ -728,9 +728,9 @@ gboolean
 meta_wayland_compositor_activate_session (MetaWaylandCompositor  *compositor,
                                           GError                **error)
 {
-  if (compositor->launcher)
+  if (compositor->login1)
     {
-      return meta_launcher_activate_vt (compositor->launcher, -1, error);
+      return meta_login1_activate_session (compositor->login1, error);
     }
   else
     {
