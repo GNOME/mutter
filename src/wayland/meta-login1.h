@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Red Hat, Inc.
+ * Copyright (C) 2014 Red Hat, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,18 +17,19 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_WESTON_LAUNCH_H
-#define META_WESTON_LAUNCH_H
+#ifndef META_LOGIN1_H
+#define META_LOGIN1_H
 
 #include <glib-object.h>
-#include "weston-launch.h"
 
-typedef struct _MetaLauncher MetaLauncher;
+typedef struct _MetaLogin1 MetaLogin1;
 
-MetaLauncher     *meta_launcher_new                     (void);
-void              meta_launcher_free                    (MetaLauncher  *self);
+MetaLogin1 *meta_login1_new              (void);
+void        meta_login1_free             (MetaLogin1  *self);
+gboolean    meta_login1_activate_session (MetaLogin1  *self,
+                                          GError     **error);
+gboolean    meta_login1_activate_vt      (MetaLogin1  *self,
+                                          int          vt,
+                                          GError     **error);
 
-gboolean          meta_launcher_activate_vt             (MetaLauncher  *self,
-							 signed char    vt,
-							 GError       **error);
 #endif
