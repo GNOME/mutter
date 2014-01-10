@@ -5727,6 +5727,32 @@ meta_window_get_input_rect (const MetaWindow *window,
     *rect = window->rect;
 }
 
+static void
+get_custom_frame_extents (MetaWindow *window,
+                          GtkBorder  *extents)
+{
+  if (!window->has_custom_frame_extents)
+    return;
+
+  *extents = window->custom_frame_extents;
+
+  if (META_WINDOW_MAXIMIZED_HORIZONTALLY (window))
+    {
+      extents->left = 0;
+      extents->right = 0;
+    }
+  else if (META_WINDOW_TILED_LEFT (window))
+    extents->left = 0;
+  else if (META_WINDOW_TILED_RIGHT (window))
+    extents->right = 0;
+
+  if (META_WINDOW_MAXIMIZED_VERTICALLY (window))
+    {
+      extents->top = 0;
+      extents->bottom = 0;
+    }
+}
+
 /**
  * meta_window_client_rect_to_frame_rect:
  * @window: a #MetaWindow
@@ -5765,16 +5791,15 @@ meta_window_client_rect_to_frame_rect (MetaWindow    *window,
     }
   else
     {
-      if (window->has_custom_frame_extents)
-        {
-          const GtkBorder *extents = &window->custom_frame_extents;
-          frame_rect->x += extents->left;
-          frame_rect->y += extents->top;
-          if (frame_rect->width != G_MAXINT)
-            frame_rect->width -= extents->left + extents->right;
-          if (frame_rect->height != G_MAXINT)
-            frame_rect->height -= extents->top + extents->bottom;
-        }
+      GtkBorder extents = { 0 };
+      get_custom_frame_extents (window, &extents);
+
+      frame_rect->x += extents.left;
+      frame_rect->y += extents.top;
+      if (frame_rect->width != G_MAXINT)
+        frame_rect->width -= extents.left + extents.right;
+      if (frame_rect->height != G_MAXINT)
+        frame_rect->height -= extents.top + extents.bottom;
     }
 }
 
@@ -5809,14 +5834,13 @@ meta_window_frame_rect_to_client_rect (MetaWindow    *window,
     }
   else
     {
-      if (window->has_custom_frame_extents)
-        {
-          const GtkBorder *extents = &window->custom_frame_extents;
-          client_rect->x -= extents->left;
-          client_rect->y -= extents->top;
-          client_rect->width += extents->left + extents->right;
-          client_rect->height += extents->top + extents->bottom;
-        }
+      GtkBorder extents = { 0 };
+      get_custom_frame_extents (window, &extents);
+
+      client_rect->x -= extents.left;
+      client_rect->y -= extents.top;
+      client_rect->width += extents.left + extents.right;
+      client_rect->height += extents.top + extents.bottom;
     }
 }
 
