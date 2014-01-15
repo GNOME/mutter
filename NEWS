@@ -1,3 +1,19 @@
+3.10.3
+======
+* xrandr: Use "hotplug_mode_update" property [Marc-André; #711216]
+* Don't focus the no-focus-window for globally active windows [Jasper; #710296]
+* Fix window group paint volume [Owen; #719669]
+* Fix checks for KeyPress/ButtonPress [Jasper; #720545]
+* Fix problems with focus tracking [Owen; #720558]
+* Don't leave focus on windows that are being unmanaged [Owen; #711618]
+* Reduce server grabs [Daniel; #721345, #721709]
+
+Contributors:
+  Daniel Drake, Marc-André Lureau, Jasper St. Pierre, Owen W. Taylor
+
+Translations:
+  甘露(Gan  Lu) [zh_CN]
+
 3.10.2
 ======
 * Fix resize operations using mouse-button-modifier [Lionel; #710251]
