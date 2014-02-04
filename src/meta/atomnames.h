@@ -80,7 +80,7 @@ item(MULTIPLE)
 item(TIMESTAMP)
 item(VERSION)
 item(ATOM_PAIR)
-item(BACKLIGHT)
+item(Backlight)
 item(hotplug_mode_update)
 
 /* Oddities: These are used, and we need atoms for them,
