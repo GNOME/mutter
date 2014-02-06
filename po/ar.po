@@ -4,14 +4,14 @@
 # Arafat Medini <lumina@silverpen.de>, 2003.
 # Abdulaziz Al-Arfaj <alarfaj0@yahoo.com>, 2004.
 # Djihed Afifi <djihed@gmail.com>, 2006.
-# Khaled Hosny <khaledhosny@eglug.org>, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013.
+# Khaled Hosny <khaledhosny@eglug.org>, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014.
 # Anas Afif Emad <anas.e87@gmail.com>, 2008.
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-07 17:09+0200\n"
-"PO-Revision-Date: 2013-10-07 17:09+0200\n"
+"POT-Creation-Date: 2014-02-06 15:37+0200\n"
+"PO-Revision-Date: 2014-02-06 15:37+0200\n"
 "Last-Translator: Khaled Hosny <khaledhosny@eglug.org>\n"
 "Language-Team: Arabic <doc@arabeyes.org>\n"
 "Language: ar\n"
@@ -314,16 +314,16 @@ msgstr "تعذّر إيجاد سِمة! تأكد من وجود %s و احتوا�
 
 #: ../src/core/monitor.c:696
 msgid "Built-in display"
-msgstr ""
+msgstr "شاشة مدمجة"
 
 #. TRANSLATORS: this is a monitor name (in case we don't know
 #. the vendor), it's Unknown followed by a size in inches,
 #. like 'Unknown 15"'
 #.
 #: ../src/core/monitor.c:724
-#, fuzzy, c-format
+#, c-format
 msgid "Unknown %s"
-msgstr "عنصر مجهول %s"
+msgstr "غير معروفة %s"
 
 #: ../src/core/mutter.c:40
 #, c-format
@@ -503,7 +503,7 @@ msgid "Window manager error: "
 msgstr "خطأ مدير النوافذ: "
 
 #. first time through
-#: ../src/core/window.c:7515
+#: ../src/core/window.c:7497
 #, c-format
 msgid ""
 "Window %s sets SM_CLIENT_ID on itself, instead of on the WM_CLIENT_LEADER "
@@ -519,7 +519,7 @@ msgstr ""
 #. * MWM but not WM_NORMAL_HINTS are basically broken. We complain
 #. * about these apps but make them work.
 #.
-#: ../src/core/window.c:8345
+#: ../src/core/window.c:8329
 #, c-format
 msgid ""
 "Window %s sets an MWM hint indicating it isn't resizable, but sets min size "
