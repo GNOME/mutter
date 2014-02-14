@@ -537,7 +537,7 @@ make_watch (MetaIdleMonitor           *monitor,
           watch->timeout_source = source;
         }
     }
-  else
+  else if (monitor->user_active_alarm != None)
     {
       if (timeout_msec != 0)
         {
