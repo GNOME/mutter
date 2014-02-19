@@ -1,3 +1,20 @@
+3.10.4
+======
+* Fix CSD titlebars being placed off-screen [Jasper; #719772]
+* Expose MetaWindow:skip-taskbar property [Florian; #723307]
+* Fix legacy tray icons showing up blank [Adel; #721596]
+* Fix configuration of cloned monitors [Adel; #710610]
+* Use correct output property for backlight control [Robert; #723606]
+* Misc. bug fixes [Jasper, Adel, Giovanni, Ryan; #720630, #723468, #724258,
+  #724364]
+
+Contributors:
+  Robert Ancell, Giovanni Campagna, Adel Gadllah, Ryan Lortie, Florian Müllner,
+  Jasper St. Pierre
+
+Translations:
+  Shankar Prasad [kn], Khaled Hosny [ar]
+
 3.10.3
 ======
 * xrandr: Use "hotplug_mode_update" property [Marc-André; #711216]
