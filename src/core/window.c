@@ -4596,70 +4596,34 @@ meta_window_move_resize_internal (MetaWindow          *window,
       root_x_nw = new_rect.x;
       root_y_nw = new_rect.y;
 
-      /* First, save where we would like the client to be. This is used by the next
-       * attach to determine if the client is really moving/resizing or not.
-       */
-      window->expected_rect = new_rect;
-
-      if (is_wayland_resize)
-        {
-          /* This is a call to wl_surface_commit(), ignore the new_rect and
-           * update the real client size to match the buffer size.
-           */
-
-          window->rect.width = w;
-          window->rect.height = h;
-        }
-
       if (new_rect.width != window->rect.width ||
           new_rect.height != window->rect.height)
         {
-          /* We need to resize the client. Resizing is in two parts:
-           * some of the movement happens immediately, and some happens as part
-           * of the resizing (through dx/dy in wl_surface_attach).
-           *
-           * To do so, we need to compute the resize from the point of the view
-           * of the client, and then adjust the immediate resize to match.
-           *
-           * dx/dy are the values we expect from the new attach(), while deltax/
-           * deltay reflect the overall movement.
-           */
-          MetaRectangle client_rect;
-          int dx, dy;
-          int deltax, deltay;
+          if (!is_wayland_resize)
+            meta_wayland_surface_configure_notify (window->surface,
+                                                   new_rect.width,
+                                                   new_rect.height);
 
           meta_rectangle_resize_with_gravity (&old_rect,
-                                              &client_rect,
+                                              &new_rect,
                                               gravity,
                                               new_rect.width,
                                               new_rect.height);
 
-          deltax = new_rect.x - old_rect.x;
-          deltay = new_rect.y - old_rect.y;
-          dx = client_rect.x - old_rect.x;
-          dy = client_rect.y - old_rect.y;
+          if (window->rect.width != new_rect.width ||
+              window->rect.height != new_rect.height)
+            need_resize_client = TRUE;
 
-          if (deltax != dx || deltay != dy)
-            need_move_client = TRUE;
-
-          window->rect.x += (deltax - dx);
-          window->rect.y += (deltay - dy);
-
-          need_resize_client = TRUE;
-          meta_wayland_surface_configure_notify (window->surface,
-                                                 new_rect.width,
-                                                 new_rect.height);
+          window->rect.width = new_rect.width;
+          window->rect.height = new_rect.height;
         }
-      else
-        {
-          /* No resize happening, we can just move the window and live with it. */
-          if (window->rect.x != new_rect.x ||
-              window->rect.y != new_rect.y)
-            need_move_client = TRUE;
 
-          window->rect.x = new_rect.x;
-          window->rect.y = new_rect.y;
-        }
+      if (window->rect.x != new_rect.x ||
+          window->rect.y != new_rect.y)
+        need_move_client = TRUE;
+
+      window->rect.x = new_rect.x;
+      window->rect.y = new_rect.y;
     }
   else
     {
@@ -5071,13 +5035,12 @@ meta_window_move_resize_wayland (MetaWindow *window,
 
   flags = META_IS_WAYLAND_RESIZE;
 
-  meta_window_get_position (window, &x, &y);
-  x += dx; y += dy;
+  x = window->rect.x + dx;
+  y = window->rect.y + dy;
 
-  if (x != window->expected_rect.x || y != window->expected_rect.y)
+  if (dx != 0 || dy != 0)
     flags |= META_IS_MOVE_ACTION;
-  if (width != window->expected_rect.width ||
-      height != window->expected_rect.height)
+  if (width != window->rect.width || height != window->rect.height)
     flags |= META_IS_RESIZE_ACTION;
 
   meta_window_move_resize_internal (window, flags, NorthWestGravity,
