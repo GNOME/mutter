@@ -1,3 +1,15 @@
+3.10.4
+======
+* Expose MetaWindow:skip-taskbar property [Florian; #723307]
+* Fix legacy tray icons showing up blank [Adel; #721596]
+* Fix configuration of cloned monitors [Adel; #710610]
+* Misc. bug fixes [Jasper, Adel, Giovanni; #720630, #723468, #724257, #724258,
+  #724364]
+
+Contributors:
+  Giovanni Campagna, Adel Gadllah, Ryan Lortie, Florian Müllner,
+  Jasper St. Pierre
+
 3.10.1
 ======
 * Don't apply fullscreen workarounds to CSD windows [Giovanni; #708718]
