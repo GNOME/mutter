@@ -80,8 +80,6 @@ libmutter_wayland_la_SOURCES =			\
 	compositor/meta-shaped-texture-private.h 	\
 	compositor/meta-surface-actor.c		\
 	compositor/meta-surface-actor.h		\
-	compositor/meta-surface-actor-empty.c	\
-	compositor/meta-surface-actor-empty.h	\
 	compositor/meta-surface-actor-x11.c	\
 	compositor/meta-surface-actor-x11.h	\
 	compositor/meta-surface-actor-wayland.c	\
