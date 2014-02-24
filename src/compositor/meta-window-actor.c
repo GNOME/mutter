@@ -85,6 +85,7 @@ struct _MetaWindowActorPrivate
 
   /* List of FrameData for recent frames */
   GList            *frames;
+  guint             freeze_count;
 
   guint		    visible                : 1;
   guint		    disposed               : 1;
@@ -270,14 +271,19 @@ static gboolean
 is_frozen (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv = self->priv;
-  return meta_surface_actor_is_frozen (priv->surface);
+
+  return priv->freeze_count > 0;
 }
 
 static void
 meta_window_actor_freeze (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv = self->priv;
-  meta_surface_actor_freeze (priv->surface);
+
+  if (priv->freeze_count == 0)
+    meta_surface_actor_set_frozen (priv->surface, TRUE);
+
+  priv->freeze_count ++;
 }
 
 static void
@@ -285,10 +291,14 @@ meta_window_actor_thaw (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv = self->priv;
 
-  meta_surface_actor_thaw (priv->surface);
+  if (priv->freeze_count <= 0)
+    g_error ("Error in freeze/thaw accounting");
 
-  if (is_frozen (self))
+  priv->freeze_count--;
+  if (priv->freeze_count > 0)
     return;
+
+  meta_surface_actor_set_frozen (priv->surface, FALSE);
 
   /* We sometimes ignore moves and resizes on frozen windows */
   meta_window_actor_sync_actor_geometry (self, FALSE);
@@ -327,8 +337,7 @@ set_surface (MetaWindowActor  *self,
 
       /* If the previous surface actor was frozen, start out
        * frozen as well... */
-      if (priv->updates_frozen)
-        meta_surface_actor_freeze (priv->surface);
+      meta_surface_actor_set_frozen (priv->surface, priv->freeze_count > 0);
 
       meta_window_actor_update_shape (self);
     }
