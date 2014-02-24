@@ -34,6 +34,7 @@
 
 #include "meta-surface-actor.h"
 #include "meta-surface-actor-x11.h"
+#include "meta-surface-actor-empty.h"
 
 struct _MetaWindowActorPrivate
 {
@@ -333,7 +334,7 @@ set_surface (MetaWindowActor  *self,
     }
 }
 
-static void
+void
 meta_window_actor_update_surface (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv = self->priv;
@@ -342,8 +343,10 @@ meta_window_actor_update_surface (MetaWindowActor *self)
 
   if (window->surface)
     surface_actor = window->surface->surface_actor;
-  else
+  else if (!meta_is_wayland_compositor ())
     surface_actor = meta_surface_actor_x11_new (window);
+  else
+    surface_actor = meta_surface_actor_empty_new ();
 
   set_surface (self, surface_actor);
 }
