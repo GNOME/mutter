@@ -7,7 +7,7 @@ Source: mutter
 Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
-Uploaders: Emilio Pozuelo Monfort <pochu@debian.org>, Jeremy Bicha <jbicha@ubuntu.com>, Michael Biebl <biebl@debian.org>, Sjoerd Simons <sjoerd@debian.org>
+Uploaders: Andreas Henriksson <andreas@fatal.se>, Emilio Pozuelo Monfort <pochu@debian.org>, Michael Biebl <biebl@debian.org>, Sjoerd Simons <sjoerd@debian.org>
 Build-Depends: cdbs (>= 0.4.90),
                debhelper (>= 9),
                gnome-pkg-tools (>= 0.10),
@@ -20,13 +20,13 @@ Build-Depends: cdbs (>= 0.4.90),
                gsettings-desktop-schemas-dev (>= 3.7.3),
                libgirepository1.0-dev (>= 0.9.12),
                libjson-glib-dev (>= 0.13.2-1~),
-               libcogl-dev (>= 1.12.0),
+               libcogl-dev (>= 1.17.1),
                libclutter-1.0-dev (>= 1.15.90),
                libpango1.0-dev (>= 1.2.0),
                libcairo2-dev (>= 1.2.0),
                libgnome-desktop-3-dev (>= 3.10),
                libstartup-notification0-dev (>= 0.7),
-               libupower-glib-dev (>= 0.9.11),
+               libupower-glib-dev (>= 0.99.0),
                libxcomposite-dev (>= 1:0.2),
                libxi-dev (>= 2:1.6.0),
                libxfixes-dev,
@@ -41,7 +41,7 @@ Build-Depends: cdbs (>= 0.4.90),
                libsm-dev,
                libice-dev,
                zenity
-Standards-Version: 3.9.4
+Standards-Version: 3.9.5
 Vcs-Svn: svn://anonscm.debian.org/pkg-gnome/desktop/unstable/mutter
 Vcs-Browser: http://anonscm.debian.org/viewvc/pkg-gnome/desktop/unstable/mutter
 
