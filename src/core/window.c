@@ -86,8 +86,9 @@ static void     meta_window_show          (MetaWindow     *window);
 static void     meta_window_hide          (MetaWindow     *window);
 
 static void     meta_window_save_rect         (MetaWindow    *window);
-static void     save_user_window_placement    (MetaWindow    *window);
-static void     force_save_user_window_placement (MetaWindow    *window);
+static void     save_user_window_placement    (MetaWindow    *window,
+                                               MetaRectangle *rect,
+                                               gboolean       force);
 
 static void meta_window_move_resize_internal (MetaWindow         *window,
                                               MetaMoveResizeFlags flags,
@@ -3041,42 +3042,39 @@ meta_window_save_rect (MetaWindow *window)
     }
 }
 
-/**
- * force_save_user_window_placement:
- * @window: Store current position of this window for future reference
- *
- * Save the user_rect regardless of whether the window is maximized or
- * fullscreen. See save_user_window_placement() for most uses.
- */
-static void
-force_save_user_window_placement (MetaWindow *window)
-{
-  meta_window_get_client_root_coords (window, &window->user_rect);
-}
-
-/**
+/*
  * save_user_window_placement:
  * @window: Store current position of this window for future reference
- *
- * Save the user_rect, but only if the window is neither maximized nor
- * fullscreen, otherwise the window may snap back to those dimensions
- * (bug #461927).
+ * @rect: the rectangle with the position we want (in case it's not yet
+ *        assumed by the window, which happens for wayland resizes), or
+ *        %NULL to use the current window position
+ * @force: save the user_rect regardless of whether the window is maximized or
+ *         fullscreen
  */
 static void
-save_user_window_placement (MetaWindow *window)
+save_user_window_placement (MetaWindow    *window,
+                            MetaRectangle *rect,
+                            gboolean       force)
 {
-  if (!(META_WINDOW_MAXIMIZED (window) || META_WINDOW_TILED_SIDE_BY_SIDE (window) || window->fullscreen))
+  gboolean should_save = !META_WINDOW_MAXIMIZED (window) &&
+    !META_WINDOW_TILED_SIDE_BY_SIDE (window) &&
+    !window->fullscreen;
+
+  if (force || should_save)
     {
       MetaRectangle user_rect;
 
-      meta_window_get_client_root_coords (window, &user_rect);
+      if (rect)
+        user_rect = *rect;
+      else
+        meta_window_get_client_root_coords (window, &user_rect);
 
-      if (!window->maximized_horizontally)
+      if (force || !window->maximized_horizontally)
 	{
 	  window->user_rect.x     = user_rect.x;
 	  window->user_rect.width = user_rect.width;
 	}
-      if (!window->maximized_vertically)
+      if (force || !window->maximized_vertically)
 	{
 	  window->user_rect.y      = user_rect.y;
 	  window->user_rect.height = user_rect.height;
@@ -3586,7 +3584,7 @@ meta_window_unmaximize_internal (MetaWindow        *window,
 
       /* Make sure user_rect is current.
        */
-      force_save_user_window_placement (window);
+      save_user_window_placement (window, NULL, TRUE);
 
       /* When we unmaximize, if we're doing a mouse move also we could
        * get the window suddenly jumping to the upper left corner of
@@ -3763,7 +3761,7 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
 
       /* Make sure user_rect is current.
        */
-      force_save_user_window_placement (window);
+      save_user_window_placement (window, NULL, TRUE);
 
       meta_window_update_layer (window);
 
@@ -4593,73 +4591,29 @@ meta_window_move_resize_internal (MetaWindow          *window,
        * it can be for maximized or fullscreen.
        *
        */
-      root_x_nw = new_rect.x;
-      root_y_nw = new_rect.y;
-
-      /* First, save where we would like the client to be. This is used by the next
-       * attach to determine if the client is really moving/resizing or not.
-       */
-      window->expected_rect = new_rect;
-
-      if (is_wayland_resize)
-        {
-          /* This is a call to wl_surface_commit(), ignore the new_rect and
-           * update the real client size to match the buffer size.
-           */
-
-          window->rect.width = w;
-          window->rect.height = h;
-        }
 
       if (new_rect.width != window->rect.width ||
           new_rect.height != window->rect.height)
         {
-          /* We need to resize the client. Resizing is in two parts:
-           * some of the movement happens immediately, and some happens as part
-           * of the resizing (through dx/dy in wl_surface_attach).
-           *
-           * To do so, we need to compute the resize from the point of the view
-           * of the client, and then adjust the immediate resize to match.
-           *
-           * dx/dy are the values we expect from the new attach(), while deltax/
-           * deltay reflect the overall movement.
-           */
-          MetaRectangle client_rect;
-          int dx, dy;
-          int deltax, deltay;
+          if (!is_wayland_resize)
+            /* Politely ask for a new size, and wait until the next commit. */
+            meta_wayland_surface_configure_notify (window->surface,
+                                                   new_rect.width,
+                                                   new_rect.height);
 
-          meta_rectangle_resize_with_gravity (&old_rect,
-                                              &client_rect,
-                                              gravity,
-                                              new_rect.width,
-                                              new_rect.height);
-
-          deltax = new_rect.x - old_rect.x;
-          deltay = new_rect.y - old_rect.y;
-          dx = client_rect.x - old_rect.x;
-          dy = client_rect.y - old_rect.y;
-
-          if (deltax != dx || deltay != dy)
-            need_move_client = TRUE;
-
-          window->rect.x += (deltax - dx);
-          window->rect.y += (deltay - dy);
-
+          /* We need to update window->rect here, otherwise all sorts of
+             bad stuff happens with interactive resizes... */
           need_resize_client = TRUE;
-          meta_wayland_surface_configure_notify (window->surface,
-                                                 new_rect.width,
-                                                 new_rect.height);
         }
-      else
-        {
-          /* No resize happening, we can just move the window and live with it. */
-          if (window->rect.x != new_rect.x ||
-              window->rect.y != new_rect.y)
-            need_move_client = TRUE;
 
-          window->rect.x = new_rect.x;
-          window->rect.y = new_rect.y;
-        }
+      if (window->rect.x != new_rect.x ||
+          window->rect.y != new_rect.y)
+        need_move_client = TRUE;
+
+      window->rect.x = new_rect.x;
+      window->rect.y = new_rect.y;
+      window->rect.width = new_rect.width;
+      window->rect.height = new_rect.height;
     }
   else
     {
@@ -4971,9 +4925,9 @@ meta_window_move_resize_internal (MetaWindow          *window,
     }
 
   if (!window->placed && window->force_save_user_rect && !window->fullscreen)
-    force_save_user_window_placement (window);
+    save_user_window_placement (window, &new_rect, TRUE);
   else if (is_user_action)
-    save_user_window_placement (window);
+    save_user_window_placement (window, &new_rect, FALSE);
 
   if (need_move_client || need_move_frame)
     g_signal_emit (window, window_signals[POSITION_CHANGED], 0);
@@ -5074,10 +5028,10 @@ meta_window_move_resize_wayland (MetaWindow *window,
   meta_window_get_position (window, &x, &y);
   x += dx; y += dy;
 
-  if (x != window->expected_rect.x || y != window->expected_rect.y)
+  if (x != window->rect.x || y != window->rect.y)
     flags |= META_IS_MOVE_ACTION;
-  if (width != window->expected_rect.width ||
-      height != window->expected_rect.height)
+  if (width != window->rect.width ||
+      height != window->rect.height)
     flags |= META_IS_RESIZE_ACTION;
 
   meta_window_move_resize_internal (window, flags, NorthWestGravity,
@@ -6344,7 +6298,7 @@ meta_window_move_resize_request (MetaWindow *window,
    *
    * See also bug 426519.
    */
-  save_user_window_placement (window);
+  save_user_window_placement (window, NULL, FALSE);
 }
 
 /*
