@@ -205,6 +205,7 @@ meta_launcher_enter (MetaLauncher *launcher)
   cogl_kms_display_queue_modes_reset (cogl_display);
 
   clutter_evdev_reclaim_devices ();
+  clutter_set_paused (FALSE);
 
   {
     MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
@@ -222,6 +223,7 @@ static void
 meta_launcher_leave (MetaLauncher *launcher)
 {
   clutter_evdev_release_devices ();
+  clutter_set_paused (TRUE);
 }
 
 static int
