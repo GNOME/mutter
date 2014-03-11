@@ -241,6 +241,13 @@ on_evdev_device_open (const char  *path,
 }
 
 static void
+on_evdev_device_close (int          fd,
+                       gpointer     user_data)
+{
+  close (fd);
+}
+
+static void
 handle_vt_enter (MetaLauncher *launcher)
 {
   g_assert (launcher->vt_switched);
@@ -356,7 +363,9 @@ meta_launcher_new (void)
   g_source_attach (self->inner_source, self->nested_context);
   g_source_unref (self->inner_source);
 
-  clutter_evdev_set_open_callback (on_evdev_device_open, self);
+  clutter_evdev_set_open_callback (on_evdev_device_open,
+                                   on_evdev_device_close,
+                                   self);
 
 #if defined(CLUTTER_WINDOWING_EGL)
   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_EGL))
