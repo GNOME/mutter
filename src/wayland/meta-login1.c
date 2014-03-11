@@ -171,7 +171,7 @@ session_unpause (void)
   cogl_kms_display_queue_modes_reset (cogl_display);
 
   clutter_set_paused (FALSE);
-  clutter_evdev_reclaim_devices ();
+  /* clutter_evdev_reclaim_devices (); */
 
   {
     MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
@@ -189,7 +189,7 @@ static void
 session_pause (void)
 {
   clutter_set_paused (TRUE);
-  clutter_evdev_release_devices ();
+  /* clutter_evdev_release_devices (); */
 }
 
 static void
@@ -399,6 +399,7 @@ meta_login1_new (void)
   self->session_proxy = session_proxy;
   self->seat_proxy = get_seat_proxy (NULL);
 
+  /* Clutter/Cogl start out in a state that assumes the session is active */
   self->session_active = TRUE;
 
   clutter_egl_native_set_kms_fd (kms_fd);
@@ -407,6 +408,7 @@ meta_login1_new (void)
                                    self);
 
   g_signal_connect (self->session_proxy, "notify::active", G_CALLBACK (on_active_changed), self);
+  sync_active (self);
 
   return self;
 }
