@@ -106,6 +106,7 @@ typedef enum
   PRIORITY_TITLEBAR_VISIBLE = 4,
   PRIORITY_PARTIALLY_VISIBLE_ON_WORKAREA = 4,
   PRIORITY_CUSTOM_RULE = 4,
+  PRIORITY_XLIMITS = 4,
   PRIORITY_MAXIMUM = 4 /* Dummy value used for loop end = max(all priorities) */
 } ConstraintPriority;
 
@@ -196,6 +197,10 @@ static gboolean constrain_partially_onscreen (MetaWindow         *window,
                                               ConstraintInfo     *info,
                                               ConstraintPriority  priority,
                                               gboolean            check_only);
+static gboolean constrain_xlimits            (MetaWindow         *window,
+                                              ConstraintInfo     *info,
+                                              ConstraintPriority  priority,
+                                              gboolean            check_only);
 
 static void setup_constraint_info        (ConstraintInfo      *info,
                                           MetaWindow          *window,
@@ -231,6 +236,7 @@ static const Constraint all_constraints[] = {
   {constrain_fully_onscreen,     "constrain_fully_onscreen"},
   {constrain_titlebar_visible,   "constrain_titlebar_visible"},
   {constrain_partially_onscreen, "constrain_partially_onscreen"},
+  {constrain_xlimits,            "constrain_xlimits"},
   {NULL,                         NULL}
 };
 
@@ -1674,4 +1680,40 @@ constrain_partially_onscreen (MetaWindow         *window,
                                               vert_amount_onscreen);
 
   return retval;
+}
+
+
+#define MAX_WINDOW_SIZE 32767
+
+static gboolean
+constrain_xlimits (MetaWindow         *window,
+                   ConstraintInfo     *info,
+                   ConstraintPriority  priority,
+                   gboolean            check_only)
+{
+  int max_w, max_h;
+  gboolean constraint_already_satisfied;
+
+  if (priority > PRIORITY_XLIMITS)
+    return TRUE;
+
+  max_w = max_h = MAX_WINDOW_SIZE;
+
+  if (window->frame)
+    {
+      MetaFrameBorders borders;
+      meta_frame_calc_borders (window->frame, &borders);
+
+      max_w -= (borders.total.left + borders.total.right);
+      max_h -= (borders.total.top + borders.total.bottom);
+    }
+
+  constraint_already_satisfied = info->current.width < max_w && info->current.height < max_h;
+  if (check_only || constraint_already_satisfied)
+    return constraint_already_satisfied;
+
+  info->current.width = MIN (info->current.width, max_w);
+  info->current.height = MIN (info->current.height, max_h);
+
+  return TRUE;
 }
