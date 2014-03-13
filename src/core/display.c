@@ -2203,11 +2203,7 @@ meta_display_handle_event (MetaDisplay        *display,
             {
               if (meta_prefs_get_raise_on_click ())
                 meta_window_raise (window);
-              meta_window_show_menu (window,
-                                     event->button.x,
-                                     event->button.y,
-                                     event->button.button,
-                                     event->any.time);
+              meta_window_show_menu (window);
               bypass_clutter = TRUE;
               bypass_wayland = TRUE;
             }
