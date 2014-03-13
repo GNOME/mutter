@@ -817,7 +817,7 @@ constrain_maximization (MetaWindow         *window,
                                                 active_workspace_struts);
    }
   /* Now make target_size = maximized size of client window */
-  unextend_by_frame (window, &target_size);
+  /* unextend_by_frame (window, &target_size); */
 
   /* Check min size constraints; max size constraints are ignored for maximized
    * windows, as per bug 327543.
