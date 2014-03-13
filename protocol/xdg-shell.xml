@@ -201,6 +201,23 @@
       <arg name="app_id" type="string"/>
     </request>
 
+    <enum name="surface_type">
+      <description summary="surface types">
+        Surface
+      </description>
+      <entry name="normal" value="0" summary="A normal window. This is the default type."/>
+      <entry name="modal_dialog" value="1" summary="A modal dialog."/>
+    </enum>
+
+    <request name="set_surface_type">
+      <description summary="set the surface type">
+        Sets the type of the surface. These are high-level "roles" of
+        surfaces designed to give the compositor more heuristics about
+        how to place and manage the window.
+      </description>
+      <arg name="surface_type" type="uint" summary="a surface type from surface_type"/>
+    </request>
+
     <request name="move">
       <description summary="start an interactive move">
 	Start a pointer-driven move of the surface.

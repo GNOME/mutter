@@ -749,6 +749,32 @@ xdg_surface_set_app_id (struct wl_client *client,
   meta_window_set_wm_class (surface->window, app_id, app_id);
 }
 
+static MetaWindowType
+window_type_from_surface_type (uint32_t surface_type)
+{
+  switch (surface_type)
+    {
+    case XDG_SURFACE_SURFACE_TYPE_NORMAL:
+      return META_WINDOW_NORMAL;
+    case XDG_SURFACE_SURFACE_TYPE_MODAL_DIALOG:
+      return META_WINDOW_MODAL_DIALOG;
+    default:
+      g_warning ("Unknown surface type: %d\n", surface_type);
+      return META_WINDOW_NORMAL;
+    }
+}
+
+static void
+xdg_surface_set_surface_type (struct wl_client *client,
+                              struct wl_resource *resource,
+                              uint32_t surface_type)
+{
+  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+
+  meta_window_set_type (surface->window,
+                        window_type_from_surface_type (surface_type));
+}
+
 static gboolean
 begin_grab_op_on_surface (MetaWaylandSurface *surface,
                           MetaWaylandSeat    *seat,
@@ -898,6 +924,7 @@ static const struct xdg_surface_interface meta_wayland_xdg_surface_interface = {
   xdg_surface_set_margin,
   xdg_surface_set_title,
   xdg_surface_set_app_id,
+  xdg_surface_set_surface_type,
   xdg_surface_move,
   xdg_surface_resize,
   xdg_surface_set_output,
