@@ -775,6 +775,23 @@ xdg_surface_set_surface_type (struct wl_client *client,
                         window_type_from_surface_type (surface_type));
 }
 
+static void
+xdg_surface_show_window_menu (struct wl_client *client,
+                              struct wl_resource *resource,
+                              struct wl_resource *seat_resource,
+                              uint32_t serial)
+{
+  MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
+  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+
+  if (seat->pointer.button_count == 0 ||
+      seat->pointer.grab_serial != serial ||
+      seat->pointer.focus_surface != surface)
+    return;
+
+  meta_window_show_menu (surface->window);
+}
+
 static gboolean
 begin_grab_op_on_surface (MetaWaylandSurface *surface,
                           MetaWaylandSeat    *seat,
@@ -925,6 +942,7 @@ static const struct xdg_surface_interface meta_wayland_xdg_surface_interface = {
   xdg_surface_set_title,
   xdg_surface_set_app_id,
   xdg_surface_set_surface_type,
+  xdg_surface_show_window_menu,
   xdg_surface_move,
   xdg_surface_resize,
   xdg_surface_set_output,
