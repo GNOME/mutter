@@ -130,5 +130,7 @@ void meta_compositor_show_tile_preview (MetaCompositor *compositor,
                                         int             tile_monitor_number);
 void meta_compositor_hide_tile_preview (MetaCompositor *compositor,
                                         MetaScreen     *screen);
+void meta_compositor_show_window_menu (MetaCompositor *compositor,
+                                       MetaWindow     *window);
 
 #endif /* META_COMPOSITOR_H */

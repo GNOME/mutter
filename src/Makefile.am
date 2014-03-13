@@ -178,10 +178,6 @@ libmutter_wayland_la_SOURCES =			\
 	ui/ui.h					\
 	ui/frames.c				\
 	ui/frames.h				\
-	ui/menu.c				\
-	ui/menu.h				\
-	ui/metaaccellabel.c			\
-	ui/metaaccellabel.h			\
 	ui/resizepopup.c			\
 	ui/resizepopup.h			\
 	ui/theme-parser.c			\

@@ -1723,3 +1723,15 @@ meta_compositor_hide_tile_preview (MetaCompositor *compositor,
 
   meta_plugin_manager_hide_tile_preview (info->plugin_mgr);
 }
+
+void
+meta_compositor_show_window_menu (MetaCompositor *compositor,
+                                  MetaWindow     *window)
+{
+  MetaCompScreen *info = meta_screen_get_compositor_data (window->screen);
+
+  if (!info->plugin_mgr)
+    return;
+
+  meta_plugin_manager_show_window_menu (info->plugin_mgr, window);
+}

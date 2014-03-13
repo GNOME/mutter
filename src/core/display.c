@@ -564,9 +564,6 @@ meta_display_open (void)
   the_display->monitor_cache_invalidated = TRUE;
 
   the_display->groups_by_leader = NULL;
-
-  the_display->window_with_menu = NULL;
-  the_display->window_menu = NULL;
   
   the_display->screens = NULL;
   the_display->active_screen = NULL;

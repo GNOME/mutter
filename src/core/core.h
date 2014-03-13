@@ -164,11 +164,6 @@ void meta_core_show_window_menu (Display *xdisplay,
                                  int      button,
                                  guint32  timestamp);
 
-void meta_core_get_menu_accelerator (MetaMenuOp           menu_op,
-                                     int                  workspace,
-                                     unsigned int        *keysym,
-                                     MetaVirtualModifier *modifiers);
-
 gboolean   meta_core_begin_grab_op (Display    *xdisplay,
                                     Window      frame_xwindow,
                                     MetaGrabOp  op,
