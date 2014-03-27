@@ -1,3 +1,10 @@
+mutter (3.8.4-4) UNRELEASED; urgency=medium
+
+  * debian/control.in:
+    + Bump libcogl-dev build-dependency, required by the previous patch.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Thu, 27 Mar 2014 15:05:34 +0100
+
 mutter (3.8.4-3) unstable; urgency=medium
 
   * debian/patches/0001-Update-for-Cogl-API-breaks.patch:
