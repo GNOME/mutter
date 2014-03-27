@@ -1,0 +1,92 @@
+From d2a1db8834bf0a9007bf6924b006a6f2c94ce88d Mon Sep 17 00:00:00 2001
+From: "Jasper St. Pierre" <jstpierre@mecheye.net>
+Date: Mon, 13 Jan 2014 13:03:19 -0500
+Subject: [PATCH] Update for Cogl API breaks
+
+---
+ configure.ac                            | 2 +-
+ src/compositor/meta-texture-rectangle.c | 9 ++-------
+ src/compositor/meta-texture-rectangle.h | 4 +---
+ src/compositor/meta-texture-tower.c     | 4 ----
+ src/compositor/meta-window-actor.c      | 5 +----
+ src/core/meta-cursor-tracker.c          | 1 -
+ 6 files changed, 5 insertions(+), 20 deletions(-)
+
+diff --git a/src/compositor/meta-texture-rectangle.c b/src/compositor/meta-texture-rectangle.c
+index 3fc9430..450155d 100644
+--- a/src/compositor/meta-texture-rectangle.c
++++ b/src/compositor/meta-texture-rectangle.c
+@@ -30,10 +30,8 @@ CoglTexture *
+ meta_texture_rectangle_new (unsigned int width,
+                             unsigned int height,
+                             CoglPixelFormat format,
+-                            CoglPixelFormat internal_format,
+                             unsigned int rowstride,
+-                            const guint8 *data,
+-                            GError **error)
++                            const guint8 *data)
+ {
+   ClutterBackend *backend =
+     clutter_get_default_backend ();
+@@ -41,10 +39,7 @@ meta_texture_rectangle_new (unsigned int width,
+     clutter_backend_get_cogl_context (backend);
+   CoglTextureRectangle *tex_rect;
+ 
+-  tex_rect = cogl_texture_rectangle_new_with_size (context,
+-                                                   width, height,
+-                                                   internal_format,
+-                                                   error);
++  tex_rect = cogl_texture_rectangle_new_with_size (context, width, height);
+   if (tex_rect == NULL)
+     return NULL;
+ 
+diff --git a/src/compositor/meta-texture-rectangle.h b/src/compositor/meta-texture-rectangle.h
+index 30f60d3..7b84229 100644
+--- a/src/compositor/meta-texture-rectangle.h
++++ b/src/compositor/meta-texture-rectangle.h
+@@ -32,10 +32,8 @@ CoglTexture *
+ meta_texture_rectangle_new (unsigned int width,
+                             unsigned int height,
+                             CoglPixelFormat format,
+-                            CoglPixelFormat internal_format,
+                             unsigned int rowstride,
+-                            const guint8 *data,
+-                            GError **error);
++                            const guint8 *data);
+ 
+ gboolean
+ meta_texture_rectangle_check (CoglTexture *texture);
+diff --git a/src/compositor/meta-texture-tower.c b/src/compositor/meta-texture-tower.c
+index 9a30de0..019aaf4 100644
+--- a/src/compositor/meta-texture-tower.c
++++ b/src/compositor/meta-texture-tower.c
+@@ -363,13 +363,9 @@ texture_tower_create_texture (MetaTextureTower *tower,
+         meta_texture_rectangle_new (width, height,
+                                     /* data format */
+                                     TEXTURE_FORMAT,
+-                                    /* internal cogl format */
+-                                    TEXTURE_FORMAT,
+                                     /* rowstride */
+                                     width * 4,
+                                     /* data */
+-                                    NULL,
+-                                    /* error */
+                                     NULL);
+     }
+   else
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index a2c05ca..46979bf 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -2167,10 +2167,7 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
+     {
+       mask_texture = meta_texture_rectangle_new (tex_width, tex_height,
+                                                  COGL_PIXEL_FORMAT_A_8,
+-                                                 COGL_PIXEL_FORMAT_A_8,
+-                                                 stride,
+-                                                 mask_data,
+-                                                 NULL /* error */);
++                                                 stride, mask_data);
+     }
+   else
+     {

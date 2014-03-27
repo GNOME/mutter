@@ -1,3 +1,10 @@
+mutter (3.8.4-3) UNRELEASED; urgency=medium
+
+  * debian/patches/0001-Update-for-Cogl-API-breaks.patch:
+    + Fix build with the new cogl.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Thu, 27 Mar 2014 11:09:36 +0100
+
 mutter (3.8.4-2) unstable; urgency=low
 
   * Upload to unstable.
