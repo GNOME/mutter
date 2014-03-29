@@ -1,4 +1,4 @@
-mutter (3.11.91-1) UNRELEASED; urgency=low
+mutter (3.12.0-1) experimental; urgency=low
 
   [ Sjoerd Simons ]
   * debian/patches/prevent-double-lock-deadlock.patch:
@@ -13,7 +13,7 @@ mutter (3.11.91-1) UNRELEASED; urgency=low
     - bump cogl 1.17.1
   * Bump Standards-Version to 3.9.5
 
- -- Andreas Henriksson <andreas@fatal.se>  Thu, 06 Mar 2014 00:16:27 +0100
+ -- Andreas Henriksson <andreas@fatal.se>  Sat, 29 Mar 2014 22:09:55 +0100
 
 mutter (3.10.1-2) experimental; urgency=low
 
