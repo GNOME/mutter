@@ -1,3 +1,10 @@
+mutter (3.12.0-2) UNRELEASED; urgency=low
+
+  * Update library name to libmutter0d since the API/ABI is not compatible
+    with 3.10.x releases
+
+ -- Rico Tzschichholz <ricotz@ubuntu.com>  Thu, 03 Apr 2014 09:39:09 +0200
+
 mutter (3.12.0-1) experimental; urgency=low
 
   [ Sjoerd Simons ]
