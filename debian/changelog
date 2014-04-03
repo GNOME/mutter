@@ -1,4 +1,4 @@
-mutter (3.12.0-2) UNRELEASED; urgency=low
+mutter (3.12.0-2) experimental; urgency=low
 
   [ Rico Tzschichholz ]
   * Update library name to libmutter0d since the API/ABI is not compatible
@@ -7,7 +7,7 @@ mutter (3.12.0-2) UNRELEASED; urgency=low
   [ Emilio Pozuelo Monfort ]
   * Let libmutter0d conflict with libmutter0c.
 
- -- Rico Tzschichholz <ricotz@ubuntu.com>  Thu, 03 Apr 2014 09:39:09 +0200
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Thu, 03 Apr 2014 10:30:00 +0200
 
 mutter (3.12.0-1) experimental; urgency=low
 
