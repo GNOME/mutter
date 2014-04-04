@@ -30,6 +30,7 @@
 #include "meta/meta-window-actor.h"
 #include "meta/meta-shaped-texture.h"
 #include "meta-cursor-tracker-private.h"
+#include "backends/native/meta-cursor-tracker-native.h"
 
 G_DEFINE_TYPE (MetaWaylandStage, meta_wayland_stage, CLUTTER_TYPE_STAGE);
 
@@ -42,7 +43,7 @@ meta_wayland_stage_paint (ClutterActor *actor)
 
   compositor = meta_wayland_compositor_get_default ();
   if (compositor->seat->cursor_tracker)
-    meta_cursor_tracker_paint (compositor->seat->cursor_tracker);
+    meta_cursor_tracker_native_paint (META_CURSOR_TRACKER_NATIVE (compositor->seat->cursor_tracker));
 }
 
 static void

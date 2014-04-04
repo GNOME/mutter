@@ -43,6 +43,7 @@
 #include "mutter-enum-types.h"
 #include "core.h"
 #include "meta-cursor-tracker-private.h"
+#include "backends/x11/meta-cursor-tracker-x11.h"
 
 #include <X11/extensions/Xinerama.h>
 
@@ -1389,7 +1390,7 @@ meta_screen_update_cursor (MetaScreen *screen)
   Cursor xcursor;
   MetaCursorReference *cursor_ref;
 
-  cursor_ref = meta_cursor_reference_from_theme (screen->cursor_tracker, cursor);
+  cursor_ref = meta_cursor_tracker_get_cursor_from_theme (screen->cursor_tracker, cursor);
   meta_cursor_tracker_set_root_cursor (screen->cursor_tracker, cursor_ref);
   meta_cursor_reference_unref (cursor_ref);
 
@@ -3305,7 +3306,10 @@ gboolean
 meta_screen_handle_xevent (MetaScreen *screen,
                            XEvent     *xevent)
 {
-  if (meta_cursor_tracker_handle_xevent (screen->cursor_tracker, xevent))
+  if (meta_is_wayland_compositor ())
+    return FALSE;
+
+  if (meta_cursor_tracker_x11_handle_xevent (META_CURSOR_TRACKER_X11 (screen->cursor_tracker), xevent))
     return TRUE;
 
   return FALSE;

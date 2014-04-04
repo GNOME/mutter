@@ -44,6 +44,7 @@
 
 #include "wayland/meta-wayland-private.h"
 #include "meta-cursor-tracker-private.h"
+#include "meta-cursor-tracker-native.h"
 #include "meta-weston-launch.h"
 
 struct _MetaLauncher
@@ -219,7 +220,7 @@ meta_launcher_enter (MetaLauncher *launcher)
      * update. */
 
     clutter_actor_queue_redraw (compositor->stage);
-    meta_cursor_tracker_force_update (compositor->seat->cursor_tracker);
+    meta_cursor_tracker_native_force_update (META_CURSOR_TRACKER_NATIVE (compositor->seat->cursor_tracker));
   }
 }
 

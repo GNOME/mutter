@@ -30,10 +30,7 @@
 struct _MetaCursorTracker {
   GObject parent_instance;
 
-  MetaScreen *screen;
-
   gboolean is_showing;
-  gboolean has_hw_cursor;
 
   /* The cursor tracker stores the cursor for the current grab
    * operation, the cursor for the window with pointer focus, and
@@ -51,7 +48,7 @@ struct _MetaCursorTracker {
 
   MetaCursorReference *grab_cursor;
 
-  /* Wayland clients can set a NULL buffer as their cursor 
+  /* Wayland clients can set a NULL buffer as their cursor
    * explicitly, which means that we shouldn't display anything.
    * So, we can't simply store a NULL in window_cursor to
    * determine an unset window cursor; we need an extra boolean.
@@ -62,23 +59,37 @@ struct _MetaCursorTracker {
   MetaCursorReference *root_cursor;
 
   MetaCursorReference *theme_cursors[META_CURSOR_LAST];
-
-  int current_x, current_y;
-  MetaRectangle current_rect;
-  MetaRectangle previous_rect;
-  gboolean previous_is_valid;
-
-  CoglPipeline *pipeline;
-  int drm_fd;
-  struct gbm_device *gbm;
 };
 
 struct _MetaCursorTrackerClass {
   GObjectClass parent_class;
+
+  void (*get_pointer) (MetaCursorTracker   *tracker,
+                       int                 *x,
+                       int                 *y,
+                       ClutterModifierType *mods);
+
+  void (*sync_cursor) (MetaCursorTracker *tracker);
+
+  void (*ensure_cursor) (MetaCursorTracker *tracker);
+
+  void (*load_cursor_pixels) (MetaCursorTracker   *tracker,
+                              MetaCursorReference *cursor,
+                              uint8_t             *pixels,
+                              int                  width,
+                              int                  height,
+                              int                  rowstride,
+                              uint32_t             format);
+
+  void (*load_cursor_buffer) (MetaCursorTracker   *tracker,
+                              MetaCursorReference *cursor,
+                              struct wl_resource  *buffer);
 };
 
-gboolean meta_cursor_tracker_handle_xevent (MetaCursorTracker *tracker,
-					    XEvent            *xevent);
+void    _meta_cursor_tracker_set_window_cursor (MetaCursorTracker   *tracker,
+                                                gboolean             has_cursor,
+                                                MetaCursorReference *cursor);
+void    _meta_cursor_tracker_sync_cursor (MetaCursorTracker *tracker);
 
 void     meta_cursor_tracker_set_grab_cursor     (MetaCursorTracker   *tracker,
                                                   MetaCursorReference *cursor);
@@ -87,12 +98,13 @@ void     meta_cursor_tracker_set_window_cursor   (MetaCursorTracker   *tracker,
 void     meta_cursor_tracker_unset_window_cursor (MetaCursorTracker   *tracker);
 void     meta_cursor_tracker_set_root_cursor     (MetaCursorTracker   *tracker,
                                                   MetaCursorReference *cursor);
-
-void     meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
-					      int                new_x,
-					      int                new_y);
-void     meta_cursor_tracker_paint           (MetaCursorTracker *tracker);
-
-void     meta_cursor_tracker_force_update (MetaCursorTracker *tracker);
+MetaCursorReference *
+meta_cursor_tracker_get_cursor_from_theme (MetaCursorTracker   *tracker,
+                                           MetaCursor           cursor);
+MetaCursorReference *
+meta_cursor_tracker_get_cursor_from_buffer (MetaCursorTracker  *tracker,
+                                            struct wl_resource *buffer,
+                                            int                 hot_x,
+                                            int                 hot_y);
 
 #endif

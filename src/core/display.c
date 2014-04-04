@@ -1873,7 +1873,7 @@ meta_display_set_grab_op_cursor (MetaDisplay *display,
 
   meta_error_trap_pop (display);
 
-  cursor_ref = meta_cursor_reference_from_theme (screen->cursor_tracker, cursor);
+  cursor_ref = meta_cursor_tracker_get_cursor_from_theme (screen->cursor_tracker, cursor);
   meta_cursor_tracker_set_grab_cursor (screen->cursor_tracker, cursor_ref);
   meta_cursor_reference_unref (cursor_ref);
 }

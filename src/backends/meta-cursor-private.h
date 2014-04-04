@@ -27,6 +27,11 @@
 #include <cogl/cogl.h>
 #include <gbm.h>
 
+#include <X11/cursorfont.h>
+#include <X11/extensions/Xfixes.h>
+#include <X11/Xcursor/Xcursor.h>
+#include <wayland-server.h>
+
 typedef struct {
   CoglTexture2D *texture;
   struct gbm_bo *bo;
@@ -46,5 +51,27 @@ CoglTexture *meta_cursor_reference_get_cogl_texture (MetaCursorReference *cursor
 struct gbm_bo *meta_cursor_reference_get_gbm_bo (MetaCursorReference *cursor,
                                                  int                 *hot_x,
                                                  int                 *hot_y);
+
+void meta_cursor_reference_load_gbm_buffer (MetaCursorReference *cursor,
+                                            struct gbm_device   *gbm,
+                                            uint8_t             *pixels,
+                                            int                  width,
+                                            int                  height,
+                                            int                  rowstride,
+                                            uint32_t             gbm_format);
+
+void meta_cursor_reference_import_gbm_buffer (MetaCursorReference *cursor,
+                                              struct gbm_device   *gbm,
+                                              struct wl_resource  *buffer,
+                                              int                  width,
+                                              int                  height);
+
+MetaCursorReference *meta_cursor_reference_from_xfixes_cursor_image (XFixesCursorImage *cursor_image);
+
+MetaCursorReference *meta_cursor_reference_from_xcursor_image (XcursorImage *xc_image);
+
+MetaCursorReference *meta_cursor_reference_from_buffer (struct wl_resource *buffer,
+                                                        int                 hot_x,
+                                                        int                 hot_y);
 
 #endif /* META_CURSOR_PRIVATE_H */

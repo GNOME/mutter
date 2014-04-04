@@ -27,15 +27,22 @@
 
 #include "display-private.h"
 #include "screen-private.h"
-#include "meta-cursor-tracker-private.h" /* for tracker->gbm */
+#include "meta-cursor-tracker-private.h"
 
 #include <string.h>
 
-#include <X11/cursorfont.h>
-#include <X11/extensions/Xfixes.h>
-#include <X11/Xcursor/Xcursor.h>
-
 #include <cogl/cogl-wayland-server.h>
+
+static MetaCursorReference *
+meta_cursor_reference_new (void)
+{
+  MetaCursorReference *self;
+
+  self = g_slice_new0 (MetaCursorReference);
+  self->ref_count = 1;
+
+  return self;
+}
 
 MetaCursorReference *
 meta_cursor_reference_ref (MetaCursorReference *self)
@@ -190,14 +197,21 @@ load_cursor_on_client (MetaDisplay *display,
   return image;
 }
 
-static void
-meta_cursor_image_load_gbm_buffer (struct gbm_device *gbm,
-                                   MetaCursorImage   *image,
-                                   uint8_t           *pixels,
-                                   int                width,
-                                   int                height,
-                                   int                rowstride,
-                                   uint32_t           gbm_format)
+XcursorImage *
+meta_display_load_x_cursor (MetaDisplay *display,
+                            MetaCursor   cursor)
+{
+  return load_cursor_on_client (display, cursor);
+}
+
+void
+meta_cursor_reference_load_gbm_buffer (MetaCursorReference *cursor,
+                                       struct gbm_device   *gbm,
+                                       uint8_t             *pixels,
+                                       int                  width,
+                                       int                  height,
+                                       int                  rowstride,
+                                       uint32_t             gbm_format)
 {
   if (width > 64 || height > 64)
     {
@@ -211,180 +225,154 @@ meta_cursor_image_load_gbm_buffer (struct gbm_device *gbm,
       uint8_t buf[4 * 64 * 64];
       int i;
 
-      image->bo = gbm_bo_create (gbm, 64, 64,
-                                 gbm_format, GBM_BO_USE_CURSOR_64X64 | GBM_BO_USE_WRITE);
+      cursor->image.bo = gbm_bo_create (gbm, 64, 64,
+                                        gbm_format, GBM_BO_USE_CURSOR_64X64 | GBM_BO_USE_WRITE);
 
       memset (buf, 0, sizeof(buf));
       for (i = 0; i < height; i++)
         memcpy (buf + i * 4 * 64, pixels + i * rowstride, width * 4);
 
-      gbm_bo_write (image->bo, buf, 64 * 64 * 4);
+      gbm_bo_write (cursor->image.bo, buf, 64 * 64 * 4);
     }
   else
     meta_warning ("HW cursor for format %d not supported\n", gbm_format);
 }
 
-static void
-meta_cursor_image_load_from_xcursor_image (MetaCursorTracker *tracker,
-                                           MetaCursorImage   *image,
-                                           XcursorImage      *xc_image)
+void
+meta_cursor_reference_import_gbm_buffer (MetaCursorReference *cursor,
+                                         struct gbm_device   *gbm,
+                                         struct wl_resource  *buffer,
+                                         int                  width,
+                                         int                  height)
 {
+  /* HW cursors must be 64x64, but 64x64 is huge, and no cursor theme actually uses
+     that, so themed cursors must be padded with transparent pixels to fill the
+     overlay. This is trivial if we have CPU access to the data, but it's not
+     possible if the buffer is in GPU memory (and possibly tiled too), so if we
+     don't get the right size, we fallback to GL.
+  */
+  if (width != 64 || height != 64)
+    {
+      meta_warning ("Invalid cursor size (must be 64x64), falling back to software (GL) cursors\n");
+      return;
+    }
+
+  cursor->image.bo = gbm_bo_import (gbm, GBM_BO_IMPORT_WL_BUFFER,
+                                    buffer, GBM_BO_USE_CURSOR_64X64);
+  if (!cursor->image.bo)
+    meta_warning ("Importing HW cursor from wl_buffer failed\n");
+}
+
+MetaCursorReference *
+meta_cursor_reference_from_xfixes_cursor_image (XFixesCursorImage *cursor_image)
+{
+  MetaCursorReference *cursor;
+  CoglTexture2D *sprite;
+  CoglContext *ctx;
+  guint8 *cursor_data;
+  gboolean free_cursor_data;
+
+  cursor = meta_cursor_reference_new ();
+
+  /* Like all X APIs, XFixesGetCursorImage() returns arrays of 32-bit
+   * quantities as arrays of long; we need to convert on 64 bit */
+  if (sizeof(long) == 4)
+    {
+      cursor_data = (guint8 *)cursor_image->pixels;
+      free_cursor_data = FALSE;
+    }
+  else
+    {
+      int i, j;
+      guint32 *cursor_words;
+      gulong *p;
+      guint32 *q;
+
+      cursor_words = g_new (guint32, cursor_image->width * cursor_image->height);
+      cursor_data = (guint8 *)cursor_words;
+
+      p = cursor_image->pixels;
+      q = cursor_words;
+      for (j = 0; j < cursor_image->height; j++)
+        for (i = 0; i < cursor_image->width; i++)
+          *(q++) = *(p++);
+
+      free_cursor_data = TRUE;
+    }
+
+  ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  sprite = cogl_texture_2d_new_from_data (ctx,
+                                          cursor_image->width,
+                                          cursor_image->height,
+                                          CLUTTER_CAIRO_FORMAT_ARGB32,
+                                          cursor_image->width * 4, /* stride */
+                                          cursor_data,
+                                          NULL);
+  if (free_cursor_data)
+    g_free (cursor_data);
+
+  cursor->image.texture = sprite;
+  cursor->image.hot_x = cursor_image->xhot;
+  cursor->image.hot_y = cursor_image->yhot;
+
+  return cursor;
+}
+
+MetaCursorReference *
+meta_cursor_reference_from_xcursor_image (XcursorImage *xc_image)
+{
+  MetaCursorReference *cursor;
   int width, height, rowstride;
   CoglPixelFormat cogl_format;
-  uint32_t gbm_format;
   ClutterBackend *clutter_backend;
   CoglContext *cogl_context;
+
+  cursor = meta_cursor_reference_new ();
 
   width           = xc_image->width;
   height          = xc_image->height;
   rowstride       = width * 4;
 
-  gbm_format = GBM_FORMAT_ARGB8888;
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
   cogl_format = COGL_PIXEL_FORMAT_BGRA_8888;
 #else
   cogl_format = COGL_PIXEL_FORMAT_ARGB_8888;
 #endif
 
-  image->hot_x = xc_image->xhot;
-  image->hot_y = xc_image->yhot;
+  cursor->image.hot_x = xc_image->xhot;
+  cursor->image.hot_y = xc_image->yhot;
 
   clutter_backend = clutter_get_default_backend ();
   cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  image->texture = cogl_texture_2d_new_from_data (cogl_context,
-                                                  width, height,
-                                                  cogl_format,
-                                                  rowstride,
-                                                  (uint8_t *) xc_image->pixels,
-                                                  NULL);
-
-  if (tracker->gbm)
-    meta_cursor_image_load_gbm_buffer (tracker->gbm,
-                                       image,
-                                       (uint8_t *) xc_image->pixels,
-                                       width, height, rowstride,
-                                       gbm_format);
+  cursor->image.texture = cogl_texture_2d_new_from_data (cogl_context,
+                                                         width, height,
+                                                         cogl_format,
+                                                         rowstride,
+                                                         (uint8_t *) xc_image->pixels,
+                                                         NULL);
+  return cursor;
 }
 
 MetaCursorReference *
-meta_cursor_reference_from_theme (MetaCursorTracker  *tracker,
-                                  MetaCursor          cursor)
+meta_cursor_reference_from_buffer (struct wl_resource *buffer,
+                                   int                 hot_x,
+                                   int                 hot_y)
 {
-  MetaCursorReference *self;
-  XcursorImage *image;
-
-  if (tracker->theme_cursors[cursor])
-    return meta_cursor_reference_ref (tracker->theme_cursors[cursor]);
-
-  image = load_cursor_on_client (tracker->screen->display, cursor);
-  if (!image)
-    return NULL;
-
-  self = g_slice_new0 (MetaCursorReference);
-  self->ref_count = 1;
-  meta_cursor_image_load_from_xcursor_image (tracker, &self->image, image);
-
-  XcursorImageDestroy (image);
-  return self;
-}
-
-static void
-meta_cursor_image_load_from_buffer (MetaCursorTracker  *tracker,
-                                    MetaCursorImage    *image,
-                                    struct wl_resource *buffer,
-                                    int                 hot_x,
-                                    int                 hot_y)
-{
+  MetaCursorReference *cursor;
   ClutterBackend *backend;
   CoglContext *cogl_context;
-  struct wl_shm_buffer *shm_buffer;
-  uint32_t gbm_format;
-  int width, height;
 
-  image->hot_x = hot_x;
-  image->hot_y = hot_y;
+  cursor = meta_cursor_reference_new ();
+
+  cursor->image.hot_x = hot_x;
+  cursor->image.hot_y = hot_y;
 
   backend = clutter_get_default_backend ();
   cogl_context = clutter_backend_get_cogl_context (backend);
 
-  image->texture = cogl_wayland_texture_2d_new_from_buffer (cogl_context, buffer, NULL);
+  cursor->image.texture = cogl_wayland_texture_2d_new_from_buffer (cogl_context, buffer, NULL);
 
-  width = cogl_texture_get_width (COGL_TEXTURE (image->texture));
-  height = cogl_texture_get_height (COGL_TEXTURE (image->texture));
-
-  shm_buffer = wl_shm_buffer_get (buffer);
-  if (shm_buffer)
-    {
-      if (tracker->gbm)
-        {
-          int rowstride = wl_shm_buffer_get_stride (shm_buffer);
-
-          switch (wl_shm_buffer_get_format (shm_buffer))
-            {
-#if G_BYTE_ORDER == G_BIG_ENDIAN
-            case WL_SHM_FORMAT_ARGB8888:
-              gbm_format = GBM_FORMAT_ARGB8888;
-              break;
-            case WL_SHM_FORMAT_XRGB8888:
-              gbm_format = GBM_FORMAT_XRGB8888;
-              break;
-#else
-            case WL_SHM_FORMAT_ARGB8888:
-              gbm_format = GBM_FORMAT_ARGB8888;
-              break;
-            case WL_SHM_FORMAT_XRGB8888:
-              gbm_format = GBM_FORMAT_XRGB8888;
-              break;
-#endif
-            default:
-              g_warn_if_reached ();
-              gbm_format = GBM_FORMAT_ARGB8888;
-            }
-
-          meta_cursor_image_load_gbm_buffer (tracker->gbm,
-                                             image,
-                                             (uint8_t *) wl_shm_buffer_get_data (shm_buffer),
-                                             width, height, rowstride,
-                                             gbm_format);
-        }
-    }
-  else
-    {
-      /* HW cursors must be 64x64, but 64x64 is huge, and no cursor theme actually uses
-         that, so themed cursors must be padded with transparent pixels to fill the
-         overlay. This is trivial if we have CPU access to the data, but it's not
-         possible if the buffer is in GPU memory (and possibly tiled too), so if we
-         don't get the right size, we fallback to GL.
-      */
-      if (width != 64 || height != 64)
-        {
-          meta_warning ("Invalid cursor size (must be 64x64), falling back to software (GL) cursors\n");
-          return;
-        }
-
-      if (tracker->gbm)
-        {
-          image->bo = gbm_bo_import (tracker->gbm, GBM_BO_IMPORT_WL_BUFFER,
-                                     buffer, GBM_BO_USE_CURSOR_64X64);
-          if (!image->bo)
-            meta_warning ("Importing HW cursor from wl_buffer failed\n");
-        }
-    }
-}
-
-MetaCursorReference *
-meta_cursor_reference_from_buffer (MetaCursorTracker  *tracker,
-                                   struct wl_resource *buffer,
-                                   int                 hot_x,
-                                   int                 hot_y)
-{
-  MetaCursorReference *self;
-
-  self = g_slice_new0 (MetaCursorReference);
-  self->ref_count = 1;
-  meta_cursor_image_load_from_buffer (tracker, &self->image, buffer, hot_x, hot_y);
-
-  return self;
+  return cursor;
 }
 
 CoglTexture *

@@ -31,6 +31,7 @@
 
 #include <glib.h>
 #include <X11/Xlib.h>
+#include <X11/Xcursor/Xcursor.h>
 #include <meta/common.h>
 #include <meta/boxes.h>
 #include <meta/display.h>
@@ -397,6 +398,8 @@ MetaDisplay* meta_get_display            (void);
 
 Cursor         meta_display_create_x_cursor (MetaDisplay *display,
                                              MetaCursor   cursor);
+XcursorImage *meta_display_load_x_cursor (MetaDisplay *display,
+                                          MetaCursor   cursor);
 
 void     meta_display_set_grab_op_cursor (MetaDisplay *display,
                                           MetaScreen  *screen,

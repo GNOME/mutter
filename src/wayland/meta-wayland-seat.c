@@ -38,6 +38,7 @@
 #include "meta-shaped-texture-private.h"
 #include "meta-wayland-stage.h"
 #include "meta-cursor-tracker-private.h"
+#include "backends/native/meta-cursor-tracker-native.h"
 #include "meta-surface-actor-wayland.h"
 
 #define DEFAULT_AXIS_STEP_DISTANCE wl_fixed_from_int (10)
@@ -76,10 +77,10 @@ meta_wayland_seat_update_cursor_surface (MetaWaylandSeat *seat)
   if (seat->cursor_surface && seat->cursor_surface->buffer)
     {
       struct wl_resource *buffer = seat->cursor_surface->buffer->resource;
-      cursor = meta_cursor_reference_from_buffer (seat->cursor_tracker,
-                                                  buffer,
-                                                  seat->hotspot_x,
-                                                  seat->hotspot_y);
+      cursor = meta_cursor_tracker_get_cursor_from_buffer (seat->cursor_tracker,
+                                                           buffer,
+                                                           seat->hotspot_x,
+                                                           seat->hotspot_y);
     }
   else
     cursor = NULL;
@@ -386,9 +387,9 @@ meta_wayland_seat_update_pointer (MetaWaylandSeat    *seat,
 
   if (seat->cursor_tracker)
     {
-      meta_cursor_tracker_update_position (seat->cursor_tracker,
-					   wl_fixed_to_int (seat->pointer.x),
-					   wl_fixed_to_int (seat->pointer.y));
+      meta_cursor_tracker_native_update_position (META_CURSOR_TRACKER_NATIVE (seat->cursor_tracker),
+                                                  wl_fixed_to_int (seat->pointer.x),
+                                                  wl_fixed_to_int (seat->pointer.y));
 
       if (seat->pointer.current == NULL)
 	meta_cursor_tracker_unset_window_cursor (seat->cursor_tracker);
