@@ -66,12 +66,6 @@ meta_ui_get_display (void)
   return GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
 }
 
-gint
-meta_ui_get_screen_number (void)
-{
-  return gdk_screen_get_number (gdk_screen_get_default ());
-}
-
 /* For XInput2 */
 #include "display-private.h"
 

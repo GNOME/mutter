@@ -832,7 +832,7 @@ meta_display_open (void)
    * now it always manages exactly one screen as specified by the DISPLAY
    * environment variable.
    */
-  i = meta_ui_get_screen_number ();
+  i = DefaultScreen (the_display->xdisplay);
   screen = meta_screen_new (the_display, i, timestamp);
 
   if (!screen)

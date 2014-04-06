@@ -44,8 +44,6 @@ void meta_ui_init (void);
 
 Display* meta_ui_get_display (void);
 
-gint meta_ui_get_screen_number (void);
-
 MetaUI* meta_ui_new (Display *xdisplay,
                      Screen  *screen);
 void    meta_ui_free (MetaUI *ui);
