@@ -92,6 +92,7 @@ struct _MetaDisplay
   Display *xdisplay;
 
   int clutter_event_filter;
+  GSource *x11_event_source;
 
   Window leader_window;
   Window timestamp_pinging_window;

@@ -446,7 +446,7 @@ meta_display_open (void)
   
   meta_verbose ("Opening display '%s'\n", XDisplayName (NULL));
 
-  xdisplay = meta_ui_get_display ();
+  xdisplay = XOpenDisplay (NULL);
   
   if (xdisplay == NULL)
     {

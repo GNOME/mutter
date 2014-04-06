@@ -78,9 +78,8 @@ get_input_event (MetaDisplay *display,
     {
       XIEvent *input_event;
 
-      /* NB: GDK event filters already have generic events
-       * allocated, so no need to do XGetEventData() on our own
-       */
+      XGetEventData (display->xdisplay, &event->xcookie);
+
       input_event = (XIEvent *) event->xcookie.data;
 
       switch (input_event->evtype)
@@ -1750,12 +1749,12 @@ window_has_xwindow (MetaWindow *window,
  * busy around here. Most of this function is a ginormous switch statement
  * dealing with all the kinds of events that might turn up.
  */
-static gboolean
+static void
 meta_display_handle_xevent (MetaDisplay *display,
                             XEvent      *event)
 {
   Window modified;
-  gboolean bypass_compositor = FALSE, bypass_gtk = FALSE;
+  gboolean bypass_compositor = FALSE;
   XIEvent *input_event;
   MetaMonitorManager *monitor;
 
@@ -1766,15 +1765,11 @@ meta_display_handle_xevent (MetaDisplay *display,
 #ifdef HAVE_STARTUP_NOTIFICATION
   if (sn_display_process_event (display->sn_display, event))
     {
-      bypass_gtk = bypass_compositor = TRUE;
+      bypass_compositor = TRUE;
       goto out;
     }
 #endif
 
-  /* Intercept XRandR events early and don't attempt any
-     processing for them. We still let them through to Gdk though,
-     so it can update its own internal state.
-  */
   monitor = meta_monitor_manager_get ();
   if (meta_monitor_manager_handle_xevent (monitor, event))
     {
@@ -1803,7 +1798,7 @@ meta_display_handle_xevent (MetaDisplay *display,
     {
       if (meta_screen_handle_xevent (display->screen, event))
         {
-          bypass_gtk = bypass_compositor = TRUE;
+          bypass_compositor = TRUE;
           goto out;
         }
     }
@@ -1838,7 +1833,7 @@ meta_display_handle_xevent (MetaDisplay *display,
 #ifdef HAVE_XI23
   if (meta_display_process_barrier_event (display, input_event))
     {
-      bypass_gtk = bypass_compositor = TRUE;
+      bypass_compositor = TRUE;
       goto out;
     }
 #endif /* HAVE_XI23 */
@@ -1849,27 +1844,20 @@ meta_display_handle_xevent (MetaDisplay *display,
    */
   if (handle_input_xevent (display, input_event, event->xany.serial))
     {
-      bypass_gtk = bypass_compositor = TRUE;
+      bypass_compositor = TRUE;
       goto out;
     }
 
   if (handle_other_xevent (display, event))
-    {
-      bypass_gtk = TRUE;
-      goto out;
-    }
+    goto out;
 
  out:
   if (!bypass_compositor)
     {
       MetaWindow *window = modified != None ? meta_display_lookup_x_window (display, modified) : NULL;
 
-      if (meta_compositor_process_event (display->compositor, event, window))
-        bypass_gtk = TRUE;
+      meta_compositor_process_event (display->compositor, event, window);
     }
-
-  display->current_time = CurrentTime;
-  return bypass_gtk;
 }
 
 static void
@@ -2180,19 +2168,6 @@ meta_display_handle_event (MetaDisplay        *display,
   return bypass_clutter;
 }
 
-static GdkFilterReturn
-xevent_filter (GdkXEvent *xevent,
-               GdkEvent  *event,
-               gpointer   data)
-{
-  MetaDisplay *display = data;
-
-  if (meta_display_handle_xevent (display, xevent))
-    return GDK_FILTER_REMOVE;
-  else
-    return GDK_FILTER_CONTINUE;
-}
-
 static gboolean
 event_callback (const ClutterEvent *event,
                 gpointer            data)
@@ -2202,20 +2177,90 @@ event_callback (const ClutterEvent *event,
   return meta_display_handle_event (display, event);
 }
 
+typedef struct {
+  GSource source;
+
+  MetaDisplay *display;
+  GPollFD event_poll_fd;
+} X11EventSource;
+
+static gboolean
+x11_event_source_prepare (GSource *source,
+                          gint    *timeout)
+{
+  X11EventSource *source_x11 = (X11EventSource *) source;
+  MetaDisplay *display = source_x11->display;
+
+  *timeout = -1;
+
+  return XPending (display->xdisplay);
+}
+
+static gboolean
+x11_event_source_check (GSource *source)
+{
+  X11EventSource *source_x11 = (X11EventSource *) source;
+  MetaDisplay *display = source_x11->display;
+
+  if (source_x11->event_poll_fd.revents & G_IO_IN)
+    return XPending (display->xdisplay);
+  else
+    return FALSE;
+}
+
+static gboolean
+x11_event_source_dispatch (GSource     *source,
+                           GSourceFunc  callback,
+                           gpointer     user_data)
+{
+  X11EventSource *source_x11 = (X11EventSource *) source;
+  MetaDisplay *display = source_x11->display;
+  XEvent event;
+
+  XNextEvent (display->xdisplay, &event);
+  meta_display_handle_xevent (display, &event);
+
+  return TRUE;
+}
+
+static GSourceFuncs x11_event_source_funcs = {
+  x11_event_source_prepare,
+  x11_event_source_check,
+  x11_event_source_dispatch,
+};
+
+static GSource *
+x11_event_source_new (MetaDisplay *display)
+{
+  GSource *source = g_source_new (&x11_event_source_funcs, sizeof (X11EventSource));
+  X11EventSource *source_x11 = (X11EventSource *) source;
+
+  source_x11->display = display;
+  source_x11->event_poll_fd.fd = ConnectionNumber (display->xdisplay);
+  source_x11->event_poll_fd.events = G_IO_IN;
+  g_source_add_poll (source, &source_x11->event_poll_fd);
+
+  return source;
+}
+
 void
 meta_display_init_events (MetaDisplay *display)
 {
-  gdk_window_add_filter (NULL, xevent_filter, display);
   display->clutter_event_filter = clutter_event_add_filter (NULL,
                                                             event_callback,
                                                             NULL,
                                                             display);
+
+  display->x11_event_source = x11_event_source_new (display);
+  g_source_attach (display->x11_event_source, NULL);
 }
 
 void
 meta_display_free_events (MetaDisplay *display)
 {
-  gdk_window_remove_filter (NULL, xevent_filter, display);
   clutter_event_remove_filter (display->clutter_event_filter);
   display->clutter_event_filter = 0;
+
+  g_source_unref (display->x11_event_source);
+  display->x11_event_source = NULL;
 }
