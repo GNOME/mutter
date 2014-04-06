@@ -233,20 +233,16 @@ ui_filter_func (GdkXEvent *xevent,
 }
 
 MetaUI*
-meta_ui_new (Display *xdisplay,
-             Screen  *screen)
+meta_ui_new (void)
 {
-  GdkDisplay *gdisplay;
   MetaUI *ui;
 
-  gdisplay = gdk_x11_lookup_xdisplay (xdisplay);
-  g_assert (gdisplay == gdk_display_get_default ());
-
   ui = g_new0 (MetaUI, 1);
-  ui->display = gdisplay;
-  ui->screen = gdk_display_get_screen (gdisplay, XScreenNumberOfScreen (screen));
+  ui->display = gdk_display_get_default ();
+  ui->screen = gdk_screen_get_default ();
 
   ui->frames = meta_frames_new (gdk_screen_get_number (ui->screen));
+
   /* GTK+ needs the frame-sync protocol to work in order to properly
    * handle style changes. This means that the dummy widget we create
    * to get the style for title bars actually needs to be mapped

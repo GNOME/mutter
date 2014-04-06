@@ -44,8 +44,7 @@ void meta_ui_init (void);
 
 Display* meta_ui_get_display (void);
 
-MetaUI* meta_ui_new (Display *xdisplay,
-                     Screen  *screen);
+MetaUI* meta_ui_new (void);
 void    meta_ui_free (MetaUI *ui);
 
 void meta_ui_theme_get_frame_borders (MetaUI *ui,
