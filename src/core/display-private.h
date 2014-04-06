@@ -253,6 +253,8 @@ struct _MetaDisplay
   /* Closing down the display */
   int closing;
 
+  GSList *error_traps;
+
   /* Managed by group.c */
   GHashTable *groups_by_leader;
 
