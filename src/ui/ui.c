@@ -39,8 +39,9 @@ static void meta_ui_accelerator_parse (const char      *accel,
 
 struct _MetaUI
 {
-  Display *xdisplay;
-  Screen *xscreen;
+  GdkDisplay *display;
+  GdkScreen *screen;
+
   MetaFrames *frames;
 
   /* For double-click tracking */
@@ -107,9 +108,6 @@ maybe_redirect_mouse_event (MetaUI *ui,
   XIDeviceEvent *xev_d = NULL;
   XIEnterEvent *xev_e = NULL;
 
-  if (xev->display != ui->xdisplay)
-    return FALSE;
-
   if (!is_input_event (xevent))
     return FALSE;
 
@@ -132,7 +130,7 @@ maybe_redirect_mouse_event (MetaUI *ui,
       return FALSE;
     }
 
-  gdisplay = gdk_x11_lookup_xdisplay (xev->display);
+  gdisplay = ui->display;
   gdk_window = gdk_x11_window_lookup_for_display (gdisplay, window);
   if (gdk_window == NULL)
     return FALSE;
@@ -241,14 +239,14 @@ meta_ui_new (Display *xdisplay,
   GdkDisplay *gdisplay;
   MetaUI *ui;
 
-  ui = g_new0 (MetaUI, 1);
-  ui->xdisplay = xdisplay;
-  ui->xscreen = screen;
-
   gdisplay = gdk_x11_lookup_xdisplay (xdisplay);
   g_assert (gdisplay == gdk_display_get_default ());
 
-  ui->frames = meta_frames_new (XScreenNumberOfScreen (screen));
+  ui = g_new0 (MetaUI, 1);
+  ui->display = gdisplay;
+  ui->screen = gdk_display_get_screen (gdisplay, XScreenNumberOfScreen (screen));
+
+  ui->frames = meta_frames_new (gdk_screen_get_number (ui->screen));
   /* GTK+ needs the frame-sync protocol to work in order to properly
    * handle style changes. This means that the dummy widget we create
    * to get the style for title bars actually needs to be mapped
@@ -301,7 +299,7 @@ meta_ui_create_frame_window (MetaUI *ui,
 			     gint screen_no,
                              gulong *create_serial)
 {
-  GdkDisplay *display = gdk_x11_lookup_xdisplay (ui->xdisplay);
+  GdkDisplay *display = ui->display;
   GdkScreen *screen = gdk_display_get_screen (display, screen_no);
   GdkWindowAttr attrs;
   gint attributes_mask;
@@ -384,10 +382,9 @@ void
 meta_ui_map_frame   (MetaUI *ui,
                      Window  xwindow)
 {
+  GdkDisplay *display = ui->display;
   GdkWindow *window;
-  GdkDisplay *display;
 
-  display = gdk_x11_lookup_xdisplay (ui->xdisplay);
   window = gdk_x11_window_lookup_for_display (display, xwindow);
 
   if (window)
@@ -398,10 +395,9 @@ void
 meta_ui_unmap_frame (MetaUI *ui,
                      Window  xwindow)
 {
+  GdkDisplay *display = ui->display;
   GdkWindow *window;
-  GdkDisplay *display;
 
-  display = gdk_x11_lookup_xdisplay (ui->xdisplay);
   window = gdk_x11_window_lookup_for_display (display, xwindow);
 
   if (window)
@@ -625,7 +621,7 @@ meta_ui_window_should_not_cause_focus (MetaUI *ui,
   GdkWindow *window;
   GdkDisplay *display;
 
-  display = gdk_x11_lookup_xdisplay (display->xdisplay);
+  display = ui->display;
   window = gdk_x11_window_lookup_for_display (display, xwindow);
 
   /* we shouldn't cause focus if we're an override redirect
@@ -656,8 +652,7 @@ meta_ui_theme_get_frame_borders (MetaUI *ui,
 
       if (!font_desc)
         {
-          GdkDisplay *display = gdk_x11_lookup_xdisplay (ui->xdisplay);
-          GdkScreen *screen = gdk_display_get_screen (display, XScreenNumberOfScreen (ui->xscreen));
+          GdkScreen *screen = ui->screen;
           GtkWidgetPath *widget_path;
 
           style = gtk_style_context_new ();
@@ -896,10 +891,9 @@ gboolean
 meta_ui_window_is_widget (MetaUI *ui,
                           Window  xwindow)
 {
-  GdkDisplay *display;
+  GdkDisplay *display = ui->display;
   GdkWindow *window;
 
-  display = gdk_x11_lookup_xdisplay (ui->xdisplay);
   window = gdk_x11_window_lookup_for_display (display, xwindow);
 
   if (window)
