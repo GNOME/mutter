@@ -94,18 +94,21 @@ is_input_event (XEvent *event)
  */
 
 static gboolean
-maybe_redirect_mouse_event (XEvent *xevent)
+maybe_redirect_mouse_event (MetaUI *ui,
+                            XEvent *xevent)
 {
   GdkDisplay *gdisplay;
   GdkDeviceManager *gmanager;
   GdkDevice *gdevice;
-  MetaUI *ui;
   GdkEvent *gevent;
   GdkWindow *gdk_window;
   Window window;
   XIEvent *xev;
   XIDeviceEvent *xev_d = NULL;
   XIEnterEvent *xev_e = NULL;
+
+  if (xev->display != ui->xdisplay)
+    return FALSE;
 
   if (!is_input_event (xevent))
     return FALSE;
@@ -130,10 +133,6 @@ maybe_redirect_mouse_event (XEvent *xevent)
     }
 
   gdisplay = gdk_x11_lookup_xdisplay (xev->display);
-  ui = g_object_get_data (G_OBJECT (gdisplay), "meta-ui");
-  if (!ui)
-    return FALSE;
-
   gdk_window = gdk_x11_window_lookup_for_display (gdisplay, window);
   if (gdk_window == NULL)
     return FALSE;
@@ -227,7 +226,9 @@ ui_filter_func (GdkXEvent *xevent,
                 GdkEvent *event,
                 gpointer data)
 {
-  if (maybe_redirect_mouse_event (xevent))
+  MetaUI *ui = data;
+
+  if (maybe_redirect_mouse_event (ui, xevent))
     return GDK_FILTER_REMOVE;
   else
     return GDK_FILTER_CONTINUE;
@@ -256,9 +257,7 @@ meta_ui_new (Display *xdisplay,
    */
   gtk_widget_show (GTK_WIDGET (ui->frames));
 
-  gdk_window_add_filter (NULL, ui_filter_func, NULL);
-
-  g_object_set_data (G_OBJECT (gdisplay), "meta-ui", ui);
+  gdk_window_add_filter (NULL, ui_filter_func, ui);
 
   return ui;
 }
@@ -266,14 +265,9 @@ meta_ui_new (Display *xdisplay,
 void
 meta_ui_free (MetaUI *ui)
 {
-  GdkDisplay *gdisplay;
-
   gtk_widget_destroy (GTK_WIDGET (ui->frames));
 
-  gdisplay = gdk_x11_lookup_xdisplay (ui->xdisplay);
-  g_object_set_data (G_OBJECT (gdisplay), "meta-ui", NULL);
-
-  gdk_window_remove_filter (NULL, ui_filter_func, NULL);
+  gdk_window_remove_filter (NULL, ui_filter_func, ui);
 
   g_free (ui);
 }
