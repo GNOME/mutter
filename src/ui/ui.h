@@ -63,7 +63,6 @@ void meta_ui_get_frame_mask (MetaUI *ui,
                              cairo_t *cr);
 
 Window meta_ui_create_frame_window (MetaUI *ui,
-                                    Display *xdisplay,
                                     Visual *xvisual,
 				    gint x,
 				    gint y,
@@ -137,8 +136,8 @@ GdkPixbuf* meta_gdk_pixbuf_get_from_pixmap (Pixmap       xpixmap,
 GdkPixbuf* meta_ui_get_default_window_icon (MetaUI *ui);
 GdkPixbuf* meta_ui_get_default_mini_icon (MetaUI *ui);
 
-gboolean  meta_ui_window_should_not_cause_focus (Display *xdisplay,
-                                                 Window   xwindow);
+gboolean  meta_ui_window_should_not_cause_focus (MetaUI *ui,
+                                                 Window  xwindow);
 
 void     meta_ui_set_current_theme (const char *name);
 gboolean meta_ui_have_a_theme      (void);

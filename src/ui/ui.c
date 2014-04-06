@@ -293,7 +293,6 @@ meta_ui_get_frame_borders (MetaUI *ui,
 
 Window
 meta_ui_create_frame_window (MetaUI *ui,
-                             Display *xdisplay,
                              Visual *xvisual,
 			     gint x,
 			     gint y,
@@ -302,7 +301,7 @@ meta_ui_create_frame_window (MetaUI *ui,
 			     gint screen_no,
                              gulong *create_serial)
 {
-  GdkDisplay *display = gdk_x11_lookup_xdisplay (xdisplay);
+  GdkDisplay *display = gdk_x11_lookup_xdisplay (ui->xdisplay);
   GdkScreen *screen = gdk_display_get_screen (display, screen_no);
   GdkWindowAttr attrs;
   gint attributes_mask;
@@ -351,7 +350,7 @@ meta_ui_create_frame_window (MetaUI *ui,
    * as long as you pass in a colormap.
    */
   if (create_serial)
-    *create_serial = XNextRequest (xdisplay);
+    *create_serial = XNextRequest (GDK_DISPLAY_XDISPLAY (display));
   window =
     gdk_window_new (gdk_screen_get_root_window(screen),
 		    &attrs, attributes_mask);
@@ -620,13 +619,13 @@ meta_ui_get_default_mini_icon (MetaUI *ui)
 }
 
 gboolean
-meta_ui_window_should_not_cause_focus (Display *xdisplay,
-                                       Window   xwindow)
+meta_ui_window_should_not_cause_focus (MetaUI *ui,
+                                       Window  xwindow)
 {
   GdkWindow *window;
   GdkDisplay *display;
 
-  display = gdk_x11_lookup_xdisplay (xdisplay);
+  display = gdk_x11_lookup_xdisplay (display->xdisplay);
   window = gdk_x11_window_lookup_for_display (display, xwindow);
 
   /* we shouldn't cause focus if we're an override redirect

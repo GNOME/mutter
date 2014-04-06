@@ -92,7 +92,6 @@ meta_window_ensure_frame (MetaWindow *window)
     visual = NULL;
   
   frame->xwindow = meta_ui_create_frame_window (window->screen->ui,
-                                                window->display->xdisplay,
                                                 visual,
                                                 frame->rect.x,
                                                 frame->rect.y,

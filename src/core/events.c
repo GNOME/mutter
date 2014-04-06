@@ -1814,8 +1814,9 @@ meta_display_handle_xevent (MetaDisplay *display,
 
   if (event->type == UnmapNotify)
     {
-      if (meta_ui_window_should_not_cause_focus (display->xdisplay,
-                                                 modified))
+      MetaUI *ui = display->screen->ui;
+
+      if (meta_ui_window_should_not_cause_focus (ui, modified))
         {
           meta_display_add_ignored_crossing_serial (display, event->xany.serial);
           meta_topic (META_DEBUG_FOCUS,
