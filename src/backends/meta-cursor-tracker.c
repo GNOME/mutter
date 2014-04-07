@@ -157,8 +157,8 @@ meta_cursor_tracker_get_sprite (MetaCursorTracker *tracker)
 
   META_CURSOR_TRACKER_GET_CLASS (tracker)->ensure_cursor (tracker);
 
-  if (tracker->displayed_cursor)
-    return meta_cursor_reference_get_cogl_texture (tracker->displayed_cursor, NULL, NULL);
+  if (tracker->current_cursor)
+    return meta_cursor_reference_get_cogl_texture (tracker->current_cursor, NULL, NULL);
   else
     return NULL;
 }
@@ -179,8 +179,8 @@ meta_cursor_tracker_get_hot (MetaCursorTracker *tracker,
 
   META_CURSOR_TRACKER_GET_CLASS (tracker)->ensure_cursor (tracker);
 
-  if (tracker->displayed_cursor)
-    meta_cursor_reference_get_cogl_texture (tracker->displayed_cursor, x, y);
+  if (tracker->current_cursor)
+    meta_cursor_reference_get_cogl_texture (tracker->current_cursor, x, y);
   else
     {
       if (x)
@@ -239,11 +239,8 @@ meta_cursor_tracker_set_root_cursor (MetaCursorTracker   *tracker,
 }
 
 static MetaCursorReference *
-get_displayed_cursor (MetaCursorTracker *tracker)
+get_current_cursor (MetaCursorTracker *tracker)
 {
-  if (!tracker->is_showing)
-    return NULL;
-
   if (tracker->grab_cursor)
     return tracker->grab_cursor;
 
@@ -253,21 +250,38 @@ get_displayed_cursor (MetaCursorTracker *tracker)
   return tracker->root_cursor;
 }
 
+static MetaCursorReference *
+get_displayed_cursor (MetaCursorTracker *tracker)
+{
+  if (!tracker->is_showing)
+    return NULL;
+
+  return get_current_cursor (tracker);
+}
+
 void
 _meta_cursor_tracker_sync_cursor (MetaCursorTracker *tracker)
 {
+  MetaCursorReference *current_cursor = get_current_cursor (tracker);
   MetaCursorReference *displayed_cursor = get_displayed_cursor (tracker);
 
-  if (tracker->displayed_cursor == displayed_cursor)
-    return;
+  if (tracker->displayed_cursor != displayed_cursor)
+    {
+      g_clear_pointer (&tracker->displayed_cursor, meta_cursor_reference_unref);
+      if (displayed_cursor)
+        tracker->displayed_cursor = meta_cursor_reference_ref (displayed_cursor);
 
-  g_clear_pointer (&tracker->displayed_cursor, meta_cursor_reference_unref);
-  if (displayed_cursor)
-    tracker->displayed_cursor = meta_cursor_reference_ref (displayed_cursor);
+      META_CURSOR_TRACKER_GET_CLASS (tracker)->sync_cursor (tracker);
+    }
 
-  META_CURSOR_TRACKER_GET_CLASS (tracker)->sync_cursor (tracker);
+  if (tracker->current_cursor != current_cursor)
+    {
+      g_clear_pointer (&tracker->current_cursor, meta_cursor_reference_unref);
+      if (current_cursor)
+        tracker->current_cursor = meta_cursor_reference_ref (current_cursor);
 
-  g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
+      g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
+    }
 }
 
 void

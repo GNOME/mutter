@@ -46,6 +46,12 @@ struct _MetaCursorTracker {
    */
   MetaCursorReference *displayed_cursor;
 
+  /* This is the cursor that would be displayed if we hadn't been
+   * asked to hide it. i.e. it's the same as displayed_cursor unless
+   * is_showing is false.
+   */
+  MetaCursorReference *current_cursor;
+
   MetaCursorReference *grab_cursor;
 
   /* Wayland clients can set a NULL buffer as their cursor
