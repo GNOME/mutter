@@ -58,6 +58,7 @@ libmutter_wayland_la_SOURCES =			\
 	backends/meta-cursor-private.h		\
 	backends/meta-cursor-tracker.c		\
 	backends/meta-cursor-tracker-private.h	\
+	backends/meta-display-config-shared.h	\
 	backends/meta-idle-monitor.c		\
 	backends/meta-idle-monitor-private.h	\
 	backends/meta-idle-monitor-dbus.c	\
@@ -80,7 +81,6 @@ libmutter_wayland_la_SOURCES =			\
 	backends/x11/meta-idle-monitor-xsync.h		\
 	backends/x11/meta-monitor-manager-xrandr.c	\
 	backends/x11/meta-monitor-manager-xrandr.h	\
-	backends/x11/meta-xrandr-shared.h		\
 	core/above-tab-keycode.c		\
 	core/barrier.c				\
 	meta/barrier.h				\
