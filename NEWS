@@ -1,3 +1,14 @@
+3.12.1
+======
+* Fix opacity values from _NET_WM_WINDOW_OPACITY [Nirbheek; #727874]
+* Misc. cleanups [Jasper; #720631]
+
+Contributors:
+  Nirbheek Chauhan, Jasper St. Pierre
+
+Translations:
+  Inaki Larranaga Murgoitio [eu], marablack3 [el]
+
 3.12.0
 ======
 
