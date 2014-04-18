@@ -19,7 +19,8 @@ struct _MetaCompositor
 
   Atom            atom_x_root_pixmap;
   Atom            atom_net_wm_window_opacity;
-  guint           repaint_func_id;
+  guint           pre_paint_func_id;
+  guint           post_paint_func_id;
 
   ClutterActor   *shadow_src;
 
@@ -33,7 +34,8 @@ struct _MetaCompositor
   guint           debug       : 1;
   guint           no_mipmaps  : 1;
 
-  gboolean need_sync_drawing;
+  gboolean frame_has_updated_xsurfaces;
+  gboolean have_x11_sync_object;
 };
 
 struct _MetaCompScreen
