@@ -118,6 +118,8 @@ libmutter_la_SOURCES =				\
 	compositor/meta-surface-actor-wayland.h	\
 	compositor/meta-stage.h			\
 	compositor/meta-stage.c			\
+	compositor/meta-sync-ring.c		\
+	compositor/meta-sync-ring.h		\
 	compositor/meta-texture-rectangle.c	\
 	compositor/meta-texture-rectangle.h	\
 	compositor/meta-texture-tower.c		\

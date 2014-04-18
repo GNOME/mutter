@@ -79,6 +79,7 @@
 #include "frame.h"
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xcomposite.h>
+#include "meta-sync-ring.h"
 
 #include "backends/meta-backend.h"
 #include "backends/x11/meta-backend-x11.h"
@@ -136,7 +137,11 @@ meta_switch_workspace_completed (MetaCompositor *compositor)
 void
 meta_compositor_destroy (MetaCompositor *compositor)
 {
-  clutter_threads_remove_repaint_func (compositor->repaint_func_id);
+  clutter_threads_remove_repaint_func (compositor->pre_paint_func_id);
+  clutter_threads_remove_repaint_func (compositor->post_paint_func_id);
+
+  if (compositor->have_x11_sync_object)
+    meta_sync_ring_destroy ();
 }
 
 static void
@@ -571,6 +576,8 @@ meta_compositor_manage (MetaCompositor *compositor)
        * contents until we show the stage.
        */
       XMapWindow (xdisplay, compositor->output);
+
+      compositor->have_x11_sync_object = meta_sync_ring_init (display);
     }
 
   redirect_windows (display->screen);
@@ -781,6 +788,10 @@ meta_compositor_process_event (MetaCompositor *compositor,
      think the stage is invisible */
   if (!meta_is_wayland_compositor () && event->type == MapNotify)
     clutter_x11_handle_event (event);
+
+  if (compositor->have_x11_sync_object &&
+      event->type == (compositor->display->xsync_event_base + XSyncAlarmNotify))
+    meta_sync_ring_handle_event ((XSyncAlarmNotifyEvent *) event);
 
   /* The above handling is basically just "observing" the events, so we return
    * FALSE to indicate that the event should not be filtered out; if we have
@@ -1128,7 +1139,7 @@ frame_callback (CoglOnscreen  *onscreen,
 }
 
 static gboolean
-meta_repaint_func (gpointer data)
+meta_pre_paint_func (gpointer data)
 {
   GList *l;
   MetaWindowActor *top_window;
@@ -1161,10 +1172,12 @@ meta_repaint_func (gpointer data)
     {
       /* We need to make sure that any X drawing that happens before
        * the XDamageSubtract() for each window above is visible to
-       * subsequent GL rendering; the only standardized way to do this
-       * is EXT_x11_sync_object, which isn't yet widely available. For
-       * now, we count on details of Xorg and the open source drivers,
-       * and hope for the best otherwise.
+       * subsequent GL rendering; the standardized way to do this is
+       * GL_EXT_X11_sync_object. Since this isn't implemented yet in
+       * mesa, we also have a path that relies on the implementation
+       * of the open source drivers.
+       *
+       * Anything else, we just hope for the best.
        *
        * Xorg and open source driver specifics:
        *
@@ -1179,7 +1192,24 @@ meta_repaint_func (gpointer data)
        * round trip request at this point is sufficient to flush the
        * GLX buffers.
        */
-      XSync (compositor->display->xdisplay, False);
+      if (compositor->have_x11_sync_object)
+        meta_sync_ring_insert_wait ();
+      else
+        XSync (compositor->display->xdisplay, False);
+    }
+
+  return TRUE;
+}
+
+static gboolean
+meta_post_paint_func (gpointer data)
+{
+  MetaCompositor *compositor = data;
+
+  if (compositor->frame_has_updated_xsurfaces)
+    {
+      if (compositor->have_x11_sync_object)
+        meta_sync_ring_after_frame ();
 
       compositor->frame_has_updated_xsurfaces = FALSE;
     }
@@ -1222,10 +1252,16 @@ meta_compositor_new (MetaDisplay *display)
                     G_CALLBACK (on_shadow_factory_changed),
                     compositor);
 
-  compositor->repaint_func_id = clutter_threads_add_repaint_func (meta_repaint_func,
-                                                                  compositor,
-                                                                  NULL);
-
+  compositor->pre_paint_func_id =
+    clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_PRE_PAINT,
+                                           meta_pre_paint_func,
+                                           compositor,
+                                           NULL);
+  compositor->post_paint_func_id =
+    clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_POST_PAINT,
+                                           meta_post_paint_func,
+                                           compositor,
+                                           NULL);
   return compositor;
 }
 
