@@ -1,0 +1,30 @@
+--- a/src/meta/prefs.h
++++ b/src/meta/prefs.h
+@@ -422,13 +422,13 @@
+    */
+   GSList *bindings;
+ 
+-  /** for keybindings that can have shift or not like Alt+Tab */
++  /* for keybindings that can have shift or not like Alt+Tab */
+   gboolean      add_shift:1;
+ 
+-  /** for keybindings that apply only to a window */
++  /* for keybindings that apply only to a window */
+   gboolean      per_window:1;
+ 
+-  /** for keybindings not added with meta_display_add_keybinding() */
++  /* for keybindings not added with meta_display_add_keybinding() */
+   gboolean      builtin:1;
+ } MetaKeyPref;
+ 
+--- a/src/ui/theme.c
++++ b/src/ui/theme.c
+@@ -1880,7 +1880,7 @@
+ /**
+  * pos_tokenize:
+  * @expr: The expression
+- * @tokens_p: (out) The resulting tokens
++ * @tokens_p: (out): The resulting tokens
+  * @n_tokens_p: (out): The number of resulting tokens
+  * @err: (out):  set to the problem if there was a problem
+  

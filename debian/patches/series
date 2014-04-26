@@ -1,2 +1,3 @@
 01_Wcast-align.patch
 0001-Update-for-Cogl-API-breaks.patch
+fix-build-with-g-i.patch
