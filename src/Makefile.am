@@ -319,6 +319,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	core/stack.h				\
 	core/stack-tracker.c			\
 	core/stack-tracker.h			\
+	core/stereo.c				\
+	core/stereo.h				\
 	core/util.c				\
 	meta/util.h				\
 	core/util-private.h			\

@@ -31,6 +31,7 @@
 #include <cogl/winsys/cogl-texture-pixmap-x11.h>
 
 #include <meta/errors.h>
+#include "compositor-private.h"
 #include "window-private.h"
 #include "meta-shaped-texture-private.h"
 #include "meta-cullable.h"
@@ -43,6 +44,7 @@ struct _MetaSurfaceActorX11Private
   MetaDisplay *display;
 
   CoglTexture *texture;
+  CoglTexture *texture_right;
   Pixmap pixmap;
   Damage damage;
 
@@ -58,6 +60,8 @@ struct _MetaSurfaceActorX11Private
   guint size_changed : 1;
 
   guint unredirected   : 1;
+
+  guint stereo : 1;
 };
 typedef struct _MetaSurfaceActorX11Private MetaSurfaceActorX11Private;
 
@@ -94,7 +98,7 @@ detach_pixmap (MetaSurfaceActorX11 *self)
    * you are supposed to be able to free a GLXPixmap after freeing the underlying
    * pixmap, but it certainly doesn't work with current DRI/Mesa
    */
-  meta_shaped_texture_set_texture (stex, NULL);
+  meta_shaped_texture_set_textures (stex, NULL, NULL);
   cogl_flush ();
 
   meta_error_trap_push (display);
@@ -103,6 +107,7 @@ detach_pixmap (MetaSurfaceActorX11 *self)
   meta_error_trap_pop (display);
 
   g_clear_pointer (&priv->texture, cogl_object_unref);
+  g_clear_pointer (&priv->texture_right, cogl_object_unref);
 }
 
 static void
@@ -114,23 +119,35 @@ set_pixmap (MetaSurfaceActorX11 *self,
   CoglContext *ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
   MetaShapedTexture *stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
   CoglError *error = NULL;
-  CoglTexture *texture;
+  CoglTexturePixmapX11 *texture;
+  CoglTexturePixmapX11 *texture_right;
 
   g_assert (priv->pixmap == None);
   priv->pixmap = pixmap;
 
-  texture = COGL_TEXTURE (cogl_texture_pixmap_x11_new (ctx, priv->pixmap, FALSE, &error));
+  if (priv->stereo)
+    texture = cogl_texture_pixmap_x11_new_left (ctx, pixmap, FALSE, &error);
+  else
+    texture = cogl_texture_pixmap_x11_new (ctx, pixmap, FALSE, &error);
+
+  if (priv->stereo)
+    texture_right = cogl_texture_pixmap_x11_new_right (texture);
+  else
+    texture_right = NULL;
 
   if (error != NULL)
     {
       g_warning ("Failed to allocate stex texture: %s", error->message);
       cogl_error_free (error);
     }
-  else if (G_UNLIKELY (!cogl_texture_pixmap_x11_is_using_tfp_extension (COGL_TEXTURE_PIXMAP_X11 (texture))))
+  else if (G_UNLIKELY (!cogl_texture_pixmap_x11_is_using_tfp_extension (texture)))
     g_warning ("NOTE: Not using GLX TFP!\n");
 
-  priv->texture = texture;
-  meta_shaped_texture_set_texture (stex, texture);
+  priv->texture = COGL_TEXTURE (texture);
+  if (priv->stereo)
+    priv->texture_right = COGL_TEXTURE (texture_right);
+
+  meta_shaped_texture_set_textures (stex, COGL_TEXTURE (texture), COGL_TEXTURE (texture_right));
 }
 
 static void
@@ -433,8 +450,8 @@ reset_texture (MetaSurfaceActorX11 *self)
   /* Setting the texture to NULL will cause all the FBO's cached by the
    * shaped texture's MetaTextureTower to be discarded and recreated.
    */
-  meta_shaped_texture_set_texture (stex, NULL);
-  meta_shaped_texture_set_texture (stex, priv->texture);
+  meta_shaped_texture_set_textures (stex, NULL, NULL);
+  meta_shaped_texture_set_textures (stex, priv->texture, priv->texture_right);
 }
 
 MetaSurfaceActor *
@@ -443,11 +460,16 @@ meta_surface_actor_x11_new (MetaWindow *window)
   MetaSurfaceActorX11 *self = g_object_new (META_TYPE_SURFACE_ACTOR_X11, NULL);
   MetaSurfaceActorX11Private *priv = meta_surface_actor_x11_get_instance_private (self);
   MetaDisplay *display = meta_window_get_display (window);
+  Window xwindow;
 
   g_assert (!meta_is_wayland_compositor ());
 
   priv->window = window;
   priv->display = display;
+
+  xwindow = meta_window_x11_get_toplevel_xwindow (window);
+  priv->stereo = meta_compositor_window_is_stereo (display->screen, xwindow);
+  meta_compositor_select_stereo_notify (display->screen, xwindow);
 
   g_signal_connect_object (priv->display, "gl-video-memory-purged",
                            G_CALLBACK (reset_texture), self, G_CONNECT_SWAPPED);
@@ -478,4 +500,22 @@ meta_surface_actor_x11_set_size (MetaSurfaceActorX11 *self,
   priv->last_width = width;
   priv->last_height = height;
   meta_shaped_texture_set_fallback_size (stex, width, height);
+}
+
+void
+meta_surface_actor_x11_stereo_notify (MetaSurfaceActorX11 *self,
+                                      gboolean             stereo_tree)
+{
+  MetaSurfaceActorX11Private *priv = meta_surface_actor_x11_get_instance_private (self);
+
+  priv->stereo = stereo_tree != FALSE;
+  detach_pixmap (self);
+}
+
+gboolean
+meta_surface_actor_x11_is_stereo (MetaSurfaceActorX11 *self)
+{
+  MetaSurfaceActorX11Private *priv = meta_surface_actor_x11_get_instance_private (self);
+
+  return priv->stereo;
 }

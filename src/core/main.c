@@ -47,6 +47,7 @@
 #include <meta/main.h>
 #include "util-private.h"
 #include "display-private.h"
+#include "stereo.h"
 #include <meta/errors.h>
 #include "ui.h"
 #include <meta/prefs.h>
@@ -581,6 +582,9 @@ meta_init (void)
     meta_select_display (opt_display_name);
 
   meta_init_backend (backend_gtype);
+
+  if (!meta_is_wayland_compositor ())
+    meta_stereo_init ();
 
   meta_clutter_init ();
 

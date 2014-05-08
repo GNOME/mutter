@@ -2321,3 +2321,25 @@ screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
   iface->transform_relative_position = meta_window_actor_transform_relative_position;
   iface->capture_into = meta_window_actor_capture_into;
 }
+
+void
+meta_window_actor_stereo_notify (MetaWindowActor *self,
+                                 gboolean         stereo_tree)
+{
+  MetaWindowActorPrivate *priv = self->priv;
+
+  if (META_IS_SURFACE_ACTOR_X11 (priv->surface))
+    meta_surface_actor_x11_stereo_notify (META_SURFACE_ACTOR_X11 (priv->surface),
+                                          stereo_tree);
+}
+
+gboolean
+meta_window_actor_is_stereo (MetaWindowActor *self)
+{
+  MetaWindowActorPrivate *priv = self->priv;
+
+  if (META_IS_SURFACE_ACTOR_X11 (priv->surface))
+    return meta_surface_actor_x11_is_stereo (META_SURFACE_ACTOR_X11 (priv->surface));
+  else
+    return FALSE;
+}

@@ -21,6 +21,10 @@ struct _MetaCompositor
   gint64          server_time_query_time;
   gint64          server_time_offset;
 
+  int             glx_opcode;
+  guint           stereo_tree_ext : 1;
+  guint           have_stereo_windows : 1;
+
   guint           server_time_is_monotonic_time : 1;
   guint           no_mipmaps  : 1;
 
@@ -60,6 +64,11 @@ void     meta_end_modal_for_plugin   (MetaCompositor   *compositor,
 
 gint64 meta_compositor_monotonic_time_to_server_time (MetaDisplay *display,
                                                       gint64       monotonic_time);
+
+gboolean meta_compositor_window_is_stereo     (MetaScreen *screen,
+                                               Window      xwindow);
+void     meta_compositor_select_stereo_notify (MetaScreen *screen,
+                                               Window      xwindow);
 
 void meta_compositor_flash_window (MetaCompositor *compositor,
                                    MetaWindow     *window);

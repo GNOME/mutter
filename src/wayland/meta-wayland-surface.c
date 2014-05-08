@@ -676,7 +676,7 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
               snippet = meta_wayland_buffer_create_snippet (pending->buffer);
               is_y_inverted = meta_wayland_buffer_is_y_inverted (pending->buffer);
 
-              meta_shaped_texture_set_texture (stex, texture);
+              meta_shaped_texture_set_textures (stex, texture, NULL);
               meta_shaped_texture_set_snippet (stex, snippet);
               meta_shaped_texture_set_is_y_inverted (stex, is_y_inverted);
               g_clear_pointer (&snippet, cogl_object_unref);

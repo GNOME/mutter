@@ -60,4 +60,9 @@ MetaSurfaceActor *meta_window_actor_get_surface (MetaWindowActor *self);
 void meta_window_actor_update_surface (MetaWindowActor *self);
 MetaWindowActor *meta_window_actor_from_window (MetaWindow *window);
 
+void meta_window_actor_stereo_notify (MetaWindowActor *actor,
+                                      gboolean         stereo_tree);
+
+gboolean meta_window_actor_is_stereo (MetaWindowActor *actor);
+
 #endif /* META_WINDOW_ACTOR_PRIVATE_H */

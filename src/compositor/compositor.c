@@ -70,6 +70,8 @@
 #include "meta-window-group-private.h"
 #include "window-private.h" /* to check window->hidden */
 #include "display-private.h" /* for meta_display_lookup_x_window() and meta_display_cancel_touch() */
+#include "stack-tracker.h"
+#include "stereo.h"
 #include "util-private.h"
 #include "backends/meta-dnd-private.h"
 #include "frame.h"
@@ -487,6 +489,97 @@ redirect_windows (MetaScreen *screen)
     }
 }
 
+#define GLX_STEREO_TREE_EXT        0x20F5
+#define GLX_STEREO_NOTIFY_MASK_EXT 0x00000001
+#define GLX_STEREO_NOTIFY_EXT      0x00000000
+
+typedef struct {
+  int type;
+  unsigned long serial;
+  Bool send_event;
+  Display *display;
+  int extension;
+  int evtype;
+  Drawable window;
+  Bool stereo_tree;
+} StereoNotifyEvent;
+
+static gboolean
+screen_has_stereo_tree_ext (MetaScreen *screen)
+{
+  MetaDisplay *display = meta_screen_get_display (screen);
+  Display     *xdisplay = meta_display_get_xdisplay (display);
+  const char  *extensions_string;
+
+  static const char * (*query_extensions_string) (Display *display,
+                                                  int      screen);
+
+  if (query_extensions_string == NULL)
+    query_extensions_string =
+      (const char * (*) (Display *, int))
+      cogl_get_proc_address ("glXQueryExtensionsString");
+
+  extensions_string = query_extensions_string (xdisplay,
+                                               meta_screen_get_screen_number (screen));
+
+  return extensions_string && strstr (extensions_string, "EXT_stereo_tree") != 0;
+}
+
+#include <GL/gl.h>
+
+gboolean
+meta_compositor_window_is_stereo (MetaScreen *screen,
+                                  Window      xwindow)
+{
+  MetaCompositor *compositor = get_compositor_for_screen (screen);
+  MetaDisplay    *display = meta_screen_get_display (screen);
+  Display        *xdisplay = meta_display_get_xdisplay (display);
+
+  static int (*query_drawable) (Display      *dpy,
+                                Drawable      draw,
+                                int           attribute,
+                                unsigned int *value);
+
+  if (compositor->stereo_tree_ext)
+    {
+      unsigned int stereo_tree = 0;
+
+      if (query_drawable == NULL)
+        query_drawable =
+          (int (*) (Display *, Drawable, int, unsigned int *))
+          cogl_get_proc_address ("glXQueryDrawable");
+
+      query_drawable (xdisplay, xwindow, GLX_STEREO_TREE_EXT, &stereo_tree);
+
+      return stereo_tree != 0;
+    }
+  else
+    return FALSE;
+}
+
+void
+meta_compositor_select_stereo_notify (MetaScreen *screen,
+                                      Window      xwindow)
+{
+  MetaCompositor *compositor = get_compositor_for_screen (screen);
+  MetaDisplay    *display = meta_screen_get_display (screen);
+  Display        *xdisplay = meta_display_get_xdisplay (display);
+
+  static void (*select_event) (Display      *dpy,
+                               Drawable      draw,
+                               unsigned long event_mask);
+
+  if (compositor->stereo_tree_ext)
+    {
+      if (select_event == NULL)
+        select_event =
+          (void (*) (Display *, Drawable, unsigned long))
+          cogl_get_proc_address ("glXSelectEvent");
+
+      select_event (xdisplay, xwindow, GLX_STEREO_NOTIFY_MASK_EXT);
+    }
+}
+
 void
 meta_compositor_manage (MetaCompositor *compositor)
 {
@@ -494,6 +587,8 @@ meta_compositor_manage (MetaCompositor *compositor)
   Display *xdisplay = display->xdisplay;
   MetaScreen *screen = display->screen;
   MetaBackend *backend = meta_get_backend ();
+
+  compositor->stereo_tree_ext = screen_has_stereo_tree_ext (screen);
 
   meta_screen_set_cm_selection (display->screen);
 
@@ -759,6 +854,23 @@ meta_compositor_process_event (MetaCompositor *compositor,
       if (window)
         process_damage (compositor, (XDamageNotifyEvent *) event, window);
     }
+  else if (!meta_is_wayland_compositor () &&
+           event->type == GenericEvent &&
+           event->xcookie.extension == compositor->glx_opcode)
+    {
+      if (event->xcookie.evtype == GLX_STEREO_NOTIFY_EXT)
+        {
+          StereoNotifyEvent *stereo_event = (StereoNotifyEvent *)(event->xcookie.data);
+          window = meta_display_lookup_x_window (compositor->display, stereo_event->window);
+
+          if (window != NULL)
+            {
+              MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+              meta_window_actor_stereo_notify (window_actor, stereo_event->stereo_tree);
+              meta_stack_tracker_queue_sync_stack (window->screen->stack_tracker);
+            }
+        }
+    }
 
   if (compositor->have_x11_sync_object)
     meta_sync_ring_handle_event (event);
@@ -969,6 +1081,7 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
 			    GList	    *stack)
 {
   GList *old_stack;
+  int stereo_window_count = 0;
 
   /* This is painful because hidden windows that we are in the process
    * of animating out of existence. They'll be at the bottom of the
@@ -1044,12 +1157,16 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
        * near the front of the other.)
        */
       compositor->windows = g_list_prepend (compositor->windows, actor);
+      if (meta_window_actor_is_stereo (actor))
+        stereo_window_count++;
 
       stack = g_list_remove (stack, window);
       old_stack = g_list_remove (old_stack, actor);
     }
 
   sync_actor_stacking (compositor);
+
+  meta_stereo_set_have_stereo_windows (stereo_window_count > 0);
 
   if (compositor->top_window_actor)
     g_signal_handlers_disconnect_by_func (compositor->top_window_actor,
@@ -1259,6 +1376,17 @@ meta_compositor_new (MetaDisplay *display)
                                            meta_post_paint_func,
                                            compositor,
                                            NULL);
+  if (!meta_is_wayland_compositor ())
+    {
+      Display *xdisplay = meta_display_get_xdisplay (display);
+      int glx_major_opcode, glx_first_event, glx_first_error;
+
+      if (XQueryExtension (xdisplay,
+                           "GLX",
+                           &glx_major_opcode, &glx_first_event, &glx_first_error))
+        compositor->glx_opcode = glx_major_opcode;
+    }
+
   return compositor;
 }
 

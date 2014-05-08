@@ -89,8 +89,10 @@ typedef struct
 struct _MetaShapedTexturePrivate
 {
   MetaTextureTower *paint_tower;
+  MetaTextureTower *paint_tower_right;
 
   CoglTexture *texture;
+  CoglTexture *texture_right;
   CoglTexture *mask_texture;
   CoglSnippet *snippet;
 
@@ -161,8 +163,10 @@ meta_shaped_texture_init (MetaShapedTexture *self)
   priv = self->priv = META_SHAPED_TEXTURE_GET_PRIVATE (self);
 
   priv->paint_tower = meta_texture_tower_new ();
+  priv->paint_tower_right = NULL; /* demand create */
 
   priv->texture = NULL;
+  priv->texture_right = NULL;
   priv->mask_texture = NULL;
   priv->create_mipmaps = TRUE;
   priv->is_y_inverted = TRUE;
@@ -229,11 +233,11 @@ meta_shaped_texture_dispose (GObject *object)
   MetaShapedTexture *self = (MetaShapedTexture *) object;
   MetaShapedTexturePrivate *priv = self->priv;
 
-  if (priv->paint_tower)
-    meta_texture_tower_free (priv->paint_tower);
-  priv->paint_tower = NULL;
+  g_clear_pointer (&priv->paint_tower, meta_texture_tower_free);
+  g_clear_pointer (&priv->paint_tower_right, meta_texture_tower_free);
 
   g_clear_pointer (&priv->texture, cogl_object_unref);
+  g_clear_pointer (&priv->texture_right, cogl_object_unref);
   g_clear_pointer (&priv->opaque_region, cairo_region_destroy);
 
   meta_shaped_texture_set_mask_texture (self, NULL);
@@ -431,8 +435,9 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
 }
 
 static void
-set_cogl_texture (MetaShapedTexture *stex,
-                  CoglTexture       *cogl_tex)
+set_cogl_textures (MetaShapedTexture *stex,
+                   CoglTexture       *cogl_tex,
+                   CoglTexture       *cogl_tex_right)
 {
   MetaShapedTexturePrivate *priv;
   guint width, height;
@@ -443,10 +448,13 @@ set_cogl_texture (MetaShapedTexture *stex,
 
   if (priv->texture)
     cogl_object_unref (priv->texture);
+  if (priv->texture_right)
+    cogl_object_unref (priv->texture_right);
 
   g_clear_pointer (&priv->saved_base_surface, cairo_surface_destroy);
 
   priv->texture = cogl_tex;
+  priv->texture_right = cogl_tex_right;
 
   if (cogl_tex != NULL)
     {
@@ -459,6 +467,9 @@ set_cogl_texture (MetaShapedTexture *stex,
       width = 0;
       height = 0;
     }
+
+  if (cogl_tex_right != NULL)
+    cogl_object_ref (cogl_tex_right);
 
   if (priv->tex_width != width ||
       priv->tex_height != height)
@@ -475,8 +486,23 @@ set_cogl_texture (MetaShapedTexture *stex,
    * previous buffer. We only queue a redraw in response to surface
    * damage. */
 
+  if (cogl_tex_right != NULL)
+    {
+      if (priv->paint_tower_right == NULL)
+        priv->paint_tower_right = meta_texture_tower_new ();
+    }
+  else
+    {
+      g_clear_pointer (&priv->paint_tower_right, meta_texture_tower_free);
+    }
+
   if (priv->create_mipmaps)
-    meta_texture_tower_set_base_texture (priv->paint_tower, cogl_tex);
+    {
+      meta_texture_tower_set_base_texture (priv->paint_tower, cogl_tex);
+
+      if (priv->paint_tower_right)
+        meta_texture_tower_set_base_texture (priv->paint_tower_right, cogl_tex_right);
+    }
 }
 
 static void
@@ -485,6 +511,7 @@ do_paint (MetaShapedTexture *stex,
           CoglTexture       *paint_tex,
           cairo_region_t    *clip_region)
 {
+  ClutterActor *actor = CLUTTER_ACTOR (stex);
   MetaShapedTexturePrivate *priv = stex->priv;
   guint tex_width, tex_height;
   guchar opacity;
@@ -700,7 +727,9 @@ meta_shaped_texture_paint (ClutterActor *actor)
   MetaShapedTexture *stex = META_SHAPED_TEXTURE (actor);
   MetaShapedTexturePrivate *priv = stex->priv;
   CoglTexture *paint_tex = NULL;
+  CoglTexture *paint_tex_right = NULL;
   CoglFramebuffer *fb;
+  gboolean stereo;
 
   if (!priv->texture)
     return;
@@ -737,7 +766,32 @@ meta_shaped_texture_paint (ClutterActor *actor)
     return;
 
   fb = cogl_get_draw_framebuffer ();
-  do_paint (META_SHAPED_TEXTURE (actor), fb, paint_tex, priv->clip_region);
+
+  stereo = priv->texture_right && cogl_framebuffer_get_is_stereo (fb);
+
+  if (stereo)
+    {
+      if (priv->create_mipmaps)
+	paint_tex_right = meta_texture_tower_get_paint_texture (priv->paint_tower_right);
+
+      if (!paint_tex_right)
+	paint_tex_right = COGL_TEXTURE (priv->texture_right);
+    }
+  else
+    paint_tex_right = NULL;
+
+  if (stereo)
+    cogl_framebuffer_set_stereo_mode (fb, COGL_STEREO_LEFT);
+  do_paint (stex, fb, paint_tex, priv->clip_region);
+  if (stereo)
+    cogl_framebuffer_set_stereo_mode (fb, COGL_STEREO_BOTH);
+
+  if (paint_tex_right != NULL)
+    {
+      cogl_framebuffer_set_stereo_mode (fb, COGL_STEREO_RIGHT);
+      do_paint (stex, fb, paint_tex_right, priv->clip_region);
+      cogl_framebuffer_set_stereo_mode (fb, COGL_STEREO_BOTH);
+    }
 }
 
 static void
@@ -859,6 +913,12 @@ meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
       priv->create_mipmaps = create_mipmaps;
       base_texture = create_mipmaps ? priv->texture : NULL;
       meta_texture_tower_set_base_texture (priv->paint_tower, base_texture);
+
+      if (priv->paint_tower_right)
+        {
+          base_texture = create_mipmaps ? priv->texture_right : NULL;
+          meta_texture_tower_set_base_texture (priv->paint_tower_right, base_texture);
+        }
     }
 }
 
@@ -987,6 +1047,8 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
   shrink_backing_region (stex, &clip);
 
   meta_texture_tower_update_area (priv->paint_tower, x, y, width, height);
+  if (priv->paint_tower_right)
+    meta_texture_tower_update_area (priv->paint_tower_right, x, y, width, height);
 
   unobscured_region = effective_unobscured_region (stex);
   if (unobscured_region)
@@ -1019,17 +1081,18 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
 }
 
 /**
- * meta_shaped_texture_set_texture:
+ * meta_shaped_texture_set_textures:
  * @stex: The #MetaShapedTexture
  * @pixmap: The #CoglTexture to display
  */
 void
-meta_shaped_texture_set_texture (MetaShapedTexture *stex,
-                                 CoglTexture       *texture)
+meta_shaped_texture_set_textures (MetaShapedTexture *stex,
+                                  CoglTexture       *texture,
+                                  CoglTexture       *texture_right)
 {
   g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
 
-  set_cogl_texture (stex, texture);
+  set_cogl_textures (stex, texture, texture_right);
 }
 
 /**

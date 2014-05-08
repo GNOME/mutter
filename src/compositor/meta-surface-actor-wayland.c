@@ -187,7 +187,7 @@ meta_surface_actor_wayland_dispose (GObject *object)
   MetaShapedTexture *stex =
     meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
 
-  meta_shaped_texture_set_texture (stex, NULL);
+  meta_shaped_texture_set_textures (stex, NULL, NULL);
   if (priv->surface)
     {
       g_object_remove_weak_pointer (G_OBJECT (priv->surface),

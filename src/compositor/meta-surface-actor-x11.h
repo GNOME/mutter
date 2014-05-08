@@ -64,6 +64,11 @@ MetaSurfaceActor * meta_surface_actor_x11_new (MetaWindow *window);
 void meta_surface_actor_x11_set_size (MetaSurfaceActorX11 *self,
                                       int width, int height);
 
+void meta_surface_actor_x11_stereo_notify (MetaSurfaceActorX11 *self,
+                                           gboolean             stereo_tree);
+
+gboolean meta_surface_actor_x11_is_stereo (MetaSurfaceActorX11 *self);
+
 G_END_DECLS
 
 #endif /* __META_SURFACE_ACTOR_X11_H__ */
