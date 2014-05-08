@@ -483,4 +483,11 @@ void meta_display_set_input_focus_xwindow (MetaDisplay *display,
                                            Window       window,
                                            guint32      timestamp);
 
+gboolean meta_display_show_restart_message (MetaDisplay *display,
+                                            const char  *message);
+gboolean meta_display_request_restart      (MetaDisplay *display);
+
+void meta_restart_init (void);
+void meta_restart_finish (void);
+
 #endif

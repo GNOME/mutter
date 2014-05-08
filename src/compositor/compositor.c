@@ -74,7 +74,7 @@
 #include "meta-window-actor-private.h"
 #include "meta-window-group.h"
 #include "window-private.h" /* to check window->hidden */
-#include "display-private.h" /* for meta_display_lookup_x_window() */
+#include "display-private.h"
 #include "util-private.h"
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xcomposite.h>
@@ -180,6 +180,10 @@ get_output_window (MetaScreen *screen)
 
   xroot = meta_screen_get_xroot (screen);
   output = XCompositeGetOverlayWindow (xdisplay, xroot);
+
+  /* Now that we've gotten taken a reference count on the COW, we
+   * can close the helper that is holding on to it */
+  meta_restart_finish ();
 
   meta_core_add_old_event_mask (xdisplay, output, &mask);
 

@@ -51,6 +51,7 @@
 #include <meta/errors.h>
 #include "ui.h"
 #include "session.h"
+#include "stereo.h"
 #include <meta/prefs.h>
 #include <meta/compositor.h>
 
@@ -443,6 +444,8 @@ meta_init (void)
   meta_main_loop = g_main_loop_new (NULL, FALSE);
   
   meta_ui_init ();
+
+  meta_restart_init ();
 
   /*
    * Clutter can only be initialized after the UI.
