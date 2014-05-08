@@ -75,6 +75,7 @@
 #include "meta-window-group.h"
 #include "window-private.h" /* to check window->hidden */
 #include "display-private.h"
+#include "stereo.h"
 #include "util-private.h"
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xcomposite.h>
@@ -544,6 +545,101 @@ redirect_windows (MetaCompositor *compositor,
     }
 }
 
+#define GLX_STEREO_TREE_EXT        0x20F5
+#define GLX_STEREO_NOTIFY_MASK_EXT 0x00000001
+#define GLX_STEREO_NOTIFY_EXT      0x00000000
+
+typedef struct {
+  int type;
+  unsigned long serial;
+  Bool send_event;
+  Display *display;
+  int extension;
+  int evtype;
+  Drawable window;
+  Bool stereo_tree;
+} StereoNotifyEvent;
+
+static gboolean
+screen_has_stereo_tree_ext (MetaScreen *screen)
+{
+#if 0
+  MetaDisplay *display = meta_screen_get_display (screen);
+  Display     *xdisplay = meta_display_get_xdisplay (display);
+  const char *extensions_string;
+
+  static const char * (*query_extensions_string) (Display *display,
+                                                  int      screen);
+
+  if (query_extensions_string == NULL)
+    query_extensions_string =
+      (const char * (*) (Display *, int))
+      cogl_get_proc_address ("glXQueryExtensionsString");
+
+  extensions_string = query_extensions_string (xdisplay,
+                                               meta_screen_get_screen_number (screen));
+
+  return strstr (extensions_string, "EXT_stereo_tree") != 0;
+#else
+  return TRUE;
+#endif
+}
+
+#include <GL/gl.h>
+
+gboolean
+meta_compositor_window_is_stereo (MetaScreen *screen,
+                                  Window      xwindow)
+{
+  MetaCompScreen *info = meta_screen_get_compositor_data (screen);
+  MetaDisplay    *display = meta_screen_get_display (screen);
+  Display        *xdisplay = meta_display_get_xdisplay (display);
+
+  static int (*query_drawable) (Display      *dpy,
+                                Drawable      draw,
+                                int           attribute,
+                                unsigned int *value);
+
+  if (info->stereo_tree_ext)
+    {
+      unsigned int stereo_tree = 0;
+
+      if (query_drawable == NULL)
+        query_drawable =
+          (int (*) (Display *, Drawable, int, unsigned int *))
+          cogl_get_proc_address ("glXQueryDrawable");
+
+      query_drawable (xdisplay, xwindow, GLX_STEREO_TREE_EXT, &stereo_tree);
+
+      return stereo_tree != 0;
+    }
+  else
+    return FALSE;
+}
+
+void
+meta_compositor_select_stereo_notify (MetaScreen *screen,
+                                      Window      xwindow)
+{
+  MetaCompScreen *info = meta_screen_get_compositor_data (screen);
+  MetaDisplay    *display = meta_screen_get_display (screen);
+  Display        *xdisplay = meta_display_get_xdisplay (display);
+
+  static void (*select_event) (Display      *dpy,
+                               Drawable      draw,
+                               unsigned long event_mask);
+
+  if (info->stereo_tree_ext)
+    {
+      if (select_event == NULL)
+        select_event =
+          (void (*) (Display *, Drawable, unsigned long))
+          cogl_get_proc_address ("glXSelectEvent");
+
+      select_event (xdisplay, xwindow, GLX_STEREO_NOTIFY_MASK_EXT);
+    }
+}
+
 void
 meta_compositor_manage_screen (MetaCompositor *compositor,
                                MetaScreen     *screen)
@@ -565,6 +661,8 @@ meta_compositor_manage_screen (MetaCompositor *compositor,
 
   info->output = None;
   info->windows = NULL;
+
+  info->stereo_tree_ext = screen_has_stereo_tree_ext (screen);
 
   meta_screen_set_cm_selection (screen);
 
@@ -956,6 +1054,22 @@ meta_compositor_process_event (MetaCompositor *compositor,
 	}
     }
 
+  if (event->type == GenericEvent &&
+      event->xcookie.extension == compositor->glx_opcode)
+    {
+      if (event->xcookie.evtype == GLX_STEREO_NOTIFY_EXT)
+        {
+          StereoNotifyEvent *stereo_event = (StereoNotifyEvent *)(event->xcookie.data);
+          window = meta_display_lookup_x_window (compositor->display, stereo_event->window);
+
+          if (window != NULL)
+            {
+              MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+              meta_window_actor_stereo_notify (window_actor, stereo_event->stereo_tree);
+            }
+        }
+    }
+
   if (event->type == meta_display_get_damage_event_base (compositor->display) + XDamageNotify)
     {
       /* Core code doesn't handle damage events, so we need to extract the MetaWindow
@@ -1183,6 +1297,7 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
 {
   GList *old_stack;
   MetaCompScreen *info = meta_screen_get_compositor_data (screen);
+  int stereo_window_count = 0;
 
   DEBUG_TRACE ("meta_compositor_sync_stack\n");
 
@@ -1260,12 +1375,16 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
        * near the front of the other.)
        */
       info->windows = g_list_prepend (info->windows, actor);
+      if (meta_window_actor_is_stereo (actor))
+        stereo_window_count++;
 
       stack = g_list_remove (stack, window);
       old_stack = g_list_remove (old_stack, actor);
     }
 
   sync_actor_stacking (info);
+
+  meta_stereo_set_have_stereo_windows (stereo_window_count > 0);
 }
 
 void
@@ -1431,6 +1550,7 @@ MetaCompositor *
 meta_compositor_new (MetaDisplay *display)
 {
   MetaCompositor        *compositor;
+  int glx_major_opcode, glx_first_event, glx_first_error;
 
   if (!composite_at_least_version (display, 0, 3))
     return NULL;
@@ -1450,6 +1570,10 @@ meta_compositor_new (MetaDisplay *display)
   compositor->repaint_func_id = clutter_threads_add_repaint_func (meta_repaint_func,
                                                                   compositor,
                                                                   NULL);
+  if (XQueryExtension (meta_display_get_xdisplay (display),
+                       "GLX",
+                       &glx_major_opcode, &glx_first_event, &glx_first_error))
+    compositor->glx_opcode = glx_major_opcode;
 
   return compositor;
 }

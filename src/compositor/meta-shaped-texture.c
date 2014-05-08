@@ -36,6 +36,7 @@
 
 #include <clutter/clutter.h>
 #include <cogl/cogl.h>
+#include <cogl/cogl-texture-pixmap-x11.h>
 #include <gdk/gdk.h> /* for gdk_rectangle_intersect() */
 #include "meta-cullable.h"
 
@@ -69,8 +70,10 @@ G_DEFINE_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture, CLUTTER_TYPE_AC
 struct _MetaShapedTexturePrivate
 {
   MetaTextureTower *paint_tower;
+  MetaTextureTower *paint_tower_right;
 
   CoglTexture *texture;
+  CoglTexture *texture_right;
   CoglTexture *mask_texture;
 
   cairo_region_t *input_shape_region;
@@ -84,6 +87,7 @@ struct _MetaShapedTexturePrivate
 
   guint tex_width, tex_height;
 
+  guint stereo : 1;
   guint create_mipmaps : 1;
 };
 
@@ -112,8 +116,10 @@ meta_shaped_texture_init (MetaShapedTexture *self)
   priv = self->priv = META_SHAPED_TEXTURE_GET_PRIVATE (self);
 
   priv->paint_tower = meta_texture_tower_new ();
+  priv->paint_tower_right = NULL; /* demand create */
 
   priv->texture = NULL;
+  priv->texture_right = NULL;
   priv->mask_texture = NULL;
   priv->create_mipmaps = TRUE;
 }
@@ -150,11 +156,10 @@ meta_shaped_texture_dispose (GObject *object)
   MetaShapedTexture *self = (MetaShapedTexture *) object;
   MetaShapedTexturePrivate *priv = self->priv;
 
-  if (priv->paint_tower)
-    meta_texture_tower_free (priv->paint_tower);
-  priv->paint_tower = NULL;
-
+  g_clear_pointer (&priv->paint_tower, meta_texture_tower_free);
+  g_clear_pointer (&priv->paint_tower_right, meta_texture_tower_free);
   g_clear_pointer (&priv->texture, cogl_object_unref);
+  g_clear_pointer (&priv->texture_right, cogl_object_unref);
   g_clear_pointer (&priv->opaque_region, cairo_region_destroy);
 
   meta_shaped_texture_set_mask_texture (self, NULL);
@@ -233,48 +238,19 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
 }
 
 static void
-meta_shaped_texture_paint (ClutterActor *actor)
+paint_texture (MetaShapedTexture *stex,
+	       CoglTexture       *paint_tex)
 {
-  MetaShapedTexture *stex = (MetaShapedTexture *) actor;
+  ClutterActor *actor = CLUTTER_ACTOR (stex);
   MetaShapedTexturePrivate *priv = stex->priv;
   guint tex_width, tex_height;
   guchar opacity;
   CoglContext *ctx;
   CoglFramebuffer *fb;
   CoglPipeline *pipeline = NULL;
-  CoglTexture *paint_tex;
   ClutterActorBox alloc;
   cairo_region_t *blended_region = NULL;
   CoglPipelineFilter filter;
-
-  if (priv->clip_region && cairo_region_is_empty (priv->clip_region))
-    return;
-
-  if (!CLUTTER_ACTOR_IS_REALIZED (CLUTTER_ACTOR (stex)))
-    clutter_actor_realize (CLUTTER_ACTOR (stex));
-
-  /* The GL EXT_texture_from_pixmap extension does allow for it to be
-   * used together with SGIS_generate_mipmap, however this is very
-   * rarely supported. Also, even when it is supported there
-   * are distinct performance implications from:
-   *
-   *  - Updating mipmaps that we don't need
-   *  - Having to reallocate pixmaps on the server into larger buffers
-   *
-   * So, we just unconditionally use our mipmap emulation code. If we
-   * wanted to use SGIS_generate_mipmap, we'd have to  query COGL to
-   * see if it was supported (no API currently), and then if and only
-   * if that was the case, set the clutter texture quality to HIGH.
-   * Setting the texture quality to high without SGIS_generate_mipmap
-   * support for TFP textures will result in fallbacks to XGetImage.
-   */
-  if (priv->create_mipmaps)
-    paint_tex = meta_texture_tower_get_paint_texture (priv->paint_tower);
-  else
-    paint_tex = COGL_TEXTURE (priv->texture);
-
-  if (paint_tex == NULL)
-    return;
 
   tex_width = priv->tex_width;
   tex_height = priv->tex_height;
@@ -291,8 +267,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
   if (!clutter_actor_is_in_clone_paint (actor) && meta_actor_is_untransformed (actor, NULL, NULL))
     filter = COGL_PIPELINE_FILTER_NEAREST;
 
-  ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
   fb = cogl_get_draw_framebuffer ();
+  ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
   opacity = clutter_actor_get_paint_opacity (actor);
   clutter_actor_get_allocation_box (actor, &alloc);
@@ -413,6 +389,74 @@ meta_shaped_texture_paint (ClutterActor *actor)
     cogl_object_unref (pipeline);
   if (blended_region != NULL)
     cairo_region_destroy (blended_region);
+}
+
+static void
+meta_shaped_texture_paint (ClutterActor *actor)
+{
+  MetaShapedTexture *stex = (MetaShapedTexture *) actor;
+  MetaShapedTexturePrivate *priv = stex->priv;
+  CoglFramebuffer *fb;
+  gboolean stereo;
+  CoglTexture *paint_tex;
+  CoglTexture *paint_tex_right;
+
+  if (priv->clip_region && cairo_region_is_empty (priv->clip_region))
+    return;
+
+  if (!CLUTTER_ACTOR_IS_REALIZED (CLUTTER_ACTOR (stex)))
+    clutter_actor_realize (CLUTTER_ACTOR (stex));
+
+  /* The GL EXT_texture_from_pixmap extension does allow for it to be
+   * used together with SGIS_generate_mipmap, however this is very
+   * rarely supported. Also, even when it is supported there
+   * are distinct performance implications from:
+   *
+   *  - Updating mipmaps that we don't need
+   *  - Having to reallocate pixmaps on the server into larger buffers
+   *
+   * So, we just unconditionally use our mipmap emulation code. If we
+   * wanted to use SGIS_generate_mipmap, we'd have to  query COGL to
+   * see if it was supported (no API currently), and then if and only
+   * if that was the case, set the clutter texture quality to HIGH.
+   * Setting the texture quality to high without SGIS_generate_mipmap
+   * support for TFP textures will result in fallbacks to XGetImage.
+   */
+  if (priv->create_mipmaps)
+    paint_tex = meta_texture_tower_get_paint_texture (priv->paint_tower);
+  else
+    paint_tex = COGL_TEXTURE (priv->texture);
+
+  fb = cogl_get_draw_framebuffer ();
+
+  stereo = priv->stereo && cogl_framebuffer_get_is_stereo (fb);
+
+  if (stereo)
+    {
+      if (priv->create_mipmaps)
+	paint_tex_right = meta_texture_tower_get_paint_texture (priv->paint_tower_right);
+      else
+	paint_tex_right = COGL_TEXTURE (priv->texture_right);
+    }
+  else
+    paint_tex_right = NULL;
+
+  if (paint_tex != NULL)
+    {
+      if (stereo)
+	cogl_framebuffer_set_stereo_mode (fb, COGL_STEREO_LEFT);
+      else
+	cogl_framebuffer_set_stereo_mode (fb, COGL_STEREO_BOTH);
+
+      paint_texture (stex, paint_tex);
+    }
+
+  if (paint_tex_right != NULL)
+    {
+      cogl_framebuffer_set_stereo_mode (fb, COGL_STEREO_RIGHT);
+      paint_texture (stex, paint_tex_right);
+      cogl_framebuffer_set_stereo_mode (fb, COGL_STEREO_BOTH);
+    }
 }
 
 static void
@@ -570,6 +614,12 @@ meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
       priv->create_mipmaps = create_mipmaps;
       base_texture = create_mipmaps ? priv->texture : NULL;
       meta_texture_tower_set_base_texture (priv->paint_tower, base_texture);
+
+      if (priv->stereo)
+	{
+	  base_texture = create_mipmaps ? priv->texture_right : NULL;
+	  meta_texture_tower_set_base_texture (priv->paint_tower_right, base_texture);
+	}
     }
 }
 
@@ -668,6 +718,8 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
     return FALSE;
 
   meta_texture_tower_update_area (priv->paint_tower, x, y, width, height);
+  if (priv->stereo)
+    meta_texture_tower_update_area (priv->paint_tower_right, x, y, width, height);
 
   unobscured_region = effective_unobscured_region (stex);
   if (unobscured_region)
@@ -701,7 +753,8 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
 
 static void
 set_cogl_texture (MetaShapedTexture *stex,
-                  CoglTexture       *cogl_tex)
+                  CoglTexture       *cogl_tex,
+		  gboolean           stereo)
 {
   MetaShapedTexturePrivate *priv;
   guint width, height;
@@ -712,8 +765,23 @@ set_cogl_texture (MetaShapedTexture *stex,
 
   if (priv->texture != NULL)
     cogl_object_unref (priv->texture);
+  if (priv->texture_right != NULL)
+    cogl_object_unref (priv->texture_right);
+
+  priv->stereo = stereo;
 
   priv->texture = cogl_tex;
+  if (priv->stereo)
+    {
+      priv->texture_right = cogl_texture_pixmap_x11_new_right ((CoglTexturePixmapX11 *)cogl_tex);
+      if (priv->paint_tower_right == NULL)
+	priv->paint_tower_right = meta_texture_tower_new ();
+    }
+  else
+    {
+      priv->texture_right = NULL;
+      g_clear_pointer (&priv->paint_tower_right, meta_texture_tower_free);
+    }
 
   if (cogl_tex != NULL)
     {
@@ -743,7 +811,11 @@ set_cogl_texture (MetaShapedTexture *stex,
    * damage. */
 
   if (priv->create_mipmaps)
-    meta_texture_tower_set_base_texture (priv->paint_tower, cogl_tex);
+    {
+      meta_texture_tower_set_base_texture (priv->paint_tower, cogl_tex);
+      if (priv->stereo)
+	meta_texture_tower_set_base_texture (priv->paint_tower_right, priv->texture_right);
+    }
 }
 
 /**
@@ -753,11 +825,12 @@ set_cogl_texture (MetaShapedTexture *stex,
  */
 void
 meta_shaped_texture_set_texture (MetaShapedTexture *stex,
-                                 CoglTexture       *texture)
+                                 CoglTexture       *texture,
+				 gboolean           stereo)
 {
   g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
 
-  set_cogl_texture (stex, texture);
+  set_cogl_texture (stex, texture, stereo);
 }
 
 /**

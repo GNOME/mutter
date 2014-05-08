@@ -94,6 +94,7 @@ struct _MetaWindowActorPrivate
 
   guint		    visible                : 1;
   guint		    argb32                 : 1;
+  guint		    stereo                 : 1;
   guint		    disposed               : 1;
   guint             redecorating           : 1;
 
@@ -157,7 +158,6 @@ static gboolean meta_window_actor_get_paint_volume (ClutterActor       *actor,
                                                     ClutterPaintVolume *volume);
 
 
-static void     meta_window_actor_detach     (MetaWindowActor *self);
 static gboolean meta_window_actor_has_shadow (MetaWindowActor *self);
 
 static void meta_window_actor_handle_updates (MetaWindowActor *self);
@@ -317,6 +317,9 @@ meta_window_actor_constructed (GObject *object)
 
   if (format && format->type == PictTypeDirect && format->direct.alphaMask)
     priv->argb32 = TRUE;
+
+  priv->stereo = meta_compositor_window_is_stereo (screen, xwindow);
+  meta_compositor_select_stereo_notify (screen, xwindow);
 
   if (!priv->actor)
     {
@@ -1130,7 +1133,7 @@ meta_window_actor_effect_completed (MetaWindowActor *self,
  * when the window is unmapped or when we want to update to a new
  * pixmap for a new size.
  */
-static void
+void
 meta_window_actor_detach (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv     = self->priv;
@@ -1145,7 +1148,7 @@ meta_window_actor_detach (MetaWindowActor *self)
    * you are supposed to be able to free a GLXPixmap after freeing the underlying
    * pixmap, but it certainly doesn't work with current DRI/Mesa
    */
-  meta_shaped_texture_set_texture (META_SHAPED_TEXTURE (priv->actor), NULL);
+  meta_shaped_texture_set_texture (META_SHAPED_TEXTURE (priv->actor), NULL, FALSE);
   cogl_flush();
 
   XFreePixmap (xdisplay, priv->back_pixmap);
@@ -1669,11 +1672,15 @@ check_needs_pixmap (MetaWindowActor *self)
         meta_shaped_texture_set_create_mipmaps (META_SHAPED_TEXTURE (priv->actor),
                                                 FALSE);
 
-      texture = COGL_TEXTURE (cogl_texture_pixmap_x11_new (ctx, priv->back_pixmap, FALSE, NULL));
+      if (priv->stereo)
+        texture = COGL_TEXTURE (cogl_texture_pixmap_x11_new_left (ctx, priv->back_pixmap, FALSE, NULL));
+      else
+        texture = COGL_TEXTURE (cogl_texture_pixmap_x11_new (ctx, priv->back_pixmap, FALSE, NULL));
+
       if (G_UNLIKELY (!cogl_texture_pixmap_x11_is_using_tfp_extension (COGL_TEXTURE_PIXMAP_X11 (texture))))
         g_warning ("NOTE: Not using GLX TFP!\n");
 
-      meta_shaped_texture_set_texture (META_SHAPED_TEXTURE (priv->actor), texture);
+      meta_shaped_texture_set_texture (META_SHAPED_TEXTURE (priv->actor), texture, priv->stereo);
     }
 
   priv->needs_pixmap = FALSE;
@@ -2349,4 +2356,21 @@ meta_window_actor_set_updates_frozen (MetaWindowActor *self,
       else
         meta_window_actor_thaw (self);
     }
+}
+
+void
+meta_window_actor_stereo_notify (MetaWindowActor *self,
+                                 gboolean         stereo_tree)
+{
+  MetaWindowActorPrivate *priv = self->priv;
+  MetaWindow *window = priv->window;
+
+  priv->stereo = stereo_tree;
+  meta_window_actor_detach (self);
+}
+
+gboolean
+meta_window_actor_is_stereo (MetaWindowActor *self)
+{
+  return self->priv->stereo;
 }

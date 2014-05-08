@@ -31,7 +31,8 @@
 
 ClutterActor *meta_shaped_texture_new (void);
 void meta_shaped_texture_set_texture (MetaShapedTexture *stex,
-                                      CoglTexture       *texture);
+                                      CoglTexture       *texture,
+				      gboolean           stereo);
 gboolean meta_shaped_texture_get_unobscured_bounds (MetaShapedTexture     *stex,
                                                     cairo_rectangle_int_t *unobscured_bounds);
 gboolean meta_shaped_texture_is_obscured (MetaShapedTexture *self);

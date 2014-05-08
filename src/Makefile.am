@@ -135,6 +135,8 @@ libmutter_la_SOURCES =				\
 	core/restart.c				\
 	core/session.c				\
 	core/session.h				\
+	core/stereo.c				\
+	core/stereo.h				\
 	core/stack.c				\
 	core/stack.h				\
 	core/stack-tracker.c			\

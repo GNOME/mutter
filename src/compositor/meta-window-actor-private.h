@@ -58,4 +58,11 @@ void     meta_window_actor_queue_frame_drawn   (MetaWindowActor *self,
 void meta_window_actor_effect_completed (MetaWindowActor *actor,
                                          gulong           event);
 
+void     meta_window_actor_stereo_notify (MetaWindowActor *actor,
+                                          gboolean         stereo_tree);
+
+gboolean meta_window_actor_is_stereo (MetaWindowActor *actor);
+
+void meta_window_actor_detach (MetaWindowActor *self);
+
 #endif /* META_WINDOW_ACTOR_PRIVATE_H */

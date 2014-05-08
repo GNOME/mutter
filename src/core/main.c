@@ -447,6 +447,8 @@ meta_init (void)
 
   meta_restart_init ();
 
+  meta_stereo_init ();
+
   /*
    * Clutter can only be initialized after the UI.
    */
