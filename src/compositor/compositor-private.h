@@ -32,6 +32,8 @@ struct _MetaCompositor
   guint           show_redraw : 1;
   guint           debug       : 1;
   guint           no_mipmaps  : 1;
+
+  gboolean need_sync_drawing;
 };
 
 struct _MetaCompScreen
