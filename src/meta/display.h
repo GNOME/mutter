@@ -75,6 +75,7 @@ Display *meta_display_get_xdisplay (MetaDisplay *display);
 MetaCompositor *meta_display_get_compositor (MetaDisplay *display);
 
 gboolean meta_display_has_shape (MetaDisplay *display);
+gboolean meta_display_has_sync (MetaDisplay *display);
 
 MetaWindow *meta_display_get_focus_window (MetaDisplay *display);
 
@@ -83,6 +84,7 @@ gboolean  meta_display_xwindow_is_a_no_focus_window (MetaDisplay *display,
 
 int meta_display_get_damage_event_base (MetaDisplay *display);
 int meta_display_get_shape_event_base (MetaDisplay *display);
+int meta_display_get_sync_event_base (MetaDisplay *display);
 
 gboolean meta_display_xserver_time_is_before (MetaDisplay *display,
                                               guint32      time1,
