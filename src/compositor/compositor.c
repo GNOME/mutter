@@ -146,6 +146,8 @@ process_damage (MetaCompositor     *compositor,
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
   meta_window_actor_process_x11_damage (window_actor, event);
+
+  compositor->frame_has_updated_xsurfaces = TRUE;
 }
 
 static Window
@@ -1125,11 +1127,12 @@ frame_callback (CoglOnscreen  *onscreen,
     }
 }
 
-static void
-pre_paint_windows (MetaCompositor *compositor)
+static gboolean
+meta_repaint_func (gpointer data)
 {
   GList *l;
   MetaWindowActor *top_window;
+  MetaCompositor *compositor = data;
 
   if (compositor->onscreen == NULL)
     {
@@ -1141,7 +1144,7 @@ pre_paint_windows (MetaCompositor *compositor)
     }
 
   if (compositor->windows == NULL)
-    return;
+    return TRUE;
 
   top_window = g_list_last (compositor->windows)->data;
 
@@ -1153,13 +1156,34 @@ pre_paint_windows (MetaCompositor *compositor)
 
   for (l = compositor->windows; l; l = l->next)
     meta_window_actor_pre_paint (l->data);
-}
 
-static gboolean
-meta_repaint_func (gpointer data)
-{
-  MetaCompositor *compositor = data;
-  pre_paint_windows (compositor);
+  if (compositor->frame_has_updated_xsurfaces)
+    {
+      /* We need to make sure that any X drawing that happens before
+       * the XDamageSubtract() for each window above is visible to
+       * subsequent GL rendering; the only standardized way to do this
+       * is EXT_x11_sync_object, which isn't yet widely available. For
+       * now, we count on details of Xorg and the open source drivers,
+       * and hope for the best otherwise.
+       *
+       * Xorg and open source driver specifics:
+       *
+       * The X server makes sure to flush drawing to the kernel before
+       * sending out damage events, but since we use
+       * DamageReportBoundingBox there may be drawing between the last
+       * damage event and the XDamageSubtract() that needs to be
+       * flushed as well.
+       *
+       * Xorg always makes sure that drawing is flushed to the kernel
+       * before writing events or responses to the client, so any
+       * round trip request at this point is sufficient to flush the
+       * GLX buffers.
+       */
+      XSync (compositor->display->xdisplay, False);
+
+      compositor->frame_has_updated_xsurfaces = FALSE;
+    }
+
   return TRUE;
 }
 
