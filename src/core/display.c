@@ -5970,6 +5970,12 @@ meta_display_has_shape (MetaDisplay *display)
   return META_DISPLAY_HAS_SHAPE (display);
 }
 
+gboolean
+meta_display_has_sync (MetaDisplay *display)
+{
+  return META_DISPLAY_HAS_XSYNC (display);
+}
+
 /**
  * meta_display_get_focus_window:
  * @display: a #MetaDisplay
@@ -6014,6 +6020,12 @@ Window
 meta_display_get_leader_window (MetaDisplay *display)
 {
   return display->leader_window;
+}
+
+int
+meta_display_get_sync_event_base (MetaDisplay *display)
+{
+  return display->xsync_event_base;
 }
 
 /**
