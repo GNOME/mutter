@@ -1193,7 +1193,7 @@ meta_pre_paint_func (gpointer data)
        * GLX buffers.
        */
       if (compositor->have_x11_sync_object)
-        meta_sync_ring_insert_wait ();
+        compositor->have_x11_sync_object = meta_sync_ring_insert_wait ();
       else
         XSync (compositor->display->xdisplay, False);
     }
@@ -1209,7 +1209,7 @@ meta_post_paint_func (gpointer data)
   if (compositor->frame_has_updated_xsurfaces)
     {
       if (compositor->have_x11_sync_object)
-        meta_sync_ring_after_frame ();
+        compositor->have_x11_sync_object = meta_sync_ring_after_frame ();
 
       compositor->frame_has_updated_xsurfaces = FALSE;
     }
