@@ -57,6 +57,7 @@
 
 #define NUM_SYNCS 10
 #define MAX_SYNC_WAIT_TIME (1 * 1000 * 1000 * 1000) /* one sec */
+#define MAX_REBOOT_ATTEMPTS 2
 
 typedef enum
 {
@@ -90,6 +91,8 @@ typedef struct
   guint current_sync_idx;
   MetaSync *current_sync;
   guint warmup_syncs;
+
+  guint reboots;
 } MetaSyncRing;
 
 static MetaSyncRing meta_sync_ring = { 0 };
@@ -115,6 +118,9 @@ static GLsync           (*meta_gl_import_sync) (GLenum external_sync_type,
 static MetaSyncRing *
 meta_sync_ring_get (void)
 {
+  if (meta_sync_ring.reboots > MAX_REBOOT_ATTEMPTS)
+    return NULL;
+
   return &meta_sync_ring;
 }
 
@@ -302,8 +308,13 @@ alarm_event_predicate (Display  *dpy,
                        XEvent   *event,
                        XPointer  data)
 {
+  int xsync_event_base;
   MetaSyncRing *ring = meta_sync_ring_get ();
-  int xsync_event_base = meta_display_get_sync_event_base (ring->display);
+
+  if (!ring)
+    return False;
+
+  xsync_event_base = meta_display_get_sync_event_base (ring->display);
 
   if (event->type == xsync_event_base + XSyncAlarmNotify)
     {
@@ -356,6 +367,9 @@ meta_sync_ring_init (MetaDisplay *display)
   guint i;
   MetaSyncRing *ring = meta_sync_ring_get ();
 
+  if (!ring)
+    return FALSE;
+
   g_return_val_if_fail (display != NULL, FALSE);
   g_return_val_if_fail (ring->display == NULL, FALSE);
 
@@ -392,6 +406,9 @@ meta_sync_ring_destroy (void)
   guint i;
   MetaSyncRing *ring = meta_sync_ring_get ();
 
+  if (!ring)
+    return;
+
   g_return_if_fail (ring->display != NULL);
 
   ring->current_sync_idx = 0;
@@ -406,17 +423,34 @@ meta_sync_ring_destroy (void)
   ring->display = NULL;
 }
 
-static void
+static gboolean
 meta_sync_ring_reboot (MetaDisplay *display)
 {
+  MetaSyncRing *ring = meta_sync_ring_get ();
+
+  if (!ring)
+    return FALSE;
+
   meta_sync_ring_destroy ();
-  meta_sync_ring_init (display);
+
+  ring->reboots += 1;
+
+  if (!meta_sync_ring_get ())
+    {
+      meta_warning ("MetaSyncRing: Too many reboots -- disabling\n");
+      return FALSE;
+    }
+
+  return meta_sync_ring_init (display);
 }
 
-void
+gboolean
 meta_sync_ring_after_frame (void)
 {
   MetaSyncRing *ring = meta_sync_ring_get ();
+
+  if (!ring)
+    return FALSE;
 
   g_return_if_fail (ring->display != NULL);
 
@@ -435,8 +469,7 @@ meta_sync_ring_after_frame (void)
       if (status != GL_ALREADY_SIGNALED && status != GL_CONDITION_SATISFIED)
         {
           meta_warning ("MetaSyncRing: Timed out waiting for sync object.\n");
-          meta_sync_ring_reboot (ring->display);
-          return;
+          return meta_sync_ring_reboot (ring->display);
         }
 
       meta_sync_reset (sync_to_reset);
@@ -450,22 +483,30 @@ meta_sync_ring_after_frame (void)
   ring->current_sync_idx %= NUM_SYNCS;
 
   ring->current_sync = ring->syncs_array[ring->current_sync_idx];
+
+  return TRUE;
 }
 
-void
+gboolean
 meta_sync_ring_insert_wait (void)
 {
   MetaSyncRing *ring = meta_sync_ring_get ();
+
+  if (!ring)
+    return FALSE;
 
   g_return_if_fail (ring->display != NULL);
 
   if (ring->current_sync->state != META_SYNC_STATE_READY)
     {
       meta_warning ("MetaSyncRing: Sync object is not ready -- were events handled properly?\n");
-      meta_sync_ring_reboot (ring->display);
+      if (!meta_sync_ring_reboot (ring->display))
+        return FALSE;
     }
 
   meta_sync_insert (ring->current_sync);
+
+  return TRUE;
 }
 
 void
@@ -473,6 +514,9 @@ meta_sync_ring_handle_event (XSyncAlarmNotifyEvent *event)
 {
   MetaSync *sync;
   MetaSyncRing *ring = meta_sync_ring_get ();
+
+  if (!ring)
+    return;
 
   g_return_if_fail (ring->display != NULL);
 
