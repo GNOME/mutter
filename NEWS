@@ -1,3 +1,15 @@
+3.12.2
+======
+* Fix in-fullscreen state when moving between monitors [Florian; #728395]
+* Fix crash when monitors change during suspend [Giovanni; #725637]
+* Misc. bug fixes [Florian, Giovanni; #728423, #729732]
+
+Contributors:
+  Giovanni Campagna, Florian Müllner
+
+Translations:
+  Christian Kirbach [de], Pau Iranzo [ca]
+
 3.12.1
 ======
 * Fix opacity values from _NET_WM_WINDOW_OPACITY [Nirbheek; #727874]
