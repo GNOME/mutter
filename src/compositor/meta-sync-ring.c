@@ -115,6 +115,9 @@ static GLsync           (*meta_gl_import_sync) (GLenum external_sync_type,
                                                 GLintptr external_sync,
                                                 GLbitfield flags);
 
+static GLenum           (*meta_gl_get_error) (void);
+static GLboolean        (*meta_gl_is_sync) (GLsync sync);
+
 static MetaSyncRing *
 meta_sync_ring_get (void)
 {
@@ -192,9 +195,50 @@ load_required_symbols (void)
   if (!load_gl_symbol ("glImportSyncEXT", (void **) &meta_gl_import_sync))
     goto out;
 
+  if (!load_gl_symbol ("glGetError", (void **) &meta_gl_get_error))
+    goto out;
+  if (!load_gl_symbol ("glIsSync", (void **) &meta_gl_is_sync))
+    goto out;
+
   success = TRUE;
  out:
   return success;
+}
+
+static void
+print_gl_error (void)
+{
+  GLenum e;
+  switch (e = meta_gl_get_error ())
+    {
+    case GL_NO_ERROR:
+      meta_warning ("GL_NO_ERROR\n");
+      break;
+    case GL_INVALID_ENUM:
+      meta_warning ("GL_INVALID_ENUM\n");
+      break;
+    case GL_INVALID_VALUE:
+      meta_warning ("GL_INVALID_VALUE\n");
+      break;
+    case GL_INVALID_OPERATION:
+      meta_warning ("GL_INVALID_OPERATION\n");
+      break;
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+      meta_warning ("GL_INVALID_FRAMEBUFFER_OPERATION\n");
+      break;
+    case GL_OUT_OF_MEMORY:
+      meta_warning ("GL_OUT_OF_MEMORY\n");
+      break;
+    case GL_STACK_OVERFLOW:
+      meta_warning ("GL_STACK_OVERFLOW\n");
+      break;
+    case GL_STACK_UNDERFLOW:
+      meta_warning ("GL_STACK_UNDERFLOW\n");
+      break;
+    default:
+      meta_warning ("GL error 0x%x\n", e);
+      break;
+    }
 }
 
 static void
@@ -279,7 +323,9 @@ meta_sync_new (Display *xdisplay)
   self->xdisplay = xdisplay;
 
   self->xfence = XSyncCreateFence (xdisplay, DefaultRootWindow (xdisplay), FALSE);
+  meta_warning ("created X fence 0x%x\n", self->xfence);
   self->glsync = meta_gl_import_sync (GL_SYNC_X11_FENCE_EXT, self->xfence, 0);
+  print_gl_error ();
 
   self->xcounter = XSyncCreateCounter (xdisplay, SYNC_VALUE_ZERO);
 
@@ -378,6 +424,8 @@ meta_sync_ring_init (MetaDisplay *display)
 
   if (!meta_display_has_sync (display))
     return FALSE;
+
+  print_gl_error ();
 
   XSyncIntToValue (&SYNC_VALUE_ZERO, 0);
   XSyncIntToValue (&SYNC_VALUE_ONE, 1);
