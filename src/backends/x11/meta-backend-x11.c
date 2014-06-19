@@ -142,17 +142,14 @@ handle_host_xevent (MetaBackend *backend,
     MetaMonitorManager *manager = meta_backend_get_monitor_manager (backend);
     if (META_IS_MONITOR_MANAGER_XRANDR (manager) &&
         meta_monitor_manager_xrandr_handle_xevent (META_MONITOR_MANAGER_XRANDR (manager), event))
-      {
-        bypass_clutter = TRUE;
-        goto out;
-      }
+      bypass_clutter = TRUE;
   }
 
-  maybe_spoof_event_as_stage_event (x11, event);
-
- out:
   if (!bypass_clutter)
-    clutter_x11_handle_event (event);
+    {
+      maybe_spoof_event_as_stage_event (x11, event);
+      clutter_x11_handle_event (event);
+    }
 
   XFreeEventData (priv->xdisplay, &event->xcookie);
 }
