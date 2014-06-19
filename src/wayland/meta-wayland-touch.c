@@ -444,29 +444,6 @@ touch_info_free (MetaWaylandTouchInfo *touch_info)
   g_free (touch_info);
 }
 
-static void
-touch_handle_cancel_event (MetaWaylandTouch      *touch,
-                           struct libinput_event *event)
-{
-  GList *surfaces, *s;
-
-  surfaces = s = touch_get_surfaces (touch, FALSE);
-
-  while (s)
-    {
-      MetaWaylandTouchSurface *touch_surface = s->data;
-      struct wl_resource *resource;
-      struct wl_list *l;
-
-      l = &touch_surface->resource_list;
-      wl_resource_for_each(resource, l)
-        wl_touch_send_cancel (resource);
-    }
-
-  g_hash_table_remove_all (touch->touches);
-  g_list_free (surfaces);
-}
-
 static gboolean
 evdev_filter_func (struct libinput_event *event,
                    gpointer               data)
@@ -495,7 +472,7 @@ evdev_filter_func (struct libinput_event *event,
        * which are not so useful when sending a global signal as the protocol
        * requires.
        */
-      touch_handle_cancel_event (touch, event);
+      meta_wayland_touch_cancel (touch);
       break;
     default:
       break;
@@ -545,4 +522,26 @@ meta_wayland_touch_create_new_resource (MetaWaylandTouch   *touch,
 			   MIN (META_WL_TOUCH_VERSION, wl_resource_get_version (seat_resource)), id);
   wl_resource_set_implementation (cr, NULL, touch, unbind_resource);
   wl_list_insert (&touch->resource_list, wl_resource_get_link (cr));
+}
+
+void
+meta_wayland_touch_cancel (MetaWaylandTouch *touch)
+{
+  GList *surfaces, *s;
+
+  surfaces = s = touch_get_surfaces (touch, FALSE);
+
+  while (s)
+    {
+      MetaWaylandTouchSurface *touch_surface = s->data;
+      struct wl_resource *resource;
+      struct wl_list *l;
+
+      l = &touch_surface->resource_list;
+      wl_resource_for_each(resource, l)
+        wl_touch_send_cancel (resource);
+    }
+
+  g_hash_table_remove_all (touch->touches);
+  g_list_free (surfaces);
 }
