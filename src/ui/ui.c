@@ -119,7 +119,6 @@ maybe_redirect_mouse_event (XEvent *xevent)
 
   switch (xev->evtype)
     {
-    case XI_TouchBegin:
     case XI_ButtonPress:
     case XI_ButtonRelease:
     case XI_Motion:
@@ -156,10 +155,9 @@ maybe_redirect_mouse_event (XEvent *xevent)
 
   switch (xev->evtype)
     {
-    case XI_TouchBegin:
     case XI_ButtonPress:
     case XI_ButtonRelease:
-      if (xev_d->evtype == XI_ButtonPress || xev_d->evtype == XI_TouchBegin)
+      if (xev_d->evtype == XI_ButtonPress)
         {
           GtkSettings *settings = gtk_settings_get_default ();
           int double_click_time;
@@ -171,10 +169,7 @@ maybe_redirect_mouse_event (XEvent *xevent)
                         "gtk-double-click-distance", &double_click_distance,
                         NULL);
 
-          if (xev->evtype == XI_TouchBegin)
-            button = 1;
-          else
-            button = xev_d->detail;
+          button = xev_d->detail;
 
           if (button == ui->button_click_number &&
               xev_d->event == ui->button_click_window &&
