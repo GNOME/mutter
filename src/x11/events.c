@@ -38,6 +38,16 @@
 #include "wayland/meta-xwayland.h"
 #include "wayland/meta-wayland-private.h"
 
+typedef struct _EventFuncData EventFuncData;
+
+struct _EventFuncData
+{
+  GFunc func;
+  gpointer data;
+};
+
+static GList *event_funcs = NULL;
+
 static XIEvent *
 get_input_event (MetaDisplay *display,
                  XEvent      *event)
@@ -1801,11 +1811,37 @@ xevent_filter (GdkXEvent *xevent,
                gpointer   data)
 {
   MetaDisplay *display = data;
+  EventFuncData *event_data;
+  XIEvent *input_event;
+  GList *l;
 
-  if (meta_display_handle_xevent (display, xevent))
-    return GDK_FILTER_REMOVE;
-  else
+  meta_display_handle_xevent (display, xevent);
+
+  for (l = event_funcs; l; l = l->next)
+    {
+      event_data = l->data;
+      event_data->func (xevent, event_data->data);
+    }
+
+  input_event = get_input_event (display, xevent);
+
+  if (!input_event)
     return GDK_FILTER_CONTINUE;
+
+  /* Filter all pointer and touch events, those are emulated
+   * above by the filters, and Gdk is bypassed there on purpose.
+   */
+  if (input_event->evtype == XI_ButtonPress ||
+      input_event->evtype == XI_ButtonRelease ||
+      input_event->evtype == XI_Motion ||
+      input_event->evtype == XI_Enter ||
+      input_event->evtype == XI_Leave ||
+      input_event->evtype == XI_TouchBegin ||
+      input_event->evtype == XI_TouchUpdate ||
+      input_event->evtype == XI_TouchEnd)
+    return GDK_FILTER_REMOVE;
+
+  return GDK_FILTER_CONTINUE;
 }
 
 void
@@ -1818,4 +1854,38 @@ void
 meta_display_free_events_x11 (MetaDisplay *display)
 {
   gdk_window_remove_filter (NULL, xevent_filter, display);
+}
+
+void
+meta_display_events_x11_add_func (GFunc    func,
+                                  gpointer user_data)
+{
+  EventFuncData *data;
+
+  data = g_slice_new0 (EventFuncData);
+  data->func = func;
+  data->data = user_data;
+  event_funcs = g_list_prepend (event_funcs, data);
+}
+
+void
+meta_display_events_x11_remove_func (GFunc    func,
+                                     gpointer user_data)
+{
+  EventFuncData *data;
+  GList *l;
+
+  data = g_slice_new0 (EventFuncData);
+
+  for (l = event_funcs; l; l = l->next)
+    {
+      data = l->data;
+
+      if (data->func != func || data->data != user_data)
+        continue;
+
+      event_funcs = g_list_delete_link (event_funcs, l);
+      g_slice_free (EventFuncData, data);
+      break;
+    }
 }

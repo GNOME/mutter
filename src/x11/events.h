@@ -28,4 +28,9 @@
 void meta_display_init_events_x11 (MetaDisplay *display);
 void meta_display_free_events_x11 (MetaDisplay *display);
 
+void meta_display_events_x11_add_func    (GFunc    func,
+                                          gpointer user_data);
+void meta_display_events_x11_remove_func (GFunc    func,
+                                          gpointer user_data);
+
 #endif

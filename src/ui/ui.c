@@ -26,6 +26,7 @@
 #include <meta/util.h>
 #include "core.h"
 #include "theme-private.h"
+#include "x11/events.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -232,15 +233,11 @@ maybe_redirect_mouse_event (XEvent *xevent)
   return TRUE;
 }
 
-static GdkFilterReturn
-ui_filter_func (GdkXEvent *xevent,
-                GdkEvent *event,
+static void
+ui_filter_func (gpointer xevent,
                 gpointer data)
 {
-  if (maybe_redirect_mouse_event (xevent))
-    return GDK_FILTER_REMOVE;
-  else
-    return GDK_FILTER_CONTINUE;
+  maybe_redirect_mouse_event (xevent);
 }
 
 MetaUI*
@@ -266,7 +263,7 @@ meta_ui_new (Display *xdisplay,
    */
   gtk_widget_show (GTK_WIDGET (ui->frames));
 
-  gdk_window_add_filter (NULL, ui_filter_func, NULL);
+  meta_display_events_x11_add_func (ui_filter_func, NULL);
 
   g_object_set_data (G_OBJECT (gdisplay), "meta-ui", ui);
 
@@ -283,7 +280,7 @@ meta_ui_free (MetaUI *ui)
   gdisplay = gdk_x11_lookup_xdisplay (ui->xdisplay);
   g_object_set_data (G_OBJECT (gdisplay), "meta-ui", NULL);
 
-  gdk_window_remove_filter (NULL, ui_filter_func, NULL);
+  meta_display_events_x11_add_func (ui_filter_func, NULL);
 
   g_free (ui);
 }
