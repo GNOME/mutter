@@ -1439,7 +1439,7 @@ meta_window_new (MetaDisplay   *display,
    * initial map is handled same as configure request
    */
   flags =
-    META_IS_CONFIGURE_REQUEST | META_IS_MOVE_ACTION | META_IS_RESIZE_ACTION;
+    META_IS_CONFIGURE_REQUEST | META_IS_MOVE_ACTION | META_IS_RESIZE_ACTION | META_IS_INITIAL_RESIZE;
   if (!window->override_redirect)
     meta_window_move_resize_internal (window,
                                       flags,
@@ -5180,7 +5180,8 @@ meta_window_move_resize_internal (MetaWindow          *window,
   if (need_configure_notify)
     send_configure_notify (window);
 
-  if (!window->placed && window->force_save_user_rect && !window->fullscreen)
+  if ((flags & META_IS_INITIAL_RESIZE) != 0 &&
+      window->force_save_user_rect && !window->fullscreen)
     force_save_user_window_placement (window);
   else if (is_user_action)
     save_user_window_placement (window);

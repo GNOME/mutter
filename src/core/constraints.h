@@ -33,7 +33,9 @@ typedef enum
   META_DO_GRAVITY_ADJUST    = 1 << 1,
   META_IS_USER_ACTION       = 1 << 2,
   META_IS_MOVE_ACTION       = 1 << 3,
-  META_IS_RESIZE_ACTION     = 1 << 4
+  META_IS_RESIZE_ACTION     = 1 << 4,
+  META_FORCE_STATIC_GRAVITY = 1 << 5,
+  META_IS_INITIAL_RESIZE    = 1 << 6
 } MetaMoveResizeFlags;
 
 void meta_window_constrain (MetaWindow          *window,
