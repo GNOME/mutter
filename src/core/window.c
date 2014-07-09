@@ -38,6 +38,7 @@
 #include "keybindings-private.h"
 #include "ui.h"
 #include "place.h"
+#include <meta/main.h>
 #include "session.h"
 #include <meta/prefs.h>
 #include "resizepopup.h"
@@ -844,8 +845,8 @@ sync_client_window_mapped (MetaWindow *window)
 MetaWindow*
 meta_window_new (MetaDisplay   *display,
                  Window         xwindow,
-                 gboolean       must_be_viewable,
-                 MetaCompEffect effect)
+                 gboolean       managing_screen,
+                 gboolean       must_be_viewable)
 {
   XWindowAttributes	attrs;
   MetaWindow *window;
@@ -855,6 +856,8 @@ meta_window_new (MetaDisplay   *display,
   gulong event_mask;
   MetaMoveResizeFlags flags;
   MetaScreen *screen;
+  MetaCompEffect effect =
+    managing_screen ? META_COMP_EFFECT_NONE : META_COMP_EFFECT_CREATE;
 
   meta_verbose ("Attempting to manage 0x%lx\n", xwindow);
 
@@ -1434,12 +1437,27 @@ meta_window_new (MetaDisplay   *display,
   else
     window->layer = META_LAYER_OVERRIDE_REDIRECT; /* otherwise set by MetaStack */
 
-  /* Put our state back where it should be,
-   * passing TRUE for is_configure_request, ICCCM says
-   * initial map is handled same as configure request
-   */
   flags =
-    META_IS_CONFIGURE_REQUEST | META_IS_MOVE_ACTION | META_IS_RESIZE_ACTION | META_IS_INITIAL_RESIZE;
+    META_IS_MOVE_ACTION | META_IS_RESIZE_ACTION | META_IS_INITIAL_RESIZE;
+
+  /* ICCCM says initial map is handled same as configure request. When
+   * we are initially managing the screen, we distinguish two cases:
+   *
+   *  Restart: in this case, we put the windows back to the unframed
+   *   position before exiting, so we need to give them gravity
+   *   adjustments.
+   *  Something else: (perhaps a crash) if we didn't exit cleanly, then
+   *   windows will be reparented by the X server so that the client
+   *   origin stays the same, and no frame adjustment is needed.
+   *
+   * We don't have any way to distinguish replacing a different window
+   * manager from respawning on crash, so when we replace a different
+   * window manager, windows will shift onscreen, but this is expected
+   * to only happen in development.
+   */
+  if (!managing_screen || meta_is_restart())
+    flags |= META_IS_CONFIGURE_REQUEST;
+
   if (!window->override_redirect)
     meta_window_move_resize_internal (window,
                                       flags,

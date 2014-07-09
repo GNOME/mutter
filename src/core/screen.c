@@ -891,8 +891,7 @@ meta_screen_manage_all_windows (MetaScreen *screen)
 
   for (i = 0; i < n_children; ++i)
     {
-      meta_window_new (screen->display, children[i], TRUE,
-                       META_COMP_EFFECT_NONE);
+      meta_window_new (screen->display, children[i], TRUE, TRUE);
     }
 
   g_free (children);

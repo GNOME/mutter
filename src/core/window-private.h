@@ -488,8 +488,8 @@ struct _MetaWindowClass
 
 MetaWindow* meta_window_new                (MetaDisplay *display,
                                             Window       xwindow,
-                                            gboolean     must_be_viewable,
-                                            MetaCompEffect     effect);
+                                            gboolean     managing_screen,
+                                            gboolean     must_be_viewable);
 void        meta_window_unmanage           (MetaWindow  *window,
                                             guint32      timestamp);
 void        meta_window_calc_showing       (MetaWindow  *window);
