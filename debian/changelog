@@ -1,3 +1,9 @@
+mutter (3.12.2-2) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Mon, 14 Jul 2014 23:20:08 +0200
+
 mutter (3.12.2-1) experimental; urgency=medium
 
   [ Sjoerd Simons ]
