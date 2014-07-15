@@ -1,23 +1,74 @@
-mutter (3.12.1+really+3.8.4-1) unstable; urgency=medium
+mutter (3.12.2-2) unstable; urgency=medium
 
-  [ Emilio Pozuelo Monfort ]
-  * debian/control.in:
-    + Bump libcogl-dev build-dependency, required by the previous patch.
+  * Upload to unstable.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Mon, 14 Jul 2014 23:20:08 +0200
+
+mutter (3.12.2-1) experimental; urgency=medium
 
   [ Sjoerd Simons ]
-  * Uglify the version number to override a mutter version that shouldn't have
-    gone to unstable yet
-  * debian/patches/fix-build-with-g-i.patch:
-    Added. Fix mutter buid with recent gobject-introspection
+  * debian/rules: Don't constrain the libmutter0 dependencies via shlibs
+    as we change the library names on ABI breaks now
 
- -- Sjoerd Simons <sjoerd@debian.org>  Sat, 26 Apr 2014 19:34:12 +0200
+  [ Andreas Henriksson ]
+  * New upstream release.
 
-mutter (3.8.4-3) unstable; urgency=medium
+ -- Andreas Henriksson <andreas@fatal.se>  Fri, 16 May 2014 17:36:21 +0200
 
-  * debian/patches/0001-Update-for-Cogl-API-breaks.patch:
-    + Fix build with the new cogl.
+mutter (3.12.1+therealdeal-1) experimental; urgency=medium
 
- -- Emilio Pozuelo Monfort <pochu@debian.org>  Thu, 27 Mar 2014 11:26:00 +0100
+  * Tweak version to be bigger then the one in unstable
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Sat, 26 Apr 2014 19:38:07 +0200
+
+mutter (3.12.1-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Sat, 26 Apr 2014 17:47:46 +0200
+
+mutter (3.12.0-2) experimental; urgency=low
+
+  [ Rico Tzschichholz ]
+  * Update library name to libmutter0d since the API/ABI is not compatible
+    with 3.10.x releases
+
+  [ Emilio Pozuelo Monfort ]
+  * Let libmutter0d conflict with libmutter0c.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Thu, 03 Apr 2014 10:30:00 +0200
+
+mutter (3.12.0-1) experimental; urgency=low
+
+  [ Sjoerd Simons ]
+  * debian/patches/prevent-double-lock-deadlock.patch:
+    + Added. Don't call X functions that lock the display in code paths that
+      have already locked the display if X threads have been initialized
+      (bgo#704101)
+
+  [ Andreas Henriksson ]
+  * New upstream release.
+  * Update build-dependencies according to configure.ac changes:
+    - bump upower 0.99.0
+    - bump cogl 1.17.1
+  * Bump Standards-Version to 3.9.5
+
+ -- Andreas Henriksson <andreas@fatal.se>  Sat, 29 Mar 2014 22:09:55 +0100
+
+mutter (3.10.1-2) experimental; urgency=low
+
+  * Force build against G3.10 version of gnome-desktop
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Sun, 03 Nov 2013 11:19:44 +0100
+
+mutter (3.10.1-1) experimental; urgency=low
+
+  * New upstream release
+  * Sync with Ubuntu (3.10.0-0ubuntu1~saucy1)
+    + Update library name to libmutter0c
+    + Bump build-depends
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Fri, 01 Nov 2013 22:34:51 +0100
 
 mutter (3.8.4-2) unstable; urgency=low
 
