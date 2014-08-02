@@ -1,4 +1,4 @@
-mutter (3.13.1-1) UNRELEASED; urgency=medium
+mutter (3.13.1-1) experimental; urgency=medium
 
   [ Laurent Bigonville ]
   * debian/rules: Pass --as-needed to dh_autoreconf
@@ -23,7 +23,7 @@ mutter (3.13.1-1) UNRELEASED; urgency=medium
   * Exclude mutter-launch from having permissions "fixed"
     - mutter-launch needs to be suid
 
- -- Andreas Henriksson <andreas@fatal.se>  Sat, 02 Aug 2014 16:33:04 +0200
+ -- Andreas Henriksson <andreas@fatal.se>  Sat, 02 Aug 2014 17:55:13 +0200
 
 mutter (3.12.2-2) unstable; urgency=medium
 
