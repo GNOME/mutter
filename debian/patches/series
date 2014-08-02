@@ -1,2 +1,4 @@
 01_Wcast-align.patch
-prevent-double-lock-deadlock.patch
+0001-constraints-Complete-fix-for-size-hints-constrainmen.patch
+0001-constraints-Size-increments-need-to-be-applied-to-th.patch
+0001-keybindings-Make-sure-not-to-call-meta_change_keygra.patch
