@@ -1,3 +1,9 @@
+mutter (3.12.2-3) UNRELEASED; urgency=medium
+
+  * debian/rules: Pass --as-needed to dh_autoreconf
+
+ -- Laurent Bigonville <bigon@debian.org>  Sat, 02 Aug 2014 14:49:38 +0200
+
 mutter (3.12.2-2) unstable; urgency=medium
 
   * Upload to unstable.
