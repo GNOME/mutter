@@ -25,4 +25,8 @@
 
 CoglPipeline * meta_create_texture_pipeline (CoglTexture *texture);
 
+CoglTexture *meta_create_large_texture (int                   width,
+                                        int                   height,
+                                        CoglTextureComponents components);
+
 #endif /* __META_COGL_UTILS_H__ */

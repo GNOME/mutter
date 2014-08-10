@@ -64,3 +64,37 @@ meta_create_texture_pipeline (CoglTexture *src_texture)
 
   return pipeline;
 }
+
+static gboolean is_pot(int x)
+{
+  return x > 0 && (x & (x - 1)) == 0;
+}
+
+CoglTexture *
+meta_create_large_texture (int                   width,
+                           int                   height,
+                           CoglTextureComponents components)
+{
+  ClutterBackend *backend = clutter_get_default_backend ();
+  CoglContext *ctx = clutter_backend_get_cogl_context (backend);
+  CoglTexture *texture;
+
+  gboolean should_use_rectangle = FALSE;
+
+  if (!(is_pot (width) && is_pot (height)) &&
+      !cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT))
+    {
+      if (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_RECTANGLE))
+        should_use_rectangle = TRUE;
+    }
+
+  if (should_use_rectangle)
+    texture = COGL_TEXTURE (cogl_texture_rectangle_new_with_size (ctx,
+                                                                  width, height));
+  else
+    texture = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx,
+                                                           width, height));
+  cogl_texture_set_components (texture, components);
+
+  return texture;
+}
