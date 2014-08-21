@@ -72,16 +72,16 @@ set_crtc_cursor (MetaCursorRendererNative *native,
       struct gbm_bo *bo;
       union gbm_bo_handle handle;
       int width, height;
-      int hot_x, hot_y;
+      int offset_x, offset_y;
 
-      bo = meta_cursor_reference_get_gbm_bo (cursor, &hot_x, &hot_y);
+      bo = meta_cursor_reference_get_gbm_bo (cursor, &offset_x, &offset_y);
 
       handle = gbm_bo_get_handle (bo);
       width = gbm_bo_get_width (bo);
       height = gbm_bo_get_height (bo);
 
       drmModeSetCursor2 (priv->drm_fd, crtc->crtc_id, handle.u32,
-                         width, height, hot_x, hot_y);
+                         width, height, -offset_x, -offset_y);
     }
   else
     {

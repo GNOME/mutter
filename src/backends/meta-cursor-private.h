@@ -30,7 +30,7 @@
 typedef struct {
   CoglTexture2D *texture;
   struct gbm_bo *bo;
-  int hot_x, hot_y;
+  int offset_x, offset_y;
 } MetaCursorImage;
 
 struct _MetaCursorReference {
@@ -41,11 +41,11 @@ struct _MetaCursorReference {
 };
 
 CoglTexture *meta_cursor_reference_get_cogl_texture (MetaCursorReference *cursor,
-                                                     int                 *hot_x,
-                                                     int                 *hot_y);
+                                                     int                 *offset_x,
+                                                     int                 *offset_y);
 
 struct gbm_bo *meta_cursor_reference_get_gbm_bo (MetaCursorReference *cursor,
-                                                 int                 *hot_x,
-                                                 int                 *hot_y);
+                                                 int                 *offset_x,
+                                                 int                 *offset_y);
 
 #endif /* META_CURSOR_PRIVATE_H */

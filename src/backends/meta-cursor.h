@@ -34,8 +34,7 @@ MetaCursorReference * meta_cursor_reference_from_theme  (MetaCursor          cur
 #ifdef HAVE_WAYLAND
 #include <wayland-server.h>
 MetaCursorReference * meta_cursor_reference_from_buffer (struct wl_resource *buffer,
-                                                         int                 hot_x,
-                                                         int                 hot_y);
+                                                         int offset_x, int offset_y);
 #endif
 
 MetaCursor meta_cursor_reference_get_meta_cursor (MetaCursorReference *cursor);

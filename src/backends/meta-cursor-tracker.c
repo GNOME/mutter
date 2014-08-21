@@ -310,6 +310,7 @@ meta_cursor_tracker_get_hot (MetaCursorTracker *tracker,
                              int               *y)
 {
   MetaCursorReference *cursor;
+  int offset_x, offset_y;
 
   g_return_if_fail (META_IS_CURSOR_TRACKER (tracker));
 
@@ -324,14 +325,19 @@ meta_cursor_tracker_get_hot (MetaCursorTracker *tracker,
     }
 
   if (cursor)
-    meta_cursor_reference_get_cogl_texture (cursor, x, y);
+    {
+      meta_cursor_reference_get_cogl_texture (cursor, &offset_x, &offset_y);
+    }
   else
     {
-      if (x)
-        *x = 0;
-      if (y)
-        *y = 0;
+      offset_x = 0;
+      offset_y = 0;
     }
+
+  if (x)
+    *x = -offset_x;
+  if (y)
+    *y = -offset_y;
 }
 
 void

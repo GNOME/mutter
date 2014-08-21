@@ -94,12 +94,12 @@ update_cursor (MetaCursorRenderer *renderer)
   if (priv->displayed_cursor)
     {
       CoglTexture *texture;
-      int hot_x, hot_y;
+      int offset_x, offset_y;
 
-      texture = meta_cursor_reference_get_cogl_texture (priv->displayed_cursor, &hot_x, &hot_y);
+      texture = meta_cursor_reference_get_cogl_texture (priv->displayed_cursor, &offset_x, &offset_y);
 
-      priv->current_rect.x = priv->current_x - hot_x;
-      priv->current_rect.y = priv->current_y - hot_y;
+      priv->current_rect.x = priv->current_x + offset_x;
+      priv->current_rect.y = priv->current_y + offset_y;
       priv->current_rect.width = cogl_texture_get_width (COGL_TEXTURE (texture));
       priv->current_rect.height = cogl_texture_get_height (COGL_TEXTURE (texture));
     }
