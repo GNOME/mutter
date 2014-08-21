@@ -40,6 +40,7 @@ typedef struct {
 } MetaOverlay;
 
 struct _MetaStagePrivate {
+  MetaOverlay dnd_overlay;
   MetaOverlay cursor_overlay;
 };
 typedef struct _MetaStagePrivate MetaStagePrivate;
@@ -112,6 +113,7 @@ meta_stage_finalize (GObject *object)
   MetaStage *stage = META_STAGE (object);
   MetaStagePrivate *priv = meta_stage_get_instance_private (stage);
 
+  meta_overlay_free (&priv->dnd_overlay);
   meta_overlay_free (&priv->cursor_overlay);
 }
 
@@ -123,6 +125,7 @@ meta_stage_paint (ClutterActor *actor)
 
   CLUTTER_ACTOR_CLASS (meta_stage_parent_class)->paint (actor);
 
+  meta_overlay_paint (&priv->dnd_overlay);
   meta_overlay_paint (&priv->cursor_overlay);
 }
 
@@ -142,6 +145,7 @@ meta_stage_init (MetaStage *stage)
 {
   MetaStagePrivate *priv = meta_stage_get_instance_private (stage);
 
+  meta_overlay_init (&priv->dnd_overlay);
   meta_overlay_init (&priv->cursor_overlay);
 
   clutter_stage_set_user_resizable (CLUTTER_STAGE (stage), FALSE);
@@ -181,6 +185,19 @@ queue_redraw_for_overlay (MetaStage   *stage,
       clip.height = overlay->current_rect.height;
       clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage), &clip);
     }
+}
+
+void
+meta_stage_set_dnd_surface (MetaStage     *stage,
+                            CoglTexture   *texture,
+                            MetaRectangle *rect)
+{
+  MetaStagePrivate *priv = meta_stage_get_instance_private (stage);
+
+  g_assert (meta_is_wayland_compositor ());
+
+  meta_overlay_set (&priv->dnd_overlay, texture, rect);
+  queue_redraw_for_overlay (stage, &priv->dnd_overlay);
 }
 
 void
