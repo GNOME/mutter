@@ -20,6 +20,4 @@ LDFLAGS += -Wl,-O1 -Wl,--as-needed
 # This does not work with mutter; disabled, for now.
 # LDFLAGS += -Wl,-z,defs -Wl,-O1 -Wl,--as-needed
 
-DEB_FIXPERMS_EXCLUDE := /usr/bin/mutter-launch
-
 common-binary-post-install-arch:: list-missing

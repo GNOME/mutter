@@ -17,6 +17,8 @@ mutter (3.13.90-1) UNRELEASED; urgency=medium
   * libmutter-dev: bump dependency on libclutter-1.0-dev to (>= 1.19.5)
   * libmutter-dev: stop installing usr/lib/lib*.a, no need for static
     and they aren't built anymore.
+  * Stop excluding mutter-launch from fixperms
+    - not needed anymore, mutter-launch is now gone (see logind).
 
  -- Andreas Henriksson <andreas@fatal.se>  Sun, 24 Aug 2014 15:42:23 -0700
 
