@@ -40,7 +40,7 @@ Build-Depends: cdbs (>= 0.4.90),
                libsm-dev,
                libice-dev,
                libpam0g-dev,
-               libwayland-dev (>= 1.4.93) [linux-any],
+               libwayland-dev (>= 1.5.90) [linux-any],
                xkb-data,
                zenity
 Standards-Version: 3.9.5
