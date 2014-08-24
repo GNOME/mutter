@@ -1,3 +1,25 @@
+mutter (3.13.90-1) UNRELEASED; urgency=medium
+
+  * New upstream development release.
+  * Update build-dependencies according to configure.ac changes:
+    - bump intltool to (>= 0.41)
+    - bump libclutter-1.0-dev to (>= 1.19.5)
+    - add libinput-dev
+    - bump libsystemd-login-dev to (>= 212)
+    - add libxcb-randr0-dev, libxkbcommon-x11-dev, libxkbfile-dev and
+      xkb-data
+  * Drop patches backported from upstream:
+    - 0001-constraints-Complete-fix-for-size-hints-constrainmen.patch
+    - 0001-constraints-Size-increments-need-to-be-applied-to-th.patch
+    - 0001-keybindings-Make-sure-not-to-call-meta_change_keygra.patch
+  * Bump gobject-introspection build-dependency to (>= 1.41.3)
+    - this one supports new "nullable" annotation.
+  * libmutter-dev: bump dependency on libclutter-1.0-dev to (>= 1.19.5)
+  * libmutter-dev: stop installing usr/lib/lib*.a, no need for static
+    and they aren't built anymore.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Sun, 24 Aug 2014 15:42:23 -0700
+
 mutter (3.13.1-1) experimental; urgency=medium
 
   [ Laurent Bigonville ]
