@@ -58,6 +58,12 @@ typedef struct
 
   MetaRectangle new_geometry;
   gboolean has_new_geometry;
+
+  struct {
+    gboolean changed;
+    cairo_rectangle_int_t src_rect;
+    int32_t dest_width, dest_height;
+  } viewport;
 } MetaWaylandPendingState;
 
 struct _MetaWaylandSurface
@@ -72,6 +78,7 @@ struct _MetaWaylandSurface
   int scale;
   int32_t offset_x, offset_y;
   GList *subsurfaces;
+  gboolean has_viewport;
 
   /* All the pending state that wl_surface.commit will apply. */
   MetaWaylandPendingState pending;

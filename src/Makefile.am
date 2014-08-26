@@ -49,6 +49,8 @@ mutter_built_sources += \
 	gtk-shell-server-protocol.h		\
 	xdg-shell-protocol.c			\
 	xdg-shell-server-protocol.h		\
+	scaler-protocol.c			\
+	scaler-server-protocol.h		\
 	$(NULL)
 endif
 

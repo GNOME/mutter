@@ -61,6 +61,11 @@ void meta_surface_actor_set_input_region (MetaSurfaceActor *self,
 void meta_surface_actor_set_opaque_region (MetaSurfaceActor *self,
                                            cairo_region_t   *region);
 
+void meta_surface_actor_set_viewport (MetaSurfaceActor      *self,
+                                      cairo_rectangle_int_t *src_rect,
+                                      int                    dest_width,
+                                      int                    dest_height);
+
 void meta_surface_actor_process_damage (MetaSurfaceActor *actor,
                                         int x, int y, int width, int height);
 void meta_surface_actor_pre_paint (MetaSurfaceActor *actor);

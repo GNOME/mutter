@@ -32,6 +32,7 @@
 #include <wayland-server.h>
 #include "gtk-shell-server-protocol.h"
 #include "xdg-shell-server-protocol.h"
+#include "scaler-server-protocol.h"
 
 #include "meta-wayland-private.h"
 #include "meta-xwayland-private.h"
@@ -265,6 +266,7 @@ pending_state_init (MetaWaylandPendingState *state)
   wl_list_init (&state->frame_callback_list);
 
   state->has_new_geometry = FALSE;
+  state->viewport.changed = FALSE;
 }
 
 static void
@@ -419,6 +421,12 @@ commit_pending_state (MetaWaylandSurface      *surface,
   /* wl_surface.frame */
   wl_list_insert_list (&compositor->frame_callbacks, &pending->frame_callback_list);
   wl_list_init (&pending->frame_callback_list);
+
+  if (pending->viewport.changed)
+    meta_surface_actor_set_viewport (surface->surface_actor,
+                                     &pending->viewport.src_rect,
+                                     pending->viewport.dest_width,
+                                     pending->viewport.dest_height);
 
   if (surface == compositor->seat->pointer.cursor_surface)
     cursor_surface_commit (surface, pending);
@@ -1681,6 +1689,136 @@ bind_subcompositor (struct wl_client *client,
   wl_resource_set_implementation (resource, &meta_wayland_subcompositor_interface, data, NULL);
 }
 
+static void
+destroy_wl_viewport (struct wl_resource *resource)
+{
+  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+
+  surface->has_viewport = FALSE;
+  surface->pending.viewport.changed = TRUE;
+}
+
+static void
+wl_viewport_destroy (struct wl_client *client,
+                     struct wl_resource *resource)
+{
+  wl_resource_destroy (resource);
+}
+
+static void
+viewport_set_src (struct wl_resource *resource,
+                  wl_fixed_t src_x,
+                  wl_fixed_t src_y,
+                  wl_fixed_t src_width,
+                  wl_fixed_t src_height)
+{
+  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+  surface->pending.viewport.src_rect.x = wl_fixed_to_int (src_x);
+  surface->pending.viewport.src_rect.y = wl_fixed_to_int (src_y);
+  surface->pending.viewport.src_rect.width = wl_fixed_to_int (src_width);
+  surface->pending.viewport.src_rect.height = wl_fixed_to_int (src_height);
+  surface->pending.viewport.changed = TRUE;
+}
+
+static void
+viewport_set_dest (struct wl_resource *resource,
+                   int dst_width,
+                   int dst_height)
+{
+  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+  surface->pending.viewport.dest_width = dst_width;
+  surface->pending.viewport.dest_height = dst_height;
+  surface->pending.viewport.changed = TRUE;
+}
+
+static void
+wl_viewport_set (struct wl_client *client,
+                 struct wl_resource *resource,
+                 wl_fixed_t src_x,
+                 wl_fixed_t src_y,
+                 wl_fixed_t src_width,
+                 wl_fixed_t src_height,
+                 int dst_width,
+                 int dst_height)
+{
+  viewport_set_src (resource, src_x, src_y, src_width, src_height);
+  viewport_set_dest (resource, dst_width, dst_height);
+}
+
+static void
+wl_viewport_set_source (struct wl_client *client,
+                        struct wl_resource *resource,
+                        wl_fixed_t src_x,
+                        wl_fixed_t src_y,
+                        wl_fixed_t src_width,
+                        wl_fixed_t src_height)
+{
+  viewport_set_src (resource, src_x, src_y, src_width, src_height);
+}
+
+static void
+wl_viewport_set_destination (struct wl_client *client,
+                             struct wl_resource *resource,
+                             int dst_width,
+                             int dst_height)
+{
+  viewport_set_dest (resource, dst_width, dst_height);
+}
+
+static const struct wl_viewport_interface meta_wayland_viewport_interface = {
+  wl_viewport_destroy,
+  wl_viewport_set,
+  wl_viewport_set_source,
+  wl_viewport_set_destination,
+};
+
+static void
+wl_scaler_destroy (struct wl_client *client,
+                   struct wl_resource *resource)
+{
+  wl_resource_destroy (resource);
+}
+
+static void
+wl_scaler_get_viewport (struct wl_client *client,
+                        struct wl_resource *master_resource,
+                        uint32_t viewport_id,
+                        struct wl_resource *surface_resource)
+{
+  struct wl_resource *resource;
+  MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
+
+  if (surface->has_viewport)
+    {
+      wl_resource_post_error (master_resource,
+                              WL_SCALER_ERROR_VIEWPORT_EXISTS,
+                              "viewport already exists on surface");
+      return;
+    }
+
+  resource = wl_resource_create (client, &wl_viewport_interface, wl_resource_get_version (master_resource), viewport_id);
+  wl_resource_set_implementation (resource, &meta_wayland_viewport_interface, surface, destroy_wl_viewport);
+
+  surface->has_viewport = TRUE;
+}
+
+static const struct wl_scaler_interface meta_wayland_scaler_interface = {
+  wl_scaler_destroy,
+  wl_scaler_get_viewport,
+};
+
+static void
+bind_scaler (struct wl_client *client,
+             void             *data,
+             guint32           version,
+             guint32           id)
+{
+  struct wl_resource *resource;
+
+  resource = wl_resource_create (client, &wl_scaler_interface, version, id);
+  wl_resource_set_implementation (resource, &meta_wayland_scaler_interface, data, NULL);
+}
+
 void
 meta_wayland_shell_init (MetaWaylandCompositor *compositor)
 {
@@ -1706,6 +1844,12 @@ meta_wayland_shell_init (MetaWaylandCompositor *compositor)
                         &wl_subcompositor_interface,
                         META_WL_SUBCOMPOSITOR_VERSION,
                         compositor, bind_subcompositor) == NULL)
+    g_error ("Failed to register a global wl-subcompositor object");
+
+  if (wl_global_create (compositor->wayland_display,
+                        &wl_scaler_interface,
+                        META_WL_SCALER_VERSION,
+                        compositor, bind_scaler) == NULL)
     g_error ("Failed to register a global wl-subcompositor object");
 }
 

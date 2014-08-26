@@ -44,5 +44,6 @@
 #define META_XSERVER_VERSION                1
 #define META_GTK_SHELL_VERSION              1
 #define META_WL_SUBCOMPOSITOR_VERSION       1
+#define META_WL_SCALER_VERSION              2
 
 #endif
