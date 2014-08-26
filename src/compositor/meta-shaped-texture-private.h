@@ -34,4 +34,9 @@ void meta_shaped_texture_set_texture (MetaShapedTexture *stex,
                                       CoglTexture       *texture);
 gboolean meta_shaped_texture_is_obscured (MetaShapedTexture *self);
 
+void meta_shaped_texture_set_viewport (MetaShapedTexture     *stex,
+                                       cairo_rectangle_int_t *src_rect,
+                                       int                    dest_width,
+                                       int                    dest_height);
+
 #endif
