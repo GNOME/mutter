@@ -77,7 +77,7 @@ Architecture: any
 Section: debug
 Priority: extra
 Depends: mutter (= ${binary:Version}),
-         libmutter0d (= ${binary:Version}),
+         libmutter0e (= ${binary:Version}),
          ${misc:Depends}
 Description: Debugging symbols for the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
@@ -90,14 +90,14 @@ Description: Debugging symbols for the Mutter window manager
  .
  This package contains detached debugging symbols.
 
-Package: libmutter0d
+Package: libmutter0e
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          gsettings-desktop-schemas (>= 3.13.1),
          mutter-common (= ${source:Version})
-Conflicts: libmutter0, libmutter0a, libmutter0b, libmutter0c
+Conflicts: libmutter0, libmutter0a, libmutter0b, libmutter0c, libmutter0d
 Description: window manager library from the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
@@ -130,7 +130,7 @@ Package: libmutter-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends},
-         libmutter0d (= ${binary:Version}),
+         libmutter0e (= ${binary:Version}),
          gir1.2-mutter-3.0 (= ${binary:Version}),
          gsettings-desktop-schemas-dev (>= 3.13.1),
          libclutter-1.0-dev (>= 1.19.5),

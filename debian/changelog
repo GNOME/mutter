@@ -1,5 +1,6 @@
 mutter (3.13.90-1) UNRELEASED; urgency=medium
 
+  [ Andreas Henriksson ]
   * New upstream development release.
   * Update build-dependencies according to configure.ac changes:
     - bump intltool to (>= 0.41)
@@ -20,6 +21,10 @@ mutter (3.13.90-1) UNRELEASED; urgency=medium
   * Stop excluding mutter-launch from fixperms
     - not needed anymore, mutter-launch is now gone (see logind).
   * Bump libwayland-dev to >= 1.5.90 as required for wayland support.
+
+  [ Rico Tzschichholz ]
+  * Update library name to libmutter0e since the API/ABI is not compatible
+    with 3.12.x releases
 
  -- Andreas Henriksson <andreas@fatal.se>  Sun, 24 Aug 2014 15:42:23 -0700
 
