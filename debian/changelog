@@ -26,7 +26,12 @@ mutter (3.13.90-1) UNRELEASED; urgency=medium
   * Update library name to libmutter0e since the API/ABI is not compatible
     with 3.12.x releases
 
- -- Andreas Henriksson <andreas@fatal.se>  Sun, 24 Aug 2014 15:42:23 -0700
+  [ Sjoerd Simons ]
+  * d/p/workspace-Smarten-assert-in-light-of-O-R-windows.patch
+    + Added. Fix assertion failure when removing a workspace with a window on
+      at that is on all workspaces (from upstream git)
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Sun, 31 Aug 2014 14:44:58 +0200
 
 mutter (3.13.1-1) experimental; urgency=medium
 
