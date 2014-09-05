@@ -1,4 +1,4 @@
-mutter (3.13.91-1) UNRELEASED; urgency=medium
+mutter (3.13.91-1) experimental; urgency=medium
 
   [ Andreas Henriksson ]
   * New upstream development release.
@@ -30,7 +30,10 @@ mutter (3.13.91-1) UNRELEASED; urgency=medium
   * New upstream release 3.13.91.
   * Update libxkbcommon-x11-dev versioned depend
 
- -- Sjoerd Simons <sjoerd@debian.org>  Fri, 05 Sep 2014 20:27:06 +0200
+  [ Andreas Henriksson ]
+  * mutter.install: ship usr/lib/mutter/mutter-restart-helper
+
+ -- Andreas Henriksson <andreas@fatal.se>  Fri, 05 Sep 2014 14:15:05 -0700
 
 mutter (3.13.1-1) experimental; urgency=medium
 
