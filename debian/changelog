@@ -1,4 +1,4 @@
-mutter (3.13.90-1) UNRELEASED; urgency=medium
+mutter (3.13.91-1) UNRELEASED; urgency=medium
 
   [ Andreas Henriksson ]
   * New upstream development release.
@@ -27,11 +27,10 @@ mutter (3.13.90-1) UNRELEASED; urgency=medium
     with 3.12.x releases
 
   [ Sjoerd Simons ]
-  * d/p/workspace-Smarten-assert-in-light-of-O-R-windows.patch
-    + Added. Fix assertion failure when removing a workspace with a window on
-      at that is on all workspaces (from upstream git)
+  * New upstream release 3.13.91.
+  * Update libxkbcommon-x11-dev versioned depend
 
- -- Sjoerd Simons <sjoerd@debian.org>  Sun, 31 Aug 2014 14:44:58 +0200
+ -- Sjoerd Simons <sjoerd@debian.org>  Fri, 05 Sep 2014 20:27:06 +0200
 
 mutter (3.13.1-1) experimental; urgency=medium
 
