@@ -2,7 +2,6 @@
 # 
 # Modifications should be made to debian/control.in instead.
 # This file is regenerated automatically in the clean target.
-
 Source: mutter
 Section: x11
 Priority: optional
@@ -32,7 +31,7 @@ Build-Depends: cdbs (>= 0.4.90),
                libxcb-randr0-dev,
                libxcomposite-dev (>= 1:0.2),
                libxi-dev (>= 2:1.6.0),
-               libxkbcommon-x11-dev,
+               libxkbcommon-x11-dev (>= 0.4.3),
                libxkbfile-dev,
                libxfixes-dev,
                libxdamage-dev,

@@ -1,3 +1,9 @@
+mutter (3.13.92-1) unstable; urgency=medium
+
+  * New upstream release candidate.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Fri, 19 Sep 2014 20:43:41 +0200
+
 mutter (3.13.91-1) experimental; urgency=medium
 
   [ Andreas Henriksson ]
