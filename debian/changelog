@@ -1,8 +1,72 @@
-mutter (3.12.2-3) UNRELEASED; urgency=medium
+mutter (3.13.92-1) unstable; urgency=medium
 
+  * New upstream release candidate.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Fri, 19 Sep 2014 20:43:41 +0200
+
+mutter (3.13.91-1) experimental; urgency=medium
+
+  [ Andreas Henriksson ]
+  * New upstream development release.
+  * Update build-dependencies according to configure.ac changes:
+    - bump intltool to (>= 0.41)
+    - bump libclutter-1.0-dev to (>= 1.19.5)
+    - add libinput-dev
+    - bump libsystemd-login-dev to (>= 212)
+    - add libxcb-randr0-dev, libxkbcommon-x11-dev, libxkbfile-dev and
+      xkb-data
+  * Drop patches backported from upstream:
+    - 0001-constraints-Complete-fix-for-size-hints-constrainmen.patch
+    - 0001-constraints-Size-increments-need-to-be-applied-to-th.patch
+    - 0001-keybindings-Make-sure-not-to-call-meta_change_keygra.patch
+  * Bump gobject-introspection build-dependency to (>= 1.41.3)
+    - this one supports new "nullable" annotation.
+  * libmutter-dev: bump dependency on libclutter-1.0-dev to (>= 1.19.5)
+  * libmutter-dev: stop installing usr/lib/lib*.a, no need for static
+    and they aren't built anymore.
+  * Stop excluding mutter-launch from fixperms
+    - not needed anymore, mutter-launch is now gone (see logind).
+  * Bump libwayland-dev to >= 1.5.90 as required for wayland support.
+
+  [ Rico Tzschichholz ]
+  * Update library name to libmutter0e since the API/ABI is not compatible
+    with 3.12.x releases
+
+  [ Sjoerd Simons ]
+  * New upstream release 3.13.91.
+  * Update libxkbcommon-x11-dev versioned depend
+
+  [ Andreas Henriksson ]
+  * mutter.install: ship usr/lib/mutter/mutter-restart-helper
+
+ -- Andreas Henriksson <andreas@fatal.se>  Fri, 05 Sep 2014 14:15:05 -0700
+
+mutter (3.13.1-1) experimental; urgency=medium
+
+  [ Laurent Bigonville ]
   * debian/rules: Pass --as-needed to dh_autoreconf
 
- -- Laurent Bigonville <bigon@debian.org>  Sat, 02 Aug 2014 14:49:38 +0200
+  [ Andreas Henriksson ]
+  * New upstream development release.
+  * Drop debian/patches/prevent-double-lock-deadlock.patch
+    - obsoleted by upstream commit 5c99eae8a9ca04f5e
+      "display: clean up event handling"
+  * Update build-dependencies according to configure.ac changes:
+    - add libsystemd-login-dev (>= 207), libpam0g-dev
+    - drop libxrender-dev
+  * debian/mutter.install: drop usr/share/gnome
+    - see upstream commit 542a0886cf14cec3995ada2
+      "Remove files no one cares about anymore"
+  * Add patches stolen from fedora originally backported from upstream git:
+    - 0001-constraints-Complete-fix-for-size-hints-constrainmen.patch
+    - 0001-constraints-Size-increments-need-to-be-applied-to-th.patch
+    - 0001-keybindings-Make-sure-not-to-call-meta_change_keygra.patch
+  * Bump gsettings-desktop-schemas (build-)dependencies to 3.13.1
+    - need switch-to-workspace-last schema key
+  * Exclude mutter-launch from having permissions "fixed"
+    - mutter-launch needs to be suid
+
+ -- Andreas Henriksson <andreas@fatal.se>  Sat, 02 Aug 2014 17:55:13 +0200
 
 mutter (3.12.2-2) unstable; urgency=medium
 
