@@ -159,6 +159,7 @@ Depends: ${gir:Depends},
          ${misc:Depends}
 Conflicts: gir1.2-mutter-2.91
 Replaces: gir1.2-mutter-2.91
+Breaks: gnome-shell (<< 3.13.92~)
 Description: GObject introspection data for Mutter
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
