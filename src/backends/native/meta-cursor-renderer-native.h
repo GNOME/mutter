@@ -50,6 +50,8 @@ struct _MetaCursorRendererNativeClass
 GType meta_cursor_renderer_native_get_type (void) G_GNUC_CONST;
 
 struct gbm_device * meta_cursor_renderer_native_get_gbm_device (MetaCursorRendererNative *renderer);
+uint64_t meta_cursor_renderer_native_get_cursor_width (MetaCursorRendererNative *native);
+uint64_t meta_cursor_renderer_native_get_cursor_height (MetaCursorRendererNative *native);
 void meta_cursor_renderer_native_force_update (MetaCursorRendererNative *renderer);
 
 #endif /* META_CURSOR_RENDERER_NATIVE_H */

@@ -27,9 +27,18 @@
 #include "meta-cursor-renderer-native.h"
 
 #include <gbm.h>
+#include <xf86drm.h>
 
 #include "meta-cursor-private.h"
 #include "meta-monitor-manager.h"
+
+#ifndef DRM_CAP_CURSOR_WIDTH
+#define DRM_CAP_CURSOR_WIDTH 0x8
+#endif
+
+#ifndef DRM_CAP_CURSOR_HEIGHT
+#define DRM_CAP_CURSOR_HEIGHT 0x9
+#endif
 
 struct _MetaCursorRendererNativePrivate
 {
@@ -37,6 +46,9 @@ struct _MetaCursorRendererNativePrivate
 
   int drm_fd;
   struct gbm_device *gbm;
+
+  uint64_t cursor_width;
+  uint64_t cursor_height;
 };
 typedef struct _MetaCursorRendererNativePrivate MetaCursorRendererNativePrivate;
 
@@ -71,17 +83,13 @@ set_crtc_cursor (MetaCursorRendererNative *native,
     {
       struct gbm_bo *bo;
       union gbm_bo_handle handle;
-      int width, height;
       int hot_x, hot_y;
 
       bo = meta_cursor_reference_get_gbm_bo (cursor, &hot_x, &hot_y);
 
       handle = gbm_bo_get_handle (bo);
-      width = gbm_bo_get_width (bo);
-      height = gbm_bo_get_height (bo);
-
       drmModeSetCursor2 (priv->drm_fd, crtc->crtc_id, handle.u32,
-                         width, height, hot_x, hot_y);
+                         priv->cursor_width, priv->cursor_height, hot_x, hot_y);
     }
   else
     {
@@ -186,6 +194,21 @@ meta_cursor_renderer_native_init (MetaCursorRendererNative *native)
       CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_context_get_display (ctx));
       priv->drm_fd = cogl_kms_renderer_get_kms_fd (cogl_renderer);
       priv->gbm = gbm_create_device (priv->drm_fd);
+
+      int ret;
+      uint64_t cap;
+
+      ret = drmGetCap(priv->drm_fd, DRM_CAP_CURSOR_WIDTH, &cap);
+      if (ret == 0)
+        priv->cursor_width = cap;
+      else
+        priv->cursor_width = 64;
+
+      ret = drmGetCap(priv->drm_fd, DRM_CAP_CURSOR_HEIGHT, &cap);
+      if (ret == 0)
+        priv->cursor_height = cap;
+      else
+        priv->cursor_height = 64;
     }
 #endif
 }
@@ -196,6 +219,22 @@ meta_cursor_renderer_native_get_gbm_device (MetaCursorRendererNative *native)
   MetaCursorRendererNativePrivate *priv = meta_cursor_renderer_native_get_instance_private (native);
 
   return priv->gbm;
+}
+
+uint64_t
+meta_cursor_renderer_native_get_cursor_width (MetaCursorRendererNative *native)
+{
+  MetaCursorRendererNativePrivate *priv = meta_cursor_renderer_native_get_instance_private (native);
+
+  return priv->cursor_width;
+}
+
+uint64_t
+meta_cursor_renderer_native_get_cursor_height (MetaCursorRendererNative *native)
+{
+  MetaCursorRendererNativePrivate *priv = meta_cursor_renderer_native_get_instance_private (native);
+
+  return priv->cursor_height;
 }
 
 void
