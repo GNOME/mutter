@@ -1,4 +1,4 @@
-mutter (3.13.92-2) UNRELEASED; urgency=medium
+mutter (3.14.0-1) unstable; urgency=medium
 
   [ Dmitry Shachnev ]
   * Make gir1.2-mutter-3.0 break gnome-shell versions older than 3.13.92.
@@ -8,8 +8,9 @@ mutter (3.13.92-2) UNRELEASED; urgency=medium
   [ Andreas Henriksson ]
   * Make the libinput-dev build-dependency linux-only.
     Thanks to Julien Cristau for pointing it out.
+  * New upstream release.
 
- -- Dmitry Shachnev <mitya57@debian.org>  Sat, 20 Sep 2014 14:06:37 +0400
+ -- Andreas Henriksson <andreas@fatal.se>  Mon, 22 Sep 2014 21:02:55 +0200
 
 mutter (3.13.92-1) unstable; urgency=medium
 
