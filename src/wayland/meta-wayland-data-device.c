@@ -34,6 +34,7 @@
 #include "meta-wayland-seat.h"
 #include "meta-wayland-pointer.h"
 #include "meta-wayland-private.h"
+#include "meta-cursor-tracker-private.h"
 
 typedef struct
 {
@@ -242,11 +243,34 @@ drag_grab_focus (MetaWaylandPointerGrab *grab,
 }
 
 static void
+drag_grab_update_dnd_surface (MetaWaylandDragGrab *drag_grab)
+{
+  MetaWaylandSurface *surface = drag_grab->drag_surface;
+  MetaWaylandSeat *seat = drag_grab->seat;
+  int offset_x = 0, offset_y = 0;
+  CoglTexture *texture = NULL;
+
+  if (surface)
+    {
+      if (surface->buffer)
+        texture = surface->buffer->texture;
+
+      offset_x = surface->offset_x;
+      offset_y = surface->offset_y;
+    }
+
+  meta_cursor_tracker_set_dnd_surface (seat->pointer.cursor_tracker,
+                                       texture, offset_x, offset_y);
+}
+
+static void
 drag_grab_motion (MetaWaylandPointerGrab *grab,
 		  const ClutterEvent     *event)
 {
   MetaWaylandDragGrab *drag_grab = (MetaWaylandDragGrab*) grab;
   wl_fixed_t sx, sy;
+
+  drag_grab_update_dnd_surface (drag_grab);
 
   if (drag_grab->drag_focus_data_device)
     {
@@ -274,6 +298,7 @@ data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
   drag_grab->seat->data_device.current_grab = NULL;
 
   drag_grab_focus (&drag_grab->generic, NULL);
+  drag_grab_update_dnd_surface (drag_grab);
 
   meta_wayland_pointer_end_grab (drag_grab->generic.pointer);
   g_slice_free (MetaWaylandDragGrab, drag_grab);
@@ -371,6 +396,7 @@ data_device_start_drag (struct wl_client *client,
 
   meta_wayland_pointer_set_focus (&seat->pointer, NULL);
   meta_wayland_pointer_start_grab (&seat->pointer, (MetaWaylandPointerGrab*)drag_grab);
+  drag_grab_update_dnd_surface (drag_grab);
 }
 
 static void
