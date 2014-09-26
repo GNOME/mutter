@@ -580,3 +580,18 @@ meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device)
       wl_data_device_send_selection (data_device_resource, offer);
     }
 }
+
+gboolean
+meta_wayland_data_device_is_dnd_surface (MetaWaylandDataDevice *data_device,
+                                         MetaWaylandSurface    *surface)
+{
+  return data_device->current_grab &&
+    data_device->current_grab->drag_surface == surface;
+}
+
+void
+meta_wayland_data_device_update_dnd_surface (MetaWaylandDataDevice *data_device)
+{
+  if (data_device->current_grab)
+    drag_grab_update_dnd_surface (data_device->current_grab);
+}
