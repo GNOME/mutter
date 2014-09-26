@@ -35,13 +35,22 @@
 
 #include "meta-stage.h"
 
+typedef struct
+{
+  CoglTexture *texture;
+  MetaRectangle current_rect;
+} MetaCursorLayer;
+
 struct _MetaCursorRendererPrivate
 {
   int current_x, current_y;
-  MetaRectangle current_rect;
+
+  MetaCursorLayer core_layer;
+  MetaCursorLayer dnd_layer;
 
   MetaCursorReference *displayed_cursor;
-  gboolean handled_by_backend;
+  int dnd_surface_offset_x, dnd_surface_offset_y;
+  gboolean cursor_handled_by_backend;
 };
 typedef struct _MetaCursorRendererPrivate MetaCursorRendererPrivate;
 
@@ -59,12 +68,19 @@ queue_redraw (MetaCursorRenderer *renderer)
   if (!stage)
     return;
 
-  if (priv->displayed_cursor && !priv->handled_by_backend)
-    texture = meta_cursor_reference_get_cogl_texture (priv->displayed_cursor, NULL, NULL);
+  /* Pointer cursor */
+  if (!priv->cursor_handled_by_backend)
+    texture = priv->core_layer.texture;
   else
     texture = NULL;
 
-  meta_stage_set_cursor (META_STAGE (stage), texture, &priv->current_rect);
+  meta_stage_set_cursor (META_STAGE (stage), texture,
+                         &priv->core_layer.current_rect);
+
+  /* DnD surface */
+  meta_stage_set_dnd_surface (META_STAGE (stage),
+                              priv->dnd_layer.texture,
+                              &priv->dnd_layer.current_rect);
 }
 
 static gboolean
@@ -85,44 +101,81 @@ meta_cursor_renderer_init (MetaCursorRenderer *renderer)
 }
 
 static void
-update_cursor (MetaCursorRenderer *renderer)
+update_layer (MetaCursorRenderer *renderer,
+              MetaCursorLayer    *layer,
+              CoglTexture        *texture,
+              int                 offset_x,
+              int                 offset_y)
 {
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
-  gboolean handled_by_backend;
-  gboolean should_redraw = FALSE;
 
-  if (priv->displayed_cursor)
+  layer->texture = texture;
+
+  if (layer->texture)
     {
-      CoglTexture *texture;
-      int hot_x, hot_y;
-
-      texture = meta_cursor_reference_get_cogl_texture (priv->displayed_cursor, &hot_x, &hot_y);
-
-      priv->current_rect.x = priv->current_x - hot_x;
-      priv->current_rect.y = priv->current_y - hot_y;
-      priv->current_rect.width = cogl_texture_get_width (COGL_TEXTURE (texture));
-      priv->current_rect.height = cogl_texture_get_height (COGL_TEXTURE (texture));
+      layer->current_rect.x = priv->current_x + offset_x;
+      layer->current_rect.y = priv->current_y + offset_y;
+      layer->current_rect.width = cogl_texture_get_width (layer->texture);
+      layer->current_rect.height = cogl_texture_get_height (layer->texture);
     }
   else
     {
-      priv->current_rect.x = 0;
-      priv->current_rect.y = 0;
-      priv->current_rect.width = 0;
-      priv->current_rect.height = 0;
+      layer->current_rect.x = 0;
+      layer->current_rect.y = 0;
+      layer->current_rect.width = 0;
+      layer->current_rect.height = 0;
     }
+}
+
+static void
+emit_update_cursor (MetaCursorRenderer *renderer,
+                    gboolean            force)
+{
+  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+  gboolean handled_by_backend, should_redraw = FALSE;
 
   handled_by_backend = META_CURSOR_RENDERER_GET_CLASS (renderer)->update_cursor (renderer);
-  if (handled_by_backend != priv->handled_by_backend)
+
+  if (handled_by_backend != priv->cursor_handled_by_backend)
     {
-      priv->handled_by_backend = handled_by_backend;
+      priv->cursor_handled_by_backend = handled_by_backend;
       should_redraw = TRUE;
     }
 
-  if (!handled_by_backend)
+  if (force || !handled_by_backend || priv->dnd_layer.texture)
     should_redraw = TRUE;
 
   if (should_redraw)
     queue_redraw (renderer);
+}
+
+static void
+update_cursor (MetaCursorRenderer *renderer)
+{
+  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+  CoglTexture *texture;
+  int hot_x, hot_y;
+
+  /* Cursor layer */
+  if (priv->displayed_cursor)
+    {
+      texture = meta_cursor_reference_get_cogl_texture (priv->displayed_cursor,
+                                                        &hot_x, &hot_y);
+    }
+  else
+    {
+      texture = NULL;
+      hot_x = 0;
+      hot_y = 0;
+    }
+
+  update_layer (renderer, &priv->core_layer, texture, -hot_x, -hot_y);
+
+  /* The DnD surface layer will also need updating position */
+  update_layer (renderer, &priv->dnd_layer, priv->dnd_layer.texture,
+                priv->dnd_surface_offset_x, priv->dnd_surface_offset_y);
+
+  emit_update_cursor (renderer, FALSE);
 }
 
 MetaCursorRenderer *
@@ -142,6 +195,23 @@ meta_cursor_renderer_set_cursor (MetaCursorRenderer  *renderer,
 
   priv->displayed_cursor = cursor;
   update_cursor (renderer);
+}
+
+void
+meta_cursor_renderer_set_dnd_surface (MetaCursorRenderer *renderer,
+                                      CoglTexture        *texture,
+                                      int                 offset_x,
+                                      int                 offset_y)
+{
+  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+
+  g_assert (meta_is_wayland_compositor ());
+
+  priv->dnd_surface_offset_x = offset_x;
+  priv->dnd_surface_offset_y = offset_y;
+
+  update_layer (renderer, &priv->dnd_layer, texture, offset_x, offset_y);
+  emit_update_cursor (renderer, TRUE);
 }
 
 void
@@ -171,5 +241,5 @@ meta_cursor_renderer_get_rect (MetaCursorRenderer *renderer)
 {
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
 
-  return &priv->current_rect;
+  return &priv->core_layer.current_rect;
 }

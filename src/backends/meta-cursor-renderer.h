@@ -67,4 +67,9 @@ void meta_cursor_renderer_set_position (MetaCursorRenderer *renderer,
 MetaCursorReference * meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer);
 const MetaRectangle * meta_cursor_renderer_get_rect (MetaCursorRenderer *renderer);
 
+void meta_cursor_renderer_set_dnd_surface (MetaCursorRenderer *renderer,
+                                           CoglTexture        *texture,
+                                           int                 offset_x,
+                                           int                 offset_y);
+
 #endif /* META_CURSOR_RENDERER_H */
