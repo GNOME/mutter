@@ -62,6 +62,10 @@ void     meta_cursor_tracker_set_window_cursor   (MetaCursorTracker   *tracker,
 void     meta_cursor_tracker_unset_window_cursor (MetaCursorTracker   *tracker);
 void     meta_cursor_tracker_set_root_cursor     (MetaCursorTracker   *tracker,
                                                   MetaCursorReference *cursor);
+void     meta_cursor_tracker_set_dnd_surface     (MetaCursorTracker   *tracker,
+                                                  CoglTexture         *texture,
+                                                  int                  offset_x,
+                                                  int                  offset_y);
 
 void     meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
 					      int                new_x,

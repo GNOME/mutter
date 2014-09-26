@@ -359,6 +359,18 @@ meta_cursor_tracker_set_root_cursor (MetaCursorTracker   *tracker,
 }
 
 void
+meta_cursor_tracker_set_dnd_surface (MetaCursorTracker   *tracker,
+                                     CoglTexture         *texture,
+                                     int                  offset_x,
+                                     int                  offset_y)
+{
+  g_assert (meta_is_wayland_compositor ());
+
+  meta_cursor_renderer_set_dnd_surface (tracker->renderer, texture,
+                                        offset_x, offset_y);
+}
+
+void
 meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
                                      int                new_x,
                                      int                new_y)
