@@ -243,12 +243,23 @@ drag_grab_focus (MetaWaylandPointerGrab *grab,
 }
 
 static void
+drag_grab_update_dnd_surface_position (MetaWaylandDragGrab *drag_grab)
+{
+  MetaWaylandSeat *seat = drag_grab->seat;
+  ClutterPoint pos;
+
+  clutter_input_device_get_coords (seat->pointer.device, NULL, &pos);
+  meta_cursor_tracker_update_dnd_surface_position (seat->pointer.cursor_tracker,
+                                                   (int) pos.x, (int) pos.y);
+}
+
+static void
 drag_grab_update_dnd_surface (MetaWaylandDragGrab *drag_grab)
 {
   MetaWaylandSurface *surface = drag_grab->drag_surface;
   MetaWaylandSeat *seat = drag_grab->seat;
-  int offset_x = 0, offset_y = 0;
   CoglTexture *texture = NULL;
+  int offset_x, offset_y;
 
   if (surface)
     {
@@ -258,6 +269,8 @@ drag_grab_update_dnd_surface (MetaWaylandDragGrab *drag_grab)
       offset_x = surface->offset_x;
       offset_y = surface->offset_y;
     }
+  else
+    offset_x = offset_y = 0;
 
   meta_cursor_tracker_set_dnd_surface (seat->pointer.cursor_tracker,
                                        texture, offset_x, offset_y);
@@ -270,7 +283,7 @@ drag_grab_motion (MetaWaylandPointerGrab *grab,
   MetaWaylandDragGrab *drag_grab = (MetaWaylandDragGrab*) grab;
   wl_fixed_t sx, sy;
 
-  drag_grab_update_dnd_surface (drag_grab);
+  drag_grab_update_dnd_surface_position (drag_grab);
 
   if (drag_grab->drag_focus_data_device)
     {
@@ -396,6 +409,7 @@ data_device_start_drag (struct wl_client *client,
 
   meta_wayland_pointer_set_focus (&seat->pointer, NULL);
   meta_wayland_pointer_start_grab (&seat->pointer, (MetaWaylandPointerGrab*)drag_grab);
+  drag_grab_update_dnd_surface_position (drag_grab);
   drag_grab_update_dnd_surface (drag_grab);
 }
 

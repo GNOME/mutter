@@ -71,5 +71,7 @@ void meta_cursor_renderer_set_dnd_surface (MetaCursorRenderer *renderer,
                                            CoglTexture        *texture,
                                            int                 offset_x,
                                            int                 offset_y);
+void meta_cursor_renderer_set_dnd_surface_position (MetaCursorRenderer *renderer,
+                                                    int x, int y);
 
 #endif /* META_CURSOR_RENDERER_H */

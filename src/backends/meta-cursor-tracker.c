@@ -380,6 +380,17 @@ meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
   meta_cursor_renderer_set_position (tracker->renderer, new_x, new_y);
 }
 
+void
+meta_cursor_tracker_update_dnd_surface_position (MetaCursorTracker *tracker,
+                                                 int                new_x,
+                                                 int                new_y)
+{
+  g_assert (meta_is_wayland_compositor ());
+
+  meta_cursor_renderer_set_dnd_surface_position (tracker->renderer,
+                                                 new_x, new_y);
+}
+
 static void
 get_pointer_position_gdk (int         *x,
                           int         *y,

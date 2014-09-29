@@ -39,12 +39,11 @@ typedef struct
 {
   CoglTexture *texture;
   MetaRectangle current_rect;
+  int current_x, current_y;
 } MetaCursorLayer;
 
 struct _MetaCursorRendererPrivate
 {
-  int current_x, current_y;
-
   MetaCursorLayer core_layer;
   MetaCursorLayer dnd_layer;
 
@@ -107,14 +106,12 @@ update_layer (MetaCursorRenderer *renderer,
               int                 offset_x,
               int                 offset_y)
 {
-  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
-
   layer->texture = texture;
 
   if (layer->texture)
     {
-      layer->current_rect.x = priv->current_x + offset_x;
-      layer->current_rect.y = priv->current_y + offset_y;
+      layer->current_rect.x = layer->current_x + offset_x;
+      layer->current_rect.y = layer->current_y + offset_y;
       layer->current_rect.width = cogl_texture_get_width (layer->texture);
       layer->current_rect.height = cogl_texture_get_height (layer->texture);
     }
@@ -170,11 +167,6 @@ update_cursor (MetaCursorRenderer *renderer)
     }
 
   update_layer (renderer, &priv->core_layer, texture, -hot_x, -hot_y);
-
-  /* The DnD surface layer will also need updating position */
-  update_layer (renderer, &priv->dnd_layer, priv->dnd_layer.texture,
-                priv->dnd_surface_offset_x, priv->dnd_surface_offset_y);
-
   emit_update_cursor (renderer, FALSE);
 }
 
@@ -222,10 +214,27 @@ meta_cursor_renderer_set_position (MetaCursorRenderer *renderer,
 
   g_assert (meta_is_wayland_compositor ());
 
-  priv->current_x = x;
-  priv->current_y = y;
+  priv->core_layer.current_x = x;
+  priv->core_layer.current_y = y;
 
   update_cursor (renderer);
+}
+
+void
+meta_cursor_renderer_set_dnd_surface_position (MetaCursorRenderer *renderer,
+                                               int                 x,
+                                               int                 y)
+{
+  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+
+  g_assert (meta_is_wayland_compositor ());
+
+  priv->dnd_layer.current_x = x;
+  priv->dnd_layer.current_y = y;
+
+  update_layer (renderer, &priv->dnd_layer, priv->dnd_layer.texture,
+                priv->dnd_surface_offset_x, priv->dnd_surface_offset_y);
+  emit_update_cursor (renderer, FALSE);
 }
 
 MetaCursorReference *
