@@ -306,6 +306,29 @@ drag_grab_motion (MetaWaylandPointerGrab *grab,
 }
 
 static void
+data_device_dnd_failed (MetaWaylandDragGrab *drag_grab)
+{
+  MetaWaylandSurface *surface = drag_grab->drag_origin;
+  MetaWaylandSeat *seat = drag_grab->seat;
+  ClutterPoint dest;
+
+  if (drag_grab->drag_origin &&
+      !meta_window_is_hidden (surface->window))
+    {
+      /* Find out the snap back position */
+      clutter_actor_get_transformed_position (CLUTTER_ACTOR (meta_surface_actor_get_texture (surface->surface_actor)),
+                                              &dest.x, &dest.y);
+      dest.x += drag_grab->drag_start_x;
+      dest.y += drag_grab->drag_start_y;
+    }
+  else
+    clutter_input_device_get_coords (seat->pointer.device, NULL, &dest);
+
+  meta_cursor_tracker_dnd_failed (seat->pointer.cursor_tracker,
+                                  dest.x, dest.y);
+}
+
+static void
 data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
 {
   if (drag_grab->drag_origin)
@@ -343,10 +366,15 @@ drag_grab_button (MetaWaylandPointerGrab *grab,
   MetaWaylandSeat *seat = drag_grab->seat;
   ClutterEventType event_type = clutter_event_type (event);
 
-  if (drag_grab->drag_focus_data_device &&
-      drag_grab->generic.pointer->grab_button == clutter_event_get_button (event) &&
+  if (drag_grab->generic.pointer->grab_button == clutter_event_get_button (event) &&
       event_type == CLUTTER_BUTTON_RELEASE)
-    wl_data_device_send_drop (drag_grab->drag_focus_data_device);
+    {
+      if (drag_grab->drag_focus_data_device &&
+          drag_grab->drag_data_source->has_target)
+        wl_data_device_send_drop (drag_grab->drag_focus_data_device);
+      else
+        data_device_dnd_failed (drag_grab);
+    }
 
   if (seat->pointer.button_count == 0 &&
       event_type == CLUTTER_BUTTON_RELEASE)
