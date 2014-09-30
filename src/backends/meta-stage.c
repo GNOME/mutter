@@ -28,6 +28,8 @@
 #include <meta/meta-backend.h>
 #include <meta/util.h>
 
+#define DRAG_FAILED_MSECS 500
+
 typedef struct {
   gboolean enabled;
 
@@ -39,9 +41,20 @@ typedef struct {
   gboolean previous_is_valid;
 } MetaOverlay;
 
+typedef struct {
+  MetaStage *stage;
+  MetaOverlay overlay;
+  ClutterTimeline *timeline;
+  int orig_x;
+  int orig_y;
+  int dest_x;
+  int dest_y;
+} MetaDragFailedAnimation;
+
 struct _MetaStagePrivate {
   MetaOverlay dnd_overlay;
   MetaOverlay cursor_overlay;
+  GList *drag_failed_animations;
 };
 typedef struct _MetaStagePrivate MetaStagePrivate;
 
@@ -131,8 +144,16 @@ meta_stage_paint (ClutterActor *actor)
 {
   MetaStage *stage = META_STAGE (actor);
   MetaStagePrivate *priv = meta_stage_get_instance_private (stage);
+  MetaDragFailedAnimation *animation;
+  GList *l;
 
   CLUTTER_ACTOR_CLASS (meta_stage_parent_class)->paint (actor);
+
+  for (l = priv->drag_failed_animations; l; l = l->next)
+    {
+      animation = l->data;
+      meta_overlay_paint (&animation->overlay);
+    }
 
   meta_overlay_paint (&priv->dnd_overlay);
   meta_overlay_paint (&priv->cursor_overlay);
@@ -220,4 +241,85 @@ meta_stage_set_cursor (MetaStage     *stage,
 
   meta_overlay_set (&priv->cursor_overlay, texture, rect);
   queue_redraw_for_overlay (stage, &priv->cursor_overlay);
+}
+
+static void
+drag_failed_animation_frame_cb (ClutterTimeline *timeline,
+                                guint            pos,
+                                gpointer         user_data)
+{
+  MetaDragFailedAnimation *data = user_data;
+  gdouble progress = clutter_timeline_get_progress (timeline);
+  CoglColor color;
+
+  cogl_color_init_from_4f (&color, 0, 0, 0, 1 - progress);
+  cogl_pipeline_set_layer_combine_constant (data->overlay.pipeline, 0, &color);
+
+  data->overlay.current_rect.x = data->orig_x + ((data->dest_x - data->orig_x) * progress);
+  data->overlay.current_rect.y = data->orig_y + ((data->dest_y - data->orig_y) * progress);
+  queue_redraw_for_overlay (data->stage, &data->overlay);
+}
+
+static void
+meta_drag_failed_animation_free (MetaDragFailedAnimation *data)
+{
+  MetaStage *stage = data->stage;
+  MetaStagePrivate *priv = meta_stage_get_instance_private (stage);
+
+  priv->drag_failed_animations =
+    g_list_remove (priv->drag_failed_animations, data);
+
+  g_object_unref (data->timeline);
+  meta_overlay_free (&data->overlay);
+  g_slice_free (MetaDragFailedAnimation, data);
+}
+
+static MetaDragFailedAnimation *
+meta_drag_failed_animation_new (MetaStage *stage,
+                                int        dest_x,
+                                int        dest_y)
+{
+  MetaStagePrivate *priv = meta_stage_get_instance_private (stage);
+  MetaDragFailedAnimation *data;
+
+  data = g_slice_new0 (MetaDragFailedAnimation);
+  data->stage = stage;
+  data->orig_x = priv->dnd_overlay.current_rect.x;
+  data->orig_y = priv->dnd_overlay.current_rect.y;
+  data->dest_x = dest_x;
+  data->dest_y = dest_y;
+
+  meta_overlay_copy (&priv->dnd_overlay, &data->overlay);
+
+  data->timeline = clutter_timeline_new (DRAG_FAILED_MSECS);
+  clutter_timeline_set_progress_mode (data->timeline, CLUTTER_EASE_OUT_CUBIC);
+  g_signal_connect (data->timeline, "new-frame",
+                    G_CALLBACK (drag_failed_animation_frame_cb), data);
+  g_signal_connect_swapped (data->timeline, "completed",
+                            G_CALLBACK (meta_drag_failed_animation_free), data);
+
+  priv->drag_failed_animations =
+    g_list_prepend (priv->drag_failed_animations, data);
+
+  cogl_pipeline_set_layer_combine (data->overlay.pipeline, 0,
+                                   "RGBA = MODULATE (TEXTURE, CONSTANT[A])",
+                                   NULL);
+  return data;
+}
+
+void
+meta_stage_dnd_failed (MetaStage *stage,
+                       int        dest_x,
+                       int        dest_y)
+{
+  MetaStagePrivate *priv = meta_stage_get_instance_private (stage);
+  MetaDragFailedAnimation *data;
+
+  g_assert (meta_is_wayland_compositor ());
+
+  if (!priv->dnd_overlay.enabled)
+    return;
+
+  data = meta_drag_failed_animation_new (stage, dest_x, dest_y);
+  clutter_timeline_start (data->timeline);
 }

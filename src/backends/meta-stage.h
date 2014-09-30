@@ -58,6 +58,11 @@ void meta_stage_set_dnd_surface (MetaStage     *stage,
 void meta_stage_set_cursor (MetaStage     *stage,
                             CoglTexture   *texture,
                             MetaRectangle *rect);
+
+void meta_stage_dnd_failed (MetaStage *stage,
+                            int        dest_x,
+                            int        dest_y);
+
 G_END_DECLS
 
 #endif /* META_STAGE_H */
