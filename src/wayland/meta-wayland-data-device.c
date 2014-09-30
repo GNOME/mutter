@@ -483,7 +483,7 @@ data_device_start_drag (struct wl_client *client,
                                         &drag_grab->drag_icon_listener);
     }
 
-  meta_wayland_pointer_set_focus (&seat->pointer, NULL);
+  meta_wayland_pointer_set_focus (&seat->pointer, NULL, TRUE);
   meta_wayland_pointer_start_grab (&seat->pointer, (MetaWaylandPointerGrab*)drag_grab);
   drag_grab_update_dnd_surface_position (drag_grab);
   drag_grab_update_dnd_surface (drag_grab);

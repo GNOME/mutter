@@ -86,7 +86,8 @@ gboolean meta_wayland_pointer_handle_event (MetaWaylandPointer *pointer,
                                             const ClutterEvent *event);
 
 void meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
-                                     MetaWaylandSurface *surface);
+                                     MetaWaylandSurface *surface,
+                                     gboolean            emit_crossing);
 
 void meta_wayland_pointer_start_grab (MetaWaylandPointer *pointer,
                                       MetaWaylandPointerGrab *grab);
