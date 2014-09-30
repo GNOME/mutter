@@ -56,6 +56,15 @@ meta_overlay_init (MetaOverlay *overlay)
 }
 
 static void
+meta_overlay_copy (MetaOverlay *src,
+                   MetaOverlay *dst)
+{
+  *dst = *src;
+  dst->pipeline = cogl_pipeline_copy (src->pipeline);
+  dst->texture = src->texture;
+}
+
+static void
 meta_overlay_free (MetaOverlay *overlay)
 {
   if (overlay->pipeline)
