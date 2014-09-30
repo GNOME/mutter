@@ -379,6 +379,7 @@ destroy_data_device_icon (struct wl_listener *listener, void *data)
     wl_container_of (listener, drag_grab, drag_data_source_listener);
 
   drag_grab->drag_surface = NULL;
+  drag_grab_update_dnd_surface (drag_grab);
 }
 
 static void
