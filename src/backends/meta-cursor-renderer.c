@@ -237,6 +237,23 @@ meta_cursor_renderer_set_dnd_surface_position (MetaCursorRenderer *renderer,
   emit_update_cursor (renderer, FALSE);
 }
 
+void
+meta_cursor_renderer_dnd_failed (MetaCursorRenderer *renderer,
+                                 int                 dest_x,
+                                 int                 dest_y)
+{
+  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+  MetaBackend *backend = meta_get_backend ();
+  ClutterActor *stage = meta_backend_get_stage (backend);
+
+  g_assert (meta_is_wayland_compositor ());
+
+  if (priv->dnd_layer.texture)
+    meta_stage_dnd_failed (META_STAGE (stage),
+                           dest_x + priv->dnd_surface_offset_x,
+                           dest_y + priv->dnd_surface_offset_y);
+}
+
 MetaCursorReference *
 meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer)
 {
