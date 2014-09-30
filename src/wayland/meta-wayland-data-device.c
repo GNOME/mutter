@@ -212,6 +212,8 @@ drag_grab_focus (MetaWaylandPointerGrab *grab,
   if (drag_grab->drag_focus == surface)
     return;
 
+  meta_wayland_pointer_set_focus (&seat->pointer, surface, FALSE);
+
   if (drag_grab->drag_focus_data_device)
     {
       wl_data_device_send_leave (drag_grab->drag_focus_data_device);
