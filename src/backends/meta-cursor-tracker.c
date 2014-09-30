@@ -371,6 +371,16 @@ meta_cursor_tracker_set_dnd_surface (MetaCursorTracker   *tracker,
 }
 
 void
+meta_cursor_tracker_dnd_failed (MetaCursorTracker *tracker,
+                                int                dest_x,
+                                int                dest_y)
+{
+  g_assert (meta_is_wayland_compositor ());
+
+  meta_cursor_renderer_dnd_failed (tracker->renderer, dest_x, dest_y);
+}
+
+void
 meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
                                      int                new_x,
                                      int                new_y)

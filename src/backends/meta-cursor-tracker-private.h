@@ -73,6 +73,9 @@ void     meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
 void     meta_cursor_tracker_update_dnd_surface_position (MetaCursorTracker *tracker,
                                                           int                new_x,
                                                           int                new_y);
+void     meta_cursor_tracker_dnd_failed (MetaCursorTracker *tracker,
+                                         int                dest_x,
+                                         int                dest_y);
 
 MetaCursorReference * meta_cursor_tracker_get_displayed_cursor (MetaCursorTracker *tracker);
 
