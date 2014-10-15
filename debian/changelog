@@ -4,6 +4,7 @@ mutter (3.14.1-1) UNRELEASED; urgency=medium
   * Refresh patches.
   * Drop obsolete Conflicts/Replaces: gir1.2-mutter-2.91.
   * Update Build-Depends as per configure.ac.
+  * Bump Standards-Version to 3.9.6. No further changes.
 
  -- Michael Biebl <biebl@debian.org>  Wed, 15 Oct 2014 23:46:21 +0200
 
