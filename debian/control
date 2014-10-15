@@ -6,7 +6,7 @@ Source: mutter
 Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
-Uploaders: Andreas Henriksson <andreas@fatal.se>, Emilio Pozuelo Monfort <pochu@debian.org>, Sjoerd Simons <sjoerd@debian.org>
+Uploaders: Andreas Henriksson <andreas@fatal.se>, Emilio Pozuelo Monfort <pochu@debian.org>, Michael Biebl <biebl@debian.org>, Sjoerd Simons <sjoerd@debian.org>
 Build-Depends: cdbs (>= 0.4.90),
                debhelper (>= 9),
                gnome-pkg-tools (>= 0.10),
@@ -14,6 +14,7 @@ Build-Depends: cdbs (>= 0.4.90),
                intltool (>= 0.41),
                gtk-doc-tools (>= 1.15),
                libgtk-3-dev (>= 3.9.11),
+               libglib2.0-dev (>= 2.25.10),
                libcanberra-gtk3-dev,
                gobject-introspection (>= 1.41.3),
                gsettings-desktop-schemas-dev (>= 3.13.1),
@@ -21,8 +22,9 @@ Build-Depends: cdbs (>= 0.4.90),
                libjson-glib-dev (>= 0.13.2-1~),
                libcogl-dev (>= 1.17.1),
                libclutter-1.0-dev (>= 1.19.5),
+               libgbm-dev (>= 10.3),
                libpango1.0-dev (>= 1.2.0),
-               libcairo2-dev (>= 1.2.0),
+               libcairo2-dev (>= 1.10.0),
                libgnome-desktop-3-dev (>= 3.10),
                libinput-dev [linux-any],
                libstartup-notification0-dev (>= 0.7),
@@ -31,8 +33,10 @@ Build-Depends: cdbs (>= 0.4.90),
                libxcb-randr0-dev,
                libxcomposite-dev (>= 1:0.2),
                libxi-dev (>= 2:1.6.0),
-               libxkbcommon-x11-dev (>= 0.4.3),
                libxkbfile-dev,
+               libxkbcommon-x11-dev,
+               libxkbcommon-dev (>= 0.4.3),
+               libx11-xcb-dev,
                libxfixes-dev,
                libxdamage-dev,
                libxcursor-dev,
@@ -157,8 +161,6 @@ Architecture: any
 Depends: ${gir:Depends},
          ${shlibs:Depends},
          ${misc:Depends}
-Conflicts: gir1.2-mutter-2.91
-Replaces: gir1.2-mutter-2.91
 Breaks: gnome-shell (<< 3.13.92~)
 Description: GObject introspection data for Mutter
  Mutter is a small window manager, using GTK+ and Clutter to do
