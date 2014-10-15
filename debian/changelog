@@ -1,4 +1,4 @@
-mutter (3.14.1-1) UNRELEASED; urgency=medium
+mutter (3.14.1-1) unstable; urgency=medium
 
   * New upstream release.
   * Refresh patches.
@@ -6,7 +6,7 @@ mutter (3.14.1-1) UNRELEASED; urgency=medium
   * Update Build-Depends as per configure.ac.
   * Bump Standards-Version to 3.9.6. No further changes.
 
- -- Michael Biebl <biebl@debian.org>  Wed, 15 Oct 2014 23:46:21 +0200
+ -- Michael Biebl <biebl@debian.org>  Thu, 16 Oct 2014 00:40:24 +0200
 
 mutter (3.14.0-1) unstable; urgency=medium
 
