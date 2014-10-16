@@ -1097,7 +1097,7 @@ meta_monitor_manager_xrandr_handle_xevent (MetaMonitorManagerXrandr *manager_xra
   /* If this is the X server telling us we set a new configuration,
    * we can simply short-cut to rebuilding our logical configuration.
    */
-  if (new_config || meta_monitor_config_match_current (manager->config, manager))
+  if (new_config)
     {
       meta_monitor_manager_xrandr_rebuild_derived (manager);
       goto out;
