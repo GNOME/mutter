@@ -156,7 +156,8 @@ Section: introspection
 Architecture: any
 Depends: ${gir:Depends},
          ${shlibs:Depends},
-         ${misc:Depends}
+         ${misc:Depends},
+         libmutter0e (= ${binary:Version})
 Breaks: gnome-shell (<< 3.13.92~)
 Description: GObject introspection data for Mutter
  Mutter is a small window manager, using GTK+ and Clutter to do
