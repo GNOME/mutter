@@ -1,3 +1,13 @@
+3.14.1.5
+========
+* Fix wayland hiDPI regressions [Adel; #739161]
+
+Contributors:
+  Adel Gadllah, Florian Müllner, Jasper St. Pierre
+
+Translations:
+  Dušan Kazik [sk]
+
 3.14.1
 ======
 * Fix move-titlebar-onscreen function [Florian; #736915]
