@@ -1,3 +1,11 @@
+3.14.2
+======
+* Prevent crash applying monitor config for a closed lid [Rui; #739450]
+* Misc. fixes [Rui, Jonathon, Jasper; #738630]
+
+Contributors:
+  Jonathon Jongsma, Rui Matos, Jasper St. Pierre
+
 3.14.1.5
 ========
 * Fix wayland hiDPI regressions [Adel; #739161]
