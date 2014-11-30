@@ -1,0 +1,27 @@
+From 2e7b9e0dfed8ca637cf70bc160489610b93234fd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 14 Nov 2014 13:23:15 +0100
+Subject: window-actor: Do not request unredirection when destroyed
+
+WindowActors can outlive their corresponding window to animate unmap.
+Unredirecting the actor does not make sense in that case, so make
+sure to not request it.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=740133
+
+diff --git a/src/compositor/meta-window-actor.c b/src/compositor/meta-window-actor.c
+index 39864d6..eb21c46 100644
+--- a/src/compositor/meta-window-actor.c
++++ b/src/compositor/meta-window-actor.c
+@@ -1155,7 +1155,7 @@ gboolean
+ meta_window_actor_should_unredirect (MetaWindowActor *self)
+ {
+   MetaWindowActorPrivate *priv = self->priv;
+-  if (priv->surface)
++  if (!meta_window_actor_is_destroyed (self) && priv->surface)
+     return meta_surface_actor_should_unredirect (priv->surface);
+   else
+     return FALSE;
+-- 
+cgit v0.10.1
+

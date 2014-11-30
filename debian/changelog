@@ -1,3 +1,13 @@
+mutter (3.14.2-1) unstable; urgency=medium
+
+  * New upstream bugfix release.
+  * 10_window-actor_unredirect.patch: patch from upstream git. Fix crash 
+    when closing a window.
+  * 11_black_background.patch: patch from upstream git. Don’t set a 
+    black background when switching from the display manager.
+
+ -- Josselin Mouette <joss@debian.org>  Sun, 30 Nov 2014 15:05:14 +0100
+
 mutter (3.14.1-2) unstable; urgency=medium
 
   * gir1.2-mutter-3.0: tighten dependency on libmutter0e by making
