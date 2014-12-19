@@ -1,3 +1,13 @@
+3.14.3
+======
+* Fix crash when trying to unredirect a destroyed window [Florian; #740133]
+* Fix "flicker" during startup transition [Ray; #740377]
+* Don't leave left-over frames queued [Owen; #738686]
+* Set CRTC configuration even if it might be redundant [Rui; #740838]
+
+Contributors:
+  Rui Matos, Florian Müllner, Jasper St. Pierre, Ray Strode, Owen W. Taylor
+
 3.14.2
 ======
 * Prevent crash applying monitor config for a closed lid [Rui; #739450]
