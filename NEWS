@@ -1,3 +1,17 @@
+3.14.4
+======
+* Fix flash on unredirection [Chris; #743858]
+* Fix incompatibility with GLES2 GLSL [Alban; #745442]
+* Add function to refresh all background instances [Rui; #739178]
+* Fix geometry of shaded windows [Florian; #746145]
+* Misc. bug fixes [Florian, Rui; #698995, #743217, #743254]
+
+Contributors:
+  Alban Browaeys, Rui Matos, Florian Müllner, Chris Wilson
+
+Translations:
+  Matej Urbančič [sl], Muhammet Kara [tr], Samir Ribic [bs]
+
 3.14.3
 ======
 * Fix crash when trying to unredirect a destroyed window [Florian; #740133]
