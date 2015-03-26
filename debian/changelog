@@ -1,3 +1,14 @@
+mutter (3.14.4-1) unstable; urgency=medium
+
+  * New upstream translation and bugfix release.
+    + Includes new function required for the workaround to #768896 which 
+      is very annoying for users of the proprietary nvidia driver.
+  * 10_window-actor_unredirect.patch, 11_black_background.patch: 
+    dropped, merged upstream.
+  * Bump shlibs due to new function.
+
+ -- Josselin Mouette <joss@debian.org>  Thu, 26 Mar 2015 21:06:28 +0100
+
 mutter (3.14.2-1) unstable; urgency=medium
 
   * New upstream bugfix release.
