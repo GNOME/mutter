@@ -1,3 +1,10 @@
+3.16.1.1
+========
+* Prevent a crash when switching VTs or adding input devices [Carlos; #747886]
+
+Contributors:
+  Carlos Garnacho
+
 3.16.1
 ======
 * Add function to refresh all background instances [Rui; #739178]
