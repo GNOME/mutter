@@ -13,8 +13,13 @@ DEB_DH_AUTORECONF_ARGS = --as-needed
 DEB_CONFIGURE_EXTRA_FLAGS += \
 	--enable-startup-notification=yes \
 	--enable-compile-warnings=yes
-DEB_INSTALL_DOCS_mutter += doc/theme-format.txt
+
+ifeq ($(DEB_HOST_ARCH_OS),linux)
+DEB_CONFIGURE_EXTRA_FLAGS +=  --enable-wayland  --enable-native-backend
+endif
+
 DEB_DH_GIREPOSITORY_ARGS_ALL := /usr/lib/mutter
+DEB_DH_MAKESHLIBS_ARGS_libmutter0e = -V'libmutter0f (>= 3.16.0)'
 
 LDFLAGS += -Wl,-O1 -Wl,--as-needed
 # This does not work with mutter; disabled, for now.

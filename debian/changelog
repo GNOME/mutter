@@ -1,3 +1,73 @@
+mutter (3.16.1-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+  * debian/rules: Explicitely build wayland and the native backend on linux
+  * debian/control.in: Bump b-d
+  * debian/rules: Stop shipping doc/theme-format.txt, Metacity format support
+    has been dropped
+  * bump library name to libmutter0f
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Wed, 06 May 2015 17:25:44 +0200
+
+mutter (3.14.4-2) unstable; urgency=medium
+
+  * Switch Build-Depends from the transitional libsystemd-login-dev to
+    libsystemd-dev. (Closes: #779761)
+
+ -- Michael Biebl <biebl@debian.org>  Tue, 28 Apr 2015 20:10:38 +0200
+
+mutter (3.14.4-1) unstable; urgency=medium
+
+  * New upstream translation and bugfix release.
+    + Includes new function required for the workaround to #768896 which 
+      is very annoying for users of the proprietary nvidia driver.
+  * 10_window-actor_unredirect.patch, 11_black_background.patch: 
+    dropped, merged upstream.
+  * Bump shlibs due to new function.
+
+ -- Josselin Mouette <joss@debian.org>  Thu, 26 Mar 2015 21:06:28 +0100
+
+mutter (3.14.2-1) unstable; urgency=medium
+
+  * New upstream bugfix release.
+  * 10_window-actor_unredirect.patch: patch from upstream git. Fix crash 
+    when closing a window.
+  * 11_black_background.patch: patch from upstream git. Don’t set a 
+    black background when switching from the display manager.
+
+ -- Josselin Mouette <joss@debian.org>  Sun, 30 Nov 2014 15:05:14 +0100
+
+mutter (3.14.1-2) unstable; urgency=medium
+
+  * gir1.2-mutter-3.0: tighten dependency on libmutter0e by making
+    it versioned to = ${binary:Version} (Closes: #766359)
+
+ -- Andreas Henriksson <andreas@fatal.se>  Tue, 28 Oct 2014 19:57:02 +0100
+
+mutter (3.14.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+  * Drop obsolete Conflicts/Replaces: gir1.2-mutter-2.91.
+  * Update Build-Depends as per configure.ac.
+  * Bump Standards-Version to 3.9.6. No further changes.
+
+ -- Michael Biebl <biebl@debian.org>  Thu, 16 Oct 2014 00:40:24 +0200
+
+mutter (3.14.0-1) unstable; urgency=medium
+
+  [ Dmitry Shachnev ]
+  * Make gir1.2-mutter-3.0 break gnome-shell versions older than 3.13.92.
+    Upstream commit a4a688ed83983fb5 removed MetaBackgroundEffects class,
+    which old gnome-shell (up to 3.13.91) was using via JavaScript code.
+
+  [ Andreas Henriksson ]
+  * Make the libinput-dev build-dependency linux-only.
+    Thanks to Julien Cristau for pointing it out.
+  * New upstream release.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Mon, 22 Sep 2014 21:02:55 +0200
+
 mutter (3.13.92-1) unstable; urgency=medium
 
   * New upstream release candidate.
