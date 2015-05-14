@@ -1,3 +1,13 @@
+3.16.2
+======
+* Fix scroll button setting [Ondrej; #747967]
+* Don't reset idle time for non-hardware events [Rui; #748541]
+* Honor default value for click method setting [Rui; #746290]
+* Misc. bug fixes [Rui; #748478]
+
+Contributors:
+  Carlos Garnacho, Ondrej Holy, Rui Matos
+
 3.16.1.1
 ========
 * Prevent a crash when switching VTs or adding input devices [Carlos; #747886]
