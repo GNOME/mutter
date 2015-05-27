@@ -1,11 +1,15 @@
-mutter (3.16.1-1) UNRELEASED; urgency=medium
+mutter (3.16.2-1) UNRELEASED; urgency=medium
 
-  * New upstream release
+  [ Sjoerd Simons ]
+  * New upstream release 3.16.1.
   * debian/rules: Explicitely build wayland and the native backend on linux
   * debian/control.in: Bump b-d
   * debian/rules: Stop shipping doc/theme-format.txt, Metacity format support
     has been dropped
   * bump library name to libmutter0f
+
+  [ Emilio Pozuelo Monfort ]
+  * New upstream release 3.16.2.
 
  -- Sjoerd Simons <sjoerd@debian.org>  Wed, 06 May 2015 17:25:44 +0200
 
