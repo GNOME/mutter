@@ -100,6 +100,12 @@ meta_input_settings_x11_set_send_events (MetaInputSettings        *settings,
                                          GDesktopDeviceSendEvents  mode)
 {
   guchar values[2] = { 0 }; /* disabled, disabled-on-external-mouse */
+  guchar *available;
+
+  available = get_property (device, "libinput Send Events Modes Available",
+                            XA_INTEGER, 8, 2);
+  if (!available)
+    return;
 
   switch (mode)
     {
@@ -113,8 +119,14 @@ meta_input_settings_x11_set_send_events (MetaInputSettings        *settings,
       break;
     }
 
-  change_property (device, "libinput Send Events Mode Enabled",
-                   XA_INTEGER, 8, &values, 2);
+  if ((values[0] && !available[0]) || (values[1] && !available[1]))
+    g_warning ("Device '%s' does not support sendevents mode %d\n",
+               clutter_input_device_get_device_name (device), mode);
+  else
+    change_property (device, "libinput Send Events Mode Enabled",
+                     XA_INTEGER, 8, &values, 2);
+
+  meta_XFree (available);
 }
 
 static void
@@ -186,6 +198,12 @@ meta_input_settings_x11_set_scroll_method (MetaInputSettings            *setting
                                            GDesktopTouchpadScrollMethod  mode)
 {
   guchar values[3] = { 0 }; /* 2fg, edge, button. The last value is unused */
+  guchar *available;
+
+  available = get_property (device, "libinput Scroll Methods Available",
+                            XA_INTEGER, 8, 3);
+  if (!available)
+    return;
 
   switch (mode)
     {
@@ -201,8 +219,14 @@ meta_input_settings_x11_set_scroll_method (MetaInputSettings            *setting
       g_assert_not_reached ();
     }
 
-  change_property (device, "libinput Scroll Method Enabled",
-                   XA_INTEGER, 8, &values, 3);
+  if ((values[0] && !available[0]) || (values[1] && !available[1]))
+    g_warning ("Device '%s' does not support scroll mode %d\n",
+               clutter_input_device_get_device_name (device), mode);
+  else
+    change_property (device, "libinput Scroll Method Enabled",
+                     XA_INTEGER, 8, &values, 3);
+
+  meta_XFree (available);
 }
 
 static void
@@ -220,7 +244,12 @@ meta_input_settings_x11_set_click_method (MetaInputSettings           *settings,
                                           GDesktopTouchpadClickMethod  mode)
 {
   guchar values[2] = { 0 }; /* buttonareas, clickfinger */
-  guchar *defaults;
+  guchar *defaults, *available;
+
+  available = get_property (device, "libinput Click Methods Available",
+                            XA_INTEGER, 8, 2);
+  if (!available)
+    return;
 
   switch (mode)
     {
@@ -245,8 +274,14 @@ meta_input_settings_x11_set_click_method (MetaInputSettings           *settings,
       return;
   }
 
-  change_property (device, "libinput Click Method Enabled",
-                   XA_INTEGER, 8, &values, 2);
+  if ((values[0] && !available[0]) || (values[1] && !available[1]))
+    g_warning ("Device '%s' does not support click method %d\n",
+               clutter_input_device_get_device_name (device), mode);
+  else
+    change_property (device, "libinput Click Method Enabled",
+                     XA_INTEGER, 8, &values, 2);
+
+  meta_XFree(available);
 }
 
 static void
