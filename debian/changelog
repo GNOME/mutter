@@ -1,3 +1,19 @@
+mutter (3.16.2-1) experimental; urgency=medium
+
+  [ Sjoerd Simons ]
+  * New upstream release 3.16.1.
+  * debian/rules: Explicitely build wayland and the native backend on linux
+  * debian/control.in: Bump b-d
+  * debian/rules: Stop shipping doc/theme-format.txt, Metacity format support
+    has been dropped
+  * bump library name to libmutter0f
+
+  [ Emilio Pozuelo Monfort ]
+  * New upstream release 3.16.2.
+  * Upload to experimental.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Wed, 27 May 2015 19:55:29 +0200
+
 mutter (3.14.4-2) unstable; urgency=medium
 
   * Switch Build-Depends from the transitional libsystemd-login-dev to
