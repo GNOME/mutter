@@ -1,3 +1,9 @@
+mutter (3.16.2-2) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Sun, 14 Jun 2015 13:44:02 +0200
+
 mutter (3.16.2-1) experimental; urgency=medium
 
   [ Sjoerd Simons ]
