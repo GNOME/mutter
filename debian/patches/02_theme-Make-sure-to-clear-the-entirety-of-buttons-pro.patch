@@ -12,6 +12,8 @@ random, but in cases where the moon is aligned just right, the
 rectangle would graze over the borders, and so it would take priority
 over other borders and show a pointer cursor instead of a resize
 cursor.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=746598
 ---
  src/ui/theme-private.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
