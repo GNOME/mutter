@@ -1,6 +1,7 @@
 mutter (3.16.3-1) UNRELEASED; urgency=medium
 
   * New upstream release.
+  * Refresh patches.
 
  -- Michael Biebl <biebl@debian.org>  Thu, 02 Jul 2015 18:52:33 +0200
 
