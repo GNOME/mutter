@@ -1,3 +1,15 @@
+3.16.3
+======
+* Fix kill dialog not showing when first PING fails [Rui; #749076]
+* wayland: Reset idle time appropriately [Rui; #749711, #749994]
+* Fix crash when trying to focus a hidden window [Florian; #751715]
+
+Contributors:
+  Rui Matos, Florian Müllner, Jasper St. Pierre
+
+Translations:
+  Bernd Homuth [de]
+
 3.16.2
 ======
 * Fix scroll button setting [Ondrej; #747967]
