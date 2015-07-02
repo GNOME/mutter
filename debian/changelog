@@ -1,3 +1,9 @@
+mutter (3.16.3-1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+
+ -- Michael Biebl <biebl@debian.org>  Thu, 02 Jul 2015 18:52:33 +0200
+
 mutter (3.16.2-3) unstable; urgency=medium
 
   * Cherry-pick upstream commit which fixes the issue that window resize
