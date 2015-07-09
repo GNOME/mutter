@@ -690,7 +690,8 @@ meta_spew_event_print (MetaDisplay *display,
 static gboolean
 handle_window_focus_event (MetaDisplay  *display,
                            MetaWindow   *window,
-                           XIEnterEvent *event)
+                           XIEnterEvent *event,
+                           unsigned long serial)
 {
   MetaWindow *focus_window;
 #ifdef WITH_VERBOSE_MODE
@@ -725,7 +726,7 @@ handle_window_focus_event (MetaDisplay  *display,
               event->event, window_type,
               meta_event_mode_to_string (event->mode),
               meta_event_detail_to_string (event->mode),
-              event->serial);
+              serial);
 #endif
 
   /* FIXME our pointer tracking is broken; see how
@@ -769,7 +770,7 @@ handle_window_focus_event (MetaDisplay  *display,
   if (event->evtype == XI_FocusIn)
     {
       display->server_focus_window = event->event;
-      display->server_focus_serial = event->serial;
+      display->server_focus_serial = serial;
       focus_window = window;
     }
   else if (event->evtype == XI_FocusOut)
@@ -783,7 +784,7 @@ handle_window_focus_event (MetaDisplay  *display,
         }
 
       display->server_focus_window = None;
-      display->server_focus_serial = event->serial;
+      display->server_focus_serial = serial;
       focus_window = NULL;
     }
   else
@@ -828,8 +829,9 @@ crossing_serial_is_ignored (MetaDisplay  *display,
 }
 
 static gboolean
-handle_input_xevent (MetaDisplay *display,
-                     XIEvent     *input_event)
+handle_input_xevent (MetaDisplay  *display,
+                     XIEvent      *input_event,
+                     unsigned long serial)
 {
   XIEnterEvent *enter_event = (XIEnterEvent *) input_event;
   Window modified;
@@ -866,7 +868,7 @@ handle_input_xevent (MetaDisplay *display,
       /* Check if we've entered a window; do this even if window->has_focus to
        * avoid races.
        */
-      if (window && !crossing_serial_is_ignored (display, input_event->serial) &&
+      if (window && !crossing_serial_is_ignored (display, serial) &&
           enter_event->mode != XINotifyGrab &&
           enter_event->mode != XINotifyUngrab &&
           enter_event->detail != XINotifyInferior &&
@@ -891,7 +893,7 @@ handle_input_xevent (MetaDisplay *display,
       break;
     case XI_FocusIn:
     case XI_FocusOut:
-      if (handle_window_focus_event (display, window, enter_event) &&
+      if (handle_window_focus_event (display, window, enter_event, serial) &&
           enter_event->event == enter_event->root)
         {
           if (enter_event->evtype == XI_FocusIn &&
@@ -1726,7 +1728,7 @@ meta_display_handle_xevent (MetaDisplay *display,
     }
 #endif /* HAVE_XI23 */
 
-  if (handle_input_xevent (display, input_event))
+  if (handle_input_xevent (display, input_event, event->xany.serial))
     {
       bypass_gtk = bypass_compositor = TRUE;
       goto out;
