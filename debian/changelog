@@ -5,6 +5,8 @@ mutter (3.17.90-1) UNRELEASED; urgency=medium
     - bump libclutter-1.0-dev to >= 1.23.4
   * debian/libmutter-dev.install:
     - stop shipping usr/share/gtk-doc, removed upstream. See commit 7dc0b0e6.
+  * Rename libmutter0f to libmutter0g
+    - including conflicting against libmutter0f
 
  -- Andreas Henriksson <andreas@fatal.se>  Fri, 21 Aug 2015 15:37:05 +0200
 
