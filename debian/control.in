@@ -9,7 +9,7 @@ Build-Depends: cdbs (>= 0.4.90),
                dh-autoreconf,
                intltool (>= 0.41),
                gtk-doc-tools (>= 1.15),
-               libgtk-3-dev (>= 3.9.11),
+               libgtk-3-dev (>= 3.14),
                libglib2.0-dev (>= 2.35.1),
                libcanberra-gtk3-dev,
                gobject-introspection (>= 1.41.3),
@@ -59,7 +59,6 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          mutter-common (= ${source:Version}),
          gsettings-desktop-schemas (>= 3.13.1),
-         gnome-themes-standard,
          zenity
 Provides: x-window-manager
 Recommends: gnome-session | x-session-manager
