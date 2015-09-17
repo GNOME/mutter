@@ -1,0 +1,24 @@
+From dc780d2c4450385a2fba4df34be62e0bfc838c72 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Wed, 16 Sep 2015 17:38:10 +0200
+Subject: launcher: Don't pass variable as format string
+
+We know the variable only contains one or another string literal,
+but keep compilers happy as well.
+
+diff --git a/src/backends/native/meta-launcher.c b/src/backends/native/meta-launcher.c
+index 5ceeda7..6fc4505 100644
+--- a/src/backends/native/meta-launcher.c
++++ b/src/backends/native/meta-launcher.c
+@@ -63,7 +63,7 @@ report_error_and_die (const char *prefix,
+   if (error)
+     g_error ("%s: %s", prefix, error->message);
+   else
+-    g_error (prefix);
++    g_error ("%s", prefix);
+ 
+   /* the error is not freed, but it is ok as g_error aborts the process */
+ }
+-- 
+cgit v0.10.2
+

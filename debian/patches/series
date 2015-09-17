@@ -1,1 +1,3 @@
 01_Wcast-align.patch
+git_launcher-format-string.patch
+git_launcher-fix-vt-switch.patch
