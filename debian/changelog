@@ -1,3 +1,9 @@
+mutter (3.17.92-2) UNRELEASED; urgency=medium
+
+  * Fix typo in previous changelog entry.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Thu, 17 Sep 2015 14:07:08 +0200
+
 mutter (3.17.92-1) experimental; urgency=medium
 
   [ Dmitry Shachnev ]
@@ -6,7 +12,7 @@ mutter (3.17.92-1) experimental; urgency=medium
     depend on a version of libgtk-3-common that contains the Adwaita theme.
 
   [ Andreas Henriksson ]
-  * New upstream release candidante
+  * New upstream release candidate
   * Add two patches cherry-picked from upstream git:
     - debian/patches/git_launcher-format-string.patch
       "launcher: Don't pass variable as format string"
