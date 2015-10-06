@@ -1063,6 +1063,19 @@ meta_monitor_manager_xrandr_class_init (MetaMonitorManagerXrandrClass *klass)
     g_quark_from_static_string ("-meta-monitor-xrandr-data");
 }
 
+static gboolean
+is_xvnc (MetaMonitorManager *manager)
+{
+  MetaMonitorManagerXrandr *manager_xrandr = META_MONITOR_MANAGER_XRANDR (manager);
+  GList *l;
+
+  for (l = meta_gpu_get_outputs (manager_xrandr->gpu); l; l = l->next)
+    if (g_str_has_prefix (((MetaOutput *)l->data)->name, "VNC-"))
+      return TRUE;
+
+  return FALSE;
+}
+
 gboolean
 meta_monitor_manager_xrandr_handle_xevent (MetaMonitorManagerXrandr *manager_xrandr,
 					   XEvent                   *event)
@@ -1072,6 +1085,7 @@ meta_monitor_manager_xrandr_handle_xevent (MetaMonitorManagerXrandr *manager_xra
   XRRScreenResources *resources;
   gboolean is_hotplug;
   gboolean is_our_configuration;
+  unsigned int timestamp;
 
   if ((event->type - manager_xrandr->rr_event_base) != RRScreenChangeNotify)
     return FALSE;
@@ -1083,7 +1097,11 @@ meta_monitor_manager_xrandr_handle_xevent (MetaMonitorManagerXrandr *manager_xra
   gpu_xrandr = META_GPU_XRANDR (manager_xrandr->gpu);
   resources = meta_gpu_xrandr_get_resources (gpu_xrandr);
 
-  is_hotplug = resources->timestamp < resources->configTimestamp;
+  timestamp = resources->timestamp;
+  if (is_xvnc (manager))
+    timestamp += 100;
+
+  is_hotplug = (timestamp < resources->configTimestamp);
   is_our_configuration = (resources->timestamp ==
                           manager_xrandr->last_xrandr_set_timestamp);
   if (is_hotplug)
