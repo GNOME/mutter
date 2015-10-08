@@ -51,7 +51,7 @@ Build-Depends: cdbs (>= 0.4.90),
                zenity
 Standards-Version: 3.9.6
 Vcs-Svn: svn://anonscm.debian.org/pkg-gnome/desktop/unstable/mutter
-Vcs-Browser: http://anonscm.debian.org/viewvc/pkg-gnome/desktop/unstable/mutter
+Vcs-Browser: https://anonscm.debian.org/viewvc/pkg-gnome/desktop/unstable/mutter
 
 Package: mutter
 Architecture: any
