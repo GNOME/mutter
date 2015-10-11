@@ -1,3 +1,42 @@
+mutter (3.18.0-1) UNRELEASED; urgency=medium
+
+  * Fix typo in previous changelog entry.
+  * New upstream release.
+  * Drop debian/patches/git_launcher-fix-vt-switch.patch,
+    debian/patches/git_launcher-format-string.patch:
+    - now part of upstream release.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Thu, 08 Oct 2015 16:53:17 +0200
+
+mutter (3.17.92-1) experimental; urgency=medium
+
+  [ Dmitry Shachnev ]
+  * Remove now useless dependency on gnome-themes-standard.
+  * Instead, bump libgtk-3-dev build-dependency to 3.14 to make sure mutter will
+    depend on a version of libgtk-3-common that contains the Adwaita theme.
+
+  [ Andreas Henriksson ]
+  * New upstream release candidate
+  * Add two patches cherry-picked from upstream git:
+    - debian/patches/git_launcher-format-string.patch
+      "launcher: Don't pass variable as format string"
+    - debian/patches/git_launcher-fix-vt-switch.patch
+      "Revert "launcher: simplify getting session dbus proxy""
+
+ -- Andreas Henriksson <andreas@fatal.se>  Thu, 17 Sep 2015 13:42:48 +0200
+
+mutter (3.17.90-1) experimental; urgency=medium
+
+  * New upstream beta release.
+  * Update build-dependecies according to configure.ac changes:
+    - bump libclutter-1.0-dev to >= 1.23.4
+  * debian/libmutter-dev.install:
+    - stop shipping usr/share/gtk-doc, removed upstream. See commit 7dc0b0e6.
+  * Rename libmutter0f to libmutter0g
+    - including conflicting against libmutter0f
+
+ -- Andreas Henriksson <andreas@fatal.se>  Sat, 29 Aug 2015 11:03:17 +0200
+
 mutter (3.16.3-1) unstable; urgency=medium
 
   * New upstream release.
