@@ -1,3 +1,17 @@
+3.16.4
+======
+* Misc. crash fixes [Peter, Marek, Florian; #750816, #751884, #756642]
+* Fix glitch with some fullscreen apps [Rui; #753020]
+* Fix screen update issue with NVidia driver [Aaron, Rui; #728464]
+* Misc. bug fixes [Florian, Ting-Wei, Colin; #753156, #753380, #756649, #752047]
+
+Contributors:
+  Marek Chalupa, Peter Hutterer, Ting-Wei Lan, Rui Matos, Florian Müllner,
+  Aaron Plattner, Jasper St. Pierre, Colin Walters
+
+Translations:
+  Pedro Albuquerque [pt], Sveinn í Felli [is]
+
 3.16.3
 ======
 * Fix kill dialog not showing when first PING fails [Rui; #749076]
