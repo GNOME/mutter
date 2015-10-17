@@ -43,6 +43,8 @@
 #include <meta/errors.h>
 #include "meta-monitor-config.h"
 
+#include "meta-stage.h"
+
 #define ALL_TRANSFORMS ((1 << (META_MONITOR_TRANSFORM_FLIPPED_270 + 1)) - 1)
 
 /* Look for DPI_FALLBACK in:
@@ -647,6 +649,23 @@ get_xmode_name (XRRModeInfo *xmode)
 }
 
 static void
+update_stage_visibility_for_power_save_mode (MetaMonitorManager *manager)
+{
+  MetaBackend *backend = meta_get_backend ();
+  ClutterActor *stage = meta_backend_get_stage (backend);
+
+  if ((manager->power_save_mode != META_POWER_SAVE_ON) &&
+      (manager->power_save_mode != META_POWER_SAVE_UNSUPPORTED))
+    {
+      meta_stage_set_black (META_STAGE (stage), TRUE);
+    }
+  else
+    {
+      meta_stage_set_black (META_STAGE (stage), FALSE);
+    }
+}
+
+static void
 meta_monitor_manager_xrandr_read_current (MetaMonitorManager *manager)
 {
   MetaMonitorManagerXrandr *manager_xrandr = META_MONITOR_MANAGER_XRANDR (manager);
@@ -692,6 +711,8 @@ meta_monitor_manager_xrandr_read_current (MetaMonitorManager *manager)
     {
       manager->power_save_mode = META_POWER_SAVE_UNSUPPORTED;
     }
+
+  update_stage_visibility_for_power_save_mode (manager);
 
   XRRGetScreenSizeRange (manager_xrandr->xdisplay, DefaultRootWindow (manager_xrandr->xdisplay),
 			 &min_width,
