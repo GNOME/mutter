@@ -41,6 +41,7 @@ typedef struct {
 struct _MetaStagePrivate {
   MetaOverlay cursor_overlay;
   gboolean is_active;
+  gboolean is_black;
 };
 typedef struct _MetaStagePrivate MetaStagePrivate;
 
@@ -120,6 +121,9 @@ meta_stage_paint (ClutterActor *actor)
 {
   MetaStage *stage = META_STAGE (actor);
   MetaStagePrivate *priv = meta_stage_get_instance_private (stage);
+
+  if (priv->is_black)
+    return;
 
   CLUTTER_ACTOR_CLASS (meta_stage_parent_class)->paint (actor);
 
@@ -260,4 +264,17 @@ meta_stage_set_active (MetaStage *stage,
    * See http://bugzilla.gnome.org/746670
    */
   clutter_stage_event (CLUTTER_STAGE (stage), &event);
+}
+
+void
+meta_stage_set_black (MetaStage *stage,
+                      gboolean   is_black)
+{
+  MetaStagePrivate *priv = meta_stage_get_instance_private (stage);
+
+  if (priv->is_black != is_black)
+    {
+      priv->is_black = is_black;
+      clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
+    }
 }

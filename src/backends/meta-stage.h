@@ -57,6 +57,8 @@ void meta_stage_set_cursor (MetaStage     *stage,
 
 void meta_stage_set_active (MetaStage *stage,
                             gboolean   is_active);
+void meta_stage_set_black (MetaStage *stage,
+                           gboolean   is_black);
 G_END_DECLS
 
 #endif /* META_STAGE_H */
