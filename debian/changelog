@@ -1,4 +1,4 @@
-mutter (3.18.1-1) UNRELEASED; urgency=medium
+mutter (3.18.1-1) unstable; urgency=medium
 
   * New upstream release.
   * Refresh debian/patches/01_Wcast-align.patch.
@@ -8,7 +8,7 @@ mutter (3.18.1-1) UNRELEASED; urgency=medium
     libmutter.pc file doesn't enforce any specific versions and they were
     out-of-date anyway.
 
- -- Michael Biebl <biebl@debian.org>  Wed, 21 Oct 2015 16:05:18 +0200
+ -- Michael Biebl <biebl@debian.org>  Wed, 21 Oct 2015 16:13:17 +0200
 
 mutter (3.18.0-1) unstable; urgency=medium
 
