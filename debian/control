@@ -104,8 +104,13 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          gsettings-desktop-schemas (>= 3.13.1),
          mutter-common (= ${source:Version})
-Conflicts: libmutter0, libmutter0a, libmutter0b,
-  libmutter0c, libmutter0d, libmutter0e, libmutter0f
+Conflicts: libmutter0,
+           libmutter0a,
+           libmutter0b,
+           libmutter0c,
+           libmutter0d,
+           libmutter0e,
+           libmutter0f
 Description: window manager library from the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
