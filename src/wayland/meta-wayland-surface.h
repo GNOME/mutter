@@ -198,6 +198,7 @@ struct _MetaWaylandSurface
   MetaWaylandSerial acked_configure_serial;
   gboolean has_set_geometry;
   gboolean is_modal;
+  gboolean destroying;
 
   /* xdg_popup */
   struct {
