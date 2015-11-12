@@ -1,3 +1,15 @@
+3.18.2
+======
+* Misc. crash fixes [Jonas, Rui; #756675, #756660, #757148, #756796]
+* Fix modifiers-only input source switching on Ubuntu [Alberts; #756543]
+* Exit cleanly on initialization errors [Owen; #757311]
+
+Contributors:
+  Jonas Ådahl, Rui Matos, Alberts Muktupāvels, Florian Müllner, Owen W. Taylor
+
+Translations:
+  Daniel Șerbănescu [ro]
+
 3.18.1
 ======
 * Misc. crash fixes [Jonas, Rui, Carlos, Owen, Florian; #755096, #754979,
