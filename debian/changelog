@@ -1,3 +1,9 @@
+mutter (3.18.2-1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 13 Nov 2015 00:05:03 +0100
+
 mutter (3.18.1-1) unstable; urgency=medium
 
   * New upstream release.
