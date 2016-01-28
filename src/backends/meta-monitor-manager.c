@@ -576,6 +576,25 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
       g_clear_object (&config);
     }
 
+  config = meta_monitor_config_manager_create_current (manager->config_manager);
+  if (config)
+    {
+      if (!meta_monitor_manager_apply_monitors_config (manager,
+                                                       config,
+                                                       method,
+                                                       &error))
+        {
+          g_clear_object (&config);
+          g_warning ("Failed to use current monitor configuration: %s",
+                     error->message);
+          g_clear_error (&error);
+        }
+      else
+        {
+          goto done;
+        }
+    }
+
   config = meta_monitor_config_manager_create_linear (manager->config_manager);
   if (config)
     {

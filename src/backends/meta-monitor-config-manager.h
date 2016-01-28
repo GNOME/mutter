@@ -87,6 +87,7 @@ gboolean meta_monitor_config_manager_assign (MetaMonitorManager *manager,
 
 MetaMonitorsConfig * meta_monitor_config_manager_get_stored (MetaMonitorConfigManager *config_manager);
 
+MetaMonitorsConfig * meta_monitor_config_manager_create_current (MetaMonitorConfigManager *config_manager);
 MetaMonitorsConfig * meta_monitor_config_manager_create_linear (MetaMonitorConfigManager *config_manager);
 
 MetaMonitorsConfig * meta_monitor_config_manager_create_fallback (MetaMonitorConfigManager *config_manager);

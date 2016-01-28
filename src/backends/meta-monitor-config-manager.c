@@ -559,6 +559,83 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
   return logical_monitor_config;
 }
 
+static MetaLogicalMonitorConfig *
+create_logical_monitor_config_from_output (MetaMonitorManager           *monitor_manager,
+                                           MetaMonitor                  *monitor,
+                                           MetaLogicalMonitorConfig     *primary_logical_monitor_config,
+                                           MetaLogicalMonitorLayoutMode  layout_mode)
+{
+    MetaOutput *output;
+    MetaCrtc *crtc;
+
+    output = meta_monitor_get_main_output (monitor);
+    crtc = meta_output_get_assigned_crtc (output);
+    return create_preferred_logical_monitor_config (monitor_manager,
+                                                    monitor,
+                                                    crtc->rect.x,
+                                                    crtc->rect.y,
+                                                    primary_logical_monitor_config,
+                                                    layout_mode);
+}
+
+MetaMonitorsConfig *
+meta_monitor_config_manager_create_current (MetaMonitorConfigManager *config_manager)
+{
+  MetaMonitorManager *monitor_manager = config_manager->monitor_manager;
+  GList *logical_monitor_configs;
+  MetaMonitor *primary_monitor;
+  MetaLogicalMonitorLayoutMode layout_mode;
+  MetaLogicalMonitorConfig *primary_logical_monitor_config;
+  GList *monitors;
+  GList *l;
+
+  if (meta_monitor_config_store_get_config_count (config_manager->config_store) > 0)
+    return NULL;
+
+  primary_monitor = find_primary_monitor (monitor_manager);
+  if (!primary_monitor || !meta_monitor_is_active (primary_monitor))
+    return NULL;
+
+  layout_mode = meta_monitor_manager_get_default_layout_mode (monitor_manager);
+
+  primary_logical_monitor_config =
+    create_logical_monitor_config_from_output (monitor_manager,
+                                               primary_monitor,
+                                               NULL,
+                                               layout_mode);
+
+  primary_logical_monitor_config->is_primary = TRUE;
+  logical_monitor_configs = g_list_append (NULL,
+                                           primary_logical_monitor_config);
+
+  monitors = meta_monitor_manager_get_monitors (monitor_manager);
+  for (l = monitors; l; l = l->next)
+    {
+      MetaMonitor *monitor = l->data;
+      MetaLogicalMonitorConfig *logical_monitor_config;
+
+      if (monitor == primary_monitor)
+        continue;
+
+      if (!meta_monitor_is_active (monitor))
+        continue;
+
+      logical_monitor_config =
+        create_logical_monitor_config_from_output (monitor_manager,
+                                                   monitor,
+                                                   primary_logical_monitor_config,
+                                                   layout_mode);
+
+      logical_monitor_configs = g_list_append (logical_monitor_configs,
+                                               logical_monitor_config);
+    }
+
+  return meta_monitors_config_new (monitor_manager,
+                                   logical_monitor_configs,
+                                   layout_mode,
+                                   META_MONITORS_CONFIG_FLAG_NONE);
+}
+
 MetaMonitorsConfig *
 meta_monitor_config_manager_create_linear (MetaMonitorConfigManager *config_manager)
 {
