@@ -57,13 +57,16 @@ struct _MetaWaylandDataDevice
   uint32_t selection_serial;
   MetaWaylandDataSource *selection_data_source;
   MetaWaylandDataSource *dnd_data_source;
+  MetaWaylandDataSource *primary_data_source;
   struct wl_listener selection_data_source_listener;
   struct wl_list resource_list;
+  struct wl_list primary_resource_list;
   MetaWaylandDragGrab *current_grab;
   struct wl_client *focus_client;
 
   struct wl_signal selection_ownership_signal;
   struct wl_signal dnd_ownership_signal;
+  struct wl_signal primary_ownership_signal;
 };
 
 void meta_wayland_data_device_manager_init (MetaWaylandCompositor *compositor);
@@ -80,6 +83,8 @@ void meta_wayland_data_device_set_dnd_source     (MetaWaylandDataDevice *data_de
 void meta_wayland_data_device_set_selection      (MetaWaylandDataDevice *data_device,
                                                   MetaWaylandDataSource *source,
                                                   guint32 serial);
+void meta_wayland_data_device_set_primary        (MetaWaylandDataDevice *data_device,
+                                                  MetaWaylandDataSource *source);
 
 gboolean meta_wayland_data_source_add_mime_type  (MetaWaylandDataSource *source,
                                                   const gchar           *mime_type);

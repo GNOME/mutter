@@ -400,6 +400,9 @@ meta_wayland_pointer_send_button (MetaWaylandPointer *pointer,
       time = clutter_event_get_time (event);
       serial = wl_display_next_serial (display);
 
+      if (event->type == CLUTTER_BUTTON_PRESS)
+        pointer->click_serial = serial;
+
       wl_resource_for_each (resource, &pointer->focus_client->pointer_resources)
         {
           wl_pointer_send_button (resource, serial,

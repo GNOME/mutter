@@ -37,6 +37,8 @@
 #include "meta-wayland-private.h"
 #include "meta-dnd-actor-private.h"
 
+#include "primary-selection-unstable-v1-server-protocol.h"
+
 #define ALL_ACTIONS (WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY | \
                      WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE | \
                      WL_DATA_DEVICE_MANAGER_DND_ACTION_ASK)
@@ -70,13 +72,22 @@ typedef struct _MetaWaylandDataSourceWayland
   struct wl_resource *resource;
 } MetaWaylandDataSourceWayland;
 
+typedef struct _MetaWaylandDataSourcePrimary
+{
+  MetaWaylandDataSourceWayland parent;
+} MetaWaylandDataSourcePrimary;
+
 G_DEFINE_TYPE_WITH_PRIVATE (MetaWaylandDataSource, meta_wayland_data_source,
                             G_TYPE_OBJECT);
 G_DEFINE_TYPE (MetaWaylandDataSourceWayland, meta_wayland_data_source_wayland,
                META_TYPE_WAYLAND_DATA_SOURCE);
+G_DEFINE_TYPE (MetaWaylandDataSourcePrimary, meta_wayland_data_source_primary,
+               META_TYPE_WAYLAND_DATA_SOURCE_WAYLAND);
 
 static MetaWaylandDataSource *
 meta_wayland_data_source_wayland_new (struct wl_resource *resource);
+static MetaWaylandDataSource *
+meta_wayland_data_source_primary_new (struct wl_resource *resource);
 
 static void
 drag_grab_data_source_destroyed (gpointer data, GObject *where_the_object_was);
@@ -160,7 +171,8 @@ static void
 meta_wayland_data_source_target (MetaWaylandDataSource *source,
                                  const char *mime_type)
 {
-  META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->target (source, mime_type);
+  if (META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->target)
+    META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->target (source, mime_type);
 }
 
 void
@@ -431,6 +443,32 @@ static const struct wl_data_offer_interface data_offer_interface = {
 };
 
 static void
+primary_offer_receive (struct wl_client *client, struct wl_resource *resource,
+                       const char *mime_type, int32_t fd, uint32_t serial)
+{
+  MetaWaylandDataOffer *offer = wl_resource_get_user_data (resource);
+  MetaWaylandDataSource *source = offer->source;
+  MetaWaylandSeat *seat;
+
+  if (!source)
+    {
+      close (fd);
+      return;
+    }
+
+  seat = meta_wayland_data_source_get_seat (source);
+
+  if (serial == seat->keyboard.key_serial ||
+      serial == seat->pointer.click_serial)
+    meta_wayland_data_source_send (source, mime_type, fd);
+}
+
+static const struct zwp_primary_selection_offer_v1_interface primary_offer_interface = {
+  primary_offer_receive,
+  data_offer_destroy,
+};
+
+static void
 meta_wayland_data_source_notify_drop_performed (MetaWaylandDataSource *source)
 {
   META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->drop_performed (source);
@@ -500,6 +538,35 @@ meta_wayland_data_source_send_offer (MetaWaylandDataSource *source,
   return offer->resource;
 }
 
+static struct wl_resource *
+meta_wayland_data_source_send_primary_offer (MetaWaylandDataSource *source,
+					     struct wl_resource    *target)
+{
+  MetaWaylandDataSourcePrivate *priv =
+    meta_wayland_data_source_get_instance_private (source);
+  MetaWaylandDataOffer *offer = g_slice_new0 (MetaWaylandDataOffer);
+  char **p;
+
+  offer->source = source;
+  g_object_add_weak_pointer (G_OBJECT (source), (gpointer *)&offer->source);
+  offer->resource = wl_resource_create (wl_resource_get_client (target),
+                                        &zwp_primary_selection_offer_v1_interface,
+                                        wl_resource_get_version (target), 0);
+  wl_resource_set_implementation (offer->resource,
+                                  &primary_offer_interface,
+                                  offer,
+                                  destroy_data_offer);
+
+  zwp_primary_selection_device_v1_send_data_offer (target, offer->resource);
+
+  wl_array_for_each (p, &priv->mime_types)
+    zwp_primary_selection_offer_v1_send_offer (offer->resource, *p);
+
+  meta_wayland_data_source_set_current_offer (source, offer);
+
+  return offer->resource;
+}
+
 static void
 data_source_offer (struct wl_client *client,
                    struct wl_resource *resource, const char *type)
@@ -559,6 +626,11 @@ static struct wl_data_source_interface data_source_interface = {
   data_source_offer,
   data_source_destroy,
   data_source_set_actions
+};
+
+static struct zwp_primary_selection_source_v1_interface primary_source_interface = {
+  data_source_offer,
+  data_source_destroy,
 };
 
 struct _MetaWaylandDragGrab {
@@ -1109,6 +1181,43 @@ meta_wayland_data_source_wayland_class_init (MetaWaylandDataSourceWaylandClass *
 }
 
 static void
+meta_wayland_data_source_primary_send (MetaWaylandDataSource *source,
+                                       const gchar           *mime_type,
+                                       gint                   fd)
+{
+  MetaWaylandDataSourceWayland *source_wayland;
+
+  source_wayland = (MetaWaylandDataSourceWayland *) source;
+  zwp_primary_selection_source_v1_send_send (source_wayland->resource,
+                                             mime_type, fd);
+}
+
+static void
+meta_wayland_data_source_primary_cancel (MetaWaylandDataSource *source)
+{
+  MetaWaylandDataSourceWayland *source_wayland;
+
+  source_wayland = (MetaWaylandDataSourceWayland *) source;
+  zwp_primary_selection_source_v1_send_cancelled (source_wayland->resource);
+}
+
+static void
+meta_wayland_data_source_primary_init (MetaWaylandDataSourcePrimary *source_primary)
+{
+}
+
+static void
+meta_wayland_data_source_primary_class_init (MetaWaylandDataSourcePrimaryClass *klass)
+{
+  MetaWaylandDataSourceClass *data_source_class =
+    META_WAYLAND_DATA_SOURCE_CLASS (klass);
+
+  data_source_class->send = meta_wayland_data_source_primary_send;
+  data_source_class->cancel = meta_wayland_data_source_primary_cancel;
+  data_source_class->target = NULL;
+}
+
+static void
 meta_wayland_data_source_finalize (GObject *object)
 {
   MetaWaylandDataSource *source = META_WAYLAND_DATA_SOURCE (object);
@@ -1299,6 +1408,7 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
 
   if (source)
     {
+      meta_wayland_data_source_set_seat (source, seat);
       g_object_weak_ref (G_OBJECT (source),
                          selection_data_source_destroyed,
                          data_device);
@@ -1352,6 +1462,93 @@ static const struct wl_data_device_interface data_device_interface = {
 };
 
 static void
+primary_source_destroyed (gpointer  data,
+                          GObject  *object_was_here)
+{
+  MetaWaylandDataDevice *data_device = data;
+  MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
+  struct wl_client *focus_client = NULL;
+
+  data_device->primary_data_source = NULL;
+
+  focus_client = meta_wayland_keyboard_get_focus_client (&seat->keyboard);
+  if (focus_client)
+    {
+      struct wl_resource *data_device_resource;
+
+      data_device_resource = wl_resource_find_for_client (&data_device->primary_resource_list, focus_client);
+      if (data_device_resource)
+        zwp_primary_selection_device_v1_send_selection (data_device_resource, NULL);
+    }
+}
+
+void
+meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
+                                      MetaWaylandDataSource *source)
+{
+  MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
+  struct wl_resource *data_device_resource, *offer;
+  struct wl_client *focus_client;
+
+  if (data_device->primary_data_source)
+    {
+      meta_wayland_data_source_cancel (data_device->primary_data_source);
+      g_object_weak_unref (G_OBJECT (data_device->primary_data_source),
+                           primary_source_destroyed,
+                           data_device);
+      data_device->primary_data_source = NULL;
+    }
+
+  data_device->primary_data_source = source;
+
+  focus_client = meta_wayland_keyboard_get_focus_client (&seat->keyboard);
+  if (focus_client)
+    {
+      data_device_resource = wl_resource_find_for_client (&data_device->primary_resource_list, focus_client);
+      if (data_device_resource)
+        {
+          if (data_device->primary_data_source)
+            {
+              offer = meta_wayland_data_source_send_primary_offer (data_device->primary_data_source,
+                                                                   data_device_resource);
+              zwp_primary_selection_device_v1_send_selection (data_device_resource, offer);
+            }
+          else
+            {
+              zwp_primary_selection_device_v1_send_selection (data_device_resource, NULL);
+            }
+        }
+    }
+
+  if (source)
+    {
+      meta_wayland_data_source_set_seat (source, seat);
+      g_object_weak_ref (G_OBJECT (source),
+                         primary_source_destroyed,
+                         data_device);
+    }
+
+  wl_signal_emit (&data_device->primary_ownership_signal, source);
+}
+
+static void
+primary_device_set_selection (struct wl_client   *client,
+                              struct wl_resource *resource,
+                              struct wl_resource *source_resource)
+{
+  MetaWaylandDataDevice *data_device = wl_resource_get_user_data (resource);
+  MetaWaylandDataSource *source;
+
+  source = wl_resource_get_user_data (source_resource);
+  meta_wayland_data_device_set_primary (data_device, source);
+}
+
+static const struct zwp_primary_selection_device_v1_interface primary_device_interface = {
+  primary_device_set_selection,
+  data_device_release,
+};
+
+static void
 destroy_data_source (struct wl_resource *resource)
 {
   MetaWaylandDataSourceWayland *source = wl_resource_get_user_data (resource);
@@ -1390,12 +1587,67 @@ static const struct wl_data_device_manager_interface manager_interface = {
 };
 
 static void
+primary_device_manager_create_source (struct wl_client   *client,
+                                      struct wl_resource *manager_resource,
+                                      guint32             id)
+{
+  struct wl_resource *source_resource;
+
+  source_resource =
+    wl_resource_create (client, &zwp_primary_selection_source_v1_interface,
+                        wl_resource_get_version (manager_resource),
+                        id);
+  meta_wayland_data_source_primary_new (source_resource);
+}
+
+static void
+primary_device_manager_get_device (struct wl_client   *client,
+                                   struct wl_resource *manager_resource,
+                                   guint32             id,
+                                   struct wl_resource *seat_resource)
+{
+  MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
+  struct wl_resource *cr;
+
+  cr = wl_resource_create (client, &zwp_primary_selection_device_v1_interface,
+                           wl_resource_get_version (manager_resource), id);
+  wl_resource_set_implementation (cr, &primary_device_interface,
+                                  &seat->data_device, unbind_resource);
+  wl_list_insert (&seat->data_device.primary_resource_list, wl_resource_get_link (cr));
+}
+
+static void
+primary_device_manager_destroy (struct wl_client *client,
+                                struct wl_resource *manager_resource)
+{
+}
+
+static const struct zwp_primary_selection_device_manager_v1_interface primary_manager_interface = {
+  primary_device_manager_create_source,
+  primary_device_manager_get_device,
+  primary_device_manager_destroy
+};
+
+static void
 bind_manager (struct wl_client *client,
               void *data, guint32 version, guint32 id)
 {
   struct wl_resource *resource;
   resource = wl_resource_create (client, &wl_data_device_manager_interface, version, id);
   wl_resource_set_implementation (resource, &manager_interface, NULL, NULL);
+}
+
+static void
+bind_primary_manager (struct wl_client *client,
+                      void             *data,
+                      uint32_t          version,
+                      uint32_t          id)
+{
+  struct wl_resource *resource;
+
+  resource = wl_resource_create (client, &zwp_primary_selection_device_manager_v1_interface,
+                                 version, id);
+  wl_resource_set_implementation (resource, &primary_manager_interface, NULL, NULL);
 }
 
 void
@@ -1406,13 +1658,20 @@ meta_wayland_data_device_manager_init (MetaWaylandCompositor *compositor)
 			META_WL_DATA_DEVICE_MANAGER_VERSION,
 			NULL, bind_manager) == NULL)
     g_error ("Could not create data_device");
+
+  if (wl_global_create (compositor->wayland_display,
+			&zwp_primary_selection_device_manager_v1_interface,
+			1, NULL, bind_primary_manager) == NULL)
+    g_error ("Could not create data_device");
 }
 
 void
 meta_wayland_data_device_init (MetaWaylandDataDevice *data_device)
 {
   wl_list_init (&data_device->resource_list);
+  wl_list_init (&data_device->primary_resource_list);
   wl_signal_init (&data_device->selection_ownership_signal);
+  wl_signal_init (&data_device->primary_ownership_signal);
   wl_signal_init (&data_device->dnd_ownership_signal);
 }
 
@@ -1435,17 +1694,32 @@ meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device)
     return;
 
   data_device_resource = wl_resource_find_for_client (&data_device->resource_list, focus_client);
-  if (!data_device_resource)
-    return;
-
-  source = data_device->selection_data_source;
-  if (source)
+  if (data_device_resource)
     {
-      offer = meta_wayland_data_source_send_offer (source, data_device_resource);
-      wl_data_device_send_selection (data_device_resource, offer);
+      source = data_device->selection_data_source;
+      if (source)
+        {
+          offer = meta_wayland_data_source_send_offer (source, data_device_resource);
+          wl_data_device_send_selection (data_device_resource, offer);
+        }
+      else
+        wl_data_device_send_selection (data_device_resource, NULL);
     }
-  else
-    wl_data_device_send_selection (data_device_resource, NULL);
+
+  data_device_resource = wl_resource_find_for_client (&data_device->primary_resource_list, focus_client);
+  if (data_device_resource)
+    {
+      source = data_device->primary_data_source;
+      if (source)
+        {
+          offer = meta_wayland_data_source_send_primary_offer (source, data_device_resource);
+          zwp_primary_selection_device_v1_send_selection (data_device_resource, offer);
+        }
+      else
+        {
+          zwp_primary_selection_device_v1_send_selection (data_device_resource, NULL);
+        }
+    }
 }
 
 gboolean
@@ -1481,6 +1755,19 @@ meta_wayland_data_source_wayland_new (struct wl_resource *resource)
 
   source_wayland->resource = resource;
   wl_resource_set_implementation (resource, &data_source_interface,
+                                  source_wayland, destroy_data_source);
+
+  return META_WAYLAND_DATA_SOURCE (source_wayland);
+}
+
+static MetaWaylandDataSource *
+meta_wayland_data_source_primary_new (struct wl_resource *resource)
+{
+  MetaWaylandDataSourceWayland *source_wayland =
+   g_object_new (META_TYPE_WAYLAND_DATA_SOURCE_PRIMARY, NULL);
+
+  source_wayland->resource = resource;
+  wl_resource_set_implementation (resource, &primary_source_interface,
                                   source_wayland, destroy_data_source);
 
   return META_WAYLAND_DATA_SOURCE (source_wayland);

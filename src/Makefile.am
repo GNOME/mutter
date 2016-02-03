@@ -45,6 +45,8 @@ mutter_built_sources = \
 
 if HAVE_WAYLAND
 mutter_built_sources += \
+	primary-selection-unstable-v1-protocol.c			\
+	primary-selection-unstable-v1-server-protocol.h			\
 	pointer-gestures-unstable-v1-protocol.c				\
 	pointer-gestures-unstable-v1-server-protocol.h			\
 	gtk-shell-protocol.c			\
