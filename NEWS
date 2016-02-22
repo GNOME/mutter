@@ -1,3 +1,14 @@
+3.18.3
+======
+* Fix initialization of bypass compositor hint [Rui; #758544]
+* Fix crash when initial cursor position is not on a monitor [Marek; #756698]
+* Fix crash when more CRTs are enabled than outputs connected [Rui; #751638]
+* Fix crash during XWayland initialization [Marek; #751845]
+* Ensure to send a ConfigureNotify to just mapped windows [Rui; #759492]
+
+Contributors:
+  Marek Chalupa, Rui Matos, Jasper St. Pierre
+
 3.18.2
 ======
 * Misc. crash fixes [Jonas, Rui; #756675, #756660, #757148, #756796]
