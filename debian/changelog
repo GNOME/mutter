@@ -1,3 +1,10 @@
+mutter (3.18.3-1) unstable; urgency=medium
+
+  * New upstream release.
+    - fix crash when removing monitor/undocking (Closes: #813687)
+
+ -- Andreas Henriksson <andreas@fatal.se>  Thu, 03 Mar 2016 18:48:49 +0100
+
 mutter (3.18.2-1) unstable; urgency=medium
 
   * New upstream release.
