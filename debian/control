@@ -8,7 +8,7 @@ Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
 Uploaders: Andreas Henriksson <andreas@fatal.se>, Emilio Pozuelo Monfort <pochu@debian.org>, Laurent Bigonville <bigon@debian.org>, Michael Biebl <biebl@debian.org>
 Build-Depends: cdbs (>= 0.4.90),
-               debhelper (>= 9),
+               debhelper (>= 9.20160114),
                gnome-pkg-tools (>= 0.10),
                dh-autoreconf,
                intltool (>= 0.41),
