@@ -49,7 +49,7 @@ Build-Depends: cdbs (>= 0.4.90),
                libwayland-dev (>= 1.5.90) [linux-any],
                xkb-data,
                zenity
-Standards-Version: 3.9.6
+Standards-Version: 3.9.7
 Vcs-Svn: svn://anonscm.debian.org/pkg-gnome/desktop/unstable/mutter
 Vcs-Browser: https://anonscm.debian.org/viewvc/pkg-gnome/desktop/unstable/mutter
 

@@ -4,6 +4,7 @@ mutter (3.18.3-2) UNRELEASED; urgency=medium
   * Ensure proper upgrade from mutter-dbg to new dbgsym packages by using
     dh_strip --dbgsym-migration. Bump Build-Depends on debhelper accordingly.
   * Fix dh_makeshlibs args for libmutter0g.
+  * Bump Standards-Version to 3.9.7.
 
  -- Michael Biebl <biebl@debian.org>  Tue, 15 Mar 2016 07:40:18 +0100
 
