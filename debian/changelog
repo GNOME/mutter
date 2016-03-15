@@ -6,6 +6,8 @@ mutter (3.18.3-2) UNRELEASED; urgency=medium
   * Fix dh_makeshlibs args for libmutter0g.
   * Bump Standards-Version to 3.9.7.
   * Drop obsolete migration code from pre-wheezy.
+  * Fix disappearing mouse cursor under GNOME Shell with a multi-monitor
+    setup. Patch cherry-picked from upstream Git.
 
  -- Michael Biebl <biebl@debian.org>  Tue, 15 Mar 2016 07:40:18 +0100
 
