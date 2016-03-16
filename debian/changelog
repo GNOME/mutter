@@ -1,3 +1,14 @@
+mutter (3.19.92-1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+  * Update build-dependencies according to configure.ac changes:
+    - Bump libgtk-3-dev (>= 3.19.8)
+    - Bump gsettings-desktop-schemas-dev (>= 3.19.3)
+    - Bump libclutter-1.0-dev (>= 1.25.6)
+    - Add wayland-protocols (>= 1.1) [linux-any]
+
+ -- Andreas Henriksson <andreas@fatal.se>  Wed, 16 Mar 2016 20:01:54 +0100
+
 mutter (3.18.3-2) unstable; urgency=medium
 
   * Drop mutter-dbg now that we have automatic dbgsym packages.
