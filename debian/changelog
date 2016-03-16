@@ -6,8 +6,10 @@ mutter (3.19.92-1) UNRELEASED; urgency=medium
     - Bump gsettings-desktop-schemas-dev (>= 3.19.3)
     - Bump libclutter-1.0-dev (>= 1.25.6)
     - Add wayland-protocols (>= 1.1) [linux-any]
+  * 02_Handle-meta_screen_get_monitor_for_point-returning-N.patch:
+    - dropped, merged upstream.
 
- -- Andreas Henriksson <andreas@fatal.se>  Wed, 16 Mar 2016 20:01:54 +0100
+ -- Andreas Henriksson <andreas@fatal.se>  Wed, 16 Mar 2016 20:24:26 +0100
 
 mutter (3.18.3-2) unstable; urgency=medium
 
