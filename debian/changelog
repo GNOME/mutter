@@ -1,12 +1,51 @@
-mutter (3.18.0-1) UNRELEASED; urgency=medium
+mutter (3.18.3-2) unstable; urgency=medium
 
+  * Drop mutter-dbg now that we have automatic dbgsym packages.
+  * Ensure proper upgrade from mutter-dbg to new dbgsym packages by using
+    dh_strip --dbgsym-migration. Bump Build-Depends on debhelper accordingly.
+  * Fix dh_makeshlibs args for libmutter0g.
+  * Bump Standards-Version to 3.9.7.
+  * Drop obsolete migration code from pre-wheezy.
+  * Fix disappearing mouse cursor under GNOME Shell with a multi-monitor
+    setup. Patch cherry-picked from upstream Git.
+
+ -- Michael Biebl <biebl@debian.org>  Tue, 15 Mar 2016 07:53:24 +0100
+
+mutter (3.18.3-1) unstable; urgency=medium
+
+  * New upstream release.
+    - fix crash when removing monitor/undocking (Closes: #813687)
+
+ -- Andreas Henriksson <andreas@fatal.se>  Thu, 03 Mar 2016 18:48:49 +0100
+
+mutter (3.18.2-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 13 Nov 2015 00:09:29 +0100
+
+mutter (3.18.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh debian/patches/01_Wcast-align.patch.
+  * Wrap dependencies.
+  * Bump the dependency on gsettings-desktop-schemas to (>= 3.15.92).
+  * Drop the explicit versions from libmutter-dev dependencies. The
+    libmutter.pc file doesn't enforce any specific versions and they were
+    out-of-date anyway.
+
+ -- Michael Biebl <biebl@debian.org>  Wed, 21 Oct 2015 16:13:17 +0200
+
+mutter (3.18.0-1) unstable; urgency=medium
+
+  [ Andreas Henriksson ]
   * Fix typo in previous changelog entry.
   * New upstream release.
   * Drop debian/patches/git_launcher-fix-vt-switch.patch,
     debian/patches/git_launcher-format-string.patch:
     - now part of upstream release.
 
- -- Andreas Henriksson <andreas@fatal.se>  Thu, 08 Oct 2015 16:53:17 +0200
+ -- Laurent Bigonville <bigon@debian.org>  Sun, 11 Oct 2015 15:21:29 +0200
 
 mutter (3.17.92-1) experimental; urgency=medium
 
