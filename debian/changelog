@@ -1,9 +1,9 @@
-mutter (3.19.92-2) UNRELEASED; urgency=medium
+mutter (3.19.92-2) experimental; urgency=medium
 
   * Rename libmutter0g -> libmutter0h
     - update dependencies and conflicts as well.
 
- -- Andreas Henriksson <andreas@fatal.se>  Fri, 18 Mar 2016 19:11:59 +0100
+ -- Andreas Henriksson <andreas@fatal.se>  Fri, 18 Mar 2016 19:15:59 +0100
 
 mutter (3.19.92-1) experimental; urgency=medium
 
