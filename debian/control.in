@@ -76,7 +76,7 @@ Description: lightweight GTK+ window manager
  .
  This package contains the core binaries.
 
-Package: libmutter0g
+Package: libmutter0h
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends},
@@ -89,7 +89,8 @@ Conflicts: libmutter0,
            libmutter0c,
            libmutter0d,
            libmutter0e,
-           libmutter0f
+           libmutter0f,
+           libmutter0g
 Description: window manager library from the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
@@ -121,7 +122,7 @@ Package: libmutter-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends},
-         libmutter0g (= ${binary:Version}),
+         libmutter0h (= ${binary:Version}),
          gir1.2-mutter-3.0 (= ${binary:Version}),
          gsettings-desktop-schemas-dev,
          libclutter-1.0-dev,
@@ -144,7 +145,7 @@ Architecture: any
 Depends: ${gir:Depends},
          ${shlibs:Depends},
          ${misc:Depends},
-         libmutter0g (= ${binary:Version})
+         libmutter0h (= ${binary:Version})
 Breaks: gnome-shell (<< 3.13.92~)
 Description: GObject introspection data for Mutter
  Mutter is a small window manager, using GTK+ and Clutter to do
