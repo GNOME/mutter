@@ -1,3 +1,9 @@
+mutter (3.20.0-1) experimental; urgency=medium
+
+  * New upstream release.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Fri, 25 Mar 2016 10:12:11 +0100
+
 mutter (3.19.92-2) experimental; urgency=medium
 
   * Rename libmutter0g -> libmutter0h
