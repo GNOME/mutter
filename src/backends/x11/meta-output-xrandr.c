@@ -45,6 +45,22 @@
 #include "backends/x11/meta-monitor-manager-xrandr.h"
 #include "meta/util.h"
 
+typedef struct
+{
+  char *underscan_value;
+} MetaOutputXrandr;
+
+static void
+meta_output_xrandr_destroy_notify (MetaOutput *output)
+{
+  MetaOutputXrandr *output_xrandr;
+
+  output_xrandr = output->driver_private;
+  g_clear_pointer (&output_xrandr->underscan_value, g_free);
+
+  g_slice_free (MetaOutputXrandr, output_xrandr);
+}
+
 static Display *
 xdisplay_from_output (MetaOutput *output)
 {
@@ -77,14 +93,19 @@ static void
 output_set_underscanning_xrandr (MetaOutput *output,
                                  gboolean    underscanning)
 {
+  MetaOutputXrandr *output_xrandr = output->driver_private;
   Display *xdisplay = xdisplay_from_output (output);
   Atom prop, valueatom;
   const char *value;
 
-  prop = XInternAtom (xdisplay, "underscan", False);
+  if (underscanning)
+    value = output_xrandr->underscan_value;
+  else
+    value = "off";
 
-  value = underscanning ? "on" : "off";
   valueatom = XInternAtom (xdisplay, value, False);
+
+  prop = XInternAtom (xdisplay, "underscan", False);
 
   xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
                                     (XID) output->winsys_id,
@@ -257,6 +278,7 @@ output_get_presentation_xrandr (MetaOutput *output)
 static gboolean
 output_get_underscanning_xrandr (MetaOutput *output)
 {
+  MetaOutputXrandr *output_xrandr = output->driver_private;
   Display *xdisplay = xdisplay_from_output (output);
   Atom atom, actual_type;
   int actual_format;
@@ -276,11 +298,12 @@ output_get_underscanning_xrandr (MetaOutput *output)
     return FALSE;
 
   str = XGetAtomName (xdisplay, *(Atom *)buffer);
-  return (strcmp (str, "on") == 0);
+  return g_strcmp0 (str, output_xrandr->underscan_value) == 0;
 }
 
 static gboolean
-output_get_supports_underscanning_xrandr (MetaOutput *output)
+output_get_supports_underscanning_xrandr (MetaOutput  *output,
+                                          char       **underscan_value)
 {
   Display *xdisplay = xdisplay_from_output (output);
   Atom atom, actual_type;
@@ -314,9 +337,16 @@ output_get_supports_underscanning_xrandr (MetaOutput *output)
        */
       char *name = XGetAtomName (xdisplay, values[i]);
       if (strcmp (name, "on") == 0)
-        supports_underscanning = TRUE;
+        {
+          supports_underscanning = TRUE;
+          if (underscan_value)
+            *underscan_value = g_strdup (name);
+        }
 
       XFree (name);
+
+      if (supports_underscanning)
+        break;
     }
 
   XFree (property_info);
@@ -759,6 +789,7 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
                            RROutput       output_id,
                            RROutput       primary_output)
 {
+  MetaOutputXrandr *output_xrandr;
   MetaOutput *output;
   GBytes *edid;
   unsigned int i;
@@ -767,6 +798,10 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
   output->gpu = META_GPU (gpu_xrandr);
   output->winsys_id = output_id;
   output->name = g_strdup (xrandr_output->name);
+
+  output_xrandr = g_slice_new0 (MetaOutputXrandr);
+  output->driver_private = output_xrandr;
+  output->driver_notify = (GDestroyNotify)meta_output_xrandr_destroy_notify;
 
   edid = meta_output_xrandr_read_edid (output);
   meta_output_parse_edid (output, edid);
@@ -811,9 +846,9 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
 
   output->is_primary = ((XID) output->winsys_id == primary_output);
   output->is_presentation = output_get_presentation_xrandr (output);
-  output->is_underscanning = output_get_underscanning_xrandr (output);
   output->supports_underscanning =
-    output_get_supports_underscanning_xrandr (output);
+    output_get_supports_underscanning_xrandr (output, &output_xrandr->underscan_value);
+  output->is_underscanning = output_get_underscanning_xrandr (output);
   output_get_backlight_limits_xrandr (output);
 
   if (!(output->backlight_min == 0 && output->backlight_max == 0))
