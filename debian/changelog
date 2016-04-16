@@ -2,6 +2,7 @@ mutter (3.20.1-1) UNRELEASED; urgency=medium
 
   * New upstream release.
   * Refresh patches.
+  * Bump mutter's dependency on gsettings-desktop-schemas to (>= 3.19.3).
 
  -- Michael Biebl <biebl@debian.org>  Sat, 16 Apr 2016 23:57:58 +0200
 
