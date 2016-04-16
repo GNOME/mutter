@@ -1,3 +1,29 @@
+mutter (3.20.0-1) experimental; urgency=medium
+
+  * New upstream release.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Fri, 25 Mar 2016 10:12:11 +0100
+
+mutter (3.19.92-2) experimental; urgency=medium
+
+  * Rename libmutter0g -> libmutter0h
+    - update dependencies and conflicts as well.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Fri, 18 Mar 2016 19:15:59 +0100
+
+mutter (3.19.92-1) experimental; urgency=medium
+
+  * New upstream release.
+  * Update build-dependencies according to configure.ac changes:
+    - Bump libgtk-3-dev (>= 3.19.8)
+    - Bump gsettings-desktop-schemas-dev (>= 3.19.3)
+    - Bump libclutter-1.0-dev (>= 1.25.6)
+    - Add wayland-protocols (>= 1.1) [linux-any]
+  * 02_Handle-meta_screen_get_monitor_for_point-returning-N.patch:
+    - dropped, merged upstream.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Thu, 17 Mar 2016 11:02:08 +0100
+
 mutter (3.18.3-2) unstable; urgency=medium
 
   * Drop mutter-dbg now that we have automatic dbgsym packages.

@@ -9,15 +9,15 @@ Build-Depends: cdbs (>= 0.4.90),
                dh-autoreconf,
                intltool (>= 0.41),
                gtk-doc-tools (>= 1.15),
-               libgtk-3-dev (>= 3.14),
+               libgtk-3-dev (>= 3.19.8),
                libglib2.0-dev (>= 2.35.1),
                libcanberra-gtk3-dev,
                gobject-introspection (>= 1.41.3),
-               gsettings-desktop-schemas-dev (>= 3.15.92),
+               gsettings-desktop-schemas-dev (>= 3.19.3),
                libgirepository1.0-dev (>= 0.9.12),
                libjson-glib-dev (>= 0.13.2-1~),
                libcogl-dev (>= 1.17.1),
-               libclutter-1.0-dev (>= 1.23.4),
+               libclutter-1.0-dev (>= 1.25.6),
                libgbm-dev (>= 10.3),
                libpango1.0-dev (>= 1.2.0),
                libcairo2-dev (>= 1.10.0),
@@ -47,6 +47,7 @@ Build-Depends: cdbs (>= 0.4.90),
                libice-dev,
                libpam0g-dev,
                libwayland-dev (>= 1.5.90) [linux-any],
+               wayland-protocols (>= 1.1) [linux-any],
                xkb-data,
                zenity
 Standards-Version: 3.9.7
@@ -75,7 +76,7 @@ Description: lightweight GTK+ window manager
  .
  This package contains the core binaries.
 
-Package: libmutter0g
+Package: libmutter0h
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends},
@@ -88,7 +89,8 @@ Conflicts: libmutter0,
            libmutter0c,
            libmutter0d,
            libmutter0e,
-           libmutter0f
+           libmutter0f,
+           libmutter0g
 Description: window manager library from the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
@@ -120,7 +122,7 @@ Package: libmutter-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends},
-         libmutter0g (= ${binary:Version}),
+         libmutter0h (= ${binary:Version}),
          gir1.2-mutter-3.0 (= ${binary:Version}),
          gsettings-desktop-schemas-dev,
          libclutter-1.0-dev,
@@ -143,7 +145,7 @@ Architecture: any
 Depends: ${gir:Depends},
          ${shlibs:Depends},
          ${misc:Depends},
-         libmutter0g (= ${binary:Version})
+         libmutter0h (= ${binary:Version})
 Breaks: gnome-shell (<< 3.13.92~)
 Description: GObject introspection data for Mutter
  Mutter is a small window manager, using GTK+ and Clutter to do

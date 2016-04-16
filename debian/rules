@@ -19,7 +19,7 @@ DEB_CONFIGURE_EXTRA_FLAGS +=  --enable-wayland  --enable-native-backend
 endif
 
 DEB_DH_GIREPOSITORY_ARGS_ALL := /usr/lib/mutter
-DEB_DH_MAKESHLIBS_ARGS_libmutter0g = -V'libmutter0g (>= 3.18.0)'
+DEB_DH_MAKESHLIBS_ARGS_libmutter0h = -V'libmutter0h (>= 3.19.0)'
 
 DEB_DH_STRIP_ARGS = --dbgsym-migration='mutter-dbg (<< 3.18.3-2~)'
 
