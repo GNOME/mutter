@@ -1,3 +1,14 @@
+3.18.4
+======
+* Fix mouse cursor disappearing in some multi-monitor setups [Rui; #763159]
+* Do not assert on non-fatal runtime errors [Florian; #765058]
+
+Contributors:
+  Rui Matos, Florian Müllner
+
+Translations:
+  Cédric Valmary [oc]
+
 3.18.3
 ======
 * Fix initialization of bypass compositor hint [Rui; #758544]
