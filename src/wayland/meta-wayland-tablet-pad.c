@@ -32,6 +32,8 @@
 
 #include "meta-surface-actor-wayland.h"
 #include "meta-wayland-private.h"
+#include "meta-wayland-tablet-seat.h"
+#include "meta-wayland-tablet.h"
 #include "meta-wayland-tablet-pad.h"
 #include "meta-wayland-tablet-pad-group.h"
 #include "meta-wayland-tablet-pad-ring.h"
@@ -301,4 +303,68 @@ void
 meta_wayland_tablet_pad_set_focus (MetaWaylandTabletPad *pad,
                                    MetaWaylandSurface   *surface)
 {
+  MetaWaylandTablet *tablet;
+
+  if (pad->focus_surface == surface)
+    return;
+
+  g_hash_table_remove_all (pad->feedback);
+
+  if (pad->focus_surface != NULL)
+    {
+      struct wl_resource *resource;
+      struct wl_list *l = &pad->focus_resource_list;
+
+      if (!wl_list_empty (l))
+        {
+          struct wl_client *client = wl_resource_get_client (pad->focus_surface->resource);
+          struct wl_display *display = wl_client_get_display (client);
+          uint32_t serial = wl_display_next_serial (display);
+
+          wl_resource_for_each (resource, l)
+            {
+              zwp_tablet_pad_v2_send_leave (resource, serial, pad->focus_surface->resource);
+            }
+
+          move_resources (&pad->resource_list, &pad->focus_resource_list);
+        }
+
+      wl_list_remove (&pad->focus_surface_listener.link);
+      pad->focus_surface = NULL;
+    }
+
+  tablet = meta_wayland_tablet_seat_lookup_paired_tablet (pad->tablet_seat, pad);
+
+  if (tablet != NULL && surface != NULL)
+    {
+      struct wl_resource *resource;
+      struct wl_list *l;
+
+      pad->focus_surface = surface;
+      wl_resource_add_destroy_listener (pad->focus_surface->resource, &pad->focus_surface_listener);
+
+      move_resources_for_client (&pad->focus_resource_list,
+                                 &pad->resource_list,
+                                 wl_resource_get_client (pad->focus_surface->resource));
+
+      l = &pad->focus_resource_list;
+      if (!wl_list_empty (l))
+        {
+          struct wl_client *client = wl_resource_get_client (pad->focus_surface->resource);
+          struct wl_display *display = wl_client_get_display (client);
+          struct wl_resource *tablet_resource =
+            meta_wayland_tablet_lookup_resource (tablet, client);
+
+          pad->focus_serial = wl_display_next_serial (display);
+
+          wl_resource_for_each (resource, l)
+            {
+              zwp_tablet_pad_v2_send_enter (resource, pad->focus_serial,
+                                            tablet_resource,
+                                            pad->focus_surface->resource);
+            }
+        }
+    }
+
+  meta_wayland_tablet_pad_update_groups_focus (pad);
 }
