@@ -1,6 +1,7 @@
 mutter (3.20.2-1) UNRELEASED; urgency=medium
 
   * New upstream release.
+  * Bump Standards-Version to 3.9.8.
 
  -- Michael Biebl <biebl@debian.org>  Wed, 11 May 2016 13:39:52 +0200
 
