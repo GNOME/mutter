@@ -440,3 +440,74 @@ meta_wayland_tablet_seat_notify_tool (MetaWaylandTabletSeat *tablet_seat,
   if (resource)
     notify_tool_added (tablet_seat, resource, tool);
 }
+
+static GList *
+lookup_grouped_devices (ClutterInputDevice     *device,
+                        ClutterInputDeviceType  type)
+{
+  struct libinput_device *dev, *libinput_device;
+  ClutterDeviceManager *device_manager;
+  const GSList *devices, *l;
+  GList *group = NULL;
+
+  device_manager = clutter_device_manager_get_default ();
+  devices = clutter_device_manager_peek_devices (device_manager);
+  dev = clutter_evdev_input_device_get_libinput_device (device);
+
+  for (l = devices; l; l = l->next)
+    {
+      if (l->data == device)
+        continue;
+      if (clutter_input_device_get_device_type (l->data) != type)
+        continue;
+
+      libinput_device = clutter_evdev_input_device_get_libinput_device (l->data);
+
+      if (libinput_device_get_device_group (dev) !=
+          libinput_device_get_device_group (libinput_device))
+        continue;
+
+      group = g_list_prepend (group, l->data);
+    }
+
+  return group;
+}
+
+MetaWaylandTablet *
+meta_wayland_tablet_seat_lookup_paired_tablet (MetaWaylandTabletSeat *tablet_seat,
+                                               MetaWaylandTabletPad  *pad)
+{
+  MetaWaylandTablet *tablet;
+  GList *devices;
+
+  devices = lookup_grouped_devices (pad->device, CLUTTER_TABLET_DEVICE);
+
+  /* We only accept one device here */
+  if (!devices || devices->next)
+    return NULL;
+
+  tablet = meta_wayland_tablet_seat_lookup_tablet (pad->tablet_seat,
+                                                   devices->data);
+  g_list_free (devices);
+
+  return tablet;
+}
+
+GList *
+meta_wayland_tablet_seat_lookup_paired_pads (MetaWaylandTabletSeat *tablet_seat,
+                                             MetaWaylandTablet     *tablet)
+{
+  GList *l, *devices, *pads = NULL;
+  MetaWaylandTabletPad *pad;
+
+  devices = lookup_grouped_devices (tablet->device, CLUTTER_PAD_DEVICE);
+
+  for (l = devices; l; l = l->next)
+    {
+      pad = meta_wayland_tablet_seat_lookup_pad (tablet_seat, l->data);
+      if (pad)
+        pads = g_list_prepend (pads, pad);
+    }
+
+  return pads;
+}
