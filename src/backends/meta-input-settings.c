@@ -1043,7 +1043,7 @@ meta_input_settings_init (MetaInputSettings *settings)
     }
 }
 
-MetaInputSettings *
+static MetaInputSettings *
 meta_input_settings_create (void)
 {
 #ifdef HAVE_NATIVE_BACKEND
@@ -1058,6 +1058,20 @@ meta_input_settings_create (void)
     return g_object_new (META_TYPE_INPUT_SETTINGS_X11, NULL);
 
   return NULL;
+}
+
+MetaInputSettings *
+meta_input_settings_get (void)
+{
+  static MetaInputSettings *input_settings = NULL;
+
+  if (g_once_init_enter (&input_settings))
+    {
+      MetaInputSettings *settings = meta_input_settings_create ();
+      g_once_init_leave (&input_settings, settings);
+    }
+
+  return input_settings;
 }
 
 GDesktopTabletMapping

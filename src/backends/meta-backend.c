@@ -316,7 +316,7 @@ meta_backend_real_post_init (MetaBackend *backend)
     g_slist_free (devices);
   }
 
-  priv->input_settings = meta_input_settings_create ();
+  priv->input_settings = meta_input_settings_get ();
 
   center_pointer (backend);
 }
