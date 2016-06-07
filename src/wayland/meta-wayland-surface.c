@@ -1338,6 +1338,9 @@ xdg_surface_set_title (struct wl_client *client,
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
 
+  if (!g_utf8_validate (title, -1, NULL))
+    title = "";
+
   meta_window_set_title (surface->window, title);
 }
 
@@ -1347,6 +1350,9 @@ xdg_surface_set_app_id (struct wl_client *client,
                         const char *app_id)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+
+  if (!g_utf8_validate (app_id, -1, NULL))
+    app_id = "";
 
   meta_window_set_wm_class (surface->window, app_id, app_id);
 }
@@ -1964,6 +1970,9 @@ wl_shell_surface_set_title (struct wl_client *client,
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
 
+  if (!g_utf8_validate (title, -1, NULL))
+    title = "";
+
   meta_window_set_title (surface->window, title);
 }
 
@@ -1973,6 +1982,9 @@ wl_shell_surface_set_class (struct wl_client *client,
                             const char *class_)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+
+  if (!g_utf8_validate (class_, -1, NULL))
+    class_ = "";
 
   meta_window_set_wm_class (surface->window, class_, class_);
 }
