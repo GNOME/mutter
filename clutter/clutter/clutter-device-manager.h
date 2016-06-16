@@ -30,7 +30,6 @@
 
 #include <clutter/clutter-input-device.h>
 #include <clutter/clutter-stage.h>
-#include <clutter/clutter-virtual-input-device.h>
 
 G_BEGIN_DECLS
 
