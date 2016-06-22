@@ -1243,3 +1243,62 @@ meta_input_settings_get_tablet_wacom_device (MetaInputSettings *settings,
   return info->wacom_device;
 }
 #endif /* HAVE_LIBWACOM */
+
+static gdouble
+calculate_bezier_position (gdouble pos,
+                           gdouble x1,
+                           gdouble y1,
+                           gdouble x2,
+                           gdouble y2)
+{
+  gdouble int1_y, int2_y;
+
+  pos = CLAMP (pos, 0, 1);
+
+  /* Intersection between 0,0 and x1,y1 */
+  int1_y = pos * y1;
+
+  /* Intersection between x2,y2 and 1,1 */
+  int2_y = (pos * (1 - y2)) + y2;
+
+  /* Find the new position in the line traced by the previous points */
+  return (pos * (int2_y - int1_y)) + int1_y;
+}
+
+gdouble
+meta_input_settings_translate_tablet_tool_pressure (MetaInputSettings      *input_settings,
+                                                    ClutterInputDeviceTool *tool,
+                                                    ClutterInputDevice     *current_tablet,
+                                                    gdouble                 pressure)
+{
+  GSettings *settings;
+  GVariant *variant;
+  const gint32 *curve;
+  gsize n_elems;
+
+  pressure = CLAMP (pressure, 0, 1);
+
+  g_return_val_if_fail (META_IS_INPUT_SETTINGS (input_settings), pressure);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE_TOOL (tool), pressure);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (current_tablet), pressure);
+
+  settings = lookup_tool_settings (tool, current_tablet);
+
+  if (clutter_input_device_tool_get_tool_type (tool) == CLUTTER_INPUT_DEVICE_TOOL_ERASER)
+    variant = g_settings_get_value (settings, "eraser-pressure-curve");
+  else
+    variant = g_settings_get_value (settings, "pressure-curve");
+
+  curve = g_variant_get_fixed_array (variant, &n_elems, sizeof (gint32));
+  if (n_elems != 4)
+    return pressure;
+
+  pressure = calculate_bezier_position (pressure,
+                                        (gdouble) curve[0] / 100,
+                                        (gdouble) curve[1] / 100,
+                                        (gdouble) curve[2] / 100,
+                                        (gdouble) curve[3] / 100);
+  g_variant_unref (variant);
+
+  return pressure;
+}
