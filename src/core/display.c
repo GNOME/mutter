@@ -360,7 +360,9 @@ meta_display_class_init (MetaDisplayClass *klass)
    * @display: the #MetaDisplay instance
    * @pad: the pad device
    * @settings: the pad device settings
+   * @layout_path: path to the layout image
    * @edition_mode: Whether the OSD should be shown in edition mode
+   * @monitor_idx: Monitor to show the OSD on
    *
    * Requests the pad button mapping OSD to be shown.
    *
@@ -371,8 +373,8 @@ meta_display_class_init (MetaDisplayClass *klass)
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
-                  CLUTTER_TYPE_ACTOR, 3, CLUTTER_TYPE_INPUT_DEVICE,
-                  G_TYPE_SETTINGS, G_TYPE_BOOLEAN);
+                  CLUTTER_TYPE_ACTOR, 5, CLUTTER_TYPE_INPUT_DEVICE,
+                  G_TYPE_SETTINGS, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_INT);
 
   g_object_class_install_property (object_class,
                                    PROP_FOCUS_WINDOW,
@@ -549,6 +551,27 @@ on_startup_notification_changed (MetaStartupNotification *sn,
   display->screen->startup_sequences =
     meta_startup_notification_get_sequences (display->startup_notification);
   g_signal_emit_by_name (display->screen, "startup-sequence-changed", sequence);
+}
+
+static void
+check_pad_removed (MetaDisplay          *display,
+                   ClutterInputDevice   *device,
+                   ClutterDeviceManager *device_manager)
+{
+  ClutterInputDevice *pad;
+
+  if (!display->current_pad_osd)
+    return;
+
+  pad = g_object_get_data (G_OBJECT (display->current_pad_osd),
+                           "meta-pad-osd-device");
+
+  if (pad == device)
+    {
+      /* Close pad OSD */
+      clutter_actor_destroy (display->current_pad_osd);
+      display->current_pad_osd = NULL;
+    }
 }
 
 /**
@@ -973,6 +996,10 @@ meta_display_open (void)
     meta_display_focus_the_no_focus_window (display, display->screen, timestamp);
 
   meta_idle_monitor_init_dbus ();
+
+  g_signal_connect_swapped (clutter_device_manager_get_default (),
+                            "device-removed", G_CALLBACK (check_pad_removed),
+                            display);
 
   /* Done opening new display */
   display->display_opening = FALSE;
@@ -3092,6 +3119,70 @@ meta_display_set_alarm_filter (MetaDisplay    *display,
 
   display->alarm_filter = filter;
   display->alarm_filter_data = data;
+}
+
+void
+meta_display_request_pad_osd (MetaDisplay        *display,
+                              ClutterInputDevice *pad,
+                              gboolean            edition_mode)
+{
+  MetaInputSettings *input_settings;
+  const gchar *layout_path = NULL;
+  ClutterActor *osd;
+  MetaOutput *output;
+  gint monitor_idx;
+  GSettings *settings;
+#ifdef HAVE_LIBWACOM
+  WacomDevice *wacom_device;
+#endif
+
+  input_settings = meta_input_settings_get ();
+
+  if (display->current_pad_osd)
+    {
+      clutter_actor_destroy (display->current_pad_osd);
+      display->current_pad_osd = NULL;
+    }
+
+  if (input_settings)
+    {
+      settings = meta_input_settings_get_tablet_settings (input_settings, pad);
+      output = meta_input_settings_get_tablet_output (input_settings, pad);
+#ifdef HAVE_LIBWACOM
+      wacom_device = meta_input_settings_get_tablet_wacom_device (input_settings,
+                                                                  pad);
+      layout_path = libwacom_get_layout_filename (wacom_device);
+#endif
+    }
+
+  if (!layout_path || !settings)
+    return;
+
+  if (output && output->crtc)
+    {
+      monitor_idx = meta_screen_get_monitor_index_for_rect (display->screen,
+                                                            &output->crtc->rect);
+    }
+  else
+    {
+      monitor_idx = meta_screen_get_current_monitor (display->screen);
+    }
+
+  g_signal_emit (display, display_signals[SHOW_PAD_OSD], 0,
+                 pad, settings, layout_path,
+                 edition_mode, monitor_idx, &osd);
+
+  if (osd)
+    {
+      display->current_pad_osd = osd;
+      g_object_set_data (G_OBJECT (display->current_pad_osd),
+                         "meta-pad-osd-device", pad);
+      g_object_add_weak_pointer (G_OBJECT (display->current_pad_osd),
+                                 (gpointer *) &display->current_pad_osd);
+      clutter_actor_grab_key_focus (osd);
+    }
+
+  g_object_unref (settings);
 }
 
 gchar *
