@@ -40,6 +40,8 @@
 
 #include <meta/util.h>
 
+static GQuark quark_tool_settings = 0;
+
 typedef struct _MetaInputSettingsPrivate MetaInputSettingsPrivate;
 typedef struct _DeviceMappingInfo DeviceMappingInfo;
 
@@ -910,6 +912,41 @@ lookup_device_settings (ClutterInputDevice *device)
   return settings;
 }
 
+static GSettings *
+lookup_tool_settings (ClutterInputDeviceTool *tool,
+                      ClutterInputDevice     *device)
+{
+  GSettings *settings;
+  guint64 serial;
+  gchar *path;
+
+  settings = g_object_get_qdata (G_OBJECT (tool), quark_tool_settings);
+
+  if (!settings)
+    {
+      serial = clutter_input_device_tool_get_serial (tool);
+
+      if (serial == 0)
+        {
+          path = g_strdup_printf ("/org/gnome/desktop/peripherals/stylus/default-%s:%s/",
+                                  clutter_input_device_get_vendor_id (device),
+                                  clutter_input_device_get_product_id (device));
+        }
+      else
+        {
+          path = g_strdup_printf ("/org/gnome/desktop/peripherals/stylus/%lx/", serial);
+        }
+
+      settings = g_settings_new_with_path ("org.gnome.desktop.peripherals.tablet.stylus",
+                                           path);
+      g_object_set_qdata_full (G_OBJECT (tool), quark_tool_settings, settings,
+                               (GDestroyNotify) g_object_unref);
+      g_free (path);
+    }
+
+  return settings;
+}
+
 static void
 monitors_changed_cb (MetaMonitorManager *monitor_manager,
                      MetaInputSettings  *input_settings)
@@ -1067,6 +1104,9 @@ meta_input_settings_class_init (MetaInputSettingsClass *klass)
 
   object_class->dispose = meta_input_settings_dispose;
   object_class->constructed = meta_input_settings_constructed;
+
+  quark_tool_settings =
+    g_quark_from_static_string ("meta-input-settings-tool-settings");
 }
 
 static void
@@ -1160,6 +1200,29 @@ meta_input_settings_get_tablet_mapping (MetaInputSettings  *settings,
   g_return_val_if_fail (info != NULL, G_DESKTOP_TABLET_MAPPING_ABSOLUTE);
 
   return g_settings_get_enum (info->settings, "mapping");
+}
+
+GDesktopStylusButtonAction
+meta_input_settings_get_stylus_button_action (MetaInputSettings      *input_settings,
+                                              ClutterInputDeviceTool *tool,
+                                              ClutterInputDevice     *current_tablet,
+                                              guint                   button)
+{
+  GSettings *settings;
+
+  g_return_val_if_fail (META_IS_INPUT_SETTINGS (input_settings),
+                        G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE_TOOL (tool),
+                        G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT);
+
+  settings = lookup_tool_settings (tool, current_tablet);
+
+  if (button == 2)
+    return g_settings_get_enum (settings, "button-action");
+  else if (button == 3)
+    return g_settings_get_enum (settings, "secondary-button-action");
+  else
+    return G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT;
 }
 
 #ifdef HAVE_LIBWACOM
