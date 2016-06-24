@@ -1,0 +1,61 @@
+From aa65fc8b85909dc482069d6dcb20a9dc28b85f97 Mon Sep 17 00:00:00 2001
+From: Rui Matos <tiagomatos@gmail.com>
+Date: Tue, 7 Jun 2016 16:17:28 +0200
+Subject: [PATCH 7/8] wayland-surface: UTF-8 validate title, class and app ID
+ strings
+
+The protocol says these must be UTF-8 so let's ensure they are.
+
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=752788
+Origin: upstream, 3.20.3
+---
+ src/wayland/meta-wayland-surface.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/src/wayland/meta-wayland-surface.c b/src/wayland/meta-wayland-surface.c
+index 4699cfd..9ca6d04 100644
+--- a/src/wayland/meta-wayland-surface.c
++++ b/src/wayland/meta-wayland-surface.c
+@@ -1338,6 +1338,9 @@ xdg_surface_set_title (struct wl_client *client,
+ {
+   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+ 
++  if (!g_utf8_validate (title, -1, NULL))
++    title = "";
++
+   meta_window_set_title (surface->window, title);
+ }
+ 
+@@ -1348,6 +1351,9 @@ xdg_surface_set_app_id (struct wl_client *client,
+ {
+   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+ 
++  if (!g_utf8_validate (app_id, -1, NULL))
++    app_id = "";
++
+   meta_window_set_wm_class (surface->window, app_id, app_id);
+ }
+ 
+@@ -1964,6 +1970,9 @@ wl_shell_surface_set_title (struct wl_client *client,
+ {
+   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+ 
++  if (!g_utf8_validate (title, -1, NULL))
++    title = "";
++
+   meta_window_set_title (surface->window, title);
+ }
+ 
+@@ -1974,6 +1983,9 @@ wl_shell_surface_set_class (struct wl_client *client,
+ {
+   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+ 
++  if (!g_utf8_validate (class_, -1, NULL))
++    class_ = "";
++
+   meta_window_set_wm_class (surface->window, class_, class_);
+ }
+ 
+-- 
+2.8.1
+

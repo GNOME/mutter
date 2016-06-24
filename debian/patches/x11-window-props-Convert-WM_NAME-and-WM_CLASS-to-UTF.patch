@@ -1,0 +1,54 @@
+From a15f33ac9c71b133410fc0c19aaaf09a0da81301 Mon Sep 17 00:00:00 2001
+From: Rui Matos <tiagomatos@gmail.com>
+Date: Tue, 22 Mar 2016 20:30:43 +0100
+Subject: [PATCH 6/8] x11/window-props: Convert WM_NAME and WM_CLASS to UTF-8
+
+gjs throws exceptions on non UTF-8 strings which, in some cases, crash
+gnome-shell. ICCCM string properties are defined to be Latin-1 encoded
+so we can try to convert them to avoid it.
+
+Note that _NET_WM_NAME is defined to be UTF-8 and we already validate
+it in utf8_string_from_results() .
+
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=752788
+Origin: upstream, 3.20.3
+---
+ src/x11/window-props.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/src/x11/window-props.c b/src/x11/window-props.c
+index 0a67980..85c03c5 100644
+--- a/src/x11/window-props.c
++++ b/src/x11/window-props.c
+@@ -635,7 +635,10 @@ reload_wm_name (MetaWindow    *window,
+ 
+   if (value->type != META_PROP_VALUE_INVALID)
+     {
+-      set_window_title (window, value->v.str);
++      g_autofree gchar *title = g_convert (value->v.str, -1,
++                                           "UTF-8", "LATIN1",
++                                           NULL, NULL, NULL);
++      set_window_title (window, title);
+ 
+       meta_verbose ("Using WM_NAME for new title of %s: \"%s\"\n",
+                     window->desc, window->title);
+@@ -969,9 +972,13 @@ reload_wm_class (MetaWindow    *window,
+ {
+   if (value->type != META_PROP_VALUE_INVALID)
+     {
+-      meta_window_set_wm_class (window,
+-                                value->v.class_hint.res_class,
+-                                value->v.class_hint.res_name);
++      g_autofree gchar *res_class = g_convert (value->v.class_hint.res_class, -1,
++                                               "UTF-8", "LATIN1",
++                                               NULL, NULL, NULL);
++      g_autofree gchar *res_name = g_convert (value->v.class_hint.res_name, -1,
++                                              "UTF-8", "LATIN1",
++                                              NULL, NULL, NULL);
++      meta_window_set_wm_class (window, res_class, res_name);
+     }
+   else
+     {
+-- 
+2.8.1
+

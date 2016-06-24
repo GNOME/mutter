@@ -1,0 +1,81 @@
+From dc257ee1c1579c5de289297c8896a9687fd1b70d Mon Sep 17 00:00:00 2001
+From: Marek Chalupa <mchqwerty@gmail.com>
+Date: Thu, 17 Mar 2016 14:52:46 +0100
+Subject: [PATCH 1/8] wayland: don't send notify when window is being unmanaged
+
+If we try to send notify event (either from surface_state_changed()
+or from meta_window_wayland_move_resize_internal()),
+we will crash, because we don't have a sufrace anymore.
+There's no reason why to resize the window that is being
+unmanaged anyway.
+
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=751847
+Origin: upstream, 3.20.3
+---
+ src/core/window.c                 |  3 +--
+ src/wayland/meta-window-wayland.c | 14 ++++++++------
+ 2 files changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/src/core/window.c b/src/core/window.c
+index bc481dc..462fd41 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -1259,6 +1259,7 @@ meta_window_unmanage (MetaWindow  *window,
+   GList *tmp;
+ 
+   meta_verbose ("Unmanaging %s\n", window->desc);
++  window->unmanaging = TRUE;
+ 
+ #ifdef HAVE_WAYLAND
+   /* This needs to happen for both Wayland and XWayland clients,
+@@ -1286,8 +1287,6 @@ meta_window_unmanage (MetaWindow  *window,
+ 
+   meta_display_unregister_stamp (window->display, window->stamp);
+ 
+-  window->unmanaging = TRUE;
+-
+   if (meta_prefs_get_attach_modal_dialogs ())
+     {
+       GList *attached_children = NULL, *iter;
+diff --git a/src/wayland/meta-window-wayland.c b/src/wayland/meta-window-wayland.c
+index f38e4b9..817e498 100644
+--- a/src/wayland/meta-window-wayland.c
++++ b/src/wayland/meta-window-wayland.c
+@@ -131,6 +131,10 @@ surface_state_changed (MetaWindow *window)
+ {
+   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+ 
++  /* don't send notify when the window is being unmanaged */
++  if (window->unmanaging)
++    return;
++
+   meta_wayland_surface_configure_notify (window->surface,
+                                          wl_window->last_sent_width,
+                                          wl_window->last_sent_height,
+@@ -173,6 +177,10 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
+ 
+   g_assert (window->frame == NULL);
+ 
++  /* don't do anything if we're dropping the window, see #751847 */
++  if (window->unmanaging)
++    return;
++
+   /* The scale the window is drawn in might change depending on what monitor it
+    * is mainly on. Scale the configured rectangle to be in logical pixel
+    * coordinate space so that we can have a scale independent size to pass
+@@ -403,12 +411,6 @@ appears_focused_changed (GObject    *object,
+                          gpointer    user_data)
+ {
+   MetaWindow *window = META_WINDOW (object);
+-
+-  /* When we're unmanaging, we remove focus from the window,
+-   * causing this to fire. Don't do anything in that case. */
+-  if (window->unmanaging)
+-    return;
+-
+   surface_state_changed (window);
+ }
+ 
+-- 
+2.8.1
+

@@ -1,0 +1,55 @@
+From 0b4cd7ed9272494fdd1ec5d7a051221a2b172af9 Mon Sep 17 00:00:00 2001
+From: Rui Matos <tiagomatos@gmail.com>
+Date: Tue, 7 Jun 2016 16:11:05 +0200
+Subject: [PATCH 5/8] window: Don't create invalid UTF-8 window description
+ strings
+
+printf string precision counts bytes so we may end up creating invalid
+UTF-8 strings here. Instead, use glib's unicode aware methods to clip
+the title.
+
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=765535
+Origin: upstream, 3.20.3
+---
+ src/core/window.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/src/core/window.c b/src/core/window.c
+index 462fd41..4dff32b 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -761,12 +761,18 @@ sync_client_window_mapped (MetaWindow *window)
+ static void
+ meta_window_update_desc (MetaWindow *window)
+ {
++  g_autofree gchar *title = NULL;
++
+   g_clear_pointer (&window->desc, g_free);
+ 
++  if (window->title)
++    title = g_utf8_substring (window->title, 0,
++                              MIN (10, g_utf8_strlen (window->title, -1)));
++
+   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+     {
+-      if (window->title)
+-        window->desc = g_strdup_printf ("0x%lx (%.10s)", window->xwindow, window->title);
++      if (title)
++        window->desc = g_strdup_printf ("0x%lx (%s)", window->xwindow, title);
+       else
+         window->desc = g_strdup_printf ("0x%lx", window->xwindow);
+     }
+@@ -774,8 +780,8 @@ meta_window_update_desc (MetaWindow *window)
+     {
+       guint64 small_stamp = window->stamp - G_GUINT64_CONSTANT(0x100000000);
+ 
+-      if (window->title)
+-        window->desc = g_strdup_printf ("W%" G_GUINT64_FORMAT " (%.10s)", small_stamp, window->title);
++      if (title)
++        window->desc = g_strdup_printf ("W%" G_GUINT64_FORMAT " (%s)", small_stamp, title);
+       else
+         window->desc = g_strdup_printf ("W%" G_GUINT64_FORMAT , small_stamp);
+     }
+-- 
+2.8.1
+
