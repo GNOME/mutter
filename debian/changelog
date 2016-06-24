@@ -6,12 +6,15 @@ mutter (3.20.2-2) UNRELEASED; urgency=medium
     format
 
   [ Simon McVittie ]
-  * Add all patches from upstream gnome-3-20 branch up to 2016-06-10
-    - fix a possible crash in Wayland
+  * Add all patches from upstream gnome-3-20 branch up to 2016-06-23
+    - fix possible crashes in Wayland and in X11
     - ensure that Wayland output reconfiguration finishes correctly
     - implement "force quit" in Wayland using kill(), like in X11
     - improve UTF-8 correctness
     - update translations
+    - ensure that all window frames are drawn similarly
+    - avoid redrawing the entire window every frame
+    - make windows that are unmaximized via drag follow the cursor
   * Backport patch from upstream to introduce XDG_SURFACE_STATE_GNOME_TILED
     and mark tiled windows with it, allowing GDK versions with a
     corresponding patch to report GDK_WINDOW_STATE_TILED correctly under

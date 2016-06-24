@@ -1,0 +1,42 @@
+From 9ec231f60356b1a01f8bd714131c1e2a01df7b9d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Thu, 23 Jun 2016 12:35:44 +0200
+Subject: [PATCH 5/7] frames: "Initialize" frame background
+
+Frames are painted on the frame window according to the GTK+ theme.
+Depending on the target's visual, this means either drawing over
+a black destination or a fully transparent one. So in cases where
+the theme doesn't paint decorations with full opacity, decorations
+for windows with an rgba visual look different from those with a
+non-rgba visual. Using an rgba visual for all frames independent
+from the client's visual can potentially break clients, so our
+only option for a consistent appearance is to explicitly initialize
+the frame background to black before painting the theme's decoration
+on top.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=745060
+---
+ src/ui/frames.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/src/ui/frames.c b/src/ui/frames.c
+index 746fdea..0e90567 100644
+--- a/src/ui/frames.c
++++ b/src/ui/frames.c
+@@ -1403,6 +1403,13 @@ meta_frames_draw (GtkWidget *widget,
+   gdk_cairo_region (cr, region);
+   cairo_clip (cr);
+ 
++  /* The target may be cleared to black or transparent, depending
++   * on the frame's visual; we don't want decorations to appear
++   * differently when the theme's decorations aren't fully opaque,
++   * so clear to black first
++   */
++  cairo_paint (cr);
++
+   meta_ui_frame_paint (frame, cr);
+   cairo_region_destroy (region);
+ 
+-- 
+2.8.1
+
