@@ -1,4 +1,6 @@
-mutter (3.20.2-2) UNRELEASED; urgency=medium
+mutter (3.20.2-2) unstable; urgency=medium
+
+  * Team upload
 
   [ Jeremy Bicha ]
   * Use https for copyright headers
@@ -20,7 +22,7 @@ mutter (3.20.2-2) UNRELEASED; urgency=medium
     corresponding patch to report GDK_WINDOW_STATE_TILED correctly under
     Wayland
 
- -- Simon McVittie <smcv@debian.org>  Thu, 23 Jun 2016 08:57:31 +0100
+ -- Simon McVittie <smcv@debian.org>  Sat, 25 Jun 2016 00:19:53 +0100
 
 mutter (3.20.2-1) unstable; urgency=medium
 
