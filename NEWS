@@ -1,3 +1,22 @@
+3.20.3
+======
+* Fix grabbing random keys for disabled shortcuts [Rui; #766270]
+* Crash fixes [Marek, Rui; #751847, #767969]
+* Improve multi-monitor handling on wayland [Rui; #766528]
+* Don't create invalid UTF-8 window description strings [Rui; #765535]
+* Convert window titles and wm_class to UTF-8 [Rui; #752788]
+* Use kill() to force-quit unresponsive wayland clients [Olivier; #767464]
+* Fix window position when unmaximizing via DND on wayland [Olivier; #764180]
+* Avoid full window redraws when using extended frame sync [Florian; #767798]
+* Fix missing frame border around GTK+ dialogs [Florian; #745060]
+* Improve X11 <-> wayland copy and paste interaction [Carlos; #768007]
+
+Contributors:
+  Marek Chalupa, Olivier Fourdan, Carlos Garnacho, Rui Matos, Florian Müllner
+
+Translations:
+  Kjartan Maraas [nb], Muhammet Kara [tr], Andika Triwidada [id]
+
 3.20.2
 ======
 * Notify clients of pending modifier state changes [Rui; #748526]
