@@ -138,4 +138,7 @@ void meta_output_unassign_crtc (MetaOutput *output);
 META_EXPORT_TEST
 MetaCrtc * meta_output_get_assigned_crtc (MetaOutput *output);
 
+META_EXPORT_TEST
+const char *       meta_output_get_connector_type_name (MetaOutput *output);
+
 #endif /* META_OUTPUT_H */
