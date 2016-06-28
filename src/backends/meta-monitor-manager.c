@@ -1736,6 +1736,7 @@ create_monitor_config_from_variant (MetaMonitorManager *manager,
   MetaMonitor *monitor;
   MetaMonitorSpec *monitor_spec;
   MetaMonitorModeSpec *monitor_mode_spec;
+  MetaOutput *output;
   g_autoptr (GVariant) properties_variant = NULL;
   gboolean enable_underscanning = FALSE;
 
@@ -1760,7 +1761,17 @@ create_monitor_config_from_variant (MetaMonitorManager *manager,
       return NULL;
     }
 
-  g_variant_lookup (properties_variant, "underscanning", "b", &enable_underscanning);
+  output = meta_monitor_get_main_output (monitor);
+  if (g_variant_lookup (properties_variant, "underscanning", "b", &enable_underscanning))
+    {
+      if (enable_underscanning && !output->supports_underscanning)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "Underscanning requested but unsupported");
+          return NULL;
+
+        }
+    }
 
   monitor_spec = meta_monitor_spec_clone (meta_monitor_get_spec (monitor));
 

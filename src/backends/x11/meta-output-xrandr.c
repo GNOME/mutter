@@ -166,9 +166,7 @@ meta_output_xrandr_apply_mode (MetaOutput *output)
     }
 
   output_set_presentation_xrandr (output, output->is_presentation);
-
-  if (output->supports_underscanning)
-    output_set_underscanning_xrandr (output, output->is_underscanning);
+  output_set_underscanning_xrandr (output, output->is_underscanning);
 }
 
 static int
