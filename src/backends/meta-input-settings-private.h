@@ -105,6 +105,9 @@ MetaInputSettings * meta_input_settings_get (void);
 
 GSettings *           meta_input_settings_get_tablet_settings (MetaInputSettings  *settings,
                                                                ClutterInputDevice *device);
+MetaOutput *          meta_input_settings_get_tablet_output   (MetaInputSettings  *settings,
+                                                               ClutterInputDevice *device);
+
 GDesktopTabletMapping meta_input_settings_get_tablet_mapping (MetaInputSettings  *settings,
                                                               ClutterInputDevice *device);
 
