@@ -190,18 +190,15 @@ meta_wayland_tablet_pad_group_has_button (MetaWaylandTabletPadGroup *group,
     }
 }
 
-void
-meta_wayland_tablet_pad_group_notify (MetaWaylandTabletPadGroup *group,
-                                      struct wl_resource        *resource)
+static void
+meta_wayland_tablet_pad_group_send_buttons (MetaWaylandTabletPadGroup *group,
+                                            struct wl_resource        *resource)
 {
-  struct wl_client *client = wl_resource_get_client (resource);
   struct wl_array buttons;
-  guint i, n_modes;
-  GList *l;
+  guint i;
 
   wl_array_init (&buttons);
 
-  /* Buttons */
   for (i = 0; i < group->pad->n_buttons; i++)
     {
       uint32_t *pos;
@@ -215,6 +212,21 @@ meta_wayland_tablet_pad_group_notify (MetaWaylandTabletPadGroup *group,
 
   zwp_tablet_pad_group_v2_send_buttons (resource, &buttons);
   wl_array_release (&buttons);
+}
+
+void
+meta_wayland_tablet_pad_group_notify (MetaWaylandTabletPadGroup *group,
+                                      struct wl_resource        *resource)
+{
+  struct wl_client *client = wl_resource_get_client (resource);
+  struct wl_array buttons;
+  guint n_modes;
+  GList *l;
+
+  wl_array_init (&buttons);
+
+  /* Buttons */
+  meta_wayland_tablet_pad_group_send_buttons (group, resource);
 
   /* Rings */
   for (l = group->rings; l; l = l->next)
@@ -315,6 +327,18 @@ broadcast_group_mode (MetaWaylandTabletPadGroup *group,
     }
 }
 
+static void
+broadcast_group_buttons (MetaWaylandTabletPadGroup *group)
+{
+  struct wl_list *l = &group->focus_resource_list;
+  struct wl_resource *resource;
+
+  wl_resource_for_each (resource, l)
+    {
+      meta_wayland_tablet_pad_group_send_buttons (group, resource);
+    }
+}
+
 gboolean
 meta_wayland_tablet_pad_group_handle_event (MetaWaylandTabletPadGroup *group,
                                             const ClutterEvent        *event)
@@ -406,6 +430,7 @@ meta_wayland_tablet_pad_group_sync_focus (MetaWaylandTabletPadGroup *group)
   meta_wayland_tablet_pad_group_update_strips_focus (group);
 
   broadcast_group_mode (group, clutter_get_current_event_time ());
+  broadcast_group_buttons (group);
 }
 
 gboolean
