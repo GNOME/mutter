@@ -11,6 +11,7 @@ include /usr/share/gnome-pkg-tools/1/rules/gnome-version.mk
 DEB_DH_AUTORECONF_ARGS = --as-needed
 
 DEB_CONFIGURE_EXTRA_FLAGS += \
+	--libdir="\$${prefix}/lib/$(DEB_HOST_MULTIARCH)" \
 	--enable-startup-notification=yes \
 	--enable-compile-warnings=yes
 

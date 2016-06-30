@@ -1,4 +1,4 @@
 usr/bin
 usr/lib/mutter/mutter-restart-helper
-usr/lib/mutter/plugins
+usr/lib/*/mutter/plugins
 usr/share/applications

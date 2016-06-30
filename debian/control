@@ -83,6 +83,8 @@ Description: lightweight GTK+ window manager
 Package: libmutter0h
 Section: libs
 Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          gsettings-desktop-schemas (>= 3.15.92),
@@ -110,6 +112,7 @@ Description: window manager library from the Mutter window manager
 Package: mutter-common
 Section: misc
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends}
 Description: shared files for the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
@@ -125,6 +128,7 @@ Description: shared files for the Mutter window manager
 Package: libmutter-dev
 Section: libdevel
 Architecture: any
+Multi-Arch: same
 Depends: ${misc:Depends},
          libmutter0h (= ${binary:Version}),
          gir1.2-mutter-3.0 (= ${binary:Version}),
@@ -146,6 +150,7 @@ Description: Development files for the Mutter window manager
 Package: gir1.2-mutter-3.0
 Section: introspection
 Architecture: any
+Multi-Arch: same
 Depends: ${gir:Depends},
          ${shlibs:Depends},
          ${misc:Depends},
