@@ -15,10 +15,10 @@ Origin: upstream, 3.21.3, commit:e7430a45356da043019659db9b4892a08f889c7e
  src/wayland/meta-wayland-surface.c | 14 ++++++++++++++
  1 file changed, 14 insertions(+)
 
-diff --git a/src/wayland/meta-wayland-surface.c b/src/wayland/meta-wayland-surface.c
-index 4699cfd..495723d 100644
---- a/src/wayland/meta-wayland-surface.c
-+++ b/src/wayland/meta-wayland-surface.c
+Index: mutter-3.20.3/src/wayland/meta-wayland-surface.c
+===================================================================
+--- mutter-3.20.3.orig/src/wayland/meta-wayland-surface.c	2016-06-30 00:45:00.610896657 +0200
++++ mutter-3.20.3/src/wayland/meta-wayland-surface.c	2016-06-30 00:45:00.610896657 +0200
 @@ -56,6 +56,13 @@
  #include "meta-surface-actor-wayland.h"
  #include "meta-xwayland-private.h"
@@ -33,7 +33,7 @@ index 4699cfd..495723d 100644
  enum {
    PENDING_STATE_SIGNAL_APPLIED,
  
-@@ -2502,6 +2509,13 @@ fill_states (struct wl_array *states, MetaWindow *window)
+@@ -2514,6 +2521,13 @@
        s = wl_array_add (states, sizeof *s);
        *s = XDG_SURFACE_STATE_ACTIVATED;
      }

@@ -1,6 +1,7 @@
 mutter (3.20.3-1) UNRELEASED; urgency=medium
 
   * New upstream release.
+  * Drop all patches which are now applied upstream.
 
  -- Michael Biebl <biebl@debian.org>  Thu, 30 Jun 2016 00:36:26 +0200
 

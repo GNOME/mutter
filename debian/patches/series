@@ -1,17 +1,2 @@
-wayland-don-t-send-notify-when-window-is-being-unman.patch
-wayland-outputs-Refactor-event-sending-to-ensure-we-.patch
-Updated-Norwegian-bokm-l-translation.patch
-Updated-Turkish-translation.patch
-window-Don-t-create-invalid-UTF-8-window-description.patch
-x11-window-props-Convert-WM_NAME-and-WM_CLASS-to-UTF.patch
-wayland-surface-UTF-8-validate-title-class-and-app-I.patch
-wayland-Implement-force-quit-using-kill.patch
-wayland-Mark-pending-moved-as-moved.patch
-surface-actor-Keep-track-of-ignored-damage.patch
-Updated-Indonesian-translation.patch
-frames-Don-t-clip-out-invisible-parts-of-frames.patch
-frames-Initialize-frame-background.patch
-ui-frames-Drop-the-current-grab-info-on-button-relea.patch
-
 01_Wcast-align.patch
 wayland-add-extended-state-for-tiled.patch
