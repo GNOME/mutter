@@ -1,0 +1,18 @@
+From: Luca Bruno
+Date: 2016-06-06
+Subject: fix gint64 format
+
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=762407
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=829140
+
+--- a/src/core/startup-notification.c	2016-06-06 12:13:27.100251933 +0200
++++ a/src/core/startup-notification.c	2016-06-06 12:13:42.554956773 +0200
+@@ -418,7 +418,7 @@ 
+   elapsed = ctod->now - timestamp;
+ 
+   meta_topic (META_DEBUG_STARTUP,
+-              "Sequence used %ld ms vs. %d max: %s\n",
++              "Sequence used %" G_GINT64_FORMAT " ms vs. %d max: %s\n",
+               elapsed, STARTUP_TIMEOUT,
+               meta_startup_notification_sequence_get_id (sequence));
+ 
