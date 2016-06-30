@@ -22,11 +22,11 @@ override_dh_auto_configure:
 		--enable-compile-warnings \
 		$(CONFFLAGS)
 
-
-DEB_DH_GIREPOSITORY_ARGS_ALL := /usr/lib/mutter
-
 override_dh_install:
 	dh_install --list-missing
+
+override_dh_girepository:
+	dh_girepository /usr/lib/$(DEB_HOST_MULTIARCH)/mutter
 
 override_dh_makeshlibs:
 	dh_makeshlibs -V'libmutter0h (>= 3.19.0)'
