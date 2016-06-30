@@ -2,6 +2,8 @@ mutter (3.20.3-2) UNRELEASED; urgency=medium
 
   * d/p/fix-gint64-format.patch: Add patch from Luca Bruno fixing a format
     string on ILP32 architectures
+  * d/rules: add a missing backslash so we build with the intended
+    configure options, and in particular not -Werror (Closes: #829140)
 
  -- Simon McVittie <smcv@debian.org>  Thu, 30 Jun 2016 23:01:03 +0100
 

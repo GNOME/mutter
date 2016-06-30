@@ -17,7 +17,7 @@ endif
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		--libexecdir="\$${libdir}/mutter"
+		--libexecdir="\$${libdir}/mutter" \
 		--enable-startup-notification \
 		--enable-compile-warnings \
 		$(CONFFLAGS)
