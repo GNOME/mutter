@@ -857,11 +857,11 @@ meta_window_actor_has_shadow (MetaWindowActor *self)
     return FALSE;
 
   /*
-   * Always put a shadow around windows with a frame - This should override
-   * the restriction about not putting a shadow around ARGB windows.
+   * Do not put a shadow around windows with a frame - the decoration
+   * includes the shadow as defined by the GTK+ theme
    */
   if (meta_window_get_frame (priv->window))
-    return TRUE;
+    return FALSE;
 
   /*
    * Do not add shadows to non-opaque (ARGB32) windows, as we can't easily
