@@ -831,6 +831,16 @@ crossing_serial_is_ignored (MetaDisplay  *display,
 }
 
 static gboolean
+event_has_button_mask (XIEnterEvent *enter_event)
+{
+  int i;
+  for (i = 0; i < enter_event->buttons.mask_len; i++)
+    if (enter_event->buttons.mask[i] != '\0')
+      return TRUE;
+  return FALSE;
+}
+
+static gboolean
 handle_input_xevent (MetaDisplay  *display,
                      XIEvent      *input_event,
                      unsigned long serial)
@@ -871,6 +881,7 @@ handle_input_xevent (MetaDisplay  *display,
        * avoid races.
        */
       if (window && !crossing_serial_is_ignored (display, serial) &&
+          !event_has_button_mask (enter_event) &&
           enter_event->mode != XINotifyGrab &&
           enter_event->mode != XINotifyUngrab &&
           enter_event->detail != XINotifyInferior &&
