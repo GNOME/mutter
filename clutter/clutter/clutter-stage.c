@@ -676,6 +676,12 @@ clutter_stage_do_paint_view (ClutterStage                *stage,
   _clutter_stage_paint_volume_stack_free_all (stage);
   _clutter_stage_update_active_framebuffer (stage, framebuffer);
   clutter_actor_paint (CLUTTER_ACTOR (stage));
+
+  if (clutter_stage_view_get_onscreen (view) !=
+      clutter_stage_view_get_framebuffer (view))
+    {
+      clutter_stage_view_blit_offscreen (view, clip);
+    }
 }
 
 /* This provides a common point of entry for painting the scenegraph
