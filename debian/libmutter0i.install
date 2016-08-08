@@ -1,1 +1,2 @@
 usr/lib/*/libmutter.so.*
+usr/lib/*/mutter/*.so

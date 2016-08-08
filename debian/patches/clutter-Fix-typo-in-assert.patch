@@ -1,0 +1,25 @@
+From 740748af3e76c25cc86174548288018889ea9eeb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Florian=20M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 29 Jul 2016 11:28:29 +0200
+Subject: [PATCH] clutter: Fix typo in assert
+
+---
+ clutter/clutter/clutter-canvas.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/clutter/clutter/clutter-canvas.c b/clutter/clutter/clutter-canvas.c
+index 6c92c44..98f8c07 100644
+--- a/clutter/clutter/clutter-canvas.c
++++ b/clutter/clutter/clutter-canvas.c
+@@ -401,7 +401,7 @@ clutter_canvas_emit_draw (ClutterCanvas *self)
+   gboolean res;
+   cairo_t *cr;
+ 
+-  g_assert (priv->width > 0 && priv->width > 0);
++  g_assert (priv->height > 0 && priv->width > 0);
+ 
+   priv->dirty = TRUE;
+ 
+-- 
+2.8.1
+
