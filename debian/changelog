@@ -1,3 +1,67 @@
+mutter (3.20.3-2) unstable; urgency=medium
+
+  [ Simon McVittie ]
+  * d/p/fix-gint64-format.patch: Add patch from Luca Bruno fixing a format
+    string on ILP32 architectures
+  * d/rules: add a missing backslash so we build with the intended
+    configure options, and in particular not -Werror (Closes: #829140)
+
+  [ Jeremy Bicha ]
+  * Replace old mutter libraries too instead of only conflicting with them
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 01 Jul 2016 10:18:59 +0200
+
+mutter (3.20.3-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Drop all patches which are now applied upstream.
+  * Convert to multiarch.
+  * Convert from cdbs to dh.
+
+ -- Michael Biebl <biebl@debian.org>  Thu, 30 Jun 2016 20:11:34 +0200
+
+mutter (3.20.2-2) unstable; urgency=medium
+
+  * Team upload
+
+  [ Jeremy Bicha ]
+  * Use https for copyright headers
+  * Use https in d/watch and use new "special strings" to help standardize
+    format
+
+  [ Simon McVittie ]
+  * Add all patches from upstream gnome-3-20 branch up to 2016-06-23
+    - fix possible crashes in Wayland and in X11
+    - ensure that Wayland output reconfiguration finishes correctly
+    - implement "force quit" in Wayland using kill(), like in X11
+    - improve UTF-8 correctness
+    - update translations
+    - ensure that all window frames are drawn similarly
+    - avoid redrawing the entire window every frame
+    - make windows that are unmaximized via drag follow the cursor
+  * Backport patch from upstream to introduce XDG_SURFACE_STATE_GNOME_TILED
+    and mark tiled windows with it, allowing GDK versions with a
+    corresponding patch to report GDK_WINDOW_STATE_TILED correctly under
+    Wayland
+
+ -- Simon McVittie <smcv@debian.org>  Sat, 25 Jun 2016 00:19:53 +0100
+
+mutter (3.20.2-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Bump Standards-Version to 3.9.8.
+
+ -- Michael Biebl <biebl@debian.org>  Wed, 11 May 2016 13:48:17 +0200
+
+mutter (3.20.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+  * Bump mutter's dependency on gsettings-desktop-schemas to (>= 3.19.3).
+  * Upload to unstable.
+
+ -- Michael Biebl <biebl@debian.org>  Sun, 17 Apr 2016 00:06:56 +0200
+
 mutter (3.20.0-1) experimental; urgency=medium
 
   * New upstream release.

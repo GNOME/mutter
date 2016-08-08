@@ -1,1 +1,1 @@
-usr/lib/mutter/Meta-*.typelib
+usr/lib/*/mutter/Meta-*.typelib

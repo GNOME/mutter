@@ -1,30 +1,37 @@
 #!/usr/bin/make -f
 
-include /usr/share/cdbs/1/rules/autoreconf.mk
-include /usr/share/cdbs/1/rules/debhelper.mk
-include /usr/share/cdbs/1/class/gnome.mk
-include /usr/share/cdbs/1/rules/utils.mk
-include /usr/share/gnome-pkg-tools/1/rules/uploaders.mk
-include /usr/share/gnome-pkg-tools/1/rules/gnome-version.mk
 -include /usr/share/gnome-pkg-tools/1/rules/gnome-get-source.mk
 
-DEB_DH_AUTORECONF_ARGS = --as-needed
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,-O1 -Wl,--as-needed
 
-DEB_CONFIGURE_EXTRA_FLAGS += \
-	--enable-startup-notification=yes \
-	--enable-compile-warnings=yes
+%:
+	dh $@ --with autoreconf,gir,gnome
+
+override_dh_autoreconf:
+	dh_autoreconf --as-needed
 
 ifeq ($(DEB_HOST_ARCH_OS),linux)
-DEB_CONFIGURE_EXTRA_FLAGS +=  --enable-wayland  --enable-native-backend
+CONFFLAGS = \
+	--enable-wayland \
+	--enable-native-backend
 endif
 
-DEB_DH_GIREPOSITORY_ARGS_ALL := /usr/lib/mutter
-DEB_DH_MAKESHLIBS_ARGS_libmutter0h = -V'libmutter0h (>= 3.19.0)'
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		--libexecdir="\$${libdir}/mutter" \
+		--enable-startup-notification \
+		--enable-compile-warnings \
+		$(CONFFLAGS)
 
-DEB_DH_STRIP_ARGS = --dbgsym-migration='mutter-dbg (<< 3.18.3-2~)'
+override_dh_install:
+	dh_install --list-missing
 
-LDFLAGS += -Wl,-O1 -Wl,--as-needed
-# This does not work with mutter; disabled, for now.
-# LDFLAGS += -Wl,-z,defs -Wl,-O1 -Wl,--as-needed
+override_dh_girepository:
+	dh_girepository /usr/lib/$(DEB_HOST_MULTIARCH)/mutter
 
-common-binary-post-install-arch:: list-missing
+override_dh_makeshlibs:
+	dh_makeshlibs -V'libmutter0h (>= 3.19.0)'
+
+override_dh_strip:
+	dh_strip --dbgsym-migration='mutter-dbg (<< 3.18.3-2~)'
+
