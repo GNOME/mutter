@@ -1,5 +1,6 @@
 mutter (3.21.4-1) UNRELEASED; urgency=medium
 
+  [ Sjoerd Simons ]
   * New upstream release
   * debian/patches/fix-gint64-format.patch
     debian/patches/wayland-add-extended-state-for-tiled.patch:
@@ -12,7 +13,16 @@ mutter (3.21.4-1) UNRELEASED; urgency=medium
   * debian/control.in: Update build-dependencies
   * debian/*.install: Install private helper libraries.
 
- -- Sjoerd Simons <sjoerd@debian.org>  Mon, 08 Aug 2016 21:19:51 +0200
+  [ Andreas Henriksson ]
+  * libmutter-dev: depend on packages required by mutter-clutter-1.0.pc
+    - libcairo2-dev, libglib2.0-dev, libatk1.0-dev, libpango1.0-dev,
+      libjson-glib-dev, libegl1-mesa-dev, libwayland-dev, libdrm-dev,
+      libgbm-dev, libinput-dev, libudev-dev, libx11-dev, libxext-dev,
+      libxdamage-dev, libxcomposite-dev, libxi-dev
+  * libmutter-dev: depend on additional packages required by mutter-cogl-1.0.pc
+    - libgdk-pixbuf2.0-dev, libxfixes-dev, libxrandr-dev
+
+ -- Andreas Henriksson <andreas@fatal.se>  Wed, 10 Aug 2016 12:21:59 +0200
 
 mutter (3.20.3-2) unstable; urgency=medium
 
