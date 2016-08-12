@@ -1,4 +1,4 @@
-mutter (3.21.4-1) UNRELEASED; urgency=medium
+mutter (3.21.4-1) experimental; urgency=medium
 
   [ Sjoerd Simons ]
   * New upstream release
@@ -22,7 +22,7 @@ mutter (3.21.4-1) UNRELEASED; urgency=medium
   * libmutter-dev: depend on additional packages required by mutter-cogl-1.0.pc
     - libgdk-pixbuf2.0-dev, libxfixes-dev, libxrandr-dev
 
- -- Andreas Henriksson <andreas@fatal.se>  Wed, 10 Aug 2016 12:21:59 +0200
+ -- Andreas Henriksson <andreas@fatal.se>  Fri, 12 Aug 2016 15:53:15 +0200
 
 mutter (3.20.3-2) unstable; urgency=medium
 
