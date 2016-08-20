@@ -1,3 +1,17 @@
+mutter (3.21.90-1) experimental; urgency=medium
+
+  * New upstream beta release.
+  * Update (build-)dependencies according to configure.ac changes:
+    - drop intltool (>= 0.41), now gettext is used instead.
+    - add libwacom-dev (>= 0.13) [linux-any]
+    - bump wayland-protocols to >= 1.5
+    - bump gsettings-desktop-schemas to >= 3.21.4
+    - bump libinput-dev to >= 1.4
+  * Drop debian/patches/clutter-Fix-typo-in-assert.patch
+    - now included in upstream release.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Sat, 20 Aug 2016 17:46:46 +0200
+
 mutter (3.21.4-1) experimental; urgency=medium
 
   [ Sjoerd Simons ]
