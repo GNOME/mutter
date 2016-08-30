@@ -1,3 +1,12 @@
+mutter (3.21.91-1) unstable; urgency=low
+
+  * New upstream beta release.
+  * Update build-dependencies according to configure.ac changes:
+    - bump wayland-protocols to >= 1.7
+  * Drop debian/patches/Fix-build-of-clutter-tests.patch, merged upstream.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Tue, 30 Aug 2016 19:30:43 +0200
+
 mutter (3.21.90-1) experimental; urgency=medium
 
   * New upstream beta release.

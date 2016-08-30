@@ -46,7 +46,7 @@ Build-Depends: debhelper (>= 9.20160114),
                libice-dev,
                libpam0g-dev,
                libwayland-dev (>= 1.5.90) [linux-any],
-               wayland-protocols (>= 1.5) [linux-any],
+               wayland-protocols (>= 1.7) [linux-any],
                xkb-data,
                zenity
 Standards-Version: 3.9.8
