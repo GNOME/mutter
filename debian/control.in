@@ -6,26 +6,26 @@ Uploaders: @GNOME_TEAM@
 Build-Depends: debhelper (>= 9.20160114),
                gnome-pkg-tools (>= 0.10),
                dh-autoreconf,
-               intltool (>= 0.41),
                gtk-doc-tools (>= 1.15),
                libgtk-3-dev (>= 3.19.8),
-               libglib2.0-dev (>= 2.35.1),
+               libglib2.0-dev (>= 2.49.1),
                libcanberra-gtk3-dev,
                gobject-introspection (>= 1.41.3),
-               gsettings-desktop-schemas-dev (>= 3.19.3),
+               gsettings-desktop-schemas-dev (>= 3.21.4),
                libgirepository1.0-dev (>= 0.9.12),
                libjson-glib-dev (>= 0.13.2-1~),
-               libcogl-dev (>= 1.17.1),
-               libclutter-1.0-dev (>= 1.25.6),
                libgbm-dev (>= 10.3),
                libpango1.0-dev (>= 1.2.0),
                libcairo2-dev (>= 1.10.0),
+               libgl1-mesa-dev (>= 7.1~rc3-1~),
+               libdrm-dev [!hurd-any],
                libgnome-desktop-3-dev (>= 3.10),
                libgudev-1.0-dev [linux-any],
                libinput-dev [linux-any],
                libstartup-notification0-dev (>= 0.7),
                libsystemd-dev (>= 212) [linux-any],
                libupower-glib-dev (>= 0.99.0),
+               libwacom-dev (>= 0.13) [linux-any],
                libxcb-randr0-dev,
                libxcomposite-dev (>= 1:0.2),
                libxi-dev (>= 2:1.6.0),
@@ -46,7 +46,7 @@ Build-Depends: debhelper (>= 9.20160114),
                libice-dev,
                libpam0g-dev,
                libwayland-dev (>= 1.5.90) [linux-any],
-               wayland-protocols (>= 1.1) [linux-any],
+               wayland-protocols (>= 1.7) [linux-any],
                xkb-data,
                zenity
 Standards-Version: 3.9.8
@@ -58,7 +58,7 @@ Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          mutter-common (= ${source:Version}),
-         gsettings-desktop-schemas (>= 3.19.3),
+         gsettings-desktop-schemas (>= 3.21.4),
          zenity
 Provides: x-window-manager
 Recommends: gnome-session | x-session-manager
@@ -75,7 +75,7 @@ Description: lightweight GTK+ window manager
  .
  This package contains the core binaries.
 
-Package: libmutter0h
+Package: libmutter0i
 Section: libs
 Architecture: any
 Multi-Arch: same
@@ -92,6 +92,7 @@ Conflicts: libmutter0,
            libmutter0e,
            libmutter0f,
            libmutter0g,
+           libmutter0h
 Replaces: libmutter0,
           libmutter0a,
           libmutter0b,
@@ -100,6 +101,7 @@ Replaces: libmutter0,
           libmutter0e,
           libmutter0f,
           libmutter0g,
+          libmutter0h
 Description: window manager library from the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
@@ -133,11 +135,29 @@ Section: libdevel
 Architecture: any
 Multi-Arch: same
 Depends: ${misc:Depends},
-         libmutter0h (= ${binary:Version}),
+         libmutter0i (= ${binary:Version}),
          gir1.2-mutter-3.0 (= ${binary:Version}),
          gsettings-desktop-schemas-dev,
-         libclutter-1.0-dev,
          libgtk-3-dev,
+         libcairo2-dev,
+         libglib2.0-dev,
+         libatk1.0-dev,
+         libpango1.0-dev,
+         libjson-glib-dev,
+         libegl1-mesa-dev,
+         libwayland-dev,
+         libdrm-dev,
+         libgbm-dev,
+         libinput-dev (>= 1.4),
+         libudev-dev,
+         libx11-dev,
+         libxext-dev,
+         libxdamage-dev,
+         libxcomposite-dev,
+         libxi-dev,
+         libgdk-pixbuf2.0-dev,
+         libxfixes-dev,
+         libxrandr-dev,
          libx11-dev
 Description: Development files for the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
@@ -157,7 +177,7 @@ Multi-Arch: same
 Depends: ${gir:Depends},
          ${shlibs:Depends},
          ${misc:Depends},
-         libmutter0h (= ${binary:Version})
+         libmutter0i (= ${binary:Version})
 Breaks: gnome-shell (<< 3.13.92~)
 Description: GObject introspection data for Mutter
  Mutter is a small window manager, using GTK+ and Clutter to do
