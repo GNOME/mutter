@@ -1,10 +1,10 @@
-mutter (3.21.91-2) UNRELEASED; urgency=medium
+mutter (3.21.91-2) unstable; urgency=medium
 
   * Bump Build-Depends on libgnome-desktop-3-dev to (>= 3.21.2).
     This ensures we have a matching version of libgnome-desktop which supports
     mode flags via the D-Bus API.
 
- -- Michael Biebl <biebl@debian.org>  Fri, 02 Sep 2016 11:50:46 +0200
+ -- Michael Biebl <biebl@debian.org>  Fri, 02 Sep 2016 12:03:57 +0200
 
 mutter (3.21.91-1) unstable; urgency=low
 
