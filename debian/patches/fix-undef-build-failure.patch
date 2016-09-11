@@ -1,0 +1,27 @@
+From ce7573e2b75789a701cbc75c17a118e067fda3d6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 2 Sep 2016 14:20:40 +0800
+Subject: cogl/egl: Fix non-Wayland build
+
+Use #ifdef instead of #if, otherwise it won't compile when Wayland is
+not available.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=770647
+---
+ cogl/cogl/winsys/cogl-winsys-egl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cogl/cogl/winsys/cogl-winsys-egl.c b/cogl/cogl/winsys/cogl-winsys-egl.c
+index 36122f2..dbf14f6 100644
+--- a/cogl/cogl/winsys/cogl-winsys-egl.c
++++ b/cogl/cogl/winsys/cogl-winsys-egl.c
+@@ -1029,7 +1029,7 @@ _cogl_egl_create_image (CoglContext *ctx,
+     egl_ctx = EGL_NO_CONTEXT;
+   else
+ #endif
+-#if COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT
++#ifdef COGL_HAS_WAYLAND_EGL_SERVER_SUPPORT
+   /* The WL_bind_wayland_display spec states that EGL_NO_CONTEXT is to be used
+    * in conjunction with the EGL_WAYLAND_BUFFER_WL target */
+   if (target == EGL_WAYLAND_BUFFER_WL)
+

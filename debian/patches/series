@@ -1,1 +1,2 @@
 01_Wcast-align.patch
+fix-undef-build-failure.patch
