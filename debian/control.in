@@ -3,9 +3,8 @@ Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
 Uploaders: @GNOME_TEAM@
-Build-Depends: debhelper (>= 9.20160114),
+Build-Depends: debhelper (>= 10),
                gnome-pkg-tools (>= 0.10),
-               dh-autoreconf,
                gtk-doc-tools (>= 1.15),
                libgtk-3-dev (>= 3.19.8),
                libglib2.0-dev (>= 2.49.1),

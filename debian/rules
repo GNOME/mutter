@@ -5,7 +5,7 @@
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,-O1 -Wl,--as-needed
 
 %:
-	dh $@ --with autoreconf,gir,gnome
+	dh $@ --with gir,gnome
 
 override_dh_autoreconf:
 	dh_autoreconf --as-needed
