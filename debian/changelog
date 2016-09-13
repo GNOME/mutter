@@ -1,4 +1,4 @@
-mutter (3.21.92-1) UNRELEASED; urgency=medium
+mutter (3.21.92-1) unstable; urgency=medium
 
   [ Jeremy Bicha ]
   * debian/rules:
@@ -11,7 +11,7 @@ mutter (3.21.92-1) UNRELEASED; urgency=medium
   * Refresh debian/patches/01_Wcast-align.patch.
   * Bump debhelper compat level to 10.
 
- -- Jeremy Bicha <jbicha@ubuntu.com>  Sat, 10 Sep 2016 19:46:37 -0400
+ -- Michael Biebl <biebl@debian.org>  Tue, 13 Sep 2016 17:43:54 +0200
 
 mutter (3.21.91-2) unstable; urgency=medium
 
