@@ -8,6 +8,7 @@ mutter (3.21.92-1) UNRELEASED; urgency=medium
 
   [ Michael Biebl ]
   * New upstream development release.
+  * Refresh debian/patches/01_Wcast-align.patch.
 
  -- Jeremy Bicha <jbicha@ubuntu.com>  Sat, 10 Sep 2016 19:46:37 -0400
 
