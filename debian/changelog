@@ -1,9 +1,13 @@
-mutter (3.21.91-3) UNRELEASED; urgency=medium
+mutter (3.21.92-1) UNRELEASED; urgency=medium
 
+  [ Jeremy Bicha ]
   * debian/rules:
     - Explicitly disable kms and wayland to fix build on kfreebsd
   * Add fix-undef-build-failure.patch:
     - Git patch needed for build without wayland
+
+  [ Michael Biebl ]
+  * New upstream development release.
 
  -- Jeremy Bicha <jbicha@ubuntu.com>  Sat, 10 Sep 2016 19:46:37 -0400
 
