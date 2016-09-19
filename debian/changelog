@@ -1,7 +1,13 @@
-mutter (3.21.92-2) UNRELEASED; urgency=medium
+mutter (3.22.0-1) UNRELEASED; urgency=medium
 
+  [ Jeremy Bicha ]
   * debian/control.in:
     - Explicitly build-depend on libegl1-mesa-dev (Closes: #836153)
+
+  [ Michael Biebl ]
+  * New upstream release.
+    - Correctly handle tablet settings lookups with no backing libwacom info.
+      (Closes: 838050)
 
  -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 13 Sep 2016 22:31:38 -0400
 
