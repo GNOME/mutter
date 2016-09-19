@@ -7,7 +7,8 @@ mutter (3.22.0-1) UNRELEASED; urgency=medium
   [ Michael Biebl ]
   * New upstream release.
     - Correctly handle tablet settings lookups with no backing libwacom info.
-      (Closes: 838050)
+      (Closes: #838050)
+  * Use non-multiarch path (/usr/lib/mutter) for libexecdir.
 
  -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 13 Sep 2016 22:31:38 -0400
 
