@@ -1,4 +1,4 @@
-mutter (3.22.0-1) UNRELEASED; urgency=medium
+mutter (3.22.0-1) unstable; urgency=medium
 
   [ Jeremy Bicha ]
   * debian/control.in:
@@ -10,7 +10,7 @@ mutter (3.22.0-1) UNRELEASED; urgency=medium
       (Closes: #838050)
   * Use non-multiarch path (/usr/lib/mutter) for libexecdir.
 
- -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 13 Sep 2016 22:31:38 -0400
+ -- Michael Biebl <biebl@debian.org>  Tue, 20 Sep 2016 01:43:37 +0200
 
 mutter (3.21.92-1) unstable; urgency=medium
 
