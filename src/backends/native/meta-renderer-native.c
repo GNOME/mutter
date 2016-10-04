@@ -231,6 +231,39 @@ meta_onscreen_native_queue_swap_notify (CoglOnscreen *onscreen)
   onscreen_native->pending_swap_notify = TRUE;
 }
 
+static EGLDisplay
+meta_egl_get_display (void *native)
+{
+  EGLDisplay dpy = NULL;
+  const char *client_exts = eglQueryString (NULL, EGL_EXTENSIONS);
+
+  if (g_strstr_len (client_exts, -1, "EGL_KHR_platform_base"))
+    {
+      PFNEGLGETPLATFORMDISPLAYEXTPROC get_platform_display =
+	(void *) eglGetProcAddress ("eglGetPlatformDisplay");
+
+      if (get_platform_display)
+	dpy = get_platform_display (EGL_PLATFORM_GBM_MESA, native, NULL);
+
+      if (dpy)
+	return dpy;
+    }
+
+  if (g_strstr_len (client_exts, -1, "EGL_EXT_platform_base"))
+    {
+      PFNEGLGETPLATFORMDISPLAYEXTPROC get_platform_display =
+	(void *) eglGetProcAddress ("eglGetPlatformDisplayEXT");
+
+      if (get_platform_display)
+	dpy = get_platform_display (EGL_PLATFORM_GBM_MESA, native, NULL);
+
+      if (dpy)
+	return dpy;
+    }
+
+  return eglGetDisplay ((EGLNativeDisplayType) native);
+}
+
 static CoglBool
 meta_renderer_native_connect (CoglRenderer *cogl_renderer,
                               CoglError   **error)
@@ -255,8 +288,7 @@ meta_renderer_native_connect (CoglRenderer *cogl_renderer,
       goto fail;
     }
 
-  egl_renderer->edpy =
-    eglGetDisplay ((EGLNativeDisplayType) renderer_native->gbm);
+  egl_renderer->edpy = meta_egl_get_display (renderer_native->gbm);
   if (egl_renderer->edpy == EGL_NO_DISPLAY)
     {
       _cogl_set_error (error, COGL_WINSYS_ERROR,
