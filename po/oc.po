@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=mutter&"
 "keywords=I18N+L10N&component=general\n"
 "POT-Creation-Date: 2016-09-07 09:27+0000\n"
-"PO-Revision-Date: 2016-10-11 20:09+0200\n"
+"PO-Revision-Date: 2016-10-11 20:53+0200\n"
 "Last-Translator: Cédric Valmary (totenoc.eu) <cvalmary@yahoo.fr>\n"
 "Language-Team: Tot En Òc\n"
 "Language: oc\n"
@@ -190,7 +190,6 @@ msgid "Windows"
 msgstr "Fenèstras"
 
 #: data/50-mutter-windows.xml:8
-#, fuzzy
 msgid "Activate the window menu"
 msgstr "Activar lo menú fenèstra"
 
@@ -207,7 +206,6 @@ msgid "Maximize window"
 msgstr "Maximizar la fenèstra"
 
 #: data/50-mutter-windows.xml:16
-#, fuzzy
 msgid "Restore window"
 msgstr "Restablir la fenèstra"
 
@@ -513,7 +511,6 @@ msgid "“%s” is not responding."
 msgstr "« %s » respond pas."
 
 #: src/core/delete.c:129
-#, fuzzy
 msgid "Application is not responding."
 msgstr "L'aplicacion respond pas."
 
@@ -543,7 +540,6 @@ msgid "Disable connection to session manager"
 msgstr "Desactivar la connexion al gestionari de sessions"
 
 #: src/core/main.c:188
-#, fuzzy
 msgid "Replace the running window manager"
 msgstr "Remplaçar lo gestionari de fenèstras en cors de foncionament"
 
@@ -642,202 +638,15 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (sus %s)"
 
-#, fuzzy
-#~| msgid "Switch to workspace 1"
-#~ msgid "Switch to workspace 5"
-#~ msgstr "Passar a l'espaci de trabalh 1"
-
-#, fuzzy
-#~| msgid "Switch to workspace 1"
-#~ msgid "Switch to workspace 6"
-#~ msgstr "Passar a l'espaci de trabalh 1"
-
-#, fuzzy
-#~| msgid "Switch to workspace 1"
-#~ msgid "Switch to workspace 7"
-#~ msgstr "Passar a l'espaci de trabalh 1"
-
-#, fuzzy
-#~| msgid "Switch to workspace 1"
-#~ msgid "Switch to workspace 8"
-#~ msgstr "Passar a l'espaci de trabalh 1"
-
-#, fuzzy
-#~| msgid "Switch to workspace 1"
-#~ msgid "Switch to workspace 9"
-#~ msgstr "Passar a l'espaci de trabalh 1"
-
-#, fuzzy
-#~| msgid "Switch to workspace 1"
-#~ msgid "Switch to workspace 10"
-#~ msgstr "Passar a l'espaci de trabalh 1"
-
-#, fuzzy
-#~| msgid "Switch to workspace 1"
-#~ msgid "Switch to workspace 11"
-#~ msgstr "Passar a l'espaci de trabalh 1"
-
-#, fuzzy
-#~| msgid "Switch to workspace 1"
-#~ msgid "Switch to workspace 12"
-#~ msgstr "Passar a l'espaci de trabalh 1"
-
-#, fuzzy
-#~| msgid "Switch to workspace on the left"
-#~ msgid "Switch to workspace on the left of the current workspace"
-#~ msgstr "Passar a l'espaci de trabalh a l'esquèrra"
-
-#, fuzzy
-#~| msgid "Switch to workspace on the right"
-#~ msgid "Switch to workspace on the right of the current workspace"
-#~ msgstr "Passar a l'espaci de trabalh a la drecha"
-
-#, fuzzy
-#~| msgid "Switch to workspace above this one"
-#~ msgid "Switch to workspace above the current workspace"
-#~ msgstr "Passar a l'espaci de trabalh ennaut d'aqueste"
-
-#, fuzzy
-#~| msgid "Switch to workspace below this one"
-#~ msgid "Switch to workspace below the current workspace"
-#~ msgstr "Passar a l'espaci de trabalh enbàs d'aqueste"
-
-#, fuzzy
-#~| msgid "Switch windows of an application"
-#~ msgid "Move between windows of an application immediately"
-#~ msgstr "Cambiar de fenèstra d'una aplicacion"
-
-#, fuzzy
-#~| msgid "Switch windows of an application"
-#~ msgid "Move backward between windows of an application immediately"
-#~ msgstr "Cambiar de fenèstra d'una aplicacion"
-
-#, fuzzy
-#~| msgid "Hide all normal windows"
-#~ msgid "Hide all normal windows and set focus to the desktop"
-#~ msgstr "Amagar totas las fenèstras normalas"
-
-#, fuzzy
-#~| msgid "Show the panel menu"
-#~ msgid "Show the panel's main menu"
-#~ msgstr "Visualizar lo menut del panèl"
-
-#~ msgid "Run a terminal"
-#~ msgstr "Executar un terminal"
-
-#, fuzzy
-#~| msgid "Lower window below other windows"
-#~ msgid "Toggle whether a window will always be visible over other windows"
-#~ msgstr "Metre la fenèstra jos las autras fenèstras"
-
-#, fuzzy
-#~| msgid "Minimize Window"
-#~ msgid "Minimize window"
-#~ msgstr "Redusir la fenèstra"
-
-#, fuzzy
-#~| msgid "Toggle window on all workspaces or one"
-#~ msgid "Toggle whether window is on all workspaces or just one"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 1"
-
-#~ msgid "Move window to workspace 5"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 5"
-
-#~ msgid "Move window to workspace 6"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 6"
-
-#~ msgid "Move window to workspace 7"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 7"
-
-#~ msgid "Move window to workspace 8"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 8"
-
-#~ msgid "Move window to workspace 9"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 9"
-
-#~ msgid "Move window to workspace 10"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 10"
-
-#~ msgid "Move window to workspace 11"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 11"
-
-#~ msgid "Move window to workspace 12"
-#~ msgstr "Desplaçar la fenèstra cap al espaci de trabalh 12"
-
-#, fuzzy
-#~| msgid "Raise window if covered, otherwise lower it"
-#~ msgid "Raise window if it's covered by another window, otherwise lower it"
-#~ msgstr "Metre la fenèstra al primièr plan se es amagada, siquenon al rèireplan"
-
-#, fuzzy
-#~| msgid "Move window one monitor to the left"
-#~ msgid "Move window to north-west (top left) corner"
-#~ msgstr "Desplaçar la fenèstra d'un ecran cap a esquèrra"
-
-#, fuzzy
-#~| msgid "Move window one monitor to the right"
-#~ msgid "Move window to north-east (top right) corner"
-#~ msgstr "Desplaçar la fenèstra d'un ecran cap a dreita"
-
-#, fuzzy
-#~| msgid "Move window to last workspace"
-#~ msgid "Move window to south-east (bottom right) corner"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 1"
-
-#, fuzzy
-#~| msgid "Move window one monitor to the left"
-#~ msgid "Move window to north (top) side of screen"
-#~ msgstr "Desplaçar la fenèstra d'un ecran cap a esquèrra"
-
-#, fuzzy
-#~| msgid "Move window to last workspace"
-#~ msgid "Move window to south (bottom) side of screen"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 1"
-
-#, fuzzy
-#~| msgid "Move window to last workspace"
-#~ msgid "Move window to east (right) side of screen"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 1"
-
-#, fuzzy
-#~| msgid "Move window to last workspace"
-#~ msgid "Move window to west (left) side of screen"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 1"
-
-#, fuzzy
-#~| msgid "Move window to last workspace"
-#~ msgid "Move window to center of screen"
-#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 1"
-
-#, fuzzy, c-format
-#~| msgid "“%s” is not responding."
-#~ msgid "<tt>%s</tt> is not responding."
-#~ msgstr "\"%s\" respond pas."
-
-#, fuzzy, c-format
-#~| msgid ""
-#~| "There was an error running \"%s\":\n"
-#~| "%s."
-#~ msgid ""
-#~ "There was an error running <tt>%s</tt>:\n"
-#~ "\n"
-#~ "%s"
-#~ msgstr ""
-#~ "I a aguda una error al moment d'executar \"%s\" :\n"
-#~ "%s."
-
-#, c-format
-#~ msgid "No command %d has been defined.\n"
-#~ msgstr "Pas cap de comanda %d definida.\n"
-
-#, c-format
-#~ msgid "No terminal command has been defined.\n"
-#~ msgstr "Pas cap de comanda de terminal definida.\n"
-
 #, fuzzy, c-format
 #~| msgid "Failed to load theme \"%s\": %s\n"
 #~ msgid "Failed to scan themes directory: %s\n"
 #~ msgstr "Impossible de cargar lo tèma \"%s\" : %s\n"
+
+#, fuzzy, c-format
+#~| msgid "Error writing session file '%s': %s\n"
+#~ msgid "Could not parse font description \"%s\" from GSettings key %s\n"
+#~ msgstr "Error al moment d'escriure lo fichièr de session '%s' : %s\n"
 
 #, fuzzy, c-format
 #~| msgid ""
@@ -929,54 +738,9 @@ msgstr "%s (sus %s)"
 #~ msgid "Window manager error: "
 #~ msgstr "Error de gestionari de fenèstras : "
 
-#, fuzzy
-#~| msgid "Hide window"
-#~ msgid "Live Hidden Windows"
-#~ msgstr "Desplaçar la fenèstra"
-
 #, c-format
 #~ msgid "Usage: %s\n"
 #~ msgstr "Sintaxi : %s\n"
-
-#~ msgid "Close Window"
-#~ msgstr "Tampar la fenèstra"
-
-#~ msgid "Window Menu"
-#~ msgstr "Menut Fenèstra"
-
-#~ msgid "Minimize Window"
-#~ msgstr "Redusir la fenèstra"
-
-#~ msgid "Maximize Window"
-#~ msgstr "Maximizar la fenèstra"
-
-#, fuzzy
-#~| msgid "Restore window"
-#~ msgid "Restore Window"
-#~ msgstr "Desplaçar la fenèstra"
-
-#, fuzzy
-#~| msgid "Close Window"
-#~ msgid "Roll Up Window"
-#~ msgstr "Tampar la fenèstra"
-
-#, fuzzy
-#~| msgid "Close Window"
-#~ msgid "Unroll Window"
-#~ msgstr "Tampar la fenèstra"
-
-#, fuzzy
-#~| msgid "Select window from tab popup"
-#~ msgid "Remove Window From Top"
-#~ msgstr "Se desplaçar entre las fenèstras per un menut"
-
-#~ msgid "Always On Visible Workspace"
-#~ msgstr "Totjorn sul espaci de trabalh visible"
-
-#, fuzzy
-#~| msgid "Move window one workspace up"
-#~ msgid "Put Window On Only One Workspace"
-#~ msgstr "Desplaçar la fenèstra d'un espaci de trabalh cap amont"
 
 #, fuzzy
 #~| msgid "Minimize Window"
@@ -1091,6 +855,16 @@ msgstr "%s (sus %s)"
 #~ msgstr "drecha"
 
 #, fuzzy, c-format
+#~| msgid "Unknown type \"%s\" on <%s> element"
+#~ msgid "Did not understand state \"%s\" in color specification"
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
+
+#, fuzzy, c-format
+#~| msgid "Unknown type \"%s\" on <%s> element"
+#~ msgid "Did not understand color component \"%s\" in color specification"
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
+
+#, fuzzy, c-format
 #~| msgid "Could not parse \"%s\" as an integer"
 #~ msgid "Could not parse alpha value \"%s\" in blended color"
 #~ msgstr "Impossible d'analizar '%s' coma entièr"
@@ -1102,7 +876,18 @@ msgstr "%s (sus %s)"
 
 #, fuzzy, c-format
 #~| msgid "Could not parse \"%s\" as an integer"
+#~ msgid "Shade factor \"%s\" in shaded color is negative"
+#~ msgstr "Impossible d'analizar '%s' coma entièr"
+
+#, fuzzy, c-format
+#~| msgid "Could not parse \"%s\" as an integer"
 #~ msgid "Could not parse color \"%s\""
+#~ msgstr "Impossible d'analizar '%s' coma entièr"
+
+#, fuzzy, c-format
+#~| msgid "Could not parse \"%s\" as an integer"
+#~ msgid ""
+#~ "Coordinate expression tries to use mod operator on a floating-point number"
 #~ msgstr "Impossible d'analizar '%s' coma entièr"
 
 #, c-format
@@ -1114,13 +899,28 @@ msgstr "%s (sus %s)"
 #~ msgid "Constant \"%s\" has already been defined"
 #~ msgstr "Pas cap de comanda %d definida.\n"
 
+#, fuzzy, c-format
+#~| msgid "Unknown type \"%s\" on <%s> element"
+#~ msgid "No \"%s\" attribute on element <%s>"
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
+
 #, c-format
 #~ msgid "Line %d character %d: %s"
 #~ msgstr "Linha %d caractèr %d : %s"
 
+#, fuzzy, c-format
+#~| msgid "Unknown type \"%s\" on <%s> element"
+#~ msgid "Attribute \"%s\" repeated twice on the same <%s> element"
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
+
 #, c-format
 #~ msgid "Could not parse \"%s\" as an integer"
 #~ msgstr "Impossible d'analizar '%s' coma entièr"
+
+#, fuzzy, c-format
+#~| msgid "Unknown type \"%s\" on <%s> element"
+#~ msgid "Did not understand trailing characters \"%s\" in string \"%s\""
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
 
 #, c-format
 #~ msgid "Integer %ld must be positive"
@@ -1142,6 +942,11 @@ msgstr "%s (sus %s)"
 
 #, fuzzy, c-format
 #~| msgid "No command %d has been defined.\n"
+#~ msgid "<%s> name \"%s\" used a second time"
+#~ msgstr "Pas cap de comanda %d definida.\n"
+
+#, fuzzy, c-format
+#~| msgid "No command %d has been defined.\n"
 #~ msgid "<%s> parent \"%s\" has not been defined"
 #~ msgstr "Pas cap de comanda %d definida.\n"
 
@@ -1159,6 +964,11 @@ msgstr "%s (sus %s)"
 #~ msgid "Unknown style_set \"%s\" on <%s> element"
 #~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
 
+#, fuzzy, c-format
+#~| msgid "No command %d has been defined.\n"
+#~ msgid "Window type \"%s\" has already been assigned a style set"
+#~ msgstr "Pas cap de comanda %d definida.\n"
+
 #, c-format
 #~ msgid "Distance \"%s\" is unknown"
 #~ msgstr "Distància \"%s\" desconeguda"
@@ -1171,6 +981,11 @@ msgstr "%s (sus %s)"
 #, c-format
 #~ msgid "Border \"%s\" is unknown"
 #~ msgstr "La bordadura \"%s\" es desconeguda"
+
+#, fuzzy, c-format
+#~| msgid "Unknown type \"%s\" on <%s> element"
+#~ msgid "Did not understand value \"%s\" for type of gradient"
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
 
 #, fuzzy, c-format
 #~| msgid "Unknown type \"%s\" on <%s> element"
@@ -1202,6 +1017,11 @@ msgstr "%s (sus %s)"
 #~ msgid "Unknown position \"%s\" for frame piece"
 #~ msgstr "Foncion \"%s\" desconeguda pel boton"
 
+#, fuzzy, c-format
+#~| msgid "No command %d has been defined.\n"
+#~ msgid "No <draw_ops> with the name \"%s\" has been defined"
+#~ msgstr "Pas cap de comanda %d definida.\n"
+
 #, c-format
 #~ msgid "Unknown function \"%s\" for button"
 #~ msgstr "Foncion \"%s\" desconeguda pel boton"
@@ -1215,6 +1035,11 @@ msgstr "%s (sus %s)"
 #~ msgid "A style called \"%s\" has not been defined"
 #~ msgstr "Pas cap de comanda %d definida.\n"
 
+#, fuzzy
+#~| msgid "Unknown function \"%s\" for button"
+#~ msgid "No draw_ops provided for frame piece"
+#~ msgstr "Foncion \"%s\" desconeguda pel boton"
+
 #, c-format
 #~ msgid "Failed to find a valid file for theme %s\n"
 #~ msgstr "Impossible de trobar un fichièr valid pel tèma %s\n"
@@ -1223,6 +1048,11 @@ msgstr "%s (sus %s)"
 #~| msgid "Windows"
 #~ msgid "_Windows"
 #~ msgstr "/_Fenèstras"
+
+#, fuzzy
+#~| msgid "Attach modal dialogs"
+#~ msgid "_Dialog"
+#~ msgstr "Estacar las bóstias de dialòg modal"
 
 #, fuzzy
 #~| msgid "Attach modal dialogs"
@@ -1252,6 +1082,16 @@ msgstr "%s (sus %s)"
 #~ msgid "Bar"
 #~ msgstr "Barra"
 
+#, fuzzy
+#~| msgid "Attach modal dialogs"
+#~ msgid "Modal Dialog Box"
+#~ msgstr "Estacar las bóstias de dialòg modal"
+
+#, fuzzy
+#~| msgid "/Windows/_Utility"
+#~ msgid "Utility Palette"
+#~ msgstr "/_Fenèstras/Utilitari"
+
 #~ msgid "Border"
 #~ msgstr "Bordadura"
 
@@ -1280,11 +1120,24 @@ msgstr "%s (sus %s)"
 #~ msgid "Window Title Goes Here"
 #~ msgstr "Poliça de títol de las fenèstras"
 
+#, fuzzy
+#~| msgid "“%s” is not responding."
+#~ msgid "<tt>%s</tt> is not responding."
+#~ msgstr "\"%s\" respond pas."
+
+#, fuzzy
+#~| msgid "Hide window"
+#~ msgid "Live Hidden Windows"
+#~ msgstr "Desplaçar la fenèstra"
+
 #~ msgid "Window Management"
 #~ msgstr "Gestion de las fenèstras"
 
 #~ msgid "Failed to get hostname: %s\n"
 #~ msgstr "Impossible d'obténer lo nom d'òste : %s\n"
+
+#~ msgid "No terminal command has been defined.\n"
+#~ msgstr "Pas cap de comanda de terminal definida.\n"
 
 #~ msgid "Metacity"
 #~ msgstr "Metacity"
@@ -1298,11 +1151,53 @@ msgstr "%s (sus %s)"
 #~ msgid "Enable Visual Bell"
 #~ msgstr "Activar la lo sonadís visual"
 
+#~ msgid "Move window to workspace 10"
+#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 10"
+
+#~ msgid "Move window to workspace 11"
+#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 11"
+
+#~ msgid "Move window to workspace 12"
+#~ msgstr "Desplaçar la fenèstra cap al espaci de trabalh 12"
+
+#~ msgid "Move window to workspace 5"
+#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 5"
+
+#~ msgid "Move window to workspace 6"
+#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 6"
+
+#~ msgid "Move window to workspace 7"
+#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 7"
+
+#~ msgid "Move window to workspace 8"
+#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 8"
+
+#~ msgid "Move window to workspace 9"
+#~ msgstr "Desplaçar la fenèstra al espaci de trabalh 9"
+
 #~ msgid "Name of workspace"
 #~ msgstr "Nom del espaci de trabalh"
 
 #~ msgid "Number of workspaces"
 #~ msgstr "Nombre d'espacis de trabalh"
+
+#~ msgid "Run a terminal"
+#~ msgstr "Executar un terminal"
+
+#~ msgid "Show the panel menu"
+#~ msgstr "Visualizar lo menut del panèl"
+
+#~ msgid "Switch to workspace above this one"
+#~ msgstr "Passar a l'espaci de trabalh ennaut d'aqueste"
+
+#~ msgid "Switch to workspace below this one"
+#~ msgstr "Passar a l'espaci de trabalh enbàs d'aqueste"
+
+#~ msgid "Switch to workspace on the left"
+#~ msgstr "Passar a l'espaci de trabalh a l'esquèrra"
+
+#~ msgid "Switch to workspace on the right"
+#~ msgstr "Passar a l'espaci de trabalh a la drecha"
 
 #~ msgid "System Bell is Audible"
 #~ msgstr "Podètz ausir lo bip sistèma"
@@ -1313,8 +1208,27 @@ msgstr "%s (sus %s)"
 #~ msgid "Visual Bell Type"
 #~ msgstr "Tipe de sonadís visual"
 
+#~ msgid "Close Window"
+#~ msgstr "Tampar la fenèstra"
+
+#~ msgid "Window Menu"
+#~ msgstr "Menut Fenèstra"
+
+#~ msgid "Maximize Window"
+#~ msgstr "Maximizar la fenèstra"
+
+#~ msgid "Always On Visible Workspace"
+#~ msgstr "Totjorn sul espaci de trabalh visible"
+
 #~ msgid "Title"
 #~ msgstr "Títol"
+
+#~ msgid ""
+#~ "There was an error running \"%s\":\n"
+#~ "%s."
+#~ msgstr ""
+#~ "I a aguda una error al moment d'executar \"%s\" :\n"
+#~ "%s."
 
 #~ msgid "/Windows/tearoff"
 #~ msgstr "/Fenèstras/tearoff"
