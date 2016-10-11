@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=mutter&"
 "keywords=I18N+L10N&component=general\n"
 "POT-Creation-Date: 2016-09-07 09:27+0000\n"
-"PO-Revision-Date: 2016-10-11 20:39+0200\n"
+"PO-Revision-Date: 2016-10-11 20:50+0200\n"
 "Last-Translator: Cédric Valmary (totenoc.eu) <cvalmary@yahoo.fr>\n"
 "Language-Team: Tot En Òc\n"
 "Language: oc\n"
@@ -231,7 +231,6 @@ msgid "Resize window"
 msgstr "Redimensionar la fenèstra"
 
 #: data/50-mutter-windows.xml:29
-#, fuzzy
 msgid "Toggle window on all workspaces or one"
 msgstr "Plaçar la fenèstra sus totes los espacis de trabalh, o sus un sol"
 
@@ -406,7 +405,6 @@ msgstr ""
 "l'ecran actiu del monitor."
 
 #: data/org.gnome.mutter.gschema.xml.in:120
-#, fuzzy
 msgid "Select window from tab popup"
 msgstr ""
 "Seleccionar la fenèstra dins la vista qu'apareis en seguida d'una quichada "
