@@ -1,11 +1,11 @@
-mutter (3.22.1-1) UNRELEASED; urgency=medium
+mutter (3.22.1-1) unstable; urgency=medium
 
   * New upstream release.
   * Drop debian/patches/01_Wcast-align.patch. It's not necessary anymore as we
     don't enable -Werror.
   * Add Build-Depends on libxcb-res0-dev as per configure.ac.
 
- -- Michael Biebl <biebl@debian.org>  Tue, 11 Oct 2016 13:33:52 +0200
+ -- Michael Biebl <biebl@debian.org>  Tue, 11 Oct 2016 13:55:44 +0200
 
 mutter (3.22.0-1) unstable; urgency=medium
 
