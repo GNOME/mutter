@@ -1,6 +1,8 @@
 mutter (3.22.1-1) UNRELEASED; urgency=medium
 
   * New upstream release.
+  * Drop debian/patches/01_Wcast-align.patch. It's not necessary anymore as we
+    don't enable -Werror.
 
  -- Michael Biebl <biebl@debian.org>  Tue, 11 Oct 2016 13:33:52 +0200
 
