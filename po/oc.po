@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=mutter&"
 "keywords=I18N+L10N&component=general\n"
 "POT-Creation-Date: 2016-09-07 09:27+0000\n"
-"PO-Revision-Date: 2016-10-11 19:49+0200\n"
+"PO-Revision-Date: 2016-10-11 20:39+0200\n"
 "Last-Translator: Cédric Valmary (totenoc.eu) <cvalmary@yahoo.fr>\n"
 "Language-Team: Tot En Òc\n"
 "Language: oc\n"
@@ -43,7 +43,7 @@ msgstr "Desplaçar la fenèstra cap a l'espaci de trabalh 4"
 
 #: data/50-mutter-navigation.xml:21
 msgid "Move window to last workspace"
-msgstr "Desplaçar la fenèstra al espaci de trabalh 1"
+msgstr "Desplaçar la fenèstra cap al darrièr espaci de trabalh"
 
 #: data/50-mutter-navigation.xml:24
 msgid "Move window one workspace to the left"
@@ -71,11 +71,11 @@ msgstr "Desplaçar la fenèstra d'un ecran cap a dreita"
 
 #: data/50-mutter-navigation.xml:42
 msgid "Move window one monitor up"
-msgstr "Desplaçar la fenèstra al espaci de trabalh 1"
+msgstr "Desplaçar la fenèstra d'un ecran cap amont"
 
 #: data/50-mutter-navigation.xml:45
 msgid "Move window one monitor down"
-msgstr "Desplaçar la fenèstra al espaci de trabalh 1"
+msgstr "Desplaçar la fenèstra d'un ecran cap aval"
 
 #: data/50-mutter-navigation.xml:49
 msgid "Switch applications"
@@ -155,23 +155,23 @@ msgstr "Passar a l'espaci de trabalh 4"
 
 #: data/50-mutter-navigation.xml:126
 msgid "Switch to last workspace"
-msgstr "Anar al espaci de trabalh 1"
+msgstr "Passar al darrièr espaci de trabalh"
 
 #: data/50-mutter-navigation.xml:129
 msgid "Move to workspace left"
-msgstr "Desplaçar dins l'espaci de trabalh _superior"
+msgstr "Desplaçar cap a l'espaci de trabalh d'esquèrra"
 
 #: data/50-mutter-navigation.xml:132
 msgid "Move to workspace right"
-msgstr "Desplaçar dins l'espaci de trabalh _superior"
+msgstr "Desplaçar cap a l'espaci de trabalh de dreita"
 
 #: data/50-mutter-navigation.xml:135
 msgid "Move to workspace above"
-msgstr "Desplaçar dins l'espaci de trabalh _inferior"
+msgstr "Desplaçar cap a l'espaci de trabalh de dessús"
 
 #: data/50-mutter-navigation.xml:138
 msgid "Move to workspace below"
-msgstr "Desplaçar dins l'espaci de trabalh _inferior"
+msgstr "Desplaçar cap a l'espaci de trabalh de dejós"
 
 #: data/50-mutter-system.xml:6
 msgid "System"
@@ -187,11 +187,12 @@ msgstr "Afichar l'apercebut de las activitats"
 
 #: data/50-mutter-windows.xml:6
 msgid "Windows"
-msgstr "/_Fenèstras"
+msgstr "Fenèstras"
 
 #: data/50-mutter-windows.xml:8
+#, fuzzy
 msgid "Activate the window menu"
-msgstr "Activar lo menut fenèstra"
+msgstr "Activar lo menú fenèstra"
 
 #: data/50-mutter-windows.xml:10
 msgid "Toggle fullscreen mode"
@@ -207,7 +208,7 @@ msgstr "Maximizar la fenèstra"
 
 #: data/50-mutter-windows.xml:16
 msgid "Restore window"
-msgstr "Desplaçar la fenèstra"
+msgstr "Restablir la fenèstra"
 
 #: data/50-mutter-windows.xml:18
 msgid "Toggle shaded state"
@@ -219,7 +220,7 @@ msgstr "Tampar la fenèstra"
 
 #: data/50-mutter-windows.xml:22
 msgid "Hide window"
-msgstr "Desplaçar la fenèstra"
+msgstr "Amagar la fenèstra"
 
 #: data/50-mutter-windows.xml:24
 msgid "Move window"
@@ -230,8 +231,9 @@ msgid "Resize window"
 msgstr "Redimensionar la fenèstra"
 
 #: data/50-mutter-windows.xml:29
+#, fuzzy
 msgid "Toggle window on all workspaces or one"
-msgstr "Desplaçar la fenèstra al espaci de trabalh 1"
+msgstr "Plaçar la fenèstra sus totes los espacis de trabalh, o sus un sol"
 
 #: data/50-mutter-windows.xml:31
 msgid "Raise window if covered, otherwise lower it"
@@ -404,8 +406,11 @@ msgstr ""
 "l'ecran actiu del monitor."
 
 #: data/org.gnome.mutter.gschema.xml.in:120
+#, fuzzy
 msgid "Select window from tab popup"
-msgstr "Se desplaçar entre las fenèstras per un menut"
+msgstr ""
+"Seleccionar la fenèstra dins la vista qu'apareis en seguida d'una quichada "
+"sus la tòca tab"
 
 #: data/org.gnome.mutter.gschema.xml.in:125
 msgid "Cancel tab popup"
@@ -413,51 +418,51 @@ msgstr "Tampar la vista qu'apareis en seguida d'una quichada sus la tòca tab"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:6
 msgid "Switch to VT 1"
-msgstr "Anar al espaci de trabalh 1"
+msgstr "Passar a l'emulator de terminal 1"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:10
 msgid "Switch to VT 2"
-msgstr "Anar al espaci de trabalh 2"
+msgstr "Passar a l'emulator de terminal 2"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:14
 msgid "Switch to VT 3"
-msgstr "Anar al espaci de trabalh 3"
+msgstr "Passar a l'emulator de terminal 3"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:18
 msgid "Switch to VT 4"
-msgstr "Anar al espaci de trabalh 4"
+msgstr "Passar a l'emulator de terminal 4"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:22
 msgid "Switch to VT 5"
-msgstr "Anar al espaci de trabalh 5"
+msgstr "Passar a l'emulator de terminal 5"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:26
 msgid "Switch to VT 6"
-msgstr "Anar al espaci de trabalh 6"
+msgstr "Passar a l'emulator de terminal 6"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:30
 msgid "Switch to VT 7"
-msgstr "Anar al espaci de trabalh 7"
+msgstr "Passar a l'emulator de terminal 7"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:34
 msgid "Switch to VT 8"
-msgstr "Anar al espaci de trabalh 8"
+msgstr "Passar a l'emulator de terminal 8"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:38
 msgid "Switch to VT 9"
-msgstr "Anar al espaci de trabalh 9"
+msgstr "Passar a l'emulator de terminal 9"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:42
 msgid "Switch to VT 10"
-msgstr "Anar al espaci de trabalh 10"
+msgstr "Passar a l'emulator de terminal 10"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:46
 msgid "Switch to VT 11"
-msgstr "Anar al espaci de trabalh 11"
+msgstr "Passar a l'emulator de terminal 11"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:50
 msgid "Switch to VT 12"
-msgstr "Anar al espaci de trabalh 12"
+msgstr "Passar a l'emulator de terminal 12"
 
 #: src/backends/meta-input-settings.c:1707
 #| msgid "Switch system controls"
@@ -504,13 +509,13 @@ msgid "Bell event"
 msgstr "Eveniment sonòr"
 
 #: src/core/delete.c:127
-#, c-format, c-format
+#, c-format
 msgid "“%s” is not responding."
-msgstr "\"%s\" respond pas."
+msgstr "« %s » respond pas."
 
 #: src/core/delete.c:129
 msgid "Application is not responding."
-msgstr "\"%s\" respon pas."
+msgstr "L'aplicacion respond pas."
 
 #: src/core/delete.c:134
 msgid ""
@@ -539,7 +544,7 @@ msgstr "Desactivar la connexion al gestionari de sessions"
 
 #: src/core/main.c:188
 msgid "Replace the running window manager"
-msgstr "Remplaçar lo gestionari de fenèstras actiu per Metacity"
+msgstr "Remplaçar lo gestionari de fenèstras en cors de foncionament"
 
 #: src/core/main.c:194
 msgid "Specify session management ID"
@@ -635,35 +640,93 @@ msgstr ""
 msgid "%s (on %s)"
 msgstr "%s (sus %s)"
 
-#~ msgid "Desktop"
-#~ msgstr "Burèu"
+#, fuzzy, c-format
+#~| msgid "Failed to load theme \"%s\": %s\n"
+#~ msgid "Failed to scan themes directory: %s\n"
+#~ msgstr "Impossible de cargar lo tèma \"%s\" : %s\n"
 
-#~ msgid "Window Management"
-#~ msgstr "Gestion de las fenèstras"
+#, fuzzy, c-format
+#~| msgid "Unknown"
+#~ msgid "Unknown %s"
+#~ msgstr "Desconegut"
 
-#~ msgid "Could not parse \"%s\" as an integer"
-#~ msgstr "Impossible d'analizar '%s' coma entièr"
+#, fuzzy, c-format
+#~| msgid ""
+#~| "Display \"%s\" already has a window manager; try using the --replace "
+#~| "option to replace the current window manager."
+#~ msgid ""
+#~ "Screen %d on display \"%s\" already has a window manager; try using the --"
+#~ "replace option to replace the current window manager.\n"
+#~ msgstr ""
+#~ "L'afichatge « %s » a ja un gestionari de fenèstras ; ensajatz d'utilizar "
+#~ "l'opcion --replace per remplaçar lo gestionari de fenèstras actual."
 
-#~ msgid "Failed to get hostname: %s\n"
-#~ msgstr "Impossible d'obténer lo nom d'òste : %s\n"
+#, fuzzy, c-format
+#~| msgid ""
+#~| "Another compositing manager is already running on screen %i on display "
+#~| "\"%s\"."
+#~ msgid ""
+#~ "Could not acquire window manager selection on screen %d display \"%s\"\n"
+#~ msgstr ""
+#~ "Un autre gestionari de composicion es ja aviat sus l'ecran %i de l'afichatge "
+#~ "« %s »."
 
-#~ msgid "No command %d has been defined.\n"
-#~ msgstr "Pas cap de comanda %d definida.\n"
+#, fuzzy, c-format
+#~| msgid "Screen %d on display '%s' is invalid\n"
+#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
+#~ msgstr "L'ecran %d sus l'afichatge « %s » es pas valid\n"
 
-#~ msgid "No terminal command has been defined.\n"
-#~ msgstr "Pas cap de comanda de terminal definida.\n"
+#, fuzzy, c-format
+#~| msgid "Could not create directory '%s': %s\n"
+#~ msgid "Could not release screen %d on display \"%s\"\n"
+#~ msgstr "Impossible de crear lo repertòri '%s' : %s\n"
 
-#~ msgid "Failed to restart: %s\n"
-#~ msgstr "Impossible de tornar aviar : %s\n"
-
+#, c-format
 #~ msgid "Could not create directory '%s': %s\n"
 #~ msgstr "Impossible de crear lo repertòri '%s' : %s\n"
 
+#, fuzzy, c-format
+#~| msgid "Error writing session file '%s': %s\n"
+#~ msgid "Could not open session file '%s' for writing: %s\n"
+#~ msgstr "Error al moment d'escriure lo fichièr de session '%s' : %s\n"
+
+#, c-format
 #~ msgid "Error writing session file '%s': %s\n"
 #~ msgstr "Error al moment d'escriure lo fichièr de session '%s' : %s\n"
 
+#, fuzzy, c-format
+#~| msgid "Error writing session file '%s': %s\n"
+#~ msgid "Error closing session file '%s': %s\n"
+#~ msgstr "Error al moment d'escriure lo fichièr de session '%s' : %s\n"
+
+#, fuzzy, c-format
+#~| msgid "Failed to restart: %s\n"
+#~ msgid "Failed to parse saved session file: %s\n"
+#~ msgstr "Impossible de tornar aviar : %s\n"
+
+#, fuzzy, c-format
+#~| msgid "Unknown type \"%s\" on <%s> element"
+#~ msgid "Unknown attribute %s on <%s> element"
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
+
+#, fuzzy, c-format
+#~| msgid "Restore window"
+#~ msgid "nested <window> tag"
+#~ msgstr "Desplaçar la fenèstra"
+
+#, c-format
 #~ msgid "Unknown element %s"
 #~ msgstr "Element %s desconegut"
+
+#, fuzzy, c-format
+#~| msgid "Failed to load theme \"%s\": %s\n"
+#~ msgid "Failed to open debug log: %s\n"
+#~ msgstr "Impossible de cargar lo tèma \"%s\" : %s\n"
+
+#, fuzzy, c-format
+#~| msgid "Failed to load theme \"%s\": %s\n"
+#~ msgid "Failed to fdopen() log file %s: %s\n"
+#~ msgstr "Impossible de cargar lo tèma \"%s\" : %s\n"
 
 #~ msgid "Window manager: "
 #~ msgstr "Gestionari de fenèstras : "
@@ -676,6 +739,256 @@ msgstr "%s (sus %s)"
 
 #~ msgid "Window manager error: "
 #~ msgstr "Error de gestionari de fenèstras : "
+
+#, fuzzy
+#~| msgid "Minimize Window"
+#~ msgid "Mi_nimize"
+#~ msgstr "Redusir la fenèstra"
+
+#, fuzzy
+#~| msgid "Maximize window"
+#~ msgid "Ma_ximize"
+#~ msgstr "Maximizar la fenèstra"
+
+#, fuzzy
+#~| msgid "Unmaximize Window"
+#~ msgid "Unma_ximize"
+#~ msgstr "Desmaximizar la fenèstra"
+
+#~ msgid "_Move"
+#~ msgstr "_Desplaçar"
+
+#, fuzzy
+#~| msgid "Resize window"
+#~ msgid "_Resize"
+#~ msgstr "Redimensionar la fenèstra"
+
+#~ msgid "_Always on Visible Workspace"
+#~ msgstr "_Totjorn sul espaci de trabalh visible"
+
+#~ msgid "_Only on This Workspace"
+#~ msgstr "_Sonque sus aqueste espaci de trabalh"
+
+#, fuzzy
+#~| msgid "Move to workspace left"
+#~ msgid "Move to Workspace _Left"
+#~ msgstr "Desplaçar dins l'espaci de trabalh _superior"
+
+#, fuzzy
+#~| msgid "Move to workspace right"
+#~ msgid "Move to Workspace R_ight"
+#~ msgstr "Desplaçar dins l'espaci de trabalh _superior"
+
+#, fuzzy
+#~| msgid "Move to workspace left"
+#~ msgid "Move to Workspace _Up"
+#~ msgstr "Desplaçar dins l'espaci de trabalh _superior"
+
+#, fuzzy
+#~| msgid "Move to workspace below"
+#~ msgid "Move to Workspace _Down"
+#~ msgstr "Desplaçar dins l'espaci de trabalh _inferior"
+
+#~ msgid "_Close"
+#~ msgstr "_Tampar"
+
+#, c-format
+#~ msgid "Workspace %d%n"
+#~ msgstr "Espaci de trabalh %d%n"
+
+#, c-format
+#~ msgid "Workspace 1_0"
+#~ msgstr "Espaci de trabalh 1_0"
+
+#, c-format
+#~ msgid "Workspace %s%d"
+#~ msgstr "Espaci de trabalh %s%d"
+
+#~ msgid "Move to Another _Workspace"
+#~ msgstr "Desplaçar cap a un autre _espaci de trabalh"
+
+#~ msgid "Shift"
+#~ msgstr "Shift"
+
+#~ msgid "Ctrl"
+#~ msgstr "Ctrl"
+
+#~ msgid "Alt"
+#~ msgstr "Alt"
+
+#~ msgid "Meta"
+#~ msgstr "Meta"
+
+#~ msgid "Super"
+#~ msgstr "Super"
+
+#~ msgid "Hyper"
+#~ msgstr "Iper"
+
+#~ msgid "Mod2"
+#~ msgstr "Mod2"
+
+#~ msgid "Mod3"
+#~ msgstr "Mod3"
+
+#~ msgid "Mod4"
+#~ msgstr "Mod4"
+
+#~ msgid "Mod5"
+#~ msgstr "Mod5"
+
+#, c-format
+#~ msgid "%d x %d"
+#~ msgstr "%d x %d"
+
+#, fuzzy
+#~| msgid "Desktop"
+#~ msgid "top"
+#~ msgstr "Burèu"
+
+#~ msgid "left"
+#~ msgstr "esquèrra"
+
+#~ msgid "right"
+#~ msgstr "drecha"
+
+#, fuzzy, c-format
+#~| msgid "Could not parse \"%s\" as an integer"
+#~ msgid "Could not parse alpha value \"%s\" in blended color"
+#~ msgstr "Impossible d'analizar '%s' coma entièr"
+
+#, fuzzy, c-format
+#~| msgid "Could not parse \"%s\" as an integer"
+#~ msgid "Could not parse shade factor \"%s\" in shaded color"
+#~ msgstr "Impossible d'analizar '%s' coma entièr"
+
+#, fuzzy, c-format
+#~| msgid "Could not parse \"%s\" as an integer"
+#~ msgid "Could not parse color \"%s\""
+#~ msgstr "Impossible d'analizar '%s' coma entièr"
+
+#, c-format
+#~ msgid "Failed to load theme \"%s\": %s\n"
+#~ msgstr "Impossible de cargar lo tèma \"%s\" : %s\n"
+
+#, fuzzy, c-format
+#~| msgid "No command %d has been defined.\n"
+#~ msgid "Constant \"%s\" has already been defined"
+#~ msgstr "Pas cap de comanda %d definida.\n"
+
+#, c-format
+#~ msgid "Line %d character %d: %s"
+#~ msgstr "Linha %d caractèr %d : %s"
+
+#, c-format
+#~ msgid "Could not parse \"%s\" as an integer"
+#~ msgstr "Impossible d'analizar '%s' coma entièr"
+
+#, c-format
+#~ msgid "Integer %ld must be positive"
+#~ msgstr "L'entièr %ld deu èsser positiu"
+
+#, fuzzy, c-format
+#~| msgid "Could not parse \"%s\" as an integer"
+#~ msgid "Could not parse \"%s\" as a floating point number"
+#~ msgstr "Impossible d'analizar '%s' coma entièr"
+
+#, c-format
+#~ msgid "Angle must be between 0.0 and 360.0, was %g\n"
+#~ msgstr "L'angle deu èsser entre 0,0 e 360,0. Èra de %g\n"
+
+#, fuzzy, c-format
+#~| msgid "Angle must be between 0.0 and 360.0, was %g\n"
+#~ msgid "Alpha must be between 0.0 (invisible) and 1.0 (fully opaque), was %g\n"
+#~ msgstr "L'angle deu èsser entre 0,0 e 360,0. Èra de %g\n"
+
+#, fuzzy, c-format
+#~| msgid "No command %d has been defined.\n"
+#~ msgid "<%s> parent \"%s\" has not been defined"
+#~ msgstr "Pas cap de comanda %d definida.\n"
+
+#, fuzzy, c-format
+#~| msgid "No command %d has been defined.\n"
+#~ msgid "<%s> geometry \"%s\" has not been defined"
+#~ msgstr "Pas cap de comanda %d definida.\n"
+
+#, c-format
+#~ msgid "Unknown type \"%s\" on <%s> element"
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
+
+#, fuzzy, c-format
+#~| msgid "Unknown type \"%s\" on <%s> element"
+#~ msgid "Unknown style_set \"%s\" on <%s> element"
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
+
+#, c-format
+#~ msgid "Distance \"%s\" is unknown"
+#~ msgstr "Distància \"%s\" desconeguda"
+
+#, fuzzy, c-format
+#~| msgid "Distance \"%s\" is unknown"
+#~ msgid "Aspect ratio \"%s\" is unknown"
+#~ msgstr "Distància \"%s\" desconeguda"
+
+#, c-format
+#~ msgid "Border \"%s\" is unknown"
+#~ msgstr "La bordadura \"%s\" es desconeguda"
+
+#, fuzzy, c-format
+#~| msgid "Unknown type \"%s\" on <%s> element"
+#~ msgid "Did not understand fill type \"%s\" for <%s> element"
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
+
+#, fuzzy, c-format
+#~| msgid "Unknown type \"%s\" on <%s> element"
+#~ msgid "Did not understand state \"%s\" for <%s> element"
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
+
+#, fuzzy, c-format
+#~| msgid "Unknown type \"%s\" on <%s> element"
+#~ msgid "Did not understand shadow \"%s\" for <%s> element"
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
+
+#, fuzzy, c-format
+#~| msgid "Unknown type \"%s\" on <%s> element"
+#~ msgid "Did not understand arrow \"%s\" for <%s> element"
+#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
+
+#, fuzzy, c-format
+#~| msgid "No command %d has been defined.\n"
+#~ msgid "No <draw_ops> called \"%s\" has been defined"
+#~ msgstr "Pas cap de comanda %d definida.\n"
+
+#, fuzzy, c-format
+#~| msgid "Unknown function \"%s\" for button"
+#~ msgid "Unknown position \"%s\" for frame piece"
+#~ msgstr "Foncion \"%s\" desconeguda pel boton"
+
+#, c-format
+#~ msgid "Unknown function \"%s\" for button"
+#~ msgstr "Foncion \"%s\" desconeguda pel boton"
+
+#, c-format
+#~ msgid "Unknown state \"%s\" for button"
+#~ msgstr "Estat \"%s\" desconegut pel boton"
+
+#, fuzzy, c-format
+#~| msgid "No command %d has been defined.\n"
+#~ msgid "A style called \"%s\" has not been defined"
+#~ msgstr "Pas cap de comanda %d definida.\n"
+
+#, c-format
+#~ msgid "Failed to find a valid file for theme %s\n"
+#~ msgstr "Impossible de trobar un fichièr valid pel tèma %s\n"
+
+#~ msgid "Window Management"
+#~ msgstr "Gestion de las fenèstras"
+
+#~ msgid "Failed to get hostname: %s\n"
+#~ msgstr "Impossible d'obténer lo nom d'òste : %s\n"
+
+#~ msgid "No terminal command has been defined.\n"
+#~ msgstr "Pas cap de comanda de terminal definida.\n"
 
 #~ msgid "Metacity"
 #~ msgstr "Metacity"
@@ -755,71 +1068,11 @@ msgstr "%s (sus %s)"
 #~ msgid "Window Menu"
 #~ msgstr "Menut Fenèstra"
 
-#~ msgid "Minimize Window"
-#~ msgstr "Redusir la fenèstra"
-
 #~ msgid "Maximize Window"
 #~ msgstr "Maximizar la fenèstra"
 
-#~ msgid "Unmaximize Window"
-#~ msgstr "Desmaximizar la fenèstra"
-
 #~ msgid "Always On Visible Workspace"
 #~ msgstr "Totjorn sul espaci de trabalh visible"
-
-#~ msgid "_Move"
-#~ msgstr "_Desplaçar"
-
-#~ msgid "_Always on Visible Workspace"
-#~ msgstr "_Totjorn sul espaci de trabalh visible"
-
-#~ msgid "_Only on This Workspace"
-#~ msgstr "_Sonque sus aqueste espaci de trabalh"
-
-#~ msgid "_Close"
-#~ msgstr "_Tampar"
-
-#~ msgid "Workspace %d%n"
-#~ msgstr "Espaci de trabalh %d%n"
-
-#~ msgid "Workspace 1_0"
-#~ msgstr "Espaci de trabalh 1_0"
-
-#~ msgid "Workspace %s%d"
-#~ msgstr "Espaci de trabalh %s%d"
-
-#~ msgid "Move to Another _Workspace"
-#~ msgstr "Desplaçar cap a un autre _espaci de trabalh"
-
-#~ msgid "Shift"
-#~ msgstr "Shift"
-
-#~ msgid "Ctrl"
-#~ msgstr "Ctrl"
-
-#~ msgid "Alt"
-#~ msgstr "Alt"
-
-#~ msgid "Meta"
-#~ msgstr "Meta"
-
-#~ msgid "Super"
-#~ msgstr "Super"
-
-#~ msgid "Hyper"
-#~ msgstr "Iper"
-
-#~ msgid "Mod2"
-#~ msgstr "Mod2"
-
-#~ msgid "Mod3"
-#~ msgstr "Mod3"
-
-#~ msgid "Mod4"
-#~ msgstr "Mod4"
-
-#~ msgid "Mod5"
-#~ msgstr "Mod5"
 
 #~ msgid "Title"
 #~ msgstr "Títol"
@@ -830,36 +1083,6 @@ msgstr "%s (sus %s)"
 #~ msgstr ""
 #~ "I a aguda una error al moment d'executar \"%s\" :\n"
 #~ "%s."
-
-#~ msgid "%d x %d"
-#~ msgstr "%d x %d"
-
-#~ msgid "Line %d character %d: %s"
-#~ msgstr "Linha %d caractèr %d : %s"
-
-#~ msgid "Integer %ld must be positive"
-#~ msgstr "L'entièr %ld deu èsser positiu"
-
-#~ msgid "Angle must be between 0.0 and 360.0, was %g\n"
-#~ msgstr "L'angle deu èsser entre 0,0 e 360,0. Èra de %g\n"
-
-#~ msgid "Unknown type \"%s\" on <%s> element"
-#~ msgstr "Tipe desconegut \"%s\" sul element <%s>"
-
-#~ msgid "Distance \"%s\" is unknown"
-#~ msgstr "Distància \"%s\" desconeguda"
-
-#~ msgid "Border \"%s\" is unknown"
-#~ msgstr "La bordadura \"%s\" es desconeguda"
-
-#~ msgid "Unknown function \"%s\" for button"
-#~ msgstr "Foncion \"%s\" desconeguda pel boton"
-
-#~ msgid "Unknown state \"%s\" for button"
-#~ msgstr "Estat \"%s\" desconegut pel boton"
-
-#~ msgid "Failed to find a valid file for theme %s\n"
-#~ msgstr "Impossible de trobar un fichièr valid pel tèma %s\n"
 
 #~ msgid "/Windows/tearoff"
 #~ msgstr "/Fenèstras/tearoff"
@@ -884,15 +1107,6 @@ msgstr "%s (sus %s)"
 
 #~ msgid "Small Title Font"
 #~ msgstr "Pichona poliça de títol"
-
-#~ msgid "left"
-#~ msgstr "esquèrra"
-
-#~ msgid "right"
-#~ msgstr "drecha"
-
-#~ msgid "Failed to load theme \"%s\": %s\n"
-#~ msgstr "Impossible de cargar lo tèma \"%s\" : %s\n"
 
 #~ msgid "Usage: %s\n"
 #~ msgstr "Sintaxi : %s\n"
