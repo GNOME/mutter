@@ -1,0 +1,5 @@
+wayland-xdg-popup-Always-use-monitor-of-toplevel.patch
+wayland-xdg-shell-Scale-configure-relative-popup-coo.patch
+wayland-xdg-popup-Force-monitor-of-the-top-level.patch
+wayland-xdg-shell-update-popup-window-monitor-early.patch
+wayland-xdg-shell-Scale-positioner-coordinates.patch
