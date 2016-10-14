@@ -5,9 +5,10 @@ mutter (3.22.1-2) UNRELEASED; urgency=medium
     d/p/wayland-xdg-popup-Force-monitor-of-the-top-level.patch
     d/p/wayland-xdg-shell-update-popup-window-monitor-early.patch
     d/p/wayland-xdg-shell-Scale-positioner-coordinates.patch:
-      - Added. Fix positioning of popups on hidpi screens in wayland
+      - Added. Fix positioning of popups on hidpi screens in
+        wayland (bgo#771841)
 
- -- Sjoerd Simons <sjoerd@debian.org>  Wed, 12 Oct 2016 21:54:33 +0200
+ -- Sjoerd Simons <sjoerd@debian.org>  Fri, 14 Oct 2016 21:39:15 +0200
 
 mutter (3.22.1-1) unstable; urgency=medium
 
