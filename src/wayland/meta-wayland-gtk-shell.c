@@ -312,11 +312,21 @@ gtk_shell_set_startup_id (struct wl_client   *client,
                           struct wl_resource *resource,
                           const char         *startup_id)
 {
+#if 0
   MetaDisplay *display;
 
   display = meta_get_display ();
   meta_startup_notification_remove_sequence (display->startup_notification,
                                              startup_id);
+#else
+  /* HACK: MetaScreen::startup-sequence-changed is currently tied to
+           (lib)startup-notification, which means it only works on X11;
+           so for now, always go through XWayland, even for wayland clients */
+  gdk_x11_display_broadcast_startup_message (gdk_display_get_default (),
+                                             "remove",
+                                             "ID", startup_id,
+                                             NULL);
+#endif
 }
 
 static void
