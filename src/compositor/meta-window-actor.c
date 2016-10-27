@@ -284,6 +284,7 @@ window_appears_focused_notify (MetaWindow *mw,
                                GParamSpec *arg1,
                                gpointer    data)
 {
+  meta_window_actor_update_shape (META_WINDOW_ACTOR (data));
   clutter_actor_queue_redraw (CLUTTER_ACTOR (data));
 }
 
