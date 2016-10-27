@@ -766,10 +766,10 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
                     visible_rect.x, visible_rect.y,
                     visible_rect.width, visible_rect.height);
 
-  titlebar_rect.x = visible_rect.x;
-  titlebar_rect.y = visible_rect.y;
-  titlebar_rect.width = visible_rect.width;
-  titlebar_rect.height = borders->visible.top / scale;
+  titlebar_rect.x = borders->total.left / scale;
+  titlebar_rect.y = visible_rect.y + layout->frame_border.top;
+  titlebar_rect.width = (fgeom->width - borders->total.left - borders->total.right) / scale;
+  titlebar_rect.height = borders->visible.top / scale - layout->frame_border.top;
 
   style = style_info->styles[META_STYLE_ELEMENT_TITLEBAR];
   gtk_render_background (style, cr,
