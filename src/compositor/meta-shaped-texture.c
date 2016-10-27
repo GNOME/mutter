@@ -216,7 +216,8 @@ get_masked_pipeline (CoglContext *ctx)
     {
       template = cogl_pipeline_copy (get_base_pipeline (ctx));
       cogl_pipeline_set_layer_combine (template, 1,
-                                       "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
+                                       "RGB = REPLACE (PREVIOUS)"
+                                       "A = MODULATE (PREVIOUS, TEXTURE)",
                                        NULL);
     }
 
