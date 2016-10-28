@@ -179,6 +179,8 @@ static gboolean meta_window_actor_has_shadow (MetaWindowActor *self);
 static void meta_window_actor_handle_updates (MetaWindowActor *self);
 
 static void check_needs_reshape (MetaWindowActor *self);
+static void meta_window_actor_update_shape_region (MetaWindowActor *self);
+static void meta_window_actor_shape_region_changed (MetaWindowActor *self);
 
 static void do_send_frame_drawn (MetaWindowActor *self, FrameData *frame);
 static void do_send_frame_timings (MetaWindowActor  *self,
@@ -288,7 +290,29 @@ window_appears_focused_notify (MetaWindow *mw,
                                GParamSpec *arg1,
                                gpointer    data)
 {
-  meta_window_actor_update_shape (META_WINDOW_ACTOR (data));
+  MetaWindowActor *self = META_WINDOW_ACTOR (data);
+  MetaWindowActorPrivate *priv = self->priv;
+
+  if (priv->surface)
+    {
+      gboolean appears_focused = meta_window_appears_focused (mw);
+      CoglTexture *mask = appears_focused ? self->priv->focused_mask
+                                          : self->priv->unfocused_mask;
+
+      if (mask)
+        {
+          MetaShapedTexture *stex;
+
+          stex = meta_surface_actor_get_texture (priv->surface);
+          meta_shaped_texture_set_mask_texture (stex, mask);
+          meta_window_actor_shape_region_changed (self);
+        }
+      else if (priv->window->frame)
+        {
+          meta_window_actor_update_shape_region (self);
+        }
+    }
+
   clutter_actor_queue_redraw (CLUTTER_ACTOR (data));
 }
 
@@ -1893,6 +1917,16 @@ meta_window_actor_update_opaque_region (MetaWindowActor *self)
 }
 
 static void
+meta_window_actor_shape_region_changed (MetaWindowActor *self)
+{
+  if (self->priv->window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    {
+      meta_window_actor_update_input_region (self);
+      meta_window_actor_update_opaque_region (self);
+    }
+}
+
+static void
 check_needs_reshape (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv = self->priv;
@@ -1900,13 +1934,11 @@ check_needs_reshape (MetaWindowActor *self)
   if (!priv->needs_reshape)
     return;
 
-  meta_window_actor_update_shape_region (self);
+  g_clear_pointer (&priv->focused_mask, cogl_object_unref);
+  g_clear_pointer (&priv->unfocused_mask, cogl_object_unref);
 
-  if (priv->window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-    {
-      meta_window_actor_update_input_region (self);
-      meta_window_actor_update_opaque_region (self);
-    }
+  meta_window_actor_update_shape_region (self);
+  meta_window_actor_shape_region_changed (self);
 
   priv->needs_reshape = FALSE;
 }
