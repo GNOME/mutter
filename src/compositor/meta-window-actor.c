@@ -67,8 +67,12 @@ struct _MetaWindowActorPrivate
   MetaShadow       *focused_shadow;
   MetaShadow       *unfocused_shadow;
 
+  CoglTexture      *focused_mask;
+  CoglTexture      *unfocused_mask;
+
   /* A region that matches the shape of the window, including frame bounds */
-  cairo_region_t   *shape_region;
+  cairo_region_t   *focused_shape_region;
+  cairo_region_t   *unfocused_shape_region;
   /* The region we should clip to when painting the shadow */
   cairo_region_t   *shadow_clip;
 
@@ -458,7 +462,8 @@ meta_window_actor_constructed (GObject *object)
 
   /* Start off with an empty shape region to maintain the invariant
    * that it's always set */
-  priv->shape_region = cairo_region_create ();
+  priv->focused_shape_region = cairo_region_create ();
+  priv->unfocused_shape_region = cairo_region_create ();
 }
 
 static void
@@ -479,8 +484,12 @@ meta_window_actor_dispose (GObject *object)
       priv->send_frame_messages_timer = 0;
     }
 
-  g_clear_pointer (&priv->shape_region, cairo_region_destroy);
+  g_clear_pointer (&priv->focused_shape_region, cairo_region_destroy);
+  g_clear_pointer (&priv->unfocused_shape_region, cairo_region_destroy);
   g_clear_pointer (&priv->shadow_clip, cairo_region_destroy);
+
+  g_clear_pointer (&priv->focused_mask, cogl_object_unref);
+  g_clear_pointer (&priv->unfocused_mask, cogl_object_unref);
 
   g_clear_pointer (&priv->shadow_class, g_free);
   g_clear_pointer (&priv->focused_shadow, meta_shadow_unref);
@@ -622,8 +631,10 @@ meta_window_actor_get_shape_bounds (MetaWindowActor       *self,
                                     cairo_rectangle_int_t *bounds)
 {
   MetaWindowActorPrivate *priv = self->priv;
-
-  cairo_region_get_extents (priv->shape_region, bounds);
+  gboolean appears_focused = meta_window_appears_focused (priv->window);
+  cairo_region_t *shape_region = appears_focused ? priv->focused_shape_region
+                                                 : priv->unfocused_shape_region;
+  cairo_region_get_extents (shape_region, bounds);
 }
 
 static void
@@ -1586,7 +1597,12 @@ check_needs_shadow (MetaWindowActor *self)
   if (*shadow_location == NULL && should_have_shadow)
     {
       if (priv->shadow_shape == NULL)
-        priv->shadow_shape = meta_window_shape_new (priv->shape_region);
+        {
+          cairo_region_t *shape_region;
+          shape_region = appears_focused ? priv->focused_shape_region
+                                         : priv->unfocused_shape_region;
+          priv->shadow_shape = meta_window_shape_new (shape_region);
+        }
 
       MetaShadowFactory *factory = meta_shadow_factory_get_default ();
       const char *shadow_class = meta_window_actor_get_shadow_class (self);
@@ -1679,10 +1695,11 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
   guchar *mask_data;
   guint tex_width, tex_height;
   MetaShapedTexture *stex;
-  CoglTexture *paint_tex, *mask_texture;
+  CoglTexture *paint_tex, *mask_texture, **mask_ptr;
   int stride;
   cairo_t *cr;
   cairo_surface_t *surface;
+  gboolean appears_focused = meta_window_appears_focused (priv->window);
 
   stex = meta_surface_actor_get_texture (priv->surface);
   g_return_if_fail (stex);
@@ -1763,8 +1780,10 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
     }
 
   meta_shaped_texture_set_mask_texture (stex, mask_texture);
-  if (mask_texture)
-    cogl_object_unref (mask_texture);
+
+  mask_ptr = appears_focused ? &priv->focused_mask : &priv->unfocused_mask;
+  g_clear_pointer (mask_ptr, cogl_object_unref);
+  *mask_ptr = mask_texture;
 
   g_free (mask_data);
 }
@@ -1773,8 +1792,12 @@ static void
 meta_window_actor_update_shape_region (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv = self->priv;
-  cairo_region_t *region = NULL;
+  cairo_region_t *region = NULL, **shape_region;
   cairo_rectangle_int_t client_area;
+  gboolean appears_focused = meta_window_appears_focused (priv->window);
+
+  shape_region = appears_focused ? &priv->focused_shape_region
+                                 : &priv->unfocused_shape_region;
 
   meta_window_get_client_area_rect (priv->window, &client_area);
 
@@ -1798,8 +1821,8 @@ meta_window_actor_update_shape_region (MetaWindowActor *self)
   if ((priv->window->shape_region != NULL) || (priv->window->frame != NULL))
     build_and_scan_frame_mask (self, &client_area, region);
 
-  g_clear_pointer (&priv->shape_region, cairo_region_destroy);
-  priv->shape_region = region;
+  g_clear_pointer (shape_region, cairo_region_destroy);
+  *shape_region = region;
 
   g_clear_pointer (&priv->shadow_shape, meta_window_shape_unref);
 
@@ -1833,8 +1856,12 @@ static void
 meta_window_actor_update_opaque_region (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv = self->priv;
-  cairo_region_t *opaque_region;
+  cairo_region_t *opaque_region, *shape_region;
   gboolean argb32 = is_argb32 (self);
+  gboolean appears_focused = meta_window_appears_focused (priv->window);
+
+  shape_region = appears_focused ? priv->focused_shape_region
+                                 : priv->unfocused_shape_region;
 
   if (argb32 && priv->window->opaque_region != NULL)
     {
@@ -1854,12 +1881,12 @@ meta_window_actor_update_opaque_region (MetaWindowActor *self)
        */
       opaque_region = cairo_region_copy (priv->window->opaque_region);
       cairo_region_translate (opaque_region, client_area.x, client_area.y);
-      cairo_region_intersect (opaque_region, priv->shape_region);
+      cairo_region_intersect (opaque_region, shape_region);
     }
   else if (argb32)
     opaque_region = NULL;
   else
-    opaque_region = cairo_region_reference (priv->shape_region);
+    opaque_region = cairo_region_reference (shape_region);
 
   meta_surface_actor_set_opaque_region (priv->surface, opaque_region);
   cairo_region_destroy (opaque_region);
