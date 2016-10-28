@@ -1065,7 +1065,7 @@ meta_theme_create_style_info (GdkScreen   *screen,
                           provider,
                           "window",
                           GTK_STYLE_CLASS_BACKGROUND,
-                          "ssd",
+                          "csd",
                           NULL);
   style_info->styles[META_STYLE_ELEMENT_FRAME] =
     create_style_context (META_TYPE_FRAMES,
