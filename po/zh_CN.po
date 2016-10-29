@@ -17,8 +17,8 @@ msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=mutter&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-05-05 13:30+0000\n"
-"PO-Revision-Date: 2016-10-30 02:19+0800\n"
+"POT-Creation-Date: 2016-10-29 18:21+0000\n"
+"PO-Revision-Date: 2016-10-30 02:25+0800\n"
 "Last-Translator: Tong Hui <tonghuix@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -447,22 +447,22 @@ msgstr "切换到 VT 11"
 msgid "Switch to VT 12"
 msgstr "切换到 VT 12"
 
-#: ../src/backends/meta-monitor-manager.c:518
+#: ../src/backends/meta-monitor-manager.c:515
 msgid "Built-in display"
 msgstr "内置显示屏"
 
-#: ../src/backends/meta-monitor-manager.c:544
+#: ../src/backends/meta-monitor-manager.c:538
 msgid "Unknown"
 msgstr "未知"
 
-#: ../src/backends/meta-monitor-manager.c:546
+#: ../src/backends/meta-monitor-manager.c:540
 msgid "Unknown Display"
 msgstr "未知的显示器"
 
 #. TRANSLATORS: this is a monitor vendor name, followed by a
 #. * size in inches, like 'Dell 15"'
 #.
-#: ../src/backends/meta-monitor-manager.c:554
+#: ../src/backends/meta-monitor-manager.c:548
 #, c-format
 msgid "%s %s"
 msgstr "%s %s"
@@ -476,7 +476,7 @@ msgid ""
 "\"."
 msgstr "DISPLAY %2$s 的屏幕 %1$i 上已有另外一个混成窗口管理器正在运行。"
 
-#: ../src/core/bell.c:185
+#: ../src/core/bell.c:194
 msgid "Bell event"
 msgstr "响铃事件"
 
@@ -503,40 +503,44 @@ msgstr "等待(_W)"
 msgid "_Force Quit"
 msgstr "强制退出(_F)"
 
-#: ../src/core/display.c:563
+#: ../src/core/display.c:555
 #, c-format
 msgid "Failed to open X Window System display '%s'\n"
 msgstr "无法打开 X Window System 显示“%s”\n"
 
-#: ../src/core/main.c:176
+#: ../src/core/main.c:181
 msgid "Disable connection to session manager"
 msgstr "禁止连接到会话管理器"
 
-#: ../src/core/main.c:182
+#: ../src/core/main.c:187
 msgid "Replace the running window manager"
 msgstr "替换正在运行的窗口管理器"
 
-#: ../src/core/main.c:188
+#: ../src/core/main.c:193
 msgid "Specify session management ID"
 msgstr "指定会话管理 ID"
 
-#: ../src/core/main.c:193
+#: ../src/core/main.c:198
 msgid "X Display to use"
 msgstr "要使用的 X 显示"
 
-#: ../src/core/main.c:199
+#: ../src/core/main.c:204
 msgid "Initialize session from savefile"
 msgstr "从保存文件中初始化会话"
 
-#: ../src/core/main.c:205
+#: ../src/core/main.c:210
 msgid "Make X calls synchronous"
 msgstr "使 X 调用同步"
 
-#: ../src/core/main.c:212
+#: ../src/core/main.c:217
 msgid "Run as a wayland compositor"
 msgstr "作为 wayland 混成管理器运行"
 
-#: ../src/core/main.c:220
+#: ../src/core/main.c:223
+msgid "Run as a nested compositor"
+msgstr "作为嵌套混成器运行"
+
+#: ../src/core/main.c:231
 msgid "Run as a full display server, rather than nested"
 msgstr "以完整显示服务器方式运行，而不是以嵌套方式"
 
@@ -562,12 +566,12 @@ msgstr "打印版本"
 msgid "Mutter plugin to use"
 msgstr "要使用的 Mutter 插件"
 
-#: ../src/core/prefs.c:2050
+#: ../src/core/prefs.c:1997
 #, c-format
 msgid "Workspace %d"
 msgstr "工作区 %d"
 
-#: ../src/core/screen.c:526
+#: ../src/core/screen.c:521
 #, c-format
 msgid ""
 "Display \"%s\" already has a window manager; try using the --replace option "
@@ -576,12 +580,12 @@ msgstr ""
 "显示器“%s”已经有一个窗口管理器，请尝试使用 --replace 选项替换当前的窗口管理"
 "器。"
 
-#: ../src/core/screen.c:608
+#: ../src/core/screen.c:603
 #, c-format
 msgid "Screen %d on display '%s' is invalid\n"
 msgstr "显示“%2$s”上的屏幕 %1$d 无效\n"
 
-#: ../src/core/util.c:118
+#: ../src/core/util.c:121
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter 编译的时候没有加入详细模式的支持\n"
 
