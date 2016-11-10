@@ -1,3 +1,24 @@
+3.22.2
+======
+* Really fix framebuffer capture origin offset [Rui; #771502]
+* Fix session going into idle mode immediately on startup [Rui; #772839]
+* Fix mirror mode with stage views [Rui; #773115]
+* Improve pointer constraints support [Jonas; #771859]
+* Stack docks below other windows on fullscreen monitors [Rui; #772937]
+* Fix switching between two finger- and edge scrolling on wayland [Rui; #771744]
+* Fix popup grabs blocking screen lock on wayland [Rui; #771235]
+* Fix various crashes on wayland [Jonas; #771646, #771858]
+* Fix various placement issues on wayland [Jonas, Sjoerd, Olivier; #768039,
+  #771841, #773141, #772729]
+* Misc. bug fixes [Rui, Jonas, Olivier; #771019, #773116, #772914, #773210]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Rui Matos, Sjoerd Simons
+
+Translations:
+  Theppitak Karoonboonyanan [th], Kjartan Maraas [nb], liushuyu [zh_CN],
+  YunQiang Su [zh_CN]
+
 3.22.1
 ======
 * Fix feedback loop between StClipboard and X11 bridge [Carlos; #760745]
