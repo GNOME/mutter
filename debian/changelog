@@ -1,6 +1,6 @@
 mutter (3.22.2-2) UNRELEASED; urgency=medium
 
-  * Add git_stack-docks-below-fullscreen-windows.patch:
+  * Add git_dont_set_unavailable_scroll_methods.patch:
     - Add patch from 3.22 branch that prevented logging into GNOME on X
       for some users (LP: #1643370)
 
