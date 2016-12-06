@@ -8,7 +8,7 @@ mutter (3.22.2-2) unstable; urgency=critical
   [ Jeremy Bicha ]
   * Add git_dont_set_unavailable_scroll_methods.patch:
     - Add patch from 3.22 branch that prevented logging into GNOME on X
-      for some users (LP: #1643370)
+      for some users (LP: #1643370, Closes: #846898)
 
  -- Raphaël Hertzog <hertzog@debian.org>  Tue, 06 Dec 2016 17:35:40 +0100
 
