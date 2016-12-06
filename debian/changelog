@@ -1,10 +1,16 @@
-mutter (3.22.2-2) UNRELEASED; urgency=medium
+mutter (3.22.2-2) unstable; urgency=critical
 
+  [ Raphaël Hertzog ]
+  * Team upload.
+  * Urgency critical as gnome-shell is entirely broken in testing
+    for many users.
+
+  [ Jeremy Bicha ]
   * Add git_dont_set_unavailable_scroll_methods.patch:
     - Add patch from 3.22 branch that prevented logging into GNOME on X
       for some users (LP: #1643370)
 
- -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 22 Nov 2016 12:22:52 -0500
+ -- Raphaël Hertzog <hertzog@debian.org>  Tue, 06 Dec 2016 17:35:40 +0100
 
 mutter (3.22.2-1) unstable; urgency=medium
 
