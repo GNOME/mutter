@@ -1,3 +1,11 @@
+mutter (3.22.2-3) UNRELEASED; urgency=medium
+
+  * Add git_flush_all_swap_notifies_on_idle.patch:
+    - Add patch from 3.22 branch that fixes freezes with multiple monitors
+      on Wayland
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 20 Dec 2016 08:59:06 -0500
+
 mutter (3.22.2-2) unstable; urgency=critical
 
   [ Raphaël Hertzog ]
