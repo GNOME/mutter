@@ -1,10 +1,17 @@
-mutter (3.22.2-3) UNRELEASED; urgency=medium
+mutter (3.22.2-3) unstable; urgency=medium
 
+  [ Jeremy Bicha ]
   * Add git_flush_all_swap_notifies_on_idle.patch:
     - Add patch from 3.22 branch that fixes freezes with multiple monitors
       on Wayland
 
- -- Jeremy Bicha <jbicha@ubuntu.com>  Tue, 20 Dec 2016 08:59:06 -0500
+  [ Andreas Henriksson ]
+  * Add debian/patches/bgo768531_workaround-startup-notifications.patch
+    - temporary workaround used in both Fedora and Arch for getting
+      working application startup notifications under Wayland.
+    - See bgo#768531 for when a real solution is ready to replace this.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Sun, 08 Jan 2017 03:12:13 +0100
 
 mutter (3.22.2-2) unstable; urgency=critical
 
