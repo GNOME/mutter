@@ -26,6 +26,7 @@
 #include "meta-backend-x11.h"
 #include "meta-input-settings-x11.h"
 
+#include <stdlib.h>
 #include <string.h>
 #include <gdk/gdkx.h>
 #include <X11/Xatom.h>
@@ -159,6 +160,178 @@ change_property (ClutterInputDevice *device,
   meta_XFree (data_ret);
 }
 
+static gboolean
+is_device_synaptics (ClutterInputDevice *device)
+{
+  guchar *has_setting;
+
+  /* We just need looking for a synaptics-specific property */
+  has_setting = get_property (device, "Synaptics Off", XA_INTEGER, 8, 1);
+  if (!has_setting)
+    return FALSE;
+
+  meta_XFree (has_setting);
+  return TRUE;
+}
+
+static void
+change_synaptics_tap_left_handed (ClutterInputDevice *device,
+                                  gboolean            tap_enabled,
+                                  gboolean            left_handed)
+{
+  MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  XDevice *xdevice;
+  guchar *tap_action, *buttons;
+  guint buttons_capacity = 16, n_buttons;
+
+  xdevice = XOpenDevice(xdisplay, clutter_input_device_get_device_id (device));
+  if (!xdevice)
+    return;
+
+  tap_action = get_property (device, "Synaptics Tap Action",
+                             XA_INTEGER, 8, 7);
+  if (!tap_action)
+    goto out;
+
+  tap_action[4] = tap_enabled ? (left_handed ? 3 : 1) : 0;
+  tap_action[5] = tap_enabled ? (left_handed ? 1 : 3) : 0;
+  tap_action[6] = tap_enabled ? 2 : 0;
+
+  change_property (device, "Synaptics Tap Action",
+                   XA_INTEGER, 8, tap_action, 7);
+  meta_XFree (tap_action);
+
+  if (display)
+    meta_error_trap_push (display);
+  buttons = g_new (guchar, buttons_capacity);
+  n_buttons = XGetDeviceButtonMapping (xdisplay, xdevice,
+                                       buttons, buttons_capacity);
+
+  while (n_buttons > buttons_capacity)
+    {
+      buttons_capacity = n_buttons;
+      buttons = (guchar *) g_realloc (buttons,
+                                      buttons_capacity * sizeof (guchar));
+
+      n_buttons = XGetDeviceButtonMapping (xdisplay, xdevice,
+                                           buttons, buttons_capacity);
+    }
+
+  buttons[0] = left_handed ? 3 : 1;
+  buttons[2] = left_handed ? 1 : 3;
+  XSetDeviceButtonMapping (xdisplay, xdevice, buttons, n_buttons);
+  g_free (buttons);
+
+  if (display && meta_error_trap_pop_with_return (display))
+    {
+      g_warning ("Could not set synaptics touchpad left-handed for %s",
+                 clutter_input_device_get_device_name (device));
+    }
+
+ out:
+  XCloseDevice (xdisplay, xdevice);
+}
+
+static void
+change_synaptics_speed (ClutterInputDevice *device,
+                        gdouble             speed)
+{
+  MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  XDevice *xdevice;
+  XPtrFeedbackControl feedback;
+  XFeedbackState *states, *state;
+  int i, num_feedbacks, motion_threshold, numerator, denominator;
+  gfloat motion_acceleration;
+
+  xdevice = XOpenDevice(xdisplay, clutter_input_device_get_device_id (device));
+  if (!xdevice)
+    return;
+  /* Get the list of feedbacks for the device */
+  states = XGetFeedbackControl (xdisplay, xdevice, &num_feedbacks);
+  if (!states)
+    return;
+
+  /* Calculate acceleration and threshold */
+  motion_acceleration = (speed + 1) * 5; /* speed is [-1..1], map to [0..10] */
+  motion_threshold = CLAMP (10 - floor (motion_acceleration), 1, 10);
+
+  if (motion_acceleration >= 1.0)
+    {
+      /* we want to get the acceleration, with a resolution of 0.5
+       */
+      if ((motion_acceleration - floor (motion_acceleration)) < 0.25)
+        {
+          numerator = floor (motion_acceleration);
+          denominator = 1;
+        }
+      else if ((motion_acceleration - floor (motion_acceleration)) < 0.5)
+        {
+          numerator = ceil (2.0 * motion_acceleration);
+          denominator = 2;
+        }
+      else if ((motion_acceleration - floor (motion_acceleration)) < 0.75)
+        {
+          numerator = floor (2.0 *motion_acceleration);
+          denominator = 2;
+        }
+      else
+        {
+          numerator = ceil (motion_acceleration);
+          denominator = 1;
+        }
+    }
+  else if (motion_acceleration < 1.0 && motion_acceleration > 0)
+    {
+      /* This we do to 1/10ths */
+      numerator = floor (motion_acceleration * 10) + 1;
+      denominator= 10;
+    }
+  else
+    {
+      numerator = -1;
+      denominator = -1;
+    }
+
+  if (display)
+    meta_error_trap_push (display);
+
+  state = (XFeedbackState *) states;
+
+  for (i = 0; i < num_feedbacks; i++)
+    {
+      if (state->class == PtrFeedbackClass)
+        {
+          /* And tell the device */
+          feedback.class      = PtrFeedbackClass;
+          feedback.length     = sizeof (XPtrFeedbackControl);
+          feedback.id         = state->id;
+          feedback.threshold  = motion_threshold;
+          feedback.accelNum   = numerator;
+          feedback.accelDenom = denominator;
+
+          XChangeFeedbackControl (xdisplay, xdevice,
+                                  DvAccelNum | DvAccelDenom | DvThreshold,
+                                  (XFeedbackControl *) &feedback);
+          break;
+        }
+
+      state = (XFeedbackState *) ((char *) state + state->length);
+    }
+
+  if (display && meta_error_trap_pop_with_return (display))
+    {
+      g_warning ("Could not set synaptics touchpad acceleration for %s",
+                 clutter_input_device_get_device_name (device));
+    }
+
+  XFreeFeedbackList (states);
+  XCloseDevice (xdisplay, xdevice);
+}
+
 static void
 meta_input_settings_x11_set_send_events (MetaInputSettings        *settings,
                                          ClutterInputDevice       *device,
@@ -166,6 +339,13 @@ meta_input_settings_x11_set_send_events (MetaInputSettings        *settings,
 {
   guchar values[2] = { 0 }; /* disabled, disabled-on-external-mouse */
   guchar *available;
+
+  if (is_device_synaptics (device))
+    {
+      values[0] = mode != G_DESKTOP_DEVICE_SEND_EVENTS_ENABLED;
+      change_property (device, "Synaptics Off", XA_INTEGER, 8, &values, 1);
+      return;
+    }
 
   available = get_property (device, "libinput Send Events Modes Available",
                             XA_INTEGER, 8, 2);
@@ -219,6 +399,12 @@ meta_input_settings_x11_set_speed (MetaInputSettings  *settings,
   Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   gfloat value = speed;
 
+  if (is_device_synaptics (device))
+    {
+      change_synaptics_speed (device, speed);
+      return;
+    }
+
   change_property (device, "libinput Accel Speed",
                    XInternAtom (xdisplay, "FLOAT", False),
                    32, &value, 1);
@@ -245,6 +431,19 @@ meta_input_settings_x11_set_left_handed (MetaInputSettings  *settings,
   else
     {
       value = enabled ? 1 : 0;
+
+      if (is_device_synaptics (device))
+        {
+          GSettings *settings;
+
+          settings = g_settings_new ("org.gnome.desktop.peripherals.touchpad");
+          change_synaptics_tap_left_handed (device,
+                                            g_settings_get_boolean (settings, "tap-to-click"),
+                                            enabled);
+          g_object_unref (settings);
+          return;
+        }
+
       change_property (device, "libinput Left Handed Enabled",
                        XA_INTEGER, 8, &value, 1);
     }
@@ -268,6 +467,20 @@ meta_input_settings_x11_set_tap_enabled (MetaInputSettings  *settings,
 {
   guchar value = (enabled) ? 1 : 0;
 
+  if (is_device_synaptics (device))
+    {
+      GDesktopTouchpadHandedness handedness;
+      GSettings *settings;
+
+      settings = g_settings_new ("org.gnome.desktop.peripherals.touchpad");
+      handedness = g_settings_get_enum (settings, "left-handed");
+      g_object_unref (settings);
+
+      change_synaptics_tap_left_handed (device, enabled,
+                                        handedness == G_DESKTOP_TOUCHPAD_HANDEDNESS_LEFT);
+      return;
+    }
+
   change_property (device, "libinput Tapping Enabled",
                    XA_INTEGER, 8, &value, 1);
 }
@@ -290,6 +503,27 @@ meta_input_settings_x11_set_invert_scroll (MetaInputSettings  *settings,
 {
   guchar value = (inverted) ? 1 : 0;
 
+  if (is_device_synaptics (device))
+    {
+      gint32 *scrolling_distance;
+
+      scrolling_distance = get_property (device, "Synaptics Scrolling Distance",
+                                         XA_INTEGER, 32, 2);
+      if (scrolling_distance)
+        {
+          scrolling_distance[0] = inverted ?
+            -abs (scrolling_distance[0]) : abs (scrolling_distance[0]);
+          scrolling_distance[1] = inverted ?
+            -abs (scrolling_distance[1]) : abs (scrolling_distance[1]);
+
+          change_property (device, "Synaptics Scrolling Distance",
+                           XA_INTEGER, 32, scrolling_distance, 2);
+          meta_XFree (scrolling_distance);
+        }
+
+      return;
+    }
+
   change_property (device, "libinput Natural Scrolling Enabled",
                    XA_INTEGER, 8, &value, 1);
 }
@@ -302,6 +536,22 @@ meta_input_settings_x11_set_edge_scroll (MetaInputSettings            *settings,
   guchar values[SCROLL_METHOD_NUM_FIELDS] = { 0 }; /* 2fg, edge, button. The last value is unused */
   guchar *current = NULL;
   guchar *available = NULL;
+
+  if (is_device_synaptics (device))
+    {
+      current = get_property (device, "Synaptics Edge Scrolling",
+                              XA_INTEGER, 8, 3);
+      if (current)
+        {
+          current[0] = !!edge_scroll_enabled;
+          current[1] = !!edge_scroll_enabled;
+          change_property (device, "Synaptics Edge Scrolling",
+                           XA_INTEGER, 8, current, 3);
+          meta_XFree (current);
+        }
+
+      return;
+    }
 
   available = get_property (device, "libinput Scroll Methods Available",
                             XA_INTEGER, 8, SCROLL_METHOD_NUM_FIELDS);
@@ -331,6 +581,22 @@ meta_input_settings_x11_set_two_finger_scroll (MetaInputSettings            *set
   guchar values[SCROLL_METHOD_NUM_FIELDS] = { 0 }; /* 2fg, edge, button. The last value is unused */
   guchar *current = NULL;
   guchar *available = NULL;
+
+  if (is_device_synaptics (device))
+    {
+      current = get_property (device, "Synaptics Two-Finger Scrolling",
+                              XA_INTEGER, 8, 2);
+      if (current)
+        {
+          current[0] = !!two_finger_scroll_enabled;
+          current[1] = !!two_finger_scroll_enabled;
+          change_property (device, "Synaptics Two-Finger Scrolling",
+                           XA_INTEGER, 8, current, 2);
+          meta_XFree (current);
+        }
+
+      return;
+    }
 
   available = get_property (device, "libinput Scroll Methods Available",
                             XA_INTEGER, 8, SCROLL_METHOD_NUM_FIELDS);
