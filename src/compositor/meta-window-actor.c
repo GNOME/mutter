@@ -1129,6 +1129,7 @@ meta_window_actor_effect_completed (MetaWindowActor  *self,
                                     MetaPluginEffect  event)
 {
   MetaWindowActorPrivate *priv   = self->priv;
+  gboolean inconsistent = FALSE;
 
   /* NB: Keep in mind that when effects get completed it possible
    * that the corresponding MetaWindow may have be been destroyed.
@@ -1145,6 +1146,7 @@ meta_window_actor_effect_completed (MetaWindowActor  *self,
 	{
 	  g_warning ("Error in minimize accounting.");
 	  priv->minimize_in_progress = 0;
+          inconsistent = TRUE;
 	}
     }
     break;
@@ -1155,6 +1157,7 @@ meta_window_actor_effect_completed (MetaWindowActor  *self,
        {
          g_warning ("Error in unminimize accounting.");
          priv->unminimize_in_progress = 0;
+         inconsistent = TRUE;
        }
     }
     break;
@@ -1169,6 +1172,7 @@ meta_window_actor_effect_completed (MetaWindowActor  *self,
       {
 	g_warning ("Error in map accounting.");
 	priv->map_in_progress = 0;
+        inconsistent = TRUE;
       }
     break;
   case META_PLUGIN_DESTROY:
@@ -1178,6 +1182,7 @@ meta_window_actor_effect_completed (MetaWindowActor  *self,
       {
 	g_warning ("Error in destroy accounting.");
 	priv->destroy_in_progress = 0;
+        inconsistent = TRUE;
       }
     break;
   case META_PLUGIN_SIZE_CHANGE:
@@ -1186,6 +1191,7 @@ meta_window_actor_effect_completed (MetaWindowActor  *self,
       {
 	g_warning ("Error in size change accounting.");
 	priv->size_change_in_progress = 0;
+        inconsistent = TRUE;
       }
     break;
   case META_PLUGIN_SWITCH_WORKSPACE:
@@ -1193,7 +1199,7 @@ meta_window_actor_effect_completed (MetaWindowActor  *self,
     break;
   }
 
-  if (is_freeze_thaw_effect (event))
+  if (is_freeze_thaw_effect (event) && !inconsistent)
     meta_window_actor_thaw (self);
 
   if (!meta_window_actor_effect_in_progress (self))
