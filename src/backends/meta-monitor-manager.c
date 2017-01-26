@@ -135,6 +135,7 @@ construct_tile_monitor (MetaMonitorManager *manager,
           info.width_mm = output->width_mm;
           info.height_mm = output->height_mm;
           info.winsys_id = output->winsys_id;
+          info.scale = output->scale;
         }
 
       /* hack */
