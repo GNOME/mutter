@@ -274,6 +274,22 @@ meta_input_settings_x11_set_two_finger_scroll (MetaInputSettings            *set
   meta_XFree (available);
 }
 
+static gboolean
+meta_input_settings_x11_has_two_finger_scroll (MetaInputSettings  *settings,
+                                               ClutterInputDevice *device)
+{
+  guchar *available = NULL;
+  gboolean has_two_finger = TRUE;
+
+  available = get_property (device, "libinput Scroll Methods Available",
+                            XA_INTEGER, 8, SCROLL_METHOD_NUM_FIELDS);
+  if (!available || !available[SCROLL_METHOD_FIELD_2FG])
+    has_two_finger = FALSE;
+
+  meta_XFree (available);
+  return has_two_finger;
+}
+
 static void
 meta_input_settings_x11_set_scroll_button (MetaInputSettings  *settings,
                                            ClutterInputDevice *device,
@@ -543,6 +559,8 @@ meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
 
   input_settings_class->set_mouse_accel_profile = meta_input_settings_x11_set_mouse_accel_profile;
   input_settings_class->set_trackball_accel_profile = meta_input_settings_x11_set_trackball_accel_profile;
+
+  input_settings_class->has_two_finger_scroll = meta_input_settings_x11_has_two_finger_scroll;
 }
 
 static void

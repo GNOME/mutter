@@ -107,6 +107,9 @@ struct _MetaInputSettingsClass
   void (* set_trackball_accel_profile) (MetaInputSettings          *settings,
                                         ClutterInputDevice         *device,
                                         GDesktopPointerAccelProfile profile);
+
+  gboolean (* has_two_finger_scroll) (MetaInputSettings  *settings,
+                                      ClutterInputDevice *device);
 };
 
 GType meta_input_settings_get_type (void) G_GNUC_CONST;
