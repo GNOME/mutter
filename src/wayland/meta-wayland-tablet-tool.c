@@ -37,7 +37,6 @@
 #include "meta-wayland-tablet-seat.h"
 #include "meta-wayland-tablet-tool.h"
 #include "backends/meta-input-settings-private.h"
-#include "backends/meta-logical-monitor.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
@@ -387,17 +386,14 @@ tool_cursor_prepare_at (MetaCursorSprite      *cursor_sprite,
                         int                    y,
                         MetaWaylandTabletTool *tool)
 {
-  MetaBackend *backend = meta_get_backend ();
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaLogicalMonitor *logical_monitor;
+  MetaDisplay *display = meta_get_display ();
+  const MetaMonitorInfo *monitor;
 
-  logical_monitor =
-    meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
+  monitor = meta_screen_get_monitor_for_point (display->screen, x, y);
 
   /* Reload the cursor texture if the scale has changed. */
-  if (logical_monitor)
-    meta_cursor_sprite_set_theme_scale (cursor_sprite, logical_monitor->scale);
+  if (monitor)
+    meta_cursor_sprite_set_theme_scale (cursor_sprite, monitor->scale);
 }
 
 MetaWaylandTabletTool *
