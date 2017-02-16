@@ -1,3 +1,27 @@
+3.22.3
+======
+* Fix switching between two finger- and edge scrolling on wayland [Rui; #771744]
+* Fix frequent freezes in multihead setups on wayland [Rui; #774557]
+* Preserve root window mask on XSelectionRequest [Olivier; #776128]
+* Fix window menu placement with HiDPI [Jonas; #776055]
+* Fix HiDPI detection on vertical monitor layouts [Carlos; #777687]
+* Fix erroneous key event repeats [Rui; #774989]
+* Fix "ghost" cursors in multi-monitor setups [Jonas; #771056]
+* Use eglGetPlatformDisplay [Adam; #772422]
+* Fix erratic raise_or_lower behavior [Jose; #705200]
+* Extend tablet device checks [Carlos; #773779]
+* Set right scale for tablet tool cursors on HiDPI [Carlos; #778474]
+* Allow edge-scrolling without 2fg-scroll capable devices [Rui; #778554]
+* Misc. bug fixes [Jonas, Rui, Carlos, Peter; #771297, #774135, #775986,
+  #777691, #777470, #778262, #776919]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Peter Hutterer, Adam Jackson,
+  Jose Marino, Rui Matos
+
+Translations:
+  Mandy Wang [zh_CN]
+
 3.22.2
 ======
 * Really fix framebuffer capture origin offset [Rui; #771502]
