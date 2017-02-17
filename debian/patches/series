@@ -1,3 +1,1 @@
-git_dont_set_unavailable_scroll_methods.patch
-git_flush_all_swap_notifies_on_idle.patch
 bgo768531_workaround-startup-notifications.patch
