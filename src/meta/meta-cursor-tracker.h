@@ -53,4 +53,7 @@ void           meta_cursor_tracker_get_pointer (MetaCursorTracker   *tracker,
 void           meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
                                                         gboolean           visible);
 
+void           meta_cursor_tracker_enable_track_position (MetaCursorTracker *tracker);
+void           meta_cursor_tracker_disable_track_position (MetaCursorTracker *tracker);
+
 #endif

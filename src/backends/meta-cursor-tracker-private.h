@@ -63,4 +63,6 @@ void     meta_cursor_tracker_set_root_cursor     (MetaCursorTracker *tracker,
 
 MetaCursorSprite * meta_cursor_tracker_get_displayed_cursor (MetaCursorTracker *tracker);
 
+void meta_backend_cursor_position_changed (MetaCursorTracker *tracker);
+
 #endif

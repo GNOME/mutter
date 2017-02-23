@@ -95,6 +95,8 @@ struct _MetaBackendClass
   void (* set_numlock) (MetaBackend *backend,
                         gboolean     numlock_state);
 
+  void (* track_position) (MetaBackend *backend,
+                           gboolean     enabled);
 };
 
 void meta_init_backend (GType backend_gtype);
@@ -151,5 +153,9 @@ gboolean meta_is_stage_views_enabled (void);
 MetaInputSettings *meta_backend_get_input_settings (MetaBackend *backend);
 
 void meta_backend_update_cursor_position (MetaBackend *backend, int x, int y);
+
+void meta_backend_cursor_position_changed (MetaBackend *backend);
+void meta_backend_track_position_ref (MetaBackend *backend);
+void meta_backend_track_position_unref (MetaBackend *backend);
 
 #endif /* META_BACKEND_PRIVATE_H */

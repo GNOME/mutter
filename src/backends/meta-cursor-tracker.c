@@ -47,6 +47,7 @@
 G_DEFINE_TYPE (MetaCursorTracker, meta_cursor_tracker, G_TYPE_OBJECT);
 
 enum {
+  POSITION_CHANGED,
   CURSOR_CHANGED,
   LAST_SIGNAL
 };
@@ -128,6 +129,13 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
                                           0,
                                           NULL, NULL, NULL,
                                           G_TYPE_NONE, 0);
+
+  signals[POSITION_CHANGED] = g_signal_new ("position-changed",
+                                            G_TYPE_FROM_CLASS (klass),
+                                            G_SIGNAL_RUN_LAST,
+                                            0,
+                                            NULL, NULL, NULL,
+                                            G_TYPE_NONE, 0);
 }
 
 /**
@@ -420,4 +428,22 @@ MetaCursorSprite *
 meta_cursor_tracker_get_displayed_cursor (MetaCursorTracker *tracker)
 {
   return tracker->displayed_cursor;
+}
+
+void
+meta_cursor_tracker_position_changed (MetaCursorTracker *tracker)
+{
+  g_signal_emit (tracker, signals[POSITION_CHANGED], 0);
+}
+
+void
+meta_cursor_tracker_enable_track_position (MetaCursorTracker *tracker)
+{
+  meta_backend_track_position_ref (meta_get_backend ());
+}
+
+void
+meta_cursor_tracker_disable_track_position (MetaCursorTracker *tracker)
+{
+  meta_backend_track_position_unref (meta_get_backend ());
 }

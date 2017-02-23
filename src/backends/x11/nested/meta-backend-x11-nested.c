@@ -61,7 +61,8 @@ meta_backend_x11_nested_update_screen_size (MetaBackend *backend,
 }
 
 static void
-meta_backend_x11_nested_select_stage_events (MetaBackend *backend)
+select_xi_stage (MetaBackend *backend,
+                 gboolean     include_motion)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   Display *xdisplay = meta_backend_x11_get_xdisplay (x11);
@@ -79,6 +80,9 @@ meta_backend_x11_nested_select_stage_events (MetaBackend *backend)
   XISetMask (mask.mask, XI_FocusOut);
   XISetMask (mask.mask, XI_Motion);
 
+  if (include_motion)
+    XISetMask (mask.mask, XI_RawMotion);
+
   /*
    * When we're an X11 compositor, we can't take these events or else replaying
    * events from our passive root window grab will cause them to come back to
@@ -91,6 +95,16 @@ meta_backend_x11_nested_select_stage_events (MetaBackend *backend)
   XISetMask (mask.mask, XI_TouchUpdate);
 
   XISelectEvents (xdisplay, xwin, &mask, 1);
+}
+
+static void
+meta_backend_x11_nested_select_stage_events (MetaBackend *backend)
+{
+  select_xi_stage (backend, FALSE);
+
+  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
+  Display *xdisplay = meta_backend_x11_get_xdisplay (x11);
+  Window xwin = meta_backend_x11_get_xwindow (x11);
 
   /*
    * We have no way of tracking key changes when the stage doesn't have focus,
@@ -103,6 +117,12 @@ meta_backend_x11_nested_select_stage_events (MetaBackend *backend)
   XGetWindowAttributes(xdisplay, xwin, &xwa);
   XSelectInput(xdisplay, xwin,
                xwa.your_event_mask | FocusChangeMask | KeymapStateMask);
+}
+
+static void
+meta_backend_x11_nested_track_position (MetaBackend *x11, gboolean enabled)
+{
+  select_xi_stage (backend, enabled);
 }
 
 static void
@@ -178,6 +198,7 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
   backend_class->select_stage_events = meta_backend_x11_nested_select_stage_events;
   backend_class->lock_layout_group = meta_backend_x11_nested_lock_layout_group;
   backend_class->set_keymap = meta_backend_x11_nested_set_keymap;
+  backend_class->track_position = meta_backend_x11_nested_track_position;
 
   backend_x11_class->handle_host_xevent = meta_backend_x11_nested_handle_host_xevent;
   backend_x11_class->translate_device_event = meta_backend_x11_nested_translate_device_event;

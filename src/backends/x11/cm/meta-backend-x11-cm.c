@@ -114,7 +114,8 @@ meta_backend_x11_cm_update_screen_size (MetaBackend *backend,
 }
 
 static void
-meta_backend_x11_cm_select_stage_events (MetaBackend *backend)
+select_xi_stage (MetaBackend *backend,
+                 gboolean     include_motion)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   Display *xdisplay = meta_backend_x11_get_xdisplay (x11);
@@ -132,7 +133,22 @@ meta_backend_x11_cm_select_stage_events (MetaBackend *backend)
   XISetMask (mask.mask, XI_FocusOut);
   XISetMask (mask.mask, XI_Motion);
 
+  if (include_motion)
+    XISetMask (mask.mask, XI_RawMotion);
+
   XISelectEvents (xdisplay, xwin, &mask, 1);
+}
+
+static void
+meta_backend_x11_cm_select_stage_events (MetaBackend *backend)
+{
+  select_xi_stage (backend, FALSE);
+}
+
+static void
+meta_backend_x11_cm_track_position (MetaBackend *x11, gboolean enabled)
+{
+  select_xi_stage (backend, enabled);
 }
 
 static void
@@ -386,6 +402,7 @@ meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
   backend_class->select_stage_events = meta_backend_x11_cm_select_stage_events;
   backend_class->lock_layout_group = meta_backend_x11_cm_lock_layout_group;
   backend_class->set_keymap = meta_backend_x11_cm_set_keymap;
+  backend_class->track_position = meta_backend_x11_cm_track_position;
 
   backend_x11_class->handle_host_xevent = meta_backend_x11_cm_handle_host_xevent;
   backend_x11_class->translate_device_event = meta_backend_x11_cm_translate_device_event;

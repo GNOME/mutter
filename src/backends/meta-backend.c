@@ -78,6 +78,8 @@ struct _MetaBackendPrivate
   int current_device_id;
 
   MetaPointerConstraint *client_pointer_constraint;
+
+  uint32_t track_position_refcount;
 };
 typedef struct _MetaBackendPrivate MetaBackendPrivate;
 
@@ -865,4 +867,43 @@ meta_backend_get_input_settings (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
   return priv->input_settings;
+}
+
+void
+meta_backend_update_cursor_position (MetaBackend *backend, int x, int y)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  meta_cursor_renderer_set_position (priv->cursor_renderer, x, y);
+
+  meta_backend_cursor_position_changed (backend);
+}
+
+void
+meta_backend_cursor_position_changed (MetaBackend *backend)
+{
+  meta_cursor_tracker_cursor_position_changed (backend->cursor_tracker);
+}
+
+static void
+meta_backend_track_position (MetaBackend *backend, gboolean enabled)
+{
+  if (META_BACKEND_GET_CLASS (backend)->track_position)
+    META_BACKEND_GET_CLASS (backend)->track_position (backend, enabled);
+}
+
+void
+meta_backend_track_position_ref (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  if (priv->track_position_refcount++ == 0)
+    meta_backend_track_position (backend, TRUE);
+}
+
+void
+meta_backend_track_position_unref (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  if (priv->track_position_refcount-- == 0)
+    meta_backend_track_position (backend, FALSE);
 }

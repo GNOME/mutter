@@ -207,6 +207,8 @@ handle_input_event (MetaBackendX11 *x11,
 
       if (input_event->evtype == XI_DeviceChanged)
         handle_device_change (x11, input_event);
+      else if (input_event->evtype == XI_RawMotion)
+        meta_backend_cursor_position_changed (META_BACKEND (x11));
       else
         maybe_spoof_event_as_stage_event (x11, input_event);
     }
