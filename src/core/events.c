@@ -251,10 +251,7 @@ meta_display_handle_event (MetaDisplay        *display,
         }
       else
         {
-          MetaCursorTracker *cursor_tracker =
-            meta_backend_get_cursor_tracker (backend);
-
-          meta_cursor_tracker_update_position (cursor_tracker,
+          meta_backend_update_cursor_position (cursor_tracker,
                                                event->motion.x,
                                                event->motion.y);
         }

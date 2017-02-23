@@ -150,4 +150,6 @@ gboolean meta_is_stage_views_enabled (void);
 
 MetaInputSettings *meta_backend_get_input_settings (MetaBackend *backend);
 
+void meta_backend_update_cursor_position (MetaBackend *backend, int x, int y);
+
 #endif /* META_BACKEND_PRIVATE_H */
