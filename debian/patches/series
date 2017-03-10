@@ -1,1 +1,2 @@
 bgo768531_workaround-startup-notifications.patch
+clutter-clone-Unset-source-when-source-actor-is-dest.patch
