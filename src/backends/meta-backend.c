@@ -128,6 +128,11 @@ center_pointer (MetaBackend *backend)
   primary =
     meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
 
+  if (!primary)
+    {
+      meta_fatal("Unable to get primary logical monitor\n");
+    }
+
   meta_backend_warp_pointer (backend,
                              primary->rect.x + primary->rect.width / 2,
                              primary->rect.y + primary->rect.height / 2);
