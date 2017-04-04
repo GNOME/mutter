@@ -1,0 +1,49 @@
+From 383ba566bd7c2a76d0856015a66e47caedef06b6 Mon Sep 17 00:00:00 2001
+From: "Owen W. Taylor" <otaylor@fishsoup.net>
+Date: Tue, 21 Feb 2017 13:51:16 -0500
+Subject: Call cogl_xlib_renderer_set_threaded_swap_wait_enabled()
+
+Set up things so that if the INTEL_swap_event extension is not present,
+but the driver is known to have good thread support, we use an extra
+thread and call glXWaitVideoSync() in the thread. This allows idles
+to work properly, even when Mutter is constantly redrawing new frames;
+otherwise, without INTEL_swap_event, we'll just block in glXSwapBuffers().
+
+https://bugzilla.gnome.org/show_bug.cgi?id=779039
+---
+ src/backends/x11/meta-backend-x11.c  |    6 ------
+ src/backends/x11/meta-renderer-x11.c |    8 --------
+ 2 files changed, 14 deletions(-)
+
+--- a/src/backends/x11/meta-backend-x11.c
++++ b/src/backends/x11/meta-backend-x11.c
+@@ -605,12 +605,6 @@ meta_backend_x11_class_init (MetaBackend
+ static void
+ meta_backend_x11_init (MetaBackendX11 *x11)
+ {
+-  /* XInitThreads() is needed to use the "threaded swap wait" functionality
+-   * in Cogl - see meta_renderer_x11_create_cogl_renderer(). We call it here
+-   * to hopefully call it before any other use of XLib.
+-   */
+-  XInitThreads();
+-
+   clutter_x11_request_reset_on_video_memory_purge ();
+ 
+   /* We do X11 event retrieval ourselves */
+--- a/src/backends/x11/meta-renderer-x11.c
++++ b/src/backends/x11/meta-renderer-x11.c
+@@ -66,14 +66,6 @@ meta_renderer_x11_create_cogl_renderer (
+   cogl_renderer_set_custom_winsys (cogl_renderer, get_x11_cogl_winsys_vtable);
+   cogl_xlib_renderer_set_foreign_display (cogl_renderer, xdisplay);
+ 
+-  /* Set up things so that if the INTEL_swap_event extension is not present,
+-   * but the driver is known to have good thread support, we use an extra
+-   * thread and call glXWaitVideoSync() in the thread. This allows idles
+-   * to work properly, even when Mutter is constantly redrawing new frames;
+-   * otherwise, without INTEL_swap_event, we'll just block in glXSwapBuffers().
+-   */
+-  cogl_xlib_renderer_set_threaded_swap_wait_enabled (cogl_renderer, TRUE);
+-
+   return cogl_renderer;
+ }
+ 
