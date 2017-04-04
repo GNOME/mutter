@@ -1,53 +1,6 @@
-mutter (3.21.91-1) unstable; urgency=low
-
-  * New upstream beta release.
-  * Update build-dependencies according to configure.ac changes:
-    - bump wayland-protocols to >= 1.7
-  * Drop debian/patches/Fix-build-of-clutter-tests.patch, merged upstream.
-
- -- Andreas Henriksson <andreas@fatal.se>  Tue, 30 Aug 2016 19:30:43 +0200
-
-mutter (3.21.90-1) experimental; urgency=medium
-
-  * New upstream beta release.
-  * Update (build-)dependencies according to configure.ac changes:
-    - drop intltool (>= 0.41), now gettext is used instead.
-    - add libwacom-dev (>= 0.13) [linux-any]
-    - bump wayland-protocols to >= 1.5
-    - bump gsettings-desktop-schemas to >= 3.21.4
-    - bump libinput-dev to >= 1.4
-  * Drop debian/patches/clutter-Fix-typo-in-assert.patch
-    - now included in upstream release.
-
- -- Andreas Henriksson <andreas@fatal.se>  Sat, 20 Aug 2016 17:46:46 +0200
-
-mutter (3.21.4-1) experimental; urgency=medium
-
-  [ Sjoerd Simons ]
-  * New upstream release
-  * debian/patches/fix-gint64-format.patch
-    debian/patches/wayland-add-extended-state-for-tiled.patch:
-    - Dropped fixed upstream
-  * debian/patches/Fix-build-of-clutter-tests.patch
-    - Added, fix build of test (bgo#769636)
-  * debian/patches/clutter-Fix-typo-in-assert.patch
-    - Added, fix build. From upstream git
-  * debian/control.in: Bump libmutter0 to libmutter0i
-  * debian/control.in: Update build-dependencies
-  * debian/*.install: Install private helper libraries.
-
-  [ Andreas Henriksson ]
-  * libmutter-dev: depend on packages required by mutter-clutter-1.0.pc
-    - libcairo2-dev, libglib2.0-dev, libatk1.0-dev, libpango1.0-dev,
-      libjson-glib-dev, libegl1-mesa-dev, libwayland-dev, libdrm-dev,
-      libgbm-dev, libinput-dev, libudev-dev, libx11-dev, libxext-dev,
-      libxdamage-dev, libxcomposite-dev, libxi-dev
-  * libmutter-dev: depend on additional packages required by mutter-cogl-1.0.pc
-    - libgdk-pixbuf2.0-dev, libxfixes-dev, libxrandr-dev
-
- -- Andreas Henriksson <andreas@fatal.se>  Fri, 12 Aug 2016 15:53:15 +0200
-
 mutter (3.20.3-2) unstable; urgency=medium
+
+  * Team upload
 
   [ Simon McVittie ]
   * d/p/fix-gint64-format.patch: Add patch from Luca Bruno fixing a format
@@ -58,7 +11,7 @@ mutter (3.20.3-2) unstable; urgency=medium
   [ Jeremy Bicha ]
   * Replace old mutter libraries too instead of only conflicting with them
 
- -- Michael Biebl <biebl@debian.org>  Fri, 01 Jul 2016 10:18:59 +0200
+ -- Simon McVittie <smcv@debian.org>  Fri, 01 Jul 2016 08:50:18 +0100
 
 mutter (3.20.3-1) unstable; urgency=medium
 
