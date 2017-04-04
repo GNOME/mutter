@@ -2,6 +2,8 @@ mutter (3.24.0-1) UNRELEASED; urgency=medium
 
   * Import 3.24 packaging from Ubuntu. Thanks to Jeremy Bicha
   * Add patch metadata
+  * Correctly label debian/patches/git_revert_call_threaded_swap.patch
+    as a revert, not as the change that is being reverted
 
  -- Simon McVittie <smcv@debian.org>  Tue, 04 Apr 2017 08:55:20 +0100
 

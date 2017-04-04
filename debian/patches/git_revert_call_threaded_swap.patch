@@ -1,15 +1,10 @@
-From 383ba566bd7c2a76d0856015a66e47caedef06b6 Mon Sep 17 00:00:00 2001
-From: "Owen W. Taylor" <otaylor@fishsoup.net>
-Date: Tue, 21 Feb 2017 13:51:16 -0500
-Subject: Call cogl_xlib_renderer_set_threaded_swap_wait_enabled()
+From: Jeremy Bicha <jbicha@ubuntu.com>
+Date: Thu, 02 Mar 2017 16:09:36 -0500
+Subject: Revert "Call cogl_xlib_renderer_set_threaded_swap_wait_enabled()"
 
-Set up things so that if the INTEL_swap_event extension is not present,
-but the driver is known to have good thread support, we use an extra
-thread and call glXWaitVideoSync() in the thread. This allows idles
-to work properly, even when Mutter is constantly redrawing new frames;
-otherwise, without INTEL_swap_event, we'll just block in glXSwapBuffers().
+This broke budgie-wm.
 
-https://bugzilla.gnome.org/show_bug.cgi?id=779039
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=779538
 ---
  src/backends/x11/meta-backend-x11.c  |    6 ------
  src/backends/x11/meta-renderer-x11.c |    8 --------
