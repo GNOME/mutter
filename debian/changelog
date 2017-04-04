@@ -1,6 +1,162 @@
-mutter (3.20.3-2) unstable; urgency=medium
+mutter (3.22.3-2) unstable; urgency=medium
 
-  * Team upload
+  * debian/patches/clutter-clone-Unset-source-when-source-actor-is-dest.patch
+    - Add patch from 3.22 branch to fix a gnome-shell crash when using the
+      alternatetab extension. (Closes: #857290)
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 10 Mar 2017 18:06:30 +0100
+
+mutter (3.22.3-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Drop patches which have been merged upstream.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 17 Feb 2017 18:17:07 +0100
+
+mutter (3.22.2-3) unstable; urgency=medium
+
+  [ Jeremy Bicha ]
+  * Add git_flush_all_swap_notifies_on_idle.patch:
+    - Add patch from 3.22 branch that fixes freezes with multiple monitors
+      on Wayland
+
+  [ Andreas Henriksson ]
+  * Add debian/patches/bgo768531_workaround-startup-notifications.patch
+    - temporary workaround used in both Fedora and Arch for getting
+      working application startup notifications under Wayland.
+    - See bgo#768531 for when a real solution is ready to replace this.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Sun, 08 Jan 2017 03:12:13 +0100
+
+mutter (3.22.2-2) unstable; urgency=critical
+
+  [ Raphaël Hertzog ]
+  * Team upload.
+  * Urgency critical as gnome-shell is entirely broken in testing
+    for many users.
+
+  [ Jeremy Bicha ]
+  * Add git_dont_set_unavailable_scroll_methods.patch:
+    - Add patch from 3.22 branch that prevented logging into GNOME on X
+      for some users (LP: #1643370, Closes: #846898)
+
+ -- Raphaël Hertzog <hertzog@debian.org>  Tue, 06 Dec 2016 17:35:40 +0100
+
+mutter (3.22.2-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Drop patches, all merged upstream.
+
+ -- Michael Biebl <biebl@debian.org>  Thu, 10 Nov 2016 19:17:32 +0100
+
+mutter (3.22.1-2) unstable; urgency=medium
+
+  * d/p/wayland-xdg-popup-Always-use-monitor-of-toplevel.patch
+    d/p/wayland-xdg-shell-Scale-configure-relative-popup-coo.patch
+    d/p/wayland-xdg-popup-Force-monitor-of-the-top-level.patch
+    d/p/wayland-xdg-shell-update-popup-window-monitor-early.patch
+    d/p/wayland-xdg-shell-Scale-positioner-coordinates.patch:
+      - Added. Fix positioning of popups on hidpi screens in
+        wayland (bgo#771841)
+
+ -- Sjoerd Simons <sjoerd@debian.org>  Fri, 14 Oct 2016 22:01:14 +0200
+
+mutter (3.22.1-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Drop debian/patches/01_Wcast-align.patch. It's not necessary anymore as we
+    don't enable -Werror.
+  * Add Build-Depends on libxcb-res0-dev as per configure.ac.
+
+ -- Michael Biebl <biebl@debian.org>  Tue, 11 Oct 2016 13:55:44 +0200
+
+mutter (3.22.0-1) unstable; urgency=medium
+
+  [ Jeremy Bicha ]
+  * debian/control.in:
+    - Explicitly build-depend on libegl1-mesa-dev (Closes: #836153)
+
+  [ Michael Biebl ]
+  * New upstream release.
+    - Correctly handle tablet settings lookups with no backing libwacom info.
+      (Closes: #838050)
+  * Use non-multiarch path (/usr/lib/mutter) for libexecdir.
+
+ -- Michael Biebl <biebl@debian.org>  Tue, 20 Sep 2016 01:43:37 +0200
+
+mutter (3.21.92-1) unstable; urgency=medium
+
+  [ Jeremy Bicha ]
+  * debian/rules:
+    - Explicitly disable kms and wayland to fix build on kfreebsd
+  * Add fix-undef-build-failure.patch:
+    - Git patch needed for build without wayland
+
+  [ Michael Biebl ]
+  * New upstream development release.
+  * Refresh debian/patches/01_Wcast-align.patch.
+  * Bump debhelper compat level to 10.
+
+ -- Michael Biebl <biebl@debian.org>  Tue, 13 Sep 2016 17:43:54 +0200
+
+mutter (3.21.91-2) unstable; urgency=medium
+
+  * Bump Build-Depends on libgnome-desktop-3-dev to (>= 3.21.2).
+    This ensures we have a matching version of libgnome-desktop which supports
+    mode flags via the D-Bus API.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 02 Sep 2016 12:03:57 +0200
+
+mutter (3.21.91-1) unstable; urgency=low
+
+  * New upstream beta release.
+  * Update build-dependencies according to configure.ac changes:
+    - bump wayland-protocols to >= 1.7
+  * Drop debian/patches/Fix-build-of-clutter-tests.patch, merged upstream.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Tue, 30 Aug 2016 19:30:43 +0200
+
+mutter (3.21.90-1) experimental; urgency=medium
+
+  * New upstream beta release.
+  * Update (build-)dependencies according to configure.ac changes:
+    - drop intltool (>= 0.41), now gettext is used instead.
+    - add libwacom-dev (>= 0.13) [linux-any]
+    - bump wayland-protocols to >= 1.5
+    - bump gsettings-desktop-schemas to >= 3.21.4
+    - bump libinput-dev to >= 1.4
+  * Drop debian/patches/clutter-Fix-typo-in-assert.patch
+    - now included in upstream release.
+
+ -- Andreas Henriksson <andreas@fatal.se>  Sat, 20 Aug 2016 17:46:46 +0200
+
+mutter (3.21.4-1) experimental; urgency=medium
+
+  [ Sjoerd Simons ]
+  * New upstream release
+  * debian/patches/fix-gint64-format.patch
+    debian/patches/wayland-add-extended-state-for-tiled.patch:
+    - Dropped fixed upstream
+  * debian/patches/Fix-build-of-clutter-tests.patch
+    - Added, fix build of test (bgo#769636)
+  * debian/patches/clutter-Fix-typo-in-assert.patch
+    - Added, fix build. From upstream git
+  * debian/control.in: Bump libmutter0 to libmutter0i
+  * debian/control.in: Update build-dependencies
+  * debian/*.install: Install private helper libraries.
+
+  [ Andreas Henriksson ]
+  * libmutter-dev: depend on packages required by mutter-clutter-1.0.pc
+    - libcairo2-dev, libglib2.0-dev, libatk1.0-dev, libpango1.0-dev,
+      libjson-glib-dev, libegl1-mesa-dev, libwayland-dev, libdrm-dev,
+      libgbm-dev, libinput-dev, libudev-dev, libx11-dev, libxext-dev,
+      libxdamage-dev, libxcomposite-dev, libxi-dev
+  * libmutter-dev: depend on additional packages required by mutter-cogl-1.0.pc
+    - libgdk-pixbuf2.0-dev, libxfixes-dev, libxrandr-dev
+
+ -- Andreas Henriksson <andreas@fatal.se>  Fri, 12 Aug 2016 15:53:15 +0200
+
+mutter (3.20.3-2) unstable; urgency=medium
 
   [ Simon McVittie ]
   * d/p/fix-gint64-format.patch: Add patch from Luca Bruno fixing a format
@@ -11,7 +167,7 @@ mutter (3.20.3-2) unstable; urgency=medium
   [ Jeremy Bicha ]
   * Replace old mutter libraries too instead of only conflicting with them
 
- -- Simon McVittie <smcv@debian.org>  Fri, 01 Jul 2016 08:50:18 +0100
+ -- Michael Biebl <biebl@debian.org>  Fri, 01 Jul 2016 10:18:59 +0200
 
 mutter (3.20.3-1) unstable; urgency=medium
 
