@@ -1,6 +1,7 @@
 mutter (3.24.0-1) UNRELEASED; urgency=medium
 
   * Import 3.24 packaging from Ubuntu. Thanks to Jeremy Bicha
+  * Add patch metadata
 
  -- Simon McVittie <smcv@debian.org>  Tue, 04 Apr 2017 08:55:20 +0100
 
