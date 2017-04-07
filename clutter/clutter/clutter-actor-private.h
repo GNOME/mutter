@@ -316,6 +316,7 @@ void                            _clutter_actor_detach_clone                     
 void                            _clutter_actor_queue_redraw_on_clones                   (ClutterActor *actor);
 void                            _clutter_actor_queue_relayout_on_clones                 (ClutterActor *actor);
 void                            _clutter_actor_queue_only_relayout                      (ClutterActor *actor);
+void                            _clutter_actor_queue_update_resource_scale_recursive    (ClutterActor *actor);
 
 CoglFramebuffer *               _clutter_actor_get_active_framebuffer                   (ClutterActor *actor);
 

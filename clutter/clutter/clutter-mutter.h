@@ -52,6 +52,9 @@ void clutter_stage_freeze_updates (ClutterStage *stage);
 CLUTTER_EXPORT
 void clutter_stage_thaw_updates (ClutterStage *stage);
 
+CLUTTER_EXPORT
+void clutter_stage_update_resource_scales (ClutterStage *stage);
+
 #undef __CLUTTER_H_INSIDE__
 
 #endif /* __CLUTTER_MUTTER_H__ */
