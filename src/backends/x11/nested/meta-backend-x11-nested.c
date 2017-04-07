@@ -68,7 +68,10 @@ meta_backend_x11_nested_update_screen_size (MetaBackend *backend,
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
   if (meta_is_stage_views_enabled ())
-    meta_renderer_rebuild_views (renderer);
+    {
+      meta_renderer_rebuild_views (renderer);
+      clutter_stage_update_resource_scales (CLUTTER_STAGE (stage));
+    }
   clutter_actor_set_size (stage, width, height);
 }
 
