@@ -129,6 +129,8 @@ void            _clutter_stage_presented                (ClutterStage      *stag
                                                          CoglFrameEvent     frame_event,
                                                          ClutterFrameInfo  *frame_info);
 
+GList *         _clutter_stage_peek_stage_views         (ClutterStage *stage);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */
