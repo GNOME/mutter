@@ -697,6 +697,8 @@ struct _ClutterActorPrivate
   /* the cached transformation matrix; see apply_transform() */
   CoglMatrix transform;
 
+  float resource_scale;
+
   guint8 opacity;
   gint opacity_override;
 
@@ -840,6 +842,7 @@ struct _ClutterActorPrivate
   guint needs_compute_expand        : 1;
   guint needs_x_expand              : 1;
   guint needs_y_expand              : 1;
+  guint needs_compute_resource_scale: 1;
 };
 
 enum
@@ -912,6 +915,7 @@ enum
   PROP_SCALE_CENTER_X, /* XXX:2.0 remove */
   PROP_SCALE_CENTER_Y, /* XXX:2.0 remove */
   PROP_SCALE_GRAVITY, /* XXX:2.0 remove */
+  PROP_RESOURCE_SCALE,
 
   PROP_ROTATION_ANGLE_X, /* XXX:2.0 rename to rotation-x */
   PROP_ROTATION_ANGLE_Y, /* XXX:2.0 rename to rotation-y */
@@ -1091,6 +1095,8 @@ static void clutter_actor_set_child_transform_internal (ClutterActor        *sel
 
 static void     clutter_actor_realize_internal          (ClutterActor *self);
 static void     clutter_actor_unrealize_internal        (ClutterActor *self);
+static gboolean clutter_actor_update_resource_scale     (ClutterActor *self);
+static void     clutter_actor_ensure_resource_scale     (ClutterActor *self);
 
 /* Helper macro which translates by the anchor coord, applies the
    given transformation and then translates back */
@@ -1514,6 +1520,7 @@ clutter_actor_real_map (ClutterActor *self)
   /* notify on parent mapped before potentially mapping
    * children, so apps see a top-down notification.
    */
+  clutter_actor_ensure_resource_scale (self);
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_MAPPED]);
 
   for (iter = self->priv->first_child;
@@ -1604,6 +1611,7 @@ clutter_actor_real_unmap (ClutterActor *self)
   /* notify on parent mapped after potentially unmapping
    * children, so apps see a bottom-up notification.
    */
+  clutter_actor_ensure_resource_scale (self);
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_MAPPED]);
 
   /* relinquish keyboard focus if we were unmapped while owning it */
@@ -2725,6 +2733,16 @@ clutter_actor_real_queue_redraw (ClutterActor *self,
     }
 }
 
+static inline gboolean
+clutter_actor_needs_relayout (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+
+  return priv->needs_width_request ||
+         priv->needs_height_request ||
+         priv->needs_allocation;
+}
+
 static void
 clutter_actor_real_queue_relayout (ClutterActor *self)
 {
@@ -3790,6 +3808,8 @@ clutter_actor_paint (ClutterActor *self)
   if (!CLUTTER_ACTOR_IS_MAPPED (self))
     return;
 
+  clutter_actor_ensure_resource_scale (self);
+
   stage = (ClutterStage *) _clutter_actor_get_stage_internal (self);
 
   /* mark that we are in the paint process */
@@ -4300,7 +4320,10 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
 
   /* clutter_actor_reparent() will emit ::parent-set for us */
   if (emit_parent_set && !CLUTTER_ACTOR_IN_REPARENT (child))
-    g_signal_emit (child, actor_signals[PARENT_SET], 0, self);
+    {
+      clutter_actor_ensure_resource_scale (child);
+      g_signal_emit (child, actor_signals[PARENT_SET], 0, self);
+    }
 
   /* if the child was mapped then we need to relayout ourselves to account
    * for the removed child
@@ -5619,9 +5642,15 @@ clutter_actor_get_property (GObject    *object,
         g_value_set_float (value, center);
       }
       break;
-
     case PROP_SCALE_GRAVITY: /* XXX:2.0 - remove */
       g_value_set_enum (value, clutter_actor_get_scale_gravity (actor));
+      break;
+
+    case PROP_RESOURCE_SCALE:
+      if (priv->needs_compute_resource_scale)
+        clutter_actor_update_resource_scale (actor);
+
+      g_value_set_float (value, priv->resource_scale);
       break;
 
     case PROP_REACTIVE:
@@ -7058,7 +7087,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         G_PARAM_DEPRECATED);
-
   /**
    * ClutterActor:scale-gravity:
    *
@@ -7077,6 +7105,19 @@ clutter_actor_class_init (ClutterActorClass *klass)
                        G_PARAM_READWRITE |
                        G_PARAM_STATIC_STRINGS |
                        G_PARAM_DEPRECATED);
+
+  /**
+   * ClutterActor:resource-scale:
+   *
+   * The resource-scale of the #ClutterActor if any or -1 if not available
+   */
+  obj_props[PROP_RESOURCE_SCALE] =
+    g_param_spec_float ("resource-scale",
+                        P_("Resource Scale"),
+                        P_("The Scaling factor for resources painting"),
+                        -1.0f, G_MAXFLOAT,
+                        1.0f,
+                        CLUTTER_PARAM_READABLE);
 
   /**
    * ClutterActor:rotation-angle-x:
@@ -8514,10 +8555,12 @@ clutter_actor_init (ClutterActor *self)
 
   priv->opacity = 0xff;
   priv->show_on_set_parent = TRUE;
+  priv->resource_scale = -1.0f;
 
   priv->needs_width_request = TRUE;
   priv->needs_height_request = TRUE;
   priv->needs_allocation = TRUE;
+  priv->needs_compute_resource_scale = TRUE;
 
   priv->cached_width_age = 1;
   priv->cached_height_age = 1;
@@ -9511,6 +9554,8 @@ clutter_actor_get_preferred_width (ClutterActor *self,
       return;
     }
 
+  CLUTTER_SET_PRIVATE_FLAGS (self, CLUTTER_IN_PREF_WIDTH);
+
   /* the remaining cases are:
    *
    *   - either min_width or natural_width have been set
@@ -9602,6 +9647,8 @@ clutter_actor_get_preferred_width (ClutterActor *self,
 
   if (natural_width_p)
     *natural_width_p = request_natural_width;
+
+  CLUTTER_UNSET_PRIVATE_FLAGS (self, CLUTTER_IN_PREF_WIDTH);
 }
 
 /**
@@ -9654,6 +9701,8 @@ clutter_actor_get_preferred_height (ClutterActor *self,
 
       return;
     }
+
+  CLUTTER_SET_PRIVATE_FLAGS (self, CLUTTER_IN_PREF_HEIGHT);
 
   /* the remaining cases are:
    *
@@ -9745,6 +9794,8 @@ clutter_actor_get_preferred_height (ClutterActor *self,
 
   if (natural_height_p)
     *natural_height_p = request_natural_height;
+
+  CLUTTER_UNSET_PRIVATE_FLAGS (self, CLUTTER_IN_PREF_HEIGHT);
 }
 
 /**
@@ -10083,6 +10134,9 @@ clutter_actor_allocate (ClutterActor           *self,
       CLUTTER_NOTE (LAYOUT, "No allocation needed");
       return;
     }
+
+  if (stage_allocation_changed)
+    priv->needs_compute_resource_scale = TRUE;
 
   if (!stage_allocation_changed)
     {
@@ -12927,7 +12981,10 @@ clutter_actor_add_child_internal (ClutterActor              *self,
 
   /* clutter_actor_reparent() will emit ::parent-set for us */
   if (emit_parent_set && !CLUTTER_ACTOR_IN_REPARENT (child))
-    g_signal_emit (child, actor_signals[PARENT_SET], 0, NULL);
+    {
+      clutter_actor_ensure_resource_scale (child);
+      g_signal_emit (child, actor_signals[PARENT_SET], 0, NULL);
+    }
 
   if (check_state)
     {
@@ -12960,9 +13017,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
   /* maintain the invariant that if an actor needs layout,
    * its parents do as well
    */
-  if (child->priv->needs_width_request ||
-      child->priv->needs_height_request ||
-      child->priv->needs_allocation)
+  if (clutter_actor_needs_relayout (child))
     {
       /* we work around the short-circuiting we do
        * in clutter_actor_queue_relayout() since we
@@ -13527,6 +13582,9 @@ clutter_actor_reparent (ClutterActor *self,
                                           ADD_CHILD_LEGACY_FLAGS,
                                           insert_child_at_depth,
                                           NULL);
+
+      /* We need to recompute the resource scale now */
+      clutter_actor_ensure_resource_scale (self);
 
       /* we emit the ::parent-set signal once */
       g_signal_emit (self, actor_signals[PARENT_SET], 0, old_parent);
@@ -17663,6 +17721,192 @@ clutter_actor_get_paint_box (ClutterActor    *self,
   _clutter_paint_volume_get_stage_paint_box (pv, CLUTTER_STAGE (stage), box);
 
   return TRUE;
+}
+
+static void
+init_rect_from_cairo_rect (ClutterRect           *rect,
+                           cairo_rectangle_int_t *cairo_rect)
+{
+  *rect = (ClutterRect) {
+    .origin = {
+      .x = cairo_rect->x,
+      .y = cairo_rect->y
+    },
+    .size = {
+      .width = cairo_rect->width,
+      .height = cairo_rect->height
+    }
+  };
+}
+
+static gboolean
+_clutter_actor_get_resource_scale_for_rect (ClutterActor *self,
+                                            ClutterRect  *bounding_rect,
+                                            float        *resource_scale)
+{
+  ClutterActor *stage;
+  GList *views;
+  GList *l;
+  float max_scale = 0;
+
+  stage = _clutter_actor_get_stage_internal (self);
+  if (!stage)
+    return FALSE;
+
+  if (bounding_rect->size.width == 0.0 || bounding_rect->size.height == 0)
+    return FALSE;
+
+  views = _clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  for (l = views; l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+      cairo_rectangle_int_t view_layout;
+      ClutterRect view_rect;
+
+      clutter_stage_view_get_layout (view, &view_layout);
+      init_rect_from_cairo_rect (&view_rect, &view_layout);
+
+      if (clutter_rect_intersection (&view_rect, bounding_rect, NULL))
+        max_scale = MAX (clutter_stage_view_get_scale (view), max_scale);
+    }
+
+  if (max_scale == 0)
+    return FALSE;
+
+  *resource_scale = max_scale;
+
+  return TRUE;
+}
+
+static gboolean
+_clutter_actor_compute_resource_scale (ClutterActor *self,
+                                       float *resource_scale)
+{
+  ClutterRect bounding_rect;
+  ClutterActorPrivate *priv = self->priv;
+
+  if (CLUTTER_ACTOR_IN_DESTRUCTION (self) ||
+      CLUTTER_ACTOR_IN_PREF_SIZE (self) ||
+      !clutter_actor_is_mapped (self))
+    {
+      return FALSE;
+    }
+
+  clutter_actor_get_transformed_position (self,
+                                          &bounding_rect.origin.x,
+                                          &bounding_rect.origin.y);
+  clutter_actor_get_transformed_size (self,
+                                      &bounding_rect.size.width,
+                                      &bounding_rect.size.height);
+
+  if (!_clutter_actor_get_resource_scale_for_rect (self,
+                                                   &bounding_rect,
+                                                   resource_scale))
+    {
+      if (priv->parent)
+        return _clutter_actor_compute_resource_scale (priv->parent,
+                                                      resource_scale);
+      else
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+static ClutterActorTraverseVisitFlags
+queue_update_resource_scale_cb (ClutterActor *actor,
+                                int depth,
+                                void *user_data)
+{
+  actor->priv->needs_compute_resource_scale = TRUE;
+  return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
+}
+
+void
+_clutter_actor_queue_update_resource_scale_recursive (ClutterActor *self)
+{
+  _clutter_actor_traverse (self,
+                           CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
+                           queue_update_resource_scale_cb,
+                           NULL,
+                           NULL);
+}
+
+static gboolean
+clutter_actor_update_resource_scale (ClutterActor *self)
+{
+  ClutterActorPrivate *priv;
+  float resource_scale;
+  float old_resource_scale;
+  priv = self->priv;
+
+  g_return_val_if_fail (priv->needs_compute_resource_scale, FALSE);
+
+  old_resource_scale = priv->resource_scale;
+  priv->resource_scale = -1.0f;
+
+  if (_clutter_actor_compute_resource_scale (self, &resource_scale))
+    {
+      priv->resource_scale = resource_scale;
+      priv->needs_compute_resource_scale = FALSE;
+
+      return old_resource_scale != resource_scale;
+    }
+
+  return FALSE;
+}
+
+static void
+clutter_actor_ensure_resource_scale (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+
+  if (!priv->needs_compute_resource_scale)
+    return;
+
+  if (clutter_actor_update_resource_scale (self))
+    g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_RESOURCE_SCALE]);
+}
+
+/**
+ * clutter_actor_get_resource_scale:
+ * @self: A #ClutterActor
+ * @resource_scale: (out): return location for the resource scale
+ *
+ * Retrieves the resource scale for this actor, if available.
+ *
+ * The resource scale refers to the scale the actor should use for its resources.
+ * For example if an actor draws a a picture of size 100 x 100 in the stage
+ * coordinate space, it should use a texture of twice the size (i.e. 200 x 200)
+ * if the resource scale is 2.
+ *
+ * The resource scale is determined by the calculating the highest
+ * ClutterStageView scale the actor will get painted on.
+ *
+ * Returns: TRUE if resource scale is set for the actor, otherwise FALSE
+ */
+gboolean
+clutter_actor_get_resource_scale (ClutterActor *self,
+                                  gfloat       *resource_scale)
+{
+  ClutterActorPrivate *priv = self->priv;
+
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
+
+  clutter_actor_ensure_resource_scale (self);
+
+  if (!priv->needs_compute_resource_scale && resource_scale)
+    {
+      *resource_scale = priv->resource_scale;
+      return TRUE;
+    }
+  else
+    {
+      if (resource_scale)
+        *resource_scale = -1.0f;
+
+      return FALSE;
+    }
 }
 
 /**
