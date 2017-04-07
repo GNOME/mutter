@@ -4957,3 +4957,17 @@ clutter_stage_thaw_updates (ClutterStage *stage)
       _clutter_master_clock_set_paused (master_clock, FALSE);
     }
 }
+
+GList *
+_clutter_stage_peek_stage_views (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  return _clutter_stage_window_get_views (priv->impl);
+}
+
+void
+clutter_stage_update_resource_scales (ClutterStage *stage)
+{
+  _clutter_actor_queue_update_resource_scale_recursive (CLUTTER_ACTOR (stage));
+}
