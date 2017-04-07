@@ -583,6 +583,11 @@ gboolean                        clutter_actor_is_in_clone_paint                 
 CLUTTER_AVAILABLE_IN_ALL
 gboolean                        clutter_actor_get_paint_box                     (ClutterActor               *self,
                                                                                  ClutterActorBox            *box);
+
+CLUTTER_AVAILABLE_IN_ALL
+gboolean                        clutter_actor_get_resource_scale                (ClutterActor *self,
+                                                                                 gfloat       *resource_scale);
+
 CLUTTER_AVAILABLE_IN_1_8
 gboolean                        clutter_actor_has_overlaps                      (ClutterActor               *self);
 
