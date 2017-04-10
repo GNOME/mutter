@@ -1,3 +1,17 @@
+3.22.4
+======
+* Fix crash when a window closes during Alt+Tab [Rui; #779483]
+* Fix mouse input stopping to work in applications [Carlos; #763246]
+* Fix DnD between QT5 and GTK3 applications on wayland [Carlos; #779757]
+* Fix lock-up when using additional theme variants [Shantanu; #780254]
+* Fix lockfile size confusion [Daniel; #774613]
+
+Contributors:
+  Olivier Fourdan, Carlos Garnacho, Shantanu Goel, Rui Matos, Daniel Stone
+
+Translations:
+  Sveinn í Felli [is], GNOME Translation Robot [gd]
+
 3.22.3
 ======
 * Fix switching between two finger- and edge scrolling on wayland [Rui; #771744]
