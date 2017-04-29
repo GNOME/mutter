@@ -840,6 +840,7 @@ struct _ClutterActorPrivate
   guint needs_compute_expand        : 1;
   guint needs_x_expand              : 1;
   guint needs_y_expand              : 1;
+  guint needs_paint_volume_update   : 1;
 };
 
 enum
@@ -2619,6 +2620,7 @@ clutter_actor_real_allocate (ClutterActor           *self,
   g_object_freeze_notify (G_OBJECT (self));
 
   changed = clutter_actor_set_allocation_internal (self, box, flags);
+  priv->needs_paint_volume_update = changed;
 
   /* we allocate our children before we notify changes in our geometry,
    * so that people connecting to properties will be able to get valid
@@ -2687,6 +2689,7 @@ clutter_actor_real_queue_redraw (ClutterActor *self,
   if (self != origin)
     {
       self->priv->is_dirty = TRUE;
+      self->priv->needs_paint_volume_update = TRUE;
       self->priv->effect_to_redraw = NULL;
     }
 
@@ -8518,6 +8521,7 @@ clutter_actor_init (ClutterActor *self)
   priv->needs_width_request = TRUE;
   priv->needs_height_request = TRUE;
   priv->needs_allocation = TRUE;
+  priv->needs_paint_volume_update = TRUE;
 
   priv->cached_width_age = 1;
   priv->cached_height_age = 1;
@@ -8915,6 +8919,7 @@ _clutter_actor_queue_redraw_full (ClutterActor       *self,
     }
 
   priv->is_dirty = TRUE;
+  priv->needs_paint_volume_update = TRUE;
 }
 
 /**
@@ -12971,6 +12976,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
       child->priv->needs_width_request = TRUE;
       child->priv->needs_height_request = TRUE;
       child->priv->needs_allocation = TRUE;
+      child->priv->needs_paint_volume_update = TRUE;
 
       /* we only queue a relayout here, because any possible
        * redraw has already been queued either by show() or
@@ -17514,16 +17520,22 @@ _clutter_actor_get_paint_volume_mutable (ClutterActor *self)
   priv = self->priv;
 
   if (priv->paint_volume_valid)
-    clutter_paint_volume_free (&priv->paint_volume);
+    {
+      if (!priv->needs_paint_volume_update)
+        return &priv->paint_volume;
+      clutter_paint_volume_free (&priv->paint_volume);
+    }
 
   if (_clutter_actor_get_paint_volume_real (self, &priv->paint_volume))
     {
       priv->paint_volume_valid = TRUE;
+      priv->needs_paint_volume_update = FALSE;
       return &priv->paint_volume;
     }
   else
     {
       priv->paint_volume_valid = FALSE;
+      priv->needs_paint_volume_update = FALSE;
       return NULL;
     }
 }
