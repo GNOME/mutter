@@ -384,6 +384,23 @@ meta_monitor_normal_derive_dimensions (MetaMonitor   *monitor,
   *height = output->crtc->rect.height;
 }
 
+static gboolean
+meta_monitor_normal_get_suggested_position (MetaMonitor *monitor,
+                                            int         *x,
+                                            int         *y)
+{
+  MetaOutput *output;
+
+  output = meta_monitor_get_main_output (monitor);
+  if (output->suggested_x < 0 && output->suggested_y < 0)
+    return FALSE;
+
+  *x = output->suggested_x;
+  *y = output->suggested_y;
+
+  return TRUE;
+}
+
 static void
 meta_monitor_normal_init (MetaMonitorNormal *monitor)
 {
@@ -396,6 +413,7 @@ meta_monitor_normal_class_init (MetaMonitorNormalClass *klass)
 
   monitor_class->get_main_output = meta_monitor_normal_get_main_output;
   monitor_class->derive_dimensions = meta_monitor_normal_derive_dimensions;
+  monitor_class->get_suggested_position = meta_monitor_normal_get_suggested_position;
 }
 
 uint32_t
@@ -409,16 +427,8 @@ meta_monitor_get_suggested_position (MetaMonitor *monitor,
                                      int         *x,
                                      int         *y)
 {
-  MetaOutput *main_output;
-
-  main_output = meta_monitor_get_main_output (monitor);
-  if (main_output->suggested_x < 0 && main_output->suggested_y < 0)
-    return FALSE;
-
-  *x = main_output->suggested_x;
-  *y = main_output->suggested_y;
-
-  return TRUE;
+  return META_MONITOR_GET_CLASS (monitor)->get_suggested_position (monitor,
+                                                                   x, y);
 }
 
 static void
@@ -729,6 +739,14 @@ meta_monitor_tiled_derive_dimensions (MetaMonitor   *monitor,
   *out_height = max_y - min_y;
 }
 
+static gboolean
+meta_monitor_tiled_get_suggested_position (MetaMonitor *monitor,
+                                           int         *x,
+                                           int         *y)
+{
+  return FALSE;
+}
+
 static void
 meta_monitor_tiled_finalize (GObject *object)
 {
@@ -756,6 +774,7 @@ meta_monitor_tiled_class_init (MetaMonitorTiledClass *klass)
 
   monitor_class->get_main_output = meta_monitor_tiled_get_main_output;
   monitor_class->derive_dimensions = meta_monitor_tiled_derive_dimensions;
+  monitor_class->get_suggested_position = meta_monitor_tiled_get_suggested_position;
 }
 
 static void

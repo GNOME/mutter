@@ -68,6 +68,9 @@ struct _MetaMonitorClass
   void (* derive_dimensions) (MetaMonitor   *monitor,
                               int           *width,
                               int           *height);
+  gboolean (* get_suggested_position) (MetaMonitor *monitor,
+                                       int         *width,
+                                       int         *height);
 };
 
 #define META_TYPE_MONITOR_NORMAL (meta_monitor_normal_get_type ())
