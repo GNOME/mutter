@@ -337,17 +337,29 @@ check_monitor_mode (MetaMonitor         *monitor,
   CheckMonitorModeData *data = user_data;
   MetaMonitorManager *monitor_manager = data->monitor_manager;
   MetaOutput *output;
+  int crtc_mode_index;
   MetaCrtcMode *crtc_mode;
 
   output = output_from_winsys_id (monitor_manager,
                                   data->expect_crtc_mode_iter->output);
-  crtc_mode = &monitor_manager->modes[data->expect_crtc_mode_iter->crtc_mode];
+  crtc_mode_index = data->expect_crtc_mode_iter->crtc_mode;
+  if (crtc_mode_index == -1)
+    crtc_mode = NULL;
+  else
+    crtc_mode = &monitor_manager->modes[crtc_mode_index];
 
   g_assert (monitor_crtc_mode->output == output);
   g_assert (monitor_crtc_mode->crtc_mode == crtc_mode);
 
-  g_assert_cmpint (monitor_crtc_mode->x, ==, data->expect_crtc_mode_iter->x);
-  g_assert_cmpint (monitor_crtc_mode->y, ==, data->expect_crtc_mode_iter->y);
+  if (crtc_mode)
+    {
+      g_assert_cmpint (monitor_crtc_mode->x,
+                       ==,
+                       data->expect_crtc_mode_iter->x);
+      g_assert_cmpint (monitor_crtc_mode->y,
+                       ==,
+                       data->expect_crtc_mode_iter->y);
+    }
 
   data->expect_crtc_mode_iter++;
 
@@ -368,8 +380,11 @@ check_current_monitor_mode (MetaMonitor         *monitor,
   output = output_from_winsys_id (monitor_manager,
                                   data->expect_crtc_mode_iter->output);
 
-  g_assert_nonnull (output->crtc);
-  g_assert (monitor_crtc_mode->crtc_mode == output->crtc->current_mode);
+  if (data->expect_crtc_mode_iter->crtc_mode != -1)
+    {
+      g_assert_nonnull (output->crtc);
+      g_assert (monitor_crtc_mode->crtc_mode == output->crtc->current_mode);
+    }
 
   data->expect_crtc_mode_iter++;
 
@@ -459,7 +474,8 @@ check_logical_monitor (MonitorTestCase               *test_case,
               primary_output = output;
             }
 
-          g_assert (output->crtc->logical_monitor == logical_monitor);
+          g_assert (!output->crtc ||
+                    output->crtc->logical_monitor == logical_monitor);
           g_assert_cmpint (logical_monitor->is_presentation,
                            ==,
                            output->is_presentation);
@@ -1234,6 +1250,182 @@ meta_test_monitor_tiled_linear_config (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
+
+  test_setup = create_monitor_test_setup (&test_case,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  emulate_hotplug (test_setup);
+  check_monitor_configuration (&test_case);
+}
+
+static void
+meta_test_monitor_tiled_non_preferred_linear_config (void)
+{
+  MonitorTestCase test_case = {
+    .setup = {
+      .modes = {
+        {
+          .width = 640,
+          .height = 480,
+          .refresh_rate = 60.0
+        },
+        {
+          .width = 800,
+          .height = 600,
+          .refresh_rate = 60.0
+        },
+        {
+          .width = 512,
+          .height = 768,
+          .refresh_rate = 120.0
+        },
+        {
+          .width = 1024,
+          .height = 768,
+          .refresh_rate = 60.0
+        },
+      },
+      .n_modes = 4,
+      .outputs = {
+        {
+          .crtc = -1,
+          .modes = { 0, 2 },
+          .n_modes = 2,
+          .preferred_mode = 1,
+          .possible_crtcs = { 0 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+          .tile_info = {
+            .group_id = 1,
+            .max_h_tiles = 2,
+            .max_v_tiles = 1,
+            .loc_h_tile = 0,
+            .loc_v_tile = 0,
+            .tile_w = 512,
+            .tile_h = 768
+          }
+        },
+        {
+          .crtc = -1,
+          .modes = { 1, 2, 3 },
+          .n_modes = 3,
+          .preferred_mode = 0,
+          .possible_crtcs = { 1 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+          .tile_info = {
+            .group_id = 1,
+            .max_h_tiles = 2,
+            .max_v_tiles = 1,
+            .loc_h_tile = 1,
+            .loc_v_tile = 0,
+            .tile_w = 512,
+            .tile_h = 768
+          }
+        }
+      },
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = -1
+        },
+        {
+          .current_mode = -1
+        }
+      },
+      .n_crtcs = 2
+    },
+
+    .expect = {
+      .monitors = {
+        {
+          .outputs = { 0, 1 },
+          .n_outputs = 2,
+          .modes = {
+            {
+              .width = 1024,
+              .height = 768,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = 2
+                },
+                {
+                  .output = 1,
+                  .crtc_mode = 2,
+                  .x = 512
+                }
+              }
+            },
+            {
+              .width = 800,
+              .height = 600,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = -1
+                },
+                {
+                  .output = 1,
+                  .crtc_mode = 1,
+                }
+              }
+            },
+            {
+              .width = 1024,
+              .height = 768,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = -1
+                },
+                {
+                  .output = 1,
+                  .crtc_mode = 3,
+                }
+              }
+            },
+          },
+          .n_modes = 3,
+          .current_mode = 0,
+          .width_mm = 222,
+          .height_mm = 125,
+        }
+      },
+      .n_monitors = 1,
+      .logical_monitors = {
+        {
+          .monitors = { 0 },
+          .n_monitors = 1,
+          .layout = { .x = 0, .y = 0, .width = 1024, .height = 768 },
+          .scale = 1
+        },
+      },
+      .n_logical_monitors = 1,
+      .primary_logical_monitor = 0,
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = 2,
+        },
+        {
+          .current_mode = 2,
+        }
+      },
+      .n_crtcs = 2,
+      .n_tiled_monitors = 1,
+      .screen_width = 1024,
+      .screen_height = 768,
+    }
+  };
+  MetaMonitorTestSetup *test_setup;
+
+  if (!is_using_monitor_config_manager ())
+    {
+      g_test_skip ("Only the new monitor config manager handles this case.");
+      return;
+    }
 
   test_setup = create_monitor_test_setup (&test_case,
                                           MONITOR_TEST_FLAG_NO_STORED);
@@ -2616,6 +2808,184 @@ meta_test_monitor_custom_underscanning_config (void)
   check_monitor_configuration (&test_case);
 }
 
+static void
+meta_test_monitor_custom_tiled_non_preferred_config (void)
+{
+  MonitorTestCase test_case = {
+    .setup = {
+      .modes = {
+        {
+          .width = 640,
+          .height = 480,
+          .refresh_rate = 60.0
+        },
+        {
+          .width = 800,
+          .height = 600,
+          .refresh_rate = 60.0
+        },
+        {
+          .width = 512,
+          .height = 768,
+          .refresh_rate = 120.0
+        },
+        {
+          .width = 1024,
+          .height = 768,
+          .refresh_rate = 60.0
+        },
+      },
+      .n_modes = 4,
+      .outputs = {
+        {
+          .crtc = -1,
+          .modes = { 0, 2 },
+          .n_modes = 2,
+          .preferred_mode = 1,
+          .possible_crtcs = { 0 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+          .tile_info = {
+            .group_id = 1,
+            .max_h_tiles = 2,
+            .max_v_tiles = 1,
+            .loc_h_tile = 0,
+            .loc_v_tile = 0,
+            .tile_w = 512,
+            .tile_h = 768
+          }
+        },
+        {
+          .crtc = -1,
+          .modes = { 1, 2, 3 },
+          .n_modes = 3,
+          .preferred_mode = 0,
+          .possible_crtcs = { 1 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+          .tile_info = {
+            .group_id = 1,
+            .max_h_tiles = 2,
+            .max_v_tiles = 1,
+            .loc_h_tile = 1,
+            .loc_v_tile = 0,
+            .tile_w = 512,
+            .tile_h = 768
+          }
+        }
+      },
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = -1
+        },
+        {
+          .current_mode = -1
+        }
+      },
+      .n_crtcs = 2
+    },
+
+    .expect = {
+      .monitors = {
+        {
+          .outputs = { 0, 1 },
+          .n_outputs = 2,
+          .modes = {
+            {
+              .width = 1024,
+              .height = 768,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = 2
+                },
+                {
+                  .output = 1,
+                  .crtc_mode = 2,
+                  .x = 512
+                }
+              }
+            },
+            {
+              .width = 800,
+              .height = 600,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = -1
+                },
+                {
+                  .output = 1,
+                  .crtc_mode = 1,
+                }
+              }
+            },
+            {
+              .width = 1024,
+              .height = 768,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = -1
+                },
+                {
+                  .output = 1,
+                  .crtc_mode = 3,
+                }
+              }
+            },
+          },
+          .n_modes = 3,
+          .current_mode = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+        }
+      },
+      .n_monitors = 1,
+      .logical_monitors = {
+        {
+          .monitors = { 0 },
+          .n_monitors = 1,
+          .layout = { .x = 0, .y = 0, .width = 800, .height = 600 },
+          .scale = 1
+        },
+      },
+      .n_logical_monitors = 1,
+      .primary_logical_monitor = 0,
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = -1,
+        },
+        {
+          .current_mode = 1,
+        }
+      },
+      .n_crtcs = 2,
+      .n_tiled_monitors = 1,
+      .screen_width = 800,
+      .screen_height = 600,
+    }
+  };
+  MetaMonitorTestSetup *test_setup;
+
+  if (!is_using_monitor_config_manager ())
+    {
+      g_test_skip ("Only the new monitor config manager handles this case.");
+      return;
+    }
+
+  test_setup = create_monitor_test_setup (&test_case,
+                                          MONITOR_TEST_FLAG_NONE);
+  set_custom_monitor_config ("tiled-custom-resolution.xml");
+  emulate_hotplug (test_setup);
+
+  check_monitor_configuration (&test_case);
+}
+
 void
 init_monitor_tests (void)
 {
@@ -2635,6 +3005,8 @@ init_monitor_tests (void)
                    meta_test_monitor_preferred_linear_config);
   g_test_add_func ("/backends/monitor/tiled-linear-config",
                    meta_test_monitor_tiled_linear_config);
+  g_test_add_func ("/backends/monitor/tiled-non-preferred-linear-config",
+                   meta_test_monitor_tiled_non_preferred_linear_config);
   g_test_add_func ("/backends/monitor/hidpi-linear-config",
                    meta_test_monitor_hidpi_linear_config);
   g_test_add_func ("/backends/monitor/suggested-config",
@@ -2658,4 +3030,6 @@ init_monitor_tests (void)
                    meta_test_monitor_custom_primary_config);
   g_test_add_func ("/backends/monitor/custom/underscanning-config",
                    meta_test_monitor_custom_underscanning_config);
+  g_test_add_func ("/backends/monitor/custom/tiled-non-preferred-config",
+                   meta_test_monitor_custom_tiled_non_preferred_config);
 }
