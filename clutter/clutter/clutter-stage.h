@@ -245,6 +245,9 @@ guchar *        clutter_stage_read_pixels                       (ClutterStage   
 CLUTTER_AVAILABLE_IN_ALL
 void            clutter_stage_get_redraw_clip_bounds            (ClutterStage          *stage,
                                                                  cairo_rectangle_int_t *clip);
+CLUTTER_AVAILABLE_IN_MUTTER
+cairo_region_t * clutter_stage_get_redraw_clip                  (ClutterStage          *stage);
+
 CLUTTER_AVAILABLE_IN_ALL
 void            clutter_stage_ensure_viewport                   (ClutterStage          *stage);
 CLUTTER_AVAILABLE_IN_ALL

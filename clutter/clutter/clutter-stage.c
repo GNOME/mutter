@@ -1315,6 +1315,31 @@ clutter_stage_get_redraw_clip_bounds (ClutterStage          *stage,
     }
 }
 
+cairo_region_t *
+clutter_stage_get_redraw_clip (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv;
+  cairo_rectangle_int_t clip;
+  cairo_region_t *region;
+
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
+
+  priv = stage->priv;
+
+  region = _clutter_stage_window_get_redraw_clip (priv->impl);
+  if (region)
+    return region;
+
+  if (!region)
+    {
+      /* Set clip to the full extents of the stage */
+      _clutter_stage_window_get_geometry (priv->impl, &clip);
+      region = cairo_region_create_rectangle (&clip);
+    }
+
+  return region;
+}
+
 static void
 read_pixels_to_file (char *filename_stem,
                      int   x,
