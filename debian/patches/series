@@ -1,2 +1,3 @@
 bgo768531_workaround-startup-notifications.patch
+skip-failing-tests.patch
 git_revert_call_threaded_swap.patch

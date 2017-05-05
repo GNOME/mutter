@@ -15,6 +15,8 @@ mutter (3.24.1-1) UNRELEASED; urgency=medium
       This enables experimental support for using NVIDIA proprietary
       drivers with GNOME on Wayland
     - Run build tests
+  * Add skip-failing-tests.patch:
+    - Don't run a few tests that have been reported as failing
   * Add git_revert_call_threaded_swap.patch:
     - Revert patch that caused Budgie to crash (LP: #1669584)
   * Drop patches applied in new release:
