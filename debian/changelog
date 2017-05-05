@@ -1,67 +1,30 @@
-mutter (3.24.0-1) UNRELEASED; urgency=medium
+mutter (3.24.1-1) UNRELEASED; urgency=medium
 
-  * Import 3.24 packaging from Ubuntu. Thanks to Jeremy Bicha
+  [ Jeremy Bicha ]
+  * New upstream release (LP: #1662805)
+  * libmutter0 has been renamed upstream to libmutter-0-0
+  * Rename gir1.2-mutter-3.0 to gir-1.2-mutter-0
+  * Rename libmutter-dev to libmutter-0-dev
+  * debian/control.in:
+    - Drop obsolete Conflicts/Replaces now that the library
+      uses different file names
+    - Loosen dependency on -common package
+  * debian/rules:
+    - Build with --enable-egl-device (LP: #1666664)
+      This enables experimental support for using NVIDIA proprietary
+      drivers with GNOME on Wayland
+  * Add git_revert_call_threaded_swap.patch:
+    - Revert patch that caused Budgie to crash (LP: #1669584)
+  * Drop patches applied in new release:
+    - git_dont_set_unavailable_scroll_methods.patch
+    - git_flush_all_swap_notifies_on_idle.patch
+
+  [ Simon McVittie ]
   * Add patch metadata
   * Correctly label debian/patches/git_revert_call_threaded_swap.patch
     as a revert, not as the change that is being reverted
 
  -- Simon McVittie <smcv@debian.org>  Tue, 04 Apr 2017 08:55:20 +0100
-
-mutter (3.24.0-0ubuntu1) zesty; urgency=medium
-
-  * New upstream translations release
-
- -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 20 Mar 2017 15:08:36 -0400
-
-mutter (3.23.92-0ubuntu1) zesty; urgency=medium
-
-  * New upstream release (LP: #1670910)
-
- -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 13 Mar 2017 22:25:03 -0400
-
-mutter (3.23.91-0ubuntu2) zesty; urgency=medium
-
-  * debian/rules:
-    - Build with --enable-egl-device (LP: #1666664)
-      This enables experimental support for using NVIDIA proprietary
-      drivers with GNOME on Wayland
-
- -- Jeremy Bicha <jbicha@ubuntu.com>  Fri, 10 Mar 2017 09:59:32 -0500
-
-mutter (3.23.91-0ubuntu1.1) zesty; urgency=medium
-
-  * Add git_revert_call_threaded_swap.patch:
-    - Revert patch that caused Budgie to crash (LP: #1669584)
-
- -- Jeremy Bicha <jbicha@ubuntu.com>  Thu, 02 Mar 2017 16:09:36 -0500
-
-mutter (3.23.91-0ubuntu1) zesty; urgency=medium
-
-  * New upstream release
-
- -- Jeremy Bicha <jbicha@ubuntu.com>  Wed, 01 Mar 2017 11:21:22 -0500
-
-mutter (3.23.90-0ubuntu2) zesty; urgency=medium
-
-  * debian/control.in:
-    - Loosen dependency on -common package
-  * Rename gir1.2-mutter-3.0 to gir-1.2-mutter-0
-
- -- Jeremy Bicha <jbicha@ubuntu.com>  Sun, 19 Feb 2017 20:39:33 -0500
-
-mutter (3.23.90-0ubuntu1) zesty; urgency=medium
-
-  * New upstream release (LP: #1662805)
-  * libmutter0 has been renamed upstream to libmutter-0-0
-  * Rename libmutter-dev to libmutter-0-dev too
-  * debian/control.in:
-    - Drop obsolete Conflicts/Replaces now that the library
-      uses different file names
-  * Drop patches applied in new release:
-    - git_dont_set_unavailable_scroll_methods.patch
-    - git_flush_all_swap_notifies_on_idle.patch
-
- -- Jeremy Bicha <jbicha@ubuntu.com>  Thu, 16 Feb 2017 05:14:28 -0500
 
 mutter (3.22.2-3) unstable; urgency=medium
 
