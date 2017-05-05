@@ -31,6 +31,9 @@ override_dh_auto_configure:
 		--enable-compile-warnings \
 		$(CONFFLAGS)
 
+override_dh_auto_test:
+	xvfb-run dh_auto_test
+
 override_dh_install:
 	dh_install --list-missing
 
