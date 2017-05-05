@@ -1166,6 +1166,21 @@ _clutter_paint_volume_get_stage_paint_box (ClutterPaintVolume *pv,
 
   _clutter_paint_volume_get_bounding_box (&projected_pv, box);
 
+  if (pv->is_2d && pv->actor &&
+      clutter_actor_get_z_position (pv->actor) == 0)
+    {
+      /* If the volume/actor are perfectly 2D, take the bounding box as
+       * good. We won't need to add any extra room for sub-pixel positioning
+       * in this case.
+       */
+      clutter_paint_volume_free (&projected_pv);
+      box->x1 = CLUTTER_NEARBYINT (box->x1);
+      box->y1 = CLUTTER_NEARBYINT (box->y1);
+      box->x2 = CLUTTER_NEARBYINT (box->x2);
+      box->y2 = CLUTTER_NEARBYINT (box->y2);
+      return;
+    }
+
   /* The aim here is that for a given rectangle defined with floating point
    * coordinates we want to determine a stable quantized size in pixels
    * that doesn't vary due to the original box's sub-pixel position.
