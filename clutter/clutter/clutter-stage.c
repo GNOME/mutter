@@ -1274,45 +1274,44 @@ clutter_stage_real_queue_relayout (ClutterActor *self)
   parent_class->queue_relayout (self);
 }
 
-static void
-clutter_stage_real_queue_redraw (ClutterActor *actor,
-                                 ClutterActor *leaf)
+static gboolean
+clutter_stage_real_queue_redraw (ClutterActor       *actor,
+                                 ClutterActor       *leaf,
+                                 ClutterPaintVolume *redraw_clip)
 {
   ClutterStage *stage = CLUTTER_STAGE (actor);
   ClutterStageWindow *stage_window;
-  ClutterPaintVolume *redraw_clip;
   ClutterActorBox bounding_box;
   ClutterActorBox intersection_box;
   cairo_rectangle_int_t geom, stage_clip;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (actor))
-    return;
+    return TRUE;
 
   /* If the backend can't do anything with redraw clips (e.g. it already knows
    * it needs to redraw everything anyway) then don't spend time transforming
    * any clip volume into stage coordinates... */
   stage_window = _clutter_stage_get_window (stage);
   if (stage_window == NULL)
-    return;
+    return TRUE;
 
   if (_clutter_stage_window_ignoring_redraw_clips (stage_window))
     {
       _clutter_stage_window_add_redraw_clip (stage_window, NULL);
-      return;
+      return FALSE;
     }
 
   /* Convert the clip volume into stage coordinates and then into an
    * axis aligned stage coordinates bounding box...
    */
-  redraw_clip = _clutter_actor_get_queue_redraw_clip (leaf);
   if (redraw_clip == NULL)
     {
       _clutter_stage_window_add_redraw_clip (stage_window, NULL);
-      return;
+      return FALSE;
     }
 
   if (redraw_clip->is_empty)
-    return;
+    return TRUE;
 
   _clutter_paint_volume_get_stage_paint_box (redraw_clip,
                                              stage,
@@ -1328,7 +1327,7 @@ clutter_stage_real_queue_redraw (ClutterActor *actor,
   /* There is no need to track degenerate/empty redraw clips */
   if (intersection_box.x2 <= intersection_box.x1 ||
       intersection_box.y2 <= intersection_box.y1)
-    return;
+    return TRUE;
 
   /* when converting to integer coordinates make sure we round the edges of the
    * clip rectangle outwards... */
@@ -1338,6 +1337,7 @@ clutter_stage_real_queue_redraw (ClutterActor *actor,
   stage_clip.height = intersection_box.y2 - stage_clip.y;
 
   _clutter_stage_window_add_redraw_clip (stage_window, &stage_clip);
+  return FALSE;
 }
 
 gboolean

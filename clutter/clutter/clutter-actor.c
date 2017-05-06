@@ -2671,9 +2671,12 @@ clutter_actor_real_allocate (ClutterActor           *self,
 }
 
 static void
-_clutter_actor_signal_queue_redraw (ClutterActor *self,
-                                    ClutterActor *origin)
+_clutter_actor_propagate_queue_redraw (ClutterActor       *self,
+                                       ClutterActor       *origin,
+                                       ClutterPaintVolume *pv)
 {
+  gboolean stop = FALSE;
+
   /* no point in queuing a redraw on a destroyed actor */
   if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
     return;
@@ -2682,27 +2685,33 @@ _clutter_actor_signal_queue_redraw (ClutterActor *self,
    * the actor bas been cloned. In this case the clone will need to
    * receive the signal so it can queue its own redraw.
    */
+  while (self)
+    {
+      _clutter_actor_queue_redraw_on_clones (self);
 
-  _clutter_actor_queue_redraw_on_clones (self);
-
-  /* calls klass->queue_redraw in default handler */
-  if (g_signal_has_handler_pending (self, actor_signals[QUEUE_REDRAW],
+      /* calls klass->queue_redraw in default handler */
+      if (g_signal_has_handler_pending (self, actor_signals[QUEUE_REDRAW],
                                     0, TRUE))
-    {
-      g_signal_emit (self, actor_signals[QUEUE_REDRAW], 0, origin);
-    }
-  else
-    {
-      CLUTTER_ACTOR_GET_CLASS (self)->queue_redraw (self, origin);
+        {
+          g_signal_emit (self, actor_signals[QUEUE_REDRAW], 0, origin, pv, &stop);
+        }
+      else
+        {
+          stop = CLUTTER_ACTOR_GET_CLASS (self)->queue_redraw (self, origin, pv);
+        }
+
+      if (stop)
+        break;
+
+      self = clutter_actor_get_parent (self);
     }
 }
 
-static void
-clutter_actor_real_queue_redraw (ClutterActor *self,
-                                 ClutterActor *origin)
+static gboolean
+clutter_actor_real_queue_redraw (ClutterActor       *self,
+                                 ClutterActor       *origin,
+                                 ClutterPaintVolume *paint_volume)
 {
-  ClutterActor *parent;
-
   CLUTTER_NOTE (PAINT, "Redraw queued on '%s' (from: '%s')",
                 _clutter_actor_get_debug_name (self),
                 origin != NULL ? _clutter_actor_get_debug_name (origin)
@@ -2710,7 +2719,7 @@ clutter_actor_real_queue_redraw (ClutterActor *self,
 
   /* no point in queuing a redraw on a destroyed actor */
   if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
-    return;
+    return TRUE;
 
   /* If the queue redraw is coming from a child then the actor has
      become dirty and any queued effect is no longer valid */
@@ -2725,7 +2734,7 @@ clutter_actor_real_queue_redraw (ClutterActor *self,
    * won't change so we don't have to propagate up the hierarchy.
    */
   if (!CLUTTER_ACTOR_IS_VISIBLE (self))
-    return;
+    return TRUE;
 
   /* Although we could determine here that a full stage redraw
    * has already been queued and immediately bail out, we actually
@@ -2739,7 +2748,7 @@ clutter_actor_real_queue_redraw (ClutterActor *self,
       ClutterActor *stage = _clutter_actor_get_stage_internal (self);
       if (stage != NULL &&
           _clutter_stage_has_full_redraw_queued (CLUTTER_STAGE (stage)))
-        return;
+        return TRUE;
     }
 
   self->priv->propagated_one_redraw = TRUE;
@@ -2747,12 +2756,7 @@ clutter_actor_real_queue_redraw (ClutterActor *self,
   /* notify parents, if they are all visible eventually we'll
    * queue redraw on the stage, which queues the redraw idle.
    */
-  parent = clutter_actor_get_parent (self);
-  if (parent != NULL)
-    {
-      /* this will go up recursively */
-      _clutter_actor_signal_queue_redraw (parent, origin);
-    }
+  return FALSE;
 }
 
 static void
@@ -8044,10 +8048,12 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  G_SIGNAL_RUN_LAST |
                   G_SIGNAL_NO_HOOKS,
 		  G_STRUCT_OFFSET (ClutterActorClass, queue_redraw),
-		  NULL, NULL,
-		  _clutter_marshal_VOID__OBJECT,
-		  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_ACTOR);
+                  g_signal_accumulator_true_handled,
+		  NULL,
+		  _clutter_marshal_BOOLEAN__OBJECT_BOXED,
+		  G_TYPE_BOOLEAN, 2,
+                  CLUTTER_TYPE_ACTOR,
+                  CLUTTER_TYPE_PAINT_VOLUME);
 
   /**
    * ClutterActor::queue-relayout:
@@ -8646,8 +8652,7 @@ _clutter_actor_finish_queue_redraw (ClutterActor *self,
                                     ClutterPaintVolume *clip)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterPaintVolume *pv;
-  gboolean clipped;
+  ClutterPaintVolume *pv = NULL;
 
   /* Remove queue entry early in the process, otherwise a new
      queue_redraw() during signal handling could put back this
@@ -8674,8 +8679,7 @@ _clutter_actor_finish_queue_redraw (ClutterActor *self,
    */
   if (clip)
     {
-      _clutter_actor_set_queue_redraw_clip (self, clip);
-      clipped = TRUE;
+      pv = clip;
     }
   else if (G_LIKELY (priv->last_paint_volume_valid))
     {
@@ -8685,36 +8689,12 @@ _clutter_actor_finish_queue_redraw (ClutterActor *self,
           ClutterActor *stage = _clutter_actor_get_stage_internal (self);
 
           /* make sure we redraw the actors old position... */
-          _clutter_actor_set_queue_redraw_clip (stage,
-                                                &priv->last_paint_volume);
-          _clutter_actor_signal_queue_redraw (stage, stage);
-          _clutter_actor_set_queue_redraw_clip (stage, NULL);
-
-          /* XXX: Ideally the redraw signal would take a clip volume
-           * argument, but that would be an ABI break. Until we can
-           * break the ABI we pass the argument out-of-band
-           */
-
-          /* setup the clip for the actors new position... */
-          _clutter_actor_set_queue_redraw_clip (self, pv);
-          clipped = TRUE;
+          _clutter_actor_propagate_queue_redraw (stage, stage,
+                                                 &priv->last_paint_volume);
         }
-      else
-        clipped = FALSE;
     }
-  else
-    clipped = FALSE;
 
-  _clutter_actor_signal_queue_redraw (self, self);
-
-  /* Just in case anyone is manually firing redraw signals without
-   * using the public queue_redraw() API we are careful to ensure that
-   * our out-of-band clip member is cleared before returning...
-   *
-   * Note: A NULL clip denotes a full-stage, un-clipped redraw
-   */
-  if (G_LIKELY (clipped))
-    _clutter_actor_set_queue_redraw_clip (self, NULL);
+  _clutter_actor_propagate_queue_redraw (self, self, pv);
 }
 
 static void
@@ -8875,8 +8855,7 @@ _clutter_actor_queue_redraw_full (ClutterActor       *self,
         {
           /* NB: NULL denotes an undefined clip which will result in a
            * full redraw... */
-          _clutter_actor_set_queue_redraw_clip (self, NULL);
-          _clutter_actor_signal_queue_redraw (self, self);
+          _clutter_actor_propagate_queue_redraw (self, self, NULL);
           return;
         }
 
@@ -16690,26 +16669,6 @@ clutter_actor_has_pointer (ClutterActor *self)
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
   return self->priv->has_pointer;
-}
-
-/* XXX: This is a workaround for not being able to break the ABI of
- * the QUEUE_REDRAW signal. It is an out-of-band argument.  See
- * clutter_actor_queue_clipped_redraw() for details.
- */
-ClutterPaintVolume *
-_clutter_actor_get_queue_redraw_clip (ClutterActor *self)
-{
-  return g_object_get_data (G_OBJECT (self),
-                            "-clutter-actor-queue-redraw-clip");
-}
-
-void
-_clutter_actor_set_queue_redraw_clip (ClutterActor       *self,
-                                      ClutterPaintVolume *clip)
-{
-  g_object_set_data (G_OBJECT (self),
-                     "-clutter-actor-queue-redraw-clip",
-                     clip);
 }
 
 /**
