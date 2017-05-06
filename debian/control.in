@@ -59,6 +59,7 @@ Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          mutter-common (= ${source:Version}),
+         gnome-settings-daemon,
          gsettings-desktop-schemas (>= 3.21.4),
          zenity
 Provides: x-window-manager
