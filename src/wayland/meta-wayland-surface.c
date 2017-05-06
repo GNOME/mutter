@@ -752,6 +752,14 @@ cleanup:
 static void
 meta_wayland_surface_commit (MetaWaylandSurface *surface)
 {
+  /* For some buffer types, realization is required at surface commit time and
+   * cannot be deferred until the actual attach is done, which might happen at a
+   * later time (e.g. synchronized surfaces).
+   */
+  if (surface->pending->buffer &&
+      !meta_wayland_buffer_is_realized (surface->pending->buffer))
+    meta_wayland_buffer_realize (surface->pending->buffer);
+
   /*
    * If this is a sub-surface and it is in effective synchronous mode, only
    * cache the pending surface state until either one of the following two
