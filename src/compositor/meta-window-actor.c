@@ -715,6 +715,7 @@ meta_window_actor_paint (ClutterActor *actor)
       cairo_rectangle_int_t shape_bounds;
       cairo_region_t *clip = priv->shadow_clip;
       MetaWindow *window = priv->window;
+      gboolean partially_drawn = FALSE;
 
       meta_window_actor_get_shape_bounds (self, &shape_bounds);
       meta_window_actor_get_shadow_params (self, appears_focused, &params);
@@ -732,6 +733,17 @@ meta_window_actor_paint (ClutterActor *actor)
 
           cairo_region_subtract (clip, frame_bounds);
         }
+      else if (clip)
+        {
+          cairo_rectangle_int_t shadow_bounds;
+          cairo_region_t *shadow_region;
+
+          meta_window_actor_get_shadow_bounds (self, appears_focused, &shadow_bounds);
+          shadow_region = cairo_region_create_rectangle (&shadow_bounds);
+          cairo_region_intersect (shadow_region, clip);
+          partially_drawn = !cairo_region_is_empty (shadow_region);
+          cairo_region_destroy (shadow_region);
+        }
 
       meta_shadow_paint (shadow,
                          params.x_offset + shape_bounds.x,
@@ -740,7 +752,7 @@ meta_window_actor_paint (ClutterActor *actor)
                          shape_bounds.height,
                          (clutter_actor_get_paint_opacity (actor) * params.opacity * window->opacity) / (255 * 255),
                          clip,
-                         clip_shadow_under_window (self)); /* clip_strictly - not just as an optimization */
+                         clip_shadow_under_window (self) || partially_drawn);
 
       if (clip && clip != priv->shadow_clip)
         cairo_region_destroy (clip);
