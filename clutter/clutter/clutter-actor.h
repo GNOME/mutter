@@ -236,8 +236,9 @@ struct _ClutterActorClass
   void (* pick)                 (ClutterActor          *actor,
                                  const ClutterColor    *color);
 
-  void (* queue_redraw)         (ClutterActor          *actor,
-                                 ClutterActor          *leaf_that_queued);
+  gboolean (* queue_redraw)     (ClutterActor          *actor,
+                                 ClutterActor          *leaf_that_queued,
+                                 ClutterPaintVolume    *paint_volume);
 
   /* size negotiation */
   void (* get_preferred_width)  (ClutterActor           *self,
