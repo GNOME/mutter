@@ -471,14 +471,6 @@ queue_surface_actor_frame_callbacks (MetaWaylandSurface      *surface,
 }
 
 static void
-pending_buffer_resource_destroyed (MetaWaylandBuffer       *buffer,
-                                   MetaWaylandPendingState *pending)
-{
-  g_signal_handler_disconnect (buffer, pending->buffer_destroy_handler_id);
-  pending->buffer = NULL;
-}
-
-static void
 pending_state_init (MetaWaylandPendingState *state)
 {
   state->newly_attached = FALSE;
@@ -510,8 +502,9 @@ pending_state_destroy (MetaWaylandPendingState *state)
   g_clear_pointer (&state->opaque_region, cairo_region_destroy);
 
   if (state->buffer)
-    g_signal_handler_disconnect (state->buffer,
-                                 state->buffer_destroy_handler_id);
+    g_object_remove_weak_pointer (G_OBJECT (state->buffer),
+                                  (gpointer *) &state->buffer);
+
   wl_list_for_each_safe (cb, next, &state->frame_callback_list, link)
     wl_resource_destroy (cb->resource);
 }
@@ -528,7 +521,10 @@ move_pending_state (MetaWaylandPendingState *from,
                     MetaWaylandPendingState *to)
 {
   if (from->buffer)
-    g_signal_handler_disconnect (from->buffer, from->buffer_destroy_handler_id);
+    {
+      g_object_remove_weak_pointer (G_OBJECT (from->buffer),
+                                    (gpointer *) &from->buffer);
+    }
 
   to->newly_attached = from->newly_attached;
   to->buffer = from->buffer;
@@ -554,10 +550,8 @@ move_pending_state (MetaWaylandPendingState *from,
 
   if (to->buffer)
     {
-      to->buffer_destroy_handler_id =
-        g_signal_connect (to->buffer, "resource-destroyed",
-                          G_CALLBACK (pending_buffer_resource_destroyed),
-                          to);
+      g_object_add_weak_pointer (G_OBJECT (to->buffer),
+                                 (gpointer *) &to->buffer);
     }
 
   pending_state_init (from);
@@ -913,8 +907,8 @@ wl_surface_attach (struct wl_client *client,
 
   if (surface->pending->buffer)
     {
-      g_signal_handler_disconnect (surface->pending->buffer,
-                                   surface->pending->buffer_destroy_handler_id);
+      g_object_remove_weak_pointer (G_OBJECT (surface->pending->buffer),
+                                    (gpointer *) &surface->pending->buffer);
     }
 
   surface->pending->newly_attached = TRUE;
@@ -924,10 +918,8 @@ wl_surface_attach (struct wl_client *client,
 
   if (buffer)
     {
-      surface->pending->buffer_destroy_handler_id =
-        g_signal_connect (buffer, "resource-destroyed",
-                          G_CALLBACK (pending_buffer_resource_destroyed),
-                          surface->pending);
+      g_object_add_weak_pointer (G_OBJECT (surface->pending->buffer),
+                                 (gpointer *) &surface->pending->buffer);
     }
 }
 

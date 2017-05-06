@@ -123,7 +123,6 @@ struct _MetaWaylandPendingState
   /* wl_surface.attach */
   gboolean newly_attached;
   MetaWaylandBuffer *buffer;
-  gulong buffer_destroy_handler_id;
   int32_t dx;
   int32_t dy;
 
