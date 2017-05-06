@@ -515,6 +515,12 @@ merge_pending_state (MetaWaylandPendingState *from,
         g_signal_connect (to->buffer, "resource-destroyed",
                           G_CALLBACK (pending_buffer_resource_destroyed),
                           to);
+
+      /* Some buffer types might need buffer realization to be done, even when
+       * the full attach is deferred
+       */
+      if (!meta_wayland_buffer_is_realized (to->buffer))
+        meta_wayland_buffer_realize (to->buffer);
     }
 
   pending_state_init (from);

@@ -88,13 +88,13 @@ meta_wayland_buffer_from_resource (struct wl_resource *resource)
   return buffer;
 }
 
-static gboolean
+gboolean
 meta_wayland_buffer_is_realized (MetaWaylandBuffer *buffer)
 {
   return buffer->type != META_WAYLAND_BUFFER_TYPE_UNKNOWN;
 }
 
-static gboolean
+gboolean
 meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
 {
   EGLint format;
