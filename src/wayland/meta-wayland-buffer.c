@@ -88,13 +88,13 @@ meta_wayland_buffer_from_resource (struct wl_resource *resource)
   return buffer;
 }
 
-static gboolean
+gboolean
 meta_wayland_buffer_is_realized (MetaWaylandBuffer *buffer)
 {
   return buffer->type != META_WAYLAND_BUFFER_TYPE_UNKNOWN;
 }
 
-static gboolean
+gboolean
 meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
 {
   EGLint format;
@@ -125,13 +125,12 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
     {
       CoglTexture2D *texture;
 
-      buffer->egl_stream.stream = stream;
-      buffer->type = META_WAYLAND_BUFFER_TYPE_EGL_STREAM;
-
       texture = meta_wayland_egl_stream_create_texture (stream, NULL);
       if (!texture)
         return FALSE;
 
+      buffer->egl_stream.stream = stream;
+      buffer->type = META_WAYLAND_BUFFER_TYPE_EGL_STREAM;
       buffer->texture = COGL_TEXTURE (texture);
       buffer->is_y_inverted = meta_wayland_egl_stream_is_y_inverted (stream);
 
@@ -338,13 +337,11 @@ meta_wayland_buffer_attach (MetaWaylandBuffer *buffer,
 
   if (!meta_wayland_buffer_is_realized (buffer))
     {
-      if (!meta_wayland_buffer_realize (buffer))
-        {
-          g_set_error (error, G_IO_ERROR,
-                       G_IO_ERROR_FAILED,
-                       "Unknown buffer type");
-          return FALSE;
-        }
+      /* The buffer should have been realized at surface commit time */
+      g_set_error (error, G_IO_ERROR,
+                   G_IO_ERROR_FAILED,
+                   "Unknown buffer type");
+      return FALSE;
     }
 
   switch (buffer->type)
