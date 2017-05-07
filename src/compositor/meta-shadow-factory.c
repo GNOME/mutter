@@ -220,9 +220,7 @@ meta_shadow_paint (MetaShadow     *shadow,
   int dest_x[4];
   int dest_y[4];
   int n_x, n_y;
-
-  cogl_pipeline_set_color4ub (shadow->pipeline,
-                              opacity, opacity, opacity, opacity);
+  gboolean source_updated = FALSE;
 
   cogl_set_source (shadow->pipeline);
 
@@ -299,6 +297,17 @@ meta_shadow_paint (MetaShadow     *shadow,
             overlap = cairo_region_contains_rectangle (clip, &dest_rect);
           else
             overlap = CAIRO_REGION_OVERLAP_IN;
+
+          if (overlap == CAIRO_REGION_OVERLAP_OUT)
+            continue;
+
+          if (!source_updated)
+            {
+              cogl_pipeline_set_color4ub (shadow->pipeline,
+                                          opacity, opacity, opacity, opacity);
+              cogl_set_source (shadow->pipeline);
+              source_updated = TRUE;
+            }
 
           /* There's quite a bit of overhead from allocating a new
            * region in order to find an exact intersection and
