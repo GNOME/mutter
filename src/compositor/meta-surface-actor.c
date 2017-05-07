@@ -35,7 +35,6 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaSurfaceActor, meta_surface_actor, CLUTTER_
                                   G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
 
 enum {
-  REPAINT_SCHEDULED,
   SIZE_CHANGED,
 
   LAST_SIGNAL,
@@ -121,13 +120,6 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
   object_class->dispose = meta_surface_actor_dispose;
   actor_class->pick = meta_surface_actor_pick;
 
-  signals[REPAINT_SCHEDULED] = g_signal_new ("repaint-scheduled",
-                                             G_TYPE_FROM_CLASS (object_class),
-                                             G_SIGNAL_RUN_LAST,
-                                             0,
-                                             NULL, NULL, NULL,
-                                             G_TYPE_NONE, 0);
-
   signals[SIZE_CHANGED] = g_signal_new ("size-changed",
                                         G_TYPE_FROM_CLASS (object_class),
                                         G_SIGNAL_RUN_LAST,
@@ -201,8 +193,7 @@ meta_surface_actor_update_area (MetaSurfaceActor *self,
 {
   MetaSurfaceActorPrivate *priv = self->priv;
 
-  if (meta_shaped_texture_update_area (priv->texture, x, y, width, height))
-    g_signal_emit (self, signals[REPAINT_SCHEDULED], 0);
+  meta_shaped_texture_update_area (priv->texture, x, y, width, height);
 }
 
 gboolean
