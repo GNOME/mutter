@@ -82,7 +82,6 @@ struct _MetaWindowActorPrivate
   guint             send_frame_messages_timer;
   gint64            frame_drawn_time;
 
-  guint             repaint_scheduled_id;
   guint             size_changed_id;
 
   /*
@@ -194,6 +193,18 @@ frame_data_free (FrameData *frame)
   g_slice_free (FrameData, frame);
 }
 
+static gboolean
+meta_window_actor_queue_redraw (ClutterActor       *actor,
+                                ClutterActor       *leaf,
+                                ClutterPaintVolume *paint_volume)
+{
+  MetaWindowActor *self = META_WINDOW_ACTOR (actor);
+  MetaWindowActorPrivate *priv = self->priv;
+
+  priv->repaint_scheduled = TRUE;
+  return CLUTTER_ACTOR_CLASS (meta_window_actor_parent_class)->queue_redraw (actor, leaf, paint_volume);
+}
+
 static void
 meta_window_actor_class_init (MetaWindowActorClass *klass)
 {
@@ -211,6 +222,7 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
 
   actor_class->paint = meta_window_actor_paint;
   actor_class->get_paint_volume = meta_window_actor_get_paint_volume;
+  actor_class->queue_redraw = meta_window_actor_queue_redraw;
 
   /**
    * MetaWindowActor::first-frame:
@@ -295,16 +307,6 @@ surface_size_changed (MetaSurfaceActor *actor,
   MetaWindowActor *self = META_WINDOW_ACTOR (user_data);
 
   meta_window_actor_update_shape (self);
-}
-
-static void
-surface_repaint_scheduled (MetaSurfaceActor *actor,
-                           gpointer          user_data)
-{
-  MetaWindowActor *self = META_WINDOW_ACTOR (user_data);
-  MetaWindowActorPrivate *priv = self->priv;
-
-  priv->repaint_scheduled = TRUE;
 }
 
 static gboolean
@@ -396,9 +398,7 @@ set_surface (MetaWindowActor  *self,
 
   if (priv->surface)
     {
-      g_signal_handler_disconnect (priv->surface, priv->repaint_scheduled_id);
       g_signal_handler_disconnect (priv->surface, priv->size_changed_id);
-      priv->repaint_scheduled_id = 0;
       clutter_actor_remove_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->surface));
       g_object_unref (priv->surface);
     }
@@ -408,8 +408,6 @@ set_surface (MetaWindowActor  *self,
   if (priv->surface)
     {
       g_object_ref_sink (priv->surface);
-      priv->repaint_scheduled_id = g_signal_connect (priv->surface, "repaint-scheduled",
-                                                     G_CALLBACK (surface_repaint_scheduled), self);
       priv->size_changed_id = g_signal_connect (priv->surface, "size-changed",
                                                 G_CALLBACK (surface_size_changed), self);
       clutter_actor_add_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->surface));
