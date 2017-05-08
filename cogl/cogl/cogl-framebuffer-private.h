@@ -192,6 +192,11 @@ struct _CoglFramebuffer
   CoglFramebufferBits bits;
 
   int                 samples_per_pixel;
+
+  /* Whether the depth buffer was enabled for this framebuffer,
+   * usually means it needs to be cleared before being reused next.
+   */
+  CoglBool            depth_buffer_clear_needed;
 };
 
 typedef enum {
