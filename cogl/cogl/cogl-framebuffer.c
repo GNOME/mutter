@@ -116,6 +116,7 @@ _cogl_framebuffer_init (CoglFramebuffer *framebuffer,
   framebuffer->viewport_age_for_scissor_workaround = -1;
   framebuffer->dither_enabled = TRUE;
   framebuffer->depth_writing_enabled = TRUE;
+  framebuffer->depth_buffer_clear_needed = TRUE;
 
   framebuffer->modelview_stack = cogl_matrix_stack_new (ctx);
   framebuffer->projection_stack = cogl_matrix_stack_new (ctx);
@@ -267,6 +268,13 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
   int scissor_y1;
   CoglBool saved_viewport_scissor_workaround;
 
+  if (!framebuffer->depth_buffer_clear_needed &&
+      (buffers & COGL_BUFFER_BIT_DEPTH))
+    buffers &= ~(COGL_BUFFER_BIT_DEPTH);
+
+  if (buffers == 0)
+    return;
+
   _cogl_clip_stack_get_bounds (clip_stack,
                                &scissor_x0, &scissor_y0,
                                &scissor_x1, &scissor_y1);
@@ -413,6 +421,9 @@ cleared:
 
   _cogl_framebuffer_mark_mid_scene (framebuffer);
   _cogl_framebuffer_mark_clear_clip_dirty (framebuffer);
+
+  if (buffers & COGL_BUFFER_BIT_DEPTH)
+    framebuffer->depth_buffer_clear_needed = FALSE;
 
   if (buffers & COGL_BUFFER_BIT_COLOR && buffers & COGL_BUFFER_BIT_DEPTH)
     {
