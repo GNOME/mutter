@@ -418,7 +418,11 @@ flush_depth_state (CoglContext *ctx,
   if (ctx->depth_test_enabled_cache != depth_state->test_enabled)
     {
       if (depth_state->test_enabled == TRUE)
-        GE (ctx, glEnable (GL_DEPTH_TEST));
+        {
+          GE (ctx, glEnable (GL_DEPTH_TEST));
+          if (ctx->current_draw_buffer)
+            ctx->current_draw_buffer->depth_buffer_clear_needed = TRUE;
+        }
       else
         GE (ctx, glDisable (GL_DEPTH_TEST));
       ctx->depth_test_enabled_cache = depth_state->test_enabled;
