@@ -1,3 +1,19 @@
+3.24.2
+======
+* Don't crash when wayland clients commit to destroyed surfaces [Jonas; #781391]
+* Fix frame updates on hide-titlebar-when-maximized changes [Florian; #781862]
+* Fix accessible screen coordinates on X11 [Florian; #781902]
+* Fix copy+paste of UTF8 strings between X11 and wayland [Carlos; #782472]
+* Fix non-wayland builds [Chris; #780533]
+* Misc. bug fixes [Philip, Matthias, Nigel; #781242, #780215, #759085]
+
+Contributors:
+  Jonas Ådahl, Philip Chimento, Carlos Garnacho, Matthias Liertzer,
+  Florian Müllner, Nigel Taylor, Chris Vine
+
+Translations:
+  Jordi Mas [ca]
+
 3.24.1
 ======
 * Always sync window geometry on state changes [Jonas; #780292]
