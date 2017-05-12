@@ -866,6 +866,14 @@ meta_window_actor_has_shadow (MetaWindowActor *self)
     return FALSE;
 
   /*
+   * OpenJDK wrongly assumes that shaping a window implies no compositor
+   * shadows; make its compliance tests happy to give it what it wants ...
+   */
+  if (g_strcmp0 (priv->window->res_name, "sun-awt-X11-XWindowPeer") == 0 &&
+      priv->window->shape_region != NULL)
+    return FALSE;
+
+  /*
    * Generate shadows for all other windows.
    */
   return TRUE;
