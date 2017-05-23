@@ -65,6 +65,9 @@ struct _MetaInputSettingsClass
   void (* set_tap_enabled)   (MetaInputSettings  *settings,
                               ClutterInputDevice *device,
                               gboolean            enabled);
+  void (* set_disable_while_typing) (MetaInputSettings  *settings,
+                                     ClutterInputDevice *device,
+                                     gboolean            enabled);
   void (* set_invert_scroll) (MetaInputSettings  *settings,
                               ClutterInputDevice *device,
                               gboolean            inverted);
@@ -117,7 +120,6 @@ struct _MetaInputSettingsClass
                                   ClutterInputDeviceTool     *tool,
                                   GDesktopStylusButtonAction  primary,
                                   GDesktopStylusButtonAction  secondary);
-
   gboolean (* has_two_finger_scroll) (MetaInputSettings  *settings,
                                       ClutterInputDevice *device);
 };
