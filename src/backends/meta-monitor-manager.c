@@ -194,6 +194,7 @@ calculate_monitor_scale (MetaMonitorManager *manager,
 
   monitor_mode = meta_monitor_get_current_mode (monitor);
   return meta_monitor_manager_calculate_monitor_mode_scale (manager,
+                                                            manager->layout_mode,
                                                             monitor,
                                                             monitor_mode);
 }
@@ -361,14 +362,16 @@ meta_monitor_manager_is_headless (MetaMonitorManager *manager)
 }
 
 float
-meta_monitor_manager_calculate_monitor_mode_scale (MetaMonitorManager *manager,
-                                                   MetaMonitor        *monitor,
-                                                   MetaMonitorMode    *monitor_mode)
+meta_monitor_manager_calculate_monitor_mode_scale (MetaMonitorManager          *manager,
+                                                   MetaLogicalMonitorLayoutMode layout_mode,
+                                                   MetaMonitor                 *monitor,
+                                                   MetaMonitorMode             *monitor_mode)
 {
   MetaMonitorManagerClass *manager_class =
     META_MONITOR_MANAGER_GET_CLASS (manager);
 
   return manager_class->calculate_monitor_mode_scale (manager,
+                                                      layout_mode,
                                                       monitor,
                                                       monitor_mode);
 }
@@ -1314,6 +1317,7 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
 
           preferred_scale =
             meta_monitor_manager_calculate_monitor_mode_scale (manager,
+                                                               manager->layout_mode,
                                                                monitor,
                                                                monitor_mode);
 
