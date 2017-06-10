@@ -700,6 +700,7 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
     scale = primary_logical_monitor_config->scale;
   else
     scale = meta_monitor_manager_calculate_monitor_mode_scale (monitor_manager,
+                                                               layout_mode,
                                                                monitor,
                                                                mode);
 
@@ -1087,6 +1088,7 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
   GList *l;
   MetaMonitorsConfig *monitors_config;
 
+  layout_mode = meta_monitor_manager_get_default_layout_mode (monitor_manager);
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   monitor = monitors->data;
   modes = meta_monitor_get_modes (monitor);
@@ -1159,7 +1161,9 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
       if (!mode)
         continue;
 
-      scale = meta_monitor_manager_calculate_monitor_mode_scale (monitor_manager, monitor, mode);
+      scale = meta_monitor_manager_calculate_monitor_mode_scale (monitor_manager,
+                                                                 layout_mode,
+                                                                 monitor, mode);
       best_scale = MAX (best_scale, scale);
       monitor_configs = g_list_prepend (monitor_configs, create_monitor_config (monitor, mode));
     }
@@ -1177,7 +1181,6 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
   };
 
   logical_monitor_configs = g_list_append (NULL, logical_monitor_config);
-  layout_mode = meta_monitor_manager_get_default_layout_mode (monitor_manager);
   monitors_config = meta_monitors_config_new (monitor_manager,
                                               logical_monitor_configs,
                                               layout_mode,
