@@ -837,11 +837,15 @@ meta_monitor_manager_xrandr_is_transform_handled (MetaMonitorManager  *manager,
 }
 
 static float
-meta_monitor_manager_xrandr_calculate_monitor_mode_scale (MetaMonitorManager *manager,
-                                                          MetaMonitor        *monitor,
-                                                          MetaMonitorMode    *monitor_mode)
+meta_monitor_manager_xrandr_calculate_monitor_mode_scale (MetaMonitorManager          *manager,
+                                                          MetaLogicalMonitorLayoutMode layout_mode,
+                                                          MetaMonitor                 *monitor,
+                                                          MetaMonitorMode             *monitor_mode)
 {
-  return meta_monitor_calculate_mode_scale (monitor, monitor_mode);
+  MetaMonitorScalesConstraint constraints;
+
+  constraints = META_MONITOR_SCALES_CONSTRAINT_NO_FRAC;
+  return meta_monitor_calculate_mode_scale (monitor, monitor_mode, constraints);
 }
 
 static void
