@@ -1190,6 +1190,9 @@ meta_finish_monitors_config_migration (MetaMonitorManager *monitor_manager,
   MetaMonitorConfigStore *config_store =
     meta_monitor_config_manager_get_store (config_manager);
   GList *l;
+  MetaLogicalMonitorLayoutMode layout_mode;
+
+  layout_mode = meta_monitor_manager_get_default_layout_mode (monitor_manager);
 
   for (l = config->logical_monitor_configs; l; l = l->next)
     {
@@ -1199,7 +1202,6 @@ meta_finish_monitors_config_migration (MetaMonitorManager *monitor_manager,
       MetaMonitor *monitor;
       MetaMonitorModeSpec *monitor_mode_spec;
       MetaMonitorMode *monitor_mode;
-      float scale;
 
       monitor_config = logical_monitor_config->monitor_configs->data;
       monitor_spec = monitor_config->monitor_spec;
@@ -1215,13 +1217,14 @@ meta_finish_monitors_config_migration (MetaMonitorManager *monitor_manager,
           return FALSE;
         }
 
-      scale = meta_monitor_calculate_mode_scale (monitor, monitor_mode);
-
-      logical_monitor_config->scale = scale;
+      logical_monitor_config->scale =
+        meta_monitor_manager_calculate_monitor_mode_scale (monitor_manager,
+                                                           layout_mode,
+                                                           monitor,
+                                                           monitor_mode);
     }
 
-  config->layout_mode =
-    meta_monitor_manager_get_default_layout_mode (monitor_manager);
+  config->layout_mode = layout_mode;
   config->flags &= ~META_MONITORS_CONFIG_FLAG_MIGRATED;
 
   if (!meta_verify_monitors_config (config, monitor_manager, error))
