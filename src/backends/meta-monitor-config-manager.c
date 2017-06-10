@@ -529,6 +529,7 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
     scale = primary_logical_monitor_config->scale;
   else
     scale = meta_monitor_manager_calculate_monitor_mode_scale (monitor_manager,
+                                                               monitor_manager->layout_mode,
                                                                monitor,
                                                                mode);
 
@@ -904,7 +905,7 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
       if (!mode)
         continue;
 
-      scale = meta_monitor_manager_calculate_monitor_mode_scale (monitor_manager, monitor, mode);
+      scale = meta_monitor_manager_calculate_monitor_mode_scale (monitor_manager, monitor_manager->layout_mode, monitor, mode);
       best_scale = MAX (best_scale, scale);
       monitor_configs = g_list_prepend (monitor_configs, create_monitor_config (monitor, mode));
     }

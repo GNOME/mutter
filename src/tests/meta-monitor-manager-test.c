@@ -373,6 +373,7 @@ meta_monitor_manager_test_is_transform_handled (MetaMonitorManager  *manager,
 
 static float
 meta_monitor_manager_test_calculate_monitor_mode_scale (MetaMonitorManager *manager,
+                                                        MetaLogicalMonitorLayoutMode layout_mode,
                                                         MetaMonitor        *monitor,
                                                         MetaMonitorMode    *monitor_mode)
 {

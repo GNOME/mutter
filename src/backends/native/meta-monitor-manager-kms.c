@@ -428,20 +428,8 @@ meta_monitor_manager_kms_is_transform_handled (MetaMonitorManager  *manager,
   return meta_crtc_kms_is_transform_handled (crtc, transform);
 }
 
-static float
-meta_monitor_manager_kms_calculate_monitor_mode_scale (MetaMonitorManager *manager,
-                                                       MetaMonitor        *monitor,
-                                                       MetaMonitorMode    *monitor_mode)
-{
-  return meta_monitor_calculate_mode_scale (monitor, monitor_mode);
-}
-
-static float *
-meta_monitor_manager_kms_calculate_supported_scales (MetaMonitorManager          *manager,
-                                                     MetaLogicalMonitorLayoutMode layout_mode,
-                                                     MetaMonitor                 *monitor,
-                                                     MetaMonitorMode             *monitor_mode,
-                                                     int                         *n_supported_scales)
+static MetaMonitorScalesConstraint
+get_monitor_scale_constraints_per_layout_mode (MetaLogicalMonitorLayoutMode layout_mode)
 {
   MetaMonitorScalesConstraint constraints =
     META_MONITOR_SCALES_CONSTRAINT_NONE;
@@ -454,6 +442,31 @@ meta_monitor_manager_kms_calculate_supported_scales (MetaMonitorManager         
       constraints |= META_MONITOR_SCALES_CONSTRAINT_NO_FRAC;
       break;
     }
+
+  return constraints;
+}
+
+static float
+meta_monitor_manager_kms_calculate_monitor_mode_scale (MetaMonitorManager *manager,
+                                                       MetaLogicalMonitorLayoutMode layout_mode,
+                                                       MetaMonitor        *monitor,
+                                                       MetaMonitorMode    *monitor_mode)
+{
+  MetaMonitorScalesConstraint constraints =
+    get_monitor_scale_constraints_per_layout_mode (layout_mode);
+
+  return meta_monitor_calculate_mode_scale (monitor, monitor_mode, constraints);
+}
+
+static float *
+meta_monitor_manager_kms_calculate_supported_scales (MetaMonitorManager          *manager,
+                                                     MetaLogicalMonitorLayoutMode layout_mode,
+                                                     MetaMonitor                 *monitor,
+                                                     MetaMonitorMode             *monitor_mode,
+                                                     int                         *n_supported_scales)
+{
+  MetaMonitorScalesConstraint constraints =
+    get_monitor_scale_constraints_per_layout_mode (layout_mode);
 
   return meta_monitor_calculate_supported_scales (monitor, monitor_mode,
                                                   constraints,
