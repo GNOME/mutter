@@ -3875,6 +3875,18 @@ meta_window_update_monitor (MetaWindow *window,
     }
 }
 
+static gboolean
+meta_window_should_sync_geometry (MetaWindow          *window,
+                                  MetaMoveResizeFlags  flags)
+{
+#ifdef HAVE_WAYLAND
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
+    return (flags & META_MOVE_RESIZE_WAYLAND_RESIZE) != 0;
+#endif
+
+  return (flags & META_MOVE_RESIZE_STATE_CHANGED) != 0;
+}
+
 void
 meta_window_move_resize_internal (MetaWindow          *window,
                                   MetaMoveResizeFlags  flags,
@@ -3997,7 +4009,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   if ((moved_or_resized ||
        did_placement ||
-       (flags & META_MOVE_RESIZE_STATE_CHANGED) != 0) &&
+       meta_window_should_sync_geometry (window, flags)) &&
       window->known_to_compositor)
     {
       meta_compositor_sync_window_geometry (window->display->compositor,
