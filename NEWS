@@ -1,3 +1,21 @@
+3.24.3
+======
+* Fix handling of tiled monitors [Jonas; #781723]
+* Fix swapped red and blue channels in CoglTexture data [Carlos; #779234]
+* Fix glitches when opening a window maximized [Olivier; #781353, #782183]
+* Implement support for disable-while-typing option [Evan; #764852]
+* Consider subsurfaces when grabbing [mindtree; #781811]
+* Fix handling of left-handed mode on pen/eraser devices [Carlos; #782027]
+* Fix output cycling in non-display-attached tablets [Carlos; #782032]
+* Fix wacom cursor offset on wayland [Jason; #784009]
+* Handle EXIF orientation of backgrounds [Silvère; #783125]
+* Misc. bug fixes [Jonas, Bastien, Ikey, Carlos; #782156, #780407, #757661,
+  #783113, #781703]
+
+Contributors:
+  mitchmindtree, Jonas Ådahl, Ikey Doherty, Olivier Fourdan, Carlos Garnacho,
+  Jason Gerecke, Silvère Latchurié, Bastien Nocera, Evan Welsh
+
 3.24.2
 ======
 * Don't crash when wayland clients commit to destroyed surfaces [Jonas; #781391]
