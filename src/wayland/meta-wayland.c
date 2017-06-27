@@ -46,6 +46,8 @@
 #include "meta-wayland-inhibit-shortcuts.h"
 #include "meta-wayland-inhibit-shortcuts-dialog.h"
 #include "meta-xwayland-grab-keyboard.h"
+#include "meta-xwayland.h"
+#include "meta-wayland-egl-stream.h"
 
 static MetaWaylandCompositor _meta_wayland_compositor;
 static char *_display_name_override;
@@ -393,6 +395,8 @@ meta_wayland_init (void)
     wl_display_set_global_filter (compositor->wayland_display,
                                   meta_xwayland_global_filter,
                                   compositor);
+
+  meta_wayland_eglstream_controller_init (compositor);
 
   if (!meta_xwayland_start (&compositor->xwayland_manager, compositor->wayland_display))
     g_error ("Failed to start X Wayland");
