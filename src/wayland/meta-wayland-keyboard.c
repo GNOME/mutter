@@ -127,34 +127,65 @@ create_anonymous_file (off_t    size,
 }
 
 static void
+send_keymap (MetaWaylandKeyboard *keyboard,
+             struct wl_resource  *resource)
+{
+  MetaWaylandXkbInfo *xkb_info = &keyboard->xkb_info;
+  GError *error = NULL;
+  int fd;
+  char *keymap_area;
+
+  if (!xkb_info->keymap_string)
+    return;
+
+  fd = create_anonymous_file (xkb_info->keymap_size, &error);
+  if (fd < 0)
+    {
+      g_warning ("Creating a keymap file for %lu bytes failed: %s",
+                 (unsigned long) xkb_info->keymap_size,
+                 error->message);
+      g_clear_error (&error);
+      return;
+    }
+
+
+  keymap_area = mmap (NULL, xkb_info->keymap_size,
+                      PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  if (keymap_area == MAP_FAILED)
+    {
+      g_warning ("Failed to mmap() %lu bytes\n",
+                 (unsigned long) xkb_info->keymap_size);
+      close (fd);
+      return;
+    }
+
+  strcpy (keymap_area, xkb_info->keymap_string);
+
+  munmap (keymap_area, xkb_info->keymap_size);
+
+  wl_keyboard_send_keymap (resource,
+                           WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
+                           fd,
+                           keyboard->xkb_info.keymap_size);
+  close (fd);
+}
+
+static void
 inform_clients_of_new_keymap (MetaWaylandKeyboard *keyboard)
 {
   struct wl_resource *keyboard_resource;
 
   wl_resource_for_each (keyboard_resource, &keyboard->resource_list)
-    {
-      wl_keyboard_send_keymap (keyboard_resource,
-			       WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
-			       keyboard->xkb_info.keymap_fd,
-			       keyboard->xkb_info.keymap_size);
-    }
+    send_keymap (keyboard, keyboard_resource);
   wl_resource_for_each (keyboard_resource, &keyboard->focus_resource_list)
-    {
-      wl_keyboard_send_keymap (keyboard_resource,
-                               WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
-                               keyboard->xkb_info.keymap_fd,
-                               keyboard->xkb_info.keymap_size);
-    }
+    send_keymap (keyboard, keyboard_resource);
 }
 
 static void
 meta_wayland_keyboard_take_keymap (MetaWaylandKeyboard *keyboard,
 				   struct xkb_keymap   *keymap)
 {
-  MetaWaylandXkbInfo  *xkb_info = &keyboard->xkb_info;
-  GError *error = NULL;
-  char *keymap_str;
-  size_t previous_size;
+  MetaWaylandXkbInfo *xkb_info = &keyboard->xkb_info;
 
   if (keymap == NULL)
     {
@@ -162,60 +193,24 @@ meta_wayland_keyboard_take_keymap (MetaWaylandKeyboard *keyboard,
       return;
     }
 
+  g_clear_pointer (&xkb_info->keymap_string, g_free);
   xkb_keymap_unref (xkb_info->keymap);
   xkb_info->keymap = xkb_keymap_ref (keymap);
 
   meta_wayland_keyboard_update_xkb_state (keyboard);
 
-  keymap_str = xkb_map_get_as_string (xkb_info->keymap);
-  if (keymap_str == NULL)
+  xkb_info->keymap_string =
+    xkb_keymap_get_as_string (xkb_info->keymap, XKB_KEYMAP_FORMAT_TEXT_V1);
+  if (!xkb_info->keymap_string)
     {
-      g_warning ("failed to get string version of keymap");
+      g_warning ("Failed to get string version of keymap");
       return;
     }
-  previous_size = xkb_info->keymap_size;
-  xkb_info->keymap_size = strlen (keymap_str) + 1;
-
-  if (xkb_info->keymap_fd >= 0)
-    close (xkb_info->keymap_fd);
-
-  xkb_info->keymap_fd = create_anonymous_file (xkb_info->keymap_size, &error);
-  if (xkb_info->keymap_fd < 0)
-    {
-      g_warning ("creating a keymap file for %lu bytes failed: %s",
-                 (unsigned long) xkb_info->keymap_size,
-                 error->message);
-      g_clear_error (&error);
-      goto err_keymap_str;
-    }
-
-  if (xkb_info->keymap_area)
-    munmap (xkb_info->keymap_area, previous_size);
-
-  xkb_info->keymap_area = mmap (NULL, xkb_info->keymap_size,
-                                PROT_READ | PROT_WRITE,
-                                MAP_SHARED, xkb_info->keymap_fd, 0);
-  if (xkb_info->keymap_area == MAP_FAILED)
-    {
-      g_warning ("failed to mmap() %lu bytes\n",
-                 (unsigned long) xkb_info->keymap_size);
-      goto err_dev_zero;
-    }
-  strcpy (xkb_info->keymap_area, keymap_str);
-  free (keymap_str);
+  xkb_info->keymap_size = strlen (xkb_info->keymap_string) + 1;
 
   inform_clients_of_new_keymap (keyboard);
 
   notify_modifiers (keyboard);
-
-  return;
-
-err_dev_zero:
-  close (xkb_info->keymap_fd);
-  xkb_info->keymap_fd = -1;
-err_keymap_str:
-  free (keymap_str);
-  return;
 }
 
 static xkb_mod_mask_t
@@ -708,27 +703,11 @@ meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard)
 }
 
 static void
-meta_wayland_xkb_info_init (MetaWaylandXkbInfo *xkb_info)
-{
-  xkb_info->keymap_fd = -1;
-}
-
-static void
 meta_wayland_xkb_info_destroy (MetaWaylandXkbInfo *xkb_info)
 {
   g_clear_pointer (&xkb_info->keymap, xkb_keymap_unref);
   g_clear_pointer (&xkb_info->state, xkb_state_unref);
-
-  if (xkb_info->keymap_area)
-    {
-      munmap (xkb_info->keymap_area, xkb_info->keymap_size);
-      xkb_info->keymap_area = NULL;
-    }
-  if (xkb_info->keymap_fd >= 0)
-    {
-      close (xkb_info->keymap_fd);
-      xkb_info->keymap_fd = -1;
-    }
+  g_clear_pointer (&xkb_info->keymap_string, g_free);
 }
 
 void
@@ -1001,10 +980,7 @@ meta_wayland_keyboard_create_new_resource (MetaWaylandKeyboard *keyboard,
   wl_resource_set_implementation (resource, &keyboard_interface,
                                   keyboard, unbind_resource);
 
-  wl_keyboard_send_keymap (resource,
-                           WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
-                           keyboard->xkb_info.keymap_fd,
-                           keyboard->xkb_info.keymap_size);
+  send_keymap (keyboard, resource);
 
   notify_key_repeat_for_resource (keyboard, resource);
 
@@ -1049,8 +1025,6 @@ meta_wayland_keyboard_init (MetaWaylandKeyboard *keyboard)
 {
   wl_list_init (&keyboard->resource_list);
   wl_list_init (&keyboard->focus_resource_list);
-
-  meta_wayland_xkb_info_init (&keyboard->xkb_info);
 
   keyboard->default_grab.interface = &default_keyboard_grab_interface;
   keyboard->default_grab.keyboard = keyboard;
