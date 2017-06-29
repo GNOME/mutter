@@ -89,7 +89,7 @@ unbind_resource (struct wl_resource *resource)
 }
 
 static int
-create_anonymous_file (off_t size,
+create_anonymous_file (off_t    size,
                        GError **error)
 {
   static const char template[] = "mutter-shared-XXXXXX";
