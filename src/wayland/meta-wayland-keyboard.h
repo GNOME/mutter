@@ -74,9 +74,8 @@ typedef struct
 {
   struct xkb_keymap *keymap;
   struct xkb_state *state;
-  int keymap_fd;
   size_t keymap_size;
-  char *keymap_area;
+  char *keymap_string;
 } MetaWaylandXkbInfo;
 
 struct _MetaWaylandKeyboard
