@@ -23,6 +23,10 @@
 #ifndef META_PREFS_H
 #define META_PREFS_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 /* This header is a "common" one between the UI and core side */
 #include <meta/common.h>
 #include <meta/types.h>

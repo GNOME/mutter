@@ -43,6 +43,7 @@ AM_CPPFLAGS = \
 	-DMUTTER_PLUGIN_DIR=\"$(MUTTER_PLUGIN_DIR)\"			\
 	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"			\
 	-DXWAYLAND_PATH=\"$(XWAYLAND_PATH)\"				\
+	-DMUTTER_COMPILATION=1			\
 	$(NULL)
 
 mutter_built_sources = \
@@ -536,8 +537,29 @@ Meta_@LIBMUTTER_API_VERSION@_gir_LIBS = libmutter-$(LIBMUTTER_API_VERSION).la
 Meta_@LIBMUTTER_API_VERSION@_gir_FILES =			\
 	$(libmutterinclude_base_headers)			\
 	$(filter %.c,$(libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES) $(nodist_libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES))
-Meta_@LIBMUTTER_API_VERSION@_SCANNERFLAGS = --warn-all --warn-error
+Meta_@LIBMUTTER_API_VERSION@_gir_SCANNERFLAGS = \
+	--warn-all \
+	--warn-error \
+	--c-include='meta/meta.h'
 
+endif
+
+if ENABLE_VAPIGEN
+-include $(VAPIGEN_MAKEFILE)
+
+libmutter-@LIBMUTTER_API_VERSION@.vapi: Meta-@LIBMUTTER_API_VERSION@.gir libmutter-@LIBMUTTER_API_VERSION@.deps
+
+VAPIGEN_VAPIS = libmutter-@LIBMUTTER_API_VERSION@.vapi
+
+libmutter_@LIBMUTTER_API_VERSION@_vapi_DEPS = cairo gdk-3.0 gdk-pixbuf-2.0 gtk+-3.0 x11 json-glib-1.0
+libmutter_@LIBMUTTER_API_VERSION@_vapi_METADATADIRS = $(srcdir)
+libmutter_@LIBMUTTER_API_VERSION@_vapi_FILES = Meta-@LIBMUTTER_API_VERSION@.gir
+libmutter_@LIBMUTTER_API_VERSION@_vapi_GIRDIRS = $(top_builddir)/cogl/cogl $(top_builddir)/cogl/cogl-pango $(top_builddir)/clutter/clutter
+
+vapidir = $(datadir)/vala/vapi
+vapi_DATA = $(VAPIGEN_VAPIS) $(VAPIGEN_VAPIS:.vapi=.deps)
+
+EXTRA_DIST += libmutter-@LIBMUTTER_API_VERSION@.deps
 endif
 
 dbus_idle_built_sources = meta-dbus-idle-monitor.c meta-dbus-idle-monitor.h

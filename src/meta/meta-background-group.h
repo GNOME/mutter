@@ -3,6 +3,10 @@
 #ifndef META_BACKGROUND_GROUP_H
 #define META_BACKGROUND_GROUP_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <clutter/clutter.h>
 
 #define META_TYPE_BACKGROUND_GROUP            (meta_background_group_get_type ())

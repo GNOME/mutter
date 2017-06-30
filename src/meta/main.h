@@ -22,6 +22,10 @@
 #ifndef META_MAIN_H
 #define META_MAIN_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <glib.h>
 
 GOptionContext *meta_get_option_context     (void);

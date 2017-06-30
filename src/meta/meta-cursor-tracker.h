@@ -22,6 +22,10 @@
 #ifndef META_CURSOR_TRACKER_H
 #define META_CURSOR_TRACKER_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <glib-object.h>
 #include <meta/types.h>
 #include <meta/workspace.h>

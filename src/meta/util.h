@@ -23,6 +23,10 @@
 #ifndef META_UTIL_H
 #define META_UTIL_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <glib.h>
 #include <glib-object.h>
 

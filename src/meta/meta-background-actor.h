@@ -21,6 +21,10 @@
 #ifndef META_BACKGROUND_ACTOR_H
 #define META_BACKGROUND_ACTOR_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <clutter/clutter.h>
 #include <meta/screen.h>
 #include <meta/meta-background.h>

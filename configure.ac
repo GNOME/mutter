@@ -246,6 +246,8 @@ if test x$found_introspection != xno; then
   MUTTER_PC_MODULES="$MUTTER_PC_MODULES gobject-introspection-1.0"
 fi
 
+VAPIGEN_CHECK()
+
 AC_SUBST(XWAYLAND_PATH)
 
 PKG_CHECK_MODULES(MUTTER, $MUTTER_PC_MODULES)
@@ -509,6 +511,7 @@ mutter-$VERSION
 	libwacom:                 ${have_libwacom}
 	gudev                     ${have_gudev}
 	Introspection:            ${found_introspection}
+	Vala:                     ${enable_vala}
 	Session management:       ${found_sm}
 	Wayland:                  ${have_wayland}
 	Native (KMS) backend:     ${have_native_backend}

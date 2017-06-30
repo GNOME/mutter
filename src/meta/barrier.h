@@ -3,6 +3,10 @@
 #ifndef __META_BARRIER_H__
 #define __META_BARRIER_H__
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <glib-object.h>
 
 #include <meta/display.h>

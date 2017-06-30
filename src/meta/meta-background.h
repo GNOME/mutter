@@ -21,6 +21,10 @@
 #ifndef META_BACKGROUND_H
 #define META_BACKGROUND_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <clutter/clutter.h>
 #include <gsettings-desktop-schemas/gdesktop-enums.h>
 #include <meta/screen.h>

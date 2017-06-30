@@ -1,0 +1,6 @@
+cairo
+gdk-3.0
+gdk-pixbuf-2.0
+gtk+-3.0
+x11
+json-glib-1.0

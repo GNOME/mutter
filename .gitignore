@@ -4,6 +4,8 @@ Makefile.in.in
 aclocal.m4
 autom4te.cache
 build-aux
+clutter/clutter/mutter-clutter-0.vapi
+clutter/clutter/mutter-clutter-x11-0.vapi
 compile
 config.guess
 config.h
@@ -12,6 +14,8 @@ config.log
 config.status
 config.sub
 configure
+cogl/cogl-pango/mutter-cogl-pango-0.vapi
+cogl/cogl/mutter-cogl-0.vapi
 depcomp
 install-sh
 intltool-extract.in
@@ -85,6 +89,7 @@ src/pointer-constraints-unstable-v*-protocol.c
 src/pointer-constraints-unstable-v*-server-protocol.h
 src/xdg-foreign-unstable-v*-protocol.c
 src/xdg-foreign-unstable-v*-server-protocol.h
+src/libmutter-0.vapi
 src/meta/meta-version.h
 src/libmutter-*.pc
 doc/reference/*.args

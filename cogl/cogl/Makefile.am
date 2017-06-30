@@ -506,5 +506,22 @@ gir_DATA = $(INTROSPECTION_GIRS)
 typelibdir = $(mutterlibdir)
 typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
+if ENABLE_VAPIGEN
+-include $(VAPIGEN_MAKEFILE)
+
+mutter-cogl-@LIBMUTTER_API_VERSION@.vapi: Cogl-@LIBMUTTER_API_VERSION@.gir mutter-cogl-@LIBMUTTER_API_VERSION@.deps
+
+VAPIGEN_VAPIS = mutter-cogl-@LIBMUTTER_API_VERSION@.vapi
+
+mutter_cogl_@LIBMUTTER_API_VERSION@_vapi_DEPS = pango
+mutter_cogl_@LIBMUTTER_API_VERSION@_vapi_METADATADIRS = $(srcdir)
+mutter_cogl_@LIBMUTTER_API_VERSION@_vapi_FILES = Cogl-@LIBMUTTER_API_VERSION@.gir
+
+vapidir = $(datadir)/vala/vapi
+vapi_DATA = $(VAPIGEN_VAPIS) $(VAPIGEN_VAPIS:.vapi=.deps)
+
+EXTRA_DIST += mutter-cogl-@LIBMUTTER_API_VERSION@.deps
+endif
+
 CLEANFILES += $(gir_DATA) $(typelib_DATA)
 endif

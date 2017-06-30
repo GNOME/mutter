@@ -20,6 +20,10 @@
 #ifndef META_SCREEN_H
 #define META_SCREEN_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <X11/Xlib.h>
 #include <glib-object.h>
 #include <meta/types.h>

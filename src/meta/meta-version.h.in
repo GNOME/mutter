@@ -20,6 +20,10 @@
 #ifndef META_VERSION_H
 #define META_VERSION_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #define META_MAJOR_VERSION @MUTTER_MAJOR_VERSION@
 #define META_MINOR_VERSION @MUTTER_MINOR_VERSION@
 #define META_MICRO_VERSION @MUTTER_MICRO_VERSION@

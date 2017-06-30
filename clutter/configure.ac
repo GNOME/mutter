@@ -763,6 +763,10 @@ dnl === GObject-Introspection check ===========================================
 
 GOBJECT_INTROSPECTION_CHECK([gi_req_version])
 
+dnl === Vala vapigen check ===========================================
+
+VAPIGEN_CHECK()
+
 dnl === Conformance test suite ================================================
 
 GLIB_TESTS

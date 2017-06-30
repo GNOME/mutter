@@ -21,11 +21,7 @@
 
 #include <config.h>
 
-#include <meta/meta-plugin.h>
-#include <meta/window.h>
-#include <meta/meta-background-group.h>
-#include <meta/meta-background-actor.h>
-#include <meta/util.h>
+#include <meta/meta.h>
 #include <glib/gi18n-lib.h>
 
 #include <clutter/clutter.h>

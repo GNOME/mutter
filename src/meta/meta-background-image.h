@@ -23,6 +23,10 @@
 #ifndef __META_BACKGROUND_IMAGE_H__
 #define __META_BACKGROUND_IMAGE_H__
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <glib-object.h>
 #include <cogl/cogl.h>
 

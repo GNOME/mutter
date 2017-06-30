@@ -1,0 +1,5 @@
+cairo
+gio-2.0
+atk
+pangocairo
+json-glib-1.0

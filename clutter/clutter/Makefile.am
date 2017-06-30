@@ -716,4 +716,29 @@ EXTRA_DIST += \
 	Makefile.am.marshal	\
 	Makefile.am.enums
 
+
+if ENABLE_VAPIGEN
+-include $(VAPIGEN_MAKEFILE)
+
+mutter-clutter-@LIBMUTTER_API_VERSION@.vapi: Clutter-@LIBMUTTER_API_VERSION@.gir mutter-clutter-@LIBMUTTER_API_VERSION@.deps
+mutter-clutter-x11-@LIBMUTTER_API_VERSION@.vapi: ClutterX11-@LIBMUTTER_API_VERSION@.gir mutter-clutter-x11-@LIBMUTTER_API_VERSION@.deps
+
+VAPIGEN_VAPIS = mutter-clutter-@LIBMUTTER_API_VERSION@.vapi mutter-clutter-x11-@LIBMUTTER_API_VERSION@.vapi
+
+mutter_clutter_@LIBMUTTER_API_VERSION@_vapi_DEPS = atk cairo pango json-glib-1.0
+mutter_clutter_@LIBMUTTER_API_VERSION@_vapi_METADATADIRS = $(srcdir)
+mutter_clutter_@LIBMUTTER_API_VERSION@_vapi_GIRDIRS = $(top_builddir)/../cogl/cogl $(top_builddir)/../cogl/cogl-pango
+mutter_clutter_@LIBMUTTER_API_VERSION@_vapi_FILES = Clutter-@LIBMUTTER_API_VERSION@.gir
+
+mutter_clutter_x11_@LIBMUTTER_API_VERSION@_vapi_DEPS = atk cairo pango json-glib-1.0
+mutter_clutter_x11_@LIBMUTTER_API_VERSION@_vapi_METADATADIRS = $(srcdir)
+mutter_clutter_x11_@LIBMUTTER_API_VERSION@_vapi_GIRDIRS = $(srcdir) $(top_builddir)/../cogl/cogl $(top_builddir)/../cogl/cogl-pango
+mutter_clutter_x11_@LIBMUTTER_API_VERSION@_vapi_FILES = ClutterX11-@LIBMUTTER_API_VERSION@.gir
+
+vapidir = $(datadir)/vala/vapi
+vapi_DATA = $(VAPIGEN_VAPIS) $(VAPIGEN_VAPIS:.vapi=.deps)
+
+EXTRA_DIST += mutter-clutter-@LIBMUTTER_API_VERSION@.deps mutter-clutter-x11-@LIBMUTTER_API_VERSION@.deps
+endif
+
 CLEANFILES += $(gir_DATA) $(typelib_DATA)

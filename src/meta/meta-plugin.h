@@ -22,6 +22,10 @@
 #ifndef META_PLUGIN_H_
 #define META_PLUGIN_H_
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <meta/types.h>
 #include <meta/compositor.h>
 #include <meta/compositor-mutter.h>

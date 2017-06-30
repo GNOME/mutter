@@ -18,6 +18,10 @@
 #ifndef META_KEYBINDINGS_H
 #define META_KEYBINDINGS_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <meta/display.h>
 #include <meta/common.h>
 

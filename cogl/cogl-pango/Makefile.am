@@ -91,3 +91,21 @@ typelib_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
 CLEANFILES += $(gir_DATA) $(typelib_DATA)
 endif
+
+if ENABLE_VAPIGEN
+-include $(VAPIGEN_MAKEFILE)
+
+mutter-cogl-@LIBMUTTER_API_VERSION@.vapi: CoglPango-@LIBMUTTER_API_VERSION@.gir mutter-cogl-pango-@LIBMUTTER_API_VERSION@.deps
+
+VAPIGEN_VAPIS = mutter-cogl-pango-@LIBMUTTER_API_VERSION@.vapi
+
+mutter_cogl_pango_@LIBMUTTER_API_VERSION@_vapi_DEPS = pango
+mutter_cogl_pango_@LIBMUTTER_API_VERSION@_vapi_METADATADIRS = $(srcdir)
+mutter_cogl_pango_@LIBMUTTER_API_VERSION@_vapi_FILES = CoglPango-@LIBMUTTER_API_VERSION@.gir
+mutter_cogl_pango_@LIBMUTTER_API_VERSION@_vapi_GIRDIRS = $(top_builddir)/cogl
+
+vapidir = $(datadir)/vala/vapi
+vapi_DATA = $(VAPIGEN_VAPIS) $(VAPIGEN_VAPIS:.vapi=.deps)
+
+EXTRA_DIST += mutter-cogl-pango-@LIBMUTTER_API_VERSION@.deps
+endif

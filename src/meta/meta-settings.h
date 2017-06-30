@@ -22,6 +22,10 @@
 #ifndef META_SETTINGS_H
 #define META_SETTINGS_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include "meta/types.h"
 
 int meta_settings_get_ui_scaling_factor (MetaSettings *settings);

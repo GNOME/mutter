@@ -25,6 +25,10 @@
 #ifndef META_COMMON_H
 #define META_COMMON_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 /* Don't include core headers here */
 #include <X11/Xlib.h>
 #include <X11/extensions/XInput.h>

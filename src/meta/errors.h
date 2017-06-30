@@ -22,6 +22,10 @@
 #ifndef META_ERRORS_H
 #define META_ERRORS_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <X11/Xlib.h>
 
 #include <meta/util.h>

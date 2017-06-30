@@ -23,6 +23,10 @@
 #ifndef __META_WINDOW_SHAPE_H__
 #define __META_WINDOW_SHAPE_H__
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <cairo.h>
 #include <glib-object.h>
 

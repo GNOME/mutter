@@ -25,6 +25,10 @@
 #ifndef META_BACKEND_H
 #define META_BACKEND_H
 
+#if !defined(__META_H_INSIDE__) && !defined(MUTTER_COMPILATION)
+#error "Only <meta/meta.h> can be included directly."
+#endif
+
 #include <glib-object.h>
 
 #include <clutter/clutter.h>
