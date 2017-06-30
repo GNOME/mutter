@@ -1,4 +1,4 @@
-mutter (3.22.4-2) UNRELEASED; urgency=medium
+mutter (3.22.4-2) unstable; urgency=medium
 
   [ Jeremy Bicha ]
   * Add missing depends on gnome-settings-daemon (LP: #1561706)
@@ -9,7 +9,7 @@ mutter (3.22.4-2) UNRELEASED; urgency=medium
     #865788)
   * debian/control.in: Bump Standards-Version to 4.0.0 (no further changes)
 
- -- Laurent Bigonville <bigon@debian.org>  Fri, 30 Jun 2017 19:08:13 +0200
+ -- Laurent Bigonville <bigon@debian.org>  Fri, 30 Jun 2017 19:08:41 +0200
 
 mutter (3.22.4-1) unstable; urgency=medium
 
