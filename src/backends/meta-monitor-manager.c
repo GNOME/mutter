@@ -148,19 +148,6 @@ meta_monitor_manager_rebuild_logical_monitors (MetaMonitorManager *manager,
 }
 
 static void
-derive_monitor_layout (MetaMonitor   *monitor,
-                       MetaRectangle *layout)
-{
-  MetaOutput *main_output;
-
-  main_output = meta_monitor_get_main_output (monitor);
-  layout->x = main_output->crtc->rect.x;
-  layout->y = main_output->crtc->rect.y;
-
-  meta_monitor_derive_dimensions (monitor, &layout->width, &layout->height);
-}
-
-static void
 meta_monitor_manager_rebuild_logical_monitors_derived (MetaMonitorManager *manager)
 {
   GList *logical_monitors = NULL;
@@ -179,7 +166,7 @@ meta_monitor_manager_rebuild_logical_monitors_derived (MetaMonitorManager *manag
       if (!meta_monitor_is_active (monitor))
         continue;
 
-      derive_monitor_layout (monitor, &layout);
+      meta_monitor_derive_layout (monitor, &layout);
       logical_monitor = logical_monitor_from_layout (manager, logical_monitors,
                                                      &layout);
       if (logical_monitor)
