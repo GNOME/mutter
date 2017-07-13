@@ -15,7 +15,7 @@ mutter (3.24.1-1) UNRELEASED; urgency=medium
     - Build with --enable-egl-device (LP: #1666664)
       This enables experimental support for using NVIDIA proprietary
       drivers with GNOME on Wayland
-    - Run build tests
+    - Run build tests but don't make them fatal yet
   * Add skip-failing-tests.patch:
     - Don't run a few tests that have been reported as failing
   * Add git_revert_call_threaded_swap.patch:
