@@ -1,3 +1,22 @@
+3.24.4
+======
+* Fix wacom cursor offset on wayland [Jason; #784009]
+* Do not throttle motion events on tablet tools [Carlos; #783535]
+* Handle left-handed mode on pen/eraser devices [Carlos; #782027]
+* Fix crash when decreasing number of workspaces [Florian; #784223]
+* Fix crash when moving across on-adjacent monitors [Jonas; #783630]
+* Fix window moving/resizing via tablet tools [Jason; #777333]
+* Improve stability of tablet plugs/unplugs [Carlos; #784881]
+* Implement tablet rings/strips configuration [Carlos; #782033]
+* Support tablet wheel events on wayland [Jason; #783716]
+* Misc. bug fixes [Carlos, Jonas; #784402, #784867, #781723]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho, Jason Gerecke, Florian Müllner
+
+Translations:
+  Jordi Mas [ca]
+
 3.24.3
 ======
 * Fix handling of tiled monitors [Jonas; #781723]
