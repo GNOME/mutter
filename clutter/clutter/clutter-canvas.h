@@ -97,9 +97,9 @@ gboolean                clutter_canvas_set_size                 (ClutterCanvas *
 
 CLUTTER_AVAILABLE_IN_1_18
 void                    clutter_canvas_set_scale_factor         (ClutterCanvas *canvas,
-                                                                 int            scale);
+                                                                 float          scale);
 CLUTTER_AVAILABLE_IN_1_18
-int                     clutter_canvas_get_scale_factor         (ClutterCanvas *canvas);
+float                   clutter_canvas_get_scale_factor         (ClutterCanvas *canvas);
 
 G_END_DECLS
 
