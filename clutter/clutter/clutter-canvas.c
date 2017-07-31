@@ -44,6 +44,7 @@
 
 #include "clutter-build-config.h"
 
+#include <math.h>
 #include <cogl/cogl.h>
 #include <cairo-gobject.h>
 
@@ -69,6 +70,7 @@ struct _ClutterCanvasPrivate
 
   int width;
   int height;
+  float scale_factor;
 
   CoglTexture *texture;
   gboolean dirty;
@@ -82,6 +84,7 @@ enum
 
   PROP_WIDTH,
   PROP_HEIGHT,
+  PROP_SCALE_FACTOR,
 
   LAST_PROP
 };
@@ -178,6 +181,19 @@ clutter_canvas_set_property (GObject      *gobject,
       }
       break;
 
+    case PROP_SCALE_FACTOR:
+      {
+        gfloat new_scale_factor = g_value_get_float (value);
+
+        if (priv->scale_factor != new_scale_factor)
+          {
+            priv->scale_factor = new_scale_factor;
+
+            clutter_content_invalidate (CLUTTER_CONTENT (gobject));
+          }
+      }
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -200,6 +216,10 @@ clutter_canvas_get_property (GObject    *gobject,
 
     case PROP_HEIGHT:
       g_value_set_int (value, priv->height);
+      break;
+
+    case PROP_SCALE_FACTOR:
+      g_value_set_float (value, priv->scale_factor);
       break;
 
     default:
@@ -245,6 +265,19 @@ clutter_canvas_class_init (ClutterCanvasClass *klass)
                       G_PARAM_READWRITE |
                       G_PARAM_STATIC_STRINGS);
 
+  /**
+   * ClutterCanvas:scale-factor:
+   *
+   * The height of the canvas.
+   */
+  obj_props[PROP_SCALE_FACTOR] =
+    g_param_spec_float ("scale-factor",
+                        P_("Scale Factor"),
+                        P_("The Scale factor of the canvas"),
+                        1.0f, G_MAXFLOAT,
+                        1.0f,
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterCanvas::draw:
@@ -291,6 +324,7 @@ clutter_canvas_init (ClutterCanvas *self)
 
   self->priv->width = -1;
   self->priv->height = -1;
+  self->priv->scale_factor = 1.0f;
 }
 
 static void
@@ -340,8 +374,8 @@ clutter_canvas_emit_draw (ClutterCanvas *self)
 
   priv->dirty = TRUE;
 
-  real_width = priv->width;
-  real_height = priv->height;
+  real_width = ceilf (priv->width * priv->scale_factor);
+  real_height = ceilf (priv->height * priv->scale_factor);
 
   CLUTTER_NOTE (MISC, "Creating Cairo surface with size %d x %d",
                 priv->width, priv->height);
@@ -386,6 +420,10 @@ clutter_canvas_emit_draw (ClutterCanvas *self)
 
       mapped_buffer = FALSE;
     }
+
+  cairo_surface_set_device_scale (surface,
+                                  priv->scale_factor,
+                                  priv->scale_factor);
 
   self->priv->cr = cr = cairo_create (surface);
 
@@ -448,10 +486,10 @@ clutter_canvas_get_preferred_size (ClutterContent *content,
     return FALSE;
 
   if (width != NULL)
-    *width = priv->width;
+    *width = ceilf (priv->width * priv->scale_factor);
 
   if (height != NULL)
-    *height = priv->height;
+    *height = ceilf (priv->height * priv->scale_factor);
 
   return TRUE;
 }
@@ -559,4 +597,49 @@ clutter_canvas_set_size (ClutterCanvas *canvas,
   g_return_val_if_fail (width >= -1 && height >= -1, FALSE);
 
   return clutter_canvas_invalidate_internal (canvas, width, height);
+}
+
+/**
+ * clutter_canvas_set_scale_factor:
+ * @canvas: a #ClutterCanvas
+ * @scale: the integer scaling factor of the canvas
+ *
+ * Sets the scaling factor of the @canvas, and invalidates the content.
+ *
+ * This function will cause the @canvas to be invalidated only
+ * if the scale factor of the canvas surface has changed.
+ */
+void
+clutter_canvas_set_scale_factor (ClutterCanvas *canvas,
+                                 float          scale)
+{
+  g_return_if_fail (CLUTTER_IS_CANVAS (canvas));
+  g_return_if_fail (scale >= 1.0f);
+
+  if (canvas->priv->scale_factor != scale)
+    {
+      canvas->priv->scale_factor = scale;
+
+      g_object_freeze_notify (G_OBJECT (canvas));
+      clutter_content_invalidate (CLUTTER_CONTENT (canvas));
+      g_object_thaw_notify (G_OBJECT (canvas));
+
+      g_object_notify_by_pspec (G_OBJECT (canvas), obj_props[PROP_SCALE_FACTOR]);
+    }
+}
+
+/**
+ * clutter_canvas_get_scale_factor:
+ * @canvas: a #ClutterCanvas
+ *
+ * Gets the scale factor of the @canvas.
+ *
+ * Return value: the current @canvas scale factor or -1 if invalid
+ */
+float
+clutter_canvas_get_scale_factor (ClutterCanvas *canvas)
+{
+  g_return_val_if_fail (CLUTTER_IS_CANVAS (canvas), -1.0f);
+
+  return canvas->priv->scale_factor;
 }
