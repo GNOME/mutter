@@ -194,6 +194,8 @@ int  meta_display_get_current_monitor  (MetaDisplay   *display);
 void meta_display_get_monitor_geometry (MetaDisplay   *display,
                                         int            monitor,
                                         MetaRectangle *geometry);
+float meta_display_get_monitor_scale (MetaDisplay *display,
+                                      int          monitor);
 
 gboolean meta_display_get_monitor_in_fullscreen (MetaDisplay *display,
                                                  int          monitor);
