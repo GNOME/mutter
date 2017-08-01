@@ -1490,12 +1490,12 @@ find_highest_logical_monitor_scale (MetaBackend      *backend,
 }
 
 static void
-root_cursor_prepare_at (MetaCursorSpriteXcursor *xcusor_sprite,
+root_cursor_prepare_at (MetaCursorSpriteXcursor *xcursor_sprite,
                         int                      x,
                         int                      y,
                         MetaDisplay             *display)
 {
-  MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (xcusor_sprite);
+  MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (xcursor_sprite);
   MetaBackend *backend = meta_get_backend ();
 
   if (meta_is_stage_views_scaled ())
@@ -1508,7 +1508,7 @@ root_cursor_prepare_at (MetaCursorSpriteXcursor *xcusor_sprite,
           float ceiled_scale;
 
           ceiled_scale = ceilf (scale);
-          meta_cursor_sprite_xcursor_set_theme_scale (xcusor_sprite, ceiled_scale);
+          meta_cursor_sprite_xcursor_set_theme_scale (xcursor_sprite, ceiled_scale);
           meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0 / ceiled_scale);
         }
     }
@@ -1524,7 +1524,7 @@ root_cursor_prepare_at (MetaCursorSpriteXcursor *xcusor_sprite,
       /* Reload the cursor texture if the scale has changed. */
       if (logical_monitor)
         {
-          meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
+          meta_cursor_sprite_xcursor_set_theme_scale (xcursor_sprite,
                                                       logical_monitor->scale);
           meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0);
         }
@@ -3533,6 +3533,37 @@ meta_display_get_monitor_geometry (MetaDisplay   *display,
     meta_monitor_manager_get_logical_monitor_from_number (monitor_manager,
                                                           monitor);
   *geometry = logical_monitor->rect;
+}
+
+/**
+ * meta_display_get_monitor_scale:
+ * @screen: a #MetaDisplay
+ * @monitor: the monitor number
+ *
+ * Gets the monitor scaling value for the given @monitor.
+ *
+ * Return value: the monitor scaling value
+ */
+float
+meta_display_get_monitor_scale (MetaDisplay *display,
+                                int          monitor)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaLogicalMonitor *logical_monitor;
+#ifndef G_DISABLE_CHECKS
+  int n_logical_monitors =
+    meta_monitor_manager_get_num_logical_monitors (monitor_manager);
+#endif
+
+  g_return_val_if_fail (META_IS_DISPLAY (display), 1.0f);
+  g_return_val_if_fail (monitor >= 0 && monitor < n_logical_monitors, 1.0f);
+
+  logical_monitor =
+    meta_monitor_manager_get_logical_monitor_from_number (monitor_manager,
+                                                          monitor);
+  return logical_monitor->scale;
 }
 
 /**
