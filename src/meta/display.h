@@ -247,6 +247,10 @@ void meta_display_get_monitor_geometry (MetaDisplay   *display,
                                         MetaRectangle *geometry);
 
 META_EXPORT
+float meta_display_get_monitor_scale (MetaDisplay *display,
+                                      int          monitor);
+
+META_EXPORT
 gboolean meta_display_get_monitor_in_fullscreen (MetaDisplay *display,
                                                  int          monitor);
 
