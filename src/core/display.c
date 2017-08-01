@@ -1447,7 +1447,7 @@ find_highest_logical_monitor_scale (MetaBackend      *backend,
   ClutterRect cursor_rect;
   GList *logical_monitors;
   GList *l;
-  int highest_scale = 0.0;
+  int highest_scale = 0;
 
   cursor_rect = meta_cursor_renderer_calculate_rect (cursor_renderer,
                                                      cursor_sprite);
@@ -1485,7 +1485,7 @@ root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
       int scale;
 
       scale = find_highest_logical_monitor_scale (backend, cursor_sprite);
-      if (scale != 0.0)
+      if (scale != 0)
         {
           meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor, scale);
           meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0 / scale);
@@ -3475,7 +3475,7 @@ meta_display_get_primary_monitor (MetaDisplay *display)
  * @monitor: the monitor number
  * @geometry: (out): location to store the monitor geometry
  *
- * Stores the location and size of the indicated monitor in @geometry.
+ * Stores the location and size of the indicated @monitor in @geometry.
  */
 void
 meta_display_get_monitor_geometry (MetaDisplay   *display,
