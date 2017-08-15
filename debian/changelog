@@ -11,6 +11,8 @@ mutter (3.25.90-1) UNRELEASED; urgency=medium
     - Loosen dependency on -common package
     - Don't recommend gnome-session | x-session-manager (LP: #1703685)
     - Build-depend on xauth and xfvb for build tests
+    - Add Conflicts: libmutter-0-dev to libmutter-1-dev since
+      both ship the same development header file names
   * debian/rules:
     - Build with --enable-egl-device (LP: #1666664)
       This enables experimental support for using NVIDIA proprietary

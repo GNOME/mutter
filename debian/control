@@ -148,6 +148,7 @@ Depends: ${misc:Depends},
          libxfixes-dev,
          libxrandr-dev,
          libx11-dev
+Conflicts: libmutter-0-dev
 Description: Development files for the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
