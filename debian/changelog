@@ -20,8 +20,6 @@ mutter (3.25.90-1) UNRELEASED; urgency=medium
     - Run build tests but don't make them fatal yet
   * Add skip-failing-tests.patch:
     - Don't run a few tests that have been reported as failing
-  * Add git_revert_call_threaded_swap.patch:
-    - Revert patch that caused Budgie to crash (LP: #1669584)
 
   [ Simon McVittie ]
   * Add patch metadata
