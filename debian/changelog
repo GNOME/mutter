@@ -1,4 +1,4 @@
-mutter (3.24.1-1) UNRELEASED; urgency=medium
+mutter (3.25.90-1) UNRELEASED; urgency=medium
 
   [ Jeremy Bicha ]
   * New upstream release (LP: #1662805)
@@ -25,6 +25,11 @@ mutter (3.24.1-1) UNRELEASED; urgency=medium
   * Add patch metadata
   * Correctly label debian/patches/git_revert_call_threaded_swap.patch
     as a revert, not as the change that is being reverted
+
+  [ Andreas Henriksson ]
+  * New upstream beta release, 3.25.90.
+  * Bump versions of build-dependencies according to configure.ac changes.
+  * Rename packages according to libmutter bumping soname, 0->1.
 
  -- Simon McVittie <smcv@debian.org>  Tue, 04 Apr 2017 08:55:20 +0100
 
