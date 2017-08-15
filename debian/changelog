@@ -3,7 +3,7 @@ mutter (3.25.90-1) UNRELEASED; urgency=medium
   [ Jeremy Bicha ]
   * New upstream release (LP: #1662805)
   * libmutter0 has been renamed upstream to libmutter-0-0
-  * Rename gir1.2-mutter-3.0 to gir-1.2-mutter-0
+  * Rename gir1.2-mutter-3.0 to gir1.2-mutter-0
   * Rename libmutter-dev to libmutter-0-dev
   * debian/control.in:
     - Drop obsolete Conflicts/Replaces now that the library
