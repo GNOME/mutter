@@ -115,9 +115,6 @@ void meta_prefs_remove_listener (MetaPrefsChangedFunc func,
 
 void meta_prefs_init (void);
 
-void meta_prefs_override_preference_schema (const char *key,
-                                            const char *schema);
-
 const char* meta_preference_to_string (MetaPreference pref);
 
 MetaVirtualModifier         meta_prefs_get_mouse_button_mods  (void);

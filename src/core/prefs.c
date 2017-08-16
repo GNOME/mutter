@@ -146,8 +146,6 @@ static gboolean button_layout_handler (GVariant*, gpointer*, gpointer);
 static gboolean overlay_key_handler (GVariant*, gpointer*, gpointer);
 static gboolean iso_next_group_handler (GVariant*, gpointer*, gpointer);
 
-static void     do_override               (char *key, char *schema);
-
 static void     init_bindings             (void);
 
 typedef struct
@@ -491,21 +489,6 @@ static MetaIntPreference preferences_int[] =
     },
     { { NULL, 0, 0 }, NULL },
   };
-
-/*
- * This is used to keep track of override schemas used to
- * override preferences from the "normal" metacity/mutter
- * schemas; we modify the preferences arrays directly, but
- * we also need to remember what we have done to handle
- * subsequent overrides correctly.
- */
-typedef struct
-{
-  char *key;
-  char *new_schema;
-} MetaPrefsOverriddenKey;
-
-static GSList *overridden_keys;
 
 static void
 handle_preference_init_enum (void)
@@ -940,7 +923,6 @@ void
 meta_prefs_init (void)
 {
   GSettings *settings;
-  GSList *tmp;
 
   settings_schemas = g_hash_table_new_full (g_str_hash, g_str_equal,
                                             g_free, g_object_unref);
@@ -973,13 +955,6 @@ meta_prefs_init (void)
   g_signal_connect (settings, "changed::" KEY_XKB_OPTIONS,
                     G_CALLBACK (settings_changed), NULL);
   g_hash_table_insert (settings_schemas, g_strdup (SCHEMA_INPUT_SOURCES), settings);
-
-
-  for (tmp = overridden_keys; tmp; tmp = tmp->next)
-    {
-      MetaPrefsOverriddenKey *override = tmp->data;
-      do_override (override->key, override->new_schema);
-    }
 
   /* Pick up initial values. */
 
@@ -1016,109 +991,6 @@ find_pref (void                *prefs,
     }
 
   return FALSE;
-}
-
-
-static void
-do_override (char *key,
-             char *schema)
-{
-  MetaBasePreference *pref;
-  GSettings *settings;
-  char *detailed_signal;
-  gpointer data;
-  guint handler_id;
-
-  g_return_if_fail (settings_schemas != NULL);
-
-  if (!find_pref (preferences_enum, sizeof(MetaEnumPreference), key, &pref) &&
-      !find_pref (preferences_bool, sizeof(MetaBoolPreference), key, &pref) &&
-      !find_pref (preferences_string, sizeof(MetaStringPreference), key, &pref) &&
-      !find_pref (preferences_int, sizeof(MetaIntPreference), key, &pref))
-    {
-      meta_warning ("Can't override preference key, \"%s\" not found\n", key);
-      return;
-    }
-
-  settings = SETTINGS (pref->schema);
-  data = g_object_get_data (G_OBJECT (settings), key);
-  if (data)
-    {
-      handler_id = GPOINTER_TO_UINT (data);
-      g_signal_handler_disconnect (settings, handler_id);
-    }
-
-  pref->schema = schema;
-  settings = SETTINGS (pref->schema);
-  if (!settings)
-    {
-      settings = g_settings_new (pref->schema);
-      g_hash_table_insert (settings_schemas, g_strdup (pref->schema), settings);
-    }
-
-  detailed_signal = g_strdup_printf ("changed::%s", key);
-  handler_id = g_signal_connect (settings, detailed_signal,
-                                 G_CALLBACK (settings_changed), NULL);
-  g_free (detailed_signal);
-
-  g_object_set_data (G_OBJECT (settings), key, GUINT_TO_POINTER (handler_id));
-
-  settings_changed (settings, key, NULL);
-}
-
-
-/**
- * meta_prefs_override_preference_schema:
- * @key: the preference name
- * @schema: new schema for preference @key
- *
- * Specify a schema whose keys are used to override the standard Metacity
- * keys. This might be used if a plugin expected a different value for
- * some preference than the Metacity default. While this function can be
- * called at any point, this function should generally be called in a
- * plugin's constructor, rather than in its start() method so the preference
- * isn't first loaded with one value then changed to another value.
- */
-void
-meta_prefs_override_preference_schema (const char *key, const char *schema)
-{
-  MetaPrefsOverriddenKey *overridden;
-  GSList *tmp;
-
-  /* Merge identical overrides, this isn't an error */
-  for (tmp = overridden_keys; tmp; tmp = tmp->next)
-    {
-      MetaPrefsOverriddenKey *tmp_overridden = tmp->data;
-      if (strcmp (tmp_overridden->key, key) == 0 &&
-          strcmp (tmp_overridden->new_schema, schema) == 0)
-        return;
-    }
-
-  overridden = NULL;
-
-  for (tmp = overridden_keys; tmp; tmp = tmp->next)
-    {
-      MetaPrefsOverriddenKey *tmp_overridden = tmp->data;
-      if (strcmp (tmp_overridden->key, key) == 0)
-        overridden = tmp_overridden;
-    }
-
-  if (overridden)
-    {
-      g_free (overridden->new_schema);
-      overridden->new_schema = g_strdup (schema);
-    }
-  else
-    {
-      overridden = g_slice_new (MetaPrefsOverriddenKey);
-      overridden->key = g_strdup (key);
-      overridden->new_schema = g_strdup (schema);
-
-      overridden_keys = g_slist_prepend (overridden_keys, overridden);
-    }
-
-  if (settings_schemas != NULL)
-    do_override (overridden->key, overridden->new_schema);
 }
 
 
