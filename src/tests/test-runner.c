@@ -29,6 +29,7 @@
 #include "meta-plugin-manager.h"
 #include "wayland/meta-wayland.h"
 #include "window-private.h"
+#include "x11/meta-x11-display-private.h"
 
 #define TEST_RUNNER_ERROR test_runner_error_quark ()
 
@@ -60,7 +61,8 @@ async_waiter_new (void)
 {
   AsyncWaiter *waiter = g_new0 (AsyncWaiter, 1);
 
-  Display *xdisplay = meta_get_display ()->xdisplay;
+  MetaDisplay *display = meta_get_display ();
+  Display *xdisplay = display->x11_display->xdisplay;
   XSyncValue value;
   XSyncAlarmAttributes attr;
 
@@ -100,7 +102,8 @@ async_waiter_new (void)
 static void
 async_waiter_destroy (AsyncWaiter *waiter)
 {
-  Display *xdisplay = meta_get_display ()->xdisplay;
+  MetaDisplay *display = meta_get_display ();
+  Display *xdisplay = display->x11_display->xdisplay;
 
   XSyncDestroyAlarm (xdisplay, waiter->alarm);
   XSyncDestroyCounter (xdisplay, waiter->counter);
@@ -128,7 +131,8 @@ async_waiter_wait (AsyncWaiter *waiter,
 static void
 async_waiter_set_and_wait (AsyncWaiter *waiter)
 {
-  Display *xdisplay = meta_get_display ()->xdisplay;
+  MetaDisplay *display = meta_get_display ();
+  Display *xdisplay = display->x11_display->xdisplay;
   int wait_value = async_waiter_next_value (waiter);
 
   XSyncValue sync_value;
@@ -677,8 +681,8 @@ test_case_check_xserver_stacking (TestCase *test,
   Window parent;
   Window *children;
   unsigned int n_children;
-  XQueryTree (display->xdisplay,
-              meta_screen_get_xroot (display->screen),
+  XQueryTree (display->x11_display->xdisplay,
+              display->x11_display->xroot,
               &root, &parent, &children, &n_children);
 
   for (i = 0; i < (int)n_children; i++)
