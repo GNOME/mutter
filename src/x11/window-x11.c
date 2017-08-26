@@ -2314,7 +2314,7 @@ meta_window_x11_property_notify (MetaWindow *window,
 static int
 query_pressed_buttons (MetaWindow *window)
 {
-  MetaCursorTracker *tracker = meta_cursor_tracker_get_for_screen (window->screen);
+  MetaCursorTracker *tracker = meta_cursor_tracker_get_for_display (window->display);
   ClutterModifierType mods;
   int button = 0;
 
@@ -2703,7 +2703,6 @@ meta_window_x11_client_message (MetaWindow *window,
           meta_topic (META_DEBUG_WINDOW_OPS,
                       "Beginning move/resize with button = %d\n", button);
           meta_display_begin_grab_op (window->display,
-                                      window->screen,
                                       window,
                                       op,
                                       FALSE,
@@ -3030,7 +3029,6 @@ meta_window_x11_new (MetaDisplay       *display,
                      MetaCompEffect     effect)
 {
   MetaX11Display *x11_display = display->x11_display;
-  MetaScreen *screen = display->screen;
   XWindowAttributes attrs;
   gulong existing_wm_state;
   MetaWindow *window = NULL;
@@ -3168,7 +3166,6 @@ meta_window_x11_new (MetaDisplay       *display,
     }
 
   window = _meta_window_shared_new (display,
-                                    screen,
                                     META_WINDOW_CLIENT_TYPE_X11,
                                     NULL,
                                     xwindow,
