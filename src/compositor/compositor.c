@@ -614,7 +614,7 @@ meta_shape_cow_for_window (MetaCompositor *compositor,
       window_bounds.width = rect.width;
       window_bounds.height = rect.height;
 
-      meta_screen_get_size (display->screen, &width, &height);
+      meta_display_get_size (display, &width, &height);
       screen_rect.x = 0;
       screen_rect.y = 0;
       screen_rect.width = width;
