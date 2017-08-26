@@ -761,7 +761,6 @@ meta_display_open (void)
 
   display->grab_resize_timeout_id = 0;
   display->grab_have_keyboard = FALSE;
-  display->last_bell_time = 0;
 
   display->grab_op = META_GRAB_OP_NONE;
   display->grab_window = NULL;
@@ -798,7 +797,6 @@ meta_display_open (void)
 
   meta_display_set_cursor (display, META_CURSOR_DEFAULT);
 
-
   /* This is the default layout extracted from default
    * variable values in update_num_workspaces ()
    * This can be overriden using _NET_DESKTOP_LAYOUT in
@@ -818,6 +816,13 @@ meta_display_open (void)
 
   reload_logical_monitors (display);
 
+  display->startup_notification = meta_startup_notification_get (display);
+  g_signal_connect (display->startup_notification, "changed",
+                    G_CALLBACK (on_startup_notification_changed), display);
+
+  display->bell = NULL;
+  meta_bell_new (display);
+
   x11_display = meta_x11_display_new (display, &error);
   g_assert (x11_display != NULL); /* Required, for now */
   display->x11_display = x11_display;
@@ -828,8 +833,6 @@ meta_display_open (void)
   display->stack = meta_stack_new (display);
   display->stack_tracker = meta_stack_tracker_new (display);
 
-  meta_bell_init (display);
-
   display->last_focus_time = timestamp;
   display->last_user_time = timestamp;
   display->compositor = NULL;
@@ -839,10 +842,6 @@ meta_display_open (void)
                           display->x11_display->xroot,
                           display->x11_display->atom__NET_ACTIVE_WINDOW,
                           &old_active_xwindow);
-
-  display->startup_notification = meta_startup_notification_get (display);
-  g_signal_connect (display->startup_notification, "changed",
-                    G_CALLBACK (on_startup_notification_changed), display);
 
   enable_compositor (display);
 
@@ -1005,7 +1004,6 @@ meta_display_close (MetaDisplay *display,
 
   meta_display_remove_autoraise_callback (display);
 
-  g_clear_object (&display->startup_notification);
   g_clear_object (&display->gesture_tracker);
 
   meta_stack_free (display->stack);
@@ -1048,6 +1046,9 @@ meta_display_close (MetaDisplay *display,
       g_object_run_dispose (G_OBJECT (display->x11_display));
       g_clear_object (&display->x11_display);
     }
+
+  g_clear_object (&display->bell);
+  g_clear_object (&display->startup_notification);
 
   g_object_unref (display);
   the_display = NULL;
@@ -2555,12 +2556,8 @@ prefs_changed_callback (MetaPreference pref,
 {
   MetaDisplay *display = data;
 
-  if (pref == META_PREF_AUDIBLE_BELL)
-    {
-      meta_bell_set_audible (display, meta_prefs_bell_is_audible ());
-    }
-  else if (pref == META_PREF_CURSOR_THEME ||
-           pref == META_PREF_CURSOR_SIZE)
+  if (pref == META_PREF_CURSOR_THEME ||
+      pref == META_PREF_CURSOR_SIZE)
     {
       meta_display_reload_cursor (display);
     }
