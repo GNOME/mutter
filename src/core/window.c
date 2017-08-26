@@ -824,10 +824,10 @@ meta_window_main_monitor_changed (MetaWindow               *window,
   META_WINDOW_GET_CLASS (window)->main_monitor_changed (window, old);
 
   if (old)
-    g_signal_emit_by_name (window->screen, "window-left-monitor",
+    g_signal_emit_by_name (window->display, "window-left-monitor",
                            old->number, window);
   if (window->monitor)
-    g_signal_emit_by_name (window->screen, "window-entered-monitor",
+    g_signal_emit_by_name (window->display, "window-entered-monitor",
                            window->monitor->number, window);
 }
 
@@ -1089,7 +1089,7 @@ _meta_window_shared_new (MetaDisplay         *display,
   /* Apply any window attributes such as initial workspace
    * based on startup notification
    */
-  meta_screen_apply_startup_properties (window->screen, window);
+  meta_display_apply_startup_properties (window->display, window);
 
   /* Try to get a "launch timestamp" for the window.  If the window is
    * a transient, we'd like to be able to get a last-usage timestamp
@@ -1469,7 +1469,7 @@ meta_window_unmanage (MetaWindow  *window,
   META_WINDOW_GET_CLASS (window)->unmanage (window);
 
   meta_prefs_remove_listener (prefs_changed_callback, window);
-  meta_screen_queue_check_fullscreen (window->screen);
+  meta_display_queue_check_fullscreen (window->display);
 
   g_signal_emit (window, window_signals[UNMANAGED], 0);
 
@@ -2433,7 +2433,7 @@ meta_window_show (MetaWindow *window)
     }
 
   if (did_show)
-    meta_screen_queue_check_fullscreen (window->screen);
+    meta_display_queue_check_fullscreen (window->display);
 
 #ifdef HAVE_WAYLAND
   if (did_show && window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
@@ -2540,7 +2540,7 @@ meta_window_hide (MetaWindow *window)
     }
 
   if (did_hide)
-    meta_screen_queue_check_fullscreen (window->screen);
+    meta_display_queue_check_fullscreen (window->display);
 }
 
 static gboolean
@@ -2689,7 +2689,7 @@ meta_window_maximize_internal (MetaWindow        *window,
   set_net_wm_state (window);
 
   if (window->monitor->in_fullscreen)
-    meta_screen_queue_check_fullscreen (window->screen);
+    meta_display_queue_check_fullscreen (window->display);
 
   g_object_freeze_notify (G_OBJECT (window));
   g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_MAXIMIZED_HORIZONTALLY]);
@@ -2903,7 +2903,7 @@ meta_window_tile (MetaWindow *window)
     directions = META_MAXIMIZE_VERTICAL;
 
   meta_window_maximize_internal (window, directions, NULL);
-  meta_screen_update_tile_preview (window->screen, FALSE);
+  meta_display_update_tile_preview (window->display, FALSE);
 
   meta_window_get_frame_rect (window, &old_frame_rect);
   meta_window_get_buffer_rect (window, &old_buffer_rect);
@@ -3110,7 +3110,7 @@ meta_window_unmaximize (MetaWindow        *window,
       meta_window_recalc_features (window);
       set_net_wm_state (window);
       if (!window->monitor->in_fullscreen)
-        meta_screen_queue_check_fullscreen (window->screen);
+        meta_display_queue_check_fullscreen (window->display);
     }
 
   g_object_freeze_notify (G_OBJECT (window));
@@ -3183,7 +3183,7 @@ meta_window_make_fullscreen_internal (MetaWindow  *window)
       set_net_wm_state (window);
 
       /* For the auto-minimize feature, if we fail to get focus */
-      meta_screen_queue_check_fullscreen (window->screen);
+      meta_display_queue_check_fullscreen (window->display);
 
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_FULLSCREEN]);
     }
@@ -3257,7 +3257,7 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
                                         NorthWestGravity,
                                         target_rect);
 
-      meta_screen_queue_check_fullscreen (window->screen);
+      meta_display_queue_check_fullscreen (window->display);
 
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_FULLSCREEN]);
     }
@@ -3907,7 +3907,7 @@ meta_window_move_to_monitor (MetaWindow  *window,
   window->preferred_output_winsys_id = window->monitor->winsys_id;
 
   if (window->fullscreen || window->override_redirect)
-    meta_screen_queue_check_fullscreen (window->screen);
+    meta_display_queue_check_fullscreen (window->display);
 }
 
 void
@@ -5815,8 +5815,8 @@ update_move (MetaWindow  *window,
    * trigger it unwittingly, e.g. when shaking loose the window or moving
    * it to another monitor.
    */
-  meta_screen_update_tile_preview (window->screen,
-                                   window->tile_mode != META_TILE_NONE);
+  meta_display_update_tile_preview (window->display,
+                                    window->tile_mode != META_TILE_NONE);
 
   meta_window_get_frame_rect (window, &old);
 
