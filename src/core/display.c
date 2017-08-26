@@ -37,6 +37,7 @@
 #include <meta/main.h>
 #include "screen-private.h"
 #include "window-private.h"
+#include "boxes-private.h"
 #include "frame.h"
 #include <meta/errors.h>
 #include "keybindings-private.h"
@@ -118,6 +119,7 @@ G_DEFINE_TYPE(MetaDisplay, meta_display, G_TYPE_OBJECT);
 /* Signals */
 enum
 {
+  CURSOR_UPDATED,
   OVERLAY_KEY,
   ACCELERATOR_ACTIVATED,
   MODIFIERS_ACCELERATOR_ACTIVATED,
@@ -134,6 +136,7 @@ enum
   SHOW_PAD_OSD,
   SHOW_OSD,
   PAD_MODE_SWITCH,
+  MONITORS_CHANGED,
   LAST_SIGNAL
 };
 
@@ -157,7 +160,8 @@ static MetaDisplay *the_display = NULL;
 static const char *gnome_wm_keybindings = "Mutter";
 static const char *net_wm_name = "Mutter";
 
-static void update_cursor_theme (void);
+static void on_monitors_changed_internal (MetaMonitorManager *manager,
+                                          MetaDisplay        *display);
 
 static void    prefs_changed_callback    (MetaPreference pref,
                                           void          *data);
@@ -205,6 +209,14 @@ meta_display_class_init (MetaDisplayClass *klass)
 
   object_class->get_property = meta_display_get_property;
   object_class->set_property = meta_display_set_property;
+
+  display_signals[CURSOR_UPDATED] =
+    g_signal_new ("cursor-updated",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 
   display_signals[OVERLAY_KEY] =
     g_signal_new ("overlay-key",
@@ -394,6 +406,13 @@ meta_display_class_init (MetaDisplayClass *klass)
                   0, NULL, NULL, NULL,
                   G_TYPE_NONE, 3, CLUTTER_TYPE_INPUT_DEVICE,
                   G_TYPE_UINT, G_TYPE_UINT);
+
+  display_signals[MONITORS_CHANGED] =
+    g_signal_new ("monitors-changed",
+		  G_TYPE_FROM_CLASS (klass),
+		  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 
   g_object_class_install_property (object_class,
                                    PROP_FOCUS_WINDOW,
@@ -597,6 +616,7 @@ meta_display_open (void)
   int i;
   guint32 timestamp;
   Window old_active_xwindow = None;
+  MetaMonitorManager *manager;
 
   g_assert (the_display == NULL);
   display = the_display = g_object_new (META_TYPE_DISPLAY, NULL);
@@ -610,6 +630,9 @@ meta_display_open (void)
   display->focus_window = NULL;
   display->screen = NULL;
   display->x11_display = NULL;
+
+  display->rect.x = display->rect.y = 0;
+  display->current_cursor = -1; /* invalid/unset */
 
   display->mouse_mode = TRUE; /* Only relevant for mouse or sloppy focus */
   display->allow_terminal_deactivation = TRUE; /* Only relevant for when a
@@ -647,6 +670,16 @@ meta_display_open (void)
                                       g_int64_equal);
   display->wayland_windows = g_hash_table_new (NULL, NULL);
 
+  manager = meta_monitor_manager_get ();
+  g_signal_connect (monitor, "monitors-changed-internal",
+                    G_CALLBACK (on_monitors_changed_internal), display);
+
+  meta_monitor_manager_get_screen_size (manager,
+                                        &display->rect.width,
+                                        &display->rect.height);
+
+  meta_display_set_cursor (display, META_CURSOR_DEFAULT);
+
   x11_display = meta_x11_display_new (display, &error);
   g_assert (x11_display != NULL); /* Required, for now */
   display->x11_display = x11_display;
@@ -676,8 +709,6 @@ meta_display_open (void)
 
   display->xids = g_hash_table_new (meta_unsigned_long_hash,
                                         meta_unsigned_long_equal);
-
-  update_cursor_theme ();
 
   /* Create the leader window here. Set its properties and
    * use the timestamp from one of the PropertyNotify events
@@ -938,6 +969,10 @@ meta_display_close (MetaDisplay *display,
 
   /* Stop caring about events */
   meta_display_free_events (display);
+
+  meta_compositor_unmanage (display->compositor);
+
+  meta_display_unmanage_windows (display, timestamp);
 
   if (display->screen)
     meta_screen_free (display->screen, timestamp);
@@ -1603,10 +1638,124 @@ meta_cursor_for_grab_op (MetaGrabOp op)
   return META_CURSOR_DEFAULT;
 }
 
+static int
+find_highest_logical_monitor_scale (MetaBackend      *backend,
+                                    MetaCursorSprite *cursor_sprite)
+{
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaCursorRenderer *cursor_renderer =
+    meta_backend_get_cursor_renderer (backend);
+  ClutterRect cursor_rect;
+  GList *logical_monitors;
+  GList *l;
+  int highest_scale = 0.0;
+
+  cursor_rect = meta_cursor_renderer_calculate_rect (cursor_renderer,
+						     cursor_sprite);
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  for (l = logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+      ClutterRect logical_monitor_rect =
+	      meta_rectangle_to_clutter_rect (&logical_monitor->rect);
+
+      if (!clutter_rect_intersection (&cursor_rect,
+				      &logical_monitor_rect,
+				      NULL))
+        continue;
+
+      highest_scale = MAX (highest_scale, logical_monitor->scale);
+    }
+
+  return highest_scale;
+}
+
+static void
+root_cursor_prepare_at (MetaCursorSprite *cursor_sprite,
+                        int               x,
+                        int               y,
+                        MetaDisplay      *display)
+{
+  MetaBackend *backend = meta_get_backend ();
+
+  if (meta_is_stage_views_scaled ())
+    {
+      int scale;
+
+      scale = find_highest_logical_monitor_scale (backend, cursor_sprite);
+      if (scale != 0.0)
+        {
+          meta_cursor_sprite_set_theme_scale (cursor_sprite, scale);
+          meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0 / scale);
+        }
+    }
+  else
+    {
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
+      MetaLogicalMonitor *logical_monitor;
+
+      logical_monitor =
+        meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
+
+      /* Reload the cursor texture if the scale has changed. */
+      if (logical_monitor)
+        {
+          meta_cursor_sprite_set_theme_scale (cursor_sprite,
+                                              logical_monitor->scale);
+          meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0);
+        }
+    }
+}
+
+static void
+manage_root_cursor_sprite_scale (MetaDisplay      *display,
+                                 MetaCursorSprite *cursor_sprite)
+{
+  g_signal_connect_object (cursor_sprite,
+                           "prepare-at",
+                           G_CALLBACK (root_cursor_prepare_at),
+                           display,
+                           0);
+}
+
+void
+meta_display_reload_cursor (MetaDisplay *display)
+{
+  MetaCursor cursor = display->current_cursor;
+  MetaCursorSprite *cursor_sprite;
+  MetaBackend *backend = meta_get_backend ();
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+
+  cursor_sprite = meta_cursor_sprite_from_theme (cursor);
+
+  if (meta_is_wayland_compositor ())
+    manage_root_cursor_sprite_scale (display, cursor_sprite);
+
+  meta_cursor_tracker_set_root_cursor (cursor_tracker, cursor_sprite);
+  g_object_unref (cursor_sprite);
+
+  g_signal_emit (display, display_signals[CURSOR_UPDATED], 0, display);
+}
+
+void
+meta_display_set_cursor (MetaDisplay *display,
+                         MetaCursor   cursor)
+{
+  if (cursor == display->current_cursor)
+    return;
+
+  display->current_cursor = cursor;
+  meta_display_reload_cursor (display);
+}
+
 void
 meta_display_update_cursor (MetaDisplay *display)
 {
-  meta_screen_set_cursor (display->screen, meta_cursor_for_grab_op (display->grab_op));
+  meta_display_set_cursor (display, meta_cursor_for_grab_op (display->grab_op));
 }
 
 static MetaWindow *
@@ -1952,34 +2101,6 @@ void
 meta_display_retheme_all (void)
 {
   meta_display_queue_retheme_all_windows (meta_get_display ());
-}
-
-static void
-set_cursor_theme (Display *xdisplay)
-{
-  XcursorSetTheme (xdisplay, meta_prefs_get_cursor_theme ());
-  XcursorSetDefaultSize (xdisplay, meta_prefs_get_cursor_size ());
-}
-
-static void
-update_cursor_theme (void)
-{
-  {
-    MetaDisplay *display = meta_get_display ();
-    set_cursor_theme (display->x11_display->xdisplay);
-
-    if (display->screen)
-      meta_screen_update_cursor (display->screen);
-  }
-
-  {
-    MetaBackend *backend = meta_get_backend ();
-    if (META_IS_BACKEND_X11 (backend))
-      {
-        Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
-        set_cursor_theme (xdisplay);
-      }
-  }
 }
 
 /*
@@ -2487,9 +2608,8 @@ meta_display_unmanage_screen (MetaDisplay *display,
 }
 
 void
-meta_display_unmanage_windows_for_screen (MetaDisplay *display,
-                                          MetaScreen  *screen,
-                                          guint32      timestamp)
+meta_display_unmanage_windows (MetaDisplay *display,
+			       guint32      timestamp)
 {
   GSList *tmp;
   GSList *winlist;
@@ -2569,7 +2689,7 @@ prefs_changed_callback (MetaPreference pref,
   else if (pref == META_PREF_CURSOR_THEME ||
            pref == META_PREF_CURSOR_SIZE)
     {
-      update_cursor_theme ();
+      meta_display_reload_cursor (display);
     }
 }
 
@@ -2776,6 +2896,26 @@ MetaX11Display *
 meta_display_get_x11_display (MetaDisplay *display)
 {
   return display->x11_display;
+}
+
+/**
+ * meta_display_get_size:
+ * @display: A #MetaDisplay
+ * @width: (out): The width of the screen
+ * @height: (out): The height of the screen
+ *
+ * Retrieve the size of the display.
+ */
+void
+meta_display_get_size (MetaDisplay *display,
+                       int         *width,
+                       int         *height)
+{
+  if (width != NULL)
+    *width = display->rect.width;
+
+  if (height != NULL)
+    *height = display->rect.height;
 }
 
 /**
@@ -3056,4 +3196,63 @@ meta_display_notify_pad_group_switch (MetaDisplay        *display,
                  n_group, n_mode);
 
   g_string_free (message, TRUE);
+}
+
+void
+meta_display_foreach_window (MetaDisplay          *display,
+                             MetaListWindowsFlags  flags,
+                             MetaDisplayWindowFunc func,
+                             gpointer              data)
+{
+  GSList *windows;
+
+  /* If we end up doing this often, just keeping a list
+   * of windows might be sensible.
+   */
+
+  windows = meta_display_list_windows (display, flags);
+
+  g_slist_foreach (windows, (GFunc) func, data);
+
+  g_slist_free (windows);
+}
+
+static void
+meta_display_resize_func (MetaWindow *window,
+                          gpointer    user_data)
+{
+  if (window->struts)
+    {
+      meta_window_update_struts (window);
+    }
+  meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
+
+  meta_window_recalc_features (window);
+}
+
+static void
+on_monitors_changed_internal (MetaMonitorManager *manager,
+                              MetaDisplay        *display)
+{
+  MetaBackend *backend;
+  MetaCursorRenderer *cursor_renderer;
+
+  meta_monitor_manager_get_screen_size (manager,
+                                        &display->rect.width,
+                                        &display->rect.height);
+
+  /* Fix up monitor for all windows on this display */
+  meta_display_foreach_window (display, META_LIST_INCLUDE_OVERRIDE_REDIRECT,
+                               (MetaDisplayWindowFunc)
+                               meta_window_update_for_monitors_changed, 0);
+
+  /* Queue a resize on all the windows */
+  meta_display_foreach_window (display, META_LIST_DEFAULT,
+                               meta_display_resize_func, 0);
+
+  backend = meta_get_backend ();
+  cursor_renderer = meta_backend_get_cursor_renderer (backend);
+  meta_cursor_renderer_force_update (cursor_renderer);
+
+  g_signal_emit (display, display_signals[MONITORS_CHANGED], 0);
 }
