@@ -592,7 +592,7 @@ test_case_assert_stacking (TestCase *test,
   GString *expected_string = g_string_new (NULL);
   int i;
 
-  meta_stack_tracker_get_stack (display->screen->stack_tracker, &windows, &n_windows);
+  meta_stack_tracker_get_stack (display->stack_tracker, &windows, &n_windows);
   for (i = 0; i < n_windows; i++)
     {
       MetaWindow *window = meta_display_lookup_stack_id (display, windows[i]);
@@ -613,7 +613,7 @@ test_case_assert_stacking (TestCase *test,
           else
             g_string_append_printf (stack_string, "(%s)", window->title);
         }
-      else if (windows[i] == display->screen->guard_window)
+      else if (windows[i] == display->x11_display->guard_window)
         {
           if (stack_string->len > 0)
             g_string_append_c (stack_string, ' ');
@@ -664,7 +664,7 @@ test_case_check_xserver_stacking (TestCase *test,
 
   guint64 *windows;
   int n_windows;
-  meta_stack_tracker_get_stack (display->screen->stack_tracker, &windows, &n_windows);
+  meta_stack_tracker_get_stack (display->stack_tracker, &windows, &n_windows);
 
   for (i = 0; i < n_windows; i++)
     {
