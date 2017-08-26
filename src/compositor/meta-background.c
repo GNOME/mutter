@@ -148,7 +148,7 @@ on_monitors_changed (MetaDisplay    *display,
     {
       int i;
 
-      priv->n_monitors = meta_screen_get_n_monitors (screen);
+      priv->n_monitors = meta_display_get_n_monitors (meta_screen_get_display (screen));
       priv->monitors = g_new0 (MetaBackgroundMonitor, priv->n_monitors);
 
       for (i = 0; i < priv->n_monitors; i++)
@@ -758,7 +758,9 @@ meta_background_get_texture (MetaBackground         *self,
 
   monitor = &priv->monitors[monitor_index];
 
-  meta_screen_get_monitor_geometry (priv->screen, monitor_index, &geometry);
+  meta_display_get_monitor_geometry (meta_screen_get_display (priv->screen),
+                                     monitor_index,
+                                     &geometry);
   monitor_area.x = geometry.x;
   monitor_area.y = geometry.y;
   monitor_area.width = geometry.width;
