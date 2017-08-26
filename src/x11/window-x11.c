@@ -2077,7 +2077,7 @@ meta_window_move_resize_request (MetaWindow *window,
       rect.width = width;
       rect.height = height;
 
-      meta_screen_get_monitor_geometry (window->screen, window->monitor->number, &monitor_rect);
+      meta_display_get_monitor_geometry (window->display, window->monitor->number, &monitor_rect);
 
       /* Workaround braindead legacy apps that don't know how to
        * fullscreen themselves properly - don't get fooled by

@@ -1023,7 +1023,7 @@ meta_workspace_set_builtin_struts (MetaWorkspace *workspace,
         case META_SIDE_TOP:
           if (meta_monitor_manager_get_logical_monitor_neighbor (monitor_manager,
                                                                  logical_monitor,
-                                                                 META_SCREEN_UP))
+                                                                 META_DISPLAY_UP))
             continue;
 
           strut->rect.height += strut->rect.y;
@@ -1032,7 +1032,7 @@ meta_workspace_set_builtin_struts (MetaWorkspace *workspace,
         case META_SIDE_BOTTOM:
           if (meta_monitor_manager_get_logical_monitor_neighbor (monitor_manager,
                                                                  logical_monitor,
-                                                                 META_SCREEN_DOWN))
+                                                                 META_DISPLAY_DOWN))
             continue;
 
           strut->rect.height = screen->display->rect.height - strut->rect.y;
@@ -1040,7 +1040,7 @@ meta_workspace_set_builtin_struts (MetaWorkspace *workspace,
         case META_SIDE_LEFT:
           if (meta_monitor_manager_get_logical_monitor_neighbor (monitor_manager,
                                                                  logical_monitor,
-                                                                 META_SCREEN_LEFT))
+                                                                 META_DISPLAY_LEFT))
             continue;
 
           strut->rect.width += strut->rect.x;
@@ -1049,7 +1049,7 @@ meta_workspace_set_builtin_struts (MetaWorkspace *workspace,
         case META_SIDE_RIGHT:
           if (meta_monitor_manager_get_logical_monitor_neighbor (monitor_manager,
                                                                  logical_monitor,
-                                                                 META_SCREEN_RIGHT))
+                                                                 META_DISPLAY_RIGHT))
             continue;
 
           strut->rect.width = screen->display->rect.width - strut->rect.x;
