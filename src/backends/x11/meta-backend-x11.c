@@ -110,7 +110,7 @@ translate_device_event (MetaBackendX11 *x11,
 
   meta_backend_x11_translate_device_event (x11, device_event);
 
-  if (!device_event->send_event && device_event->time != CurrentTime)
+  if (!device_event->send_event && device_event->time != META_CURRENT_TIME)
     {
       if (device_event->time < priv->latest_evtime)
         {
@@ -484,7 +484,7 @@ meta_backend_x11_grab_device (MetaBackend *backend,
   XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
   int ret;
 
-  if (timestamp != CurrentTime)
+  if (timestamp != META_CURRENT_TIME)
     timestamp = MAX (timestamp, priv->latest_evtime);
 
   XISetMask (mask.mask, XI_ButtonPress);
