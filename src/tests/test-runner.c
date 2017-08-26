@@ -144,7 +144,7 @@ async_waiter_set_and_wait (AsyncWaiter *waiter)
 
 static gboolean
 async_waiter_alarm_filter (AsyncWaiter           *waiter,
-                           MetaDisplay           *display,
+                           MetaX11Display        *x11_display,
                            XSyncAlarmNotifyEvent *event)
 {
   if (event->alarm != waiter->alarm)
@@ -400,11 +400,11 @@ test_client_find_window (TestClient *client,
 
 static gboolean
 test_client_alarm_filter (TestClient            *client,
-                          MetaDisplay           *display,
+                          MetaX11Display        *x11_display,
                           XSyncAlarmNotifyEvent *event)
 {
   if (client->waiter)
-    return async_waiter_alarm_filter (client->waiter, display, event);
+    return async_waiter_alarm_filter (client->waiter, x11_display, event);
   else
     return FALSE;
 }
@@ -420,7 +420,7 @@ typedef struct {
 } TestCase;
 
 static gboolean
-test_case_alarm_filter (MetaDisplay           *display,
+test_case_alarm_filter (MetaX11Display        *x11_display,
                         XSyncAlarmNotifyEvent *event,
                         gpointer               data)
 {
@@ -428,12 +428,12 @@ test_case_alarm_filter (MetaDisplay           *display,
   GHashTableIter iter;
   gpointer key, value;
 
-  if (async_waiter_alarm_filter (test->waiter, display, event))
+  if (async_waiter_alarm_filter (test->waiter, x11_display, event))
     return TRUE;
 
   g_hash_table_iter_init (&iter, test->clients);
   while (g_hash_table_iter_next (&iter, &key, &value))
-    if (test_client_alarm_filter (value, display, event))
+    if (test_client_alarm_filter (value, x11_display, event))
       return TRUE;
 
   return FALSE;
@@ -482,8 +482,8 @@ test_case_new (void)
                                             test_case_log_func,
                                             test);
 
-  meta_display_set_alarm_filter (meta_get_display (),
-                                 test_case_alarm_filter, test);
+  meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
+                                     test_case_alarm_filter, test);
 
   test->clients = g_hash_table_new (g_str_hash, g_str_equal);
   test->waiter = async_waiter_new ();
@@ -882,7 +882,8 @@ test_case_destroy (TestCase *test,
 
   async_waiter_destroy (test->waiter);
 
-  meta_display_set_alarm_filter (meta_get_display (), NULL, NULL);
+  meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
+                                     NULL, NULL);
 
   g_hash_table_destroy (test->clients);
   g_free (test);
