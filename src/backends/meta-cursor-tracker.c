@@ -31,6 +31,7 @@
 #include "meta-cursor-tracker-private.h"
 
 #include <string.h>
+#include <meta/meta-x11-display.h>
 #include <meta/main.h>
 #include <meta/util.h>
 #include <meta/errors.h>
@@ -218,6 +219,7 @@ static void
 ensure_xfixes_cursor (MetaCursorTracker *tracker)
 {
   MetaDisplay *display = meta_get_display ();
+  Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
   XFixesCursorImage *cursor_image;
   CoglTexture2D *sprite;
   guint8 *cursor_data;
@@ -228,7 +230,7 @@ ensure_xfixes_cursor (MetaCursorTracker *tracker)
   if (tracker->xfixes_cursor)
     return;
 
-  cursor_image = XFixesGetCursorImage (display->xdisplay);
+  cursor_image = XFixesGetCursorImage (xdisplay);
   if (!cursor_image)
     return;
 
