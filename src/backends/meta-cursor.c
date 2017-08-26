@@ -26,7 +26,6 @@
 #include <meta/errors.h>
 
 #include "display-private.h"
-#include "screen-private.h"
 #include "meta-backend-private.h"
 
 #include <string.h>

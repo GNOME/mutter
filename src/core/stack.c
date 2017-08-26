@@ -497,8 +497,6 @@ add_constraint (Constraint **constraints,
 {
   Constraint *c;
 
-  g_assert (above->screen == below->screen);
-
   /* check if constraint is a duplicate */
   c = constraints[below->stack_position];
   while (c != NULL)
@@ -559,7 +557,6 @@ create_constraints (Constraint **constraints,
               MetaWindow *group_window = tmp2->data;
 
               if (!WINDOW_IN_STACK (group_window) ||
-                  w->screen != group_window->screen ||
                   group_window->override_redirect)
                 {
                   tmp2 = tmp2->next;
@@ -1287,8 +1284,6 @@ meta_stack_windows_cmp  (MetaStack  *stack,
                          MetaWindow *window_a,
                          MetaWindow *window_b)
 {
-  g_return_val_if_fail (window_a->screen == window_b->screen, 0);
-
   /* -1 means a below b */
 
   stack_ensure_sorted (stack); /* update constraints, layers */

@@ -26,7 +26,6 @@
 #include "meta-wayland-surface-role-cursor.h"
 #include "meta-wayland-buffer.h"
 #include "meta-xwayland.h"
-#include "screen-private.h"
 #include "meta-wayland-private.h"
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"

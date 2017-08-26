@@ -846,7 +846,6 @@ meta_window_calculate_main_logical_monitor (MetaWindow *window)
 
 MetaWindow *
 _meta_window_shared_new (MetaDisplay         *display,
-                         MetaScreen          *screen,
                          MetaWindowClientType client_type,
                          MetaWaylandSurface  *surface,
                          Window               xwindow,
@@ -883,9 +882,6 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->surface = surface;
   window->xwindow = xwindow;
 
-  /* this is in window->screen->display, but that's too annoying to
-   * type
-   */
   window->display = display;
   meta_display_register_stamp (window->display, &window->stamp, window);
 
@@ -895,8 +891,6 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->sync_request_serial = 0;
   window->sync_request_timeout_id = 0;
   window->sync_request_alarm = None;
-
-  window->screen = screen;
 
   meta_window_update_flatpak_id (window);
   meta_window_update_desc (window);
@@ -1232,7 +1226,7 @@ _meta_window_shared_new (MetaDisplay         *display,
       set_net_wm_state (window);
     }
 
-  meta_compositor_add_window (screen->display->compositor, window);
+  meta_compositor_add_window (window->display->compositor, window);
   window->known_to_compositor = TRUE;
 
   /* Sync stack changes */
@@ -1351,7 +1345,7 @@ meta_window_unmanage (MetaWindow  *window,
   /* Make sure to only show window on all workspaces if requested, to
    * not confuse other window managers that may take over
    */
-  if (window->screen->closing && meta_prefs_get_workspaces_only_on_primary ())
+  if (meta_prefs_get_workspaces_only_on_primary ())
     meta_window_on_all_workspaces_changed (window);
 
   if (window->fullscreen)
@@ -1654,11 +1648,8 @@ stackcmp (gconstpointer a, gconstpointer b)
   MetaWindow *aw = (gpointer) a;
   MetaWindow *bw = (gpointer) b;
 
-  if (aw->screen != bw->screen)
-    return 0; /* don't care how they sort with respect to each other */
-  else
-    return meta_stack_windows_cmp (aw->display->stack,
-                                   aw, bw);
+  return meta_stack_windows_cmp (aw->display->stack,
+                                 aw, bw);
 }
 
 static gboolean
@@ -2969,11 +2960,8 @@ unmaximize_window_before_freeing (MetaWindow        *window)
       window->rect = window->saved_rect;
       set_net_wm_state (window);
     }
-  else if (window->screen->closing      /* See bug #358042 */
 #ifdef HAVE_WAYLAND
-           && !meta_is_wayland_compositor ()
-#endif
-           )
+  else if (!meta_is_wayland_compositor ())
     {
       /* Do NOT update net_wm_state: this screen is closing,
        * it likely will be managed by another window manager
@@ -2988,6 +2976,7 @@ unmaximize_window_before_freeing (MetaWindow        *window)
                                      window->saved_rect.width,
                                      window->saved_rect.height);
     }
+#endif
 }
 
 void
@@ -6512,7 +6501,6 @@ meta_window_begin_grab_op (MetaWindow *window,
                      op, &x, &y);
 
   meta_display_begin_grab_op (window->display,
-                              window->screen,
                               window,
                               op,
                               FALSE,
@@ -6863,20 +6851,6 @@ meta_window_is_skip_taskbar (MetaWindow *window)
   g_return_val_if_fail (META_IS_WINDOW (window), FALSE);
 
   return window->skip_taskbar;
-}
-
-/**
- * meta_window_get_screen:
- * @window: a #MetaWindow
- *
- * Gets the #MetaScreen that the window is on.
- *
- * Return value: (transfer none): the #MetaScreen for the window
- */
-MetaScreen *
-meta_window_get_screen (MetaWindow *window)
-{
-  return window->screen;
 }
 
 /**
@@ -7941,7 +7915,6 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
 
           if (op != META_GRAB_OP_WINDOW_BASE)
             meta_display_begin_grab_op (display,
-                                        window->screen,
                                         window,
                                         op,
                                         TRUE,
@@ -7965,7 +7938,6 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
       if (window->has_move_func)
         {
           meta_display_begin_grab_op (display,
-                                      window->screen,
                                       window,
                                       META_GRAB_OP_MOVING,
                                       TRUE,

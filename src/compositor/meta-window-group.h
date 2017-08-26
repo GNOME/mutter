@@ -5,7 +5,7 @@
 
 #include <clutter/clutter.h>
 
-#include <meta/screen.h>
+#include <meta/display.h>
 
 /**
  * MetaWindowGroup:
@@ -29,7 +29,7 @@ typedef struct _MetaWindowGroupPrivate MetaWindowGroupPrivate;
 
 GType meta_window_group_get_type (void);
 
-ClutterActor *meta_window_group_new (MetaScreen *screen);
+ClutterActor *meta_window_group_new (MetaDisplay *display);
 
 gboolean meta_window_group_actor_is_untransformed (ClutterActor *actor,
                                                    int          *x_origin,

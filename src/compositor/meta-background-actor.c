@@ -86,7 +86,7 @@
 
 enum
 {
-  PROP_META_SCREEN = 1,
+  PROP_META_DISPLAY = 1,
   PROP_MONITOR,
   PROP_BACKGROUND,
   PROP_VIGNETTE,
@@ -128,7 +128,7 @@ typedef enum {
 
 struct _MetaBackgroundActorPrivate
 {
-  MetaScreen *screen;
+  MetaDisplay *display;
   int monitor;
 
   MetaBackground *background;
@@ -187,7 +187,7 @@ get_preferred_size (MetaBackgroundActor *self,
   MetaBackgroundActorPrivate *priv = META_BACKGROUND_ACTOR (self)->priv;
   MetaRectangle monitor_geometry;
 
-  meta_display_get_monitor_geometry (meta_screen_get_display (priv->screen),
+  meta_display_get_monitor_geometry (priv->display,
                                      priv->monitor,
                                      &monitor_geometry);
 
@@ -481,8 +481,8 @@ meta_background_actor_set_property (GObject      *object,
 
   switch (prop_id)
     {
-    case PROP_META_SCREEN:
-      priv->screen = g_value_get_object (value);
+    case PROP_META_DISPLAY:
+      priv->display = g_value_get_object (value);
       break;
     case PROP_MONITOR:
       priv->monitor = g_value_get_int (value);
@@ -524,8 +524,8 @@ meta_background_actor_get_property (GObject      *object,
 
   switch (prop_id)
     {
-    case PROP_META_SCREEN:
-      g_value_set_object (value, priv->screen);
+    case PROP_META_DISPLAY:
+      g_value_set_object (value, priv->display);
       break;
     case PROP_MONITOR:
       g_value_set_int (value, priv->monitor);
@@ -566,14 +566,14 @@ meta_background_actor_class_init (MetaBackgroundActorClass *klass)
   actor_class->get_paint_volume = meta_background_actor_get_paint_volume;
   actor_class->paint = meta_background_actor_paint;
 
-  param_spec = g_param_spec_object ("meta-screen",
-                                    "MetaScreen",
-                                    "MetaScreen",
-                                    META_TYPE_SCREEN,
+  param_spec = g_param_spec_object ("meta-display",
+                                    "MetaDisplay",
+                                    "MetaDisplay",
+                                    META_TYPE_DISPLAY,
                                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_property (object_class,
-                                   PROP_META_SCREEN,
+                                   PROP_META_DISPLAY,
                                    param_spec);
 
   param_spec = g_param_spec_int ("monitor",
@@ -650,13 +650,13 @@ meta_background_actor_init (MetaBackgroundActor *self)
  * Return value: the newly created background actor
  */
 ClutterActor *
-meta_background_actor_new (MetaScreen *screen,
-                           int         monitor)
+meta_background_actor_new (MetaDisplay *display,
+                           int          monitor)
 {
   MetaBackgroundActor *self;
 
   self = g_object_new (META_TYPE_BACKGROUND_ACTOR,
-                       "meta-screen", screen,
+                       "meta-display", display,
                        "monitor", monitor,
                        NULL);
 
