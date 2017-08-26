@@ -654,7 +654,7 @@ meta_window_x11_unmanage (MetaWindow *window)
       window->user_time_window = None;
     }
 
-  if (META_DISPLAY_HAS_SHAPE (window->display))
+  if (META_X11_DISPLAY_HAS_SHAPE (x11_display))
     XShapeSelectInput (x11_display->xdisplay, window->xwindow, NoEventMask);
 
   meta_window_ungrab_keys (window);
@@ -1759,7 +1759,7 @@ meta_window_x11_update_input_region (MetaWindow *window)
       return;
     }
 
-  if (META_DISPLAY_HAS_SHAPE (window->display))
+  if (META_X11_DISPLAY_HAS_SHAPE (x11_display))
     {
       /* Translate the set of XShape rectangles that we
        * get from the X server to a cairo_region. */
@@ -1862,7 +1862,7 @@ meta_window_x11_update_shape_region (MetaWindow *window)
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
   cairo_region_t *region = NULL;
 
-  if (META_DISPLAY_HAS_SHAPE (window->display))
+  if (META_X11_DISPLAY_HAS_SHAPE (x11_display))
     {
       /* Translate the set of XShape rectangles that we
        * get from the X server to a cairo_region. */
@@ -3037,7 +3037,7 @@ meta_window_x11_new (MetaDisplay       *display,
     XISelectEvents (x11_display->xdisplay, xwindow, &mask, 1);
   }
 
-  if (META_DISPLAY_HAS_SHAPE (display))
+  if (META_X11_DISPLAY_HAS_SHAPE (x11_display))
     XShapeSelectInput (x11_display->xdisplay, xwindow, ShapeNotifyMask);
 
   /* Get rid of any borders */
