@@ -23,7 +23,7 @@
 
 #include "meta-cursor.h"
 
-#include <meta/errors.h>
+#include <meta/meta-x11-errors.h>
 
 #include "display-private.h"
 #include "meta-backend-private.h"

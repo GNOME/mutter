@@ -41,7 +41,7 @@
 #include <xf86drmMode.h>
 
 #include <meta/main.h>
-#include <meta/errors.h>
+#include <meta/meta-x11-errors.h>
 
 #include <gudev/gudev.h>
 

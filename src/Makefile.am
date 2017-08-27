@@ -247,8 +247,6 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	core/edge-resistance.h			\
 	core/events.c				\
 	core/events.h				\
-	core/errors.c				\
-	meta/errors.h				\
 	core/frame.c				\
 	core/frame.h				\
 	core/meta-gesture-tracker.c		\
@@ -290,6 +288,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	x11/meta-x11-display.c			\
 	x11/meta-x11-display-private.h		\
 	meta/meta-x11-display.h			\
+	x11/meta-x11-errors.c			\
+	meta/meta-x11-errors.h			\
 	x11/events.c				\
 	x11/events.h				\
 	x11/group-private.h			\
@@ -449,7 +449,6 @@ libmutterinclude_headers =			\
 	meta/compositor-mutter.h		\
 	meta/compositor.h			\
 	meta/display.h				\
-	meta/errors.h				\
 	meta/group.h				\
 	meta/keybindings.h			\
 	meta/main.h				\
@@ -471,6 +470,7 @@ libmutterinclude_headers =			\
 	meta/meta-window-actor.h		\
 	meta/meta-window-shape.h		\
 	meta/meta-x11-display.h			\
+	meta/meta-x11-errors.h			\
 	meta/prefs.h				\
 	meta/theme.h				\
 	meta/types.h				\

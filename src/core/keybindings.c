@@ -31,7 +31,7 @@
 #include "keybindings-private.h"
 #include "workspace-private.h"
 #include <meta/compositor.h>
-#include <meta/errors.h>
+#include <meta/meta-x11-errors.h>
 #include "edge-resistance.h"
 #include "frame.h"
 #include <meta/prefs.h>
@@ -2838,7 +2838,7 @@ handle_panel (MetaDisplay     *display,
               "off due to keybinding press\n", event->time);
   display->mouse_mode = FALSE;
 
-  meta_error_trap_push (x11_display);
+  meta_x11_error_trap_push (x11_display);
 
   /* Release the grab for the panel before sending the event */
   XUngrabKeyboard (x11_display->xdisplay, event->time);
@@ -2849,7 +2849,7 @@ handle_panel (MetaDisplay     *display,
 	      StructureNotifyMask,
 	      (XEvent*) &ev);
 
-  meta_error_trap_pop (x11_display);
+  meta_x11_error_trap_pop (x11_display);
 }
 
 static void
