@@ -252,6 +252,7 @@ struct _MetaDisplay
   guint workspace_layout_overridden : 1;
 
   MetaBell *bell;
+  MetaWorkspaceManager *workspace_manager;
 };
 
 struct _MetaDisplayClass
