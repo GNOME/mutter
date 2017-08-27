@@ -1317,6 +1317,14 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
 
   set_x11_bell_is_audible (x11_display, meta_prefs_bell_is_audible ());
 
+  if (!meta_is_wayland_compositor ())
+    {
+      update_cursor_size_from_gtk (gtk_settings_get_default (), NULL, NULL);
+
+      g_signal_connect_object (gtk_settings_get_default (), "notify::gtk-cursor-theme-size",
+                               G_CALLBACK (update_cursor_size_from_gtk), NULL, 0);
+    }
+
   return x11_display;
 }
 

@@ -209,4 +209,8 @@ MetaLogicalMonitor *meta_x11_display_xinerama_index_to_logical_monitor (MetaX11D
 void meta_x11_display_update_workspace_layout (MetaX11Display *x11_display);
 void meta_x11_display_update_workspace_names  (MetaX11Display *x11_display);
 
+void update_cursor_size_from_gtk (GtkSettings *settings,
+                                  GParamSpec  *pspec,
+                                  gpointer     data);
+
 #endif /* META_X11_DISPLAY_PRIVATE_H */
