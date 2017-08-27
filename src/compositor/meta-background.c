@@ -21,6 +21,7 @@
 #include <meta/util.h>
 #include <meta/meta-background.h>
 #include <meta/meta-background-image.h>
+#include <meta/meta-monitor-manager.h>
 #include "meta-background-private.h"
 #include "cogl-utils.h"
 
@@ -129,8 +130,7 @@ free_wallpaper_texture (MetaBackground *self)
 }
 
 static void
-on_monitors_changed (MetaDisplay    *display,
-                     MetaBackground *self)
+on_monitors_changed (MetaBackground *self)
 {
   MetaBackgroundPrivate *priv = self->priv;
 
@@ -143,7 +143,7 @@ on_monitors_changed (MetaDisplay    *display,
     {
       int i;
 
-      priv->n_monitors = meta_display_get_n_monitors (display);
+      priv->n_monitors = meta_display_get_n_monitors (priv->display);
       priv->monitors = g_new0 (MetaBackgroundMonitor, priv->n_monitors);
 
       for (i = 0; i < priv->n_monitors; i++)
@@ -157,22 +157,9 @@ set_display (MetaBackground *self,
 {
   MetaBackgroundPrivate *priv = self->priv;
 
-  if (priv->display != NULL)
-    {
-      g_signal_handlers_disconnect_by_func (priv->display,
-                                            (gpointer)on_monitors_changed,
-                                            self);
-    }
-
   g_set_object (&priv->display, display);
 
-  if (priv->display != NULL)
-    {
-      g_signal_connect (priv->display, "monitors-changed",
-                        G_CALLBACK (on_monitors_changed), self);
-    }
-
-  on_monitors_changed (priv->display, self);
+  on_monitors_changed (self);
 }
 
 static void
@@ -323,11 +310,16 @@ meta_background_constructed (GObject *object)
 {
   MetaBackground        *self = META_BACKGROUND (object);
   MetaBackgroundPrivate *priv = self->priv;
+  MetaMonitorManager *monitor_manager = meta_monitor_manager_get ();
 
   G_OBJECT_CLASS (meta_background_parent_class)->constructed (object);
 
   g_signal_connect_object (priv->display, "gl-video-memory-purged",
                            G_CALLBACK (mark_changed), object, G_CONNECT_SWAPPED);
+
+  g_signal_connect_object (monitor_manager, "monitors-changed",
+                           G_CALLBACK (on_monitors_changed), self,
+                           G_CONNECT_SWAPPED);
 }
 
 static void
