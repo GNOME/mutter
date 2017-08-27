@@ -45,6 +45,8 @@
 #include "meta-wayland-inhibit-shortcuts.h"
 #include "meta-wayland-inhibit-shortcuts-dialog.h"
 
+#include "main-private.h"
+
 static MetaWaylandCompositor _meta_wayland_compositor;
 static char *_display_name_override;
 
@@ -362,7 +364,8 @@ meta_wayland_init (void)
   meta_wayland_keyboard_shortcuts_inhibit_init (compositor);
   meta_wayland_surface_inhibit_shortcuts_dialog_init ();
 
-  if (!meta_xwayland_start (&compositor->xwayland_manager, compositor->wayland_display))
+  if (meta_should_autostart_x11_display () &&
+      !meta_xwayland_start (&compositor->xwayland_manager, compositor->wayland_display))
     g_error ("Failed to start X Wayland");
 
   if (_display_name_override)
@@ -383,7 +386,9 @@ meta_wayland_init (void)
         g_error ("Failed to create socket");
     }
 
-  set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
+  if (meta_should_autostart_x11_display ())
+    set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
+
   set_gnome_env ("WAYLAND_DISPLAY", meta_wayland_get_wayland_display_name (compositor));
 }
 
