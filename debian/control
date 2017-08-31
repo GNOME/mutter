@@ -53,6 +53,7 @@ Build-Depends: debhelper (>= 10),
                libwayland-dev (>= 1.13.0) [linux-any],
                wayland-protocols (>= 1.9) [linux-any],
                xkb-data,
+               libgl1-mesa-dri <!nocheck>,
                xvfb <!nocheck>,
                xauth <!nocheck>,
                zenity
