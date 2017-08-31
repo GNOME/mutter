@@ -6,7 +6,7 @@ Source: mutter
 Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
-Uploaders: Andreas Henriksson <andreas@fatal.se>, Jeremy Bicha <jbicha@ubuntu.com>, Michael Biebl <biebl@debian.org>, Sjoerd Simons <sjoerd@debian.org>
+Uploaders: Andreas Henriksson <andreas@fatal.se>, Jeremy Bicha <jbicha@debian.org>, Michael Biebl <biebl@debian.org>, Sjoerd Simons <sjoerd@debian.org>
 Build-Depends: debhelper (>= 10),
                gnome-pkg-tools (>= 0.10),
                gtk-doc-tools (>= 1.15),
@@ -56,7 +56,7 @@ Build-Depends: debhelper (>= 10),
                xvfb <!nocheck>,
                xauth <!nocheck>,
                zenity
-Standards-Version: 3.9.8
+Standards-Version: 4.1.0
 Vcs-Svn: svn://anonscm.debian.org/pkg-gnome/desktop/unstable/mutter
 Vcs-Browser: https://anonscm.debian.org/viewvc/pkg-gnome/desktop/unstable/mutter
 
