@@ -1,9 +1,9 @@
-mutter (3.25.91-2) UNRELEASED; urgency=medium
+mutter (3.25.91-2) experimental; urgency=medium
 
   * Build-Depend on libgl1-mesa-dri for build tests since
     Debian's mesa packages currently only recommends it
 
- -- Jeremy Bicha <jbicha@debian.org>  Thu, 31 Aug 2017 12:45:41 -0400
+ -- Jeremy Bicha <jbicha@debian.org>  Thu, 31 Aug 2017 12:47:34 -0400
 
 mutter (3.25.91-1) experimental; urgency=medium
 
