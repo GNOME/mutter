@@ -561,6 +561,10 @@ void             clutter_actor_box_set_size       (ClutterActorBox       *box,
                                                    gfloat                 width,
                                                    gfloat                 height);
 
+CLUTTER_AVAILABLE_IN_ALL
+void             clutter_actor_box_scale          (ClutterActorBox       *box,
+                                                   gfloat                 scale);
+
 /**
  * ClutterGeometry:
  * @x: X coordinate of the top left corner of an actor
