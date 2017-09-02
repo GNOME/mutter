@@ -31,9 +31,13 @@ override_dh_auto_configure:
 		--enable-compile-warnings \
 		$(CONFFLAGS)
 
-# Don't fail the tests yet until we see which architectures fail
+# See https://bugs.debian.org/874077
 override_dh_auto_test:
+ifeq (yes,$(shell dpkg-vendor --derives-from Ubuntu && echo yes))
+	xvfb-run dh_auto_test
+else
 	-xvfb-run dh_auto_test
+endif
 
 override_dh_install:
 	dh_install --list-missing
