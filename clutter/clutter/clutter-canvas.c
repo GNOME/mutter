@@ -614,7 +614,7 @@ clutter_canvas_set_scale_factor (ClutterCanvas *canvas,
                                  float          scale)
 {
   g_return_if_fail (CLUTTER_IS_CANVAS (canvas));
-  g_return_if_fail (scale >= 1.0f);
+  g_return_if_fail (scale > 0.0f);
 
   if (canvas->priv->scale_factor != scale)
     {
