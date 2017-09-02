@@ -1,3 +1,9 @@
+mutter (3.25.91+20170902~ce515c5-1) UNRELEASED; urgency=medium
+
+  * New upstream git snapshot (LP: #1714330)
+
+ -- Jeremy Bicha <jbicha@debian.org>  Sat, 02 Sep 2017 14:58:10 -0400
+
 mutter (3.25.91-2) experimental; urgency=medium
 
   * Build-Depend on libgl1-mesa-dri for build tests since
