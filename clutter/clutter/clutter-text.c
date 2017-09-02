@@ -65,6 +65,12 @@
 #include "clutter-scriptable.h"
 #include "clutter-input-focus.h"
 
+/* Utility pango to (logical) pixels macros */
+#define PIXELS_TO_PANGO(px) ceilf (((float) px) * (float) PANGO_SCALE)
+#define LOGICAL_PIXELS_TO_PANGO(px, scale) PIXELS_TO_PANGO (((float) px) * scale)
+#define PANGO_TO_PIXELS(size) ceilf (((float) size) / (float) PANGO_SCALE)
+#define PANGO_TO_LOGICAL_PIXELS(size, scale) PANGO_TO_PIXELS (((float) size) / (scale))
+
 /* cursor width in pixels */
 #define DEFAULT_CURSOR_SIZE     2
 
@@ -146,15 +152,17 @@ struct _ClutterTextPrivate
    */
   gint x_pos;
 
-  /* the x position of the PangoLayout when in
-   * single line mode, to scroll the contents of the
+  /* the x position of the PangoLayout (in both physical and logical pixels)
+   * when in single line mode, to scroll the contents of the
    * text actor
    */
   gint text_x;
+  gint text_logical_x;
 
-  /* the y position of the PangoLayout, fixed to 0 by
-   * default for now */
+  /* the y position of the PangoLayout (in both physical and logical pixels),
+   * fixed to 0 by default for now */
   gint text_y;
+  gint text_logical_y;
 
   /* Where to draw the cursor */
   ClutterRect cursor_rect;
@@ -182,6 +190,9 @@ struct _ClutterTextPrivate
 
   /* Signal handler for when the :text-direction changes */
   guint direction_changed_id;
+
+  /* Signal handler for when the :resource-scale changes */
+  guint resource_scale_changed_id;
 
   ClutterInputFocus *input_focus;
   ClutterInputContentHintFlags input_hints;
@@ -604,6 +615,31 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
     }
 }
 
+static inline void
+ensure_text_scale_pango_attributes (ClutterText    *self,
+                                    PangoAttrList **attributes)
+{
+  float resource_scale;
+
+  g_return_if_fail (attributes != NULL);
+
+  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (self), &resource_scale))
+    resource_scale = 1.0;
+
+  if (*attributes)
+    {
+      PangoAttrList *old_attributes = *attributes;
+      *attributes = pango_attr_list_copy (old_attributes);
+      pango_attr_list_unref (old_attributes);
+    }
+  else
+    {
+      *attributes = pango_attr_list_new ();
+    }
+
+  pango_attr_list_change (*attributes, pango_attr_scale_new (resource_scale));
+}
+
 static PangoLayout *
 clutter_text_create_layout_no_cache (ClutterText       *text,
 				     gint               width,
@@ -685,6 +721,7 @@ clutter_text_create_layout_no_cache (ClutterText       *text,
   /* This will merge the markup attributes and the attributes
    * property if needed */
   clutter_text_ensure_effective_attributes (text);
+  ensure_text_scale_pango_attributes (text, &priv->effective_attrs);
 
   if (priv->effective_attrs != NULL)
     pango_layout_set_attributes (layout, priv->effective_attrs);
@@ -809,6 +846,18 @@ clutter_text_direction_changed_cb (GObject    *gobject,
   /* no need to queue a relayout: set_text_direction() will do that for us */
 }
 
+static void
+clutter_text_resource_scale_changed_cb (GObject    *gobject,
+                                        GParamSpec *pspec)
+{
+  ClutterText *self = CLUTTER_TEXT (gobject);
+  ClutterTextPrivate *priv = self->priv;
+
+  g_clear_pointer (&priv->effective_attrs, pango_attr_list_unref);
+  clutter_text_dirty_cache (self);
+  clutter_actor_queue_relayout (CLUTTER_ACTOR (gobject));
+}
+
 /*
  * clutter_text_create_layout:
  * @text: a #ClutterText
@@ -876,7 +925,7 @@ clutter_text_create_layout (ClutterText *text,
        !((priv->editable && priv->single_line_mode) ||
          (priv->ellipsize == PANGO_ELLIPSIZE_NONE && !priv->wrap))))
     {
-      width = allocation_width * 1024 + 0.5f;
+      width = PIXELS_TO_PANGO (allocation_width);
     }
 
   /* Pango only uses height if ellipsization is enabled, so don't set
@@ -893,7 +942,7 @@ clutter_text_create_layout (ClutterText *text,
       priv->ellipsize != PANGO_ELLIPSIZE_NONE &&
       !priv->single_line_mode)
     {
-      height = allocation_height * 1024 + 0.5f;
+      height = PIXELS_TO_PANGO (allocation_height);
     }
 
   /* Search for a cached layout with the same width and keep
@@ -990,6 +1039,37 @@ clutter_text_create_layout (ClutterText *text,
   return oldest_cache->layout;
 }
 
+static PangoLayout *
+create_text_layout_with_scale (ClutterText *text,
+                               gfloat       allocation_width,
+                               gfloat       allocation_height,
+                               gfloat       scale)
+{
+  if (allocation_width > 0)
+    allocation_width *= scale;
+
+  if (allocation_height > 0)
+    allocation_height *= scale;
+
+  return clutter_text_create_layout (text, allocation_width, allocation_height);
+}
+
+static PangoLayout *
+maybe_create_text_layout_with_resource_scale (ClutterText *text,
+                                              gfloat       allocation_width,
+                                              gfloat       allocation_height)
+{
+  float resource_scale;
+
+  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (text), &resource_scale))
+    return NULL;
+
+  return create_text_layout_with_scale (text,
+                                        allocation_width,
+                                        allocation_height,
+                                        resource_scale);
+}
+
 /**
  * clutter_text_coords_to_position:
  * @self: a #ClutterText
@@ -1010,14 +1090,18 @@ clutter_text_coords_to_position (ClutterText *self,
   gint index_;
   gint px, py;
   gint trailing;
+  gfloat resource_scale;
 
   g_return_val_if_fail (CLUTTER_IS_TEXT (self), 0);
+
+  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (self), &resource_scale))
+    return 0;
 
   /* Take any offset due to scrolling into account, and normalize
    * the coordinates to PangoScale units
    */
-  px = (x - self->priv->text_x) * PANGO_SCALE;
-  py = (y - self->priv->text_y) * PANGO_SCALE;
+  px = LOGICAL_PIXELS_TO_PANGO (x - self->priv->text_logical_x, resource_scale);
+  py = LOGICAL_PIXELS_TO_PANGO (y - self->priv->text_logical_y, resource_scale);
 
   pango_layout_xy_to_index (clutter_text_get_layout (self),
                             px, py,
@@ -1026,26 +1110,12 @@ clutter_text_coords_to_position (ClutterText *self,
   return index_ + trailing;
 }
 
-/**
- * clutter_text_position_to_coords:
- * @self: a #ClutterText
- * @position: position in characters
- * @x: (out): return location for the X coordinate, or %NULL
- * @y: (out): return location for the Y coordinate, or %NULL
- * @line_height: (out): return location for the line height, or %NULL
- *
- * Retrieves the coordinates of the given @position.
- *
- * Return value: %TRUE if the conversion was successful
- *
- * Since: 1.0
- */
-gboolean
-clutter_text_position_to_coords (ClutterText *self,
-                                 gint         position,
-                                 gfloat      *x,
-                                 gfloat      *y,
-                                 gfloat      *line_height)
+static gboolean
+clutter_text_position_to_coords_internal (ClutterText *self,
+                                          gint         position,
+                                          gfloat      *x,
+                                          gfloat      *y,
+                                          gfloat      *line_height)
 {
   ClutterTextPrivate *priv;
   PangoRectangle rect;
@@ -1111,7 +1181,7 @@ clutter_text_position_to_coords (ClutterText *self,
 
   if (x)
     {
-      *x = (gfloat) rect.x / 1024.0f;
+      *x = PANGO_TO_PIXELS (rect.x);
 
       /* Take any offset due to scrolling into account */
       if (priv->single_line_mode)
@@ -1119,12 +1189,56 @@ clutter_text_position_to_coords (ClutterText *self,
     }
 
   if (y)
-    *y = (gfloat) rect.y / 1024.0f;
+    *y = PANGO_TO_PIXELS (rect.y);
 
   if (line_height)
-    *line_height = (gfloat) rect.height / 1024.0f;
+    *line_height = PANGO_TO_PIXELS (rect.height);
 
   return TRUE;
+}
+
+/**
+ * clutter_text_position_to_coords:
+ * @self: a #ClutterText
+ * @position: position in characters
+ * @x: (out): return location for the X coordinate, or %NULL
+ * @y: (out): return location for the Y coordinate, or %NULL
+ * @line_height: (out): return location for the line height, or %NULL
+ *
+ * Retrieves the coordinates of the given @position.
+ *
+ * Return value: %TRUE if the conversion was successful
+ *
+ * Since: 1.0
+ */
+gboolean
+clutter_text_position_to_coords (ClutterText *self,
+                                 gint         position,
+                                 gfloat      *x,
+                                 gfloat      *y,
+                                 gfloat      *line_height)
+{
+  gfloat resource_scale;
+  gboolean ret;
+
+  g_return_val_if_fail (CLUTTER_IS_TEXT (self), FALSE);
+
+  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (self), &resource_scale))
+    return FALSE;
+
+  ret = clutter_text_position_to_coords_internal (self, position,
+                                                  x, y, line_height);
+
+  if (x)
+    *x /= resource_scale;
+
+  if (y)
+    *y /= resource_scale;
+
+  if (line_height)
+    *line_height /= resource_scale;
+
+  return ret;
 }
 
 static inline void
@@ -1144,7 +1258,8 @@ update_cursor_location (ClutterText *self)
 }
 
 static inline void
-clutter_text_ensure_cursor_position (ClutterText *self)
+clutter_text_ensure_cursor_position (ClutterText *self,
+                                     float        scale)
 {
   ClutterTextPrivate *priv = self->priv;
   gfloat x, y, cursor_height;
@@ -1167,15 +1282,15 @@ clutter_text_ensure_cursor_position (ClutterText *self)
                 priv->preedit_set ? priv->preedit_cursor_pos : 0);
 
   x = y = cursor_height = 0;
-  clutter_text_position_to_coords (self, position,
-                                   &x, &y,
-                                   &cursor_height);
+  clutter_text_position_to_coords_internal (self, position,
+                                            &x, &y,
+                                            &cursor_height);
 
   clutter_rect_init (&cursor_rect,
                      x,
-                     y + CURSOR_Y_PADDING,
-                     priv->cursor_size,
-                     cursor_height - 2 * CURSOR_Y_PADDING);
+                     y + CURSOR_Y_PADDING * scale,
+                     priv->cursor_size * scale,
+                     cursor_height - 2 * CURSOR_Y_PADDING * scale);
 
   if (!clutter_rect_equals (&priv->cursor_rect, &cursor_rect))
     {
@@ -1598,6 +1713,12 @@ clutter_text_dispose (GObject *gobject)
       priv->direction_changed_id = 0;
     }
 
+  if (priv->resource_scale_changed_id)
+    {
+      g_signal_handler_disconnect (self, priv->resource_scale_changed_id);
+      priv->resource_scale_changed_id = 0;
+    }
+
   if (priv->settings_changed_id)
     {
       g_signal_handler_disconnect (clutter_get_default_backend (),
@@ -1650,6 +1771,7 @@ typedef void (* ClutterTextSelectionFunc) (ClutterText           *text,
 
 static void
 clutter_text_foreach_selection_rectangle (ClutterText              *self,
+                                          float                     scale,
                                           ClutterTextSelectionFunc  func,
                                           gpointer                  user_data)
 {
@@ -1701,9 +1823,9 @@ clutter_text_foreach_selection_rectangle (ClutterText              *self,
                                       &n_ranges);
       pango_layout_line_x_to_index (line, 0, &index_, NULL);
 
-      clutter_text_position_to_coords (self,
-                                       bytes_to_offset (utf8, index_),
-                                       NULL, &y, &height);
+      clutter_text_position_to_coords_internal (self,
+                                                bytes_to_offset (utf8, index_),
+                                                NULL, &y, &height);
 
       box.y1 = y;
       box.y2 = y + height;
@@ -1713,18 +1835,18 @@ clutter_text_foreach_selection_rectangle (ClutterText              *self,
           gfloat range_x;
           gfloat range_width;
 
-          range_x = ranges[i * 2] / PANGO_SCALE;
+          range_x = PANGO_TO_PIXELS (ranges[i * 2]);
 
           /* Account for any scrolling in single line mode */
           if (priv->single_line_mode)
             range_x += priv->text_x;
 
 
-          range_width = ((gfloat) ranges[i * 2 + 1] - (gfloat) ranges[i * 2])
-                      / PANGO_SCALE;
-
+          range_width = PANGO_TO_PIXELS (ranges[i * 2 + 1] - ranges[i * 2]);
           box.x1 = range_x;
-          box.x2 = ceilf (range_x + range_width + .5f);
+          box.x2 = ceilf (range_x + range_width);
+
+          clutter_actor_box_scale (&box, scale);
 
           func (self, &box, user_data);
         }
@@ -1799,6 +1921,7 @@ selection_paint (ClutterText *self)
                                 paint_opacity * color->alpha / 255);
 
       clutter_text_foreach_selection_rectangle (self,
+                                                1.0f, /* we're in scaled coordinates */
                                                 add_selection_rectangle_to_path,
                                                 selection_path);
 
@@ -2386,14 +2509,9 @@ clutter_text_paint (ClutterActor *self)
   guint n_chars;
   float alloc_width;
   float alloc_height;
+  float resource_scale;
 
-  /* FIXME: this should not be needed, but apparently the text-cache
-   * test unit manages to get in a situation where the active frame
-   * buffer is NULL
-   */
-  fb = _clutter_actor_get_active_framebuffer (self);
-  if (fb == NULL)
-    fb = cogl_get_draw_framebuffer ();
+  fb = cogl_get_draw_framebuffer ();
 
   /* Note that if anything in this paint method changes it needs to be
      reflected in the get_paint_volume implementation which is tightly
@@ -2401,8 +2519,6 @@ clutter_text_paint (ClutterActor *self)
   n_chars = clutter_text_buffer_get_length (get_buffer (text));
 
   clutter_actor_get_allocation_box (self, &alloc);
-  alloc_width = alloc.x2 - alloc.x1;
-  alloc_height = alloc.y2 - alloc.y1;
 
   g_object_get (self, "background-color-set", &bg_color_set, NULL);
   if (bg_color_set)
@@ -2418,7 +2534,9 @@ clutter_text_paint (ClutterActor *self)
                                 bg_color.green,
                                 bg_color.blue,
                                 bg_color.alpha);
-      cogl_rectangle (0, 0, alloc_width, alloc_height);
+      cogl_rectangle (0, 0,
+                      clutter_actor_box_get_width (&alloc),
+                      clutter_actor_box_get_height (&alloc));
     }
 
   /* don't bother painting an empty text actor, unless it's
@@ -2428,6 +2546,12 @@ clutter_text_paint (ClutterActor *self)
   if (n_chars == 0 &&
       !clutter_text_should_draw_cursor (text))
     return;
+
+  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (self), &resource_scale))
+    return;
+
+  clutter_actor_box_scale (&alloc, resource_scale);
+  clutter_actor_box_get_size (&alloc, &alloc_width, &alloc_height);
 
   if (priv->editable && priv->single_line_mode)
     layout = clutter_text_create_layout (text, -1, -1);
@@ -2460,8 +2584,15 @@ clutter_text_paint (ClutterActor *self)
         }
     }
 
+  if (resource_scale != 1.0f)
+    {
+      float paint_scale = 1.0f / resource_scale;
+      cogl_framebuffer_push_matrix (fb);
+      cogl_framebuffer_scale (fb, paint_scale, paint_scale, 1.0f);
+    }
+
   if (clutter_text_should_draw_cursor (text))
-    clutter_text_ensure_cursor_position (text);
+    clutter_text_ensure_cursor_position (text, resource_scale);
 
   if (priv->editable && priv->single_line_mode)
     {
@@ -2475,7 +2606,7 @@ clutter_text_paint (ClutterActor *self)
       clip_set = TRUE;
 
       actor_width = alloc_width - 2 * TEXT_PADDING;
-      text_width  = logical_rect.width / PANGO_SCALE;
+      text_width  = PANGO_TO_PIXELS (logical_rect.width);
 
       rtl = priv->resolved_direction == PANGO_DIRECTION_RTL;
 
@@ -2532,8 +2663,10 @@ clutter_text_paint (ClutterActor *self)
     {
       priv->text_x = text_x;
       priv->text_y = text_y;
+      priv->text_logical_x = roundf ((float) text_x / resource_scale);
+      priv->text_logical_y = roundf ((float) text_y / resource_scale);
 
-      clutter_text_ensure_cursor_position (text);
+      clutter_text_ensure_cursor_position (text, resource_scale);
     }
 
   real_opacity = clutter_actor_get_paint_opacity (self)
@@ -2551,6 +2684,9 @@ clutter_text_paint (ClutterActor *self)
   cogl_pango_render_layout (layout, priv->text_x, priv->text_y, &color, 0);
 
   selection_paint (text);
+
+  if (resource_scale != 1.0f)
+    cogl_framebuffer_pop_matrix (fb);
 
   if (clip_set)
     cogl_framebuffer_pop_clip (fb);
@@ -2581,26 +2717,30 @@ add_selection_to_paint_volume (ClutterText           *text,
 
 static void
 clutter_text_get_paint_volume_for_cursor (ClutterText        *text,
+                                          float               resource_scale,
                                           ClutterPaintVolume *volume)
 {
   ClutterTextPrivate *priv = text->priv;
   ClutterVertex origin;
 
-  clutter_text_ensure_cursor_position (text);
+  clutter_text_ensure_cursor_position (text, resource_scale);
 
   if (priv->position == priv->selection_bound)
     {
-      origin.x = priv->cursor_rect.origin.x;
-      origin.y = priv->cursor_rect.origin.y;
+      float width = priv->cursor_rect.size.width / resource_scale;
+      float height = priv->cursor_rect.size.height / resource_scale;
+      origin.x = priv->cursor_rect.origin.x / resource_scale;
+      origin.y = priv->cursor_rect.origin.y / resource_scale;
       origin.z = 0;
 
       clutter_paint_volume_set_origin (volume, &origin);
-      clutter_paint_volume_set_width (volume, priv->cursor_rect.size.width);
-      clutter_paint_volume_set_height (volume, priv->cursor_rect.size.height);
+      clutter_paint_volume_set_width (volume, width);
+      clutter_paint_volume_set_height (volume, height);
     }
   else
     {
       clutter_text_foreach_selection_rectangle (text,
+                                                1.0f / resource_scale,
                                                 add_selection_to_paint_volume,
                                                 volume);
     }
@@ -2623,6 +2763,7 @@ clutter_text_get_paint_volume (ClutterActor       *self,
       PangoLayout *layout;
       PangoRectangle ink_rect;
       ClutterVertex origin;
+      float resource_scale;
 
       /* If the text is single line editable then it gets clipped to
          the allocation anyway so we can just use that */
@@ -2637,19 +2778,24 @@ clutter_text_get_paint_volume (ClutterActor       *self,
       if (!clutter_actor_has_allocation (self))
         return FALSE;
 
+      if (!clutter_actor_get_resource_scale (self, &resource_scale))
+        return FALSE;
+
       _clutter_paint_volume_init_static (&priv->paint_volume, self);
 
       layout = clutter_text_get_layout (text);
       pango_layout_get_extents (layout, &ink_rect, NULL);
 
-      origin.x = ink_rect.x / (float) PANGO_SCALE;
-      origin.y = ink_rect.y / (float) PANGO_SCALE;
+      origin.x = PANGO_TO_LOGICAL_PIXELS (ink_rect.x, resource_scale);
+      origin.y = PANGO_TO_LOGICAL_PIXELS (ink_rect.y, resource_scale);
       origin.z = 0;
       clutter_paint_volume_set_origin (&priv->paint_volume, &origin);
       clutter_paint_volume_set_width (&priv->paint_volume,
-                                      ink_rect.width / (float) PANGO_SCALE);
+                                      PANGO_TO_LOGICAL_PIXELS (ink_rect.width,
+                                                               resource_scale));
       clutter_paint_volume_set_height (&priv->paint_volume,
-                                       ink_rect.height / (float) PANGO_SCALE);
+                                       PANGO_TO_LOGICAL_PIXELS (ink_rect.height,
+                                                                resource_scale));
 
       /* If the cursor is visible then that will likely be drawn
          outside of the ink rectangle so we should merge that in */
@@ -2659,7 +2805,8 @@ clutter_text_get_paint_volume (ClutterActor       *self,
 
           _clutter_paint_volume_init_static (&cursor_paint_volume, self);
 
-          clutter_text_get_paint_volume_for_cursor (text, &cursor_paint_volume);
+          clutter_text_get_paint_volume_for_cursor (text, resource_scale,
+                                                    &cursor_paint_volume);
 
           clutter_paint_volume_union (&priv->paint_volume,
                                       &cursor_paint_volume);
@@ -2687,9 +2834,12 @@ clutter_text_get_preferred_width (ClutterActor *self,
   PangoLayout *layout;
   gint logical_width;
   gfloat layout_width;
+  gfloat resource_scale;
+
+  if (!clutter_actor_get_resource_scale (self, &resource_scale))
+    resource_scale = 1;
 
   layout = clutter_text_create_layout (text, -1, -1);
-
   pango_layout_get_extents (layout, NULL, &logical_rect);
 
   /* the X coordinate of the logical rectangle might be non-zero
@@ -2699,7 +2849,7 @@ clutter_text_get_preferred_width (ClutterActor *self,
   logical_width = logical_rect.x + logical_rect.width;
 
   layout_width = logical_width > 0
-    ? ceilf (logical_width / 1024.0f)
+    ? PANGO_TO_LOGICAL_PIXELS (logical_width, resource_scale)
     : 1;
 
   if (min_width_p)
@@ -2741,12 +2891,16 @@ clutter_text_get_preferred_height (ClutterActor *self,
       PangoRectangle logical_rect = { 0, };
       gint logical_height;
       gfloat layout_height;
+      gfloat resource_scale;
+
+      if (!clutter_actor_get_resource_scale (self, &resource_scale))
+        resource_scale = 1;
 
       if (priv->single_line_mode)
         for_width = -1;
 
-      layout = clutter_text_create_layout (CLUTTER_TEXT (self),
-                                           for_width, -1);
+      layout = create_text_layout_with_scale (CLUTTER_TEXT (self),
+                                              for_width, -1, resource_scale);
 
       pango_layout_get_extents (layout, NULL, &logical_rect);
 
@@ -2755,7 +2909,7 @@ clutter_text_get_preferred_height (ClutterActor *self,
        * the height accordingly
        */
       logical_height = logical_rect.y + logical_rect.height;
-      layout_height = ceilf (logical_height / 1024.0f);
+      layout_height = PANGO_TO_LOGICAL_PIXELS (logical_height, resource_scale);
 
       if (min_height_p)
         {
@@ -2771,7 +2925,8 @@ clutter_text_get_preferred_height (ClutterActor *self,
               pango_layout_line_get_extents (line, NULL, &logical_rect);
 
               logical_height = logical_rect.y + logical_rect.height;
-              line_height = ceilf (logical_height / 1024.0f);
+              line_height = PANGO_TO_LOGICAL_PIXELS (logical_height,
+                                                     resource_scale);
 
               *min_height_p = line_height;
             }
@@ -2802,9 +2957,9 @@ clutter_text_allocate (ClutterActor           *self,
   if (text->priv->editable && text->priv->single_line_mode)
     clutter_text_create_layout (text, -1, -1);
   else
-    clutter_text_create_layout (text,
-                                box->x2 - box->x1,
-                                box->y2 - box->y1);
+    maybe_create_text_layout_with_resource_scale (text,
+                                                  box->x2 - box->x1,
+                                                  box->y2 - box->y1);
 
   parent_class = CLUTTER_ACTOR_CLASS (clutter_text_parent_class);
   parent_class->allocate (self, box, flags);
@@ -4354,6 +4509,11 @@ clutter_text_init (ClutterText *self)
                       G_CALLBACK (clutter_text_direction_changed_cb),
                       NULL);
 
+  priv->resource_scale_changed_id =
+    g_signal_connect (self, "notify::resource-scale",
+                      G_CALLBACK (clutter_text_resource_scale_changed_cb),
+                      NULL);
+
   priv->input_focus = clutter_text_input_focus_new (self);
 }
 
@@ -5447,6 +5607,7 @@ clutter_text_set_markup (ClutterText *self,
 PangoLayout *
 clutter_text_get_layout (ClutterText *self)
 {
+  PangoLayout *layout;
   gfloat width, height;
 
   g_return_val_if_fail (CLUTTER_IS_TEXT (self), NULL);
@@ -5455,8 +5616,12 @@ clutter_text_get_layout (ClutterText *self)
     return clutter_text_create_layout (self, -1, -1);
 
   clutter_actor_get_size (CLUTTER_ACTOR (self), &width, &height);
+  layout = maybe_create_text_layout_with_resource_scale (self, width, height);
 
-  return clutter_text_create_layout (self, width, height);
+  if (!layout)
+    layout = clutter_text_create_layout (self, width, height);
+
+  return layout;
 }
 
 /**
@@ -6467,10 +6632,10 @@ clutter_text_get_layout_offsets (ClutterText *self,
   priv = self->priv;
 
   if (x != NULL)
-    *x = priv->text_x;
+    *x = priv->text_logical_x;
 
   if (y != NULL)
-    *y = priv->text_y;
+    *y = priv->text_logical_y;
 }
 
 /**
