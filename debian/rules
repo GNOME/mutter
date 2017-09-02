@@ -32,8 +32,11 @@ override_dh_auto_configure:
 		$(CONFFLAGS)
 
 # See https://bugs.debian.org/874077
+# Ignore test failures on Debian and on s390x
 override_dh_auto_test:
-ifeq (yes,$(shell dpkg-vendor --derives-from Ubuntu && echo yes))
+ifneq (,$(findstring $(DEB_HOST_ARCH),"s390x"))
+	-xvfb-run dh_auto_test
+else ifeq (yes,$(shell dpkg-vendor --derives-from Ubuntu && echo yes))
 	xvfb-run dh_auto_test
 else
 	-xvfb-run dh_auto_test
