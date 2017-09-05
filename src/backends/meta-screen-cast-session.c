@@ -163,6 +163,21 @@ meta_screen_cast_session_get_object_path (MetaScreenCastSession *session)
   return session->object_path;
 }
 
+char *
+meta_screen_cast_session_get_peer_name (MetaScreenCastSession *session)
+{
+  return session->peer_name;
+}
+
+GDBusConnection *
+meta_screen_cast_session_get_dbus_connection (MetaScreenCastSession *session)
+{
+  GDBusInterfaceSkeleton *interface_skeleton =
+    G_DBUS_INTERFACE_SKELETON (session);
+
+  return g_dbus_interface_skeleton_get_connection (interface_skeleton);
+}
+
 static gboolean
 check_permission (MetaScreenCastSession *session,
                   GDBusMethodInvocation *invocation)
@@ -259,8 +274,6 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
                        GVariant                  *properties_variant)
 {
   MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (skeleton);
-  GDBusInterfaceSkeleton *interface_skeleton;
-  GDBusConnection *connection;
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -279,9 +292,6 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
       return TRUE;
     }
 
-  interface_skeleton = G_DBUS_INTERFACE_SKELETON (skeleton);
-  connection = g_dbus_interface_skeleton_get_connection (interface_skeleton);
-
   if (g_str_equal (connector, ""))
     monitor = meta_monitor_manager_get_primary_monitor (monitor_manager);
   else
@@ -298,7 +308,7 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
 
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-  monitor_stream = meta_screen_cast_monitor_stream_new (connection,
+  monitor_stream = meta_screen_cast_monitor_stream_new (session,
                                                         monitor_manager,
                                                         monitor,
                                                         stage,
