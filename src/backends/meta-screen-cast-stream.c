@@ -26,6 +26,7 @@
 
 #include "backends/meta-screen-cast-session.h"
 
+#define META_SCREEN_CAST_STREAM_DBUS_IFACE "org.gnome.Mutter.ScreenCast.Stream"
 #define META_SCREEN_CAST_STREAM_DBUS_PATH "/org/gnome/Mutter/ScreenCast/Stream"
 
 enum
@@ -100,9 +101,19 @@ on_stream_src_ready (MetaScreenCastStreamSrc *src,
                      uint32_t                 node_id,
                      MetaScreenCastStream    *stream)
 {
-  MetaDBusScreenCastStream *skeleton = META_DBUS_SCREEN_CAST_STREAM (stream);
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+  GDBusConnection *connection = priv->connection;
+  char *peer_name;
 
-  meta_dbus_screen_cast_stream_emit_pipewire_stream_added (skeleton, node_id);
+  peer_name = meta_screen_cast_session_get_peer_name (priv->session);
+  g_dbus_connection_emit_signal (connection,
+                                 peer_name,
+                                 priv->object_path,
+                                 META_SCREEN_CAST_STREAM_DBUS_IFACE,
+                                 "PipeWireStreamAdded",
+                                 g_variant_new ("(u)", node_id),
+                                 NULL);
 }
 
 MetaScreenCastSession *

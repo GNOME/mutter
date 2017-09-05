@@ -173,6 +173,12 @@ meta_screen_cast_session_get_object_path (MetaScreenCastSession *session)
   return session->object_path;
 }
 
+char *
+meta_screen_cast_session_get_peer_name (MetaScreenCastSession *session)
+{
+  return session->peer_name;
+}
+
 static gboolean
 check_permission (MetaScreenCastSession *session,
                   GDBusMethodInvocation *invocation)
