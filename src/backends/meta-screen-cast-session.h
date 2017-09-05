@@ -47,6 +47,10 @@ G_DECLARE_FINAL_TYPE (MetaScreenCastSessionHandle,
 
 char * meta_screen_cast_session_get_object_path (MetaScreenCastSession *session);
 
+char * meta_screen_cast_session_get_peer_name (MetaScreenCastSession *session);
+
+GDBusConnection * meta_screen_cast_session_get_dbus_connection (MetaScreenCastSession *session);
+
 MetaScreenCastSession * meta_screen_cast_session_new (MetaScreenCast             *screen_cast,
                                                       MetaScreenCastSessionType   session_type,
                                                       const char                 *peer_name,
