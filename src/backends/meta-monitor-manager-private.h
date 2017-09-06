@@ -328,6 +328,19 @@ struct _MetaMonitorManager
 
   GList *monitors;
 
+  struct {
+    MetaOutput *outputs;
+    unsigned int n_outputs;
+
+    MetaCrtcMode *modes;
+    unsigned int n_modes;
+
+    MetaCrtc *crtcs;
+    unsigned int n_crtcs;
+
+    GList *monitors;
+  } pending_cleanup;
+
   GList *logical_monitors;
   MetaLogicalMonitor *primary_logical_monitor;
 

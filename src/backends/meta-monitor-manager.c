@@ -77,6 +77,9 @@ meta_monitor_manager_is_config_complete (MetaMonitorManager *manager,
                                          MetaMonitorsConfig *config);
 
 static void
+cleanup_pending_cleanup_state (MetaMonitorManager *manager);
+
+static void
 meta_monitor_manager_init (MetaMonitorManager *manager)
 {
 }
@@ -801,6 +804,8 @@ meta_monitor_manager_finalize (GObject *object)
   meta_monitor_manager_free_mode_array (manager->modes, manager->n_modes);
   meta_monitor_manager_free_crtc_array (manager->crtcs, manager->n_crtcs);
   g_list_free_full (manager->logical_monitors, g_object_unref);
+
+  cleanup_pending_cleanup_state (manager);
 
   g_signal_handler_disconnect (meta_get_backend (),
                                manager->experimental_features_changed_handler_id);
@@ -2482,15 +2487,9 @@ meta_monitor_manager_get_screen_size (MetaMonitorManager *manager,
 }
 
 static void
-rebuild_monitors (MetaMonitorManager *manager)
+generate_monitors (MetaMonitorManager *manager)
 {
   unsigned int i;
-
-  if (manager->monitors)
-    {
-      g_list_free_full (manager->monitors, g_object_unref);
-      manager->monitors = NULL;
-    }
 
   for (i = 0; i < manager->n_outputs; i++)
     {
@@ -2551,6 +2550,37 @@ meta_monitor_manager_is_transform_handled (MetaMonitorManager  *manager,
   return manager_class->is_transform_handled (manager, crtc, transform);
 }
 
+static void
+cleanup_pending_cleanup_state (MetaMonitorManager *manager)
+{
+  if (manager->pending_cleanup.monitors)
+    {
+      g_list_free_full (manager->pending_cleanup.monitors, g_object_unref);
+      manager->pending_cleanup.monitors = NULL;
+    }
+  if (manager->pending_cleanup.outputs)
+    {
+      meta_monitor_manager_free_output_array (manager->pending_cleanup.outputs,
+                                              manager->pending_cleanup.n_outputs);
+      manager->pending_cleanup.outputs = NULL;
+      manager->pending_cleanup.n_outputs = 0;
+    }
+  if (manager->pending_cleanup.modes)
+    {
+      meta_monitor_manager_free_mode_array (manager->pending_cleanup.modes,
+                                            manager->pending_cleanup.n_modes);
+      manager->pending_cleanup.modes = NULL;
+      manager->pending_cleanup.n_modes = 0;
+    }
+  if (manager->pending_cleanup.crtcs)
+    {
+      meta_monitor_manager_free_crtc_array (manager->pending_cleanup.crtcs,
+                                            manager->pending_cleanup.n_crtcs);
+      manager->pending_cleanup.crtcs = NULL;
+      manager->pending_cleanup.n_crtcs = 0;
+    }
+}
+
 void
 meta_monitor_manager_read_current_state (MetaMonitorManager *manager)
 {
@@ -2572,11 +2602,46 @@ meta_monitor_manager_read_current_state (MetaMonitorManager *manager)
   manager->serial++;
   META_MONITOR_MANAGER_GET_CLASS (manager)->read_current (manager);
 
-  rebuild_monitors (manager);
+  /*
+   * We must delay cleaning up the old hardware state, because the current
+   * logical state, when running on top of X11/Xrandr, may still be based on it
+   * for some time. The logical state may not be updated immediately, in case
+   * it is reconfigured, but after getting the response from a logical state
+   * configuration request to the X server. To be able to handle events and
+   * other things needing the logical state between the request and the
+   * response, the hardware state the logical state points to must be kept
+   * alive.
+   *
+   * If there is already a hardware state pending cleaning up, it means that
+   * the current logical state is still using that hardware state, so we can
+   * destroy the just replaced state immedietaley.
+   */
+  if (manager->pending_cleanup.outputs ||
+      manager->pending_cleanup.crtcs ||
+      manager->pending_cleanup.monitors)
+    {
+      if (manager->monitors)
+        {
+          g_list_free_full (manager->monitors, g_object_unref);
+          manager->monitors = NULL;
+        }
+      meta_monitor_manager_free_output_array (old_outputs, n_old_outputs);
+      meta_monitor_manager_free_mode_array (old_modes, n_old_modes);
+      meta_monitor_manager_free_crtc_array (old_crtcs, n_old_crtcs);
+    }
+  else
+    {
+      manager->pending_cleanup.outputs = old_outputs;
+      manager->pending_cleanup.n_outputs = n_old_outputs;
+      manager->pending_cleanup.modes = old_modes;
+      manager->pending_cleanup.n_modes = n_old_modes;
+      manager->pending_cleanup.crtcs = old_crtcs;
+      manager->pending_cleanup.n_crtcs = n_old_crtcs;
+      manager->pending_cleanup.monitors = manager->monitors;
+      manager->monitors = NULL;
+    }
 
-  meta_monitor_manager_free_output_array (old_outputs, n_old_outputs);
-  meta_monitor_manager_free_mode_array (old_modes, n_old_modes);
-  meta_monitor_manager_free_crtc_array (old_crtcs, n_old_crtcs);
+  generate_monitors (manager);
 }
 
 static void
@@ -2668,6 +2733,8 @@ meta_monitor_manager_rebuild (MetaMonitorManager *manager,
   meta_monitor_manager_notify_monitors_changed (manager);
 
   g_list_free_full (old_logical_monitors, g_object_unref);
+
+  cleanup_pending_cleanup_state (manager);
 }
 
 static void
@@ -2710,6 +2777,8 @@ meta_monitor_manager_rebuild_derived (MetaMonitorManager *manager,
   meta_monitor_manager_notify_monitors_changed (manager);
 
   g_list_free_full (old_logical_monitors, g_object_unref);
+
+  cleanup_pending_cleanup_state (manager);
 }
 
 void
