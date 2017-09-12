@@ -1,3 +1,13 @@
+mutter (3.25.92+20170911~5b5737f) UNRELEASED; urgency=medium
+
+  * New upstream git snapshot (really fixes LP: #1714330, we hope)
+  * debian/watch: Scan for all versions, not just the stable-branch
+  * debian/control.in: Add versioned Breaks for gnome-control-center,
+    and bump Suggests to match, to account for functionality that moved
+    between packages (Closes: #874514)
+
+ -- Simon McVittie <smcv@debian.org>  Tue, 12 Sep 2017 10:12:50 +0100
+
 mutter (3.25.91+20170902~ce515c5-1) experimental; urgency=medium
 
   * New upstream git snapshot (LP: #1714330)
