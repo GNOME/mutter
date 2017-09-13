@@ -1,10 +1,11 @@
-mutter (3.26.0-1) UNRELEASED; urgency=medium
+mutter (3.26.0-1) experimental; urgency=medium
 
+  * Team upload
   * debian/watch: Only watch stable branch again
   * New upstream release, functionally identical to the previous
     snapshot
 
- -- Simon McVittie <smcv@debian.org>  Wed, 13 Sep 2017 08:49:09 +0100
+ -- Simon McVittie <smcv@debian.org>  Wed, 13 Sep 2017 09:22:55 +0100
 
 mutter (3.25.92+20170911~5b5737f-1) experimental; urgency=medium
 
