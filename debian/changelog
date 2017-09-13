@@ -1,6 +1,8 @@
-mutter (3.25.92+20170911~5b5737f-2) UNRELEASED; urgency=medium
+mutter (3.26.0-1) UNRELEASED; urgency=medium
 
   * debian/watch: Only watch stable branch again
+  * New upstream release, functionally identical to the previous
+    snapshot
 
  -- Simon McVittie <smcv@debian.org>  Wed, 13 Sep 2017 08:49:09 +0100
 
