@@ -169,6 +169,21 @@ is_different_rotation (MetaLogicalMonitor *a,
 }
 
 static void
+get_native_output_mode_resolution (MetaLogicalMonitor *logical_monitor,
+                                   MetaMonitorMode    *mode,
+                                   int                *mode_width,
+                                   int                *mode_height)
+{
+  MetaMonitorTransform transform;
+
+  transform = meta_logical_monitor_get_transform (logical_monitor);
+  if (meta_monitor_transform_is_rotated (transform))
+    meta_monitor_mode_get_resolution (mode, mode_height, mode_width);
+  else
+    meta_monitor_mode_get_resolution (mode, mode_width, mode_height);
+}
+
+static void
 send_output_events (struct wl_resource *resource,
                     MetaWaylandOutput  *wayland_output,
                     MetaLogicalMonitor *logical_monitor,
@@ -185,6 +200,7 @@ send_output_events (struct wl_resource *resource,
   gint old_scale;
   float old_refresh_rate;
   float refresh_rate;
+  int new_width, new_height;
 
   old_logical_monitor = wayland_output->logical_monitor;
   old_mode_flags = wayland_output->mode_flags;
@@ -246,16 +262,20 @@ send_output_events (struct wl_resource *resource,
   if (current_mode == preferred_mode)
     mode_flags |= WL_OUTPUT_MODE_PREFERRED;
 
+  get_native_output_mode_resolution (logical_monitor,
+                                     current_mode,
+                                     &new_width,
+                                     &new_height);
   if (need_all_events ||
-      old_logical_monitor->rect.width != logical_monitor->rect.width ||
-      old_logical_monitor->rect.height != logical_monitor->rect.height ||
+      wayland_output->mode_width != new_width ||
+      wayland_output->mode_height != new_height ||
       old_refresh_rate != refresh_rate ||
       old_mode_flags != mode_flags)
     {
       wl_output_send_mode (resource,
                            mode_flags,
-                           logical_monitor->rect.width,
-                           logical_monitor->rect.height,
+                           new_width,
+                           new_height,
                            (int32_t) (refresh_rate * 1000));
       need_done = TRUE;
     }
@@ -312,7 +332,8 @@ bind_output (struct wl_client *client,
                 logical_monitor,
                 meta_monitor_get_product (monitor),
                 logical_monitor->rect.x, logical_monitor->rect.y,
-                logical_monitor->rect.width, logical_monitor->rect.height,
+                wayland_output->mode_width,
+                wayland_output->mode_height,
                 wayland_output->refresh_rate);
 #endif
 
@@ -349,6 +370,10 @@ meta_wayland_output_set_logical_monitor (MetaWaylandOutput  *wayland_output,
   wayland_output->refresh_rate = meta_monitor_mode_get_refresh_rate (current_mode);
 
   wayland_output->winsys_id = logical_monitor->winsys_id;
+  get_native_output_mode_resolution (logical_monitor,
+                                     current_mode,
+                                     &wayland_output->mode_width,
+                                     &wayland_output->mode_height);
 }
 
 static void

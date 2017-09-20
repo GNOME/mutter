@@ -41,6 +41,8 @@ struct _MetaWaylandOutput
   guint                     mode_flags;
   float                     refresh_rate;
   gint                      scale;
+  int                       mode_width;
+  int                       mode_height;
 
   GList                    *resources;
   GList                    *xdg_output_resources;
