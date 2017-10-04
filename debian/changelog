@@ -1,6 +1,7 @@
 mutter (3.26.1-1) UNRELEASED; urgency=medium
 
   * New upstream release
+  * Bump Standards-Version to 4.1.1
 
  -- Jeremy Bicha <jbicha@debian.org>  Wed, 04 Oct 2017 17:18:40 -0400
 
