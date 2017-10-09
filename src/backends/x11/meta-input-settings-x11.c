@@ -625,6 +625,17 @@ meta_input_settings_x11_has_two_finger_scroll (MetaInputSettings  *settings,
   guchar *available = NULL;
   gboolean has_two_finger = TRUE;
 
+  if (is_device_synaptics (device))
+    {
+      available = get_property (device, "Synaptics Capabilities",
+                                XA_INTEGER, 8, 4);
+      if (!available || !available[3])
+          has_two_finger = FALSE;
+
+      meta_XFree (available);
+      return has_two_finger;
+    }
+
   available = get_property (device, "libinput Scroll Methods Available",
                             XA_INTEGER, 8, SCROLL_METHOD_NUM_FIELDS);
   if (!available || !available[SCROLL_METHOD_FIELD_2FG])
