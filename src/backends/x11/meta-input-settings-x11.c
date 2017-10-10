@@ -179,34 +179,34 @@ is_device_synaptics (ClutterInputDevice *device)
   return TRUE;
 }
 
+static gboolean
+is_device_libinput (ClutterInputDevice *device)
+{
+  guchar *has_setting;
+
+  /* We just need looking for a synaptics-specific property */
+  has_setting = get_property (device, "libinput Send Events Modes Available", XA_INTEGER, 8, 2);
+  if (!has_setting)
+    return FALSE;
+
+  meta_XFree (has_setting);
+  return TRUE;
+}
+
 static void
-change_synaptics_tap_left_handed (ClutterInputDevice *device,
-                                  gboolean            tap_enabled,
-                                  gboolean            left_handed)
+change_x_device_left_handed (ClutterInputDevice *device,
+                             gboolean            left_handed)
 {
   MetaDisplay *display = meta_get_display ();
   MetaBackend *backend = meta_get_backend ();
   Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   XDevice *xdevice;
-  guchar *tap_action, *buttons;
+  guchar *buttons;
   guint buttons_capacity = 16, n_buttons;
 
   xdevice = XOpenDevice(xdisplay, clutter_input_device_get_device_id (device));
   if (!xdevice)
     return;
-
-  tap_action = get_property (device, "Synaptics Tap Action",
-                             XA_INTEGER, 8, 7);
-  if (!tap_action)
-    goto out;
-
-  tap_action[4] = tap_enabled ? (left_handed ? 3 : 1) : 0;
-  tap_action[5] = tap_enabled ? (left_handed ? 1 : 3) : 0;
-  tap_action[6] = tap_enabled ? 2 : 0;
-
-  change_property (device, "Synaptics Tap Action",
-                   XA_INTEGER, 8, tap_action, 7);
-  meta_XFree (tap_action);
 
   if (display)
     meta_error_trap_push (display);
@@ -231,17 +231,39 @@ change_synaptics_tap_left_handed (ClutterInputDevice *device,
 
   if (display && meta_error_trap_pop_with_return (display))
     {
-      g_warning ("Could not set synaptics touchpad left-handed for %s",
+      g_warning ("Could not set left-handed for %s",
                  clutter_input_device_get_device_name (device));
     }
 
- out:
   XCloseDevice (xdisplay, xdevice);
 }
 
 static void
-change_synaptics_speed (ClutterInputDevice *device,
-                        gdouble             speed)
+change_synaptics_tap_left_handed (ClutterInputDevice *device,
+                                  gboolean            tap_enabled,
+                                  gboolean            left_handed)
+{
+  guchar *tap_action;
+
+  tap_action = get_property (device, "Synaptics Tap Action",
+                             XA_INTEGER, 8, 7);
+  if (!tap_action)
+    return;
+
+  tap_action[4] = tap_enabled ? (left_handed ? 3 : 1) : 0;
+  tap_action[5] = tap_enabled ? (left_handed ? 1 : 3) : 0;
+  tap_action[6] = tap_enabled ? 2 : 0;
+
+  change_property (device, "Synaptics Tap Action",
+                   XA_INTEGER, 8, tap_action, 7);
+  meta_XFree (tap_action);
+
+  change_x_device_left_handed (device, left_handed);
+}
+
+static void
+change_x_device_speed (ClutterInputDevice *device,
+                       gdouble             speed)
 {
   MetaDisplay *display = meta_get_display ();
   MetaBackend *backend = meta_get_backend ();
@@ -335,6 +357,23 @@ change_synaptics_speed (ClutterInputDevice *device,
 
   XFreeFeedbackList (states);
   XCloseDevice (xdisplay, xdevice);
+}
+
+static void
+change_x_device_scroll_button (ClutterInputDevice *device,
+                               guint               button)
+{
+  guchar value;
+
+  value = button > 0 ? 1 : 0;
+  change_property (device, "Evdev Wheel Emulation",
+                   XA_INTEGER, 8, &value, 1);
+  if (button > 0)
+    {
+      value = button;
+      change_property (device, "Evdev Wheel Emulation Button",
+                       XA_INTEGER, 8, &value, 1);
+    }
 }
 
 /* Ensure that syndaemon dies together with us, to avoid running several of
@@ -505,9 +544,10 @@ meta_input_settings_x11_set_speed (MetaInputSettings  *settings,
   Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   gfloat value = speed;
 
-  if (is_device_synaptics (device))
+  if (is_device_synaptics (device) ||
+      !is_device_libinput (device))
     {
-      change_synaptics_speed (device, speed);
+      change_x_device_speed (device, speed);
       return;
     }
 
@@ -547,6 +587,11 @@ meta_input_settings_x11_set_left_handed (MetaInputSettings  *settings,
                                             g_settings_get_boolean (settings, "tap-to-click"),
                                             enabled);
           g_object_unref (settings);
+          return;
+        }
+      else if (!is_device_libinput (device))
+        {
+          change_x_device_left_handed (device, enabled);
           return;
         }
 
@@ -762,6 +807,12 @@ meta_input_settings_x11_set_scroll_button (MetaInputSettings  *settings,
                                            ClutterInputDevice *device,
                                            guint               button)
 {
+  if (!is_device_libinput (device))
+    {
+      change_x_device_scroll_button (device, button);
+      return;
+    }
+
   change_property (device, "libinput Button Scrolling Button",
                    XA_INTEGER, 32, &button, 1);
 }
