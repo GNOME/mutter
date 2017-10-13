@@ -850,7 +850,7 @@ meta_cursor_renderer_native_init (MetaCursorRendererNative *native)
   MetaMonitorManager *monitors;
 
   monitors = meta_monitor_manager_get ();
-  g_signal_connect_object (monitors, "monitors-changed",
+  g_signal_connect_object (monitors, "monitors-changed-internal",
                            G_CALLBACK (on_monitors_changed), native, 0);
 
   priv->hw_state_invalidated = TRUE;

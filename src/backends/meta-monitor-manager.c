@@ -46,6 +46,7 @@
 #define DEFAULT_DISPLAY_CONFIGURATION_TIMEOUT 20
 
 enum {
+  MONITORS_CHANGED_INTERNAL,
   CONFIRM_DISPLAY_CHANGE,
   SIGNALS_LAST
 };
@@ -850,6 +851,14 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
   klass->get_edid_file = meta_monitor_manager_real_get_edid_file;
   klass->read_edid = meta_monitor_manager_real_read_edid;
   klass->is_lid_closed = meta_monitor_manager_real_is_lid_closed;
+
+  signals[MONITORS_CHANGED_INTERNAL] =
+    g_signal_new ("monitors-changed-internal",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 
   signals[CONFIRM_DISPLAY_CHANGE] =
     g_signal_new ("confirm-display-change",
@@ -2574,6 +2583,8 @@ meta_monitor_manager_notify_monitors_changed (MetaMonitorManager *manager)
   manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
 
   meta_backend_monitors_changed (backend);
+
+  g_signal_emit (manager, signals[MONITORS_CHANGED_INTERNAL], 0);
   g_signal_emit_by_name (manager, "monitors-changed");
 }
 
