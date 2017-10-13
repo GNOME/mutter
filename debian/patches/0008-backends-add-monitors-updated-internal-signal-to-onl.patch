@@ -1,0 +1,220 @@
+From 0a3549da0658e46811aab5051d58526b3a578443 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
+Date: Thu, 12 Oct 2017 19:14:40 -0500
+Subject: [PATCH 08/11] backends: add 'monitors-updated-internal' signal to
+ only update internal state
+
+Adding an internal signal and use it to update the internal state before
+emitting "monitors-changed" which will be repeated by the screen to the world.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=788860
+---
+ src/backends/meta-backend.c                       |  2 --
+ src/backends/meta-input-settings.c                |  2 +-
+ src/backends/meta-monitor-manager.c               | 11 +++++++++++
+ src/backends/meta-screen-cast-monitor-stream.c    |  2 +-
+ src/backends/meta-settings.c                      | 14 ++++++++++++++
+ src/backends/native/meta-cursor-renderer-native.c |  2 +-
+ src/backends/x11/meta-backend-x11.c               |  2 +-
+ src/core/screen.c                                 | 18 ++++++++++++++----
+ src/wayland/meta-wayland-outputs.c                |  2 +-
+ 9 files changed, 44 insertions(+), 11 deletions(-)
+
+diff --git a/src/backends/meta-backend.c b/src/backends/meta-backend.c
+index faa8d6fdc..89d47eb80 100644
+--- a/src/backends/meta-backend.c
++++ b/src/backends/meta-backend.c
+@@ -196,8 +196,6 @@ meta_backend_monitors_changed (MetaBackend *backend)
+           priv->is_pointer_position_initialized = TRUE;
+         }
+     }
+-
+-  meta_settings_update_ui_scaling_factor (priv->settings);
+ }
+ 
+ void
+diff --git a/src/backends/meta-input-settings.c b/src/backends/meta-input-settings.c
+index d6c7b57b6..065875552 100644
+--- a/src/backends/meta-input-settings.c
++++ b/src/backends/meta-input-settings.c
+@@ -1617,7 +1617,7 @@ meta_input_settings_init (MetaInputSettings *settings)
+     g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) device_mapping_info_free);
+ 
+   priv->monitor_manager = g_object_ref (meta_monitor_manager_get ());
+-  g_signal_connect (priv->monitor_manager, "monitors-changed",
++  g_signal_connect (priv->monitor_manager, "monitors-changed-internal",
+                     G_CALLBACK (monitors_changed_cb), settings);
+ 
+ #ifdef HAVE_LIBWACOM
+diff --git a/src/backends/meta-monitor-manager.c b/src/backends/meta-monitor-manager.c
+index 2caec1b57..fd2aca969 100644
+--- a/src/backends/meta-monitor-manager.c
++++ b/src/backends/meta-monitor-manager.c
+@@ -46,6 +46,7 @@
+ #define DEFAULT_DISPLAY_CONFIGURATION_TIMEOUT 20
+ 
+ enum {
++  MONITORS_CHANGED_INTERNAL,
+   CONFIRM_DISPLAY_CHANGE,
+   SIGNALS_LAST
+ };
+@@ -851,6 +852,14 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
+   klass->read_edid = meta_monitor_manager_real_read_edid;
+   klass->is_lid_closed = meta_monitor_manager_real_is_lid_closed;
+ 
++  signals[MONITORS_CHANGED_INTERNAL] =
++    g_signal_new ("monitors-changed-internal",
++                  G_TYPE_FROM_CLASS (object_class),
++                  G_SIGNAL_RUN_LAST,
++                  0,
++                  NULL, NULL, NULL,
++                  G_TYPE_NONE, 0);
++
+   signals[CONFIRM_DISPLAY_CHANGE] =
+     g_signal_new ("confirm-display-change",
+ 		  G_TYPE_FROM_CLASS (object_class),
+@@ -2574,6 +2583,8 @@ meta_monitor_manager_notify_monitors_changed (MetaMonitorManager *manager)
+   manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
+ 
+   meta_backend_monitors_changed (backend);
++
++  g_signal_emit (manager, signals[MONITORS_CHANGED_INTERNAL], 0);
+   g_signal_emit_by_name (manager, "monitors-changed");
+ }
+ 
+diff --git a/src/backends/meta-screen-cast-monitor-stream.c b/src/backends/meta-screen-cast-monitor-stream.c
+index ece7efcdd..853090a43 100644
+--- a/src/backends/meta-screen-cast-monitor-stream.c
++++ b/src/backends/meta-screen-cast-monitor-stream.c
+@@ -130,7 +130,7 @@ meta_screen_cast_monitor_stream_new (GDBusConnection     *connection,
+ 
+   monitor_stream->stage = stage;
+ 
+-  g_signal_connect_object (monitor_manager, "monitors-changed",
++  g_signal_connect_object (monitor_manager, "monitors-changed-internal",
+                            G_CALLBACK (on_monitors_changed),
+                            monitor_stream, 0);
+ 
+diff --git a/src/backends/meta-settings.c b/src/backends/meta-settings.c
+index 73741fd5a..cb22bf33c 100644
+--- a/src/backends/meta-settings.c
++++ b/src/backends/meta-settings.c
+@@ -343,11 +343,25 @@ meta_settings_init (MetaSettings *settings)
+   update_experimental_features (settings);
+ }
+ 
++static void
++on_monitors_changed (MetaMonitorManager *monitor_manager,
++                     MetaSettings       *settings)
++{
++  meta_settings_update_ui_scaling_factor (settings);
++}
++
+ void
+ meta_settings_post_init (MetaSettings *settings)
+ {
++  MetaMonitorManager *monitor_manager =
++    meta_backend_get_monitor_manager (settings->backend);
++
+   update_ui_scaling_factor (settings);
+   update_font_dpi (settings);
++
++  g_signal_connect_object (monitor_manager, "monitors-changed-internal",
++                           G_CALLBACK (on_monitors_changed),
++                           settings, G_CONNECT_AFTER);
+ }
+ 
+ static void
+diff --git a/src/backends/native/meta-cursor-renderer-native.c b/src/backends/native/meta-cursor-renderer-native.c
+index 72276ebe2..9b2c03aaa 100644
+--- a/src/backends/native/meta-cursor-renderer-native.c
++++ b/src/backends/native/meta-cursor-renderer-native.c
+@@ -850,7 +850,7 @@ meta_cursor_renderer_native_init (MetaCursorRendererNative *native)
+   MetaMonitorManager *monitors;
+ 
+   monitors = meta_monitor_manager_get ();
+-  g_signal_connect_object (monitors, "monitors-changed",
++  g_signal_connect_object (monitors, "monitors-changed-internal",
+                            G_CALLBACK (on_monitors_changed), native, 0);
+ 
+   priv->hw_state_invalidated = TRUE;
+diff --git a/src/backends/x11/meta-backend-x11.c b/src/backends/x11/meta-backend-x11.c
+index 2c49690d7..233532435 100644
+--- a/src/backends/x11/meta-backend-x11.c
++++ b/src/backends/x11/meta-backend-x11.c
+@@ -454,7 +454,7 @@ meta_backend_x11_post_init (MetaBackend *backend)
+   META_BACKEND_CLASS (meta_backend_x11_parent_class)->post_init (backend);
+ 
+   monitor_manager = meta_backend_get_monitor_manager (backend);
+-  g_signal_connect (monitor_manager, "monitors-changed",
++  g_signal_connect (monitor_manager, "monitors-changed-internal",
+                     G_CALLBACK (on_monitors_changed), backend);
+ }
+ 
+diff --git a/src/core/screen.c b/src/core/screen.c
+index 890002340..be4394349 100644
+--- a/src/core/screen.c
++++ b/src/core/screen.c
+@@ -73,8 +73,10 @@ static void prefs_changed_callback (MetaPreference pref,
+ static void set_desktop_geometry_hint (MetaScreen *screen);
+ static void set_desktop_viewport_hint (MetaScreen *screen);
+ 
+-static void on_monitors_changed (MetaMonitorManager *manager,
+-                                 MetaScreen         *screen);
++static void on_monitors_changed_internal (MetaMonitorManager *manager,
++                                          MetaScreen         *screen);
++static void on_monitors_changed          (MetaMonitorManager *manager,
++                                          MetaScreen         *screen);
+ 
+ enum
+ {
+@@ -710,6 +712,8 @@ meta_screen_new (MetaDisplay *display,
+   screen->rect.x = screen->rect.y = 0;
+ 
+   manager = meta_monitor_manager_get ();
++  g_signal_connect (manager, "monitors-changed-internal",
++                    G_CALLBACK (on_monitors_changed_internal), screen);
+   g_signal_connect (manager, "monitors-changed",
+                     G_CALLBACK (on_monitors_changed), screen);
+ 
+@@ -2266,8 +2270,8 @@ meta_screen_resize_func (MetaWindow *window,
+ }
+ 
+ static void
+-on_monitors_changed (MetaMonitorManager *manager,
+-                     MetaScreen         *screen)
++on_monitors_changed_internal (MetaMonitorManager *manager,
++                              MetaScreen         *screen)
+ {
+   MetaBackend *backend;
+   MetaCursorRenderer *cursor_renderer;
+@@ -2306,7 +2310,13 @@ on_monitors_changed (MetaMonitorManager *manager,
+   backend = meta_get_backend ();
+   cursor_renderer = meta_backend_get_cursor_renderer (backend);
+   meta_cursor_renderer_force_update (cursor_renderer);
++}
+ 
++static void
++on_monitors_changed (MetaMonitorManager *manager,
++                     MetaScreen         *screen)
++{
++  /* Inform the external world about what has happened */
+   g_signal_emit (screen, screen_signals[MONITORS_CHANGED], 0);
+ }
+ 
+diff --git a/src/wayland/meta-wayland-outputs.c b/src/wayland/meta-wayland-outputs.c
+index db8d240f2..51f62f98f 100644
+--- a/src/wayland/meta-wayland-outputs.c
++++ b/src/wayland/meta-wayland-outputs.c
+@@ -422,7 +422,7 @@ meta_wayland_outputs_init (MetaWaylandCompositor *compositor)
+   MetaMonitorManager *monitors;
+ 
+   monitors = meta_monitor_manager_get ();
+-  g_signal_connect (monitors, "monitors-changed",
++  g_signal_connect (monitors, "monitors-changed-internal",
+                     G_CALLBACK (on_monitors_changed), compositor);
+ 
+   compositor->outputs = g_hash_table_new_full (NULL, NULL, NULL, wayland_output_destroy_notify);
+-- 
+2.14.1
+
