@@ -128,11 +128,18 @@ mutter (3.25.90-1) experimental; urgency=medium
 
  -- Andreas Henriksson <andreas@fatal.se>  Tue, 15 Aug 2017 15:45:47 +0200
 
-mutter (3.22.4-2) UNRELEASED; urgency=medium
+mutter (3.22.4-2) unstable; urgency=medium
 
+  [ Jeremy Bicha ]
   * Add missing depends on gnome-settings-daemon (LP: #1561706)
 
- -- Jeremy Bicha <jbicha@ubuntu.com>  Sat, 06 May 2017 08:52:03 -0400
+  [ Laurent Bigonville ]
+  * debian/patches/bgo782472_fix_copypaste_x11_wayland.patch: Fix copy/paste
+    between some X11 applications (firefox/chromium) and wayland (Closes:
+    #865788)
+  * debian/control.in: Bump Standards-Version to 4.0.0 (no further changes)
+
+ -- Laurent Bigonville <bigon@debian.org>  Fri, 30 Jun 2017 19:08:41 +0200
 
 mutter (3.22.4-1) unstable; urgency=medium
 
