@@ -2,3 +2,9 @@ bgo768531_workaround-startup-notifications.patch
 skip-failing-tests.patch
 skip-failing-tests-325.patch
 git_fix_xorg_maximize_crash.patch
+0001-wayland-dma-buf-Don-t-send-modifiers-to-old-clients.patch
+0007-settings-Get-UI-scaling-factor-from-primary-logical-.patch
+0008-backends-add-monitors-updated-internal-signal-to-onl.patch
+0009-monitor-manager-use-g_return_val_if_fail-if-trying-t.patch
+0010-backend-move-the-cursor-render-update-on-screen-chan.patch
+0011-workspace-ensure-that-workarea-data-is-valid-when-fe.patch

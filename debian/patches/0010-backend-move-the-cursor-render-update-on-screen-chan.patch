@@ -1,0 +1,53 @@
+From c6c777a604a077359e8c1659ed3468e1f53692d5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Marco=20Trevisan=20=28Trevi=C3=B1o=29?= <mail@3v1n0.net>
+Date: Fri, 13 Oct 2017 00:12:50 -0500
+Subject: [PATCH 10/11] backend: move the cursor render update on screen
+ changes here
+
+https://bugzilla.gnome.org/show_bug.cgi?id=788860
+---
+ src/backends/meta-backend.c | 2 ++
+ src/core/screen.c           | 7 -------
+ 2 files changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/src/backends/meta-backend.c b/src/backends/meta-backend.c
+index 89d47eb80..c856823e2 100644
+--- a/src/backends/meta-backend.c
++++ b/src/backends/meta-backend.c
+@@ -196,6 +196,8 @@ meta_backend_monitors_changed (MetaBackend *backend)
+           priv->is_pointer_position_initialized = TRUE;
+         }
+     }
++
++  meta_cursor_renderer_force_update (priv->cursor_renderer);
+ }
+ 
+ void
+diff --git a/src/core/screen.c b/src/core/screen.c
+index be4394349..c14bba0cf 100644
+--- a/src/core/screen.c
++++ b/src/core/screen.c
+@@ -2273,9 +2273,6 @@ static void
+ on_monitors_changed_internal (MetaMonitorManager *manager,
+                               MetaScreen         *screen)
+ {
+-  MetaBackend *backend;
+-  MetaCursorRenderer *cursor_renderer;
+-
+   meta_monitor_manager_get_screen_size (manager,
+                                         &screen->rect.width,
+                                         &screen->rect.height);
+@@ -2306,10 +2303,6 @@ on_monitors_changed_internal (MetaMonitorManager *manager,
+   meta_screen_foreach_window (screen, META_LIST_DEFAULT, meta_screen_resize_func, 0);
+ 
+   meta_screen_queue_check_fullscreen (screen);
+-
+-  backend = meta_get_backend ();
+-  cursor_renderer = meta_backend_get_cursor_renderer (backend);
+-  meta_cursor_renderer_force_update (cursor_renderer);
+ }
+ 
+ static void
+-- 
+2.14.1
+

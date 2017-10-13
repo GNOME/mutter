@@ -1,0 +1,45 @@
+From edfd15b32daca9fef707a25bf312441349506b05 Mon Sep 17 00:00:00 2001
+From: Daniel Stone <daniels@collabora.com>
+Date: Mon, 2 Oct 2017 16:46:17 +0100
+Subject: [PATCH 01/11] wayland-dma-buf: Don't send modifiers to old clients
+
+The modifier event was only added in v3 of the client; sending it to
+older clients (e.g. GStreamer waylandsink) causes them to disconnect
+immediately.
+
+Send the older 'format' event to all clients, and only send the newer
+'modifier' event to resource versions 3 or above.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=788558
+---
+ src/wayland/meta-wayland-dma-buf.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/wayland/meta-wayland-dma-buf.c b/src/wayland/meta-wayland-dma-buf.c
+index e5d2f7c35..76b8aa219 100644
+--- a/src/wayland/meta-wayland-dma-buf.c
++++ b/src/wayland/meta-wayland-dma-buf.c
+@@ -473,12 +473,19 @@ send_modifiers (struct wl_resource *resource,
+   gboolean ret;
+   int i;
+ 
++  zwp_linux_dmabuf_v1_send_format (resource, format);
++
++  /* The modifier event was only added in v3; v1 and v2 only have the format
++   * event. */
++  if (wl_resource_get_version (resource) < ZWP_LINUX_DMABUF_V1_MODIFIER_SINCE_VERSION)
++    return;
++
+   /* First query the number of available modifiers, then allocate an array,
+    * then fill the array. */
+   ret = meta_egl_query_dma_buf_modifiers (egl, egl_display, format, 0, NULL,
+                                           NULL, &num_modifiers, NULL);
+   if (!ret || num_modifiers == 0)
+-     return;
++    return;
+ 
+   modifiers = g_new0 (uint64_t, num_modifiers);
+   ret = meta_egl_query_dma_buf_modifiers (egl, egl_display, format,
+-- 
+2.14.1
+
