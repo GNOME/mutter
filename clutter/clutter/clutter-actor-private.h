@@ -265,6 +265,9 @@ void                            _clutter_actor_rerealize                        
 
 void                            _clutter_actor_set_in_clone_paint                       (ClutterActor *self,
                                                                                          gboolean      is_in_clone_paint);
+void                            _clutter_actor_set_clone_paint_actor                    (ClutterActor *self,
+                                                                                         ClutterActor *clone);
+ClutterActor *                  _clutter_actor_get_clone_paint_actor                    (ClutterActor *self);
 
 void                            _clutter_actor_set_enable_model_view_transform          (ClutterActor *self,
                                                                                          gboolean      enable);

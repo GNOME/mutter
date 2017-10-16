@@ -175,6 +175,7 @@ clutter_clone_paint (ClutterActor *actor)
    *   the clone source actor.
    */
   _clutter_actor_set_in_clone_paint (priv->clone_source, TRUE);
+  _clutter_actor_set_clone_paint_actor (priv->clone_source, actor);
   clutter_actor_set_opacity_override (priv->clone_source,
                                        clutter_actor_get_paint_opacity (actor));
   _clutter_actor_set_enable_model_view_transform (priv->clone_source, FALSE);

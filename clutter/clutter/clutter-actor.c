@@ -803,6 +803,9 @@ struct _ClutterActorPrivate
   gpointer create_child_data;
   GDestroyNotify create_child_notify;
 
+  /* clone actor currently being painted with this actor as source */
+  ClutterActor *clone_paint_actor;
+
   /* bitfields: KEEP AT THE END */
 
   /* fixed position and sizes */
@@ -16429,6 +16432,19 @@ clutter_actor_is_in_clone_paint (ClutterActor *self)
     }
 
   return FALSE;
+}
+
+void
+_clutter_actor_set_clone_paint_actor (ClutterActor *self,
+                                      ClutterActor *clone)
+{
+  self->priv->clone_paint_actor = clone;
+}
+
+ClutterActor *
+_clutter_actor_get_clone_paint_actor (ClutterActor *self)
+{
+  return self->priv->clone_paint_actor;
 }
 
 static gboolean

@@ -81,6 +81,7 @@ struct _ClutterOffscreenEffectPrivate
   CoglPipeline *target;
   CoglHandle texture;
 
+  ClutterActor *real_actor;
   ClutterActor *actor;
   ClutterActor *stage;
 
@@ -130,7 +131,7 @@ clutter_offscreen_effect_set_actor (ClutterActorMeta *meta,
     }
 
   /* we keep a back pointer here, to avoid going through the ActorMeta */
-  priv->actor = clutter_actor_meta_get_actor (meta);
+  priv->real_actor = clutter_actor_meta_get_actor (meta);
 }
 
 static CoglHandle
@@ -234,8 +235,13 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
   if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (effect)))
     return FALSE;
 
-  if (priv->actor == NULL)
+  if (priv->real_actor == NULL)
     return FALSE;
+
+  if(clutter_actor_is_in_clone_paint(priv->real_actor))
+    priv->actor = _clutter_actor_get_clone_paint_actor(priv->real_actor);
+  else
+    priv->actor = priv->real_actor;
 
   stage = _clutter_actor_get_stage_internal (priv->actor);
   clutter_actor_get_size (stage, &stage_width, &stage_height);
