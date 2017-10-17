@@ -1,3 +1,9 @@
+mutter (3.26.1-6) UNRELEASED; urgency=medium
+
+  * debian/control.in: Bump libegl1-mesa-dev to (>= 17) (Closes: #878702)
+
+ -- Jeremy Bicha <jbicha@debian.org>  Mon, 16 Oct 2017 22:26:04 -0400
+
 mutter (3.26.1-5) unstable; urgency=medium
 
   * Add 0012-Use-a-single-supported-scales.patch:
