@@ -1,3 +1,11 @@
+mutter (3.26.1-5) UNRELEASED; urgency=medium
+
+  * Add 0012-Use-a-single-supported-scales.patch:
+    - Allow HiDPI scaling even when non-HiDPI displays are connected
+      (LP: #1724024)
+
+ -- Jeremy Bicha <jbicha@debian.org>  Mon, 16 Oct 2017 19:43:51 -0400
+
 mutter (3.26.1-4) unstable; urgency=medium
 
   * Release to unstable
