@@ -1454,7 +1454,7 @@ meta_cursor_for_grab_op (MetaGrabOp op)
   return META_CURSOR_DEFAULT;
 }
 
-static int
+static float
 find_highest_logical_monitor_scale (MetaBackend      *backend,
                                     MetaCursorSprite *cursor_sprite)
 {
@@ -1465,7 +1465,7 @@ find_highest_logical_monitor_scale (MetaBackend      *backend,
   ClutterRect cursor_rect;
   GList *logical_monitors;
   GList *l;
-  int highest_scale = 0;
+  float highest_scale = 0.0;
 
   cursor_rect = meta_cursor_renderer_calculate_rect (cursor_renderer,
                                                      cursor_sprite);
@@ -1490,12 +1490,12 @@ find_highest_logical_monitor_scale (MetaBackend      *backend,
 }
 
 static void
-root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
+root_cursor_prepare_at (MetaCursorSpriteXcursor *xcusor_sprite,
                         int                      x,
                         int                      y,
                         MetaDisplay             *display)
 {
-  MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_xcursor);
+  MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (xcusor_sprite);
   MetaBackend *backend = meta_get_backend ();
 
   if (meta_is_stage_views_scaled ())
@@ -1505,8 +1505,11 @@ root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
       scale = find_highest_logical_monitor_scale (backend, cursor_sprite);
       if (scale != 0)
         {
-          meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor, scale);
-          meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0 / scale);
+          float ceiled_scale;
+
+          ceiled_scale = ceilf (scale);
+          meta_cursor_sprite_xcursor_set_theme_scale (xcusor_sprite, ceiled_scale);
+          meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0 / ceiled_scale);
         }
     }
   else
