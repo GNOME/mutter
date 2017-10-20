@@ -1287,7 +1287,7 @@ update_num_workspaces (MetaScreen *screen,
   g_object_notify (G_OBJECT (screen), "n-workspaces");
 }
 
-static int
+static float
 find_highest_logical_monitor_scale (MetaBackend      *backend,
                                     MetaCursorSprite *cursor_sprite)
 {
@@ -1298,7 +1298,7 @@ find_highest_logical_monitor_scale (MetaBackend      *backend,
   ClutterRect cursor_rect;
   GList *logical_monitors;
   GList *l;
-  int highest_scale = 0;
+  float highest_scale = 0.0;
 
   cursor_rect = meta_cursor_renderer_calculate_rect (cursor_renderer,
 						     cursor_sprite);
@@ -1332,13 +1332,16 @@ root_cursor_prepare_at (MetaCursorSprite *cursor_sprite,
 
   if (meta_is_stage_views_scaled ())
     {
-      int scale;
+      float scale;
 
       scale = find_highest_logical_monitor_scale (backend, cursor_sprite);
-      if (scale != 0)
+      if (scale != 0.0)
         {
-          meta_cursor_sprite_set_theme_scale (cursor_sprite, scale);
-          meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0 / scale);
+          float ceiled_scale;
+
+          ceiled_scale = ceilf (scale);
+          meta_cursor_sprite_set_theme_scale (cursor_sprite, (int) ceiled_scale);
+          meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0 / ceiled_scale);
         }
     }
   else
