@@ -8,4 +8,11 @@ skip-failing-tests-325.patch
 0009-monitor-manager-use-g_return_val_if_fail-if-trying-t.patch
 0010-backend-move-the-cursor-render-update-on-screen-chan.patch
 0011-workspace-ensure-that-workarea-data-is-valid-when-fe.patch
+0012-x11-window-Don-t-manage-InputOnly-windows.patch
+0013-compositor-Ignore-offscreen-windows.patch
 0014-Use-a-single-supported-scales.patch
+0015-monitor-normal-Prefer-modes-with-same-flags.patch
+0016-monitor-unit-tests-Check-non-first-preferred-modes.patch
+0017-compositor-Avoid-a-crash-if-top-window-finalized.patch
+0018-Revert-ClutterActor-Optimize-away-idempotent-scale.patch
+0019-Revert-tests-Fix-actor-anchors-test.patch

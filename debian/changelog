@@ -1,6 +1,18 @@
 mutter (3.26.1-6) UNRELEASED; urgency=medium
 
   * debian/control.in: Bump libegl1-mesa-dev to (>= 17) (Closes: #878702)
+  * Cherry-pick more fixes from gnome-3-26 branch to fix crashes
+    and fix unredirecting full-screen windows:
+    - 0012-x11-window-Don-t-manage-InputOnly-windows.patch
+    - 0013-compositor-Ignore-offscreen-windows.patch
+      (LP: #1725821)
+    - 0015-monitor-normal-Prefer-modes-with-same-flags.patch
+    - 0016-monitor-unit-tests-Check-non-first-preferred-modes.patch
+      (LP: #1725153)
+    - 0017-compositor-Avoid-a-crash-if-top-window-finalized.patch
+    - 0018-Revert-ClutterActor-Optimize-away-idempotent-scale.patch
+    - 0019-Revert-tests-Fix-actor-anchors-test.patch
+      (Closes: #788140)
 
  -- Jeremy Bicha <jbicha@debian.org>  Mon, 16 Oct 2017 22:26:04 -0400
 

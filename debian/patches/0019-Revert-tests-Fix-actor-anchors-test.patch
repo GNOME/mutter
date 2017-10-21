@@ -1,0 +1,29 @@
+From 79fe635f5f94db96c9ee6a0da7becc8b283b4689 Mon Sep 17 00:00:00 2001
+From: Jeremy Bicha <jbicha@ubuntu.com>
+Date: Sat, 21 Oct 2017 18:58:37 -0400
+Subject: [PATCH] Revert "tests: Fix actor-anchors test"
+
+This reverts commit dd451547a5e7bcce6d9752cb1936ee8222b82315.
+
+since we reverted commit 5cb5baa with commit 193216c
+---
+ clutter/tests/conform/actor-anchors.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/clutter/tests/conform/actor-anchors.c b/clutter/tests/conform/actor-anchors.c
+index 55395880b..ee3b6a5e6 100644
+--- a/clutter/tests/conform/actor-anchors.c
++++ b/clutter/tests/conform/actor-anchors.c
+@@ -407,7 +407,8 @@ test_scale_center (TestState *state)
+   g_assert (scale_x == 4.0);
+   g_assert (scale_y == 2.0);
+   g_assert (gravity == CLUTTER_GRAVITY_NONE);
+-  assert_notifications (NOTIFY_SCALE_CENTER_X | NOTIFY_SCALE_CENTER_Y
++  assert_notifications (NOTIFY_SCALE_X | NOTIFY_SCALE_Y
++                        | NOTIFY_SCALE_CENTER_X | NOTIFY_SCALE_CENTER_Y
+                         | NOTIFY_SCALE_GRAVITY);
+   assert_coords (state, 100 + 10 - 10 * 4, 200 + 20 - 20 * 2,
+                  100 + 10 + (RECT_WIDTH - 10) * 4,
+-- 
+2.14.1
+

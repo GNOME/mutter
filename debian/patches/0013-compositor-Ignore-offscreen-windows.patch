@@ -1,0 +1,116 @@
+From d71b0d3d272046a65013b1c77f289848f8ae4ffd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 13 Oct 2017 16:29:20 +0800
+Subject: [PATCH 13/18] compositor: Ignore offscreen windows when unredirecting
+
+When determining whether we should unredirect a window or not, ignore
+offscreen windows, and just check the top most visible window.
+
+Previously this was not an issue, but since 'stack-tracker: Keep
+override redirect windows on top' we started sorting the UI frames
+window, which is an offscreen override redirect window, on top, causing
+the unredirect checking code to always check whether to unredirect the
+UI frames window. This effectively disabled the compositor bypass
+functionality.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=788493
+---
+ src/compositor/compositor-private.h |  2 ++
+ src/compositor/compositor.c         | 47 ++++++++++++++++++++++++++++++++-----
+ 2 files changed, 43 insertions(+), 6 deletions(-)
+
+diff --git a/src/compositor/compositor-private.h b/src/compositor/compositor-private.h
+index ba58bf175..40c0344cc 100644
+--- a/src/compositor/compositor-private.h
++++ b/src/compositor/compositor-private.h
+@@ -31,6 +31,8 @@ struct _MetaCompositor
+ 
+   CoglContext           *context;
+ 
++  MetaWindowActor       *top_window_actor;
++
+   /* Used for unredirecting fullscreen windows */
+   guint                  disable_unredirect_count;
+   MetaWindow            *unredirected_window;
+diff --git a/src/compositor/compositor.c b/src/compositor/compositor.c
+index 17e8a55dd..a75ac12c5 100644
+--- a/src/compositor/compositor.c
++++ b/src/compositor/compositor.c
+@@ -923,6 +923,32 @@ sync_actor_stacking (MetaCompositor *compositor)
+   g_list_free (backgrounds);
+ }
+ 
++/*
++ * Find the top most window that is visible on the screen. The intention of
++ * this is to avoid offscreen windows that isn't actually part of the visible
++ * desktop (such as the UI frames override redirect window).
++ */
++static MetaWindowActor *
++get_top_visible_window_actor (MetaCompositor *compositor)
++{
++  GList *l;
++
++  for (l = g_list_last (compositor->windows); l; l = l->prev)
++    {
++      MetaWindowActor *window_actor = l->data;
++      MetaWindow *window = meta_window_actor_get_meta_window (window_actor);
++      MetaRectangle buffer_rect;
++
++      meta_window_get_buffer_rect (window, &buffer_rect);
++
++      if (meta_rectangle_overlap (&compositor->display->screen->rect,
++                                  &buffer_rect))
++        return window_actor;
++    }
++
++  return NULL;
++}
++
+ void
+ meta_compositor_sync_stack (MetaCompositor  *compositor,
+ 			    GList	    *stack)
+@@ -1009,6 +1035,8 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
+     }
+ 
+   sync_actor_stacking (compositor);
++
++  compositor->top_window_actor = get_top_visible_window_actor (compositor);
+ }
+ 
+ void
+@@ -1065,19 +1093,26 @@ static gboolean
+ meta_pre_paint_func (gpointer data)
+ {
+   GList *l;
+-  MetaWindowActor *top_window;
++  MetaWindowActor *top_window_actor;
+   MetaCompositor *compositor = data;
+ 
+   if (compositor->windows == NULL)
+     return TRUE;
+ 
+-  top_window = g_list_last (compositor->windows)->data;
+-
+-  if (meta_window_actor_should_unredirect (top_window) &&
++  top_window_actor = compositor->top_window_actor;
++  if (top_window_actor &&
++      meta_window_actor_should_unredirect (top_window_actor) &&
+       compositor->disable_unredirect_count == 0)
+-    set_unredirected_window (compositor, meta_window_actor_get_meta_window (top_window));
++    {
++      MetaWindow *top_window;
++
++      top_window = meta_window_actor_get_meta_window (top_window_actor);
++      set_unredirected_window (compositor, top_window);
++    }
+   else
+-    set_unredirected_window (compositor, NULL);
++    {
++      set_unredirected_window (compositor, NULL);
++    }
+ 
+   for (l = compositor->windows; l; l = l->next)
+     meta_window_actor_pre_paint (l->data);
+-- 
+2.14.1
+

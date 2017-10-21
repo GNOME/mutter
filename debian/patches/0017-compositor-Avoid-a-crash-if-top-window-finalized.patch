@@ -1,0 +1,31 @@
+From 6eacf9a398da3db6152566abe5cc6b6e0afd9a3d Mon Sep 17 00:00:00 2001
+From: Rui Matos <tiagomatos@gmail.com>
+Date: Tue, 17 Oct 2017 17:17:55 +0200
+Subject: [PATCH 17/18] compositor: Avoid a crash if the top window actor is
+ finalized
+
+Since we're not holding a reference, the top window actor might be
+finalized when we paint resulting in a use after free crash.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=788493
+---
+ src/compositor/compositor.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/compositor/compositor.c b/src/compositor/compositor.c
+index a75ac12c5..1d5b9ab20 100644
+--- a/src/compositor/compositor.c
++++ b/src/compositor/compositor.c
+@@ -671,6 +671,9 @@ meta_compositor_remove_window (MetaCompositor *compositor,
+   if (compositor->unredirected_window == window)
+     set_unredirected_window (compositor, NULL);
+ 
++  if (compositor->top_window_actor == window_actor)
++    compositor->top_window_actor = NULL;
++
+   meta_window_actor_destroy (window_actor);
+ }
+ 
+-- 
+2.14.1
+

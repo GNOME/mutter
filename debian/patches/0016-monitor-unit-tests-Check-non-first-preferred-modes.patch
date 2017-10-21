@@ -1,0 +1,169 @@
+From 297027b8cb7a259907e4be190de1c4a44aa83593 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 18 Oct 2017 23:24:36 +0800
+Subject: [PATCH 16/18] monitor-unit-tests: Check non-first preferred modes
+
+Check that if there are multiple modes with the same ID (resolution,
+refresh rate and handled flags) we correctly add the preferred mode to
+the list of monitor modes.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=789153
+---
+ src/backends/meta-monitor.c    |  2 -
+ src/backends/meta-monitor.h    |  2 +
+ src/tests/monitor-unit-tests.c | 99 +++++++++++++++++++++++++++++++++++++++++-
+ 3 files changed, 100 insertions(+), 3 deletions(-)
+
+diff --git a/src/backends/meta-monitor.c b/src/backends/meta-monitor.c
+index 2d06a1e36..f9233251c 100644
+--- a/src/backends/meta-monitor.c
++++ b/src/backends/meta-monitor.c
+@@ -34,8 +34,6 @@
+ #define MINIMUM_LOGICAL_HEIGHT 600
+ #define MAXIMUM_REFRESH_RATE_DIFF 0.001
+ 
+-#define HANDLED_CRTC_MODE_FLAGS (META_CRTC_MODE_FLAG_INTERLACE)
+-
+ typedef struct _MetaMonitorMode
+ {
+   char *id;
+diff --git a/src/backends/meta-monitor.h b/src/backends/meta-monitor.h
+index f4260d61f..e6f394b07 100644
+--- a/src/backends/meta-monitor.h
++++ b/src/backends/meta-monitor.h
+@@ -48,6 +48,8 @@ typedef struct _MetaMonitorCrtcMode
+   MetaCrtcMode *crtc_mode;
+ } MetaMonitorCrtcMode;
+ 
++#define HANDLED_CRTC_MODE_FLAGS (META_CRTC_MODE_FLAG_INTERLACE)
++
+ typedef gboolean (* MetaMonitorModeFunc) (MetaMonitor         *monitor,
+                                           MetaMonitorMode     *mode,
+                                           MetaMonitorCrtcMode *monitor_crtc_mode,
+diff --git a/src/tests/monitor-unit-tests.c b/src/tests/monitor-unit-tests.c
+index b2d18c48b..e65c30291 100644
+--- a/src/tests/monitor-unit-tests.c
++++ b/src/tests/monitor-unit-tests.c
+@@ -419,7 +419,7 @@ check_monitor_mode (MetaMonitor         *monitor,
+       flags = meta_monitor_mode_get_flags (mode);
+ 
+       g_assert_cmpfloat (refresh_rate, ==, crtc_mode->refresh_rate);
+-      g_assert_cmpint (flags, ==, crtc_mode->flags);
++      g_assert_cmpint (flags, ==, (crtc_mode->flags & HANDLED_CRTC_MODE_FLAGS));
+     }
+ 
+   data->expect_crtc_mode_iter++;
+@@ -2730,6 +2730,101 @@ meta_test_monitor_underscanning_config (void)
+   check_monitor_configuration (&test_case);
+ }
+ 
++static void
++meta_test_monitor_preferred_non_first_mode (void)
++{
++  MonitorTestCase test_case = {
++    .setup = {
++      .modes = {
++        {
++          .width = 800,
++          .height = 600,
++          .refresh_rate = 60.0,
++          .flags = META_CRTC_MODE_FLAG_NHSYNC,
++        },
++        {
++          .width = 800,
++          .height = 600,
++          .refresh_rate = 60.0,
++          .flags = META_CRTC_MODE_FLAG_PHSYNC,
++        },
++      },
++      .n_modes = 2,
++      .outputs = {
++        {
++          .crtc = -1,
++          .modes = { 0, 1 },
++          .n_modes = 2,
++          .preferred_mode = 1,
++          .possible_crtcs = { 0 },
++          .n_possible_crtcs = 1,
++          .width_mm = 222,
++          .height_mm = 125
++        }
++      },
++      .n_outputs = 1,
++      .crtcs = {
++        {
++          .current_mode = -1
++        }
++      },
++      .n_crtcs = 1
++    },
++
++    .expect = {
++      .monitors = {
++        {
++          .outputs = { 0 },
++          .n_outputs = 1,
++          .modes = {
++            {
++              .width = 800,
++              .height = 600,
++              .refresh_rate = 60.0,
++              .crtc_modes = {
++                {
++                  .output = 0,
++                  .crtc_mode = 1
++                }
++              }
++            },
++          },
++          .n_modes = 1,
++          .current_mode = 0,
++          .width_mm = 222,
++          .height_mm = 125
++        }
++      },
++      .n_monitors = 1,
++      .logical_monitors = {
++        {
++          .monitors = { 0 },
++          .n_monitors = 1,
++          .layout = { .x = 0, .y = 0, .width = 800, .height = 600 },
++          .scale = 1
++        },
++      },
++      .n_logical_monitors = 1,
++      .primary_logical_monitor = 0,
++      .n_outputs = 1,
++      .crtcs = {
++        {
++          .current_mode = 1,
++        }
++      },
++      .n_crtcs = 1,
++      .screen_width = 800,
++      .screen_height = 600,
++    }
++  };
++  MetaMonitorTestSetup *test_setup;
++
++  test_setup = create_monitor_test_setup (&test_case,
++                                          MONITOR_TEST_FLAG_NO_STORED);
++  emulate_hotplug (test_setup);
++  check_monitor_configuration (&test_case);
++}
++
+ static void
+ meta_test_monitor_custom_vertical_config (void)
+ {
+@@ -5317,6 +5412,8 @@ init_monitor_tests (void)
+                     meta_test_monitor_no_outputs);
+   add_monitor_test ("/backends/monitor/underscanning-config",
+                     meta_test_monitor_underscanning_config);
++  add_monitor_test ("/backends/monitor/preferred-non-first-mode",
++                    meta_test_monitor_preferred_non_first_mode);
+ 
+   add_monitor_test ("/backends/monitor/custom/vertical-config",
+                     meta_test_monitor_custom_vertical_config);
+-- 
+2.14.1
+

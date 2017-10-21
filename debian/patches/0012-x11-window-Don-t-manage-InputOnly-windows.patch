@@ -1,0 +1,33 @@
+From 49ee46d924e36c0d5defcbfcf71bd674e200ebae Mon Sep 17 00:00:00 2001
+From: Rui Matos <tiagomatos@gmail.com>
+Date: Sun, 15 Oct 2017 22:44:11 +0200
+Subject: [PATCH 12/18] x11/window: Don't manage InputOnly windows
+
+This was dropped by mistake in commit
+f166240225b6ab110b091520103d0370d51899ac.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=788493
+---
+ src/x11/window-x11.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/x11/window-x11.c b/src/x11/window-x11.c
+index 4885f5fea..5a6f113b0 100644
+--- a/src/x11/window-x11.c
++++ b/src/x11/window-x11.c
+@@ -3039,6 +3039,12 @@ meta_window_x11_new (MetaDisplay       *display,
+       goto error;
+     }
+ 
++  if (attrs.class == InputOnly)
++    {
++      meta_verbose ("Not managing InputOnly windows\n");
++      goto error;
++    }
++
+   if (is_our_xwindow (display, screen, xwindow, &attrs))
+     {
+       meta_verbose ("Not managing our own windows\n");
+-- 
+2.14.1
+
