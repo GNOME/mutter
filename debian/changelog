@@ -1,4 +1,4 @@
-mutter (3.26.1-6) UNRELEASED; urgency=medium
+mutter (3.26.1-6) unstable; urgency=high
 
   * debian/control.in: Bump libegl1-mesa-dev to (>= 17) (Closes: #878702)
   * Cherry-pick more fixes from gnome-3-26 branch to fix crashes
@@ -13,8 +13,9 @@ mutter (3.26.1-6) UNRELEASED; urgency=medium
     - 0018-Revert-ClutterActor-Optimize-away-idempotent-scale.patch
     - 0019-Revert-tests-Fix-actor-anchors-test.patch
       (Closes: #788140)
+  * Set urgency to high to not further delay the gjs/mutter transition
 
- -- Jeremy Bicha <jbicha@debian.org>  Mon, 16 Oct 2017 22:26:04 -0400
+ -- Jeremy Bicha <jbicha@debian.org>  Sat, 21 Oct 2017 19:47:22 -0400
 
 mutter (3.26.1-5) unstable; urgency=medium
 
