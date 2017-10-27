@@ -3640,10 +3640,10 @@ _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
       viewport_offset_x = view_layout.x * fb_scale;
       viewport_offset_y = view_layout.y * fb_scale;
       cogl_framebuffer_set_viewport (fb,
-                                     priv->viewport[0] * fb_scale - viewport_offset_x,
-                                     priv->viewport[1] * fb_scale - viewport_offset_y,
-                                     priv->viewport[2] * fb_scale,
-                                     priv->viewport[3] * fb_scale);
+                                     roundf (priv->viewport[0] * fb_scale - viewport_offset_x),
+                                     roundf (priv->viewport[1] * fb_scale - viewport_offset_y),
+                                     roundf (priv->viewport[2] * fb_scale),
+                                     roundf (priv->viewport[3] * fb_scale));
 
       perspective = priv->perspective;
 
