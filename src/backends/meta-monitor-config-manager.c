@@ -536,8 +536,8 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
   switch (layout_mode)
     {
     case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
-      width /= scale;
-      height /= scale;
+      width = (int) roundf (width / scale);
+      height = (int) roundf (height / scale);
       break;
     case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
       break;
