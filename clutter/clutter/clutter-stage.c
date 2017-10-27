@@ -3626,6 +3626,10 @@ _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
       float fb_scale;
       float viewport_offset_x;
       float viewport_offset_y;
+      float viewport_x;
+      float viewport_y;
+      float viewport_width;
+      float viewport_height;
       float z_2d;
 
       CLUTTER_NOTE (PAINT,
@@ -3638,11 +3642,13 @@ _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
 
       viewport_offset_x = view_layout.x * fb_scale;
       viewport_offset_y = view_layout.y * fb_scale;
+      viewport_x = roundf (priv->viewport[0] * fb_scale - viewport_offset_x);
+      viewport_y = roundf (priv->viewport[1] * fb_scale - viewport_offset_y);
+      viewport_width = roundf (priv->viewport[2] * fb_scale);
+      viewport_height = roundf (priv->viewport[3] * fb_scale);
       cogl_framebuffer_set_viewport (fb,
-                                     priv->viewport[0] * fb_scale - viewport_offset_x,
-                                     priv->viewport[1] * fb_scale - viewport_offset_y,
-                                     priv->viewport[2] * fb_scale,
-                                     priv->viewport[3] * fb_scale);
+                                     viewport_x, viewport_y,
+                                     viewport_width, viewport_height);
 
       perspective = priv->perspective;
 
