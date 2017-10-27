@@ -9,7 +9,8 @@ This reverts commit 5cb5baa7d42712f9e0db8dfaa0485e2d833e4d83.
 There's a cascade of regressions that needs to be sorted out before
 relanding this:
 
-https://bugzilla.gnome.org/show_bug.cgi?id=784314
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=784314
+Origin: upstream, 3.26.2
 ---
  clutter/clutter/clutter-actor.c | 10 ++++------
  1 file changed, 4 insertions(+), 6 deletions(-)

@@ -13,7 +13,8 @@ the unredirect checking code to always check whether to unredirect the
 UI frames window. This effectively disabled the compositor bypass
 functionality.
 
-https://bugzilla.gnome.org/show_bug.cgi?id=788493
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=788493
+Origin: upstream, 3.26.2
 ---
  src/compositor/compositor-private.h |  2 ++
  src/compositor/compositor.c         | 47 ++++++++++++++++++++++++++++++++-----

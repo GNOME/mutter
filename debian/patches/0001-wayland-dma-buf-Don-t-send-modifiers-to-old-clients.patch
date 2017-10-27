@@ -10,7 +10,8 @@ immediately.
 Send the older 'format' event to all clients, and only send the newer
 'modifier' event to resource versions 3 or above.
 
-https://bugzilla.gnome.org/show_bug.cgi?id=788558
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=788558
+Origin: upstream, 3.26.2
 ---
  src/wayland/meta-wayland-dma-buf.c | 9 ++++++++-
  1 file changed, 8 insertions(+), 1 deletion(-)

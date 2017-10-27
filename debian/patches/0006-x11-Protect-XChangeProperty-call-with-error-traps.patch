@@ -4,8 +4,9 @@ Description: [PATCH] x11: Protect XChangeProperty call with error traps
  users of the gnome-shell xorg session together with all budgie desktop
  users.
 Author: polygamma <jonny.westphalen@googlemail.com>
-Origin: upstream commit f9c625924e5358afd3e47733e68d166770edd496
+Origin: upstream, 3.26.2, commit:f9c625924e5358afd3e47733e68d166770edd496
 Bug: https://bugzilla.gnome.org/show_bug.cgi?id=788666
+Bug-Debian: https://bugs.debian.org/878353
 Bug-Ubuntu: https://launchpad.net/bugs/1722510
 Last-Update: 2017-10-09
 

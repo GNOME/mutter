@@ -7,7 +7,8 @@ Subject: [PATCH 17/18] compositor: Avoid a crash if the top window actor is
 Since we're not holding a reference, the top window actor might be
 finalized when we paint resulting in a use after free crash.
 
-https://bugzilla.gnome.org/show_bug.cgi?id=788493
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=788493
+Origin: upstream, 3.26.2
 ---
  src/compositor/compositor.c | 3 +++
  1 file changed, 3 insertions(+)

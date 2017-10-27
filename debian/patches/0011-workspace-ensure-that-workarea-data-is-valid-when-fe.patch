@@ -4,7 +4,8 @@ Date: Thu, 12 Oct 2017 20:07:12 -0500
 Subject: [PATCH 11/11] workspace: ensure that workarea data is valid when
  fetching by monitor num
 
-https://bugzilla.gnome.org/show_bug.cgi?id=788860
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=788860
+Origin: upstream, 3.26.2
 ---
  src/core/workspace.c | 7 +++++--
  1 file changed, 5 insertions(+), 2 deletions(-)

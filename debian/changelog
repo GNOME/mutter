@@ -1,3 +1,14 @@
+mutter (3.26.1-7) UNRELEASED; urgency=medium
+
+  * d/p/0006-x11-Protect-XChangeProperty-call-with-error-traps.patch:
+    Note equivalence with Debian bug #878353
+  * d/changelog: Retroactively add a reference from 3.26.1-2 to #878353
+  * d/p/*.patch: Add metadata indicating whether the patch is applied
+    upstream for 3.26.2 or Debian-specific (all current patches are in
+    one category or the other)
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 27 Oct 2017 12:41:28 +0100
+
 mutter (3.26.1-6) unstable; urgency=high
 
   * debian/control.in: Bump libegl1-mesa-dev to (>= 17) (Closes: #878702)
@@ -47,7 +58,7 @@ mutter (3.26.1-2) experimental; urgency=medium
 
   * Add git_fix_xorg_maximize_crash.patch:
     - Cherry-pick fix for crash when closing windows on Budgie or
-      GNOME Shell (LP: #1722510)
+      GNOME Shell (LP: #1722510, Closes: #878353)
 
  -- Jeremy Bicha <jbicha@debian.org>  Tue, 10 Oct 2017 10:22:41 -0400
 

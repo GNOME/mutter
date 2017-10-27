@@ -6,6 +6,8 @@ Subject: [PATCH] Revert "tests: Fix actor-anchors test"
 This reverts commit dd451547a5e7bcce6d9752cb1936ee8222b82315.
 
 since we reverted commit 5cb5baa with commit 193216c
+
+Applied-upstream: 3.26.2
 ---
  clutter/tests/conform/actor-anchors.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)

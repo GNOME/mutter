@@ -7,7 +7,8 @@ Subject: [PATCH 08/11] backends: add 'monitors-updated-internal' signal to
 Adding an internal signal and use it to update the internal state before
 emitting "monitors-changed" which will be repeated by the screen to the world.
 
-https://bugzilla.gnome.org/show_bug.cgi?id=788860
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=788860
+Origin: upstream, 3.26.2
 ---
  src/backends/meta-backend.c                       |  2 --
  src/backends/meta-input-settings.c                |  2 +-

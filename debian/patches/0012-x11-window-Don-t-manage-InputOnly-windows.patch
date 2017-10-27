@@ -6,7 +6,8 @@ Subject: [PATCH 12/18] x11/window: Don't manage InputOnly windows
 This was dropped by mistake in commit
 f166240225b6ab110b091520103d0370d51899ac.
 
-https://bugzilla.gnome.org/show_bug.cgi?id=788493
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=788493
+Origin: upstream, 3.26.2
 ---
  src/x11/window-x11.c | 6 ++++++
  1 file changed, 6 insertions(+)

@@ -12,7 +12,8 @@ is added.
 This fixes a crash when the preferred mode was not the first mode with
 the same resolution, refresh rate and set of handled modes.
 
-https://bugzilla.gnome.org/show_bug.cgi?id=789153
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=789153
+Origin: upstream, 3.26.2
 ---
  src/backends/meta-monitor.c | 41 ++++++++++++++++++++++++++++++++---------
  1 file changed, 32 insertions(+), 9 deletions(-)

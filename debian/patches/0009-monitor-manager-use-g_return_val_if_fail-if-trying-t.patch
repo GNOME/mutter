@@ -4,7 +4,8 @@ Date: Fri, 13 Oct 2017 00:10:22 -0500
 Subject: [PATCH 09/11] monitor-manager: use g_return_val_if_fail if trying to
  fetch an invalid monitor
 
-https://bugzilla.gnome.org/show_bug.cgi?id=788860
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=788860
+Origin: upstream, 3.26.2
 ---
  src/backends/meta-monitor-manager.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)

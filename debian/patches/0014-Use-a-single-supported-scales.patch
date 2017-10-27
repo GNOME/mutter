@@ -15,8 +15,9 @@ scales by the preferred mode, combining all the supported scales. This
 supported scales list is then used for all monitor and modes no matter
 what.
 
-https://bugzilla.gnome.org/show_bug.cgi?id=788901
-https://launchpad.net/bugs/1724024
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=788901
+Bug-Ubuntu: https://launchpad.net/bugs/1724024
+Origin: upstream, 3.26.2
 ---
  src/backends/x11/meta-monitor-manager-xrandr.c | 103 +++++++++++++++++++++++--
  1 file changed, 95 insertions(+), 8 deletions(-)

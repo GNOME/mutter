@@ -8,7 +8,8 @@ Don't use MAX(logical monitor scales) to determine the UI scaling
 factor, just use the primary logical monitor. That's where the shell UI
 will most likely be.
 
-https://bugzilla.gnome.org/show_bug.cgi?id=788820
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=788820
+Origin: upstream, 3.26.2
 ---
  src/backends/meta-settings.c | 21 ++++++---------------
  1 file changed, 6 insertions(+), 15 deletions(-)

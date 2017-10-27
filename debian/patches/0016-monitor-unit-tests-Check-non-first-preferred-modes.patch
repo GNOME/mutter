@@ -7,7 +7,8 @@ Check that if there are multiple modes with the same ID (resolution,
 refresh rate and handled flags) we correctly add the preferred mode to
 the list of monitor modes.
 
-https://bugzilla.gnome.org/show_bug.cgi?id=789153
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=789153
+Origin: upstream, 3.26.2
 ---
  src/backends/meta-monitor.c    |  2 -
  src/backends/meta-monitor.h    |  2 +

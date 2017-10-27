@@ -4,7 +4,8 @@ Date: Fri, 13 Oct 2017 00:12:50 -0500
 Subject: [PATCH 10/11] backend: move the cursor render update on screen
  changes here
 
-https://bugzilla.gnome.org/show_bug.cgi?id=788860
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=788860
+Origin: upstream, 3.26.2
 ---
  src/backends/meta-backend.c | 2 ++
  src/core/screen.c           | 7 -------
