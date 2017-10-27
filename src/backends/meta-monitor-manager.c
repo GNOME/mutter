@@ -1778,6 +1778,8 @@ create_logical_monitor_config_from_variant (MetaMonitorManager          *manager
       monitor_config =
         create_monitor_config_from_variant (manager,
                                             monitor_config_variant, error);
+      g_variant_unref (monitor_config_variant);
+
       if (!monitor_config)
         goto err;
 
@@ -1928,6 +1930,8 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
                                                     logical_monitor_config_variant,
                                                     layout_mode,
                                                     &error);
+      g_variant_unref (logical_monitor_config_variant);
+
       if (!logical_monitor_config)
         {
           g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
