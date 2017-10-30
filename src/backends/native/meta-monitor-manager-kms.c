@@ -692,7 +692,7 @@ init_crtc (MetaCrtc           *crtc,
   crtc->driver_notify = (GDestroyNotify) meta_crtc_destroy_notify;
 }
 
-static void
+static gboolean
 init_output (MetaOutput         *output,
              MetaMonitorManager *manager,
              drmModeConnector   *connector,
@@ -746,9 +746,6 @@ init_output (MetaOutput         *output,
         output->preferred_mode = output->modes[i];
   }
 
-  if (!output->preferred_mode)
-    output->preferred_mode = output->modes[0];
-
   output_kms->connector = connector;
   find_connector_properties (manager_kms, output_kms);
 
@@ -758,6 +755,15 @@ init_output (MetaOutput         *output,
    */
   if (output_kms->has_scaling)
     add_common_modes (manager, output);
+
+  if (!output->modes)
+    {
+      meta_monitor_manager_clear_output (output);
+      return FALSE;
+    }
+
+  if (!output->preferred_mode)
+    output->preferred_mode = output->modes[0];
 
   qsort (output->modes, output->n_modes, sizeof (MetaCrtcMode *), compare_modes);
 
@@ -865,6 +871,8 @@ init_output (MetaOutput         *output,
   output->backlight_min = 0;
   output->backlight_max = 0;
   output->backlight = -1;
+
+  return TRUE;
 }
 
 static void
@@ -1091,8 +1099,8 @@ init_outputs (MetaMonitorManager *manager,
 
           old_output = find_output_by_id (old_outputs, n_old_outputs,
                                           connector->connector_id);
-          init_output (output, manager, connector, old_output);
-          n_actual_outputs++;
+          if (init_output (output, manager, connector, old_output))
+            n_actual_outputs++;
         }
     }
 
