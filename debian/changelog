@@ -1,11 +1,12 @@
-mutter (3.26.1-7) UNRELEASED; urgency=medium
+mutter (3.26.2-1) UNRELEASED; urgency=medium
 
-  * d/p/0006-x11-Protect-XChangeProperty-call-with-error-traps.patch:
-    Note equivalence with Debian bug #878353
+  * PLEASE DO NOT UPLOAD UNTIL MUTTER 3.26 TRANSITIONS TO TESTING
+  * New upstream release
+  * Drop all cherry-picked patches, applied in new release
+
+  [ Simon McVittie ]
   * d/changelog: Retroactively add a reference from 3.26.1-2 to #878353
-  * d/p/*.patch: Add metadata indicating whether the patch is applied
-    upstream for 3.26.2 or Debian-specific (all current patches are in
-    one category or the other)
+  * d/p/*.patch: Add metadata to mark remaining patches as Debian-specific
 
  -- Simon McVittie <smcv@debian.org>  Fri, 27 Oct 2017 12:41:28 +0100
 
