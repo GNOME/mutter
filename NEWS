@@ -1,3 +1,25 @@
+3.26.2
+======
+* Work with clients that require older linux_dmabuf protocol [Daniel; #788558]
+* Prevent crash when closing maximized windows [Jonni; #788666]
+* Use the correct monitor for HiDPI scaling of shell chrome [Jonas; #788820]
+* Fix unredirection of fullscreen windows [Rui, Jonas; #788493]
+* Fix list of supported monitor scales on X11 [Jonas; #788901]
+* Fix handling of trackball settings on wayland [Carlos; #787804]
+* Enable XWayland core dumps [Daniel; #789086]
+* Fixes of misc. multi-monitor regressions and crashes [Jonas, Marco; #788607,
+  #788860, #789153, #786929, #789501]
+* Misc. bug fixes [Florian, Jonas, Michael, Marco, Carlos; #788572, #788569,
+  #784314, #789227, #789223, #782344, #789552, #789553, #789300]
+
+Contributors:
+  Jonas Ådahl, Jeremy Bicha, Michael Catanzaro, Carlos Garnacho, Rui Matos,
+  Florian Müllner, Daniel Stone, Marco Trevisan, Daniel van Vugt,
+  Jonni Westphalen
+
+Translations:
+  Xavi Ivars [ca@valencia]
+
 3.26.1
 ======
 * Fix crash when respawning shortcut inhibitor dialog [Olivier; #787568]
