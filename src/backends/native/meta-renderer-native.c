@@ -1879,6 +1879,9 @@ init_gbm (MetaRendererNative *renderer_native,
 
   if (!meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
                                 "EGL_MESA_platform_gbm",
+                                NULL) &&
+      !meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
+                                "EGL_KHR_platform_gbm",
                                 NULL))
     {
       g_set_error (error, G_IO_ERROR,
