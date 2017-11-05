@@ -1,6 +1,6 @@
-mutter (3.26.2-1) UNRELEASED; urgency=medium
+mutter (3.26.2-1) unstable; urgency=medium
 
-  * PLEASE DO NOT UPLOAD UNTIL MUTTER 3.26 TRANSITIONS TO TESTING
+  [ Jeremy Bicha ]
   * New upstream release
   * Drop all cherry-picked patches, applied in new release
 
@@ -8,7 +8,7 @@ mutter (3.26.2-1) UNRELEASED; urgency=medium
   * d/changelog: Retroactively add a reference from 3.26.1-2 to #878353
   * d/p/*.patch: Add metadata to mark remaining patches as Debian-specific
 
- -- Simon McVittie <smcv@debian.org>  Fri, 27 Oct 2017 12:41:28 +0100
+ -- Jeremy Bicha <jbicha@debian.org>  Sun, 05 Nov 2017 13:03:02 -0500
 
 mutter (3.26.1-6) unstable; urgency=high
 
