@@ -312,6 +312,8 @@ find_crtc_properties (MetaMonitorManagerKms *manager_kms,
 
       drmModeFreeProperty (prop);
     }
+
+  drmModeFreeObjectProperties (props);
 }
 
 static drmModePropertyBlobPtr
