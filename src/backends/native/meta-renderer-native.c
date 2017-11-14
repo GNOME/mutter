@@ -1286,6 +1286,7 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
   MetaRendererNativeGpuData *renderer_gpu_data;
   EGLDisplay *egl_display;
   MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
+  MetaGpuKmsFlipClosureContainer *closure_container;
   EGLAttrib *acquire_attribs;
   GError *error = NULL;
 
@@ -1295,9 +1296,12 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
   if (renderer_gpu_data->egl.no_egl_output_drm_flip_event)
     return FALSE;
 
+  closure_container =
+    meta_gpu_kms_wrap_flip_closure (onscreen_native->render_gpu, flip_closure);
+
   acquire_attribs = (EGLAttrib[]) {
     EGL_DRM_FLIP_EVENT_DATA_NV,
-    (EGLAttrib) flip_closure,
+    (EGLAttrib) closure_container,
     EGL_NONE
   };
 
@@ -1316,6 +1320,7 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
           renderer_gpu_data->egl.no_egl_output_drm_flip_event = TRUE;
         }
       g_error_free (error);
+      meta_gpu_kms_flip_closure_container_free (closure_container);
       return FALSE;
     }
 
