@@ -521,15 +521,7 @@ meta_wayland_touch_create_new_resource (MetaWaylandTouch   *touch,
                                         struct wl_resource *seat_resource,
                                         uint32_t            id)
 {
-  MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
   struct wl_resource *cr;
-
-  if (!meta_wayland_seat_has_touch (seat))
-    {
-      wl_resource_post_error (seat_resource, WL_DISPLAY_ERROR_INVALID_METHOD,
-                              "Cannot retrieve touch interface without touch capability");
-      return;
-    }
 
   cr = wl_resource_create (client, &wl_touch_interface, wl_resource_get_version (seat_resource), id);
   wl_resource_set_implementation (cr, &touch_interface, touch, unbind_resource);

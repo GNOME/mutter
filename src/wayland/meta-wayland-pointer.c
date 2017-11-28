@@ -109,7 +109,7 @@ meta_wayland_pointer_client_new (void)
 }
 
 static void
-meta_wayland_pointer_client_free (MetaWaylandPointerClient *pointer_client)
+meta_wayland_pointer_make_resources_inert (MetaWaylandPointerClient *pointer_client)
 {
   struct wl_resource *resource, *next;
 
@@ -141,8 +141,23 @@ meta_wayland_pointer_client_free (MetaWaylandPointerClient *pointer_client)
       wl_list_init (wl_resource_get_link (resource));
       wl_resource_set_user_data (resource, NULL);
     }
+}
 
+static void
+meta_wayland_pointer_client_free (MetaWaylandPointerClient *pointer_client)
+{
+  meta_wayland_pointer_make_resources_inert (pointer_client);
   g_free (pointer_client);
+}
+
+static void
+make_resources_inert_foreach (gpointer key,
+                              gpointer value,
+                              gpointer data)
+{
+  MetaWaylandPointerClient *pointer_client = value;
+
+  meta_wayland_pointer_make_resources_inert (pointer_client);
 }
 
 static gboolean
@@ -158,8 +173,6 @@ MetaWaylandPointerClient *
 meta_wayland_pointer_get_pointer_client (MetaWaylandPointer *pointer,
                                          struct wl_client   *client)
 {
-  if (!pointer->pointer_clients)
-    return NULL;
   return g_hash_table_lookup (pointer->pointer_clients, client);
 }
 
@@ -475,10 +488,6 @@ meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterSeat *clutter_seat;
 
-  pointer->pointer_clients =
-    g_hash_table_new_full (NULL, NULL, NULL,
-                           (GDestroyNotify) meta_wayland_pointer_client_free);
-
   pointer->cursor_surface = NULL;
 
   clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
@@ -508,6 +517,10 @@ meta_wayland_pointer_disable (MetaWaylandPointer *pointer)
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
   ClutterSeat *clutter_seat = clutter_backend_get_default_seat (clutter_backend);
 
+  g_hash_table_foreach (pointer->pointer_clients,
+                        make_resources_inert_foreach,
+                        NULL);
+
   g_signal_handlers_disconnect_by_func (cursor_tracker,
                                         (gpointer) meta_wayland_pointer_on_cursor_changed,
                                         pointer);
@@ -531,7 +544,6 @@ meta_wayland_pointer_disable (MetaWaylandPointer *pointer)
   meta_wayland_pointer_set_focus (pointer, NULL);
   meta_wayland_pointer_set_current (pointer, NULL);
 
-  g_clear_pointer (&pointer->pointer_clients, g_hash_table_unref);
   pointer->cursor_surface = NULL;
 }
 
@@ -1356,11 +1368,28 @@ meta_wayland_pointer_init (MetaWaylandPointer *pointer)
   pointer->default_grab.interface = &default_pointer_grab_interface;
   pointer->default_grab.pointer = pointer;
   pointer->grab = &pointer->default_grab;
+  pointer->pointer_clients =
+    g_hash_table_new_full (NULL, NULL, NULL,
+                           (GDestroyNotify) meta_wayland_pointer_client_free);
+}
+
+static void
+meta_wayland_pointer_finalize (GObject *object)
+{
+  MetaWaylandPointer *pointer = META_WAYLAND_POINTER (object);
+
+  g_clear_pointer (&pointer->pointer_clients, g_hash_table_unref);
+
+  G_OBJECT_CLASS (meta_wayland_pointer_parent_class)->finalize (object);
 }
 
 static void
 meta_wayland_pointer_class_init (MetaWaylandPointerClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_wayland_pointer_finalize;
+
   signals[FOCUS_SURFACE_CHANGED] = g_signal_new ("focus-surface-changed",
                                                  G_TYPE_FROM_CLASS (klass),
                                                  G_SIGNAL_RUN_LAST,
