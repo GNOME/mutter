@@ -152,11 +152,17 @@ meta_wayland_pointer_client_is_empty (MetaWaylandPointerClient *pointer_client)
           wl_list_empty (&pointer_client->relative_pointer_resources));
 }
 
+static gboolean
+meta_wayland_pointer_is_inert (MetaWaylandPointer *pointer)
+{
+  return (pointer->pointer_clients == NULL);
+}
+
 MetaWaylandPointerClient *
 meta_wayland_pointer_get_pointer_client (MetaWaylandPointer *pointer,
                                          struct wl_client   *client)
 {
-  if (!pointer->pointer_clients)
+  if (meta_wayland_pointer_is_inert (pointer))
     return NULL;
   return g_hash_table_lookup (pointer->pointer_clients, client);
 }
@@ -191,7 +197,8 @@ meta_wayland_pointer_cleanup_pointer_client (MetaWaylandPointer       *pointer,
     {
       if (pointer->focus_client == pointer_client)
         pointer->focus_client = NULL;
-      g_hash_table_remove (pointer->pointer_clients, client);
+      if (!meta_wayland_pointer_is_inert (pointer))
+        g_hash_table_remove (pointer->pointer_clients, client);
     }
 }
 
@@ -1153,6 +1160,9 @@ meta_wayland_pointer_create_new_resource (MetaWaylandPointer *pointer,
   wl_resource_set_implementation (resource, &pointer_interface, pointer,
                                   meta_wayland_pointer_unbind_pointer_client_resource);
 
+  if (meta_wayland_pointer_is_inert (pointer))
+    return;
+
   pointer_client = meta_wayland_pointer_ensure_pointer_client (pointer, client);
 
   wl_list_insert (&pointer_client->pointer_resources,
@@ -1254,6 +1264,9 @@ relative_pointer_manager_get_relative_pointer (struct wl_client   *client,
   wl_resource_set_implementation (resource, &relative_pointer_interface,
                                   pointer,
                                   meta_wayland_pointer_unbind_pointer_client_resource);
+
+  if (meta_wayland_pointer_is_inert (pointer))
+    return;
 
   pointer_client = meta_wayland_pointer_ensure_pointer_client (pointer, client);
 

@@ -977,6 +977,12 @@ meta_wayland_keyboard_get_focus_client (MetaWaylandKeyboard *keyboard)
     return NULL;
 }
 
+static gboolean
+meta_wayland_keyboard_is_inert (MetaWaylandKeyboard *keyboard)
+{
+  return (keyboard->xkb_info.keymap_fd < 0);
+}
+
 static void
 keyboard_release (struct wl_client *client,
                   struct wl_resource *resource)
@@ -1000,6 +1006,14 @@ meta_wayland_keyboard_create_new_resource (MetaWaylandKeyboard *keyboard,
                                  wl_resource_get_version (seat_resource), id);
   wl_resource_set_implementation (resource, &keyboard_interface,
                                   keyboard, unbind_resource);
+
+
+  /*
+   * Create an inert object if the corresponding capability was removed since
+   * the client created the resource.
+   */
+  if (meta_wayland_keyboard_is_inert (keyboard))
+    return;
 
   wl_keyboard_send_keymap (resource,
                            WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
