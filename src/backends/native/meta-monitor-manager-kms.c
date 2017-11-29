@@ -34,6 +34,7 @@
 
 #include <drm.h>
 #include <errno.h>
+#include <poll.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -1782,7 +1783,34 @@ meta_monitor_manager_kms_wait_for_flip (MetaMonitorManagerKms *manager_kms)
   memset (&evctx, 0, sizeof evctx);
   evctx.version = DRM_EVENT_CONTEXT_VERSION;
   evctx.page_flip_handler = page_flip_handler;
-  drmHandleEvent (manager_kms->fd, &evctx);
+
+  while (TRUE)
+    {
+      if (drmHandleEvent (manager_kms->fd, &evctx) != 0)
+        {
+          struct pollfd pfd;
+          int ret;
+
+          if (errno != EAGAIN)
+            {
+              g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                                   strerror (errno));
+              return;
+            }
+
+          pfd.fd = manager_kms->fd;
+          pfd.events = POLL_IN | POLL_ERR;
+          do
+            {
+              ret = poll (&pfd, 1, -1);
+            }
+          while (ret == -1 && errno == EINTR);
+        }
+      else
+        {
+          break;
+        }
+    }
 }
 
 static gboolean
