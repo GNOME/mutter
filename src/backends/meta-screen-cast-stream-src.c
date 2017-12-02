@@ -26,11 +26,12 @@
 
 #include <errno.h>
 #include <pipewire/pipewire.h>
-#include <spa/format-builder.h>
-#include <spa/format-utils.h>
-#include <spa/props.h>
-#include <spa/type-map.h>
-#include <spa/video/format-utils.h>
+//#include <spa/format-builder.h>
+//#include <spa/format-utils.h>
+#include <spa/param/props.h>
+#include <spa/support/type-map.h>
+#include <spa/param/video/format-utils.h>
+#include <spa/pod/pod.h>
 #include <stdint.h>
 #include <sys/mman.h>
 
@@ -278,7 +279,7 @@ on_stream_format_changed (void              *data,
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
   struct pw_type *pipewire_type = priv->pipewire_type;
-  struct spa_type_param_alloc_buffers *param_alloc_buffers;
+  struct spa_type_param_buffers *param_buffers;
   struct spa_pod_builder pod_builder = { NULL };
   struct spa_pod_frame object_frame;
   struct spa_pod_frame prop_frame;
@@ -287,7 +288,7 @@ on_stream_format_changed (void              *data,
 
   if (!format)
     {
-      pw_stream_finish_format (priv->pipewire_stream, SPA_RESULT_OK, NULL, 0);
+      pw_stream_finish_format (priv->pipewire_stream, 0, NULL, 0);
       return;
     }
 
@@ -299,28 +300,29 @@ on_stream_format_changed (void              *data,
                         priv->params_buffer,
                         sizeof (priv->params_buffer));
 
-  param_alloc_buffers = &pipewire_type->param_alloc_buffers;
+  param_buffers = &pipewire_type->param_buffers;
   spa_pod_builder_object (&pod_builder, &object_frame, 0,
-                          param_alloc_buffers->Buffers,
-                          PROP (&prop_frame, param_alloc_buffers->size,
+                          param_buffers->Buffers,
+                          PROP (&prop_frame, param_buffers->size,
                                 SPA_POD_TYPE_INT,
                                 (priv->video_format.size.width *
                                  priv->video_format.size.height *
                                  bpp)),
-                          PROP (&prop_frame, param_alloc_buffers->stride,
+                          PROP (&prop_frame, param_buffers->stride,
                                 SPA_POD_TYPE_INT,
                                 priv->video_format.size.width * bpp),
-                          PROP_U_MM (&prop_frame, param_alloc_buffers->buffers,
+                          PROP_U_MM (&prop_frame, param_buffers->buffers,
                                      SPA_POD_TYPE_INT,
                                      16, 2, 16),
-                          PROP (&prop_frame, param_alloc_buffers->align,
+                          PROP (&prop_frame, param_buffers->align,
                                 SPA_POD_TYPE_INT,
                                 16));
-  params[0] = SPA_POD_BUILDER_DEREF (&pod_builder, object_frame.ref,
-                                     struct spa_param);
 
-  pw_stream_finish_format (priv->pipewire_stream, SPA_RESULT_OK,
+  params[0] = spa_pod_builder_deref(&pod_builder, object_frame.ref);
+
+  pw_stream_finish_format (priv->pipewire_stream, 0,
                            params, G_N_ELEMENTS (params));
+
 }
 
 static const struct pw_stream_events stream_events = {
@@ -354,7 +356,7 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
   meta_screen_cast_stream_src_get_specs (src, &width, &height, &frame_rate);
   frame_rate_fraction = meta_fraction_from_double (frame_rate);
 
-  spa_pod_builder_format (&pod_builder, &format_frame,
+   spa_pod_builder_object(&pod_builder, &format_frame,
                           spa_type->format,
                           spa_type->media_type.video,
                           spa_type->media_subtype.raw,
@@ -377,7 +379,7 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
                                      1, 1,
                                      frame_rate_fraction.num,
                                      frame_rate_fraction.denom));
-  format = SPA_POD_BUILDER_DEREF (&pod_builder, format_frame.ref, struct spa_format);
+  format = spa_pod_builder_deref(&pod_builder, format_frame.ref);
 
   pw_stream_add_listener (pipewire_stream,
                           &priv->pipewire_stream_listener,
@@ -386,7 +388,6 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
 
   if (!pw_stream_connect (pipewire_stream,
                           PW_DIRECTION_OUTPUT,
-                          PW_STREAM_MODE_BUFFER,
                           NULL,
                           PW_STREAM_FLAG_NONE,
                           1, &format))
@@ -453,9 +454,7 @@ pipewire_loop_source_dispatch (GSource     *source,
   int result;
 
   result = pw_loop_iterate (pipewire_source->pipewire_loop, 0);
-  if (result == SPA_RESULT_ERRNO)
-    g_warning ("pipewire_loop_iterate failed: %s", strerror (errno));
-  else if (result != SPA_RESULT_OK)
+  if (result != 0)
     g_warning ("pipewire_loop_iterate failed: %d", result);
 
   return TRUE;
