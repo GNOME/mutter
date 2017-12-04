@@ -4355,7 +4355,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
   /* clutter_actor_reparent() will emit ::parent-set for us */
   if (emit_parent_set && !CLUTTER_ACTOR_IN_REPARENT (child))
     {
-      clutter_actor_ensure_resource_scale (child);
+      child->priv->needs_compute_resource_scale = TRUE;
       g_signal_emit (child, actor_signals[PARENT_SET], 0, self);
     }
 
@@ -13023,7 +13023,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
   /* clutter_actor_reparent() will emit ::parent-set for us */
   if (emit_parent_set && !CLUTTER_ACTOR_IN_REPARENT (child))
     {
-      clutter_actor_ensure_resource_scale (child);
+      child->priv->needs_compute_resource_scale = TRUE;
       g_signal_emit (child, actor_signals[PARENT_SET], 0, NULL);
     }
 
@@ -13627,7 +13627,7 @@ clutter_actor_reparent (ClutterActor *self,
                                           insert_child_at_depth,
                                           NULL);
 
-      clutter_actor_ensure_resource_scale (self);
+      priv->needs_compute_resource_scale = TRUE;
 
       /* we emit the ::parent-set signal once */
       g_signal_emit (self, actor_signals[PARENT_SET], 0, old_parent);
@@ -17958,6 +17958,24 @@ clutter_actor_ensure_resource_scale (ClutterActor *self)
     g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_RESOURCE_SCALE]);
 }
 
+gboolean
+_clutter_actor_get_real_resource_scale (ClutterActor *self,
+                                        gfloat       *resource_scale)
+{
+  ClutterActorPrivate *priv = self->priv;
+
+  clutter_actor_ensure_resource_scale (self);
+
+  if (!priv->needs_compute_resource_scale)
+    {
+      *resource_scale = priv->resource_scale;
+      return TRUE;
+    }
+
+  *resource_scale = -1.0f;
+  return FALSE;
+}
+
 /**
  * clutter_actor_get_resource_scale:
  * @self: A #ClutterActor
@@ -17979,24 +17997,16 @@ gboolean
 clutter_actor_get_resource_scale (ClutterActor *self,
                                   gfloat       *resource_scale)
 {
-  ClutterActorPrivate *priv = self->priv;
-
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
+  g_return_val_if_fail (resource_scale != NULL, FALSE);
 
-  clutter_actor_ensure_resource_scale (self);
-
-  if (!priv->needs_compute_resource_scale && resource_scale)
+  if (_clutter_actor_get_real_resource_scale (self, resource_scale))
     {
-      *resource_scale = priv->resource_scale;
+      *resource_scale = ceilf (*resource_scale);
       return TRUE;
     }
-  else
-    {
-      if (resource_scale)
-        *resource_scale = -1.0f;
 
-      return FALSE;
-    }
+  return FALSE;
 }
 
 /**
