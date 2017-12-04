@@ -319,6 +319,8 @@ void                            _clutter_actor_queue_only_relayout              
 void                            _clutter_actor_queue_update_resource_scale_recursive    (ClutterActor *actor);
 
 CoglFramebuffer *               _clutter_actor_get_active_framebuffer                   (ClutterActor *actor);
+gboolean                        _clutter_actor_get_real_resource_scale                  (ClutterActor *actor,
+                                                                                         float        *resource_scale);
 
 ClutterPaintNode *              clutter_actor_create_texture_paint_node                 (ClutterActor *self,
                                                                                          CoglTexture  *texture);
