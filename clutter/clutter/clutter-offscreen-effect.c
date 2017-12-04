@@ -250,7 +250,7 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
   stage = _clutter_actor_get_stage_internal (priv->actor);
   clutter_actor_get_size (stage, &stage_width, &stage_height);
 
-  if (clutter_actor_get_resource_scale (priv->actor, &resource_scale))
+  if (_clutter_actor_get_real_resource_scale (priv->actor, &resource_scale))
     {
       ceiled_resource_scale = ceilf (resource_scale);
       stage_width *= ceiled_resource_scale;
@@ -423,7 +423,7 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect)
     {
       if (resource_scale != 1.0f)
         {
-          float paint_scale = 1.0f / ceilf (resource_scale);
+          float paint_scale = 1.0f / resource_scale;
           cogl_matrix_scale (&modelview, paint_scale, paint_scale, 1);
         }
     }
