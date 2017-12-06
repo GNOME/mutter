@@ -88,8 +88,8 @@ mutter_built_sources += \
 	xdg-output-unstable-v1-server-protocol.h			\
 	xwayland-keyboard-grab-unstable-v1-protocol.c			\
 	xwayland-keyboard-grab-unstable-v1-server-protocol.h		\
-	gtk-text-input-protocol.c					\
-	gtk-text-input-server-protocol.h				\
+	text-input-unstable-v3-protocol.c                               \
+	text-input-unstable-v3-server-protocol.h                        \
 	$(NULL)
 
 if HAVE_WAYLAND_EGLSTREAM
@@ -102,7 +102,6 @@ endif
 wayland_protocols =				\
 	wayland/protocol/gtk-shell.xml		\
 	wayland/protocol/gtk-primary-selection.xml	\
-	wayland/protocol/gtk-text-input.xml	\
 	$(NULL)
 
 libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
