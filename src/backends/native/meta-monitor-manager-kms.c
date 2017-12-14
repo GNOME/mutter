@@ -1792,11 +1792,7 @@ meta_monitor_manager_kms_wait_for_flip (MetaMonitorManagerKms *manager_kms)
           int ret;
 
           if (errno != EAGAIN)
-            {
-              g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                                   strerror (errno));
-              return;
-            }
+            return;
 
           pfd.fd = manager_kms->fd;
           pfd.events = POLL_IN | POLL_ERR;
