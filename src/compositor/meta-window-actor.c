@@ -908,7 +908,7 @@ meta_window_actor_get_surface (MetaWindowActor *self)
 gboolean
 meta_window_actor_is_destroyed (MetaWindowActor *self)
 {
-  return self->priv->disposed || self->priv->needs_destroy;
+  return !self->priv || self->priv->disposed || self->priv->needs_destroy;
 }
 
 static gboolean
