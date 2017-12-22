@@ -17910,6 +17910,10 @@ clutter_actor_get_resource_scale (ClutterActor *self,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
   g_return_val_if_fail (resource_scale != NULL, FALSE);
 
+  if (CLUTTER_ACTOR_GET_CLASS (self)->get_resource_scale)
+    return CLUTTER_ACTOR_GET_CLASS (self)->get_resource_scale (self,
+                                                               resource_scale);
+
   if (_clutter_actor_get_real_resource_scale (self, resource_scale))
     {
       *resource_scale = ceilf (*resource_scale);
