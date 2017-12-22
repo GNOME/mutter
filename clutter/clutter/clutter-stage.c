@@ -4730,6 +4730,8 @@ capture_view (ClutterStage          *stage,
   CoglBitmap *bitmap;
   cairo_rectangle_int_t view_layout;
   float view_scale;
+  float texture_width;
+  float texture_height;
 
   framebuffer = clutter_stage_view_get_framebuffer (view);
 
@@ -4741,9 +4743,10 @@ capture_view (ClutterStage          *stage,
     }
 
   view_scale = clutter_stage_view_get_scale (view);
+  texture_width = roundf (rect->width * view_scale);
+  texture_height = roundf (rect->height * view_scale);
   image = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                      rect->width * view_scale,
-                                      rect->height * view_scale);
+                                      texture_width, texture_height);
   cairo_surface_set_device_scale (image, view_scale, view_scale);
 
   data = cairo_image_surface_get_data (image);
@@ -4751,9 +4754,7 @@ capture_view (ClutterStage          *stage,
 
   backend = clutter_get_default_backend ();
   context = clutter_backend_get_cogl_context (backend);
-  bitmap = cogl_bitmap_new_for_data (context,
-                                     rect->width * view_scale,
-                                     rect->height * view_scale,
+  bitmap = cogl_bitmap_new_for_data (context, texture_width, texture_height,
                                      CLUTTER_CAIRO_FORMAT_ARGB32,
                                      stride,
                                      data);
@@ -4761,8 +4762,8 @@ capture_view (ClutterStage          *stage,
   clutter_stage_view_get_layout (view, &view_layout);
 
   cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
-                                            (rect->x - view_layout.x) * view_scale,
-                                            (rect->y - view_layout.y) * view_scale,
+                                            roundf ((rect->x - view_layout.x) * view_scale),
+                                            roundf ((rect->y - view_layout.y) * view_scale),
                                             COGL_READ_PIXELS_COLOR_BUFFER,
                                             bitmap);
 
