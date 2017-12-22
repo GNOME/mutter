@@ -725,6 +725,13 @@ clutter_stage_get_paint_volume (ClutterActor *self,
   return FALSE;
 }
 
+static gboolean
+clutter_stage_get_resource_scale (ClutterActor *self,
+                                  gfloat       *resource_scale)
+{
+  return _clutter_actor_get_real_resource_scale (self, resource_scale);
+}
+
 static void
 clutter_stage_realize (ClutterActor *self)
 {
@@ -1905,6 +1912,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
   actor_class->paint = clutter_stage_paint;
   actor_class->pick = clutter_stage_pick;
   actor_class->get_paint_volume = clutter_stage_get_paint_volume;
+  actor_class->get_resource_scale = clutter_stage_get_resource_scale;
   actor_class->realize = clutter_stage_realize;
   actor_class->unrealize = clutter_stage_unrealize;
   actor_class->show = clutter_stage_show;
