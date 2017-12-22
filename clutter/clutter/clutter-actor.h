@@ -296,9 +296,12 @@ struct _ClutterActorClass
   gboolean (* touch_event)          (ClutterActor         *self,
                                      ClutterTouchEvent    *event);
 
+  gboolean (* get_resource_scale)   (ClutterActor         *self,
+                                     gfloat               *resource_scale);
+
   /*< private >*/
   /* padding for future expansion */
-  gpointer _padding_dummy[26];
+  gpointer _padding_dummy[25];
 };
 
 /**
