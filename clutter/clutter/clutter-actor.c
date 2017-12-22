@@ -1099,6 +1099,8 @@ static void     clutter_actor_realize_internal          (ClutterActor *self);
 static void     clutter_actor_unrealize_internal        (ClutterActor *self);
 static gboolean clutter_actor_update_resource_scale     (ClutterActor *self);
 static void     clutter_actor_ensure_resource_scale     (ClutterActor *self);
+static gboolean clutter_actor_real_get_resource_scale   (ClutterActor *self,
+                                                         gfloat       *resource_scale);
 
 static void clutter_actor_push_in_cloned_branch (ClutterActor *self,
                                                  gulong        count);
@@ -6377,6 +6379,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   klass->has_overlaps = clutter_actor_real_has_overlaps;
   klass->paint = clutter_actor_real_paint;
   klass->destroy = clutter_actor_real_destroy;
+  klass->get_resource_scale  = clutter_actor_real_get_resource_scale;
 
   /**
    * ClutterActor:x:
@@ -17976,6 +17979,19 @@ _clutter_actor_get_real_resource_scale (ClutterActor *self,
   return FALSE;
 }
 
+static gboolean
+clutter_actor_real_get_resource_scale (ClutterActor *self,
+                                       gfloat       *resource_scale)
+{
+  if (_clutter_actor_get_real_resource_scale (self, resource_scale))
+    {
+      *resource_scale = ceilf (*resource_scale);
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
 /**
  * clutter_actor_get_resource_scale:
  * @self: A #ClutterActor
@@ -18000,13 +18016,8 @@ clutter_actor_get_resource_scale (ClutterActor *self,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
   g_return_val_if_fail (resource_scale != NULL, FALSE);
 
-  if (_clutter_actor_get_real_resource_scale (self, resource_scale))
-    {
-      *resource_scale = ceilf (*resource_scale);
-      return TRUE;
-    }
-
-  return FALSE;
+  return CLUTTER_ACTOR_GET_CLASS (self)->get_resource_scale (self,
+                                                             resource_scale);
 }
 
 /**
