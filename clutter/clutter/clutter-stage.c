@@ -4843,6 +4843,24 @@ init_rect_from_cairo_rect (ClutterRect           *rect,
   };
 }
 
+gboolean
+clutter_stage_capture_get_scale (ClutterStage          *stage,
+                                 cairo_rectangle_int_t *rect,
+                                 gfloat                *out_scale)
+{
+  ClutterRect capture_rect;
+  float max_scale;
+
+  g_return_val_if_fail (CLUTTER_IS_STAGE(stage), FALSE);
+
+  init_rect_from_cairo_rect (&capture_rect, rect);
+  max_scale = _clutter_stage_get_max_scale_factor_for_rect (stage,
+                                                            &capture_rect);
+  *out_scale = max_scale;
+
+  return max_scale > 0.0f;
+}
+
 static void
 capture_view_into (ClutterStage          *stage,
                    gboolean               paint,
