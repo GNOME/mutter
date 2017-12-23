@@ -124,6 +124,8 @@ gboolean                _clutter_stage_update_state     (ClutterStage      *stag
 
 void                    _clutter_stage_set_scale_factor (ClutterStage      *stage,
                                                          int                factor);
+float                   _clutter_stage_get_max_scale_factor_for_rect (ClutterStage *stage,
+                                                                      ClutterRect  *rect);
 
 void            _clutter_stage_presented                (ClutterStage      *stage,
                                                          CoglFrameEvent     frame_event,
