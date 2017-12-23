@@ -5018,3 +5018,32 @@ clutter_stage_update_resource_scales (ClutterStage *stage)
 {
   _clutter_actor_queue_update_resource_scale_recursive (CLUTTER_ACTOR (stage));
 }
+
+gboolean
+_clutter_stage_get_max_view_scale_factor_for_rect (ClutterStage *stage,
+                                                   ClutterRect  *rect,
+                                                   float        *view_scale)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  float scale = 0.0f;
+  GList *l;
+
+  for (l = _clutter_stage_window_get_views (priv->impl); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+      cairo_rectangle_int_t view_layout;
+      ClutterRect view_rect;
+
+      clutter_stage_view_get_layout (view, &view_layout);
+      _clutter_util_rect_from_rectangle (&view_layout, &view_rect);
+
+      if (clutter_rect_intersection (&view_rect, rect, NULL))
+        scale = MAX (clutter_stage_view_get_scale (view), scale);
+    }
+
+  if (scale == 0.0)
+    return FALSE;
+
+  *view_scale = scale;
+  return TRUE;
+}

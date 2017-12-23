@@ -17785,29 +17785,15 @@ _clutter_actor_get_resource_scale_for_rect (ClutterActor *self,
                                             float        *resource_scale)
 {
   ClutterActor *stage;
-  GList *views;
-  GList *l;
   float max_scale = 0;
 
   stage = _clutter_actor_get_stage_internal (self);
   if (!stage)
     return FALSE;
 
-  views = _clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
-  for (l = views; l; l = l->next)
-    {
-      ClutterStageView *view = l->data;
-      cairo_rectangle_int_t view_layout;
-      ClutterRect view_rect;
-
-      clutter_stage_view_get_layout (view, &view_layout);
-      _clutter_util_rect_from_rectangle (&view_layout, &view_rect);
-
-      if (clutter_rect_intersection (&view_rect, bounding_rect, NULL))
-        max_scale = MAX (clutter_stage_view_get_scale (view), max_scale);
-    }
-
-  if (max_scale == 0)
+  if (!_clutter_stage_get_max_view_scale_factor_for_rect (CLUTTER_STAGE (stage),
+                                                          bounding_rect,
+                                                          &max_scale))
     return FALSE;
 
   *resource_scale = max_scale;
