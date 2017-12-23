@@ -4844,19 +4844,46 @@ init_rect_from_cairo_rect (ClutterRect           *rect,
 }
 
 gboolean
-clutter_stage_capture_get_scale (ClutterStage          *stage,
-                                 cairo_rectangle_int_t *rect,
-                                 gfloat                *out_scale)
+clutter_stage_get_capture_final_size (ClutterStage          *stage,
+                                      cairo_rectangle_int_t *rect,
+                                      gint                  *out_width,
+                                      gint                  *out_height,
+                                      gfloat                *out_scale)
 {
-  ClutterRect capture_rect;
   float max_scale;
 
-  g_return_val_if_fail (CLUTTER_IS_STAGE(stage), FALSE);
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
 
-  init_rect_from_cairo_rect (&capture_rect, rect);
-  max_scale = _clutter_stage_get_max_scale_factor_for_rect (stage,
-                                                            &capture_rect);
-  *out_scale = max_scale;
+  if (rect)
+    {
+      ClutterRect capture_rect;
+      init_rect_from_cairo_rect (&capture_rect, rect);
+      max_scale = _clutter_stage_get_max_scale_factor_for_rect (stage,
+                                                                &capture_rect);
+
+      if (out_width)
+        *out_width = (gint) roundf (rect->width * max_scale);
+
+      if (out_height)
+        *out_height = (gint) roundf (rect->height * max_scale);
+    }
+  else
+    {
+      ClutterActorBox alloc;
+      float stage_width, stage_height;
+      clutter_actor_get_allocation_box (CLUTTER_ACTOR (stage), &alloc);
+      clutter_actor_box_get_size (&alloc, &stage_width, &stage_height);
+      clutter_actor_get_resource_scale (CLUTTER_ACTOR (stage), &max_scale);
+
+      if (out_width)
+        *out_width = (gint) roundf (stage_width * max_scale);
+
+      if (out_height)
+        *out_height = (gint) roundf (stage_height * max_scale);
+    }
+
+  if (out_scale)
+    *out_scale = max_scale;
 
   return max_scale > 0.0f;
 }
