@@ -259,6 +259,13 @@ void            clutter_stage_skip_sync_delay                   (ClutterStage   
 #endif
 
 CLUTTER_EXPORT
+gboolean clutter_stage_get_capture_final_size (ClutterStage          *stage,
+                                               cairo_rectangle_int_t *rect,
+                                               gint                  *width,
+                                               gint                  *height,
+                                               gfloat                *scale);
+
+CLUTTER_EXPORT
 gboolean clutter_stage_capture (ClutterStage          *stage,
                                 gboolean               paint,
                                 cairo_rectangle_int_t *rect,
