@@ -4718,7 +4718,6 @@ static void
 capture_view (ClutterStage          *stage,
               gboolean               paint,
               ClutterStageView      *view,
-              cairo_rectangle_int_t *rect,
               ClutterCapture        *capture)
 {
   CoglFramebuffer *framebuffer;
@@ -4729,10 +4728,12 @@ capture_view (ClutterStage          *stage,
   int stride;
   CoglBitmap *bitmap;
   cairo_rectangle_int_t view_layout;
+  cairo_rectangle_int_t *rect;
   float view_scale;
   float texture_width;
   float texture_height;
 
+  rect = &capture->rect;
   framebuffer = clutter_stage_view_get_framebuffer (view);
 
   if (paint)
@@ -4770,7 +4771,6 @@ capture_view (ClutterStage          *stage,
   if (paint)
     cogl_pop_framebuffer ();
 
-  capture->rect = *rect;
   capture->image = image;
 
   cairo_surface_mark_dirty (capture->image);
@@ -4790,35 +4790,39 @@ clutter_stage_capture (ClutterStage          *stage,
   ClutterCapture *captures;
   int n_captures;
 
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
+
   captures = g_new0 (ClutterCapture, g_list_length (views));
   n_captures = 0;
 
   for (l = views; l; l = l->next)
     {
       ClutterStageView *view = l->data;
+      ClutterCapture *capture = &captures[n_captures];
       cairo_rectangle_int_t view_layout;
       cairo_region_t *region;
-      cairo_rectangle_int_t view_capture_rect;
 
       clutter_stage_view_get_layout (view, &view_layout);
       region = cairo_region_create_rectangle (&view_layout);
       cairo_region_intersect_rectangle (region, rect);
-      cairo_region_get_extents (region, &view_capture_rect);
+      cairo_region_get_extents (region, &(capture->rect));
       cairo_region_destroy (region);
 
-      if (view_capture_rect.width == 0 || view_capture_rect.height == 0)
+      if (capture->rect.width == 0 || capture->rect.height == 0)
         continue;
 
-      capture_view (stage, paint, view, &view_capture_rect,
-                    &captures[n_captures]);
+      capture_view (stage, paint, view, capture);
 
       n_captures++;
     }
 
+  if (n_captures == 0)
+    g_clear_pointer (&captures, g_free);
+
   *out_captures = captures;
   *out_n_captures = n_captures;
 
-  return TRUE;
+  return n_captures > 0;
 }
 
 static void
@@ -4850,6 +4854,8 @@ capture_view_into (ClutterStage          *stage,
   CoglContext *context;
   CoglBitmap *bitmap;
   cairo_rectangle_int_t view_layout;
+
+  g_return_if_fail (CLUTTER_IS_STAGE (stage));
 
   framebuffer = clutter_stage_view_get_framebuffer (view);
 
