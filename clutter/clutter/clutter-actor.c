@@ -17723,52 +17723,21 @@ clutter_actor_get_paint_box (ClutterActor    *self,
   return TRUE;
 }
 
-static void
-init_rect_from_cairo_rect (ClutterRect           *rect,
-                           cairo_rectangle_int_t *cairo_rect)
-{
-  *rect = (ClutterRect) {
-    .origin = {
-      .x = cairo_rect->x,
-      .y = cairo_rect->y
-    },
-    .size = {
-      .width = cairo_rect->width,
-      .height = cairo_rect->height
-    }
-  };
-}
-
 static gboolean
 _clutter_actor_get_resource_scale_for_rect (ClutterActor *self,
                                             ClutterRect  *bounding_rect,
                                             float        *resource_scale)
 {
   ClutterActor *stage;
-  GList *views;
-  GList *l;
   float max_scale = 0;
 
   stage = _clutter_actor_get_stage_internal (self);
   if (!stage)
     return FALSE;
 
-  if (bounding_rect->size.width == 0.0 || bounding_rect->size.height == 0)
-    return FALSE;
-
-  views = _clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
-  for (l = views; l; l = l->next)
-    {
-      ClutterStageView *view = l->data;
-      cairo_rectangle_int_t view_layout;
-      ClutterRect view_rect;
-
-      clutter_stage_view_get_layout (view, &view_layout);
-      init_rect_from_cairo_rect (&view_rect, &view_layout);
-
-      if (clutter_rect_intersection (&view_rect, bounding_rect, NULL))
-        max_scale = MAX (clutter_stage_view_get_scale (view), max_scale);
-    }
+  max_scale =
+    _clutter_stage_get_max_scale_factor_for_rect (CLUTTER_STAGE (stage),
+                                                  bounding_rect);
 
   if (max_scale == 0)
     return FALSE;
