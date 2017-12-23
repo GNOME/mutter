@@ -4822,6 +4822,22 @@ clutter_stage_capture (ClutterStage          *stage,
 }
 
 static void
+init_rect_from_cairo_rect (ClutterRect           *rect,
+                           cairo_rectangle_int_t *cairo_rect)
+{
+  *rect = (ClutterRect) {
+    .origin = {
+      .x = cairo_rect->x,
+      .y = cairo_rect->y
+    },
+    .size = {
+      .width = cairo_rect->width,
+      .height = cairo_rect->height
+    }
+  };
+}
+
+static void
 capture_view_into (ClutterStage          *stage,
                    gboolean               paint,
                    ClutterStageView      *view,
@@ -4978,4 +4994,34 @@ void
 clutter_stage_update_resource_scales (ClutterStage *stage)
 {
   _clutter_actor_queue_update_resource_scale_recursive (CLUTTER_ACTOR (stage));
+}
+
+gboolean
+_clutter_stage_get_max_view_scale_factor_for_rect (ClutterStage *stage,
+                                                   ClutterRect  *rect,
+                                                   float        *view_scale)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  GList *l;
+  float scale;
+
+  scale = 0.0;
+  for (l = _clutter_stage_window_get_views (priv->impl); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+      cairo_rectangle_int_t view_layout;
+      ClutterRect view_rect;
+
+      clutter_stage_view_get_layout (view, &view_layout);
+      init_rect_from_cairo_rect (&view_rect, &view_layout);
+
+      if (clutter_rect_intersection (&view_rect, rect, NULL))
+        scale = MAX (clutter_stage_view_get_scale (view), scale);
+    }
+
+  if (scale == 0.0)
+    return FALSE;
+
+  *view_scale = scale;
+  return TRUE;
 }
