@@ -251,6 +251,14 @@ struct _MetaPluginClass
    */
   MetaInhibitShortcutsDialog * (* create_inhibit_shortcuts_dialog) (MetaPlugin *plugin,
                                                                     MetaWindow *window);
+
+  /**
+   * MetaPluginClass::show_tile_picker:
+   *
+   */
+  void * (* show_tile_picker) (MetaPlugin *plugin,
+                               MetaWindow *window,
+                               int         tile_monitor_number);
 };
 
 /**

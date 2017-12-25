@@ -3153,6 +3153,12 @@ meta_window_tile (MetaWindow   *window,
   if (window->frame)
     meta_frame_queue_draw (window->frame);
 
+  /* If the window doesn't have a tile match after being tiled, ask the
+   * compositor to show the tile picker.
+   */
+  if (META_WINDOW_TILED_SIDE_BY_SIDE (window) && !window->tile_match)
+    meta_compositor_show_tile_picker (window->display->compositor, window, window->monitor->number);
+
 out:
   if (should_notify)
     g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_TILE_MODE]);

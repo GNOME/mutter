@@ -404,3 +404,24 @@ meta_plugin_manager_create_inhibit_shortcuts_dialog (MetaPluginManager *plugin_m
 
   return meta_inhibit_shortcuts_dialog_default_new (window);
 }
+
+gboolean
+meta_plugin_manager_show_tile_picker (MetaPluginManager *plugin_mgr,
+                                      MetaWindow        *window,
+                                      int                tile_monitor_number)
+{
+  MetaPlugin *plugin = plugin_mgr->plugin;
+  MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
+  MetaDisplay *display = plugin_mgr->compositor->display;
+
+  if (display->display_opening)
+    return FALSE;
+
+  if (klass->show_tile_picker)
+    {
+      klass->show_tile_picker (plugin, window, tile_monitor_number);
+      return TRUE;
+    }
+
+  return FALSE;
+}

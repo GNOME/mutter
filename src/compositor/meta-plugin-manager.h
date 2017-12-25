@@ -98,4 +98,9 @@ MetaInhibitShortcutsDialog *
   meta_plugin_manager_create_inhibit_shortcuts_dialog (MetaPluginManager *plugin_mgr,
                                                        MetaWindow        *window);
 
+gboolean meta_plugin_manager_show_tile_picker (MetaPluginManager *plugin_mgr,
+                                               MetaWindow        *window,
+                                               int                tile_monitor_number);
+
+
 #endif
