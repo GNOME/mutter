@@ -75,13 +75,6 @@ typedef enum {
 #define N_IGNORED_CROSSING_SERIALS  10
 
 typedef enum {
-  META_TILE_NONE,
-  META_TILE_LEFT,
-  META_TILE_RIGHT,
-  META_TILE_MAXIMIZED
-} MetaTileMode;
-
-typedef enum {
   /* Normal interaction where you're interacting with windows.
    * Events go to windows normally. */
   META_EVENT_ROUTE_NORMAL,

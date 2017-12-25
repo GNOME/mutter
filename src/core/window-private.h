@@ -593,8 +593,6 @@ void        meta_window_unmanage           (MetaWindow  *window,
                                             guint32      timestamp);
 void        meta_window_queue              (MetaWindow  *window,
                                             guint queuebits);
-void        meta_window_tile               (MetaWindow        *window,
-                                            MetaTileMode       mode);
 void        meta_window_restore_tile       (MetaWindow        *window,
                                             MetaTileMode       mode,
                                             int                width,
@@ -712,7 +710,6 @@ void meta_window_update_for_monitors_changed (MetaWindow *window);
 void meta_window_on_all_workspaces_changed (MetaWindow *window);
 
 gboolean meta_window_should_attach_to_parent (MetaWindow *window);
-gboolean meta_window_can_tile_side_by_side   (MetaWindow *window);
 
 void meta_window_compute_tile_match (MetaWindow *window);
 

@@ -91,6 +91,21 @@ typedef enum {
   META_WINDOW_CLIENT_TYPE_X11
 } MetaWindowClientType;
 
+
+/**
+ * MetaTileMode:
+ * @META_TILE_NONE: the window is not tiled
+ * @META_TILE_LEFT: the window is tiled at the left side of the monitor
+ * @META_TILE_RIGHT: the window is tiled at the right side of the monitor
+ * @META_TILE_MAXIMIZED: the window is maximized (i.e. both left and right sides)
+ */
+typedef enum {
+  META_TILE_NONE,
+  META_TILE_LEFT,
+  META_TILE_RIGHT,
+  META_TILE_MAXIMIZED
+} MetaTileMode;
+
 #define META_TYPE_WINDOW            (meta_window_get_type ())
 #define META_WINDOW(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_WINDOW, MetaWindow))
 #define META_WINDOW_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_WINDOW, MetaWindowClass))
@@ -259,5 +274,11 @@ gboolean meta_window_is_client_decorated (MetaWindow *window);
 
 gboolean meta_window_titlebar_is_onscreen    (MetaWindow *window);
 void     meta_window_shove_titlebar_onscreen (MetaWindow *window);
+
+gboolean     meta_window_can_tile_side_by_side (MetaWindow   *window);
+MetaTileMode meta_window_get_tile_mode         (MetaWindow   *window);
+void         meta_window_tile                  (MetaWindow   *window,
+                                                MetaTileMode  mode);
+
 
 #endif

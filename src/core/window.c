@@ -179,6 +179,7 @@ enum {
   PROP_GTK_APP_MENU_OBJECT_PATH,
   PROP_GTK_MENUBAR_OBJECT_PATH,
   PROP_ON_ALL_WORKSPACES,
+  PROP_TILE_MODE,
 
   LAST_PROP,
 };
@@ -399,6 +400,9 @@ meta_window_get_property(GObject         *object,
     case PROP_ON_ALL_WORKSPACES:
       g_value_set_boolean (value, win->on_all_workspaces);
       break;
+    case PROP_TILE_MODE:
+      g_value_set_enum (value, win->tile_mode);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -413,6 +417,9 @@ meta_window_set_property(GObject         *object,
 {
   switch (prop_id)
     {
+    case PROP_TILE_MODE:
+      meta_window_tile (META_WINDOW (object), g_value_get_enum (value));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -588,6 +595,13 @@ meta_window_class_init (MetaWindowClass *klass)
                           "Whether the window is set to appear on all workspaces",
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_TILE_MODE] =
+    g_param_spec_enum ("tile-mode",
+                       "Tile mode",
+                       "The tile state of the window",
+                       META_TYPE_TILE_MODE,
+                       META_TILE_NONE,
+                       G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, LAST_PROP, obj_props);
 
@@ -2833,6 +2847,7 @@ meta_window_maximize (MetaWindow        *window,
 
           window->maximized_vertically = FALSE;
           window->tile_mode = META_TILE_NONE;
+          g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_TILE_MODE]);
         }
 
       meta_window_maximize_internal (window,
@@ -3085,19 +3100,30 @@ update_edge_constraints (MetaWindow *window)
     }
 }
 
+
+/**
+ * meta_window_tile:
+ * @window: a #MetaWindow
+ * @tile_mode: the new #MetaTileMode
+ *
+ * Tiles @window according to @tile_mode.
+ */
 void
 meta_window_tile (MetaWindow   *window,
                   MetaTileMode  tile_mode)
 {
   MetaMaximizeFlags directions;
   MetaRectangle old_frame_rect, old_buffer_rect;
+  gboolean should_notify;
+
+  should_notify = window->tile_mode != tile_mode;
 
   meta_window_get_tile_fraction (window, tile_mode, &window->tile_hfraction);
   window->tile_mode = tile_mode;
 
   /* Don't do anything if no tiling is requested */
   if (window->tile_mode == META_TILE_NONE)
-    return;
+    goto out;
 
   if (window->tile_mode == META_TILE_MAXIMIZED)
     directions = META_MAXIMIZE_BOTH;
@@ -3126,6 +3152,10 @@ meta_window_tile (MetaWindow   *window,
 
   if (window->frame)
     meta_frame_queue_draw (window->frame);
+
+out:
+  if (should_notify)
+    g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_TILE_MODE]);
 }
 
 void
@@ -3144,6 +3174,15 @@ meta_window_can_tile_maximized (MetaWindow *window)
   return window->has_maximize_func;
 }
 
+/**
+ * meta_window_can_tile_side_by_side:
+ * @window: a #MetaWindow
+ *
+ * Retrieves whether @window can be tiled horizontally.
+ *
+ * Returns: %TRUE if @window can be tiled horizontally, %FALSE
+ * otherwise.
+ */
 gboolean
 meta_window_can_tile_side_by_side (MetaWindow *window)
 {
@@ -3167,6 +3206,20 @@ meta_window_can_tile_side_by_side (MetaWindow *window)
 
   return client_rect.width >= window->size_hints.min_width &&
          client_rect.height >= window->size_hints.min_height;
+}
+
+/**
+ * meta_window_get_tile_mode:
+ * @window: a #MetaWindow
+ *
+ * Retrieves the current tile mode of @window.
+ *
+ * Returns: a #MetaTileMode enum value
+ */
+MetaTileMode
+meta_window_get_tile_mode (MetaWindow *window)
+{
+  return window->tile_mode;
 }
 
 static void
@@ -3237,7 +3290,10 @@ meta_window_unmaximize (MetaWindow        *window,
       meta_window_get_buffer_rect (window, &old_buffer_rect);
 
       if (unmaximize_vertically)
-        window->tile_mode = META_TILE_NONE;
+        {
+          window->tile_mode = META_TILE_NONE;
+          g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_TILE_MODE]);
+        }
 
       meta_topic (META_DEBUG_WINDOW_OPS,
                   "Unmaximizing %s%s\n",
