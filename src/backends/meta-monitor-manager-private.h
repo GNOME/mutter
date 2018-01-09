@@ -388,4 +388,10 @@ gboolean meta_monitor_has_aspect_as_size (MetaMonitor *monitor);
 char * meta_monitor_manager_get_vendor_name (MetaMonitorManager *manager,
                                              const char         *vendor);
 
+gboolean meta_monitor_manager_get_has_changed (MetaMonitorManager  *manager,
+                                               MetaCrtcInfo       **crtc_infos,
+                                               unsigned int         n_crtc_infos,
+                                               MetaOutputInfo     **output_infos,
+                                               unsigned int         n_output_infos);
+
 #endif /* META_MONITOR_MANAGER_PRIVATE_H */
