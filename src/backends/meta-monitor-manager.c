@@ -436,6 +436,151 @@ meta_monitor_manager_ensure_initial_config (MetaMonitorManager *manager)
 }
 
 static gboolean
+is_crtc_assignment_changed (MetaCrtc      *crtc,
+                            MetaCrtcInfo **crtc_infos,
+                            unsigned int   n_crtc_infos)
+{
+  unsigned int i;
+
+  for (i = 0; i < n_crtc_infos; i++)
+    {
+      MetaCrtcInfo *crtc_info = crtc_infos[i];
+      unsigned int j;
+
+      if (crtc_info->crtc != crtc)
+        continue;
+
+      if (crtc->current_mode != crtc_info->mode)
+        return TRUE;
+
+      if (crtc->rect.x != crtc_info->x)
+        return TRUE;
+
+      if (crtc->rect.y != crtc_info->y)
+        return TRUE;
+
+      if (crtc->transform != crtc_info->transform)
+        return TRUE;
+
+      for (j = 0; j < crtc_info->outputs->len; j++)
+        {
+          MetaOutput *output = ((MetaOutput**) crtc_info->outputs->pdata)[j];
+
+          if (output->crtc != crtc)
+            return TRUE;
+        }
+
+      return FALSE;
+    }
+
+  return crtc->current_mode != NULL;
+}
+
+static gboolean
+is_output_assignment_changed (MetaOutput      *output,
+                              MetaCrtcInfo   **crtc_infos,
+                              unsigned int     n_crtc_infos,
+                              MetaOutputInfo **output_infos,
+                              unsigned int     n_output_infos)
+{
+  gboolean output_is_found = FALSE;
+  unsigned int i;
+
+  for (i = 0; i < n_output_infos; i++)
+    {
+      MetaOutputInfo *output_info = output_infos[i];
+
+      if (output_info->output != output)
+        continue;
+
+      if (output->is_primary != output_info->is_primary)
+        return TRUE;
+
+      if (output->is_presentation != output_info->is_presentation)
+        return TRUE;
+
+      if (output->is_underscanning != output_info->is_underscanning)
+        return TRUE;
+
+      output_is_found = TRUE;
+    }
+
+  if (!output_is_found)
+    return output->crtc != NULL;
+
+  for (i = 0; i < n_crtc_infos; i++)
+    {
+      MetaCrtcInfo *crtc_info = crtc_infos[i];
+      unsigned int j;
+
+      for (j = 0; j < crtc_info->outputs->len; j++)
+        {
+          MetaOutput *crtc_info_output =
+            ((MetaOutput**) crtc_info->outputs->pdata)[j];
+
+          if (crtc_info_output == output &&
+              crtc_info->crtc == output->crtc)
+            return FALSE;
+        }
+    }
+
+  return TRUE;
+}
+
+static gboolean
+is_assignments_changed (MetaMonitorManager *manager,
+                        MetaGpu            *gpu,
+                        MetaCrtcInfo      **crtc_infos,
+                        unsigned int        n_crtc_infos,
+                        MetaOutputInfo    **output_infos,
+                        unsigned int        n_output_infos)
+{
+  GList *l;
+
+  for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
+    {
+      MetaCrtc *crtc = l->data;
+
+      if (is_crtc_assignment_changed (crtc, crtc_infos, n_crtc_infos))
+        return TRUE;
+    }
+
+  for (l = meta_gpu_get_outputs (gpu); l; l = l->next)
+    {
+      MetaOutput *output = l->data;
+
+      if (is_output_assignment_changed (output,
+                                        crtc_infos,
+                                        n_crtc_infos,
+                                        output_infos,
+                                        n_output_infos))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+gboolean
+meta_monitor_manager_get_has_changed (MetaMonitorManager  *manager,
+                                      MetaCrtcInfo       **crtc_infos,
+                                      unsigned int         n_crtc_infos,
+                                      MetaOutputInfo     **output_infos,
+                                      unsigned int         n_output_infos)
+{
+  GList *l;
+
+  for (l = manager->gpus; l; l = l->next)
+    {
+      if (is_assignments_changed (manager, l->data,
+                                  crtc_infos, n_crtc_infos,
+                                  output_infos, n_output_infos))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
 meta_monitor_manager_apply_monitors_config (MetaMonitorManager      *manager,
                                             MetaMonitorsConfig      *config,
                                             MetaMonitorsConfigMethod method,

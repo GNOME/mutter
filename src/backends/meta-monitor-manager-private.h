@@ -392,4 +392,10 @@ meta_monitor_transform_is_flipped (MetaMonitorTransform transform)
   return (transform >= META_MONITOR_TRANSFORM_FLIPPED);
 }
 
+gboolean meta_monitor_manager_get_has_changed (MetaMonitorManager  *manager,
+                                               MetaCrtcInfo       **crtc_infos,
+                                               unsigned int         n_crtc_infos,
+                                               MetaOutputInfo     **output_infos,
+                                               unsigned int         n_output_infos);
+
 #endif /* META_MONITOR_MANAGER_PRIVATE_H */
