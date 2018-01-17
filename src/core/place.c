@@ -35,6 +35,8 @@
 #include <math.h>
 #include <stdlib.h>
 
+//#define USE_CENTER_TILE_RECT
+
 typedef enum
 {
   META_LEFT,
@@ -454,6 +456,7 @@ topmost_cmp (gconstpointer a, gconstpointer b)
     return 0;
 }
 
+#ifdef USE_CENTER_TILE_RECT
 static void
 center_tile_rect_in_area (MetaRectangle *rect,
                           MetaRectangle *work_area)
@@ -471,6 +474,7 @@ center_tile_rect_in_area (MetaRectangle *rect,
   fluff = (work_area->height % (rect->height+1)) / 3;
   rect->y = work_area->y + fluff;
 }
+#endif
 
 /* Find the leftmost, then topmost, empty area on the workspace
  * that can contain the new window.
@@ -534,7 +538,12 @@ find_first_fit (MetaWindow         *window,
                                                  logical_monitor,
                                                  &work_area);
 
+#ifdef USE_CENTER_TILE_RECT
   center_tile_rect_in_area (&rect, &work_area);
+#else
+  rect.x = work_area.x;
+  rect.y = work_area.y;
+#endif
 
   if (meta_rectangle_contains_rect (&work_area, &rect) &&
       !rectangle_overlaps_some_window (&rect, windows))
