@@ -4906,6 +4906,9 @@ capture_view_into (ClutterStage          *stage,
   CoglContext *context;
   CoglBitmap *bitmap;
   cairo_rectangle_int_t view_layout;
+  float view_scale;
+  float texture_width;
+  float texture_height;
 
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
 
@@ -4918,10 +4921,14 @@ capture_view_into (ClutterStage          *stage,
       clutter_stage_do_paint_view (stage, view, rect);
     }
 
+  view_scale = clutter_stage_view_get_scale (view);
+  texture_width = roundf (rect->width * view_scale);
+  texture_height = roundf (rect->height * view_scale);
+
   backend = clutter_get_default_backend ();
   context = clutter_backend_get_cogl_context (backend);
   bitmap = cogl_bitmap_new_for_data (context,
-                                     rect->width, rect->height,
+                                     texture_width, texture_height,
                                      CLUTTER_CAIRO_FORMAT_ARGB32,
                                      stride,
                                      data);
@@ -4929,8 +4936,8 @@ capture_view_into (ClutterStage          *stage,
   clutter_stage_view_get_layout (view, &view_layout);
 
   cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
-                                            rect->x - view_layout.x,
-                                            rect->y - view_layout.y,
+                                            roundf ((rect->x - view_layout.x) * view_scale),
+                                            roundf ((rect->y - view_layout.y) * view_scale),
                                             COGL_READ_PIXELS_COLOR_BUFFER,
                                             bitmap);
 
