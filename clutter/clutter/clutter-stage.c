@@ -2948,6 +2948,9 @@ clutter_stage_read_pixels (ClutterStage *stage,
   cairo_region_t *clip;
   cairo_rectangle_int_t clip_rect;
   CoglFramebuffer *framebuffer;
+  float view_scale;
+  float pixel_width;
+  float pixel_height;
   uint8_t *pixels;
 
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
@@ -2990,10 +2993,15 @@ clutter_stage_read_pixels (ClutterStage *stage,
   cogl_push_framebuffer (framebuffer);
   clutter_stage_do_paint_view (stage, view, &clip_rect);
 
-  pixels = g_malloc0 (clip_rect.width * clip_rect.height * 4);
+  view_scale = clutter_stage_view_get_scale (view);
+  pixel_width = roundf (clip_rect.width * view_scale);
+  pixel_height = roundf (clip_rect.height * view_scale);
+
+  pixels = g_malloc0 (pixel_width * pixel_height * 4);
   cogl_framebuffer_read_pixels (framebuffer,
-                                clip_rect.x, clip_rect.y,
-                                clip_rect.width, clip_rect.height,
+                                clip_rect.x * view_scale,
+                                clip_rect.y * view_scale,
+                                pixel_width, pixel_height,
                                 COGL_PIXEL_FORMAT_RGBA_8888,
                                 pixels);
 
