@@ -201,8 +201,15 @@ static const ClutterColor default_stage_color = { 255, 255, 255, 255 };
 
 static void clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage);
 static void free_queue_redraw_entry (ClutterStageQueueRedrawEntry *entry);
+static void capture_view_into (ClutterStage          *stage,
+                               gboolean               paint,
+                               ClutterStageView      *view,
+                               cairo_rectangle_int_t *rect,
+                               uint8_t               *data,
+                               int                    stride);
 
 static void clutter_container_iface_init (ClutterContainerIface *iface);
+
 
 G_DEFINE_TYPE_WITH_CODE (ClutterStage, clutter_stage, CLUTTER_TYPE_GROUP,
                          G_ADD_PRIVATE (ClutterStage)
@@ -4727,28 +4734,15 @@ capture_view (ClutterStage          *stage,
               ClutterStageView      *view,
               ClutterCapture        *capture)
 {
-  CoglFramebuffer *framebuffer;
-  ClutterBackend *backend;
-  CoglContext *context;
   cairo_surface_t *image;
   uint8_t *data;
   int stride;
-  CoglBitmap *bitmap;
-  cairo_rectangle_int_t view_layout;
   cairo_rectangle_int_t *rect;
   float view_scale;
   float texture_width;
   float texture_height;
 
   rect = &capture->rect;
-  framebuffer = clutter_stage_view_get_framebuffer (view);
-
-  if (paint)
-    {
-      cogl_push_framebuffer (framebuffer);
-      _clutter_stage_maybe_setup_viewport (stage, view);
-      clutter_stage_do_paint_view (stage, view, rect);
-    }
 
   view_scale = clutter_stage_view_get_scale (view);
   texture_width = roundf (rect->width * view_scale);
@@ -4757,31 +4751,14 @@ capture_view (ClutterStage          *stage,
                                       texture_width, texture_height);
   cairo_surface_set_device_scale (image, view_scale, view_scale);
 
+
   data = cairo_image_surface_get_data (image);
   stride = cairo_image_surface_get_stride (image);
 
-  backend = clutter_get_default_backend ();
-  context = clutter_backend_get_cogl_context (backend);
-  bitmap = cogl_bitmap_new_for_data (context, texture_width, texture_height,
-                                     CLUTTER_CAIRO_FORMAT_ARGB32,
-                                     stride,
-                                     data);
-
-  clutter_stage_view_get_layout (view, &view_layout);
-
-  cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
-                                            roundf ((rect->x - view_layout.x) * view_scale),
-                                            roundf ((rect->y - view_layout.y) * view_scale),
-                                            COGL_READ_PIXELS_COLOR_BUFFER,
-                                            bitmap);
-
-  if (paint)
-    cogl_pop_framebuffer ();
-
+  capture_view_into (stage, paint, view, rect, data, stride);
   capture->image = image;
 
   cairo_surface_mark_dirty (capture->image);
-  cogl_object_unref (bitmap);
 }
 
 gboolean
