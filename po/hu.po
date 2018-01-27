@@ -1,19 +1,19 @@
-# Hungarian translation of mutter.
-# Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Free Software Foundation, Inc.
+# Hungarian translation for mutter.
+# Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Free Software Foundation, Inc.
 # This file is distributed under the same license as the mutter package.
 #
 # Andras Timar <timar at gnome dot hu>, 2002, 2003.
 # Gabor Sari <saga at externet dot hu>, 2003.
 # Laszlo Dvornik <dvornik at gnome dot hu>, 2004.
 # Gabor Kelemen <kelemeng at gnome dot hu>, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013.
-# Balázs Úr <urbalazs at gmail dot com>, 2013, 2014, 2015, 2016, 2017.
+# Balázs Úr <urbalazs at gmail dot com>, 2013, 2014, 2015, 2016, 2017, 2018.
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
 "product=mutter&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2017-08-29 16:09+0000\n"
-"PO-Revision-Date: 2017-09-05 17:35+0200\n"
+"POT-Creation-Date: 2017-11-17 16:03+0000\n"
+"PO-Revision-Date: 2018-01-27 09:00+0100\n"
 "Last-Translator: Balázs Úr <urbalazs@gmail.com>\n"
 "Language-Team: Hungarian <gnome-hu-list at gnome dot org>\n"
 "Language: hu\n"
@@ -175,7 +175,7 @@ msgstr "Áthelyezés a felső munkaterületre"
 msgid "Move to workspace below"
 msgstr "Áthelyezés az alsó munkaterületre"
 
-#: data/50-mutter-system.xml:6
+#: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
 msgstr "Rendszer"
 
@@ -186,6 +186,10 @@ msgstr "A parancs futtatása ablak megjelenítése"
 #: data/50-mutter-system.xml:10
 msgid "Show the activities overview"
 msgstr "A tevékenységek áttekintés megjelenítése"
+
+#: data/50-mutter-wayland.xml:8
+msgid "Restore the keyboard shortcuts"
+msgstr "Gyorsbillentyűk helyreállítása"
 
 #: data/50-mutter-windows.xml:6
 msgid "Windows"
@@ -404,20 +408,6 @@ msgid "Enable experimental features"
 msgstr "Kísérleti funkciók engedélyezése"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “monitor-config-"
-#| "manager” — use the new monitor configuration system, aimed to replace the "
-#| "old one. This enables a higher level configuration API to be used by "
-#| "configuration applications, as well as the ability to configure per "
-#| "logical monitor scale. • “scale-monitor-framebuffer” — makes mutter "
-#| "default to layout logical monitors in a logical pixel coordinate space, "
-#| "while scaling monitor framebuffers instead of window content, to manage "
-#| "HiDPI monitors. Does not require a restart. Also enabling “monitor-config-"
-#| "manager” is required for this feature to be enabled."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -432,12 +422,12 @@ msgid ""
 "screen cast support."
 msgstr ""
 "A kísérleti funkciók engedélyezéséhez adja hozzá a funkció kulcsszavát a "
-"listához. A funkció a betűszedő újraindítását igényelheti az adott funkciótól "
-"függően. Egyik kísérleti funkciónál sem szükséges, hogy továbbra is elérhető "
-"vagy beállítható legyen. Ne várja el azt, hogy ha bármit hozzáad ehhez a "
-"beállításhoz, akkor az a jövőben is elérhető lesz. Jelenleg lehetséges "
-"kulcsszavak: • „scale-monitor-framebuffer” — alapértelmezetté teszi a mutter "
-"programot a logikai monitorok elrendezéséhez egy logikai "
+"listához. A funkció a betűszedő újraindítását igényelheti az adott "
+"funkciótól függően. Egyik kísérleti funkciónál sem szükséges, hogy továbbra "
+"is elérhető vagy beállítható legyen. Ne várja el azt, hogy ha bármit hozzáad "
+"ehhez a beállításhoz, akkor az a jövőben is elérhető lesz. Jelenleg "
+"lehetséges kulcsszavak: • „scale-monitor-framebuffer” — alapértelmezetté "
+"teszi a mutter programot a logikai monitorok elrendezéséhez egy logikai "
 "képpontkoordináta-térben, miközben átméretezi a monitor keretpufferét az "
 "ablaktartalom helyett azért, hogy kezelje a HiDPI monitorokat. Nem igényel "
 "újraindítást. • „remote-desktop” — engedélyezi a távoli asztal támogatást. A "
@@ -516,7 +506,7 @@ msgstr "Gyorsbillentyűk újraengedélyezése"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2151
+#: src/backends/meta-input-settings.c:2167
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Módkapcsoló (%d. csoport)"
@@ -524,37 +514,37 @@ msgstr "Módkapcsoló (%d. csoport)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2174
+#: src/backends/meta-input-settings.c:2190
 msgid "Switch monitor"
 msgstr "Monitorváltás"
 
-#: src/backends/meta-input-settings.c:2176
+#: src/backends/meta-input-settings.c:2192
 msgid "Show on-screen help"
 msgstr "Képernyősúgó megjelenítése"
 
-#: src/backends/meta-monitor-manager.c:903
+#: src/backends/meta-monitor-manager.c:908
 msgid "Built-in display"
 msgstr "Beépített kijelző"
 
-#: src/backends/meta-monitor-manager.c:926
+#: src/backends/meta-monitor-manager.c:931
 msgid "Unknown"
 msgstr "Ismeretlen"
 
-#: src/backends/meta-monitor-manager.c:928
+#: src/backends/meta-monitor-manager.c:933
 msgid "Unknown Display"
 msgstr "Ismeretlen kijelző"
 
 #. TRANSLATORS: this is a monitor vendor name, followed by a
 #. * size in inches, like 'Dell 15"'
 #.
-#: src/backends/meta-monitor-manager.c:936
+#: src/backends/meta-monitor-manager.c:941
 #, c-format
 msgid "%s %s"
 msgstr "%s %s"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:476
+#: src/compositor/compositor.c:479
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -662,7 +652,7 @@ msgstr "Használandó Mutter bővítmény"
 msgid "Workspace %d"
 msgstr "%d. munkaterület"
 
-#: src/core/screen.c:580
+#: src/core/screen.c:583
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -671,7 +661,7 @@ msgstr ""
 "A(z) „%s” kijelző már rendelkezik ablakkezelővel; próbálja a --replace "
 "kapcsolóval helyettesíteni a jelenlegi ablakkezelőt."
 
-#: src/core/screen.c:665
+#: src/core/screen.c:668
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "A(z) %d. képernyő a(z) „%s” megjelenítőn érvénytelen\n"
