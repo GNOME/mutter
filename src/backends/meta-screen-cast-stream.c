@@ -136,6 +136,18 @@ meta_screen_cast_stream_get_object_path (MetaScreenCastStream *stream)
   return priv->object_path;
 }
 
+void
+meta_screen_cast_stream_transform_position (MetaScreenCastStream *stream,
+                                            double                rel_x,
+                                            double                rel_y,
+                                            double               *x,
+                                            double               *y)
+{
+  META_SCREEN_CAST_STREAM_GET_CLASS (stream)->transform_position (stream,
+                                                                  rel_x, rel_y,
+                                                                  x, y);
+}
+
 static void
 meta_screen_cast_stream_set_property (GObject      *object,
                                       guint         prop_id,
