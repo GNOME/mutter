@@ -43,6 +43,14 @@
 #define META_REMOTE_DESKTOP_DBUS_SERVICE "org.gnome.Mutter.RemoteDesktop"
 #define META_REMOTE_DESKTOP_DBUS_PATH "/org/gnome/Mutter/RemoteDesktop"
 
+typedef enum _MetaRemoteDesktopDeviceTypes
+{
+  META_REMOTE_DESKTOP_DEVICE_TYPE_NONE = 0,
+  META_REMOTE_DESKTOP_DEVICE_TYPE_KEYBOARD = 1 << 0,
+  META_REMOTE_DESKTOP_DEVICE_TYPE_POINTER = 1 << 1,
+  META_REMOTE_DESKTOP_DEVICE_TYPE_TOUCHSCREEN = 1 << 2,
+} MetaRemoteDesktopDeviceTypes;
+
 struct _MetaRemoteDesktop
 {
   MetaDBusRemoteDesktopSkeleton parent;
@@ -224,10 +232,50 @@ meta_remote_desktop_new (MetaDbusSessionWatcher *session_watcher)
   return remote_desktop;
 }
 
+static MetaRemoteDesktopDeviceTypes
+calculate_supported_device_types (void)
+{
+  ClutterDeviceManager *device_manager =
+    clutter_device_manager_get_default ();
+  const ClutterInputDeviceType *device_types;
+  int n_types;
+  int i;
+  MetaRemoteDesktopDeviceTypes supported_devices =
+    META_REMOTE_DESKTOP_DEVICE_TYPE_NONE;
+
+  device_types =
+    clutter_device_manager_get_supported_virtual_device_types (device_manager,
+                                                               &n_types);
+
+  for (i = 0; i < n_types; i++)
+    {
+      switch (device_types[i])
+        {
+        case CLUTTER_KEYBOARD_DEVICE:
+          supported_devices |= META_REMOTE_DESKTOP_DEVICE_TYPE_KEYBOARD;
+          break;
+        case CLUTTER_POINTER_DEVICE:
+          supported_devices |= META_REMOTE_DESKTOP_DEVICE_TYPE_POINTER;
+          break;
+        case CLUTTER_TOUCHSCREEN_DEVICE:
+          supported_devices |= META_REMOTE_DESKTOP_DEVICE_TYPE_TOUCHSCREEN;
+          break;
+        default:
+          break;
+        }
+    }
+
+  return supported_devices;
+}
+
 static void
 meta_remote_desktop_init (MetaRemoteDesktop *remote_desktop)
 {
   remote_desktop->sessions = g_hash_table_new (g_str_hash, g_str_equal);
+
+  meta_dbus_remote_desktop_set_supported_device_types (
+    META_DBUS_REMOTE_DESKTOP (remote_desktop),
+    calculate_supported_device_types ());
 }
 
 static void
