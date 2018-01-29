@@ -104,6 +104,8 @@ struct _ClutterDeviceManagerClass
                                                ClutterStage       *stage);
   ClutterVirtualInputDevice *(* create_virtual_device) (ClutterDeviceManager  *device_manager,
                                                         ClutterInputDeviceType device_type);
+  const ClutterInputDeviceType * (* get_supported_virtual_device_types) (ClutterDeviceManager *device_manager,
+                                                                         int                  *n_types);
   void                (* compress_motion) (ClutterDeviceManager *device_manger,
                                            ClutterEvent         *event,
                                            const ClutterEvent   *to_discard);
@@ -134,6 +136,10 @@ ClutterInputDevice *  clutter_device_manager_get_core_device (ClutterDeviceManag
 CLUTTER_AVAILABLE_IN_ALL
 ClutterVirtualInputDevice *clutter_device_manager_create_virtual_device (ClutterDeviceManager  *device_manager,
                                                                          ClutterInputDeviceType device_type);
+
+CLUTTER_AVAILABLE_IN_ALL
+const ClutterInputDeviceType * clutter_device_manager_get_supported_virtual_device_types (ClutterDeviceManager *device_manager,
+                                                                                          int                  *n_types);
 
 CLUTTER_AVAILABLE_IN_ALL
 void clutter_device_manager_set_kbd_a11y_settings (ClutterDeviceManager   *device_manager,

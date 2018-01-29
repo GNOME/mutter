@@ -2024,6 +2024,19 @@ clutter_device_manager_xi2_create_virtual_device (ClutterDeviceManager   *manage
                        NULL);
 }
 
+static const ClutterInputDeviceType *
+clutter_device_manager_xi2_get_supported_virtual_device_types (ClutterDeviceManager *device_manager,
+                                                               int                  *n_types)
+{
+  static const ClutterInputDeviceType supported_device_types[] = {
+    CLUTTER_POINTER_DEVICE,
+    CLUTTER_KEYBOARD_DEVICE,
+  };
+
+  *n_types = G_N_ELEMENTS (supported_device_types);
+  return supported_device_types;
+}
+
 static void
 clutter_device_manager_xi2_class_init (ClutterDeviceManagerXI2Class *klass)
 {
@@ -2052,6 +2065,7 @@ clutter_device_manager_xi2_class_init (ClutterDeviceManagerXI2Class *klass)
   manager_class->get_device = clutter_device_manager_xi2_get_device;
   manager_class->select_stage_events = clutter_device_manager_xi2_select_stage_events;
   manager_class->create_virtual_device = clutter_device_manager_xi2_create_virtual_device;
+  manager_class->get_supported_virtual_device_types = clutter_device_manager_xi2_get_supported_virtual_device_types;
   manager_class->apply_kbd_a11y_settings = clutter_device_manager_x11_apply_kbd_a11y_settings;
 }
 

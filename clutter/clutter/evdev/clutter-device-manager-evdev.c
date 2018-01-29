@@ -1866,6 +1866,20 @@ clutter_device_manager_evdev_create_virtual_device (ClutterDeviceManager  *manag
                        NULL);
 }
 
+static const ClutterInputDeviceType *
+clutter_device_manager_evdev_get_supported_virtual_device_types (ClutterDeviceManager *device_manager,
+                                                                 int                  *n_types)
+{
+  static const ClutterInputDeviceType supported_device_types[] = {
+    CLUTTER_POINTER_DEVICE,
+    CLUTTER_KEYBOARD_DEVICE,
+    CLUTTER_TOUCHSCREEN_DEVICE,
+  };
+
+  *n_types = G_N_ELEMENTS (supported_device_types);
+  return supported_device_types;
+}
+
 static void
 clutter_device_manager_evdev_compress_motion (ClutterDeviceManager *device_manger,
                                               ClutterEvent         *event,
@@ -2044,6 +2058,7 @@ clutter_device_manager_evdev_class_init (ClutterDeviceManagerEvdevClass *klass)
   manager_class->get_core_device = clutter_device_manager_evdev_get_core_device;
   manager_class->get_device = clutter_device_manager_evdev_get_device;
   manager_class->create_virtual_device = clutter_device_manager_evdev_create_virtual_device;
+  manager_class->get_supported_virtual_device_types = clutter_device_manager_evdev_get_supported_virtual_device_types;
   manager_class->compress_motion = clutter_device_manager_evdev_compress_motion;
   manager_class->apply_kbd_a11y_settings = clutter_device_manager_evdev_apply_kbd_a11y_settings;
 }
