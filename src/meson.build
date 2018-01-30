@@ -564,6 +564,8 @@ if have_native_backend
     'backends/native/meta-gpu-kms.h',
     'backends/native/meta-input-settings-native.c',
     'backends/native/meta-input-settings-native.h',
+    'backends/native/meta-kms-buffer.c',
+    'backends/native/meta-kms-buffer.h',
     'backends/native/meta-launcher.c',
     'backends/native/meta-launcher.h',
     'backends/native/meta-monitor-manager-kms.c',
