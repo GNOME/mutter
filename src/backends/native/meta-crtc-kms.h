@@ -30,6 +30,14 @@
 #include "backends/meta-crtc.h"
 #include "backends/native/meta-gpu-kms.h"
 
+typedef struct _MetaCrtcKmsScanouts
+{
+  /* These fields are maintained by MetaGpuKms on a per-CRTC basis. */
+  MetaKmsBuffer *previous, *current, *next;
+  GClosure      *next_closure;
+  int            next_x, next_y;
+} MetaCrtcKmsScanouts;
+
 typedef struct _MetaDrmFormatBuf
 {
   char s[5];
@@ -60,5 +68,7 @@ meta_crtc_kms_supports_format (MetaCrtc *crtc,
 MetaCrtc * meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
                                  drmModeCrtc  *drm_crtc,
                                  unsigned int  crtc_index);
+
+MetaCrtcKmsScanouts * meta_crtc_kms_get_scanouts (MetaCrtc *crtc);
 
 #endif /* META_CRTC_KMS_H */
