@@ -58,6 +58,7 @@
 #include "backends/meta-renderer-view.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-gpu-kms.h"
+#include "backends/native/meta-kms-buffer.h"
 #include "backends/native/meta-monitor-manager-kms.h"
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-renderer-native-gles3.h"
@@ -134,10 +135,8 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
 
   struct {
     struct gbm_surface *surface;
-    uint32_t current_fb_id;
-    uint32_t next_fb_id;
-    struct gbm_bo *current_bo;
-    struct gbm_bo *next_bo;
+    MetaKmsBuffer *current_fb;
+    MetaKmsBuffer *next_fb;
   } gbm;
 
   struct {
@@ -158,10 +157,8 @@ typedef struct _MetaOnscreenNative
 
   struct {
     struct gbm_surface *surface;
-    uint32_t current_fb_id;
-    uint32_t next_fb_id;
-    struct gbm_bo *current_bo;
-    struct gbm_bo *next_bo;
+    MetaKmsBuffer *current_fb;
+    MetaKmsBuffer *next_fb;
   } gbm;
 
 #ifdef HAVE_EGL_DEVICE
@@ -787,25 +784,12 @@ free_current_secondary_bo (MetaGpuKms                          *gpu_kms,
                            MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
   MetaRendererNativeGpuData *renderer_gpu_data;
-  int kms_fd;
-
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
   renderer_gpu_data = secondary_gpu_state->renderer_gpu_data;
   switch (renderer_gpu_data->secondary.copy_mode)
     {
     case META_SHARED_FRAMEBUFFER_COPY_MODE_GPU:
-      if (secondary_gpu_state->gbm.current_fb_id)
-        {
-          drmModeRmFB (kms_fd, secondary_gpu_state->gbm.current_fb_id);
-          secondary_gpu_state->gbm.current_fb_id = 0;
-        }
-      if (secondary_gpu_state->gbm.current_bo)
-        {
-          gbm_surface_release_buffer (secondary_gpu_state->gbm.surface,
-                                      secondary_gpu_state->gbm.current_bo);
-          secondary_gpu_state->gbm.current_bo = NULL;
-        }
+      g_clear_object (&secondary_gpu_state->gbm.current_fb);
       break;
     case META_SHARED_FRAMEBUFFER_COPY_MODE_CPU:
       break;
@@ -817,22 +801,8 @@ free_current_bo (CoglOnscreen *onscreen)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaGpuKms *render_gpu = onscreen_native->render_gpu;
-  int kms_fd;
 
-  kms_fd = meta_gpu_kms_get_fd (render_gpu);
-
-  if (onscreen_native->gbm.current_fb_id)
-    {
-      drmModeRmFB (kms_fd, onscreen_native->gbm.current_fb_id);
-      onscreen_native->gbm.current_fb_id = 0;
-    }
-  if (onscreen_native->gbm.current_bo)
-    {
-      gbm_surface_release_buffer (onscreen_native->gbm.surface,
-                                  onscreen_native->gbm.current_bo);
-      onscreen_native->gbm.current_bo = NULL;
-    }
+  g_clear_object (&onscreen_native->gbm.current_fb);
 
   g_hash_table_foreach (onscreen_native->secondary_gpu_states,
                         (GHFunc) free_current_secondary_bo,
@@ -1126,11 +1096,9 @@ static void
 swap_secondary_drm_fb (MetaGpuKms                          *gpu_kms,
                        MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
-  secondary_gpu_state->gbm.current_fb_id = secondary_gpu_state->gbm.next_fb_id;
-  secondary_gpu_state->gbm.next_fb_id = 0;
-
-  secondary_gpu_state->gbm.current_bo = secondary_gpu_state->gbm.next_bo;
-  secondary_gpu_state->gbm.next_bo = NULL;
+  g_set_object (&secondary_gpu_state->gbm.current_fb,
+                secondary_gpu_state->gbm.next_fb);
+  g_clear_object (&secondary_gpu_state->gbm.next_fb);
 }
 
 static void
@@ -1140,12 +1108,8 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
 
   free_current_bo (onscreen);
-
-  onscreen_native->gbm.current_fb_id = onscreen_native->gbm.next_fb_id;
-  onscreen_native->gbm.next_fb_id = 0;
-
-  onscreen_native->gbm.current_bo = onscreen_native->gbm.next_bo;
-  onscreen_native->gbm.next_bo = NULL;
+  onscreen_native->gbm.current_fb = onscreen_native->gbm.next_fb;
+  onscreen_native->gbm.next_fb = NULL;
 
   g_hash_table_foreach (onscreen_native->secondary_gpu_states,
                         (GHFunc) swap_secondary_drm_fb,
@@ -1209,17 +1173,7 @@ free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
   switch (renderer_gpu_data->secondary.copy_mode)
     {
     case META_SHARED_FRAMEBUFFER_COPY_MODE_GPU:
-      if (secondary_gpu_state->gbm.next_fb_id)
-        {
-          int kms_fd;
-
-          kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-          drmModeRmFB (kms_fd, secondary_gpu_state->gbm.next_fb_id);
-          gbm_surface_release_buffer (secondary_gpu_state->gbm.surface,
-                                      secondary_gpu_state->gbm.next_bo);
-          secondary_gpu_state->gbm.next_fb_id = 0;
-          secondary_gpu_state->gbm.next_bo = NULL;
-        }
+      g_clear_object (&secondary_gpu_state->gbm.next_fb);
       break;
     case META_SHARED_FRAMEBUFFER_COPY_MODE_CPU:
       break;
@@ -1244,17 +1198,7 @@ flip_closure_destroyed (MetaRendererView *view)
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      if (onscreen_native->gbm.next_fb_id)
-        {
-          int kms_fd;
-
-          kms_fd = meta_gpu_kms_get_fd (render_gpu);
-          drmModeRmFB (kms_fd, onscreen_native->gbm.next_fb_id);
-          gbm_surface_release_buffer (onscreen_native->gbm.surface,
-                                      onscreen_native->gbm.next_bo);
-          onscreen_native->gbm.next_bo = NULL;
-          onscreen_native->gbm.next_fb_id = 0;
-        }
+      g_clear_object (&onscreen_native->gbm.next_fb);
 
       g_hash_table_foreach (onscreen_native->secondary_gpu_states,
                             (GHFunc) free_next_secondary_bo,
@@ -1359,12 +1303,12 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
     case META_RENDERER_NATIVE_MODE_GBM:
       if (gpu_kms == render_gpu)
         {
-          fb_id = onscreen_native->gbm.next_fb_id;
+          fb_id = meta_kms_buffer_get_fb_id (onscreen_native->gbm.next_fb);
         }
       else
         {
           secondary_gpu_state = get_secondary_gpu_state (onscreen, gpu_kms);
-          fb_id = secondary_gpu_state->gbm.next_fb_id;
+          fb_id = meta_kms_buffer_get_fb_id (secondary_gpu_state->gbm.next_fb);
         }
 
       if (!meta_gpu_kms_flip_crtc (gpu_kms,
@@ -1423,7 +1367,7 @@ set_crtc_fb (MetaLogicalMonitor *logical_monitor,
       if (!secondary_gpu_state)
         return;
 
-      fb_id = secondary_gpu_state->gbm.next_fb_id;
+      fb_id = meta_kms_buffer_get_fb_id (secondary_gpu_state->gbm.next_fb);
     }
 
   x = crtc->rect.x - logical_monitor->rect.x;
@@ -1449,7 +1393,7 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      fb_id = onscreen_native->gbm.next_fb_id;
+      fb_id = meta_kms_buffer_get_fb_id (onscreen_native->gbm.next_fb);
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
@@ -1600,101 +1544,6 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   g_closure_unref (flip_closure);
 }
 
-static gboolean
-gbm_get_next_fb_id (MetaGpuKms         *gpu_kms,
-                    struct gbm_surface *gbm_surface,
-                    struct gbm_bo     **out_next_bo,
-                    uint32_t           *out_next_fb_id)
-{
-  MetaRendererNative *renderer_native = meta_renderer_native_from_gpu (gpu_kms);
-  struct gbm_bo *next_bo;
-  uint32_t next_fb_id;
-  int kms_fd;
-  uint32_t handles[4] = { 0, };
-  uint32_t strides[4] = { 0, };
-  uint32_t offsets[4] = { 0, };
-  uint64_t modifiers[4] = { 0, };
-  int i;
-
-  /* Now we need to set the CRTC to whatever is the front buffer */
-  next_bo = gbm_surface_lock_front_buffer (gbm_surface);
-
-  if (!next_bo)
-    {
-      g_error ("Impossible to lock surface front buffer: %m");
-      return FALSE;
-    }
-
-  if (gbm_bo_get_handle_for_plane (next_bo, 0).s32 == -1)
-    {
-      /* Failed to fetch handle to plane, falling back to old method */
-      strides[0] = gbm_bo_get_stride (next_bo);
-      handles[0] = gbm_bo_get_handle (next_bo).u32;
-      offsets[0] = 0;
-      modifiers[0] = DRM_FORMAT_MOD_INVALID;
-    }
-  else
-    {
-      for (i = 0; i < gbm_bo_get_plane_count (next_bo); i++)
-        {
-          strides[i] = gbm_bo_get_stride_for_plane (next_bo, i);
-          handles[i] = gbm_bo_get_handle_for_plane (next_bo, i).u32;
-          offsets[i] = gbm_bo_get_offset (next_bo, i);
-          modifiers[i] = gbm_bo_get_modifier (next_bo);
-        }
-    }
-
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-
-  if (renderer_native->use_modifiers &&
-      modifiers[0] != DRM_FORMAT_MOD_INVALID)
-    {
-      if (drmModeAddFB2WithModifiers (kms_fd,
-                                      gbm_bo_get_width (next_bo),
-                                      gbm_bo_get_height (next_bo),
-                                      gbm_bo_get_format (next_bo),
-                                      handles,
-                                      strides,
-                                      offsets,
-                                      modifiers,
-                                      &next_fb_id,
-                                      DRM_MODE_FB_MODIFIERS))
-        {
-          g_warning ("Failed to create new back buffer handle: %m");
-          gbm_surface_release_buffer (gbm_surface, next_bo);
-          return FALSE;
-        }
-    }
-  else if (drmModeAddFB2 (kms_fd,
-                          gbm_bo_get_width (next_bo),
-                          gbm_bo_get_height (next_bo),
-                          gbm_bo_get_format (next_bo),
-                          handles,
-                          strides,
-                          offsets,
-                          &next_fb_id,
-                          0))
-    {
-      if (drmModeAddFB (kms_fd,
-                        gbm_bo_get_width (next_bo),
-                        gbm_bo_get_height (next_bo),
-                        24, /* depth */
-                        32, /* bpp */
-                        strides[0],
-                        handles[0],
-                        &next_fb_id))
-        {
-          g_warning ("Failed to create new back buffer handle: %m");
-          gbm_surface_release_buffer (gbm_surface, next_bo);
-          return FALSE;
-        }
-    }
-
-  *out_next_bo = next_bo;
-  *out_next_fb_id = next_fb_id;
-  return TRUE;
-}
-
 static void
 wait_for_pending_flips (CoglOnscreen *onscreen)
 {
@@ -1747,7 +1596,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
                                                   renderer_gpu_data->egl_display,
                                                   renderer_gpu_data->secondary.egl_context,
                                                   secondary_gpu_state->egl_surface,
-                                                  onscreen_native->gbm.next_bo,
+                                                  meta_kms_buffer_get_bo (onscreen_native->gbm.next_fb),
                                                   &error))
     {
       g_warning ("Failed to blit shared framebuffer: %s", error->message);
@@ -1765,10 +1614,19 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
       return;
     }
 
-  gbm_get_next_fb_id (secondary_gpu_state->gpu_kms,
-                      secondary_gpu_state->gbm.surface,
-                      &secondary_gpu_state->gbm.next_bo,
-                      &secondary_gpu_state->gbm.next_fb_id);
+  g_clear_object (&secondary_gpu_state->gbm.next_fb);
+  secondary_gpu_state->gbm.next_fb =
+    meta_kms_buffer_new_from_gbm (secondary_gpu_state->gpu_kms,
+                                  secondary_gpu_state->gbm.surface,
+                                  renderer_native->use_modifiers,
+                                  &error);
+  if (!secondary_gpu_state->gbm.next_fb)
+    {
+      g_warning ("meta_kms_buffer_new_from_gbm failed: %s",
+                 error->message);
+      g_error_free (error);
+      return;
+    }
 }
 
 static void
@@ -1805,7 +1663,10 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
                                           width, height,
                                           target_data);
 
-  secondary_gpu_state->gbm.next_fb_id = target_fb_id;
+  g_clear_object (&secondary_gpu_state->gbm.next_fb);
+  secondary_gpu_state->gbm.next_fb =
+    meta_kms_buffer_new_from_dumb (secondary_gpu_state->gpu_kms,
+                                   target_fb_id);
 }
 
 static void
@@ -1889,6 +1750,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   CoglFrameInfo *frame_info;
   gboolean egl_context_changed = FALSE;
+  GError *error = NULL;
 
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
   frame_info->global_frame_counter = renderer_native->frame_counter;
@@ -1910,14 +1772,20 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      g_warn_if_fail (onscreen_native->gbm.next_bo == NULL &&
-                      onscreen_native->gbm.next_fb_id == 0);
-
-      if (!gbm_get_next_fb_id (render_gpu,
-                               onscreen_native->gbm.surface,
-                               &onscreen_native->gbm.next_bo,
-                               &onscreen_native->gbm.next_fb_id))
-        return;
+      g_warn_if_fail (onscreen_native->gbm.next_fb == NULL);
+      g_clear_object (&onscreen_native->gbm.next_fb);
+      onscreen_native->gbm.next_fb =
+        meta_kms_buffer_new_from_gbm (render_gpu,
+                                      onscreen_native->gbm.surface,
+                                      renderer_native->use_modifiers,
+                                      &error);
+      if (error)
+        {
+          g_warning ("meta_kms_buffer_new_from_gbm failed: %s",
+                     error->message);
+          g_error_free (error);
+          return;
+        }
 
       break;
 #ifdef HAVE_EGL_DEVICE
@@ -2471,7 +2339,7 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
     case META_RENDERER_NATIVE_MODE_GBM:
       /* flip state takes a reference on the onscreen so there should
        * never be outstanding flips when we reach here. */
-      g_return_if_fail (onscreen_native->gbm.next_fb_id == 0);
+      g_return_if_fail (onscreen_native->gbm.next_fb == NULL);
 
       free_current_bo (onscreen);
 
