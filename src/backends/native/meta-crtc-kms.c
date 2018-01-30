@@ -47,6 +47,7 @@ typedef struct _MetaCrtcKms
   uint32_t all_hw_transforms;
 
   GArray *modifiers_xrgb8888;
+  MetaCrtcKmsScanouts scanouts;
 } MetaCrtcKms;
 
 gboolean
@@ -186,6 +187,14 @@ meta_crtc_kms_get_modifiers (MetaCrtc *crtc,
     return NULL;
 
   return crtc_kms->modifiers_xrgb8888;
+}
+
+MetaCrtcKmsScanouts *
+meta_crtc_kms_get_scanouts (MetaCrtc *crtc)
+{
+  MetaCrtcKms *crtc_kms = crtc->driver_private;
+
+  return &crtc_kms->scanouts;
 }
 
 static inline uint32_t *
@@ -427,6 +436,17 @@ meta_crtc_destroy_notify (MetaCrtc *crtc)
 
   if (crtc_kms->modifiers_xrgb8888)
     g_array_free (crtc_kms->modifiers_xrgb8888, TRUE);
+
+  if (crtc_kms->scanouts.next_closure)
+    {
+      g_closure_unref (crtc_kms->scanouts.next_closure);
+      crtc_kms->scanouts.next_closure = NULL;
+    }
+
+  g_clear_object (&crtc_kms->scanouts.next);
+  g_clear_object (&crtc_kms->scanouts.current);
+  g_clear_object (&crtc_kms->scanouts.previous);
+
   g_free (crtc->driver_private);
 }
 
