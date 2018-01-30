@@ -27,7 +27,6 @@
 #define META_TYPE_FRAMEBUFFER (meta_framebuffer_get_type ())
 G_DECLARE_FINAL_TYPE (MetaFramebuffer, meta_framebuffer, META, FRAMEBUFFER, GObject)
 
-/* This might look pointless right now, but is used in a future branch */
 struct _MetaFramebuffer
 {
   GObject parent;
