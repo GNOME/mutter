@@ -55,6 +55,51 @@ enum {
   SCROLL_METHOD_NUM_FIELDS
 };
 
+static void
+device_free_xdevice (gpointer user_data)
+{
+  MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+
+  if (display && backend)
+    {
+      Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+      XDevice *xdev = user_data;
+
+      meta_error_trap_push (display);
+      XCloseDevice (xdisplay, xdev);
+      meta_error_trap_pop (display);
+    }
+}
+
+static XDevice *
+device_lookup_xdevice (ClutterInputDevice *device)
+{
+  MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+  XDevice *xdev = NULL;
+
+  if (display && backend)
+    {
+      Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+      int device_id = clutter_input_device_get_device_id (device);
+
+      meta_error_trap_push (display);
+      xdev = XOpenDevice (xdisplay, device_id);
+
+      if (xdev)
+        {
+          g_object_set_data_full (G_OBJECT (device),
+                                  "meta-input-settings-xdevice",
+                                  xdev, (GDestroyNotify) device_free_xdevice);
+        }
+
+      meta_error_trap_pop (display);
+    }
+
+  return xdev;
+}
+
 static void *
 get_property (ClutterInputDevice *device,
               const gchar        *property,
@@ -540,7 +585,6 @@ meta_input_settings_x11_set_tablet_mapping (MetaInputSettings     *settings,
   MetaDisplay *display = meta_get_display ();
   MetaBackend *backend = meta_get_backend ();
   Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
-  int device_id = clutter_input_device_get_device_id (device);
   XDevice *xdev;
 
   if (!display)
@@ -548,13 +592,12 @@ meta_input_settings_x11_set_tablet_mapping (MetaInputSettings     *settings,
 
   /* Grab the puke bucket! */
   meta_error_trap_push (display);
-  xdev = XOpenDevice (xdisplay, device_id);
+  xdev = device_lookup_xdevice (device);
   if (xdev)
     {
       XSetDeviceMode (xdisplay, xdev,
                       mapping == G_DESKTOP_TABLET_MAPPING_ABSOLUTE ?
                       Absolute : Relative);
-      XCloseDevice (xdisplay, xdev);
     }
 
   if (meta_error_trap_pop_with_return (display))
@@ -737,7 +780,6 @@ meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *setti
   MetaDisplay *display = meta_get_display ();
   MetaBackend *backend = meta_get_backend ();
   Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
-  int device_id = clutter_input_device_get_device_id (device);
   XDevice *xdev;
 
   if (!display)
@@ -745,7 +787,7 @@ meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *setti
 
   /* Grab the puke bucket! */
   meta_error_trap_push (display);
-  xdev = XOpenDevice (xdisplay, device_id);
+  xdev = device_lookup_xdevice (device);
   if (xdev)
     {
       guchar map[3] = {
@@ -755,7 +797,6 @@ meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *setti
       };
 
       XSetDeviceButtonMapping (xdisplay, xdev, map, G_N_ELEMENTS (map));
-      XCloseDevice (xdisplay, xdev);
     }
 
   if (meta_error_trap_pop_with_return (display))
