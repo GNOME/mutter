@@ -121,6 +121,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/meta-gles3.c			\
 	backends/meta-gles3.h			\
 	backends/meta-gles3-table.h		\
+	backends/meta-framebuffer.c		\
+	backends/meta-framebuffer.h		\
 	backends/meta-gpu.c			\
 	backends/meta-gpu.h			\
 	backends/meta-display-config-shared.h	\
@@ -484,6 +486,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=		\
 	backends/native/meta-cursor-renderer-native.c	\
 	backends/native/meta-cursor-renderer-native.h	\
 	backends/native/meta-default-modes.h		\
+	backends/native/meta-framebuffer-kms.c		\
+	backends/native/meta-framebuffer-kms.h		\
 	backends/native/meta-gpu-kms.c			\
 	backends/native/meta-gpu-kms.h			\
 	backends/native/meta-input-settings-native.c	\
