@@ -28,6 +28,7 @@
 
 #include "backends/meta-gpu.h"
 #include "backends/native/meta-monitor-manager-kms.h"
+#include "backends/native/meta-kms-framebuffer.h"
 
 #define META_TYPE_GPU_KMS (meta_gpu_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaGpuKms, meta_gpu_kms, META, GPU_KMS, MetaGpu)
@@ -43,26 +44,31 @@ typedef struct _MetaKmsResources
 
 typedef void (*MetaKmsFlipCallback) (void *user_data);
 
+/* We can't include meta-kms-framebuffer.h due to a cyclic dependency */
+#ifndef META_TYPE_KMS_FRAMEBUFFER
+typedef struct _MetaKmsFramebuffer MetaKmsFramebuffer;
+#endif
+
 MetaGpuKms * meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
                                const char             *kms_file_path,
                                GError                **error);
 
-gboolean meta_gpu_kms_apply_crtc_mode (MetaGpuKms *gpu_kms,
-                                       MetaCrtc   *crtc,
-                                       int         x,
-                                       int         y,
-                                       uint32_t    fb_id);
+gboolean meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
+                                       MetaCrtc           *crtc,
+                                       int                 x,
+                                       int                 y,
+                                       MetaKmsFramebuffer *kms_fb);
 
 gboolean meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
                                       MetaCrtc   *crtc);
 
-gboolean meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
-                                 MetaCrtc   *crtc,
-                                 int         x,
-                                 int         y,
-                                 uint32_t    fb_id,
-                                 GClosure   *flip_closure,
-                                 gboolean   *fb_in_use);
+gboolean meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
+                                 MetaCrtc           *crtc,
+                                 int                 x,
+                                 int                 y,
+                                 MetaKmsFramebuffer *kms_fb,
+                                 GClosure           *flip_closure,
+                                 gboolean           *fb_in_use);
 
 gboolean meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
                                      GError    **error);
@@ -87,7 +93,8 @@ gboolean meta_drm_mode_equal (const drmModeModeInfo *one,
 float meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *mode);
 
 MetaGpuKmsFlipClosureContainer * meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
-                                                                 GClosure   *flip_closure);
+                                                                 GClosure   *flip_closure,
+                                                                 MetaCrtc   *crtc);
 
 void meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container);
 
