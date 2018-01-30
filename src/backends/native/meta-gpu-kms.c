@@ -135,46 +135,6 @@ get_crtc_drm_connectors (MetaGpu       *gpu,
   *connectors = (uint32_t *) g_array_free (connectors_array, FALSE);
 }
 
-gboolean
-meta_gpu_kms_apply_crtc_mode (MetaGpuKms *gpu_kms,
-                              MetaCrtc   *crtc,
-                              int         x,
-                              int         y,
-                              uint32_t    fb_id)
-{
-  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
-  int kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-  uint32_t *connectors;
-  unsigned int n_connectors;
-  drmModeModeInfo *mode;
-
-  get_crtc_drm_connectors (gpu, crtc, &connectors, &n_connectors);
-
-  if (connectors)
-    mode = crtc->current_mode->driver_private;
-  else
-    mode = NULL;
-
-  if (drmModeSetCrtc (kms_fd,
-                      crtc->crtc_id,
-                      fb_id,
-                      x, y,
-                      connectors, n_connectors,
-                      mode) != 0)
-    {
-      if (mode)
-        g_warning ("Failed to set CRTC mode %s: %m", crtc->current_mode->name);
-      else
-        g_warning ("Failed to disable CRTC");
-      g_free (connectors);
-      return FALSE;
-    }
-
-  g_free (connectors);
-
-  return TRUE;
-}
-
 static void
 invoke_flip_closure (GClosure   *flip_closure,
                      MetaGpuKms *gpu_kms,
@@ -198,6 +158,61 @@ invoke_flip_closure (GClosure   *flip_closure,
   g_value_set_int64 (&params[3], page_flip_time_ns);
   g_closure_invoke (flip_closure, NULL, 4, params, NULL);
   g_closure_unref (flip_closure);
+}
+
+gboolean
+meta_gpu_kms_apply_crtc_mode (MetaGpuKms    *gpu_kms,
+                              MetaCrtc      *crtc,
+                              int            x,
+                              int            y,
+                              MetaKmsBuffer *kms_fb)
+{
+  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
+  int kms_fd = meta_gpu_kms_get_fd (gpu_kms);
+  uint32_t *connectors;
+  unsigned int n_connectors;
+  drmModeModeInfo *mode;
+  MetaCrtcKmsScanouts *scanouts;
+  uint32_t fb_id = kms_fb ? meta_kms_buffer_get_fb_id (kms_fb) : 0;
+
+  get_crtc_drm_connectors (gpu, crtc, &connectors, &n_connectors);
+
+  if (connectors)
+    mode = crtc->current_mode->driver_private;
+  else
+    mode = NULL;
+
+  if (drmModeSetCrtc (kms_fd,
+                      crtc->crtc_id,
+                      fb_id,
+                      x, y,
+                      connectors, n_connectors,
+                      mode) != 0)
+    {
+      if (mode)
+        g_warning ("Failed to set CRTC mode %s: %m", crtc->current_mode->name);
+      else
+        g_warning ("Failed to disable CRTC");
+      g_free (connectors);
+      return FALSE;
+    }
+
+  scanouts = meta_crtc_kms_get_scanouts (crtc);
+  g_set_object (&scanouts->previous, scanouts->current);
+  g_set_object (&scanouts->current, kms_fb);
+  if (scanouts->next_closure)
+    {
+      invoke_flip_closure (scanouts->next_closure,
+                           gpu_kms,
+                           crtc,
+                           META_GPU_KMS_DROPPED_FRAME);
+      scanouts->next_closure = NULL;
+    }
+  g_clear_object (&scanouts->next);
+
+  g_free (connectors);
+
+  return TRUE;
 }
 
 gboolean
@@ -248,26 +263,31 @@ meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
     .crtc = crtc
   };
 
+  if (crtc)
+    g_object_ref (crtc);
+
   return closure_container;
 }
 
 void
 meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container)
 {
+  g_clear_object (&closure_container->crtc);
   g_free (closure_container);
 }
 
 gboolean
-meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
-                        MetaCrtc   *crtc,
-                        int         x,
-                        int         y,
-                        uint32_t    fb_id,
-                        GClosure   *flip_closure,
-                        gboolean   *fb_in_use)
+meta_gpu_kms_flip_crtc (MetaGpuKms    *gpu_kms,
+                        MetaCrtc      *crtc,
+                        int            x,
+                        int            y,
+                        MetaKmsBuffer *kms_fb,
+                        GClosure      *flip_closure,
+                        gboolean      *fb_in_use)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
+  MetaCrtcKmsScanouts *scanouts = meta_crtc_kms_get_scanouts (crtc);
   uint32_t *connectors;
   unsigned int n_connectors;
   int ret = -1;
@@ -276,10 +296,16 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
   g_assert (monitor_manager->power_save_mode == META_POWER_SAVE_ON);
 
   get_crtc_drm_connectors (gpu, crtc, &connectors, &n_connectors);
-  g_assert (n_connectors > 0);
   g_free (connectors);
 
-  g_assert (fb_id != 0);
+  /*
+   * If a monitor was unplugged while we had a deferred frame (scanouts->next)
+   * then this may happen as we are called from page_flip_handler. But we
+   * can recover; just ignore the frame we can't display. The caller will
+   * free it.
+   */
+  if (n_connectors == 0)
+    return FALSE;
 
   if (!gpu_kms->page_flips_not_supported)
     {
@@ -292,9 +318,27 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
 
       ret = drmModePageFlip (kms_fd,
                              crtc->crtc_id,
-                             fb_id,
+                             meta_kms_buffer_get_fb_id (kms_fb),
                              DRM_MODE_PAGE_FLIP_EVENT,
                              closure_container);
+      if (ret == -EBUSY)
+        {
+          meta_gpu_kms_flip_closure_container_free (closure_container);
+
+          /* Drop previously queued frame (if any) */
+          g_set_object (&scanouts->next, kms_fb);
+          if (scanouts->next_closure)
+            invoke_flip_closure (scanouts->next_closure,
+                                 gpu_kms,
+                                 crtc,
+                                 META_GPU_KMS_DROPPED_FRAME);
+          scanouts->next_closure = g_closure_ref (flip_closure);
+          scanouts->next_x = x;
+          scanouts->next_y = y;
+
+          *fb_in_use = TRUE;
+          return TRUE;
+        }
       if (ret != 0 && ret != -EACCES)
         {
           meta_gpu_kms_flip_closure_container_free (closure_container);
@@ -305,7 +349,7 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
 
   if (gpu_kms->page_flips_not_supported)
     {
-      if (meta_gpu_kms_apply_crtc_mode (gpu_kms, crtc, x, y, fb_id))
+      if (meta_gpu_kms_apply_crtc_mode (gpu_kms, crtc, x, y, kms_fb))
         {
           *fb_in_use = TRUE;
           return FALSE;
@@ -314,6 +358,25 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
 
   if (ret != 0)
     return FALSE;
+
+  /*
+   * If scanouts->next is set then won a race against MetaKmsSource before it
+   * could invoke page_flip_handler. That's OK because the frame we just
+   * scheduled is newer. Just make sure we drop that older frame which was
+   * queued. We no longer need to display it at all.
+   */
+  if (scanouts->next_closure)
+    {
+      invoke_flip_closure (scanouts->next_closure,
+                           gpu_kms,
+                           crtc,
+                           META_GPU_KMS_DROPPED_FRAME);
+      scanouts->next_closure = NULL;
+    }
+  g_clear_object (&scanouts->next);
+
+  g_set_object (&scanouts->previous, scanouts->current);
+  g_set_object (&scanouts->current, kms_fb);
 
   *fb_in_use = TRUE;
   g_closure_ref (flip_closure);
@@ -349,11 +412,39 @@ page_flip_handler (int           fd,
   GClosure *flip_closure = closure_container->flip_closure;
   MetaGpuKms *gpu_kms = closure_container->gpu_kms;
   struct timeval page_flip_time = {sec, usec};
+  MetaCrtc *crtc = closure_container->crtc;
 
   invoke_flip_closure (flip_closure,
                        gpu_kms,
-                       closure_container->crtc,
+                       crtc,
                        timeval_to_nanoseconds (&page_flip_time));
+
+  if (crtc)
+    {
+      MetaCrtcKmsScanouts *scanouts = meta_crtc_kms_get_scanouts (crtc);
+
+      if (scanouts->next)
+        {
+          gboolean fb_in_use;
+          MetaKmsBuffer *next_fb = scanouts->next;
+          GClosure *next_closure = scanouts->next_closure;
+
+          scanouts->next = NULL;
+          scanouts->next_closure = NULL;
+
+          meta_gpu_kms_flip_crtc (gpu_kms,
+                                  crtc,
+                                  scanouts->next_x,
+                                  scanouts->next_y,
+                                  next_fb,
+                                  next_closure,
+                                  &fb_in_use);
+
+          g_object_unref (next_fb);
+          g_closure_unref (next_closure);
+        }
+    }
+
   meta_gpu_kms_flip_closure_container_free (closure_container);
 }
 
