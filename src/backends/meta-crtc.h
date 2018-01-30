@@ -23,6 +23,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-gpu.h"
+#include "backends/meta-framebuffer.h"
 
 /* Same as KMS mode flags and X11 randr flags */
 typedef enum _MetaCrtcModeFlag
@@ -68,6 +69,12 @@ struct _MetaCrtc
 
   gpointer driver_private;
   GDestroyNotify driver_notify;
+
+  MetaFramebuffer *previous_scanout;
+  MetaFramebuffer *current_scanout;
+  MetaFramebuffer *next_scanout;
+  GClosure        *next_scanout_closure;
+  int              next_scanout_x, next_scanout_y;
 };
 
 struct _MetaCrtcMode
