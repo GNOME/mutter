@@ -29,6 +29,14 @@
 #include "backends/meta-crtc.h"
 #include "backends/native/meta-gpu-kms.h"
 
+typedef struct _MetaCrtcKmsScanouts
+{
+  /* These fields are maintained by MetaGpuKms on a per-CRTC basis. */
+  MetaKmsBuffer *previous, *current, *next;
+  GClosure      *next_closure;
+  int            next_x, next_y;
+} MetaCrtcKmsScanouts;
+
 gboolean meta_crtc_kms_is_transform_handled (MetaCrtc             *crtc,
                                              MetaMonitorTransform  transform);
 
@@ -39,6 +47,8 @@ void meta_crtc_kms_set_underscan (MetaCrtc *crtc,
 
 GArray * meta_crtc_kms_get_modifiers (MetaCrtc *crtc,
                                       uint32_t  format);
+
+MetaCrtcKmsScanouts * meta_crtc_kms_get_scanouts (MetaCrtc *crtc);
 
 MetaCrtc * meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
                                  drmModeCrtc  *drm_crtc,
