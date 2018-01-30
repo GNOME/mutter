@@ -68,6 +68,10 @@ struct _MetaCrtc
 
   gpointer driver_private;
   GDestroyNotify driver_notify;
+
+  GObject  *previous_scanout, *current_scanout, *next_scanout;
+  GClosure *next_scanout_closure;
+  int       next_scanout_x, next_scanout_y;
 };
 
 struct _MetaCrtcMode
