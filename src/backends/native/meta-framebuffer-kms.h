@@ -49,6 +49,7 @@ void meta_framebuffer_kms_set_gbm_surface (MetaFramebufferKms *fb_kms,
 
 gboolean meta_framebuffer_kms_acquire_swapped_buffer (MetaFramebufferKms *fb_kms);
 uint32_t meta_framebuffer_kms_get_fb_id (const MetaFramebufferKms *fb_kms);
+struct gbm_bo *meta_framebuffer_kms_get_bo (const MetaFramebufferKms *fb_kms);
 void meta_framebuffer_kms_release_swapped_buffer (MetaFramebufferKms *fb_kms);
 
 #endif /* META_FRAMEBUFFER_KMS_H */

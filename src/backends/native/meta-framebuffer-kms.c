@@ -36,23 +36,12 @@ meta_framebuffer_kms_init (MetaFramebufferKms *framebuffer_kms)
 }
 
 static void
-release_private (MetaFramebufferKms *framebuffer_kms)
-{
-  drmModeRmFB (framebuffer_kms->drm_fd, framebuffer_kms->fb_id);
-  framebuffer_kms->fb_id = INVALID_FB_ID;
-
-  gbm_surface_release_buffer (framebuffer_kms->gbm_surface,
-                              framebuffer_kms->gbm_bo);
-  framebuffer_kms->gbm_bo = NULL;
-}
-
-static void
 meta_framebuffer_kms_finalize (GObject *object)
 {
   MetaFramebufferKms *framebuffer_kms = META_FRAMEBUFFER_KMS (object);
 
-  if (framebuffer_kms->gbm_bo)
-    release_private (framebuffer_kms);
+  if (framebuffer_kms->gbm_surface && framebuffer_kms->drm_fd >= 0)
+    meta_framebuffer_kms_release_swapped_buffer (framebuffer_kms);
 
   /* We don't own these: */
   framebuffer_kms->gbm_surface = NULL;
@@ -73,6 +62,7 @@ void
 meta_framebuffer_kms_set_drm_fd (MetaFramebufferKms *framebuffer_kms,
                                  int drm_fd)
 {
+  g_return_if_fail (framebuffer_kms != NULL);
   g_return_if_fail (framebuffer_kms->gbm_bo == NULL);
   g_return_if_fail (framebuffer_kms->gbm_surface == NULL);
 
@@ -83,6 +73,7 @@ void
 meta_framebuffer_kms_set_gbm_surface (MetaFramebufferKms *framebuffer_kms,
                                       struct gbm_surface *gbm_surface)
 {
+  g_return_if_fail (framebuffer_kms != NULL);
   g_return_if_fail (framebuffer_kms->gbm_bo == NULL);
   g_return_if_fail (framebuffer_kms->drm_fd >= 0);
 
@@ -100,6 +91,7 @@ meta_framebuffer_kms_acquire_swapped_buffer (MetaFramebufferKms *framebuffer_kms
   struct gbm_bo *bo;
   int i;
 
+  g_return_val_if_fail (framebuffer_kms != NULL, FALSE);
   g_return_val_if_fail (framebuffer_kms->gbm_bo == NULL, FALSE);
   g_return_val_if_fail (framebuffer_kms->gbm_surface != NULL, FALSE);
   g_return_val_if_fail (framebuffer_kms->drm_fd >= 0, FALSE);
@@ -153,6 +145,7 @@ meta_framebuffer_kms_acquire_swapped_buffer (MetaFramebufferKms *framebuffer_kms
 uint32_t
 meta_framebuffer_kms_get_fb_id (const MetaFramebufferKms *framebuffer_kms)
 {
+  g_return_val_if_fail (framebuffer_kms != NULL, INVALID_FB_ID);
   g_return_val_if_fail (framebuffer_kms->gbm_bo != NULL, INVALID_FB_ID);
   g_return_val_if_fail (framebuffer_kms->gbm_surface != NULL, INVALID_FB_ID);
   g_return_val_if_fail (framebuffer_kms->drm_fd >= 0, INVALID_FB_ID);
@@ -160,12 +153,34 @@ meta_framebuffer_kms_get_fb_id (const MetaFramebufferKms *framebuffer_kms)
   return framebuffer_kms->fb_id;
 }
 
+struct gbm_bo *
+meta_framebuffer_kms_get_bo (const MetaFramebufferKms *framebuffer_kms)
+{
+  g_return_val_if_fail (framebuffer_kms != NULL, INVALID_FB_ID);
+  g_return_val_if_fail (framebuffer_kms->gbm_bo != NULL, INVALID_FB_ID);
+  g_return_val_if_fail (framebuffer_kms->gbm_surface != NULL, INVALID_FB_ID);
+  g_return_val_if_fail (framebuffer_kms->drm_fd >= 0, INVALID_FB_ID);
+
+  return framebuffer_kms->gbm_bo;
+}
+
 void
 meta_framebuffer_kms_release_swapped_buffer (MetaFramebufferKms *framebuffer_kms)
 {
-  g_return_if_fail (framebuffer_kms->gbm_bo != NULL);
+  g_return_if_fail (framebuffer_kms != NULL);
   g_return_if_fail (framebuffer_kms->gbm_surface != NULL);
   g_return_if_fail (framebuffer_kms->drm_fd >= 0);
 
-  release_private (framebuffer_kms);
+  if (framebuffer_kms->fb_id != INVALID_FB_ID)
+    {
+      drmModeRmFB (framebuffer_kms->drm_fd, framebuffer_kms->fb_id);
+      framebuffer_kms->fb_id = INVALID_FB_ID;
+    }
+
+  if (framebuffer_kms->gbm_bo)
+    {
+      gbm_surface_release_buffer (framebuffer_kms->gbm_surface,
+                                  framebuffer_kms->gbm_bo);
+      framebuffer_kms->gbm_bo = NULL;
+    }
 }
