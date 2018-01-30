@@ -55,6 +55,8 @@ typedef struct _MetaCrtcKms
    * value: owned GArray* (uint64_t modifier), or NULL
    */
   GHashTable *formats_modifiers;
+
+  MetaCrtcKmsScanouts scanouts;
 } MetaCrtcKms;
 
 /**
@@ -290,6 +292,14 @@ meta_crtc_kms_supports_format (MetaCrtc *crtc,
                                        GUINT_TO_POINTER (drm_format),
                                        NULL,
                                        NULL);
+}
+
+MetaCrtcKmsScanouts *
+meta_crtc_kms_get_scanouts (MetaCrtc *crtc)
+{
+  MetaCrtcKms *crtc_kms = crtc->driver_private;
+
+  return &crtc_kms->scanouts;
 }
 
 static inline uint32_t *
@@ -575,7 +585,18 @@ meta_crtc_destroy_notify (MetaCrtc *crtc)
 {
   MetaCrtcKms *crtc_kms = crtc->driver_private;
 
+  if (crtc_kms->scanouts.next_closure)
+    {
+      g_closure_unref (crtc_kms->scanouts.next_closure);
+      crtc_kms->scanouts.next_closure = NULL;
+    }
+
+  g_clear_object (&crtc_kms->scanouts.next);
+  g_clear_object (&crtc_kms->scanouts.current);
+  g_clear_object (&crtc_kms->scanouts.previous);
+
   g_hash_table_destroy (crtc_kms->formats_modifiers);
+
   g_free (crtc->driver_private);
 }
 
