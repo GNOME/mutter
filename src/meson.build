@@ -555,6 +555,8 @@ if have_native_backend
     'backends/native/meta-renderer-native.h',
     'backends/native/meta-stage-native.c',
     'backends/native/meta-stage-native.h',
+    'backends/native/meta-kms-buffer.c',
+    'backends/native/meta-kms-buffer.h',
   ]
 endif
 
