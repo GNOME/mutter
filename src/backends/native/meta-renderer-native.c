@@ -1575,6 +1575,14 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
 
   *egl_context_changed = TRUE;
 
+  g_clear_object (&secondary_gpu_state->next_fb);
+  secondary_gpu_state->next_fb = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
+  meta_framebuffer_kms_set_drm_fd (secondary_gpu_state->next_fb,
+                                   meta_gpu_kms_get_fd (
+                                     secondary_gpu_state->gpu_kms));
+  meta_framebuffer_kms_set_gbm_surface (secondary_gpu_state->next_fb,
+                                        secondary_gpu_state->gbm.surface);
+
   if (!meta_renderer_native_gles3_blit_shared_bo (egl,
                                                   renderer_native->gles3,
                                                   renderer_gpu_data->egl_display,
@@ -1598,13 +1606,6 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
       return;
     }
 
-  g_clear_object (&secondary_gpu_state->next_fb);
-  secondary_gpu_state->next_fb = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
-  meta_framebuffer_kms_set_drm_fd (secondary_gpu_state->next_fb,
-                                   meta_gpu_kms_get_fd (
-                                     secondary_gpu_state->gpu_kms));
-  meta_framebuffer_kms_set_gbm_surface (secondary_gpu_state->next_fb,
-                                        secondary_gpu_state->gbm.surface);
   meta_framebuffer_kms_acquire_swapped_buffer (secondary_gpu_state->next_fb);
 }
 
