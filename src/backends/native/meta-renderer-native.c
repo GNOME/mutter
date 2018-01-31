@@ -1653,8 +1653,7 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
                                           target_data);
 
   g_clear_object (&secondary_gpu_state->next_fb);
-  secondary_gpu_state->next_fb = g_object_new (META_TYPE_FRAMEBUFFER_KMS,
-                                               NULL);
+  secondary_gpu_state->next_fb = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
   meta_framebuffer_kms_set_drm_fd (secondary_gpu_state->next_fb,
                                    meta_gpu_kms_get_fd (
                                      secondary_gpu_state->gpu_kms));
