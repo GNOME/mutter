@@ -1631,10 +1631,9 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
                                           width, height,
                                           target_data);
 
-  /* TODO FIXME
-  secondary_gpu_state->gbm.next_fb_id = target_fb_id;
-  */
-  (void)target_fb_id;
+  /* TODO FIXME: Initialize secondary_gpu_state->next_fb ? */
+  meta_framebuffer_kms_acquire_dumb_buffer (secondary_gpu_state->next_fb,
+                                            target_fb_id);
 }
 
 static void
@@ -2306,9 +2305,7 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
     case META_RENDERER_NATIVE_MODE_GBM:
       /* flip state takes a reference on the onscreen so there should
        * never be outstanding flips when we reach here. */
-      /* FIXME TODO - replace this?
-      g_return_if_fail (onscreen_native->gbm.next_fb_id == 0);
-      */
+      g_return_if_fail (onscreen_native->next_fb == NULL);
 
       free_current_bo (onscreen);
 

@@ -40,8 +40,7 @@ meta_framebuffer_kms_finalize (GObject *object)
 {
   MetaFramebufferKms *framebuffer_kms = META_FRAMEBUFFER_KMS (object);
 
-  if (framebuffer_kms->gbm_surface && framebuffer_kms->drm_fd >= 0)
-    meta_framebuffer_kms_release_swapped_buffer (framebuffer_kms);
+  meta_framebuffer_kms_release_buffer (framebuffer_kms);
 
   /* We don't own these: */
   framebuffer_kms->gbm_surface = NULL;
@@ -145,13 +144,20 @@ meta_framebuffer_kms_acquire_swapped_buffer (MetaFramebufferKms *framebuffer_kms
   return TRUE;
 }
 
+void
+meta_framebuffer_kms_acquire_dumb_buffer (MetaFramebufferKms *framebuffer_kms,
+                                           uint32_t dumb_fb_id)
+{
+  g_return_if_fail (framebuffer_kms != NULL);
+  g_return_if_fail (framebuffer_kms->fb_id == INVALID_FB_ID);
+
+  framebuffer_kms->fb_id = dumb_fb_id;
+}
+
 uint32_t
 meta_framebuffer_kms_get_fb_id (const MetaFramebufferKms *framebuffer_kms)
 {
   g_return_val_if_fail (framebuffer_kms != NULL, INVALID_FB_ID);
-  g_return_val_if_fail (framebuffer_kms->gbm_bo != NULL, INVALID_FB_ID);
-  g_return_val_if_fail (framebuffer_kms->gbm_surface != NULL, INVALID_FB_ID);
-  g_return_val_if_fail (framebuffer_kms->drm_fd >= 0, INVALID_FB_ID);
 
   return framebuffer_kms->fb_id;
 }
@@ -165,22 +171,17 @@ meta_framebuffer_kms_get_bo (const MetaFramebufferKms *framebuffer_kms)
 }
 
 void
-meta_framebuffer_kms_release_swapped_buffer (MetaFramebufferKms *framebuffer_kms)
+meta_framebuffer_kms_release_buffer (MetaFramebufferKms *framebuffer_kms)
 {
   g_return_if_fail (framebuffer_kms != NULL);
-  g_return_if_fail (framebuffer_kms->gbm_surface != NULL);
-  g_return_if_fail (framebuffer_kms->drm_fd >= 0);
 
-  if (framebuffer_kms->fb_id != INVALID_FB_ID)
-    {
-      drmModeRmFB (framebuffer_kms->drm_fd, framebuffer_kms->fb_id);
-      framebuffer_kms->fb_id = INVALID_FB_ID;
-    }
+  if (framebuffer_kms->drm_fd >= 0 && framebuffer_kms->fb_id != INVALID_FB_ID)
+    drmModeRmFB (framebuffer_kms->drm_fd, framebuffer_kms->fb_id);
 
-  if (framebuffer_kms->gbm_bo)
-    {
-      gbm_surface_release_buffer (framebuffer_kms->gbm_surface,
-                                  framebuffer_kms->gbm_bo);
-      framebuffer_kms->gbm_bo = NULL;
-    }
+  if (framebuffer_kms->gbm_surface != NULL && framebuffer_kms->gbm_bo)
+    gbm_surface_release_buffer (framebuffer_kms->gbm_surface,
+                                framebuffer_kms->gbm_bo);
+
+  framebuffer_kms->fb_id = INVALID_FB_ID;
+  framebuffer_kms->gbm_bo = NULL;
 }
