@@ -1640,8 +1640,8 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
                                                NULL);
   meta_framebuffer_kms_set_drm_fd (secondary_gpu_state->next_fb,
     meta_gpu_kms_get_fd (secondary_gpu_state->gpu_kms));
-  meta_framebuffer_kms_acquire_dumb_buffer (secondary_gpu_state->next_fb,
-                                            target_fb_id);
+  meta_framebuffer_kms_borrow_dumb_buffer (secondary_gpu_state->next_fb,
+                                           target_fb_id);
 }
 
 static void

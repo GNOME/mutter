@@ -145,8 +145,8 @@ meta_framebuffer_kms_acquire_swapped_buffer (MetaFramebufferKms *framebuffer_kms
 }
 
 void
-meta_framebuffer_kms_acquire_dumb_buffer (MetaFramebufferKms *framebuffer_kms,
-                                          uint32_t dumb_fb_id)
+meta_framebuffer_kms_borrow_dumb_buffer (MetaFramebufferKms *framebuffer_kms,
+                                         uint32_t dumb_fb_id)
 {
   g_return_if_fail (framebuffer_kms != NULL);
   g_return_if_fail (framebuffer_kms->fb_id == INVALID_FB_ID);
