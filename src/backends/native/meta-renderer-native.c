@@ -122,6 +122,10 @@ typedef struct _MetaRendererNativeGpuData
 
 typedef struct _MetaDumbBuffer
 {
+  /*
+   * TODO: Implement MetaDumbBuffer as a MetaFramebufferKms. Sorry I don't
+   *       have a hybrid setup to test that on right now...
+   */
   uint32_t fb_id;
   uint32_t handle;
   void *map;
