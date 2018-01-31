@@ -117,8 +117,13 @@ meta_framebuffer_kms_acquire_swapped_buffer (MetaFramebufferKms *framebuffer_kms
   if (modifiers[0] != DRM_FORMAT_MOD_INVALID)
     {
       if (drmModeAddFB2WithModifiers (framebuffer_kms->drm_fd,
-                                      width, height, format,
-                                      handles, strides, offsets, modifiers,
+                                      width,
+                                      height,
+                                      format,
+                                      handles,
+                                      strides,
+                                      offsets,
+                                      modifiers,
                                       &framebuffer_kms->fb_id,
                                       DRM_MODE_FB_MODIFIERS))
         {
@@ -127,12 +132,24 @@ meta_framebuffer_kms_acquire_swapped_buffer (MetaFramebufferKms *framebuffer_kms
           return FALSE;
         }
     }
-  else if (drmModeAddFB2 (framebuffer_kms->drm_fd, width, height, format,
-                          handles, strides, offsets,
-                          &framebuffer_kms->fb_id, 0))
+  else if (drmModeAddFB2 (framebuffer_kms->drm_fd,
+                          width,
+                          height,
+                          format,
+                          handles,
+                          strides,
+                          offsets,
+                          &framebuffer_kms->fb_id,
+                          0))
     {
-      if (drmModeAddFB (framebuffer_kms->drm_fd, width, height, 24, 32,
-                        strides[0], handles[0], &framebuffer_kms->fb_id))
+      if (drmModeAddFB (framebuffer_kms->drm_fd,
+                        width,
+                        height,
+                        24,
+                        32,
+                        strides[0],
+                        handles[0],
+                        &framebuffer_kms->fb_id))
         {
           g_warning ("drmModeAddFB failed: %m");
           gbm_surface_release_buffer (framebuffer_kms->gbm_surface, bo);
