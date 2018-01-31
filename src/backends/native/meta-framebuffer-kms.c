@@ -97,7 +97,11 @@ meta_framebuffer_kms_acquire_swapped_buffer (MetaFramebufferKms *framebuffer_kms
   g_return_val_if_fail (framebuffer_kms->drm_fd >= 0, FALSE);
 
   bo = gbm_surface_lock_front_buffer (framebuffer_kms->gbm_surface);
-  g_assert (bo != NULL);
+  if (bo == NULL)
+    {
+      g_warning ("gbm_surface_lock_front_buffer failed");
+      return FALSE;
+    }
 
   for (i = 0; i < gbm_bo_get_plane_count (bo); ++i)
     {
@@ -128,11 +132,10 @@ meta_framebuffer_kms_acquire_swapped_buffer (MetaFramebufferKms *framebuffer_kms
                           handles, strides, offsets,
                           &framebuffer_kms->fb_id, 0))
     {
-      /* TODO: Configurable depth and bpp in future? */
       if (drmModeAddFB (framebuffer_kms->drm_fd, width, height, 24, 32,
                         strides[0], handles[0], &framebuffer_kms->fb_id))
         {
-          g_warning ("drmModeAddFB: %m");
+          g_warning ("drmModeAddFB failed: %m");
           gbm_surface_release_buffer (framebuffer_kms->gbm_surface, bo);
           return FALSE;
         }
@@ -156,10 +159,7 @@ meta_framebuffer_kms_get_fb_id (const MetaFramebufferKms *framebuffer_kms)
 struct gbm_bo *
 meta_framebuffer_kms_get_bo (const MetaFramebufferKms *framebuffer_kms)
 {
-  g_return_val_if_fail (framebuffer_kms != NULL, INVALID_FB_ID);
-  g_return_val_if_fail (framebuffer_kms->gbm_bo != NULL, INVALID_FB_ID);
-  g_return_val_if_fail (framebuffer_kms->gbm_surface != NULL, INVALID_FB_ID);
-  g_return_val_if_fail (framebuffer_kms->drm_fd >= 0, INVALID_FB_ID);
+  g_return_val_if_fail (framebuffer_kms != NULL, NULL);
 
   return framebuffer_kms->gbm_bo;
 }
