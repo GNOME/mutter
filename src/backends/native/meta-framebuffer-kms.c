@@ -146,7 +146,7 @@ meta_framebuffer_kms_acquire_swapped_buffer (MetaFramebufferKms *framebuffer_kms
 
 void
 meta_framebuffer_kms_acquire_dumb_buffer (MetaFramebufferKms *framebuffer_kms,
-                                           uint32_t dumb_fb_id)
+                                          uint32_t dumb_fb_id)
 {
   g_return_if_fail (framebuffer_kms != NULL);
   g_return_if_fail (framebuffer_kms->fb_id == INVALID_FB_ID);
@@ -175,7 +175,9 @@ meta_framebuffer_kms_release_buffer (MetaFramebufferKms *framebuffer_kms)
 {
   g_return_if_fail (framebuffer_kms != NULL);
 
-  if (framebuffer_kms->drm_fd >= 0 && framebuffer_kms->fb_id != INVALID_FB_ID)
+  if (framebuffer_kms->drm_fd >= 0 &&
+      framebuffer_kms->fb_id != INVALID_FB_ID &&
+      framebuffer_kms->gbm_bo)  /* We don't own dumb buffers, for now... */
     drmModeRmFB (framebuffer_kms->drm_fd, framebuffer_kms->fb_id);
 
   if (framebuffer_kms->gbm_surface != NULL && framebuffer_kms->gbm_bo)
