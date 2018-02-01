@@ -19,7 +19,7 @@
  * Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
  */
 
-#include "meta-framebuffer-kms.h"
+#include "backends/native/meta-framebuffer-kms.h"
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 #include <drm_fourcc.h>
