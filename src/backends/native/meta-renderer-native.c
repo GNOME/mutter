@@ -1299,7 +1299,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaGpuKms *gpu_kms;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state = NULL;
-  uint32_t fb_id;
+  MetaFramebufferKms *fb_kms = NULL;
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   if (!meta_gpu_kms_is_crtc_active (gpu_kms, crtc))
@@ -1315,18 +1315,18 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
     case META_RENDERER_NATIVE_MODE_GBM:
       if (gpu_kms == render_gpu)
         {
-          fb_id = meta_framebuffer_kms_get_fb_id (onscreen_native->next_fb);
+          fb_kms = onscreen_native->next_fb;
         }
       else
         {
           secondary_gpu_state = get_secondary_gpu_state (onscreen, gpu_kms);
-          fb_id = meta_framebuffer_kms_get_fb_id (secondary_gpu_state->next_fb);
+          fb_kms = secondary_gpu_state->next_fb;
         }
 
       if (!meta_gpu_kms_flip_crtc (gpu_kms,
                                    crtc,
                                    x, y,
-                                   fb_id,
+                                   fb_kms,
                                    flip_closure,
                                    fb_in_use))
         return;
@@ -1351,7 +1351,7 @@ typedef struct _SetCrtcFbData
 {
   MetaGpuKms *render_gpu;
   CoglOnscreen *onscreen;
-  uint32_t fb_id;
+  MetaFramebufferKms *fb_kms;
 } SetCrtcFbData;
 
 static void
@@ -1363,13 +1363,13 @@ set_crtc_fb (MetaLogicalMonitor *logical_monitor,
   MetaGpuKms *render_gpu = data->render_gpu;
   CoglOnscreen *onscreen = data->onscreen;
   MetaGpuKms *gpu_kms;
-  uint32_t fb_id;
+  MetaFramebufferKms *fb_kms;
   int x, y;
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   if (gpu_kms == render_gpu)
     {
-      fb_id = data->fb_id;
+      fb_kms = data->fb_kms;
     }
   else
     {
@@ -1379,13 +1379,13 @@ set_crtc_fb (MetaLogicalMonitor *logical_monitor,
       if (!secondary_gpu_state)
         return;
 
-      fb_id = meta_framebuffer_kms_get_fb_id (secondary_gpu_state->next_fb);
+      fb_kms = secondary_gpu_state->next_fb;
     }
 
   x = crtc->rect.x - logical_monitor->rect.x;
   y = crtc->rect.y - logical_monitor->rect.y;
 
-  meta_gpu_kms_apply_crtc_mode (gpu_kms, crtc, x, y, fb_id);
+  meta_gpu_kms_apply_crtc_mode (gpu_kms, crtc, x, y, fb_kms);
 }
 
 static void
@@ -1397,7 +1397,7 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRendererView *view = onscreen_native->view;
-  uint32_t fb_id = 0;
+  MetaFramebufferKms *fb_kms = NULL;
   MetaLogicalMonitor *logical_monitor;
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
@@ -1405,16 +1405,16 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      fb_id = meta_framebuffer_kms_get_fb_id (onscreen_native->next_fb);
+      fb_kms = onscreen_native->next_fb;
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      fb_id = onscreen_native->egl.dumb_fb.fb_id;
+      /* TODO  fb_id = onscreen_native->egl.dumb_fb.fb_id; */
       break;
 #endif
     }
 
-  g_assert (fb_id != 0);
+  g_assert (fb_kms != NULL);
 
   logical_monitor = meta_renderer_view_get_logical_monitor (view);
   if (logical_monitor)
@@ -1422,7 +1422,7 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
       SetCrtcFbData data = {
         .render_gpu = render_gpu,
         .onscreen = onscreen,
-        .fb_id = fb_id
+        .fb_kms = fb_kms
       };
 
       meta_logical_monitor_foreach_crtc (logical_monitor,
@@ -1440,7 +1440,7 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
           meta_gpu_kms_apply_crtc_mode (render_gpu,
                                         crtc,
                                         crtc->rect.x, crtc->rect.y,
-                                        fb_id);
+                                        fb_kms);
         }
     }
 }

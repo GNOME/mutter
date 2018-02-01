@@ -32,6 +32,16 @@ meta_crtc_get_gpu (MetaCrtc *crtc)
 }
 
 static void
+meta_crtc_dispose (GObject *object)
+{
+  MetaCrtc *crtc = META_CRTC (object);
+
+  g_clear_object (&crtc->scanout);
+
+  G_OBJECT_CLASS (meta_crtc_parent_class)->dispose (object);
+}
+
+static void
 meta_crtc_finalize (GObject *object)
 {
   MetaCrtc *crtc = META_CRTC (object);
@@ -52,6 +62,7 @@ meta_crtc_class_init (MetaCrtcClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->dispose = meta_crtc_dispose;
   object_class->finalize = meta_crtc_finalize;
 }
 
