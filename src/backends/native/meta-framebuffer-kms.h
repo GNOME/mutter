@@ -25,20 +25,6 @@
 #include <glib-object.h>
 #include <gbm.h>
 
-struct _MetaFramebufferKms
-{
-  GObject parent;
-
-  /* Contextual information we don't own (and assume lives longer than us since
-     there's no refcount on these) */
-  int drm_fd;
-  struct gbm_surface *gbm_surface;
-
-  /* Members we own and will destroy when refcount reaches zero */
-  struct gbm_bo *gbm_bo;
-  uint32_t fb_id;
-};
-
 #define META_TYPE_FRAMEBUFFER_KMS (meta_framebuffer_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaFramebufferKms, meta_framebuffer_kms, META, FRAMEBUFFER_KMS, GObject)
 

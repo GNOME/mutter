@@ -26,6 +26,20 @@
 
 #define INVALID_FB_ID 0U
 
+struct _MetaFramebufferKms
+{
+  GObject parent;
+
+  /* Contextual information we don't own (and assume lives longer than us since
+     there's no refcount on these) */
+  int drm_fd;
+  struct gbm_surface *gbm_surface;
+
+  /* Members we own and will destroy when refcount reaches zero */
+  struct gbm_bo *gbm_bo;
+  uint32_t fb_id;
+};
+
 G_DEFINE_TYPE (MetaFramebufferKms, meta_framebuffer_kms, G_TYPE_OBJECT)
 
 static void
