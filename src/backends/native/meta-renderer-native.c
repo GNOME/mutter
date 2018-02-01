@@ -1753,6 +1753,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
+      g_warn_if_fail (onscreen_native->next_fb == NULL);
       g_clear_object (&onscreen_native->next_fb);
       onscreen_native->next_fb = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
       meta_framebuffer_kms_set_drm_fd (onscreen_native->next_fb,
