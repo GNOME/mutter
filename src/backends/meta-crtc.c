@@ -36,7 +36,14 @@ meta_crtc_dispose (GObject *object)
 {
   MetaCrtc *crtc = META_CRTC (object);
 
-  g_clear_object (&crtc->scanout);
+  if (crtc->next_scanout_closure)
+    {
+      g_closure_unref (crtc->next_scanout_closure);
+      crtc->next_scanout_closure = NULL;
+    }
+
+  g_clear_object (&crtc->next_scanout);
+  g_clear_object (&crtc->current_scanout);
 
   G_OBJECT_CLASS (meta_crtc_parent_class)->dispose (object);
 }

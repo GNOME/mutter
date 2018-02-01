@@ -69,8 +69,9 @@ struct _MetaCrtc
   gpointer driver_private;
   GDestroyNotify driver_notify;
 
-  GObject *scanout; /* Holds a reference to the framebuffer object presently
-                       being scanned out (if any, otherwise NULL). */
+  GObject *current_scanout;
+  GObject *next_scanout;
+  GClosure *next_scanout_closure;
 };
 
 struct _MetaCrtcMode

@@ -145,7 +145,13 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
       return FALSE;
     }
 
-  g_set_object (&crtc->scanout, G_OBJECT (fb_kms));
+  g_set_object (&crtc->current_scanout, G_OBJECT (fb_kms));
+  g_clear_object (&crtc->next_scanout);
+  if (crtc->next_scanout_closure)
+    {
+      g_closure_unref (crtc->next_scanout_closure);
+      crtc->next_scanout_closure = NULL;
+    }
 
   g_free (connectors);
 
@@ -205,6 +211,7 @@ typedef struct _GpuClosureContainer
 {
   GClosure *flip_closure;
   MetaGpuKms *gpu_kms;
+  MetaCrtc *crtc;
 } GpuClosureContainer;
 
 gboolean
@@ -237,16 +244,39 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
       closure_container = g_new0 (GpuClosureContainer, 1);
       *closure_container = (GpuClosureContainer) {
         .flip_closure = flip_closure,
-        .gpu_kms = gpu_kms
+        .gpu_kms = gpu_kms,
+        .crtc = crtc
       };
+      g_object_ref (closure_container->crtc);
 
       ret = drmModePageFlip (kms_fd,
                              crtc->crtc_id,
                              meta_framebuffer_kms_get_fb_id (fb_kms),
                              DRM_MODE_PAGE_FLIP_EVENT,
                              closure_container);
+      if (ret == -EBUSY)
+        {
+          g_object_unref (closure_container->crtc);
+          g_free (closure_container);
+
+          /*
+           * If these are set already then we're effectively dropping a frame.
+           * And that's a good thing. Because we're only dropping an "old"
+           * frame that wasn't old enough to have made it to the screen yet.
+           * And only when we have something newer to replace it already,
+           * so we're never dropping the newest frame.
+           */
+          if (crtc->next_scanout_closure)
+            g_closure_unref (crtc->next_scanout_closure);
+          crtc->next_scanout_closure = g_closure_ref (flip_closure);
+          g_set_object (&crtc->next_scanout, G_OBJECT (fb_kms));
+
+          *fb_in_use = TRUE;
+          return TRUE;
+        }
       if (ret != 0 && ret != -EACCES)
         {
+          g_object_unref (closure_container->crtc);
           g_free (closure_container);
           g_warning ("Failed to flip: %s", strerror (-ret));
           gpu_kms->page_flips_not_supported = TRUE;
@@ -265,7 +295,8 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
   if (ret != 0)
     return FALSE;
 
-  g_set_object (&crtc->scanout, G_OBJECT (fb_kms));
+  g_set_object (&crtc->current_scanout, G_OBJECT (fb_kms));
+
   *fb_in_use = TRUE;
   g_closure_ref (flip_closure);
 
@@ -282,8 +313,29 @@ page_flip_handler (int           fd,
   GpuClosureContainer *closure_container = user_data;
   GClosure *flip_closure = closure_container->flip_closure;
   MetaGpuKms *gpu_kms = closure_container->gpu_kms;
+  MetaCrtc *crtc = closure_container->crtc;
 
   invoke_flip_closure (flip_closure, gpu_kms);
+
+  if (crtc->next_scanout)
+    {
+      gboolean fb_in_use;
+      MetaFramebufferKms *next_fb = META_FRAMEBUFFER_KMS (crtc->next_scanout);
+      GClosure *next_closure = crtc->next_scanout_closure;
+      crtc->next_scanout = NULL;
+      crtc->next_scanout_closure = NULL;
+
+      meta_gpu_kms_flip_crtc (gpu_kms, crtc, 0, 0, next_fb, next_closure,
+                              &fb_in_use);
+      /* Note meta_gpu_kms_flip_crtc keeps the next_fb reference even if it
+         returns false. False just means it set CRTC so the framebuffer is
+         still referenced. */
+
+      g_object_unref (next_fb);
+      g_closure_unref (next_closure);
+    }
+
+  g_object_unref (crtc);
   g_free (closure_container);
 }
 

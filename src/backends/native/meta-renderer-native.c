@@ -142,6 +142,8 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
   struct {
     struct gbm_surface *surface;
   } gbm;
+
+  /* TODO: Deprecate these? */
   MetaFramebufferKms *current_fb;
   MetaFramebufferKms *next_fb;
 
@@ -164,6 +166,8 @@ typedef struct _MetaOnscreenNative
   struct {
     struct gbm_surface *surface;
   } gbm;
+
+  /* TODO: Deprecate these? */
   MetaFramebufferKms *current_fb;
   MetaFramebufferKms *next_fb;
 
@@ -1561,27 +1565,6 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   onscreen_native->pending_queue_swap_notify = TRUE;
 
   g_closure_unref (flip_closure);
-}
-
-static void
-wait_for_pending_flips (CoglOnscreen *onscreen)
-{
-  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
-  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
-  GHashTableIter iter;
-
-  g_hash_table_iter_init (&iter, onscreen_native->secondary_gpu_states);
-  while (g_hash_table_iter_next (&iter,
-                                 NULL,
-                                 (gpointer *) &secondary_gpu_state))
-    {
-      while (secondary_gpu_state->pending_flips)
-        meta_gpu_kms_wait_for_flip (secondary_gpu_state->gpu_kms, NULL);
-    }
-
-  while (onscreen_native->total_pending_flips)
-    meta_gpu_kms_wait_for_flip (onscreen_native->render_gpu, NULL);
 }
 
 static void
