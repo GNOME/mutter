@@ -1557,7 +1557,6 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
   GError *error = NULL;
@@ -1575,15 +1574,6 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
     }
 
   *egl_context_changed = TRUE;
-
-  g_clear_object (&onscreen_native->next_fb);
-  onscreen_native->next_fb = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
-  meta_framebuffer_kms_set_drm_fd (onscreen_native->next_fb,
-                                   meta_gpu_kms_get_fd (render_gpu));
-  meta_framebuffer_kms_set_gbm_surface (onscreen_native->next_fb,
-                                        onscreen_native->gbm.surface);
-  /* Acquire the buffer before we blit it. Or else the bo won't exist. */
-  meta_framebuffer_kms_acquire_swapped_buffer (onscreen_native->next_fb);
 
   if (!meta_renderer_native_gles3_blit_shared_bo (egl,
                                                   renderer_native->gles3,
