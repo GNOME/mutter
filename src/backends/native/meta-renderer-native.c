@@ -1406,10 +1406,15 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
       fb_kms = onscreen_native->next_fb;
+      g_object_ref (fb_kms);  /* TODO remove */
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      /* TODO  fb_id = onscreen_native->egl.dumb_fb.fb_id; */
+      fb_kms = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
+      meta_framebuffer_kms_set_drm_fd (fb_kms,
+                                       meta_gpu_kms_get_fd (render_gpu));
+      meta_framebuffer_kms_borrow_dumb_buffer (fb_kms,
+                                               onscreen_native->egl.dumb_fb.fb_id);
       break;
 #endif
     }
@@ -1443,6 +1448,8 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
                                         fb_kms);
         }
     }
+
+  g_object_unref (fb_kms);
 }
 
 typedef struct _FlipCrtcData
