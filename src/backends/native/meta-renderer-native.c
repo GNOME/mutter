@@ -142,8 +142,6 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
   struct {
     struct gbm_surface *surface;
   } gbm;
-
-  /* TODO: Deprecate these? */
   MetaFramebufferKms *current_fb;
   MetaFramebufferKms *next_fb;
 
@@ -166,8 +164,6 @@ typedef struct _MetaOnscreenNative
   struct {
     struct gbm_surface *surface;
   } gbm;
-
-  /* TODO: Deprecate these? */
   MetaFramebufferKms *current_fb;
   MetaFramebufferKms *next_fb;
 
@@ -1568,6 +1564,27 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
 }
 
 static void
+wait_for_pending_flips (CoglOnscreen *onscreen)
+{
+  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+  MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
+  GHashTableIter iter;
+
+  g_hash_table_iter_init (&iter, onscreen_native->secondary_gpu_states);
+  while (g_hash_table_iter_next (&iter,
+                                 NULL,
+                                 (gpointer *) &secondary_gpu_state))
+    {
+      while (secondary_gpu_state->pending_flips)
+        meta_gpu_kms_wait_for_flip (secondary_gpu_state->gpu_kms, NULL);
+    }
+
+  while (onscreen_native->total_pending_flips)
+    meta_gpu_kms_wait_for_flip (onscreen_native->render_gpu, NULL);
+}
+
+static void
 copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
                              MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
                              MetaRendererNativeGpuData           *renderer_gpu_data,
@@ -1746,6 +1763,12 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
 
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
   frame_info->global_frame_counter = renderer_native->frame_counter;
+
+  /*
+   * Wait for the flip callback before continuing, as we might have started the
+   * animation earlier due to the animation being driven by some other monitor.
+   */
+  wait_for_pending_flips (onscreen);
 
   update_secondary_gpu_state_pre_swap_buffers (onscreen);
 
