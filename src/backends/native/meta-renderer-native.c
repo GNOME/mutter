@@ -2761,7 +2761,7 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
               if (crtc->current_mode)
                 continue;
 
-              meta_gpu_kms_apply_crtc_mode (gpu_kms, crtc, 0, 0, 0);
+              meta_gpu_kms_apply_crtc_mode (gpu_kms, crtc, 0, 0, NULL);
             }
         }
 
