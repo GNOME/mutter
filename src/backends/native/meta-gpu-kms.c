@@ -260,11 +260,21 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
           g_free (closure_container);
 
           /*
-           * If these are set already then we're effectively dropping a frame.
-           * And that's a good thing. Because we're only dropping an "old"
-           * frame that wasn't old enough to have made it to the screen yet.
-           * And only when we have something newer to replace it already,
-           * so we're never dropping the newest frame.
+           * We have reached a point where we have references to three frames
+           * for this CRTC:
+           *   (a) crtc->current_scanout (oldest, currently visible)
+           *   (b) crtc->next_scanout (old, not visible yet)
+           *   (c) fb_kms (new, not visible yet)
+           * So to avoid ever waiting or growing the queue, we can now replace
+           * (b) with (c). So (b) has been dropped, and this is safe because
+           * it was neither scanning out yet, nor is the newest frame we have.
+           *
+           * Frame dropping will normally only occur if you're driving
+           * multiple monitors of different frequencies. We ensure all monitors
+           * always get fresh frames. So for monitors other than the fastest
+           * one, occasionally dropping a frame is necessary to keep up with
+           * the one of highest refresh rate. Conveniently, this also allows
+           * us to avoid ever blocking in waiting for previous page flips.
            */
           if (crtc->next_scanout_closure)
             g_closure_unref (crtc->next_scanout_closure);
