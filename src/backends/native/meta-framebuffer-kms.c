@@ -188,7 +188,9 @@ meta_framebuffer_kms_borrow_dumb_buffer (MetaFramebufferKms *framebuffer_kms,
 uint32_t
 meta_framebuffer_kms_get_fb_id (const MetaFramebufferKms *framebuffer_kms)
 {
-  return framebuffer_kms ? framebuffer_kms->fb_id : INVALID_FB_ID;
+  g_return_val_if_fail (framebuffer_kms != NULL, INVALID_FB_ID);
+
+  return framebuffer_kms->fb_id;
 }
 
 struct gbm_bo *

@@ -125,6 +125,7 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
   uint32_t *connectors;
   unsigned int n_connectors;
   drmModeModeInfo *mode;
+  uint32_t fb_id = fb_kms ? meta_framebuffer_kms_get_fb_id (fb_kms) : 0;
 
   get_crtc_drm_connectors (gpu, crtc, &connectors, &n_connectors);
 
@@ -135,7 +136,7 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
 
   if (drmModeSetCrtc (kms_fd,
                       crtc->crtc_id,
-                      meta_framebuffer_kms_get_fb_id (fb_kms),
+                      fb_id,
                       x, y,
                       connectors, n_connectors,
                       mode) != 0)
@@ -145,7 +146,11 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
       return FALSE;
     }
 
-  g_set_object (&crtc->current_scanout, G_OBJECT (fb_kms));
+  if (fb_kms)
+    g_set_object (&crtc->current_scanout, G_OBJECT (fb_kms));
+  else
+    g_clear_object (&crtc->current_scanout);
+
   g_clear_object (&crtc->next_scanout);
   if (crtc->next_scanout_closure)
     {
