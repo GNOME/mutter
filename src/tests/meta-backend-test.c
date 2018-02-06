@@ -26,6 +26,8 @@
 struct _MetaBackendTest
 {
   MetaBackendX11Nested parent;
+
+  gboolean is_headless;
 };
 
 G_DEFINE_TYPE (MetaBackendTest, meta_backend_test, META_TYPE_BACKEND_X11_NESTED)
@@ -35,13 +37,51 @@ meta_backend_test_init (MetaBackendTest *backend_test)
 {
 }
 
+static void
+on_monitors_changed_internal (MetaMonitorManager *monitor_manager,
+                              MetaBackendTest    *backend_test)
+{
+  gboolean is_headless;
+  gboolean was_headless;
+
+  is_headless = meta_monitor_manager_is_headless (monitor_manager);
+  was_headless = backend_test->is_headless;
+
+  if (is_headless != was_headless)
+    {
+      ClutterMasterClock *master_clock;
+
+      master_clock = _clutter_master_clock_get_default ();
+
+      if (is_headless)
+        {
+          _clutter_master_clock_set_paused (master_clock, TRUE);
+        }
+      else
+        {
+          _clutter_master_clock_set_paused (master_clock, FALSE);
+          _clutter_master_clock_start_running (master_clock);
+        }
+    }
+
+  backend_test->is_headless = is_headless;
+}
+
 static MetaMonitorManager *
 meta_backend_test_create_monitor_manager (MetaBackend *backend,
                                           GError     **error)
 {
-  return g_object_new (META_TYPE_MONITOR_MANAGER_TEST,
-                       "backend", backend,
-                       NULL);
+  MetaMonitorManager *monitor_manager;
+
+  monitor_manager = g_object_new (META_TYPE_MONITOR_MANAGER_TEST,
+                                  "backend", backend,
+                                  NULL);
+
+  g_signal_connect (monitor_manager, "monitors-changed-internal",
+                    G_CALLBACK (on_monitors_changed_internal),
+                    backend);
+
+  return monitor_manager;
 }
 
 static void
