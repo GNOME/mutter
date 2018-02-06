@@ -48,12 +48,12 @@ test_case_alarm_filter (MetaDisplay           *display,
   GHashTableIter iter;
   gpointer key, value;
 
-  if (async_waiter_alarm_filter (test->waiter, display, event))
+  if (async_waiter_alarm_filter (display, event, test->waiter))
     return TRUE;
 
   g_hash_table_iter_init (&iter, test->clients);
   while (g_hash_table_iter_next (&iter, &key, &value))
-    if (test_client_alarm_filter (value, display, event))
+    if (test_client_alarm_filter (display, event, value))
       return TRUE;
 
   return FALSE;
