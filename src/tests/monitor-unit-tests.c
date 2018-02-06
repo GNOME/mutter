@@ -2927,12 +2927,27 @@ meta_test_monitor_no_outputs (void)
     }
   };
   MetaMonitorTestSetup *test_setup;
+  GError *error = NULL;
 
   test_setup = create_monitor_test_setup (&test_case,
                                           MONITOR_TEST_FLAG_NO_STORED);
 
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case);
+
+  if (!test_client_do (x11_monitor_test_client, &error,
+                       "resize", X11_TEST_CLIENT_WINDOW,
+                       "123", "210",
+                       NULL))
+    g_error ("Failed to resize X11 window: %s", error->message);
+
+  if (!test_client_do (wayland_monitor_test_client, &error,
+                       "resize", WAYLAND_TEST_CLIENT_WINDOW,
+                       "123", "210",
+                       NULL))
+    g_error ("Failed to resize Wayland window: %s", error->message);
+
+  check_monitor_test_clients_state ();
 
   /* Also check that we handle going headless -> headless */
   test_setup = create_monitor_test_setup (&test_case,
