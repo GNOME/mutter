@@ -43,9 +43,9 @@ typedef struct _TestClient TestClient;
 void test_init (int    argc,
                 char **argv);
 
-gboolean async_waiter_alarm_filter (AsyncWaiter           *waiter,
-                                    MetaDisplay           *display,
-                                    XSyncAlarmNotifyEvent *event);
+gboolean async_waiter_alarm_filter (MetaDisplay           *display,
+                                    XSyncAlarmNotifyEvent *event,
+                                    gpointer               data);
 
 void async_waiter_set_and_wait (AsyncWaiter *waiter);
 
@@ -55,9 +55,9 @@ void async_waiter_destroy (AsyncWaiter *waiter);
 
 char * test_client_get_id (TestClient *client);
 
-gboolean test_client_alarm_filter (TestClient            *client,
-                                   MetaDisplay           *display,
-                                   XSyncAlarmNotifyEvent *event);
+gboolean test_client_alarm_filter (MetaDisplay           *display,
+                                   XSyncAlarmNotifyEvent *event,
+                                   gpointer               data);
 
 gboolean test_client_wait (TestClient *client,
                            GError    **error);
