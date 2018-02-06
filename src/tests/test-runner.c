@@ -50,12 +50,12 @@ test_case_alarm_filter (MetaX11Display        *x11_display,
   GHashTableIter iter;
   gpointer key, value;
 
-  if (async_waiter_alarm_filter (test->waiter, x11_display, event))
+  if (async_waiter_alarm_filter (x11_display, event, test->waiter))
     return TRUE;
 
   g_hash_table_iter_init (&iter, test->clients);
   while (g_hash_table_iter_next (&iter, &key, &value))
-    if (test_client_alarm_filter (value, x11_display, event))
+    if (test_client_alarm_filter (x11_display, event, value))
       return TRUE;
 
   return FALSE;
