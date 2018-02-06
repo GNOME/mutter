@@ -1760,6 +1760,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   CoglFrameInfo *frame_info;
   gboolean egl_context_changed = FALSE;
+  MetaFramebufferKms *new_fb = NULL;
 
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
   frame_info->global_frame_counter = renderer_native->frame_counter;
@@ -1768,7 +1769,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
    * Wait for the flip callback before continuing, as we might have started the
    * animation earlier due to the animation being driven by some other monitor.
    */
-  wait_for_pending_flips (onscreen);
+  if (0) wait_for_pending_flips (onscreen);
 
   update_secondary_gpu_state_pre_swap_buffers (onscreen);
 
@@ -1787,14 +1788,23 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      g_warn_if_fail (onscreen_native->next_fb == NULL);
       g_clear_object (&onscreen_native->next_fb);
-      onscreen_native->next_fb =
+      onscreen_native->next_fb = new_fb =
         new_framebuffer_kms_from_gbm (render_gpu,
                                       onscreen_native->gbm.surface);
-      if (!onscreen_native->next_fb)
+      if (!new_fb)
         return;
 
+      /*
+       * We need onscreen_native->next_fb to live at least as long as the
+       * below call to meta_onscreen_native_flip_crtcs, so an additional
+       * reference is required to guarantee that, for now. It's only really
+       * an issue when trying to do asynchronous multi-monitor flips.
+       * TODO: Maybe remove this reference if offending clears of next_fb
+       * can be removed... or made more sane to support multiple flip
+       * completions?
+       */
+      g_object_ref (new_fb);
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
@@ -1814,6 +1824,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
 
   onscreen_native->pending_queue_swap_notify_frame_count = renderer_native->frame_counter;
   meta_onscreen_native_flip_crtcs (onscreen);
+
+  g_clear_object (&new_fb);
 
   /*
    * If we changed EGL context, cogl will have the wrong idea about what is

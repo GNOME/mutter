@@ -281,9 +281,12 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
            * the one of highest refresh rate. Conveniently, this also allows
            * us to avoid ever blocking in waiting for previous page flips.
            */
-          if (crtc->next_scanout_closure)
-            g_closure_unref (crtc->next_scanout_closure);
-          crtc->next_scanout_closure = g_closure_ref (flip_closure);
+          if (crtc->next_scanout_closure != flip_closure)
+            {
+              if (crtc->next_scanout_closure)
+                g_closure_unref (crtc->next_scanout_closure);
+              crtc->next_scanout_closure = g_closure_ref (flip_closure);
+            }
           g_set_object (&crtc->next_scanout, G_OBJECT (fb_kms));
 
           *fb_in_use = TRUE;
