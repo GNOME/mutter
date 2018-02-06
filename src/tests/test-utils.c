@@ -157,10 +157,12 @@ async_waiter_set_and_wait (AsyncWaiter *waiter)
 }
 
 gboolean
-async_waiter_alarm_filter (AsyncWaiter           *waiter,
-                           MetaDisplay           *display,
-                           XSyncAlarmNotifyEvent *event)
+async_waiter_alarm_filter (MetaDisplay           *display,
+                           XSyncAlarmNotifyEvent *event,
+                           gpointer               data)
 {
+  AsyncWaiter *waiter = data;
+
   if (event->alarm != waiter->alarm)
     return FALSE;
 
@@ -330,12 +332,14 @@ test_client_find_window (TestClient *client,
 }
 
 gboolean
-test_client_alarm_filter (TestClient            *client,
-                          MetaDisplay           *display,
-                          XSyncAlarmNotifyEvent *event)
+test_client_alarm_filter (MetaDisplay           *display,
+                          XSyncAlarmNotifyEvent *event,
+                          gpointer               data)
 {
+  TestClient *client = data;
+
   if (client->waiter)
-    return async_waiter_alarm_filter (client->waiter, display, event);
+    return async_waiter_alarm_filter (display, event, client->waiter);
   else
     return FALSE;
 }
