@@ -2182,7 +2182,7 @@ meta_window_move_resize_request (MetaWindow *window,
 
   if (flags & (META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION))
     {
-      MetaRectangle rect, monitor_rect;
+      MetaRectangle rect;
 
       rect.x = x;
       rect.y = y;
@@ -2191,6 +2191,8 @@ meta_window_move_resize_request (MetaWindow *window,
 
       if (window->monitor)
         {
+          MetaRectangle monitor_rect;
+
           meta_display_get_monitor_geometry (window->display,
                                              window->monitor->number,
                                              &monitor_rect);
