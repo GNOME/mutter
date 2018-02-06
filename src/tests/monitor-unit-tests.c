@@ -32,6 +32,7 @@
 #include "tests/meta-monitor-manager-test.h"
 #include "tests/monitor-test-utils.h"
 #include "tests/test-utils.h"
+#include "x11/meta-x11-display-private.h"
 
 #define ALL_TRANSFORMS ((1 << (META_MONITOR_TRANSFORM_FLIPPED_270 + 1)) - 1)
 
@@ -319,51 +320,91 @@ static MonitorTestCase initial_test_case = {
   }
 };
 
-static TestClient *monitor_test_client = NULL;
+static TestClient *wayland_monitor_test_client = NULL;
+static TestClient *x11_monitor_test_client = NULL;
 
-#define TEST_CLIENT_NAME "client1"
-#define TEST_CLIENT_WINDOW "window1"
+#define WAYLAND_TEST_CLIENT_NAME "wayland_monitor_test_client"
+#define WAYLAND_TEST_CLIENT_WINDOW "window1"
+#define X11_TEST_CLIENT_NAME "x11_monitor_test_client"
+#define X11_TEST_CLIENT_WINDOW "window1"
+
+static gboolean
+monitor_tests_alarm_filter (MetaX11Display        *x11_display,
+                            XSyncAlarmNotifyEvent *event,
+                            gpointer               data)
+{
+  return test_client_alarm_filter (x11_display, event, x11_monitor_test_client);
+}
 
 static void
-create_monitor_test_client (void)
+create_monitor_test_clients (void)
 {
   GError *error = NULL;
 
-  monitor_test_client = test_client_new (TEST_CLIENT_NAME,
-                                         META_WINDOW_CLIENT_TYPE_WAYLAND,
-                                         &error);
-  if (!monitor_test_client)
-    g_error ("Failed to launch test client: %s", error->message);
+  meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
+                                     monitor_tests_alarm_filter, NULL);
 
-  if (!test_client_do (monitor_test_client, &error,
-                       "create", TEST_CLIENT_WINDOW,
+  wayland_monitor_test_client = test_client_new (WAYLAND_TEST_CLIENT_NAME,
+                                                 META_WINDOW_CLIENT_TYPE_WAYLAND,
+                                                 &error);
+  if (!wayland_monitor_test_client)
+    g_error ("Failed to launch Wayland test client: %s", error->message);
+
+  x11_monitor_test_client = test_client_new (X11_TEST_CLIENT_NAME,
+                                             META_WINDOW_CLIENT_TYPE_X11,
+                                             &error);
+  if (!x11_monitor_test_client)
+    g_error ("Failed to launch X11 test client: %s", error->message);
+
+  if (!test_client_do (wayland_monitor_test_client, &error,
+                       "create", WAYLAND_TEST_CLIENT_WINDOW,
                        NULL))
-    g_error ("Failed to create window: %s", error->message);
+    g_error ("Failed to create Wayland window: %s", error->message);
 
-  if (!test_client_do (monitor_test_client, &error,
-                       "show", TEST_CLIENT_WINDOW,
+  if (!test_client_do (x11_monitor_test_client, &error,
+                       "create", X11_TEST_CLIENT_WINDOW,
+                       NULL))
+    g_error ("Failed to create X11 window: %s", error->message);
+
+  if (!test_client_do (wayland_monitor_test_client, &error,
+                       "show", WAYLAND_TEST_CLIENT_WINDOW,
+                       NULL))
+    g_error ("Failed to show the window: %s", error->message);
+
+  if (!test_client_do (x11_monitor_test_client, &error,
+                       "show", X11_TEST_CLIENT_WINDOW,
                        NULL))
     g_error ("Failed to show the window: %s", error->message);
 }
 
 static void
-check_monitor_test_client_state (void)
+check_monitor_test_clients_state (void)
 {
   GError *error = NULL;
 
-  if (!test_client_wait (monitor_test_client, &error))
-    g_error ("Failed to sync test client: %s", error->message);
+  if (!test_client_wait (wayland_monitor_test_client, &error))
+    g_error ("Failed to sync Wayland test client: %s", error->message);
+
+  if (!test_client_wait (x11_monitor_test_client, &error))
+    g_error ("Failed to sync X11 test client: %s", error->message);
 }
 
 static void
-destroy_monitor_test_client (void)
+destroy_monitor_test_clients (void)
 {
   GError *error = NULL;
 
-  if (!test_client_quit (monitor_test_client, &error))
-    g_error ("Failed to quit test client: %s", error->message);
+  if (!test_client_quit (wayland_monitor_test_client, &error))
+    g_error ("Failed to quit Wayland test client: %s", error->message);
 
-  test_client_destroy (monitor_test_client);
+  if (!test_client_quit (x11_monitor_test_client, &error))
+    g_error ("Failed to quit X11 test client: %s", error->message);
+
+  test_client_destroy (wayland_monitor_test_client);
+  test_client_destroy (x11_monitor_test_client);
+
+  meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
+                                     NULL, NULL);
 }
 
 static MetaOutput *
@@ -854,7 +895,7 @@ check_monitor_configuration (MonitorTestCase *test_case)
         }
     }
 
-  check_monitor_test_client_state ();
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -5958,11 +5999,11 @@ init_monitor_tests (void)
 void
 pre_run_monitor_tests (void)
 {
-  create_monitor_test_client ();
+  create_monitor_test_clients ();
 }
 
 void
 finish_monitor_tests (void)
 {
-  destroy_monitor_test_client ();
+  destroy_monitor_test_clients ();
 }
