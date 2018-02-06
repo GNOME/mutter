@@ -2090,7 +2090,7 @@ meta_window_move_resize_request (MetaWindow *window,
 
   if (flags & (META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION))
     {
-      MetaRectangle rect, monitor_rect;
+      MetaRectangle rect;
 
       rect.x = x;
       rect.y = y;
@@ -2099,7 +2099,11 @@ meta_window_move_resize_request (MetaWindow *window,
 
       if (window->monitor)
         {
-          meta_screen_get_monitor_geometry (window->screen, window->monitor->number, &monitor_rect);
+          MetaRectangle monitor_rect;
+
+          meta_screen_get_monitor_geometry (window->screen,
+                                            window->monitor->number,
+                                            &monitor_rect);
 
           /* Workaround braindead legacy apps that don't know how to
            * fullscreen themselves properly - don't get fooled by
