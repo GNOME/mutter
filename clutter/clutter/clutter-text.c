@@ -4506,11 +4506,21 @@ buffer_notify_text (ClutterTextBuffer *buffer,
                     GParamSpec        *spec,
                     ClutterText       *self)
 {
+  gfloat preferred_width;
+  gfloat preferred_height;
+
   g_object_freeze_notify (G_OBJECT (self));
 
   clutter_text_dirty_cache (self);
 
-  clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
+  clutter_text_get_preferred_width (CLUTTER_ACTOR (self), -1, NULL, &preferred_width);
+  clutter_text_get_preferred_height (CLUTTER_ACTOR (self), preferred_width, NULL, &preferred_height);
+
+  if (preferred_width != clutter_actor_get_width (CLUTTER_ACTOR (self)) ||
+      preferred_height != clutter_actor_get_height (CLUTTER_ACTOR (self)))
+    clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
+  else
+    clutter_text_queue_redraw (CLUTTER_ACTOR (self));
 
   g_signal_emit (self, text_signals[TEXT_CHANGED], 0);
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_TEXT]);
