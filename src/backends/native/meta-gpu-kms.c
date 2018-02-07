@@ -113,6 +113,24 @@ get_crtc_drm_connectors (MetaGpu       *gpu,
   *connectors = (uint32_t *) g_array_free (connectors_array, FALSE);
 }
 
+static void
+set_closure (GClosure **target, GClosure *new_value)
+{
+  /* Same semantics as g_set_object... */
+  GClosure *old_value = *target;
+
+  if (old_value == new_value)
+    return;
+
+  if (new_value)
+    g_closure_ref (new_value);
+
+  *target = new_value;
+
+  if (old_value)
+    g_closure_unref (old_value);
+}
+
 gboolean
 meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
                               MetaCrtc           *crtc,
@@ -152,11 +170,7 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
     g_clear_object (&crtc->current_scanout);
 
   g_clear_object (&crtc->next_scanout);
-  if (crtc->next_scanout_closure)
-    {
-      g_closure_unref (crtc->next_scanout_closure);
-      crtc->next_scanout_closure = NULL;
-    }
+  set_closure (&crtc->next_scanout_closure, NULL);
 
   g_free (connectors);
 
@@ -264,30 +278,11 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
           g_object_unref (closure_container->crtc);
           g_free (closure_container);
 
-          /*
-           * We have reached a point where we have references to three frames
-           * for this CRTC:
-           *   (a) crtc->current_scanout (oldest, currently visible)
-           *   (b) crtc->next_scanout (old, not visible yet)
-           *   (c) fb_kms (new, not visible yet)
-           * So to avoid ever waiting or growing the queue, we can now replace
-           * (b) with (c). So (b) has been dropped, and this is safe because
-           * it was neither scanning out yet, nor is the newest frame we have.
-           *
-           * Frame dropping will normally only occur if you're driving
-           * multiple monitors of different frequencies. We ensure all monitors
-           * always get fresh frames. So for monitors other than the fastest
-           * one, occasionally dropping a frame is necessary to keep up with
-           * the one of highest refresh rate. Conveniently, this also allows
-           * us to avoid ever blocking in waiting for previous page flips.
-           */
-          if (crtc->next_scanout_closure != flip_closure)
-            {
-              if (crtc->next_scanout_closure)
-                g_closure_unref (crtc->next_scanout_closure);
-              crtc->next_scanout_closure = g_closure_ref (flip_closure);
-            }
+          if (crtc->next_scanout)
+            g_message ("vv: Drop for CRTC %u", (unsigned) crtc->crtc_id);
+
           g_set_object (&crtc->next_scanout, G_OBJECT (fb_kms));
+          set_closure (&crtc->next_scanout_closure, flip_closure);
 
           *fb_in_use = TRUE;
           return TRUE;
@@ -312,6 +307,15 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
 
   if (ret != 0)
     return FALSE;
+
+  /*
+   * If next_scanout is set then won a race against MetaKmsSource. That's OK,
+   * the frame we just scheduled is newer. Just make sure we don't leave
+   * that older frame queued. Doing so would make it appear out of order
+   * on screen. And we no longer need it to appear at all.
+   */
+  set_closure (&crtc->next_scanout_closure, NULL);
+  g_clear_object (&crtc->next_scanout);
 
   g_set_object (&crtc->current_scanout, G_OBJECT (fb_kms));
 
