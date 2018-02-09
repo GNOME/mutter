@@ -532,13 +532,31 @@ clutter_clock_dispatch (GSource     *source,
   ClutterMasterClockDefault *master_clock = clock_source->master_clock;
   gboolean stages_updated = FALSE;
   GSList *stages;
+  gint64 frame_interval, now, next_smooth_tick;
 
   CLUTTER_NOTE (SCHEDULER, "Master clock [tick]");
 
   _clutter_threads_acquire_lock ();
 
-  /* Get the time to use for this frame */
-  master_clock->cur_tick = g_source_get_time (source);
+  frame_interval = 1000000L / clutter_get_default_frame_rate ();
+  now = g_source_get_time (source);
+  next_smooth_tick = master_clock->prev_tick + frame_interval;
+
+  /*
+   * Always try to use next_smooth_tick instead of the current real time,
+   * to keep animations smoothly in sync with the display hardware's clock,
+   * and independent of any jitter in our own dispatch frequency. Only if
+   * we've drifted more than one frame out do we then use the real time.
+   *   In the rare occasion where next_smooth_tick has somehow got ahead of
+   * the real time (dispatched too soon), we then prefer to leave cur_tick
+   * unchanged so as to avoid it going backwards. This assumes that
+   * g_source_get_time must be monotonic so next frame will step ahead of
+   * us again.
+   */
+  if (next_smooth_tick <= now - frame_interval/2)
+    master_clock->cur_tick = now;
+  else if (next_smooth_tick <= now + frame_interval/2)
+    master_clock->cur_tick = next_smooth_tick;
 
 #ifdef CLUTTER_ENABLE_DEBUG
   master_clock->remaining_budget = master_clock->frame_budget;
@@ -609,6 +627,9 @@ clutter_master_clock_default_init (ClutterMasterClockDefault *self)
   source = clutter_clock_source_new (self);
   self->source = source;
 
+  self->cur_tick = g_source_get_time (source);
+  self->prev_tick = self->cur_tick -
+                    (1000000L / clutter_get_default_frame_rate ());
   self->idle = FALSE;
   self->ensure_next_iteration = FALSE;
   self->paused = FALSE;
