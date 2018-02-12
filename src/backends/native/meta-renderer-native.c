@@ -164,8 +164,6 @@ typedef struct _MetaOnscreenNative
   struct {
     struct gbm_surface *surface;
   } gbm;
-  MetaFramebufferKms *current_fb;
-  MetaFramebufferKms *next_fb;
 
 #ifdef HAVE_EGL_DEVICE
   struct {
@@ -834,8 +832,6 @@ free_current_bo (CoglOnscreen *onscreen)
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
 
-  g_clear_object (&onscreen_native->current_fb);
-
   g_hash_table_foreach (onscreen_native->secondary_gpu_states,
                         (GHFunc) free_current_secondary_bo,
                         NULL);
@@ -1125,8 +1121,6 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
 
   free_current_bo (onscreen);
-  onscreen_native->current_fb = onscreen_native->next_fb;
-  onscreen_native->next_fb = NULL;
 
   g_hash_table_foreach (onscreen_native->secondary_gpu_states,
                         (GHFunc) swap_secondary_drm_fb,
@@ -1215,8 +1209,6 @@ flip_closure_destroyed (MetaRendererView *view)
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      g_clear_object (&onscreen_native->next_fb);
-
       g_hash_table_foreach (onscreen_native->secondary_gpu_states,
                             (GHFunc) free_next_secondary_bo,
                             NULL);
@@ -1285,12 +1277,13 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
 #endif /* HAVE_EGL_DEVICE */
 
 static void
-meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
-                                GClosure     *flip_closure,
-                                MetaCrtc     *crtc,
-                                int           x,
-                                int           y,
-                                gboolean     *fb_in_use)
+meta_onscreen_native_flip_crtc (CoglOnscreen       *onscreen,
+                                GClosure           *flip_closure,
+                                MetaCrtc           *crtc,
+                                int                 x,
+                                int                 y,
+                                MetaFramebufferKms *native_next,
+                                gboolean           *fb_in_use)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -1299,7 +1292,6 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaGpuKms *gpu_kms;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state = NULL;
-  MetaFramebufferKms *fb_kms = NULL;
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   if (!meta_gpu_kms_is_crtc_active (gpu_kms, crtc))
@@ -1312,10 +1304,11 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
                                                          render_gpu);
   switch (renderer_gpu_data->mode)
     {
+    MetaFramebufferKms *fb_kms;
     case META_RENDERER_NATIVE_MODE_GBM:
       if (gpu_kms == render_gpu)
         {
-          fb_kms = onscreen_native->next_fb;
+          fb_kms = native_next;
         }
       else
         {
@@ -1389,7 +1382,8 @@ set_crtc_fb (MetaLogicalMonitor *logical_monitor,
 }
 
 static void
-meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
+meta_onscreen_native_set_crtc_modes (CoglOnscreen       *onscreen,
+                                     MetaFramebufferKms *native_next)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -1397,7 +1391,6 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRendererView *view = onscreen_native->view;
-  MetaFramebufferKms *fb_kms = NULL;
   MetaLogicalMonitor *logical_monitor;
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
@@ -1405,21 +1398,17 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      fb_kms = onscreen_native->next_fb;
-      g_object_ref (fb_kms);  /* TODO remove */
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      fb_kms = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
-      meta_framebuffer_kms_set_drm_fd (fb_kms,
+      native_next = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
+      meta_framebuffer_kms_set_drm_fd (native_next,
                                        meta_gpu_kms_get_fd (render_gpu));
-      meta_framebuffer_kms_borrow_dumb_buffer (fb_kms,
+      meta_framebuffer_kms_borrow_dumb_buffer (native_next,
                                                onscreen_native->egl.dumb_fb.fb_id);
       break;
 #endif
     }
-
-  g_assert (fb_kms != NULL);
 
   logical_monitor = meta_renderer_view_get_logical_monitor (view);
   if (logical_monitor)
@@ -1427,7 +1416,7 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
       SetCrtcFbData data = {
         .render_gpu = render_gpu,
         .onscreen = onscreen,
-        .fb_kms = fb_kms
+        .fb_kms = native_next
       };
 
       meta_logical_monitor_foreach_crtc (logical_monitor,
@@ -1445,17 +1434,16 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
           meta_gpu_kms_apply_crtc_mode (render_gpu,
                                         crtc,
                                         crtc->rect.x, crtc->rect.y,
-                                        fb_kms);
+                                        native_next);
         }
     }
-
-  g_object_unref (fb_kms);
 }
 
 typedef struct _FlipCrtcData
 {
   CoglOnscreen *onscreen;
   GClosure *flip_closure;
+  MetaFramebufferKms *fb_kms;
 
   gboolean out_fb_in_use;
 } FlipCrtcData;
@@ -1474,11 +1462,13 @@ flip_crtc (MetaLogicalMonitor *logical_monitor,
   meta_onscreen_native_flip_crtc (data->onscreen,
                                   data->flip_closure,
                                   crtc, x, y,
+                                  data->fb_kms,
                                   &data->out_fb_in_use);
 }
 
 static void
-meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
+meta_onscreen_native_flip_crtcs (CoglOnscreen       *onscreen,
+                                 MetaFramebufferKms *native_next)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -1512,6 +1502,7 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
       FlipCrtcData data = {
         .onscreen = onscreen,
         .flip_closure = flip_closure,
+        .fb_kms = native_next
       };
 
       meta_logical_monitor_foreach_crtc (logical_monitor,
@@ -1529,6 +1520,7 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
 
           meta_onscreen_native_flip_crtc (onscreen, flip_closure,
                                           crtc, crtc->rect.x, crtc->rect.y,
+                                          native_next,
                                           &fb_in_use);
         }
     }
@@ -1567,10 +1559,9 @@ static void
 copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
                              MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
                              MetaRendererNativeGpuData           *renderer_gpu_data,
-                             gboolean                            *egl_context_changed)
+                             gboolean                            *egl_context_changed,
+                             MetaFramebufferKms                  *native_next)
 {
-  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
-  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
   GError *error = NULL;
@@ -1594,7 +1585,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
                                                   renderer_gpu_data->egl_display,
                                                   renderer_gpu_data->secondary.egl_context,
                                                   secondary_gpu_state->egl_surface,
-                                                  meta_framebuffer_kms_get_bo (onscreen_native->next_fb),
+                                                  meta_framebuffer_kms_get_bo (native_next),
                                                   &error))
     {
       g_warning ("Failed to blit shared framebuffer: %s", error->message);
@@ -1690,7 +1681,8 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen *onscreen)
 
 static void
 update_secondary_gpu_state_post_swap_buffers (CoglOnscreen *onscreen,
-                                              gboolean     *egl_context_changed)
+                                              gboolean     *egl_context_changed,
+                                              MetaFramebufferKms *native_next)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -1714,7 +1706,8 @@ update_secondary_gpu_state_post_swap_buffers (CoglOnscreen *onscreen,
           copy_shared_framebuffer_gpu (onscreen,
                                        secondary_gpu_state,
                                        renderer_gpu_data,
-                                       egl_context_changed);
+                                       egl_context_changed,
+                                       native_next);
           break;
         case META_SHARED_FRAMEBUFFER_COPY_MODE_CPU:
           /* Done before eglSwapBuffers. */
@@ -1761,23 +1754,11 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      g_clear_object (&onscreen_native->next_fb);
-      onscreen_native->next_fb = new_fb =
-        new_framebuffer_kms_from_gbm (render_gpu,
-                                      onscreen_native->gbm.surface);
+      new_fb = new_framebuffer_kms_from_gbm (render_gpu,
+                                             onscreen_native->gbm.surface);
       if (!new_fb)
         return;
 
-      /*
-       * We need onscreen_native->next_fb to live at least as long as the
-       * below call to meta_onscreen_native_flip_crtcs, so an additional
-       * reference is required to guarantee that, for now. It's only really
-       * an issue when trying to do asynchronous multi-monitor flips.
-       * TODO: Maybe remove this reference if offending clears of next_fb
-       * can be removed... or made more sane to support multiple flip
-       * completions?
-       */
-      g_object_ref (new_fb);
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
@@ -1785,18 +1766,20 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
 #endif
     }
 
-  update_secondary_gpu_state_post_swap_buffers (onscreen, &egl_context_changed);
+  update_secondary_gpu_state_post_swap_buffers (onscreen,
+                                                &egl_context_changed,
+                                                new_fb);
 
   /* If this is the first framebuffer to be presented then we now setup the
    * crtc modes, else we flip from the previous buffer */
   if (onscreen_native->pending_set_crtc)
     {
-      meta_onscreen_native_set_crtc_modes (onscreen);
+      meta_onscreen_native_set_crtc_modes (onscreen, new_fb);
       onscreen_native->pending_set_crtc = FALSE;
     }
 
   onscreen_native->pending_queue_swap_notify_frame_count = renderer_native->frame_counter;
-  meta_onscreen_native_flip_crtcs (onscreen);
+  meta_onscreen_native_flip_crtcs (onscreen, new_fb);
 
   g_clear_object (&new_fb);
 
@@ -2336,10 +2319,6 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      /* flip state takes a reference on the onscreen so there should
-       * never be outstanding flips when we reach here. */
-      g_return_if_fail (onscreen_native->next_fb == NULL);
-
       free_current_bo (onscreen);
 
       if (onscreen_native->gbm.surface)
