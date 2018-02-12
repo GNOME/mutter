@@ -279,7 +279,7 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
           g_free (closure_container);
 
           if (crtc->next_scanout)
-            g_message ("vv: Drop for CRTC %u", (unsigned) crtc->crtc_id);
+            g_message ("vv: Drop(a) for CRTC %u", (unsigned) crtc->crtc_id);
 
           g_set_object (&crtc->next_scanout, G_OBJECT (fb_kms));
           set_closure (&crtc->next_scanout_closure, flip_closure);
@@ -314,6 +314,8 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
    * that older frame queued. Doing so would make it appear out of order
    * on screen. And we no longer need it to appear at all.
    */
+  if (crtc->next_scanout)
+    g_message ("vv: Drop(b) for CRTC %u", (unsigned) crtc->crtc_id);
   set_closure (&crtc->next_scanout_closure, NULL);
   g_clear_object (&crtc->next_scanout);
 
