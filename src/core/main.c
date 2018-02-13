@@ -332,7 +332,6 @@ find_session_type (void)
   char *session_id;
   char *session_type;
   const char *session_type_env;
-  gboolean is_tty = FALSE;
   int ret, i;
 
   ret = sd_pid_get_session (0, &session_id);
@@ -345,8 +344,7 @@ find_session_type (void)
         {
           if (session_type_is_supported (session_type))
             goto out;
-          else
-            is_tty = g_strcmp0 (session_type, "tty") == 0;
+
           free (session_type);
         }
     }
@@ -378,8 +376,8 @@ find_session_type (void)
       goto out;
     }
 
-  /* Legacy support for starting through xinit */
-  if (is_tty && (g_getenv ("MUTTER_DISPLAY") || g_getenv ("DISPLAY")))
+  /* Legacy support for starting through xinit or vncserver */
+  if (g_getenv ("MUTTER_DISPLAY") || g_getenv ("DISPLAY"))
     {
       session_type = strdup ("x11");
       goto out;
