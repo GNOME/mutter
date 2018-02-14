@@ -164,6 +164,8 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
       return FALSE;
     }
 
+  g_set_object (&crtc->previous_scanout, crtc->current_scanout);
+
   if (fb_kms)
     g_set_object (&crtc->current_scanout, G_OBJECT (fb_kms));
   else
@@ -315,9 +317,7 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
   g_clear_object (&crtc->next_scanout);
   set_closure (&crtc->next_scanout_closure, NULL);
 
-  /* TODO maybe - hold the old current_scanout an extra frame, since its
-     scanout still might not have finished. Although given ret==0, maybe
-     that's not really possible(?). */
+  g_set_object (&crtc->previous_scanout, crtc->current_scanout);
   g_set_object (&crtc->current_scanout, G_OBJECT (fb_kms));
 
   *fb_in_use = TRUE;
