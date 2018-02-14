@@ -228,6 +228,16 @@ meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
   return TRUE;
 }
 
+static void
+frame_dropped (GObject *fb)
+{
+  /*
+   * This function is purely for documentation, debugging and is convenient
+   * for adding logging to. It's not intended to do anything.
+   */
+  g_message ("vv: Frame dropped %p", (void*) fb);
+}
+
 typedef struct _GpuClosureContainer
 {
   GClosure *flip_closure;
@@ -280,7 +290,8 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
           g_object_unref (closure_container->crtc);
           g_free (closure_container);
 
-          /* Drop old queued frame (if any) */
+          if (crtc->next_scanout)
+            frame_dropped (crtc->next_scanout);
           g_set_object (&crtc->next_scanout, G_OBJECT (fb_kms));
           set_closure (&crtc->next_scanout_closure, flip_closure);
 
@@ -312,8 +323,10 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
    * If next_scanout is set then won a race against MetaKmsSource. That's OK,
    * the frame we just scheduled is newer. Just make sure we don't leave
    * that older frame queued. Doing so would make it appear out of order
-   * on screen, when we no longer want it to appear at all. Drop the old frame.
+   * on screen, when we no longer want it to appear at all.
    */
+  if (crtc->next_scanout)
+    frame_dropped (crtc->next_scanout);
   g_clear_object (&crtc->next_scanout);
   set_closure (&crtc->next_scanout_closure, NULL);
 
