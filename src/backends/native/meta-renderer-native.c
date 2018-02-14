@@ -1392,6 +1392,7 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen       *onscreen,
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRendererView *view = onscreen_native->view;
   MetaLogicalMonitor *logical_monitor;
+  MetaFramebufferKms *dumb_fb = NULL;
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
@@ -1401,7 +1402,7 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen       *onscreen,
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      native_next = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
+      native_next = dumb_fb = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
       meta_framebuffer_kms_set_drm_fd (native_next,
                                        meta_gpu_kms_get_fd (render_gpu));
       meta_framebuffer_kms_borrow_dumb_buffer (native_next,
@@ -1437,6 +1438,8 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen       *onscreen,
                                         native_next);
         }
     }
+
+  g_clear_object (&dumb_fb);
 }
 
 typedef struct _FlipCrtcData
@@ -1680,8 +1683,8 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen *onscreen)
 }
 
 static void
-update_secondary_gpu_state_post_swap_buffers (CoglOnscreen *onscreen,
-                                              gboolean     *egl_context_changed,
+update_secondary_gpu_state_post_swap_buffers (CoglOnscreen       *onscreen,
+                                              gboolean           *egl_context_changed,
                                               MetaFramebufferKms *native_next)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
@@ -1762,6 +1765,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
+      /* FIXME? new_fb is still NULL */
       break;
 #endif
     }
