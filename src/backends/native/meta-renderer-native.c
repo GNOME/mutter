@@ -1391,8 +1391,8 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen       *onscreen,
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRendererView *view = onscreen_native->view;
-  MetaLogicalMonitor *logical_monitor;
   MetaFramebufferKms *dumb_fb = NULL;
+  MetaLogicalMonitor *logical_monitor;
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
@@ -1410,6 +1410,8 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen       *onscreen,
       break;
 #endif
     }
+
+  g_assert (native_next);
 
   logical_monitor = meta_renderer_view_get_logical_monitor (view);
   if (logical_monitor)
