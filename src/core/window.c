@@ -8453,3 +8453,10 @@ meta_window_is_stackable (MetaWindow *window)
 {
   return META_WINDOW_GET_CLASS (window)->is_stackable (window);
 }
+
+void
+meta_window_set_frozen (MetaWindow *window,
+                        gboolean    frozen)
+{
+  META_WINDOW_GET_CLASS (window)->set_frozen (window, frozen);
+}

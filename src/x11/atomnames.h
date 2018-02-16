@@ -82,6 +82,7 @@ item(ATOM_PAIR)
 item(_XKB_RULES_NAMES)
 item(WL_SURFACE_ID)
 item(_XWAYLAND_MAY_GRAB_KEYBOARD)
+item(_XWAYLAND_ALLOW_COMMITS)
 
 /* Oddities: These are used, and we need atoms for them,
  * but when we need all _NET_WM hints (i.e. when we're making
