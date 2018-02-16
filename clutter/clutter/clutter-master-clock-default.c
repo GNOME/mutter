@@ -69,8 +69,10 @@ struct _ClutterMasterClockDefault
   /* the previous state of the clock, in usecs, used to compute the delta */
   gint64 prev_tick;
 
+  /* the ideal frame interval in usecs (inverse of your max refresh rate) */
+  gint64 frame_interval;
+
 #ifdef CLUTTER_ENABLE_DEBUG
-  gint64 frame_budget;
   gint64 remaining_budget;
 #endif
 
@@ -264,6 +266,33 @@ master_clock_reschedule_stage_updates (ClutterMasterClockDefault *master_clock,
     }
 }
 
+static gint64
+smoothed_current_time (ClutterMasterClockDefault *master_clock)
+{
+  gint64 frame_phase, now, now_phase, overshoot;
+
+  /* TODO: Update this from the backend's (maximum) refresh rate, which would
+   * fix: https://bugzilla.gnome.org/show_bug.cgi?id=781296
+   */
+  master_clock->frame_interval = G_USEC_PER_SEC /
+                                 clutter_get_default_frame_rate ();
+
+  /* TODO optionally later: Detect this from the backend. Although that's only
+   * an optimization to reduce presentation latency further by less than one
+   * frame. So it's not terribly important right now.
+   */
+  frame_phase = 0;
+
+  now = g_source_get_time (master_clock->source);
+  now_phase = now % master_clock->frame_interval;
+
+  overshoot = now_phase - frame_phase;
+  if (overshoot < 0)
+    overshoot += master_clock->frame_interval;
+
+  return now - overshoot;
+}
+
 /*
  * master_clock_next_frame_delay:
  * @master_clock: a #ClutterMasterClock
@@ -332,21 +361,26 @@ master_clock_next_frame_delay (ClutterMasterClockDefault *master_clock)
       return 0;
     }
 
-  next += (1000000L / clutter_get_default_frame_rate ());
+  next += master_clock->frame_interval;
 
   if (next <= now)
     {
       CLUTTER_NOTE (SCHEDULER, "Less than %lu microsecs",
-                    1000000L / (gulong) clutter_get_default_frame_rate ());
+                    master_clock->frame_interval);
 
       return 0;
     }
   else
     {
-      CLUTTER_NOTE (SCHEDULER, "Waiting %" G_GINT64_FORMAT " msecs",
-                   (next - now) / 1000);
-
-      return (next - now) / 1000;
+      /* We +1 here to avoid premature dispatches that would otherwise occur
+       * repeatedly during the 1ms before 'next'. We don't care if this makes
+       * the final dispatch 1ms late because the smoothing algorithm corrects
+       * that, and it's much better than attempting to render more frames than
+       * the hardware can physically display...
+       */
+      gint millisec_delay = 1 + (next - now) / 1000;
+      CLUTTER_NOTE (SCHEDULER, "Waiting %dms", millisec_delay);
+      return millisec_delay;
     }
 }
 
@@ -532,16 +566,31 @@ clutter_clock_dispatch (GSource     *source,
   ClutterMasterClockDefault *master_clock = clock_source->master_clock;
   gboolean stages_updated = FALSE;
   GSList *stages;
+  gint64 smooth_tick;
 
   CLUTTER_NOTE (SCHEDULER, "Master clock [tick]");
 
   _clutter_threads_acquire_lock ();
 
   /* Get the time to use for this frame */
-  master_clock->cur_tick = g_source_get_time (source);
+  smooth_tick = smoothed_current_time (master_clock);
+  if (smooth_tick <= master_clock->prev_tick)
+    {
+      /* Ordinarily this will never happen. But after we fix bug 781296, it
+       * could happen in the rare case when the ideal frame_interval changes,
+       * such as video mode switching or hotplugging monitors. As such it is
+       * not considered a bug (unless it's happening without mode switching
+       * or hotplugging).
+       */
+      CLUTTER_NOTE (SCHEDULER, "Master clock [tick] was premature (skipped)");
+      _clutter_threads_release_lock ();
+      return G_SOURCE_CONTINUE;
+    }
+
+  master_clock->cur_tick = smooth_tick;
 
 #ifdef CLUTTER_ENABLE_DEBUG
-  master_clock->remaining_budget = master_clock->frame_budget;
+  master_clock->remaining_budget = master_clock->frame_interval;
 #endif
 
   /* We need to protect ourselves against stages being destroyed during
@@ -580,7 +629,7 @@ clutter_clock_dispatch (GSource     *source,
 
   _clutter_threads_release_lock ();
 
-  return TRUE;
+  return G_SOURCE_CONTINUE;
 }
 
 static void
@@ -612,10 +661,7 @@ clutter_master_clock_default_init (ClutterMasterClockDefault *self)
   self->idle = FALSE;
   self->ensure_next_iteration = FALSE;
   self->paused = FALSE;
-
-#ifdef CLUTTER_ENABLE_DEBUG
-  self->frame_budget = G_USEC_PER_SEC / 60;
-#endif
+  self->frame_interval = G_USEC_PER_SEC / 60; /* Will be refined at runtime */
 
   g_source_set_priority (source, CLUTTER_PRIORITY_REDRAW);
   g_source_set_can_recurse (source, FALSE);
