@@ -22,6 +22,9 @@
 #include "x11/window-x11-private.h"
 #include "wayland/meta-window-xwayland.h"
 #include "wayland/meta-wayland.h"
+#include "frame.h"
+#include <meta/errors.h>
+#include <X11/Xatom.h>
 
 enum
 {
@@ -72,6 +75,27 @@ meta_window_xwayland_shortcuts_inhibited (MetaWindow         *window,
 }
 
 static void
+meta_window_xwayland_set_frozen (MetaWindow *window,
+                                 gboolean    frozen)
+{
+  unsigned long data;
+
+  /* We set allow commit on the frame */
+  if (!window->frame)
+    return;
+
+  data = frozen ? 0 : 1;
+
+  meta_error_trap_push (window->display);
+  XChangeProperty (window->display->xdisplay,
+                   window->frame->xwindow,
+                   window->display->atom__XWAYLAND_ALLOW_COMMITS,
+                   XA_CARDINAL,
+                   32, PropModeReplace, (guchar*) &data, 1);
+  meta_error_trap_pop (window->display);
+}
+
+static void
 meta_window_xwayland_get_property (GObject    *object,
                                    guint       prop_id,
                                    GValue     *value,
@@ -117,6 +141,7 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
 
   window_class->force_restore_shortcuts = meta_window_xwayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_xwayland_shortcuts_inhibited;
+  window_class->set_frozen = meta_window_xwayland_set_frozen;
 
   gobject_class->get_property = meta_window_xwayland_get_property;
   gobject_class->set_property = meta_window_xwayland_set_property;
