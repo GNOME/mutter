@@ -370,9 +370,6 @@ page_flip_handler (int           fd,
 
       meta_gpu_kms_flip_crtc (gpu_kms, crtc, 0, 0, next_fb, next_closure,
                               &fb_in_use);
-      /* Note meta_gpu_kms_flip_crtc keeps the next_fb reference even if it
-         returns false. False just means it set CRTC so the framebuffer is
-         still referenced. */
 
       g_object_unref (next_fb);
       g_closure_unref (next_closure);
