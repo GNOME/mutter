@@ -556,6 +556,8 @@ struct _MetaWindowClass
   gboolean (*shortcuts_inhibited) (MetaWindow         *window,
                                    ClutterInputDevice *source);
   gboolean (*is_stackable)        (MetaWindow *window);
+  void (*set_frozen)              (MetaWindow *window,
+                                   gboolean    frozen);
 };
 
 /* These differ from window->has_foo_func in that they consider
@@ -802,4 +804,6 @@ void meta_window_force_restore_shortcuts (MetaWindow         *window,
 gboolean meta_window_shortcuts_inhibited (MetaWindow         *window,
                                           ClutterInputDevice *source);
 gboolean meta_window_is_stackable (MetaWindow *window);
+void     meta_window_set_frozen (MetaWindow *window,
+                                 gboolean    frozen);
 #endif
