@@ -1557,6 +1557,12 @@ meta_window_x11_is_stackable (MetaWindow *window)
 }
 
 static void
+meta_window_x11_set_frozen (MetaWindow *window,
+                            gboolean    frozen)
+{
+}
+
+static void
 meta_window_x11_class_init (MetaWindowX11Class *klass)
 {
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
@@ -1580,6 +1586,7 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->force_restore_shortcuts = meta_window_x11_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_x11_shortcuts_inhibited;
   window_class->is_stackable = meta_window_x11_is_stackable;
+  window_class->set_frozen = meta_window_x11_set_frozen;
 }
 
 void

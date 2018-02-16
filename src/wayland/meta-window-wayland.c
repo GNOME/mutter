@@ -563,6 +563,12 @@ meta_window_wayland_is_stackable (MetaWindow *window)
 }
 
 static void
+meta_window_wayland_set_frozen (MetaWindow *window,
+                                gboolean    frozen)
+{
+}
+
+static void
 meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
 {
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
@@ -582,6 +588,7 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->force_restore_shortcuts = meta_window_wayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_wayland_shortcuts_inhibited;
   window_class->is_stackable = meta_window_wayland_is_stackable;
+  window_class->set_frozen = meta_window_wayland_set_frozen;
 }
 
 MetaWindow *
