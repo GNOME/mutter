@@ -8459,4 +8459,5 @@ meta_window_set_frozen (MetaWindow *window,
                         gboolean    frozen)
 {
   META_WINDOW_GET_CLASS (window)->set_frozen (window, frozen);
+  meta_compositor_sync_updates_frozen (window->display->compositor, window);
 }
