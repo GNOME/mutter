@@ -427,6 +427,9 @@ struct _MetaWindow
    * also handles application frames */
   guint extended_sync_request_counter : 1;
 
+  /* Window updates are frozen */
+  guint is_frozen : 1;
+
   /* Note: can be NULL */
   GSList *struts;
 

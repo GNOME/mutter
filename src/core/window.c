@@ -5869,8 +5869,7 @@ check_moveresize_frequency (MetaWindow *window,
 
   /* If we are throttling via _NET_WM_SYNC_REQUEST, we don't need
    * an artificial timeout-based throttled */
-  if (!window->disable_sync &&
-      window->sync_request_alarm != None)
+  if (meta_window_updates_are_frozen (window))
     return TRUE;
 
   elapsed = time_diff (&current_time, &window->display->grab_last_moveresize_time);
@@ -6233,7 +6232,7 @@ update_resize (MetaWindow *window,
    * resize the window when the window responds, or when we time
    * the response out.
    */
-  if (window->sync_request_timeout_id != 0)
+  if (meta_window_updates_are_frozen (window))
     return;
 
   if (!check_moveresize_frequency (window, &remaining) && !force)
@@ -8458,5 +8457,9 @@ void
 meta_window_set_frozen (MetaWindow *window,
                         gboolean    frozen)
 {
-  META_WINDOW_GET_CLASS (window)->set_frozen (window, frozen);
+  if (window->is_frozen != frozen)
+    {
+      window->is_frozen = frozen;
+      META_WINDOW_GET_CLASS (window)->set_frozen (window, frozen);
+    }
 }
