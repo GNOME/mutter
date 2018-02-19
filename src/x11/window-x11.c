@@ -941,7 +941,7 @@ sync_request_timeout (gpointer data)
    * window updates
    */
   window->sync_request_wait_serial = 0;
-  meta_compositor_sync_updates_frozen (window->display->compositor, window);
+  meta_window_set_frozen (window, meta_window_updates_are_frozen (window));
 
   if (window == window->display->grab_window &&
       meta_grab_op_is_resizing (window->display->grab_op))
@@ -1004,7 +1004,7 @@ send_sync_request (MetaWindow *window)
   g_source_set_name_by_id (window->sync_request_timeout_id,
                            "[mutter] sync_request_timeout");
 
-  meta_compositor_sync_updates_frozen (window->display->compositor, window);
+  meta_window_set_frozen (window, meta_window_updates_are_frozen (window));
 }
 
 static unsigned long
@@ -3501,7 +3501,7 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
     }
 
   window->sync_request_serial = new_counter_value;
-  meta_compositor_sync_updates_frozen (window->display->compositor, window);
+  meta_window_set_frozen (window, meta_window_updates_are_frozen (window));
 
   if (window == window->display->grab_window &&
       meta_grab_op_is_resizing (window->display->grab_op) &&
