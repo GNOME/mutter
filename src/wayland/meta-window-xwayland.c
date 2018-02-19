@@ -42,6 +42,7 @@ struct _MetaWindowXwayland
   MetaWindowX11 parent;
 
   gboolean xwayland_may_grab_keyboard;
+  gboolean is_frozen;
 };
 
 struct _MetaWindowXwaylandClass
@@ -78,12 +79,17 @@ static void
 meta_window_xwayland_set_frozen (MetaWindow *window,
                                  gboolean    frozen)
 {
+  MetaWindowXwayland *xwayland_window = META_WINDOW_XWAYLAND (window);
   unsigned long data;
 
   /* We set allow commit on the frame */
   if (!window->frame)
     return;
 
+  if (xwayland_window->is_frozen == frozen)
+    return;
+
+  xwayland_window->is_frozen = frozen;
   data = frozen ? 0 : 1;
 
   meta_error_trap_push (window->display);
