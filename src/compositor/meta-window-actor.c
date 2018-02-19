@@ -2146,6 +2146,7 @@ meta_window_actor_set_updates_frozen (MetaWindowActor *self,
         meta_window_actor_freeze (self);
       else
         meta_window_actor_thaw (self);
+      meta_window_set_frozen (priv->window , is_frozen (self));
     }
 }
 
