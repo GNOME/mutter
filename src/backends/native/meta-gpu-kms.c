@@ -290,6 +290,8 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
           /* Drop previously queued frame crtc->next_scanout (if any) */
           g_set_object (&crtc->next_scanout, G_OBJECT (fb_kms));
           set_closure (&crtc->next_scanout_closure, flip_closure);
+          crtc->next_scanout_x = x;
+          crtc->next_scanout_y = y;
 
           *fb_in_use = TRUE;
           return TRUE;
@@ -354,7 +356,12 @@ page_flip_handler (int           fd,
       crtc->next_scanout = NULL;
       crtc->next_scanout_closure = NULL;
 
-      meta_gpu_kms_flip_crtc (gpu_kms, crtc, 0, 0, next_fb, next_closure,
+      meta_gpu_kms_flip_crtc (gpu_kms,
+                              crtc,
+                              crtc->next_scanout_x,
+                              crtc->next_scanout_y,
+                              next_fb,
+                              next_closure,
                               &fb_in_use);
 
       g_object_unref (next_fb);
