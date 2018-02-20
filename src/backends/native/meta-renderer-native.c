@@ -1313,8 +1313,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
                                 GClosure     *flip_closure,
                                 MetaCrtc     *crtc,
                                 int           x,
-                                int           y,
-                                gboolean     *fb_in_use)
+                                int           y)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -1327,10 +1326,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   if (!meta_gpu_kms_is_crtc_active (gpu_kms, crtc))
-    {
-      *fb_in_use = FALSE;
-      return;
-    }
+    return;
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
@@ -1347,17 +1343,22 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
           fb_id = secondary_gpu_state->gbm.next_fb_id;
         }
 
+      /* Increment this early as flip_closure could happen immediately */
+      onscreen_native->total_pending_flips++;
+      if (secondary_gpu_state)
+        secondary_gpu_state->pending_flips++;
+
       if (!meta_gpu_kms_flip_crtc (gpu_kms,
                                    crtc,
                                    x, y,
                                    fb_id,
-                                   flip_closure,
-                                   fb_in_use))
-        return;
-
-      onscreen_native->total_pending_flips++;
-      if (secondary_gpu_state)
-        secondary_gpu_state->pending_flips++;
+                                   flip_closure))
+        {
+          onscreen_native->total_pending_flips--;
+          if (secondary_gpu_state)
+            secondary_gpu_state->pending_flips--;
+          return;
+        }
 
       break;
 #ifdef HAVE_EGL_DEVICE
@@ -1365,7 +1366,6 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
       if (flip_egl_stream (onscreen_native,
                            flip_closure))
         onscreen_native->total_pending_flips++;
-      *fb_in_use = TRUE;
       break;
 #endif
     }
@@ -1473,8 +1473,6 @@ typedef struct _FlipCrtcData
 {
   CoglOnscreen *onscreen;
   GClosure *flip_closure;
-
-  gboolean out_fb_in_use;
 } FlipCrtcData;
 
 static void
@@ -1490,8 +1488,7 @@ flip_crtc (MetaLogicalMonitor *logical_monitor,
 
   meta_onscreen_native_flip_crtc (data->onscreen,
                                   data->flip_closure,
-                                  crtc, x, y,
-                                  &data->out_fb_in_use);
+                                  crtc, x, y);
 }
 
 static void
@@ -1503,7 +1500,6 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   MetaRendererView *view = onscreen_native->view;
   GClosure *flip_closure;
   MetaLogicalMonitor *logical_monitor;
-  gboolean fb_in_use = FALSE;
 
   /*
    * Create a closure that either will be invoked or destructed.
@@ -1534,7 +1530,6 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
       meta_logical_monitor_foreach_crtc (logical_monitor,
                                          flip_crtc,
                                          &data);
-      fb_in_use = data.out_fb_in_use;
     }
   else
     {
@@ -1545,33 +1540,7 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
           MetaCrtc *crtc = l->data;
 
           meta_onscreen_native_flip_crtc (onscreen, flip_closure,
-                                          crtc, crtc->rect.x, crtc->rect.y,
-                                          &fb_in_use);
-        }
-    }
-
-  /*
-   * If the framebuffer is in use, but we don't have any pending flips it means
-   * that flipping is not supported and we set the next framebuffer directly.
-   * Since we won't receive a flip callback, lets just notify listeners
-   * directly.
-   */
-  if (fb_in_use && onscreen_native->total_pending_flips == 0)
-    {
-      MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-      MetaRendererNativeGpuData *renderer_gpu_data;
-
-      renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                             render_gpu);
-      switch (renderer_gpu_data->mode)
-        {
-        case META_RENDERER_NATIVE_MODE_GBM:
-          meta_onscreen_native_swap_drm_fb (onscreen);
-          break;
-#ifdef HAVE_EGL_DEVICE
-        case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-          break;
-#endif
+                                          crtc, crtc->rect.x, crtc->rect.y);
         }
     }
 

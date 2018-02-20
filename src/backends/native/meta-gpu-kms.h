@@ -59,8 +59,7 @@ gboolean meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
                                  int         x,
                                  int         y,
                                  uint32_t    fb_id,
-                                 GClosure   *flip_closure,
-                                 gboolean   *fb_in_use);
+                                 GClosure   *flip_closure);
 
 gboolean meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
                                      GError    **error);

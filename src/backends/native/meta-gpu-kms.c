@@ -211,8 +211,7 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
                         int         x,
                         int         y,
                         uint32_t    fb_id,
-                        GClosure   *flip_closure,
-                        gboolean   *fb_in_use)
+                        GClosure   *flip_closure)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
@@ -255,15 +254,15 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
     {
       if (meta_gpu_kms_apply_crtc_mode (gpu_kms, crtc, x, y, fb_id))
         {
-          *fb_in_use = TRUE;
-          return FALSE;
+          g_closure_ref (flip_closure);
+          invoke_flip_closure (flip_closure, gpu_kms);
+          return TRUE;
         }
     }
 
   if (ret != 0)
     return FALSE;
 
-  *fb_in_use = TRUE;
   g_closure_ref (flip_closure);
 
   return TRUE;
