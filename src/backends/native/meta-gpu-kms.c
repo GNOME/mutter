@@ -259,7 +259,6 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
       /* Not really an error. We can recover from this. */
       g_warning ("Zero connectors found when trying to update the screen. "
                  "Did something get unplugged?");
-      *fb_in_use = FALSE;
       return FALSE;
     }
   g_free (connectors);
