@@ -224,8 +224,9 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
   g_assert (monitor_manager->power_save_mode == META_POWER_SAVE_ON);
 
   get_crtc_drm_connectors (gpu, crtc, &connectors, &n_connectors);
-  g_assert (n_connectors > 0);
   g_free (connectors);
+  if (n_connectors == 0) /* Monitor unplugged? We'll survive... */
+    return FALSE;
 
   if (!gpu_kms->page_flips_not_supported)
     {
