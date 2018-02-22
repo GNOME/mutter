@@ -114,21 +114,20 @@ get_crtc_drm_connectors (MetaGpu       *gpu,
 }
 
 static void
-set_closure (GClosure **target, GClosure *new_value)
+invoke_flip_closure (GClosure   *flip_closure,
+                     MetaGpuKms *gpu_kms)
 {
-  /* Same semantics as g_set_object... */
-  GClosure *old_value = *target;
+  GValue params[] = {
+    G_VALUE_INIT,
+    G_VALUE_INIT
+  };
 
-  if (old_value == new_value)
-    return;
-
-  if (new_value)
-    g_closure_ref (new_value);
-
-  *target = new_value;
-
-  if (old_value)
-    g_closure_unref (old_value);
+  g_value_init (&params[0], G_TYPE_POINTER);
+  g_value_set_pointer (&params[0], flip_closure);
+  g_value_init (&params[1], G_TYPE_OBJECT);
+  g_value_set_object (&params[1], gpu_kms);
+  g_closure_invoke (flip_closure, NULL, 2, params, NULL);
+  g_closure_unref (flip_closure);
 }
 
 gboolean
@@ -171,29 +170,16 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
   else
     g_clear_object (&crtc->current_scanout);
 
+  if (crtc->next_scanout_closure)
+    {
+      invoke_flip_closure (crtc->next_scanout_closure, gpu_kms);
+      crtc->next_scanout_closure = NULL;
+    }
   g_clear_object (&crtc->next_scanout);
-  set_closure (&crtc->next_scanout_closure, NULL);
 
   g_free (connectors);
 
   return TRUE;
-}
-
-static void
-invoke_flip_closure (GClosure   *flip_closure,
-                     MetaGpuKms *gpu_kms)
-{
-  GValue params[] = {
-    G_VALUE_INIT,
-    G_VALUE_INIT
-  };
-
-  g_value_init (&params[0], G_TYPE_POINTER);
-  g_value_set_pointer (&params[0], flip_closure);
-  g_value_init (&params[1], G_TYPE_OBJECT);
-  g_value_set_object (&params[1], gpu_kms);
-  g_closure_invoke (flip_closure, NULL, 2, params, NULL);
-  g_closure_unref (flip_closure);
 }
 
 gboolean
@@ -290,7 +276,13 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
 
           /* Drop previously queued frame crtc->next_scanout (if any) */
           g_set_object (&crtc->next_scanout, G_OBJECT (fb_kms));
-          set_closure (&crtc->next_scanout_closure, flip_closure);
+          /*
+           * FIXME? This invoke is required to satisfy the (broken?)
+           *        counters in meta-renderer-native.c
+           */
+          if (crtc->next_scanout_closure)
+            invoke_flip_closure (crtc->next_scanout_closure, gpu_kms);
+          crtc->next_scanout_closure = g_closure_ref (flip_closure);
           crtc->next_scanout_x = x;
           crtc->next_scanout_y = y;
 
@@ -323,8 +315,12 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
    * because the frame we just scheduled is newer. Just make sure we drop
    * that older frame which was queued. We no longer need to display it at all.
    */
+  if (crtc->next_scanout_closure)
+    {
+      invoke_flip_closure (crtc->next_scanout_closure, gpu_kms);
+      crtc->next_scanout_closure = NULL;
+    }
   g_clear_object (&crtc->next_scanout);
-  set_closure (&crtc->next_scanout_closure, NULL);
 
   g_set_object (&crtc->previous_scanout, crtc->current_scanout);
   g_set_object (&crtc->current_scanout, G_OBJECT (fb_kms));

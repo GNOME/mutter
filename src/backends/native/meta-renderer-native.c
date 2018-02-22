@@ -1149,6 +1149,11 @@ on_crtc_flipped (GClosure         *closure,
       secondary_gpu_state->pending_flips--;
     }
 
+  /*
+   * FIXME: Eliminate this? With asynchronous overlapping page flips, we
+   *        may never reach "total_pending_flips == 0" so this probably needs
+   *        to be done differently.
+   */
   onscreen_native->total_pending_flips--;
   if (onscreen_native->total_pending_flips == 0)
     {
