@@ -5871,7 +5871,7 @@ check_moveresize_frequency (MetaWindow *window,
    * an artificial timeout-based throttled */
   if (!window->disable_sync &&
       window->sync_request_alarm != None)
-    return TRUE;
+    return FALSE;
 
   elapsed = time_diff (&current_time, &window->display->grab_last_moveresize_time);
 
