@@ -2,6 +2,8 @@ mutter (3.27.91-1) UNRELEASED; urgency=medium
 
   * New upstream development release
   * Bump minimum libgbm-dev to 17.1 and libdrm-dev to 2.4.83
+  * Cherry-pick bump-api.patch
+  * Update package names for soname bump
 
  -- Jeremy Bicha <jbicha@debian.org>  Thu, 22 Feb 2018 08:25:14 -0500
 

@@ -49,7 +49,7 @@ override_dh_girepository:
 	dh_girepository /usr/lib/$(DEB_HOST_MULTIARCH)/mutter
 
 override_dh_makeshlibs:
-	dh_makeshlibs -V'libmutter-1-0 (>= 3.25.90)'
+	dh_makeshlibs -V'libmutter-2-0 (>= 3.27.91)'
 
 override_dh_strip:
 	dh_strip --dbgsym-migration='mutter-dbg (<< 3.18.3-2~)'
