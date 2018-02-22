@@ -237,6 +237,34 @@ static void
 free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
                         MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state);
 
+static MetaFramebufferKms*
+new_framebuffer_kms_from_gbm (MetaGpuKms *gpu_kms,
+                              struct gbm_surface *gbm_surface)
+{
+  int drm_fd = meta_gpu_kms_get_fd (gpu_kms);
+  MetaFramebufferKms *fb_kms = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
+
+  meta_framebuffer_kms_set_drm_fd (fb_kms, drm_fd);
+  meta_framebuffer_kms_set_gbm_surface (fb_kms, gbm_surface);
+  if (!meta_framebuffer_kms_acquire_swapped_buffer (fb_kms))
+    g_clear_object (&fb_kms);
+
+  return fb_kms;
+}
+
+static MetaFramebufferKms*
+new_framebuffer_kms_from_dumb (MetaGpuKms *gpu_kms,
+                               uint32_t dumb_fb_id)
+{
+  int drm_fd = meta_gpu_kms_get_fd (gpu_kms);
+  MetaFramebufferKms *fb_kms = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
+
+  meta_framebuffer_kms_set_drm_fd (fb_kms, drm_fd);
+  meta_framebuffer_kms_borrow_dumb_buffer (fb_kms, dumb_fb_id);
+
+  return fb_kms;
+}
+
 static void
 meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data)
 {
@@ -1547,34 +1575,6 @@ wait_for_pending_flips (CoglOnscreen *onscreen)
 
   while (onscreen_native->total_pending_flips)
     meta_gpu_kms_wait_for_flip (onscreen_native->render_gpu, NULL);
-}
-
-static MetaFramebufferKms*
-new_framebuffer_kms_from_gbm (MetaGpuKms *gpu_kms,
-                              struct gbm_surface *gbm_surface)
-{
-  int drm_fd = meta_gpu_kms_get_fd (gpu_kms);
-  MetaFramebufferKms *fb_kms = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
-
-  meta_framebuffer_kms_set_drm_fd (fb_kms, drm_fd);
-  meta_framebuffer_kms_set_gbm_surface (fb_kms, gbm_surface);
-  if (!meta_framebuffer_kms_acquire_swapped_buffer (fb_kms))
-    g_clear_object (&fb_kms);
-
-  return fb_kms;
-}
-
-static MetaFramebufferKms*
-new_framebuffer_kms_from_dumb (MetaGpuKms *gpu_kms,
-                               uint32_t dumb_fb_id)
-{
-  int drm_fd = meta_gpu_kms_get_fd (gpu_kms);
-  MetaFramebufferKms *fb_kms = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
-
-  meta_framebuffer_kms_set_drm_fd (fb_kms, drm_fd);
-  meta_framebuffer_kms_borrow_dumb_buffer (fb_kms, dumb_fb_id);
-
-  return fb_kms;
 }
 
 static void
