@@ -254,14 +254,16 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
   g_assert (monitor_manager->power_save_mode == META_POWER_SAVE_ON);
 
   get_crtc_drm_connectors (gpu, crtc, &connectors, &n_connectors);
-  if (n_connectors == 0)
-    {
-      /* Not really an error. We can recover from this. */
-      g_warning ("Zero connectors found when trying to update the screen. "
-                 "Did something get unplugged?");
-      return FALSE;
-    }
   g_free (connectors);
+
+  /*
+   * If a monitor was unplugged while we had a deferred frame (next_scanout)
+   * then this may happen as we are called from page_flip_handler. But we
+   * can recover; just ignore the frame we can't display. The caller will
+   * free it.
+   */
+  if (n_connectors == 0)
+    return FALSE;
 
   if (!gpu_kms->page_flips_not_supported)
     {
