@@ -1549,6 +1549,34 @@ wait_for_pending_flips (CoglOnscreen *onscreen)
     meta_gpu_kms_wait_for_flip (onscreen_native->render_gpu, NULL);
 }
 
+static MetaFramebufferKms*
+new_framebuffer_kms_from_gbm (MetaGpuKms *gpu_kms,
+                              struct gbm_surface *gbm_surface)
+{
+  int drm_fd = meta_gpu_kms_get_fd (gpu_kms);
+  MetaFramebufferKms *fb_kms = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
+
+  meta_framebuffer_kms_set_drm_fd (fb_kms, drm_fd);
+  meta_framebuffer_kms_set_gbm_surface (fb_kms, gbm_surface);
+  if (!meta_framebuffer_kms_acquire_swapped_buffer (fb_kms))
+    g_clear_object (&fb_kms);
+
+  return fb_kms;
+}
+
+static MetaFramebufferKms*
+new_framebuffer_kms_from_dumb (MetaGpuKms *gpu_kms,
+                               uint32_t dumb_fb_id)
+{
+  int drm_fd = meta_gpu_kms_get_fd (gpu_kms);
+  MetaFramebufferKms *fb_kms = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
+
+  meta_framebuffer_kms_set_drm_fd (fb_kms, drm_fd);
+  meta_framebuffer_kms_borrow_dumb_buffer (fb_kms, dumb_fb_id);
+
+  return fb_kms;
+}
+
 static void
 copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
                              MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
@@ -1599,13 +1627,9 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
     }
 
   g_clear_object (&secondary_gpu_state->next_fb);
-  secondary_gpu_state->next_fb = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
-  meta_framebuffer_kms_set_drm_fd (secondary_gpu_state->next_fb,
-                                   meta_gpu_kms_get_fd (
-                                     secondary_gpu_state->gpu_kms));
-  meta_framebuffer_kms_set_gbm_surface (secondary_gpu_state->next_fb,
-                                        secondary_gpu_state->gbm.surface);
-  meta_framebuffer_kms_acquire_swapped_buffer (secondary_gpu_state->next_fb);
+  secondary_gpu_state->next_fb =
+    new_framebuffer_kms_from_gbm (secondary_gpu_state->gpu_kms,
+                                  secondary_gpu_state->gbm.surface);
 }
 
 static void
@@ -1643,12 +1667,9 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
                                           target_data);
 
   g_clear_object (&secondary_gpu_state->next_fb);
-  secondary_gpu_state->next_fb = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
-  meta_framebuffer_kms_set_drm_fd (secondary_gpu_state->next_fb,
-                                   meta_gpu_kms_get_fd (
-                                     secondary_gpu_state->gpu_kms));
-  meta_framebuffer_kms_borrow_dumb_buffer (secondary_gpu_state->next_fb,
-                                           target_fb_id);
+  secondary_gpu_state->next_fb =
+    new_framebuffer_kms_from_dumb (secondary_gpu_state->gpu_kms,
+                                   target_fb_id);
 }
 
 static void
@@ -1755,12 +1776,10 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
     case META_RENDERER_NATIVE_MODE_GBM:
       g_warn_if_fail (onscreen_native->next_fb == NULL);
       g_clear_object (&onscreen_native->next_fb);
-      onscreen_native->next_fb = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
-      meta_framebuffer_kms_set_drm_fd (onscreen_native->next_fb,
-                                       meta_gpu_kms_get_fd (render_gpu));
-      meta_framebuffer_kms_set_gbm_surface (onscreen_native->next_fb,
-                                            onscreen_native->gbm.surface);
-      if (!meta_framebuffer_kms_acquire_swapped_buffer (onscreen_native->next_fb))
+      onscreen_native->next_fb =
+        new_framebuffer_kms_from_gbm (render_gpu,
+                                      onscreen_native->gbm.surface);
+      if (!onscreen_native->next_fb)
         return;
 
       break;
