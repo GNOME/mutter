@@ -1,3 +1,9 @@
+mutter (3.27.91-1) UNRELEASED; urgency=medium
+
+  * New upstream development release
+
+ -- Jeremy Bicha <jbicha@debian.org>  Thu, 22 Feb 2018 08:25:14 -0500
+
 mutter (3.26.2-1) unstable; urgency=medium
 
   [ Jeremy Bicha ]
