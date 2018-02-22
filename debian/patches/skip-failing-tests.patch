@@ -3,7 +3,8 @@ Description: Don't run failing tests.
 Author: Jeremy Bicha <jbicha@ubuntu.com>
 Date: Fri, 05 May 2017 08:26:36 -0500
 Bug: https://bugzilla.gnome.org/782215
-     https://bugzilla.gnome.org/753836
+Bug: https://bugzilla.gnome.org/753836
+Applied-upstream: no
 ---
  clutter/tests/conform/Makefile.am |    2 --
  1 file changed, 2 deletions(-)

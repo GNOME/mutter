@@ -1,3 +1,48 @@
+mutter (3.26.2-1) unstable; urgency=medium
+
+  [ Jeremy Bicha ]
+  * New upstream release
+  * Drop all cherry-picked patches, applied in new release
+
+  [ Simon McVittie ]
+  * d/changelog: Retroactively add a reference from 3.26.1-2 to #878353
+  * d/p/*.patch: Add metadata to mark remaining patches as Debian-specific
+
+ -- Jeremy Bicha <jbicha@debian.org>  Sun, 05 Nov 2017 13:03:02 -0500
+
+mutter (3.26.1-6) unstable; urgency=high
+
+  * debian/control.in: Bump libegl1-mesa-dev to (>= 17) (Closes: #878702)
+  * Cherry-pick more fixes from gnome-3-26 branch to fix crashes
+    and fix unredirecting full-screen windows:
+    - 0012-x11-window-Don-t-manage-InputOnly-windows.patch
+    - 0013-compositor-Ignore-offscreen-windows.patch
+      (LP: #1725821)
+    - 0015-monitor-normal-Prefer-modes-with-same-flags.patch
+    - 0016-monitor-unit-tests-Check-non-first-preferred-modes.patch
+      (LP: #1725153)
+    - 0017-compositor-Avoid-a-crash-if-top-window-finalized.patch
+    - 0018-Revert-ClutterActor-Optimize-away-idempotent-scale.patch
+    - 0019-Revert-tests-Fix-actor-anchors-test.patch
+      (Closes: #788140)
+  * Set urgency to high to not further delay the gjs/mutter transition
+
+ -- Jeremy Bicha <jbicha@debian.org>  Sat, 21 Oct 2017 19:47:22 -0400
+
+mutter (3.26.1-5) unstable; urgency=medium
+
+  * Add 0012-Use-a-single-supported-scales.patch:
+    - Allow HiDPI scaling even when non-HiDPI displays are connected
+      (LP: #1724024)
+
+ -- Jeremy Bicha <jbicha@debian.org>  Mon, 16 Oct 2017 20:17:15 -0400
+
+mutter (3.26.1-4) unstable; urgency=medium
+
+  * Release to unstable
+
+ -- Jeremy Bicha <jbicha@debian.org>  Fri, 13 Oct 2017 16:24:12 -0400
+
 mutter (3.26.1-3) experimental; urgency=medium
 
   * Cherry-pick more fixes from gnome-3-26 branch (LP: #1722811):
@@ -14,7 +59,7 @@ mutter (3.26.1-2) experimental; urgency=medium
 
   * Add git_fix_xorg_maximize_crash.patch:
     - Cherry-pick fix for crash when closing windows on Budgie or
-      GNOME Shell (LP: #1722510)
+      GNOME Shell (LP: #1722510, Closes: #878353)
 
  -- Jeremy Bicha <jbicha@debian.org>  Tue, 10 Oct 2017 10:22:41 -0400
 
