@@ -1402,11 +1402,9 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen       *onscreen,
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      native_next = dumb_fb = g_object_new (META_TYPE_FRAMEBUFFER_KMS, NULL);
-      meta_framebuffer_kms_set_drm_fd (native_next,
-                                       meta_gpu_kms_get_fd (render_gpu));
-      meta_framebuffer_kms_borrow_dumb_buffer (native_next,
-                                               onscreen_native->egl.dumb_fb.fb_id);
+      native_next = dumb_fb =
+        new_framebuffer_kms_from_dumb (render_gpu,
+                                       onscreen_native->egl.dumb_fb.fb_id);
       break;
 #endif
     }
