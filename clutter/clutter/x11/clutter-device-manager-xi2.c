@@ -267,8 +267,9 @@ is_touch_device (XIAnyClassInfo         **classes,
 }
 
 static gboolean
-is_touchpad_device (ClutterBackendX11 *backend_x11,
-                    XIDeviceInfo      *info)
+has_8bit_property (ClutterBackendX11 *backend_x11,
+                   XIDeviceInfo      *info,
+                   const char        *name)
 {
   gulong nitems, bytes_after;
   guint32 *data = NULL;
@@ -276,7 +277,7 @@ is_touchpad_device (ClutterBackendX11 *backend_x11,
   Atom type;
   Atom prop;
 
-  prop = XInternAtom (backend_x11->xdpy, "libinput Tapping Enabled", True);
+  prop = XInternAtom (backend_x11->xdpy, name, True);
   if (prop == None)
     return FALSE;
 
@@ -295,6 +296,14 @@ is_touchpad_device (ClutterBackendX11 *backend_x11,
     return FALSE;
 
   return TRUE;
+}
+
+static gboolean
+is_touchpad_device (ClutterBackendX11 *backend_x11,
+                    XIDeviceInfo      *info)
+{
+  return has_8bit_property (backend_x11, info, "libinput Tapping Enabled") ||
+         has_8bit_property (backend_x11, info, "Synaptics Off");
 }
 
 static gboolean
