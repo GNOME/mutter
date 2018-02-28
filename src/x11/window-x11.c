@@ -3496,27 +3496,31 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
   window->sync_request_serial = new_counter_value;
   meta_compositor_sync_updates_frozen (window->display->compositor, window);
 
-  if (window == window->display->grab_window &&
-      meta_grab_op_is_resizing (window->display->grab_op) &&
-      new_counter_value >= window->sync_request_wait_serial &&
-      (!window->extended_sync_request_counter || new_counter_value % 2 == 0) &&
-      window->sync_request_timeout_id)
+  if (new_counter_value >= window->sync_request_wait_serial && window->sync_request_timeout_id)
     {
-      meta_topic (META_DEBUG_RESIZING,
-                  "Alarm event received last motion x = %d y = %d\n",
-                  window->display->grab_latest_motion_x,
-                  window->display->grab_latest_motion_y);
+	if (!window->extended_sync_request_counter || new_counter_value % 2 == 0)
+         {
+	   g_source_remove (window->sync_request_timeout_id);
+	   window->sync_request_timeout_id = 0;
+	 }
 
-      g_source_remove (window->sync_request_timeout_id);
-      window->sync_request_timeout_id = 0;
+	if (window == window->display->grab_window &&
+	    meta_grab_op_is_resizing (window->display->grab_op) &&
+	    (!window->extended_sync_request_counter || new_counter_value % 2 == 0))
+	  {
+	    meta_topic (META_DEBUG_RESIZING,
+			"Alarm event received last motion x = %d y = %d\n",
+			 window->display->grab_latest_motion_x,
+			 window->display->grab_latest_motion_y);
 
-      /* This means we are ready for another configure;
-       * no pointer round trip here, to keep in sync */
-      meta_window_update_resize (window,
-                                 window->display->grab_last_user_action_was_snap,
-                                 window->display->grab_latest_motion_x,
-                                 window->display->grab_latest_motion_y,
-                                 TRUE);
+	    /* This means we are ready for another configure;
+	     * no pointer round trip here, to keep in sync */
+	    meta_window_update_resize (window,
+                                       window->display->grab_last_user_action_was_snap,
+                                       window->display->grab_latest_motion_x,
+                                       window->display->grab_latest_motion_y,
+                                       TRUE);
+	  }
     }
 
   /* If sync was previously disabled, turn it back on and hope
