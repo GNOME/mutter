@@ -105,7 +105,8 @@ typedef enum _CoglEGLWinsysFeature
   COGL_EGL_WINSYS_FEATURE_CREATE_CONTEXT                =1L<<3,
   COGL_EGL_WINSYS_FEATURE_BUFFER_AGE                    =1L<<4,
   COGL_EGL_WINSYS_FEATURE_FENCE_SYNC                    =1L<<5,
-  COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT           =1L<<6
+  COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT           =1L<<6,
+  COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY              =1L<<7,
 } CoglEGLWinsysFeature;
 
 typedef struct _CoglRendererEGL
