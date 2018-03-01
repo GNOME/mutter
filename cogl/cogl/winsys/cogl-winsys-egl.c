@@ -350,7 +350,7 @@ try_create_context (CoglDisplay *display,
   CoglRendererEGL *egl_renderer = renderer->winsys;
   EGLDisplay edpy;
   EGLConfig config;
-  EGLint attribs[9];
+  EGLint attribs[11];
   EGLint cfg_attribs[MAX_EGL_CONFIG_ATTRIBS];
   GError *config_error = NULL;
   const char *error_message;
@@ -399,7 +399,15 @@ try_create_context (CoglDisplay *display,
       attribs[5] = EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR;
       attribs[6] = EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR;
       attribs[7] = EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR;
-      attribs[8] = EGL_NONE;
+
+      if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY)
+        {
+          attribs[8] = EGL_CONTEXT_PRIORITY_LEVEL_IMG;
+          attribs[9] = EGL_CONTEXT_PRIORITY_HIGH_IMG;
+          attribs[10] = EGL_NONE;
+        }
+      else
+        attribs[8] = EGL_NONE;
     }
   else if (display->renderer->driver == COGL_DRIVER_GLES2)
     {
@@ -419,6 +427,17 @@ try_create_context (CoglDisplay *display,
     {
       error_message = "Unable to create a suitable EGL context";
       goto fail;
+    }
+
+  if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY)
+    {
+      EGLint value = EGL_CONTEXT_PRIORITY_MEDIUM_IMG;
+
+      eglQueryContext(egl_renderer->edpy, egl_display->egl_context,
+                      EGL_CONTEXT_PRIORITY_LEVEL_IMG, &value);
+
+      if (value != EGL_CONTEXT_PRIORITY_HIGH_IMG)
+        g_warning ("Failed to obtain high priority context");
     }
 
   if (egl_renderer->platform_vtable->context_created &&
