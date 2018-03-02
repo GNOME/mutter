@@ -67,8 +67,8 @@ meta_output_kms_set_underscan (MetaOutput    *output,
       uint64_t hborder, vborder;
 
       crtc = meta_output_get_assigned_crtc (output);
-      hborder = MIN (128, (uint64_t) round (crtc->current_mode->width * 0.05));
-      vborder = MIN (128, (uint64_t) round (crtc->current_mode->height * 0.05));
+      hborder = MIN (128, (uint64_t) round (crtc->current_mode->width * OVERSCAN_COMPENSATION_BORDER));
+      vborder = MIN (128, (uint64_t) round (crtc->current_mode->height * OVERSCAN_COMPENSATION_BORDER));
 
       g_debug ("Setting underscan of connector %s to %lu x %lu",
                meta_kms_connector_get_name (output_kms->kms_connector),
