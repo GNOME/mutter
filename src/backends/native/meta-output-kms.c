@@ -95,7 +95,7 @@ meta_output_kms_set_underscan (MetaOutput *output)
         {
           uint64_t value;
 
-          value = MIN (128, crtc->current_mode->width * 0.05);
+          value = MIN (128, crtc->current_mode->width * OVERSCAN_COMPENSATION_BORDER);
           drmModeObjectSetProperty (kms_fd, connector_id,
                                     DRM_MODE_OBJECT_CONNECTOR,
                                     output_kms->underscan_hborder_prop_id,
@@ -105,7 +105,7 @@ meta_output_kms_set_underscan (MetaOutput *output)
         {
           uint64_t value;
 
-          value = MIN (128, crtc->current_mode->height * 0.05);
+          value = MIN (128, crtc->current_mode->height * OVERSCAN_COMPENSATION_BORDER);
           drmModeObjectSetProperty (kms_fd, connector_id,
                                     DRM_MODE_OBJECT_CONNECTOR,
                                     output_kms->underscan_vborder_prop_id,
