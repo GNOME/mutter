@@ -6,7 +6,7 @@ Source: mutter
 Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
-Uploaders: Iain Lane <laney@debian.org>, Jeremy Bicha <jbicha@debian.org>
+Uploaders: Jeremy Bicha <jbicha@debian.org>
 Build-Depends: debhelper (>= 10),
                gnome-pkg-tools (>= 0.10),
                gtk-doc-tools (>= 1.15),
@@ -52,7 +52,7 @@ Build-Depends: debhelper (>= 10),
                libice-dev,
                libpam0g-dev,
                libwayland-dev (>= 1.13.0) [linux-any],
-               wayland-protocols (>= 1.9) [linux-any],
+               wayland-protocols (>= 1.12) [linux-any],
                xkb-data,
                xvfb <!nocheck>,
                xauth <!nocheck>,
