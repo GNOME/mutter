@@ -1,3 +1,10 @@
+mutter (3.27.92-2) UNRELEASED; urgency=medium
+
+  * Build-depend on libgnome-desktop-3-dev (>= 3.27.90) to carry out
+    libgnome-desktop-3-17 transition
+
+ -- Simon McVittie <smcv@debian.org>  Tue, 06 Mar 2018 10:40:16 +0000
+
 mutter (3.27.92-1) experimental; urgency=medium
 
   * New upstream release candidate (LP: #1752123, LP: #1718238)
