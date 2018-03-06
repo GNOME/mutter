@@ -1,10 +1,10 @@
-mutter (3.27.92-1) UNRELEASED; urgency=medium
+mutter (3.27.92-1) experimental; urgency=medium
 
   * New upstream release candidate (LP: #1752123, LP: #1718238)
   * Bump minimum wayland-protocols to 1.12
   * Drop bump-api.patch: Applied in new release
 
- -- Jeremy Bicha <jbicha@debian.org>  Mon, 05 Mar 2018 20:28:10 -0500
+ -- Jeremy Bicha <jbicha@debian.org>  Mon, 05 Mar 2018 20:38:24 -0500
 
 mutter (3.27.91-1) experimental; urgency=medium
 
