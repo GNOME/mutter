@@ -1,3 +1,9 @@
+mutter (3.27.92-1) UNRELEASED; urgency=medium
+
+  * New upstream release candidate
+
+ -- Jeremy Bicha <jbicha@debian.org>  Mon, 05 Mar 2018 20:28:10 -0500
+
 mutter (3.27.91-1) experimental; urgency=medium
 
   * New upstream development release (LP: #1751070)
