@@ -130,15 +130,19 @@ typedef enum {
 #define VIGNETTE_VERTEX_SHADER_CODE                                     \
 "position = cogl_tex_coord0_in.xy * scale + offset;\n"                  \
 
-#define VIGNETTE_FRAGMENT_SHADER_DECLARATIONS                           \
-"uniform float vignette_sharpness;\n"                                   \
-"varying vec2 position;\n"                                              \
+#define VIGNETTE_SQRT_2 "1.4142"
+
+#define VIGNETTE_FRAGMENT_SHADER_DECLARATIONS                                                   \
+"uniform float vignette_sharpness;\n"                                                           \
+"varying vec2 position;\n"                                                                      \
+"float rand(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123); }\n"    \
 
 #define VIGNETTE_FRAGMENT_SHADER_CODE                                          \
-"float t = 2.0 * length(position);\n"                                          \
+"float t = " VIGNETTE_SQRT_2 " * length(position);\n"                          \
 "t = min(t, 1.0);\n"                                                           \
 "float pixel_brightness = 1.0 - t * vignette_sharpness;\n"                     \
 "cogl_color_out.rgb = cogl_color_out.rgb * pixel_brightness;\n"                \
+"cogl_color_out.rgb += (rand(position) - 0.5) / 255.0;\n"                      \
 
 typedef struct _MetaBackgroundLayer MetaBackgroundLayer;
 
