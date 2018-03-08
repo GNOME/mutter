@@ -1458,6 +1458,9 @@ calculate_scale (MetaMonitor     *monitor,
 
   scale = 1.0;
 
+  if (monitor_mode == NULL)
+    goto out;
+
   meta_monitor_mode_get_resolution (monitor_mode,
                                     &resolution_width,
                                     &resolution_height);
