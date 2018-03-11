@@ -1,3 +1,28 @@
+mutter (3.27.92-2) UNRELEASED; urgency=medium
+
+  * Build-depend on libgnome-desktop-3-dev (>= 3.27.90) to carry out
+    libgnome-desktop-3-17 transition
+
+ -- Simon McVittie <smcv@debian.org>  Tue, 06 Mar 2018 10:40:16 +0000
+
+mutter (3.27.92-1) experimental; urgency=medium
+
+  * New upstream release candidate (LP: #1752123, LP: #1718238)
+  * Bump minimum wayland-protocols to 1.12
+  * Drop bump-api.patch: Applied in new release
+
+ -- Jeremy Bicha <jbicha@debian.org>  Mon, 05 Mar 2018 20:38:24 -0500
+
+mutter (3.27.91-1) experimental; urgency=medium
+
+  * New upstream development release (LP: #1751070)
+  * Bump minimum libgbm-dev to 17.1 and libdrm-dev to 2.4.83
+  * Build-Depend on libcogl-dev (needed for build but shouldn't be…)
+  * Cherry-pick bump-api.patch
+  * Update package names for soname bump
+
+ -- Jeremy Bicha <jbicha@debian.org>  Thu, 22 Feb 2018 08:54:47 -0500
+
 mutter (3.26.2-1) unstable; urgency=medium
 
   [ Jeremy Bicha ]
