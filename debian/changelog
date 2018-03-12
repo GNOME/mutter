@@ -1,11 +1,11 @@
-mutter (3.28.0-1) UNRELEASED; urgency=high
+mutter (3.28.0-1) unstable; urgency=high
 
   * New upstream release
     - Fix crashes when launching apps from apps in GNOME on Wayland
       (LP: #1754169)
-  * Bump urgency for that targeted fix
+  * Bump urgency for this targeted fix
 
- -- Jeremy Bicha <jbicha@debian.org>  Mon, 12 Mar 2018 17:53:37 -0400
+ -- Jeremy Bicha <jbicha@debian.org>  Mon, 12 Mar 2018 18:04:54 -0400
 
 mutter (3.27.92-2) unstable; urgency=medium
 
