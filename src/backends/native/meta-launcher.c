@@ -35,7 +35,12 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifdef WITH_SYSTEMD
 #include <systemd/sd-login.h>
+#elif WITH_ELOGIND
+#include <elogind/sd-login.h>
+#endif
+
 #include <gudev/gudev.h>
 
 #include "dbus-utils.h"
