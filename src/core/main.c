@@ -90,7 +90,11 @@
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #ifdef HAVE_WAYLAND
+#ifdef WITH_SYSTEMD
 #include <systemd/sd-login.h>
+#elif WITH_ELOGIND
+#include <elogind/sd-login.h>
+#endif /* WITH_SYSTEMD & WITH_ELOGIND */
 #endif /* HAVE_WAYLAND */
 #endif /* HAVE_NATIVE_BACKEND */
 
