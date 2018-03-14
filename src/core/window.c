@@ -169,7 +169,7 @@ enum {
   PROP_SKIP_TASKBAR,
   PROP_MUTTER_HINTS,
   PROP_APPEARS_FOCUSED,
-  PROP_RESIZABLE,
+  PROP_RESIZEABLE,
   PROP_ABOVE,
   PROP_WM_CLASS,
   PROP_GTK_APPLICATION_ID,
@@ -372,7 +372,7 @@ meta_window_get_property(GObject         *object,
     case PROP_WM_CLASS:
       g_value_set_string (value, win->res_class);
       break;
-    case PROP_RESIZABLE:
+    case PROP_RESIZEABLE:
       g_value_set_boolean (value, win->has_resize_func);
       break;
     case PROP_ABOVE:
@@ -528,9 +528,9 @@ meta_window_class_init (MetaWindowClass *klass)
                           "Whether the window is drawn as being focused",
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_RESIZABLE] =
-    g_param_spec_boolean ("resizable",
-                          "Resizable",
+  obj_props[PROP_RESIZEABLE] =
+    g_param_spec_boolean ("resizeable",
+                          "Resizeable",
                           "Whether the window can be resized",
                           FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
@@ -5714,7 +5714,7 @@ meta_window_recalc_features (MetaWindow *window)
     set_allowed_actions_hint (window);
 
   if (window->has_resize_func != old_has_resize_func)
-    g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_RESIZABLE]);
+    g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_RESIZEABLE]);
 
   meta_window_frame_size_changed (window);
 
