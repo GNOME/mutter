@@ -46,6 +46,8 @@ struct _MetaXwaylandSurface
   gulong unmanaging_handler_id;
   gulong position_changed_handler_id;
   gulong effects_completed_handler_id;
+
+  gboolean is_frozen;
 };
 
 G_DEFINE_TYPE (MetaXwaylandSurface,
@@ -157,6 +159,30 @@ meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surfa
   window_actor = meta_window_actor_from_window (window);
   if (window_actor)
     meta_window_actor_assign_surface_actor (window_actor, surface_actor);
+}
+
+void
+meta_xwayland_surface_set_frozen (MetaXwaylandSurface *xwayland_surface,
+                                  gboolean             is_frozen)
+{
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (xwayland_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+
+  if (xwayland_surface->is_frozen == is_frozen)
+    return;
+
+  xwayland_surface->is_frozen = is_frozen;
+
+  if (!xwayland_surface->is_frozen && surface->pending)
+    meta_wayland_surface_commit (surface);
+}
+
+gboolean
+meta_xwayland_surface_get_frozen (MetaXwaylandSurface *xwayland_surface)
+{
+  return xwayland_surface->is_frozen;
 }
 
 static void

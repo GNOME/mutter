@@ -55,7 +55,7 @@
 #include "wayland/meta-wayland-xdg-shell.h"
 #include "wayland/meta-window-wayland.h"
 #include "wayland/meta-xwayland-private.h"
-#include "wayland/meta-xwayland-private.h"
+#include "wayland/meta-xwayland-surface.h"
 
 enum
 {
@@ -844,7 +844,7 @@ cleanup:
     }
 }
 
-static void
+void
 meta_wayland_surface_commit (MetaWaylandSurface *surface)
 {
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandSurfaceCommit,
@@ -853,6 +853,10 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
   if (surface->pending->buffer &&
       !meta_wayland_buffer_is_realized (surface->pending->buffer))
     meta_wayland_buffer_realize (surface->pending->buffer);
+
+  if (surface->role && META_IS_XWAYLAND_SURFACE (surface->role) &&
+      meta_xwayland_surface_get_frozen (META_XWAYLAND_SURFACE (surface->role)))
+    return;
 
   /*
    * If this is a sub-surface and it is in effective synchronous mode, only

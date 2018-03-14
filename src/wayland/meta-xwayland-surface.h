@@ -35,4 +35,10 @@ void
 meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surface,
                                              MetaWindow          *window);
 
+void
+meta_xwayland_surface_set_frozen (MetaXwaylandSurface *xwayland_surface,
+                                  gboolean             is_frozen);
+gboolean
+meta_xwayland_surface_get_frozen (MetaXwaylandSurface *xwayland_surface);
+
 #endif /* META_XWAYLAND_SURFACE_H */

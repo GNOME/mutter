@@ -36,6 +36,7 @@
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-window-wayland.h"
+#include "wayland/meta-xwayland-surface.h"
 
 struct _MetaSurfaceActorWayland
 {
@@ -84,6 +85,21 @@ meta_surface_actor_wayland_add_frame_callbacks (MetaSurfaceActorWayland *self,
                                                 struct wl_list *frame_callbacks)
 {
   wl_list_insert_list (&self->frame_callback_list, frame_callbacks);
+}
+
+static void
+meta_surface_actor_wayland_set_frozen (MetaSurfaceActor *actor,
+                                       gboolean          is_frozen)
+{
+  MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
+  MetaWaylandSurface *surface = meta_surface_actor_wayland_get_surface (self);
+
+  META_SURFACE_ACTOR_CLASS (meta_surface_actor_wayland_parent_class)->set_frozen (actor,
+                                                                                  is_frozen);
+
+  if (surface && surface->role && META_IS_XWAYLAND_SURFACE (surface->role))
+    meta_xwayland_surface_set_frozen (META_XWAYLAND_SURFACE (surface->role),
+                                      is_frozen);
 }
 
 static void
@@ -139,6 +155,8 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
   surface_actor_class->pre_paint = meta_surface_actor_wayland_pre_paint;
   surface_actor_class->is_visible = meta_surface_actor_wayland_is_visible;
   surface_actor_class->is_opaque = meta_surface_actor_wayland_is_opaque;
+
+  surface_actor_class->set_frozen = meta_surface_actor_wayland_set_frozen;
 
   object_class->dispose = meta_surface_actor_wayland_dispose;
 }

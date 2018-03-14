@@ -341,4 +341,7 @@ void                meta_wayland_surface_update_outputs_recursively (MetaWayland
 int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
 
+void
+meta_wayland_surface_commit (MetaWaylandSurface *surface);
+
 #endif
