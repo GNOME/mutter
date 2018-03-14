@@ -864,6 +864,9 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
       !meta_wayland_buffer_is_realized (surface->pending->buffer))
     meta_wayland_buffer_realize (surface->pending->buffer);
 
+  if (surface->is_frozen)
+    return;
+
   /*
    * If this is a sub-surface and it is in effective synchronous mode, only
    * cache the pending surface state until either one of the following two
@@ -1971,4 +1974,17 @@ meta_wayland_surface_get_height (MetaWaylandSurface *surface)
 
       return height / surface->scale;
     }
+}
+
+void
+meta_wayland_surface_set_frozen (MetaWaylandSurface *surface,
+                                 gboolean            is_frozen)
+{
+  if (surface->is_frozen == is_frozen)
+    return;
+
+  surface->is_frozen = is_frozen;
+
+  if (!surface->is_frozen && surface->pending)
+    meta_wayland_surface_commit (surface);
 }
