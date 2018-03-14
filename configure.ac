@@ -262,7 +262,21 @@ AC_SUBST(XWAYLAND_PATH)
 
 PKG_CHECK_MODULES(MUTTER, $MUTTER_PC_MODULES)
 
-MUTTER_NATIVE_BACKEND_MODULES="libdrm >= 2.4.83 libsystemd libinput >= 1.4 gudev-1.0 gbm >= 17.1"
+PKG_CHECK_MODULES(ELOGIND, [libelogind], [have_elogind=yes], [have_elogind=no])
+
+if test x$have_elogind = xyes; then
+     AC_DEFINE(WITH_ELOGIND, 1, [Define if elogind is used])
+     logind_provider="libelogind"
+fi
+
+PKG_CHECK_MODULES(SYSTEMD, [libsystemd], [have_systemd=yes], [have_systemd=no])
+
+if test x$have_systemd = xyes; then
+     AC_DEFINE(WITH_SYSTEMD, 1, [Define if systemd is used])
+     logind_provider="libsystemd"
+fi
+
+MUTTER_NATIVE_BACKEND_MODULES="libdrm $logind_provider libinput >= 1.4 gudev-1.0 gbm >= 10.3"
 
 AC_ARG_ENABLE(native-backend,
   AS_HELP_STRING([--disable-native-backend], [disable mutter native (KMS) backend]),,
