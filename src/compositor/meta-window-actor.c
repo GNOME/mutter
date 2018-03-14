@@ -346,8 +346,11 @@ meta_window_actor_freeze (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv = self->priv;
 
-  if (priv->freeze_count == 0 && priv->surface)
-    meta_surface_actor_set_frozen (priv->surface, TRUE);
+  if (priv->freeze_count == 0)
+    {
+      if (priv->surface)
+        meta_surface_actor_set_frozen (priv->surface, TRUE);
+    }
 
   priv->freeze_count ++;
 }

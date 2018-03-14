@@ -703,6 +703,9 @@ cleanup:
 static void
 meta_wayland_surface_commit (MetaWaylandSurface *surface)
 {
+  if (surface->is_frozen)
+    return;
+
   /*
    * If this is a sub-surface and it is in effective synchronous mode, only
    * cache the pending surface state until either one of the following two
@@ -1718,4 +1721,17 @@ meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurface *surface,
     return FALSE;
 
   return g_hash_table_contains (surface->shortcut_inhibited_seats, seat);
+}
+
+void
+meta_wayland_surface_set_frozen (MetaWaylandSurface *surface,
+                                 gboolean            is_frozen)
+{
+  if (surface->is_frozen == is_frozen)
+    return;
+
+  surface->is_frozen = is_frozen;
+
+  if (!surface->is_frozen && surface->pending)
+    meta_wayland_surface_commit (surface);
 }

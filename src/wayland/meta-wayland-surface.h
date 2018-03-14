@@ -203,6 +203,8 @@ struct _MetaWaylandSurface
 
   /* table of seats for which shortcuts are inhibited */
   GHashTable *shortcut_inhibited_seats;
+
+  guint32 is_frozen : 1;
 };
 
 void                meta_wayland_shell_init     (MetaWaylandCompositor *compositor);
@@ -302,5 +304,7 @@ void                meta_wayland_surface_restore_shortcuts (MetaWaylandSurface *
 
 gboolean            meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurface *surface,
                                                                  MetaWaylandSeat    *seat);
+void                meta_wayland_surface_set_frozen (MetaWaylandSurface *surface,
+                                                     gboolean            is_frozen);
 
 #endif
