@@ -126,6 +126,17 @@ meta_surface_actor_wayland_get_window (MetaSurfaceActor *actor)
 }
 
 static void
+meta_surface_actor_wayland_size_changed (MetaSurfaceActor *actor)
+{
+  MetaWindow *window;
+
+  window = meta_surface_actor_wayland_get_window (actor);
+
+  if (window)
+    meta_window_set_resize_pending (window, FALSE);
+}
+
+static void
 meta_surface_actor_wayland_get_preferred_width  (ClutterActor *actor,
                                                  gfloat        for_height,
                                                  gfloat       *min_width_p,
@@ -236,6 +247,8 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
 
   surface_actor_class->set_frozen = meta_surface_actor_wayland_set_frozen;
   surface_actor_class->get_window = meta_surface_actor_wayland_get_window;
+
+  surface_actor_class->size_changed = meta_surface_actor_wayland_size_changed;
 
   object_class->dispose = meta_surface_actor_wayland_dispose;
 }

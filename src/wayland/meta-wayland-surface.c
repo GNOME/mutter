@@ -1102,6 +1102,7 @@ meta_wayland_surface_set_window (MetaWaylandSurface *surface,
                                "position-changed",
                                G_CALLBACK (window_position_changed),
                                surface, 0);
+      meta_window_set_resize_pending (window, FALSE);
     }
 }
 
