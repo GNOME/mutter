@@ -1127,7 +1127,9 @@ handle_updates (MetaWindowActorX11 *actor_x11)
 
   meta_surface_actor_pre_paint (surface);
 
-  if (!meta_surface_actor_is_visible (surface))
+  if (!meta_surface_actor_is_visible (surface) ||
+      meta_window_resize_is_pending (
+        meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11))))
     return;
 
   check_needs_reshape (actor_x11);
