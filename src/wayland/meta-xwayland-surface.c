@@ -157,6 +157,8 @@ meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surfa
   window_actor = meta_window_actor_from_window (window);
   if (window_actor)
     meta_window_actor_assign_surface_actor (window_actor, surface_actor);
+
+  meta_window_set_resize_pending (window, FALSE);
 }
 
 static void

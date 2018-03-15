@@ -425,6 +425,9 @@ struct _MetaWindow
   /* whether focus should be restored on map */
   guint restore_focus_on_map : 1;
 
+  /* if TRUE, the X server hasn't yet committed a new buffer following resize of the frame/client window */
+  guint resize_pending : 1;
+
   /* if non-NULL, the bounds of the window frame */
   cairo_region_t *frame_bounds;
 
@@ -822,6 +825,9 @@ void meta_window_move_resize_internal (MetaWindow          *window,
                                        MetaMoveResizeFlags  flags,
                                        int                  gravity,
                                        MetaRectangle        frame_rect);
+void meta_window_set_resize_pending (MetaWindow *window,
+                                     gboolean    is_resize_pending);
+gboolean meta_window_resize_is_pending (MetaWindow  *window);
 
 void meta_window_grab_op_began (MetaWindow *window, MetaGrabOp op);
 void meta_window_grab_op_ended (MetaWindow *window, MetaGrabOp op);
