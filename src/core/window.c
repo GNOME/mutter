@@ -3816,6 +3816,9 @@ meta_window_activate_with_workspace (MetaWindow     *window,
 gboolean
 meta_window_updates_are_frozen (MetaWindow *window)
 {
+  if (window->frame_redraw_pending)
+    return TRUE;
+
   return META_WINDOW_GET_CLASS (window)->are_updates_frozen (window);
 }
 
@@ -6397,6 +6400,15 @@ gboolean
 meta_window_resize_is_pending (MetaWindow  *window)
 {
   return window->resize_pending;
+}
+
+void
+meta_window_set_frame_redraw_pending (MetaWindow *window,
+                                      gboolean    is_frame_redraw_pending)
+{
+  window->frame_redraw_pending = is_frame_redraw_pending;
+
+  meta_compositor_sync_updates_frozen (window->display->compositor, window);
 }
 
 static void
