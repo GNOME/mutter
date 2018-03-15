@@ -149,6 +149,7 @@ static void
 invalidate_whole_window (MetaUIFrame *frame)
 {
   gdk_window_invalidate_rect (frame->window, NULL, FALSE);
+  meta_window_set_frame_redraw_pending (frame->meta_window, TRUE);
 }
 
 static MetaStyleInfo *
@@ -484,6 +485,27 @@ meta_ui_frame_attach_style (MetaUIFrame *frame)
                                                                             variant));
 }
 
+static void
+after_paint (GdkFrameClock *frame_clock,
+             MetaUIFrame   *frame)
+{
+  MetaFrames *frames = frame->frames;
+  MetaWindow *window = frame->meta_window;
+
+  /* Make sure the damage is posted to the X server before
+   * we mark the frame redraw finished and unfreeze, so there's
+   * a wayland surface commit waiting for us at unfreeze time
+   */
+  if (meta_is_wayland_compositor ())
+    gdk_display_sync (gtk_widget_get_display (GTK_WIDGET (frames)));
+
+  meta_window_set_frame_redraw_pending (window, FALSE);
+
+  g_signal_handlers_disconnect_by_func (G_OBJECT (gdk_window_get_frame_clock (frame->window)),
+                                        G_CALLBACK (after_paint),
+                                        frame);
+}
+
 MetaUIFrame *
 meta_frames_manage_window (MetaFrames *frames,
                            MetaWindow *meta_window,
@@ -530,6 +552,10 @@ meta_ui_frame_unmanage (MetaUIFrame *frame)
   meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                                frame->xwindow,
                                META_CURSOR_DEFAULT);
+
+  g_signal_handlers_disconnect_by_func (G_OBJECT (gdk_window_get_frame_clock (frame->window)),
+                                        G_CALLBACK (after_paint),
+                                        frame);
 
   gdk_window_set_user_data (frame->window, NULL);
 
@@ -1395,6 +1421,11 @@ meta_frames_draw (GtkWidget *widget,
 
   meta_ui_frame_paint (frame, cr);
   cairo_region_destroy (region);
+
+  g_signal_connect (G_OBJECT (gdk_window_get_frame_clock (frame->window)),
+                    "after-paint",
+                    G_CALLBACK (after_paint),
+                    frame);
 
   return TRUE;
 }
