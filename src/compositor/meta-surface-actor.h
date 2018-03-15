@@ -36,6 +36,8 @@ struct _MetaSurfaceActorClass
                                   gboolean          is_frozen);
 
   MetaWindow *(* get_window)      (MetaSurfaceActor *actor);
+
+  void     (* size_changed)      (MetaSurfaceActor *actor);
 };
 
 cairo_surface_t *meta_surface_actor_get_image (MetaSurfaceActor      *self,
