@@ -1922,10 +1922,11 @@ meta_window_actor_handle_updates (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv = self->priv;
 
-  if (is_frozen (self))
+  if (is_frozen (self) || meta_window_resize_is_pending (priv->window))
     {
-      /* The window is frozen due to a pending animation: we'll wait until
-       * the animation finishes to reshape and repair the window */
+      /* If the window is frozen due to a pending animation or a resize is
+       * pending then we'll wait until the animation or resize finishes to
+       * reshape and repair the window */
       return;
     }
 
