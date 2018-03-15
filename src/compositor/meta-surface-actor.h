@@ -40,6 +40,8 @@ struct _MetaSurfaceActorClass
                                   gboolean          is_frozen);
 
   MetaWindow *(* get_window)      (MetaSurfaceActor *actor);
+
+  void     (* size_changed)      (MetaSurfaceActor *actor);
 };
 
 struct _MetaSurfaceActor

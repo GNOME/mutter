@@ -6311,6 +6311,19 @@ meta_window_update_resize (MetaWindow *window,
   update_resize (window, snap, x, y, force);
 }
 
+void
+meta_window_set_resize_pending (MetaWindow *window,
+                                gboolean    is_resize_pending)
+{
+  window->resize_pending = is_resize_pending;
+}
+
+gboolean
+meta_window_resize_is_pending (MetaWindow  *window)
+{
+  return window->resize_pending;
+}
+
 static void
 end_grab_op (MetaWindow *window,
              const ClutterEvent *event)

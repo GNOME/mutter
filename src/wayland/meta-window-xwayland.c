@@ -72,6 +72,20 @@ meta_window_xwayland_shortcuts_inhibited (MetaWindow         *window,
 }
 
 static void
+meta_window_xwayland_move_resize_internal (MetaWindow                *window,
+                                           int                        gravity,
+                                           MetaRectangle              unconstrained_rect,
+                                           MetaRectangle              constrained_rect,
+                                           MetaMoveResizeFlags        flags,
+                                           MetaMoveResizeResultFlags *result)
+{
+  META_WINDOW_CLASS (meta_window_xwayland_parent_class)->move_resize_internal (window, gravity, unconstrained_rect, constrained_rect, flags, result);
+
+  if (*result & META_MOVE_RESIZE_RESULT_RESIZED)
+    meta_window_set_resize_pending (window, TRUE);
+}
+
+static void
 meta_window_xwayland_get_property (GObject    *object,
                                    guint       prop_id,
                                    GValue     *value,
@@ -117,6 +131,7 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
 
   window_class->force_restore_shortcuts = meta_window_xwayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_xwayland_shortcuts_inhibited;
+  window_class->move_resize_internal = meta_window_xwayland_move_resize_internal;
 
   gobject_class->get_property = meta_window_xwayland_get_property;
   gobject_class->set_property = meta_window_xwayland_set_property;

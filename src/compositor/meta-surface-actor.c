@@ -135,8 +135,8 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
 
   signals[SIZE_CHANGED] = g_signal_new ("size-changed",
                                         G_TYPE_FROM_CLASS (object_class),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,
+                                        G_SIGNAL_RUN_FIRST,
+                                        G_STRUCT_OFFSET (MetaSurfaceActorClass, size_changed),
                                         NULL, NULL, NULL,
                                         G_TYPE_NONE, 0);
 
