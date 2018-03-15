@@ -101,6 +101,23 @@ meta_surface_actor_wayland_set_frozen (MetaSurfaceActor *actor,
 }
 
 static void
+meta_surface_actor_wayland_size_changed (MetaSurfaceActor *actor)
+{
+  MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
+  MetaWindow *window = NULL;
+  MetaWaylandSurface *surface = NULL;
+
+  if (self)
+    surface = meta_surface_actor_wayland_get_surface (self);
+
+  if (surface)
+    window = meta_wayland_surface_get_window (surface);
+
+  if (window)
+    meta_window_set_resize_pending (window, FALSE);
+}
+
+static void
 meta_surface_actor_wayland_paint (ClutterActor *actor)
 {
   MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
@@ -155,6 +172,8 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
   surface_actor_class->is_opaque = meta_surface_actor_wayland_is_opaque;
 
   surface_actor_class->set_frozen = meta_surface_actor_wayland_set_frozen;
+
+  surface_actor_class->size_changed = meta_surface_actor_wayland_size_changed;
 
   object_class->dispose = meta_surface_actor_wayland_dispose;
 }
