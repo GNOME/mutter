@@ -1341,6 +1341,7 @@ meta_wayland_surface_set_window (MetaWaylandSurface *surface,
                                "effects-completed",
                                G_CALLBACK (window_actor_effects_completed),
                                surface, 0);
+      meta_window_set_resize_pending (window, FALSE);
     }
 }
 
