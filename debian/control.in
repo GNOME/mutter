@@ -54,8 +54,8 @@ Build-Depends: debhelper (>= 10),
                xauth <!nocheck>,
                zenity
 Standards-Version: 4.1.1
-Vcs-Svn: svn://anonscm.debian.org/pkg-gnome/desktop/unstable/mutter
-Vcs-Browser: https://anonscm.debian.org/viewvc/pkg-gnome/desktop/unstable/mutter
+Vcs-Git: https://salsa.debian.org/gnome-team/mutter.git
+Vcs-Browser: https://salsa.debian.org/gnome-team/mutter
 
 Package: mutter
 Architecture: any
