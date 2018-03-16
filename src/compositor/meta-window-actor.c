@@ -53,6 +53,8 @@ typedef struct _MetaWindowActorPrivate
   MetaWindow *window;
   MetaCompositor *compositor;
 
+  MetaCompEffect pending_effect;
+
   MetaSurfaceActor *surface;
 
   int geometry_scale;
@@ -77,6 +79,7 @@ typedef struct _MetaWindowActorPrivate
 
   guint             updates_frozen         : 1;
   guint             first_frame_state      : 2; /* FirstFrameState */
+  guint             has_pending_effect     : 1;
 } MetaWindowActorPrivate;
 
 enum
@@ -271,6 +274,12 @@ meta_window_actor_sync_thawed_state (MetaWindowActor *self)
 
   if (priv->first_frame_state == INITIALLY_FROZEN)
     priv->first_frame_state = DRAWING_FIRST_FRAME;
+
+  if (priv->has_pending_effect)
+    {
+      meta_window_actor_show (self, priv->pending_effect);
+      priv->has_pending_effect = FALSE;
+    }
 
   if (priv->surface)
     meta_surface_actor_set_frozen (priv->surface, FALSE);
@@ -817,6 +826,13 @@ meta_window_actor_show (MetaWindowActor   *self,
   MetaPluginEffect event;
 
   g_return_if_fail (!priv->visible);
+
+  if (meta_window_actor_is_frozen (self))
+    {
+      priv->pending_effect = effect;
+      priv->has_pending_effect = TRUE;
+      return;
+    }
 
   priv->visible = TRUE;
 
