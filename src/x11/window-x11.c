@@ -1504,8 +1504,9 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
     {
       meta_x11_error_trap_push (window->display->x11_display);
 
-      if (window == window->display->grab_window &&
-          meta_grab_op_is_resizing (window->display->grab_op) &&
+      if ((window->constructing ||
+          (window == window->display->grab_window &&
+           meta_grab_op_is_resizing (window->display->grab_op))) &&
           !window->disable_sync &&
           window->sync_request_counter != None &&
           window->sync_request_alarm != None &&
