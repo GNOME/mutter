@@ -12,13 +12,19 @@ xml_DATA = \
         50-mutter-system.xml \
         50-mutter-windows.xml
 
+if HAVE_WAYLAND
+xml_DATA += \
+        50-mutter-wayland.xml
+endif
+
 gschema_in_files = \
 	org.gnome.mutter.gschema.xml.in	\
 	org.gnome.mutter.wayland.gschema.xml.in
 gsettings_SCHEMAS = $(gschema_in_files:.xml.in=.xml)
 
 %.gschema.xml: %.gschema.xml.in Makefile
-	$(AM_V_GEN) sed -e 's|@GETTEXT_DOMAIN[@]|$(GETTEXT_DOMAIN)|g' \
+	$(AM_V_GEN) sed -e 's|@GETTEXT_DOMAIN[@]|$(GETTEXT_PACKAGE)|g' \
+	                -e 's|@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES[@]|$(XWAYLAND_GRAB_DEFAULT_ACCESS_RULES)|g' \
 	$< > $@ || rm $@
 
 @GSETTINGS_RULES@

@@ -3,12 +3,13 @@ installed_testdir = $(libexecdir)/installed-tests/mutter-clutter
 include $(top_srcdir)/build/autotools/glib-tap.mk
 
 AM_CFLAGS = -g $(CLUTTER_CFLAGS) $(MAINTAINER_CFLAGS)
-LDADD = $(top_builddir)/../cogl/cogl/libmutter-cogl.la $(top_builddir)/clutter/libmutter-clutter-1.0.la $(CLUTTER_LIBS) $(LIBM)
+LDADD = $(top_builddir)/../cogl/cogl/libmutter-cogl-@LIBMUTTER_API_VERSION@.la $(top_builddir)/clutter/libmutter-clutter-@LIBMUTTER_API_VERSION@.la $(CLUTTER_LIBS) $(LIBM)
 AM_LDFLAGS = -export-dynamic
 AM_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"Clutter-Conform\"	\
 	-I$(top_srcdir)/../cogl                 \
 	-I$(top_builddir)/../cogl               \
+	-I$(top_builddir)/../cogl/cogl          \
 	-I$(top_srcdir) 			\
 	-I$(top_builddir)			\
 	-DCOGL_DISABLE_DEPRECATION_WARNINGS	\
@@ -78,7 +79,7 @@ script_tests = \
 	test-script-timeline-markers.json \
 	test-state-1.json
 
-TESTS_ENVIRONMENT += G_ENABLE_DIAGNOSTIC=0 CLUTTER_ENABLE_DIAGNOSTIC=0
+TESTS_ENVIRONMENT += G_ENABLE_DIAGNOSTIC=0 CLUTTER_ENABLE_DIAGNOSTIC=0 CLUTTER_SCALE=1
 
 # simple rules for generating a Git ignore file for the conformance test suite
 $(srcdir)/.gitignore: Makefile

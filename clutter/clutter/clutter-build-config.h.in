@@ -18,6 +18,9 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Building with libwacom for advanced tablet management */
+#undef HAVE_LIBWACOM
+
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
@@ -68,6 +71,9 @@
 
 /* Define to use XKB extension */
 #undef HAVE_XKB
+
+/* Define to 1 if we have the XTest X extension */
+#undef HAVE_XTEST
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR

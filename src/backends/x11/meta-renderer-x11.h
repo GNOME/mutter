@@ -29,9 +29,14 @@
 
 #include "backends/meta-renderer.h"
 
+struct _MetaRendererX11Class
+{
+  MetaRendererClass parent_class;
+};
+
 #define META_TYPE_RENDERER_X11 (meta_renderer_x11_get_type ())
-G_DECLARE_FINAL_TYPE (MetaRendererX11, meta_renderer_x11,
-                      META, RENDERER_X11,
-                      MetaRenderer)
+G_DECLARE_DERIVABLE_TYPE (MetaRendererX11, meta_renderer_x11,
+                          META, RENDERER_X11,
+                          MetaRenderer)
 
 #endif /* META_RENDERER_X11_H */

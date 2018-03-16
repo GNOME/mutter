@@ -37,6 +37,7 @@
 
 enum {
   PREPARE_AT,
+  TEXTURE_CHANGED,
 
   LAST_SIGNAL
 };
@@ -228,6 +229,8 @@ meta_cursor_sprite_load_from_theme (MetaCursorSprite *self)
 
   g_assert (self->cursor != META_CURSOR_NONE);
 
+  self->theme_dirty = FALSE;
+
   /* We might be reloading with a different scale. If so clear the old data. */
   if (self->xcursor_images)
     {
@@ -243,8 +246,6 @@ meta_cursor_sprite_load_from_theme (MetaCursorSprite *self)
 
   image = meta_cursor_sprite_get_current_frame_image (self);
   meta_cursor_sprite_load_from_xcursor_image (self, image);
-
-  self->theme_dirty = FALSE;
 }
 
 MetaCursorSprite *
@@ -266,11 +267,18 @@ meta_cursor_sprite_set_texture (MetaCursorSprite *self,
                                 int               hot_x,
                                 int               hot_y)
 {
+  if (self->texture == COGL_TEXTURE_2D (texture) &&
+      self->hot_x == hot_x &&
+      self->hot_y == hot_y)
+    return;
+
   g_clear_pointer (&self->texture, cogl_object_unref);
   if (texture)
     self->texture = cogl_object_ref (texture);
   self->hot_x = hot_x;
   self->hot_y = hot_y;
+
+  g_signal_emit (self, signals[TEXTURE_CHANGED], 0);
 }
 
 void
@@ -365,4 +373,10 @@ meta_cursor_sprite_class_init (MetaCursorSpriteClass *klass)
                                       G_TYPE_NONE, 2,
                                       G_TYPE_INT,
                                       G_TYPE_INT);
+  signals[TEXTURE_CHANGED] = g_signal_new ("texture-changed",
+                                           G_TYPE_FROM_CLASS (object_class),
+                                           G_SIGNAL_RUN_LAST,
+                                           0,
+                                           NULL, NULL, NULL,
+                                           G_TYPE_NONE, 0);
 }

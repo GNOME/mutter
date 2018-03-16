@@ -20,19 +20,20 @@
 #ifndef META_WAYLAND_XDG_SHELL_H
 #define META_WAYLAND_XDG_SHELL_H
 
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-shell-surface.h"
 
 #define META_TYPE_WAYLAND_XDG_SURFACE (meta_wayland_xdg_surface_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaWaylandXdgSurface,
                           meta_wayland_xdg_surface,
                           META, WAYLAND_XDG_SURFACE,
-                          MetaWaylandSurfaceRoleShellSurface);
+                          MetaWaylandShellSurface)
 
 struct _MetaWaylandXdgSurfaceClass
 {
-  MetaWaylandSurfaceRoleShellSurfaceClass parent_class;
+  MetaWaylandShellSurfaceClass parent_class;
 
   void (*shell_client_destroyed) (MetaWaylandXdgSurface *xdg_surface);
+  void (*reset) (MetaWaylandXdgSurface *xdg_surface);
 };
 
 #define META_TYPE_WAYLAND_XDG_TOPLEVEL (meta_wayland_xdg_toplevel_get_type ())

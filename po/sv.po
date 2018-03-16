@@ -1,25 +1,24 @@
 # Swedish messages for mutter.
-# Copyright © 2001-2016 Free Software Foundation, Inc.
+# Copyright © 2001-2018 Free Software Foundation, Inc.
 # Christian Rose <menthos@menthos.com>, 2001, 2002, 2003, 2004, 2005.
 # Daniel Nylander <po@danielnylander.se>, 2006, 2007, 2008, 2009, 2010, 2011, 2012.
 # Mattias Eriksson <snaggen@gmail.com>, 2014.
-# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016.
+# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018.
 # Sebastian Rasmussen <sebras@gmail.com>, 2016.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=mutter&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-09-07 09:27+0000\n"
-"PO-Revision-Date: 2016-09-07 11:54+0200\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
+"POT-Creation-Date: 2018-02-20 20:33+0000\n"
+"PO-Revision-Date: 2018-02-22 15:54+0100\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.8\n"
+"X-Generator: Poedit 2.0.6\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -46,134 +45,118 @@ msgid "Move window to last workspace"
 msgstr "Flytta fönster till sista arbetsyta"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace to the left"
-msgstr "Flytta fönster en arbetsyta åt vänster"
-
-#: data/50-mutter-navigation.xml:27
-msgid "Move window one workspace to the right"
-msgstr "Flytta fönster en arbetsyta åt höger"
-
-#: data/50-mutter-navigation.xml:30
 msgid "Move window one workspace up"
 msgstr "Flytta fönster en arbetsyta uppåt"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:27
 msgid "Move window one workspace down"
 msgstr "Flytta fönster en arbetsyta nedåt"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
 msgstr "Flytta fönster en skärm åt vänster"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:33
 msgid "Move window one monitor to the right"
 msgstr "Flytta fönster en skärm åt höger"
 
-#: data/50-mutter-navigation.xml:42
+#: data/50-mutter-navigation.xml:36
 msgid "Move window one monitor up"
 msgstr "Flytta fönster en skärm uppåt"
 
-#: data/50-mutter-navigation.xml:45
+#: data/50-mutter-navigation.xml:39
 msgid "Move window one monitor down"
 msgstr "Flytta fönster en skärm nedåt"
 
-#: data/50-mutter-navigation.xml:49
+#: data/50-mutter-navigation.xml:43
 msgid "Switch applications"
 msgstr "Växla program"
 
-#: data/50-mutter-navigation.xml:54
+#: data/50-mutter-navigation.xml:48
 msgid "Switch to previous application"
 msgstr "Växla till föregående program"
 
-#: data/50-mutter-navigation.xml:58
+#: data/50-mutter-navigation.xml:52
 msgid "Switch windows"
 msgstr "Växla fönster"
 
-#: data/50-mutter-navigation.xml:63
+#: data/50-mutter-navigation.xml:57
 msgid "Switch to previous window"
 msgstr "Växla till föregående fönster"
 
-#: data/50-mutter-navigation.xml:67
+#: data/50-mutter-navigation.xml:61
 msgid "Switch windows of an application"
 msgstr "Växla fönster för ett program"
 
-#: data/50-mutter-navigation.xml:72
+#: data/50-mutter-navigation.xml:66
 msgid "Switch to previous window of an application"
 msgstr "Växla till föregående fönster för ett program"
 
-#: data/50-mutter-navigation.xml:76
+#: data/50-mutter-navigation.xml:70
 msgid "Switch system controls"
 msgstr "Växla systemkontroller"
 
-#: data/50-mutter-navigation.xml:81
+#: data/50-mutter-navigation.xml:75
 msgid "Switch to previous system control"
 msgstr "Växla till föregående systemkontroll"
 
-#: data/50-mutter-navigation.xml:85
+#: data/50-mutter-navigation.xml:79
 msgid "Switch windows directly"
 msgstr "Växla fönster direkt"
 
-#: data/50-mutter-navigation.xml:90
+#: data/50-mutter-navigation.xml:84
 msgid "Switch directly to previous window"
 msgstr "Växla direkt till föregående fönster"
 
-#: data/50-mutter-navigation.xml:94
+#: data/50-mutter-navigation.xml:88
 msgid "Switch windows of an app directly"
 msgstr "Växla fönster för ett program direkt"
 
-#: data/50-mutter-navigation.xml:99
+#: data/50-mutter-navigation.xml:93
 msgid "Switch directly to previous window of an app"
 msgstr "Växla direkt till föregående fönster för ett program"
 
-#: data/50-mutter-navigation.xml:103
+#: data/50-mutter-navigation.xml:97
 msgid "Switch system controls directly"
 msgstr "Växla systemkontroller direkt"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:102
 msgid "Switch directly to previous system control"
 msgstr "Växla direkt till föregående systemkontroll"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:105
 msgid "Hide all normal windows"
 msgstr "Dölj alla normala fönster"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:108
 msgid "Switch to workspace 1"
 msgstr "Växla till arbetsyta 1"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:111
 msgid "Switch to workspace 2"
 msgstr "Växla till arbetsyta 2"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:114
 msgid "Switch to workspace 3"
 msgstr "Växla till arbetsyta 3"
 
-#: data/50-mutter-navigation.xml:123
+#: data/50-mutter-navigation.xml:117
 msgid "Switch to workspace 4"
 msgstr "Växla till arbetsyta 4"
 
-#: data/50-mutter-navigation.xml:126
+#: data/50-mutter-navigation.xml:120
 msgid "Switch to last workspace"
 msgstr "Växla till sista arbetsyta"
 
-#: data/50-mutter-navigation.xml:129
-msgid "Move to workspace left"
-msgstr "Flytta till arbetsyta till vänster"
-
-#: data/50-mutter-navigation.xml:132
-msgid "Move to workspace right"
-msgstr "Flytta till arbetsyta till höger"
-
-#: data/50-mutter-navigation.xml:135
+#: data/50-mutter-navigation.xml:123
 msgid "Move to workspace above"
 msgstr "Flytta till arbetsyta ovanför"
 
-#: data/50-mutter-navigation.xml:138
+#: data/50-mutter-navigation.xml:126
 msgid "Move to workspace below"
 msgstr "Flytta till arbetsyta nedanför"
 
-#: data/50-mutter-system.xml:6
+#: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
 msgstr "System"
 
@@ -184,6 +167,10 @@ msgstr "Visa Kör kommando-dialogen"
 #: data/50-mutter-system.xml:10
 msgid "Show the activities overview"
 msgstr "Visa aktivitetsöversikt"
+
+#: data/50-mutter-wayland.xml:8
+msgid "Restore the keyboard shortcuts"
+msgstr "Återställ tangentbordsgenvägarna"
 
 #: data/50-mutter-windows.xml:6
 msgid "Windows"
@@ -210,54 +197,50 @@ msgid "Restore window"
 msgstr "Återställ fönster"
 
 #: data/50-mutter-windows.xml:18
-msgid "Toggle shaded state"
-msgstr "Växla upprullat tillstånd"
-
-#: data/50-mutter-windows.xml:20
 msgid "Close window"
 msgstr "Stäng fönster"
 
-#: data/50-mutter-windows.xml:22
+#: data/50-mutter-windows.xml:20
 msgid "Hide window"
 msgstr "Dölj fönster"
 
-#: data/50-mutter-windows.xml:24
+#: data/50-mutter-windows.xml:22
 msgid "Move window"
 msgstr "Flytta fönster"
 
-#: data/50-mutter-windows.xml:26
+#: data/50-mutter-windows.xml:24
 msgid "Resize window"
 msgstr "Ändra storlek på fönster"
 
-#: data/50-mutter-windows.xml:29
+#: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
 msgstr "Växla fönster på alla arbetsytor eller bara en"
 
-#: data/50-mutter-windows.xml:31
+#: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
 msgstr "Höj fönstret om det skyms av ett annat fönster, sänk det annars"
 
-#: data/50-mutter-windows.xml:33
+#: data/50-mutter-windows.xml:31
 msgid "Raise window above other windows"
 msgstr "Höj fönstret över andra fönster"
 
-#: data/50-mutter-windows.xml:35
+#: data/50-mutter-windows.xml:33
 msgid "Lower window below other windows"
 msgstr "Sänk fönster under andra fönster"
 
-#: data/50-mutter-windows.xml:37
+#: data/50-mutter-windows.xml:35
 msgid "Maximize window vertically"
 msgstr "Maximera fönster vertikalt"
 
-#: data/50-mutter-windows.xml:39
+#: data/50-mutter-windows.xml:37
 msgid "Maximize window horizontally"
 msgstr "Maximera fönster horisontellt"
 
-#: data/50-mutter-windows.xml:43
+#: data/50-mutter-windows.xml:41
 msgid "View split on left"
 msgstr "Vy delad till vänster"
 
-#: data/50-mutter-windows.xml:47
+#: data/50-mutter-windows.xml:45
 msgid "View split on right"
 msgstr "Vy delad till höger"
 
@@ -271,15 +254,15 @@ msgstr "Modifierare att använda för utökade fönsterhanteringsåtgärder"
 
 #: data/org.gnome.mutter.gschema.xml.in:8
 msgid ""
-"This key will initiate the \"overlay\", which is a combination window "
-"overview and application launching system. The default is intended to be the "
-"\"Windows key\" on PC hardware. It's expected that this binding either the "
-"default or set to the empty string."
+"This key will initiate the “overlay”, which is a combination window overview "
+"and application launching system. The default is intended to be the “Windows "
+"key” on PC hardware. It’s expected that this binding either the default or "
+"set to the empty string."
 msgstr ""
-"Denna nyckel kommer att initiera \"overlay\", som är en kombinerad "
-"fönsteröversikt och programstartare. Standard är tänkt att vara \"Windows-"
-"tangenten\" på PC-maskinvara. Det är förväntat att denna bindning antingen "
-"är standard eller inställd till en tom sträng."
+"Denna nyckel kommer att initiera ”overlay”, som är en kombinerad "
+"fönsteröversikt och programstartare. Standard är tänkt att vara ”Windows-"
+"tangenten” på PC-maskinvara. Det är förväntat att denna bindning antingen är "
+"standard eller inställd till en tom sträng."
 
 #: data/org.gnome.mutter.gschema.xml.in:20
 msgid "Attach modal dialogs"
@@ -315,7 +298,7 @@ msgstr "Arbetsytor hanteras dynamiskt"
 
 #: data/org.gnome.mutter.gschema.xml.in:41
 msgid ""
-"Determines whether workspaces are managed dynamically or whether there's a "
+"Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
 "gnome.desktop.wm.preferences)."
 msgstr ""
@@ -353,11 +336,11 @@ msgstr "Fördröj fokusändringar till muspekaren hålls still"
 
 #: data/org.gnome.mutter.gschema.xml.in:69
 msgid ""
-"If set to true, and the focus mode is either \"sloppy\" or \"mouse\" then "
-"the focus will not be changed immediately when entering a window, but only "
-"after the pointer stops moving."
+"If set to true, and the focus mode is either “sloppy” or “mouse” then the "
+"focus will not be changed immediately when entering a window, but only after "
+"the pointer stops moving."
 msgstr ""
-"Om satt till \"true\", och fokusläget är antingen \"sloppy\" eller \"mouse\" "
+"Om satt till true (sant), och fokusläget är antingen ”sloppy” eller ”mouse” "
 "kommer fokus inte att ändras omedelbart när muspekaren går in över ett "
 "fönster, utan först efter att muspekaren slutar röra sig."
 
@@ -367,7 +350,7 @@ msgstr "Dragbar rambredd"
 
 #: data/org.gnome.mutter.gschema.xml.in:80
 msgid ""
-"The amount of total draggable borders. If the theme's visible borders are "
+"The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
 msgstr ""
 "Mängd av totalt dragbara ramar. Om temats synliga ramar inte är tillräckliga "
@@ -397,13 +380,53 @@ msgstr ""
 "När satt till \"true\", kommer nya fönster alltid att placeras centrerat på "
 "den aktiva skärmen."
 
-#: data/org.gnome.mutter.gschema.xml.in:120
+#: data/org.gnome.mutter.gschema.xml.in:107
+msgid "Enable experimental features"
+msgstr "Aktivera experimentella funktioner"
+
+#: data/org.gnome.mutter.gschema.xml.in:108
+msgid ""
+"To enable experimental features, add the feature keyword to the list. "
+"Whether the feature requires restarting the compositor depends on the given "
+"feature. Any experimental feature is not required to still be available, or "
+"configurable. Don’t expect adding anything in this setting to be future "
+"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
+"mutter default to layout logical monitors in a logical pixel coordinate "
+"space, while scaling monitor framebuffers instead of window content, to "
+"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
+"enables remote desktop support. To support remote desktop with screen "
+"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
+"screen cast support."
+msgstr ""
+"För att aktivera experimentella funktioner, lägg till funktionens nyckelord "
+"till listan. Huruvida funktionen kräver att kompositionshanteraren startas "
+"om beror på den angivna funktionen. En experimentell funktion har inget krav "
+"på sig att fortfarande vara tillgänglig eller konfigurerbar. Förvänta dig "
+"inte att något som läggs till i denna inställning garanterat kommer att "
+"fungera i framtiden. För närvarande möjliga nyckelord: • ”scale-monitor-"
+"framebuffer” — gör så att mutter som standard använder en layout med logiska "
+"skärmar i en rymd av logiska bildpunktskoordinater, medan skärmars "
+"rambuffert skalas i stället för fönsterinnehållet, för att hantera HiDPI-"
+"skärmar. Kräver inte en omstart. • ”remote-desktop” — aktiverar stöd för "
+"fjärrskrivbord. För stöd för fjärrskrivbord med skärmdelning måste “screen-"
+"cast” också vara aktiverat. • “screen-cast” — aktiverar stöd för "
+"skärminspelning."
+
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "Select window from tab popup"
 msgstr "Välj fönster från flik-popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:125
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Cancel tab popup"
 msgstr "Avbryt flik-popup"
+
+#: data/org.gnome.mutter.gschema.xml.in:155
+msgid "Switch monitor configurations"
+msgstr "Växla skärmkonfiguration"
+
+#: data/org.gnome.mutter.gschema.xml.in:160
+msgid "Rotates the built-in monitor configuration"
+msgstr "Roterar den inbyggda skärmkonfigurationen"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:6
 msgid "Switch to VT 1"
@@ -453,57 +476,163 @@ msgstr "Växla till VT 11"
 msgid "Switch to VT 12"
 msgstr "Växla till VT 12"
 
-#: src/backends/meta-input-settings.c:1707
+#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+msgid "Re-enable shortcuts"
+msgstr "Återaktivera genvägar"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+msgid "Allow grabs with Xwayland"
+msgstr "Tillåt fångster med Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+msgid ""
+"Allow keyboard grabs issued by X11 applications running in Xwayland to be "
+"taken into account. For a X11 grab to be taken into account under Wayland, "
+"the client must also either send a specific X11 ClientMessage to the root "
+"window or be among the applications white-listed in key “xwayland-grab-"
+"access-rules”."
+msgstr ""
+"Tillåt tangentbordsfångster utfärdade av X11-program som körs i Xwayland att "
+"tas i beräkning. För att en X11-fångst ska tas i beräkning under Wayland "
+"måste klienten också antingen sända ett specifikt X11-ClientMessage till "
+"root-fönstret eller finnas bland programmen som vitlistats i nyckeln "
+"”xwayland-grab-access-rules”."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:77
+msgid "Xwayland applications allowed to issue keyboard grabs"
+msgstr "Xwayland-program tillåts utfärda tangentbordsfångster"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:78
+msgid ""
+"List the resource names or resource class of X11 windows either allowed or "
+"not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
+"resource class of a given X11 window can be obtained using the command "
+"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
+"Values starting with “!” are blacklisted, which has precedence over the "
+"whitelist, to revoke applications from the default system list. The default "
+"system list includes the following applications: "
+"“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
+"using the specific keyboard shortcut defined by the keybinding key “restore-"
+"shortcuts”."
+msgstr ""
+"Lista resursnamnen eller resursklassen för X11-fönster som antingen tillåts "
+"eller inte tillåts att utfärda X11-tangentbordsfångster under Xwayland. "
+"Resursnamnet eller resursklassen för ett givet X11-fönster kan erhållas "
+"genom att använda kommandot ”xprop WM_CLASS”. Stöd finns för att använda "
+"jokertecknen ”*” och ”?” i värdena. Värden som startar med ”!” svartlistas, "
+"vilket företräde över vitlistan, för att upphäva program i "
+"standardsystemlistan. Standardsystemlistan innehåller följande program: "
+"”@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Användare kan bryta en befintlig "
+"fångst genom att använda den specifika tangentbordsgenvägen som definieras "
+"av tangentbindningsnyckeln ”restore-shortcuts”."
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/backends/meta-input-settings.c:2325
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "Lägesväxel (grupp %d)"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/backends/meta-input-settings.c:2348
 msgid "Switch monitor"
 msgstr "Växla skärm"
 
-#: src/backends/meta-input-settings.c:1709
+#: src/backends/meta-input-settings.c:2350
 msgid "Show on-screen help"
 msgstr "Visa hjälp på skärmen"
 
-#: src/backends/meta-monitor-manager.c:514
+#: src/backends/meta-monitor-manager.c:900
 msgid "Built-in display"
 msgstr "Inbyggd display"
 
-#: src/backends/meta-monitor-manager.c:537
+#: src/backends/meta-monitor-manager.c:923
 msgid "Unknown"
 msgstr "Okänd"
 
-#: src/backends/meta-monitor-manager.c:539
+#: src/backends/meta-monitor-manager.c:925
 msgid "Unknown Display"
 msgstr "Okänd display"
 
 #. TRANSLATORS: this is a monitor vendor name, followed by a
 #. * size in inches, like 'Dell 15"'
 #.
-#: src/backends/meta-monitor-manager.c:547
+#: src/backends/meta-monitor-manager.c:933
 #, c-format
 msgid "%s %s"
 msgstr "%s %s"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:463
+#: src/compositor/compositor.c:481
 #, c-format
 msgid ""
-"Another compositing manager is already running on screen %i on display \"%s"
-"\"."
+"Another compositing manager is already running on screen %i on display “%s”."
 msgstr "En annan kompositionshanterare körs redan på skärm %i på display ”%s”."
 
 #: src/core/bell.c:194
 msgid "Bell event"
 msgstr "Ljudsignalhändelse"
 
-#: src/core/delete.c:127
+#: src/core/display.c:608
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "Misslyckades med att öppna X Window System-displayen ”%s”\n"
+
+#: src/core/main.c:190
+msgid "Disable connection to session manager"
+msgstr "Inaktivera anslutning till sessionshanteraren"
+
+#: src/core/main.c:196
+msgid "Replace the running window manager"
+msgstr "Ersätt körande fönsterhanteraren"
+
+#: src/core/main.c:202
+msgid "Specify session management ID"
+msgstr "Ange sessionshanteringsid"
+
+#: src/core/main.c:207
+msgid "X Display to use"
+msgstr "X-display att använda"
+
+#: src/core/main.c:213
+msgid "Initialize session from savefile"
+msgstr "Initiera session från sparandefil"
+
+#: src/core/main.c:219
+msgid "Make X calls synchronous"
+msgstr "Gör X-anrop synkrona"
+
+#: src/core/main.c:226
+msgid "Run as a wayland compositor"
+msgstr "Kör som en wayland-kompositionshanterare"
+
+#: src/core/main.c:232
+msgid "Run as a nested compositor"
+msgstr "Kör som en nästlad kompositionshanterare"
+
+#: src/core/main.c:240
+msgid "Run as a full display server, rather than nested"
+msgstr "Kör som en full display-tjänst, i stället för nästlad"
+
+#: src/core/main.c:246
+msgid "Run with X11 backend"
+msgstr "Kör med X11-gränssnitt"
+
+#. Translators: %s is a window title
+#: src/core/meta-close-dialog-default.c:147
 #, c-format
 msgid "“%s” is not responding."
 msgstr "”%s” svarar inte."
 
-#: src/core/delete.c:129
+#: src/core/meta-close-dialog-default.c:149
 msgid "Application is not responding."
 msgstr "Programmet svarar inte."
 
-#: src/core/delete.c:134
+#: src/core/meta-close-dialog-default.c:154
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -511,60 +640,19 @@ msgstr ""
 "Du kan välja att vänta en kort stund på det för att fortsätta eller tvinga "
 "programmet att helt avslutas."
 
-#: src/core/delete.c:141
-msgid "_Wait"
-msgstr "_Vänta"
-
-#: src/core/delete.c:141
+#: src/core/meta-close-dialog-default.c:161
 msgid "_Force Quit"
 msgstr "_Tvinga avslut"
 
-#: src/core/display.c:590
-#, c-format
-msgid "Failed to open X Window System display '%s'\n"
-msgstr "Misslyckades med att öppna X Window System-displayen ”%s”\n"
-
-#: src/core/main.c:182
-msgid "Disable connection to session manager"
-msgstr "Inaktivera anslutning till sessionshanteraren"
-
-#: src/core/main.c:188
-msgid "Replace the running window manager"
-msgstr "Ersätt körande fönsterhanteraren"
-
-#: src/core/main.c:194
-msgid "Specify session management ID"
-msgstr "Ange sessionshanteringsid"
-
-#: src/core/main.c:199
-msgid "X Display to use"
-msgstr "X-display att använda"
-
-#: src/core/main.c:205
-msgid "Initialize session from savefile"
-msgstr "Initiera session från sparandefil"
-
-#: src/core/main.c:211
-msgid "Make X calls synchronous"
-msgstr "Gör X-anrop synkrona"
-
-#: src/core/main.c:218
-msgid "Run as a wayland compositor"
-msgstr "Kör som en wayland-kompositionshanterare"
-
-#: src/core/main.c:224
-msgid "Run as a nested compositor"
-msgstr "Kör som en nästlad kompositionshanterare"
-
-#: src/core/main.c:232
-msgid "Run as a full display server, rather than nested"
-msgstr "Kör som en full display-tjänst, i stället för nästlad"
+#: src/core/meta-close-dialog-default.c:161
+msgid "_Wait"
+msgstr "_Vänta"
 
 #: src/core/mutter.c:39
 #, c-format
 msgid ""
 "mutter %s\n"
-"Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
 "This is free software; see the source for copying conditions.\n"
 "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
 "PARTICULAR PURPOSE.\n"
@@ -588,38 +676,53 @@ msgstr "Mutter-insticksmodul att använda"
 msgid "Workspace %d"
 msgstr "Arbetsyta %d"
 
-#: src/core/screen.c:521
+#: src/core/screen.c:583
 #, c-format
 msgid ""
-"Display \"%s\" already has a window manager; try using the --replace option "
-"to replace the current window manager."
+"Display “%s” already has a window manager; try using the --replace option to "
+"replace the current window manager."
 msgstr ""
 "Display ”%s” har redan en fönsterhanterare; försök med flaggan --replace för "
 "att ersätta den aktuella fönsterhanteraren."
 
-#: src/core/screen.c:606
+#: src/core/screen.c:668
 #, c-format
-msgid "Screen %d on display '%s' is invalid\n"
+msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Skärm %d på display ”%s” är ogiltig\n"
 
 #: src/core/util.c:120
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter kompilerades utan stöd för utförligt läge\n"
 
-#: src/wayland/meta-wayland-tablet-pad.c:595
+#: src/wayland/meta-wayland-tablet-pad.c:567
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Lägesväxel: Läge %d"
 
-#: src/x11/session.c:1815
+#: src/x11/session.c:1818
 msgid ""
-"These windows do not support &quot;save current setup&quot; and will have to "
-"be restarted manually next time you log in."
+"These windows do not support “save current setup” and will have to be "
+"restarted manually next time you log in."
 msgstr ""
-"Dessa fönster saknar stöd för &quot;spara nuvarande inställningar&quot; och "
-"kommer att behöva startas om manuellt nästa gång du loggar in."
+"Dessa fönster saknar stöd för ”spara nuvarande inställningar” och kommer att "
+"behöva startas om manuellt nästa gång du loggar in."
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:559
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
+
+#~ msgid "Move window one workspace to the left"
+#~ msgstr "Flytta fönster en arbetsyta åt vänster"
+
+#~ msgid "Move window one workspace to the right"
+#~ msgstr "Flytta fönster en arbetsyta åt höger"
+
+#~ msgid "Move to workspace left"
+#~ msgstr "Flytta till arbetsyta till vänster"
+
+#~ msgid "Move to workspace right"
+#~ msgstr "Flytta till arbetsyta till höger"
+
+#~ msgid "Toggle shaded state"
+#~ msgstr "Växla upprullat tillstånd"

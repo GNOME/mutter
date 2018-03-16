@@ -34,33 +34,19 @@
 
 #include <X11/extensions/sync.h>
 #include <X11/XKBlib.h>
-#include <X11/extensions/XKBrules.h>
 #include <X11/Xlib-xcb.h>
 #include <xkbcommon/xkbcommon-x11.h>
 
 #include "meta-idle-monitor-xsync.h"
-#include "meta-monitor-manager-xrandr.h"
-#include "backends/meta-monitor-manager-dummy.h"
 #include "backends/meta-stage.h"
-#include "backends/x11/nested/meta-cursor-renderer-x11-nested.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
-#include "meta-cursor-renderer-x11.h"
-#ifdef HAVE_WAYLAND
-#include "wayland/meta-wayland.h"
-#endif
+#include "meta/meta-cursor-tracker.h"
 
 #include <meta/util.h>
 #include "display-private.h"
 #include "compositor/compositor-private.h"
-
-typedef enum {
-  /* We're a traditional CM running under the host. */
-  META_BACKEND_X11_MODE_COMPOSITOR,
-
-  /* We're a nested X11 client */
-  META_BACKEND_X11_MODE_NESTED,
-} MetaBackendX11Mode;
+#include "backends/meta-dnd-private.h"
 
 struct _MetaBackendX11Private
 {
@@ -68,8 +54,6 @@ struct _MetaBackendX11Private
   Display *xdisplay;
   xcb_connection_t *xcb;
   GSource *source;
-
-  MetaBackendX11Mode mode;
 
   int xsync_event_base;
   int xsync_error_base;
@@ -83,30 +67,39 @@ struct _MetaBackendX11Private
   uint8_t xkb_error_base;
 
   struct xkb_keymap *keymap;
-  gchar *keymap_layouts;
-  gchar *keymap_variants;
-  gchar *keymap_options;
-  int locked_group;
+  xkb_layout_index_t keymap_layout_group;
+
+  MetaLogicalMonitor *cached_current_logical_monitor;
 };
 typedef struct _MetaBackendX11Private MetaBackendX11Private;
 
-static void apply_keymap (MetaBackendX11 *x11);
+static GInitableIface *initable_parent_iface;
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaBackendX11, meta_backend_x11, META_TYPE_BACKEND);
+static void
+initable_iface_init (GInitableIface *initable_iface);
+
+G_DEFINE_TYPE_WITH_CODE (MetaBackendX11, meta_backend_x11, META_TYPE_BACKEND,
+                         G_ADD_PRIVATE (MetaBackendX11)
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                initable_iface_init));
 
 static void
 handle_alarm_notify (MetaBackend *backend,
                      XEvent      *event)
 {
-  GHashTableIter iter;
-  gpointer value;
+  meta_backend_foreach_device_monitor (backend,
+                                       (GFunc) meta_idle_monitor_xsync_handle_xevent,
+                                       event);
+}
 
-  g_hash_table_iter_init (&iter, backend->device_monitors);
-  while (g_hash_table_iter_next (&iter, NULL, &value))
-    {
-      MetaIdleMonitor *device_monitor = META_IDLE_MONITOR (value);
-      meta_idle_monitor_xsync_handle_xevent (device_monitor, (XSyncAlarmNotifyEvent*) event);
-    }
+static void
+meta_backend_x11_translate_device_event (MetaBackendX11 *x11,
+                                         XIDeviceEvent  *device_event)
+{
+  MetaBackendX11Class *backend_x11_class =
+    META_BACKEND_X11_GET_CLASS (x11);
+
+  backend_x11_class->translate_device_event (x11, device_event);
 }
 
 static void
@@ -114,27 +107,12 @@ translate_device_event (MetaBackendX11 *x11,
                         XIDeviceEvent  *device_event)
 {
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-  Window stage_window = meta_backend_x11_get_xwindow (x11);
 
-  if (device_event->event != stage_window)
-    {
-      /* This codepath should only ever trigger as an X11 compositor,
-       * and never under nested, as under nested all backend events
-       * should be reported with respect to the stage window. */
-      g_assert (priv->mode == META_BACKEND_X11_MODE_COMPOSITOR);
-
-      device_event->event = stage_window;
-
-      /* As an X11 compositor, the stage window is always at 0,0, so
-       * using root coordinates will give us correct stage coordinates
-       * as well... */
-      device_event->event_x = device_event->root_x;
-      device_event->event_y = device_event->root_y;
-    }
+  meta_backend_x11_translate_device_event (x11, device_event);
 
   if (!device_event->send_event && device_event->time != CurrentTime)
     {
-      if (device_event->time < priv->latest_evtime)
+      if (XSERVER_TIME_IS_BEFORE (device_event->time, priv->latest_evtime))
         {
           /* Emulated pointer events received after XIRejectTouch is received
            * on a passive touch grab will contain older timestamps, update those
@@ -149,11 +127,20 @@ translate_device_event (MetaBackendX11 *x11,
 }
 
 static void
+meta_backend_x11_translate_crossing_event (MetaBackendX11 *x11,
+                                           XIEnterEvent   *enter_event)
+{
+  MetaBackendX11Class *backend_x11_class =
+    META_BACKEND_X11_GET_CLASS (x11);
+
+  if (backend_x11_class->translate_crossing_event)
+    backend_x11_class->translate_crossing_event (x11, enter_event);
+}
+
+static void
 translate_crossing_event (MetaBackendX11 *x11,
                           XIEnterEvent   *enter_event)
 {
-  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-
   /* Throw out weird events generated by grabs. */
   if (enter_event->mode == XINotifyGrab ||
       enter_event->mode == XINotifyUngrab)
@@ -162,14 +149,7 @@ translate_crossing_event (MetaBackendX11 *x11,
       return;
     }
 
-  Window stage_window = meta_backend_x11_get_xwindow (x11);
-  if (enter_event->event != stage_window &&
-      priv->mode == META_BACKEND_X11_MODE_COMPOSITOR)
-    {
-      enter_event->event = meta_backend_x11_get_xwindow (x11);
-      enter_event->event_x = enter_event->root_x;
-      enter_event->event_y = enter_event->root_y;
-    }
+  meta_backend_x11_translate_crossing_event (x11, enter_event);
 }
 
 static void
@@ -257,6 +237,16 @@ keymap_changed (MetaBackend *backend)
   g_signal_emit_by_name (backend, "keymap-changed", 0);
 }
 
+static gboolean
+meta_backend_x11_handle_host_xevent (MetaBackendX11 *backend_x11,
+                                     XEvent         *event)
+{
+  MetaBackendX11Class *backend_x11_class =
+    META_BACKEND_X11_GET_CLASS (backend_x11);
+
+  return backend_x11_class->handle_host_xevent (backend_x11, event);
+}
+
 static void
 handle_host_xevent (MetaBackend *backend,
                     XEvent      *event)
@@ -275,27 +265,14 @@ handle_host_xevent (MetaBackend *backend,
         MetaCompositor *compositor = display->compositor;
         if (meta_plugin_manager_xevent_filter (compositor->plugin_mgr, event))
           bypass_clutter = TRUE;
+
+        if (meta_dnd_handle_xdnd_event (backend, compositor, display, event))
+          bypass_clutter = TRUE;
       }
   }
 
-  if (priv->mode == META_BACKEND_X11_MODE_NESTED && event->type == FocusIn)
-    {
-#ifdef HAVE_WAYLAND
-      Window xwin = meta_backend_x11_get_xwindow(x11);
-      XEvent xev;
-
-      if (event->xfocus.window == xwin)
-        {
-          /* Since we've selected for KeymapStateMask, every FocusIn is followed immediately
-           * by a KeymapNotify event */
-          XMaskEvent(priv->xdisplay, KeymapStateMask, &xev);
-          MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
-          meta_wayland_compositor_update_key_state (compositor, xev.xkeymap.key_vector, 32, 8);
-        }
-#else
-      g_assert_not_reached ();
-#endif
-    }
+  bypass_clutter = (meta_backend_x11_handle_host_xevent (x11, event) ||
+                    bypass_clutter);
 
   if (event->type == (priv->xsync_event_base + XSyncAlarmNotify))
     handle_alarm_notify (backend, event);
@@ -315,8 +292,17 @@ handle_host_xevent (MetaBackend *backend,
             case XkbStateNotify:
               if (xkb_ev->state.changed & XkbGroupLockMask)
                 {
-                  if (priv->locked_group != xkb_ev->state.locked_group)
-                    XkbLockGroup (priv->xdisplay, XkbUseCoreKbd, priv->locked_group);
+                  int layout_group;
+                  gboolean layout_group_changed;
+
+                  layout_group = xkb_ev->state.locked_group;
+                  layout_group_changed =
+                    (int) priv->keymap_layout_group != layout_group;
+                  priv->keymap_layout_group = layout_group;
+
+                  if (layout_group_changed)
+                    meta_backend_notify_keymap_layout_group_changed (backend,
+                                                                     layout_group);
                 }
               break;
             default:
@@ -324,13 +310,6 @@ handle_host_xevent (MetaBackend *backend,
             }
         }
     }
-
-  {
-    MetaMonitorManager *manager = meta_backend_get_monitor_manager (backend);
-    if (META_IS_MONITOR_MANAGER_XRANDR (manager) &&
-        meta_monitor_manager_xrandr_handle_xevent (META_MONITOR_MANAGER_XRANDR (manager), event))
-      bypass_clutter = TRUE;
-  }
 
   if (!bypass_clutter)
     {
@@ -420,32 +399,13 @@ x_event_source_new (MetaBackend *backend)
 }
 
 static void
-take_touch_grab (MetaBackend *backend)
+on_monitors_changed (MetaMonitorManager *manager,
+                     MetaBackend        *backend)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-  unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
-  XIEventMask mask = { META_VIRTUAL_CORE_POINTER_ID, sizeof (mask_bits), mask_bits };
-  XIGrabModifiers mods = { XIAnyModifier, 0 };
 
-  XISetMask (mask.mask, XI_TouchBegin);
-  XISetMask (mask.mask, XI_TouchUpdate);
-  XISetMask (mask.mask, XI_TouchEnd);
-
-  XIGrabTouchBegin (priv->xdisplay, META_VIRTUAL_CORE_POINTER_ID,
-                    DefaultRootWindow (priv->xdisplay),
-                    False, &mask, 1, &mods);
-}
-
-static void
-on_device_added (ClutterDeviceManager *device_manager,
-                 ClutterInputDevice   *device,
-                 gpointer              user_data)
-{
-  MetaBackendX11 *x11 = META_BACKEND_X11 (user_data);
-
-  if (clutter_input_device_get_device_type (device) == CLUTTER_KEYBOARD_DEVICE)
-    apply_keymap (x11);
+  priv->cached_current_logical_monitor = NULL;
 }
 
 static void
@@ -453,10 +413,9 @@ meta_backend_x11_post_init (MetaBackend *backend)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+  MetaMonitorManager *monitor_manager;
   int major, minor;
   gboolean has_xi = FALSE;
-
-  priv->xdisplay = clutter_x11_get_default_display ();
 
   priv->source = x_event_source_new (backend);
 
@@ -482,11 +441,6 @@ meta_backend_x11_post_init (MetaBackend *backend)
   if (!has_xi)
     meta_fatal ("X server doesn't have the XInput extension, version 2.2 or newer\n");
 
-  /* We only take the passive touch grab if we are a X11 compositor */
-  if (priv->mode == META_BACKEND_X11_MODE_COMPOSITOR)
-    take_touch_grab (backend);
-
-  priv->xcb = XGetXCBConnection (priv->xdisplay);
   if (!xkb_x11_setup_xkb_extension (priv->xcb,
                                     XKB_X11_MIN_MAJOR_XKB_VERSION,
                                     XKB_X11_MIN_MINOR_XKB_VERSION,
@@ -497,10 +451,11 @@ meta_backend_x11_post_init (MetaBackend *backend)
     meta_fatal ("X server doesn't have the XKB extension, version %d.%d or newer\n",
                 XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION);
 
-  g_signal_connect_object (clutter_device_manager_get_default (), "device-added",
-                           G_CALLBACK (on_device_added), backend, 0);
-
   META_BACKEND_CLASS (meta_backend_x11_parent_class)->post_init (backend);
+
+  monitor_manager = meta_backend_get_monitor_manager (backend);
+  g_signal_connect (monitor_manager, "monitors-changed-internal",
+                    G_CALLBACK (on_monitors_changed), backend);
 }
 
 static ClutterBackend *
@@ -516,48 +471,6 @@ meta_backend_x11_create_idle_monitor (MetaBackend *backend,
   return g_object_new (META_TYPE_IDLE_MONITOR_XSYNC,
                        "device-id", device_id,
                        NULL);
-}
-
-static MetaMonitorManager *
-meta_backend_x11_create_monitor_manager (MetaBackend *backend)
-{
-  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
-  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-
-  switch (priv->mode)
-    {
-    case META_BACKEND_X11_MODE_COMPOSITOR:
-      return g_object_new (META_TYPE_MONITOR_MANAGER_XRANDR, NULL);
-    case META_BACKEND_X11_MODE_NESTED:
-      return g_object_new (META_TYPE_MONITOR_MANAGER_DUMMY, NULL);
-    default:
-      g_assert_not_reached ();
-    }
-}
-
-static MetaCursorRenderer *
-meta_backend_x11_create_cursor_renderer (MetaBackend *backend)
-{
-  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
-  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-
-  switch (priv->mode)
-    {
-    case META_BACKEND_X11_MODE_COMPOSITOR:
-      return g_object_new (META_TYPE_CURSOR_RENDERER_X11, NULL);
-      break;
-    case META_BACKEND_X11_MODE_NESTED:
-      return g_object_new (META_TYPE_CURSOR_RENDERER_X11_NESTED, NULL);
-      break;
-    default:
-      g_assert_not_reached ();
-    }
-}
-
-static MetaRenderer *
-meta_backend_x11_create_renderer (MetaBackend *backend)
-{
-  return g_object_new (META_TYPE_RENDERER_X11, NULL);
 }
 
 static gboolean
@@ -623,153 +536,30 @@ meta_backend_x11_warp_pointer (MetaBackend *backend,
                  x, y);
 }
 
-static void
-get_xkbrf_var_defs (Display           *xdisplay,
-                    const char        *layouts,
-                    const char        *variants,
-                    const char        *options,
-                    char             **rules_p,
-                    XkbRF_VarDefsRec  *var_defs)
-{
-  char *rules = NULL;
-
-  /* Get it from the X property or fallback on defaults */
-  if (!XkbRF_GetNamesProp (xdisplay, &rules, var_defs) || !rules)
-    {
-      rules = strdup (DEFAULT_XKB_RULES_FILE);
-      var_defs->model = strdup (DEFAULT_XKB_MODEL);
-      var_defs->layout = NULL;
-      var_defs->variant = NULL;
-      var_defs->options = NULL;
-    }
-
-  /* Swap in our new options... */
-  free (var_defs->layout);
-  var_defs->layout = strdup (layouts);
-  free (var_defs->variant);
-  var_defs->variant = strdup (variants);
-  free (var_defs->options);
-  var_defs->options = strdup (options);
-
-  /* Sometimes, the property is a file path, and sometimes it's
-     not. Normalize it so it's always a file path. */
-  if (rules[0] == '/')
-    *rules_p = g_strdup (rules);
-  else
-    *rules_p = g_build_filename (XKB_BASE, "rules", rules, NULL);
-
-  free (rules);
-}
-
-static void
-free_xkbrf_var_defs (XkbRF_VarDefsRec *var_defs)
-{
-  free (var_defs->model);
-  free (var_defs->layout);
-  free (var_defs->variant);
-  free (var_defs->options);
-}
-
-static void
-free_xkb_component_names (XkbComponentNamesRec *p)
-{
-  free (p->keymap);
-  free (p->keycodes);
-  free (p->types);
-  free (p->compat);
-  free (p->symbols);
-  free (p->geometry);
-}
-
-static void
-upload_xkb_description (Display              *xdisplay,
-                        const gchar          *rules_file_path,
-                        XkbRF_VarDefsRec     *var_defs,
-                        XkbComponentNamesRec *comp_names)
-{
-  XkbDescRec *xkb_desc;
-  gchar *rules_file;
-
-  /* Upload it to the X server using the same method as setxkbmap */
-  xkb_desc = XkbGetKeyboardByName (xdisplay,
-                                   XkbUseCoreKbd,
-                                   comp_names,
-                                   XkbGBN_AllComponentsMask,
-                                   XkbGBN_AllComponentsMask &
-                                   (~XkbGBN_GeometryMask), True);
-  if (!xkb_desc)
-    {
-      g_warning ("Couldn't upload new XKB keyboard description");
-      return;
-    }
-
-  XkbFreeKeyboard (xkb_desc, 0, True);
-
-  rules_file = g_path_get_basename (rules_file_path);
-
-  if (!XkbRF_SetNamesProp (xdisplay, rules_file, var_defs))
-    g_warning ("Couldn't update the XKB root window property");
-
-  g_free (rules_file);
-}
-
-static void
-apply_keymap (MetaBackendX11 *x11)
-{
-  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-  XkbRF_RulesRec *xkb_rules;
-  XkbRF_VarDefsRec xkb_var_defs = { 0 };
-  gchar *rules_file_path;
-
-  if (!priv->keymap_layouts ||
-      !priv->keymap_variants ||
-      !priv->keymap_options)
-    return;
-
-  get_xkbrf_var_defs (priv->xdisplay,
-                      priv->keymap_layouts,
-                      priv->keymap_variants,
-                      priv->keymap_options,
-                      &rules_file_path,
-                      &xkb_var_defs);
-
-  xkb_rules = XkbRF_Load (rules_file_path, NULL, True, True);
-  if (xkb_rules)
-    {
-      XkbComponentNamesRec xkb_comp_names = { 0 };
-
-      XkbRF_GetComponents (xkb_rules, &xkb_var_defs, &xkb_comp_names);
-      upload_xkb_description (priv->xdisplay, rules_file_path, &xkb_var_defs, &xkb_comp_names);
-
-      free_xkb_component_names (&xkb_comp_names);
-      XkbRF_Free (xkb_rules, True);
-    }
-  else
-    {
-      g_warning ("Couldn't load XKB rules");
-    }
-
-  free_xkbrf_var_defs (&xkb_var_defs);
-  g_free (rules_file_path);
-}
-
-static void
-meta_backend_x11_set_keymap (MetaBackend *backend,
-                             const char  *layouts,
-                             const char  *variants,
-                             const char  *options)
+static MetaLogicalMonitor *
+meta_backend_x11_get_current_logical_monitor (MetaBackend *backend)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+  MetaCursorTracker *cursor_tracker;
+  int x, y;
+  MetaMonitorManager *monitor_manager;
+  MetaLogicalMonitor *logical_monitor;
 
-  g_free (priv->keymap_layouts);
-  priv->keymap_layouts = g_strdup (layouts);
-  g_free (priv->keymap_variants);
-  priv->keymap_variants = g_strdup (variants);
-  g_free (priv->keymap_options);
-  priv->keymap_options = g_strdup (options);
+  if (priv->cached_current_logical_monitor)
+    return priv->cached_current_logical_monitor;
 
-  apply_keymap (x11);
+  cursor_tracker = meta_backend_get_cursor_tracker (backend);
+  meta_cursor_tracker_get_pointer (cursor_tracker, &x, &y, NULL);
+  monitor_manager = meta_backend_get_monitor_manager (backend);
+  logical_monitor =
+    meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
+
+  if (!logical_monitor && monitor_manager->logical_monitors)
+    logical_monitor = monitor_manager->logical_monitors->data;
+
+  priv->cached_current_logical_monitor = logical_monitor;
+  return priv->cached_current_logical_monitor;
 }
 
 static struct xkb_keymap *
@@ -794,15 +584,13 @@ meta_backend_x11_get_keymap (MetaBackend *backend)
   return priv->keymap;
 }
 
-static void
-meta_backend_x11_lock_layout_group (MetaBackend *backend,
-                                    guint        idx)
+static xkb_layout_index_t
+meta_backend_x11_get_keymap_layout_group (MetaBackend *backend)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
 
-  priv->locked_group = idx;
-  XkbLockGroup (priv->xdisplay, XkbUseCoreKbd, idx);
+  return priv->keymap_layout_group;
 }
 
 static void
@@ -812,78 +600,83 @@ meta_backend_x11_set_numlock (MetaBackend *backend,
   /* TODO: Currently handled by gnome-settings-deamon */
 }
 
-
-static void
-meta_backend_x11_update_screen_size (MetaBackend *backend,
-                                     int width, int height)
+void
+meta_backend_x11_handle_event (MetaBackendX11 *x11,
+                               XEvent      *xevent)
 {
-  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
 
-  if (priv->mode == META_BACKEND_X11_MODE_NESTED)
-    {
-      ClutterActor *stage = meta_backend_get_stage (backend);
-      MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  priv->cached_current_logical_monitor = NULL;
+}
 
-      if (meta_is_stage_views_enabled ())
-        meta_renderer_rebuild_views (renderer);
-      clutter_actor_set_size (stage, width, height);
-    }
-  else
-    {
-      Window xwin = meta_backend_x11_get_xwindow (x11);
-      XResizeWindow (priv->xdisplay, xwin, width, height);
-    }
+uint8_t
+meta_backend_x11_get_xkb_event_base (MetaBackendX11 *x11)
+{
+  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+
+  return priv->xkb_event_base;
 }
 
 static void
-meta_backend_x11_select_stage_events (MetaBackend *backend)
+init_xkb_state (MetaBackendX11 *x11)
 {
-  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-  Window xwin = meta_backend_x11_get_xwindow (x11);
-  unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
-  XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
+  struct xkb_keymap *keymap;
+  int32_t device_id;
+  struct xkb_state *state;
 
-  XISetMask (mask.mask, XI_KeyPress);
-  XISetMask (mask.mask, XI_KeyRelease);
-  XISetMask (mask.mask, XI_ButtonPress);
-  XISetMask (mask.mask, XI_ButtonRelease);
-  XISetMask (mask.mask, XI_Enter);
-  XISetMask (mask.mask, XI_Leave);
-  XISetMask (mask.mask, XI_FocusIn);
-  XISetMask (mask.mask, XI_FocusOut);
-  XISetMask (mask.mask, XI_Motion);
+  keymap = meta_backend_get_keymap (META_BACKEND (x11));
 
-  if (priv->mode == META_BACKEND_X11_MODE_NESTED)
+  device_id = xkb_x11_get_core_keyboard_device_id (priv->xcb);
+  state = xkb_x11_state_new_from_device (keymap, priv->xcb, device_id);
+
+  priv->keymap_layout_group =
+    xkb_state_serialize_layout (state, XKB_STATE_LAYOUT_LOCKED);
+
+  xkb_state_unref (state);
+}
+
+static gboolean
+meta_backend_x11_initable_init (GInitable    *initable,
+                                GCancellable *cancellable,
+                                GError      **error)
+{
+  MetaBackendX11 *x11 = META_BACKEND_X11 (initable);
+  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+  Display *xdisplay;
+  const char *xdisplay_name;
+
+  xdisplay_name = g_getenv ("DISPLAY");
+  if (!xdisplay_name)
     {
-      /* When we're an X11 compositor, we can't take these events or else
-       * replaying events from our passive root window grab will cause
-       * them to come back to us.
-       *
-       * When we're a nested application, we want to behave like any other
-       * application, so select these events like normal apps do.
-       */
-      XISetMask (mask.mask, XI_TouchBegin);
-      XISetMask (mask.mask, XI_TouchEnd);
-      XISetMask (mask.mask, XI_TouchUpdate);
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Unable to open display, DISPLAY not set");
+      return FALSE;
     }
 
-  XISelectEvents (priv->xdisplay, xwin, &mask, 1);
-
-  if (priv->mode == META_BACKEND_X11_MODE_NESTED)
+  xdisplay = XOpenDisplay (xdisplay_name);
+  if (!xdisplay)
     {
-      /* We have no way of tracking key changes when the stage doesn't have
-       * focus, so we select for KeymapStateMask so that we get a complete
-       * dump of the keyboard state in a KeymapNotify event that immediately
-       * follows each FocusIn (and EnterNotify, but we ignore that.)
-       */
-      XWindowAttributes xwa;
-
-      XGetWindowAttributes(priv->xdisplay, xwin, &xwa);
-      XSelectInput(priv->xdisplay, xwin,
-                   xwa.your_event_mask | FocusChangeMask | KeymapStateMask);
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Unable to open display '%s'", xdisplay_name);
+      return FALSE;
     }
+
+  priv->xdisplay = xdisplay;
+  priv->xcb = XGetXCBConnection (priv->xdisplay);
+  clutter_x11_set_display (xdisplay);
+
+  init_xkb_state (x11);
+
+  return initable_parent_iface->init (initable, cancellable, error);
+}
+
+static void
+initable_iface_init (GInitableIface *initable_iface)
+{
+  initable_parent_iface = g_type_interface_peek_parent (initable_iface);
+
+  initable_iface->init = meta_backend_x11_initable_init;
 }
 
 static void
@@ -894,34 +687,26 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
   backend_class->create_clutter_backend = meta_backend_x11_create_clutter_backend;
   backend_class->post_init = meta_backend_x11_post_init;
   backend_class->create_idle_monitor = meta_backend_x11_create_idle_monitor;
-  backend_class->create_monitor_manager = meta_backend_x11_create_monitor_manager;
-  backend_class->create_cursor_renderer = meta_backend_x11_create_cursor_renderer;
-  backend_class->create_renderer = meta_backend_x11_create_renderer;
   backend_class->grab_device = meta_backend_x11_grab_device;
   backend_class->ungrab_device = meta_backend_x11_ungrab_device;
   backend_class->warp_pointer = meta_backend_x11_warp_pointer;
-  backend_class->set_keymap = meta_backend_x11_set_keymap;
+  backend_class->get_current_logical_monitor = meta_backend_x11_get_current_logical_monitor;
   backend_class->get_keymap = meta_backend_x11_get_keymap;
-  backend_class->lock_layout_group = meta_backend_x11_lock_layout_group;
-  backend_class->update_screen_size = meta_backend_x11_update_screen_size;
-  backend_class->select_stage_events = meta_backend_x11_select_stage_events;
+  backend_class->get_keymap_layout_group = meta_backend_x11_get_keymap_layout_group;
   backend_class->set_numlock = meta_backend_x11_set_numlock;
 }
 
 static void
 meta_backend_x11_init (MetaBackendX11 *x11)
 {
-  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-
-  clutter_x11_request_reset_on_video_memory_purge ();
+  /* XInitThreads() is needed to use the "threaded swap wait" functionality
+   * in Cogl - see meta_renderer_x11_create_cogl_renderer(). We call it here
+   * to hopefully call it before any other use of XLib.
+   */
+  XInitThreads();
 
   /* We do X11 event retrieval ourselves */
   clutter_x11_disable_event_retrieval ();
-
-  if (meta_is_wayland_compositor ())
-    priv->mode = META_BACKEND_X11_MODE_NESTED;
-  else
-    priv->mode = META_BACKEND_X11_MODE_COMPOSITOR;
 }
 
 Display *

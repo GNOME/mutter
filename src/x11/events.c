@@ -28,11 +28,12 @@
 #include <X11/extensions/shape.h>
 
 #include <meta/errors.h>
+#include "meta/meta-backend.h"
 #include "bell.h"
 #include "display-private.h"
 #include "window-private.h"
 #include "workspace-private.h"
-
+#include "backends/x11/meta-backend-x11.h"
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
 
@@ -1370,22 +1371,33 @@ handle_other_xevent (MetaDisplay *display,
         {
           window = meta_window_x11_new (display, event->xmaprequest.window,
                                         FALSE, META_COMP_EFFECT_CREATE);
+          /* The window might have initial iconic state, but this is a
+           * MapRequest, fall through to ensure it is unminimized in
+           * that case.
+           */
         }
-      /* if frame was receiver it's some malicious send event or something */
-      else if (!frame_was_receiver && window)
+      else if (frame_was_receiver)
         {
-          meta_verbose ("MapRequest on %s mapped = %d minimized = %d\n",
-                        window->desc, window->mapped, window->minimized);
-          if (window->minimized)
+          meta_warning ("Map requests on the frame window are unexpected\n");
+          break;
+        }
+
+      /* Double check that creating the MetaWindow succeeded */
+      if (window == NULL)
+        break;
+
+      meta_verbose ("MapRequest on %s mapped = %d minimized = %d\n",
+                    window->desc, window->mapped, window->minimized);
+
+      if (window->minimized)
+        {
+          meta_window_unminimize (window);
+          if (window->workspace != window->screen->active_workspace)
             {
-              meta_window_unminimize (window);
-              if (window->workspace != window->screen->active_workspace)
-                {
-                  meta_verbose ("Changing workspace due to MapRequest mapped = %d minimized = %d\n",
-                                window->mapped, window->minimized);
-                  meta_window_change_workspace (window,
-                                                window->screen->active_workspace);
-                }
+              meta_verbose ("Changing workspace due to MapRequest mapped = %d minimized = %d\n",
+                            window->mapped, window->minimized);
+              meta_window_change_workspace (window,
+                                            window->screen->active_workspace);
             }
         }
       break;
@@ -1502,6 +1514,13 @@ handle_other_xevent (MetaDisplay *display,
             {
               guint32 surface_id = event->xclient.data.l[0];
               meta_xwayland_handle_wl_surface_id (window, surface_id);
+            }
+          else if (event->xclient.message_type == display->atom__XWAYLAND_MAY_GRAB_KEYBOARD)
+            {
+              if (meta_is_wayland_compositor ())
+                g_object_set (G_OBJECT (window),
+                              "xwayland-may-grab-keyboard", (event->xclient.data.l[0] != 0),
+                              NULL);
             }
           else
 #endif
@@ -1686,6 +1705,7 @@ static gboolean
 meta_display_handle_xevent (MetaDisplay *display,
                             XEvent      *event)
 {
+  MetaBackend *backend = meta_get_backend ();
   Window modified;
   gboolean bypass_compositor = FALSE, bypass_gtk = FALSE;
   XIEvent *input_event;
@@ -1711,7 +1731,9 @@ meta_display_handle_xevent (MetaDisplay *display,
 #endif
 
   display->current_time = event_get_time (display, event);
-  display->monitor_cache_invalidated = TRUE;
+
+  if (META_IS_BACKEND_X11 (backend))
+    meta_backend_x11_handle_event (META_BACKEND_X11 (backend), event);
 
   if (display->focused_by_us &&
       event->xany.serial > display->focus_serial &&

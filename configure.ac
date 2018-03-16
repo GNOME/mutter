@@ -1,13 +1,15 @@
 AC_PREREQ(2.62)
 
 m4_define([mutter_major_version], [3])
-m4_define([mutter_minor_version], [22])
-m4_define([mutter_micro_version], [3])
+m4_define([mutter_minor_version], [28])
+m4_define([mutter_micro_version], [0])
 
 m4_define([mutter_version],
           [mutter_major_version.mutter_minor_version.mutter_micro_version])
 
 m4_define([mutter_plugin_api_version], [3])
+
+m4_define([libmutter_api_version], [2])
 
 AC_INIT([mutter], [mutter_version],
         [http://bugzilla.gnome.org/enter_bug.cgi?product=mutter])
@@ -27,11 +29,18 @@ AC_GNU_SOURCE
 MUTTER_MAJOR_VERSION=mutter_major_version
 MUTTER_MINOR_VERSION=mutter_minor_version
 MUTTER_MICRO_VERSION=mutter_micro_version
+MUTTER_VERSION=mutter_version
 MUTTER_PLUGIN_API_VERSION=mutter_plugin_api_version
+LIBMUTTER_API_VERSION=libmutter_api_version
 AC_SUBST(MUTTER_MAJOR_VERSION)
 AC_SUBST(MUTTER_MINOR_VERSION)
 AC_SUBST(MUTTER_MICRO_VERSION)
 AC_SUBST(MUTTER_PLUGIN_API_VERSION)
+AC_SUBST(MUTTER_VERSION)
+AC_SUBST(LIBMUTTER_API_VERSION)
+
+# Make the mutter versions visible to the cogl and clutter subdirs
+export LIBMUTTER_API_VERSION MUTTER_VERSION
 
 MUTTER_PLUGIN_DIR="$libdir/$PACKAGE/plugins"
 AC_SUBST(MUTTER_PLUGIN_DIR)
@@ -48,6 +57,13 @@ AM_GNU_GETTEXT([external])
 
 LT_PREREQ([2.2.6])
 LT_INIT([disable-static])
+
+# Debian / Ubuntu set this flag to 'no' in libtool, causing linking errors
+# (i.e when linking against mutter-clutter). Not to explicitly redefine such
+# deps, we enable this flag for everybody.
+link_all_deplibs=yes
+link_all_deplibs_CXX=yes
+
 AC_PROG_CC
 AC_PROG_CC_C_O
 AC_PROG_INSTALL
@@ -56,7 +72,7 @@ AC_HEADER_STDC
 PKG_PROG_PKG_CONFIG([0.21])
 
 # Sets GLIB_GENMARSHAL and GLIB_MKENUMS
-AM_PATH_GLIB_2_0([2.49.0])
+AM_PATH_GLIB_2_0([2.53.2])
 
 CANBERRA_GTK=libcanberra-gtk3
 CANBERRA_GTK_VERSION=0.26
@@ -64,6 +80,8 @@ CANBERRA_GTK_VERSION=0.26
 LIBWACOM_VERSION=0.13
 
 MUTTER_PC_MODULES="
+   gl
+   egl
    gtk+-3.0 >= 3.19.8
    gio-unix-2.0 >= 2.35.1
    pango >= 1.2.0
@@ -87,6 +105,7 @@ MUTTER_PC_MODULES="
    xcb-randr
    xcb-res
 "
+XWAYLAND_GRAB_DEFAULT_ACCESS_RULES="gnome-boxes,remote-viewer,virt-viewer,virt-manager,vinagre,vncviewer,Xephyr"
 
 GLIB_GSETTINGS
 
@@ -208,10 +227,10 @@ AC_MSG_CHECKING([gudev])
 if test x$with_gudev = xno ; then
   AC_MSG_RESULT([disabled])
 else
-  if $PKG_CONFIG --exists gudev-1.0; then
+  if $PKG_CONFIG --exists "gudev-1.0 >= 232"; then
     have_gudev=yes
     AC_MSG_RESULT(yes)
-    MUTTER_PC_MODULES="$MUTTER_PC_MODULES gudev-1.0"
+    MUTTER_PC_MODULES="$MUTTER_PC_MODULES gudev-1.0 >= 232"
     AC_DEFINE([HAVE_LIBGUDEV], 1, [Building with gudev for device type detection])
   else
     AC_MSG_RESULT(no)
@@ -221,26 +240,29 @@ else
   fi
 fi
 
+AC_ARG_ENABLE(remote-desktop,
+  AS_HELP_STRING([--enable-remote-desktop], [enable support for remote desktop and screen cast]),,
+  enable_remote_desktop=no
+)
+AS_IF([test "$enable_remote_desktop" = "yes"], [
+  MUTTER_PC_MODULES="$MUTTER_PC_MODULES libpipewire-0.1 >= 0.1.8"
+  AC_DEFINE([HAVE_REMOTE_DESKTOP],[1], [Defined if screen cast and remote desktop support is enabled])
+])
+AM_CONDITIONAL([HAVE_REMOTE_DESKTOP],[test "$enable_remote_desktop" = "yes"])
+
 INTROSPECTION_VERSION=0.9.5
 GOBJECT_INTROSPECTION_CHECK([$INTROSPECTION_VERSION])
 
 if test x$found_introspection != xno; then
   AC_DEFINE(HAVE_INTROSPECTION, 1, [Define if GObject introspection is available])
   MUTTER_PC_MODULES="$MUTTER_PC_MODULES gobject-introspection-1.0"
-  # Since we don't make any guarantees about stability and we don't support
-  # parallel install, there's no real reason to change directories, filenames,
-  # etc. as we change the Mutter tarball version. Note that this must match
-  # api_version in src/Makefile.am
-  META_GIR=Meta_3_0_gir
-  # META_GIR=[Meta_]mutter_major_version[_]mutter_minor_version[_gir]
-  AC_SUBST(META_GIR)
 fi
 
 AC_SUBST(XWAYLAND_PATH)
 
 PKG_CHECK_MODULES(MUTTER, $MUTTER_PC_MODULES)
 
-MUTTER_NATIVE_BACKEND_MODULES="libdrm libsystemd libinput >= 1.4 gudev-1.0 gbm >= 10.3"
+MUTTER_NATIVE_BACKEND_MODULES="libdrm >= 2.4.83 libsystemd libinput >= 1.4 gudev-1.0 gbm >= 17.1"
 
 AC_ARG_ENABLE(native-backend,
   AS_HELP_STRING([--disable-native-backend], [disable mutter native (KMS) backend]),,
@@ -256,7 +278,15 @@ AS_IF([test "$have_native_backend" = "yes"], [
 ])
 AM_CONDITIONAL([HAVE_NATIVE_BACKEND],[test "$have_native_backend" = "yes"])
 
-MUTTER_WAYLAND_MODULES="wayland-server >= 1.6.90"
+AC_ARG_ENABLE(egl-device,
+  AS_HELP_STRING([--enable-egl-device], [enable support for EGLDevice on top of KMS]),,
+  enable_egl_device=no
+)
+AS_IF([test "$enable_egl_device" = "yes"], [
+  AC_DEFINE([HAVE_EGL_DEVICE],[1], [Defined if EGLDevice support is enabled])
+])
+
+MUTTER_WAYLAND_MODULES="wayland-server >= 1.13.0"
 
 AC_ARG_ENABLE(wayland,
   AS_HELP_STRING([--disable-wayland], [disable mutter on wayland support]),,
@@ -273,11 +303,26 @@ AS_IF([test "$have_wayland" = "yes"], [
   AC_SUBST([WAYLAND_SCANNER])
   AC_DEFINE([HAVE_WAYLAND],[1],[Define if you want to enable Wayland support])
 
-  PKG_CHECK_MODULES(WAYLAND_PROTOCOLS, [wayland-protocols >= 1.7],
+  PKG_CHECK_MODULES(WAYLAND_PROTOCOLS, [wayland-protocols >= 1.12],
 		    [ac_wayland_protocols_pkgdatadir=`$PKG_CONFIG --variable=pkgdatadir wayland-protocols`])
   AC_SUBST(WAYLAND_PROTOCOLS_DATADIR, $ac_wayland_protocols_pkgdatadir)
 ])
 AM_CONDITIONAL([HAVE_WAYLAND],[test "$have_wayland" = "yes"])
+
+AC_ARG_WITH([xwayland-grab-default-access-rules],
+    [AS_HELP_STRING([--with-xwayland-grab-default-access-rules="app-res1,app-res2,..."],
+        [comma delimited list of applications ressources or class allowed to issue X11 grabs in Xwayland"])],
+    [with_XWAYLAND_GRAB_DEFAULT_ACCESS_RULES="$withval"],
+    [with_XWAYLAND_GRAB_DEFAULT_ACCESS_RULES="$XWAYLAND_GRAB_DEFAULT_ACCESS_RULES"])
+
+case "$with_XWAYLAND_GRAB_DEFAULT_ACCESS_RULES" in
+    yes) with_XWAYLAND_GRAB_DEFAULT_ACCESS_RULES="$XWAYLAND_GRAB_DEFAULT_ACCESS_RULES" ;;
+    no) with_XWAYLAND_GRAB_DEFAULT_ACCESS_RULES='' ;;
+esac
+AC_DEFINE_UNQUOTED([XWAYLAND_GRAB_DEFAULT_ACCESS_RULES],
+                    "$with_XWAYLAND_GRAB_DEFAULT_ACCESS_RULES",
+                    [Xwayland applications allowed to issue keyboard grabs])
+AC_SUBST(XWAYLAND_GRAB_DEFAULT_ACCESS_RULES)
 
 PKG_CHECK_EXISTS([xi >= 1.6.99.1],
                  AC_DEFINE([HAVE_XI23],[1],[Define if you have support for XInput 2.3 or greater]))
@@ -451,13 +496,23 @@ data/Makefile
 doc/Makefile
 doc/man/Makefile
 src/Makefile
-src/libmutter.pc
+src/libmutter-$LIBMUTTER_API_VERSION.pc:src/libmutter.pc.in
 src/compositor/plugins/Makefile
 src/meta/meta-version.h
 po/Makefile.in
 ])
 
 AC_OUTPUT
+
+# Check that cogl and clutter have their .pc files regenerated with the correct version
+
+COGL_PC_VERSION=$(grep Version: cogl/cogl/mutter-cogl-$LIBMUTTER_API_VERSION.pc|awk '{ print $2; }')
+AS_IF([test "x$COGL_PC_VERSION" != "x$MUTTER_VERSION"],
+      [AC_MSG_ERROR([mutter-cogl pkg-config file not updated, rerun ./configure])])
+
+CLUTTER_PC_VERSION=$(grep Version: clutter/clutter/mutter-clutter-$LIBMUTTER_API_VERSION.pc|awk '{ print $2; }')
+AS_IF([test "x$CLUTTER_PC_VERSION" != "x$MUTTER_VERSION"],
+      [AC_MSG_ERROR([mutter-clutter pkg-config file not updated, rerun ./configure])])
 
 if test x$enable_verbose_mode = xno; then
         echo "*** WARNING WARNING WARNING WARNING WARNING"
@@ -483,6 +538,8 @@ mutter-$VERSION
 	Session management:       ${found_sm}
 	Wayland:                  ${have_wayland}
 	Native (KMS) backend:     ${have_native_backend}
+	EGLDevice:                ${enable_egl_device}
+	Remote desktop:           ${enable_remote_desktop}
 "
 
 

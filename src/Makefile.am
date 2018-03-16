@@ -1,7 +1,7 @@
 # Flag build for parallelism; see https://savannah.gnu.org/patch/?6905
 .AUTOPARALLEL:
 
-lib_LTLIBRARIES = libmutter.la
+lib_LTLIBRARIES = libmutter-@LIBMUTTER_API_VERSION@.la
 
 SUBDIRS=compositor/plugins
 
@@ -53,6 +53,13 @@ mutter_built_sources = \
 	meta-enum-types.c			\
 	$(NULL)
 
+if HAVE_REMOTE_DESKTOP
+mutter_built_sources += \
+	$(dbus_remote_desktop_built_sources)	\
+	$(dbus_screen_cast_built_sources)	\
+	$(NULL)
+endif
+
 if HAVE_WAYLAND
 mutter_built_sources += \
 	pointer-gestures-unstable-v1-protocol.c				\
@@ -61,6 +68,8 @@ mutter_built_sources += \
 	gtk-shell-server-protocol.h		\
 	gtk-primary-selection-protocol.c				\
 	gtk-primary-selection-server-protocol.h				\
+	xdg-shell-protocol.c						\
+	xdg-shell-server-protocol.h					\
 	xdg-shell-unstable-v6-protocol.c				\
 	xdg-shell-unstable-v6-server-protocol.h				\
 	relative-pointer-unstable-v1-protocol.c				\
@@ -71,26 +80,49 @@ mutter_built_sources += \
 	tablet-unstable-v2-server-protocol.h				\
 	xdg-foreign-unstable-v1-protocol.c				\
 	xdg-foreign-unstable-v1-server-protocol.h			\
+	linux-dmabuf-unstable-v1-protocol.c					\
+	linux-dmabuf-unstable-v1-server-protocol.h				\
+	keyboard-shortcuts-inhibit-unstable-v1-protocol.c		\
+	keyboard-shortcuts-inhibit-unstable-v1-server-protocol.h	\
+	xdg-output-unstable-v1-protocol.c				\
+	xdg-output-unstable-v1-server-protocol.h			\
+	xwayland-keyboard-grab-unstable-v1-protocol.c			\
+	xwayland-keyboard-grab-unstable-v1-server-protocol.h		\
+	gtk-text-input-protocol.c					\
+	gtk-text-input-server-protocol.h				\
 	$(NULL)
 endif
 
 wayland_protocols =				\
 	wayland/protocol/gtk-shell.xml		\
 	wayland/protocol/gtk-primary-selection.xml	\
+	wayland/protocol/gtk-text-input.xml	\
 	$(NULL)
 
-libmutter_la_SOURCES =				\
+libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/meta-backend.c			\
 	meta/meta-backend.h			\
+	meta/meta-settings.h			\
 	backends/meta-backend-private.h		\
 	backends/meta-barrier.c			\
 	backends/meta-barrier-private.h		\
+	backends/meta-crtc.c			\
+	backends/meta-crtc.h			\
 	backends/meta-cursor.c			\
 	backends/meta-cursor.h			\
 	backends/meta-cursor-tracker.c		\
 	backends/meta-cursor-tracker-private.h	\
 	backends/meta-cursor-renderer.c		\
 	backends/meta-cursor-renderer.h		\
+	backends/meta-dnd-private.h		\
+	backends/meta-egl.c			\
+	backends/meta-egl.h			\
+	backends/meta-egl-ext.h			\
+	backends/meta-gles3.c			\
+	backends/meta-gles3.h			\
+	backends/meta-gles3-table.h		\
+	backends/meta-gpu.c			\
+	backends/meta-gpu.h			\
 	backends/meta-display-config-shared.h	\
 	backends/meta-idle-monitor.c		\
 	backends/meta-idle-monitor-private.h	\
@@ -98,15 +130,29 @@ libmutter_la_SOURCES =				\
 	backends/meta-idle-monitor-dbus.h	\
 	backends/meta-input-settings.c		\
 	backends/meta-input-settings-private.h	\
-	backends/meta-monitor-config.c		\
-	backends/meta-monitor-config.h		\
+	backends/meta-logical-monitor.c		\
+	backends/meta-logical-monitor.h		\
+	backends/meta-monitor-config-manager.c	\
+	backends/meta-monitor-config-manager.h	\
+	backends/meta-monitor-config-migration.c	\
+	backends/meta-monitor-config-migration.h	\
+	backends/meta-monitor-config-store.c	\
+	backends/meta-monitor-config-store.h	\
+	backends/meta-monitor.c			\
+	backends/meta-monitor.h			\
 	backends/meta-monitor-manager.c		\
 	meta/meta-monitor-manager.h		\
 	backends/meta-monitor-manager-private.h	\
 	backends/meta-monitor-manager-dummy.c	\
 	backends/meta-monitor-manager-dummy.h	\
+	backends/meta-orientation-manager.c	\
+	backends/meta-orientation-manager.h	\
+	backends/meta-output.c			\
+	backends/meta-output.h			\
 	backends/meta-pointer-constraint.c	\
 	backends/meta-pointer-constraint.h	\
+	backends/meta-settings.c		\
+	backends/meta-settings-private.h	\
 	backends/meta-stage.h			\
 	backends/meta-stage.c			\
 	backends/meta-renderer.c		\
@@ -121,16 +167,30 @@ libmutter_la_SOURCES =				\
 	backends/x11/meta-barrier-x11.h			\
 	backends/x11/meta-clutter-backend-x11.c		\
 	backends/x11/meta-clutter-backend-x11.h		\
+	backends/x11/meta-crtc-xrandr.c			\
+	backends/x11/meta-crtc-xrandr.h			\
 	backends/x11/meta-cursor-renderer-x11.c		\
 	backends/x11/meta-cursor-renderer-x11.h		\
+	backends/x11/meta-gpu-xrandr.c			\
+	backends/x11/meta-gpu-xrandr.h			\
+	backends/x11/cm/meta-backend-x11-cm.c		\
+	backends/x11/cm/meta-backend-x11-cm.h		\
+	backends/x11/cm/meta-renderer-x11-cm.c		\
+	backends/x11/cm/meta-renderer-x11-cm.h		\
+	backends/x11/nested/meta-backend-x11-nested.c	\
+	backends/x11/nested/meta-backend-x11-nested.h	\
 	backends/x11/nested/meta-cursor-renderer-x11-nested.c		\
 	backends/x11/nested/meta-cursor-renderer-x11-nested.h		\
+	backends/x11/nested/meta-renderer-x11-nested.c	\
+	backends/x11/nested/meta-renderer-x11-nested.h	\
 	backends/x11/meta-idle-monitor-xsync.c		\
 	backends/x11/meta-idle-monitor-xsync.h		\
 	backends/x11/meta-input-settings-x11.c		\
 	backends/x11/meta-input-settings-x11.h		\
 	backends/x11/meta-monitor-manager-xrandr.c	\
 	backends/x11/meta-monitor-manager-xrandr.h	\
+	backends/x11/meta-output-xrandr.c		\
+	backends/x11/meta-output-xrandr.h		\
 	backends/x11/meta-renderer-x11.c		\
 	backends/x11/meta-renderer-x11.h		\
 	backends/x11/meta-stage-x11-nested.c		\
@@ -145,6 +205,8 @@ libmutter_la_SOURCES =				\
 	meta/boxes.h				\
 	core/meta-border.c			\
 	core/meta-border.h			\
+	core/meta-fraction.c			\
+	core/meta-fraction.h			\
 	compositor/clutter-utils.c		\
 	compositor/clutter-utils.h		\
 	compositor/cogl-utils.c			\
@@ -159,6 +221,7 @@ libmutter_la_SOURCES =				\
 	compositor/meta-background-group.c	\
 	compositor/meta-cullable.c		\
 	compositor/meta-cullable.h		\
+	compositor/meta-dnd.c		\
 	compositor/meta-dnd-actor.c		\
 	compositor/meta-dnd-actor-private.h	\
 	compositor/meta-feedback-actor.c	\
@@ -201,6 +264,14 @@ libmutter_la_SOURCES =				\
 	core/constraints.c			\
 	core/constraints.h			\
 	core/core.c				\
+	core/meta-close-dialog.c		\
+	meta/meta-close-dialog.h		\
+	core/meta-close-dialog-default.c	\
+	core/meta-close-dialog-default-private.h	\
+	core/meta-inhibit-shortcuts-dialog.c	\
+	meta/meta-inhibit-shortcuts-dialog.h	\
+	core/meta-inhibit-shortcuts-dialog-default.c	\
+	core/meta-inhibit-shortcuts-dialog-default-private.h \
 	core/delete.c				\
 	core/display.c				\
 	core/display-private.h			\
@@ -217,6 +288,7 @@ libmutter_la_SOURCES =				\
 	core/meta-gesture-tracker-private.h	\
 	core/keybindings.c			\
 	core/keybindings-private.h		\
+	core/main-private.h			\
 	core/main.c				\
 	core/place.c				\
 	core/place.h				\
@@ -272,8 +344,31 @@ libmutter_la_SOURCES =				\
 	x11/mutter-Xatomtype.h			\
 	$(NULL)
 
+if HAVE_REMOTE_DESKTOP
+libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
+	backends/meta-dbus-session-watcher.c	\
+	backends/meta-dbus-session-watcher.h	\
+	backends/meta-remote-desktop.c		\
+	backends/meta-remote-desktop.h		\
+	backends/meta-remote-desktop-session.c	\
+	backends/meta-remote-desktop-session.h	\
+	backends/meta-screen-cast.c		\
+	backends/meta-screen-cast.h		\
+	backends/meta-screen-cast-monitor-stream.c	\
+	backends/meta-screen-cast-monitor-stream.h	\
+	backends/meta-screen-cast-monitor-stream-src.c	\
+	backends/meta-screen-cast-monitor-stream-src.h	\
+	backends/meta-screen-cast-session.c	\
+	backends/meta-screen-cast-session.h	\
+	backends/meta-screen-cast-stream.c	\
+	backends/meta-screen-cast-stream.h	\
+	backends/meta-screen-cast-stream-src.c	\
+	backends/meta-screen-cast-stream-src.h	\
+	$(NULL)
+endif
+
 if HAVE_WAYLAND
-libmutter_la_SOURCES +=				\
+libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	compositor/meta-surface-actor-wayland.c	\
 	compositor/meta-surface-actor-wayland.h	\
 	wayland/meta-wayland.c			\
@@ -286,11 +381,15 @@ libmutter_la_SOURCES +=				\
 	wayland/meta-xwayland-private.h		\
 	wayland/meta-wayland-buffer.c      	\
 	wayland/meta-wayland-buffer.h      	\
+	wayland/meta-wayland-dma-buf.c      	\
+	wayland/meta-wayland-dma-buf.h      	\
 	wayland/meta-wayland-region.c      	\
 	wayland/meta-wayland-region.h      	\
 	wayland/meta-wayland-data-device.c      \
 	wayland/meta-wayland-data-device.h      \
 	wayland/meta-wayland-data-device-private.h	\
+	wayland/meta-wayland-egl-stream.c	\
+	wayland/meta-wayland-egl-stream.h	\
 	wayland/meta-wayland-input-device.c	\
 	wayland/meta-wayland-input-device.h	\
 	wayland/meta-wayland-pointer-gestures.c	\
@@ -337,6 +436,14 @@ libmutter_la_SOURCES +=				\
 	wayland/meta-wayland-surface-role-cursor.h	\
 	wayland/meta-wayland-surface-role-tablet-cursor.c	\
 	wayland/meta-wayland-surface-role-tablet-cursor.h	\
+	wayland/meta-wayland-actor-surface.c	\
+	wayland/meta-wayland-actor-surface.h	\
+	wayland/meta-wayland-subsurface.c	\
+	wayland/meta-wayland-subsurface.h	\
+	wayland/meta-wayland-shell-surface.c	\
+	wayland/meta-wayland-shell-surface.h	\
+	wayland/meta-wayland-text-input.c	\
+	wayland/meta-wayland-text-input.h	\
 	wayland/meta-wayland-types.h		\
 	wayland/meta-wayland-versions.h		\
 	wayland/meta-wayland-outputs.c		\
@@ -345,27 +452,41 @@ libmutter_la_SOURCES +=				\
 	wayland/meta-wayland-xdg-foreign.h     	\
 	wayland/meta-window-wayland.c		\
 	wayland/meta-window-wayland.h		\
+	wayland/meta-window-xwayland.c		\
+	wayland/meta-window-xwayland.h		\
 	wayland/meta-wayland-xdg-shell.c	\
 	wayland/meta-wayland-xdg-shell.h	\
+	wayland/meta-wayland-legacy-xdg-shell.c	\
+	wayland/meta-wayland-legacy-xdg-shell.h	\
 	wayland/meta-wayland-wl-shell.c		\
 	wayland/meta-wayland-wl-shell.h		\
 	wayland/meta-wayland-gtk-shell.c	\
 	wayland/meta-wayland-gtk-shell.h	\
+	wayland/meta-wayland-inhibit-shortcuts.c \
+	wayland/meta-wayland-inhibit-shortcuts.h \
+	wayland/meta-wayland-inhibit-shortcuts-dialog.c	\
+	wayland/meta-wayland-inhibit-shortcuts-dialog.h	\
+	wayland/meta-xwayland-grab-keyboard.c  	\
+	wayland/meta-xwayland-grab-keyboard.h  	\
 	$(NULL)
 endif
 
 if HAVE_NATIVE_BACKEND
-libmutter_la_SOURCES +=					\
+libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=		\
 	backends/native/meta-backend-native.c		\
 	backends/native/meta-backend-native.h		\
 	backends/native/meta-backend-native-private.h	\
 	backends/native/meta-barrier-native.c		\
 	backends/native/meta-barrier-native.h		\
+	backends/native/meta-crtc-kms.c			\
+	backends/native/meta-crtc-kms.h			\
 	backends/native/meta-clutter-backend-native.c	\
 	backends/native/meta-clutter-backend-native.h	\
 	backends/native/meta-cursor-renderer-native.c	\
 	backends/native/meta-cursor-renderer-native.h	\
 	backends/native/meta-default-modes.h		\
+	backends/native/meta-gpu-kms.c			\
+	backends/native/meta-gpu-kms.h			\
 	backends/native/meta-idle-monitor-native.c	\
 	backends/native/meta-idle-monitor-native.h	\
 	backends/native/meta-input-settings-native.c	\
@@ -374,8 +495,12 @@ libmutter_la_SOURCES +=					\
 	backends/native/meta-monitor-manager-kms.h	\
 	backends/native/meta-launcher.c			\
 	backends/native/meta-launcher.h			\
+	backends/native/meta-output-kms.c		\
+	backends/native/meta-output-kms.h		\
 	backends/native/meta-renderer-native.c		\
 	backends/native/meta-renderer-native.h		\
+	backends/native/meta-renderer-native-gles3.c	\
+	backends/native/meta-renderer-native-gles3.h	\
 	backends/native/meta-stage-native.c		\
 	backends/native/meta-stage-native.h		\
 	backends/native/dbus-utils.c			\
@@ -383,13 +508,14 @@ libmutter_la_SOURCES +=					\
 	$(NULL)
 endif
 
-nodist_libmutter_la_SOURCES = $(mutter_built_sources)
+nodist_libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES = $(mutter_built_sources)
 
-libmutter_la_LDFLAGS = -no-undefined -export-symbols-regex "^(meta|ag)_.*"
-libmutter_la_LIBADD  = \
+libmutter_@LIBMUTTER_API_VERSION@_la_LDFLAGS = \
+	-no-undefined -export-symbols-regex "^(meta|ag)_.*"
+libmutter_@LIBMUTTER_API_VERSION@_la_LIBADD  = \
 	$(MUTTER_LIBS) \
 	$(MUTTER_NATIVE_BACKEND_LIBS)	\
-	$(top_builddir)/clutter/clutter/libmutter-clutter-1.0.la \
+	$(top_builddir)/clutter/clutter/libmutter-clutter-$(LIBMUTTER_API_VERSION).la \
 	$(NULL)
 
 # Headers installed for plugins; introspected information will
@@ -410,10 +536,14 @@ libmutterinclude_headers =			\
 	meta/meta-background-actor.h		\
 	meta/meta-background-image.h		\
 	meta/meta-background-group.h		\
+	meta/meta-close-dialog.h		\
+	meta/meta-inhibit-shortcuts-dialog.h	\
 	meta/meta-cursor-tracker.h		\
+	meta/meta-dnd.h			\
 	meta/meta-idle-monitor.h		\
 	meta/meta-plugin.h			\
 	meta/meta-monitor-manager.h		\
+	meta/meta-settings.h			\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\
 	meta/meta-window-actor.h		\
@@ -448,7 +578,7 @@ bin_PROGRAMS=mutter
 noinst_PROGRAMS=
 
 mutter_SOURCES = core/mutter.c
-mutter_LDADD = $(MUTTER_LIBS) libmutter.la
+mutter_LDADD = $(MUTTER_LIBS) libmutter-@LIBMUTTER_API_VERSION@.la
 
 libexec_PROGRAMS = mutter-restart-helper
 mutter_restart_helper_SOURCES = core/restart-helper.c
@@ -457,36 +587,51 @@ mutter_restart_helper_LDADD = $(MUTTER_LIBS)
 include Makefile-tests.am
 
 if HAVE_INTROSPECTION
-include $(INTROSPECTION_MAKEFILE)
 
-# Since we don't make any guarantees about stability and we don't support
-# parallel install, there's no real reason to change directories, filenames,
-# etc. as we change the Mutter tarball version.
-#api_version = $(MUTTER_MAJOR_VERSION).$(MUTTER_MINOR_VERSION)
-api_version = 3.0
+include $(INTROSPECTION_MAKEFILE)
 
 # These files are in package-private directories, even though they may be used
 # by plugins.  If you're writing a plugin, use g-ir-compiler --add-include-path
 # and g-ir-compiler --includedir.
 girdir = $(pkglibdir)
-gir_DATA = Meta-$(api_version).gir
+gir_DATA = Meta-$(LIBMUTTER_API_VERSION).gir
 
 typelibdir = $(pkglibdir)
-typelib_DATA = Meta-$(api_version).typelib
+typelib_DATA = Meta-$(LIBMUTTER_API_VERSION).typelib
 
-INTROSPECTION_GIRS = Meta-$(api_version).gir
-INTROSPECTION_SCANNER_ARGS = --add-include-path=$(top_builddir)/clutter/clutter --add-include-path=$(top_builddir)/cogl/cogl --add-include-path=$(top_builddir)/cogl/cogl-pango
-INTROSPECTION_COMPILER_ARGS = --includedir=$(top_builddir)/clutter/clutter --includedir=$(top_builddir)/cogl/cogl --includedir=$(top_builddir)/cogl/cogl-pango
+INTROSPECTION_GIRS = Meta-$(LIBMUTTER_API_VERSION).gir
+INTROSPECTION_SCANNER_ARGS =					\
+	--add-include-path=$(top_builddir)/clutter/clutter	\
+	--add-include-path=$(top_builddir)/cogl/cogl		\
+	--add-include-path=$(top_builddir)/cogl/cogl-pango	\
+	$(NULL)
+INTROSPECTION_COMPILER_ARGS =					\
+	--includedir=$(top_builddir)/clutter/clutter		\
+	--includedir=$(top_builddir)/cogl/cogl			\
+	--includedir=$(top_builddir)/cogl/cogl-pango		\
+	$(NULL)
+INTROSPECTION_SCANNER_ENV = \
+	PKG_CONFIG_PATH=$(top_builddir)/clutter/clutter/:$(top_builddir)/cogl/cogl/:$(top_builddir)/cogl/cogl-pango/:$${PKG_CONFIG_PATH}
 
-Meta-$(api_version).gir: libmutter.la
-@META_GIR@_INCLUDES = GObject-2.0 GDesktopEnums-3.0 Gdk-3.0 Gtk-3.0 Clutter-1.0 xlib-2.0 xfixes-4.0 Cogl-1.0
-@META_GIR@_EXPORT_PACKAGES = libmutter
-@META_GIR@_CFLAGS = $(AM_CPPFLAGS)
-@META_GIR@_LIBS = libmutter.la
-@META_GIR@_FILES =				\
-	$(libmutterinclude_base_headers)	\
-	$(filter %.c,$(libmutter_la_SOURCES) $(nodist_libmutter_la_SOURCES))
-@META_GIR@_SCANNERFLAGS = --warn-all --warn-error
+Meta-@LIBMUTTER_API_VERSION@.gir: libmutter-$(LIBMUTTER_API_VERSION).la
+Meta_@LIBMUTTER_API_VERSION@_gir_VERSION = $(LIBMUTTER_API_VERSION)
+Meta_@LIBMUTTER_API_VERSION@_gir_INCLUDES =	\
+	GObject-2.0				\
+	GDesktopEnums-3.0			\
+	Gdk-3.0					\
+	Gtk-3.0					\
+	Cogl-$(LIBMUTTER_API_VERSION)		\
+	Clutter-$(LIBMUTTER_API_VERSION)	\
+	xlib-2.0				\
+	xfixes-4.0				\
+	$(NULL)
+Meta_@LIBMUTTER_API_VERSION@_gir_EXPORT_PACKAGES = libmutter-$(LIBMUTTER_API_VERSION)
+Meta_@LIBMUTTER_API_VERSION@_gir_CFLAGS = $(AM_CPPFLAGS)
+Meta_@LIBMUTTER_API_VERSION@_gir_LIBS = libmutter-$(LIBMUTTER_API_VERSION).la
+Meta_@LIBMUTTER_API_VERSION@_gir_FILES =			\
+	$(libmutterinclude_base_headers)			\
+	$(filter %.c,$(libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES) $(nodist_libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES))
+Meta_@LIBMUTTER_API_VERSION@_SCANNERFLAGS = --warn-all --warn-error
 
 endif
 
@@ -498,10 +643,11 @@ CLEANFILES =					\
 	$(gir_DATA)
 
 DISTCLEANFILES = 				\
-	$(libmutterinclude_built_headers)
+	$(libmutterinclude_built_headers)	\
+	$(pkgconfig_DATA)
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = libmutter.pc
+pkgconfig_DATA = libmutter-$(LIBMUTTER_API_VERSION).pc
 
 EXTRA_DIST +=					\
 	$(wayland_protocols)			\
@@ -511,6 +657,8 @@ EXTRA_DIST +=					\
 	org.freedesktop.login1.xml		\
 	org.gnome.Mutter.DisplayConfig.xml	\
 	org.gnome.Mutter.IdleMonitor.xml	\
+	org.gnome.Mutter.RemoteDesktop.xml	\
+	org.gnome.Mutter.ScreenCast.xml	\
 	backends/native/gen-default-modes.py	\
 	$(NULL)
 
@@ -527,7 +675,7 @@ stamp-meta-enum-types.h: $(libmutterinclude_headers) meta-enum-types.h.in
 	$(AM_V_GEN) ( cd $(srcdir) && \
 	  $(GLIB_MKENUMS) \
 	    --template meta-enum-types.h.in \
-	  $(libmutterinclude_base_headers) ) >> xgen-teth && \
+	  $(libmutterinclude_headers) ) > xgen-teth && \
 	(cmp -s xgen-teth meta/meta-enum-types.h || cp xgen-teth meta/meta-enum-types.h) && \
 	rm -f xgen-teth && \
 	echo timestamp > $(@F)
@@ -536,7 +684,7 @@ meta-enum-types.c: stamp-meta-enum-types.h meta-enum-types.c.in
 	  $(AM_V_GEN) ( cd $(srcdir) && \
 	  $(GLIB_MKENUMS) \
 	    --template meta-enum-types.c.in \
-	  $(libmutterinclude_base_headers) ) >> xgen-tetc && \
+	  $(libmutterinclude_headers) ) > xgen-tetc && \
 	cp xgen-tetc meta-enum-types.c && \
 	rm -f xgen-tetc
 
@@ -559,6 +707,26 @@ $(dbus_idle_built_sources) : Makefile.am org.gnome.Mutter.IdleMonitor.xml
 		--c-generate-autocleanup all						\
 		$(srcdir)/org.gnome.Mutter.IdleMonitor.xml
 
+if HAVE_REMOTE_DESKTOP
+dbus_remote_desktop_built_sources = meta-dbus-remote-desktop.c meta-dbus-remote-desktop.h
+
+$(dbus_remote_desktop_built_sources) : Makefile.am org.gnome.Mutter.RemoteDesktop.xml
+	$(AM_V_GEN)gdbus-codegen							\
+		--interface-prefix org.gnome.Mutter					\
+		--c-namespace MetaDBus							\
+		--generate-c-code meta-dbus-remote-desktop				\
+		$(srcdir)/org.gnome.Mutter.RemoteDesktop.xml
+
+dbus_screen_cast_built_sources = meta-dbus-screen-cast.c meta-dbus-screen-cast.h
+
+$(dbus_screen_cast_built_sources) : Makefile.am org.gnome.Mutter.ScreenCast.xml
+	$(AM_V_GEN)gdbus-codegen							\
+		--interface-prefix org.gnome.Mutter					\
+		--c-namespace MetaDBus							\
+		--generate-c-code meta-dbus-screen-cast					\
+		$(srcdir)/org.gnome.Mutter.ScreenCast.xml
+endif
+
 dbus_login1_built_sources = meta-dbus-login1.c meta-dbus-login1.h
 
 $(dbus_login1_built_sources) : Makefile.am org.freedesktop.login1.xml
@@ -578,7 +746,7 @@ backends/native/meta-default-modes.h: backends/native/gen-default-modes.py Makef
 .SECONDEXPANSION:
 
 define protostability
-$(shell echo $1 | sed 's/.*\(\<unstable\>\|\<stable\>\).*/\1/')
+$(if $(findstring unstable,$1),unstable,stable)
 endef
 
 define protoname

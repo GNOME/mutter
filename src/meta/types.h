@@ -24,6 +24,7 @@
  * MetaCompositor: (skip)
  *
  */
+typedef struct _MetaBackend     MetaBackend;
 typedef struct _MetaCompositor  MetaCompositor;
 typedef struct _MetaDisplay     MetaDisplay;
 typedef struct _MetaFrame       MetaFrame;
@@ -37,5 +38,8 @@ typedef struct _MetaWorkspace   MetaWorkspace;
 typedef struct _MetaGroup       MetaGroup;
 typedef struct _MetaKeyBinding  MetaKeyBinding;
 typedef struct _MetaCursorTracker MetaCursorTracker;
+
+typedef struct _MetaDnd         MetaDnd;
+typedef struct _MetaSettings    MetaSettings;
 
 #endif

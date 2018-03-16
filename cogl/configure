@@ -813,6 +813,8 @@ PANGOCAIRO_REQ_VERSION
 CAIRO_REQ_VERSION
 GDK_PIXBUF_REQ_VERSION
 GLIB_REQ_VERSION
+LIBMUTTER_API_VERSION
+MUTTER_VERSION
 EGREP
 GREP
 CPP
@@ -908,6 +910,8 @@ LDFLAGS
 LIBS
 CPPFLAGS
 CPP
+MUTTER_VERSION
+LIBMUTTER_API_VERSION
 CXX
 CXXFLAGS
 CCC
@@ -1625,6 +1629,10 @@ Some influential environment variables:
   CPPFLAGS    (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if
               you have headers in a nonstandard directory <include dir>
   CPP         C preprocessor
+  MUTTER_VERSION
+
+  LIBMUTTER_API_VERSION
+
   CXX         C++ compiler command
   CXXFLAGS    C++ compiler flags
   LT_SYS_LIBRARY_PATH
@@ -4131,6 +4139,14 @@ $as_echo "$ac_cv_safe_to_define___extensions__" >&6; }
 
 
 
+
+
+
+
+
+if test "x$MUTTER_VERSION" = "x"; then :
+  as_fn_error $? "Clutter can only be configured by mutter" "$LINENO" 5
+fi
 
 
 
@@ -19711,7 +19727,7 @@ else
 #include <stdlib.h>
 
 int
-main ()
+main (void)
 {
   unsigned int major, minor, micro;
 
@@ -21723,7 +21739,7 @@ done;
 MAINTAINER_CFLAGS=
 
 
-ac_config_files="$ac_config_files Makefile test-fixtures/Makefile cogl/Makefile cogl/mutter-cogl-1.0.pc cogl/cogl-defines.h cogl/cogl-gl-header.h cogl/cogl-egl-defines.h cogl-pango/Makefile cogl-pango/mutter-cogl-pango-1.0.pc cogl-path/Makefile cogl-path/mutter-cogl-path-1.0.pc cogl-gles2/Makefile cogl-gles2/mutter-cogl-gles2-1.0.pc tests/Makefile tests/config.env tests/conform/Makefile tests/unit/Makefile tests/micro-perf/Makefile tests/data/Makefile"
+ac_config_files="$ac_config_files Makefile test-fixtures/Makefile cogl/Makefile cogl/mutter-cogl-$LIBMUTTER_API_VERSION.pc:cogl/mutter-cogl.pc.in cogl/cogl-defines.h cogl/cogl-gl-header.h cogl/cogl-egl-defines.h cogl-pango/Makefile cogl-pango/mutter-cogl-pango-$LIBMUTTER_API_VERSION.pc:cogl-pango/mutter-cogl-pango.pc.in cogl-path/Makefile cogl-path/mutter-cogl-path-$LIBMUTTER_API_VERSION.pc:cogl-path/mutter-cogl-path.pc.in cogl-gles2/Makefile cogl-gles2/mutter-cogl-gles2-$LIBMUTTER_API_VERSION.pc:cogl-gles2/mutter-cogl-gles2.pc.in tests/Makefile tests/config.env tests/conform/Makefile tests/unit/Makefile tests/micro-perf/Makefile tests/data/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -22915,16 +22931,16 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "test-fixtures/Makefile") CONFIG_FILES="$CONFIG_FILES test-fixtures/Makefile" ;;
     "cogl/Makefile") CONFIG_FILES="$CONFIG_FILES cogl/Makefile" ;;
-    "cogl/mutter-cogl-1.0.pc") CONFIG_FILES="$CONFIG_FILES cogl/mutter-cogl-1.0.pc" ;;
+    "cogl/mutter-cogl-$LIBMUTTER_API_VERSION.pc") CONFIG_FILES="$CONFIG_FILES cogl/mutter-cogl-$LIBMUTTER_API_VERSION.pc:cogl/mutter-cogl.pc.in" ;;
     "cogl/cogl-defines.h") CONFIG_FILES="$CONFIG_FILES cogl/cogl-defines.h" ;;
     "cogl/cogl-gl-header.h") CONFIG_FILES="$CONFIG_FILES cogl/cogl-gl-header.h" ;;
     "cogl/cogl-egl-defines.h") CONFIG_FILES="$CONFIG_FILES cogl/cogl-egl-defines.h" ;;
     "cogl-pango/Makefile") CONFIG_FILES="$CONFIG_FILES cogl-pango/Makefile" ;;
-    "cogl-pango/mutter-cogl-pango-1.0.pc") CONFIG_FILES="$CONFIG_FILES cogl-pango/mutter-cogl-pango-1.0.pc" ;;
+    "cogl-pango/mutter-cogl-pango-$LIBMUTTER_API_VERSION.pc") CONFIG_FILES="$CONFIG_FILES cogl-pango/mutter-cogl-pango-$LIBMUTTER_API_VERSION.pc:cogl-pango/mutter-cogl-pango.pc.in" ;;
     "cogl-path/Makefile") CONFIG_FILES="$CONFIG_FILES cogl-path/Makefile" ;;
-    "cogl-path/mutter-cogl-path-1.0.pc") CONFIG_FILES="$CONFIG_FILES cogl-path/mutter-cogl-path-1.0.pc" ;;
+    "cogl-path/mutter-cogl-path-$LIBMUTTER_API_VERSION.pc") CONFIG_FILES="$CONFIG_FILES cogl-path/mutter-cogl-path-$LIBMUTTER_API_VERSION.pc:cogl-path/mutter-cogl-path.pc.in" ;;
     "cogl-gles2/Makefile") CONFIG_FILES="$CONFIG_FILES cogl-gles2/Makefile" ;;
-    "cogl-gles2/mutter-cogl-gles2-1.0.pc") CONFIG_FILES="$CONFIG_FILES cogl-gles2/mutter-cogl-gles2-1.0.pc" ;;
+    "cogl-gles2/mutter-cogl-gles2-$LIBMUTTER_API_VERSION.pc") CONFIG_FILES="$CONFIG_FILES cogl-gles2/mutter-cogl-gles2-$LIBMUTTER_API_VERSION.pc:cogl-gles2/mutter-cogl-gles2.pc.in" ;;
     "tests/Makefile") CONFIG_FILES="$CONFIG_FILES tests/Makefile" ;;
     "tests/config.env") CONFIG_FILES="$CONFIG_FILES tests/config.env" ;;
     "tests/conform/Makefile") CONFIG_FILES="$CONFIG_FILES tests/conform/Makefile" ;;

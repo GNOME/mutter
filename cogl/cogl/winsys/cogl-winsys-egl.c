@@ -233,11 +233,11 @@ egl_attributes_from_framebuffer_config (CoglDisplay *display,
   CoglRendererEGL *egl_renderer = renderer->winsys;
   int i = 0;
 
-  /* Let the platform add attributes first */
-  if (egl_renderer->platform_vtable->add_config_attributes)
-    i = egl_renderer->platform_vtable->add_config_attributes (display,
-                                                              config,
-                                                              attributes);
+  /* Let the platform add attributes first, including setting the
+   * EGL_SURFACE_TYPE */
+  i = egl_renderer->platform_vtable->add_config_attributes (display,
+                                                            config,
+                                                            attributes);
 
   if (config->need_stencil)
     {
@@ -268,9 +268,6 @@ egl_attributes_from_framebuffer_config (CoglDisplay *display,
                      renderer->driver == COGL_DRIVER_GLES1 ?
                      EGL_OPENGL_ES_BIT :
                      EGL_OPENGL_ES2_BIT);
-
-  attributes[i++] = EGL_SURFACE_TYPE;
-  attributes[i++] = EGL_WINDOW_BIT;
 
   if (config->samples_per_pixel)
     {
@@ -341,10 +338,9 @@ try_create_context (CoglDisplay *display,
   CoglRendererEGL *egl_renderer = renderer->winsys;
   EGLDisplay edpy;
   EGLConfig config;
-  EGLint config_count = 0;
-  EGLBoolean status;
   EGLint attribs[9];
   EGLint cfg_attribs[MAX_EGL_CONFIG_ATTRIBS];
+  GError *config_error = NULL;
   const char *error_message;
 
   _COGL_RETURN_VAL_IF_FAIL (egl_display->egl_context == NULL, TRUE);
@@ -359,14 +355,16 @@ try_create_context (CoglDisplay *display,
 
   edpy = egl_renderer->edpy;
 
-  status = eglChooseConfig (edpy,
-                            cfg_attribs,
-                            &config, 1,
-                            &config_count);
-  if (status != EGL_TRUE || config_count == 0)
+  if (!egl_renderer->platform_vtable->choose_config (display,
+                                                     cfg_attribs,
+                                                     &config,
+                                                     &config_error))
     {
-      error_message = "Unable to find a usable EGL configuration";
-      goto fail;
+      _cogl_set_error (error, COGL_WINSYS_ERROR,
+                       COGL_WINSYS_ERROR_CREATE_CONTEXT,
+                       "Couldn't choose config: %s", config_error->message);
+      g_error_free (config_error);
+      goto err;
     }
 
   egl_display->egl_config = config;
@@ -422,6 +420,7 @@ fail:
                COGL_WINSYS_ERROR_CREATE_CONTEXT,
                "%s", error_message);
 
+err:
   cleanup_context (display);
 
   return FALSE;

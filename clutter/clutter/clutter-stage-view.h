@@ -60,6 +60,9 @@ void             clutter_stage_view_transform_to_onscreen (ClutterStageView *vie
 void clutter_stage_view_blit_offscreen (ClutterStageView            *view,
 					const cairo_rectangle_int_t *clip);
 
+CLUTTER_AVAILABLE_IN_MUTTER
+float clutter_stage_view_get_scale (ClutterStageView *view);
+
 gboolean clutter_stage_view_is_dirty_viewport (ClutterStageView *view);
 
 void clutter_stage_view_set_dirty_viewport (ClutterStageView *view,
@@ -69,5 +72,9 @@ gboolean clutter_stage_view_is_dirty_projection (ClutterStageView *view);
 
 void clutter_stage_view_set_dirty_projection (ClutterStageView *view,
                                               gboolean          dirty);
+
+CLUTTER_AVAILABLE_IN_MUTTER
+void clutter_stage_view_get_offscreen_transformation_matrix (ClutterStageView *view,
+                                                             CoglMatrix       *matrix);
 
 #endif /* __CLUTTER_STAGE_VIEW_H__ */

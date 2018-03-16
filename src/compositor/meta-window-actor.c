@@ -23,12 +23,14 @@
 #include <meta/meta-enum-types.h>
 #include <meta/meta-shadow-factory.h>
 
+#include "backends/meta-backend-private.h"
 #include "clutter/clutter-mutter.h"
 #include "compositor-private.h"
 #include "meta-shaped-texture-private.h"
 #include "meta-window-actor-private.h"
 #include "meta-texture-rectangle.h"
 #include "region-utils.h"
+#include "backends/meta-logical-monitor.h"
 #include "meta-monitor-manager-private.h"
 #include "meta-cullable.h"
 
@@ -592,6 +594,7 @@ meta_window_actor_get_shadow_class (MetaWindowActor *self)
       switch (window_type)
         {
         case META_WINDOW_DROPDOWN_MENU:
+        case META_WINDOW_COMBO:
           return "dropdown-menu";
         case META_WINDOW_POPUP_MENU:
           return "popup-menu";
@@ -942,30 +945,36 @@ static void
 queue_send_frame_messages_timeout (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv = self->priv;
+  MetaWindow *window = priv->window;
+  MetaDisplay *display = meta_window_get_display (priv->window);
+  MetaLogicalMonitor *logical_monitor;
+  int64_t current_time;
+  float refresh_rate;
+  int interval, offset;
 
   if (priv->send_frame_messages_timer != 0)
     return;
 
-  MetaDisplay *display = meta_window_get_display (priv->window);
-  gint64 current_time = meta_compositor_monotonic_time_to_server_time (display, g_get_monotonic_time ());
-  MetaMonitorManager *monitor_manager = meta_monitor_manager_get ();
-  MetaWindow *window = priv->window;
-
-  MetaOutput *outputs;
-  guint n_outputs, i;
-  float refresh_rate = 60.0f;
-  gint interval, offset;
-
-  outputs = meta_monitor_manager_get_outputs (monitor_manager, &n_outputs);
-  for (i = 0; i < n_outputs; i++)
+  logical_monitor = meta_window_get_main_logical_monitor (window);
+  if (logical_monitor)
     {
-      if (outputs[i].winsys_id == window->monitor->winsys_id && outputs[i].crtc)
-        {
-          refresh_rate = outputs[i].crtc->current_mode->refresh_rate;
-          break;
-        }
+      GList *monitors = meta_logical_monitor_get_monitors (logical_monitor);
+      MetaMonitor *monitor;
+      MetaMonitorMode *mode;
+
+      monitor = g_list_first (monitors)->data;
+      mode = meta_monitor_get_current_mode (monitor);
+
+      refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
+    }
+  else
+    {
+      refresh_rate = 60.0f;
     }
 
+  current_time =
+    meta_compositor_monotonic_time_to_server_time (display,
+                                                   g_get_monotonic_time ());
   interval = (int)(1000000 / refresh_rate) * 6;
   offset = MAX (0, priv->frame_drawn_time + interval - current_time) / 1000;
 
@@ -1066,6 +1075,8 @@ start_simple_effect (MetaWindowActor  *self,
   MetaCompositor *compositor = priv->compositor;
   gint *counter = NULL;
   gboolean use_freeze_thaw = FALSE;
+
+  g_assert (compositor->plugin_mgr != NULL);
 
   switch (event)
   {
@@ -1227,7 +1238,7 @@ meta_window_actor_set_unredirected (MetaWindowActor *self,
 }
 
 void
-meta_window_actor_destroy (MetaWindowActor *self)
+meta_window_actor_queue_destroy (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv = self->priv;
   MetaWindow *window = priv->window;

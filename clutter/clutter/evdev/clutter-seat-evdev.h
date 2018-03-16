@@ -38,7 +38,10 @@ typedef struct _ClutterTouchState ClutterTouchState;
 
 struct _ClutterTouchState
 {
-  guint32 id;
+  ClutterSeatEvdev *seat;
+
+  int device_slot;
+  int seat_slot;
   ClutterPoint coords;
 };
 
@@ -52,12 +55,14 @@ struct _ClutterSeatEvdev
   ClutterInputDevice *core_pointer;
   ClutterInputDevice *core_keyboard;
 
-  GHashTable *touches;
+  ClutterTouchState **touch_states;
+  int n_alloc_touch_states;
 
   struct xkb_state *xkb;
   xkb_led_index_t caps_lock_led;
   xkb_led_index_t num_lock_led;
   xkb_led_index_t scroll_lock_led;
+  xkb_layout_index_t layout_idx;
   uint32_t button_state;
   int button_count[KEY_CNT];
 
@@ -106,16 +111,39 @@ void clutter_seat_evdev_notify_button (ClutterSeatEvdev   *seat,
                                        uint32_t            button,
                                        uint32_t            state);
 
+void clutter_seat_evdev_notify_scroll_continuous (ClutterSeatEvdev         *seat,
+                                                  ClutterInputDevice       *input_device,
+                                                  uint64_t                  time_us,
+                                                  double                    dx,
+                                                  double                    dy,
+                                                  ClutterScrollSource       source,
+                                                  ClutterScrollFinishFlags  flags);
+
+void clutter_seat_evdev_notify_discrete_scroll (ClutterSeatEvdev    *seat,
+                                                ClutterInputDevice  *input_device,
+                                                uint64_t             time_us,
+                                                double               discrete_dx,
+                                                double               discrete_dy,
+                                                ClutterScrollSource  source);
+
+void clutter_seat_evdev_notify_touch_event (ClutterSeatEvdev   *seat,
+                                            ClutterInputDevice *input_device,
+                                            ClutterEventType    evtype,
+                                            uint64_t            time_us,
+                                            int                 slot,
+                                            double              x,
+                                            double              y);
+
 void clutter_seat_evdev_set_libinput_seat (ClutterSeatEvdev     *seat,
                                            struct libinput_seat *libinput_seat);
 
 void clutter_seat_evdev_sync_leds (ClutterSeatEvdev *seat);
 
-ClutterTouchState * clutter_seat_evdev_add_touch (ClutterSeatEvdev *seat,
-                                                  guint32           id);
+ClutterTouchState * clutter_seat_evdev_acquire_touch_state (ClutterSeatEvdev *seat,
+                                                            int               device_slot);
 
-void clutter_seat_evdev_remove_touch (ClutterSeatEvdev *seat,
-                                      guint32           id);
+void clutter_seat_evdev_release_touch_state (ClutterSeatEvdev  *seat,
+                                             ClutterTouchState *touch_state);
 
 ClutterTouchState * clutter_seat_evdev_get_touch (ClutterSeatEvdev *seat,
                                                   guint32           id);

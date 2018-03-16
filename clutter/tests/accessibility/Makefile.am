@@ -1,5 +1,5 @@
 common_ldadd = \
-	$(top_builddir)/clutter/libmutter-clutter-@CLUTTER_API_VERSION@.la
+	$(top_builddir)/clutter/libmutter-clutter-@LIBMUTTER_API_VERSION@.la
 
 common_sources = \
 	cally-examples-util.c	\
@@ -11,6 +11,7 @@ AM_CPPFLAGS = \
 	-DGLIB_DISABLE_DEPRECATION_WARNINGS \
 	-I$(top_srcdir)/../cogl                 \
 	-I$(top_builddir)/../cogl               \
+	-I$(top_builddir)/../cogl/cogl          \
 	-I$(top_srcdir)	\
 	-I$(top_builddir) \
 	-I$(top_srcdir)/clutter \

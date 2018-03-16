@@ -23,19 +23,17 @@
 #ifndef META_MONITOR_MANAGER_XRANDR_H
 #define META_MONITOR_MANAGER_XRANDR_H
 
+#include <X11/extensions/Xrandr.h>
+
 #include "meta-monitor-manager-private.h"
 
-#define META_TYPE_MONITOR_MANAGER_XRANDR            (meta_monitor_manager_xrandr_get_type ())
-#define META_MONITOR_MANAGER_XRANDR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_MONITOR_MANAGER_XRANDR, MetaMonitorManagerXrandr))
-#define META_MONITOR_MANAGER_XRANDR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_MONITOR_MANAGER_XRANDR, MetaMonitorManagerXrandrClass))
-#define META_IS_MONITOR_MANAGER_XRANDR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_MONITOR_MANAGER_XRANDR))
-#define META_IS_MONITOR_MANAGER_XRANDR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_MONITOR_MANAGER_XRANDR))
-#define META_MONITOR_MANAGER_XRANDR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_MONITOR_MANAGER_XRANDR, MetaMonitorManagerXrandrClass))
+#define META_TYPE_MONITOR_MANAGER_XRANDR (meta_monitor_manager_xrandr_get_type ())
+G_DECLARE_FINAL_TYPE (MetaMonitorManagerXrandr, meta_monitor_manager_xrandr,
+                      META, MONITOR_MANAGER_XRANDR, MetaMonitorManager)
 
-typedef struct _MetaMonitorManagerXrandrClass    MetaMonitorManagerXrandrClass;
-typedef struct _MetaMonitorManagerXrandr         MetaMonitorManagerXrandr;
+Display * meta_monitor_manager_xrandr_get_xdisplay (MetaMonitorManagerXrandr *manager_xrandr);
 
-GType meta_monitor_manager_xrandr_get_type (void);
+gboolean meta_monitor_manager_xrandr_has_randr15 (MetaMonitorManagerXrandr *manager_xrandr);
 
 gboolean meta_monitor_manager_xrandr_handle_xevent (MetaMonitorManagerXrandr *manager,
                                                     XEvent                   *event);

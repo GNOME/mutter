@@ -34,6 +34,7 @@ stamp-marshal: $(marshal_list)
 	$(AM_V_GEN)$(GLIB_GENMARSHAL) \
 		--prefix=$(glib_marshal_prefix) \
 		--header \
+		--valist-marshallers \
 	$(marshal_list) > xgen-mh \
 	&& (cmp -s xgen-mh $(marshal_h) || cp -f xgen-mh $(marshal_h)) \
 	&& rm -f xgen-mh \
@@ -43,10 +44,11 @@ $(marshal_h): stamp-marshal
 	@true
 
 $(marshal_c): $(marshal_h)
-	$(AM_V_GEN)(echo "#include \"$(marshal_h)\"" ; \
-	$(GLIB_GENMARSHAL) \
+	$(AM_V_GEN)$(GLIB_GENMARSHAL) \
 		--prefix=$(glib_marshal_prefix) \
 		--body \
-	$(marshal_list)) > xgen-mc \
-	&& cp xgen-mc $(marshal_c) \
+		--valist-marshallers \
+		--prototypes \
+	$(marshal_list) > xgen-mc \
+	&& (cmp -s xgen-mc $(marshal_c) || cp -f xgen-mc $(marshal_c)) \
 	&& rm -f xgen-mc

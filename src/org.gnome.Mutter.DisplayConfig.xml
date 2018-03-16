@@ -290,5 +290,164 @@
 	The client should then call GetResources() to read the new layout.
     -->
     <signal name="MonitorsChanged" />
+
+    <!--
+	GetCurrentState:
+	@serial: configuration serial
+	@monitors: available monitors
+	@logical_monitors: current logical monitor configuration
+	@properties: display configuration properties
+
+	@monitors represent connected physical monitors
+
+	* s connector: connector name (e.g. HDMI-1, DP-1, etc)
+	* s vendor: vendor name
+	* s product: product name
+	* s serial: product serial
+	* a(siiddada{sv}) modes: available modes
+	    * s id: mode ID
+	    * i width: width in physical pixels
+	    * i height: height in physical pixels
+	    * d refresh rate: refresh rate
+	    * d preferred scale: scale preferred as per calculations
+	    * ad supported scales: scales supported by this mode
+	    * a{sv} properties: optional properties, including:
+	       - "is-current" (b): the mode is currently active mode
+	       - "is-preferred" (b): the mode is the preferred mode
+	       - "is-interlaced" (b): the mode is an interlaced mode
+	* a{sv} properties: optional properties, including:
+	    - "width-mm" (i): physical width of monitor in millimeters
+	    - "height-mm" (i): physical height of monitor in millimeters
+	    - "is-underscanning" (b): whether underscanning is enabled
+				      (absence of this means underscanning
+				      not being supported)
+	    - "max-screen-size" (ii): the maximum size a screen may have
+				      (absence of this means unlimited screen
+				      size)
+	    - "is-builtin" (b): whether the monitor is built in, e.g. a
+				laptop panel (absence of this means it is
+				not built in)
+	    - "display-name" (s): a human readable display name of the monitor
+
+        Possible mode flags:
+	  1 : preferred mode
+	  2 : current mode
+
+
+	@logical_monitors represent current logical monitor configuration
+
+	* i x: x position
+	* i y: y position
+	* d scale: scale
+	* u transform: transform (see below)
+	* b primary: true if this is the primary logical monitor
+	* a(sss) monitors: monitors displaying this logical monitor
+	    * connector: name of the connector (e.g. DP-1, eDP-1 etc)
+	    * vendor: vendor name
+	    * product: product name
+	    * serial: product serial
+	* a{sv} properties: possibly other properties
+
+	Posisble transform values:
+	  0: normal
+	  1: 90°
+	  2: 180°
+	  3: 270°
+	  4: flipped
+	  5: 90° flipped
+	  6: 180° flipped
+	  7: 270° flipped
+
+
+	@layout_mode current layout mode represents the way logical monitors
+	are layed out on the screen. Possible modes include:
+
+	  1 : physical
+	  2 : logical
+
+	With physical layout mode, each logical monitor has the same dimensions
+	an the monitor modes of the associated monitors assigned to it, no
+	matter what scale is in use.
+
+	With logical mode, the dimension of a logical monitor is the dimension
+	of the monitor mode, divided by the logical monitor scale.
+
+
+	Possible @properties are:
+
+	* "supports-mirroring" (b): FALSE if mirroring not supported; TRUE or not
+	                            present if mirroring is supported.
+	* "layout-mode" (u): Represents in what way logical monitors are laid
+			     out on the screen. The layout mode can be either
+			     of the ones listed below. Absence of this property
+			     means the layout mode cannot be changed, and that
+			     "logical" mode is assumed to be used.
+	    * 1 : logical  - the dimension of a logical monitor is derived from
+			     the monitor modes associated with it, then scaled
+			     using the logical monitor scale.
+	    * 2 : physical - the dimension of a logical monitor is derived from
+			     the monitor modes associated with it.
+	* "supports-changing-layout-mode" (b): True if the layout mode can be
+					       changed. Absence of this means the
+					       layout mode cannot be changed.
+	* "global-scale-required" (b): True if all the logical monitors must
+				       always use the same scale. Absence of
+				       this means logical monitor scales can
+				       differ.
+	* "legacy-ui-scaling-factor" (i): The legacy scaling factor traditionally
+				          used to scale X11 clients (commonly
+					  communicated via the
+					  Gdk/WindowScalingFactor XSetting entry).
+    -->
+    <method name="GetCurrentState">
+      <arg name="serial" direction="out" type="u" />
+      <arg name="monitors" direction="out" type="a((ssss)a(siiddada{sv})a{sv})" />
+      <arg name="logical_monitors" direction="out" type="a(iiduba(ssss)a{sv})" />
+      <arg name="properties" direction="out" type="a{sv}" />
+    </method>
+
+    <!--
+	ApplyMonitorsConfig:
+	@serial: configuration serial
+	@method: configuration method
+	@logical_monitors: monitors configuration
+	@properties: properties
+
+	@method represents the way the configuration should be handled.
+
+	Possible methods:
+	  0: verify
+	  1: temporary
+	  2: persistent
+
+	@logical_monitors consists of a list of logical monitor configurations.
+	Each logical monitor configuration consists of:
+
+	* i: layout x position
+	* i: layout y position
+	* d: scale
+	* u: transform (see GetCurrentState)
+	* b primary: true if this is the primary logical monitor
+	* a(ssa{sv}): a list of monitors, each consisting of:
+	    * s: connector
+	    * s: monitor mode ID
+	    * a{sv}: monitor properties, including:
+	        - "enable_underscanning" (b): enable monitor underscanning;
+					      may only be set when underscanning
+					      is supported (see GetCurrentState).
+
+	@properties may effect the global monitor configuration state. Possible
+	properties are:
+
+	* "layout-mode" (u): layout mode the passed configuration is in; may
+			     only be set when changing the layout mode is
+			     supported (see GetCurrentState).
+    -->
+    <method name="ApplyMonitorsConfig">
+      <arg name="serial" direction="in" type="u" />
+      <arg name="method" direction="in" type="u" />
+      <arg name="logical_monitors" direction="in" type="a(iiduba(ssa{sv}))" />
+      <arg name="properties" direction="in" type="a{sv}" />
+    </method>
   </interface>
 </node>

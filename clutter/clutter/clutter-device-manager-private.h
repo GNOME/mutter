@@ -145,6 +145,9 @@ struct _ClutterInputDevice
   guint is_enabled : 1;
 };
 
+typedef void (*ClutterEmitInputDeviceEvent) (ClutterEvent       *event,
+                                             ClutterInputDevice *device);
+
 struct _ClutterInputDeviceClass
 {
   GObjectClass parent_class;
@@ -154,6 +157,20 @@ struct _ClutterInputDeviceClass
                                  guint              *evdev_keycode);
   void (* update_from_tool) (ClutterInputDevice     *device,
                              ClutterInputDeviceTool *tool);
+
+  gboolean (* is_mode_switch_button) (ClutterInputDevice *device,
+                                      guint               group,
+                                      guint               button);
+  gint (* get_group_n_modes) (ClutterInputDevice *device,
+                              gint                group);
+
+  gboolean (* is_grouped) (ClutterInputDevice *device,
+                           ClutterInputDevice *other_device);
+
+  /* Keyboard accessbility */
+  void (* process_kbd_a11y_event) (ClutterEvent               *event,
+                                   ClutterInputDevice         *device,
+                                   ClutterEmitInputDeviceEvent emit_event_func);
 };
 
 /* Platform-dependent interface */

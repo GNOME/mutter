@@ -950,7 +950,10 @@ save_state (void)
               fputs ("    <sticky/>\n", outfile);
             } else {
               int n;
-              n = meta_workspace_index (window->workspace);
+              if (window->workspace)
+                n = meta_workspace_index (window->workspace);
+              else
+                n = window->initial_workspace;
               fprintf (outfile,
                        "    <workspace index=\"%d\"/>\n", n);
             }
@@ -1812,7 +1815,7 @@ warn_about_lame_clients_and_finish_interact (gboolean shutdown)
   g_slist_free (lame);
 
   pid = meta_show_dialog("--list",
-                         _("These windows do not support &quot;save current setup&quot; "
+                         _("These windows do not support “save current setup” "
                            "and will have to be restarted manually next time "
                            "you log in."),
                          "240",

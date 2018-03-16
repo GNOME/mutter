@@ -64,6 +64,7 @@
  * @META_PREF_DRAGGABLE_BORDER_WIDTH: draggable border width
  * @META_PREF_AUTO_MAXIMIZE: auto-maximize
  * @META_PREF_CENTER_NEW_WINDOWS: center new windows
+ * @META_PREF_DRAG_THRESHOLD: drag threshold
  */
 
 /* Keep in sync with GSettings schemas! */
@@ -357,6 +358,8 @@ typedef enum _MetaKeyBindingAction
   META_KEYBINDING_ACTION_OVERLAY_KEY,
   META_KEYBINDING_ACTION_ISO_NEXT_GROUP,
   META_KEYBINDING_ACTION_ALWAYS_ON_TOP,
+  META_KEYBINDING_ACTION_SWITCH_MONITOR,
+  META_KEYBINDING_ACTION_ROTATE_MONITOR,
 
   META_KEYBINDING_ACTION_LAST
 } MetaKeyBindingAction;
@@ -367,13 +370,15 @@ typedef enum _MetaKeyBindingAction
  * @META_KEY_BINDING_PER_WINDOW: per-window
  * @META_KEY_BINDING_BUILTIN: built-in
  * @META_KEY_BINDING_IS_REVERSED: is reversed
+ * @META_KEY_BINDING_NON_MASKABLE: always active
  */
 typedef enum
 {
   META_KEY_BINDING_NONE,
-  META_KEY_BINDING_PER_WINDOW  = 1 << 0,
-  META_KEY_BINDING_BUILTIN     = 1 << 1,
-  META_KEY_BINDING_IS_REVERSED = 1 << 2,
+  META_KEY_BINDING_PER_WINDOW   = 1 << 0,
+  META_KEY_BINDING_BUILTIN      = 1 << 1,
+  META_KEY_BINDING_IS_REVERSED  = 1 << 2,
+  META_KEY_BINDING_NON_MASKABLE = 1 << 3,
 } MetaKeyBindingFlags;
 
 /**

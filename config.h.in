@@ -22,6 +22,9 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
+/* Defined if EGLDevice support is enabled */
+#undef HAVE_EGL_DEVICE
+
 /* Define if the GNU gettext() function is already present or preinstalled. */
 #undef HAVE_GETTEXT
 
@@ -51,6 +54,9 @@
 
 /* Have the Xrandr extension library */
 #undef HAVE_RANDR
+
+/* Defined if screen cast and remote desktop support is enabled */
+#undef HAVE_REMOTE_DESKTOP
 
 /* Building with SM support */
 #undef HAVE_SM
@@ -151,6 +157,9 @@
 
 /* XKB base dir */
 #undef XKB_BASE
+
+/* Xwayland applications allowed to issue keyboard grabs */
+#undef XWAYLAND_GRAB_DEFAULT_ACCESS_RULES
 
 /* Define to 1 if the X Window System is missing or not being used. */
 #undef X_DISPLAY_MISSING

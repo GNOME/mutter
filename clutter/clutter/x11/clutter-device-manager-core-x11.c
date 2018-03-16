@@ -37,6 +37,7 @@
 #include "clutter-event-translator.h"
 #include "clutter-stage-private.h"
 #include "clutter-private.h"
+#include "clutter-xkb-a11y-x11.h"
 
 enum
 {
@@ -136,7 +137,6 @@ clutter_device_manager_x11_translate_event (ClutterEventTranslator *translator,
   ClutterTranslateReturn res;
   ClutterStage *stage;
   XEvent *xevent;
-  int window_scale;
 
   manager_x11 = CLUTTER_DEVICE_MANAGER_X11 (translator);
   backend_x11 = CLUTTER_BACKEND_X11 (clutter_get_default_backend ());
@@ -151,8 +151,6 @@ clutter_device_manager_x11_translate_event (ClutterEventTranslator *translator,
     return CLUTTER_TRANSLATE_CONTINUE;
 
   stage_x11 = CLUTTER_STAGE_X11 (_clutter_stage_get_window (stage));
-
-  window_scale = stage_x11->scale_factor;
 
   event->any.stage = stage;
 
@@ -226,8 +224,8 @@ clutter_device_manager_x11_translate_event (ClutterEventTranslator *translator,
             event->scroll.direction = CLUTTER_SCROLL_RIGHT;
 
           event->scroll.time = xevent->xbutton.time;
-          event->scroll.x = xevent->xbutton.x / window_scale;
-          event->scroll.y = xevent->xbutton.y / window_scale;
+          event->scroll.x = xevent->xbutton.x;
+          event->scroll.y = xevent->xbutton.y;
           event->scroll.modifier_state = xevent->xbutton.state;
           event->scroll.axes = NULL;
           break;
@@ -235,8 +233,8 @@ clutter_device_manager_x11_translate_event (ClutterEventTranslator *translator,
         default:
           event->button.type = event->type = CLUTTER_BUTTON_PRESS;
           event->button.time = xevent->xbutton.time;
-          event->button.x = xevent->xbutton.x / window_scale;
-          event->button.y = xevent->xbutton.y / window_scale;
+          event->button.x = xevent->xbutton.x;
+          event->button.y = xevent->xbutton.y;
           event->button.modifier_state = xevent->xbutton.state;
           event->button.button = xevent->xbutton.button;
           event->button.axes = NULL;
@@ -269,8 +267,8 @@ clutter_device_manager_x11_translate_event (ClutterEventTranslator *translator,
 
       event->button.type = event->type = CLUTTER_BUTTON_RELEASE;
       event->button.time = xevent->xbutton.time;
-      event->button.x = xevent->xbutton.x / window_scale;
-      event->button.y = xevent->xbutton.y / window_scale;
+      event->button.x = xevent->xbutton.x;
+      event->button.y = xevent->xbutton.y;
       event->button.modifier_state = xevent->xbutton.state;
       event->button.button = xevent->xbutton.button;
       event->button.axes = NULL;
@@ -287,8 +285,8 @@ clutter_device_manager_x11_translate_event (ClutterEventTranslator *translator,
 
       event->motion.type = event->type = CLUTTER_MOTION;
       event->motion.time = xevent->xmotion.time;
-      event->motion.x = xevent->xmotion.x / window_scale;
-      event->motion.y = xevent->xmotion.y / window_scale;
+      event->motion.x = xevent->xmotion.x;
+      event->motion.y = xevent->xmotion.y;
       event->motion.modifier_state = xevent->xmotion.state;
       event->motion.axes = NULL;
       clutter_event_set_device (event, manager_x11->core_pointer);
@@ -301,8 +299,8 @@ clutter_device_manager_x11_translate_event (ClutterEventTranslator *translator,
 
       event->crossing.type = CLUTTER_ENTER;
       event->crossing.time = xevent->xcrossing.time;
-      event->crossing.x = xevent->xcrossing.x / window_scale;
-      event->crossing.y = xevent->xcrossing.y / window_scale;
+      event->crossing.x = xevent->xcrossing.x;
+      event->crossing.y = xevent->xcrossing.y;
       event->crossing.source = CLUTTER_ACTOR (stage);
       event->crossing.related = NULL;
       clutter_event_set_device (event, manager_x11->core_pointer);
@@ -327,8 +325,8 @@ clutter_device_manager_x11_translate_event (ClutterEventTranslator *translator,
 
       event->crossing.type = CLUTTER_LEAVE;
       event->crossing.time = xevent->xcrossing.time;
-      event->crossing.x = xevent->xcrossing.x / window_scale;
-      event->crossing.y = xevent->xcrossing.y / window_scale;
+      event->crossing.x = xevent->xcrossing.x;
+      event->crossing.y = xevent->xcrossing.y;
       event->crossing.source = CLUTTER_ACTOR (stage);
       event->crossing.related = NULL;
       clutter_event_set_device (event, manager_x11->core_pointer);
@@ -355,9 +353,11 @@ static void
 clutter_device_manager_x11_constructed (GObject *gobject)
 {
   ClutterDeviceManagerX11 *manager_x11;
+  ClutterDeviceManager *manager;
   ClutterBackendX11 *backend_x11;
 
   manager_x11 = CLUTTER_DEVICE_MANAGER_X11 (gobject);
+  manager = CLUTTER_DEVICE_MANAGER (gobject);
 
   g_object_get (gobject, "backend", &backend_x11, NULL);
   g_assert (backend_x11 != NULL);
@@ -391,6 +391,8 @@ clutter_device_manager_x11_constructed (GObject *gobject)
                                                manager_x11->core_keyboard);
   _clutter_input_device_set_associated_device (manager_x11->core_keyboard,
                                                manager_x11->core_pointer);
+
+  clutter_device_manager_x11_a11y_init (manager);
 
   if (G_OBJECT_CLASS (clutter_device_manager_x11_parent_class)->constructed)
     G_OBJECT_CLASS (clutter_device_manager_x11_parent_class)->constructed (gobject);
@@ -488,6 +490,13 @@ clutter_device_manager_x11_create_virtual_device (ClutterDeviceManager  *device_
   return g_object_new (CLUTTER_TYPE_VIRTUAL_INPUT_DEVICE_X11, NULL);
 }
 
+static ClutterVirtualDeviceType
+clutter_device_manager_x11_get_supported_virtual_device_types (ClutterDeviceManager *device_manager)
+{
+  return (CLUTTER_VIRTUAL_DEVICE_TYPE_KEYBOARD |
+          CLUTTER_VIRTUAL_DEVICE_TYPE_POINTER);
+}
+
 static void
 clutter_device_manager_x11_set_property (GObject      *gobject,
                                          guint         prop_id,
@@ -535,6 +544,8 @@ clutter_device_manager_x11_class_init (ClutterDeviceManagerX11Class *klass)
   manager_class->get_core_device = clutter_device_manager_x11_get_core_device;
   manager_class->get_device = clutter_device_manager_x11_get_device;
   manager_class->create_virtual_device = clutter_device_manager_x11_create_virtual_device;
+  manager_class->get_supported_virtual_device_types = clutter_device_manager_x11_get_supported_virtual_device_types;
+  manager_class->apply_kbd_a11y_settings = clutter_device_manager_x11_apply_kbd_a11y_settings;
 }
 
 static void

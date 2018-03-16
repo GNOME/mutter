@@ -1990,22 +1990,28 @@ clutter_event_remove_filter (guint id)
 }
 
 /**
- * clutter_event_get_gesture_swipe_finger_count:
- * @event: a touchpad swipe event
+ * clutter_event_get_touchpad_gesture_finger_count:
+ * @event: a touchpad swipe/pinch event
  *
  * Returns the number of fingers that is triggering the touchpad gesture.
  *
- * Returns: the number of fingers swiping.
+ * Returns: the number of fingers in the gesture.
  *
  * Since: 1.24
  **/
 guint
-clutter_event_get_gesture_swipe_finger_count (const ClutterEvent *event)
+clutter_event_get_touchpad_gesture_finger_count (const ClutterEvent *event)
 {
   g_return_val_if_fail (event != NULL, 0);
-  g_return_val_if_fail (event->type == CLUTTER_TOUCHPAD_SWIPE, 0);
+  g_return_val_if_fail (event->type == CLUTTER_TOUCHPAD_SWIPE ||
+                        event->type == CLUTTER_TOUCHPAD_PINCH, 0);
 
-  return event->touchpad_swipe.n_fingers;
+  if (event->type == CLUTTER_TOUCHPAD_SWIPE)
+    return event->touchpad_swipe.n_fingers;
+  else if (event->type == CLUTTER_TOUCHPAD_PINCH)
+    return event->touchpad_pinch.n_fingers;
+
+  return 0;
 }
 
 /**
@@ -2172,4 +2178,62 @@ clutter_event_get_mode_group (const ClutterEvent *event)
     default:
       return 0;
     }
+}
+
+/**
+ * clutter_event_get_pad_event_details:
+ * @event: a pad event
+ * @number: (out) (optional): ring/strip/button number
+ * @mode: (out) (optional): pad mode as per the event
+ * @value: (out) (optional): event axis value
+ *
+ * Returns the details of a pad event.
+ *
+ * Returns: #TRUE if event details could be obtained
+ **/
+gboolean
+clutter_event_get_pad_event_details (const ClutterEvent *event,
+                                     guint              *number,
+                                     guint              *mode,
+                                     gdouble            *value)
+{
+  guint n, m;
+  gdouble v;
+
+  g_return_val_if_fail (event != NULL, FALSE);
+  g_return_val_if_fail (event->type == CLUTTER_PAD_BUTTON_PRESS ||
+                        event->type == CLUTTER_PAD_BUTTON_RELEASE ||
+                        event->type == CLUTTER_PAD_RING ||
+                        event->type == CLUTTER_PAD_STRIP, FALSE);
+
+  switch (event->type)
+    {
+    case CLUTTER_PAD_BUTTON_PRESS:
+    case CLUTTER_PAD_BUTTON_RELEASE:
+      n = event->pad_button.button;
+      m = event->pad_button.mode;
+      v = 0.0;
+      break;
+    case CLUTTER_PAD_RING:
+      n = event->pad_ring.ring_number;
+      m = event->pad_ring.mode;
+      v = event->pad_ring.angle;
+      break;
+    case CLUTTER_PAD_STRIP:
+      n = event->pad_strip.strip_number;
+      m = event->pad_strip.mode;
+      v = event->pad_strip.value;
+      break;
+    default:
+      return FALSE;
+    }
+
+  if (number)
+    *number = n;
+  if (mode)
+    *mode = m;
+  if (value)
+    *value = v;
+
+  return TRUE;
 }

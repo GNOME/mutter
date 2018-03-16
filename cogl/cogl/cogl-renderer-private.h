@@ -39,11 +39,12 @@
 #include "cogl-texture-driver.h"
 #include "cogl-context.h"
 #include "cogl-closure-list-private.h"
-#include "cogl-mutter.h"
 
 #ifdef COGL_HAS_XLIB_SUPPORT
 #include <X11/Xlib.h>
 #endif
+
+typedef const CoglWinsysVtable *(*CoglCustomWinsysVtableGetter) (CoglRenderer *renderer);
 
 struct _CoglRenderer
 {
@@ -53,7 +54,8 @@ struct _CoglRenderer
   const CoglDriverVtable *driver_vtable;
   const CoglTextureDriver *texture_driver;
   const CoglWinsysVtable *winsys_vtable;
-  CoglWinsysVtableGetter custom_winsys_vtable_getter;
+  void *custom_winsys_user_data;
+  CoglCustomWinsysVtableGetter custom_winsys_vtable_getter;
   CoglWinsysID winsys_id_override;
   GList *constraints;
 
@@ -69,6 +71,7 @@ struct _CoglRenderer
   Display *foreign_xdpy;
   CoglBool xlib_enable_event_retrieval;
   CoglBool xlib_want_reset_on_video_memory_purge;
+  CoglBool xlib_enable_threaded_swap_wait;
 #endif
 
   CoglDriver driver;

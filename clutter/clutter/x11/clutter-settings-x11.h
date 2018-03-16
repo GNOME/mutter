@@ -6,18 +6,14 @@ static const struct {
   const char *xsetting_name;
   const char *settings_property;
 } _clutter_settings_map[] = {
-  { "Net/DoubleClickTime",     "double-click-time" },
   { "Net/DoubleClickDistance", "double-click-distance" },
   { "Net/DndDragThreshold",    "dnd-drag-threshold" },
   { "Gtk/FontName",            "font-name" },
   { "Xft/Antialias",           "font-antialias" },
-  { "Xft/DPI",                 "font-dpi" },
   { "Xft/Hinting",             "font-hinting" },
   { "Xft/HintStyle",           "font-hint-style" },
   { "Xft/RGBA",                "font-subpixel-order" },
   { "Fontconfig/Timestamp",    "fontconfig-timestamp" },
-  { "Gdk/WindowScalingFactor", "window-scaling-factor" },
-  { "Gdk/UnscaledDPI",         "unscaled-font-dpi" },
 };
 
 static const gint _n_clutter_settings_map = G_N_ELEMENTS (_clutter_settings_map);

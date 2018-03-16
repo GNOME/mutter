@@ -60,8 +60,8 @@ struct _MetaWaylandSurfaceRoleClass
                       MetaWaylandPendingState *pending);
   void (*commit) (MetaWaylandSurfaceRole  *surface_role,
                   MetaWaylandPendingState *pending);
-  gboolean (*is_on_output) (MetaWaylandSurfaceRole *surface_role,
-                            MetaMonitorInfo        *monitor);
+  gboolean (*is_on_logical_monitor) (MetaWaylandSurfaceRole *surface_role,
+                                     MetaLogicalMonitor     *logical_monitor);
   MetaWaylandSurface * (*get_toplevel) (MetaWaylandSurfaceRole *surface_role);
 };
 
@@ -69,46 +69,6 @@ struct _MetaWaylandSerial {
   gboolean set;
   uint32_t value;
 };
-
-#define META_TYPE_WAYLAND_SURFACE_ROLE_ACTOR_SURFACE (meta_wayland_surface_role_actor_surface_get_type ())
-G_DECLARE_DERIVABLE_TYPE (MetaWaylandSurfaceRoleActorSurface,
-                          meta_wayland_surface_role_actor_surface,
-                          META, WAYLAND_SURFACE_ROLE_ACTOR_SURFACE,
-                          MetaWaylandSurfaceRole);
-
-struct _MetaWaylandSurfaceRoleActorSurfaceClass
-{
-  MetaWaylandSurfaceRoleClass parent_class;
-};
-
-#define META_TYPE_WAYLAND_SURFACE_ROLE_SHELL_SURFACE (meta_wayland_surface_role_shell_surface_get_type ())
-G_DECLARE_DERIVABLE_TYPE (MetaWaylandSurfaceRoleShellSurface,
-                          meta_wayland_surface_role_shell_surface,
-                          META, WAYLAND_SURFACE_ROLE_SHELL_SURFACE,
-                          MetaWaylandSurfaceRoleActorSurface);
-
-struct _MetaWaylandSurfaceRoleShellSurfaceClass
-{
-  MetaWaylandSurfaceRoleActorSurfaceClass parent_class;
-
-  void (*configure) (MetaWaylandSurfaceRoleShellSurface *shell_surface_role,
-                     int                                 new_x,
-                     int                                 new_y,
-                     int                                 new_width,
-                     int                                 new_height,
-                     MetaWaylandSerial                  *sent_serial);
-  void (*managed) (MetaWaylandSurfaceRoleShellSurface *shell_surface_role,
-                   MetaWindow                         *window);
-  void (*ping) (MetaWaylandSurfaceRoleShellSurface *shell_surface_role,
-                uint32_t                            serial);
-  void (*close) (MetaWaylandSurfaceRoleShellSurface *shell_surface_role);
-};
-
-#define META_TYPE_WAYLAND_SURFACE_ROLE_SUBSURFACE (meta_wayland_surface_role_subsurface_get_type ())
-G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleSubsurface,
-                      meta_wayland_surface_role_subsurface,
-                      META, WAYLAND_SURFACE_ROLE_SUBSURFACE,
-                      MetaWaylandSurfaceRoleActorSurface);
 
 #define META_TYPE_WAYLAND_SURFACE_ROLE_DND (meta_wayland_surface_role_dnd_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleDND,
@@ -130,7 +90,9 @@ struct _MetaWaylandPendingState
   int scale;
 
   /* wl_surface.damage */
-  cairo_region_t *damage;
+  cairo_region_t *surface_damage;
+  /* wl_surface.damage_buffer */
+  cairo_region_t *buffer_damage;
 
   cairo_region_t *input_region;
   gboolean input_region_set;
@@ -238,6 +200,9 @@ struct _MetaWaylandSurface
     gboolean pending_pos;
     GSList *pending_placement_ops;
   } sub;
+
+  /* table of seats for which shortcuts are inhibited */
+  GHashTable *shortcut_inhibited_seats;
 };
 
 void                meta_wayland_shell_init     (MetaWaylandCompositor *compositor);
@@ -246,6 +211,11 @@ MetaWaylandSurface *meta_wayland_surface_create (MetaWaylandCompositor *composit
                                                  struct wl_client      *client,
                                                  struct wl_resource    *compositor_resource,
                                                  guint32                id);
+
+void                meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
+                                                              MetaWaylandPendingState *pending);
+
+gboolean            meta_wayland_surface_is_effectively_synchronized (MetaWaylandSurface *surface);
 
 gboolean            meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
                                                       GType               role_type,
@@ -260,6 +230,10 @@ void                meta_wayland_surface_unref_buffer_use_count (MetaWaylandSurf
 
 void                meta_wayland_surface_set_window (MetaWaylandSurface *surface,
                                                      MetaWindow         *window);
+
+void                meta_wayland_surface_create_surface_actor (MetaWaylandSurface *surface);
+
+void                meta_wayland_surface_clear_surface_actor (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_configure_notify (MetaWaylandSurface *surface,
                                                            int                 new_x,
@@ -308,10 +282,6 @@ MetaWaylandSurface * meta_wayland_surface_role_get_surface (MetaWaylandSurfaceRo
 
 cairo_region_t *    meta_wayland_surface_calculate_input_region (MetaWaylandSurface *surface);
 
-void                meta_wayland_surface_calculate_window_geometry (MetaWaylandSurface *surface,
-                                                                    MetaRectangle      *total_geometry,
-                                                                    float               parent_x,
-                                                                    float               parent_y);
 
 void                meta_wayland_surface_destroy_window (MetaWaylandSurface *surface);
 
@@ -323,5 +293,14 @@ gboolean            meta_wayland_surface_begin_grab_op (MetaWaylandSurface *surf
 
 void                meta_wayland_surface_window_managed (MetaWaylandSurface *surface,
                                                          MetaWindow         *window);
+
+void                meta_wayland_surface_inhibit_shortcuts (MetaWaylandSurface *surface,
+                                                            MetaWaylandSeat    *seat);
+
+void                meta_wayland_surface_restore_shortcuts (MetaWaylandSurface *surface,
+                                                            MetaWaylandSeat    *seat);
+
+gboolean            meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurface *surface,
+                                                                 MetaWaylandSeat    *seat);
 
 #endif

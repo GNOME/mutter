@@ -27,6 +27,10 @@
 #include <clutter/clutter-input-device.h>
 #include <X11/extensions/XInput2.h>
 
+#ifdef HAVE_LIBWACOM
+#include <libwacom/libwacom.h>
+#endif
+
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_INPUT_DEVICE_XI2           (_clutter_input_device_xi2_get_type ())
@@ -41,6 +45,24 @@ void  _clutter_input_device_xi2_translate_state (ClutterEvent    *event,
 						 XIModifierState *modifiers_state,
 						 XIButtonState   *buttons_state,
 						 XIGroupState    *group_state);
+void  clutter_input_device_xi2_update_tool      (ClutterInputDevice     *device,
+                                                 ClutterInputDeviceTool *tool);
+ClutterInputDeviceTool * clutter_input_device_xi2_get_current_tool (ClutterInputDevice *device);
+
+#ifdef HAVE_LIBWACOM
+void clutter_input_device_xi2_ensure_wacom_info (ClutterInputDevice  *device,
+                                                 WacomDeviceDatabase *wacom_db);
+
+guint clutter_input_device_xi2_get_pad_group_mode (ClutterInputDevice *device,
+                                                   guint               group);
+
+void clutter_input_device_xi2_update_pad_state (ClutterInputDevice *device,
+                                                guint               button,
+                                                guint               state,
+                                                guint              *group,
+                                                guint              *mode);
+
+#endif
 
 G_END_DECLS
 

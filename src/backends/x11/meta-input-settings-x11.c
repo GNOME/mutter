@@ -36,6 +36,7 @@
 #endif
 
 #include <meta/errors.h>
+#include "backends/meta-logical-monitor.h"
 
 typedef struct _MetaInputSettingsX11Private
 {
@@ -53,6 +54,46 @@ enum {
   SCROLL_METHOD_FIELD_BUTTON,
   SCROLL_METHOD_NUM_FIELDS
 };
+
+static void
+device_free_xdevice (gpointer user_data)
+{
+  MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  XDevice *xdev = user_data;
+
+  meta_error_trap_push (display);
+  XCloseDevice (xdisplay, xdev);
+  meta_error_trap_pop (display);
+}
+
+static XDevice *
+device_ensure_xdevice (ClutterInputDevice *device)
+{
+  MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  int device_id = clutter_input_device_get_device_id (device);
+  XDevice *xdev = NULL;
+
+  xdev = g_object_get_data (G_OBJECT (device), "meta-input-settings-xdevice");
+  if (xdev)
+    return xdev;
+
+  meta_error_trap_push (display);
+  xdev = XOpenDevice (xdisplay, device_id);
+  meta_error_trap_pop (display);
+
+  if (xdev)
+    {
+      g_object_set_data_full (G_OBJECT (device),
+                              "meta-input-settings-xdevice",
+                              xdev, device_free_xdevice);
+    }
+
+  return xdev;
+}
 
 static void *
 get_property (ClutterInputDevice *device,
@@ -188,9 +229,35 @@ meta_input_settings_x11_set_left_handed (MetaInputSettings  *settings,
                                          ClutterInputDevice *device,
                                          gboolean            enabled)
 {
+  ClutterInputDeviceType device_type;
+  guchar value;
+
+  device_type = clutter_input_device_get_device_type (device);
+
+  if (device_type == CLUTTER_TABLET_DEVICE ||
+      device_type == CLUTTER_PEN_DEVICE ||
+      device_type == CLUTTER_ERASER_DEVICE)
+    {
+      value = enabled ? 3 : 0;
+      change_property (device, "Wacom Rotation",
+                       XA_INTEGER, 8, &value, 1);
+    }
+  else
+    {
+      value = enabled ? 1 : 0;
+      change_property (device, "libinput Left Handed Enabled",
+                       XA_INTEGER, 8, &value, 1);
+    }
+}
+
+static void
+meta_input_settings_x11_set_disable_while_typing (MetaInputSettings  *settings,
+                                                  ClutterInputDevice *device,
+                                                  gboolean            enabled)
+{
   guchar value = (enabled) ? 1 : 0;
 
-  change_property (device, "libinput Left Handed Enabled",
+  change_property (device, "libinput Disable While Typing Enabled",
                    XA_INTEGER, 8, &value, 1);
 }
 
@@ -202,6 +269,17 @@ meta_input_settings_x11_set_tap_enabled (MetaInputSettings  *settings,
   guchar value = (enabled) ? 1 : 0;
 
   change_property (device, "libinput Tapping Enabled",
+                   XA_INTEGER, 8, &value, 1);
+}
+
+static void
+meta_input_settings_x11_set_tap_and_drag_enabled (MetaInputSettings  *settings,
+                                                  ClutterInputDevice *device,
+                                                  gboolean            enabled)
+{
+  guchar value = (enabled) ? 1 : 0;
+
+  change_property (device, "libinput Tapping Drag Enabled",
                    XA_INTEGER, 8, &value, 1);
 }
 
@@ -499,14 +577,91 @@ meta_input_settings_x11_set_tablet_mapping (MetaInputSettings     *settings,
                                             ClutterInputDevice    *device,
                                             GDesktopTabletMapping  mapping)
 {
+  MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  XDevice *xdev;
+
+  if (!display)
+    return;
+
+  /* Grab the puke bucket! */
+  meta_error_trap_push (display);
+  xdev = device_ensure_xdevice (device);
+  if (xdev)
+    {
+      XSetDeviceMode (xdisplay, xdev,
+                      mapping == G_DESKTOP_TABLET_MAPPING_ABSOLUTE ?
+                      Absolute : Relative);
+    }
+
+  if (meta_error_trap_pop_with_return (display))
+    {
+      g_warning ("Could not set tablet mapping for %s",
+                 clutter_input_device_get_device_name (device));
+    }
+  else
+    {
+      ClutterInputDeviceMapping dev_mapping;
+
+      dev_mapping = (mapping == G_DESKTOP_TABLET_MAPPING_ABSOLUTE) ?
+        CLUTTER_INPUT_DEVICE_MAPPING_ABSOLUTE :
+        CLUTTER_INPUT_DEVICE_MAPPING_RELATIVE;
+      clutter_input_device_set_mapping_mode (device, dev_mapping);
+    }
+}
+
+static gboolean
+device_query_area (ClutterInputDevice *device,
+                   gint               *x,
+                   gint               *y,
+                   gint               *width,
+                   gint               *height)
+{
+  MetaBackend *backend = meta_get_backend ();
+  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  gint device_id, n_devices, i;
+  XIDeviceInfo *info;
+  Atom abs_x, abs_y;
+
+  *width = *height = 0;
+  device_id = clutter_input_device_get_device_id (device);
+  info = XIQueryDevice (xdisplay, device_id, &n_devices);
+  if (n_devices <= 0 || !info)
+    return FALSE;
+
+  abs_x = XInternAtom (xdisplay, "Abs X", True);
+  abs_y = XInternAtom (xdisplay, "Abs Y", True);
+
+  for (i = 0; i < info->num_classes; i++)
+    {
+      XIValuatorClassInfo *valuator = (XIValuatorClassInfo *) info->classes[i];
+
+      if (valuator->type != XIValuatorClass)
+        continue;
+      if (valuator->label == abs_x)
+        {
+          *x = valuator->min;
+          *width = valuator->max - valuator->min;
+        }
+      else if (valuator->label == abs_y)
+        {
+          *y = valuator->min;
+          *height = valuator->max - valuator->min;
+        }
+    }
+
+  XIFreeDeviceInfo (info);
+  return TRUE;
 }
 
 static void
-meta_input_settings_x11_set_tablet_keep_aspect (MetaInputSettings  *settings,
-                                                ClutterInputDevice *device,
-                                                MetaOutput         *output,
-                                                gboolean            keep_aspect)
+update_tablet_area (MetaInputSettings  *settings,
+                    ClutterInputDevice *device,
+                    gint32             *area)
 {
+  change_property (device, "Wacom Tablet Area",
+                   XA_INTEGER, 32, area, 4);
 }
 
 static void
@@ -517,6 +672,63 @@ meta_input_settings_x11_set_tablet_area (MetaInputSettings  *settings,
                                          gdouble             padding_top,
                                          gdouble             padding_bottom)
 {
+  gint32 x, y, width, height, area[4] = { 0 };
+
+  if (!device_query_area (device, &x, &y, &width, &height))
+    return;
+
+  area[0] = (width * padding_left) + x;
+  area[1] = (height * padding_top) + y;
+  area[2] = width - (width * padding_right) + x;
+  area[3] = height - (height * padding_bottom) + y;
+  update_tablet_area (settings, device, area);
+}
+
+static void
+meta_input_settings_x11_set_tablet_keep_aspect (MetaInputSettings  *settings,
+                                                ClutterInputDevice *device,
+                                                MetaLogicalMonitor *logical_monitor,
+                                                gboolean            keep_aspect)
+{
+  gint32 width, height, dev_x, dev_y, dev_width, dev_height, area[4] = { 0 };
+
+  if (!device_query_area (device, &dev_x, &dev_y, &dev_width, &dev_height))
+    return;
+
+  if (keep_aspect)
+    {
+      double aspect_ratio, dev_aspect;
+
+      if (logical_monitor)
+        {
+          width = logical_monitor->rect.width;
+          height = logical_monitor->rect.height;
+        }
+      else
+        {
+          MetaMonitorManager *monitor_manager;
+          MetaBackend *backend;
+
+          backend = meta_get_backend ();
+          monitor_manager = meta_backend_get_monitor_manager (backend);
+          meta_monitor_manager_get_screen_size (monitor_manager,
+                                                &width, &height);
+        }
+
+      aspect_ratio = (double) width / height;
+      dev_aspect = (double) dev_width / dev_height;
+
+      if (dev_aspect > aspect_ratio)
+        dev_width = dev_height * aspect_ratio;
+      else if (dev_aspect < aspect_ratio)
+        dev_height = dev_width / aspect_ratio;
+    }
+
+  area[0] = dev_x;
+  area[1] = dev_y;
+  area[2] = dev_width + dev_x;
+  area[3] = dev_height + dev_y;
+  update_tablet_area (settings, device, area);
 }
 
 static void
@@ -533,6 +745,80 @@ meta_input_settings_x11_dispose (GObject *object)
   G_OBJECT_CLASS (meta_input_settings_x11_parent_class)->dispose (object);
 }
 
+static guint
+action_to_button (GDesktopStylusButtonAction action,
+                  guint                      button)
+{
+  switch (action)
+    {
+    case G_DESKTOP_STYLUS_BUTTON_ACTION_MIDDLE:
+      return CLUTTER_BUTTON_MIDDLE;
+    case G_DESKTOP_STYLUS_BUTTON_ACTION_RIGHT:
+      return CLUTTER_BUTTON_SECONDARY;
+    case G_DESKTOP_STYLUS_BUTTON_ACTION_BACK:
+      return 8;
+    case G_DESKTOP_STYLUS_BUTTON_ACTION_FORWARD:
+      return 9;
+    case G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT:
+    default:
+      return button;
+    }
+}
+
+static void
+meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *settings,
+                                               ClutterInputDevice         *device,
+                                               ClutterInputDeviceTool     *tool,
+                                               GDesktopStylusButtonAction  primary,
+                                               GDesktopStylusButtonAction  secondary,
+                                               GDesktopStylusButtonAction  tertiary)
+{
+  MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  XDevice *xdev;
+
+  if (!display)
+    return;
+
+  /* Grab the puke bucket! */
+  meta_error_trap_push (display);
+  xdev = device_ensure_xdevice (device);
+  if (xdev)
+    {
+      guchar map[8] = {
+        CLUTTER_BUTTON_PRIMARY,
+        action_to_button (primary, CLUTTER_BUTTON_MIDDLE),
+        action_to_button (secondary, CLUTTER_BUTTON_SECONDARY),
+        4,
+        5,
+        6,
+        7,
+        action_to_button (tertiary, 8), /* "Back" */
+      };
+
+      XSetDeviceButtonMapping (xdisplay, xdev, map, G_N_ELEMENTS (map));
+    }
+
+  if (meta_error_trap_pop_with_return (display))
+    {
+      g_warning ("Could not set stylus button map for %s",
+                 clutter_input_device_get_device_name (device));
+    }
+}
+
+static void
+meta_input_settings_x11_set_stylus_pressure (MetaInputSettings      *settings,
+                                             ClutterInputDevice     *device,
+                                             ClutterInputDeviceTool *tool,
+                                             const gint32            pressure[4])
+{
+  guint32 values[4] = { pressure[0], pressure[1], pressure[2], pressure[3] };
+
+  change_property (device, "Wacom Pressurecurve", XA_INTEGER, 32,
+                   &values, G_N_ELEMENTS (values));
+}
+
 static void
 meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
 {
@@ -546,6 +832,8 @@ meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
   input_settings_class->set_speed = meta_input_settings_x11_set_speed;
   input_settings_class->set_left_handed = meta_input_settings_x11_set_left_handed;
   input_settings_class->set_tap_enabled = meta_input_settings_x11_set_tap_enabled;
+  input_settings_class->set_tap_and_drag_enabled = meta_input_settings_x11_set_tap_and_drag_enabled;
+  input_settings_class->set_disable_while_typing = meta_input_settings_x11_set_disable_while_typing;
   input_settings_class->set_invert_scroll = meta_input_settings_x11_set_invert_scroll;
   input_settings_class->set_edge_scroll = meta_input_settings_x11_set_edge_scroll;
   input_settings_class->set_two_finger_scroll = meta_input_settings_x11_set_two_finger_scroll;
@@ -559,6 +847,9 @@ meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
 
   input_settings_class->set_mouse_accel_profile = meta_input_settings_x11_set_mouse_accel_profile;
   input_settings_class->set_trackball_accel_profile = meta_input_settings_x11_set_trackball_accel_profile;
+
+  input_settings_class->set_stylus_pressure = meta_input_settings_x11_set_stylus_pressure;
+  input_settings_class->set_stylus_button_map = meta_input_settings_x11_set_stylus_button_map;
 
   input_settings_class->has_two_finger_scroll = meta_input_settings_x11_has_two_finger_scroll;
 }

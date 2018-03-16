@@ -71,7 +71,7 @@ struct _MetaWaylandPointer
   GHashTable *pointer_clients;
 
   MetaWaylandSurface *focus_surface;
-  struct wl_listener focus_surface_listener;
+  gulong focus_surface_destroyed_handler_id;
   guint32 focus_serial;
   guint32 click_serial;
 
@@ -87,6 +87,7 @@ struct _MetaWaylandPointer
 
   ClutterInputDevice *device;
   MetaWaylandSurface *current;
+  gulong current_surface_destroyed_handler_id;
 
   guint32 button_count;
 };

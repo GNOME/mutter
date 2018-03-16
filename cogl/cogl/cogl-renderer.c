@@ -285,6 +285,17 @@ cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
 
   renderer->xlib_want_reset_on_video_memory_purge = enable;
 }
+
+void
+cogl_xlib_renderer_set_threaded_swap_wait_enabled (CoglRenderer *renderer,
+						   CoglBool enable)
+{
+  _COGL_RETURN_IF_FAIL (cogl_is_renderer (renderer));
+  /* NB: Renderers are considered immutable once connected */
+  _COGL_RETURN_IF_FAIL (!renderer->connected);
+
+  renderer->xlib_enable_threaded_swap_wait = enable;
+}
 #endif /* COGL_HAS_XLIB_SUPPORT */
 
 CoglBool
@@ -554,9 +565,11 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
 /* Final connection API */
 
 void
-cogl_renderer_set_custom_winsys (CoglRenderer          *renderer,
-                                 CoglWinsysVtableGetter winsys_vtable_getter)
+cogl_renderer_set_custom_winsys (CoglRenderer                *renderer,
+                                 CoglCustomWinsysVtableGetter winsys_vtable_getter,
+                                 void                        *user_data)
 {
+  renderer->custom_winsys_user_data = user_data;
   renderer->custom_winsys_vtable_getter = winsys_vtable_getter;
 }
 
@@ -564,10 +577,11 @@ static CoglBool
 connect_custom_winsys (CoglRenderer *renderer,
                        CoglError   **error)
 {
-  const CoglWinsysVtable *winsys = renderer->custom_winsys_vtable_getter();
+  const CoglWinsysVtable *winsys;
   CoglError *tmp_error = NULL;
   GString *error_message;
 
+  winsys = renderer->custom_winsys_vtable_getter (renderer);
   renderer->winsys_vtable = winsys;
 
   error_message = g_string_new ("");

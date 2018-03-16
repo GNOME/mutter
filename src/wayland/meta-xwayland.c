@@ -33,6 +33,7 @@
 #include <sys/un.h>
 
 #include "compositor/meta-surface-actor-wayland.h"
+#include "wayland/meta-wayland-actor-surface.h"
 
 enum {
   XWAYLAND_SURFACE_WINDOW_ASSOCIATED,
@@ -46,16 +47,16 @@ guint xwayland_surface_signals[XWAYLAND_SURFACE_LAST_SIGNAL];
 G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleXWayland,
                       meta_wayland_surface_role_xwayland,
                       META, WAYLAND_SURFACE_ROLE_XWAYLAND,
-                      MetaWaylandSurfaceRole);
+                      MetaWaylandActorSurface)
 
 struct _MetaWaylandSurfaceRoleXWayland
 {
-  MetaWaylandSurfaceRole parent;
+  MetaWaylandActorSurface parent;
 };
 
 G_DEFINE_TYPE (MetaWaylandSurfaceRoleXWayland,
                meta_wayland_surface_role_xwayland,
-               META_TYPE_WAYLAND_SURFACE_ROLE);
+               META_TYPE_WAYLAND_ACTOR_SURFACE)
 
 static void
 associate_window_with_surface (MetaWindow         *window,
@@ -224,6 +225,7 @@ try_display (int    display,
       close (fd);
       fd = -1;
 
+      pid[10] = '\0';
       other = strtol (pid, &end, 0);
       if (end != pid + 10)
         {
@@ -277,7 +279,7 @@ create_lock_file (int display, int *display_out)
   char *filename;
   int fd;
 
-  char pid[11];
+  char pid[12];
   int size;
   int number_of_tries = 0;
 
@@ -293,8 +295,10 @@ create_lock_file (int display, int *display_out)
     }
 
   /* Subtle detail: we use the pid of the wayland compositor, not the xserver
-   * in the lock file. */
-  size = snprintf (pid, 11, "%10d\n", getpid ());
+   * in the lock file. Another subtlety: snprintf returns the number of bytes
+   * it _would've_ written without either the NUL or the size clamping, hence
+   * the disparity in size. */
+  size = snprintf (pid, 12, "%10d\n", getpid ());
   if (size != 11 || write (fd, pid, 11) != 11)
     {
       unlink (filename);
@@ -389,8 +393,15 @@ xserver_died (GObject      *source,
               gpointer      user_data)
 {
   GSubprocess *proc = G_SUBPROCESS (source);
+  GError *error = NULL;
 
-  if (!g_subprocess_get_successful (proc))
+  if (!g_subprocess_wait_finish (proc, result, &error))
+    {
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        g_error ("Failed to finish waiting for Xwayland: %s", error->message);
+      g_clear_error (&error);
+    }
+  else if (!g_subprocess_get_successful (proc))
     g_error ("X Wayland crashed; aborting");
   else
     {
@@ -455,7 +466,8 @@ choose_xdisplay (MetaXWaylandManager *manager)
         {
           unlink (lock_file);
           close (manager->abstract_fd);
-          return FALSE;
+          display++;
+          continue;
         }
 
       break;
@@ -505,7 +517,6 @@ meta_xwayland_start (MetaXWaylandManager *manager,
   gboolean started = FALSE;
   g_autoptr(GSubprocessLauncher) launcher = NULL;
   GSubprocessFlags flags;
-  GSubprocess *proc;
   GError *error = NULL;
 
   if (!choose_xdisplay (manager))
@@ -542,20 +553,32 @@ meta_xwayland_start (MetaXWaylandManager *manager,
   g_subprocess_launcher_take_fd (launcher, displayfd[1], 6);
 
   g_subprocess_launcher_setenv (launcher, "WAYLAND_SOCKET", "3", TRUE);
-  proc = g_subprocess_launcher_spawn (launcher, &error,
-                                      XWAYLAND_PATH, manager->display_name,
-                                      "-rootless", "-noreset",
-                                      "-listen", "4",
-                                      "-listen", "5",
-                                      "-displayfd", "6",
-                                      NULL);
-  if (!proc)
+
+  /* Use the -terminate parameter to ensure that Xwayland exits cleanly
+   * after the last client disconnects. Fortunately that includes the window
+   * manager so it won't exit prematurely either. This ensures that Xwayland
+   * won't try to reconnect and crash, leaving uninteresting core dumps. We do
+   * want core dumps from Xwayland but only if a real bug occurs...
+   */
+  manager->proc = g_subprocess_launcher_spawn (launcher, &error,
+                                               XWAYLAND_PATH, manager->display_name,
+                                               "-rootless",
+                                               "-terminate",
+                                               "-accessx",
+                                               "-core",
+                                               "-listen", "4",
+                                               "-listen", "5",
+                                               "-displayfd", "6",
+                                               NULL);
+  if (!manager->proc)
     {
       g_error ("Failed to spawn Xwayland: %s", error->message);
       goto out;
     }
 
-  g_subprocess_wait_async  (proc, NULL, xserver_died, NULL);
+  manager->xserver_died_cancellable = g_cancellable_new ();
+  g_subprocess_wait_async (manager->proc, manager->xserver_died_cancellable,
+                           xserver_died, NULL);
   g_unix_fd_add (displayfd[0], G_IO_IN, on_displayfd_ready, manager);
   manager->client = wl_client_create (wl_display, xwayland_client_fd[0]);
 
@@ -595,7 +618,10 @@ meta_xwayland_stop (MetaXWaylandManager *manager)
 {
   char path[256];
 
+  g_cancellable_cancel (manager->xserver_died_cancellable);
   meta_xwayland_shutdown_selection ();
+  g_clear_object (&manager->proc);
+  g_clear_object (&manager->xserver_died_cancellable);
 
   snprintf (path, sizeof path, "/tmp/.X11-unix/X%d", manager->display_index);
   unlink (path);
@@ -613,6 +639,8 @@ xwayland_surface_assigned (MetaWaylandSurfaceRole *surface_role)
 {
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandSurfaceRoleClass *surface_role_class =
+    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_surface_role_xwayland_parent_class);
 
   /* See comment in xwayland_surface_commit for why we reply even though the
    * surface may not be drawn the next frame.
@@ -620,6 +648,8 @@ xwayland_surface_assigned (MetaWaylandSurfaceRole *surface_role)
   wl_list_insert_list (&surface->compositor->frame_callbacks,
                        &surface->pending_frame_callback_list);
   wl_list_init (&surface->pending_frame_callback_list);
+
+  surface_role_class->assigned (surface_role);
 }
 
 static void
@@ -628,6 +658,8 @@ xwayland_surface_commit (MetaWaylandSurfaceRole  *surface_role,
 {
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandSurfaceRoleClass *surface_role_class =
+    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_surface_role_xwayland_parent_class);
 
   /* For Xwayland windows, throttling frames when the window isn't actually
    * drawn is less useful, because Xwayland still has to do the drawing sent
@@ -641,6 +673,8 @@ xwayland_surface_commit (MetaWaylandSurfaceRole  *surface_role,
    * user the initial black frame from when the window is mapped empty.
    */
   meta_wayland_surface_queue_pending_state_frame_callbacks (surface, pending);
+
+  surface_role_class->commit (surface_role, pending);
 }
 
 static MetaWaylandSurface *

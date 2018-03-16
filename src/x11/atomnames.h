@@ -63,6 +63,7 @@ item(_GTK_APP_MENU_OBJECT_PATH)
 item(_GTK_MENUBAR_OBJECT_PATH)
 item(_GTK_FRAME_EXTENTS)
 item(_GTK_SHOW_WINDOW_MENU)
+item(_GTK_EDGE_CONSTRAINTS)
 item(_GNOME_WM_KEYBINDINGS)
 item(_GNOME_PANEL_ACTION)
 item(_GNOME_PANEL_ACTION_MAIN_MENU)
@@ -80,6 +81,7 @@ item(VERSION)
 item(ATOM_PAIR)
 item(_XKB_RULES_NAMES)
 item(WL_SURFACE_ID)
+item(_XWAYLAND_MAY_GRAB_KEYBOARD)
 
 /* Oddities: These are used, and we need atoms for them,
  * but when we need all _NET_WM hints (i.e. when we're making
@@ -176,6 +178,7 @@ item(_NET_WM_OPAQUE_REGION)
 item(_NET_WM_FRAME_DRAWN)
 item(_NET_WM_FRAME_TIMINGS)
 item(_NET_WM_WINDOW_OPACITY)
+item(_NET_RESTACK_WINDOW)
 
 /* eof atomnames.h */
 

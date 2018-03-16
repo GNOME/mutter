@@ -110,8 +110,8 @@ clean-wrappers:
 .PHONY: wrappers clean-wrappers
 
 common_ldadd = \
-  $(top_builddir)/clutter/libmutter-clutter-@CLUTTER_API_VERSION@.la \
-  $(top_builddir)/../cogl/cogl/libmutter-cogl.la
+  $(top_builddir)/clutter/libmutter-clutter-@LIBMUTTER_API_VERSION@.la \
+  $(top_builddir)/../cogl/cogl/libmutter-cogl-@LIBMUTTER_API_VERSION@.la
 
 check_PROGRAMS = test-interactive
 check_SCRIPTS = wrappers
@@ -127,6 +127,7 @@ test_interactive_CPPFLAGS = \
 	-DCLUTTER_DISABLE_DEPRECATION_WARNINGS \
 	-I$(top_srcdir)/../cogl                 \
 	-I$(top_builddir)/../cogl               \
+	-I$(top_builddir)/../cogl/cogl          \
 	-I$(top_srcdir)	\
 	-I$(top_builddir) \
 	-I$(top_srcdir)/clutter \

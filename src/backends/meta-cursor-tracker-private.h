@@ -30,10 +30,9 @@
 struct _MetaCursorTracker {
   GObject parent_instance;
 
-  MetaCursorRenderer *renderer;
-
   gboolean is_showing;
 
+  MetaCursorSprite *effective_cursor; /* May be NULL when hidden */
   MetaCursorSprite *displayed_cursor;
 
   /* Wayland clients can set a NULL buffer as their cursor
@@ -64,8 +63,8 @@ void     meta_cursor_tracker_set_root_cursor     (MetaCursorTracker *tracker,
                                                   MetaCursorSprite  *cursor_sprite);
 
 void     meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
-					      int                new_x,
-					      int                new_y);
+                                              float              new_x,
+                                              float              new_y);
 
 MetaCursorSprite * meta_cursor_tracker_get_displayed_cursor (MetaCursorTracker *tracker);
 

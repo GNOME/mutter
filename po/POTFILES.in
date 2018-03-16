@@ -2,6 +2,7 @@
 # Please keep this file sorted alphabetically.
 data/50-mutter-navigation.xml
 data/50-mutter-system.xml
+data/50-mutter-wayland.xml
 data/50-mutter-windows.xml
 data/mutter.desktop.in
 data/org.gnome.mutter.gschema.xml.in
@@ -12,11 +13,11 @@ src/compositor/compositor.c
 src/compositor/meta-background.c
 src/core/bell.c
 src/core/core.c
-src/core/delete.c
 src/core/display.c
 src/core/errors.c
 src/core/keybindings.c
 src/core/main.c
+src/core/meta-close-dialog-default.c
 src/core/mutter.c
 src/core/prefs.c
 src/core/screen.c

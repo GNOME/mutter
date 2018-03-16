@@ -225,6 +225,8 @@ meta_wayland_seat_new (MetaWaylandCompositor *compositor,
                               "seat", seat,
                               NULL);
 
+  seat->text_input = meta_wayland_text_input_new (seat);
+
   meta_wayland_data_device_init (&seat->data_device);
 
   device_manager = clutter_device_manager_get_default ();
@@ -260,8 +262,21 @@ meta_wayland_seat_free (MetaWaylandSeat *seat)
   g_object_unref (seat->pointer);
   g_object_unref (seat->keyboard);
   g_object_unref (seat->touch);
+  meta_wayland_text_input_destroy (seat->text_input);
 
   g_slice_free (MetaWaylandSeat, seat);
+}
+
+static gboolean
+event_is_synthesized_crossing (const ClutterEvent *event)
+{
+  ClutterInputDevice *device;
+
+  if (event->type != CLUTTER_ENTER && event->type != CLUTTER_LEAVE)
+    return FALSE;
+
+  device = clutter_event_get_source_device (event);
+  return clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER;
 }
 
 static gboolean
@@ -310,7 +325,8 @@ void
 meta_wayland_seat_update (MetaWaylandSeat    *seat,
                           const ClutterEvent *event)
 {
-  if (!event_from_supported_hardware_device (seat, event))
+  if (!event_from_supported_hardware_device (seat, event) &&
+      !event_is_synthesized_crossing (event))
     return;
 
   switch (event->type)
@@ -319,6 +335,8 @@ meta_wayland_seat_update (MetaWaylandSeat    *seat,
     case CLUTTER_BUTTON_PRESS:
     case CLUTTER_BUTTON_RELEASE:
     case CLUTTER_SCROLL:
+    case CLUTTER_ENTER:
+    case CLUTTER_LEAVE:
       if (meta_wayland_seat_has_pointer (seat))
         meta_wayland_pointer_update (seat->pointer, event);
       break;
@@ -359,17 +377,23 @@ meta_wayland_seat_handle_event (MetaWaylandSeat *seat,
       if (meta_wayland_seat_has_pointer (seat))
         return meta_wayland_pointer_handle_event (seat->pointer, event);
 
+      break;
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:
+      if (meta_wayland_text_input_handle_event (seat->text_input, event))
+        return TRUE;
+
       if (meta_wayland_seat_has_keyboard (seat))
         return meta_wayland_keyboard_handle_event (seat->keyboard,
                                                    (const ClutterKeyEvent *) event);
+      break;
     case CLUTTER_TOUCH_BEGIN:
     case CLUTTER_TOUCH_UPDATE:
     case CLUTTER_TOUCH_END:
       if (meta_wayland_seat_has_touch (seat))
         return meta_wayland_touch_handle_event (seat->touch, event);
 
+      break;
     default:
       break;
     }
@@ -401,6 +425,8 @@ meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
 
   tablet_seat = meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
   meta_wayland_tablet_seat_set_pad_focus (tablet_seat, surface);
+
+  meta_wayland_text_input_set_focus (seat->text_input, surface);
 }
 
 gboolean
@@ -411,36 +437,58 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat    *seat,
                                  gfloat             *x,
                                  gfloat             *y)
 {
-  ClutterEventSequence *sequence = NULL;
-  gboolean can_grab_surface = FALSE;
+  MetaWaylandCompositor *compositor;
+  MetaWaylandTabletSeat *tablet_seat;
+  GList *tools, *l;
+
+  compositor = meta_wayland_compositor_get_default ();
+  tablet_seat = meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
+  tools = g_hash_table_get_values (tablet_seat->tools);
 
   if (meta_wayland_seat_has_touch (seat))
-    sequence = meta_wayland_touch_find_grab_sequence (seat->touch,
-                                                      surface,
-                                                      serial);
-
-  if (sequence)
     {
-      meta_wayland_touch_get_press_coords (seat->touch, sequence, x, y);
+      ClutterEventSequence *sequence;
+      sequence = meta_wayland_touch_find_grab_sequence (seat->touch,
+                                                        surface,
+                                                        serial);
+      if (sequence)
+        {
+          meta_wayland_touch_get_press_coords (seat->touch, sequence, x, y);
+          return TRUE;
+        }
     }
-  else
-    {
-      if (meta_wayland_seat_has_pointer (seat) &&
-          (!require_pressed || seat->pointer->button_count > 0))
-        can_grab_surface = meta_wayland_pointer_can_grab_surface (seat->pointer,
-                                                                  surface,
-                                                                  serial);
 
-      if (can_grab_surface)
+  if (meta_wayland_seat_has_pointer (seat))
+    {
+      if ((!require_pressed || seat->pointer->button_count > 0) &&
+          meta_wayland_pointer_can_grab_surface (seat->pointer, surface, serial))
         {
           if (x)
             *x = seat->pointer->grab_x;
           if (y)
             *y = seat->pointer->grab_y;
+
+          return TRUE;
         }
     }
 
-  return sequence || can_grab_surface;
+  for (l = tools; l; l = l->next)
+    {
+      MetaWaylandTabletTool *tool = l->data;
+
+      if ((!require_pressed || tool->button_count > 0) &&
+          meta_wayland_tablet_tool_can_grab_surface (tool, surface, serial))
+        {
+          if (x)
+            *x = tool->grab_x;
+          if (y)
+            *y = tool->grab_y;
+
+          return TRUE;
+        }
+    }
+
+  return FALSE;
 }
 
 gboolean

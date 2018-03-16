@@ -58,6 +58,8 @@ struct _ClutterBackend
   gint32 units_serial;
 
   GList *event_translators;
+
+  ClutterInputMethod *input_method;
 };
 
 struct _ClutterBackendClass
@@ -99,6 +101,8 @@ struct _ClutterBackendClass
                                                 ClutterEvent       *event);
 
   PangoDirection        (* get_keymap_direction) (ClutterBackend   *backend);
+
+  void                  (* bell_notify)          (ClutterBackend   *backend);
 
   /* signals */
   void (* resolution_changed) (ClutterBackend *backend);

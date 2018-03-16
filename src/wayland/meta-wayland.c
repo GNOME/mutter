@@ -39,10 +39,16 @@
 #include "meta-wayland-seat.h"
 #include "meta-wayland-outputs.h"
 #include "meta-wayland-data-device.h"
+#include "meta-wayland-subsurface.h"
 #include "meta-wayland-tablet-manager.h"
 #include "meta-wayland-xdg-foreign.h"
+#include "meta-wayland-dma-buf.h"
+#include "meta-wayland-inhibit-shortcuts.h"
+#include "meta-wayland-inhibit-shortcuts-dialog.h"
+#include "meta-xwayland-grab-keyboard.h"
 
 static MetaWaylandCompositor _meta_wayland_compositor;
+static char *_display_name_override;
 
 MetaWaylandCompositor *
 meta_wayland_compositor_get_default (void)
@@ -57,7 +63,8 @@ typedef struct
 } WaylandEventSource;
 
 static gboolean
-wayland_event_source_prepare (GSource *base, int *timeout)
+wayland_event_source_prepare (GSource *base,
+                              int     *timeout)
 {
   WaylandEventSource *source = (WaylandEventSource *)base;
 
@@ -69,9 +76,9 @@ wayland_event_source_prepare (GSource *base, int *timeout)
 }
 
 static gboolean
-wayland_event_source_dispatch (GSource *base,
+wayland_event_source_dispatch (GSource    *base,
                                GSourceFunc callback,
-                               void *data)
+                               void       *data)
 {
   WaylandEventSource *source = (WaylandEventSource *)base;
   struct wl_event_loop *loop = wl_display_get_event_loop (source->display);
@@ -121,20 +128,22 @@ meta_wayland_compositor_repick (MetaWaylandCompositor *compositor)
 }
 
 static void
-wl_compositor_create_surface (struct wl_client *client,
+wl_compositor_create_surface (struct wl_client   *client,
                               struct wl_resource *resource,
-                              guint32 id)
+                              uint32_t            id)
 {
   MetaWaylandCompositor *compositor = wl_resource_get_user_data (resource);
+
   meta_wayland_surface_create (compositor, client, resource, id);
 }
 
 static void
-wl_compositor_create_region (struct wl_client *client,
+wl_compositor_create_region (struct wl_client   *client,
                              struct wl_resource *resource,
-                             uint32_t id)
+                             uint32_t            id)
 {
   MetaWaylandCompositor *compositor = wl_resource_get_user_data (resource);
+
   meta_wayland_region_create (compositor, client, resource, id);
 }
 
@@ -145,15 +154,17 @@ static const struct wl_compositor_interface meta_wayland_wl_compositor_interface
 
 static void
 compositor_bind (struct wl_client *client,
-		 void *data,
-                 guint32 version,
-                 guint32 id)
+                 void             *data,
+                 uint32_t          version,
+                 uint32_t          id)
 {
   MetaWaylandCompositor *compositor = data;
   struct wl_resource *resource;
 
   resource = wl_resource_create (client, &wl_compositor_interface, version, id);
-  wl_resource_set_implementation (resource, &meta_wayland_wl_compositor_interface, compositor, NULL);
+  wl_resource_set_implementation (resource,
+                                  &meta_wayland_wl_compositor_interface,
+                                  compositor, NULL);
 }
 
 /**
@@ -178,12 +189,14 @@ meta_wayland_compositor_update (MetaWaylandCompositor *compositor,
 void
 meta_wayland_compositor_paint_finished (MetaWaylandCompositor *compositor)
 {
+  gint64 current_time = g_get_monotonic_time ();
+
   while (!wl_list_empty (&compositor->frame_callbacks))
     {
       MetaWaylandFrameCallback *callback =
         wl_container_of (compositor->frame_callbacks.next, callback, link);
 
-      wl_callback_send_done (callback->resource, g_get_monotonic_time () / 1000);
+      wl_callback_send_done (callback->resource, current_time / 1000);
       wl_resource_destroy (callback->resource);
     }
 }
@@ -266,9 +279,13 @@ set_gnome_env (const char *name,
 			       -1, NULL, &error);
   if (error)
     {
-      if (g_strcmp0 (g_dbus_error_get_remote_error (error), "org.gnome.SessionManager.NotInInitialization") != 0)
+      char *remote_error;
+
+      remote_error = g_dbus_error_get_remote_error (error);
+      if (g_strcmp0 (remote_error, "org.gnome.SessionManager.NotInInitialization") != 0)
         meta_warning ("Failed to set environment variable %s for gnome-session: %s\n", name, error->message);
 
+      g_free (remote_error);
       g_error_free (error);
     }
 }
@@ -307,6 +324,30 @@ meta_wayland_pre_clutter_init (void)
   clutter_wayland_set_compositor_display (compositor->wayland_display);
 }
 
+static bool
+meta_xwayland_global_filter (const struct wl_client *client,
+                             const struct wl_global *global,
+                             void                   *data)
+{
+  MetaWaylandCompositor *compositor = (MetaWaylandCompositor *) data;
+  MetaXWaylandManager *xwayland_manager = &compositor->xwayland_manager;
+
+  /* Keyboard grabbing protocol is for Xwayland only */
+  if (client != xwayland_manager->client)
+    return (wl_global_get_interface (global) !=
+            &zwp_xwayland_keyboard_grab_manager_v1_interface);
+
+  /* All others are visible to all clients */
+  return true;
+}
+
+void
+meta_wayland_override_display_name (char *display_name)
+{
+  g_clear_pointer (&_display_name_override, g_free);
+  _display_name_override = g_strdup (display_name);
+}
+
 void
 meta_wayland_init (void)
 {
@@ -334,6 +375,7 @@ meta_wayland_init (void)
 
   meta_wayland_outputs_init (compositor);
   meta_wayland_data_device_manager_init (compositor);
+  meta_wayland_subsurfaces_init (compositor);
   meta_wayland_shell_init (compositor);
   meta_wayland_pointer_gestures_init (compositor);
   meta_wayland_tablet_manager_init (compositor);
@@ -341,13 +383,38 @@ meta_wayland_init (void)
   meta_wayland_relative_pointer_init (compositor);
   meta_wayland_pointer_constraints_init (compositor);
   meta_wayland_xdg_foreign_init (compositor);
+  meta_wayland_dma_buf_init (compositor);
+  meta_wayland_keyboard_shortcuts_inhibit_init (compositor);
+  meta_wayland_surface_inhibit_shortcuts_dialog_init ();
+  meta_wayland_text_input_init (compositor);
+
+  /* Xwayland specific protocol, needs to be filtered out for all other clients */
+  if (meta_xwayland_grab_keyboard_init (compositor))
+    wl_display_set_global_filter (compositor->wayland_display,
+                                  meta_xwayland_global_filter,
+                                  compositor);
 
   if (!meta_xwayland_start (&compositor->xwayland_manager, compositor->wayland_display))
     g_error ("Failed to start X Wayland");
 
-  compositor->display_name = wl_display_add_socket_auto (compositor->wayland_display);
-  if (compositor->display_name == NULL)
-    g_error ("Failed to create socket");
+  if (_display_name_override)
+    {
+      compositor->display_name = g_steal_pointer (&_display_name_override);
+
+      if (wl_display_add_socket (compositor->wayland_display,
+                                 compositor->display_name) != 0)
+        g_error ("Failed to create_socket");
+    }
+  else
+    {
+      const char *display_name;
+
+      display_name = wl_display_add_socket_auto (compositor->wayland_display);
+      if (!display_name)
+        g_error ("Failed to create socket");
+
+      compositor->display_name = g_strdup (display_name);
+    }
 
   set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
   set_gnome_env ("WAYLAND_DISPLAY", meta_wayland_get_wayland_display_name (compositor));
@@ -373,4 +440,45 @@ meta_wayland_finalize (void)
   compositor = meta_wayland_compositor_get_default ();
 
   meta_xwayland_stop (&compositor->xwayland_manager);
+  g_clear_pointer (&compositor->display_name, g_free);
+}
+
+void
+meta_wayland_compositor_restore_shortcuts (MetaWaylandCompositor *compositor,
+                                           ClutterInputDevice    *source)
+{
+  MetaWaylandKeyboard *keyboard;
+
+  /* Clutter is not multi-seat aware yet, use the default seat instead */
+  keyboard = compositor->seat->keyboard;
+  if (!keyboard || !keyboard->focus_surface)
+    return;
+
+  if (!meta_wayland_surface_is_shortcuts_inhibited (keyboard->focus_surface,
+                                                    compositor->seat))
+    return;
+
+  meta_wayland_surface_restore_shortcuts (keyboard->focus_surface,
+                                          compositor->seat);
+}
+
+gboolean
+meta_wayland_compositor_is_shortcuts_inhibited (MetaWaylandCompositor *compositor,
+                                                ClutterInputDevice    *source)
+{
+  MetaWaylandKeyboard *keyboard;
+
+  /* Clutter is not multi-seat aware yet, use the default seat instead */
+  keyboard = compositor->seat->keyboard;
+  if (keyboard && keyboard->focus_surface != NULL)
+    return meta_wayland_surface_is_shortcuts_inhibited (keyboard->focus_surface,
+                                                        compositor->seat);
+
+  return FALSE;
+}
+
+void
+meta_wayland_compositor_flush_clients (MetaWaylandCompositor *compositor)
+{
+  wl_display_flush_clients (compositor->wayland_display);
 }

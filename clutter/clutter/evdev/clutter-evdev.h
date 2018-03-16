@@ -57,6 +57,9 @@ void  clutter_evdev_set_device_callbacks (ClutterOpenDeviceCallback  open_callba
                                           ClutterCloseDeviceCallback close_callback,
                                           gpointer                   user_data);
 
+CLUTTER_AVAILABLE_IN_ALL
+void  clutter_evdev_set_seat_id (const gchar *seat_id);
+
 CLUTTER_AVAILABLE_IN_1_10
 void  clutter_evdev_release_devices (void);
 CLUTTER_AVAILABLE_IN_1_10
@@ -94,6 +97,18 @@ void  clutter_evdev_set_pointer_constrain_callback (ClutterDeviceManager        
 						    gpointer                         user_data,
 						    GDestroyNotify                   user_data_notify);
 
+typedef void (*ClutterRelativeMotionFilter) (ClutterInputDevice *device,
+                                             float               x,
+                                             float               y,
+                                             float              *dx,
+                                             float              *dy,
+                                             gpointer            user_data);
+
+CLUTTER_AVAILABLE_IN_MUTTER
+void clutter_evdev_set_relative_motion_filter (ClutterDeviceManager       *evdev,
+                                               ClutterRelativeMotionFilter filter,
+                                               gpointer                    user_data);
+
 CLUTTER_AVAILABLE_IN_1_16
 void               clutter_evdev_set_keyboard_map   (ClutterDeviceManager *evdev,
 						     struct xkb_keymap    *keymap);
@@ -104,6 +119,9 @@ struct xkb_keymap * clutter_evdev_get_keyboard_map (ClutterDeviceManager *evdev)
 CLUTTER_AVAILABLE_IN_1_20
 void clutter_evdev_set_keyboard_layout_index (ClutterDeviceManager *evdev,
                                               xkb_layout_index_t    idx);
+
+CLUTTER_AVAILABLE_IN_MUTTER
+xkb_layout_index_t clutter_evdev_get_keyboard_layout_index (ClutterDeviceManager *evdev);
 
 CLUTTER_AVAILABLE_IN_1_26
 void clutter_evdev_set_keyboard_numlock (ClutterDeviceManager *evdev,
@@ -149,6 +167,14 @@ gboolean clutter_evdev_event_get_relative_motion (const ClutterEvent *event,
                                                   double             *dy,
                                                   double             *dx_unaccel,
                                                   double             *dy_unaccel);
+
+CLUTTER_AVAILABLE_IN_ALL
+void clutter_evdev_input_device_tool_set_pressure_curve (ClutterInputDeviceTool *tool,
+                                                         gdouble                 curve[4]);
+CLUTTER_AVAILABLE_IN_ALL
+void clutter_evdev_input_device_tool_set_button_code    (ClutterInputDeviceTool *tool,
+                                                         guint                   button,
+                                                         guint                   evcode);
 
 G_END_DECLS
 

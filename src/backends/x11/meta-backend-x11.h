@@ -27,34 +27,34 @@
 
 #include "backends/meta-backend-private.h"
 
+#include <stdint.h>
 #include <X11/Xlib.h>
 
 #include "backends/x11/meta-clutter-backend-x11.h"
 
-#define META_TYPE_BACKEND_X11             (meta_backend_x11_get_type ())
-#define META_BACKEND_X11(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_BACKEND_X11, MetaBackendX11))
-#define META_BACKEND_X11_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_BACKEND_X11, MetaBackendX11Class))
-#define META_IS_BACKEND_X11(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_BACKEND_X11))
-#define META_IS_BACKEND_X11_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_BACKEND_X11))
-#define META_BACKEND_X11_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_BACKEND_X11, MetaBackendX11Class))
-
-typedef struct _MetaBackendX11        MetaBackendX11;
-typedef struct _MetaBackendX11Class   MetaBackendX11Class;
-
-struct _MetaBackendX11
-{
-  MetaBackend parent;
-};
+#define META_TYPE_BACKEND_X11 (meta_backend_x11_get_type ())
+G_DECLARE_DERIVABLE_TYPE (MetaBackendX11, meta_backend_x11,
+                          META, BACKEND_X11, MetaBackend)
 
 struct _MetaBackendX11Class
 {
   MetaBackendClass parent_class;
-};
 
-GType meta_backend_x11_get_type (void) G_GNUC_CONST;
+  gboolean (* handle_host_xevent) (MetaBackendX11 *x11,
+                                   XEvent         *event);
+  void (* translate_device_event) (MetaBackendX11 *x11,
+                                   XIDeviceEvent  *device_event);
+  void (* translate_crossing_event) (MetaBackendX11 *x11,
+                                     XIEnterEvent   *enter_event);
+};
 
 Display * meta_backend_x11_get_xdisplay (MetaBackendX11 *backend);
 
 Window meta_backend_x11_get_xwindow (MetaBackendX11 *backend);
+
+void meta_backend_x11_handle_event (MetaBackendX11 *x11,
+                                    XEvent         *xevent);
+
+uint8_t meta_backend_x11_get_xkb_event_base (MetaBackendX11 *x11);
 
 #endif /* META_BACKEND_X11_H */

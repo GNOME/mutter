@@ -45,6 +45,35 @@ typedef struct _ClutterDeviceManagerPrivate     ClutterDeviceManagerPrivate;
 typedef struct _ClutterDeviceManagerClass       ClutterDeviceManagerClass;
 
 /**
+ * ClutterVirtualDeviceType:
+ */
+typedef enum _ClutterVirtualDeviceType
+{
+  CLUTTER_VIRTUAL_DEVICE_TYPE_NONE = 0,
+  CLUTTER_VIRTUAL_DEVICE_TYPE_KEYBOARD = 1 << 0,
+  CLUTTER_VIRTUAL_DEVICE_TYPE_POINTER = 1 << 1,
+  CLUTTER_VIRTUAL_DEVICE_TYPE_TOUCHSCREEN = 1 << 2,
+} ClutterVirtualDeviceType;
+
+/**
+ * ClutterKbdA11ySettings:
+ *
+ * The #ClutterKbdA11ySettings structure contains keyboard accessibility
+ * settings
+ *
+ */
+typedef struct _ClutterKbdA11ySettings
+{
+  ClutterKeyboardA11yFlags controls;
+  gint slowkeys_delay;
+  gint debounce_delay;
+  gint timeout_delay;
+  gint mousekeys_init_delay;
+  gint mousekeys_max_speed;
+  gint mousekeys_accel_time;
+} ClutterKbdA11ySettings;
+
+/**
  * ClutterDeviceManager:
  *
  * The #ClutterDeviceManager structure contains only private data
@@ -83,12 +112,15 @@ struct _ClutterDeviceManagerClass
                                            ClutterInputDevice     *device);
   void                (* select_stage_events) (ClutterDeviceManager *manager,
                                                ClutterStage       *stage);
-  ClutterVirtualInputDevice *(* create_virtual_device) (ClutterDeviceManager  *manager,
+  ClutterVirtualInputDevice *(* create_virtual_device) (ClutterDeviceManager  *device_manager,
                                                         ClutterInputDeviceType device_type);
+  ClutterVirtualDeviceType (* get_supported_virtual_device_types) (ClutterDeviceManager *device_manager);
   void                (* compress_motion) (ClutterDeviceManager *device_manger,
                                            ClutterEvent         *event,
                                            const ClutterEvent   *to_discard);
-
+  /* Keyboard accessbility */
+  void                (* apply_kbd_a11y_settings) (ClutterDeviceManager   *device_manger,
+                                                   ClutterKbdA11ySettings *settings);
   /* padding */
   gpointer _padding[6];
 };
@@ -113,6 +145,16 @@ ClutterInputDevice *  clutter_device_manager_get_core_device (ClutterDeviceManag
 CLUTTER_AVAILABLE_IN_ALL
 ClutterVirtualInputDevice *clutter_device_manager_create_virtual_device (ClutterDeviceManager  *device_manager,
                                                                          ClutterInputDeviceType device_type);
+
+CLUTTER_AVAILABLE_IN_ALL
+ClutterVirtualDeviceType clutter_device_manager_get_supported_virtual_device_types (ClutterDeviceManager *device_manager);
+
+CLUTTER_AVAILABLE_IN_ALL
+void clutter_device_manager_set_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
+                                                   ClutterKbdA11ySettings *settings);
+CLUTTER_AVAILABLE_IN_ALL
+void clutter_device_manager_get_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
+                                                   ClutterKbdA11ySettings *settings);
 
 G_END_DECLS
 

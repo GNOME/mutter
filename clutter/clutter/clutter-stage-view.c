@@ -20,6 +20,7 @@
 #include "clutter/clutter-stage-view.h"
 
 #include <cairo-gobject.h>
+#include <math.h>
 
 enum
 {
@@ -28,6 +29,7 @@ enum
   PROP_LAYOUT,
   PROP_FRAMEBUFFER,
   PROP_OFFSCREEN,
+  PROP_SCALE,
 
   PROP_LAST
 };
@@ -37,6 +39,7 @@ static GParamSpec *obj_props[PROP_LAST];
 typedef struct _ClutterStageViewPrivate
 {
   cairo_rectangle_int_t layout;
+  float scale;
   CoglFramebuffer *framebuffer;
 
   CoglOffscreen *offscreen;
@@ -141,6 +144,15 @@ clutter_stage_view_blit_offscreen (ClutterStageView            *view,
   cogl_framebuffer_pop_matrix (priv->framebuffer);
 }
 
+float
+clutter_stage_view_get_scale (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  return priv->scale;
+}
+
 gboolean
 clutter_stage_view_is_dirty_viewport (ClutterStageView *view)
 {
@@ -180,15 +192,23 @@ clutter_stage_view_set_dirty_projection (ClutterStageView *view,
 }
 
 void
+clutter_stage_view_get_offscreen_transformation_matrix (ClutterStageView *view,
+                                                        CoglMatrix       *matrix)
+{
+  ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_GET_CLASS (view);
+
+  view_class->get_offscreen_transformation_matrix (view, matrix);
+}
+
+void
 clutter_stage_view_transform_to_onscreen (ClutterStageView *view,
                                           gfloat           *x,
                                           gfloat           *y)
 {
-  ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_GET_CLASS (view);
   gfloat z = 0, w = 1;
   CoglMatrix matrix;
 
-  view_class->get_offscreen_transformation_matrix (view, &matrix);
+  clutter_stage_view_get_offscreen_transformation_matrix (view, &matrix);
   cogl_matrix_get_inverse (&matrix, &matrix);
   cogl_matrix_transform_point (&matrix, x, y, &z, &w);
 }
@@ -221,6 +241,9 @@ clutter_stage_view_get_property (GObject    *object,
     case PROP_OFFSCREEN:
       g_value_set_boxed (value, priv->offscreen);
       break;
+    case PROP_SCALE:
+      g_value_set_float (value, priv->scale);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -245,9 +268,26 @@ clutter_stage_view_set_property (GObject      *object,
       break;
     case PROP_FRAMEBUFFER:
       priv->framebuffer = g_value_dup_boxed (value);
+#ifndef G_DISABLE_CHECKS
+      if (priv->framebuffer)
+        {
+          int fb_width, fb_height;
+
+          fb_width = cogl_framebuffer_get_width (priv->framebuffer);
+          fb_height = cogl_framebuffer_get_height (priv->framebuffer);
+
+          g_warn_if_fail (fabsf (roundf (fb_width / priv->scale) -
+                                 fb_width / priv->scale) < FLT_EPSILON);
+          g_warn_if_fail (fabsf (roundf (fb_height / priv->scale) -
+                                 fb_height / priv->scale) < FLT_EPSILON);
+        }
+#endif
       break;
     case PROP_OFFSCREEN:
       priv->offscreen = g_value_dup_boxed (value);
+      break;
+    case PROP_SCALE:
+      priv->scale = g_value_get_float (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -276,6 +316,7 @@ clutter_stage_view_init (ClutterStageView *view)
 
   priv->dirty_viewport = TRUE;
   priv->dirty_projection = TRUE;
+  priv->scale = 1.0;
 }
 
 static void
@@ -296,6 +337,7 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
                         "The view layout on the screen",
                         CAIRO_GOBJECT_TYPE_RECTANGLE_INT,
                         G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT |
                         G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_FRAMEBUFFER] =
@@ -304,6 +346,7 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
                         "The front buffer of the view",
                         COGL_TYPE_HANDLE,
                         G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT |
                         G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_OFFSCREEN] =
@@ -312,7 +355,16 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
                         "Framebuffer used as intermediate buffer",
                         COGL_TYPE_HANDLE,
                         G_PARAM_READWRITE |
-			G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_SCALE] =
+    g_param_spec_float ("scale",
+                        "View scale",
+                        "The view scale",
+                        0.5, G_MAXFLOAT, 1.0,
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT |
                         G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);

@@ -26,6 +26,9 @@
 
 #include "boxes-private.h"
 #include "place.h"
+#include "backends/meta-backend-private.h"
+#include "backends/meta-logical-monitor.h"
+#include <meta/meta-backend.h>
 #include <meta/workspace.h>
 #include <meta/prefs.h>
 #include <gdk/gdk.h>
@@ -79,6 +82,7 @@ find_next_cascade (MetaWindow *window,
                    int        *new_x,
                    int        *new_y)
 {
+  MetaBackend *backend = meta_get_backend ();
   GList *tmp;
   GList *sorted;
   int cascade_x, cascade_y;
@@ -88,7 +92,7 @@ find_next_cascade (MetaWindow *window,
   int window_width, window_height;
   int cascade_stage;
   MetaRectangle work_area;
-  int current;
+  MetaLogicalMonitor *current;
 
   sorted = g_list_copy (windows);
   sorted = g_list_sort (sorted, northwestcmp);
@@ -112,8 +116,8 @@ find_next_cascade (MetaWindow *window,
    * of NW corner of window frame.
    */
 
-  current = meta_screen_get_current_monitor (window->screen);
-  meta_window_get_work_area_for_monitor (window, current, &work_area);
+  current = meta_backend_get_current_logical_monitor (backend);
+  meta_window_get_work_area_for_logical_monitor (window, current, &work_area);
 
   cascade_x = MAX (0, work_area.x);
   cascade_y = MAX (0, work_area.y);
@@ -477,14 +481,14 @@ center_tile_rect_in_area (MetaRectangle *rect,
  * don't want to create a 1x1 Emacs.
  */
 static gboolean
-find_first_fit (MetaWindow *window,
+find_first_fit (MetaWindow         *window,
                 /* visible windows on relevant workspaces */
-                GList      *windows,
-		int         monitor,
-                int         x,
-                int         y,
-                int        *new_x,
-                int        *new_y)
+                GList              *windows,
+                MetaLogicalMonitor *logical_monitor,
+                int                 x,
+                int                 y,
+                int                *new_x,
+                int                *new_y)
 {
   /* This algorithm is limited - it just brute-force tries
    * to fit the window in a small number of locations that are aligned
@@ -517,7 +521,8 @@ find_first_fit (MetaWindow *window,
 #ifdef WITH_VERBOSE_MODE
   {
     char monitor_location_string[RECT_LENGTH];
-    meta_rectangle_to_string (&window->screen->monitor_infos[monitor].rect,
+
+    meta_rectangle_to_string (&logical_monitor->rect,
                               monitor_location_string);
     meta_topic (META_DEBUG_XINERAMA,
                 "Natural monitor is %s\n",
@@ -525,7 +530,9 @@ find_first_fit (MetaWindow *window,
   }
 #endif
 
-  meta_window_get_work_area_for_monitor (window, monitor, &work_area);
+  meta_window_get_work_area_for_logical_monitor (window,
+                                                 logical_monitor,
+                                                 &work_area);
 
   center_tile_rect_in_area (&rect, &work_area);
 
@@ -660,8 +667,9 @@ meta_window_place (MetaWindow        *window,
                    int               *new_x,
                    int               *new_y)
 {
+  MetaBackend *backend = meta_get_backend ();
   GList *windows = NULL;
-  const MetaMonitorInfo *xi;
+  MetaLogicalMonitor *logical_monitor;
 
   meta_topic (META_DEBUG_PLACEMENT, "Placing window %s\n", window->desc);
 
@@ -810,19 +818,19 @@ meta_window_place (MetaWindow        *window,
       meta_window_get_frame_rect (window, &frame_rect);
 
       /* Warning, this function is a round trip! */
-      xi = meta_screen_get_current_monitor_info (window->screen);
+      logical_monitor = meta_backend_get_current_logical_monitor (backend);
 
-      w = xi->rect.width;
-      h = xi->rect.height;
+      w = logical_monitor->rect.width;
+      h = logical_monitor->rect.height;
 
       x = (w - frame_rect.width) / 2;
       y = (h - frame_rect.height) / 2;
 
-      x += xi->rect.x;
-      y += xi->rect.y;
+      x += logical_monitor->rect.x;
+      y += logical_monitor->rect.y;
 
       meta_topic (META_DEBUG_PLACEMENT, "Centered window %s on monitor %d\n",
-                  window->desc, xi->number);
+                  window->desc, logical_monitor->number);
 
       goto done_check_denied_focus;
     }
@@ -854,8 +862,8 @@ meta_window_place (MetaWindow        *window,
     g_slist_free (all_windows);
   }
 
-  /* Warning, this is a round trip! */
-  xi = meta_screen_get_current_monitor_info (window->screen);
+  /* Warning, on X11 this might be a round trip! */
+  logical_monitor = meta_backend_get_current_logical_monitor (backend);
 
   /* Maximize windows if they are too big for their work area (bit of
    * a hack here). Assume undecorated windows probably don't intend to
@@ -867,9 +875,9 @@ meta_window_place (MetaWindow        *window,
       MetaRectangle workarea;
       MetaRectangle frame_rect;
 
-      meta_window_get_work_area_for_monitor (window,
-                                             xi->number,
-                                             &workarea);
+      meta_window_get_work_area_for_logical_monitor (window,
+                                                     logical_monitor,
+                                                     &workarea);
       meta_window_get_frame_rect (window, &frame_rect);
 
       /* If the window is bigger than the screen, then automaximize.  Do NOT
@@ -883,11 +891,11 @@ meta_window_place (MetaWindow        *window,
     }
 
   /* "Origin" placement algorithm */
-  x = xi->rect.x;
-  y = xi->rect.y;
+  x = logical_monitor->rect.x;
+  y = logical_monitor->rect.y;
 
   if (find_first_fit (window, windows,
-                      xi->number,
+                      logical_monitor,
                       x, y, &x, &y))
     goto done_check_denied_focus;
 
@@ -920,11 +928,11 @@ meta_window_place (MetaWindow        *window,
           focus_window_list = g_list_prepend (NULL, focus_window);
 
           /* Reset x and y ("origin" placement algorithm) */
-          x = xi->rect.x;
-          y = xi->rect.y;
+          x = logical_monitor->rect.x;
+          y = logical_monitor->rect.y;
 
           found_fit = find_first_fit (window, focus_window_list,
-                                      xi->number,
+                                      logical_monitor,
                                       x, y, &x, &y);
           g_list_free (focus_window_list);
 	}

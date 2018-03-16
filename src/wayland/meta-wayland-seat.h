@@ -31,6 +31,8 @@
 #include "meta-wayland-keyboard.h"
 #include "meta-wayland-touch.h"
 #include "meta-wayland-data-device.h"
+#include "meta-wayland-tablet-tool.h"
+#include "meta-wayland-text-input.h"
 
 struct _MetaWaylandSeat
 {
@@ -42,6 +44,8 @@ struct _MetaWaylandSeat
   MetaWaylandTouch *touch;
 
   MetaWaylandDataDevice data_device;
+
+  MetaWaylandTextInput *text_input;
 
   guint capabilities;
 };

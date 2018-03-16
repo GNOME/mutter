@@ -556,7 +556,7 @@ apply_edge_resistance_to_each_side (MetaDisplay         *display,
 
   edge_data = display->grab_edge_resistance_data;
 
-  if (auto_snap)
+  if (auto_snap && !META_WINDOW_TILED_SIDE_BY_SIDE (window))
     {
       /* Do the auto snapping instead of normal edge resistance; in all
        * cases, we allow snapping to opposite kinds of edges (e.g. left
@@ -590,6 +590,50 @@ apply_edge_resistance_to_each_side (MetaDisplay         *display,
                                         edge_data->bottom_edges,
                                         FALSE,
                                         keyboard_op);
+    }
+  else if (auto_snap && META_WINDOW_TILED_SIDE_BY_SIDE (window))
+    {
+      MetaRectangle workarea;
+      guint i;
+
+      const gfloat tile_edges[] =
+        {
+          1./4.,
+          1./3.,
+          1./2.,
+          2./3.,
+          3./4.,
+        };
+
+      meta_window_get_work_area_current_monitor (window, &workarea);
+
+      new_left = new_outer->x;
+      new_top = new_outer->y;
+      new_right = new_outer->x + new_outer->width;
+      new_bottom = new_outer->y + new_outer->height;
+
+      /* When snapping tiled windows, we don't really care about the
+       * x and y position, only about the width and height. Also, it
+       * is special-cased (instead of relying on edge_data) because
+       * we don't really care for other windows when calculating the
+       * snapping points of tiled windows - we only care about the
+       * work area and the target position.
+       */
+      for (i = 0; i < G_N_ELEMENTS (tile_edges); i++)
+        {
+          guint horizontal_point = workarea.x + floor (workarea.width * tile_edges[i]);
+
+          if (ABS (horizontal_point - new_left) < 16)
+            {
+              new_left = horizontal_point;
+              new_right = workarea.x + workarea.width;
+            }
+          else if (ABS (horizontal_point - new_right) < 16)
+            {
+              new_left = workarea.x;
+              new_right = horizontal_point;
+            }
+        }
     }
   else
     {
@@ -1223,7 +1267,6 @@ meta_window_edge_resistance_for_resize (MetaWindow  *window,
 {
   MetaRectangle old_outer, new_outer;
   int proposed_outer_width, proposed_outer_height;
-  gboolean is_resize;
 
   meta_window_get_frame_rect (window, &old_outer);
   proposed_outer_width  = *new_width;
@@ -1235,7 +1278,6 @@ meta_window_edge_resistance_for_resize (MetaWindow  *window,
                                       proposed_outer_height);
 
   window->display->grab_last_user_action_was_snap = snap;
-  is_resize = TRUE;
   if (apply_edge_resistance_to_each_side (window->display,
                                           window,
                                           &old_outer,
@@ -1243,7 +1285,7 @@ meta_window_edge_resistance_for_resize (MetaWindow  *window,
                                           timeout_func,
                                           snap,
                                           is_keyboard_op,
-                                          is_resize))
+                                          TRUE))
     {
       *new_width = new_outer.width;
       *new_height = new_outer.height;

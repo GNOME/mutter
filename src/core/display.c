@@ -50,6 +50,7 @@
 #include "meta-idle-monitor-dbus.h"
 #include "meta-cursor-tracker-private.h"
 #include <meta/meta-backend.h>
+#include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/meta-stage.h"
@@ -130,6 +131,8 @@ enum
   SHOW_RESIZE_POPUP,
   GL_VIDEO_MEMORY_PURGED,
   SHOW_PAD_OSD,
+  SHOW_OSD,
+  PAD_MODE_SWITCH,
   LAST_SIGNAL
 };
 
@@ -376,6 +379,21 @@ meta_display_class_init (MetaDisplayClass *klass)
                   CLUTTER_TYPE_ACTOR, 5, CLUTTER_TYPE_INPUT_DEVICE,
                   G_TYPE_SETTINGS, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_INT);
 
+  display_signals[SHOW_OSD] =
+    g_signal_new ("show-osd",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 3, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING);
+
+  display_signals[PAD_MODE_SWITCH] =
+    g_signal_new ("pad-mode-switch",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 3, CLUTTER_TYPE_INPUT_DEVICE,
+                  G_TYPE_UINT, G_TYPE_UINT);
+
   g_object_class_install_property (object_class,
                                    PROP_FOCUS_WINDOW,
                                    g_param_spec_object ("focus-window",
@@ -587,7 +605,7 @@ meta_display_open (void)
 
   if (xdisplay == NULL)
     {
-      meta_warning (_("Failed to open X Window System display '%s'\n"),
+      meta_warning (_("Failed to open X Window System display “%s”\n"),
 		    XDisplayName (NULL));
       return FALSE;
     }
@@ -650,8 +668,6 @@ meta_display_open (void)
    */
   display->leader_window = None;
   display->timestamp_pinging_window = None;
-
-  display->monitor_cache_invalidated = TRUE;
 
   display->groups_by_leader = NULL;
 
@@ -1113,13 +1129,16 @@ meta_display_close (MetaDisplay *display,
   meta_display_free_events_x11 (display);
   meta_display_free_events (display);
 
-  meta_screen_free (display->screen, timestamp);
+  if (display->screen)
+    meta_screen_free (display->screen, timestamp);
+  display->screen = NULL;
 
   /* Must be after all calls to meta_window_unmanage() since they
    * unregister windows
    */
   g_hash_table_destroy (display->xids);
   g_hash_table_destroy (display->wayland_windows);
+  g_hash_table_destroy (display->stamps);
 
   if (display->leader_window != None)
     XDestroyWindow (display->xdisplay, display->leader_window);
@@ -2719,22 +2738,7 @@ prefs_changed_callback (MetaPreference pref,
 {
   MetaDisplay *display = data;
 
-  if (pref == META_PREF_FOCUS_MODE)
-    {
-      GSList *windows, *l;
-      windows = meta_display_list_windows (display, META_LIST_DEFAULT);
-
-      for (l = windows; l; l = l->next)
-        {
-          MetaWindow *w = l->data;
-          meta_display_ungrab_focus_window_button (display, w);
-          if (w->type != META_WINDOW_DOCK)
-            meta_display_grab_focus_window_button (display, w);
-        }
-
-      g_slist_free (windows);
-    }
-  else if (pref == META_PREF_AUDIBLE_BELL)
+  if (pref == META_PREF_AUDIBLE_BELL)
     {
       meta_bell_set_audible (display, meta_prefs_bell_is_audible ());
     }
@@ -3100,28 +3104,30 @@ meta_display_request_pad_osd (MetaDisplay        *display,
                               ClutterInputDevice *pad,
                               gboolean            edition_mode)
 {
+  MetaBackend *backend = meta_get_backend ();
   MetaInputSettings *input_settings;
   const gchar *layout_path = NULL;
   ClutterActor *osd;
-  MetaMonitorInfo *monitor;
-  gint monitor_idx;
+  MetaLogicalMonitor *logical_monitor;
   GSettings *settings;
 #ifdef HAVE_LIBWACOM
   WacomDevice *wacom_device;
 #endif
 
-  input_settings = meta_backend_get_input_settings (meta_get_backend ());
-
+  /* Avoid emitting the signal while there is an OSD being currently
+   * displayed, the first OSD will have to be dismissed before showing
+   * any other one.
+   */
   if (display->current_pad_osd)
-    {
-      clutter_actor_destroy (display->current_pad_osd);
-      display->current_pad_osd = NULL;
-    }
+    return;
+
+  input_settings = meta_backend_get_input_settings (meta_get_backend ());
 
   if (input_settings)
     {
       settings = meta_input_settings_get_tablet_settings (input_settings, pad);
-      monitor = meta_input_settings_get_tablet_monitor_info (input_settings, pad);
+      logical_monitor =
+        meta_input_settings_get_tablet_logical_monitor (input_settings, pad);
 #ifdef HAVE_LIBWACOM
       wacom_device = meta_input_settings_get_tablet_wacom_device (input_settings,
                                                                   pad);
@@ -3132,19 +3138,12 @@ meta_display_request_pad_osd (MetaDisplay        *display,
   if (!layout_path || !settings)
     return;
 
-  if (monitor)
-    {
-      monitor_idx = meta_screen_get_monitor_index_for_rect (display->screen,
-                                                            &monitor->rect);
-    }
-  else
-    {
-      monitor_idx = meta_screen_get_current_monitor (display->screen);
-    }
+  if (!logical_monitor)
+    logical_monitor = meta_backend_get_current_logical_monitor (backend);
 
   g_signal_emit (display, display_signals[SHOW_PAD_OSD], 0,
                  pad, settings, layout_path,
-                 edition_mode, monitor_idx, &osd);
+                 edition_mode, logical_monitor->number, &osd);
 
   if (osd)
     {
@@ -3162,18 +3161,14 @@ meta_display_get_pad_action_label (MetaDisplay        *display,
                                    MetaPadActionType   action_type,
                                    guint               action_number)
 {
+  MetaInputSettings *settings;
   gchar *label;
 
   /* First, lookup the action, as imposed by settings */
-  if (action_type == META_PAD_ACTION_BUTTON)
-    {
-      MetaInputSettings *settings;
-
-      settings = meta_backend_get_input_settings (meta_get_backend ());
-      label = meta_input_settings_get_pad_button_action_label (settings, pad, action_number);
-      if (label)
-        return label;
-    }
+  settings = meta_backend_get_input_settings (meta_get_backend ());
+  label = meta_input_settings_get_pad_action_label (settings, pad, action_type, action_number);
+  if (label)
+    return label;
 
 #ifdef HAVE_WAYLAND
   /* Second, if this wayland, lookup the actions set by the clients */
@@ -3201,4 +3196,76 @@ meta_display_get_pad_action_label (MetaDisplay        *display,
 #endif
 
   return NULL;
+}
+
+static void
+meta_display_show_osd (MetaDisplay *display,
+                       gint         monitor_idx,
+                       const gchar *icon_name,
+                       const gchar *message)
+{
+  g_signal_emit (display, display_signals[SHOW_OSD], 0,
+                 monitor_idx, icon_name, message);
+}
+
+static gint
+lookup_tablet_monitor (MetaDisplay        *display,
+                       ClutterInputDevice *device)
+{
+  MetaInputSettings *input_settings;
+  MetaLogicalMonitor *monitor;
+  gint monitor_idx = -1;
+
+  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  if (!input_settings)
+    return -1;
+
+  monitor = meta_input_settings_get_tablet_logical_monitor (input_settings, device);
+
+  if (monitor)
+    {
+      monitor_idx = meta_screen_get_monitor_index_for_rect (display->screen,
+                                                            &monitor->rect);
+    }
+
+  return monitor_idx;
+}
+
+void
+meta_display_show_tablet_mapping_notification (MetaDisplay        *display,
+                                               ClutterInputDevice *pad,
+                                               const gchar        *pretty_name)
+{
+  if (!pretty_name)
+    pretty_name = clutter_input_device_get_device_name (pad);
+  meta_display_show_osd (display, lookup_tablet_monitor (display, pad),
+                         "input-tablet-symbolic", pretty_name);
+}
+
+void
+meta_display_notify_pad_group_switch (MetaDisplay        *display,
+                                      ClutterInputDevice *pad,
+                                      const gchar        *pretty_name,
+                                      guint               n_group,
+                                      guint               n_mode,
+                                      guint               n_modes)
+{
+  GString *message;
+  guint i;
+
+  if (!pretty_name)
+    pretty_name = clutter_input_device_get_device_name (pad);
+
+  message = g_string_new (pretty_name);
+  g_string_append_c (message, '\n');
+  for (i = 0; i < n_modes; i++)
+    g_string_append (message, (i == n_mode) ? "⚫" : "⚪");
+
+  meta_display_show_osd (display, lookup_tablet_monitor (display, pad),
+                         "input-tablet-symbolic", message->str);
+
+  g_signal_emit (display, display_signals[PAD_MODE_SWITCH], 0, pad,
+                 n_group, n_mode);
+
+  g_string_free (message, TRUE);
 }

@@ -20,13 +20,13 @@
 #ifndef META_WAYLAND_WL_SHELL_H
 #define META_WAYLAND_WL_SHELL_H
 
-#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-shell-surface.h"
 
 #define META_TYPE_WAYLAND_WL_SHELL_SURFACE (meta_wayland_wl_shell_surface_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandWlShellSurface,
                       meta_wayland_wl_shell_surface,
                       META, WAYLAND_WL_SHELL_SURFACE,
-                      MetaWaylandSurfaceRoleShellSurface);
+                      MetaWaylandShellSurface);
 
 void meta_wayland_wl_shell_init (MetaWaylandCompositor *compositor);
 

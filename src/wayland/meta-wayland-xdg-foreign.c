@@ -28,9 +28,11 @@
 
 #include <wayland-server.h>
 
+#include "core/util-private.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland-xdg-shell.h"
+#include "wayland/meta-wayland-legacy-xdg-shell.h"
 
 #include "xdg-foreign-unstable-v1-server-protocol.h"
 
@@ -78,21 +80,6 @@ xdg_exporter_destroy (struct wl_client   *client,
                       struct wl_resource *resource)
 {
   wl_resource_destroy (resource);
-}
-
-static char *
-generate_handle (MetaWaylandXdgForeign *foreign)
-{
-  char *handle = g_new0 (char, META_XDG_FOREIGN_HANDLE_LENGTH + 1);
-  int i;
-
-  /*
-   * Generate a random string of printable ASCII characters.
-   */
-  for (i = 0; i < META_XDG_FOREIGN_HANDLE_LENGTH; i++)
-    handle[i] = (char) g_rand_int_range (foreign->rand, 32, 127);
-
-  return handle;
 }
 
 static void
@@ -157,9 +144,9 @@ xdg_exporter_export (struct wl_client   *client,
   MetaWaylandXdgExported *exported;
   char *handle;
 
-  if (!surface->role ||
-      !META_IS_WAYLAND_XDG_SURFACE (surface->role) ||
-      !surface->window)
+  if (!surface->role || !surface->window ||
+      !(META_IS_WAYLAND_XDG_SURFACE (surface->role) ||
+        META_IS_WAYLAND_ZXDG_SURFACE_V6 (surface->role)))
     {
       wl_resource_post_error (resource,
                               WL_DISPLAY_ERROR_INVALID_OBJECT,
@@ -195,7 +182,8 @@ xdg_exporter_export (struct wl_client   *client,
 
   while (TRUE)
     {
-      handle = generate_handle (foreign);
+      handle = meta_generate_random_id (foreign->rand,
+                                        META_XDG_FOREIGN_HANDLE_LENGTH);
 
       if (!g_hash_table_contains (foreign->exported_surfaces, handle))
         {
@@ -265,6 +253,9 @@ is_valid_child (MetaWaylandSurface *surface)
     return FALSE;
 
   if (!META_IS_WAYLAND_XDG_SURFACE (surface->role))
+    return FALSE;
+
+  if (!META_IS_WAYLAND_ZXDG_SURFACE_V6 (surface->role))
     return FALSE;
 
   if (!surface->window)
@@ -389,7 +380,9 @@ xdg_importer_import (struct wl_client   *client,
                                   xdg_imported_destructor);
 
   exported = g_hash_table_lookup (foreign->exported_surfaces, handle);
-  if (!exported || !META_IS_WAYLAND_XDG_SURFACE (exported->surface->role))
+  if (!exported ||
+      (!META_IS_WAYLAND_XDG_SURFACE (exported->surface->role) &&
+       !META_IS_WAYLAND_ZXDG_SURFACE_V6 (exported->surface->role)))
     {
       zxdg_imported_v1_send_destroyed (resource);
       return;

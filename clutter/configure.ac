@@ -42,9 +42,6 @@ m4_define([clutter_release_status],
 
 m4_define([clutter_version], [clutter_major_version.clutter_minor_version.clutter_micro_version])
 
-# change this only when breaking the API
-m4_define([clutter_api_version], [1.0])
-
 AC_PREREQ([2.63])
 
 AC_INIT([clutter],
@@ -61,12 +58,18 @@ AC_CONFIG_MACRO_DIR([build/autotools])
 AM_INIT_AUTOMAKE([1.11 foreign -Wno-portability no-define no-dist-gzip dist-xz tar-ustar])
 AM_SILENT_RULES([yes])
 
+dnl = Check that we are configured by mutter ==============================
+
+AC_ARG_VAR([MUTTER_VERSION])
+AC_ARG_VAR([LIBMUTTER_API_VERSION])
+
+AS_IF([test "x$MUTTER_VERSION" = "x"],
+      [AC_MSG_ERROR([Clutter can only be configured by mutter])],)
+
 AC_SUBST([CLUTTER_MAJOR_VERSION],  [clutter_major_version])
 AC_SUBST([CLUTTER_MINOR_VERSION],  [clutter_minor_version])
 AC_SUBST([CLUTTER_MICRO_VERSION],  [clutter_micro_version])
 AC_SUBST([CLUTTER_VERSION],        [clutter_version])
-AC_SUBST([CLUTTER_API_VERSION],    [clutter_api_version])
-AC_SUBST([CLUTTER_API_VERSION_AM], [$CLUTTER_MAJOR_VERSION\_0])
 AC_SUBST([CLUTTER_RELEASE_STATUS], [clutter_release_status])
 
 m4_define([lt_current],  [m4_eval(100 * clutter_minor_version + clutter_micro_version - clutter_interface_age)])
@@ -107,7 +110,7 @@ LT_LIB_M
 AC_HEADER_STDC
 
 # required versions for dependencies
-m4_define([glib_req_version],           [2.44.0])
+m4_define([glib_req_version],           [2.53.2])
 m4_define([cogl_req_version],           [1.21.2])
 m4_define([json_glib_req_version],      [0.12.0])
 m4_define([atk_req_version],            [2.5.3])
@@ -118,6 +121,7 @@ m4_define([xcomposite_req_version],     [0.4])
 m4_define([gdk_req_version],            [3.3.18])
 m4_define([libinput_req_version],       [1.4.0])
 m4_define([libudev_req_version],        [136])
+m4_define([libwacom_req_version],       [0.13])
 
 AC_SUBST([GLIB_REQ_VERSION],       [glib_req_version])
 AC_SUBST([COGL_REQ_VERSION],       [cogl_req_version])
@@ -130,6 +134,7 @@ AC_SUBST([XCOMPOSITE_REQ_VERSION], [xcomposite_req_version])
 AC_SUBST([GDK_REQ_VERSION],        [gdk_req_version])
 AC_SUBST([LIBINPUT_REQ_VERSION],   [libinput_req_version])
 AC_SUBST([LIBUDEV_REQ_VERSION],    [libudev_req_version])
+AC_SUBST([LIBWACOM_REQ_VERSION],   [libwacom_req_version])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AM_PATH_GLIB_2_0([glib_req_version],
@@ -382,6 +387,22 @@ AS_IF([test "x$SUPPORT_X11" = "x1"],
               [AC_MSG_ERROR([not found])]
         )
 
+        # XTEST (required)
+        AC_MSG_CHECKING([for XTest extension])
+        PKG_CHECK_EXISTS([xtst], [have_xtest=yes], [have_xtest=no])
+        AS_IF([test "x$have_xtest" = "xyes"],
+              [
+                AC_DEFINE(HAVE_XTEST, [1], [Define to 1 if we have the XTest X extension])
+
+                X11_LIBS="$X11_LIBS -lXtst"
+                X11_PC_FILES="$X11_PC_FILES xtst"
+                X11_EXTS="$X11_EXTS xtst"
+
+                AC_MSG_RESULT([found])
+              ],
+              [AC_MSG_ERROR([Not found])]
+        )
+
         # X Generic Extensions (optional)
         clutter_save_CPPFLAGS="$CPPFLAGS"
         CPPFLAGS="$CPPFLAGS $X11_CFLAGS"
@@ -488,6 +509,32 @@ AM_CONDITIONAL([X11_TESTS], [test "x$x11_tests" = "xyes"])
 X11_EXTS=${X11_EXTS#* }
 
 AC_CACHE_SAVE
+
+dnl === Libwacom support for X11 ===============================================
+AC_ARG_WITH(libwacom,
+  AC_HELP_STRING([--without-libwacom],
+                 [disable the use of libwacom for advanced tablet management]),,
+  with_libwacom=auto)
+
+have_libwacom=no
+AC_MSG_CHECKING([libwacom])
+if test x$with_libwacom = xno ; then
+  AC_MSG_RESULT([disabled])
+else
+  if $PKG_CONFIG --exists libwacom '>=' $LIBWACOM_REQ_VERSION; then
+    have_libwacom=yes
+    AC_MSG_RESULT(yes)
+    PKG_CHECK_MODULES([LIBWACOM], [libwacom])
+    AC_SUBST(LIBWACOM_CFLAGS)
+    AC_SUBST(LIBWACOM_LIBS)
+    AC_DEFINE([HAVE_LIBWACOM], 1, [Building with libwacom for advanced tablet management])
+  else
+    AC_MSG_RESULT(no)
+    if test x$with_libwacom = xyes ; then
+      AC_MSG_ERROR([libwacom forced but not found])
+    fi
+  fi
+fi
 
 dnl === Enable GDK-Pixbuf in tests ============================================
 
@@ -660,8 +707,8 @@ AS_IF([test "x$CLUTTER_BASE_PC_FILES_PRIVATE" = "x" && test "x$BACKEND_PC_FILES_
 AC_SUBST(CLUTTER_REQUIRES)
 AC_SUBST(CLUTTER_REQUIRES_PRIVATE)
 
-CLUTTER_CFLAGS="$FLAVOUR_CFLAGS $CLUTTER_DEPS_CFLAGS $CLUTTER_DEPS_PRIVATE_CFLAGS $GLIB_CFLAGS"
-CLUTTER_LIBS="$FLAVOUR_LIBS $CLUTTER_DEPS_LIBS $CLUTTER_DEPS_PRIVATE_LIBS $GLIB_LIBS"
+CLUTTER_CFLAGS="$FLAVOUR_CFLAGS $CLUTTER_DEPS_CFLAGS $CLUTTER_DEPS_PRIVATE_CFLAGS $GLIB_CFLAGS $LIBWACOM_CFLAGS"
+CLUTTER_LIBS="$FLAVOUR_LIBS $CLUTTER_DEPS_LIBS $CLUTTER_DEPS_PRIVATE_LIBS $GLIB_LIBS $LIBWACOM_LIBS"
 AC_SUBST(CLUTTER_CFLAGS)
 AC_SUBST(CLUTTER_LIBS)
 
@@ -765,7 +812,7 @@ AC_CONFIG_FILES([
 	clutter/Makefile
         clutter/clutter-config.h
 	clutter/clutter-version.h
-	clutter/mutter-clutter-$CLUTTER_API_VERSION.pc:clutter/mutter-clutter.pc.in
+	clutter/mutter-clutter-$LIBMUTTER_API_VERSION.pc:clutter/mutter-clutter.pc.in
 
 	tests/Makefile
 	tests/accessibility/Makefile

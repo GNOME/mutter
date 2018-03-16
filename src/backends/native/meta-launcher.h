@@ -34,6 +34,14 @@ gboolean          meta_launcher_activate_vt             (MetaLauncher  *self,
 							 signed char    vt,
 							 GError       **error);
 
-int               meta_launcher_get_kms_fd              (MetaLauncher  *self);
+const char *      meta_launcher_get_seat_id             (MetaLauncher *launcher);
+
+int               meta_launcher_open_restricted         (MetaLauncher *launcher,
+                                                         const char   *path,
+                                                         GError      **error);
+
+void              meta_launcher_close_restricted        (MetaLauncher *launcher,
+                                                         int           fd);
+
 
 #endif /* META_LAUNCHER_H */

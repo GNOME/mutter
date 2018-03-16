@@ -470,7 +470,9 @@ meta_fatal (const char *format, ...)
   gchar *str;
   FILE *out;
 
-  g_return_if_fail (format != NULL);
+  g_warn_if_fail (format);
+  if (!format)
+    meta_exit (META_EXIT_ERROR);
 
   va_start (args, format);
   str = g_strdup_vprintf (format, args);
@@ -990,6 +992,22 @@ meta_get_locale_direction (void)
     default:
       g_assert_not_reached ();
     }
+}
+
+char *
+meta_generate_random_id (GRand *rand,
+                         int    length)
+{
+  char *id;
+  int i;
+
+  /* Generate a random string of printable ASCII characters. */
+
+  id = g_new0 (char, length + 1);
+  for (i = 0; i < length; i++)
+    id[i] = (char) g_rand_int_range (rand, 32, 127);
+
+  return id;
 }
 
 /* eof util.c */

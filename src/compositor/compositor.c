@@ -71,6 +71,7 @@
 #include "window-private.h" /* to check window->hidden */
 #include "display-private.h" /* for meta_display_lookup_x_window() and meta_display_cancel_touch() */
 #include "util-private.h"
+#include "backends/meta-dnd-private.h"
 #include "frame.h"
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xcomposite.h>
@@ -386,6 +387,10 @@ meta_begin_modal_for_plugin (MetaCompositor   *compositor,
     {
       meta_display_sync_wayland_input_focus (display);
       meta_display_cancel_touch (display);
+
+#ifdef HAVE_WAYLAND
+      meta_dnd_wayland_handle_begin_modal (compositor);
+#endif
     }
 
   return TRUE;
@@ -414,8 +419,13 @@ meta_end_modal_for_plugin (MetaCompositor *compositor,
   meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
   meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_KEYBOARD_ID, timestamp);
 
+#ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
-    meta_display_sync_wayland_input_focus (display);
+    {
+      meta_dnd_wayland_handle_end_modal (compositor);
+      meta_display_sync_wayland_input_focus (display);
+    }
+#endif
 }
 
 static void
@@ -468,7 +478,7 @@ redirect_windows (MetaScreen *screen)
         {
           /* This probably means that a non-WM compositor like xcompmgr is running;
            * we have no way to get it to exit */
-          meta_fatal (_("Another compositing manager is already running on screen %i on display \"%s\"."),
+          meta_fatal (_("Another compositing manager is already running on screen %i on display “%s”."),
                       screen_number, display->name);
         }
 
@@ -666,7 +676,7 @@ meta_compositor_remove_window (MetaCompositor *compositor,
   if (compositor->unredirected_window == window)
     set_unredirected_window (compositor, NULL);
 
-  meta_window_actor_destroy (window_actor);
+  meta_window_actor_queue_destroy (window_actor);
 }
 
 void
@@ -918,6 +928,42 @@ sync_actor_stacking (MetaCompositor *compositor)
   g_list_free (backgrounds);
 }
 
+/*
+ * Find the top most window that is visible on the screen. The intention of
+ * this is to avoid offscreen windows that isn't actually part of the visible
+ * desktop (such as the UI frames override redirect window).
+ */
+static MetaWindowActor *
+get_top_visible_window_actor (MetaCompositor *compositor)
+{
+  GList *l;
+
+  for (l = g_list_last (compositor->windows); l; l = l->prev)
+    {
+      MetaWindowActor *window_actor = l->data;
+      MetaWindow *window = meta_window_actor_get_meta_window (window_actor);
+      MetaRectangle buffer_rect;
+
+      meta_window_get_buffer_rect (window, &buffer_rect);
+
+      if (meta_rectangle_overlap (&compositor->display->screen->rect,
+                                  &buffer_rect))
+        return window_actor;
+    }
+
+  return NULL;
+}
+
+static void
+on_top_window_actor_destroyed (MetaWindowActor *window_actor,
+                               MetaCompositor  *compositor)
+{
+  compositor->top_window_actor = NULL;
+  compositor->windows = g_list_remove (compositor->windows, window_actor);
+
+  meta_stack_tracker_queue_sync_stack (compositor->display->screen->stack_tracker);
+}
+
 void
 meta_compositor_sync_stack (MetaCompositor  *compositor,
 			    GList	    *stack)
@@ -1004,6 +1050,18 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
     }
 
   sync_actor_stacking (compositor);
+
+  if (compositor->top_window_actor)
+    g_signal_handlers_disconnect_by_func (compositor->top_window_actor,
+                                          on_top_window_actor_destroyed,
+                                          compositor);
+
+  compositor->top_window_actor = get_top_visible_window_actor (compositor);
+
+  if (compositor->top_window_actor)
+    g_signal_connect (compositor->top_window_actor, "destroy",
+                      G_CALLBACK (on_top_window_actor_destroyed),
+                      compositor);
 }
 
 void
@@ -1013,6 +1071,7 @@ meta_compositor_sync_window_geometry (MetaCompositor *compositor,
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
   meta_window_actor_sync_actor_geometry (window_actor, did_placement);
+  meta_plugin_manager_event_size_changed (compositor->plugin_mgr, window_actor);
 }
 
 static void
@@ -1059,19 +1118,26 @@ static gboolean
 meta_pre_paint_func (gpointer data)
 {
   GList *l;
-  MetaWindowActor *top_window;
+  MetaWindowActor *top_window_actor;
   MetaCompositor *compositor = data;
 
   if (compositor->windows == NULL)
     return TRUE;
 
-  top_window = g_list_last (compositor->windows)->data;
-
-  if (meta_window_actor_should_unredirect (top_window) &&
+  top_window_actor = compositor->top_window_actor;
+  if (top_window_actor &&
+      meta_window_actor_should_unredirect (top_window_actor) &&
       compositor->disable_unredirect_count == 0)
-    set_unredirected_window (compositor, meta_window_actor_get_meta_window (top_window));
+    {
+      MetaWindow *top_window;
+
+      top_window = meta_window_actor_get_meta_window (top_window_actor);
+      set_unredirected_window (compositor, top_window);
+    }
   else
-    set_unredirected_window (compositor, NULL);
+    {
+      set_unredirected_window (compositor, NULL);
+    }
 
   for (l = compositor->windows; l; l = l->next)
     meta_window_actor_pre_paint (l->data);
@@ -1407,4 +1473,20 @@ meta_compositor_show_window_menu_for_rect (MetaCompositor     *compositor,
 					   MetaRectangle      *rect)
 {
   meta_plugin_manager_show_window_menu_for_rect (compositor->plugin_mgr, window, menu, rect);
+}
+
+MetaCloseDialog *
+meta_compositor_create_close_dialog (MetaCompositor *compositor,
+                                     MetaWindow     *window)
+{
+  return meta_plugin_manager_create_close_dialog (compositor->plugin_mgr,
+                                                  window);
+}
+
+MetaInhibitShortcutsDialog *
+meta_compositor_create_inhibit_shortcuts_dialog (MetaCompositor *compositor,
+                                                 MetaWindow     *window)
+{
+  return meta_plugin_manager_create_inhibit_shortcuts_dialog (compositor->plugin_mgr,
+                                                              window);
 }

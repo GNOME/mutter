@@ -2,6 +2,13 @@
 
 if HAVE_WAYLAND
 
+test_programs = \
+	mutter-test-client \
+	mutter-test-runner \
+	mutter-test-unit-tests \
+	mutter-test-headless-start-test \
+	$(NULL)
+
 if BUILDOPT_INSTALL_TESTS
 stackingdir = $(pkgdatadir)/tests/stacking
 dist_stacking_DATA =				\
@@ -19,23 +26,51 @@ installedtestsdir = $(datadir)/installed-tests/mutter
 installedtests_DATA = mutter-all.test
 
 installedtestsbindir = $(libexecdir)/installed-tests/mutter
-installedtestsbin_PROGRAMS = mutter-test-client mutter-test-runner mutter-test-unit-tests
+installedtestsbin_PROGRAMS = $(test_programs)
 else
-noinst_PROGRAMS += mutter-test-client mutter-test-runner mutter-test-unit-tests
+noinst_PROGRAMS += $(test_programs)
 endif
 
 EXTRA_DIST += tests/mutter-all.test.in
 
 mutter_test_client_SOURCES = tests/test-client.c
-mutter_test_client_LDADD = $(MUTTER_LIBS) libmutter.la
+mutter_test_client_LDADD = $(MUTTER_LIBS) libmutter-$(LIBMUTTER_API_VERSION).la
 
-mutter_test_runner_SOURCES = tests/test-runner.c
-mutter_test_runner_LDADD = $(MUTTER_LIBS) libmutter.la
+mutter_test_runner_SOURCES = \
+	tests/test-utils.c \
+	tests/test-utils.h \
+	tests/test-runner.c
+mutter_test_runner_LDADD = $(MUTTER_LIBS) libmutter-$(LIBMUTTER_API_VERSION).la
 
-mutter_test_unit_tests_SOURCES = tests/unit-tests.c
-mutter_test_unit_tests_LDADD = $(MUTTER_LIBS) libmutter.la
+mutter_test_unit_tests_SOURCES = \
+	tests/test-utils.c \
+	tests/test-utils.h \
+	tests/unit-tests.c \
+	tests/meta-backend-test.c \
+	tests/meta-backend-test.h \
+	tests/meta-monitor-manager-test.c \
+	tests/meta-monitor-manager-test.h \
+	tests/monitor-config-migration-unit-tests.c \
+	tests/monitor-config-migration-unit-tests.h \
+	tests/monitor-store-unit-tests.c \
+	tests/monitor-store-unit-tests.h \
+	tests/monitor-test-utils.c \
+	tests/monitor-test-utils.h \
+	tests/monitor-unit-tests.c \
+	tests/monitor-unit-tests.h \
+	$(NULL)
+mutter_test_unit_tests_LDADD = $(MUTTER_LIBS) libmutter-$(LIBMUTTER_API_VERSION).la
 
-.PHONY: run-tests run-test-runner-tests run-unit-tests
+mutter_test_headless_start_test_SOURCES = \
+	tests/headless-start-test.c \
+	tests/meta-backend-test.c \
+	tests/meta-backend-test.h \
+	tests/meta-monitor-manager-test.c \
+	tests/meta-monitor-manager-test.h \
+	$(NULL)
+mutter_test_headless_start_test_LDADD = $(MUTTER_LIBS) libmutter-$(LIBMUTTER_API_VERSION).la
+
+.PHONY: run-tests run-test-runner-tests run-unit-tests run-headless-start-test
 
 run-test-runner-tests: mutter-test-client mutter-test-runner
 	./mutter-test-runner $(dist_stacking_DATA)
@@ -43,13 +78,16 @@ run-test-runner-tests: mutter-test-client mutter-test-runner
 run-unit-tests: mutter-test-unit-tests
 	./mutter-test-unit-tests
 
-run-tests: run-test-runner-tests run-unit-tests
+run-headless-start-test: mutter-test-headless-start-test
+	./mutter-test-headless-start-test
+
+run-tests: run-test-runner-tests run-unit-tests run-headless-start-test
 
 endif
 
 # Some random test programs for bits of the code
 
 testboxes_SOURCES = core/testboxes.c
-testboxes_LDADD = $(MUTTER_LIBS) libmutter.la
+testboxes_LDADD = $(MUTTER_LIBS) libmutter-$(LIBMUTTER_API_VERSION).la
 
 noinst_PROGRAMS += testboxes

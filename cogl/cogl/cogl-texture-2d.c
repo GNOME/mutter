@@ -110,6 +110,8 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
   tex_2d->mipmaps_dirty = TRUE;
   tex_2d->auto_mipmap = TRUE;
 
+  tex_2d->gl_target = GL_TEXTURE_2D;
+
   tex_2d->is_foreign = FALSE;
 
   ctx->driver_vtable->texture_2d_init (tex_2d);
@@ -236,12 +238,12 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
  * even though they may seem redundant is because GLES 1/2 don't
  * provide a way to query these properties. */
 CoglTexture2D *
-_cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
-                                     int width,
-                                     int height,
-                                     CoglPixelFormat format,
-                                     EGLImageKHR image,
-                                     CoglError **error)
+cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
+                                    int width,
+                                    int height,
+                                    CoglPixelFormat format,
+                                    EGLImageKHR image,
+                                    CoglError **error)
 {
   CoglTextureLoader *loader;
   CoglTexture2D *tex;
@@ -430,11 +432,11 @@ cogl_wayland_texture_2d_new_from_buffer (CoglContext *ctx,
                                           EGL_WAYLAND_BUFFER_WL,
                                           buffer,
                                           NULL);
-          tex = _cogl_egl_texture_2d_new_from_image (ctx,
-                                                     width, height,
-                                                     internal_format,
-                                                     image,
-                                                     error);
+          tex = cogl_egl_texture_2d_new_from_image (ctx,
+                                                    width, height,
+                                                    internal_format,
+                                                    image,
+                                                    error);
           _cogl_egl_destroy_image (ctx, image);
           return tex;
         }
@@ -557,7 +559,7 @@ _cogl_texture_2d_get_gl_texture (CoglTexture *tex,
       GLuint handle;
 
       if (out_gl_target)
-        *out_gl_target = GL_TEXTURE_2D;
+        *out_gl_target = tex_2d->gl_target;
 
       handle = ctx->driver_vtable->texture_2d_get_gl_handle (tex_2d);
 

@@ -30,6 +30,17 @@
 #include <wayland-server.h>
 
 #include "meta-wayland-types.h"
+#include "meta-wayland-egl-stream.h"
+#include "meta-wayland-dma-buf.h"
+
+typedef enum _MetaWaylandBufferType
+{
+  META_WAYLAND_BUFFER_TYPE_UNKNOWN,
+  META_WAYLAND_BUFFER_TYPE_SHM,
+  META_WAYLAND_BUFFER_TYPE_EGL_IMAGE,
+  META_WAYLAND_BUFFER_TYPE_EGL_STREAM,
+  META_WAYLAND_BUFFER_TYPE_DMA_BUF,
+} MetaWaylandBufferType;
 
 struct _MetaWaylandBuffer
 {
@@ -39,6 +50,17 @@ struct _MetaWaylandBuffer
   struct wl_listener destroy_listener;
 
   CoglTexture *texture;
+  gboolean is_y_inverted;
+
+  MetaWaylandBufferType type;
+
+  struct {
+    MetaWaylandEglStream *stream;
+  } egl_stream;
+
+  struct {
+    MetaWaylandDmaBufBuffer *dma_buf;
+  } dma_buf;
 };
 
 #define META_TYPE_WAYLAND_BUFFER (meta_wayland_buffer_get_type ())
@@ -46,7 +68,11 @@ G_DECLARE_FINAL_TYPE (MetaWaylandBuffer, meta_wayland_buffer,
                       META, WAYLAND_BUFFER, GObject);
 
 MetaWaylandBuffer *     meta_wayland_buffer_from_resource       (struct wl_resource    *resource);
-CoglTexture *           meta_wayland_buffer_ensure_texture      (MetaWaylandBuffer     *buffer);
+gboolean                meta_wayland_buffer_attach              (MetaWaylandBuffer     *buffer,
+                                                                 GError               **error);
+CoglTexture *           meta_wayland_buffer_get_texture         (MetaWaylandBuffer     *buffer);
+CoglSnippet *           meta_wayland_buffer_create_snippet      (MetaWaylandBuffer     *buffer);
+gboolean                meta_wayland_buffer_is_y_inverted       (MetaWaylandBuffer     *buffer);
 void                    meta_wayland_buffer_process_damage      (MetaWaylandBuffer     *buffer,
                                                                  cairo_region_t        *region);
 

@@ -178,10 +178,11 @@ static gboolean
 meta_display_handle_event (MetaDisplay        *display,
                            const ClutterEvent *event)
 {
+  MetaBackend *backend = meta_get_backend ();
   MetaWindow *window;
   gboolean bypass_clutter = FALSE;
   G_GNUC_UNUSED gboolean bypass_wayland = FALSE;
-  MetaGestureTracker *tracker;
+  MetaGestureTracker *gesture_tracker;
   ClutterEventSequence *sequence;
   ClutterInputDevice *source;
 
@@ -217,11 +218,25 @@ meta_display_handle_event (MetaDisplay        *display,
     }
 #endif
 
+  if (!display->current_pad_osd &&
+      (event->type == CLUTTER_PAD_BUTTON_PRESS ||
+       event->type == CLUTTER_PAD_BUTTON_RELEASE ||
+       event->type == CLUTTER_PAD_RING ||
+       event->type == CLUTTER_PAD_STRIP))
+    {
+      if (meta_input_settings_handle_pad_event (meta_backend_get_input_settings (backend),
+                                                event))
+        {
+          bypass_wayland = bypass_clutter = TRUE;
+          goto out;
+        }
+    }
+
   source = clutter_event_get_source_device (event);
 
   if (source)
     {
-      meta_backend_update_last_device (meta_get_backend (),
+      meta_backend_update_last_device (backend,
                                        clutter_input_device_get_device_id (source));
     }
 
@@ -238,8 +253,12 @@ meta_display_handle_event (MetaDisplay        *display,
         }
       else
         {
-          MetaCursorTracker *tracker = meta_cursor_tracker_get_for_screen (NULL);
-          meta_cursor_tracker_update_position (tracker, event->motion.x, event->motion.y);
+          MetaCursorTracker *cursor_tracker =
+            meta_backend_get_cursor_tracker (backend);
+
+          meta_cursor_tracker_update_position (cursor_tracker,
+                                               event->motion.x,
+                                               event->motion.y);
         }
 
       display->monitor_cache_invalidated = TRUE;
@@ -274,9 +293,9 @@ meta_display_handle_event (MetaDisplay        *display,
         }
     }
 
-  tracker = meta_display_get_gesture_tracker (display);
+  gesture_tracker = meta_display_get_gesture_tracker (display);
 
-  if (meta_gesture_tracker_handle_event (tracker, event))
+  if (meta_gesture_tracker_handle_event (gesture_tracker, event))
     {
       bypass_wayland = bypass_clutter = TRUE;
       goto out;
@@ -356,7 +375,6 @@ meta_display_handle_event (MetaDisplay        *display,
            * have the synchronous grab. */
           if (event->type == CLUTTER_BUTTON_PRESS)
             {
-              MetaBackend *backend = meta_get_backend ();
               if (META_IS_BACKEND_X11 (backend))
                 {
                   Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
@@ -365,6 +383,17 @@ meta_display_handle_event (MetaDisplay        *display,
                   XIAllowEvents (xdisplay, clutter_event_get_device_id (event),
                                  XIReplayDevice, event->button.time);
                 }
+            }
+
+          /* If the focus window has an active close dialog let clutter
+           * events go through, so fancy clutter dialogs can get to handle
+           * all events.
+           */
+          if (window->close_dialog &&
+              meta_close_dialog_is_visible (window->close_dialog))
+            {
+              bypass_wayland = TRUE;
+              bypass_clutter = FALSE;
             }
         }
 

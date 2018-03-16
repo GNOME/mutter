@@ -50,12 +50,8 @@
 #include "session.h"
 #include "workspace-private.h"
 
+#include "backends/meta-logical-monitor.h"
 #include "backends/x11/meta-backend-x11.h"
-
-struct _MetaWindowX11Class
-{
-  MetaWindowClass parent_class;
-};
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaWindowX11, meta_window_x11, META_TYPE_WINDOW)
 
@@ -465,6 +461,7 @@ meta_window_apply_session_info (MetaWindow *window,
           MetaWorkspace *workspace = spaces->data;
 
           meta_window_change_workspace (window, workspace);
+          window->initial_workspace_set = TRUE;
 
           meta_topic (META_DEBUG_SM,
                       "Restoring saved window %s to workspace %d\n",
@@ -901,6 +898,33 @@ update_net_frame_extents (MetaWindow *window)
   meta_error_trap_pop (window->display);
 }
 
+static void
+update_gtk_edge_constraints (MetaWindow *window)
+{
+  MetaEdgeConstraint *constraints = window->edge_constraints;
+  unsigned long data[1];
+
+  /* Edge constraints */
+  data[0] = (constraints[0] != META_EDGE_CONSTRAINT_NONE ? 1 : 0)    << 0 |
+            (constraints[0] != META_EDGE_CONSTRAINT_MONITOR ? 1 : 0) << 1 |
+            (constraints[1] != META_EDGE_CONSTRAINT_NONE ? 1 : 0)    << 2 |
+            (constraints[1] != META_EDGE_CONSTRAINT_MONITOR ? 1 : 0) << 3 |
+            (constraints[2] != META_EDGE_CONSTRAINT_NONE ? 1 : 0)    << 4 |
+            (constraints[2] != META_EDGE_CONSTRAINT_MONITOR ? 1 : 0) << 5 |
+            (constraints[3] != META_EDGE_CONSTRAINT_NONE ? 1 : 0)    << 6 |
+            (constraints[3] != META_EDGE_CONSTRAINT_MONITOR ? 1 : 0) << 7;
+
+  meta_verbose ("Setting _GTK_EDGE_CONSTRAINTS to %lu\n", data[0]);
+
+  meta_error_trap_push (window->display);
+  XChangeProperty (window->display->xdisplay,
+                   window->xwindow,
+                   window->display->atom__GTK_EDGE_CONSTRAINTS,
+                   XA_CARDINAL, 32, PropModeReplace,
+                   (guchar*) data, 1);
+  meta_error_trap_pop (window->display);
+}
+
 static gboolean
 sync_request_timeout (gpointer data)
 {
@@ -1258,6 +1282,8 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
     *result |= META_MOVE_RESIZE_RESULT_MOVED;
   if (need_resize_client || need_resize_frame)
     *result |= META_MOVE_RESIZE_RESULT_RESIZED;
+
+  update_gtk_edge_constraints (window);
 }
 
 static gboolean
@@ -1455,15 +1481,15 @@ meta_window_x11_update_icon (MetaWindow       *window,
 }
 
 static void
-meta_window_x11_update_main_monitor (MetaWindow *window)
+meta_window_x11_update_main_monitor (MetaWindow *window,
+                                     gboolean    user_op)
 {
-  window->monitor = meta_screen_calculate_monitor_for_window (window->screen,
-                                                              window);
+  window->monitor = meta_window_calculate_main_logical_monitor (window);
 }
 
 static void
-meta_window_x11_main_monitor_changed (MetaWindow *window,
-                                      const MetaMonitorInfo *old)
+meta_window_x11_main_monitor_changed (MetaWindow               *window,
+                                      const MetaLogicalMonitor *old)
 {
 }
 
@@ -1504,6 +1530,33 @@ meta_window_x11_get_client_pid (MetaWindow *window)
 }
 
 static void
+meta_window_x11_force_restore_shortcuts (MetaWindow         *window,
+                                         ClutterInputDevice *source)
+{
+  /*
+   * Not needed on X11 because clients can use a keyboard grab
+   * to bypass the compositor shortcuts.
+   */
+}
+
+static gboolean
+meta_window_x11_shortcuts_inhibited (MetaWindow         *window,
+                                     ClutterInputDevice *source)
+{
+  /*
+   * On X11, we don't use a shortcuts inhibitor, clients just grab
+   * the keyboard.
+   */
+  return FALSE;
+}
+
+static gboolean
+meta_window_x11_is_stackable (MetaWindow *window)
+{
+  return !window->override_redirect;
+}
+
+static void
 meta_window_x11_class_init (MetaWindowX11Class *klass)
 {
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
@@ -1524,6 +1577,9 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->update_main_monitor = meta_window_x11_update_main_monitor;
   window_class->main_monitor_changed = meta_window_x11_main_monitor_changed;
   window_class->get_client_pid = meta_window_x11_get_client_pid;
+  window_class->force_restore_shortcuts = meta_window_x11_force_restore_shortcuts;
+  window_class->shortcuts_inhibited = meta_window_x11_shortcuts_inhibited;
+  window_class->is_stackable = meta_window_x11_is_stackable;
 }
 
 void
@@ -1612,16 +1668,20 @@ meta_window_x11_set_net_wm_state (MetaWindow *window)
 
   if (window->fullscreen)
     {
-      if (window->fullscreen_monitors[0] >= 0)
+      if (meta_window_has_fullscreen_monitors (window))
         {
-          data[0] = meta_screen_monitor_index_to_xinerama_index (window->screen,
-                                                                 window->fullscreen_monitors[0]);
-          data[1] = meta_screen_monitor_index_to_xinerama_index (window->screen,
-                                                                 window->fullscreen_monitors[1]);
-          data[2] = meta_screen_monitor_index_to_xinerama_index (window->screen,
-                                                                 window->fullscreen_monitors[2]);
-          data[3] = meta_screen_monitor_index_to_xinerama_index (window->screen,
-                                                                 window->fullscreen_monitors[3]);
+          data[0] =
+            meta_screen_logical_monitor_to_xinerama_index (window->screen,
+                                                           window->fullscreen_monitors.top);
+          data[1] =
+            meta_screen_logical_monitor_to_xinerama_index (window->screen,
+                                                           window->fullscreen_monitors.bottom);
+          data[2] =
+            meta_screen_logical_monitor_to_xinerama_index (window->screen,
+                                                           window->fullscreen_monitors.left);
+          data[3] =
+            meta_screen_logical_monitor_to_xinerama_index (window->screen,
+                                                           window->fullscreen_monitors.right);
 
           meta_verbose ("Setting _NET_WM_FULLSCREEN_MONITORS\n");
           meta_error_trap_push (window->display);
@@ -1642,6 +1702,9 @@ meta_window_x11_set_net_wm_state (MetaWindow *window)
           meta_error_trap_pop (window->display);
         }
     }
+
+  /* Edge constraints */
+  update_gtk_edge_constraints (window);
 }
 
 static cairo_region_t *
@@ -1870,11 +1933,11 @@ meta_window_x11_update_shape_region (MetaWindow *window)
        * this is simply the client area.
        */
       cairo_region_intersect_rectangle (region, &client_area);
-
       /* Some applications might explicitly set their bounding region
        * to the client area. Detect these cases, and throw out the
-       * bounding region in this case. */
-      if (cairo_region_contains_rectangle (region, &client_area) == CAIRO_REGION_OVERLAP_IN)
+       * bounding region in this case for decorated windows. */
+      if (window->decorated &&
+          cairo_region_contains_rectangle (region, &client_area) == CAIRO_REGION_OVERLAP_IN)
         g_clear_pointer (&region, cairo_region_destroy);
     }
 
@@ -2032,36 +2095,65 @@ meta_window_move_resize_request (MetaWindow *window,
       rect.width = width;
       rect.height = height;
 
-      meta_screen_get_monitor_geometry (window->screen, window->monitor->number, &monitor_rect);
-
-      /* Workaround braindead legacy apps that don't know how to
-       * fullscreen themselves properly - don't get fooled by
-       * windows which hide their titlebar when maximized or which are
-       * client decorated; that's not the same as fullscreen, even
-       * if there are no struts making the workarea smaller than
-       * the monitor.
-       */
-      if (meta_prefs_get_force_fullscreen() &&
-          !window->hide_titlebar_when_maximized &&
-          (window->decorated || !meta_window_is_client_decorated (window)) &&
-          meta_rectangle_equal (&rect, &monitor_rect) &&
-          window->has_fullscreen_func &&
-          !window->fullscreen)
+      if (window->monitor)
         {
-          /*
-          meta_topic (META_DEBUG_GEOMETRY,
-          */
-          meta_warning (
-                      "Treating resize request of legacy application %s as a "
-                      "fullscreen request\n",
-                      window->desc);
-          meta_window_make_fullscreen_internal (window);
+          meta_screen_get_monitor_geometry (window->screen, window->monitor->number, &monitor_rect);
+
+          /* Workaround braindead legacy apps that don't know how to
+           * fullscreen themselves properly - don't get fooled by
+           * windows which hide their titlebar when maximized or which are
+           * client decorated; that's not the same as fullscreen, even
+           * if there are no struts making the workarea smaller than
+           * the monitor.
+           */
+          if (meta_prefs_get_force_fullscreen() &&
+              !window->hide_titlebar_when_maximized &&
+              (window->decorated || !meta_window_is_client_decorated (window)) &&
+              meta_rectangle_equal (&rect, &monitor_rect) &&
+              window->has_fullscreen_func &&
+              !window->fullscreen)
+            {
+              /*
+              meta_topic (META_DEBUG_GEOMETRY,
+              */
+              meta_warning (
+                           "Treating resize request of legacy application %s as a "
+                           "fullscreen request\n",
+                           window->desc);
+              meta_window_make_fullscreen_internal (window);
+            }
         }
 
       adjust_for_gravity (window, TRUE, gravity, &rect);
       meta_window_client_rect_to_frame_rect (window, &rect, &rect);
       meta_window_move_resize_internal (window, flags, gravity, rect);
     }
+}
+
+static void
+restack_window (MetaWindow *window,
+                MetaWindow *sibling,
+                int         direction)
+{
+ switch (direction)
+   {
+   case Above:
+     if (sibling)
+       meta_window_stack_just_above (window, sibling);
+     else
+       meta_window_raise (window);
+     break;
+   case Below:
+     if (sibling)
+       meta_window_stack_just_below (window, sibling);
+     else
+       meta_window_lower (window);
+     break;
+   case TopIf:
+   case BottomIf:
+   case Opposite:
+     break;
+   }
 }
 
 gboolean
@@ -2097,10 +2189,7 @@ meta_window_x11_configure_request (MetaWindow *window,
    * the stack looks).
    *
    * I'm pretty sure no interesting client uses TopIf, BottomIf, or
-   * Opposite anyway, so the only possible missing thing is
-   * Above/Below with a sibling set. For now we just pretend there's
-   * never a sibling set and always do the full raise/lower instead of
-   * the raise-just-above/below-sibling.
+   * Opposite anyway.
    */
   if (event->xconfigurerequest.value_mask & CWStackMode)
     {
@@ -2132,19 +2221,23 @@ meta_window_x11_configure_request (MetaWindow *window,
         }
       else
         {
-          switch (event->xconfigurerequest.detail)
+          MetaWindow *sibling = NULL;
+          /* Handle Above/Below with a sibling set */
+          if (event->xconfigurerequest.above != None)
             {
-            case Above:
-              meta_window_raise (window);
-              break;
-            case Below:
-              meta_window_lower (window);
-              break;
-            case TopIf:
-            case BottomIf:
-            case Opposite:
-              break;
+              MetaDisplay *display;
+
+              display = meta_window_get_display (window);
+              sibling = meta_display_lookup_x_window (display,
+                                                      event->xconfigurerequest.above);
+              if (sibling == NULL)
+                return TRUE;
+
+              meta_topic (META_DEBUG_STACK,
+                      "xconfigure stacking request from window %s sibling %s stackmode %d\n",
+                      window->desc, sibling->desc, event->xconfigurerequest.detail);
             }
+          restack_window (window, sibling, event->xconfigurerequest.detail);
         }
     }
 
@@ -2215,6 +2308,30 @@ query_pressed_buttons (MetaWindow *window)
     button |= 1 << 3;
 
   return button;
+}
+
+static void
+handle_net_restack_window (MetaDisplay *display,
+                           XEvent      *event)
+{
+  MetaWindow *window, *sibling = NULL;
+
+  /* Ignore if this does not come from a pager, see the WM spec
+   */
+  if (event->xclient.data.l[0] != 2)
+    return;
+
+  window = meta_display_lookup_x_window (display,
+                                         event->xclient.window);
+
+  if (window)
+    {
+      if (event->xclient.data.l[1])
+        sibling = meta_display_lookup_x_window (display,
+                                                event->xclient.data.l[1]);
+
+      restack_window (window, sibling, event->xclient.data.l[2]);
+    }
 }
 
 gboolean
@@ -2668,19 +2785,23 @@ meta_window_x11_client_message (MetaWindow *window,
   else if (event->xclient.message_type ==
            display->atom__NET_WM_FULLSCREEN_MONITORS)
     {
-      gulong top, bottom, left, right;
+      MetaLogicalMonitor *top, *bottom, *left, *right;
 
       meta_verbose ("_NET_WM_FULLSCREEN_MONITORS request for window '%s'\n",
                     window->desc);
 
-      top = meta_screen_xinerama_index_to_monitor_index (window->screen,
-                                                         event->xclient.data.l[0]);
-      bottom = meta_screen_xinerama_index_to_monitor_index (window->screen,
-                                                            event->xclient.data.l[1]);
-      left = meta_screen_xinerama_index_to_monitor_index (window->screen,
-                                                          event->xclient.data.l[2]);
-      right = meta_screen_xinerama_index_to_monitor_index (window->screen,
-                                                           event->xclient.data.l[3]);
+      top =
+        meta_screen_xinerama_index_to_logical_monitor (window->screen,
+                                                       event->xclient.data.l[0]);
+      bottom =
+        meta_screen_xinerama_index_to_logical_monitor (window->screen,
+                                                       event->xclient.data.l[1]);
+      left =
+        meta_screen_xinerama_index_to_logical_monitor (window->screen,
+                                                       event->xclient.data.l[2]);
+      right =
+        meta_screen_xinerama_index_to_logical_monitor (window->screen,
+                                                       event->xclient.data.l[3]);
       /* source_indication = event->xclient.data.l[4]; */
 
       meta_window_update_fullscreen_monitors (window, top, bottom, left, right);
@@ -2695,6 +2816,11 @@ meta_window_x11_client_message (MetaWindow *window,
       y = event->xclient.data.l[2];
 
       meta_window_show_menu (window, META_WINDOW_MENU_WM, x, y);
+    }
+  else if (event->xclient.message_type ==
+           display->atom__NET_RESTACK_WINDOW)
+    {
+      handle_net_restack_window (display, event);
     }
 
   return FALSE;
@@ -2916,6 +3042,12 @@ meta_window_x11_new (MetaDisplay       *display,
   if (attrs.root != screen->xroot)
     {
       meta_verbose ("Not on our screen\n");
+      goto error;
+    }
+
+  if (attrs.class == InputOnly)
+    {
+      meta_verbose ("Not managing InputOnly windows\n");
       goto error;
     }
 

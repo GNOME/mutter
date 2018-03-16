@@ -31,6 +31,8 @@ struct _MetaCompositor
 
   CoglContext           *context;
 
+  MetaWindowActor       *top_window_actor;
+
   /* Used for unredirecting fullscreen windows */
   guint                  disable_unredirect_count;
   MetaWindow            *unredirected_window;
@@ -61,5 +63,11 @@ gint64 meta_compositor_monotonic_time_to_server_time (MetaDisplay *display,
 
 void meta_compositor_flash_window (MetaCompositor *compositor,
                                    MetaWindow     *window);
+
+MetaCloseDialog * meta_compositor_create_close_dialog (MetaCompositor *compositor,
+                                                       MetaWindow     *window);
+
+MetaInhibitShortcutsDialog * meta_compositor_create_inhibit_shortcuts_dialog (MetaCompositor *compositor,
+                                                                              MetaWindow     *window);
 
 #endif /* META_COMPOSITOR_PRIVATE_H */
