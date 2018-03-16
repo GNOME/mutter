@@ -53,6 +53,8 @@ struct _MetaWindowActorPrivate
   MetaWindow *window;
   MetaCompositor *compositor;
 
+  MetaCompEffect  pending_effect;
+
   MetaSurfaceActor *surface;
 
   /* MetaShadowFactory only caches shadows that are actually in use;
@@ -117,6 +119,7 @@ struct _MetaWindowActorPrivate
 
   guint             updates_frozen         : 1;
   guint             first_frame_state      : 2; /* FirstFrameState */
+  guint             has_pending_effect     : 1;
 };
 
 typedef struct _FrameData FrameData;
@@ -362,6 +365,12 @@ meta_window_actor_sync_thawed_state (MetaWindowActor *self)
 
   if (priv->first_frame_state == INITIALLY_FROZEN)
     priv->first_frame_state = DRAWING_FIRST_FRAME;
+
+  if (priv->has_pending_effect)
+    {
+      meta_window_actor_show (self, priv->pending_effect);
+      priv->has_pending_effect = FALSE;
+    }
 
   if (priv->surface)
     meta_surface_actor_set_frozen (priv->surface, FALSE);
@@ -1320,6 +1329,13 @@ meta_window_actor_show (MetaWindowActor   *self,
   MetaPluginEffect event;
 
   g_return_if_fail (!priv->visible);
+
+  if (is_frozen (self))
+    {
+      priv->pending_effect = effect;
+      priv->has_pending_effect = TRUE;
+      return;
+    }
 
   self->priv->visible = TRUE;
 
