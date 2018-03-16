@@ -1,12 +1,17 @@
-Description: Skip test that started failing with 3.25
- That way we can still benefit by running all the other tests.
-Author: Jeremy Bicha <jbicha@ubuntu.com>
+From: Jeremy Bicha <jbicha@ubuntu.com>
+Date: Thu, 31 Aug 2017 07:11:39 -0400
+Subject: Skip test that started failing with 3.25
+
+That way we can still benefit by running all the other tests.
+
 Bug: https://bugzilla.gnome.org/785319
 Applied-upstream: no
 ---
- clutter/tests/conform/Makefile.am |    1 -
+ clutter/tests/conform/Makefile.am | 1 -
  1 file changed, 1 deletion(-)
 
+diff --git a/clutter/tests/conform/Makefile.am b/clutter/tests/conform/Makefile.am
+index bca10dc..a2b7bee 100644
 --- a/clutter/tests/conform/Makefile.am
 +++ b/clutter/tests/conform/Makefile.am
 @@ -26,7 +26,6 @@ actor_tests = \

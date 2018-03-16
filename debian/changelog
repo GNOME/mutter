@@ -2,6 +2,7 @@ mutter (3.28.0-2) UNRELEASED; urgency=medium
 
   * Update Vcs-* for migration from Alioth svn to salsa.debian.org git
   * debian/gbp.conf: Add
+  * Refresh patch series with gbp pq
 
  -- Simon McVittie <smcv@debian.org>  Fri, 16 Mar 2018 23:35:27 +0000
 
