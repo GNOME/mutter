@@ -1,0 +1,2323 @@
+# Turkish translation of mutter.
+# Copyright (C) 2003, 2004, 2005, 2008, 2009, 2011 Free Software Foundation.
+# This file is distributed under the same license as the mutter package.
+#
+# Sinan İmamoğlu <sinan@myrealbox.com>, 2003.
+# Baris Cicek <baris@teamforce.name.tr>, 2004, 2005, 2008, 2009.
+# İlker DAĞLI <ilker@ilkerdagli.info>, 2011.
+# Muhammed EKEN <gnome@m-eken.com>, 2011.
+# Furkan Ahmet Kara <furkanahmetkara.fk@gmail.com>, 2017.
+# Emin Tufan Çetin <etcetin@gmail.com>, 2017.
+# Muhammet Kara <muhammetk@gmail.com>, 2011, 2012, 2014, 2015, 2016, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: mutter master\n"
+"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
+"product=mutter&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2017-11-10 18:18+0000\n"
+"PO-Revision-Date: 2017-11-15 23:49+0300\n"
+"Last-Translator: Muhammet Kara <muhammetk@gmail.com>\n"
+"Language-Team: Türkçe <gnome-turk@gnome.org>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-DamnedLies-Scope: partial\n"
+"X-Generator: Gtranslator 2.91.7\n"
+
+#: data/50-mutter-navigation.xml:6
+msgid "Navigation"
+msgstr "Gezinme"
+
+#: data/50-mutter-navigation.xml:9
+msgid "Move window to workspace 1"
+msgstr "Pencereyi çalışma alanı 1’e taşı"
+
+#: data/50-mutter-navigation.xml:12
+msgid "Move window to workspace 2"
+msgstr "Pencereyi çalışma alanı 2’ye taşı"
+
+#: data/50-mutter-navigation.xml:15
+msgid "Move window to workspace 3"
+msgstr "Pencereyi çalışma alanı 3’e taşı"
+
+#: data/50-mutter-navigation.xml:18
+msgid "Move window to workspace 4"
+msgstr "Pencereyi çalışma alanı 4’e taşı"
+
+#: data/50-mutter-navigation.xml:21
+msgid "Move window to last workspace"
+msgstr "Pencereyi son çalışma alanına taşı"
+
+#: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace to the left"
+msgstr "Pencereyi soldaki çalışma alanına taşı"
+
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "Pencereyi sağdaki çalışma alanına taşı"
+
+#: data/50-mutter-navigation.xml:30
+msgid "Move window one workspace up"
+msgstr "Pencereyi üstteki çalışma alanına taşı"
+
+#: data/50-mutter-navigation.xml:33
+msgid "Move window one workspace down"
+msgstr "Pencereyi alttaki çalışma alanına taşı"
+
+#: data/50-mutter-navigation.xml:36
+msgid "Move window one monitor to the left"
+msgstr "Pencereyi soldaki monitöre taşı"
+
+#: data/50-mutter-navigation.xml:39
+msgid "Move window one monitor to the right"
+msgstr "Pencereyi sağdaki monitöre taşı"
+
+#: data/50-mutter-navigation.xml:42
+msgid "Move window one monitor up"
+msgstr "Pencereyi üstteki monitöre taşı"
+
+#: data/50-mutter-navigation.xml:45
+msgid "Move window one monitor down"
+msgstr "Pencereyi alttaki monitöre taşı"
+
+#: data/50-mutter-navigation.xml:49
+msgid "Switch applications"
+msgstr "Uygulamalar arasında geçiş yap"
+
+#: data/50-mutter-navigation.xml:54
+msgid "Switch to previous application"
+msgstr "Önceki uygulamaya geç"
+
+#: data/50-mutter-navigation.xml:58
+msgid "Switch windows"
+msgstr "Pencereler arasında geçiş yap"
+
+#: data/50-mutter-navigation.xml:63
+msgid "Switch to previous window"
+msgstr "Önceki pencereye geç"
+
+#: data/50-mutter-navigation.xml:67
+msgid "Switch windows of an application"
+msgstr "Uygulamanın pencereleri arasında geçiş yap"
+
+#: data/50-mutter-navigation.xml:72
+msgid "Switch to previous window of an application"
+msgstr "Uygulamanın bir önceki penceresine geç"
+
+#: data/50-mutter-navigation.xml:76
+msgid "Switch system controls"
+msgstr "Sistem denetimleri arasında geçiş yap"
+
+#: data/50-mutter-navigation.xml:81
+msgid "Switch to previous system control"
+msgstr "Önceki sistem denetimine geç"
+
+#: data/50-mutter-navigation.xml:85
+msgid "Switch windows directly"
+msgstr "Pencereler arasında doğrudan geçiş yap"
+
+#: data/50-mutter-navigation.xml:90
+msgid "Switch directly to previous window"
+msgstr "Önceki pencereye doğrudan geç"
+
+#: data/50-mutter-navigation.xml:94
+msgid "Switch windows of an app directly"
+msgstr "Uygulamanın pencereleri arasında anında geçiş yap"
+
+#: data/50-mutter-navigation.xml:99
+msgid "Switch directly to previous window of an app"
+msgstr "Bir uygulamanın önceki penceresine doğrudan geç"
+
+#: data/50-mutter-navigation.xml:103
+msgid "Switch system controls directly"
+msgstr "Sistem denetimleri arasında doğrudan geçiş yap"
+
+#: data/50-mutter-navigation.xml:108
+msgid "Switch directly to previous system control"
+msgstr "Önceki sistem denetimine doğrudan geç"
+
+#: data/50-mutter-navigation.xml:111
+msgid "Hide all normal windows"
+msgstr "Tüm normal pencereleri gizle"
+
+#: data/50-mutter-navigation.xml:114
+msgid "Switch to workspace 1"
+msgstr "Çalışma alanı 1’e geç"
+
+#: data/50-mutter-navigation.xml:117
+msgid "Switch to workspace 2"
+msgstr "Çalışma alanı 2’ye geç"
+
+#: data/50-mutter-navigation.xml:120
+msgid "Switch to workspace 3"
+msgstr "Çalışma alanı 3’e geç"
+
+#: data/50-mutter-navigation.xml:123
+msgid "Switch to workspace 4"
+msgstr "Çalışma alanı 4’e geç"
+
+#: data/50-mutter-navigation.xml:126
+msgid "Switch to last workspace"
+msgstr "Son çalışma alanına geç"
+
+#: data/50-mutter-navigation.xml:129
+msgid "Move to workspace left"
+msgstr "Soldaki çalışma alanına taşı"
+
+#: data/50-mutter-navigation.xml:132
+msgid "Move to workspace right"
+msgstr "Sağdaki çalışma alanına taşı"
+
+#: data/50-mutter-navigation.xml:135
+msgid "Move to workspace above"
+msgstr "Üstteki çalışma alanına taşı"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace below"
+msgstr "Alttaki çalışma alanına taşı"
+
+#: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
+msgid "System"
+msgstr "Sistem"
+
+#: data/50-mutter-system.xml:8
+msgid "Show the run command prompt"
+msgstr "Komut çalıştırma istemini göster"
+
+#: data/50-mutter-system.xml:10
+msgid "Show the activities overview"
+msgstr "Etkinlik genel görünümünü göster"
+
+#: data/50-mutter-wayland.xml:8
+msgid "Restore the keyboard shortcuts"
+msgstr "Klavye kısayollarını geri yükle"
+
+#: data/50-mutter-windows.xml:6
+msgid "Windows"
+msgstr "Pencereler"
+
+#: data/50-mutter-windows.xml:8
+msgid "Activate the window menu"
+msgstr "Pencere menüsünü etkinleştir"
+
+#: data/50-mutter-windows.xml:10
+msgid "Toggle fullscreen mode"
+msgstr "Tam ekran kipini değiştir"
+
+#: data/50-mutter-windows.xml:12
+msgid "Toggle maximization state"
+msgstr "Ekranı kaplama durumunu değiştir"
+
+#: data/50-mutter-windows.xml:14
+msgid "Maximize window"
+msgstr "Bencereyi büyült"
+
+#: data/50-mutter-windows.xml:16
+msgid "Restore window"
+msgstr "Pencereyi eski haline getir"
+
+#: data/50-mutter-windows.xml:18
+msgid "Toggle shaded state"
+msgstr "Toplanmış durumu değiştir"
+
+#: data/50-mutter-windows.xml:20
+msgid "Close window"
+msgstr "Pencereyi kapat"
+
+#: data/50-mutter-windows.xml:22
+msgid "Hide window"
+msgstr "Pencereyi gizle"
+
+#: data/50-mutter-windows.xml:24
+msgid "Move window"
+msgstr "Pencere taşı"
+
+#: data/50-mutter-windows.xml:26
+msgid "Resize window"
+msgstr "Pencereyi yeniden boyutlandır"
+
+#: data/50-mutter-windows.xml:29
+msgid "Toggle window on all workspaces or one"
+msgstr ""
+"Pencerenin tüm çalışma alanlarında veya yalnızca bir tanesi üzerinde "
+"olmasını seç"
+
+#: data/50-mutter-windows.xml:31
+msgid "Raise window if covered, otherwise lower it"
+msgstr "Pencere altta kalmışsa yükselt, aksi halde alçalt"
+
+#: data/50-mutter-windows.xml:33
+msgid "Raise window above other windows"
+msgstr "Pencereyi diğerlerinin üstüne çıkar"
+
+#: data/50-mutter-windows.xml:35
+msgid "Lower window below other windows"
+msgstr "Pencereyi diğerlerinin altına gönder"
+
+#: data/50-mutter-windows.xml:37
+msgid "Maximize window vertically"
+msgstr "Pencereyi dikey olarak büyült"
+
+#: data/50-mutter-windows.xml:39
+msgid "Maximize window horizontally"
+msgstr "Pencereyi yatay olarak büyült"
+
+#: data/50-mutter-windows.xml:43
+msgid "View split on left"
+msgstr "Solda bölünmüş olarak göster"
+
+#: data/50-mutter-windows.xml:47
+msgid "View split on right"
+msgstr "Sağda bölünmüş olarak göster"
+
+#: data/mutter.desktop.in:4
+msgid "Mutter"
+msgstr "Mutter"
+
+#: data/org.gnome.mutter.gschema.xml.in:7
+msgid "Modifier to use for extended window management operations"
+msgstr "Genişletilmiş pencere yönetimi işlemleri için kullanılacak değiştirici"
+
+#: data/org.gnome.mutter.gschema.xml.in:8
+msgid ""
+"This key will initiate the “overlay”, which is a combination window overview "
+"and application launching system. The default is intended to be the “Windows "
+"key” on PC hardware. It’s expected that this binding either the default or "
+"set to the empty string."
+msgstr ""
+"Bu tuş, pencere genel görünümü ve uygulama başlatma sisteminin bir birleşimi "
+"olan “bindirme” işlemini başlatır. Öntanımlı olarak PC donanımındaki "
+"“Windows tuşu” olması tasarlanmıştır. Bu bağlayıcının öntanımlı veya boş "
+"dizge olarak ayarlanması beklenir."
+
+#: data/org.gnome.mutter.gschema.xml.in:20
+msgid "Attach modal dialogs"
+msgstr "Yardımcı diyalogları ekle"
+
+#: data/org.gnome.mutter.gschema.xml.in:21
+msgid ""
+"When true, instead of having independent titlebars, modal dialogs appear "
+"attached to the titlebar of the parent window and are moved together with "
+"the parent window."
+msgstr ""
+"Seçili olduğunda, bağımsız başlık çubuklarına sahip olmak yerine, kipsel "
+"diyaloglar üst pencerenin başlık çubuğunda ekli gözükür ve üst pencere ile "
+"birlikte hareket ettirilebilirler."
+
+#: data/org.gnome.mutter.gschema.xml.in:30
+msgid "Enable edge tiling when dropping windows on screen edges"
+msgstr ""
+"Pencereler ekran kenarlarında bırakıldığında kenar döşemeyi etkinleştir."
+
+#: data/org.gnome.mutter.gschema.xml.in:31
+msgid ""
+"If enabled, dropping windows on vertical screen edges maximizes them "
+"vertically and resizes them horizontally to cover half of the available "
+"area. Dropping windows on the top screen edge maximizes them completely."
+msgstr ""
+"Eğer etkinleştirilirse, dikey ekran kenarlarına bırakılan pencereler dikey "
+"olarak ekranı kaplar ve yatayda kullanılabilir alanın yarısını kaplayacak "
+"şekilde yeniden boyutlandırılır. Ekranın tepedeki kenarına bırakılan "
+"pencereler ekranı tamamen kaplar."
+
+#: data/org.gnome.mutter.gschema.xml.in:40
+msgid "Workspaces are managed dynamically"
+msgstr "Çalışma alanları dinamik olarak yönetilir"
+
+#: data/org.gnome.mutter.gschema.xml.in:41
+msgid ""
+"Determines whether workspaces are managed dynamically or whether there’s a "
+"static number of workspaces (determined by the num-workspaces key in org."
+"gnome.desktop.wm.preferences)."
+msgstr ""
+"Çalışma alanlarının dinamik olarak mı yönetileceğini yoksa sabit sayıda "
+"çalışma alanı mı olacağını belirler (org.gnome.desktop.wm.preferences "
+"içindeki num-workspaces değişkeni tarafından belirlenir)."
+
+#: data/org.gnome.mutter.gschema.xml.in:50
+msgid "Workspaces only on primary"
+msgstr "Yalnızca birincil monitördeki çalışma alanları"
+
+#: data/org.gnome.mutter.gschema.xml.in:51
+msgid ""
+"Determines whether workspace switching should happen for windows on all "
+"monitors or only for windows on the primary monitor."
+msgstr ""
+"Çalışma alanı değiştirilmesinin, tüm monitörlerdeki pencerelerde mi yoksa "
+"yalnızca birincil monitördekilerde mi gerçekleşeceğini belirler."
+
+#: data/org.gnome.mutter.gschema.xml.in:59
+msgid "No tab popup"
+msgstr "Sekme açılır penceresi yok"
+
+#: data/org.gnome.mutter.gschema.xml.in:60
+msgid ""
+"Determines whether the use of popup and highlight frame should be disabled "
+"for window cycling."
+msgstr ""
+"Pencere geçişinde çerçeve vurgulanması ve açılır pencere kullanımının "
+"kapatılıp kapatılmayacağını belirler."
+
+#: data/org.gnome.mutter.gschema.xml.in:68
+msgid "Delay focus changes until the pointer stops moving"
+msgstr "Odak değişikliklerini işaretçi hareketi durana kadar ertele"
+
+#: data/org.gnome.mutter.gschema.xml.in:69
+msgid ""
+"If set to true, and the focus mode is either “sloppy” or “mouse” then the "
+"focus will not be changed immediately when entering a window, but only after "
+"the pointer stops moving."
+msgstr ""
+"Eğer seçiliyse ve odaklama kipi “sloppy” yada “mouse” ise bir pencereye "
+"geçişte odak hemen değil, yanlızca işaretçi hareket etmeyi bıraktığında "
+"değişir."
+
+#: data/org.gnome.mutter.gschema.xml.in:79
+msgid "Draggable border width"
+msgstr "Sürüklenebilir kenarlık genişliği"
+
+#: data/org.gnome.mutter.gschema.xml.in:80
+msgid ""
+"The amount of total draggable borders. If the theme’s visible borders are "
+"not enough, invisible borders will be added to meet this value."
+msgstr ""
+"Sürüklenebilir kenarlıkların toplam miktarı. Eğer temanın görünür "
+"kenarlıkları yetersiz gelirse, bu değere ulaşmak için görünmez kenarlıklar "
+"eklenir."
+
+#: data/org.gnome.mutter.gschema.xml.in:89
+msgid "Auto maximize nearly monitor sized windows"
+msgstr "Ekran boyutuna yakın pencereleri kendiliğinden ekranı kaplattır"
+
+#: data/org.gnome.mutter.gschema.xml.in:90
+msgid ""
+"If enabled, new windows that are initially the size of the monitor "
+"automatically get maximized."
+msgstr ""
+"Etkinleştirildiğinde ekran boyutunda başlayan yeni pencereler kendiliğinden "
+"ekranı kaplar."
+
+#: data/org.gnome.mutter.gschema.xml.in:98
+msgid "Place new windows in the center"
+msgstr "Yeni pencereleri ekranın ortasına yerleştir"
+
+#: data/org.gnome.mutter.gschema.xml.in:99
+msgid ""
+"When true, the new windows will always be put in the center of the active "
+"screen of the monitor."
+msgstr ""
+"Etkinleştirildiğinde, yeni pencereler her zaman monitörün etkin ekranında "
+"ortaya yerleştirilir."
+
+#: data/org.gnome.mutter.gschema.xml.in:107
+msgid "Enable experimental features"
+msgstr "Deneysel özellikleri etkinleştir"
+
+#: data/org.gnome.mutter.gschema.xml.in:108
+msgid ""
+"To enable experimental features, add the feature keyword to the list. "
+"Whether the feature requires restarting the compositor depends on the given "
+"feature. Any experimental feature is not required to still be available, or "
+"configurable. Don’t expect adding anything in this setting to be future "
+"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
+"mutter default to layout logical monitors in a logical pixel coordinate "
+"space, while scaling monitor framebuffers instead of window content, to "
+"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
+"enables remote desktop support. To support remote desktop with screen "
+"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
+"screen cast support."
+msgstr ""
+"Deneysel özellikleri etkinleştirmek için özelliğin anahtar sözcüğünü listeye "
+"ekleyin. Özelliğin yeniden başlatmayı gerektirip gerektirmeyeceği verilen "
+"özelliğe bağlıdır. Hiçbir deneysel özellik hala kullanılabilir veya "
+"yapılandırılabilir olmak zorunda değildir. Bu ayara eklenecek herhangi bir "
+"şeyin gelecekte olabilecek değişikliklerden etkilenmeyeceğini düşünmeyin. Şu "
+"anda kullanılabilir anahtar sözcükler: • “monitor-config-manager” — "
+"eskisinin yerini alması amaçlanan yeni monitör yapılandırma sistemini "
+"kullan. Bu, yapılandırma uygulamaları tarafından kullanılmak üzere daha "
+"yüksek düzeyde bir yapılandırma API’sini etkinleştirir ve ayrıca mantıksal "
+"monitör ölçeğinde yapılandırma yapmaya olanak tanır.• “scale-monitor-"
+"framebuffer” — mutter’in HiDPI monitörleri yönetmesi için pencere içeriği "
+"yerine monitör çerçeve arabelleğini ölçeklendirirken, mantıksal monitörleri "
+"mantıksal piksel koordinat aralığına yerleştirmesini öntanımlı yapar. "
+"Yeniden başlatma gerektirmez. • “remote-desktop” — uzak masaüstü desteğini "
+"etkinleştirir. Uzak masaüstünü ekran paylaşmayla desteklemek için “screen-"
+"cast” mutlaka etkinleştirilmelidir. • “screen-cast” — ekran kaydı desteğini "
+"etkinleştirir."
+
+#: data/org.gnome.mutter.gschema.xml.in:145
+msgid "Select window from tab popup"
+msgstr "Pencereyi, sekme açılır penceresinden seç"
+
+#: data/org.gnome.mutter.gschema.xml.in:150
+msgid "Cancel tab popup"
+msgstr "Sekmeyi yeni pencerede açmayı iptal et"
+
+#: data/org.gnome.mutter.gschema.xml.in:155
+msgid "Switch monitor configurations"
+msgstr "Monitör yapılandırmaları arasında geçiş yap"
+
+#: data/org.gnome.mutter.gschema.xml.in:160
+msgid "Rotates the built-in monitor configuration"
+msgstr "Yerleşik monitör yapılandırmaları arasında geçiş yapar"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+msgid "Switch to VT 1"
+msgstr "VT 1’e geç"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+msgid "Switch to VT 2"
+msgstr "VT 2’ye geç"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+msgid "Switch to VT 3"
+msgstr "VT 3’e geç"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+msgid "Switch to VT 4"
+msgstr "VT 4’e geç"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+msgid "Switch to VT 5"
+msgstr "VT 5’e geç"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+msgid "Switch to VT 6"
+msgstr "VT 6’ya geç"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+msgid "Switch to VT 7"
+msgstr "VT 7’ye geç"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+msgid "Switch to VT 8"
+msgstr "VT 8’e geç"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+msgid "Switch to VT 9"
+msgstr "VT 9’a geç"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+msgid "Switch to VT 10"
+msgstr "VT 10’a geç"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+msgid "Switch to VT 11"
+msgstr "VT 11’e geç"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+msgid "Switch to VT 12"
+msgstr "VT 12’ye geç"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+msgid "Re-enable shortcuts"
+msgstr "Kısayolları yeniden etkinleştir"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/backends/meta-input-settings.c:2167
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "Kip anahtarı (Group %d)"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/backends/meta-input-settings.c:2190
+msgid "Switch monitor"
+msgstr "Monitör değiştir"
+
+#: src/backends/meta-input-settings.c:2192
+msgid "Show on-screen help"
+msgstr "Ekranda yardımı göster"
+
+#: src/backends/meta-monitor-manager.c:908
+msgid "Built-in display"
+msgstr "Yerleşik ekran"
+
+#: src/backends/meta-monitor-manager.c:931
+msgid "Unknown"
+msgstr "Bilinmiyor"
+
+#: src/backends/meta-monitor-manager.c:933
+msgid "Unknown Display"
+msgstr "Bilinmeyen Ekran"
+
+#. TRANSLATORS: this is a monitor vendor name, followed by a
+#. * size in inches, like 'Dell 15"'
+#.
+#: src/backends/meta-monitor-manager.c:941
+#, c-format
+msgid "%s %s"
+msgstr "%s %s"
+
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/compositor/compositor.c:476
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+"“%2$s” monitöründeki %1$i ekranında zaten başka bir birleştirme yöneticisi "
+"çalışıyor."
+
+#: src/core/bell.c:194
+msgid "Bell event"
+msgstr "Etkinlik zili"
+
+#: src/core/display.c:608
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "X Pencere Sistemi “%s” ekranı açılamadı\n"
+
+#: src/core/main.c:189
+msgid "Disable connection to session manager"
+msgstr "Ortam yöneticisine olan bağlantıyı kapat"
+
+#: src/core/main.c:195
+msgid "Replace the running window manager"
+msgstr "Çalışan pencere yöneticisinin yerini al"
+
+#: src/core/main.c:201
+msgid "Specify session management ID"
+msgstr "Ortam yönetim ID’sini belirt"
+
+#: src/core/main.c:206
+msgid "X Display to use"
+msgstr "Kullanılacak X Ekranı"
+
+#: src/core/main.c:212
+msgid "Initialize session from savefile"
+msgstr "Ortamı kayıtlı dosyadan başlat"
+
+#: src/core/main.c:218
+msgid "Make X calls synchronous"
+msgstr "X çağrılarını eşazamanlı yap"
+
+#: src/core/main.c:225
+msgid "Run as a wayland compositor"
+msgstr "Bir wayland dizgicisi olarak çalıştır"
+
+#: src/core/main.c:231
+msgid "Run as a nested compositor"
+msgstr "Yuvalanmış dizgici olarak çalıştır"
+
+#: src/core/main.c:239
+msgid "Run as a full display server, rather than nested"
+msgstr "İç içe değil tam ekran sunucusu olarak çalıştır"
+
+#. Translators: %s is a window title
+#: src/core/meta-close-dialog-default.c:147
+#, c-format
+msgid "“%s” is not responding."
+msgstr "“%s” yanıt vermiyor."
+
+#: src/core/meta-close-dialog-default.c:149
+msgid "Application is not responding."
+msgstr "Uygulama yanıt vermiyor"
+
+#: src/core/meta-close-dialog-default.c:154
+msgid ""
+"You may choose to wait a short while for it to continue or force the "
+"application to quit entirely."
+msgstr ""
+"Uygulamanın devam etmesi için bir süre beklemeyi seçebilir veya tümüyle "
+"çıkması için zorlayabilirsiniz."
+
+#: src/core/meta-close-dialog-default.c:161
+msgid "_Force Quit"
+msgstr "_Zorla Çık"
+
+#: src/core/meta-close-dialog-default.c:161
+msgid "_Wait"
+msgstr "_Bekle"
+
+#: src/core/mutter.c:39
+#, c-format
+msgid ""
+"mutter %s\n"
+"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+"This is free software; see the source for copying conditions.\n"
+"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+"PARTICULAR PURPOSE.\n"
+msgstr ""
+"mutter %s\n"
+"Telif Hakkı © 2001-%d Havoc Pennington, Red Hat, Inc., ve diğerleri\n"
+"Bu bir özgür yazılımdır; kopyalama koşullarını öğrenmek için kaynağa bakın.\n"
+"Hiçbir garanti YOK; BELİRLİ BİR AMACA UYGUNLUK ya da SATILABİLİRLİK için "
+"dahi.\n"
+
+#: src/core/mutter.c:53
+msgid "Print version"
+msgstr "Sürümü yazdır"
+
+#: src/core/mutter.c:59
+msgid "Mutter plugin to use"
+msgstr "Kullanılacak Mutter eklentisi"
+
+#: src/core/prefs.c:1997
+#, c-format
+msgid "Workspace %d"
+msgstr "Çalışma Alanı %d"
+
+#: src/core/screen.c:583
+#, c-format
+msgid ""
+"Display “%s” already has a window manager; try using the --replace option to "
+"replace the current window manager."
+msgstr ""
+"“%s” ekranı zaten bir pencere yöneticisine sahip; geçerli pencere "
+"yöneticisinin yerine bir başkasını koymak için --replace seçeneğini "
+"kullanmayı deneyin."
+
+#: src/core/screen.c:668
+#, c-format
+msgid "Screen %d on display “%s” is invalid\n"
+msgstr "“%2$s” monitöründeki %1$d ekranı geçersiz\n"
+
+#: src/core/util.c:120
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr "Mutter, ayrıntılı kip desteği olmadan derlenmiş\n"
+
+#: src/wayland/meta-wayland-tablet-pad.c:563
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "Kip Anahtarı: Kip %d"
+
+#: src/x11/session.c:1815
+msgid ""
+"These windows do not support “save current setup” and will have to be "
+"restarted manually next time you log in."
+msgstr ""
+"Bu pencereler, “geçerli ayarları kaydet” özelliğini desteklemiyor ve bir "
+"dahaki girişinizde elle yeniden başlatılmak zorundadır."
+
+#: src/x11/window-props.c:559
+#, c-format
+msgid "%s (on %s)"
+msgstr "%s (%s üzerinde)"
+
+#~ msgid "Failed to scan themes directory: %s\n"
+#~ msgstr "Tema dizini taranırken hata oluştu: %s\n"
+
+#~ msgid ""
+#~ "Could not find a theme! Be sure %s exists and contains the usual themes.\n"
+#~ msgstr ""
+#~ "Hiç tema bulunamadı! %s varlığından ve bildiğimiz temaları içerdiğinden "
+#~ "emin olun.\n"
+
+#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
+#~ msgstr ""
+#~ "\"%2$s\" X oturumundaki ekran %1$d bir pencere yöneticisine zaten sahip\n"
+
+#~ msgid "%d x %d"
+#~ msgstr "%d x %d"
+
+#~ msgid "top"
+#~ msgstr "üst"
+
+#~ msgid "bottom"
+#~ msgstr "alt"
+
+#~ msgid "left"
+#~ msgstr "sol"
+
+#~ msgid "right"
+#~ msgstr "sağ"
+
+#~ msgid "frame geometry does not specify \"%s\" dimension"
+#~ msgstr "çerçeve geometrisi \"%s\" boyutunu tanımlamıyor"
+
+#~ msgid "frame geometry does not specify dimension \"%s\" for border \"%s\""
+#~ msgstr ""
+#~ "çerçeve geometrisi \"%s\" boyutunu \"%s\" pencere kenarı için tanımlamıyor"
+
+#~ msgid "Button aspect ratio %g is not reasonable"
+#~ msgstr "%g kabul edilebilir bir düğme en-boy oranı değil"
+
+#~ msgid "Frame geometry does not specify size of buttons"
+#~ msgstr "Çerçeve geometrisi düğmelerin boyutunu tanımlamıyor"
+
+#~ msgid "Gradients should have at least two colors"
+#~ msgstr "Renk geçişlerinde en az iki renk olmalı"
+
+#~ msgid ""
+#~ "GTK custom color specification must have color name and fallback in "
+#~ "parentheses, e.g. gtk:custom(foo,bar); could not parse \"%s\""
+#~ msgstr ""
+#~ "GTK özel renk belirtiminde parantez içinde renk adı ve fallback kelimesi "
+#~ "yer almalıdır; örneğin, gtk:custom[foo,bar]; \"%s\" ayrıştırılamadı"
+
+#~ msgid ""
+#~ "Invalid character '%c' in color_name parameter of gtk:custom, only A-Za-"
+#~ "z0-9-_ are valid"
+#~ msgstr ""
+#~ "gtk:custom color_name parametresinin adında geçersiz karakter '%c'; "
+#~ "sadece A-Za-z0-9-_ karakterleri geçerlidir"
+
+#~ msgid ""
+#~ "Gtk:custom format is \"gtk:custom(color_name,fallback)\", \"%s\" does not "
+#~ "fit the format"
+#~ msgstr ""
+#~ "Gtk:custom biçimi \"gtk:custom(color_name,fallback)\" şeklindedir; \"%s\" "
+#~ "biçime uymuyor"
+
+#~ msgid ""
+#~ "GTK color specification must have the state in brackets, e.g. gtk:"
+#~ "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ msgstr ""
+#~ "GTK renk belirtiminde köşeli parantezler arasında durum verilmelidir; "
+#~ "örneğin, gtk:fg[NORMAL] belirtiminde NORMAL, durumu gösterir; \"%s\" "
+#~ "ayrıştırılamadı"
+
+#~ msgid ""
+#~ "GTK color specification must have a close bracket after the state, e.g. "
+#~ "gtk:fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ msgstr ""
+#~ "GTK renk belirtiminde durumdan sonra sağ köşeli parantezleri gelmelidir; "
+#~ "örneğin, gtk:fg[NORMAL] belirtiminde NORMAL, durumu gösterir; \"%s\" "
+#~ "ayrıştırılamadı"
+
+#~ msgid "Did not understand state \"%s\" in color specification"
+#~ msgstr "Renk belirtimindeki \"%s\" durumu anlaşılamadı"
+
+#~ msgid "Did not understand color component \"%s\" in color specification"
+#~ msgstr "Renk belirtimindeki \"%s\" renk bileşeni anlaşılamadı"
+
+#~ msgid ""
+#~ "Blend format is \"blend/bg_color/fg_color/alpha\", \"%s\" does not fit "
+#~ "the format"
+#~ msgstr ""
+#~ "Renk karışımının doğru biçimi \"blend/bg_color/fg_color/alpha\"dır; \"%s"
+#~ "\" bu biçime uymuyor"
+
+#~ msgid "Could not parse alpha value \"%s\" in blended color"
+#~ msgstr "Renk karışımındaki \"%s\" alfa değeri ayrıştırılamadı"
+
+#~ msgid "Alpha value \"%s\" in blended color is not between 0.0 and 1.0"
+#~ msgstr "Renk karışımının alfa değeri \"%s\", 0.0 ile 1.0 arasında değil"
+
+#~ msgid ""
+#~ "Shade format is \"shade/base_color/factor\", \"%s\" does not fit the "
+#~ "format"
+#~ msgstr ""
+#~ "Gölgelendirmenin doğru biçimi \"shade/bas_color/factor\"dır; \"%s\" bu "
+#~ "biçime uymuyor"
+
+#~ msgid "Could not parse shade factor \"%s\" in shaded color"
+#~ msgstr "Gölgeli rengin gölge katsayısı olan \"%s\" ayrıştırılamadı"
+
+#~ msgid "Shade factor \"%s\" in shaded color is negative"
+#~ msgstr "Gölgeli rengin gölge katsayısı olan \"%s\", negatif"
+
+#~ msgid "Could not parse color \"%s\""
+#~ msgstr "\"%s\" rengi ayrıştırılamadı"
+
+#~ msgid "Coordinate expression contains character '%s' which is not allowed"
+#~ msgstr "Kordinat ifadesi izin verilmeyen '%s' karakterini içeriyor"
+
+#~ msgid ""
+#~ "Coordinate expression contains floating point number '%s' which could not "
+#~ "be parsed"
+#~ msgstr ""
+#~ "Kordinat ifadesi '%s' gerçel sayısını içeriyor ve bu sayı ayrıştırılamıyor"
+
+#~ msgid ""
+#~ "Coordinate expression contains integer '%s' which could not be parsed"
+#~ msgstr "Kordinat ifadesi ayrıştırılamayan '%s' tamsayısını içeriyor"
+
+#~ msgid ""
+#~ "Coordinate expression contained unknown operator at the start of this "
+#~ "text: \"%s\""
+#~ msgstr ""
+#~ "Kordinat ifadesi bu metnin başında bilinmeyen bir işleç içeriyor: \"%s\""
+
+#~ msgid "Coordinate expression was empty or not understood"
+#~ msgstr "Kordinat ifadesi boş ya da anlaşılamadı"
+
+#~ msgid "Coordinate expression results in division by zero"
+#~ msgstr "Kordinat ifadesi sıfıra bölümle sonuçlanıyor"
+
+#~ msgid ""
+#~ "Coordinate expression tries to use mod operator on a floating-point number"
+#~ msgstr ""
+#~ "Kordinat ifadesi bir gerçel sayı üzerinde mod (kalan bulma) işlecini "
+#~ "kullanmaya çalıştı"
+
+#~ msgid ""
+#~ "Coordinate expression has an operator \"%s\" where an operand was expected"
+#~ msgstr "Kordinat ifadesi işleneni beklenen \"%s\", işlecini içeriyor"
+
+#~ msgid "Coordinate expression had an operand where an operator was expected"
+#~ msgstr "Kordinat ifadesi işleci beklenen bir işlenen içeriyor"
+
+#~ msgid "Coordinate expression ended with an operator instead of an operand"
+#~ msgstr "Kordinat ifadesi bir işlenen yerine işleçle bitiyor"
+
+#~ msgid ""
+#~ "Coordinate expression has operator \"%c\" following operator \"%c\" with "
+#~ "no operand in between"
+#~ msgstr ""
+#~ "Kordinat ifadesi birbirlerinin izleyen ve aralarında işlenen olmayan "
+#~ "\"%2$c\" ve \"%1$c\" işleçlerini içeriyor"
+
+#~ msgid "Coordinate expression had unknown variable or constant \"%s\""
+#~ msgstr ""
+#~ "Kordinat ifadesi bilinmeyen bir değişken ya da sabit olan \"%s\" içeriyor"
+
+#~ msgid "Coordinate expression parser overflowed its buffer."
+#~ msgstr "Kordinat belirtim ayrıştırıcısı tamponundan taştı."
+
+#~ msgid ""
+#~ "Coordinate expression had a close parenthesis with no open parenthesis"
+#~ msgstr "Kordinat ifadesi sol parantezi olmayan bir sağ parantez içeriyor"
+
+#~ msgid ""
+#~ "Coordinate expression had an open parenthesis with no close parenthesis"
+#~ msgstr "Kordinat ifadesi sağ parantezi olmayan bir sol parantez içeriyor"
+
+#~ msgid "Coordinate expression doesn't seem to have any operators or operands"
+#~ msgstr ""
+#~ "Kordinat ifadesi göründüğü kadarıyla ne işleç ne de işlenen içeriyor"
+
+#~ msgid "Theme contained an expression that resulted in an error: %s\n"
+#~ msgstr "Tema bir hata ile sonuçlanan ifadeye sahip: %s\n"
+
+#~ msgid ""
+#~ "<button function=\"%s\" state=\"%s\" draw_ops=\"whatever\"/> must be "
+#~ "specified for this frame style"
+#~ msgstr ""
+#~ "Bu çerçeve biçeminde <button function=\"%s\" state=\"%s\" draw_ops=\"her "
+#~ "neyse\"/> belirtilmek zorunda"
+
+#~ msgid ""
+#~ "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/"
+#~ ">"
+#~ msgstr ""
+#~ "Eksik <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"her neyse\"/>"
+
+#~ msgid "Failed to load theme \"%s\": %s\n"
+#~ msgstr "\"%s\" teması yüklenemedi: %s\n"
+
+#~ msgid "No <%s> set for theme \"%s\""
+#~ msgstr "\"%2$s\" temasında hiç <%1$s> atanmamış"
+
+#~ msgid ""
+#~ "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
+#~ "type=\"%s\" style_set=\"whatever\"/> element"
+#~ msgstr ""
+#~ "\"%2$s\" temasında \"%1$s\" pencere türüne çerçeve biçemi atanmamış, bir "
+#~ "<window type=\"%3$s\" style_set=\"her neyse\"/> öğesi ekleyin"
+
+#~ msgid ""
+#~ "User-defined constants must begin with a capital letter; \"%s\" does not"
+#~ msgstr ""
+#~ "Kullanıcı tanımlı sabitler büyük harfle başlamalıdır; \"%s\" buna uymuyor"
+
+#~ msgid "Constant \"%s\" has already been defined"
+#~ msgstr "\"%s\" sabit değeri zaten tanımlanmış"
+
+#~ msgid "No \"%s\" attribute on element <%s>"
+#~ msgstr "Hibir \"%s\"  özniteliği <%s> öğesi üzerinde yok"
+
+#~ msgid "Line %d character %d: %s"
+#~ msgstr "Satır %d karakter %d: %s"
+
+#~ msgid "Attribute \"%s\" repeated twice on the same <%s> element"
+#~ msgstr "\"%s\" özniteliği aynı <%s> öğesinde iki kez kullanılmış"
+
+#~ msgid "Attribute \"%s\" is invalid on <%s> element in this context"
+#~ msgstr "\"%s\" özniteliği bu içerikte <%s> öğesi için geçersiz"
+
+#~ msgid "Could not parse \"%s\" as an integer"
+#~ msgstr "\"%s\" bir tamsayı olarak ayrıştırılamadı"
+
+#~ msgid "Did not understand trailing characters \"%s\" in string \"%s\""
+#~ msgstr "\"%2$s\" dizgisinin sonundaki \"%1$s\" karakterleri anlaşılmadı"
+
+#~ msgid "Integer %ld must be positive"
+#~ msgstr "%ld tamsayısı pozitif olmalı"
+
+#~ msgid "Integer %ld is too large, current max is %d"
+#~ msgstr "%ld tamsayısı çok büyük, şu anda üst sınır %d"
+
+#~ msgid "Could not parse \"%s\" as a floating point number"
+#~ msgstr "\"%s\" bir gerçel sayı olarak ayrıştırılamadı"
+
+#~ msgid "Boolean values must be \"true\" or \"false\" not \"%s\""
+#~ msgstr ""
+#~ "Mantıksal değerler ancak \"true\" (doğru) ya da \"false\" (yanlış) "
+#~ "değerlerini alabilir; \"%s\" olamaz"
+
+#~ msgid "Angle must be between 0.0 and 360.0, was %g\n"
+#~ msgstr "Açı 0.0 ile 360.0 arasında olmalı, %g verilmiş\n"
+
+#~ msgid ""
+#~ "Alpha must be between 0.0 (invisible) and 1.0 (fully opaque), was %g\n"
+#~ msgstr ""
+#~ "Alfa 0.0 (görünmez) ile 1.0 (düz renk) arasında olmalıydı ama %g "
+#~ "verilmiş\n"
+
+#~ msgid ""
+#~ "Invalid title scale \"%s\" (must be one of xx-small,x-small,small,medium,"
+#~ "large,x-large,xx-large)\n"
+#~ msgstr ""
+#~ "Geçersiz öğe ölçüsü \"%s\" (şunlardan biri olmalıdır: xx-small,x-small,"
+#~ "small,medium,large,x-large,xx-large)\n"
+
+#~ msgid "<%s> name \"%s\" used a second time"
+#~ msgstr "<%s> adı \"%s\" ikinci kez kullanılmış"
+
+#~ msgid "<%s> parent \"%s\" has not been defined"
+#~ msgstr "<%s> üst değeri \"%s\" tanımlanmamış"
+
+#~ msgid "<%s> geometry \"%s\" has not been defined"
+#~ msgstr "<%s> geometrisi \"%s\" tanımlanmamış"
+
+#~ msgid "<%s> must specify either a geometry or a parent that has a geometry"
+#~ msgstr "<%s>, ya bir geometri ya da geometrisi olan bir üst öğe belirtmeli"
+
+#~ msgid "You must specify a background for an alpha value to be meaningful"
+#~ msgstr ""
+#~ "Arkaplanı anlamlı olabilmesi için bir alfa değeri ile belirtmelisiniz"
+
+#~ msgid "Unknown type \"%s\" on <%s> element"
+#~ msgstr "<%2$s> öğesinde bilinmeyen type \"%1$s\""
+
+#~ msgid "Unknown style_set \"%s\" on <%s> element"
+#~ msgstr "<%2$s> öğesinde bilinmeyen style_set \"%1$s\""
+
+#~ msgid "Window type \"%s\" has already been assigned a style set"
+#~ msgstr "\"%s\" pencere türünün önceden atanmış bir biçem kümesi var"
+
+#~ msgid "Element <%s> is not allowed below <%s>"
+#~ msgstr "<%s> öğesi <%s> altında kullanılamaz"
+
+#~ msgid ""
+#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
+#~ "\" for buttons"
+#~ msgstr ""
+#~ "Düğmeler için hem \"button_width\"/\"button_height \" hem \"aspect_ratio"
+#~ "\" belirtilemiyor"
+
+#~ msgid "Distance \"%s\" is unknown"
+#~ msgstr "\"%s\" uzaklığı bilinmiyor"
+
+#~ msgid "Aspect ratio \"%s\" is unknown"
+#~ msgstr "\"%s\" en-boy oranı bilinmiyor"
+
+#~ msgid "Border \"%s\" is unknown"
+#~ msgstr "\"%s\" pencere kenarı bilinmiyor"
+
+#~ msgid "No \"start_angle\" or \"from\" attribute on element <%s>"
+#~ msgstr ""
+#~ "<%s> öğesinde \"start_angle\" (başlama açısı) ya da \"from\" özniteliği "
+#~ "yok"
+
+#~ msgid "No \"extent_angle\" or \"to\" attribute on element <%s>"
+#~ msgstr ""
+#~ "<%s> öğesinde \"extent_angle\" (genişletme açısı) ya da \"to\" özniteliği "
+#~ "yok"
+
+#~ msgid "Did not understand value \"%s\" for type of gradient"
+#~ msgstr "Renk geçişi türü olarak verilen \"%s\" değeri anlaşılamadı"
+
+#~ msgid "Did not understand fill type \"%s\" for <%s> element"
+#~ msgstr "<%2$s> öğesinin doldurma türü \"%1$s\" anlaşılamadı"
+
+#~ msgid "Did not understand state \"%s\" for <%s> element"
+#~ msgstr "<%2$s> öğesi için \"%1$s\" durumu anlaşılamadı"
+
+#~ msgid "Did not understand shadow \"%s\" for <%s> element"
+#~ msgstr "<%2$s> öğesi için \"%1$s\" gölgesi anlaşılamadı"
+
+#~ msgid "Did not understand arrow \"%s\" for <%s> element"
+#~ msgstr "<%2$s> öğesi için \"%1$s\" oku anlaşılamadı"
+
+#~ msgid "No <draw_ops> called \"%s\" has been defined"
+#~ msgstr "\"%s\" adında hiç <draw_ops> tanımlanmamış"
+
+#~ msgid "Including draw_ops \"%s\" here would create a circular reference"
+#~ msgstr "Burada \"%s\" draw_ops'unu içermek çevrimsel gönderime yol açar"
+
+#~ msgid "Unknown position \"%s\" for frame piece"
+#~ msgstr "Çerçeve parçası için bilinmeyen konum \"%s\""
+
+#~ msgid "Frame style already has a piece at position %s"
+#~ msgstr "Çerçeve biçeminin %s konumunda zaten bir parça var"
+
+#~ msgid "No <draw_ops> with the name \"%s\" has been defined"
+#~ msgstr "\"%s\" adında hiç <draw_ops> tanımlanmamış"
+
+#~ msgid "Unknown function \"%s\" for button"
+#~ msgstr "Düğme için geçersiz işlev \"%s\""
+
+#~ msgid "Button function \"%s\" does not exist in this version (%d, need %d)"
+#~ msgstr "Düğme işlevi \"%s\" bu sürümde mevcut değil (%d, gereken %d)"
+
+#~ msgid "Unknown state \"%s\" for button"
+#~ msgstr "Düğme için geçersiz durum \"%s\""
+
+#~ msgid "Frame style already has a button for function %s state %s"
+#~ msgstr "Çerçeve biçeminde %s işlevi, %s durumu için zaten bir düğme var"
+
+#~ msgid "\"%s\" is not a valid value for focus attribute"
+#~ msgstr "\"%s\", odak özniteliği için geçerli bir değer değil"
+
+#~ msgid "\"%s\" is not a valid value for state attribute"
+#~ msgstr "\"%s\", durum özniteliği için geçerli bir değer değil"
+
+#~ msgid "A style called \"%s\" has not been defined"
+#~ msgstr "\"%s\" adlı bir biçem tanımlanmamış"
+
+#~ msgid "\"%s\" is not a valid value for resize attribute"
+#~ msgstr ""
+#~ "\"%s\", yeniden boyutlandırma özniteliği için geçerli bir değer değil"
+
+#~ msgid ""
+#~ "Should not have \"resize\" attribute on <%s> element for maximized/shaded "
+#~ "states"
+#~ msgstr ""
+#~ "<%s> öğesinin büyütülmüş/toplanmış durumlarında \"resize\" özniteliği "
+#~ "bulunmamalı"
+
+#~ msgid ""
+#~ "Should not have \"resize\" attribute on <%s> element for maximized states"
+#~ msgstr ""
+#~ "<%s> öğesinin büyütülmüş durumlarında \"resize\" özniteliği bulunmamalı"
+
+#~ msgid "Style has already been specified for state %s resize %s focus %s"
+#~ msgstr ""
+#~ "%s durumu, %s yeniden boyutlandırma, %s odak için biçem zaten belirtilmiş"
+
+#~ msgid "Style has already been specified for state %s focus %s"
+#~ msgstr "%s durumu, odak %s için biçem zaten belirtilmiş"
+
+#~ msgid ""
+#~ "Can't have a two draw_ops for a <piece> element (theme specified a "
+#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
+#~ "elements)"
+#~ msgstr ""
+#~ "Bir <piece> öğesi içinde iki draw_ops olamaz (tema, ya bir draw_ops "
+#~ "özniteliğiyle bir <draw_ops> öğesi, ya da iki öğe belirtmiş)"
+
+#~ msgid ""
+#~ "Can't have a two draw_ops for a <button> element (theme specified a "
+#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
+#~ "elements)"
+#~ msgstr ""
+#~ "Bir <button> öğesi içinde iki draw_ops olamaz (tema, ya bir draw_ops "
+#~ "özniteliğiyle bir <draw_ops> öğesi, ya da iki öğe belirtmiş)"
+
+#~ msgid ""
+#~ "Can't have a two draw_ops for a <menu_icon> element (theme specified a "
+#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
+#~ "elements)"
+#~ msgstr ""
+#~ "Bir <menu_icon> öğesi içinde iki draw_ops olamaz (tema, ya bir draw_ops "
+#~ "özniteliğiyle bir <draw_ops> öğesi, ya da iki öğe belirtmiş)"
+
+#~ msgid "Bad version specification '%s'"
+#~ msgstr "Kötü Sürüm Belirtimi '%s'"
+
+#~ msgid ""
+#~ "\"version\" attribute cannot be used in metacity-theme-1.xml or metacity-"
+#~ "theme-2.xml"
+#~ msgstr ""
+#~ "\"version\" özniteliği metacity-theme-1.xml veya metacity-theme-2.xml "
+#~ "içerisinde kullanılamaz"
+
+#~ msgid ""
+#~ "Theme requires version %s but latest supported theme version is %d.%d"
+#~ msgstr ""
+#~ "Tema için %s sürümü gerekli ancak en son desteklenen tema sürümü %d.%d"
+
+#~ msgid "Outermost element in theme must be <metacity_theme> not <%s>"
+#~ msgstr "Temanın en dış öğesi <%s> değil <metacity_theme> olmalıdır"
+
+#~ msgid ""
+#~ "Element <%s> is not allowed inside a name/author/date/description element"
+#~ msgstr ""
+#~ "name/author/date/description öğelerinin içinde <%s> öğesi bulunmamalıdır"
+
+#~ msgid "Element <%s> is not allowed inside a <constant> element"
+#~ msgstr "<constant> öğesinin içinde <%s> öğesi bulunmamalıdır"
+
+#~ msgid ""
+#~ "Element <%s> is not allowed inside a distance/border/aspect_ratio element"
+#~ msgstr ""
+#~ "distance/border/aspect_ratio öğelerinin içinde <%s> öğesi bulunmamalıdır"
+
+#~ msgid "Element <%s> is not allowed inside a draw operation element"
+#~ msgstr "draw operation öğesinin içinde <%s> öğesi bulunmamalıdır"
+
+#~ msgid "Element <%s> is not allowed inside a <%s> element"
+#~ msgstr "<%2$s> öğesinin içinde <%1$s> öğesi bulunmamalıdır"
+
+#~ msgid "No draw_ops provided for frame piece"
+#~ msgstr "Çerçeve parçası için hiç draw_ops sağlanmamış"
+
+#~ msgid "No draw_ops provided for button"
+#~ msgstr "Düğme için hiç draw_ops sağlanmamış"
+
+#~ msgid "No text is allowed inside element <%s>"
+#~ msgstr "<%s> öğesinin içinde metin bulunmamalıdır"
+
+#~ msgid "<%s> specified twice for this theme"
+#~ msgstr "Bu tema için <%s> iki kez belirtilmiş"
+
+#~ msgid "Failed to find a valid file for theme %s\n"
+#~ msgstr "Tema %s için geçerli bir dosya bulunamadı\n"
+
+#~ msgid "Unknown window information request: %d"
+#~ msgstr "Bilinmeyen pencere bilgi isteği: %d"
+
+#~ msgid "Missing %s extension required for compositing"
+#~ msgstr "Kompozisyon için gerekli olan %s eklentisi eksik"
+
+#~ msgid ""
+#~ "Some other program is already using the key %s with modifiers %x as a "
+#~ "binding\n"
+#~ msgstr ""
+#~ "%s tuşu %x değiştiricileriyle birlikte başka bir uygulama tarafından tuş "
+#~ "bağıolarak kullanılıyor\n"
+
+#~ msgid ""
+#~ "Workarounds for broken applications disabled. Some applications may not "
+#~ "behave properly.\n"
+#~ msgstr ""
+#~ "Hatalı uygulamalara yönelik çözümler devre dışı. Bazı uygulamalar düzgün "
+#~ "işlemeyebilir.\n"
+
+#~ msgid "Could not parse font description \"%s\" from GSettings key %s\n"
+#~ msgstr ""
+#~ "\"%s\" yazıtipi tanımlaması, %s GSettings anahtarından ayrıştırılamadı\n"
+
+#~ msgid ""
+#~ "\"%s\" found in configuration database is not a valid value for mouse "
+#~ "button modifier\n"
+#~ msgstr ""
+#~ "Yapılandırma veritabanında bulunan \"%s\", fare düğme düzenleyicisi "
+#~ "olarak geçerli bir değer değil\n"
+
+#~ msgid ""
+#~ "\"%s\" found in configuration database is not a valid value for "
+#~ "keybinding \"%s\"\n"
+#~ msgstr ""
+#~ "Yapılandırma veritabanında bulunan \"%s\", \"%s\" tuş bağı olarak geçerli "
+#~ "bir değer değil\n"
+
+#~ msgid ""
+#~ "Could not acquire window manager selection on screen %d display \"%s\"\n"
+#~ msgstr ""
+#~ "\"%2$s\" X oturumundaki ekran %1$d hangi pencere yöneticisine "
+#~ "sahipöğrenilemedi\n"
+
+#~ msgid "Could not release screen %d on display \"%s\"\n"
+#~ msgstr "\"%2$s\" X oturumundaki ekran %1$d serberst bırakılamadı\"\n"
+
+#~ msgid "Could not create directory '%s': %s\n"
+#~ msgstr "'%s' dizini oluşturulamadı: %s\n"
+
+#~ msgid "Could not open session file '%s' for writing: %s\n"
+#~ msgstr "'%s' oturum dosyası yazma için açılamadı: %s\n"
+
+#~ msgid "Error writing session file '%s': %s\n"
+#~ msgstr "'%s' oturum dosyasına yazmada hata: %s\n"
+
+#~ msgid "Error closing session file '%s': %s\n"
+#~ msgstr "'%s' oturum dosyasını kapamada hata: %s\n"
+
+#~ msgid "Failed to parse saved session file: %s\n"
+#~ msgstr "Kaydedilmiş oturum dosyası ayrıştırırken hata: %s\n"
+
+#~ msgid "<mutter_session> attribute seen but we already have the session ID"
+#~ msgstr ""
+#~ "Geçerli bir oturum kimliği bulunmasına karşın <metacity_session> "
+#~ "özniteliğiyle karşılaşıldı"
+
+#~ msgid "Unknown attribute %s on <%s> element"
+#~ msgstr "Bilinmeyen öznitelik %2$s üzerinde <%1$s> öğesi"
+
+#~ msgid "nested <window> tag"
+#~ msgstr "iç içe <window> imi"
+
+#~ msgid "Unknown element %s"
+#~ msgstr "Bilinmeyen öğe %s"
+
+#~ msgid "Failed to open debug log: %s\n"
+#~ msgstr "Hata ayıklama günlüğü açılamadı: %s\n"
+
+#~ msgid "Failed to fdopen() log file %s: %s\n"
+#~ msgstr "fdopen() günlük dosyası %s açılamadı: %s\n"
+
+#~ msgid "Opened log file %s\n"
+#~ msgstr "%s günlük dosyası açıldı\n"
+
+#~ msgid "Window manager: "
+#~ msgstr "Pencere yöneticisi: "
+
+#~ msgid "Bug in window manager: "
+#~ msgstr "Pencere yöneticisinde hata: "
+
+#~ msgid "Window manager warning: "
+#~ msgstr "Pencere yöneticisi uyarısı: "
+
+#~ msgid "Window manager error: "
+#~ msgstr "Pencere yöneticisi hatası: "
+
+#~ msgid ""
+#~ "Window %s sets SM_CLIENT_ID on itself, instead of on the WM_CLIENT_LEADER "
+#~ "window as specified in the ICCCM.\n"
+#~ msgstr ""
+#~ "%s penceresi SM_CLIENT_ID'yi ICCCM tarafından belirtilen "
+#~ "WM_CLIENT_LEADER'a değil kendine atadı.\n"
+
+#~ msgid ""
+#~ "Window %s sets an MWM hint indicating it isn't resizable, but sets min "
+#~ "size %d x %d and max size %d x %d; this doesn't make much sense.\n"
+#~ msgstr ""
+#~ "%s penceresi bir yandan yeniden boyutlandırılamaz olduğunu gösteren bir "
+#~ "MWM ipucu verirken anlamsız bir biçimde en küçük (%d x %d) ve en büyük "
+#~ "(%d x %d) boyut sınırlarını da atıyor.\n"
+
+#~ msgid "Application set a bogus _NET_WM_PID %lu\n"
+#~ msgstr "Uygulama geçersiz _NET_WM_PID %lu atadı\n"
+
+#~ msgid "Invalid WM_TRANSIENT_FOR window 0x%lx specified for %s.\n"
+#~ msgstr "Geçersiz WM_TRANSIENT_FOR pencere 0x%lx belirtilen %s.\n"
+
+#~ msgid "WM_TRANSIENT_FOR window 0x%lx for %s would create loop.\n"
+#~ msgstr "WM_TRANSIENT_FOR penceresi 0x%lx  (%s için) döngü oluşturacak.\n"
+
+#~ msgid ""
+#~ "Window 0x%lx has property %s\n"
+#~ "that was expected to have type %s format %d\n"
+#~ "and actually has type %s format %d n_items %d.\n"
+#~ "This is most likely an application bug, not a window manager bug.\n"
+#~ "The window has title=\"%s\" class=\"%s\" name=\"%s\"\n"
+#~ msgstr ""
+#~ "0x%lx penceresinin %s özelliği beklenen\n"
+#~ "%s türü ve %d biçimi yerine %s türü, %d biçimi,\n"
+#~ "%d n_items'e sahip.\n"
+#~ "Bu büyük olasılıkla uygulamanın bir hatası, pencere yöneticisinin değil.\n"
+#~ "Pencerenin başlığı=\"%s\", sınıfı=\"%s\", adı=\"%s\"\n"
+
+#~ msgid "Property %s on window 0x%lx contained invalid UTF-8\n"
+#~ msgstr "0x%2$lx penceresinin %1$s özelliği geçersiz UTF-8 içeriyor\n"
+
+#~ msgid ""
+#~ "Property %s on window 0x%lx contained invalid UTF-8 for item %d in the "
+#~ "list\n"
+#~ msgstr ""
+#~ "0x%2$lx penceresinin %1$s özelliği listedeki öğe %3$d için geçersiz UTF-8 "
+#~ "içeriyor\n"
+
+#~ msgid "Usage: %s\n"
+#~ msgstr "Kullanım: %s\n"
+
+#~ msgid "Mi_nimize"
+#~ msgstr "_Küçült"
+
+#~ msgid "Ma_ximize"
+#~ msgstr "_Büyült"
+
+#~ msgid "Unma_ximize"
+#~ msgstr "Büyült_meyi Geri Al"
+
+#~ msgid "Roll _Up"
+#~ msgstr "Yukarı _Sar"
+
+#~ msgid "_Unroll"
+#~ msgstr "_Sarmayı Geri Al"
+
+#~ msgid "_Move"
+#~ msgstr "_Taşı"
+
+#~ msgid "_Resize"
+#~ msgstr "_Yeniden Boyutlandır"
+
+#~ msgid "Move Titlebar On_screen"
+#~ msgstr "Başlık Çubuğunu _Ekranda Taşı"
+
+#~ msgid "Always on _Top"
+#~ msgstr "Her Zaman Ü_stte"
+
+#~ msgid "_Always on Visible Workspace"
+#~ msgstr "Her Zaman _Görünen Çalışma Alanında"
+
+#~ msgid "_Only on This Workspace"
+#~ msgstr "Yalnız _Bu Çalışma Alanında"
+
+#~ msgid "Move to Workspace _Up"
+#~ msgstr "_Yukarıdaki Çalışma Alanına Taşı"
+
+#~ msgid "_Close"
+#~ msgstr "_Kapat"
+
+#~ msgid "Workspace %d%n"
+#~ msgstr "Çalışma Alanı %d%n"
+
+#~ msgid "Workspace 1_0"
+#~ msgstr "Çalışma Alanı 1_0"
+
+#~ msgid "Workspace %s%d"
+#~ msgstr "Çalışma Alanı %s%d"
+
+#~ msgid "Move to Another _Workspace"
+#~ msgstr "Başka Bir Çalışma Ala_nına Taşı"
+
+#~ msgid "Shift"
+#~ msgstr "Shift"
+
+#~ msgid "Ctrl"
+#~ msgstr "Ctrl"
+
+#~ msgid "Alt"
+#~ msgstr "Alt"
+
+#~ msgid "Meta"
+#~ msgstr "Meta"
+
+#~ msgid "Super"
+#~ msgstr "Super"
+
+#~ msgid "Hyper"
+#~ msgstr "Hyper"
+
+#~ msgid "Mod2"
+#~ msgstr "Mod2"
+
+#~ msgid "Mod3"
+#~ msgstr "Mod3"
+
+#~ msgid "Mod4"
+#~ msgstr "Mod4"
+
+#~ msgid "Mod5"
+#~ msgstr "Mod5"
+
+#~ msgid "_Windows"
+#~ msgstr "_Pencereler"
+
+#~ msgid "_Dialog"
+#~ msgstr "_İletişim Penceresi"
+
+#~ msgid "_Modal dialog"
+#~ msgstr "_Yardımcı İletişim Penceresi"
+
+#~ msgid "_Utility"
+#~ msgstr "_Araçlar"
+
+#~ msgid "_Splashscreen"
+#~ msgstr "_Başlangıç görüntüsü"
+
+#~ msgid "_Top dock"
+#~ msgstr "_Üste sabitle"
+
+#~ msgid "_Bottom dock"
+#~ msgstr "_Alta sabitle"
+
+#~ msgid "_Left dock"
+#~ msgstr "_Sola sabitle"
+
+#~ msgid "_Right dock"
+#~ msgstr "_Sağa sabitle"
+
+#~ msgid "_All docks"
+#~ msgstr "_Tüm sabitlemeler"
+
+#~ msgid "Des_ktop"
+#~ msgstr "Masa_üstü"
+
+#~ msgid "Open another one of these windows"
+#~ msgstr "Bu pencerelerden başka bir tane aç"
+
+#~ msgid "This is a demo button with an 'open' icon"
+#~ msgstr "Bu 'aç' simgesi olan gösterim düğmesidir"
+
+#~ msgid "This is a demo button with a 'quit' icon"
+#~ msgstr "Bu 'çık' simgesi olan gösterim düğmesidir"
+
+#~ msgid "This is a sample message in a sample dialog"
+#~ msgstr "Bu örnek iletişim penceresi için örnek bir iletidir"
+
+#~ msgid "Fake menu item %d\n"
+#~ msgstr "Sahte menü öğesi %d\n"
+
+#~ msgid "Border-only window"
+#~ msgstr "Sadece kenarı olan pencere"
+
+#~ msgid "Bar"
+#~ msgstr "Çubuk"
+
+#~ msgid "Normal Application Window"
+#~ msgstr "Normal Uygulama Penceresi"
+
+#~ msgid "Dialog Box"
+#~ msgstr "İletişim Kutusu"
+
+#~ msgid "Modal Dialog Box"
+#~ msgstr "Yardımcı İletişim Kutusu"
+
+#~ msgid "Utility Palette"
+#~ msgstr "Araç Paleti"
+
+#~ msgid "Torn-off Menu"
+#~ msgstr "Kesilebilir Menü"
+
+#~ msgid "Border"
+#~ msgstr "Kenarlık"
+
+#~ msgid "Attached Modal Dialog"
+#~ msgstr "İlişik Yardımcı İletişim Penceresi"
+
+#~ msgid "Button layout test %d"
+#~ msgstr "Düğme düzeni testi %d"
+
+#~ msgid "%g milliseconds to draw one window frame"
+#~ msgstr "bir pencere çerçevesi çizmek için %g milisaniye"
+
+#~ msgid "Usage: metacity-theme-viewer [THEMENAME]\n"
+#~ msgstr "Kullanım: metacity-theme-viewer [TEMAİSMİ]\n"
+
+#~ msgid "Error loading theme: %s\n"
+#~ msgstr "Tema yüklenirken hata: %s\n"
+
+#~ msgid "Loaded theme \"%s\" in %g seconds\n"
+#~ msgstr "\"%s\" teması %g saniye içerisinde yüklendi\n"
+
+#~ msgid "Normal Title Font"
+#~ msgstr "Normal Başlık Yazıtipi"
+
+#~ msgid "Small Title Font"
+#~ msgstr "Küçük Başlık Yazıtipi"
+
+#~ msgid "Large Title Font"
+#~ msgstr "Büyük Başlık Yazıtipi"
+
+#~ msgid "Button Layouts"
+#~ msgstr "Düğme Düzenleri"
+
+#~ msgid "Benchmark"
+#~ msgstr "Karşılaştırma"
+
+#~ msgid "Window Title Goes Here"
+#~ msgstr "Pencere Başlığı Buraya Gelir"
+
+#~ msgid ""
+#~ "Drew %d frames in %g client-side seconds (%g milliseconds per frame) and "
+#~ "%g seconds wall clock time including X server resources (%g milliseconds "
+#~ "per frame)\n"
+#~ msgstr ""
+#~ "%d çerçeve %g istemci taraflı saniyede (%g milisaniye başına çerçeve) ve "
+#~ "X sunucu kaynaları ile saat saniyesi olarak %g saniye (%g milisaniye "
+#~ "başına çerçeve) içinde çizildi.\n"
+
+#~ msgid "position expression test returned TRUE but set error"
+#~ msgstr "konum ifadesi testi TRUE olarak döndü ama hata belirtti"
+
+#~ msgid "position expression test returned FALSE but didn't set error"
+#~ msgstr "konum ifadesi testi FALSE olarak döndü ama hata belirtmedi"
+
+#~ msgid "Error was expected but none given"
+#~ msgstr "Hata beklendi ancak hiç bir hata verilmedi"
+
+#~ msgid "Error %d was expected but %d given"
+#~ msgstr "Hata %d beklendi ancak %d verildi"
+
+#~ msgid "Error not expected but one was returned: %s"
+#~ msgstr "Hata beklenmedi ancak bir hata görüldü: %s"
+
+#~ msgid "x value was %d, %d was expected"
+#~ msgstr "x değeri %d, fakat beklenen değer %d"
+
+#~ msgid "y value was %d, %d was expected"
+#~ msgstr "y değeri %d, fakat beklenen değer %d"
+
+#~ msgid ""
+#~ "%d coordinate expressions parsed in %g seconds (%g seconds average)\n"
+#~ msgstr ""
+#~ "%d kordinat ifadesi %g saniye içinde ayrıştırıldı (%g saniye ortalama "
+#~ "ile)\n"
+
+#~ msgid "Comma-separated list of compositor plugins"
+#~ msgstr "Kompozisyon eklentilerinin listesi (virgül ile ayrılmış)"
+
+#~ msgid "Live Hidden Windows"
+#~ msgstr "Çalışır Durumdaki Gizli Pencereler"
+
+#~ msgid ""
+#~ "Determines whether hidden windows (i.e., minimized windows and windows on "
+#~ "other workspaces than the current one) should be kept alive."
+#~ msgstr ""
+#~ "Gizli pencerelerin (ö.r. küçültülmüş pencereler ve diğer çalışma "
+#~ "alanındaki pencereler) çalışır bırakılıp bırakılmayacağını belirler."
+
+#~ msgid "Close Window"
+#~ msgstr "Pencereyi Kapat"
+
+#~ msgid "Window Menu"
+#~ msgstr "Pencere Menüsü"
+
+#~ msgid "Minimize Window"
+#~ msgstr "Pencereyi Küçült"
+
+#~ msgid "Maximize Window"
+#~ msgstr "Pencereyi Büyült"
+
+#~ msgid "Restore Window"
+#~ msgstr "Pencere Geri Getir"
+
+#~ msgid "Roll Up Window"
+#~ msgstr "Pencereyi Yukarı Sar"
+
+#~ msgid "Unroll Window"
+#~ msgstr "Pencereyi Geri Sar"
+
+#~ msgid "Keep Window On Top"
+#~ msgstr "Pencereyi Üstte Tut"
+
+#~ msgid "Remove Window From Top"
+#~ msgstr "Pencereyi Üstten Kaldır"
+
+#~ msgid "Always On Visible Workspace"
+#~ msgstr "Her Zaman Görünen Çalışma Alanında"
+
+#~ msgid "Put Window On Only One Workspace"
+#~ msgstr "Pencereyi Sadece Bir Çalışma Alanına Yerleştir"
+
+#~ msgid "Switch to workspace 8"
+#~ msgstr "Çalışma alanı 8'e geç"
+
+#~ msgid "Switch to workspace 9"
+#~ msgstr "Çalışma alanı 9'a geç"
+
+#~ msgid "Switch to workspace 10"
+#~ msgstr "Çalışma alanı 10'a geç"
+
+#~ msgid "Switch to workspace 11"
+#~ msgstr "Çalışma alanı 11'e geç"
+
+#~ msgid "Switch to workspace 12"
+#~ msgstr "Çalışma alanı 12'ye geç"
+
+#~ msgid "Switch to workspace on the left of the current workspace"
+#~ msgstr "Geçerli çalışma alanının solundaki çalışma alanına geç"
+
+#~ msgid "Switch to workspace on the right of the current workspace"
+#~ msgstr "Geçerli çalışma alanının sağındaki çalışma alanına geç"
+
+#~ msgid "Switch to workspace above the current workspace"
+#~ msgstr "Geçerli çalışma alanının üstündeki çalışma alanına geç"
+
+#~ msgid "Switch to workspace below the current workspace"
+#~ msgstr "Geçerli çalışma alanının altındaki çalışma alanına geç"
+
+#~ msgid "Move between windows of an application, using a popup window"
+#~ msgstr ""
+#~ "Açılır pencere kullanarak, bir uygulamanın pencereleri arasında taşı"
+
+#~ msgid ""
+#~ "Move backward between windows of an application, using a popup window"
+#~ msgstr ""
+#~ "Açılır pencere kullanarak, bir uygulama pencereleri arasında geriye dönük "
+#~ "taşı"
+
+#~ msgid "Move between windows, using a popup window"
+#~ msgstr "Bir açılır pencere kullanarak, pencereler arasında taşı"
+
+#~ msgid "Move backward between windows, using a popup window"
+#~ msgstr ""
+#~ "Bir açılır pencere kullanarak, pencereler arasında geriye dönük taşı"
+
+#~ msgid "Move between panels and the desktop, using a popup window"
+#~ msgstr "Açılır pencere kullanarak, paneller ve masaüstü arasında taşı"
+
+#~ msgid "Move backward between panels and the desktop, using a popup window"
+#~ msgstr ""
+#~ "Açılır pencere kullanarak, paneller ve masaüstü arasında geriye dönük taşı"
+
+#~ msgid "Move backward between windows of an application immediately"
+#~ msgstr "Bir uygulama pencereleri arasında geriye dönük hemen taşı"
+
+#~ msgid "Move between windows immediately"
+#~ msgstr "Pencereler arası geçişi anında yap"
+
+#~ msgid "Move backward between windows immediately"
+#~ msgstr "Pencereler arasında hemen geriye dönük taşı"
+
+#~ msgid "Move between panels and the desktop immediately"
+#~ msgstr "Panellerle masaüstü arasındaki geçişi anında yap"
+
+#~ msgid "Move backward between panels and the desktop immediately"
+#~ msgstr "Panellerle masaüstü arasındaki geri geçişi anında yap"
+
+#~ msgid "Show the panel's \"Run Application\" dialog box"
+#~ msgstr "Panelin \"Uygulama Çalıştır\" penceresini göster"
+
+#~ msgid "Start or stop recording the session"
+#~ msgstr "Oturumu kaydetmeyi başlat veya durdur"
+
+#~ msgid "Take a screenshot"
+#~ msgstr "Ekran görüntüsü al"
+
+#~ msgid "Take a screenshot of a window"
+#~ msgstr "Pencerenin ekran görüntüsünü al"
+
+#~ msgid "Run a terminal"
+#~ msgstr "Bir terminal çalıştır"
+
+#~ msgid "Toggle whether a window will always be visible over other windows"
+#~ msgstr ""
+#~ "Bir pencerenin her zaman diğer pencerelerin üzerinde görünür olmasını seç"
+
+#~ msgid "Minimize window"
+#~ msgstr "Pencereyi küçült"
+
+#~ msgid "Move window to workspace 5"
+#~ msgstr "Pencereyi çalışma alanı 5'e taşı"
+
+#~ msgid "Move window to workspace 6"
+#~ msgstr "Pencereyi çalışma alanı 6'ya taşı"
+
+#~ msgid "Move window to workspace 7"
+#~ msgstr "Pencereyi çalışma alanı 7'ye taşı"
+
+#~ msgid "Move window to workspace 8"
+#~ msgstr "Pencereyi çalışma alanı 8'e taşı"
+
+#~ msgid "Move window to workspace 9"
+#~ msgstr "Pencereyi çalışma alanı 9'a taşı"
+
+#~ msgid "Move window to workspace 10"
+#~ msgstr "Pencereyi çalışma alanı 2'ye taşı"
+
+#~ msgid "Move window to workspace 11"
+#~ msgstr "Pencereyi çalışma alanı 11'e taşı"
+
+#~ msgid "Move window to workspace 12"
+#~ msgstr "Pencereyi çalışma alanı 12'ye taşı"
+
+#~ msgid "Move window to north-west (top left) corner"
+#~ msgstr "Pencereyi kuzey-batı (sol üst) köşeye taşı"
+
+#~ msgid "Move window to north-east (top right) corner"
+#~ msgstr "Pencereyi kuzey-doğu (sağ üst) köşeye taşı"
+
+#~ msgid "Move window to south-west (bottom left) corner"
+#~ msgstr "Pencereyi güney-batı (sol alt) köşeye taşı"
+
+#~ msgid "Move window to south-east (bottom right) corner"
+#~ msgstr "Pencereyi güney-doğu (sağ alt) köşeye taşı"
+
+#~ msgid "Move window to north (top) side of screen"
+#~ msgstr "Pencereyi ekranın kuzey (üst) kenarına taşı"
+
+#~ msgid "Move window to south (bottom) side of screen"
+#~ msgstr "Pencereyi ekranın güney (alt) kenarına taşı"
+
+#~ msgid "Move window to east (right) side of screen"
+#~ msgstr "Pencereyi ekranın doğu (sağ) kenarına taşı"
+
+#~ msgid "Move window to west (left) side of screen"
+#~ msgstr "Pencereyi ekranın batı (sol) kenarına taşı"
+
+#~ msgid "Move window to center of screen"
+#~ msgstr "Pencere ekranın ortasına taşı"
+
+#~ msgid ""
+#~ "There was an error running <tt>%s</tt>:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "<tt>%s</tt> çalıştırılırken bir hata var:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid "No command %d has been defined.\n"
+#~ msgstr "%d komutu tanımlanmamış.\n"
+
+#~ msgid "No terminal command has been defined.\n"
+#~ msgstr "Hiçbir termina komutu tanımlanmamış.\n"
+
+#~ msgid "GConf key '%s' is set to an invalid value\n"
+#~ msgstr "'%s' GConf anahtarına geçersiz bir değer atanmış\n"
+
+#~ msgid "%d stored in GConf key %s is out of range %d to %d\n"
+#~ msgstr "%d saklanıldığı GConf anahtarı %s aralık %d - %d içinde değil\n"
+
+#~ msgid "GConf key \"%s\" is set to an invalid type\n"
+#~ msgstr "\"%s\" GConf anahtarına geçersiz bir tür atanmış\n"
+
+#~ msgid "GConf key %s is already in use and can't be used to override %s\n"
+#~ msgstr ""
+#~ "%s GConf anahtarı zaten kullanılıyor ve %s'i geçersiz kılmak için "
+#~ "kullanılamaz\n"
+
+#~ msgid "Can't override GConf key, %s not found\n"
+#~ msgstr "GConf anahtarı geçersiz kılınamıyor: %s bulunamadı\n"
+
+#~ msgid "Error setting number of workspaces to %d: %s\n"
+#~ msgstr "Çalışma alanı sayısının %d yapılmasında hata: %s\n"
+
+#~ msgid "Error setting name for workspace %d to \"%s\": %s\n"
+#~ msgstr "%d çalışma alanının adının \"%s\" yapılmasında hata: %s\n"
+
+#~ msgid "Error setting live hidden windows status status: %s\n"
+#~ msgstr "Aktif gizli pencere durumu ayarlanırken oluşan hata: %s\n"
+
+#~ msgid "Error setting no tab popup status: %s\n"
+#~ msgstr "Sekmesiz açılır pencere durumu ayarlanırken hata: %s\n"
+
+#~ msgid "Failed to retrieve color %s[%s] from GTK+ theme.\n"
+#~ msgstr "GTK+ temasından %s[%s] renginin alınması başarısız oldu.\n"
+
+#~ msgid "Window Management"
+#~ msgstr "Pencere Yönetimi"
+
+#~ msgid "Failed to parse message \"%s\" from dialog process\n"
+#~ msgstr "İletişim kutusu işleminden gelen \"%s\" iletisi ayrıştırılamadı\n"
+
+#~ msgid "Error reading from dialog display process: %s\n"
+#~ msgstr "İletişim kutusu gösteren işlemde okuma hatası: %s\n"
+
+#~ msgid ""
+#~ "Error launching metacity-dialog to ask about killing an application: %s\n"
+#~ msgstr ""
+#~ "metacity-dialog'u bir uygulamanın öldürülmesiyle ilgili soru sormak "
+#~ "amacıyla başlatırken hata: %s\n"
+
+#~ msgid "Failed to get hostname: %s\n"
+#~ msgstr "Makine adı alınamadı: %s\n"
+
+#~ msgid ""
+#~ "Lost connection to the display '%s';\n"
+#~ "most likely the X server was shut down or you killed/destroyed\n"
+#~ "the window manager.\n"
+#~ msgstr ""
+#~ "'%s' ekranıyla bağlantı kayboldu;\n"
+#~ "büyük olasılıkla ya X sunucusu kapandı veya pencere yöneticisini\n"
+#~ "öldürdünüz ya da yok ettiniz.\n"
+
+#~ msgid "Fatal IO error %d (%s) on display '%s'.\n"
+#~ msgstr "Ölümcül G/Ç hatası %d (%s); '%s' ekranında.\n"
+
+#~ msgid "Turn compositing on"
+#~ msgstr "Dizgilemeyi aç"
+
+#~ msgid "Turn compositing off"
+#~ msgstr "Dizgilemeyi kapat"
+
+#~ msgid "Failed to restart: %s\n"
+#~ msgstr "Yeniden başlatılamadı: %s\n"
+
+#~ msgid ""
+#~ "The format looks like \"<Control>a\" or <Shift><Alt>F1\".\n"
+#~ "\n"
+#~ "The parser is fairly liberal and allows lower or upper case, and also "
+#~ "abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
+#~ msgstr ""
+#~ "Biçim \"<Control>a\" ya da \"<Shift><Alt>F1\" gibi görünüyor.\n"
+#~ "\n"
+#~ "Ayrıştırıcı oldukça serbettir ve büyük küçük harf ve \"<Ctl>\" ve \"<Ctrl>"
+#~ "\" gibi kısaltmalar kullanımına olanak  sağlar. Eğer seçeneği \"disabled"
+#~ "\" özel dizgisine ayarlarsanız bu işlem için tuş bağı olmayacaktır "
+#~ "olacaktır."
+
+#~ msgid ""
+#~ "The format looks like \"<Control>a\" or <Shift><Alt>F1\".\n"
+#~ "\n"
+#~ "The parser is fairly liberal and allows lower or upper case, and also "
+#~ "abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action.\n"
+#~ "\n"
+#~ "This keybinding may be reversed by holding down the \"shift\" key; "
+#~ "therefore, \"shift\" cannot be one of the keys it uses."
+#~ msgstr ""
+#~ "Biçim \"<Control>a\" ya da \"<Shift><Alt>F1\" gibi görünüyor.\n"
+#~ "\n"
+#~ "Ayrıştırıcı oldukça serbettir ve büyük küçük harf ve \"<Ctl>\" ve \"<Ctrl>"
+#~ "\" gibi kısaltmalar kullanımına olanak  sağlar. Eğer seçeneği \"disabled"
+#~ "\" özel dizgisine ayarlarsanız bu işlem için tuş bağı olmayacaktır "
+#~ "olacaktır.\n"
+#~ "\n"
+#~ "Bu tuş bağı \"shift\" tuşuna basılı tutularak ayrılabilir; bu nedenle, "
+#~ "\"shift\" kullandığı tuşlardan birisi olamaz. "
+
+#~ msgid "Failed to read saved session file %s: %s\n"
+#~ msgstr "Kaydedilmiş %s oturum dosyası okunamadı: %s\n"
+
+#~ msgid ""
+#~ "Error launching metacity-dialog to warn about apps that don't support "
+#~ "session management: %s\n"
+#~ msgstr ""
+#~ "Oturum yönetimini desteklemeyen uygulamalar hakkında uyarmak için "
+#~ "metacity-dialog'u çalıştırırken hata: %s\n"
+
+#~ msgid "Metacity"
+#~ msgstr "Metacity"
+
+#~ msgid ""
+#~ "(Not implemented) Navigation works in terms of applications not windows"
+#~ msgstr ""
+#~ "(Henüz uygulanmamış) Gezinme, pencerelere göre değil uygulamalara göre "
+#~ "işler"
+
+#~ msgid ""
+#~ "A font description string describing a font for window titlebars. The "
+#~ "size from the description will only be used if the titlebar_font_size "
+#~ "option is set to 0. Also, this option is disabled if the "
+#~ "titlebar_uses_desktop_font option is set to true."
+#~ msgstr ""
+#~ "Pencere başlık çubuklarının yazıtipini tanımlayan yazıtipi tanımlama "
+#~ "satırı. Bu tanımın boyut kısmı yalnızca titlebar_font_size (başlık çubuğu "
+#~ "yazıtipi boyutu) seçeneği 0'a ayarlıysa kullanılacaktır. Ayrıca eğer "
+#~ "titlebar_uses_desktop_font (başlık çubuğu masaüstü yazıtipini kullanır) "
+#~ "seçeneği seçilmişse bu seçenek kapalı kabul edilir."
+
+#~ msgid "Action on title bar double-click"
+#~ msgstr "Başlık çubuğuna çift tıklandığındaki eylem"
+
+#~ msgid "Action on title bar middle-click"
+#~ msgstr "Başlık çubuğuna orta tuşla tıklandığındaki eylem"
+
+#~ msgid "Action on title bar right-click"
+#~ msgstr "Başlık çubuğuna sağ tıklandığındaki eylem"
+
+#~ msgid "Arrangement of buttons on the titlebar"
+#~ msgstr "Başlık çubuğundaki düğmelerin düzeni"
+
+#~ msgid ""
+#~ "Arrangement of buttons on the titlebar. The value should be a string, "
+#~ "such as \"menu:minimize,maximize,spacer,close\"; the colon separates the "
+#~ "left corner of the window from the right corner, and the button names are "
+#~ "comma-separated. Duplicate buttons are not allowed. Unknown button names "
+#~ "are silently ignored so that buttons can be added in future metacity "
+#~ "versions without breaking older versions. A special spacer tag can be "
+#~ "used to insert some space between two adjacent buttons."
+#~ msgstr ""
+#~ "Başlık çubuğu üzerinde düğmelerin dizilimi. Değer bir dizgi olmalıdır, "
+#~ "örneğin \"menu:minimize,maximize,spacer,close\"; iki nokta pencerenin sol "
+#~ "ve sağ köşesini ayırır ve düğme isimleri virgülle ayrılır. Yinelenen "
+#~ "düğmelere izin verilmez. Bilinmeyen düğme isimleri sessizce yoksayılır, "
+#~ "bu gelecek metacity sürümlerinde eski sürümlerini bozmadan düğmeler "
+#~ "eklenebilmesini sağlar. Özel spacer etiketi iki komşu düğme arasında bir "
+#~ "boşluk eklemek için kullanılabilir."
+
+#~ msgid "Automatically raises the focused window"
+#~ msgstr "Odaklanılan pencereyi kendiliğinden yükseltir"
+
+#~ msgid ""
+#~ "Clicking a window while holding down this modifier key will move the "
+#~ "window (left click), resize the window (middle click), or show the window "
+#~ "menu (right click). The left and right operations may be swapped using "
+#~ "the \"mouse_button_resize\" key. Modifier is expressed as \"&lt;Alt&gt;\" "
+#~ "or \"&lt;Super&gt;\" for example."
+#~ msgstr ""
+#~ "Bu değiştirici tuşuna basılı tutarak bir pencereye tıklamak pencereyi "
+#~ "taşıyacak (sol tıklama), yeniden boyutlandıracak (orta tıklama), ya da "
+#~ "pencere menüsünü gösterecektir (sağ tıklama). Sol ve sağ işlemler "
+#~ "\"mouse_button_resize\" anahtarı kullanarak takas edilebilir. Düzenleyici "
+#~ "örneğin \"&lt;Alt&gt; \" veya \"&lt;Super&gt; \"olarak ifade edilebilir."
+
+#~ msgid "Commands to run in response to keybindings"
+#~ msgstr "Tuş bağlarına yanıt olarak çalıştırılacak komutlar"
+
+#~ msgid "Compositing Manager"
+#~ msgstr "Kompozisyon Yöneticisi"
+
+#~ msgid "Control how new windows get focus"
+#~ msgstr "Yeni pencerelerin nasıl odaklanacağının kontrolü"
+
+#~ msgid "Current theme"
+#~ msgstr "Geçerli tema"
+
+#~ msgid "Delay in milliseconds for the auto raise option"
+#~ msgstr "Kendiliğinden yükseltme seçeneği için milisaniye olarak gecikme"
+
+#~ msgid "Determines whether Metacity is a compositing manager."
+#~ msgstr "Metacity'nin bir kompozisyon yöneticisi olmasına karar verir."
+
+#~ msgid ""
+#~ "Determines whether applications or the system can generate audible "
+#~ "'beeps'; may be used in conjunction with 'visual bell' to allow silent "
+#~ "'beeps'."
+#~ msgstr ""
+#~ "Uygulamaların veya sistemin sesli zil çıkarıp çıkartamayacaklarını "
+#~ "belirler, sessiz zil sesleri için 'görzel zil' ile ilişkili de "
+#~ "kullanılabilir."
+
+#~ msgid "Disable misfeatures that are required by old or broken applications"
+#~ msgstr ""
+#~ "Eski ya da hatalı uygulamaların gerektirdiği hatalı özellikleri kapat"
+
+#~ msgid "Enable Visual Bell"
+#~ msgstr "Görsel Zili Etkinleştir"
+
+#~ msgid ""
+#~ "If true, ignore the titlebar_font option, and use the standard "
+#~ "application font for window titles."
+#~ msgstr ""
+#~ "Eğer seçiliyse, titlebar_font seçeneğini göz ardı edip pencere "
+#~ "başlıklarında standart uygulama yazıtipi kullanılır."
+
+#~ msgid ""
+#~ "If true, metacity will give the user less feedback by using wireframes, "
+#~ "avoiding animations, or other means. This is a significant reduction in "
+#~ "usability for many users, but may allow legacy applications to continue "
+#~ "working, and may also be a useful tradeoff for terminal servers. However, "
+#~ "the wireframe feature is disabled when accessibility is on."
+#~ msgstr ""
+#~ "Eğer seçiliyse, metacity tel çerçeveleri kullanarak, canlandırma "
+#~ "kullanmayarak ve diğer şekillerde, kullanıcıya daha az geri bildirim "
+#~ "verip daha az \"doğrudan işlem\"e imkan verir. Bu bir çok kullanıcı için "
+#~ "kullanılabilirlikte belirgin biz azalmaya neden olur, ama aksi halde "
+#~ "kullanışsız olacak terminal sunucuları ve diğer eski uygulamalar için "
+#~ "işleyebilirlik sağlayabilir. Ancak tel çerçeve özelliği erişilebilirlik "
+#~ "açık olduğunda etkisizleştirilecek."
+
+#~ msgid ""
+#~ "If true, then Metacity works in terms of applications rather than "
+#~ "windows. The concept is a bit abstract, but in general an application-"
+#~ "based setup is more like the Mac and less like Windows. When you focus a "
+#~ "window in application-based mode, all the windows in the application will "
+#~ "be raised. Also, in application-based mode, focus clicks are not passed "
+#~ "through to windows in other applications. Application-based mode is, "
+#~ "however, largely unimplemented at the moment."
+#~ msgstr ""
+#~ "Eğer seçiliyse, Metacity'nin pencerelere değil uygulamalara yönelik "
+#~ "çalışmasını sağlar. Bu kavram biraz soyuttur, kısacası uygulama temelli "
+#~ "çalışma Windows'tan çok Mac'takine benzer. Uygulama temelli kipte bir "
+#~ "pencereye odaklandığınızda o uygulamanın bütün pencereleri yükseltilir. "
+#~ "Ayrıca bu kipte odaklama amaçlı tıklamalar odaklamadan sonra bir de "
+#~ "uygulamaya geçilmez. Uygulama tabanlı kipin büyük bölümü henüz "
+#~ "tamamlanmadı."
+
+#~ msgid "If true, trade off usability for less resource usage"
+#~ msgstr ""
+#~ "Eğer seçiliyse, daha az kaynak kullanımı için kullanılabilirliği azaltır"
+
+#~ msgid "Name of workspace"
+#~ msgstr "Çalışma alanının adı"
+
+#~ msgid "Number of workspaces"
+#~ msgstr "Çalışma alanlarının sayısı"
+
+#~ msgid ""
+#~ "Number of workspaces. Must be more than zero, and has a fixed maximum to "
+#~ "prevent making the desktop unusable by accidentally asking for too many "
+#~ "workspaces."
+#~ msgstr ""
+#~ "Çalışma alanlarının sayısı. Sıfırdan büyük olmalıdır ve yanlışlıkla çok "
+#~ "fazla sayıda çalışma alanı talep edip masaüstünü kullanışsız hale "
+#~ "getirmenizi engellemek için bir üst sınırı vardır."
+
+#~ msgid "Run a defined command"
+#~ msgstr "Tanımlanmış bir komutu çalıştır"
+
+#~ msgid ""
+#~ "Set this to true to resize with the right button and show a menu with the "
+#~ "middle button while holding down the key given in \"mouse_button_modifier"
+#~ "\"; set it to false to make it work the opposite way around."
+#~ msgstr ""
+#~ "\"mouse_button_modifier\" anahtarında belirtilen tuşa basılı tutarak sağ "
+#~ "tuşu ile yeniden boyutlandırmak ve orta düğme ile bir menü göstermesi "
+#~ "için bunu TRUE atayın; FALSE atamak bunun ters şekilde çalılşmasına sebep "
+#~ "olur."
+
+#~ msgid ""
+#~ "Setting this option to false can lead to buggy behavior, so users are "
+#~ "strongly discouraged from changing it from the default of true. Many "
+#~ "actions (e.g. clicking in the client area, moving or resizing the window) "
+#~ "normally raise the window as a side-effect. Setting this option to false, "
+#~ "which is strongly discouraged, will decouple raising from other user "
+#~ "actions, and ignore raise requests generated by applications. See http://"
+#~ "bugzilla.gnome.org/show_bug.cgi?id=445447#c6. Even when this option is "
+#~ "false, windows can still be raised by an alt-left-click anywhere on the "
+#~ "window, a normal click on the window decorations, or by special messages "
+#~ "from pagers, such as activation requests from tasklist applets. This "
+#~ "option is currently disabled in click-to-focus mode. Note that the list "
+#~ "of ways to raise windows when raise_on_click is false does not include "
+#~ "programmatic requests from applications to raise windows; such requests "
+#~ "will be ignored regardless of the reason for the request. If you are an "
+#~ "application developer and have a user complaining that your application "
+#~ "does not work with this setting disabled, tell them it is _their_ fault "
+#~ "for breaking their window manager and that they need to change this "
+#~ "option back to true or live with the \"bug\" they requested."
+#~ msgstr ""
+#~ "Bu seçeneği FALSE atamak hatalı davranışa yol açabilir, bu nedenle "
+#~ "kullanıcılara bu seçeneği öntanımlı seçenek olan TRUE'dan farklı olarak "
+#~ "ayarlamamaları tavsiye edilir. Birçok eylem (örneğin istemci alanında "
+#~ "tıklayarak taşımak veya pencerenin boyutlandırma) yan etki olarak "
+#~ "normalde pencereyi yükseltir. Bu seçeneği FALSE ayarlama, kuvvetle "
+#~ "önerilmemektedir, diğer kullanıcı işlemlerinin yükseltmeleri engelleyecek "
+#~ "ve uygulamalar tarafından oluşturulan yükseltme isteklerini yok "
+#~ "sayacaktır. http://bugzilla.gnome.org/showbug.cgi?id=445447#c6 sayfasına "
+#~ "bakın. Bu seçeneğin FALSE olması bile, pencereler hala pencereler "
+#~ "üzerinde herhangibir yere alt-sol-tıklama ile, pencere dekorasyonlarına "
+#~ "normal tıklama ile, ya da görev listesi uygulamacıkları gibi "
+#~ "sayfalayıcılardan gelen iletilerle yükseltilebilir. Bu seçenek şu anda "
+#~ "odak-için-tıkla kipinde devre dışı bırakılmıştır. raise_on_click FALSE "
+#~ "olduğunda pencereleri yükseltmek için yolların listesine uygulamalardan "
+#~ "program istekleri dahil değildir; bu istekler isteğin sebebi ne olursa "
+#~ "olsun yok sayılır. Eğer bir uygulama geliştiricisiyseniz ve kullanıcı bu "
+#~ "ayarı devre dışı bırakılmış olduğunda uygulamanın çalışmadığından "
+#~ "şikayetçi oluyorsa, onlara bunun pencere yöneticilerini bozdukları için "
+#~ "kendi hataları olduğu ve bu seçeneği TRUE olarak geri çevirmeleri "
+#~ "gerektiğini ya da kendi oluşturdukları \"hata\" ile yaşamaları "
+#~ "gerektiğini söyleyin."
+
+#~ msgid ""
+#~ "Some applications disregard specifications in ways that result in window "
+#~ "manager misfeatures. This option puts Metacity in a rigorously correct "
+#~ "mode, which gives a more consistent user interface, provided one does not "
+#~ "need to run any misbehaving applications."
+#~ msgstr ""
+#~ "Bazı uygulamalar belirtimleri pencere yöneticisinin yanlış işlemesine "
+#~ "sebep olacak şekilde göz ardı ederler. Bu seçenek Metacity'i sıkı bir "
+#~ "şekilde doğru kipe sokar, bu şayet kullanıcının hatalı işleyen bir "
+#~ "uygulama çalıştırmaya ihtiyacı yoksa kullanıcı arayüzünün daha tutarlı "
+#~ "olmasını sağlar."
+
+#~ msgid "System Bell is Audible"
+#~ msgstr "Sistem Zili Duyulabilir"
+
+#~ msgid ""
+#~ "Tells Metacity how to implement the visual indication that the system "
+#~ "bell or another application 'bell' indicator has been rung. Currently "
+#~ "there are two valid values, \"fullscreen\", which causes a fullscreen "
+#~ "white-black flash, and \"frame_flash\" which causes the titlebar of the "
+#~ "application which sent the bell signal to flash. If the application which "
+#~ "sent the bell is unknown (as is usually the case for the default \"system "
+#~ "beep\"), the currently focused window's titlebar is flashed."
+#~ msgstr ""
+#~ "Metacity'e sistem zilinin veya diğer uygulama zil belirticilerinin "
+#~ "kullanacağı görsel uyarıcı şeklini belirtir. Şu an için iki geçerli değer "
+#~ "vardır, tüm ekranın siyah-beyaz flaşlaması için \"fullscreen\", ve "
+#~ "uygulamanın başlık çubuğunun, zil sinyali ile flaşlaması için "
+#~ "\"frame_flash\". Eğer zil sinyalini gönderen uygulama bilinmiyorsa (ön "
+#~ "tanımlı \"sistem zili\" için geçerli olan durum), güncel odaklanmış "
+#~ "pencerenin başlık çubuğu flaşlanır."
+
+#~ msgid ""
+#~ "The /apps/metacity/global_keybindings/run_command_N keys define "
+#~ "keybindings that correspond to these commands. Pressing the keybinding "
+#~ "for run_command_N will execute command_N."
+#~ msgstr ""
+#~ "/apps/metacity/global_keybindings/run_command_N anahtarları bu komutlara "
+#~ "karşılık gelen tuş bağlarını tanımlar. run_command_N için tuş bağına "
+#~ "basınca command_N çalışır."
+
+#~ msgid ""
+#~ "The /apps/metacity/global_keybindings/run_command_screenshot key defines "
+#~ "a keybinding which causes the command specified by this setting to be "
+#~ "invoked."
+#~ msgstr ""
+#~ "/apps/metacity/global_keybindings/run_command_screenshot anahtarı bu "
+#~ "ayara atanmış komutun çalıştırılması için gereken tuş bağını tanımlar."
+
+#~ msgid ""
+#~ "The /apps/metacity/global_keybindings/run_command_window_screenshot key "
+#~ "defines a keybinding which causes the command specified by this setting "
+#~ "to be invoked."
+#~ msgstr ""
+#~ "/apps/metacity/global_keybindings/run_command_window_screenshot anahtarı "
+#~ "bu ayara atanmış komutun çalıştırılması için gereken tuş bağını tanımlar."
+
+#~ msgid ""
+#~ "The keybinding that runs the correspondingly-numbered command in /apps/"
+#~ "metacity/keybinding_commands The format looks like \"&lt;Control&gt;a\" "
+#~ "or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
+#~ "allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;"
+#~ "\" and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
+#~ msgstr ""
+#~ "/apps/metacity/keybinding_commands içinde ilgili numaraya sahip komutu "
+#~ "çalıştırmak üzere atanmış tuş bağlarını tanımlar. Biçimi şunun gibi "
+#~ "olmalıdır: \"&lt;Control&gt;a\" ya da \"&lt;Shift&gt;&lt;Alt&gt;F1\". "
+#~ "Ayrıştırıcı büyük veya küçük harf farkı gözetmez; ayrıca \"&lt;Ctl&gt;\" "
+#~ "ya da \"&lt;Ctrl&gt;\" gibi kısaltmalara izin verir. Seçeneğe \"disabled"
+#~ "\" özel dizgisini değer olarakatarsanız, o eylem için tuş bağı yapılmamış "
+#~ "olur."
+
+#~ msgid "The name of a workspace."
+#~ msgstr "Çalışma alanının adı."
+
+#~ msgid "The screenshot command"
+#~ msgstr "Ekran görüntüsü komutu"
+
+#~ msgid ""
+#~ "The theme determines the appearance of window borders, titlebar, and so "
+#~ "forth."
+#~ msgstr ""
+#~ "Tema; pencere kenarları, başlık çubuğu gibi öğelerin görünümünü belirler."
+
+#~ msgid ""
+#~ "The time delay before raising a window if auto_raise is set to true. The "
+#~ "delay is given in thousandths of a second."
+#~ msgstr ""
+#~ "Pencereyi auto_raise ayarı seçiliyse yükseltmeden önceki gecikme. Bu "
+#~ "gecikme saniyenin binde biri cinsinden verilir."
+
+#~ msgid ""
+#~ "The window focus mode indicates how windows are activated. It has three "
+#~ "possible values; \"click\" means windows must be clicked in order to "
+#~ "focus them, \"sloppy\" means windows are focused when the mouse enters "
+#~ "the window, and \"mouse\" means windows are focused when the mouse enters "
+#~ "the window and unfocused when the mouse leaves the window."
+#~ msgstr ""
+#~ "Pencere odaklama kipi, pencerelerin nasıl etkinleştirileceğini belirler. "
+#~ "Üç olası değeri vardır; \"click\" olursa pencereler tıklanarak odaklanır, "
+#~ "\"sloppy\" olursa fare pencere sınırlarına girince kendiliğinden "
+#~ "odaklanır, \"mouse\" olursa fare pencereye girince odaklanır ama fare "
+#~ "çıktığında odaklama kaybolur."
+
+#~ msgid "The window screenshot command"
+#~ msgstr "Pencere ekran görüntüsü komutu"
+
+#~ msgid ""
+#~ "This option determines the effects of double-clicking on the title bar. "
+#~ "Current valid options are 'toggle_shade', which will shade/unshade the "
+#~ "window, 'toggle_maximize' which will maximize/unmaximize the window, "
+#~ "'toggle_maximize_horizontally' and 'toggle_maximize_vertically' which "
+#~ "will maximize/unmaximize the window in that direction only, 'minimize' "
+#~ "which will minimize the window, 'shade' which will roll the window up, "
+#~ "'menu' which will display the window menu, 'lower' which will put the "
+#~ "window behind all the others, and 'none' which will not do anything."
+#~ msgstr ""
+#~ "Bu seçenek başlık çubuğunda çift tıklama etkilerini belirler. Mevcut "
+#~ "geçerli seçenekler 'toggle_shade', bu pencerenin sarılması/açılmasını "
+#~ "sağlar, 'toggle_maximize' pencerenin büyültüp, büyültmenin geri "
+#~ "alınmasını, 'toggle_maximize_horizontally' ve "
+#~ "'toggle_maximize_vertically' sadece o yönde büyültüp büyültmenin geri "
+#~ "alınmasını, 'minimize' pencere küçültmeyi, 'shade' pencereyi rulo "
+#~ "yapmayı, 'menu' pencere menüsünün görüntülenmesini, 'lower' pencerenin "
+#~ "bütün diğer pencerelerin arkasına koyulmasını sağlayacaktır ve 'none' "
+#~ "hiçbir şey yapmaz."
+
+#~ msgid ""
+#~ "This option determines the effects of middle-clicking on the title bar. "
+#~ "Current valid options are 'toggle_shade', which will shade/unshade the "
+#~ "window, 'toggle_maximize' which will maximize/unmaximize the window, "
+#~ "'toggle_maximize_horizontally' and 'toggle_maximize_vertically' which "
+#~ "will maximize/unmaximize the window in that direction only, 'minimize' "
+#~ "which will minimize the window, 'shade' which will roll the window up, "
+#~ "'menu' which will display the window menu, 'lower' which will put the "
+#~ "window behind all the others, and 'none' which will not do anything."
+#~ msgstr ""
+#~ "Bu seçenek başlık çubuğunda orta tıklama etkilerini belirler. Mevcut "
+#~ "geçerli seçenekler 'toggle_shade', bu pencerenin sarılması/açılmasını "
+#~ "sağlar, 'toggle_maximize' pencerenin büyültüp, büyültmenin geri "
+#~ "alınmasını, 'toggle_maximize_horizontally' ve "
+#~ "'toggle_maximize_vertically' sadece o yönde büyültüp büyültmenin geri "
+#~ "alınmasını, 'minimize' pencere küçültmeyi, 'shade' pencereyi rulo "
+#~ "yapmayı, 'menu' pencere menüsünün görüntülenmesini, 'lower' pencerenin "
+#~ "bütün diğer pencerelerin arkasına koyulmasını sağlayacaktır ve 'none' "
+#~ "hiçbir şey yapmaz."
+
+#~ msgid ""
+#~ "This option determines the effects of right-clicking on the title bar. "
+#~ "Current valid options are 'toggle_shade', which will shade/unshade the "
+#~ "window, 'toggle_maximize' which will maximize/unmaximize the window, "
+#~ "'toggle_maximize_horizontally' and 'toggle_maximize_vertically' which "
+#~ "will maximize/unmaximize the window in that direction only, 'minimize' "
+#~ "which will minimize the window, 'shade' which will roll the window up, "
+#~ "'menu' which will display the window menu, 'lower' which will put the "
+#~ "window behind all the others, and 'none' which will not do anything."
+#~ msgstr ""
+#~ "Bu seçenek başlık çubuğunda sağ tıklama etkilerini belirler. Mevcut "
+#~ "geçerli seçenekler 'toggle_shade', bu pencerenin sarılması/açılmasını "
+#~ "sağlar, 'toggle_maximize' pencerenin büyültüp, büyültmenin geri "
+#~ "alınmasını, 'toggle_maximize_horizontally' ve "
+#~ "'toggle_maximize_vertically' sadece o yönde büyültüp büyültmenin geri "
+#~ "alınmasını, 'minimize' pencere küçültmeyi, 'shade' pencereyi rulo "
+#~ "yapmayı, 'menu' pencere menüsünün görüntülenmesini, 'lower' pencerenin "
+#~ "bütün diğer pencerelerin arkasına koyulmasını sağlayacaktır ve 'none' "
+#~ "hiçbir şey yapmaz."
+
+#~ msgid ""
+#~ "This option provides additional control over how newly created windows "
+#~ "get focus. It has two possible values; \"smart\" applies the user's "
+#~ "normal focus mode, and \"strict\" results in windows started from a "
+#~ "terminal not being given focus."
+#~ msgstr ""
+#~ "Bu seçenek yeni oluşturulan pencerelerin odaklanmak için ek kontroller "
+#~ "sağlar. İki geçerli değeri vardır; \"smart\" kullanıcının normal odak "
+#~ "kipine uygulanır ve \"strict\" uçbirimden başlatılan uygulamaların "
+#~ "odaklanmaması ile sonuçlanır."
+
+#~ msgid ""
+#~ "Turns on a visual indication when an application or the system issues a "
+#~ "'bell' or 'beep'; useful for the hard-of-hearing and for use in noisy "
+#~ "environments."
+#~ msgstr ""
+#~ "Bir uygulama veya sistem 'zil' ya da 'bip' uygulamak istediginde görsel "
+#~ "uyarıcıları da açar; duymanın zor olduğu gürültülü ortamlar için çok "
+#~ "kullanışlıdır."
+
+#~ msgid "Use standard system font in window titles"
+#~ msgstr "Pencere başlıklarında standart sistem yazıtipini kullan"
+
+#~ msgid "Visual Bell Type"
+#~ msgstr "Görsel Zil Türü"
+
+#~ msgid "Whether raising should be a side-effect of other user interactions"
+#~ msgstr ""
+#~ "Yukarı çıkartmanın diğer kullanıcı etkileşimleri için yan etki olması"
+
+#~ msgid "Whether to resize with the right button"
+#~ msgstr "Sağ tuş ile yeniden boyutlandırılması"
+
+#~ msgid "Window focus mode"
+#~ msgstr "Pencere odaklama kipi"
+
+#~ msgid "Window title font"
+#~ msgstr "Pencere başlığı yazıtipi"
+
+#~ msgid "Title"
+#~ msgstr "Başlık"
+
+#~ msgid "Class"
+#~ msgstr "Sınıf"
+
+#~ msgid ""
+#~ "There was an error running \"%s\":\n"
+#~ "%s."
+#~ msgstr ""
+#~ "\"%s\" çalıştırılırken bir hata oldu:\n"
+#~ "%s."
+
+#~ msgid "<author> specified twice for this theme"
+#~ msgstr "Bu temada <author> iki kez belirtilmiş"
+
+#~ msgid "<copyright> specified twice for this theme"
+#~ msgstr "Bu temada <copyright> iki kez belirtilmiş"
+
+#~ msgid "<date> specified twice for this theme"
+#~ msgstr "Bu temada <date> iki kez belirtilmiş"
+
+#~ msgid "<description> specified twice for this theme"
+#~ msgstr "Bu temada <description> iki kez belirtilmiş"
+
+#~ msgid "Theme file %s did not contain a root <metacity_theme> element"
+#~ msgstr "Tema dosyası %s, kök <metacity_theme> öğesi içermiyor"
+
+#~ msgid "/Windows/tearoff"
+#~ msgstr "/Pencereler/kes"
+
+#~ msgid "/Windows/_Dialog"
+#~ msgstr "/Pencereler/_İletişim pencereleri"
+
+#~ msgid "/Windows/_Modal dialog"
+#~ msgstr "/Pencereler/_Düz iletişim pencereleri"
+
+#~ msgid "/Windows/Des_ktop"
+#~ msgstr "/Pencereler/_Masaüstü"

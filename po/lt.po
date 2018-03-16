@@ -1,0 +1,1213 @@
+# translation of lt.po to Lithuanian
+# Lithuanian translation of metacity.
+# Copyright (C) 2003-2006, 2007 Free Software Foundation, Inc.
+#
+#
+# Tomas Kuliavas <tokul@users.sourceforge.net>, 2003.
+# Žygimantas Beručka <zygis@gnome.org>, 2004-2007.
+# Gintautas Miliauskas <gintautas@miliauskas.lt>, 2007-2009, 2010.
+# Aurimas Černius <aurisc4@gmail.com>, 2013, 2014, 2015, 2016, 2017, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: lt\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
+"POT-Creation-Date: 2018-03-01 18:57+0000\n"
+"PO-Revision-Date: 2018-03-03 13:37+0200\n"
+"Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
+"Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
+"Language: lt\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n"
+"%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Gtranslator 2.91.7\n"
+
+#: data/50-mutter-navigation.xml:6
+msgid "Navigation"
+msgstr "Navigacija"
+
+#: data/50-mutter-navigation.xml:9
+msgid "Move window to workspace 1"
+msgstr "Perkelti langą į darbo sritį Nr.1"
+
+#: data/50-mutter-navigation.xml:12
+msgid "Move window to workspace 2"
+msgstr "Perkelti langą į darbo sritį Nr.2"
+
+#: data/50-mutter-navigation.xml:15
+msgid "Move window to workspace 3"
+msgstr "Perkelti langą į darbo sritį Nr.3"
+
+#: data/50-mutter-navigation.xml:18
+msgid "Move window to workspace 4"
+msgstr "Perkelti langą į darbo sritį Nr.4"
+
+#: data/50-mutter-navigation.xml:21
+msgid "Move window to last workspace"
+msgstr "Perkelti langą į pastarąją darbo sritį"
+
+#: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace up"
+msgstr "Perkelti langą į aukščiau esančią darbo sritį"
+
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace down"
+msgstr "Perkelti langą į žemiau esančią darbo sritį"
+
+#: data/50-mutter-navigation.xml:30
+msgid "Move window one monitor to the left"
+msgstr "Perkelti langą į kairiau esantį monitorių"
+
+#: data/50-mutter-navigation.xml:33
+msgid "Move window one monitor to the right"
+msgstr "Perkelti langą į dešiniau esantį monitorių"
+
+#: data/50-mutter-navigation.xml:36
+msgid "Move window one monitor up"
+msgstr "Perkelti langą į aukščiau esantį monitorių"
+
+#: data/50-mutter-navigation.xml:39
+msgid "Move window one monitor down"
+msgstr "Perkelti langą į žemiau esantį monitorių"
+
+#: data/50-mutter-navigation.xml:43
+msgid "Switch applications"
+msgstr "Pereiti tarp programų"
+
+#: data/50-mutter-navigation.xml:48
+msgid "Switch to previous application"
+msgstr "Pereiti į ankstesnę programą"
+
+#: data/50-mutter-navigation.xml:52
+msgid "Switch windows"
+msgstr "Pereiti tarp langų"
+
+#: data/50-mutter-navigation.xml:57
+msgid "Switch to previous window"
+msgstr "Pereiti į ankstesnį langą"
+
+#: data/50-mutter-navigation.xml:61
+msgid "Switch windows of an application"
+msgstr "Pereiti tarp programos langų"
+
+#: data/50-mutter-navigation.xml:66
+msgid "Switch to previous window of an application"
+msgstr "Pereiti į ankstesnį programos langą"
+
+#: data/50-mutter-navigation.xml:70
+msgid "Switch system controls"
+msgstr "Pereiti tarp sistemos valdiklių"
+
+#: data/50-mutter-navigation.xml:75
+msgid "Switch to previous system control"
+msgstr "Pereiti prie ankstesnio sistemos valdiklio"
+
+#: data/50-mutter-navigation.xml:79
+msgid "Switch windows directly"
+msgstr "Tiesiogiai pereiti tarp langų"
+
+#: data/50-mutter-navigation.xml:84
+msgid "Switch directly to previous window"
+msgstr "Tiesiogiai pereiti į ankstesnį langą"
+
+#: data/50-mutter-navigation.xml:88
+msgid "Switch windows of an app directly"
+msgstr "Tiesiogiai pereiti tarp programos langų"
+
+#: data/50-mutter-navigation.xml:93
+msgid "Switch directly to previous window of an app"
+msgstr "Tiesiogiai pereiti prie ankstesnio programos lango"
+
+#: data/50-mutter-navigation.xml:97
+msgid "Switch system controls directly"
+msgstr "Tiesiogiai pereiti tarp sistemos valdiklių"
+
+#: data/50-mutter-navigation.xml:102
+msgid "Switch directly to previous system control"
+msgstr "Tiesiogiai pereiti prie ankstesnio sistemos valdiklio"
+
+#: data/50-mutter-navigation.xml:105
+msgid "Hide all normal windows"
+msgstr "Paslėpti visus įprastinius langus"
+
+#: data/50-mutter-navigation.xml:108
+msgid "Switch to workspace 1"
+msgstr "Persijungti į darbo sritį Nr.1"
+
+#: data/50-mutter-navigation.xml:111
+msgid "Switch to workspace 2"
+msgstr "Persijungti į darbo sritį Nr.2"
+
+#: data/50-mutter-navigation.xml:114
+msgid "Switch to workspace 3"
+msgstr "Persijungti į darbo sritį Nr.3"
+
+#: data/50-mutter-navigation.xml:117
+msgid "Switch to workspace 4"
+msgstr "Persijungti į darbo sritį Nr.4"
+
+#: data/50-mutter-navigation.xml:120
+msgid "Switch to last workspace"
+msgstr "Persijungti į pastarąją darbo sritį"
+
+#: data/50-mutter-navigation.xml:123
+msgid "Move to workspace above"
+msgstr "Perkelti į darbo sritį viršuje"
+
+#: data/50-mutter-navigation.xml:126
+msgid "Move to workspace below"
+msgstr "Perkelti į darbo sritį apačioje"
+
+#: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
+msgid "System"
+msgstr "Sistema"
+
+#: data/50-mutter-system.xml:8
+msgid "Show the run command prompt"
+msgstr "Rodyti komandų paleidimo langelį"
+
+#: data/50-mutter-system.xml:10
+msgid "Show the activities overview"
+msgstr "Rodyti veiklų apžvalgą"
+
+#: data/50-mutter-wayland.xml:8
+msgid "Restore the keyboard shortcuts"
+msgstr "Atkurti klaviatūros trumpinius"
+
+#: data/50-mutter-windows.xml:6
+msgid "Windows"
+msgstr "Langai"
+
+#: data/50-mutter-windows.xml:8
+msgid "Activate the window menu"
+msgstr "Parodyti lango meniu"
+
+#: data/50-mutter-windows.xml:10
+msgid "Toggle fullscreen mode"
+msgstr "Perjungti viso ekrano veikseną"
+
+#: data/50-mutter-windows.xml:12
+msgid "Toggle maximization state"
+msgstr "Perjungti lango išdidinimo būseną"
+
+#: data/50-mutter-windows.xml:14
+msgid "Maximize window"
+msgstr "Išdidinti langą"
+
+#: data/50-mutter-windows.xml:16
+msgid "Restore window"
+msgstr "Atkurti lango dydį"
+
+#: data/50-mutter-windows.xml:18
+msgid "Close window"
+msgstr "Užverti langą"
+
+#: data/50-mutter-windows.xml:20
+msgid "Hide window"
+msgstr "Slėpti langą"
+
+#: data/50-mutter-windows.xml:22
+msgid "Move window"
+msgstr "Perkelti langą"
+
+#: data/50-mutter-windows.xml:24
+msgid "Resize window"
+msgstr "Keisti lango dydį"
+
+#: data/50-mutter-windows.xml:27
+msgid "Toggle window on all workspaces or one"
+msgstr "Perjungti lango buvimo visose darbo srityse būseną"
+
+#: data/50-mutter-windows.xml:29
+msgid "Raise window if covered, otherwise lower it"
+msgstr ""
+"Iškelti langą, jei jis uždengtas kito lango, priešingu atveju jį nuleisti"
+
+#: data/50-mutter-windows.xml:31
+msgid "Raise window above other windows"
+msgstr "Iškelti langą virš kitų langų"
+
+#: data/50-mutter-windows.xml:33
+msgid "Lower window below other windows"
+msgstr "Nuleisti langą žemiau kitų langų"
+
+#: data/50-mutter-windows.xml:35
+msgid "Maximize window vertically"
+msgstr "Išdidinti langą vertikaliai"
+
+#: data/50-mutter-windows.xml:37
+msgid "Maximize window horizontally"
+msgstr "Išdidinti langą horizontaliai"
+
+#: data/50-mutter-windows.xml:41
+msgid "View split on left"
+msgstr "Rodyti skyrimą kairėje"
+
+#: data/50-mutter-windows.xml:45
+msgid "View split on right"
+msgstr "Rodyti skyrimą dešinėje"
+
+#: data/mutter.desktop.in:4
+msgid "Mutter"
+msgstr "Mutter"
+
+#: data/org.gnome.mutter.gschema.xml.in:7
+msgid "Modifier to use for extended window management operations"
+msgstr "Klavišas, naudojamas kartu su specialiomis lango tvarkymo operacijomis"
+
+#: data/org.gnome.mutter.gschema.xml.in:8
+msgid ""
+"This key will initiate the “overlay”, which is a combination window overview "
+"and application launching system. The default is intended to be the “Windows "
+"key” on PC hardware. It’s expected that this binding either the default or "
+"set to the empty string."
+msgstr ""
+"Šis klavišas inicijuos „perdangą“, kuri yra langų apžvalgos ir programų "
+"paleidimo sistemos kombinacija. Numatytasis nustatymas – „Windows klavišas“. "
+"Tikimasi, kad šis susiejimas bus arba numatytasis, arba nustatytas į tuščią."
+
+#: data/org.gnome.mutter.gschema.xml.in:20
+msgid "Attach modal dialogs"
+msgstr "Prikabinti modalinius dialogus"
+
+#: data/org.gnome.mutter.gschema.xml.in:21
+msgid ""
+"When true, instead of having independent titlebars, modal dialogs appear "
+"attached to the titlebar of the parent window and are moved together with "
+"the parent window."
+msgstr ""
+"Kai teigiama, užuot turėje nepriklausomas antraštes, modaliniai dialogai "
+"pasirodys prikabinti prie tėvinio lango antraštės ir yra perkialiami kartu "
+"su tėviniu langu."
+
+#: data/org.gnome.mutter.gschema.xml.in:30
+msgid "Enable edge tiling when dropping windows on screen edges"
+msgstr "Įjungti kraštų uždengimą numetant langus ekrano kraštuose"
+
+#: data/org.gnome.mutter.gschema.xml.in:31
+msgid ""
+"If enabled, dropping windows on vertical screen edges maximizes them "
+"vertically and resizes them horizontally to cover half of the available "
+"area. Dropping windows on the top screen edge maximizes them completely."
+msgstr ""
+"Jei įjungta, langų numetimas vertikaliuose kraštuose juos išdidina "
+"vertikaliai ir pakeičia dydį horizontaliai taip, kad užimtų pusę esamos "
+"vietos. Langų numetimas ekrano viršuje juos visiškai išdidina."
+
+#: data/org.gnome.mutter.gschema.xml.in:40
+msgid "Workspaces are managed dynamically"
+msgstr "Darbo sritys tvarkomos dinamiškai"
+
+#: data/org.gnome.mutter.gschema.xml.in:41
+msgid ""
+"Determines whether workspaces are managed dynamically or whether there’s a "
+"static number of workspaces (determined by the num-workspaces key in org."
+"gnome.desktop.wm.preferences)."
+msgstr ""
+"Nusako, ar darbo sritys yra tvarkomos dinamiškai, ar yra pastovus darbo "
+"sričių skaičius (nusakomas raktu num-workspaces schemoje org.gnome.desktop."
+"wm.preferences)."
+
+#: data/org.gnome.mutter.gschema.xml.in:50
+msgid "Workspaces only on primary"
+msgstr "Darbo sritys tik pagrindiniame"
+
+#: data/org.gnome.mutter.gschema.xml.in:51
+msgid ""
+"Determines whether workspace switching should happen for windows on all "
+"monitors or only for windows on the primary monitor."
+msgstr ""
+"Nusako, ar darbo sričių perjungimas turi įvykti langams visuose "
+"monitoriuose, ar tik langams pagrindiniame monitoriuje."
+
+#: data/org.gnome.mutter.gschema.xml.in:59
+msgid "No tab popup"
+msgstr "Nėra tab iššokimo"
+
+#: data/org.gnome.mutter.gschema.xml.in:60
+msgid ""
+"Determines whether the use of popup and highlight frame should be disabled "
+"for window cycling."
+msgstr ""
+"Nusako, ar iššokančio lango ir rėmelio paryškinimo naudojimas turėtų būti "
+"išjungtas langų perėjime."
+
+#: data/org.gnome.mutter.gschema.xml.in:68
+msgid "Delay focus changes until the pointer stops moving"
+msgstr "Atidėti aktyvavimo pakeitimus iki žymiklis nustaja judėti"
+
+#: data/org.gnome.mutter.gschema.xml.in:69
+msgid ""
+"If set to true, and the focus mode is either “sloppy” or “mouse” then the "
+"focus will not be changed immediately when entering a window, but only after "
+"the pointer stops moving."
+msgstr ""
+"Jei nustatytas teigiamai ir aktyvavimo veiksena yra „sloppy“ arba „mouse“, "
+"tuomet aktyvavimas nebus pakeistas nedelsiant įėjus į langą, bet tik pelės "
+"žymikliui nustojus judėti."
+
+#: data/org.gnome.mutter.gschema.xml.in:79
+msgid "Draggable border width"
+msgstr "Tempiamos paraštės prolis"
+
+#: data/org.gnome.mutter.gschema.xml.in:80
+msgid ""
+"The amount of total draggable borders. If the theme’s visible borders are "
+"not enough, invisible borders will be added to meet this value."
+msgstr ""
+"Bendros tempiamos paraštės dydis. Jei temos matomos paraštės yra "
+"nepakankamos, bus pridėtos nematomos paraštės."
+
+#: data/org.gnome.mutter.gschema.xml.in:89
+msgid "Auto maximize nearly monitor sized windows"
+msgstr "Automatiškai išdidinti beveik monitoriaus dydžio langus"
+
+#: data/org.gnome.mutter.gschema.xml.in:90
+msgid ""
+"If enabled, new windows that are initially the size of the monitor "
+"automatically get maximized."
+msgstr ""
+"Jei įjungta, nauji langai, kurių pradinis dydis yra monitoriaus dydžio yra "
+"automatiškai išdidinami."
+
+#: data/org.gnome.mutter.gschema.xml.in:98
+msgid "Place new windows in the center"
+msgstr "Patalpinti naujus langus centre"
+
+#: data/org.gnome.mutter.gschema.xml.in:99
+msgid ""
+"When true, the new windows will always be put in the center of the active "
+"screen of the monitor."
+msgstr ""
+"Kai teigiama, nauji langai bus visada patalpinti aktyvaus monitoriaus ekrano "
+"viduryje."
+
+#: data/org.gnome.mutter.gschema.xml.in:107
+msgid "Enable experimental features"
+msgstr "Įjungti eksperimentines savybes"
+
+#: data/org.gnome.mutter.gschema.xml.in:108
+msgid ""
+"To enable experimental features, add the feature keyword to the list. "
+"Whether the feature requires restarting the compositor depends on the given "
+"feature. Any experimental feature is not required to still be available, or "
+"configurable. Don’t expect adding anything in this setting to be future "
+"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
+"mutter default to layout logical monitors in a logical pixel coordinate "
+"space, while scaling monitor framebuffers instead of window content, to "
+"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
+"enables remote desktop support. To support remote desktop with screen "
+"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
+"screen cast support."
+msgstr ""
+"Norėdami įjungti eksperimentines savybes, pridėkite į sąrašą raktinį žodį. "
+"Ar savybė reikalauja kompozitoriaus paleidimo iš naujo priklauso nuo "
+"konkrečios savybės. Nei viena eksperimentinė savybė privalo būti prieinama "
+"ar konfigūruojama. Nesitikėkite, kad ką nors pridėjus į šį sąrašą, tai "
+"išliks ir ateityje. Šiuo metu galimi raktažodžiai: • „scale-monitor-"
+"framebuffer“ — mutter numatytai išdėsto loginius monitorius loginėje "
+"pikselių koordinačių erdvėje, tuo pat ištempiant monitorių kadrų buferius "
+"vietoje langų turinio, tokiu būdu valdant didelio tankio monitorius. "
+"Nereikalauja paleisti iš naujo. • „remote-desktop“ – įjungia nutolusio "
+"darbalaukio palaikymą. Norint nutolusio darbalaukio su dalinimusi ekranu, "
+"taip pat reikia įjungti „screen-cast“. • „screen-cast“ – įjungia ekrano "
+"transliacijos palaikymą."
+
+#: data/org.gnome.mutter.gschema.xml.in:145
+msgid "Select window from tab popup"
+msgstr "Pasirinkti langą iš tab iššokimo"
+
+#: data/org.gnome.mutter.gschema.xml.in:150
+msgid "Cancel tab popup"
+msgstr "Atšaukti tab iššokimą"
+
+#: data/org.gnome.mutter.gschema.xml.in:155
+msgid "Switch monitor configurations"
+msgstr "Perjungti monitorių konfigūracijas"
+
+#: data/org.gnome.mutter.gschema.xml.in:160
+msgid "Rotates the built-in monitor configuration"
+msgstr "Suka integruotas monitorių konfigūracijas"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+msgid "Switch to VT 1"
+msgstr "Persijungti į VT 1"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+msgid "Switch to VT 2"
+msgstr "Persijungti į VT 2"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+msgid "Switch to VT 3"
+msgstr "Persijungti į VT 3"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+msgid "Switch to VT 4"
+msgstr "Persijungti į VT 4"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+msgid "Switch to VT 5"
+msgstr "Persijungti į VT 5"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+msgid "Switch to VT 6"
+msgstr "Persijungti į VT 6"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+msgid "Switch to VT 7"
+msgstr "Persijungti į VT 7"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+msgid "Switch to VT 8"
+msgstr "Persijungti į VT 8"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+msgid "Switch to VT 9"
+msgstr "Persijungti į VT 9"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+msgid "Switch to VT 10"
+msgstr "Persijungti į VT 10"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+msgid "Switch to VT 11"
+msgstr "Persijungti į VT 11"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+msgid "Switch to VT 12"
+msgstr "Persijungti į VT 12"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+msgid "Re-enable shortcuts"
+msgstr "Iš naujo įjungti trumpinius"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+msgid "Allow grabs with Xwayland"
+msgstr "Leisti pagriebimus su XWayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+msgid ""
+"Allow keyboard grabs issued by X11 applications running in Xwayland to be "
+"taken into account. For a X11 grab to be taken into account under Wayland, "
+"the client must also either send a specific X11 ClientMessage to the root "
+"window or be among the applications white-listed in key “xwayland-grab-"
+"access-rules”."
+msgstr ""
+"Leisti turėti omenyje X11 programų, veikiančių Xwayland, išduotus "
+"klaviatūros pagriebimus. Tam, kad X11 pagriebimas būtų turimas omenyje "
+"naudojant Wayland, klientas privalo arba siųsti tam tikrą X11 ClientMessage "
+"į šakninį langą arba būti tarp programų, esančių rakto „xwayland-grab-access-"
+"rules“ baltajame sąraše."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:77
+msgid "Xwayland applications allowed to issue keyboard grabs"
+msgstr "Xwayland programos, kurioms leidžiama išduoti klaviatūros pagriebimus"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:78
+msgid ""
+"List the resource names or resource class of X11 windows either allowed or "
+"not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
+"resource class of a given X11 window can be obtained using the command "
+"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
+"Values starting with “!” are blacklisted, which has precedence over the "
+"whitelist, to revoke applications from the default system list. The default "
+"system list includes the following applications: "
+"“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
+"using the specific keyboard shortcut defined by the keybinding key “restore-"
+"shortcuts”."
+msgstr ""
+"Išvardyti X11 langų, kuriems naudojant Wayland leidžiama ar neleidžiama "
+"išduoti X11 klaviatūros pagriebimus, išteklių pavadinimus ar išteklių "
+"klases. Nurodyto lango ištekliaus pavadinimas ar ištekliaus klasė gali būti "
+"gauta naudojant komandą „xprop WM_CLASS“. Reikšmėse yra palaikomi pakaitos "
+"simboliai „*“ ir „?“. Reikšmės prasidedančios „!“ yra įtraukiamos į juodąjį "
+"sąrašą (tam, kad būtų panaikintos iš numatytojo sistemos sąrašo) ir turi "
+"pirmumo teisę baltojo sąrašo atžvilgiu. Į numatytąjį sistemos sąrašą įeina "
+"šios programos: „@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@“. Naudotojai gali "
+"panaikinti esamą pagriebimą, naudodami tam tikrą klaviatūros trumpinį, kuris "
+"apibrėžtas rakto susiejimo raktu „restore-shortcuts“."
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/backends/meta-input-settings.c:2325
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "Veiksenos perjungimas (Grupė %d)"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/backends/meta-input-settings.c:2348
+msgid "Switch monitor"
+msgstr "Perjungti monitorių"
+
+#: src/backends/meta-input-settings.c:2350
+msgid "Show on-screen help"
+msgstr "Rodyti pagalbą ekrane"
+
+#: src/backends/meta-monitor-manager.c:900
+msgid "Built-in display"
+msgstr "Integruotas vaizduoklis"
+
+#: src/backends/meta-monitor-manager.c:923
+msgid "Unknown"
+msgstr "Nežinomas"
+
+#: src/backends/meta-monitor-manager.c:925
+msgid "Unknown Display"
+msgstr "Nežinomas vaizduoklis"
+
+#. TRANSLATORS: this is a monitor vendor name, followed by a
+#. * size in inches, like 'Dell 15"'
+#.
+#: src/backends/meta-monitor-manager.c:933
+#, c-format
+msgid "%s %s"
+msgstr "%s %s"
+
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/compositor/compositor.c:481
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr "Kita kompozicijos tvarkytuvė jau veikia ekrane %i vaizduoklyje „%s“."
+
+#: src/core/bell.c:194
+msgid "Bell event"
+msgstr "Skambučio įvykis"
+
+#: src/core/display.c:608
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "Nepavyko atverti X Window sistemos vaizduoklio „%s“\n"
+
+#: src/core/main.c:190
+msgid "Disable connection to session manager"
+msgstr "Išjungti susijungimą su sesijos tvarkytuve"
+
+#: src/core/main.c:196
+msgid "Replace the running window manager"
+msgstr "Pakeisti veikiančią langų tvarkytuvę"
+
+#: src/core/main.c:202
+msgid "Specify session management ID"
+msgstr "Nurodyti sesijos tvarkymo ID"
+
+#: src/core/main.c:207
+msgid "X Display to use"
+msgstr "Naudotinas X ekranas"
+
+#: src/core/main.c:213
+msgid "Initialize session from savefile"
+msgstr "Inicializuoti sesiją iš išsaugojimo failo"
+
+#: src/core/main.c:219
+msgid "Make X calls synchronous"
+msgstr "Sinchronizuoti X iškvietimus"
+
+#: src/core/main.c:226
+msgid "Run as a wayland compositor"
+msgstr "Vykdyti kaip wayland kompozitorių"
+
+#: src/core/main.c:232
+msgid "Run as a nested compositor"
+msgstr "Vykdyti kaip įdėtinį kompozitorių"
+
+#: src/core/main.c:240
+msgid "Run as a full display server, rather than nested"
+msgstr "Vykdyti kaip visą vaizduoklio serverį, o ne įdėtinį"
+
+#: src/core/main.c:246
+msgid "Run with X11 backend"
+msgstr "Paleisti su X11 realizacija"
+
+#. Translators: %s is a window title
+#: src/core/meta-close-dialog-default.c:147
+#, c-format
+msgid "“%s” is not responding."
+msgstr "%s neatsiliepia į komandas."
+
+#: src/core/meta-close-dialog-default.c:149
+msgid "Application is not responding."
+msgstr "Programa neatsiliepia į komandas."
+
+#: src/core/meta-close-dialog-default.c:154
+msgid ""
+"You may choose to wait a short while for it to continue or force the "
+"application to quit entirely."
+msgstr "Galite šiek tiek palaukti arba priverstinai uždaryti programą."
+
+#: src/core/meta-close-dialog-default.c:161
+msgid "_Force Quit"
+msgstr "_Priverstinai išeiti"
+
+#: src/core/meta-close-dialog-default.c:161
+msgid "_Wait"
+msgstr "_Laukti"
+
+#: src/core/mutter.c:39
+#, c-format
+msgid ""
+"mutter %s\n"
+"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+"This is free software; see the source for copying conditions.\n"
+"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+"PARTICULAR PURPOSE.\n"
+msgstr ""
+"mutter %s\n"
+"Autorių teisės © 2001-%d Havoc Pennington, Red Hat, Inc., ir kiti\n"
+"Tai yra laisva programinė įranga; kopijavimo sąlygos yra aprašytos "
+"pirminiuose koduose.\n"
+"Nėra JOKIOS garantijos; netgi PARDAVIMO ar TINKAMUMO TAM TIKRAM TIKSLUI "
+"garantijos.\n"
+
+#: src/core/mutter.c:53
+msgid "Print version"
+msgstr "Parodyti versiją"
+
+#: src/core/mutter.c:59
+msgid "Mutter plugin to use"
+msgstr "Naudojamas Mutter įskiepis"
+
+#: src/core/prefs.c:1997
+#, c-format
+msgid "Workspace %d"
+msgstr "Darbo sritis %d"
+
+#: src/core/screen.c:583
+#, c-format
+msgid ""
+"Display “%s” already has a window manager; try using the --replace option to "
+"replace the current window manager."
+msgstr ""
+"Vaizduoklis „%s“ jau turi langų tvarkytuvę; pabandykite pakeisti esamą langų "
+"tvarkytuvę, naudodami parametrą --replace."
+
+#: src/core/screen.c:668
+#, c-format
+msgid "Screen %d on display “%s” is invalid\n"
+msgstr "Ekranas %d vaizduoklyje „%s“ yra netinkamas\n"
+
+#: src/core/util.c:120
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr "Mutter buvo sukompiliuota be išsamaus veikimo veiksenos\n"
+
+#: src/wayland/meta-wayland-tablet-pad.c:567
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "Veiksenos perjungimas: veiksena %d"
+
+#: src/x11/session.c:1818
+msgid ""
+"These windows do not support “save current setup” and will have to be "
+"restarted manually next time you log in."
+msgstr ""
+"Šie langai nepalaiko „išsaugoti esamus nustatymus“ komandos ir, kai kitą "
+"kartą prisijungsite, turės būti paleisti rankiniu būdu."
+
+#: src/x11/window-props.c:559
+#, c-format
+msgid "%s (on %s)"
+msgstr "%s (kompiuteryje %s)"
+
+#~ msgid "Move window one workspace to the left"
+#~ msgstr "Perkelti langą į kairiau esančią darbo sritį"
+
+#~ msgid "Move window one workspace to the right"
+#~ msgstr "Perkelti langą į dešiniau esančią darbo sritį"
+
+#~ msgid "Move to workspace left"
+#~ msgstr "Perkelti į darbo sritį kairėje"
+
+#~ msgid "Move to workspace right"
+#~ msgstr "Perkelti į darbo sritį dešinėje"
+
+#~ msgid "Toggle shaded state"
+#~ msgstr "Perjungti lango sutraukimo būseną"
+
+#~ msgid "Failed to scan themes directory: %s\n"
+#~ msgstr "Nepavyko nuskanuoti temų aplanko: %s\n"
+
+#~ msgid ""
+#~ "Could not find a theme! Be sure %s exists and contains the usual themes.\n"
+#~ msgstr ""
+#~ "Nepavyko rasti temos! Įsitikinkite, kad %s egzistuoja ir kad ten yra "
+#~ "įprastos temos.\n"
+
+#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
+#~ msgstr "Ekranas %d vaizduoklyje „%s“ jau turi langų valdyklę\n"
+
+#~ msgid "%d x %d"
+#~ msgstr "%d x %d"
+
+#~ msgid "top"
+#~ msgstr "viršus"
+
+#~ msgid "bottom"
+#~ msgstr "apačia"
+
+#~ msgid "left"
+#~ msgstr "kairė"
+
+#~ msgid "right"
+#~ msgstr "dešinė"
+
+#~ msgid "frame geometry does not specify \"%s\" dimension"
+#~ msgstr "rėmelio aprašyme nenurodytas „%s“ matmuo"
+
+#~ msgid "frame geometry does not specify dimension \"%s\" for border \"%s\""
+#~ msgstr "rėmelio aprašyme nenurodytas paraštės „%2$s“ „%1$s“ matmuo"
+
+#~ msgid "Button aspect ratio %g is not reasonable"
+#~ msgstr "Mygtuko dydžio santykis %g yra nenuosaikus"
+
+#~ msgid "Frame geometry does not specify size of buttons"
+#~ msgstr "Rėmelio aprašyme nenurodytas mygtukų dydis"
+
+#~ msgid "Gradients should have at least two colors"
+#~ msgstr "Aprašant persiliejančias spalvas reikia nurodyti bent dvi spalvas"
+
+#~ msgid ""
+#~ "GTK custom color specification must have color name and fallback in "
+#~ "parentheses, e.g. gtk:custom(foo,bar); could not parse \"%s\""
+#~ msgstr ""
+#~ "GTK spalvų aprašymas po būsenos turi turėti spalvos pavadinimą ir "
+#~ "uždarančius laužtinius skliaustus, pvz.: gtk:custom(foo,bar); nepavyko "
+#~ "perskaityti „%s“"
+
+#~ msgid ""
+#~ "Invalid character '%c' in color_name parameter of gtk:custom, only A-Za-"
+#~ "z0-9-_ are valid"
+#~ msgstr ""
+#~ "Netinkamas simbolis „%c“ gtk:custom parametre color_name, leidžiama tik A-"
+#~ "Za-z0-9_"
+
+#~ msgid ""
+#~ "Gtk:custom format is \"gtk:custom(color_name,fallback)\", \"%s\" does not "
+#~ "fit the format"
+#~ msgstr ""
+#~ "Gtk:custom formatas yra „gtk:custom(color_name,fallback)“, „%s“ "
+#~ "neatitinka šio formato"
+
+#~ msgid ""
+#~ "GTK color specification must have the state in brackets, e.g. gtk:"
+#~ "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ msgstr ""
+#~ "GTK spalvų aprašymas turi turėti būsenos aprašymą patalpintą tarp "
+#~ "laužtinių skliaustų, pvz.: gtk:fg[NORMAL], kur NORMAL yra būsena; "
+#~ "nepavyko apdoroti \"%s\""
+
+#~ msgid ""
+#~ "GTK color specification must have a close bracket after the state, e.g. "
+#~ "gtk:fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ msgstr ""
+#~ "GTK spalvų aprašymas po būsenos turi turėti uždarančius laužtinius "
+#~ "skliaustus, pvz.: gtk:fg[NORMAL], kur NORMAL yra būsena; nepavyko "
+#~ "apdoroti \"%s\""
+
+#~ msgid "Did not understand state \"%s\" in color specification"
+#~ msgstr "Nesuprantama spalvų aprašymo būsena \"%s\""
+
+#~ msgid "Did not understand color component \"%s\" in color specification"
+#~ msgstr "Spalvų aprašyme nurodytas nesuprantamas spalvos komponentas \"%s\""
+
+#~ msgid ""
+#~ "Blend format is \"blend/bg_color/fg_color/alpha\", \"%s\" does not fit "
+#~ "the format"
+#~ msgstr ""
+#~ "Išplaukimo formatas yra \"blend/bg_color/fg_color/alpha\", \"%s\" "
+#~ "neatitinka šio formato"
+
+#~ msgid "Could not parse alpha value \"%s\" in blended color"
+#~ msgstr ""
+#~ "Nepavyko aprodoti skaidrumo reikšmės \"%s\" priskirtos išplaukiančiai "
+#~ "spalva"
+
+#~ msgid "Alpha value \"%s\" in blended color is not between 0.0 and 1.0"
+#~ msgstr ""
+#~ "Skaidrumo reikšmė \"%s\" tarp išplaukiančios spalvos yra ne tarp 0.0 ir "
+#~ "1.0"
+
+#~ msgid ""
+#~ "Shade format is \"shade/base_color/factor\", \"%s\" does not fit the "
+#~ "format"
+#~ msgstr ""
+#~ "Šešėlio formatas yra \"shade/base_color/factor\", \"%s\" neatitinka šio "
+#~ "formato"
+
+#~ msgid "Could not parse shade factor \"%s\" in shaded color"
+#~ msgstr "Nepavyko apdoroti šešėlinės spalvos šešėlių rodiklio \"%s\""
+
+#~ msgid "Shade factor \"%s\" in shaded color is negative"
+#~ msgstr "Šešėlio rodiklis \"%s\" tarp šešėlinės spalvos yra neigiamas"
+
+#~ msgid "Could not parse color \"%s\""
+#~ msgstr "Nepavyko apdoroti spalvos \"%s\""
+
+#~ msgid "Coordinate expression contains character '%s' which is not allowed"
+#~ msgstr "Koordinačių išraiška turi neleistiną simbolį '%s'"
+
+#~ msgid ""
+#~ "Coordinate expression contains floating point number '%s' which could not "
+#~ "be parsed"
+#~ msgstr ""
+#~ "Koordinačių išraiška turi skaičių su slankiu kableliu '%s', kuris negali "
+#~ "būti apdorotas"
+
+#~ msgid ""
+#~ "Coordinate expression contains integer '%s' which could not be parsed"
+#~ msgstr ""
+#~ "Koordinačių išraiška turi sveiką skaičių '%s', kuris negali būti apdorotas"
+
+#~ msgid ""
+#~ "Coordinate expression contained unknown operator at the start of this "
+#~ "text: \"%s\""
+#~ msgstr ""
+#~ "Koordinačių išraiškoje nurodytas nežinomas operatorius šio teksto "
+#~ "pradžioje: \"%s\""
+
+#~ msgid "Coordinate expression was empty or not understood"
+#~ msgstr "Koordinačių išraiška tuščia arba nesuprantama"
+
+#~ msgid "Coordinate expression results in division by zero"
+#~ msgstr "Koordinačių išraiška sukelia dalybą iš nulio"
+
+#~ msgid ""
+#~ "Coordinate expression tries to use mod operator on a floating-point number"
+#~ msgstr ""
+#~ "Koordinačių išraiška bando panaudoti liekanos operatorių (mod) slankaus "
+#~ "kablelio skaičiui"
+
+#~ msgid ""
+#~ "Coordinate expression has an operator \"%s\" where an operand was expected"
+#~ msgstr ""
+#~ "Koordinačių išraiškoje įvestas operatorius \"%s\" ten, kur turi būti "
+#~ "vedamas operandas"
+
+#~ msgid "Coordinate expression had an operand where an operator was expected"
+#~ msgstr "Koordinačių išraiškoje operandas įrašytas operatoriaus vietoje"
+
+#~ msgid "Coordinate expression ended with an operator instead of an operand"
+#~ msgstr "Koordinačių išraiška pasibaigė operatoriumi, o ne operandu"
+
+#~ msgid ""
+#~ "Coordinate expression has operator \"%c\" following operator \"%c\" with "
+#~ "no operand in between"
+#~ msgstr ""
+#~ "Koordinačių išraiškoje operatorius \"%c\" eina po operatoriaus \"%c\" be "
+#~ "tarpinio operando"
+
+#~ msgid "Coordinate expression had unknown variable or constant \"%s\""
+#~ msgstr "Koordinačių išraiška saugo nežinomą kintamąjį arba konstantą \"%s\""
+
+#~ msgid "Coordinate expression parser overflowed its buffer."
+#~ msgstr "Koordinačių išraiškų skaitytuvas perpildė buferį."
+
+#~ msgid ""
+#~ "Coordinate expression had a close parenthesis with no open parenthesis"
+#~ msgstr ""
+#~ "Koordinačių išraiškoje įvesti uždarantys skliaustai, nors atidarančių "
+#~ "skliaustų nerasta"
+
+#~ msgid ""
+#~ "Coordinate expression had an open parenthesis with no close parenthesis"
+#~ msgstr ""
+#~ "Koordinačių išraiškoje po atidarančių skliaustų neįvesti uždarantys "
+#~ "skliaustai"
+
+#~ msgid "Coordinate expression doesn't seem to have any operators or operands"
+#~ msgstr "Koordinačių išraiška neturi jokių operatorių ar operandų"
+
+#~ msgid "Theme contained an expression that resulted in an error: %s\n"
+#~ msgstr "Temoje esanti išraiška sukėlė klaidą: %s\n"
+
+#~ msgid ""
+#~ "<button function=\"%s\" state=\"%s\" draw_ops=\"whatever\"/> must be "
+#~ "specified for this frame style"
+#~ msgstr ""
+#~ "Šiam rėmelio stiliui turi būti nurodytas <button function=\"%s\" state="
+#~ "\"%s\" draw_ops=\"kažkokswhatever\"/> požymis"
+
+#~ msgid ""
+#~ "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/"
+#~ ">"
+#~ msgstr ""
+#~ "Trūksta <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"kažkoks\"/>"
+
+#~ msgid "Failed to load theme \"%s\": %s\n"
+#~ msgstr "Nepavyko paleisti temos \"%s\": %s\n"
+
+#~ msgid "No <%s> set for theme \"%s\""
+#~ msgstr "Temoje \"%2$s\" trūksta <%1$s> nustatymų"
+
+#~ msgid ""
+#~ "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
+#~ "type=\"%s\" style_set=\"whatever\"/> element"
+#~ msgstr ""
+#~ "Rėmelio stilius nenurodytas lango tipui \"%s\" temoje \"%s\", pridėkite "
+#~ "<window type=\"%s\" style_set=\"kažkoks\"/> elementą"
+
+#~ msgid ""
+#~ "User-defined constants must begin with a capital letter; \"%s\" does not"
+#~ msgstr ""
+#~ "Naudotojo nustatytos konstantos turi prasidėti didžiąja raide; „%s“ nėra "
+#~ "didžioji"
+
+#~ msgid "Constant \"%s\" has already been defined"
+#~ msgstr "Konstanta „%s“ jau aprašyta"
+
+#~ msgid "No \"%s\" attribute on element <%s>"
+#~ msgstr "Trūksta „%s“ požymio elemente <%s>"
+
+#~ msgid "Line %d character %d: %s"
+#~ msgstr "%d eilutės simbolis %d: %s"
+
+#~ msgid "Attribute \"%s\" repeated twice on the same <%s> element"
+#~ msgstr "Požymis „%s“ pasikartoja tame pačiame <%s> elemente"
+
+#~ msgid "Attribute \"%s\" is invalid on <%s> element in this context"
+#~ msgstr "Šiame kontekste požymis „%s“ yra netinkamas elemente <%s>"
+
+#~ msgid "Could not parse \"%s\" as an integer"
+#~ msgstr "Nepavyko apdoroti „%s“ kaip sveiko skaičiaus"
+
+#~ msgid "Did not understand trailing characters \"%s\" in string \"%s\""
+#~ msgstr "Nesuprantami simbolių seką „%2$s“ užbaigiantys simboliai „%1$s“"
+
+#~ msgid "Integer %ld must be positive"
+#~ msgstr "Sveikas skaičius %ld turi būti teigiamas"
+
+#~ msgid "Integer %ld is too large, current max is %d"
+#~ msgstr ""
+#~ "Sveikas skaičius %ld yra per didelis, didžiausia galima reikšmė šiuo metu "
+#~ "yra %d"
+
+#~ msgid "Could not parse \"%s\" as a floating point number"
+#~ msgstr "Nepavyko aprodyti „%s“ kaip skaičiaus su slankiu kableliu"
+
+#~ msgid "Boolean values must be \"true\" or \"false\" not \"%s\""
+#~ msgstr "Loginės reikšmės turi būti \"true\" arba \"false\", o ne \"%s\""
+
+#~ msgid "Angle must be between 0.0 and 360.0, was %g\n"
+#~ msgstr "Kampas turi būti tarp 0.0 ir 360.0, o buvo nurodyta %g\n"
+
+#~ msgid ""
+#~ "Alpha must be between 0.0 (invisible) and 1.0 (fully opaque), was %g\n"
+#~ msgstr ""
+#~ "Skaidrumo reikšmė turi būti tarp 0.0 (nematomas) ir 1.0 (visiškai "
+#~ "neskaidrus), o buvo nurodyta %g\n"
+
+#~ msgid ""
+#~ "Invalid title scale \"%s\" (must be one of xx-small,x-small,small,medium,"
+#~ "large,x-large,xx-large)\n"
+#~ msgstr ""
+#~ "Netinkamas antraštės mastelis \"%s\" (turi būti viena iš xx-small,x-small,"
+#~ "small,medium,large,x-large,xx-large reikšmių)\n"
+
+#~ msgid "<%s> name \"%s\" used a second time"
+#~ msgstr "<%s> požymis name \"%s\" panaudotas antrą kartą"
+
+#~ msgid "<%s> parent \"%s\" has not been defined"
+#~ msgstr "Nenurodytas <%s> požymis parent \"%s\""
+
+#~ msgid "<%s> geometry \"%s\" has not been defined"
+#~ msgstr "Nenurodytas <%s> požymis geometry \"%s\""
+
+#~ msgid "<%s> must specify either a geometry or a parent that has a geometry"
+#~ msgstr ""
+#~ "<%s> turi nurodyti dydžio (geometrijos) nustatymus arba viršesnį "
+#~ "elementą, jau turinti tokius nustatymus"
+
+#~ msgid "You must specify a background for an alpha value to be meaningful"
+#~ msgstr "Turite nustatyti foną, kad alfa reikšmė būtų prasminga"
+
+#~ msgid "Unknown type \"%s\" on <%s> element"
+#~ msgstr "Nežinomas type \"%s\" požymis elemente <%s>"
+
+#~ msgid "Unknown style_set \"%s\" on <%s> element"
+#~ msgstr "Nežinomas style_set \"%s\" požymis elemente <%s>"
+
+#~ msgid "Window type \"%s\" has already been assigned a style set"
+#~ msgstr "Lango type \"%s\" požymis jau turi nurodytą stiliaus aprašymą"
+
+#~ msgid "Element <%s> is not allowed below <%s>"
+#~ msgstr "Elementas <%s> neleistinas žemiau <%s>"
+
+#~ msgid ""
+#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
+#~ "\" for buttons"
+#~ msgstr ""
+#~ "Negalima tuo pačiu metu nurodyti „button_width“/„button_height“ ir "
+#~ "„aspect_ratio“"
+
+#~ msgid "Distance \"%s\" is unknown"
+#~ msgstr "Atstumas \"%s\" yra nežinomas"
+
+#~ msgid "Aspect ratio \"%s\" is unknown"
+#~ msgstr "Dydžio santykis \"%s\" yra nežinomas"
+
+#~ msgid "Border \"%s\" is unknown"
+#~ msgstr "Paraštė \"%s\" nežinoma"
+
+#~ msgid "No \"start_angle\" or \"from\" attribute on element <%s>"
+#~ msgstr "Elemente <%s> trūksta \"start_angle\" ar \"from\" požymio"
+
+#~ msgid "No \"extent_angle\" or \"to\" attribute on element <%s>"
+#~ msgstr "Elemente <%s> trūksta \"extent_angle\" ar \"to\" požymio"
+
+#~ msgid "Did not understand value \"%s\" for type of gradient"
+#~ msgstr "Nesuprantama reikšmė \"%s\" persiliejančio elemento tipo aprašyme"
+
+#~ msgid "Did not understand fill type \"%s\" for <%s> element"
+#~ msgstr "Nežinoma fill type požymio reikšmė \"%s\" elemente <%s>"
+
+#~ msgid "Did not understand state \"%s\" for <%s> element"
+#~ msgstr "Nežinoma state požymio reikšmė \"%s\" elemente <%s>"
+
+#~ msgid "Did not understand shadow \"%s\" for <%s> element"
+#~ msgstr "Nežinoma shadow požymio reikšmė \"%s\" elemente <%s>"
+
+#~ msgid "Did not understand arrow \"%s\" for <%s> element"
+#~ msgstr "Nežinoma arrow požymio reikšmė \"%s\" elemente <%s>"
+
+#~ msgid "No <draw_ops> called \"%s\" has been defined"
+#~ msgstr "Neaprašyti jokie <draw_ops> požymiai pavadinti \"%s\""
+
+#~ msgid "Including draw_ops \"%s\" here would create a circular reference"
+#~ msgstr ""
+#~ "Čia įvesdami draw_ops \"%s\" požymius jūs sukuriate žiedinį aprašymą"
+
+#~ msgid "Unknown position \"%s\" for frame piece"
+#~ msgstr "Nežinoma rėmelio elemento padėtis \"%s\""
+
+#~ msgid "Frame style already has a piece at position %s"
+#~ msgstr "Rėmelio stiliaus aprašyme padėtis %s jau aprašyta"
+
+#~ msgid "No <draw_ops> with the name \"%s\" has been defined"
+#~ msgstr "Vardui \"%s\" nenurodyti jokie <draw_ops> požymiai"
+
+#~ msgid "Unknown function \"%s\" for button"
+#~ msgstr "Mygtukui priskirta nežinoma funkcija \"%s\""
+
+#~ msgid "Button function \"%s\" does not exist in this version (%d, need %d)"
+#~ msgstr ""
+#~ "Mygtuko funkcija \"%s\" neegzistuoja šioje versijoje (%d, reikia %d)"
+
+#~ msgid "Unknown state \"%s\" for button"
+#~ msgstr "Mygtukui priskirta nežinoma būsena \"%s\""
+
+#~ msgid "Frame style already has a button for function %s state %s"
+#~ msgstr ""
+#~ "Rėmelio stiliaus aprašyme jau yra nurodytas mygtukas aprašantis funkcijos "
+#~ "%s būseną %s"
+
+#~ msgid "\"%s\" is not a valid value for focus attribute"
+#~ msgstr "Reikšmė „%s“ nepriimtina aktyvinimo požymyje"
+
+#~ msgid "\"%s\" is not a valid value for state attribute"
+#~ msgstr "Reikšmė „%s“ nepriimtina būsenos požymyje"
+
+#~ msgid "A style called \"%s\" has not been defined"
+#~ msgstr "Stilius pavadinimu „%s“ neaprašytas"
+
+#~ msgid "\"%s\" is not a valid value for resize attribute"
+#~ msgstr "Reikšmė „%s“ nepriimtina dydžio keitimo požymyje"
+
+#~ msgid ""
+#~ "Should not have \"resize\" attribute on <%s> element for maximized/shaded "
+#~ "states"
+#~ msgstr ""
+#~ "Negalima naudoti \"resize\" požymio elemente <%s>, skirtame išplėtimo/"
+#~ "šešėlių būsenų aprašymui"
+
+#~ msgid ""
+#~ "Should not have \"resize\" attribute on <%s> element for maximized states"
+#~ msgstr ""
+#~ "Negalima naudoti \"resize\" požymio elemente <%s>, skirtame išplėtimo "
+#~ "būsenų aprašymui"
+
+#~ msgid "Style has already been specified for state %s resize %s focus %s"
+#~ msgstr "state %s resize %s focus %s požymiai jau turi stiliaus aprašymą"
+
+#~ msgid "Style has already been specified for state %s focus %s"
+#~ msgstr "Aktyvinimo %2$s būsena %1$s jau turi stiliaus aprašymą"
+
+#~ msgid ""
+#~ "Can't have a two draw_ops for a <piece> element (theme specified a "
+#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
+#~ "elements)"
+#~ msgstr ""
+#~ "Negalima naudoti dviejų draw_ops požymių <piece> elemente (tema nustatė "
+#~ "draw_ops požymį ir <draw_ops> elementą, arba nurodė du elementus)"
+
+#~ msgid ""
+#~ "Can't have a two draw_ops for a <button> element (theme specified a "
+#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
+#~ "elements)"
+#~ msgstr ""
+#~ "Negalima naudoti dviejų draw_ops požymių <button> elemente (tema nustatė "
+#~ "draw_ops požymį ir <draw_ops> elementą, arba nurodė du elementus)"
+
+#~ msgid ""
+#~ "Can't have a two draw_ops for a <menu_icon> element (theme specified a "
+#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
+#~ "elements)"
+#~ msgstr ""
+#~ "Negalima naudoti dviejų draw_ops požymių <menu_icon> elemente (tema "
+#~ "nustatė draw_ops požymį ir <draw_ops> elementą, arba nurodė du elementus)"
+
+#~ msgid "Bad version specification '%s'"
+#~ msgstr "Bloga versijos specifikacija „%s“"
+
+#~ msgid ""
+#~ "\"version\" attribute cannot be used in metacity-theme-1.xml or metacity-"
+#~ "theme-2.xml"
+#~ msgstr ""
+#~ "„version“ požymis negali būti naudojamas metacity-theme-1.xml arba "
+#~ "metacity-theme-2.xml"
+
+#~ msgid ""
+#~ "Theme requires version %s but latest supported theme version is %d.%d"
+#~ msgstr ""
+#~ "Tema reikalauja versijos %s, bet paskutinė palaikoma versija yra %d.%d"
+
+#~ msgid "Outermost element in theme must be <metacity_theme> not <%s>"
+#~ msgstr "Pradinis temos elementas turi būti <metacity_theme>, o ne <%s>"
+
+#~ msgid ""
+#~ "Element <%s> is not allowed inside a name/author/date/description element"
+#~ msgstr ""
+#~ "Elementas <%s> nepriimtinas tarp name/author/date/description elementų"
+
+#~ msgid "Element <%s> is not allowed inside a <constant> element"
+#~ msgstr "Elementas <%s> nepriimtinas tarp <constant> elemento"
+
+#~ msgid ""
+#~ "Element <%s> is not allowed inside a distance/border/aspect_ratio element"
+#~ msgstr ""
+#~ "Elementas <%s> nepriimtinas tarp distance/border/aspect_ratio elementų"
+
+#~ msgid "Element <%s> is not allowed inside a draw operation element"
+#~ msgstr "Elementas <%s> piešimo operacijos elemente neleidžiamas"
+
+#~ msgid "Element <%s> is not allowed inside a <%s> element"
+#~ msgstr "Elementas <%s> elemente <%s> yra neleidžiamas"
+
+#~ msgid "No draw_ops provided for frame piece"
+#~ msgstr "Rėmelio elementui nepriskirta draw_ops funkcija"
+
+#~ msgid "No draw_ops provided for button"
+#~ msgstr "Mygtukui nepriskirta draw_ops funkcija"
+
+#~ msgid "No text is allowed inside element <%s>"
+#~ msgstr "Elemente <%s> tekstas negalimas"
+
+#~ msgid "<%s> specified twice for this theme"
+#~ msgstr "<%s> elementas temos aprašyme nurodytas du kartus"
+
+#~ msgid "Failed to find a valid file for theme %s\n"
+#~ msgstr "Nepavyko rasti tinkamo temos %s failo\n"

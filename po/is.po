@@ -1,0 +1,1013 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# FIRST AUTHOR  Samúel Jón Gunnarsson <sammi@techattack.nu>, 2003.
+# Sveinn í Felli <sv1@fellsnet.is>, 2017.
+msgid ""
+msgstr ""
+"Project-Id-Version: metacity\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"product=mutter&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2016-10-29 18:34+0000\n"
+"PO-Revision-Date: 2017-03-02 11:35+0000\n"
+"Last-Translator: Sveinn í Felli <sv1@fellsnet.is>\n"
+"Language-Team: Icelandic <translation-team-is@lists.sourceforge.org>\n"
+"Language: is\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Lokalize 1.5\n"
+
+#: data/50-mutter-navigation.xml:6
+msgid "Navigation"
+msgstr "Flakk"
+
+#: data/50-mutter-navigation.xml:9
+msgid "Move window to workspace 1"
+msgstr "Flytja glugga yfir á vinnusvæði 1"
+
+#: data/50-mutter-navigation.xml:12
+msgid "Move window to workspace 2"
+msgstr "Flytja glugga yfir á vinnusvæði 2"
+
+#: data/50-mutter-navigation.xml:15
+msgid "Move window to workspace 3"
+msgstr "Flytja glugga yfir á vinnusvæði 3"
+
+#: data/50-mutter-navigation.xml:18
+msgid "Move window to workspace 4"
+msgstr "Flytja glugga yfir á vinnusvæði 4"
+
+#: data/50-mutter-navigation.xml:21
+#| msgid "Move window to workspace 1"
+msgid "Move window to last workspace"
+msgstr "Flytja glugga yfir á síðasta vinnusvæði"
+
+#: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace to the left"
+msgstr "Flytja glugga til vinstri um eitt vinnusvæði"
+
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "Flytja glugga til hægri um eitt vinnusvæði"
+
+#: data/50-mutter-navigation.xml:30
+msgid "Move window one workspace up"
+msgstr "Flytja glugga upp um eitt vinnusvæði"
+
+#: data/50-mutter-navigation.xml:33
+msgid "Move window one workspace down"
+msgstr "Flytja glugga niður um eitt vinnusvæði"
+
+#: data/50-mutter-navigation.xml:36
+#| msgid "Move window one workspace to the left"
+msgid "Move window one monitor to the left"
+msgstr "Flytja glugga á skjá til vinstri"
+
+#: data/50-mutter-navigation.xml:39
+#| msgid "Move window one workspace to the right"
+msgid "Move window one monitor to the right"
+msgstr "Flytja glugga á skjá til hægri"
+
+#: data/50-mutter-navigation.xml:42
+#| msgid "Move window one workspace up"
+msgid "Move window one monitor up"
+msgstr "Flytja glugga á skjá fyrir ofan"
+
+#: data/50-mutter-navigation.xml:45
+#| msgid "Move window one workspace down"
+msgid "Move window one monitor down"
+msgstr "Flytja glugga á skjá fyrir neðan"
+
+#: data/50-mutter-navigation.xml:49
+msgid "Switch applications"
+msgstr "Skipta á milli forrita"
+
+#: data/50-mutter-navigation.xml:54
+msgid "Switch to previous application"
+msgstr "Skipta í fyrra forrit"
+
+#: data/50-mutter-navigation.xml:58
+msgid "Switch windows"
+msgstr "Skipta á milli glugga"
+
+#: data/50-mutter-navigation.xml:63
+msgid "Switch to previous window"
+msgstr "Skipta yfir í fyrri glugga"
+
+#: data/50-mutter-navigation.xml:67
+msgid "Switch windows of an application"
+msgstr "Skipta um forritsglugga"
+
+#: data/50-mutter-navigation.xml:72
+msgid "Switch to previous window of an application"
+msgstr "Skipta í fyrri glugga forrits"
+
+#: data/50-mutter-navigation.xml:76
+msgid "Switch system controls"
+msgstr ""
+
+#: data/50-mutter-navigation.xml:81
+msgid "Switch to previous system control"
+msgstr ""
+
+#: data/50-mutter-navigation.xml:85
+msgid "Switch windows directly"
+msgstr "Skipta beint á milli glugga"
+
+#: data/50-mutter-navigation.xml:90
+msgid "Switch directly to previous window"
+msgstr "Skipta beint yfir í fyrri glugga"
+
+#: data/50-mutter-navigation.xml:94
+msgid "Switch windows of an app directly"
+msgstr ""
+
+#: data/50-mutter-navigation.xml:99
+msgid "Switch directly to previous window of an app"
+msgstr ""
+
+#: data/50-mutter-navigation.xml:103
+msgid "Switch system controls directly"
+msgstr ""
+
+#: data/50-mutter-navigation.xml:108
+msgid "Switch directly to previous system control"
+msgstr ""
+
+#: data/50-mutter-navigation.xml:111
+msgid "Hide all normal windows"
+msgstr "Fela alla venjulega glugga"
+
+#: data/50-mutter-navigation.xml:114
+msgid "Switch to workspace 1"
+msgstr "Skipta yfir á vinnusvæði 1"
+
+#: data/50-mutter-navigation.xml:117
+msgid "Switch to workspace 2"
+msgstr "Skipta yfir á vinnusvæði 2"
+
+#: data/50-mutter-navigation.xml:120
+msgid "Switch to workspace 3"
+msgstr "Skipta yfir á vinnusvæði 3"
+
+#: data/50-mutter-navigation.xml:123
+msgid "Switch to workspace 4"
+msgstr "Skipta yfir á vinnusvæði 4"
+
+#: data/50-mutter-navigation.xml:126
+#| msgid "Switch to workspace 1"
+msgid "Switch to last workspace"
+msgstr "Skipta yfir á síðasta vinnusvæði"
+
+#: data/50-mutter-navigation.xml:129
+msgid "Move to workspace left"
+msgstr "Flytja á vinnusvæðið til vinstri"
+
+#: data/50-mutter-navigation.xml:132
+msgid "Move to workspace right"
+msgstr "Flytja á vinnusvæðið til hægri"
+
+#: data/50-mutter-navigation.xml:135
+msgid "Move to workspace above"
+msgstr "Flytja á vinnusvæðið fyrir ofan"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace below"
+msgstr "Flytja á vinnusvæðið fyrir neðan"
+
+#: data/50-mutter-system.xml:6
+msgid "System"
+msgstr "Kerfið"
+
+#: data/50-mutter-system.xml:8
+msgid "Show the run command prompt"
+msgstr "Birta skipanalínuna"
+
+#: data/50-mutter-system.xml:10
+msgid "Show the activities overview"
+msgstr "Birta virkniyfirlit"
+
+#: data/50-mutter-windows.xml:6
+msgid "Windows"
+msgstr "Gluggar"
+
+#: data/50-mutter-windows.xml:8
+#| msgid "Activate window menu"
+msgid "Activate the window menu"
+msgstr "Virkja gluggavalmynd"
+
+#: data/50-mutter-windows.xml:10
+msgid "Toggle fullscreen mode"
+msgstr "Víxla heilskjáham af/á"
+
+#: data/50-mutter-windows.xml:12
+msgid "Toggle maximization state"
+msgstr "Víxla hámörkunarstöðu af/á"
+
+#: data/50-mutter-windows.xml:14
+msgid "Maximize window"
+msgstr "Hámarka glugga"
+
+#: data/50-mutter-windows.xml:16
+msgid "Restore window"
+msgstr "Endurheimta glugga"
+
+#: data/50-mutter-windows.xml:18
+msgid "Toggle shaded state"
+msgstr "Víxla skyggingarstöðu af/á"
+
+#: data/50-mutter-windows.xml:20
+msgid "Close window"
+msgstr "Loka glugga"
+
+#: data/50-mutter-windows.xml:22
+msgid "Hide window"
+msgstr "Fela glugga"
+
+#: data/50-mutter-windows.xml:24
+msgid "Move window"
+msgstr "Flytja glugga"
+
+#: data/50-mutter-windows.xml:26
+msgid "Resize window"
+msgstr "Breyta stærð glugga"
+
+#: data/50-mutter-windows.xml:29
+#| msgid "Move window one workspace down"
+msgid "Toggle window on all workspaces or one"
+msgstr ""
+"Skipta á milli þess hvort glugginn sé á öllum vinnusvæðum eða bara einu"
+
+#: data/50-mutter-windows.xml:31
+#| msgid "Raise window above other windows"
+msgid "Raise window if covered, otherwise lower it"
+msgstr "Hækka glugga ef annar gluggi hylur hann, annars skal lækka hann"
+
+#: data/50-mutter-windows.xml:33
+msgid "Raise window above other windows"
+msgstr "Hækka glugga upp fyrir aðra glugga"
+
+#: data/50-mutter-windows.xml:35
+msgid "Lower window below other windows"
+msgstr "Lækka glugga niður fyrir aðra glugga"
+
+#: data/50-mutter-windows.xml:37
+msgid "Maximize window vertically"
+msgstr "Hámarka glugga lóðrétt"
+
+#: data/50-mutter-windows.xml:39
+msgid "Maximize window horizontally"
+msgstr "Hámarka glugga lárétt"
+
+#: data/50-mutter-windows.xml:43
+msgid "View split on left"
+msgstr "Kljúfa sýn til vinstri"
+
+#: data/50-mutter-windows.xml:47
+msgid "View split on right"
+msgstr "Kljúfa sýn til hægri"
+
+#: data/mutter.desktop.in:4
+msgid "Mutter"
+msgstr "Mutter"
+
+#: data/org.gnome.mutter.gschema.xml.in:7
+msgid "Modifier to use for extended window management operations"
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:8
+msgid ""
+"This key will initiate the \"overlay\", which is a combination window "
+"overview and application launching system. The default is intended to be the "
+"\"Windows key\" on PC hardware. It's expected that this binding either the "
+"default or set to the empty string."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:20
+msgid "Attach modal dialogs"
+msgstr "Tengja kvaðningarglugga"
+
+#: data/org.gnome.mutter.gschema.xml.in:21
+msgid ""
+"When true, instead of having independent titlebars, modal dialogs appear "
+"attached to the titlebar of the parent window and are moved together with "
+"the parent window."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:30
+msgid "Enable edge tiling when dropping windows on screen edges"
+msgstr "Virkja flísalögn við jaðra þegar gluggum er sleppt á skjájaðra"
+
+#: data/org.gnome.mutter.gschema.xml.in:31
+msgid ""
+"If enabled, dropping windows on vertical screen edges maximizes them "
+"vertically and resizes them horizontally to cover half of the available "
+"area. Dropping windows on the top screen edge maximizes them completely."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:40
+msgid "Workspaces are managed dynamically"
+msgstr "Vinnusvæðum er stýrt eftir þörfum"
+
+#: data/org.gnome.mutter.gschema.xml.in:41
+msgid ""
+"Determines whether workspaces are managed dynamically or whether there's a "
+"static number of workspaces (determined by the num-workspaces key in org."
+"gnome.desktop.wm.preferences)."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:50
+msgid "Workspaces only on primary"
+msgstr "Vinnusvæði einungis á aðalskjá"
+
+#: data/org.gnome.mutter.gschema.xml.in:51
+msgid ""
+"Determines whether workspace switching should happen for windows on all "
+"monitors or only for windows on the primary monitor."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:59
+msgid "No tab popup"
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:60
+msgid ""
+"Determines whether the use of popup and highlight frame should be disabled "
+"for window cycling."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:68
+msgid "Delay focus changes until the pointer stops moving"
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:69
+msgid ""
+"If set to true, and the focus mode is either \"sloppy\" or \"mouse\" then "
+"the focus will not be changed immediately when entering a window, but only "
+"after the pointer stops moving."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:79
+msgid "Draggable border width"
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:80
+msgid ""
+"The amount of total draggable borders. If the theme's visible borders are "
+"not enough, invisible borders will be added to meet this value."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:89
+msgid "Auto maximize nearly monitor sized windows"
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:90
+msgid ""
+"If enabled, new windows that are initially the size of the monitor "
+"automatically get maximized."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:98
+msgid "Place new windows in the center"
+msgstr "Setja nýja glugga á miðjuna"
+
+#: data/org.gnome.mutter.gschema.xml.in:99
+msgid ""
+"When true, the new windows will always be put in the center of the active "
+"screen of the monitor."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:120
+msgid "Select window from tab popup"
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:125
+msgid "Cancel tab popup"
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#| msgid "Switch to workspace 1"
+msgid "Switch to VT 1"
+msgstr "Skipta yfir á vinnusvæði 1"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#| msgid "Switch to workspace 2"
+msgid "Switch to VT 2"
+msgstr "Skipta yfir á vinnusvæði 2"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#| msgid "Switch to workspace 3"
+msgid "Switch to VT 3"
+msgstr "Skipta yfir á vinnusvæði 3"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#| msgid "Switch to workspace 4"
+msgid "Switch to VT 4"
+msgstr "Skipta yfir á vinnusvæði 4"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#| msgid "Switch to workspace 5"
+msgid "Switch to VT 5"
+msgstr "Skipta yfir á vinnusvæði 5"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#| msgid "Switch to workspace 6"
+msgid "Switch to VT 6"
+msgstr "Skipta yfir á vinnusvæði 6"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#| msgid "Switch to workspace 7"
+msgid "Switch to VT 7"
+msgstr "Skipta yfir á vinnusvæði 7"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#| msgid "Switch to workspace 8"
+msgid "Switch to VT 8"
+msgstr "Skipta yfir á vinnusvæði 8"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#| msgid "Switch to workspace 9"
+msgid "Switch to VT 9"
+msgstr "Skipta yfir á vinnusvæði 9"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#| msgid "Switch to workspace 10"
+msgid "Switch to VT 10"
+msgstr "Skipta yfir á vinnusvæði 10"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#| msgid "Switch to workspace 11"
+msgid "Switch to VT 11"
+msgstr "Skipta yfir á vinnusvæði 11"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#| msgid "Switch to workspace 12"
+msgid "Switch to VT 12"
+msgstr "Skipta yfir á vinnusvæði 12"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/backends/meta-input-settings.c:1847
+msgid "Switch monitor"
+msgstr "Skipta um skjá"
+
+#: src/backends/meta-input-settings.c:1849
+msgid "Show on-screen help"
+msgstr "Birta upplýsingar á skjá"
+
+#: src/backends/meta-monitor-manager.c:514
+msgid "Built-in display"
+msgstr "Innbyggður skjár"
+
+#: src/backends/meta-monitor-manager.c:537
+msgid "Unknown"
+msgstr "Óþekkt"
+
+#: src/backends/meta-monitor-manager.c:539
+msgid "Unknown Display"
+msgstr "Óþekktur skjár"
+
+#. TRANSLATORS: this is a monitor vendor name, followed by a
+#. * size in inches, like 'Dell 15"'
+#.
+#: src/backends/meta-monitor-manager.c:547
+#, c-format
+msgid "%s %s"
+msgstr "%s %s"
+
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/compositor/compositor.c:463
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display \"%s"
+"\"."
+msgstr ""
+"Annar skjásamsetningarstjóri er þegar í keyrslu í sýndarskjá %i á skjánum "
+"\"%s\"."
+
+#: src/core/bell.c:194
+msgid "Bell event"
+msgstr "Hljóðatburður"
+
+#: src/core/delete.c:127
+#, c-format
+msgid "“%s” is not responding."
+msgstr "“%s” svarar ekki."
+
+#: src/core/delete.c:129
+msgid "Application is not responding."
+msgstr "Forritið svarar ekki."
+
+#: src/core/delete.c:134
+msgid ""
+"You may choose to wait a short while for it to continue or force the "
+"application to quit entirely."
+msgstr ""
+"Þú getur annað hvort hinkrað augnablik og leyft forritinu að halda áfram eða "
+"þú getur þvingað forritið til að slökkva algjörlega á sér."
+
+#: src/core/delete.c:141
+msgid "_Wait"
+msgstr "_Bíða"
+
+#: src/core/delete.c:141
+msgid "_Force Quit"
+msgstr "_Þvinga til að hætta"
+
+#: src/core/display.c:590
+#, c-format
+msgid "Failed to open X Window System display '%s'\n"
+msgstr "Mistókst að opna X-gluggakerfis-skjá ‚%s‘\n"
+
+#: src/core/main.c:182
+msgid "Disable connection to session manager"
+msgstr "Slökkva á tengingu við setustjóra"
+
+#: src/core/main.c:188
+#| msgid "Bug in window manager: "
+msgid "Replace the running window manager"
+msgstr "Skipta út gluggastjóranum sem er í notkun"
+
+#: src/core/main.c:194
+msgid "Specify session management ID"
+msgstr "Tilgreindu auðkenni (ID) setustjórnunar"
+
+#: src/core/main.c:199
+msgid "X Display to use"
+msgstr "X-skjár sem á að nota"
+
+#: src/core/main.c:205
+msgid "Initialize session from savefile"
+msgstr "Frumstilla setu frá vistaðri skrá"
+
+#: src/core/main.c:211
+msgid "Make X calls synchronous"
+msgstr "Gera X köllin samhæfð"
+
+#: src/core/main.c:218
+msgid "Run as a wayland compositor"
+msgstr "Keyra sem wayland-skjásamsetningu"
+
+#: src/core/main.c:224
+msgid "Run as a nested compositor"
+msgstr ""
+
+#: src/core/main.c:232
+msgid "Run as a full display server, rather than nested"
+msgstr ""
+
+#: src/core/mutter.c:39
+#, c-format
+#| msgid ""
+#| "metacity %s\n"
+#| "Copyright (C) 2001-2002 Havoc Pennington, Red Hat, Inc., and others\n"
+#| "This is free software; see the source for copying conditions.\n"
+#| "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#| "PARTICULAR PURPOSE.\n"
+msgid ""
+"mutter %s\n"
+"Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+"This is free software; see the source for copying conditions.\n"
+"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+"PARTICULAR PURPOSE.\n"
+msgstr ""
+"mutter %s\n"
+"Höfundarréttur (C) 2001-%d Havoc Pennington, Red Hat, Inc., og fleiri\n"
+"Þetta er frjáls hugbúnaður; skoðaðu grunnkóða til að sjá afritunarskilyrði.\n"
+"Hugbúnaðnum er dreift í þeirri von að hann geti verið gagnlegur, en ÁN "
+"ALLRAR ÁBYRGÐAR; einnig án þeirrar ábyrgðar sem gefin er í skyn með "
+"SELJANLEIKA eða EGINLEIKUM TIL TILTEKINNA NOTA. Sjá almenna GNU GPL "
+"notkunarleyfið fyrir nánari upplýsingar.\n"
+
+#: src/core/mutter.c:53
+msgid "Print version"
+msgstr "Prenta útgáfunúmer"
+
+#: src/core/mutter.c:59
+msgid "Mutter plugin to use"
+msgstr ""
+
+#: src/core/prefs.c:1997
+#, c-format
+msgid "Workspace %d"
+msgstr "Vinnusvæði %d"
+
+#: src/core/screen.c:521
+#, c-format
+msgid ""
+"Display \"%s\" already has a window manager; try using the --replace option "
+"to replace the current window manager."
+msgstr ""
+"Skjárinn \"%s\" er þegar með gluggastjóra; reyndu að nota --replace rofann "
+"til að skipta út núverandi gluggastjóra."
+
+#: src/core/screen.c:606
+#, c-format
+msgid "Screen %d on display '%s' is invalid\n"
+msgstr "Sýndarskjár %d á skjánum '%s‛ er ógildur\n"
+
+#: src/core/util.c:120
+#| msgid "Metacity was compiled without support for verbose mode\n"
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr "Mutter var vistþýtt án stuðnings við aukinn villuleitarham\n"
+
+#: src/wayland/meta-wayland-tablet-pad.c:595
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "Hamskipti:  %d hamur"
+
+#: src/x11/session.c:1815
+msgid ""
+"These windows do not support &quot;save current setup&quot; and will have to "
+"be restarted manually next time you log in."
+msgstr ""
+
+#: src/x11/window-props.c:548
+#, c-format
+msgid "%s (on %s)"
+msgstr "%s (á %s)"
+
+#~ msgid "Usage: %s\n"
+#~ msgstr "Notkun: %s\n"
+
+#~ msgid "Could not parse \"%s\" as an integer"
+#~ msgstr "Ekki tókst að greina \"%s\" sem heiltölu"
+
+#~ msgid ""
+#~ "Error launching metacity-dialog to ask about killing an application: %s\n"
+#~ msgstr ""
+#~ "Villa átti sér stað við ræsingu á metalog-glugga með spurningu um aflífun "
+#~ "á forriti: %s\n"
+
+#~ msgid "Failed to get hostname: %s\n"
+#~ msgstr "Ekki tókst að ná í nafn hýsils: %s\n"
+
+#~ msgid "Fatal IO error %d (%s) on display '%s'.\n"
+#~ msgstr "Banvæn IO villa %d (%s) á skjá '%s'.\n"
+
+#~ msgid "Close Window"
+#~ msgstr "Loka glugga"
+
+#~ msgid "Window Menu"
+#~ msgstr "Gluggavalmynd"
+
+#~ msgid "Minimize Window"
+#~ msgstr "Lágmarka glugga"
+
+#~ msgid "Maximize Window"
+#~ msgstr "Hámarka glugga"
+
+#~ msgid "Unmaximize Window"
+#~ msgstr "Minnka glugga"
+
+#~ msgid "No command %d has been defined.\n"
+#~ msgstr "Engin skipun %d hefur verið skilgreind.\n"
+
+#, fuzzy
+#~ msgid "No terminal command has been defined.\n"
+#~ msgstr "Engin skipun %d hefur verið skilgreind.\n"
+
+#, fuzzy
+#~ msgid "Failed to scan themes directory: %s\n"
+#~ msgstr "Ekki tókst að hlaða inn þema \"%s\": %s\n"
+
+#~ msgid ""
+#~ "Could not find a theme! Be sure %s exists and contains the usual themes."
+#~ msgstr ""
+#~ "Ekki tókst að finna þema! Fullvissaðu þig um að %s finnist og innihaldi "
+#~ "venjuleg þema."
+
+#~ msgid "Failed to restart: %s\n"
+#~ msgstr "Ekki tókst að endurræsa: %s\n"
+
+#~ msgid "Mi_nimize"
+#~ msgstr "Lág_marka"
+
+#~ msgid "Ma_ximize"
+#~ msgstr "_Hámarka"
+
+#~ msgid "Unma_ximize"
+#~ msgstr "Minn_ka glugga"
+
+#~ msgid "Roll _Up"
+#~ msgstr "Rúlla _Upp"
+
+#~ msgid "_Unroll"
+#~ msgstr "_Rúlla Niður"
+
+#~ msgid "_Move"
+#~ msgstr "_Flytja"
+
+#~ msgid "_Resize"
+#~ msgstr "_Endurstækka"
+
+#~ msgid "_Close"
+#~ msgstr "_Loka"
+
+#, fuzzy
+#~ msgid "_Always on Visible Workspace"
+#~ msgstr "Einungis á _þessu vinnusvæði"
+
+#, fuzzy
+#~ msgid "_Only on This Workspace"
+#~ msgstr "Einungis á _þessu vinnusvæði"
+
+#, fuzzy
+#~ msgid "Move to Workspace _Up"
+#~ msgstr "Flytja glugga yfir á vinnusvæði 1"
+
+#, fuzzy
+#~ msgid "Workspace 1_0"
+#~ msgstr "Vinnusvæði %d"
+
+#~ msgid "Workspace %s%d"
+#~ msgstr "Vinnusvæði %s%d"
+
+#, fuzzy
+#~ msgid "Move to Another _Workspace"
+#~ msgstr "Flytja glugga upp um eitt vinnusvæði"
+
+#~ msgid "Shift"
+#~ msgstr "Shift"
+
+#~ msgid "Ctrl"
+#~ msgstr "Ctrl"
+
+#~ msgid "Alt"
+#~ msgstr "Alt"
+
+#~ msgid "Meta"
+#~ msgstr "Meta"
+
+#  This is the text that should appear next to menu accelerators
+#  * that use the super key. If the text on this key isn't typically
+#  * translated on keyboards used for your language, don't translate
+#  * this.
+#~ msgid "Super"
+#~ msgstr "Super"
+
+#~ msgid "Hyper"
+#~ msgstr "Hyper"
+
+#~ msgid "Mod2"
+#~ msgstr "Mod2"
+
+#~ msgid "Mod3"
+#~ msgstr "Mod3"
+
+#~ msgid "Mod4"
+#~ msgstr "Mod4"
+
+#~ msgid "Mod5"
+#~ msgstr "Mod5"
+
+#~ msgid "Title"
+#~ msgstr "Titill"
+
+#~ msgid "Class"
+#~ msgstr "Klassi"
+
+#~ msgid ""
+#~ "There was an error running \"%s\":\n"
+#~ "%s."
+#~ msgstr ""
+#~ "Villa átti sér stað við keyrslu \"%s\":\n"
+#~ "%s."
+
+#~ msgid "Metacity"
+#~ msgstr "Metacity"
+
+#~ msgid ""
+#~ "(Not implemented) Navigation works in terms of applications not windows"
+#~ msgstr ""
+#~ "(Ekki ennþá innfært) Vöfrun virkar innan einungis í samhengi við forrit "
+#~ "en ekki glugga"
+
+#~ msgid "Action on title bar double-click"
+#~ msgstr "Aðgerð við tvíklikk á titilrönd"
+
+#~ msgid "Arrangement of buttons on the titlebar"
+#~ msgstr "Staðsetning takka á tiltilrönd"
+
+#~ msgid "Current theme"
+#~ msgstr "Núverandi þema"
+
+#~ msgid "Delay in milliseconds for the auto raise option"
+#~ msgstr "Seinkun í millisekúndum fyrir sjálfvirka hækkun valmöguleikan"
+
+#~ msgid ""
+#~ "Determines whether applications or the system can generate audible "
+#~ "'beeps'; may be used in conjunction with 'visual bell' to allow silent "
+#~ "'beeps'."
+#~ msgstr ""
+#~ "Ákvarðar hvort forrit eða kerfið geti búið til heyranlegt 'bíbb'. Er hægt "
+#~ "að nýta í samhengi með 'sýnilegri bjöllu' þegar leyfa á hljóðlaus 'bíbb'"
+
+#~ msgid "Enable Visual Bell"
+#~ msgstr "Virkja sýnilega bjöllu"
+
+#~ msgid "Hide all windows and focus desktop"
+#~ msgstr "Fela alla glugga og gefa skjáborði fókus"
+
+#, fuzzy
+#~ msgid "Minimize window"
+#~ msgstr "Lágmarka glugga"
+
+#~ msgid "Move between windows immediately"
+#~ msgstr "Flytja á milli glugga án seinkunar"
+
+#~ msgid "Move window to workspace 10"
+#~ msgstr "Flytja yfir á vinnusvæði 10"
+
+#~ msgid "Move window to workspace 11"
+#~ msgstr "Flytja yfir á vinnusvæði 11"
+
+#~ msgid "Move window to workspace 12"
+#~ msgstr "Flytja yfir á vinnusvæði 12"
+
+#~ msgid "Move window to workspace 5"
+#~ msgstr "Flytja yfir á vinnusvæði 5"
+
+#~ msgid "Move window to workspace 6"
+#~ msgstr "Flytja yfir á vinnusvæði 6"
+
+#~ msgid "Move window to workspace 7"
+#~ msgstr "Flytja yfir á vinnusvæði 7"
+
+#~ msgid "Move window to workspace 8"
+#~ msgstr "Flytja yfir á vinnusvæði 8"
+
+#~ msgid "Move window to workspace 9"
+#~ msgstr "Flytja yfir á vinnusvæði 9"
+
+#~ msgid "Name of workspace"
+#~ msgstr "Nafn vinnusvæðis"
+
+#~ msgid "Number of workspaces"
+#~ msgstr "Fjöldi vinnusvæða"
+
+#~ msgid ""
+#~ "Number of workspaces. Must be more than zero, and has a fixed maximum (to "
+#~ "prevent accidentally destroying your desktop by asking for 34 million "
+#~ "workspaces)."
+#~ msgstr ""
+#~ "Fjöldi vinnsvæða. Verðu að vera fleiri en núll, og með fast hámark ( til "
+#~ "að koma í veg fyrir að rústa skjáborðinu með beiðni um 34 milljónir "
+#~ "vinnusvæða)."
+
+#~ msgid "Run a defined command"
+#~ msgstr "Keyra tiltekna skipun"
+
+#~ msgid "Show the panel menu"
+#~ msgstr "Sýna stikuvalmynd"
+
+#~ msgid "Switch to workspace above this one"
+#~ msgstr "Skipta yfir á vinnusvæði fyrir ofan þetta"
+
+#~ msgid "Switch to workspace below this one"
+#~ msgstr "Skipta yfir á vinnusvæði fyrir neðan þetta"
+
+#~ msgid "Switch to workspace on the left"
+#~ msgstr "Skipta yfir á vinnusvæði á vinstri hönd"
+
+#~ msgid "Switch to workspace on the right"
+#~ msgstr "Skipta yfir á vinnusvæði á hægri hönd"
+
+#~ msgid "System Bell is Audible"
+#~ msgstr "Kerfisbjalla er heyranleg"
+
+#~ msgid "Take a screenshot"
+#~ msgstr "Taka skjámynd"
+
+#~ msgid "Take a screenshot of a window"
+#~ msgstr "Taka skjámynd af glugga"
+
+#~ msgid "The name of a workspace."
+#~ msgstr "Nafn vinnusvæði."
+
+#, fuzzy
+#~ msgid "Unmaximize window"
+#~ msgstr "Minnka glugga"
+
+#~ msgid "Visual Bell Type"
+#~ msgstr "Gerð sýnilegrar bjöllu"
+
+#~ msgid "Window focus mode"
+#~ msgstr "Fókusgerð glugga"
+
+#~ msgid "Window title font"
+#~ msgstr "Leturgerð gluggatitils"
+
+#~ msgid "%d x %d"
+#~ msgstr "%d x %d"
+
+#~ msgid "Could not create directory '%s': %s\n"
+#~ msgstr "Ekki tókst að búa til möppu '%s': %s\n"
+
+#~ msgid "nested <window> tag"
+#~ msgstr "hreiðraður <window> tag"
+
+#~ msgid "Line %d character %d: %s"
+#~ msgstr "Lína %d tákn %d: %s"
+
+#~ msgid "Integer %ld must be positive"
+#~ msgstr "Heiltalan %ld verður að vera jákvæð"
+
+#~ msgid "Integer %ld is too large, current max is %d"
+#~ msgstr "Heiltalan %ld er of stór. Núverandi hámark er %d"
+
+#~ msgid "Could not parse \"%s\" as a floating point number"
+#~ msgstr "Ekki tókst að greina \"%s\" sem floating point tölu"
+
+#~ msgid "Distance \"%s\" is unknown"
+#~ msgstr "Fjarlægð \"%s\" er óþekkt"
+
+#~ msgid "Aspect ratio \"%s\" is unknown"
+#~ msgstr "Stærðarhlutföll \"%s\" eru óþekkt"
+
+#~ msgid "Unknown function \"%s\" for button"
+#~ msgstr "Óþekkt fall \"%s\" fyrir hnapp"
+
+#~ msgid "Unknown state \"%s\" for button"
+#~ msgstr "Óþekkt staða \"%s\" fyrir hnapp"
+
+#~ msgid "<name> specified twice for this theme"
+#~ msgstr "<name> uppgefið í tvígang fyrir þetta þema"
+
+#~ msgid "<author> specified twice for this theme"
+#~ msgstr "<author> uppgefið í tvígang fyrir þetta þema"
+
+#~ msgid "<copyright> specified twice for this theme"
+#~ msgstr "<copyright> uppgefið í tvígang fyrir þetta þema"
+
+#~ msgid "<date> specified twice for this theme"
+#~ msgstr "<date> uppgefið í tvígang fyrir þetta þema"
+
+#~ msgid "<description> specified twice for this theme"
+#~ msgstr "<description> uppgefið í tvígang fyrir þetta þema"
+
+#~ msgid "Failed to read theme from file %s: %s\n"
+#~ msgstr "Ekki tókst að lesa þema frá skrá %s: %s\n"
+
+#~ msgid "Theme file %s did not contain a root <metacity_theme> element"
+#~ msgstr "Þemaskrá %s innihélt ekki rótar <metacity_theme> einingu"
+
+#, fuzzy
+#~ msgid "/Windows/_Top dock"
+#~ msgstr "Gluggi í fókus"
+
+#, fuzzy
+#~ msgid "/Windows/_All docks"
+#~ msgstr "Gluggi í fókus"
+
+#, fuzzy
+#~ msgid "Open another one of these windows"
+#~ msgstr "Hækka glugga upp fyrir aðra glugga"
+
+#, fuzzy
+#~ msgid "Error loading theme: %s\n"
+#~ msgstr "Ekki tókst að hlaða inn þema \"%s\": %s\n"
+
+#, fuzzy
+#~ msgid "Window Title Goes Here"
+#~ msgstr "Leturgerð gluggatitils"
+
+#~ msgid "top"
+#~ msgstr "toppur"
+
+#~ msgid "bottom"
+#~ msgstr "botn"
+
+#~ msgid "left"
+#~ msgstr "vinstri"
+
+#~ msgid "right"
+#~ msgstr "hægri"
+
+#~ msgid "Could not parse color \"%s\""
+#~ msgstr "Ekki tókst að greina lit \"%s\""
+
+#~ msgid "Failed to load theme \"%s\": %s\n"
+#~ msgstr "Ekki tókst að hlaða inn þema \"%s\": %s\n"
+
+#~ msgid "Failed to open debug log: %s\n"
+#~ msgstr "Ekki tókst að opna aflúsunarskrá: %s\n"
+
+#~ msgid "Failed to fdopen() log file %s: %s\n"
+#~ msgstr "Ekki tókst að fdopen() log skrá %s: %s\n"
+
+#~ msgid "Opened log file %s\n"
+#~ msgstr "Opnaði log skrá %s\n"
+
+#~ msgid "Window manager: "
+#~ msgstr "Gluggastjóri:"
+
+#~ msgid "Window manager warning: "
+#~ msgstr "Viðvörun gluggastjóra:"
+
+#~ msgid "Window manager error: "
+#~ msgstr "Villa gluggastjóra:"

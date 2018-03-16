@@ -1,0 +1,1360 @@
+# Vietnamese translation for Metacity.
+# Copyright © 2016 GNOME i18n Project for Vietnamese.
+# This file is distributed under the same license as the Metacity package.
+# Nguyễn Thái Ngọc Duy <pclouds@gmail.com>, 2002-2004, 2007, 2008, 2011-2013.
+# Clytie Siddall <clytie@riverland.net.au>, 2005-2009.
+# Trần Ngọc Quân <vnwildman@gmail.com>, 2014, 2015, 2016, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: metacity master\n"
+"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?"
+"product=mutter&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2017-09-07 15:44+0000\n"
+"PO-Revision-Date: 2017-09-09 08:26+0700\n"
+"Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
+"Language-Team: Vietnamese <gnome-vi-list@gnome.org>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Gtranslator 2.91.7\n"
+
+#: data/50-mutter-navigation.xml:6
+msgid "Navigation"
+msgstr "Điều hướng"
+
+#: data/50-mutter-navigation.xml:9
+msgid "Move window to workspace 1"
+msgstr "Chuyển cửa sổ sang không gian làm việc 1"
+
+#: data/50-mutter-navigation.xml:12
+msgid "Move window to workspace 2"
+msgstr "Chuyển cửa sổ sang không gian làm việc 2"
+
+#: data/50-mutter-navigation.xml:15
+msgid "Move window to workspace 3"
+msgstr "Chuyển cửa sổ sang không gian làm việc 3"
+
+#: data/50-mutter-navigation.xml:18
+msgid "Move window to workspace 4"
+msgstr "Chuyển cửa sổ sang không gian làm việc 4"
+
+#: data/50-mutter-navigation.xml:21
+msgid "Move window to last workspace"
+msgstr "Chuyển cửa sổ sang không gian làm việc cuối"
+
+#: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace to the left"
+msgstr "Chuyển cửa sổ sang không gian làm việc bên trái"
+
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "Chuyển cửa sổ sang không gian làm việc bên phải"
+
+#: data/50-mutter-navigation.xml:30
+msgid "Move window one workspace up"
+msgstr "Chuyển cửa sổ lên một không gian làm việc"
+
+#: data/50-mutter-navigation.xml:33
+msgid "Move window one workspace down"
+msgstr "Chuyển cửa sổ xuống một không gian làm việc"
+
+#: data/50-mutter-navigation.xml:36
+msgid "Move window one monitor to the left"
+msgstr "Chuyển cửa sổ sang trái một màn hình"
+
+#: data/50-mutter-navigation.xml:39
+msgid "Move window one monitor to the right"
+msgstr "Chuyển cửa sổ sang phải một màn hình"
+
+#: data/50-mutter-navigation.xml:42
+msgid "Move window one monitor up"
+msgstr "Chuyển cửa sổ lên một màn hình"
+
+#: data/50-mutter-navigation.xml:45
+msgid "Move window one monitor down"
+msgstr "Chuyển cửa sổ xuống một màn hình"
+
+#: data/50-mutter-navigation.xml:49
+msgid "Switch applications"
+msgstr "Chuyển ứng dụng"
+
+#: data/50-mutter-navigation.xml:54
+msgid "Switch to previous application"
+msgstr "Chuyển sang ứng dụng kế trước"
+
+#: data/50-mutter-navigation.xml:58
+msgid "Switch windows"
+msgstr "Chuyển cửa sổ"
+
+#: data/50-mutter-navigation.xml:63
+msgid "Switch to previous window"
+msgstr "Chuyển sang cửa sổ kế trước"
+
+#: data/50-mutter-navigation.xml:67
+msgid "Switch windows of an application"
+msgstr "Chuyển cửa sổ của một ứng dụng"
+
+#: data/50-mutter-navigation.xml:72
+msgid "Switch to previous window of an application"
+msgstr "Chuyển sang cửa sổ kế trước của một ứng dụng"
+
+#: data/50-mutter-navigation.xml:76
+msgid "Switch system controls"
+msgstr "Chuyển điều khiển hệ thống"
+
+#: data/50-mutter-navigation.xml:81
+msgid "Switch to previous system control"
+msgstr "Chuyển đến điều khiển hệ thống kế trước"
+
+#: data/50-mutter-navigation.xml:85
+msgid "Switch windows directly"
+msgstr "Chuyển cửa sổ trực tiếp"
+
+#: data/50-mutter-navigation.xml:90
+msgid "Switch directly to previous window"
+msgstr "Chuyển trực tiếp đến cửa sổ kế trước"
+
+#: data/50-mutter-navigation.xml:94
+msgid "Switch windows of an app directly"
+msgstr "Chuyển trực tiếp cửa sổ của một ứng dụng"
+
+#: data/50-mutter-navigation.xml:99
+msgid "Switch directly to previous window of an app"
+msgstr "Chuyển trực tiếp đến cửa sổ kế trước của một ứng dụng"
+
+#: data/50-mutter-navigation.xml:103
+msgid "Switch system controls directly"
+msgstr "Chuyển điều khiển hệ thống trực tiếp"
+
+#: data/50-mutter-navigation.xml:108
+msgid "Switch directly to previous system control"
+msgstr "Chuyển trực tiếp đến điều khiển hệ thống kế trước"
+
+#: data/50-mutter-navigation.xml:111
+msgid "Hide all normal windows"
+msgstr "Ẩn mọi cửa sổ thường"
+
+#: data/50-mutter-navigation.xml:114
+msgid "Switch to workspace 1"
+msgstr "Chuyển sang không gian làm việc 1"
+
+#: data/50-mutter-navigation.xml:117
+msgid "Switch to workspace 2"
+msgstr "Chuyển sang không gian làm việc 2"
+
+#: data/50-mutter-navigation.xml:120
+msgid "Switch to workspace 3"
+msgstr "Chuyển sang không gian làm việc 3"
+
+#: data/50-mutter-navigation.xml:123
+msgid "Switch to workspace 4"
+msgstr "Chuyển sang không gian làm việc 4"
+
+#: data/50-mutter-navigation.xml:126
+msgid "Switch to last workspace"
+msgstr "Chuyển sang không gian làm việc cuối"
+
+#: data/50-mutter-navigation.xml:129
+msgid "Move to workspace left"
+msgstr "Chuyển sang không gian làm việc trái"
+
+#: data/50-mutter-navigation.xml:132
+msgid "Move to workspace right"
+msgstr "Chuyển sang không gian làm việc phải"
+
+#: data/50-mutter-navigation.xml:135
+msgid "Move to workspace above"
+msgstr "Chuyển sang không gian làm việc trên"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace below"
+msgstr "Chuyển sang không gian làm việc dưới"
+
+#: data/50-mutter-system.xml:6
+msgid "System"
+msgstr "Hệ thống"
+
+#: data/50-mutter-system.xml:8
+msgid "Show the run command prompt"
+msgstr "Hiện dấu nhắc dòng lệnh"
+
+#: data/50-mutter-system.xml:10
+msgid "Show the activities overview"
+msgstr "Hiện tổng quan hoạt động"
+
+#: data/50-mutter-windows.xml:6
+msgid "Windows"
+msgstr "Cửa sổ"
+
+#: data/50-mutter-windows.xml:8
+msgid "Activate the window menu"
+msgstr "Kích hoạt trình đơn cửa sổ"
+
+#: data/50-mutter-windows.xml:10
+msgid "Toggle fullscreen mode"
+msgstr "Bật/tắt toàn màn hình"
+
+#: data/50-mutter-windows.xml:12
+msgid "Toggle maximization state"
+msgstr "Bật/tắt trạng thái to hết cỡ"
+
+#: data/50-mutter-windows.xml:14
+msgid "Maximize window"
+msgstr "Phóng to cửa sổ hết cỡ"
+
+#: data/50-mutter-windows.xml:16
+msgid "Restore window"
+msgstr "Phục hồi cửa sổ"
+
+#: data/50-mutter-windows.xml:18
+msgid "Toggle shaded state"
+msgstr "Bật tắt trạng thái đánh bóng"
+
+#: data/50-mutter-windows.xml:20
+msgid "Close window"
+msgstr "Đóng cửa sổ"
+
+#: data/50-mutter-windows.xml:22
+msgid "Hide window"
+msgstr "Ẩn cửa sổ"
+
+#: data/50-mutter-windows.xml:24
+msgid "Move window"
+msgstr "Di chuyển cửa sổ"
+
+#: data/50-mutter-windows.xml:26
+msgid "Resize window"
+msgstr "Co giãn cửa sổ"
+
+#: data/50-mutter-windows.xml:29
+msgid "Toggle window on all workspaces or one"
+msgstr "Dùng cửa sổ trên một/mọi không gian làm việc"
+
+#: data/50-mutter-windows.xml:31
+msgid "Raise window if covered, otherwise lower it"
+msgstr "Nâng cửa sổ nếu bị che, không thì hạ xuống"
+
+#: data/50-mutter-windows.xml:33
+msgid "Raise window above other windows"
+msgstr "Nâng cửa sổ trên các cửa sổ khác"
+
+#: data/50-mutter-windows.xml:35
+msgid "Lower window below other windows"
+msgstr "Hạ cửa sổ dưới các cửa sổ khác"
+
+#: data/50-mutter-windows.xml:37
+msgid "Maximize window vertically"
+msgstr "Phóng to cửa sổ theo chiều dọc"
+
+#: data/50-mutter-windows.xml:39
+msgid "Maximize window horizontally"
+msgstr "Phóng to cửa sổ theo chiều ngang"
+
+#: data/50-mutter-windows.xml:43
+msgid "View split on left"
+msgstr "Phân đôi bên trái"
+
+#: data/50-mutter-windows.xml:47
+msgid "View split on right"
+msgstr "Phân đôi bên phải"
+
+#: data/mutter.desktop.in:4
+msgid "Mutter"
+msgstr "Mutter"
+
+#: data/org.gnome.mutter.gschema.xml.in:7
+msgid "Modifier to use for extended window management operations"
+msgstr "Phím bổ trợ dùng cho chức năng quản lý cửa sổ mở rộng"
+
+#: data/org.gnome.mutter.gschema.xml.in:8
+msgid ""
+"This key will initiate the “overlay”, which is a combination window overview "
+"and application launching system. The default is intended to be the “Windows "
+"key” on PC hardware. It’s expected that this binding either the default or "
+"set to the empty string."
+msgstr ""
+"Phím này khởi tạo “overlay”, nơi mà tổ hợp tổng quát cửa sổ và hệ thống chạy "
+"ứng dụng. Mặc định là \"phím Windows\" trên phần cứng PC. Nó được kỳ vọng "
+"rằng tổ hợp hoặc là mặc định, hoặc chuỗi rỗng."
+
+#: data/org.gnome.mutter.gschema.xml.in:20
+msgid "Attach modal dialogs"
+msgstr "Gắn hộp thoại cách thức"
+
+#: data/org.gnome.mutter.gschema.xml.in:21
+msgid ""
+"When true, instead of having independent titlebars, modal dialogs appear "
+"attached to the titlebar of the parent window and are moved together with "
+"the parent window."
+msgstr ""
+"Nếu được đặt, thay vì hiện thanh tiêu đề độc lập, hộp thoại cách thức sẽ "
+"xuất hiện gắn với thanh tiêu đề của cửa sổ cha và được di chuyển cùng với "
+"cửa sổ cha."
+
+#: data/org.gnome.mutter.gschema.xml.in:30
+msgid "Enable edge tiling when dropping windows on screen edges"
+msgstr "Bật lợp cạnh khi thả cửa sổ trên cạnh màn hình"
+
+#: data/org.gnome.mutter.gschema.xml.in:31
+msgid ""
+"If enabled, dropping windows on vertical screen edges maximizes them "
+"vertically and resizes them horizontally to cover half of the available "
+"area. Dropping windows on the top screen edge maximizes them completely."
+msgstr ""
+"Nếu bật, thả cửa sổ trên cạnh dọc màn hình sẽ phóng tối đa cửa sổ theo chiều "
+"dọc và điều chỉnh chiều ngang phủ hết nửa màn hình. Thả cửa sổ trên đỉnh màn "
+"hình sẽ phóng to toàn màn hình."
+
+#: data/org.gnome.mutter.gschema.xml.in:40
+msgid "Workspaces are managed dynamically"
+msgstr "Không gian làm việc được quản lý động"
+
+#: data/org.gnome.mutter.gschema.xml.in:41
+msgid ""
+"Determines whether workspaces are managed dynamically or whether there’s a "
+"static number of workspaces (determined by the num-workspaces key in org."
+"gnome.desktop.wm.preferences)."
+msgstr ""
+"Xác định không gian làm việc được quản lý động, hay cố định số không gian "
+"làm việc (xác định bởi khóa num-workspaces trong org.gnome.desktop.wm."
+"preferences)."
+
+#: data/org.gnome.mutter.gschema.xml.in:50
+msgid "Workspaces only on primary"
+msgstr "Không gian làm việc chỉ trên màn hình chính"
+
+#: data/org.gnome.mutter.gschema.xml.in:51
+msgid ""
+"Determines whether workspace switching should happen for windows on all "
+"monitors or only for windows on the primary monitor."
+msgstr ""
+"Xác định chuyển không gian làm việc cho cửa sổ trên mọi màn hình hay chỉ "
+"trên màn hình chính."
+
+#: data/org.gnome.mutter.gschema.xml.in:59
+msgid "No tab popup"
+msgstr "Không tab popup"
+
+#: data/org.gnome.mutter.gschema.xml.in:60
+msgid ""
+"Determines whether the use of popup and highlight frame should be disabled "
+"for window cycling."
+msgstr "Xác định có bỏ qua popup và khung tô sáng khi xoay vòng cửa sổ không."
+
+#: data/org.gnome.mutter.gschema.xml.in:68
+msgid "Delay focus changes until the pointer stops moving"
+msgstr "Khoảng chờ con trỏ dừng di chuyển trước khi thay đổi tiêu điểm"
+
+#: data/org.gnome.mutter.gschema.xml.in:69
+msgid ""
+"If set to true, and the focus mode is either “sloppy” or “mouse” then the "
+"focus will not be changed immediately when entering a window, but only after "
+"the pointer stops moving."
+msgstr ""
+"Nếu bật, và chế độ kích hoạt là “sloppy” hay “mouse” thì sự kích hoạt sẽ "
+"không thay đổi tức thì khi vào cửa sổ, mà chỉ sau khi con trỏ ngừng di "
+"chuyển."
+
+#: data/org.gnome.mutter.gschema.xml.in:79
+msgid "Draggable border width"
+msgstr "Độ rộng biên có thể kéo"
+
+#: data/org.gnome.mutter.gschema.xml.in:80
+msgid ""
+"The amount of total draggable borders. If the theme’s visible borders are "
+"not enough, invisible borders will be added to meet this value."
+msgstr ""
+"Kích thước biên có thể kéo. Nếu biên thấy được của chủ đề không đủ, biên vô "
+"hình sẽ được thêm vào để thỏa mãn giá trị này."
+
+#: data/org.gnome.mutter.gschema.xml.in:89
+msgid "Auto maximize nearly monitor sized windows"
+msgstr "Tự động phóng to cửa sổ gần bằng màn hình"
+
+#: data/org.gnome.mutter.gschema.xml.in:90
+msgid ""
+"If enabled, new windows that are initially the size of the monitor "
+"automatically get maximized."
+msgstr "Nếu bật, sẽ tự động phóng to cửa sổ mới với kích thước tối đa."
+
+#: data/org.gnome.mutter.gschema.xml.in:98
+msgid "Place new windows in the center"
+msgstr "Đặt cửa sổ mới ở chính giữa"
+
+#: data/org.gnome.mutter.gschema.xml.in:99
+msgid ""
+"When true, the new windows will always be put in the center of the active "
+"screen of the monitor."
+msgstr ""
+"Nếu chọn, các cửa sổ mới sẽ luôn được đặt tại trung tâm của màn hình đang "
+"hoạt động của màn hình."
+
+#: data/org.gnome.mutter.gschema.xml.in:107
+msgid "Enable experimental features"
+msgstr "Bật các tính băng thử nghiệm"
+
+#: data/org.gnome.mutter.gschema.xml.in:108
+msgid ""
+"To enable experimental features, add the feature keyword to the list. "
+"Whether the feature requires restarting the compositor depends on the given "
+"feature. Any experimental feature is not required to still be available, or "
+"configurable. Don’t expect adding anything in this setting to be future "
+"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
+"mutter default to layout logical monitors in a logical pixel coordinate "
+"space, while scaling monitor framebuffers instead of window content, to "
+"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
+"enables remote desktop support. To support remote desktop with screen "
+"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
+"screen cast support."
+msgstr ""
+"Để bật các tính năng thử nghiệm, thêm các từ khóa tính năng vào danh sách. "
+"Việc tính năng mới có yêu cầu khởi động lại hay không là phụ thuộc vào tính "
+"năng đã cho. Bất kỳ tính năng thử nghiệp nào không được yêu cầu vẫn sẵn "
+"sàng, hoặc cấu hình được. Đừng cho rằng thêm bất kỳ thứ gì trong cài đặt này "
+"thử nghiệm trong tương lai. Các từ khóa hiện có thể là: • “scale-monitor-"
+"framebuffer” — làm cho mutter default to layout logical monitors trong một "
+"không gian tọa độ điểm ảnh lôgíc, trong khi while scaling monitor "
+"framebuffers instead of window content, để quản lý các màn hình HiDPI. Không "
+"yêu cầu khởi động lại. • “remote-desktop” — cho phép điều khiển màn hình từ "
+"xa. Để hỗ trợ điều khiển màn hình từ xa bằng cách chia sẻ màn hình, “screen-"
+"cast” cũng phải được bật. • “screen-cast” — bật hỗ trợ chia sẻ màn hình."
+
+#: data/org.gnome.mutter.gschema.xml.in:145
+msgid "Select window from tab popup"
+msgstr "Chọn cửa sổ từ thanh nổi lên"
+
+#: data/org.gnome.mutter.gschema.xml.in:150
+msgid "Cancel tab popup"
+msgstr "Hủy thanh nổi lên"
+
+#: data/org.gnome.mutter.gschema.xml.in:155
+msgid "Switch monitor configurations"
+msgstr "Chuyển các cấu hình màn hình"
+
+#: data/org.gnome.mutter.gschema.xml.in:160
+msgid "Rotates the built-in monitor configuration"
+msgstr "Quay cấu hình màn hình tích hợp"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+msgid "Switch to VT 1"
+msgstr "Chuyển sang VT 1"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+msgid "Switch to VT 2"
+msgstr "Chuyển sang VT 2"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+msgid "Switch to VT 3"
+msgstr "Chuyển sang VT 3"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+msgid "Switch to VT 4"
+msgstr "Chuyển sang VT 4"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+msgid "Switch to VT 5"
+msgstr "Chuyển sang VT 5"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+msgid "Switch to VT 6"
+msgstr "Chuyển sang VT 6"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+msgid "Switch to VT 7"
+msgstr "Chuyển sang VT 7"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+msgid "Switch to VT 8"
+msgstr "Chuyển sang VT 8"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+msgid "Switch to VT 9"
+msgstr "Chuyển sang VT 9"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+msgid "Switch to VT 10"
+msgstr "Chuyển sang VT 10"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+msgid "Switch to VT 11"
+msgstr "Chuyển sang VT 11"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+msgid "Switch to VT 12"
+msgstr "Chuyển sang VT 12"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+msgid "Re-enable shortcuts"
+msgstr "Bật-lại phím tắt"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/backends/meta-input-settings.c:2151
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "Chuyển chế độ(Nhóm %d)"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/backends/meta-input-settings.c:2174
+msgid "Switch monitor"
+msgstr "Chuyển màn hình"
+
+#: src/backends/meta-input-settings.c:2176
+msgid "Show on-screen help"
+msgstr "Hiển thị trợ giúp trên-màn-hình"
+
+#: src/backends/meta-monitor-manager.c:903
+msgid "Built-in display"
+msgstr "Màn hình tích hợp"
+
+#: src/backends/meta-monitor-manager.c:926
+msgid "Unknown"
+msgstr "Không rõ"
+
+#: src/backends/meta-monitor-manager.c:928
+msgid "Unknown Display"
+msgstr "Không hiểu màn hình"
+
+#. TRANSLATORS: this is a monitor vendor name, followed by a
+#. * size in inches, like 'Dell 15"'
+#.
+#: src/backends/meta-monitor-manager.c:936
+#, c-format
+msgid "%s %s"
+msgstr "%s %s"
+
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/compositor/compositor.c:476
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+"Bộ quản lý cửa sổ đã đang chạy trên Màn hình %i trên bộ trình bày “%s”."
+
+#: src/core/bell.c:194
+msgid "Bell event"
+msgstr "Sự kiện chuông"
+
+#: src/core/display.c:608
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "Gặp lỗi khi mở bộ trình bày Hệ thống Cửa sổ X “%s”\n"
+
+#: src/core/main.c:189
+msgid "Disable connection to session manager"
+msgstr "Vô hiệu hóa kết nối với bộ quản lý phiên làm việc"
+
+#: src/core/main.c:195
+msgid "Replace the running window manager"
+msgstr "Thay thế bộ quản lý cửa sổ đang chạy"
+
+#: src/core/main.c:201
+msgid "Specify session management ID"
+msgstr "Ghi rõ mã số quản lý phiên làm việc"
+
+#: src/core/main.c:206
+msgid "X Display to use"
+msgstr "Bộ trình bày X cần dùng"
+
+#: src/core/main.c:212
+msgid "Initialize session from savefile"
+msgstr "Khởi động phiên làm việc từ tập tin lưu"
+
+#: src/core/main.c:218
+msgid "Make X calls synchronous"
+msgstr "Khiến các cú gọi X đồng bộ với nhau"
+
+#: src/core/main.c:225
+msgid "Run as a wayland compositor"
+msgstr "Chạy như là một “wayland compositor”"
+
+#: src/core/main.c:231
+msgid "Run as a nested compositor"
+msgstr "Chạy như là một “nested compositor”"
+
+#: src/core/main.c:239
+msgid "Run as a full display server, rather than nested"
+msgstr "Chạy như là một dịch vụ hiển thị đầy đủ, thay cho lồng nhau"
+
+#. Translators: %s is a window title
+#: src/core/meta-close-dialog-default.c:147
+#, c-format
+msgid "“%s” is not responding."
+msgstr "“%s” không trả lời."
+
+#: src/core/meta-close-dialog-default.c:149
+msgid "Application is not responding."
+msgstr "Ứng dụng không trả lời."
+
+#: src/core/meta-close-dialog-default.c:154
+msgid ""
+"You may choose to wait a short while for it to continue or force the "
+"application to quit entirely."
+msgstr ""
+"Bạn có thể chọn chờ một lúc cho nó tiếp tục hoặc buộc chấm dứt hoàn toàn ứng "
+"dụng."
+
+#: src/core/meta-close-dialog-default.c:161
+msgid "_Force Quit"
+msgstr "_Buộc thoát"
+
+#: src/core/meta-close-dialog-default.c:161
+msgid "_Wait"
+msgstr "_Chờ"
+
+#: src/core/mutter.c:39
+#, c-format
+msgid ""
+"mutter %s\n"
+"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+"This is free software; see the source for copying conditions.\n"
+"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+"PARTICULAR PURPOSE.\n"
+msgstr ""
+"mutter %s\n"
+"Tác quyền © 2001-%d của Havoc Pennington, Red Hat, Inc., và những người "
+"khác.\n"
+"Chương trình này là phần mềm tự do; xem mã nguồn để tìm điều kiện sao chép.\n"
+"KHÔNG CÓ BẢO HÀNH GÌ CẢ, THẬM CHÍ KHÔNG CÓ BẢO ĐẢM ĐƯỢC NGỤ Ý KHẢ NĂNG BÁN "
+"HAY KHẢ NĂNG LÀM ĐƯỢC VIỆC DỨT KHOÁT.\n"
+
+#: src/core/mutter.c:53
+msgid "Print version"
+msgstr "Hiển thị phiên bản"
+
+#: src/core/mutter.c:59
+msgid "Mutter plugin to use"
+msgstr "Phần bổ sung Mutter cần dùng"
+
+#: src/core/prefs.c:1997
+#, c-format
+msgid "Workspace %d"
+msgstr "Không gian làm việc %d"
+
+#: src/core/screen.c:580
+#, c-format
+msgid ""
+"Display “%s” already has a window manager; try using the --replace option to "
+"replace the current window manager."
+msgstr ""
+"Màn hình “%s” đã có bộ quản lý cửa sổ rồi; hãy thử dùng tùy chọn --replace "
+"để thay thế bộ quản lý cửa sổ đang dùng."
+
+#: src/core/screen.c:665
+#, c-format
+msgid "Screen %d on display “%s” is invalid\n"
+msgstr "Màn hình %d trên bộ trình bày “%s” không hợp lệ.\n"
+
+#: src/core/util.c:120
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr "Mutter đã được biên dịch không hỗ trợ chế độ chi tiết\n"
+
+#: src/wayland/meta-wayland-tablet-pad.c:563
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "Chuyển chế độ: Chế độ %d"
+
+#: src/x11/session.c:1815
+msgid ""
+"These windows do not support “save current setup” and will have to be "
+"restarted manually next time you log in."
+msgstr ""
+"Những cửa sổ này không hỗ trợ “lưu cài đặt hiện tại” và sẽ phải khởi động "
+"lại bằng tay lần kế bạn đăng nhập."
+
+#: src/x11/window-props.c:559
+#, c-format
+msgid "%s (on %s)"
+msgstr "%s (trên %s)"
+
+#~ msgid "Failed to scan themes directory: %s\n"
+#~ msgstr "Gặp lỗi khi quét thư mục lưu chủ đề: %s\n"
+
+#~ msgid ""
+#~ "Could not find a theme! Be sure %s exists and contains the usual themes.\n"
+#~ msgstr ""
+#~ "Không tìm thấy chủ đề nào cả! Hãy bảo đảm %s tồn tại và chứa những chủ đề "
+#~ "thông thường.\n"
+
+#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
+#~ msgstr "Màn hình %d trên bộ trình bày \"%s\" đã có bộ quản lý cửa sổ.\n"
+
+#~ msgid "%d x %d"
+#~ msgstr "%d x %d"
+
+#~ msgid "top"
+#~ msgstr "đỉnh"
+
+#~ msgid "bottom"
+#~ msgstr "đáy"
+
+#~ msgid "left"
+#~ msgstr "trái"
+
+#~ msgid "right"
+#~ msgstr "phải"
+
+#~ msgid "frame geometry does not specify \"%s\" dimension"
+#~ msgstr "tọa độ khung không xác định chiều \"%s\"."
+
+#~ msgid "frame geometry does not specify dimension \"%s\" for border \"%s\""
+#~ msgstr "tọa độ khung không xác định chiều \"%s\" cho biên \"%s\"."
+
+#~ msgid "Button aspect ratio %g is not reasonable"
+#~ msgstr "Tỷ lệ hình thể nút “%g” không hợp lý."
+
+#~ msgid "Frame geometry does not specify size of buttons"
+#~ msgstr "Tọa độ khung không xác định kích thước nút."
+
+#~ msgid "Gradients should have at least two colors"
+#~ msgstr "Thang độ nên có ít nhất hai màu."
+
+#~ msgid ""
+#~ "GTK custom color specification must have color name and fallback in "
+#~ "parentheses, e.g. gtk:custom(foo,bar); could not parse \"%s\""
+#~ msgstr ""
+#~ "Đặc tả màu tự chọn GTK phải có tên màu nằm và fallback trong dấu ngoặc, "
+#~ "ví dụ gtk:custom(foo,bar); không thể phân tích \"%s\""
+
+#~ msgid ""
+#~ "Invalid character '%c' in color_name parameter of gtk:custom, only A-Za-"
+#~ "z0-9-_ are valid"
+#~ msgstr ""
+#~ "Ký tự không hợp lệ “%c” trong tham số color_name của gtk:custom, chỉ chấp "
+#~ "nhận A-Za-z0-9-_"
+
+#~ msgid ""
+#~ "Gtk:custom format is \"gtk:custom(color_name,fallback)\", \"%s\" does not "
+#~ "fit the format"
+#~ msgstr ""
+#~ "Định dạng Gtk:custom là \"gtk:custom(color_name,fallback)\", \"%s\" không "
+#~ "tuân theo định dạng này"
+
+#~ msgid ""
+#~ "GTK color specification must have the state in brackets, e.g. gtk:"
+#~ "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ msgstr ""
+#~ "Lời ghi rõ màu GTK phải có trạng thái nằm trong ngoặc, v.d. “gtk:"
+#~ "fg[NORMAL]”, NORMAL (bình thường) là trạng thái; không thể phân tích \"%s"
+#~ "\"."
+
+#~ msgid ""
+#~ "GTK color specification must have a close bracket after the state, e.g. "
+#~ "gtk:fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ msgstr ""
+#~ "Lời ghi rõ màu GTK phải có dấu đóng ngoặc sau trạng thái, v.d. "
+#~ "“fg[NORMAL]”, NORMAL (bình thường) là trạng thái; không thể phân tích \"%s"
+#~ "\"."
+
+#~ msgid "Did not understand state \"%s\" in color specification"
+#~ msgstr "Không hiểu trạng thái \"%s\" trong đặc tả màu."
+
+#~ msgid "Did not understand color component \"%s\" in color specification"
+#~ msgstr "Không hiểu thành phần màu \"%s\" trong đặc tả màu."
+
+#~ msgid ""
+#~ "Blend format is \"blend/bg_color/fg_color/alpha\", \"%s\" does not fit "
+#~ "the format"
+#~ msgstr ""
+#~ "Dạng pha trộn là “blend/bg_color/fg_color/alpha”, \"%s\" không tuân theo "
+#~ "dạng thức đó."
+
+#~ msgid "Could not parse alpha value \"%s\" in blended color"
+#~ msgstr "Không thể phân tích giá trị alpha \"%s\" trong màu pha trộn."
+
+#~ msgid "Alpha value \"%s\" in blended color is not between 0.0 and 1.0"
+#~ msgstr "Giá trị alpha \"%s\" trong màu pha trộn không nằm giữa 0.0 và 1.0."
+
+#~ msgid ""
+#~ "Shade format is \"shade/base_color/factor\", \"%s\" does not fit the "
+#~ "format"
+#~ msgstr ""
+#~ "Dạng thức bóng là \"shade/base_color/factor\" (bóng/màu cơ bản/hệ số), "
+#~ "“%s” không tuân theo dạng thức đó."
+
+#~ msgid "Could not parse shade factor \"%s\" in shaded color"
+#~ msgstr "Không thể phân tích hệ số bóng \"%s\" trong màu bóng."
+
+#~ msgid "Shade factor \"%s\" in shaded color is negative"
+#~ msgstr "Có hệ số bóng âm \"%s\" trong màu bóng."
+
+#~ msgid "Could not parse color \"%s\""
+#~ msgstr "Không thể phân tích màu \"%s\"."
+
+#~ msgid "Coordinate expression contains character '%s' which is not allowed"
+#~ msgstr "Biểu thức tọa độ chứa ký tự \"%s\" không được phép."
+
+#~ msgid ""
+#~ "Coordinate expression contains floating point number '%s' which could not "
+#~ "be parsed"
+#~ msgstr ""
+#~ "Biểu thức tọa độ chứa số với điểm phù động \"%s\" không thể phân tích."
+
+#~ msgid ""
+#~ "Coordinate expression contains integer '%s' which could not be parsed"
+#~ msgstr "Biểu thức tọa độ chứa số nguyên \"%s\" không thể phân tích."
+
+#~ msgid ""
+#~ "Coordinate expression contained unknown operator at the start of this "
+#~ "text: \"%s\""
+#~ msgstr "Biểu thức tọa độ chứa toán tử lạ tại đầu văn bản: \"%s\""
+
+#~ msgid "Coordinate expression was empty or not understood"
+#~ msgstr "Biểu thức tọa độ rỗng hoặc không thể hiểu"
+
+#~ msgid "Coordinate expression results in division by zero"
+#~ msgstr "Biểu thức tọa độ gây ra lỗi chia cho không"
+
+#~ msgid ""
+#~ "Coordinate expression tries to use mod operator on a floating-point number"
+#~ msgstr "Biểu thức tọa độ thử dùng toán tử “mod” với số thực dấu chấm động"
+
+#~ msgid ""
+#~ "Coordinate expression has an operator \"%s\" where an operand was expected"
+#~ msgstr ""
+#~ "Biểu thức tọa độ có toán tử \"%s\", nơi lẽ ra phải là một toán hạng."
+
+#~ msgid "Coordinate expression had an operand where an operator was expected"
+#~ msgstr "Biểu thức tọa đổ có toán hạng nơi lẽ ra phải là toán tử."
+
+#~ msgid "Coordinate expression ended with an operator instead of an operand"
+#~ msgstr ""
+#~ "Biểu thức tọa độ kết thúc bằng toán tử trong khi lẽ ra phải là toán hạng."
+
+#~ msgid ""
+#~ "Coordinate expression has operator \"%c\" following operator \"%c\" with "
+#~ "no operand in between"
+#~ msgstr ""
+#~ "Biểu thức tọa độ có toán tử “%c” theo sau toán tử “%c” mà không có toán "
+#~ "hạng ở giữa."
+
+#~ msgid "Coordinate expression had unknown variable or constant \"%s\""
+#~ msgstr "Biểu thức tọa độ có biến hoặc hằng lạ \"%s\"."
+
+#~ msgid "Coordinate expression parser overflowed its buffer."
+#~ msgstr "Bộ phân tích biểu thức tọa độ đã tràn bộ đệm."
+
+#~ msgid ""
+#~ "Coordinate expression had a close parenthesis with no open parenthesis"
+#~ msgstr "Biểu thức tọa độ có dấu đóng ngoặc mà thiếu dấu mở ngoặc."
+
+#~ msgid ""
+#~ "Coordinate expression had an open parenthesis with no close parenthesis"
+#~ msgstr "Biểu thức tọa độ có dấu mở ngoặc nhưng thiếu dấu đóng ngoặc."
+
+#~ msgid "Coordinate expression doesn't seem to have any operators or operands"
+#~ msgstr "Biểu thức tọa độ không có bất kỳ toán tử hay toán hạng nào."
+
+#~ msgid "Theme contained an expression that resulted in an error: %s\n"
+#~ msgstr "Chủ đề chứa một biểu thức gây ra lỗi: %s\n"
+
+#~ msgid ""
+#~ "<button function=\"%s\" state=\"%s\" draw_ops=\"whatever\"/> must be "
+#~ "specified for this frame style"
+#~ msgstr ""
+#~ "<button function=\"%s\" state=\"%s\" draw_ops=\"gì đó\"/> phải xác định "
+#~ "cho kiểu dáng khung này."
+
+#~ msgid ""
+#~ "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/"
+#~ ">"
+#~ msgstr ""
+#~ "Thiếu <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"gì đó\"/>"
+
+#~ msgid "Failed to load theme \"%s\": %s\n"
+#~ msgstr "Gặp lỗi khi nạp chủ đề \"%s\": %s\n"
+
+#~ msgid "No <%s> set for theme \"%s\""
+#~ msgstr "Chưa đặt <%s> cho chủ đề \"%s\"."
+
+#~ msgid ""
+#~ "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
+#~ "type=\"%s\" style_set=\"whatever\"/> element"
+#~ msgstr ""
+#~ "Chưa đặt kiểu khung cho loại cửa sổ \"%s\" trong chủ đề \"%s\", hãy thêm "
+#~ "phần tử <window type=\"%s\" style_set=\"gì đó\"/>."
+
+#~ msgid ""
+#~ "User-defined constants must begin with a capital letter; \"%s\" does not"
+#~ msgstr "Hằng tự định nghĩa phải bắt đầu bằng ký tự hoa; \"%s\" không phải."
+
+#~ msgid "Constant \"%s\" has already been defined"
+#~ msgstr "Hằng \"%s\" đã được định nghĩa."
+
+#~ msgid "No \"%s\" attribute on element <%s>"
+#~ msgstr "Không có thuộc tính \"%s\" trong phần tử <%s>"
+
+#~ msgid "Line %d character %d: %s"
+#~ msgstr "Dòng %d ký tự %d: %s"
+
+#~ msgid "Attribute \"%s\" repeated twice on the same <%s> element"
+#~ msgstr "Thuộc tính \"%s\" lặp hai lần trên cùng phần tử <%s>."
+
+#~ msgid "Attribute \"%s\" is invalid on <%s> element in this context"
+#~ msgstr ""
+#~ "Thuộc tính \"%s\" không hợp lệ trên phần tử <%s> trong ngữ cảnh này."
+
+#~ msgid "Could not parse \"%s\" as an integer"
+#~ msgstr "Không thể phân tích \"%s\" thành một số nguyên."
+
+#~ msgid "Did not understand trailing characters \"%s\" in string \"%s\""
+#~ msgstr "Không thể hiểu ký tự đuôi \"%s\" trong chuỗi \"%s\"."
+
+#~ msgid "Integer %ld must be positive"
+#~ msgstr "Số nguyên %ld phải là số dương"
+
+#~ msgid "Integer %ld is too large, current max is %d"
+#~ msgstr "Số nguyên %ld quá lớn, giá trị tối đa hiện thời là %d"
+
+#~ msgid "Could not parse \"%s\" as a floating point number"
+#~ msgstr "Không thể phân tích \"%s\" thành số với điểm phù động."
+
+#~ msgid "Boolean values must be \"true\" or \"false\" not \"%s\""
+#~ msgstr ""
+#~ "Giá trị luận lý phải là \"đúng\" (true) hoặc \"sai\" (false), không thể "
+#~ "là \"%s\"."
+
+#~ msgid "Angle must be between 0.0 and 360.0, was %g\n"
+#~ msgstr "Góc phải nằm giữa 0.0 và 360.0, hiện là %g\n"
+
+#~ msgid ""
+#~ "Alpha must be between 0.0 (invisible) and 1.0 (fully opaque), was %g\n"
+#~ msgstr ""
+#~ "Alpha phải nằm giữa 0.0 (trong suốt) và 1.0 (đục hoàn toàn), hiện là %g\n"
+
+#~ msgid ""
+#~ "Invalid title scale \"%s\" (must be one of xx-small,x-small,small,medium,"
+#~ "large,x-large,xx-large)\n"
+#~ msgstr ""
+#~ "Tỷ lệ tựa đề \"%s\" không hợp lệ. Nó phải là một điều của những điều "
+#~ "này:\n"
+#~ " * xx-small\t\ttí tị\n"
+#~ " * x-small\t\tnhỏ lắm\n"
+#~ " * small\t\t\tnhỏ\n"
+#~ " * medium\t\tvừa\n"
+#~ " * large\t\t\tlớn\n"
+#~ " * x-large\t\tlớn lắm\n"
+#~ " * xx-large\t\tto lớn.\n"
+
+#~ msgid "<%s> name \"%s\" used a second time"
+#~ msgstr "<%s> tên \"%s\" được dùng lần hai"
+
+#~ msgid "<%s> parent \"%s\" has not been defined"
+#~ msgstr "<%s> chưa định nghĩa mẹ \"%s\"."
+
+#~ msgid "<%s> geometry \"%s\" has not been defined"
+#~ msgstr "<%s> chưa định nghĩa tọa độ \"%s\""
+
+#~ msgid "<%s> must specify either a geometry or a parent that has a geometry"
+#~ msgstr "<%s> phải xác định hoặc tọa độ hoặc mẹ có tọa độ."
+
+#~ msgid "You must specify a background for an alpha value to be meaningful"
+#~ msgstr "Bạn phải xác định nền thì giá trị alpha mới có ý nghĩa"
+
+#~ msgid "Unknown type \"%s\" on <%s> element"
+#~ msgstr "Loại lạ \"%s\" trong phần tử <%s>."
+
+#~ msgid "Unknown style_set \"%s\" on <%s> element"
+#~ msgstr "“style_set” lạ \"%s\" trong phần tử <%s>."
+
+#~ msgid "Window type \"%s\" has already been assigned a style set"
+#~ msgstr "Loại cửa sổ \"%s\" đã được gán một tập kiểu."
+
+#~ msgid "Element <%s> is not allowed below <%s>"
+#~ msgstr "Không cho phép phần tử <%s> dưới <%s>."
+
+#~ msgid ""
+#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
+#~ "\" for buttons"
+#~ msgstr ""
+#~ "Không thể xác định cả hai \"button_width\"/\"button_height\" (chiều rộng/"
+#~ "cao của cái nút) và \"aspect_ratio\" (tỷ lệ hình thể) cho cái nút"
+
+#~ msgid "Distance \"%s\" is unknown"
+#~ msgstr "Khoảng cách \"%s\" không biết."
+
+#~ msgid "Aspect ratio \"%s\" is unknown"
+#~ msgstr "Tỷ lệ hình thể \"%s\" không biết."
+
+#~ msgid "Border \"%s\" is unknown"
+#~ msgstr "Biên \"%s\" không biết."
+
+#~ msgid "No \"start_angle\" or \"from\" attribute on element <%s>"
+#~ msgstr ""
+#~ "Không có thuộc tính \"start_angle\" (góc bắt đầu) hoặc \"from\" (từ) "
+#~ "trong phần tử <%s>."
+
+#~ msgid "No \"extent_angle\" or \"to\" attribute on element <%s>"
+#~ msgstr ""
+#~ "Không có thuộc tính \"extent_angle\" (góc phạm vi) hoặc \"to\" (đến) "
+#~ "trong phần tử <%s>."
+
+#~ msgid "Did not understand value \"%s\" for type of gradient"
+#~ msgstr "Không thể hiểu giá trị \"%s\" (loại thang độ)."
+
+#~ msgid "Did not understand fill type \"%s\" for <%s> element"
+#~ msgstr "Không hiểu loại tô \"%s\" cho phần tử <%s>."
+
+#~ msgid "Did not understand state \"%s\" for <%s> element"
+#~ msgstr "Không hiểu trạng thái \"%s\" của phần tử <%s>."
+
+#~ msgid "Did not understand shadow \"%s\" for <%s> element"
+#~ msgstr "Không hiểu bóng \"%s\" của phần tử <%s>."
+
+#~ msgid "Did not understand arrow \"%s\" for <%s> element"
+#~ msgstr "Không hiểu mũi tên \"%s\" của phần tử <%s>."
+
+#~ msgid "No <draw_ops> called \"%s\" has been defined"
+#~ msgstr "Không có <draw_ops> nào gọi là \"%s\" được định nghĩa."
+
+#~ msgid "Including draw_ops \"%s\" here would create a circular reference"
+#~ msgstr "Bao gồm |draw_ops| \"%s\" ở đây sẽ tạo tham chiếu vòng."
+
+#~ msgid "Unknown position \"%s\" for frame piece"
+#~ msgstr "Vị trí lạ \"%s\" trong phần khung."
+
+#~ msgid "Frame style already has a piece at position %s"
+#~ msgstr "Kiểu khung đã sẵn có một phần tại vị trí %s."
+
+#~ msgid "No <draw_ops> with the name \"%s\" has been defined"
+#~ msgstr "Chưa định nghĩa <draw_ops> với tên \"%s\"."
+
+#~ msgid "Unknown function \"%s\" for button"
+#~ msgstr "Hàm lạ \"%s\" trong nút."
+
+#~ msgid "Button function \"%s\" does not exist in this version (%d, need %d)"
+#~ msgstr "Hàm nút \"%s\" không tồn tại trong phiên bản này (%d, cần %d)"
+
+#~ msgid "Unknown state \"%s\" for button"
+#~ msgstr "Trạng thái lạ \"%s\" trong nút."
+
+#~ msgid "Frame style already has a button for function %s state %s"
+#~ msgstr "Kiểu khung đã có nút cho hàm \"%s\" trạng thái \"%s\"."
+
+#~ msgid "\"%s\" is not a valid value for focus attribute"
+#~ msgstr "\"%s\" không phải là giá trị tiêu điểm hợp lệ."
+
+#~ msgid "\"%s\" is not a valid value for state attribute"
+#~ msgstr "\"%s\" không phải là giá trị trạng thái hợp lệ."
+
+#~ msgid "A style called \"%s\" has not been defined"
+#~ msgstr "Chưa định nghĩa kiểu dáng \"%s\"."
+
+#~ msgid "\"%s\" is not a valid value for resize attribute"
+#~ msgstr "\"%s\" không phải là giá trị đổi cỡ hợp lệ."
+
+#~ msgid ""
+#~ "Should not have \"resize\" attribute on <%s> element for maximized/shaded "
+#~ "states"
+#~ msgstr ""
+#~ "Nên có thuộc tính “resize” (đổi cỡ) trên phần tử <%s> cho trạng thái "
+#~ "phóng to/đánh bóng."
+
+#~ msgid ""
+#~ "Should not have \"resize\" attribute on <%s> element for maximized states"
+#~ msgstr ""
+#~ "Nên có thuộc tính \"resize\" (đổi cỡ) trên phần tử <%s> cho trạng thái "
+#~ "phóng to."
+
+#~ msgid "Style has already been specified for state %s resize %s focus %s"
+#~ msgstr ""
+#~ "Kiểu dạng đã được xác định cho trạng thái %s đổi cỡ %s tiêu điểm %s."
+
+#~ msgid "Style has already been specified for state %s focus %s"
+#~ msgstr "Kiểu dạng đã được xác định cho trạng thái %s tiêu điểm %s."
+
+#~ msgid ""
+#~ "Can't have a two draw_ops for a <piece> element (theme specified a "
+#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
+#~ "elements)"
+#~ msgstr ""
+#~ "Không thể có hai draw_ops cho một phần tử <piece> (chủ đề xác định một "
+#~ "draw_ops và thêm một phần tử <draw_ops>, hoặc chủ đề xác định cả hai phần "
+#~ "tử)."
+
+#~ msgid ""
+#~ "Can't have a two draw_ops for a <button> element (theme specified a "
+#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
+#~ "elements)"
+#~ msgstr ""
+#~ "Không thể có hai “draw_ops” trong một phần tử <button> (chủ đề xác định "
+#~ "một “draw_ops” và có một phần tử <draw_ops>, hoặc xác định cả hai phần "
+#~ "tử)."
+
+#~ msgid ""
+#~ "Can't have a two draw_ops for a <menu_icon> element (theme specified a "
+#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
+#~ "elements)"
+#~ msgstr ""
+#~ "Không thể có hai “draw_ops” cho phần tử <menu_icon> (chủ đề xác định "
+#~ "thuộc tính “draw_ops” và một phần tử <draw_ops>, hoặc xác định cả hai "
+#~ "phần tử)."
+
+#~ msgid "Bad version specification '%s'"
+#~ msgstr "Đặc tả phiên bản “%s” sai"
+
+#~ msgid ""
+#~ "\"version\" attribute cannot be used in metacity-theme-1.xml or metacity-"
+#~ "theme-2.xml"
+#~ msgstr ""
+#~ "Không thể dùng thuộc tính \"version\" trong metacity-theme-1.xml hoặc "
+#~ "metacity-theme-2.xml"
+
+#~ msgid ""
+#~ "Theme requires version %s but latest supported theme version is %d.%d"
+#~ msgstr "Chủ đề yêu cầu phiên bản %s nhưng chỉ hỗ trợ tối đa phiên bản %d.%d"
+
+#~ msgid "Outermost element in theme must be <metacity_theme> not <%s>"
+#~ msgstr "Phần tử ngoài cùng phải là <metacity_theme>, không phải <%s>."
+
+#~ msgid ""
+#~ "Element <%s> is not allowed inside a name/author/date/description element"
+#~ msgstr ""
+#~ "Không cho phép phần tử <%s> nằm trong phần tử “name/author/date/"
+#~ "description” (tên/tác giả/ngày/mô tả)."
+
+#~ msgid "Element <%s> is not allowed inside a <constant> element"
+#~ msgstr "Không cho phép phần tử <%s> nằm trong phần tử <constant>."
+
+#~ msgid ""
+#~ "Element <%s> is not allowed inside a distance/border/aspect_ratio element"
+#~ msgstr ""
+#~ "Không cho phép phần tử <%s> nằm trong phần tử “distance/border/"
+#~ "aspect_ratio” (khoảng cách/viền/tỷ lệ hình thể)."
+
+#~ msgid "Element <%s> is not allowed inside a draw operation element"
+#~ msgstr "Không cho phép phần tử <%s> nằm trong phần tử thao tác vẽ."
+
+#~ msgid "Element <%s> is not allowed inside a <%s> element"
+#~ msgstr "Không cho phép phần tử <%s> nằm trong phần tử <%s>."
+
+#~ msgid "No draw_ops provided for frame piece"
+#~ msgstr "Không có “draw_ops” cho phần khung."
+
+#~ msgid "No draw_ops provided for button"
+#~ msgstr "Không có “draw_ops” cho nút."
+
+#~ msgid "No text is allowed inside element <%s>"
+#~ msgstr "Không cho phép chữ nằm trong <%s>."
+
+#~ msgid "<%s> specified twice for this theme"
+#~ msgstr "<%s> được định nghĩa hai lần trong chủ đề này"
+
+#~ msgid "Failed to find a valid file for theme %s\n"
+#~ msgstr "Gặp lỗi khi tìm tập tin hợp lệ của chủ đề %s\n"
+
+#~ msgid "background texture could not be created from file"
+#~ msgstr "không thể tạo ảnh nền từ tập tin"
+
+#~ msgid "Unknown window information request: %d"
+#~ msgstr "Yêu cầu thông tin cửa sổ không rõ: %d"
+
+#~ msgid "Missing %s extension required for compositing"
+#~ msgstr "Thiếu phần mở rộng %s cần thiết để tổng hợp"
+
+#~ msgid ""
+#~ "Some other program is already using the key %s with modifiers %x as a "
+#~ "binding\n"
+#~ msgstr ""
+#~ "Một chương trình khác đã dùng phím %s với phím bổ trợ “%x” như là tổ "
+#~ "hợp.\n"
+
+#~ msgid "\"%s\" is not a valid accelerator\n"
+#~ msgstr "\"%s\" không phải là phím tắt hợp lệ\n"
+
+#~ msgid ""
+#~ "Workarounds for broken applications disabled. Some applications may not "
+#~ "behave properly.\n"
+#~ msgstr ""
+#~ "Khả năng chỉnh sửa cho các ứng dụng không theo chuẩn đã đã tắt. Vài ứng "
+#~ "dụng có thể sẽ xử sự không đúng.\n"
+
+#~ msgid "Could not parse font description \"%s\" from GSettings key %s\n"
+#~ msgstr "Không thể phân tích mô tả phông \"%s\" từ khóa GSettings \"%s\"\n"
+
+#~ msgid ""
+#~ "\"%s\" found in configuration database is not a valid value for mouse "
+#~ "button modifier\n"
+#~ msgstr ""
+#~ "Tìm thấy \"%s\" trong cơ sở dữ liệu cấu hình không phải giá trị hợp lệ "
+#~ "cho bộ biến đổi nút chuột.\n"
+
+#~ msgid ""
+#~ "\"%s\" found in configuration database is not a valid value for "
+#~ "keybinding \"%s\"\n"
+#~ msgstr ""
+#~ "Tìm thấy \"%s\" trong cơ sở dữ liệu cấu hình không phải giá trị hợp lệ "
+#~ "cho tổ hợp phím \"%s\".\n"
+
+#~ msgid ""
+#~ "Could not acquire window manager selection on screen %d display \"%s\"\n"
+#~ msgstr ""
+#~ "Không thể lấy vùng chọn bộ quản lý cửa sổ trên Màn hình %d trên bộ trình "
+#~ "bày \"%s\".\n"
+
+#~ msgid "Could not release screen %d on display \"%s\"\n"
+#~ msgstr "Không thể giải phóng Màn hình %d trên bộ trình bày \"%s\".\n"
+
+#~ msgid "Could not create directory '%s': %s\n"
+#~ msgstr "Không thể tạo thư mục \"%s\": %s\n"
+
+#~ msgid "Could not open session file '%s' for writing: %s\n"
+#~ msgstr "Không thể mở tập tin phiên làm việc \"%s\" để ghi: %s\n"
+
+#~ msgid "Error writing session file '%s': %s\n"
+#~ msgstr "Gặp lỗi khi ghi tập tin phiên làm việc \"%s\": %s\n"
+
+#~ msgid "Error closing session file '%s': %s\n"
+#~ msgstr "Gặp lỗi khi đóng tập tin phiên làm việc \"%s\": %s\n"
+
+#~ msgid "Failed to parse saved session file: %s\n"
+#~ msgstr "Lỗi phân tích tập tin phiên làm việc đã lưu: %s\n"
+
+#~ msgid "<mutter_session> attribute seen but we already have the session ID"
+#~ msgstr "Thấy thuộc tính <mutter_session>, nhưng đã có session ID"
+
+#~ msgid "Unknown attribute %s on <%s> element"
+#~ msgstr "Không nhận ra thuộc tính %s trên phần tử <%s>"
+
+#~ msgid "nested <window> tag"
+#~ msgstr "thẻ <window> lồng nhau"
+
+#~ msgid "Unknown element %s"
+#~ msgstr "Phần tử lạ %s"
+
+#~ msgid "Failed to open debug log: %s\n"
+#~ msgstr "Lỗi mở bản ghi gỡ lỗi: %s\n"
+
+#~ msgid "Failed to fdopen() log file %s: %s\n"
+#~ msgstr "Lỗi fdopen() tập tin ghi lưu %s: %s\n"
+
+#~ msgid "Opened log file %s\n"
+#~ msgstr "Đã mở tập tin ghi lưu %s.\n"
+
+#~ msgid "Window manager: "
+#~ msgstr "Bộ quản lý cửa sổ: "
+
+#~ msgid "Bug in window manager: "
+#~ msgstr "Lỗi trong bộ quản lý cửa sổ: "
+
+#~ msgid "Window manager warning: "
+#~ msgstr "Cảnh báo bộ quản lý cửa sổ: "
+
+#~ msgid "Window manager error: "
+#~ msgstr "Lỗi bộ quản lý cửa sổ: "
+
+#~ msgid ""
+#~ "Window %s sets SM_CLIENT_ID on itself, instead of on the WM_CLIENT_LEADER "
+#~ "window as specified in the ICCCM.\n"
+#~ msgstr ""
+#~ "Cửa sổ %s tự đặt SM_CLIENT_ID cho chính nó, thay vì đặt trên cửa sổ "
+#~ "WM_CLIENT_LEADER như quy định trong ICCCM.\n"
+
+#~ msgid ""
+#~ "Window %s sets an MWM hint indicating it isn't resizable, but sets min "
+#~ "size %d x %d and max size %d x %d; this doesn't make much sense.\n"
+#~ msgstr ""
+#~ "Cửa sổ %s đặt gợi ý MWM rằng nó không thể bị thay đổi kích thước, nhưng "
+#~ "đặt kích thước tối thiểu %d x %d và tối đa %d x %d; không hợp lý lắm.\n"
+
+#~ msgid "Application set a bogus _NET_WM_PID %lu\n"
+#~ msgstr "Ứng dụng đã đặt _NET_WM_PID giả %lu.\n"
+
+#~ msgid "Invalid WM_TRANSIENT_FOR window 0x%lx specified for %s.\n"
+#~ msgstr "Cửa sổ WM_TRANSIENT_FOR không hợp lệ 0x%lx được xác định cho %s.\n"
+
+#~ msgid "WM_TRANSIENT_FOR window 0x%lx for %s would create loop.\n"
+#~ msgstr "Cửa sổ WM_TRANSIENT_FOR 0x%lx cho %s tạo vòng lặp.\n"
+
+#~ msgid ""
+#~ "Window 0x%lx has property %s\n"
+#~ "that was expected to have type %s format %d\n"
+#~ "and actually has type %s format %d n_items %d.\n"
+#~ "This is most likely an application bug, not a window manager bug.\n"
+#~ "The window has title=\"%s\" class=\"%s\" name=\"%s\"\n"
+#~ msgstr ""
+#~ "Cửa sổ 0x%lx có thuộc tính %s\n"
+#~ "mà lẽ ra phải có kiểu %s dạng thức %d\n"
+#~ "và thực sự là kiểu %s dạng thức “%d n_items %d”.\n"
+#~ "Chắc là có một ứng dụng bị lỗi, không phải lỗi trình quản lý cửa sổ.\n"
+#~ "Cửa sổ có title=\"%s\" class=\"%s\" name=\"%s\"\n"
+
+#~ msgid "Property %s on window 0x%lx contained invalid UTF-8\n"
+#~ msgstr "Thuộc tính %s trên cửa sổ 0x%lx chứa chuỗi UTF-8 sai.\n"
+
+#~ msgid ""
+#~ "Property %s on window 0x%lx contained invalid UTF-8 for item %d in the "
+#~ "list\n"
+#~ msgstr ""
+#~ "Thuộc tính %s trên cửa sổ 0x%lx chứa chuỗi UTF-8 sai cho mục %d trong "
+#~ "danh sách.\n"
+
+#~ msgid "Usage: %s\n"
+#~ msgstr "Cách dùng: %s\n"
+
+#~ msgid "Mi_nimize"
+#~ msgstr "Th_u nhỏ"
+
+#~ msgid "Ma_ximize"
+#~ msgstr "_Phóng to"
+
+#~ msgid "Unma_ximize"
+#~ msgstr "_Bỏ phóng to"
+
+#~ msgid "Roll _Up"
+#~ msgstr "Cuộn _lên"
+
+#~ msgid "_Unroll"
+#~ msgstr "_Bỏ cuộn"
+
+#~ msgid "_Move"
+#~ msgstr "D_i chuyển"
+
+#~ msgid "_Resize"
+#~ msgstr "C_o giãn"
+
+#~ msgid "Move Titlebar On_screen"
+#~ msgstr "Chuyển Thanh Tựa Đề trên _màn hình"
+
+#~ msgid "Always on _Top"
+#~ msgstr "_Luôn ở trên"
+
+#~ msgid "_Always on Visible Workspace"
+#~ msgstr "Chỉ trong vùng làm việc có thể thấ_y"
+
+#~ msgid "_Only on This Workspace"
+#~ msgstr "Chỉ trong vùng làm việc _này"
+
+#~ msgid "Move to Workspace _Left"
+#~ msgstr "Chuyển sang vùng làm việc bên t_rái"
+
+#~ msgid "Move to Workspace R_ight"
+#~ msgstr "Chuyển sang vùng làm việc bên _phải"
+
+#~ msgid "Move to Workspace _Up"
+#~ msgstr "Chuyển sang vùng làm việc bên _trên"
+
+#~ msgid "Move to Workspace _Down"
+#~ msgstr "Chuyển sang vùng làm việc bên _dưới"
+
+#~ msgid "_Close"
+#~ msgstr "Đón_g"
+
+#~ msgid "Workspace %d%n"
+#~ msgstr "Vùng làm việc %d%n"
+
+#~ msgid "Workspace 1_0"
+#~ msgstr "Vùng làm việc 1_0"
+
+#~ msgid "Workspace %s%d"
+#~ msgstr "Vùng làm việc %s%d"
+
+#~ msgid "Move to Another _Workspace"
+#~ msgstr "Chuyển sang vùng làm việc _khác"

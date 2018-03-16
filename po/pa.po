@@ -1,0 +1,2297 @@
+# translation of metacity.gnome-2-26.po to Punjabi
+# Punjabi translation of metacity.HEAD.
+# Copyright (C) 2004 THE metacity.HEAD'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the metacity.HEAD package.
+#
+# Amanpreet_Singh <amanlinux@netscape.net>, 2004.
+# Amanpreet Singh Alam <amanlinux@netscape.net>, 2004.
+# A S Alam <aalam@users.sf.net>, 2006.
+# A S Alam <aalam@users.sf.net>, 2007, 2009, 2010, 2011.
+# ASB <aalam@users.sf.net>, 2007.
+# Amanpreet Singh Alam <aalam@users.sf.net>, 2009, 2012, 2013, 2014, 2015, 2017.
+msgid ""
+msgstr ""
+"Project-Id-Version: metacity.gnome-2-26\n"
+"Report-Msgid-Bugs-To: https://bugzilla.gnome.org/enter_bug.cgi?product=mutter"
+"&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2017-08-29 16:09+0000\n"
+"PO-Revision-Date: 2017-09-10 18:24-0600\n"
+"Last-Translator: A S Alam <aalam@users.sf.net>\n"
+"Language-Team: Punjabi <punjabi-users@lists.sf.net>\n"
+"Language: pa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 2.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"\n"
+
+#: data/50-mutter-navigation.xml:6
+msgid "Navigation"
+msgstr "ਨੇਵੀਗੇਸ਼ਨ"
+
+#: data/50-mutter-navigation.xml:9
+msgid "Move window to workspace 1"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਵਰਕਸਪੇਸ ੧ ਵਿੱਚ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:12
+msgid "Move window to workspace 2"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਵਰਕਸਪੇਸ ੨ ਵਿੱਚ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:15
+msgid "Move window to workspace 3"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਵਰਕਸਪੇਸ ੩ ਵਿੱਚ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:18
+msgid "Move window to workspace 4"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਵਰਕਸਪੇਸ ੪ ਵਿੱਚ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:21
+msgid "Move window to last workspace"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਪਿਛਲੇ ਵਰਕਸਪੇਸ ਵਿੱਚ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace to the left"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਵਰਕਸਪੇਸ ਖੱਬੇ ਵੱਲ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਵਰਕਸਪੇਸ ਸੱਜੇ ਵੱਲ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:30
+msgid "Move window one workspace up"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਵਰਕਸਪੇਸ ਉੱਤੇ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:33
+msgid "Move window one workspace down"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਵਰਕਸਪੇਸ ਹੇਠਾਂ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:36
+msgid "Move window one monitor to the left"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਮਾਨੀਟਰ ਖੱਬੇ ਵੱਲ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:39
+msgid "Move window one monitor to the right"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਮਾਨੀਟਰ ਸੱਜੇ ਵੱਲ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:42
+msgid "Move window one monitor up"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਮਾਨੀਟਰ ਉੱਤੇ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:45
+msgid "Move window one monitor down"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਇੱਕ ਮਾਨੀਟਰ ਹੇਠਾਂ ਲਿਜਾਓ"
+
+#: data/50-mutter-navigation.xml:49
+msgid "Switch applications"
+msgstr "ਐਪਲੀਕੇਸ਼ਨ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:54
+msgid "Switch to previous application"
+msgstr "ਪਿਛਲੀ ਐਪਲੀਕੇਸ਼ਨ ਲਈ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:58
+msgid "Switch windows"
+msgstr "ਵਿੰਡੋਜ਼ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:63
+msgid "Switch to previous window"
+msgstr "ਪਿਛਲੀ ਵਿੰਡੋ ਲਈ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:67
+msgid "Switch windows of an application"
+msgstr "ਐਪਲੀਕੇਸ਼ਨ ਦੀਆਂ ਵਿੰਡੋਜ਼ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:72
+msgid "Switch to previous window of an application"
+msgstr "ਐਪਲੀਕੇਸ਼ਨ ਦੀ ਪਿਛਲੀ ਵਿੰਡੋ ਵਿੱਚ ਜਾਓ"
+
+#: data/50-mutter-navigation.xml:76
+msgid "Switch system controls"
+msgstr "ਸਿਸਟਮ ਕੰਟਰੋਲ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:81
+msgid "Switch to previous system control"
+msgstr "ਪਿਛਲੇ ਸਿਸਟਮ ਕੰਟਰੋਲ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:85
+msgid "Switch windows directly"
+msgstr "ਵਿੰਡੋਜ਼ ਸਿੱਧੀਆਂ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:90
+msgid "Switch directly to previous window"
+msgstr "ਸਿੱਧਾ ਪਿਛਲੀ ਵਿੰਡੋ ਲਈ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:94
+msgid "Switch windows of an app directly"
+msgstr "ਐਪਲੀਕੇਸ਼ਨ ਦੀ ਵਿੰਡੋਜ਼ ਸਿੱਧੀ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:99
+msgid "Switch directly to previous window of an app"
+msgstr "ਸਿੱਧਾ ਐਪ ਦੀ ਪਿਛਲੀ ਵਿੰਡੋ ਲਈ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:103
+msgid "Switch system controls directly"
+msgstr "ਸਿਸਟਮ ਕੰਟਰੋਲ ਸਿੱਧੇ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:108
+msgid "Switch directly to previous system control"
+msgstr "ਸਿੱਧਾ ਪਿਛਲੇ ਸਿਸਟਮ ਕੰਟਰੋਲ ਲਈ ਬਦਲੋ"
+
+#: data/50-mutter-navigation.xml:111
+msgid "Hide all normal windows"
+msgstr "ਸਭ ਸਧਾਰਨ ਵਿੰਡੋਜ਼ ਓਹਲੇ ਕਰੋ"
+
+#: data/50-mutter-navigation.xml:114
+msgid "Switch to workspace 1"
+msgstr "ਵਰਕਸਪੇਸ ੧ ਵਿੱਚ ਜਾਓ"
+
+#: data/50-mutter-navigation.xml:117
+msgid "Switch to workspace 2"
+msgstr "ਵਰਕਸਪੇਸ ੨ ਵਿੱਚ ਜਾਓ"
+
+#: data/50-mutter-navigation.xml:120
+msgid "Switch to workspace 3"
+msgstr "ਵਰਕਸਪੇਸ ੩ ਵਿੱਚ ਜਾਓ"
+
+#: data/50-mutter-navigation.xml:123
+msgid "Switch to workspace 4"
+msgstr "ਵਰਕਸਪੇਸ ੪ ਵਿੱਚ ਜਾਓ"
+
+#: data/50-mutter-navigation.xml:126
+msgid "Switch to last workspace"
+msgstr "ਪਿਛਲੇ ਵਰਕਸਪੇਸ ਵਿੱਚ ਜਾਓ"
+
+#: data/50-mutter-navigation.xml:129
+msgid "Move to workspace left"
+msgstr "ਖੱਬੇ ਵਰਕਸਪੇਸ 'ਚ ਭੇਜੋ"
+
+#: data/50-mutter-navigation.xml:132
+msgid "Move to workspace right"
+msgstr "ਸੱਜੇ ਵਰਕਸਪੇਸ 'ਚ ਭੇਜੋ"
+
+#: data/50-mutter-navigation.xml:135
+msgid "Move to workspace above"
+msgstr "ਉੱਤੇ ਵਰਕਸਪੇਸ 'ਚ ਭੇਜੋ"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Move to workspace below"
+msgstr "ਹੇਠਾਂ ਵਰਕਸਪੇਸ 'ਚ ਭੇਜੋ"
+
+#: data/50-mutter-system.xml:6
+msgid "System"
+msgstr "ਸਿਸਟਮ"
+
+#: data/50-mutter-system.xml:8
+msgid "Show the run command prompt"
+msgstr "ਕਮਾਂਡ ਚਲਾਉ ਪਰੋਉਟ ਵੇਖੋ"
+
+#: data/50-mutter-system.xml:10
+msgid "Show the activities overview"
+msgstr "ਸਰਗਰਮੀ ਸੰਖੇਪ ਜਾਣਕਾਰੀ ਵੇਖੋ"
+
+#: data/50-mutter-windows.xml:6
+msgid "Windows"
+msgstr "ਵਿੰਡੋਜ਼"
+
+#: data/50-mutter-windows.xml:8
+msgid "Activate the window menu"
+msgstr "ਐਕਟਿਵੇਟ ਵਿੰਡੋ ਮੇਨੂ"
+
+#: data/50-mutter-windows.xml:10
+msgid "Toggle fullscreen mode"
+msgstr "ਪੂਰੀ ਸਕਰੀਨ ਮੋਡ ਬਦਲੋ"
+
+#: data/50-mutter-windows.xml:12
+msgid "Toggle maximization state"
+msgstr "ਅਧਿਕਤਮ ਸਥਿਤੀ ਬਦਲੋ"
+
+#: data/50-mutter-windows.xml:14
+msgid "Maximize window"
+msgstr "ਵਿੰਡੋ ਵੱਧੋ-ਵੱਧ"
+
+#: data/50-mutter-windows.xml:16
+msgid "Restore window"
+msgstr "ਵਿੰਡੋ ਮੁੜ-ਸਟੋਰ"
+
+#: data/50-mutter-windows.xml:18
+msgid "Toggle shaded state"
+msgstr "ਰੰਗਤ ਸਥਿਤੀ ਬਦਲੋ"
+
+#: data/50-mutter-windows.xml:20
+msgid "Close window"
+msgstr "ਵਿੰਡੋ ਬੰਦ ਕਰੋ"
+
+#: data/50-mutter-windows.xml:22
+msgid "Hide window"
+msgstr "ਵਿੰਡੋ ਓਹਲੇ"
+
+#: data/50-mutter-windows.xml:24
+msgid "Move window"
+msgstr "ਵਿੰਡੋ ਹਿਲਾਓ"
+
+#: data/50-mutter-windows.xml:26
+msgid "Resize window"
+msgstr "ਵਿੰਡੋ ਮੁੜ-ਅਕਾਰ"
+
+#: data/50-mutter-windows.xml:29
+msgid "Toggle window on all workspaces or one"
+msgstr "ਵਿੰਡੋ ਸਭ ਵਰਕਸਪੇਸ ਜਾਂ ਇੱਕ ਵਿੱਚ ਬਦਲੋ"
+
+#: data/50-mutter-windows.xml:31
+msgid "Raise window if covered, otherwise lower it"
+msgstr "ਵਿੰਡੋ ਉਭਾਰੋ, ਜੇ ਢੱਕੀ ਹੈ, ਨਹੀਂ ਤਾਂ ਹੇਠਾਂ ਭੇਜੋ"
+
+#: data/50-mutter-windows.xml:33
+msgid "Raise window above other windows"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਹੋਰ ਵਿੰਡੋਜ਼ ਤੋਂ ਉੱਤੇ ਲਿਆਓ"
+
+#: data/50-mutter-windows.xml:35
+msgid "Lower window below other windows"
+msgstr "ਵਿੰਡੋ ਨੂੰ ਹੋਰ ਵਿੰਡੋ ਤੋਂ ਹੇਠਾਂ ਲੈ ਜਾਉ"
+
+#: data/50-mutter-windows.xml:37
+msgid "Maximize window vertically"
+msgstr "ਵਿੰਡੋ ਖੜਵੇਂ ਰੂਪ ਵਿੱਚ ਵੱਧੋ-ਵੱਧ"
+
+#: data/50-mutter-windows.xml:39
+msgid "Maximize window horizontally"
+msgstr "ਵਿੰਡੋ ਲੇਟਵੇਂ ਰੂਪ ਵਿੱਚ ਵੱਧੋ-ਵੱਧ"
+
+#: data/50-mutter-windows.xml:43
+msgid "View split on left"
+msgstr "ਖੱਬੇ ਪਾਸੇ ਵੰਡ ਵੇਖੋ"
+
+#: data/50-mutter-windows.xml:47
+msgid "View split on right"
+msgstr "ਸੱਜੇ ਪਾਸੇ ਵੰਡ ਵੇਖੋ"
+
+#: data/mutter.desktop.in:4
+msgid "Mutter"
+msgstr "ਮੱਟਰ"
+
+#: data/org.gnome.mutter.gschema.xml.in:7
+msgid "Modifier to use for extended window management operations"
+msgstr "ਵਾਧੂ ਵਿੰਡੋ ਪਰਬੰਧ ਓਪਰੇਸ਼ਨਾਂ ਲਈ ਵਰਤਣ ਵਾਸਤੇ ਮੋਡੀਫਾਇਰ"
+
+#: data/org.gnome.mutter.gschema.xml.in:8
+#| msgid ""
+#| "This key will initiate the \"overlay\", which is a combination window "
+#| "overview and application launching system. The default is intended to be "
+#| "the \"Windows key\" on PC hardware. It's expected that this binding "
+#| "either the default or set to the empty string."
+msgid ""
+"This key will initiate the “overlay”, which is a combination window overview "
+"and application launching system. The default is intended to be the “Windows "
+"key” on PC hardware. It’s expected that this binding either the default or "
+"set to the empty string."
+msgstr ""
+"ਇਹ ਸਵਿੱਚ ”ਓਵਰਲੇ” ਸ਼ੁਰੂ ਕਰਦੀ ਹੈ, ਜੋ ਕਿ ਵਿੰਡੋ ਸੰਖੇਪ ਤੇ ਐਪਲੀਕੇਸ਼ਨ ਚਲਾਉਣ ਸਿਸਟਮ ਦੀ"
+" ਜੋੜ ਹੈ। "
+"ਡਿਫਾਲਟ ਇਹ PC ਹਾਰਡਵੇਅਰ ਉੱਤੇ ”ਵਿੰਡੋਜ਼ ਸਵਿੱਚ” ਨਾਲ ਵਰਤਣ ਲਈ ਹੈ। ਇਹ ਉਮੀਦ ਕੀਤੀ ਜਾਂਦੀ"
+" ਹੈ ਕਿ "
+"ਜਾਂ ਤਾਂ ਡਿਫਾਲਟ ਬਾਈਡਿੰਗ ਰੱਖੀ ਜਾਵੇ ਜਾਂ ਖਾਲੀ ਲਾਈਨ ਵਰਤੀ ਜਾਵੇ।"
+
+#: data/org.gnome.mutter.gschema.xml.in:20
+msgid "Attach modal dialogs"
+msgstr "ਮਾਡਲ ਡਾਈਲਾਗ ਅਟੈਚਮੈਂਟ"
+
+#: data/org.gnome.mutter.gschema.xml.in:21
+msgid ""
+"When true, instead of having independent titlebars, modal dialogs appear "
+"attached to the titlebar of the parent window and are moved together with "
+"the parent window."
+msgstr ""
+"ਜਦੋਂ ਸਹੀਂ ਹੋਵੇ ਤਾਂ ਵੱਖ ਵੱਖ ਟਾਈਟਲਬਾਰ ਦੀ ਬਜਾਏ, ਮਾਡਲ ਡਾਈਲਾਗ ਮੁੱਢਲੀ ਵਿੰਡੋ ਦੇ"
+" ਟਾਈਟਲ ਬਾਰ ਨਾਲ "
+"ਜੁੜਿਆ ਉਭਰੇਗਾ ਤੇ ਮੁੱਢਲੀ ਵਿੰਡੋ ਨਾਲ ਹੀ ਹਿੱਲੇਗਾ।"
+
+#: data/org.gnome.mutter.gschema.xml.in:30
+msgid "Enable edge tiling when dropping windows on screen edges"
+msgstr "ਕੋਨਾ ਟਿਲਿੰਗ ਚਾਲੂ, ਜਦੋਂ ਵਿੰਡੋਜ਼ ਨੂੰ ਸਕਰੀਨ ਕੋਨਿਆਂ ਤੋਂ ਡਰਾਪ ਕਰਨਾ ਹੋਵੇ"
+
+#: data/org.gnome.mutter.gschema.xml.in:31
+msgid ""
+"If enabled, dropping windows on vertical screen edges maximizes them "
+"vertically and resizes them horizontally to cover half of the available "
+"area. Dropping windows on the top screen edge maximizes them completely."
+msgstr ""
+"ਜੇ ਚਾਲੂ ਕੀਤਾ ਤਾਂ ਵਿੰਡੋਜ਼ ਨੂੰ ਖੜ੍ਹਵੀਂ ਸਕਰੀਨ ਬਾਹੀ ਉੱਤੇ ਲੈ ਜਾਣ ਨਾਲ ਉਹ ਖੜ੍ਹਵੇਂ"
+" ਰੂਪ ਵਿੱਚ ਵੱਧ ਤੋਂ ਵੱਧ "
+"ਕਰਦਾ ਹੈ ਅਤੇ ਖਿਤਿਜੀ (ਹਰੀਜੱਟਲ) ਰੂਪ ਵਿੱਚ ਉਪਲੱਬਧ ਖੇਤਰ ਵਿੱਚ ਅੱਧੇ ਥਾਂ ਲਈ ਮੁੜ-ਆਕਾਰ"
+" ਕਰਦਾ ਹੈ। ਵਿੰਡੋਜ਼ "
+"ਨੂੰ ਉੱਤੇ ਸਕਰੀਨ ਬਾਹੀ ਵਿੱਚ ਲੈ ਕੇ ਜਾਣ ਨਾਲ ਉਹ ਪੂਰੀ ਤਰ੍ਹਾਂ ਵੱਧ ਤੋਂ ਵੱਧ ਹੁੰਦਾ ਹੈ।"
+
+#: data/org.gnome.mutter.gschema.xml.in:40
+msgid "Workspaces are managed dynamically"
+msgstr "ਵਰਕਸਪੇਸ ਦਾ ਪਰਬੰਧ ਚਲਵੇਂ ਰੂਪ ਵਿੱਚ ਕੀਤਾ ਜਾਂਦਾ ਹੈ"
+
+#: data/org.gnome.mutter.gschema.xml.in:41
+#| msgid ""
+#| "Determines whether workspaces are managed dynamically or whether there's "
+#| "a static number of workspaces (determined by the num-workspaces key in "
+#| "org.gnome.desktop.wm.preferences)."
+msgid ""
+"Determines whether workspaces are managed dynamically or whether there’s a "
+"static number of workspaces (determined by the num-workspaces key in org."
+"gnome.desktop.wm.preferences)."
+msgstr ""
+"ਦੱਸੋ ਕਿ ਕੀ ਵਰਕਸਪੇਸ ਨੂੰ ਚਲਵੇਂ ਰੂਪ ਵਿੱਚ ਰੱਖਣਾ ਹੈ ਜਾਂ ਵਰਕਸਪੇਸ ਦੀ ਗਿਣਤੀ ਸਥਿਰ ਹੋਵੇ"
+" (ਜੋ ਕਿ org."
+"gnome.desktop.wm.preferences ਵਿੱਚ num-workspaces ਕੁੰਜੀ ਰਾਹੀਂ ਦੱਸੀ ਜਾਂਦੀ ਹੈ)।"
+
+#: data/org.gnome.mutter.gschema.xml.in:50
+msgid "Workspaces only on primary"
+msgstr "ਵਰਕਸਪੇਸ ਕੇਵਲ ਪ੍ਰਾਇਮਰੀ ਉੱਤੇ ਹੀ"
+
+#: data/org.gnome.mutter.gschema.xml.in:51
+msgid ""
+"Determines whether workspace switching should happen for windows on all "
+"monitors or only for windows on the primary monitor."
+msgstr ""
+"ਕੀ ਵਰਕਸਪੇਸ ਬਦਲਣਾ ਸਭ ਮਾਨੀਟਰ ਦੀਆਂ ਵਿੰਡੋ ਲਈ ਹੋਵੇ ਜਾਂ ਕੇਵਲ ਪ੍ਰਾਇਮਰੀ ਮਾਨੀਟਰ ਦੀਆਂ"
+" ਵਿੰਡੋ ਲਈ ਹੀ "
+
+#: data/org.gnome.mutter.gschema.xml.in:59
+msgid "No tab popup"
+msgstr "ਕੋਈ ਟੈਬ ਪੋਪਅੱਪ ਨਹੀਂ"
+
+#: data/org.gnome.mutter.gschema.xml.in:60
+msgid ""
+"Determines whether the use of popup and highlight frame should be disabled "
+"for window cycling."
+msgstr ""
+"ਜਾਣੋ ਕਿ ਕੀ ਪੋਪਅੱਪ ਅਤੇ ਹਾਈਲਾਈਟ ਫਰੇਮ ਦੀ ਵਰਤੋਂ ਨੂੰ ਵਿੰਡੋਜ਼ ਦੇ ਚੱਕਰ ਦੌਰਾਨ ਬੰਦ"
+" ਕਰਨਾ ਹੈ।"
+
+#: data/org.gnome.mutter.gschema.xml.in:68
+msgid "Delay focus changes until the pointer stops moving"
+msgstr "ਪੁਆਇੰਟਰ ਦੇ ਰੁਕਣ ਤੱਕ ਫੋਕਸ ਬਦਲਣ ਨੂੰ ਰੋਕੋ"
+
+#: data/org.gnome.mutter.gschema.xml.in:69
+#| msgid ""
+#| "If set to true, and the focus mode is either \"sloppy\" or \"mouse\" then "
+#| "the focus will not be changed immediately when entering a window, but "
+#| "only after the pointer stops moving."
+msgid ""
+"If set to true, and the focus mode is either “sloppy” or “mouse” then the "
+"focus will not be changed immediately when entering a window, but only after "
+"the pointer stops moving."
+msgstr ""
+"ਜੇ ਇਹ ਸਹੀਂ ਹੋਵੇ ਤਾਂ ਫੋਕਸ ਢੰਗ ਜਾਂ ਤਾਂ ”ਸਲੋਪੀ” ਜਾਂ ”ਮਾਊਂਸ” ਹੁੰਦਾ ਹੈ ਤਾਂ ਫੋਕਸ"
+" ਹੋਇਆ ਵਿੰਡੋ "
+"auto_raise_delay ਕੁੰਜੀ ਵਲੋਂ ਦਿੱਤੇ ਇੱਕ ਅੰਤਰਾਲ ਬਾਅਦ ਆਟੋਮੈਟਿਕ ਹੀ ਉਭਾਰਿਆ ਜਾਵੇਗਾ।"
+
+#: data/org.gnome.mutter.gschema.xml.in:79
+msgid "Draggable border width"
+msgstr "ਡਰੈਗ ਹੋਣ ਯੋਗ ਬਾਰਡਰ ਚੌੜਾਈ"
+
+#: data/org.gnome.mutter.gschema.xml.in:80
+#| msgid ""
+#| "The amount of total draggable borders. If the theme's visible borders are "
+#| "not enough, invisible borders will be added to meet this value."
+msgid ""
+"The amount of total draggable borders. If the theme’s visible borders are "
+"not enough, invisible borders will be added to meet this value."
+msgstr ""
+"ਕੁੱਲ ਡਰੈਗ ਹੋਣ ਯੋਗ ਬਾਰਡਰ ਦੀ ਮਾਤਰਾ। ਜੇ ਥੀਮ ਦੇ ਦਿੱਖ ਬਾਰਡਰ ਲੋੜ ਮੁਤਾਬਕ ਨਾ ਹੋਣ ਤਾਂ"
+" ਅਦਿੱਖ ਬਾਰਡਰ "
+"ਨੂੰ ਇਹ ਮੁੱਲ ਦੇ ਬਰਾਬਰ ਕਰਨ ਲਈ ਵਧਾਇਆ ਜਾਵੇਗਾ।"
+
+#: data/org.gnome.mutter.gschema.xml.in:89
+msgid "Auto maximize nearly monitor sized windows"
+msgstr "ਲਗਭਗ ਮਾਨੀਟਰ ਆਕਾਰ ਦੀਆਂ ਵਿੰਡੋਜ਼ ਆਪਣੇ-ਆਪ ਵੱਧੋ-ਵੱਧੋ"
+
+#: data/org.gnome.mutter.gschema.xml.in:90
+msgid ""
+"If enabled, new windows that are initially the size of the monitor "
+"automatically get maximized."
+msgstr ""
+"ਜੇ ਚਾਲੂ ਕੀਤਾ ਤਾਂ ਨਵੀਆਂ ਵਿੰਡੋਜ਼, ਜੋ ਕਿ ਸ਼ੁਰੂ ਵਿੱਚ ਮਾਨੀਟਰ ਦੇ ਆਕਾਰ ਦੀਆਂ ਹੁੰਦੀਆਂ"
+" ਹਨ, ਆਪਣੇ-ਆਪ ਵੱਧ ਤੋਂ "
+"ਵੱਧ ਹੋ ਜਾਣਗੀਆਂ।"
+
+#: data/org.gnome.mutter.gschema.xml.in:98
+msgid "Place new windows in the center"
+msgstr "ਨਵੀਆਂ ਵਿੰਡੋ ਕੇਂਦਰ ਵਿੱਚ ਰੱਖੋ"
+
+#: data/org.gnome.mutter.gschema.xml.in:99
+msgid ""
+"When true, the new windows will always be put in the center of the active "
+"screen of the monitor."
+msgstr ""
+"ਜੇ ਸਹੀਂ ਹੈ ਤਾਂ ਨਵੀਂ ਵਿੰਡੋਜ਼ ਨੂੰ ਹਮੇਸ਼ਾ ਮਾਨੀਟਰ ਦੀ ਸਰਗਰਮ ਸਕਰੀਮ ਦੇ ਕੇਂਦਰ ਵਿੱਚ"
+" ਰੱਖਿਆ ਜਾਵੇਗਾ।"
+
+#: data/org.gnome.mutter.gschema.xml.in:107
+msgid "Enable experimental features"
+msgstr "ਤਜਰਬੇ ਅਧੀਨ ਫ਼ੀਚਰਾਂ ਨੂੰ ਸਮਰੱਥ ਕਰੋ"
+
+#: data/org.gnome.mutter.gschema.xml.in:108
+msgid ""
+"To enable experimental features, add the feature keyword to the list. "
+"Whether the feature requires restarting the compositor depends on the given "
+"feature. Any experimental feature is not required to still be available, or "
+"configurable. Don’t expect adding anything in this setting to be future "
+"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
+"mutter default to layout logical monitors in a logical pixel coordinate "
+"space, while scaling monitor framebuffers instead of window content, to "
+"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
+"enables remote desktop support. To support remote desktop with screen "
+"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
+"screen cast support."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:145
+msgid "Select window from tab popup"
+msgstr "ਟੈਬ ਪੋਪਅੱਪ ਤੋਂ ਵਿੰਡੋ ਚੁਣੋ"
+
+#: data/org.gnome.mutter.gschema.xml.in:150
+msgid "Cancel tab popup"
+msgstr "ਟੈਬ ਪੋਪਅੱਪ ਰੱਦ ਕਰੋ"
+
+#: data/org.gnome.mutter.gschema.xml.in:155
+#| msgid "Switch applications"
+msgid "Switch monitor configurations"
+msgstr "ਮਾਨੀਟਰ ਸੰਰਚਨਾ ਨੂੰ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.gschema.xml.in:160
+msgid "Rotates the built-in monitor configuration"
+msgstr "ਬਿਲਟ-ਇਨ ਮਾਨੀਟਰ ਸੰਰਚਨਾ ਨੂੰ ਘੁੰਮਾਓ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+msgid "Switch to VT 1"
+msgstr "VT 1 ਲਈ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+msgid "Switch to VT 2"
+msgstr "VT 2 ਲਈ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+msgid "Switch to VT 3"
+msgstr "VT 3 ਲਈ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+msgid "Switch to VT 4"
+msgstr "VT 4 ਲਈ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+msgid "Switch to VT 5"
+msgstr "VT 5 ਲਈ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+msgid "Switch to VT 6"
+msgstr "VT 6 ਲਈ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+msgid "Switch to VT 7"
+msgstr "VT 7 ਲਈ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+msgid "Switch to VT 8"
+msgstr "VT 8 ਲਈ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+msgid "Switch to VT 9"
+msgstr "VT 9 ਲਈ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+msgid "Switch to VT 10"
+msgstr "VT 10 ਲਈ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+msgid "Switch to VT 11"
+msgstr "VT 11 ਲਈ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+msgid "Switch to VT 12"
+msgstr "VT 12 ਲਈ ਬਦਲੋ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+msgid "Re-enable shortcuts"
+msgstr "ਸ਼ਾਰਟਕੱਟ ਮੁੜ-ਸਮਰੱਥ ਕਰੋ"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/backends/meta-input-settings.c:2151
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "ਮੋਡ ਬਦਲੋ (ਗਰੁੱਪ %d)"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/backends/meta-input-settings.c:2174
+#| msgid "Switch system controls"
+msgid "Switch monitor"
+msgstr "ਮਾਨੀਟਰ ਨੂੰ ਬਦਲੋ"
+
+#: src/backends/meta-input-settings.c:2176
+msgid "Show on-screen help"
+msgstr "ਆਨ-ਸਕਰੀਨ ਮਦਦ ਵੇਖੋ"
+
+#: src/backends/meta-monitor-manager.c:903
+msgid "Built-in display"
+msgstr "ਬਿਲਟ-ਇਨ ਡਿਸਪਲੇਅ"
+
+#: src/backends/meta-monitor-manager.c:926
+msgid "Unknown"
+msgstr "ਅਣਜਾਣ"
+
+#: src/backends/meta-monitor-manager.c:928
+msgid "Unknown Display"
+msgstr "ਅਣਜਾਣ ਡਿਸਪਲੇਅ"
+
+#. TRANSLATORS: this is a monitor vendor name, followed by a
+#. * size in inches, like 'Dell 15"'
+#.
+#: src/backends/meta-monitor-manager.c:936
+#, c-format
+msgid "%s %s"
+msgstr "%s %s"
+
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/compositor/compositor.c:476
+#, c-format
+#| msgid ""
+#| "Another compositing manager is already running on screen %i on display "
+#| "\"%s\"."
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+"ਇੱਕ ਹੋਰ ਕੰਪੋਜ਼ਟਿੰਗ ਮੈਨੇਜਰ %i ਸਕਰੀਨ ਉੱਤੇ ਡਿਸਪਲੇਅ ”%s” ਉੱਤੇ ਪਹਿਲਾਂ ਹੀ ਚੱਲ ਰਿਹਾ"
+" ਹੈ।"
+
+#: src/core/bell.c:194
+msgid "Bell event"
+msgstr "ਘੰਟੀ ਈਵੈਂਟ"
+
+#: src/core/display.c:608
+#, c-format
+#| msgid "Failed to open X Window System display '%s'\n"
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "X ਵਿੰਡੋ ਸਿਸਟਮ ਡਿਸਪਲੇਅ ”%s” ਨੂੰ ਖੋਲਣ ਵਿੱਚ ਅਸਮਰਥ\n"
+
+#: src/core/main.c:189
+msgid "Disable connection to session manager"
+msgstr "ਸ਼ੈਸ਼ਨ ਮੈਨੇਜਰ ਨਾਲ ਕੁਨੈਕਸ਼ਨ ਅਯੋਗ"
+
+#: src/core/main.c:195
+msgid "Replace the running window manager"
+msgstr "ਚੱਲ ਰਹੇ ਵਿੰਡੋ ਮੈਨੇਜਰ ਨੂੰ ਬਦਲੋ"
+
+#: src/core/main.c:201
+msgid "Specify session management ID"
+msgstr "ਸ਼ੈਸ਼ਨ ਪਰਬੰਧਨ ID ਦਿਓ"
+
+#: src/core/main.c:206
+msgid "X Display to use"
+msgstr "ਵਰਤਣ ਲਈ X ਡਿਸਪਲੇਅ"
+
+#: src/core/main.c:212
+msgid "Initialize session from savefile"
+msgstr "ਸੰਭਾਲੀ ਫਾਇਲ ਤੋਂ ਸ਼ੈਸ਼ਨ ਸ਼ੁਰੂ"
+
+#: src/core/main.c:218
+msgid "Make X calls synchronous"
+msgstr "X ਕਾਲ ਸੈਕਰੋਨਸ ਬਣਾਓ"
+
+#: src/core/main.c:225
+msgid "Run as a wayland compositor"
+msgstr "ਵੇਲੈਂਡ ਕੰਪੋਜ਼ਰ ਵਜੋਂ ਚਲਾਓ"
+
+#: src/core/main.c:231
+#| msgid "Run as a wayland compositor"
+msgid "Run as a nested compositor"
+msgstr "ਨੈਸਟਡ ਕੰਪੋਜ਼ਰ ਵਜੋਂ ਚਲਾਓ"
+
+#: src/core/main.c:239
+msgid "Run as a full display server, rather than nested"
+msgstr "ਅੰਦਰੂਨੀ ਰੂਪ ਵਿੱਚ ਚਲਾਉਣ ਦੀ ਬਜਾਏ ਪੂਰੇ ਡਿਸਪਲੇਅ ਸਰਵਰ ਵਜੋਂ ਚਲਾਓ"
+
+#. Translators: %s is a window title
+#: src/core/meta-close-dialog-default.c:147
+#, c-format
+msgid "“%s” is not responding."
+msgstr "\"%s\" ਜਵਾਬ ਨਹੀਂ ਦੇ ਰਹੀ ਹੈ।"
+
+#: src/core/meta-close-dialog-default.c:149
+msgid "Application is not responding."
+msgstr "ਐਪਲੀਕੇਸ਼ਨ ਜਵਾਬ ਨਹੀਂ ਦੇ ਰਹੀ ਹੈ।"
+
+#: src/core/meta-close-dialog-default.c:154
+msgid ""
+"You may choose to wait a short while for it to continue or force the "
+"application to quit entirely."
+msgstr ""
+"ਤੁਸੀਂ ਇਸ ਲਈ ਕੁਝ ਸਮੇਂ ਵਾਸਤੇ ਉਡੀਕ ਕਰ ਸਕਦੇ ਹੋ ਜਾਂ ਕਾਰਜ ਨੂੰ ਧੱਕੇ ਨਾਲ ਬੰਦ ਕਰ ਸਕਦੇ"
+" ਹੋ।"
+
+#: src/core/meta-close-dialog-default.c:161
+msgid "_Force Quit"
+msgstr "ਧੱਕੇ ਨਾਲ ਬੰਦ(_F)"
+
+#: src/core/meta-close-dialog-default.c:161
+msgid "_Wait"
+msgstr "ਉਡੀਕੋ(_W)"
+
+#: src/core/mutter.c:39
+#, c-format
+#| msgid ""
+#| "mutter %s\n"
+#| "Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#| "This is free software; see the source for copying conditions.\n"
+#| "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#| "PARTICULAR PURPOSE.\n"
+msgid ""
+"mutter %s\n"
+"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+"This is free software; see the source for copying conditions.\n"
+"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+"PARTICULAR PURPOSE.\n"
+msgstr ""
+"ਮੁੱਟਰ %s\n"
+"ਹੱਕ ਰਾਖਵੇਂ ਹਨ ©  ੨੦੦੧-%d ਹਾਵੇਨ ਪੈਨਿੰਗਟੋਨ, ਰੈੱਡ ਹੈੱਟ, ਅਤੇ ਹੋਰ\n"
+"ਇਹ ਮੁਫਤ ਸਾਫਟਵੇਅਰ ਹੈ; ਉਤਾਰਾ ਹਾਲਤਾਂ ਲਈ ਸਰੋਤ ਵੇਖੋ।\n"
+"ਇਸ ਦੀ ਕੋਈ ਗਰੰਟੀ ਨਹੀ; ਇਥੋਂ ਤੱਕ ਕਿ ਖਰੀਦਦਾਰੀ ਜਾਂ ਖਾਸ ਮਕਸਦ ਦੀ ਪੂਰਤੀ ਲਈ ਵੀ।\n"
+
+#: src/core/mutter.c:53
+msgid "Print version"
+msgstr "ਵਰਜਨ ਛਾਪੋ"
+
+#: src/core/mutter.c:59
+msgid "Mutter plugin to use"
+msgstr "ਵਰਤਣ ਲਈ ਮੁੱਟਰ ਪਲੱਗਇਨ"
+
+#: src/core/prefs.c:1997
+#, c-format
+msgid "Workspace %d"
+msgstr "ਵਰਕਸਪੇਸ %d"
+
+#: src/core/screen.c:580
+#, c-format
+#| msgid ""
+#| "Display \"%s\" already has a window manager; try using the --replace "
+#| "option to replace the current window manager."
+msgid ""
+"Display “%s” already has a window manager; try using the --replace option to "
+"replace the current window manager."
+msgstr ""
+"ਡਿਸਪਲੇਅ ”%s” ਉੱਤੇ ਪਹਿਲਾਂ ਹੀ ਵਿੰਡੋ ਮੈਨੇਜਰ ਮੌਜੂਦ ਹੈ; ਮੌਜੂਦਾ ਵਿੰਡੋ ਮੈਨੇਜਰ ਨੂੰ"
+" ਬਦਲਣ ਲਈ --replace "
+"ਚੋਣ ਵਰਤ ਕੇ ਦੇਖੋ।"
+
+#: src/core/screen.c:665
+#, c-format
+#| msgid "Screen %d on display '%s' is invalid\n"
+msgid "Screen %d on display “%s” is invalid\n"
+msgstr "ਡਿਸਪਲੇਅ ”%2$s” ਉੱਤੇ ਸਕਰੀਨ %1$d ਗਲਤ ਹੈ\n"
+
+#: src/core/util.c:120
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr "ਮੱਟਰ, ਵਰਬੋਜ਼ ਮੋਡ ਲਈ ਸਹਾਰੇ ਤੋਂ ਬਿਨਾਂ ਕੰਪਾਇਲ ਹੋਇਆ\n"
+
+#: src/wayland/meta-wayland-tablet-pad.c:563
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "ਮੋਡ ਬਦਲੋ: ਮੋਡ %d"
+
+#: src/x11/session.c:1815
+#| msgid ""
+#| "These windows do not support &quot;save current setup&quot; and will have "
+#| "to be restarted manually next time you log in."
+msgid ""
+"These windows do not support “save current setup” and will have to be "
+"restarted manually next time you log in."
+msgstr ""
+"ਇਹ ਵਿੰਡੋ ”ਮੌਜੂਦਾ ਸੈਟਅੱਪ ਸੰਭਾਲੋ” ਵਾਸਤੇ ਸਹਾਇਕ ਨਹੀਂ ਅਤੇ ਅਗਲੀ ਵਾਰ ਜਦੋਂ ਤੁਸੀਂ"
+" ਲਾਗਇਨ "
+"ਕਰੋਗੇ ਤਾਂ ਮੁੜ ਸ਼ੁਰੂ ਕਰਨਾ ਪਵੇਗਾ।"
+
+#: src/x11/window-props.c:559
+#, c-format
+msgid "%s (on %s)"
+msgstr "%s (%s ਉੱਤੇ)"
+
+#~ msgid "Failed to scan themes directory: %s\n"
+#~ msgstr "ਥੀਮ ਡਾਇਰੈਕਟਰੀ ਦੀ ਜਾਂਚ ਅਸਫਲ: %s\n"
+
+#~ msgid ""
+#~ "Could not find a theme! Be sure %s exists and contains the usual themes.\n"
+#~ msgstr ""
+#~ "ਥੀਮ ਨਹੀ ਲੱਭ ਸਕਿਆ! ਯਕੀਨੀ ਬਣਾਓ ਕਿ %s ਮੌਜੂਦ ਹੈ ਅਤੇ ਇਸ ਵਿਚ ਵਰਤਣ ਵਾਲੇ ਥੀਮ ਹਨ।\n"
+
+#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
+#~ msgstr "ਡਿਸਪਲੇਅ \"%2$s\" ਉੱਤੇ ਸਕਰੀਨ %1$d ਕੋਲ ਪਹਿਲਾਂ ਹੀ ਵਿੰਡੋ ਮੈਨੇਜਰ ਹੈ\n"
+
+#~ msgid "%d x %d"
+#~ msgstr "%d x %d"
+
+#~ msgid "top"
+#~ msgstr "ਉੱਤੇ"
+
+#~ msgid "bottom"
+#~ msgstr "ਹੇਠਾਂ"
+
+#~ msgid "left"
+#~ msgstr "ਖੱਬਾ"
+
+#~ msgid "right"
+#~ msgstr "ਸੱਜਾ"
+
+#~ msgid "frame geometry does not specify \"%s\" dimension"
+#~ msgstr "ਫਰੇਮ ਜੁਮੈਟਰੀ \"%s\" ਮਾਪ ਨਹੀਂ ਦਰਸਾਉਦੀ ਹੈ"
+
+#~ msgid "frame geometry does not specify dimension \"%s\" for border \"%s\""
+#~ msgstr "ਫਰੇਮ ਜੁਮੈਟਰੀ \"%2$s\" ਹਾਸ਼ੀਏ ਲਈ \"%1$s\" ਮਾਪ ਨਹੀਂ ਦਰਸਾਉਦੀ ਹੈ"
+
+#~ msgid "Button aspect ratio %g is not reasonable"
+#~ msgstr "ਤਲ ਆਕਾਰ ਅਨੁਪਾਤ %g ਢੁੱਕਵਾਂ ਨਹੀਂ ਹੈ"
+
+#~ msgid "Frame geometry does not specify size of buttons"
+#~ msgstr "ਫਰੇਮ ਜੁਮੈਟਰੀ ਬਟਨਾਂ ਦਾ ਆਕਾਰ ਨਹੀਂ ਦਰਸਾਉਦੀ"
+
+#~ msgid "Gradients should have at least two colors"
+#~ msgstr "ਢਾਲਵੇ ਲਈ ਘੱਟ ਤੋਂ ਘੱਟ ਦੋ ਰੰਗ ਚਾਹੀਦੇ ਹਨ"
+
+#~ msgid ""
+#~ "GTK custom color specification must have color name and fallback in "
+#~ "parentheses, e.g. gtk:custom(foo,bar); could not parse \"%s\""
+#~ msgstr ""
+#~ "ਹਾਲਤ ਤੋਂ ਬਾਅਦ GTK ਰੰਗ ਹਦਾਇਤ ਬਰੈਕਟਾਂ ਵਿੱਚ ਬੰਦ ਕਰਨੀ ਜ਼ਰੂਰੀ ਹੈ, ਉਦਾਹਰਨ ਵਜੋਂ gtk:custom "
+#~ "(foo,bar);  \"%s\" ਦੀ ਪਾਰਸ ਨਹੀਂ ਕਰ ਸਕਿਆ"
+
+#~ msgid ""
+#~ "Invalid character '%c' in color_name parameter of gtk:custom, only A-Za-"
+#~ "z0-9-_ are valid"
+#~ msgstr ""
+#~ "gtk:custom ਦੇ color_name ਪੈਰਾਮੀਟਰ ਵਿੱਚ ਗਲਤ ਅੱਖਰ '%c' ਹੈ, ਕੇਵਲ A-Za-z0-9-_ ਸ਼ਾਮਲ "
+#~ "ਹੋ ਸਕਦੇ ਹਨ"
+
+#~ msgid ""
+#~ "Gtk:custom format is \"gtk:custom(color_name,fallback)\", \"%s\" does not "
+#~ "fit the format"
+#~ msgstr ""
+#~ "Gtk:custom ਫਾਰਮੈਟ \"gtk:custom(color_name,fallback)\" ਹੈ, \"%s\" ਫਾਰਮੈਟ ਵਿੱਚ "
+#~ "ਫਿੱਟ ਨਹੀਂ ਹੈ"
+
+#~ msgid ""
+#~ "GTK color specification must have the state in brackets, e.g. gtk:"
+#~ "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ msgstr ""
+#~ "GTK ਰੰਗ ਹਦਾਇਤਾਂ ਦੀ ਹਾਲਤ ਬਰੈਕਟਾਂ ਵਿੱਚ ਜਰੂਰੀ ਹੈ, ਉਦਾਹਰਨ ਵਜੋਂ gtk:fg[ਸਾਧਾਰਨ] ਜਿੱਥੇ "
+#~ "ਸਾਧਾਰਨ  ਇੱਕ ਹਾਲਤ ਹੈ; \"%s\" ਦੀ ਪਾਰਸ ਨਹੀਂ ਕਰ ਸਕਿਆ"
+
+#~ msgid ""
+#~ "GTK color specification must have a close bracket after the state, e.g. "
+#~ "gtk:fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ msgstr ""
+#~ "ਹਾਲਤ ਤੋਂ ਬਾਅਦ GTK ਰੰਗ ਹਦਾਇਤ ਬਰੈਕਟਾਂ ਵਿੱਚ ਬੰਦ ਕਰਨੀ ਜ਼ਰੂਰੀ ਹੈ, ਉਦਾਹਰਨ ਵਜੋਂ gtk:"
+#~ "fg[ਸਾਧਾਰਨ] ਜਿੱਥੇ ਸਾਧਾਰਨ ਇੱਕ ਹਾਲਤ ਹੈ; \"%s\" ਦੀ ਪਾਰਸ ਨਹੀਂ ਕਰ ਸਕਿਆ"
+
+#~ msgid "Did not understand state \"%s\" in color specification"
+#~ msgstr "ਰੰਗ ਹਦਾਇਤ ਵਿੱਚ \"%s\" ਹਾਲਤ ਨੂੰ ਨਹੀਂ ਸਮਝਿਆ"
+
+#~ msgid "Did not understand color component \"%s\" in color specification"
+#~ msgstr "ਰੰਗ ਹਦਾਇਤ ਵਿੱਚ ਰੰਗ ਸੰਖੇਪ \"%s\" ਨੂੰ ਨਹੀਂ ਸਮਝਿਆ"
+
+#~ msgid ""
+#~ "Blend format is \"blend/bg_color/fg_color/alpha\", \"%s\" does not fit "
+#~ "the format"
+#~ msgstr "ਧੁੰਦਲੀ ਬਣਤਰ \"ਧੁੰਦਲੀ/bg_ਰੰਗ/ਐਲਫਾ, \"%s\" ਬਣਤਰ ਵਿੱਚ ਠੀਕ ਨਹੀਂ ਆਂਉਦੀ"
+
+#~ msgid "Could not parse alpha value \"%s\" in blended color"
+#~ msgstr "ਧੁੰਦਲੇ ਰੰਗ ਵਿੱਚ ਐਲਫਾ ਕੀਮਤ \"%s\" ਦੀ ਪਾਰਸ ਨਹੀਂ ਕਰ ਸਕਿਆ"
+
+#~ msgid "Alpha value \"%s\" in blended color is not between 0.0 and 1.0"
+#~ msgstr "ਧੁੰਦਲੇ ਰੰਗ ਵਿੱਚ ਐਲਫਾ ਕੀਮਤ \"%s\" 0.0 ਅਤੇ 1.0 ਵਿਚਕਾਰ ਨਹੀਂ ਹੈ"
+
+#~ msgid ""
+#~ "Shade format is \"shade/base_color/factor\", \"%s\" does not fit the "
+#~ "format"
+#~ msgstr "ਰੰਗਤ ਬਣਤਰ \"ਰੰਗਤ/ਆਧਾਰ_ਰੰਗ/ਫੈਕਟਰ\" ਹੈ, \"%s\" ਬਣਤਰ ਵਿੱਚ ਠੀਕ ਨਹੀਂ ਆਉਦੀ"
+
+#~ msgid "Could not parse shade factor \"%s\" in shaded color"
+#~ msgstr "ਛਾਇਆ ਰੰਗ ਵਿੱਚ ਰੰਗਤ ਫੈਕਟਰ \"%s\" ਦੀ ਪਾਰਸ ਨਹੀਂ ਕਰ ਸਕਿਆ"
+
+#~ msgid "Shade factor \"%s\" in shaded color is negative"
+#~ msgstr "ਛਾਇਆ ਰੰਗ ਵਿੱਚ ਰੰਗਤ ਫੈਕਟਰ \"%s\" ਨਾਂਹਵਾਚਕ ਹੈ"
+
+#~ msgid "Could not parse color \"%s\""
+#~ msgstr "\"%s\" ਰੰਗ ਦੀ ਪਾਰਸ ਨਹੀਂ ਕਰ ਸਕਿਆ"
+
+#~ msgid "Coordinate expression contains character '%s' which is not allowed"
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਵਿੱਚ ਅੱਖਰ '%s' ਸ਼ਾਮਿਲ ਹੈ ਜਿਸ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ"
+
+#~ msgid ""
+#~ "Coordinate expression contains floating point number '%s' which could not "
+#~ "be parsed"
+#~ msgstr ""
+#~ "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਵਿੱਚ ਦਸ਼ਮਲਵ ਅੰਕ '%s' ਸ਼ਾਮਿਲ ਹੈ ਜਿਸ ਦੀ ਪਾਰਸ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ"
+
+#~ msgid ""
+#~ "Coordinate expression contains integer '%s' which could not be parsed"
+#~ msgstr ""
+#~ "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਵਿੱਚ ਪੂਰਨ ਅੰਕ '%s' ਸ਼ਾਮਿਲ ਹੈ ਜਿਸ ਦੀ ਪਾਰਸ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ"
+
+#~ msgid ""
+#~ "Coordinate expression contained unknown operator at the start of this "
+#~ "text: \"%s\""
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਵਿੱਚ ਇਸ ਪਾਠ \"%s\" ਦੇ ਸ਼ੁਰੂ ਵਿੱਚ ਅਣਪਛਾਤਾ ਆਪ੍ਰੇਟਰ ਸ਼ਾਮਿਲ ਹੈ"
+
+#~ msgid "Coordinate expression was empty or not understood"
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਖਾਲੀ ਸੀ ਜਾਂ ਸਮਝਿਆ ਨਹੀਂ"
+
+#~ msgid "Coordinate expression results in division by zero"
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਦੇ ਨਤੀਜੇ ਵਜੋਂ ਜੀਰੋ ਨਾਲ ਭਾਗ ਹੈ"
+
+#~ msgid ""
+#~ "Coordinate expression tries to use mod operator on a floating-point number"
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਦਸ਼ਮਲਵ ਅੰਕ ਉੱਤੇ ਮਾਡ (mod) ਆਪ੍ਰੇਟਰ ਵਰਤਣ ਦੀ ਕੋਸ਼ਿਸ਼ ਕਰਦਾ ਹੈ"
+
+#~ msgid ""
+#~ "Coordinate expression has an operator \"%s\" where an operand was expected"
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਵਿੱਚ ਆਪ੍ਰੇਟਰ \"%s\" ਹੈ ਜਿੱਥੇ ਪ੍ਰਭਾਵੀ ਅੰਕ ਦੀ ਉਮੀਦ ਸੀ"
+
+#~ msgid "Coordinate expression had an operand where an operator was expected"
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਵਿੱਚ ਪ੍ਰਭਾਵੀ ਅੰਕ ਸੀ ਜਿੱਥੇ ਆਪ੍ਰੇਟਰ ਦੀ ਉਮੀਦ ਸੀ"
+
+#~ msgid "Coordinate expression ended with an operator instead of an operand"
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਦੀ ਸਮਾਪਤੀ ਆਪ੍ਰੇਟਰ ਨਾਲ ਹੁੰਦੀ ਹੈ ਨਾ ਕਿ ਪ੍ਰਭਾਵੀ ਅੰਕ ਨਾਲ"
+
+#~ msgid ""
+#~ "Coordinate expression has operator \"%c\" following operator \"%c\" with "
+#~ "no operand in between"
+#~ msgstr ""
+#~ "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਵਿੱਚ ਵਿਚਕਾਰ ਪ੍ਰਭਾਵੀ ਅੰਕ ਤੋਂ ਬਿਨਾਂ  ਆਪ੍ਰੇਟਰ \"%c\" ਤੋਂ ਬਾਅਦ ਆਪ੍ਰੇਟਰ "
+#~ "\"%c\" ਹੈ "
+
+#~ msgid "Coordinate expression had unknown variable or constant \"%s\""
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਵਿੱਚ ਅਣਪਛਾਤਾ ਅਸਥਿਰ ਜਾਂ ਸਥਿਰ \"%s\" ਸੀ"
+
+#~ msgid "Coordinate expression parser overflowed its buffer."
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਪਾਰਸਰ ਦਾ ਬਫ਼ਰ ਓਵਰਫਲੋ ਹੋ ਗਿਆ ਹੈ।"
+
+#~ msgid ""
+#~ "Coordinate expression had a close parenthesis with no open parenthesis"
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਵਿੱਚ ਕੋਈ ਖੁੱਲੀ ਬਰੈਕਟ ਨਾ ਹੋਣ ਕਰਕੇ ਬੰਦ ਬਰੈਕਟ(parenthesis) ਸੀ"
+
+#~ msgid ""
+#~ "Coordinate expression had an open parenthesis with no close parenthesis"
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਵਿੱਚ ਕੋਈ ਬੰਦ ਬਰੈਕਟ ਨਾ ਹੋਣ ਕਰਕੇ ਖੁੱਲੀ ਬਰੈਕਟ ਸੀ"
+
+#~ msgid "Coordinate expression doesn't seem to have any operators or operands"
+#~ msgstr "ਕਰੋਆਡੀਨੇਟ ਐਕਸ਼ਪਰੈਸ਼ਨ ਵਿੱਚ ਕੋਈ ਵੀ ਆਪ੍ਰੇਟਰ ਜਾਂ ਪ੍ਰਭਾਵੀ ਅੰਕ ਨਹੀਂ ਦਿਸਦਾ"
+
+#~ msgid "Theme contained an expression that resulted in an error: %s\n"
+#~ msgstr "ਥੀਮ ਵਿੱਚ ਸਮੀਕਰਨ ਹੈ, ਜਿਸ ਦਾ ਨਤੀਜਾ ਹੈ ਗਲਤੀ: %s\n"
+
+#~ msgid ""
+#~ "<button function=\"%s\" state=\"%s\" draw_ops=\"whatever\"/> must be "
+#~ "specified for this frame style"
+#~ msgstr ""
+#~ "ਇਸ ਫਰੇਮ ਵਾਸਤੇ <button function=\"%s\" state=\"%s\" draw_ops=\"whatever\"/> "
+#~ "ਦੇਣਾ ਲਾਜ਼ਮੀ ਹੈ"
+
+#~ msgid ""
+#~ "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/"
+#~ ">"
+#~ msgstr ""
+#~ "<frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/> ਗੁੰਮ ਹੈ"
+
+#~ msgid "Failed to load theme \"%s\": %s\n"
+#~ msgstr "ਥੀਮ \"%s\" ਲੋਡ ਕਰਨ ਲਈ ਅਸਫਲ: %s\n"
+
+#~ msgid "No <%s> set for theme \"%s\""
+#~ msgstr "ਥੀਮ \"%2$s\" ਲਈ <%1$s> ਨਹੀਂ ਸੈੱਟ ਕੀਤਾ"
+
+#~ msgid ""
+#~ "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
+#~ "type=\"%s\" style_set=\"whatever\"/> element"
+#~ msgstr ""
+#~ "ਸ਼ੈਸ਼ਨ \"%s\" ਵਿੱਚ ਵਿੰਡੋ ਕਿਸਮ \"%s\" ਲਈ ਕੋਈ ਫਰੇਮ ਸਾਇਟਲ ਸੈੱਟ ਨਹੀਂ ਕੀਤਾ, ਇੱਕ <window "
+#~ "type=\"%s\" style_set=\"whatever\"/> ਐਲੀਮੈਂਟ ਸ਼ਾਮਿਲ ਕਰੋ"
+
+#~ msgid ""
+#~ "User-defined constants must begin with a capital letter; \"%s\" does not"
+#~ msgstr "ਯੂਜ਼ਰ ਰਾਹੀਂ ਪਰਭਾਸ਼ਿਤ ਸਥਿਰ ਵੱਡੇ ਅੱਖਰ ਨਾਲ ਸ਼ੁਰੂ ਹੋਣ; \"%s\" ਨਹੀਂ ਹੁੰਦੇ"
+
+#~ msgid "Constant \"%s\" has already been defined"
+#~ msgstr "ਸਥਿਰ \"%s\" ਪਹਿਲਾਂ ਹੀ ਪਰਭਾਸ਼ਿਤ ਕੀਤਾ ਹੈ"
+
+#~ msgid "No \"%s\" attribute on element <%s>"
+#~ msgstr "<%2$s> ਐਲੀਮੈਂਟ ਉੱਤੇ ਕੋਈ \"%1$s\" ਗੁਣ ਨਹੀਂ"
+
+#~ msgid "Line %d character %d: %s"
+#~ msgstr "ਲਾਈਨ %d ਅੱਖਰ %d:%s"
+
+#~ msgid "Attribute \"%s\" repeated twice on the same <%s> element"
+#~ msgstr "ਗੁਣ \"%s\" ਇੱਕੋ ਐਲੀਮੈਂਟ <%s> ਉੱਤੇ ਦੋ ਵਾਰ ਦੁਹਰਾਇਆ ਗਿਆ"
+
+#~ msgid "Attribute \"%s\" is invalid on <%s> element in this context"
+#~ msgstr "ਇਸ ਸਬੰਧ ਵਿਚਲਾ \"%s\" ਗੁਣ ਅਯੋਗ ਹੈ ਐਲੀਮੈਂਟ <%s> ਉੱਤੇ"
+
+#~ msgid "Could not parse \"%s\" as an integer"
+#~ msgstr "\"%s\" ਦੀ ਪੂਰਨ ਅੰਕ ਵਾਂਗ ਪਾਰਸ ਨਹੀ ਕਰ ਸਕਿਆ"
+
+#~ msgid "Did not understand trailing characters \"%s\" in string \"%s\""
+#~ msgstr "\"%s\" ਸਤਰ ਵਿਚ ਖੋਜੇ ਅੱਖਰ \"%s\" ਨੂੰ ਸਮਝ ਨਹੀ ਸਕੇ"
+
+#~ msgid "Integer %ld must be positive"
+#~ msgstr "ਪੂਰਨ ਅੰਕ %ld ਜੋੜ ਦਾ ਹੋਣਾ ਜਰੂਰੀ ਹੈ"
+
+#~ msgid "Integer %ld is too large, current max is %d"
+#~ msgstr "ਪੂਰਨ ਅੰਕ %ld ਬਹੁਤ ਵੱਡਾ ਹੈ, ਮੌਜੂਦਾ ਅਧਿਕਤਮ %d ਹੈ"
+
+#~ msgid "Could not parse \"%s\" as a floating point number"
+#~ msgstr "\"%s\" ਦੀ ਦਸ਼ਮਲਵ ਅੰਕ ਵਾਂਗ ਪਾਰਸ ਨਹੀਂ ਕਰ ਸਕਿਆ"
+
+#~ msgid "Boolean values must be \"true\" or \"false\" not \"%s\""
+#~ msgstr "ਬੂਲੀਅਨ ਕੀਮਤ \"ਠੀਕ\" ਜਾਂ \"ਗਲਤ\" ਹੋਵੇ \"%s\" ਨਹੀਂ"
+
+#~ msgid "Angle must be between 0.0 and 360.0, was %g\n"
+#~ msgstr "ਕੋਣ 0.0 ਤੋਂ 360.0 ਵਿਚਕਾਰ ਹੋਵੇ, ਕੀ %g ਸੀ\n"
+
+#~ msgid ""
+#~ "Alpha must be between 0.0 (invisible) and 1.0 (fully opaque), was %g\n"
+#~ msgstr "ਐਲਫਾ 0.0 (ਅਦਿੱਖ) ਅਤੇ 1.0 (ਪੂਰੀ ਤਰਾਂ ਅਪਾਰਦਰਸ਼ੀ) ਵਿਚਕਾਰ ਹੋਵੇ, ਕੀ %g ਸੀ\n"
+
+#~ msgid ""
+#~ "Invalid title scale \"%s\" (must be one of xx-small,x-small,small,medium,"
+#~ "large,x-large,xx-large)\n"
+#~ msgstr "ਅਯੋਗ ਟਾਇਟਲ ਪੈਮਾਨਾ \"%s\" (xx-ਛੋਟਾ,x-ਛੋਟਾ,ਛੋਟਾ,ਮੱਧਮ,ਵੱਡਾ,x-ਵੱਡਾ,xx-ਵੱਡਾ)\n"
+
+#~ msgid "<%s> name \"%s\" used a second time"
+#~ msgstr "<%s> ਨਾਂ \"%s\" ਦੂਜੀ ਵਾਰ ਵਰਤਿਆ ਗਿਆ"
+
+#~ msgid "<%s> parent \"%s\" has not been defined"
+#~ msgstr "<%s> ਮੂਲ \"%s\" ਪਰਭਾਸ਼ਿਤ ਨਹੀਂ ਕੀਤਾ ਗਿਆ"
+
+#~ msgid "<%s> geometry \"%s\" has not been defined"
+#~ msgstr "<%s> ਜੁਮੈਟਰੀ \"%s\" ਪਰਭਾਸ਼ਿਤ ਨਹੀਂ ਕੀਤੀ ਗਈ"
+
+#~ msgid "<%s> must specify either a geometry or a parent that has a geometry"
+#~ msgstr "<%s> ਜੁਮੈਟਰੀ ਜਾਂ ਜੁਮੈਟਰੀ ਵਾਲੇ ਮੂਲ ਨੂੰ ਦੇਣਾ ਲਾਜ਼ਮੀ ਹੈ"
+
+#~ msgid "You must specify a background for an alpha value to be meaningful"
+#~ msgstr "ਤੁਹਾਨੂੰ ਇੱਕ ਐਲਫ਼ਾ ਮੁੱਲ ਲਈ ਇੱਕ ਬੈਕਗਰਾਊਂਡ ਮੁੱਲ ਦਿਓ, ਜੋ ਕਿ ਮਤਲਬ ਸਿਰ ਹੋਵੇ"
+
+#~ msgid "Unknown type \"%s\" on <%s> element"
+#~ msgstr "ਅਣਜਾਣ ਕਿਸਮ \"%s\" ਉੱਤੇ <%s> ਐਲੀਮੈਂਟ"
+
+#~ msgid "Unknown style_set \"%s\" on <%s> element"
+#~ msgstr "ਅਣਜਾਣ ਸਟਾਇਲ_ਸੈੱਟ \"%s\" <%s> ਐਲੀਮੈਂਟ ਉੱਤੇ"
+
+#~ msgid "Window type \"%s\" has already been assigned a style set"
+#~ msgstr "ਵਿੰਡੋ ਕਿਸਮ \"%s\" ਵਾਸਤੇ ਪਹਿਲਾਂ ਹੀ ਇੱਕ ਸਟਾਇਲ ਸੈੱਟ ਦਿੱਤਾ ਹੈ"
+
+#~ msgid "Element <%s> is not allowed below <%s>"
+#~ msgstr "<%s> ਐਲੀਮੈਂਟ ਨੂੰ <%s> ਹੇਠਾਂ ਇਜਾਜ਼ਤ ਨਹੀਂ"
+
+#~ msgid ""
+#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
+#~ "\" for buttons"
+#~ msgstr ""
+#~ "ਦੋਵੇਂ \"button_width (ਬਟਨ ਚੌੜਾਈ)\"/\"button_height (ਬਟਨ ਉਚਾਈ)\" ਅਤੇ "
+#~ "\"aspect_ratio\" ਬਟਨਾਂ ਲਈ ਨਹੀਂ ਦਿੱਤੇ ਦੇ ਸਕਦੇ"
+
+#~ msgid "Distance \"%s\" is unknown"
+#~ msgstr "ਫਾਸਲਾ \"%s\" ਅਣਜਾਣ ਹੈ"
+
+#~ msgid "Aspect ratio \"%s\" is unknown"
+#~ msgstr "ਅਕਾਰ ਅਨੁਪਾਤ \"%s\" ਅਣਜਾਣ ਹੈ"
+
+#~ msgid "Border \"%s\" is unknown"
+#~ msgstr "ਬਾਰਡਰ \"%s\" ਅਣਜਾਣ ਹੈ"
+
+#~ msgid "No \"start_angle\" or \"from\" attribute on element <%s>"
+#~ msgstr "<%s> ਐਲੀਮੈਂਟ ਉੱਤੇ ਕੋਈ \"ਸ਼ੁਰੂ_ਕੋਣ\" ਜਾਂ \"ਇਸ ਤੋਂ\"ਗੁਣ ਨਹੀਂ ਹੈ ।"
+
+#~ msgid "No \"extent_angle\" or \"to\" attribute on element <%s>"
+#~ msgstr "<%s> ਐਲੀਮੈਂਟ ਉੱਤੇ ਕੋਈ \"ਸੀਮਾਂ_ਕੋਣ\" ਜਾਂ \"ਵੱਲ\" ਗੁਣ ਨਹੀਂ ਹੈ।"
+
+#~ msgid "Did not understand value \"%s\" for type of gradient"
+#~ msgstr "ਢਾਲ ਦੇ ਅਨੁਪਾਤ ਦੀ ਕਿਸਮ ਵਾਸਤੇ ਕੀਮਤ \"%s\" ਨਹੀਂ ਸਮਝਿਆ ਹੈ।"
+
+#~ msgid "Did not understand fill type \"%s\" for <%s> element"
+#~ msgstr "ਐਲੀਮੈਂਟ <%s> ਵਾਸਤੇ ਭਰਨ ਕਿਸਮ \"%s\" ਨਹੀਂ ਸਮਝਿਆ ਹੈ।"
+
+#~ msgid "Did not understand state \"%s\" for <%s> element"
+#~ msgstr "ਐਲੀਮੈਂਟ <%s> ਲਈ ਸਥਿਤੀ \"%s\" ਨਹੀਂ ਸਮਝਿਆ ਹੈ।"
+
+#~ msgid "Did not understand shadow \"%s\" for <%s> element"
+#~ msgstr "ਐਲੀਮੈਂਟ <%s> ਲਈ ਪਰਛਾਂਵਾਂ \"%s\" ਨਹੀਂ ਸਮਝਿਆ ਹੈ।"
+
+#~ msgid "Did not understand arrow \"%s\" for <%s> element"
+#~ msgstr "ਐਲੀਮੈਂਟ <%s> ਲਈ ਤੀਰ \"%s\" ਨਹੀਂ ਸਮਝਿਆ ਹੈ।"
+
+#~ msgid "No <draw_ops> called \"%s\" has been defined"
+#~ msgstr "ਕੋਈ <draw_ops> \"%s\" ਪਰਭਾਸ਼ਿਤ ਨਹੀਂ ਕੀਤੀ ਹੈ।"
+
+#~ msgid "Including draw_ops \"%s\" here would create a circular reference"
+#~ msgstr "draw_ops ਦੇ ਨਾਲ \"%s\" ਇੱਥੇ ਗੋਲਾਕਾਰ ਸੰਬੰਧ ਬਣਾਏਗਾ ਹੈ।"
+
+#~ msgid "Unknown position \"%s\" for frame piece"
+#~ msgstr "ਫਰੇਮ ਟੁਕੜੇ ਲਈ ਅਣਜਾਣੀ ਸਥਿਤੀ \"%s\" ਹੈ।"
+
+#~ msgid "Frame style already has a piece at position %s"
+#~ msgstr "ਫਰੇਮ ਸਟਾਇਲ ਵਿੱਚ ਪਹਿਲਾਂ ਹੀ %s ਸਥਿਤੀ ਉੱਤੇ ਇੱਕ ਟੁਕੜਾ ਹੈ।"
+
+#~ msgid "No <draw_ops> with the name \"%s\" has been defined"
+#~ msgstr "\"%s\" ਨਾਂ ਨਾਲ <draw_ops> ਪਰਭਾਸ਼ਿਤ ਨਹੀਂ ਕੀਤੀਆਂ"
+
+#~ msgid "Unknown function \"%s\" for button"
+#~ msgstr "ਬਟਨ ਲਈ ਅਣਜਾਣ ਕੰਮ \"%s\" ਹੈ।"
+
+#~ msgid "Button function \"%s\" does not exist in this version (%d, need %d)"
+#~ msgstr "ਬਟਨ ਫੰਕਸ਼ਨ \"%s\" ਇਹ ਵਰਜਨ 'ਚ ਮੌਜੂਦ ਨਹੀਂ ਹੈ (%d, %d ਲੋੜੀਦਾ ਹੈ)"
+
+#~ msgid "Unknown state \"%s\" for button"
+#~ msgstr "ਬਟਨ ਲਈ ਅਣਜਾਣ ਹਾਲਤ \"%s\"  ਹੈ।"
+
+#~ msgid "Frame style already has a button for function %s state %s"
+#~ msgstr "ਫਰੇਮ ਸਟਾਇਲ ਵਿੱਚ ਪਹਿਲਾਂ ਹੀ ਕੰਮ %s ਹਾਲਤ %s ਬਟਨ ਹੈ।"
+
+#~ msgid "\"%s\" is not a valid value for focus attribute"
+#~ msgstr "ਫੋਕਸ ਗੁਣ ਲਈ \"%s\" ਯੋਗ ਕੀਮਤ ਨਹੀਂ ਹੈ।"
+
+#~ msgid "\"%s\" is not a valid value for state attribute"
+#~ msgstr "ਹਾਲਤ ਗੁਣ ਲਈ \"%s\" ਯੋਗ ਕੀਮਤ ਨਹੀਂ ਹੈ।"
+
+#~ msgid "A style called \"%s\" has not been defined"
+#~ msgstr "ਇੱਕ ਸਟਾਇਲ \"%s\" ਪਰਭਾਸ਼ਿਤ ਨਹੀਂ ਕੀਤਾ ਹੈ।"
+
+#~ msgid "\"%s\" is not a valid value for resize attribute"
+#~ msgstr "ਮੁੜ ਆਕਾਰ ਦਿਓ ਗੁਣ ਲਈ \"%s\" ਯੋਗ ਕੀਮਤ ਨਹੀਂ ਹੈ।"
+
+#~ msgid ""
+#~ "Should not have \"resize\" attribute on <%s> element for maximized/shaded "
+#~ "states"
+#~ msgstr "<%s> ਐਲੀਮੈਂਟ ਉੱਤੇ ਵੱਡਾ/ਰੰਗਤ ਹਾਲਤ ਲਈ \"ਮੁੜ ਆਕਾਰ ਦਿਓ\" ਗੁਣ ਨਹੀਂ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ।"
+
+#~ msgid ""
+#~ "Should not have \"resize\" attribute on <%s> element for maximized states"
+#~ msgstr "<%s> ਐਲੀਮੈਂਟ ਲਈ ਵੱਧ ਤੋਂ ਵੱਧ ਹਾਲਤਾਂ ਲਈ \"ਮੁੜ ਆਕਾਰ\" ਗੁਣ ਨਹੀਂ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ।"
+
+#~ msgid "Style has already been specified for state %s resize %s focus %s"
+#~ msgstr "ਹਾਲਤ %s ਮੁੜ ਅਕਾਰ ਦਿਓ %s ਫੋਕਸ %s ਬਾਰੇ ਸਟਾਇਲ ਪਹਿਲਾਂ ਦਿੱਤਾ ਗਿਆ ਹੈ"
+
+#~ msgid "Style has already been specified for state %s focus %s"
+#~ msgstr "ਹਾਲਤ %s ਫੋਕਸ %s ਬਾਰੇ ਸਟਾਇਲ ਪਹਿਲਾਂ ਦਿੱਤਾ ਹੈ"
+
+#~ msgid ""
+#~ "Can't have a two draw_ops for a <piece> element (theme specified a "
+#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
+#~ "elements)"
+#~ msgstr ""
+#~ "<piece> ਐਲੀਮੈਂਟ ਵਾਸਤੇ ਦੋ draw_ops ਨਹੀਂ ਹੋ ਸਕਦੀਆਂ (ਥੀਮ ਨੇ draw_ops ਗੁਣ ਅਤੇ "
+#~ "<draw_ops> ਐਲੀਮੈਂਟ ਵੀ ਹੋ ਸਕਦੀ ਹੈ ਜਾਂ ਦੋ ਐਲੀਮੈਂਟ ਦਿੱਤੀਆਂ ਹੋ ਸਕਦੀਆਂ ਹਨ)"
+
+#~ msgid ""
+#~ "Can't have a two draw_ops for a <button> element (theme specified a "
+#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
+#~ "elements)"
+#~ msgstr ""
+#~ "<button> ਐਲੀਮੈਂਟ ਵਾਸਤੇ ਦੋ draw_ops ਨਹੀਂ ਹੋ ਸਕਦੀਆਂ(ਥੀਮ ਨੇ ਉਲੀਕ ਚੋਣਾਂ ਗੁਣ ਅਤੇ "
+#~ "<draw_ops> ਐਲੀਮੈਂਟ ਵੀ ਦਿੱਤਾ ਹੈ, ਜਾਂ ਦੋ ਐਲੀਮੈਂਟ ਦਿੱਤੇ ਹਨ)"
+
+#~ msgid ""
+#~ "Can't have a two draw_ops for a <menu_icon> element (theme specified a "
+#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
+#~ "elements)"
+#~ msgstr ""
+#~ "ਇੱਕ ਐਲੀਮੈਂਟ ਵਾਸਤੇ <menu_icon> draw_ops ਨਹੀਂ ਹੋ ਸਕਦੀਆਂ (ਥੀਮ ਨੇ draw_ops ਗੁਣ ਅਤੇ "
+#~ "<draw_ops> ਇਕਾਈਆਂ ਦਿੱਤੀਆਂ ਹਨ, ਜਾਂ ਦੋ ਇਕਾਈਆਂ ਦਿੱਤੀਆਂ ਹਨ)"
+
+#~ msgid "Bad version specification '%s'"
+#~ msgstr "ਗਲਤ ਵਰਜਨ ਹਦਾਇਤਾਂ '%s'"
+
+#~ msgid ""
+#~ "\"version\" attribute cannot be used in metacity-theme-1.xml or metacity-"
+#~ "theme-2.xml"
+#~ msgstr ""
+#~ "\"version\" ਗੁਣ metacity-theme-1.xml ਜਾਂ metacity-theme-2.xml ਵਿੱਚ ਵਰਤਿਆ ਨਹੀਂ "
+#~ "ਜਾ ਸਕਦਾ"
+
+#~ msgid ""
+#~ "Theme requires version %s but latest supported theme version is %d.%d"
+#~ msgstr "ਥੀਮ ਲਈ %s ਵਰਜਨ ਚਾਹੀਦਾ ਹੈ, ਪਰ ਸਭ ਤੋਂ ਨਵਾਂ ਸਹਾਇਕ ਥੀਮ ਵਰਜਨ ਹੈ %d.%d"
+
+#~ msgid "Outermost element in theme must be <metacity_theme> not <%s>"
+#~ msgstr "ਥੀਮ ਵਿੱਚ ਸਭ ਤੋਂ ਬਾਹਰੀ ਐਲੀਮੈਂਟ <metacity_theme> ਹੋਵੇ <%s> ਨਹੀਂ"
+
+#~ msgid ""
+#~ "Element <%s> is not allowed inside a name/author/date/description element"
+#~ msgstr "<%s> ਐਲੀਮੈਂਟ ਨੂੰ ਨਾਂ/ਲੇਖਕ/ਮਿਤੀ/ਵੇਰਵਾ ਐਲੀਮੈਂਟ ਵਿੱਚ ਇਜਾਜ਼ਤ ਨਹੀਂ ਹੈ"
+
+#~ msgid "Element <%s> is not allowed inside a <constant> element"
+#~ msgstr "<%s> ਐਲੀਮੈਂਟ ਨੂੰ <constant> ਐਲੀਮੈਂਟ ਵਿੱਚ ਇਜਾਜ਼ਤ ਨਹੀਂ ਹੈ"
+
+#~ msgid ""
+#~ "Element <%s> is not allowed inside a distance/border/aspect_ratio element"
+#~ msgstr ""
+#~ "<%s> ਐਲੀਮੈਂਟ ਨੂੰ ਫਾਸਲਾ/ਹਾਸ਼ੀਆ/ਅਕਾਰ ਅਨੁਪਾਤ(aspect_ratio) ਐਲੀਮੈਂਟ ਵਿੱਚ ਇਜਾਜ਼ਤ ਨਹੀਂ ਹੈ"
+
+#~ msgid "Element <%s> is not allowed inside a draw operation element"
+#~ msgstr "<%s> ਐਲੀਮੈਂਟ ਨੂੰ ਉਲੀਕ ਕਿਰਿਆ ਐਲੀਮੈਂਟ ਵਿੱਚ ਇਜਾਜ਼ਤ ਨਹੀਂ ਹੈ"
+
+#~ msgid "Element <%s> is not allowed inside a <%s> element"
+#~ msgstr "<%s> ਐਲੀਮੈਂਟ ਨੂੰ <%s> ਐਲੀਮੈਂਟ ਵਿੱਚ ਇਜਾਜ਼ਤ ਨਹੀਂ ਹੈ"
+
+#~ msgid "No draw_ops provided for frame piece"
+#~ msgstr "ਫਰੇਮ ਟੁਕੜੇ ਲਈ ਕੋਈ draw_ops ਨਹੀਂ ਦਿੱਤੀ ਗਈ"
+
+#~ msgid "No draw_ops provided for button"
+#~ msgstr "ਬਟਨ ਲਈ ਕੋਈ ਉਲੀਕ ਕਿਰਿਆ ਨਹੀ ਦਿੱਤੀ ਗਈ"
+
+#~ msgid "No text is allowed inside element <%s>"
+#~ msgstr "<%s> ਐਲੀਮੈਂਟ ਵਿੱਚ ਕਿਸੇ ਪਾਠ ਨੂੰ ਇਜਾਜ਼ਤ ਨਹੀਂ"
+
+#~ msgid "<%s> specified twice for this theme"
+#~ msgstr "ਇਸ ਥੀਮ ਲਈ <%s> ਦੋ ਵਾਰ ਦਿੱਤਾ ਗਿਆ"
+
+#~ msgid "Failed to find a valid file for theme %s\n"
+#~ msgstr "ਥੀਮ %s ਲਈ ਇੱਕ ਢੁੱਕਵੀਂ ਫਾਇਲ ਲੱਭਣ ਲਈ ਫੇਲ੍ਹ\n"
+
+#~ msgid "background texture could not be created from file"
+#~ msgstr "ਬੈਕਗਰਾਊਂਡ ਟੈਕਸਚਰ ਨੂੰ ਫਾਇਲ ਤੋਂ ਨਹੀਂ ਬਣਾਇਆ ਜਾ ਸਕਿਆ"
+
+#~ msgid "Unknown window information request: %d"
+#~ msgstr "ਅਣਜਾਣ ਵਿੰਡੋ ਜਾਣਕਾਰੀ ਮੰਗ: %d"
+
+#~ msgid "Missing %s extension required for compositing"
+#~ msgstr "ਕੰਪੋਜ਼ਿਸ਼ਨਿੰਗ ਲਈ %s ਐਕਸਟੈਨਸ਼ਨ ਗੁੰਮ ਹੈ"
+
+#~ msgid ""
+#~ "Some other program is already using the key %s with modifiers %x as a "
+#~ "binding\n"
+#~ msgstr "ਕੋਈ ਹੋਰ ਪਰੋਗਰਾਮ %s ਸਵਿੱਚ ਨੂੰ %x ਸੋਧਕ ਨਾਲ ਪਹਿਲਾਂ ਹੀ ਜੋੜ ਵਾਂਗ ਵਰਤ ਰਿਹਾ ਹੈ\n"
+
+#~ msgid "\"%s\" is not a valid accelerator\n"
+#~ msgstr "\"%s\" ਢੁੱਕਵਾਂ ਐਕਸਲੇਟਰ ਨਹੀਂ ਹੈ\n"
+
+#~ msgid ""
+#~ "Workarounds for broken applications disabled. Some applications may not "
+#~ "behave properly.\n"
+#~ msgstr ""
+#~ "ਖਰਾਬ ਐਪਲੀਕੇਸ਼ਨ ਲਈ ਜੁਗਾੜ ਬੰਦ ਕੀਤਾ ਹੈ। ਕੁਝ ਐਪਲੀਕੇਸ਼ਨ ਚੰਗੀ ਤਰਾਂ ਕੰਮ ਨਹੀਂ ਕਰ ਸਕਦੇ ਹਨ।\n"
+
+#~ msgid "Could not parse font description \"%s\" from GSettings key %s\n"
+#~ msgstr "GSettings ਸਵਿੱਚ \"%2$s\" ਤੋਂ ਫੋਂਟ ਵੇਰਵੇ \"%1$s\" ਨੂੰ ਪਾਰਸ ਨਹੀਂ ਕਰ ਸਕਿਆ\n"
+
+#~ msgid ""
+#~ "\"%s\" found in configuration database is not a valid value for mouse "
+#~ "button modifier\n"
+#~ msgstr "ਸੰਰਚਨਾ ਡਾਟਾਬੇਸ ਵਿੱਚ ਲੱਭੀ ਹੋਈ \"%s\" ਮਾਊਸ ਬਟਨ ਸੋਧਕ ਲਈ ਯੋਗ ਕੀਮਤ ਨਹੀਂ ਹੈ\n"
+
+#~ msgid ""
+#~ "\"%s\" found in configuration database is not a valid value for "
+#~ "keybinding \"%s\"\n"
+#~ msgstr ""
+#~ "ਸੰਰਚਨਾ ਡਾਟਾਬੇਸ ਵਿੱਚ  ਲੱਭੀ ਹੋਈ \"%s\" ਸਵਿੱਚ-ਬਾਈਡਿੰਗ \"%s\" ਲਈ ਯੋਗ ਕੀਮਤ ਨਹੀਂ ਹੈ\n"
+
+#~ msgid ""
+#~ "Could not acquire window manager selection on screen %d display \"%s\"\n"
+#~ msgstr "ਡਿਸਪਲੇਅ \"%2$s\" %1$d ਸਕਰੀਨ ਉੱਤੇ ਵਿੰਡੋ ਮੈਨੇਜਰ ਚੋਣ ਉਪਲੱਬਧ ਨਹੀਂ ਹੋ ਸਕੀ\n"
+
+#~ msgid "Could not release screen %d on display \"%s\"\n"
+#~ msgstr "ਡਿਸਪਲੇਅ \"%2$s\" ਉੱਤੇ ਸਕਰੀਨ %1$d ਰੀਲਿਜ਼ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਿਆ\n"
+
+#~ msgid "Could not create directory '%s': %s\n"
+#~ msgstr "'%s' ਡਾਇਰੈਕਟਰੀ ਬਣਾਈ ਨਹੀਂ ਜਾ ਸਕੀ:%s\n"
+
+#~ msgid "Could not open session file '%s' for writing: %s\n"
+#~ msgstr "ਲਿਖਣ ਲਈ ਸ਼ੈਸ਼ਨ ਫਾਇਲ '%s' ਖੋਲ੍ਹੀ ਨਹੀਂ ਜਾ ਸਕੀ: %s\n"
+
+#~ msgid "Error writing session file '%s': %s\n"
+#~ msgstr "ਸ਼ੈਸ਼ਨ ਫਾਇਲ '%s' ਲਿਖਣ ਦੀ ਗਲਤੀ:%s\n"
+
+#~ msgid "Error closing session file '%s': %s\n"
+#~ msgstr "ਸ਼ੈਸ਼ਨ ਫਾਇਲ '%s' ਖੋਲ੍ਹਣ ਦੀ ਗਲਤੀ: %s\n"
+
+#~ msgid "Failed to parse saved session file: %s\n"
+#~ msgstr "ਸੰਭਾਲੀ ਸ਼ੈਸ਼ਨ ਫਾਇਲ ਨੂੰ ਪਾਰਸ ਕਰਨ ਲਈ ਅਸਫਲ: %s\n"
+
+#~ msgid "<mutter_session> attribute seen but we already have the session ID"
+#~ msgstr "<mutter_session>  ਗੁਣ ਦਿਖਿਆ, ਪਰ ਸਾਡੇ ਕੋਲ ਸ਼ੈਸ਼ਨ ID ਪਹਿਲਾਂ ਹੀ ਹੈ"
+
+#~ msgid "Unknown attribute %s on <%s> element"
+#~ msgstr "<%2$s> ਐਲੀਮੈਂਟ ਉੱਤੇ ਅਣਜਾਣ %1$s ਗੁਣ"
+
+#~ msgid "nested <window> tag"
+#~ msgstr "ਨੈਸਟਡ <window> ਟੈਗ"
+
+#~ msgid "Unknown element %s"
+#~ msgstr "ਅਣਜਾਣ ਐਲੀਮੈਂਟ %s"
+
+#~ msgid "Failed to open debug log: %s\n"
+#~ msgstr "ਡੀਬੱਗ ਲਾਗ ਖੋਲ੍ਹਣ ਵਿੱਚ ਅਸਫਲ: %s\n"
+
+#~ msgid "Failed to fdopen() log file %s: %s\n"
+#~ msgstr "ਲਾਗ ਫਾਇਲ %s ਨੂੰ fdopen() ਲਈ ਅਸਫਲ: %s\n"
+
+#~ msgid "Opened log file %s\n"
+#~ msgstr "ਖੁੱਲ੍ਹੀ ਲਾਗ ਫਾਇਲ %s\n"
+
+#~ msgid "Window manager: "
+#~ msgstr "ਵਿੰਡੋ ਮੈਨੇਜਰ: "
+
+#~ msgid "Bug in window manager: "
+#~ msgstr "ਵਿੰਡੋ ਮੈਨੇਜਰ ਵਿੱਚ ਬੱਗ: "
+
+#~ msgid "Window manager warning: "
+#~ msgstr "ਵਿੰਡੋ ਮੈਨੇਜਰ ਚੇਤਾਵਨੀ: "
+
+#~ msgid "Window manager error: "
+#~ msgstr "ਵਿੰਡੋ ਮੈਨੇਜਰ ਗਲਤੀ: "
+
+#~ msgid ""
+#~ "Window %s sets SM_CLIENT_ID on itself, instead of on the WM_CLIENT_LEADER "
+#~ "window as specified in the ICCCM.\n"
+#~ msgstr ""
+#~ "ਵਿੰਡੋ %s ਨੇ ਆਪਣੇ ਉੱਤੇ ICCCM ਰਾਹੀਂ ਦੱਸੇ ਅਨੁਸਾਰ WM_CLIENT_LEADER ਵਿੰਡੋ ਦੀ ਬਜਾਏ "
+#~ "SM_CLIENT_ID ਨਿਰਧਾਰਿਤ ਕੀਤਾ ਹੈ।\n"
+
+#~ msgid ""
+#~ "Window %s sets an MWM hint indicating it isn't resizable, but sets min "
+#~ "size %d x %d and max size %d x %d; this doesn't make much sense.\n"
+#~ msgstr ""
+#~ "ਵਿੰਡੋ %s ਨੇ MWM ਸੰਕੇਤ ਸੈੱਟ ਵੇਖਾਇਆ ਕਿ ਇਹ ਮੁੜ-ਆਕਾਰ-ਯੋਗ ਨਹੀਂ ਹੈ, ਪਰ ਘੱਟੋ-ਘੱਟ ਆਕਾਰ %d x %d "
+#~ "ਅਤੇ ਵੱਧ ਤੋਂ ਵੱਧ ਆਕਾਰ %d x %d ਸੈੱਟ ਕਰਦਾ ਹੈ, ਪਰ ਇਹ ਦਾ ਜ਼ਿਆਦਾ ਮਤਲਬ ਨਹੀਂ ਹੈ।\n"
+
+#~ msgid "Application set a bogus _NET_WM_PID %lu\n"
+#~ msgstr "ਐਪਲੀਕੇਸ਼ਨ ਨੇ ਇੱਕ ਫਰਜ਼ੀ _NET_WM_PID %lu ਦਿੱਤਾ ਹੈ\n"
+
+#~ msgid "Invalid WM_TRANSIENT_FOR window 0x%lx specified for %s.\n"
+#~ msgstr "ਗਲਤ WM_TRANSIENT_FOR ਵਿੰਡੋ 0x%lx %s ਲਈ ਦਿੱਤਾ ਗਿਆ ਹੈ।\n"
+
+#~ msgid "WM_TRANSIENT_FOR window 0x%lx for %s would create loop.\n"
+#~ msgstr "WM_TRANSIENT_FOR ਵਿੰਡੋ 0x%lx %s ਲੂਪ ਬਣਾਏਗਾ।\n"
+
+#~ msgid ""
+#~ "Window 0x%lx has property %s\n"
+#~ "that was expected to have type %s format %d\n"
+#~ "and actually has type %s format %d n_items %d.\n"
+#~ "This is most likely an application bug, not a window manager bug.\n"
+#~ "The window has title=\"%s\" class=\"%s\" name=\"%s\"\n"
+#~ msgstr ""
+#~ "0x%lx ਵਿੰਡੋ ਵਿੱਚ %s ਵਿਸ਼ੇਸ਼ਤਾ ਹੈ\n"
+#~ "ਜੋ ਕਿ ਕਿਸਮ %s ਫਾਰਮੈਟ %d ਹੋਣ ਦੀ ਉਮੀਦ ਹੈ\n"
+#~ "ਅਤੇ ਅਸਲ ਵਿੱਚ ਕਿਸਮ %s ਵਿਸ਼ੇਸ਼ਤਾ  %d n_ਅੰਗ %d ਹੈ।\n"
+#~ "ਇਹ ਜਿਆਦਾਤਰ ਐਪਲੀਕੇਸ਼ਨ ਬੱਗ ਵਰਗਾ ਹੈ ਵਿੰਡੋ ਬੱਗ ਵਰਗਾ ਨਹੀਂ।\n"
+#~ "ਵਿੰਡੋ ਦਾ ਟਾਇਟਲ=\"%s\" ਕਿਸਮ=\"%s\" ਨਾਂ=\"%s\" ਹੈ\n"
+
+#~ msgid "Property %s on window 0x%lx contained invalid UTF-8\n"
+#~ msgstr "ਵਿਸ਼ੇਸ਼ਤਾ %s ਵਿੰਡੋ 0x%lx ਵਿੱਚ ਅਯੋਗ UTF-8 ਸ਼ਾਮਿਲ ਹੈ\n"
+
+#~ msgid ""
+#~ "Property %s on window 0x%lx contained invalid UTF-8 for item %d in the "
+#~ "list\n"
+#~ msgstr "%s ਵਿਸ਼ੇਸ਼ਤਾ 0x%lx ਵਿੰਡੋ ਉੱਤੇ ਵਿੱਚ ਲੜੀ ਵਿਚਲੇ ਮੈਂਬਰ %d ਲਈ ਅਯੋਗ UTF-8 ਸ਼ਾਮਿਲ ਹੈ\n"
+
+#~ msgid "Mi_nimize"
+#~ msgstr "ਘੱਟੋ-ਘੱਟੋ(_n)"
+
+#~ msgid "Ma_ximize"
+#~ msgstr "ਵੱਧੋ-ਵੱਧ(_x)"
+
+#~ msgid "Unma_ximize"
+#~ msgstr "ਨਾ-ਵੱਧੋ-ਵੱਧ(_x)"
+
+#~ msgid "Roll _Up"
+#~ msgstr "ਸਮੇਟੋ(_U)"
+
+#~ msgid "_Unroll"
+#~ msgstr "ਖੋਲ੍ਹੋ(_U)"
+
+#~ msgid "_Move"
+#~ msgstr "ਏਧਰ-ਓਧਰ(_M)"
+
+#~ msgid "_Resize"
+#~ msgstr "ਮੁੜ-ਅਕਾਰ(_R)"
+
+#~ msgid "Move Titlebar On_screen"
+#~ msgstr "ਟਾਇਟਲ ਸਕਰੀਨ ਉੱਤੇ ਭੇਜੋ(_s)"
+
+#~ msgid "Always on _Top"
+#~ msgstr "ਹਮੇਸ਼ਾ ਸਭ ਤੋਂ ਉੱਤੇ(_T)"
+
+#~ msgid "_Always on Visible Workspace"
+#~ msgstr "ਸਿਰਫ਼ ਇਸ ਵਰਕਸਪੇਸ ਵਿੱਚ ਰੱਖੋ(_A)"
+
+#~ msgid "_Only on This Workspace"
+#~ msgstr "ਸਿਰਫ਼ ਇਸ ਵਰਕਸਪੇਸ ਵਿੱਚ ਰੱਖੋ(_O)"
+
+#~ msgid "Move to Workspace _Left"
+#~ msgstr "ਵਰਕਸਪੇਸ ਵਿੱਚ ਖੱਬੇ ਭੇਜੋ(_L)"
+
+#~ msgid "Move to Workspace R_ight"
+#~ msgstr "ਵਰਕਸਪੇਸ ਵਿੱਚ ਸੱਜੇ ਭੇਜੋ(_i)"
+
+#~ msgid "Move to Workspace _Up"
+#~ msgstr "ਵਰਕਸਪੇਸ ਵਿੱਚ ਉੱਤੇ ਲੈ ਜਾਓ(_U)"
+
+#~ msgid "Move to Workspace _Down"
+#~ msgstr "ਵਰਕਸਪੇਸ ਵਿੱਚ ਹੇਠਾਂ ਲੈ ਜਾਓ(_D)"
+
+#~ msgid "_Close"
+#~ msgstr "ਬੰਦ ਕਰੋ(_C)"
+
+#~ msgid "Workspace %d%n"
+#~ msgstr "ਵਰਕਸਪੇਸ %d%n"
+
+#~ msgid "Workspace 1_0"
+#~ msgstr "ਵਰਕਸਪੇਸ ੧_0"
+
+#~ msgid "Workspace %s%d"
+#~ msgstr "ਵਰਕਸਪੇਸ %s%d"
+
+#~ msgid "Move to Another _Workspace"
+#~ msgstr "ਹੋਰ ਵਰਕਸਪੇਸ ਉੱਤੇ ਭੇਜੋ(_W)"
+
+#~ msgid "Shift"
+#~ msgstr "Shift"
+
+#~ msgid "Ctrl"
+#~ msgstr "Ctrl"
+
+#~ msgid "Alt"
+#~ msgstr "Alt"
+
+#~ msgid "Meta"
+#~ msgstr "Meta"
+
+#~ msgid "Super"
+#~ msgstr "Super"
+
+#~ msgid "Hyper"
+#~ msgstr "Hyper"
+
+#~ msgid "Mod2"
+#~ msgstr "ਮਾਡ੨"
+
+#~ msgid "Mod3"
+#~ msgstr "ਮਾਡ੩"
+
+#~ msgid "Mod4"
+#~ msgstr "ਮਾਡ੪"
+
+#~ msgid "Mod5"
+#~ msgstr "ਮਾਡ੫"
+
+#~ msgid "Usage: %s\n"
+#~ msgstr "ਵਰਤੋਂ: %s\n"
+
+#~ msgid "_Windows"
+#~ msgstr "ਵਿੰਡੋ(_W)"
+
+#~ msgid "_Dialog"
+#~ msgstr "ਡਾਈਲਾਗ(_D)"
+
+#~ msgid "_Modal dialog"
+#~ msgstr "ਮਾਡਲ ਡਾਈਲਾਗ(_M)"
+
+#~ msgid "_Utility"
+#~ msgstr "ਸਹੂਲਤ(_U)"
+
+#~ msgid "_Splashscreen"
+#~ msgstr "ਸਵਾਗਤੀ ਸਕਰੀਨ(_S)"
+
+#~ msgid "_Top dock"
+#~ msgstr "ਉੱਤੇ ਡੌਕ(_T)"
+
+#~ msgid "_Bottom dock"
+#~ msgstr "ਹੇਠਾਂ ਡੌਕ(_B)"
+
+#~ msgid "_Left dock"
+#~ msgstr "ਖੱਬੇ ਡੌਕ(_L)"
+
+#~ msgid "_Right dock"
+#~ msgstr "ਸੱਜੇ ਡੌਕ(_R)"
+
+#~ msgid "_All docks"
+#~ msgstr "ਸਭ ਡੌਕ(_A)"
+
+#~ msgid "Des_ktop"
+#~ msgstr "ਡੈਸਕਟਾਪ(_k)"
+
+#~ msgid "Open another one of these windows"
+#~ msgstr "ਇਹਨਾਂ ਵਿੰਡੋਜ਼ ਵਿੱਚੋਂ ਕੋਈ ਹੋਰ ਖੋਲ੍ਹੋ"
+
+#~ msgid "This is a demo button with an 'open' icon"
+#~ msgstr "ਇਹ 'ਖੋਲ੍ਹੋ' ਆਈਕਾਨ ਨਾਲ ਡੈਮੋ ਬਟਨ ਹੈ"
+
+#~ msgid "This is a demo button with a 'quit' icon"
+#~ msgstr "ਇਹ 'ਬਾਹਰ ਜਾਓ' ਆਈਕਾਨ ਨਾਲ ਡੈਮੋ ਬਟਨ ਹੈ"
+
+#~ msgid "This is a sample message in a sample dialog"
+#~ msgstr "ਇਹ ਸੈਂਪਲ ਡਾਈਲਾਗ ਵਿੱਚ ਸੈਂਪਲ ਸੁਨੇਹਾ ਹੈ"
+
+#~ msgid "Fake menu item %d\n"
+#~ msgstr "ਨਕਲੀ ਮੇਨੂ ਆਈਟਮ %d\n"
+
+#~ msgid "Border-only window"
+#~ msgstr "ਕੇਵਲ ਬਾਰਡਰ ਵਿੰਡੋ"
+
+#~ msgid "Bar"
+#~ msgstr "ਬਾਰ"
+
+#~ msgid "Normal Application Window"
+#~ msgstr "ਸਾਧਾਰਨ ਐਪਲੀਕੇਸ਼ਨ ਵਿੰਡੋ"
+
+#~ msgid "Dialog Box"
+#~ msgstr "ਡਾਈਲਾਗ ਡੱਬਾ"
+
+#~ msgid "Modal Dialog Box"
+#~ msgstr "ਮਾਡਲ ਡਾਈਲਾਗ ਡੱਬਾ"
+
+#~ msgid "Utility Palette"
+#~ msgstr "ਸਹੂਲਤ ਪਲੇਅਟ"
+
+#~ msgid "Torn-off Menu"
+#~ msgstr "ਮੇਨੂ ਵੱਖ ਕਰੋ"
+
+#~ msgid "Border"
+#~ msgstr "ਬਾਰਡਰ"
+
+#~ msgid "Attached Modal Dialog"
+#~ msgstr "ਮਾਡਲ ਡਾਈਲਾਗ ਅਟੈਚ ਹੈ"
+
+#~ msgid "Button layout test %d"
+#~ msgstr "ਬਟਨ ਲੇਆਉਟ ਟੈਸਟ %d"
+
+#~ msgid "%g milliseconds to draw one window frame"
+#~ msgstr "ਇੱਕ ਵਿੰਡੋ ਫਰੇਮ ਉਲੀਕਣ ਲਈ %g ਮਿਲੀ ਸਕਿੰਟ"
+
+#~ msgid "Usage: metacity-theme-viewer [THEMENAME]\n"
+#~ msgstr "ਵਰਤੋਂ: metacity-theme-viewer [THEMENAME]\n"
+
+#~ msgid "Error loading theme: %s\n"
+#~ msgstr "ਥੀਮ ਲੋਡ ਕਰਨ ਵਿੱਚ ਗਲਤੀ: %s\n"
+
+#~ msgid "Loaded theme \"%s\" in %g seconds\n"
+#~ msgstr "ਥੀਮ \"%s\" ਨੂੰ ਲੋਡ ਕਰਨ ਵਿੱਚ ਲੱਗਾ ਸਮਾਂ %g ਸਕਿੰਟਾਂ ਵਿੱਚ \n"
+
+#~ msgid "Normal Title Font"
+#~ msgstr "ਸਾਧਾਰਨ ਟਾਇਟਲ ਫੋਂਟ"
+
+#~ msgid "Small Title Font"
+#~ msgstr "ਛੋਟੇ ਟਾਇਟਲ ਫੋਂਟ"
+
+#~ msgid "Large Title Font"
+#~ msgstr "ਵੱਡੇ ਟਾਇਟਲ ਫੋਂਟ"
+
+#~ msgid "Button Layouts"
+#~ msgstr "ਬਟਨ ਲੇਆਉਟ"
+
+#~ msgid "Benchmark"
+#~ msgstr "ਬੈਂਚਮਾਰਕ"
+
+#~ msgid "Window Title Goes Here"
+#~ msgstr "ਵਿੰਡੋ ਟਾਇਟਲ ਇੱਥੇ ਹੋਵੇਗਾ"
+
+#~ msgid ""
+#~ "Drew %d frames in %g client-side seconds (%g milliseconds per frame) and "
+#~ "%g seconds wall clock time including X server resources (%g milliseconds "
+#~ "per frame)\n"
+#~ msgstr ""
+#~ "%d ਫਰੇਮ ਉਲੀਕੇ %g ਕਲਾਈਂਟ ਸਾਈਡ ਸਕਿੰਟਾਂ ਵਿੱਚ (%g ਮਿਲੀ ਸਕਿੰਟ ਪ੍ਰਤੀ ਫਰੇਮ) ਅਤੇ X ਸਰਵਰ ਸਮੇਤ "
+#~ "%g ਸਕਿੰਟ ਕੰਧ ਘੜੀ ਸਮਾਂ (%g ਮਿਲੀ ਸਕਿੰਟ ਪ੍ਰਤੀ ਫਰੇਮ)\n"
+
+#~ msgid "position expression test returned TRUE but set error"
+#~ msgstr "ਸਥਿਤੀ ਕਥਨ ਜਾਂਚ ਨੇ ਜਵਾਬ ਠੀਕ(TRUE) ਦਿੱਤਾ ਪਰ ਗਲਤੀ ਕੱਢੀ ਹੈ"
+
+#~ msgid "position expression test returned FALSE but didn't set error"
+#~ msgstr "ਸਥਿਤੀ ਕਥਨ ਜਾਂਚ ਨੇ ਜਵਾਬ ਗਲਤ(FALSE) ਦਿੱਤਾ ਪਰ ਗਲਤੀ ਨਹੀਂ ਕੱਢੀ ਹੈ"
+
+#~ msgid "Error was expected but none given"
+#~ msgstr "ਗਲਤੀ ਦੀ ਉਮੀਦ ਸੀ ਪਰ ਕੋਈ ਵਿਖਾਈ ਨਹੀਂ"
+
+#~ msgid "Error %d was expected but %d given"
+#~ msgstr "ਗਲਤੀ %d ਦੀ ਉਮੀਦ ਸੀ ਪਰ ਵਿਖਾਈ %d"
+
+#~ msgid "Error not expected but one was returned: %s"
+#~ msgstr "ਗਲਤੀ ਦੀ ਉਮੀਦ ਨਹੀਂ ਸੀ ਪਰ ਇੱਕ ਨਿਕਲੀ: %s"
+
+#~ msgid "x value was %d, %d was expected"
+#~ msgstr "x ਕੀਮਤ %d ਹੈ, %d ਦੀ ਉਮੀਦ ਸੀ"
+
+#~ msgid "y value was %d, %d was expected"
+#~ msgstr "y ਕੀਮਤ %d ਸੀ, %d ਦੀ ਉਮੀਦ ਸੀ"
+
+#~ msgid ""
+#~ "%d coordinate expressions parsed in %g seconds (%g seconds average)\n"
+#~ msgstr "%d ਕੋਆਰਡੀਨੇਟਰ ਸਮੀਕਰਨ ਪਾਰਸ %g ਸਕਿੰਟਾਂ ਵਿੱਚ ਕੀਤੀ (ਔਸਤਨ %g ਸਕਿੰਟ)\n"
+
+#~ msgid "Minimize window"
+#~ msgstr "ਵਿੰਡੋ ਘੱਟੋ-ਘੱਟ"
+
+#~ msgid "Comma-separated list of compositor plugins"
+#~ msgstr "ਕਾਮਿਆਂ ਨਾਲ ਵੱਖ ਕੀਤੀ ਕੰਪੋਜ਼ਿਤਰ ਪਲੱਗਇਨ ਦੀ ਲਿਸਟ"
+
+#~ msgid "Live Hidden Windows"
+#~ msgstr "ਲੁਕਵੀਆਂ ਵਿੰਡੋਜ਼ ਲਾਈਵ"
+
+#~ msgid ""
+#~ "Determines whether hidden windows (i.e., minimized windows and windows on "
+#~ "other workspaces than the current one) should be kept alive."
+#~ msgstr ""
+#~ "ਦੱਸੋ ਕਿ ਕੀ ਲੁਕਵੀਆਂ ਵਿੰਡੋਜ਼ ਚਾਲੂ ਰੱਖਣੀਆਂ ਹਨ (ਜਿਵੇਂ ਕਿ ਘੱਟੋ-ਘੱਟ ਕੀਤੀ ਵਿੰਡੋਜ਼ ਤੇ ਮੌਜੂਦਾ ਵਰਕਸਪੇਸ ਤੋਂ "
+#~ "ਬਿਨਾਂ ਹੋਰ ਤੋਂ ਵਿੰਡੋਜ਼)।"
+
+#~ msgid "Close Window"
+#~ msgstr "ਵਿੰਡੋ ਬੰਦ ਕਰੋ"
+
+#~ msgid "Window Menu"
+#~ msgstr "ਵਿੰਡੋ ਮੇਨੂ"
+
+#~ msgid "Minimize Window"
+#~ msgstr "ਵਿੰਡੋ ਘੱਟੋ-ਘੱਟ"
+
+#~ msgid "Maximize Window"
+#~ msgstr "ਵਿੰਡੋ ਵੱਧੋ-ਵੱਧ"
+
+#~ msgid "Restore Window"
+#~ msgstr "ਵਿੰਡੋ ਮੁੜ-ਸਟੋਰ"
+
+#~ msgid "Roll Up Window"
+#~ msgstr "ਵਿੰਡੋ ਸਮੇਟੋ"
+
+#~ msgid "Unroll Window"
+#~ msgstr "ਵਿੰਡੋ ਫੈਲਾਓ"
+
+#~ msgid "Keep Window On Top"
+#~ msgstr "ਵਿੰਡੋ ਉੱਤੇ ਰੱਖੋ"
+
+#~ msgid "Remove Window From Top"
+#~ msgstr "ਵਿੰਡੋ ਉੱਤੇ ਤੋਂ ਹਟਾਓ"
+
+#~ msgid "Always On Visible Workspace"
+#~ msgstr "ਹਮੇਸ਼ਾ ਉਪਲੱਬਧ ਵਰਕਸਪੇਸ 'ਚ"
+
+#~ msgid "Put Window On Only One Workspace"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਸਿਰਫ਼ ਇੱਕ ਵਰਕਸਪੇਸ ਉੱਤੇ ਰੱਖੋ"
+
+#~ msgid "Switch to workspace 8"
+#~ msgstr "ਵਰਕਸਪੇਸ ੮ ਵਿੱਚ ਜਾਓ"
+
+#~ msgid "Switch to workspace 9"
+#~ msgstr "ਵਰਕਸਪੇਸ ੯ ਵਿੱਚ ਜਾਓ"
+
+#~ msgid "Switch to workspace 10"
+#~ msgstr "ਵਰਕਸਪੇਸ ੧੦ ਵਿੱਚ ਜਾਓ"
+
+#~ msgid "Switch to workspace 11"
+#~ msgstr "ਵਰਕਸਪੇਸ ੧੧ ਵਿੱਚ ਜਾਓ"
+
+#~ msgid "Switch to workspace 12"
+#~ msgstr "ਵਰਕਸਪੇਸ ੧੨ ਵਿੱਚ ਜਾਓ"
+
+#~ msgid "Switch to workspace on the left of the current workspace"
+#~ msgstr "ਵਰਕਸਪੇਸ ਨੂੰ ਮੌਜੂਦਾ ਵਰਕਸਪੇਸ ਤੋਂ ਖੱਬੇ ਉੱਤੇ ਭੇਜੋ"
+
+#~ msgid "Switch to workspace on the right of the current workspace"
+#~ msgstr "ਵਰਕਸਪੇਸ ਨੂੰ ਮੌਜੂਦਾ ਵਰਕਸਪੇਸ ਦੇ ਸੱਜੇ ਭੇਜੋ"
+
+#~ msgid "Switch to workspace above the current workspace"
+#~ msgstr "ਵਰਕਸਪੇਸ ਨੂੰ ਮੌਜੂਦਾ ਵਰਕਸਪੇਸ ਦੇ ਉੱਤੇ ਭੇਜੋ"
+
+#~ msgid "Switch to workspace below the current workspace"
+#~ msgstr "ਵਰਕਸਪੇਸ ਨੂੰ ਮੌਜੂਦਾ ਵਰਕਸਪੇਸ ਦੇ ਹੇਠਾਂ ਭੇਜੋ"
+
+#~ msgid "Move between windows of an application, using a popup window"
+#~ msgstr "ਇੱਕ ਐਪਲੀਕੇਸ਼ਨ ਦੇ ਵਿਚ ਵਿੰਡੋ ਨੂੰ ਹਿਲਾਓ, ਇੱਕ ਪੋਪਅੱਪ ਵਿੰਡੋ ਦੀ ਵਰਤੋਂ ਕਰਕੇ"
+
+#~ msgid ""
+#~ "Move backward between windows of an application, using a popup window"
+#~ msgstr "ਇੱਕ ਐਪਲੀਕੇਸ਼ਨ ਦੀਆਂ ਵਿੰਡੋਜ਼ ਵਿੱਚ ਪਿੱਛੇ ਭੇਜੋ, ਜਦੋਂ ਇੱਕ ਪੋਪਅੱਪ ਵਿੰਡੋ ਹੋਵੇ"
+
+#~ msgid "Move between windows, using a popup window"
+#~ msgstr "ਵਿੰਡੋਜ਼ ਦੇ ਵਿੱਚ ਅੱਗੇ-ਪਿੱਛੇ, ਇੱਕ ਪੋਪਅੱਪ ਵਿੰਡੋ ਦੀ ਵਰਤੋਂ ਕਰਕੇ"
+
+#~ msgid "Move backward between windows, using a popup window"
+#~ msgstr "ਵਿੰਡੋਜ਼ ਦੇ ਵਿਚ ਪਿੱਛੇ ਭੇਜੋ, ਪੋਪਅੱਪ ਵਿੰਡੋ ਦੀ ਵਰਤੋਂ ਕਰਕੇ"
+
+#~ msgid "Move between panels and the desktop, using a popup window"
+#~ msgstr "ਪੈਨਲ ਅਤੇ ਡੈਸਕਟਾਪ ਵਿੱਚ ਹਿਲਾਉ, ਪੋਪਅੱਪ ਵਿੰਡੋ ਦੀ ਵਰਤੋਂ ਕਰਕੇ"
+
+#~ msgid "Move backward between panels and the desktop, using a popup window"
+#~ msgstr "ਪੈਨਲਾਂ ਅਤੇ ਡੈਸਕਟਾਪ ਵਿੱਚ ਪਿੱਛੇ ਭੇਜੋ, ਪੋਪਅੱਪ ਵਿੰਡੋ ਦੀ  ਵਰਤੋਂ ਕਰਕੇ"
+
+#~ msgid "Move between windows of an application immediately"
+#~ msgstr "ਇੱਕ ਐਪਲੀਕੇਸ਼ਨ ਦੀਆਂ ਵਿੰਡੋ ਵਿੱਚ ਤੁਰੰਤ ਭੇਜੋ"
+
+#~ msgid "Move backward between windows of an application immediately"
+#~ msgstr "ਇੱਕ ਐਪਲੀਕੇਸ਼ਨ ਦੀਆਂ ਵਿੰਡੋਜ਼ ਵਿੱਚ ਤੁਰੰਤ ਪਿੱਛੇ ਭੇਜੋ"
+
+#~ msgid "Move between windows immediately"
+#~ msgstr "ਵਿੰਡੋ ਵਿਚ ਫੁਰਤੀ ਨਾਲ ਲੈ ਜਾਓ"
+
+#~ msgid "Move backward between windows immediately"
+#~ msgstr "ਵਿੰਡੋਜ਼ ਵਿੱਚ ਤੁਰੰਤ ਪਿੱਛੇ ਭੇਜੋ"
+
+#~ msgid "Move between panels and the desktop immediately"
+#~ msgstr "ਪੈਨਲ ਅਤੇ ਡੈਸਕਟਾਪ 'ਚ ਤੁਰੰਤ ਜਾਓ"
+
+#~ msgid "Move backward between panels and the desktop immediately"
+#~ msgstr "ਪੈਨਲ ਅਤੇ ਵਿੰਡੋ ਵਿਚਕਾਰ ਤੁਰੰਤ ਪਿੱਛੇ ਵੱਲ ਨੂੰ ਜਾਓ"
+
+#~ msgid "Hide all normal windows and set focus to the desktop"
+#~ msgstr "ਸਭ ਸਧਾਰਨ ਵਿੰਡੋਜ਼ ਓਹਲੇ ਕਰਕੇ ਡੈਸਕਟਾਪ ਉੱਤੇ ਫੋਕਸ ਸੈੱਟ ਕਰੋ"
+
+#~ msgid "Show the panel's main menu"
+#~ msgstr "ਪੈਨਲ ਦਾ ਮੁੱਖ ਮੇਨੂ ਵੇਖੋ"
+
+#~ msgid "Show the panel's \"Run Application\" dialog box"
+#~ msgstr "ਪੈਨਲ ਦਾ \"ਐਪਲੀਕੇਸ਼ਨ ਚਲਾਓ\" ਡਾਈਲਾਗ ਬਾਕਸ ਵੇਖੋ"
+
+#~ msgid "Start or stop recording the session"
+#~ msgstr "ਰਿਕਾਰਡਿੰਗ ਸ਼ੈਸ਼ਨ ਸ਼ੁਰੂ ਜਾਂ ਬੰਦ ਕਰੋ"
+
+#~ msgid "Take a screenshot"
+#~ msgstr "ਸਕਰੀਨ-ਸ਼ਾਟ ਲਵੋ"
+
+#~ msgid "Take a screenshot of a window"
+#~ msgstr "ਵਿੰਡੋ ਦਾ ਸਕਰੀਨ-ਸ਼ਾਟ ਲਵੋ"
+
+#~ msgid "Run a terminal"
+#~ msgstr "ਟਰਮੀਨਲ ਚਲਾਓ"
+
+#~ msgid "Toggle whether a window will always be visible over other windows"
+#~ msgstr "ਬਦਲੋ ਕਿ ਕੀ ਵਿੰਡੋ ਹਮੇਸ਼ਾ ਦੂਜੀਆਂ ਵਿੰਡੋਜ਼ ਦੇ ਉੱਤੇ ਵੇਖਾਈ ਦੇਵੇ"
+
+#~ msgid "Toggle whether window is on all workspaces or just one"
+#~ msgstr "ਕੀ ਵਿੰਡੋ ਸਭ ਵਰਕਸਪੇਸ ਵਿੱਚ ਵੇਖਾਈ ਦੇਵੇ ਜਾਂ ਕੇਵਲ ਇੱਕ ਵਿੱਚ"
+
+#~ msgid "Move window to workspace 5"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਵਰਕਸਪੇਸ ੫ ਵਿੱਚ ਲਿਜਾਓ"
+
+#~ msgid "Move window to workspace 6"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਵਰਕਸਪੇਸ ੬ ਵਿੱਚ ਲਿਜਾਓ"
+
+#~ msgid "Move window to workspace 7"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਵਰਕਸਪੇਸ ੭ ਵਿੱਚ ਲਿਜਾਓ"
+
+#~ msgid "Move window to workspace 8"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਵਰਕਸਪੇਸ ੮ ਵਿੱਚ ਲਿਜਾਓ"
+
+#~ msgid "Move window to workspace 9"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਵਰਕਸਪੇਸ ੯ ਵਿੱਚ ਲਿਜਾਓ"
+
+#~ msgid "Move window to workspace 10"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਵਰਕਸਪੇਸ ੧੦ ਵਿੱਚ ਲਿਜਾਓ"
+
+#~ msgid "Move window to workspace 11"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਵਰਕਸਪੇਸ ੧੧ ਵਿੱਚ ਲਿਜਾਓ"
+
+#~ msgid "Move window to workspace 12"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਵਰਕਸਪੇਸ ੧੨ ਵਿੱਚ ਲਿਜਾਓ"
+
+#~ msgid "Raise window if it's covered by another window, otherwise lower it"
+#~ msgstr "ਵਿੰਡੋ ਉਭਾਰੋ, ਜੇ ਇਹ ਹੋਰ ਵਿੰਡੋ ਨਾਲ ਢੱਕੀ ਹੈ ਜਾਂ ਇਸ ਨੂੰ ਹੇਠਾਂ ਕਰੋ"
+
+#~ msgid "Move window to north-west (top left) corner"
+#~ msgstr "ਵਿੰਡੋ ਉੱਤਰੀ-ਪੱਛਮੀ (ਉੱਤੇ ਖੱਬੇ) ਕੋਨੇ 'ਚ ਭੇਜੋ"
+
+#~ msgid "Move window to north-east (top right) corner"
+#~ msgstr "ਵਿੰਡੋ ਉੱਤਰੀ-ਪੂਰਬੀ (ਉੱਤੇ ਸੱਜੇ) ਕੋਨੇ 'ਚ ਭੇਜੋ"
+
+#~ msgid "Move window to south-west (bottom left) corner"
+#~ msgstr "ਵਿੰਡੋ ਦੱਖਣੀ-ਪੱਛਮੀ (ਹੇਠਾਂ ਖੱਬੇ) ਕੋਨੇ 'ਚ ਭੇਜੋ"
+
+#~ msgid "Move window to south-east (bottom right) corner"
+#~ msgstr "ਵਿੰਡੋ ਦੱਖਣੀ-ਪੂਰਬੀ (ਹੇਠਾਂ ਸੱਜੇ) ਕੋਨੇ 'ਚ ਭੇਜੋ"
+
+#~ msgid "Move window to north (top) side of screen"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਸਕਰੀਨ ਦੇ ਉੱਤਰੀ ਪਾਸੇ (ਉੱਤੇ)  ਭੇਜੋ"
+
+#~ msgid "Move window to south (bottom) side of screen"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਸਕਰੀਨ ਦੇ ਦੱਖਣੀ ਪਾਸੇ (ਹੇਠਾਂ) ਭੇਜੋ"
+
+#~ msgid "Move window to east (right) side of screen"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਸਕਰੀਨ ਦੇ ਪੂਰਬੀ ਪਾਸੇ (ਸੱਜੇ) ਭੇਜੋ"
+
+#~ msgid "Move window to west (left) side of screen"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਸਕਰੀਨ ਦੇ ਪੱਛਮੀ ਪਾਸੇ (ਖੱਬੇ) ਭੇਜੋ"
+
+#~ msgid "Move window to center of screen"
+#~ msgstr "ਵਿੰਡੋ ਨੂੰ ਸਕਰੀਨ ਦੇ ਕੇਂਦਰ ਵਿੱਚ ਭੇਜੋ"
+
+#~ msgid ""
+#~ "There was an error running <tt>%s</tt>:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "<tt>%s</tt> ਚਲਾਉਣ ਦੌਰਾਨ ਗਲਤੀ ਸੀ:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid "No command %d has been defined.\n"
+#~ msgstr "ਕੋਈ ਕਮਾਂਡ %d ਪਰਭਾਸ਼ਿਤ ਨਹੀ ਕੀਤੀ।\n"
+
+#~ msgid "No terminal command has been defined.\n"
+#~ msgstr "ਕੋਈ ਟਰਮੀਨਲ ਕਮਾਂਡ ਪ੍ਰਭਾਸ਼ਿਤ ਨਹੀ ਕੀਤੀ।\n"
+
+#~ msgid "GConf key '%s' is set to an invalid value\n"
+#~ msgstr "ਜੀ-ਕਾਨਫ ਸਵਿੱਚ \"%s\" ਨੂੰ ਇੱਕ ਅਯੋਗ ਕੀਮਤ ਦਿੱਤੀ ਗਈ ਹੈ\n"
+
+#~ msgid "%d stored in GConf key %s is out of range %d to %d\n"
+#~ msgstr "ਜੀ-ਕਾਨਫ ਸੰਭਾਲੀ %d  ਸਵਿੱਚ %s ਵਿੱਚ ਰੇਜ਼ %d ਤੋਂ %d ਬਾਹਰ ਹੈ\n"
+
+#~ msgid "GConf key \"%s\" is set to an invalid type\n"
+#~ msgstr "ਜੀ-ਕਾਨਫ ਸਵਿੱਚ \"%s\" ਨੂੰ ਇੱਕ ਅਯੋਗ ਕਿਸਮ ਦਿੱਤੀ ਗਈ ਹੈ\n"
+
+#~ msgid "GConf key %s is already in use and can't be used to override %s\n"
+#~ msgstr ""
+#~ "GConf ਕੁੰਜੀ %s ਪਹਿਲਾਂ ਹੀ ਵਰਤੋਂ ਅਧੀਨ ਹੈ, ਤੇ  %s ਅਣਡਿੱਠਾ ਕਰਨ ਲਈ ਨਹੀਂ ਵਰਤੀ ਜਾ ਸਕਦੀ\n"
+
+#~ msgid "Can't override GConf key, %s not found\n"
+#~ msgstr "GConf ਕੁੰਜੀ ਅਣਡਿੱਠੀ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕਦੀ, %s ਨਹੀਂ ਲੱਭੀ\n"
+
+#~ msgid "Error setting number of workspaces to %d: %s\n"
+#~ msgstr "ਵਰਕਸਪੇਸਾਂ ਦੀ ਗਿਣਤੀ %d ਸੈੱਟ ਕਰਨ ਨਾਲ ਗਲਤੀ: %s\n"
+
+#~ msgid "Error setting name for workspace %d to \"%s\": %s\n"
+#~ msgstr "ਵਰਕਸਪੇਸ %d ਦਾ ਨਾਂ \"%s\" ਸੈੱਟ ਕਰਨ ਵਿੱਚ ਗਲਤੀ:%s\n"
+
+#~ msgid "Error setting live hidden windows status status: %s\n"
+#~ msgstr "ਲਾਈਵ ਲੁਕਵੀਂ ਵਿੰਡੋ ਹਾਲਤ ਸੈੱਟ ਕਰਨ ਦੌਰਾਨ ਗਲਤੀ: %s\n"
+
+#~ msgid "Error setting no tab popup status: %s\n"
+#~ msgstr "ਕੋਈ ਟੈਬ ਪੋਪਅੱਪ ਨਹੀਂ ਹਾਲਤ ਸੈਟ ਕਰਨ ਦੌਰਾਨ ਗਲਤੀ: %s\n"
+
+#~ msgid ""
+#~ "Don't make fullscreen windows that are maximized and have no decorations"
+#~ msgstr "ਵਿੰਡੋਜ਼ ਨੂੰ ਪੂਰੀ ਸਕਰੀਨ ਉੱਤੇ ਨਾ ਭੇਜੋ, ਜਦੋਂ ਉਹ ਵੱਧ-ਵੱਧ ਆਕਾਰ ਦੀਆਂ ਹੋਣ ਤੇ ਕੋਈ ਸਜਾਵਟ ਨਾ ਹੋਵੇ"
+
+#~ msgid "Whether window popup/frame should be shown when cycling windows."
+#~ msgstr "ਜਦੋਂ ਵਿੰਡੋਜ਼ ਦੇ ਚੱਕਰ ਨੂੰ ਵੇਖਣਾ ਹੋਵੇ ਤਾਂ ਵਿੰਡੋ ਪੋਪਅੱਪ/ਫਰੇਮ ਨੂੰ ਵੇਖਾਉਣਾ ਹੈ"
+
+#~ msgid "Internal argument for GObject introspection"
+#~ msgstr "GObject ਇੰਟਰਸਪੈਕਸ਼ਨ ਲਈ ਅੰਦਰੂਨੀ ਆਰਗੂਮੈਂਟ"
+
+#~ msgid "Failed to restart: %s\n"
+#~ msgstr "ਮੁੜ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਅਸਫਲ: %s\n"
+
+#~ msgid "Error setting clutter plugin list: %s\n"
+#~ msgstr "ਕਲੁੱਟਰ ਪਲੱਗਇਨ ਸੈਟਿੰਗ ਕਰਨ ਦੌਰਾਨ ਗਲਤੀ: %s\n"
+
+#~ msgid "Plugins to load for the Clutter-based compositing manager."
+#~ msgstr "ਕਲੁੱਟਰ-ਅਧਾਰਿਤ ਕੰਪੋਜ਼ਿਸ਼ਨ ਮੈਨੇਜਰ ਲਈ ਲੋਡ ਕਰਨ ਵਾਸਤੇ ਪਲੱਗਇਨ।"
+
+#~ msgid ""
+#~ "Lost connection to the display '%s';\n"
+#~ "most likely the X server was shut down or you killed/destroyed\n"
+#~ "the window manager.\n"
+#~ msgstr ""
+#~ "'%s' ਡਿਸਪਲੇਅ ਕੁਨੈਕਸ਼ਨ ਖਤਮ;\n"
+#~ "ਜਿਵੇਂ ਕਿ X ਸਰਵਰ ਬੰਦ ਹੋ ਗਿਆ ਹੈ ਜਾਂ ਤੁਸੀਂ ਵਿੰਡੋ ਮੈਨੇਜਰ\n"
+#~ "ਖਤਮ ਕੀਤਾ ਹੈ।\n"
+
+#~ msgid "Fatal IO error %d (%s) on display '%s'.\n"
+#~ msgstr "ਘਾਤਕ IO ਗਲਤੀ %d (%s) ਡਿਸਪਲੇਅ '%s' ਉੱਤੇ ਹੈ।\n"
+
+#~ msgid "Turn compositing on"
+#~ msgstr "ਕੰਪੋਜ਼ਿਸ਼ਨਿੰਗ ਚਾਲੂ"
+
+#~ msgid "Turn compositing off"
+#~ msgstr "ਕੰਪੋਜ਼ਿਸ਼ਨਿੰਗ ਬੰਦ ਕਰੋ"
+
+#~ msgid "Error setting compositor status: %s\n"
+#~ msgstr "ਕੰਪੋਜ਼ਟਰ ਹਾਲਤ ਸੈਟ ਕਰਨ ਦੌਰਾਨ ਗਲਤੀ: %s\n"
+
+#~ msgid "/Windows/tearoff"
+#~ msgstr "/ਵਿੰਡੋ/ਵੱਖ ਕਰੋ"
+
+#~ msgid "/Windows/_Dialog"
+#~ msgstr "/ਵਿੰਡੋ/ਡਾਈਲਾਗ(_D)"
+
+#~ msgid "/Windows/_Modal dialog"
+#~ msgstr "/ਵਿੰਡੋ/ਮਾਡਲ ਡਾਈਲਾਗ(_M)"
+
+#~ msgid "/Windows/Des_ktop"
+#~ msgstr "/ਵਿੰਡੋ/ਡੈਸਕਟਾਪ(_k)"
+
+#~ msgid "Window Management"
+#~ msgstr "ਵਿੰਡੋ ਮੈਨੇਜ਼ਮਿੰਟ"
+
+#~ msgid "Failed to parse message \"%s\" from dialog process\n"
+#~ msgstr "ਡਾਈਲਾਗ ਪਰੋਸੈਸ ਵਿੱਚੋਂ \"%s\" ਸੁਨੇਹੇ ਦੀ ਪਾਰਸ ਕਰਨ ਵਿੱਚ ਫੇਲ੍ਹ\n"
+
+#~ msgid "Error reading from dialog display process: %s\n"
+#~ msgstr "ਡਾਈਲਾਗ ਡਿਸਪਲੇਅ ਪਰੋਸੈਸ ਵਿੱਚੋਂ ਪੜ੍ਹਨ ਦੀ ਗਲਤੀ: %s\n"
+
+#~ msgid ""
+#~ "Error launching metacity-dialog to ask about killing an application: %s\n"
+#~ msgstr "ਐਪਲੀਕੇਸ਼ਨ ਖਤਮ ਕਰਨ ਲਈ ਪੁੱਛਣ ਵਾਲੇ ਮੈਟਾਸਿਟੀ ਡਾਈਲਾਗ ਨੂੰ ਸ਼ੁਰੂ ਕਰਨ ਵਿੱਚ ਗਲਤੀ:%s\n"
+
+#~ msgid "Failed to get hostname: %s\n"
+#~ msgstr "ਹੋਸਟ ਨਾਂ ਪ੍ਰਾਪਤ ਕਰਨ ਲਈ ਫੇਲ੍ਹ: %s\n"
+
+#~ msgid ""
+#~ "The format looks like \"<Control>a\" or <Shift><Alt>F1\".\n"
+#~ "\n"
+#~ "The parser is fairly liberal and allows lower or upper case, and also "
+#~ "abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
+#~ msgstr ""
+#~ "ਸਵਿੱਚ-ਬਾਈਡਿੰਗ ਵਿੰਡੋ ਨੂੰ ਬੰਦ ਕਰਨ ਲਈ ਵਰਤਿਆ ਗਿਆ ਹੈ। ਫਾਰਮੈਟ ਇਸ ਤਰਾਂ ਦਿਸਦਾ ਹੈ\"<Control>a"
+#~ "\" ਜਾਂ \"<Shift><Alt>F1\"। ਪਾਰਸਰ ਪੂਰੀ ਤਰਾਂ ਸਿੱਖਿਅਤ ਹੈ ਅਤੇ ਛੋਟੇ ਜਾਂ ਵੱਡੇ ਅੱਖਰਾਂ ਨੂੰ ਇਜਾਜ਼ਤ "
+#~ "ਦਿੰਦਾ ਹੈ, ਅਤੇ ਸੰਖੇਪ ਰਚਨਾ ਵੀ ਜਿਵੇਂ ਕਿ \"<Ctl>\" ਅਤੇ \"<Ctrl>\"। ਜੇ ਤੁਸੀਂ ਖਾਸ ਸਤਰ ਦੀ "
+#~ "ਚੋਣ \"ਅਯੋਗ\" ਬਣਾਉਦੇ ਹੋ ਤਾਂ ਇਸ ਕਿਰਿਆ ਵਾਸਤੇ ਕੋਈ ਸਵਿੱਚ-ਬਾਈਡਿੰਗ ਨਹੀਂ ਹੋਵੇਗਾ।"
+
+#~ msgid ""
+#~ "The format looks like \"<Control>a\" or <Shift><Alt>F1\".\n"
+#~ "\n"
+#~ "The parser is fairly liberal and allows lower or upper case, and also "
+#~ "abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action.\n"
+#~ "\n"
+#~ "This keybinding may be reversed by holding down the \"shift\" key; "
+#~ "therefore, \"shift\" cannot be one of the keys it uses."
+#~ msgstr ""
+#~ "ਸਵਿੱਚ-ਬਾਈਡਿੰਗ ਵਿੰਡੋ ਨੂੰ ਬੰਦ ਕਰਨ ਲਈ ਵਰਤਿਆ ਗਿਆ ਹੈ। ਫਾਰਮੈਟ ਇਸ ਤਰਾਂ ਦਿਸਦਾ ਹੈ \"<Control>a"
+#~ "\" ਜਾਂ \"<Shift><Alt>F1\"। ਪਾਰਸਰ ਪੂਰੀ ਤਰਾਂ ਸਿੱਖਿਅਤ ਹੈ ਅਤੇ ਛੋਟੇ ਜਾਂ ਵੱਡੇ ਅੱਖਰਾਂ ਨੂੰ ਇਜਾਜ਼ਤ "
+#~ "ਦਿੰਦਾ ਹੈ, ਅਤੇ ਸੰਖੇਪ ਰਚਨਾ ਵੀ ਜਿਵੇਂ ਕਿ \"<Ctl>\" ਅਤੇ \"<Ctrl>\"। ਜੇ ਤੁਸੀਂ ਖਾਸ ਸਤਰ ਦੀ "
+#~ "ਚੋਣ \"ਅਯੋਗ\" ਬਣਾਉਦੇ ਹੋ ਤਾਂ ਇਸ ਕਿਰਿਆ ਵਾਸਤੇ ਕੋਈ ਸਵਿੱਚ-ਬਾਈਡਿੰਗ ਨਹੀਂ ਹੋਵੇਗਾ।"
+
+#~ msgid "Failed to read saved session file %s: %s\n"
+#~ msgstr "ਸੰਭਾਲੀ ਸ਼ੈਸ਼ਨ ਫਾਇਲ %s ਨੂੰ ਪੜ੍ਹਨ ਲਈ ਫੇਲ੍ਹ:%s\n"
+
+#~ msgid ""
+#~ "Error launching metacity-dialog to warn about apps that don't support "
+#~ "session management: %s\n"
+#~ msgstr ""
+#~ "ਕਾਰਜਾਂ, ਜਿਹੜੇ ਸ਼ੈਸ਼ਨ ਪਰਬੰਧ ਨੂੰ ਨਹੀਂ ਮੰਨਦੇ ਬਾਰੇ ਚੇਤਾਵਨੀ ਲਈ ਮੈਟਾਸਿਟੀ ਡਾਈਲਾਗ ਸ਼ੁਰੂ ਕਰਨ ਦੀ "
+#~ "ਗਲਤੀ:%s\n"
+
+#~ msgid "Metacity"
+#~ msgstr "ਮੈਟਾਸਿਟੀ"
+
+#~ msgid ""
+#~ "(Not implemented) Navigation works in terms of applications not windows"
+#~ msgstr "(ਲਾਗੂ ਨਹੀ ਕੀਤਾ) ਸੰਚਾਲਨ ਕਾਰਜ ਦੇ ਵਿਹਾਰ ਨਾਲ ਕੰਮ ਕਰਦਾ ਹੈ ਨਾ ਕਿ ਵਿੰਡੋ ਦੇ"
+
+#~ msgid ""
+#~ "A font description string describing a font for window titlebars. The "
+#~ "size from the description will only be used if the titlebar_font_size "
+#~ "option is set to 0. Also, this option is disabled if the "
+#~ "titlebar_uses_desktop_font option is set to true."
+#~ msgstr ""
+#~ "ਫੋਂਟ ਵੇਰਵਾ ਸਤਰ ਵਿੰਡੋ ਦੀ ਟਾਇਟਲ-ਬਾਰ ਵਾਸਤੇ ਫੋਂਟ ਦਰਸਾਉਂਦੀ ਹੈ। ਵੇਰਵੇ ਵਿਚਲਾ ਆਕਾਰ ਤਾਂ ਹੀ ਅਸਰ "
+#~ "ਕਰੇਗਾ ਜੇ ਕਿਸੇ ਵੀ ਤਰਾਂ titlebar_font_size ਚੋਣ 0 ਕੀਤੀ ਹੈ। ਇਹ ਚੋਣ ਅਯੋਗ ਵੀ ਹੈ ਜੇ "
+#~ "titlebar_uses_desktop_font ਚੋਣ ਨੂੰ ਯੋਗ ਹੋਈ ਵਰਤਦਾ ਹੈ।"
+
+#~ msgid "Action on title bar double-click"
+#~ msgstr "ਟਾਇਟਲ-ਬਾਰ ਉੱਤੇ ਕਿਰਿਆ ਦੋ-ਵਾਰ ਦਬਾਉ"
+
+#~ msgid "Action on title bar middle-click"
+#~ msgstr "ਟਾਇਟਲ ਬਾਰ ਉੱਤੇ ਮੱਧ-ਕਲਿੱਕ ਨਾਲ ਐਕਸ਼ਨ"
+
+#~ msgid "Action on title bar right-click"
+#~ msgstr "ਟਾਇਟਲ ਬਾਰ ਉੱਤੇ ਸੱਜਾ-ਕਲਿੱਕ ਨਾਲ ਐਕਸ਼ਨ"
+
+#~ msgid "Arrangement of buttons on the titlebar"
+#~ msgstr "ਟਾਇਟਲ-ਬਾਰ ਉੱਤੇ ਬਟਨਾਂ ਦੀ ਤਰਤੀਬ"
+
+#~ msgid ""
+#~ "Arrangement of buttons on the titlebar. The value should be a string, "
+#~ "such as \"menu:minimize,maximize,spacer,close\"; the colon separates the "
+#~ "left corner of the window from the right corner, and the button names are "
+#~ "comma-separated. Duplicate buttons are not allowed. Unknown button names "
+#~ "are silently ignored so that buttons can be added in future metacity "
+#~ "versions without breaking older versions. A special spacer tag can be "
+#~ "used to insert some space between two adjacent buttons."
+#~ msgstr ""
+#~ "ਟਾਇਟਲ-ਬਾਰ ਉੱਤੇ ਬਟਨਾਂ ਦਾ ਪਰਬੰਧ। ਕੀਮਤ, ਸਤਰ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ, ਜਿਵੇਂ ਕਿ\"menu:minimize,"
+#~ "maximize,spacer,close (ਮੇਨੂ:ਛੋਟਾ,ਵੱਡਾ ਬੰਦ)\"; ਕੌਲਨ ਵਿੰਡੋ ਦੇ ਖੱਬੇ ਖੂੰਜੇ ਨੂੰ ਸੱਜੇ ਤੋਂ ਵੱਖ ਕਰਦਾ ਹੈ,"
+#~ "ਅਤੇ ਬਟਨ ਨਾਂ ਕਾਮੇ ਨਾਲ ਵੱਖ ਹਨ। ਨਕਲੀ ਬਟਨਾਂ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ। ਅਣਜਾਣ ਬਟਨ ਅਣਡਿੱਠ ਕੀਤੇ ਜਾਣਗੇ "
+#~ "ਤਾਂ ਕਿ ਬਟਨ, ਮੈਟਾਸਿਟੀ ਦੇ ਪੁਰਾਣੇ ਵਰਜਨ ਨੂੰ ਤੋੜੇ ਬਿਨਾਂ ਨਵੇਂ ਵਰਜਨ ਵਿੱਚ ਜੋੜੇ ਜਾ ਸਕਣ।"
+
+#~ msgid "Automatically raises the focused window"
+#~ msgstr "ਫੋਕਸ ਹੋਈ ਵਿੰਡੋ ਆਟਮੈਟਿਕ ਉਭਾਰੋ"
+
+#~ msgid ""
+#~ "Clicking a window while holding down this modifier key will move the "
+#~ "window (left click), resize the window (middle click), or show the window "
+#~ "menu (right click). The left and right operations may be swapped using "
+#~ "the \"mouse_button_resize\" key. Modifier is expressed as \"&lt;Alt&gt;\" "
+#~ "or \"&lt;Super&gt;\" for example."
+#~ msgstr ""
+#~ "ਇਸ ਸੋਧਕ ਸਵਿੱਚ ਨੂੰ ਦਬਾ ਕੇ ਵਿੰਡੋ ਉੱਤੇ ਦਬਾਉ ਨਾਲ ਵਿੰਡੋ ਹਿੱਲੇਗੀ (ਖੱਬਾ ਦਬਾਉਣ ਨਾਲ), ਵਿੰਡੋ ਨੂੰ ਮੁੜ "
+#~ "ਆਕਾਰ ਦਿਓ (ਵਿਚਕਾਰਲਾ ਦਬਾਉਣ ਨਾਲ), ਜਾਂ ਵਿੰਡੋ ਮੇਨੂ ਵਿਖਾਓ (ਸੱਜਾ ਦਬਾਉਣ ਨਾਲ)। ਮੋਡੀਫਾਇਰ "
+#~ "ਉਦਾਹਰਨ ਵਜੋਂ ਇਸ ਤਰਾਂ ਦਰਸਾਇਆ ਗਿਆ \"<Alt>\" ਜਾਂ \"<Super>\""
+
+#~ msgid "Commands to run in response to keybindings"
+#~ msgstr "ਸਵਿੱਚ ਸੰਬੰਧਾਂ ਦੇ ਉੱਤਰ ਵਿਚ ਚੱਲਣ ਵਾਲੀ ਕਮਾਂਡ"
+
+#~ msgid "Compositing Manager"
+#~ msgstr "ਕੰਪੋਜਿੰਗ ਮੈਨੇਜਰ"
+
+#~ msgid "Control how new windows get focus"
+#~ msgstr "ਕੰਟਰੋਲ ਕਿ ਕਿਵੇਂ ਨਵੀਂ ਵਿੰਡੋ ਫੋਕਸ ਹੋਣ"
+
+#~ msgid "Current theme"
+#~ msgstr "ਮੌਜੂਦਾ ਥੀਮ"
+
+#~ msgid "Delay in milliseconds for the auto raise option"
+#~ msgstr "ਸਵੈ ਉਠਾਊ ਚੋਣ ਲਈ ਮਿਲੀ ਸਕਿੰਟਾਂ ਵਿੱਚ ਵਕਫਾ"
+
+#~ msgid "Determines whether Metacity is a compositing manager."
+#~ msgstr "ਜਾਂਚ ਕਰੋ ਕਿ ਕੀ ਮੈਟਾਸਿਟੀ ਇੱਕ ਕੰਪੋਜਟਿੰਗ ਮੈਨੇਜਰ ਹੈ।"
+
+#~ msgid ""
+#~ "Determines whether applications or the system can generate audible "
+#~ "'beeps'; may be used in conjunction with 'visual bell' to allow silent "
+#~ "'beeps'."
+#~ msgstr ""
+#~ "ਵੇਖੋ ਕਿ ਕੀ ਕਾਰਜ ਜਾਂ ਸਿਸਟਮ ਆਵਾਜ਼ ਵਾਲੀਆਂ 'ਬੀਪਸ' ਪੈਦਾ ਕਰਦਾ ਹੈ; ਜੋ 'ਦਿੱਖ ਘੰਟੀ' ਦੇ ਸੰਗ ਸ਼ਾਂਤ "
+#~ "'ਬੀਪਸ' ਨੂੰ ਚਲਾਏ।"
+
+#~ msgid "Disable misfeatures that are required by old or broken applications"
+#~ msgstr "ਨਾ ਮੌਜੂਦ ਗੁਣਾਂ ਨੂੰ ਅਯੋਗ ਕਰੋ ਜਿਹੜੇ ਪੁਰਾਣੇ ਜਾਂ ਤੋੜੇ ਕਾਰਜਾਂ ਰਾਹੀਂ ਲੋੜੀਂਦੇ ਹਨ"
+
+#~ msgid "Enable Visual Bell"
+#~ msgstr "ਦਿੱਖ ਘੰਟੀ ਯੋਗ ਕਰੋ"
+
+#~ msgid ""
+#~ "If true, ignore the titlebar_font option, and use the standard "
+#~ "application font for window titles."
+#~ msgstr ""
+#~ "ਜੇ ਯੋਗ ਹੈ, ਟਾਇਟਲ-ਬਾਰ ਫੋਟ ਚੋਣ ਨੂੰ ਅਣਡਿੱਠ ਕਰੋ, ਅਤੇ ਵਿੰਡੋ ਟਾਇਟਲ ਵਾਸਤੇ ਸਟੈਂਡਰਡ ਕਾਰਜ ਅੱਖਰ ਵਰਤੋਂ।"
+
+#~ msgid ""
+#~ "If true, metacity will give the user less feedback by using wireframes, "
+#~ "avoiding animations, or other means. This is a significant reduction in "
+#~ "usability for many users, but may allow legacy applications to continue "
+#~ "working, and may also be a useful tradeoff for terminal servers. However, "
+#~ "the wireframe feature is disabled when accessibility is on."
+#~ msgstr ""
+#~ "ਜੇ ਯੋਗ ਹੈ, ਮੈਟਾਸਿਟੀ ਯੂਜ਼ਰ ਨੂੰ, ਵਾਇਰ ਫਰੇਮ ਵਰਤ ਕੇ, ਐਨੀਮੇਸ਼ਨ ਤੋਂ ਹਟ ਕੇ, ਜਾਂ ਹੋਰ ਤਰਾਂ ਘੱਟ ਫੀਡਬੈਕ "
+#~ "ਦੇਵੇਗੀ। ਇਹ ਬਹੁਤੇ ਯੂਜ਼ਰਾਂ ਦੀ ਵਰਤੋਂ ਵਿੱਚ ਮਹੱਤਵਪੂਰਨ ਕਮੀ ਹੈ, ਪਰ ਮੂਲ ਕਾਰਜਾਂ ਜਾਂ ਟਰਮੀਨਲ ਸਰਵਰਾਂ ਨੂੰ "
+#~ "ਕੰਮ ਕਰਨ ਦੇਵੇਗੀ। ਪਰ ਵਾਇਰਫਰੇਮ ਫੀਚਰ ਆਯੋਗ ਹੋਵੇਗਾ, ਜਦੋਂ ਸਹੂਲਤਾਂ ਨੂੰ ਚਾਲੂ ਕੀਤਾ ਜਾਵੇਗਾ।"
+
+#~ msgid ""
+#~ "If true, then Metacity works in terms of applications rather than "
+#~ "windows. The concept is a bit abstract, but in general an application-"
+#~ "based setup is more like the Mac and less like Windows. When you focus a "
+#~ "window in application-based mode, all the windows in the application will "
+#~ "be raised. Also, in application-based mode, focus clicks are not passed "
+#~ "through to windows in other applications. Application-based mode is, "
+#~ "however, largely unimplemented at the moment."
+#~ msgstr ""
+#~ "ਜੇ ਯੋਗ ਹੈ, ਮੈਟਾਸਿਟੀ ਕਾਰਜਾਂ ਦੇ ਰੂਪ 'ਚ ਕੰਮ ਕਰੇਗਾ ਨਾ ਕਿ ਵਿੰਡੋ ਦੇ। ਵਿਚਾਰ ਕੁਝ ਵੱਖਰਾ ਹੈ, ਪਰ "
+#~ "ਸਾਧਾਰਨ ਤੌਰ ਤੇ ਕਾਰਜ ਤੇ ਆਧਾਰਿਤ ਬਣਾਵਟ ਮੈਕ(Mac) ਦੀ ਤਰਾਂ ਜਿਆਦਾ ਹੈ ਅਤੇ ਵਿੰਡੋ (Windows) "
+#~ "ਵਾਂਗ ਘੱਟ। ਜਦੋਂ ਤੁਸੀਂ ਵਿੰਡੋ ਨੂੰ ਕਾਰਜ ਆਧਾਰਿਤ ਰੂਪ ਵਿੱਚ ਫੋਕਸ ਕਰਦੇ ਹੋ, ਕਾਰਜ ਵਿਚਲੇ ਸਭ ਵਿੰਡੋ ਕਾਰਜ "
+#~ "ਆਧਾਰਿਤ ਰੂਪ ਵਿੱਚ ਖੁੱਲਣਗੀਆਂ। ਨਾਲ ਹੀ ਫੋਕਸ ਕਲਿੱਕ ਦੂਜੇ ਕਾਰਜਾਂ ਵਿਚਲੇ ਝਰੋਖਿਆਂ ਵਿੱਚ ਨਹੀਂ ਜਾਂਦੇ। "
+#~ "ਕਾਰਜ ਆਧਾਰਿਤ ਢੰਗ ਇਸ ਸਮੇਂ ਵੀ ਲਾਗੂ ਨਹੀਂ ਹੈ।"
+
+#~ msgid "If true, trade off usability for less resource usage"
+#~ msgstr "ਜੇ ਯੋਗ ਹੈ, ਘੱਟ ਸਰੋਤ ਉਪਯੋਗ ਲਈ ਸਹੂਲਤ ਪੇਸ਼ਾ ਖਤਮ ਕਰੋ"
+
+#~ msgid "Name of workspace"
+#~ msgstr "ਵਰਕਸਪੇਸ ਦਾ ਨਾਂ"
+
+#~ msgid "Number of workspaces"
+#~ msgstr "ਵਰਕਸਪੇਸ ਦੀ ਗਿਣਤੀ"
+
+#~ msgid ""
+#~ "Number of workspaces. Must be more than zero, and has a fixed maximum to "
+#~ "prevent making the desktop unusable by accidentally asking for too many "
+#~ "workspaces."
+#~ msgstr ""
+#~ "ਵਰਕਸਪੇਸ ਦੀ ਗਿਣਤੀ। ਜ਼ੀਰੋ ਤੋਂ ਵੱਧ ਹੋਣੀ ਜਰੂਰੀ ਹੈ,ਅਤੇ ਵੱਧ ਤੋਂ ਵੱਧ ਨਿਯਮਤ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ ਤਾਂ "
+#~ "ਅਸਧਾਰਨ ਵਰਕਸਪੇਸ ਪੁੱਛ ਕੇ ਤੁਹਾਡੇ ਡੈਸਕਟਾਪ ਨੂੰ ਖਤਮ ਹੋਣ ਦੀ ਘਟਨਾ ਤੋਂ ਬਚਾਇਆ ਜਾ ਸਕੇ।"
+
+#~ msgid "Run a defined command"
+#~ msgstr "ਇੱਕ ਪ੍ਰਭਾਸ਼ਿਤ ਕਮਾਂਡ ਚਲਾਓ"
+
+#~ msgid ""
+#~ "Set this to true to resize with the right button and show a menu with the "
+#~ "middle button while holding down the key given in \"mouse_button_modifier"
+#~ "\"; set it to false to make it work the opposite way around."
+#~ msgstr ""
+#~ " Set this to true to resize with the right button and show a menu with "
+#~ "the middle button while holding down the key given in "
+#~ "\"mouse_button_modifier\"; set it to false to make it work the opposite "
+#~ "way around."
+
+#~| msgid ""
+#~| "Setting this option to false can lead to buggy behavior, so users are "
+#~| "strongly discouraged from changing it from the default of true. Many "
+#~| "actions (e.g. clicking in the client area, moving or resizing the "
+#~| "window) normally raise the window as a side-effect. Set this option to "
+#~| "false to decouple raising from other user actions. Even when this option "
+#~| "is false, windows can still be raised by an alt-left-click anywhere on "
+#~| "the window, a normal click on the window decorations, or by special "
+#~| "messages from pagers, such as activation requests from tasklist applets. "
+#~| "This option is currently disabled in click-to-focus mode. Note that the "
+#~| "list of ways to raise windows when raise_on_click is false does not "
+#~| "include programmatic requests from applications to raise windows; such "
+#~| "requests will be ignored regardless of the reason for the request. If "
+#~| "you are an application developer and have a user complaining that your "
+#~| "application does not work with this setting disabled, tell them it is "
+#~| "_their_ fault for breaking their window manager and that they need to "
+#~| "change this option back to true or live with the bug they requested. See "
+#~| "also http://bugzilla.gnome.org/show_bug.cgi?id=445447#c6."
+#~ msgid ""
+#~ "Setting this option to false can lead to buggy behavior, so users are "
+#~ "strongly discouraged from changing it from the default of true. Many "
+#~ "actions (e.g. clicking in the client area, moving or resizing the window) "
+#~ "normally raise the window as a side-effect. Setting this option to false, "
+#~ "which is strongly discouraged, will decouple raising from other user "
+#~ "actions, and ignore raise requests generated by applications. See http://"
+#~ "bugzilla.gnome.org/show_bug.cgi?id=445447#c6. Even when this option is "
+#~ "false, windows can still be raised by an alt-left-click anywhere on the "
+#~ "window, a normal click on the window decorations, or by special messages "
+#~ "from pagers, such as activation requests from tasklist applets. This "
+#~ "option is currently disabled in click-to-focus mode. Note that the list "
+#~ "of ways to raise windows when raise_on_click is false does not include "
+#~ "programmatic requests from applications to raise windows; such requests "
+#~ "will be ignored regardless of the reason for the request. If you are an "
+#~ "application developer and have a user complaining that your application "
+#~ "does not work with this setting disabled, tell them it is _their_ fault "
+#~ "for breaking their window manager and that they need to change this "
+#~ "option back to true or live with the \"bug\" they requested."
+#~ msgstr ""
+#~ "ਇਹ ਚੋਣ ਗਲਤ ਕਰਨ ਨਾਲ, ਬੱਡੀ ਰਵੱਈਆ ਆ ਸਕਦਾ ਹੈ ਤਾਂ ਯੂਜ਼ਰਾਂ ਨੂੰ ਇਹ ਠੀਕ ਰੱਖਣ ਦਾ ਸੁਝਾਅ ਹੀ ਦਿੱਤਾ "
+#~ "ਗਿਆ ਹੈ। ਕੋਈ ਫੰਕਸ਼ਨ (ਜਿਵੇਂ ਕਿ ਕਲਾਈਟ ਖੇਤਰ ਵਿੱਚ ਕਲਿੱਕ ਕਰਨਾ, ਵਿੰਡੋ ਹਿਲਾਉਣੀ ਜਾਂ ਮੁੜ-ਆਕਾਰ "
+#~ "ਕਰਨਾ) ਸਾਇਡ-ਪਰਭਾਵ ਦੇ ਅਧੀਨ ਵਿੰਡੋ ਉਭਾਰ ਦਿੰਦੇ ਹਨ। ਇਹ ਚੋਣ ਗਲਤ ਕਰਨ ਨਾਲ, ਹੋਰ ਯੂਜ਼ਰ ਐਕਸ਼ਨ ਤੋਂ "
+#~ "ਉਭਾਰਨ ਨੂੰ ਡਿ-ਕਪਲ ਕਰ ਦਿੰਦੀ ਹੈ। http://bugzilla.gnome.org/show_bug.cgi?"
+#~ "id=445447#c ਵੇਖੋ। ਭਾਵੇਂ ਇਹ ਚੋਣ ਗਲਤ ਹੈ, ਵਿੰਡੋ ਨੂੰ ਵਿੰਡੋ ਉੱਤੇ ਕਿਤੇ ਵੀ alt-left-click ਕਰਨ, "
+#~ "ਇੱਕ ਆਮ ਵਿੰਡੋ ਸਜਾਵਟ, ਜਾਂ ਪੇਜ਼ਰ ਤੋਂ ਖਾਸ ਸੁਨੇਹਿਆਂ ਨਾਲ ਨਾਲ ਉਭਾਰਿਆ ਜਾ ਸਕਦਾ ਹੈ, ਜਿਵੇਂ ਕਿ ਟਾਸਕ-"
+#~ "ਲਿਸਟ ਐਪਲਿਟ ਤੋਂ ਐਕਟੀਵੇਸ਼ਨ ਮੰਗ। ਇਹ ਚੋਣ ਇਸ ਸਮੇਂ ਕਲਿੱਕ-ਅਤੇ-ਫੋਕਸ ਮੋਡ ਰਾਹੀਂ ਆਯੋਗ ਹੈ। ਯਾਦ ਰੱਖੋ ਕਿ "
+#~ "ਵਿੰਡੋ ਨੂੰ ਉਭਾਰਨ ਦੇ ਢੰਗ ਦੀ ਲਿਸਟ, ਜਦੋਂ ਕਿ raise_on_click ਗਲਤ ਹੋਵੇ, ਐਪਲੀਕੇਸ਼ਨ ਤੋਂ ਵਿੰਡੋ "
+#~ "ਉਭਾਰਨ ਦੀ ਮੰਗ ਵਿੱਚ ਸ਼ਾਮਲ ਨਹੀਂ ਹੈ, ਜਿਵੇਂ ਕਿ ਉਸ ਕਿਸਮ ਦੀਆਂ ਮੰਗ ਨੂੰ ਕਾਰਨ ਬਿਨਾਂ ਹੀ ਅਣਡਿੱਠਾ "
+#~ "ਕਰ ਦਿੱਤਾ ਜਾਵੇਗਾ। ਜੇ ਤੁਸੀਂ ਕਾਰਜ ਖੋਜੀ ਹੋ ਅਤੇ ਯੂਜ਼ਰ ਸ਼ਿਕਾਇਤ ਹੈ ਕਿ ਇਹ ਸੈਟਿੰਗ ਆਯੋਗ ਕਰਨ ਨਾਲ "
+#~ "ਤੁਹਾਡੀ ਐਪਲੀਕੇਸ਼ਨ ਕੰਮ ਨਹੀਂ ਕਰਦੀ ਹੈ ਤਾਂ ਇਹ ਉਨ੍ਹਾਂ ਦੀ ਗਲਤੀ ਹੈ, ਕਿਉਂਕਿ ਉਨ੍ਹਾਂ ਦਾ ਵਿੰਡੋ ਮੈਨੇਜਰ "
+#~ "ਖਰਾਬ ਹੈ ਅਤੇ ਉਨ੍ਹਾਂ ਨੂੰ ਇਹ ਚੋਣ ਬਦਲ ਕੇ ਠੀਕ ਕਰਨੀ ਹੋਵੇਗੀ ਜਾਂ ਉਨ੍ਹਾਂ ਨੂੰ ਬੱਗ ਦੇ ਦਿਓ।"
+
+#~ msgid ""
+#~ "Some applications disregard specifications in ways that result in window "
+#~ "manager misfeatures. This option puts Metacity in a rigorously correct "
+#~ "mode, which gives a more consistent user interface, provided one does not "
+#~ "need to run any misbehaving applications."
+#~ msgstr ""
+#~ "ਕੁਝ ਕਾਰਜਾਂ ਕੁਝ ਕਾਰਨਾਂ ਕਰਕੇ ਹਦਾਇਤਾਂ ਨੂੰ ਅਣਡਿੱਠਾ ਕਰ ਦਿੰਦੀਆਂ ਹਨ, ਜਿੰਨਾਂ 'ਚ ਵਿੰਡੋ ਮੈਨੇਜਰ ਗਲਤ "
+#~ "ਫੀਚਰਾਂ ਹੁੰਦੇ ਹਨ। ਇਹ ਚੋਣ ਮੇਟਾਸਿਟੀ ਨੂੰ ਗਲਤ ਢੰਗ ਨੂੰ ਸਹੀਂ ਕਰਨ ਲਿਆ ਹੈ, ਜਿਸ ਨਾਲ ਯੂਜ਼ਰ ਇੰਟਰਫੇਸ ਲਈ "
+#~ "ਇਕਸਾਰ ਕੰਟਰੋਲ ਰਹਿੰਦਾ ਹੈ, ਜੋ ਕਿ ਗਲਤ ਰਵੱਈਆ ਰੱਖਣ ਵਾਲੇ ਕਾਰਜ ਨੂੰ ਚੱਲਣ ਨਹੀਂ ਦਿੰਦੀ।"
+
+#~ msgid "System Bell is Audible"
+#~ msgstr "ਸਿਸਟਮ ਘੰਟੀ ਸੁਣਨਯੋਗ ਹੈ"
+
+#~ msgid ""
+#~ "Tells Metacity how to implement the visual indication that the system "
+#~ "bell or another application 'bell' indicator has been rung. Currently "
+#~ "there are two valid values, \"fullscreen\", which causes a fullscreen "
+#~ "white-black flash, and \"frame_flash\" which causes the titlebar of the "
+#~ "application which sent the bell signal to flash. If the application which "
+#~ "sent the bell is unknown (as is usually the case for the default \"system "
+#~ "beep\"), the currently focused window's titlebar is flashed."
+#~ msgstr ""
+#~ "ਮੈਟਾਸਿਟੀ ਨੂੰ ਦੱਸੋ ਕਿ ਦਰਿਸ਼ੀ ਸੰਕੇਤ ਨੂੰ ਕਿਸ ਤਰਾਂ ਲਾਗੂ ਕਰਨਾ ਹੈ ਤਾਂ ਕਿ ਸਿਸਟਮ ਘੰਟੀ ਜਾਂ ਹੋਰ ਕਾਰਜ "
+#~ "'ਘੰਟੀ' ਸੰਕੇਤਕ ਵੱਜੇ। ਹੁਣ ਇੱਥੇ ਦੋ ਯੋਗ ਕੀਮਤਾਂ ਹਨ, \"ਸਾਰੀ ਸਕਰੀਨ\", ਜੋ ਸਕਰੀਨ ਨੂੰ ਸਫੈਦ-ਕਾਲਾ "
+#~ "ਲਿਸ਼ਕਾਰਾ ਬਣਾਉਂਦਾ ਹੈ, ਅਤੇ \"ਫਰੇਮ_ਲਿਸ਼ਕਾਰਾ\" ਜੋ ਕਾਰਜ ਦੀ ਟਾਇਟਲ-ਬਾਰ ਜਿਹੜੀ ਘੰਟੀ ਸੰਕੇਤ "
+#~ "ਭੇਜਦੀ ਹੈ ਨੂੰ ਲਿਸ਼ਕਣ ਦਿੰਦਾ ਹੈ। ਜੇ ਘੰਟੀ ਭੇਜਣ ਵਾਲਾ ਕਾਰਜ ਅਣਪਛਾਤਾ ਹੋਵੇ (ਜਿਵੇਂ ਕਿ ਮੂਲ \"ਸਿਸਟਮ "
+#~ "ਬੀਪ\" ਹੈ), ਮੌਜੂਦਾ ਫੋਕਸ ਰੱਖੇ ਦੀ ਟਾਇਟਲ-ਬਾਰ ਲਿਸ਼ਕੇਗੀ।"
+
+#~ msgid ""
+#~ "The /apps/metacity/global_keybindings/run_command_N keys define "
+#~ "keybindings that correspond to these commands. Pressing the keybinding "
+#~ "for run_command_N will execute command_N."
+#~ msgstr ""
+#~ "/apps/metacity/global_keybindings/run_command_N ਸਵਿੱਚਾਂ ਸਵਿੱਚ-ਬਾਈਡਿੰਗ ਪਰਭਾਸ਼ਿਤ "
+#~ "ਕਰਦੀਆਂ ਹਨ ਜਿਹੜੇ ਕਿ ਉਹਨਾਂ ਕਮਾਂਡਾਂ ਦੇ ਅਨੁਸਾਰੀ ਹਨ। ਚਲਾਓ_ਕਮਾਂਡ_N ਵਾਸਤੇ ਸਵਿੱਚ-ਬਾਈਡਿੰਗ "
+#~ "ਦਬਾਉਣ ਨਾਲ ਕਮਾਂਡ_N ਚੱਲੇਗੀ।"
+
+#~ msgid ""
+#~ "The /apps/metacity/global_keybindings/run_command_screenshot key defines "
+#~ "a keybinding which causes the command specified by this setting to be "
+#~ "invoked."
+#~ msgstr ""
+#~ "/apps/metacity/global_keybindings/run_command_screensho ਸਵਿੱਚ, ਸਵਿੱਚ-ਬਾਈਡਿੰਗ "
+#~ "ਪਰਭਾਸ਼ਿਤ ਕਰਦੀ ਹੈ ਜਿਹਨਾ ਨੇ ਇਸ ਸਥਾਪਨ ਰਾਹੀਂ ਦਰਸਾਈ ਕਮਾਂਡ ਨੂੰ ਬੁਲਾਇਆ।"
+
+#~ msgid ""
+#~ "The /apps/metacity/global_keybindings/run_command_window_screenshot key "
+#~ "defines a keybinding which causes the command specified by this setting "
+#~ "to be invoked."
+#~ msgstr ""
+#~ "/apps/metacity/global_keybindings/run_command_window_screenshot ਸਵਿੱਚ, "
+#~ "ਸਵਿੱਚ ਬੰਧਨ ਪਰਭਾਸ਼ਿਤ ਕਰਦੀ ਹੈ ਜਿਹਨਾ ਨੇ ਇਸ ਸਥਾਪਨ ਰਾਹੀਂ ਦਰਸਾਈ ਕਮਾਂਡ ਨੂੰ ਬੁਲਾਇਆ।"
+
+#~ msgid ""
+#~ "The keybinding that runs the correspondingly-numbered command in /apps/"
+#~ "metacity/keybinding_commands The format looks like \"&lt;Control&gt;a\" "
+#~ "or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
+#~ "allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;"
+#~ "\" and \"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
+#~ msgstr ""
+#~ "ਸਵਿੱਚ-ਬਾਈਡਿੰਗ ਜਿਹੜਾ apps/metacity/keybinding_command ਵਿੱਚ ਅਨੁਸਾਰੀ ਅੰਕਿਤ ਕਮਾਂਡ "
+#~ "ਚਲਾਉਦਾ ਹੈ ਫਾਰਮੈਟ ਇਸ ਤਰਾਂ ਦਿਸਦਾ ਹੈ \"<Control>a\" ਜਾਂ \"<Shift><Alt>F1।ਪਾਰਸਰ "
+#~ "ਪੂਰੀ ਤਰਾਂ ਸਿੱਖਿਅਤ ਹੈ ਅਤੇ ਛੋਟੇ ਜਾਂ ਵੱਡੇ ਅੱਖਰਾਂ ਨੂੰ ਇਜਾਜ਼ਤ ਦਿੰਦਾ ਹੈ, ਅਤੇ ਸੰਖੇਪ ਰਚਨਾ ਵੀ ਜਿਵੇਂ ਕਿ "
+#~ "\"<Ctl>\" ਅਤੇ \"<Ctrl>\"। ਜੇ ਤੁਸੀਂ ਖਾਸ ਸਤਰ ਦੀ ਚੋਣ \"ਅਯੋਗ\" ਬਣਾਉਦੇ ਹੋ ਤਾਂ ਇਸ ਕਿਰਿਆ "
+#~ "ਵਾਸਤੇ ਕੋਈ ਸਵਿੱਚ-ਬਾਈਡਿੰਗ ਨਹੀਂ ਹੋਵੇਗਾ।"
+
+#~ msgid "The name of a workspace."
+#~ msgstr "ਵਰਕਸਪੇਸ ਦਾ ਨਾਂ ਹੈ।"
+
+#~ msgid "The screenshot command"
+#~ msgstr "ਸਕਰੀਨ-ਸ਼ਾਂਟ ਕਮਾਂਡ"
+
+#~ msgid ""
+#~ "The theme determines the appearance of window borders, titlebar, and so "
+#~ "forth."
+#~ msgstr "ਥੀਮ ਵਿੰਡੋ ਦੇ ਹਾਸ਼ੀਏ, ਟਾਇਟਲ-ਬਾਰ, ਅਤੇ ਸਾਹਮਣੀ ਦਿੱਖ ਨਿਰਧਾਰਿਤ ਕਰਦਾ ਹੈ।"
+
+#~ msgid ""
+#~ "The time delay before raising a window if auto_raise is set to true. The "
+#~ "delay is given in thousandths of a second."
+#~ msgstr ""
+#~ "ਵਿੰਡੋ ਉਠਾਉਣ ਤੋਂ ਪਹਿਲਾਂ ਵਕਫਾ ਜੇ ਸਵੈ-ਉਠਾਊ ਯੋਗ ਕੀਤੀ ਹੈ। ਵਕਫਾ ਸਕਿੰਟ ਦੇ ਹਜਾਰਵੇਂ ਵਿੱਚ ਦਿੱਤਾ ਹੈ।"
+
+#~ msgid ""
+#~ "The window focus mode indicates how windows are activated. It has three "
+#~ "possible values; \"click\" means windows must be clicked in order to "
+#~ "focus them, \"sloppy\" means windows are focused when the mouse enters "
+#~ "the window, and \"mouse\" means windows are focused when the mouse enters "
+#~ "the window and unfocused when the mouse leaves the window."
+#~ msgstr ""
+#~ "ਵਿੰਡੋ ਫੋਕਸ ਮੋਡ ਦਰਸਾਉਦਾ ਹੈ ਕਿ ਵਿੰਡੋ ਕਿਵੇਂ ਸਰਗਰਮ ਕਰਨੀਆਂ ਹਨ। ਇਸ ਦੀਆਂ ਤਿੰਨ ਸੰਭਵ ਕੀਮਤਾਂ ਹਨ; "
+#~ "\"ਦਬਾਉ\" ਮਤਲਬ ਵਿੰਡੋ ਉਹਨਾਂ ਨੂੰ ਫੋਕਸ ਕਰਨ ਲਈ ਦਬਾਇਆ ਹੋਇਆ \"ਸਲੋਪੀ\" ਮਤਲਬ ਵਿੰਡੋ ਫੋਕਸ ਹੁੰਦੀਆਂ "
+#~ "ਹਨ ਜਦੋਂ ਮਾਊਸ ਉਹਨਾਂ ਵਿੱਚ ਪਰਵੇਸ਼ ਕਰਦਾ ਹੈ, \"ਮਾਊਸ\" ਮਤਲਬ ਵਿੰਡੋ ਫੋਕਸ ਹੁੰਦੀਆਂ ਹਨ ਜਦੋਂ ਮਾਊਸ "
+#~ "ਉਹਨਾਂ ਵਿੱਚ ਪਰਵੇਸ਼ ਕਰਦਾ ਹੈ ਅਤੇ ਬਿਨ-ਫੋਕਸ ਹੁੰਦੀਆਂ ਹਨ ਜਦੋਂ ਮਾਊਸ ਵਿੰਡੋ ਛੱਡ ਜਾਂਦਾ ਹੈ।"
+
+#~ msgid "The window screenshot command"
+#~ msgstr "ਵਿੰਡੋ ਸਕਰੀਨ-ਸ਼ਾਟ ਕਮਾਂਡ"
+
+#~| msgid ""
+#~| "This option determines the effects of double-clicking on the title bar. "
+#~| "Current valid options are 'toggle_shade', which will shade/unshade the "
+#~| "window, 'toggle_maximize' which will maximize/unmaximize the window, "
+#~| "'minimize' which will minimize the window, and 'none' which will not do "
+#~| "anything."
+#~ msgid ""
+#~ "This option determines the effects of double-clicking on the title bar. "
+#~ "Current valid options are 'toggle_shade', which will shade/unshade the "
+#~ "window, 'toggle_maximize' which will maximize/unmaximize the window, "
+#~ "'toggle_maximize_horizontally' and 'toggle_maximize_vertically' which "
+#~ "will maximize/unmaximize the window in that direction only, 'minimize' "
+#~ "which will minimize the window, 'shade' which will roll the window up, "
+#~ "'menu' which will display the window menu, 'lower' which will put the "
+#~ "window behind all the others, and 'none' which will not do anything."
+#~ msgstr ""
+#~ "ਇਹ ਚੋਣ ਟਾਇਟਲ-ਬਾਰ ਉੱਤੇ ਦੋ ਵਾਰ ਦਬਾਉ ਦਾ ਪ੍ਰਭਾਵ ਨਿਰਧਾਰਿਤ ਕਰਦੀ ਹੈ। ਮੌਜੂਦ ਯੋਗ ਚੋਣਾਂ ਹਨ "
+#~ "'ਰੰਗਤ ਕਰੋ', ਜਿਹੜੀ ਵਿੰਡੋ ਨੂੰ ਰੰਗਤ/ਬਿਨਾਂ-ਰੰਗਤ ਕਰੇਗਾ, ਅਤੇ 'ਅਧਿਕਤਮ ਤਬਦੀਲ' ਜਿਹੜਾ ਵਿੰਡੋ ਨੂੰ "
+#~ "ਅਧਿਕਤਮ/ਨਾ-ਅਧਿਕਤਮ ਕਰੇਗਾ, 'ਅਪਲੀਕਰਨ', ਜੋ ਕਿ ਵਿੰਡੋ ਨੂੰ ਅਪਲੀਕਰਨ ਕਰੇਗਾ, ਅਤੇ 'ਕੋਈ ਨਹੀਂ' ਕੁਝ "
+#~ "ਨਹੀਂ ਕਰੇਗਾ।"
+
+#~| msgid ""
+#~| "This option determines the effects of middle-clicking on the title bar. "
+#~| "Current valid options are 'toggle_shade', which will shade/unshade the "
+#~| "window, 'toggle_maximize' which will maximize/unmaximize the window, "
+#~| "'minimize' which will minimize the window, and 'none' which will not do "
+#~| "anything."
+#~ msgid ""
+#~ "This option determines the effects of middle-clicking on the title bar. "
+#~ "Current valid options are 'toggle_shade', which will shade/unshade the "
+#~ "window, 'toggle_maximize' which will maximize/unmaximize the window, "
+#~ "'toggle_maximize_horizontally' and 'toggle_maximize_vertically' which "
+#~ "will maximize/unmaximize the window in that direction only, 'minimize' "
+#~ "which will minimize the window, 'shade' which will roll the window up, "
+#~ "'menu' which will display the window menu, 'lower' which will put the "
+#~ "window behind all the others, and 'none' which will not do anything."
+#~ msgstr ""
+#~ "ਇਹ ਚੋਣ ਟਾਇਟਲ-ਬਾਰ ਉੱਤੇ ਮਿਡਲ-ਕਲਿੱਕ ਦਬਾਉ ਦਾ ਪ੍ਰਭਾਵ ਪਛਾਣਦੀ ਹੈ। ਮੌਜੂਦ ਯੋਗ ਚੋਣਾਂ ਹਨ  "
+#~ "'ਰੰਗਤ_ਬਦਲੋ', ਜਿਹੜੀ ਵਿੰਡੋ ਨੂੰ ਰੰਗਤ/ਬਿਨਾਂ-ਰੰਗਤ ਕਰਦੀ ਹੈ, ਅਤੇ 'ਅਧਿਕਤਮ ਬਦਲੋ' ਜਿਹੜੀ ਵਿੰਡੋ ਨੂੰ "
+#~ "ਅਧਿਕਤਮ/ਨਾ-ਅਧਿਕਤਮ ਕਰਦੀ ਹੈ, 'ਅਪਲੀਕਰਨ', ਜੋ ਕਿ ਵਿੰਡੋ ਨੂੰ ਅਪਲੀਕਰਨ ਕਰਦੀ ਹੈ, ਅਤੇ 'ਕੋਈ "
+#~ "ਨਹੀਂ' ਕੁਝ ਨਹੀਂ ਕਰੇਗਾ।"
+
+#~| msgid ""
+#~| "This option determines the effects of right-clicking on the title bar. "
+#~| "Current valid options are 'toggle_shade', which will shade/unshade the "
+#~| "window, 'toggle_maximize' which will maximize/unmaximize the window, "
+#~| "'minimize' which will minimize the window, and 'none' which will not do "
+#~| "anything."
+#~ msgid ""
+#~ "This option determines the effects of right-clicking on the title bar. "
+#~ "Current valid options are 'toggle_shade', which will shade/unshade the "
+#~ "window, 'toggle_maximize' which will maximize/unmaximize the window, "
+#~ "'toggle_maximize_horizontally' and 'toggle_maximize_vertically' which "
+#~ "will maximize/unmaximize the window in that direction only, 'minimize' "
+#~ "which will minimize the window, 'shade' which will roll the window up, "
+#~ "'menu' which will display the window menu, 'lower' which will put the "
+#~ "window behind all the others, and 'none' which will not do anything."
+#~ msgstr ""
+#~ "ਇਹ ਚੋਣ ਟਾਇਟਲ-ਬਾਰ ਉੱਤੇ ਸੱਜਾ-ਕਲਿੱਕ ਦਬਾਉ ਦਾ ਪ੍ਰਭਾਵ ਪਛਾਣਦੀ ਹੈ। ਮੌਜੂਦ ਯੋਗ ਚੋਣਾਂ ਹਨ  "
+#~ "'ਰੰਗਤ_ਬਦਲੋ', ਜਿਹੜੀ ਵਿੰਡੋ ਨੂੰ ਰੰਗਤ/ਬਿਨਾਂ-ਰੰਗਤ ਕਰਦੀ ਹੈ, ਅਤੇ 'ਅਧਿਕਤਮ ਬਦਲੋ' ਜਿਹੜੀ ਵਿੰਡੋ ਨੂੰ "
+#~ "ਕੁਝ ਨਹੀਂ ਕਰੇਗਾ।"
+
+#~ msgid ""
+#~ "This option provides additional control over how newly created windows "
+#~ "get focus. It has two possible values; \"smart\" applies the user's "
+#~ "normal focus mode, and \"strict\" results in windows started from a "
+#~ "terminal not being given focus."
+#~ msgstr ""
+#~ "ਇਹ ਚੋਣ ਵੱਧ ਕੰਟਰੋਲ ਦਿੰਦੀ ਹੈ ਕਿ ਨਵਾਂ ਬਣਾਇਆ ਵਿੰਡੋ ਕਿਵੇਂ ਫੋਕਸ ਲਵੇ। ਦੋ ਸੰਭਵ ਮੁੱਲ ਹਨ; \"ਸਮਾਰਟ\" "
+#~ "ਸਧਾਰਨ ਯੂਜ਼ਰ ਫੋਕਸ ਢੰਗ ਲਾਗੂ ਕਰਦਾ ਹੈ ਅਤੇ \"ਸਖਤ\" ਨਤੀਜੇ ਵਜੋਂ ਇੱਕ ਟਰਮੀਨਲ ਤੋਂ ਚਾਲੂ ਹੋਏ ਵਿੰਡੋ ਨੂੰ "
+#~ "ਫੋਕਸ ਨਹੀਂ ਦਿੰਦਾ ਹੈ।"
+
+#~ msgid ""
+#~ "Turns on a visual indication when an application or the system issues a "
+#~ "'bell' or 'beep'; useful for the hard-of-hearing and for use in noisy "
+#~ "environments."
+#~ msgstr ""
+#~ "ਦਰਿਸ਼ੀ ਸੰਕੇਤ ਨੂੰ ਯੋਗ ਕਰੋ ਜਦੋਂ ਇੱਕ ਕਾਰਜ ਜਾਂ ਸਿਸਟਮ 'ਘੰਟੀ' ਜਾਂ 'ਬੀਪ' ਦਿੰਦਾ ਹੈ; ਸੁਣਨ ਦੀ ਮੁਸ਼ਕਿਲ "
+#~ "ਲਈ ਯੂਜ਼ਰ ਅਤੇ ਰੌਲੇ-ਰੱਪੇ ਵਾਲੇ ਮਾਹੌਲ ਵਿੱਚ ਵਰਤਣ ਲਈ, ਜਾਂ ਜਦੋਂ 'ਆਵਾਜ਼ੀ ਘੰਟੀ' ਬੰਦ ਹੋਵੇ।"
+
+#~ msgid "Use standard system font in window titles"
+#~ msgstr "ਵਿੰਡੋ ਟਾਇਟਲਾਂ ਵਿੱਚ ਸਟੈਂਡਰਡ ਫੋਟ ਵਰਤੋਂ"
+
+#~ msgid "Visual Bell Type"
+#~ msgstr "ਦਿੱਖ ਘੰਟੀ ਕਿਸਮ"
+
+#~ msgid "Whether raising should be a side-effect of other user interactions"
+#~ msgstr "ਜਦੋਂ ਵਧਾਇਆ ਜਾਵੇਗਾ ਤਾਂ ਹੋਰ ਯੂਜ਼ਰ ਦਖਲਾਂ ਉੱਤੇ ਗਲਤ ਪਰਭਾਵ ਪਵੇਗਾ"
+
+#~ msgid "Whether to resize with the right button"
+#~ msgstr "ਕੀ ਸੱਜਾ ਬਟਨ ਮੁੜ-ਆਕਾਰ ਕਰਨਾ ਹੈ"
+
+#~ msgid "Window focus mode"
+#~ msgstr "ਵਿੰਡੋ ਫੋਕਸ ਰੂਪ"
+
+#~ msgid "Window title font"
+#~ msgstr "ਵਿੰਡੋ ਟਾਇਟਲ ਫੋਟ"
+
+#~ msgid "Title"
+#~ msgstr "ਟਾਇਟਲ"
+
+#~ msgid "Class"
+#~ msgstr "ਕਲਾਸ"
+
+#~ msgid ""
+#~ "There was an error running \"%s\":\n"
+#~ "%s."
+#~ msgstr ""
+#~ "ਉਥੇ \"%s\" ਨੂੰ ਚਲਾਉਣ ਉਪਰੰਤ ਇੱਕ ਗਲਤੀ ਹੈ:\n"
+#~ "%s"
+
+#~ msgid "<author> specified twice for this theme"
+#~ msgstr "ਇਸ ਥੀਮ ਲਈ <author> ਦੋ ਵਾਰ ਬਿਆਨ ਕੀਤਾ ਗਿਆ"
+
+#~ msgid "<copyright> specified twice for this theme"
+#~ msgstr "ਇਸ ਥੀਮ ਲਈ <copyright> ਦੋ ਵਾਰ ਬਿਆਨ ਕੀਤਾ ਗਿਆ"
+
+#~ msgid "<date> specified twice for this theme"
+#~ msgstr "ਇਸ ਥੀਮ ਲਈ <date> ਦੋ ਵਾਰ ਬਿਆਨ ਕੀਤੀ ਗਈ"
+
+#~ msgid "<description> specified twice for this theme"
+#~ msgstr "ਇਸ ਥੀਮ ਲਈ <description> ਦੋ ਵਾਰ ਬਿਆਨ ਕੀਤਾ ਗਿਆ"
+
+#~ msgid "Theme file %s did not contain a root <metacity_theme> element"
+#~ msgstr "ਥੀਮ ਫਾਇਲ %s  root <metacity_theme> ਐਲੀਮੈਂਟ ਵਿੱਚ ਸ਼ਾਮਿਲ ਨਹੀਂ ਸੀ"

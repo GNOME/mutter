@@ -1,0 +1,1998 @@
+# translation of metacity.HEAD.ml.po to Malayalam
+# This file is distributed under the same license as the PACKAGE package.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER.
+# FSF-India <locale@gnu.org.in>, 2003.
+# Ani Peter <apeter@redhat.com>, 2006, 2007, 2013.
+# Anish A <aneesh.nl@gmail.com>, 2012.
+msgid ""
+msgstr ""
+"Project-Id-Version: metacity.HEAD.ml\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
+"product=mutter&keywords=I18N+L10N&component=general\n"
+"POT-Creation-Date: 2013-03-01 15:50+0000\n"
+"PO-Revision-Date: 2013-03-26 12:50+0530\n"
+"Last-Translator: Ani Peter <peter.ani@gmail.com>\n"
+"Language-Team: American English <kde-i18n-doc@kde.org>\n"
+"Language: ml\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 1.5\n"
+
+#: ../src/50-mutter-navigation.xml.in.h:1
+msgid "Navigation"
+msgstr ""
+
+#: ../src/50-mutter-navigation.xml.in.h:2
+msgid "Move window to workspace 1"
+msgstr "പണിയറ ജാലകം ഒന്നിലേക്ക് നീക്കുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:3
+msgid "Move window to workspace 2"
+msgstr "പണിയറ ജാലകം 2ലേക്ക് നീക്കുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:4
+msgid "Move window to workspace 3"
+msgstr "പണിയറ ജാലകം 3ലേക്ക് നീക്കുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:5
+msgid "Move window to workspace 4"
+msgstr "പണിയറ ജാലകം 4ലേക്ക് നീക്കുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:6
+msgid "Move window one workspace to the left"
+msgstr "ഒരു പണിയറ‌‌‌‌‌യ‌്ക്ക് ഇടതുവശത്തേക്ക് ജാലകം നീക്കുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:7
+msgid "Move window one workspace to the right"
+msgstr "ഒരു പണിയറ‌‌‌‌‌യ‌്ക്ക് വലതുവശത്തേക്ക് ജാലകം നീക്കുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:8
+msgid "Move window one workspace up"
+msgstr "പണിയറകളിലെ ജാലകങ്ങള് മുകളിലേക്ക് ചലിപ്പിക്കുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:9
+msgid "Move window one workspace down"
+msgstr "ഒരു പണിയറ‌‌‌‌‌യ‌്ക്ക് താഴെ ജാലകം നീക്കുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:10
+msgid "Switch applications"
+msgstr "പ്രയോഗങ്ങള്‍ തമ്മില്‍ മാറ്റുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:11
+msgid "Switch windows"
+msgstr "ജാലകങ്ങള്‍ തമ്മില്‍ മാറ്റുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:12
+msgid "Switch windows of an application"
+msgstr "ഒരു പ്രയോഗത്തിന്റെ ജാലകങ്ങള്‍ തമ്മില്‍ മാറ്റുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:13
+msgid "Switch system controls"
+msgstr "സിസ്റ്റം നിയന്ത്രണങ്ങള്‍ മാറ്റുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:14
+msgid "Switch windows directly"
+msgstr "ജാലകങ്ങള്‍ നേരിട്ട് മാറ്റുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:15
+msgid "Switch windows of an app directly"
+msgstr ""
+
+#: ../src/50-mutter-navigation.xml.in.h:16
+msgid "Switch system controls directly"
+msgstr ""
+
+#: ../src/50-mutter-navigation.xml.in.h:17
+msgid "Hide all normal windows"
+msgstr "എല്ലാ സാധാരണ ജാലകങ്ങളും അദൃശ്യമാക്കുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:18
+msgid "Switch to workspace 1"
+msgstr "പപണിയറകള് 1ലേക്ക് മാറ്റൂ"
+
+#: ../src/50-mutter-navigation.xml.in.h:19
+msgid "Switch to workspace 2"
+msgstr "പണിയറകള് 2ലേക്ക് മാറ്റൂ"
+
+#: ../src/50-mutter-navigation.xml.in.h:20
+msgid "Switch to workspace 3"
+msgstr "പണിയറകള് 3ലേക്ക് മാറ്റൂ"
+
+#: ../src/50-mutter-navigation.xml.in.h:21
+msgid "Switch to workspace 4"
+msgstr "പണിയറകള് 4ലേക്ക് മാറ്റൂ"
+
+#: ../src/50-mutter-navigation.xml.in.h:22
+#| msgid "Move to Workspace _Left"
+msgid "Move to workspace left"
+msgstr "ഇടത്തുളള പണിയറയിലേക്ക് നീങ്ങുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:23
+#| msgid "Move to Workspace R_ight"
+msgid "Move to workspace right"
+msgstr "വലത്തുളള പണിയറയിലേക്ക് നീങ്ങുക"
+
+#: ../src/50-mutter-navigation.xml.in.h:24
+#| msgid "Move to Workspace _Left"
+msgid "Move to workspace above"
+msgstr "മുകളിലുള്ള പണിയറയിലേക്ക് നീങ്ങുക "
+
+#: ../src/50-mutter-navigation.xml.in.h:25
+#| msgid "Move to Workspace _Down"
+msgid "Move to workspace below"
+msgstr "താഴെയുളള പണിയറയിലേക്ക് നീങ്ങുക"
+
+#: ../src/50-mutter-system.xml.in.h:1
+msgid "System"
+msgstr "സിസ്റ്റം"
+
+#: ../src/50-mutter-system.xml.in.h:2
+msgid "Show the run command prompt"
+msgstr "കമാന്‍ഡ് പ്രോപ്റ്റ് കാണിയ്ക്കുക"
+
+#: ../src/50-mutter-system.xml.in.h:3
+msgid "Show the activities overview"
+msgstr "പ്രവര്‍ത്തനങ്ങളുടെ അവലോകനം കാണിയ്ക്കുക"
+
+#: ../src/50-mutter-windows.xml.in.h:1
+msgid "Windows"
+msgstr "ജാലകങ്ങള്‍ (_W)"
+
+#: ../src/50-mutter-windows.xml.in.h:2
+#| msgid "Activate window menu"
+msgid "Activate the window menu"
+msgstr "ജാലകത്തിന്റെ മെനു സജീവമാക്കുക"
+
+#: ../src/50-mutter-windows.xml.in.h:3
+msgid "Toggle fullscreen mode"
+msgstr "അക്ഷര വിവര രീതിയില്‌ അളവ് ദൃശ്യമാക്കുക"
+
+#: ../src/50-mutter-windows.xml.in.h:4
+msgid "Toggle maximization state"
+msgstr ""
+
+#: ../src/50-mutter-windows.xml.in.h:5
+msgid "Maximize window"
+msgstr "ജാലകം ഏറ്റവും വലുതാക്കുക"
+
+#: ../src/50-mutter-windows.xml.in.h:6
+#| msgid "Resize window"
+msgid "Restore window"
+msgstr "ജാലകം വീണ്ടെടുക്കുക"
+
+#: ../src/50-mutter-windows.xml.in.h:7
+msgid "Toggle shaded state"
+msgstr ""
+
+#: ../src/50-mutter-windows.xml.in.h:8
+msgid "Close window"
+msgstr "ജാലകം അടയ്‍ക്കുക"
+
+#: ../src/50-mutter-windows.xml.in.h:9
+#| msgid "Resize window"
+msgid "Hide window"
+msgstr "ജാലകം അദൃശ്യമാക്കുക"
+
+#: ../src/50-mutter-windows.xml.in.h:10
+msgid "Move window"
+msgstr "ജാലകം നീക്കുക"
+
+#: ../src/50-mutter-windows.xml.in.h:11
+msgid "Resize window"
+msgstr "ജാലകത്തിന്‍റെ വലിപ്പം മാറ്റുക"
+
+#: ../src/50-mutter-windows.xml.in.h:12
+#| msgid "Toggle window on all workspaces"
+msgid "Toggle window on all workspaces or one"
+msgstr "എല്ലാ പണിയറകളിലെയും ജാലകങ്ങള്‍ കാണിക്കുക"
+
+#: ../src/50-mutter-windows.xml.in.h:13
+#| msgid "Raise obscured window, otherwise lower"
+msgid "Raise window if covered, otherwise lower it"
+msgstr ""
+
+#: ../src/50-mutter-windows.xml.in.h:14
+msgid "Raise window above other windows"
+msgstr "ജാലകം മറ്റ് ജാലകങ്ങള്ക്ക‌‌് മുകളിലേക്ക് ഉയ‌ര്ത്തുക"
+
+#: ../src/50-mutter-windows.xml.in.h:15
+msgid "Lower window below other windows"
+msgstr "ജാലകം മറ്റ് ജാലകങ്ങള്ക്കടിയിലാക്കുക"
+
+#: ../src/50-mutter-windows.xml.in.h:16
+msgid "Maximize window vertically"
+msgstr "ജാലകം ലംബമായ് വലുതാക്കുക"
+
+#: ../src/50-mutter-windows.xml.in.h:17
+msgid "Maximize window horizontally"
+msgstr "ജാലകം തിരശ്ചീനമായ് വലുതാക്കുക"
+
+#: ../src/50-mutter-windows.xml.in.h:18
+msgid "View split on left"
+msgstr ""
+
+#: ../src/50-mutter-windows.xml.in.h:19
+msgid "View split on right"
+msgstr ""
+
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: ../src/compositor/compositor.c:507
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display \"%s"
+"\"."
+msgstr ""
+
+#: ../src/compositor/meta-background.c:1111
+msgid "background texture could not be created from file"
+msgstr ""
+
+#: ../src/core/bell.c:320
+msgid "Bell event"
+msgstr "ബെല്‍ ഇവെന്റ്"
+
+#: ../src/core/core.c:157
+#, c-format
+msgid "Unknown window information request: %d"
+msgstr "ജാലകത്തിനുള്ള ആവശ്യം അപരിചിതമായ സ്ഥലത്ത് നിന്നും : %d"
+
+#: ../src/core/delete.c:111
+#, c-format
+#| msgid "%s is not responding."
+msgid "“%s” is not responding."
+msgstr "\"%s\"-ല്‍ നിന്നും മറുപടി ലഭ്യമല്ല."
+
+#: ../src/core/delete.c:113
+msgid "Application is not responding."
+msgstr "പ്രയോഗത്തില്‍ നിന്നും ഒരു മറുപടിയും ലഭ്യമല്ല."
+
+#: ../src/core/delete.c:118
+msgid ""
+"You may choose to wait a short while for it to continue or force the "
+"application to quit entirely."
+msgstr ""
+"ഒന്നുകില്‍ പ്രയോഗം മുഴുവനായി നീര്‍ത്താം, അല്ലെങ്കില്‍ അതിന് കുറച്ച് സമയം കൂടി "
+"കൊടുത്ത് തുടരാം."
+
+#: ../src/core/delete.c:125
+msgid "_Wait"
+msgstr "കാത്തിരിക്കുക (_W)"
+
+#: ../src/core/delete.c:125
+msgid "_Force Quit"
+msgstr "നിര്‍ബന്ധമായും പുറത്ത് കടക്കുക (_F)"
+
+#: ../src/core/display.c:401
+#, c-format
+msgid "Missing %s extension required for compositing"
+msgstr ""
+
+#: ../src/core/display.c:493
+#, c-format
+msgid "Failed to open X Window System display '%s'\n"
+msgstr "XWindow തുറക്കുന്നതില്‌ പരാജയം : %s\n"
+
+#: ../src/core/keybindings.c:929
+#, c-format
+msgid ""
+"Some other program is already using the key %s with modifiers %x as a "
+"binding\n"
+msgstr ""
+
+#: ../src/core/keybindings.c:1129
+#, c-format
+msgid "\"%s\" is not a valid accelerator\n"
+msgstr ""
+
+#: ../src/core/main.c:196
+msgid "Disable connection to session manager"
+msgstr "സെഷന്‍ മാനേജറിലേക്കുള്ള കണക്ഷന്‍ പ്രവര്‍ത്തന രഹിതമാക്കുക"
+
+#: ../src/core/main.c:202
+msgid "Replace the running window manager"
+msgstr "പ്രവര്‍ത്തനത്തിലുള്ള ജാലകത്തിന്റെ മാനേജറിനെ മാറ്റുക"
+
+#: ../src/core/main.c:208
+msgid "Specify session management ID"
+msgstr "സെഷന്‍ കൈകാര്യം ചെയ്യുന്ന ID നല്‍കുക"
+
+#: ../src/core/main.c:213
+msgid "X Display to use"
+msgstr "ഉപയോഗിക്കുന്നതിനുള്ള X ഡിസ്പ്ളെ"
+
+#: ../src/core/main.c:219
+msgid "Initialize session from savefile"
+msgstr "savefile-ല്‍ നിന്നും സെഷന്‍ ആരംഭിക്കുക"
+
+#: ../src/core/main.c:225
+msgid "Make X calls synchronous"
+msgstr ""
+
+#: ../src/core/main.c:494
+#, c-format
+msgid "Failed to scan themes directory: %s\n"
+msgstr "പ്രമേയം സ്കാന്‍ ചെയ്യുവാന്‍ കഴിഞ്ഞില്ല: %s\n"
+
+#: ../src/core/main.c:510
+#, c-format
+msgid ""
+"Could not find a theme! Be sure %s exists and contains the usual themes.\n"
+msgstr ""
+
+#: ../src/core/mutter.c:40
+#, c-format
+msgid ""
+"mutter %s\n"
+"Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+"This is free software; see the source for copying conditions.\n"
+"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+"PARTICULAR PURPOSE.\n"
+msgstr ""
+"മട്ടര്‍ %s\n"
+"പകര്‍പ്പവകാശം (C) 2001-%d ഹാവോക്ക് പെന്നിംഗിടണ്‍, റെഡ്ഹാറ്റ്, പിന്നെ "
+"മറ്റുള്ളവരും\n"
+"ഇത് ഒരു സ്വതന്ത്ര സോഫ്റ്റ്‌വെയറാണ്; പകര്‍ത്താനുള്ള നിബന്ധനകള്‍ കാണാന്‍ "
+"സോഴ്സ്കോഡ് നോക്കുക.\n"
+"ഇതിന് ഒരു ഉറപ്പും ഇല്ല; ഏതെങ്കിലും കാര്യങ്ങള്‍ക്ക് അനുയോജ്യമാണെന്നോ "
+"ഉപയോഗയോഗ്യമാണന്നോഉള്ള ഉറപ്പ് "
+"പോലും.\n"
+
+#: ../src/core/mutter.c:54
+msgid "Print version"
+msgstr "അച്ചടി പതിപ്പ്"
+
+#: ../src/core/mutter.c:60
+msgid "Mutter plugin to use"
+msgstr "ഉപയോഗിക്കേണ്ട മട്ടര്‍ പ്ലഗ്ഗിന്‍"
+
+#: ../src/core/prefs.c:1087
+msgid ""
+"Workarounds for broken applications disabled. Some applications may not "
+"behave properly.\n"
+msgstr ""
+
+#: ../src/core/prefs.c:1162
+#, c-format
+msgid "Could not parse font description \"%s\" from GSettings key %s\n"
+msgstr ""
+
+#: ../src/core/prefs.c:1228
+#, c-format
+msgid ""
+"\"%s\" found in configuration database is not a valid value for mouse button "
+"modifier\n"
+msgstr ""
+
+#: ../src/core/prefs.c:1780
+#, c-format
+msgid ""
+"\"%s\" found in configuration database is not a valid value for keybinding "
+"\"%s\"\n"
+msgstr ""
+
+#: ../src/core/prefs.c:1879
+#, c-format
+msgid "Workspace %d"
+msgstr "പണിയറ %d"
+
+#: ../src/core/screen.c:673
+#, c-format
+msgid "Screen %d on display '%s' is invalid\n"
+msgstr "സ്ക്രീന്‍ %d (ഡിസ്പ്ളേ '%s'ലെ) അസാധുവാണ്\n"
+
+#: ../src/core/screen.c:689
+#, c-format
+msgid ""
+"Screen %d on display \"%s\" already has a window manager; try using the --"
+"replace option to replace the current window manager.\n"
+msgstr ""
+
+#: ../src/core/screen.c:716
+#, c-format
+msgid ""
+"Could not acquire window manager selection on screen %d display \"%s\"\n"
+msgstr ""
+
+#: ../src/core/screen.c:794
+#, c-format
+msgid "Screen %d on display \"%s\" already has a window manager\n"
+msgstr ""
+
+#: ../src/core/screen.c:979
+#, c-format
+msgid "Could not release screen %d on display \"%s\"\n"
+msgstr ""
+
+#: ../src/core/session.c:843 ../src/core/session.c:850
+#, c-format
+msgid "Could not create directory '%s': %s\n"
+msgstr "'%s'എന്ന കൂട് ഉണ്ടാക്കാന്‌ കഴിയുന്നില്ല: %s\n"
+
+#: ../src/core/session.c:860
+#, c-format
+msgid "Could not open session file '%s' for writing: %s\n"
+msgstr "%s എഴുതാനായി തുറക്കുന്നതില്‌ %s പരാജയം\n"
+
+#: ../src/core/session.c:1001
+#, c-format
+msgid "Error writing session file '%s': %s\n"
+msgstr "'%s' രചനാ എഴുതുന്നതില്‌ പരാജയം: %s\n"
+
+#: ../src/core/session.c:1006
+#, c-format
+msgid "Error closing session file '%s': %s\n"
+msgstr "'%s' രചന അട‌യ്‌ക്കുന്നതില്‌‌ പരാജയം: %s\n"
+
+#: ../src/core/session.c:1136
+#, c-format
+msgid "Failed to parse saved session file: %s\n"
+msgstr "രചന  വായിക്കുന്നതില്‌ പരാജയപ്പെട്ടു: %s\n"
+
+#: ../src/core/session.c:1185
+#, c-format
+msgid "<mutter_session> attribute seen but we already have the session ID"
+msgstr ""
+
+#: ../src/core/session.c:1198 ../src/core/session.c:1273
+#: ../src/core/session.c:1305 ../src/core/session.c:1377
+#: ../src/core/session.c:1437
+#, c-format
+msgid "Unknown attribute %s on <%s> element"
+msgstr "\"%s\" എന്ന ആട്രിബ്യൂട്ട് <%s> എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#: ../src/core/session.c:1215
+#, c-format
+msgid "nested <window> tag"
+msgstr "തരക്കെട്ടില്ലാത്ത ജാലകം"
+
+#: ../src/core/session.c:1457
+#, c-format
+msgid "Unknown element %s"
+msgstr "%s ന്റെ അറിയാത്ത ഘടകം"
+
+#: ../src/core/session.c:1809
+msgid ""
+"These windows do not support &quot;save current setup&quot; and will have to "
+"be restarted manually next time you log in."
+msgstr ""
+
+#: ../src/core/util.c:80
+#, c-format
+msgid "Failed to open debug log: %s\n"
+msgstr "തുറക്കുന്നതില്‌ പരാജയം: %s\n"
+
+#: ../src/core/util.c:90
+#, c-format
+msgid "Failed to fdopen() log file %s: %s\n"
+msgstr "fdopen() log രചന %s തുറക്കുന്നതില്‌ പരാജയം : %s\n"
+
+#: ../src/core/util.c:96
+#, c-format
+msgid "Opened log file %s\n"
+msgstr "തുറന്ന ഒരു ലോഗ് രചന %s\n"
+
+#: ../src/core/util.c:115 ../src/tools/mutter-message.c:149
+#, c-format
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr ""
+"വിശദാംശങ്ങള്‍ കാണിക്കുന്ന രീതിയുടെ പിന്തുണ ഇല്ലാതെയാണ് ഈ മെറ്റാ സിറ്റി "
+"തയ്യാറാക്കിയത്\n"
+
+#: ../src/core/util.c:259
+msgid "Window manager: "
+msgstr "ജാലക പാലകന്:‌"
+
+#: ../src/core/util.c:407
+msgid "Bug in window manager: "
+msgstr "ജാലക പാലകനിലെ പിഴവ്: ‌"
+
+#: ../src/core/util.c:438
+msgid "Window manager warning: "
+msgstr "ജാലക പാലകന്റെ മുന്നറിയിപ്പ്:‌"
+
+#: ../src/core/util.c:466
+msgid "Window manager error: "
+msgstr "ജാലക പാലകന്റെ തെറ്റ്:‌‌"
+
+#. first time through
+#: ../src/core/window.c:7539
+#, c-format
+msgid ""
+"Window %s sets SM_CLIENT_ID on itself, instead of on the WM_CLIENT_LEADER "
+"window as specified in the ICCCM.\n"
+msgstr ""
+
+#. We ignore mwm_has_resize_func because WM_NORMAL_HINTS is the
+#. * authoritative source for that info. Some apps such as mplayer or
+#. * xine disable resize via MWM but not WM_NORMAL_HINTS, but that
+#. * leads to e.g. us not fullscreening their windows.  Apps that set
+#. * MWM but not WM_NORMAL_HINTS are basically broken. We complain
+#. * about these apps but make them work.
+#.
+#: ../src/core/window.c:8263
+#, c-format
+msgid ""
+"Window %s sets an MWM hint indicating it isn't resizable, but sets min size "
+"%d x %d and max size %d x %d; this doesn't make much sense.\n"
+msgstr ""
+
+#: ../src/core/window-props.c:318
+#, c-format
+msgid "Application set a bogus _NET_WM_PID %lu\n"
+msgstr ""
+
+#: ../src/core/window-props.c:434
+#, c-format
+msgid "%s (on %s)"
+msgstr "%s (%s-ല്‍)"
+
+#: ../src/core/window-props.c:1517
+#, c-format
+msgid "Invalid WM_TRANSIENT_FOR window 0x%lx specified for %s.\n"
+msgstr ""
+
+#: ../src/core/window-props.c:1528
+#, c-format
+msgid "WM_TRANSIENT_FOR window 0x%lx for %s would create loop.\n"
+msgstr ""
+
+#: ../src/core/xprops.c:155
+#, c-format
+msgid ""
+"Window 0x%lx has property %s\n"
+"that was expected to have type %s format %d\n"
+"and actually has type %s format %d n_items %d.\n"
+"This is most likely an application bug, not a window manager bug.\n"
+"The window has title=\"%s\" class=\"%s\" name=\"%s\"\n"
+msgstr ""
+
+#: ../src/core/xprops.c:411
+#, c-format
+msgid "Property %s on window 0x%lx contained invalid UTF-8\n"
+msgstr ""
+
+#: ../src/core/xprops.c:494
+#, c-format
+msgid ""
+"Property %s on window 0x%lx contained invalid UTF-8 for item %d in the list\n"
+msgstr ""
+
+#: ../src/mutter.desktop.in.h:1 ../src/mutter-wm.desktop.in.h:1
+msgid "Mutter"
+msgstr "മട്ടര്‍"
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:1
+msgid "Modifier to use for extended window management operations"
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:2
+msgid ""
+"This key will initiate the \"overlay\", which is a combination window "
+"overview and application launching system. The default is intended to be the "
+"\"Windows key\" on PC hardware. It's expected that this binding either the "
+"default or set to the empty string."
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:3
+msgid "Attach modal dialogs"
+msgstr "മോഡല്‍ ഡയലോഗ് കൂട്ടിചേര്‍ക്കുക"
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:4
+msgid ""
+"When true, instead of having independent titlebars, modal dialogs appear "
+"attached to the titlebar of the parent window and are moved together with "
+"the parent window."
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:5
+msgid "Enable edge tiling when dropping windows on screen edges"
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:6
+msgid ""
+"If enabled, dropping windows on vertical screen edges maximizes them "
+"vertically and resizes them horizontally to cover half of the available "
+"area. Dropping windows on the top screen edge maximizes them completely."
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:7
+msgid "Workspaces are managed dynamically"
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:8
+msgid ""
+"Determines whether workspaces are managed dynamically or whether there's a "
+"static number of workspaces (determined by the num-workspaces key in org."
+"gnome.desktop.wm.preferences)."
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:9
+msgid "Workspaces only on primary"
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:10
+msgid ""
+"Determines whether workspace switching should happen for windows on all "
+"monitors or only for windows on the primary monitor."
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:11
+msgid "No tab popup"
+msgstr "റ്റാബ് പോപ്പപ്പ് ലഭ്യമല്ല"
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:12
+msgid ""
+"Determines whether the use of popup and highlight frame should be disabled "
+"for window cycling."
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:13
+msgid "Delay focus changes until the pointer stops moving"
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:14
+msgid ""
+"If set to true, and the focus mode is either \"sloppy\" or \"mouse\" then "
+"the focus will not be changed immediately when entering a window, but only "
+"after the pointer stops moving."
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:15
+msgid "Draggable border width"
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:16
+msgid ""
+"The amount of total draggable borders. If the theme's visible borders are "
+"not enough, invisible borders will be added to meet this value."
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:17
+msgid "Auto maximize nearly monitor sized windows"
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:18
+msgid ""
+"If enabled, new windows that are initially the size of the monitor "
+"automatically get maximized."
+msgstr ""
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:19
+msgid "Select window from tab popup"
+msgstr "റ്റാബ് പോപ്പപ്പില്‍ നിന്നും ജാലകം തെരഞ്ഞെടുക്കുക"
+
+#: ../src/org.gnome.mutter.gschema.xml.in.h:20
+msgid "Cancel tab popup"
+msgstr "റ്റാബ് പോപ്പപ്പ് റദ്ദാക്കുക"
+
+#: ../src/tools/mutter-message.c:123
+#, c-format
+msgid "Usage: %s\n"
+msgstr "ഉപയോഗം: %s\n"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:69
+msgid "Mi_nimize"
+msgstr "ചെറുതാക്കുക (_n)"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:71
+msgid "Ma_ximize"
+msgstr "വലുതാക്കുക (_x)"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:73
+msgid "Unma_ximize"
+msgstr "വലുതാക്കിയതൊഴിവാക്കുക (_x)"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:75
+msgid "Roll _Up"
+msgstr "ചുരുട്ടുക"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:77
+msgid "_Unroll"
+msgstr "ചുരുളഴിക്കുക"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:79
+msgid "_Move"
+msgstr "നീക്കുക (_M)"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:81
+msgid "_Resize"
+msgstr "വലിപ്പം മാറ്റുക (_R)"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:83
+msgid "Move Titlebar On_screen"
+msgstr "സ്ക്രീനിലേക്ക് തലക്കെട്ടിന്റെ ബാറ്‍ നീക്കുക (_s)"
+
+#. separator
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:86 ../src/ui/menu.c:88
+msgid "Always on _Top"
+msgstr "എപ്പോഴും മുകളില്‍ (_T)"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:90
+msgid "_Always on Visible Workspace"
+msgstr "എപ്പോഴും ദൃശ്യമായ പണിയറയില്‍ (_A)"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:92
+msgid "_Only on This Workspace"
+msgstr "ഈ പണിയറയില്‍ മാത്രം (_O)"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:94
+msgid "Move to Workspace _Left"
+msgstr "ഇടത്തുളള പണിയറയിലേക്ക് നീങ്ങുക (_L)"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:96
+msgid "Move to Workspace R_ight"
+msgstr "വലത്തുളള പണിയറയിലേക്ക് നീങ്ങുക (_R)"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:98
+msgid "Move to Workspace _Up"
+msgstr "മുകളിലുളള പണിയറയിലേക്ക് നീങ്ങുക (_U)"
+
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:100
+msgid "Move to Workspace _Down"
+msgstr "താഴെയുളള പണിയറയിലേക്ക് നീങ്ങുക (_D)"
+
+#. separator
+#. Translators: Translate this string the same way as you do in libwnck!
+#: ../src/ui/menu.c:104
+msgid "_Close"
+msgstr "അടയ്ക്കുക (_C)"
+
+#: ../src/ui/menu.c:204
+#, c-format
+msgid "Workspace %d%n"
+msgstr "പണിയറ %d%n"
+
+#: ../src/ui/menu.c:214
+#, c-format
+msgid "Workspace 1_0"
+msgstr "പണിയറ 1_0"
+
+#: ../src/ui/menu.c:216
+#, c-format
+msgid "Workspace %s%d"
+msgstr "പണിയറ %s%d"
+
+#: ../src/ui/menu.c:397
+msgid "Move to Another _Workspace"
+msgstr "മറ്റൊരു പണിയറയിലേക്ക് നീങ്ങുക (_W)"
+
+#. This is the text that should appear next to menu accelerators
+#. * that use the shift key. If the text on this key isn't typically
+#. * translated on keyboards used for your language, don't translate
+#. * this.
+#.
+#: ../src/ui/metaaccellabel.c:77
+msgid "Shift"
+msgstr "മാറ്റുക"
+
+#. This is the text that should appear next to menu accelerators
+#. * that use the control key. If the text on this key isn't typically
+#. * translated on keyboards used for your language, don't translate
+#. * this.
+#.
+#: ../src/ui/metaaccellabel.c:83
+msgid "Ctrl"
+msgstr "നിയന്ത്രണം"
+
+#. This is the text that should appear next to menu accelerators
+#. * that use the alt key. If the text on this key isn't typically
+#. * translated on keyboards used for your language, don't translate
+#. * this.
+#.
+#: ../src/ui/metaaccellabel.c:89
+msgid "Alt"
+msgstr "Alt"
+
+#. This is the text that should appear next to menu accelerators
+#. * that use the meta key. If the text on this key isn't typically
+#. * translated on keyboards used for your language, don't translate
+#. * this.
+#.
+#: ../src/ui/metaaccellabel.c:95
+msgid "Meta"
+msgstr "Meta"
+
+#. This is the text that should appear next to menu accelerators
+#. * that use the super key. If the text on this key isn't typically
+#. * translated on keyboards used for your language, don't translate
+#. * this.
+#.
+#: ../src/ui/metaaccellabel.c:101
+msgid "Super"
+msgstr "Super"
+
+#. This is the text that should appear next to menu accelerators
+#. * that use the hyper key. If the text on this key isn't typically
+#. * translated on keyboards used for your language, don't translate
+#. * this.
+#.
+#: ../src/ui/metaaccellabel.c:107
+msgid "Hyper"
+msgstr "Hyper"
+
+#. This is the text that should appear next to menu accelerators
+#. * that use the mod2 key. If the text on this key isn't typically
+#. * translated on keyboards used for your language, don't translate
+#. * this.
+#.
+#: ../src/ui/metaaccellabel.c:113
+msgid "Mod2"
+msgstr "Mod2"
+
+#. This is the text that should appear next to menu accelerators
+#. * that use the mod3 key. If the text on this key isn't typically
+#. * translated on keyboards used for your language, don't translate
+#. * this.
+#.
+#: ../src/ui/metaaccellabel.c:119
+msgid "Mod3"
+msgstr "Mod3"
+
+#. This is the text that should appear next to menu accelerators
+#. * that use the mod4 key. If the text on this key isn't typically
+#. * translated on keyboards used for your language, don't translate
+#. * this.
+#.
+#: ../src/ui/metaaccellabel.c:125
+msgid "Mod4"
+msgstr "Mod4"
+
+#. This is the text that should appear next to menu accelerators
+#. * that use the mod5 key. If the text on this key isn't typically
+#. * translated on keyboards used for your language, don't translate
+#. * this.
+#.
+#: ../src/ui/metaaccellabel.c:131
+msgid "Mod5"
+msgstr "Mod5"
+
+#. Translators: This represents the size of a window.  The first number is
+#. * the width of the window and the second is the height.
+#.
+#: ../src/ui/resizepopup.c:136
+#, c-format
+msgid "%d x %d"
+msgstr "%d x %d"
+
+#: ../src/ui/theme.c:235
+msgid "top"
+msgstr "മുകളില്‌"
+
+#: ../src/ui/theme.c:237
+msgid "bottom"
+msgstr "താഴെ"
+
+#: ../src/ui/theme.c:239
+msgid "left"
+msgstr "ഇടത്"
+
+#: ../src/ui/theme.c:241
+msgid "right"
+msgstr "വലത്"
+
+#: ../src/ui/theme.c:269
+#, c-format
+msgid "frame geometry does not specify \"%s\" dimension"
+msgstr ""
+
+#: ../src/ui/theme.c:288
+#, c-format
+msgid "frame geometry does not specify dimension \"%s\" for border \"%s\""
+msgstr ""
+
+#: ../src/ui/theme.c:325
+#, c-format
+msgid "Button aspect ratio %g is not reasonable"
+msgstr ""
+
+#: ../src/ui/theme.c:337
+#, c-format
+msgid "Frame geometry does not specify size of buttons"
+msgstr ""
+
+#: ../src/ui/theme.c:1050
+#, c-format
+msgid "Gradients should have at least two colors"
+msgstr ""
+
+#: ../src/ui/theme.c:1202
+#, c-format
+msgid ""
+"GTK custom color specification must have color name and fallback in "
+"parentheses, e.g. gtk:custom(foo,bar); could not parse \"%s\""
+msgstr ""
+
+#: ../src/ui/theme.c:1218
+#, c-format
+msgid ""
+"Invalid character '%c' in color_name parameter of gtk:custom, only A-Za-z0-9-"
+"_ are valid"
+msgstr ""
+
+#: ../src/ui/theme.c:1232
+#, c-format
+msgid ""
+"Gtk:custom format is \"gtk:custom(color_name,fallback)\", \"%s\" does not "
+"fit the format"
+msgstr ""
+
+#: ../src/ui/theme.c:1277
+#, c-format
+msgid ""
+"GTK color specification must have the state in brackets, e.g. gtk:fg[NORMAL] "
+"where NORMAL is the state; could not parse \"%s\""
+msgstr ""
+
+#: ../src/ui/theme.c:1291
+#, c-format
+msgid ""
+"GTK color specification must have a close bracket after the state, e.g. gtk:"
+"fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+msgstr ""
+
+#: ../src/ui/theme.c:1302
+#, c-format
+msgid "Did not understand state \"%s\" in color specification"
+msgstr ""
+
+#: ../src/ui/theme.c:1315
+#, c-format
+msgid "Did not understand color component \"%s\" in color specification"
+msgstr ""
+
+#: ../src/ui/theme.c:1344
+#, c-format
+msgid ""
+"Blend format is \"blend/bg_color/fg_color/alpha\", \"%s\" does not fit the "
+"format"
+msgstr ""
+
+#: ../src/ui/theme.c:1355
+#, c-format
+msgid "Could not parse alpha value \"%s\" in blended color"
+msgstr ""
+
+#: ../src/ui/theme.c:1365
+#, c-format
+msgid "Alpha value \"%s\" in blended color is not between 0.0 and 1.0"
+msgstr ""
+
+#: ../src/ui/theme.c:1412
+#, c-format
+msgid ""
+"Shade format is \"shade/base_color/factor\", \"%s\" does not fit the format"
+msgstr ""
+
+#: ../src/ui/theme.c:1423
+#, c-format
+msgid "Could not parse shade factor \"%s\" in shaded color"
+msgstr ""
+
+#: ../src/ui/theme.c:1433
+#, c-format
+msgid "Shade factor \"%s\" in shaded color is negative"
+msgstr ""
+
+#: ../src/ui/theme.c:1462
+#, c-format
+msgid "Could not parse color \"%s\""
+msgstr "\"%s\" നിറം പാഴ്സ് ചെയ്യുക"
+
+#: ../src/ui/theme.c:1779
+#, c-format
+msgid "Coordinate expression contains character '%s' which is not allowed"
+msgstr ""
+
+#: ../src/ui/theme.c:1806
+#, c-format
+msgid ""
+"Coordinate expression contains floating point number '%s' which could not be "
+"parsed"
+msgstr ""
+
+#: ../src/ui/theme.c:1820
+#, c-format
+msgid "Coordinate expression contains integer '%s' which could not be parsed"
+msgstr ""
+
+#: ../src/ui/theme.c:1941
+#, c-format
+msgid ""
+"Coordinate expression contained unknown operator at the start of this text: "
+"\"%s\""
+msgstr ""
+
+#: ../src/ui/theme.c:1998
+#, c-format
+msgid "Coordinate expression was empty or not understood"
+msgstr ""
+
+#: ../src/ui/theme.c:2111 ../src/ui/theme.c:2121 ../src/ui/theme.c:2155
+#, c-format
+msgid "Coordinate expression results in division by zero"
+msgstr ""
+
+#: ../src/ui/theme.c:2163
+#, c-format
+msgid ""
+"Coordinate expression tries to use mod operator on a floating-point number"
+msgstr ""
+
+#: ../src/ui/theme.c:2219
+#, c-format
+msgid ""
+"Coordinate expression has an operator \"%s\" where an operand was expected"
+msgstr ""
+
+#: ../src/ui/theme.c:2228
+#, c-format
+msgid "Coordinate expression had an operand where an operator was expected"
+msgstr ""
+
+#: ../src/ui/theme.c:2236
+#, c-format
+msgid "Coordinate expression ended with an operator instead of an operand"
+msgstr ""
+
+#: ../src/ui/theme.c:2246
+#, c-format
+msgid ""
+"Coordinate expression has operator \"%c\" following operator \"%c\" with no "
+"operand in between"
+msgstr ""
+
+#: ../src/ui/theme.c:2397 ../src/ui/theme.c:2442
+#, c-format
+msgid "Coordinate expression had unknown variable or constant \"%s\""
+msgstr ""
+
+#: ../src/ui/theme.c:2496
+#, c-format
+msgid "Coordinate expression parser overflowed its buffer."
+msgstr ""
+
+#: ../src/ui/theme.c:2525
+#, c-format
+msgid "Coordinate expression had a close parenthesis with no open parenthesis"
+msgstr ""
+
+#: ../src/ui/theme.c:2589
+#, c-format
+msgid "Coordinate expression had an open parenthesis with no close parenthesis"
+msgstr ""
+
+#: ../src/ui/theme.c:2600
+#, c-format
+msgid "Coordinate expression doesn't seem to have any operators or operands"
+msgstr ""
+
+#: ../src/ui/theme.c:2813 ../src/ui/theme.c:2833 ../src/ui/theme.c:2853
+#, c-format
+msgid "Theme contained an expression that resulted in an error: %s\n"
+msgstr ""
+
+#: ../src/ui/theme.c:4499
+#, c-format
+msgid ""
+"<button function=\"%s\" state=\"%s\" draw_ops=\"whatever\"/> must be "
+"specified for this frame style"
+msgstr ""
+
+#: ../src/ui/theme.c:5010 ../src/ui/theme.c:5035
+#, c-format
+msgid ""
+"Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/>"
+msgstr ""
+"<frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/> ലഭ്യമല്ല"
+
+#: ../src/ui/theme.c:5083
+#, c-format
+msgid "Failed to load theme \"%s\": %s\n"
+msgstr "പ്രമേയം %s കൊണ്ട് വരാന് കഴിഞ്ഞില്ല: %s\n"
+
+#: ../src/ui/theme.c:5219 ../src/ui/theme.c:5226 ../src/ui/theme.c:5233
+#: ../src/ui/theme.c:5240 ../src/ui/theme.c:5247
+#, c-format
+msgid "No <%s> set for theme \"%s\""
+msgstr "<%s>, \"%s\"-നു് സജ്ജമല്ല"
+
+#: ../src/ui/theme.c:5255
+#, c-format
+msgid ""
+"No frame style set for window type \"%s\" in theme \"%s\", add a <window "
+"type=\"%s\" style_set=\"whatever\"/> element"
+msgstr ""
+
+#: ../src/ui/theme.c:5662 ../src/ui/theme.c:5724 ../src/ui/theme.c:5787
+#, c-format
+msgid ""
+"User-defined constants must begin with a capital letter; \"%s\" does not"
+msgstr ""
+
+#: ../src/ui/theme.c:5670 ../src/ui/theme.c:5732 ../src/ui/theme.c:5795
+#, c-format
+msgid "Constant \"%s\" has already been defined"
+msgstr ""
+
+#. Translators: This means that an attribute which should have been found
+#. * on an XML element was not in fact found.
+#.
+#: ../src/ui/theme-parser.c:236
+#, c-format
+msgid "No \"%s\" attribute on element <%s>"
+msgstr "<%s> എലമെന്‍റില്‍ \"%s\" ആട്രിബ്യൂട്ട് ഇല്ല"
+
+#: ../src/ui/theme-parser.c:265 ../src/ui/theme-parser.c:283
+#, c-format
+msgid "Line %d character %d: %s"
+msgstr "%d-ആം വരി %d എന്ന അക്ഷരം: %s"
+
+#: ../src/ui/theme-parser.c:479
+#, c-format
+msgid "Attribute \"%s\" repeated twice on the same <%s> element"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:503 ../src/ui/theme-parser.c:552
+#, c-format
+msgid "Attribute \"%s\" is invalid on <%s> element in this context"
+msgstr "ഇവിടെ <%s> എന്ന എലമെന്‍റില്‍ \"%s\" ആട്ട്രിബ്യൂട്ട് അസാധുവാണ്."
+
+#: ../src/ui/theme-parser.c:594
+#, c-format
+msgid "Could not parse \"%s\" as an integer"
+msgstr "%s നെ ഒരു സംഖ്യയായി വേ‌ര്തിരിക്കാന്‌ കഴിയുഞ്ഞില്ല"
+
+#: ../src/ui/theme-parser.c:603 ../src/ui/theme-parser.c:658
+#, c-format
+msgid "Did not understand trailing characters \"%s\" in string \"%s\""
+msgstr ""
+
+#: ../src/ui/theme-parser.c:613
+#, c-format
+msgid "Integer %ld must be positive"
+msgstr "%ld ഇന്റിജര്‍ പോസിറ്റീവായിരിയ്ക്കണം"
+
+#: ../src/ui/theme-parser.c:621
+#, c-format
+msgid "Integer %ld is too large, current max is %d"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:649 ../src/ui/theme-parser.c:765
+#, c-format
+msgid "Could not parse \"%s\" as a floating point number"
+msgstr "%s നെ ഒരു സംഖ്യയായി വേ‌ര്തിരിക്കാന്‌ കഴിയുഞ്ഞില്ല"
+
+#: ../src/ui/theme-parser.c:680 ../src/ui/theme-parser.c:708
+#, c-format
+msgid "Boolean values must be \"true\" or \"false\" not \"%s\""
+msgstr ""
+
+#: ../src/ui/theme-parser.c:735
+#, c-format
+msgid "Angle must be between 0.0 and 360.0, was %g\n"
+msgstr "കോണ്‍ 0.0 തിനും 360.0 നും ഇടയിലായിരിക്കണം, പക്ഷേ ഇവിടെ %g ആയിരുന്നു\n"
+
+#: ../src/ui/theme-parser.c:798
+#, c-format
+msgid "Alpha must be between 0.0 (invisible) and 1.0 (fully opaque), was %g\n"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:863
+#, c-format
+msgid ""
+"Invalid title scale \"%s\" (must be one of xx-small,x-small,small,medium,"
+"large,x-large,xx-large)\n"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:1019 ../src/ui/theme-parser.c:1082
+#: ../src/ui/theme-parser.c:1116 ../src/ui/theme-parser.c:1219
+#, c-format
+msgid "<%s> name \"%s\" used a second time"
+msgstr "<%s> പേര് \"%s\" രണ്ടാം തവണ ഉപയോഗിച്ചിരിക്കുന്നു"
+
+#: ../src/ui/theme-parser.c:1031 ../src/ui/theme-parser.c:1128
+#: ../src/ui/theme-parser.c:1231
+#, c-format
+msgid "<%s> parent \"%s\" has not been defined"
+msgstr "<%s> പേരന്റ് \"%s\" വ്യക്തമാക്കിയിട്ടില്ല"
+
+#: ../src/ui/theme-parser.c:1141
+#, c-format
+msgid "<%s> geometry \"%s\" has not been defined"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:1154
+#, c-format
+msgid "<%s> must specify either a geometry or a parent that has a geometry"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:1196
+msgid "You must specify a background for an alpha value to be meaningful"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:1264
+#, c-format
+msgid "Unknown type \"%s\" on <%s> element"
+msgstr "അപരിചിതമായ \"%s\" തരം <%s> എലമെന്റില്‍"
+
+#: ../src/ui/theme-parser.c:1275
+#, c-format
+msgid "Unknown style_set \"%s\" on <%s> element"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:1283
+#, c-format
+msgid "Window type \"%s\" has already been assigned a style set"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:1313 ../src/ui/theme-parser.c:1377
+#: ../src/ui/theme-parser.c:1603 ../src/ui/theme-parser.c:2838
+#: ../src/ui/theme-parser.c:2884 ../src/ui/theme-parser.c:3034
+#: ../src/ui/theme-parser.c:3273 ../src/ui/theme-parser.c:3311
+#: ../src/ui/theme-parser.c:3349 ../src/ui/theme-parser.c:3387
+#, c-format
+msgid "Element <%s> is not allowed below <%s>"
+msgstr "<%s>-ന്‍റെ കീഴില്‍ <%s> എന്ന എലമെന്‍റിന് അനുവാദമില്ല"
+
+#: ../src/ui/theme-parser.c:1427 ../src/ui/theme-parser.c:1441
+#: ../src/ui/theme-parser.c:1486
+msgid ""
+"Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio\" "
+"for buttons"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:1450
+#, c-format
+msgid "Distance \"%s\" is unknown"
+msgstr "\"%s\" എന്ന ദൂരം അപരിചിതമാണ്"
+
+#: ../src/ui/theme-parser.c:1495
+#, c-format
+msgid "Aspect ratio \"%s\" is unknown"
+msgstr "\"%s\" എന്ന ആസ്പെക്റ്റ് റേഷ്യോ അപരിചിതമാണ്"
+
+#: ../src/ui/theme-parser.c:1557
+#, c-format
+msgid "Border \"%s\" is unknown"
+msgstr "\"%s\" എന്ന അതിര് അപരിചിതമാണ്"
+
+#: ../src/ui/theme-parser.c:1868
+#, c-format
+msgid "No \"start_angle\" or \"from\" attribute on element <%s>"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:1875
+#, c-format
+msgid "No \"extent_angle\" or \"to\" attribute on element <%s>"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:2115
+#, c-format
+msgid "Did not understand value \"%s\" for type of gradient"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:2193 ../src/ui/theme-parser.c:2568
+#, c-format
+msgid "Did not understand fill type \"%s\" for <%s> element"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:2360 ../src/ui/theme-parser.c:2443
+#: ../src/ui/theme-parser.c:2506
+#, c-format
+msgid "Did not understand state \"%s\" for <%s> element"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:2370 ../src/ui/theme-parser.c:2453
+#, c-format
+msgid "Did not understand shadow \"%s\" for <%s> element"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:2380
+#, c-format
+msgid "Did not understand arrow \"%s\" for <%s> element"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:2694 ../src/ui/theme-parser.c:2790
+#, c-format
+msgid "No <draw_ops> called \"%s\" has been defined"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:2706 ../src/ui/theme-parser.c:2802
+#, c-format
+msgid "Including draw_ops \"%s\" here would create a circular reference"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:2917
+#, c-format
+msgid "Unknown position \"%s\" for frame piece"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:2925
+#, c-format
+msgid "Frame style already has a piece at position %s"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:2942 ../src/ui/theme-parser.c:3019
+#, c-format
+msgid "No <draw_ops> with the name \"%s\" has been defined"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:2972
+#, c-format
+msgid "Unknown function \"%s\" for button"
+msgstr "ബട്ടണു് അപരിചിതമായ ഫംഗ്ഷന്‍ \"%s\""
+
+#: ../src/ui/theme-parser.c:2982
+#, c-format
+msgid "Button function \"%s\" does not exist in this version (%d, need %d)"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:2994
+#, c-format
+msgid "Unknown state \"%s\" for button"
+msgstr "ബട്ടണു് അപരിചിതമായ അവസ്ഥ \"%s\" "
+
+#: ../src/ui/theme-parser.c:3002
+#, c-format
+msgid "Frame style already has a button for function %s state %s"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3073
+#, c-format
+msgid "\"%s\" is not a valid value for focus attribute"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3082
+#, c-format
+msgid "\"%s\" is not a valid value for state attribute"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3092
+#, c-format
+msgid "A style called \"%s\" has not been defined"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3113 ../src/ui/theme-parser.c:3136
+#, c-format
+msgid "\"%s\" is not a valid value for resize attribute"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3147
+#, c-format
+msgid ""
+"Should not have \"resize\" attribute on <%s> element for maximized/shaded "
+"states"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3161
+#, c-format
+msgid ""
+"Should not have \"resize\" attribute on <%s> element for maximized states"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3175 ../src/ui/theme-parser.c:3222
+#, c-format
+msgid "Style has already been specified for state %s resize %s focus %s"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3186 ../src/ui/theme-parser.c:3197
+#: ../src/ui/theme-parser.c:3208 ../src/ui/theme-parser.c:3233
+#: ../src/ui/theme-parser.c:3244 ../src/ui/theme-parser.c:3255
+#, c-format
+msgid "Style has already been specified for state %s focus %s"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3294
+msgid ""
+"Can't have a two draw_ops for a <piece> element (theme specified a draw_ops "
+"attribute and also a <draw_ops> element, or specified two elements)"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3332
+msgid ""
+"Can't have a two draw_ops for a <button> element (theme specified a draw_ops "
+"attribute and also a <draw_ops> element, or specified two elements)"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3370
+msgid ""
+"Can't have a two draw_ops for a <menu_icon> element (theme specified a "
+"draw_ops attribute and also a <draw_ops> element, or specified two elements)"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3434
+#, c-format
+msgid "Bad version specification '%s'"
+msgstr "തെറ്റായ പതിപ്പു് '%s'"
+
+#: ../src/ui/theme-parser.c:3507
+msgid ""
+"\"version\" attribute cannot be used in metacity-theme-1.xml or metacity-"
+"theme-2.xml"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3530
+#, c-format
+msgid "Theme requires version %s but latest supported theme version is %d.%d"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3562
+#, c-format
+msgid "Outermost element in theme must be <metacity_theme> not <%s>"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3582
+#, c-format
+msgid ""
+"Element <%s> is not allowed inside a name/author/date/description element"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3587
+#, c-format
+msgid "Element <%s> is not allowed inside a <constant> element"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3599
+#, c-format
+msgid ""
+"Element <%s> is not allowed inside a distance/border/aspect_ratio element"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3621
+#, c-format
+msgid "Element <%s> is not allowed inside a draw operation element"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3631 ../src/ui/theme-parser.c:3661
+#: ../src/ui/theme-parser.c:3666 ../src/ui/theme-parser.c:3671
+#, c-format
+msgid "Element <%s> is not allowed inside a <%s> element"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3899
+msgid "No draw_ops provided for frame piece"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3914
+msgid "No draw_ops provided for button"
+msgstr ""
+
+#: ../src/ui/theme-parser.c:3968
+#, c-format
+msgid "No text is allowed inside element <%s>"
+msgstr "എലമെന്റ് <%s>-ല്‍ വാചകം അനുവദിയ്ക്കുന്നില്ല"
+
+#: ../src/ui/theme-parser.c:4026 ../src/ui/theme-parser.c:4038
+#: ../src/ui/theme-parser.c:4050 ../src/ui/theme-parser.c:4062
+#: ../src/ui/theme-parser.c:4074
+#, c-format
+msgid "<%s> specified twice for this theme"
+msgstr "<%s> ഈ പ്രമേയത്തിനു് രണ്ടു് തവണ നല്‍കിയിരിയ്ക്കുന്നു"
+
+#: ../src/ui/theme-parser.c:4334
+#, c-format
+msgid "Failed to find a valid file for theme %s\n"
+msgstr "%s തീമിന് യോജിക്കുന്ന ഒരു ഫയല്‍ ലഭ്യമാക്കുവാന്‍ സാധ്യമായില്ല\n"
+
+#: ../src/ui/theme-viewer.c:99
+msgid "_Windows"
+msgstr "_ജാലകങ്ങള്‍ (_W)"
+
+#: ../src/ui/theme-viewer.c:100
+msgid "_Dialog"
+msgstr "_ഡയലോഗ് ബോക്സ്"
+
+#: ../src/ui/theme-viewer.c:101
+msgid "_Modal dialog"
+msgstr "_മോഡല്‍ ഡയലോഗ് ബോക്സ്"
+
+#: ../src/ui/theme-viewer.c:102
+#| msgid "/Windows/_Utility"
+msgid "_Utility"
+msgstr "_Utility"
+
+#: ../src/ui/theme-viewer.c:103
+msgid "_Splashscreen"
+msgstr "മി_ന്നല്‍ ജാലകം"
+
+#: ../src/ui/theme-viewer.c:104
+#| msgid "/Windows/_Top dock"
+msgid "_Top dock"
+msgstr "_Top dock"
+
+#: ../src/ui/theme-viewer.c:105
+#| msgid "/Windows/_Bottom dock"
+msgid "_Bottom dock"
+msgstr "_Bottom dock"
+
+#: ../src/ui/theme-viewer.c:106
+#| msgid "/Windows/_Left dock"
+msgid "_Left dock"
+msgstr "_Left dock"
+
+#: ../src/ui/theme-viewer.c:107
+#| msgid "/Windows/_Right dock"
+msgid "_Right dock"
+msgstr "_Right dock"
+
+#: ../src/ui/theme-viewer.c:108
+#| msgid "/Windows/_All docks"
+msgid "_All docks"
+msgstr "_All docks"
+
+#: ../src/ui/theme-viewer.c:109
+msgid "Des_ktop"
+msgstr "_പണിയിടം"
+
+#: ../src/ui/theme-viewer.c:115
+msgid "Open another one of these windows"
+msgstr "ഈ ജാലകത്തിലൊന്ന് തുറക്കുക"
+
+#: ../src/ui/theme-viewer.c:117
+msgid "This is a demo button with an 'open' icon"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:119
+msgid "This is a demo button with a 'quit' icon"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:248
+msgid "This is a sample message in a sample dialog"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:328
+#, c-format
+msgid "Fake menu item %d\n"
+msgstr "ശരിയല്ലാത്ത മെനു വസ്തു %d\n"
+
+#: ../src/ui/theme-viewer.c:363
+msgid "Border-only window"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:365
+msgid "Bar"
+msgstr "ബാര്‍"
+
+#: ../src/ui/theme-viewer.c:382
+msgid "Normal Application Window"
+msgstr "പ്രയോഗത്തിനുള്ള സാധാരണ ജാലകം"
+
+#: ../src/ui/theme-viewer.c:386
+msgid "Dialog Box"
+msgstr "ഡയലോഗ് ബോക്സ്"
+
+#: ../src/ui/theme-viewer.c:390
+msgid "Modal Dialog Box"
+msgstr "മോഡല്‍ ഡയലോഗ് ബോക്സ്"
+
+#: ../src/ui/theme-viewer.c:394
+msgid "Utility Palette"
+msgstr "യൂട്ടിലിറ്റിയ്ക്കുള്ള നിറക്കൂട്ട്"
+
+#: ../src/ui/theme-viewer.c:398
+msgid "Torn-off Menu"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:402
+msgid "Border"
+msgstr "അതിര്"
+
+#: ../src/ui/theme-viewer.c:406
+msgid "Attached Modal Dialog"
+msgstr "കൂടെയുള്ള മോഡല്‍ ഡയലോഗ് ബോക്സ്"
+
+#: ../src/ui/theme-viewer.c:737
+#, c-format
+msgid "Button layout test %d"
+msgstr "ബട്ടണ്‍ ശൈലി പരീക്ഷണം %d"
+
+#: ../src/ui/theme-viewer.c:766
+#, c-format
+msgid "%g milliseconds to draw one window frame"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:811
+#, c-format
+msgid "Usage: metacity-theme-viewer [THEMENAME]\n"
+msgstr "ഉപയോഗിക്കേണ്ട വിധം: metacity-theme-viewer [THEMENAME]\n"
+
+#: ../src/ui/theme-viewer.c:818
+#, c-format
+msgid "Error loading theme: %s\n"
+msgstr "പ്രമേയം ലോഡ് ചെയ്യുന്നതില്‍ പിശക്: %s\n"
+
+#: ../src/ui/theme-viewer.c:824
+#, c-format
+msgid "Loaded theme \"%s\" in %g seconds\n"
+msgstr "\"%s\" എന്ന തീം %g സെക്കന്റ് കൊണ്ട് ലോഡ് ചെയ്തു\n"
+
+#: ../src/ui/theme-viewer.c:869
+msgid "Normal Title Font"
+msgstr "സാധാരണ ശീര്‍ഷക ഫോണ്ട്"
+
+#: ../src/ui/theme-viewer.c:875
+msgid "Small Title Font"
+msgstr "ചെറിയ ശീര്‍ഷക ഫോണ്ട്"
+
+#: ../src/ui/theme-viewer.c:881
+msgid "Large Title Font"
+msgstr "വലിയ ശീര്‍ഷക ഫോണ്ട്"
+
+#: ../src/ui/theme-viewer.c:886
+msgid "Button Layouts"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:891
+msgid "Benchmark"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:947
+msgid "Window Title Goes Here"
+msgstr "ജാലകത്തിന്റേ തലക്കെട്ട് ഇവിടെ"
+
+#: ../src/ui/theme-viewer.c:1053
+#, c-format
+msgid ""
+"Drew %d frames in %g client-side seconds (%g milliseconds per frame) and %g "
+"seconds wall clock time including X server resources (%g milliseconds per "
+"frame)\n"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:1273
+msgid "position expression test returned TRUE but set error"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:1275
+msgid "position expression test returned FALSE but didn't set error"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:1279
+msgid "Error was expected but none given"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:1281
+#, c-format
+msgid "Error %d was expected but %d given"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:1287
+#, c-format
+msgid "Error not expected but one was returned: %s"
+msgstr ""
+
+#: ../src/ui/theme-viewer.c:1291
+#, c-format
+msgid "x value was %d, %d was expected"
+msgstr "x-ന്റെ മൂല്ല്യം %d ആയിരുന്നു, പക്ഷേ പ്രതീക്ഷിച്ചത് %d ആണ്"
+
+#: ../src/ui/theme-viewer.c:1294
+#, c-format
+msgid "y value was %d, %d was expected"
+msgstr "y-യുടെ മൂല്ല്യം %d ആയിരുന്നു, പക്ഷേ പ്രതീക്ഷിച്ചത് %d ആണ്"
+
+#: ../src/ui/theme-viewer.c:1359
+#, c-format
+msgid "%d coordinate expressions parsed in %g seconds (%g seconds average)\n"
+msgstr ""
+
+#~ msgid "Window Management"
+#~ msgstr "ജാലക നിരീക്ഷണം"
+
+#~ msgid "Failed to parse message \"%s\" from dialog process\n"
+#~ msgstr "രചന %sലെ പ്രമേയം വായിക്കുന്നതില്‌ പരാജയപ്പെട്ടു:\n"
+
+#~ msgid "Error reading from dialog display process: %s\n"
+#~ msgstr "%s വായിക്കുന്നതില്‌ പരാജയം : \n"
+
+#~ msgid "Failed to get hostname: %s\n"
+#~ msgstr "ആതിഥേയനാമം ലഭിക്കുന്നതില്‌ പരാജയപ്പെട്ടു: %s\n"
+
+#~ msgid "Fatal IO error %d (%s) on display '%s'.\n"
+#~ msgstr "ഗുരുതരമായ IO പിശക് %d (%s) ('%s' ദൃശ്യത്തില്‍).\n"
+
+#~ msgid "Close Window"
+#~ msgstr "ജാലകം അടയ്‍ക്കുക"
+
+#~ msgid "Window Menu"
+#~ msgstr "ജാലക പട്ടിക‌"
+
+#~ msgid "Minimize Window"
+#~ msgstr "ജാലകം ചെറുതാക്കുക"
+
+#~ msgid "Maximize Window"
+#~ msgstr "ജാലകം വലുതാക്കുക"
+
+#~ msgid "Unmaximize Window"
+#~ msgstr "ജാലകം വലുതാക്കിയതൊഴിവാക്കുക"
+
+#~ msgid "Roll Up Window"
+#~ msgstr "ജാലകം ചുരുട്ടുക"
+
+#~ msgid "Unroll Window"
+#~ msgstr "Unroll Window"
+
+#~ msgid "Keep Window On Top"
+#~ msgstr "ജാലകം മുകളിലാക്കുക"
+
+#~ msgid "Always On Visible Workspace"
+#~ msgstr "എപ്പോഴും ദൃശ്യമായ പണിയറയില്‍ "
+
+#~ msgid "Put Window On Only One Workspace"
+#~ msgstr "ഒരു പണിയറയില്‍ ജാലകം കാണിക്കുക"
+
+#~ msgid "No command %d has been defined.\n"
+#~ msgstr "%d എന്ന കമാന്‍ഡ് ലഭ്യമല്ല.\n"
+
+#~ msgid "No terminal command has been defined.\n"
+#~ msgstr "ഒരു ടെറ്‍മിനല്‍ കമാന്‍ഡും ലഭ്യമല്ല.\n"
+
+#~ msgid "Failed to restart: %s\n"
+#~ msgstr "പുനരാരംഭിക്കുന്നതില്‌ പരാജയപ്പെട്ടു: %s\n"
+
+#~ msgid "Title"
+#~ msgstr "തലക്കെട്ട്"
+
+#~ msgid "Class"
+#~ msgstr "ക്ളാസ്"
+
+#~ msgid ""
+#~ "There was an error running \"%s\":\n"
+#~ "%s."
+#~ msgstr ""
+#~ "\"%s\" പ്രവ‍ര്ത്തിക്കുന്നതില് തകരാറ്:\n"
+#~ "%s."
+
+#~ msgid "Metacity"
+#~ msgstr "മെറ്റാസിറ്റി"
+
+#~ msgid "Action on title bar double-click"
+#~ msgstr "തലക്കെട്ടിനുള്ള ബാറ്‍ രണ്ട് തവണ ക്ളിക്ക് ചെയ്യുമ്പോള്‍ ഉണ്ടാകുന്ന പ്റവറ്‍ത്തി"
+
+#~ msgid "Action on title bar middle-click"
+#~ msgstr "തലക്കെട്ടിനുള്ള ബാറില്‍ നടുക്ക് ക്ളിക്ക് ചെയ്യുമ്പോള്‍ ഉണ്ടാകുന്ന പ്റവറ്‍ത്തി"
+
+#~ msgid "Action on title bar right-click"
+#~ msgstr "തലക്കെട്ടിനുള്ള ബാറില്‍ റൈറ്റ് ക്ളിക്ക് ചെയ്യുമ്പോള്‍ ഉണ്ടാകുന്ന പ്റവറ്‍ത്തി"
+
+#~ msgid "Arrangement of buttons on the titlebar"
+#~ msgstr "തലക്കെട്ടിനുള്ള ബാറില്‍ ബട്ടണുകളുടെ ക്റമികരണം"
+
+#~ msgid "Automatically raises the focused window"
+#~ msgstr "അവസ്ഥാ മാറ്റങ്ങള് സ്വയമേവ സംരക്ഷിക്കുക"
+
+#~ msgid "Current theme"
+#~ msgstr "സജീവ തീം"
+
+#~ msgid "Hide all windows and focus desktop"
+#~ msgstr "എല്ലാ ജാലകങ്ങളും അദൃശ്യമാക്കി ഡസ്ക്ടോപ്പ് കാണിക്കുക"
+
+#~ msgid "Minimize window"
+#~ msgstr "ജാലകം ഏറ്റവും ചെറുതാക്കുക"
+
+#~ msgid "Move window to east side of screen"
+#~ msgstr "സ്ക്രീനിന്റെ കിഴക്ക് വശത്തേക്ക് ജാലകം മാറ്റുക"
+
+#~ msgid "Move window to north side of screen"
+#~ msgstr "സ്ക്രീനിന്റെ വടക്ക് വശത്തേക്ക് ജാലകം മാറ്റുക"
+
+#~ msgid "Move window to north-east corner"
+#~ msgstr "സ്ക്രീനിന്റെ വടക്ക്-കിഴക്ക് വശത്തേക്ക് ജാലകം മാറ്റുക"
+
+#~ msgid "Move window to north-west corner"
+#~ msgstr "സ്ക്രീനിന്റെ വടക്ക്-പടിഞ്ഞാറ് വശത്തേക്ക് ജാലകം മാറ്റുക"
+
+#~ msgid "Move window to south side of screen"
+#~ msgstr "സ്ക്രീനിന്റെ തെക്ക് വശത്തേക്ക് ജാലകം മാറ്റുക"
+
+#~ msgid "Move window to south-east corner"
+#~ msgstr "സ്ക്രീനിന്റെ തെക്ക്-കിഴക്ക് വശത്തേക്ക് ജാലകം മാറ്റുക"
+
+#~ msgid "Move window to south-west corner"
+#~ msgstr "സ്ക്രീനിന്റെ തെക്ക്-പടിഞ്ഞാറ് വശത്തേക്ക് ജാലകം മാറ്റുക"
+
+#~ msgid "Move window to west side of screen"
+#~ msgstr "സ്ക്രീനിന്റെ പടിഞ്ഞാറിലേക്ക് ജാലകം മാറ്റുക"
+
+#~ msgid "Move window to workspace 10"
+#~ msgstr "പണിയറ ജാലകം പത്തിലേക്ക് നീക്കുക"
+
+#~ msgid "Move window to workspace 11"
+#~ msgstr "പണിയറ ജാലകം 11ലേക്ക് നീക്കുക"
+
+#~ msgid "Move window to workspace 12"
+#~ msgstr "പണിയറ ജാലകം 12ലേക്ക് നീക്കുക"
+
+#~ msgid "Move window to workspace 5"
+#~ msgstr "പണിയറ ജാലകം 5ലേക്ക് നീക്കുക"
+
+#~ msgid "Move window to workspace 6"
+#~ msgstr "പണിയറ ജാലകം 6ലേക്ക് നീക്കുക"
+
+#~ msgid "Move window to workspace 7"
+#~ msgstr "പണിയറ ജാലകം 7ലേക്ക് നീക്കുക"
+
+#~ msgid "Move window to workspace 8"
+#~ msgstr "പണിയറ ജാലകം 8ലേക്ക് നീക്കുക"
+
+#~ msgid "Move window to workspace 9"
+#~ msgstr "പണിയറ ജാലകം 9ലേക്ക് നീക്കുക"
+
+#~ msgid "Name of workspace"
+#~ msgstr "പണിയറയുടെ പേര‌്"
+
+#~ msgid "Number of workspaces"
+#~ msgstr "പണിയറകളുടെ എണ്ണം"
+
+#~ msgid "Run a defined command"
+#~ msgstr "നി‌‌‌ര്‌വചിച്ച നി‌ര്ദ്ദേശം പ്രാവ‌‌ര്ത്തികമാക്കൂ"
+
+#~ msgid "Run a terminal"
+#~ msgstr "ഒരു ടറ്‍മിനല്‍ ലഭ്യമാക്കുക"
+
+#~ msgid "Show the panel menu"
+#~ msgstr "പാനലിന്റെ മെനു കാണിക്കുക"
+
+#~ msgid "Switch to workspace 10"
+#~ msgstr "പണിയറകള് 10ലേക്ക് മാറ്റൂ"
+
+#~ msgid "Switch to workspace 11"
+#~ msgstr "പണിയറകള് 11ലേക്ക് മാറ്റൂ"
+
+#~ msgid "Switch to workspace 12"
+#~ msgstr "പണിയറകള് 12ലേക്ക് മാറ്റൂ"
+
+#~ msgid "Switch to workspace 5"
+#~ msgstr "പണിയറകള് 5ലേക്ക് മാറ്റൂ"
+
+#~ msgid "Switch to workspace 6"
+#~ msgstr "പണിയറകള് 6ലേക്ക് മാറ്റൂ"
+
+#~ msgid "Switch to workspace 7"
+#~ msgstr "പണിയറകള് 7ലേക്ക് മാറ്റൂ"
+
+#~ msgid "Switch to workspace 8"
+#~ msgstr "പണിയറകള് 8ലേക്ക് മാറ്റൂ"
+
+#~ msgid "Switch to workspace 9"
+#~ msgstr "പണിയറകള് 9ലേക്ക് മാറ്റൂ"
+
+#~ msgid "Switch to workspace above this one"
+#~ msgstr "ഇതിന്റെ മുകളിലുള്ള പണിയറകളിേക്ക് മാറ്റൂ"
+
+#~ msgid "Switch to workspace below this one"
+#~ msgstr "ഇതിന്റെ താഴെയുള്ള പണിയറകളിേക്ക് മാറ്റൂ"
+
+#~ msgid "Switch to workspace on the left"
+#~ msgstr "ഇതിന്റെ ഇടതുവശത്തുള്ള പണിയറകളിേക്ക് മാറ്റൂ"
+
+#~ msgid "Switch to workspace on the right"
+#~ msgstr "ഇതിന്റെ വലതുവശത്തുള്ള പണിയറകളിേക്ക് മാറ്റൂ"
+
+#~ msgid "Take a screenshot"
+#~ msgstr "ഒരു സ്ക്രീന്‍ ഷോട്ട് എടുക്കുക"
+
+#~ msgid "Take a screenshot of a window"
+#~ msgstr "ജാലകത്തിന്റെ ഒരു സ്ക്രീന്‍ ഷോട്ട് എടുക്കുക"
+
+#~ msgid "The name of a workspace."
+#~ msgstr "പണിയറുടെ പേര‍്"
+
+#~ msgid "The screenshot command"
+#~ msgstr "സ്ക്രീന്‍ ഷോട്ടിനുള്ള കമാന്‍ഡ്"
+
+#~ msgid "The window screenshot command"
+#~ msgstr "ജാലകത്തിന്റെ സ്ക്രീന്‍ഷോട്ടിനുള്ള കമാന്‍ഡ്"
+
+#~ msgid "Unmaximize window"
+#~ msgstr "ജാലകം ചെറുതാക്കുക "
+
+#~ msgid "Window focus mode"
+#~ msgstr "ജാലക കേന്ദ്രീകരണരീതി"
+
+#~ msgid "Window title font"
+#~ msgstr "ജാലക തലക്കെട്ട് അക്ഷരരൂപം"
+
+#~ msgid "Error setting name for workspace %d to \"%s\": %s\n"
+#~ msgstr "%d യില്‌നിന്ന് \"%s\"ലേക്ക് പണിയറയുടെ പേ‌ര‌് സജ്ജമാക്കുന്നതില്‌ തെറ്റ്: %s\n"
+
+#~ msgid "Failed to read saved session file %s: %s\n"
+#~ msgstr "രചന %sലെ പ്രമേയം വായിക്കുന്നതില്‌ പരാജയപ്പെട്ടു: %s\n"
+
+#~ msgid "No \"top\" attribute on element <%s>"
+#~ msgstr "\"മുകളില്‍\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"bottom\" attribute on element <%s>"
+#~ msgstr "\"താഴെ\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"left\" attribute on element <%s>"
+#~ msgstr "\"ഇടത്\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"right\" attribute on element <%s>"
+#~ msgstr "\"വലത്\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"color\" attribute on element <%s>"
+#~ msgstr "\"നിറം\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"x1\" attribute on element <%s>"
+#~ msgstr "\"x1\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"y1\" attribute on element <%s>"
+#~ msgstr "\"y1\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"x2\" attribute on element <%s>"
+#~ msgstr "\"x2\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"y2\" attribute on element <%s>"
+#~ msgstr "\"y2\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"y\" attribute on element <%s>"
+#~ msgstr "\"y\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"width\" attribute on element <%s>"
+#~ msgstr "\"വീതി\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"height\" attribute on element <%s>"
+#~ msgstr "\"ഉയരം\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"alpha\" attribute on element <%s>"
+#~ msgstr "\"ആല്‍ഫാ\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"type\" attribute on element <%s>"
+#~ msgstr "\"ഏത് തരം\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"filename\" attribute on element <%s>"
+#~ msgstr "\"ഫയലിന്റെ പേര്\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"state\" attribute on element <%s>"
+#~ msgstr "\"അവസ്ഥ\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"shadow\" attribute on element <%s>"
+#~ msgstr "\"ഷാഡോ\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"arrow\" attribute on element <%s>"
+#~ msgstr "\"ആരോ\" എന്ന ആട്രിബ്യൂട്ട് <%s> എന്ന എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"value\" attribute on <%s> element"
+#~ msgstr "\"മൂല്ല്യം\" എന്ന ആട്രിബ്യൂട്ട് <%s> എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"position\" attribute on <%s> element"
+#~ msgstr "\"സ്ഥാനം\" എന്ന ആട്രിബ്യൂട്ട് <%s> എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"state\" attribute on <%s> element"
+#~ msgstr "\"അവസ്ഥ\" എന്ന ആട്രിബ്യൂട്ട് <%s> എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"focus\" attribute on <%s> element"
+#~ msgstr "\"ഫോക്കസ്\" എന്ന ആട്രിബ്യൂട്ട് <%s> എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "No \"style\" attribute on <%s> element"
+#~ msgstr "\"രീതി\" എന്ന ആട്രിബ്യൂട്ട് <%s> എലമെന്റില്‍ ലഭ്യമല്ല"
+
+#~ msgid "/Windows/tearoff"
+#~ msgstr "/Windows/tearoff"
+
+#~ msgid "/Windows/_Dialog"
+#~ msgstr "/Windows/_Dialog"
+
+#~ msgid "/Windows/_Modal dialog"
+#~ msgstr "/Windows/_Modal dialog"
+
+#~ msgid "/Windows/Des_ktop"
+#~ msgstr "/Windows/Des_ktop"
