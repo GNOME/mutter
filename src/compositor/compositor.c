@@ -684,6 +684,9 @@ meta_compositor_sync_updates_frozen (MetaCompositor *compositor,
                                      MetaWindow     *window)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+  if (!window_actor)
+    return;
+
   meta_window_actor_sync_updates_frozen (window_actor);
 }
 
