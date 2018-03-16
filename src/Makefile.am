@@ -3,47 +3,116 @@
 
 lib_LTLIBRARIES = libmutter.la
 
-SUBDIRS=wm-tester tools compositor/plugins
+SUBDIRS=compositor/plugins
 
-INCLUDES=								\
+EXTRA_DIST =
+
+AM_CPPFLAGS = \
+	-DCLUTTER_ENABLE_COMPOSITOR_API					\
+	-DCLUTTER_ENABLE_EXPERIMENTAL_API				\
+	-DCOGL_ENABLE_EXPERIMENTAL_API					\
+	-DCOGL_ENABLE_EXPERIMENTAL_2_0_API                              \
+	-DCLUTTER_DISABLE_DEPRECATION_WARNINGS				\
+	-DCOGL_DISABLE_DEPRECATION_WARNINGS				\
 	$(MUTTER_CFLAGS)						\
+	$(MUTTER_NATIVE_BACKEND_CFLAGS)					\
+	-I$(builddir)							\
 	-I$(srcdir)							\
+	-I$(srcdir)/backends						\
 	-I$(srcdir)/core						\
 	-I$(srcdir)/ui							\
 	-I$(srcdir)/compositor						\
 	-DMUTTER_LIBEXECDIR=\"$(libexecdir)\"				\
-	-DHOST_ALIAS=\"@HOST_ALIAS@\"					\
-	-DMUTTER_LOCALEDIR=\"$(prefix)/@DATADIRNAME@/locale\"		\
+	-DMUTTER_LOCALEDIR=\"$(localedir)\"				\
 	-DMUTTER_PKGDATADIR=\"$(pkgdatadir)\"				\
 	-DMUTTER_DATADIR=\"$(datadir)\"					\
 	-DG_LOG_DOMAIN=\"mutter\"					\
 	-DSN_API_NOT_YET_FROZEN=1					\
-	-DMUTTER_MAJOR_VERSION=$(MUTTER_MAJOR_VERSION)			\
-	-DMUTTER_MINOR_VERSION=$(MUTTER_MINOR_VERSION)			\
-	-DMUTTER_MICRO_VERSION=$(MUTTER_MICRO_VERSION)			\
-	-DMUTTER_PLUGIN_API_VERSION=$(MUTTER_PLUGIN_API_VERSION)	\
 	-DMUTTER_PKGLIBDIR=\"$(pkglibdir)\"				\
-	-DMUTTER_PLUGIN_DIR=\"@MUTTER_PLUGIN_DIR@\"			\
-	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"
+	-DMUTTER_PLUGIN_DIR=\"$(MUTTER_PLUGIN_DIR)\"			\
+	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"			\
+	-DXWAYLAND_PATH=\"$(XWAYLAND_PATH)\"
 
 mutter_built_sources = \
-	mutter-enum-types.h \
+	$(dbus_idle_built_sources)		\
+	$(dbus_display_config_built_sources)	\
+	$(dbus_login1_built_sources)		\
+	mutter-enum-types.h 			\
 	mutter-enum-types.c
 
+if HAVE_WAYLAND
+mutter_built_sources += \
+	gtk-shell-protocol.c			\
+	gtk-shell-server-protocol.h		\
+	xdg-shell-protocol.c			\
+	xdg-shell-server-protocol.h
+endif
+
+wayland_protocols = \
+	wayland/protocol/gtk-shell.xml		\
+	wayland/protocol/xdg-shell.xml
+
 libmutter_la_SOURCES =				\
-	core/async-getprop.c			\
-	core/async-getprop.h			\
+	backends/meta-backend.c			\
+	meta/meta-backend.h			\
+	backends/meta-backend-private.h		\
+	backends/meta-cursor.c			\
+	backends/meta-cursor.h			\
+	backends/meta-cursor-private.h		\
+	backends/meta-cursor-tracker.c		\
+	backends/meta-cursor-tracker-private.h	\
+	backends/meta-cursor-renderer.c		\
+	backends/meta-cursor-renderer.h		\
+	backends/meta-display-config-shared.h	\
+	backends/meta-idle-monitor.c		\
+	backends/meta-idle-monitor-private.h	\
+	backends/meta-idle-monitor-dbus.c	\
+	backends/meta-idle-monitor-dbus.h	\
+	backends/meta-monitor-config.c		\
+	backends/meta-monitor-config.h		\
+	backends/meta-monitor-manager.c		\
+	backends/meta-monitor-manager.h		\
+	backends/meta-monitor-manager-dummy.c	\
+	backends/meta-monitor-manager-dummy.h	\
+	backends/meta-stage.h			\
+	backends/meta-stage.c			\
+	backends/edid-parse.c			\
+	backends/edid.h				\
+	backends/x11/meta-backend-x11.c			\
+	backends/x11/meta-backend-x11.h			\
+	backends/x11/meta-cursor-renderer-x11.c		\
+	backends/x11/meta-cursor-renderer-x11.h		\
+	backends/x11/meta-idle-monitor-xsync.c		\
+	backends/x11/meta-idle-monitor-xsync.h		\
+	backends/x11/meta-monitor-manager-xrandr.c	\
+	backends/x11/meta-monitor-manager-xrandr.h	\
+	core/meta-accel-parse.c			\
+	core/meta-accel-parse.h			\
+	core/barrier.c				\
+	meta/barrier.h				\
 	core/bell.c				\
 	core/bell.h				\
 	core/boxes.c				\
 	core/boxes-private.h			\
 	meta/boxes.h				\
+	compositor/clutter-utils.c		\
+	compositor/clutter-utils.h		\
 	compositor/cogl-utils.c			\
 	compositor/cogl-utils.h			\
 	compositor/compositor.c			\
 	compositor/compositor-private.h		\
+	compositor/meta-background.c		\
+	compositor/meta-background-private.h	\
 	compositor/meta-background-actor.c	\
 	compositor/meta-background-actor-private.h	\
+	compositor/meta-background-image.c	\
+	compositor/meta-background-group.c	\
+	compositor/meta-cullable.c		\
+	compositor/meta-cullable.h		\
+	compositor/meta-dnd-actor.c		\
+	compositor/meta-dnd-actor-private.h	\
+	compositor/meta-feedback-actor.c	\
+	compositor/meta-feedback-actor-private.h	\
 	compositor/meta-module.c		\
 	compositor/meta-module.h		\
 	compositor/meta-plugin.c		\
@@ -52,6 +121,11 @@ libmutter_la_SOURCES =				\
 	compositor/meta-shadow-factory.c	\
 	compositor/meta-shadow-factory-private.h	\
 	compositor/meta-shaped-texture.c	\
+	compositor/meta-shaped-texture-private.h 	\
+	compositor/meta-surface-actor.c		\
+	compositor/meta-surface-actor.h		\
+	compositor/meta-surface-actor-x11.c	\
+	compositor/meta-surface-actor-x11.h	\
 	compositor/meta-texture-rectangle.c	\
 	compositor/meta-texture-rectangle.h	\
 	compositor/meta-texture-tower.c		\
@@ -65,12 +139,14 @@ libmutter_la_SOURCES =				\
 	compositor/region-utils.c		\
 	compositor/region-utils.h		\
 	meta/compositor.h			\
+	meta/meta-background.h			\
 	meta/meta-background-actor.h		\
+	meta/meta-background-image.h		\
+	meta/meta-background-group.h		\
 	meta/meta-plugin.h			\
 	meta/meta-shadow-factory.h		\
 	meta/meta-window-actor.h		\
 	meta/compositor-mutter.h 		\
-	core/above-tab-keycode.c		\
 	core/constraints.c			\
 	core/constraints.h			\
 	core/core.c				\
@@ -78,29 +154,21 @@ libmutter_la_SOURCES =				\
 	core/display.c				\
 	core/display-private.h			\
 	meta/display.h				\
-	ui/draw-workspace.c			\
-	ui/draw-workspace.h			\
 	core/edge-resistance.c			\
 	core/edge-resistance.h			\
+	core/events.c				\
+	core/events.h				\
 	core/errors.c				\
 	meta/errors.h				\
-	core/eventqueue.c			\
-	core/eventqueue.h			\
 	core/frame.c				\
 	core/frame.h				\
 	ui/gradient.c				\
 	meta/gradient.h				\
-	core/group-private.h			\
-	core/group-props.c			\
-	core/group-props.h			\
-	core/group.c				\
-	meta/group.h				\
-	core/iconcache.c			\
-	core/iconcache.h			\
+	core/meta-gesture-tracker.c		\
+	core/meta-gesture-tracker-private.h	\
 	core/keybindings.c			\
 	core/keybindings-private.h		\
 	core/main.c				\
-	core/mutter-Xatomtype.h			\
 	core/place.c				\
 	core/place.h				\
 	core/prefs.c				\
@@ -109,54 +177,113 @@ libmutter_la_SOURCES =				\
 	core/screen-private.h			\
 	meta/screen.h				\
 	meta/types.h				\
-	core/session.c				\
-	core/session.h				\
+	core/restart.c				\
 	core/stack.c				\
 	core/stack.h				\
 	core/stack-tracker.c			\
 	core/stack-tracker.h			\
 	core/util.c				\
 	meta/util.h				\
-	core/window-props.c			\
-	core/window-props.h			\
+	core/util-private.h			\
 	core/window.c				\
 	core/window-private.h			\
 	meta/window.h				\
 	core/workspace.c			\
 	core/workspace-private.h		\
-	core/xprops.c				\
-	core/xprops.h				\
 	meta/common.h				\
 	core/core.h				\
 	ui/ui.h					\
-	inlinepixbufs.h				\
 	ui/frames.c				\
 	ui/frames.h				\
-	ui/menu.c				\
-	ui/menu.h				\
-	ui/metaaccellabel.c			\
-	ui/metaaccellabel.h			\
 	ui/resizepopup.c			\
 	ui/resizepopup.h			\
-	ui/tabpopup.c				\
-	ui/tabpopup.h				\
-	ui/tile-preview.c			\
-	ui/tile-preview.h			\
 	ui/theme-parser.c			\
 	ui/theme.c				\
 	meta/theme.h				\
 	ui/theme-private.h			\
 	ui/ui.c					\
-	meta/preview-widget.h			\
-	ui/preview-widget.c			\
+	x11/iconcache.c				\
+	x11/iconcache.h				\
+	x11/async-getprop.c			\
+	x11/async-getprop.h			\
+	x11/events.c				\
+	x11/events.h				\
+	x11/group-private.h			\
+	x11/group-props.c			\
+	x11/group-props.h			\
+	x11/group.c				\
+	meta/group.h				\
+	x11/session.c				\
+	x11/session.h				\
+	x11/window-props.c			\
+	x11/window-props.h			\
+	x11/window-x11.c			\
+	x11/window-x11.h			\
+	x11/window-x11-private.h		\
+	x11/xprops.c				\
+	x11/xprops.h				\
+	x11/mutter-Xatomtype.h
+
+if HAVE_WAYLAND
+libmutter_la_SOURCES +=				\
+	compositor/meta-surface-actor-wayland.c	\
+	compositor/meta-surface-actor-wayland.h	\
+	wayland/meta-wayland.c			\
+	wayland/meta-wayland.h			\
+	wayland/meta-wayland-private.h		\
+	wayland/meta-xwayland.c			\
+	wayland/meta-xwayland.h			\
+	wayland/meta-xwayland-private.h		\
+	wayland/meta-wayland-buffer.c      	\
+	wayland/meta-wayland-buffer.h      	\
+	wayland/meta-wayland-region.c      	\
+	wayland/meta-wayland-region.h      	\
+	wayland/meta-wayland-data-device.c      \
+	wayland/meta-wayland-data-device.h      \
+	wayland/meta-wayland-keyboard.c		\
+	wayland/meta-wayland-keyboard.h		\
+	wayland/meta-wayland-pointer.c		\
+	wayland/meta-wayland-pointer.h		\
+	wayland/meta-wayland-seat.c		\
+	wayland/meta-wayland-seat.h		\
+	wayland/meta-wayland-touch.c		\
+	wayland/meta-wayland-touch.h		\
+	wayland/meta-wayland-surface.c		\
+	wayland/meta-wayland-surface.h		\
+	wayland/meta-wayland-types.h		\
+	wayland/meta-wayland-versions.h		\
+	wayland/meta-wayland-outputs.c		\
+	wayland/meta-wayland-outputs.h		\
+	wayland/window-wayland.c		\
+	wayland/window-wayland.h
+endif
+
+if HAVE_NATIVE_BACKEND
+libmutter_la_SOURCES +=					\
+	backends/native/meta-backend-native.c		\
+	backends/native/meta-backend-native.h		\
+	backends/native/meta-cursor-renderer-native.c	\
+	backends/native/meta-cursor-renderer-native.h	\
+	backends/native/meta-idle-monitor-native.c	\
+	backends/native/meta-idle-monitor-native.h	\
+	backends/native/meta-monitor-manager-kms.c	\
+	backends/native/meta-monitor-manager-kms.h	\
+	backends/native/meta-launcher.c			\
+	backends/native/meta-launcher.h			\
+	backends/native/dbus-utils.c			\
+	backends/native/dbus-utils.h
+endif
+
+nodist_libmutter_la_SOURCES =			\
 	$(mutter_built_sources)
 
 libmutter_la_LDFLAGS = -no-undefined
-libmutter_la_LIBADD  = $(MUTTER_LIBS)
+libmutter_la_LIBADD  = $(MUTTER_LIBS) $(MUTTER_NATIVE_BACKEND_LIBS)
 
 # Headers installed for plugins; introspected information will
 # be extracted into Mutter-<version>.gir
-libmutterinclude_base_headers =		\
+libmutterinclude_headers =			\
+	meta/barrier.h				\
 	meta/boxes.h				\
 	meta/common.h				\
 	meta/compositor-mutter.h		\
@@ -167,7 +294,13 @@ libmutterinclude_base_headers =		\
 	meta/group.h				\
 	meta/keybindings.h			\
 	meta/main.h				\
+	meta/meta-backend.h			\
+	meta/meta-background.h			\
 	meta/meta-background-actor.h		\
+	meta/meta-background-image.h		\
+	meta/meta-background-group.h		\
+	meta/meta-cursor-tracker.h		\
+	meta/meta-idle-monitor.h		\
 	meta/meta-plugin.h			\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\
@@ -180,25 +313,38 @@ libmutterinclude_base_headers =		\
 	meta/window.h				\
 	meta/workspace.h
 
+libmutterinclude_built_headers =		\
+	meta/meta-version.h
+
+libmutterinclude_base_headers =			\
+	$(libmutterinclude_headers)		\
+	$(libmutterinclude_built_headers)
+
 # Excluded from scanning for introspection but installed
 # atomnames.h: macros cause problems for scanning process
 libmutterinclude_extra_headers =		\
-	meta/preview-widget.h			\
 	meta/atomnames.h
 
 libmutterincludedir = $(includedir)/mutter/meta
 
 libmutterinclude_HEADERS =			\
-	$(libmutterinclude_base_headers)	\
+	$(libmutterinclude_headers)		\
 	$(libmutterinclude_extra_headers)
 
-mutter_theme_viewer_SOURCES=  \
-	ui/theme-viewer.c
+nodist_libmutterinclude_HEADERS =		\
+	$(libmutterinclude_built_headers)
 
-bin_PROGRAMS=mutter mutter-theme-viewer
+bin_PROGRAMS=mutter
+noinst_PROGRAMS=
 
 mutter_SOURCES = core/mutter.c
 mutter_LDADD = $(MUTTER_LIBS) libmutter.la
+
+libexec_PROGRAMS = mutter-restart-helper
+mutter_restart_helper_SOURCES = core/restart-helper.c
+mutter_restart_helper_LDADD = $(MUTTER_LIBS)
+
+include Makefile-tests.am
 
 if HAVE_INTROSPECTION
 include $(INTROSPECTION_MAKEFILE)
@@ -221,91 +367,44 @@ typelib_DATA = Meta-$(api_version).typelib
 INTROSPECTION_GIRS = Meta-$(api_version).gir
 
 Meta-$(api_version).gir: libmutter.la
-@META_GIR@_INCLUDES = GObject-2.0 GDesktopEnums-3.0 Gdk-3.0 Gtk-3.0 Clutter-1.0 xlib-2.0 xfixes-4.0
-@META_GIR@_PACKAGES = clutter-1.0 gtk+-3.0
-@META_GIR@_CFLAGS = $(INCLUDES)
+@META_GIR@_INCLUDES = GObject-2.0 GDesktopEnums-3.0 Gdk-3.0 Gtk-3.0 Clutter-1.0 xlib-2.0 xfixes-4.0 Cogl-1.0
+@META_GIR@_EXPORT_PACKAGES = libmutter
+@META_GIR@_CFLAGS = $(AM_CPPFLAGS)
 @META_GIR@_LIBS = libmutter.la
 @META_GIR@_FILES =				\
 	mutter-enum-types.h			\
 	$(libmutterinclude_base_headers)	\
-	$(filter %.c,$(libmutter_la_SOURCES))
+	$(filter %.c,$(libmutter_la_SOURCES) $(nodist_libmutter_la_SOURCES))
 @META_GIR@_SCANNERFLAGS = --warn-all --warn-error
 
 endif
 
-mutter_theme_viewer_LDADD= $(MUTTER_LIBS) libmutter.la
+dbus_idle_built_sources = meta-dbus-idle-monitor.c meta-dbus-idle-monitor.h
 
-testboxes_SOURCES = core/testboxes.c
-testgradient_SOURCES = ui/testgradient.c
-testasyncgetprop_SOURCES = core/testasyncgetprop.c
-
-noinst_PROGRAMS=testboxes testgradient testasyncgetprop
-
-testboxes_LDADD = $(MUTTER_LIBS) libmutter.la
-testgradient_LDADD = $(MUTTER_LIBS) libmutter.la
-testasyncgetprop_LDADD = $(MUTTER_LIBS) libmutter.la
-
-@INTLTOOL_DESKTOP_RULE@
-
-desktopfilesdir=$(datadir)/applications
-desktopfiles_in_files=mutter.desktop.in
-desktopfiles_files=$(desktopfiles_in_files:.desktop.in=.desktop)
-desktopfiles_DATA = $(desktopfiles_files)
-
-wmpropertiesdir=$(datadir)/gnome/wm-properties
-wmproperties_in_files=mutter-wm.desktop.in
-wmproperties_files=$(wmproperties_in_files:.desktop.in=.desktop)
-wmproperties_DATA = $(wmproperties_files)
-
-xmldir       = @GNOME_KEYBINDINGS_KEYSDIR@
-xml_in_files = \
-        50-mutter-windows.xml.in
-xml_DATA     = $(xml_in_files:.xml.in=.xml)
-
-gsettings_SCHEMAS = org.gnome.mutter.gschema.xml
-@INTLTOOL_XML_NOMERGE_RULE@
-@GSETTINGS_RULES@
-
-convertdir = $(datadir)/GConf/gsettings
-convert_DATA = mutter-schemas.convert
-
-IMAGES=stock_maximize.png stock_minimize.png stock_delete.png
-VARIABLES=stock_maximize_data $(srcdir)/stock_maximize.png \
-          stock_minimize_data $(srcdir)/stock_minimize.png \
-          stock_delete_data $(srcdir)/stock_delete.png
-
-BUILT_SOURCES = inlinepixbufs.h
 CLEANFILES =					\
-	inlinepixbufs.h				\
-	mutter.desktop				\
-	mutter-wm.desktop			\
-	org.gnome.mutter.gschema.xml		\
-	$(xml_DATA)				\
 	$(mutter_built_sources)			\
 	$(typelib_DATA)				\
 	$(gir_DATA)
 
-inlinepixbufs.h: $(IMAGES)
-	$(GDK_PIXBUF_CSOURCE) --raw --build-list $(VARIABLES) >$(srcdir)/inlinepixbufs.h
+DISTCLEANFILES = 				\
+	$(libmutterinclude_built_headers)
 
 pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libmutter.pc
 
-pkgconfig_DATA = libmutter.pc mutter-plugins.pc
-
-EXTRA_DIST=$(desktopfiles_files) 	\
-	$(wmproperties_files)		\
-	$(IMAGES) 			\
-	$(desktopfiles_in_files)	\
-	$(wmproperties_in_files)	\
-	$(xml_in_files)			\
-	org.gnome.mutter.gschema.xml.in \
-	mutter-schemas.convert \
+EXTRA_DIST +=				\
+	$(wayland_protocols)		\
 	libmutter.pc.in \
-	mutter-plugins.pc.in  \
 	mutter-enum-types.h.in \
-	mutter-enum-types.c.in
+	mutter-enum-types.c.in \
+	org.freedesktop.login1.xml	\
+	org.gnome.Mutter.DisplayConfig.xml	\
+	org.gnome.Mutter.IdleMonitor.xml
 
-BUILT_SOURCES += $(mutter_built_sources)
+BUILT_SOURCES =					\
+	$(mutter_built_sources)			\
+	$(libmutterinclude_built_headers)
+
 MUTTER_STAMP_FILES = stamp-mutter-enum-types.h
 CLEANFILES += $(MUTTER_STAMP_FILES)
 
@@ -327,3 +426,34 @@ mutter-enum-types.c: stamp-mutter-enum-types.h mutter-enum-types.c.in
 	  $(libmutterinclude_base_headers) ) >> xgen-tetc && \
 	cp xgen-tetc mutter-enum-types.c && \
 	rm -f xgen-tetc
+
+dbus_display_config_built_sources = meta-dbus-display-config.c meta-dbus-display-config.h
+
+$(dbus_display_config_built_sources) : Makefile.am org.gnome.Mutter.DisplayConfig.xml
+	$(AM_V_GEN)gdbus-codegen							\
+		--interface-prefix org.gnome.Mutter					\
+		--c-namespace MetaDBus							\
+		--generate-c-code meta-dbus-display-config				\
+		$(srcdir)/org.gnome.Mutter.DisplayConfig.xml
+
+$(dbus_idle_built_sources) : Makefile.am org.gnome.Mutter.IdleMonitor.xml
+	$(AM_V_GEN)gdbus-codegen							\
+		--interface-prefix org.gnome.Mutter					\
+		--c-namespace MetaDBus							\
+		--generate-c-code meta-dbus-idle-monitor				\
+		--c-generate-object-manager						\
+		$(srcdir)/org.gnome.Mutter.IdleMonitor.xml
+
+dbus_login1_built_sources = meta-dbus-login1.c meta-dbus-login1.h
+
+$(dbus_login1_built_sources) : Makefile.am org.freedesktop.login1.xml
+	$(AM_V_GEN)gdbus-codegen							\
+		--interface-prefix org.freedesktop.login1				\
+		--c-namespace Login1							\
+		--generate-c-code meta-dbus-login1					\
+		$(srcdir)/org.freedesktop.login1.xml
+
+%-protocol.c : $(srcdir)/wayland/protocol/%.xml
+	$(AM_V_GEN)$(WAYLAND_SCANNER) code < $< > $@
+%-server-protocol.h : $(srcdir)/wayland/protocol/%.xml
+	$(AM_V_GEN)$(WAYLAND_SCANNER) server-header < $< > $@

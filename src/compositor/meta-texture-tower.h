@@ -17,9 +17,7 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef __META_TEXTURE_TOWER_H__
@@ -56,13 +54,13 @@ typedef struct _MetaTextureTower MetaTextureTower;
 MetaTextureTower *meta_texture_tower_new               (void);
 void              meta_texture_tower_free              (MetaTextureTower *tower);
 void              meta_texture_tower_set_base_texture  (MetaTextureTower *tower,
-                                                        CoglHandle        texture);
+                                                        CoglTexture      *texture);
 void              meta_texture_tower_update_area       (MetaTextureTower *tower,
                                                         int               x,
                                                         int               y,
                                                         int               width,
                                                         int               height);
-CoglHandle        meta_texture_tower_get_paint_texture (MetaTextureTower *tower);
+CoglTexture      *meta_texture_tower_get_paint_texture (MetaTextureTower *tower);
 
 G_BEGIN_DECLS
 

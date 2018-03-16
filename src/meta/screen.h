@@ -14,9 +14,7 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef META_SCREEN_H
@@ -46,12 +44,6 @@ void meta_screen_get_size (MetaScreen *screen,
                            int        *width,
                            int        *height);
 
-gpointer meta_screen_get_compositor_data (MetaScreen *screen);
-void meta_screen_set_compositor_data (MetaScreen *screen,
-                                      gpointer    info);
-
-MetaScreen *meta_screen_for_x_screen (Screen *xscreen);
-
 void meta_screen_set_cm_selection (MetaScreen *screen);
 void meta_screen_unset_cm_selection (MetaScreen *screen);
 
@@ -77,10 +69,30 @@ MetaWorkspace * meta_screen_get_active_workspace (MetaScreen *screen);
 
 int  meta_screen_get_n_monitors       (MetaScreen    *screen);
 int  meta_screen_get_primary_monitor  (MetaScreen    *screen);
+int  meta_screen_get_current_monitor  (MetaScreen    *screen);
+int  meta_screen_get_current_monitor_for_pos  (MetaScreen    *screen,
+                                               int x,
+                                               int y);
 void meta_screen_get_monitor_geometry (MetaScreen    *screen,
                                        int            monitor,
                                        MetaRectangle *geometry);
 
+gboolean meta_screen_get_monitor_in_fullscreen (MetaScreen  *screen,
+                                                int          monitor);
+
+int meta_screen_get_monitor_index_for_rect (MetaScreen    *screen,
+                                            MetaRectangle *rect);
+
+void meta_screen_focus_default_window (MetaScreen *screen,
+                                       guint32     timestamp);
+
+/**
+ * MetaScreenCorner:
+ * @META_SCREEN_TOPLEFT: top-left corner
+ * @META_SCREEN_TOPRIGHT: top-right corner
+ * @META_SCREEN_BOTTOMLEFT: bottom-left corner
+ * @META_SCREEN_BOTTOMRIGHT: bottom-right corner
+ */
 typedef enum
 {
   META_SCREEN_TOPLEFT,
@@ -94,4 +106,8 @@ void meta_screen_override_workspace_layout (MetaScreen      *screen,
                                             gboolean         vertical_layout,
                                             int              n_rows,
                                             int              n_columns);
+
+void          meta_screen_set_cursor          (MetaScreen                 *screen,
+                                               MetaCursor                  cursor);
+
 #endif

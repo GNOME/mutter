@@ -1,0 +1,502 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MetaBarrier: Mutter Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="Mutter Reference Manual">
+<link rel="up" href="core-reference.html" title="Part III. Mutter Core Reference">
+<link rel="prev" href="MetaPlugin.html" title="MetaPlugin">
+<link rel="next" href="MetaRectangle.html" title="MetaRectangle">
+<meta name="generator" content="GTK-Doc V1.21.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#MetaBarrier.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#MetaBarrier.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#MetaBarrier.properties" class="shortcut">Properties</a></span><span id="nav_signals">  <span class="dim">|</span> 
+                  <a href="#MetaBarrier.signals" class="shortcut">Signals</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="core-reference.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="MetaPlugin.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="MetaRectangle.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="MetaBarrier"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="MetaBarrier.top_of_page"></a>MetaBarrier</span></h2>
+<p>MetaBarrier — Pointer barriers</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="MetaBarrier.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="MetaBarrier.html#meta-barrier-is-active" title="meta_barrier_is_active ()">meta_barrier_is_active</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaBarrier.html#meta-barrier-destroy" title="meta_barrier_destroy ()">meta_barrier_destroy</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaBarrier.html#meta-barrier-release" title="meta_barrier_release ()">meta_barrier_release</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaBarrier.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="property_type"><a class="link" href="MetaBarrier.html#MetaBarrierDirection" title="enum MetaBarrierDirection"><span class="type">MetaBarrierDirection</span></a></td>
+<td class="property_name"><a class="link" href="MetaBarrier.html#MetaBarrier--directions" title="The “directions” property">directions</a></td>
+<td class="property_flags">Read / Write / Construct Only</td>
+</tr>
+<tr>
+<td class="property_type">
+<a class="link" href="MetaDisplay.html" title="MetaDisplay"><span class="type">MetaDisplay</span></a> *</td>
+<td class="property_name"><a class="link" href="MetaBarrier.html#MetaBarrier--display" title="The “display” property">display</a></td>
+<td class="property_flags">Read / Write / Construct Only</td>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="MetaBarrier.html#MetaBarrier--x1" title="The “x1” property">x1</a></td>
+<td class="property_flags">Read / Write / Construct Only</td>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="MetaBarrier.html#MetaBarrier--x2" title="The “x2” property">x2</a></td>
+<td class="property_flags">Read / Write / Construct Only</td>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="MetaBarrier.html#MetaBarrier--y1" title="The “y1” property">y1</a></td>
+<td class="property_flags">Read / Write / Construct Only</td>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="MetaBarrier.html#MetaBarrier--y2" title="The “y2” property">y2</a></td>
+<td class="property_flags">Read / Write / Construct Only</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaBarrier.signals"></a><h2>Signals</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="signals_return">
+<col width="300px" class="signals_name">
+<col width="200px" class="signals_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="MetaBarrier.html#MetaBarrier-hit" title="The “hit” signal">hit</a></td>
+<td class="signal_flags"><a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+<tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="MetaBarrier.html#MetaBarrier-left" title="The “left” signal">left</a></td>
+<td class="signal_flags"><a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<a name="MetaBarrierEvent"></a><div class="refsect1">
+<a name="MetaBarrier.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaBarrier.html#MetaBarrier-struct" title="struct MetaBarrier">MetaBarrier</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaBarrier.html#MetaBarrierClass" title="struct MetaBarrierClass">MetaBarrierClass</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="MetaBarrier.html#MetaBarrierDirection" title="enum MetaBarrierDirection">MetaBarrierDirection</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaBarrier.html#MetaBarrierEvent-struct" title="struct MetaBarrierEvent">MetaBarrierEvent</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaBarrier.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    GBoxed
+    <span class="lineart">╰──</span> MetaBarrierEvent
+    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> MetaBarrier
+</pre>
+</div>
+<div class="refsect1">
+<a name="MetaBarrier.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="MetaBarrier.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="meta-barrier-is-active"></a><h3>meta_barrier_is_active ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_barrier_is_active (<em class="parameter"><code><a class="link" href="MetaBarrier.html" title="MetaBarrier"><span class="type">MetaBarrier</span></a> *barrier</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-barrier-destroy"></a><h3>meta_barrier_destroy ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_barrier_destroy (<em class="parameter"><code><a class="link" href="MetaBarrier.html" title="MetaBarrier"><span class="type">MetaBarrier</span></a> *barrier</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-barrier-release"></a><h3>meta_barrier_release ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_barrier_release (<em class="parameter"><code><a class="link" href="MetaBarrier.html" title="MetaBarrier"><span class="type">MetaBarrier</span></a> *barrier</code></em>,
+                      <em class="parameter"><code><a class="link" href="MetaBarrier.html#MetaBarrierEvent"><span class="type">MetaBarrierEvent</span></a> *event</code></em>);</pre>
+<p>In XI2.3, pointer barriers provide a feature where they can
+be temporarily released so that the pointer goes through
+them. Pass a <a class="link" href="MetaBarrier.html#MetaBarrierEvent"><span class="type">MetaBarrierEvent</span></a> to release the barrier for
+this event sequence.</p>
+<div class="refsect3">
+<a name="id-1.4.9.10.4.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>barrier</p></td>
+<td class="parameter_description"><p>The barrier to release</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>event</p></td>
+<td class="parameter_description"><p>The event to release the pointer for</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="MetaBarrier.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="MetaBarrier-struct"></a><h3>struct MetaBarrier</h3>
+<pre class="programlisting">struct MetaBarrier;</pre>
+<p>The <span class="structname">MetaBarrier</span> structure contains
+only private data and should be accessed using the provided API</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBarrierClass"></a><h3>struct MetaBarrierClass</h3>
+<pre class="programlisting">struct MetaBarrierClass {
+};
+</pre>
+<p>The <span class="structname">MetaBarrierClass</span> structure contains only
+private data.</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBarrierDirection"></a><h3>enum MetaBarrierDirection</h3>
+<div class="refsect3">
+<a name="id-1.4.9.11.4.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="META-BARRIER-DIRECTION-POSITIVE-X:CAPS"></a>META_BARRIER_DIRECTION_POSITIVE_X</p></td>
+<td class="enum_member_description">
+<p>Positive direction in the X axis</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-BARRIER-DIRECTION-POSITIVE-Y:CAPS"></a>META_BARRIER_DIRECTION_POSITIVE_Y</p></td>
+<td class="enum_member_description">
+<p>Positive direction in the Y axis</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-BARRIER-DIRECTION-NEGATIVE-X:CAPS"></a>META_BARRIER_DIRECTION_NEGATIVE_X</p></td>
+<td class="enum_member_description">
+<p>Negative direction in the X axis</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-BARRIER-DIRECTION-NEGATIVE-Y:CAPS"></a>META_BARRIER_DIRECTION_NEGATIVE_Y</p></td>
+<td class="enum_member_description">
+<p>Negative direction in the Y axis</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBarrierEvent-struct"></a><h3>struct MetaBarrierEvent</h3>
+<pre class="programlisting">struct MetaBarrierEvent {
+  int event_id;
+  int dt;
+  guint32 time;
+  double x;
+  double y;
+  double dx;
+  double dy;
+  gboolean released;
+  gboolean grabbed;
+};
+</pre>
+<div class="refsect3">
+<a name="id-1.4.9.11.5.4"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="struct_members_name">
+<col class="struct_members_description">
+<col width="200px" class="struct_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="struct_member_name"><p><span class="type">int</span> <em class="structfield"><code><a name="MetaBarrierEvent-struct.event-id"></a>event_id</code></em>;</p></td>
+<td class="struct_member_description"><p>A unique integer ID identifying a
+consecutive series of motions at or along the barrier</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">int</span> <em class="structfield"><code><a name="MetaBarrierEvent-struct.dt"></a>dt</code></em>;</p></td>
+<td class="struct_member_description"><p>Server time, in milliseconds, since the last event
+sent for this barrier</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> <em class="structfield"><code><a name="MetaBarrierEvent-struct.time"></a>time</code></em>;</p></td>
+<td class="struct_member_description"><p>Server time, in milliseconds</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">double</span> <em class="structfield"><code><a name="MetaBarrierEvent-struct.x"></a>x</code></em>;</p></td>
+<td class="struct_member_description"><p>The cursor X position in screen coordinates</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">double</span> <em class="structfield"><code><a name="MetaBarrierEvent-struct.y"></a>y</code></em>;</p></td>
+<td class="struct_member_description"><p>The cursor Y position in screen coordinates.</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">double</span> <em class="structfield"><code><a name="MetaBarrierEvent-struct.dx"></a>dx</code></em>;</p></td>
+<td class="struct_member_description"><p>If the cursor hadn't been constrained, the delta
+of X movement past the barrier, in screen coordinates</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">double</span> <em class="structfield"><code><a name="MetaBarrierEvent-struct.dy"></a>dy</code></em>;</p></td>
+<td class="struct_member_description"><p>If the cursor hadn't been constrained, the delta
+of X movement past the barrier, in screen coordinates</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> <em class="structfield"><code><a name="MetaBarrierEvent-struct.released"></a>released</code></em>;</p></td>
+<td class="struct_member_description"><p>A boolean flag, <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if this event generated
+by the pointer leaving the barrier as a result of a client
+calling <a class="link" href="MetaBarrier.html#meta-barrier-release" title="meta_barrier_release ()"><code class="function">meta_barrier_release()</code></a> (will be set only for
+MetaBarrier::leave signals)</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> <em class="structfield"><code><a name="MetaBarrierEvent-struct.grabbed"></a>grabbed</code></em>;</p></td>
+<td class="struct_member_description"><p>A boolean flag, <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the pointer was grabbed
+at the time this event was sent</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="MetaBarrier.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="MetaBarrier--directions"></a><h3>The <code class="literal">“directions”</code> property</h3>
+<pre class="programlisting">  “directions”               <a class="link" href="MetaBarrier.html#MetaBarrierDirection" title="enum MetaBarrierDirection"><span class="type">MetaBarrierDirection</span></a></pre>
+<p>A set of directions to let the pointer through.</p>
+<p>Flags: Read / Write / Construct Only</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBarrier--display"></a><h3>The <code class="literal">“display”</code> property</h3>
+<pre class="programlisting">  “display”                  <a class="link" href="MetaDisplay.html" title="MetaDisplay"><span class="type">MetaDisplay</span></a> *</pre>
+<p>The display to construct the pointer barrier on.</p>
+<p>Flags: Read / Write / Construct Only</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBarrier--x1"></a><h3>The <code class="literal">“x1”</code> property</h3>
+<pre class="programlisting">  “x1”                       <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>The first X coordinate of the barrier.</p>
+<p>Flags: Read / Write / Construct Only</p>
+<p>Allowed values: [0,32767]</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBarrier--x2"></a><h3>The <code class="literal">“x2”</code> property</h3>
+<pre class="programlisting">  “x2”                       <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>The second X coordinate of the barrier.</p>
+<p>Flags: Read / Write / Construct Only</p>
+<p>Allowed values: [0,32767]</p>
+<p>Default value: 32767</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBarrier--y1"></a><h3>The <code class="literal">“y1”</code> property</h3>
+<pre class="programlisting">  “y1”                       <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>The first Y coordinate of the barrier.</p>
+<p>Flags: Read / Write / Construct Only</p>
+<p>Allowed values: [0,32767]</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBarrier--y2"></a><h3>The <code class="literal">“y2”</code> property</h3>
+<pre class="programlisting">  “y2”                       <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>The second Y coordinate of the barrier.</p>
+<p>Flags: Read / Write / Construct Only</p>
+<p>Allowed values: [0,32767]</p>
+<p>Default value: 32767</p>
+</div>
+</div>
+<div class="refsect1">
+<a name="MetaBarrier.signal-details"></a><h2>Signal Details</h2>
+<div class="refsect2">
+<a name="MetaBarrier-hit"></a><h3>The <code class="literal">“hit”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="MetaBarrier.html" title="MetaBarrier"><span class="type">MetaBarrier</span></a>      *barrier,
+               <a class="link" href="MetaBarrier.html#MetaBarrierEvent"><span class="type">MetaBarrierEvent</span></a> *event,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>          user_data)</pre>
+<p>When a pointer barrier is hit, this will trigger. This
+requires an XI2-enabled server.</p>
+<div class="refsect3">
+<a name="id-1.4.9.13.2.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>barrier</p></td>
+<td class="parameter_description"><p>The <a class="link" href="MetaBarrier.html" title="MetaBarrier"><span class="type">MetaBarrier</span></a> that was hit</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>event</p></td>
+<td class="parameter_description"><p>A <a class="link" href="MetaBarrier.html#MetaBarrierEvent"><span class="type">MetaBarrierEvent</span></a> that has the details of how
+the barrier was hit.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Flags: <a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBarrier-left"></a><h3>The <code class="literal">“left”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="MetaBarrier.html" title="MetaBarrier"><span class="type">MetaBarrier</span></a>      *barrier,
+               <a class="link" href="MetaBarrier.html#MetaBarrierEvent"><span class="type">MetaBarrierEvent</span></a> *event,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>          user_data)</pre>
+<p>When a pointer barrier hitbox was left, this will trigger.
+This requires an XI2-enabled server.</p>
+<div class="refsect3">
+<a name="id-1.4.9.13.3.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>barrier</p></td>
+<td class="parameter_description"><p>The <a class="link" href="MetaBarrier.html" title="MetaBarrier"><span class="type">MetaBarrier</span></a> that was left</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>event</p></td>
+<td class="parameter_description"><p>A <a class="link" href="MetaBarrier.html#MetaBarrierEvent"><span class="type">MetaBarrierEvent</span></a> that has the details of how
+the barrier was left.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Flags: <a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-FIRST:CAPS">Run First</a></p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.21.1</div>
+</body>
+</html>

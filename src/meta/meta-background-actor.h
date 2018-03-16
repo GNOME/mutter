@@ -15,17 +15,17 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef META_BACKGROUND_ACTOR_H
 #define META_BACKGROUND_ACTOR_H
 
 #include <clutter/clutter.h>
-
 #include <meta/screen.h>
+#include <meta/meta-background.h>
+
+#include <gsettings-desktop-schemas/gdesktop-enums.h>
 
 /**
  * MetaBackgroundActor:
@@ -48,6 +48,7 @@ typedef struct _MetaBackgroundActorPrivate MetaBackgroundActorPrivate;
 
 struct _MetaBackgroundActorClass
 {
+  /*< private >*/
   ClutterActorClass parent_class;
 };
 
@@ -60,6 +61,15 @@ struct _MetaBackgroundActor
 
 GType meta_background_actor_get_type (void);
 
-ClutterActor *meta_background_actor_new_for_screen (MetaScreen *screen);
+ClutterActor *meta_background_actor_new    (MetaScreen *screen,
+                                            int         monitor);
+
+void meta_background_actor_set_background  (MetaBackgroundActor *self,
+                                            MetaBackground      *background);
+
+void meta_background_actor_set_vignette (MetaBackgroundActor *self,
+                                         gboolean             enabled,
+                                         double               brightness,
+                                         double               sharpness);
 
 #endif /* META_BACKGROUND_ACTOR_H */

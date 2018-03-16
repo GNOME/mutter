@@ -18,9 +18,7 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef __META_TEXTURE_RECTANGLE_H__
@@ -30,15 +28,8 @@
 
 G_BEGIN_DECLS
 
-CoglHandle
-meta_texture_rectangle_new (unsigned int width,
-                            unsigned int height,
-                            CoglTextureFlags flags,
-                            CoglPixelFormat format,
-                            GLenum internal_gl_format,
-                            GLenum internal_format,
-                            unsigned int rowstride,
-                            const guint8 *data);
+gboolean
+meta_texture_rectangle_check (CoglTexture *texture);
 
 G_END_DECLS
 

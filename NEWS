@@ -1,3 +1,850 @@
+3.14.4
+======
+* Fix flash on unredirection [Chris; #743858]
+* Fix incompatibility with GLES2 GLSL [Alban; #745442]
+* Add function to refresh all background instances [Rui; #739178]
+* Fix geometry of shaded windows [Florian; #746145]
+* Misc. bug fixes [Florian, Rui; #698995, #743217, #743254]
+
+Contributors:
+  Alban Browaeys, Rui Matos, Florian Müllner, Chris Wilson
+
+Translations:
+  Matej Urbančič [sl], Muhammet Kara [tr], Samir Ribic [bs]
+
+3.14.3
+======
+* Fix crash when trying to unredirect a destroyed window [Florian; #740133]
+* Fix "flicker" during startup transition [Ray; #740377]
+* Don't leave left-over frames queued [Owen; #738686]
+* Set CRTC configuration even if it might be redundant [Rui; #740838]
+
+Contributors:
+  Rui Matos, Florian Müllner, Jasper St. Pierre, Ray Strode, Owen W. Taylor
+
+3.14.2
+======
+* Prevent crash applying monitor config for a closed lid [Rui; #739450]
+* Misc. fixes [Rui, Jonathon, Jasper; #738630]
+
+Contributors:
+  Jonathon Jongsma, Rui Matos, Jasper St. Pierre
+
+3.14.1.5
+========
+* Fix wayland hiDPI regressions [Adel; #739161]
+
+Contributors:
+  Adel Gadllah, Florian Müllner, Jasper St. Pierre
+
+Translations:
+  Dušan Kazik [sk]
+
+3.14.1
+======
+* Fix move-titlebar-onscreen function [Florian; #736915]
+* Fix stacking of the guard window [Owen; #737233]
+* Fix keycode lookup for non-default layouts [Rui; #737134]
+* Fix workspaces-only-on-primary handling [Florian; #737178]
+* Don't unstick sticky windows on workspace removal [Florian; #737625]
+* Do not auto-minimize fullscreen windows [Jasper; #705177]
+* Upload keymap to newly added keyboard devices [Rui; #737673]
+* Apply keyboard repeat settings [Rui; #728055]
+* Don't send pressed keys on enter [Rui; #727178]
+* Fix build without wayland/native [Rico; #738225]
+* Send modifiers after the key event [Rui; #738238]
+* Fix unredirect heuristic [Adel; #738271]
+* Do not show system chrome over fullscreen windows [Florian; #693991]
+* Misc. bug fixes [Florian, Adel, Tom; #737135, #737581, #738146, #738384]
+
+Contributors:
+  Tom Beckmann, Adel Gadllah, Carlos Garnacho, Rui Matos, Florian Müllner,
+  Jasper St. Pierre, Rico Tzschichholz, Owen W. Taylor
+
+Translations:
+  Krishnababu Krothapalli [te], Мирослав Николић [sr, sr@latin],
+  Alexander Shopov [bg], Saibal Ray [bn_IN], Milo Casagrande [it],
+  Rūdolfs Mazurs [lv]
+
+3.14.0
+======
+* Fix placement of popup windows on wayland [Jasper; #736812]
+* Only increment serial once per event [Jasper; #736840]
+* Fix window positioning regression with non-GTK+ toolkits [Owen; #736719]
+
+Contributors:
+  Jasper St. Pierre, Owen W. Taylor
+
+Translations:
+  Saibal Ray [bn_IN], Dušan Kazik [sk], Manoj Kumar Giri [or],
+  Christian Kirbach [de], Ask H. Larsen [da], YunQiang Su [zh_CN],
+  Bernd Homuth [de], Shankar Prasad [kn], Petr Kovar [cs], Rajesh Ranjan [hi]
+
+3.13.92
+=======
+* Rewrite background code [Owen; #735637, #736568]
+* Fix size in nested mode [Owen; #736279]
+* Fix destroy animation of background windows [Florian; #735927]
+* Wire keymap changes up to the wayland frontend [Rui; #736433]
+* Add a test framework and stacking tests [Owen; #736505]
+* Simplify handling of the merged X and wayland stack [Owen; #736559]
+* Fix cursor size on HiDPI [Adel; #729337]
+* Misc. bug fixes [Owen; #735632, #736589, #736694]
+
+Contributors:
+  Adel Gadllah, Rui Matos, Florian Müllner, Jasper St. Pierre, Owen W. Taylor
+
+Translations:
+  Andika Triwidada [id], Piotr Drąg [pl], Changwoo Ryu [ko],
+  Kjartan Maraas [nb], Ville-Pekka Vainio [fi], Yuri Myasoedov [ru],
+  Aurimas Černius [lt], Balázs Úr [hu], Sweta Kothari [gu], A S Alam [pa],
+  Sandeep Sheshrao Shedmake [mr], Shantha kumar [ta], Gil Forcada [ca],
+  Carles Ferrando [ca@valencia], Mattias Eriksson [sv]
+
+3.13.91
+=======
+* Misc. bug fixes [Carlos; #735452]
+
+Contributors:
+  Adel Gadllah, Carlos Garnacho, Rui Matos, Jasper St. Pierre,
+  Rico Tzschichholz
+
+Translations:
+  Chao-Hsiung Liao po/zh_HK, zh_TW.po, Enrico Nicoletto [pt_BR],
+  Kjartan Maraas [nb], Fran Diéguez [gl], Yosef Or Boczko [he],
+  Maria  Mavridou [el], Claude Paroz [fr]
+
+3.13.90
+=======
+* Only call XSync() once per frame [Rui; #728464]
+* Update capabilities on device list changes [Carlos; #733563]
+* Make use of GLSL optional [Adel; #733623]
+* Handle gestures and touch events on wayland [Carlos; #733631]
+* Add support for unminimize compositor effects [Cosimo; #733789]
+* Always set the frame background to None [Giovanni; #734054]
+* Add backend methods to handle keymaps [Rui; #734301]
+* Actually mark revalidated MetaTextureTower levels as valid [Owen; #734400]
+* Rely on explicit -backward switcher keybindings instead of <shift>-magic
+  [Christophe; #732295, #732385]
+* Misc. bug fixes and cleanups [Rui, Adel, Christophe; #727178, #734852,
+  #734960]
+
+Contributors:
+  Emmanuele Bassi, Giovanni Campagna, Cosimo Cecchi, Piotr Drąg,
+  Christophe Fergeau, Adel Gadllah, Carlos Garnacho, Rui Matos,
+  Florian Müllner, Jasper St. Pierre, Rico Tzschichholz, Olav Vitters,
+  Owen W. Taylor
+
+Translations:
+  Kjartan Maraas [nb], Inaki Larranaga Murgoitio [eu], Lasse Liehu [fi],
+  ngoswami [as], Daniel Mustieles [es]
+
+3.13.4
+======
+* Fix move/resize operations for wayland clients [Marek; #731237]
+* Add ::first-frame signal to MetaWindowActor [Owen; #732343]
+* Handle keysyms without the XF86 prefix [Owen; #727993]
+* Add touch gesture support [Carlos]
+* Fix a deadlock when exiting [Owen; #733068]
+* Add framework for restarting the compositor with nice visuals
+  [Owen; #733026]
+* Toggle seat capabilities on VT switch [Carlos; #733563]
+* Misc bug fixes [Florian, Owen; #732695, #732350]
+
+Contributors:
+  Tom Beckmann, Giovanni Campagna, Marek Chalupa, Adel Gadllah,
+  Carlos Garnacho, Florian Müllner, Jasper St. Pierre, Rico Tzschichholz,
+  Owen W. Taylor
+
+Translations:
+  Yuri Myasoedov [ru], Fran Diéguez [gl], Aurimas Černius [lt], MarMav [el],
+  Enrico Nicoletto [pt_BR]
+
+3.13.3
+======
+* Improve behavior of window buttons with compositor menus [Florian; #731058]
+* Implement touch support on wayland [Carlos; #724442]
+* Update window shadows [Nikita; #731866]
+* Keep windows on the preferred output [Florian; #731760]
+* Misc bug fixes [Jonas, Florian, Jasper; #729601, #730681, #731353, #731332,
+  #730527, #662962]
+
+Contributors:
+  Jonas Ådahl, Nikita Churaev, Carlos Garnacho, Florian Müllner,
+  Jasper St. Pierre, Rico Tzschichholz
+
+3.13.2
+======
+* Add basic HiDPI support on wayland [Adel; #728902]
+* Fix crash when monitors change during suspend [Giovanni; #725637]
+* Replace mutter-launch with logind integration [Jasper; #724604]
+* Move window menu into the compositor [Jasper; #726352]
+* Fix delayed focus-follows-mouse support [Florian; #730541]
+* Support fallback app menu in window decorations [Florian; #730752]
+* Misc. bug fixes and cleanups [Giovanni, Jonas, Jasper; #729732, #729602,
+  #726714]
+
+Contributors:
+  Jonas Ådahl, Giovanni Campagna, Adel Gadllah, Florian Müllner,
+  Jasper St. Pierre, Rico Tzschichholz
+
+Translations:
+  Pau Iranzo [ca], Daniel Mustieles [es]
+
+3.13.1
+======
+* Fix opacity values from _NET_WM_WINDOW_OPACITY [Nirbheek; #727874]
+* Merge wayland branch [Jasper, Giovanni, Robert B., Neil, Adel, Rui, Jonas,
+  Lionel, Tim, Owen, Florian, Colin W., Cosimo, Ray, Kalev, Pavel, Robert A.,
+  Magdalen, Marek, Matthias, Alban, Seán, Daniel, Stefano, Carlos, Colin G.,
+  Andreas, Alexander, Ryan, Marc-André, Asad, Alberto, Bastien, Hans,
+  Debarshi, Sindhu, Andika, Rico, Olav]
+* Don't prevent workspace switches for present_with_time() [Florian; #728018]
+* Add shortcuts for switching to the last workspace [Elad; #659288]
+* Make move/resize menu items behave like the keybindings [Jasper; #728617]
+* Misc. bug fixes and cleanups  [Jasper, Bastien, Florian, Adel; #720631,
+  #727979, #728423, #728395, #729044]
+
+Contributors:
+  Jonas Ådahl, Elad Alfassa, Robert Ancell, Magdalen Berns, Robert Bragg,
+  Giovanni Campagna, Cosimo Cecchi, Marek Chalupa, Nirbheek Chauhan,
+  Matthias Clasen, Alban Crequy, Seán de Búrca, Daniel Drake, Jason Ekstrand,
+  Stefano Facchini, Adel Gadllah, Carlos Garnacho, Colin Guthrie,
+  Andreas Heider, Lionel Landwerlin, Alexander Larsson, Kalev Lember,
+  Ryan Lortie, Tim Lunn, Marc-André Lureau, Rui Matos, Asad Mehmood,
+  Alberto Milone, Florian Müllner, Bastien Nocera, Hans Petter Jansson,
+  Debarshi Ray, Neil Roberts, Sindhu S, Jasper St. Pierre, Ray Strode,
+  Andika Triwidada, Rico Tzschichholz, Pavel Vasin, Olav Vitters,
+  Colin Walters, A. Walton, Owen W. Taylor
+
+Translations:
+  Inaki Larranaga Murgoitio [eu], marablack3 [el], Daniel Mustieles [es],
+  Fran Diéguez [gl], Yosef Or Boczko [he], Dirgita [id]
+
+3.12.0
+======
+* Fix grab issue with SSD xwayland windows [Rui; #726123]
+* Misc. bug fixes [Jasper, Ray, Rui, Florian; #727011]
+
+Contributors:
+  Rui Matos, Florian Müllner, Jasper St. Pierre, Ray Strode
+
+3.11.92
+=======
+* Fix identification of CSD windows [Owen; #723029]
+* Update keyboard state unconditionally [Rui; #722847]
+* Misc bug fixes and cleanups [Owen, Rui, Giovanni, Matthias, Adel, Ryan,
+  Jasper, Marek, Florian; #723580, #726123, #726683]
+
+Contributors:
+  Giovanni Campagna, Marek Chalupa, Matthias Clasen, Adel Gadllah, Ryan Lortie,
+  Rui Matos, Florian Müllner, Jasper St. Pierre, Owen W. Taylor
+
+3.11.91
+=======
+* Don't use keysym to match keybindings [Rui; #678001]
+* Fix message tray icons showing up blank (again) [Adel; #725180]
+* Improve keybinding lookups [Rui; #725588]
+* Fix dynamic updates of titlebar style properties [Owen; #725751]
+* Fix positioning of manually positioned windows [Owen; #724049]
+* Misc bug fixes and cleanups [Jasper, Carlos, Adel, Giovanni, Florian; #720631,
+  #724969, #725216, #724402, #722266, #725338, #725525]
+
+Contributors:
+  Giovanni Campagna, Adel Gadllah, Carlos Garnacho, Rui Matos, Florian Müllner,
+  Jasper St. Pierre, Owen W. Taylor
+
+3.11.90
+=======
+* Fix double-scaling on high DPI resolutions [Adel; #723931]
+* Make tile previews a compositor effect [Stefano, Florian; #665758]
+* Misc. bug fixes and cleanups [Ryan, Giovanni, Jasper, Adel; #722530, #724257,
+  #724258, #720631, #724364, #724472]
+
+Contributors:
+  Giovanni Campagna, Marek Chalupa, Stefano Facchini, Adel Gadllah,
+  Ryan Lortie, Florian Müllner, Jasper St. Pierre, Rico Tzschichholz
+
+3.11.5
+======
+* Fix CSD titlebars being placed off-screen [Jasper; #719772]
+* Add support for subsurfaces [Jonas; #705502]
+* Expose MetaWindow:skip-taskbar property [Florian; #723307]
+* Fix legacy tray icons showing up blank [Adel; #721596]
+* Fix configuration of cloned monitors [Adel; #710610]
+* Misc bug fixes and cleanups [Jasper, Adel, Marek, Jonas; #720631, #723468,
+  #720818, #723563, #723564]
+
+Contributors:
+  Jonas Ådahl, Marek Ch, Adel Gadllah, Florian Müllner, Jasper St. Pierre
+
+3.11.4
+======
+* Don't leave focus on windows that are being unmanaged [Owen; #711618]
+* Reduce server grabs [Daniel Drake; #721345, #721709]
+* Improve heuristic to determine display output name [Cosimo Cecchi; #721674]
+* Atomically unmaximize both directions [Jasper; #722108]
+* Misc bug fixes [Debarshi, Andika, Florian; #721517, #721674, #722347]
+
+Contributors:
+  Cosimo Cecchi, Daniel Drake, Florian Müllner, Debarshi Ray, Jasper St. Pierre,
+  Andika Triwidada, Owen W. Taylor
+
+3.11.3
+======
+* Fix focus issues with external OSKs[Jasper; #715030]
+* Add a MetaCullable interface [Jasper; #714706]
+* Fix window keybindings [Rui; #719724]
+* Fix settings keyboard/pointer focus for new clients [Rui; #719725]
+* Fix window group paint volume [Owen; #719669]
+* Fix frame extents problems [Owen; #714707]
+* Add shortcut to move windows between monitors [Florian; #671054]
+* Fix problems with focus tracking [Owen; #720558]
+* Misc. bug fixes and cleanups: [Rui, Colin, Lionel, Jasper, Owen; #712833,
+  #719557, #719695, #719833, #678989, #720417, #720630]
+
+Contributors:
+  Lionel Landwerlin, Rui Matos, Alberto Milone, Florian Müllner,
+  Jasper St. Pierre, Rico Tzschichholz, Owen W. Taylor, Colin Walters
+
+3.11.2
+======
+* Support setting a NULL opaque region [Andreas; #711518]
+* Sync keymap from X to wayland [Giovanni; #707446]
+* Implement support for subsurfaces [Jonas; #705502]
+* Don't focus the no-focus-window for globally active windows [Jasper; #710296]
+* Support "hotplug_mode_update" property [Marc-André; #711216]
+* Fix resize operations using mouse-button-modifier [Lionel; #710251]
+* Fix position of attached modals for CSD windows [Giovanni, Owen; #707194]
+* Misc. bug fixes [Rui, Jasper, Neil, Florian; #712247, #711731]
+
+Contributors:
+  Giovanni Campagna, Andreas Heider, Lionel Landwerlin, Marc-André Lureau,
+  Rui Matos, Florian Müllner, Neil Roberts, Sindhu S, Jasper St. Pierre,
+  Rico Tzschichholz, Owen W. Taylor, Jonas Ådahl
+
+3.11.1
+======
+* Fix tile previews getting stuck on right click during drags [Lionel; #704759]
+* Use new UPower API [Bastien]
+* Set hot spot when cursor set from wl_buffer [Jonas; #709593]
+* Expose min-backlight-step [Asad; #710380]
+* Misc. bug fixes and cleanups [Jasper, Olav, Magdalen; #709776]
+
+Contributors:
+  Magdalen Berns, Lionel Landwerlin, Asad Mehmood, Bastien Nocera,
+  Jasper St. Pierre, Olav Vitters, Jonas Ådahl
+
+3.10.1
+======
+* Don't apply fullscreen workarounds to CSD windows [Giovanni; #708718]
+* Fix hangs during DND operations [Adel; #709340]
+* Misc bug fixes [Dan, Giovanni, Jasper; #708813, #708420]
+
+Contributors:
+  Giovanni Campagna, Adel Gadllah, Dan Horák, Hans Petter Jansson,
+  Jasper St. Pierre
+
+3.10.0.1
+========
+* Fix bug when a window changed size twice in a single frame - this
+  can happen with GTK+ client-side decorations [Giovanni, Owen; #708367]
+
+Contributors:
+  Giovanni Campagna, Owen Taylor
+
+3.10.0
+======
+* Update dependencies [Giovanni; #708210]
+
+3.9.92
+======
+* Constrain the pointer position onto visible monitors [Giovanni; #706655]
+* Fix keyboard state handling in face of event compression [Giovanni; #706963]
+* Extend the MetaCursorTracker API with query pointer and cursor visibility [Giovanni; #707474]
+* Be stricter in checking and exposing the wayland protocol version [#707851]
+* Don't require plugins to pass event to Clutter [Giovanni; #707482]
+* Move the --wayland option from the binary to the library [Giovanni; #707897]
+* Implement running from gnome-session (environment variable setting, process group
+  handling, Clutter backend variables) [Giovanni; #706421]
+* Add support for more cursor types [Giovanni; #707919]
+* Drop man pages for removed utilities [Kalev; #706579]
+* Implement monitor configuration on KMS [Giovanni; #706308]
+* Implement HW cursors [Giovanni; #707573]
+* Implement minimal support for resizing and maximizing wayland clients [Giovanni; #707401]
+* Implement transient hints for wayland clients [Giovanni; #707401]
+* Implement popup menu surfaces and grabs [Giovanni; #707863]
+* Immediately fire idle watches that are already expired [Giovanni; #707302]
+* Remove holes generated by disabling the laptop lid [Giovanni; #707473]
+* Misc bug fixes [Giovanni, Pavel, Adel; #707649, #706124, #707584, #707851, #707929,
+  #708070]
+
+Contributors:
+  Adel Gadllah, Giovanni Campagna, Kalev Lember, Pavel Vasin
+
+Translations:
+  Мирослав Николић po/sr, sr@latin.po, Мирослав Николић [sr, sr@latin],
+  Chao-Hsiung Liao [zh_HK, zh_TW], Yuri Myasoedov [ru],
+  Ville-Pekka Vainio [fi], Changwoo Ryu [ko], A S Alam [pa],
+  Mattias Põldaru [et], Rūdolfs Mazurs [lv], Ihar Hrachyshka [be],
+  Nilamdyuti Goswami [as], Andika Triwidada [id], Baurzhan Muftakhidinov [kk],
+  Benjamin Steinwender [de]
+
+3.9.91
+======
+* Drop man pages for removed utilities [Kalev; #706579]
+* Add support for idle tracking [Giovanni, Cosimo; #706005, #707250]
+* Skip CRTC reconfigurations that have no effect [Giovanni; #706672]
+* Ignore skip-taskbar hints on parentless dialogs [Giovanni; #673399]
+* Don't save pixbuf data in user data [Tim; #706777]
+* Don't queue redraws for obscured regions [Adel; #703332]
+* Suppor the opaque region hints for wayland clients [Jasper; #707019]
+* Turn blending off when drawing entirely opaque regions [Jasper; #707019]
+* Check event timestamps before reconfiguring [Giovanni; #706735]
+* Merge the DBus API for display configuration in the wayland branch [Giovanni]
+* Install an X IO error handler for XWayland [Giovanni; #706962]
+* Use the clutter xkbcommon integration for the wayland keyboard [Giovanni; #705862]
+* Add a setuid helper for running on KMS+evdev [Giovanni, Colin; #705861]
+* Add keybindings for switching VT [Giovanni; #705861]
+* Implement plugin modality when running as a wayland compositor [Giovanni; #705917]
+* Add support for the application menu for wayland clients [Giovanni; #707128]
+* Several Coverity spotted fixes [Jasper]
+* Don't create a dummy texture for the texture template [Neil; #707458]
+* Use a more conservative paint volume for obscured windows [Adel]
+* Misc bug fixes [Giovanni, Colin, Seán, Jasper, Cosimo; #706582, #706598,
+  #706787, #706729, #706825, #707081, #707090, #707267, #706982, #706289]
+
+Contributors:
+  Giovanni Campagna, Cosimo Cecchi, Adel Gadllah, Colin Guthrie, Kalev Lember,
+  Tim Lunn, Jasper St. Pierre, Neil Roberts, Rico Tzschichholz, Seán de Búrca
+
+Translations:
+  Piotr Drąg [pl], Alexandre Franke [fr], Kjartan Maraas [nb],
+  Milo Casagrande [it], Balázs Úr [hu], Seán de Búrca [ga], Fran Diéguez [gl],
+  Daniel Mustieles [es], Aurimas Černius [lt], Gil Forcada [ca]
+
+3.9.90
+======
+* First release from the wayland branch, includes basic support for running
+  as a wayland compositor [Robert, Neil, Giovanni]
+* Add support for _GTK_FRAME_EXTENTS [Jasper; #705766]
+* Fix quick consecutive <super> presses breaking keyboard input [Alban; #666101]
+* Work towards running as wayland compositor [Giovanni]
+ - Add DBus API for display configuration
+   [#705670, #706231, #706233, #706322, #706382]
+ - Add abstraction layer for cursor tracking [#705911]
+ - Add support for plugin modality under wayland [#705917]
+* Disable GTK+ scaling [Alexander; #706388]
+* Disable blending while updating tower [Robert]
+* Misc bug fixes and cleanups [Adel, Jasper, Giovanni, Colin, Rico, Florian;
+  #703332, #704437, #706207]
+
+Contributors:
+  Robert Bragg, Giovanni Campagna, Alban Crequy, Adel Gadllah,
+  Alexander Larsson, Florian Müllner, Jasper St. Pierre, Neil Roberts,
+  Rico Tzschichholz, Colin Walters
+
+Translations:
+  Jiro Matsuzawa [ja], Kjartan Maraas [nb], Matej Urbančič [sl],
+  Marek Černocký [cs], Daniel Mustieles [es], Rafael Ferreira [pt_BR],
+  Yaron Shahrabani [he], Ján Kyselica [sk]
+
+3.9.5
+=====
+* Don't select for touch events on the stage [Jasper; #697192]
+* Don't queue redraws for obscured regions [Adel; #703332]
+* Export timestamp of global keybinding events [Bastien; #704858]
+* Misc bug fixes and cleanups [Jasper, Rico; #703970]
+
+Contributors:
+  Adel Gadllah, Bastien Nocera, Jasper St. Pierre, Rico Tzschichholz
+
+3.9.4
+=====
+* Tweak window shadows [Allan; #702141]
+* Ignore our own focus events for focus prediction [Jasper; #701017]
+* Add API to query if the stage is focused [Jasper; #700735]
+* Add API to query the monitor for a given position [Adel]
+* Don't force attached dialogs to be border-only [Florian; #702764]
+* Allow slicing of backgrounds to avoid texture size limits [Ray; #702283]
+* Miscellaneous bug fixes and cleanups [Adel; #701224, #702564]
+
+Contributors:
+  Allan Day, Adel Gadllah, Florian Müllner, Jasper St. Pierre, Ray Strode
+
+3.9.3
+=====
+* Ensure events are always reported to the grab window [Rui; #701219]
+* Use new clutter_stage_set_paint_callback() function to prevent dropping
+  frames with frame synced toolkits [Owen; #698794]
+
+Contributors:
+  Rui Matos, Owen W. Taylor
+
+3.9.2
+=====
+* Add meta_window_can_close() function [Jasper; #699269]
+* Add support for string-array preferences [Florian; #700223]
+* Fix a potential race condition with _NET_WM_MOVERESIZE [Jasper; #699777]
+* Fix shade window action [Stef; #693714]
+* Remove overlay_group [Giovanni; #700735]
+* Improve tracking of the focus window [Dan, Jasper; #647706]
+* Add API to freeze/unfreeze the keyboard [Rui; #697001]
+* Grab and emit a signal when XK_ISO_Next_Group is pressed [Rui; #697002]
+* Misc bug fixes and cleanups [Dieter, Jasper, Rui; #699636, #700735, #697000]
+
+Contributors:
+  Giovanni Campagna, Rui Matos, Florian Müllner, Jasper St. Pierre,
+  Dieter Verfaillie, Stef Walter, Dan Winship
+
+Translations:
+  Kjartan Maraas [nb], Ján Kyselica [sk]
+
+3.9.1
+=====
+* Fix miscellaneous memory leaks [Pavel; #698710]
+* Misc fixes and cleanups [Stef, Simon; #698179, #697758]
+
+Contributors:
+  Simon McVittie, Pavel Vasin, Stef Walter
+
+3.8.1
+=====
+* Fix crash when getting default font [Bastien; #696814]
+* Fix ungrabbing of keybindings [Rui; #697003]
+* Misc fixes and cleanups [Jasper, Simon; #697758]
+
+Contributors:
+  Jasper Lievisse Adriaanse, Rui Matos, Simon McVittie, Bastien Nocera
+
+Translations:
+  Guillaume Desmottes [fr], Shankar Prasad [kn], Bruce Cowan [en_GB],
+  Andika Triwidada [id], Yaron Shahrabani [he], Kjartan Maraas [nb],
+  Gheyret Kenji [ug]
+
+3.8.0
+=====
+* Address major memory leak when changing backgrounds [Ray; #696157]
+
+Contributors:
+  Ray Strode
+
+Translations:
+  Sandeep Sheshrao Shedmake [mr], Victor Ibragimov [tg], Gabor Kelemen [hu],
+  Ville-Pekka Vainio [fi], Rajesh Ranjan [hi], Dr.T.Vasudevan [ta],
+  ManojKumar Giri [or], Yuri Myasoedov [ru], Petr Kovar [cs],
+  Jiro Matsuzawa [ja], Krishnababu Krothapalli [te], Ani Peter [ml],
+  Inaki Larranaga Murgoitio [eu]
+
+3.7.92
+======
+* Build and improve reference docs [Tomeu; #676856, #695641, #695935]
+* Add tracking of whether there are fullscreen windows [Owen; 649748]
+* Misc bug fixes and cleanups [Adel, Giovanni, Owen, Jasper, Florian; #695269,
+  #695711, #694046, #695813, #695881, #676856, #696053, #682779, #696089,
+  #696091, #696087]
+
+Contributors:
+  Giovanni Campagna, Adel Gadllah, Florian Müllner, Jasper St. Pierre,
+  Tomeu Vizoso, Owen W. Taylor
+
+Translations:
+  Chao-Hsiung Liao [zh_HK, zh_TW], Rafael Ferreira [pt_BR],
+  Ihar Hrachyshka [be], Nilamdyuti Goswami [as], Matej Urbančič [sl],
+  Dimitris Spingos [el], Jan Kyselica [sk], Khaled Hosny [ar],
+  Мирослав Николић [sr, sr@latin], Duarte Loreto [pt], Sweta Kothari [gu],
+  Milo Casagrande [it], Changwoo Ryu [ko], Gil Forcada [ca],
+  Carles Ferrando [ca@valencia], Mattias Põldaru [et], Alexandre Franke [fr],
+  Ask H. Larsen [da], Rūdolfs Mazurs [lv], Nguyễn Thái Ngọc Duy [vi]
+
+3.7.91
+======
+* Fix windows being treated as remote after hostname changes [Ray; #688716]
+* Add meta_window_get_all_monitors() method [Adel; #646861]
+* Add grab API for externally defined accelerators [Florian; #643111]
+* Make session registration an explicit step [Ray; #694876]
+* Avoid unnecessary stage redraws [Adel; #694988, #695006]
+* Misc fixes [Giovanni, Ray, Jasper, Rui, Pavel, Owen; #694801, #694725,
+  #694641, #694393, #678917, #695093, #694837, #695135, #694771, #694321]
+
+Contributors:
+  Giovanni Campagna, Adel Gadllah, Rui Matos, Florian Müllner,
+  Jasper St. Pierre, Ray Strode, Owen Taylor, Pavel Vasin
+
+Translations:
+  Daniel Mustieles [es], Yaron Shahrabani [he], A S Alam [pa], Piotr Drąg [pl],
+  Gheyret Kenji [ug], Alexandre Franke [fr], Milo Casagrande [it],
+  Fran Diéguez [gl], Dimitris Spingos [el], Мирослав Николић [sr, sr@latin],
+  Chao-Hsiung Liao [zh_HK, zh_TW], Nguyễn Thái Ngọc Duy [vi],
+  Aurimas Černius [lt], Mario Blättermann [de], Kjartan Maraas [nb]
+
+3.7.90
+======
+* Support _NET_WM_OPAQUE_REGION [Jasper, Adel; #679901]
+* Add wrapper for XI2.3 pointer barriers [Jasper; #677215]
+* Update style of resize popups [Cosimo; #692741]
+* Implement compositor <-> application frame synchronization [Owen; #685463]
+* Handle animated backgrounds [Ray; #682427]
+* Add a new window group for override-redirect windows [Gayan; #633620]
+* Pass on pointer events on guard window to Clutter [Jasper; #681540]
+* Show correct shortcut in window menus [Giovanni; #694045]
+* Don't put minimized windows at the back of alt-tab [Jasper; #693991]
+* Misc bug fixes and cleanups [Jasper, Rico, Adel, Florian, Rui, Giovanni,
+  Owen; #692679, #693354, #690581, #693439, #692718, #693475, #693482, #693540,
+  #690580, #680990, #693833, #693922, #693854, #694224]
+
+Contributors:
+  Giovanni Campagna, Cosimo Cecchi, Adel Gadllah, Rui Matos, Florian Müllner,
+  Gayan Perera, Jasper St. Pierre, Ray Strode, Owen Taylor, Rico Tzschichholz
+
+Translations:
+  Fran Diéguez [gl], A S Alam [pa], Alexandre Franke [fr], Aurimas Černius [lt],
+  Мирослав Николић [sr, sr@latin], Fran Diéguez [gl], Piotr Drąg [pl],
+  Luca Ferretti [it], Daniel Mustieles [es]
+
+3.7.5
+=====
+* Don't allow multiline window titles [Jon; #683056]
+* Make meta_window_located_on_workspace() public [Jasper; #691744]
+* Request XI2.3 [Colin; #692877]
+* Add meta_window_set_icon_geometry() method [Florian; #692997]
+* Require XFixes 5.0 [Jasper; #677215]
+* Change unredirection hints to match spec changes [Adel; #693064]
+* Improve unredict heuristicts [Adel; #683786]
+* Misc bug fixes and cleanups [Florian, Jasper, Adel; #691874, #679901,
+  #692952, #693042]
+
+Contributors:
+  Adel Gadllah, William Jon McCann, Florian Müllner, Jasper St. Pierre,
+  Colin Walters
+
+Translations:
+  Daniel Mustieles [es], Ihar Hrachyshka [be], Nilamdyuti Goswami [as],
+  Gheyret Kenji [ug], Kjartan Maraas [nb], Yaron Shahrabani [he],
+  Piotr Drąg [pl], Chao-Hsiung Liao [zh_HK,zh_TW], Milo Casagrande [it]
+
+3.7.4
+=====
+* Add support for bypass compositor hints [Adel; #683020]
+* Make automaximization optional [Adel; #680990]
+* Add method for checking if the application is responding [Giovanni; #684340]
+* Expose the xinput opcode [Jasper; #690590]
+* Rebrand "minimize" as "hide" [Florian; #682887]
+* Misc bug fixes and cleanups [Giovanni, Ray, Jasper, Matthias, Debarshi,
+  Florian, Rui; #690454, #690573, #690593, #690956, #691363, #690609, #690317,
+  #689263]
+
+Contributors:
+  Giovanni Campagna, Matthias Clasen, Adel Gadllah, Rui Matos, Florian Müllner,
+  Debarshi Ray, Jasper St. Pierre, Ray Strode
+
+Translations:
+  Mattias Põldaru [et], Yaron Shahrabani [he], Daniel Mustieles [es],
+  Khaled Hosny [ar], Fran Diéguez [gl], A S Alam [pa], Piotr Drąg [pl],
+  Rafael Ferreira [pt_BR], Nilamdyuti Goswami [as], Alexander Shopov [bg],
+  Matej Urbančič [sl]
+
+3.7.3
+=====
+* Fix maximized windows jumping to other monitors [Alban; #556696]
+* Add 'switch-applications' keybinding [Florian; #688913]
+* Add a convenience method to focus the default window [Jasper; #689652]
+* Increase typical icon size to 96 [Jasper; #689651]
+* Port to XInput2 [Jasper; #688779]
+* Give dynamic keybindings a keybinding action [Florian; #682315]
+* Misc. fixes and cleanups [Jasper, Rui; #688777]
+
+Contributors:
+  Alban Crequy, Rui Matos, Florian Müllner, Jasper St. Pierre
+
+Translations:
+  Nilamdyuti Goswami [as], Piotr Drąg [pl], Yaron Shahrabani [he],
+  Dr.T.Vasudevan [ta], ManojKumar Giri [or], Shankar Prasad [kn]
+
+3.7.2
+=====
+* Fix spurious focus changes when showing desktop [Florian; #686928]
+* MetaPluginManager: don't send events to Clutter twice [Owen; #686406]
+* Add the ability to add shader hooks to MetaBackgroundActor [Giovanni; #669798]
+* Only process keyboard mapping events for the core X keyboard [Rui; #674859]
+* Import keybinding files from Metacity [Florian; #687672]
+* Add compositor hook to process keybindings selectively [Florian; #688202]
+* MetaBackgroundActor: add a setter for GLSL uniforms [Giovanni; #682536]
+* Misc. fixes and cleanups [Jasper, Rui, Florian, Rico; #688182]
+
+Contributors:
+  Giovanni Campagna, Rui Matos, Florian Müllner, Jasper St. Pierre,
+  Owen Taylor, Rico Tzschichholz
+
+Translations:
+  Rafael Ferreira [pt_BR], Tobias Endrigkeit [de], Yaron Shahrabani [he]
+
+3.7.1
+=====
+* screen: Ignore num-workspaces when using dynamic workspaces [Florian; #685439]
+
+Contributors:
+  Florian Müllner
+
+Translations:
+  Mattias Põldaru [et], Kjartan Maraas [nb], Мирослав Николић [sr, sr@latin],
+  Marek Černocký [cs], Andika Triwidada [id], Daniel Mustieles [es],
+  Fran Diéguez [gl], Matej Urbančič [sl]
+
+3.6.1
+=====
+* Fix crash when opening large popup menus [Jasper; #681676]
+* window: Don't move the desktop window after monitor hotplug [Jasper; #681159]
+* Expose MetaPlugin to introspection [Evan; #671098]
+* Optionally delay focus changes in focus-follows-mouse mode [Florian; #678169]
+* Resize the guard window when the X screen is resized [Benjamin; #670396]
+* display: Only manage the default X screen [Jürg; #648156]
+* Misc cleanups: [Owen; #587255]
+
+Contributors:
+  Benjamin Berg, Jürg Billeter, Evan Broder, Florian Müllner, Jasper St. Pierre,
+  Owen Taylor
+
+Translations:
+  Alexandre Franke [fr], Theppitak Karoonboonyanan [th], Sayak Sarkar [bn_IN],
+  Sandeep Sheshrao Shedmake [mr], Ask H. Larsen [da], Shankar Prasad [kn],
+  Alexander Shopov [bg], Aurimas Černius [lt], Ihar Hrachyshka [be],
+  Kjartan Maraas [nb], Daniel Mustieles [es], Changwoo Ryu [ko],
+  Yuri Myasoedov [ru], Tom Tryfonidis [el], Rūdolfs Mazurs [lv],
+  Chris Leonard [en_GB], Piotr Drąg [pl], Fran Diéguez [gl], Gil Forcada [ca],
+  Matej Urbančič [sl], Andika Triwidada [id], Carles Ferrando [ca]
+
+3.6.0
+=====
+
+Translations:
+  Alexander Shopov [bg], Daniel Korostil [uk], Rajesh Ranjan [hi],
+  Krishnababu Krothapalli [te], Ani Peter [ml], Rūdolfs Mazurs [lv],
+  Sweta Kothari [gu], Ihar Hrachyshka [be], Noriko Mizumoto [ja],
+  Timo Jyrinki [fi], Mattias Põldaru [et]
+
+3.5.92
+======
+* screen: Allow NULL out arguments in meta_screen_get_size [Tomeu]
+* display: Add API to set wm_name / wm_keybindings [Florian; #671010]
+* Improve the not responding dialog [Jon, Florian; #684306]
+* Misc. bugfixes [Jasper]
+
+Contributors:
+  William Jon McCann, Florian Müllner, Jasper St. Pierre, Tomeu Vizoso
+
+Translations:
+  Gabor Kelemen [hu], Piotr Drąg [pl], Dr.T.Vasudevan [ta], Bruce Cowan [en_GB],
+  Alexandre Franke [fr], Theppitak Karoonboonyanan [th], Gil Forcada [ca],
+  Carles Ferrando [ca@valencia], Tobias Endrigkeit [de], Tom Tryfonidis [el],
+  Nguyễn Thái Ngọc Duy [vi], Changwoo Ryu [ko], Ask H. Larsen [da],
+  Rafael Ferreira [pt_BR], Marek Černocký [cs]
+
+3.5.91
+======
+* Do not include markup in app not responding dialog [Alex]
+* Fix subtracting unredirected windows from visible region [Jasper; #677116]
+* Minor improvements and bugfixes [Jasper, Florian; #682648, #682993]
+
+Contributors:
+  Alexander Larsson, Florian Müllner, Jasper St. Pierre
+
+Translations:
+  Dirgita [id], Piotr Drąg [pl], A S Alam [pa], Yuri Myasoedov [ru],
+  Milo Casagrande [it], Nilamdyuti Goswami [as], Tom Tryfonidis [el],
+  Duarte Loreto [pt], Fran Diéguez [gl], Nguyễn Thái Ngọc Duy [vi],
+  Aurimas Černius [lt], Daniel Nylander [sv]
+
+3.5.90
+======
+* Fix logic for handling translations of the windows group [Owen; #681221]
+* Handle painting inside a Clutter clone [Owen; #681953]
+* Update overlay-key on settings changes [Florian; #681906]
+* Add keybinding for overlay-key [Florian; #665547]
+* Minor fixes and improvements [Javier, Florian]
+
+Contributors:
+  Javier Jardón, Florian Müllner, Owen Taylor
+
+Translations:
+  Sweta Kothari [gu], Muhammet Kara [tr], Khaled Hosny [ar],
+  Sandeep Sheshrao Shedmake [mr]
+
+3.5.5
+=====
+* Fix flickering around windows when using window group [Tom; #681221]
+
+Contributor(s):
+  Tom Beckmann
+
+Translations:
+  Chao-Hsiung Liao [zh_HK, zh_TW], Matej Urbančič [sl], Fran Diéguez [gl],
+  Мирослав Николић [sr, sr@latin], Yaron Shahrabani [he], Kjartan Maraas [nb]
+
+3.5.4
+=====
+* Make it possible to reimplement move-to-workspace keybindings from plugins
+  [Giovanni; #674104]
+* Add a preference to ignore hide-titlebar-when-maximized hint [Rico; #678947]
+* window: Also use hide-titlebar-when-maximized when tiled [Florian; #679290]
+* Center modal dialogs on their parent instead [Florian; #674499]
+* Reduce amount of markup in translated messages [Matthias; #679660]
+* Fix focus problem after closing a window with focus-follows-mouse
+  [Jasper; #675982]
+* Handle changes of the attach-modal-dialogs preference [Florian; #679904]
+* Do not restore tiling on unmaximize [Florian; #677565]
+* Misc. fixes and cleanups [Jasper Adriaanse, Jasper, Debarshi, Pavel;
+  #679153, 673824]
+
+Contributors:
+ Jasper Lievisse Adriaanse, Giovanni Campagna, Matthias Clasen, Florian Müllner,
+ Debarshi Ray, Jasper St. Pierre, Rico Tzschichholz, Pavel Vasin
+
+Translations:
+ Alexander Shopov [bg], Kjartan Maraas [nb], Yaron Shahrabani [he],
+ Nilamdyuti Goswami [as], Ihar Hrachyshka [be], Daniel Mustieles [es]
+
+3.5.3
+=====
+* Simplify plugin system [Jasper; #676855]
+* meta-window-actor: Don't unredirect shaped windows [Jasper; #677657]
+* screen: Add new public meta_screen_get_current_monitor API [Tim; #642591]
+* frames: Increase the size of resize corners [Jasper; #677669]
+* window: Make some window methods public [Jasper; #678126]
+* Fix crash when running mutter stand-alone [Jasper; #678238]
+* meta-window-actor: Fix potential crash in shaping code [Jasper; #677977]
+* Misc. fixes [Jasper, Marc-Antoine, Rico]
+
+Contributors:
+ Tim L, Marc-Antoine Perennou, Jasper St. Pierre, Rico Tzschichholz
+
+Translations:
+
+ Daniel Mustieles [es], Matej Urbančič [sl], Khaled Hosny [ar],
+ Bruno Brouard [fr], Fran Diéguez [gl]
+
+3.5.2
+=====
+* keybindings: Remove 'toggle-recording' binding [Florian; #674376]
+* Switch to gtk-doc syntax [Jasper; #673752]
+* shaped-texture: never slice shape mask texture [Robert; #674731]
+* Make Mutter stop relying on Cogl including a GL header [Neil; #672711]
+* Make support for "XFree86" Xinerama mandatory [Owen; #674727]
+* meta_window_move_frame(): fix crash when frame is NULL [Owen; #675254]
+* Fix memory leaks [Pavel; #672640]
+* Code cleanups [Jasper; #671104 #674876 #676052]
+* Look for themes in XDG user data dir [Jasper; #675316]
+* Remove frame pixel caching [Jasper; #675111]
+* stack: Ignore keep-on-top property on maximized windows [Florian; #673581]
+* Misc. fixes [Javier, Jasper, Owen, Rico]
+
+Contributors:
+ Robert Bragg, Javier Járdon, Florian Müllner, Neil Roberts, Jasper St. Pierre, 
+ Owen Taylor, Rico Tzschichholz, Pavel Vasin
+
+Translations:
+ Praveen Illa [te], Luca Ferretti [it], Daniel Mustieles [es]
+
 3.4.1
 =====
 * API change: the meta_display_add_keybinding() function added in 3.4

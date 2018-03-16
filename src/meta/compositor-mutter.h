@@ -17,9 +17,7 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef MUTTER_H_
@@ -35,17 +33,20 @@
 
 /* Public compositor API */
 ClutterActor *meta_get_stage_for_screen         (MetaScreen *screen);
-ClutterActor *meta_get_overlay_group_for_screen (MetaScreen *screen);
 Window        meta_get_overlay_window           (MetaScreen *screen);
 GList        *meta_get_window_actors            (MetaScreen *screen);
 ClutterActor *meta_get_window_group_for_screen  (MetaScreen *screen);
+ClutterActor *meta_get_top_window_group_for_screen (MetaScreen *screen);
+ClutterActor *meta_get_feedback_group_for_screen (MetaScreen *screen);
 
 void        meta_disable_unredirect_for_screen  (MetaScreen *screen);
 void        meta_enable_unredirect_for_screen   (MetaScreen *screen);
 
-ClutterActor *meta_get_background_actor_for_screen (MetaScreen *screen);
 void meta_set_stage_input_region     (MetaScreen    *screen,
                                       XserverRegion  region);
 void meta_empty_stage_input_region   (MetaScreen    *screen);
+void meta_focus_stage_window         (MetaScreen    *screen,
+                                      guint32        timestamp);
+gboolean meta_stage_is_focused       (MetaScreen    *screen);
 
 #endif

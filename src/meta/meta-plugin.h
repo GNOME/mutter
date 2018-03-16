@@ -16,9 +16,7 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef META_PLUGIN_H_
@@ -27,6 +25,7 @@
 #include <meta/types.h>
 #include <meta/compositor.h>
 #include <meta/compositor-mutter.h>
+#include <meta/meta-version.h>
 
 #include <clutter/clutter.h>
 #include <X11/extensions/Xfixes.h>
@@ -39,15 +38,7 @@
 #define META_IS_PLUGIN_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_PLUGIN))
 #define META_PLUGIN_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_PLUGIN, MetaPluginClass))
 
-/**
- * MetaPlugin: (skip)
- *
- */
 typedef struct _MetaPlugin        MetaPlugin;
-/**
- * MetaPluginClass: (skip)
- *
- */
 typedef struct _MetaPluginClass   MetaPluginClass;
 typedef struct _MetaPluginVersion MetaPluginVersion;
 typedef struct _MetaPluginInfo    MetaPluginInfo;
@@ -60,15 +51,68 @@ struct _MetaPlugin
   MetaPluginPrivate *priv;
 };
 
+/**
+ * MetaPluginClass:
+ * @start: virtual function called when the compositor starts managing a screen
+ * @minimize: virtual function called when a window is minimized
+ * @maximize: virtual function called when a window is maximized
+ * @unmaximize: virtual function called when a window is unmaximized
+ * @map: virtual function called when a window is mapped
+ * @destroy: virtual function called when a window is destroyed
+ * @switch_workspace: virtual function called when the user switches to another
+ * workspace
+ * @kill_window_effects: virtual function called when the effects on a window
+ * need to be killed prematurely; the plugin must call the completed() callback
+ * as if the effect terminated naturally
+ * @kill_switch_workspace: virtual function called when the workspace-switching
+ * effect needs to be killed prematurely
+ * @xevent_filter: virtual function called when handling each event
+ * @keybinding_filter: virtual function called when handling each keybinding
+ * @plugin_info: virtual function that returns information about the
+ * #MetaPlugin
+ */
 struct _MetaPluginClass
 {
+  /*< private >*/
   GObjectClass parent_class;
 
+  /*< public >*/
+
+  /**
+   * MetaPluginClass::start:
+   *
+   * Virtual function called when the compositor starts managing a screen
+   */
   void (*start)            (MetaPlugin         *plugin);
 
+  /**
+   * MetaPluginClass::minimize:
+   * @actor: a #MetaWindowActor
+   *
+   * Virtual function called when the window represented by @actor is minimized.
+   */
   void (*minimize)         (MetaPlugin         *plugin,
                             MetaWindowActor    *actor);
 
+  /**
+   * MetaPluginClass::unminimize:
+   * @actor: a #MetaWindowActor
+   *
+   * Virtual function called when the window represented by @actor is unminimized.
+   */
+  void (*unminimize)       (MetaPlugin         *plugin,
+                            MetaWindowActor    *actor);
+
+  /**
+   * MetaPluginClass::maximize:
+   * @actor: a #MetaWindowActor
+   * @x: target X coordinate
+   * @y: target Y coordinate
+   * @width: target width
+   * @height: target height
+   *
+   * Virtual function called when the window represented by @actor is maximized.
+   */
   void (*maximize)         (MetaPlugin         *plugin,
                             MetaWindowActor    *actor,
                             gint                x,
@@ -76,6 +120,16 @@ struct _MetaPluginClass
                             gint                width,
                             gint                height);
 
+  /**
+   * MetaPluginClass::unmaximize:
+   * @actor: a #MetaWindowActor
+   * @x: target X coordinate
+   * @y: target Y coordinate
+   * @width: target width
+   * @height: target height
+   *
+   * Virtual function called when the window represented by @actor is unmaximized.
+   */
   void (*unmaximize)       (MetaPlugin         *plugin,
                             MetaWindowActor    *actor,
                             gint                x,
@@ -83,35 +137,133 @@ struct _MetaPluginClass
                             gint                width,
                             gint                height);
 
+  /**
+   * MetaPluginClass::map:
+   * @actor: a #MetaWindowActor
+   *
+   * Virtual function called when the window represented by @actor is mapped.
+   */
   void (*map)              (MetaPlugin         *plugin,
                             MetaWindowActor    *actor);
 
+  /**
+   * MetaPluginClass::destroy:
+   * @actor: a #MetaWindowActor
+   *
+   * Virtual function called when the window represented by @actor is destroyed.
+   */
   void (*destroy)          (MetaPlugin         *plugin,
                             MetaWindowActor    *actor);
 
+  /**
+   * MetaPluginClass::switch_workspace:
+   * @from: origin workspace
+   * @to: destination workspace
+   * @direction: a #MetaMotionDirection
+   *
+   * Virtual function called when the window represented by @actor is destroyed.
+   */
   void (*switch_workspace) (MetaPlugin         *plugin,
                             gint                from,
                             gint                to,
                             MetaMotionDirection direction);
 
-  /*
-   * Called if an effects should be killed prematurely; the plugin must
-   * call the completed() callback as if the effect terminated naturally.
+  void (*show_tile_preview) (MetaPlugin      *plugin,
+                             MetaWindow      *window,
+                             MetaRectangle   *tile_rect,
+                             int              tile_monitor_number);
+  void (*hide_tile_preview) (MetaPlugin      *plugin);
+
+  void (*show_window_menu)  (MetaPlugin         *plugin,
+                             MetaWindow         *window,
+                             MetaWindowMenuType  menu,
+                             int                 x,
+                             int                 y);
+
+  void (*show_window_menu_for_rect)  (MetaPlugin         *plugin,
+		                      MetaWindow         *window,
+				      MetaWindowMenuType  menu,
+				      MetaRectangle      *rect);
+
+  /**
+   * MetaPluginClass::kill_window_effects:
+   * @actor: a #MetaWindowActor
+   *
+   * Virtual function called when the effects on @actor need to be killed
+   * prematurely; the plugin must call the completed() callback as if the effect
+   * terminated naturally.
    */
   void (*kill_window_effects)      (MetaPlugin      *plugin,
                                     MetaWindowActor *actor);
 
+  /**
+   * MetaPluginClass::kill_switch_workspace:
+   *
+   * Virtual function called when the workspace-switching effect needs to be
+   * killed prematurely.
+   */
   void (*kill_switch_workspace)    (MetaPlugin     *plugin);
 
-  /* General XEvent filter. This is fired *before* meta itself handles
-   * an event. Return TRUE to block any further processing.
+  /**
+   * MetaPluginClass::xevent_filter:
+   * @event: (type xlib.XEvent):
+   *
+   * Virtual function called when handling each event.
+   *
+   * Returns: %TRUE if the plugin handled the event type (i.e., if the return
+   * value is %FALSE, there will be no subsequent call to the manager
+   * completed() callback, and the compositor must ensure that any appropriate
+   * post-effect cleanup is carried out.
    */
   gboolean (*xevent_filter) (MetaPlugin       *plugin,
                              XEvent           *event);
 
+  /**
+   * MetaPluginClass::keybinding_filter:
+   * @binding: a #MetaKeyBinding
+   *
+   * Virtual function called when handling each keybinding.
+   *
+   * Returns: %TRUE if the plugin handled the keybinding.
+   */
+  gboolean (*keybinding_filter) (MetaPlugin     *plugin,
+                                 MetaKeyBinding *binding);
+
+  /**
+   * MetaPluginClass::confirm_display_config:
+   * @plugin: a #MetaPlugin
+   *
+   * Virtual function called when the display configuration changes.
+   * The common way to implement this function is to show some form
+   * of modal dialog that should ask the user if everything was ok.
+   *
+   * When confirmed by the user, the plugin must call meta_plugin_complete_display_change()
+   * to make the configuration permanent. If that function is not
+   * called within the timeout, the previous configuration will be
+   * reapplied.
+   */
+  void (*confirm_display_change) (MetaPlugin *plugin);
+
+  /**
+   * MetaPluginClass::plugin_info:
+   * @plugin: a #MetaPlugin
+   *
+   * Virtual function that returns information about the #MetaPlugin.
+   *
+   * Returns: a #MetaPluginInfo.
+   */
   const MetaPluginInfo * (*plugin_info) (MetaPlugin *plugin);
+
 };
 
+/**
+ * MetaPluginInfo:
+ * @name: name of the plugin
+ * @version: version of the plugin
+ * @author: author of the plugin
+ * @license: license of the plugin
+ * @description: description of the plugin
+ */
 struct _MetaPluginInfo
 {
   const gchar *name;
@@ -123,13 +275,15 @@ struct _MetaPluginInfo
 
 GType meta_plugin_get_type (void);
 
-gulong        meta_plugin_features            (MetaPlugin *plugin);
-gboolean      meta_plugin_disabled            (MetaPlugin *plugin);
-gboolean      meta_plugin_running             (MetaPlugin *plugin);
-gboolean      meta_plugin_debug_mode          (MetaPlugin *plugin);
-
 const MetaPluginInfo * meta_plugin_get_info (MetaPlugin *plugin);
 
+/**
+ * MetaPluginVersion:
+ * @version_major: major component of the version number of Meta with which the plugin was compiled
+ * @version_minor: minor component of the version number of Meta with which the plugin was compiled
+ * @version_micro: micro component of the version number of Meta with which the plugin was compiled
+ * @version_api: version of the plugin API
+ */
 struct _MetaPluginVersion
 {
   /*
@@ -155,10 +309,10 @@ struct _MetaPluginVersion
 #define META_PLUGIN_DECLARE(ObjectName, object_name)                    \
   G_MODULE_EXPORT MetaPluginVersion meta_plugin_version =               \
     {                                                                   \
-      MUTTER_MAJOR_VERSION,                                             \
-      MUTTER_MINOR_VERSION,                                             \
-      MUTTER_MICRO_VERSION,                                             \
-      MUTTER_PLUGIN_API_VERSION                                         \
+      META_MAJOR_VERSION,                                               \
+      META_MINOR_VERSION,                                               \
+      META_MICRO_VERSION,                                               \
+      META_PLUGIN_API_VERSION                                           \
     };                                                                  \
                                                                         \
   static GType g_define_type_id = 0;                                    \
@@ -221,14 +375,15 @@ struct _MetaPluginVersion
   }                                                                     \
 
 void
-meta_plugin_type_register (GType plugin_type);
-
-void
 meta_plugin_switch_workspace_completed (MetaPlugin *plugin);
 
 void
 meta_plugin_minimize_completed (MetaPlugin      *plugin,
                                 MetaWindowActor *actor);
+
+void
+meta_plugin_unminimize_completed (MetaPlugin      *plugin,
+                                  MetaWindowActor *actor);
 
 void
 meta_plugin_maximize_completed (MetaPlugin      *plugin,
@@ -246,6 +401,10 @@ void
 meta_plugin_destroy_completed (MetaPlugin      *plugin,
                                MetaWindowActor *actor);
 
+void
+meta_plugin_complete_display_change (MetaPlugin *plugin,
+                                     gboolean    ok);
+
 /**
  * MetaModalOptions:
  * @META_MODAL_POINTER_ALREADY_GRABBED: if set the pointer is already
@@ -262,8 +421,6 @@ typedef enum {
 
 gboolean
 meta_plugin_begin_modal (MetaPlugin      *plugin,
-                         Window           grab_window,
-                         Cursor           cursor,
                          MetaModalOptions options,
                          guint32          timestamp);
 
@@ -273,7 +430,9 @@ meta_plugin_end_modal (MetaPlugin *plugin,
 
 MetaScreen *meta_plugin_get_screen        (MetaPlugin *plugin);
 
-void
-_meta_plugin_effect_started (MetaPlugin *plugin);
+void _meta_plugin_set_compositor (MetaPlugin *plugin, MetaCompositor *compositor);
+
+/* XXX: Putting this in here so it's in the public header. */
+void     meta_plugin_manager_set_plugin_type (GType gtype);
 
 #endif /* META_PLUGIN_H_ */

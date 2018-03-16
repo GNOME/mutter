@@ -17,9 +17,7 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef __META_SHADOW_FACTORY_H__
@@ -29,8 +27,6 @@
 
 /**
  * MetaShadowParams:
- * The #MetaShadowParams structure holds information about how to draw
- * a particular style of shadow.
  * @radius: the radius (gaussian standard deviation) of the shadow
  * @top_fade: if >= 0, the shadow doesn't extend above the top
  *  of the shape, and fades out over the given number of pixels
@@ -39,6 +35,9 @@
  * @y_offset: vertical offset of the shadow with respect to the
  *  shape being shadowed, in pixels
  * @opacity: opacity of the shadow, from 0 to 255
+ *
+ * The #MetaShadowParams structure holds information about how to draw
+ * a particular style of shadow.
  */
 
 typedef struct _MetaShadowParams MetaShadowParams;
@@ -61,6 +60,7 @@ struct _MetaShadowParams
 
 /**
  * MetaShadowFactory:
+ *
  * #MetaShadowFactory is used to create window shadows. It caches shadows internally
  * so that multiple shadows created for the same shape with the same radius will
  * share the same MetaShadow.

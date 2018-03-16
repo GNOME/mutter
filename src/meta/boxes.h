@@ -2,9 +2,9 @@
 
 /* Simple box operations */
 
-/* 
+/*
  * Copyright (C) 2005, 2006 Elijah Newren
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -14,11 +14,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef META_BOXES_H
@@ -29,6 +27,13 @@
 
 #define META_TYPE_RECTANGLE            (meta_rectangle_get_type ())
 
+/**
+ * MetaRectangle:
+ * @x: X coordinate of the top-left corner
+ * @y: Y coordinate of the top-left corner
+ * @width: Width of the rectangle
+ * @height: Height of the rectangle
+ */
 typedef struct _MetaRectangle MetaRectangle;
 struct _MetaRectangle
 {
@@ -38,6 +43,11 @@ struct _MetaRectangle
   int height;
 };
 
+/**
+ * MetaStrut:
+ * @rect: #MetaRectangle the #MetaStrut is on
+ * @side: #MetaSide the #MetaStrut is on
+ */
 typedef struct _MetaStrut MetaStrut;
 struct _MetaStrut
 {
@@ -45,6 +55,12 @@ struct _MetaStrut
   MetaSide side;
 };
 
+/**
+ * MetaEdgeType:
+ * @META_EDGE_WINDOW: Whether the edge belongs to a window
+ * @META_EDGE_MONITOR: Whether the edge belongs to a monitor
+ * @META_EDGE_SCREEN: Whether the edge belongs to a screen
+ */
 typedef enum
 {
   META_EDGE_WINDOW,
@@ -52,6 +68,12 @@ typedef enum
   META_EDGE_SCREEN
 } MetaEdgeType;
 
+/**
+ * MetaEdge:
+ * @rect: #MetaRectangle with the bounds of the edge
+ * @side_type: Side
+ * @edge_type: To what belongs the edge
+ */
 typedef struct _MetaEdge MetaEdge;
 struct _MetaEdge
 {

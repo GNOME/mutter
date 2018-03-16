@@ -1,11 +1,9 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-/* Mutter utilities */
-
-/* 
+/*
  * Copyright (C) 2001 Havoc Pennington
  * Copyright (C) 2005 Elijah Newren
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -15,11 +13,15 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * SECTION:util
+ * @title: Utility functions
+ * @short_description: Miscellaneous utility functions
  */
 
 #define _GNU_SOURCE
@@ -27,7 +29,7 @@
 
 #include <config.h>
 #include <meta/common.h>
-#include <meta/util.h>
+#include "util-private.h"
 #include <meta/main.h>
 
 #include <clutter/clutter.h> /* For clutter_threads_add_repaint_func() */
@@ -47,41 +49,11 @@ meta_topic_real_valist (MetaDebugTopic topic,
                         va_list        args);
 #endif
 
-#ifdef HAVE_BACKTRACE
-#include <execinfo.h>
-void
-meta_print_backtrace (void)
-{
-  void *bt[500];
-  int bt_size;
-  int i;
-  char **syms;
-  
-  bt_size = backtrace (bt, 500);
-
-  syms = backtrace_symbols (bt, bt_size);
-  
-  i = 0;
-  while (i < bt_size)
-    {
-      meta_verbose ("  %s\n", syms[i]);
-      ++i;
-    }
-
-  free (syms);
-}
-#else
-void
-meta_print_backtrace (void)
-{
-  meta_verbose ("Not compiled with backtrace support\n");
-}
-#endif
-
 static gint verbose_topics = 0;
 static gboolean is_debugging = FALSE;
 static gboolean replace_current = FALSE;
 static int no_prefix = 0;
+static gboolean is_wayland_compositor = FALSE;
 
 #ifdef WITH_VERBOSE_MODE
 static FILE* logfile = NULL;
@@ -95,7 +67,7 @@ ensure_logfile (void)
       char *tmpl;
       int fd;
       GError *err;
-      
+
       tmpl = g_strdup_printf ("mutter-%d-debug-log-XXXXXX",
                               (int) getpid ());
 
@@ -105,28 +77,28 @@ ensure_logfile (void)
                             &err);
 
       g_free (tmpl);
-      
+
       if (err != NULL)
         {
-          meta_warning (_("Failed to open debug log: %s\n"),
+          meta_warning ("Failed to open debug log: %s\n",
                         err->message);
           g_error_free (err);
           return;
         }
-      
+
       logfile = fdopen (fd, "w");
-      
+
       if (logfile == NULL)
         {
-          meta_warning (_("Failed to fdopen() log file %s: %s\n"),
+          meta_warning ("Failed to fdopen() log file %s: %s\n",
                         filename, strerror (errno));
           close (fd);
         }
       else
         {
-          g_printerr (_("Opened log file %s\n"), filename);
+          g_printerr ("Opened log file %s\n", filename);
         }
-      
+
       g_free (filename);
     }
 }
@@ -144,7 +116,7 @@ meta_set_verbose (gboolean setting)
 #ifndef WITH_VERBOSE_MODE
   if (setting)
     meta_fatal (_("Mutter was compiled without support for verbose mode\n"));
-#else 
+#else
   if (setting)
     ensure_logfile ();
 #endif
@@ -221,6 +193,18 @@ meta_set_replace_current_wm (gboolean setting)
   replace_current = setting;
 }
 
+gboolean
+meta_is_wayland_compositor (void)
+{
+  return is_wayland_compositor;
+}
+
+void
+meta_set_is_wayland_compositor (gboolean value)
+{
+  is_wayland_compositor = value;
+}
+
 char *
 meta_g_utf8_strndup (const gchar *src,
                      gsize        n)
@@ -241,7 +225,7 @@ utf8_fputs (const char *str,
 {
   char *l;
   int retval;
-  
+
   l = g_locale_from_utf8 (str, -1, NULL, NULL, NULL);
 
   if (l == NULL)
@@ -256,6 +240,7 @@ utf8_fputs (const char *str,
 
 /**
  * meta_free_gslist_and_elements: (skip)
+ * @list_to_deep_free: list to deep free
  *
  */
 void
@@ -274,24 +259,24 @@ meta_debug_spew_real (const char *format, ...)
   va_list args;
   gchar *str;
   FILE *out;
-  
+
   g_return_if_fail (format != NULL);
 
   if (!is_debugging)
     return;
-  
+
   va_start (args, format);
   str = g_strdup_vprintf (format, args);
   va_end (args);
 
   out = logfile ? logfile : stderr;
-  
+
   if (no_prefix == 0)
-    utf8_fputs (_("Window manager: "), out);
+    utf8_fputs ("Window manager: ", out);
   utf8_fputs (str, out);
 
   fflush (out);
-  
+
   g_free (str);
 }
 #endif /* WITH_VERBOSE_MODE */
@@ -358,6 +343,8 @@ topic_name (MetaDebugTopic topic)
       return "COMPOSITOR";
     case META_DEBUG_EDGE_RESISTANCE:
       return "EDGE_RESISTANCE";
+    case META_DEBUG_DBUS:
+      return "DBUS";
     case META_DEBUG_VERBOSE:
       return "VERBOSE";
     }
@@ -394,11 +381,11 @@ meta_topic_real_valist (MetaDebugTopic topic,
       ++sync_count;
       fprintf (out, "%d: ", sync_count);
     }
-  
+
   utf8_fputs (str, out);
-  
+
   fflush (out);
-  
+
   g_free (str);
 }
 
@@ -423,7 +410,7 @@ meta_bug (const char *format, ...)
   FILE *out;
 
   g_return_if_fail (format != NULL);
-  
+
   va_start (args, format);
   str = g_strdup_vprintf (format, args);
   va_end (args);
@@ -435,15 +422,13 @@ meta_bug (const char *format, ...)
 #endif
 
   if (no_prefix == 0)
-    utf8_fputs (_("Bug in window manager: "), out);
+    utf8_fputs ("Bug in window manager: ", out);
   utf8_fputs (str, out);
 
   fflush (out);
-  
+
   g_free (str);
 
-  meta_print_backtrace ();
-  
   /* stop us in a debugger */
   abort ();
 }
@@ -454,9 +439,9 @@ meta_warning (const char *format, ...)
   va_list args;
   gchar *str;
   FILE *out;
-  
+
   g_return_if_fail (format != NULL);
-  
+
   va_start (args, format);
   str = g_strdup_vprintf (format, args);
   va_end (args);
@@ -468,11 +453,11 @@ meta_warning (const char *format, ...)
 #endif
 
   if (no_prefix == 0)
-    utf8_fputs (_("Window manager warning: "), out);
+    utf8_fputs ("Window manager warning: ", out);
   utf8_fputs (str, out);
 
   fflush (out);
-  
+
   g_free (str);
 }
 
@@ -482,9 +467,9 @@ meta_fatal (const char *format, ...)
   va_list args;
   gchar *str;
   FILE *out;
-  
+
   g_return_if_fail (format != NULL);
-  
+
   va_start (args, format);
   str = g_strdup_vprintf (format, args);
   va_end (args);
@@ -496,11 +481,11 @@ meta_fatal (const char *format, ...)
 #endif
 
   if (no_prefix == 0)
-    utf8_fputs (_("Window manager error: "), out);
+    utf8_fputs ("Window manager error: ", out);
   utf8_fputs (str, out);
 
   fflush (out);
-  
+
   g_free (str);
 
   meta_exit (META_EXIT_ERROR);
@@ -523,7 +508,7 @@ meta_pop_no_msg_prefix (void)
 void
 meta_exit (MetaExitCode code)
 {
-  
+
   exit (code);
 }
 
@@ -588,6 +573,12 @@ meta_gravity_to_string (int gravity)
     }
 }
 
+char*
+meta_external_binding_name_for_action (guint keybinding_action)
+{
+  return g_strdup_printf ("external-grab-%u", keybinding_action);
+}
+
 /* Command line arguments are passed in the locale encoding; in almost
  * all cases, we'd hope that is UTF-8 and no conversion is necessary.
  * If it's not UTF-8, then it's possible that the message isn't
@@ -609,6 +600,16 @@ append_argument (GPtrArray  *args,
 
 /**
  * meta_show_dialog: (skip)
+ * @type: type of dialog
+ * @message: message
+ * @timeout: timeout
+ * @display: display
+ * @ok_text: text for Ok button
+ * @cancel_text: text for Cancel button
+ * @icon_name: icon name
+ * @transient_for: window XID of parent
+ * @columns: columns
+ * @entries: entries
  *
  */
 GPid
@@ -618,6 +619,7 @@ meta_show_dialog (const char *type,
                   const char *display,
                   const char *ok_text,
                   const char *cancel_text,
+                  const char *icon_name,
                   const int transient_for,
                   GSList *columns,
                   GSList *entries)
@@ -631,8 +633,13 @@ meta_show_dialog (const char *type,
 
   append_argument (args, "zenity");
   append_argument (args, type);
-  append_argument (args, "--display");
-  append_argument (args, display);
+
+  if (display)
+    {
+      append_argument (args, "--display");
+      append_argument (args, display);
+    }
+
   append_argument (args, "--class");
   append_argument (args, "mutter-dialog");
   append_argument (args, "--title");
@@ -658,6 +665,12 @@ meta_show_dialog (const char *type,
       append_argument (args, cancel_text);
     }
 
+  if (icon_name)
+    {
+      append_argument (args, "--icon-name");
+      append_argument (args, icon_name);
+    }
+
   tmp = columns;
   while (tmp)
     {
@@ -673,14 +686,16 @@ meta_show_dialog (const char *type,
       tmp = tmp->next;
     }
 
-  g_ptr_array_add (args, NULL); /* NULL-terminate */
-
   if (transient_for)
     {
       gchar *env = g_strdup_printf("%d", transient_for);
       setenv ("WINDOWID", env, 1);
       g_free (env);
+
+      append_argument (args, "--modal");
     }
+
+  g_ptr_array_add (args, NULL); /* NULL-terminate */
 
   g_spawn_async (
                  "/",
@@ -887,13 +902,18 @@ meta_later_add (MetaLaterType  when,
        * there so it will happen before GTK+ repaints.
        */
       later->source = g_idle_add_full (META_PRIORITY_RESIZE, call_idle_later, later, NULL);
+      g_source_set_name_by_id (later->source, "[mutter] call_idle_later");
       ensure_later_repaint_func ();
       break;
+    case META_LATER_CALC_SHOWING:
+    case META_LATER_CHECK_FULLSCREEN:
+    case META_LATER_SYNC_STACK:
     case META_LATER_BEFORE_REDRAW:
       ensure_later_repaint_func ();
       break;
     case META_LATER_IDLE:
       later->source = g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, call_idle_later, later, NULL);
+      g_source_set_name_by_id (later->source, "[mutter] call_idle_later");
       break;
     }
 
@@ -923,6 +943,20 @@ meta_later_remove (guint later_id)
           destroy_later (later);
           return;
         }
+    }
+}
+
+MetaLocaleDirection
+meta_get_locale_direction (void)
+{
+  switch (gtk_get_locale_direction ())
+    {
+    case GTK_TEXT_DIR_LTR:
+      return META_LOCALE_DIRECTION_LTR;
+    case GTK_TEXT_DIR_RTL:
+      return META_LOCALE_DIRECTION_RTL;
+    default:
+      g_assert_not_reached ();
     }
 }
 

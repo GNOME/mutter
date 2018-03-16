@@ -1,0 +1,1806 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Preferences: Mutter Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="Mutter Reference Manual">
+<link rel="up" href="core-reference.html" title="Part III. Mutter Core Reference">
+<link rel="prev" href="meta-Gradients.html" title="Gradients">
+<link rel="next" href="meta-Utility-functions.html" title="Utility functions">
+<meta name="generator" content="GTK-Doc V1.21.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#meta-Preferences.description" class="shortcut">Description</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="core-reference.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="meta-Gradients.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="meta-Utility-functions.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="meta-Preferences"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="meta-Preferences.top_of_page"></a>Preferences</span></h2>
+<p>Preferences — Mutter preferences</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="meta-Preferences.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<span class="c_punctuation">(</span><a class="link" href="meta-Preferences.html#MetaPrefsChangedFunc" title="MetaPrefsChangedFunc ()">*MetaPrefsChangedFunc</a><span class="c_punctuation">)</span> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-add-listener" title="meta_prefs_add_listener ()">meta_prefs_add_listener</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-remove-listener" title="meta_prefs_remove_listener ()">meta_prefs_remove_listener</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-init" title="meta_prefs_init ()">meta_prefs_init</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-override-preference-schema" title="meta_prefs_override_preference_schema ()">meta_prefs_override_preference_schema</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">char</span> *
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-preference-to-string" title="meta_preference_to_string ()">meta_preference_to_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="meta-Common.html#MetaVirtualModifier" title="enum MetaVirtualModifier"><span class="returnvalue">MetaVirtualModifier</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-mouse-button-mods" title="meta_prefs_get_mouse_button_mods ()">meta_prefs_get_mouse_button_mods</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-mouse-button-resize" title="meta_prefs_get_mouse_button_resize ()">meta_prefs_get_mouse_button_resize</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-mouse-button-menu" title="meta_prefs_get_mouse_button_menu ()">meta_prefs_get_mouse_button_menu</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">GDesktopFocusMode</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-focus-mode" title="meta_prefs_get_focus_mode ()">meta_prefs_get_focus_mode</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">GDesktopFocusNewWindows</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-focus-new-windows" title="meta_prefs_get_focus_new_windows ()">meta_prefs_get_focus_new_windows</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-attach-modal-dialogs" title="meta_prefs_get_attach_modal_dialogs ()">meta_prefs_get_attach_modal_dialogs</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-raise-on-click" title="meta_prefs_get_raise_on_click ()">meta_prefs_get_raise_on_click</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">char</span> *
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-theme" title="meta_prefs_get_theme ()">meta_prefs_get_theme</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">PangoFontDescription</span> *
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-titlebar-font" title="meta_prefs_get_titlebar_font ()">meta_prefs_get_titlebar_font</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">int</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-num-workspaces" title="meta_prefs_get_num_workspaces ()">meta_prefs_get_num_workspaces</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-dynamic-workspaces" title="meta_prefs_get_dynamic_workspaces ()">meta_prefs_get_dynamic_workspaces</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-disable-workarounds" title="meta_prefs_get_disable_workarounds ()">meta_prefs_get_disable_workarounds</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-auto-raise" title="meta_prefs_get_auto_raise ()">meta_prefs_get_auto_raise</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">int</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-auto-raise-delay" title="meta_prefs_get_auto_raise_delay ()">meta_prefs_get_auto_raise_delay</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-focus-change-on-pointer-rest" title="meta_prefs_get_focus_change_on_pointer_rest ()">meta_prefs_get_focus_change_on_pointer_rest</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-gnome-accessibility" title="meta_prefs_get_gnome_accessibility ()">meta_prefs_get_gnome_accessibility</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-gnome-animations" title="meta_prefs_get_gnome_animations ()">meta_prefs_get_gnome_animations</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-edge-tiling" title="meta_prefs_get_edge_tiling ()">meta_prefs_get_edge_tiling</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-auto-maximize" title="meta_prefs_get_auto_maximize ()">meta_prefs_get_auto_maximize</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-button-layout" title="meta_prefs_get_button_layout ()">meta_prefs_get_button_layout</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">GDesktopTitlebarAction</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-action-double-click-titlebar" title="meta_prefs_get_action_double_click_titlebar ()">meta_prefs_get_action_double_click_titlebar</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">GDesktopTitlebarAction</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-action-middle-click-titlebar" title="meta_prefs_get_action_middle_click_titlebar ()">meta_prefs_get_action_middle_click_titlebar</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">GDesktopTitlebarAction</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-action-right-click-titlebar" title="meta_prefs_get_action_right_click_titlebar ()">meta_prefs_get_action_right_click_titlebar</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-set-num-workspaces" title="meta_prefs_set_num_workspaces ()">meta_prefs_set_num_workspaces</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">char</span> *
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-workspace-name" title="meta_prefs_get_workspace_name ()">meta_prefs_get_workspace_name</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-change-workspace-name" title="meta_prefs_change_workspace_name ()">meta_prefs_change_workspace_name</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">char</span> *
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-cursor-theme" title="meta_prefs_get_cursor_theme ()">meta_prefs_get_cursor_theme</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">int</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-cursor-size" title="meta_prefs_get_cursor_size ()">meta_prefs_get_cursor_size</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-compositing-manager" title="meta_prefs_get_compositing_manager ()">meta_prefs_get_compositing_manager</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-force-fullscreen" title="meta_prefs_get_force_fullscreen ()">meta_prefs_get_force_fullscreen</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-set-force-fullscreen" title="meta_prefs_set_force_fullscreen ()">meta_prefs_set_force_fullscreen</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-workspaces-only-on-primary" title="meta_prefs_get_workspaces_only_on_primary ()">meta_prefs_get_workspaces_only_on_primary</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">int</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-draggable-border-width" title="meta_prefs_get_draggable_border_width ()">meta_prefs_get_draggable_border_width</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-ignore-request-hide-titlebar" title="meta_prefs_get_ignore_request_hide_titlebar ()">meta_prefs_get_ignore_request_hide_titlebar</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-set-ignore-request-hide-titlebar" title="meta_prefs_set_ignore_request_hide_titlebar ()">meta_prefs_set_ignore_request_hide_titlebar</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<span class="c_punctuation">(</span><a class="link" href="meta-Preferences.html#MetaKeyHandlerFunc" title="MetaKeyHandlerFunc ()">*MetaKeyHandlerFunc</a><span class="c_punctuation">)</span> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="meta-Preferences.html#MetaKeyBindingAction" title="enum MetaKeyBindingAction"><span class="returnvalue">MetaKeyBindingAction</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-keybinding-action" title="meta_prefs_get_keybinding_action ()">meta_prefs_get_keybinding_action</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-visual-bell" title="meta_prefs_get_visual_bell ()">meta_prefs_get_visual_bell</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-bell-is-audible" title="meta_prefs_bell_is_audible ()">meta_prefs_bell_is_audible</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">GDesktopVisualBellType</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Preferences.html#meta-prefs-get-visual-bell-type" title="meta_prefs_get_visual_bell_type ()">meta_prefs_get_visual_bell_type</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="meta-Preferences.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="meta-Preferences.html#MetaPreference" title="enum MetaPreference">MetaPreference</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="meta-Preferences.html#MetaKeyBindingAction" title="enum MetaKeyBindingAction">MetaKeyBindingAction</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="meta-Preferences.html#MetaKeyBindingFlags" title="enum MetaKeyBindingFlags">MetaKeyBindingFlags</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="meta-Preferences.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="meta-Preferences.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="MetaPrefsChangedFunc"></a><h3>MetaPrefsChangedFunc ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+<span class="c_punctuation">(</span>*MetaPrefsChangedFunc<span class="c_punctuation">)</span> (<em class="parameter"><code><a class="link" href="meta-Preferences.html#MetaPreference" title="enum MetaPreference"><span class="type">MetaPreference</span></a> pref</code></em>,
+                         <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-add-listener"></a><h3>meta_prefs_add_listener ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_prefs_add_listener (<em class="parameter"><code><a class="link" href="meta-Preferences.html#MetaPrefsChangedFunc" title="MetaPrefsChangedFunc ()"><span class="type">MetaPrefsChangedFunc</span></a> func</code></em>,
+                         <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.4.5.6.3.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>func</p></td>
+<td class="parameter_description"><p>a <a class="link" href="meta-Preferences.html#MetaPrefsChangedFunc" title="MetaPrefsChangedFunc ()"><span class="type">MetaPrefsChangedFunc</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>data passed to the function</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-remove-listener"></a><h3>meta_prefs_remove_listener ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_prefs_remove_listener (<em class="parameter"><code><a class="link" href="meta-Preferences.html#MetaPrefsChangedFunc" title="MetaPrefsChangedFunc ()"><span class="type">MetaPrefsChangedFunc</span></a> func</code></em>,
+                            <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.4.5.6.4.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>func</p></td>
+<td class="parameter_description"><p>a <a class="link" href="meta-Preferences.html#MetaPrefsChangedFunc" title="MetaPrefsChangedFunc ()"><span class="type">MetaPrefsChangedFunc</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>data passed to the function</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-init"></a><h3>meta_prefs_init ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_prefs_init (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-override-preference-schema"></a><h3>meta_prefs_override_preference_schema ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_prefs_override_preference_schema (<em class="parameter"><code>const <span class="type">char</span> *key</code></em>,
+                                       <em class="parameter"><code>const <span class="type">char</span> *schema</code></em>);</pre>
+<p>Specify a schema whose keys are used to override the standard Metacity
+keys. This might be used if a plugin expected a different value for
+some preference than the Metacity default. While this function can be
+called at any point, this function should generally be called in a
+plugin's constructor, rather than in its <code class="function">start()</code> method so the preference
+isn't first loaded with one value then changed to another value.</p>
+<div class="refsect3">
+<a name="id-1.4.5.6.6.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>key</p></td>
+<td class="parameter_description"><p>the preference name</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>schema</p></td>
+<td class="parameter_description"><p>new schema for preference <em class="parameter"><code>key</code></em>
+</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-preference-to-string"></a><h3>meta_preference_to_string ()</h3>
+<pre class="programlisting">const <span class="returnvalue">char</span> *
+meta_preference_to_string (<em class="parameter"><code><a class="link" href="meta-Preferences.html#MetaPreference" title="enum MetaPreference"><span class="type">MetaPreference</span></a> pref</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-mouse-button-mods"></a><h3>meta_prefs_get_mouse_button_mods ()</h3>
+<pre class="programlisting"><a class="link" href="meta-Common.html#MetaVirtualModifier" title="enum MetaVirtualModifier"><span class="returnvalue">MetaVirtualModifier</span></a>
+meta_prefs_get_mouse_button_mods (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-mouse-button-resize"></a><h3>meta_prefs_get_mouse_button_resize ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+meta_prefs_get_mouse_button_resize (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-mouse-button-menu"></a><h3>meta_prefs_get_mouse_button_menu ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+meta_prefs_get_mouse_button_menu (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-focus-mode"></a><h3>meta_prefs_get_focus_mode ()</h3>
+<pre class="programlisting"><span class="returnvalue">GDesktopFocusMode</span>
+meta_prefs_get_focus_mode (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-focus-new-windows"></a><h3>meta_prefs_get_focus_new_windows ()</h3>
+<pre class="programlisting"><span class="returnvalue">GDesktopFocusNewWindows</span>
+meta_prefs_get_focus_new_windows (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-attach-modal-dialogs"></a><h3>meta_prefs_get_attach_modal_dialogs ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_attach_modal_dialogs (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-raise-on-click"></a><h3>meta_prefs_get_raise_on_click ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_raise_on_click (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-theme"></a><h3>meta_prefs_get_theme ()</h3>
+<pre class="programlisting">const <span class="returnvalue">char</span> *
+meta_prefs_get_theme (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-titlebar-font"></a><h3>meta_prefs_get_titlebar_font ()</h3>
+<pre class="programlisting">const <span class="returnvalue">PangoFontDescription</span> *
+meta_prefs_get_titlebar_font (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-num-workspaces"></a><h3>meta_prefs_get_num_workspaces ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>
+meta_prefs_get_num_workspaces (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-dynamic-workspaces"></a><h3>meta_prefs_get_dynamic_workspaces ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_dynamic_workspaces (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-disable-workarounds"></a><h3>meta_prefs_get_disable_workarounds ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_disable_workarounds (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-auto-raise"></a><h3>meta_prefs_get_auto_raise ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_auto_raise (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-auto-raise-delay"></a><h3>meta_prefs_get_auto_raise_delay ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>
+meta_prefs_get_auto_raise_delay (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-focus-change-on-pointer-rest"></a><h3>meta_prefs_get_focus_change_on_pointer_rest ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_focus_change_on_pointer_rest
+                               (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-gnome-accessibility"></a><h3>meta_prefs_get_gnome_accessibility ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_gnome_accessibility (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-gnome-animations"></a><h3>meta_prefs_get_gnome_animations ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_gnome_animations (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-edge-tiling"></a><h3>meta_prefs_get_edge_tiling ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_edge_tiling (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-auto-maximize"></a><h3>meta_prefs_get_auto_maximize ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_auto_maximize (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-button-layout"></a><h3>meta_prefs_get_button_layout ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_prefs_get_button_layout (<em class="parameter"><code><a class="link" href="meta-Common.html#MetaButtonLayout" title="struct MetaButtonLayout"><span class="type">MetaButtonLayout</span></a> *button_layout</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.4.5.6.27.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>button_layout</p></td>
+<td class="parameter_description"><p>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span></td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-action-double-click-titlebar"></a><h3>meta_prefs_get_action_double_click_titlebar ()</h3>
+<pre class="programlisting"><span class="returnvalue">GDesktopTitlebarAction</span>
+meta_prefs_get_action_double_click_titlebar
+                               (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-action-middle-click-titlebar"></a><h3>meta_prefs_get_action_middle_click_titlebar ()</h3>
+<pre class="programlisting"><span class="returnvalue">GDesktopTitlebarAction</span>
+meta_prefs_get_action_middle_click_titlebar
+                               (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-action-right-click-titlebar"></a><h3>meta_prefs_get_action_right_click_titlebar ()</h3>
+<pre class="programlisting"><span class="returnvalue">GDesktopTitlebarAction</span>
+meta_prefs_get_action_right_click_titlebar
+                               (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-set-num-workspaces"></a><h3>meta_prefs_set_num_workspaces ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_prefs_set_num_workspaces (<em class="parameter"><code><span class="type">int</span> n_workspaces</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-workspace-name"></a><h3>meta_prefs_get_workspace_name ()</h3>
+<pre class="programlisting">const <span class="returnvalue">char</span> *
+meta_prefs_get_workspace_name (<em class="parameter"><code><span class="type">int</span> i</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-change-workspace-name"></a><h3>meta_prefs_change_workspace_name ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_prefs_change_workspace_name (<em class="parameter"><code><span class="type">int</span> i</code></em>,
+                                  <em class="parameter"><code>const <span class="type">char</span> *name</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-cursor-theme"></a><h3>meta_prefs_get_cursor_theme ()</h3>
+<pre class="programlisting">const <span class="returnvalue">char</span> *
+meta_prefs_get_cursor_theme (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-cursor-size"></a><h3>meta_prefs_get_cursor_size ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>
+meta_prefs_get_cursor_size (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-compositing-manager"></a><h3>meta_prefs_get_compositing_manager ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_compositing_manager (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-force-fullscreen"></a><h3>meta_prefs_get_force_fullscreen ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_force_fullscreen (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-set-force-fullscreen"></a><h3>meta_prefs_set_force_fullscreen ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_prefs_set_force_fullscreen (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> whether</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-workspaces-only-on-primary"></a><h3>meta_prefs_get_workspaces_only_on_primary ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_workspaces_only_on_primary
+                               (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-draggable-border-width"></a><h3>meta_prefs_get_draggable_border_width ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>
+meta_prefs_get_draggable_border_width (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-ignore-request-hide-titlebar"></a><h3>meta_prefs_get_ignore_request_hide_titlebar ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_ignore_request_hide_titlebar
+                               (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-set-ignore-request-hide-titlebar"></a><h3>meta_prefs_set_ignore_request_hide_titlebar ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_prefs_set_ignore_request_hide_titlebar
+                               (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> whether</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaKeyHandlerFunc"></a><h3>MetaKeyHandlerFunc ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+<span class="c_punctuation">(</span>*MetaKeyHandlerFunc<span class="c_punctuation">)</span> (<em class="parameter"><code><a class="link" href="MetaDisplay.html" title="MetaDisplay"><span class="type">MetaDisplay</span></a> *display</code></em>,
+                       <em class="parameter"><code><a class="link" href="MetaScreen.html" title="MetaScreen"><span class="type">MetaScreen</span></a> *screen</code></em>,
+                       <em class="parameter"><code><a class="link" href="MetaWindow.html" title="MetaWindow"><span class="type">MetaWindow</span></a> *window</code></em>,
+                       <em class="parameter"><code><span class="type">ClutterKeyEvent</span> *event</code></em>,
+                       <em class="parameter"><code><a class="link" href="meta-MetaKeybinding.html#MetaKeyBinding"><span class="type">MetaKeyBinding</span></a> *binding</code></em>,
+                       <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.4.5.6.43.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>display</p></td>
+<td class="parameter_description"><p>a <a class="link" href="MetaDisplay.html" title="MetaDisplay"><span class="type">MetaDisplay</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>screen</p></td>
+<td class="parameter_description"><p>a <a class="link" href="MetaScreen.html" title="MetaScreen"><span class="type">MetaScreen</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>window</p></td>
+<td class="parameter_description"><p>a <a class="link" href="MetaWindow.html" title="MetaWindow"><span class="type">MetaWindow</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>event</p></td>
+<td class="parameter_description"><p> a <span class="type">ClutterKeyEvent</span>. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Override the parsed C type with given type."><span class="acronym">type</span></acronym> gpointer]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>binding</p></td>
+<td class="parameter_description"><p>a <a class="link" href="meta-MetaKeybinding.html#MetaKeyBinding"><span class="type">MetaKeyBinding</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>data passed to the function</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-keybinding-action"></a><h3>meta_prefs_get_keybinding_action ()</h3>
+<pre class="programlisting"><a class="link" href="meta-Preferences.html#MetaKeyBindingAction" title="enum MetaKeyBindingAction"><span class="returnvalue">MetaKeyBindingAction</span></a>
+meta_prefs_get_keybinding_action (<em class="parameter"><code>const <span class="type">char</span> *name</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-visual-bell"></a><h3>meta_prefs_get_visual_bell ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_get_visual_bell (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-bell-is-audible"></a><h3>meta_prefs_bell_is_audible ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_prefs_bell_is_audible (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-prefs-get-visual-bell-type"></a><h3>meta_prefs_get_visual_bell_type ()</h3>
+<pre class="programlisting"><span class="returnvalue">GDesktopVisualBellType</span>
+meta_prefs_get_visual_bell_type (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="meta-Preferences.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="MetaPreference"></a><h3>enum MetaPreference</h3>
+<div class="refsect3">
+<a name="id-1.4.5.7.2.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-MOUSE-BUTTON-MODS:CAPS"></a>META_PREF_MOUSE_BUTTON_MODS</p></td>
+<td class="enum_member_description">
+<p>mouse button modifiers</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-FOCUS-MODE:CAPS"></a>META_PREF_FOCUS_MODE</p></td>
+<td class="enum_member_description">
+<p>focus mode</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-FOCUS-NEW-WINDOWS:CAPS"></a>META_PREF_FOCUS_NEW_WINDOWS</p></td>
+<td class="enum_member_description">
+<p>focus new windows</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-ATTACH-MODAL-DIALOGS:CAPS"></a>META_PREF_ATTACH_MODAL_DIALOGS</p></td>
+<td class="enum_member_description">
+<p>attach modal dialogs</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-RAISE-ON-CLICK:CAPS"></a>META_PREF_RAISE_ON_CLICK</p></td>
+<td class="enum_member_description">
+<p>raise on click</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-ACTION-DOUBLE-CLICK-TITLEBAR:CAPS"></a>META_PREF_ACTION_DOUBLE_CLICK_TITLEBAR</p></td>
+<td class="enum_member_description">
+<p>action double click titlebar</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-ACTION-MIDDLE-CLICK-TITLEBAR:CAPS"></a>META_PREF_ACTION_MIDDLE_CLICK_TITLEBAR</p></td>
+<td class="enum_member_description">
+<p>action middle click titlebar</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-ACTION-RIGHT-CLICK-TITLEBAR:CAPS"></a>META_PREF_ACTION_RIGHT_CLICK_TITLEBAR</p></td>
+<td class="enum_member_description">
+<p>action right click titlebar</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-AUTO-RAISE:CAPS"></a>META_PREF_AUTO_RAISE</p></td>
+<td class="enum_member_description">
+<p>auto-raise</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-AUTO-RAISE-DELAY:CAPS"></a>META_PREF_AUTO_RAISE_DELAY</p></td>
+<td class="enum_member_description">
+<p>auto-raise delay</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-FOCUS-CHANGE-ON-POINTER-REST:CAPS"></a>META_PREF_FOCUS_CHANGE_ON_POINTER_REST</p></td>
+<td class="enum_member_description">
+<p>focus change on pointer rest</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-THEME:CAPS"></a>META_PREF_THEME</p></td>
+<td class="enum_member_description">
+<p>theme</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-TITLEBAR-FONT:CAPS"></a>META_PREF_TITLEBAR_FONT</p></td>
+<td class="enum_member_description">
+<p>title-bar font</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-NUM-WORKSPACES:CAPS"></a>META_PREF_NUM_WORKSPACES</p></td>
+<td class="enum_member_description">
+<p>number of workspaces</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-DYNAMIC-WORKSPACES:CAPS"></a>META_PREF_DYNAMIC_WORKSPACES</p></td>
+<td class="enum_member_description">
+<p>dynamic workspaces</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-KEYBINDINGS:CAPS"></a>META_PREF_KEYBINDINGS</p></td>
+<td class="enum_member_description">
+<p>keybindings</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-DISABLE-WORKAROUNDS:CAPS"></a>META_PREF_DISABLE_WORKAROUNDS</p></td>
+<td class="enum_member_description">
+<p>disable workarounds</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-BUTTON-LAYOUT:CAPS"></a>META_PREF_BUTTON_LAYOUT</p></td>
+<td class="enum_member_description">
+<p>button layout</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-WORKSPACE-NAMES:CAPS"></a>META_PREF_WORKSPACE_NAMES</p></td>
+<td class="enum_member_description">
+<p>workspace names</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-VISUAL-BELL:CAPS"></a>META_PREF_VISUAL_BELL</p></td>
+<td class="enum_member_description">
+<p>visual bell</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-AUDIBLE-BELL:CAPS"></a>META_PREF_AUDIBLE_BELL</p></td>
+<td class="enum_member_description">
+<p>audible bell</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-VISUAL-BELL-TYPE:CAPS"></a>META_PREF_VISUAL_BELL_TYPE</p></td>
+<td class="enum_member_description">
+<p>visual bell type</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-GNOME-ACCESSIBILITY:CAPS"></a>META_PREF_GNOME_ACCESSIBILITY</p></td>
+<td class="enum_member_description">
+<p>GNOME accessibility</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-GNOME-ANIMATIONS:CAPS"></a>META_PREF_GNOME_ANIMATIONS</p></td>
+<td class="enum_member_description">
+<p>GNOME animations</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-CURSOR-THEME:CAPS"></a>META_PREF_CURSOR_THEME</p></td>
+<td class="enum_member_description">
+<p>cursor theme</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-CURSOR-SIZE:CAPS"></a>META_PREF_CURSOR_SIZE</p></td>
+<td class="enum_member_description">
+<p>cursor size</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-RESIZE-WITH-RIGHT-BUTTON:CAPS"></a>META_PREF_RESIZE_WITH_RIGHT_BUTTON</p></td>
+<td class="enum_member_description">
+<p>resize with right button</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-EDGE-TILING:CAPS"></a>META_PREF_EDGE_TILING</p></td>
+<td class="enum_member_description">
+<p>edge tiling</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-FORCE-FULLSCREEN:CAPS"></a>META_PREF_FORCE_FULLSCREEN</p></td>
+<td class="enum_member_description">
+<p>force fullscreen</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-WORKSPACES-ONLY-ON-PRIMARY:CAPS"></a>META_PREF_WORKSPACES_ONLY_ON_PRIMARY</p></td>
+<td class="enum_member_description">
+<p>workspaces only on primary</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-DRAGGABLE-BORDER-WIDTH:CAPS"></a>META_PREF_DRAGGABLE_BORDER_WIDTH</p></td>
+<td class="enum_member_description">
+<p>draggable border width</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-AUTO-MAXIMIZE:CAPS"></a>META_PREF_AUTO_MAXIMIZE</p></td>
+<td class="enum_member_description">
+<p>auto-maximize</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-CENTER-NEW-WINDOWS:CAPS"></a>META_PREF_CENTER_NEW_WINDOWS</p></td>
+<td class="enum_member_description">
+<p>center new windows</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-PREF-DRAG-THRESHOLD:CAPS"></a>META_PREF_DRAG_THRESHOLD</p></td>
+<td> </td>
+<td> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaKeyBindingAction"></a><h3>enum MetaKeyBindingAction</h3>
+<div class="refsect3">
+<a name="id-1.4.5.7.3.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-NONE:CAPS"></a>META_KEYBINDING_ACTION_NONE</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-1:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_1</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-2:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_2</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-3:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_3</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-4:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_4</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-5:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_5</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-6:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_6</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-7:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_7</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-8:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_8</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-9:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_9</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-10:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_10</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-11:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_11</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-12:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_12</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-LEFT:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_LEFT</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-RIGHT:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_RIGHT</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-UP:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_UP</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-DOWN:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_DOWN</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-WORKSPACE-LAST:CAPS"></a>META_KEYBINDING_ACTION_WORKSPACE_LAST</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-SWITCH-APPLICATIONS:CAPS"></a>META_KEYBINDING_ACTION_SWITCH_APPLICATIONS</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-SWITCH-APPLICATIONS-BACKWARD:CAPS"></a>META_KEYBINDING_ACTION_SWITCH_APPLICATIONS_BACKWARD</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-SWITCH-GROUP:CAPS"></a>META_KEYBINDING_ACTION_SWITCH_GROUP</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-SWITCH-GROUP-BACKWARD:CAPS"></a>META_KEYBINDING_ACTION_SWITCH_GROUP_BACKWARD</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-SWITCH-WINDOWS:CAPS"></a>META_KEYBINDING_ACTION_SWITCH_WINDOWS</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-SWITCH-WINDOWS-BACKWARD:CAPS"></a>META_KEYBINDING_ACTION_SWITCH_WINDOWS_BACKWARD</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-SWITCH-PANELS:CAPS"></a>META_KEYBINDING_ACTION_SWITCH_PANELS</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-SWITCH-PANELS-BACKWARD:CAPS"></a>META_KEYBINDING_ACTION_SWITCH_PANELS_BACKWARD</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-CYCLE-GROUP:CAPS"></a>META_KEYBINDING_ACTION_CYCLE_GROUP</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-CYCLE-GROUP-BACKWARD:CAPS"></a>META_KEYBINDING_ACTION_CYCLE_GROUP_BACKWARD</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-CYCLE-WINDOWS:CAPS"></a>META_KEYBINDING_ACTION_CYCLE_WINDOWS</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-CYCLE-WINDOWS-BACKWARD:CAPS"></a>META_KEYBINDING_ACTION_CYCLE_WINDOWS_BACKWARD</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-CYCLE-PANELS:CAPS"></a>META_KEYBINDING_ACTION_CYCLE_PANELS</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-CYCLE-PANELS-BACKWARD:CAPS"></a>META_KEYBINDING_ACTION_CYCLE_PANELS_BACKWARD</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-SHOW-DESKTOP:CAPS"></a>META_KEYBINDING_ACTION_SHOW_DESKTOP</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-PANEL-MAIN-MENU:CAPS"></a>META_KEYBINDING_ACTION_PANEL_MAIN_MENU</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-PANEL-RUN-DIALOG:CAPS"></a>META_KEYBINDING_ACTION_PANEL_RUN_DIALOG</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-TOGGLE-RECORDING:CAPS"></a>META_KEYBINDING_ACTION_TOGGLE_RECORDING</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-SET-SPEW-MARK:CAPS"></a>META_KEYBINDING_ACTION_SET_SPEW_MARK</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-ACTIVATE-WINDOW-MENU:CAPS"></a>META_KEYBINDING_ACTION_ACTIVATE_WINDOW_MENU</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-TOGGLE-FULLSCREEN:CAPS"></a>META_KEYBINDING_ACTION_TOGGLE_FULLSCREEN</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-TOGGLE-MAXIMIZED:CAPS"></a>META_KEYBINDING_ACTION_TOGGLE_MAXIMIZED</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-TOGGLE-TILED-LEFT:CAPS"></a>META_KEYBINDING_ACTION_TOGGLE_TILED_LEFT</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-TOGGLE-TILED-RIGHT:CAPS"></a>META_KEYBINDING_ACTION_TOGGLE_TILED_RIGHT</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-TOGGLE-ABOVE:CAPS"></a>META_KEYBINDING_ACTION_TOGGLE_ABOVE</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MAXIMIZE:CAPS"></a>META_KEYBINDING_ACTION_MAXIMIZE</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-UNMAXIMIZE:CAPS"></a>META_KEYBINDING_ACTION_UNMAXIMIZE</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-TOGGLE-SHADED:CAPS"></a>META_KEYBINDING_ACTION_TOGGLE_SHADED</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MINIMIZE:CAPS"></a>META_KEYBINDING_ACTION_MINIMIZE</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-CLOSE:CAPS"></a>META_KEYBINDING_ACTION_CLOSE</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-BEGIN-MOVE:CAPS"></a>META_KEYBINDING_ACTION_BEGIN_MOVE</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-BEGIN-RESIZE:CAPS"></a>META_KEYBINDING_ACTION_BEGIN_RESIZE</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-TOGGLE-ON-ALL-WORKSPACES:CAPS"></a>META_KEYBINDING_ACTION_TOGGLE_ON_ALL_WORKSPACES</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-1:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_1</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-2:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_2</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-3:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_3</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-4:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_4</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-5:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_5</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-6:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_6</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-7:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_7</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-8:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_8</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-9:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_9</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-10:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_10</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-11:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_11</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-12:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_12</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-LEFT:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_LEFT</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-RIGHT:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_RIGHT</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-UP:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_UP</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-DOWN:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_DOWN</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-WORKSPACE-LAST:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_WORKSPACE_LAST</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-MONITOR-LEFT:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_MONITOR_LEFT</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-MONITOR-RIGHT:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_MONITOR_RIGHT</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-MONITOR-UP:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_MONITOR_UP</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-MONITOR-DOWN:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_MONITOR_DOWN</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-RAISE-OR-LOWER:CAPS"></a>META_KEYBINDING_ACTION_RAISE_OR_LOWER</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-RAISE:CAPS"></a>META_KEYBINDING_ACTION_RAISE</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-LOWER:CAPS"></a>META_KEYBINDING_ACTION_LOWER</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MAXIMIZE-VERTICALLY:CAPS"></a>META_KEYBINDING_ACTION_MAXIMIZE_VERTICALLY</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MAXIMIZE-HORIZONTALLY:CAPS"></a>META_KEYBINDING_ACTION_MAXIMIZE_HORIZONTALLY</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-CORNER-NW:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_CORNER_NW</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-CORNER-NE:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_CORNER_NE</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-CORNER-SW:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_CORNER_SW</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-CORNER-SE:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_CORNER_SE</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-SIDE-N:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_SIDE_N</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-SIDE-S:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_SIDE_S</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-SIDE-E:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_SIDE_E</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-SIDE-W:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_SIDE_W</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-MOVE-TO-CENTER:CAPS"></a>META_KEYBINDING_ACTION_MOVE_TO_CENTER</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-OVERLAY-KEY:CAPS"></a>META_KEYBINDING_ACTION_OVERLAY_KEY</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-ISO-NEXT-GROUP:CAPS"></a>META_KEYBINDING_ACTION_ISO_NEXT_GROUP</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-ALWAYS-ON-TOP:CAPS"></a>META_KEYBINDING_ACTION_ALWAYS_ON_TOP</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEYBINDING-ACTION-LAST:CAPS"></a>META_KEYBINDING_ACTION_LAST</p></td>
+<td class="enum_member_description">
+<p>FILLME</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaKeyBindingFlags"></a><h3>enum MetaKeyBindingFlags</h3>
+<div class="refsect3">
+<a name="id-1.4.5.7.4.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEY-BINDING-NONE:CAPS"></a>META_KEY_BINDING_NONE</p></td>
+<td class="enum_member_description">
+<p>none</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEY-BINDING-PER-WINDOW:CAPS"></a>META_KEY_BINDING_PER_WINDOW</p></td>
+<td class="enum_member_description">
+<p>per-window</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEY-BINDING-BUILTIN:CAPS"></a>META_KEY_BINDING_BUILTIN</p></td>
+<td class="enum_member_description">
+<p>built-in</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-KEY-BINDING-IS-REVERSED:CAPS"></a>META_KEY_BINDING_IS_REVERSED</p></td>
+<td class="enum_member_description">
+<p>is reversed</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.21.1</div>
+</body>
+</html>

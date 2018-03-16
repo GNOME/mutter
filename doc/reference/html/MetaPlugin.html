@@ -1,0 +1,805 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MetaPlugin: Mutter Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="Mutter Reference Manual">
+<link rel="up" href="core-reference.html" title="Part III. Mutter Core Reference">
+<link rel="prev" href="meta-Errors.html" title="Errors">
+<link rel="next" href="MetaBarrier.html" title="MetaBarrier">
+<meta name="generator" content="GTK-Doc V1.21.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#MetaPlugin.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#MetaPlugin.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="core-reference.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="meta-Errors.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="MetaBarrier.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="MetaPlugin"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="MetaPlugin.top_of_page"></a>MetaPlugin</span></h2>
+<p>MetaPlugin — Entry point for plugins</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="MetaPlugin.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">const <a class="link" href="MetaPlugin.html#MetaPluginInfo" title="struct MetaPluginInfo"><span class="returnvalue">MetaPluginInfo</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#meta-plugin-get-info" title="meta_plugin_get_info ()">meta_plugin_get_info</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#META-PLUGIN-DECLARE:CAPS" title="META_PLUGIN_DECLARE()">META_PLUGIN_DECLARE</a><span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#meta-plugin-switch-workspace-completed" title="meta_plugin_switch_workspace_completed ()">meta_plugin_switch_workspace_completed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#meta-plugin-minimize-completed" title="meta_plugin_minimize_completed ()">meta_plugin_minimize_completed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#meta-plugin-unminimize-completed" title="meta_plugin_unminimize_completed ()">meta_plugin_unminimize_completed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#meta-plugin-maximize-completed" title="meta_plugin_maximize_completed ()">meta_plugin_maximize_completed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#meta-plugin-unmaximize-completed" title="meta_plugin_unmaximize_completed ()">meta_plugin_unmaximize_completed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#meta-plugin-map-completed" title="meta_plugin_map_completed ()">meta_plugin_map_completed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#meta-plugin-destroy-completed" title="meta_plugin_destroy_completed ()">meta_plugin_destroy_completed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#meta-plugin-begin-modal" title="meta_plugin_begin_modal ()">meta_plugin_begin_modal</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#meta-plugin-end-modal" title="meta_plugin_end_modal ()">meta_plugin_end_modal</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="MetaScreen.html" title="MetaScreen"><span class="returnvalue">MetaScreen</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#meta-plugin-get-screen" title="meta_plugin_get_screen ()">meta_plugin_get_screen</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaPlugin.html#meta-plugin-manager-set-plugin-type" title="meta_plugin_manager_set_plugin_type ()">meta_plugin_manager_set_plugin_type</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaPlugin.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaPlugin.html#MetaPlugin-struct" title="struct MetaPlugin">MetaPlugin</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaPlugin.html#MetaPluginClass" title="struct MetaPluginClass">MetaPluginClass</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaPlugin.html#MetaPluginInfo" title="struct MetaPluginInfo">MetaPluginInfo</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaPlugin.html#MetaPluginVersion" title="struct MetaPluginVersion">MetaPluginVersion</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="MetaPlugin.html#MetaModalOptions" title="enum MetaModalOptions">MetaModalOptions</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaPlugin.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> MetaPlugin
+</pre>
+</div>
+<div class="refsect1">
+<a name="MetaPlugin.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="MetaPlugin.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="meta-plugin-get-info"></a><h3>meta_plugin_get_info ()</h3>
+<pre class="programlisting">const <a class="link" href="MetaPlugin.html#MetaPluginInfo" title="struct MetaPluginInfo"><span class="returnvalue">MetaPluginInfo</span></a> *
+meta_plugin_get_info (<em class="parameter"><code><a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a> *plugin</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="META-PLUGIN-DECLARE:CAPS"></a><h3>META_PLUGIN_DECLARE()</h3>
+<pre class="programlisting">#define             META_PLUGIN_DECLARE(ObjectName, object_name)</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-plugin-switch-workspace-completed"></a><h3>meta_plugin_switch_workspace_completed ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_plugin_switch_workspace_completed
+                               (<em class="parameter"><code><a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a> *plugin</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-plugin-minimize-completed"></a><h3>meta_plugin_minimize_completed ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_plugin_minimize_completed (<em class="parameter"><code><a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a> *plugin</code></em>,
+                                <em class="parameter"><code><a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> *actor</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-plugin-unminimize-completed"></a><h3>meta_plugin_unminimize_completed ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_plugin_unminimize_completed (<em class="parameter"><code><a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a> *plugin</code></em>,
+                                  <em class="parameter"><code><a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> *actor</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-plugin-maximize-completed"></a><h3>meta_plugin_maximize_completed ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_plugin_maximize_completed (<em class="parameter"><code><a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a> *plugin</code></em>,
+                                <em class="parameter"><code><a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> *actor</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-plugin-unmaximize-completed"></a><h3>meta_plugin_unmaximize_completed ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_plugin_unmaximize_completed (<em class="parameter"><code><a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a> *plugin</code></em>,
+                                  <em class="parameter"><code><a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> *actor</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-plugin-map-completed"></a><h3>meta_plugin_map_completed ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_plugin_map_completed (<em class="parameter"><code><a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a> *plugin</code></em>,
+                           <em class="parameter"><code><a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> *actor</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-plugin-destroy-completed"></a><h3>meta_plugin_destroy_completed ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_plugin_destroy_completed (<em class="parameter"><code><a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a> *plugin</code></em>,
+                               <em class="parameter"><code><a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> *actor</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-plugin-begin-modal"></a><h3>meta_plugin_begin_modal ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_plugin_begin_modal (<em class="parameter"><code><a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a> *plugin</code></em>,
+                         <em class="parameter"><code><a class="link" href="MetaPlugin.html#MetaModalOptions" title="enum MetaModalOptions"><span class="type">MetaModalOptions</span></a> options</code></em>,
+                         <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> timestamp</code></em>);</pre>
+<p>This function is used to grab the keyboard and mouse for the exclusive
+use of the plugin. Correct operation requires that both the keyboard
+and mouse are grabbed, or thing will break. (In particular, other
+passive X grabs in Meta can trigger but not be handled by the normal
+keybinding handling code.) However, the plugin can establish the keyboard
+and/or mouse grabs ahead of time and pass in the
+<a class="link" href="MetaPlugin.html#META-MODAL-POINTER-ALREADY-GRABBED:CAPS"><code class="literal">META_MODAL_POINTER_ALREADY_GRABBED</code></a> and/or <a class="link" href="MetaPlugin.html#META-MODAL-KEYBOARD-ALREADY-GRABBED:CAPS"><code class="literal">META_MODAL_KEYBOARD_ALREADY_GRABBED</code></a>
+options. This facility is provided for two reasons: first to allow using
+this function to establish modality after a passive grab, and second to
+allow using obscure features of <code class="function">XGrabPointer()</code> and <code class="function">XGrabKeyboard()</code> without
+having to add them to this API.</p>
+<div class="refsect3">
+<a name="id-1.4.8.7.11.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>plugin</p></td>
+<td class="parameter_description"><p>a <a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>options</p></td>
+<td class="parameter_description"><p>flags that modify the behavior of the modal grab</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>timestamp</p></td>
+<td class="parameter_description"><p>the timestamp used for establishing grabs</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.4.8.7.11.6"></a><h4>Returns</h4>
+<p> whether we successfully grabbed the keyboard and
+mouse and made the plugin modal.</p>
+<p></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-plugin-end-modal"></a><h3>meta_plugin_end_modal ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_plugin_end_modal (<em class="parameter"><code><a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a> *plugin</code></em>,
+                       <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> timestamp</code></em>);</pre>
+<p>Ends the modal operation begun with <a class="link" href="MetaPlugin.html#meta-plugin-begin-modal" title="meta_plugin_begin_modal ()"><code class="function">meta_plugin_begin_modal()</code></a>. This
+ungrabs both the mouse and keyboard even when
+<a class="link" href="MetaPlugin.html#META-MODAL-POINTER-ALREADY-GRABBED:CAPS"><code class="literal">META_MODAL_POINTER_ALREADY_GRABBED</code></a> or
+<a class="link" href="MetaPlugin.html#META-MODAL-KEYBOARD-ALREADY-GRABBED:CAPS"><code class="literal">META_MODAL_KEYBOARD_ALREADY_GRABBED</code></a> were provided as options
+when beginnning the modal operation.</p>
+<div class="refsect3">
+<a name="id-1.4.8.7.12.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>plugin</p></td>
+<td class="parameter_description"><p>a <a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>timestamp</p></td>
+<td class="parameter_description"><p>the time used for releasing grabs</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-plugin-get-screen"></a><h3>meta_plugin_get_screen ()</h3>
+<pre class="programlisting"><a class="link" href="MetaScreen.html" title="MetaScreen"><span class="returnvalue">MetaScreen</span></a> *
+meta_plugin_get_screen (<em class="parameter"><code><a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a> *plugin</code></em>);</pre>
+<p>Gets the <a class="link" href="MetaScreen.html" title="MetaScreen"><span class="type">MetaScreen</span></a> corresponding to a plugin.</p>
+<div class="refsect3">
+<a name="id-1.4.8.7.13.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>plugin</p></td>
+<td class="parameter_description"><p>a <a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.4.8.7.13.6"></a><h4>Returns</h4>
+<p> the <a class="link" href="MetaScreen.html" title="MetaScreen"><span class="type">MetaScreen</span></a> for the plugin. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-plugin-manager-set-plugin-type"></a><h3>meta_plugin_manager_set_plugin_type ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_plugin_manager_set_plugin_type (<em class="parameter"><code><a href="https://developer.gnome.org/gobject/unstable/gobject-Type-Information.html#GType"><span class="type">GType</span></a> gtype</code></em>);</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="MetaPlugin.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="MetaPlugin-struct"></a><h3>struct MetaPlugin</h3>
+<pre class="programlisting">struct MetaPlugin;</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaPluginClass"></a><h3>struct MetaPluginClass</h3>
+<pre class="programlisting">struct MetaPluginClass {
+  /**
+   * MetaPluginClass::start:
+   *
+   * Virtual function called when the compositor starts managing a screen
+   */
+  void (*start)            (MetaPlugin         *plugin);
+
+  /**
+   * MetaPluginClass::minimize:
+   * @actor: a #MetaWindowActor
+   *
+   * Virtual function called when the window represented by @actor is minimized.
+   */
+  void (*minimize)         (MetaPlugin         *plugin,
+                            MetaWindowActor    *actor);
+
+  /**
+   * MetaPluginClass::unminimize:
+   * @actor: a #MetaWindowActor
+   *
+   * Virtual function called when the window represented by @actor is unminimized.
+   */
+  void (*unminimize)       (MetaPlugin         *plugin,
+                            MetaWindowActor    *actor);
+
+  /**
+   * MetaPluginClass::maximize:
+   * @actor: a #MetaWindowActor
+   * @x: target X coordinate
+   * @y: target Y coordinate
+   * @width: target width
+   * @height: target height
+   *
+   * Virtual function called when the window represented by @actor is maximized.
+   */
+  void (*maximize)         (MetaPlugin         *plugin,
+                            MetaWindowActor    *actor,
+                            gint                x,
+                            gint                y,
+                            gint                width,
+                            gint                height);
+
+  /**
+   * MetaPluginClass::unmaximize:
+   * @actor: a #MetaWindowActor
+   * @x: target X coordinate
+   * @y: target Y coordinate
+   * @width: target width
+   * @height: target height
+   *
+   * Virtual function called when the window represented by @actor is unmaximized.
+   */
+  void (*unmaximize)       (MetaPlugin         *plugin,
+                            MetaWindowActor    *actor,
+                            gint                x,
+                            gint                y,
+                            gint                width,
+                            gint                height);
+
+  /**
+   * MetaPluginClass::map:
+   * @actor: a #MetaWindowActor
+   *
+   * Virtual function called when the window represented by @actor is mapped.
+   */
+  void (*map)              (MetaPlugin         *plugin,
+                            MetaWindowActor    *actor);
+
+  /**
+   * MetaPluginClass::destroy:
+   * @actor: a #MetaWindowActor
+   *
+   * Virtual function called when the window represented by @actor is destroyed.
+   */
+  void (*destroy)          (MetaPlugin         *plugin,
+                            MetaWindowActor    *actor);
+
+  /**
+   * MetaPluginClass::switch_workspace:
+   * @from: origin workspace
+   * @to: destination workspace
+   * @direction: a #MetaMotionDirection
+   *
+   * Virtual function called when the window represented by @actor is destroyed.
+   */
+  void (*switch_workspace) (MetaPlugin         *plugin,
+                            gint                from,
+                            gint                to,
+                            MetaMotionDirection direction);
+
+  void (*show_tile_preview) (MetaPlugin      *plugin,
+                             MetaWindow      *window,
+                             MetaRectangle   *tile_rect,
+                             int              tile_monitor_number);
+  void (*hide_tile_preview) (MetaPlugin      *plugin);
+
+  void (*show_window_menu)  (MetaPlugin         *plugin,
+                             MetaWindow         *window,
+                             MetaWindowMenuType  menu,
+                             int                 x,
+                             int                 y);
+
+  void (*show_window_menu_for_rect)  (MetaPlugin         *plugin,
+		                      MetaWindow         *window,
+				      MetaWindowMenuType  menu,
+				      MetaRectangle      *rect);
+
+  /**
+   * MetaPluginClass::kill_window_effects:
+   * @actor: a #MetaWindowActor
+   *
+   * Virtual function called when the effects on @actor need to be killed
+   * prematurely; the plugin must call the completed() callback as if the effect
+   * terminated naturally.
+   */
+  void (*kill_window_effects)      (MetaPlugin      *plugin,
+                                    MetaWindowActor *actor);
+
+  /**
+   * MetaPluginClass::kill_switch_workspace:
+   *
+   * Virtual function called when the workspace-switching effect needs to be
+   * killed prematurely.
+   */
+  void (*kill_switch_workspace)    (MetaPlugin     *plugin);
+
+  /**
+   * MetaPluginClass::xevent_filter:
+   * @event: (type xlib.XEvent):
+   *
+   * Virtual function called when handling each event.
+   *
+   * Returns: %TRUE if the plugin handled the event type (i.e., if the return
+   * value is %FALSE, there will be no subsequent call to the manager
+   * completed() callback, and the compositor must ensure that any appropriate
+   * post-effect cleanup is carried out.
+   */
+  gboolean (*xevent_filter) (MetaPlugin       *plugin,
+                             XEvent           *event);
+
+  /**
+   * MetaPluginClass::keybinding_filter:
+   * @binding: a #MetaKeyBinding
+   *
+   * Virtual function called when handling each keybinding.
+   *
+   * Returns: %TRUE if the plugin handled the keybinding.
+   */
+  gboolean (*keybinding_filter) (MetaPlugin     *plugin,
+                                 MetaKeyBinding *binding);
+
+  /**
+   * MetaPluginClass::confirm_display_config:
+   * @plugin: a #MetaPlugin
+   *
+   * Virtual function called when the display configuration changes.
+   * The common way to implement this function is to show some form
+   * of modal dialog that should ask the user if everything was ok.
+   *
+   * When confirmed by the user, the plugin must call meta_plugin_complete_display_change()
+   * to make the configuration permanent. If that function is not
+   * called within the timeout, the previous configuration will be
+   * reapplied.
+   */
+  void (*confirm_display_change) (MetaPlugin *plugin);
+
+  /**
+   * MetaPluginClass::plugin_info:
+   * @plugin: a #MetaPlugin
+   *
+   * Virtual function that returns information about the #MetaPlugin.
+   *
+   * Returns: a #MetaPluginInfo.
+   */
+  const MetaPluginInfo * (*plugin_info) (MetaPlugin *plugin);
+};
+</pre>
+<div class="refsect3">
+<a name="id-1.4.8.8.3.4"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="struct_members_name">
+<col class="struct_members_description">
+<col width="200px" class="struct_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.start"></a>start</code></em> ()</p></td>
+<td class="struct_member_description"><p>virtual function called when the compositor starts managing a screen</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.minimize"></a>minimize</code></em> ()</p></td>
+<td class="struct_member_description"><p>virtual function called when a window is minimized</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.unminimize"></a>unminimize</code></em> ()</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.maximize"></a>maximize</code></em> ()</p></td>
+<td class="struct_member_description"><p>virtual function called when a window is maximized</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.unmaximize"></a>unmaximize</code></em> ()</p></td>
+<td class="struct_member_description"><p>virtual function called when a window is unmaximized</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.map"></a>map</code></em> ()</p></td>
+<td class="struct_member_description"><p>virtual function called when a window is mapped</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.destroy"></a>destroy</code></em> ()</p></td>
+<td class="struct_member_description"><p>virtual function called when a window is destroyed</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.switch-workspace"></a>switch_workspace</code></em> ()</p></td>
+<td class="struct_member_description"><p>virtual function called when the user switches to another
+workspace</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.show-tile-preview"></a>show_tile_preview</code></em> ()</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.hide-tile-preview"></a>hide_tile_preview</code></em> ()</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.show-window-menu"></a>show_window_menu</code></em> ()</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.show-window-menu-for-rect"></a>show_window_menu_for_rect</code></em> ()</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.kill-window-effects"></a>kill_window_effects</code></em> ()</p></td>
+<td class="struct_member_description"><p>virtual function called when the effects on a window
+need to be killed prematurely; the plugin must call the <code class="function">completed()</code> callback
+as if the effect terminated naturally</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.kill-switch-workspace"></a>kill_switch_workspace</code></em> ()</p></td>
+<td class="struct_member_description"><p>virtual function called when the workspace-switching
+effect needs to be killed prematurely</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.xevent-filter"></a>xevent_filter</code></em> ()</p></td>
+<td class="struct_member_description"><p>virtual function called when handling each event</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.keybinding-filter"></a>keybinding_filter</code></em> ()</p></td>
+<td class="struct_member_description"><p>virtual function called when handling each keybinding</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.confirm-display-change"></a>confirm_display_change</code></em> ()</p></td>
+<td> </td>
+<td> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><em class="structfield"><code><a name="MetaPluginClass.plugin-info"></a>plugin_info</code></em> ()</p></td>
+<td class="struct_member_description"><p>virtual function that returns information about the
+<a class="link" href="MetaPlugin.html" title="MetaPlugin"><span class="type">MetaPlugin</span></a></p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaPluginInfo"></a><h3>struct MetaPluginInfo</h3>
+<pre class="programlisting">struct MetaPluginInfo {
+  const gchar *name;
+  const gchar *version;
+  const gchar *author;
+  const gchar *license;
+  const gchar *description;
+};
+</pre>
+<div class="refsect3">
+<a name="id-1.4.8.8.4.4"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="struct_members_name">
+<col class="struct_members_description">
+<col width="200px" class="struct_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="struct_member_name"><p>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *<em class="structfield"><code><a name="MetaPluginInfo.name"></a>name</code></em>;</p></td>
+<td class="struct_member_description"><p>name of the plugin</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *<em class="structfield"><code><a name="MetaPluginInfo.version"></a>version</code></em>;</p></td>
+<td class="struct_member_description"><p>version of the plugin</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *<em class="structfield"><code><a name="MetaPluginInfo.author"></a>author</code></em>;</p></td>
+<td class="struct_member_description"><p>author of the plugin</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *<em class="structfield"><code><a name="MetaPluginInfo.license"></a>license</code></em>;</p></td>
+<td class="struct_member_description"><p>license of the plugin</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *<em class="structfield"><code><a name="MetaPluginInfo.description"></a>description</code></em>;</p></td>
+<td class="struct_member_description"><p>description of the plugin</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaPluginVersion"></a><h3>struct MetaPluginVersion</h3>
+<pre class="programlisting">struct MetaPluginVersion {
+  /*
+   * Version information; the first three numbers match the Meta version
+   * with which the plugin was compiled (see clutter-plugins/simple.c for sample
+   * code).
+   */
+  guint version_major;
+  guint version_minor;
+  guint version_micro;
+
+  /*
+   * Version of the plugin API; this is unrelated to the matacity version
+   * per se. The API version is checked by the plugin manager and must match
+   * the one used by it (see clutter-plugins/default.c for sample code).
+   */
+  guint version_api;
+};
+</pre>
+<div class="refsect3">
+<a name="id-1.4.8.8.5.4"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="struct_members_name">
+<col class="struct_members_description">
+<col width="200px" class="struct_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="MetaPluginVersion.version-major"></a>version_major</code></em>;</p></td>
+<td class="struct_member_description"><p>major component of the version number of Meta with which the plugin was compiled</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="MetaPluginVersion.version-minor"></a>version_minor</code></em>;</p></td>
+<td class="struct_member_description"><p>minor component of the version number of Meta with which the plugin was compiled</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="MetaPluginVersion.version-micro"></a>version_micro</code></em>;</p></td>
+<td class="struct_member_description"><p>micro component of the version number of Meta with which the plugin was compiled</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> <em class="structfield"><code><a name="MetaPluginVersion.version-api"></a>version_api</code></em>;</p></td>
+<td class="struct_member_description"><p>version of the plugin API</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaModalOptions"></a><h3>enum MetaModalOptions</h3>
+<p>Options that can be provided when calling <a class="link" href="MetaPlugin.html#meta-plugin-begin-modal" title="meta_plugin_begin_modal ()"><code class="function">meta_plugin_begin_modal()</code></a>.</p>
+<div class="refsect3">
+<a name="id-1.4.8.8.6.4"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="META-MODAL-POINTER-ALREADY-GRABBED:CAPS"></a>META_MODAL_POINTER_ALREADY_GRABBED</p></td>
+<td class="enum_member_description">
+<p>if set the pointer is already
+  grabbed by the plugin and should not be grabbed again.</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-MODAL-KEYBOARD-ALREADY-GRABBED:CAPS"></a>META_MODAL_KEYBOARD_ALREADY_GRABBED</p></td>
+<td class="enum_member_description">
+<p>if set the keyboard is already
+  grabbed by the plugin and should not be grabbed again.</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.21.1</div>
+</body>
+</html>

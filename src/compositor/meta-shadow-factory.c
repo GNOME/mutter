@@ -1,9 +1,5 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 /*
- * MetaShadowFactory:
- *
- * Create and cache shadow textures for abritrary window shapes
- *
  * Copyright 2010 Red Hat, Inc.
  *
  * This program is free software; you can redistribute it and/or
@@ -17,10 +13,15 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
+
+/**
+ * SECTION:meta-shadow-factory
+ * @title: MetaShadowFactory
+ * @short_description: Create and cache shadow textures for abritrary window shapes
+ */
+
 #include <config.h>
 #include <math.h>
 #include <string.h>
@@ -65,8 +66,8 @@ struct _MetaShadow
 
   MetaShadowFactory *factory;
   MetaShadowCacheKey key;
-  CoglHandle texture;
-  CoglHandle material;
+  CoglTexture *texture;
+  CoglPipeline *pipeline;
 
   /* The outer order is the distance the shadow extends outside the window
    * shape; the inner border is the unscaled portion inside the window
@@ -120,17 +121,17 @@ static guint signals[LAST_SIGNAL] = { 0 };
 /* The first element in this array also defines the default parameters
  * for newly created classes */
 MetaShadowClassInfo default_shadow_classes[] = {
-  { "normal",       { 6, -1, 0, 3, 255 }, { 3, -1, 0, 3, 128 } },
-  { "dialog",       { 6, -1, 0, 3, 255 }, { 3, -1, 0, 3, 128 } },
-  { "modal_dialog", { 6, -1, 0, 1, 255 }, { 3, -1, 0, 3, 128 } },
-  { "utility",      { 3, -1, 0, 1, 255 }, { 3, -1, 0, 1, 128 } },
-  { "border",       { 6, -1, 0, 3, 255 }, { 3, -1, 0, 3, 128 } },
-  { "menu",         { 6, -1, 0, 3, 255 }, { 3, -1, 0, 0, 128 } },
+  { "normal",       { 3, -1, 0, 3, 128 }, { 3, -1, 0, 3, 32 } },
+  { "dialog",       { 3, -1, 0, 3, 128 }, { 3, -1, 0, 3, 32 } },
+  { "modal_dialog", { 3, -1, 0, 1, 128 }, { 3, -1, 0, 3, 32 } },
+  { "utility",      { 3, -1, 0, 1, 128 }, { 3, -1, 0, 1, 32 } },
+  { "border",       { 3, -1, 0, 3, 128 }, { 3, -1, 0, 3, 32 } },
+  { "menu",         { 3, -1, 0, 3, 128 }, { 3, -1, 0, 0, 32 } },
 
-  { "popup-menu",    { 1, -1, 0, 1, 128 }, { 1, -1, 0, 1, 128 } },
+  { "popup-menu",    { 1, 0, 0, 1, 128 }, { 1, -1, 0, 1, 128 } },
 
   { "dropdown-menu", { 1, 10, 0, 1, 128 }, { 1, 10, 0, 1, 128 } },
-  { "attached",      { 2, 50, 0, 1, 255 }, { 1, 50, 0, 1, 128 } }
+  { "attached",      { 1, 0, 0, 1, 128 }, { 1, -1, 0, 1, 128 } }
 };
 
 G_DEFINE_TYPE (MetaShadowFactory, meta_shadow_factory, G_TYPE_OBJECT);
@@ -175,8 +176,8 @@ meta_shadow_unref (MetaShadow *shadow)
         }
 
       meta_window_shape_unref (shadow->key.shape);
-      cogl_handle_unref (shadow->texture);
-      cogl_handle_unref (shadow->material);
+      cogl_object_unref (shadow->texture);
+      cogl_object_unref (shadow->pipeline);
 
       g_slice_free (MetaShadow, shadow);
     }
@@ -188,7 +189,7 @@ meta_shadow_unref (MetaShadow *shadow)
  * @window_y: y position of the region to paint a shadow for
  * @window_width: actual width of the region to paint a shadow for
  * @window_height: actual height of the region to paint a shadow for
- * @clip: (allow-none): if non-%NULL specifies the visible portion
+ * @clip: (nullable): if non-%NULL specifies the visible portion
  *   of the shadow.
  * @clip_strictly: if %TRUE, drawing will be clipped strictly
  *   to @clip, otherwise, it will be only used to optimize
@@ -218,10 +219,10 @@ meta_shadow_paint (MetaShadow     *shadow,
   int dest_y[4];
   int n_x, n_y;
 
-  cogl_material_set_color4ub (shadow->material,
+  cogl_pipeline_set_color4ub (shadow->pipeline,
                               opacity, opacity, opacity, opacity);
 
-  cogl_set_source (shadow->material);
+  cogl_set_source (shadow->pipeline);
 
   if (shadow->scale_width)
     {
@@ -495,7 +496,12 @@ get_box_filter_size (int radius)
 static int
 get_shadow_spread (int radius)
 {
-  int d = get_box_filter_size (radius);
+  int d;
+
+  if (radius == 0)
+    return 0;
+
+  d = get_box_filter_size (radius);
 
   if (d % 2 == 1)
     return 3 * (d / 2);
@@ -535,7 +541,7 @@ blur_xspan (guchar *row,
    * be well predicted and there are enough different possibilities
    * that trying to write this as a series of unconditional loops
    * is hard and not an obvious win. The main slow down here seems
-   * to be the integer division for pixel; one possible optimization
+   * to be the integer division per pixel; one possible optimization
    * would be to accumulate into two 16-bit integer buffers and
    * only divide down after all three passes. (SSE parallel implementation
    * of the divide step is possible.)
@@ -543,27 +549,27 @@ blur_xspan (guchar *row,
   for (i = x0 - d + offset; i < x1 + offset; i++)
     {
       if (i >= 0 && i < row_width)
-	sum += row[i];
+        sum += row[i];
 
       if (i >= x0 + offset)
-	{
-	  if (i >= d)
-	    sum -= row[i - d];
+        {
+          if (i >= d)
+            sum -= row[i - d];
 
-	  tmp_buffer[i - offset] = (sum + d / 2) / d;
-	}
+          tmp_buffer[i - offset] = (sum + d / 2) / d;
+        }
     }
 
-  memcpy(row + x0, tmp_buffer + x0, x1 - x0);
+  memcpy (row + x0, tmp_buffer + x0, x1 - x0);
 }
 
 static void
 blur_rows (cairo_region_t   *convolve_region,
            int               x_offset,
            int               y_offset,
-	   guchar           *buffer,
-	   int               buffer_width,
-	   int               buffer_height,
+           guchar           *buffer,
+           int               buffer_width,
+           int               buffer_height,
            int               d)
 {
   int i, j;
@@ -580,30 +586,30 @@ blur_rows (cairo_region_t   *convolve_region,
       cairo_region_get_rectangle (convolve_region, i, &rect);
 
       for (j = y_offset + rect.y; j < y_offset + rect.y + rect.height; j++)
-	{
-	  guchar *row = buffer + j * buffer_width;
-	  int x0 = x_offset + rect.x;
-	  int x1 = x0 + rect.width;
+        {
+          guchar *row = buffer + j * buffer_width;
+          int x0 = x_offset + rect.x;
+          int x1 = x0 + rect.width;
 
           /* We want to produce a symmetric blur that spreads a pixel
            * equally far to the left and right. If d is odd that happens
            * naturally, but for d even, we approximate by using a blur
            * on either side and then a centered blur of size d + 1.
-           * (techique also from the SVG specification)
+           * (technique also from the SVG specification)
            */
-	  if (d % 2 == 1)
-	    {
-	      blur_xspan (row, tmp_buffer, buffer_width, x0, x1, d, 0);
-	      blur_xspan (row, tmp_buffer, buffer_width, x0, x1, d, 0);
-	      blur_xspan (row, tmp_buffer, buffer_width, x0, x1, d, 0);
-	    }
-	  else
-	    {
-	      blur_xspan (row, tmp_buffer, buffer_width, x0, x1, d, 1);
-	      blur_xspan (row, tmp_buffer, buffer_width, x0, x1, d, -1);
-	      blur_xspan (row, tmp_buffer, buffer_width, x0, x1, d + 1, 0);
-	    }
-	}
+          if (d % 2 == 1)
+            {
+              blur_xspan (row, tmp_buffer, buffer_width, x0, x1, d, 0);
+              blur_xspan (row, tmp_buffer, buffer_width, x0, x1, d, 0);
+              blur_xspan (row, tmp_buffer, buffer_width, x0, x1, d, 0);
+            }
+          else
+            {
+              blur_xspan (row, tmp_buffer, buffer_width, x0, x1, d, 1);
+              blur_xspan (row, tmp_buffer, buffer_width, x0, x1, d, -1);
+              blur_xspan (row, tmp_buffer, buffer_width, x0, x1, d + 1, 0);
+            }
+        }
     }
 
   g_free (tmp_buffer);
@@ -628,7 +634,7 @@ fade_bytes (guchar *bytes,
  */
 static guchar *
 flip_buffer (guchar *buffer,
-	     int     width,
+             int     width,
              int     height)
 {
   /* Working in blocks increases cache efficiency, compared to reading
@@ -640,33 +646,33 @@ flip_buffer (guchar *buffer,
       int i0, j0;
 
       for (j0 = 0; j0 < height; j0 += BLOCK_SIZE)
-	for (i0 = 0; i0 <= j0; i0 += BLOCK_SIZE)
-	  {
-	    int max_j = MIN(j0 + BLOCK_SIZE, height);
-	    int max_i = MIN(i0 + BLOCK_SIZE, width);
-	    int i, j;
+        for (i0 = 0; i0 <= j0; i0 += BLOCK_SIZE)
+          {
+            int max_j = MIN(j0 + BLOCK_SIZE, height);
+            int max_i = MIN(i0 + BLOCK_SIZE, width);
+            int i, j;
 
-	    if (i0 == j0)
-	      {
-		for (j = j0; j < max_j; j++)
-		  for (i = i0; i < j; i++)
-		    {
-		      guchar tmp = buffer[j * width + i];
-		      buffer[j * width + i] = buffer[i * width + j];
-		      buffer[i * width + j] = tmp;
-		    }
-	      }
-	    else
-	      {
-		for (j = j0; j < max_j; j++)
-		  for (i = i0; i < max_i; i++)
-		    {
-		      guchar tmp = buffer[j * width + i];
-		      buffer[j * width + i] = buffer[i * width + j];
-		      buffer[i * width + j] = tmp;
-		    }
-	      }
-	  }
+            if (i0 == j0)
+              {
+                for (j = j0; j < max_j; j++)
+                  for (i = i0; i < j; i++)
+                    {
+                      guchar tmp = buffer[j * width + i];
+                      buffer[j * width + i] = buffer[i * width + j];
+                      buffer[i * width + j] = tmp;
+                    }
+              }
+            else
+              {
+                for (j = j0; j < max_j; j++)
+                  for (i = i0; i < max_i; i++)
+                    {
+                      guchar tmp = buffer[j * width + i];
+                      buffer[j * width + i] = buffer[i * width + j];
+                      buffer[i * width + j] = tmp;
+                    }
+              }
+          }
 
       return buffer;
     }
@@ -677,15 +683,15 @@ flip_buffer (guchar *buffer,
 
       for (i0 = 0; i0 < width; i0 += BLOCK_SIZE)
         for (j0 = 0; j0 < height; j0 += BLOCK_SIZE)
-	  {
-	    int max_j = MIN(j0 + BLOCK_SIZE, height);
-	    int max_i = MIN(i0 + BLOCK_SIZE, width);
-	    int i, j;
+          {
+            int max_j = MIN(j0 + BLOCK_SIZE, height);
+            int max_i = MIN(i0 + BLOCK_SIZE, width);
+            int i, j;
 
             for (i = i0; i < max_i; i++)
               for (j = j0; j < max_j; j++)
-		new_buffer[i * height + j] = buffer[j * width + i];
-	  }
+                new_buffer[i * height + j] = buffer[j * width + i];
+          }
 
       g_free (buffer);
 
@@ -698,6 +704,8 @@ static void
 make_shadow (MetaShadow     *shadow,
              cairo_region_t *region)
 {
+  ClutterBackend *backend = clutter_get_default_backend ();
+  CoglContext *ctx = clutter_backend_get_cogl_context (backend);
   int d = get_box_filter_size (shadow->key.radius);
   int spread = get_shadow_spread (shadow->key.radius);
   cairo_rectangle_int_t extents;
@@ -757,7 +765,7 @@ make_shadow (MetaShadow     *shadow,
 
       cairo_region_get_rectangle (region, k, &rect);
       for (j = y_offset + rect.y; j < y_offset + rect.y + rect.height; j++)
-	memset (buffer + buffer_width * j + x_offset + rect.x, 255, rect.width);
+        memset (buffer + buffer_width * j + x_offset + rect.x, 255, rect.width);
     }
 
   /* Step 2: swap rows and columns */
@@ -787,21 +795,21 @@ make_shadow (MetaShadow     *shadow,
    * in the case of top_fade >= 0. We also account for padding at the left for symmetry
    * though that doesn't currently occur.
    */
-  shadow->texture = cogl_texture_new_from_data (shadow->outer_border_left + extents.width + shadow->outer_border_right,
-                                                shadow->outer_border_top + extents.height + shadow->outer_border_bottom,
-                                                COGL_TEXTURE_NONE,
-                                                COGL_PIXEL_FORMAT_A_8,
-                                                COGL_PIXEL_FORMAT_ANY,
-                                                buffer_width,
-                                                (buffer +
-                                                 (y_offset - shadow->outer_border_top) * buffer_width +
-                                                 (x_offset - shadow->outer_border_left)));
+  shadow->texture = COGL_TEXTURE (cogl_texture_2d_new_from_data (ctx,
+                                                                 shadow->outer_border_left + extents.width + shadow->outer_border_right,
+                                                                 shadow->outer_border_top + extents.height + shadow->outer_border_bottom,
+                                                                 COGL_PIXEL_FORMAT_A_8,
+                                                                 buffer_width,
+                                                                 (buffer +
+                                                                  (y_offset - shadow->outer_border_top) * buffer_width +
+                                                                  (x_offset - shadow->outer_border_left)),
+                                                                 NULL));
 
   cairo_region_destroy (row_convolve_region);
   cairo_region_destroy (column_convolve_region);
   g_free (buffer);
 
-  shadow->material = meta_create_texture_material (shadow->texture);
+  shadow->pipeline = meta_create_texture_pipeline (shadow->texture);
 }
 
 static MetaShadowParams *

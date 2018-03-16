@@ -1,31 +1,13 @@
-/* config.h.in.  Generated from configure.in by autoheader.  */
+/* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
-/* always defined to indicate that i18n is enabled */
-#undef ENABLE_NLS
-
 /* Name of default gettext domain */
 #undef GETTEXT_PACKAGE
 
-/* Define to 1 if you have the `backtrace' function. */
-#undef HAVE_BACKTRACE
-
-/* Define to 1 if you have the `bind_textdomain_codeset' function. */
-#undef HAVE_BIND_TEXTDOMAIN_CODESET
-
-/* Define to 1 if you have the `dcgettext' function. */
-#undef HAVE_DCGETTEXT
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
-
-/* Define to 1 if you have the <execinfo.h> header file. */
-#undef HAVE_EXECINFO_H
-
-/* Define if the GNU gettext() function is already present or preinstalled. */
-#undef HAVE_GETTEXT
 
 /* Define if GObject introspection is available */
 #undef HAVE_INTROSPECTION
@@ -33,29 +15,20 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define if your <locale.h> file defines LC_MESSAGES. */
-#undef HAVE_LC_MESSAGES
-
 /* Building with libcanberra for playing sounds */
 #undef HAVE_LIBCANBERRA
-
-/* Define to 1 if you have the <locale.h> header file. */
-#undef HAVE_LOCALE_H
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
+/* Define if you want to enable the native (KMS) backend based on systemd */
+#undef HAVE_NATIVE_BACKEND
+
 /* Have the Xrandr extension library */
 #undef HAVE_RANDR
 
-/* Have the shape extension library */
-#undef HAVE_SHAPE
-
 /* Building with SM support */
 #undef HAVE_SM
-
-/* Have Solaris-style Xinerama */
-#undef HAVE_SOLARIS_XINERAMA
 
 /* Building with startup notification support */
 #undef HAVE_STARTUP_NOTIFICATION
@@ -81,27 +54,21 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define if you want to enable Wayland support */
+#undef HAVE_WAYLAND
+
 /* Define to 1 if you have the <X11/SM/SMlib.h> header file. */
 #undef HAVE_X11_SM_SMLIB_H
 
-/* Building with Xcursor support */
-#undef HAVE_XCURSOR
-
-/* Have XFree86-style Xinerama */
-#undef HAVE_XFREE_XINERAMA
-
-/* Have some version of Xinerama */
-#undef HAVE_XINERAMA
-
-/* Have keyboard extension library */
-#undef HAVE_XKB
-
-/* Have the Xsync extension library */
-#undef HAVE_XSYNC
+/* Define if you have support for XInput 2.3 or greater */
+#undef HAVE_XI23
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
 #undef LT_OBJDIR
+
+/* Define to 1 if your C compiler doesn't accept -c and -o together. */
+#undef NO_MINUS_C_MINUS_O
 
 /* Name of package */
 #undef PACKAGE
@@ -165,6 +132,9 @@
 #  undef WORDS_BIGENDIAN
 # endif
 #endif
+
+/* XKB base dir */
+#undef XKB_BASE
 
 /* Define to 1 if the X Window System is missing or not being used. */
 #undef X_DISPLAY_MISSING

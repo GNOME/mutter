@@ -18,9 +18,7 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef __META_SHAPED_TEXTURE_H__
@@ -44,11 +42,19 @@ typedef struct _MetaShapedTexturePrivate MetaShapedTexturePrivate;
 
 struct _MetaShapedTextureClass
 {
+  /*< private >*/
   ClutterActorClass parent_class;
 };
 
+/**
+ * MetaShapedTexture:
+ *
+ * The <structname>MetaShapedTexture</structname> structure contains
+ * only private data and should be accessed using the provided API
+ */
 struct _MetaShapedTexture
 {
+  /*< private >*/
   ClutterActor parent;
 
   MetaShapedTexturePrivate *priv;
@@ -56,32 +62,21 @@ struct _MetaShapedTexture
 
 GType meta_shaped_texture_get_type (void) G_GNUC_CONST;
 
-ClutterActor *meta_shaped_texture_new (void);
-
 void meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
 					     gboolean           create_mipmaps);
 
-void meta_shaped_texture_update_area (MetaShapedTexture *stex,
-                                      int                x,
-                                      int                y,
-                                      int                width,
-                                      int                height);
+gboolean meta_shaped_texture_update_area (MetaShapedTexture *stex,
+                                          int                x,
+                                          int                y,
+                                          int                width,
+                                          int                height);
 
-void meta_shaped_texture_set_pixmap (MetaShapedTexture *stex,
-                                     Pixmap             pixmap);
+CoglTexture * meta_shaped_texture_get_texture (MetaShapedTexture *stex);
 
-CoglHandle meta_shaped_texture_get_texture (MetaShapedTexture *stex);
-
-void meta_shaped_texture_set_shape_region (MetaShapedTexture *stex,
-                                           cairo_region_t    *region);
-
-void meta_shaped_texture_set_overlay_path (MetaShapedTexture *stex,
-                                           cairo_region_t    *overlay_region,
-                                           cairo_path_t      *overlay_path);
-
-/* Assumes ownership of clip_region */
-void meta_shaped_texture_set_clip_region (MetaShapedTexture *stex,
-					  cairo_region_t    *clip_region);
+void meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
+                                           CoglTexture       *mask_texture);
+void meta_shaped_texture_set_opaque_region (MetaShapedTexture *stex,
+                                            cairo_region_t    *opaque_region);
 
 cairo_surface_t * meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                                  cairo_rectangle_int_t *clip);

@@ -11,61 +11,51 @@
 #include "meta-window-actor-private.h"
 #include <clutter/clutter.h>
 
-typedef struct _MetaCompScreen MetaCompScreen;
-
 struct _MetaCompositor
 {
   MetaDisplay    *display;
 
-  Atom            atom_x_root_pixmap;
-  Atom            atom_x_set_root;
-  Atom            atom_net_wm_window_opacity;
   guint           repaint_func_id;
 
-  ClutterActor   *shadow_src;
+  gint64          server_time_query_time;
+  gint64          server_time_offset;
 
-  MetaPlugin     *modal_plugin;
+  guint           server_time_is_monotonic_time : 1;
+  guint           no_mipmaps  : 1;
 
-  gboolean        show_redraw : 1;
-  gboolean        debug       : 1;
-  gboolean        no_mipmaps  : 1;
-};
-
-struct _MetaCompScreen
-{
-  MetaScreen            *screen;
-
-  ClutterActor          *stage, *window_group, *overlay_group;
+  ClutterActor          *stage, *window_group, *top_window_group, *feedback_group;
   ClutterActor          *background_actor;
-  ClutterActor		*hidden_group;
   GList                 *windows;
-  GHashTable            *windows_by_xid;
   Window                 output;
 
-  /* Used for unredirecting fullscreen windows */
-  guint                   disable_unredirect_count;
-  MetaWindowActor             *unredirected_window;
+  CoglOnscreen          *onscreen;
+  CoglFrameClosure      *frame_closure;
 
-  /* Before we create the output window */
-  XserverRegion     pending_input_region;
+  /* Used for unredirecting fullscreen windows */
+  guint                  disable_unredirect_count;
+  MetaWindow            *unredirected_window;
 
   gint                   switch_workspace_in_progress;
 
   MetaPluginManager *plugin_mgr;
+
+  gboolean frame_has_updated_xsurfaces;
 };
 
-void meta_switch_workspace_completed (MetaScreen    *screen);
+/* Wait 2ms after vblank before starting to draw next frame */
+#define META_SYNC_DELAY 2
 
-gboolean meta_begin_modal_for_plugin (MetaScreen       *screen,
+void meta_switch_workspace_completed (MetaCompositor *compositor);
+
+gboolean meta_begin_modal_for_plugin (MetaCompositor   *compositor,
                                       MetaPlugin       *plugin,
-                                      Window            grab_window,
-                                      Cursor            cursor,
                                       MetaModalOptions  options,
                                       guint32           timestamp);
-void     meta_end_modal_for_plugin   (MetaScreen       *screen,
+void     meta_end_modal_for_plugin   (MetaCompositor   *compositor,
                                       MetaPlugin       *plugin,
                                       guint32           timestamp);
 
-void meta_check_end_modal (MetaScreen *screen);
+gint64 meta_compositor_monotonic_time_to_server_time (MetaDisplay *display,
+                                                      gint64       monotonic_time);
 
 #endif /* META_COMPOSITOR_PRIVATE_H */

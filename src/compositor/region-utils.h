@@ -15,9 +15,7 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef __META_REGION_UTILS_H__
@@ -62,6 +60,32 @@ struct _MetaRegionIterator {
   int n_rectangles;
   cairo_rectangle_int_t next_rectangle;
 };
+
+typedef struct _MetaRegionBuilder MetaRegionBuilder;
+
+#define META_REGION_BUILDER_MAX_LEVELS 16
+struct _MetaRegionBuilder {
+  /* To merge regions in binary tree order, we need to keep track of
+   * the regions that we've already merged together at different
+   * levels of the tree. We fill in an array in the pattern:
+   *
+   * |a  |
+   * |b  |a  |
+   * |c  |   |ab |
+   * |d  |c  |ab |
+   * |e  |   |   |abcd|
+   */
+  cairo_region_t *levels[META_REGION_BUILDER_MAX_LEVELS];
+  int n_levels;
+};
+
+void     meta_region_builder_init       (MetaRegionBuilder *builder);
+void     meta_region_builder_add_rectangle (MetaRegionBuilder *builder,
+                                            int                x,
+                                            int                y,
+                                            int                width,
+                                            int                height);
+cairo_region_t * meta_region_builder_finish (MetaRegionBuilder *builder);
 
 void     meta_region_iterator_init      (MetaRegionIterator *iter,
                                          cairo_region_t     *region);

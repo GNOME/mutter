@@ -7,15 +7,15 @@
 #
 # Tõivo Leedjärv <toivo linux ee>, 2004.
 # Ivar Smolin <okul linux ee>, 2005, 2006, 2009–2011.
-# Mattias Põldaru <mahfiaz@gmail.com>, 2008–2011, 2012.
+# Mattias Põldaru <mahfiaz@gmail.com>, 2008–2011, 2012, 2013.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter MASTER\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=mutter&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2012-03-11 22:19+0000\n"
-"PO-Revision-Date: 2012-03-12 00:47+0200\n"
+"POT-Creation-Date: 2013-09-10 15:25+0000\n"
+"PO-Revision-Date: 2013-09-11 23:20+0300\n"
 "Last-Translator: Mattias Põldaru <mahfiaz@gmail.com>\n"
 "Language-Team: Estonian <>\n"
 "Language: et\n"
@@ -23,9 +23,142 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"X-Generator: Poedit 1.5.4\n"
+
+msgid "Navigation"
+msgstr "Navigeerimine"
+
+msgid "Move window to workspace 1"
+msgstr "Akna liigutamine 1. tööalale"
+
+msgid "Move window to workspace 2"
+msgstr "Akna liigutamine 2. tööalale"
+
+msgid "Move window to workspace 3"
+msgstr "Akna liigutamine 3. tööalale"
+
+msgid "Move window to workspace 4"
+msgstr "Akna liigutamine 4. tööalale"
+
+msgid "Move window one workspace to the left"
+msgstr "Akna tõstmine vasakpoolsele tööalale"
+
+msgid "Move window one workspace to the right"
+msgstr "Akna tõstmine parempoolsele tööalale"
+
+msgid "Move window one workspace up"
+msgstr "Akna tõstmine ülemisele tööalale"
+
+msgid "Move window one workspace down"
+msgstr "Akna tõstmine alumisele tööalale"
+
+msgid "Switch applications"
+msgstr "Rakenduste vahetamine"
+
+msgid "Switch windows"
+msgstr "Akende vahetamine"
+
+msgid "Switch windows of an application"
+msgstr "Rakenduse akende vahetamine"
+
+msgid "Switch system controls"
+msgstr "Süsteemi juhtalade vahetamine"
+
+msgid "Switch windows directly"
+msgstr "Akende kohene vahetamine"
+
+msgid "Switch windows of an app directly"
+msgstr "Rakenduse akende kohene vahetamine"
+
+msgid "Switch system controls directly"
+msgstr "Süsteemi juhtalade kohene vahetamine"
+
+msgid "Hide all normal windows"
+msgstr "Kõigi tavaliste akende peitmine"
+
+msgid "Switch to workspace 1"
+msgstr "1. tööalale liikumine"
+
+msgid "Switch to workspace 2"
+msgstr "2. tööalale liikumine"
+
+msgid "Switch to workspace 3"
+msgstr "3. tööalale liikumine"
+
+msgid "Switch to workspace 4"
+msgstr "4. tööalale liikumine"
+
+msgid "Move to workspace left"
+msgstr "Vasakpoolsele tööalale liikumine"
+
+msgid "Move to workspace right"
+msgstr "Parempoolsele tööalale liikumine"
+
+msgid "Move to workspace above"
+msgstr "Ülemisele tööalale liikumine"
+
+msgid "Move to workspace below"
+msgstr "Alumisele tööalale liikumine"
+
+msgid "System"
+msgstr "Süsteem"
+
+msgid "Show the run command prompt"
+msgstr "Käsuviiba kuvamine"
+
+msgid "Show the activities overview"
+msgstr "Tegevuste ülevaate avamine"
 
 msgid "Windows"
 msgstr "Aknad"
+
+msgid "Activate the window menu"
+msgstr "Aknamenüü avamine"
+
+msgid "Toggle fullscreen mode"
+msgstr "Täisekraanoleku vahetamine"
+
+msgid "Toggle maximization state"
+msgstr "Maksimeeritud oleku vahetamine"
+
+msgid "Maximize window"
+msgstr "Akna maksimeerimine"
+
+msgid "Restore window"
+msgstr "Akna taastamine"
+
+msgid "Toggle shaded state"
+msgstr "Varjatud oleku vahetamine"
+
+msgid "Close window"
+msgstr "Akna sulgemine"
+
+msgid "Hide window"
+msgstr "Peida aken"
+
+msgid "Move window"
+msgstr "Akna liigutamine"
+
+msgid "Resize window"
+msgstr "Akna suuruse muutmine"
+
+msgid "Toggle window on all workspaces or one"
+msgstr "Akna kõigil või ühel tööalal olemise vahetamine"
+
+msgid "Raise window if covered, otherwise lower it"
+msgstr "Akna tõstmine, kui see on kaetud, muul juhul langetamine"
+
+msgid "Raise window above other windows"
+msgstr "Akna tõstmine teiste kohale"
+
+msgid "Lower window below other windows"
+msgstr "Akna langetamine teiste taha"
+
+msgid "Maximize window vertically"
+msgstr "Akna vertikaalne maksimeerimine"
+
+msgid "Maximize window horizontally"
+msgstr "Akna horisontaalne maksimeerimine"
 
 msgid "View split on left"
 msgstr "Vaade poolitatakse vasakult"
@@ -41,6 +174,9 @@ msgid ""
 "\"."
 msgstr "Teine komposiithaldur juba töötab ekraani %i kuval \"%s\"."
 
+msgid "background texture could not be created from file"
+msgstr "failist polnud võimalik taustatekstuuri luua"
+
 msgid "Bell event"
 msgstr "Helina sündmus"
 
@@ -49,8 +185,8 @@ msgid "Unknown window information request: %d"
 msgstr "Tundmatu aknateabe päring: %d"
 
 #, c-format
-msgid "<tt>%s</tt> is not responding."
-msgstr "<tt>%s</tt> ei vasta."
+msgid "“%s” is not responding."
+msgstr "„%s” ei vasta."
 
 msgid "Application is not responding."
 msgstr "Rakendus ei vasta."
@@ -82,6 +218,10 @@ msgstr ""
 "Mõni teine programm juba kasutab klahvi %s koos muuteklahvidega %x "
 "kiirklahvina\n"
 
+#, c-format
+msgid "\"%s\" is not a valid accelerator\n"
+msgstr "\"%s\" pole sobiv kiirklahv\n"
+
 msgid "Disable connection to session manager"
 msgstr "Seansihalduriga ühendumise keelamine"
 
@@ -110,6 +250,17 @@ msgid ""
 msgstr ""
 "Teemat ei leitud! Veendu, et %s on olemas ja sisaldab harilikke teemasid.\n"
 
+msgid "Built-in display"
+msgstr "Sisseehitatud kuva"
+
+#. TRANSLATORS: this is a monitor name (in case we don't know
+#. the vendor), it's Unknown followed by a size in inches,
+#. like 'Unknown 15"'
+#.
+#, c-format
+msgid "Unknown %s"
+msgstr "Tundmatu %s"
+
 #, c-format
 msgid ""
 "mutter %s\n"
@@ -128,8 +279,8 @@ msgstr ""
 msgid "Print version"
 msgstr "Versiooni printimine"
 
-msgid "Comma-separated list of compositor plugins"
-msgstr "Komaga eraldatud nimekiri komposiitmontaaži pluginatest"
+msgid "Mutter plugin to use"
+msgstr "Millist Mutteri pluginat kasutada"
 
 msgid ""
 "Workarounds for broken applications disabled. Some applications may not "
@@ -242,7 +393,6 @@ msgstr "Tõrge logifaili %s avamisel funktsiooniga fdopen(): %s\n"
 msgid "Opened log file %s\n"
 msgstr "Avati logifail %s\n"
 
-#, c-format
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter kompileeriti ilma jutuka režiimi toeta\n"
 
@@ -353,16 +503,6 @@ msgstr ""
 "Kui märgitud, siis eraldi tiitliribade asemel on moodaalsed dialoogid "
 "emaakna tiitliribade küljes ning liiguvad koos emaaknaga."
 
-msgid "Live Hidden Windows"
-msgstr "Varjatud akende aktiivsus"
-
-msgid ""
-"Determines whether hidden windows (i.e., minimized windows and windows on "
-"other workspaces than the current one) should be kept alive."
-msgstr ""
-"Määrab, kas varjatud aknaid (nt minimeeritud ja teistel tööaladel aknad) "
-"hoitakse elus."
-
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Akna ümberpaigutamine selle lohistamisel ekraani serva"
 
@@ -406,6 +546,17 @@ msgstr ""
 "Kui märgitud, siis on hüpikaken ja esiletõstmise raam keelatud akende "
 "vahetamisel."
 
+msgid "Delay focus changes until the pointer stops moving"
+msgstr "Fookusemuutused lükatakse edasi kuni kursor peatub"
+
+msgid ""
+"If set to true, and the focus mode is either \"sloppy\" or \"mouse\" then "
+"the focus will not be changed immediately when entering a window, but only "
+"after the pointer stops moving."
+msgstr ""
+"Kui tõene ning fookusrežiim on kas \"sloppy\" või \"mouse\", siis fookust ei "
+"vahetata kohe, kui kursor aknale liigub, vaid alles pärast kursori peatumist."
+
 msgid "Draggable border width"
 msgstr "Lohistatava äärise laius."
 
@@ -416,48 +567,21 @@ msgstr ""
 "Lohistatava äärise laius. Kui kujunduse nähtavatest ääristest ei piisa, "
 "lisatakse puuduoleva osa jaoks nähtamatu ääris."
 
+msgid "Auto maximize nearly monitor sized windows"
+msgstr "Peaaegu monitori suurused ekraanid maksimeeritakse automaatselt"
+
+msgid ""
+"If enabled, new windows that are initially the size of the monitor "
+"automatically get maximized."
+msgstr ""
+"Kui lubatud, maksimeeritakse automaatselt aknad, mis on avanedes monitori "
+"suurused."
+
 msgid "Select window from tab popup"
 msgstr "Akna valimine tabulaatori hüpikaknalt"
 
 msgid "Cancel tab popup"
 msgstr "Tabulaatori hüpikakna katkestamine"
-
-#, c-format
-msgid "Usage: %s\n"
-msgstr "Kasutamine: %s\n"
-
-msgid "Close Window"
-msgstr "Sulge aken"
-
-msgid "Window Menu"
-msgstr "Aknamenüü"
-
-msgid "Minimize Window"
-msgstr "Akna minimeerimine"
-
-msgid "Maximize Window"
-msgstr "Akna maksimeerimine"
-
-msgid "Restore Window"
-msgstr "Akna taastamine"
-
-msgid "Roll Up Window"
-msgstr "Akna kokkukerimine"
-
-msgid "Unroll Window"
-msgstr "Akna lahtikerimine"
-
-msgid "Keep Window On Top"
-msgstr "Akna kõige pealmiseks määramine"
-
-msgid "Remove Window From Top"
-msgstr "Eemalda aken kõige pealmise kohalt"
-
-msgid "Always On Visible Workspace"
-msgstr "Alati nähtaval tööalal"
-
-msgid "Put Window On Only One Workspace"
-msgstr "Tõsta aken ainult ühele tööalale"
 
 #. Translators: Translate this string the same way as you do in libwnck!
 msgid "Mi_nimize"
@@ -1164,156 +1288,151 @@ msgstr "Selle teema jaoks on <%s> määratud kaks korda"
 msgid "Failed to find a valid file for theme %s\n"
 msgstr "Tõrge %s teema jaoks korrektse faili leidmisel\n"
 
-msgid "_Windows"
-msgstr "_Aknad"
+#~ msgid "Usage: %s\n"
+#~ msgstr "Kasutamine: %s\n"
 
-msgid "_Dialog"
-msgstr "_Dialoog"
+#~ msgid "_Windows"
+#~ msgstr "_Aknad"
 
-msgid "_Modal dialog"
-msgstr "_Modaaldialoog"
+#~ msgid "_Dialog"
+#~ msgstr "_Dialoog"
 
-msgid "_Utility"
-msgstr "_Utiliit"
+#~ msgid "_Modal dialog"
+#~ msgstr "_Modaaldialoog"
 
-msgid "_Splashscreen"
-msgstr "_Käivitusekraan"
+#~ msgid "_Utility"
+#~ msgstr "_Utiliit"
 
-msgid "_Top dock"
-msgstr "Ü_lemine dokk"
+#~ msgid "_Splashscreen"
+#~ msgstr "_Käivitusekraan"
 
-msgid "_Bottom dock"
-msgstr "_Alumine dokk"
+#~ msgid "_Top dock"
+#~ msgstr "Ü_lemine dokk"
 
-msgid "_Left dock"
-msgstr "_Vasak dokk"
+#~ msgid "_Bottom dock"
+#~ msgstr "_Alumine dokk"
 
-msgid "_Right dock"
-msgstr "_Parem dokk"
+#~ msgid "_Left dock"
+#~ msgstr "_Vasak dokk"
 
-msgid "_All docks"
-msgstr "_Kõik dokid"
+#~ msgid "_Right dock"
+#~ msgstr "_Parem dokk"
 
-msgid "Des_ktop"
-msgstr "_Töölaud"
+#~ msgid "_All docks"
+#~ msgstr "_Kõik dokid"
 
-msgid "Open another one of these windows"
-msgstr "Ava neist akendest järgmine"
+#~ msgid "Des_ktop"
+#~ msgstr "_Töölaud"
 
-msgid "This is a demo button with an 'open' icon"
-msgstr "See on näidisnupp koos 'ava' ikooniga"
+#~ msgid "Open another one of these windows"
+#~ msgstr "Ava neist akendest järgmine"
 
-msgid "This is a demo button with a 'quit' icon"
-msgstr "See on näidisnupp koos 'lõpeta' ikooniga"
+#~ msgid "This is a demo button with an 'open' icon"
+#~ msgstr "See on näidisnupp koos 'ava' ikooniga"
 
-msgid "This is a sample message in a sample dialog"
-msgstr "See on näidisteade näidisdialoogis"
+#~ msgid "This is a demo button with a 'quit' icon"
+#~ msgstr "See on näidisnupp koos 'lõpeta' ikooniga"
 
-#, c-format
-msgid "Fake menu item %d\n"
-msgstr "Võltsitud menüüpunkt %d\n"
+#~ msgid "This is a sample message in a sample dialog"
+#~ msgstr "See on näidisteade näidisdialoogis"
 
-msgid "Border-only window"
-msgstr "Ainult raamiga aken"
+#~ msgid "Fake menu item %d\n"
+#~ msgstr "Võltsitud menüüpunkt %d\n"
 
-msgid "Bar"
-msgstr "Riba"
+#~ msgid "Border-only window"
+#~ msgstr "Ainult raamiga aken"
 
-msgid "Normal Application Window"
-msgstr "Tavaline rakenduseaken"
+#~ msgid "Bar"
+#~ msgstr "Riba"
 
-msgid "Dialog Box"
-msgstr "Dialoogikast"
+#~ msgid "Normal Application Window"
+#~ msgstr "Tavaline rakenduseaken"
 
-msgid "Modal Dialog Box"
-msgstr "Modaalne dialoogikast"
+#~ msgid "Dialog Box"
+#~ msgstr "Dialoogikast"
 
-msgid "Utility Palette"
-msgstr "Rakendite palett"
+#~ msgid "Modal Dialog Box"
+#~ msgstr "Modaalne dialoogikast"
 
-msgid "Torn-off Menu"
-msgstr "Ärarebitav menüü"
+#~ msgid "Utility Palette"
+#~ msgstr "Rakendite palett"
 
-msgid "Border"
-msgstr "Raam"
+#~ msgid "Torn-off Menu"
+#~ msgstr "Ärarebitav menüü"
 
-msgid "Attached Modal Dialog"
-msgstr "Kinnistatud modaaldialoog"
+#~ msgid "Border"
+#~ msgstr "Raam"
 
-#, c-format
-msgid "Button layout test %d"
-msgstr "Nuppude paigutuse test %d"
+#~ msgid "Attached Modal Dialog"
+#~ msgstr "Kinnistatud modaaldialoog"
 
-#, c-format
-msgid "%g milliseconds to draw one window frame"
-msgstr "%g millisekundit kulub ühe akna raami joonistamiseks"
+#~ msgid "Button layout test %d"
+#~ msgstr "Nuppude paigutuse test %d"
 
-#, c-format
-msgid "Usage: metacity-theme-viewer [THEMENAME]\n"
-msgstr "Kasutamine: metacity-theme-viewer [TEEMANIMI]\n"
+#~ msgid "%g milliseconds to draw one window frame"
+#~ msgstr "%g millisekundit kulub ühe akna raami joonistamiseks"
 
-#, c-format
-msgid "Error loading theme: %s\n"
-msgstr "Viga teema laadimisel: %s\n"
+#~ msgid "Usage: metacity-theme-viewer [THEMENAME]\n"
+#~ msgstr "Kasutamine: metacity-theme-viewer [TEEMANIMI]\n"
 
-#, c-format
-msgid "Loaded theme \"%s\" in %g seconds\n"
-msgstr "Teema \"%s\" laaditi %g sekundiga\n"
+#~ msgid "Error loading theme: %s\n"
+#~ msgstr "Viga teema laadimisel: %s\n"
 
-msgid "Normal Title Font"
-msgstr "Tiitli tavasuurusega kirjatüüp"
+#~ msgid "Loaded theme \"%s\" in %g seconds\n"
+#~ msgstr "Teema \"%s\" laaditi %g sekundiga\n"
 
-msgid "Small Title Font"
-msgstr "Tiitli väike kirjatüüp"
+#~ msgid "Normal Title Font"
+#~ msgstr "Tiitli tavasuurusega kirjatüüp"
 
-msgid "Large Title Font"
-msgstr "Tiitli suur kirjatüüp"
+#~ msgid "Small Title Font"
+#~ msgstr "Tiitli väike kirjatüüp"
 
-msgid "Button Layouts"
-msgstr "Nuppude paigutus"
+#~ msgid "Large Title Font"
+#~ msgstr "Tiitli suur kirjatüüp"
 
-msgid "Benchmark"
-msgstr "Jõudlus"
+#~ msgid "Button Layouts"
+#~ msgstr "Nuppude paigutus"
 
-msgid "Window Title Goes Here"
-msgstr "Siia tuleb akna pealkiri"
+#~ msgid "Benchmark"
+#~ msgstr "Jõudlus"
 
-#, c-format
-msgid ""
-"Drew %d frames in %g client-side seconds (%g milliseconds per frame) and %g "
-"seconds wall clock time including X server resources (%g milliseconds per "
-"frame)\n"
-msgstr ""
-"Joonistati %d kaadrit %g kliendi-kella sekundiga (%g millisekundit kaadrile) "
-"ja %g sekundiga seinakella järgi, millesse on kaasatud X-serveri "
-"ressursikasutus (%g millisekundit kaadrile)\n"
+#~ msgid "Window Title Goes Here"
+#~ msgstr "Siia tuleb akna pealkiri"
 
-msgid "position expression test returned TRUE but set error"
-msgstr "asukoha avaldise kontroll tagastas TÕENE, aga määras vea"
+#~ msgid ""
+#~ "Drew %d frames in %g client-side seconds (%g milliseconds per frame) and "
+#~ "%g seconds wall clock time including X server resources (%g milliseconds "
+#~ "per frame)\n"
+#~ msgstr ""
+#~ "Joonistati %d kaadrit %g kliendi-kella sekundiga (%g millisekundit "
+#~ "kaadrile) ja %g sekundiga seinakella järgi, millesse on kaasatud X-"
+#~ "serveri ressursikasutus (%g millisekundit kaadrile)\n"
 
-msgid "position expression test returned FALSE but didn't set error"
-msgstr "asukoha avaldise kontroll tagastas VÄÄR, aga ei määranud viga"
+#~ msgid "position expression test returned TRUE but set error"
+#~ msgstr "asukoha avaldise kontroll tagastas TÕENE, aga määras vea"
 
-msgid "Error was expected but none given"
-msgstr "Oodati viga, aga ühtegi ei edastatud"
+#~ msgid "position expression test returned FALSE but didn't set error"
+#~ msgstr "asukoha avaldise kontroll tagastas VÄÄR, aga ei määranud viga"
 
-#, c-format
-msgid "Error %d was expected but %d given"
-msgstr "Oodati viga %d, aga edastati viga %d"
+#~ msgid "Error was expected but none given"
+#~ msgstr "Oodati viga, aga ühtegi ei edastatud"
 
-#, c-format
-msgid "Error not expected but one was returned: %s"
-msgstr "Viga ei oodatud, aga üks edastati: %s"
+#~ msgid "Error %d was expected but %d given"
+#~ msgstr "Oodati viga %d, aga edastati viga %d"
 
-#, c-format
-msgid "x value was %d, %d was expected"
-msgstr "x väärtus oli %d, oodati väärtust %d"
+#~ msgid "Error not expected but one was returned: %s"
+#~ msgstr "Viga ei oodatud, aga üks edastati: %s"
 
-#, c-format
-msgid "y value was %d, %d was expected"
-msgstr "y väärtus oli %d, oodati väärtust %d"
+#~ msgid "x value was %d, %d was expected"
+#~ msgstr "x väärtus oli %d, oodati väärtust %d"
 
-#, c-format
-msgid "%d coordinate expressions parsed in %g seconds (%g seconds average)\n"
-msgstr ""
-"%d koordinaatide avaldis töödeldi %g sekundiga (keskmine %g sekundit)\n"
+#~ msgid "y value was %d, %d was expected"
+#~ msgstr "y väärtus oli %d, oodati väärtust %d"
+
+#~ msgid ""
+#~ "%d coordinate expressions parsed in %g seconds (%g seconds average)\n"
+#~ msgstr ""
+#~ "%d koordinaatide avaldis töödeldi %g sekundiga (keskmine %g sekundit)\n"
+
+#~ msgid "Minimize window"
+#~ msgstr "Akna minimeerimine"

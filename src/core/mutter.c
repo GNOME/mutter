@@ -12,11 +12,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
@@ -25,6 +23,7 @@
 
 #include <meta/main.h>
 #include <meta/util.h>
+#include <glib/gi18n-lib.h>
 #include "meta-plugin-manager.h"
 
 #include <glib.h>
@@ -45,7 +44,7 @@ print_version (const gchar    *option_name,
   exit (0);
 }
 
-static gchar *mutter_plugins;
+static gchar *plugin = "default";
 
 GOptionEntry mutter_options[] = {
   {
@@ -55,10 +54,10 @@ GOptionEntry mutter_options[] = {
     NULL
   },
   {
-    "mutter-plugins", 0, 0, G_OPTION_ARG_STRING,
-    &mutter_plugins,
-    N_("Comma-separated list of compositor plugins"),
-    "PLUGINS"
+    "mutter-plugin", 0, 0, G_OPTION_ARG_STRING,
+    &plugin,
+    N_("Mutter plugin to use"),
+    "PLUGIN",
   },
   { NULL }
 };
@@ -76,22 +75,12 @@ main (int argc, char **argv)
       g_printerr ("mutter: %s\n", error->message);
       exit (1);
     }
+  g_option_context_free (ctx);
 
-  if (mutter_plugins)
-    {
-      MetaPluginManager *mgr;
-      char **plugins = g_strsplit (mutter_plugins, ",", -1); 
-      char **plugin;
-
-      mgr = meta_plugin_manager_get_default ();
-      for (plugin = plugins; *plugin; plugin++)
-        {
-          g_strstrip (*plugin);
-          meta_plugin_manager_load (mgr, *plugin);
-        }
-      g_strfreev (plugins);
-    }
+  if (plugin)
+    meta_plugin_manager_load (plugin);
 
   meta_init ();
+  meta_register_with_session ();
   return meta_run ();
 }

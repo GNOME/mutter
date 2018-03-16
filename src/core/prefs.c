@@ -1,8 +1,6 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-/* Mutter preferences */
-
-/* 
+/*
  * Copyright (C) 2001 Havoc Pennington, Copyright (C) 2002 Red Hat Inc.
  * Copyright (C) 2006 Elijah Newren
  * Copyright (C) 2008 Thomas Thurman
@@ -17,23 +15,27 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * SECTION:prefs
+ * @title: Preferences
+ * @short_description: Mutter preferences
  */
 
 #include <config.h>
 #include <meta/prefs.h>
-#include "ui.h"
-#include <meta/util.h>
+#include "util-private.h"
 #include "meta-plugin-manager.h"
 #include <glib.h>
 #include <gio/gio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "keybindings-private.h"
+#include "meta-accel-parse.h"
 
 /* If you add a key, it needs updating in init() and in the gsettings
  * notify listener and of course in the .schemas file.
@@ -50,18 +52,19 @@
 #define KEY_GNOME_ACCESSIBILITY "toolkit-accessibility"
 #define KEY_GNOME_ANIMATIONS "enable-animations"
 #define KEY_GNOME_CURSOR_THEME "cursor-theme"
-#define KEY_GNOME_CURSOR_SIZE "cursor-size"
+#define KEY_XKB_OPTIONS "xkb-options"
 
 #define KEY_OVERLAY_KEY "overlay-key"
-#define KEY_LIVE_HIDDEN_WINDOWS "live-hidden-windows"
 #define KEY_WORKSPACES_ONLY_ON_PRIMARY "workspaces-only-on-primary"
-#define KEY_NO_TAB_POPUP "no-tab-popup"
 
 /* These are the different schemas we are keeping
  * a GSettings instance for */
 #define SCHEMA_GENERAL         "org.gnome.desktop.wm.preferences"
 #define SCHEMA_MUTTER          "org.gnome.mutter"
 #define SCHEMA_INTERFACE       "org.gnome.desktop.interface"
+#define SCHEMA_INPUT_SOURCES   "org.gnome.desktop.input-sources"
+#define SCHEMA_XSETTINGS       "org.gnome.settings-daemon.plugins.xsettings"
+#define SCHEMA_MOUSE           "org.gnome.settings-daemon.peripherals.mouse"
 
 #define SETTINGS(s) g_hash_table_lookup (settings_schemas, (s))
 
@@ -73,9 +76,11 @@ static GHashTable *settings_schemas;
 static gboolean use_system_font = FALSE;
 static PangoFontDescription *titlebar_font = NULL;
 static MetaVirtualModifier mouse_button_mods = Mod1Mask;
+static MetaKeyCombo overlay_key_combo = { 0, 0, 0 };
 static GDesktopFocusMode focus_mode = G_DESKTOP_FOCUS_MODE_CLICK;
 static GDesktopFocusNewWindows focus_new_windows = G_DESKTOP_FOCUS_NEW_WINDOWS_SMART;
 static gboolean raise_on_click = TRUE;
+static gboolean center_new_windows = FALSE;
 static gboolean attach_modal_dialogs = FALSE;
 static char* current_theme = NULL;
 static int num_workspaces = 4;
@@ -83,10 +88,10 @@ static GDesktopTitlebarAction action_double_click_titlebar = G_DESKTOP_TITLEBAR_
 static GDesktopTitlebarAction action_middle_click_titlebar = G_DESKTOP_TITLEBAR_ACTION_LOWER;
 static GDesktopTitlebarAction action_right_click_titlebar = G_DESKTOP_TITLEBAR_ACTION_MENU;
 static gboolean dynamic_workspaces = FALSE;
-static gboolean application_based = FALSE;
 static gboolean disable_workarounds = FALSE;
 static gboolean auto_raise = FALSE;
 static gboolean auto_raise_delay = 500;
+static gboolean focus_change_on_pointer_rest = FALSE;
 static gboolean bell_is_visible = FALSE;
 static gboolean bell_is_audible = TRUE;
 static gboolean gnome_accessibility = FALSE;
@@ -94,9 +99,13 @@ static gboolean gnome_animations = TRUE;
 static char *cursor_theme = NULL;
 static int   cursor_size = 24;
 static int   draggable_border_width = 10;
+static int   drag_threshold;
 static gboolean resize_with_right_button = FALSE;
 static gboolean edge_tiling = FALSE;
 static gboolean force_fullscreen = TRUE;
+static gboolean ignore_request_hide_titlebar = FALSE;
+static gboolean auto_maximize = TRUE;
+static gboolean show_fallback_app_menu = FALSE;
 
 static GDesktopVisualBellType visual_bell_type = G_DESKTOP_VISUAL_BELL_FULLSCREEN_FLASH;
 static MetaButtonLayout button_layout;
@@ -104,11 +113,9 @@ static MetaButtonLayout button_layout;
 /* NULL-terminated array */
 static char **workspace_names = NULL;
 
-static gboolean live_hidden_windows = FALSE;
 static gboolean workspaces_only_on_primary = FALSE;
 
-static gboolean no_tab_popup = FALSE;
-
+static char *iso_next_group_option = NULL;
 
 static void handle_preference_update_enum (GSettings *settings,
                                            gchar     *key);
@@ -116,7 +123,6 @@ static gboolean update_binding         (MetaKeyPref *binding,
                                         gchar      **strokes);
 static gboolean update_key_binding     (const char  *key,
                                         gchar      **strokes);
-static gboolean update_workspace_names (void);
 
 static void settings_changed (GSettings      *settings,
                               gchar          *key,
@@ -124,6 +130,14 @@ static void settings_changed (GSettings      *settings,
 static void bindings_changed (GSettings      *settings,
                               gchar          *key,
                               gpointer        data);
+
+static void shell_shows_app_menu_changed (GtkSettings *settings,
+                                          GParamSpec  *pspec,
+                                          gpointer     data);
+
+static void update_cursor_size (GtkSettings *settings,
+                                GParamSpec *pspec,
+                                gpointer data);
 
 static void queue_changed (MetaPreference  pref);
 
@@ -133,11 +147,12 @@ static gboolean titlebar_handler (GVariant*, gpointer*, gpointer);
 static gboolean theme_name_handler (GVariant*, gpointer*, gpointer);
 static gboolean mouse_button_mods_handler (GVariant*, gpointer*, gpointer);
 static gboolean button_layout_handler (GVariant*, gpointer*, gpointer);
+static gboolean overlay_key_handler (GVariant*, gpointer*, gpointer);
+static gboolean iso_next_group_handler (GVariant*, gpointer*, gpointer);
 
 static void     do_override               (char *key, char *schema);
 
 static void     init_bindings             (void);
-static void     init_workspace_names      (void);
 
 
 typedef struct
@@ -165,37 +180,38 @@ typedef struct
   gboolean *target;
 } MetaBoolPreference;
 
+
+/**
+ * MetaStringPreference:
+ * @handler: (nullable): A handler. Many of the string preferences
+ * aren't stored as strings and need parsing; others of them have
+ * default values which can't be solved in the general case.  If you
+ * include a function pointer here, it will be called instead of writing
+ * the string value out to the target variable.
+ * The function will be passed to g_settings_get_mapped() and should
+ * return %TRUE if the mapping was successful and %FALSE otherwise.
+ * In the former case the function is expected to handle the result
+ * of the conversion itself and call queue_changed() appropriately;
+ * in particular the @result (out) parameter as returned by
+ * g_settings_get_mapped() will be ignored in all cases.
+ * This may be %NULL.  If it is, see "target", below.
+ * @target: (nullable): Where to write the incoming string.
+ * This must be %NULL if the handler is non-%NULL.
+ * If the incoming string is %NULL, no change will be made.
+ */
 typedef struct
 {
   MetaBasePreference base;
-
-  /**
-   * A handler.  Many of the string preferences aren't stored as
-   * strings and need parsing; others of them have default values
-   * which can't be solved in the general case.  If you include a
-   * function pointer here, it will be called instead of writing
-   * the string value out to the target variable.
-   *
-   * The function will be passed to g_settings_get_mapped() and should
-   * return %TRUE if the mapping was successful and %FALSE otherwise.
-   * In the former case the function is expected to handle the result
-   * of the conversion itself and call queue_changed() appropriately;
-   * in particular the @result (out) parameter as returned by
-   * g_settings_get_mapped() will be ignored in all cases.
-   *
-   * This may be NULL.  If it is, see "target", below.
-   */
   GSettingsGetMapping handler;
-
-  /**
-   * Where to write the incoming string.
-   *
-   * This must be NULL if the handler is non-NULL.
-   * If the incoming string is NULL, no change will be made.
-   */
   gchar **target;
-
 } MetaStringPreference;
+
+typedef struct
+{
+  MetaBasePreference base;
+  GSettingsGetMapping handler;
+  gchar ***target;
+} MetaStringArrayPreference;
 
 typedef struct
 {
@@ -268,6 +284,13 @@ static MetaBoolPreference preferences_bool[] =
       &attach_modal_dialogs,
     },
     {
+      { "center-new-windows",
+        SCHEMA_MUTTER,
+        META_PREF_CENTER_NEW_WINDOWS,
+      },
+      &center_new_windows,
+    },
+    {
       { "raise-on-click",
         SCHEMA_GENERAL,
         META_PREF_RAISE_ON_CLICK,
@@ -289,13 +312,6 @@ static MetaBoolPreference preferences_bool[] =
       &dynamic_workspaces,
     },
     {
-      { "application-based",
-        SCHEMA_GENERAL,
-        META_PREF_APPLICATION_BASED,
-      },
-      NULL, /* feature is known but disabled */
-    },
-    {
       { "disable-workarounds",
         SCHEMA_GENERAL,
         META_PREF_DISABLE_WORKAROUNDS,
@@ -308,6 +324,13 @@ static MetaBoolPreference preferences_bool[] =
         META_PREF_AUTO_RAISE,
       },
       &auto_raise,
+    },
+    {
+      { "focus-change-on-pointer-rest",
+        SCHEMA_MUTTER,
+        META_PREF_FOCUS_CHANGE_ON_POINTER_REST,
+      },
+      &focus_change_on_pointer_rest
     },
     {
       { "visual-bell",
@@ -352,13 +375,6 @@ static MetaBoolPreference preferences_bool[] =
       &edge_tiling,
     },
     {
-      { KEY_LIVE_HIDDEN_WINDOWS,
-        SCHEMA_MUTTER,
-        META_PREF_LIVE_HIDDEN_WINDOWS,
-      },
-      &live_hidden_windows,
-    },
-    {
       { "workspaces-only-on-primary",
         SCHEMA_MUTTER,
         META_PREF_WORKSPACES_ONLY_ON_PRIMARY,
@@ -366,11 +382,11 @@ static MetaBoolPreference preferences_bool[] =
       &workspaces_only_on_primary,
     },
     {
-      { KEY_NO_TAB_POPUP,
+      { "auto-maximize",
         SCHEMA_MUTTER,
-        META_PREF_NO_TAB_POPUP,
+        META_PREF_AUTO_MAXIMIZE,
       },
-      &no_tab_popup,
+      &auto_maximize,
     },
     { { NULL, 0, 0 }, NULL },
   };
@@ -417,6 +433,35 @@ static MetaStringPreference preferences_string[] =
       NULL,
       &cursor_theme,
     },
+    {
+      { "overlay-key",
+        SCHEMA_MUTTER,
+        META_PREF_KEYBINDINGS,
+      },
+      overlay_key_handler,
+      NULL,
+    },
+    { { NULL, 0, 0 }, NULL },
+  };
+
+static MetaStringArrayPreference preferences_string_array[] =
+  {
+    {
+      { KEY_WORKSPACE_NAMES,
+        SCHEMA_GENERAL,
+        META_PREF_KEYBINDINGS,
+      },
+      NULL,
+      &workspace_names,
+    },
+    {
+      { KEY_XKB_OPTIONS,
+        SCHEMA_INPUT_SOURCES,
+        META_PREF_KEYBINDINGS,
+      },
+      iso_next_group_handler,
+      NULL,
+    },
     { { NULL, 0, 0 }, NULL },
   };
 
@@ -437,18 +482,18 @@ static MetaIntPreference preferences_int[] =
       &auto_raise_delay
     },
     {
-      { "cursor-size",
-        SCHEMA_INTERFACE,
-        META_PREF_CURSOR_SIZE,
-      },
-      &cursor_size
-    },
-    {
       { "draggable-border-width",
         SCHEMA_MUTTER,
         META_PREF_DRAGGABLE_BORDER_WIDTH,
       },
       &draggable_border_width
+    },
+    {
+      { "drag-threshold",
+        SCHEMA_MOUSE,
+        META_PREF_DRAG_THRESHOLD,
+      },
+      &drag_threshold
     },
     { { NULL, 0, 0 }, NULL },
   };
@@ -540,11 +585,47 @@ handle_preference_init_string (void)
 }
 
 static void
+handle_preference_init_string_array (void)
+{
+  MetaStringArrayPreference *cursor = preferences_string_array;
+
+  while (cursor->base.key != NULL)
+    {
+      char **value;
+
+      /* Complex keys have a mapping function to check validity */
+      if (cursor->handler)
+        {
+          if (cursor->target)
+            meta_bug ("%s has both a target and a handler\n", cursor->base.key);
+
+          g_settings_get_mapped (SETTINGS (cursor->base.schema),
+                                 cursor->base.key, cursor->handler, NULL);
+        }
+      else
+        {
+          if (!cursor->target)
+            meta_bug ("%s must have handler or target\n", cursor->base.key);
+
+          if (*(cursor->target))
+            g_strfreev (*(cursor->target));
+
+          value = g_settings_get_strv (SETTINGS (cursor->base.schema),
+                                       cursor->base.key);
+
+          *(cursor->target) = value;
+        }
+
+      ++cursor;
+    }
+}
+
+static void
 handle_preference_init_int (void)
 {
   MetaIntPreference *cursor = preferences_int;
 
-  
+
   while (cursor->base.key != NULL)
     {
       if (cursor->target)
@@ -600,7 +681,7 @@ handle_preference_update_bool (GSettings *settings,
    * store the current value away.
    */
   old_value = *((gboolean *) cursor->target);
-  
+
   /* Now look it up... */
   *((gboolean *) cursor->target) =
     g_settings_get_boolean (SETTINGS (cursor->base.schema), key);
@@ -658,6 +739,56 @@ handle_preference_update_string (GSettings *settings,
 }
 
 static void
+handle_preference_update_string_array (GSettings *settings,
+                                       gchar *key)
+{
+  MetaStringArrayPreference *cursor = preferences_string_array;
+  gboolean inform_listeners = FALSE;
+
+  while (cursor->base.key != NULL && strcmp (key, cursor->base.key) != 0)
+    ++cursor;
+
+  if (cursor->base.key==NULL)
+    /* Didn't recognise that key. */
+    return;
+
+  /* Complex keys have a mapping function to check validity */
+  if (cursor->handler)
+    {
+      if (cursor->target)
+        meta_bug ("%s has both a target and a handler\n", cursor->base.key);
+
+      g_settings_get_mapped (SETTINGS (cursor->base.schema),
+                             cursor->base.key, cursor->handler, NULL);
+    }
+  else
+    {
+      char **values, **previous;
+      int n_values, n_previous, i;
+
+      if (!cursor->target)
+        meta_bug ("%s must have handler or target\n", cursor->base.key);
+
+      values = g_settings_get_strv (SETTINGS (cursor->base.schema),
+                                    cursor->base.key);
+      n_values = g_strv_length (values);
+      previous = *(cursor->target);
+      n_previous = previous ? g_strv_length (previous) : 0;
+
+      inform_listeners = n_previous != n_values;
+      for (i = 0; i < n_values && !inform_listeners; i++)
+        inform_listeners = g_strcmp0 (values[i], previous[i]) != 0;
+
+      if (*(cursor->target))
+        g_strfreev (*(cursor->target));
+      *(cursor->target) = values;
+    }
+
+  if (inform_listeners)
+    queue_changed (cursor->base.pref);
+}
+
+static void
 handle_preference_update_int (GSettings *settings,
                               gchar *key)
 {
@@ -681,35 +812,39 @@ handle_preference_update_int (GSettings *settings,
     }
 }
 
-
+
 /****************************************************************************/
 /* Listeners.                                                               */
 /****************************************************************************/
 
 /**
  * meta_prefs_add_listener: (skip)
+ * @func: a #MetaPrefsChangedFunc
+ * @user_data: data passed to the function
  *
  */
 void
 meta_prefs_add_listener (MetaPrefsChangedFunc func,
-                         gpointer             data)
+                         gpointer             user_data)
 {
   MetaPrefsListener *l;
 
   l = g_new (MetaPrefsListener, 1);
   l->func = func;
-  l->data = data;
+  l->data = user_data;
 
   listeners = g_list_prepend (listeners, l);
 }
 
 /**
  * meta_prefs_remove_listener: (skip)
+ * @func: a #MetaPrefsChangedFunc
+ * @user_data: data passed to the function
  *
  */
 void
 meta_prefs_remove_listener (MetaPrefsChangedFunc func,
-                            gpointer             data)
+                            gpointer             user_data)
 {
   GList *tmp;
 
@@ -719,14 +854,14 @@ meta_prefs_remove_listener (MetaPrefsChangedFunc func,
       MetaPrefsListener *l = tmp->data;
 
       if (l->func == func &&
-          l->data == data)
+          l->data == user_data)
         {
           g_free (l);
           listeners = g_list_delete_link (listeners, tmp);
 
           return;
         }
-      
+
       tmp = tmp->next;
     }
 
@@ -741,9 +876,9 @@ emit_changed (MetaPreference pref)
 
   meta_topic (META_DEBUG_PREFS, "Notifying listeners that pref %s changed\n",
               meta_preference_to_string (pref));
-  
+
   copy = g_list_copy (listeners);
-  
+
   tmp = copy;
 
   while (tmp != NULL)
@@ -765,24 +900,24 @@ changed_idle_handler (gpointer data)
   GList *copy;
 
   changed_idle = 0;
-  
+
   copy = g_list_copy (changes); /* reentrancy paranoia */
 
   g_list_free (changes);
   changes = NULL;
-  
+
   tmp = copy;
   while (tmp != NULL)
     {
       MetaPreference pref = GPOINTER_TO_INT (tmp->data);
 
       emit_changed (pref);
-      
+
       tmp = tmp->next;
     }
 
   g_list_free (copy);
-  
+
   return FALSE;
 }
 
@@ -790,7 +925,7 @@ static void
 queue_changed (MetaPreference pref)
 {
   meta_topic (META_DEBUG_PREFS, "Queueing change of pref %s\n",
-              meta_preference_to_string (pref));  
+              meta_preference_to_string (pref));
 
   if (g_list_find (changes, GINT_TO_POINTER (pref)) == NULL)
     changes = g_list_prepend (changes, GINT_TO_POINTER (pref));
@@ -799,11 +934,14 @@ queue_changed (MetaPreference pref)
                 meta_preference_to_string (pref));
 
   if (changed_idle == 0)
-    changed_idle = g_idle_add_full (META_PRIORITY_PREFS_NOTIFY,
-                                    changed_idle_handler, NULL, NULL);
+    {
+      changed_idle = g_idle_add_full (META_PRIORITY_PREFS_NOTIFY,
+                                      changed_idle_handler, NULL, NULL);
+      g_source_set_name_by_id (changed_idle, "[mutter] changed_idle_handler");
+    }
 }
 
-
+
 /****************************************************************************/
 /* Initialisation.                                                          */
 /****************************************************************************/
@@ -825,6 +963,10 @@ meta_prefs_init (void)
   g_signal_connect (settings, "changed", G_CALLBACK (settings_changed), NULL);
   g_hash_table_insert (settings_schemas, g_strdup (SCHEMA_MUTTER), settings);
 
+  settings = g_settings_new (SCHEMA_MOUSE);
+  g_signal_connect (settings, "changed", G_CALLBACK (settings_changed), NULL);
+  g_hash_table_insert (settings_schemas, g_strdup (SCHEMA_MOUSE), settings);
+
   /* Individual keys we watch outside of our schemas */
   settings = g_settings_new (SCHEMA_INTERFACE);
   g_signal_connect (settings, "changed::" KEY_GNOME_ACCESSIBILITY,
@@ -833,9 +975,19 @@ meta_prefs_init (void)
                     G_CALLBACK (settings_changed), NULL);
   g_signal_connect (settings, "changed::" KEY_GNOME_CURSOR_THEME,
                     G_CALLBACK (settings_changed), NULL);
-  g_signal_connect (settings, "changed::" KEY_GNOME_CURSOR_SIZE,
-                    G_CALLBACK (settings_changed), NULL);
   g_hash_table_insert (settings_schemas, g_strdup (SCHEMA_INTERFACE), settings);
+
+  g_signal_connect (gtk_settings_get_default (),
+                    "notify::gtk-shell-shows-app-menu",
+                    G_CALLBACK (shell_shows_app_menu_changed), NULL);
+
+  g_signal_connect (gtk_settings_get_default (), "notify::gtk-cursor-theme-size",
+                    G_CALLBACK (update_cursor_size), NULL);
+
+  settings = g_settings_new (SCHEMA_INPUT_SOURCES);
+  g_signal_connect (settings, "changed::" KEY_XKB_OPTIONS,
+                    G_CALLBACK (settings_changed), NULL);
+  g_hash_table_insert (settings_schemas, g_strdup (SCHEMA_INPUT_SOURCES), settings);
 
 
   for (tmp = overridden_keys; tmp; tmp = tmp->next)
@@ -849,10 +1001,13 @@ meta_prefs_init (void)
   handle_preference_init_enum ();
   handle_preference_init_bool ();
   handle_preference_init_string ();
+  handle_preference_init_string_array ();
   handle_preference_init_int ();
 
+  update_cursor_size (gtk_settings_get_default (), NULL, NULL);
+  shell_shows_app_menu_changed (gtk_settings_get_default (), NULL, NULL);
+
   init_bindings ();
-  init_workspace_names ();
 }
 
 static gboolean
@@ -931,9 +1086,9 @@ do_override (char *key,
 
 
 /**
- * meta_prefs_override_preference_schema
+ * meta_prefs_override_preference_schema:
  * @key: the preference name
- * @schema: new schema for preference %key
+ * @schema: new schema for preference @key
  *
  * Specify a schema whose keys are used to override the standard Metacity
  * keys. This might be used if a plugin expected a different value for
@@ -984,7 +1139,7 @@ meta_prefs_override_preference_schema (const char *key, const char *schema)
     do_override (overridden->key, overridden->new_schema);
 }
 
-
+
 /****************************************************************************/
 /* Updates.                                                                 */
 /****************************************************************************/
@@ -1000,14 +1155,6 @@ settings_changed (GSettings *settings,
   MetaEnumPreference *cursor;
   gboolean found_enum;
 
-  /* String array, handled separately */
-  if (strcmp (key, KEY_WORKSPACE_NAMES) == 0)
-    {
-      if (update_workspace_names ());
-        queue_changed (META_PREF_WORKSPACE_NAMES);
-      return;
-    }
-
   value = g_settings_get_value (settings, key);
   type = g_variant_get_type (value);
 
@@ -1015,6 +1162,8 @@ settings_changed (GSettings *settings,
     handle_preference_update_bool (settings, key);
   else if (g_variant_type_equal (type, G_VARIANT_TYPE_INT32))
     handle_preference_update_int (settings, key);
+  else if (g_variant_type_equal (type, G_VARIANT_TYPE_STRING_ARRAY))
+    handle_preference_update_string_array (settings, key);
   else if (g_variant_type_equal (type, G_VARIANT_TYPE_STRING))
     {
       cursor = preferences_enum;
@@ -1034,14 +1183,10 @@ settings_changed (GSettings *settings,
       else
         handle_preference_update_string (settings, key);
     }
-  else if (g_str_equal (key, KEY_OVERLAY_KEY))
-    {
-      queue_changed (META_PREF_KEYBINDINGS);
-    }
   else
     {
-      /* Someone added a preference of an unhandled type */
-      g_assert_not_reached ();
+      /* Unknown preference type. This quite likely simply isn't
+       * a preference we track changes to. */
     }
 
   g_variant_unref (value);
@@ -1061,7 +1206,52 @@ bindings_changed (GSettings *settings,
   g_strfreev (strokes);
 }
 
+static void
+shell_shows_app_menu_changed (GtkSettings *settings,
+                              GParamSpec *pspec,
+                              gpointer data)
+{
+  int shell_shows_app_menu = 1;
+  gboolean changed = FALSE;
+
+  g_object_get (settings,
+                "gtk-shell-shows-app-menu", &shell_shows_app_menu,
+                NULL);
+
+
+  changed = (show_fallback_app_menu == !!shell_shows_app_menu);
+
+  show_fallback_app_menu = !shell_shows_app_menu;
+
+  if (changed)
+    queue_changed (META_PREF_BUTTON_LAYOUT);
+}
+
+static void
+update_cursor_size (GtkSettings *settings,
+                    GParamSpec *pspec,
+                    gpointer data)
+{
+  GdkScreen *screen = gdk_screen_get_default ();
+  GValue value = G_VALUE_INIT;
+  int xsettings_cursor_size = 24;
+
+  g_value_init (&value, G_TYPE_INT);
+  if (gdk_screen_get_setting (screen, "gtk-cursor-theme-size", &value))
+    {
+      xsettings_cursor_size = g_value_get_int (&value);
+    }
+
+  if (xsettings_cursor_size != cursor_size)
+    {
+      cursor_size = xsettings_cursor_size;
+      queue_changed (META_PREF_CURSOR_SIZE);
+    }
+}
+
 /**
+ * maybe_give_disable_workaround_warning:
+ *
  * Special case: give a warning the first time disable_workarounds
  * is turned on.
  */
@@ -1069,13 +1259,13 @@ static void
 maybe_give_disable_workarounds_warning (void)
 {
   static gboolean first_disable = TRUE;
-    
+
   if (first_disable && disable_workarounds)
     {
       first_disable = FALSE;
 
-      meta_warning (_("Workarounds for broken applications disabled. "
-                      "Some applications may not behave properly.\n"));
+      meta_warning ("Workarounds for broken applications disabled. "
+                    "Some applications may not behave properly.\n");
     }
 }
 
@@ -1098,6 +1288,12 @@ meta_prefs_get_focus_new_windows (void)
 }
 
 gboolean
+meta_prefs_get_center_new_windows (void)
+{
+  return center_new_windows;
+}
+
+gboolean
 meta_prefs_get_attach_modal_dialogs (void)
 {
   return attach_modal_dialogs;
@@ -1110,6 +1306,12 @@ meta_prefs_get_raise_on_click (void)
    * in #326156.
    */
   return raise_on_click || focus_mode == G_DESKTOP_FOCUS_MODE_CLICK;
+}
+
+gboolean
+meta_prefs_get_show_fallback_app_menu (void)
+{
+  return show_fallback_app_menu;
 }
 
 const char*
@@ -1130,7 +1332,7 @@ meta_prefs_get_cursor_size (void)
   return cursor_size;
 }
 
-
+
 /****************************************************************************/
 /* Handlers for string preferences.                                         */
 /****************************************************************************/
@@ -1149,8 +1351,8 @@ titlebar_handler (GVariant *value,
 
   if (desc == NULL)
     {
-      meta_warning (_("Could not parse font description "
-                      "\"%s\" from GSettings key %s\n"),
+      meta_warning ("Could not parse font description "
+                    "\"%s\" from GSettings key %s\n",
                     string_value ? string_value : "(null)",
                     KEY_TITLEBAR_FONT);
       return FALSE;
@@ -1210,13 +1412,13 @@ mouse_button_mods_handler (GVariant *value,
   *result = NULL; /* ignored */
   string_value = g_variant_get_string (value, NULL);
 
-  if (!string_value || !meta_ui_parse_modifier (string_value, &mods))
+  if (!string_value || !meta_parse_modifier (string_value, &mods))
     {
       meta_topic (META_DEBUG_KEYBINDINGS,
                   "Failed to parse new GSettings value\n");
-          
-      meta_warning (_("\"%s\" found in configuration database is "
-                      "not a valid value for mouse button modifier\n"),
+
+      meta_warning ("\"%s\" found in configuration database is "
+                    "not a valid value for mouse button modifier\n",
                     string_value);
 
       return FALSE;
@@ -1238,7 +1440,7 @@ mouse_button_mods_handler (GVariant *value,
 static gboolean
 button_layout_equal (const MetaButtonLayout *a,
                      const MetaButtonLayout *b)
-{  
+{
   int i;
 
   i = 0;
@@ -1267,6 +1469,8 @@ button_function_from_string (const char *str)
 {
   if (strcmp (str, "menu") == 0)
     return META_BUTTON_FUNCTION_MENU;
+  else if (strcmp (str, "appmenu") == 0)
+    return META_BUTTON_FUNCTION_APPMENU;
   else if (strcmp (str, "minimize") == 0)
     return META_BUTTON_FUNCTION_MINIMIZE;
   else if (strcmp (str, "maximize") == 0)
@@ -1279,7 +1483,7 @@ button_function_from_string (const char *str)
     return META_BUTTON_FUNCTION_ABOVE;
   else if (strcmp (str, "stick") == 0)
     return META_BUTTON_FUNCTION_STICK;
-  else 
+  else
     /* don't know; give up */
     return META_BUTTON_FUNCTION_LAST;
 }
@@ -1385,8 +1589,11 @@ button_layout_handler (GVariant *value,
       g_strfreev (buttons);
     }
 
-  new_layout.left_buttons[i] = META_BUTTON_FUNCTION_LAST;
-  new_layout.left_buttons_has_spacer[i] = FALSE;
+  for (; i < MAX_BUTTONS_PER_CORNER; i++)
+    {
+      new_layout.left_buttons[i] = META_BUTTON_FUNCTION_LAST;
+      new_layout.left_buttons_has_spacer[i] = FALSE;
+    }
 
   i = 0;
   if (sides != NULL && sides[0] != NULL && sides[1] != NULL)
@@ -1401,7 +1608,7 @@ button_layout_handler (GVariant *value,
           new_layout.right_buttons_has_spacer[i] = FALSE;
           ++i;
         }
-      
+
       buttons = g_strsplit (sides[1], ",", -1);
       i = 0;
       b = 0;
@@ -1437,56 +1644,131 @@ button_layout_handler (GVariant *value,
                               buttons[b]);
                 }
             }
-          
+
           ++b;
         }
 
       g_strfreev (buttons);
     }
 
-  new_layout.right_buttons[i] = META_BUTTON_FUNCTION_LAST;
-  new_layout.right_buttons_has_spacer[i] = FALSE;
+  for (; i < MAX_BUTTONS_PER_CORNER; i++)
+    {
+      new_layout.right_buttons[i] = META_BUTTON_FUNCTION_LAST;
+      new_layout.right_buttons_has_spacer[i] = FALSE;
+    }
 
   g_strfreev (sides);
-  
-  /* Invert the button layout for RTL languages */
-  if (meta_ui_get_direction() == META_UI_DIRECTION_RTL)
-  {
-    MetaButtonLayout rtl_layout;
-    int j;
-    
-    for (i = 0; new_layout.left_buttons[i] != META_BUTTON_FUNCTION_LAST; i++);
-    for (j = 0; j < i; j++)
-      {
-        rtl_layout.right_buttons[j] = new_layout.left_buttons[i - j - 1];
-        if (j == 0)
-          rtl_layout.right_buttons_has_spacer[i - 1] = new_layout.left_buttons_has_spacer[i - j - 1];
-        else
-          rtl_layout.right_buttons_has_spacer[j - 1] = new_layout.left_buttons_has_spacer[i - j - 1];
-      }
-    rtl_layout.right_buttons[j] = META_BUTTON_FUNCTION_LAST;
-    rtl_layout.right_buttons_has_spacer[j] = FALSE;
-      
-    for (i = 0; new_layout.right_buttons[i] != META_BUTTON_FUNCTION_LAST; i++);
-    for (j = 0; j < i; j++)
-      {
-        rtl_layout.left_buttons[j] = new_layout.right_buttons[i - j - 1];
-        if (j == 0)
-          rtl_layout.left_buttons_has_spacer[i - 1] = new_layout.right_buttons_has_spacer[i - j - 1];
-        else
-          rtl_layout.left_buttons_has_spacer[j - 1] = new_layout.right_buttons_has_spacer[i - j - 1];
-      }
-    rtl_layout.left_buttons[j] = META_BUTTON_FUNCTION_LAST;
-    rtl_layout.left_buttons_has_spacer[j] = FALSE;
 
-    new_layout = rtl_layout;
-  }
+  /* Invert the button layout for RTL languages */
+  if (meta_get_locale_direction() == META_LOCALE_DIRECTION_RTL)
+    {
+      MetaButtonLayout rtl_layout;
+      int j;
+
+      for (i = 0; new_layout.left_buttons[i] != META_BUTTON_FUNCTION_LAST; i++);
+      for (j = 0; j < i; j++)
+        {
+          rtl_layout.right_buttons[j] = new_layout.left_buttons[i - j - 1];
+          if (j == 0)
+            rtl_layout.right_buttons_has_spacer[i - 1] = new_layout.left_buttons_has_spacer[i - j - 1];
+          else
+            rtl_layout.right_buttons_has_spacer[j - 1] = new_layout.left_buttons_has_spacer[i - j - 1];
+        }
+      for (; j < MAX_BUTTONS_PER_CORNER; j++)
+        {
+          rtl_layout.right_buttons[j] = META_BUTTON_FUNCTION_LAST;
+          rtl_layout.right_buttons_has_spacer[j] = FALSE;
+        }
+
+      for (i = 0; new_layout.right_buttons[i] != META_BUTTON_FUNCTION_LAST; i++);
+      for (j = 0; j < i; j++)
+        {
+          rtl_layout.left_buttons[j] = new_layout.right_buttons[i - j - 1];
+          if (j == 0)
+            rtl_layout.left_buttons_has_spacer[i - 1] = new_layout.right_buttons_has_spacer[i - j - 1];
+          else
+            rtl_layout.left_buttons_has_spacer[j - 1] = new_layout.right_buttons_has_spacer[i - j - 1];
+        }
+      for (; j < MAX_BUTTONS_PER_CORNER; j++)
+        {
+          rtl_layout.left_buttons[j] = META_BUTTON_FUNCTION_LAST;
+          rtl_layout.left_buttons_has_spacer[j] = FALSE;
+        }
+
+      new_layout = rtl_layout;
+    }
 
   if (!button_layout_equal (&button_layout, &new_layout))
     {
       button_layout = new_layout;
       emit_changed (META_PREF_BUTTON_LAYOUT);
     }
+
+  return TRUE;
+}
+
+static gboolean
+overlay_key_handler (GVariant *value,
+                     gpointer *result,
+                     gpointer  data)
+{
+  MetaKeyCombo combo;
+  const gchar *string_value;
+
+  *result = NULL; /* ignored */
+  string_value = g_variant_get_string (value, NULL);
+
+  if (string_value && meta_parse_accelerator (string_value, &combo.keysym,
+                                              &combo.keycode,
+                                              &combo.modifiers))
+    ;
+  else
+    {
+      meta_topic (META_DEBUG_KEYBINDINGS,
+                  "Failed to parse value for overlay-key\n");
+      return FALSE;
+    }
+
+  if (overlay_key_combo.keysym != combo.keysym ||
+      overlay_key_combo.keycode != combo.keycode ||
+      overlay_key_combo.modifiers != combo.modifiers)
+    {
+      overlay_key_combo = combo;
+      queue_changed (META_PREF_KEYBINDINGS);
+    }
+
+  return TRUE;
+}
+
+static gboolean
+iso_next_group_handler (GVariant *value,
+                        gpointer *result,
+                        gpointer  data)
+{
+  const char **xkb_options, **p;
+  const char *option = NULL;
+  gboolean changed = FALSE;
+
+  *result = NULL; /* ignored */
+  xkb_options = g_variant_get_strv (value, NULL);
+
+  for (p = xkb_options; p && *p; ++p)
+    if (g_str_has_prefix (*p, "grp:"))
+      {
+        option = (*p + 4);
+        break;
+      }
+
+  changed = (g_strcmp0 (option, iso_next_group_option) != 0);
+
+  if (changed)
+    {
+      g_free (iso_next_group_option);
+      iso_next_group_option = g_strdup (option);
+      queue_changed (META_PREF_KEYBINDINGS);
+    }
+
+  g_free (xkb_options);
 
   return TRUE;
 }
@@ -1513,14 +1795,6 @@ meta_prefs_get_dynamic_workspaces (void)
 }
 
 gboolean
-meta_prefs_get_application_based (void)
-{
-  return FALSE; /* For now, we never want this to do anything */
-  
-  return application_based;
-}
-
-gboolean
 meta_prefs_get_disable_workarounds (void)
 {
   return disable_workarounds;
@@ -1542,12 +1816,15 @@ meta_preference_to_string (MetaPreference pref)
     case META_PREF_FOCUS_NEW_WINDOWS:
       return "FOCUS_NEW_WINDOWS";
 
+    case META_PREF_CENTER_NEW_WINDOWS:
+      return "CENTER_NEW_WINDOWS";
+
     case META_PREF_ATTACH_MODAL_DIALOGS:
       return "ATTACH_MODAL_DIALOGS";
 
     case META_PREF_RAISE_ON_CLICK:
       return "RAISE_ON_CLICK";
-      
+
     case META_PREF_THEME:
       return "THEME";
 
@@ -1556,9 +1833,6 @@ meta_preference_to_string (MetaPreference pref)
 
     case META_PREF_NUM_WORKSPACES:
       return "NUM_WORKSPACES";
-
-    case META_PREF_APPLICATION_BASED:
-      return "APPLICATION_BASED";
 
     case META_PREF_KEYBINDINGS:
       return "KEYBINDINGS";
@@ -1577,9 +1851,12 @@ meta_preference_to_string (MetaPreference pref)
 
     case META_PREF_AUTO_RAISE:
       return "AUTO_RAISE";
-      
+
     case META_PREF_AUTO_RAISE_DELAY:
       return "AUTO_RAISE_DELAY";
+
+    case META_PREF_FOCUS_CHANGE_ON_POINTER_REST:
+      return "FOCUS_CHANGE_ON_POINTER_REST";
 
     case META_PREF_BUTTON_LAYOUT:
       return "BUTTON_LAYOUT";
@@ -1617,20 +1894,20 @@ meta_preference_to_string (MetaPreference pref)
     case META_PREF_FORCE_FULLSCREEN:
       return "FORCE_FULLSCREEN";
 
-    case META_PREF_LIVE_HIDDEN_WINDOWS:
-      return "LIVE_HIDDEN_WINDOWS";
-
     case META_PREF_WORKSPACES_ONLY_ON_PRIMARY:
       return "WORKSPACES_ONLY_ON_PRIMARY";
-
-    case META_PREF_NO_TAB_POPUP:
-      return "NO_TAB_POPUP";
 
     case META_PREF_DRAGGABLE_BORDER_WIDTH:
       return "DRAGGABLE_BORDER_WIDTH";
 
+    case META_PREF_DRAG_THRESHOLD:
+      return "DRAG_TRHESHOLD";
+
     case META_PREF_DYNAMIC_WORKSPACES:
       return "DYNAMIC_WORKSPACES";
+
+    case META_PREF_AUTO_MAXIMIZE:
+      return "AUTO_MAXIMIZE";
     }
 
   return "(unknown)";
@@ -1642,17 +1919,16 @@ meta_prefs_set_num_workspaces (int n_workspaces)
 {
   MetaBasePreference *pref;
 
-  find_pref (preferences_int, sizeof(MetaIntPreference),
-             KEY_NUM_WORKSPACES, &pref);
-
-  g_settings_set_int (SETTINGS (pref->schema),
-                      KEY_NUM_WORKSPACES,
-                      n_workspaces);
+  if (find_pref (preferences_int, sizeof(MetaIntPreference),
+                 KEY_NUM_WORKSPACES, &pref))
+    {
+      g_settings_set_int (SETTINGS (pref->schema),
+                          KEY_NUM_WORKSPACES,
+                          n_workspaces);
+    }
 }
 
 static GHashTable *key_bindings;
-
-static MetaKeyCombo overlay_key_combo = { 0, 0, 0 };
 
 static void
 meta_key_pref_free (MetaKeyPref *pref)
@@ -1665,53 +1941,33 @@ meta_key_pref_free (MetaKeyPref *pref)
   g_free (pref);
 }
 
-/* These bindings are for modifiers alone, so they need special handling */
-static void
-init_special_bindings (void)
-{
-  char *val;
-  
-  /* Default values for bindings which are global, but take special handling */
-  meta_ui_parse_accelerator ("Super_L", &overlay_key_combo.keysym, 
-                             &overlay_key_combo.keycode, 
-                             &overlay_key_combo.modifiers);
-
-  val = g_settings_get_string (SETTINGS (SCHEMA_MUTTER), KEY_OVERLAY_KEY);
-    
-  if (val && meta_ui_parse_accelerator (val, &overlay_key_combo.keysym, 
-                                        &overlay_key_combo.keycode, 
-                                        &overlay_key_combo.modifiers))
-    ;
-  else
-    {
-      meta_topic (META_DEBUG_KEYBINDINGS,
-                  "Failed to parse value for overlay_key\n");
-    }
-  g_free (val);
-}
 
 static void
 init_bindings (void)
 {
+  MetaKeyPref *pref;
+
   key_bindings = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
                                         (GDestroyNotify)meta_key_pref_free);
-  init_special_bindings ();  
-}
 
-static void
-init_workspace_names (void)
-{
-  update_workspace_names ();
+  pref = g_new0 (MetaKeyPref, 1);
+  pref->name = g_strdup ("overlay-key");
+  pref->action = META_KEYBINDING_ACTION_OVERLAY_KEY;
+  pref->combos = g_slist_prepend (pref->combos, &overlay_key_combo);
+  pref->builtin = 1;
+
+  g_hash_table_insert (key_bindings, g_strdup ("overlay-key"), pref);
 }
 
 static gboolean
 update_binding (MetaKeyPref *binding,
                 gchar      **strokes)
 {
+  GSList *old_combos, *a, *b;
+  gboolean changed;
   unsigned int keysym;
   unsigned int keycode;
   MetaVirtualModifier mods;
-  gboolean changed = FALSE;
   MetaKeyCombo *combo;
   int i;
 
@@ -1719,24 +1975,20 @@ update_binding (MetaKeyPref *binding,
               "Binding \"%s\" has new GSettings value\n",
               binding->name);
 
-  /* Okay, so, we're about to provide a new list of key combos for this
-   * action. Delete any pre-existing list.
-   */
-  g_slist_foreach (binding->bindings, (GFunc) g_free, NULL);
-  g_slist_free (binding->bindings);
-  binding->bindings = NULL;
-  
+  old_combos = binding->combos;
+  binding->combos = NULL;
+
   for (i = 0; strokes && strokes[i]; i++)
     {
       keysym = 0;
       keycode = 0;
       mods = 0;
 
-      if (!meta_ui_parse_accelerator (strokes[i], &keysym, &keycode, &mods))
+      if (!meta_parse_accelerator (strokes[i], &keysym, &keycode, &mods))
         {
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Failed to parse new GSettings value\n");
-          meta_warning (_("\"%s\" found in configuration database is not a valid value for keybinding \"%s\"\n"),
+          meta_warning ("\"%s\" found in configuration database is not a valid value for keybinding \"%s\"\n",
                         strokes[i], binding->name);
 
           /* Value is kept and will thus be removed next time we save the key.
@@ -1744,35 +1996,46 @@ update_binding (MetaKeyPref *binding,
           continue;
         }
 
-      /* Bug 329676: Bindings which can be shifted must not have no modifiers,
-       * nor only SHIFT as a modifier.
-       */
-
-      if (binding->add_shift &&
-          0 != keysym &&
-          (META_VIRTUAL_SHIFT_MASK == mods || 0 == mods))
-        {
-          meta_warning ("Cannot bind \"%s\" to %s: it needs a modifier "
-                        "such as Ctrl or Alt.\n",
-                        binding->name, strokes[i]);
-
-          /* Value is kept and will thus be removed next time we save the key.
-           * Changing the key in response to a modification could lead to cyclic calls. */
-          continue;
-        }
-  
-      changed = TRUE;
-
       combo = g_malloc0 (sizeof (MetaKeyCombo));
       combo->keysym = keysym;
       combo->keycode = keycode;
       combo->modifiers = mods;
-      binding->bindings = g_slist_prepend (binding->bindings, combo);
+      binding->combos = g_slist_prepend (binding->combos, combo);
 
       meta_topic (META_DEBUG_KEYBINDINGS,
                       "New keybinding for \"%s\" is keysym = 0x%x keycode = 0x%x mods = 0x%x\n",
                       binding->name, keysym, keycode, mods);
     }
+
+  binding->combos = g_slist_reverse (binding->combos);
+
+  a = old_combos;
+  b = binding->combos;
+  while (TRUE)
+    {
+      if ((!a && b) || (a && !b))
+        {
+          changed = TRUE;
+          break;
+        }
+      else if (!a && !b)
+        {
+          changed = FALSE;
+          break;
+        }
+      else if (memcmp (a->data, b->data, sizeof (MetaKeyCombo)) != 0)
+        {
+          changed = TRUE;
+          break;
+        }
+      else
+        {
+          a = a->next;
+          b = b->next;
+        }
+    }
+
+  g_slist_free_full (old_combos, g_free);
 
   return changed;
 }
@@ -1787,41 +2050,6 @@ update_key_binding (const char *key,
     return update_binding (pref, strokes);
   else
     return FALSE;
-}
-
-static gboolean
-update_workspace_names (void)
-{
-  int i;
-  char **names;
-  int n_workspace_names, n_names;
-  gboolean changed = FALSE;
-
-  names = g_settings_get_strv (SETTINGS (SCHEMA_GENERAL), KEY_WORKSPACE_NAMES);
-  n_names = g_strv_length (names);
-  n_workspace_names = workspace_names ? g_strv_length (workspace_names) : 0;
-
-  for (i = 0; i < n_names; i++)
-    if (n_workspace_names < i + 1 || !workspace_names[i] ||
-        g_strcmp0 (names[i], workspace_names[i]) != 0)
-      {
-        changed = TRUE;
-        break;
-      }
-
-  if (n_workspace_names != n_names)
-    changed = TRUE;
-
-  if (changed)
-    {
-      if (workspace_names)
-        g_strfreev (workspace_names);
-      workspace_names = names;
-    }
-  else
-    g_strfreev (names);
-
-  return changed;
 }
 
 const char*
@@ -1852,7 +2080,7 @@ meta_prefs_change_workspace_name (int         num,
 {
   GVariantBuilder builder;
   int n_workspace_names, i;
-  
+
   g_return_if_fail (num >= 0);
 
   meta_topic (META_DEBUG_PREFS,
@@ -1894,6 +2122,10 @@ meta_prefs_change_workspace_name (int         num,
                         g_variant_builder_end (&builder));
 }
 
+/**
+ * meta_prefs_get_button_layout:
+ * @button_layout: (out):
+ */
 void
 meta_prefs_get_button_layout (MetaButtonLayout *button_layout_p)
 {
@@ -1938,8 +2170,7 @@ meta_prefs_add_keybinding (const char           *name,
   pref->name = g_strdup (name);
   pref->settings = g_object_ref (settings);
   pref->action = action;
-  pref->bindings = NULL;
-  pref->add_shift = (flags & META_KEY_BINDING_REVERSES) != 0;
+  pref->combos = NULL;
   pref->per_window = (flags & META_KEY_BINDING_PER_WINDOW) != 0;
   pref->builtin = (flags & META_KEY_BINDING_BUILTIN) != 0;
 
@@ -2002,20 +2233,22 @@ meta_prefs_remove_keybinding (const char *name)
   return TRUE;
 }
 
-/**
- * meta_prefs_get_keybindings:
- * Return: (element-type MetaKeyPref) (transfer container):
- */
 GList *
 meta_prefs_get_keybindings ()
 {
   return g_hash_table_get_values (key_bindings);
 }
 
-void 
+void
 meta_prefs_get_overlay_binding (MetaKeyCombo *combo)
 {
   *combo = overlay_key_combo;
+}
+
+const char *
+meta_prefs_get_iso_next_group_option (void)
+{
+  return iso_next_group_option;
 }
 
 GDesktopTitlebarAction
@@ -2049,6 +2282,12 @@ meta_prefs_get_auto_raise_delay (void)
 }
 
 gboolean
+meta_prefs_get_focus_change_on_pointer_rest ()
+{
+  return focus_change_on_pointer_rest;
+}
+
+gboolean
 meta_prefs_get_gnome_accessibility ()
 {
   return gnome_accessibility;
@@ -2066,6 +2305,12 @@ meta_prefs_get_edge_tiling ()
   return edge_tiling;
 }
 
+gboolean
+meta_prefs_get_auto_maximize (void)
+{
+  return auto_maximize;
+}
+
 MetaKeyBindingAction
 meta_prefs_get_keybinding_action (const char *name)
 {
@@ -2075,50 +2320,13 @@ meta_prefs_get_keybinding_action (const char *name)
               : META_KEYBINDING_ACTION_NONE;
 }
 
-/* This is used by the menu system to decide what key binding
- * to display next to an option. We return the first non-disabled
- * binding, if any.
- */
-void
-meta_prefs_get_window_binding (const char          *name,
-                               unsigned int        *keysym,
-                               MetaVirtualModifier *modifiers)
-{
-  MetaKeyPref *pref = g_hash_table_lookup (key_bindings, name);
-
-  if (pref->per_window)
-    {
-      GSList *s = pref->bindings;
-
-      while (s)
-        {
-          MetaKeyCombo *c = s->data;
-
-          if (c->keysym != 0 || c->modifiers != 0)
-            {
-              *keysym = c->keysym;
-              *modifiers = c->modifiers;
-              return;
-            }
-
-          s = s->next;
-        }
-
-      /* Not found; return the disabled value */
-      *keysym = *modifiers = 0;
-      return;
-    }
-
-  g_assert_not_reached ();
-}
-
-guint
+gint
 meta_prefs_get_mouse_button_resize (void)
 {
   return resize_with_right_button ? 3: 2;
 }
 
-guint
+gint
 meta_prefs_get_mouse_button_menu (void)
 {
   return resize_with_right_button ? 2: 3;
@@ -2131,47 +2339,9 @@ meta_prefs_get_force_fullscreen (void)
 }
 
 gboolean
-meta_prefs_get_live_hidden_windows (void)
-{
-#if 0
-  return live_hidden_windows;
-#else
-  return TRUE;
-#endif
-}
-
-void
-meta_prefs_set_live_hidden_windows (gboolean whether)
-{
-  MetaBasePreference *pref;
-
-  find_pref (preferences_bool, sizeof(MetaBoolPreference),
-             KEY_LIVE_HIDDEN_WINDOWS, &pref);
-  g_settings_set_boolean (SETTINGS (pref->schema), KEY_LIVE_HIDDEN_WINDOWS,
-                          whether);
-}
-
-gboolean
 meta_prefs_get_workspaces_only_on_primary (void)
 {
   return workspaces_only_on_primary;
-}
-
-
-gboolean
-meta_prefs_get_no_tab_popup (void)
-{
-  return no_tab_popup;
-}
-
-void
-meta_prefs_set_no_tab_popup (gboolean whether)
-{
-  MetaBasePreference *pref;
-
-  find_pref (preferences_bool, sizeof(MetaBoolPreference),
-             KEY_NO_TAB_POPUP, &pref);
-  g_settings_set_boolean (SETTINGS (pref->schema), KEY_NO_TAB_POPUP, whether);
 }
 
 int
@@ -2180,8 +2350,26 @@ meta_prefs_get_draggable_border_width (void)
   return draggable_border_width;
 }
 
+int
+meta_prefs_get_drag_threshold (void)
+{
+  return drag_threshold;
+}
+
 void
 meta_prefs_set_force_fullscreen (gboolean whether)
 {
   force_fullscreen = whether;
+}
+
+gboolean
+meta_prefs_get_ignore_request_hide_titlebar (void)
+{
+  return ignore_request_hide_titlebar;
+}
+
+void
+meta_prefs_set_ignore_request_hide_titlebar (gboolean whether)
+{
+  ignore_request_hide_titlebar = whether;
 }

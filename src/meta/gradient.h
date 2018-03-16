@@ -2,10 +2,10 @@
 
 /* Mutter gradient rendering */
 
-/* 
+/*
  * Copyright (C) 2001 Havoc Pennington, 99% copied from wrlib in
  * WindowMaker, Copyright (C) 1997-2000 Dan Pascu and Alfredo Kojima
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -15,11 +15,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.  */
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.  */
 
 #ifndef META_GRADIENT_H
 #define META_GRADIENT_H
@@ -27,6 +25,14 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gdk/gdk.h>
 
+/**
+ * MetaGradientType:
+ * @META_GRADIENT_VERTICAL: Vertical gradient
+ * @META_GRADIENT_HORIZONTAL: Horizontal gradient
+ * @META_GRADIENT_DIAGONAL: Diagonal gradient
+ * @META_GRADIENT_LAST: Marks the end of the #MetaGradientType enumeration
+ *
+ */
 typedef enum
 {
   META_GRADIENT_VERTICAL,

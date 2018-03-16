@@ -2,9 +2,9 @@
 
 /* Mutter box operation testing program */
 
-/* 
+/*
  * Copyright (C) 2005 Elijah Newren
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -14,11 +14,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "boxes-private.h"
@@ -27,6 +25,7 @@
 #include <stdio.h>
 #include <X11/Xutil.h> /* Just for the definition of the various gravities */
 #include <time.h>      /* To initialize random seed */
+#include <math.h>
 
 #define NUM_RANDOM_RUNS 10000
 
@@ -240,7 +239,7 @@ static GSList*
 get_strut_list (int which)
 {
   GSList *ans;
-  MetaDirection wc = 0; /* wc == who cares? ;-) */
+  MetaSide wc = 0; /* wc == who cares? ;-) */
 
   ans = NULL;
 
@@ -250,32 +249,32 @@ get_strut_list (int which)
     case 0:
       break;
     case 1:
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   20, wc));
-      ans = g_slist_prepend (ans, new_meta_strut ( 400, 1160, 1600,   40, wc));
+      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   20, META_SIDE_TOP));
+      ans = g_slist_prepend (ans, new_meta_strut ( 400, 1160, 1600,   40, META_SIDE_BOTTOM));
       break;
     case 2:
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   20, wc));
-      ans = g_slist_prepend (ans, new_meta_strut ( 800, 1100,  400,  100, wc));
-      ans = g_slist_prepend (ans, new_meta_strut ( 300, 1150,  150,   50, wc));
+      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   20, META_SIDE_TOP));
+      ans = g_slist_prepend (ans, new_meta_strut ( 800, 1100,  400,  100, META_SIDE_BOTTOM));
+      ans = g_slist_prepend (ans, new_meta_strut ( 300, 1150,  150,   50, META_SIDE_BOTTOM));
       break;
     case 3:
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   20, wc));
-      ans = g_slist_prepend (ans, new_meta_strut ( 800, 1100,  400,  100, wc));
-      ans = g_slist_prepend (ans, new_meta_strut ( 300, 1150,   80,   50, wc));
+      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   20, META_SIDE_TOP));
+      ans = g_slist_prepend (ans, new_meta_strut ( 800, 1100,  400,  100, META_SIDE_LEFT));
+      ans = g_slist_prepend (ans, new_meta_strut ( 300, 1150,   80,   50, META_SIDE_BOTTOM));
       ans = g_slist_prepend (ans, new_meta_strut ( 700,  525,  200,  150, wc));
       break;
     case 4:
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0,  800, 1200, wc));
-      ans = g_slist_prepend (ans, new_meta_strut ( 800,    0, 1600,   20, wc));
+      ans = g_slist_prepend (ans, new_meta_strut (   0,    0,  800, 1200, META_SIDE_LEFT));
+      ans = g_slist_prepend (ans, new_meta_strut ( 800,    0, 1600,   20, META_SIDE_TOP));
       break;
     case 5:
-      ans = g_slist_prepend (ans, new_meta_strut ( 800,    0, 1600,   20, wc));
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0,  800, 1200, wc));
-      ans = g_slist_prepend (ans, new_meta_strut ( 800,   10,  800, 1200, wc));
+      ans = g_slist_prepend (ans, new_meta_strut ( 800,    0, 1600,   20, META_SIDE_TOP));
+      ans = g_slist_prepend (ans, new_meta_strut (   0,    0,  800, 1200, META_SIDE_LEFT));
+      ans = g_slist_prepend (ans, new_meta_strut ( 800,   10,  800, 1200, META_SIDE_RIGHT));
       break;
     case 6:
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   40, wc));
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   20, wc));
+      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   40, META_SIDE_TOP));
+      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   20, META_SIDE_TOP));
       break;
     }
 
@@ -365,7 +364,7 @@ test_merge_regions ()
    * uniformly distributed location of center of struts (within screen)
    * merge all regions that are possible
    * print stats on problem setup
-   *   number of (non-completely-occluded?) struts 
+   *   number of (non-completely-occluded?) struts
    *   percentage of screen covered
    *   length of resulting non-minimal spanning set
    *   length of resulting minimal spanning set
@@ -510,11 +509,11 @@ test_merge_regions ()
       compare = compare->next;
     }
 
-  printf ("  Num rectangles contained in others          : %d\n", 
+  printf ("  Num rectangles contained in others          : %d\n",
           num_contains);
-  printf ("  Num rectangles partially contained in others: %d\n", 
+  printf ("  Num rectangles partially contained in others: %d\n",
           num_part_contains);
-  printf ("  Num rectangles adjacent to others           : %d\n", 
+  printf ("  Num rectangles adjacent to others           : %d\n",
           num_adjacent);
   printf ("  Num rectangles merged with others           : %d\n",
           num_merged);
@@ -585,9 +584,9 @@ test_regions_okay ()
   GList* region;
   GList* tmp;
 
-  /*************************************************************/  
+  /*************************************************************/
   /* Make sure test region 0 has the right spanning rectangles */
-  /*************************************************************/  
+  /*************************************************************/
   region = get_screen_region (0);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_meta_rect (0, 0, 1600, 1200));
@@ -595,9 +594,9 @@ test_regions_okay ()
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (region);
 
-  /*************************************************************/  
+  /*************************************************************/
   /* Make sure test region 1 has the right spanning rectangles */
-  /*************************************************************/  
+  /*************************************************************/
   region = get_screen_region (1);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_meta_rect (0, 20,  400, 1180));
@@ -608,7 +607,7 @@ test_regions_okay ()
 
   /*************************************************************/
   /* Make sure test region 2 has the right spanning rectangles */
-  /*************************************************************/  
+  /*************************************************************/
   region = get_screen_region (2);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_meta_rect (   0,   20,  300, 1180));
@@ -622,18 +621,12 @@ test_regions_okay ()
 
   /*************************************************************/
   /* Make sure test region 3 has the right spanning rectangles */
-  /*************************************************************/  
+  /*************************************************************/
   region = get_screen_region (3);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_meta_rect ( 380,  675,  420,  525)); /* 220500 */
   tmp = g_list_prepend (tmp, new_meta_rect (   0,   20,  300, 1180)); /* 354000 */
-  tmp = g_list_prepend (tmp, new_meta_rect ( 380,   20,  320, 1180)); /* 377600 */
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,  675,  800,  475)); /* 380000 */
-  tmp = g_list_prepend (tmp, new_meta_rect (1200,   20,  400, 1180)); /* 472000 */
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,  675, 1600,  425)); /* 680000 */
-  tmp = g_list_prepend (tmp, new_meta_rect ( 900,   20,  700, 1080)); /* 756000 */
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20,  700, 1130)); /* 791000 */
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20, 1600,  505)); /* 808000 */
+  tmp = g_list_prepend (tmp, new_meta_rect ( 380,   20,  1220, 1180)); /* 377600 */
+  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20,  1600, 1130)); /* 791000 */
 #if 0
   printf ("Got to here...\n");
   char region_list[(RECT_LENGTH+2) * g_list_length (region)];
@@ -648,7 +641,7 @@ test_regions_okay ()
 
   /*************************************************************/
   /* Make sure test region 4 has the right spanning rectangles */
-  /*************************************************************/  
+  /*************************************************************/
   region = get_screen_region (4);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_meta_rect ( 800,   20,  800, 1180));
@@ -658,7 +651,7 @@ test_regions_okay ()
 
   /*************************************************************/
   /* Make sure test region 5 has the right spanning rectangles */
-  /*************************************************************/  
+  /*************************************************************/
   printf ("The next test intentionally causes a warning, "
           "but it can be ignored.\n");
   region = get_screen_region (5);
@@ -1022,9 +1015,9 @@ test_find_onscreen_edges ()
   int top    = META_DIRECTION_TOP;
   int bottom = META_DIRECTION_BOTTOM;
 
-  /*************************************************/  
+  /*************************************************/
   /* Make sure test region 0 has the correct edges */
-  /*************************************************/  
+  /*************************************************/
   edges = get_screen_edges (0);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_screen_edge (   0, 1200, 1600, 0, bottom));
@@ -1035,9 +1028,9 @@ test_find_onscreen_edges ()
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
 
-  /*************************************************/  
+  /*************************************************/
   /* Make sure test region 1 has the correct edges */
-  /*************************************************/  
+  /*************************************************/
   edges = get_screen_edges (1);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_screen_edge (   0, 1200,  400, 0, bottom));
@@ -1050,9 +1043,9 @@ test_find_onscreen_edges ()
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
 
-  /*************************************************/  
+  /*************************************************/
   /* Make sure test region 2 has the correct edges */
-  /*************************************************/  
+  /*************************************************/
   edges = get_screen_edges (2);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_screen_edge (1200, 1200,  400, 0, bottom));
@@ -1071,9 +1064,9 @@ test_find_onscreen_edges ()
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
 
-  /*************************************************/  
+  /*************************************************/
   /* Make sure test region 3 has the correct edges */
-  /*************************************************/  
+  /*************************************************/
   edges = get_screen_edges (3);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_screen_edge (1200, 1200,  400, 0, bottom));
@@ -1098,7 +1091,7 @@ test_find_onscreen_edges ()
   char big_buffer1[(EDGE_LENGTH+2)*FUDGE], big_buffer2[(EDGE_LENGTH+2)*FUDGE];
   meta_rectangle_edge_list_to_string (edges, "\n ", big_buffer1);
   meta_rectangle_edge_list_to_string (tmp,   "\n ", big_buffer2);
-  printf("Generated edge list:\n %s\nComparison edges list:\n %s\n", 
+  printf("Generated edge list:\n %s\nComparison edges list:\n %s\n",
          big_buffer1, big_buffer2);
 #endif
 
@@ -1106,9 +1099,9 @@ test_find_onscreen_edges ()
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
 
-  /*************************************************/  
+  /*************************************************/
   /* Make sure test region 4 has the correct edges */
-  /*************************************************/  
+  /*************************************************/
   edges = get_screen_edges (4);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_screen_edge ( 800, 1200, 800,  0, bottom));
@@ -1119,18 +1112,18 @@ test_find_onscreen_edges ()
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
 
-  /*************************************************/  
+  /*************************************************/
   /* Make sure test region 5 has the correct edges */
-  /*************************************************/  
+  /*************************************************/
   edges = get_screen_edges (5);
   tmp = NULL;
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
 
-  /*************************************************/  
+  /*************************************************/
   /* Make sure test region 6 has the correct edges */
-  /*************************************************/  
+  /*************************************************/
   edges = get_screen_edges (6);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_screen_edge (   0, 1200, 1600,  0, bottom));
@@ -1155,18 +1148,18 @@ test_find_nonintersected_monitor_edges ()
   int top    = META_DIRECTION_TOP;
   int bottom = META_DIRECTION_BOTTOM;
 
-  /*************************************************************************/  
+  /*************************************************************************/
   /* Make sure test monitor set 0 for with region 0 has the correct edges */
-  /*************************************************************************/  
+  /*************************************************************************/
   edges = get_monitor_edges (0, 0);
   tmp = NULL;
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
 
-  /*************************************************************************/  
+  /*************************************************************************/
   /* Make sure test monitor set 2 for with region 1 has the correct edges */
-  /*************************************************************************/  
+  /*************************************************************************/
   edges = get_monitor_edges (2, 1);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_monitor_edge (   0,  600, 1600, 0, bottom));
@@ -1175,9 +1168,9 @@ test_find_nonintersected_monitor_edges ()
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
 
-  /*************************************************************************/  
+  /*************************************************************************/
   /* Make sure test monitor set 1 for with region 2 has the correct edges */
-  /*************************************************************************/  
+  /*************************************************************************/
   edges = get_monitor_edges (1, 2);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_monitor_edge ( 800,   20, 0, 1080, right));
@@ -1187,16 +1180,16 @@ test_find_nonintersected_monitor_edges ()
   char big_buffer1[(EDGE_LENGTH+2)*FUDGE], big_buffer2[(EDGE_LENGTH+2)*FUDGE];
   meta_rectangle_edge_list_to_string (edges, "\n ", big_buffer1);
   meta_rectangle_edge_list_to_string (tmp,   "\n ", big_buffer2);
-  printf("Generated edge list:\n %s\nComparison edges list:\n %s\n", 
+  printf("Generated edge list:\n %s\nComparison edges list:\n %s\n",
          big_buffer1, big_buffer2);
 #endif
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
 
-  /*************************************************************************/  
+  /*************************************************************************/
   /* Make sure test monitor set 3 for with region 3 has the correct edges */
-  /*************************************************************************/  
+  /*************************************************************************/
   edges = get_monitor_edges (3, 3);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_monitor_edge ( 900,  600,  700, 0, bottom));
@@ -1209,9 +1202,9 @@ test_find_nonintersected_monitor_edges ()
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
 
-  /*************************************************************************/  
+  /*************************************************************************/
   /* Make sure test monitor set 3 for with region 4 has the correct edges */
-  /*************************************************************************/  
+  /*************************************************************************/
   edges = get_monitor_edges (3, 4);
   tmp = NULL;
   tmp = g_list_prepend (tmp, new_monitor_edge ( 800,  600,  800, 0, bottom));
@@ -1221,9 +1214,9 @@ test_find_nonintersected_monitor_edges ()
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
 
-  /*************************************************************************/  
+  /*************************************************************************/
   /* Make sure test monitor set 3 for with region 5has the correct edges */
-  /*************************************************************************/  
+  /*************************************************************************/
   edges = get_monitor_edges (3, 5);
   tmp = NULL;
   verify_edge_lists_are_equal (edges, tmp);
@@ -1334,6 +1327,7 @@ test_gravity_resize ()
   printf ("%s passed.\n", G_STRFUNC);
 }
 
+#define EPSILON 0.000000001
 static void
 test_find_closest_point_to_line ()
 {
@@ -1348,7 +1342,7 @@ test_find_closest_point_to_line ()
                                                   x2,  y2,
                                                   px,  py,
                                                   &rx, &ry);
-  g_assert (rx == answer_x && ry == answer_y);
+  g_assert (fabs (rx - answer_x) < EPSILON && fabs (ry - answer_y) < EPSILON);
 
   /* Special test for x1 == x2, so that slop of line is infinite */
   x1 =  3.0;  y1 =  49.0;
@@ -1359,7 +1353,7 @@ test_find_closest_point_to_line ()
                                                   x2,  y2,
                                                   px,  py,
                                                   &rx, &ry);
-  g_assert (rx == answer_x && ry == answer_y);
+  g_assert (fabs (rx - answer_x) < EPSILON && fabs (ry - answer_y) < EPSILON);
 
   /* Special test for y1 == y2, so perp line has slope of infinity */
   x1 =  3.14;  y1 =   7.0;
@@ -1370,7 +1364,7 @@ test_find_closest_point_to_line ()
                                                   x2,  y2,
                                                   px,  py,
                                                   &rx, &ry);
-  g_assert (rx == answer_x && ry == answer_y);
+  g_assert (fabs (rx - answer_x) < EPSILON && fabs (ry - answer_y) < EPSILON);
 
   /* Test when we the point we want to be closest to is actually on the line */
   x1 =  3.0;  y1 =  49.0;
@@ -1381,7 +1375,7 @@ test_find_closest_point_to_line ()
                                                   x2,  y2,
                                                   px,  py,
                                                   &rx, &ry);
-  g_assert (rx == answer_x && ry == answer_y);
+  g_assert (fabs (rx - answer_x) < EPSILON && fabs (ry - answer_y) < EPSILON);
 
   printf ("%s passed.\n", G_STRFUNC);
 }

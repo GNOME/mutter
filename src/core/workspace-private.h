@@ -10,10 +10,10 @@
  * are unmapped.
  */
 
-/* 
+/*
  * Copyright (C) 2001 Havoc Pennington
  * Copyright (C) 2004, 2005 Elijah Newren
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -23,11 +23,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef META_WORKSPACE_PRIVATE_H
@@ -40,7 +38,7 @@ struct _MetaWorkspace
 {
   GObject parent_instance;
   MetaScreen *screen;
-  
+
   GList *windows;
 
   /* The "MRU list", or "most recently used" list, is a list of
@@ -86,10 +84,6 @@ void           meta_workspace_relocate_windows (MetaWorkspace *workspace,
 
 void meta_workspace_invalidate_work_area (MetaWorkspace *workspace);
 
-
-void meta_workspace_get_work_area_for_monitor   (MetaWorkspace *workspace,
-                                                 int            which_monitor,
-                                                 MetaRectangle *area);
 GList* meta_workspace_get_onscreen_region       (MetaWorkspace *workspace);
 GList* meta_workspace_get_onmonitor_region      (MetaWorkspace *workspace,
                                                  int            which_monitor);
@@ -98,13 +92,8 @@ void meta_workspace_focus_default_window (MetaWorkspace *workspace,
                                           MetaWindow    *not_this_one,
                                           guint32        timestamp);
 
-MetaWorkspace* meta_workspace_get_neighbor (MetaWorkspace      *workspace,
-                                            MetaMotionDirection direction);
-
 const char* meta_workspace_get_name (MetaWorkspace *workspace);
 
+void meta_workspace_index_changed (MetaWorkspace *workspace);
+
 #endif
-
-
-
-

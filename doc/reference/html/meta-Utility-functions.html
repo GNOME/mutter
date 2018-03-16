@@ -1,0 +1,958 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Utility functions: Mutter Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="Mutter Reference Manual">
+<link rel="up" href="core-reference.html" title="Part III. Mutter Core Reference">
+<link rel="prev" href="meta-Preferences.html" title="Preferences">
+<link rel="next" href="meta-Errors.html" title="Errors">
+<meta name="generator" content="GTK-Doc V1.21.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#meta-Utility-functions.description" class="shortcut">Description</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="core-reference.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="meta-Preferences.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="meta-Errors.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="meta-Utility-functions"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="meta-Utility-functions.top_of_page"></a>Utility functions</span></h2>
+<p>Utility functions — Miscellaneous utility functions</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="meta-Utility-functions.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-is-verbose" title="meta_is_verbose ()">meta_is_verbose</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-set-verbose" title="meta_set_verbose ()">meta_set_verbose</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-is-debugging" title="meta_is_debugging ()">meta_is_debugging</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-set-debugging" title="meta_set_debugging ()">meta_set_debugging</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-is-syncing" title="meta_is_syncing ()">meta_is_syncing</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-set-syncing" title="meta_set_syncing ()">meta_set_syncing</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-set-replace-current-wm" title="meta_set_replace_current_wm ()">meta_set_replace_current_wm</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-debug-spew-real" title="meta_debug_spew_real ()">meta_debug_spew_real</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-verbose-real" title="meta_verbose_real ()">meta_verbose_real</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-bug" title="meta_bug ()">meta_bug</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-warning" title="meta_warning ()">meta_warning</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-fatal" title="meta_fatal ()">meta_fatal</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-topic-real" title="meta_topic_real ()">meta_topic_real</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-add-verbose-topic" title="meta_add_verbose_topic ()">meta_add_verbose_topic</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-remove-verbose-topic" title="meta_remove_verbose_topic ()">meta_remove_verbose_topic</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-push-no-msg-prefix" title="meta_push_no_msg_prefix ()">meta_push_no_msg_prefix</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-pop-no-msg-prefix" title="meta_pop_no_msg_prefix ()">meta_pop_no_msg_prefix</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-unsigned-long-equal" title="meta_unsigned_long_equal ()">meta_unsigned_long_equal</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-unsigned-long-hash" title="meta_unsigned_long_hash ()">meta_unsigned_long_hash</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">char</span> *
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-frame-type-to-string" title="meta_frame_type_to_string ()">meta_frame_type_to_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">char</span> *
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-gravity-to-string" title="meta_gravity_to_string ()">meta_gravity_to_string</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">char</span> *
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-g-utf8-strndup" title="meta_g_utf8_strndup ()">meta_g_utf8_strndup</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-free-gslist-and-elements" title="meta_free_gslist_and_elements ()">meta_free_gslist_and_elements</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-The-Main-Event-Loop.html#GPid"><span class="returnvalue">GPid</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-show-dialog" title="meta_show_dialog ()">meta_show_dialog</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-later-add" title="meta_later_add ()">meta_later_add</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="meta-Utility-functions.html#meta-later-remove" title="meta_later_remove ()">meta_later_remove</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="meta-Utility-functions.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="meta-Utility-functions.html#MetaDebugTopic" title="enum MetaDebugTopic">MetaDebugTopic</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="meta-Utility-functions.html#meta-debug-spew" title="meta_debug_spew">meta_debug_spew</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="meta-Utility-functions.html#meta-verbose" title="meta_verbose">meta_verbose</a></td>
+</tr>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="meta-Utility-functions.html#meta-topic" title="meta_topic">meta_topic</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="meta-Utility-functions.html#MetaLaterType" title="enum MetaLaterType">MetaLaterType</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="meta-Utility-functions.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="meta-Utility-functions.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="meta-is-verbose"></a><h3>meta_is_verbose ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_is_verbose (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-set-verbose"></a><h3>meta_set_verbose ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_set_verbose (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> setting</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-is-debugging"></a><h3>meta_is_debugging ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_is_debugging (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-set-debugging"></a><h3>meta_set_debugging ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_set_debugging (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> setting</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-is-syncing"></a><h3>meta_is_syncing ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_is_syncing (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>Returns whether X synchronisation is currently enabled.</p>
+<p>FIXME: This is *only* called by <code class="function">meta_display_open()</code>, but by that time
+we have already turned syncing on or off on startup, and we don't
+have any way to do so while Mutter is running, so it's rather
+pointless.</p>
+<div class="refsect3">
+<a name="id-1.4.6.6.6.6"></a><h4>Returns</h4>
+<p> <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if we must wait for events whenever we send X requests;
+<a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
+<p></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-set-syncing"></a><h3>meta_set_syncing ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_set_syncing (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> setting</code></em>);</pre>
+<p>A handy way to turn on synchronisation on or off for every display.</p>
+<div class="refsect3">
+<a name="id-1.4.6.6.7.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>setting</p></td>
+<td class="parameter_description"><p>whether to turn syncing on or off</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-set-replace-current-wm"></a><h3>meta_set_replace_current_wm ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_set_replace_current_wm (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> setting</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-debug-spew-real"></a><h3>meta_debug_spew_real ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_debug_spew_real (<em class="parameter"><code>const <span class="type">char</span> *format</code></em>,
+                      <em class="parameter"><code>...</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-verbose-real"></a><h3>meta_verbose_real ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_verbose_real (<em class="parameter"><code>const <span class="type">char</span> *format</code></em>,
+                   <em class="parameter"><code>...</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-bug"></a><h3>meta_bug ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_bug (<em class="parameter"><code>const <span class="type">char</span> *format</code></em>,
+          <em class="parameter"><code>...</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-warning"></a><h3>meta_warning ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_warning (<em class="parameter"><code>const <span class="type">char</span> *format</code></em>,
+              <em class="parameter"><code>...</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-fatal"></a><h3>meta_fatal ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_fatal (<em class="parameter"><code>const <span class="type">char</span> *format</code></em>,
+            <em class="parameter"><code>...</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-topic-real"></a><h3>meta_topic_real ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_topic_real (<em class="parameter"><code><a class="link" href="meta-Utility-functions.html#MetaDebugTopic" title="enum MetaDebugTopic"><span class="type">MetaDebugTopic</span></a> topic</code></em>,
+                 <em class="parameter"><code>const <span class="type">char</span> *format</code></em>,
+                 <em class="parameter"><code>...</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-add-verbose-topic"></a><h3>meta_add_verbose_topic ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_add_verbose_topic (<em class="parameter"><code><a class="link" href="meta-Utility-functions.html#MetaDebugTopic" title="enum MetaDebugTopic"><span class="type">MetaDebugTopic</span></a> topic</code></em>);</pre>
+<p>Ensure log messages for the given topic <em class="parameter"><code>topic</code></em>
+
+will be printed.</p>
+<div class="refsect3">
+<a name="id-1.4.6.6.15.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>topic</p></td>
+<td class="parameter_description"><p>Topic for which logging will be started</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-remove-verbose-topic"></a><h3>meta_remove_verbose_topic ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_remove_verbose_topic (<em class="parameter"><code><a class="link" href="meta-Utility-functions.html#MetaDebugTopic" title="enum MetaDebugTopic"><span class="type">MetaDebugTopic</span></a> topic</code></em>);</pre>
+<p>Stop printing log messages for the given topic <em class="parameter"><code>topic</code></em>
+.  Note
+that this method does not stack with <a class="link" href="meta-Utility-functions.html#meta-add-verbose-topic" title="meta_add_verbose_topic ()"><code class="function">meta_add_verbose_topic()</code></a>;
+i.e. if two calls to <a class="link" href="meta-Utility-functions.html#meta-add-verbose-topic" title="meta_add_verbose_topic ()"><code class="function">meta_add_verbose_topic()</code></a> for the same
+topic are made, one call to <a class="link" href="meta-Utility-functions.html#meta-remove-verbose-topic" title="meta_remove_verbose_topic ()"><code class="function">meta_remove_verbose_topic()</code></a> will
+remove it.</p>
+<div class="refsect3">
+<a name="id-1.4.6.6.16.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>topic</p></td>
+<td class="parameter_description"><p>Topic for which logging will be stopped</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-push-no-msg-prefix"></a><h3>meta_push_no_msg_prefix ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_push_no_msg_prefix (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-pop-no-msg-prefix"></a><h3>meta_pop_no_msg_prefix ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_pop_no_msg_prefix (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-unsigned-long-equal"></a><h3>meta_unsigned_long_equal ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>
+meta_unsigned_long_equal (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gconstpointer"><span class="type">gconstpointer</span></a> v1</code></em>,
+                          <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gconstpointer"><span class="type">gconstpointer</span></a> v2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-unsigned-long-hash"></a><h3>meta_unsigned_long_hash ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
+meta_unsigned_long_hash (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gconstpointer"><span class="type">gconstpointer</span></a> v</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-frame-type-to-string"></a><h3>meta_frame_type_to_string ()</h3>
+<pre class="programlisting">const <span class="returnvalue">char</span> *
+meta_frame_type_to_string (<em class="parameter"><code><a class="link" href="meta-Common.html#MetaFrameType" title="enum MetaFrameType"><span class="type">MetaFrameType</span></a> type</code></em>);</pre>
+<p>Converts a frame type enum value to the name string that would
+appear in the theme definition file.</p>
+<div class="refsect3">
+<a name="id-1.4.6.6.21.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>type</p></td>
+<td class="parameter_description"><p>a <a class="link" href="meta-Common.html#MetaFrameType" title="enum MetaFrameType"><span class="type">MetaFrameType</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.4.6.6.21.6"></a><h4>Returns</h4>
+<p> the string value</p>
+<p></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-gravity-to-string"></a><h3>meta_gravity_to_string ()</h3>
+<pre class="programlisting">const <span class="returnvalue">char</span> *
+meta_gravity_to_string (<em class="parameter"><code><span class="type">int</span> gravity</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-g-utf8-strndup"></a><h3>meta_g_utf8_strndup ()</h3>
+<pre class="programlisting"><span class="returnvalue">char</span> *
+meta_g_utf8_strndup (<em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *src</code></em>,
+                     <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gsize"><span class="type">gsize</span></a> n</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-free-gslist-and-elements"></a><h3>meta_free_gslist_and_elements ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_free_gslist_and_elements (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Singly-Linked-Lists.html#GSList"><span class="type">GSList</span></a> *list_to_deep_free</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.4.6.6.24.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>list_to_deep_free</p></td>
+<td class="parameter_description"><p>list to deep free</p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-show-dialog"></a><h3>meta_show_dialog ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-The-Main-Event-Loop.html#GPid"><span class="returnvalue">GPid</span></a>
+meta_show_dialog (<em class="parameter"><code>const <span class="type">char</span> *type</code></em>,
+                  <em class="parameter"><code>const <span class="type">char</span> *message</code></em>,
+                  <em class="parameter"><code>const <span class="type">char</span> *timeout</code></em>,
+                  <em class="parameter"><code>const <span class="type">char</span> *display</code></em>,
+                  <em class="parameter"><code>const <span class="type">char</span> *ok_text</code></em>,
+                  <em class="parameter"><code>const <span class="type">char</span> *cancel_text</code></em>,
+                  <em class="parameter"><code>const <span class="type">char</span> *icon_name</code></em>,
+                  <em class="parameter"><code>const <span class="type">int</span> transient_for</code></em>,
+                  <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Singly-Linked-Lists.html#GSList"><span class="type">GSList</span></a> *columns</code></em>,
+                  <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Singly-Linked-Lists.html#GSList"><span class="type">GSList</span></a> *entries</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.4.6.6.25.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>type</p></td>
+<td class="parameter_description"><p>type of dialog</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>message</p></td>
+<td class="parameter_description"><p>message</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>timeout</p></td>
+<td class="parameter_description"><p>timeout</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>display</p></td>
+<td class="parameter_description"><p>display</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>ok_text</p></td>
+<td class="parameter_description"><p>text for Ok button</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>cancel_text</p></td>
+<td class="parameter_description"><p>text for Cancel button</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>icon_name</p></td>
+<td class="parameter_description"><p>icon name</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>transient_for</p></td>
+<td class="parameter_description"><p>window XID of parent</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>columns</p></td>
+<td class="parameter_description"><p>columns</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>entries</p></td>
+<td class="parameter_description"><p>entries</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-later-add"></a><h3>meta_later_add ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
+meta_later_add (<em class="parameter"><code><a class="link" href="meta-Utility-functions.html#MetaLaterType" title="enum MetaLaterType"><span class="type">MetaLaterType</span></a> when</code></em>,
+                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-The-Main-Event-Loop.html#GSourceFunc"><span class="type">GSourceFunc</span></a> func</code></em>,
+                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>,
+                <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> notify</code></em>);</pre>
+<p>Sets up a callback  to be called at some later time. <em class="parameter"><code>when</code></em>
+ determines the
+particular later occasion at which it is called. This is much like <a href="https://developer.gnome.org/glib/unstable/glib-The-Main-Event-Loop.html#g-idle-add"><code class="function">g_idle_add()</code></a>,
+except that the functions interact properly with clutter event handling.
+If a "later" function is added from a clutter event handler, and is supposed
+to be run before the stage is redrawn, it will be run before that redraw
+of the stage, not the next one.</p>
+<div class="refsect3">
+<a name="id-1.4.6.6.26.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>when</p></td>
+<td class="parameter_description"><p>enumeration value determining the phase at which to run the callback</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>func</p></td>
+<td class="parameter_description"><p>callback to run later</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>data</p></td>
+<td class="parameter_description"><p>data to pass to the callback</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>notify</p></td>
+<td class="parameter_description"><p>function to call to destroy <em class="parameter"><code>data</code></em>
+when it is no longer in use, or <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.4.6.6.26.6"></a><h4>Returns</h4>
+<p> an integer ID (guaranteed to be non-zero) that can be used
+to cancel the callback and prevent it from being run.</p>
+<p></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-later-remove"></a><h3>meta_later_remove ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_later_remove (<em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> later_id</code></em>);</pre>
+<p>Removes a callback added with <a class="link" href="meta-Utility-functions.html#meta-later-add" title="meta_later_add ()"><code class="function">meta_later_add()</code></a></p>
+<div class="refsect3">
+<a name="id-1.4.6.6.27.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>later_id</p></td>
+<td class="parameter_description"><p>the integer ID returned from <a class="link" href="meta-Utility-functions.html#meta-later-add" title="meta_later_add ()"><code class="function">meta_later_add()</code></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="meta-Utility-functions.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="MetaDebugTopic"></a><h3>enum MetaDebugTopic</h3>
+<div class="refsect3">
+<a name="id-1.4.6.7.2.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-VERBOSE:CAPS"></a>META_DEBUG_VERBOSE</p></td>
+<td class="enum_member_description">
+<p>verbose logging</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-FOCUS:CAPS"></a>META_DEBUG_FOCUS</p></td>
+<td class="enum_member_description">
+<p>focus</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-WORKAREA:CAPS"></a>META_DEBUG_WORKAREA</p></td>
+<td class="enum_member_description">
+<p>workarea</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-STACK:CAPS"></a>META_DEBUG_STACK</p></td>
+<td class="enum_member_description">
+<p>stack</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-THEMES:CAPS"></a>META_DEBUG_THEMES</p></td>
+<td class="enum_member_description">
+<p>themes</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-SM:CAPS"></a>META_DEBUG_SM</p></td>
+<td class="enum_member_description">
+<p>session management</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-EVENTS:CAPS"></a>META_DEBUG_EVENTS</p></td>
+<td class="enum_member_description">
+<p>events</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-WINDOW-STATE:CAPS"></a>META_DEBUG_WINDOW_STATE</p></td>
+<td class="enum_member_description">
+<p>window state</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-WINDOW-OPS:CAPS"></a>META_DEBUG_WINDOW_OPS</p></td>
+<td class="enum_member_description">
+<p>window operations</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-GEOMETRY:CAPS"></a>META_DEBUG_GEOMETRY</p></td>
+<td class="enum_member_description">
+<p>geometry</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-PLACEMENT:CAPS"></a>META_DEBUG_PLACEMENT</p></td>
+<td class="enum_member_description">
+<p>window placement</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-PING:CAPS"></a>META_DEBUG_PING</p></td>
+<td class="enum_member_description">
+<p>ping</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-XINERAMA:CAPS"></a>META_DEBUG_XINERAMA</p></td>
+<td class="enum_member_description">
+<p>Xinerama</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-KEYBINDINGS:CAPS"></a>META_DEBUG_KEYBINDINGS</p></td>
+<td class="enum_member_description">
+<p>keybindings</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-SYNC:CAPS"></a>META_DEBUG_SYNC</p></td>
+<td class="enum_member_description">
+<p>sync</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-ERRORS:CAPS"></a>META_DEBUG_ERRORS</p></td>
+<td class="enum_member_description">
+<p>errors</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-STARTUP:CAPS"></a>META_DEBUG_STARTUP</p></td>
+<td class="enum_member_description">
+<p>startup</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-PREFS:CAPS"></a>META_DEBUG_PREFS</p></td>
+<td class="enum_member_description">
+<p>preferences</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-GROUPS:CAPS"></a>META_DEBUG_GROUPS</p></td>
+<td class="enum_member_description">
+<p>groups</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-RESIZING:CAPS"></a>META_DEBUG_RESIZING</p></td>
+<td class="enum_member_description">
+<p>resizing</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-SHAPES:CAPS"></a>META_DEBUG_SHAPES</p></td>
+<td class="enum_member_description">
+<p>shapes</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-COMPOSITOR:CAPS"></a>META_DEBUG_COMPOSITOR</p></td>
+<td class="enum_member_description">
+<p>compositor</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-EDGE-RESISTANCE:CAPS"></a>META_DEBUG_EDGE_RESISTANCE</p></td>
+<td class="enum_member_description">
+<p>edge resistance</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-DEBUG-DBUS:CAPS"></a>META_DEBUG_DBUS</p></td>
+<td> </td>
+<td> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-debug-spew"></a><h3>meta_debug_spew</h3>
+<pre class="programlisting">#define meta_debug_spew meta_debug_spew_real
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-verbose"></a><h3>meta_verbose</h3>
+<pre class="programlisting">#define meta_verbose    meta_verbose_real
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-topic"></a><h3>meta_topic</h3>
+<pre class="programlisting">#define meta_topic      meta_topic_real
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaLaterType"></a><h3>enum MetaLaterType</h3>
+<div class="refsect3">
+<a name="id-1.4.6.7.6.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="META-LATER-RESIZE:CAPS"></a>META_LATER_RESIZE</p></td>
+<td class="enum_member_description">
+<p>call in a resize processing phase that is done
+  before GTK+ repainting (including window borders) is done.</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-LATER-CALC-SHOWING:CAPS"></a>META_LATER_CALC_SHOWING</p></td>
+<td class="enum_member_description">
+<p>used by Mutter to compute which windows should be mapped</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-LATER-CHECK-FULLSCREEN:CAPS"></a>META_LATER_CHECK_FULLSCREEN</p></td>
+<td class="enum_member_description">
+<p>used by Mutter to see if there's a fullscreen window</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-LATER-SYNC-STACK:CAPS"></a>META_LATER_SYNC_STACK</p></td>
+<td class="enum_member_description">
+<p>used by Mutter to send it's idea of the stacking order to the server</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-LATER-BEFORE-REDRAW:CAPS"></a>META_LATER_BEFORE_REDRAW</p></td>
+<td class="enum_member_description">
+<p>call before the stage is redrawn</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-LATER-IDLE:CAPS"></a>META_LATER_IDLE</p></td>
+<td class="enum_member_description">
+<p>call at a very low priority (can be blocked
+   by running animations or redrawing applications)</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.21.1</div>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MetaBackgroundActor: Mutter Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="Mutter Reference Manual">
+<link rel="up" href="core-reference.html" title="Part III. Mutter Core Reference">
+<link rel="prev" href="meta-MetaKeybinding.html" title="MetaKeybinding">
+<link rel="next" href="MetaShadowFactory.html" title="MetaShadowFactory">
+<meta name="generator" content="GTK-Doc V1.21.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#MetaBackgroundActor.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#MetaBackgroundActor.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_interfaces">  <span class="dim">|</span> 
+                  <a href="#MetaBackgroundActor.implemented-interfaces" class="shortcut">Implemented Interfaces</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#MetaBackgroundActor.properties" class="shortcut">Properties</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="core-reference.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="meta-MetaKeybinding.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="MetaShadowFactory.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="MetaBackgroundActor"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="MetaBackgroundActor.top_of_page"></a>MetaBackgroundActor</span></h2>
+<p>MetaBackgroundActor — Actor for painting the root window background</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="MetaBackgroundActor.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="property_type">
+<span class="type">MetaBackground</span> *</td>
+<td class="property_name"><a class="link" href="MetaBackgroundActor.html#MetaBackgroundActor--background" title="The “background” property">background</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></td>
+<td class="property_name"><a class="link" href="MetaBackgroundActor.html#MetaBackgroundActor--brightness" title="The “brightness” property">brightness</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type">
+<a class="link" href="MetaScreen.html" title="MetaScreen"><span class="type">MetaScreen</span></a> *</td>
+<td class="property_name"><a class="link" href="MetaBackgroundActor.html#MetaBackgroundActor--meta-screen" title="The “meta-screen” property">meta-screen</a></td>
+<td class="property_flags">Read / Write / Construct Only</td>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></td>
+<td class="property_name"><a class="link" href="MetaBackgroundActor.html#MetaBackgroundActor--monitor" title="The “monitor” property">monitor</a></td>
+<td class="property_flags">Read / Write / Construct Only</td>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="MetaBackgroundActor.html#MetaBackgroundActor--vignette" title="The “vignette” property">vignette</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></td>
+<td class="property_name"><a class="link" href="MetaBackgroundActor.html#MetaBackgroundActor--vignette-sharpness" title="The “vignette-sharpness” property">vignette-sharpness</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaBackgroundActor.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaBackgroundActor.html#MetaBackgroundActor-struct" title="struct MetaBackgroundActor">MetaBackgroundActor</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaBackgroundActor.html#MetaBackgroundActorClass" title="struct MetaBackgroundActorClass">MetaBackgroundActorClass</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaBackgroundActor.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> ClutterActor
+            <span class="lineart">╰──</span> MetaBackgroundActor
+</pre>
+</div>
+<div class="refsect1">
+<a name="MetaBackgroundActor.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
+<p>
+MetaBackgroundActor implements
+ ClutterContainer,  ClutterScriptable,  ClutterAnimatable,  AtkImplementorIface and  MetaCullable.</p>
+</div>
+<div class="refsect1">
+<a name="MetaBackgroundActor.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="MetaBackgroundActor.functions_details"></a><h2>Functions</h2>
+</div>
+<div class="refsect1">
+<a name="MetaBackgroundActor.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="MetaBackgroundActor-struct"></a><h3>struct MetaBackgroundActor</h3>
+<pre class="programlisting">struct MetaBackgroundActor;</pre>
+<p>This class handles tracking and painting the root window background.
+By integrating with <span class="type">MetaWindowGroup</span> we can avoid painting parts of
+the background that are obscured by other windows.</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBackgroundActorClass"></a><h3>struct MetaBackgroundActorClass</h3>
+<pre class="programlisting">struct MetaBackgroundActorClass {
+};
+</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="MetaBackgroundActor.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="MetaBackgroundActor--background"></a><h3>The <code class="literal">“background”</code> property</h3>
+<pre class="programlisting">  “background”               <span class="type">MetaBackground</span> *</pre>
+<p>MetaBackground object holding background parameters.</p>
+<p>Flags: Read / Write</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBackgroundActor--brightness"></a><h3>The <code class="literal">“brightness”</code> property</h3>
+<pre class="programlisting">  “brightness”               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></pre>
+<p>Brightness of vignette effect.</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: [0,1]</p>
+<p>Default value: 1</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBackgroundActor--meta-screen"></a><h3>The <code class="literal">“meta-screen”</code> property</h3>
+<pre class="programlisting">  “meta-screen”              <a class="link" href="MetaScreen.html" title="MetaScreen"><span class="type">MetaScreen</span></a> *</pre>
+<p>MetaScreen.</p>
+<p>Flags: Read / Write / Construct Only</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBackgroundActor--monitor"></a><h3>The <code class="literal">“monitor”</code> property</h3>
+<pre class="programlisting">  “monitor”                  <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a></pre>
+<p>monitor.</p>
+<p>Flags: Read / Write / Construct Only</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 0</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBackgroundActor--vignette"></a><h3>The <code class="literal">“vignette”</code> property</h3>
+<pre class="programlisting">  “vignette”                 <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Whether vignette effect is enabled.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaBackgroundActor--vignette-sharpness"></a><h3>The <code class="literal">“vignette-sharpness”</code> property</h3>
+<pre class="programlisting">  “vignette-sharpness”       <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a></pre>
+<p>Sharpness of vignette effect.</p>
+<p>Flags: Read / Write</p>
+<p>Allowed values: &gt;= 0</p>
+<p>Default value: 0</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.21.1</div>
+</body>
+</html>

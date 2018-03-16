@@ -2,10 +2,10 @@
 
 /* Mutter interface used by GTK+ UI to talk to core */
 
-/* 
+/*
  * Copyright (C) 2001 Havoc Pennington
  * Copyright (C) 2005 Elijah Newren
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -15,11 +15,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef META_CORE_H
@@ -28,6 +26,7 @@
 /* Don't include core headers here */
 #include <gdk/gdkx.h>
 #include <meta/common.h>
+#include <meta/boxes.h>
 
 typedef enum
 {
@@ -35,21 +34,12 @@ typedef enum
   META_CORE_WINDOW_HAS_FRAME,
   META_CORE_GET_CLIENT_WIDTH,
   META_CORE_GET_CLIENT_HEIGHT,
-  META_CORE_GET_CLIENT_XWINDOW,
   META_CORE_GET_FRAME_FLAGS,
   META_CORE_GET_FRAME_TYPE,
   META_CORE_GET_MINI_ICON,
   META_CORE_GET_ICON,
-  META_CORE_GET_X,
-  META_CORE_GET_Y,
-  META_CORE_GET_FRAME_WORKSPACE,
-  META_CORE_GET_FRAME_X,
-  META_CORE_GET_FRAME_Y,
-  META_CORE_GET_FRAME_WIDTH,
-  META_CORE_GET_FRAME_HEIGHT,
+  META_CORE_GET_FRAME_RECT,
   META_CORE_GET_THEME_VARIANT,
-  META_CORE_GET_SCREEN_WIDTH,
-  META_CORE_GET_SCREEN_HEIGHT,
 } MetaCoreGetType;
 
 /* General information function about the given window. Pass in a sequence of
@@ -58,8 +48,8 @@ typedef enum
  * For example:
  *
  *   meta_core_get (my_display, my_window,
- *                  META_CORE_GET_X, &x,
- *                  META_CORE_GET_Y, &y,
+ *                  META_CORE_GET_FRAME_WIDTH, &width,
+ *                  META_CORE_GET_FRAME_HEIGHT, &height,
  *                  META_CORE_GET_END);
  *
  * If the window doesn't have a frame, this will raise a meta_bug. To suppress
@@ -95,19 +85,6 @@ void meta_core_get (Display *xdisplay,
 void meta_core_queue_frame_resize (Display *xdisplay,
                                    Window frame_xwindow);
 
-/* Move as a result of user operation */
-void meta_core_user_move    (Display *xdisplay,
-                             Window   frame_xwindow,
-                             int      x,
-                             int      y);
-void meta_core_user_resize  (Display *xdisplay,
-                             Window   frame_xwindow,
-                             int      gravity,
-                             int      width,
-                             int      height);
-
-void meta_core_user_raise   (Display *xdisplay,
-                             Window   frame_xwindow);
 void meta_core_user_lower_and_unfocus (Display *xdisplay,
                                        Window   frame_xwindow,
                                        guint32  timestamp);
@@ -115,10 +92,6 @@ void meta_core_user_lower_and_unfocus (Display *xdisplay,
 void meta_core_user_focus   (Display *xdisplay,
                              Window   frame_xwindow,
                              guint32  timestamp);
-
-void meta_core_lower_beneath_grab_window (Display *xdisplay,
-                                          Window   xwindow,
-                                          guint32  timestamp);
 
 void meta_core_minimize         (Display *xdisplay,
                                  Window   frame_xwindow);
@@ -153,25 +126,24 @@ void meta_core_change_workspace (Display *xdisplay,
                                  Window   frame_xwindow,
                                  int      new_workspace);
 
-int meta_core_get_num_workspaces (Screen  *xscreen);
-int meta_core_get_active_workspace (Screen *xscreen);
 int meta_core_get_frame_workspace (Display *xdisplay,
                                    Window frame_xwindow);
 const char* meta_core_get_workspace_name_with_index (Display *xdisplay,
                                                      Window xroot,
                                                      int    index);
 
-void meta_core_show_window_menu (Display *xdisplay,
-                                 Window   frame_xwindow,
-                                 int      root_x,
-                                 int      root_y,
-                                 int      button,
-                                 guint32  timestamp);
+void meta_core_show_window_menu (Display            *xdisplay,
+                                 Window              frame_xwindow,
+                                 MetaWindowMenuType  menu,
+                                 int                 root_x,
+                                 int                 root_y,
+                                 guint32             timestamp);
 
-void meta_core_get_menu_accelerator (MetaMenuOp           menu_op,
-                                     int                  workspace,
-                                     unsigned int        *keysym,
-                                     MetaVirtualModifier *modifiers);
+void meta_core_show_window_menu_for_rect (Display            *xdisplay,
+                                          Window              frame_xwindow,
+                                          MetaWindowMenuType  menu,
+                                          MetaRectangle      *rect,
+                                          guint32             timestamp);
 
 gboolean   meta_core_begin_grab_op (Display    *xdisplay,
                                     Window      frame_xwindow,
@@ -186,8 +158,6 @@ gboolean   meta_core_begin_grab_op (Display    *xdisplay,
 void       meta_core_end_grab_op   (Display    *xdisplay,
                                     guint32     timestamp);
 MetaGrabOp meta_core_get_grab_op     (Display    *xdisplay);
-Window     meta_core_get_grab_frame  (Display   *xdisplay);
-int        meta_core_get_grab_button (Display  *xdisplay);
 
 
 void       meta_core_grab_buttons  (Display *xdisplay,
@@ -197,16 +167,6 @@ void       meta_core_set_screen_cursor (Display *xdisplay,
                                         Window   frame_on_screen,
                                         MetaCursor cursor);
 
-/* Used because we ignore EnterNotify when a window is unmapped that
- * really shouldn't cause focus changes, by comparing the event serial
- * of the EnterNotify and the UnmapNotify.
- */
-void meta_core_increment_event_serial (Display *display);
-
 void meta_invalidate_default_icons (void);
 
 #endif
-
-
-
-

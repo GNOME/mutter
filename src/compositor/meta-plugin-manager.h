@@ -16,9 +16,7 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef META_PLUGIN_MANAGER_H_
@@ -37,6 +35,7 @@
 #define META_PLUGIN_MAP              (1<<3)
 #define META_PLUGIN_DESTROY          (1<<4)
 #define META_PLUGIN_SWITCH_WORKSPACE (1<<5)
+#define META_PLUGIN_UNMINIMIZE       (1<<6)
 
 #define META_PLUGIN_ALL_EFFECTS      (~0)
 
@@ -46,14 +45,9 @@
  */
 typedef struct MetaPluginManager MetaPluginManager;
 
-MetaPluginManager * meta_plugin_manager_get         (MetaScreen *screen);
-MetaPluginManager * meta_plugin_manager_get_default (void);
+MetaPluginManager * meta_plugin_manager_new (MetaCompositor *compositor);
 
-void     meta_plugin_manager_load         (MetaPluginManager *mgr,
-                                           const gchar       *plugin_name);
-void     meta_plugin_manager_register     (MetaPluginManager *mgr,
-                                           GType              plugin_type);
-void     meta_plugin_manager_initialize   (MetaPluginManager *mgr);
+void     meta_plugin_manager_load         (const gchar       *plugin_name);
 
 gboolean meta_plugin_manager_event_simple (MetaPluginManager *mgr,
                                            MetaWindowActor   *actor,
@@ -66,17 +60,38 @@ gboolean meta_plugin_manager_event_maximize    (MetaPluginManager *mgr,
                                                 gint               target_y,
                                                 gint               target_width,
                                                 gint               target_height);
-void     meta_plugin_manager_update_workspaces (MetaPluginManager *mgr);
-
-void meta_plugin_manager_update_workspace (MetaPluginManager *mgr,
-                                           MetaWorkspace     *w);
 
 gboolean meta_plugin_manager_switch_workspace (MetaPluginManager   *mgr,
                                                gint                 from,
                                                gint                 to,
                                                MetaMotionDirection  direction);
 
+gboolean meta_plugin_manager_filter_keybinding (MetaPluginManager  *mgr,
+                                                MetaKeyBinding     *binding);
+
 gboolean meta_plugin_manager_xevent_filter (MetaPluginManager *mgr,
                                             XEvent            *xev);
+gboolean _meta_plugin_xevent_filter (MetaPlugin *plugin,
+                                     XEvent     *xev);
+
+void     meta_plugin_manager_confirm_display_change (MetaPluginManager *mgr);
+
+gboolean meta_plugin_manager_show_tile_preview (MetaPluginManager *mgr,
+                                                MetaWindow        *window,
+                                                MetaRectangle     *tile_rect,
+                                                int                tile_monitor_number);
+gboolean meta_plugin_manager_hide_tile_preview (MetaPluginManager *mgr);
+
+void meta_plugin_manager_show_window_menu (MetaPluginManager  *mgr,
+                                           MetaWindow         *window,
+                                           MetaWindowMenuType  menu,
+                                           int                 x,
+                                           int                 y);
+
+void meta_plugin_manager_show_window_menu_for_rect (MetaPluginManager  *mgr,
+		                                    MetaWindow         *window,
+						    MetaWindowMenuType  menu,
+						    MetaRectangle      *rect);
+
 
 #endif

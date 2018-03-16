@@ -16,12 +16,11 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <meta/meta-plugin.h>
+#include <meta/meta-version.h>
 #include "meta-module.h"
 
 #include <gmodule.h>
@@ -70,7 +69,7 @@ meta_module_load (GTypeModule *gmodule)
 		       (gpointer *)(void *)&register_type) &&
       info && register_type)
     {
-      if (info->version_api != MUTTER_PLUGIN_API_VERSION)
+      if (info->version_api != META_PLUGIN_API_VERSION)
 	g_warning ("Plugin API mismatch for [%s]", priv->path);
       else
         {
@@ -192,10 +191,7 @@ meta_module_class_init (MetaModuleClass *klass)
 static void
 meta_module_init (MetaModule *self)
 {
-  MetaModulePrivate *priv;
-
-  self->priv = priv = META_MODULE_GET_PRIVATE (self);
-
+  self->priv = META_MODULE_GET_PRIVATE (self);
 }
 
 GType

@@ -18,12 +18,10 @@
  * General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
+/*
  * \file atomnames.h  A list of atom names.
  *
  * This is a list of the names of all the X atoms that Mutter uses.
@@ -54,9 +52,6 @@ item(WM_WINDOW_ROLE)
 item(UTF8_STRING)
 item(WM_ICON_SIZE)
 item(_KWM_WIN_ICON)
-item(_MUTTER_RELOAD_THEME_MESSAGE)
-item(_MUTTER_SET_KEYBINDINGS_MESSAGE)
-item(_MUTTER_TOGGLE_VERBOSE)
 item(_MUTTER_HINTS)
 item(_GTK_THEME_VARIANT)
 item(_GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED)
@@ -66,10 +61,14 @@ item(_GTK_APPLICATION_OBJECT_PATH)
 item(_GTK_WINDOW_OBJECT_PATH)
 item(_GTK_APP_MENU_OBJECT_PATH)
 item(_GTK_MENUBAR_OBJECT_PATH)
+item(_GTK_FRAME_EXTENTS)
+item(_GTK_SHOW_WINDOW_MENU)
 item(_GNOME_WM_KEYBINDINGS)
 item(_GNOME_PANEL_ACTION)
 item(_GNOME_PANEL_ACTION_MAIN_MENU)
 item(_GNOME_PANEL_ACTION_RUN_DIALOG)
+item(_MUTTER_TIMESTAMP_PING)
+item(_MUTTER_FOCUS_SET)
 item(_MUTTER_SENTINEL)
 item(_MUTTER_VERSION)
 item(WM_CLIENT_MACHINE)
@@ -79,6 +78,8 @@ item(MULTIPLE)
 item(TIMESTAMP)
 item(VERSION)
 item(ATOM_PAIR)
+item(_XKB_RULES_NAMES)
+item(WL_SURFACE_ID)
 
 /* Oddities: These are used, and we need atoms for them,
  * but when we need all _NET_WM hints (i.e. when we're making
@@ -89,7 +90,6 @@ item(ATOM_PAIR)
 item(_NET_WM_SYNC_REQUEST)
 item(_NET_WM_SYNC_REQUEST_COUNTER)
 item(_NET_WM_VISIBLE_NAME)
-item(_NET_WM_VISIBLE_ICON_NAME)
 item(_NET_SUPPORTING_WM_CHECK)
 
 /* But I suppose it's quite reasonable not to advertise using
@@ -130,7 +130,6 @@ item(_NET_CLIENT_LIST)
 item(_NET_CLIENT_LIST_STACKING)
 item(_NET_WM_STATE_SKIP_TASKBAR)
 item(_NET_WM_STATE_SKIP_PAGER)
-item(_NET_WM_ICON_NAME)
 item(_NET_WM_ICON)
 item(_NET_WM_ICON_GEOMETRY)
 item(_NET_WM_MOVERESIZE)
@@ -172,11 +171,11 @@ item(_NET_WM_ACTION_BELOW)
 item(_NET_WM_STATE_STICKY)
 item(_NET_WM_FULLSCREEN_MONITORS)
 item(_NET_WM_STATE_FOCUSED)
-
-#if 0
-/* We apparently never use: */
-/* item(_NET_RESTACK_WINDOW) */
-#endif
+item(_NET_WM_BYPASS_COMPOSITOR)
+item(_NET_WM_OPAQUE_REGION)
+item(_NET_WM_FRAME_DRAWN)
+item(_NET_WM_FRAME_TIMINGS)
+item(_NET_WM_WINDOW_OPACITY)
 
 /* eof atomnames.h */
 

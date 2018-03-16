@@ -1,0 +1,482 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MetaRectangle: Mutter Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="Mutter Reference Manual">
+<link rel="up" href="core-reference.html" title="Part III. Mutter Core Reference">
+<link rel="prev" href="MetaBarrier.html" title="MetaBarrier">
+<link rel="next" href="meta-MetaCompositor.html" title="MetaCompositor">
+<meta name="generator" content="GTK-Doc V1.21.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#MetaRectangle.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#MetaRectangle.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="core-reference.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="MetaBarrier.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="meta-MetaCompositor.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="MetaRectangle"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="MetaRectangle.top_of_page"></a>MetaRectangle</span></h2>
+<p>MetaRectangle — Simple box operations</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="MetaRectangle.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="returnvalue">MetaRectangle</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="MetaRectangle.html#meta-rectangle-copy" title="meta_rectangle_copy ()">meta_rectangle_copy</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaRectangle.html#meta-rectangle-free" title="meta_rectangle_free ()">meta_rectangle_free</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="returnvalue">MetaRectangle</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="MetaRectangle.html#meta-rect" title="meta_rect ()">meta_rect</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">int</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaRectangle.html#meta-rectangle-area" title="meta_rectangle_area ()">meta_rectangle_area</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="MetaRectangle.html#meta-rectangle-intersect" title="meta_rectangle_intersect ()">meta_rectangle_intersect</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="MetaRectangle.html#meta-rectangle-equal" title="meta_rectangle_equal ()">meta_rectangle_equal</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">void</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaRectangle.html#meta-rectangle-union" title="meta_rectangle_union ()">meta_rectangle_union</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="MetaRectangle.html#meta-rectangle-overlap" title="meta_rectangle_overlap ()">meta_rectangle_overlap</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="MetaRectangle.html#meta-rectangle-vert-overlap" title="meta_rectangle_vert_overlap ()">meta_rectangle_vert_overlap</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="MetaRectangle.html#meta-rectangle-horiz-overlap" title="meta_rectangle_horiz_overlap ()">meta_rectangle_horiz_overlap</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="MetaRectangle.html#meta-rectangle-could-fit-rect" title="meta_rectangle_could_fit_rect ()">meta_rectangle_could_fit_rect</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="MetaRectangle.html#meta-rectangle-contains-rect" title="meta_rectangle_contains_rect ()">meta_rectangle_contains_rect</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaRectangle.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaRectangle.html#MetaRectangle-struct" title="struct MetaRectangle">MetaRectangle</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaRectangle.html#MetaStrut" title="struct MetaStrut">MetaStrut</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">enum</td>
+<td class="function_name"><a class="link" href="MetaRectangle.html#MetaEdgeType" title="enum MetaEdgeType">MetaEdgeType</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaRectangle.html#MetaEdge" title="struct MetaEdge">MetaEdge</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaRectangle.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    GBoxed
+    <span class="lineart">╰──</span> MetaRectangle
+</pre>
+</div>
+<div class="refsect1">
+<a name="MetaRectangle.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="MetaRectangle.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="meta-rectangle-copy"></a><h3>meta_rectangle_copy ()</h3>
+<pre class="programlisting"><a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="returnvalue">MetaRectangle</span></a> *
+meta_rectangle_copy (<em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *rect</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-rectangle-free"></a><h3>meta_rectangle_free ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_rectangle_free (<em class="parameter"><code><a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *rect</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-rect"></a><h3>meta_rect ()</h3>
+<pre class="programlisting"><a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="returnvalue">MetaRectangle</span></a>
+meta_rect (<em class="parameter"><code><span class="type">int</span> x</code></em>,
+           <em class="parameter"><code><span class="type">int</span> y</code></em>,
+           <em class="parameter"><code><span class="type">int</span> width</code></em>,
+           <em class="parameter"><code><span class="type">int</span> height</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-rectangle-area"></a><h3>meta_rectangle_area ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>
+meta_rectangle_area (<em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *rect</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-rectangle-intersect"></a><h3>meta_rectangle_intersect ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_rectangle_intersect (<em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *src1</code></em>,
+                          <em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *src2</code></em>,
+                          <em class="parameter"><code><a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *dest</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.4.10.7.6.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>src1</p></td>
+<td class="parameter_description"><p>a <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>src2</p></td>
+<td class="parameter_description"><p>another <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>dest</p></td>
+<td class="parameter_description"><p> an empty <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a>, to be filled
+with the coordinates of the intersection. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Out parameter, where caller must allocate storage."><span class="acronym">out caller-allocates</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.4.10.7.6.5"></a><h4>Returns</h4>
+<p> TRUE is some intersection exists and is not degenerate, FALSE
+otherwise.</p>
+<p></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-rectangle-equal"></a><h3>meta_rectangle_equal ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_rectangle_equal (<em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *src1</code></em>,
+                      <em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *src2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-rectangle-union"></a><h3>meta_rectangle_union ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+meta_rectangle_union (<em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *rect1</code></em>,
+                      <em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *rect2</code></em>,
+                      <em class="parameter"><code><a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *dest</code></em>);</pre>
+<div class="refsect3">
+<a name="id-1.4.10.7.8.4"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>rect1</p></td>
+<td class="parameter_description"><p>a <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>rect2</p></td>
+<td class="parameter_description"><p>another <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>dest</p></td>
+<td class="parameter_description"><p> an empty <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a>, to be filled
+with the coordinates of the bounding box. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="Out parameter, where caller must allocate storage."><span class="acronym">out caller-allocates</span></acronym>]</span></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-rectangle-overlap"></a><h3>meta_rectangle_overlap ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_rectangle_overlap (<em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *rect1</code></em>,
+                        <em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *rect2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-rectangle-vert-overlap"></a><h3>meta_rectangle_vert_overlap ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_rectangle_vert_overlap (<em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *rect1</code></em>,
+                             <em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *rect2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-rectangle-horiz-overlap"></a><h3>meta_rectangle_horiz_overlap ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_rectangle_horiz_overlap (<em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *rect1</code></em>,
+                              <em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *rect2</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-rectangle-could-fit-rect"></a><h3>meta_rectangle_could_fit_rect ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_rectangle_could_fit_rect (<em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *outer_rect</code></em>,
+                               <em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *inner_rect</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-rectangle-contains-rect"></a><h3>meta_rectangle_contains_rect ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_rectangle_contains_rect (<em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *outer_rect</code></em>,
+                              <em class="parameter"><code>const <a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> *inner_rect</code></em>);</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="MetaRectangle.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="MetaRectangle-struct"></a><h3>struct MetaRectangle</h3>
+<pre class="programlisting">struct MetaRectangle {
+  int x;
+  int y;
+  int width;
+  int height;
+};
+</pre>
+<div class="refsect3">
+<a name="id-1.4.10.8.2.4"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="struct_members_name">
+<col class="struct_members_description">
+<col width="200px" class="struct_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="struct_member_name"><p><span class="type">int</span> <em class="structfield"><code><a name="MetaRectangle-struct.x"></a>x</code></em>;</p></td>
+<td class="struct_member_description"><p>X coordinate of the top-left corner</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">int</span> <em class="structfield"><code><a name="MetaRectangle-struct.y"></a>y</code></em>;</p></td>
+<td class="struct_member_description"><p>Y coordinate of the top-left corner</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">int</span> <em class="structfield"><code><a name="MetaRectangle-struct.width"></a>width</code></em>;</p></td>
+<td class="struct_member_description"><p>Width of the rectangle</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><span class="type">int</span> <em class="structfield"><code><a name="MetaRectangle-struct.height"></a>height</code></em>;</p></td>
+<td class="struct_member_description"><p>Height of the rectangle</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaStrut"></a><h3>struct MetaStrut</h3>
+<pre class="programlisting">struct MetaStrut {
+  MetaRectangle rect;
+  MetaSide side;
+};
+</pre>
+<div class="refsect3">
+<a name="id-1.4.10.8.3.4"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="struct_members_name">
+<col class="struct_members_description">
+<col width="200px" class="struct_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> <em class="structfield"><code><a name="MetaStrut.rect"></a>rect</code></em>;</p></td>
+<td class="struct_member_description"><p><a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> the <a class="link" href="MetaRectangle.html#MetaStrut" title="struct MetaStrut"><span class="type">MetaStrut</span></a> is on</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="meta-Common.html#MetaSide" title="enum MetaSide"><span class="type">MetaSide</span></a> <em class="structfield"><code><a name="MetaStrut.side"></a>side</code></em>;</p></td>
+<td class="struct_member_description"><p><a class="link" href="meta-Common.html#MetaSide" title="enum MetaSide"><span class="type">MetaSide</span></a> the <a class="link" href="MetaRectangle.html#MetaStrut" title="struct MetaStrut"><span class="type">MetaStrut</span></a> is on</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaEdgeType"></a><h3>enum MetaEdgeType</h3>
+<div class="refsect3">
+<a name="id-1.4.10.8.4.3"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="enum_members_name">
+<col class="enum_members_description">
+<col width="200px" class="enum_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="enum_member_name"><p><a name="META-EDGE-WINDOW:CAPS"></a>META_EDGE_WINDOW</p></td>
+<td class="enum_member_description">
+<p>Whether the edge belongs to a window</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-EDGE-MONITOR:CAPS"></a>META_EDGE_MONITOR</p></td>
+<td class="enum_member_description">
+<p>Whether the edge belongs to a monitor</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+<tr>
+<td class="enum_member_name"><p><a name="META-EDGE-SCREEN:CAPS"></a>META_EDGE_SCREEN</p></td>
+<td class="enum_member_description">
+<p>Whether the edge belongs to a screen</p>
+</td>
+<td class="enum_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaEdge"></a><h3>struct MetaEdge</h3>
+<pre class="programlisting">struct MetaEdge {
+  MetaRectangle rect;      /* width or height should be 1 */
+  MetaSide side_type;
+  MetaEdgeType  edge_type;
+};
+</pre>
+<div class="refsect3">
+<a name="id-1.4.10.8.5.4"></a><h4>Members</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="300px" class="struct_members_name">
+<col class="struct_members_description">
+<col width="200px" class="struct_members_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> <em class="structfield"><code><a name="MetaEdge.rect"></a>rect</code></em>;</p></td>
+<td class="struct_member_description"><p><a class="link" href="MetaRectangle.html" title="MetaRectangle"><span class="type">MetaRectangle</span></a> with the bounds of the edge</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="meta-Common.html#MetaSide" title="enum MetaSide"><span class="type">MetaSide</span></a> <em class="structfield"><code><a name="MetaEdge.side-type"></a>side_type</code></em>;</p></td>
+<td class="struct_member_description"><p>Side</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+<tr>
+<td class="struct_member_name"><p><a class="link" href="MetaRectangle.html#MetaEdgeType" title="enum MetaEdgeType"><span class="type">MetaEdgeType</span></a> <em class="structfield"><code><a name="MetaEdge.edge-type"></a>edge_type</code></em>;</p></td>
+<td class="struct_member_description"><p>To what belongs the edge</p></td>
+<td class="struct_member_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.21.1</div>
+</body>
+</html>

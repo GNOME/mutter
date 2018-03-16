@@ -2,9 +2,9 @@
 
 /* Mutter X window decorations */
 
-/* 
+/*
  * Copyright (C) 2001 Havoc Pennington
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -14,11 +14,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef META_FRAME_PRIVATE_H
@@ -41,15 +39,17 @@ struct _MetaFrame
    */
   MetaRectangle rect;
 
+  MetaFrameBorders cached_borders; /* valid if borders_cached is set */
+
   /* position of client, size of frame */
   int child_x;
   int child_y;
   int right_width;
   int bottom_height;
 
-  guint mapped : 1;
   guint need_reapply_frame_shape : 1;
   guint is_flashing : 1; /* used by the visual bell flash */
+  guint borders_cached : 1;
 };
 
 void     meta_window_ensure_frame           (MetaWindow *window);
@@ -63,18 +63,17 @@ Window         meta_frame_get_xwindow (MetaFrame *frame);
 void meta_frame_calc_borders      (MetaFrame        *frame,
                                    MetaFrameBorders *borders);
 
-void meta_frame_get_corner_radiuses (MetaFrame *frame,
-                                     float     *top_left,
-                                     float     *top_right,
-                                     float     *bottom_left,
-                                     float     *bottom_right);
-
 gboolean meta_frame_sync_to_window (MetaFrame         *frame,
                                     int                gravity,
                                     gboolean           need_move,
                                     gboolean           need_resize);
 
+void meta_frame_clear_cached_borders (MetaFrame *frame);
+
 cairo_region_t *meta_frame_get_frame_bounds (MetaFrame *frame);
+
+void meta_frame_get_mask (MetaFrame *frame,
+                          cairo_t   *cr);
 
 void meta_frame_set_screen_cursor (MetaFrame	*frame,
 				   MetaCursor	cursor);

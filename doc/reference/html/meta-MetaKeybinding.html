@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MetaKeybinding: Mutter Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="Mutter Reference Manual">
+<link rel="up" href="core-reference.html" title="Part III. Mutter Core Reference">
+<link rel="prev" href="meta-MetaGroup.html" title="MetaGroup">
+<link rel="next" href="MetaBackgroundActor.html" title="MetaBackgroundActor">
+<meta name="generator" content="GTK-Doc V1.21.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#meta-MetaKeybinding.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#meta-MetaKeybinding.object-hierarchy" class="shortcut">Object Hierarchy</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="core-reference.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="meta-MetaGroup.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="MetaBackgroundActor.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="meta-MetaKeybinding"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="meta-MetaKeybinding.top_of_page"></a>MetaKeybinding</span></h2>
+<p>MetaKeybinding — Key bindings</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="meta-MetaKeybinding.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="define_keyword">#define</td>
+<td class="function_name"><a class="link" href="meta-MetaKeybinding.html#META-TYPE-KEY-BINDING:CAPS" title="META_TYPE_KEY_BINDING">META_TYPE_KEY_BINDING</a></td>
+</tr>
+<tr>
+<td class="function_type">const <span class="returnvalue">char</span> *
+</td>
+<td class="function_name">
+<a class="link" href="meta-MetaKeybinding.html#meta-key-binding-get-name" title="meta_key_binding_get_name ()">meta_key_binding_get_name</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="meta-Common.html#MetaVirtualModifier" title="enum MetaVirtualModifier"><span class="returnvalue">MetaVirtualModifier</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-MetaKeybinding.html#meta-key-binding-get-modifiers" title="meta_key_binding_get_modifiers ()">meta_key_binding_get_modifiers</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-MetaKeybinding.html#meta-key-binding-get-mask" title="meta_key_binding_get_mask ()">meta_key_binding_get_mask</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-MetaKeybinding.html#meta-key-binding-is-builtin" title="meta_key_binding_is_builtin ()">meta_key_binding_is_builtin</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="meta-MetaKeybinding.html#meta-keybindings-set-custom-handler" title="meta_keybindings_set_custom_handler ()">meta_keybindings_set_custom_handler</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<a name="MetaKeyBinding"></a><div class="refsect1">
+<a name="meta-MetaKeybinding.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody><tr>
+<td class="datatype_keyword"> </td>
+<td class="function_name"><a class="link" href="meta-MetaKeybinding.html#MetaKeyBinding-struct" title="MetaKeyBinding">MetaKeyBinding</a></td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="meta-MetaKeybinding.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    GBoxed
+    <span class="lineart">╰──</span> MetaKeyBinding
+</pre>
+</div>
+<div class="refsect1">
+<a name="meta-MetaKeybinding.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="meta-MetaKeybinding.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="META-TYPE-KEY-BINDING:CAPS"></a><h3>META_TYPE_KEY_BINDING</h3>
+<pre class="programlisting">#define META_TYPE_KEY_BINDING               (meta_key_binding_get_type ())
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-key-binding-get-name"></a><h3>meta_key_binding_get_name ()</h3>
+<pre class="programlisting">const <span class="returnvalue">char</span> *
+meta_key_binding_get_name (<em class="parameter"><code><a class="link" href="meta-MetaKeybinding.html#MetaKeyBinding"><span class="type">MetaKeyBinding</span></a> *binding</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-key-binding-get-modifiers"></a><h3>meta_key_binding_get_modifiers ()</h3>
+<pre class="programlisting"><a class="link" href="meta-Common.html#MetaVirtualModifier" title="enum MetaVirtualModifier"><span class="returnvalue">MetaVirtualModifier</span></a>
+meta_key_binding_get_modifiers (<em class="parameter"><code><a class="link" href="meta-MetaKeybinding.html#MetaKeyBinding"><span class="type">MetaKeyBinding</span></a> *binding</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-key-binding-get-mask"></a><h3>meta_key_binding_get_mask ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>
+meta_key_binding_get_mask (<em class="parameter"><code><a class="link" href="meta-MetaKeybinding.html#MetaKeyBinding"><span class="type">MetaKeyBinding</span></a> *binding</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-key-binding-is-builtin"></a><h3>meta_key_binding_is_builtin ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_key_binding_is_builtin (<em class="parameter"><code><a class="link" href="meta-MetaKeybinding.html#MetaKeyBinding"><span class="type">MetaKeyBinding</span></a> *binding</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-keybindings-set-custom-handler"></a><h3>meta_keybindings_set_custom_handler ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_keybindings_set_custom_handler (<em class="parameter"><code>const <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *name</code></em>,
+                                     <em class="parameter"><code><a class="link" href="meta-Preferences.html#MetaKeyHandlerFunc" title="MetaKeyHandlerFunc ()"><span class="type">MetaKeyHandlerFunc</span></a> handler</code></em>,
+                                     <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>,
+                                     <em class="parameter"><code><a href="https://developer.gnome.org/glib/unstable/glib-Datasets.html#GDestroyNotify"><span class="type">GDestroyNotify</span></a> free_data</code></em>);</pre>
+<p>Allows users to register a custom handler for a
+builtin key binding.</p>
+<div class="refsect3">
+<a name="id-1.4.14.8.7.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>name</p></td>
+<td class="parameter_description"><p>The name of the keybinding to set</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>handler</p></td>
+<td class="parameter_description"><p> The new handler function. </p></td>
+<td class="parameter_annotations"><span class="annotation">[<acronym title="NULL may be passed as the value in, out, in-out; or as a return value."><span class="acronym">nullable</span></acronym>]</span></td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>User data to pass to the callback</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>free_data</p></td>
+<td class="parameter_description"><p>Will be called when this handler is overridden.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.4.14.8.7.6"></a><h4>Returns</h4>
+<p> <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> if the binding known as <em class="parameter"><code>name</code></em>
+was found,
+<a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> otherwise.</p>
+<p></p>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="meta-MetaKeybinding.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="MetaKeyBinding-struct"></a><h3>MetaKeyBinding</h3>
+<pre class="programlisting">typedef struct _MetaKeyBinding MetaKeyBinding;</pre>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.21.1</div>
+</body>
+</html>

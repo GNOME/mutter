@@ -2,9 +2,9 @@
 
 /* Metacity window frame manager widget */
 
-/* 
+/*
  * Copyright (C) 2001 Havoc Pennington
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -14,11 +14,9 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef META_FRAMES_H
@@ -35,6 +33,7 @@ typedef enum
   META_FRAME_CONTROL_TITLE,
   META_FRAME_CONTROL_DELETE,
   META_FRAME_CONTROL_MENU,
+  META_FRAME_CONTROL_APPMENU,
   META_FRAME_CONTROL_MINIMIZE,
   META_FRAME_CONTROL_MAXIMIZE,
   META_FRAME_CONTROL_UNMAXIMIZE,
@@ -80,32 +79,34 @@ struct _MetaUIFrame
   PangoLayout *layout;
   int text_height;
   char *title; /* NULL once we have a layout */
-  guint expose_delayed : 1;
   guint shape_applied : 1;
-  
+  guint maybe_ignore_leave_notify : 1;
+
   /* FIXME get rid of this, it can just be in the MetaFrames struct */
   MetaFrameControl prelit_control;
+  MetaButtonState button_state;
+  int grab_button;
 };
 
 struct _MetaFrames
 {
   GtkWindow parent_instance;
-  
+
   GHashTable *text_heights;
 
   GHashTable *frames;
-
-  guint tooltip_timeout;
   MetaUIFrame *last_motion_frame;
 
   GtkStyleContext *normal_style;
   GHashTable *style_variants;
 
-  int expose_delay_count;
+  MetaGrabOp current_grab_op;
+  MetaUIFrame *grab_frame;
+  guint grab_button;
+  gdouble grab_x;
+  gdouble grab_y;
 
-  int invalidate_cache_timeout_id;
-  GList *invalidate_frames;
-  GHashTable *cache;
+  Window grab_xwindow;
 };
 
 struct _MetaFramesClass
@@ -137,24 +138,16 @@ void meta_frames_get_borders (MetaFrames *frames,
                               Window xwindow,
                               MetaFrameBorders *borders);
 
-void meta_frames_reset_bg     (MetaFrames *frames,
-                               Window      xwindow);
-void meta_frames_unflicker_bg (MetaFrames *frames,
-                               Window      xwindow,
-                               int         target_width,
-                               int         target_height);
-
 cairo_region_t *meta_frames_get_frame_bounds (MetaFrames *frames,
                                               Window      xwindow,
                                               int         window_width,
                                               int         window_height);
 
-void meta_frames_get_corner_radiuses (MetaFrames *frames,
-                                      Window      xwindow,
-                                      float      *top_left,
-                                      float      *top_right,
-                                      float      *bottom_left,
-                                      float      *bottom_right);
+void meta_frames_get_mask (MetaFrames *frames,
+                           Window      xwindow,
+                           guint       width,
+                           guint       height,
+                           cairo_t    *cr);
 
 void meta_frames_move_resize_frame (MetaFrames *frames,
 				    Window      xwindow,
@@ -165,11 +158,6 @@ void meta_frames_move_resize_frame (MetaFrames *frames,
 void meta_frames_queue_draw (MetaFrames *frames,
                              Window      xwindow);
 
-void meta_frames_notify_menu_hide (MetaFrames *frames);
-
 Window meta_frames_get_moving_frame (MetaFrames *frames);
-
-void meta_frames_push_delay_exposes (MetaFrames *frames);
-void meta_frames_pop_delay_exposes  (MetaFrames *frames);
 
 #endif

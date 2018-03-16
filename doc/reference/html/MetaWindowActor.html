@@ -1,0 +1,338 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>MetaWindowActor: Mutter Reference Manual</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="Mutter Reference Manual">
+<link rel="up" href="core-reference.html" title="Part III. Mutter Core Reference">
+<link rel="prev" href="MetaShapedTexture.html" title="MetaShapedTexture">
+<link rel="next" href="MetaScreen.html" title="MetaScreen">
+<meta name="generator" content="GTK-Doc V1.21.1 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="5"><tr valign="middle">
+<td width="100%" align="left" class="shortcuts">
+<a href="#" class="shortcut">Top</a><span id="nav_description">  <span class="dim">|</span> 
+                  <a href="#MetaWindowActor.description" class="shortcut">Description</a></span><span id="nav_hierarchy">  <span class="dim">|</span> 
+                  <a href="#MetaWindowActor.object-hierarchy" class="shortcut">Object Hierarchy</a></span><span id="nav_interfaces">  <span class="dim">|</span> 
+                  <a href="#MetaWindowActor.implemented-interfaces" class="shortcut">Implemented Interfaces</a></span><span id="nav_properties">  <span class="dim">|</span> 
+                  <a href="#MetaWindowActor.properties" class="shortcut">Properties</a></span><span id="nav_signals">  <span class="dim">|</span> 
+                  <a href="#MetaWindowActor.signals" class="shortcut">Signals</a></span>
+</td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="16" height="16" border="0" alt="Home"></a></td>
+<td><a accesskey="u" href="core-reference.html"><img src="up.png" width="16" height="16" border="0" alt="Up"></a></td>
+<td><a accesskey="p" href="MetaShapedTexture.html"><img src="left.png" width="16" height="16" border="0" alt="Prev"></a></td>
+<td><a accesskey="n" href="MetaScreen.html"><img src="right.png" width="16" height="16" border="0" alt="Next"></a></td>
+</tr></table>
+<div class="refentry">
+<a name="MetaWindowActor"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="MetaWindowActor.top_of_page"></a>MetaWindowActor</span></h2>
+<p>MetaWindowActor — An actor representing a top-level window in the scene graph</p>
+</td>
+<td class="gallery_image" valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="MetaWindowActor.functions"></a><h2>Functions</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="functions_return">
+<col class="functions_name">
+</colgroup>
+<tbody>
+<tr>
+<td class="function_type">
+<span class="returnvalue">Window</span>
+</td>
+<td class="function_name">
+<a class="link" href="MetaWindowActor.html#meta-window-actor-get-x-window" title="meta_window_actor_get_x_window ()">meta_window_actor_get_x_window</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a class="link" href="MetaWindow.html" title="MetaWindow"><span class="returnvalue">MetaWindow</span></a> *
+</td>
+<td class="function_name">
+<a class="link" href="MetaWindowActor.html#meta-window-actor-get-meta-window" title="meta_window_actor_get_meta_window ()">meta_window_actor_get_meta_window</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<span class="returnvalue">ClutterActor</span> *
+</td>
+<td class="function_name">
+<a class="link" href="MetaWindowActor.html#meta-window-actor-get-texture" title="meta_window_actor_get_texture ()">meta_window_actor_get_texture</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+<tr>
+<td class="function_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+</td>
+<td class="function_name">
+<a class="link" href="MetaWindowActor.html#meta-window-actor-is-destroyed" title="meta_window_actor_is_destroyed ()">meta_window_actor_is_destroyed</a> <span class="c_punctuation">()</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaWindowActor.properties"></a><h2>Properties</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="properties_type">
+<col width="300px" class="properties_name">
+<col width="200px" class="properties_flags">
+</colgroup>
+<tbody>
+<tr>
+<td class="property_type">
+<a class="link" href="MetaWindow.html" title="MetaWindow"><span class="type">MetaWindow</span></a> *</td>
+<td class="property_name"><a class="link" href="MetaWindowActor.html#MetaWindowActor--meta-window" title="The “meta-window” property">meta-window</a></td>
+<td class="property_flags">Read / Write / Construct Only</td>
+</tr>
+<tr>
+<td class="property_type"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></td>
+<td class="property_name"><a class="link" href="MetaWindowActor.html#MetaWindowActor--no-shadow" title="The “no-shadow” property">no-shadow</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+<tr>
+<td class="property_type">
+<a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</td>
+<td class="property_name"><a class="link" href="MetaWindowActor.html#MetaWindowActor--shadow-class" title="The “shadow-class” property">shadow-class</a></td>
+<td class="property_flags">Read / Write</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaWindowActor.signals"></a><h2>Signals</h2>
+<div class="informaltable"><table border="0">
+<colgroup>
+<col width="150px" class="signals_return">
+<col width="300px" class="signals_name">
+<col width="200px" class="signals_flags">
+</colgroup>
+<tbody><tr>
+<td class="signal_type"><span class="returnvalue">void</span></td>
+<td class="signal_name"><a class="link" href="MetaWindowActor.html#MetaWindowActor-first-frame" title="The “first-frame” signal">first-frame</a></td>
+<td class="signal_flags"><a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaWindowActor.other"></a><h2>Types and Values</h2>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="name">
+<col class="description">
+</colgroup>
+<tbody>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaWindowActor.html#MetaWindowActor-struct" title="struct MetaWindowActor">MetaWindowActor</a></td>
+</tr>
+<tr>
+<td class="datatype_keyword">struct</td>
+<td class="function_name"><a class="link" href="MetaWindowActor.html#MetaWindowActorClass" title="struct MetaWindowActorClass">MetaWindowActorClass</a></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="refsect1">
+<a name="MetaWindowActor.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="screen">    <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
+    <span class="lineart">╰──</span> <a href="https://developer.gnome.org/gobject/unstable/gobject-The-Base-Object-Type.html#GInitiallyUnowned">GInitiallyUnowned</a>
+        <span class="lineart">╰──</span> ClutterActor
+            <span class="lineart">╰──</span> MetaWindowActor
+</pre>
+</div>
+<div class="refsect1">
+<a name="MetaWindowActor.implemented-interfaces"></a><h2>Implemented Interfaces</h2>
+<p>
+MetaWindowActor implements
+ ClutterContainer,  ClutterScriptable,  ClutterAnimatable,  AtkImplementorIface and  MetaCullable.</p>
+</div>
+<div class="refsect1">
+<a name="MetaWindowActor.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="MetaWindowActor.functions_details"></a><h2>Functions</h2>
+<div class="refsect2">
+<a name="meta-window-actor-get-x-window"></a><h3>meta_window_actor_get_x_window ()</h3>
+<pre class="programlisting"><span class="returnvalue">Window</span>
+meta_window_actor_get_x_window (<em class="parameter"><code><a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> *self</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-window-actor-get-meta-window"></a><h3>meta_window_actor_get_meta_window ()</h3>
+<pre class="programlisting"><a class="link" href="MetaWindow.html" title="MetaWindow"><span class="returnvalue">MetaWindow</span></a> *
+meta_window_actor_get_meta_window (<em class="parameter"><code><a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> *self</code></em>);</pre>
+<p>Gets the <a class="link" href="MetaWindow.html" title="MetaWindow"><span class="type">MetaWindow</span></a> object that the the <a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> is displaying</p>
+<div class="refsect3">
+<a name="id-1.4.18.10.3.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>a <a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.4.18.10.3.6"></a><h4>Returns</h4>
+<p> the displayed <a class="link" href="MetaWindow.html" title="MetaWindow"><span class="type">MetaWindow</span></a>. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-window-actor-get-texture"></a><h3>meta_window_actor_get_texture ()</h3>
+<pre class="programlisting"><span class="returnvalue">ClutterActor</span> *
+meta_window_actor_get_texture (<em class="parameter"><code><a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> *self</code></em>);</pre>
+<p>Gets the ClutterActor that is used to display the contents of the window,
+or NULL if no texture is shown yet, because the window is not mapped.</p>
+<div class="refsect3">
+<a name="id-1.4.18.10.4.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>a <a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.4.18.10.4.6"></a><h4>Returns</h4>
+<p> the <span class="type">ClutterActor</span> for the contents. </p>
+<p><span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span></p>
+</div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="meta-window-actor-is-destroyed"></a><h3>meta_window_actor_is_destroyed ()</h3>
+<pre class="programlisting"><a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>
+meta_window_actor_is_destroyed (<em class="parameter"><code><a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> *self</code></em>);</pre>
+<p>Gets whether the X window that the actor was displaying has been destroyed</p>
+<div class="refsect3">
+<a name="id-1.4.18.10.5.5"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody><tr>
+<td class="parameter_name"><p>self</p></td>
+<td class="parameter_description"><p>a <a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a></p></td>
+<td class="parameter_annotations"> </td>
+</tr></tbody>
+</table></div>
+</div>
+<div class="refsect3">
+<a name="id-1.4.18.10.5.6"></a><h4>Returns</h4>
+<p> <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a> when the window is destroyed, otherwise <a href="https://developer.gnome.org/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a></p>
+<p></p>
+</div>
+</div>
+</div>
+<div class="refsect1">
+<a name="MetaWindowActor.other_details"></a><h2>Types and Values</h2>
+<div class="refsect2">
+<a name="MetaWindowActor-struct"></a><h3>struct MetaWindowActor</h3>
+<pre class="programlisting">struct MetaWindowActor;</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaWindowActorClass"></a><h3>struct MetaWindowActorClass</h3>
+<pre class="programlisting">struct MetaWindowActorClass {
+};
+</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="MetaWindowActor.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="MetaWindowActor--meta-window"></a><h3>The <code class="literal">“meta-window”</code> property</h3>
+<pre class="programlisting">  “meta-window”              <a class="link" href="MetaWindow.html" title="MetaWindow"><span class="type">MetaWindow</span></a> *</pre>
+<p>The displayed MetaWindow.</p>
+<p>Flags: Read / Write / Construct Only</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaWindowActor--no-shadow"></a><h3>The <code class="literal">“no-shadow”</code> property</h3>
+<pre class="programlisting">  “no-shadow”                <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a></pre>
+<p>Do not add shaddow to this window.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: FALSE</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="MetaWindowActor--shadow-class"></a><h3>The <code class="literal">“shadow-class”</code> property</h3>
+<pre class="programlisting">  “shadow-class”             <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *</pre>
+<p>NULL means to use the default shadow class for this window type.</p>
+<p>Flags: Read / Write</p>
+<p>Default value: NULL</p>
+</div>
+</div>
+<div class="refsect1">
+<a name="MetaWindowActor.signal-details"></a><h2>Signal Details</h2>
+<div class="refsect2">
+<a name="MetaWindowActor-first-frame"></a><h3>The <code class="literal">“first-frame”</code> signal</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>
+user_function (<a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> *actor,
+               <a href="https://developer.gnome.org/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a>         user_data)</pre>
+<p>The ::first-frame signal will be emitted the first time a frame
+of window contents has been drawn by the application and Mutter
+has had the chance to drawn that frame to the screen. If the
+window starts off initially hidden, obscured, or on on a
+different workspace, the ::first-frame signal will be emitted
+even though the user doesn't see the contents.</p>
+<p>MetaDisplay::window-created is a good place to connect to this
+signal - at that point, the MetaWindowActor for the window
+exists, but the window has reliably not yet been drawn.
+Connecting to an existing window that has already been drawn to
+the screen is not useful.</p>
+<div class="refsect3">
+<a name="id-1.4.18.13.2.6"></a><h4>Parameters</h4>
+<div class="informaltable"><table width="100%" border="0">
+<colgroup>
+<col width="150px" class="parameters_name">
+<col class="parameters_description">
+<col width="200px" class="parameters_annotations">
+</colgroup>
+<tbody>
+<tr>
+<td class="parameter_name"><p>actor</p></td>
+<td class="parameter_description"><p>the <a class="link" href="MetaWindowActor.html" title="MetaWindowActor"><span class="type">MetaWindowActor</span></a> instance</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+<tr>
+<td class="parameter_name"><p>user_data</p></td>
+<td class="parameter_description"><p>user data set when the signal handler was connected.</p></td>
+<td class="parameter_annotations"> </td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Flags: <a href="https://developer.gnome.org/gobject/unstable/gobject-Signals.html#G-SIGNAL-RUN-LAST:CAPS">Run Last</a></p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.21.1</div>
+</body>
+</html>
