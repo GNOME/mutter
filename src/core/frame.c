@@ -37,7 +37,6 @@ meta_window_ensure_frame (MetaWindow *window)
 {
   MetaFrame *frame;
   XSetWindowAttributes attrs;
-  Visual *visual;
   gulong create_serial;
 
   if (window->frame)
@@ -58,42 +57,21 @@ meta_window_ensure_frame (MetaWindow *window)
   frame->is_flashing = FALSE;
   frame->borders_cached = FALSE;
 
-  meta_verbose ("Framing window %s: visual %s default, depth %d default depth %d\n",
-                window->desc,
-                XVisualIDFromVisual (window->xvisual) ==
-                XVisualIDFromVisual (window->screen->default_xvisual) ?
-                "is" : "is not",
-                window->depth, window->screen->default_depth);
   meta_verbose ("Frame geometry %d,%d  %dx%d\n",
                 frame->rect.x, frame->rect.y,
                 frame->rect.width, frame->rect.height);
 
-  /* Default depth/visual handles clients with weird visuals; they can
-   * always be children of the root depth/visual obviously, but
-   * e.g. DRI games can't be children of a parent that has the same
-   * visual as the client. NULL means default visual.
-   *
-   * We look for an ARGB visual if we can find one, otherwise use
-   * the default of NULL.
-   */
+  frame->ui_frame = meta_ui_create_frame (window->screen->ui,
+                                          window->display->xdisplay,
+                                          frame->window,
+                                          window->xvisual,
+                                          frame->rect.x,
+                                          frame->rect.y,
+                                          frame->rect.width,
+                                          frame->rect.height,
+                                          &create_serial);
+  frame->xwindow = frame->ui_frame->xwindow;
 
-  /* Special case for depth 32 windows (assumed to be ARGB),
-   * we use the window's visual. Otherwise we just use the system visual.
-   */
-  if (window->depth == 32)
-    visual = window->xvisual;
-  else
-    visual = NULL;
-
-  frame->xwindow = meta_ui_create_frame_window (window->screen->ui,
-                                                window->display->xdisplay,
-                                                visual,
-                                                frame->rect.x,
-                                                frame->rect.y,
-						frame->rect.width,
-						frame->rect.height,
-						frame->window->screen->number,
-                                                &create_serial);
   meta_stack_tracker_record_add (window->screen->stack_tracker,
                                  frame->xwindow,
                                  create_serial);
@@ -102,19 +80,6 @@ meta_window_ensure_frame (MetaWindow *window)
   attrs.event_mask = EVENT_MASK;
   XChangeWindowAttributes (window->display->xdisplay,
 			   frame->xwindow, CWEventMask, &attrs);
-
-  {
-    unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
-    XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
-
-    XISetMask (mask.mask, XI_ButtonPress);
-    XISetMask (mask.mask, XI_ButtonRelease);
-    XISetMask (mask.mask, XI_Motion);
-    XISetMask (mask.mask, XI_Enter);
-    XISetMask (mask.mask, XI_Leave);
-
-    XISelectEvents (window->display->xdisplay, frame->xwindow, &mask, 1);
-  }
 
   meta_display_register_x_window (window->display, &frame->xwindow, window);
 
@@ -146,12 +111,8 @@ meta_window_ensure_frame (MetaWindow *window)
   /* Now that frame->xwindow is registered with window, we can set its
    * style and background.
    */
-  meta_ui_update_frame_style (window->screen->ui, frame->xwindow);
-
-  if (window->title)
-    meta_ui_set_frame_title (window->screen->ui,
-                             window->frame->xwindow,
-                             window->title);
+  meta_frame_update_style (frame);
+  meta_frame_update_title (frame);
 
   meta_ui_map_frame (frame->window->screen->ui, frame->xwindow);
 
@@ -159,10 +120,26 @@ meta_window_ensure_frame (MetaWindow *window)
     MetaBackend *backend = meta_get_backend ();
     if (META_IS_BACKEND_X11 (backend))
       {
-        /* Since the backend takes keygrabs on another connection, make sure
-         * to sync the GTK+ connection to ensure that the frame window has
-         * been created on the server at this point. */
+        Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+
+        /* Since the backend selects for events on another connection,
+         * make sure to sync the GTK+ connection to ensure that the
+         * frame window has been created on the server at this point. */
         XSync (window->display->xdisplay, False);
+
+        unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
+        XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
+
+        XISelectEvents (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
+                        frame->xwindow, &mask, 1);
+
+        XISetMask (mask.mask, XI_ButtonPress);
+        XISetMask (mask.mask, XI_ButtonRelease);
+        XISetMask (mask.mask, XI_Motion);
+        XISetMask (mask.mask, XI_Enter);
+        XISetMask (mask.mask, XI_Leave);
+
+        XISelectEvents (xdisplay, frame->xwindow, &mask, 1);
       }
   }
 
@@ -215,7 +192,7 @@ meta_window_destroy_frame (MetaWindow *window)
                    window->frame->rect.y + borders.invisible.top);
   meta_error_trap_pop (window->display);
 
-  meta_ui_destroy_frame_window (window->screen->ui, frame->xwindow);
+  meta_ui_frame_unmanage (frame->ui_frame);
 
   meta_display_unregister_x_window (window->display,
                                     frame->xwindow);
@@ -335,9 +312,7 @@ meta_frame_calc_borders (MetaFrame        *frame,
     {
       if (!frame->borders_cached)
         {
-          meta_ui_get_frame_borders (frame->window->screen->ui,
-                                     frame->xwindow,
-                                     &frame->cached_borders);
+          meta_ui_frame_get_borders (frame->ui_frame, &frame->cached_borders);
           frame->borders_cached = TRUE;
         }
 
@@ -353,8 +328,6 @@ meta_frame_clear_cached_borders (MetaFrame *frame)
 
 gboolean
 meta_frame_sync_to_window (MetaFrame *frame,
-                           int        resize_gravity,
-                           gboolean   need_move,
                            gboolean   need_resize)
 {
   meta_topic (META_DEBUG_GEOMETRY,
@@ -364,23 +337,11 @@ meta_frame_sync_to_window (MetaFrame *frame,
               frame->rect.x + frame->rect.width,
               frame->rect.y + frame->rect.height);
 
-  meta_ui_move_resize_frame (frame->window->screen->ui,
-			     frame->xwindow,
+  meta_ui_frame_move_resize (frame->ui_frame,
 			     frame->rect.x,
 			     frame->rect.y,
 			     frame->rect.width,
 			     frame->rect.height);
-
-  if (need_resize)
-    {
-      /* If we're interactively resizing the frame, repaint
-       * it immediately so we don't start to lag.
-       */
-      if (frame->window->display->grab_window ==
-          frame->window)
-        meta_ui_repaint_frame (frame->window->screen->ui,
-                               frame->xwindow);
-    }
 
   return need_resize;
 }
@@ -388,25 +349,20 @@ meta_frame_sync_to_window (MetaFrame *frame,
 cairo_region_t *
 meta_frame_get_frame_bounds (MetaFrame *frame)
 {
-  return meta_ui_get_frame_bounds (frame->window->screen->ui,
-                                   frame->xwindow,
-                                   frame->rect.width,
-                                   frame->rect.height);
+  return meta_ui_frame_get_bounds (frame->ui_frame);
 }
 
 void
 meta_frame_get_mask (MetaFrame                    *frame,
                      cairo_t                      *cr)
 {
-  meta_ui_get_frame_mask (frame->window->screen->ui, frame->xwindow,
-                          frame->rect.width, frame->rect.height, cr);
+  meta_ui_frame_get_mask (frame->ui_frame, cr);
 }
 
 void
 meta_frame_queue_draw (MetaFrame *frame)
 {
-  meta_ui_queue_frame_draw (frame->window->screen->ui,
-                            frame->xwindow);
+  meta_ui_frame_queue_draw (frame->ui_frame);
 }
 
 void
@@ -432,4 +388,17 @@ Window
 meta_frame_get_xwindow (MetaFrame *frame)
 {
   return frame->xwindow;
+}
+
+void
+meta_frame_update_style (MetaFrame *frame)
+{
+  meta_ui_frame_update_style (frame->ui_frame);
+}
+
+void
+meta_frame_update_title (MetaFrame *frame)
+{
+  if (frame->window->title)
+    meta_ui_frame_set_title (frame->ui_frame, frame->window->title);
 }

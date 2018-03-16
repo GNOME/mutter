@@ -26,6 +26,7 @@
 #include <clutter/clutter.h>
 
 #include "meta-wayland-types.h"
+#include "meta-wayland-input-device.h"
 #include "meta-wayland-pointer.h"
 #include "meta-wayland-keyboard.h"
 #include "meta-wayland-touch.h"
@@ -36,9 +37,10 @@ struct _MetaWaylandSeat
   struct wl_list base_resource_list;
   struct wl_display *wl_display;
 
-  MetaWaylandPointer pointer;
-  MetaWaylandKeyboard keyboard;
-  MetaWaylandTouch touch;
+  MetaWaylandPointer *pointer;
+  MetaWaylandKeyboard *keyboard;
+  MetaWaylandTouch *touch;
+
   MetaWaylandDataDevice data_device;
 
   guint capabilities;
@@ -58,12 +60,20 @@ void meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                                         MetaWaylandSurface *surface);
 
 void meta_wayland_seat_repick (MetaWaylandSeat *seat);
-void meta_wayland_seat_update_cursor_surface (MetaWaylandSeat *seat);
 
 gboolean meta_wayland_seat_get_grab_info (MetaWaylandSeat    *seat,
-					  MetaWaylandSurface *surface,
-					  uint32_t            serial,
-					  gfloat             *x,
-					  gfloat             *y);
+                                          MetaWaylandSurface *surface,
+                                          uint32_t            serial,
+                                          gboolean            require_pressed,
+                                          gfloat             *x,
+                                          gfloat             *y);
+gboolean meta_wayland_seat_can_popup     (MetaWaylandSeat *seat,
+                                          uint32_t         serial);
+
+gboolean meta_wayland_seat_has_keyboard (MetaWaylandSeat *seat);
+
+gboolean meta_wayland_seat_has_pointer (MetaWaylandSeat *seat);
+
+gboolean meta_wayland_seat_has_touch (MetaWaylandSeat *seat);
 
 #endif /* META_WAYLAND_SEAT_H */

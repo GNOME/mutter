@@ -330,8 +330,7 @@ test_client_do (TestClient *client,
 
  out:
   g_string_free (command, TRUE);
-  if (line)
-    g_free (line);
+  g_free (line);
 
   return *error == NULL;
 }
@@ -768,6 +767,23 @@ test_case_do (TestCase *test,
                            NULL))
         return FALSE;
     }
+  else if (strcmp (argv[0], "set_parent") == 0)
+    {
+      if (argc != 3)
+        BAD_COMMAND("usage: %s <client-id>/<window-id> <parent-window-id>",
+                    argv[0]);
+
+      TestClient *client;
+      const char *window_id;
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      if (!test_client_do (client, error,
+                           "set_parent", window_id,
+                           argv[2],
+                           NULL))
+        return FALSE;
+    }
   else if (strcmp (argv[0], "show") == 0 ||
            strcmp (argv[0], "hide") == 0 ||
            strcmp (argv[0], "activate") == 0 ||
@@ -1095,7 +1111,6 @@ main (int argc, char **argv)
   if (all_tests)
     {
       GFile *test_dir = g_file_new_for_path (MUTTER_PKGDATADIR "/tests");
-      GError *error = NULL;
 
       if (!find_metatests_in_directory (test_dir, tests, &error))
         {
@@ -1121,10 +1136,10 @@ main (int argc, char **argv)
 
   /* Then initalize mutter with a different set of arguments */
 
-  char *fake_args[] = { NULL, "--wayland" };
+  char *fake_args[] = { NULL, (char *)"--wayland", (char *)"--nested" };
   fake_args[0] = argv[0];
   char **fake_argv = fake_args;
-  int fake_argc = 2;
+  int fake_argc = G_N_ELEMENTS (fake_args);
 
   char *basename = g_path_get_basename (argv[0]);
   char *dirname = g_path_get_dirname (argv[0]);

@@ -24,20 +24,17 @@
 
 #include <meta/types.h>
 #include <meta/screen.h>
-
-#define  META_PLUGIN_FROM_MANAGER_
 #include <meta/meta-plugin.h>
-#undef   META_PLUGIN_FROM_MANAGER_
 
-#define META_PLUGIN_MINIMIZE         (1<<0)
-#define META_PLUGIN_MAXIMIZE         (1<<1)
-#define META_PLUGIN_UNMAXIMIZE       (1<<2)
-#define META_PLUGIN_MAP              (1<<3)
-#define META_PLUGIN_DESTROY          (1<<4)
-#define META_PLUGIN_SWITCH_WORKSPACE (1<<5)
-#define META_PLUGIN_UNMINIMIZE       (1<<6)
-
-#define META_PLUGIN_ALL_EFFECTS      (~0)
+typedef enum {
+  META_PLUGIN_NONE,
+  META_PLUGIN_MINIMIZE,
+  META_PLUGIN_MAP,
+  META_PLUGIN_DESTROY,
+  META_PLUGIN_SWITCH_WORKSPACE,
+  META_PLUGIN_UNMINIMIZE,
+  META_PLUGIN_SIZE_CHANGE,
+} MetaPluginEffect;
 
 /**
  * MetaPluginManager: (skip)
@@ -51,15 +48,13 @@ void     meta_plugin_manager_load         (const gchar       *plugin_name);
 
 gboolean meta_plugin_manager_event_simple (MetaPluginManager *mgr,
                                            MetaWindowActor   *actor,
-                                           unsigned long      event);
+                                           MetaPluginEffect   event);
 
-gboolean meta_plugin_manager_event_maximize    (MetaPluginManager *mgr,
-                                                MetaWindowActor   *actor,
-                                                unsigned long      event,
-                                                gint               target_x,
-                                                gint               target_y,
-                                                gint               target_width,
-                                                gint               target_height);
+gboolean meta_plugin_manager_event_size_change    (MetaPluginManager *mgr,
+                                                   MetaWindowActor   *actor,
+                                                   MetaSizeChange     which_change,
+                                                   MetaRectangle     *old_frame_rect,
+                                                   MetaRectangle     *old_buffer_rect);
 
 gboolean meta_plugin_manager_switch_workspace (MetaPluginManager   *mgr,
                                                gint                 from,

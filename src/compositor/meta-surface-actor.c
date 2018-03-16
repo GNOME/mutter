@@ -25,7 +25,7 @@ struct _MetaSurfaceActorPrivate
   cairo_region_t *input_region;
 
   /* Freeze/thaw accounting */
-  guint needs_damage_all : 1;
+  cairo_region_t *pending_damage;
   guint frozen : 1;
 };
 
@@ -49,6 +49,8 @@ meta_surface_actor_pick (ClutterActor       *actor,
 {
   MetaSurfaceActor *self = META_SURFACE_ACTOR (actor);
   MetaSurfaceActorPrivate *priv = self->priv;
+  ClutterActorIter iter;
+  ClutterActor *child;
 
   if (!clutter_actor_should_pick_paint (actor))
     return;
@@ -92,6 +94,11 @@ meta_surface_actor_pick (ClutterActor       *actor,
       cogl_framebuffer_draw_rectangles (fb, pipeline, rectangles, n_rects);
       cogl_object_unref (pipeline);
     }
+
+  clutter_actor_iter_init (&iter, actor);
+
+  while (clutter_actor_iter_next (&iter, &child))
+    clutter_actor_paint (child);
 }
 
 static void
@@ -228,6 +235,13 @@ meta_surface_actor_set_opaque_region (MetaSurfaceActor *self,
   meta_shaped_texture_set_opaque_region (priv->texture, region);
 }
 
+cairo_region_t *
+meta_surface_actor_get_opaque_region (MetaSurfaceActor *actor)
+{
+  MetaSurfaceActorPrivate *priv = actor->priv;
+  return meta_shaped_texture_get_opaque_region (priv->texture);
+}
+
 static gboolean
 is_frozen (MetaSurfaceActor *self)
 {
@@ -247,9 +261,8 @@ meta_surface_actor_process_damage (MetaSurfaceActor *self,
        * here on the off chance that this will stop the corresponding
        * texture_from_pixmap from being update.
        *
-       * needs_damage_all tracks that some unknown damage happened while the
-       * window was frozen so that when the window becomes unfrozen we can
-       * issue a full window update to cover any lost damage.
+       * pending_damage tracks any damage that happened while the window was
+       * frozen so that when can apply it when the window becomes unfrozen.
        *
        * It should be noted that this is an unreliable mechanism since it's
        * quite likely that drivers will aim to provide a zero-copy
@@ -257,7 +270,12 @@ meta_surface_actor_process_damage (MetaSurfaceActor *self,
        * any drawing done to the window is always immediately reflected in the
        * texture regardless of damage event handling.
        */
-      priv->needs_damage_all = TRUE;
+      cairo_rectangle_int_t rect = { .x = x, .y = y, .width = width, .height = height };
+
+      if (!priv->pending_damage)
+        priv->pending_damage = cairo_region_create_rectangle (&rect);
+      else
+        cairo_region_union_rectangle (priv->pending_damage, &rect);
       return;
     }
 
@@ -318,16 +336,21 @@ meta_surface_actor_set_frozen (MetaSurfaceActor *self,
 
   priv->frozen = frozen;
 
-  if (!frozen && priv->needs_damage_all)
+  if (!frozen && priv->pending_damage)
     {
-      /* Since we ignore damage events while a window is frozen for certain effects
-       * we may need to issue an update_area() covering the whole pixmap if we
-       * don't know what real damage has happened. */
+      int i, n_rects = cairo_region_num_rectangles (priv->pending_damage);
+      cairo_rectangle_int_t rect;
 
-      meta_surface_actor_process_damage (self, 0, 0,
-                                         clutter_actor_get_width (CLUTTER_ACTOR (priv->texture)),
-                                         clutter_actor_get_height (CLUTTER_ACTOR (priv->texture)));
-      priv->needs_damage_all = FALSE;
+      /* Since we ignore damage events while a window is frozen for certain effects
+       * we need to apply the tracked damage now. */
+
+      for (i = 0; i < n_rects; i++)
+        {
+          cairo_region_get_rectangle (priv->pending_damage, i, &rect);
+          meta_surface_actor_process_damage (self, rect.x, rect.y,
+                                             rect.width, rect.height);
+        }
+      g_clear_pointer (&priv->pending_damage, cairo_region_destroy);
     }
 }
 

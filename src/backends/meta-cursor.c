@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include "meta-cursor-private.h"
+#include "meta-cursor.h"
 
 #include <meta/errors.h>
 
@@ -29,55 +29,38 @@
 #include "screen-private.h"
 #include "meta-backend-private.h"
 
-#ifdef HAVE_NATIVE_BACKEND
-#include "backends/native/meta-cursor-renderer-native.h"
-#endif
-
 #include <string.h>
 
 #include <X11/cursorfont.h>
 #include <X11/extensions/Xfixes.h>
 #include <X11/Xcursor/Xcursor.h>
 
-#ifdef HAVE_WAYLAND
-#include <cogl/cogl-wayland-server.h>
-#endif
+enum {
+  PREPARE_AT,
 
-MetaCursorReference *
-meta_cursor_reference_ref (MetaCursorReference *self)
+  LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL];
+
+struct _MetaCursorSprite
 {
-  g_assert (self->ref_count > 0);
-  self->ref_count++;
+  GObject parent;
 
-  return self;
-}
+  MetaCursor cursor;
 
-static void
-meta_cursor_image_free (MetaCursorImage *image)
-{
-  cogl_object_unref (image->texture);
+  CoglTexture2D *texture;
+  float texture_scale;
+  int hot_x, hot_y;
 
-#ifdef HAVE_NATIVE_BACKEND
-  if (image->bo)
-    gbm_bo_destroy (image->bo);
-#endif
-}
+  int current_frame;
+  XcursorImages *xcursor_images;
 
-static void
-meta_cursor_reference_free (MetaCursorReference *self)
-{
-  meta_cursor_image_free (&self->image);
-  g_slice_free (MetaCursorReference, self);
-}
+  int theme_scale;
+  gboolean theme_dirty;
+};
 
-void
-meta_cursor_reference_unref (MetaCursorReference *self)
-{
-  self->ref_count--;
-
-  if (self->ref_count == 0)
-    meta_cursor_reference_free (self);
-}
+G_DEFINE_TYPE (MetaCursorSprite, meta_cursor_sprite, G_TYPE_OBJECT)
 
 static const char *
 translate_meta_cursor (MetaCursor cursor)
@@ -134,93 +117,28 @@ meta_cursor_create_x_cursor (Display    *xdisplay,
   return XcursorLibraryLoadCursor (xdisplay, translate_meta_cursor (cursor));
 }
 
-static XcursorImage *
-load_cursor_on_client (MetaCursor cursor)
+static XcursorImages *
+load_cursor_on_client (MetaCursor cursor, int scale)
 {
-  return XcursorLibraryLoadImage (translate_meta_cursor (cursor),
-                                  meta_prefs_get_cursor_theme (),
-                                  meta_prefs_get_cursor_size ());
+  return XcursorLibraryLoadImages (translate_meta_cursor (cursor),
+                                   meta_prefs_get_cursor_theme (),
+                                   meta_prefs_get_cursor_size () * scale);
 }
 
-#ifdef HAVE_NATIVE_BACKEND
 static void
-get_hardware_cursor_size (uint64_t *cursor_width, uint64_t *cursor_height)
+meta_cursor_sprite_load_from_xcursor_image (MetaCursorSprite *self,
+                                            XcursorImage     *xc_image)
 {
   MetaBackend *meta_backend = meta_get_backend ();
   MetaCursorRenderer *renderer = meta_backend_get_cursor_renderer (meta_backend);
-
-  if (META_IS_CURSOR_RENDERER_NATIVE (renderer))
-    {
-      meta_cursor_renderer_native_get_cursor_size (META_CURSOR_RENDERER_NATIVE (renderer), cursor_width, cursor_height);
-      return;
-    }
-
-  g_assert_not_reached ();
-}
-#endif
-
-#ifdef HAVE_NATIVE_BACKEND
-static void
-meta_cursor_image_load_gbm_buffer (struct gbm_device *gbm,
-                                   MetaCursorImage   *image,
-                                   uint8_t           *pixels,
-                                   uint               width,
-                                   uint               height,
-                                   int                rowstride,
-                                   uint32_t           gbm_format)
-{
-  uint64_t cursor_width, cursor_height;
-  get_hardware_cursor_size (&cursor_width, &cursor_height);
-
-  if (width > cursor_width || height > cursor_height)
-    {
-      meta_warning ("Invalid theme cursor size (must be at most %ux%u)\n",
-                    (unsigned int)cursor_width, (unsigned int)cursor_height);
-      return;
-    }
-
-  if (gbm_device_is_format_supported (gbm, gbm_format,
-                                      GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE))
-    {
-      uint8_t buf[4 * cursor_width * cursor_height];
-      uint i;
-
-      image->bo = gbm_bo_create (gbm, cursor_width, cursor_height,
-                                 gbm_format, GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE);
-
-      memset (buf, 0, sizeof(buf));
-      for (i = 0; i < height; i++)
-        memcpy (buf + i * 4 * cursor_width, pixels + i * rowstride, width * 4);
-
-      gbm_bo_write (image->bo, buf, cursor_width * cursor_height * 4);
-    }
-  else
-    meta_warning ("HW cursor for format %d not supported\n", gbm_format);
-}
-#endif
-
-#ifdef HAVE_NATIVE_BACKEND
-static struct gbm_device *
-get_gbm_device (void)
-{
-  MetaBackend *meta_backend = meta_get_backend ();
-  MetaCursorRenderer *renderer = meta_backend_get_cursor_renderer (meta_backend);
-
-  if (META_IS_CURSOR_RENDERER_NATIVE (renderer))
-    return meta_cursor_renderer_native_get_gbm_device (META_CURSOR_RENDERER_NATIVE (renderer));
-  else
-    return NULL;
-}
-#endif
-
-static void
-meta_cursor_image_load_from_xcursor_image (MetaCursorImage   *image,
-                                           XcursorImage      *xc_image)
-{
   uint width, height, rowstride;
   CoglPixelFormat cogl_format;
   ClutterBackend *clutter_backend;
   CoglContext *cogl_context;
+  CoglTexture2D *texture;
+  CoglError *error = NULL;
+
+  g_assert (self->texture == NULL);
 
   width           = xc_image->width;
   height          = xc_image->height;
@@ -232,177 +150,219 @@ meta_cursor_image_load_from_xcursor_image (MetaCursorImage   *image,
   cogl_format = COGL_PIXEL_FORMAT_ARGB_8888;
 #endif
 
-  image->hot_x = xc_image->xhot;
-  image->hot_y = xc_image->yhot;
-
   clutter_backend = clutter_get_default_backend ();
   cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  image->texture = cogl_texture_2d_new_from_data (cogl_context,
-                                                  width, height,
-                                                  cogl_format,
-                                                  rowstride,
-                                                  (uint8_t *) xc_image->pixels,
-                                                  NULL);
+  texture = cogl_texture_2d_new_from_data (cogl_context,
+                                           width, height,
+                                           cogl_format,
+                                           rowstride,
+                                           (uint8_t *) xc_image->pixels,
+                                           &error);
 
-#ifdef HAVE_NATIVE_BACKEND
-  struct gbm_device *gbm = get_gbm_device ();
-  if (gbm)
-    meta_cursor_image_load_gbm_buffer (gbm,
-                                       image,
-                                       (uint8_t *) xc_image->pixels,
-                                       width, height, rowstride,
-                                       GBM_FORMAT_ARGB8888);
-#endif
+  if (error)
+    {
+      meta_warning ("Failed to allocate cursor texture: %s\n", error->message);
+      cogl_error_free (error);
+    }
+
+  meta_cursor_sprite_set_texture (self, COGL_TEXTURE (texture),
+                                  xc_image->xhot, xc_image->yhot);
+
+  if (texture)
+    cogl_object_unref (texture);
+
+  meta_cursor_renderer_realize_cursor_from_xcursor (renderer, self, xc_image);
 }
 
-MetaCursorReference *
-meta_cursor_reference_from_theme (MetaCursor cursor)
+static XcursorImage *
+meta_cursor_sprite_get_current_frame_image (MetaCursorSprite *self)
 {
-  MetaCursorReference *self;
+  return self->xcursor_images->images[self->current_frame];
+}
+
+void
+meta_cursor_sprite_tick_frame (MetaCursorSprite *self)
+{
   XcursorImage *image;
 
-  image = load_cursor_on_client (cursor);
-  if (!image)
-    return NULL;
+  if (!meta_cursor_sprite_is_animated (self))
+    return;
 
-  self = g_slice_new0 (MetaCursorReference);
-  self->ref_count = 1;
-  self->cursor = cursor;
-  meta_cursor_image_load_from_xcursor_image (&self->image, image);
+  self->current_frame++;
 
-  XcursorImageDestroy (image);
-  return self;
+  if (self->current_frame >= self->xcursor_images->nimage)
+    self->current_frame = 0;
+
+  image = meta_cursor_sprite_get_current_frame_image (self);
+
+  g_clear_pointer (&self->texture, cogl_object_unref);
+  meta_cursor_sprite_load_from_xcursor_image (self, image);
 }
 
-#ifdef HAVE_WAYLAND
+guint
+meta_cursor_sprite_get_current_frame_time (MetaCursorSprite *self)
+{
+  if (!meta_cursor_sprite_is_animated (self))
+    return 0;
+
+  return self->xcursor_images->images[self->current_frame]->delay;
+}
+
+gboolean
+meta_cursor_sprite_is_animated (MetaCursorSprite *self)
+{
+  return (self->xcursor_images &&
+          self->xcursor_images->nimage > 1);
+}
+
+MetaCursorSprite *
+meta_cursor_sprite_new (void)
+{
+  return g_object_new (META_TYPE_CURSOR_SPRITE, NULL);
+}
+
 static void
-meta_cursor_image_load_from_buffer (MetaCursorImage    *image,
-                                    struct wl_resource *buffer,
-                                    int                 hot_x,
-                                    int                 hot_y)
+meta_cursor_sprite_load_from_theme (MetaCursorSprite *self)
 {
-  ClutterBackend *backend;
-  CoglContext *cogl_context;
+  XcursorImage *image;
 
-  image->hot_x = hot_x;
-  image->hot_y = hot_y;
+  g_assert (self->cursor != META_CURSOR_NONE);
 
-  backend = clutter_get_default_backend ();
-  cogl_context = clutter_backend_get_cogl_context (backend);
-
-  image->texture = cogl_wayland_texture_2d_new_from_buffer (cogl_context, buffer, NULL);
-
-#ifdef HAVE_NATIVE_BACKEND
-  struct gbm_device *gbm = get_gbm_device ();
-  if (gbm)
+  /* We might be reloading with a different scale. If so clear the old data. */
+  if (self->xcursor_images)
     {
-      uint32_t gbm_format;
-      uint64_t cursor_width, cursor_height;
-      uint width, height;
-
-      width = cogl_texture_get_width (COGL_TEXTURE (image->texture));
-      height = cogl_texture_get_height (COGL_TEXTURE (image->texture));
-
-      struct wl_shm_buffer *shm_buffer = wl_shm_buffer_get (buffer);
-      if (shm_buffer)
-        {
-          int rowstride = wl_shm_buffer_get_stride (shm_buffer);
-
-          switch (wl_shm_buffer_get_format (shm_buffer))
-            {
-#if G_BYTE_ORDER == G_BIG_ENDIAN
-            case WL_SHM_FORMAT_ARGB8888:
-              gbm_format = GBM_FORMAT_ARGB8888;
-              break;
-            case WL_SHM_FORMAT_XRGB8888:
-              gbm_format = GBM_FORMAT_XRGB8888;
-              break;
-#else
-            case WL_SHM_FORMAT_ARGB8888:
-              gbm_format = GBM_FORMAT_ARGB8888;
-              break;
-            case WL_SHM_FORMAT_XRGB8888:
-              gbm_format = GBM_FORMAT_XRGB8888;
-              break;
-#endif
-            default:
-              g_warn_if_reached ();
-              gbm_format = GBM_FORMAT_ARGB8888;
-            }
-
-          meta_cursor_image_load_gbm_buffer (gbm,
-                                             image,
-                                             (uint8_t *) wl_shm_buffer_get_data (shm_buffer),
-                                             width, height, rowstride,
-                                             gbm_format);
-        }
-      else
-        {
-          /* HW cursors have a predefined size (at least 64x64), which usually is bigger than cursor theme
-             size, so themed cursors must be padded with transparent pixels to fill the
-             overlay. This is trivial if we have CPU access to the data, but it's not
-             possible if the buffer is in GPU memory (and possibly tiled too), so if we
-             don't get the right size, we fallback to GL.
-          */
-          get_hardware_cursor_size (&cursor_width, &cursor_height);
-
-          if (width != cursor_width || height != cursor_height)
-            {
-              meta_warning ("Invalid cursor size (must be 64x64), falling back to software (GL) cursors\n");
-              return;
-            }
-
-          image->bo = gbm_bo_import (gbm, GBM_BO_IMPORT_WL_BUFFER, buffer, GBM_BO_USE_CURSOR);
-          if (!image->bo)
-            meta_warning ("Importing HW cursor from wl_buffer failed\n");
-        }
+      g_clear_pointer (&self->texture, cogl_object_unref);
+      XcursorImagesDestroy (self->xcursor_images);
     }
-#endif
+
+  self->current_frame = 0;
+  self->xcursor_images = load_cursor_on_client (self->cursor,
+                                                self->theme_scale);
+  if (!self->xcursor_images)
+    meta_fatal ("Could not find cursor. Perhaps set XCURSOR_PATH?");
+
+  image = meta_cursor_sprite_get_current_frame_image (self);
+  meta_cursor_sprite_load_from_xcursor_image (self, image);
+
+  self->theme_dirty = FALSE;
 }
 
-MetaCursorReference *
-meta_cursor_reference_from_buffer (struct wl_resource *buffer,
-                                   int                 hot_x,
-                                   int                 hot_y)
+MetaCursorSprite *
+meta_cursor_sprite_from_theme (MetaCursor cursor)
 {
-  MetaCursorReference *self;
+  MetaCursorSprite *self;
 
-  self = g_slice_new0 (MetaCursorReference);
-  self->ref_count = 1;
-  meta_cursor_image_load_from_buffer (&self->image, buffer, hot_x, hot_y);
+  self = meta_cursor_sprite_new ();
+
+  self->cursor = cursor;
+  self->theme_dirty = TRUE;
 
   return self;
 }
-#endif
+
+void
+meta_cursor_sprite_set_texture (MetaCursorSprite *self,
+                                CoglTexture      *texture,
+                                int               hot_x,
+                                int               hot_y)
+{
+  g_clear_pointer (&self->texture, cogl_object_unref);
+  if (texture)
+    self->texture = cogl_object_ref (texture);
+  self->hot_x = hot_x;
+  self->hot_y = hot_y;
+}
+
+void
+meta_cursor_sprite_set_texture_scale (MetaCursorSprite *self,
+                                      float             scale)
+{
+  self->texture_scale = scale;
+}
+
+void
+meta_cursor_sprite_set_theme_scale (MetaCursorSprite *self,
+                                    int               theme_scale)
+{
+  if (self->theme_scale != theme_scale)
+    self->theme_dirty = TRUE;
+  self->theme_scale = theme_scale;
+}
 
 CoglTexture *
-meta_cursor_reference_get_cogl_texture (MetaCursorReference *cursor,
-                                        int                 *hot_x,
-                                        int                 *hot_y)
+meta_cursor_sprite_get_cogl_texture (MetaCursorSprite *self)
 {
-  if (hot_x)
-    *hot_x = cursor->image.hot_x;
-  if (hot_y)
-    *hot_y = cursor->image.hot_y;
-  return COGL_TEXTURE (cursor->image.texture);
+  return COGL_TEXTURE (self->texture);
 }
-
-#ifdef HAVE_NATIVE_BACKEND
-struct gbm_bo *
-meta_cursor_reference_get_gbm_bo (MetaCursorReference *cursor,
-                                  int                 *hot_x,
-                                  int                 *hot_y)
-{
-  if (hot_x)
-    *hot_x = cursor->image.hot_x;
-  if (hot_y)
-    *hot_y = cursor->image.hot_y;
-  return cursor->image.bo;
-}
-#endif
 
 MetaCursor
-meta_cursor_reference_get_meta_cursor (MetaCursorReference *cursor)
+meta_cursor_sprite_get_meta_cursor (MetaCursorSprite *self)
 {
-  return cursor->cursor;
+  return self->cursor;
+}
+
+void
+meta_cursor_sprite_get_hotspot (MetaCursorSprite *self,
+                                int              *hot_x,
+                                int              *hot_y)
+{
+  *hot_x = self->hot_x;
+  *hot_y = self->hot_y;
+}
+
+float
+meta_cursor_sprite_get_texture_scale (MetaCursorSprite *self)
+{
+  return self->texture_scale;
+}
+
+void
+meta_cursor_sprite_prepare_at (MetaCursorSprite *self,
+                               int               x,
+                               int               y)
+{
+  g_signal_emit (self, signals[PREPARE_AT], 0, x, y);
+}
+
+void
+meta_cursor_sprite_realize_texture (MetaCursorSprite *self)
+{
+  if (self->theme_dirty)
+    meta_cursor_sprite_load_from_theme (self);
+}
+
+static void
+meta_cursor_sprite_init (MetaCursorSprite *self)
+{
+  self->texture_scale = 1.0f;
+}
+
+static void
+meta_cursor_sprite_finalize (GObject *object)
+{
+  MetaCursorSprite *self = META_CURSOR_SPRITE (object);
+
+  if (self->xcursor_images)
+    XcursorImagesDestroy (self->xcursor_images);
+
+  g_clear_pointer (&self->texture, cogl_object_unref);
+
+  G_OBJECT_CLASS (meta_cursor_sprite_parent_class)->finalize (object);
+}
+
+static void
+meta_cursor_sprite_class_init (MetaCursorSpriteClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_cursor_sprite_finalize;
+
+  signals[PREPARE_AT] = g_signal_new ("prepare-at",
+                                      G_TYPE_FROM_CLASS (object_class),
+                                      G_SIGNAL_RUN_LAST,
+                                      0,
+                                      NULL, NULL, NULL,
+                                      G_TYPE_NONE, 2,
+                                      G_TYPE_INT,
+                                      G_TYPE_INT);
 }

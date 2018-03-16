@@ -39,12 +39,19 @@ void                    meta_wayland_compositor_update          (MetaWaylandComp
                                                                  const ClutterEvent    *event);
 gboolean                meta_wayland_compositor_handle_event    (MetaWaylandCompositor *compositor,
                                                                  const ClutterEvent    *event);
+void                    meta_wayland_compositor_update_key_state (MetaWaylandCompositor *compositor,
+                                                                 char                  *key_vector,
+                                                                  int                    key_vector_len,
+                                                                  int                    offset);
 void                    meta_wayland_compositor_repick          (MetaWaylandCompositor *compositor);
 
 void                    meta_wayland_compositor_set_input_focus (MetaWaylandCompositor *compositor,
                                                                  MetaWindow            *window);
 
 void                    meta_wayland_compositor_paint_finished  (MetaWaylandCompositor *compositor);
+
+void                    meta_wayland_compositor_destroy_frame_callbacks (MetaWaylandCompositor *compositor,
+                                                                         MetaWaylandSurface    *surface);
 
 const char             *meta_wayland_get_wayland_display_name   (MetaWaylandCompositor *compositor);
 const char             *meta_wayland_get_xwayland_display_name  (MetaWaylandCompositor *compositor);

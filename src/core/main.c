@@ -41,7 +41,6 @@
  * to investigate, read main(), meta_display_open(), and event_callback().
  */
 
-#define _GNU_SOURCE
 #define _XOPEN_SOURCE /* for putenv() and some signal-related functions */
 
 #include <config.h>
@@ -80,6 +79,12 @@
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland.h"
+# endif
+
+#include "backends/meta-backend-private.h"
+
+#if defined(HAVE_NATIVE_BACKEND) && defined(HAVE_WAYLAND)
+#include <systemd/sd-login.h>
 #endif
 
 /*
@@ -164,6 +169,7 @@ static gboolean  opt_disable_sm;
 static gboolean  opt_sync;
 #ifdef HAVE_WAYLAND
 static gboolean  opt_wayland;
+static gboolean  opt_nested;
 #endif
 #ifdef HAVE_NATIVE_BACKEND
 static gboolean  opt_display_server;
@@ -210,6 +216,12 @@ static GOptionEntry meta_options[] = {
     "wayland", 0, 0, G_OPTION_ARG_NONE,
     &opt_wayland,
     N_("Run as a wayland compositor"),
+    NULL
+  },
+  {
+    "nested", 0, 0, G_OPTION_ARG_NONE,
+    &opt_nested,
+    N_("Run as a nested compositor"),
     NULL
   },
 #endif
@@ -291,6 +303,129 @@ on_sigterm (gpointer user_data)
   return G_SOURCE_REMOVE;
 }
 
+#if defined(HAVE_WAYLAND) && defined(HAVE_NATIVE_BACKEND)
+static gboolean
+session_type_is_supported (const char *session_type)
+{
+   return (g_strcmp0 (session_type, "x11") == 0) ||
+          (g_strcmp0 (session_type, "wayland") == 0);
+}
+
+static char *
+find_session_type (void)
+{
+  char **sessions = NULL;
+  char *session_id;
+  char *session_type;
+  const char *session_type_env;
+  gboolean is_tty = FALSE;
+  int ret, i;
+
+  ret = sd_pid_get_session (0, &session_id);
+  if (ret == 0 && session_id != NULL)
+    {
+      ret = sd_session_get_type (session_id, &session_type);
+      free (session_id);
+
+      if (ret == 0)
+        {
+          if (session_type_is_supported (session_type))
+            goto out;
+          else
+            is_tty = g_strcmp0 (session_type, "tty") == 0;
+          free (session_type);
+        }
+    }
+  else if (sd_uid_get_sessions (getuid (), 1, &sessions) > 0)
+    {
+      for (i = 0; sessions[i] != NULL; i++)
+        {
+          ret = sd_session_get_type (sessions[i], &session_type);
+
+          if (ret < 0)
+            continue;
+
+          if (session_type_is_supported (session_type))
+            {
+              g_strfreev (sessions);
+              goto out;
+            }
+
+          free (session_type);
+        }
+    }
+  g_strfreev (sessions);
+
+  session_type_env = g_getenv ("XDG_SESSION_TYPE");
+  if (session_type_is_supported (session_type_env))
+    {
+      /* The string should be freeable */
+      session_type = strdup (session_type_env);
+      goto out;
+    }
+
+  /* Legacy support for starting through xinit */
+  if (is_tty && (g_getenv ("MUTTER_DISPLAY") || g_getenv ("DISPLAY")))
+    {
+      session_type = strdup ("x11");
+      goto out;
+    }
+
+  meta_warning ("Unsupported session type\n");
+  meta_exit (META_EXIT_ERROR);
+
+out:
+  return session_type;
+}
+
+static gboolean
+check_for_wayland_session_type (void)
+{
+  char *session_type;
+  gboolean is_wayland;
+
+  session_type = find_session_type ();
+  is_wayland = g_strcmp0 (session_type, "wayland") == 0;
+  free (session_type);
+
+  return is_wayland;
+}
+#endif
+
+static void
+calculate_compositor_configuration (MetaCompositorType *compositor_type,
+                                    MetaBackendType    *backend_type)
+{
+#ifdef HAVE_WAYLAND
+  gboolean run_as_wayland_compositor = opt_wayland;
+
+#ifdef HAVE_NATIVE_BACKEND
+  if (opt_nested && opt_display_server)
+    {
+      meta_warning ("Can't run both as nested and as a display server\n");
+      meta_exit (META_EXIT_ERROR);
+    }
+
+  if (!run_as_wayland_compositor)
+    run_as_wayland_compositor = check_for_wayland_session_type ();
+
+#ifdef CLUTTER_WINDOWING_EGL
+  if (opt_display_server || (run_as_wayland_compositor && !opt_nested))
+    *backend_type = META_BACKEND_TYPE_NATIVE;
+  else
+#endif
+#endif
+#endif
+    *backend_type = META_BACKEND_TYPE_X11;
+
+#ifdef HAVE_WAYLAND
+  if (run_as_wayland_compositor)
+    *compositor_type = META_COMPOSITOR_TYPE_WAYLAND;
+  else
+#endif
+    *compositor_type = META_COMPOSITOR_TYPE_X11;
+}
+
 /**
  * meta_init: (skip)
  *
@@ -302,6 +437,8 @@ meta_init (void)
 {
   struct sigaction act;
   sigset_t empty_mask;
+  MetaCompositorType compositor_type;
+  MetaBackendType backend_type;
 
   sigemptyset (&empty_mask);
   act.sa_handler = SIG_IGN;
@@ -323,15 +460,11 @@ meta_init (void)
   if (g_getenv ("MUTTER_DEBUG"))
     meta_set_debugging (TRUE);
 
-#if defined(CLUTTER_WINDOWING_EGL) && defined(HAVE_NATIVE_BACKEND)
-  if (opt_display_server)
-    clutter_set_windowing_backend (CLUTTER_WINDOWING_EGL);
-  else
-#endif
-    clutter_set_windowing_backend (CLUTTER_WINDOWING_X11);
+  calculate_compositor_configuration (&compositor_type, &backend_type);
 
 #ifdef HAVE_WAYLAND
-  meta_set_is_wayland_compositor (opt_wayland);
+  if (compositor_type == META_COMPOSITOR_TYPE_WAYLAND)
+    meta_set_is_wayland_compositor (TRUE);
 #endif
 
   if (g_get_home_dir ())
@@ -354,6 +487,8 @@ meta_init (void)
    * server so the user can't control the X display to connect too. */
   if (!meta_is_wayland_compositor ())
     meta_select_display (opt_display_name);
+
+  meta_init_backend (backend_type);
 
   meta_clutter_init ();
 
@@ -431,42 +566,6 @@ meta_run (void)
   meta_prefs_init ();
   meta_prefs_add_listener (prefs_changed_callback, NULL);
 
-  meta_ui_set_current_theme (meta_prefs_get_theme ());
-
-  /* Try to find some theme that'll work if the theme preference
-   * doesn't exist.  First try Simple (the default theme) then just
-   * try anything in the themes directory.
-   */
-  if (!meta_ui_have_a_theme ())
-    meta_ui_set_current_theme ("Simple");
-
-  if (!meta_ui_have_a_theme ())
-    {
-      const char *dir_entry = NULL;
-      GError *err = NULL;
-      GDir   *themes_dir = NULL;
-
-      if (!(themes_dir = g_dir_open (MUTTER_DATADIR"/themes", 0, &err)))
-        {
-          meta_fatal (_("Failed to scan themes directory: %s\n"), err->message);
-          g_error_free (err);
-        }
-      else
-        {
-          while (((dir_entry = g_dir_read_name (themes_dir)) != NULL) &&
-                 (!meta_ui_have_a_theme ()))
-            {
-              meta_ui_set_current_theme (dir_entry);
-            }
-
-          g_dir_close (themes_dir);
-        }
-    }
-
-  if (!meta_ui_have_a_theme ())
-    meta_fatal (_("Could not find a theme! Be sure %s exists and contains the usual themes.\n"),
-                MUTTER_DATADIR"/themes");
-
   if (!meta_display_open ())
     meta_exit (META_EXIT_ERROR);
 
@@ -513,9 +612,7 @@ prefs_changed_callback (MetaPreference pref,
 {
   switch (pref)
     {
-    case META_PREF_THEME:
     case META_PREF_DRAGGABLE_BORDER_WIDTH:
-      meta_ui_set_current_theme (meta_prefs_get_theme ());
       meta_display_retheme_all ();
       break;
 

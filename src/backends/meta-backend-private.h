@@ -33,7 +33,11 @@
 #include <meta/meta-backend.h>
 #include <meta/meta-idle-monitor.h>
 #include "meta-cursor-renderer.h"
-#include "meta-monitor-manager.h"
+#include "meta-monitor-manager-private.h"
+#include "meta-input-settings-private.h"
+#include "backends/meta-pointer-constraint.h"
+#include "backends/meta-renderer.h"
+#include "core/util-private.h"
 
 #define DEFAULT_XKB_RULES_FILE "evdev"
 #define DEFAULT_XKB_MODEL "pc105+inet"
@@ -49,13 +53,17 @@ struct _MetaBackend
 {
   GObject parent;
 
-  MetaIdleMonitor *device_monitors[256];
-  int device_id_max;
+  GHashTable *device_monitors;
+  gint current_device_id;
+
+  MetaPointerConstraint *client_pointer_constraint;
 };
 
 struct _MetaBackendClass
 {
   GObjectClass parent_class;
+
+  ClutterBackend * (* create_clutter_backend) (MetaBackend *backend);
 
   void (* post_init) (MetaBackend *backend);
 
@@ -63,6 +71,7 @@ struct _MetaBackendClass
                                              int          device_id);
   MetaMonitorManager * (* create_monitor_manager) (MetaBackend *backend);
   MetaCursorRenderer * (* create_cursor_renderer) (MetaBackend *backend);
+  MetaRenderer * (* create_renderer) (MetaBackend *backend);
 
   gboolean (* grab_device) (MetaBackend *backend,
                             int          device_id,
@@ -87,12 +96,27 @@ struct _MetaBackendClass
 
   void (* update_screen_size) (MetaBackend *backend, int width, int height);
   void (* select_stage_events) (MetaBackend *backend);
+
+  gboolean (* get_relative_motion_deltas) (MetaBackend *backend,
+                                           const        ClutterEvent *event,
+                                           double       *dx,
+                                           double       *dy,
+                                           double       *dx_unaccel,
+                                           double       *dy_unaccel);
+  void (* set_numlock) (MetaBackend *backend,
+                        gboolean     numlock_state);
+
 };
+
+void meta_init_backend (MetaBackendType backend_type);
+
+ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
 
 MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend *backend,
                                                  int          device_id);
 MetaMonitorManager * meta_backend_get_monitor_manager (MetaBackend *backend);
 MetaCursorRenderer * meta_backend_get_cursor_renderer (MetaBackend *backend);
+MetaRenderer * meta_backend_get_renderer (MetaBackend *backend);
 
 gboolean meta_backend_grab_device (MetaBackend *backend,
                                    int          device_id,
@@ -106,5 +130,26 @@ void meta_backend_warp_pointer (MetaBackend *backend,
                                 int          y);
 
 struct xkb_keymap * meta_backend_get_keymap (MetaBackend *backend);
+
+void meta_backend_update_last_device (MetaBackend *backend,
+                                      int          device_id);
+
+gboolean meta_backend_get_relative_motion_deltas (MetaBackend *backend,
+                                                  const        ClutterEvent *event,
+                                                  double       *dx,
+                                                  double       *dy,
+                                                  double       *dx_unaccel,
+                                                  double       *dy_unaccel);
+
+void meta_backend_set_client_pointer_constraint (MetaBackend *backend,
+                                                 MetaPointerConstraint *constraint);
+
+ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
+
+void meta_backend_monitors_changed (MetaBackend *backend);
+
+gboolean meta_is_stage_views_enabled (void);
+
+MetaInputSettings *meta_backend_get_input_settings (MetaBackend *backend);
 
 #endif /* META_BACKEND_PRIVATE_H */

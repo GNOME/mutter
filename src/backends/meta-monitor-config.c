@@ -34,6 +34,7 @@
 
 #include "config.h"
 
+#include "boxes-private.h"
 #include "meta-monitor-config.h"
 
 #include <string.h>
@@ -64,9 +65,11 @@ typedef struct {
 
   gboolean is_primary;
   gboolean is_presentation;
+  gboolean is_underscanning;
 } MetaOutputConfig;
 
 typedef struct {
+  guint refcount;
   MetaOutputKey *keys;
   MetaOutputConfig *outputs;
   unsigned int n_outputs;
@@ -77,11 +80,11 @@ struct _MetaMonitorConfig {
 
   GHashTable *configs;
   MetaConfiguration *current;
-  gboolean current_is_stored;
   gboolean current_is_for_laptop_lid;
   MetaConfiguration *previous;
 
-  GFile *file;
+  GFile *user_file;
+  GFile *system_file;
   GCancellable *save_cancellable;
 
   UpClient *up_client;
@@ -124,11 +127,29 @@ config_clear (MetaConfiguration *config)
   g_free (config->outputs);
 }
 
-static void
-config_free (gpointer config)
+static MetaConfiguration *
+config_ref (MetaConfiguration *config)
 {
-  config_clear (config);
-  g_slice_free (MetaConfiguration, config);
+  config->refcount++;
+  return config;
+}
+
+static void
+config_unref (MetaConfiguration *config)
+{
+  if (--config->refcount == 0)
+    {
+      config_clear (config);
+      g_slice_free (MetaConfiguration, config);
+    }
+}
+
+static MetaConfiguration *
+config_new (void)
+{
+  MetaConfiguration *config = g_slice_new0 (MetaConfiguration);
+  config->refcount = 1;
+  return config;
 }
 
 static unsigned long
@@ -219,16 +240,25 @@ meta_monitor_config_init (MetaMonitorConfig *self)
 {
   const char *filename;
   char *path;
+  const char * const *system_dirs;
 
-  self->configs = g_hash_table_new_full (config_hash, config_equal, NULL, config_free);
+  self->configs = g_hash_table_new_full (config_hash, config_equal, NULL, (GDestroyNotify) config_unref);
 
   filename = g_getenv ("MUTTER_MONITOR_FILENAME");
   if (filename == NULL)
     filename = "monitors.xml";
 
   path = g_build_filename (g_get_user_config_dir (), filename, NULL);
-  self->file = g_file_new_for_path (path);
+  self->user_file = g_file_new_for_path (path);
   g_free (path);
+
+  for (system_dirs = g_get_system_config_dirs (); !self->system_file && *system_dirs; system_dirs++)
+    {
+      path = g_build_filename (*system_dirs, filename, NULL);
+      if (g_file_test (path, G_FILE_TEST_EXISTS))
+        self->system_file = g_file_new_for_path (path);
+      g_free (path);
+    }
 
   self->up_client = up_client_new ();
   self->lid_is_closed = up_client_get_lid_is_closed (self->up_client);
@@ -243,6 +273,8 @@ meta_monitor_config_finalize (GObject *object)
   MetaMonitorConfig *self = META_MONITOR_CONFIG (object);
 
   g_hash_table_destroy (self->configs);
+
+  G_OBJECT_CLASS (meta_monitor_config_parent_class)->finalize (object);
 }
 
 static void
@@ -374,7 +406,8 @@ handle_start_element (GMarkupParseContext  *context,
              strcmp (element_name, "reflect_x") == 0 ||
              strcmp (element_name, "reflect_y") == 0 ||
              strcmp (element_name, "primary") == 0 ||
-             strcmp (element_name, "presentation") == 0) && parser->unknown_count == 0)
+             strcmp (element_name, "presentation") == 0 ||
+             strcmp (element_name, "underscanning") == 0) && parser->unknown_count == 0)
           {
             parser->state = STATE_OUTPUT_FIELD;
 
@@ -421,7 +454,7 @@ handle_end_element (GMarkupParseContext  *context,
       {
         if (strcmp (element_name, "configuration") == 0 && parser->unknown_count == 0)
           {
-            MetaConfiguration *config = g_slice_new (MetaConfiguration);
+            MetaConfiguration *config = config_new ();
 
             g_assert (parser->key_array->len == parser->output_array->len);
 
@@ -458,8 +491,8 @@ handle_end_element (GMarkupParseContext  *context,
               }
             else
               {
-                if (parser->output.rect.width == 0 &&
-                    parser->output.rect.width == 0)
+                if (parser->output.rect.width == 0 ||
+                    parser->output.rect.height == 0)
                   parser->output.enabled = FALSE;
                 else
                   parser->output.enabled = TRUE;
@@ -681,6 +714,8 @@ handle_text (GMarkupParseContext *context,
           parser->output.is_primary = read_bool (text, text_len, error);
         else if (strcmp (parser->output_field, "presentation") == 0)
           parser->output.is_presentation = read_bool (text, text_len, error);
+        else if (strcmp (parser->output_field, "underscanning") == 0)
+          parser->output.is_underscanning = read_bool (text, text_len, error);
         else
           g_assert_not_reached ();
         return;
@@ -698,8 +733,8 @@ static const GMarkupParser config_parser = {
   .text = handle_text,
 };
 
-static void
-meta_monitor_config_load (MetaMonitorConfig  *self)
+static gboolean
+load_config_file (MetaMonitorConfig *self, GFile *file)
 {
   char *contents;
   gsize size;
@@ -717,14 +752,12 @@ meta_monitor_config_load (MetaMonitorConfig  *self)
   */
 
   error = NULL;
-  ok = g_file_load_contents (self->file, NULL, &contents, &size, NULL, &error);
+  ok = g_file_load_contents (file, NULL, &contents, &size, NULL, &error);
   if (!ok)
     {
-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
-        meta_warning ("Failed to load stored monitor configuration: %s\n", error->message);
 
       g_error_free (error);
-      return;
+      return FALSE;
     }
 
   memset (&parser, 0, sizeof (ConfigParser));
@@ -753,6 +786,17 @@ meta_monitor_config_load (MetaMonitorConfig  *self)
 
   g_markup_parse_context_free (context);
   g_free (contents);
+
+  return ok;
+}
+
+static void
+meta_monitor_config_load (MetaMonitorConfig *self)
+{
+  if (self->user_file && load_config_file (self, self->user_file))
+    return;
+  if (self->system_file && load_config_file (self, self->system_file))
+    return;
 }
 
 MetaMonitorConfig *
@@ -830,72 +874,39 @@ meta_monitor_config_get_stored (MetaMonitorConfig *self,
   return stored;
 }
 
+static void
+set_current (MetaMonitorConfig *self,
+             MetaConfiguration *config)
+{
+  g_clear_pointer (&self->previous, (GDestroyNotify) config_unref);
+  self->previous = self->current;
+  self->current = config_ref (config);
+}
+
 static gboolean
 apply_configuration (MetaMonitorConfig  *self,
                      MetaConfiguration  *config,
-		     MetaMonitorManager *manager,
-                     gboolean            stored)
+		     MetaMonitorManager *manager)
 {
-  GPtrArray *crtcs, *outputs;
+  g_autoptr(GPtrArray) crtcs = NULL;
+  g_autoptr(GPtrArray) outputs = NULL;
 
   crtcs = g_ptr_array_new_full (config->n_outputs, (GDestroyNotify)meta_crtc_info_free);
   outputs = g_ptr_array_new_full (config->n_outputs, (GDestroyNotify)meta_output_info_free);
 
   if (!meta_monitor_config_assign_crtcs (config, manager, crtcs, outputs))
-    {
-      g_ptr_array_unref (crtcs);
-      g_ptr_array_unref (outputs);
-      if (!stored)
-        config_free (config);
-
-      return FALSE;
-    }
+    return FALSE;
 
   meta_monitor_manager_apply_configuration (manager,
                                             (MetaCRTCInfo**)crtcs->pdata, crtcs->len,
                                             (MetaOutputInfo**)outputs->pdata, outputs->len);
 
-  /* Stored (persistent) configurations override the previous one always.
-     Also, we clear the previous configuration if the current one (which is
-     about to become previous) is stored, or if the current one has
-     different outputs.
-  */
-  if (stored ||
-      (self->current && self->current_is_stored))
-    {
-      if (self->previous)
-        config_free (self->previous);
-      self->previous = NULL;
-    }
-  else
-    {
-      /* Despite the name, config_equal() only checks the set of outputs,
-         not their modes
-      */
-      if (self->current && config_equal (self->current, config))
-        {
-          self->previous = self->current;
-        }
-      else
-        {
-          if (self->current)
-            config_free (self->current);
-          self->previous = NULL;
-        }
-    }
+  set_current (self, config);
 
-  self->current = config;
-  self->current_is_stored = stored;
   /* If true, we'll be overridden at the end of this call
-     inside turn_off_laptop_display()
-  */
+   * inside turn_off_laptop_display / apply_configuration_with_lid */
   self->current_is_for_laptop_lid = FALSE;
 
-  if (self->current == self->previous)
-    self->previous = NULL;
-
-  g_ptr_array_unref (crtcs);
-  g_ptr_array_unref (outputs);
   return TRUE;
 }
 
@@ -904,6 +915,10 @@ key_is_laptop (MetaOutputKey *key)
 {
   /* FIXME: extend with better heuristics */
   return g_str_has_prefix (key->connector, "LVDS") ||
+    g_str_has_prefix (key->connector, "lvds") ||
+    g_str_has_prefix (key->connector, "Lvds") ||
+    g_str_has_prefix (key->connector, "LCD")  || /* some versions of fglrx, sigh */
+    g_str_has_prefix (key->connector, "DSI") ||
     g_str_has_prefix (key->connector, "eDP");
 }
 
@@ -948,7 +963,7 @@ make_laptop_lid_config (MetaConfiguration  *reference)
 
   g_assert (multiple_outputs_are_enabled (reference));
 
-  new = g_slice_new0 (MetaConfiguration);
+  new = config_new ();
   new->n_outputs = reference->n_outputs;
   new->keys = g_new0 (MetaOutputKey, reference->n_outputs);
   new->outputs = g_new0 (MetaOutputConfig, reference->n_outputs);
@@ -965,8 +980,7 @@ make_laptop_lid_config (MetaConfiguration  *reference)
       new->keys[i].product = g_strdup (current_key->product);
       new->keys[i].serial = g_strdup (current_key->serial);
 
-      if (g_str_has_prefix (current_key->connector, "LVDS") ||
-          g_str_has_prefix (current_key->connector, "eDP"))
+      if (key_is_laptop (current_key))
         {
           new->outputs[i].enabled = FALSE;
           x_after = current_output->rect.x;
@@ -1003,6 +1017,43 @@ make_laptop_lid_config (MetaConfiguration  *reference)
   return new;
 }
 
+static gboolean
+apply_configuration_with_lid (MetaMonitorConfig  *self,
+                              MetaConfiguration  *config,
+                              MetaMonitorManager *manager)
+{
+  if (self->lid_is_closed &&
+      multiple_outputs_are_enabled (config) &&
+      laptop_display_is_on (config))
+    {
+      MetaConfiguration *laptop_lid_config = make_laptop_lid_config (config);
+      if (apply_configuration (self, laptop_lid_config, manager))
+        {
+          self->current_is_for_laptop_lid = TRUE;
+          config_unref (laptop_lid_config);
+          return TRUE;
+        }
+      else
+        {
+          config_unref (laptop_lid_config);
+          return FALSE;
+        }
+    }
+  else
+    return apply_configuration (self, config, manager);
+}
+
+gboolean
+meta_monitor_config_get_is_builtin_display_on (MetaMonitorConfig *self)
+{
+  g_return_val_if_fail (META_IS_MONITOR_CONFIG (self), FALSE);
+
+  if (self->current)
+    return laptop_display_is_on (self->current);
+
+  return FALSE;
+}
+
 gboolean
 meta_monitor_config_apply_stored (MetaMonitorConfig  *self,
 				  MetaMonitorManager *manager)
@@ -1015,23 +1066,7 @@ meta_monitor_config_apply_stored (MetaMonitorConfig  *self,
   stored = meta_monitor_config_get_stored (self, outputs, n_outputs);
 
   if (stored)
-    {
-      if (self->lid_is_closed &&
-          multiple_outputs_are_enabled (stored) &&
-          laptop_display_is_on (stored))
-        {
-          if (apply_configuration (self, make_laptop_lid_config (stored),
-                                   manager, FALSE))
-            {
-              self->current_is_for_laptop_lid = TRUE;
-              return TRUE;
-            }
-          else
-            return FALSE;
-        }
-      else
-        return apply_configuration (self, stored, manager, TRUE);
-    }
+    return apply_configuration_with_lid (self, stored, manager);
   else
     return FALSE;
 }
@@ -1042,12 +1077,12 @@ meta_monitor_config_apply_stored (MetaMonitorConfig  *self,
  * which are internal monitors), or failing that, the one with the
  * best resolution
  */
-static MetaOutput *
+static int
 find_primary_output (MetaOutput *outputs,
                      unsigned    n_outputs)
 {
   unsigned i;
-  MetaOutput *best;
+  int best;
   int best_width, best_height;
 
   g_assert (n_outputs >= 1);
@@ -1055,24 +1090,23 @@ find_primary_output (MetaOutput *outputs,
   for (i = 0; i < n_outputs; i++)
     {
       if (outputs[i].is_primary)
-        return &outputs[i];
+        return i;
     }
 
   for (i = 0; i < n_outputs; i++)
     {
-      if (g_str_has_prefix (outputs[i].name, "LVDS") ||
-          g_str_has_prefix (outputs[i].name, "eDP"))
-        return &outputs[i];
+      if (meta_output_is_laptop (&outputs[i]))
+        return i;
     }
 
-  best = NULL;
+  best = -1;
   best_width = 0; best_height = 0;
   for (i = 0; i < n_outputs; i++)
     {
       if (outputs[i].preferred_mode->width * outputs[i].preferred_mode->height >
           best_width * best_height)
         {
-          best = &outputs[i];
+          best = i;
           best_width = outputs[i].preferred_mode->width;
           best_height = outputs[i].preferred_mode->height;
         }
@@ -1081,47 +1115,208 @@ find_primary_output (MetaOutput *outputs,
   return best;
 }
 
-static MetaConfiguration *
-make_default_config (MetaMonitorConfig *self,
-                     MetaOutput        *outputs,
-                     unsigned           n_outputs,
-                     int                max_width,
-                     int                max_height)
+static void
+init_config_from_preferred_mode (MetaOutputConfig *config,
+                                 MetaOutput *output)
 {
-  unsigned i, j;
-  int x, y;
-  MetaConfiguration *ret;
-  MetaOutput *primary;
+  config->enabled = TRUE;
+  config->rect.x = 0;
+  config->rect.y = 0;
+  config->rect.width = output->preferred_mode->width;
+  config->rect.height = output->preferred_mode->height;
+  config->refresh_rate = output->preferred_mode->refresh_rate;
+  config->transform = META_MONITOR_TRANSFORM_NORMAL;
+  config->is_primary = FALSE;
+  config->is_presentation = FALSE;
+}
 
-  ret = g_slice_new (MetaConfiguration);
-  make_config_key (ret, outputs, n_outputs, -1);
-  ret->outputs = g_new0 (MetaOutputConfig, n_outputs);
+/* This function handles configuring the outputs when the driver provides a
+ * suggested layout position for each output. This is done in recent versions
+ * of qxl and allows displays to be aligned on the guest in the same order as
+ * they are aligned on the client.
+ */
+static gboolean
+make_suggested_config (MetaMonitorConfig *self,
+                       MetaOutput        *outputs,
+                       unsigned           n_outputs,
+                       int                max_width,
+                       int                max_height,
+                       MetaConfiguration *config)
+{
+  unsigned int i;
+  int primary;
+  GList *region = NULL;
 
-  /* Special case the simple case: one output, primary at preferred mode,
-     nothing else to do */
-  if (n_outputs == 1)
+  g_return_val_if_fail (config != NULL, FALSE);
+  primary = find_primary_output (outputs, n_outputs);
+
+  for (i = 0; i < n_outputs; i++)
     {
-      ret->outputs[0].enabled = TRUE;
-      ret->outputs[0].rect.x = 0;
-      ret->outputs[0].rect.y = 0;
-      ret->outputs[0].rect.width = outputs[0].preferred_mode->width;
-      ret->outputs[0].rect.height = outputs[0].preferred_mode->height;
-      ret->outputs[0].refresh_rate = outputs[0].preferred_mode->refresh_rate;
-      ret->outputs[0].transform = META_MONITOR_TRANSFORM_NORMAL;
-      ret->outputs[0].is_primary = TRUE;
+      gboolean is_primary = ((int)i == primary);
 
-      return ret;
+      if (outputs[i].suggested_x < 0 || outputs[i].suggested_y < 0)
+          return FALSE;
+
+      init_config_from_preferred_mode (&config->outputs[i], &outputs[i]);
+      config->outputs[i].is_primary = is_primary;
+
+      config->outputs[i].rect.x = outputs[i].suggested_x;
+      config->outputs[i].rect.y = outputs[i].suggested_y;
+
+      /* Reject the configuration if the suggested positions result in
+       * overlapping displays */
+      if (meta_rectangle_overlaps_with_region (region, &config->outputs[i].rect))
+        {
+          g_warning ("Overlapping outputs, rejecting suggested configuration");
+          g_list_free (region);
+          return FALSE;
+        }
+
+      region = g_list_prepend (region, &config->outputs[i].rect);
     }
 
-  /* If we reach this point, this is either the first time mutter runs
-     on this system ever, or we just hotplugged a new screen.
-     In the latter case, search for a configuration that includes one
-     less screen, then add the new one as a presentation screen
-     in preferred mode.
+  g_list_free (region);
+  return TRUE;
+}
 
-     XXX: but presentation mode is not implemented in the control-center
-     or in mutter core, so let's do extended for now.
+static void
+config_one_untiled_output (MetaOutput *outputs,
+                           MetaConfiguration *config,
+                           int idx, gboolean is_primary,
+                           int *x, unsigned long *output_configured_bitmap)
+{
+  MetaOutput *output = &outputs[idx];
+
+  if (*output_configured_bitmap & (1 << idx))
+    return;
+
+  init_config_from_preferred_mode (&config->outputs[idx], output);
+  config->outputs[idx].is_primary = is_primary;
+  config->outputs[idx].rect.x = *x;
+  *x += config->outputs[idx].rect.width;
+  *output_configured_bitmap |= (1 << idx);
+}
+
+static void
+config_one_tiled_group (MetaOutput *outputs,
+                        MetaConfiguration *config,
+                        int base_idx, gboolean is_primary,
+                        int n_outputs,
+                        int *x, unsigned long *output_configured_bitmap)
+{
+  guint32 num_h_tile, num_v_tile, ht, vt;
+  int j;
+  int cur_x, cur_y, addx = 0;
+
+  if (*output_configured_bitmap & (1 << base_idx))
+      return;
+
+  if (outputs[base_idx].tile_info.group_id == 0)
+    return;
+
+  cur_x = cur_y = 0;
+  num_h_tile = outputs[base_idx].tile_info.max_h_tiles;
+  num_v_tile = outputs[base_idx].tile_info.max_v_tiles;
+
+  /* iterate over horizontal tiles */
+  cur_x = *x;
+  for (ht = 0; ht < num_h_tile; ht++)
+    {
+      cur_y = 0;
+      addx = 0;
+      for (vt = 0; vt < num_v_tile; vt++)
+        {
+          for (j = 0; j < n_outputs; j++)
+            {
+              if (outputs[j].tile_info.group_id != outputs[base_idx].tile_info.group_id)
+                continue;
+
+              if (outputs[j].tile_info.loc_h_tile != ht ||
+                  outputs[j].tile_info.loc_v_tile != vt)
+                continue;
+
+              if (ht == 0 && vt == 0 && is_primary)
+                config->outputs[j].is_primary = TRUE;
+
+              init_config_from_preferred_mode (&config->outputs[j], &outputs[j]);
+              config->outputs[j].rect.x = cur_x;
+              config->outputs[j].rect.y = cur_y;
+
+              *output_configured_bitmap |= (1 << j);
+              cur_y += outputs[j].tile_info.tile_h;
+              if (vt == 0)
+                addx += outputs[j].tile_info.tile_w;
+            }
+        }
+      cur_x += addx;
+    }
+  *x = cur_x;
+
+}
+
+static void
+make_linear_config (MetaMonitorConfig *self,
+                    MetaOutput        *outputs,
+                    unsigned           n_outputs,
+                    int                max_width,
+                    int                max_height,
+                    MetaConfiguration *config)
+{
+  unsigned long output_configured_bitmap = 0;
+  unsigned i;
+  int x;
+  int primary;
+
+  g_return_if_fail (config != NULL);
+
+  primary = find_primary_output (outputs, n_outputs);
+
+  x = 0;
+  /* set the primary up first at 0 */
+  if (outputs[primary].tile_info.group_id)
+    {
+      config_one_tiled_group (outputs, config, primary, TRUE, n_outputs,
+                              &x, &output_configured_bitmap);
+    }
+  else
+    {
+      config_one_untiled_output (outputs, config, primary, TRUE,
+                                 &x, &output_configured_bitmap);
+    }
+
+  /* then add other tiled monitors */
+  for (i = 0; i < n_outputs; i++)
+    {
+      config_one_tiled_group (outputs, config, i, FALSE, n_outputs,
+                              &x, &output_configured_bitmap);
+    }
+
+  /* then add remaining monitors */
+  for (i = 0; i < n_outputs; i++)
+    {
+      config_one_untiled_output (outputs, config, i, FALSE,
+                                 &x, &output_configured_bitmap);
+
+    }
+}
+
+/* Search for a configuration that includes one less screen, then add the new
+ * one as a presentation screen in preferred mode.
+ *
+ * XXX: but presentation mode is not implemented in the control-center or in
+ * mutter core, so let's do extended for now.
   */
+static gboolean
+extend_stored_config (MetaMonitorConfig *self,
+                      MetaOutput        *outputs,
+                      unsigned           n_outputs,
+                      int                max_width,
+                      int                max_height,
+                      MetaConfiguration *config)
+{
+  int x, y;
+  unsigned i, j;
+
   x = 0;
   y = 0;
   for (i = 0; i < n_outputs; i++)
@@ -1139,69 +1334,80 @@ make_default_config (MetaMonitorConfig *self,
             {
               if (j < i)
                 {
-                  g_assert (output_key_equal (&ret->keys[j], &ref->keys[j]));
-                  ret->outputs[j] = ref->outputs[j];
+                  g_assert (output_key_equal (&config->keys[j], &ref->keys[j]));
+                  config->outputs[j] = ref->outputs[j];
                   x = MAX (x, ref->outputs[j].rect.x + ref->outputs[j].rect.width);
                   y = MAX (y, ref->outputs[j].rect.y + ref->outputs[j].rect.height);
                 }
               else if (j > i)
                 {
-                  g_assert (output_key_equal (&ret->keys[j], &ref->keys[j - 1]));
-                  ret->outputs[j] = ref->outputs[j - 1];
+                  g_assert (output_key_equal (&config->keys[j], &ref->keys[j - 1]));
+                  config->outputs[j] = ref->outputs[j - 1];
                   x = MAX (x, ref->outputs[j - 1].rect.x + ref->outputs[j - 1].rect.width);
                   y = MAX (y, ref->outputs[j - 1].rect.y + ref->outputs[j - 1].rect.height);
                 }
               else
                 {
-                  ret->outputs[j].enabled = TRUE;
-                  ret->outputs[j].rect.x = 0;
-                  ret->outputs[j].rect.y = 0;
-                  ret->outputs[j].rect.width = outputs[0].preferred_mode->width;
-                  ret->outputs[j].rect.height = outputs[0].preferred_mode->height;
-                  ret->outputs[j].refresh_rate = outputs[0].preferred_mode->refresh_rate;
-                  ret->outputs[j].transform = META_MONITOR_TRANSFORM_NORMAL;
-                  ret->outputs[j].is_primary = FALSE;
-                  ret->outputs[j].is_presentation = FALSE;
+                  init_config_from_preferred_mode (&config->outputs[j], &outputs[0]);
                 }
             }
 
           /* Place the new output at the right end of the screen, if it fits,
              otherwise below it, otherwise disable it (or apply_configuration will fail) */
-          if (x + ret->outputs[i].rect.width <= max_width)
-            ret->outputs[i].rect.x = x;
-          else if (y + ret->outputs[i].rect.height <= max_height)
-            ret->outputs[i].rect.y = y;
+          if (x + config->outputs[i].rect.width <= max_width)
+            config->outputs[i].rect.x = x;
+          else if (y + config->outputs[i].rect.height <= max_height)
+            config->outputs[i].rect.y = y;
           else
-            ret->outputs[i].enabled = FALSE;
+            config->outputs[i].enabled = FALSE;
 
-          return ret;
+          return TRUE;
         }
     }
 
-  /* No previous configuration found, try with a really default one, which
-     is one primary that goes first and the rest to the right of it, extended.
-  */
-  primary = find_primary_output (outputs, n_outputs);
+  return FALSE;
+}
 
-  x = primary->preferred_mode->width;
+static MetaConfiguration *
+make_default_config (MetaMonitorConfig *self,
+                     MetaOutput        *outputs,
+                     unsigned           n_outputs,
+                     int                max_width,
+                     int                max_height,
+                     gboolean           use_stored_config)
+{
+  MetaConfiguration *ret = NULL;
+  unsigned i;
+
+  ret = config_new ();
+  make_config_key (ret, outputs, n_outputs, -1);
+  ret->outputs = g_new0 (MetaOutputConfig, n_outputs);
+
+  /* Special case the simple case: one output, primary at preferred mode,
+     nothing else to do */
+  if (n_outputs == 1)
+    {
+      init_config_from_preferred_mode (&ret->outputs[0], &outputs[0]);
+      ret->outputs[0].is_primary = TRUE;
+      goto check_limits;
+    }
+
+  if (make_suggested_config (self, outputs, n_outputs, max_width, max_height, ret))
+      goto check_limits;
+
+  if (use_stored_config &&
+      extend_stored_config (self, outputs, n_outputs, max_width, max_height, ret))
+      goto check_limits;
+
+  make_linear_config (self, outputs, n_outputs, max_width, max_height, ret);
+
+check_limits:
+  /* Disable outputs that would go beyond framebuffer limits */
   for (i = 0; i < n_outputs; i++)
     {
-      MetaOutput *output = &outputs[i];
-
-      ret->outputs[i].enabled = TRUE;
-      ret->outputs[i].rect.x = (output == primary) ? 0 : x;
-      ret->outputs[i].rect.y = 0;
-      ret->outputs[i].rect.width = output->preferred_mode->width;
-      ret->outputs[i].rect.height = output->preferred_mode->height;
-      ret->outputs[i].refresh_rate = output->preferred_mode->refresh_rate;
-      ret->outputs[i].transform = META_MONITOR_TRANSFORM_NORMAL;
-      ret->outputs[i].is_primary = (output == primary);
-
-      /* Disable outputs that would go beyond framebuffer limits */
-      if (ret->outputs[i].rect.x + ret->outputs[i].rect.width > max_width)
-        ret->outputs[i].enabled = FALSE;
-      else if (output != primary)
-        x += output->preferred_mode->width;
+        if ((ret->outputs[i].rect.x + ret->outputs[i].rect.width > max_width)
+            || (ret->outputs[i].rect.y + ret->outputs[i].rect.height > max_height))
+          ret->outputs[i].enabled = FALSE;
     }
 
   return ret;
@@ -1213,8 +1419,8 @@ ensure_at_least_one_output (MetaMonitorConfig  *self,
                             MetaOutput         *outputs,
                             unsigned            n_outputs)
 {
-  MetaConfiguration *ret;
-  MetaOutput *primary;
+  MetaConfiguration *config;
+  int primary;
   unsigned i;
 
   /* Check that we have at least one active output */
@@ -1224,34 +1430,29 @@ ensure_at_least_one_output (MetaMonitorConfig  *self,
 
   /* Oh no, we don't! Activate the primary one and disable everything else */
 
-  ret = g_slice_new (MetaConfiguration);
-  make_config_key (ret, outputs, n_outputs, -1);
-  ret->outputs = g_new0 (MetaOutputConfig, n_outputs);
+  config = config_new ();
+  make_config_key (config, outputs, n_outputs, -1);
+  config->outputs = g_new0 (MetaOutputConfig, n_outputs);
 
   primary = find_primary_output (outputs, n_outputs);
 
   for (i = 0; i < n_outputs; i++)
     {
-      MetaOutput *output = &outputs[i];
+      gboolean is_primary = ((int)i == primary);
 
-      if (output == primary)
+      if (is_primary)
         {
-          ret->outputs[i].enabled = TRUE;
-          ret->outputs[i].rect.x = 0;
-          ret->outputs[i].rect.y = 0;
-          ret->outputs[i].rect.width = output->preferred_mode->width;
-          ret->outputs[i].rect.height = output->preferred_mode->height;
-          ret->outputs[i].refresh_rate = output->preferred_mode->refresh_rate;
-          ret->outputs[i].transform = META_MONITOR_TRANSFORM_NORMAL;
-          ret->outputs[i].is_primary = TRUE;
+          init_config_from_preferred_mode (&config->outputs[i], &outputs[0]);
+          config->outputs[i].is_primary = TRUE;
         }
       else
         {
-          ret->outputs[i].enabled = FALSE;
+          config->outputs[i].enabled = FALSE;
         }
     }
 
-  apply_configuration (self, ret, manager, FALSE);
+  apply_configuration (self, config, manager);
+  config_unref (config);
   return FALSE;
 }
 
@@ -1262,8 +1463,9 @@ meta_monitor_config_make_default (MetaMonitorConfig  *self,
   MetaOutput *outputs;
   MetaConfiguration *default_config;
   unsigned n_outputs;
-  gboolean ok;
+  gboolean ok = FALSE;
   int max_width, max_height;
+  gboolean use_stored_config;
 
   outputs = meta_monitor_manager_get_outputs (manager, &n_outputs);
   meta_monitor_manager_get_screen_limits (manager, &max_width, &max_height);
@@ -1274,23 +1476,21 @@ meta_monitor_config_make_default (MetaMonitorConfig  *self,
       return;
     }
 
-  default_config = make_default_config (self, outputs, n_outputs, max_width, max_height);
+  /* if the device has hotplug_mode_update, it's possible that the
+   * current display configuration does not match a stored configuration.
+   * Since extend_existing_config() tries to build a configuration that is
+   * based on a previously-stored configuration, it's quite likely that the
+   * resulting config will fail. Even if it doesn't fail, it may result in
+   * an unexpected configuration, so don't attempt to use a stored config
+   * in this situation. */
+  use_stored_config = !meta_monitor_manager_has_hotplug_mode_update (manager);
+  default_config = make_default_config (self, outputs, n_outputs, max_width, max_height, use_stored_config);
 
   if (default_config != NULL)
     {
-      if (self->lid_is_closed &&
-          multiple_outputs_are_enabled (default_config) &&
-          laptop_display_is_on (default_config))
-        {
-          ok = apply_configuration (self, make_laptop_lid_config (default_config),
-                                    manager, FALSE);
-          config_free (default_config);
-        }
-      else
-        ok = apply_configuration (self, default_config, manager, FALSE);
+      ok = apply_configuration_with_lid (self, default_config, manager);
+      config_unref (default_config);
     }
-  else
-    ok = FALSE;
 
   if (!ok)
     {
@@ -1314,6 +1514,7 @@ init_config_from_output (MetaOutputConfig *config,
   config->transform = output->crtc->transform;
   config->is_primary = output->is_primary;
   config->is_presentation = output->is_presentation;
+  config->is_underscanning = output->is_underscanning;
 }
 
 void
@@ -1327,7 +1528,7 @@ meta_monitor_config_update_current (MetaMonitorConfig  *self,
 
   outputs = meta_monitor_manager_get_outputs (manager, &n_outputs);
 
-  current = g_slice_new (MetaConfiguration);
+  current = config_new ();
   current->n_outputs = n_outputs;
   current->outputs = g_new0 (MetaOutputConfig, n_outputs);
   current->keys = g_new0 (MetaOutputKey, n_outputs);
@@ -1340,15 +1541,11 @@ meta_monitor_config_update_current (MetaMonitorConfig  *self,
 
   if (self->current && config_equal_full (current, self->current))
     {
-      config_free (current);
+      config_unref (current);
       return;
     }
 
-  if (self->current && !self->current_is_stored)
-    config_free (self->current);
-
-  self->current = current;
-  self->current_is_stored = FALSE;
+  set_current (self, current);
 }
 
 void
@@ -1356,12 +1553,23 @@ meta_monitor_config_restore_previous (MetaMonitorConfig  *self,
                                       MetaMonitorManager *manager)
 {
   if (self->previous)
-    apply_configuration (self, self->previous, manager, FALSE);
-  else
     {
-      if (!meta_monitor_config_apply_stored (self, manager))
-        meta_monitor_config_make_default (self, manager);
+      /* The user chose to restore the previous configuration. In this
+       * case, restore the previous configuration. */
+      MetaConfiguration *prev_config = config_ref (self->previous);
+      gboolean ok = apply_configuration (self, prev_config, manager);
+      config_unref (prev_config);
+
+      /* After this, self->previous contains the rejected configuration.
+       * Since it was rejected, nuke it. */
+      g_clear_pointer (&self->previous, (GDestroyNotify) config_unref);
+
+      if (ok)
+        return;
     }
+
+  if (!meta_monitor_config_apply_stored (self, manager))
+    meta_monitor_config_make_default (self, manager);
 }
 
 static void
@@ -1374,7 +1582,8 @@ turn_off_laptop_display (MetaMonitorConfig  *self,
     return;
 
   new = make_laptop_lid_config (self->current);
-  apply_configuration (self, new, manager, FALSE);
+  apply_configuration (self, new, manager);
+  config_unref (new);
   self->current_is_for_laptop_lid = TRUE;
 }
 
@@ -1497,7 +1706,8 @@ meta_monitor_config_save (MetaMonitorConfig *self)
                                       "      <reflect_x>%s</reflect_x>\n"
                                       "      <reflect_y>no</reflect_y>\n"
                                       "      <primary>%s</primary>\n"
-                                      "      <presentation>%s</presentation>\n",
+                                      "      <presentation>%s</presentation>\n"
+                                      "      <underscanning>%s</underscanning>\n",
                                       output->rect.width,
                                       output->rect.height,
                                       refresh_rate,
@@ -1506,7 +1716,8 @@ meta_monitor_config_save (MetaMonitorConfig *self)
                                       rotation_map[output->transform & 0x3],
                                       output->transform >= META_MONITOR_TRANSFORM_FLIPPED ? "yes" : "no",
                                       output->is_primary ? "yes" : "no",
-                                      output->is_presentation ? "yes" : "no");
+                                      output->is_presentation ? "yes" : "no",
+                                      output->is_underscanning ? "yes" : "no");
             }
 
           g_string_append (buffer, "    </output>\n");
@@ -1521,7 +1732,7 @@ meta_monitor_config_save (MetaMonitorConfig *self)
   closure->config = g_object_ref (self);
   closure->buffer = buffer;
 
-  g_file_replace_contents_async (self->file,
+  g_file_replace_contents_async (self->user_file,
                                  buffer->str, buffer->len,
                                  NULL, /* etag */
                                  TRUE,
@@ -1533,16 +1744,7 @@ meta_monitor_config_save (MetaMonitorConfig *self)
 void
 meta_monitor_config_make_persistent (MetaMonitorConfig *self)
 {
-  if (self->current_is_stored)
-    return;
-
-  self->current_is_stored = TRUE;
-  g_hash_table_replace (self->configs, self->current, self->current);
-
-  if (self->previous)
-    config_free (self->previous);
-  self->previous = NULL;
-
+  g_hash_table_replace (self->configs, self->current, config_ref (self->current));
   meta_monitor_config_save (self);
 }
 
@@ -1600,19 +1802,6 @@ crtc_can_drive_output (MetaCRTC   *crtc,
 }
 
 static gboolean
-output_supports_mode (MetaOutput      *output,
-                      MetaMonitorMode *mode)
-{
-  unsigned int i;
-
-  for (i = 0; i < output->n_modes; i++)
-    if (output->modes[i] == mode)
-      return TRUE;
-
-  return FALSE;
-}
-
-static gboolean
 crtc_assignment_assign (CrtcAssignment       *assign,
 			MetaCRTC             *crtc,
 			MetaMonitorMode      *mode,
@@ -1624,9 +1813,6 @@ crtc_assignment_assign (CrtcAssignment       *assign,
   MetaCRTCInfo *info = g_hash_table_lookup (assign->info, crtc);
 
   if (!crtc_can_drive_output (crtc, output))
-    return FALSE;
-
-  if (!output_supports_mode (output, mode))
     return FALSE;
 
   if ((crtc->all_transforms & (1 << transform)) == 0)
@@ -1648,7 +1834,7 @@ crtc_assignment_assign (CrtcAssignment       *assign,
     }
   else
     {
-      MetaCRTCInfo *info = g_slice_new0 (MetaCRTCInfo);
+      info = g_slice_new0 (MetaCRTCInfo);
 
       info->crtc = crtc;
       info->mode = mode;
@@ -1715,14 +1901,12 @@ static gboolean
 real_assign_crtcs (CrtcAssignment     *assignment,
                    unsigned int        output_num)
 {
-  MetaMonitorMode *modes;
   MetaCRTC *crtcs;
   MetaOutput *outputs;
-  unsigned int n_crtcs, n_modes, n_outputs;
+  unsigned int n_crtcs, n_outputs;
   MetaOutputKey *output_key;
   MetaOutputConfig *output_config;
   unsigned int i;
-  gboolean success;
 
   if (output_num == assignment->config->n_outputs)
     return TRUE;
@@ -1735,11 +1919,9 @@ real_assign_crtcs (CrtcAssignment     *assignment,
     return real_assign_crtcs (assignment, output_num + 1);
 
   meta_monitor_manager_get_resources (assignment->manager,
-                                      &modes, &n_modes,
+                                      NULL, NULL,
                                       &crtcs, &n_crtcs,
                                       &outputs, &n_outputs);
-
-  success = FALSE;
 
   for (i = 0; i < n_crtcs; i++)
     {
@@ -1754,9 +1936,9 @@ real_assign_crtcs (CrtcAssignment     *assignment,
           MetaOutput *output = find_output_by_key (outputs, n_outputs, output_key);
           unsigned int j;
 
-          for (j = 0; j < n_modes; j++)
+          for (j = 0; j < output->n_modes; j++)
 	    {
-              MetaMonitorMode *mode = &modes[j];
+              MetaMonitorMode *mode = output->modes[j];
               int width, height;
 
               if (meta_monitor_transform_is_rotated (output_config->transform))
@@ -1781,16 +1963,13 @@ real_assign_crtcs (CrtcAssignment     *assignment,
                                 output_config->transform,
                                 pass);
 
-                  if (crtc_assignment_assign (assignment, crtc, &modes[j],
+                  if (crtc_assignment_assign (assignment, crtc, mode,
                                               output_config->rect.x, output_config->rect.y,
                                               output_config->transform,
                                               output))
                     {
                       if (real_assign_crtcs (assignment, output_num + 1))
-                        {
-                          success = TRUE;
-                          goto out;
-                        }
+                        return TRUE;
 
                       crtc_assignment_unassign (assignment, crtc, output);
                     }
@@ -1799,8 +1978,7 @@ real_assign_crtcs (CrtcAssignment     *assignment,
 	}
     }
 
-out:
-  return success;
+  return FALSE;
 }
 
 static gboolean
@@ -1838,7 +2016,11 @@ meta_monitor_config_assign_crtcs (MetaConfiguration  *config,
 
   all_outputs = meta_monitor_manager_get_outputs (manager,
                                                   &n_outputs);
-  g_assert (n_outputs == config->n_outputs);
+  if (n_outputs != config->n_outputs)
+    {
+      g_hash_table_destroy (assignment.info);
+      return FALSE;
+    }
 
   for (i = 0; i < n_outputs; i++)
     {
@@ -1849,6 +2031,7 @@ meta_monitor_config_assign_crtcs (MetaConfiguration  *config,
                                                 &config->keys[i]);
       output_info->is_primary = output_config->is_primary;
       output_info->is_presentation = output_config->is_presentation;
+      output_info->is_underscanning = output_config->is_underscanning;
 
       g_ptr_array_add (outputs, output_info);
     }

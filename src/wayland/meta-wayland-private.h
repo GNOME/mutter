@@ -32,17 +32,22 @@
 #include "meta-wayland-versions.h"
 #include "meta-wayland-surface.h"
 #include "meta-wayland-seat.h"
+#include "meta-wayland-pointer-gestures.h"
+#include "meta-wayland-tablet-manager.h"
+
+typedef struct _MetaXWaylandSelection MetaXWaylandSelection;
 
 typedef struct
 {
   struct wl_list link;
   struct wl_resource *resource;
+  MetaWaylandSurface *surface;
 } MetaWaylandFrameCallback;
 
 typedef struct
 {
   int display_index;
-  char *lockfile;
+  char *lock_file;
   int abstract_fd;
   int unix_fd;
   pid_t pid;
@@ -51,6 +56,8 @@ typedef struct
   char *display_name;
 
   GMainLoop *init_loop;
+
+  MetaXWaylandSelection *selection_data;
 } MetaXWaylandManager;
 
 struct _MetaWaylandCompositor
@@ -63,6 +70,7 @@ struct _MetaWaylandCompositor
   MetaXWaylandManager xwayland_manager;
 
   MetaWaylandSeat *seat;
+  MetaWaylandTabletManager *tablet_manager;
 };
 
 #endif /* META_WAYLAND_PRIVATE_H */

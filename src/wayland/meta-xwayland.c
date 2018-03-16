@@ -32,21 +32,53 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#include "compositor/meta-surface-actor-wayland.h"
+
+enum {
+  XWAYLAND_SURFACE_WINDOW_ASSOCIATED,
+
+  XWAYLAND_SURFACE_LAST_SIGNAL
+};
+
+guint xwayland_surface_signals[XWAYLAND_SURFACE_LAST_SIGNAL];
+
+#define META_TYPE_WAYLAND_SURFACE_ROLE_XWAYLAND (meta_wayland_surface_role_xwayland_get_type ())
+G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleXWayland,
+                      meta_wayland_surface_role_xwayland,
+                      META, WAYLAND_SURFACE_ROLE_XWAYLAND,
+                      MetaWaylandSurfaceRole);
+
+struct _MetaWaylandSurfaceRoleXWayland
+{
+  MetaWaylandSurfaceRole parent;
+};
+
+G_DEFINE_TYPE (MetaWaylandSurfaceRoleXWayland,
+               meta_wayland_surface_role_xwayland,
+               META_TYPE_WAYLAND_SURFACE_ROLE);
+
 static void
 associate_window_with_surface (MetaWindow         *window,
                                MetaWaylandSurface *surface)
 {
   MetaDisplay *display = window->display;
 
-  /* If the window has an existing surface, like if we're
-   * undecorating or decorating the window, then we need
-   * to detach the window from its old surface.
-   */
-  if (window->surface)
-    window->surface->window = NULL;
+  if (!meta_wayland_surface_assign_role (surface,
+                                         META_TYPE_WAYLAND_SURFACE_ROLE_XWAYLAND,
+                                         NULL))
+    {
+      wl_resource_post_error (surface->resource,
+                              WL_DISPLAY_ERROR_INVALID_OBJECT,
+                              "wl_surface@%d already has a different role",
+                              wl_resource_get_id (surface->resource));
+      return;
+    }
 
-  meta_wayland_surface_set_window (surface, window);
   window->surface = surface;
+  meta_wayland_surface_set_window (surface, window);
+  g_signal_emit (surface->role,
+                 xwayland_surface_signals[XWAYLAND_SURFACE_WINDOW_ASSOCIATED],
+                 0);
 
   meta_compositor_window_surface_changed (display->compositor, window);
 
@@ -60,6 +92,16 @@ associate_window_with_surface_id (MetaXWaylandManager *manager,
                                   guint32              surface_id)
 {
   struct wl_resource *resource;
+
+  /* If the window has an existing surface, like if we're
+   * undecorating or decorating the window, then we need
+   * to detach the window from its old surface.
+   */
+  if (window->surface)
+    {
+      meta_wayland_surface_set_window (window->surface, NULL);
+      window->surface = NULL;
+    }
 
   resource = wl_client_get_object (manager->client, surface_id);
   if (resource)
@@ -144,6 +186,15 @@ meta_xwayland_handle_wl_surface_id (MetaWindow *window,
     }
 }
 
+gboolean
+meta_xwayland_is_xwayland_surface (MetaWaylandSurface *surface)
+{
+  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaXWaylandManager *manager = &compositor->xwayland_manager;
+
+  return wl_resource_get_client (surface->resource) == manager->client;
+}
+
 static gboolean
 try_display (int    display,
              char **filename_out,
@@ -182,7 +233,7 @@ try_display (int    display,
 
       if (kill (other, 0) < 0 && errno == ESRCH)
         {
-          /* Process is dead. Try unlinking the lockfile and trying again. */
+          /* Process is dead. Try unlinking the lock file and trying again. */
           if (unlink (filename) < 0)
             {
               g_warning ("failed to unlink stale lock file %s: %m", filename);
@@ -221,21 +272,23 @@ try_display (int    display,
 }
 
 static char *
-create_lockfile (int display, int *display_out)
+create_lock_file (int display, int *display_out)
 {
   char *filename;
   int fd;
 
   char pid[11];
   int size;
+  int number_of_tries = 0;
 
   while (!try_display (display, &filename, &fd))
     {
       display++;
+      number_of_tries++;
 
-      /* If display is above 50, then something's wrong. Just
+      /* If we can't get a display after 50 times, then something's wrong. Just
        * abort in this case. */
-      if (display > 50)
+      if (number_of_tries >= 50)
         return NULL;
     }
 
@@ -258,7 +311,8 @@ create_lockfile (int display, int *display_out)
 }
 
 static int
-bind_to_abstract_socket (int display)
+bind_to_abstract_socket (int       display,
+                         gboolean *fatal)
 {
   struct sockaddr_un addr;
   socklen_t size, name_size;
@@ -266,7 +320,11 @@ bind_to_abstract_socket (int display)
 
   fd = socket (PF_LOCAL, SOCK_STREAM | SOCK_CLOEXEC, 0);
   if (fd < 0)
-    return -1;
+    {
+      *fatal = TRUE;
+      g_warning ("Failed to create socket: %m");
+      return -1;
+    }
 
   addr.sun_family = AF_LOCAL;
   name_size = snprintf (addr.sun_path, sizeof addr.sun_path,
@@ -274,6 +332,7 @@ bind_to_abstract_socket (int display)
   size = offsetof (struct sockaddr_un, sun_path) + name_size;
   if (bind (fd, (struct sockaddr *) &addr, size) < 0)
     {
+      *fatal = errno != EADDRINUSE;
       g_warning ("failed to bind to @%s: %m", addr.sun_path + 1);
       close (fd);
       return -1;
@@ -281,6 +340,9 @@ bind_to_abstract_socket (int display)
 
   if (listen (fd, 1) < 0)
     {
+      *fatal = errno != EADDRINUSE;
+      g_warning ("Failed to listen on abstract socket @%s: %m",
+                 addr.sun_path + 1);
       close (fd);
       return -1;
     }
@@ -322,11 +384,13 @@ bind_to_unix_socket (int display)
 }
 
 static void
-xserver_died (GPid     pid,
-              gint     status,
-              gpointer user_data)
+xserver_died (GObject      *source,
+              GAsyncResult *result,
+              gpointer      user_data)
 {
-  if (!WIFEXITED (status))
+  GSubprocess *proc = G_SUBPROCESS (source);
+
+  if (!g_subprocess_get_successful (proc))
     g_error ("X Wayland crashed; aborting");
   else
     {
@@ -350,35 +414,46 @@ static gboolean
 choose_xdisplay (MetaXWaylandManager *manager)
 {
   int display = 0;
-  char *lockfile = NULL;
+  char *lock_file = NULL;
+  gboolean fatal = FALSE;
+
+  /* Hack to keep the unused Xwayland instance on
+   * the login screen from taking the prime :0 display
+   * number.
+   */
+  if (g_getenv ("RUNNING_UNDER_GDM") != NULL)
+    display = 1024;
 
   do
     {
-      lockfile = create_lockfile (display, &display);
-      if (!lockfile)
+      lock_file = create_lock_file (display, &display);
+      if (!lock_file)
         {
           g_warning ("Failed to create an X lock file");
           return FALSE;
         }
 
-      manager->abstract_fd = bind_to_abstract_socket (display);
+      manager->abstract_fd = bind_to_abstract_socket (display, &fatal);
       if (manager->abstract_fd < 0)
         {
-          unlink (lockfile);
+          unlink (lock_file);
 
-          if (errno == EADDRINUSE)
+          if (!fatal)
             {
               display++;
               continue;
             }
           else
-            return FALSE;
+            {
+              g_warning ("Failed to bind abstract socket");
+              return FALSE;
+            }
         }
 
       manager->unix_fd = bind_to_unix_socket (display);
-      if (manager->abstract_fd < 0)
+      if (manager->unix_fd < 0)
         {
-          unlink (lockfile);
+          unlink (lock_file);
           close (manager->abstract_fd);
           return FALSE;
         }
@@ -389,7 +464,7 @@ choose_xdisplay (MetaXWaylandManager *manager)
 
   manager->display_index = display;
   manager->display_name = g_strdup_printf (":%d", manager->display_index);
-  manager->lockfile = lockfile;
+  manager->lock_file = lock_file;
 
   return TRUE;
 }
@@ -427,75 +502,60 @@ meta_xwayland_start (MetaXWaylandManager *manager,
 {
   int xwayland_client_fd[2];
   int displayfd[2];
-  int fd;
+  gboolean started = FALSE;
+  g_autoptr(GSubprocessLauncher) launcher = NULL;
+  GSubprocessFlags flags;
+  GSubprocess *proc;
+  GError *error = NULL;
 
   if (!choose_xdisplay (manager))
-    return FALSE;
+    goto out;
 
   /* We want xwayland to be a wayland client so we make a socketpair to setup a
    * wayland protocol connection. */
   if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, xwayland_client_fd) < 0)
     {
       g_warning ("xwayland_client_fd socketpair failed\n");
-      unlink (manager->lockfile);
-      return 1;
+      goto out;
     }
 
   if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, displayfd) < 0)
     {
       g_warning ("displayfd socketpair failed\n");
-      unlink (manager->lockfile);
-      return 1;
+      goto out;
     }
 
-  manager->pid = fork ();
-  if (manager->pid == 0)
+  /* xwayland, please. */
+  flags = G_SUBPROCESS_FLAGS_NONE;
+
+  if (getenv ("XWAYLAND_STFU"))
     {
-      char socket_fd[8], unix_fd[8], abstract_fd[8], displayfd_fd[8];
-
-      /* We passed SOCK_CLOEXEC, so dup the FD so it isn't
-       * closed on exec.. */
-      fd = dup (xwayland_client_fd[1]);
-      snprintf (socket_fd, sizeof (socket_fd), "%d", fd);
-      setenv ("WAYLAND_SOCKET", socket_fd, TRUE);
-
-      fd = dup (manager->abstract_fd);
-      snprintf (abstract_fd, sizeof (abstract_fd), "%d", fd);
-
-      fd = dup (manager->unix_fd);
-      snprintf (unix_fd, sizeof (unix_fd), "%d", fd);
-
-      fd = dup (displayfd[1]);
-      snprintf (displayfd_fd, sizeof (displayfd_fd), "%d", fd);
-
-      /* xwayland, please. */
-      if (getenv ("XWAYLAND_STFU"))
-        {
-          int dev_null;
-          dev_null = open ("/dev/null", O_WRONLY);
-
-          dup2 (dev_null, STDOUT_FILENO);
-          dup2 (dev_null, STDERR_FILENO);
-        }
-
-      if (execl (XWAYLAND_PATH, XWAYLAND_PATH,
-                 manager->display_name,
-                 "-rootless",
-                 "-noreset",
-                 "-listen", abstract_fd,
-                 "-listen", unix_fd,
-                 "-displayfd", displayfd_fd,
-                 NULL) < 0)
-        {
-          g_error ("Failed to spawn XWayland: %m");
-        }
+      flags |= G_SUBPROCESS_FLAGS_STDOUT_SILENCE;
+      flags |= G_SUBPROCESS_FLAGS_STDERR_SILENCE;
     }
-  else if (manager->pid == -1)
+
+  launcher = g_subprocess_launcher_new (flags);
+
+  g_subprocess_launcher_take_fd (launcher, xwayland_client_fd[1], 3);
+  g_subprocess_launcher_take_fd (launcher, manager->abstract_fd, 4);
+  g_subprocess_launcher_take_fd (launcher, manager->unix_fd, 5);
+  g_subprocess_launcher_take_fd (launcher, displayfd[1], 6);
+
+  g_subprocess_launcher_setenv (launcher, "WAYLAND_SOCKET", "3", TRUE);
+  proc = g_subprocess_launcher_spawn (launcher, &error,
+                                      XWAYLAND_PATH, manager->display_name,
+                                      "-rootless", "-noreset",
+                                      "-listen", "4",
+                                      "-listen", "5",
+                                      "-displayfd", "6",
+                                      NULL);
+  if (!proc)
     {
-      g_error ("Failed to fork: %m");
+      g_error ("Failed to spawn Xwayland: %s", error->message);
+      goto out;
     }
 
-  g_child_watch_add (manager->pid, xserver_died, NULL);
+  g_subprocess_wait_async  (proc, NULL, xserver_died, NULL);
   g_unix_fd_add (displayfd[0], G_IO_IN, on_displayfd_ready, manager);
   manager->client = wl_client_create (wl_display, xwayland_client_fd[0]);
 
@@ -505,7 +565,15 @@ meta_xwayland_start (MetaXWaylandManager *manager,
   manager->init_loop = g_main_loop_new (NULL, FALSE);
   g_main_loop_run (manager->init_loop);
 
-  return TRUE;
+  started = TRUE;
+
+out:
+  if (!started)
+    {
+      unlink (manager->lock_file);
+      g_clear_pointer (&manager->lock_file, g_free);
+    }
+  return started;
 }
 
 /* To be called right after connecting */
@@ -518,6 +586,8 @@ meta_xwayland_complete_init (void)
      we won't reset the tty).
   */
   XSetIOErrorHandler (x_io_error);
+
+  meta_xwayland_init_selection ();
 }
 
 void
@@ -525,10 +595,80 @@ meta_xwayland_stop (MetaXWaylandManager *manager)
 {
   char path[256];
 
-  snprintf (path, sizeof path, "/tmp/.X%d-lock", manager->display_index);
-  unlink (path);
+  meta_xwayland_shutdown_selection ();
+
   snprintf (path, sizeof path, "/tmp/.X11-unix/X%d", manager->display_index);
   unlink (path);
 
-  unlink (manager->lockfile);
+  g_clear_pointer (&manager->display_name, g_free);
+  if (manager->lock_file)
+    {
+      unlink (manager->lock_file);
+      g_clear_pointer (&manager->lock_file, g_free);
+    }
+}
+
+static void
+xwayland_surface_assigned (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+
+  /* See comment in xwayland_surface_commit for why we reply even though the
+   * surface may not be drawn the next frame.
+   */
+  wl_list_insert_list (&surface->compositor->frame_callbacks,
+                       &surface->pending_frame_callback_list);
+  wl_list_init (&surface->pending_frame_callback_list);
+}
+
+static void
+xwayland_surface_commit (MetaWaylandSurfaceRole  *surface_role,
+                         MetaWaylandPendingState *pending)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+
+  /* For Xwayland windows, throttling frames when the window isn't actually
+   * drawn is less useful, because Xwayland still has to do the drawing sent
+   * from the application - the throttling would only be of sending us damage
+   * messages, so we simplify and send frame callbacks after the next paint of
+   * the screen, whether the window was drawn or not.
+   *
+   * Currently it may take a few frames before we draw the window, for not
+   * completely understood reasons, and in that case, not thottling frame
+   * callbacks to drawing has the happy side effect that we avoid showing the
+   * user the initial black frame from when the window is mapped empty.
+   */
+  meta_wayland_surface_queue_pending_state_frame_callbacks (surface, pending);
+}
+
+static MetaWaylandSurface *
+xwayland_surface_get_toplevel (MetaWaylandSurfaceRole *surface_role)
+{
+  return meta_wayland_surface_role_get_surface (surface_role);
+}
+
+static void
+meta_wayland_surface_role_xwayland_init (MetaWaylandSurfaceRoleXWayland *role)
+{
+}
+
+static void
+meta_wayland_surface_role_xwayland_class_init (MetaWaylandSurfaceRoleXWaylandClass *klass)
+{
+  MetaWaylandSurfaceRoleClass *surface_role_class =
+    META_WAYLAND_SURFACE_ROLE_CLASS (klass);
+
+  surface_role_class->assigned = xwayland_surface_assigned;
+  surface_role_class->commit = xwayland_surface_commit;
+  surface_role_class->get_toplevel = xwayland_surface_get_toplevel;
+
+  xwayland_surface_signals[XWAYLAND_SURFACE_WINDOW_ASSOCIATED] =
+    g_signal_new ("window-associated",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 }

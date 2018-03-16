@@ -24,6 +24,8 @@
 
 #include "window-private.h"
 
+#include "ui/frames.h"
+
 struct _MetaFrame
 {
   /* window we frame */
@@ -50,6 +52,8 @@ struct _MetaFrame
   guint need_reapply_frame_shape : 1;
   guint is_flashing : 1; /* used by the visual bell flash */
   guint borders_cached : 1;
+
+  MetaUIFrame *ui_frame;
 };
 
 void     meta_window_ensure_frame           (MetaWindow *window);
@@ -64,8 +68,6 @@ void meta_frame_calc_borders      (MetaFrame        *frame,
                                    MetaFrameBorders *borders);
 
 gboolean meta_frame_sync_to_window (MetaFrame         *frame,
-                                    int                gravity,
-                                    gboolean           need_move,
                                     gboolean           need_resize);
 
 void meta_frame_clear_cached_borders (MetaFrame *frame);
@@ -78,8 +80,7 @@ void meta_frame_get_mask (MetaFrame *frame,
 void meta_frame_set_screen_cursor (MetaFrame	*frame,
 				   MetaCursor	cursor);
 
+void meta_frame_update_style (MetaFrame *frame);
+void meta_frame_update_title (MetaFrame *frame);
+
 #endif
-
-
-
-

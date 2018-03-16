@@ -58,9 +58,7 @@ meta_window_group_paint (ClutterActor *actor)
   cairo_region_t *clip_region;
   cairo_region_t *unobscured_region;
   cairo_rectangle_int_t visible_rect, clip_rect;
-  int paint_x_offset, paint_y_offset;
   int paint_x_origin, paint_y_origin;
-  int actor_x_origin, actor_y_origin;
   int screen_width, screen_height;
 
   MetaWindowGroup *window_group = META_WINDOW_GROUP (actor);
@@ -81,11 +79,22 @@ meta_window_group_paint (ClutterActor *actor)
    * painting currently, and never worry about how actors are positioned
    * on the stage.
    */
-  if (!meta_actor_painting_untransformed (screen_width, screen_height, &paint_x_origin, &paint_y_origin) ||
-      !meta_actor_is_untransformed (actor, &actor_x_origin, &actor_y_origin))
+  if (clutter_actor_is_in_clone_paint (actor))
     {
-      CLUTTER_ACTOR_CLASS (meta_window_group_parent_class)->paint (actor);
-      return;
+      if (!meta_actor_painting_untransformed (screen_width,
+                                              screen_height,
+                                              &paint_x_origin,
+                                              &paint_y_origin) ||
+          !meta_actor_is_untransformed (actor, NULL, NULL))
+        {
+          CLUTTER_ACTOR_CLASS (meta_window_group_parent_class)->paint (actor);
+          return;
+        }
+    }
+  else
+    {
+      paint_x_origin = 0;
+      paint_y_origin = 0;
     }
 
   visible_rect.x = visible_rect.y = 0;
@@ -105,9 +114,7 @@ meta_window_group_paint (ClutterActor *actor)
 
   clip_region = cairo_region_create_rectangle (&clip_rect);
 
-  paint_x_offset = paint_x_origin - actor_x_origin;
-  paint_y_offset = paint_y_origin - actor_y_origin;
-  cairo_region_translate (clip_region, -paint_x_offset, -paint_y_offset);
+  cairo_region_translate (clip_region, -paint_x_origin, -paint_y_origin);
 
   meta_cullable_cull_out (META_CULLABLE (window_group), unobscured_region, clip_region);
 
@@ -145,6 +152,36 @@ meta_window_group_get_paint_volume (ClutterActor       *self,
   return TRUE;
 }
 
+/* This is a workaround for Clutter's awful allocation tracking.
+ * Without this, any time the window group changed size, which is
+ * any time windows are dragged around, we'll do a full repaint
+ * of the window group, which includes the background actor, meaning
+ * a full-stage repaint.
+ *
+ * Since actors are allowed to paint outside their allocation, and
+ * since child actors are allowed to be outside their parents, this
+ * doesn't affect anything, but it means that we'll get much more
+ * sane and consistent clipped repaints from Clutter. */
+static void
+meta_window_group_get_preferred_width (ClutterActor *actor,
+                                       gfloat        for_height,
+                                       gfloat       *min_width,
+                                       gfloat       *nat_width)
+{
+  *min_width = 0;
+  *nat_width = 0;
+}
+
+static void
+meta_window_group_get_preferred_height (ClutterActor *actor,
+                                        gfloat        for_width,
+                                        gfloat       *min_height,
+                                        gfloat       *nat_height)
+{
+  *min_height = 0;
+  *nat_height = 0;
+}
+
 static void
 meta_window_group_class_init (MetaWindowGroupClass *klass)
 {
@@ -152,6 +189,8 @@ meta_window_group_class_init (MetaWindowGroupClass *klass)
 
   actor_class->paint = meta_window_group_paint;
   actor_class->get_paint_volume = meta_window_group_get_paint_volume;
+  actor_class->get_preferred_width = meta_window_group_get_preferred_width;
+  actor_class->get_preferred_height = meta_window_group_get_preferred_height;
 }
 
 static void

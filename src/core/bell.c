@@ -52,6 +52,7 @@
 #include "screen-private.h"
 #include "window-private.h"
 #include "util-private.h"
+#include "compositor/compositor-private.h"
 #include <meta/prefs.h>
 #include <meta/compositor.h>
 #ifdef HAVE_LIBCANBERRA
@@ -131,6 +132,12 @@ bell_flash_window_frame (MetaWindow *window)
   g_source_set_name_by_id (id, "[mutter] bell_unflash_frame");
 }
 
+static void
+bell_flash_window (MetaWindow *window)
+{
+  meta_compositor_flash_window (window->display->compositor, window);
+}
+
 /**
  * bell_flash_frame:
  * @display:  The display the bell event came in on
@@ -145,6 +152,8 @@ bell_flash_frame (MetaDisplay *display,
 {
   if (window && window->frame)
     bell_flash_window_frame (window);
+  else if (window)
+    bell_flash_window (window);
   else
     bell_flash_fullscreen (display);
 }
@@ -203,33 +212,18 @@ bell_audible_notify (MetaDisplay *display,
   return FALSE;
 }
 
-void
+gboolean
 meta_bell_notify (MetaDisplay *display,
-		  XkbAnyEvent *xkb_ev)
+                  MetaWindow  *window)
 {
-  MetaWindow *window;
-  XkbBellNotifyEvent *xkb_bell_event = (XkbBellNotifyEvent*) xkb_ev;
-
-  window = meta_display_lookup_x_window (display, xkb_bell_event->window);
-  if (!window && display->focus_window && display->focus_window->frame)
-    window = display->focus_window;
-
   /* flash something */
   if (meta_prefs_get_visual_bell ())
     bell_visual_notify (display, window);
 
   if (meta_prefs_bell_is_audible ())
-    {
-      if (!bell_audible_notify (display, window))
-        {
-          /* Force a classic bell if the libcanberra bell failed. */
-          XkbForceDeviceBell (display->xdisplay,
-                              xkb_bell_event->device,
-                              xkb_bell_event->bell_class,
-                              xkb_bell_event->bell_id,
-                              xkb_bell_event->percent);
-        }
-    }
+    return bell_audible_notify (display, window);
+
+  return TRUE;
 }
 
 void

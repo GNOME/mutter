@@ -28,6 +28,22 @@
 #include <meta/util.h>
 #include <glib/gi18n-lib.h>
 
+typedef enum _MetaCompositorType
+{
+#ifdef HAVE_WAYLAND
+  META_COMPOSITOR_TYPE_WAYLAND,
+#endif
+  META_COMPOSITOR_TYPE_X11,
+} MetaCompositorType;
+
+typedef enum _MetaBackendType
+{
+#ifdef HAVE_NATIVE_BACKEND
+  META_BACKEND_TYPE_NATIVE,
+#endif
+  META_BACKEND_TYPE_X11,
+} MetaBackendType;
+
 void     meta_set_verbose (gboolean setting);
 void     meta_set_debugging (gboolean setting);
 void     meta_set_syncing (gboolean setting);

@@ -152,14 +152,17 @@ typedef enum
 {
   META_GRAB_OP_NONE,
 
+  /* Window grab ops. */
+  META_GRAB_OP_WINDOW_BASE,
+
   /* Special grab op when the compositor asked for a grab */
   META_GRAB_OP_COMPOSITOR,
 
-  /* For when a Wayland client takes a popup grab */
+  /* For when a Wayland client takes a popup grab. */
   META_GRAB_OP_WAYLAND_POPUP,
 
-  /* Window grab ops. */
-  META_GRAB_OP_WINDOW_BASE,
+  /* For when the user clicks on a frame button. */
+  META_GRAB_OP_FRAME_BUTTON,
 
   META_GRAB_OP_MOVING                     = META_GRAB_OP_WINDOW_BASE,
   META_GRAB_OP_RESIZING_NW                = META_GRAB_OP_WINDOW_BASE | _WGO_N | _WGO_W,
@@ -369,12 +372,6 @@ typedef enum
  * @META_BUTTON_FUNCTION_MINIMIZE: Minimize
  * @META_BUTTON_FUNCTION_MAXIMIZE: Maximize
  * @META_BUTTON_FUNCTION_CLOSE: Close
- * @META_BUTTON_FUNCTION_SHADE: Shade
- * @META_BUTTON_FUNCTION_ABOVE: Above
- * @META_BUTTON_FUNCTION_STICK: Stick
- * @META_BUTTON_FUNCTION_UNSHADE: Unshade
- * @META_BUTTON_FUNCTION_UNABOVE: Unabove
- * @META_BUTTON_FUNCTION_UNSTICK: Unstick
  * @META_BUTTON_FUNCTION_LAST: Marks the end of the #MetaButtonFunction enumeration
  *
  * Function a window button can have.  Note, you can't add stuff here
@@ -387,12 +384,6 @@ typedef enum
   META_BUTTON_FUNCTION_MINIMIZE,
   META_BUTTON_FUNCTION_MAXIMIZE,
   META_BUTTON_FUNCTION_CLOSE,
-  META_BUTTON_FUNCTION_SHADE,
-  META_BUTTON_FUNCTION_ABOVE,
-  META_BUTTON_FUNCTION_STICK,
-  META_BUTTON_FUNCTION_UNSHADE,
-  META_BUTTON_FUNCTION_UNABOVE,
-  META_BUTTON_FUNCTION_UNSTICK,
   META_BUTTON_FUNCTION_APPMENU,
   META_BUTTON_FUNCTION_LAST
 } MetaButtonFunction;
@@ -402,10 +393,10 @@ typedef enum
 /* Keep array size in sync with MAX_BUTTONS_PER_CORNER */
 /**
  * MetaButtonLayout:
- * @left_buttons: (array fixed-size=11):
- * @right_buttons: (array fixed-size=11):
- * @left_buttons_has_spacer: (array fixed-size=11):
- * @right_buttons_has_spacer: (array fixed-size=11):
+ * @left_buttons: (array fixed-size=5):
+ * @right_buttons: (array fixed-size=5):
+ * @left_buttons_has_spacer: (array fixed-size=5):
+ * @right_buttons_has_spacer: (array fixed-size=5):
  */
 typedef struct _MetaButtonLayout MetaButtonLayout;
 struct _MetaButtonLayout
@@ -528,8 +519,6 @@ void meta_frame_borders_clear (MetaFrameBorders *self);
  * @META_LAYER_NORMAL: Normal layer
  * @META_LAYER_TOP: Top layer
  * @META_LAYER_DOCK: Dock layer
- * @META_LAYER_FULLSCREEN: Fullscreen layer
- * @META_LAYER_FOCUSED_WINDOW: Focused window layer
  * @META_LAYER_OVERRIDE_REDIRECT: Override-redirect layer
  * @META_LAYER_LAST: Marks the end of the #MetaStackLayer enumeration
  *
@@ -543,8 +532,6 @@ typedef enum
   META_LAYER_NORMAL	       = 2,
   META_LAYER_TOP	       = 4, /* Same as DOCK; see EWMH and bug 330717 */
   META_LAYER_DOCK	       = 4,
-  META_LAYER_FULLSCREEN	       = 5,
-  META_LAYER_FOCUSED_WINDOW    = 6,
   META_LAYER_OVERRIDE_REDIRECT = 7,
   META_LAYER_LAST	       = 8
 } MetaStackLayer;

@@ -37,11 +37,6 @@
  * compositor needs to delay hiding the windows until the switch
  * workspace animation completes.
  *
- * meta_compositor_maximize_window() and meta_compositor_unmaximize_window()
- * are transitions within the visible state. The window is resized __before__
- * the call, so it may be necessary to readjust the display based on the
- * old_rect to start the animation.
- *
  * # Containers #
  *
  * There's two containers in the stage that are used to place window actors, here
@@ -79,12 +74,20 @@
 #include "frame.h"
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xcomposite.h>
+#include "meta-sync-ring.h"
 
 #include "backends/x11/meta-backend-x11.h"
+#include "clutter/clutter-mutter.h"
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland-private.h"
 #endif
+
+static void
+on_presented (ClutterStage     *stage,
+              CoglFrameEvent    event,
+              ClutterFrameInfo *frame_info,
+              MetaCompositor   *compositor);
 
 static gboolean
 is_modal (MetaDisplay *display)
@@ -125,7 +128,11 @@ meta_switch_workspace_completed (MetaCompositor *compositor)
 void
 meta_compositor_destroy (MetaCompositor *compositor)
 {
-  clutter_threads_remove_repaint_func (compositor->repaint_func_id);
+  clutter_threads_remove_repaint_func (compositor->pre_paint_func_id);
+  clutter_threads_remove_repaint_func (compositor->post_paint_func_id);
+
+  if (compositor->have_x11_sync_object)
+    meta_sync_ring_destroy ();
 }
 
 static void
@@ -345,6 +352,14 @@ meta_begin_modal_for_plugin (MetaCompositor   *compositor,
    */
   MetaDisplay *display = compositor->display;
 
+#ifdef HAVE_WAYLAND
+  if (display->grab_op == META_GRAB_OP_WAYLAND_POPUP)
+    {
+      MetaWaylandSeat *seat = meta_wayland_compositor_get_default ()->seat;
+      meta_wayland_pointer_end_popup_grab (seat->pointer);
+    }
+#endif
+
   if (is_modal (display) || display->grab_op != META_GRAB_OP_NONE)
     return FALSE;
 
@@ -468,13 +483,15 @@ meta_compositor_manage (MetaCompositor *compositor)
   MetaDisplay *display = compositor->display;
   Display *xdisplay = display->xdisplay;
   MetaScreen *screen = display->screen;
+  MetaBackend *backend = meta_get_backend ();
 
   meta_screen_set_cm_selection (display->screen);
 
-  {
-    MetaBackend *backend = meta_get_backend ();
-    compositor->stage = meta_backend_get_stage (backend);
-  }
+  compositor->stage = meta_backend_get_stage (backend);
+
+  g_signal_connect (compositor->stage, "presented",
+                    G_CALLBACK (on_presented),
+                    compositor);
 
   /* We use connect_after() here to accomodate code in GNOME Shell that,
    * when benchmarking drawing performance, connects to ::after-paint
@@ -510,7 +527,7 @@ meta_compositor_manage (MetaCompositor *compositor)
 
       compositor->output = screen->composite_overlay_window;
 
-      xwin = meta_backend_x11_get_xwindow (META_BACKEND_X11 (meta_get_backend ()));
+      xwin = meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend));
 
       XReparentWindow (xdisplay, xwin, compositor->output, 0, 0);
 
@@ -530,6 +547,8 @@ meta_compositor_manage (MetaCompositor *compositor)
        * contents until we show the stage.
        */
       XMapWindow (xdisplay, compositor->output);
+
+      compositor->have_x11_sync_object = meta_sync_ring_init (xdisplay);
     }
 
   redirect_windows (display->screen);
@@ -731,6 +750,9 @@ meta_compositor_process_event (MetaCompositor *compositor,
         process_damage (compositor, (XDamageNotifyEvent *) event, window);
     }
 
+  if (compositor->have_x11_sync_object)
+    meta_sync_ring_handle_event (event);
+
   /* Clutter needs to know about MapNotify events otherwise it will
      think the stage is invisible */
   if (!meta_is_wayland_compositor () && event->type == MapNotify)
@@ -769,23 +791,14 @@ meta_compositor_hide_window (MetaCompositor *compositor,
 }
 
 void
-meta_compositor_maximize_window (MetaCompositor    *compositor,
-                                 MetaWindow        *window,
-				 MetaRectangle	   *old_rect,
-				 MetaRectangle	   *new_rect)
+meta_compositor_size_change_window (MetaCompositor    *compositor,
+                                    MetaWindow        *window,
+                                    MetaSizeChange     which_change,
+                                    MetaRectangle     *old_frame_rect,
+                                    MetaRectangle     *old_buffer_rect)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
-  meta_window_actor_maximize (window_actor, old_rect, new_rect);
-}
-
-void
-meta_compositor_unmaximize_window (MetaCompositor    *compositor,
-                                   MetaWindow        *window,
-				   MetaRectangle     *old_rect,
-				   MetaRectangle     *new_rect)
-{
-  MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
-  meta_window_actor_unmaximize (window_actor, old_rect, new_rect);
+  meta_window_actor_size_change (window_actor, which_change, old_frame_rect, old_buffer_rect);
 }
 
 void
@@ -1003,17 +1016,16 @@ meta_compositor_sync_window_geometry (MetaCompositor *compositor,
 }
 
 static void
-frame_callback (CoglOnscreen  *onscreen,
-                CoglFrameEvent event,
-                CoglFrameInfo *frame_info,
-                void          *user_data)
+on_presented (ClutterStage     *stage,
+              CoglFrameEvent    event,
+              ClutterFrameInfo *frame_info,
+              MetaCompositor   *compositor)
 {
-  MetaCompositor *compositor = user_data;
   GList *l;
 
   if (event == COGL_FRAME_EVENT_COMPLETE)
     {
-      gint64 presentation_time_cogl = cogl_frame_info_get_presentation_time (frame_info);
+      gint64 presentation_time_cogl = frame_info->presentation_time;
       gint64 presentation_time;
 
       if (presentation_time_cogl != 0)
@@ -1027,8 +1039,7 @@ frame_callback (CoglOnscreen  *onscreen,
            * is fairly fast, so calling it twice and subtracting to get a
            * nearly-zero number is acceptable, if a litle ugly.
            */
-          CoglContext *context = cogl_framebuffer_get_context (COGL_FRAMEBUFFER (onscreen));
-          gint64 current_cogl_time = cogl_get_clock_time (context);
+          gint64 current_cogl_time = cogl_get_clock_time (compositor->context);
           gint64 current_monotonic_time = g_get_monotonic_time ();
 
           presentation_time =
@@ -1044,23 +1055,15 @@ frame_callback (CoglOnscreen  *onscreen,
     }
 }
 
-static void
-pre_paint_windows (MetaCompositor *compositor)
+static gboolean
+meta_pre_paint_func (gpointer data)
 {
   GList *l;
   MetaWindowActor *top_window;
-
-  if (compositor->onscreen == NULL)
-    {
-      compositor->onscreen = COGL_ONSCREEN (cogl_get_draw_framebuffer ());
-      compositor->frame_closure = cogl_onscreen_add_frame_callback (compositor->onscreen,
-                                                                    frame_callback,
-                                                                    compositor,
-                                                                    NULL);
-    }
+  MetaCompositor *compositor = data;
 
   if (compositor->windows == NULL)
-    return;
+    return TRUE;
 
   top_window = g_list_last (compositor->windows)->data;
 
@@ -1077,10 +1080,12 @@ pre_paint_windows (MetaCompositor *compositor)
     {
       /* We need to make sure that any X drawing that happens before
        * the XDamageSubtract() for each window above is visible to
-       * subsequent GL rendering; the only standardized way to do this
-       * is EXT_x11_sync_object, which isn't yet widely available. For
-       * now, we count on details of Xorg and the open source drivers,
-       * and hope for the best otherwise.
+       * subsequent GL rendering; the standardized way to do this is
+       * GL_EXT_X11_sync_object. Since this isn't implemented yet in
+       * mesa, we also have a path that relies on the implementation
+       * of the open source drivers.
+       *
+       * Anything else, we just hope for the best.
        *
        * Xorg and open source driver specifics:
        *
@@ -1095,17 +1100,52 @@ pre_paint_windows (MetaCompositor *compositor)
        * round trip request at this point is sufficient to flush the
        * GLX buffers.
        */
-      XSync (compositor->display->xdisplay, False);
-
-      compositor->frame_has_updated_xsurfaces = FALSE;
+      if (compositor->have_x11_sync_object)
+        compositor->have_x11_sync_object = meta_sync_ring_insert_wait ();
+      else
+        XSync (compositor->display->xdisplay, False);
     }
+
+  return TRUE;
 }
 
 static gboolean
-meta_repaint_func (gpointer data)
+meta_post_paint_func (gpointer data)
 {
   MetaCompositor *compositor = data;
-  pre_paint_windows (compositor);
+  CoglGraphicsResetStatus status;
+
+  if (compositor->frame_has_updated_xsurfaces)
+    {
+      if (compositor->have_x11_sync_object)
+        compositor->have_x11_sync_object = meta_sync_ring_after_frame ();
+
+      compositor->frame_has_updated_xsurfaces = FALSE;
+    }
+
+  status = cogl_get_graphics_reset_status (compositor->context);
+  switch (status)
+    {
+    case COGL_GRAPHICS_RESET_STATUS_NO_ERROR:
+      break;
+
+    case COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET:
+      g_signal_emit_by_name (compositor->display, "gl-video-memory-purged");
+      clutter_actor_queue_redraw (CLUTTER_ACTOR (compositor->stage));
+      break;
+
+    default:
+      /* The ARB_robustness spec says that, on error, the application
+         should destroy the old context and create a new one. Since we
+         don't have the necessary plumbing to do this we'll simply
+         restart the process. Obviously we can't do this when we are
+         a wayland compositor but in that case we shouldn't get here
+         since we don't enable robustness in that case. */
+      g_assert (!meta_is_wayland_compositor ());
+      meta_restart (NULL);
+      break;
+    }
+
   return TRUE;
 }
 
@@ -1127,10 +1167,13 @@ on_shadow_factory_changed (MetaShadowFactory *factory,
 MetaCompositor *
 meta_compositor_new (MetaDisplay *display)
 {
-  MetaCompositor        *compositor;
+  MetaBackend *backend = meta_get_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  MetaCompositor *compositor;
 
   compositor = g_new0 (MetaCompositor, 1);
   compositor->display = display;
+  compositor->context = clutter_backend->cogl_context;
 
   if (g_getenv("META_DISABLE_MIPMAPS"))
     compositor->no_mipmaps = TRUE;
@@ -1140,10 +1183,16 @@ meta_compositor_new (MetaDisplay *display)
                     G_CALLBACK (on_shadow_factory_changed),
                     compositor);
 
-  compositor->repaint_func_id = clutter_threads_add_repaint_func (meta_repaint_func,
-                                                                  compositor,
-                                                                  NULL);
-
+  compositor->pre_paint_func_id =
+    clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_PRE_PAINT,
+                                           meta_pre_paint_func,
+                                           compositor,
+                                           NULL);
+  compositor->post_paint_func_id =
+    clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_POST_PAINT,
+                                           meta_post_paint_func,
+                                           compositor,
+                                           NULL);
   return compositor;
 }
 
@@ -1231,6 +1280,48 @@ meta_compositor_flash_screen (MetaCompositor *compositor,
 
   g_signal_connect (transition, "stopped",
                     G_CALLBACK (flash_out_completed), flash);
+
+  clutter_actor_restore_easing_state (flash);
+}
+
+static void
+window_flash_out_completed (ClutterTimeline *timeline,
+                            gboolean         is_finished,
+                            gpointer         user_data)
+{
+  ClutterActor *flash = CLUTTER_ACTOR (user_data);
+  clutter_actor_destroy (flash);
+}
+
+void
+meta_compositor_flash_window (MetaCompositor *compositor,
+                              MetaWindow     *window)
+{
+  ClutterActor *window_actor =
+    CLUTTER_ACTOR (meta_window_get_compositor_private (window));
+  ClutterActor *flash;
+  ClutterTransition *transition;
+
+  flash = clutter_actor_new ();
+  clutter_actor_set_background_color (flash, CLUTTER_COLOR_Black);
+  clutter_actor_set_size (flash, window->rect.width, window->rect.height);
+  clutter_actor_set_position (flash,
+                              window->custom_frame_extents.left,
+                              window->custom_frame_extents.top);
+  clutter_actor_set_opacity (flash, 0);
+  clutter_actor_add_child (window_actor, flash);
+
+  clutter_actor_save_easing_state (flash);
+  clutter_actor_set_easing_mode (flash, CLUTTER_EASE_IN_QUAD);
+  clutter_actor_set_easing_duration (flash, FLASH_TIME_MS);
+  clutter_actor_set_opacity (flash, 192);
+
+  transition = clutter_actor_get_transition (flash, "opacity");
+  clutter_timeline_set_auto_reverse (CLUTTER_TIMELINE (transition), TRUE);
+  clutter_timeline_set_repeat_count (CLUTTER_TIMELINE (transition), 2);
+
+  g_signal_connect (transition, "stopped",
+                    G_CALLBACK (window_flash_out_completed), flash);
 
   clutter_actor_restore_easing_state (flash);
 }

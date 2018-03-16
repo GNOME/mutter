@@ -160,12 +160,7 @@ void
 meta_window_set_alive (MetaWindow *window,
                        gboolean    is_alive)
 {
-  if (window->is_alive == is_alive)
-    return;
-
-  window->is_alive = is_alive;
-
-  if (window->is_alive)
+  if (is_alive)
     kill_delete_dialog (window);
   else
     show_delete_dialog (window, CurrentTime);
@@ -185,39 +180,27 @@ meta_window_delete (MetaWindow  *window,
   META_WINDOW_GET_CLASS (window)->delete (window, timestamp);
 
   meta_window_check_alive (window, timestamp);
-
-  if (window->has_focus)
-    {
-      /* FIXME Clean this up someday
-       * http://bugzilla.gnome.org/show_bug.cgi?id=108706
-       */
-#if 0
-      /* This is unfortunately going to result in weirdness
-       * if the window doesn't respond to the delete event.
-       * I don't know how to avoid that though.
-       */
-      meta_topic (META_DEBUG_FOCUS,
-                  "Focusing default window because focus window %s was deleted/killed\n",
-                  window->desc);
-      meta_workspace_focus_default_window (window->screen->active_workspace,
-                                           window);
-#else
-      meta_topic (META_DEBUG_FOCUS,
-                  "Not unfocusing %s on delete/kill\n",
-                  window->desc);
-#endif
-    }
-  else
-    {
-      meta_topic (META_DEBUG_FOCUS,
-                  "Window %s was deleted/killed but didn't have focus\n",
-                  window->desc);
-    }
 }
 
 void
 meta_window_kill (MetaWindow *window)
 {
+  pid_t pid = meta_window_get_client_pid (window);
+
+  if (pid > 0)
+    {
+      meta_topic (META_DEBUG_WINDOW_OPS,
+                  "Killing %s with kill()\n",
+                  window->desc);
+
+      if (kill (pid, 9) == 0)
+        return;
+
+      meta_topic (META_DEBUG_WINDOW_OPS,
+                  "Failed to signal %s: %s\n",
+                  window->desc, strerror (errno));
+    }
+
   META_WINDOW_GET_CLASS (window)->kill (window);
 }
 

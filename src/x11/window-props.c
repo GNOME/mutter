@@ -34,7 +34,6 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _GNU_SOURCE
 #define _XOPEN_SOURCE 500 /* for gethostname() */
 
 #include <config.h>
@@ -338,16 +337,6 @@ reload_icon_geometry (MetaWindow    *window,
     }
 }
 
-static gboolean
-gtk_border_equal (GtkBorder *a,
-                  GtkBorder *b)
-{
-  return (a->left == b->left &&
-          a->right == b->right &&
-          a->top == b->top &&
-          a->bottom == b->bottom);
-}
-
 static void
 meta_window_set_custom_frame_extents (MetaWindow *window,
                                       GtkBorder  *extents,
@@ -355,7 +344,8 @@ meta_window_set_custom_frame_extents (MetaWindow *window,
 {
   if (extents)
     {
-      if (window->has_custom_frame_extents && gtk_border_equal (&window->custom_frame_extents, extents))
+      if (window->has_custom_frame_extents &&
+          memcmp (&window->custom_frame_extents, extents, sizeof (GtkBorder)) == 0)
         return;
 
       window->has_custom_frame_extents = TRUE;
@@ -437,10 +427,10 @@ reload_net_wm_pid (MetaWindow    *window,
 {
   if (value->type != META_PROP_VALUE_INVALID)
     {
-      gulong cardinal = (int) value->v.cardinal;
+      uint32_t cardinal = (int) value->v.cardinal;
 
       if (cardinal <= 0)
-        meta_warning ("Application set a bogus _NET_WM_PID %lu\n",
+        meta_warning ("Application set a bogus _NET_WM_PID %u\n",
                       cardinal);
       else
         {
@@ -458,7 +448,7 @@ reload_net_wm_user_time (MetaWindow    *window,
 {
   if (value->type != META_PROP_VALUE_INVALID)
     {
-      gulong cardinal = value->v.cardinal;
+      uint32_t cardinal = value->v.cardinal;
       meta_window_set_user_time (window, cardinal);
     }
 }
@@ -644,7 +634,10 @@ reload_wm_name (MetaWindow    *window,
 
   if (value->type != META_PROP_VALUE_INVALID)
     {
-      set_window_title (window, value->v.str);
+      g_autofree gchar *title = g_convert (value->v.str, -1,
+                                           "UTF-8", "LATIN1",
+                                           NULL, NULL, NULL);
+      set_window_title (window, title);
 
       meta_verbose ("Using WM_NAME for new title of %s: \"%s\"\n",
                     window->desc, window->title);
@@ -679,7 +672,7 @@ reload_opaque_region (MetaWindow    *window,
 
   if (value->type != META_PROP_VALUE_INVALID)
     {
-      gulong *region = value->v.cardinal_list.cardinals;
+      uint32_t *region = value->v.cardinal_list.cardinals;
       int nitems = value->v.cardinal_list.n_cardinals;
 
       cairo_rectangle_int_t *rects;
@@ -819,7 +812,10 @@ reload_net_wm_state (MetaWindow    *window,
       else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_SKIP_PAGER)
         priv->wm_state_skip_pager = TRUE;
       else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_FULLSCREEN)
-        window->fullscreen_after_placement = TRUE;
+        {
+          window->fullscreen = TRUE;
+          g_object_notify (G_OBJECT (window), "fullscreen");
+        }
       else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_ABOVE)
         window->wm_state_above = TRUE;
       else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_BELOW)
@@ -871,7 +867,7 @@ reload_mwm_hints (MetaWindow    *window,
 
   if (hints->flags & MWM_HINTS_DECORATIONS)
     {
-      meta_verbose ("Window %s sets MWM_HINTS_DECORATIONS 0x%lx\n",
+      meta_verbose ("Window %s sets MWM_HINTS_DECORATIONS 0x%x\n",
           window->desc, hints->decorations);
 
       if (hints->decorations == 0)
@@ -887,7 +883,7 @@ reload_mwm_hints (MetaWindow    *window,
     {
       gboolean toggle_value;
 
-      meta_verbose ("Window %s sets MWM_HINTS_FUNCTIONS 0x%lx\n",
+      meta_verbose ("Window %s sets MWM_HINTS_FUNCTIONS 0x%x\n",
                     window->desc, hints->functions);
 
       /* If _ALL is specified, then other flags indicate what to turn off;
@@ -975,9 +971,13 @@ reload_wm_class (MetaWindow    *window,
 {
   if (value->type != META_PROP_VALUE_INVALID)
     {
-      meta_window_set_wm_class (window,
-                                value->v.class_hint.res_class,
-                                value->v.class_hint.res_name);
+      g_autofree gchar *res_class = g_convert (value->v.class_hint.res_class, -1,
+                                               "UTF-8", "LATIN1",
+                                               NULL, NULL, NULL);
+      g_autofree gchar *res_name = g_convert (value->v.class_hint.res_name, -1,
+                                              "UTF-8", "LATIN1",
+                                              NULL, NULL, NULL);
+      meta_window_set_wm_class (window, res_class, res_name);
     }
   else
     {
@@ -1684,7 +1684,7 @@ reload_gtk_theme_variant (MetaWindow    *window,
       window->gtk_theme_variant = g_strdup (requested_variant);
 
       if (window->frame)
-        meta_ui_update_frame_style (window->screen->ui, window->frame->xwindow);
+        meta_frame_update_style (window->frame);
     }
 }
 
@@ -1712,7 +1712,7 @@ reload_gtk_hide_titlebar_when_maximized (MetaWindow    *window,
       meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
 
       if (window->frame)
-        meta_ui_update_frame_style (window->screen->ui, window->frame->xwindow);
+        meta_frame_update_style (window->frame);
     }
 }
 
@@ -1849,7 +1849,7 @@ meta_display_init_window_prop_hooks (MetaDisplay *display)
     { display->atom__NET_WM_WINDOW_TYPE, META_PROP_VALUE_ATOM_LIST, reload_net_wm_window_type, LOAD_INIT | INCLUDE_OR | FORCE_INIT },
     { display->atom__NET_WM_STRUT,         META_PROP_VALUE_INVALID, reload_struts, NONE },
     { display->atom__NET_WM_STRUT_PARTIAL, META_PROP_VALUE_INVALID, reload_struts, NONE },
-    { display->atom__NET_WM_BYPASS_COMPOSITOR, META_PROP_VALUE_CARDINAL,  reload_bypass_compositor, NONE },
+    { display->atom__NET_WM_BYPASS_COMPOSITOR, META_PROP_VALUE_CARDINAL,  reload_bypass_compositor, LOAD_INIT | INCLUDE_OR },
     { display->atom__NET_WM_WINDOW_OPACITY, META_PROP_VALUE_CARDINAL, reload_window_opacity, LOAD_INIT | INCLUDE_OR },
     { 0 },
   };

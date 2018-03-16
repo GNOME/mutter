@@ -15,7 +15,8 @@ struct _MetaCompositor
 {
   MetaDisplay    *display;
 
-  guint           repaint_func_id;
+  guint           pre_paint_func_id;
+  guint           post_paint_func_id;
 
   gint64          server_time_query_time;
   gint64          server_time_offset;
@@ -28,8 +29,7 @@ struct _MetaCompositor
   GList                 *windows;
   Window                 output;
 
-  CoglOnscreen          *onscreen;
-  CoglFrameClosure      *frame_closure;
+  CoglContext           *context;
 
   /* Used for unredirecting fullscreen windows */
   guint                  disable_unredirect_count;
@@ -40,6 +40,7 @@ struct _MetaCompositor
   MetaPluginManager *plugin_mgr;
 
   gboolean frame_has_updated_xsurfaces;
+  gboolean have_x11_sync_object;
 };
 
 /* Wait 2ms after vblank before starting to draw next frame */
@@ -57,5 +58,8 @@ void     meta_end_modal_for_plugin   (MetaCompositor   *compositor,
 
 gint64 meta_compositor_monotonic_time_to_server_time (MetaDisplay *display,
                                                       gint64       monotonic_time);
+
+void meta_compositor_flash_window (MetaCompositor *compositor,
+                                   MetaWindow     *window);
 
 #endif /* META_COMPOSITOR_PRIVATE_H */

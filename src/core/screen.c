@@ -40,9 +40,10 @@
 #include "keybindings-private.h"
 #include "stack.h"
 #include <meta/compositor.h>
-#include "mutter-enum-types.h"
+#include <meta/meta-enum-types.h>
 #include "core.h"
 #include "meta-cursor-tracker-private.h"
+#include "boxes-private.h"
 
 #include <X11/extensions/Xinerama.h>
 #include <X11/extensions/Xcomposite.h>
@@ -69,11 +70,6 @@ static void prefs_changed_callback (MetaPreference pref,
 
 static void set_desktop_geometry_hint (MetaScreen *screen);
 static void set_desktop_viewport_hint (MetaScreen *screen);
-
-#ifdef HAVE_STARTUP_NOTIFICATION
-static void meta_screen_sn_event   (SnMonitorEvent *event,
-                                    void           *user_data);
-#endif
 
 static void on_monitors_changed (MetaMonitorManager *manager,
                                  MetaScreen         *screen);
@@ -294,7 +290,7 @@ set_supported_hint (MetaScreen *screen)
   Atom atoms[] = {
 #define EWMH_ATOMS_ONLY
 #define item(x)  screen->display->atom_##x,
-#include <meta/atomnames.h>
+#include <x11/atomnames.h>
 #undef item
 #undef EWMH_ATOMS_ONLY
 
@@ -496,23 +492,99 @@ create_guard_window (Display *xdisplay, MetaScreen *screen)
   return guard_window;
 }
 
+static Window
+take_manager_selection (MetaDisplay *display,
+                        Window       xroot,
+                        Atom         manager_atom,
+                        int          timestamp,
+                        gboolean     should_replace)
+{
+  Display *xdisplay = display->xdisplay;
+  Window current_owner, new_owner;
+
+  current_owner = XGetSelectionOwner (xdisplay, manager_atom);
+  if (current_owner != None)
+    {
+      XSetWindowAttributes attrs;
+
+      if (should_replace)
+        {
+          /* We want to find out when the current selection owner dies */
+          meta_error_trap_push (display);
+          attrs.event_mask = StructureNotifyMask;
+          XChangeWindowAttributes (xdisplay, current_owner, CWEventMask, &attrs);
+          if (meta_error_trap_pop_with_return (display) != Success)
+            current_owner = None; /* don't wait for it to die later on */
+        }
+      else
+        {
+          meta_warning (_("Display \"%s\" already has a window manager; try using the --replace option to replace the current window manager."),
+                        display->name);
+          return None;
+        }
+    }
+
+  /* We need SelectionClear and SelectionRequest events on the new owner,
+   * but those cannot be masked, so we only need NoEventMask.
+   */
+  new_owner = meta_create_offscreen_window (xdisplay, xroot, NoEventMask);
+
+  XSetSelectionOwner (xdisplay, manager_atom, new_owner, timestamp);
+
+  if (XGetSelectionOwner (xdisplay, manager_atom) != new_owner)
+    {
+      meta_warning ("Could not acquire selection: %s", XGetAtomName (xdisplay, manager_atom));
+      return None;
+    }
+
+  {
+    /* Send client message indicating that we are now the selection owner */
+    XClientMessageEvent ev;
+
+    ev.type = ClientMessage;
+    ev.window = xroot;
+    ev.message_type = display->atom_MANAGER;
+    ev.format = 32;
+    ev.data.l[0] = timestamp;
+    ev.data.l[1] = manager_atom;
+
+    XSendEvent (xdisplay, xroot, False, StructureNotifyMask, (XEvent *) &ev);
+  }
+
+  /* Wait for old window manager to go away */
+  if (current_owner != None)
+    {
+      XEvent event;
+
+      /* We sort of block infinitely here which is probably lame. */
+
+      meta_verbose ("Waiting for old window manager to exit\n");
+      do
+        XWindowEvent (xdisplay, current_owner, StructureNotifyMask, &event);
+      while (event.type != DestroyNotify);
+    }
+
+  return new_owner;
+}
+
 MetaScreen*
 meta_screen_new (MetaDisplay *display,
-                 int          number,
                  guint32      timestamp)
 {
   MetaScreen *screen;
+  int number;
+  Screen *xscreen;
   Window xroot;
   Display *xdisplay;
   Window new_wm_sn_owner;
-  Window current_wm_sn_owner;
   gboolean replace_current_wm;
   Atom wm_sn_atom;
   char buf[128];
-  guint32 manager_timestamp;
   MetaMonitorManager *manager;
 
   replace_current_wm = meta_get_replace_current_wm ();
+
+  number = meta_ui_get_screen_number ();
 
   /* Only display->name, display->xdisplay, and display->error_traps
    * can really be used in this function, since normally screens are
@@ -537,83 +609,11 @@ meta_screen_new (MetaDisplay *display,
     }
 
   sprintf (buf, "WM_S%d", number);
+
   wm_sn_atom = XInternAtom (xdisplay, buf, False);
-
-  current_wm_sn_owner = XGetSelectionOwner (xdisplay, wm_sn_atom);
-
-  if (current_wm_sn_owner != None)
-    {
-      XSetWindowAttributes attrs;
-
-      if (!replace_current_wm)
-        {
-          meta_warning (_("Screen %d on display \"%s\" already has a window manager; try using the --replace option to replace the current window manager.\n"),
-                        number, display->name);
-
-          return NULL;
-        }
-
-      /* We want to find out when the current selection owner dies */
-      meta_error_trap_push (display);
-      attrs.event_mask = StructureNotifyMask;
-      XChangeWindowAttributes (xdisplay,
-                               current_wm_sn_owner, CWEventMask, &attrs);
-      if (meta_error_trap_pop_with_return (display) != Success)
-        current_wm_sn_owner = None; /* don't wait for it to die later on */
-    }
-
-  /* We need SelectionClear and SelectionRequest events on the new_wm_sn_owner,
-   * but those cannot be masked, so we only need NoEventMask.
-   */
-  new_wm_sn_owner = meta_create_offscreen_window (xdisplay, xroot, NoEventMask);
-
-  manager_timestamp = timestamp;
-
-  XSetSelectionOwner (xdisplay, wm_sn_atom, new_wm_sn_owner,
-                      manager_timestamp);
-
-  if (XGetSelectionOwner (xdisplay, wm_sn_atom) != new_wm_sn_owner)
-    {
-      meta_warning ("Could not acquire window manager selection on screen %d display \"%s\"\n",
-                    number, display->name);
-
-      XDestroyWindow (xdisplay, new_wm_sn_owner);
-
-      return NULL;
-    }
-
-  {
-    /* Send client message indicating that we are now the WM */
-    XClientMessageEvent ev;
-
-    ev.type = ClientMessage;
-    ev.window = xroot;
-    ev.message_type = display->atom_MANAGER;
-    ev.format = 32;
-    ev.data.l[0] = manager_timestamp;
-    ev.data.l[1] = wm_sn_atom;
-
-    XSendEvent (xdisplay, xroot, False, StructureNotifyMask, (XEvent*)&ev);
-  }
-
-  /* Wait for old window manager to go away */
-  if (current_wm_sn_owner != None)
-    {
-      XEvent event;
-
-      /* We sort of block infinitely here which is probably lame. */
-
-      meta_verbose ("Waiting for old window manager to exit\n");
-      do
-        {
-          XWindowEvent (xdisplay, current_wm_sn_owner,
-                        StructureNotifyMask, &event);
-        }
-      while (event.type != DestroyNotify);
-    }
-
-  /* select our root window events */
-  meta_error_trap_push (display);
+  new_wm_sn_owner = take_manager_selection (display, xroot, wm_sn_atom, timestamp, replace_current_wm);
+  if (new_wm_sn_owner == None)
+    return NULL;
 
   {
     long event_mask;
@@ -638,16 +638,6 @@ meta_screen_new (MetaDisplay *display,
     XSelectInput (xdisplay, xroot, event_mask);
   }
 
-  if (meta_error_trap_pop_with_return (display) != Success)
-    {
-      meta_warning (_("Screen %d on display \"%s\" already has a window manager\n"),
-                    number, display->name);
-
-      XDestroyWindow (xdisplay, new_wm_sn_owner);
-
-      return NULL;
-    }
-
   /* Select for cursor changes so the cursor tracker is up to date. */
   XFixesSelectCursorInput (xdisplay, xroot, XFixesDisplayCursorNotifyMask);
 
@@ -655,9 +645,7 @@ meta_screen_new (MetaDisplay *display,
   screen->closing = 0;
 
   screen->display = display;
-  screen->number = number;
   screen->screen_name = get_screen_name (display, number);
-  screen->xscreen = ScreenOfDisplay (xdisplay, number);
   screen->xroot = xroot;
   screen->rect.x = screen->rect.y = 0;
 
@@ -668,18 +656,14 @@ meta_screen_new (MetaDisplay *display,
   meta_monitor_manager_get_screen_size (manager,
                                         &screen->rect.width,
                                         &screen->rect.height);
-
+  xscreen = ScreenOfDisplay (xdisplay, number);
   screen->current_cursor = -1; /* invalid/unset */
-  screen->default_xvisual = DefaultVisualOfScreen (screen->xscreen);
-  screen->default_depth = DefaultDepthOfScreen (screen->xscreen);
+  screen->default_xvisual = DefaultVisualOfScreen (xscreen);
+  screen->default_depth = DefaultDepthOfScreen (xscreen);
 
   screen->wm_sn_selection_window = new_wm_sn_owner;
   screen->wm_sn_atom = wm_sn_atom;
-  screen->wm_sn_timestamp = manager_timestamp;
-
-  screen->wm_cm_selection_window = meta_create_offscreen_window (xdisplay,
-                                                                 xroot,
-                                                                 NoEventMask);
+  screen->wm_sn_timestamp = timestamp;
   screen->work_area_later = 0;
   screen->check_fullscreen_later = 0;
 
@@ -691,7 +675,10 @@ meta_screen_new (MetaDisplay *display,
   screen->starting_corner = META_SCREEN_TOPLEFT;
   screen->guard_window = None;
 
-  screen->composite_overlay_window = XCompositeGetOverlayWindow (xdisplay, xroot);
+  /* If we're a Wayland compositor, then we don't grab the COW, since it
+   * will map it. */
+  if (!meta_is_wayland_compositor ())
+    screen->composite_overlay_window = XCompositeGetOverlayWindow (xdisplay, xroot);
 
   /* Now that we've gotten taken a reference count on the COW, we
    * can close the helper that is holding on to it */
@@ -729,8 +716,7 @@ meta_screen_new (MetaDisplay *display,
   screen->keys_grabbed = FALSE;
   meta_screen_grab_keys (screen);
 
-  screen->ui = meta_ui_new (screen->display->xdisplay,
-                            screen->xscreen);
+  screen->ui = meta_ui_new (screen->display->xdisplay);
 
   screen->tile_preview_timeout_id = 0;
 
@@ -739,19 +725,8 @@ meta_screen_new (MetaDisplay *display,
 
   meta_prefs_add_listener (prefs_changed_callback, screen);
 
-#ifdef HAVE_STARTUP_NOTIFICATION
-  screen->sn_context =
-    sn_monitor_context_new (screen->display->sn_display,
-                            screen->number,
-                            meta_screen_sn_event,
-                            screen,
-                            NULL);
-  screen->startup_sequences = NULL;
-  screen->startup_sequence_timeout = 0;
-#endif
-
   meta_verbose ("Added screen %d ('%s') root 0x%lx\n",
-                screen->number, screen->screen_name, screen->xroot);
+                number, screen->screen_name, screen->xroot);
 
   return screen;
 }
@@ -760,7 +735,7 @@ void
 meta_screen_init_workspaces (MetaScreen *screen)
 {
   MetaWorkspace *current_workspace;
-  gulong current_workspace_index = 0;
+  uint32_t current_workspace_index = 0;
   guint32 timestamp;
 
   g_return_if_fail (META_IS_SCREEN (screen));
@@ -809,24 +784,6 @@ meta_screen_free (MetaScreen *screen,
 
   meta_screen_ungrab_keys (screen);
 
-#ifdef HAVE_STARTUP_NOTIFICATION
-  g_slist_foreach (screen->startup_sequences,
-                   (GFunc) sn_startup_sequence_unref, NULL);
-  g_slist_free (screen->startup_sequences);
-  screen->startup_sequences = NULL;
-
-  if (screen->startup_sequence_timeout != 0)
-    {
-      g_source_remove (screen->startup_sequence_timeout);
-      screen->startup_sequence_timeout = 0;
-    }
-  if (screen->sn_context)
-    {
-      sn_monitor_context_unref (screen->sn_context);
-      screen->sn_context = NULL;
-    }
-#endif
-
   meta_ui_free (screen->ui);
 
   meta_stack_free (screen->stack);
@@ -836,7 +793,7 @@ meta_screen_free (MetaScreen *screen,
   XSelectInput (screen->display->xdisplay, screen->xroot, 0);
   if (meta_error_trap_pop_with_return (screen->display) != Success)
     meta_warning ("Could not release screen %d on display \"%s\"\n",
-                  screen->number, screen->display->name);
+                  meta_ui_get_screen_number (), screen->display->name);
 
   unset_wm_check_hint (screen);
 
@@ -848,8 +805,7 @@ meta_screen_free (MetaScreen *screen,
   if (screen->check_fullscreen_later != 0)
     meta_later_remove (screen->check_fullscreen_later);
 
-  if (screen->monitor_infos)
-    g_free (screen->monitor_infos);
+  g_free (screen->monitor_infos);
 
   if (screen->tile_preview_timeout_id)
     g_source_remove (screen->tile_preview_timeout_id);
@@ -1177,7 +1133,7 @@ update_num_workspaces (MetaScreen *screen,
   if (meta_prefs_get_dynamic_workspaces ())
     {
       int n_items;
-      gulong *list;
+      uint32_t *list;
 
       n_items = 0;
       list = NULL;
@@ -1266,19 +1222,48 @@ update_num_workspaces (MetaScreen *screen,
   g_object_notify (G_OBJECT (screen), "n-workspaces");
 }
 
+static void
+root_cursor_prepare_at (MetaCursorSprite *cursor_sprite,
+                        int x,
+                        int y,
+                        MetaScreen *screen)
+{
+  const MetaMonitorInfo *monitor;
+
+  monitor = meta_screen_get_monitor_for_point (screen, x, y);
+
+  /* Reload the cursor texture if the scale has changed. */
+  if (monitor)
+    meta_cursor_sprite_set_theme_scale (cursor_sprite, monitor->scale);
+}
+
+static void
+manage_root_cursor_sprite_scale (MetaScreen *screen,
+                                 MetaCursorSprite *cursor_sprite)
+{
+  g_signal_connect_object (cursor_sprite,
+                           "prepare-at",
+                           G_CALLBACK (root_cursor_prepare_at),
+                           screen,
+                           0);
+}
+
 void
 meta_screen_update_cursor (MetaScreen *screen)
 {
   MetaDisplay *display = screen->display;
   MetaCursor cursor = screen->current_cursor;
   Cursor xcursor;
-  MetaCursorReference *cursor_ref;
+  MetaCursorSprite *cursor_sprite;
   MetaCursorTracker *tracker = meta_cursor_tracker_get_for_screen (screen);
 
-  cursor_ref = meta_cursor_reference_from_theme (cursor);
-  meta_cursor_tracker_set_root_cursor (tracker, cursor_ref);
-  if (cursor_ref)
-    meta_cursor_reference_unref (cursor_ref);
+  cursor_sprite = meta_cursor_sprite_from_theme (cursor);
+
+  if (meta_is_wayland_compositor ())
+    manage_root_cursor_sprite_scale (screen, cursor_sprite);
+
+  meta_cursor_tracker_set_root_cursor (tracker, cursor_sprite);
+  g_object_unref (cursor_sprite);
 
   /* Set a cursor for X11 applications that don't specify their own */
   xcursor = meta_display_create_x_cursor (display, cursor);
@@ -1448,8 +1433,8 @@ meta_screen_get_monitor_for_rect (MetaScreen    *screen,
 }
 
 const MetaMonitorInfo*
-meta_screen_get_monitor_for_window (MetaScreen *screen,
-                                    MetaWindow *window)
+meta_screen_calculate_monitor_for_window (MetaScreen *screen,
+                                          MetaWindow *window)
 {
   MetaRectangle window_rect;
 
@@ -1464,6 +1449,25 @@ meta_screen_get_monitor_index_for_rect (MetaScreen    *screen,
 {
   const MetaMonitorInfo *monitor = meta_screen_get_monitor_for_rect (screen, rect);
   return monitor->number;
+}
+
+const MetaMonitorInfo *
+meta_screen_get_monitor_for_point (MetaScreen *screen,
+                                   int         x,
+                                   int         y)
+{
+  int i;
+
+  if (screen->n_monitor_infos == 1)
+    return &screen->monitor_infos[0];
+
+  for (i = 0; i < screen->n_monitor_infos; i++)
+    {
+      if (POINT_IN_RECT (x, y, screen->monitor_infos[i].rect))
+        return &screen->monitor_infos[i];
+    }
+
+  return NULL;
 }
 
 const MetaMonitorInfo*
@@ -1497,6 +1501,16 @@ meta_screen_get_monitor_neighbor (MetaScreen         *screen,
     }
 
   return NULL;
+}
+
+int
+meta_screen_get_monitor_neighbor_index (MetaScreen         *screen,
+                                        int                 which_monitor,
+                                        MetaScreenDirection direction)
+{
+  const MetaMonitorInfo *monitor;
+  monitor = meta_screen_get_monitor_neighbor (screen, which_monitor, direction);
+  return monitor ? monitor->number : -1;
 }
 
 void
@@ -1754,7 +1768,7 @@ meta_screen_get_monitor_geometry (MetaScreen    *screen,
 void
 meta_screen_update_workspace_layout (MetaScreen *screen)
 {
-  gulong *list;
+  uint32_t *list;
   int n_items;
 
   if (screen->workspace_layout_overridden)
@@ -1942,8 +1956,7 @@ meta_screen_update_workspace_names (MetaScreen *screen)
                                 screen->display->atom__NET_DESKTOP_NAMES,
                                 &names, &n_names))
     {
-      meta_verbose ("Failed to get workspace names from root window %d\n",
-                    screen->number);
+      meta_verbose ("Failed to get workspace names from root window\n");
       return;
     }
 
@@ -2053,7 +2066,7 @@ meta_screen_queue_workarea_recalc (MetaScreen *screen)
 
 
 #ifdef WITH_VERBOSE_MODE
-static char *
+static const char *
 meta_screen_corner_to_string (MetaScreenCorner corner)
 {
   switch (corner)
@@ -2387,11 +2400,11 @@ on_monitors_changed (MetaMonitorManager *manager,
                        &changes);
     }
 
-  /* Queue a resize on all the windows */
-  meta_screen_foreach_window (screen, META_LIST_DEFAULT, meta_screen_resize_func, 0);
-
   /* Fix up monitor for all windows on this screen */
   meta_screen_foreach_window (screen, META_LIST_INCLUDE_OVERRIDE_REDIRECT, (MetaScreenWindowFunc) meta_window_update_for_monitors_changed, 0);
+
+  /* Queue a resize on all the windows */
+  meta_screen_foreach_window (screen, META_LIST_DEFAULT, meta_screen_resize_func, 0);
 
   meta_screen_queue_check_fullscreen (screen);
 
@@ -2491,208 +2504,6 @@ meta_screen_unshow_desktop (MetaScreen *screen)
   meta_screen_update_showing_desktop_hint (screen);
 }
 
-
-#ifdef HAVE_STARTUP_NOTIFICATION
-static gboolean startup_sequence_timeout (void *data);
-
-static void
-update_startup_feedback (MetaScreen *screen)
-{
-  if (screen->startup_sequences != NULL)
-    {
-      meta_topic (META_DEBUG_STARTUP,
-                  "Setting busy cursor\n");
-      meta_screen_set_cursor (screen, META_CURSOR_BUSY);
-    }
-  else
-    {
-      meta_topic (META_DEBUG_STARTUP,
-                  "Setting default cursor\n");
-      meta_screen_set_cursor (screen, META_CURSOR_DEFAULT);
-    }
-}
-
-static void
-add_sequence (MetaScreen        *screen,
-              SnStartupSequence *sequence)
-{
-  meta_topic (META_DEBUG_STARTUP,
-              "Adding sequence %s\n",
-              sn_startup_sequence_get_id (sequence));
-  sn_startup_sequence_ref (sequence);
-  screen->startup_sequences = g_slist_prepend (screen->startup_sequences,
-                                               sequence);
-
-  /* our timeout just polls every second, instead of bothering
-   * to compute exactly when we may next time out
-   */
-  if (screen->startup_sequence_timeout == 0)
-    {
-      screen->startup_sequence_timeout = g_timeout_add_seconds (1,
-                                                                startup_sequence_timeout,
-                                                                screen);
-      g_source_set_name_by_id (screen->startup_sequence_timeout,
-                               "[mutter] startup_sequence_timeout");
-    }
-
-  update_startup_feedback (screen);
-}
-
-static void
-remove_sequence (MetaScreen        *screen,
-                 SnStartupSequence *sequence)
-{
-  meta_topic (META_DEBUG_STARTUP,
-              "Removing sequence %s\n",
-              sn_startup_sequence_get_id (sequence));
-
-  screen->startup_sequences = g_slist_remove (screen->startup_sequences,
-                                              sequence);
-
-  if (screen->startup_sequences == NULL &&
-      screen->startup_sequence_timeout != 0)
-    {
-      g_source_remove (screen->startup_sequence_timeout);
-      screen->startup_sequence_timeout = 0;
-    }
-
-  update_startup_feedback (screen);
-
-  sn_startup_sequence_unref (sequence);
-}
-
-typedef struct
-{
-  GSList *list;
-  GTimeVal now;
-} CollectTimedOutData;
-
-/* This should be fairly long, as it should never be required unless
- * apps or .desktop files are buggy, and it's confusing if
- * OpenOffice or whatever seems to stop launching - people
- * might decide they need to launch it again.
- */
-#define STARTUP_TIMEOUT 15000
-
-static void
-collect_timed_out_foreach (void *element,
-                           void *data)
-{
-  CollectTimedOutData *ctod = data;
-  SnStartupSequence *sequence = element;
-  long tv_sec, tv_usec;
-  double elapsed;
-
-  sn_startup_sequence_get_last_active_time (sequence, &tv_sec, &tv_usec);
-
-  elapsed =
-    ((((double)ctod->now.tv_sec - tv_sec) * G_USEC_PER_SEC +
-      (ctod->now.tv_usec - tv_usec))) / 1000.0;
-
-  meta_topic (META_DEBUG_STARTUP,
-              "Sequence used %g seconds vs. %g max: %s\n",
-              elapsed, (double) STARTUP_TIMEOUT,
-              sn_startup_sequence_get_id (sequence));
-
-  if (elapsed > STARTUP_TIMEOUT)
-    ctod->list = g_slist_prepend (ctod->list, sequence);
-}
-
-static gboolean
-startup_sequence_timeout (void *data)
-{
-  MetaScreen *screen = data;
-  CollectTimedOutData ctod;
-  GSList *l;
-
-  ctod.list = NULL;
-  g_get_current_time (&ctod.now);
-  g_slist_foreach (screen->startup_sequences,
-                   collect_timed_out_foreach,
-                   &ctod);
-
-  for (l = ctod.list; l != NULL; l = l->next)
-    {
-      SnStartupSequence *sequence = l->data;
-
-      meta_topic (META_DEBUG_STARTUP,
-                  "Timed out sequence %s\n",
-                  sn_startup_sequence_get_id (sequence));
-
-      sn_startup_sequence_complete (sequence);
-    }
-
-  g_slist_free (ctod.list);
-
-  if (screen->startup_sequences != NULL)
-    {
-      return TRUE;
-    }
-  else
-    {
-      /* remove */
-      screen->startup_sequence_timeout = 0;
-      return FALSE;
-    }
-}
-
-static void
-meta_screen_sn_event (SnMonitorEvent *event,
-                      void           *user_data)
-{
-  MetaScreen *screen;
-  SnStartupSequence *sequence;
-
-  screen = user_data;
-
-  sequence = sn_monitor_event_get_startup_sequence (event);
-
-  sn_startup_sequence_ref (sequence);
-
-  switch (sn_monitor_event_get_type (event))
-    {
-    case SN_MONITOR_EVENT_INITIATED:
-      {
-        const char *wmclass;
-
-        wmclass = sn_startup_sequence_get_wmclass (sequence);
-
-        meta_topic (META_DEBUG_STARTUP,
-                    "Received startup initiated for %s wmclass %s\n",
-                    sn_startup_sequence_get_id (sequence),
-                    wmclass ? wmclass : "(unset)");
-        add_sequence (screen, sequence);
-      }
-      break;
-
-    case SN_MONITOR_EVENT_COMPLETED:
-      {
-        meta_topic (META_DEBUG_STARTUP,
-                    "Received startup completed for %s\n",
-                    sn_startup_sequence_get_id (sequence));
-        remove_sequence (screen,
-                         sn_monitor_event_get_startup_sequence (event));
-      }
-      break;
-
-    case SN_MONITOR_EVENT_CHANGED:
-      meta_topic (META_DEBUG_STARTUP,
-                  "Received startup changed for %s\n",
-                  sn_startup_sequence_get_id (sequence));
-      break;
-
-    case SN_MONITOR_EVENT_CANCELED:
-      meta_topic (META_DEBUG_STARTUP,
-                  "Received startup canceled for %s\n",
-                  sn_startup_sequence_get_id (sequence));
-      break;
-    }
-
-  g_signal_emit (G_OBJECT (screen), screen_signals[STARTUP_SEQUENCE_CHANGED], 0, sequence);
-
-  sn_startup_sequence_unref (sequence);
-}
-
 /**
  * meta_screen_get_startup_sequences: (skip)
  * @screen:
@@ -2704,7 +2515,6 @@ meta_screen_get_startup_sequences (MetaScreen *screen)
 {
   return screen->startup_sequences;
 }
-#endif
 
 /* Sets the initial_timestamp and initial_workspace properties
  * of a window according to information given us by the
@@ -2845,7 +2655,7 @@ meta_screen_apply_startup_properties (MetaScreen *screen,
 int
 meta_screen_get_screen_number (MetaScreen *screen)
 {
-  return screen->number;
+  return meta_ui_get_screen_number ();
 }
 
 /**
@@ -2898,27 +2708,13 @@ meta_screen_set_cm_selection (MetaScreen *screen)
 {
   char selection[32];
   Atom a;
+  guint32 timestamp;
 
-  screen->wm_cm_timestamp = meta_display_get_current_time_roundtrip (
-                                                               screen->display);
-
-  g_snprintf (selection, sizeof(selection), "_NET_WM_CM_S%d", screen->number);
-  meta_verbose ("Setting selection: %s\n", selection);
-  a = XInternAtom (screen->display->xdisplay, selection, FALSE);
-  XSetSelectionOwner (screen->display->xdisplay, a,
-                      screen->wm_cm_selection_window, screen->wm_cm_timestamp);
-}
-
-void
-meta_screen_unset_cm_selection (MetaScreen *screen)
-{
-  char selection[32];
-  Atom a;
-
-  g_snprintf (selection, sizeof(selection), "_NET_WM_CM_S%d", screen->number);
-  a = XInternAtom (screen->display->xdisplay, selection, FALSE);
-  XSetSelectionOwner (screen->display->xdisplay, a,
-                      None, screen->wm_cm_timestamp);
+  timestamp = meta_display_get_current_time_roundtrip (screen->display);
+  g_snprintf (selection, sizeof (selection), "_NET_WM_CM_S%d",
+              meta_ui_get_screen_number ());
+  a = XInternAtom (screen->display->xdisplay, selection, False);
+  screen->wm_cm_selection_window = take_manager_selection (screen->display, screen->xroot, a, timestamp, TRUE);
 }
 
 /**
@@ -3092,7 +2888,15 @@ check_fullscreen_func (gpointer data)
   g_slist_free (fullscreen_monitors);
 
   if (in_fullscreen_changed)
-    g_signal_emit (screen, screen_signals[IN_FULLSCREEN_CHANGED], 0, NULL);
+    {
+      /* DOCK window stacking depends on the monitor's fullscreen
+         status so we need to trigger a re-layering. */
+      MetaWindow *window = meta_stack_get_top (screen->stack);
+      if (window)
+        meta_stack_update_layer (screen->stack, window);
+
+      g_signal_emit (screen, screen_signals[IN_FULLSCREEN_CHANGED], 0, NULL);
+    }
 
   return FALSE;
 }

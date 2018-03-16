@@ -82,7 +82,6 @@ static GDesktopFocusNewWindows focus_new_windows = G_DESKTOP_FOCUS_NEW_WINDOWS_S
 static gboolean raise_on_click = TRUE;
 static gboolean center_new_windows = FALSE;
 static gboolean attach_modal_dialogs = FALSE;
-static char* current_theme = NULL;
 static int num_workspaces = 4;
 static GDesktopTitlebarAction action_double_click_titlebar = G_DESKTOP_TITLEBAR_ACTION_TOGGLE_MAXIMIZE;
 static GDesktopTitlebarAction action_middle_click_titlebar = G_DESKTOP_TITLEBAR_ACTION_LOWER;
@@ -97,6 +96,10 @@ static gboolean bell_is_audible = TRUE;
 static gboolean gnome_accessibility = FALSE;
 static gboolean gnome_animations = TRUE;
 static char *cursor_theme = NULL;
+/* cursor_size will, when running as an X11 compositing window manager, be the
+ * actual cursor size, multiplied with the global window scaling factor. On
+ * Wayland, it will be the actual cursor size retrieved from gsettings.
+ */
 static int   cursor_size = 24;
 static int   draggable_border_width = 10;
 static int   drag_threshold;
@@ -124,6 +127,9 @@ static gboolean update_binding         (MetaKeyPref *binding,
 static gboolean update_key_binding     (const char  *key,
                                         gchar      **strokes);
 
+static void wayland_settings_changed (GSettings      *settings,
+                                      gchar          *key,
+                                      gpointer        data);
 static void settings_changed (GSettings      *settings,
                               gchar          *key,
                               gpointer        data);
@@ -135,16 +141,16 @@ static void shell_shows_app_menu_changed (GtkSettings *settings,
                                           GParamSpec  *pspec,
                                           gpointer     data);
 
-static void update_cursor_size (GtkSettings *settings,
-                                GParamSpec *pspec,
-                                gpointer data);
+static void update_cursor_size_from_gtk (GtkSettings *settings,
+                                         GParamSpec *pspec,
+                                         gpointer data);
+static void update_cursor_size (void);
 
 static void queue_changed (MetaPreference  pref);
 
 static void maybe_give_disable_workarounds_warning (void);
 
 static gboolean titlebar_handler (GVariant*, gpointer*, gpointer);
-static gboolean theme_name_handler (GVariant*, gpointer*, gpointer);
 static gboolean mouse_button_mods_handler (GVariant*, gpointer*, gpointer);
 static gboolean button_layout_handler (GVariant*, gpointer*, gpointer);
 static gboolean overlay_key_handler (GVariant*, gpointer*, gpointer);
@@ -163,8 +169,8 @@ typedef struct
 
 typedef struct
 {
-  char *key;
-  char *schema;
+  const char *key;
+  const char *schema;
   MetaPreference pref;
 } MetaBasePreference;
 
@@ -402,14 +408,6 @@ static MetaStringPreference preferences_string[] =
       NULL,
     },
     {
-      { "theme",
-        SCHEMA_GENERAL,
-        META_PREF_THEME,
-      },
-      theme_name_handler,
-      NULL,
-    },
-    {
       { KEY_TITLEBAR_FONT,
         SCHEMA_GENERAL,
         META_PREF_TITLEBAR_FONT,
@@ -449,7 +447,7 @@ static MetaStringArrayPreference preferences_string_array[] =
     {
       { KEY_WORKSPACE_NAMES,
         SCHEMA_GENERAL,
-        META_PREF_KEYBINDINGS,
+        META_PREF_WORKSPACE_NAMES,
       },
       NULL,
       &workspace_names,
@@ -571,8 +569,7 @@ handle_preference_init_string (void)
           if (!cursor->target)
             meta_bug ("%s must have handler or target\n", cursor->base.key);
 
-          if (*(cursor->target))
-            g_free (*(cursor->target));
+          g_free (*(cursor->target));
 
           value = g_settings_get_string (SETTINGS (cursor->base.schema),
                                          cursor->base.key);
@@ -728,8 +725,7 @@ handle_preference_update_string (GSettings *settings,
 
       inform_listeners = (g_strcmp0 (value, *(cursor->target)) != 0);
 
-      if (*(cursor->target))
-        g_free(*(cursor->target));
+      g_free(*(cursor->target));
 
       *(cursor->target) = value;
     }
@@ -975,14 +971,18 @@ meta_prefs_init (void)
                     G_CALLBACK (settings_changed), NULL);
   g_signal_connect (settings, "changed::" KEY_GNOME_CURSOR_THEME,
                     G_CALLBACK (settings_changed), NULL);
+  if (meta_is_wayland_compositor ())
+    g_signal_connect (settings, "changed::cursor-size",
+                      G_CALLBACK (wayland_settings_changed), NULL);
   g_hash_table_insert (settings_schemas, g_strdup (SCHEMA_INTERFACE), settings);
 
   g_signal_connect (gtk_settings_get_default (),
                     "notify::gtk-shell-shows-app-menu",
                     G_CALLBACK (shell_shows_app_menu_changed), NULL);
 
-  g_signal_connect (gtk_settings_get_default (), "notify::gtk-cursor-theme-size",
-                    G_CALLBACK (update_cursor_size), NULL);
+  if (!meta_is_wayland_compositor ())
+    g_signal_connect (gtk_settings_get_default (), "notify::gtk-cursor-theme-size",
+                      G_CALLBACK (update_cursor_size_from_gtk), NULL);
 
   settings = g_settings_new (SCHEMA_INPUT_SOURCES);
   g_signal_connect (settings, "changed::" KEY_XKB_OPTIONS,
@@ -1004,7 +1004,7 @@ meta_prefs_init (void)
   handle_preference_init_string_array ();
   handle_preference_init_int ();
 
-  update_cursor_size (gtk_settings_get_default (), NULL, NULL);
+  update_cursor_size ();
   shell_shows_app_menu_changed (gtk_settings_get_default (), NULL, NULL);
 
   init_bindings ();
@@ -1146,6 +1146,20 @@ meta_prefs_override_preference_schema (const char *key, const char *schema)
 
 
 static void
+wayland_settings_changed (GSettings      *settings,
+                          gchar          *key,
+                          gpointer        data)
+{
+  GVariant *value = g_settings_get_value (settings, key);
+  const GVariantType *type = g_variant_get_type (value);
+
+  g_return_if_fail (g_variant_type_equal (type, G_VARIANT_TYPE_INT32));
+  g_return_if_fail (g_str_equal (key, "cursor-size"));
+
+  update_cursor_size ();
+}
+
+static void
 settings_changed (GSettings *settings,
                   gchar *key,
                   gpointer data)
@@ -1228,9 +1242,29 @@ shell_shows_app_menu_changed (GtkSettings *settings,
 }
 
 static void
-update_cursor_size (GtkSettings *settings,
-                    GParamSpec *pspec,
-                    gpointer data)
+update_cursor_size (void)
+{
+  if (meta_is_wayland_compositor ())
+    {
+      /* When running as a Wayland compositor, since we size of the cursor
+       * depends on what output it is on, we cannot use the GTK+
+       * "gtk-cursor-theme-size" setting because it has already been multiplied
+       * by the primary monitor scale. So, instead get the non-premultiplied
+       * cursor size value directly from gsettings instead.
+       */
+      cursor_size =
+        g_settings_get_int (SETTINGS (SCHEMA_INTERFACE), "cursor-size");
+    }
+  else
+    {
+      update_cursor_size_from_gtk (gtk_settings_get_default (), NULL, NULL);
+    }
+}
+
+static void
+update_cursor_size_from_gtk (GtkSettings *settings,
+                             GParamSpec *pspec,
+                             gpointer data)
 {
   GdkScreen *screen = gdk_screen_get_default ();
   GValue value = G_VALUE_INIT;
@@ -1302,22 +1336,13 @@ meta_prefs_get_attach_modal_dialogs (void)
 gboolean
 meta_prefs_get_raise_on_click (void)
 {
-  /* Force raise_on_click on for click-to-focus, as requested by Havoc
-   * in #326156.
-   */
-  return raise_on_click || focus_mode == G_DESKTOP_FOCUS_MODE_CLICK;
+  return raise_on_click;
 }
 
 gboolean
 meta_prefs_get_show_fallback_app_menu (void)
 {
   return show_fallback_app_menu;
-}
-
-const char*
-meta_prefs_get_theme (void)
-{
-  return current_theme;
 }
 
 const char*
@@ -1371,31 +1396,6 @@ titlebar_handler (GVariant *value,
 
       titlebar_font = desc;
       queue_changed (META_PREF_TITLEBAR_FONT);
-    }
-
-  return TRUE;
-}
-
-static gboolean
-theme_name_handler (GVariant *value,
-                    gpointer *result,
-                    gpointer  data)
-{
-  const gchar *string_value;
-
-  *result = NULL; /* ignored */
-  string_value = g_variant_get_string (value, NULL);
-
-  if (!string_value || !*string_value)
-    return FALSE;
-
-  if (g_strcmp0 (current_theme, string_value) != 0)
-    {
-      if (current_theme)
-        g_free (current_theme);
-
-      current_theme = g_strdup (string_value);
-      queue_changed (META_PREF_THEME);
     }
 
   return TRUE;
@@ -1477,40 +1477,9 @@ button_function_from_string (const char *str)
     return META_BUTTON_FUNCTION_MAXIMIZE;
   else if (strcmp (str, "close") == 0)
     return META_BUTTON_FUNCTION_CLOSE;
-  else if (strcmp (str, "shade") == 0)
-    return META_BUTTON_FUNCTION_SHADE;
-  else if (strcmp (str, "above") == 0)
-    return META_BUTTON_FUNCTION_ABOVE;
-  else if (strcmp (str, "stick") == 0)
-    return META_BUTTON_FUNCTION_STICK;
   else
     /* don't know; give up */
     return META_BUTTON_FUNCTION_LAST;
-}
-
-static MetaButtonFunction
-button_opposite_function (MetaButtonFunction ofwhat)
-{
-  switch (ofwhat)
-    {
-    case META_BUTTON_FUNCTION_SHADE:
-      return META_BUTTON_FUNCTION_UNSHADE;
-    case META_BUTTON_FUNCTION_UNSHADE:
-      return META_BUTTON_FUNCTION_SHADE;
-
-    case META_BUTTON_FUNCTION_ABOVE:
-      return META_BUTTON_FUNCTION_UNABOVE;
-    case META_BUTTON_FUNCTION_UNABOVE:
-      return META_BUTTON_FUNCTION_ABOVE;
-
-    case META_BUTTON_FUNCTION_STICK:
-      return META_BUTTON_FUNCTION_UNSTICK;
-    case META_BUTTON_FUNCTION_UNSTICK:
-      return META_BUTTON_FUNCTION_STICK;
-
-    default:
-      return META_BUTTON_FUNCTION_LAST;
-    }
 }
 
 static gboolean
@@ -1556,12 +1525,6 @@ button_layout_handler (GVariant *value,
           if (i > 0 && strcmp("spacer", buttons[b]) == 0)
             {
               new_layout.left_buttons_has_spacer[i-1] = TRUE;
-              f = button_opposite_function (f);
-
-              if (f != META_BUTTON_FUNCTION_LAST)
-                {
-                  new_layout.left_buttons_has_spacer[i-2] = TRUE;
-                }
             }
           else
             {
@@ -1570,11 +1533,6 @@ button_layout_handler (GVariant *value,
                   new_layout.left_buttons[i] = f;
                   used[f] = TRUE;
                   ++i;
-
-                  f = button_opposite_function (f);
-
-                  if (f != META_BUTTON_FUNCTION_LAST)
-                      new_layout.left_buttons[i++] = f;
                 }
               else
                 {
@@ -1618,11 +1576,6 @@ button_layout_handler (GVariant *value,
           if (i > 0 && strcmp("spacer", buttons[b]) == 0)
             {
               new_layout.right_buttons_has_spacer[i-1] = TRUE;
-              f = button_opposite_function (f);
-              if (f != META_BUTTON_FUNCTION_LAST)
-                {
-                  new_layout.right_buttons_has_spacer[i-2] = TRUE;
-                }
             }
           else
             {
@@ -1631,12 +1584,6 @@ button_layout_handler (GVariant *value,
                   new_layout.right_buttons[i] = f;
                   used[f] = TRUE;
                   ++i;
-
-                  f = button_opposite_function (f);
-
-                  if (f != META_BUTTON_FUNCTION_LAST)
-                      new_layout.right_buttons[i++] = f;
-
                 }
               else
                 {
@@ -1718,9 +1665,7 @@ overlay_key_handler (GVariant *value,
   *result = NULL; /* ignored */
   string_value = g_variant_get_string (value, NULL);
 
-  if (string_value && meta_parse_accelerator (string_value, &combo.keysym,
-                                              &combo.keycode,
-                                              &combo.modifiers))
+  if (string_value && meta_parse_accelerator (string_value, &combo))
     ;
   else
     {
@@ -1729,9 +1674,10 @@ overlay_key_handler (GVariant *value,
       return FALSE;
     }
 
+  combo.modifiers = 0;
+
   if (overlay_key_combo.keysym != combo.keysym ||
-      overlay_key_combo.keycode != combo.keycode ||
-      overlay_key_combo.modifiers != combo.modifiers)
+      overlay_key_combo.keycode != combo.keycode)
     {
       overlay_key_combo = combo;
       queue_changed (META_PREF_KEYBINDINGS);
@@ -1824,9 +1770,6 @@ meta_preference_to_string (MetaPreference pref)
 
     case META_PREF_RAISE_ON_CLICK:
       return "RAISE_ON_CLICK";
-
-    case META_PREF_THEME:
-      return "THEME";
 
     case META_PREF_TITLEBAR_FONT:
       return "TITLEBAR_FONT";
@@ -1965,10 +1908,6 @@ update_binding (MetaKeyPref *binding,
 {
   GSList *old_combos, *a, *b;
   gboolean changed;
-  unsigned int keysym;
-  unsigned int keycode;
-  MetaVirtualModifier mods;
-  MetaKeyCombo *combo;
   int i;
 
   meta_topic (META_DEBUG_KEYBINDINGS,
@@ -1980,31 +1919,25 @@ update_binding (MetaKeyPref *binding,
 
   for (i = 0; strokes && strokes[i]; i++)
     {
-      keysym = 0;
-      keycode = 0;
-      mods = 0;
+      MetaKeyCombo *combo;
 
-      if (!meta_parse_accelerator (strokes[i], &keysym, &keycode, &mods))
+      combo = g_malloc0 (sizeof (MetaKeyCombo));
+
+      if (!meta_parse_accelerator (strokes[i], combo))
         {
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Failed to parse new GSettings value\n");
           meta_warning ("\"%s\" found in configuration database is not a valid value for keybinding \"%s\"\n",
                         strokes[i], binding->name);
 
+          g_free (combo);
+
           /* Value is kept and will thus be removed next time we save the key.
            * Changing the key in response to a modification could lead to cyclic calls. */
           continue;
         }
 
-      combo = g_malloc0 (sizeof (MetaKeyCombo));
-      combo->keysym = keysym;
-      combo->keycode = keycode;
-      combo->modifiers = mods;
       binding->combos = g_slist_prepend (binding->combos, combo);
-
-      meta_topic (META_DEBUG_KEYBINDINGS,
-                      "New keybinding for \"%s\" is keysym = 0x%x keycode = 0x%x mods = 0x%x\n",
-                      binding->name, keysym, keycode, mods);
     }
 
   binding->combos = g_slist_reverse (binding->combos);
@@ -2171,14 +2104,7 @@ meta_prefs_add_keybinding (const char           *name,
   pref->settings = g_object_ref (settings);
   pref->action = action;
   pref->combos = NULL;
-  pref->per_window = (flags & META_KEY_BINDING_PER_WINDOW) != 0;
   pref->builtin = (flags & META_KEY_BINDING_BUILTIN) != 0;
-
-  strokes = g_settings_get_strv (settings, name);
-  update_binding (pref, strokes);
-  g_strfreev (strokes);
-
-  g_hash_table_insert (key_bindings, g_strdup (name), pref);
 
   if (pref->builtin)
     {
@@ -2200,6 +2126,12 @@ meta_prefs_add_keybinding (const char           *name,
 
       queue_changed (META_PREF_KEYBINDINGS);
     }
+
+  strokes = g_settings_get_strv (settings, name);
+  update_binding (pref, strokes);
+  g_strfreev (strokes);
+
+  g_hash_table_insert (key_bindings, g_strdup (name), pref);
 
   return TRUE;
 }
@@ -2234,7 +2166,7 @@ meta_prefs_remove_keybinding (const char *name)
 }
 
 GList *
-meta_prefs_get_keybindings ()
+meta_prefs_get_keybindings (void)
 {
   return g_hash_table_get_values (key_bindings);
 }
@@ -2282,25 +2214,25 @@ meta_prefs_get_auto_raise_delay (void)
 }
 
 gboolean
-meta_prefs_get_focus_change_on_pointer_rest ()
+meta_prefs_get_focus_change_on_pointer_rest (void)
 {
   return focus_change_on_pointer_rest;
 }
 
 gboolean
-meta_prefs_get_gnome_accessibility ()
+meta_prefs_get_gnome_accessibility (void)
 {
   return gnome_accessibility;
 }
 
 gboolean
-meta_prefs_get_gnome_animations ()
+meta_prefs_get_gnome_animations (void)
 {
   return gnome_animations;
 }
 
 gboolean
-meta_prefs_get_edge_tiling ()
+meta_prefs_get_edge_tiling (void)
 {
   return edge_tiling;
 }

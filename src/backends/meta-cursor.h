@@ -22,25 +22,54 @@
 #ifndef META_CURSOR_H
 #define META_CURSOR_H
 
-typedef struct _MetaCursorReference MetaCursorReference;
-
-MetaCursorReference * meta_cursor_reference_ref (MetaCursorReference *cursor);
-void meta_cursor_reference_unref (MetaCursorReference *cursor);
-
 #include <meta/common.h>
+#include <meta/boxes.h>
 
-MetaCursorReference * meta_cursor_reference_from_theme  (MetaCursor          cursor);
+typedef struct _MetaCursorSprite MetaCursorSprite;
 
-#ifdef HAVE_WAYLAND
-#include <wayland-server.h>
-MetaCursorReference * meta_cursor_reference_from_buffer (struct wl_resource *buffer,
-                                                         int                 hot_x,
-                                                         int                 hot_y);
-#endif
+#define META_TYPE_CURSOR_SPRITE (meta_cursor_sprite_get_type ())
+G_DECLARE_FINAL_TYPE (MetaCursorSprite,
+                      meta_cursor_sprite,
+                      META, CURSOR_SPRITE,
+                      GObject);
 
-MetaCursor meta_cursor_reference_get_meta_cursor (MetaCursorReference *cursor);
+MetaCursorSprite * meta_cursor_sprite_new (void);
+
+MetaCursorSprite * meta_cursor_sprite_from_theme  (MetaCursor cursor);
+
+
+void meta_cursor_sprite_set_theme_scale (MetaCursorSprite *self,
+                                         int               scale);
+
+MetaCursor meta_cursor_sprite_get_meta_cursor (MetaCursorSprite *self);
 
 Cursor meta_cursor_create_x_cursor (Display    *xdisplay,
                                     MetaCursor  cursor);
+
+void meta_cursor_sprite_prepare_at (MetaCursorSprite *self,
+                                    int               x,
+                                    int               y);
+
+void meta_cursor_sprite_realize_texture (MetaCursorSprite *self);
+
+void meta_cursor_sprite_set_texture (MetaCursorSprite *self,
+                                     CoglTexture      *texture,
+                                     int               hot_x,
+                                     int               hot_y);
+
+void meta_cursor_sprite_set_texture_scale (MetaCursorSprite *self,
+                                           float             scale);
+
+CoglTexture *meta_cursor_sprite_get_cogl_texture (MetaCursorSprite *self);
+
+void meta_cursor_sprite_get_hotspot (MetaCursorSprite *self,
+                                     int              *hot_x,
+                                     int              *hot_y);
+
+float meta_cursor_sprite_get_texture_scale (MetaCursorSprite *self);
+
+gboolean meta_cursor_sprite_is_animated            (MetaCursorSprite *self);
+void     meta_cursor_sprite_tick_frame             (MetaCursorSprite *self);
+guint    meta_cursor_sprite_get_current_frame_time (MetaCursorSprite *self);
 
 #endif /* META_CURSOR_H */

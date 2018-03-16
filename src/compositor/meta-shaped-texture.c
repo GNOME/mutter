@@ -86,6 +86,7 @@ struct _MetaShapedTexturePrivate
   cairo_region_t *unobscured_region;
 
   guint tex_width, tex_height;
+  guint fallback_width, fallback_height;
 
   guint create_mipmaps : 1;
 };
@@ -136,7 +137,20 @@ set_unobscured_region (MetaShapedTexture *self,
   g_clear_pointer (&priv->unobscured_region, (GDestroyNotify) cairo_region_destroy);
   if (unobscured_region)
     {
-      cairo_rectangle_int_t bounds = { 0, 0, priv->tex_width, priv->tex_height };
+      guint width, height;
+
+      if (priv->texture)
+        {
+          width = priv->tex_width;
+          height = priv->tex_height;
+        }
+      else
+        {
+          width = priv->fallback_width;
+          height = priv->fallback_height;
+        }
+
+      cairo_rectangle_int_t bounds = { 0, 0, width, height };
       priv->unobscured_region = cairo_region_copy (unobscured_region);
       cairo_region_intersect_rectangle (priv->unobscured_region, &bounds);
     }
@@ -174,9 +188,24 @@ meta_shaped_texture_dispose (GObject *object)
 }
 
 static CoglPipeline *
+get_base_pipeline (CoglContext *ctx)
+{
+  static CoglPipeline *template = NULL;
+  if (G_UNLIKELY (template == NULL))
+    {
+      template = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_layer_wrap_mode_s (template, 0, COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+      cogl_pipeline_set_layer_wrap_mode_t (template, 0, COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+      cogl_pipeline_set_layer_wrap_mode_s (template, 1, COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+      cogl_pipeline_set_layer_wrap_mode_t (template, 1, COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+    }
+  return template;
+}
+
+static CoglPipeline *
 get_unmasked_pipeline (CoglContext *ctx)
 {
-  return cogl_pipeline_new (ctx);
+  return get_base_pipeline (ctx);
 }
 
 static CoglPipeline *
@@ -185,13 +214,13 @@ get_masked_pipeline (CoglContext *ctx)
   static CoglPipeline *template = NULL;
   if (G_UNLIKELY (template == NULL))
     {
-      template = cogl_pipeline_new (ctx);
+      template = cogl_pipeline_copy (get_base_pipeline (ctx));
       cogl_pipeline_set_layer_combine (template, 1,
                                        "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
                                        NULL);
     }
 
-  return cogl_pipeline_copy (template);
+  return template;
 }
 
 static CoglPipeline *
@@ -201,7 +230,7 @@ get_unblended_pipeline (CoglContext *ctx)
   if (G_UNLIKELY (template == NULL))
     {
       CoglColor color;
-      template = cogl_pipeline_new (ctx);
+      template = cogl_pipeline_copy (get_base_pipeline (ctx));
       cogl_color_init_from_4ub (&color, 255, 255, 255, 255);
       cogl_pipeline_set_blend (template,
                                "RGBA = ADD (SRC_COLOR, 0)",
@@ -209,7 +238,7 @@ get_unblended_pipeline (CoglContext *ctx)
       cogl_pipeline_set_color (template, &color);
     }
 
-  return cogl_pipeline_copy (template);
+  return template;
 }
 
 static void
@@ -274,6 +303,7 @@ set_cogl_texture (MetaShapedTexture *stex,
     {
       priv->tex_width = width;
       priv->tex_height = height;
+      meta_shaped_texture_set_mask_texture (stex, NULL);
       clutter_actor_queue_relayout (CLUTTER_ACTOR (stex));
       g_signal_emit (stex, signals[SIZE_CHANGED], 0);
     }
@@ -420,8 +450,6 @@ meta_shaped_texture_paint (ClutterActor *actor)
               cairo_region_get_rectangle (region, i, &rect);
               paint_clipped_rectangle (fb, opaque_pipeline, &rect, &alloc);
             }
-
-          cogl_object_unref (opaque_pipeline);
         }
 
       cairo_region_destroy (region);
@@ -484,8 +512,6 @@ meta_shaped_texture_paint (ClutterActor *actor)
                                            alloc.x2 - alloc.x1,
                                            alloc.y2 - alloc.y1);
         }
-
-      cogl_object_unref (blended_pipeline);
     }
 
   if (blended_region != NULL)
@@ -498,17 +524,18 @@ meta_shaped_texture_get_preferred_width (ClutterActor *self,
                                          gfloat       *min_width_p,
                                          gfloat       *natural_width_p)
 {
-  MetaShapedTexturePrivate *priv;
+  MetaShapedTexturePrivate *priv = META_SHAPED_TEXTURE (self)->priv;
+  guint width;
 
-  g_return_if_fail (META_IS_SHAPED_TEXTURE (self));
-
-  priv = META_SHAPED_TEXTURE (self)->priv;
+  if (priv->texture)
+    width = priv->tex_width;
+  else
+    width = priv->fallback_width;
 
   if (min_width_p)
-    *min_width_p = priv->tex_width;
-
+    *min_width_p = width;
   if (natural_width_p)
-    *natural_width_p = priv->tex_width;
+    *natural_width_p = width;
 }
 
 static void
@@ -517,17 +544,18 @@ meta_shaped_texture_get_preferred_height (ClutterActor *self,
                                           gfloat       *min_height_p,
                                           gfloat       *natural_height_p)
 {
-  MetaShapedTexturePrivate *priv;
+  MetaShapedTexturePrivate *priv = META_SHAPED_TEXTURE (self)->priv;
+  guint height;
 
-  g_return_if_fail (META_IS_SHAPED_TEXTURE (self));
-
-  priv = META_SHAPED_TEXTURE (self)->priv;
+  if (priv->texture)
+    height = priv->tex_height;
+  else
+    height = priv->fallback_height;
 
   if (min_height_p)
-    *min_height_p = priv->tex_height;
-
+    *min_height_p = height;
   if (natural_height_p)
-    *natural_height_p = priv->tex_height;
+    *natural_height_p = height;
 }
 
 static cairo_region_t *
@@ -762,6 +790,13 @@ meta_shaped_texture_set_opaque_region (MetaShapedTexture *stex,
     priv->opaque_region = NULL;
 }
 
+cairo_region_t *
+meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex)
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+  return priv->opaque_region;
+}
+
 /**
  * meta_shaped_texture_get_image:
  * @stex: A #MetaShapedTexture
@@ -858,6 +893,17 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
     }
 
   return surface;
+}
+
+void
+meta_shaped_texture_set_fallback_size (MetaShapedTexture *self,
+                                       guint              fallback_width,
+                                       guint              fallback_height)
+{
+  MetaShapedTexturePrivate *priv = self->priv;
+
+  priv->fallback_width = fallback_width;
+  priv->fallback_height = fallback_height;
 }
 
 static void

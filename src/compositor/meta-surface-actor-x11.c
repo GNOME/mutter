@@ -28,7 +28,7 @@
 #include "meta-surface-actor-x11.h"
 
 #include <X11/extensions/Xcomposite.h>
-#include <cogl/cogl-texture-pixmap-x11.h>
+#include <cogl/winsys/cogl-texture-pixmap-x11.h>
 
 #include <meta/errors.h>
 #include "window-private.h"
@@ -102,8 +102,7 @@ detach_pixmap (MetaSurfaceActorX11 *self)
   priv->pixmap = None;
   meta_error_trap_pop (display);
 
-  cogl_object_unref (priv->texture);
-  priv->texture = NULL;
+  g_clear_pointer (&priv->texture, cogl_object_unref);
 }
 
 static void
@@ -114,14 +113,20 @@ set_pixmap (MetaSurfaceActorX11 *self,
 
   CoglContext *ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
   MetaShapedTexture *stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
+  CoglError *error = NULL;
   CoglTexture *texture;
 
   g_assert (priv->pixmap == None);
   priv->pixmap = pixmap;
 
-  texture = COGL_TEXTURE (cogl_texture_pixmap_x11_new (ctx, priv->pixmap, FALSE, NULL));
+  texture = COGL_TEXTURE (cogl_texture_pixmap_x11_new (ctx, priv->pixmap, FALSE, &error));
 
-  if (G_UNLIKELY (!cogl_texture_pixmap_x11_is_using_tfp_extension (COGL_TEXTURE_PIXMAP_X11 (texture))))
+  if (error != NULL)
+    {
+      g_warning ("Failed to allocate stex texture: %s", error->message);
+      cogl_error_free (error);
+    }
+  else if (G_UNLIKELY (!cogl_texture_pixmap_x11_is_using_tfp_extension (COGL_TEXTURE_PIXMAP_X11 (texture))))
     g_warning ("NOTE: Not using GLX TFP!\n");
 
   priv->texture = texture;
@@ -208,7 +213,8 @@ meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
   if (!is_visible (self))
     return;
 
-  cogl_texture_pixmap_x11_update_area (priv->texture, x, y, width, height);
+  cogl_texture_pixmap_x11_update_area (COGL_TEXTURE_PIXMAP_X11 (priv->texture),
+                                       x, y, width, height);
 }
 
 static void
@@ -239,6 +245,33 @@ meta_surface_actor_x11_is_visible (MetaSurfaceActor *actor)
 }
 
 static gboolean
+meta_surface_actor_x11_is_opaque (MetaSurfaceActor *actor)
+{
+  MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
+  MetaSurfaceActorX11Private *priv = meta_surface_actor_x11_get_instance_private (self);
+
+  /* If we're not ARGB32, then we're opaque. */
+  if (!meta_surface_actor_is_argb32 (actor))
+    return TRUE;
+
+  cairo_region_t *opaque_region = meta_surface_actor_get_opaque_region (actor);
+
+  /* If we have no opaque region, then no pixels are opaque. */
+  if (!opaque_region)
+    return FALSE;
+
+  MetaWindow *window = priv->window;
+  cairo_rectangle_int_t client_area;
+  meta_window_get_client_area_rect (window, &client_area);
+
+  /* Otherwise, check if our opaque region covers our entire surface. */
+  if (cairo_region_contains_rectangle (opaque_region, &client_area) == CAIRO_REGION_OVERLAP_IN)
+    return TRUE;
+
+  return FALSE;
+}
+
+static gboolean
 meta_surface_actor_x11_should_unredirect (MetaSurfaceActor *actor)
 {
   MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
@@ -255,14 +288,14 @@ meta_surface_actor_x11_should_unredirect (MetaSurfaceActor *actor)
   if (window->shape_region != NULL)
     return FALSE;
 
-  if (meta_surface_actor_is_argb32 (actor) && !meta_window_requested_bypass_compositor (window))
-    return FALSE;
-
   if (!meta_window_is_monitor_sized (window))
     return FALSE;
 
   if (meta_window_requested_bypass_compositor (window))
     return TRUE;
+
+  if (!meta_surface_actor_x11_is_opaque (actor))
+    return FALSE;
 
   if (meta_window_is_override_redirect (window))
     return TRUE;
@@ -388,6 +421,22 @@ window_decorated_notify (MetaWindow *window,
   create_damage (self);
 }
 
+static void
+reset_texture (MetaSurfaceActorX11 *self)
+{
+  MetaSurfaceActorX11Private *priv = meta_surface_actor_x11_get_instance_private (self);
+  MetaShapedTexture *stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
+
+  if (!priv->texture)
+    return;
+
+  /* Setting the texture to NULL will cause all the FBO's cached by the
+   * shaped texture's MetaTextureTower to be discarded and recreated.
+   */
+  meta_shaped_texture_set_texture (stex, NULL);
+  meta_shaped_texture_set_texture (stex, priv->texture);
+}
+
 MetaSurfaceActor *
 meta_surface_actor_x11_new (MetaWindow *window)
 {
@@ -399,6 +448,9 @@ meta_surface_actor_x11_new (MetaWindow *window)
 
   priv->window = window;
   priv->display = display;
+
+  g_signal_connect_object (priv->display, "gl-video-memory-purged",
+                           G_CALLBACK (reset_texture), self, G_CONNECT_SWAPPED);
 
   create_damage (self);
   g_signal_connect_object (priv->window, "notify::decorated",
@@ -416,6 +468,7 @@ meta_surface_actor_x11_set_size (MetaSurfaceActorX11 *self,
                                  int width, int height)
 {
   MetaSurfaceActorX11Private *priv = meta_surface_actor_x11_get_instance_private (self);
+  MetaShapedTexture *stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
 
   if (priv->last_width == width &&
       priv->last_height == height)
@@ -424,4 +477,5 @@ meta_surface_actor_x11_set_size (MetaSurfaceActorX11 *self,
   priv->size_changed = TRUE;
   priv->last_width = width;
   priv->last_height = height;
+  meta_shaped_texture_set_fallback_size (stex, width, height);
 }

@@ -46,11 +46,14 @@
 #include <meta/compositor.h>
 #include <meta/compositor-mutter.h>
 #include <X11/Xatom.h>
-#include "mutter-enum-types.h"
+#include <meta/meta-enum-types.h>
 #include "meta-idle-monitor-dbus.h"
 #include "meta-cursor-tracker-private.h"
 #include <meta/meta-backend.h>
+#include "backends/native/meta-backend-native.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/meta-stage.h"
+#include "backends/meta-input-settings-private.h"
 #include <clutter/x11/clutter-x11.h>
 
 #ifdef HAVE_RANDR
@@ -73,6 +76,8 @@
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-xwayland-private.h"
+#include "wayland/meta-wayland-tablet-seat.h"
+#include "wayland/meta-wayland-tablet-pad.h"
 #endif
 
 /*
@@ -122,6 +127,9 @@ enum
   GRAB_OP_END,
   SHOW_RESTART_MESSAGE,
   RESTART,
+  SHOW_RESIZE_POPUP,
+  GL_VIDEO_MEMORY_PURGED,
+  SHOW_PAD_OSD,
   LAST_SIGNAL
 };
 
@@ -329,6 +337,45 @@ meta_display_class_init (MetaDisplayClass *klass)
                   NULL, NULL,
                   G_TYPE_BOOLEAN, 0);
 
+  display_signals[SHOW_RESIZE_POPUP] =
+    g_signal_new ("show-resize-popup",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  g_signal_accumulator_true_handled,
+                  NULL, NULL,
+                  G_TYPE_BOOLEAN, 4,
+                  G_TYPE_BOOLEAN, META_TYPE_RECTANGLE, G_TYPE_INT, G_TYPE_INT);
+
+  display_signals[GL_VIDEO_MEMORY_PURGED] =
+    g_signal_new ("gl-video-memory-purged",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
+  /**
+   * MetaDisplay::show-pad-osd:
+   * @display: the #MetaDisplay instance
+   * @pad: the pad device
+   * @settings: the pad device settings
+   * @layout_path: path to the layout image
+   * @edition_mode: Whether the OSD should be shown in edition mode
+   * @monitor_idx: Monitor to show the OSD on
+   *
+   * Requests the pad button mapping OSD to be shown.
+   *
+   * Returns: (transfer none) (nullable): The OSD actor
+   */
+  display_signals[SHOW_PAD_OSD] =
+    g_signal_new ("show-pad-osd",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  CLUTTER_TYPE_ACTOR, 5, CLUTTER_TYPE_INPUT_DEVICE,
+                  G_TYPE_SETTINGS, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_INT);
+
   g_object_class_install_property (object_class,
                                    PROP_FOCUS_WINDOW,
                                    g_param_spec_object ("focus-window",
@@ -386,28 +433,6 @@ meta_display_remove_pending_pings_for_window (MetaDisplay *display,
   g_slist_free (dead);
 }
 
-
-#ifdef HAVE_STARTUP_NOTIFICATION
-static void
-sn_error_trap_push (SnDisplay *sn_display,
-                    Display   *xdisplay)
-{
-  MetaDisplay *display;
-  display = meta_display_for_x_display (xdisplay);
-  if (display != NULL)
-    meta_error_trap_push (display);
-}
-
-static void
-sn_error_trap_pop (SnDisplay *sn_display,
-                   Display   *xdisplay)
-{
-  MetaDisplay *display;
-  display = meta_display_for_x_display (xdisplay);
-  if (display != NULL)
-    meta_error_trap_pop (display);
-}
-#endif
 
 static void
 enable_compositor (MetaDisplay *display)
@@ -480,7 +505,7 @@ meta_display_cancel_touch (MetaDisplay *display)
     return;
 
   compositor = meta_wayland_compositor_get_default ();
-  meta_wayland_touch_cancel (&compositor->seat->touch);
+  meta_wayland_touch_cancel (compositor->seat->touch);
 #endif
 }
 
@@ -514,6 +539,20 @@ gesture_tracker_state_changed (MetaGestureTracker   *tracker,
     }
 }
 
+static void
+on_startup_notification_changed (MetaStartupNotification *sn,
+                                 gpointer                 sequence,
+                                 MetaDisplay             *display)
+{
+  if (!display->screen)
+    return;
+
+  g_slist_free (display->screen->startup_sequences);
+  display->screen->startup_sequences =
+    meta_startup_notification_get_sequences (display->startup_notification);
+  g_signal_emit_by_name (display->screen, "startup-sequence-changed", sequence);
+}
+
 /**
  * meta_display_open:
  *
@@ -532,11 +571,12 @@ meta_display_open (void)
   MetaScreen *screen;
   int i;
   guint32 timestamp;
+  Window old_active_xwindow = None;
 
   /* A list of all atom names, so that we can intern them in one go. */
-  char *atom_names[] = {
+  const char *atom_names[] = {
 #define item(x) #x,
-#include <meta/atomnames.h>
+#include <x11/atomnames.h>
 #undef item
   };
   Atom atoms[G_N_ELEMENTS(atom_names)];
@@ -592,14 +632,13 @@ meta_display_open (void)
   meta_prefs_add_listener (prefs_changed_callback, display);
 
   meta_verbose ("Creating %d atoms\n", (int) G_N_ELEMENTS (atom_names));
-  XInternAtoms (display->xdisplay, atom_names, G_N_ELEMENTS (atom_names),
+  XInternAtoms (display->xdisplay, (char **)atom_names, G_N_ELEMENTS (atom_names),
                 False, atoms);
-  {
-    int i = 0;
+
+  i = 0;
 #define item(x) display->atom_##x = atoms[i++];
-#include <meta/atomnames.h>
+#include <x11/atomnames.h>
 #undef item
-  }
 
   display->prop_hooks = NULL;
   meta_display_init_window_prop_hooks (display);
@@ -618,12 +657,6 @@ meta_display_open (void)
 
   display->screen = NULL;
 
-#ifdef HAVE_STARTUP_NOTIFICATION
-  display->sn_display = sn_display_new (display->xdisplay,
-                                        sn_error_trap_push,
-                                        sn_error_trap_pop);
-#endif
-
   /* Get events */
   meta_display_init_events (display);
   meta_display_init_events_x11 (display);
@@ -640,7 +673,6 @@ meta_display_open (void)
       display->ignored_crossing_serials[i] = 0;
       ++i;
     }
-  display->ungrab_should_not_cause_focus_window = None;
 
   display->current_time = CurrentTime;
   display->sentinel_counter = 0;
@@ -888,11 +920,10 @@ meta_display_open (void)
   display->compositor = NULL;
 
   /* Mutter used to manage all X screens of the display in a single process, but
-   * now it always manages exactly one screen as specified by the DISPLAY
-   * environment variable.
+   * now it always manages exactly one screen - the default screen retrieved
+   * from GDK.
    */
-  i = meta_ui_get_screen_number ();
-  screen = meta_screen_new (display, i, timestamp);
+  screen = meta_screen_new (display, timestamp);
 
   if (!screen)
     {
@@ -904,6 +935,15 @@ meta_display_open (void)
     }
 
   display->screen = screen;
+
+  if (!meta_is_wayland_compositor ())
+    meta_prop_get_window (display, display->screen->xroot,
+                          display->atom__NET_ACTIVE_WINDOW,
+                          &old_active_xwindow);
+
+  display->startup_notification = meta_startup_notification_get (display);
+  g_signal_connect (display->startup_notification, "changed",
+                    G_CALLBACK (on_startup_notification_changed), display);
 
   meta_screen_init_workspaces (screen);
 
@@ -922,43 +962,16 @@ meta_display_open (void)
   if (!meta_is_wayland_compositor ())
     meta_screen_manage_all_windows (screen);
 
-  {
-    Window focus;
-    int ret_to;
-
-    /* kinda bogus because GetInputFocus has no possible errors */
-    meta_error_trap_push (display);
-
-    /* FIXME: This is totally broken; see comment 9 of bug 88194 about this */
-    focus = None;
-    ret_to = RevertToPointerRoot;
-    XGetInputFocus (display->xdisplay, &focus, &ret_to);
-
-    /* Force a new FocusIn (does this work?) */
-
-    /* Use the same timestamp that was passed to meta_screen_new(),
-     * as it is the most recent timestamp.
-     */
-    if (focus == None || focus == PointerRoot)
-      /* Just focus the no_focus_window on the first screen */
-      meta_display_focus_the_no_focus_window (display,
-                                              display->screen,
-                                              timestamp);
-    else
-      {
-        MetaWindow * window;
-        window  = meta_display_lookup_x_window (display, focus);
-        if (window)
-          meta_display_set_input_focus_window (display, window, FALSE, timestamp);
-        else
-          /* Just focus the no_focus_window on the first screen */
-          meta_display_focus_the_no_focus_window (display,
-                                                  display->screen,
-                                                  timestamp);
-      }
-
-    meta_error_trap_pop (display);
-  }
+  if (old_active_xwindow != None)
+    {
+      MetaWindow *old_active_window = meta_display_lookup_x_window (display, old_active_xwindow);
+      if (old_active_window)
+        meta_window_focus (old_active_window, timestamp);
+      else
+        meta_display_focus_the_no_focus_window (display, display->screen, timestamp);
+    }
+  else
+    meta_display_focus_the_no_focus_window (display, display->screen, timestamp);
 
   meta_idle_monitor_init_dbus ();
 
@@ -1089,6 +1102,7 @@ meta_display_close (MetaDisplay *display,
 
   meta_display_remove_autoraise_callback (display);
 
+  g_clear_object (&display->startup_notification);
   g_clear_object (&display->gesture_tracker);
 
   if (display->focus_timeout_id)
@@ -1100,14 +1114,6 @@ meta_display_close (MetaDisplay *display,
   meta_display_free_events (display);
 
   meta_screen_free (display->screen, timestamp);
-
-#ifdef HAVE_STARTUP_NOTIFICATION
-  if (display->sn_display)
-    {
-      sn_display_unref (display->sn_display);
-      display->sn_display = NULL;
-    }
-#endif
 
   /* Must be after all calls to meta_window_unmanage() since they
    * unregister windows
@@ -1205,7 +1211,7 @@ meta_grab_op_is_resizing (MetaGrabOp op)
   if (!grab_op_is_window (op))
     return FALSE;
 
-  return (op & META_GRAB_OP_WINDOW_DIR_MASK) != 0;
+  return (op & META_GRAB_OP_WINDOW_DIR_MASK) != 0 || op == META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN;
 }
 
 gboolean
@@ -1218,7 +1224,7 @@ meta_grab_op_is_moving (MetaGrabOp op)
 }
 
 /**
- * meta_grab_op_windows_are_interactable:
+ * meta_display_windows_are_interactable:
  * @op: A #MetaGrabOp
  *
  * Whether windows can be interacted with.
@@ -1400,6 +1406,8 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
 #ifdef HAVE_WAYLAND
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   MetaWindow *focus_window = NULL;
+  MetaBackend *backend = meta_get_backend ();
+  MetaStage *stage = META_STAGE (meta_backend_get_stage (backend));
 
   if (!meta_display_windows_are_interactable (display))
     focus_window = NULL;
@@ -1410,6 +1418,7 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
   else
     meta_topic (META_DEBUG_FOCUS, "Focus change has no effect, because there is no matching wayland surface");
 
+  meta_stage_set_active (stage, focus_window == NULL);
   meta_wayland_compositor_set_input_focus (compositor, focus_window);
 
   meta_wayland_seat_repick (compositor->seat);
@@ -1791,6 +1800,9 @@ get_event_route_from_grab_op (MetaGrabOp op)
     case META_GRAB_OP_WAYLAND_POPUP:
       return META_EVENT_ROUTE_WAYLAND_POPUP;
 
+    case META_GRAB_OP_FRAME_BUTTON:
+      return META_EVENT_ROUTE_FRAME_BUTTON;
+
     default:
       g_assert_not_reached ();
     }
@@ -1904,7 +1916,6 @@ meta_display_begin_grab_op (MetaDisplay *display,
   display->grab_last_moveresize_time.tv_usec = 0;
   display->grab_last_user_action_was_snap = FALSE;
   display->grab_frame_action = frame_action;
-  display->grab_resize_unmaximize = 0;
 
   meta_display_update_cursor (display);
 
@@ -1947,11 +1958,19 @@ meta_display_end_grab_op (MetaDisplay *display,
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Ending grab op %u at time %u\n", grab_op, timestamp);
 
-  if (display->event_route == META_EVENT_ROUTE_NORMAL)
+  if (display->event_route == META_EVENT_ROUTE_NORMAL ||
+      display->event_route == META_EVENT_ROUTE_COMPOSITOR_GRAB)
     return;
+
+  g_assert (grab_window != NULL);
 
   g_signal_emit (display, display_signals[GRAB_OP_END], 0,
                  display->screen, grab_window, grab_op);
+
+  /* We need to reset this early, since the
+   * meta_window_grab_op_ended callback relies on this being
+   * up to date. */
+  display->grab_op = META_GRAB_OP_NONE;
 
   if (display->event_route == META_EVENT_ROUTE_WINDOW_OP)
     {
@@ -1985,7 +2004,6 @@ meta_display_end_grab_op (MetaDisplay *display,
     }
 
   display->event_route = META_EVENT_ROUTE_NORMAL;
-  display->grab_op = META_GRAB_OP_NONE;
   display->grab_window = NULL;
   display->grab_tile_mode = META_TILE_NONE;
   display->grab_tile_monitor_number = -1;
@@ -2046,6 +2064,9 @@ void
 meta_display_update_active_window_hint (MetaDisplay *display)
 {
   gulong data[1];
+
+  if (display->closing)
+    return; /* Leave old value for a replacement */
 
   if (display->focus_window)
     data[0] = display->focus_window->xwindow;
@@ -2618,7 +2639,7 @@ meta_display_unmanage_screen (MetaDisplay *display,
                               guint32      timestamp)
 {
   meta_verbose ("Unmanaging screen %d on display %s\n",
-                screen->number, display->name);
+                meta_ui_get_screen_number (), display->name);
   meta_display_close (display, timestamp);
 }
 
@@ -2892,9 +2913,11 @@ meta_display_get_xinput_opcode (MetaDisplay *display)
  * meta_display_supports_extended_barriers:
  * @display: a #MetaDisplay
  *
- * Returns: whether the X server supports extended barrier
- * features as defined in version 2.3 of the XInput 2
- * specification.
+ * Returns: whether pointer barriers can be supported.
+ *
+ * When running as an X compositor the X server needs XInput 2
+ * version 2.3. When running as a display server it is supported
+ * when running on the native backend.
  *
  * Clients should use this method to determine whether their
  * interfaces should depend on new barrier features.
@@ -2902,7 +2925,18 @@ meta_display_get_xinput_opcode (MetaDisplay *display)
 gboolean
 meta_display_supports_extended_barriers (MetaDisplay *display)
 {
-  return META_DISPLAY_HAS_XINPUT_23 (display) && !meta_is_wayland_compositor ();
+#ifdef HAVE_NATIVE_BACKEND
+  if (META_IS_BACKEND_NATIVE (meta_get_backend ()))
+    return TRUE;
+#endif
+
+  if (META_IS_BACKEND_X11 (meta_get_backend ()))
+    {
+      return (META_DISPLAY_HAS_XINPUT_23 (display) &&
+              !meta_is_wayland_compositor());
+    }
+
+  g_assert_not_reached ();
 }
 
 /**
@@ -3014,6 +3048,22 @@ meta_display_request_restart (MetaDisplay *display)
   return result;
 }
 
+gboolean
+meta_display_show_resize_popup (MetaDisplay *display,
+                                gboolean show,
+                                MetaRectangle *rect,
+                                int display_w,
+                                int display_h)
+{
+  gboolean result = FALSE;
+
+  g_signal_emit (display,
+                 display_signals[SHOW_RESIZE_POPUP], 0,
+                 show, rect, display_w, display_h, &result);
+
+  return result;
+}
+
 /**
  * meta_display_is_pointer_emulating_sequence:
  * @display: the display
@@ -3043,4 +3093,112 @@ meta_display_set_alarm_filter (MetaDisplay    *display,
 
   display->alarm_filter = filter;
   display->alarm_filter_data = data;
+}
+
+void
+meta_display_request_pad_osd (MetaDisplay        *display,
+                              ClutterInputDevice *pad,
+                              gboolean            edition_mode)
+{
+  MetaInputSettings *input_settings;
+  const gchar *layout_path = NULL;
+  ClutterActor *osd;
+  MetaMonitorInfo *monitor;
+  gint monitor_idx;
+  GSettings *settings;
+#ifdef HAVE_LIBWACOM
+  WacomDevice *wacom_device;
+#endif
+
+  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+
+  if (display->current_pad_osd)
+    {
+      clutter_actor_destroy (display->current_pad_osd);
+      display->current_pad_osd = NULL;
+    }
+
+  if (input_settings)
+    {
+      settings = meta_input_settings_get_tablet_settings (input_settings, pad);
+      monitor = meta_input_settings_get_tablet_monitor_info (input_settings, pad);
+#ifdef HAVE_LIBWACOM
+      wacom_device = meta_input_settings_get_tablet_wacom_device (input_settings,
+                                                                  pad);
+      layout_path = libwacom_get_layout_filename (wacom_device);
+#endif
+    }
+
+  if (!layout_path || !settings)
+    return;
+
+  if (monitor)
+    {
+      monitor_idx = meta_screen_get_monitor_index_for_rect (display->screen,
+                                                            &monitor->rect);
+    }
+  else
+    {
+      monitor_idx = meta_screen_get_current_monitor (display->screen);
+    }
+
+  g_signal_emit (display, display_signals[SHOW_PAD_OSD], 0,
+                 pad, settings, layout_path,
+                 edition_mode, monitor_idx, &osd);
+
+  if (osd)
+    {
+      display->current_pad_osd = osd;
+      g_object_add_weak_pointer (G_OBJECT (display->current_pad_osd),
+                                 (gpointer *) &display->current_pad_osd);
+    }
+
+  g_object_unref (settings);
+}
+
+gchar *
+meta_display_get_pad_action_label (MetaDisplay        *display,
+                                   ClutterInputDevice *pad,
+                                   MetaPadActionType   action_type,
+                                   guint               action_number)
+{
+  gchar *label;
+
+  /* First, lookup the action, as imposed by settings */
+  if (action_type == META_PAD_ACTION_BUTTON)
+    {
+      MetaInputSettings *settings;
+
+      settings = meta_backend_get_input_settings (meta_get_backend ());
+      label = meta_input_settings_get_pad_button_action_label (settings, pad, action_number);
+      if (label)
+        return label;
+    }
+
+#ifdef HAVE_WAYLAND
+  /* Second, if this wayland, lookup the actions set by the clients */
+  if (meta_is_wayland_compositor ())
+    {
+      MetaWaylandCompositor *compositor;
+      MetaWaylandTabletSeat *tablet_seat;
+      MetaWaylandTabletPad *tablet_pad = NULL;
+
+      compositor = meta_wayland_compositor_get_default ();
+      tablet_seat = meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager,
+                                                             compositor->seat);
+      if (tablet_seat)
+        tablet_pad = meta_wayland_tablet_seat_lookup_pad (tablet_seat, pad);
+
+      if (tablet_pad)
+        {
+          label = meta_wayland_tablet_pad_get_label (tablet_pad, action_type,
+                                                     action_number);
+        }
+
+      if (label)
+        return label;
+    }
+#endif
+
+  return NULL;
 }

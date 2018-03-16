@@ -39,6 +39,7 @@
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-xwayland.h"
 #include "wayland/meta-wayland-private.h"
+#include "wayland/meta-xwayland-private.h"
 #endif
 
 static XIEvent *
@@ -241,7 +242,7 @@ event_get_time (MetaDisplay *display,
     }
 }
 
-G_GNUC_UNUSED const char*
+const char*
 meta_event_detail_to_string (int d)
 {
   const char *detail = "???";
@@ -278,7 +279,7 @@ meta_event_detail_to_string (int d)
   return detail;
 }
 
-G_GNUC_UNUSED const char*
+const char*
 meta_event_mode_to_string (int m)
 {
   const char *mode = "???";
@@ -321,7 +322,7 @@ stack_mode_to_string (int mode)
   return "Unknown";
 }
 
-G_GNUC_UNUSED static gint64
+static gint64
 sync_value_to_64 (const XSyncValue *value)
 {
   gint64 v;
@@ -332,7 +333,7 @@ sync_value_to_64 (const XSyncValue *value)
   return v;
 }
 
-G_GNUC_UNUSED static const char*
+static const char*
 alarm_state_to_string (XSyncAlarmState state)
 {
   switch (state)
@@ -348,7 +349,7 @@ alarm_state_to_string (XSyncAlarmState state)
     }
 }
 
-G_GNUC_UNUSED static void
+static void
 meta_spew_xi2_event (MetaDisplay *display,
                      XIEvent     *input_event,
                      const char **name_p,
@@ -408,7 +409,7 @@ meta_spew_xi2_event (MetaDisplay *display,
   *extra_p = extra;
 }
 
-G_GNUC_UNUSED static void
+static void
 meta_spew_core_event (MetaDisplay *display,
                       XEvent      *event,
                       const char **name_p,
@@ -628,7 +629,7 @@ meta_spew_core_event (MetaDisplay *display,
   *extra_p = extra;
 }
 
-G_GNUC_UNUSED static void
+static char *
 meta_spew_event (MetaDisplay *display,
                  XEvent      *event)
 {
@@ -636,7 +637,37 @@ meta_spew_event (MetaDisplay *display,
   const char *name = NULL;
   char *extra = NULL;
   char *winname;
+  char *ret;
   XIEvent *input_event;
+
+  input_event = get_input_event (display, event);
+
+  if (input_event)
+    meta_spew_xi2_event (display, input_event, &name, &extra);
+  else
+    meta_spew_core_event (display, event, &name, &extra);
+
+  if (event->xany.window == screen->xroot)
+    winname = g_strdup_printf ("root");
+  else
+    winname = g_strdup_printf ("0x%lx", event->xany.window);
+
+  ret = g_strdup_printf ("%s on %s%s %s %sserial %lu", name, winname,
+                         extra ? ":" : "", extra ? extra : "",
+                         event->xany.send_event ? "SEND " : "",
+                         event->xany.serial);
+
+  g_free (winname);
+  g_free (extra);
+
+  return ret;
+}
+
+G_GNUC_UNUSED static void
+meta_spew_event_print (MetaDisplay *display,
+                       XEvent      *event)
+{
+  char *event_str;
 
   /* filter overnumerous events */
   if (event->type == Expose || event->type == MotionNotify ||
@@ -652,33 +683,16 @@ meta_spew_event (MetaDisplay *display,
   if (event->type == PropertyNotify && event->xproperty.atom == display->atom__NET_WM_USER_TIME)
     return;
 
-  input_event = get_input_event (display, event);
-
-  if (input_event)
-    meta_spew_xi2_event (display, input_event, &name, &extra);
-  else
-    meta_spew_core_event (display, event, &name, &extra);
-
-  if (event->xany.window == screen->xroot)
-    winname = g_strdup_printf ("root %d", screen->number);
-  else
-    winname = g_strdup_printf ("0x%lx", event->xany.window);
-
-  g_print ("%s on %s%s %s %sserial %lu\n", name, winname,
-           extra ? ":" : "", extra ? extra : "",
-           event->xany.send_event ? "SEND " : "",
-           event->xany.serial);
-
-  g_free (winname);
-
-  if (extra)
-    g_free (extra);
+  event_str = meta_spew_event (display, event);
+  g_print ("%s\n", event_str);
+  g_free (event_str);
 }
 
 static gboolean
 handle_window_focus_event (MetaDisplay  *display,
                            MetaWindow   *window,
-                           XIEnterEvent *event)
+                           XIEnterEvent *event,
+                           unsigned long serial)
 {
   MetaWindow *focus_window;
 #ifdef WITH_VERBOSE_MODE
@@ -713,7 +727,7 @@ handle_window_focus_event (MetaDisplay  *display,
               event->event, window_type,
               meta_event_mode_to_string (event->mode),
               meta_event_detail_to_string (event->mode),
-              event->serial);
+              serial);
 #endif
 
   /* FIXME our pointer tracking is broken; see how
@@ -757,7 +771,7 @@ handle_window_focus_event (MetaDisplay  *display,
   if (event->evtype == XI_FocusIn)
     {
       display->server_focus_window = event->event;
-      display->server_focus_serial = event->serial;
+      display->server_focus_serial = serial;
       focus_window = window;
     }
   else if (event->evtype == XI_FocusOut)
@@ -771,7 +785,7 @@ handle_window_focus_event (MetaDisplay  *display,
         }
 
       display->server_focus_window = None;
-      display->server_focus_serial = event->serial;
+      display->server_focus_serial = serial;
       focus_window = NULL;
     }
   else
@@ -816,8 +830,9 @@ crossing_serial_is_ignored (MetaDisplay  *display,
 }
 
 static gboolean
-handle_input_xevent (MetaDisplay *display,
-                     XIEvent     *input_event)
+handle_input_xevent (MetaDisplay  *display,
+                     XIEvent      *input_event,
+                     unsigned long serial)
 {
   XIEnterEvent *enter_event = (XIEnterEvent *) input_event;
   Window modified;
@@ -854,7 +869,7 @@ handle_input_xevent (MetaDisplay *display,
       /* Check if we've entered a window; do this even if window->has_focus to
        * avoid races.
        */
-      if (window && !crossing_serial_is_ignored (display, input_event->serial) &&
+      if (window && !crossing_serial_is_ignored (display, serial) &&
           enter_event->mode != XINotifyGrab &&
           enter_event->mode != XINotifyUngrab &&
           enter_event->detail != XINotifyInferior &&
@@ -879,7 +894,7 @@ handle_input_xevent (MetaDisplay *display,
       break;
     case XI_FocusIn:
     case XI_FocusOut:
-      if (handle_window_focus_event (display, window, enter_event) &&
+      if (handle_window_focus_event (display, window, enter_event, serial) &&
           enter_event->event == enter_event->root)
         {
           if (enter_event->evtype == XI_FocusIn &&
@@ -1139,12 +1154,36 @@ process_selection_clear (MetaDisplay   *display,
       return FALSE;
     }
 
-  meta_verbose ("Got selection clear for screen %d on display %s\n",
-                screen->number, display->name);
+  meta_verbose ("Got selection clear for on display %s\n",
+                display->name);
 
   meta_display_unmanage_screen (display, display->screen,
                                 event->xselectionclear.time);
   return TRUE;
+}
+
+static void
+notify_bell (MetaDisplay *display,
+             XkbAnyEvent *xkb_ev)
+{
+  XkbBellNotifyEvent *xkb_bell_event = (XkbBellNotifyEvent*) xkb_ev;
+  MetaWindow *window;
+
+  window = meta_display_lookup_x_window (display, xkb_bell_event->window);
+  if (!window && display->focus_window && display->focus_window->frame)
+    window = display->focus_window;
+
+  display->last_bell_time = xkb_ev->time;
+  if (!meta_bell_notify (display, window) &&
+      meta_prefs_bell_is_audible ())
+    {
+      /* Force a classic bell if the libcanberra bell failed. */
+      XkbForceDeviceBell (display->xdisplay,
+                          xkb_bell_event->device,
+                          xkb_bell_event->bell_class,
+                          xkb_bell_event->bell_id,
+                          xkb_bell_event->percent);
+    }
 }
 
 static gboolean
@@ -1603,8 +1642,7 @@ handle_other_xevent (MetaDisplay *display,
               if (XSERVER_TIME_IS_BEFORE(display->last_bell_time,
                                          xkb_ev->time - 100))
                 {
-                  display->last_bell_time = xkb_ev->time;
-                  meta_bell_notify (display, xkb_ev);
+                  notify_bell (display, xkb_ev);
                 }
               break;
             default:
@@ -1653,11 +1691,19 @@ meta_display_handle_xevent (MetaDisplay *display,
   XIEvent *input_event;
 
 #if 0
-  meta_spew_event (display, event);
+  meta_spew_event_print (display, event);
 #endif
 
-#ifdef HAVE_STARTUP_NOTIFICATION
-  if (sn_display_process_event (display->sn_display, event))
+  if (meta_startup_notification_handle_xevent (display->startup_notification,
+                                               event))
+    {
+      bypass_gtk = bypass_compositor = TRUE;
+      goto out;
+    }
+
+#ifdef HAVE_WAYLAND
+  if (meta_is_wayland_compositor () &&
+      meta_xwayland_selection_handle_event (event))
     {
       bypass_gtk = bypass_compositor = TRUE;
       goto out;
@@ -1705,26 +1751,16 @@ meta_display_handle_xevent (MetaDisplay *display,
                       event->xany.serial);
         }
     }
-  else if (input_event &&
-           input_event->evtype == XI_Leave &&
-           ((XILeaveEvent *)input_event)->mode == XINotifyUngrab &&
-           modified == display->ungrab_should_not_cause_focus_window)
-    {
-      meta_display_add_ignored_crossing_serial (display, event->xany.serial);
-      meta_topic (META_DEBUG_FOCUS,
-                  "Adding LeaveNotify serial %lu to ignored focus serials\n",
-                  event->xany.serial);
-    }
 
 #ifdef HAVE_XI23
-  if (meta_display_process_barrier_event (display, input_event))
+  if (meta_display_process_barrier_xevent (display, input_event))
     {
       bypass_gtk = bypass_compositor = TRUE;
       goto out;
     }
 #endif /* HAVE_XI23 */
 
-  if (handle_input_xevent (display, input_event))
+  if (handle_input_xevent (display, input_event, event->xany.serial))
     {
       bypass_gtk = bypass_compositor = TRUE;
       goto out;

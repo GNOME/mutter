@@ -36,18 +36,10 @@
 #include <X11/Xutil.h>
 #include "stack-tracker.h"
 #include "ui.h"
-#include "meta-monitor-manager.h"
+#include "meta-monitor-manager-private.h"
 
 typedef void (* MetaScreenWindowFunc) (MetaWindow *window,
                                        gpointer    user_data);
-
-typedef enum
-{
-  META_SCREEN_UP,
-  META_SCREEN_DOWN,
-  META_SCREEN_LEFT,
-  META_SCREEN_RIGHT
-} MetaScreenDirection;
 
 #define META_WIREFRAME_XOR_LINE_WIDTH 2
 
@@ -56,9 +48,7 @@ struct _MetaScreen
   GObject parent_instance;
 
   MetaDisplay *display;
-  int number;
   char *screen_name;
-  Screen *xscreen;
   Window xroot;
   int default_depth;
   Visual *default_xvisual;
@@ -93,15 +83,9 @@ struct _MetaScreen
   /* Cache the current monitor */
   int last_monitor_index;
 
-#ifdef HAVE_STARTUP_NOTIFICATION
-  SnMonitorContext *sn_context;
   GSList *startup_sequences;
-  guint startup_sequence_timeout;
-#endif
 
   Window wm_cm_selection_window;
-  guint32 wm_cm_timestamp;
-
   guint work_area_later;
   guint check_fullscreen_later;
 
@@ -133,7 +117,6 @@ struct _MetaScreenClass
 };
 
 MetaScreen*   meta_screen_new                 (MetaDisplay                *display,
-                                               int                         number,
                                                guint32                     timestamp);
 void          meta_screen_free                (MetaScreen                 *screen,
                                                guint32                     timestamp);
@@ -159,8 +142,12 @@ const MetaMonitorInfo* meta_screen_get_current_monitor_info_for_pos   (MetaScree
                                                                        int y);
 const MetaMonitorInfo* meta_screen_get_monitor_for_rect   (MetaScreen    *screen,
                                                            MetaRectangle *rect);
-const MetaMonitorInfo* meta_screen_get_monitor_for_window (MetaScreen    *screen,
-                                                           MetaWindow    *window);
+const MetaMonitorInfo* meta_screen_calculate_monitor_for_window (MetaScreen    *screen,
+                                                                 MetaWindow    *window);
+
+const MetaMonitorInfo* meta_screen_get_monitor_for_point (MetaScreen    *screen,
+                                                          int            x,
+                                                          int            y);
 
 
 const MetaMonitorInfo* meta_screen_get_monitor_neighbor (MetaScreen *screen,

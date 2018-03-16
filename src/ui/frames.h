@@ -25,7 +25,9 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 #include <meta/common.h>
+#include <meta/types.h>
 #include "theme-private.h"
+#include "ui.h"
 
 typedef enum
 {
@@ -37,12 +39,6 @@ typedef enum
   META_FRAME_CONTROL_MINIMIZE,
   META_FRAME_CONTROL_MAXIMIZE,
   META_FRAME_CONTROL_UNMAXIMIZE,
-  META_FRAME_CONTROL_SHADE,
-  META_FRAME_CONTROL_UNSHADE,
-  META_FRAME_CONTROL_ABOVE,
-  META_FRAME_CONTROL_UNABOVE,
-  META_FRAME_CONTROL_STICK,
-  META_FRAME_CONTROL_UNSTICK,
   META_FRAME_CONTROL_RESIZE_SE,
   META_FRAME_CONTROL_RESIZE_S,
   META_FRAME_CONTROL_RESIZE_SW,
@@ -68,18 +64,17 @@ typedef enum
 typedef struct _MetaFrames        MetaFrames;
 typedef struct _MetaFramesClass   MetaFramesClass;
 
-typedef struct _MetaUIFrame         MetaUIFrame;
-
 struct _MetaUIFrame
 {
+  MetaFrames *frames;
+  MetaWindow *meta_window;
   Window xwindow;
   GdkWindow *window;
-  GtkStyleContext *style;
-  MetaFrameStyle *cache_style;
-  PangoLayout *layout;
+  MetaStyleInfo *style_info;
+  MetaFrameLayout *cache_layout;
+  PangoLayout *text_layout;
   int text_height;
   char *title; /* NULL once we have a layout */
-  guint shape_applied : 1;
   guint maybe_ignore_leave_notify : 1;
 
   /* FIXME get rid of this, it can just be in the MetaFrames struct */
@@ -95,9 +90,8 @@ struct _MetaFrames
   GHashTable *text_heights;
 
   GHashTable *frames;
-  MetaUIFrame *last_motion_frame;
 
-  GtkStyleContext *normal_style;
+  MetaStyleInfo *normal_style;
   GHashTable *style_variants;
 
   MetaGrabOp current_grab_op;
@@ -105,8 +99,6 @@ struct _MetaFrames
   guint grab_button;
   gdouble grab_x;
   gdouble grab_y;
-
-  Window grab_xwindow;
 };
 
 struct _MetaFramesClass
@@ -117,47 +109,33 @@ struct _MetaFramesClass
 
 GType        meta_frames_get_type               (void) G_GNUC_CONST;
 
-MetaFrames *meta_frames_new (int screen_number);
+MetaFrames *meta_frames_new (void);
 
-void meta_frames_manage_window (MetaFrames *frames,
-                                Window      xwindow,
-				GdkWindow  *window);
-void meta_frames_unmanage_window (MetaFrames *frames,
-                                  Window      xwindow);
-void meta_frames_set_title (MetaFrames *frames,
-                            Window      xwindow,
-                            const char *title);
+MetaUIFrame * meta_frames_manage_window (MetaFrames *frames,
+                                         MetaWindow *meta_window,
+                                         Window      xwindow,
+                                         GdkWindow  *window);
 
-void meta_frames_update_frame_style (MetaFrames *frames,
-                                     Window      xwindow);
+void meta_ui_frame_unmanage (MetaUIFrame *frame);
 
-void meta_frames_repaint_frame (MetaFrames *frames,
-                                Window      xwindow);
+void meta_ui_frame_set_title (MetaUIFrame *frame,
+                              const char *title);
 
-void meta_frames_get_borders (MetaFrames *frames,
-                              Window xwindow,
-                              MetaFrameBorders *borders);
+void meta_ui_frame_update_style (MetaUIFrame *frame);
 
-cairo_region_t *meta_frames_get_frame_bounds (MetaFrames *frames,
-                                              Window      xwindow,
-                                              int         window_width,
-                                              int         window_height);
+void meta_ui_frame_get_borders (MetaUIFrame      *frame,
+                                MetaFrameBorders *borders);
 
-void meta_frames_get_mask (MetaFrames *frames,
-                           Window      xwindow,
-                           guint       width,
-                           guint       height,
-                           cairo_t    *cr);
+cairo_region_t * meta_ui_frame_get_bounds (MetaUIFrame *frame);
 
-void meta_frames_move_resize_frame (MetaFrames *frames,
-				    Window      xwindow,
-				    int         x,
-				    int         y,
-				    int         width,
-				    int         height);
-void meta_frames_queue_draw (MetaFrames *frames,
-                             Window      xwindow);
+void meta_ui_frame_get_mask (MetaUIFrame *frame,
+                             cairo_t     *cr);
 
-Window meta_frames_get_moving_frame (MetaFrames *frames);
+void meta_ui_frame_move_resize (MetaUIFrame *frame,
+                                int x, int y, int width, int height);
+
+void meta_ui_frame_queue_draw (MetaUIFrame *frame);
+
+gboolean meta_ui_frame_handle_event (MetaUIFrame *frame, const ClutterEvent *event);
 
 #endif

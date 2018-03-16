@@ -30,6 +30,17 @@
 #include <cogl/cogl-wayland-server.h>
 #include <meta/util.h>
 
+enum
+{
+  RESOURCE_DESTROYED,
+
+  LAST_SIGNAL
+};
+
+guint signals[LAST_SIGNAL];
+
+G_DEFINE_TYPE (MetaWaylandBuffer, meta_wayland_buffer, G_TYPE_OBJECT);
+
 static void
 meta_wayland_buffer_destroy_handler (struct wl_listener *listener,
                                      void *data)
@@ -37,25 +48,9 @@ meta_wayland_buffer_destroy_handler (struct wl_listener *listener,
   MetaWaylandBuffer *buffer =
     wl_container_of (listener, buffer, destroy_listener);
 
-  wl_signal_emit (&buffer->destroy_signal, buffer);
-  g_slice_free (MetaWaylandBuffer, buffer);
-}
-
-void
-meta_wayland_buffer_ref (MetaWaylandBuffer *buffer)
-{
-  buffer->ref_count++;
-}
-
-void
-meta_wayland_buffer_unref (MetaWaylandBuffer *buffer)
-{
-  buffer->ref_count--;
-  if (buffer->ref_count == 0)
-    {
-      g_clear_pointer (&buffer->texture, cogl_object_unref);
-      wl_resource_queue_event (buffer->resource, WL_BUFFER_RELEASE);
-    }
+  buffer->resource = NULL;
+  g_signal_emit (buffer, signals[RESOURCE_DESTROYED], 0);
+  g_object_unref (buffer);
 }
 
 MetaWaylandBuffer *
@@ -74,10 +69,9 @@ meta_wayland_buffer_from_resource (struct wl_resource *resource)
     }
   else
     {
-      buffer = g_slice_new0 (MetaWaylandBuffer);
+      buffer = g_object_new (META_TYPE_WAYLAND_BUFFER, NULL);
 
       buffer->resource = resource;
-      wl_signal_init (&buffer->destroy_signal);
       buffer->destroy_listener.notify = meta_wayland_buffer_destroy_handler;
       wl_resource_add_destroy_listener (resource, &buffer->destroy_listener);
     }
@@ -91,17 +85,31 @@ meta_wayland_buffer_ensure_texture (MetaWaylandBuffer *buffer)
   CoglContext *ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
   CoglError *catch_error = NULL;
   CoglTexture *texture;
+  struct wl_shm_buffer *shm_buffer;
+
+  g_return_val_if_fail (buffer->resource, NULL);
 
   if (buffer->texture)
     goto out;
 
+  shm_buffer = wl_shm_buffer_get (buffer->resource);
+
+  if (shm_buffer)
+    wl_shm_buffer_begin_access (shm_buffer);
+
   texture = COGL_TEXTURE (cogl_wayland_texture_2d_new_from_buffer (ctx,
                                                                    buffer->resource,
                                                                    &catch_error));
+
+  if (shm_buffer)
+    wl_shm_buffer_end_access (shm_buffer);
+
   if (!texture)
     {
+      meta_warning ("Could not import pending buffer, ignoring commit: %s\n",
+                    catch_error->message);
       cogl_error_free (catch_error);
-      meta_fatal ("Could not import pending buffer, ignoring commit\n");
+      goto out;
     }
 
   buffer->texture = texture;
@@ -124,14 +132,55 @@ meta_wayland_buffer_process_damage (MetaWaylandBuffer *buffer,
 
       n_rectangles = cairo_region_num_rectangles (region);
 
+      wl_shm_buffer_begin_access (shm_buffer);
+
       for (i = 0; i < n_rectangles; i++)
         {
+          CoglError *error = NULL;
           cairo_rectangle_int_t rect;
           cairo_region_get_rectangle (region, i, &rect);
           cogl_wayland_texture_set_region_from_shm_buffer (buffer->texture,
                                                            rect.x, rect.y, rect.width, rect.height,
                                                            shm_buffer,
-                                                           rect.x, rect.y, 0, NULL);
+                                                           rect.x, rect.y, 0, &error);
+
+          if (error)
+            {
+              meta_warning ("Failed to set texture region: %s\n", error->message);
+              cogl_error_free (error);
+            }
         }
+
+      wl_shm_buffer_end_access (shm_buffer);
     }
+}
+
+static void
+meta_wayland_buffer_finalize (GObject *object)
+{
+  MetaWaylandBuffer *buffer = META_WAYLAND_BUFFER (object);
+
+  g_clear_pointer (&buffer->texture, cogl_object_unref);
+
+  G_OBJECT_CLASS (meta_wayland_buffer_parent_class)->finalize (object);
+}
+
+static void
+meta_wayland_buffer_init (MetaWaylandBuffer *buffer)
+{
+}
+
+static void
+meta_wayland_buffer_class_init (MetaWaylandBufferClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_wayland_buffer_finalize;
+
+  signals[RESOURCE_DESTROYED] = g_signal_new ("resource-destroyed",
+                                              G_TYPE_FROM_CLASS (object_class),
+                                              G_SIGNAL_RUN_LAST,
+                                              0,
+                                              NULL, NULL, NULL,
+                                              G_TYPE_NONE, 0);
 }

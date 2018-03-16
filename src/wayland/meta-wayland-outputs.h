@@ -25,7 +25,24 @@
 #ifndef META_WAYLAND_OUTPUTS_H
 #define META_WAYLAND_OUTPUTS_H
 
+#include "backends/meta-monitor-manager-private.h"
 #include "meta-wayland-private.h"
+
+#define META_TYPE_WAYLAND_OUTPUT (meta_wayland_output_get_type ())
+G_DECLARE_FINAL_TYPE (MetaWaylandOutput, meta_wayland_output,
+                      META, WAYLAND_OUTPUT, GObject)
+
+struct _MetaWaylandOutput
+{
+  GObject                   parent;
+
+  struct wl_global         *global;
+  MetaMonitorInfo          *monitor_info;
+  guint                     mode_flags;
+  gint                      scale;
+
+  GList                    *resources;
+};
 
 void meta_wayland_outputs_init (MetaWaylandCompositor *compositor);
 

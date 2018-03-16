@@ -28,12 +28,18 @@
 
 #include "meta-wayland-types.h"
 
+#define META_TYPE_WAYLAND_TOUCH (meta_wayland_touch_get_type ())
+G_DECLARE_FINAL_TYPE (MetaWaylandTouch, meta_wayland_touch,
+                      META, WAYLAND_TOUCH,
+                      MetaWaylandInputDevice)
+
 typedef struct _MetaWaylandTouchSurface MetaWaylandTouchSurface;
 typedef struct _MetaWaylandTouchInfo MetaWaylandTouchInfo;
 
 struct _MetaWaylandTouch
 {
-  struct wl_display *display;
+  MetaWaylandInputDevice parent;
+
   struct wl_list resource_list;
 
   GHashTable *touch_surfaces; /* HT of MetaWaylandSurface->MetaWaylandTouchSurface */
@@ -43,10 +49,9 @@ struct _MetaWaylandTouch
   guint64 frame_slots;
 };
 
-void meta_wayland_touch_init (MetaWaylandTouch  *touch,
-                              struct wl_display *display);
+void meta_wayland_touch_enable (MetaWaylandTouch *touch);
 
-void meta_wayland_touch_release (MetaWaylandTouch *touch);
+void meta_wayland_touch_disable (MetaWaylandTouch *touch);
 
 void meta_wayland_touch_update (MetaWaylandTouch   *touch,
                                 const ClutterEvent *event);
@@ -69,5 +74,8 @@ gboolean meta_wayland_touch_get_press_coords (MetaWaylandTouch     *touch,
                                               ClutterEventSequence *sequence,
                                               gfloat               *x,
                                               gfloat               *y);
+
+gboolean meta_wayland_touch_can_popup        (MetaWaylandTouch *touch,
+                                              uint32_t          serial);
 
 #endif /* META_WAYLAND_TOUCH_H */

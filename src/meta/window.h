@@ -111,7 +111,6 @@ gboolean meta_window_is_skip_taskbar (MetaWindow *window);
 void meta_window_get_buffer_rect (const MetaWindow *window, MetaRectangle *rect);
 
 void meta_window_get_frame_rect (const MetaWindow *window, MetaRectangle *rect);
-void meta_window_get_outer_rect (const MetaWindow *window, MetaRectangle *rect) G_GNUC_DEPRECATED;
 
 void meta_window_client_rect_to_frame_rect (MetaWindow    *window,
                                             MetaRectangle *client_rect,
@@ -139,6 +138,7 @@ const char * meta_window_get_wm_class (MetaWindow *window);
 const char * meta_window_get_wm_class_instance (MetaWindow *window);
 gboolean    meta_window_showing_on_its_workspace (MetaWindow *window);
 
+const char * meta_window_get_flatpak_id (MetaWindow *window);
 const char * meta_window_get_gtk_theme_variant (MetaWindow *window);
 const char * meta_window_get_gtk_application_id (MetaWindow *window);
 const char * meta_window_get_gtk_unique_bus_name (MetaWindow *window);

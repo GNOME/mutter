@@ -40,6 +40,25 @@
 #endif
 #include "meta-surface-actor.h"
 
+#define IS_GESTURE_EVENT(e) ((e)->type == CLUTTER_TOUCHPAD_SWIPE || \
+                             (e)->type == CLUTTER_TOUCHPAD_PINCH || \
+                             (e)->type == CLUTTER_TOUCH_BEGIN || \
+                             (e)->type == CLUTTER_TOUCH_UPDATE || \
+                             (e)->type == CLUTTER_TOUCH_END || \
+                             (e)->type == CLUTTER_TOUCH_CANCEL)
+
+#define IS_KEY_EVENT(e) ((e)->type == CLUTTER_KEY_PRESS || \
+                         (e)->type == CLUTTER_KEY_RELEASE)
+
+static gboolean
+stage_has_key_focus (void)
+{
+  MetaBackend *backend = meta_get_backend ();
+  ClutterActor *stage = meta_backend_get_stage (backend);
+
+  return clutter_stage_get_key_focus (CLUTTER_STAGE (stage)) == stage;
+}
+
 static MetaWindow *
 get_window_for_event (MetaDisplay        *display,
                       const ClutterEvent *event)
@@ -51,14 +70,8 @@ get_window_for_event (MetaDisplay        *display,
         ClutterActor *source;
 
         /* Always use the key focused window for key events. */
-        switch (event->type)
-          {
-          case CLUTTER_KEY_PRESS:
-          case CLUTTER_KEY_RELEASE:
-            return display->focus_window;
-          default:
-            break;
-          }
+        if (IS_KEY_EVENT (event))
+            return stage_has_key_focus () ? display->focus_window : NULL;
 
         source = clutter_event_get_source (event);
         if (META_IS_SURFACE_ACTOR (source))
@@ -66,9 +79,10 @@ get_window_for_event (MetaDisplay        *display,
         else
           return NULL;
       }
-    case META_EVENT_ROUTE_WAYLAND_POPUP:
     case META_EVENT_ROUTE_WINDOW_OP:
     case META_EVENT_ROUTE_COMPOSITOR_GRAB:
+    case META_EVENT_ROUTE_WAYLAND_POPUP:
+    case META_EVENT_ROUTE_FRAME_BUTTON:
       return display->grab_window;
     default:
       g_assert_not_reached ();
@@ -90,6 +104,15 @@ handle_idletime_for_event (const ClutterEvent *event)
 
       device = clutter_event_get_device (event);
       if (device == NULL)
+        return;
+
+      if (event->any.flags & CLUTTER_EVENT_FLAG_SYNTHETIC ||
+          event->type == CLUTTER_ENTER ||
+          event->type == CLUTTER_LEAVE ||
+          event->type == CLUTTER_STAGE_STATE ||
+          event->type == CLUTTER_DESTROY_NOTIFY ||
+          event->type == CLUTTER_CLIENT_MESSAGE ||
+          event->type == CLUTTER_DELETE)
         return;
 
       device_id = clutter_input_device_get_device_id (device);
@@ -151,23 +174,6 @@ sequence_is_pointer_emulated (MetaDisplay        *display,
   return FALSE;
 }
 
-static void
-meta_display_update_pointer_emulating_sequence (MetaDisplay        *display,
-                                                const ClutterEvent *event)
-{
-  ClutterEventSequence *sequence;
-
-  sequence = clutter_event_get_event_sequence (event);
-
-  if (event->type == CLUTTER_TOUCH_BEGIN &&
-      !display->pointer_emulating_sequence &&
-      sequence_is_pointer_emulated (display, event))
-    display->pointer_emulating_sequence = sequence;
-  else if (event->type == CLUTTER_TOUCH_END &&
-           display->pointer_emulating_sequence == sequence)
-    display->pointer_emulating_sequence = NULL;
-}
-
 static gboolean
 meta_display_handle_event (MetaDisplay        *display,
                            const ClutterEvent *event)
@@ -176,8 +182,31 @@ meta_display_handle_event (MetaDisplay        *display,
   gboolean bypass_clutter = FALSE;
   G_GNUC_UNUSED gboolean bypass_wayland = FALSE;
   MetaGestureTracker *tracker;
+  ClutterEventSequence *sequence;
+  ClutterInputDevice *source;
 
-  meta_display_update_pointer_emulating_sequence (display, event);
+  sequence = clutter_event_get_event_sequence (event);
+
+  /* Set the pointer emulating sequence on touch begin, if eligible */
+  if (event->type == CLUTTER_TOUCH_BEGIN)
+    {
+      if (sequence_is_pointer_emulated (display, event))
+        {
+          /* This is the new pointer emulating sequence */
+          display->pointer_emulating_sequence = sequence;
+        }
+      else if (display->pointer_emulating_sequence == sequence)
+        {
+          /* This sequence was "pointer emulating" in a prior incarnation,
+           * but now it isn't. We unset the pointer emulating sequence at
+           * this point so the current sequence is not mistaken as pointer
+           * emulating, while we've ensured that it's been deemed
+           * "pointer emulating" throughout all of the event processing
+           * of the previous incarnation.
+           */
+          display->pointer_emulating_sequence = NULL;
+        }
+    }
 
 #ifdef HAVE_WAYLAND
   MetaWaylandCompositor *compositor = NULL;
@@ -188,11 +217,34 @@ meta_display_handle_event (MetaDisplay        *display,
     }
 #endif
 
+  source = clutter_event_get_source_device (event);
+
+  if (source)
+    {
+      meta_backend_update_last_device (meta_get_backend (),
+                                       clutter_input_device_get_device_id (source));
+    }
+
+#ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor () && event->type == CLUTTER_MOTION)
     {
-      MetaCursorTracker *tracker = meta_cursor_tracker_get_for_screen (NULL);
-      meta_cursor_tracker_update_position (tracker, event->motion.x, event->motion.y);
+      MetaWaylandCompositor *compositor;
+
+      compositor = meta_wayland_compositor_get_default ();
+
+      if (meta_wayland_tablet_manager_consumes_event (compositor->tablet_manager, event))
+        {
+          meta_wayland_tablet_manager_update_cursor_position (compositor->tablet_manager, event);
+        }
+      else
+        {
+          MetaCursorTracker *tracker = meta_cursor_tracker_get_for_screen (NULL);
+          meta_cursor_tracker_update_position (tracker, event->motion.x, event->motion.y);
+        }
+
+      display->monitor_cache_invalidated = TRUE;
     }
+#endif
 
   handle_idletime_for_event (event);
 
@@ -253,17 +305,38 @@ meta_display_handle_event (MetaDisplay        *display,
       goto out;
     }
 
+  /* Do not pass keyboard events to Wayland if key focus is not on the
+   * stage in normal mode (e.g. during keynav in the panel)
+   */
+  if (display->event_route == META_EVENT_ROUTE_NORMAL)
+    {
+      if (IS_KEY_EVENT (event) && !stage_has_key_focus ())
+        {
+          bypass_wayland = TRUE;
+          goto out;
+        }
+    }
+
+  if (display->current_pad_osd)
+    {
+      bypass_wayland = TRUE;
+      goto out;
+    }
+
   if (window)
     {
-      if (!clutter_event_get_event_sequence (event))
-        {
-          /* Swallow all non-touch events on windows that come our way.
-           * Touch events that reach here aren't yet in an accepted state,
-           * so Clutter must see them to maybe trigger gestures into
-           * recognition.
-           */
-          bypass_clutter = TRUE;
-        }
+      /* Events that are likely to trigger compositor gestures should
+       * be known to clutter so they can propagate along the hierarchy.
+       * Gesture-wise, there's two groups of events we should be getting
+       * here:
+       * - CLUTTER_TOUCH_* with a touch sequence that's not yet accepted
+       *   by the gesture tracker, these might trigger gesture actions
+       *   into recognition. Already accepted touch sequences are handled
+       *   directly by meta_gesture_tracker_handle_event().
+       * - CLUTTER_TOUCHPAD_* events over windows. These can likewise
+       *   trigger ::captured-event handlers along the way.
+       */
+      bypass_clutter = !IS_GESTURE_EVENT (event);
 
       meta_window_handle_ungrabbed_event (window, event);
 
@@ -271,7 +344,8 @@ meta_display_handle_event (MetaDisplay        *display,
        * event, and if it doesn't, replay the event to release our
        * own sync grab. */
 
-      if (display->event_route == META_EVENT_ROUTE_WINDOW_OP)
+      if (display->event_route == META_EVENT_ROUTE_WINDOW_OP ||
+          display->event_route == META_EVENT_ROUTE_FRAME_BUTTON)
         {
           bypass_clutter = TRUE;
           bypass_wayland = TRUE;

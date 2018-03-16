@@ -36,13 +36,16 @@
 
 /* Global/master objects (version exported by wl_registry and negotiated through bind) */
 #define META_WL_COMPOSITOR_VERSION          3
-#define META_WL_DATA_DEVICE_MANAGER_VERSION 1
+#define META_WL_DATA_DEVICE_MANAGER_VERSION 3
 #define META_XDG_SHELL_VERSION              1
 #define META_WL_SHELL_VERSION               1
-#define META_WL_SEAT_VERSION                4
+#define META_WL_SEAT_VERSION                5
 #define META_WL_OUTPUT_VERSION              2
 #define META_XSERVER_VERSION                1
-#define META_GTK_SHELL_VERSION              1
+#define META_GTK_SHELL1_VERSION             1
 #define META_WL_SUBCOMPOSITOR_VERSION       1
+#define META_ZWP_POINTER_GESTURES_V1_VERSION    1
+#define META_ZXDG_EXPORTER_V1_VERSION       1
+#define META_ZXDG_IMPORTER_V1_VERSION       1
 
 #endif

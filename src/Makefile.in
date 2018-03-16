@@ -94,10 +94,23 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @HAVE_WAYLAND_TRUE@am__append_1 = \
+@HAVE_WAYLAND_TRUE@	pointer-gestures-unstable-v1-protocol.c				\
+@HAVE_WAYLAND_TRUE@	pointer-gestures-unstable-v1-server-protocol.h			\
 @HAVE_WAYLAND_TRUE@	gtk-shell-protocol.c			\
 @HAVE_WAYLAND_TRUE@	gtk-shell-server-protocol.h		\
-@HAVE_WAYLAND_TRUE@	xdg-shell-protocol.c			\
-@HAVE_WAYLAND_TRUE@	xdg-shell-server-protocol.h
+@HAVE_WAYLAND_TRUE@	gtk-primary-selection-protocol.c				\
+@HAVE_WAYLAND_TRUE@	gtk-primary-selection-server-protocol.h				\
+@HAVE_WAYLAND_TRUE@	xdg-shell-unstable-v6-protocol.c				\
+@HAVE_WAYLAND_TRUE@	xdg-shell-unstable-v6-server-protocol.h				\
+@HAVE_WAYLAND_TRUE@	relative-pointer-unstable-v1-protocol.c				\
+@HAVE_WAYLAND_TRUE@	relative-pointer-unstable-v1-server-protocol.h			\
+@HAVE_WAYLAND_TRUE@	pointer-constraints-unstable-v1-protocol.c			\
+@HAVE_WAYLAND_TRUE@	pointer-constraints-unstable-v1-server-protocol.h		\
+@HAVE_WAYLAND_TRUE@	tablet-unstable-v2-protocol.c					\
+@HAVE_WAYLAND_TRUE@	tablet-unstable-v2-server-protocol.h				\
+@HAVE_WAYLAND_TRUE@	xdg-foreign-unstable-v1-protocol.c				\
+@HAVE_WAYLAND_TRUE@	xdg-foreign-unstable-v1-server-protocol.h			\
+@HAVE_WAYLAND_TRUE@	$(NULL)
 
 @HAVE_WAYLAND_TRUE@am__append_2 = \
 @HAVE_WAYLAND_TRUE@	compositor/meta-surface-actor-wayland.c	\
@@ -107,6 +120,8 @@ host_triplet = @host@
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-private.h		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-xwayland.c			\
 @HAVE_WAYLAND_TRUE@	wayland/meta-xwayland.h			\
+@HAVE_WAYLAND_TRUE@	wayland/meta-xwayland-selection.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-xwayland-selection-private.h	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-xwayland-private.h		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-buffer.c      	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-buffer.h      	\
@@ -114,52 +129,114 @@ host_triplet = @host@
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-region.h      	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-data-device.c      \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-data-device.h      \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-data-device-private.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-input-device.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-input-device.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer-gestures.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer-gestures.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer-gesture-swipe.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer-gesture-swipe.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer-gesture-pinch.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer-gesture-pinch.h	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-keyboard.c		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-keyboard.h		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer.c		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer.h		\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer-constraints.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer-constraints.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-pointer-lock-wayland.c		\
+@HAVE_WAYLAND_TRUE@	wayland/meta-pointer-lock-wayland.h		\
+@HAVE_WAYLAND_TRUE@	wayland/meta-pointer-confinement-wayland.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-pointer-confinement-wayland.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-popup.c		\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-popup.h		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-seat.c		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-seat.h		\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet.c		\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet.h		\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-manager.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-manager.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-seat.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-seat.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-tool.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-tool.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad-group.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad-group.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad-ring.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad-ring.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad-strip.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad-strip.h	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-touch.c		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-touch.h		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface.c		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface.h		\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface-role-cursor.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface-role-cursor.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface-role-tablet-cursor.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface-role-tablet-cursor.h	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-types.h		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-versions.h		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-outputs.c		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-outputs.h		\
-@HAVE_WAYLAND_TRUE@	wayland/window-wayland.c		\
-@HAVE_WAYLAND_TRUE@	wayland/window-wayland.h
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-xdg-foreign.c     	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-xdg-foreign.h     	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-window-wayland.c		\
+@HAVE_WAYLAND_TRUE@	wayland/meta-window-wayland.h		\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-xdg-shell.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-xdg-shell.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-wl-shell.c		\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-wl-shell.h		\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-gtk-shell.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-gtk-shell.h	\
+@HAVE_WAYLAND_TRUE@	$(NULL)
 
 @HAVE_NATIVE_BACKEND_TRUE@am__append_3 = \
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-backend-native.c		\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-backend-native.h		\
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-backend-native-private.h	\
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-barrier-native.c		\
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-barrier-native.h		\
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-clutter-backend-native.c	\
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-clutter-backend-native.h	\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-cursor-renderer-native.c	\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-cursor-renderer-native.h	\
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-default-modes.h		\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-idle-monitor-native.c	\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-idle-monitor-native.h	\
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-input-settings-native.c	\
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-input-settings-native.h	\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-monitor-manager-kms.c	\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-monitor-manager-kms.h	\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-launcher.c			\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-launcher.h			\
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-renderer-native.c		\
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-renderer-native.h		\
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-stage-native.c		\
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-stage-native.h		\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/dbus-utils.c			\
-@HAVE_NATIVE_BACKEND_TRUE@	backends/native/dbus-utils.h
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/dbus-utils.h			\
+@HAVE_NATIVE_BACKEND_TRUE@	$(NULL)
 
 bin_PROGRAMS = mutter$(EXEEXT)
-noinst_PROGRAMS = $(am__EXEEXT_1) testboxes$(EXEEXT) \
-	testgradient$(EXEEXT) testasyncgetprop$(EXEEXT)
+noinst_PROGRAMS = $(am__EXEEXT_1) testboxes$(EXEEXT)
 libexec_PROGRAMS = mutter-restart-helper$(EXEEXT)
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@installedtestsbin_PROGRAMS = mutter-test-client$(EXEEXT) \
-@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	mutter-test-runner$(EXEEXT)
-@BUILDOPT_INSTALL_TESTS_FALSE@@HAVE_WAYLAND_TRUE@am__append_4 = mutter-test-client mutter-test-runner
+@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	mutter-test-runner$(EXEEXT) \
+@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	mutter-test-unit-tests$(EXEEXT)
+@BUILDOPT_INSTALL_TESTS_FALSE@@HAVE_WAYLAND_TRUE@am__append_4 = mutter-test-client mutter-test-runner mutter-test-unit-tests
 @HAVE_WAYLAND_TRUE@am__append_5 = tests/mutter-all.test.in
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/gtk-doc.m4 \
-	$(top_srcdir)/m4/intltool.m4 $(top_srcdir)/m4/libtool.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
+	$(top_srcdir)/m4/iconv.m4 $(top_srcdir)/m4/intlmacosx.m4 \
+	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
+	$(top_srcdir)/m4/lib-prefix.m4 $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
 	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/nls.m4 $(top_srcdir)/m4/po.m4 \
+	$(top_srcdir)/m4/progtest.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__dist_stacking_DATA_DIST) \
@@ -204,11 +281,14 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libmutter_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) \
+	$(top_builddir)/clutter/clutter/libmutter-clutter-1.0.la \
 	$(am__DEPENDENCIES_1)
 am__libmutter_la_SOURCES_DIST = backends/meta-backend.c \
 	meta/meta-backend.h backends/meta-backend-private.h \
+	backends/meta-barrier.c backends/meta-barrier-private.h \
 	backends/meta-cursor.c backends/meta-cursor.h \
-	backends/meta-cursor-private.h backends/meta-cursor-tracker.c \
+	backends/meta-cursor-tracker.c \
 	backends/meta-cursor-tracker-private.h \
 	backends/meta-cursor-renderer.c \
 	backends/meta-cursor-renderer.h \
@@ -217,26 +297,45 @@ am__libmutter_la_SOURCES_DIST = backends/meta-backend.c \
 	backends/meta-idle-monitor-private.h \
 	backends/meta-idle-monitor-dbus.c \
 	backends/meta-idle-monitor-dbus.h \
+	backends/meta-input-settings.c \
+	backends/meta-input-settings-private.h \
 	backends/meta-monitor-config.c backends/meta-monitor-config.h \
-	backends/meta-monitor-manager.c \
-	backends/meta-monitor-manager.h \
+	backends/meta-monitor-manager.c meta/meta-monitor-manager.h \
+	backends/meta-monitor-manager-private.h \
 	backends/meta-monitor-manager-dummy.c \
-	backends/meta-monitor-manager-dummy.h backends/meta-stage.h \
-	backends/meta-stage.c backends/edid-parse.c backends/edid.h \
-	backends/x11/meta-backend-x11.c \
+	backends/meta-monitor-manager-dummy.h \
+	backends/meta-pointer-constraint.c \
+	backends/meta-pointer-constraint.h backends/meta-stage.h \
+	backends/meta-stage.c backends/meta-renderer.c \
+	backends/meta-renderer.h backends/meta-renderer-view.c \
+	backends/meta-renderer-view.h backends/edid-parse.c \
+	backends/edid.h backends/x11/meta-backend-x11.c \
 	backends/x11/meta-backend-x11.h \
+	backends/x11/meta-barrier-x11.c \
+	backends/x11/meta-barrier-x11.h \
+	backends/x11/meta-clutter-backend-x11.c \
+	backends/x11/meta-clutter-backend-x11.h \
 	backends/x11/meta-cursor-renderer-x11.c \
 	backends/x11/meta-cursor-renderer-x11.h \
+	backends/x11/nested/meta-cursor-renderer-x11-nested.c \
+	backends/x11/nested/meta-cursor-renderer-x11-nested.h \
 	backends/x11/meta-idle-monitor-xsync.c \
 	backends/x11/meta-idle-monitor-xsync.h \
+	backends/x11/meta-input-settings-x11.c \
+	backends/x11/meta-input-settings-x11.h \
 	backends/x11/meta-monitor-manager-xrandr.c \
 	backends/x11/meta-monitor-manager-xrandr.h \
-	core/meta-accel-parse.c core/meta-accel-parse.h core/barrier.c \
-	meta/barrier.h core/bell.c core/bell.h core/boxes.c \
-	core/boxes-private.h meta/boxes.h compositor/clutter-utils.c \
-	compositor/clutter-utils.h compositor/cogl-utils.c \
-	compositor/cogl-utils.h compositor/compositor.c \
-	compositor/compositor-private.h compositor/meta-background.c \
+	backends/x11/meta-renderer-x11.c \
+	backends/x11/meta-renderer-x11.h \
+	backends/x11/meta-stage-x11-nested.c \
+	backends/x11/meta-stage-x11-nested.h core/meta-accel-parse.c \
+	core/meta-accel-parse.h meta/barrier.h core/bell.c core/bell.h \
+	core/boxes.c core/boxes-private.h meta/boxes.h \
+	core/meta-border.c core/meta-border.h \
+	compositor/clutter-utils.c compositor/clutter-utils.h \
+	compositor/cogl-utils.c compositor/cogl-utils.h \
+	compositor/compositor.c compositor/compositor-private.h \
+	compositor/meta-background.c \
 	compositor/meta-background-private.h \
 	compositor/meta-background-actor.c \
 	compositor/meta-background-actor-private.h \
@@ -250,112 +349,211 @@ am__libmutter_la_SOURCES_DIST = backends/meta-backend.c \
 	compositor/meta-plugin.c compositor/meta-plugin-manager.c \
 	compositor/meta-plugin-manager.h \
 	compositor/meta-shadow-factory.c \
-	compositor/meta-shadow-factory-private.h \
 	compositor/meta-shaped-texture.c \
 	compositor/meta-shaped-texture-private.h \
 	compositor/meta-surface-actor.c \
 	compositor/meta-surface-actor.h \
 	compositor/meta-surface-actor-x11.c \
 	compositor/meta-surface-actor-x11.h \
+	compositor/meta-sync-ring.c compositor/meta-sync-ring.h \
 	compositor/meta-texture-rectangle.c \
 	compositor/meta-texture-rectangle.h \
 	compositor/meta-texture-tower.c \
 	compositor/meta-texture-tower.h compositor/meta-window-actor.c \
 	compositor/meta-window-actor-private.h \
 	compositor/meta-window-group.c compositor/meta-window-group.h \
-	compositor/meta-window-shape.c compositor/meta-window-shape.h \
-	compositor/region-utils.c compositor/region-utils.h \
-	meta/compositor.h meta/meta-background.h \
-	meta/meta-background-actor.h meta/meta-background-image.h \
-	meta/meta-background-group.h meta/meta-plugin.h \
-	meta/meta-shadow-factory.h meta/meta-window-actor.h \
+	compositor/meta-window-shape.c compositor/region-utils.c \
+	compositor/region-utils.h meta/compositor.h \
+	meta/meta-background.h meta/meta-background-actor.h \
+	meta/meta-background-image.h meta/meta-background-group.h \
+	meta/meta-plugin.h meta/meta-shadow-factory.h \
+	meta/meta-window-actor.h meta/meta-window-shape.h \
 	meta/compositor-mutter.h core/constraints.c core/constraints.h \
 	core/core.c core/delete.c core/display.c \
 	core/display-private.h meta/display.h core/edge-resistance.c \
 	core/edge-resistance.h core/events.c core/events.h \
 	core/errors.c meta/errors.h core/frame.c core/frame.h \
-	ui/gradient.c meta/gradient.h core/meta-gesture-tracker.c \
+	core/meta-gesture-tracker.c \
 	core/meta-gesture-tracker-private.h core/keybindings.c \
 	core/keybindings-private.h core/main.c core/place.c \
 	core/place.h core/prefs.c meta/prefs.h core/screen.c \
-	core/screen-private.h meta/screen.h meta/types.h \
+	core/screen-private.h meta/screen.h \
+	core/startup-notification.c \
+	core/startup-notification-private.h meta/types.h \
 	core/restart.c core/stack.c core/stack.h core/stack-tracker.c \
 	core/stack-tracker.h core/util.c meta/util.h \
 	core/util-private.h core/window.c core/window-private.h \
 	meta/window.h core/workspace.c core/workspace-private.h \
 	meta/common.h core/core.h ui/ui.h ui/frames.c ui/frames.h \
-	ui/resizepopup.c ui/resizepopup.h ui/theme-parser.c ui/theme.c \
-	meta/theme.h ui/theme-private.h ui/ui.c x11/iconcache.c \
-	x11/iconcache.h x11/async-getprop.c x11/async-getprop.h \
-	x11/events.c x11/events.h x11/group-private.h \
+	ui/theme.c meta/theme.h ui/theme-private.h ui/ui.c \
+	x11/atomnames.h x11/events.c x11/events.h x11/group-private.h \
 	x11/group-props.c x11/group-props.h x11/group.c meta/group.h \
-	x11/session.c x11/session.h x11/window-props.c \
-	x11/window-props.h x11/window-x11.c x11/window-x11.h \
-	x11/window-x11-private.h x11/xprops.c x11/xprops.h \
-	x11/mutter-Xatomtype.h compositor/meta-surface-actor-wayland.c \
+	x11/iconcache.c x11/iconcache.h x11/session.c x11/session.h \
+	x11/window-props.c x11/window-props.h x11/window-x11.c \
+	x11/window-x11.h x11/window-x11-private.h x11/xprops.c \
+	x11/xprops.h x11/mutter-Xatomtype.h \
+	compositor/meta-surface-actor-wayland.c \
 	compositor/meta-surface-actor-wayland.h wayland/meta-wayland.c \
 	wayland/meta-wayland.h wayland/meta-wayland-private.h \
 	wayland/meta-xwayland.c wayland/meta-xwayland.h \
+	wayland/meta-xwayland-selection.c \
+	wayland/meta-xwayland-selection-private.h \
 	wayland/meta-xwayland-private.h wayland/meta-wayland-buffer.c \
 	wayland/meta-wayland-buffer.h wayland/meta-wayland-region.c \
 	wayland/meta-wayland-region.h \
 	wayland/meta-wayland-data-device.c \
 	wayland/meta-wayland-data-device.h \
+	wayland/meta-wayland-data-device-private.h \
+	wayland/meta-wayland-input-device.c \
+	wayland/meta-wayland-input-device.h \
+	wayland/meta-wayland-pointer-gestures.c \
+	wayland/meta-wayland-pointer-gestures.h \
+	wayland/meta-wayland-pointer-gesture-swipe.c \
+	wayland/meta-wayland-pointer-gesture-swipe.h \
+	wayland/meta-wayland-pointer-gesture-pinch.c \
+	wayland/meta-wayland-pointer-gesture-pinch.h \
 	wayland/meta-wayland-keyboard.c \
 	wayland/meta-wayland-keyboard.h wayland/meta-wayland-pointer.c \
-	wayland/meta-wayland-pointer.h wayland/meta-wayland-seat.c \
-	wayland/meta-wayland-seat.h wayland/meta-wayland-touch.c \
-	wayland/meta-wayland-touch.h wayland/meta-wayland-surface.c \
-	wayland/meta-wayland-surface.h wayland/meta-wayland-types.h \
-	wayland/meta-wayland-versions.h wayland/meta-wayland-outputs.c \
-	wayland/meta-wayland-outputs.h wayland/window-wayland.c \
-	wayland/window-wayland.h backends/native/meta-backend-native.c \
+	wayland/meta-wayland-pointer.h \
+	wayland/meta-wayland-pointer-constraints.c \
+	wayland/meta-wayland-pointer-constraints.h \
+	wayland/meta-pointer-lock-wayland.c \
+	wayland/meta-pointer-lock-wayland.h \
+	wayland/meta-pointer-confinement-wayland.c \
+	wayland/meta-pointer-confinement-wayland.h \
+	wayland/meta-wayland-popup.c wayland/meta-wayland-popup.h \
+	wayland/meta-wayland-seat.c wayland/meta-wayland-seat.h \
+	wayland/meta-wayland-tablet.c wayland/meta-wayland-tablet.h \
+	wayland/meta-wayland-tablet-manager.c \
+	wayland/meta-wayland-tablet-manager.h \
+	wayland/meta-wayland-tablet-seat.c \
+	wayland/meta-wayland-tablet-seat.h \
+	wayland/meta-wayland-tablet-tool.c \
+	wayland/meta-wayland-tablet-tool.h \
+	wayland/meta-wayland-tablet-pad.c \
+	wayland/meta-wayland-tablet-pad.h \
+	wayland/meta-wayland-tablet-pad-group.c \
+	wayland/meta-wayland-tablet-pad-group.h \
+	wayland/meta-wayland-tablet-pad-ring.c \
+	wayland/meta-wayland-tablet-pad-ring.h \
+	wayland/meta-wayland-tablet-pad-strip.c \
+	wayland/meta-wayland-tablet-pad-strip.h \
+	wayland/meta-wayland-touch.c wayland/meta-wayland-touch.h \
+	wayland/meta-wayland-surface.c wayland/meta-wayland-surface.h \
+	wayland/meta-wayland-surface-role-cursor.c \
+	wayland/meta-wayland-surface-role-cursor.h \
+	wayland/meta-wayland-surface-role-tablet-cursor.c \
+	wayland/meta-wayland-surface-role-tablet-cursor.h \
+	wayland/meta-wayland-types.h wayland/meta-wayland-versions.h \
+	wayland/meta-wayland-outputs.c wayland/meta-wayland-outputs.h \
+	wayland/meta-wayland-xdg-foreign.c \
+	wayland/meta-wayland-xdg-foreign.h \
+	wayland/meta-window-wayland.c wayland/meta-window-wayland.h \
+	wayland/meta-wayland-xdg-shell.c \
+	wayland/meta-wayland-xdg-shell.h \
+	wayland/meta-wayland-wl-shell.c \
+	wayland/meta-wayland-wl-shell.h \
+	wayland/meta-wayland-gtk-shell.c \
+	wayland/meta-wayland-gtk-shell.h \
+	backends/native/meta-backend-native.c \
 	backends/native/meta-backend-native.h \
+	backends/native/meta-backend-native-private.h \
+	backends/native/meta-barrier-native.c \
+	backends/native/meta-barrier-native.h \
+	backends/native/meta-clutter-backend-native.c \
+	backends/native/meta-clutter-backend-native.h \
 	backends/native/meta-cursor-renderer-native.c \
 	backends/native/meta-cursor-renderer-native.h \
+	backends/native/meta-default-modes.h \
 	backends/native/meta-idle-monitor-native.c \
 	backends/native/meta-idle-monitor-native.h \
+	backends/native/meta-input-settings-native.c \
+	backends/native/meta-input-settings-native.h \
 	backends/native/meta-monitor-manager-kms.c \
 	backends/native/meta-monitor-manager-kms.h \
 	backends/native/meta-launcher.c \
-	backends/native/meta-launcher.h backends/native/dbus-utils.c \
-	backends/native/dbus-utils.h
+	backends/native/meta-launcher.h \
+	backends/native/meta-renderer-native.c \
+	backends/native/meta-renderer-native.h \
+	backends/native/meta-stage-native.c \
+	backends/native/meta-stage-native.h \
+	backends/native/dbus-utils.c backends/native/dbus-utils.h
 am__dirstamp = $(am__leading_dot)dirstamp
-@HAVE_WAYLAND_TRUE@am__objects_1 =  \
+am__objects_1 =
+@HAVE_WAYLAND_TRUE@am__objects_2 =  \
 @HAVE_WAYLAND_TRUE@	compositor/meta-surface-actor-wayland.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-xwayland.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-xwayland-selection.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-buffer.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-region.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-data-device.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-input-device.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer-gestures.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer-gesture-swipe.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer-gesture-pinch.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-keyboard.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-pointer-constraints.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-pointer-lock-wayland.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-pointer-confinement-wayland.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-popup.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-seat.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-manager.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-seat.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-tool.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad-group.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad-ring.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad-strip.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-touch.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface-role-cursor.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface-role-tablet-cursor.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-outputs.lo \
-@HAVE_WAYLAND_TRUE@	wayland/window-wayland.lo
-@HAVE_NATIVE_BACKEND_TRUE@am__objects_2 = backends/native/meta-backend-native.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-xdg-foreign.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-window-wayland.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-xdg-shell.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-wl-shell.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-gtk-shell.lo \
+@HAVE_WAYLAND_TRUE@	$(am__objects_1)
+@HAVE_NATIVE_BACKEND_TRUE@am__objects_3 = backends/native/meta-backend-native.lo \
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-barrier-native.lo \
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-clutter-backend-native.lo \
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-cursor-renderer-native.lo \
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-idle-monitor-native.lo \
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-input-settings-native.lo \
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-monitor-manager-kms.lo \
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-launcher.lo \
-@HAVE_NATIVE_BACKEND_TRUE@	backends/native/dbus-utils.lo
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-renderer-native.lo \
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-stage-native.lo \
+@HAVE_NATIVE_BACKEND_TRUE@	backends/native/dbus-utils.lo \
+@HAVE_NATIVE_BACKEND_TRUE@	$(am__objects_1)
 am_libmutter_la_OBJECTS = backends/meta-backend.lo \
-	backends/meta-cursor.lo backends/meta-cursor-tracker.lo \
+	backends/meta-barrier.lo backends/meta-cursor.lo \
+	backends/meta-cursor-tracker.lo \
 	backends/meta-cursor-renderer.lo backends/meta-idle-monitor.lo \
 	backends/meta-idle-monitor-dbus.lo \
+	backends/meta-input-settings.lo \
 	backends/meta-monitor-config.lo \
 	backends/meta-monitor-manager.lo \
-	backends/meta-monitor-manager-dummy.lo backends/meta-stage.lo \
+	backends/meta-monitor-manager-dummy.lo \
+	backends/meta-pointer-constraint.lo backends/meta-stage.lo \
+	backends/meta-renderer.lo backends/meta-renderer-view.lo \
 	backends/edid-parse.lo backends/x11/meta-backend-x11.lo \
+	backends/x11/meta-barrier-x11.lo \
+	backends/x11/meta-clutter-backend-x11.lo \
 	backends/x11/meta-cursor-renderer-x11.lo \
+	backends/x11/nested/meta-cursor-renderer-x11-nested.lo \
 	backends/x11/meta-idle-monitor-xsync.lo \
+	backends/x11/meta-input-settings-x11.lo \
 	backends/x11/meta-monitor-manager-xrandr.lo \
-	core/meta-accel-parse.lo core/barrier.lo core/bell.lo \
-	core/boxes.lo compositor/clutter-utils.lo \
-	compositor/cogl-utils.lo compositor/compositor.lo \
-	compositor/meta-background.lo \
+	backends/x11/meta-renderer-x11.lo \
+	backends/x11/meta-stage-x11-nested.lo core/meta-accel-parse.lo \
+	core/bell.lo core/boxes.lo core/meta-border.lo \
+	compositor/clutter-utils.lo compositor/cogl-utils.lo \
+	compositor/compositor.lo compositor/meta-background.lo \
 	compositor/meta-background-actor.lo \
 	compositor/meta-background-image.lo \
 	compositor/meta-background-group.lo \
@@ -366,6 +564,7 @@ am_libmutter_la_OBJECTS = backends/meta-backend.lo \
 	compositor/meta-shaped-texture.lo \
 	compositor/meta-surface-actor.lo \
 	compositor/meta-surface-actor-x11.lo \
+	compositor/meta-sync-ring.lo \
 	compositor/meta-texture-rectangle.lo \
 	compositor/meta-texture-tower.lo \
 	compositor/meta-window-actor.lo \
@@ -373,24 +572,31 @@ am_libmutter_la_OBJECTS = backends/meta-backend.lo \
 	compositor/meta-window-shape.lo compositor/region-utils.lo \
 	core/constraints.lo core/core.lo core/delete.lo \
 	core/display.lo core/edge-resistance.lo core/events.lo \
-	core/errors.lo core/frame.lo ui/gradient.lo \
-	core/meta-gesture-tracker.lo core/keybindings.lo core/main.lo \
-	core/place.lo core/prefs.lo core/screen.lo core/restart.lo \
+	core/errors.lo core/frame.lo core/meta-gesture-tracker.lo \
+	core/keybindings.lo core/main.lo core/place.lo core/prefs.lo \
+	core/screen.lo core/startup-notification.lo core/restart.lo \
 	core/stack.lo core/stack-tracker.lo core/util.lo \
-	core/window.lo core/workspace.lo ui/frames.lo \
-	ui/resizepopup.lo ui/theme-parser.lo ui/theme.lo ui/ui.lo \
-	x11/iconcache.lo x11/async-getprop.lo x11/events.lo \
-	x11/group-props.lo x11/group.lo x11/session.lo \
-	x11/window-props.lo x11/window-x11.lo x11/xprops.lo \
-	$(am__objects_1) $(am__objects_2)
-am__objects_3 = meta-dbus-idle-monitor.lo
-am__objects_4 = meta-dbus-display-config.lo
-am__objects_5 = meta-dbus-login1.lo
-@HAVE_WAYLAND_TRUE@am__objects_6 = gtk-shell-protocol.lo \
-@HAVE_WAYLAND_TRUE@	xdg-shell-protocol.lo
-am__objects_7 = $(am__objects_3) $(am__objects_4) $(am__objects_5) \
-	mutter-enum-types.lo $(am__objects_6)
-nodist_libmutter_la_OBJECTS = $(am__objects_7)
+	core/window.lo core/workspace.lo ui/frames.lo ui/theme.lo \
+	ui/ui.lo x11/events.lo x11/group-props.lo x11/group.lo \
+	x11/iconcache.lo x11/session.lo x11/window-props.lo \
+	x11/window-x11.lo x11/xprops.lo $(am__objects_1) \
+	$(am__objects_2) $(am__objects_3)
+am__objects_4 = meta-dbus-idle-monitor.lo
+am__objects_5 = meta-dbus-display-config.lo
+am__objects_6 = meta-dbus-login1.lo
+@HAVE_WAYLAND_TRUE@am__objects_7 =  \
+@HAVE_WAYLAND_TRUE@	pointer-gestures-unstable-v1-protocol.lo \
+@HAVE_WAYLAND_TRUE@	gtk-shell-protocol.lo \
+@HAVE_WAYLAND_TRUE@	gtk-primary-selection-protocol.lo \
+@HAVE_WAYLAND_TRUE@	xdg-shell-unstable-v6-protocol.lo \
+@HAVE_WAYLAND_TRUE@	relative-pointer-unstable-v1-protocol.lo \
+@HAVE_WAYLAND_TRUE@	pointer-constraints-unstable-v1-protocol.lo \
+@HAVE_WAYLAND_TRUE@	tablet-unstable-v2-protocol.lo \
+@HAVE_WAYLAND_TRUE@	xdg-foreign-unstable-v1-protocol.lo \
+@HAVE_WAYLAND_TRUE@	$(am__objects_1)
+am__objects_8 = $(am__objects_4) $(am__objects_5) $(am__objects_6) \
+	meta-enum-types.lo $(am__objects_1) $(am__objects_7)
+nodist_libmutter_la_OBJECTS = $(am__objects_8)
 libmutter_la_OBJECTS = $(am_libmutter_la_OBJECTS) \
 	$(nodist_libmutter_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -401,7 +607,8 @@ libmutter_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(libmutter_la_LDFLAGS) $(LDFLAGS) -o $@
 @BUILDOPT_INSTALL_TESTS_FALSE@@HAVE_WAYLAND_TRUE@am__EXEEXT_1 = mutter-test-client$(EXEEXT) \
-@BUILDOPT_INSTALL_TESTS_FALSE@@HAVE_WAYLAND_TRUE@	mutter-test-runner$(EXEEXT)
+@BUILDOPT_INSTALL_TESTS_FALSE@@HAVE_WAYLAND_TRUE@	mutter-test-runner$(EXEEXT) \
+@BUILDOPT_INSTALL_TESTS_FALSE@@HAVE_WAYLAND_TRUE@	mutter-test-unit-tests$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS) $(installedtestsbin_PROGRAMS) \
 	$(libexec_PROGRAMS) $(noinst_PROGRAMS)
 am_mutter_OBJECTS = core/mutter.$(OBJEXT)
@@ -422,15 +629,15 @@ am__mutter_test_runner_SOURCES_DIST = tests/test-runner.c
 mutter_test_runner_OBJECTS = $(am_mutter_test_runner_OBJECTS)
 @HAVE_WAYLAND_TRUE@mutter_test_runner_DEPENDENCIES =  \
 @HAVE_WAYLAND_TRUE@	$(am__DEPENDENCIES_1) libmutter.la
-am_testasyncgetprop_OBJECTS = x11/testasyncgetprop.$(OBJEXT)
-testasyncgetprop_OBJECTS = $(am_testasyncgetprop_OBJECTS)
-testasyncgetprop_DEPENDENCIES = $(am__DEPENDENCIES_1) libmutter.la
+am__mutter_test_unit_tests_SOURCES_DIST = tests/unit-tests.c
+@HAVE_WAYLAND_TRUE@am_mutter_test_unit_tests_OBJECTS =  \
+@HAVE_WAYLAND_TRUE@	tests/unit-tests.$(OBJEXT)
+mutter_test_unit_tests_OBJECTS = $(am_mutter_test_unit_tests_OBJECTS)
+@HAVE_WAYLAND_TRUE@mutter_test_unit_tests_DEPENDENCIES =  \
+@HAVE_WAYLAND_TRUE@	$(am__DEPENDENCIES_1) libmutter.la
 am_testboxes_OBJECTS = core/testboxes.$(OBJEXT)
 testboxes_OBJECTS = $(am_testboxes_OBJECTS)
 testboxes_DEPENDENCIES = $(am__DEPENDENCIES_1) libmutter.la
-am_testgradient_OBJECTS = ui/testgradient.$(OBJEXT)
-testgradient_OBJECTS = $(am_testgradient_OBJECTS)
-testgradient_DEPENDENCIES = $(am__DEPENDENCIES_1) libmutter.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -468,14 +675,13 @@ am__v_CCLD_1 =
 SOURCES = $(libmutter_la_SOURCES) $(nodist_libmutter_la_SOURCES) \
 	$(mutter_SOURCES) $(mutter_restart_helper_SOURCES) \
 	$(mutter_test_client_SOURCES) $(mutter_test_runner_SOURCES) \
-	$(testasyncgetprop_SOURCES) $(testboxes_SOURCES) \
-	$(testgradient_SOURCES)
+	$(mutter_test_unit_tests_SOURCES) $(testboxes_SOURCES)
 DIST_SOURCES = $(am__libmutter_la_SOURCES_DIST) $(mutter_SOURCES) \
 	$(mutter_restart_helper_SOURCES) \
 	$(am__mutter_test_client_SOURCES_DIST) \
 	$(am__mutter_test_runner_SOURCES_DIST) \
-	$(testasyncgetprop_SOURCES) $(testboxes_SOURCES) \
-	$(testgradient_SOURCES)
+	$(am__mutter_test_unit_tests_SOURCES_DIST) \
+	$(testboxes_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -493,6 +699,7 @@ am__dist_stacking_DATA_DIST = tests/stacking/basic-x11.metatest \
 	tests/stacking/basic-wayland.metatest \
 	tests/stacking/minimized.metatest \
 	tests/stacking/mixed-windows.metatest \
+	tests/stacking/set-parent.metatest \
 	tests/stacking/override-redirect.metatest
 DATA = $(dist_stacking_DATA) $(gir_DATA) $(installedtests_DATA) \
 	$(pkgconfig_DATA) $(typelib_DATA)
@@ -556,7 +763,6 @@ am__relativize = \
   reldir="$$dir2"
 ACLOCAL = @ACLOCAL@
 ACLOCAL_AMFLAGS = @ACLOCAL_AMFLAGS@
-ALL_LINGUAS = @ALL_LINGUAS@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
@@ -567,11 +773,9 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CLUTTER_CFLAGS = @CLUTTER_CFLAGS@
-CLUTTER_LIBS = @CLUTTER_LIBS@
-CLUTTER_PACKAGE = @CLUTTER_PACKAGE@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CVT = @CVT@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -584,6 +788,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+GETTEXT_MACRO_VERSION = @GETTEXT_MACRO_VERSION@
 GETTEXT_PACKAGE = @GETTEXT_PACKAGE@
 GLIB_CFLAGS = @GLIB_CFLAGS@
 GLIB_COMPILE_RESOURCES = @GLIB_COMPILE_RESOURCES@
@@ -592,30 +797,18 @@ GLIB_GENMARSHAL = @GLIB_GENMARSHAL@
 GLIB_LIBS = @GLIB_LIBS@
 GLIB_MKENUMS = @GLIB_MKENUMS@
 GMSGFMT = @GMSGFMT@
+GMSGFMT_015 = @GMSGFMT_015@
 GNOME_KEYBINDINGS_KEYSDIR = @GNOME_KEYBINDINGS_KEYSDIR@
 GOBJECT_QUERY = @GOBJECT_QUERY@
 GREP = @GREP@
 GSETTINGS_DISABLE_SCHEMAS_COMPILE = @GSETTINGS_DISABLE_SCHEMAS_COMPILE@
-GTKDOC_CHECK = @GTKDOC_CHECK@
-GTKDOC_CHECK_PATH = @GTKDOC_CHECK_PATH@
-GTKDOC_DEPS_CFLAGS = @GTKDOC_DEPS_CFLAGS@
-GTKDOC_DEPS_LIBS = @GTKDOC_DEPS_LIBS@
-GTKDOC_MKPDF = @GTKDOC_MKPDF@
-GTKDOC_REBASE = @GTKDOC_REBASE@
-HTML_DIR = @HTML_DIR@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-INTLTOOL_EXTRACT = @INTLTOOL_EXTRACT@
-INTLTOOL_MERGE = @INTLTOOL_MERGE@
-INTLTOOL_PERL = @INTLTOOL_PERL@
-INTLTOOL_UPDATE = @INTLTOOL_UPDATE@
-INTLTOOL_V_MERGE = @INTLTOOL_V_MERGE@
-INTLTOOL_V_MERGE_OPTIONS = @INTLTOOL_V_MERGE_OPTIONS@
-INTLTOOL__v_MERGE_ = @INTLTOOL__v_MERGE_@
-INTLTOOL__v_MERGE_0 = @INTLTOOL__v_MERGE_0@
+INTLLIBS = @INTLLIBS@
+INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
 INTROSPECTION_CFLAGS = @INTROSPECTION_CFLAGS@
 INTROSPECTION_COMPILER = @INTROSPECTION_COMPILER@
 INTROSPECTION_GENERATE = @INTROSPECTION_GENERATE@
@@ -626,18 +819,24 @@ INTROSPECTION_SCANNER = @INTROSPECTION_SCANNER@
 INTROSPECTION_TYPELIBDIR = @INTROSPECTION_TYPELIBDIR@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
+LIBICONV = @LIBICONV@
+LIBINTL = @LIBINTL@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
+LTLIBICONV = @LTLIBICONV@
+LTLIBINTL = @LTLIBINTL@
 LTLIBOBJS = @LTLIBOBJS@
+LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 META_GIR = @META_GIR@
 MKDIR_P = @MKDIR_P@
 MSGFMT = @MSGFMT@
+MSGFMT_015 = @MSGFMT_015@
 MSGMERGE = @MSGMERGE@
 MUTTER_CFLAGS = @MUTTER_CFLAGS@
 MUTTER_LIBS = @MUTTER_LIBS@
@@ -667,6 +866,7 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
+POSUB = @POSUB@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
@@ -674,8 +874,13 @@ SHELL = @SHELL@
 STRIP = @STRIP@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
+WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
+WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
+WAYLAND_PROTOCOLS_LIBS = @WAYLAND_PROTOCOLS_LIBS@
 WAYLAND_SCANNER = @WAYLAND_SCANNER@
 XGETTEXT = @XGETTEXT@
+XGETTEXT_015 = @XGETTEXT_015@
+XGETTEXT_EXTRA_OPTIONS = @XGETTEXT_EXTRA_OPTIONS@
 XMKMF = @XMKMF@
 XWAYLAND_PATH = @XWAYLAND_PATH@
 X_CFLAGS = @X_CFLAGS@
@@ -717,8 +922,6 @@ htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
 install_sh = @install_sh@
-intltool__v_merge_options_ = @intltool__v_merge_options_@
-intltool__v_merge_options_0 = @intltool__v_merge_options_0@
 libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
@@ -733,6 +936,7 @@ psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
+subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
@@ -741,14 +945,17 @@ top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libmutter.la
 SUBDIRS = compositor/plugins
 EXTRA_DIST = $(am__append_5) $(wayland_protocols) libmutter.pc.in \
-	mutter-enum-types.h.in mutter-enum-types.c.in \
+	meta-enum-types.h.in meta-enum-types.c.in \
 	org.freedesktop.login1.xml org.gnome.Mutter.DisplayConfig.xml \
-	org.gnome.Mutter.IdleMonitor.xml
+	org.gnome.Mutter.IdleMonitor.xml \
+	backends/native/gen-default-modes.py $(NULL)
+NULL = 
 AM_CPPFLAGS = \
 	-DCLUTTER_ENABLE_COMPOSITOR_API					\
 	-DCLUTTER_ENABLE_EXPERIMENTAL_API				\
 	-DCOGL_ENABLE_EXPERIMENTAL_API					\
 	-DCOGL_ENABLE_EXPERIMENTAL_2_0_API                              \
+	-DCOGL_ENABLE_MUTTER_API					\
 	-DCLUTTER_DISABLE_DEPRECATION_WARNINGS				\
 	-DCOGL_DISABLE_DEPRECATION_WARNINGS				\
 	$(MUTTER_CFLAGS)						\
@@ -759,6 +966,15 @@ AM_CPPFLAGS = \
 	-I$(srcdir)/core						\
 	-I$(srcdir)/ui							\
 	-I$(srcdir)/compositor						\
+	-I$(top_srcdir)/cogl						\
+	-I$(top_srcdir)/cogl/cogl					\
+	-I$(top_srcdir)/cogl/cogl/winsys				\
+	-I$(top_builddir)/cogl/cogl					\
+	-I$(top_builddir)/cogl						\
+	-I$(top_srcdir)/clutter						\
+	-I$(top_srcdir)/clutter/clutter					\
+	-I$(top_builddir)/clutter					\
+	-I$(top_builddir)/clutter/clutter				\
 	-DMUTTER_LIBEXECDIR=\"$(libexecdir)\"				\
 	-DMUTTER_LOCALEDIR=\"$(localedir)\"				\
 	-DMUTTER_PKGDATADIR=\"$(pkgdatadir)\"				\
@@ -768,20 +984,22 @@ AM_CPPFLAGS = \
 	-DMUTTER_PKGLIBDIR=\"$(pkglibdir)\"				\
 	-DMUTTER_PLUGIN_DIR=\"$(MUTTER_PLUGIN_DIR)\"			\
 	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"			\
-	-DXWAYLAND_PATH=\"$(XWAYLAND_PATH)\"
+	-DXWAYLAND_PATH=\"$(XWAYLAND_PATH)\"				\
+	$(NULL)
 
 mutter_built_sources = $(dbus_idle_built_sources) \
 	$(dbus_display_config_built_sources) \
-	$(dbus_login1_built_sources) mutter-enum-types.h \
-	mutter-enum-types.c $(am__append_1)
+	$(dbus_login1_built_sources) meta/meta-enum-types.h \
+	meta-enum-types.c $(NULL) $(am__append_1)
 wayland_protocols = \
 	wayland/protocol/gtk-shell.xml		\
-	wayland/protocol/xdg-shell.xml
+	wayland/protocol/gtk-primary-selection.xml	\
+	$(NULL)
 
 libmutter_la_SOURCES = backends/meta-backend.c meta/meta-backend.h \
-	backends/meta-backend-private.h backends/meta-cursor.c \
-	backends/meta-cursor.h backends/meta-cursor-private.h \
-	backends/meta-cursor-tracker.c \
+	backends/meta-backend-private.h backends/meta-barrier.c \
+	backends/meta-barrier-private.h backends/meta-cursor.c \
+	backends/meta-cursor.h backends/meta-cursor-tracker.c \
 	backends/meta-cursor-tracker-private.h \
 	backends/meta-cursor-renderer.c \
 	backends/meta-cursor-renderer.h \
@@ -790,26 +1008,45 @@ libmutter_la_SOURCES = backends/meta-backend.c meta/meta-backend.h \
 	backends/meta-idle-monitor-private.h \
 	backends/meta-idle-monitor-dbus.c \
 	backends/meta-idle-monitor-dbus.h \
+	backends/meta-input-settings.c \
+	backends/meta-input-settings-private.h \
 	backends/meta-monitor-config.c backends/meta-monitor-config.h \
-	backends/meta-monitor-manager.c \
-	backends/meta-monitor-manager.h \
+	backends/meta-monitor-manager.c meta/meta-monitor-manager.h \
+	backends/meta-monitor-manager-private.h \
 	backends/meta-monitor-manager-dummy.c \
-	backends/meta-monitor-manager-dummy.h backends/meta-stage.h \
-	backends/meta-stage.c backends/edid-parse.c backends/edid.h \
-	backends/x11/meta-backend-x11.c \
+	backends/meta-monitor-manager-dummy.h \
+	backends/meta-pointer-constraint.c \
+	backends/meta-pointer-constraint.h backends/meta-stage.h \
+	backends/meta-stage.c backends/meta-renderer.c \
+	backends/meta-renderer.h backends/meta-renderer-view.c \
+	backends/meta-renderer-view.h backends/edid-parse.c \
+	backends/edid.h backends/x11/meta-backend-x11.c \
 	backends/x11/meta-backend-x11.h \
+	backends/x11/meta-barrier-x11.c \
+	backends/x11/meta-barrier-x11.h \
+	backends/x11/meta-clutter-backend-x11.c \
+	backends/x11/meta-clutter-backend-x11.h \
 	backends/x11/meta-cursor-renderer-x11.c \
 	backends/x11/meta-cursor-renderer-x11.h \
+	backends/x11/nested/meta-cursor-renderer-x11-nested.c \
+	backends/x11/nested/meta-cursor-renderer-x11-nested.h \
 	backends/x11/meta-idle-monitor-xsync.c \
 	backends/x11/meta-idle-monitor-xsync.h \
+	backends/x11/meta-input-settings-x11.c \
+	backends/x11/meta-input-settings-x11.h \
 	backends/x11/meta-monitor-manager-xrandr.c \
 	backends/x11/meta-monitor-manager-xrandr.h \
-	core/meta-accel-parse.c core/meta-accel-parse.h core/barrier.c \
-	meta/barrier.h core/bell.c core/bell.h core/boxes.c \
-	core/boxes-private.h meta/boxes.h compositor/clutter-utils.c \
-	compositor/clutter-utils.h compositor/cogl-utils.c \
-	compositor/cogl-utils.h compositor/compositor.c \
-	compositor/compositor-private.h compositor/meta-background.c \
+	backends/x11/meta-renderer-x11.c \
+	backends/x11/meta-renderer-x11.h \
+	backends/x11/meta-stage-x11-nested.c \
+	backends/x11/meta-stage-x11-nested.h core/meta-accel-parse.c \
+	core/meta-accel-parse.h meta/barrier.h core/bell.c core/bell.h \
+	core/boxes.c core/boxes-private.h meta/boxes.h \
+	core/meta-border.c core/meta-border.h \
+	compositor/clutter-utils.c compositor/clutter-utils.h \
+	compositor/cogl-utils.c compositor/cogl-utils.h \
+	compositor/compositor.c compositor/compositor-private.h \
+	compositor/meta-background.c \
 	compositor/meta-background-private.h \
 	compositor/meta-background-actor.c \
 	compositor/meta-background-actor-private.h \
@@ -823,54 +1060,58 @@ libmutter_la_SOURCES = backends/meta-backend.c meta/meta-backend.h \
 	compositor/meta-plugin.c compositor/meta-plugin-manager.c \
 	compositor/meta-plugin-manager.h \
 	compositor/meta-shadow-factory.c \
-	compositor/meta-shadow-factory-private.h \
 	compositor/meta-shaped-texture.c \
 	compositor/meta-shaped-texture-private.h \
 	compositor/meta-surface-actor.c \
 	compositor/meta-surface-actor.h \
 	compositor/meta-surface-actor-x11.c \
 	compositor/meta-surface-actor-x11.h \
+	compositor/meta-sync-ring.c compositor/meta-sync-ring.h \
 	compositor/meta-texture-rectangle.c \
 	compositor/meta-texture-rectangle.h \
 	compositor/meta-texture-tower.c \
 	compositor/meta-texture-tower.h compositor/meta-window-actor.c \
 	compositor/meta-window-actor-private.h \
 	compositor/meta-window-group.c compositor/meta-window-group.h \
-	compositor/meta-window-shape.c compositor/meta-window-shape.h \
-	compositor/region-utils.c compositor/region-utils.h \
-	meta/compositor.h meta/meta-background.h \
-	meta/meta-background-actor.h meta/meta-background-image.h \
-	meta/meta-background-group.h meta/meta-plugin.h \
-	meta/meta-shadow-factory.h meta/meta-window-actor.h \
+	compositor/meta-window-shape.c compositor/region-utils.c \
+	compositor/region-utils.h meta/compositor.h \
+	meta/meta-background.h meta/meta-background-actor.h \
+	meta/meta-background-image.h meta/meta-background-group.h \
+	meta/meta-plugin.h meta/meta-shadow-factory.h \
+	meta/meta-window-actor.h meta/meta-window-shape.h \
 	meta/compositor-mutter.h core/constraints.c core/constraints.h \
 	core/core.c core/delete.c core/display.c \
 	core/display-private.h meta/display.h core/edge-resistance.c \
 	core/edge-resistance.h core/events.c core/events.h \
 	core/errors.c meta/errors.h core/frame.c core/frame.h \
-	ui/gradient.c meta/gradient.h core/meta-gesture-tracker.c \
+	core/meta-gesture-tracker.c \
 	core/meta-gesture-tracker-private.h core/keybindings.c \
 	core/keybindings-private.h core/main.c core/place.c \
 	core/place.h core/prefs.c meta/prefs.h core/screen.c \
-	core/screen-private.h meta/screen.h meta/types.h \
+	core/screen-private.h meta/screen.h \
+	core/startup-notification.c \
+	core/startup-notification-private.h meta/types.h \
 	core/restart.c core/stack.c core/stack.h core/stack-tracker.c \
 	core/stack-tracker.h core/util.c meta/util.h \
 	core/util-private.h core/window.c core/window-private.h \
 	meta/window.h core/workspace.c core/workspace-private.h \
 	meta/common.h core/core.h ui/ui.h ui/frames.c ui/frames.h \
-	ui/resizepopup.c ui/resizepopup.h ui/theme-parser.c ui/theme.c \
-	meta/theme.h ui/theme-private.h ui/ui.c x11/iconcache.c \
-	x11/iconcache.h x11/async-getprop.c x11/async-getprop.h \
-	x11/events.c x11/events.h x11/group-private.h \
+	ui/theme.c meta/theme.h ui/theme-private.h ui/ui.c \
+	x11/atomnames.h x11/events.c x11/events.h x11/group-private.h \
 	x11/group-props.c x11/group-props.h x11/group.c meta/group.h \
-	x11/session.c x11/session.h x11/window-props.c \
-	x11/window-props.h x11/window-x11.c x11/window-x11.h \
-	x11/window-x11-private.h x11/xprops.c x11/xprops.h \
-	x11/mutter-Xatomtype.h $(am__append_2) $(am__append_3)
-nodist_libmutter_la_SOURCES = \
-	$(mutter_built_sources)
+	x11/iconcache.c x11/iconcache.h x11/session.c x11/session.h \
+	x11/window-props.c x11/window-props.h x11/window-x11.c \
+	x11/window-x11.h x11/window-x11-private.h x11/xprops.c \
+	x11/xprops.h x11/mutter-Xatomtype.h $(NULL) $(am__append_2) \
+	$(am__append_3)
+nodist_libmutter_la_SOURCES = $(mutter_built_sources)
+libmutter_la_LDFLAGS = -no-undefined -export-symbols-regex "^(meta|ag)_.*"
+libmutter_la_LIBADD = \
+	$(MUTTER_LIBS) \
+	$(MUTTER_NATIVE_BACKEND_LIBS)	\
+	$(top_builddir)/clutter/clutter/libmutter-clutter-1.0.la \
+	$(NULL)
 
-libmutter_la_LDFLAGS = -no-undefined
-libmutter_la_LIBADD = $(MUTTER_LIBS) $(MUTTER_NATIVE_BACKEND_LIBS)
 
 # Headers installed for plugins; introspected information will
 # be extracted into Mutter-<version>.gir
@@ -882,7 +1123,6 @@ libmutterinclude_headers = \
 	meta/compositor.h			\
 	meta/display.h				\
 	meta/errors.h				\
-	meta/gradient.h				\
 	meta/group.h				\
 	meta/keybindings.h			\
 	meta/main.h				\
@@ -894,34 +1134,32 @@ libmutterinclude_headers = \
 	meta/meta-cursor-tracker.h		\
 	meta/meta-idle-monitor.h		\
 	meta/meta-plugin.h			\
+	meta/meta-monitor-manager.h		\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\
 	meta/meta-window-actor.h		\
+	meta/meta-window-shape.h		\
 	meta/prefs.h				\
 	meta/screen.h				\
 	meta/theme.h				\
 	meta/types.h				\
 	meta/util.h				\
 	meta/window.h				\
-	meta/workspace.h
+	meta/workspace.h			\
+	$(NULL)
 
 libmutterinclude_built_headers = \
-	meta/meta-version.h
+	meta/meta-version.h			\
+	meta/meta-enum-types.h			\
+	$(NULL)
 
 libmutterinclude_base_headers = \
 	$(libmutterinclude_headers)		\
 	$(libmutterinclude_built_headers)
 
-
-# Excluded from scanning for introspection but installed
-# atomnames.h: macros cause problems for scanning process
-libmutterinclude_extra_headers = \
-	meta/atomnames.h
-
 libmutterincludedir = $(includedir)/mutter/meta
 libmutterinclude_HEADERS = \
-	$(libmutterinclude_headers)		\
-	$(libmutterinclude_extra_headers)
+	$(libmutterinclude_headers)
 
 nodist_libmutterinclude_HEADERS = \
 	$(libmutterinclude_built_headers)
@@ -936,6 +1174,7 @@ mutter_restart_helper_LDADD = $(MUTTER_LIBS)
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	tests/stacking/basic-wayland.metatest	\
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	tests/stacking/minimized.metatest   	\
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	tests/stacking/mixed-windows.metatest   \
+@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	tests/stacking/set-parent.metatest	\
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	tests/stacking/override-redirect.metatest
 
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@installedtestsdir = $(datadir)/installed-tests/mutter
@@ -945,14 +1184,12 @@ mutter_restart_helper_LDADD = $(MUTTER_LIBS)
 @HAVE_WAYLAND_TRUE@mutter_test_client_LDADD = $(MUTTER_LIBS) libmutter.la
 @HAVE_WAYLAND_TRUE@mutter_test_runner_SOURCES = tests/test-runner.c
 @HAVE_WAYLAND_TRUE@mutter_test_runner_LDADD = $(MUTTER_LIBS) libmutter.la
+@HAVE_WAYLAND_TRUE@mutter_test_unit_tests_SOURCES = tests/unit-tests.c
+@HAVE_WAYLAND_TRUE@mutter_test_unit_tests_LDADD = $(MUTTER_LIBS) libmutter.la
 
 # Some random test programs for bits of the code
 testboxes_SOURCES = core/testboxes.c
-testgradient_SOURCES = ui/testgradient.c
-testasyncgetprop_SOURCES = x11/testasyncgetprop.c
 testboxes_LDADD = $(MUTTER_LIBS) libmutter.la
-testgradient_LDADD = $(MUTTER_LIBS) libmutter.la
-testasyncgetprop_LDADD = $(MUTTER_LIBS) libmutter.la
 
 # Since we don't make any guarantees about stability and we don't support
 # parallel install, there's no real reason to change directories, filenames,
@@ -968,12 +1205,13 @@ testasyncgetprop_LDADD = $(MUTTER_LIBS) libmutter.la
 @HAVE_INTROSPECTION_TRUE@typelibdir = $(pkglibdir)
 @HAVE_INTROSPECTION_TRUE@typelib_DATA = Meta-$(api_version).typelib
 @HAVE_INTROSPECTION_TRUE@INTROSPECTION_GIRS = Meta-$(api_version).gir
+@HAVE_INTROSPECTION_TRUE@INTROSPECTION_SCANNER_ARGS = --add-include-path=$(top_builddir)/clutter/clutter --add-include-path=$(top_builddir)/cogl/cogl --add-include-path=$(top_builddir)/cogl/cogl-pango
+@HAVE_INTROSPECTION_TRUE@INTROSPECTION_COMPILER_ARGS = --includedir=$(top_builddir)/clutter/clutter --includedir=$(top_builddir)/cogl/cogl --includedir=$(top_builddir)/cogl/cogl-pango
 @HAVE_INTROSPECTION_TRUE@@META_GIR@_INCLUDES = GObject-2.0 GDesktopEnums-3.0 Gdk-3.0 Gtk-3.0 Clutter-1.0 xlib-2.0 xfixes-4.0 Cogl-1.0
 @HAVE_INTROSPECTION_TRUE@@META_GIR@_EXPORT_PACKAGES = libmutter
 @HAVE_INTROSPECTION_TRUE@@META_GIR@_CFLAGS = $(AM_CPPFLAGS)
 @HAVE_INTROSPECTION_TRUE@@META_GIR@_LIBS = libmutter.la
 @HAVE_INTROSPECTION_TRUE@@META_GIR@_FILES = \
-@HAVE_INTROSPECTION_TRUE@	mutter-enum-types.h			\
 @HAVE_INTROSPECTION_TRUE@	$(libmutterinclude_base_headers)	\
 @HAVE_INTROSPECTION_TRUE@	$(filter %.c,$(libmutter_la_SOURCES) $(nodist_libmutter_la_SOURCES))
 
@@ -990,7 +1228,7 @@ BUILT_SOURCES = \
 	$(mutter_built_sources)			\
 	$(libmutterinclude_built_headers)
 
-MUTTER_STAMP_FILES = stamp-mutter-enum-types.h
+MUTTER_STAMP_FILES = stamp-meta-enum-types.h
 dbus_display_config_built_sources = meta-dbus-display-config.c meta-dbus-display-config.h
 dbus_login1_built_sources = meta-dbus-login1.c meta-dbus-login1.h
 all: $(BUILT_SOURCES)
@@ -1073,6 +1311,8 @@ backends/$(DEPDIR)/$(am__dirstamp):
 	@: > backends/$(DEPDIR)/$(am__dirstamp)
 backends/meta-backend.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
+backends/meta-barrier.lo: backends/$(am__dirstamp) \
+	backends/$(DEPDIR)/$(am__dirstamp)
 backends/meta-cursor.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
 backends/meta-cursor-tracker.lo: backends/$(am__dirstamp) \
@@ -1083,13 +1323,21 @@ backends/meta-idle-monitor.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
 backends/meta-idle-monitor-dbus.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
+backends/meta-input-settings.lo: backends/$(am__dirstamp) \
+	backends/$(DEPDIR)/$(am__dirstamp)
 backends/meta-monitor-config.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
 backends/meta-monitor-manager.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
 backends/meta-monitor-manager-dummy.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
+backends/meta-pointer-constraint.lo: backends/$(am__dirstamp) \
+	backends/$(DEPDIR)/$(am__dirstamp)
 backends/meta-stage.lo: backends/$(am__dirstamp) \
+	backends/$(DEPDIR)/$(am__dirstamp)
+backends/meta-renderer.lo: backends/$(am__dirstamp) \
+	backends/$(DEPDIR)/$(am__dirstamp)
+backends/meta-renderer-view.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
 backends/edid-parse.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
@@ -1101,13 +1349,33 @@ backends/x11/$(DEPDIR)/$(am__dirstamp):
 	@: > backends/x11/$(DEPDIR)/$(am__dirstamp)
 backends/x11/meta-backend-x11.lo: backends/x11/$(am__dirstamp) \
 	backends/x11/$(DEPDIR)/$(am__dirstamp)
+backends/x11/meta-barrier-x11.lo: backends/x11/$(am__dirstamp) \
+	backends/x11/$(DEPDIR)/$(am__dirstamp)
+backends/x11/meta-clutter-backend-x11.lo:  \
+	backends/x11/$(am__dirstamp) \
+	backends/x11/$(DEPDIR)/$(am__dirstamp)
 backends/x11/meta-cursor-renderer-x11.lo:  \
 	backends/x11/$(am__dirstamp) \
 	backends/x11/$(DEPDIR)/$(am__dirstamp)
+backends/x11/nested/$(am__dirstamp):
+	@$(MKDIR_P) backends/x11/nested
+	@: > backends/x11/nested/$(am__dirstamp)
+backends/x11/nested/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) backends/x11/nested/$(DEPDIR)
+	@: > backends/x11/nested/$(DEPDIR)/$(am__dirstamp)
+backends/x11/nested/meta-cursor-renderer-x11-nested.lo:  \
+	backends/x11/nested/$(am__dirstamp) \
+	backends/x11/nested/$(DEPDIR)/$(am__dirstamp)
 backends/x11/meta-idle-monitor-xsync.lo: backends/x11/$(am__dirstamp) \
+	backends/x11/$(DEPDIR)/$(am__dirstamp)
+backends/x11/meta-input-settings-x11.lo: backends/x11/$(am__dirstamp) \
 	backends/x11/$(DEPDIR)/$(am__dirstamp)
 backends/x11/meta-monitor-manager-xrandr.lo:  \
 	backends/x11/$(am__dirstamp) \
+	backends/x11/$(DEPDIR)/$(am__dirstamp)
+backends/x11/meta-renderer-x11.lo: backends/x11/$(am__dirstamp) \
+	backends/x11/$(DEPDIR)/$(am__dirstamp)
+backends/x11/meta-stage-x11-nested.lo: backends/x11/$(am__dirstamp) \
 	backends/x11/$(DEPDIR)/$(am__dirstamp)
 core/$(am__dirstamp):
 	@$(MKDIR_P) core
@@ -1117,9 +1385,10 @@ core/$(DEPDIR)/$(am__dirstamp):
 	@: > core/$(DEPDIR)/$(am__dirstamp)
 core/meta-accel-parse.lo: core/$(am__dirstamp) \
 	core/$(DEPDIR)/$(am__dirstamp)
-core/barrier.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/bell.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/boxes.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
+core/meta-border.lo: core/$(am__dirstamp) \
+	core/$(DEPDIR)/$(am__dirstamp)
 compositor/$(am__dirstamp):
 	@$(MKDIR_P) compositor
 	@: > compositor/$(am__dirstamp)
@@ -1160,6 +1429,8 @@ compositor/meta-surface-actor.lo: compositor/$(am__dirstamp) \
 	compositor/$(DEPDIR)/$(am__dirstamp)
 compositor/meta-surface-actor-x11.lo: compositor/$(am__dirstamp) \
 	compositor/$(DEPDIR)/$(am__dirstamp)
+compositor/meta-sync-ring.lo: compositor/$(am__dirstamp) \
+	compositor/$(DEPDIR)/$(am__dirstamp)
 compositor/meta-texture-rectangle.lo: compositor/$(am__dirstamp) \
 	compositor/$(DEPDIR)/$(am__dirstamp)
 compositor/meta-texture-tower.lo: compositor/$(am__dirstamp) \
@@ -1182,13 +1453,6 @@ core/edge-resistance.lo: core/$(am__dirstamp) \
 core/events.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/errors.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/frame.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
-ui/$(am__dirstamp):
-	@$(MKDIR_P) ui
-	@: > ui/$(am__dirstamp)
-ui/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ui/$(DEPDIR)
-	@: > ui/$(DEPDIR)/$(am__dirstamp)
-ui/gradient.lo: ui/$(am__dirstamp) ui/$(DEPDIR)/$(am__dirstamp)
 core/meta-gesture-tracker.lo: core/$(am__dirstamp) \
 	core/$(DEPDIR)/$(am__dirstamp)
 core/keybindings.lo: core/$(am__dirstamp) \
@@ -1197,6 +1461,8 @@ core/main.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/place.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/prefs.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/screen.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
+core/startup-notification.lo: core/$(am__dirstamp) \
+	core/$(DEPDIR)/$(am__dirstamp)
 core/restart.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/stack.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/stack-tracker.lo: core/$(am__dirstamp) \
@@ -1204,9 +1470,13 @@ core/stack-tracker.lo: core/$(am__dirstamp) \
 core/util.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/window.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/workspace.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
+ui/$(am__dirstamp):
+	@$(MKDIR_P) ui
+	@: > ui/$(am__dirstamp)
+ui/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ui/$(DEPDIR)
+	@: > ui/$(DEPDIR)/$(am__dirstamp)
 ui/frames.lo: ui/$(am__dirstamp) ui/$(DEPDIR)/$(am__dirstamp)
-ui/resizepopup.lo: ui/$(am__dirstamp) ui/$(DEPDIR)/$(am__dirstamp)
-ui/theme-parser.lo: ui/$(am__dirstamp) ui/$(DEPDIR)/$(am__dirstamp)
 ui/theme.lo: ui/$(am__dirstamp) ui/$(DEPDIR)/$(am__dirstamp)
 ui/ui.lo: ui/$(am__dirstamp) ui/$(DEPDIR)/$(am__dirstamp)
 x11/$(am__dirstamp):
@@ -1215,12 +1485,10 @@ x11/$(am__dirstamp):
 x11/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) x11/$(DEPDIR)
 	@: > x11/$(DEPDIR)/$(am__dirstamp)
-x11/iconcache.lo: x11/$(am__dirstamp) x11/$(DEPDIR)/$(am__dirstamp)
-x11/async-getprop.lo: x11/$(am__dirstamp) \
-	x11/$(DEPDIR)/$(am__dirstamp)
 x11/events.lo: x11/$(am__dirstamp) x11/$(DEPDIR)/$(am__dirstamp)
 x11/group-props.lo: x11/$(am__dirstamp) x11/$(DEPDIR)/$(am__dirstamp)
 x11/group.lo: x11/$(am__dirstamp) x11/$(DEPDIR)/$(am__dirstamp)
+x11/iconcache.lo: x11/$(am__dirstamp) x11/$(DEPDIR)/$(am__dirstamp)
 x11/session.lo: x11/$(am__dirstamp) x11/$(DEPDIR)/$(am__dirstamp)
 x11/window-props.lo: x11/$(am__dirstamp) x11/$(DEPDIR)/$(am__dirstamp)
 x11/window-x11.lo: x11/$(am__dirstamp) x11/$(DEPDIR)/$(am__dirstamp)
@@ -1237,25 +1505,71 @@ wayland/meta-wayland.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-xwayland.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-xwayland-selection.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-buffer.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-region.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-data-device.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-input-device.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-pointer-gestures.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-pointer-gesture-swipe.lo:  \
+	wayland/$(am__dirstamp) wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-pointer-gesture-pinch.lo:  \
+	wayland/$(am__dirstamp) wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-keyboard.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-pointer.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-pointer-constraints.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-pointer-lock-wayland.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-pointer-confinement-wayland.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-popup.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-seat.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-tablet.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-tablet-manager.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-tablet-seat.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-tablet-tool.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-tablet-pad.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-tablet-pad-group.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-tablet-pad-ring.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-tablet-pad-strip.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-touch.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-surface.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-surface-role-cursor.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-surface-role-tablet-cursor.lo:  \
+	wayland/$(am__dirstamp) wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-outputs.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
-wayland/window-wayland.lo: wayland/$(am__dirstamp) \
+wayland/meta-wayland-xdg-foreign.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-window-wayland.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-xdg-shell.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-wl-shell.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-gtk-shell.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
 backends/native/$(am__dirstamp):
 	@$(MKDIR_P) backends/native
@@ -1266,16 +1580,30 @@ backends/native/$(DEPDIR)/$(am__dirstamp):
 backends/native/meta-backend-native.lo:  \
 	backends/native/$(am__dirstamp) \
 	backends/native/$(DEPDIR)/$(am__dirstamp)
+backends/native/meta-barrier-native.lo:  \
+	backends/native/$(am__dirstamp) \
+	backends/native/$(DEPDIR)/$(am__dirstamp)
+backends/native/meta-clutter-backend-native.lo:  \
+	backends/native/$(am__dirstamp) \
+	backends/native/$(DEPDIR)/$(am__dirstamp)
 backends/native/meta-cursor-renderer-native.lo:  \
 	backends/native/$(am__dirstamp) \
 	backends/native/$(DEPDIR)/$(am__dirstamp)
 backends/native/meta-idle-monitor-native.lo:  \
 	backends/native/$(am__dirstamp) \
 	backends/native/$(DEPDIR)/$(am__dirstamp)
+backends/native/meta-input-settings-native.lo:  \
+	backends/native/$(am__dirstamp) \
+	backends/native/$(DEPDIR)/$(am__dirstamp)
 backends/native/meta-monitor-manager-kms.lo:  \
 	backends/native/$(am__dirstamp) \
 	backends/native/$(DEPDIR)/$(am__dirstamp)
 backends/native/meta-launcher.lo: backends/native/$(am__dirstamp) \
+	backends/native/$(DEPDIR)/$(am__dirstamp)
+backends/native/meta-renderer-native.lo:  \
+	backends/native/$(am__dirstamp) \
+	backends/native/$(DEPDIR)/$(am__dirstamp)
+backends/native/meta-stage-native.lo: backends/native/$(am__dirstamp) \
 	backends/native/$(DEPDIR)/$(am__dirstamp)
 backends/native/dbus-utils.lo: backends/native/$(am__dirstamp) \
 	backends/native/$(DEPDIR)/$(am__dirstamp)
@@ -1468,24 +1796,18 @@ tests/test-runner.$(OBJEXT): tests/$(am__dirstamp) \
 mutter-test-runner$(EXEEXT): $(mutter_test_runner_OBJECTS) $(mutter_test_runner_DEPENDENCIES) $(EXTRA_mutter_test_runner_DEPENDENCIES) 
 	@rm -f mutter-test-runner$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(mutter_test_runner_OBJECTS) $(mutter_test_runner_LDADD) $(LIBS)
-x11/testasyncgetprop.$(OBJEXT): x11/$(am__dirstamp) \
-	x11/$(DEPDIR)/$(am__dirstamp)
+tests/unit-tests.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 
-testasyncgetprop$(EXEEXT): $(testasyncgetprop_OBJECTS) $(testasyncgetprop_DEPENDENCIES) $(EXTRA_testasyncgetprop_DEPENDENCIES) 
-	@rm -f testasyncgetprop$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(testasyncgetprop_OBJECTS) $(testasyncgetprop_LDADD) $(LIBS)
+mutter-test-unit-tests$(EXEEXT): $(mutter_test_unit_tests_OBJECTS) $(mutter_test_unit_tests_DEPENDENCIES) $(EXTRA_mutter_test_unit_tests_DEPENDENCIES) 
+	@rm -f mutter-test-unit-tests$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(mutter_test_unit_tests_OBJECTS) $(mutter_test_unit_tests_LDADD) $(LIBS)
 core/testboxes.$(OBJEXT): core/$(am__dirstamp) \
 	core/$(DEPDIR)/$(am__dirstamp)
 
 testboxes$(EXEEXT): $(testboxes_OBJECTS) $(testboxes_DEPENDENCIES) $(EXTRA_testboxes_DEPENDENCIES) 
 	@rm -f testboxes$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(testboxes_OBJECTS) $(testboxes_LDADD) $(LIBS)
-ui/testgradient.$(OBJEXT): ui/$(am__dirstamp) \
-	ui/$(DEPDIR)/$(am__dirstamp)
-
-testgradient$(EXEEXT): $(testgradient_OBJECTS) $(testgradient_DEPENDENCIES) $(EXTRA_testgradient_DEPENDENCIES) 
-	@rm -f testgradient$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(testgradient_OBJECTS) $(testgradient_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -1495,6 +1817,8 @@ mostlyclean-compile:
 	-rm -f backends/native/*.lo
 	-rm -f backends/x11/*.$(OBJEXT)
 	-rm -f backends/x11/*.lo
+	-rm -f backends/x11/nested/*.$(OBJEXT)
+	-rm -f backends/x11/nested/*.lo
 	-rm -f compositor/*.$(OBJEXT)
 	-rm -f compositor/*.lo
 	-rm -f core/*.$(OBJEXT)
@@ -1510,33 +1834,55 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gtk-primary-selection-protocol.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gtk-shell-protocol.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/meta-dbus-display-config.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/meta-dbus-idle-monitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/meta-dbus-login1.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mutter-enum-types.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xdg-shell-protocol.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/meta-enum-types.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pointer-constraints-unstable-v1-protocol.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pointer-gestures-unstable-v1-protocol.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/relative-pointer-unstable-v1-protocol.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tablet-unstable-v2-protocol.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xdg-foreign-unstable-v1-protocol.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xdg-shell-unstable-v6-protocol.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/edid-parse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-backend.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-barrier.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-cursor-renderer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-cursor-tracker.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-cursor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-idle-monitor-dbus.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-idle-monitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-input-settings.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-monitor-config.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-monitor-manager-dummy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-monitor-manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-pointer-constraint.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-renderer-view.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-renderer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-stage.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/dbus-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-backend-native.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-barrier-native.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-clutter-backend-native.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-cursor-renderer-native.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-idle-monitor-native.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-input-settings-native.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-launcher.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-monitor-manager-kms.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-renderer-native.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-stage-native.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-backend-x11.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-barrier-x11.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-clutter-backend-x11.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-cursor-renderer-x11.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-idle-monitor-xsync.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-input-settings-x11.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-monitor-manager-xrandr.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-renderer-x11.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-stage-x11-nested.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/x11/nested/$(DEPDIR)/meta-cursor-renderer-x11-nested.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/clutter-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/cogl-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/compositor.Plo@am__quote@
@@ -1555,13 +1901,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/meta-surface-actor-wayland.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/meta-surface-actor-x11.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/meta-surface-actor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/meta-sync-ring.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/meta-texture-rectangle.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/meta-texture-tower.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/meta-window-actor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/meta-window-group.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/meta-window-shape.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@compositor/$(DEPDIR)/region-utils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/barrier.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/bell.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/boxes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/constraints.Plo@am__quote@
@@ -1575,6 +1921,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/keybindings.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/main.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/meta-accel-parse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/meta-border.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/meta-gesture-tracker.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/mutter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/place.Plo@am__quote@
@@ -1584,38 +1931,57 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/screen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/stack-tracker.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/stack.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/startup-notification.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/testboxes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/util.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/window.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/workspace.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-client.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test-runner.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/unit-tests.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ui/$(DEPDIR)/frames.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ui/$(DEPDIR)/gradient.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ui/$(DEPDIR)/resizepopup.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ui/$(DEPDIR)/testgradient.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@ui/$(DEPDIR)/theme-parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ui/$(DEPDIR)/theme.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ui/$(DEPDIR)/ui.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-pointer-confinement-wayland.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-pointer-lock-wayland.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-data-device.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-gtk-shell.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-input-device.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-keyboard.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-outputs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-pointer-constraints.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-pointer-gesture-pinch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-pointer-gesture-swipe.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-pointer-gestures.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-pointer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-popup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-region.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-seat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-surface-role-cursor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-surface-role-tablet-cursor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-surface.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-manager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-pad-group.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-pad-ring.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-pad-strip.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-pad.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-seat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-tool.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-touch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-wl-shell.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-xdg-foreign.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-xdg-shell.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-window-wayland.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-xwayland-selection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-xwayland.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/window-wayland.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/async-getprop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/events.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/group-props.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/group.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/iconcache.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/session.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/testasyncgetprop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/window-props.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/window-x11.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/xprops.Plo@am__quote@
@@ -1652,6 +2018,7 @@ clean-libtool:
 	-rm -rf backends/.libs backends/_libs
 	-rm -rf backends/native/.libs backends/native/_libs
 	-rm -rf backends/x11/.libs backends/x11/_libs
+	-rm -rf backends/x11/nested/.libs backends/x11/nested/_libs
 	-rm -rf compositor/.libs compositor/_libs
 	-rm -rf core/.libs core/_libs
 	-rm -rf ui/.libs ui/_libs
@@ -2004,6 +2371,8 @@ distclean-generic:
 	-rm -f backends/native/$(am__dirstamp)
 	-rm -f backends/x11/$(DEPDIR)/$(am__dirstamp)
 	-rm -f backends/x11/$(am__dirstamp)
+	-rm -f backends/x11/nested/$(DEPDIR)/$(am__dirstamp)
+	-rm -f backends/x11/nested/$(am__dirstamp)
 	-rm -f compositor/$(DEPDIR)/$(am__dirstamp)
 	-rm -f compositor/$(am__dirstamp)
 	-rm -f core/$(DEPDIR)/$(am__dirstamp)
@@ -2030,7 +2399,7 @@ clean-am: clean-binPROGRAMS clean-generic \
 	mostlyclean-am
 
 distclean: distclean-recursive
-	-rm -rf ./$(DEPDIR) backends/$(DEPDIR) backends/native/$(DEPDIR) backends/x11/$(DEPDIR) compositor/$(DEPDIR) core/$(DEPDIR) tests/$(DEPDIR) ui/$(DEPDIR) wayland/$(DEPDIR) x11/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) backends/$(DEPDIR) backends/native/$(DEPDIR) backends/x11/$(DEPDIR) backends/x11/nested/$(DEPDIR) compositor/$(DEPDIR) core/$(DEPDIR) tests/$(DEPDIR) ui/$(DEPDIR) wayland/$(DEPDIR) x11/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -2081,7 +2450,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-	-rm -rf ./$(DEPDIR) backends/$(DEPDIR) backends/native/$(DEPDIR) backends/x11/$(DEPDIR) compositor/$(DEPDIR) core/$(DEPDIR) tests/$(DEPDIR) ui/$(DEPDIR) wayland/$(DEPDIR) x11/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) backends/$(DEPDIR) backends/native/$(DEPDIR) backends/x11/$(DEPDIR) backends/x11/nested/$(DEPDIR) compositor/$(DEPDIR) core/$(DEPDIR) tests/$(DEPDIR) ui/$(DEPDIR) wayland/$(DEPDIR) x11/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -2145,32 +2514,37 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_stackingDATA \
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@mutter-all.test: tests/mutter-all.test.in
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(AM_V_GEN) sed  -e "s|@libexecdir[@]|$(libexecdir)|g"  $< > $@.tmp && mv $@.tmp $@
 
-@HAVE_WAYLAND_TRUE@.PHONY: run-tests
+@HAVE_WAYLAND_TRUE@.PHONY: run-tests run-test-runner-tests run-unit-tests
 
-@HAVE_WAYLAND_TRUE@run-tests: mutter-test-client mutter-test-runner
+@HAVE_WAYLAND_TRUE@run-test-runner-tests: mutter-test-client mutter-test-runner
 @HAVE_WAYLAND_TRUE@	./mutter-test-runner $(dist_stacking_DATA)
+
+@HAVE_WAYLAND_TRUE@run-unit-tests: mutter-test-unit-tests
+@HAVE_WAYLAND_TRUE@	./mutter-test-unit-tests
+
+@HAVE_WAYLAND_TRUE@run-tests: run-test-runner-tests run-unit-tests
 
 @HAVE_INTROSPECTION_TRUE@include $(INTROSPECTION_MAKEFILE)
 
 @HAVE_INTROSPECTION_TRUE@Meta-$(api_version).gir: libmutter.la
 
-mutter-enum-types.h: stamp-mutter-enum-types.h Makefile
+meta/meta-enum-types.h: stamp-meta-enum-types.h Makefile
 	@true
-stamp-mutter-enum-types.h: $(libmutterinclude_base_headers) mutter-enum-types.h.in
+stamp-meta-enum-types.h: $(libmutterinclude_headers) meta-enum-types.h.in
 	$(AM_V_GEN) ( cd $(srcdir) && \
 	  $(GLIB_MKENUMS) \
-	    --template mutter-enum-types.h.in \
+	    --template meta-enum-types.h.in \
 	  $(libmutterinclude_base_headers) ) >> xgen-teth && \
-	(cmp -s xgen-teth mutter-enum-types.h || cp xgen-teth mutter-enum-types.h) && \
+	(cmp -s xgen-teth meta/meta-enum-types.h || cp xgen-teth meta/meta-enum-types.h) && \
 	rm -f xgen-teth && \
 	echo timestamp > $(@F)
 
-mutter-enum-types.c: stamp-mutter-enum-types.h mutter-enum-types.c.in
+meta-enum-types.c: stamp-meta-enum-types.h meta-enum-types.c.in
 	  $(AM_V_GEN) ( cd $(srcdir) && \
 	  $(GLIB_MKENUMS) \
-	    --template mutter-enum-types.c.in \
+	    --template meta-enum-types.c.in \
 	  $(libmutterinclude_base_headers) ) >> xgen-tetc && \
-	cp xgen-tetc mutter-enum-types.c && \
+	cp xgen-tetc meta-enum-types.c && \
 	rm -f xgen-tetc
 
 $(dbus_display_config_built_sources) : Makefile.am org.gnome.Mutter.DisplayConfig.xml
@@ -2178,6 +2552,7 @@ $(dbus_display_config_built_sources) : Makefile.am org.gnome.Mutter.DisplayConfi
 		--interface-prefix org.gnome.Mutter					\
 		--c-namespace MetaDBus							\
 		--generate-c-code meta-dbus-display-config				\
+		--c-generate-autocleanup all						\
 		$(srcdir)/org.gnome.Mutter.DisplayConfig.xml
 
 $(dbus_idle_built_sources) : Makefile.am org.gnome.Mutter.IdleMonitor.xml
@@ -2186,6 +2561,7 @@ $(dbus_idle_built_sources) : Makefile.am org.gnome.Mutter.IdleMonitor.xml
 		--c-namespace MetaDBus							\
 		--generate-c-code meta-dbus-idle-monitor				\
 		--c-generate-object-manager						\
+		--c-generate-autocleanup all						\
 		$(srcdir)/org.gnome.Mutter.IdleMonitor.xml
 
 $(dbus_login1_built_sources) : Makefile.am org.freedesktop.login1.xml
@@ -2193,12 +2569,33 @@ $(dbus_login1_built_sources) : Makefile.am org.freedesktop.login1.xml
 		--interface-prefix org.freedesktop.login1				\
 		--c-namespace Login1							\
 		--generate-c-code meta-dbus-login1					\
+		--c-generate-autocleanup all						\
 		$(srcdir)/org.freedesktop.login1.xml
 
+backends/native/meta-default-modes.h: backends/native/gen-default-modes.py Makefile.am
+	@if test -n "$(CVT)"; then \
+		if $(AM_V_P); then PS4= set -x; else echo "  GEN      $@"; fi; \
+		python $< > $@; \
+	fi
+
+.SECONDEXPANSION:
+
+define protostability
+$(shell echo $1 | sed 's/.*\(\<unstable\>\|\<stable\>\).*/\1/')
+endef
+
+define protoname
+$(shell echo $1 | sed 's/\([a-z\-]\+\)-[a-z]\+-v[0-9]\+/\1/')
+endef
+
+%-protocol.c : $(WAYLAND_PROTOCOLS_DATADIR)/$$(call protostability,$$*)/$$(call protoname,$$*)/$$*.xml
+	$(AM_V_GEN)$(WAYLAND_SCANNER) code $< $@
+%-server-protocol.h : $(WAYLAND_PROTOCOLS_DATADIR)/$$(call protostability,$$*)/$$(call protoname,$$*)/$$*.xml
+	$(AM_V_GEN)$(WAYLAND_SCANNER) server-header $< $@
 %-protocol.c : $(srcdir)/wayland/protocol/%.xml
-	$(AM_V_GEN)$(WAYLAND_SCANNER) code < $< > $@
+	$(AM_V_GEN)$(WAYLAND_SCANNER) code $< $@
 %-server-protocol.h : $(srcdir)/wayland/protocol/%.xml
-	$(AM_V_GEN)$(WAYLAND_SCANNER) server-header < $< > $@
+	$(AM_V_GEN)$(WAYLAND_SCANNER) server-header $< $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

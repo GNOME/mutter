@@ -53,6 +53,13 @@ typedef enum
   META_TAB_SHOW_INSTANTLY  /* Alt-Esc mode */
 } MetaTabShowType;
 
+typedef enum
+{
+  META_PAD_ACTION_BUTTON, /* Action is a button */
+  META_PAD_ACTION_RING,   /* Action is a ring */
+  META_PAD_ACTION_STRIP,  /* Action is a strip */
+} MetaPadActionType;
+
 typedef struct _MetaDisplayClass MetaDisplayClass;
 
 #define META_TYPE_DISPLAY              (meta_display_get_type ())
@@ -173,7 +180,6 @@ void meta_display_unmanage_screen (MetaDisplay *display,
 void meta_display_clear_mouse_mode (MetaDisplay *display);
 
 void meta_display_freeze_keyboard (MetaDisplay *display,
-                                   Window       window,
                                    guint32      timestamp);
 void meta_display_ungrab_keyboard (MetaDisplay *display,
                                    guint32      timestamp);
@@ -181,5 +187,13 @@ void meta_display_unfreeze_keyboard (MetaDisplay *display,
                                      guint32      timestamp);
 gboolean meta_display_is_pointer_emulating_sequence (MetaDisplay          *display,
                                                      ClutterEventSequence *sequence);
+
+void    meta_display_request_pad_osd      (MetaDisplay        *display,
+                                           ClutterInputDevice *pad,
+                                           gboolean            edition_mode);
+gchar * meta_display_get_pad_action_label (MetaDisplay        *display,
+                                           ClutterInputDevice *pad,
+                                           MetaPadActionType   action_type,
+                                           guint               action_number);
 
 #endif

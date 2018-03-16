@@ -1,44 +1,588 @@
-3.14.4
+3.22.3
 ======
-* Fix flash on unredirection [Chris; #743858]
-* Fix incompatibility with GLES2 GLSL [Alban; #745442]
-* Add function to refresh all background instances [Rui; #739178]
-* Fix geometry of shaded windows [Florian; #746145]
-* Misc. bug fixes [Florian, Rui; #698995, #743217, #743254]
+* Fix switching between two finger- and edge scrolling on wayland [Rui; #771744]
+* Fix frequent freezes in multihead setups on wayland [Rui; #774557]
+* Preserve root window mask on XSelectionRequest [Olivier; #776128]
+* Fix window menu placement with HiDPI [Jonas; #776055]
+* Fix HiDPI detection on vertical monitor layouts [Carlos; #777687]
+* Fix erroneous key event repeats [Rui; #774989]
+* Fix "ghost" cursors in multi-monitor setups [Jonas; #771056]
+* Use eglGetPlatformDisplay [Adam; #772422]
+* Fix erratic raise_or_lower behavior [Jose; #705200]
+* Extend tablet device checks [Carlos; #773779]
+* Set right scale for tablet tool cursors on HiDPI [Carlos; #778474]
+* Allow edge-scrolling without 2fg-scroll capable devices [Rui; #778554]
+* Misc. bug fixes [Jonas, Rui, Carlos, Peter; #771297, #774135, #775986,
+  #777691, #777470, #778262, #776919]
 
 Contributors:
-  Alban Browaeys, Rui Matos, Florian Müllner, Chris Wilson
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Peter Hutterer, Adam Jackson,
+  Jose Marino, Rui Matos
 
 Translations:
-  Matej Urbančič [sl], Muhammet Kara [tr], Samir Ribic [bs]
+  Mandy Wang [zh_CN]
 
-3.14.3
+3.22.2
 ======
-* Fix crash when trying to unredirect a destroyed window [Florian; #740133]
-* Fix "flicker" during startup transition [Ray; #740377]
+* Really fix framebuffer capture origin offset [Rui; #771502]
+* Fix session going into idle mode immediately on startup [Rui; #772839]
+* Fix mirror mode with stage views [Rui; #773115]
+* Improve pointer constraints support [Jonas; #771859]
+* Stack docks below other windows on fullscreen monitors [Rui; #772937]
+* Fix switching between two finger- and edge scrolling on wayland [Rui; #771744]
+* Fix popup grabs blocking screen lock on wayland [Rui; #771235]
+* Fix various crashes on wayland [Jonas; #771646, #771858]
+* Fix various placement issues on wayland [Jonas, Sjoerd, Olivier; #768039,
+  #771841, #773141, #772729]
+* Misc. bug fixes [Rui, Jonas, Olivier; #771019, #773116, #772914, #773210]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Rui Matos, Sjoerd Simons
+
+Translations:
+  Theppitak Karoonboonyanan [th], Kjartan Maraas [nb], liushuyu [zh_CN],
+  YunQiang Su [zh_CN]
+
+3.22.1
+======
+* Fix feedback loop between StClipboard and X11 bridge [Carlos; #760745]
+* Fall back gracefully if DRM plane rotation fails [Carlos; #772512]
+* Approximate native monitor backend behavior to X [Rui; #772176]
+* Fix crash on VT switch on wayland [Jonas; #771646]
+* Expose Flatpak ID for application matching [Florian; #772613, #772614]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho, Rui Matos, Florian Müllner, Olav Vitters
+
+Translations:
+  Inaki Larranaga Murgoitio [eu], Milo Casagrande [it]
+
+3.22.0
+======
+* Fix wayland crashes [Jonas; #771305, #771345, #770940, #771495]
+* Fix display rotation on wayland [Jonas; #770672]
+* Fix framebuffer capture origin offset [Rui; #771502]
+* Misc. bug fixes [Jonas, Florian, Carlos; #770937, #771536, #771628, #771549]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho, Rui Matos, Florian Müllner
+
+Translations:
+  Ask Hjorth Larsen [da], Charles Monzat [fr], Stas Solovey [ru],
+  Tom Tryfonidis [el], David King [en_GB]
+
+3.21.92
+=======
+* Fix absolute pointer motion events on wayland [Jonas; #770557]
+* Default to using stage views [Jonas; #770366]
+* Fix animated cursors on wayland [Rui; #749913]
+* Fix various crashes on wayland [Jonas; #757568, #770727, #770992]
+* Fix screen capture for stage views not at (0, 0) [Jonas; #770127]
+* Compress motion events instead of discarding them [Jonas; #771049]
+* Fix XWayland pointer warp emulation [Jonas; #771050]
+* Add common monitor modes in KMS backend [Rui; #744544]
+* Temporarily use g-s-d schemas for tablet configuration [Carlos; #771315]
+* Misc. bug fixes [Jonas, Carlos; #770402, #770647, #770991, #770994, #770929]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Rui Matos, Florian Müllner
+
+Translations:
+  Changwoo Ryu [ko], Baurzhan Muftakhidinov [kk], Anders Jonsson [sv],
+  Tiago Santos [pt], Rafael Fontenelle [pt_BR], Mario Blättermann [de],
+  Alexander Shopov [bg], Rūdolfs Mazurs [lv], Fran Dieguez [gl],
+  Trần Ngọc Quân [vi], Piotr Drąg [pl], Мирослав Николић [sr, sr@latin]
+
+3.21.91
+=======
+* Add support for xdg-foreign protocol [Jonas; #769786]
+* Support monitor rotation on wayland [Carlos; #745079]
+* Port xdg-shell implementation to unstable v6 [Jonas; #769936]
+* Handle unsupported buffer sizes more gracefully [Olivier; #770387]
+* Use the same output naming logic as the X server on wayland [Rui; #770338]
+* Fix replies in gnome-shell's chat notifications on wayland [Florian; #758167]
+* Misc. bug fixes and cleanups [Bastien, Sjoerd, Jonas; #769276, #769636,
+  #770131, #770324, #769731]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Rui Matos, Florian Müllner,
+  Bastien Nocera, Sjoerd Simons
+
+Translations:
+  Piotr Drąg [pl], Mario Blättermann [de], Andika Triwidada [id],
+  Enrico Nicoletto [pt_BR], Мирослав Николић [sr, sr@latin]
+
+3.21.90
+=======
+* Consider XDG_SESSION_TYPE when determining session type [Jouke; #759388]
+* Re-add support for edge scrolling on some touchpads [Bastien; #768245]
+* Support mouse and trackball acceleration profile [Jonas; #769179]
+* Draw monitor contentn to individual framebuffer [Jonas; #768976]
+* Support virtual input devices [Jonas, Carlos; #765009]
+* Set correct output scale on hotplug [Jonas; #769505]
+* Misc. bug fixes and cleanups [Florian, Jonas, Thomas, Bastien, Carlos;
+  #769014, #769024, #769054, #769070, #769036, #769305, #769578, #769800,
+  #769073]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho, Thomas Hindoe Paaboel Andersen, Simon McVittie,
+  Alberts Muktupāvels, Florian Müllner, Bastien Nocera, Jouke Witteveen
+
+Translations:
+  Daniel Mustieles [es], Aurimas Černius [lt], Dušan Kazik [sk],
+  Fabio Tomat [fur], Balázs Úr [hu], Yosef Or Boczko [he], Marek Černocký [cs],
+  Matej Urbančič [sl]
+
+3.21.4
+======
+* Fix missing frame border around GTK+ dialogs [Florian; #745060]
+* Improve X11 <-> wayland copy and paste interaction [Carlos; #768007]
+* Add support for NV_robustness_video_memory_purge extension [Rui; #739178]
+* Fix restoring the old focused window on restart [Owen; #766243]
+* Fix fullscreen windows on other monitors stealing focus after closing
+  a window [Rui; #768221]
+* Draw monitor content to individual framebuffer [Jonas; #768976]
+* Provide screen capture API [Jonas; #768978]
+* Misc. bug fixes and cleanups [Rui, Owen, Luca, Olivier, Jonas, Carlos;
+  #767969, #768243, #762407, #767997, #768039, #768977, #768977]
+
+Contributors:
+  Jonas Ådahl, Luca Bruno, Olivier Fourdan, Carlos Garnacho, Rui Matos,
+  Florian Müllner, Owen W. Taylor
+
+Translations:
+  Andika Triwidada [id]
+
+3.21.3
+======
+* Don't create invalid UTF-8 window description strings [Rui; #765535]
+* Convert window titles and wm_class to UTF-8 [Rui; #752788]
+* Communicate tiled state to GTK+ on wayland [Olivier; #766860]
+* Use kill() to force-quit unresponsive wayland clients [Olivier; #767464]
+* Fix window position when unmaximizing via DND on wayland [Olivier; #764180]
+* Avoid full window redraws when using extended frame sync [Florian; #767798]
+
+Contributors:
+  Olivier Fourdan, Rui Matos, Florian Müllner
+
+Translations:
+  Cédric Valmary [oc]
+
+3.21.2
+======
+* Clean up surface <-> shell interaction [Jonas; #763431]
+* Fix grabbing random keys for disabled shortcuts [Rui; #766270]
+* Fix stacking of hidden windows on wayland [Rui; #764844]
+* Misc. bug fixes [Victor, Florian, Marek, Rui; #766306, #766326, #751847,
+  #763832, #766528]
+
+Contributors:
+  Jonas Ådahl, Emmanuele Bassi, Marek Chalupa, Matthias Clasen,
+  Carlos Garnacho, Rui Matos, Florian Müllner, Victor Toso
+
+Translations:
+  Tiago Santos [pt], Cédric Valmary [oc], Muhammet Kara [tr]
+
+3.21.1
+======
+* Notify clients of pending modifier state changes [Rui; #748526]
+* Add get_is_builtin_display_on() method [Florian; #765267]
+* Fix 2-finger titlebar taps on wayland [Carlos; #764519]
+* Merge clutter and cogl forks into mutter [Rui; #760439]
+* Misc. bug fixes [Florian, Victor, Jonas; #765058, #765252, #765062]
+
+Contributors:
+  Jonas Ådahl, Emmanuele Bassi, Olivier Fourdan, Carlos Garnacho, Rui Matos,
+  Florian Müllner, Victor Toso, Rico Tzschichholz
+
+Translations:
+  GNOME Translation Robot [ja, gd]
+
+3.20.1
+======
+* Constrain window move/resizes on wayland as on X11 [Rui; #748819]
+* Don't crash with invalid previous monitor configurations [Rui; #764286]
+* Misc. bug fixes and cleanups [Jonas, Cosimo; #762828, #764807]
+
+Contributors:
+  Jonas Ådahl, Cosimo Cecchi, Rui Matos, Jasper St. Pierre
+
+Translations:
+  Inaki Larranaga Murgoitio [eu], Reinout van Schouwen [nl], Fabio Tomat [fur],
+  Trần Ngọc Quân [vi]
+
+3.20.0
+======
+* Fix crash when using visual bell [Jonas; #763858]
+
+Contributors:
+  Jonas Ådahl, Jasper St. Pierre
+
+Translations:
+  Milo Casagrande [it], Ask Hjorth Larsen [da]
+
+3.19.92
+=======
+* Add system bell support on wayland [Jonas; #763284]
+* Add gtk_surface.present to gtk-shell [Jonas; #763295]
+* Handle DND drops on the root window [Carlos; #762104]
+* Misc. bug fixes [Jonas, Carlos, Rui; #762828, #760745, #763125, #762763,
+  #762661, #762639, #763159]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho, Rui Matos, Florian Müllner
+
+Translations:
+  Rūdolfs Mazurs [lv], Balázs Úr [hu], Claude Paroz [fr], Matej Urbančič [sl],
+  Мирослав Николић [sr, sr@latin], Sebastian Rasmussen [sv], Changwoo Ryu [ko],
+  Gil Forcada [ca], Tom Tryfonidis [el]
+
+3.19.91
+=======
+* Add --nested CLI argument to fix nested wayland session [Jonas; #758658]
+* Fix stack - scene graph stacking synchronization issues [Jonas; #755605]
+* Rate-limit last-device changes to fix freezes [Carlos; #753527]
+* Implement primary selection protocol [Carlos; #762560]
+* Misc. bug fixes [Carlos, Jonas; #762878, #762716]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho, Tim Lunn
+
+Translations:
+  Piotr Drąg [pl], Artur de Aquino Morais [pt_BR], Marek Černocký [cs],
+  Cédric Valmary [oc], Mario Blättermann [de], Dušan Kazik [sk],
+  Fran Dieguez [gl], Aurimas Černius [lt], Daniel Mustieles [es],
+  Stas Solovey [ru], Yosef Or Boczko [he]
+
+3.19.90
+=======
+* Release buffer after processing commit [Ray; #761312, #761613]
+* Implement pointer motion, locks and confinement on wayland [Jonas; #744104]
+* Add basic startup notification support on wayland [Carlos; #762268]
+* Misc. bug fixes [Rui, Alberts, Florian; #760670, #761543, #752794, #761557]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Rui Matos,
+  Alberts Muktupāvels, Florian Müllner, Jasper St. Pierre, Ray Strode
+
+3.19.4
+======
+* Fix updating stacking order when setting transient_for [Jonas; #755606]
+* Support screen rotation when supported by the driver [Carlos; #745079]
+* Protect against broken WM_CLASS property implementations [Sebastian; #759658]
+* Handle wl_pointer v5 events on wayland [Carlos; #760637]
+* Implement DND actions on wayland [Carlos; #760805]
+* Misc. bug fixes [Jonas, Rui, Ray, Marek; #754711, #756789, #759297, #758613,
+  #760330, #760476, #759222, #760670]
+
+Contributors:
+  Jonas Ådahl, Marek Chalupa, Carlos Garnacho, Sebastian Keller, Rui Matos,
+  Florian Müllner, Jasper St. Pierre, Ray Strode
+
+Translations:
+  Aurimas Černius [lt]
+
+3.19.3
+======
+* Correct refresh rate units on KMS/Wayland [Daniel; #758653]
+* Fix crash when initial cursor position is not on a monitor [Marek; #756698]
+* Fix crash when more CRTs are enabled than outputs connected [Rui; #751638]
+* Fix touch pointer emulation on wayland [Carlos; #756754]
+* Allow minimizing windows that don't advertise supporting it [Jasper; #758186]
+* Force 2-finger scroll by default if available [Bastien; #759304]
+* Fix crash during XWayland initialization [Marek; #751845]
+* Ensure to send a ConfigureNotify to just mapped windows [Rui; #759492]
+* Misc. bug fixes and cleanups [Carlos, Jonas, Lionel; #758239, #758633,
+  #755503, #759374]
+
+Contributors:
+  Jonas Ådahl, Marek Chalupa, Carlos Garnacho, Lionel Landwerlin, Rui Matos,
+  Bastien Nocera, Daniel Stone, Jasper St. Pierre
+
+3.19.2
+======
+* Fix crash on monitor unplug [Rui; #756796]
+* Exit cleanly on initialization errors [Owen; #757311]
+* Allow to determine backend setting from session type [Ray; #741666]
+* Fix DRM device detection for non-PCI devices [Alban; #754911]
+* Don't force placement of windows without buffer on wayland [Marek; #751887]
+* Fix initialization of bypass compositor hint [Rui; #758544]
+
+Contributors:
+  Alban Browaeys, Marek Chalupa, Rui Matos, Florian Müllner, Ray Strode,
+  Owen W. Taylor
+
+3.19.1
+======
+* wayland: Allow to trigger popups through keyboard/touch [Carlos; #756296]
+* Fix modifiers-only input source switching on Ubuntu [Alberts; #756543]
+* Misc. bug fixes [Jonas, Rui, Giovanni, Florian; #756675, #756660, #746420,
+  #756548, #756796, #757101, #757148]
+
+Contributors:
+  Jonas Ådahl, Giovanni Campagna, Carlos Garnacho, Rui Matos,
+  Alberts Muktupāvels, Florian Müllner
+
+Translations:
+  Daniel Șerbănescu [ro]
+
+3.18.1
+======
+* Misc. crash fixes [Jonas, Rui, Carlos, Owen, Florian; #755096, #754979,
+  #755490, #754357, #745785, #756642]
+* Improve HiDPI support on wayland [Jonas; #755097]
+* Fix doubly-scaled cursor on XWayland HiDPI [Jonas; #755099]
+* Stop hiding titlebar buttons in dialogs [Florian; #641630]
+* Add support for fullscreen/unfullscreen animations [Cosimo; #707248]
+* Misc. bug fixes [Rui, Colin, Florian; #743339, #752047, #756074, #756649]
+
+Contributors:
+  Jonas Ådahl, Cosimo Cecchi, Carlos Garnacho, Rui Matos, Florian Müllner,
+  Jasper St. Pierre, Colin Walters, Owen W. Taylor
+
+3.18.0
+======
+* Misc. fixes [Florian, Jonas; #753434]
+
+Contributors:
+  Jonas Ådahl, Florian Müllner
+
+Translations:
+  Rūdolfs Mazurs [lv]
+
+3.17.92
+=======
+* Don't omit the background color for backgrounds that don't fill the screen
+  [Ray; #754476]
+* Fix up key state on FocusIn when running nested [Owen; #753948]
+* Find the right DRM device instead of hardcoding card0 [Marek; #753434]
+* Scale cursor on HiDPI screens [Jonas; #744932]
+* Misc. fixes and cleanups [Lan, Jonas, Javier, Olivier; #754545, #754215,
+  #754621, #754715]
+
+Contributors:
+  Jonas Ådahl, Marek Chalupa, Olivier Fourdan, Javier Jardón, Ting-Wei Lan,
+  Ray Strode, Owen W. Taylor
+
+3.17.91
+=======
+* Send error on pointer-gesture protocol version mismatch [Jonas; #753855]
+* Misc. cleanups [Jonas; #744932]
+
+Contributors:
+  Jonas Ådahl
+
+Translations:
+  Chao-Hsiung Liao [zh_TW], Piotr Drąg [pl]
+
+3.17.90
+=======
+* Fix glitch with some fullscreen apps [Rui; #753020]
+* Fix screen update issue with NVidia driver [Aaron, Rui; #728464]
+* Only call frame callbacks for surfaces that get drawn [Adel; #739163]
+* Misc. bug fixes and cleanups [Jonas, Rui, Ting-Wei; #753222, #752753, #753237,
+  #753380, #744104, #744932]
+
+Contributors:
+  Jonas Ådahl, Adel Gadllah, Carlos Garnacho, Ting-Wei Lan, Rui Matos,
+  Florian Müllner, Aaron Plattner, Jasper St. Pierre
+
+Translations:
+  Akom Chotiphantawanon [th]
+
+3.17.4
+======
+* nested: Allow basic configuration of dummy outputs [Jonas; #747089]
+* Send wl_surface.enter and wl_surface.leave on output changes [Jonas; #744453]
+* Improve HiDPI handling on wayland [Jonas; #745655, #744934]
+* Implement compositor-side animated cursors [Carlos; #752342]
+* Misc. bug fixes [Peter, Marek, Carlos, Matthias, Rui; #750816, #751884,
+  #752248, #752551, #752552, #752673, #752674]
+
+Contributors:
+  Jonas Ådahl, Marek Chalupa, Matthias Clasen, Carlos Garnacho, Peter Hutterer,
+  Rui Matos, Florian Müllner, Jasper St. Pierre
+
+3.17.3
+======
+* Add X11/wayland clipboard interaction [Carlos; #738312]
+* Support VM monitor layout hints on wayland [Thomas; #750363]
+* Misc. bug fixes [Rui, Jonas, Olivier, Carlos, Ting-Wei, Peter, Florian;
+  #749994, #750256, #749716, #748705, #750552, #751036, #750007, #751136,
+  #750552, #751471, #751715, #750680]
+
+Contributors:
+  Jonas Ådahl, Dave Airlie, Cosimo Cecchi, Olivier Fourdan, Carlos Garnacho,
+  Thomas Hellstrom, Peter Hutterer, Ting-Wei Lan, Jasper Lievisse Adriaanse,
+  Rui Matos, Florian Müllner, Jasper St. Pierre
+
+Translations:
+  Marek Černocký [cs], Christian Kirbach [de], Pedro Albuquerque [pt]
+
+3.17.2
+======
+* Honor default value for click method setting [Rui; #746290]
+* Add X11/wayland clipboard interoperation [Carlos; #738312]
+* Misc. bug fixes [Rui; #749076, #749711]
+
+Contributors:
+  Carlos Garnacho, Rui Matos, Jasper St. Pierre
+
+3.17.1
+======
+* Add public method to get neighboring monitor [Florian; #633994]
+* Apply the right settings to the right input devices [Carlos; #747886]
+* Fix scroll button setting [Ondrej; #747967]
+* Add support for modal hint on wayland [Jonas; #745720]
+* Don't reset idle time for non-hardware events [Rui; #748541]
+* Misc. bug fixes [Ray, Rui; #748380, #748478]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho, Ondrej Holy, Rui Matos, Florian Müllner,
+  Jasper St. Pierre, Ray Strode, Tomeu Vizoso
+
+3.16.1
+======
+* Add function to refresh all background instances [Rui; #739178]
+* Fix swapped scroll methods on wayland [Ondrej; #746870]
+* Manually activate stage to fix accessibility on wayland [Ray, Rui; #746670]
+* Center pointer on primary monitor on startup [Carlos; #746896]
+* wayland: Reword synchronized state application semantics [Jonas; #743617]
+* Ensure input settings are applied on startup [Rui; #747434]
+* Misc. bug fixes [Jonas, Giovanni, Calvin, Ray, Rui; #744932, #746509, #746692,
+  #746510, #746545, #747263]
+
+Contributors:
+  Jonas Ådahl, Giovanni Campagna, Carlos Garnacho, Ondrej Holy, Rui Matos,
+  Jasper St. Pierre, Ray Strode, Calvin Walton
+
+Translations:
+  Khaled Hosny [ar], Marek Černocký [cs]
+
+3.16.0
+======
+* wayland: Don't skip notifying about initial maximized state [Jonas; #745303]
+
+Contributors:
+  Jonas Ådahl
+
+Translations:
+  Kjartan Maraas [nb], Jiri Grönroos [fi], Andika Triwidada [id],
+  Inaki Larranaga Murgoitio [eu], Ask H. Larsen [da], Muhammet Kara [tr]
+
+3.15.92
+=======
+* Ensure pointer visibility on monitor changes [Rui, Marek; #745121, #745752]
+* Fix geometry of shaded windows [Florian; #746145]
+* Take over cursor visibility handling from gsd [Carlos; #712775]
+* Fix touch interaction on window decorations [Carlos; #745335]
+* Add options for libinput_config_click_method [Carlos; #746290]
+* Scale window decorations on HiDPI displays [Florian; #744354]
+* Misc. bug fixes [Carlos, Ray, Rui; #745163, #746295, #746098, #745734]
+
+Contributors:
+  Marek Chalupa, Carlos Garnacho, Rui Matos, Florian Müllner,
+  Jasper St. Pierre, Ray Strode
+
+Translations:
+  Piotr Drąg [pl], Milo Casagrande [it], Changwoo Ryu [ko],
+  Daniel Korostil [uk], Baurzhan Muftakhidinov [kk], Trần Ngọc Quân [vi],
+  Alexander Shopov [bg], Jordi Mas [ca], Samir Ribic [bs], A S Alam [pa],
+  Matej Urbančič [sl]
+
+3.15.91
+=======
+* wayland: Fix nested compositor mode [Jonas; #745401]
+* wayland: Fix pointer constraining [Marek; #727337]
+* wayland: Fix input region on HiDPI [Jonas; #744933]
+* Allow themes to style buttons differently based on function [Horst; #745108]
+* Misc. bug fixes and cleanups [Ray, Rui, Alban; #745141, #745118, #745476,
+  #745442]
+
+Contributors:
+  Jonas Ådahl, Alban Browaeys, Marek Chalupa, Horst, Rui Matos,
+  Jasper St. Pierre, Ray Strode
+
+Translations:
+  Chao-Hsiung Liao [zh_TW], Efstathios Iosifidis [el], Dušan Kazik [sk],
+  Balázs Úr [hu], Daniel Mustieles [es], Claude Paroz [fr], Stas Solovey [ru],
+  Yosef Or Boczko [he], Rafael Ferreira [pt_BR], Aurimas Černius [lt],
+  Fran Dieguez [gl], Anders Jonsson [sv], Мирослав Николић [sr, sr@latin]
+
+3.15.90
+=======
+* Initialize MetaOutput even when we can't get the EDID [Rui; #743412]
+* Expose MetaMonitorManager to introspection [Rui; #743745]
+* Fix flash on unredirection [Chris; #743858]
+* Update xdg-shell implementation to v5 [Jonas; #744452]
+* Do not try to use seat devices that aren't (yet) present [Ray; #744640]
+* Add keybindings for switching to VT8-VT12 [Ray; #744800]
+* Misc bug fixes [Jonas, Cosimo; #743678, #744500]
+
+Contributors:
+  Jonas Ådahl, Cosimo Cecchi, Carlos Garnacho, Rui Matos, Jasper St. Pierre,
+  Ray Strode, Chris Wilson
+
+Translations:
+  Yosef Or Boczko [he], Yuri Myasoedov [ru], Kristjan SCHMIDT [eo],
+  Matej Urbančič [sl], Dušan Kazik [sk]
+
+3.15.4
+======
+* Use GTK+ theme for window decorations instead of metacity [Florian; #741917]
+* Export the same EDID information on X11 and wayland [Carlos; #742882]
+* Apply input device configuration on wayland [Carlos; #739397]
+* Implement pointer barriers on wayland [Jonas; #706655]
+* Misc. bug fixes (Ting-Wei, Rui, Ikey, Florian, Marek, Jonas; #741829,
+  #738630, #737463, #698995, #727893, #742825, #742824, #742841, #743173,
+  #743189, #743217, #743254]
+
+Contributors:
+  Jonas Ådahl, Giovanni Campagna, Marek Chalupa, Ikey Doherty, Adel Gadllah,
+  Carlos Garnacho, Ting-Wei Lan, Rui Matos, Florian Müllner, Jasper St. Pierre,
+  Rico Tzschichholz
+
+Translations:
+  Matej Urbančič [sl], Balázs Úr [hu], Marek Černocký [cs],
+  Inaki Larranaga Murgoitio [eu], Rafael Ferreira [pt_BR],
+  Daniel Mustieles [es], Fran Dieguez [gl]
+
+3.15.3
+======
 * Don't leave left-over frames queued [Owen; #738686]
 * Set CRTC configuration even if it might be redundant [Rui; #740838]
 
 Contributors:
-  Rui Matos, Florian Müllner, Jasper St. Pierre, Ray Strode, Owen W. Taylor
-
-3.14.2
-======
-* Prevent crash applying monitor config for a closed lid [Rui; #739450]
-* Misc. fixes [Rui, Jonathon, Jasper; #738630]
-
-Contributors:
-  Jonathon Jongsma, Rui Matos, Jasper St. Pierre
-
-3.14.1.5
-========
-* Fix wayland hiDPI regressions [Adel; #739161]
-
-Contributors:
-  Adel Gadllah, Florian Müllner, Jasper St. Pierre
+  Rui Matos, Jasper St. Pierre, Rico Tzschichholz, Owen W. Taylor
 
 Translations:
-  Dušan Kazik [sk]
+  Trần Ngọc Quân [vi], Muhammet Kara [tr]
+
+3.15.2
+======
+* Don't enable hiDPI on monitors with broken EDID [Bastien; #734839]
+* Prevent crash applying monitor config for a closed lid [Rui; #739450]
+* Fix "flicker" during startup transition [Ray; #740377]
+* Misc. bug fixes [Lan, Florian, Carlos; #731521, #740133, #738890]
+
+Contributors:
+  Emmanuele Bassi, Carlos Garnacho, Jonathon Jongsma, Ting-Wei Lan, Rui Matos,
+  Florian Müllner, Bastien Nocera, Jasper St. Pierre, Ray Strode
+
+Translations:
+  Kjartan Maraas [nb]
+
+3.15.1
+======
+* Use GResources for theme loading [Cosimo; #736936]
+* Fix headerbar drag getting stuck on xwayland [Carlos; #738411]
+* Fix wayland hiDPI regressions [Adel; #739161]
+* Misc bug fixes and cleanups [Jasper, Rui, Carlos; #662962, #738630, #738888,
+  #738890]
+
+Contributors:
+  Cosimo Cecchi, Adel Gadllah, Carlos Garnacho, Rui Matos, Florian Müllner,
+  Jasper St. Pierre
 
 3.14.1
 ======
