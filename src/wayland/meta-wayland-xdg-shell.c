@@ -1279,7 +1279,25 @@ xdg_surface_set_window_geometry (struct wl_client   *client,
                                  int32_t             width,
                                  int32_t             height)
 {
+  MetaWaylandXdgSurface *xdg_surface = wl_resource_get_user_data (resource);
+  MetaWaylandXdgSurfacePrivate *priv =
+    meta_wayland_xdg_surface_get_instance_private (xdg_surface);
   MetaWaylandSurface *surface = surface_from_xdg_surface_resource (resource);
+
+  /* Don't mark this window as with a new geometry to be applied when neither the
+   * position nor the size changed, and we're not pending any move. This avoids
+   * calling meta_window_wayland_move_resize(), which is a considerable performance
+   * gain.
+   */
+  if (!meta_window_wayland_has_pending_move (surface->window) &&
+      priv->geometry.x == x &&
+      priv->geometry.y == y &&
+      priv->geometry.width == width &&
+      priv->geometry.height == height)
+    {
+      surface->pending->has_new_geometry = FALSE;
+      return;
+    }
 
   surface->pending->has_new_geometry = TRUE;
   surface->pending->new_geometry.x = x;
