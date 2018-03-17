@@ -618,7 +618,7 @@ meta_wayland_zxdg_toplevel_v6_commit (MetaWaylandSurfaceRole  *surface_role,
   if (!window)
     return;
 
-  if (pending->has_new_geometry)
+  if (pending->has_new_geometry || meta_window_wayland_needs_move_resize (window))
     {
       window_geometry =
         meta_wayland_zxdg_surface_v6_get_window_geometry (xdg_surface);
@@ -1206,7 +1206,19 @@ zxdg_surface_v6_set_window_geometry (struct wl_client   *client,
                                      int32_t             width,
                                      int32_t             height)
 {
+  MetaWaylandZxdgSurfaceV6 *xdg_surface = wl_resource_get_user_data (resource);
+  MetaWaylandZxdgSurfaceV6Private *priv =
+    meta_wayland_zxdg_surface_v6_get_instance_private (xdg_surface);
   MetaWaylandSurface *surface = surface_from_xdg_surface_resource (resource);
+
+  if (priv->geometry.x == x &&
+      priv->geometry.y == y &&
+      priv->geometry.width == width &&
+      priv->geometry.height == height)
+    {
+      surface->pending->has_new_geometry = FALSE;
+      return;
+    }
 
   surface->pending->has_new_geometry = TRUE;
   surface->pending->new_geometry.x = x;
