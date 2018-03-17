@@ -903,3 +903,14 @@ meta_window_wayland_get_max_size (MetaWindow *window,
   scale_size (width, height, scale);
 }
 
+gboolean
+meta_window_wayland_has_pending_move (MetaWindow *window)
+{
+  MetaWindowWayland *wl_window;
+
+  g_assert (META_IS_WINDOW_WAYLAND (window));
+
+  wl_window = META_WINDOW_WAYLAND (window);
+
+  return wl_window->has_pending_move;
+}
