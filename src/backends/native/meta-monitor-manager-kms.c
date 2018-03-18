@@ -681,8 +681,11 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
       gpu_kms = meta_gpu_kms_new (manager_kms, gpu_path, &secondary_error);
       if (!gpu_kms)
         {
-          g_warning ("Failed to open secondary gpu '%s': %s",
-                     gpu_path, secondary_error->message);
+          if (g_error_matches (secondary_error, META_GPU_KMS_ERROR, META_GPU_KMS_ERROR_NO_CONNECTORS))
+            g_message ("Ignoring GPU %s due to the lack of connectors", gpu_path);
+          else
+            g_warning ("Failed to open secondary gpu '%s': %s", gpu_path, secondary_error->message);
+
           continue;
         }
 
