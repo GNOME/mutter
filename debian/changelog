@@ -1,8 +1,15 @@
 mutter (3.28.0-2) UNRELEASED; urgency=medium
 
+  [ Simon McVittie ]
   * Update Vcs-* for migration from Alioth svn to salsa.debian.org git
   * debian/gbp.conf: Add
   * Refresh patch series with gbp pq
+
+  [ Daniel van Vugt ]
+  * Add synaptics-support.patch
+    - Allow touchpad settings to work with xserver-xorg-input-synaptics.
+      Note that this is unneeded on GNOME on Wayland where libinput is
+      always used. (LP: #1686081)
 
  -- Simon McVittie <smcv@debian.org>  Fri, 16 Mar 2018 23:35:27 +0000
 

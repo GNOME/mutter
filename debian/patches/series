@@ -1,3 +1,4 @@
 bgo768531_workaround-startup-notifications.patch
 skip-failing-tests.patch
 skip-failing-tests-325.patch
+synaptics-support.patch
