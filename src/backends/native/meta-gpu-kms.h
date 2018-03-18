@@ -29,6 +29,14 @@
 #include "backends/meta-gpu.h"
 #include "backends/native/meta-monitor-manager-kms.h"
 
+typedef enum
+{
+  META_GPU_KMS_ERROR_NO_CONNECTORS,
+} MetaGpuKmsError;
+
+#define META_GPU_KMS_ERROR (meta_gpu_kms_error_quark ())
+GQuark meta_gpu_kms_error_quark (void);
+
 #define META_TYPE_GPU_KMS (meta_gpu_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaGpuKms, meta_gpu_kms, META, GPU_KMS, MetaGpu)
 
