@@ -1,8 +1,8 @@
 #!/usr/bin/make -f
-
 -include /usr/share/gnome-pkg-tools/1/rules/gnome-get-source.mk
 
-export DEB_LDFLAGS_MAINT_APPEND = -Wl,-O1 -Wl,--as-needed
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
 %:
 	dh $@ --with gir,gnome
@@ -43,7 +43,11 @@ else
 endif
 
 override_dh_install:
-	dh_install --list-missing
+	find debian/tmp -name '*.la' -print -delete
+	dh_install
+
+override_dh_missing:
+	dh_missing --fail-missing
 
 override_dh_girepository:
 	dh_girepository /usr/lib/$(DEB_HOST_MULTIARCH)/mutter

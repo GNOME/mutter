@@ -11,6 +11,9 @@ mutter (3.28.0-2) UNRELEASED; urgency=medium
       Note that this is unneeded on GNOME on Wayland where libinput is
       always used. (LP: #1686081)
 
+  [ Jeremy Bicha ]
+  * Bump debhelper compat to 11
+
  -- Simon McVittie <smcv@debian.org>  Fri, 16 Mar 2018 23:35:27 +0000
 
 mutter (3.28.0-1) unstable; urgency=high
@@ -619,9 +622,9 @@ mutter (3.14.4-2) unstable; urgency=medium
 mutter (3.14.4-1) unstable; urgency=medium
 
   * New upstream translation and bugfix release.
-    + Includes new function required for the workaround to #768896 which 
+    + Includes new function required for the workaround to #768896 which
       is very annoying for users of the proprietary nvidia driver.
-  * 10_window-actor_unredirect.patch, 11_black_background.patch: 
+  * 10_window-actor_unredirect.patch, 11_black_background.patch:
     dropped, merged upstream.
   * Bump shlibs due to new function.
 
@@ -630,9 +633,9 @@ mutter (3.14.4-1) unstable; urgency=medium
 mutter (3.14.2-1) unstable; urgency=medium
 
   * New upstream bugfix release.
-  * 10_window-actor_unredirect.patch: patch from upstream git. Fix crash 
+  * 10_window-actor_unredirect.patch: patch from upstream git. Fix crash
     when closing a window.
-  * 11_black_background.patch: patch from upstream git. Don’t set a 
+  * 11_black_background.patch: patch from upstream git. Don’t set a
     black background when switching from the display manager.
 
  -- Josselin Mouette <joss@debian.org>  Sun, 30 Nov 2014 15:05:14 +0100
@@ -966,7 +969,7 @@ mutter (3.4.1-5) unstable; urgency=low
 
   [ Rico Tzschichholz ]
   * debian/patches: Add upstream patch
-    00_meta_window_move_frame-fix-crash-when-frame-is-NULL.patch 
+    00_meta_window_move_frame-fix-crash-when-frame-is-NULL.patch
 
   [ Michael Biebl ]
   * Install missing keybindings file 50-mutter-windows.xml which is required
@@ -1158,7 +1161,7 @@ mutter (3.0.2.1-1) unstable; urgency=low
     - Look for bzip2 tarballs
 
   [ Josselin Mouette ]
-  * Depend on libgnome2-common for the GConf schemas. This will be 
+  * Depend on libgnome2-common for the GConf schemas. This will be
     necessary until mutter is ported to GSettings.
 
  -- Laurent Bigonville <bigon@debian.org>  Sat, 11 Jun 2011 14:39:59 +0200
@@ -1484,7 +1487,7 @@ mutter (2.27.2-1) unstable; urgency=low
 
 metacity (1:2.26.0-3) unstable; urgency=high
 
-  * 10_ignore_callbacks.patch: stolen upstream. Fix a bug leading to 
+  * 10_ignore_callbacks.patch: stolen upstream. Fix a bug leading to
     some callbacks being ignored. Closes: #533917.
 
  -- Josselin Mouette <joss@debian.org>  Wed, 24 Jun 2009 12:04:26 +0200
@@ -1492,8 +1495,8 @@ metacity (1:2.26.0-3) unstable; urgency=high
 metacity (1:2.26.0-2) unstable; urgency=low
 
   * Use patchsys-quilt; build-depend on quilt.
-  * 01_Wcast-align.patch: don’t use -Wcast-align, it gives incorrect 
-    warnings (errors thanks to -Werror) when some pointers are converted 
+  * 01_Wcast-align.patch: don’t use -Wcast-align, it gives incorrect
+    warnings (errors thanks to -Werror) when some pointers are converted
     back and forth to XPointers. Closes: #532655.
   * 90_autotools.patch: relibtoolize the whole package.
 
@@ -1522,7 +1525,7 @@ metacity (1:2.26.0-1) unstable; urgency=low
 
 metacity (1:2.24.0-2) unstable; urgency=low
 
-  * Rename libmetacity0 to libmetacity-private0 because of an 
+  * Rename libmetacity0 to libmetacity-private0 because of an
     unexpected ABI change. Closes: #510096.
   * Remove trailing -1's in build-depends.
   * debian/copyright: write complete list of copyright holders.
@@ -1549,10 +1552,10 @@ metacity (1:2.22.0-2) unstable; urgency=low
     (Closes: #471442)
 
   [ Josselin Mouette ]
-  * 01_doublefree_maximize.patch: stolen upstream (r3817). Fixes 
+  * 01_doublefree_maximize.patch: stolen upstream (r3817). Fixes
     vertical maximisation bug caused by an invalid free.
     Closes: #452139.
-  * control.in: make metacity the first package so that it gets the 
+  * control.in: make metacity the first package so that it gets the
     README.Debian.
 
  -- Josselin Mouette <joss@debian.org>  Thu, 18 Sep 2008 16:53:19 +0200
@@ -1713,7 +1716,7 @@ metacity (1:2.16.3-1) experimental; urgency=low
   * Merge 1:2.14.5-2.
 
   [ Josselin Mouette ]
-  * Use ${gnome:Version} and ${gnome:NextVersion} to loosen the 
+  * Use ${gnome:Version} and ${gnome:NextVersion} to loosen the
     dependencies.
   * Build-depend on gnome-pkg-tools 0.6.
   * Call gnome-version.mk.
@@ -1728,7 +1731,7 @@ metacity (1:2.16.2-1) experimental; urgency=low
  -- Loic Minier <lool@dooz.org>  Mon, 25 Sep 2006 17:47:56 +0200
 
 metacity (1:2.16.1-1) experimental; urgency=low
-  
+
   [ Loïc Minier ]
   * Remove superfluous dh_installcatalogs call and bump cdbs build-dep to
     >= 0.4.37, thanks Peter Eisentraut. (Closes: #361156)
@@ -1742,7 +1745,7 @@ metacity (1:2.16.1-1) experimental; urgency=low
   * New upstream release, target experimental:
     - Bumping up libgtk2.0-dev build-dep to 2.10
   * Setting myself as the maintainer.
-  
+
  -- Marco Cabizza <marco87@gmail.com>  Wed, 13 Sep 2006 18:46:45 +0200
 
 metacity (1:2.14.5-2) unstable; urgency=low
@@ -1890,7 +1893,7 @@ metacity (1:2.12.1-1) experimental; urgency=low
 metacity (1:2.10.3-2) unstable; urgency=low
 
   * debian/control.in:
-    - don't Build-Depends on xlibs-pic, Build-Depend on libxinerama-dev 
+    - don't Build-Depends on xlibs-pic, Build-Depend on libxinerama-dev
       (Closes: #320589).
   * debian/patches/000_metacity-debian-xinerama-pic.patch:
     - not useful with xorg.
@@ -2021,7 +2024,7 @@ metacity (1:2.8.0-3) experimental; urgency=low
 
 metacity (1:2.8.0-2) experimental; urgency=low
 
-  * Added Build-Depends on gnome-pkg-tools and libxml-parser-perl 
+  * Added Build-Depends on gnome-pkg-tools and libxml-parser-perl
     (Closes: #240639).
 
  -- Sebastien Bacher <seb128@debian.org>  Sat,  3 Apr 2004 23:46:56 +0200
@@ -2029,14 +2032,14 @@ metacity (1:2.8.0-2) experimental; urgency=low
 metacity (1:2.8.0-1) experimental; urgency=low
 
   * New upstream release:
-    + converts "show desktop mode" to "all windows are minimized" when 
-      you open a new window (Closes: #217467).    
-    + fixes bug with panel not listed before clicking on them 
-      (Closes: #224054).  
-    + fixes multi-tab handling (Closes: #227708).  
+    + converts "show desktop mode" to "all windows are minimized" when
+      you open a new window (Closes: #217467).
+    + fixes bug with panel not listed before clicking on them
+      (Closes: #224054).
+    + fixes multi-tab handling (Closes: #227708).
     + includes always on top menu entry (Closes: #204212).
     + includes wireframes support (Closes: #184849).
-    + should fix bug with applications changing workspace 
+    + should fix bug with applications changing workspace
       (Closes: #224156, #230782).
     + switches window truncates title (Closes: #186324).
   * debian/control.in, debian/rules:
@@ -2063,13 +2066,13 @@ metacity (1:2.6.3-1) unstable; urgency=low
 
   * New upstream release.
   * Gnome Team Upload.
-  
+
  -- Sebastien Bacher <seb128@debian.org>  Sat, 20 Dec 2003 23:17:21 +0100
 
 metacity (1:2.6.2-2) unstable; urgency=low
 
-  * debian/patches/000_metacity-debian-xinerama-pic.patch: 
-    - updated to fix a link problem (Closes: #216693).    
+  * debian/patches/000_metacity-debian-xinerama-pic.patch:
+    - updated to fix a link problem (Closes: #216693).
 
  -- Sebastien Bacher <seb128@debian.org>  Tue, 21 Oct 2003 13:56:24 +0200
 
@@ -2079,7 +2082,7 @@ metacity (1:2.6.2-1) unstable; urgency=low
   * debian/patches/:
     - 000_metacity-2.4.34-usage.patch: removed.
     - 000_metacity-debian-xinerama-pic.patch: updated.
-    - 001_metacity-2.4.55-non-weak-symbols.patch: removed.   
+    - 001_metacity-2.4.55-non-weak-symbols.patch: removed.
   * Update Build-Depends.
   * Gnome Team Upload.
 
@@ -2129,7 +2132,7 @@ metacity (1:2.4.34-3) unstable; urgency=low
 metacity (1:2.4.34-2) unstable; urgency=low
 
   * Revert to 2.4.34 to use stable release.
-    - should works now. (closes: Bug#187749, Bug#187387, Bug#187982) 
+    - should works now. (closes: Bug#187749, Bug#187387, Bug#187982)
   * debian/README.Debian:
     - described NVidia drivers issue. (closes: Bug#181056)
   * debian/patches/:
@@ -2378,7 +2381,7 @@ metacity (2.3.55-1) unstable; urgency=low
 
 metacity (2.3.34-2) unstable; urgency=low
 
-  * Added build-depend on docbook-to-man (Closes: #134433) 
+  * Added build-depend on docbook-to-man (Closes: #134433)
 
  -- Thom May <thom@debian.org>  Sun, 17 Feb 2002 20:14:28 +0000
 
