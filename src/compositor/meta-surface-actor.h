@@ -27,6 +27,8 @@ struct _MetaSurfaceActorClass
   void     (* pre_paint)         (MetaSurfaceActor *actor);
   gboolean (* is_visible)        (MetaSurfaceActor *actor);
   gboolean (* is_opaque)         (MetaSurfaceActor *actor);
+  void     (* set_frozen)        (MetaSurfaceActor *actor,
+                                  gboolean          is_frozen);
 };
 
 cairo_surface_t *meta_surface_actor_get_image (MetaSurfaceActor      *self,
