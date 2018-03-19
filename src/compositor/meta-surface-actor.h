@@ -31,6 +31,10 @@ struct _MetaSurfaceActorClass
   void     (* set_unredirected)  (MetaSurfaceActor *actor,
                                   gboolean          unredirected);
   gboolean (* is_unredirected)   (MetaSurfaceActor *actor);
+
+  void     (* set_frozen)        (MetaSurfaceActor *actor,
+                                  gboolean          is_frozen);
+
 };
 
 cairo_surface_t *meta_surface_actor_get_image (MetaSurfaceActor      *self,
