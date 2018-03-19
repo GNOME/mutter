@@ -31,6 +31,9 @@ struct _MetaSurfaceActorPrivate
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
+void meta_surface_actor_real_set_frozen (MetaSurfaceActor *self,
+                                         gboolean          frozen);
+
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaSurfaceActor, meta_surface_actor, CLUTTER_TYPE_ACTOR,
                                   G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
 
@@ -120,6 +123,8 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
 
   object_class->dispose = meta_surface_actor_dispose;
   actor_class->pick = meta_surface_actor_pick;
+
+  klass->set_frozen = meta_surface_actor_real_set_frozen;
 
   signals[REPAINT_SCHEDULED] = g_signal_new ("repaint-scheduled",
                                              G_TYPE_FROM_CLASS (object_class),
@@ -331,6 +336,13 @@ meta_surface_actor_is_visible (MetaSurfaceActor *self)
 void
 meta_surface_actor_set_frozen (MetaSurfaceActor *self,
                                gboolean          frozen)
+{
+  return META_SURFACE_ACTOR_GET_CLASS (self)->set_frozen (self, frozen);
+}
+
+void
+meta_surface_actor_real_set_frozen (MetaSurfaceActor *self,
+                                    gboolean          frozen)
 {
   MetaSurfaceActorPrivate *priv = self->priv;
 
