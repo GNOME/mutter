@@ -291,6 +291,7 @@ surface_size_changed (MetaSurfaceActor *actor,
   MetaWindowActor *self = META_WINDOW_ACTOR (user_data);
 
   meta_window_actor_update_shape (self);
+  meta_window_actor_handle_updates (self);
 }
 
 static gboolean
