@@ -36,6 +36,9 @@ struct _MetaSurfaceActorClass
                                   gboolean          unredirected);
   gboolean (* is_unredirected)   (MetaSurfaceActor *actor);
 
+  void     (* set_frozen)        (MetaSurfaceActor *actor,
+                                  gboolean          is_frozen);
+
   MetaWindow *(* get_window)      (MetaSurfaceActor *actor);
 };
 
