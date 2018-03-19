@@ -1,4 +1,4 @@
-mutter (3.28.0-2) UNRELEASED; urgency=medium
+mutter (3.28.0-2) unstable; urgency=medium
 
   [ Simon McVittie ]
   * Update Vcs-* for migration from Alioth svn to salsa.debian.org git
@@ -14,7 +14,7 @@ mutter (3.28.0-2) UNRELEASED; urgency=medium
   [ Jeremy Bicha ]
   * Bump debhelper compat to 11
 
- -- Simon McVittie <smcv@debian.org>  Fri, 16 Mar 2018 23:35:27 +0000
+ -- Jeremy Bicha <jbicha@debian.org>  Sun, 18 Mar 2018 20:11:29 -0400
 
 mutter (3.28.0-1) unstable; urgency=high
 
