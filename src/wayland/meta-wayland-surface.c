@@ -1111,15 +1111,7 @@ wl_surface_destructor (struct wl_resource *resource)
 
   g_signal_emit (surface, surface_signals[SURFACE_DESTROY], 0);
 
-  g_signal_handlers_disconnect_by_func (surface->surface_actor,
-                                        surface_actor_mapped_notify,
-                                        surface);
-  g_signal_handlers_disconnect_by_func (surface->surface_actor,
-                                        surface_actor_allocation_notify,
-                                        surface);
-  g_signal_handlers_disconnect_by_func (surface->surface_actor,
-                                        surface_actor_position_notify,
-                                        surface);
+  meta_wayland_surface_clear_surface_actor (surface);
 
   g_clear_object (&surface->role);
 
@@ -1145,8 +1137,6 @@ wl_surface_destructor (struct wl_resource *resource)
     cairo_region_destroy (surface->opaque_region);
   if (surface->input_region)
     cairo_region_destroy (surface->input_region);
-
-  g_object_unref (surface->surface_actor);
 
   meta_wayland_compositor_destroy_frame_callbacks (compositor, surface);
 
@@ -1207,11 +1197,37 @@ meta_wayland_surface_create_surface_actor (MetaWaylandSurface *surface)
 
   surface_actor = meta_surface_actor_wayland_new (surface);
   surface->surface_actor = g_object_ref_sink (surface_actor);
+
+  g_signal_connect_object (surface->surface_actor,
+                           "notify::allocation",
+                           G_CALLBACK (surface_actor_allocation_notify),
+                           surface, 0);
+  g_signal_connect_object (surface->surface_actor,
+                           "notify::position",
+                           G_CALLBACK (surface_actor_position_notify),
+                           surface, 0);
+  g_signal_connect_object (surface->surface_actor,
+                           "notify::mapped",
+                           G_CALLBACK (surface_actor_mapped_notify),
+                           surface, 0);
 }
 
 void
 meta_wayland_surface_clear_surface_actor (MetaWaylandSurface *surface)
 {
+  if (!surface->surface_actor)
+    return;
+
+  g_signal_handlers_disconnect_by_func (surface->surface_actor,
+                                        surface_actor_mapped_notify,
+                                        surface);
+  g_signal_handlers_disconnect_by_func (surface->surface_actor,
+                                        surface_actor_allocation_notify,
+                                        surface);
+  g_signal_handlers_disconnect_by_func (surface->surface_actor,
+                                        surface_actor_position_notify,
+                                        surface);
+
   g_clear_object (&surface->surface_actor);
 }
 
@@ -1229,22 +1245,9 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
   surface->resource = wl_resource_create (client, &wl_surface_interface, wl_resource_get_version (compositor_resource), id);
   wl_resource_set_implementation (surface->resource, &meta_wayland_wl_surface_interface, surface, wl_surface_destructor);
 
-  surface->surface_actor = g_object_ref_sink (meta_surface_actor_wayland_new (surface));
-
   wl_list_init (&surface->pending_frame_callback_list);
 
-  g_signal_connect_object (surface->surface_actor,
-                           "notify::allocation",
-                           G_CALLBACK (surface_actor_allocation_notify),
-                           surface, 0);
-  g_signal_connect_object (surface->surface_actor,
-                           "notify::position",
-                           G_CALLBACK (surface_actor_position_notify),
-                           surface, 0);
-  g_signal_connect_object (surface->surface_actor,
-                           "notify::mapped",
-                           G_CALLBACK (surface_actor_mapped_notify),
-                           surface, 0);
+  meta_wayland_surface_create_surface_actor (surface);
 
   sync_drag_dest_funcs (surface);
 
