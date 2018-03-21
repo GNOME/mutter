@@ -699,6 +699,7 @@ meta_pointer_confinement_wayland_new (MetaWaylandPointerConstraint *constraint)
   confinement->constraint = constraint;
 
   surface = meta_wayland_pointer_constraint_get_surface (constraint);
+  meta_wayland_surface_ensure_surface_actor (surface);
   g_signal_connect_object (surface->surface_actor,
                            "notify::allocation",
                            G_CALLBACK (surface_actor_allocation_notify),

@@ -709,7 +709,7 @@ meta_wayland_xdg_toplevel_reset (MetaWaylandXdgSurface *xdg_surface)
   meta_wayland_surface_destroy_window (surface);
   meta_wayland_surface_clear_surface_actor (surface);
 
-  meta_wayland_surface_create_surface_actor (surface);
+  meta_wayland_surface_ensure_surface_actor (surface);
   window = meta_window_wayland_new (meta_get_display (), surface);
   meta_wayland_shell_surface_set_window (shell_surface, window);
 
