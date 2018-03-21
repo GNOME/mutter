@@ -179,6 +179,13 @@ role_assignment_valist_to_properties (GType       role_type,
   g_type_class_unref (object_class);
 }
 
+static void
+meta_wayland_surface_ensure_surface_actor (MetaWaylandSurface *surface)
+{
+  if (!surface->surface_actor)
+    meta_wayland_surface_create_surface_actor (surface);
+}
+
 gboolean
 meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
                                   GType               role_type,
@@ -189,6 +196,8 @@ meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
 
   if (!surface->role)
     {
+      meta_wayland_surface_ensure_surface_actor (surface);
+
       if (first_property_name)
         {
           GArray *names;
@@ -703,6 +712,8 @@ cleanup:
 static void
 meta_wayland_surface_commit (MetaWaylandSurface *surface)
 {
+  meta_wayland_surface_ensure_surface_actor (surface);
+
   /*
    * If this is a sub-surface and it is in effective synchronous mode, only
    * cache the pending surface state until either one of the following two
@@ -1087,6 +1098,9 @@ meta_wayland_surface_set_window (MetaWaylandSurface *surface,
 
   surface->window = window;
 
+  if (window)
+    meta_wayland_surface_ensure_surface_actor (surface);
+
   clutter_actor_set_reactive (CLUTTER_ACTOR (surface->surface_actor), !!window);
   sync_drag_dest_funcs (surface);
 
@@ -1246,8 +1260,6 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
   wl_resource_set_implementation (surface->resource, &meta_wayland_wl_surface_interface, surface, wl_surface_destructor);
 
   wl_list_init (&surface->pending_frame_callback_list);
-
-  meta_wayland_surface_create_surface_actor (surface);
 
   sync_drag_dest_funcs (surface);
 
