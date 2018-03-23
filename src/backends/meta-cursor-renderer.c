@@ -160,6 +160,27 @@ meta_cursor_renderer_init (MetaCursorRenderer *renderer)
                                            NULL);
 }
 
+ClutterPoint
+meta_cursor_renderer_calculate_pos (MetaCursorRenderer *renderer,
+                                    MetaCursorSprite   *cursor_sprite)
+{
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+  CoglTexture *texture;
+  int hot_x, hot_y;
+
+  texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
+  if (!texture)
+    return (ClutterPoint) CLUTTER_POINT_INIT_ZERO;
+
+  meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
+
+  return (ClutterPoint) {
+    .x = priv->current_x + hot_x,
+    .y = priv->current_y + hot_y
+  };
+}
+
 ClutterRect
 meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
                                      MetaCursorSprite   *cursor_sprite)
