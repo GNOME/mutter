@@ -238,8 +238,8 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
   if (priv->real_actor == NULL)
     return FALSE;
 
-  if(clutter_actor_is_in_clone_paint(priv->real_actor))
-    priv->actor = _clutter_actor_get_clone_paint_actor(priv->real_actor);
+  if (clutter_actor_is_in_clone_paint (priv->real_actor))
+    priv->actor = _clutter_actor_get_clone_paint_actor (priv->real_actor);
   else
     priv->actor = priv->real_actor;
 
