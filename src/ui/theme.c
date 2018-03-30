@@ -869,6 +869,7 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
                icon_name = "open-menu-symbolic";
                break;
             case META_BUTTON_TYPE_APPMENU:
+               cairo_surface_set_device_scale (mini_con, xscale * scale, yscale * scale);
                surface = cairo_surface_reference (mini_icon);
                break;
             default:
