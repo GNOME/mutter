@@ -1046,9 +1046,12 @@ meta_theme_create_style_info (GdkScreen   *screen,
   GtkCssProvider *provider;
   char *theme_name;
 
-  g_object_get (gtk_settings_get_for_screen (screen),
-                "gtk-theme-name", &theme_name,
-                NULL);
+  if (g_getenv ("GTK_THEME"))
+    theme_name = g_strdup (g_getenv ("GTK_THEME"));
+  else
+    g_object_get (gtk_settings_get_for_screen (screen),
+                  "gtk-theme-name", &theme_name,
+                  NULL);
 
   if (theme_name && *theme_name)
     provider = gtk_css_provider_get_named (theme_name, variant);
