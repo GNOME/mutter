@@ -128,9 +128,12 @@ update_global_scaling_factor (MetaSettings *settings)
 {
   int global_scaling_factor;
 
-  global_scaling_factor =
-    (int) g_settings_get_uint (settings->interface_settings,
-                               "scaling-factor");
+  if (g_getenv ("GDK_SCALE"))
+    global_scaling_factor = g_ascii_strtoll (g_getenv ("GDK_SCALE"), NULL, 10);
+  else
+    global_scaling_factor =
+      (int) g_settings_get_uint (settings->interface_settings,
+                                "scaling-factor");
 
   if (settings->global_scaling_factor != global_scaling_factor)
     {
