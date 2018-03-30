@@ -757,7 +757,7 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
   scale = meta_theme_get_window_scaling_factor ();
   frame_surface = cairo_get_target (cr);
   cairo_surface_get_device_scale (frame_surface, &xscale, &yscale);
-  cairo_surface_set_device_scale (frame_surface, scale, scale);
+  cairo_surface_set_device_scale (frame_surface, xscale * scale, yscale * scale);
 
   borders = &fgeom->borders;
 
