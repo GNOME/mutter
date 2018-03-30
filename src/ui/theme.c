@@ -868,14 +868,34 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
 
           if (icon_name)
             {
-              GtkIconTheme *theme = gtk_icon_theme_get_default ();
-              GtkIconInfo *info;
-              GdkPixbuf *pixbuf;
+              g_autoptr (GIcon) icon = NULL;
+              g_autoptr (GtkIconInfo) info = NULL;
+              g_autoptr (GdkPixbuf) pixbuf = NULL;
+              GtkIconTheme *theme;
+              int flags;
 
-              info = gtk_icon_theme_lookup_icon_for_scale (theme, icon_name,
-                                                           layout->icon_size, scale, 0);
-              pixbuf = gtk_icon_info_load_symbolic_for_context (info, style, NULL, NULL);
-              surface = gdk_cairo_surface_create_from_pixbuf (pixbuf, scale, NULL);
+              theme = gtk_icon_theme_get_default ();
+
+              /* This can't be exactly like Gtk does as some -gtk-* css
+               * properties that are used for setting the loading flags
+               * are not accessible from here */
+              flags = GTK_ICON_LOOKUP_USE_BUILTIN;
+              flags |= (meta_get_locale_direction () == META_LOCALE_DIRECTION_LTR) ?
+                        GTK_ICON_LOOKUP_DIR_LTR : GTK_ICON_LOOKUP_DIR_RTL;
+
+              icon = g_themed_icon_new_with_default_fallbacks (icon_name);
+              info = gtk_icon_theme_lookup_by_gicon_for_scale (theme, icon,
+                                                               layout->icon_size,
+                                                               scale, flags);
+              if (gtk_icon_info_is_symbolic (info))
+                pixbuf = gtk_icon_info_load_symbolic_for_context (info, style,
+                                                                  NULL, NULL);
+              else
+                pixbuf = gtk_icon_info_load_icon (info, NULL);
+
+              if (pixbuf)
+                surface = gdk_cairo_surface_create_from_pixbuf (pixbuf, scale,
+                                                                NULL);
             }
 
           if (surface)
