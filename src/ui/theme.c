@@ -1046,11 +1046,30 @@ meta_theme_create_style_info (GdkScreen   *screen,
 {
   MetaStyleInfo *style_info;
   GtkCssProvider *provider;
+  const char *env_theme;
   char *theme_name;
 
-  g_object_get (gtk_settings_get_for_screen (screen),
-                "gtk-theme-name", &theme_name,
-                NULL);
+  env_theme = g_getenv ("GTK_THEME");
+  if (env_theme && *env_theme)
+    {
+      const char *variant_p = NULL;
+
+      if (variant == NULL)
+        variant_p = strrchr (env_theme, ':');
+
+      if (variant_p)
+        {
+          theme_name = g_strndup (env_theme, variant_p - env_theme);
+          if (*(variant_p + 1))
+            variant = variant_p + 1;
+        }
+      else
+        theme_name = g_strdup (env_theme);
+    }
+  else
+    g_object_get (gtk_settings_get_for_screen (screen),
+                  "gtk-theme-name", &theme_name,
+                  NULL);
 
   if (theme_name && *theme_name)
     provider = gtk_css_provider_get_named (theme_name, variant);
