@@ -720,6 +720,71 @@ get_class_from_button_type (MetaButtonType type)
 }
 
 static void
+render_element_in_group (GQueue          *draw_group,
+                         GtkStyleContext *style,
+                         cairo_t         *cr,
+                         GdkRectangle    *rect,
+                         MetaRenderFlags  render_flags,
+                         gpointer         data)
+{
+  GtkStateFlags state;
+  double opacity;
+
+  state = gtk_style_context_get_state (style);
+  gtk_style_context_get (style, state, "opacity", &opacity, NULL);
+
+  if (opacity != 1.0)
+    {
+      double *saved_opacity = g_new0 (double, 1);
+      *saved_opacity = opacity;
+      cairo_push_group (cr);
+      g_queue_push_tail (draw_group, saved_opacity);
+    }
+
+  if (opacity > 0.0)
+    {
+      if (render_flags & META_RENDER_BACKGROUND)
+        gtk_render_background (style, cr, rect->x, rect->y, rect->width, rect->height);
+
+      if (render_flags & META_RENDER_FRAME)
+        gtk_render_frame (style, cr, rect->x, rect->y, rect->width, rect->height);
+
+      if (render_flags & META_RENDER_SURFACE)
+        {
+          cairo_surface_t *surface = data;
+          g_return_if_fail (surface);
+          gtk_render_icon_surface (style, cr, surface, rect->x, rect->y);
+        }
+
+      if (render_flags & META_RENDER_LAYOUT)
+        {
+          PangoLayout *layout = data;
+          g_return_if_fail (layout && PANGO_IS_LAYOUT (layout));
+          gtk_render_layout (style, cr, rect->x, rect->y, layout);
+        }
+    }
+}
+
+static void
+paint_elements_in_group (GQueue  *draw_group,
+                         cairo_t *cr)
+{
+  while (!g_queue_is_empty (draw_group))
+    {
+      g_autofree double *opacity = g_queue_pop_tail (draw_group);
+
+      if (*opacity > 0.0)
+        {
+          cairo_pop_group_to_source (cr);
+          cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
+          cairo_paint_with_alpha (cr, *opacity);
+        }
+      else
+        cairo_pop_group (cr);
+    }
+}
+
+static void
 meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
                                    MetaStyleInfo           *style_info,
                                    cairo_t                 *cr,
@@ -731,6 +796,7 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
 {
   GtkStyleContext *style;
   GtkStateFlags state;
+  GQueue frame_group;
   MetaButtonType button_type;
   GdkRectangle visible_rect;
   GdkRectangle titlebar_rect;
@@ -759,6 +825,7 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
   cairo_surface_get_device_scale (frame_surface, &xscale, &yscale);
   cairo_surface_set_device_scale (frame_surface, scale, scale);
 
+  g_queue_init (&frame_group);
   borders = &fgeom->borders;
 
   visible_rect.x = borders->invisible.left / scale;
@@ -769,12 +836,8 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
   meta_style_info_set_flags (style_info, flags);
 
   style = style_info->styles[META_STYLE_ELEMENT_FRAME];
-  gtk_render_background (style, cr,
-                         visible_rect.x, visible_rect.y,
-                         visible_rect.width, visible_rect.height);
-  gtk_render_frame (style, cr,
-                    visible_rect.x, visible_rect.y,
-                    visible_rect.width, visible_rect.height);
+  render_element_in_group (&frame_group, style, cr, &visible_rect,
+                           META_RENDER_BACKGROUND | META_RENDER_FRAME, NULL);
 
   titlebar_rect.x = visible_rect.x;
   titlebar_rect.y = visible_rect.y;
@@ -782,18 +845,16 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
   titlebar_rect.height = borders->visible.top / scale;
 
   style = style_info->styles[META_STYLE_ELEMENT_TITLEBAR];
-  gtk_render_background (style, cr,
-                         titlebar_rect.x, titlebar_rect.y,
-                         titlebar_rect.width, titlebar_rect.height);
-  gtk_render_frame (style, cr,
-                    titlebar_rect.x, titlebar_rect.y,
-                    titlebar_rect.width, titlebar_rect.height);
+  render_element_in_group (&frame_group, style, cr, &titlebar_rect,
+                           META_RENDER_BACKGROUND | META_RENDER_FRAME, NULL);
 
   if (layout->has_title && title_layout)
     {
+      g_autoptr(GQueue) title_group;
       PangoRectangle logical;
       int text_width, x, y;
 
+      title_group = g_queue_new ();
       pango_layout_set_width (title_layout, -1);
       pango_layout_get_pixel_extents (title_layout, NULL, &logical);
 
@@ -812,7 +873,10 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
         x = (fgeom->title_rect.x + fgeom->title_rect.width) / scale - text_width;
 
       style = style_info->styles[META_STYLE_ELEMENT_TITLE];
-      gtk_render_layout (style, cr, x, y, title_layout);
+      render_element_in_group (title_group, style, cr,
+                               &(GdkRectangle) {x, y, -1, -1},
+                               META_RENDER_LAYOUT, title_layout);
+      paint_elements_in_group (title_group, cr);
     }
 
   style = style_info->styles[META_STYLE_ELEMENT_BUTTON];
@@ -841,15 +905,13 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
 
       if (button_rect.width > 0 && button_rect.height > 0)
         {
+          GQueue button_group = G_QUEUE_INIT;
           cairo_surface_t *surface = NULL;
           const char *icon_name = NULL;
 
-          gtk_render_background (style, cr,
-                                 button_rect.x, button_rect.y,
-                                 button_rect.width, button_rect.height);
-          gtk_render_frame (style, cr,
-                            button_rect.x, button_rect.y,
-                            button_rect.width, button_rect.height);
+          render_element_in_group (&button_group, style, cr, &button_rect,
+                                   META_RENDER_BACKGROUND | META_RENDER_FRAME,
+                                   NULL);
 
           switch (button_type)
             {
@@ -894,15 +956,21 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
               x = button_rect.x + (button_rect.width - layout->icon_size) / 2.0;
               y = button_rect.y + (button_rect.height - layout->icon_size) / 2.0;
 
-              gtk_render_icon_surface (style, cr, surface, x, y);
+              render_element_in_group (&button_group, style, cr,
+                                       &(GdkRectangle) {x, y, -1, -1},
+                                       META_RENDER_SURFACE, surface);
               cairo_surface_destroy (surface);
             }
+
+          paint_elements_in_group (&button_group, cr);
         }
       cairo_restore (cr);
       if (button_class)
         gtk_style_context_remove_class (style, button_class);
       gtk_style_context_set_state (style, state);
     }
+
+  paint_elements_in_group (&frame_group, cr);
 
   cairo_surface_set_device_scale (frame_surface, xscale, yscale);
 }
