@@ -655,9 +655,11 @@ meta_window_process_placement (MetaWindow        *window,
   else
     *y -= window_height / 2;
 
-  /* Offset according to offset. */
-  *x += placement_rule->offset_x;
-  *y += placement_rule->offset_y;
+  /* Offset according to offset if within the window. */
+  if ((*x + placement_rule->offset_x) > 0 && (*x + placement_rule->offset_x) < window_width)
+    *x += placement_rule->offset_x;
+  if ((*y + placement_rule->offset_y) > 0 && (*y + placement_rule->offset_y) < window_height)
+    *y += placement_rule->offset_y;
 }
 
 void
