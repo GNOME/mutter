@@ -1125,6 +1125,9 @@ meta_window_actor_after_effects (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv = self->priv;
 
+  /* Notify our MetaSurfaceActor that all effects are completed */
+  g_signal_emit_by_name (priv->surface, "effects-completed", 0);
+
   if (priv->needs_destroy)
     {
       clutter_actor_destroy (CLUTTER_ACTOR (self));

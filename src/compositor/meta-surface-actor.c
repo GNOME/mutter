@@ -37,6 +37,7 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaSurfaceActor, meta_surface_actor, CLUTTER_
 enum {
   REPAINT_SCHEDULED,
   SIZE_CHANGED,
+  EFFECTS_COMPLETED,
 
   LAST_SIGNAL,
 };
@@ -134,6 +135,13 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
                                         0,
                                         NULL, NULL, NULL,
                                         G_TYPE_NONE, 0);
+
+  signals[EFFECTS_COMPLETED] = g_signal_new ("effects-completed",
+                                             G_TYPE_FROM_CLASS (object_class),
+                                             G_SIGNAL_RUN_LAST,
+                                             0,
+                                             NULL, NULL, NULL,
+                                             G_TYPE_NONE, 0);
 
   g_type_class_add_private (klass, sizeof (MetaSurfaceActorPrivate));
 }
