@@ -178,6 +178,16 @@ typedef enum
   META_STYLE_ELEMENT_LAST
 } MetaStyleElement;
 
+typedef enum
+{
+  META_RENDER_BACKGROUND = 1 << 0,
+  META_RENDER_FRAME      = 1 << 1,
+  META_RENDER_LAYOUT     = 1 << 2,
+  META_RENDER_SURFACE    = 1 << 3,
+  META_RENDER_LAST       = 1 << 4,
+
+} MetaRenderFlags;
+
 struct _MetaStyleInfo
 {
   int refcount;
