@@ -428,13 +428,6 @@ pending_state_destroy (MetaWaylandPendingState *state)
 }
 
 static void
-pending_state_reset (MetaWaylandPendingState *state)
-{
-  pending_state_destroy (state);
-  pending_state_init (state);
-}
-
-static void
 move_pending_state (MetaWaylandPendingState *from,
                     MetaWaylandPendingState *to)
 {
@@ -695,7 +688,7 @@ cleanup:
                  pending_state_signals[PENDING_STATE_SIGNAL_APPLIED],
                  0);
 
-  pending_state_reset (pending);
+  pending_state_destroy (pending);
 
   g_list_foreach (surface->subsurfaces, parent_surface_state_applied, NULL);
 }
@@ -712,9 +705,14 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
    *     surface is in effective desynchronized mode.
    */
   if (meta_wayland_surface_is_effectively_synchronized (surface))
-    move_pending_state (surface->pending, surface->sub.pending);
+    {
+      move_pending_state (surface->pending, surface->sub.pending);
+    }
   else
-    meta_wayland_surface_apply_pending_state (surface, surface->pending);
+    {
+      meta_wayland_surface_apply_pending_state (surface, surface->pending);
+      pending_state_init (surface->pending);
+    }
 }
 
 static void
