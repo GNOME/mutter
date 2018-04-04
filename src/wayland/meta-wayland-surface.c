@@ -140,6 +140,10 @@ surface_actor_position_notify (MetaSurfaceActorWayland *surface_actor,
                                GParamSpec              *pspec,
                                MetaWaylandSurface      *surface);
 static void
+surface_actor_effects_completed (MetaSurfaceActorWayland *surface_actor,
+                                 GParamSpec              *pspec,
+                                 MetaWaylandSurface      *surface);
+static void
 window_position_changed (MetaWindow         *window,
                          MetaWaylandSurface *surface);
 
@@ -1120,6 +1124,9 @@ wl_surface_destructor (struct wl_resource *resource)
   g_signal_handlers_disconnect_by_func (surface->surface_actor,
                                         surface_actor_position_notify,
                                         surface);
+  g_signal_handlers_disconnect_by_func (surface->surface_actor,
+                                        surface_actor_effects_completed,
+                                        surface);
 
   g_clear_object (&surface->role);
 
@@ -1194,6 +1201,14 @@ surface_actor_position_notify (MetaSurfaceActorWayland *surface_actor,
 }
 
 static void
+surface_actor_effects_completed (MetaSurfaceActorWayland *surface_actor,
+                                 GParamSpec              *pspec,
+                                 MetaWaylandSurface      *surface)
+{
+  meta_wayland_surface_update_outputs_recursively (surface);
+}
+
+static void
 window_position_changed (MetaWindow         *window,
                          MetaWaylandSurface *surface)
 {
@@ -1244,6 +1259,10 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
   g_signal_connect_object (surface->surface_actor,
                            "notify::mapped",
                            G_CALLBACK (surface_actor_mapped_notify),
+                           surface, 0);
+  g_signal_connect_object (surface->surface_actor,
+                           "effects-completed",
+                           G_CALLBACK (surface_actor_effects_completed),
                            surface, 0);
 
   sync_drag_dest_funcs (surface);
