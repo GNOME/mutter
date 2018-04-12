@@ -446,7 +446,15 @@ get_global_theme_variant (MetaFrames *frames)
 {
   GdkScreen *screen = gtk_widget_get_screen (GTK_WIDGET (frames));
   GtkSettings *settings = gtk_settings_get_for_screen (screen);
+  const char *env_theme = g_getenv("GTK_THEME");
   gboolean dark_theme_requested;
+
+  if (env_theme && *env_theme)
+    {
+      const char *variant_p = strrchr (env_theme, ':');
+      if (variant_p && *(variant_p + 1))
+        return variant_p + 1;
+    }
 
   g_object_get (settings,
                 "gtk-application-prefer-dark-theme", &dark_theme_requested,
