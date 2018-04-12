@@ -445,17 +445,12 @@ static const char *
 get_global_theme_variant (MetaFrames *frames)
 {
   GdkScreen *screen = gtk_widget_get_screen (GTK_WIDGET (frames));
-  GtkSettings *settings = gtk_settings_get_for_screen (screen);
-  gboolean dark_theme_requested;
+  const char *variant = NULL;
+  g_autofree char *theme_name = NULL;
 
-  g_object_get (settings,
-                "gtk-application-prefer-dark-theme", &dark_theme_requested,
-                NULL);
+  theme_name = meta_theme_get_theme_name (screen, &variant);
 
-  if (dark_theme_requested)
-    return "dark";
-
-  return NULL;
+  return variant;
 }
 
 /* In order to use a style with a window it has to be attached to that
@@ -475,7 +470,7 @@ meta_ui_frame_attach_style (MetaUIFrame *frame)
 
   variant = frame->meta_window->gtk_theme_variant;
   if (variant == NULL)
-    variant = get_global_theme_variant (frame->frames);;
+    variant = get_global_theme_variant (frame->frames);
 
   if (variant == NULL || *variant == '\0')
     frame->style_info = meta_style_info_ref (frames->normal_style);

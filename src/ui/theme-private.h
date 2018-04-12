@@ -230,6 +230,9 @@ struct _MetaTheme
 void               meta_frame_layout_apply_scale (const MetaFrameLayout *layout,
                                                   PangoFontDescription  *font_desc);
 
+char*           meta_theme_get_theme_name    (GdkScreen   *screen,
+                                              const char **variant);
+
 MetaFrameLayout* meta_theme_get_frame_layout (MetaTheme     *theme,
                                               MetaFrameType  type);
 
