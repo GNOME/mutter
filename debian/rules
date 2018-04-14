@@ -1,5 +1,4 @@
 #!/usr/bin/make -f
--include /usr/share/gnome-pkg-tools/1/rules/gnome-get-source.mk
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
