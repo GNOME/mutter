@@ -193,6 +193,8 @@ struct _MetaRendererNative
   MetaMonitorManagerKms *monitor_manager_kms;
   MetaGles3 *gles3;
 
+  gboolean use_modifiers;
+
   GHashTable *gpu_datas;
 
   CoglClosure *swap_notify_idle;
@@ -1586,6 +1588,7 @@ gbm_get_next_fb_id (MetaGpuKms         *gpu_kms,
                     struct gbm_bo     **out_next_bo,
                     uint32_t           *out_next_fb_id)
 {
+  MetaRendererNative *renderer_native = meta_renderer_native_from_gpu (gpu_kms);
   struct gbm_bo *next_bo;
   uint32_t next_fb_id;
   int kms_fd;
@@ -1608,7 +1611,8 @@ gbm_get_next_fb_id (MetaGpuKms         *gpu_kms,
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
-  if (modifiers[0] != DRM_FORMAT_MOD_INVALID)
+  if (renderer_native->use_modifiers &&
+      modifiers[0] != DRM_FORMAT_MOD_INVALID)
     {
       if (drmModeAddFB2WithModifiers (kms_fd,
                                       gbm_bo_get_width (next_bo),
@@ -1854,17 +1858,17 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
   frame_info->global_frame_counter = renderer_native->frame_counter;
 
-  /*
-   * Wait for the flip callback before continuing, as we might have started the
-   * animation earlier due to the animation being driven by some other monitor.
-   */
-  wait_for_pending_flips (onscreen);
-
   update_secondary_gpu_state_pre_swap_buffers (onscreen);
 
   parent_vtable->onscreen_swap_buffers_with_damage (onscreen,
                                                     rectangles,
                                                     n_rectangles);
+
+  /*
+   * Wait for the flip callback before continuing, as we might have started the
+   * animation earlier due to the animation being driven by some other monitor.
+   */
+  wait_for_pending_flips (onscreen);
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
@@ -1996,7 +2000,7 @@ meta_renderer_native_create_surface_gbm (CoglOnscreen        *onscreen,
   CoglRenderer *cogl_renderer = cogl_display->renderer;
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
-  struct gbm_surface *new_gbm_surface;
+  struct gbm_surface *new_gbm_surface = NULL;
   EGLNativeWindowType egl_native_window;
   EGLSurface new_egl_surface;
   uint32_t format = GBM_FORMAT_XRGB8888;
@@ -2006,7 +2010,10 @@ meta_renderer_native_create_surface_gbm (CoglOnscreen        *onscreen,
     meta_renderer_native_get_gpu_data (renderer_native,
                                        onscreen_native->render_gpu);
 
-  modifiers = get_supported_modifiers (onscreen, format);
+  if (renderer_native->use_modifiers)
+    modifiers = get_supported_modifiers (onscreen, format);
+  else
+    modifiers = NULL;
 
   if (modifiers)
     {
@@ -2017,7 +2024,8 @@ meta_renderer_native_create_surface_gbm (CoglOnscreen        *onscreen,
                                            modifiers->len);
       g_array_free (modifiers, TRUE);
     }
-  else
+
+  if (!new_gbm_surface)
     {
       uint32_t flags = GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING;
 
@@ -3390,6 +3398,22 @@ meta_renderer_native_finalize (GObject *object)
 }
 
 static void
+meta_renderer_native_constructed (GObject *object)
+{
+  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (object);
+  MetaMonitorManager *monitor_manager =
+    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
+  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
+  MetaSettings *settings = meta_backend_get_settings (backend);
+
+  if (meta_settings_is_experimental_feature_enabled (
+        settings, META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS))
+    renderer_native->use_modifiers = TRUE;
+
+  G_OBJECT_CLASS (meta_renderer_native_parent_class)->constructed (object);
+}
+
+static void
 meta_renderer_native_init (MetaRendererNative *renderer_native)
 {
   renderer_native->gpu_datas =
@@ -3407,6 +3431,7 @@ meta_renderer_native_class_init (MetaRendererNativeClass *klass)
   object_class->get_property = meta_renderer_native_get_property;
   object_class->set_property = meta_renderer_native_set_property;
   object_class->finalize = meta_renderer_native_finalize;
+  object_class->constructed = meta_renderer_native_constructed;
 
   renderer_class->create_cogl_renderer = meta_renderer_native_create_cogl_renderer;
   renderer_class->create_view = meta_renderer_native_create_view;

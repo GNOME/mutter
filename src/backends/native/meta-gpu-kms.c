@@ -64,6 +64,7 @@ struct _MetaGpuKms
   gboolean page_flips_not_supported;
 };
 
+G_DEFINE_QUARK (MetaGpuKmsError, meta_gpu_kms_error)
 G_DEFINE_TYPE (MetaGpuKms, meta_gpu_kms, META_TYPE_GPU)
 
 static gboolean
@@ -751,6 +752,8 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
      are freed by the platform-independent layer. */
   free_resources (gpu_kms);
 
+  g_assert (resources.resources->count_connectors > 0);
+
   init_connectors (gpu_kms, resources.resources);
   init_modes (gpu_kms, resources.resources);
   init_crtcs (gpu_kms, &resources);
@@ -774,11 +777,39 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
   GSource *source;
   MetaKmsSource *kms_source;
   MetaGpuKms *gpu_kms;
+  drmModeRes *drm_resources;
+  guint n_connectors;
   int kms_fd;
 
   kms_fd = meta_launcher_open_restricted (launcher, kms_file_path, error);
   if (kms_fd == -1)
-    return FALSE;
+    return NULL;
+
+  /* Some GPUs might have no connectors, for example dedicated GPUs on PRIME (hybrid) laptops.
+   * These GPUs cannot render anything on separate screens, and they are aggressively switched
+   * off by the kernel.
+   *
+   * If we add these PRIME GPUs to the GPU list anyway, Mutter keeps awakening the secondary GPU,
+   * and doing this causes a considerable stuttering. These GPUs are usually put to sleep again
+   * after ~2s without a workload.
+   *
+   * For now, to avoid this situation, only create the MetaGpuKms when the GPU has any connectors.
+   */
+  drm_resources = drmModeGetResources (kms_fd);
+
+  n_connectors = drm_resources->count_connectors;
+
+  drmModeFreeResources (drm_resources);
+
+  if (n_connectors == 0)
+    {
+      g_set_error (error,
+                   META_GPU_KMS_ERROR,
+                   META_GPU_KMS_ERROR_NO_CONNECTORS,
+                   "No connectors available in this GPU. This is probably a dedicated GPU in a hybrid setup.");
+      meta_launcher_close_restricted (launcher, kms_fd);
+      return NULL;
+    }
 
   gpu_kms = g_object_new (META_TYPE_GPU_KMS,
                           "monitor-manager", monitor_manager_kms,

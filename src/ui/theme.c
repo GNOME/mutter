@@ -580,7 +580,7 @@ meta_frame_layout_calc_geometry (MetaFrameLayout        *layout,
       x = rect->visible.x - layout->button_margin.left * scale;
 
       if (i > 0)
-        x -= layout->titlebar_spacing;
+        x -= layout->titlebar_spacing * scale;
 
       --i;
     }
@@ -712,6 +712,8 @@ get_class_from_button_type (MetaButtonType type)
       return "maximize";
     case META_BUTTON_TYPE_MINIMIZE:
       return "minimize";
+    case META_BUTTON_TYPE_APPMENU:
+      return "appmenu";
     default:
       return NULL;
     }

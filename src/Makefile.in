@@ -1041,6 +1041,8 @@ ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
+ELOGIND_CFLAGS = @ELOGIND_CFLAGS@
+ELOGIND_LIBS = @ELOGIND_LIBS@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
 GETTEXT_MACRO_VERSION = @GETTEXT_MACRO_VERSION@
@@ -1128,6 +1130,8 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
+SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
+SYSTEMD_LIBS = @SYSTEMD_LIBS@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
 WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
@@ -3158,7 +3162,7 @@ $(if $(findstring unstable,$1),unstable,stable)
 endef
 
 define protoname
-$(shell echo $1 | sed 's/\([a-z\-]\+\)-[a-z]\+-v[0-9]\+/\1/')
+$(shell echo $1 | sed 's/\([a-z\-]\{1,\}\)-[a-z]\{1,\}-v[0-9]\{1,\}/\1/')
 endef
 
 %-protocol.c : $(WAYLAND_PROTOCOLS_DATADIR)/$$(call protostability,$$*)/$$(call protoname,$$*)/$$*.xml
