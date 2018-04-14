@@ -1,6 +1,7 @@
 mutter (3.28.1-1) UNRELEASED; urgency=medium
 
   * New upstream release
+    - Fix window button spacing when display is scaled (LP: #1725133)
   * Bump Standards-Version to 4.1.4
 
  -- Jeremy Bicha <jbicha@debian.org>  Fri, 13 Apr 2018 20:57:47 -0400
