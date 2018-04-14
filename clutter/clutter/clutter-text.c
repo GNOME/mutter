@@ -2224,6 +2224,11 @@ clutter_text_key_press (ClutterActor    *actor,
   pool = clutter_binding_pool_find (g_type_name (CLUTTER_TYPE_TEXT));
   g_assert (pool != NULL);
 
+  if (!(event->flags & CLUTTER_EVENT_FLAG_INPUT_METHOD) &&
+      clutter_input_focus_is_focused (priv->input_focus) &&
+      clutter_input_focus_filter_key_event (priv->input_focus, event))
+    return CLUTTER_EVENT_STOP;
+
   /* we allow passing synthetic events that only contain
    * the Unicode value and not the key symbol, unless they
    * contain the input method flag.
@@ -2246,10 +2251,6 @@ clutter_text_key_press (ClutterActor    *actor,
   else if ((event->modifier_state & CLUTTER_CONTROL_MASK) == 0)
     {
       gunichar key_unichar;
-
-      if (clutter_input_focus_is_focused (priv->input_focus) &&
-          clutter_input_focus_filter_key_event (priv->input_focus, event))
-        return CLUTTER_EVENT_STOP;
 
       /* Skip keys when control is pressed */
       key_unichar = clutter_event_get_key_unicode ((ClutterEvent *) event);
@@ -2829,6 +2830,10 @@ clutter_text_key_focus_in (ClutterActor *actor)
   if (method && priv->editable)
     {
       clutter_input_method_focus_in (method, priv->input_focus);
+      clutter_input_focus_set_content_purpose (priv->input_focus,
+					       priv->input_purpose);
+      clutter_input_focus_set_content_hints (priv->input_focus,
+					     priv->input_hints);
       update_cursor_location (CLUTTER_TEXT (actor));
     }
 
@@ -4511,15 +4516,34 @@ buffer_deleted_text (ClutterTextBuffer *buffer,
 }
 
 static void
+clutter_text_queue_redraw_or_relayout (ClutterText *self)
+{
+  ClutterActor *actor = CLUTTER_ACTOR (self);
+  gfloat preferred_width;
+  gfloat preferred_height;
+
+  clutter_text_dirty_cache (self);
+
+  /* we're using our private implementations here to avoid the caching done by ClutterActor */
+  clutter_text_get_preferred_width (actor, -1, NULL, &preferred_width);
+  clutter_text_get_preferred_height (actor, preferred_width, NULL, &preferred_height);
+
+  if (clutter_actor_has_allocation (actor) &&
+      (fabsf (preferred_width - clutter_actor_get_width (actor)) > 0.001 ||
+       fabsf (preferred_height - clutter_actor_get_height (actor)) > 0.001))
+    clutter_actor_queue_relayout (actor);
+  else
+    clutter_text_queue_redraw (actor);
+}
+
+static void
 buffer_notify_text (ClutterTextBuffer *buffer,
                     GParamSpec        *spec,
                     ClutterText       *self)
 {
   g_object_freeze_notify (G_OBJECT (self));
 
-  clutter_text_dirty_cache (self);
-
-  clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
+  clutter_text_queue_redraw_or_relayout (self);
 
   g_signal_emit (self, text_signals[TEXT_CHANGED], 0);
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_TEXT]);
@@ -4871,8 +4895,7 @@ clutter_text_set_cursor_visible (ClutterText *self,
     {
       priv->cursor_visible = cursor_visible;
 
-      clutter_text_dirty_cache (self);
-      clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
+      clutter_text_queue_redraw_or_relayout (self);
 
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_CURSOR_VISIBLE]);
     }
@@ -5773,9 +5796,7 @@ clutter_text_set_line_alignment (ClutterText    *self,
     {
       priv->alignment = alignment;
 
-      clutter_text_dirty_cache (self);
-
-      clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
+      clutter_text_queue_redraw_or_relayout (self);
 
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_LINE_ALIGNMENT]);
     }
@@ -5830,9 +5851,7 @@ clutter_text_set_use_markup (ClutterText *self,
   if (setting)
     clutter_text_set_markup_internal (self, text);
 
-  clutter_text_dirty_cache (self);
-
-  clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
+  clutter_text_queue_redraw_or_relayout (self);
 }
 
 /**
@@ -5879,9 +5898,7 @@ clutter_text_set_justify (ClutterText *self,
     {
       priv->justify = justify;
 
-      clutter_text_dirty_cache (self);
-
-      clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
+      clutter_text_queue_redraw_or_relayout (self);
 
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_JUSTIFY]);
     }
@@ -6448,8 +6465,7 @@ clutter_text_set_preedit_string (ClutterText   *self,
       priv->preedit_set = TRUE;
     }
 
-  clutter_text_dirty_cache (self);
-  clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
+  clutter_text_queue_redraw_or_relayout (self);
 }
 
 
@@ -6511,7 +6527,9 @@ clutter_text_set_input_hints (ClutterText                  *self,
   g_return_if_fail (CLUTTER_IS_TEXT (self));
 
   self->priv->input_hints = hints;
-  clutter_input_focus_set_content_hints (self->priv->input_focus, hints);
+
+  if (clutter_input_focus_is_focused (self->priv->input_focus))
+    clutter_input_focus_set_content_hints (self->priv->input_focus, hints);
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_INPUT_HINTS]);
 }
 
@@ -6530,7 +6548,9 @@ clutter_text_set_input_purpose (ClutterText                *self,
   g_return_if_fail (CLUTTER_IS_TEXT (self));
 
   self->priv->input_purpose = purpose;
-  clutter_input_focus_set_content_purpose (self->priv->input_focus, purpose);
+
+  if (clutter_input_focus_is_focused (self->priv->input_focus))
+    clutter_input_focus_set_content_purpose (self->priv->input_focus, purpose);
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_INPUT_PURPOSE]);
 }
 

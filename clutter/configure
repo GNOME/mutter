@@ -13181,7 +13181,7 @@ $as_echo_n "checking for -Bsymbolic-functions linker flag... " >&6; }
 int
 main ()
 {
-int main (void) { return 0; }
+return 0
   ;
   return 0;
 }
@@ -13223,7 +13223,7 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 int
 main ()
 {
-int main (void) { return 0; }
+return 0
   ;
   return 0;
 }
