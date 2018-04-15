@@ -751,6 +751,9 @@ meta_frame_titlebar_event (MetaUIFrame        *frame,
   guint32 evtime;
   gfloat x, y;
 
+  g_assert (event->type == CLUTTER_BUTTON_PRESS ||
+            event->type == CLUTTER_TOUCH_BEGIN);
+
   display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
 
   flags = meta_frame_get_flags (frame->meta_window->frame);
@@ -884,6 +887,8 @@ meta_frames_try_grab_op (MetaUIFrame *frame,
       frames->grab_x = grab_x;
       frames->grab_y = grab_y;
     }
+  else
+    frames->grab_touch = NULL;
 
   return ret;
 }
@@ -894,6 +899,7 @@ meta_frames_retry_grab_op (MetaFrames *frames,
 {
   Display *display;
   MetaGrabOp op;
+  gboolean ret;
 
   if (frames->current_grab_op == META_GRAB_OP_NONE)
     return TRUE;
@@ -902,16 +908,20 @@ meta_frames_retry_grab_op (MetaFrames *frames,
   frames->current_grab_op = META_GRAB_OP_NONE;
   display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
 
-  return meta_core_begin_grab_op (display,
-                                  frames->grab_frame->xwindow,
-                                  op,
-                                  FALSE,
-                                  TRUE,
-                                  frames->grab_frame->grab_button,
-                                  0,
-                                  time,
-                                  frames->grab_x,
-                                  frames->grab_y);
+  ret = meta_core_begin_grab_op (display,
+                                 frames->grab_frame->xwindow,
+                                 op,
+                                 FALSE,
+                                 TRUE,
+                                 frames->grab_frame->grab_button,
+                                 0,
+                                 time,
+                                 frames->grab_x,
+                                 frames->grab_y);
+  if (ret)
+    frames->grab_touch = NULL;
+
+  return ret;
 }
 
 static MetaGrabOp
@@ -940,6 +950,37 @@ grab_op_from_resize_control (MetaFrameControl control)
     }
 }
 
+static guint
+get_button (const ClutterEvent *event)
+{
+  if (event->type == CLUTTER_BUTTON_PRESS ||
+      event->type == CLUTTER_BUTTON_RELEASE)
+    return event->button.button;
+  else if (event->type == CLUTTER_TOUCH_BEGIN ||
+           event->type == CLUTTER_TOUCH_UPDATE ||
+           event->type == CLUTTER_TOUCH_END)
+    return 1;
+
+  g_assert_not_reached ();
+}
+
+static guint
+get_click_count (const ClutterEvent *event)
+{
+  if (event->type == CLUTTER_BUTTON_PRESS ||
+      event->type == CLUTTER_BUTTON_RELEASE)
+    return clutter_event_get_click_count (event);
+  else if (event->type == CLUTTER_TOUCH_BEGIN ||
+           event->type == CLUTTER_TOUCH_UPDATE ||
+           event->type == CLUTTER_TOUCH_END)
+    {
+      /* XXX: we have to track double click ourselves */
+      return 1;
+    }
+
+  g_assert_not_reached ();
+}
+
 static gboolean
 meta_frame_left_click_event (MetaUIFrame        *frame,
                              const ClutterEvent *event)
@@ -951,7 +992,7 @@ meta_frame_left_click_event (MetaUIFrame        *frame,
 
   evtime = clutter_event_get_time (event);
   clutter_event_get_coords (event, &x, &y);
-  button = clutter_event_get_button (event);
+  button = get_button (event);
   control = get_control (frame, x, y);
 
   switch (control)
@@ -1053,12 +1094,15 @@ handle_press_event (MetaUIFrame        *frame,
   guint evtime, button;
   gfloat x, y;
 
+  g_assert (event->type == CLUTTER_BUTTON_PRESS ||
+            event->type == CLUTTER_TOUCH_BEGIN);
+
   display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
 
   evtime = clutter_event_get_time (event);
   clutter_event_get_coords (event, &x, &y);
   control = get_control (frame, x, y);
-  button = clutter_event_get_button (event);
+  button = get_button (event);
 
   /* don't do the rest of this if on client area */
   if (control == META_FRAME_CONTROL_CLIENT_AREA)
@@ -1080,7 +1124,7 @@ handle_press_event (MetaUIFrame        *frame,
    */
   if (control == META_FRAME_CONTROL_TITLE &&
       button == 1 &&
-      clutter_event_get_click_count (event) == 2)
+      get_click_count (event) == 2)
     {
       meta_core_end_grab_op (display, evtime);
       return meta_frame_double_click_event (frame, event);
@@ -1112,9 +1156,12 @@ handle_release_event (MetaUIFrame        *frame,
   guint32 evtime, button;
   gfloat x, y;
 
+  g_assert (event->type == CLUTTER_BUTTON_RELEASE ||
+            event->type == CLUTTER_TOUCH_END);
+
   evtime = clutter_event_get_time (event);
   clutter_event_get_coords (event, &x, &y);
-  button = clutter_event_get_button (event);
+  button = get_button (event);
 
   frame->frames->current_grab_op = META_GRAB_OP_NONE;
   meta_core_end_grab_op (display, evtime);
@@ -1265,6 +1312,9 @@ handle_motion_event (MetaUIFrame        *frame,
   guint32 evtime;
   gfloat x, y;
 
+  g_assert (event->type == CLUTTER_MOTION ||
+            event->type == CLUTTER_TOUCH_UPDATE);
+
   modifiers = clutter_event_get_state (event);
   evtime = clutter_event_get_time (event);
   clutter_event_get_coords (event, &x, &y);
@@ -1286,8 +1336,10 @@ handle_motion_event (MetaUIFrame        *frame,
       meta_ui_frame_update_prelit_control (frame, control);
     }
 
-  if ((modifiers & CLUTTER_BUTTON1_MASK) &&
-      frames->current_grab_op != META_GRAB_OP_NONE)
+  if (frames->current_grab_op != META_GRAB_OP_NONE &&
+      (event->type == CLUTTER_TOUCH_UPDATE ||
+       (event->type == CLUTTER_MOTION &&
+        (modifiers & CLUTTER_BUTTON1_MASK))))
     meta_frames_retry_grab_op (frames, evtime);
 
   return TRUE;
@@ -1534,13 +1586,50 @@ gboolean
 meta_ui_frame_handle_event (MetaUIFrame *frame,
                             const ClutterEvent *event)
 {
+  if (event->type == CLUTTER_TOUCH_BEGIN ||
+      event->type == CLUTTER_TOUCH_UPDATE ||
+      event->type == CLUTTER_TOUCH_END)
+    {
+      ClutterEventSequence *sequence;
+      MetaFrames *frames = frame->frames;
+
+      /* In X11, mutter sets up passive touch grabs which basically
+       * means we handle those events twice (once through the passive
+       * grab, and then through XISelectEvents).
+       *
+       * Receiving touch events here means we are going through the
+       * former, but passive grabs are exclusively for gesture
+       * recognition purposes.
+       *
+       * We do actually want this to happen though the regular event
+       * selection paths to avoid breaking internal state, which means
+       * we will get pointer events, because we don't select for XI_Touch*.
+       */
+      if (!meta_is_wayland_compositor ())
+        return FALSE;
+
+      sequence = clutter_event_get_event_sequence (event);
+
+      /* Lock onto a single touch */
+      if (frames->grab_touch && frames->grab_touch != sequence)
+        return FALSE;
+
+      if (event->type == CLUTTER_TOUCH_BEGIN)
+        frames->grab_touch = sequence;
+      else if (event->type == CLUTTER_TOUCH_END)
+        frames->grab_touch = NULL;
+    }
+
   switch (event->any.type)
     {
     case CLUTTER_BUTTON_PRESS:
+    case CLUTTER_TOUCH_BEGIN:
       return handle_press_event (frame, event);
     case CLUTTER_BUTTON_RELEASE:
+    case CLUTTER_TOUCH_END:
       return handle_release_event (frame, event);
     case CLUTTER_MOTION:
+    case CLUTTER_TOUCH_UPDATE:
       return handle_motion_event (frame, event);
     case CLUTTER_ENTER:
       return handle_enter_notify_event (frame, (ClutterCrossingEvent *) event);
