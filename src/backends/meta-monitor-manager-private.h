@@ -181,6 +181,7 @@ struct _MetaMonitorManager
 
   GnomePnpIds *pnp_ids;
   UpClient *up_client;
+  gboolean lid_is_closed;
 
   gulong experimental_features_changed_handler_id;
 
