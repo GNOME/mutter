@@ -29,7 +29,6 @@
 
 #include <meta/main.h>
 #include <clutter/evdev/clutter-evdev.h>
-#include <libupower-glib/upower.h>
 
 #include "clutter/egl/clutter-egl.h"
 #include "clutter/evdev/clutter-evdev.h"
