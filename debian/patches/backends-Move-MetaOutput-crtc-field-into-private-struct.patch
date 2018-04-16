@@ -1,0 +1,766 @@
+From: =?utf-8?q?Jonas_=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 3 Nov 2017 04:25:30 -0600
+Subject: backends: Move MetaOutput::crtc field into private struct
+
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/1703668
+Bug-GNOME: https://bugzilla.gnome.org/show_bug.cgi?id=786929
+Forwarded: yes, https://gitlab.gnome.org/GNOME/mutter/merge_requests/81
+
+No functional changes. This is only done so that changes to reference
+counting can done more reliably.
+
+https://bugzilla.gnome.org/show_bug.cgi?id=786929
+---
+ src/backends/meta-logical-monitor.c                | 11 ++---
+ src/backends/meta-monitor-manager-dummy.c          |  4 +-
+ src/backends/meta-monitor-manager.c                | 11 ++---
+ src/backends/meta-monitor.c                        | 48 ++++++++++++++--------
+ src/backends/meta-output.c                         | 35 +++++++++++++++-
+ src/backends/meta-output.h                         | 10 +++--
+ src/backends/native/meta-cursor-renderer-native.c  | 10 +++--
+ src/backends/native/meta-gpu-kms.c                 |  8 +++-
+ src/backends/native/meta-monitor-manager-kms.c     |  4 +-
+ src/backends/native/meta-output-kms.c              | 12 +++---
+ src/backends/native/meta-renderer-native.c         | 16 ++++----
+ src/backends/x11/meta-monitor-manager-xrandr.c     | 15 ++++---
+ src/backends/x11/meta-output-xrandr.c              | 11 +++--
+ src/backends/x11/meta-stage-x11-nested.c           |  4 +-
+ src/backends/x11/nested/meta-renderer-x11-nested.c | 14 +++----
+ src/tests/meta-monitor-manager-test.c              |  4 +-
+ src/tests/monitor-unit-tests.c                     | 18 ++++----
+ 17 files changed, 152 insertions(+), 83 deletions(-)
+
+diff --git a/src/backends/meta-logical-monitor.c b/src/backends/meta-logical-monitor.c
+index d2faa0f..9e14d66 100644
+--- a/src/backends/meta-logical-monitor.c
++++ b/src/backends/meta-logical-monitor.c
+@@ -103,8 +103,7 @@ derive_monitor_transform (MetaMonitor *monitor)
+ 
+   main_output = meta_monitor_get_main_output (monitor);
+ 
+-  return meta_monitor_crtc_to_logical_transform (monitor,
+-                                                 main_output->crtc->transform);
++  return meta_output_get_assigned_crtc (main_output)->transform;
+ }
+ 
+ MetaLogicalMonitor *
+@@ -157,10 +156,12 @@ meta_logical_monitor_add_monitor (MetaLogicalMonitor *logical_monitor,
+       for (l_output = outputs; l_output; l_output = l_output->next)
+         {
+           MetaOutput *output = l_output->data;
++          MetaCrtc *crtc;
+ 
+           is_presentation = is_presentation && output->is_presentation;
+-          if (output->crtc)
+-            output->crtc->logical_monitor = logical_monitor;
++          crtc = meta_output_get_assigned_crtc (output);
++          if (crtc)
++            crtc->logical_monitor = logical_monitor;
+         }
+     }
+ 
+@@ -220,7 +221,7 @@ foreach_crtc (MetaMonitor         *monitor,
+   ForeachCrtcData *data = user_data;
+ 
+   data->func (data->logical_monitor,
+-              monitor_crtc_mode->output->crtc,
++              meta_output_get_assigned_crtc (monitor_crtc_mode->output),
+               data->user_data);
+ 
+   return TRUE;
+diff --git a/src/backends/meta-monitor-manager-dummy.c b/src/backends/meta-monitor-manager-dummy.c
+index f81349e..fe49487 100644
+--- a/src/backends/meta-monitor-manager-dummy.c
++++ b/src/backends/meta-monitor-manager-dummy.c
+@@ -486,7 +486,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
+               output = ((MetaOutput**)crtc_info->outputs->pdata)[j];
+ 
+               output->is_dirty = TRUE;
+-              output->crtc = crtc;
++              meta_output_assign_crtc (output, crtc);
+             }
+         }
+     }
+@@ -531,7 +531,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
+           continue;
+         }
+ 
+-      output->crtc = NULL;
++      meta_output_unassign_crtc (output);
+       output->is_primary = FALSE;
+     }
+ }
+diff --git a/src/backends/meta-monitor-manager.c b/src/backends/meta-monitor-manager.c
+index e952e4f..1b088dd 100644
+--- a/src/backends/meta-monitor-manager.c
++++ b/src/backends/meta-monitor-manager.c
+@@ -1038,6 +1038,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
+       GVariantBuilder crtcs, modes, clones, properties;
+       GBytes *edid;
+       char *edid_file;
++      MetaCrtc *crtc;
+       int crtc_index;
+ 
+       g_variant_builder_init (&crtcs, G_VARIANT_TYPE ("au"));
+@@ -1131,8 +1132,8 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
+                                                 output->tile_info.tile_h));
+         }
+ 
+-      crtc_index = output->crtc ? g_list_index (combined_crtcs, output->crtc)
+-                                : -1;
++      crtc = meta_output_get_assigned_crtc (output);
++      crtc_index = crtc ? g_list_index (combined_crtcs, crtc) : -1;
+       g_variant_builder_add (&output_builder, "(uxiausauaua{sv})",
+                              i, /* ID */
+                              (gint64)output->winsys_id,
+@@ -2894,11 +2895,7 @@ meta_monitor_manager_get_monitor_for_connector (MetaMonitorManager *manager,
+ 
+       if (meta_monitor_is_active (monitor) &&
+           g_str_equal (connector, meta_monitor_get_connector (monitor)))
+-        {
+-          MetaOutput *main_output = meta_monitor_get_main_output (monitor);
+-
+-          return main_output->crtc->logical_monitor->number;
+-        }
++        return meta_monitor_get_logical_monitor (monitor)->number;
+     }
+ 
+   return -1;
+diff --git a/src/backends/meta-monitor.c b/src/backends/meta-monitor.c
+index 51c7935..1e1af39 100644
+--- a/src/backends/meta-monitor.c
++++ b/src/backends/meta-monitor.c
+@@ -204,10 +204,12 @@ gboolean
+ meta_monitor_is_active (MetaMonitor *monitor)
+ {
+   MetaOutput *output;
++  MetaCrtc *crtc;
+ 
+   output = meta_monitor_get_main_output (monitor);
++  crtc = meta_output_get_assigned_crtc (output);
+ 
+-  return output->crtc && output->crtc->current_mode;
++  return crtc && crtc->current_mode;
+ }
+ 
+ gboolean
+@@ -493,6 +495,7 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
+   for (i = 0; i < output->n_modes; i++)
+     {
+       MetaCrtcMode *crtc_mode = output->modes[i];
++      MetaCrtc *crtc;
+       MetaMonitorMode *mode;
+       gboolean replace;
+ 
+@@ -526,7 +529,9 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
+ 
+       if (crtc_mode == output->preferred_mode)
+         monitor_priv->preferred_mode = mode;
+-      if (output->crtc && crtc_mode == output->crtc->current_mode)
++
++      crtc = meta_output_get_assigned_crtc (output);
++      if (crtc && crtc_mode == crtc->current_mode)
+         monitor_priv->current_mode = mode;
+     }
+ }
+@@ -568,13 +573,15 @@ meta_monitor_normal_derive_layout (MetaMonitor   *monitor,
+                                    MetaRectangle *layout)
+ {
+   MetaOutput *output;
++  MetaCrtc *crtc;
+ 
+   output = meta_monitor_get_main_output (monitor);
++  crtc = meta_output_get_assigned_crtc (output);
+   *layout = (MetaRectangle) {
+-    .x = output->crtc->rect.x,
+-    .y = output->crtc->rect.y,
+-    .width = output->crtc->rect.width,
+-    .height = output->crtc->rect.height
++    .x = crtc->rect.x,
++    .y = crtc->rect.y,
++    .width = crtc->rect.width,
++    .height = crtc->rect.height
+   };
+ }
+ 
+@@ -764,12 +771,13 @@ is_monitor_mode_assigned (MetaMonitor     *monitor,
+     {
+       MetaOutput *output = l->data;
+       MetaMonitorCrtcMode *monitor_crtc_mode = &mode->crtc_modes[i];
++      MetaCrtc *crtc;
+ 
++      crtc = meta_output_get_assigned_crtc (output);
+       if (monitor_crtc_mode->crtc_mode &&
+-          (!output->crtc ||
+-           output->crtc->current_mode != monitor_crtc_mode->crtc_mode))
++          (!crtc || crtc->current_mode != monitor_crtc_mode->crtc_mode))
+         return FALSE;
+-      else if (!monitor_crtc_mode->crtc_mode && output->crtc)
++      else if (!monitor_crtc_mode->crtc_mode && crtc)
+         return FALSE;
+     }
+ 
+@@ -1217,14 +1225,16 @@ meta_monitor_tiled_derive_layout (MetaMonitor   *monitor,
+   for (l = monitor_priv->outputs; l; l = l->next)
+     {
+       MetaOutput *output = l->data;
++      MetaCrtc *crtc;
+ 
+-      if (!output->crtc)
++      crtc = meta_output_get_assigned_crtc (output);
++      if (!crtc)
+         continue;
+ 
+-      min_x = MIN (output->crtc->rect.x, min_x);
+-      min_y = MIN (output->crtc->rect.y, min_y);
+-      max_x = MAX (output->crtc->rect.x + output->crtc->rect.width, max_x);
+-      max_y = MAX (output->crtc->rect.y + output->crtc->rect.height, max_y);
++      min_x = MIN (crtc->rect.x, min_x);
++      min_y = MIN (crtc->rect.y, min_y);
++      max_x = MAX (crtc->rect.x + crtc->rect.width, max_x);
++      max_y = MAX (crtc->rect.y + crtc->rect.height, max_y);
+     }
+ 
+   *layout = (MetaRectangle) {
+@@ -1318,10 +1328,14 @@ meta_monitor_get_spec (MetaMonitor *monitor)
+ MetaLogicalMonitor *
+ meta_monitor_get_logical_monitor (MetaMonitor *monitor)
+ {
+-  MetaOutput *output = meta_monitor_get_main_output (monitor);
++  MetaOutput *output;
++  MetaCrtc *crtc;
++
++  output = meta_monitor_get_main_output (monitor);
++  crtc = meta_output_get_assigned_crtc (output);
+ 
+-  if (output->crtc)
+-    return output->crtc->logical_monitor;
++  if (crtc)
++    return crtc->logical_monitor;
+   else
+     return NULL;
+ }
+diff --git a/src/backends/meta-output.c b/src/backends/meta-output.c
+index 62102ce..b5ecccd 100644
+--- a/src/backends/meta-output.c
++++ b/src/backends/meta-output.c
+@@ -21,7 +21,13 @@
+ 
+ #include "backends/meta-output.h"
+ 
+-G_DEFINE_TYPE (MetaOutput, meta_output, G_TYPE_OBJECT)
++typedef struct _MetaOutputPrivate
++{
++  /* The CRTC driving this output, NULL if the output is not enabled */
++  MetaCrtc *crtc;
++} MetaOutputPrivate;
++
++G_DEFINE_TYPE_WITH_PRIVATE (MetaOutput, meta_output, G_TYPE_OBJECT)
+ 
+ MetaGpu *
+ meta_output_get_gpu (MetaOutput *output)
+@@ -29,6 +35,33 @@ meta_output_get_gpu (MetaOutput *output)
+   return output->gpu;
+ }
+ 
++void
++meta_output_assign_crtc (MetaOutput *output,
++                         MetaCrtc   *crtc)
++{
++  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
++
++  g_assert (crtc);
++
++  priv->crtc = crtc;
++}
++
++void
++meta_output_unassign_crtc (MetaOutput *output)
++{
++  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
++
++  priv->crtc = NULL;
++}
++
++MetaCrtc *
++meta_output_get_assigned_crtc (MetaOutput *output)
++{
++  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
++
++  return priv->crtc;
++}
++
+ static void
+ meta_output_finalize (GObject *object)
+ {
+diff --git a/src/backends/meta-output.h b/src/backends/meta-output.h
+index a63a1cd..2dc17da 100644
+--- a/src/backends/meta-output.h
++++ b/src/backends/meta-output.h
+@@ -64,9 +64,6 @@ struct _MetaOutput
+ 
+   MetaGpu *gpu;
+ 
+-  /* The CRTC driving this output, NULL if the output is not enabled */
+-  MetaCrtc *crtc;
+-
+   /* The low-level ID of this output, used to apply back configuration */
+   glong winsys_id;
+   char *name;
+@@ -122,4 +119,11 @@ G_DECLARE_FINAL_TYPE (MetaOutput, meta_output, META, OUTPUT, GObject)
+ 
+ MetaGpu * meta_output_get_gpu (MetaOutput *output);
+ 
++void meta_output_assign_crtc (MetaOutput *output,
++                              MetaCrtc   *crtc);
++
++void meta_output_unassign_crtc (MetaOutput *output);
++
++MetaCrtc * meta_output_get_assigned_crtc (MetaOutput *output);
++
+ #endif /* META_OUTPUT_H */
+diff --git a/src/backends/native/meta-cursor-renderer-native.c b/src/backends/native/meta-cursor-renderer-native.c
+index aea86df..c7326af 100644
+--- a/src/backends/native/meta-cursor-renderer-native.c
++++ b/src/backends/native/meta-cursor-renderer-native.c
+@@ -291,6 +291,7 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
+     data->in_cursor_renderer_native;
+   MetaCursorRendererNativePrivate *priv =
+     meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
++  MetaCrtc *crtc;
+   MetaMonitorTransform transform;
+   ClutterRect scaled_crtc_rect;
+   float scale;
+@@ -330,6 +331,8 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
+     },
+   };
+ 
++  crtc = meta_output_get_assigned_crtc (monitor_crtc_mode->output);
++
+   if (priv->has_hw_cursor &&
+       clutter_rect_intersection (&scaled_crtc_rect,
+                                  &data->in_local_cursor_rect,
+@@ -340,7 +343,7 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
+       float crtc_cursor_x, crtc_cursor_y;
+ 
+       set_crtc_cursor (data->in_cursor_renderer_native,
+-                       monitor_crtc_mode->output->crtc,
++                       crtc,
+                        data->in_cursor_sprite);
+ 
+       gpu_kms = META_GPU_KMS (meta_monitor_get_gpu (monitor));
+@@ -350,7 +353,7 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
+       crtc_cursor_y = (data->in_local_cursor_rect.origin.y -
+                        scaled_crtc_rect.origin.y) * scale;
+       drmModeMoveCursor (kms_fd,
+-                         monitor_crtc_mode->output->crtc->crtc_id,
++                         crtc->crtc_id,
+                          roundf (crtc_cursor_x),
+                          roundf (crtc_cursor_y));
+ 
+@@ -358,8 +361,7 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
+     }
+   else
+     {
+-      set_crtc_cursor (data->in_cursor_renderer_native,
+-                       monitor_crtc_mode->output->crtc, NULL);
++      set_crtc_cursor (data->in_cursor_renderer_native, crtc, NULL);
+     }
+ 
+   return TRUE;
+diff --git a/src/backends/native/meta-gpu-kms.c b/src/backends/native/meta-gpu-kms.c
+index b33389d..613a607 100644
+--- a/src/backends/native/meta-gpu-kms.c
++++ b/src/backends/native/meta-gpu-kms.c
+@@ -105,8 +105,10 @@ get_crtc_drm_connectors (MetaGpu       *gpu,
+   for (l = meta_gpu_get_outputs (gpu); l; l = l->next)
+     {
+       MetaOutput *output = l->data;
++      MetaCrtc *assigned_crtc;
+ 
+-      if (output->crtc == crtc)
++      assigned_crtc = meta_output_get_assigned_crtc (output);
++      if (assigned_crtc == crtc)
+         g_array_append_val (connectors_array, output->winsys_id);
+     }
+ 
+@@ -186,8 +188,10 @@ meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
+   for (l = meta_gpu_get_outputs (gpu); l; l = l->next)
+     {
+       MetaOutput *output = l->data;
++      MetaCrtc *assigned_crtc;
+ 
+-      if (output->crtc == crtc)
++      assigned_crtc = meta_output_get_assigned_crtc (output);
++      if (assigned_crtc == crtc)
+         {
+           connected_crtc_found = TRUE;
+           break;
+diff --git a/src/backends/native/meta-monitor-manager-kms.c b/src/backends/native/meta-monitor-manager-kms.c
+index 1a2eaec..d8e7b84 100644
+--- a/src/backends/native/meta-monitor-manager-kms.c
++++ b/src/backends/native/meta-monitor-manager-kms.c
+@@ -188,7 +188,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
+               MetaOutput *output = g_ptr_array_index (crtc_info->outputs, j);
+ 
+               output->is_dirty = TRUE;
+-              output->crtc = crtc;
++              meta_output_assign_crtc (output, crtc);
+             }
+         }
+ 
+@@ -249,7 +249,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
+               continue;
+             }
+ 
+-          output->crtc = NULL;
++          meta_output_unassign_crtc (output);
+           output->is_primary = FALSE;
+         }
+     }
+diff --git a/src/backends/native/meta-output-kms.c b/src/backends/native/meta-output-kms.c
+index 5668be5..f33f65d 100644
+--- a/src/backends/native/meta-output-kms.c
++++ b/src/backends/native/meta-output-kms.c
+@@ -64,11 +64,13 @@ typedef struct _MetaOutputKms
+ void
+ meta_output_kms_set_underscan (MetaOutput *output)
+ {
+-  if (!output->crtc)
++  MetaCrtc *crtc;
++
++  crtc = meta_output_get_assigned_crtc (output);
++  if (!crtc)
+     return;
+ 
+-  meta_crtc_kms_set_underscan (output->crtc,
+-                               output->is_underscanning);
++  meta_crtc_kms_set_underscan (crtc, output->is_underscanning);
+ }
+ 
+ void
+@@ -600,14 +602,14 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
+ 
+           if (crtc->crtc_id == output_kms->current_encoder->crtc_id)
+             {
+-              output->crtc = crtc;
++              meta_output_assign_crtc (output, crtc);
+               break;
+             }
+         }
+     }
+   else
+     {
+-      output->crtc = NULL;
++      meta_output_unassign_crtc (output);
+     }
+ 
+   if (old_output)
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index c9c3b2e..90c75f0 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -2088,6 +2088,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
+   EGLDisplay egl_display = renderer_gpu_data->egl_display;
+   MetaMonitor *monitor;
+   MetaOutput *output;
++  MetaCrtc *crtc;
+   EGLConfig egl_config;
+   EGLStreamKHR egl_stream;
+   EGLSurface egl_surface;
+@@ -2111,6 +2112,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
+ 
+   monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
+   output = meta_monitor_get_main_output (monitor);
++  crtc = meta_output_get_assigned_crtc (output);
+ 
+   /*
+    * An "logical_monitor" may have multiple outputs/crtcs in case its tiled,
+@@ -2118,7 +2120,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
+    * lets pass the first one.
+    */
+   output_attribs[0] = EGL_DRM_CRTC_EXT;
+-  output_attribs[1] = output->crtc->crtc_id;
++  output_attribs[1] = crtc->crtc_id;
+   output_attribs[2] = EGL_NONE;
+ 
+   if (!meta_egl_get_output_layers (egl, egl_display,
+@@ -2716,12 +2718,10 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
+ {
+   MetaMonitor *main_monitor;
+   MetaOutput *main_output;
+-  MetaMonitorTransform crtc_transform;
++  MetaCrtc *crtc;
+   main_monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
+   main_output = meta_monitor_get_main_output (main_monitor);
+-  crtc_transform =
+-    meta_monitor_logical_to_crtc_transform (main_monitor,
+-                                            logical_monitor->transform);
++  crtc = meta_output_get_assigned_crtc (main_output);
+ 
+   /*
+    * Pick any monitor and output and check; all CRTCs of a logical monitor will
+@@ -2729,11 +2729,11 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
+    */
+ 
+   if (meta_monitor_manager_is_transform_handled (monitor_manager,
+-                                                 main_output->crtc,
+-                                                 crtc_transform))
++                                                 crtc,
++                                                 crtc->transform))
+     return META_MONITOR_TRANSFORM_NORMAL;
+   else
+-    return crtc_transform;
++    return crtc->transform;
+ }
+ 
+ static MetaRendererView *
+diff --git a/src/backends/x11/meta-monitor-manager-xrandr.c b/src/backends/x11/meta-monitor-manager-xrandr.c
+index dbe3e4e..e438d8f 100644
+--- a/src/backends/x11/meta-monitor-manager-xrandr.c
++++ b/src/backends/x11/meta-monitor-manager-xrandr.c
+@@ -225,8 +225,10 @@ is_crtc_assignment_changed (MetaCrtc      *crtc,
+       for (j = 0; j < crtc_info->outputs->len; j++)
+         {
+           MetaOutput *output = ((MetaOutput**) crtc_info->outputs->pdata)[j];
++          MetaCrtc *assigned_crtc;
+ 
+-          if (output->crtc != crtc)
++          assigned_crtc = meta_output_get_assigned_crtc (output);
++          if (assigned_crtc != crtc)
+             return TRUE;
+         }
+ 
+@@ -243,6 +245,7 @@ is_output_assignment_changed (MetaOutput      *output,
+                               MetaOutputInfo **output_infos,
+                               unsigned int     n_output_infos)
+ {
++  MetaCrtc *assigned_crtc;
+   gboolean output_is_found = FALSE;
+   unsigned int i;
+ 
+@@ -265,8 +268,10 @@ is_output_assignment_changed (MetaOutput      *output,
+       output_is_found = TRUE;
+     }
+ 
++  assigned_crtc = meta_output_get_assigned_crtc (output);
++
+   if (!output_is_found)
+-    return output->crtc != NULL;
++    return assigned_crtc != NULL;
+ 
+   for (i = 0; i < n_crtc_infos; i++)
+     {
+@@ -279,7 +284,7 @@ is_output_assignment_changed (MetaOutput      *output,
+             ((MetaOutput**) crtc_info->outputs->pdata)[j];
+ 
+           if (crtc_info_output == output &&
+-              crtc_info->crtc == output->crtc)
++              crtc_info->crtc == assigned_crtc)
+             return FALSE;
+         }
+     }
+@@ -455,7 +460,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
+               output = ((MetaOutput**)crtc_info->outputs->pdata)[j];
+ 
+               output->is_dirty = TRUE;
+-              output->crtc = crtc;
++              meta_output_assign_crtc (output, crtc);
+ 
+               output_ids[j] = output->winsys_id;
+             }
+@@ -521,7 +526,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
+           continue;
+         }
+ 
+-      output->crtc = NULL;
++      meta_output_unassign_crtc (output);
+       output->is_primary = FALSE;
+     }
+ 
+diff --git a/src/backends/x11/meta-output-xrandr.c b/src/backends/x11/meta-output-xrandr.c
+index 1f44cb1..515389d 100644
+--- a/src/backends/x11/meta-output-xrandr.c
++++ b/src/backends/x11/meta-output-xrandr.c
+@@ -97,10 +97,13 @@ output_set_underscanning_xrandr (MetaOutput *output,
+    * make the border configurable. */
+   if (underscanning)
+     {
++      MetaCrtc *crtc;
+       uint32_t border_value;
+ 
++      crtc = meta_output_get_assigned_crtc (output);
++
+       prop = XInternAtom (xdisplay, "underscan hborder", False);
+-      border_value = output->crtc->current_mode->width * 0.05;
++      border_value = crtc->current_mode->width * 0.05;
+ 
+       xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
+                                         (XID) output->winsys_id,
+@@ -109,7 +112,7 @@ output_set_underscanning_xrandr (MetaOutput *output,
+                                         1, &border_value);
+ 
+       prop = XInternAtom (xdisplay, "underscan vborder", False);
+-      border_value = output->crtc->current_mode->height * 0.05;
++      border_value = crtc->current_mode->height * 0.05;
+ 
+       xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
+                                         (XID) output->winsys_id,
+@@ -737,14 +740,14 @@ output_get_crtcs (MetaOutput    *output,
+     }
+   output->n_possible_crtcs = n_actual_crtcs;
+ 
+-  output->crtc = NULL;
++  meta_output_unassign_crtc (output);
+   for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
+     {
+       MetaCrtc *crtc = l->data;
+ 
+       if ((XID) crtc->crtc_id == xrandr_output->crtc)
+         {
+-          output->crtc = crtc;
++          meta_output_assign_crtc (output, crtc);
+           break;
+         }
+     }
+diff --git a/src/backends/x11/meta-stage-x11-nested.c b/src/backends/x11/meta-stage-x11-nested.c
+index 57fdabb..4cc58d6 100644
+--- a/src/backends/x11/meta-stage-x11-nested.c
++++ b/src/backends/x11/meta-stage-x11-nested.c
+@@ -113,7 +113,7 @@ draw_crtc (MetaMonitor         *monitor,
+   CoglTexture *texture = data->texture;
+   MetaLogicalMonitor *logical_monitor = data->logical_monitor;
+   MetaOutput *output = monitor_crtc_mode->output;
+-  MetaCrtc *crtc = output->crtc;
++  MetaCrtc *crtc;
+   MetaRendererView *renderer_view = META_RENDERER_VIEW (data->view);
+   MetaMonitorTransform view_transform;
+   MetaMonitorTransform layout_transform = META_MONITOR_TRANSFORM_NORMAL;
+@@ -129,6 +129,8 @@ draw_crtc (MetaMonitor         *monitor,
+   texture_width = cogl_texture_get_width (texture);
+   texture_height = cogl_texture_get_height (texture);
+ 
++  crtc = meta_output_get_assigned_crtc (output);
++
+   clutter_stage_view_get_layout (data->view, &view_layout);
+   sample_x = crtc->rect.x - view_layout.x;
+   sample_y = crtc->rect.y - view_layout.y;
+diff --git a/src/backends/x11/nested/meta-renderer-x11-nested.c b/src/backends/x11/nested/meta-renderer-x11-nested.c
+index a0c26c9..8fdf46b 100644
+--- a/src/backends/x11/nested/meta-renderer-x11-nested.c
++++ b/src/backends/x11/nested/meta-renderer-x11-nested.c
+@@ -50,24 +50,22 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
+ {
+   MetaMonitor *main_monitor;
+   MetaOutput *main_output;
+-  MetaMonitorTransform crtc_transform;
++  MetaCrtc *crtc;
++
+   main_monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
+   main_output = meta_monitor_get_main_output (main_monitor);
+-  crtc_transform =
+-    meta_monitor_logical_to_crtc_transform (main_monitor,
+-                                            logical_monitor->transform);
+-
++  crtc = meta_output_get_assigned_crtc (main_output);
+   /*
+    * Pick any monitor and output and check; all CRTCs of a logical monitor will
+    * always have the same transform assigned to them.
+    */
+ 
+   if (meta_monitor_manager_is_transform_handled (monitor_manager,
+-                                                 main_output->crtc,
+-                                                 crtc_transform))
++                                                 crtc,
++                                                 crtc->transform))
+     return META_MONITOR_TRANSFORM_NORMAL;
+   else
+-    return crtc_transform;
++    return crtc->transform;
+ }
+ 
+ static MetaRendererView *
+diff --git a/src/tests/meta-monitor-manager-test.c b/src/tests/meta-monitor-manager-test.c
+index 5e1c56e..953d871 100644
+--- a/src/tests/meta-monitor-manager-test.c
++++ b/src/tests/meta-monitor-manager-test.c
+@@ -209,7 +209,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
+               output = ((MetaOutput**)crtc_info->outputs->pdata)[j];
+ 
+               output->is_dirty = TRUE;
+-              output->crtc = crtc;
++              meta_output_assign_crtc (output, crtc);
+             }
+         }
+     }
+@@ -255,7 +255,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
+           continue;
+         }
+ 
+-      output->crtc = NULL;
++      meta_output_unassign_crtc (output);
+       output->is_primary = FALSE;
+     }
+ }
+diff --git a/src/tests/monitor-unit-tests.c b/src/tests/monitor-unit-tests.c
+index 97b1e6e..a9cb2e2 100644
+--- a/src/tests/monitor-unit-tests.c
++++ b/src/tests/monitor-unit-tests.c
+@@ -449,22 +449,24 @@ check_current_monitor_mode (MetaMonitor         *monitor,
+   CheckMonitorModeData *data = user_data;
+   MetaMonitorManager *monitor_manager = data->monitor_manager;
+   MetaOutput *output;
++  MetaCrtc *crtc;
+ 
+   output = output_from_winsys_id (monitor_manager,
+                                   data->expect_crtc_mode_iter->output);
++  crtc = meta_output_get_assigned_crtc (output);
+ 
+   if (data->expect_crtc_mode_iter->crtc_mode == -1)
+     {
+-      g_assert_null (output->crtc);
++      g_assert_null (crtc);
+     }
+   else
+     {
+       MetaLogicalMonitor *logical_monitor;
+ 
+-      g_assert_nonnull (output->crtc);
+-      g_assert (monitor_crtc_mode->crtc_mode == output->crtc->current_mode);
++      g_assert_nonnull (crtc);
++      g_assert (monitor_crtc_mode->crtc_mode == crtc->current_mode);
+ 
+-      logical_monitor = output->crtc->logical_monitor;
++      logical_monitor = crtc->logical_monitor;
+       g_assert_nonnull (logical_monitor);
+     }
+ 
+@@ -553,6 +555,7 @@ check_logical_monitor (MonitorTestCase               *test_case,
+       for (l_output = outputs; l_output; l_output = l_output->next)
+         {
+           MetaOutput *output = l_output->data;
++          MetaCrtc *crtc;
+ 
+           if (output->is_primary)
+             {
+@@ -560,8 +563,8 @@ check_logical_monitor (MonitorTestCase               *test_case,
+               primary_output = output;
+             }
+ 
+-          g_assert (!output->crtc ||
+-                    output->crtc->logical_monitor == logical_monitor);
++          crtc = meta_output_get_assigned_crtc (output);
++          g_assert (!crtc || crtc->logical_monitor == logical_monitor);
+           g_assert_cmpint (logical_monitor->is_presentation,
+                            ==,
+                            output->is_presentation);
+@@ -983,7 +986,8 @@ create_monitor_test_setup (MonitorTestCase *test_case,
+ 
+       output = g_object_new (META_TYPE_OUTPUT, NULL);
+ 
+-      output->crtc = crtc;
++      if (crtc)
++        meta_output_assign_crtc (output, crtc);
+       output->winsys_id = i;
+       output->name = (is_laptop_panel ? g_strdup_printf ("eDP-%d",
+                                                   ++n_laptop_panels)

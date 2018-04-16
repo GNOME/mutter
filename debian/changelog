@@ -1,8 +1,30 @@
 mutter (3.28.1-1) UNRELEASED; urgency=medium
 
+  [ Jeremy Bicha ]
   * New upstream release
     - Fix window button spacing when display is scaled (LP: #1725133)
   * Bump Standards-Version to 4.1.4
+
+  [ Marco Trevisan (Treviño) ]
+  * theme-frames-Use-surface-device-scale-instead-of-cairo_sc.patch:
+    - theme, frames: Use surface device scale instead of cairo_scale
+      (LP: #1764554)
+  * theme-use-gtk_render_icon_suface-to-paint-button-icon.patch:
+    - theme: use gtk_render_icon_suface to paint button icon
+      (LP: #1764558)
+  * theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch:
+    - theme: load icons as Gtk does with fallback and RTL support
+  * clutter-Smooth-out-master-clock-to-smooth-visuals.patch:
+    - clutter: Smooth out master clock to smooth visuals
+  * core-Return-1-if-meta_window_get_monitor-is-called-on-an-.patch:
+    - core: Return -1 if meta_window_get_monitor is called on an
+      unmanaged window (LP: #1724439)
+  * backends-Move-MetaOutput-crtc-field-into-private-struct.patch:
+    - backends: Move MetaOutput::crtc field into private struct
+      (LP: #1703668)
+  * backends-Add-logical-monitor-monitor-output-crtc-ref-chai.patch:
+    - backends: Add logical monitor -> monitor -> output -> crtc ref
+      chain (LP: #1703668)
 
  -- Jeremy Bicha <jbicha@debian.org>  Fri, 13 Apr 2018 20:57:47 -0400
 

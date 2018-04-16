@@ -1,0 +1,98 @@
+From: =?utf-8?b?Ik1hcmNvIFRyZXZpc2FuIChUcmV2acOxbyki?= <mail@3v1n0.net>
+Date: Fri, 30 Mar 2018 12:57:50 -0600
+Subject: theme, frames: Use surface device scale instead of cairo_scale
+
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/1764554
+Bug-GNOME: https://gitlab.gnome.org/GNOME/mutter/issues/99
+Forwarded: yes, https://gitlab.gnome.org/GNOME/mutter/merge_requests/61
+
+Gtk now is caching the themed cairo surfaces, then as per
+commit gtk@e36b629c the surface device scale is used to figure
+out the current paint scaling.
+
+Without this when using background-image's for window buttons
+the -gtk-scaled icons isn't properly resized.
+
+Fixes #99
+---
+ src/ui/frames.c | 12 ++++++++++--
+ src/ui/theme.c  | 14 ++++++++++++--
+ 2 files changed, 22 insertions(+), 4 deletions(-)
+
+diff --git a/src/ui/frames.c b/src/ui/frames.c
+index 129a9e5..ef7e7df 100644
+--- a/src/ui/frames.c
++++ b/src/ui/frames.c
+@@ -1330,7 +1330,9 @@ meta_ui_frame_get_mask (MetaUIFrame *frame,
+   MetaFrameBorders borders;
+   MetaFrameFlags flags;
+   MetaRectangle frame_rect;
+-  int scale = meta_theme_get_window_scaling_factor ();
++  cairo_surface_t *surface;
++  double xscale, yscale;
++  int scale;
+ 
+   meta_window_get_frame_rect (frame->meta_window, &frame_rect);
+ 
+@@ -1340,7 +1342,11 @@ meta_ui_frame_get_mask (MetaUIFrame *frame,
+   meta_ui_frame_get_borders (frame, &borders);
+ 
+   /* See comment in meta_frame_layout_draw_with_style() for details on HiDPI handling */
+-  cairo_scale (cr, scale, scale);
++  scale = meta_theme_get_window_scaling_factor ();
++  surface = cairo_get_target (cr);
++  cairo_surface_get_device_scale (surface, &xscale, &yscale);
++  cairo_surface_set_device_scale (surface, scale, scale);
++
+   gtk_render_background (frame->style_info->styles[META_STYLE_ELEMENT_FRAME], cr,
+                          borders.invisible.left / scale,
+                          borders.invisible.top / scale,
+@@ -1349,6 +1355,8 @@ meta_ui_frame_get_mask (MetaUIFrame *frame,
+                          borders.invisible.left / scale,
+                          borders.invisible.top / scale,
+                          frame_rect.width / scale, borders.total.top / scale);
++
++  cairo_surface_set_device_scale (surface, xscale, yscale);
+ }
+ 
+ /* XXX -- this is disgusting. Find a better approach here.
+diff --git a/src/ui/theme.c b/src/ui/theme.c
+index b909d9b..c0bb9b6 100644
+--- a/src/ui/theme.c
++++ b/src/ui/theme.c
+@@ -736,7 +736,9 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
+   GdkRectangle titlebar_rect;
+   GdkRectangle button_rect;
+   const MetaFrameBorders *borders;
+-  int scale = meta_theme_get_window_scaling_factor ();
++  cairo_surface_t *frame_surface;
++  double xscale, yscale;
++  int scale;
+ 
+   /* We opt out of GTK+/Clutter's HiDPI handling, so we have to do the scaling
+    * ourselves; the nitty-gritty is a bit confusing, so here is an overview:
+@@ -748,8 +750,14 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
+    *  - for drawing, we scale the canvas to have GTK+ render elements (borders,
+    *    radii, ...) at the correct scale - as a result, we have to "unscale"
+    *    the geometry again to not apply the scaling twice
++   *  - As per commit e36b629c GTK expects the device scale to be set and match
++   *    the final scaling or the surface caching won't take this in account
++   *    breaking -gtk-scaled items.
+    */
+-  cairo_scale (cr, scale, scale);
++  scale = meta_theme_get_window_scaling_factor ();
++  frame_surface = cairo_get_target (cr);
++  cairo_surface_get_device_scale (frame_surface, &xscale, &yscale);
++  cairo_surface_set_device_scale (frame_surface, scale, scale);
+ 
+   borders = &fgeom->borders;
+ 
+@@ -905,6 +913,8 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
+         gtk_style_context_remove_class (style, button_class);
+       gtk_style_context_set_state (style, state);
+     }
++
++  cairo_surface_set_device_scale (frame_surface, xscale, yscale);
+ }
+ 
+ /**

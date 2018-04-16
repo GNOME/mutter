@@ -2,3 +2,10 @@ bgo768531_workaround-startup-notifications.patch
 skip-failing-tests.patch
 skip-failing-tests-325.patch
 synaptics-support.patch
+theme-frames-Use-surface-device-scale-instead-of-cairo_sc.patch
+theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
+theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
+clutter-Smooth-out-master-clock-to-smooth-visuals.patch
+core-Return-1-if-meta_window_get_monitor-is-called-on-an-.patch
+backends-Move-MetaOutput-crtc-field-into-private-struct.patch
+backends-Add-logical-monitor-monitor-output-crtc-ref-chai.patch
