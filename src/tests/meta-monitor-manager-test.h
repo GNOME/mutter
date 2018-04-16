@@ -49,9 +49,6 @@ MetaGpu * meta_monitor_manager_test_get_gpu (MetaMonitorManagerTest *manager_tes
 void meta_monitor_manager_test_emulate_hotplug (MetaMonitorManagerTest *manager_test,
                                                 MetaMonitorTestSetup   *test_setup);
 
-void meta_monitor_manager_test_set_is_lid_closed (MetaMonitorManagerTest *manager_test,
-                                                  gboolean                is_lid_closed);
-
 void meta_monitor_manager_test_set_handles_transforms (MetaMonitorManagerTest *manager_test,
                                                        gboolean                handles_transforms);
 

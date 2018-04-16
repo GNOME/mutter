@@ -26,4 +26,7 @@
 G_DECLARE_FINAL_TYPE (MetaBackendTest, meta_backend_test,
                       META, BACKEND_TEST, MetaBackendX11Nested)
 
+void meta_backend_test_set_is_lid_closed (MetaBackendTest *backend_test,
+                                          gboolean         is_lid_closed);
+
 #endif /* META_BACKEND_TEST_H */

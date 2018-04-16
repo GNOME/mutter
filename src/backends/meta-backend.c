@@ -58,6 +58,7 @@ enum
   KEYMAP_CHANGED,
   KEYMAP_LAYOUT_GROUP_CHANGED,
   LAST_DEVICE_CHANGED,
+  LID_IS_CLOSED_CHANGED,
 
   N_SIGNALS
 };
@@ -112,6 +113,8 @@ struct _MetaBackendPrivate
   MetaDnd *dnd;
 
   UpClient *up_client;
+  gboolean lid_is_closed;
+
   guint sleep_signal_id;
   GCancellable *cancellable;
   GDBusConnection *system_bus;
@@ -141,7 +144,7 @@ meta_backend_finalize (GObject *object)
   g_clear_object (&priv->dbus_session_watcher);
 #endif
 
-  g_object_unref (priv->up_client);
+  g_clear_object (&priv->up_client);
   if (priv->sleep_signal_id)
     g_dbus_connection_signal_unsubscribe (priv->system_bus, priv->sleep_signal_id);
   g_cancellable_cancel (priv->cancellable);
@@ -525,6 +528,66 @@ meta_backend_real_get_relative_motion_deltas (MetaBackend *backend,
   return FALSE;
 }
 
+static gboolean
+meta_backend_real_is_lid_closed (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  if (!priv->up_client)
+    return FALSE;
+
+  return priv->lid_is_closed;
+}
+
+gboolean
+meta_backend_is_lid_closed (MetaBackend *backend)
+{
+  return META_BACKEND_GET_CLASS (backend)->is_lid_closed (backend);
+}
+
+static void
+lid_is_closed_changed_cb (UpClient   *client,
+                          GParamSpec *pspec,
+                          gpointer    user_data)
+{
+  MetaBackend *backend = user_data;
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  gboolean lid_is_closed;
+
+  lid_is_closed = up_client_get_lid_is_closed (priv->up_client);
+  if (lid_is_closed == priv->lid_is_closed)
+    return;
+
+  priv->lid_is_closed = lid_is_closed;
+  g_signal_emit (backend, signals[LID_IS_CLOSED_CHANGED], 0,
+                 priv->lid_is_closed);
+
+  if (lid_is_closed)
+    return;
+
+  meta_idle_monitor_reset_idletime (meta_idle_monitor_get_core ());
+}
+
+static void
+meta_backend_constructed (GObject *object)
+{
+  MetaBackend *backend = META_BACKEND (object);
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  MetaBackendClass *backend_class =
+   META_BACKEND_GET_CLASS (backend);
+
+  if (backend_class->is_lid_closed != meta_backend_real_is_lid_closed)
+    return;
+
+  priv->up_client = up_client_new ();
+  if (priv->up_client)
+    {
+      g_signal_connect (priv->up_client, "notify::lid-is-closed",
+                        G_CALLBACK (lid_is_closed_changed_cb), NULL);
+      priv->lid_is_closed = up_client_get_lid_is_closed (priv->up_client);
+    }
+}
+
 static void
 meta_backend_class_init (MetaBackendClass *klass)
 {
@@ -532,6 +595,7 @@ meta_backend_class_init (MetaBackendClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_backend_finalize;
+  object_class->constructed = meta_backend_constructed;
 
   klass->post_init = meta_backend_real_post_init;
   klass->create_cursor_renderer = meta_backend_real_create_cursor_renderer;
@@ -539,6 +603,7 @@ meta_backend_class_init (MetaBackendClass *klass)
   klass->ungrab_device = meta_backend_real_ungrab_device;
   klass->select_stage_events = meta_backend_real_select_stage_events;
   klass->get_relative_motion_deltas = meta_backend_real_get_relative_motion_deltas;
+  klass->is_lid_closed = meta_backend_real_is_lid_closed;
 
   signals[KEYMAP_CHANGED] =
     g_signal_new ("keymap-changed",
@@ -561,6 +626,13 @@ meta_backend_class_init (MetaBackendClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1, G_TYPE_INT);
+  signals[LID_IS_CLOSED_CHANGED] =
+    g_signal_new ("lid-is-closed-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1, G_TYPE_BOOLEAN);
 
   mutter_stage_views = g_getenv ("MUTTER_STAGE_VIEWS");
   stage_views_disabled = g_strcmp0 (mutter_stage_views, "0") == 0;
@@ -602,17 +674,6 @@ meta_backend_create_renderer (MetaBackend *backend,
                               GError     **error)
 {
   return META_BACKEND_GET_CLASS (backend)->create_renderer (backend, error);
-}
-
-static void
-lid_is_closed_changed_cb (UpClient   *client,
-                          GParamSpec *pspec,
-                          gpointer    user_data)
-{
-  if (up_client_get_lid_is_closed (client))
-    return;
-
-  meta_idle_monitor_reset_idletime (meta_idle_monitor_get_core ());
 }
 
 static void
@@ -687,10 +748,6 @@ meta_backend_initable_init (GInitable     *initable,
   priv->cursor_tracker = g_object_new (META_TYPE_CURSOR_TRACKER, NULL);
 
   priv->dnd = g_object_new (META_TYPE_DND, NULL);
-
-  priv->up_client = up_client_new ();
-  g_signal_connect (priv->up_client, "notify::lid-is-closed",
-                    G_CALLBACK (lid_is_closed_changed_cb), NULL);
 
   priv->cancellable = g_cancellable_new ();
   g_bus_get (G_BUS_TYPE_SYSTEM,

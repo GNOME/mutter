@@ -2355,7 +2355,7 @@ meta_test_monitor_lid_switch_config (void)
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case);
 
-  meta_monitor_manager_test_set_is_lid_closed (monitor_manager_test, TRUE);
+  meta_backend_test_set_is_lid_closed (backend, TRUE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
 
   test_case.expect.logical_monitors[0] = (MonitorTestCaseLogicalMonitor) {
@@ -2371,7 +2371,7 @@ meta_test_monitor_lid_switch_config (void)
 
   check_monitor_configuration (&test_case);
 
-  meta_monitor_manager_test_set_is_lid_closed (monitor_manager_test, FALSE);
+  meta_backend_test_set_is_lid_closed (backend, FALSE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
 
   test_case.expect.logical_monitors[0] = (MonitorTestCaseLogicalMonitor) {
@@ -2525,12 +2525,12 @@ meta_test_monitor_lid_opened_config (void)
 
   test_setup = create_monitor_test_setup (&test_case,
                                           MONITOR_TEST_FLAG_NO_STORED);
-  meta_monitor_manager_test_set_is_lid_closed (monitor_manager_test, TRUE);
+  meta_backend_test_set_is_lid_closed (backend, TRUE);
 
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case);
 
-  meta_monitor_manager_test_set_is_lid_closed (monitor_manager_test, FALSE);
+  meta_backend_test_set_is_lid_closed (backend, FALSE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
 
   test_case.expect.n_logical_monitors = 2;
@@ -2633,7 +2633,7 @@ meta_test_monitor_lid_closed_no_external (void)
 
   test_setup = create_monitor_test_setup (&test_case,
                                           MONITOR_TEST_FLAG_NO_STORED);
-  meta_monitor_manager_test_set_is_lid_closed (monitor_manager_test, TRUE);
+  meta_backend_test_set_is_lid_closed (backend, TRUE);
 
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case);
@@ -2780,7 +2780,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
 
   test_setup = create_monitor_test_setup (&test_case,
                                           MONITOR_TEST_FLAG_NO_STORED);
-  meta_monitor_manager_test_set_is_lid_closed (monitor_manager_test, FALSE);
+  meta_backend_test_set_is_lid_closed (backend, FALSE);
 
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case);
@@ -2809,7 +2809,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
 
   test_setup = create_monitor_test_setup (&test_case,
                                           MONITOR_TEST_FLAG_NO_STORED);
-  meta_monitor_manager_test_set_is_lid_closed (monitor_manager_test, TRUE);
+  meta_backend_test_set_is_lid_closed (backend, TRUE);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case);
 
@@ -2832,7 +2832,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
 
   test_setup = create_monitor_test_setup (&test_case,
                                           MONITOR_TEST_FLAG_NO_STORED);
-  meta_monitor_manager_test_set_is_lid_closed (monitor_manager_test, FALSE);
+  meta_backend_test_set_is_lid_closed (backend, FALSE);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case);
 
@@ -2858,7 +2858,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
 
   test_setup = create_monitor_test_setup (&test_case,
                                           MONITOR_TEST_FLAG_NO_STORED);
-  meta_monitor_manager_test_set_is_lid_closed (monitor_manager_test, TRUE);
+  meta_backend_test_set_is_lid_closed (backend, TRUE);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case);
 
@@ -2866,7 +2866,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
 
   test_setup = create_monitor_test_setup (&test_case,
                                           MONITOR_TEST_FLAG_NO_STORED);
-  meta_monitor_manager_test_set_is_lid_closed (monitor_manager_test, FALSE);
+  meta_backend_test_set_is_lid_closed (backend, FALSE);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case);
 }
@@ -5395,7 +5395,7 @@ meta_test_monitor_custom_lid_switch_config (void)
   test_case.expect.logical_monitors[0].transform = META_MONITOR_TRANSFORM_90;
   test_case.expect.n_logical_monitors = 1;
   test_case.expect.screen_width = 768;
-  meta_monitor_manager_test_set_is_lid_closed (monitor_manager_test, TRUE);
+  meta_backend_test_set_is_lid_closed (backend, TRUE);
 
   test_setup = create_monitor_test_setup (&test_case,
                                           MONITOR_TEST_FLAG_NONE);
@@ -5416,7 +5416,7 @@ meta_test_monitor_custom_lid_switch_config (void)
   test_case.expect.logical_monitors[1].transform = META_MONITOR_TRANSFORM_270;
   test_case.expect.n_logical_monitors = 2;
   test_case.expect.screen_width = 1024 + 768;
-  meta_monitor_manager_test_set_is_lid_closed (monitor_manager_test, FALSE);
+  meta_backend_test_set_is_lid_closed (backend, FALSE);
 
   test_setup = create_monitor_test_setup (&test_case,
                                           MONITOR_TEST_FLAG_NONE);
