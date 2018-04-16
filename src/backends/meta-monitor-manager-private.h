@@ -37,7 +37,6 @@
 
 #include <cogl/cogl.h>
 #include <libgnome-desktop/gnome-pnp-ids.h>
-#include <libupower-glib/upower.h>
 
 #include "display-private.h"
 #include "stack-tracker.h"
@@ -179,8 +178,6 @@ struct _MetaMonitorManager
   MetaMonitorConfigManager *config_manager;
 
   GnomePnpIds *pnp_ids;
-  UpClient *up_client;
-  gboolean lid_is_closed;
 
   gulong experimental_features_changed_handler_id;
 
@@ -195,8 +192,6 @@ struct _MetaMonitorManagerClass
                           MetaOutput         *);
   GBytes* (*read_edid) (MetaMonitorManager *,
                         MetaOutput         *);
-
-  gboolean (*is_lid_closed) (MetaMonitorManager *);
 
   void (*ensure_initial_config) (MetaMonitorManager *);
 
@@ -335,8 +330,6 @@ void               meta_monitor_manager_update_logical_state (MetaMonitorManager
                                                               MetaMonitorsConfig *config);
 void               meta_monitor_manager_update_logical_state_derived (MetaMonitorManager *manager,
                                                                       MetaMonitorsConfig *config);
-
-gboolean           meta_monitor_manager_is_lid_closed (MetaMonitorManager *manager);
 
 void               meta_monitor_manager_lid_is_closed_changed (MetaMonitorManager *manager);
 

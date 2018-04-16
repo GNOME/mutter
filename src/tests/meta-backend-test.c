@@ -26,9 +26,26 @@
 struct _MetaBackendTest
 {
   MetaBackendX11Nested parent;
+
+  gboolean is_lid_closed;
 };
 
 G_DEFINE_TYPE (MetaBackendTest, meta_backend_test, META_TYPE_BACKEND_X11_NESTED)
+
+void
+meta_backend_test_set_is_lid_closed (MetaBackendTest *backend_test,
+                                     gboolean         is_lid_closed)
+{
+  backend_test->is_lid_closed = is_lid_closed;
+}
+
+static gboolean
+meta_backend_test_is_lid_closed (MetaBackend *backend)
+{
+  MetaBackendTest *backend_test = META_BACKEND_TEST (backend);
+
+  return backend_test->is_lid_closed;
+}
 
 static void
 meta_backend_test_init (MetaBackendTest *backend_test)
@@ -50,4 +67,5 @@ meta_backend_test_class_init (MetaBackendTestClass *klass)
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
 
   backend_class->create_monitor_manager = meta_backend_test_create_monitor_manager;
+  backend_class->is_lid_closed = meta_backend_test_is_lid_closed;
 }
