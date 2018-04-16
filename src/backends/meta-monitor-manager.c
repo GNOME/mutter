@@ -733,8 +733,11 @@ meta_monitor_manager_constructed (GObject *object)
   if (manager_class->is_lid_closed == meta_monitor_manager_real_is_lid_closed)
     {
       manager->up_client = up_client_new ();
-      g_signal_connect_object (manager->up_client, "notify::lid-is-closed",
-                               G_CALLBACK (lid_is_closed_changed), manager, 0);
+      if (manager->up_client)
+        {
+          g_signal_connect_object (manager->up_client, "notify::lid-is-closed",
+                                   G_CALLBACK (lid_is_closed_changed), manager, 0);
+        }
     }
 
   g_signal_connect_object (manager, "notify::power-save-mode",
