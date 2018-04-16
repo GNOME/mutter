@@ -23,6 +23,7 @@
 
 #include "backends/meta-monitor-config-manager.h"
 
+#include "backends/meta-backend-private.h"
 #include "backends/meta-monitor-config-migration.h"
 #include "backends/meta-monitor-config-store.h"
 #include "backends/meta-monitor-manager-private.h"
@@ -326,6 +327,15 @@ meta_monitor_config_manager_assign (MetaMonitorManager *manager,
   return TRUE;
 }
 
+static gboolean
+is_lid_closed (MetaMonitorManager *monitor_manager)
+{
+    MetaBackend *backend;
+
+    backend = meta_monitor_manager_get_backend (monitor_manager);
+    return meta_backend_is_lid_closed (backend);
+}
+
 MetaMonitorsConfigKey *
 meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_manager)
 {
@@ -340,7 +350,7 @@ meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_m
       MetaMonitorSpec *monitor_spec;
 
       if (meta_monitor_is_laptop_panel (monitor) &&
-          meta_monitor_manager_is_lid_closed (monitor_manager))
+          is_lid_closed (monitor_manager))
         continue;
 
       monitor_spec = meta_monitor_spec_clone (meta_monitor_get_spec (monitor));
@@ -455,7 +465,7 @@ find_primary_monitor (MetaMonitorManager *monitor_manager)
 {
   MetaMonitor *monitor;
 
-  if (meta_monitor_manager_is_lid_closed (monitor_manager))
+  if (is_lid_closed (monitor_manager))
     {
       monitor = meta_monitor_manager_get_primary_monitor (monitor_manager);
       if (monitor && !meta_monitor_is_laptop_panel (monitor))
@@ -598,7 +608,7 @@ meta_monitor_config_manager_create_linear (MetaMonitorConfigManager *config_mana
         continue;
 
       if (meta_monitor_is_laptop_panel (monitor) &&
-          meta_monitor_manager_is_lid_closed (monitor_manager))
+          is_lid_closed (monitor_manager))
         continue;
 
       logical_monitor_config =
@@ -1252,7 +1262,7 @@ meta_monitors_config_new (MetaMonitorManager           *monitor_manager,
       MetaMonitor *monitor = l->data;
       MetaMonitorSpec *monitor_spec;
 
-      if (meta_monitor_manager_is_lid_closed (monitor_manager) &&
+      if (is_lid_closed (monitor_manager) &&
           meta_monitor_is_laptop_panel (monitor))
         continue;
 
