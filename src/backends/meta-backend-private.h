@@ -29,7 +29,6 @@
 #include <glib-object.h>
 
 #include <xkbcommon/xkbcommon.h>
-#include <libupower-glib/upower.h>
 
 #include <meta/meta-backend.h>
 #include <meta/meta-idle-monitor.h>
