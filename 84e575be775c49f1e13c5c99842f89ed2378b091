@@ -1,0 +1,3 @@
+Despite what this commit message says, using XSync counters is also
+necessary for "normal" X11 events, as mutter might not see all the
+events such as those sent directly to clients.
