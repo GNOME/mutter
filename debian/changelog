@@ -1,4 +1,4 @@
-mutter (3.28.1-1) UNRELEASED; urgency=medium
+mutter (3.28.1-1) unstable; urgency=medium
 
   [ Jeremy Bicha ]
   * New upstream release
@@ -6,6 +6,7 @@ mutter (3.28.1-1) UNRELEASED; urgency=medium
   * Bump Standards-Version to 4.1.4
 
   [ Marco Trevisan (Treviño) ]
+  * Add patches proposed upstream:
   * theme-frames-Use-surface-device-scale-instead-of-cairo_sc.patch:
     - theme, frames: Use surface device scale instead of cairo_scale
       (LP: #1764554)
@@ -26,7 +27,7 @@ mutter (3.28.1-1) UNRELEASED; urgency=medium
     - backends: Add logical monitor -> monitor -> output -> crtc ref
       chain (LP: #1703668)
 
- -- Jeremy Bicha <jbicha@debian.org>  Fri, 13 Apr 2018 20:57:47 -0400
+ -- Jeremy Bicha <jbicha@debian.org>  Mon, 16 Apr 2018 22:35:14 -0400
 
 mutter (3.28.0-2) unstable; urgency=medium
 
