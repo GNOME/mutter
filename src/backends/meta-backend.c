@@ -112,7 +112,8 @@ struct _MetaBackendPrivate
   MetaPointerConstraint *client_pointer_constraint;
   MetaDnd *dnd;
 
-  UpClient *up_client;
+  guint upower_watch_id;
+  GDBusProxy *upower_proxy;
   gboolean lid_is_closed;
 
   guint sleep_signal_id;
@@ -144,12 +145,14 @@ meta_backend_finalize (GObject *object)
   g_clear_object (&priv->dbus_session_watcher);
 #endif
 
-  g_clear_object (&priv->up_client);
   if (priv->sleep_signal_id)
     g_dbus_connection_signal_unsubscribe (priv->system_bus, priv->sleep_signal_id);
+  if (priv->upower_watch_id)
+    g_bus_unwatch_name (priv->upower_watch_id);
   g_cancellable_cancel (priv->cancellable);
   g_clear_object (&priv->cancellable);
   g_clear_object (&priv->system_bus);
+  g_clear_object (&priv->upower_proxy);
 
   if (priv->device_update_idle_id)
     g_source_remove (priv->device_update_idle_id);
@@ -535,9 +538,6 @@ meta_backend_real_is_lid_closed (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
-  if (!priv->up_client)
-    return FALSE;
-
   return priv->lid_is_closed;
 }
 
@@ -548,15 +548,25 @@ meta_backend_is_lid_closed (MetaBackend *backend)
 }
 
 static void
-lid_is_closed_changed_cb (UpClient   *client,
-                          GParamSpec *pspec,
-                          gpointer    user_data)
+upower_properties_changed (GDBusProxy *proxy,
+                           GVariant   *changed_properties,
+                           GStrv       invalidated_properties,
+                           gpointer    user_data)
 {
   MetaBackend *backend = user_data;
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  GVariant *v;
   gboolean lid_is_closed;
 
-  lid_is_closed = up_client_get_lid_is_closed (priv->up_client);
+  v = g_variant_lookup_value (changed_properties,
+                              "LidIsClosed",
+                              G_VARIANT_TYPE_BOOLEAN);
+  if (!v)
+    return;
+
+  lid_is_closed = g_variant_get_boolean (v);
+  g_variant_unref (v);
+
   if (lid_is_closed == priv->lid_is_closed)
     return;
 
@@ -571,6 +581,77 @@ lid_is_closed_changed_cb (UpClient   *client,
 }
 
 static void
+upower_ready_cb (GObject      *source_object,
+                 GAsyncResult *res,
+                 gpointer      user_data)
+{
+  MetaBackend *backend;
+  MetaBackendPrivate *priv;
+  GDBusProxy *proxy;
+  GError *error = NULL;
+  GVariant *v;
+
+  proxy = g_dbus_proxy_new_finish (res, &error);
+  if (!proxy)
+    {
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        g_warning ("Failed to create UPower proxy: %s", error->message);
+      g_error_free (error);
+      return;
+    }
+
+  backend = META_BACKEND (user_data);
+  priv = meta_backend_get_instance_private (backend);
+
+  priv->upower_proxy = proxy;
+  g_signal_connect (proxy, "g-properties-changed",
+                    G_CALLBACK (upower_properties_changed), backend);
+
+  v = g_dbus_proxy_get_cached_property (proxy, "LidIsClosed");
+  if (!v)
+    return;
+  priv->lid_is_closed = g_variant_get_boolean (v);
+  g_variant_unref (v);
+
+  if (priv->lid_is_closed)
+    {
+      g_signal_emit (backend, signals[LID_IS_CLOSED_CHANGED], 0,
+                     priv->lid_is_closed);
+    }
+}
+
+static void
+upower_appeared (GDBusConnection *connection,
+                 const gchar     *name,
+                 const gchar     *name_owner,
+                 gpointer         user_data)
+{
+  MetaBackend *backend = META_BACKEND (user_data);
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  g_dbus_proxy_new (connection,
+                    G_DBUS_PROXY_FLAGS_NONE,
+                    NULL,
+                    "org.freedesktop.UPower",
+                    "/org/freedesktop/UPower",
+                    "org.freedesktop.UPower",
+                    priv->cancellable,
+                    upower_ready_cb,
+                    backend);
+}
+
+static void
+upower_vanished (GDBusConnection *connection,
+                 const gchar     *name,
+                 gpointer         user_data)
+{
+  MetaBackend *backend = META_BACKEND (user_data);
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  g_clear_object (&priv->upower_proxy);
+}
+
+static void
 meta_backend_constructed (GObject *object)
 {
   MetaBackend *backend = META_BACKEND (object);
@@ -581,13 +662,13 @@ meta_backend_constructed (GObject *object)
   if (backend_class->is_lid_closed != meta_backend_real_is_lid_closed)
     return;
 
-  priv->up_client = up_client_new ();
-  if (priv->up_client)
-    {
-      g_signal_connect (priv->up_client, "notify::lid-is-closed",
-                        G_CALLBACK (lid_is_closed_changed_cb), NULL);
-      priv->lid_is_closed = up_client_get_lid_is_closed (priv->up_client);
-    }
+  priv->upower_watch_id = g_bus_watch_name (G_BUS_TYPE_SYSTEM,
+                                            "org.freedesktop.UPower",
+                                            G_BUS_NAME_WATCHER_FLAGS_NONE,
+                                            upower_appeared,
+                                            upower_vanished,
+                                            backend,
+                                            NULL);
 }
 
 static void
