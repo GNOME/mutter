@@ -433,6 +433,8 @@ key_event_is_modifier (ClutterEvent *event)
     case XKB_KEY_Super_R:
     case XKB_KEY_Hyper_L:
     case XKB_KEY_Hyper_R:
+    case XKB_KEY_Caps_Lock:
+    case XKB_KEY_Shift_Lock:
       return TRUE;
     default:
       return FALSE;
@@ -584,6 +586,8 @@ handle_stickykeys_press (ClutterEvent            *event,
     }
 
   depressed_mods = xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_DEPRESSED);
+  depressed_mods &= ~CLUTTER_LOCK_MASK;
+
   new_latched_mask = device->stickykeys_latched_mask;
   new_locked_mask = device->stickykeys_locked_mask;
 
