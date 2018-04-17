@@ -1803,10 +1803,14 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
             _clutter_input_device_set_stage (device, NULL);
           }
 
-        _clutter_input_device_reset_scroll_info (source_device);
+	if(source_device)
+	  _clutter_input_device_reset_scroll_info (source_device);
 
-        clutter_event_set_device (event, device);
-        clutter_event_set_source_device (event, source_device);
+	if (device)
+	  clutter_event_set_device (event, device);
+
+	if (source_device)
+	  clutter_event_set_source_device (event, source_device);
 
         retval = CLUTTER_TRANSLATE_QUEUE;
       }
