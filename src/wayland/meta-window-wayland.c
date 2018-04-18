@@ -47,6 +47,8 @@ struct _MetaWindowWayland
 
   int geometry_scale;
 
+  gboolean has_pending_state_change;
+
   MetaWaylandSerial pending_configure_serial;
   gboolean has_pending_move;
   int pending_move_x;
@@ -324,6 +326,13 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
           window->buffer_rect.x = new_buffer_x;
           window->buffer_rect.y = new_buffer_y;
         }
+
+      /* Reapply the pending state change now */
+      if (wl_window->has_pending_state_change)
+        {
+          *result |= META_MOVE_RESIZE_RESULT_SYNC_COMPOSITOR;
+          wl_window->has_pending_state_change = FALSE;
+        }
     }
   else
     {
@@ -336,6 +345,11 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
           wl_window->pending_move_x = new_x;
           wl_window->pending_move_y = new_y;
         }
+
+      /* Store whether the window has a state change, so we can reapply later on, when
+       * we can actually move the window.
+       */
+      wl_window->has_pending_state_change = (flags & META_MOVE_RESIZE_STATE_CHANGED) != 0;
     }
 }
 
