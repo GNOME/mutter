@@ -9,3 +9,6 @@ clutter-Smooth-out-master-clock-to-smooth-visuals.patch
 core-Return-1-if-meta_window_get_monitor-is-called-on-an-.patch
 backends-Move-MetaOutput-crtc-field-into-private-struct.patch
 backends-Add-logical-monitor-monitor-output-crtc-ref-chai.patch
+# Cherry picked from upstream
+xwayland-use-g_autoptr-for-GError-in-xserver_died.patch
+xwayland-Don-t-abort-if-Xwayland-crashes.patch

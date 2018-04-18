@@ -1,0 +1,71 @@
+From: Ray Strode <rstrode@redhat.com>
+Date: Thu, 12 Apr 2018 13:06:01 -0500
+Subject: xwayland: Don't abort if Xwayland crashes
+
+Right now if Xwayland crashes, we crash, too.
+
+On some level that makes sense, since we're supposed to control the
+lifecycle of Xwayland, and by it crashing we've lost that control.
+
+But practically speaking, the knock-on crash adds noise to the logs,
+bug trackers, and retrace servers that only makes debugging harder.
+And the crash isn't something mutter can "fix", since it's
+ultimately from a bug in Xwayland anyway.
+
+This commit makes mutter exit instead of crash if Xwayland goes away
+unexpectedly.
+
+Origin: https://gitlab.gnome.org/GNOME/mutter/commit/2d80fd0
+---
+ src/wayland/meta-xwayland.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/src/wayland/meta-xwayland.c b/src/wayland/meta-xwayland.c
+index 7749976..c3baaff 100644
+--- a/src/wayland/meta-xwayland.c
++++ b/src/wayland/meta-xwayland.c
+@@ -26,6 +26,8 @@
+ #include "meta-xwayland.h"
+ #include "meta-xwayland-private.h"
+ 
++#include <meta/main.h>
++
+ #include <glib.h>
+ #include <glib-unix.h>
+ #include <errno.h>
+@@ -397,25 +399,30 @@ xserver_died (GObject      *source,
+ 
+   if (!g_subprocess_wait_finish (proc, result, &error))
+     {
+-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+-        g_error ("Failed to finish waiting for Xwayland: %s", error->message);
++      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
++        return;
++
++      g_warning ("Failed to finish waiting for Xwayland: %s", error->message);
+     }
+   else if (!g_subprocess_get_successful (proc))
+-    g_error ("X Wayland crashed; aborting");
++    g_warning ("X Wayland crashed; exiting");
+   else
+     {
+       /* For now we simply abort if we see the server exit.
+        *
+        * In the future X will only be loaded lazily for legacy X support
+        * but for now it's a hard requirement. */
+-      g_error ("Spurious exit of X Wayland server");
++      g_warning ("Spurious exit of X Wayland server");
+     }
++
++  meta_exit (META_EXIT_ERROR);
+ }
+ 
+ static int
+ x_io_error (Display *display)
+ {
+-  g_error ("Connection to xwayland lost");
++  g_warning ("Connection to xwayland lost");
++  meta_exit (META_EXIT_ERROR);
+ 
+   return 0;
+ }
