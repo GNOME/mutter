@@ -47,6 +47,8 @@ struct _MetaWindowWayland
 
   int geometry_scale;
 
+  gboolean has_pending_state_change;
+
   MetaWaylandSerial pending_configure_serial;
   gboolean has_pending_move;
   int pending_move_x;
@@ -64,6 +66,45 @@ struct _MetaWindowWaylandClass
 };
 
 G_DEFINE_TYPE (MetaWindowWayland, meta_window_wayland, META_TYPE_WINDOW)
+
+static gboolean
+is_pending (MetaWindowWayland *wl_window,
+            gboolean           pending_state,
+            MetaWaylandSerial *acked_configure_serial)
+{
+  if (!pending_state)
+    return FALSE;
+
+  if (wl_window->pending_configure_serial.set)
+    {
+      /* If we're waiting for a configure and this isn't an ACK for
+       * any configure, then fizzle it out. */
+      if (!acked_configure_serial->set)
+        return FALSE;
+
+      /* If we're waiting for a configure and this isn't an ACK for
+       * the configure we're waiting for, then fizzle it out. */
+      if (acked_configure_serial->value != wl_window->pending_configure_serial.value)
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+static inline gboolean
+is_pending_move (MetaWindowWayland *wl_window,
+                 MetaWaylandSerial *acked_configure_serial)
+{
+  return is_pending (wl_window, wl_window->has_pending_move, acked_configure_serial);
+}
+
+
+static inline gboolean
+is_pending_state_change (MetaWindowWayland *wl_window,
+                         MetaWaylandSerial *acked_configure_serial)
+{
+  return is_pending (wl_window, wl_window->has_pending_state_change, acked_configure_serial);
+}
 
 static int
 get_window_geometry_scale_for_logical_monitor (MetaLogicalMonitor *logical_monitor)
@@ -324,6 +365,9 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
           window->buffer_rect.x = new_buffer_x;
           window->buffer_rect.y = new_buffer_y;
         }
+
+      if (flags & META_MOVE_RESIZE_WAYLAND_STATE_CHANGED)
+        *result |= META_MOVE_RESIZE_RESULT_STATE_CHANGED;
     }
   else
     {
@@ -336,6 +380,11 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
           wl_window->pending_move_x = new_x;
           wl_window->pending_move_y = new_y;
         }
+
+      /* Store whether the window has a state change, so we can reapply later on, when
+       * we can actually move the window.
+       */
+      wl_window->has_pending_state_change = (flags & META_MOVE_RESIZE_STATE_CHANGED) != 0;
     }
 }
 
@@ -628,29 +677,6 @@ meta_window_wayland_new (MetaDisplay        *display,
   return window;
 }
 
-static gboolean
-should_do_pending_move (MetaWindowWayland *wl_window,
-                        MetaWaylandSerial *acked_configure_serial)
-{
-  if (!wl_window->has_pending_move)
-    return FALSE;
-
-  if (wl_window->pending_configure_serial.set)
-    {
-      /* If we're waiting for a configure and this isn't an ACK for
-       * any configure, then fizzle it out. */
-      if (!acked_configure_serial->set)
-        return FALSE;
-
-      /* If we're waiting for a configure and this isn't an ACK for
-       * the configure we're waiting for, then fizzle it out. */
-      if (acked_configure_serial->value != wl_window->pending_configure_serial.value)
-        return FALSE;
-    }
-
-  return TRUE;
-}
-
 int
 meta_window_wayland_get_geometry_scale (MetaWindow *window)
 {
@@ -703,7 +729,7 @@ meta_window_wayland_move_resize (MetaWindow        *window,
   /* x/y are ignored when we're doing interactive resizing */
   if (!meta_grab_op_is_resizing (window->display->grab_op))
     {
-      if (wl_window->has_pending_move && should_do_pending_move (wl_window, acked_configure_serial))
+      if (is_pending_move (wl_window, acked_configure_serial))
         {
           rect.x = wl_window->pending_move_x;
           rect.y = wl_window->pending_move_y;
@@ -722,6 +748,12 @@ meta_window_wayland_move_resize (MetaWindow        *window,
           rect.y += dy;
           flags |= META_MOVE_RESIZE_MOVE_ACTION;
         }
+    }
+
+  if (is_pending_state_change (wl_window, acked_configure_serial))
+    {
+      flags |= META_MOVE_RESIZE_WAYLAND_STATE_CHANGED;
+      wl_window->has_pending_state_change = FALSE;
     }
 
   wl_window->pending_configure_serial.set = FALSE;
