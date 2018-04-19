@@ -109,6 +109,7 @@ _cogl_object_default_unref (void *object)
 void
 cogl_object_unref (void *obj)
 {
+  _COGL_RETURN_IF_FAIL (obj != NULL);
   void (* unref_func) (void *) = ((CoglObject *) obj)->klass->virt_unref;
   unref_func (obj);
 }
