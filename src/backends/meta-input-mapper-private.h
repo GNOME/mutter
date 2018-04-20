@@ -23,6 +23,7 @@
 #define META_INPUT_MAPPER_H
 
 #include <clutter/clutter.h>
+#include "meta-monitor-manager-private.h"
 
 #define META_TYPE_INPUT_MAPPER (meta_input_mapper_get_type ())
 
@@ -36,5 +37,10 @@ void meta_input_mapper_add_device    (MetaInputMapper    *mapper,
                                       gboolean            builtin);
 void meta_input_mapper_remove_device (MetaInputMapper    *mapper,
 				      ClutterInputDevice *device);
+
+ClutterInputDevice *
+meta_input_mapper_get_logical_monitor_device (MetaInputMapper        *mapper,
+                                              MetaLogicalMonitor     *logical_monitor,
+                                              ClutterInputDeviceType  device_type);
 
 #endif /* META_INPUT_MAPPER_H */
