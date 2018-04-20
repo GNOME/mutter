@@ -31,6 +31,7 @@
 
 #include "meta-backend-private.h"
 #include "meta-input-settings-private.h"
+#include "meta-input-mapper-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor.h"
 
@@ -96,6 +97,9 @@ struct _MetaInputSettingsPrivate
     guint number;
     gdouble value;
   } last_pad_action_info;
+
+  /* For absolute devices with no mapping in settings */
+  MetaInputMapper *input_mapper;
 };
 
 typedef void (*ConfigBoolFunc)   (MetaInputSettings  *input_settings,
@@ -157,6 +161,7 @@ meta_input_settings_dispose (GObject *object)
   g_clear_object (&priv->keyboard_settings);
   g_clear_object (&priv->gsd_settings);
   g_clear_object (&priv->a11y_settings);
+  g_clear_object (&priv->input_mapper);
   g_clear_pointer (&priv->mappable_devices, g_hash_table_unref);
   g_clear_pointer (&priv->current_tools, g_hash_table_unref);
 
@@ -861,6 +866,42 @@ out:
   g_strfreev (edid);
 }
 
+static gboolean
+meta_input_settings_delegate_on_mapper (MetaInputSettings  *input_settings,
+                                        ClutterInputDevice *device)
+{
+  MetaInputSettingsPrivate *priv;
+  gboolean builtin = FALSE;
+
+  priv = meta_input_settings_get_instance_private (input_settings);
+
+#ifdef HAVE_LIBWACOM
+  if (clutter_input_device_get_device_type (device) != CLUTTER_TOUCHSCREEN_DEVICE)
+    {
+      WacomDevice *wacom_device;
+      guint flags = 0;
+
+      wacom_device =
+        meta_input_settings_get_tablet_wacom_device (input_settings,
+                                                     device);
+
+      if (wacom_device)
+        {
+          flags = libwacom_get_integration_flags (wacom_device);
+
+          if ((flags & (WACOM_DEVICE_INTEGRATED_SYSTEM |
+                        WACOM_DEVICE_INTEGRATED_DISPLAY)) == 0)
+            return FALSE;
+
+          builtin = (flags & WACOM_DEVICE_INTEGRATED_SYSTEM) != 0;
+        }
+    }
+#endif
+
+  meta_input_mapper_add_device (priv->input_mapper, device, builtin);
+  return TRUE;
+}
+
 static void
 update_tablet_keep_aspect (MetaInputSettings  *input_settings,
                            GSettings          *settings,
@@ -930,12 +971,17 @@ update_device_display (MetaInputSettings  *input_settings,
   if (clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE ||
       clutter_input_device_get_mapping_mode (device) ==
       CLUTTER_INPUT_DEVICE_MAPPING_ABSOLUTE)
-    meta_input_settings_find_monitor (input_settings, settings, device,
-                                      &monitor, &logical_monitor);
+    {
+      meta_input_settings_find_monitor (input_settings, settings, device,
+                                        &monitor, &logical_monitor);
+      if (!monitor &&
+          meta_input_settings_delegate_on_mapper (input_settings, device))
+        return;
+    }
 
-  if (monitor)
-    meta_monitor_manager_get_monitor_matrix (priv->monitor_manager,
-                                             monitor, logical_monitor, matrix);
+  meta_input_mapper_remove_device (priv->input_mapper, device);
+  meta_monitor_manager_get_monitor_matrix (priv->monitor_manager,
+                                           monitor, logical_monitor, matrix);
 
   input_settings_class->set_matrix (input_settings, device, matrix);
 
@@ -1387,6 +1433,29 @@ monitors_changed_cb (MetaMonitorManager *monitor_manager,
 }
 
 static void
+input_mapper_device_mapped_cb (MetaInputMapper    *mapper,
+                               ClutterInputDevice *device,
+                               MetaLogicalMonitor *logical_monitor,
+                               MetaMonitor        *monitor,
+                               MetaInputSettings  *input_settings)
+{
+  MetaInputSettingsPrivate *priv;
+  gfloat matrix[6] = { 1, 0, 0, 0, 1, 0 };
+
+  priv = meta_input_settings_get_instance_private (input_settings);
+
+  if (monitor && logical_monitor)
+    {
+      meta_monitor_manager_get_monitor_matrix (priv->monitor_manager,
+                                               monitor, logical_monitor,
+                                               matrix);
+    }
+
+  META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_matrix (input_settings,
+                                                              device, matrix);
+}
+
+static void
 device_mapping_info_free (DeviceMappingInfo *info)
 {
 #ifdef HAVE_LIBWACOM
@@ -1608,6 +1677,7 @@ meta_input_settings_device_removed (ClutterDeviceManager *device_manager,
   MetaInputSettingsPrivate *priv;
 
   priv = meta_input_settings_get_instance_private (input_settings);
+  meta_input_mapper_remove_device (priv->input_mapper, device);
   g_hash_table_remove (priv->mappable_devices, device);
   g_hash_table_remove (priv->current_tools, device);
 
@@ -1787,6 +1857,10 @@ meta_input_settings_init (MetaInputSettings *settings)
 #endif
 
   priv->two_finger_devices = g_hash_table_new (NULL, NULL);
+
+  priv->input_mapper = meta_input_mapper_new ();
+  g_signal_connect (priv->input_mapper, "device-mapped",
+                    G_CALLBACK (input_mapper_device_mapped_cb), settings);
 }
 
 GSettings *
