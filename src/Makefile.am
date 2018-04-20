@@ -136,6 +136,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/meta-idle-monitor-private.h	\
 	backends/meta-idle-monitor-dbus.c	\
 	backends/meta-idle-monitor-dbus.h	\
+	backends/meta-input-mapper.c		\
+	backends/meta-input-mapper-private.h	\
 	backends/meta-input-settings.c		\
 	backends/meta-input-settings-private.h	\
 	backends/meta-logical-monitor.c		\
