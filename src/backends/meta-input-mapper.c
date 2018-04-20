@@ -609,3 +609,26 @@ meta_input_mapper_remove_device (MetaInputMapper    *mapper,
       g_hash_table_remove (mapper->input_devices, device);
     }
 }
+
+ClutterInputDevice *
+meta_input_mapper_get_logical_monitor_device (MetaInputMapper        *mapper,
+                                              MetaLogicalMonitor     *logical_monitor,
+                                              ClutterInputDeviceType  device_type)
+{
+  MetaMapperOutputInfo *output;
+  GList *l;
+
+  output = g_hash_table_lookup (mapper->output_devices, logical_monitor);
+  if (!output)
+    return NULL;
+
+  for (l = output->input_devices; l; l = l->next)
+    {
+      MetaMapperInputInfo *input = l->data;
+
+      if (clutter_input_device_get_device_type (input->device) == device_type)
+        return input->device;
+    }
+
+  return NULL;
+}
