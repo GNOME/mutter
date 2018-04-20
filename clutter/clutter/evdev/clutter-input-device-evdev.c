@@ -1265,6 +1265,18 @@ clutter_input_device_evdev_release_touch_state (ClutterInputDeviceEvdev *device,
                        GINT_TO_POINTER (touch_state->device_slot));
 }
 
+static gboolean
+clutter_input_device_evdev_get_physical_size (ClutterInputDevice *device,
+                                              gdouble            *width,
+                                              gdouble            *height)
+{
+  struct libinput_device *libinput_device;
+
+  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+
+  return libinput_device_get_size (libinput_device, width, height) == 0;
+}
+
 static void
 clutter_input_device_evdev_class_init (ClutterInputDeviceEvdevClass *klass)
 {
@@ -1280,6 +1292,7 @@ clutter_input_device_evdev_class_init (ClutterInputDeviceEvdevClass *klass)
   klass->get_group_n_modes = clutter_input_device_evdev_get_group_n_modes;
   klass->is_grouped = clutter_input_device_evdev_is_grouped;
   klass->process_kbd_a11y_event = clutter_input_device_evdev_process_kbd_a11y_event;
+  klass->get_physical_size = clutter_input_device_evdev_get_physical_size;
 
   obj_props[PROP_DEVICE_MATRIX] =
     g_param_spec_boxed ("device-matrix",
