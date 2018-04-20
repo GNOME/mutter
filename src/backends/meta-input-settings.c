@@ -1767,6 +1767,43 @@ check_mappable_devices (MetaInputSettings *input_settings)
 }
 
 static void
+power_save_mode_changed_cb (MetaMonitorManager *manager,
+                            GParamSpec         *pspec,
+                            gpointer            user_data)
+{
+  MetaInputSettingsPrivate *priv;
+  const GList *logical_monitors, *l;
+  MetaMonitor *builtin;
+  gboolean on;
+
+  on = (manager->power_save_mode == META_POWER_SAVE_ON);
+  priv = meta_input_settings_get_instance_private (user_data);
+
+  builtin = meta_monitor_manager_get_laptop_panel (manager);
+  if (!builtin)
+    return;
+
+  logical_monitors = meta_monitor_manager_get_logical_monitors (manager);
+
+  for (l = logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+      ClutterInputDevice *dev;
+
+      if (!g_list_find (logical_monitor->monitors, builtin))
+        continue;
+
+      dev = meta_input_mapper_get_logical_monitor_device (priv->input_mapper,
+                                                          logical_monitor,
+                                                          CLUTTER_TOUCHSCREEN_DEVICE);
+      if (dev)
+        clutter_input_device_set_enabled (dev, on);
+
+      break;
+    }
+}
+
+static void
 meta_input_settings_constructed (GObject *object)
 {
   MetaInputSettings *input_settings = META_INPUT_SETTINGS (object);
@@ -1846,6 +1883,8 @@ meta_input_settings_init (MetaInputSettings *settings)
   priv->monitor_manager = g_object_ref (meta_monitor_manager_get ());
   g_signal_connect (priv->monitor_manager, "monitors-changed-internal",
                     G_CALLBACK (monitors_changed_cb), settings);
+  g_signal_connect (priv->monitor_manager, "notify::power-save-mode",
+                    G_CALLBACK (power_save_mode_changed_cb), settings);
 
 #ifdef HAVE_LIBWACOM
   priv->wacom_db = libwacom_database_new ();
