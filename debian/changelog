@@ -1,6 +1,6 @@
-mutter (3.28.1-2) UNRELEASED; urgency=medium
+mutter (3.28.1-2) unstable; urgency=medium
 
-  * xwayland-use-g_autoptr-for-GError-in-xserver_died.patch,
+  * Add xwayland-use-g_autoptr-for-GError-in-xserver_died.patch,
     xwayland-Don-t-abort-if-Xwayland-crashes.patch:
     - Cherry picked from upstream, to reduce noise of mutter on crashes
       which are actually caused by XWayland (LP: #1748450)
