@@ -132,7 +132,7 @@ meta_shaped_texture_init (MetaShapedTexture *self)
 
   priv->texture = NULL;
   priv->mask_texture = NULL;
-  priv->create_mipmaps = TRUE;
+  priv->create_mipmaps = FALSE;
   priv->is_y_inverted = TRUE;
 }
 
