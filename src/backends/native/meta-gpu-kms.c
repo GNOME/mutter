@@ -148,7 +148,10 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms *gpu_kms,
                       connectors, n_connectors,
                       mode) != 0)
     {
-      g_warning ("Failed to set CRTC mode %s: %m", crtc->current_mode->name);
+      if (mode)
+        g_warning ("Failed to set CRTC mode %s: %m", crtc->current_mode->name);
+      else
+        g_warning ("Failed to disable CRTC");
       g_free (connectors);
       return FALSE;
     }
