@@ -578,6 +578,8 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
                                                        &error))
         {
           g_clear_object (&config);
+          g_warning ("Failed to use linear monitor configuration: %s",
+                     error->message);
           g_clear_error (&error);
         }
       else
@@ -595,6 +597,8 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
                                                        &error))
         {
           g_clear_object (&config);
+          g_warning ("Failed to use fallback monitor configuration: %s",
+                     error->message);
           g_clear_error (&error);
         }
       else
