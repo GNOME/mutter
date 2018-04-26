@@ -2276,6 +2276,7 @@ clutter_evdev_update_xkb_state (ClutterDeviceManagerEvdev *manager_evdev)
   ClutterSeatEvdev *seat;
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
+  xkb_mod_mask_t depressed_mods;
 
   priv = manager_evdev->priv;
 
@@ -2283,6 +2284,8 @@ clutter_evdev_update_xkb_state (ClutterDeviceManagerEvdev *manager_evdev)
     {
       seat = iter->data;
 
+      depressed_mods = xkb_state_serialize_mods (seat->xkb,
+                                                 XKB_STATE_MODS_DEPRESSED);
       latched_mods = xkb_state_serialize_mods (seat->xkb,
                                                XKB_STATE_MODS_LATCHED);
       locked_mods = xkb_state_serialize_mods (seat->xkb,
@@ -2291,7 +2294,7 @@ clutter_evdev_update_xkb_state (ClutterDeviceManagerEvdev *manager_evdev)
       seat->xkb = xkb_state_new (priv->keymap);
 
       xkb_state_update_mask (seat->xkb,
-                             0, /* depressed */
+                             depressed_mods,
                              latched_mods,
                              locked_mods,
                              0, 0, seat->layout_idx);
