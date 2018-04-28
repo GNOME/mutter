@@ -695,45 +695,10 @@ effective_unobscured_region (MetaShapedTexture *self)
 }
 
 static gboolean
-get_unobscured_bounds (MetaShapedTexture     *self,
-                       cairo_rectangle_int_t *unobscured_bounds)
-{
-  cairo_region_t *unobscured_region = effective_unobscured_region (self);
-
-  if (unobscured_region)
-    {
-      cairo_region_get_extents (unobscured_region, unobscured_bounds);
-      return TRUE;
-    }
-  else
-    return FALSE;
-}
-
-static gboolean
 meta_shaped_texture_get_paint_volume (ClutterActor *actor,
                                       ClutterPaintVolume *volume)
 {
-  MetaShapedTexture *self = META_SHAPED_TEXTURE (actor);
-  ClutterActorBox box;
-  cairo_rectangle_int_t unobscured_bounds;
-
-  if (!clutter_actor_has_allocation (actor))
-    return FALSE;
-
-  clutter_actor_get_allocation_box (actor, &box);
-
-  if (get_unobscured_bounds (self, &unobscured_bounds))
-    {
-      box.x1 = MAX (unobscured_bounds.x, box.x1);
-      box.x2 = MIN (unobscured_bounds.x + unobscured_bounds.width, box.x2);
-      box.y1 = MAX (unobscured_bounds.y, box.y1);
-      box.y2 = MIN (unobscured_bounds.y + unobscured_bounds.height, box.y2);
-    }
-  box.x2 = MAX (box.x2, box.x1);
-  box.y2 = MAX (box.y2, box.y1);
-
-  clutter_paint_volume_union_box (volume, &box);
-  return TRUE;
+  return clutter_paint_volume_set_from_allocation (volume, actor);
 }
 
 void
