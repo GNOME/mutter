@@ -50,10 +50,10 @@
 #include "meta-idle-monitor-dbus.h"
 #include "meta-cursor-tracker-private.h"
 #include <meta/meta-backend.h>
+#include <meta/meta-stage.h>
 #include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/x11/meta-backend-x11.h"
-#include "backends/meta-stage.h"
 #include "backends/meta-input-settings-private.h"
 #include <clutter/x11/clutter-x11.h>
 

@@ -28,13 +28,13 @@
 
 #include <clutter/clutter-mutter.h>
 #include <meta/meta-backend.h>
+#include <meta/meta-stage.h>
 #include <meta/main.h>
 #include <meta/util.h>
 #include "meta-backend-private.h"
 #include "meta-input-settings-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "meta-cursor-tracker-private.h"
-#include "meta-stage.h"
 
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-dbus-session-watcher.h"

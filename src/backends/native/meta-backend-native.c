@@ -28,6 +28,7 @@
 #include "meta-backend-native-private.h"
 
 #include <meta/main.h>
+#include <meta/meta-stage.h>
 #include <clutter/evdev/clutter-evdev.h>
 #include <libupower-glib/upower.h>
 
@@ -43,7 +44,6 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-pointer-constraint.h"
-#include "backends/meta-stage.h"
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-input-settings-native.h"
 #include "backends/native/meta-renderer-native.h"

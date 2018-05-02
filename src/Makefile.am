@@ -153,7 +153,6 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/meta-pointer-constraint.h	\
 	backends/meta-settings.c		\
 	backends/meta-settings-private.h	\
-	backends/meta-stage.h			\
 	backends/meta-stage.c			\
 	backends/meta-renderer.c		\
 	backends/meta-renderer.h		\
@@ -246,7 +245,6 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	compositor/meta-window-actor.c		\
 	compositor/meta-window-actor-private.h	\
 	compositor/meta-window-group.c		\
-	compositor/meta-window-group.h		\
 	compositor/meta-window-shape.c		\
 	compositor/region-utils.c		\
 	compositor/region-utils.h		\
@@ -544,9 +542,11 @@ libmutterinclude_headers =			\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\
 	meta/meta-window-actor.h		\
+	meta/meta-window-group.h		\
 	meta/meta-window-shape.h		\
 	meta/prefs.h				\
 	meta/screen.h				\
+	meta/meta-stage.h			\
 	meta/theme.h				\
 	meta/types.h				\
 	meta/util.h				\
@@ -627,6 +627,7 @@ Meta_@LIBMUTTER_API_VERSION@_gir_CFLAGS = $(AM_CPPFLAGS)
 Meta_@LIBMUTTER_API_VERSION@_gir_LIBS = libmutter-$(LIBMUTTER_API_VERSION).la
 Meta_@LIBMUTTER_API_VERSION@_gir_FILES =			\
 	$(libmutterinclude_base_headers)			\
+	$(dbus_display_config_built_sources)			\
 	$(filter %.c,$(libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES) $(nodist_libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES))
 Meta_@LIBMUTTER_API_VERSION@_SCANNERFLAGS = --warn-all --warn-error
 

@@ -28,12 +28,11 @@
 
 #include <meta/meta-backend.h>
 #include <meta/util.h>
+#include <meta/meta-stage.h>
 #include <math.h>
 
 #include <cogl/cogl.h>
 #include <clutter/clutter.h>
-
-#include "meta-stage.h"
 
 struct _MetaCursorRendererPrivate
 {

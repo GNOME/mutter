@@ -37,12 +37,12 @@
 #include <X11/Xlib-xcb.h>
 #include <xkbcommon/xkbcommon-x11.h>
 
-#include "backends/meta-stage.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
 #include "meta/meta-cursor-tracker.h"
 
 #include <meta/util.h>
+#include <meta/meta-stage.h>
 #include "display-private.h"
 #include "compositor/compositor-private.h"
 #include "backends/meta-dnd-private.h"

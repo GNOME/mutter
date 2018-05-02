@@ -27,9 +27,9 @@
 #include "meta-cursor-renderer-x11.h"
 
 #include <X11/extensions/Xfixes.h>
+#include <meta/meta-stage.h>
 
 #include "meta-backend-x11.h"
-#include "meta-stage.h"
 
 struct _MetaCursorRendererX11Private
 {
