@@ -559,7 +559,7 @@ meta_wayland_pending_state_class_init (MetaWaylandPendingStateClass *klass)
 gboolean
 meta_wayland_surface_is_effectively_synchronized (MetaWaylandSurface *surface)
 {
-  if (surface->wl_subsurface == NULL)
+  if (surface == NULL || surface->wl_subsurface == NULL)
     {
       return FALSE;
     }
