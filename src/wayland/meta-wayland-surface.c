@@ -573,7 +573,12 @@ meta_wayland_surface_is_effectively_synchronized (MetaWaylandSurface *surface)
         {
           MetaWaylandSurface *parent = surface->sub.parent;
 
-          return meta_wayland_surface_is_effectively_synchronized (parent);
+          if (parent)
+            {
+              return meta_wayland_surface_is_effectively_synchronized (parent);
+            }
+
+          return TRUE;
         }
     }
 }
