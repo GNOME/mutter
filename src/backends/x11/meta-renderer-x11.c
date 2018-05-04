@@ -50,7 +50,6 @@ get_x11_cogl_winsys_vtable (CoglRenderer *renderer)
 
   switch (renderer->driver)
     {
-    case COGL_DRIVER_GLES1:
     case COGL_DRIVER_GLES2:
       return _cogl_winsys_egl_xlib_get_vtable ();
     case COGL_DRIVER_GL:
