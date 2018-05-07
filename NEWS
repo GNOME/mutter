@@ -1,3 +1,15 @@
+3.28.2
+======
+* Take inhibitors into account for monitoring idle [Bastien; #705942]
+* Fix window animations on wayland [Georges; #780292]
+* Misc. bug fixes [Mario, Jonas, Olivier, Florian; gnome-shell#157, #130,
+  #21, #124, !96, #138, !102, #781471]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Florian Müllner,
+  Georges Basile Stavracas Neto, Bastien Nocera, Mario Sanchez Prada,
+  Ray Strode, Marco Trevisan (Treviño)
+
 3.28.1
 ======
 * Fix various input-method regressions [Carlos; #65, #74, #66]
