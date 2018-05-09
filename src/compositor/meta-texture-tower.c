@@ -32,6 +32,20 @@
 
 #define MAX_TEXTURE_LEVELS 12
 
+/* MAX_MIPMAPPING_FPS needs to be as small as possible for the best GPU
+ * performance, but higher than the refresh rate of commonly slow updating
+ * windows like top or a blinking cursor, so that such windows do get
+ * mipmapped.
+ */
+#define MAX_MIPMAPPING_FPS 5
+#define MIN_MIPMAP_AGE_USEC (G_USEC_PER_SEC / MAX_MIPMAPPING_FPS)
+
+/* MIN_FAST_UPDATES_BEFORE_UNMIPMAP allows windows to update themselves
+ * occasionally without causing mipmapping to be disabled, so long as such
+ * an update takes fewer update_area calls than:
+ */
+#define MIN_FAST_UPDATES_BEFORE_UNMIPMAP 20
+
 /* If the texture format in memory doesn't match this, then Mesa
  * will do the conversion, so things will still work, but it might
  * be slow depending on how efficient Mesa is. These should be the
@@ -61,6 +75,8 @@ struct _MetaTextureTower
   CoglOffscreen *fbos[MAX_TEXTURE_LEVELS];
   Box invalid[MAX_TEXTURE_LEVELS];
   CoglPipeline *pipeline_template;
+  gint64 prev_invalidation, last_invalidation;
+  int fast_updates;
 };
 
 /**
@@ -221,6 +237,20 @@ meta_texture_tower_update_area (MetaTextureTower *tower,
           tower->invalid[i].x2 = MAX (tower->invalid[i].x2, invalid.x2);
           tower->invalid[i].y2 = MAX (tower->invalid[i].y2, invalid.y2);
         }
+    }
+
+  tower->prev_invalidation = tower->last_invalidation;
+  tower->last_invalidation = g_get_monotonic_time ();
+
+  if (tower->prev_invalidation)
+    {
+      gint64 interval = tower->last_invalidation - tower->prev_invalidation;
+      gboolean fast_update = interval < MIN_MIPMAP_AGE_USEC;
+
+      if (!fast_update)
+        tower->fast_updates = 0;
+      else if (tower->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
+        tower->fast_updates++;
     }
 }
 
@@ -463,6 +493,21 @@ meta_texture_tower_get_paint_texture (MetaTextureTower *tower)
   if (level < 0) /* singular paint matrix, scaled to nothing */
     return NULL;
   level = MIN (level, tower->n_levels - 1);
+
+  /* Disable mipmapping for textures that are animating. This avoids
+   * overwhelming the GPU with the heavy task of rebuilding the tower too
+   * often. Note that we allow mipmapping to proceed if the 'get' occurs long
+   * enough after the latest invalidation, even if the texture was animating
+   * frequently up until the last frame.
+   */
+  if (tower->fast_updates && tower->last_invalidation)
+    {
+      gint64 age = g_get_monotonic_time () - tower->last_invalidation;
+
+      if (age < MIN_MIPMAP_AGE_USEC &&
+          tower->fast_updates >= MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
+        return tower->textures[0];
+    }
 
   if (tower->textures[level] == NULL ||
       (tower->invalid[level].x2 != tower->invalid[level].x1 &&
