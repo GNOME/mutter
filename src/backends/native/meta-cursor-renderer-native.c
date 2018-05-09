@@ -1109,7 +1109,6 @@ static void
 on_monitors_changed (MetaMonitorManager       *monitors,
                      MetaCursorRendererNative *native)
 {
-  /* Our tracking is all messed up, so force an update. */
   force_update_hw_cursor (native);
 }
 
@@ -1180,10 +1179,4 @@ meta_cursor_renderer_native_new (MetaBackend *backend)
 static void
 meta_cursor_renderer_native_init (MetaCursorRendererNative *native)
 {
-}
-
-void
-meta_cursor_renderer_native_force_update (MetaCursorRendererNative *native)
-{
-  force_update_hw_cursor (native);
 }
