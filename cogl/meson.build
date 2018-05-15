@@ -7,6 +7,7 @@ cogl_includepath = include_directories('.', 'cogl')
 cdata = configuration_data()
 cdata.set('HAVE_COGL_GL', have_gl)
 cdata.set('HAVE_COGL_GLES2', have_gles2)
+cdata.set('HAVE_TRACING', have_tracing)
 cdata.set('ENABLE_UNIT_TESTS', have_cogl_tests)
 
 cogl_config_h = configure_file(
@@ -31,6 +32,12 @@ cogl_pkg_private_deps = [
   gdk_pixbuf_dep,
   #uprof_dep,
 ]
+
+if have_tracing
+  cogl_pkg_private_deps += [
+    sysprof_dep,
+  ]
+endif
 
 if have_wayland
   cogl_pkg_deps += [
