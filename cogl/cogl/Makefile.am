@@ -215,6 +215,8 @@ cogl_sources_c = \
 	cogl-i18n-private.h 			\
 	cogl-debug.h 				\
 	cogl-debug-options.h			\
+	cogl-trace.c			\
+	cogl-trace.h			\
 	cogl-gpu-info.c			\
 	cogl-gpu-info-private.h		\
 	cogl-context-private.h		\

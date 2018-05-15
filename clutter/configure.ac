@@ -163,6 +163,15 @@ AC_ARG_ENABLE([Bsymbolic],
                 LDFLAGS="${saved_LDFLAGS}"
               ])
 
+AC_ARG_ENABLE(tracing,
+	      AC_HELP_STRING([--disable-tracing],
+			     [disable performance tracin]),,
+	      enable_tracing=yes)
+if test x$enable_tracing = xyes; then
+    AC_DEFINE(HAVE_TRACING,1,[Enable tracing])
+    CLUTTER_TRACING_PC_FILES="sysprof-capture-2"
+fi
+
 AS_IF([test "x$enable_Bsymbolic" = "xyes"], [CLUTTER_LINK_FLAGS=-Wl[,]-Bsymbolic-functions])
 AC_SUBST(CLUTTER_LINK_FLAGS)
 
@@ -656,7 +665,6 @@ AS_IF([test "x$enable_Werror" = xyes], [
                              -Werror=format-security
                              -Werror=format-nonliteral
                              -Werror=init-self
-                             -Werror=declaration-after-statement
                              -Werror=vla"
 ])
 
@@ -689,7 +697,7 @@ dnl === Dependencies, compiler flags and linker libraries =====================
 BACKEND_PC_FILES=${BACKEND_PC_FILES#* }
 
 # public dependencies, will fill the Requires: field of clutter.pc
-CLUTTER_REQUIRES="$CLUTTER_BASE_PC_FILES $BACKEND_PC_FILES"
+CLUTTER_REQUIRES="$CLUTTER_BASE_PC_FILES $CLUTTER_TRACING_PC_FILES $BACKEND_PC_FILES"
 PKG_CHECK_MODULES(CLUTTER_DEPS, [$CLUTTER_REQUIRES])
 
 # private dependencies, will fill the Requires.private: field of clutter.pc
@@ -707,7 +715,7 @@ AS_IF([test "x$CLUTTER_BASE_PC_FILES_PRIVATE" = "x" && test "x$BACKEND_PC_FILES_
 AC_SUBST(CLUTTER_REQUIRES)
 AC_SUBST(CLUTTER_REQUIRES_PRIVATE)
 
-CLUTTER_CFLAGS="$FLAVOUR_CFLAGS $CLUTTER_DEPS_CFLAGS $CLUTTER_DEPS_PRIVATE_CFLAGS $GLIB_CFLAGS $LIBWACOM_CFLAGS"
+CLUTTER_CFLAGS="$FLAVOUR_CFLAGS $CLUTTER_DEPS_CFLAGS $CLUTTER_DEPS_PRIVATE_CFLAGS $GLIB_CFLAGS $LIBWACOM_CFLAGS -std=gnu11"
 CLUTTER_LIBS="$FLAVOUR_LIBS $CLUTTER_DEPS_LIBS $CLUTTER_DEPS_PRIVATE_LIBS $GLIB_LIBS $LIBWACOM_LIBS"
 AC_SUBST(CLUTTER_CFLAGS)
 AC_SUBST(CLUTTER_LIBS)
