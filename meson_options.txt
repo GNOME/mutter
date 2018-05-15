@@ -117,6 +117,12 @@ option('tests',
   description: 'Enable mutter tests'
 )
 
+option('tracing',
+  type: 'boolean',
+  value: true,
+  description: 'Enable Sysprof tracing'
+)
+
 option('installed_tests',
   type: 'boolean',
   value: true,
