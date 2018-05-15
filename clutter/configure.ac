@@ -164,9 +164,10 @@ AC_ARG_ENABLE([Bsymbolic],
               ])
 
 AC_ARG_ENABLE(tracing,
-	      AC_HELP_STRING([--disable-tracing],
-			     [disable performance tracin]),,
-	      enable_tracing=yes)
+              AC_HELP_STRING([--disable-tracing],
+                             [disable performance tracing]),
+              [],
+              enable_tracing=yes)
 if test x$enable_tracing = xyes; then
     AC_DEFINE(HAVE_TRACING,1,[Enable tracing])
     CLUTTER_TRACING_PC_FILES="sysprof-capture-2"
