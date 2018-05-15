@@ -78,6 +78,7 @@
 #include "clutter-private.h"
 
 #include "cogl/cogl.h"
+#include "cogl/cogl-trace.h"
 
 /* <private>
  * ClutterStageHint:
@@ -626,6 +627,8 @@ clutter_stage_do_paint_view (ClutterStage                *stage,
   float viewport[4];
   cairo_rectangle_int_t geom;
 
+  COGL_TRACE_BEGIN_SCOPED (ClutterStageDoPaintView);
+
   _clutter_stage_window_get_geometry (priv->impl, &geom);
 
   viewport[0] = priv->viewport[0];
@@ -679,10 +682,14 @@ _clutter_stage_paint_view (ClutterStage                *stage,
 {
   ClutterStagePrivate *priv = stage->priv;
 
+  COGL_TRACE_BEGIN_SCOPED (ClutterStagePaintView);
+
   if (!priv->impl)
     return;
 
   clutter_stage_do_paint_view (stage, view, clip);
+
+  COGL_TRACE_BEGIN_SCOPED (ClutterStagePaintViewAfterPaint);
   g_signal_emit (stage, stage_signals[AFTER_PAINT], 0);
 }
 
@@ -695,6 +702,8 @@ clutter_stage_paint (ClutterActor *self)
 {
   ClutterActorIter iter;
   ClutterActor *child;
+
+  COGL_TRACE_BEGIN_SCOPED (ClutterStagePaint);
 
   clutter_actor_iter_init (&iter, self);
   while (clutter_actor_iter_next (&iter, &child))
@@ -2935,6 +2944,8 @@ clutter_stage_read_pixels (ClutterStage *stage,
   cairo_rectangle_int_t clip_rect;
   CoglFramebuffer *framebuffer;
   uint8_t *pixels;
+
+  COGL_TRACE_BEGIN_SCOPED (ClutterStageReadPixels);
 
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
 
