@@ -123,6 +123,12 @@ option('tests',
   description: 'Enable tests globally. Specific test suites can be controlled with core_tests, clutter_tests, and cogl_tests'
 )
 
+option('tracing',
+  type: 'boolean',
+  value: true,
+  description: 'Enable Sysprof tracing'
+)
+
 option('installed_tests',
   type: 'boolean',
   value: true,

@@ -303,6 +303,8 @@ cogl_sources = [
   'cogl-blend-string.c',
   'cogl-blend-string.h',
   'cogl-debug.c',
+  'cogl-trace.c',
+  'cogl-trace.h',
   'cogl-sub-texture-private.h',
   'cogl-texture-private.h',
   'cogl-texture-2d-private.h',
