@@ -46,6 +46,8 @@
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
 
+#include "cogl/cogl-trace.h"
+
 typedef struct _ClutterStageViewCoglPrivate
 {
   /*
@@ -942,6 +944,8 @@ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
   gboolean swap_event = FALSE;
   GList *l;
 
+  COGL_TRACE_BEGIN (ClutterStageCoglRedraw);
+
   for (l = _clutter_stage_window_get_views (stage_window); l; l = l->next)
     {
       ClutterStageView *view = l->data;
@@ -965,6 +969,8 @@ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
   stage_cogl->initialized_redraw_clip = FALSE;
 
   stage_cogl->frame_count++;
+
+  COGL_TRACE_END (ClutterStageCoglRedraw);
 }
 
 static void
