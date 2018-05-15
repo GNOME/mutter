@@ -264,6 +264,11 @@ if have_tests
   have_installed_tests = get_option('installed_tests')
 endif
 
+have_tracing = get_option('tracing')
+if have_tracing
+  sysprof_dep = dependency('sysprof-capture-3')
+endif
+
 required_functions = [
   'ffs',
   'clz',
@@ -343,6 +348,7 @@ cdata.set('HAVE_LIBWACOM', have_libwacom)
 cdata.set('HAVE_SM', have_sm)
 cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
+cdata.set('HAVE_TRACING', have_tracing)
 
 xkb_base = xkeyboard_config_dep.get_pkgconfig_variable('xkb_base')
 cdata.set_quoted('XKB_BASE', xkb_base)
@@ -408,6 +414,7 @@ output = [
   '        SM....................... ' + have_sm.to_string(),
   '        Startup notification..... ' + have_startup_notification.to_string(),
   '        Introspection............ ' + have_introspection.to_string(),
+  '        Tracing.................. ' + have_tracing.to_string(),
   '',
   '    Tests:',
   '',
