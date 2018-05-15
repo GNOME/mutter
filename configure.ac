@@ -108,6 +108,15 @@ XWAYLAND_GRAB_DEFAULT_ACCESS_RULES="gnome-boxes,remote-viewer,virt-viewer,virt-m
 
 GLIB_GSETTINGS
 
+AC_ARG_ENABLE(tracing,
+  AC_HELP_STRING([--disable-tracing],
+		 [disable performance tracin]),,
+  enable_tracing=yes)
+if test x$enable_tracing = xyes; then
+    AC_DEFINE(HAVE_TRACING,1,[Enable tracing])
+    MUTTER_PC_MODULES="$MUTTER_PC_MODULES sysprof-capture-2"
+fi
+
 AC_ARG_ENABLE(verbose-mode,
   AC_HELP_STRING([--disable-verbose-mode],
                  [disable mutter's ability to do verbose logging, for embedded/size-sensitive custom builds]),,

@@ -297,6 +297,19 @@ AS_IF([test "x$enable_profile" = "xyes"],
       ])
 AM_CONDITIONAL(PROFILE, test "x$enable_profile" != "xno")
 
+dnl     ============================================================
+dnl     Enable tracing
+dnl     ============================================================
+AC_ARG_ENABLE(tracing,
+	      AC_HELP_STRING([--disable-tracing],
+			     [disable performance tracing]),
+              [],
+	      enable_tracing=yes)
+if test x$enable_tracing = xyes; then
+    AC_DEFINE(HAVE_TRACING,1,[Enable tracing])
+    COGL_PKG_REQUIRES="$COGL_PKG_REQUIRES sysprof-capture-2"
+fi
+
 
 dnl     ============================================================
 dnl     Enable strict compiler flags
@@ -315,7 +328,7 @@ AC_ARG_ENABLE(
 MAINTAINER_COMPILER_FLAGS="-Wall -Wcast-align -Wformat -Wformat-security
                            -Werror=uninitialized -Werror=no-strict-aliasing
                            -Werror=empty-body -Werror=init-self -Werror=undef
-                           -Werror=declaration-after-statement -Werror=vla
+                           -Werror=vla
                            -Werror=pointer-arith -Werror=missing-declarations
                            -Werror=maybe-uninitialized"
 
@@ -1011,6 +1024,7 @@ echo ""
 echo " • Build options:"
 echo "        Debugging: ${enable_debug}"
 echo "        Profiling: ${enable_profile}"
+echo "        Tracing:   ${enable_tracing}"
 echo "        Enable deprecated symbols: ${enable_deprecated}"
 echo "        Compiler flags: ${CFLAGS} ${COGL_EXTRA_CFLAGS}"
 echo "        Linker flags: ${LDFLAGS} ${COGL_EXTRA_LDFLAGS}"
