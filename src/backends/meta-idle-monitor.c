@@ -226,7 +226,7 @@ meta_idle_monitor_inhibited_actions_changed (GDBusProxy  *session,
     {
       gboolean inhibited;
 
-      inhibited = g_variant_get_uint32 (v) & GSM_INHIBITOR_FLAG_IDLE;
+      inhibited = !!(g_variant_get_uint32 (v) & GSM_INHIBITOR_FLAG_IDLE);
       g_variant_unref (v);
 
       if (!inhibited)
@@ -265,7 +265,8 @@ meta_idle_monitor_init (MetaIdleMonitor *monitor)
                                         "InhibitedActions");
   if (v)
     {
-      monitor->inhibited = g_variant_get_uint32 (v) & GSM_INHIBITOR_FLAG_IDLE;
+      monitor->inhibited = !!(g_variant_get_uint32 (v) &
+                              GSM_INHIBITOR_FLAG_IDLE);
       g_variant_unref (v);
     }
 }
