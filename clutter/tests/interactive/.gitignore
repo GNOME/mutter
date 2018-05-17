@@ -12,7 +12,6 @@
 /test-cogl-offscreen
 /test-cogl-point-sprites
 /test-cogl-primitives
-/test-cogl-shader-arbfp
 /test-cogl-shader-glsl
 /test-cogl-tex-convert
 /test-cogl-tex-foreign
