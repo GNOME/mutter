@@ -67,10 +67,11 @@ diff --git a/src/backends/meta-monitor.c b/src/backends/meta-monitor.c
 index 1e1af39..9833066 100644
 --- a/src/backends/meta-monitor.c
 +++ b/src/backends/meta-monitor.c
-@@ -388,6 +388,21 @@ meta_monitor_crtc_to_logical_transform (MetaMonitor          *monitor,
+@@ -387,6 +387,21 @@ meta_monitor_crtc_to_logical_transform (MetaMonitor          *monitor,
+   return new_transform;
  }
  
- static void
++static void
 +meta_monitor_dispose (GObject *object)
 +{
 +  MetaMonitor *monitor = META_MONITOR (object);
@@ -85,10 +86,9 @@ index 1e1af39..9833066 100644
 +  G_OBJECT_CLASS (meta_monitor_parent_class)->dispose (object);
 +}
 +
-+static void
+ static void
  meta_monitor_finalize (GObject *object)
  {
-   MetaMonitor *monitor = META_MONITOR (object);
 @@ -395,7 +410,6 @@ meta_monitor_finalize (GObject *object)
  
    g_hash_table_destroy (priv->mode_ids);
@@ -146,10 +146,11 @@ index b5ecccd..2139a17 100644
  }
  
  MetaCrtc *
-@@ -63,6 +63,17 @@ meta_output_get_assigned_crtc (MetaOutput *output)
+@@ -62,6 +62,17 @@ meta_output_get_assigned_crtc (MetaOutput *output)
+   return priv->crtc;
  }
  
- static void
++static void
 +meta_output_dispose (GObject *object)
 +{
 +  MetaOutput *output = META_OUTPUT (object);
@@ -160,10 +161,9 @@ index b5ecccd..2139a17 100644
 +  G_OBJECT_CLASS (meta_output_parent_class)->dispose (object);
 +}
 +
-+static void
+ static void
  meta_output_finalize (GObject *object)
  {
-   MetaOutput *output = META_OUTPUT (object);
 @@ -91,5 +102,6 @@ meta_output_class_init (MetaOutputClass *klass)
  {
    GObjectClass *object_class = G_OBJECT_CLASS (klass);

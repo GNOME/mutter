@@ -91,10 +91,10 @@ index f81349e..fe49487 100644
      }
  }
 diff --git a/src/backends/meta-monitor-manager.c b/src/backends/meta-monitor-manager.c
-index e952e4f..1b088dd 100644
+index 0b5e54c..6d9e2ad 100644
 --- a/src/backends/meta-monitor-manager.c
 +++ b/src/backends/meta-monitor-manager.c
-@@ -1038,6 +1038,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
+@@ -1041,6 +1041,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
        GVariantBuilder crtcs, modes, clones, properties;
        GBytes *edid;
        char *edid_file;
@@ -102,7 +102,7 @@ index e952e4f..1b088dd 100644
        int crtc_index;
  
        g_variant_builder_init (&crtcs, G_VARIANT_TYPE ("au"));
-@@ -1131,8 +1132,8 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
+@@ -1134,8 +1135,8 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
                                                  output->tile_info.tile_h));
          }
  
@@ -113,7 +113,7 @@ index e952e4f..1b088dd 100644
        g_variant_builder_add (&output_builder, "(uxiausauaua{sv})",
                               i, /* ID */
                               (gint64)output->winsys_id,
-@@ -2894,11 +2895,7 @@ meta_monitor_manager_get_monitor_for_connector (MetaMonitorManager *manager,
+@@ -2903,11 +2904,7 @@ meta_monitor_manager_get_monitor_for_connector (MetaMonitorManager *manager,
  
        if (meta_monitor_is_active (monitor) &&
            g_str_equal (connector, meta_monitor_get_connector (monitor)))
@@ -457,10 +457,10 @@ index 5668be5..f33f65d 100644
  
    if (old_output)
 diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
-index c9c3b2e..90c75f0 100644
+index 2571cac..850e44b 100644
 --- a/src/backends/native/meta-renderer-native.c
 +++ b/src/backends/native/meta-renderer-native.c
-@@ -2088,6 +2088,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
+@@ -2083,6 +2083,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
    EGLDisplay egl_display = renderer_gpu_data->egl_display;
    MetaMonitor *monitor;
    MetaOutput *output;
@@ -468,7 +468,7 @@ index c9c3b2e..90c75f0 100644
    EGLConfig egl_config;
    EGLStreamKHR egl_stream;
    EGLSurface egl_surface;
-@@ -2111,6 +2112,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
+@@ -2106,6 +2107,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
  
    monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
    output = meta_monitor_get_main_output (monitor);
@@ -476,7 +476,7 @@ index c9c3b2e..90c75f0 100644
  
    /*
     * An "logical_monitor" may have multiple outputs/crtcs in case its tiled,
-@@ -2118,7 +2120,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
+@@ -2113,7 +2115,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
     * lets pass the first one.
     */
    output_attribs[0] = EGL_DRM_CRTC_EXT;
@@ -485,7 +485,7 @@ index c9c3b2e..90c75f0 100644
    output_attribs[2] = EGL_NONE;
  
    if (!meta_egl_get_output_layers (egl, egl_display,
-@@ -2716,12 +2718,10 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
+@@ -2711,12 +2713,10 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
  {
    MetaMonitor *main_monitor;
    MetaOutput *main_output;
@@ -500,7 +500,7 @@ index c9c3b2e..90c75f0 100644
  
    /*
     * Pick any monitor and output and check; all CRTCs of a logical monitor will
-@@ -2729,11 +2729,11 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
+@@ -2724,11 +2724,11 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
     */
  
    if (meta_monitor_manager_is_transform_handled (monitor_manager,

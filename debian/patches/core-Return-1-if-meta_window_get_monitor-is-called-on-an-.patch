@@ -16,7 +16,7 @@ Fixes #78834
  1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/src/core/window.c b/src/core/window.c
-index 86f9d69..b1dcd80 100644
+index 743326c..441b5be 100644
 --- a/src/core/window.c
 +++ b/src/core/window.c
 @@ -3750,11 +3750,16 @@ maybe_move_attached_dialog (MetaWindow *window,
