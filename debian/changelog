@@ -1,8 +1,24 @@
 mutter (3.28.2-1) UNRELEASED; urgency=medium
 
   * New upstream release
+  * d/p/theme-frames-Use-surface-device-scale-instead-of-cairo_sc.patch,
+    d/p/xwayland-Don-t-abort-if-Xwayland-crashes.patch,
+    d/p/xwayland-use-g_autoptr-for-GError-in-xserver_died.patch:
+    Drop patches that were applied upstream
+  * d/p/debian/synaptics-support.patch,
+    d/p/debian/skip-failing-tests.patch,
+    d/p/debian/skip-failing-tests-325.patch:
+    Move patches not expected to be applied upstream to
+    debian/patches/debian
+  * Re-order patch series so most-upstreamable patches are first
+  * d/p/clutter-evdev-Don-t-ignore-CAPS-lock-as-modifier.patch,
+    d/p/clutter-evdev-ignore-injected-events-from-IM.patch,
+    d/p/frames-Handle-touch-events.patch,
+    d/p/frames-Make-1st-button-motion-handlers-take-generic-event.patch,
+    d/p/wayland-Use-cursor-position-in-logical-monitor.patch:
+    Add post-release fixes from upstream 3.28 branch
 
- -- Simon McVittie <smcv@debian.org>  Thu, 17 May 2018 10:04:17 +0100
+ -- Simon McVittie <smcv@debian.org>  Thu, 17 May 2018 10:27:13 +0100
 
 mutter (3.28.1-2) unstable; urgency=medium
 
