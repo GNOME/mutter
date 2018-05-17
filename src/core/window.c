@@ -3997,7 +3997,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   if ((moved_or_resized ||
        did_placement ||
-       (flags & META_MOVE_RESIZE_STATE_CHANGED) != 0) &&
+       (result & META_MOVE_RESIZE_RESULT_STATE_CHANGED) != 0) &&
       window->known_to_compositor)
     {
       meta_compositor_sync_window_geometry (window->display->compositor,
@@ -5268,7 +5268,7 @@ static cairo_surface_t *
 load_default_window_icon (int size)
 {
   GtkIconTheme *theme = gtk_icon_theme_get_default ();
-  GdkPixbuf *pixbuf;
+  g_autoptr (GdkPixbuf) pixbuf = NULL;
   const char *icon_name;
 
   if (gtk_icon_theme_has_icon (theme, META_DEFAULT_ICON_NAME))

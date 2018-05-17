@@ -37,8 +37,7 @@
 #include <X11/Xlib-xcb.h>
 #include <xkbcommon/xkbcommon-x11.h>
 
-#include "meta-idle-monitor-xsync.h"
-#include "backends/meta-stage.h"
+#include "backends/meta-stage-private.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
 #include "meta/meta-cursor-tracker.h"
@@ -47,6 +46,7 @@
 #include "display-private.h"
 #include "compositor/compositor-private.h"
 #include "backends/meta-dnd-private.h"
+#include "backends/meta-idle-monitor-private.h"
 
 struct _MetaBackendX11Private
 {
@@ -57,6 +57,8 @@ struct _MetaBackendX11Private
 
   int xsync_event_base;
   int xsync_error_base;
+  XSyncAlarm user_active_alarm;
+  XSyncCounter counter;
 
   int xinput_opcode;
   int xinput_event_base;
@@ -83,13 +85,77 @@ G_DEFINE_TYPE_WITH_CODE (MetaBackendX11, meta_backend_x11, META_TYPE_BACKEND,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 initable_iface_init));
 
+
 static void
-handle_alarm_notify (MetaBackend *backend,
-                     XEvent      *event)
+uint64_to_xsync_value (uint64_t    value,
+                       XSyncValue *xsync_value)
 {
-  meta_backend_foreach_device_monitor (backend,
-                                       (GFunc) meta_idle_monitor_xsync_handle_xevent,
-                                       event);
+  XSyncIntsToValue (xsync_value, value & 0xffffffff, value >> 32);
+}
+
+static XSyncAlarm
+xsync_user_active_alarm_set (MetaBackendX11Private *priv)
+{
+  XSyncAlarmAttributes attr;
+  XSyncValue delta;
+  unsigned long flags;
+
+  flags = (XSyncCACounter | XSyncCAValueType | XSyncCATestType |
+           XSyncCAValue | XSyncCADelta | XSyncCAEvents);
+
+  XSyncIntToValue (&delta, 0);
+  attr.trigger.counter = priv->counter;
+  attr.trigger.value_type = XSyncAbsolute;
+  attr.delta = delta;
+  attr.events = TRUE;
+
+  uint64_to_xsync_value (1, &attr.trigger.wait_value);
+
+  attr.trigger.test_type = XSyncNegativeTransition;
+  return XSyncCreateAlarm (priv->xdisplay, flags, &attr);
+}
+
+static XSyncCounter
+find_idletime_counter (MetaBackendX11Private *priv)
+{
+  int i;
+  int n_counters;
+  XSyncSystemCounter *counters;
+  XSyncCounter counter = None;
+
+  counters = XSyncListSystemCounters (priv->xdisplay, &n_counters);
+  for (i = 0; i < n_counters; i++)
+    {
+      if (g_strcmp0 (counters[i].name, "IDLETIME") == 0)
+        {
+          counter = counters[i].counter;
+          break;
+        }
+    }
+  XSyncFreeSystemCounterList (counters);
+
+  return counter;
+}
+
+static void
+handle_alarm_notify (MetaBackend           *backend,
+                     XSyncAlarmNotifyEvent *alarm_event)
+{
+  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
+  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+  MetaIdleMonitor *idle_monitor;
+  XSyncAlarmAttributes attr;
+
+  if (alarm_event->state != XSyncAlarmActive ||
+      alarm_event->alarm != priv->user_active_alarm)
+    return;
+
+  attr.events = TRUE;
+  XSyncChangeAlarm (priv->xdisplay, priv->user_active_alarm,
+                    XSyncCAEvents, &attr);
+
+  idle_monitor = meta_backend_get_idle_monitor (backend, 0);
+  meta_idle_monitor_reset_idletime (idle_monitor);
 }
 
 static void
@@ -275,7 +341,7 @@ handle_host_xevent (MetaBackend *backend,
                     bypass_clutter);
 
   if (event->type == (priv->xsync_event_base + XSyncAlarmNotify))
-    handle_alarm_notify (backend, event);
+    handle_alarm_notify (backend, (XSyncAlarmNotifyEvent *) event);
 
   if (event->type == priv->xkb_event_base)
     {
@@ -423,6 +489,12 @@ meta_backend_x11_post_init (MetaBackend *backend)
       !XSyncInitialize (priv->xdisplay, &major, &minor))
     meta_fatal ("Could not initialize XSync");
 
+  priv->counter = find_idletime_counter (priv);
+  if (priv->counter == None)
+    meta_fatal ("Could not initialize XSync counter");
+
+  priv->user_active_alarm = xsync_user_active_alarm_set (priv);
+
   if (XQueryExtension (priv->xdisplay,
                        "XInputExtension",
                        &priv->xinput_opcode,
@@ -462,15 +534,6 @@ static ClutterBackend *
 meta_backend_x11_create_clutter_backend (MetaBackend *backend)
 {
   return g_object_new (META_TYPE_CLUTTER_BACKEND_X11, NULL);
-}
-
-static MetaIdleMonitor *
-meta_backend_x11_create_idle_monitor (MetaBackend *backend,
-                                      int          device_id)
-{
-  return g_object_new (META_TYPE_IDLE_MONITOR_XSYNC,
-                       "device-id", device_id,
-                       NULL);
 }
 
 static gboolean
@@ -680,13 +743,29 @@ initable_iface_init (GInitableIface *initable_iface)
 }
 
 static void
+meta_backend_x11_finalize (GObject *object)
+{
+  MetaBackendX11 *x11 = META_BACKEND_X11 (object);
+  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+
+  if (priv->user_active_alarm != None)
+    {
+      XSyncDestroyAlarm (priv->xdisplay, priv->user_active_alarm);
+      priv->user_active_alarm = None;
+    }
+
+  G_OBJECT_CLASS (meta_backend_x11_parent_class)->finalize (object);
+}
+
+static void
 meta_backend_x11_class_init (MetaBackendX11Class *klass)
 {
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->finalize = meta_backend_x11_finalize;
   backend_class->create_clutter_backend = meta_backend_x11_create_clutter_backend;
   backend_class->post_init = meta_backend_x11_post_init;
-  backend_class->create_idle_monitor = meta_backend_x11_create_idle_monitor;
   backend_class->grab_device = meta_backend_x11_grab_device;
   backend_class->ungrab_device = meta_backend_x11_ungrab_device;
   backend_class->warp_pointer = meta_backend_x11_warp_pointer;
