@@ -1,0 +1,87 @@
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Fri, 23 Mar 2018 13:05:12 +0100
+Subject: wayland: Use cursor position in logical monitor
+
+When using two monitors size by side with different scales, once the
+cursor moves from one output to another one, its size changes based on
+the scale of the given output.
+
+Changing the size of the cursor can cause the cursor area to change
+output again if the hotspot is not exactly at the top left corner of the
+area, causing the texture of the cursor to change, which will trigger
+another output change, so on and so forth causing continuous surface
+enter/leave event which flood the clients and eventually kill them.
+
+Change the logic to use only the actual cursor position to determine if
+its on the given logical monitor, so that it remains immune to scale
+changes induced by output scale differences.
+
+(cherry picked from commit 67917db45f96befb777e5f331a775ea3c2b53012)
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/83
+Origin: upstream, 3.28.3, commit:7d52be02290bd92589fbea756ca3431af8e71a94
+---
+ src/backends/meta-cursor-renderer.c            | 12 ++++++++++++
+ src/backends/meta-cursor-renderer.h            |  1 +
+ src/wayland/meta-wayland-surface-role-cursor.c |  9 +++++----
+ 3 files changed, 18 insertions(+), 4 deletions(-)
+
+diff --git a/src/backends/meta-cursor-renderer.c b/src/backends/meta-cursor-renderer.c
+index 0bdc59c..f6470e6 100644
+--- a/src/backends/meta-cursor-renderer.c
++++ b/src/backends/meta-cursor-renderer.c
+@@ -264,6 +264,18 @@ meta_cursor_renderer_set_position (MetaCursorRenderer *renderer,
+   update_cursor (renderer, priv->displayed_cursor);
+ }
+ 
++ClutterPoint
++meta_cursor_renderer_get_position (MetaCursorRenderer *renderer)
++{
++  MetaCursorRendererPrivate *priv =
++    meta_cursor_renderer_get_instance_private (renderer);
++
++  return (ClutterPoint) {
++    .x = priv->current_x,
++    .y = priv->current_y
++  };
++}
++
+ MetaCursorSprite *
+ meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer)
+ {
+diff --git a/src/backends/meta-cursor-renderer.h b/src/backends/meta-cursor-renderer.h
+index 8ac0fe7..1691f44 100644
+--- a/src/backends/meta-cursor-renderer.h
++++ b/src/backends/meta-cursor-renderer.h
+@@ -62,6 +62,7 @@ void meta_cursor_renderer_set_cursor (MetaCursorRenderer *renderer,
+ void meta_cursor_renderer_set_position (MetaCursorRenderer *renderer,
+                                         float               x,
+                                         float               y);
++ClutterPoint meta_cursor_renderer_get_position (MetaCursorRenderer *renderer);
+ void meta_cursor_renderer_force_update (MetaCursorRenderer *renderer);
+ 
+ MetaCursorSprite * meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer);
+diff --git a/src/wayland/meta-wayland-surface-role-cursor.c b/src/wayland/meta-wayland-surface-role-cursor.c
+index 1c8ba94..d118a89 100644
+--- a/src/wayland/meta-wayland-surface-role-cursor.c
++++ b/src/wayland/meta-wayland-surface-role-cursor.c
+@@ -195,14 +195,15 @@ cursor_surface_role_is_on_logical_monitor (MetaWaylandSurfaceRole *role,
+     META_WAYLAND_SURFACE_ROLE_CURSOR (surface->role);
+   MetaWaylandSurfaceRoleCursorPrivate *priv =
+     meta_wayland_surface_role_cursor_get_instance_private (cursor_role);
+-  ClutterRect rect;
++  ClutterPoint point;
+   ClutterRect logical_monitor_rect;
+ 
+-  rect = meta_cursor_renderer_calculate_rect (priv->cursor_renderer,
+-                                              priv->cursor_sprite);
+   logical_monitor_rect =
+     meta_rectangle_to_clutter_rect (&logical_monitor->rect);
+-  return clutter_rect_intersection (&rect, &logical_monitor_rect, NULL);
++
++  point = meta_cursor_renderer_get_position (priv->cursor_renderer);
++
++  return clutter_rect_contains_point (&logical_monitor_rect, &point);
+ }
+ 
+ static void
