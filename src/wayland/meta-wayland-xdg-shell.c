@@ -615,6 +615,12 @@ did_geometry_change (MetaWaylandXdgSurface   *xdg_surface,
   MetaWaylandXdgSurfacePrivate *priv =
     meta_wayland_xdg_surface_get_instance_private (xdg_surface);
 
+  if (priv->geometry.x == 0 &&
+      priv->geometry.y == 0 &&
+      priv->geometry.width == 0 &&
+      priv->geometry.height == 0)
+    return TRUE;
+
   return pending->has_new_geometry &&
          !meta_rectangle_equal (&priv->geometry, &pending->new_geometry);
 }
