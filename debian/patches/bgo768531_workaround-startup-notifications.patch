@@ -1,6 +1,6 @@
 From: =?utf-8?q?Florian_M=C3=BCllner?= <fmuellner@gnome.org>
 Date: Thu, 20 Oct 2016 18:00:04 +0200
-Subject: [PATCH] gtk-shell: Work around non-working startup notifications
+Subject: gtk-shell: Work around non-working startup notifications
 
 GNOME Shell relies on the MetaScreen::startup-sequence-changed signal,
 which is tied to (lib)startup-notification and therefore X11. As a result,
