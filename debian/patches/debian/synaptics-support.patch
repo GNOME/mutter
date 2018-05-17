@@ -9,6 +9,7 @@ simultaneously, both under the heading of XI2.
 
 Bug-Ubuntu: https://launchpad.net/bugs/1686081
 Forwarded: https://gitlab.gnome.org/GNOME/mutter/merge_requests/37
+Applied-upstream: no, rejected as not long-term sustainable
 Last-Update: 2018-03-16
 ---
  clutter/clutter/x11/clutter-device-manager-xi2.c |  15 ++-
