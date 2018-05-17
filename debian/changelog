@@ -1,5 +1,6 @@
-mutter (3.28.2-1) UNRELEASED; urgency=medium
+mutter (3.28.2-1) unstable; urgency=medium
 
+  * Team upload
   * New upstream release
   * d/p/theme-frames-Use-surface-device-scale-instead-of-cairo_sc.patch,
     d/p/xwayland-Don-t-abort-if-Xwayland-crashes.patch,
@@ -18,7 +19,7 @@ mutter (3.28.2-1) UNRELEASED; urgency=medium
     d/p/wayland-Use-cursor-position-in-logical-monitor.patch:
     Add post-release fixes from upstream 3.28 branch
 
- -- Simon McVittie <smcv@debian.org>  Thu, 17 May 2018 10:27:13 +0100
+ -- Simon McVittie <smcv@debian.org>  Thu, 17 May 2018 10:37:25 +0100
 
 mutter (3.28.1-2) unstable; urgency=medium
 
