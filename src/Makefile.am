@@ -153,7 +153,7 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/meta-pointer-constraint.h	\
 	backends/meta-settings.c		\
 	backends/meta-settings-private.h	\
-	backends/meta-stage.h			\
+	backends/meta-stage-private.h		\
 	backends/meta-stage.c			\
 	backends/meta-renderer.c		\
 	backends/meta-renderer.h		\
@@ -161,6 +161,7 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/meta-renderer-view.h		\
 	backends/edid-parse.c			\
 	backends/edid.h				\
+	backends/gsm-inhibitor-flag.h		\
 	backends/x11/meta-backend-x11.c			\
 	backends/x11/meta-backend-x11.h			\
 	backends/x11/meta-barrier-x11.c			\
@@ -183,8 +184,6 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/x11/nested/meta-cursor-renderer-x11-nested.h		\
 	backends/x11/nested/meta-renderer-x11-nested.c	\
 	backends/x11/nested/meta-renderer-x11-nested.h	\
-	backends/x11/meta-idle-monitor-xsync.c		\
-	backends/x11/meta-idle-monitor-xsync.h		\
 	backends/x11/meta-input-settings-x11.c		\
 	backends/x11/meta-input-settings-x11.h		\
 	backends/x11/meta-monitor-manager-xrandr.c	\
@@ -247,7 +246,7 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	compositor/meta-window-actor.c		\
 	compositor/meta-window-actor-private.h	\
 	compositor/meta-window-group.c		\
-	compositor/meta-window-group.h		\
+	compositor/meta-window-group-private.h	\
 	compositor/meta-window-shape.c		\
 	compositor/region-utils.c		\
 	compositor/region-utils.h		\
@@ -487,8 +486,6 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=		\
 	backends/native/meta-default-modes.h		\
 	backends/native/meta-gpu-kms.c			\
 	backends/native/meta-gpu-kms.h			\
-	backends/native/meta-idle-monitor-native.c	\
-	backends/native/meta-idle-monitor-native.h	\
 	backends/native/meta-input-settings-native.c	\
 	backends/native/meta-input-settings-native.h	\
 	backends/native/meta-monitor-manager-kms.c	\
@@ -546,7 +543,9 @@ libmutterinclude_headers =			\
 	meta/meta-settings.h			\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\
+	meta/meta-stage.h			\
 	meta/meta-window-actor.h		\
+	meta/meta-window-group.h		\
 	meta/meta-window-shape.h		\
 	meta/prefs.h				\
 	meta/screen.h				\

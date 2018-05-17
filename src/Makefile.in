@@ -267,8 +267,6 @@ host_triplet = @host@
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-default-modes.h		\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-gpu-kms.c			\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-gpu-kms.h			\
-@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-idle-monitor-native.c	\
-@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-idle-monitor-native.h	\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-input-settings-native.c	\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-input-settings-native.h	\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-monitor-manager-kms.c	\
@@ -390,11 +388,12 @@ am__libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES_DIST =  \
 	backends/meta-orientation-manager.h backends/meta-output.c \
 	backends/meta-output.h backends/meta-pointer-constraint.c \
 	backends/meta-pointer-constraint.h backends/meta-settings.c \
-	backends/meta-settings-private.h backends/meta-stage.h \
+	backends/meta-settings-private.h backends/meta-stage-private.h \
 	backends/meta-stage.c backends/meta-renderer.c \
 	backends/meta-renderer.h backends/meta-renderer-view.c \
 	backends/meta-renderer-view.h backends/edid-parse.c \
-	backends/edid.h backends/x11/meta-backend-x11.c \
+	backends/edid.h backends/gsm-inhibitor-flag.h \
+	backends/x11/meta-backend-x11.c \
 	backends/x11/meta-backend-x11.h \
 	backends/x11/meta-barrier-x11.c \
 	backends/x11/meta-barrier-x11.h \
@@ -415,8 +414,6 @@ am__libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES_DIST =  \
 	backends/x11/nested/meta-cursor-renderer-x11-nested.h \
 	backends/x11/nested/meta-renderer-x11-nested.c \
 	backends/x11/nested/meta-renderer-x11-nested.h \
-	backends/x11/meta-idle-monitor-xsync.c \
-	backends/x11/meta-idle-monitor-xsync.h \
 	backends/x11/meta-input-settings-x11.c \
 	backends/x11/meta-input-settings-x11.h \
 	backends/x11/meta-monitor-manager-xrandr.c \
@@ -460,7 +457,8 @@ am__libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES_DIST =  \
 	compositor/meta-texture-tower.c \
 	compositor/meta-texture-tower.h compositor/meta-window-actor.c \
 	compositor/meta-window-actor-private.h \
-	compositor/meta-window-group.c compositor/meta-window-group.h \
+	compositor/meta-window-group.c \
+	compositor/meta-window-group-private.h \
 	compositor/meta-window-shape.c compositor/region-utils.c \
 	compositor/region-utils.h meta/compositor.h \
 	meta/meta-background.h meta/meta-background-actor.h \
@@ -609,8 +607,6 @@ am__libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES_DIST =  \
 	backends/native/meta-cursor-renderer-native.h \
 	backends/native/meta-default-modes.h \
 	backends/native/meta-gpu-kms.c backends/native/meta-gpu-kms.h \
-	backends/native/meta-idle-monitor-native.c \
-	backends/native/meta-idle-monitor-native.h \
 	backends/native/meta-input-settings-native.c \
 	backends/native/meta-input-settings-native.h \
 	backends/native/meta-monitor-manager-kms.c \
@@ -693,7 +689,6 @@ am__objects_1 =
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-clutter-backend-native.lo \
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-cursor-renderer-native.lo \
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-gpu-kms.lo \
-@HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-idle-monitor-native.lo \
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-input-settings-native.lo \
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-monitor-manager-kms.lo \
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-launcher.lo \
@@ -733,7 +728,6 @@ am_libmutter_@LIBMUTTER_API_VERSION@_la_OBJECTS =  \
 	backends/x11/nested/meta-backend-x11-nested.lo \
 	backends/x11/nested/meta-cursor-renderer-x11-nested.lo \
 	backends/x11/nested/meta-renderer-x11-nested.lo \
-	backends/x11/meta-idle-monitor-xsync.lo \
 	backends/x11/meta-input-settings-x11.lo \
 	backends/x11/meta-monitor-manager-xrandr.lo \
 	backends/x11/meta-output-xrandr.lo \
@@ -1298,11 +1292,12 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =  \
 	backends/meta-orientation-manager.h backends/meta-output.c \
 	backends/meta-output.h backends/meta-pointer-constraint.c \
 	backends/meta-pointer-constraint.h backends/meta-settings.c \
-	backends/meta-settings-private.h backends/meta-stage.h \
+	backends/meta-settings-private.h backends/meta-stage-private.h \
 	backends/meta-stage.c backends/meta-renderer.c \
 	backends/meta-renderer.h backends/meta-renderer-view.c \
 	backends/meta-renderer-view.h backends/edid-parse.c \
-	backends/edid.h backends/x11/meta-backend-x11.c \
+	backends/edid.h backends/gsm-inhibitor-flag.h \
+	backends/x11/meta-backend-x11.c \
 	backends/x11/meta-backend-x11.h \
 	backends/x11/meta-barrier-x11.c \
 	backends/x11/meta-barrier-x11.h \
@@ -1323,8 +1318,6 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =  \
 	backends/x11/nested/meta-cursor-renderer-x11-nested.h \
 	backends/x11/nested/meta-renderer-x11-nested.c \
 	backends/x11/nested/meta-renderer-x11-nested.h \
-	backends/x11/meta-idle-monitor-xsync.c \
-	backends/x11/meta-idle-monitor-xsync.h \
 	backends/x11/meta-input-settings-x11.c \
 	backends/x11/meta-input-settings-x11.h \
 	backends/x11/meta-monitor-manager-xrandr.c \
@@ -1368,7 +1361,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =  \
 	compositor/meta-texture-tower.c \
 	compositor/meta-texture-tower.h compositor/meta-window-actor.c \
 	compositor/meta-window-actor-private.h \
-	compositor/meta-window-group.c compositor/meta-window-group.h \
+	compositor/meta-window-group.c \
+	compositor/meta-window-group-private.h \
 	compositor/meta-window-shape.c compositor/region-utils.c \
 	compositor/region-utils.h meta/compositor.h \
 	meta/meta-background.h meta/meta-background-actor.h \
@@ -1445,7 +1439,9 @@ libmutterinclude_headers = \
 	meta/meta-settings.h			\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\
+	meta/meta-stage.h			\
 	meta/meta-window-actor.h		\
+	meta/meta-window-group.h		\
 	meta/meta-window-shape.h		\
 	meta/prefs.h				\
 	meta/screen.h				\
@@ -1774,8 +1770,6 @@ backends/x11/nested/meta-cursor-renderer-x11-nested.lo:  \
 backends/x11/nested/meta-renderer-x11-nested.lo:  \
 	backends/x11/nested/$(am__dirstamp) \
 	backends/x11/nested/$(DEPDIR)/$(am__dirstamp)
-backends/x11/meta-idle-monitor-xsync.lo: backends/x11/$(am__dirstamp) \
-	backends/x11/$(DEPDIR)/$(am__dirstamp)
 backends/x11/meta-input-settings-x11.lo: backends/x11/$(am__dirstamp) \
 	backends/x11/$(DEPDIR)/$(am__dirstamp)
 backends/x11/meta-monitor-manager-xrandr.lo:  \
@@ -2054,9 +2048,6 @@ backends/native/meta-cursor-renderer-native.lo:  \
 	backends/native/$(am__dirstamp) \
 	backends/native/$(DEPDIR)/$(am__dirstamp)
 backends/native/meta-gpu-kms.lo: backends/native/$(am__dirstamp) \
-	backends/native/$(DEPDIR)/$(am__dirstamp)
-backends/native/meta-idle-monitor-native.lo:  \
-	backends/native/$(am__dirstamp) \
 	backends/native/$(DEPDIR)/$(am__dirstamp)
 backends/native/meta-input-settings-native.lo:  \
 	backends/native/$(am__dirstamp) \
@@ -2390,7 +2381,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-crtc-kms.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-cursor-renderer-native.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-gpu-kms.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-idle-monitor-native.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-input-settings-native.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-launcher.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/native/$(DEPDIR)/meta-monitor-manager-kms.Plo@am__quote@
@@ -2404,7 +2394,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-crtc-xrandr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-cursor-renderer-x11.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-gpu-xrandr.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-idle-monitor-xsync.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-input-settings-x11.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-monitor-manager-xrandr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-output-xrandr.Plo@am__quote@

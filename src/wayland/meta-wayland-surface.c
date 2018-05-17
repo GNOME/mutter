@@ -464,7 +464,6 @@ merge_pending_state (MetaWaylandPendingState *from,
       to->dy = from->dy;
     }
 
-  wl_list_init (&to->frame_callback_list);
   wl_list_insert_list (&to->frame_callback_list, &from->frame_callback_list);
 
   cairo_region_union (to->surface_damage, from->surface_damage);
@@ -581,7 +580,10 @@ meta_wayland_surface_is_effectively_synchronized (MetaWaylandSurface *surface)
         {
           MetaWaylandSurface *parent = surface->sub.parent;
 
-          return meta_wayland_surface_is_effectively_synchronized (parent);
+          if (parent)
+            return meta_wayland_surface_is_effectively_synchronized (parent);
+
+          return TRUE;
         }
     }
 }
