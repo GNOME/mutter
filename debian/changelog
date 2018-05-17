@@ -1,3 +1,9 @@
+mutter (3.28.2-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 17 May 2018 10:04:17 +0100
+
 mutter (3.28.1-2) unstable; urgency=medium
 
   * Add xwayland-use-g_autoptr-for-GError-in-xserver_died.patch,
