@@ -37,7 +37,8 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaSurfaceActor, meta_surface_actor, CLUTTER_
 enum {
   REPAINT_SCHEDULED,
   SIZE_CHANGED,
-
+  SURFACE_IDLE_INHIBIT,
+  SURFACE_IDLE_RESTORE,
   LAST_SIGNAL,
 };
 
@@ -134,6 +135,21 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
                                         0,
                                         NULL, NULL, NULL,
                                         G_TYPE_NONE, 0);
+  signals[SURFACE_IDLE_INHIBIT] =
+    g_signal_new ("idle-inhibit",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
+
+  signals[SURFACE_IDLE_RESTORE] =
+    g_signal_new ("idle-restore",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 
   g_type_class_add_private (klass, sizeof (MetaSurfaceActorPrivate));
 }
@@ -377,4 +393,42 @@ MetaWindow *
 meta_surface_actor_get_window (MetaSurfaceActor *self)
 {
   return META_SURFACE_ACTOR_GET_CLASS (self)->get_window (self);
+}
+
+void
+meta_surface_actor_inhibit_idle (MetaSurfaceActor *self)
+{
+  //meta_verbose ("%s called actor %p\n", __func__, self);
+  g_signal_emit (self, signals[SURFACE_IDLE_INHIBIT], 0);
+}
+
+void
+meta_surface_actor_restore_idle (MetaSurfaceActor *self)
+{
+  //meta_verbose ("%s called actor %p\n", __func__, self);
+  g_signal_emit (self, signals[SURFACE_IDLE_RESTORE], 0);
+}
+
+gboolean
+meta_surface_actor_is_idle_inhibited (MetaSurfaceActor *self)
+{
+  return META_SURFACE_ACTOR_GET_CLASS (self)->is_idle_inhibited (self);
+}
+
+void
+meta_surface_actor_set_idle_inhibited (MetaSurfaceActor *self, gboolean inhibited)
+{
+  META_SURFACE_ACTOR_GET_CLASS (self)->set_idle_inhibited (self, inhibited);
+}
+
+gboolean
+meta_surface_actor_should_inhibit_idle (MetaSurfaceActor *self)
+{
+  return META_SURFACE_ACTOR_GET_CLASS (self)->should_inhibit_idle (self);
+}
+
+void
+meta_surface_actor_set_should_inhibit_idle (MetaSurfaceActor *self, gboolean inhibited)
+{
+  META_SURFACE_ACTOR_GET_CLASS (self)->set_should_inhibit_idle (self, inhibited);
 }

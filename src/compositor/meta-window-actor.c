@@ -1930,6 +1930,19 @@ meta_window_actor_handle_updates (MetaWindowActor *self)
 
   meta_surface_actor_pre_paint (priv->surface);
 
+
+  if (meta_surface_actor_should_inhibit_idle (priv->surface)
+	&& !meta_surface_actor_is_idle_inhibited (priv->surface)
+        && !meta_surface_actor_is_obscured (priv->surface)) {
+	meta_surface_actor_inhibit_idle (priv->surface);
+  }
+
+  else if (meta_surface_actor_should_inhibit_idle (priv->surface)
+	&& meta_surface_actor_is_idle_inhibited (priv->surface)
+        && meta_surface_actor_is_obscured (priv->surface)) {
+	meta_surface_actor_restore_idle (priv->surface);
+  }
+
   if (!meta_surface_actor_is_visible (priv->surface))
     return;
 

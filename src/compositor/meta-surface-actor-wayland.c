@@ -112,6 +112,44 @@ meta_surface_actor_wayland_get_window (MetaSurfaceActor *actor)
 }
 
 static void
+meta_surface_actor_wayland_set_idle_inhibited (MetaSurfaceActorWayland *self, gboolean value)
+{
+  MetaSurfaceActorWaylandPrivate *priv = meta_surface_actor_wayland_get_instance_private (self);
+  meta_verbose ("%s called actor %p surface %p value %u\n", __func__, self, priv->surface, value);
+  if (!priv->surface)
+	return;
+  priv->surface->idle_inhibited = value;
+}
+
+static void
+meta_surface_actor_wayland_set_should_inhibit_idle (MetaSurfaceActorWayland *self, gboolean value)
+{
+  MetaSurfaceActorWaylandPrivate *priv = meta_surface_actor_wayland_get_instance_private (self);
+  meta_verbose ("%s called actor %p surface %p value %u\n", __func__, self, priv->surface, value);
+  if (!priv->surface)
+	return;
+  priv->surface->should_inhibit_idle = value;
+}
+
+static gboolean
+meta_surface_actor_wayland_is_idle_inhibited (MetaSurfaceActorWayland *self)
+{
+  MetaSurfaceActorWaylandPrivate *priv = meta_surface_actor_wayland_get_instance_private (self);
+  if (!priv->surface)
+	return false;  
+  return priv->surface->idle_inhibited;
+}
+
+static gboolean
+meta_surface_actor_wayland_should_inhibit_idle (MetaSurfaceActorWayland *self)
+{
+  MetaSurfaceActorWaylandPrivate *priv = meta_surface_actor_wayland_get_instance_private (self);
+  if (!priv->surface)
+	return false;  
+  return priv->surface->should_inhibit_idle;
+}
+
+static void
 meta_surface_actor_wayland_get_preferred_width  (ClutterActor *actor,
                                                  gfloat        for_height,
                                                  gfloat       *min_width_p,
@@ -223,6 +261,10 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
   surface_actor_class->get_window = meta_surface_actor_wayland_get_window;
 
   object_class->dispose = meta_surface_actor_wayland_dispose;
+  surface_actor_class->set_idle_inhibited = meta_surface_actor_wayland_set_idle_inhibited;
+  surface_actor_class->is_idle_inhibited = meta_surface_actor_wayland_is_idle_inhibited;
+  surface_actor_class->set_should_inhibit_idle = meta_surface_actor_wayland_set_should_inhibit_idle;
+  surface_actor_class->should_inhibit_idle = meta_surface_actor_wayland_should_inhibit_idle;
 }
 
 static void
@@ -252,3 +294,5 @@ meta_surface_actor_wayland_get_surface (MetaSurfaceActorWayland *self)
   MetaSurfaceActorWaylandPrivate *priv = meta_surface_actor_wayland_get_instance_private (self);
   return priv->surface;
 }
+
+

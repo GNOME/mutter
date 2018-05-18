@@ -90,6 +90,8 @@ mutter_built_sources += \
 	xwayland-keyboard-grab-unstable-v1-server-protocol.h		\
 	gtk-text-input-protocol.c					\
 	gtk-text-input-server-protocol.h				\
+	idle-inhibit-unstable-v1-protocol.c			\
+	idle-inhibit-unstable-v1-server-protocol.h			\
 	$(NULL)
 endif
 
@@ -468,6 +470,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-wayland-inhibit-shortcuts-dialog.h	\
 	wayland/meta-xwayland-grab-keyboard.c  	\
 	wayland/meta-xwayland-grab-keyboard.h  	\
+	wayland/meta-wayland-idle-inhibit.c  	\
+	wayland/meta-wayland-idle-inhibit.h  	\
 	$(NULL)
 endif
 

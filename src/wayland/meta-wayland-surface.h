@@ -203,6 +203,8 @@ struct _MetaWaylandSurface
 
   /* table of seats for which shortcuts are inhibited */
   GHashTable *shortcut_inhibited_seats;
+  gboolean should_inhibit_idle;
+  gboolean idle_inhibited;
 };
 
 void                meta_wayland_shell_init     (MetaWaylandCompositor *compositor);

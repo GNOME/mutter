@@ -37,6 +37,10 @@ struct _MetaSurfaceActorClass
   gboolean (* is_unredirected)   (MetaSurfaceActor *actor);
 
   MetaWindow *(* get_window)      (MetaSurfaceActor *actor);
+  void (* set_idle_inhibited)   (MetaSurfaceActor *actor, gboolean inhibit);
+  gboolean (* is_idle_inhibited)   (MetaSurfaceActor *actor);
+  void (* set_should_inhibit_idle)   (MetaSurfaceActor *actor, gboolean inhibit);
+  gboolean (* should_inhibit_idle)   (MetaSurfaceActor *actor);
 };
 
 struct _MetaSurfaceActor
@@ -76,6 +80,21 @@ void meta_surface_actor_set_unredirected (MetaSurfaceActor *actor,
                                           gboolean          unredirected);
 gboolean meta_surface_actor_is_unredirected (MetaSurfaceActor *actor);
 
+gboolean meta_surface_actor_is_idle_inhibited (MetaSurfaceActor *self);
+
+void
+meta_surface_actor_set_idle_inhibited (MetaSurfaceActor *self, gboolean inhibited);
+
+gboolean meta_surface_actor_should_inhibit_idle (MetaSurfaceActor *self);
+
+void
+meta_surface_actor_set_should_inhibit_idle (MetaSurfaceActor *self, gboolean inhibited);
+
+void
+meta_surface_actor_inhibit_idle (MetaSurfaceActor *self);
+
+void
+meta_surface_actor_restore_idle (MetaSurfaceActor *self);
 G_END_DECLS
 
 #endif /* META_SURFACE_ACTOR_PRIVATE_H */

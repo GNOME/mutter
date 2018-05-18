@@ -372,6 +372,28 @@ meta_surface_actor_x11_get_window (MetaSurfaceActor *actor)
 }
 
 static void
+meta_surface_actor_x11_set_idle_inhibited (MetaSurfaceActorX11 *actor, gboolean value)
+{
+}
+
+static gboolean
+meta_surface_actor_x11_is_idle_inhibited (MetaSurfaceActorX11 *actor)
+{
+  return FALSE;
+}
+
+static void
+meta_surface_actor_x11_set_should_inhibit_idle (MetaSurfaceActorX11 *actor, gboolean value)
+{
+}
+
+static gboolean
+meta_surface_actor_x11_should_inhibit_idle (MetaSurfaceActorX11 *actor)
+{
+  return FALSE;
+}
+
+static void
 meta_surface_actor_x11_class_init (MetaSurfaceActorX11Class *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -388,6 +410,10 @@ meta_surface_actor_x11_class_init (MetaSurfaceActorX11Class *klass)
   surface_actor_class->is_unredirected = meta_surface_actor_x11_is_unredirected;
 
   surface_actor_class->get_window = meta_surface_actor_x11_get_window;
+  surface_actor_class->set_idle_inhibited = meta_surface_actor_x11_set_idle_inhibited;
+  surface_actor_class->is_idle_inhibited = meta_surface_actor_x11_is_idle_inhibited;
+  surface_actor_class->set_should_inhibit_idle = meta_surface_actor_x11_set_should_inhibit_idle;
+  surface_actor_class->should_inhibit_idle = meta_surface_actor_x11_should_inhibit_idle;
 }
 
 static void
@@ -479,3 +505,4 @@ meta_surface_actor_x11_set_size (MetaSurfaceActorX11 *self,
   priv->last_height = height;
   meta_shaped_texture_set_fallback_size (stex, width, height);
 }
+
