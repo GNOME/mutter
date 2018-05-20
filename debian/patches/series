@@ -1,8 +1,6 @@
 wayland-Use-cursor-position-in-logical-monitor.patch
 clutter-evdev-ignore-injected-events-from-IM.patch
 clutter-evdev-Don-t-ignore-CAPS-lock-as-modifier.patch
-frames-Make-1st-button-motion-handlers-take-generic-event.patch
-frames-Handle-touch-events.patch
 theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 clutter-Smooth-out-master-clock-to-smooth-visuals.patch
