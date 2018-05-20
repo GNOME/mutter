@@ -1,3 +1,12 @@
+mutter (3.28.2-2) unstable; urgency=medium
+
+  * Team upload
+  * d/p/frames-Handle-touch-events.patch,
+    d/p/frames-Make-1st-button-motion-handlers-take-generic-event.patch:
+    Drop cherry-picked patches that caused a regression (Closes: #899181)
+
+ -- Simon McVittie <smcv@debian.org>  Sun, 20 May 2018 15:21:35 +0100
+
 mutter (3.28.2-1) unstable; urgency=medium
 
   * Team upload
