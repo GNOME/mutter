@@ -4285,6 +4285,8 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
 
   self->priv->age += 1;
 
+  child->priv->in_cloned_branch -= self->priv->in_cloned_branch;
+
   /* if the child that got removed was visible and set to
    * expand then we want to reset the parent's state in
    * case the child was the only thing that was making it
@@ -12901,6 +12903,14 @@ clutter_actor_add_child_internal (ClutterActor              *self,
   self->priv->n_children += 1;
 
   self->priv->age += 1;
+
+  /* Children added _after_ one of their ancestors have already been cloned
+   * will incorrectly omit the parent's in_cloned_branch count from their own,
+   * which could cause an early exit from clutter_actor_is_in_clone_paint with
+   * a spurious FALSE result instead of TRUE. Let's make sure that doesn't
+   * happen, by including the parent's cloning depth:
+   */
+  child->priv->in_cloned_branch += self->priv->in_cloned_branch;
 
   /* if push_internal() has been called then we automatically set
    * the flag on the actor
