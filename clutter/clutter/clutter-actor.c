@@ -4141,6 +4141,32 @@ invalidate_queue_redraw_entry (ClutterActor *self,
   return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
 }
 
+static void
+clutter_actor_push_in_cloned_branch (ClutterActor *self, gulong count)
+{
+  ClutterActor *iter;
+
+  for (iter = self->priv->first_child;
+       iter != NULL;
+       iter = iter->priv->next_sibling)
+    clutter_actor_push_in_cloned_branch (iter, count);
+
+  self->priv->in_cloned_branch += count;
+}
+
+static void
+clutter_actor_pop_in_cloned_branch (ClutterActor *self, gulong count)
+{
+  ClutterActor *iter;
+
+  self->priv->in_cloned_branch -= count;
+
+  for (iter = self->priv->first_child;
+       iter != NULL;
+       iter = iter->priv->next_sibling)
+    clutter_actor_pop_in_cloned_branch (iter, count);
+}
+
 static inline void
 remove_child (ClutterActor *self,
               ClutterActor *child)
@@ -4284,6 +4310,9 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
   self->priv->n_children -= 1;
 
   self->priv->age += 1;
+
+  if (self->priv->in_cloned_branch)
+    clutter_actor_pop_in_cloned_branch (child, self->priv->in_cloned_branch);
 
   /* if the child that got removed was visible and set to
    * expand then we want to reset the parent's state in
@@ -12902,6 +12931,9 @@ clutter_actor_add_child_internal (ClutterActor              *self,
 
   self->priv->age += 1;
 
+  if (self->priv->in_cloned_branch)
+    clutter_actor_push_in_cloned_branch (child, self->priv->in_cloned_branch);
+
   /* if push_internal() has been called then we automatically set
    * the flag on the actor
    */
@@ -20687,32 +20719,6 @@ clutter_actor_get_child_transform (ClutterActor  *self,
     clutter_matrix_init_identity (transform);
 }
 
-static void
-clutter_actor_push_in_cloned_branch (ClutterActor *self)
-{
-  ClutterActor *iter;
-
-  for (iter = self->priv->first_child;
-       iter != NULL;
-       iter = iter->priv->next_sibling)
-    clutter_actor_push_in_cloned_branch (iter);
-
-  self->priv->in_cloned_branch += 1;
-}
-
-static void
-clutter_actor_pop_in_cloned_branch (ClutterActor *self)
-{
-  ClutterActor *iter;
-
-  self->priv->in_cloned_branch -= 1;
-
-  for (iter = self->priv->first_child;
-       iter != NULL;
-       iter = iter->priv->next_sibling)
-    clutter_actor_pop_in_cloned_branch (iter);
-}
-
 void
 _clutter_actor_attach_clone (ClutterActor *actor,
                              ClutterActor *clone)
@@ -20726,7 +20732,7 @@ _clutter_actor_attach_clone (ClutterActor *actor,
 
   g_hash_table_add (priv->clones, clone);
 
-  clutter_actor_push_in_cloned_branch (actor);
+  clutter_actor_push_in_cloned_branch (actor, 1);
 }
 
 void
@@ -20741,7 +20747,7 @@ _clutter_actor_detach_clone (ClutterActor *actor,
       g_hash_table_lookup (priv->clones, clone) == NULL)
     return;
 
-  clutter_actor_pop_in_cloned_branch (actor);
+  clutter_actor_pop_in_cloned_branch (actor, 1);
 
   g_hash_table_remove (priv->clones, clone);
 
