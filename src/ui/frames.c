@@ -75,7 +75,8 @@ enum {
   META_ACTION_CLICK,
   META_ACTION_RIGHT_CLICK,
   META_ACTION_MIDDLE_CLICK,
-  META_ACTION_DOUBLE_CLICK
+  META_ACTION_DOUBLE_CLICK,
+  META_ACTION_IGNORE
 };
 
 static GObject *
@@ -983,7 +984,7 @@ get_action (const ClutterEvent *event)
       return META_ACTION_CLICK;
     }
 
-  g_assert_not_reached ();
+  return META_ACTION_IGNORE;
 }
 
 static uint32_t
