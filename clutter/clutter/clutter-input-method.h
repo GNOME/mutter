@@ -26,7 +26,7 @@
 
 #define CLUTTER_TYPE_INPUT_METHOD (clutter_input_method_get_type ())
 
-CLUTTER_AVAILABLE_IN_MUTTER
+CLUTTER_EXPORT
 G_DECLARE_DERIVABLE_TYPE (ClutterInputMethod, clutter_input_method,
                           CLUTTER, INPUT_METHOD, GObject)
 
@@ -57,32 +57,32 @@ struct _ClutterInputMethodClass
                                  const ClutterEvent *key);
 };
 
-CLUTTER_AVAILABLE_IN_MUTTER
+CLUTTER_EXPORT
 void clutter_input_method_focus_in  (ClutterInputMethod *im,
                                      ClutterInputFocus  *focus);
-CLUTTER_AVAILABLE_IN_MUTTER
+CLUTTER_EXPORT
 void clutter_input_method_focus_out (ClutterInputMethod *im);
 
-CLUTTER_AVAILABLE_IN_MUTTER
+CLUTTER_EXPORT
 void clutter_input_method_commit (ClutterInputMethod *im,
                                   const gchar        *text);
-CLUTTER_AVAILABLE_IN_MUTTER
+CLUTTER_EXPORT
 void clutter_input_method_delete_surrounding (ClutterInputMethod *im,
                                               guint               offset,
                                               guint               len);
-CLUTTER_AVAILABLE_IN_MUTTER
+CLUTTER_EXPORT
 void clutter_input_method_request_surrounding (ClutterInputMethod *im);
 
-CLUTTER_AVAILABLE_IN_MUTTER
+CLUTTER_EXPORT
 void clutter_input_method_set_preedit_text (ClutterInputMethod *im,
                                             const gchar        *preedit,
                                             guint               cursor);
 
-CLUTTER_AVAILABLE_IN_MUTTER
+CLUTTER_EXPORT
 void clutter_input_method_notify_key_event (ClutterInputMethod *im,
                                             const ClutterEvent *event,
                                             gboolean            filtered);
-CLUTTER_AVAILABLE_IN_MUTTER
+CLUTTER_EXPORT
 void clutter_input_method_request_toggle_input_panel (ClutterInputMethod *im);
 
 #endif /* __CLUTTER_INPUT_METHOD_H__ */
