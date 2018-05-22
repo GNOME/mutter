@@ -129,3 +129,4 @@ ltversion.m4
 lt~obsolete.m4
 .dirstamp
 **/tags.*
+build/
