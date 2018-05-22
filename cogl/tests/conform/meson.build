@@ -1,0 +1,103 @@
+cogl_test_conformance_sources = [
+  'test-conform-main.c',
+  'test-atlas-migration.c',
+  'test-blend-strings.c',
+  'test-blend.c',
+  'test-depth-test.c',
+  'test-color-hsl.c',
+  'test-color-mask.c',
+  'test-backface-culling.c',
+  'test-just-vertex-shader.c',
+  'test-pipeline-user-matrix.c',
+  'test-pipeline-uniforms.c',
+  'test-pixel-buffer.c',
+  'test-premult.c',
+  'test-snippets.c',
+  'test-wrap-modes.c',
+  'test-sub-texture.c',
+  'test-custom-attributes.c',
+  'test-offscreen.c',
+  'test-primitive.c',
+  'test-texture-3d.c',
+  'test-sparse-pipeline.c',
+  'test-read-texture-formats.c',
+  'test-write-texture-formats.c',
+  'test-point-size.c',
+  'test-point-size-attribute.c',
+  'test-point-sprite.c',
+  'test-no-gl-header.c',
+  'test-version.c',
+  'test-gles2-context.c',
+  'test-euler-quaternion.c',
+  'test-layer-remove.c',
+  'test-alpha-test.c',
+  'test-map-buffer-range.c',
+  'test-npot-texture.c',
+  'test-alpha-textures.c',
+  'test-wrap-rectangle-textures.c',
+  'test-texture-get-set-data.c',
+  'test-framebuffer-get-bits.c',
+  'test-primitive-and-journal.c',
+  'test-copy-replace-texture.c',
+  'test-pipeline-cache-unrefs-texture.c',
+  'test-texture-no-allocate.c',
+  'test-pipeline-shader-state.c',
+  'test-texture-rg.c',
+  'test-fence.c',
+  'test-path.c',
+  'test-path-clip.c',
+]
+
+#unported = [
+#  "test-fixed.c",
+#  "test-materials.c",
+#  "test-viewport.c",
+#  "test-multitexture.c",
+#  "test-npot-texture.c",
+#  "test-object.c",
+#  "test-readpixels.c",
+#  "test-texture-mipmaps.c",
+#  "test-texture-pixmap-x11.c",",
+#  "test-texture-rectangle.c",
+#  "test-vertex-buffer-contiguous.c",
+#  "test-vertex-buffer-interleved.c",
+#  "test-vertex-buffer-mutability.c",
+#]
+
+cogl_conform_test_includepath = include_directories('../../test-fixtures')
+
+libmutter_cogl_test_conformance = executable('test-conformance',
+  sources: cogl_test_conformance_sources,
+  c_args: cogl_debug_c_args + [
+    '-DCOGL_ENABLE_EXPERIMENTAL_API',
+    '-DCOGL_DISABLE_DEPRECATED',
+    '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
+    '-DTESTS_DATADIR="@0@/tests/data"'.format(cogl_srcdir),
+  ],
+  include_directories: [cogl_includepath, cogl_conform_test_includepath],
+  dependencies: [
+    cogl_deps,
+    libmutter_cogl_path_dep,
+    libmutter_cogl_test_fixtures_dep
+  ],
+  link_with: [libmutter_cogl],
+  install: false,
+)
+
+find_unit_tests = find_program('meson/find-conform-unit-tests.sh')
+cogl_conform_unit_tests = custom_target('cogl-tests-conform-unit-tests',
+  output: 'unit-tests',
+  input: 'test-conform-main.c',
+  command: [find_unit_tests, '@INPUT@', '@OUTPUT@'],
+  install: false,
+)
+
+test('cogl/conform', cogl_run_tests,
+  args: [
+    cogl_config_env,
+    libmutter_cogl_test_conformance,
+    cogl_conform_unit_tests
+  ],
+  is_parallel: false,
+  timeout: 60,
+)
