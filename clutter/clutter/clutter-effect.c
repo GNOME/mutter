@@ -188,8 +188,8 @@ clutter_effect_real_post_paint (ClutterEffect *effect)
 }
 
 static gboolean
-clutter_effect_real_get_paint_volume (ClutterEffect      *effect,
-                                      ClutterPaintVolume *volume)
+clutter_effect_real_modify_paint_volume (ClutterEffect      *effect,
+                                         ClutterPaintVolume *volume)
 {
   return TRUE;
 }
@@ -252,7 +252,7 @@ clutter_effect_class_init (ClutterEffectClass *klass)
 
   klass->pre_paint = clutter_effect_real_pre_paint;
   klass->post_paint = clutter_effect_real_post_paint;
-  klass->get_paint_volume = clutter_effect_real_get_paint_volume;
+  klass->modify_paint_volume = clutter_effect_real_modify_paint_volume;
   klass->paint = clutter_effect_real_paint;
   klass->pick = clutter_effect_real_pick;
 }
@@ -297,13 +297,14 @@ _clutter_effect_pick (ClutterEffect           *effect,
 }
 
 gboolean
-_clutter_effect_get_paint_volume (ClutterEffect      *effect,
-                                  ClutterPaintVolume *volume)
+_clutter_effect_modify_paint_volume (ClutterEffect      *effect,
+                                     ClutterPaintVolume *volume)
 {
   g_return_val_if_fail (CLUTTER_IS_EFFECT (effect), FALSE);
   g_return_val_if_fail (volume != NULL, FALSE);
 
-  return CLUTTER_EFFECT_GET_CLASS (effect)->get_paint_volume (effect, volume);
+  return CLUTTER_EFFECT_GET_CLASS (effect)->modify_paint_volume (effect,
+                                                                 volume);
 }
 
 gboolean
@@ -311,7 +312,7 @@ _clutter_effect_has_custom_paint_volume (ClutterEffect *effect)
 {
   g_return_val_if_fail (CLUTTER_IS_EFFECT (effect), FALSE);
 
-  return CLUTTER_EFFECT_GET_CLASS (effect)->get_paint_volume != clutter_effect_real_get_paint_volume;
+  return CLUTTER_EFFECT_GET_CLASS (effect)->modify_paint_volume != clutter_effect_real_modify_paint_volume;
 }
 
 /**
