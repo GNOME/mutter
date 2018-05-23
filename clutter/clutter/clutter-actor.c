@@ -17489,7 +17489,7 @@ _clutter_actor_get_paint_volume_real (ClutterActor *self,
                l != NULL && l->data != priv->current_effect;
                l = l->next)
             {
-              if (!_clutter_effect_get_paint_volume (l->data, pv))
+              if (!_clutter_effect_modify_paint_volume (l->data, pv))
                 {
                   clutter_paint_volume_free (pv);
                   CLUTTER_NOTE (CLIPPING, "Bail from get_paint_volume (%s): "
@@ -17507,7 +17507,7 @@ _clutter_actor_get_paint_volume_real (ClutterActor *self,
           /* otherwise, get the cumulative volume */
           effects = _clutter_meta_group_peek_metas (priv->effects);
           for (l = effects; l != NULL; l = l->next)
-            if (!_clutter_effect_get_paint_volume (l->data, pv))
+            if (!_clutter_effect_modify_paint_volume (l->data, pv))
               {
                 clutter_paint_volume_free (pv);
                 CLUTTER_NOTE (CLIPPING, "Bail from get_paint_volume (%s): "
