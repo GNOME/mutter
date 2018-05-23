@@ -1267,8 +1267,14 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
                   "focus window may not be correct.\n");
 
   if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
-      !workspace->screen->display->mouse_mode)
-    focus_ancestor_or_top_window (workspace, not_this_one, timestamp);
+      !workspace->screen->display->mouse_mode) {
+    if (!not_this_one || !not_this_one->unmanaging)
+      focus_ancestor_or_top_window (workspace, not_this_one, timestamp);
+    else
+       meta_display_focus_the_no_focus_window (workspace->screen->display,
+                                                  workspace->screen,
+                                                  timestamp);
+  }
   else
     {
       MetaWindow * window;
