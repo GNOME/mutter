@@ -189,10 +189,11 @@ verify_redraws (gpointer user_data)
   clutter_actor_queue_redraw (data->child);
   verify_redraw (data, 1);
 
-  /* Modifying the transformation on the parent should cause a
-     redraw */
+  /* Modifying the transformation on the parent should not cause a redraw,
+     since the FBO stores pre-transformed rendering that can be reused with
+     any transformation. */
   clutter_actor_set_anchor_point (data->parent_container, 0, 1);
-  verify_redraw (data, 1);
+  verify_redraw (data, 0);
 
   /* Redrawing an unrelated actor shouldn't cause a redraw */
   clutter_actor_set_position (data->unrelated_actor, 0, 1);
