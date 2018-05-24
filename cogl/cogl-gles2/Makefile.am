@@ -9,7 +9,9 @@ mutterlib_LTLIBRARIES = libmutter-cogl-gles2-@LIBMUTTER_API_VERSION@.la
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-	-I$(top_builddir)
+	-I$(top_builddir) \
+	-I$(top_builddir)/cogl \
+	$(NULL)
 
 AM_CFLAGS = $(COGL_DEP_CFLAGS) $(COGL_EXTRA_CFLAGS) $(MAINTAINER_CFLAGS)
 
