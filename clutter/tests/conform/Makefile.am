@@ -25,7 +25,6 @@ actor_tests = \
 	actor-iter \
 	actor-layout \
 	actor-meta \
-	actor-offscreen-limit-max-size \
 	actor-offscreen-redirect \
 	actor-paint-opacity \
 	actor-pick \
