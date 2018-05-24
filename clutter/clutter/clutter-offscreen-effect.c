@@ -74,6 +74,7 @@
 #include "clutter-debug.h"
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
+#include "clutter-paint-volume-private.h"
 
 struct _ClutterOffscreenEffectPrivate
 {
@@ -223,7 +224,8 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
   ClutterOffscreenEffectPrivate *priv = self->priv;
   ClutterActorBox box;
   ClutterActor *stage;
-  CoglMatrix projection;
+  CoglMatrix projection, modelview;
+  const ClutterPaintVolume *volume;
   CoglColor transparent;
   gfloat stage_width, stage_height;
   gfloat fbo_width = -1, fbo_height = -1;
@@ -240,23 +242,31 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
   stage = _clutter_actor_get_stage_internal (priv->actor);
   clutter_actor_get_size (stage, &stage_width, &stage_height);
 
-  /* The paint box is the bounding box of the actor's paint volume in
-   * stage coordinates. This will give us the size for the framebuffer
-   * we need to redirect its rendering offscreen and its position will
-   * be used to setup an offset viewport */
-  if (clutter_actor_get_paint_box (priv->actor, &box))
+  /* Get the minimal bounding box for what we want to paint, relative to the
+   * parent of priv->actor. Note that we may actually be painting a clone of
+   * priv->actor so we need to be careful to avoid querying the transformation
+   * of priv->actor (like clutter_actor_get_paint_box would). Just stay in
+   * local coordinates for now...
+   */
+  volume = clutter_actor_get_paint_volume (priv->actor);
+  if (volume)
     {
-      clutter_actor_box_get_size (&box, &fbo_width, &fbo_height);
-      clutter_actor_box_get_origin (&box, &priv->x_offset, &priv->y_offset);
+      ClutterPaintVolume mutable_volume;
 
-      fbo_width = MIN (fbo_width, stage_width);
-      fbo_height = MIN (fbo_height, stage_height);
+      _clutter_paint_volume_copy_static (volume, &mutable_volume);
+      _clutter_paint_volume_get_bounding_box (&mutable_volume, &box);
+      clutter_paint_volume_free (&mutable_volume);
     }
   else
     {
-      fbo_width = stage_width;
-      fbo_height = stage_height;
+      clutter_actor_get_allocation_box (priv->actor, &box);
     }
+
+  clutter_actor_box_get_size (&box, &fbo_width, &fbo_height);
+  clutter_actor_box_get_origin (&box, &priv->x_offset, &priv->y_offset);
+
+  fbo_width = MIN (fbo_width, stage_width);
+  fbo_height = MIN (fbo_height, stage_height);
 
   if (fbo_width == stage_width)
     priv->x_offset = 0.0f;
@@ -279,8 +289,14 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
   /* let's draw offscreen */
   cogl_push_framebuffer (priv->offscreen);
 
-  /* Copy the modelview that would have been used if rendering onscreen */
-  cogl_set_modelview_matrix (&priv->last_matrix_drawn);
+  /* We don't want the FBO contents to be transformed. That could waste memory
+   * (e.g. during zoom), or result in something that's not rectangular (clipped
+   * incorrectly). So drop the modelview matrix of the current paint chain.
+   * This is fine since paint_texture now runs with the same modelview matrix,
+   * so it will come out correctly...
+   */
+  clutter_actor_get_transform (priv->stage, &modelview);
+  cogl_set_modelview_matrix (&modelview);
 
   /* Set up the viewport so that it has the same size as the stage,
    * but offset it so that the actor of interest lands on our
@@ -382,12 +398,12 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect)
 
   cogl_push_matrix ();
 
-  /* Now reset the modelview to put us in stage coordinates so
-   * we can drawn the result of our offscreen render as a textured
-   * quad... */
+  cogl_get_modelview_matrix (&modelview);
 
-  cogl_matrix_init_identity (&modelview);
-  _clutter_actor_apply_modelview_transform (priv->stage, &modelview);
+  /* Our FBO has been shrunken smaller than the stage to save on memory and
+   * just contains the actor of interest. So to avoid it landing at the
+   * top-left corner of the screen, restore its correct location:
+   */
   cogl_matrix_translate (&modelview, priv->x_offset, priv->y_offset, 0.0f);
   cogl_set_modelview_matrix (&modelview);
 
