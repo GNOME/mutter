@@ -46,6 +46,7 @@
 #include "meta-wayland-legacy-xdg-shell.h"
 #include "meta-wayland-wl-shell.h"
 #include "meta-wayland-gtk-shell.h"
+#include "meta-wayland-viewporter.h"
 
 #include "meta-cursor-tracker-private.h"
 #include "display-private.h"
@@ -252,6 +253,100 @@ meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
 }
 
 static void
+viewport_surface_to_buffer(MetaWaylandSurface *surface,
+			   float sx, float sy, float *bx, float *by)
+{
+  MetaWaylandBuffer *buffer = surface->buffer_ref.buffer;
+  MetaWaylandBufferViewport *vp = &surface->buffer_viewport;
+  double src_width, src_height;
+  double src_x, src_y;
+  double surface_width, surface_height;
+
+  if (vp->buffer.src_rect.width == 0)
+    {
+      if (vp->surface.width == 0)
+        {
+          *bx = sx;
+          *by = sy;
+          return;
+        }
+
+      src_x = 0.0;
+      src_y = 0.0;
+      src_width  = (double)cogl_texture_get_width (buffer->texture);
+      src_height = (double)cogl_texture_get_height (buffer->texture);
+      surface_width  = src_width  / vp->buffer.scale;
+      surface_height = src_height / vp->buffer.scale;
+    }
+  else {
+    if (vp->surface.width == 0)
+      {
+        surface_width  = (double)cogl_texture_get_width (buffer->texture)  / vp->buffer.scale;
+        surface_height = (double)cogl_texture_get_height (buffer->texture) / vp->buffer.scale;
+      }
+    else
+      {
+        surface_width  = (double)vp->surface.width;
+        surface_height = (double)vp->surface.height;
+      }
+    src_x = (double)vp->buffer.src_rect.x;
+    src_y = (double)vp->buffer.src_rect.y;
+    src_width  = (double)vp->buffer.src_rect.width;
+    src_height = (double)vp->buffer.src_rect.height;
+  }
+
+  *bx = sx * src_width  / surface_width  + src_x;
+  *by = sy * src_height / surface_height + src_y;
+}
+
+static cairo_region_t *
+surface_to_buffer_region (MetaWaylandSurface *surface,
+                          cairo_region_t *region)
+{
+  int n_rects, i;
+  cairo_rectangle_int_t *rects;
+  cairo_region_t *scaled_region;
+  MetaWaylandBufferViewport *vp = &surface->buffer_viewport;
+  int scale = vp->buffer.scale;
+  float xf, yf;
+
+  if (vp->buffer.scale == 1 && vp->buffer.src_rect.width == 0)
+    return cairo_region_copy (region);
+
+  n_rects = cairo_region_num_rectangles (region);
+
+  rects = g_malloc (sizeof(cairo_rectangle_int_t) * n_rects);
+
+  for (i = 0; i < n_rects; i++)
+    {
+      cairo_region_get_rectangle (region, i, &rects[i]);
+
+      // use coordinates instead of width/height
+      rects[i].width  += rects[i].x;
+      rects[i].height += rects[i].y;
+
+      viewport_surface_to_buffer(surface, rects[i].x, rects[i].y, &xf, &yf);
+      rects[i].x = floorf(xf * scale);
+      rects[i].y = floorf(yf * scale);
+
+      viewport_surface_to_buffer(surface, rects[i].width, rects[i].height, &xf, &yf);
+      rects[i].width  = ceilf(xf * scale);
+      rects[i].height = ceilf(yf * scale);
+
+      // use width/height again instead of coordinates
+      rects[i].width  -= rects[i].x;
+      rects[i].height -= rects[i].y;
+    }
+
+  scaled_region = cairo_region_create_rectangles (rects, n_rects);
+
+  g_free (rects);
+
+
+  return scaled_region;
+}
+
+static void
 surface_process_damage (MetaWaylandSurface *surface,
                         cairo_region_t     *surface_region,
                         cairo_region_t     *buffer_region)
@@ -283,7 +378,7 @@ surface_process_damage (MetaWaylandSurface *surface,
 
   /* The damage region must be in the same coordinate space as the buffer,
    * i.e. scaled with surface->scale. */
-  scaled_region = meta_region_scale (surface_region, surface->scale);
+  scaled_region = surface_to_buffer_region (surface, surface_region);
 
   /* Now add the buffer damage on top of the scaled damage region, as buffer
    * damage is already in that scale. */
@@ -402,6 +497,16 @@ pending_state_init (MetaWaylandPendingState *state)
   state->has_new_geometry = FALSE;
   state->has_new_min_size = FALSE;
   state->has_new_max_size = FALSE;
+
+  state->buffer_viewport.changed = FALSE;
+  state->buffer_viewport.buffer.transform = WL_OUTPUT_TRANSFORM_NORMAL;
+  state->buffer_viewport.buffer.scale = 1;
+  state->buffer_viewport.buffer.src_rect.x = 0;
+  state->buffer_viewport.buffer.src_rect.y = 0;
+  state->buffer_viewport.buffer.src_rect.width = 0;
+  state->buffer_viewport.buffer.src_rect.height = 0;
+  state->buffer_viewport.surface.width = 0;
+  state->buffer_viewport.surface.height = 0;
 }
 
 static void
@@ -508,6 +613,19 @@ merge_pending_state (MetaWaylandPendingState *from,
 
   if (from->scale > 0)
     to->scale = from->scale;
+
+  if(from->buffer_viewport.changed)
+    {
+      to->buffer_viewport.changed = from->buffer_viewport.changed;
+      to->buffer_viewport.buffer.transform = from->buffer_viewport.buffer.transform;
+      to->buffer_viewport.buffer.scale = from->buffer_viewport.buffer.scale;
+      to->buffer_viewport.buffer.src_rect.x = from->buffer_viewport.buffer.src_rect.x;
+      to->buffer_viewport.buffer.src_rect.y = from->buffer_viewport.buffer.src_rect.y;
+      to->buffer_viewport.buffer.src_rect.width = from->buffer_viewport.buffer.src_rect.width;
+      to->buffer_viewport.buffer.src_rect.height = from->buffer_viewport.buffer.src_rect.height;
+      to->buffer_viewport.surface.width = from->buffer_viewport.surface.width;
+      to->buffer_viewport.surface.height = from->buffer_viewport.surface.height;
+    }
 
   if (to->buffer && to->buffer_destroy_handler_id == 0)
     {
@@ -670,6 +788,27 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
        */
       surface->buffer_held = (pending->buffer &&
                               !wl_shm_buffer_get (pending->buffer->resource));
+    }
+
+  if (pending->buffer_viewport.changed || surface->buffer_viewport.buffer.scale == 0)
+    {
+
+      if(meta_wayland_surface_get_actor (surface))
+        {
+          meta_surface_actor_set_viewport (meta_wayland_surface_get_actor (surface),
+                                           &pending->buffer_viewport.buffer.src_rect,
+                                           pending->buffer_viewport.surface.width,
+                                           pending->buffer_viewport.surface.height,
+                                           pending->buffer_viewport.buffer.scale);
+        }
+
+      surface->buffer_viewport.buffer.scale = pending->buffer_viewport.buffer.scale;
+      surface->buffer_viewport.buffer.src_rect.x = pending->buffer_viewport.buffer.src_rect.x;
+      surface->buffer_viewport.buffer.src_rect.y = pending->buffer_viewport.buffer.src_rect.y;
+      surface->buffer_viewport.buffer.src_rect.width = pending->buffer_viewport.buffer.src_rect.width;
+      surface->buffer_viewport.buffer.src_rect.height = pending->buffer_viewport.buffer.src_rect.height;
+      surface->buffer_viewport.surface.width = pending->buffer_viewport.surface.width;
+      surface->buffer_viewport.surface.height = pending->buffer_viewport.surface.height;
     }
 
   if (pending->scale > 0)
@@ -936,7 +1075,11 @@ wl_surface_set_buffer_scale (struct wl_client *client,
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
   if (scale > 0)
-    surface->pending->scale = scale;
+    {
+      surface->pending->scale = scale;
+      surface->pending->buffer_viewport.buffer.scale = scale;
+      surface->pending->buffer_viewport.changed = true;
+    }
   else
     g_warning ("Trying to set invalid buffer_scale of %d\n", scale);
 }
@@ -1287,6 +1430,7 @@ meta_wayland_shell_init (MetaWaylandCompositor *compositor)
   meta_wayland_legacy_xdg_shell_init (compositor);
   meta_wayland_wl_shell_init (compositor);
   meta_wayland_gtk_shell_init (compositor);
+  meta_wayland_viewporter_init (compositor);
 }
 
 void
