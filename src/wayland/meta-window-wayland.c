@@ -682,6 +682,23 @@ meta_window_wayland_move_resize (MetaWindow        *window,
   MetaMoveResizeFlags flags;
   gboolean pending_ack_configure;
 
+  /* Ugly hack to make viewporter geometry apply to windows
+   * Works for demo apps, but probably breaks assumptions.
+   * Help needed*/
+  if(window->surface)
+    {
+      if(window->surface->buffer_viewport.surface.width > 0)
+        {
+          new_geom.width = window->surface->buffer_viewport.surface.width;
+          new_geom.height = window->surface->buffer_viewport.surface.height;
+        }
+      else if(window->surface->buffer_viewport.buffer.src_rect.width > 0)
+        {
+          new_geom.width = window->surface->buffer_viewport.buffer.src_rect.width;
+          new_geom.height = window->surface->buffer_viewport.buffer.src_rect.height;
+        }
+    }
+
   /* new_geom is in the logical pixel coordinate space, but MetaWindow wants its
    * rects to represent what in turn will end up on the stage, i.e. we need to
    * scale new_geom to physical pixels given what buffer scale and texture scale
