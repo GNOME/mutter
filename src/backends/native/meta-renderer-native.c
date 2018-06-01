@@ -174,7 +174,6 @@ typedef struct _MetaOnscreenNative
   } egl;
 #endif
 
-  gboolean pending_queue_swap_notify;
   gboolean pending_swap_notify;
 
   gboolean pending_set_crtc;
@@ -183,7 +182,6 @@ typedef struct _MetaOnscreenNative
   int64_t pending_swap_notify_frame_count;
 
   MetaRendererView *view;
-  int total_pending_flips;
 } MetaOnscreenNative;
 
 struct _MetaRendererNative
@@ -1150,7 +1148,6 @@ on_crtc_flipped (GClosure         *closure,
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   CoglOnscreenEGL *onscreen_egl =  onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
 
   if (gpu_kms != render_gpu)
@@ -1159,30 +1156,6 @@ on_crtc_flipped (GClosure         *closure,
 
       secondary_gpu_state = get_secondary_gpu_state (onscreen, gpu_kms);
       secondary_gpu_state->pending_flips--;
-    }
-
-  onscreen_native->total_pending_flips--;
-  if (onscreen_native->total_pending_flips == 0)
-    {
-      MetaRendererNativeGpuData *renderer_gpu_data;
-
-      onscreen_native->pending_queue_swap_notify = FALSE;
-
-      meta_onscreen_native_queue_swap_notify (onscreen);
-
-      renderer_gpu_data =
-        meta_renderer_native_get_gpu_data (renderer_native,
-                                           onscreen_native->render_gpu);
-      switch (renderer_gpu_data->mode)
-        {
-        case META_RENDERER_NATIVE_MODE_GBM:
-          meta_onscreen_native_swap_drm_fb (onscreen);
-          break;
-#ifdef HAVE_EGL_DEVICE
-        case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-          break;
-#endif
-        }
     }
 }
 
@@ -1228,6 +1201,25 @@ flip_closure_destroyed (MetaRendererView *view)
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
+
+  /* We do one swap notification per global frame, regardless of how many
+   * CRTCs used that frame. So that's here.
+   */
+  if (onscreen_native->pending_swap_notify_frame_count <
+      onscreen_native->pending_queue_swap_notify_frame_count)
+    meta_onscreen_native_queue_swap_notify (onscreen);
+
+  switch (renderer_gpu_data->mode)
+    {
+    case META_RENDERER_NATIVE_MODE_GBM:
+      meta_onscreen_native_swap_drm_fb (onscreen);
+      break;
+#ifdef HAVE_EGL_DEVICE
+    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
+      break;
+#endif
+    }
+
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
@@ -1252,12 +1244,6 @@ flip_closure_destroyed (MetaRendererView *view)
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       break;
 #endif
-    }
-
-  if (onscreen_native->pending_queue_swap_notify)
-    {
-      meta_onscreen_native_queue_swap_notify (onscreen);
-      onscreen_native->pending_queue_swap_notify = FALSE;
     }
 
   g_object_unref (view);
@@ -1357,16 +1343,13 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
                                    fb_in_use))
         return;
 
-      onscreen_native->total_pending_flips++;
       if (secondary_gpu_state)
         secondary_gpu_state->pending_flips++;
 
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      if (flip_egl_stream (onscreen_native,
-                           flip_closure))
-        onscreen_native->total_pending_flips++;
+      flip_egl_stream (onscreen_native, flip_closure);
       *fb_in_use = TRUE;
       break;
 #endif
@@ -1555,29 +1538,9 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   /*
    * If the framebuffer is in use, but we don't have any pending flips it means
    * that flipping is not supported and we set the next framebuffer directly.
-   * Since we won't receive a flip callback, lets just notify listeners
-   * directly.
+   * We won't receive a flip callback but that doesn't matter. The clean-up
+   * will happen all the same in flip_closure_destroyed.
    */
-  if (fb_in_use && onscreen_native->total_pending_flips == 0)
-    {
-      MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-      MetaRendererNativeGpuData *renderer_gpu_data;
-
-      renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                             render_gpu);
-      switch (renderer_gpu_data->mode)
-        {
-        case META_RENDERER_NATIVE_MODE_GBM:
-          meta_onscreen_native_swap_drm_fb (onscreen);
-          break;
-#ifdef HAVE_EGL_DEVICE
-        case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-          break;
-#endif
-        }
-    }
-
-  onscreen_native->pending_queue_swap_notify = TRUE;
 
   g_closure_unref (flip_closure);
 }
@@ -1683,7 +1646,8 @@ wait_for_pending_flips (CoglOnscreen *onscreen)
         meta_gpu_kms_wait_for_flip (secondary_gpu_state->gpu_kms, NULL);
     }
 
-  while (onscreen_native->total_pending_flips)
+  while (onscreen_native->pending_swap_notify_frame_count <
+         onscreen_native->pending_queue_swap_notify_frame_count)
     meta_gpu_kms_wait_for_flip (onscreen_native->render_gpu, NULL);
 }
 
@@ -2322,6 +2286,14 @@ meta_renderer_native_init_onscreen (CoglOnscreen *onscreen,
 
   onscreen_native = g_slice_new0 (MetaOnscreenNative);
   onscreen_egl->platform = onscreen_native;
+
+  /* We need these to start out equal so wait_for_pending_flips doesn't
+   * hang on startup. But also the frame counters will identify the first frame
+   * as number zero, so we need to start negative to ensure that first frame
+   * is waited for correctly (on the second call to wait_for_pending_flips).
+   */
+  onscreen_native->pending_queue_swap_notify_frame_count = -1;
+  onscreen_native->pending_swap_notify_frame_count = -1;
 
   /*
    * Don't actually initialize anything here, since we may not have the
