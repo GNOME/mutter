@@ -71,9 +71,9 @@ clutter_input_device_xi2_constructed (GObject *gobject)
     G_OBJECT_CLASS (clutter_input_device_xi2_parent_class)->constructed (gobject);
 
 #ifdef HAVE_LIBWACOM
+  device_xi2->group_modes = g_array_new (FALSE, TRUE, sizeof (guint));
   if (clutter_input_device_get_device_type (CLUTTER_INPUT_DEVICE (gobject)) == CLUTTER_PAD_DEVICE)
     {
-      device_xi2->group_modes = g_array_new (FALSE, TRUE, sizeof (guint));
       g_array_set_size (device_xi2->group_modes,
                         clutter_input_device_get_n_mode_groups (CLUTTER_INPUT_DEVICE (gobject)));
     }
