@@ -35,12 +35,14 @@ struct _MetaGpuClass
 
   gboolean (* read_current) (MetaGpu  *gpu,
                              GError  **error);
+  void     (* poll_hardware) (MetaGpu *gpu);
 };
 
 int meta_gpu_get_kms_fd (MetaGpu *gpu);
 
 const char * meta_gpu_get_kms_file_path (MetaGpu *gpu);
 
+void meta_gpu_poll_hardware (MetaGpu *gpu);
 gboolean meta_gpu_read_current (MetaGpu  *gpu,
                                 GError  **error);
 

@@ -44,6 +44,8 @@ struct _MetaGpuXrandr
 
   int max_screen_width;
   int max_screen_height;
+
+  gboolean need_hardware_poll;
 };
 
 G_DEFINE_TYPE (MetaGpuXrandr, meta_gpu_xrandr, META_TYPE_GPU)
@@ -79,6 +81,14 @@ get_xmode_name (XRRModeInfo *xmode)
   int height = xmode->height;
 
   return g_strdup_printf ("%dx%d", width, height);
+}
+
+static void
+meta_gpu_xrandr_poll_hardware (MetaGpu *gpu)
+{
+  MetaGpuXrandr *gpu_xrandr = META_GPU_XRANDR (gpu);
+
+  gpu_xrandr->need_hardware_poll = TRUE;
 }
 
 static gboolean
@@ -148,8 +158,18 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
   monitor_manager->screen_width = WidthOfScreen (screen);
   monitor_manager->screen_height = HeightOfScreen (screen);
 
-  resources = XRRGetScreenResourcesCurrent (xdisplay,
-                                            DefaultRootWindow (xdisplay));
+  if (gpu_xrandr->need_hardware_poll)
+    {
+      resources = XRRGetScreenResources (xdisplay,
+                                         DefaultRootWindow (xdisplay));
+      gpu_xrandr->need_hardware_poll = FALSE;
+    }
+  else
+    {
+      resources = XRRGetScreenResourcesCurrent (xdisplay,
+                                                DefaultRootWindow (xdisplay));
+    }
+
   if (!resources)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -282,6 +302,7 @@ meta_gpu_xrandr_finalize (GObject *object)
 static void
 meta_gpu_xrandr_init (MetaGpuXrandr *gpu_xrandr)
 {
+  gpu_xrandr->need_hardware_poll = TRUE;
 }
 
 static void
@@ -293,4 +314,5 @@ meta_gpu_xrandr_class_init (MetaGpuXrandrClass *klass)
   object_class->finalize = meta_gpu_xrandr_finalize;
 
   gpu_class->read_current = meta_gpu_xrandr_read_current;
+  gpu_class->poll_hardware = meta_gpu_xrandr_poll_hardware;
 }

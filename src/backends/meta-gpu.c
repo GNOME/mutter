@@ -64,6 +64,13 @@ meta_gpu_has_hotplug_mode_update (MetaGpu *gpu)
   return FALSE;
 }
 
+void
+meta_gpu_poll_hardware (MetaGpu *gpu)
+{
+  if (META_GPU_GET_CLASS (gpu)->poll_hardware)
+    META_GPU_GET_CLASS (gpu)->poll_hardware (gpu);
+}
+
 gboolean
 meta_gpu_read_current (MetaGpu  *gpu,
                        GError  **error)
