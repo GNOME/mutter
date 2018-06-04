@@ -179,8 +179,8 @@ typedef struct _MetaOnscreenNative
 
   gboolean pending_set_crtc;
 
-  int64_t pending_queue_swap_notify_frame_count;
-  int64_t pending_swap_notify_frame_count;
+  int64_t last_frame_started;
+  int64_t last_frame_finished;
 
   MetaRendererView *view;
   int total_pending_flips;
@@ -744,7 +744,7 @@ flush_pending_swap_notify (CoglFramebuffer *framebuffer)
           CoglFrameInfo *info;
 
           while ((info = g_queue_peek_head (&onscreen->pending_frame_infos)) &&
-                 info->global_frame_counter <= onscreen_native->pending_swap_notify_frame_count)
+                 info->global_frame_counter <= onscreen_native->last_frame_finished)
             {
               _cogl_onscreen_notify_frame_sync (onscreen, info);
               _cogl_onscreen_notify_complete (onscreen, info);
@@ -848,8 +848,7 @@ meta_onscreen_native_queue_swap_notify (CoglOnscreen *onscreen)
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
 
-  onscreen_native->pending_swap_notify_frame_count =
-    onscreen_native->pending_queue_swap_notify_frame_count;
+  onscreen_native->last_frame_finished = onscreen_native->last_frame_started;
 
   if (onscreen_native->pending_swap_notify)
     return;
@@ -1907,7 +1906,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
       onscreen_native->pending_set_crtc = FALSE;
     }
 
-  onscreen_native->pending_queue_swap_notify_frame_count = renderer_native->frame_counter;
+  onscreen_native->last_frame_started = renderer_native->frame_counter;
   meta_onscreen_native_flip_crtcs (onscreen);
 
   /*
