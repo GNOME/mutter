@@ -1176,6 +1176,16 @@ meta_shaped_texture_cull_out (MetaCullable   *cullable,
     {
       if (priv->opaque_region)
         {
+          /* if a viewport is set, make sure the opaque region is not bigger
+           * than the calculated size
+           */
+          if(priv->viewport_dest_width > 0 || priv->viewport_src_rect.width > 0)
+            {
+              cairo_rectangle_int_t tex_rect = { 0, 0, priv->dest_width,
+                                                       priv->dest_height };
+              cairo_region_intersect_rectangle (priv->opaque_region, &tex_rect);
+            }
+
           if (unobscured_region)
             cairo_region_subtract (unobscured_region, priv->opaque_region);
           if (clip_region)
