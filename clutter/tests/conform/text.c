@@ -468,6 +468,9 @@ validate_markup_attributes (ClutterText   *text,
 
       a = attributes->data;
 
+      if (a->klass->type == PANGO_ATTR_SCALE)
+        continue;
+
       g_assert (a->klass->type == attr_type);
       g_assert_cmpint (a->start_index, ==, start_index);
       g_assert_cmpint (a->end_index, ==, end_index);
