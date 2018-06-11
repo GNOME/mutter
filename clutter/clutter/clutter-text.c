@@ -617,28 +617,30 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
 }
 
 static inline void
-ensure_text_scale_pango_attributes (ClutterText    *self,
-                                    PangoAttrList **attributes)
+ensure_text_scale_pango_attributes (ClutterText *self)
 {
+  ClutterTextPrivate *priv = self->priv;
   float resource_scale;
 
-  g_return_if_fail (attributes != NULL);
-
-  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (self), &resource_scale))
-    resource_scale = 1.0;
-
-  if (*attributes)
+  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (self), &resource_scale) ||
+      resource_scale == 1.0)
     {
-      PangoAttrList *old_attributes = *attributes;
-      *attributes = pango_attr_list_copy (old_attributes);
+      return;
+    }
+
+  if (priv->effective_attrs != NULL)
+    {
+      PangoAttrList *old_attributes = priv->effective_attrs;
+      priv->effective_attrs = pango_attr_list_copy (old_attributes);
       pango_attr_list_unref (old_attributes);
     }
   else
     {
-      *attributes = pango_attr_list_new ();
+      priv->effective_attrs = pango_attr_list_new ();
     }
 
-  pango_attr_list_change (*attributes, pango_attr_scale_new (resource_scale));
+  pango_attr_list_change (priv->effective_attrs,
+                          pango_attr_scale_new (resource_scale));
 }
 
 static PangoLayout *
@@ -722,7 +724,7 @@ clutter_text_create_layout_no_cache (ClutterText       *text,
   /* This will merge the markup attributes and the attributes
    * property if needed */
   clutter_text_ensure_effective_attributes (text);
-  ensure_text_scale_pango_attributes (text, &priv->effective_attrs);
+  ensure_text_scale_pango_attributes (text);
 
   if (priv->effective_attrs != NULL)
     pango_layout_set_attributes (layout, priv->effective_attrs);
