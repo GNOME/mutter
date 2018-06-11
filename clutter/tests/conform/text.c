@@ -469,7 +469,17 @@ validate_markup_attributes (ClutterText   *text,
       a = attributes->data;
 
       if (a->klass->type == PANGO_ATTR_SCALE)
-        continue;
+        {
+          PangoAttrFloat *scale = (PangoAttrFloat*) a;
+          float resource_scale;
+
+          if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (text), &resource_scale))
+            resource_scale = 1.0;
+
+          g_assert_cmpfloat (scale->value, ==, resource_scale);
+          g_slist_free_full (attributes, (GDestroyNotify) pango_attribute_destroy);
+          continue;
+        }
 
       g_assert (a->klass->type == attr_type);
       g_assert_cmpint (a->start_index, ==, start_index);
