@@ -560,6 +560,51 @@ clutter_text_get_display_text (ClutterText *self)
 }
 
 static inline void
+set_effective_pango_attributes (ClutterText   *self,
+                                PangoAttrList *attributes)
+{
+  ClutterTextPrivate *priv = self->priv;
+  float resource_scale;
+
+  if (attributes != NULL)
+    {
+      PangoAttrList *old_attributes = priv->effective_attrs;
+      priv->effective_attrs = pango_attr_list_ref (attributes);
+
+      if (old_attributes != NULL)
+        pango_attr_list_unref (old_attributes);
+    }
+
+  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (self), &resource_scale) ||
+      resource_scale == 1.0)
+    return;
+
+  if (attributes)
+    {
+      PangoAttrIterator *iter;
+      PangoAttribute *scale_attrib;
+      PangoAttrList *old_attributes;
+
+      old_attributes = priv->effective_attrs;
+      priv->effective_attrs = pango_attr_list_copy (attributes);
+      pango_attr_list_unref (old_attributes);
+
+      iter = pango_attr_list_get_iterator (priv->effective_attrs);
+      scale_attrib = pango_attr_iterator_get (iter, PANGO_ATTR_SCALE);
+
+      if (scale_attrib != NULL)
+        resource_scale *= ((PangoAttrFloat *) scale_attrib)->value;
+
+      pango_attr_iterator_destroy (iter);
+    }
+  else
+    priv->effective_attrs = pango_attr_list_new ();
+
+  pango_attr_list_change (priv->effective_attrs,
+                          pango_attr_scale_new (resource_scale));
+}
+
+static inline void
 clutter_text_ensure_effective_attributes (ClutterText *self)
 {
   ClutterTextPrivate *priv = self->priv;
@@ -572,21 +617,25 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
   /* Same as if we don't have any attribute at all.
    * We also ignore markup attributes for editable. */
   if (priv->attrs == NULL && (priv->editable || priv->markup_attrs == NULL))
-    return;
+    {
+      set_effective_pango_attributes (self, NULL);
+      return;
+    }
 
   if (priv->attrs != NULL)
     {
       /* If there are no markup attributes, or if this is editable (in which
        * case we ignore markup), then we can just use these attrs directly */
       if (priv->editable || priv->markup_attrs == NULL)
-        priv->effective_attrs = pango_attr_list_ref (priv->attrs);
+        set_effective_pango_attributes (self, priv->attrs);
       else
         {
           /* Otherwise we need to merge the two lists */
+          PangoAttrList *effective_attrs;
           PangoAttrIterator *iter;
           GSList *attributes, *l;
 
-          priv->effective_attrs = pango_attr_list_copy (priv->markup_attrs);
+          effective_attrs = pango_attr_list_copy (priv->markup_attrs);
 
           iter = pango_attr_list_get_iterator (priv->attrs);
           do
@@ -597,7 +646,7 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
                 {
                   PangoAttribute *attr = l->data;
 
-                  pango_attr_list_insert (priv->effective_attrs, attr);
+                  pango_attr_list_insert (effective_attrs, attr);
                 }
 
               g_slist_free (attributes);
@@ -605,40 +654,16 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
           while (pango_attr_iterator_next (iter));
 
           pango_attr_iterator_destroy (iter);
+
+          set_effective_pango_attributes (self, effective_attrs);
+          pango_attr_list_unref (effective_attrs);
         }
     }
   else if (priv->markup_attrs != NULL)
     {
       /* We can just use the markup attributes directly */
-      priv->effective_attrs = pango_attr_list_ref (priv->markup_attrs);
+      set_effective_pango_attributes (self, priv->markup_attrs);
     }
-}
-
-static inline void
-ensure_text_scale_pango_attributes (ClutterText *self)
-{
-  ClutterTextPrivate *priv = self->priv;
-  float resource_scale;
-
-  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (self), &resource_scale) ||
-      resource_scale == 1.0)
-    {
-      return;
-    }
-
-  if (priv->effective_attrs != NULL)
-    {
-      PangoAttrList *old_attributes = priv->effective_attrs;
-      priv->effective_attrs = pango_attr_list_copy (old_attributes);
-      pango_attr_list_unref (old_attributes);
-    }
-  else
-    {
-      priv->effective_attrs = pango_attr_list_new ();
-    }
-
-  pango_attr_list_change (priv->effective_attrs,
-                          pango_attr_scale_new (resource_scale));
 }
 
 static PangoLayout *
@@ -722,7 +747,6 @@ clutter_text_create_layout_no_cache (ClutterText       *text,
   /* This will merge the markup attributes and the attributes
    * property if needed */
   clutter_text_ensure_effective_attributes (text);
-  ensure_text_scale_pango_attributes (text);
 
   if (priv->effective_attrs != NULL)
     pango_layout_set_attributes (layout, priv->effective_attrs);
