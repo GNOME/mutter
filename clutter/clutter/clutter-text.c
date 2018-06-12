@@ -599,7 +599,8 @@ set_effective_pango_attributes (ClutterText   *self,
 }
 
 static void
-ensure_effective_pango_scale_attribute (ClutterText *self)
+ensure_effective_pango_scale_attribute (ClutterText *self,
+                                        gboolean     change_inplace)
 {
   float resource_scale;
   ClutterTextPrivate *priv = self->priv;
@@ -612,11 +613,13 @@ ensure_effective_pango_scale_attribute (ClutterText *self)
     {
       PangoAttrIterator *iter;
       PangoAttribute *scale_attrib;
-      PangoAttrList *old_attributes;
 
-      old_attributes = priv->effective_attrs;
-      priv->effective_attrs = pango_attr_list_copy (priv->effective_attrs);
-      pango_attr_list_unref (old_attributes);
+      if (!change_inplace)
+        {
+          PangoAttrList *old_attributes = priv->effective_attrs;
+          priv->effective_attrs = pango_attr_list_copy (priv->effective_attrs);
+          pango_attr_list_unref (old_attributes);
+        }
 
       iter = pango_attr_list_get_iterator (priv->effective_attrs);
       scale_attrib = pango_attr_iterator_get (iter, PANGO_ATTR_SCALE);
@@ -648,7 +651,7 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
   if (priv->attrs == NULL && (priv->editable || priv->markup_attrs == NULL))
     {
       set_effective_pango_attributes (self, NULL);
-      ensure_effective_pango_scale_attribute (self);
+      ensure_effective_pango_scale_attribute (self, FALSE);
       return;
     }
 
@@ -659,7 +662,7 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
       if (priv->editable || priv->markup_attrs == NULL)
         {
           set_effective_pango_attributes (self, priv->attrs);
-          ensure_effective_pango_scale_attribute (self);
+          ensure_effective_pango_scale_attribute (self, FALSE);
         }
       else
         {
@@ -689,7 +692,7 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
           pango_attr_iterator_destroy (iter);
 
           set_effective_pango_attributes (self, effective_attrs);
-          ensure_effective_pango_scale_attribute (self);
+          ensure_effective_pango_scale_attribute (self, TRUE);
           pango_attr_list_unref (effective_attrs);
         }
     }
@@ -697,7 +700,7 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
     {
       /* We can just use the markup attributes directly */
       set_effective_pango_attributes (self, priv->markup_attrs);
-      ensure_effective_pango_scale_attribute (self);
+      ensure_effective_pango_scale_attribute (self, FALSE);
     }
 }
 
