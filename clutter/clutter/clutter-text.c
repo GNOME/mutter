@@ -561,7 +561,8 @@ clutter_text_get_display_text (ClutterText *self)
 
 static inline void
 set_effective_pango_attributes (ClutterText   *self,
-                                PangoAttrList *attributes)
+                                PangoAttrList *attributes,
+                                gboolean       change_inplace)
 {
   ClutterTextPrivate *priv = self->priv;
   float resource_scale;
@@ -583,11 +584,13 @@ set_effective_pango_attributes (ClutterText   *self,
     {
       PangoAttrIterator *iter;
       PangoAttribute *scale_attrib;
-      PangoAttrList *old_attributes;
 
-      old_attributes = priv->effective_attrs;
-      priv->effective_attrs = pango_attr_list_copy (attributes);
-      pango_attr_list_unref (old_attributes);
+      if (!change_inplace)
+        {
+          PangoAttrList *old_attributes = priv->effective_attrs;
+          priv->effective_attrs = pango_attr_list_copy (attributes);
+          pango_attr_list_unref (old_attributes);
+        }
 
       iter = pango_attr_list_get_iterator (priv->effective_attrs);
       scale_attrib = pango_attr_iterator_get (iter, PANGO_ATTR_SCALE);
@@ -618,7 +621,7 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
    * We also ignore markup attributes for editable. */
   if (priv->attrs == NULL && (priv->editable || priv->markup_attrs == NULL))
     {
-      set_effective_pango_attributes (self, NULL);
+      set_effective_pango_attributes (self, NULL, FALSE);
       return;
     }
 
@@ -627,7 +630,7 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
       /* If there are no markup attributes, or if this is editable (in which
        * case we ignore markup), then we can just use these attrs directly */
       if (priv->editable || priv->markup_attrs == NULL)
-        set_effective_pango_attributes (self, priv->attrs);
+        set_effective_pango_attributes (self, priv->attrs, FALSE);
       else
         {
           /* Otherwise we need to merge the two lists */
@@ -655,14 +658,14 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
 
           pango_attr_iterator_destroy (iter);
 
-          set_effective_pango_attributes (self, effective_attrs);
+          set_effective_pango_attributes (self, effective_attrs, TRUE);
           pango_attr_list_unref (effective_attrs);
         }
     }
   else if (priv->markup_attrs != NULL)
     {
       /* We can just use the markup attributes directly */
-      set_effective_pango_attributes (self, priv->markup_attrs);
+      set_effective_pango_attributes (self, priv->markup_attrs, FALSE);
     }
 }
 
