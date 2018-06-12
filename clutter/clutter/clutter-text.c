@@ -550,6 +550,24 @@ clutter_text_get_display_text (ClutterText *self)
     }
 }
 
+static void
+set_effective_pango_attributes (ClutterText   *self,
+                                PangoAttrList *attributes)
+{
+  ClutterTextPrivate *priv = self->priv;
+
+  if (attributes != NULL)
+    {
+      PangoAttrList *old_attributes = priv->effective_attrs;
+      priv->effective_attrs = pango_attr_list_ref (attributes);
+
+      if (old_attributes != NULL)
+        pango_attr_list_unref (old_attributes);
+    }
+  else
+    g_clear_pointer (&priv->effective_attrs, pango_attr_list_unref);
+}
+
 static inline void
 clutter_text_ensure_effective_attributes (ClutterText *self)
 {
@@ -563,21 +581,25 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
   /* Same as if we don't have any attribute at all.
    * We also ignore markup attributes for editable. */
   if (priv->attrs == NULL && (priv->editable || priv->markup_attrs == NULL))
-    return;
+    {
+      set_effective_pango_attributes (self, NULL);
+      return;
+    }
 
   if (priv->attrs != NULL)
     {
       /* If there are no markup attributes, or if this is editable (in which
        * case we ignore markup), then we can just use these attrs directly */
       if (priv->editable || priv->markup_attrs == NULL)
-        priv->effective_attrs = pango_attr_list_ref (priv->attrs);
+        set_effective_pango_attributes (self, priv->attrs);
       else
         {
           /* Otherwise we need to merge the two lists */
+          PangoAttrList *effective_attrs;
           PangoAttrIterator *iter;
           GSList *attributes, *l;
 
-          priv->effective_attrs = pango_attr_list_copy (priv->markup_attrs);
+          effective_attrs = pango_attr_list_copy (priv->markup_attrs);
 
           iter = pango_attr_list_get_iterator (priv->attrs);
           do
@@ -588,7 +610,7 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
                 {
                   PangoAttribute *attr = l->data;
 
-                  pango_attr_list_insert (priv->effective_attrs, attr);
+                  pango_attr_list_insert (effective_attrs, attr);
                 }
 
               g_slist_free (attributes);
@@ -596,12 +618,15 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
           while (pango_attr_iterator_next (iter));
 
           pango_attr_iterator_destroy (iter);
+
+          set_effective_pango_attributes (self, effective_attrs);
+          pango_attr_list_unref (effective_attrs);
         }
     }
   else if (priv->markup_attrs != NULL)
     {
       /* We can just use the markup attributes directly */
-      priv->effective_attrs = pango_attr_list_ref (priv->markup_attrs);
+      set_effective_pango_attributes (self, priv->markup_attrs);
     }
 }
 
