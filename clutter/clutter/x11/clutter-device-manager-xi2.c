@@ -1819,7 +1819,8 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
             _clutter_input_device_set_stage (device, NULL);
           }
 
-        _clutter_input_device_reset_scroll_info (source_device);
+        if (clutter_input_device_get_device_mode (source_device) == CLUTTER_INPUT_MODE_SLAVE)
+          _clutter_input_device_reset_scroll_info (source_device);
 
         clutter_event_set_device (event, device);
         clutter_event_set_source_device (event, source_device);
