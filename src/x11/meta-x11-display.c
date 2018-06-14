@@ -915,6 +915,9 @@ set_work_area_hint (MetaDisplay    *display,
   GList *l;
   unsigned long *data, *tmp;
   MetaRectangle area;
+  MetaBackend *backend;
+  MetaMonitorManager *monitor_manager;
+  GList *logical_monitors, *lm;
 
   num_workspaces = meta_workspace_manager_get_n_workspaces (workspace_manager);
   data = g_new (unsigned long, num_workspaces * 4);
@@ -940,6 +943,50 @@ set_work_area_hint (MetaDisplay    *display,
                    XA_CARDINAL, 32, PropModeReplace,
                    (guchar*) data, num_workspaces*4);
   meta_x11_error_trap_pop (x11_display);
+
+  backend = meta_get_backend ();
+  monitor_manager = meta_backend_get_monitor_manager (backend);
+  logical_monitors = meta_monitor_manager_get_logical_monitors (monitor_manager);
+
+  for (lm = logical_monitors; lm; lm = lm->next)
+    {
+      MetaLogicalMonitor *logical_monitor = lm->data;
+      int xinerama_index;
+      gchar *workarea_name;
+      Atom workarea_atom;
+
+      tmp = data;
+
+      for (l = workspace_manager->workspaces; l; l = l->next)
+        {
+          MetaWorkspace *workspace = l->data;
+
+          meta_workspace_get_work_area_for_logical_monitor (workspace,
+                                                            logical_monitor,
+                                                            &area);
+
+          tmp[0] = area.x;
+          tmp[1] = area.y;
+          tmp[2] = area.width;
+          tmp[3] = area.height;
+
+          tmp += 4;
+        }
+
+      xinerama_index = meta_x11_display_logical_monitor_to_xinerama_index (x11_display,
+                                                                           logical_monitor);
+      workarea_name = g_strdup_printf ("_NET_WORKAREA_M%d", xinerama_index);
+      workarea_atom = XInternAtom (x11_display->xdisplay, workarea_name, False);
+      g_free (workarea_name);
+
+      meta_x11_error_trap_push (x11_display);
+      XChangeProperty (x11_display->xdisplay,
+                       x11_display->xroot,
+                       workarea_atom,
+                       XA_CARDINAL, 32, PropModeReplace,
+                       (guchar*) data, num_workspaces*4);
+      meta_x11_error_trap_pop (x11_display);
+    }
 
   g_free (data);
 }
