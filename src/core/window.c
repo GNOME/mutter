@@ -4734,7 +4734,7 @@ set_workspace_state (MetaWindow    *window,
   /* queue a move_resize since changing workspaces may change
    * the relevant struts
    */
-  if (!window->override_redirect)
+  if (!window->override_redirect && window != window->display->grab_window)
     meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
   meta_window_queue (window, META_QUEUE_CALC_SHOWING);
   meta_window_current_workspace_changed (window);
