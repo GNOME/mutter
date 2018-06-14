@@ -1,0 +1,20 @@
+image: fedora:latest
+
+stages:
+ - build
+
+before_script:
+  - dnf update -y
+  - dnf upgrade -y
+  - dnf install -y 'dnf-command(builddep)'
+  - dnf builddep -y mutter
+  - dnf install -y intltool gcc redhat-rpm-config make
+
+build-mutter:
+  stage: build
+  script:
+    - env NOCONFIGURE=1 ./autogen.sh
+    - mkdir build
+    - cd build
+    - ../configure --enable-egl-device --enable-debug --enable-remote-desktop --enable-egl --enable-unit-tests
+    - make -j9
