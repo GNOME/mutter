@@ -1902,6 +1902,9 @@ set_work_area_hint (MetaScreen *screen)
   GList *l;
   unsigned long *data, *tmp;
   MetaRectangle area;
+  MetaBackend *backend;
+  MetaMonitorManager *monitor_manager;
+  GList *logical_monitors, *lm;
 
   num_workspaces = meta_screen_get_n_workspaces (screen);
   data = g_new (unsigned long, num_workspaces * 4);
@@ -1925,8 +1928,51 @@ set_work_area_hint (MetaScreen *screen)
 		   screen->display->atom__NET_WORKAREA,
 		   XA_CARDINAL, 32, PropModeReplace,
 		   (guchar*) data, num_workspaces*4);
-  g_free (data);
   meta_error_trap_pop (screen->display);
+
+  backend = meta_get_backend ();
+  monitor_manager = meta_backend_get_monitor_manager (backend);
+  logical_monitors = meta_monitor_manager_get_logical_monitors (monitor_manager);
+
+  for (lm = logical_monitors; lm; lm = lm->next)
+    {
+      MetaLogicalMonitor *logical_monitor = lm->data;
+      int xinerama_index;
+      gchar *workarea_name;
+      Atom workarea_atom;
+
+      tmp = data;
+
+      for (l = screen->workspaces; l != NULL; l = l->next)
+        {
+          MetaWorkspace *workspace = l->data;
+
+          meta_workspace_get_work_area_for_logical_monitor (workspace,
+                                                            logical_monitor,
+                                                            &area);
+
+          tmp[0] = area.x;
+          tmp[1] = area.y;
+          tmp[2] = area.width;
+          tmp[3] = area.height;
+
+          tmp += 4;
+        }
+
+      xinerama_index = meta_screen_logical_monitor_to_xinerama_index (screen,
+                                                                      logical_monitor);
+      workarea_name = g_strdup_printf ("_NET_WORKAREA_M%d", xinerama_index);
+      workarea_atom = XInternAtom (screen->display->xdisplay, workarea_name, False);
+      g_free (workarea_name);
+
+      meta_error_trap_push (screen->display);
+      XChangeProperty (screen->display->xdisplay, screen->xroot, workarea_atom,
+                       XA_CARDINAL, 32, PropModeReplace,
+                       (guchar *) data, num_workspaces * 4);
+      meta_error_trap_pop (screen->display);
+    }
+
+  g_free (data);
 
   g_signal_emit (screen, screen_signals[WORKAREAS_CHANGED], 0);
 }
