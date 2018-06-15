@@ -360,9 +360,9 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
     ":", spa_type->format_video.format, "I", spa_type->video_format.BGRx,
     ":", spa_type->format_video.size, "R", &SPA_RECTANGLE (width, height),
     ":", spa_type->format_video.framerate, "F", &SPA_FRACTION (0, 1),
-    ":", spa_type->format_video.max_framerate, "Fr", &max_framerate,
-                                                     PROP_RANGE (&min_framerate,
-                                                                 &max_framerate));
+    ":", spa_type->format_video.max_framerate, "Fru", &max_framerate,
+                                                      PROP_RANGE (&min_framerate,
+                                                                  &max_framerate));
 
   pw_stream_add_listener (pipewire_stream,
                           &priv->pipewire_stream_listener,
