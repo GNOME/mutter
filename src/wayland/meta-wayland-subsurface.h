@@ -38,4 +38,6 @@ void meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
 
 void meta_wayland_subsurfaces_init (MetaWaylandCompositor *compositor);
 
+MetaWaylandSurface * meta_wayland_subsurface_get_toplevel (MetaWaylandSurfaceRole *surface_role);
+
 #endif /* META_WAYLAND_SUBSURFACE_H */
