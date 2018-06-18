@@ -579,6 +579,9 @@ meta_xdg_output_manager_get_xdg_output (struct wl_client   *client,
   if (!wayland_output)
     return;
 
+  if (!wayland_output->logical_monitor)
+    return;
+
   wayland_output->xdg_output_resources =
     g_list_prepend (wayland_output->xdg_output_resources, xdg_output_resource);
 
