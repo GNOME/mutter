@@ -53,10 +53,8 @@ meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_su
 
   texture = meta_wayland_buffer_get_texture (buffer);
   geometry = (MetaRectangle) {
-    .x = 0,
-    .y = 0,
-    .width = cogl_texture_get_width (texture) / surface->scale,
-    .height = cogl_texture_get_height (texture) / surface->scale,
+    .width  = meta_wayland_surface_get_surface_width (surface),
+    .height = meta_wayland_surface_get_surface_height (surface),
   };
 
   for (l = surface->subsurfaces; l; l = l->next)
