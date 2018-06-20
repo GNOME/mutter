@@ -153,6 +153,7 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
   uint32_t *connectors;
   unsigned int n_connectors;
   drmModeModeInfo *mode;
+  MetaCrtcKmsScanouts *scanouts;
   uint32_t fb_id = kms_fb ? meta_kms_framebuffer_get_fb_id (kms_fb) : 0;
 
   get_crtc_drm_connectors (gpu, crtc, &connectors, &n_connectors);
@@ -177,19 +178,19 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
       return FALSE;
     }
 
-  g_set_object (&crtc->previous_scanout, crtc->current_scanout);
-
-  if (kms_fb)
-    g_set_object (&crtc->current_scanout, G_OBJECT (kms_fb));
-  else
-    g_clear_object (&crtc->current_scanout);
-
-  if (crtc->next_scanout_closure)
+  scanouts = meta_crtc_kms_get_scanouts (crtc);
+  g_set_object (&scanouts->previous, scanouts->current);
+  g_set_object (&scanouts->current, kms_fb);
+  if (scanouts->next_closure)
     {
-      invoke_flip_closure (crtc->next_scanout_closure, gpu_kms);
-      crtc->next_scanout_closure = NULL;
+      /*
+       * FIXME? next_closure is canceled but this invoke is required to satisfy
+       *        the (broken?) counters in meta-renderer-native.c
+       */
+      invoke_flip_closure (scanouts->next_closure, gpu_kms);
+      scanouts->next_closure = NULL;
     }
-  g_clear_object (&crtc->next_scanout);
+  g_clear_object (&scanouts->next);
 
   g_free (connectors);
 
@@ -268,6 +269,7 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
+  MetaCrtcKmsScanouts *scanouts = meta_crtc_kms_get_scanouts (crtc);
   uint32_t *connectors;
   unsigned int n_connectors;
   int ret = -1;
@@ -279,7 +281,7 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
   g_free (connectors);
 
   /*
-   * If a monitor was unplugged while we had a deferred frame (next_scanout)
+   * If a monitor was unplugged while we had a deferred frame (scanouts->next)
    * then this may happen as we are called from page_flip_handler. But we
    * can recover; just ignore the frame we can't display. The caller will
    * free it.
@@ -305,17 +307,17 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
         {
           meta_gpu_kms_flip_closure_container_free (closure_container);
 
-          /* Drop previously queued frame crtc->next_scanout (if any) */
-          g_set_object (&crtc->next_scanout, G_OBJECT (kms_fb));
+          /* Drop previously queued frame (if any) */
+          g_set_object (&scanouts->next, kms_fb);
           /*
-           * FIXME? This invoke is required to satisfy the (broken?)
-           *        counters in meta-renderer-native.c
+           * FIXME? next_closure is canceled but this invoke is required to
+           *        satisfy the (broken?) counters in meta-renderer-native.c
            */
-          if (crtc->next_scanout_closure)
-            invoke_flip_closure (crtc->next_scanout_closure, gpu_kms);
-          crtc->next_scanout_closure = g_closure_ref (flip_closure);
-          crtc->next_scanout_x = x;
-          crtc->next_scanout_y = y;
+          if (scanouts->next_closure)
+            invoke_flip_closure (scanouts->next_closure, gpu_kms);
+          scanouts->next_closure = g_closure_ref (flip_closure);
+          scanouts->next_x = x;
+          scanouts->next_y = y;
 
           *fb_in_use = TRUE;
           return TRUE;
@@ -341,19 +343,19 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
     return FALSE;
 
   /*
-   * If next_scanout is set then won a race against MetaKmsSource. That's OK
+   * If scanouts->next is set then won a race against MetaKmsSource. That's OK
    * because the frame we just scheduled is newer. Just make sure we drop
    * that older frame which was queued. We no longer need to display it at all.
    */
-  if (crtc->next_scanout_closure)
+  if (scanouts->next_closure)
     {
-      invoke_flip_closure (crtc->next_scanout_closure, gpu_kms);
-      crtc->next_scanout_closure = NULL;
+      invoke_flip_closure (scanouts->next_closure, gpu_kms);
+      scanouts->next_closure = NULL;
     }
-  g_clear_object (&crtc->next_scanout);
+  g_clear_object (&scanouts->next);
 
-  g_set_object (&crtc->previous_scanout, crtc->current_scanout);
-  g_set_object (&crtc->current_scanout, G_OBJECT (kms_fb));
+  g_set_object (&scanouts->previous, scanouts->current);
+  g_set_object (&scanouts->current, kms_fb);
 
   *fb_in_use = TRUE;
   g_closure_ref (flip_closure);
@@ -375,24 +377,30 @@ page_flip_handler (int           fd,
 
   invoke_flip_closure (flip_closure, gpu_kms);
 
-  if (crtc && crtc->next_scanout)
+  if (crtc)
     {
-      gboolean fb_in_use;
-      MetaKmsFramebuffer *next_fb = META_KMS_FRAMEBUFFER (crtc->next_scanout);
-      GClosure *next_closure = crtc->next_scanout_closure;
-      crtc->next_scanout = NULL;
-      crtc->next_scanout_closure = NULL;
+      MetaCrtcKmsScanouts *scanouts = meta_crtc_kms_get_scanouts (crtc);
 
-      meta_gpu_kms_flip_crtc (gpu_kms,
-                              crtc,
-                              crtc->next_scanout_x,
-                              crtc->next_scanout_y,
-                              next_fb,
-                              next_closure,
-                              &fb_in_use);
+      if (scanouts->next)
+        {
+          gboolean fb_in_use;
+          MetaKmsFramebuffer *next_fb = scanouts->next;
+          GClosure *next_closure = scanouts->next_closure;
 
-      g_object_unref (next_fb);
-      g_closure_unref (next_closure);
+          scanouts->next = NULL;
+          scanouts->next_closure = NULL;
+
+          meta_gpu_kms_flip_crtc (gpu_kms,
+                                  crtc,
+                                  scanouts->next_x,
+                                  scanouts->next_y,
+                                  next_fb,
+                                  next_closure,
+                                  &fb_in_use);
+
+          g_object_unref (next_fb);
+          g_closure_unref (next_closure);
+        }
     }
 
   meta_gpu_kms_flip_closure_container_free (closure_container);
