@@ -365,7 +365,8 @@ buffer_params_create_common (struct wl_client   *client,
                                   dma_buf, NULL);
   buffer = meta_wayland_buffer_from_resource (buffer_resource);
 
-  if (!meta_wayland_buffer_attach (buffer, &error))
+  if (!meta_wayland_buffer_realize (buffer) ||
+      !meta_wayland_buffer_attach (buffer, &error))
     {
       if (buffer_id == 0)
         {
