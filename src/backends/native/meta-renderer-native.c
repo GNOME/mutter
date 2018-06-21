@@ -172,7 +172,6 @@ typedef struct _MetaOnscreenNative
   } egl;
 #endif
 
-  gboolean pending_queue_swap_notify;
   gboolean pending_swap_notify;
 
   gboolean pending_set_crtc;
@@ -200,6 +199,13 @@ struct _MetaRendererNative
   int64_t frame_counter;
   gboolean pending_unset_disabled_crtcs;
 };
+
+typedef struct _MultimonitorFlip
+{
+  MetaRendererView *view;
+  gboolean          fb_in_use;
+  int               completed_count;
+} MultimonitorFlip;
 
 static void
 initable_iface_init (GInitableIface *initable_iface);
@@ -1155,15 +1161,15 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
 static void
 on_crtc_flipped (GClosure         *closure,
                  MetaGpuKms       *gpu_kms,
-                 MetaRendererView *view)
+                 MultimonitorFlip *flip)
 {
+  MetaRendererView *view = flip->view;
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
   CoglFramebuffer *framebuffer =
     clutter_stage_view_get_onscreen (stage_view);
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   CoglOnscreenEGL *onscreen_egl =  onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
 
   if (gpu_kms != render_gpu)
@@ -1175,28 +1181,9 @@ on_crtc_flipped (GClosure         *closure,
     }
 
   onscreen_native->total_pending_flips--;
-  if (onscreen_native->total_pending_flips == 0)
-    {
-      MetaRendererNativeGpuData *renderer_gpu_data;
-
-      onscreen_native->pending_queue_swap_notify = FALSE;
-
-      meta_onscreen_native_queue_swap_notify (onscreen);
-
-      renderer_gpu_data =
-        meta_renderer_native_get_gpu_data (renderer_native,
-                                           onscreen_native->render_gpu);
-      switch (renderer_gpu_data->mode)
-        {
-        case META_RENDERER_NATIVE_MODE_GBM:
-          meta_onscreen_native_swap_drm_fb (onscreen);
-          break;
-#ifdef HAVE_EGL_DEVICE
-        case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-          break;
-#endif
-        }
-    }
+  flip->completed_count++;
+  if (flip->completed_count == 1)
+    meta_onscreen_native_queue_swap_notify (onscreen);
 }
 
 static void
@@ -1227,8 +1214,9 @@ free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
 }
 
 static void
-flip_closure_destroyed (MetaRendererView *view)
+flip_closure_destroyed (MultimonitorFlip *flip)
 {
+  MetaRendererView *view = flip->view;
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
   CoglFramebuffer *framebuffer =
     clutter_stage_view_get_onscreen (stage_view);
@@ -1239,11 +1227,18 @@ flip_closure_destroyed (MetaRendererView *view)
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
+  /* In case all CRTCs were reset and no actual flips completed... */
+  if (flip->fb_in_use && !flip->completed_count)
+    meta_onscreen_native_queue_swap_notify (onscreen);
+
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
+      if (flip->fb_in_use)
+        meta_onscreen_native_swap_drm_fb (onscreen);
+
       if (onscreen_native->gbm.next_fb_id)
         {
           int kms_fd;
@@ -1267,13 +1262,8 @@ flip_closure_destroyed (MetaRendererView *view)
 #endif
     }
 
-  if (onscreen_native->pending_queue_swap_notify)
-    {
-      meta_onscreen_native_queue_swap_notify (onscreen);
-      onscreen_native->pending_queue_swap_notify = FALSE;
-    }
-
-  g_object_unref (view);
+  g_object_unref (flip->view);
+  g_free (flip);
 }
 
 #ifdef HAVE_EGL_DEVICE
@@ -1524,6 +1514,9 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   GClosure *flip_closure;
   MetaLogicalMonitor *logical_monitor;
   gboolean fb_in_use = FALSE;
+  MultimonitorFlip *flip = g_new0 (MultimonitorFlip, 1);
+
+  flip->view = g_object_ref (view);
 
   /*
    * Create a closure that either will be invoked or destructed.
@@ -1536,7 +1529,7 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
    * closure will be destructed before this function goes out of scope.
    */
   flip_closure = g_cclosure_new (G_CALLBACK (on_crtc_flipped),
-                                 g_object_ref (view),
+                                 flip,
                                  (GClosureNotify) flip_closure_destroyed);
   g_closure_set_marshal (flip_closure, g_cclosure_marshal_VOID__OBJECT);
 
@@ -1573,29 +1566,10 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   /*
    * If the framebuffer is in use, but we don't have any pending flips it means
    * that flipping is not supported and we set the next framebuffer directly.
-   * Since we won't receive a flip callback, lets just notify listeners
-   * directly.
+   * Since we won't receive a flip callback, let's just make sure that we
+   * notify listeners eventually, in flip_closure_destroyed.
    */
-  if (fb_in_use && onscreen_native->total_pending_flips == 0)
-    {
-      MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-      MetaRendererNativeGpuData *renderer_gpu_data;
-
-      renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                             render_gpu);
-      switch (renderer_gpu_data->mode)
-        {
-        case META_RENDERER_NATIVE_MODE_GBM:
-          meta_onscreen_native_swap_drm_fb (onscreen);
-          break;
-#ifdef HAVE_EGL_DEVICE
-        case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-          break;
-#endif
-        }
-    }
-
-  onscreen_native->pending_queue_swap_notify = TRUE;
+  flip->fb_in_use = fb_in_use;
 
   g_closure_unref (flip_closure);
 }
