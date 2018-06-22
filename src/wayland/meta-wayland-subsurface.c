@@ -165,8 +165,8 @@ meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
   geometry = (MetaRectangle) {
     .x = surface->offset_x + surface->sub.x,
     .y = surface->offset_y + surface->sub.y,
-    .width = cogl_texture_get_width (texture) / surface->scale,
-    .height = cogl_texture_get_height (texture) / surface->scale,
+    .width = meta_wayland_surface_get_width (surface),
+    .height = meta_wayland_surface_get_height (surface),
   };
 
   meta_rectangle_union (out_geometry, &geometry, out_geometry);
