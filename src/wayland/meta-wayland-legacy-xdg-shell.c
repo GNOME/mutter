@@ -1304,8 +1304,25 @@ meta_wayland_zxdg_surface_v6_commit (MetaWaylandSurfaceRole  *surface_role,
 
   if (pending->has_new_geometry)
     {
-      /* If we have new geometry, use it. */
-      priv->geometry = pending->new_geometry;
+      /* If we have new geometry, use it.
+       * Clamp to the bounding rectangle of the combined geometry of the
+       * surface of the xdg_surface and the associated subsurfaces. */
+      MetaRectangle bounding_geometry = { 0 };
+      meta_wayland_shell_surface_calculate_pending_geometry (shell_surface,
+                                                             &bounding_geometry);
+
+      if(bounding_geometry.width > 0)
+        {
+          bounding_geometry.x = pending->new_geometry.x;
+          bounding_geometry.y = pending->new_geometry.y;
+          meta_rectangle_intersect(&pending->new_geometry, &bounding_geometry,
+                                   &pending->new_geometry);
+        }
+
+      if (!meta_rectangle_equal (&pending->new_geometry, &priv->geometry))
+        {
+          priv->geometry = pending->new_geometry;
+        }
       priv->has_set_geometry = TRUE;
     }
   else if (!priv->has_set_geometry)
@@ -1315,8 +1332,8 @@ meta_wayland_zxdg_surface_v6_commit (MetaWaylandSurfaceRole  *surface_role,
       /* If the surface has never set any geometry, calculate
        * a default one unioning the surface and all subsurfaces together. */
 
-      meta_wayland_shell_surface_calculate_geometry (shell_surface,
-                                                     &new_geometry);
+      meta_wayland_shell_surface_calculate_pending_geometry (shell_surface,
+                                                             &new_geometry);
       if (!meta_rectangle_equal (&new_geometry, &priv->geometry))
         {
           pending->has_new_geometry = TRUE;
