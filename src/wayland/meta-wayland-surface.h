@@ -34,6 +34,7 @@
 #include "meta-wayland-pointer-constraints.h"
 
 typedef struct _MetaWaylandPendingState MetaWaylandPendingState;
+typedef struct _MetaWaylandBufferViewport MetaWaylandBufferViewport;
 
 #define META_TYPE_WAYLAND_SURFACE (meta_wayland_surface_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandSurface,
@@ -76,6 +77,29 @@ G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleDND,
                       META, WAYLAND_SURFACE_ROLE_DND,
                       MetaWaylandSurfaceRole);
 
+struct _MetaWaylandBufferViewport
+{
+  gboolean changed;
+  struct {
+    uint32_t transform;
+
+    int32_t scale;
+
+    /*
+     * If src_width != wl_fixed_from_int(-1),
+     * then and only then src_* are used.
+     */
+    cairo_rectangle_int_t src_rect;
+  } buffer;
+
+  struct {
+    /*
+     * If width == -1, the size is inferred from the buffer.
+     */
+    int32_t width, height;
+  } surface;
+};
+
 struct _MetaWaylandPendingState
 {
   GObject parent;
@@ -112,6 +136,8 @@ struct _MetaWaylandPendingState
   gboolean has_new_max_size;
   int new_max_width;
   int new_max_height;
+
+  MetaWaylandBufferViewport buffer_viewport;
 };
 
 struct _MetaWaylandDragDestFuncs
@@ -145,12 +171,15 @@ struct _MetaWaylandSurface
   int32_t offset_x, offset_y;
   GList *subsurfaces;
   GHashTable *outputs_to_destroy_notify_id;
+  struct wl_resource *viewport_resource;
 
   /* Buffer reference state. */
   struct {
     MetaWaylandBuffer *buffer;
     unsigned int use_count;
   } buffer_ref;
+
+  MetaWaylandBufferViewport buffer_viewport;
 
   /* Buffer renderer state. */
   gboolean buffer_held;
