@@ -643,10 +643,9 @@ default_grab_key (MetaWaylandKeyboardGrab *grab,
   MetaBackend *backend = meta_get_backend ();
 #endif
 
-  /* Synthetic key events are for autorepeat. Ignore those, as
-   * autorepeat in Wayland is done on the client side. */
-  if ((event->key.flags & CLUTTER_EVENT_FLAG_SYNTHETIC) &&
-      !(event->key.flags & CLUTTER_EVENT_FLAG_INPUT_METHOD))
+  /* Ignore autorepeat events, as autorepeat in Wayland is done on the client
+   * side. */
+  if (event->key.flags & CLUTTER_EVENT_FLAG_REPEATED)
     return FALSE;
 
 #ifdef HAVE_NATIVE_BACKEND
