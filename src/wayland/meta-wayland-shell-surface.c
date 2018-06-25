@@ -35,28 +35,19 @@ G_DEFINE_ABSTRACT_TYPE (MetaWaylandShellSurface,
                         META_TYPE_WAYLAND_ACTOR_SURFACE)
 
 void
-meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_surface,
-                                               MetaRectangle           *out_geometry)
+meta_wayland_shell_surface_calculate_pending_geometry (MetaWaylandShellSurface *shell_surface,
+                                                       MetaRectangle           *out_geometry)
 {
   MetaWaylandSurfaceRole *surface_role =
     META_WAYLAND_SURFACE_ROLE (shell_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
-  MetaWaylandBuffer *buffer;
-  CoglTexture *texture;
   MetaRectangle geometry;
   GList *l;
 
-  buffer = surface->buffer_ref.buffer;
-  if (!buffer)
-    return;
-
-  texture = meta_wayland_buffer_get_texture (buffer);
   geometry = (MetaRectangle) {
-    .x = 0,
-    .y = 0,
-    .width = cogl_texture_get_width (texture) / surface->scale,
-    .height = cogl_texture_get_height (texture) / surface->scale,
+    .width  = meta_wayland_surface_get_pending_width (surface),
+    .height = meta_wayland_surface_get_pending_height (surface),
   };
 
   for (l = surface->subsurfaces; l; l = l->next)
