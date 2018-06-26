@@ -53,6 +53,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "backends/meta-settings-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "core/frame.h"
 #include "core/meta-workspace-manager-private.h"
@@ -1343,14 +1344,6 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
 
   set_x11_bell_is_audible (x11_display, meta_prefs_bell_is_audible ());
 
-  if (!meta_is_wayland_compositor ())
-    {
-      update_cursor_size_from_gtk (gtk_settings_get_default (), NULL, NULL);
-
-      g_signal_connect_object (gtk_settings_get_default (), "notify::gtk-cursor-theme-size",
-                               G_CALLBACK (update_cursor_size_from_gtk), NULL, 0);
-    }
-
   return x11_display;
 }
 
@@ -1490,8 +1483,13 @@ meta_x11_display_reload_cursor (MetaX11Display *x11_display)
 static void
 set_cursor_theme (Display *xdisplay)
 {
+  MetaBackend *backend = meta_get_backend ();
+  MetaSettings *settings = meta_backend_get_settings (backend);
+  int scale;
+
+  scale = meta_settings_get_ui_scaling_factor (settings);
   XcursorSetTheme (xdisplay, meta_prefs_get_cursor_theme ());
-  XcursorSetDefaultSize (xdisplay, meta_prefs_get_cursor_size ());
+  XcursorSetDefaultSize (xdisplay, meta_prefs_get_cursor_size () * scale);
 }
 
 static void
