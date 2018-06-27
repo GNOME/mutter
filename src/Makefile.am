@@ -52,6 +52,8 @@ mutter_built_sources = \
 	meta/meta-enum-types.h			\
 	meta-enum-types.c			\
 	meta-default-modes.h			\
+	meta/meta-marshal.c			\
+	meta/meta-marshal.h			\
 	$(NULL)
 
 if HAVE_REMOTE_DESKTOP
@@ -680,8 +682,9 @@ pkgconfig_DATA = libmutter-$(LIBMUTTER_API_VERSION).pc
 EXTRA_DIST +=					\
 	$(wayland_protocols)			\
 	libmutter.pc.in				\
-	meta/meta-enum-types.h.in			\
-	meta/meta-enum-types.c.in			\
+	meta/meta-enum-types.h.in		\
+	meta/meta-enum-types.c.in		\
+	meta/meta-marshal.list			\
 	org.freedesktop.login1.xml		\
 	org.gnome.Mutter.DisplayConfig.xml	\
 	org.gnome.Mutter.IdleMonitor.xml	\
@@ -695,7 +698,10 @@ BUILT_SOURCES =					\
 	$(libmutterinclude_built_headers)
 
 MUTTER_STAMP_FILES = stamp-meta-enum-types.h
-CLEANFILES += $(MUTTER_STAMP_FILES)
+CLEANFILES +=					\
+	$(MUTTER_STAMP_FILES)			\
+	meta/meta-marshal.c			\
+	meta/meta-marshal.h
 
 meta/meta-enum-types.h: stamp-meta-enum-types.h Makefile
 	@true
@@ -791,3 +797,20 @@ endef
 	$(AM_V_GEN)$(WAYLAND_SCANNER) server-header $< $@
 %-server-protocol.h : $(WAYLAND_EGLSTREAM_DATADIR)/%.xml
 	$(AM_V_GEN)$(WAYLAND_SCANNER) server-header $< $@
+
+meta_marshal_opts = --prefix=meta_marshal --internal
+
+meta/meta-marshal.h: meta/meta-marshal.list
+	$(AM_V_GEN)$(GLIB_GENMARSHAL) \
+		--header \
+		$(meta_marshal_opts) \
+		--output=$@ \
+		$<
+
+meta/meta-marshal.c: meta/meta-marshal.list meta/meta-marshal.h
+	$(AM_V_GEN)$(GLIB_GENMARSHAL) \
+		--include-header=meta/meta-marshal.h \
+		$(meta_marshal_opts) \
+		--body \
+		--output=$@ \
+		$<
