@@ -713,6 +713,7 @@ subdir('meta')
 
 mutter_built_sources += mutter_enum_types
 mutter_built_sources += mutter_version
+mutter_built_sources += mutter_marshal
 
 libmutter_name = 'mutter-' + libmutter_api_version
 libmutter = shared_library(libmutter_name,
