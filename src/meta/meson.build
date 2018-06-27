@@ -80,3 +80,9 @@ mutter_version = configure_file(
   install_dir: mutter_includedir,
   install: true,
 )
+
+mutter_marshal = gnome.genmarshal('meta-marshal',
+  sources: ['meta-marshal.list'],
+  prefix: 'meta_marshal',
+  internal: true,
+)
