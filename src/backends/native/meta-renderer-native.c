@@ -1178,6 +1178,10 @@ on_crtc_flipped (GClosure         *closure,
   if (onscreen_native->total_pending_flips == 0)
     {
       MetaRendererNativeGpuData *renderer_gpu_data;
+      CoglFrameInfo *frame_info =
+        g_queue_peek_tail (&onscreen->pending_frame_infos);
+
+      frame_info->presentation_time = meta_gpu_kms_get_last_flip_time (gpu_kms);
 
       onscreen_native->pending_queue_swap_notify = FALSE;
 
@@ -1344,6 +1348,21 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
   MetaGpuKms *gpu_kms;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state = NULL;
   uint32_t fb_id;
+
+  if (crtc->current_mode)
+    {
+      CoglFrameInfo *frame_info =
+        g_queue_peek_tail (&onscreen->pending_frame_infos);
+
+      /* It's important to get the refresh rate from the current mode and not
+       * try to measure it from presentation times. It's likely that previous
+       * frames were not at the full rate, so in measuring presentation times we
+       * would get too large an interval and never reach the maximum/native
+       * frame rate. Always aim for the native refresh rate...
+       */
+      if (crtc->current_mode->refresh_rate > frame_info->refresh_rate)
+        frame_info->refresh_rate = crtc->current_mode->refresh_rate;
+    }
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   if (!meta_gpu_kms_is_crtc_active (gpu_kms, crtc))
@@ -2654,6 +2673,15 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer,
   return fb;
 }
 
+static int64_t
+meta_context_native_get_clock_time (CoglContext *context)
+{
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (context);
+  MetaGpuKms *gpu_kms = cogl_renderer->custom_winsys_user_data;
+
+  return meta_gpu_kms_get_current_time (gpu_kms);
+}
+
 static const CoglWinsysVtable *
 get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
 {
@@ -2681,6 +2709,8 @@ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
       vtable.onscreen_swap_region = NULL;
       vtable.onscreen_swap_buffers_with_damage =
         meta_onscreen_native_swap_buffers_with_damage;
+
+      vtable.context_get_clock_time = meta_context_native_get_clock_time;
 
       vtable_inited = TRUE;
     }

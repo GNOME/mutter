@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <poll.h>
 #include <string.h>
+#include <time.h>
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
@@ -68,6 +69,9 @@ struct _MetaGpuKms
   int max_buffer_height;
 
   gboolean page_flips_not_supported;
+
+  clockid_t clock_id;
+  int64_t last_flip_time;  /* relative to clock_id */
 };
 
 G_DEFINE_TYPE (MetaGpuKms, meta_gpu_kms, META_TYPE_GPU)
@@ -302,6 +306,8 @@ page_flip_handler (int           fd,
   GClosure *flip_closure = closure_container->flip_closure;
   MetaGpuKms *gpu_kms = closure_container->gpu_kms;
 
+  gpu_kms->last_flip_time = ((int64_t) sec) * 1000000000 + usec * 1000;
+
   invoke_flip_closure (flip_closure, gpu_kms);
   meta_gpu_kms_flip_closure_container_free (closure_container);
 }
@@ -373,6 +379,34 @@ const char *
 meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms)
 {
   return gpu_kms->file_path;
+}
+
+int64_t
+meta_gpu_kms_get_current_time (MetaGpuKms *gpu_kms)
+{
+  int64_t ret = 0;
+  struct timespec ts;
+
+  if (gpu_kms->clock_id < 0)
+    {
+      uint64_t mono;
+
+      if (drmGetCap (gpu_kms->fd, DRM_CAP_TIMESTAMP_MONOTONIC, &mono))
+        mono = 0;
+
+      gpu_kms->clock_id = mono ? CLOCK_MONOTONIC : CLOCK_REALTIME;
+    }
+
+  if (!clock_gettime (gpu_kms->clock_id, &ts))
+    ret = ((int64_t) ts.tv_sec) * 1000000000 + ts.tv_nsec;
+
+  return ret;
+}
+
+int64_t
+meta_gpu_kms_get_last_flip_time (MetaGpuKms *gpu_kms)
+{
+  return gpu_kms->last_flip_time;
 }
 
 void
@@ -849,6 +883,7 @@ static void
 meta_gpu_kms_init (MetaGpuKms *gpu_kms)
 {
   gpu_kms->fd = -1;
+  gpu_kms->clock_id = -1;
 }
 
 static void
