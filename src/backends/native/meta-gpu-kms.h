@@ -73,6 +73,8 @@ int meta_gpu_kms_get_fd (MetaGpuKms *gpu_kms);
 
 const char * meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms);
 
+int64_t meta_gpu_kms_get_current_time_ns (MetaGpuKms *gpu_kms);
+
 void meta_gpu_kms_get_max_buffer_size (MetaGpuKms *gpu_kms,
                                        int        *max_width,
                                        int        *max_height);
@@ -89,6 +91,7 @@ gboolean meta_drm_mode_equal (const drmModeModeInfo *one,
 float meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *mode);
 
 MetaGpuKmsFlipClosureContainer * meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
+                                                                 MetaCrtc   *crtc,
                                                                  GClosure   *flip_closure);
 
 void meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container);
