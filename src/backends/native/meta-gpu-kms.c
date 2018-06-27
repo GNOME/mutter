@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <poll.h>
 #include <string.h>
+#include <time.h>
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
@@ -51,6 +52,7 @@ typedef struct _MetaGpuKmsFlipClosureContainer
 {
   GClosure *flip_closure;
   MetaGpuKms *gpu_kms;
+  MetaCrtc *crtc;
 } MetaGpuKmsFlipClosureContainer;
 
 struct _MetaGpuKms
@@ -60,6 +62,8 @@ struct _MetaGpuKms
   int fd;
   char *file_path;
   GSource *source;
+
+  clockid_t clock_id;
 
   drmModeConnector **connectors;
   unsigned int n_connectors;
@@ -165,18 +169,26 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms *gpu_kms,
 
 static void
 invoke_flip_closure (GClosure   *flip_closure,
-                     MetaGpuKms *gpu_kms)
+                     MetaGpuKms *gpu_kms,
+                     MetaCrtc   *crtc,
+                     int64_t     page_flip_time_ns)
 {
   GValue params[] = {
     G_VALUE_INIT,
-    G_VALUE_INIT
+    G_VALUE_INIT,
+    G_VALUE_INIT,
+    G_VALUE_INIT,
   };
 
   g_value_init (&params[0], G_TYPE_POINTER);
   g_value_set_pointer (&params[0], flip_closure);
   g_value_init (&params[1], G_TYPE_OBJECT);
   g_value_set_object (&params[1], gpu_kms);
-  g_closure_invoke (flip_closure, NULL, 2, params, NULL);
+  g_value_init (&params[2], G_TYPE_OBJECT);
+  g_value_set_object (&params[2], crtc);
+  g_value_init (&params[3], G_TYPE_INT64);
+  g_value_set_int64 (&params[3], page_flip_time_ns);
+  g_closure_invoke (flip_closure, NULL, 4, params, NULL);
   g_closure_unref (flip_closure);
 }
 
@@ -216,6 +228,7 @@ meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
 
 MetaGpuKmsFlipClosureContainer *
 meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
+                                MetaCrtc   *crtc,
                                 GClosure   *flip_closure)
 {
   MetaGpuKmsFlipClosureContainer *closure_container;
@@ -223,7 +236,8 @@ meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
   closure_container = g_new0 (MetaGpuKmsFlipClosureContainer, 1);
   *closure_container = (MetaGpuKmsFlipClosureContainer) {
     .flip_closure = flip_closure,
-    .gpu_kms = gpu_kms
+    .gpu_kms = gpu_kms,
+    .crtc = crtc
   };
 
   return closure_container;
@@ -263,6 +277,7 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
       int kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
       closure_container = meta_gpu_kms_wrap_flip_closure (gpu_kms,
+                                                          crtc,
                                                           flip_closure);
 
       ret = drmModePageFlip (kms_fd,
@@ -296,6 +311,23 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
   return TRUE;
 }
 
+static int64_t
+timespec_to_nanoseconds (const struct timespec *ts)
+{
+  const int64_t one_billion = 1000000000;
+
+  return ((int64_t) ts->tv_sec) * one_billion + ts->tv_nsec;
+}
+
+static int64_t
+timeval_to_nanoseconds (const struct timeval *tv)
+{
+  int64_t usec = ((int64_t) tv->tv_sec) * G_USEC_PER_SEC + tv->tv_usec;
+  int64_t nsec = usec * 1000;
+
+  return nsec;
+}
+
 static void
 page_flip_handler (int           fd,
                    unsigned int  frame,
@@ -306,8 +338,12 @@ page_flip_handler (int           fd,
   MetaGpuKmsFlipClosureContainer *closure_container = user_data;
   GClosure *flip_closure = closure_container->flip_closure;
   MetaGpuKms *gpu_kms = closure_container->gpu_kms;
+  struct timeval page_flip_time = {sec, usec};
 
-  invoke_flip_closure (flip_closure, gpu_kms);
+  invoke_flip_closure (flip_closure,
+                       gpu_kms,
+                       closure_container->crtc,
+                       timeval_to_nanoseconds (&page_flip_time));
   meta_gpu_kms_flip_closure_container_free (closure_container);
 }
 
@@ -378,6 +414,17 @@ const char *
 meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms)
 {
   return gpu_kms->file_path;
+}
+
+int64_t
+meta_gpu_kms_get_current_time_ns (MetaGpuKms *gpu_kms)
+{
+  struct timespec ts;
+
+  if (clock_gettime (gpu_kms->clock_id, &ts))
+    return 0;
+
+  return timespec_to_nanoseconds (&ts);
 }
 
 void
@@ -680,6 +727,17 @@ init_crtcs (MetaGpuKms       *gpu_kms,
 }
 
 static void
+init_frame_clock (MetaGpuKms *gpu_kms)
+{
+  uint64_t uses_monotonic;
+
+  if (drmGetCap (gpu_kms->fd, DRM_CAP_TIMESTAMP_MONOTONIC, &uses_monotonic) != 0)
+    uses_monotonic = 0;
+
+  gpu_kms->clock_id = uses_monotonic ? CLOCK_MONOTONIC : CLOCK_REALTIME;
+}
+
+static void
 init_outputs (MetaGpuKms       *gpu_kms,
               MetaKmsResources *resources)
 {
@@ -806,6 +864,7 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
   init_modes (gpu_kms, resources.resources);
   init_crtcs (gpu_kms, &resources);
   init_outputs (gpu_kms, &resources);
+  init_frame_clock (gpu_kms);
 
   meta_kms_resources_release (&resources);
 
