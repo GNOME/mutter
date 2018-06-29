@@ -1747,3 +1747,39 @@ meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface)
 {
   g_signal_emit (surface, surface_signals[SURFACE_GEOMETRY_CHANGED], 0);
 }
+
+int
+meta_wayland_surface_get_width (MetaWaylandSurface *surface)
+{
+  MetaWaylandBuffer *buffer;
+  CoglTexture *texture;
+
+  if (surface->buffer_ref.buffer)
+    {
+      buffer = surface->buffer_ref.buffer;
+      texture = meta_wayland_buffer_get_texture (buffer);
+      return cogl_texture_get_width (texture) / surface->scale;
+    }
+  else
+    {
+      return 0;
+    }
+}
+
+int
+meta_wayland_surface_get_height (MetaWaylandSurface *surface)
+{
+  MetaWaylandBuffer *buffer;
+  CoglTexture *texture;
+
+  if (surface->buffer_ref.buffer)
+    {
+      buffer = surface->buffer_ref.buffer;
+      texture = meta_wayland_buffer_get_texture (buffer);
+      return cogl_texture_get_height (texture) / surface->scale;
+    }
+  else
+    {
+      return 0;
+    }
+}
