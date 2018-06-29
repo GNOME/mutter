@@ -34,6 +34,7 @@
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-shell-surface.h"
 #include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-window-surface.h"
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-window-wayland.h"
 
@@ -1304,9 +1305,12 @@ meta_wayland_zxdg_surface_v6_commit (MetaWaylandSurfaceRole  *surface_role,
 
   if (pending->has_new_geometry)
     {
-      /* If we have new geometry, use it. */
-      priv->geometry = pending->new_geometry;
-      priv->has_set_geometry = TRUE;
+      if(meta_wayland_window_surface_set_geometry (shell_surface,
+                                                   &pending->new_geometry,
+                                                   &priv->geometry))
+        {
+          priv->has_set_geometry = TRUE;
+        }
     }
   else if (!priv->has_set_geometry)
     {
