@@ -457,6 +457,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-wayland-text-input.h	\
 	wayland/meta-wayland-types.h		\
 	wayland/meta-wayland-versions.h		\
+	wayland/meta-wayland-window-surface.c	\
+	wayland/meta-wayland-window-surface.h	\
 	wayland/meta-wayland-outputs.c		\
 	wayland/meta-wayland-outputs.h		\
 	wayland/meta-wayland-xdg-foreign.c     	\
