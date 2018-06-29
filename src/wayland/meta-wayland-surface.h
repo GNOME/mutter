@@ -302,4 +302,7 @@ MetaSurfaceActor *  meta_wayland_surface_get_actor (MetaWaylandSurface *surface)
 
 void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface);
 
+int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
+int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
+
 #endif
