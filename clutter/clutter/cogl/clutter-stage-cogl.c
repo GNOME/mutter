@@ -153,6 +153,7 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
   gint64 now;
   float refresh_rate;
   gint64 refresh_interval;
+  gint64 last_frame_time;
 
   if (stage_cogl->update_time != -1)
     return;
@@ -160,18 +161,6 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
   now = g_get_monotonic_time ();
 
   if (sync_delay < 0)
-    {
-      stage_cogl->update_time = now;
-      return;
-    }
-
-  /* We only extrapolate presentation times for 150ms  - this is somewhat
-   * arbitrary. The reasons it might not be accurate for larger times are
-   * that the refresh interval might be wrong or the vertical refresh
-   * might be downclocked if nothing is going on onscreen.
-   */
-  if (stage_cogl->last_presentation_time == 0||
-      stage_cogl->last_presentation_time < now - 150000)
     {
       stage_cogl->update_time = now;
       return;
@@ -185,19 +174,47 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
   if (refresh_interval == 0)
     refresh_interval = 16667; /* 1/60th second */
 
-  stage_cogl->update_time = stage_cogl->last_presentation_time + 1000 * sync_delay;
+  last_frame_time = stage_cogl->last_presentation_time;
+  if (last_frame_time == 0)
+    {
+      /* The backend doesn't implement ClutterFrameInfo. Guessing is fine.
+       * The worst that can happen is that we render at 60Hz and are out of
+       * phase (so one frame extra lag).
+       */
+      last_frame_time = now - (now % refresh_interval);
+    }
 
-  while (stage_cogl->update_time < now)
-    stage_cogl->update_time += refresh_interval;
+  /* If there are pending swaps, let's assume they will complete: */
+  last_frame_time += stage_cogl->pending_swaps * refresh_interval;
+
+  if (last_frame_time < (now - refresh_interval))
+    {
+      /* We didn't present on the most recent hardware frame (skipped some).
+       * So calculate what the presentation time would have been. That is the
+       * timestamp closest to now on the same phase and interval as the display
+       * hardware last reported:
+       */
+      last_frame_time = now - (now % refresh_interval) +
+                        (last_frame_time % refresh_interval);
+    }
+
+  /* update_time is the optimal time to start rendering the next frame. It will
+   * always increment in refresh_interval microseconds. It will usually be
+   * slightly in the past by a few milliseconds (when the last page flip
+   * completed). An update_time slightly in the past is still correct and just
+   * indicates to the caller that they need to start rendering the next frame
+   * immediately so as to best avoid skipping a frame.
+   *   update_time may also be in the future (e.g. some kernel drivers return
+   * page flip times a few microseconds in the future before the photons have
+   * actually been emitted). An update_time in the future is also normal.
+   */
+  stage_cogl->update_time = last_frame_time + 1000 * sync_delay;
 }
 
 static gint64
 clutter_stage_cogl_get_update_time (ClutterStageWindow *stage_window)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-
-  if (stage_cogl->pending_swaps)
-    return -1; /* in the future, indefinite */
 
   return stage_cogl->update_time;
 }
