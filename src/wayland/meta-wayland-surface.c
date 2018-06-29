@@ -257,8 +257,6 @@ surface_process_damage (MetaWaylandSurface *surface,
                         cairo_region_t     *buffer_region)
 {
   MetaWaylandBuffer *buffer = surface->buffer_ref.buffer;
-  unsigned int buffer_width;
-  unsigned int buffer_height;
   cairo_rectangle_int_t surface_rect;
   cairo_region_t *scaled_region;
   int i, n_rectangles;
@@ -273,11 +271,9 @@ surface_process_damage (MetaWaylandSurface *surface,
   /* Intersect the damage region with the surface region before scaling in
    * order to avoid integer overflow when scaling a damage region is too large
    * (for example INT32_MAX which mesa passes). */
-  buffer_width = cogl_texture_get_width (buffer->texture);
-  buffer_height = cogl_texture_get_height (buffer->texture);
   surface_rect = (cairo_rectangle_int_t) {
-    .width = buffer_width / surface->scale,
-    .height = buffer_height / surface->scale,
+    .width  = meta_wayland_surface_get_width (surface),
+    .height = meta_wayland_surface_get_height (surface),
   };
   cairo_region_intersect_rectangle (surface_region, &surface_rect);
 
