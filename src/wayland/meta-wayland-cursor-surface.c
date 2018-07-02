@@ -66,10 +66,11 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
 
   if (buffer)
     {
+      int scale = meta_wayland_surface_get_scale (surface);
       meta_cursor_sprite_set_texture (cursor_sprite,
                                       buffer->texture,
-                                      priv->hot_x * surface->scale,
-                                      priv->hot_y * surface->scale);
+                                      priv->hot_x * scale,
+                                      priv->hot_y * scale);
     }
   else
     {
@@ -102,10 +103,10 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
           float texture_scale;
 
           if (meta_is_stage_views_scaled ())
-            texture_scale = 1.0 / surface->scale;
+            texture_scale = 1.0 / meta_wayland_surface_get_scale (surface);
           else
             texture_scale = (meta_logical_monitor_get_scale (logical_monitor) /
-                             surface->scale);
+                             meta_wayland_surface_get_scale (surface));
 
           meta_cursor_sprite_set_texture_scale (cursor_sprite, texture_scale);
         }
