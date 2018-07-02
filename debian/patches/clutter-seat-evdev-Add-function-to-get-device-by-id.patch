@@ -1,0 +1,55 @@
+From: =?utf-8?b?Ik1hcmNvIFRyZXZpc2FuIChUcmV2acOxbyki?= <mail@3v1n0.net>
+Date: Tue, 15 May 2018 12:04:56 +0100
+Subject: clutter-seat-evdev: Add function to get device by id
+
+(cherry picked from commit 5f83d9a5c854873746a31d0cc4d118c9a6d87ddd)
+
+Origin: upstream, 3.28.3, commit:5142c8c7e721f7cff91f651178aad55a69b56df1
+---
+ clutter/clutter/evdev/clutter-seat-evdev.c | 18 ++++++++++++++++++
+ clutter/clutter/evdev/clutter-seat-evdev.h |  3 +++
+ 2 files changed, 21 insertions(+)
+
+diff --git a/clutter/clutter/evdev/clutter-seat-evdev.c b/clutter/clutter/evdev/clutter-seat-evdev.c
+index e91f367..a453b11 100644
+--- a/clutter/clutter/evdev/clutter-seat-evdev.c
++++ b/clutter/clutter/evdev/clutter-seat-evdev.c
+@@ -858,6 +858,24 @@ clutter_seat_evdev_free (ClutterSeatEvdev *seat)
+   g_free (seat);
+ }
+ 
++ClutterInputDevice *
++clutter_seat_evdev_get_device (ClutterSeatEvdev *seat,
++                               gint              id)
++{
++  ClutterInputDevice *device;
++  GSList *l;
++
++  for (l = seat->devices; l; l = l->next)
++    {
++      device = l->data;
++
++      if (clutter_input_device_get_device_id (device) == id)
++        return device;
++    }
++
++  return NULL;
++}
++
+ void
+ clutter_seat_evdev_set_stage (ClutterSeatEvdev *seat,
+                               ClutterStage     *stage)
+diff --git a/clutter/clutter/evdev/clutter-seat-evdev.h b/clutter/clutter/evdev/clutter-seat-evdev.h
+index 0fb89e3..4bb319b 100644
+--- a/clutter/clutter/evdev/clutter-seat-evdev.h
++++ b/clutter/clutter/evdev/clutter-seat-evdev.h
+@@ -139,6 +139,9 @@ void clutter_seat_evdev_set_libinput_seat (ClutterSeatEvdev     *seat,
+ 
+ void clutter_seat_evdev_sync_leds (ClutterSeatEvdev *seat);
+ 
++ClutterInputDevice * clutter_seat_evdev_get_device (ClutterSeatEvdev *seat,
++                                                    gint              id);
++
+ ClutterTouchState * clutter_seat_evdev_acquire_touch_state (ClutterSeatEvdev *seat,
+                                                             int               device_slot);
+ 

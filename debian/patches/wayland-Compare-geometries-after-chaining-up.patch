@@ -1,0 +1,121 @@
+From: Georges Basile Stavracas Neto <georges.stavracas@gmail.com>
+Date: Thu, 17 May 2018 17:46:05 -0300
+Subject: wayland: Compare geometries after chaining up
+
+After 20176d03, the Wayland backend only synchronizes with the
+compositor after a geometry was set, and it was different from
+the current geometry.
+
+That commit was mistakenly comparing the geometry before chaining
+up, which would yield a false negative on the case where the
+client didn't call set_geometry() before commit().
+
+Fix that by caching the old geometry locally, chain up (and thus
+apply the new geometry rectangle), then comparing the old and
+current geometry rectangles.
+
+(cherry picked from commit cf734999fb9e342811896f70f7c1f415462728a7)
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/150
+Origin: upstream, 3.28.3, commit:9d4c7e4e75fc7d03254b2051eb088f216fe36da8
+---
+ src/wayland/meta-wayland-legacy-xdg-shell.c | 18 ++++--------------
+ src/wayland/meta-wayland-xdg-shell.c        | 19 ++++---------------
+ 2 files changed, 8 insertions(+), 29 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-legacy-xdg-shell.c b/src/wayland/meta-wayland-legacy-xdg-shell.c
+index cfc0dfe..e871be9 100644
+--- a/src/wayland/meta-wayland-legacy-xdg-shell.c
++++ b/src/wayland/meta-wayland-legacy-xdg-shell.c
+@@ -585,17 +585,6 @@ is_new_size_hints_valid (MetaWindow              *window,
+           (new_max_height == 0 || new_min_height <= new_max_height));
+ }
+ 
+-static inline gboolean
+-did_geometry_change (MetaWaylandZxdgSurfaceV6 *xdg_surface,
+-                     MetaWaylandPendingState  *pending)
+-{
+-  MetaWaylandZxdgSurfaceV6Private *priv =
+-    meta_wayland_zxdg_surface_v6_get_instance_private (xdg_surface);
+-
+-  return pending->has_new_geometry &&
+-         !meta_rectangle_equal (&priv->geometry, &pending->new_geometry);
+-}
+-
+ static void
+ meta_wayland_zxdg_toplevel_v6_commit (MetaWaylandSurfaceRole  *surface_role,
+                                       MetaWaylandPendingState *pending)
+@@ -611,11 +600,10 @@ meta_wayland_zxdg_toplevel_v6_commit (MetaWaylandSurfaceRole  *surface_role,
+     meta_wayland_surface_role_get_surface (surface_role);
+   MetaWindow *window = surface->window;
+   MetaRectangle window_geometry;
++  MetaRectangle old_geometry;
+   gboolean geometry_changed;
+ 
+-  /* This check must happen before chaining up, otherwise the new geometry
+-   * is applied and it'll always return FALSE. */
+-  geometry_changed = did_geometry_change (xdg_surface, pending);
++  old_geometry = xdg_surface_priv->geometry;
+ 
+   surface_role_class =
+     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_zxdg_toplevel_v6_parent_class);
+@@ -634,6 +622,8 @@ meta_wayland_zxdg_toplevel_v6_commit (MetaWaylandSurfaceRole  *surface_role,
+   if (!window)
+     return;
+ 
++  geometry_changed = !meta_rectangle_equal (&old_geometry, &xdg_surface_priv->geometry);
++
+   if (geometry_changed || meta_window_wayland_needs_move_resize (window))
+     {
+       window_geometry =
+diff --git a/src/wayland/meta-wayland-xdg-shell.c b/src/wayland/meta-wayland-xdg-shell.c
+index 260710b..2b1a71b 100644
+--- a/src/wayland/meta-wayland-xdg-shell.c
++++ b/src/wayland/meta-wayland-xdg-shell.c
+@@ -608,17 +608,6 @@ is_new_size_hints_valid (MetaWindow              *window,
+           (new_max_height == 0 || new_min_height <= new_max_height));
+ }
+ 
+-static inline gboolean
+-did_geometry_change (MetaWaylandXdgSurface   *xdg_surface,
+-                     MetaWaylandPendingState *pending)
+-{
+-  MetaWaylandXdgSurfacePrivate *priv =
+-    meta_wayland_xdg_surface_get_instance_private (xdg_surface);
+-
+-  return pending->has_new_geometry &&
+-         !meta_rectangle_equal (&priv->geometry, &pending->new_geometry);
+-}
+-
+ static void
+ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
+                                   MetaWaylandPendingState *pending)
+@@ -632,6 +621,7 @@ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
+     meta_wayland_surface_role_get_surface (surface_role);
+   MetaWindow *window;
+   MetaRectangle window_geometry;
++  MetaRectangle old_geometry;
+   gboolean geometry_changed;
+ 
+   if (!surface->buffer_ref.buffer && xdg_surface_priv->first_buffer_attached)
+@@ -641,10 +631,7 @@ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
+     }
+ 
+   window = surface->window;
+-
+-  /* This check must happen before chaining up, otherwise the new geometry
+-   * is applied and it'll always return FALSE. */
+-  geometry_changed = did_geometry_change (xdg_surface, pending);
++  old_geometry = xdg_surface_priv->geometry;
+ 
+   surface_role_class =
+     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_xdg_toplevel_parent_class);
+@@ -659,6 +646,8 @@ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
+   if (!pending->newly_attached)
+     return;
+ 
++  geometry_changed = !meta_rectangle_equal (&old_geometry, &xdg_surface_priv->geometry);
++
+   if (geometry_changed || meta_window_wayland_needs_move_resize (window))
+     {
+       window_geometry = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);

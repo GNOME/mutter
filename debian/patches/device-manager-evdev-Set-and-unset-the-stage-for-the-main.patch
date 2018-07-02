@@ -1,0 +1,42 @@
+From: =?utf-8?b?Ik1hcmNvIFRyZXZpc2FuIChUcmV2acOxbyki?= <mail@3v1n0.net>
+Date: Wed, 16 May 2018 11:55:15 +0100
+Subject: device-manager-evdev: Set and unset the stage for the main seat too
+
+When no input devices are available on startup the device manager might be fast
+enough to be constructed so that no default stage is set yet, and thus when
+main seat virtual devices are created they won't have a proper stage set.
+If then we plug a real device, the events that an input manager could generate
+won't be associated to any stage and thus won't be processed.
+
+We need then ensure that when we update the stage for the device manager we
+(un)associate it also to the main seat devices.
+
+(cherry picked from commit d7bdc1591fba5353b23a28ebf676da0e7b58c84e)
+
+Origin: upstream, 3.28.3, commit:72965aaaf0b1c6cf098a0652e14dd3eb4c1501b8
+---
+ clutter/clutter/evdev/clutter-device-manager-evdev.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/clutter/clutter/evdev/clutter-device-manager-evdev.c b/clutter/clutter/evdev/clutter-device-manager-evdev.c
+index 812ad8c..b830dd5 100644
+--- a/clutter/clutter/evdev/clutter-device-manager-evdev.c
++++ b/clutter/clutter/evdev/clutter-device-manager-evdev.c
+@@ -2070,6 +2070,8 @@ clutter_device_manager_evdev_stage_added_cb (ClutterStageManager *manager,
+   priv->stage = stage;
+ 
+   /* Set the stage of any devices that don't already have a stage */
++  clutter_seat_evdev_set_stage (priv->main_seat, stage);
++
+   for (l = priv->seats; l; l = l->next)
+     {
+       ClutterSeatEvdev *seat = l->data;
+@@ -2095,6 +2097,8 @@ clutter_device_manager_evdev_stage_removed_cb (ClutterStageManager *manager,
+ 
+   /* Remove the stage of any input devices that were pointing to this
+      stage so we don't send events to invalid stages */
++  clutter_seat_evdev_set_stage (priv->main_seat, NULL);
++
+   for (l = priv->seats; l; l = l->next)
+     {
+       ClutterSeatEvdev *seat = l->data;

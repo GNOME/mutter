@@ -461,10 +461,10 @@ index 5668be5..f33f65d 100644
  
    if (old_output)
 diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
-index 2571cac..850e44b 100644
+index cb8e03a..fc6b223 100644
 --- a/src/backends/native/meta-renderer-native.c
 +++ b/src/backends/native/meta-renderer-native.c
-@@ -2083,6 +2083,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
+@@ -2089,6 +2089,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
    EGLDisplay egl_display = renderer_gpu_data->egl_display;
    MetaMonitor *monitor;
    MetaOutput *output;
@@ -472,7 +472,7 @@ index 2571cac..850e44b 100644
    EGLConfig egl_config;
    EGLStreamKHR egl_stream;
    EGLSurface egl_surface;
-@@ -2106,6 +2107,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
+@@ -2112,6 +2113,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
  
    monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
    output = meta_monitor_get_main_output (monitor);
@@ -480,7 +480,7 @@ index 2571cac..850e44b 100644
  
    /*
     * An "logical_monitor" may have multiple outputs/crtcs in case its tiled,
-@@ -2113,7 +2115,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
+@@ -2119,7 +2121,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
     * lets pass the first one.
     */
    output_attribs[0] = EGL_DRM_CRTC_EXT;
@@ -489,7 +489,7 @@ index 2571cac..850e44b 100644
    output_attribs[2] = EGL_NONE;
  
    if (!meta_egl_get_output_layers (egl, egl_display,
-@@ -2711,12 +2713,10 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
+@@ -2717,12 +2719,10 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
  {
    MetaMonitor *main_monitor;
    MetaOutput *main_output;
@@ -504,7 +504,7 @@ index 2571cac..850e44b 100644
  
    /*
     * Pick any monitor and output and check; all CRTCs of a logical monitor will
-@@ -2724,11 +2724,11 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
+@@ -2730,11 +2730,11 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
     */
  
    if (meta_monitor_manager_is_transform_handled (monitor_manager,

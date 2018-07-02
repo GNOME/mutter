@@ -1,0 +1,26 @@
+From: Changwoo Ryu <cwryu@debian.org>
+Date: Tue, 15 May 2018 23:45:43 +0900
+Subject: wayland: Don't reset input focus on text commit
+
+Preedit text can be active even after text commit. Resetting the input
+focus will lead to unintended commit of the preedit text.
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/152
+Origin: upstream, 3.28.3, commit:abc7ad8e9f67a720516fb739c5dfe4b49748d423
+---
+ src/wayland/meta-wayland-text-input.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-text-input.c b/src/wayland/meta-wayland-text-input.c
+index 63c1146..e05eaee 100644
+--- a/src/wayland/meta-wayland-text-input.c
++++ b/src/wayland/meta-wayland-text-input.c
+@@ -120,8 +120,6 @@ meta_wayland_text_input_focus_commit_text (ClutterInputFocus *focus,
+       gtk_text_input_send_preedit_string (resource, NULL, 0);
+       gtk_text_input_send_commit_string (resource, text);
+     }
+-
+-  clutter_input_focus_reset (focus);
+ }
+ 
+ static void
