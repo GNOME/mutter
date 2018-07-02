@@ -2,14 +2,13 @@ From: =?utf-8?q?Jonas_=C3=85dahl?= <jadahl@gmail.com>
 Date: Fri, 3 Nov 2017 04:25:30 -0600
 Subject: backends: Move MetaOutput::crtc field into private struct
 
-Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/1703668
-Bug-GNOME: https://bugzilla.gnome.org/show_bug.cgi?id=786929
-Forwarded: yes, https://gitlab.gnome.org/GNOME/mutter/merge_requests/81
-
 No functional changes. This is only done so that changes to reference
 counting can done more reliably.
 
-https://bugzilla.gnome.org/show_bug.cgi?id=786929
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=786929
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/1703668
+Forwarded: yes, https://gitlab.gnome.org/GNOME/mutter/merge_requests/81
+Applied-upstream: 3.28.3, commit:7d01aec48da979f4fdad3c5f586fd0fd340d9325
 ---
  src/backends/meta-logical-monitor.c                | 11 ++---
  src/backends/meta-monitor-manager-dummy.c          |  4 +-

@@ -1,3 +1,11 @@
+mutter (3.28.2-3) UNRELEASED; urgency=medium
+
+  * backends-Move-MetaOutput-crtc-field-into-private-struct.patch,
+    backends-Add-logical-monitor-monitor-output-crtc-ref-chai.patch:
+    Mark as applied upstream
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 02 Jul 2018 09:00:21 +0100
+
 mutter (3.28.2-2) unstable; urgency=medium
 
   * Team upload
