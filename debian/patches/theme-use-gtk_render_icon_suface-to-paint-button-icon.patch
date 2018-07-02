@@ -2,14 +2,14 @@ From: =?utf-8?b?Ik1hcmNvIFRyZXZpc2FuIChUcmV2acOxbyki?= <mail@3v1n0.net>
 Date: Fri, 30 Mar 2018 14:13:41 -0600
 Subject: theme: use gtk_render_icon_suface to paint button icon
 
-Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/1764558
-Bug-GNOME: https://gitlab.gnome.org/GNOME/mutter/issues/100
-Forwarded: yes, https://gitlab.gnome.org/GNOME/mutter/merge_requests/62
-
 This will properly take care of the icon transformations
 and of the shadow.
 
 Fixes #100
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/100
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/1764558
+Forwarded: yes, https://gitlab.gnome.org/GNOME/mutter/merge_requests/62
 ---
  src/ui/theme.c | 18 ++++--------------
  1 file changed, 4 insertions(+), 14 deletions(-)

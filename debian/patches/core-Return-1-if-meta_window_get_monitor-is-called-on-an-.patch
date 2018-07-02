@@ -3,14 +3,14 @@ Date: Tue, 10 Oct 2017 11:39:40 -0500
 Subject: core: Return -1 if meta_window_get_monitor is called on an unmanaged
  window
 
-Forwarded: yes
-Bug-GNOME: https://bugzilla.gnome.org/show_bug.cgi?id=788834
-Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/bionic/+source/gnome-shell/+bug/1724439
-
 As opposed to crashing. In this case, letting the caller deal with
 it is the best policy, since this is public API.
 
 Fixes #78834
+
+Forwarded: yes
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=788834
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/bionic/+source/gnome-shell/+bug/1724439
 ---
  src/core/window.c | 7 ++++++-
  1 file changed, 6 insertions(+), 1 deletion(-)

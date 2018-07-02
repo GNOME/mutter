@@ -2,9 +2,6 @@ From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Fri, 16 Feb 2018 02:50:59 -0600
 Subject: clutter: Smooth out master clock to smooth visuals
 
-Bug-GNOME: https://gitlab.gnome.org/GNOME/mutter/issues/25
-Forwarded, yes: https://gitlab.gnome.org/GNOME/mutter/merge_requests/70
-
 Clutter's master clock was jittery because it included errors in cur_tick
 such as dispatch delays due to other sources. Dispatch could also occur up
 to 1ms early since GSource can only be timed to the millisecond. All of this
@@ -16,7 +13,8 @@ The simple fix is to ignore any jitter in dispatch timing. Try a little
 bit harder to use a precise interval that will better match the display
 hardware, and smoother visuals will follow.
 
-https://gitlab.gnome.org/GNOME/mutter/issues/25
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/25
+Forwarded: https://gitlab.gnome.org/GNOME/mutter/merge_requests/70
 ---
  clutter/clutter/clutter-master-clock-default.c | 134 +++++++++++++++++--------
  1 file changed, 93 insertions(+), 41 deletions(-)
