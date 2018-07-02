@@ -124,7 +124,7 @@ meta_wayland_actor_surface_calculate_scale (MetaWaylandActorSurface *actor_surfa
           meta_window_wayland_get_geometry_scale (toplevel_window);
     }
 
-  return (double) geometry_scale / (double) surface->scale;
+  return (double) geometry_scale / (double) meta_wayland_surface_get_scale (surface);
 }
 
 static void
@@ -158,7 +158,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
       int region_scale;
 
       /* Wayland surface coordinate space -> stage coordinate space */
-      region_scale = (int) (surface->scale * actor_scale);
+      region_scale = (int) (meta_wayland_surface_get_scale (surface) * actor_scale);
       scaled_input_region = meta_region_scale (surface->input_region,
                                                region_scale);
       cairo_region_intersect_rectangle (scaled_input_region, &surface_rect);
@@ -176,7 +176,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
 
       /* Wayland surface coordinate space -> stage coordinate space */
       scaled_opaque_region = meta_region_scale (surface->opaque_region,
-                                                surface->scale);
+                                                meta_wayland_surface_get_scale (surface));
       cairo_region_intersect_rectangle (scaled_opaque_region, &surface_rect);
       meta_surface_actor_set_opaque_region (surface_actor,
                                             scaled_opaque_region);
