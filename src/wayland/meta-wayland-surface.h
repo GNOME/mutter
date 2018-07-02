@@ -160,6 +160,7 @@ struct _MetaWaylandSurface
   GList *subsurfaces;
   GHashTable *outputs_to_destroy_notify_id;
   MetaWaylandBufferViewport buffer_viewport;
+  struct wl_resource *viewport_resource;
 
   /* Buffer reference state. */
   struct {

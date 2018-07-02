@@ -36,17 +36,19 @@ destroy_wl_viewport (struct wl_resource *resource)
 
   surface->viewport_resource = NULL;
 
+  /* FIXME: The reset  is currently broken as of git master (3.29.90 + ~21)
+   * on program close, the pending state seems to get deleted without unsetting
+   * the pointer
+
   if(!surface->pending)
     return;
-  surface->pending->buffer_viewport.buffer.transform = WL_OUTPUT_TRANSFORM_NORMAL;
-  surface->pending->buffer_viewport.buffer.scale = 1;
   surface->pending->buffer_viewport.buffer.src_rect.x = 0;
   surface->pending->buffer_viewport.buffer.src_rect.y = 0;
   surface->pending->buffer_viewport.buffer.src_rect.width = 0;
   surface->pending->buffer_viewport.buffer.src_rect.height = 0;
   surface->pending->buffer_viewport.surface.width = 0;
   surface->pending->buffer_viewport.surface.height = 0;
-  surface->pending->buffer_viewport.changed = TRUE;
+  surface->pending->buffer_viewport.changed = TRUE;*/
 }
 
 static void

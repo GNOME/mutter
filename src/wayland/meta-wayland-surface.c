@@ -46,6 +46,7 @@
 #include "meta-wayland-legacy-xdg-shell.h"
 #include "meta-wayland-wl-shell.h"
 #include "meta-wayland-gtk-shell.h"
+#include "meta-wayland-viewporter.h"
 
 #include "meta-cursor-tracker-private.h"
 #include "display-private.h"
@@ -252,6 +253,114 @@ meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
 }
 
 static void
+meta_wayland_surface_surface_to_buffer_coordinate (MetaWaylandSurface *surface,
+                                                   float sx, float sy,
+                                                   float *bx, float *by)
+{
+  MetaWaylandBuffer *buffer = surface->buffer_ref.buffer;
+  MetaWaylandBufferViewport *vp = &surface->buffer_viewport;
+  double src_width, src_height;
+  double src_x, src_y;
+  double surface_width, surface_height;
+
+  if (vp->buffer.src_rect.width == 0)
+    {
+      if (vp->surface.width == 0)
+        {
+          *bx = sx;
+          *by = sy;
+          return;
+        }
+
+      src_x = 0.0;
+      src_y = 0.0;
+      src_width  = (double)cogl_texture_get_width (buffer->texture);
+      src_height = (double)cogl_texture_get_height (buffer->texture);
+      surface_width  = src_width  / vp->buffer.scale;
+      surface_height = src_height / vp->buffer.scale;
+    }
+  else {
+    if (vp->surface.width == 0)
+      {
+        surface_width  = (double)cogl_texture_get_width (buffer->texture)  / vp->buffer.scale;
+        surface_height = (double)cogl_texture_get_height (buffer->texture) / vp->buffer.scale;
+      }
+    else
+      {
+        surface_width  = (double)vp->surface.width;
+        surface_height = (double)vp->surface.height;
+      }
+    src_x = (double)vp->buffer.src_rect.x;
+    src_y = (double)vp->buffer.src_rect.y;
+    src_width  = (double)vp->buffer.src_rect.width;
+    src_height = (double)vp->buffer.src_rect.height;
+  }
+
+  *bx = sx * src_width  / surface_width  + src_x;
+  *by = sy * src_height / surface_height + src_y;
+}
+
+static cairo_region_t *
+meta_wayland_surface_surface_to_buffer_region (MetaWaylandSurface *surface,
+                                               cairo_region_t *region)
+{
+  MetaWaylandBuffer *buffer = surface->buffer_ref.buffer;
+  MetaWaylandBufferViewport *vp = &surface->buffer_viewport;
+  int n_rects, i;
+  cairo_rectangle_int_t *rects;
+  cairo_rectangle_int_t surface_rect;
+  cairo_region_t *scaled_region;
+  float xf, yf;
+
+  if (vp->buffer.scale == 1 &&
+      vp->buffer.src_rect.width == 0 &&
+      vp->surface.width == 0)
+    return cairo_region_copy (region);
+
+  n_rects = cairo_region_num_rectangles (region);
+
+  rects = g_malloc (sizeof(cairo_rectangle_int_t) * n_rects);
+
+  for (i = 0; i < n_rects; i++)
+    {
+      cairo_region_get_rectangle (region, i, &rects[i]);
+
+      // use coordinates instead of width/height
+      rects[i].width  += rects[i].x;
+      rects[i].height += rects[i].y;
+
+      meta_wayland_surface_surface_to_buffer_coordinate (surface, rects[i].x,
+                                                         rects[i].y, &xf, &yf);
+      rects[i].x = floorf(xf * vp->buffer.scale);
+      rects[i].y = floorf(yf * vp->buffer.scale);
+
+      meta_wayland_surface_surface_to_buffer_coordinate (surface, rects[i].width,
+                                                         rects[i].height, &xf, &yf);
+      rects[i].width  = ceilf(xf * vp->buffer.scale);
+      rects[i].height = ceilf(yf * vp->buffer.scale);
+
+      // use width/height again instead of coordinates
+      rects[i].width  -= rects[i].x;
+      rects[i].height -= rects[i].y;
+    }
+
+  scaled_region = cairo_region_create_rectangles (rects, n_rects);
+
+  /* Intersect the scaled region to make sure no rounding errors made
+   * it to big */
+  surface_rect = (cairo_rectangle_int_t) {
+    .width  = cogl_texture_get_width  (buffer->texture),
+    .height = cogl_texture_get_height (buffer->texture),
+  };
+  cairo_region_intersect_rectangle (scaled_region, &surface_rect);
+
+  g_free (rects);
+
+
+  return scaled_region;
+}
+
+static void
 surface_process_damage (MetaWaylandSurface *surface,
                         cairo_region_t     *surface_region,
                         cairo_region_t     *buffer_region)
@@ -279,7 +388,8 @@ surface_process_damage (MetaWaylandSurface *surface,
 
   /* The damage region must be in the same coordinate space as the buffer,
    * i.e. scaled with surface buffer scale. */
-  scaled_region = meta_region_scale (surface_region, meta_wayland_surface_get_scale (surface));
+  scaled_region = meta_wayland_surface_surface_to_buffer_region (surface,
+                                                                 surface_region);
 
   /* Now add the buffer damage on top of the scaled damage region, as buffer
    * damage is already in that scale. */
@@ -696,6 +806,15 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
       surface->buffer_viewport.buffer.src_rect.height = pending->buffer_viewport.buffer.src_rect.height;
       surface->buffer_viewport.surface.width = pending->buffer_viewport.surface.width;
       surface->buffer_viewport.surface.height = pending->buffer_viewport.surface.height;
+
+      if(meta_wayland_surface_get_actor (surface))
+        {
+          meta_surface_actor_set_viewport (meta_wayland_surface_get_actor (surface),
+                                           &surface->buffer_viewport.buffer.src_rect,
+                                           surface->buffer_viewport.surface.width,
+                                           surface->buffer_viewport.surface.height,
+                                           surface->buffer_viewport.buffer.scale);
+        }
     }
 
   if (meta_wayland_surface_get_actor (surface) &&
@@ -1318,6 +1437,7 @@ meta_wayland_shell_init (MetaWaylandCompositor *compositor)
   meta_wayland_legacy_xdg_shell_init (compositor);
   meta_wayland_wl_shell_init (compositor);
   meta_wayland_gtk_shell_init (compositor);
+  meta_wayland_viewporter_init (compositor);
 }
 
 void
@@ -1783,10 +1903,18 @@ meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface)
 int
 meta_wayland_surface_get_width (MetaWaylandSurface *surface)
 {
-  MetaWaylandBuffer *buffer;
+  MetaWaylandBuffer *buffer = surface->buffer_ref.buffer;
+  MetaWaylandBufferViewport *vp = &surface->buffer_viewport;
 
-  buffer = surface->buffer_ref.buffer;
-  if (buffer)
+  if (vp->surface.width > 0)
+    {
+      return vp->surface.width;
+    }
+  else if (vp->buffer.src_rect.width > 0)
+    {
+      return vp->buffer.src_rect.width;
+    }
+  else if (buffer)
     {
       CoglTexture *texture = meta_wayland_buffer_get_texture (buffer);
       return cogl_texture_get_width (texture) / meta_wayland_surface_get_scale (surface);
@@ -1800,10 +1928,18 @@ meta_wayland_surface_get_width (MetaWaylandSurface *surface)
 int
 meta_wayland_surface_get_height (MetaWaylandSurface *surface)
 {
-  MetaWaylandBuffer *buffer;
+  MetaWaylandBuffer *buffer = surface->buffer_ref.buffer;
+  MetaWaylandBufferViewport *vp = &surface->buffer_viewport;
 
-  buffer = surface->buffer_ref.buffer;
-  if (buffer)
+  if (vp->surface.width > 0)
+    {
+      return vp->surface.height;
+    }
+  else if (vp->buffer.src_rect.width > 0)
+    {
+      return vp->buffer.src_rect.height;
+    }
+  else if (buffer)
     {
       CoglTexture *texture = meta_wayland_buffer_get_texture (buffer);
       return cogl_texture_get_height (texture) / meta_wayland_surface_get_scale (surface);
