@@ -22,6 +22,7 @@ mutter (3.28.2-3) UNRELEASED; urgency=medium
     d/p/device-manager-evdev-Add-main-seat-to-seats-by-default.patch,
     d/p/renderer-native-Don-t-crash-if-the-FB-surface-can-t-be-lo.patch:
     Update to upstream gnome-3-28 branch
+  * Add a symbols file for libmutter-2-0
 
  -- Simon McVittie <smcv@debian.org>  Mon, 02 Jul 2018 09:00:21 +0100
 
