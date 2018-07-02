@@ -20,10 +20,10 @@ Applied-upstream: 3.28.3, commit:fe1616668e9d82e87f6c518b3b4bacff3afefdf7
  3 files changed, 42 insertions(+), 10 deletions(-)
 
 diff --git a/src/backends/meta-logical-monitor.c b/src/backends/meta-logical-monitor.c
-index 9e14d66..bc91d1d 100644
+index 3f69868..693c83d 100644
 --- a/src/backends/meta-logical-monitor.c
 +++ b/src/backends/meta-logical-monitor.c
-@@ -144,7 +144,7 @@ meta_logical_monitor_add_monitor (MetaLogicalMonitor *logical_monitor,
+@@ -146,7 +146,7 @@ meta_logical_monitor_add_monitor (MetaLogicalMonitor *logical_monitor,
  
    is_presentation = logical_monitor->is_presentation;
    logical_monitor->monitors = g_list_append (logical_monitor->monitors,
@@ -32,7 +32,7 @@ index 9e14d66..bc91d1d 100644
  
    for (l = logical_monitor->monitors; l; l = l->next)
      {
-@@ -255,13 +255,17 @@ meta_logical_monitor_init (MetaLogicalMonitor *logical_monitor)
+@@ -257,13 +257,17 @@ meta_logical_monitor_init (MetaLogicalMonitor *logical_monitor)
  }
  
  static void
@@ -53,7 +53,7 @@ index 9e14d66..bc91d1d 100644
  }
  
  static void
-@@ -269,7 +273,7 @@ meta_logical_monitor_class_init (MetaLogicalMonitorClass *klass)
+@@ -271,7 +275,7 @@ meta_logical_monitor_class_init (MetaLogicalMonitorClass *klass)
  {
    GObjectClass *object_class = G_OBJECT_CLASS (klass);
  

@@ -1,12 +1,12 @@
 wayland-Use-cursor-position-in-logical-monitor.patch
 clutter-evdev-ignore-injected-events-from-IM.patch
 clutter-evdev-Don-t-ignore-CAPS-lock-as-modifier.patch
+backends-Move-MetaOutput-crtc-field-into-private-struct.patch
+backends-Add-logical-monitor-monitor-output-crtc-ref-chai.patch
 theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 clutter-Smooth-out-master-clock-to-smooth-visuals.patch
 core-Return-1-if-meta_window_get_monitor-is-called-on-an-.patch
-backends-Move-MetaOutput-crtc-field-into-private-struct.patch
-backends-Add-logical-monitor-monitor-output-crtc-ref-chai.patch
 bgo768531_workaround-startup-notifications.patch
 debian/synaptics-support.patch
 debian/skip-failing-tests.patch

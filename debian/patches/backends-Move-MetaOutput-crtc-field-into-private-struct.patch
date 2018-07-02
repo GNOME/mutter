@@ -10,7 +10,7 @@ Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/1703668
 Forwarded: yes, https://gitlab.gnome.org/GNOME/mutter/merge_requests/81
 Applied-upstream: 3.28.3, commit:7d01aec48da979f4fdad3c5f586fd0fd340d9325
 ---
- src/backends/meta-logical-monitor.c                | 11 ++---
+ src/backends/meta-logical-monitor.c                | 13 +++---
  src/backends/meta-monitor-manager-dummy.c          |  4 +-
  src/backends/meta-monitor-manager.c                | 11 ++---
  src/backends/meta-monitor.c                        | 48 ++++++++++++++--------
@@ -27,23 +27,28 @@ Applied-upstream: 3.28.3, commit:7d01aec48da979f4fdad3c5f586fd0fd340d9325
  src/backends/x11/nested/meta-renderer-x11-nested.c | 14 +++----
  src/tests/meta-monitor-manager-test.c              |  4 +-
  src/tests/monitor-unit-tests.c                     | 18 ++++----
- 17 files changed, 152 insertions(+), 83 deletions(-)
+ 17 files changed, 154 insertions(+), 83 deletions(-)
 
 diff --git a/src/backends/meta-logical-monitor.c b/src/backends/meta-logical-monitor.c
-index d2faa0f..9e14d66 100644
+index d2faa0f..3f69868 100644
 --- a/src/backends/meta-logical-monitor.c
 +++ b/src/backends/meta-logical-monitor.c
-@@ -103,8 +103,7 @@ derive_monitor_transform (MetaMonitor *monitor)
+@@ -100,11 +100,12 @@ static MetaMonitorTransform
+ derive_monitor_transform (MetaMonitor *monitor)
+ {
+   MetaOutput *main_output;
++  MetaMonitorTransform transform;
  
    main_output = meta_monitor_get_main_output (monitor);
++  transform = meta_output_get_assigned_crtc (main_output)->transform;
  
 -  return meta_monitor_crtc_to_logical_transform (monitor,
 -                                                 main_output->crtc->transform);
-+  return meta_output_get_assigned_crtc (main_output)->transform;
++  return meta_monitor_crtc_to_logical_transform (monitor, transform);
  }
  
  MetaLogicalMonitor *
-@@ -157,10 +156,12 @@ meta_logical_monitor_add_monitor (MetaLogicalMonitor *logical_monitor,
+@@ -157,10 +158,12 @@ meta_logical_monitor_add_monitor (MetaLogicalMonitor *logical_monitor,
        for (l_output = outputs; l_output; l_output = l_output->next)
          {
            MetaOutput *output = l_output->data;
@@ -58,7 +63,7 @@ index d2faa0f..9e14d66 100644
          }
      }
  
-@@ -220,7 +221,7 @@ foreach_crtc (MetaMonitor         *monitor,
+@@ -220,7 +223,7 @@ foreach_crtc (MetaMonitor         *monitor,
    ForeachCrtcData *data = user_data;
  
    data->func (data->logical_monitor,
