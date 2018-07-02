@@ -242,6 +242,17 @@ meta_surface_actor_get_opaque_region (MetaSurfaceActor *actor)
   return meta_shaped_texture_get_opaque_region (priv->texture);
 }
 
+void
+meta_surface_actor_set_viewport (MetaSurfaceActor         *self,
+                                 cairo_rectangle_int_t    *src_rect,
+                                 int                      dest_width,
+                                 int                      dest_height,
+                                 int                      scale)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+  meta_shaped_texture_set_viewport (priv->texture, src_rect, dest_width, dest_height, scale);
+}
+
 static gboolean
 is_frozen (MetaSurfaceActor *self)
 {
