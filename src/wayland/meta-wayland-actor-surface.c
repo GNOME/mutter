@@ -167,10 +167,17 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
   if (surface->opaque_region)
     {
       cairo_region_t *scaled_opaque_region;
+      cairo_rectangle_int_t surface_rect = (cairo_rectangle_int_t) {
+        .width  = meta_wayland_surface_get_width (surface),
+        .height = meta_wayland_surface_get_height (surface),
+      };
 
       /* Wayland surface coordinate space -> stage coordinate space */
       scaled_opaque_region = meta_region_scale (surface->opaque_region,
                                                 surface->scale);
+
+      cairo_region_intersect_rectangle(scaled_opaque_region, &surface_rect);
+
       meta_surface_actor_set_opaque_region (surface_actor,
                                             scaled_opaque_region);
       cairo_region_destroy (scaled_opaque_region);
