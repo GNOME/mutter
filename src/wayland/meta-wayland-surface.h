@@ -34,6 +34,7 @@
 #include "meta-wayland-pointer-constraints.h"
 
 typedef struct _MetaWaylandPendingState MetaWaylandPendingState;
+typedef struct _MetaWaylandBufferViewport MetaWaylandBufferViewport;
 
 #define META_TYPE_WAYLAND_SURFACE (meta_wayland_surface_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandSurface,
@@ -76,6 +77,20 @@ G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleDND,
                       META, WAYLAND_SURFACE_ROLE_DND,
                       MetaWaylandSurfaceRole);
 
+struct _MetaWaylandBufferViewport
+{
+  gboolean changed;
+  struct {
+    uint transform;
+    int scale;
+    cairo_rectangle_int_t src_rect;
+  } buffer;
+
+  struct {
+    int width, height;
+  } surface;
+};
+
 struct _MetaWaylandPendingState
 {
   GObject parent;
@@ -86,8 +101,6 @@ struct _MetaWaylandPendingState
   gulong buffer_destroy_handler_id;
   int32_t dx;
   int32_t dy;
-
-  int scale;
 
   /* wl_surface.damage */
   cairo_region_t *surface_damage;
@@ -112,6 +125,8 @@ struct _MetaWaylandPendingState
   gboolean has_new_max_size;
   int new_max_width;
   int new_max_height;
+
+  MetaWaylandBufferViewport buffer_viewport;
 };
 
 struct _MetaWaylandDragDestFuncs
@@ -141,10 +156,10 @@ struct _MetaWaylandSurface
   MetaWindow *window;
   cairo_region_t *input_region;
   cairo_region_t *opaque_region;
-  int scale;
   int32_t offset_x, offset_y;
   GList *subsurfaces;
   GHashTable *outputs_to_destroy_notify_id;
+  MetaWaylandBufferViewport buffer_viewport;
 
   /* Buffer reference state. */
   struct {
@@ -301,6 +316,8 @@ gboolean            meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurf
 MetaSurfaceActor *  meta_wayland_surface_get_actor (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface);
+
+int                 meta_wayland_surface_get_scale(MetaWaylandSurface *surface);
 
 int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
