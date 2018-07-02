@@ -140,7 +140,7 @@ meta_wayland_actor_surface_calculate_scale (MetaWaylandActorSurface *actor_surfa
   geometry_scale =
     meta_wayland_actor_surface_get_geometry_scale (actor_surface);
 
-  return geometry_scale / (double) surface->scale;
+  return geometry_scale / (double) meta_wayland_surface_get_scale (surface);
 }
 
 static void
