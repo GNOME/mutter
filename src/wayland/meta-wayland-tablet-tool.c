@@ -642,8 +642,8 @@ meta_wayland_tablet_tool_get_relative_coordinates (MetaWaylandTabletTool *tool,
   clutter_actor_transform_stage_point (CLUTTER_ACTOR (meta_surface_actor_get_texture (surface_actor)),
                                        xf, yf, &xf, &yf);
 
-  *sx = wl_fixed_from_double (xf) / surface->scale;
-  *sy = wl_fixed_from_double (yf) / surface->scale;
+  *sx = wl_fixed_from_double (xf) / meta_wayland_surface_get_scale (surface);
+  *sy = wl_fixed_from_double (yf) / meta_wayland_surface_get_scale (surface);
 }
 
 static void
