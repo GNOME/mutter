@@ -140,12 +140,18 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
   MetaShapedTexture *stex;
   double actor_scale;
   GList *l;
+  cairo_rectangle_int_t surface_rect;
 
   surface_actor = priv->actor;
   stex = meta_surface_actor_get_texture (surface_actor);
 
   actor_scale = meta_wayland_actor_surface_calculate_scale (actor_surface);
   clutter_actor_set_scale (CLUTTER_ACTOR (stex), actor_scale, actor_scale);
+
+  surface_rect = (cairo_rectangle_int_t) {
+    .width = meta_wayland_surface_get_width (surface),
+    .height = meta_wayland_surface_get_height (surface),
+  };
 
   if (surface->input_region)
     {
@@ -156,6 +162,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
       region_scale = (int) (surface->scale * actor_scale);
       scaled_input_region = meta_region_scale (surface->input_region,
                                                region_scale);
+      cairo_region_intersect_rectangle (scaled_input_region, &surface_rect);
       meta_surface_actor_set_input_region (surface_actor, scaled_input_region);
       cairo_region_destroy (scaled_input_region);
     }
@@ -171,6 +178,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
       /* Wayland surface coordinate space -> stage coordinate space */
       scaled_opaque_region = meta_region_scale (surface->opaque_region,
                                                 surface->scale);
+      cairo_region_intersect_rectangle (scaled_opaque_region, &surface_rect);
       meta_surface_actor_set_opaque_region (surface_actor,
                                             scaled_opaque_region);
       cairo_region_destroy (scaled_opaque_region);
