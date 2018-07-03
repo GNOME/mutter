@@ -45,8 +45,8 @@ struct _MetaCompositor
   gboolean have_x11_sync_object;
 };
 
-/* Wait 2ms after vblank before starting to draw next frame */
-#define META_SYNC_DELAY 2
+/* Allow (especially slow machines) the full interval to draw next frame */
+#define META_SYNC_DELAY 0
 
 void meta_switch_workspace_completed (MetaCompositor *compositor);
 
