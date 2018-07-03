@@ -135,8 +135,14 @@ struct _ClutterStagePrivate
 
   gint sync_delay;
 
-  GTimer *fps_timer;
-  gint32 timer_n_frames;
+  gint64  perf_last_print_time;
+  gint    perf_frame_count;
+  gint64  perf_cumulative_draw_time;
+  gint64  perf_last_draw_time;
+  gint    perf_max_draw_intervals;
+  gint    perf_draw_intervals;
+  gint64 *perf_draw_interval;
+  gint64  perf_sum_draw_intervals;
 
   ClutterIDPool *pick_id_pool;
 
@@ -1097,6 +1103,110 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
 }
 
 static void
+clutter_stage_begin_perf_measurement (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  gint64 now = g_get_monotonic_time ();
+
+  if (priv->perf_last_draw_time &&
+      priv->perf_draw_intervals < priv->perf_max_draw_intervals)
+    {
+      gint64 draw_interval = now - priv->perf_last_draw_time;
+
+      priv->perf_draw_interval[priv->perf_draw_intervals++] = draw_interval;
+      priv->perf_sum_draw_intervals += draw_interval;
+    }
+
+  priv->perf_last_draw_time = now;
+}
+
+static void
+clutter_stage_end_perf_measurement (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  gint64 now = g_get_monotonic_time ();
+
+  priv->perf_frame_count++;
+  priv->perf_cumulative_draw_time += (now - priv->perf_last_draw_time);
+
+  if (priv->perf_frame_count && priv->perf_last_print_time)
+    {
+      gint64 print_interval = now - priv->perf_last_print_time;
+
+      if (print_interval >= G_USEC_PER_SEC)
+        {
+          glong avg_fps_x100 =
+            priv->perf_frame_count * 100L * G_USEC_PER_SEC /
+            print_interval;
+          gint avg_draw_time_ms_x10 =
+            priv->perf_cumulative_draw_time * 10 /
+            (priv->perf_frame_count * 1000);
+          gint64 avg_frame_interval =
+            print_interval / priv->perf_frame_count;
+          gint64 avg_draw_interval =
+            priv->perf_sum_draw_intervals / priv->perf_draw_intervals;
+          gint64 sum_square_deviation = 0;
+          gfloat stddev_draw_interval;
+          gfloat approx_smoothness_percent = 0.0f;
+          gint i;
+
+          for (i = 0; i < priv->perf_draw_intervals; i++)
+            {
+              gint64 deviation = priv->perf_draw_interval[i] -
+                                 avg_draw_interval;
+
+              sum_square_deviation += deviation * deviation;
+            }
+
+          stddev_draw_interval = sqrt (sum_square_deviation /
+                                       priv->perf_draw_intervals);
+
+          if (avg_frame_interval)
+            {
+              approx_smoothness_percent =
+                (avg_frame_interval - stddev_draw_interval) * 100 /
+                avg_frame_interval;
+
+              /* There's no lower bound on smoothness. It may be negative
+               * if the stddev exceeds the frame interval. That's
+               * technically correct but would confuse people so avoid
+               * reporting negative values.
+               */
+              if (approx_smoothness_percent < 0.0f)
+                approx_smoothness_percent = 0.0f;
+            }
+
+          /* Ideally this should fit within 80 columns. If you need to
+           * widen it further then please start a new line.
+           */
+          g_print ("*** Performance over %ld.%1lds: "
+                   "%ld.%02ld FPS, "
+                   "render: %d.%1dms, "
+                   "stddev: %.1fms (%d%% smooth)\n",
+                   print_interval / G_USEC_PER_SEC,
+                   (print_interval % G_USEC_PER_SEC) / (G_USEC_PER_SEC/10),
+                   avg_fps_x100 / 100,
+                   avg_fps_x100 % 100,
+                   avg_draw_time_ms_x10 / 10,
+                   avg_draw_time_ms_x10 % 10,
+                   stddev_draw_interval / 1000.0f,
+                   (int) round (approx_smoothness_percent)
+                   );
+
+          priv->perf_frame_count = 0;
+          priv->perf_cumulative_draw_time = 0;
+          priv->perf_draw_intervals = 0;
+          priv->perf_sum_draw_intervals = 0;
+          priv->perf_last_print_time = now;
+        }
+      }
+    else if (!priv->perf_last_print_time)
+      {
+        priv->perf_last_print_time = now;
+      }
+}
+
+static void
 clutter_stage_do_redraw (ClutterStage *stage)
 {
   ClutterActor *actor = CLUTTER_ACTOR (stage);
@@ -1113,27 +1223,12 @@ clutter_stage_do_redraw (ClutterStage *stage)
                 stage);
 
   if (_clutter_context_get_show_fps ())
-    {
-      if (priv->fps_timer == NULL)
-        priv->fps_timer = g_timer_new ();
-    }
+    clutter_stage_begin_perf_measurement (stage);
 
   _clutter_stage_window_redraw (priv->impl);
 
   if (_clutter_context_get_show_fps ())
-    {
-      priv->timer_n_frames += 1;
-
-      if (g_timer_elapsed (priv->fps_timer, NULL) >= 1.0)
-        {
-          g_print ("*** FPS for %s: %i ***\n",
-                   _clutter_actor_get_debug_name (actor),
-                   priv->timer_n_frames);
-
-          priv->timer_n_frames = 0;
-          g_timer_start (priv->fps_timer);
-        }
-    }
+    clutter_stage_end_perf_measurement (stage);
 
   CLUTTER_NOTE (PAINT, "Redraw finished for stage '%s'[%p]",
                 _clutter_actor_get_debug_name (actor),
@@ -1878,8 +1973,7 @@ clutter_stage_finalize (GObject *object)
 
   _clutter_id_pool_free (priv->pick_id_pool);
 
-  if (priv->fps_timer != NULL)
-    g_timer_destroy (priv->fps_timer);
+  g_free (priv->perf_draw_interval);
 
   if (priv->paint_notify != NULL)
     priv->paint_notify (priv->paint_data);
@@ -2316,6 +2410,12 @@ clutter_stage_init (ClutterStage *self)
   priv->throttle_motion_events = TRUE;
   priv->min_size_changed = FALSE;
   priv->sync_delay = -1;
+
+  if (_clutter_context_get_show_fps ())
+    {
+      priv->perf_max_draw_intervals = 500;
+      priv->perf_draw_interval = g_new (gint64, priv->perf_max_draw_intervals);
+    }
 
   /* XXX - we need to keep the invariant that calling
    * clutter_set_motion_event_enabled() before the stage creation
