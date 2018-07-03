@@ -132,8 +132,10 @@ struct _ClutterStagePrivate
 
   gint sync_delay;
 
-  GTimer *fps_timer;
-  gint32 timer_n_frames;
+  gint   perf_frame_count;
+  gint64 perf_last_print_time;
+  gint64 perf_cumulative_draw_time;
+  gint64 perf_last_draw_time;
 
   ClutterIDPool *pick_id_pool;
 
@@ -1096,6 +1098,59 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
 }
 
 static void
+clutter_stage_begin_perf_measurement (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  priv->perf_last_draw_time = g_get_monotonic_time ();
+}
+
+static void
+clutter_stage_end_perf_measurement (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  gint64 now = g_get_monotonic_time ();
+
+  priv->perf_frame_count++;
+  priv->perf_cumulative_draw_time += (now - priv->perf_last_draw_time);
+
+  if (priv->perf_frame_count && priv->perf_last_print_time)
+    {
+      gint64 print_interval = now - priv->perf_last_print_time;
+
+      if (print_interval >= G_USEC_PER_SEC)
+        {
+          glong avg_fps_x100 = priv->perf_frame_count * 100L * G_USEC_PER_SEC /
+                               print_interval;
+          gint avg_draw_time_ms_x10 = priv->perf_cumulative_draw_time * 10 /
+                                      (priv->perf_frame_count * 1000);
+
+          /* Ideally this should fit within 80 columns. If you need to
+           * widen it further then please start a new line.
+           */
+          g_print ("*** Performance over %ld.%1lds: "
+                   "%ld.%02ld FPS, "
+                   "render time: %d.%1dms\n",
+                   print_interval / G_USEC_PER_SEC,
+                   (print_interval % G_USEC_PER_SEC) / (G_USEC_PER_SEC/10),
+                   avg_fps_x100 / 100,
+                   avg_fps_x100 % 100,
+                   avg_draw_time_ms_x10 / 10,
+                   avg_draw_time_ms_x10 % 10
+                   );
+
+          priv->perf_frame_count = 0;
+          priv->perf_cumulative_draw_time = 0;
+          priv->perf_last_print_time = now;
+        }
+      }
+    else if (!priv->perf_last_print_time)
+      {
+        priv->perf_last_print_time = now;
+      }
+}
+
+static void
 clutter_stage_do_redraw (ClutterStage *stage)
 {
   ClutterActor *actor = CLUTTER_ACTOR (stage);
@@ -1112,27 +1167,12 @@ clutter_stage_do_redraw (ClutterStage *stage)
                 stage);
 
   if (_clutter_context_get_show_fps ())
-    {
-      if (priv->fps_timer == NULL)
-        priv->fps_timer = g_timer_new ();
-    }
+    clutter_stage_begin_perf_measurement (stage);
 
   _clutter_stage_window_redraw (priv->impl);
 
   if (_clutter_context_get_show_fps ())
-    {
-      priv->timer_n_frames += 1;
-
-      if (g_timer_elapsed (priv->fps_timer, NULL) >= 1.0)
-        {
-          g_print ("*** FPS for %s: %i ***\n",
-                   _clutter_actor_get_debug_name (actor),
-                   priv->timer_n_frames);
-
-          priv->timer_n_frames = 0;
-          g_timer_start (priv->fps_timer);
-        }
-    }
+    clutter_stage_end_perf_measurement (stage);
 
   CLUTTER_NOTE (PAINT, "Redraw finished for stage '%s'[%p]",
                 _clutter_actor_get_debug_name (actor),
@@ -1876,9 +1916,6 @@ clutter_stage_finalize (GObject *object)
   g_array_free (priv->paint_volume_stack, TRUE);
 
   _clutter_id_pool_free (priv->pick_id_pool);
-
-  if (priv->fps_timer != NULL)
-    g_timer_destroy (priv->fps_timer);
 
   if (priv->paint_notify != NULL)
     priv->paint_notify (priv->paint_data);
