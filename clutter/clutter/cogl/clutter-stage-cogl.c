@@ -194,8 +194,13 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
        * timestamp closest to now on the same phase and interval as the display
        * hardware last reported:
        */
-      last_frame_time = now - (now % refresh_interval) +
-                        (last_frame_time % refresh_interval);
+      gint64 hw_phase = stage_cogl->last_presentation_time % refresh_interval;
+
+      last_frame_time = now - (now % refresh_interval) + hw_phase;
+
+      /* But it's not a "last frame time" if it's in the future */
+      if (last_frame_time > now)
+        last_frame_time -= refresh_interval;
     }
 
   /* update_time is the optimal time to start rendering the next frame. It will
