@@ -1712,7 +1712,6 @@ gbm_fill_multiplanar_metadata (struct gbm_bo *next_bo,
 
       if (handles[i] == 0xffffffff)
         {
-          g_warning ("Failed to get handle for plane %d: %m", i);
           return FALSE;
         }
     }
