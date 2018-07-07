@@ -29,7 +29,8 @@
 
 #include "backends/meta-crtc.h"
 #include "backends/native/meta-crtc-kms.h"
-#include "backends/native/meta-default-modes.h"
+
+#include "meta-default-modes.h"
 
 #define SYNC_TOLERANCE 0.01    /* 1 percent */
 
