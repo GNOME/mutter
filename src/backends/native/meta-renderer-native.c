@@ -1601,6 +1601,20 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
 }
 
 static gboolean
+gbm_fill_multiplanar_metadata (struct gbm_bo *next_bo,
+                        uint32_t *handles,
+                        uint32_t *strides,
+                        uint32_t *offsets,
+                        uint64_t *modifiers);
+
+static void
+gbm_fill_old_metadata (struct gbm_bo *next_bo,
+                        uint32_t *handles,
+                        uint32_t *strides,
+                        uint32_t *offsets,
+                        uint64_t *modifiers);
+
+static gboolean
 gbm_get_next_fb_id (MetaGpuKms         *gpu_kms,
                     struct gbm_surface *gbm_surface,
                     struct gbm_bo     **out_next_bo,
@@ -1614,7 +1628,6 @@ gbm_get_next_fb_id (MetaGpuKms         *gpu_kms,
   uint32_t strides[4] = { 0, };
   uint32_t offsets[4] = { 0, };
   uint64_t modifiers[4] = { 0, };
-  int i;
 
   /* Now we need to set the CRTC to whatever is the front buffer */
   next_bo = gbm_surface_lock_front_buffer (gbm_surface);
@@ -1625,12 +1638,9 @@ gbm_get_next_fb_id (MetaGpuKms         *gpu_kms,
       return FALSE;
     }
 
-  for (i = 0; i < gbm_bo_get_plane_count (next_bo); i++)
+  if (!gbm_fill_multiplanar_metadata(next_bo, handles, strides, offsets, modifiers))
     {
-      strides[i] = gbm_bo_get_stride_for_plane (next_bo, i);
-      handles[i] = gbm_bo_get_handle_for_plane (next_bo, i).u32;
-      offsets[i] = gbm_bo_get_offset (next_bo, i);
-      modifiers[i] = gbm_bo_get_modifier (next_bo);
+      gbm_fill_old_metadata(next_bo, handles, strides, offsets, modifiers);
     }
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
@@ -1682,6 +1692,45 @@ gbm_get_next_fb_id (MetaGpuKms         *gpu_kms,
   *out_next_bo = next_bo;
   *out_next_fb_id = next_fb_id;
   return TRUE;
+}
+
+static gboolean
+gbm_fill_multiplanar_metadata (struct gbm_bo *next_bo,
+                        uint32_t *handles,
+                        uint32_t *strides,
+                        uint32_t *offsets,
+                        uint64_t *modifiers)
+{
+  int i;
+
+  for (i = 0; i < gbm_bo_get_plane_count (next_bo); i++)
+    {
+      strides[i] = gbm_bo_get_stride_for_plane (next_bo, i);
+      handles[i] = gbm_bo_get_handle_for_plane (next_bo, i).u32;
+      offsets[i] = gbm_bo_get_offset (next_bo, i);
+      modifiers[i] = gbm_bo_get_modifier (next_bo);
+
+      if (handles[i] == 0xffffffff)
+        {
+          g_warning ("Failed to get handle for plane %d: %m", i);
+          return FALSE;
+        }
+    }
+
+  return TRUE;
+}
+
+static void
+gbm_fill_old_metadata (struct gbm_bo *next_bo,
+                        uint32_t *handles,
+                        uint32_t *strides,
+                        uint32_t *offsets,
+                        uint64_t *modifiers)
+{
+  handles[0] = gbm_bo_get_handle (next_bo).u32;
+  strides[0] = gbm_bo_get_stride (next_bo);
+  offsets[0] = 0;
+  modifiers[0] = DRM_FORMAT_MOD_INVALID;
 }
 
 static void
