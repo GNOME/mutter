@@ -37,7 +37,8 @@
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-launcher.h"
 #include "backends/native/meta-output-kms.h"
-#include "backends/native/meta-default-modes.h"
+
+#include "meta-default-modes.h"
 
 typedef struct _MetaKmsSource
 {

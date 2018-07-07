@@ -51,6 +51,7 @@ mutter_built_sources = \
 	$(dbus_login1_built_sources)		\
 	meta/meta-enum-types.h			\
 	meta-enum-types.c			\
+	meta-default-modes.h			\
 	$(NULL)
 
 if HAVE_REMOTE_DESKTOP
@@ -498,7 +499,6 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=		\
 	backends/native/meta-clutter-backend-native.h	\
 	backends/native/meta-cursor-renderer-native.c	\
 	backends/native/meta-cursor-renderer-native.h	\
-	backends/native/meta-default-modes.h		\
 	backends/native/meta-gpu-kms.c			\
 	backends/native/meta-gpu-kms.h			\
 	backends/native/meta-input-settings-native.c	\
@@ -752,10 +752,10 @@ $(dbus_login1_built_sources) : Makefile.am org.freedesktop.login1.xml
 		--c-generate-autocleanup all						\
 		$(srcdir)/org.freedesktop.login1.xml
 
-backends/native/meta-default-modes.h: backends/native/gen-default-modes.py Makefile.am
+meta-default-modes.h: backends/native/gen-default-modes.py Makefile.am
 	@if test -n "$(CVT)"; then \
 		if $(AM_V_P); then PS4= set -x; else echo "  GEN      $@"; fi; \
-		python $< > $@; \
+		$(top_srcdir)/src/backends/native/gen-default-modes.py $@; \
 	fi
 
 .SECONDEXPANSION:
