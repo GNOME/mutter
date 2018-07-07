@@ -445,6 +445,9 @@ AC_CHECK_DECL([GL_EXT_x11_sync_object],
               [#include <GL/glx.h>])
 
 AC_PATH_PROG([CVT],[cvt],[])
+if test x"$CVT" = xno; then
+  AC_MSG_ERROR([cvt not found in your path])
+fi
 
 #### Warnings (last since -Werror can disturb other tests)
 
