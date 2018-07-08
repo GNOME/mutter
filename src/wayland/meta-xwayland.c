@@ -511,6 +511,7 @@ meta_xwayland_start (MetaXWaylandManager *manager,
    * won't try to reconnect and crash, leaving uninteresting core dumps. We do
    * want core dumps from Xwayland but only if a real bug occurs...
    */
+g_message ("%s: «%s»", __func__, XWAYLAND_PATH);
   manager->proc = g_subprocess_launcher_spawn (launcher, &error,
                                                XWAYLAND_PATH, manager->display_name,
                                                "-rootless",
@@ -520,6 +521,7 @@ meta_xwayland_start (MetaXWaylandManager *manager,
                                                "-listen", "4",
                                                "-listen", "5",
                                                "-displayfd", "6",
+                                               "-scrns", "2",
                                                NULL);
   if (!manager->proc)
     {
