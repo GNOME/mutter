@@ -48,6 +48,8 @@ mutter_test_unit_tests_SOURCES = \
 	tests/test-utils.c \
 	tests/test-utils.h \
 	tests/unit-tests.c \
+	tests/boxes-tests.c \
+	tests/boxes-tests.h \
 	tests/meta-backend-test.c \
 	tests/meta-backend-test.h \
 	tests/meta-monitor-manager-test.c \
@@ -89,10 +91,3 @@ run-headless-start-test: mutter-test-headless-start-test
 run-tests: run-test-runner-tests run-unit-tests run-headless-start-test
 
 endif
-
-# Some random test programs for bits of the code
-
-testboxes_SOURCES = core/testboxes.c
-testboxes_LDADD = $(MUTTER_LIBS) libmutter-$(LIBMUTTER_API_VERSION).la
-
-noinst_PROGRAMS += testboxes
