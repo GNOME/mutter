@@ -19,20 +19,23 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "boxes-private.h"
+#include "tests/boxes-tests.h"
+
 #include <glib.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <X11/Xutil.h> /* Just for the definition of the various gravities */
-#include <time.h>      /* To initialize random seed */
+#include <X11/Xutil.h>
+#include <time.h>
 #include <math.h>
+
+#include "core/boxes-private.h"
 
 #define NUM_RANDOM_RUNS 10000
 
 static void
 init_random_ness (void)
 {
-  srand(time(NULL));
+  srand (time (NULL));
 }
 
 static void
@@ -111,8 +114,6 @@ test_area (void)
 
   temp = meta_rect (0, 0, 5, 7);
   g_assert (meta_rectangle_area (&temp) == 35);
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 static void
@@ -139,8 +140,6 @@ test_intersect (void)
 
   meta_rectangle_intersect (&b, &d, &b);
   g_assert (meta_rectangle_equal (&b, &b_intersect_d));
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 static void
@@ -158,8 +157,6 @@ test_equal (void)
   g_assert (!meta_rectangle_equal (&a, &d));
   g_assert (!meta_rectangle_equal (&a, &e));
   g_assert (!meta_rectangle_equal (&a, &f));
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 static void
@@ -181,8 +178,6 @@ test_overlap_funcs (void)
   g_assert (!meta_rectangle_overlap (&temp1, &temp2));
   g_assert (!meta_rectangle_horiz_overlap (&temp1, &temp2));
   g_assert ( meta_rectangle_vert_overlap (&temp1, &temp2));
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 static void
@@ -219,8 +214,6 @@ test_basic_fitting (void)
   g_assert (!meta_rectangle_contains_rect (&temp1, &temp3));
   g_assert ( meta_rectangle_could_fit_rect (&temp1, &temp3));
   g_assert (!meta_rectangle_could_fit_rect (&temp3, &temp2));
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 static void
@@ -652,16 +645,16 @@ test_regions_okay (void)
   /*************************************************************/
   /* Make sure test region 5 has the right spanning rectangles */
   /*************************************************************/
-  printf ("The next test intentionally causes a warning, "
-          "but it can be ignored.\n");
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "Region to merge was empty!*");
   region = get_screen_region (5);
+  g_test_assert_expected_messages ();
+
   verify_lists_are_equal (region, NULL);
 
   /* FIXME: Still to do:
    *   - Create random struts and check the regions somehow
    */
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 static void
@@ -704,8 +697,6 @@ test_region_fitting (void)
   g_assert (!meta_rectangle_contained_in_region (region, &rect));
 
   meta_rectangle_free_list_and_elements (region);
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 static void
@@ -760,14 +751,17 @@ test_clamping_to_region (void)
                                            &min_size);
   g_assert (rect.width == 400 && rect.height == 1180);
 
-  printf ("The next test intentionally causes a warning, "
-          "but it can be ignored.\n");
   rect = meta_rect (50, 50, 10000, 10000);
   min_size.width = 600;  min_size.height = 1170;
+
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "No rect whose size to clamp to found*");
   meta_rectangle_clamp_to_fit_into_region (region,
                                            fixed_directions,
                                            &rect,
                                            &min_size);
+  g_test_assert_expected_messages ();
+
   g_assert (rect.width == 600 && rect.height == 1170);
 
   rect = meta_rect (350, 50, 100, 1100);
@@ -788,20 +782,21 @@ test_clamping_to_region (void)
                                            &min_size);
   g_assert (rect.width == 400 && rect.height == 1100);
 
-  printf ("The next test intentionally causes a warning, "
-          "but it can be ignored.\n");
   rect = meta_rect (300, 70, 999999, 999999);
   min_size.width = 100;  min_size.height = 200;
   fixed_directions = FIXED_DIRECTION_Y;
+
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "No rect whose size to clamp to found*");
   meta_rectangle_clamp_to_fit_into_region (region,
                                            fixed_directions,
                                            &rect,
                                            &min_size);
+  g_test_assert_expected_messages ();
+
   g_assert (rect.width == 100 && rect.height == 999999);
 
   meta_rectangle_free_list_and_elements (region);
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 static gboolean
@@ -883,8 +878,6 @@ test_clipping_to_region (void)
   g_assert (meta_rectangle_equal (&rect, &temp));
 
   meta_rectangle_free_list_and_elements (region);
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 static void
@@ -953,8 +946,6 @@ test_shoving_into_region (void)
   g_assert (meta_rectangle_equal (&rect, &temp));
 
   meta_rectangle_free_list_and_elements (region);
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 static void
@@ -1133,8 +1124,6 @@ test_find_onscreen_edges (void)
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 static void
@@ -1222,8 +1211,6 @@ test_find_nonintersected_monitor_edges (void)
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 static void
@@ -1323,8 +1310,6 @@ test_gravity_resize (void)
                                       430,
                                       211);
   g_assert (meta_rectangle_equal (&rect, &temp));
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
 #define EPSILON 0.000000001
@@ -1376,35 +1361,33 @@ test_find_closest_point_to_line (void)
                                                   px,  py,
                                                   &rx, &ry);
   g_assert (fabs (rx - answer_x) < EPSILON && fabs (ry - answer_y) < EPSILON);
-
-  printf ("%s passed.\n", G_STRFUNC);
 }
 
-int
-main(void)
+void
+init_boxes_tests (void)
 {
   init_random_ness ();
-  test_area ();
-  test_intersect ();
-  test_equal ();
-  test_overlap_funcs ();
-  test_basic_fitting ();
 
-  test_regions_okay ();
-  test_region_fitting ();
+  g_test_add_func ("/util/boxes/area", test_area);
+  g_test_add_func ("/util/boxes/intersect", test_intersect);
+  g_test_add_func ("/util/boxes/equal", test_equal);
+  g_test_add_func ("/util/boxes/overlap", test_overlap_funcs);
+  g_test_add_func ("/util/boxes/basic-fitting", test_basic_fitting);
 
-  test_clamping_to_region ();
-  test_clipping_to_region ();
-  test_shoving_into_region ();
+  g_test_add_func ("/util/boxes/regions-ok", test_regions_okay);
+  g_test_add_func ("/util/boxes/regions-fitting", test_region_fitting);
+
+  g_test_add_func ("/util/boxes/clamp-to-region", test_clamping_to_region);
+  g_test_add_func ("/util/boxes/clip-to-region", test_clipping_to_region);
+  g_test_add_func ("/util/boxes/shove-into-region", test_shoving_into_region);
 
   /* And now the functions dealing with edges more than boxes */
-  test_find_onscreen_edges ();
-  test_find_nonintersected_monitor_edges ();
+  g_test_add_func ("/util/boxes/onscreen-edges", test_find_onscreen_edges);
+  g_test_add_func ("/util/boxes/nonintersected-monitor-edges",
+                   test_find_nonintersected_monitor_edges);
 
   /* And now the misfit functions that don't quite fit in anywhere else... */
-  test_gravity_resize ();
-  test_find_closest_point_to_line ();
-
-  printf ("All tests passed.\n");
-  return 0;
+  g_test_add_func ("/util/boxes/gravity-resize", test_gravity_resize);
+  g_test_add_func ("/util/boxes/closest-point-to-line",
+                   test_find_closest_point_to_line);
 }
