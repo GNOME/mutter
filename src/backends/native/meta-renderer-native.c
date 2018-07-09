@@ -1632,6 +1632,14 @@ gbm_get_next_fb_id (MetaGpuKms         *gpu_kms,
       offsets[i] = gbm_bo_get_offset (next_bo, i);
       modifiers[i] = gbm_bo_get_modifier (next_bo);
     }
+  if (handles[0] == ((uint32_t) -1))
+    {
+      /* Failed to fetch handle to plane, falling back to old method */
+      strides[0] = gbm_bo_get_stride (next_bo);
+      handles[0] = gbm_bo_get_handle (next_bo).u32;
+      offsets[0] = 0;
+      modifiers[0] = DRM_FORMAT_MOD_INVALID;
+    }
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
