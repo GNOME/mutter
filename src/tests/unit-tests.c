@@ -28,6 +28,7 @@
 #include "compositor/meta-plugin-manager.h"
 #include "core/boxes-private.h"
 #include "core/main-private.h"
+#include "tests/boxes-tests.h"
 #include "tests/meta-backend-test.h"
 #include "tests/monitor-config-migration-unit-tests.h"
 #include "tests/monitor-unit-tests.h"
@@ -252,6 +253,7 @@ init_tests (int argc, char **argv)
   init_monitor_store_tests ();
   init_monitor_config_migration_tests ();
   init_monitor_tests ();
+  init_boxes_tests ();
 }
 
 int
