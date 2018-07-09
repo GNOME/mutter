@@ -79,6 +79,28 @@ find_systemd_session (gchar **session_id,
   g_assert (session_id != NULL);
   g_assert (error == NULL || *error == NULL);
 
+  /* first let's try the normal way */
+  saved_errno = sd_pid_get_session (0, &local_session_id);
+  if (saved_errno < 0)
+    {
+      /* this is a real error, bail out */
+      if (saved_errno != -ENODATA)
+        {
+          g_set_error (error,
+                       G_IO_ERROR,
+                       G_IO_ERROR_NOT_FOUND,
+                       "Failed to get session by pid for user %d (%s)",
+                       getuid (),
+                       g_strerror (-saved_errno));
+          return FALSE;
+        }
+    }
+  else
+    {
+      *session_id = g_steal_pointer (&local_session_id);
+      return TRUE;
+    }
+
   saved_errno = sd_uid_get_display (getuid (), &local_session_id);
   if (saved_errno < 0)
     {
