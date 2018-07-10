@@ -30,15 +30,16 @@
 
 #include "config.h"
 
+#include "backends/native/meta-barrier-native.h"
+
 #include <stdlib.h>
 
-#include <meta/barrier.h>
-#include <meta/util.h>
 #include "backends/meta-backend-private.h"
 #include "backends/meta-barrier-private.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-backend-native-private.h"
-#include "backends/native/meta-barrier-native.h"
+#include "meta/barrier.h"
+#include "meta/util.h"
 
 struct _MetaBarrierManagerNative
 {

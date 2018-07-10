@@ -20,10 +20,10 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <meta/display.h>
-
 #ifndef META_EVENTS_H
 #define META_EVENTS_H
+
+#include "meta/display.h"
 
 void meta_display_init_events (MetaDisplay *display);
 void meta_display_free_events (MetaDisplay *display);

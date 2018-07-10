@@ -36,20 +36,23 @@
 
 #define _XOPEN_SOURCE 500 /* for gethostname() */
 
-#include <config.h>
-#include "window-props.h"
-#include "window-x11.h"
-#include "window-x11-private.h"
-#include "x11/meta-x11-display-private.h"
-#include <meta/meta-x11-errors.h>
-#include "xprops.h"
-#include "frame.h"
-#include <meta/group.h>
+#include "config.h"
+
+#include "x11/window-props.h"
+
 #include <X11/Xatom.h>
 #include <unistd.h>
 #include <string.h>
-#include "util-private.h"
-#include "meta-workspace-manager-private.h"
+
+#include "core/frame.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/util-private.h"
+#include "meta/group.h"
+#include "meta/meta-x11-errors.h"
+#include "x11/meta-x11-display-private.h"
+#include "x11/window-x11-private.h"
+#include "x11/window-x11.h"
+#include "x11/xprops.h"
 
 #ifndef HOST_NAME_MAX
 /* Solaris headers apparently don't define this so do so manually; #326745 */

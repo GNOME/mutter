@@ -21,23 +21,23 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <math.h>
-#include <string.h>
-#include <meta/boxes.h>
-#include "frames.h"
-#include <meta/util.h>
-#include "core.h"
-#include <meta/theme.h>
-#include <meta/prefs.h>
-#include "ui.h"
-
-#include "core/window-private.h"
-#include "core/frame.h"
-#include "x11/window-x11.h"
-#include "x11/window-x11-private.h"
+#include "config.h"
 
 #include <cairo-xlib.h>
+#include <math.h>
+#include <string.h>
+
+#include "core/core.h"
+#include "core/frame.h"
+#include "core/window-private.h"
+#include "meta/boxes.h"
+#include "meta/prefs.h"
+#include "meta/theme.h"
+#include "meta/util.h"
+#include "ui/ui.h"
+#include "ui/frames.h"
+#include "x11/window-x11-private.h"
+#include "x11/window-x11.h"
 
 #define DEFAULT_INNER_BUTTON_BORDER 3
 

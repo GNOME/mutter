@@ -32,21 +32,19 @@
 #ifndef META_WINDOW_PRIVATE_H
 #define META_WINDOW_PRIVATE_H
 
-#include <config.h>
-#include <meta/compositor.h>
-#include <meta/window.h>
-#include <meta/meta-close-dialog.h>
-#include "backends/meta-logical-monitor.h"
-#include <meta/util.h>
-#include "stack.h"
 #include <X11/Xutil.h>
 #include <cairo.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
-#include <clutter/clutter.h>
 
-#include "x11/group-private.h"
-
+#include "backends/meta-logical-monitor.h"
+#include "clutter/clutter.h"
+#include "core/stack.h"
+#include "meta/compositor.h"
+#include "meta/meta-close-dialog.h"
+#include "meta/util.h"
+#include "meta/window.h"
 #include "wayland/meta-wayland-types.h"
+#include "x11/group-private.h"
 
 typedef struct _MetaWindowQueue MetaWindowQueue;
 

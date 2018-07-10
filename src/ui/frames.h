@@ -24,10 +24,11 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
-#include <meta/common.h>
-#include <meta/types.h>
-#include "theme-private.h"
-#include "ui.h"
+
+#include "meta/common.h"
+#include "meta/types.h"
+#include "ui/theme-private.h"
+#include "ui/ui.h"
 
 typedef enum
 {

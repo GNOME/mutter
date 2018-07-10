@@ -50,35 +50,34 @@
  * top window group.
  */
 
-#include <config.h>
+#include "config.h"
 
-#include <clutter/x11/clutter-x11.h>
+#include "compositor/compositor-private.h"
 
-#include "core.h"
-#include <meta/meta-x11-errors.h>
-#include <meta/window.h>
-#include "compositor-private.h"
-#include <meta/compositor-mutter.h>
-#include <meta/prefs.h>
-#include <meta/main.h>
-#include <meta/meta-backend.h>
-#include <meta/meta-background-actor.h>
-#include <meta/meta-background-group.h>
-#include <meta/meta-shadow-factory.h>
-#include "meta-window-actor-private.h"
-#include "meta-window-group-private.h"
-#include "window-private.h" /* to check window->hidden */
-#include "display-private.h" /* for meta_display_lookup_x_window() and meta_display_cancel_touch() */
-#include "util-private.h"
-#include "backends/meta-dnd-private.h"
-#include "frame.h"
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xcomposite.h>
-#include "meta-sync-ring.h"
 
+#include "backends/meta-dnd-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "clutter/clutter-mutter.h"
-
+#include "clutter/x11/clutter-x11.h"
+#include "compositor/meta-sync-ring.h"
+#include "compositor/meta-window-actor-private.h"
+#include "compositor/meta-window-group-private.h"
+#include "core/core.h"
+#include "core/display-private.h"
+#include "core/frame.h"
+#include "core/util-private.h"
+#include "core/window-private.h"
+#include "meta/compositor-mutter.h"
+#include "meta/main.h"
+#include "meta/meta-backend.h"
+#include "meta/meta-background-actor.h"
+#include "meta/meta-background-group.h"
+#include "meta/meta-shadow-factory.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
+#include "meta/window.h"
 #include "x11/meta-x11-display-private.h"
 
 #ifdef HAVE_WAYLAND

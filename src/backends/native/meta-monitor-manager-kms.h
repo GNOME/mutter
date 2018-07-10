@@ -26,7 +26,7 @@
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
-#include "meta-monitor-manager-private.h"
+#include "backends/meta-monitor-manager-private.h"
 
 typedef struct _MetaGpuKms MetaGpuKms;
 

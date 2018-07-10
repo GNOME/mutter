@@ -27,9 +27,9 @@
 
 #include <glib-object.h>
 
+#include "backends/native/meta-stage-native.h"
 #include "clutter/clutter.h"
 #include "clutter/egl/clutter-backend-eglnative.h"
-#include "backends/native/meta-stage-native.h"
 
 #define META_TYPE_CLUTTER_BACKEND_NATIVE (meta_clutter_backend_native_get_type ())
 G_DECLARE_FINAL_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,

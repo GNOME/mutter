@@ -24,8 +24,9 @@
 #define META_WAYLAND_INHIBIT_SHORTCUTS_H
 
 #include <wayland-server.h>
-#include "wayland/meta-wayland-types.h"
+
 #include "meta/window.h"
+#include "wayland/meta-wayland-types.h"
 
 #define META_TYPE_WAYLAND_KEYBOARD_SHORTCUTS_INHIBIT (meta_wayland_keyboard_shortcuts_inhibit_resource_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandKeyboardShotscutsInhibit,

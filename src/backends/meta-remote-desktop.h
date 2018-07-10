@@ -26,6 +26,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-dbus-session-watcher.h"
+
 #include "meta-dbus-remote-desktop.h"
 
 typedef struct _MetaRemoteDesktopSession MetaRemoteDesktopSession;

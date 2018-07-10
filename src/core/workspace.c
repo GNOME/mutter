@@ -31,24 +31,25 @@
  * are unmapped.
  */
 
-#include <config.h>
-#include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
-#include "x11/meta-x11-display-private.h"
-#include <meta/workspace.h>
-#include "meta-workspace-manager-private.h"
-#include "workspace-private.h"
-#include "boxes-private.h"
-#include <meta/meta-x11-errors.h>
-#include <meta/prefs.h>
+#include "config.h"
 
-#include <meta/compositor.h>
+#include "meta/workspace.h"
 
 #include <X11/Xatom.h>
 #include <string.h>
 #ifdef HAVE_LIBCANBERRA
 #include <canberra-gtk.h>
 #endif
+
+#include "backends/meta-backend-private.h"
+#include "backends/meta-logical-monitor.h"
+#include "core/boxes-private.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/workspace-private.h"
+#include "meta/compositor.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
+#include "x11/meta-x11-display-private.h"
 
 void meta_workspace_queue_calc_showing   (MetaWorkspace *workspace);
 static void focus_ancestor_or_top_window (MetaWorkspace *workspace,

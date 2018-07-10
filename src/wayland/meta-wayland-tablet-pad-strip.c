@@ -25,16 +25,17 @@
 
 #include "config.h"
 
+#include "wayland/meta-wayland-tablet-pad-strip.h"
+
 #include <glib.h>
-
 #include <wayland-server.h>
-#include "tablet-unstable-v2-server-protocol.h"
 
-#include "meta-surface-actor-wayland.h"
-#include "meta-wayland-private.h"
-#include "meta-wayland-tablet-pad.h"
-#include "meta-wayland-tablet-pad-group.h"
-#include "meta-wayland-tablet-pad-strip.h"
+#include "compositor/meta-surface-actor-wayland.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-tablet-pad.h"
+#include "wayland/meta-wayland-tablet-pad-group.h"
+
+#include "tablet-unstable-v2-server-protocol.h"
 
 static void
 unbind_resource (struct wl_resource *resource)

@@ -20,11 +20,13 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config.h"
+
 #include <math.h>
 #include <string.h>
 
-#include "meta-texture-tower.h"
-#include "meta-texture-rectangle.h"
+#include "compositor/meta-texture-rectangle.h"
+#include "compositor/meta-texture-tower.h"
 
 #ifndef M_LOG2E
 #define M_LOG2E 1.4426950408889634074

@@ -23,8 +23,8 @@
 #ifndef META_IDLE_MONITOR_PRIVATE_H
 #define META_IDLE_MONITOR_PRIVATE_H
 
-#include <meta/meta-idle-monitor.h>
-#include "display-private.h"
+#include "core/display-private.h"
+#include "meta/meta-idle-monitor.h"
 
 typedef struct
 {

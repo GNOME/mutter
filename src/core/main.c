@@ -43,56 +43,55 @@
 
 #define _XOPEN_SOURCE /* for putenv() and some signal-related functions */
 
-#include <config.h>
-#include <meta/main.h>
-#include "util-private.h"
-#include "display-private.h"
-#include <meta/meta-x11-errors.h>
-#include "ui.h"
-#include <meta/prefs.h>
-#include <meta/compositor.h>
-#include <meta/meta-backend.h>
-#include "core/main-private.h"
+#include "config.h"
 
-#include <glib-object.h>
-#include <glib-unix.h>
+#include "meta/main.h"
 
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <stdio.h>
-#include <string.h>
-#include <signal.h>
-#include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <glib-object.h>
+#include <glib-unix.h>
 #include <locale.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
-
-#include <clutter/clutter.h>
+#include <unistd.h>
 
 #ifdef HAVE_INTROSPECTION
 #include <girepository.h>
 #endif
 
+#if defined(HAVE_NATIVE_BACKEND) && defined(HAVE_WAYLAND)
+#include <systemd/sd-login.h>
+#endif /* HAVE_WAYLAND && HAVE_NATIVE_BACKEND */
+
+#include "backends/meta-backend-private.h"
+#include "backends/x11/cm/meta-backend-x11-cm.h"
+#include "backends/x11/meta-backend-x11.h"
+#include "clutter/clutter.h"
+#include "core/display-private.h"
+#include "core/main-private.h"
+#include "core/util-private.h"
+#include "meta/compositor.h"
+#include "meta/meta-backend.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
+#include "ui/ui.h"
 #include "x11/session.h"
 
 #ifdef HAVE_WAYLAND
-#include "wayland/meta-wayland.h"
 #include "backends/x11/nested/meta-backend-x11-nested.h"
-# endif
-
-#include "backends/meta-backend-private.h"
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/cm/meta-backend-x11-cm.h"
+#include "wayland/meta-wayland.h"
+#endif
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
-#ifdef HAVE_WAYLAND
-#include <systemd/sd-login.h>
-#endif /* HAVE_WAYLAND */
-#endif /* HAVE_NATIVE_BACKEND */
+#endif
 
 /*
  * The exit code we'll return to our parent process when we eventually die.

@@ -21,10 +21,10 @@
 #ifndef META_BACKGROUND_ACTOR_H
 #define META_BACKGROUND_ACTOR_H
 
-#include <clutter/clutter.h>
-#include <meta/meta-background.h>
-
 #include <gsettings-desktop-schemas/gdesktop-enums.h>
+
+#include "clutter/clutter.h"
+#include "meta/meta-background.h"
 
 /**
  * MetaBackgroundActor:
