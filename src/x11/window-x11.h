@@ -23,9 +23,10 @@
 #ifndef META_WINDOW_X11_H
 #define META_WINDOW_X11_H
 
-#include <meta/window.h>
-#include <meta/compositor.h>
 #include <X11/Xlib.h>
+
+#include "meta/compositor.h"
+#include "meta/window.h"
 
 G_BEGIN_DECLS
 

@@ -24,19 +24,18 @@
 
 #include "config.h"
 
-#include "meta-surface-actor-wayland.h"
+#include "compositor/meta-surface-actor-wayland.h"
 
 #include <math.h>
-#include <cogl/cogl-wayland-server.h>
-#include "meta-shaped-texture-private.h"
 
+#include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "cogl/cogl-wayland-server.h"
+#include "compositor/meta-shaped-texture-private.h"
+#include "compositor/region-utils.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-window-wayland.h"
-
-#include "backends/meta-backend-private.h"
-#include "compositor/region-utils.h"
 
 typedef struct _MetaSurfaceActorWaylandPrivate
 {

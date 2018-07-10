@@ -23,18 +23,17 @@
 
 #include "config.h"
 
-#include "meta-xwayland.h"
-#include "meta-xwayland-private.h"
+#include "wayland/meta-xwayland.h"
+#include "wayland/meta-xwayland-private.h"
 
-#include <meta/main.h>
-
-#include <glib.h>
-#include <glib-unix.h>
 #include <errno.h>
+#include <glib-unix.h>
+#include <glib.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 
 #include "compositor/meta-surface-actor-wayland.h"
+#include "meta/main.h"
 #include "wayland/meta-wayland-actor-surface.h"
 
 enum {

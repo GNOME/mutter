@@ -28,9 +28,10 @@
 #define META_KEYBINDINGS_PRIVATE_H
 
 #include <gio/gio.h>
-#include <meta/keybindings.h>
 #include <xkbcommon/xkbcommon.h>
-#include "meta-accel-parse.h"
+
+#include "core/meta-accel-parse.h"
+#include "meta/keybindings.h"
 
 typedef struct _MetaKeyHandler MetaKeyHandler;
 struct _MetaKeyHandler

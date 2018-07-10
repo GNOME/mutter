@@ -24,15 +24,12 @@
 
 #include "config.h"
 
-#include "meta-cursor-renderer-native.h"
+#include "backends/native/meta-cursor-renderer-native.h"
 
 #include <string.h>
 #include <gbm.h>
 #include <xf86drm.h>
 #include <errno.h>
-
-#include <meta/util.h>
-#include <meta/meta-backend.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-sprite-xcursor.h"
@@ -43,6 +40,8 @@
 #include "backends/native/meta-renderer-native.h"
 #include "core/boxes-private.h"
 #include "meta/boxes.h"
+#include "meta/meta-backend.h"
+#include "meta/util.h"
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-cursor-sprite-wayland.h"

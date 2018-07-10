@@ -27,7 +27,7 @@
 
 #include <glib-object.h>
 
-#include <clutter/clutter.h>
+#include "clutter/clutter.h"
 #include "meta/meta-dnd.h"
 #include "meta/meta-remote-access-controller.h"
 

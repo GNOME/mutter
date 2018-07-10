@@ -23,7 +23,7 @@
 #ifndef META_FEEDBACK_ACTOR_PRIVATE_H
 #define META_FEEDBACK_ACTOR_PRIVATE_H
 
-#include <clutter/clutter.h>
+#include "clutter/clutter.h"
 
 /**
  * MetaFeedbackActor:

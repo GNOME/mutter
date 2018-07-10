@@ -25,9 +25,9 @@
 #include "backends/meta-screen-cast-monitor-stream-src.h"
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-screen-cast-monitor-stream.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor.h"
+#include "backends/meta-screen-cast-monitor-stream.h"
 #include "clutter/clutter.h"
 #include "clutter/clutter-mutter.h"
 

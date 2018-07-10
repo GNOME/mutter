@@ -24,8 +24,9 @@
 #ifndef __META_SHAPED_TEXTURE_H__
 #define __META_SHAPED_TEXTURE_H__
 
-#include <clutter/clutter.h>
 #include <X11/Xlib.h>
+
+#include "clutter/clutter.h"
 
 G_BEGIN_DECLS
 

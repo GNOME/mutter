@@ -24,16 +24,15 @@
 
 #include "config.h"
 
-#include "meta-cursor-renderer.h"
+#include "backends/meta-cursor-renderer.h"
 
-#include <meta/meta-backend.h>
-#include <meta/util.h>
 #include <math.h>
 
-#include <cogl/cogl.h>
-#include <clutter/clutter.h>
-
-#include "meta-stage-private.h"
+#include "backends/meta-stage-private.h"
+#include "clutter/clutter.h"
+#include "cogl/cogl.h"
+#include "meta/meta-backend.h"
+#include "meta/util.h"
 
 struct _MetaCursorRendererPrivate
 {

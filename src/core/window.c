@@ -26,47 +26,46 @@
  * @short_description: Mutter X managed windows
  */
 
-#include <config.h>
-#include "window-private.h"
-#include "boxes-private.h"
-#include "edge-resistance.h"
-#include "util-private.h"
-#include "frame.h"
-#include <meta/meta-x11-errors.h>
-#include "meta-workspace-manager-private.h"
-#include "workspace-private.h"
-#include "stack.h"
-#include "keybindings-private.h"
-#include "ui.h"
-#include "place.h"
-#include <meta/prefs.h>
-#include <meta/group.h>
-#include "constraints.h"
-#include <meta/meta-enum-types.h>
-#include "core.h"
+#include "config.h"
 
-#include <X11/Xatom.h>
+#include "core/window-private.h"
+
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
-
-#include <meta/meta-cursor-tracker.h>
-#include "meta/compositor-mutter.h"
-
-#include "x11/meta-x11-display-private.h"
-#include "x11/window-x11.h"
-#include "x11/window-props.h"
-#include "x11/xprops.h"
-
-#ifdef HAVE_WAYLAND
-#include "wayland/meta-window-wayland.h"
-#include "wayland/meta-window-xwayland.h"
-#include "wayland/meta-wayland-surface.h"
-#include "wayland/meta-wayland-private.h"
-#endif
+#include <X11/Xatom.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "core/boxes-private.h"
+#include "core/constraints.h"
+#include "core/core.h"
+#include "core/edge-resistance.h"
+#include "core/frame.h"
+#include "core/keybindings-private.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/place.h"
+#include "core/stack.h"
+#include "core/util-private.h"
+#include "core/workspace-private.h"
+#include "meta/compositor-mutter.h"
+#include "meta/group.h"
+#include "meta/meta-cursor-tracker.h"
+#include "meta/meta-enum-types.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
+#include "ui/ui.h"
+#include "x11/meta-x11-display-private.h"
+#include "x11/window-props.h"
+#include "x11/window-x11.h"
+#include "x11/xprops.h"
+
+#ifdef HAVE_WAYLAND
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-window-wayland.h"
+#include "wayland/meta-window-xwayland.h"
+#endif
 
 /* Windows that unmaximize to a size bigger than that fraction of the workarea
  * will be scaled down to that size (while maintaining aspect ratio).

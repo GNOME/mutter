@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include "meta-cursor.h"
+#include "backends/meta-cursor.h"
 
 #include "backends/meta-backend-private.h"
 #include "cogl/cogl.h"
