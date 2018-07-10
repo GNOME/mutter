@@ -28,9 +28,13 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "boxes-private.h"
-#include <meta/util.h>
-#include <X11/Xutil.h>  /* Just for the definition of the various gravities */
+#include "config.h"
+
+#include "core/boxes-private.h"
+
+#include <X11/Xutil.h>
+
+#include "meta/util.h"
 
 /* It would make sense to use GSlice here, but until we clean up the
  * rest of this file and the internal API to use these functions, we

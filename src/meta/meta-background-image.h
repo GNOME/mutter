@@ -23,8 +23,11 @@
 #ifndef __META_BACKGROUND_IMAGE_H__
 #define __META_BACKGROUND_IMAGE_H__
 
+#include <gio/gio.h>
 #include <glib-object.h>
-#include <cogl/cogl.h>
+
+#include "cogl/cogl.h"
+#include "meta/display.h"
 
 #define META_TYPE_BACKGROUND_IMAGE            (meta_background_image_get_type ())
 #define META_BACKGROUND_IMAGE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_BACKGROUND_IMAGE, MetaBackgroundImage))

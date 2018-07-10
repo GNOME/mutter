@@ -25,17 +25,17 @@
 
 #include "config.h"
 
-#include "meta-surface-actor-x11.h"
+#include "compositor/meta-surface-actor-x11.h"
 
 #include <X11/extensions/Xcomposite.h>
-#include <cogl/winsys/cogl-texture-pixmap-x11.h>
 
-#include <meta/meta-x11-errors.h>
-#include "window-private.h"
-#include "meta-shaped-texture-private.h"
-#include "meta-cullable.h"
-#include "x11/window-x11.h"
+#include "cogl/winsys/cogl-texture-pixmap-x11.h"
+#include "compositor/meta-cullable.h"
+#include "compositor/meta-shaped-texture-private.h"
+#include "core/window-private.h"
+#include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-x11.h"
 
 struct _MetaSurfaceActorX11Private
 {

@@ -21,7 +21,8 @@
 #ifndef __META_CLUTTER_UTILS_H__
 #define __META_CLUTTER_UTILS_H__
 
-#include <clutter/clutter.h>
+#include "clutter/clutter.h"
+
 gboolean meta_actor_vertices_are_untransformed (ClutterVertex *verts,
                                                 float          widthf,
                                                 float          heightf,

@@ -32,18 +32,17 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#include "config.h"
+
+#include "core/stack-tracker.h"
 
 #include <string.h>
 
-#include "frame.h"
-#include "display-private.h"
-#include "stack-tracker.h"
-#include <meta/meta-x11-errors.h>
-#include <meta/util.h>
-
-#include <meta/compositor.h>
-
+#include "core/display-private.h"
+#include "core/frame.h"
+#include "meta/compositor.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/util.h"
 #include "x11/meta-x11-display-private.h"
 
 /* The complexity here comes from resolving two competing factors:

@@ -21,17 +21,16 @@
 
 #include "config.h"
 
-#include "x11/meta-x11-display-private.h"
-#include "iconcache.h"
-
-#include <meta/meta-x11-errors.h>
+#include "x11/iconcache.h"
 
 #include <cairo.h>
 #include <cairo-xlib.h>
 #include <cairo-xlib-xrender.h>
-
 #include <X11/Xatom.h>
 #include <X11/extensions/Xrender.h>
+
+#include "meta/meta-x11-errors.h"
+#include "x11/meta-x11-display-private.h"
 
 static gboolean
 find_largest_sizes (gulong *data,

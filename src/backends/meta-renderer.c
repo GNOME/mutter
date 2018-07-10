@@ -24,10 +24,11 @@
 
 #include "config.h"
 
+#include "backends/meta-renderer.h"
+
 #include <glib-object.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-renderer.h"
 
 typedef struct _MetaRendererPrivate
 {

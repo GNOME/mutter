@@ -30,13 +30,13 @@
 #include <cairo.h>
 
 #include "backends/meta-backend-private.h"
-#include "core/meta-border.h"
-#include "wayland/meta-wayland-seat.h"
-#include "wayland/meta-wayland-pointer.h"
-#include "wayland/meta-wayland-pointer-constraints.h"
-#include "wayland/meta-wayland-surface.h"
 #include "backends/meta-pointer-constraint.h"
 #include "compositor/meta-surface-actor-wayland.h"
+#include "core/meta-border.h"
+#include "wayland/meta-wayland-pointer-constraints.h"
+#include "wayland/meta-wayland-pointer.h"
+#include "wayland/meta-wayland-seat.h"
+#include "wayland/meta-wayland-surface.h"
 
 struct _MetaPointerConfinementWayland
 {

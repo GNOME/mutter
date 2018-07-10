@@ -26,18 +26,19 @@
 
 #include "wayland/meta-wayland-egl-stream.h"
 
-#include "cogl/cogl-egl.h"
 #include "backends/meta-backend-private.h"
-#include "backends/meta-egl.h"
 #include "backends/meta-egl-ext.h"
+#include "backends/meta-egl.h"
+#include "cogl/cogl-egl.h"
 #include "meta/meta-backend.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
 
-#include "wayland-eglstream-controller-server-protocol.h"
 #include <dlfcn.h>
+
+#include "wayland-eglstream-controller-server-protocol.h"
 
 static struct wl_interface *wl_eglstream_controller_interface_ptr = NULL;
 

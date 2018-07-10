@@ -24,14 +24,17 @@
 
 #include "config.h"
 
-#include "meta-wayland-outputs.h"
-
-#include "meta-wayland-private.h"
-#include "backends/meta-logical-monitor.h"
-#include "meta-monitor-manager-private.h"
-#include "xdg-output-unstable-v1-server-protocol.h"
+#include "wayland/meta-wayland-outputs.h"
 
 #include <string.h>
+
+#include "backends/meta-logical-monitor.h"
+#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-manager-private.h"
+#include "wayland/meta-wayland-private.h"
+
+#include "xdg-output-unstable-v1-server-protocol.h"
+
 
 enum {
   OUTPUT_DESTROYED,

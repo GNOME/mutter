@@ -22,14 +22,15 @@
 #ifndef META_INPUT_SETTINGS_PRIVATE_H
 #define META_INPUT_SETTINGS_PRIVATE_H
 
-#include "display-private.h"
-#include "meta-monitor-manager-private.h"
-
-#include <clutter/clutter.h>
+#include <gsettings-desktop-schemas/gdesktop-enums.h>
 
 #ifdef HAVE_LIBWACOM
 #include <libwacom/libwacom.h>
 #endif
+
+#include "backends/meta-backend-types.h"
+#include "clutter/clutter.h"
+#include "meta/display.h"
 
 #define META_TYPE_INPUT_SETTINGS (meta_input_settings_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaInputSettings, meta_input_settings,

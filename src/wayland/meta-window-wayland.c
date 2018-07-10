@@ -24,22 +24,23 @@
 
 #include "config.h"
 
-#include "meta-window-wayland.h"
+#include "wayland/meta-window-wayland.h"
 
-#include <meta/meta-x11-errors.h>
 #include <errno.h>
-#include <string.h> /* for strerror () */
-#include "window-private.h"
-#include "boxes-private.h"
-#include "stack-tracker.h"
-#include "meta-wayland-actor-surface.h"
-#include "meta-wayland-private.h"
-#include "meta-wayland-surface.h"
-#include "meta-wayland-xdg-shell.h"
+#include <string.h>
+
+#include "backends/meta-backend-private.h"
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "compositor/meta-surface-actor-wayland.h"
-#include "backends/meta-backend-private.h"
+#include "core/boxes-private.h"
+#include "core/stack-tracker.h"
+#include "core/window-private.h"
+#include "meta/meta-x11-errors.h"
+#include "wayland/meta-wayland-actor-surface.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-xdg-shell.h"
 
 struct _MetaWindowWayland
 {
