@@ -23,13 +23,13 @@
 #ifndef MUTTER_H_
 #define MUTTER_H_
 
-#include <clutter/clutter.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/Xfixes.h>
 
-#include <meta/types.h>
-#include <meta/compositor.h>
-#include <meta/meta-window-actor.h>
+#include "clutter/clutter.h"
+#include "meta/compositor.h"
+#include "meta/meta-window-actor.h"
+#include "meta/types.h"
 
 /* Public compositor API */
 ClutterActor *meta_get_stage_for_display            (MetaDisplay *display);

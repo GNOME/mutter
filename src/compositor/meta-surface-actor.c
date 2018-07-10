@@ -9,14 +9,14 @@
  * used to draw the content of a window.
  */
 
-#include <config.h>
+#include "config.h"
 
-#include "meta-surface-actor.h"
+#include "compositor/meta-surface-actor.h"
 
-#include <clutter/clutter.h>
-#include <meta/meta-shaped-texture.h>
-#include "meta-cullable.h"
-#include "meta-shaped-texture-private.h"
+#include "clutter/clutter.h"
+#include "compositor/meta-cullable.h"
+#include "compositor/meta-shaped-texture-private.h"
+#include "meta/meta-shaped-texture.h"
 
 struct _MetaSurfaceActorPrivate
 {

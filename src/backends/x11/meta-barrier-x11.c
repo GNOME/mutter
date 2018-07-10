@@ -34,12 +34,12 @@
 #ifdef HAVE_XI23
 
 #include <glib-object.h>
-
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/Xfixes.h>
-#include <meta/barrier.h>
+
 #include "backends/x11/meta-barrier-x11.h"
-#include "display-private.h"
+#include "core/display-private.h"
+#include "meta/barrier.h"
 #include "x11/meta-x11-display-private.h"
 
 struct _MetaBarrierImplX11Private

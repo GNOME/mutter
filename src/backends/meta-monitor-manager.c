@@ -25,17 +25,14 @@
 
 #include "config.h"
 
-#include "meta-monitor-manager-private.h"
+#include "backends/meta-monitor-manager-private.h"
 
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>
-#include <clutter/clutter.h>
 
-#include <meta/main.h>
-#include "util-private.h"
-#include <meta/meta-x11-errors.h>
-#include "edid.h"
+#include "backends/edid.h"
+#include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor.h"
@@ -43,7 +40,10 @@
 #include "backends/meta-orientation-manager.h"
 #include "backends/meta-output.h"
 #include "backends/x11/meta-monitor-manager-xrandr.h"
-#include "meta-backend-private.h"
+#include "clutter/clutter.h"
+#include "core/util-private.h"
+#include "meta/main.h"
+#include "meta/meta-x11-errors.h"
 
 #define DEFAULT_DISPLAY_CONFIGURATION_TIMEOUT 20
 

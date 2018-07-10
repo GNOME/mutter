@@ -29,8 +29,6 @@
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-gpu-kms.h"
 
-#include <drm_fourcc.h>
-
 #define ALL_TRANSFORMS (META_MONITOR_TRANSFORM_FLIPPED_270 + 1)
 #define ALL_TRANSFORMS_MASK ((1 << ALL_TRANSFORMS) - 1)
 

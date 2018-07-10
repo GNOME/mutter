@@ -24,32 +24,32 @@
 
 #include "config.h"
 
+#include "backends/meta-backend-private.h"
+
 #include <stdlib.h>
 
-#include <clutter/clutter-mutter.h>
-#include <meta/meta-backend.h>
-#include <meta/main.h>
-#include <meta/util.h>
-#include "meta-backend-private.h"
-#include "meta-input-settings-private.h"
+#include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-idle-monitor-private.h"
+#include "backends/meta-input-settings-private.h"
+#include "backends/meta-logical-monitor.h"
+#include "backends/meta-monitor-manager-dummy.h"
+#include "backends/meta-settings-private.h"
+#include "backends/meta-stage-private.h"
 #include "backends/x11/meta-backend-x11.h"
-#include "meta-cursor-tracker-private.h"
-#include "meta-stage-private.h"
+#include "clutter/clutter-mutter.h"
+#include "meta/main.h"
+#include "meta/meta-backend.h"
+#include "meta/util.h"
 
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-dbus-session-watcher.h"
-#include "backends/meta-screen-cast.h"
 #include "backends/meta-remote-desktop.h"
+#include "backends/meta-screen-cast.h"
 #endif
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #endif
-
-#include "backends/meta-idle-monitor-private.h"
-#include "backends/meta-logical-monitor.h"
-#include "backends/meta-monitor-manager-dummy.h"
-#include "backends/meta-settings-private.h"
 
 #define META_IDLE_MONITOR_CORE_DEVICE 0
 

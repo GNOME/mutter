@@ -27,7 +27,6 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "core/window-private.h"
-#include "wayland/meta-wayland.h"
 #include "wayland/meta-wayland-outputs.h"
 #include "wayland/meta-wayland-popup.h"
 #include "wayland/meta-wayland-private.h"
@@ -35,6 +34,7 @@
 #include "wayland/meta-wayland-shell-surface.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-wayland-versions.h"
+#include "wayland/meta-wayland.h"
 #include "wayland/meta-window-wayland.h"
 
 #include "xdg-shell-unstable-v6-server-protocol.h"

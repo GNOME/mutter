@@ -23,32 +23,30 @@
 
 #include "config.h"
 
-#include "meta-monitor-manager-kms.h"
-#include "meta-monitor-config-manager.h"
-#include "meta-backend-native.h"
-#include "meta-crtc.h"
-#include "meta-launcher.h"
-#include "meta-output.h"
-#include "meta-backend-private.h"
-#include "meta-renderer-native.h"
-#include "meta-crtc-kms.h"
-#include "meta-gpu-kms.h"
-#include "meta-output-kms.h"
-
-#include <string.h>
-#include <stdlib.h>
-#include <clutter/clutter.h>
+#include "backends/native/meta-monitor-manager-kms.h"
 
 #include <drm.h>
 #include <errno.h>
+#include <gudev/gudev.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include <meta/main.h>
-#include <meta/meta-x11-errors.h>
-
-#include <gudev/gudev.h>
+#include "backends/meta-backend-private.h"
+#include "backends/meta-crtc.h"
+#include "backends/meta-monitor-config-manager.h"
+#include "backends/meta-output.h"
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-gpu-kms.h"
+#include "backends/native/meta-launcher.h"
+#include "backends/native/meta-output-kms.h"
+#include "backends/native/meta-renderer-native.h"
+#include "clutter/clutter.h"
+#include "meta/main.h"
+#include "meta/meta-x11-errors.h"
 
 #define DRM_CARD_UDEV_DEVICE_TYPE "drm_minor"
 

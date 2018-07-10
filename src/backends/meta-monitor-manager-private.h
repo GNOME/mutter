@@ -39,34 +39,13 @@
 #include <libgnome-desktop/gnome-pnp-ids.h>
 #include <libupower-glib/upower.h>
 
-#include "display-private.h"
-#include "stack-tracker.h"
-#include <meta/meta-monitor-manager.h>
+#include "backends/meta-backend-private.h"
+#include "backends/meta-cursor.h"
+#include "backends/meta-display-config-shared.h"
+#include "meta/display.h"
+#include "meta/meta-monitor-manager.h"
 
-#include "meta-display-config-shared.h"
 #include "meta-dbus-display-config.h"
-#include "meta-cursor.h"
-
-typedef struct _MetaMonitorConfigManager MetaMonitorConfigManager;
-typedef struct _MetaMonitorConfigStore MetaMonitorConfigStore;
-typedef struct _MetaMonitorsConfig MetaMonitorsConfig;
-
-typedef struct _MetaMonitor MetaMonitor;
-typedef struct _MetaMonitorNormal MetaMonitorNormal;
-typedef struct _MetaMonitorTiled MetaMonitorTiled;
-typedef struct _MetaMonitorSpec MetaMonitorSpec;
-typedef struct _MetaLogicalMonitor MetaLogicalMonitor;
-
-typedef struct _MetaMonitorMode MetaMonitorMode;
-
-typedef struct _MetaGpu MetaGpu;
-
-typedef struct _MetaCrtc MetaCrtc;
-typedef struct _MetaOutput MetaOutput;
-typedef struct _MetaCrtcMode MetaCrtcMode;
-typedef struct _MetaCrtcInfo MetaCrtcInfo;
-typedef struct _MetaOutputInfo MetaOutputInfo;
-typedef struct _MetaTileInfo MetaTileInfo;
 
 #define META_MONITOR_MANAGER_MIN_SCREEN_WIDTH 640
 #define META_MONITOR_MANAGER_MIN_SCREEN_HEIGHT 480
@@ -93,18 +72,6 @@ typedef enum _MetaLogicalMonitorLayoutMode
   META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL = 1,
   META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL = 2
 } MetaLogicalMonitorLayoutMode;
-
-typedef enum
-{
-  META_MONITOR_TRANSFORM_NORMAL,
-  META_MONITOR_TRANSFORM_90,
-  META_MONITOR_TRANSFORM_180,
-  META_MONITOR_TRANSFORM_270,
-  META_MONITOR_TRANSFORM_FLIPPED,
-  META_MONITOR_TRANSFORM_FLIPPED_90,
-  META_MONITOR_TRANSFORM_FLIPPED_180,
-  META_MONITOR_TRANSFORM_FLIPPED_270,
-} MetaMonitorTransform;
 
 /*
  * MetaCrtcInfo:

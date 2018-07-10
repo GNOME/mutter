@@ -24,8 +24,9 @@
 #define __META_SHADOW_FACTORY_H__
 
 #include <cairo.h>
-#include <clutter/clutter.h>
-#include <meta/meta-window-shape.h>
+
+#include "clutter/clutter.h"
+#include "meta/meta-window-shape.h"
 
 GType meta_shadow_get_type (void) G_GNUC_CONST;
 

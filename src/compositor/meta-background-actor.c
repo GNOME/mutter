@@ -72,17 +72,17 @@
  * adding the vignette and opacity.
  */
 
-#include <config.h>
+#include "config.h"
 
-#include <clutter/clutter.h>
+#include "compositor/meta-background-actor-private.h"
 
-#include "cogl-utils.h"
-#include "clutter-utils.h"
-#include <meta/meta-x11-errors.h>
-#include "meta-background-actor-private.h"
-#include "meta-background-private.h"
-#include "meta-cullable.h"
+#include "clutter/clutter.h"
+#include "compositor/clutter-utils.h"
+#include "compositor/cogl-utils.h"
+#include "compositor/meta-background-private.h"
+#include "compositor/meta-cullable.h"
 #include "meta/display.h"
+#include "meta/meta-x11-errors.h"
 
 enum
 {

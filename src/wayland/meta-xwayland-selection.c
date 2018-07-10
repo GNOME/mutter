@@ -34,11 +34,11 @@
 #include <X11/Xatom.h>
 #include <X11/extensions/Xfixes.h>
 
-#include <meta/meta-x11-errors.h>
-#include "meta-xwayland.h"
-#include "meta-xwayland-private.h"
-#include "meta-xwayland-selection-private.h"
-#include "meta-wayland-data-device.h"
+#include "meta/meta-x11-errors.h"
+#include "wayland/meta-wayland-data-device.h"
+#include "wayland/meta-xwayland-private.h"
+#include "wayland/meta-xwayland-selection-private.h"
+#include "wayland/meta-xwayland.h"
 #include "x11/meta-x11-display-private.h"
 
 #define INCR_CHUNK_SIZE (128 * 1024)

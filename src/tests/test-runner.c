@@ -17,19 +17,21 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config.h"
+
 #include <gio/gio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <meta/main.h>
-#include <meta/util.h>
-#include <meta/window.h>
-#include <ui/ui.h>
-#include "meta-plugin-manager.h"
-#include "wayland/meta-wayland.h"
-#include "window-private.h"
+#include "compositor/meta-plugin-manager.h"
+#include "core/window-private.h"
+#include "meta/main.h"
+#include "meta/util.h"
+#include "meta/window.h"
 #include "tests/test-utils.h"
+#include "ui/ui.h"
+#include "wayland/meta-wayland.h"
 #include "x11/meta-x11-display-private.h"
 
 typedef struct {

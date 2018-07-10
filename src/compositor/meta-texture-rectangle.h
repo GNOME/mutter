@@ -24,7 +24,7 @@
 #ifndef __META_TEXTURE_RECTANGLE_H__
 #define __META_TEXTURE_RECTANGLE_H__
 
-#include <cogl/cogl.h>
+#include "cogl/cogl.h"
 
 G_BEGIN_DECLS
 

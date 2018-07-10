@@ -25,11 +25,11 @@
  *
  */
 
-#include <config.h>
+#include "config.h"
 
-#include <clutter/clutter.h>
+#include "compositor/meta-dnd-actor-private.h"
 
-#include "meta-dnd-actor-private.h"
+#include "clutter/clutter.h"
 
 #define DRAG_FAILED_DURATION 500
 

@@ -24,19 +24,20 @@
 
 #include "config.h"
 
+#include "wayland/meta-wayland-data-device.h"
+#include "wayland/meta-wayland-data-device-private.h"
+
+#include <glib-unix.h>
+#include <glib.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <glib.h>
-#include <glib-unix.h>
 
-#include "meta-wayland-data-device.h"
-#include "meta-wayland-data-device-private.h"
-#include "meta-wayland-seat.h"
-#include "meta-wayland-pointer.h"
-#include "meta-wayland-private.h"
-#include "meta-dnd-actor-private.h"
+#include "compositor/meta-dnd-actor-private.h"
+#include "wayland/meta-wayland-pointer.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-seat.h"
 
 #include "gtk-primary-selection-server-protocol.h"
 

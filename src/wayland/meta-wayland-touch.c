@@ -25,10 +25,10 @@
 
 #include <glib.h>
 #include <string.h>
-#include <clutter/evdev/clutter-evdev.h>
 
-#include "meta-surface-actor-wayland.h"
-#include "meta-wayland-private.h"
+#include "compositor/meta-surface-actor-wayland.h"
+#include "clutter/evdev/clutter-evdev.h"
+#include "wayland/meta-wayland-private.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"

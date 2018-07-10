@@ -26,8 +26,9 @@
 #include <wayland-server.h>
 
 #include "wayland/meta-wayland-types.h"
-#include "xwayland-keyboard-grab-unstable-v1-server-protocol.h"
 #include "meta/window.h"
+
+#include "xwayland-keyboard-grab-unstable-v1-server-protocol.h"
 
 #define META_TYPE_XWAYLAND_KEYBOARD_ACTIVE_GRAB (meta_xwayland_keyboard_active_grab_get_type ())
 G_DECLARE_FINAL_TYPE (MetaXwaylandKeyboardActiveGrab,

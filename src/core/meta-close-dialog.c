@@ -20,7 +20,8 @@
  */
 
 #include "config.h"
-#include "window-private.h"
+
+#include "core/window-private.h"
 #include "meta/meta-close-dialog.h"
 #include "meta/meta-enum-types.h"
 

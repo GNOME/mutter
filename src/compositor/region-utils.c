@@ -18,7 +18,9 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "region-utils.h"
+#include "config.h"
+
+#include "compositor/region-utils.h"
 
 #include <math.h>
 

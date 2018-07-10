@@ -25,16 +25,16 @@
 
 #include "config.h"
 
-#include "meta-monitor-manager-dummy.h"
+#include "backends/meta-monitor-manager-dummy.h"
 
 #include <stdlib.h>
 
-#include <meta/util.h>
 #include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"
 #include "backends/meta-monitor.h"
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-output.h"
+#include "meta/util.h"
 
 #define ALL_TRANSFORMS ((1 << (META_MONITOR_TRANSFORM_FLIPPED_270 + 1)) - 1)
 

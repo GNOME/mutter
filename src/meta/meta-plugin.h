@@ -22,16 +22,16 @@
 #ifndef META_PLUGIN_H_
 #define META_PLUGIN_H_
 
-#include <meta/types.h>
-#include <meta/compositor.h>
-#include <meta/compositor-mutter.h>
-#include <meta/meta-version.h>
-#include <meta/meta-close-dialog.h>
-#include <meta/meta-inhibit-shortcuts-dialog.h>
-
-#include <clutter/clutter.h>
 #include <X11/extensions/Xfixes.h>
 #include <gmodule.h>
+
+#include "clutter/clutter.h"
+#include "meta/compositor-mutter.h"
+#include "meta/compositor.h"
+#include "meta/meta-close-dialog.h"
+#include "meta/meta-inhibit-shortcuts-dialog.h"
+#include "meta/meta-version.h"
+#include "meta/types.h"
 
 #define META_TYPE_PLUGIN            (meta_plugin_get_type ())
 #define META_PLUGIN(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_PLUGIN, MetaPlugin))

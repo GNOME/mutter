@@ -22,14 +22,14 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#include "config.h"
 
 #include <glib-object.h>
 
-#include <meta/meta-x11-errors.h>
-#include "display-private.h"
+#include "core/display-private.h"
+#include "core/startup-notification-private.h"
+#include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
-#include "startup-notification-private.h"
 
 /* This should be fairly long, as it should never be required unless
  * apps or .desktop files are buggy, and it's confusing if

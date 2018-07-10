@@ -27,23 +27,24 @@
 #define META_BACKEND_PRIVATE_H
 
 #include <glib-object.h>
-
 #include <xkbcommon/xkbcommon.h>
 
-#include <meta/meta-backend.h>
-#include <meta/meta-idle-monitor.h>
-#include "meta-cursor-renderer.h"
-#include "meta-monitor-manager-private.h"
-#include "meta-orientation-manager.h"
-#include "meta-input-settings-private.h"
+#include "meta/meta-backend.h"
+#include "meta/meta-idle-monitor.h"
+#include "backends/meta-backend-types.h"
+#include "backends/meta-cursor-renderer.h"
 #include "backends/meta-egl.h"
+#include "backends/meta-input-settings-private.h"
+#include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-orientation-manager.h"
 #include "backends/meta-pointer-constraint.h"
-#ifdef HAVE_REMOTE_DESKTOP
-#include "backends/meta-remote-desktop.h"
-#endif
 #include "backends/meta-renderer.h"
 #include "backends/meta-settings-private.h"
 #include "core/util-private.h"
+
+#ifdef HAVE_REMOTE_DESKTOP
+#include "backends/meta-remote-desktop.h"
+#endif
 
 #define DEFAULT_XKB_RULES_FILE "evdev"
 #define DEFAULT_XKB_MODEL "pc105+inet"

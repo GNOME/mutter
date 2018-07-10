@@ -26,16 +26,18 @@
  * @short_description: Mutter preferences
  */
 
-#include <config.h>
-#include <meta/prefs.h>
-#include "util-private.h"
-#include "meta-plugin-manager.h"
+#include "config.h"
+
 #include <glib.h>
 #include <gio/gio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "keybindings-private.h"
-#include "meta-accel-parse.h"
+
+#include "compositor/meta-plugin-manager.h"
+#include "core/keybindings-private.h"
+#include "core/meta-accel-parse.h"
+#include "core/util-private.h"
+#include "meta/prefs.h"
 #include "x11/meta-x11-display-private.h"
 
 /* If you add a key, it needs updating in init() and in the gsettings

@@ -6,41 +6,37 @@
  * @short_description: An actor representing a top-level window in the scene graph
  */
 
-#include <config.h>
+#include "config.h"
 
+#include <gdk/gdk.h>
 #include <math.h>
-
-#include <clutter/x11/clutter-x11.h>
-#include <cogl/winsys/cogl-texture-pixmap-x11.h>
-#include <gdk/gdk.h> /* for gdk_rectangle_union() */
 #include <string.h>
 
-#include <meta/display.h>
-#include <meta/meta-x11-errors.h>
-#include "frame.h"
-#include <meta/window.h>
-#include <meta/meta-shaped-texture.h>
-#include <meta/meta-enum-types.h>
-#include <meta/meta-shadow-factory.h>
-
 #include "backends/meta-backend-private.h"
-#include "clutter/clutter-mutter.h"
-#include "compositor-private.h"
-#include "meta-shaped-texture-private.h"
-#include "meta-window-actor-private.h"
-#include "meta-texture-rectangle.h"
-#include "region-utils.h"
 #include "backends/meta-logical-monitor.h"
-#include "meta-monitor-manager-private.h"
-#include "meta-cullable.h"
-
-#include "meta-surface-actor.h"
-#include "meta-surface-actor-x11.h"
-
+#include "backends/meta-monitor-manager-private.h"
+#include "clutter/clutter-mutter.h"
+#include "clutter/x11/clutter-x11.h"
+#include "cogl/winsys/cogl-texture-pixmap-x11.h"
+#include "core/frame.h"
+#include "compositor/compositor-private.h"
+#include "compositor/meta-cullable.h"
+#include "compositor/meta-shaped-texture-private.h"
+#include "compositor/meta-surface-actor-x11.h"
+#include "compositor/meta-surface-actor.h"
+#include "compositor/meta-texture-rectangle.h"
+#include "compositor/meta-window-actor-private.h"
+#include "compositor/region-utils.h"
+#include "meta/display.h"
+#include "meta/meta-enum-types.h"
+#include "meta/meta-shadow-factory.h"
+#include "meta/meta-shaped-texture.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/window.h"
 #include "x11/meta-x11-display-private.h"
 
 #ifdef HAVE_WAYLAND
-#include "meta-surface-actor-wayland.h"
+#include "compositor/meta-surface-actor-wayland.h"
 #include "wayland/meta-wayland-surface.h"
 #endif
 

@@ -20,15 +20,15 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#include <config.h>
+#include "config.h"
 
-#include "meta-stage-private.h"
+#include "backends/meta-stage-private.h"
 
-#include <meta/meta-backend.h>
-#include <meta/meta-monitor-manager.h>
-#include <meta/util.h>
 #include "backends/meta-backend-private.h"
 #include "clutter/clutter-mutter.h"
+#include "meta/meta-backend.h"
+#include "meta/meta-monitor-manager.h"
+#include "meta/util.h"
 
 struct _MetaOverlay {
   gboolean enabled;

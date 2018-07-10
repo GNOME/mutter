@@ -20,20 +20,18 @@
 #ifndef META_WAYLAND_PRIVATE_H
 #define META_WAYLAND_PRIVATE_H
 
-#include <wayland-server.h>
-#include <clutter/clutter.h>
-
 #include <glib.h>
+#include <wayland-server.h>
 
-#include "window-private.h"
-#include <meta/meta-cursor-tracker.h>
-
-#include "meta-wayland.h"
-#include "meta-wayland-versions.h"
-#include "meta-wayland-surface.h"
-#include "meta-wayland-seat.h"
-#include "meta-wayland-pointer-gestures.h"
-#include "meta-wayland-tablet-manager.h"
+#include "clutter/clutter.h"
+#include "core/window-private.h"
+#include "meta/meta-cursor-tracker.h"
+#include "wayland/meta-wayland-pointer-gestures.h"
+#include "wayland/meta-wayland-seat.h"
+#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-tablet-manager.h"
+#include "wayland/meta-wayland-versions.h"
+#include "wayland/meta-wayland.h"
 
 typedef struct _MetaXWaylandSelection MetaXWaylandSelection;
 

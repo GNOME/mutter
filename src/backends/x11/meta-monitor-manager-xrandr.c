@@ -25,28 +25,27 @@
 
 #include "config.h"
 
-#include "meta-monitor-manager-xrandr.h"
+#include "backends/x11/meta-monitor-manager-xrandr.h"
 
-#include <string.h>
-#include <stdlib.h>
 #include <math.h>
-#include <clutter/clutter.h>
-
+#include <stdlib.h>
+#include <string.h>
+#include <X11/Xlib-xcb.h>
 #include <X11/Xlibint.h>
 #include <X11/extensions/dpms.h>
-#include <X11/Xlib-xcb.h>
 #include <xcb/randr.h>
 
-#include "meta-backend-x11.h"
-#include <meta/main.h>
-#include <meta/meta-x11-errors.h>
 #include "backends/meta-crtc.h"
-#include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-logical-monitor.h"
+#include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-output.h"
+#include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-crtc-xrandr.h"
 #include "backends/x11/meta-gpu-xrandr.h"
 #include "backends/x11/meta-output-xrandr.h"
+#include "clutter/clutter.h"
+#include "meta/main.h"
+#include "meta/meta-x11-errors.h"
 
 /* Look for DPI_FALLBACK in:
  * http://git.gnome.org/browse/gnome-settings-daemon/tree/plugins/xsettings/gsd-xsettings-manager.c

@@ -20,10 +20,6 @@ AM_CPPFLAGS = \
 	$(MUTTER_NATIVE_BACKEND_CFLAGS)					\
 	-I$(builddir)							\
 	-I$(srcdir)							\
-	-I$(srcdir)/backends						\
-	-I$(srcdir)/core						\
-	-I$(srcdir)/ui							\
-	-I$(srcdir)/compositor						\
 	-I$(top_srcdir)/cogl						\
 	-I$(top_srcdir)/cogl/cogl					\
 	-I$(top_srcdir)/cogl/cogl/winsys				\

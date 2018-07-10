@@ -21,25 +21,24 @@
  */
 
 #include "config.h"
-#include "events.h"
 
-#include <meta/meta-backend.h>
+#include "core/events.h"
 
-#include "display-private.h"
-#include "window-private.h"
-#include "backends/x11/meta-backend-x11.h"
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-idle-monitor-private.h"
+#include "backends/x11/meta-backend-x11.h"
+#include "compositor/meta-surface-actor.h"
+#include "core/display-private.h"
+#include "core/window-private.h"
+#include "meta/meta-backend.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #endif
 
-#include "backends/meta-idle-monitor-private.h"
-
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland-private.h"
 #endif
-#include "meta-surface-actor.h"
 
 #define IS_GESTURE_EVENT(e) ((e)->type == CLUTTER_TOUCHPAD_SWIPE || \
                              (e)->type == CLUTTER_TOUCHPAD_PINCH || \
