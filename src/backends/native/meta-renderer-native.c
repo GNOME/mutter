@@ -1980,6 +1980,13 @@ meta_renderer_native_init_egl_context (CoglContext *cogl_context,
                   COGL_WINSYS_FEATURE_MULTIPLE_ONSCREEN,
                   TRUE);
 
+  /* COGL_WINSYS_FEATURE_SWAP_THROTTLE is always true for this renderer
+   * because we have the call to wait_for_pending_flips on every frame.
+   */
+  COGL_FLAGS_SET (cogl_context->winsys_features,
+                  COGL_WINSYS_FEATURE_SWAP_THROTTLE,
+                  TRUE);
+
 #ifdef HAVE_EGL_DEVICE
   if (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_EGL_DEVICE)
     COGL_FLAGS_SET (cogl_context->features,
@@ -2602,8 +2609,12 @@ meta_renderer_native_create_onscreen (MetaRendererNative   *renderer_native,
     }
 
   onscreen = cogl_onscreen_new (context, width, height);
-  cogl_onscreen_set_swap_throttled (onscreen,
-                                    _clutter_get_sync_to_vblank ());
+
+  /* We have wait_for_pending_flips hardcoded, so throttling always. */
+  cogl_onscreen_set_swap_throttled (onscreen, TRUE);
+  if (!_clutter_get_sync_to_vblank ())
+    g_warning ("Request to disable sync-to-vblank is being ignored. "
+               "MetaRendererNative does not support disabling it.");
 
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (onscreen), error))
     {
