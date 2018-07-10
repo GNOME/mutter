@@ -27,10 +27,10 @@
 
 #include <glib-object.h>
 
-#include "cogl/cogl.h"
-#include "clutter/clutter-mutter.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-renderer-view.h"
+#include "clutter/clutter-mutter.h"
+#include "cogl/cogl.h"
 
 #define META_TYPE_RENDERER (meta_renderer_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaRenderer, meta_renderer, META, RENDERER, GObject)

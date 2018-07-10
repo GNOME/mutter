@@ -17,15 +17,18 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <meta/display.h>
-#include <meta/util.h>
-#include <meta/meta-background.h>
-#include <meta/meta-background-image.h>
-#include <meta/meta-monitor-manager.h>
-#include "meta-background-private.h"
-#include "cogl-utils.h"
+#include "config.h"
+
+#include "compositor/meta-background-private.h"
 
 #include <string.h>
+
+#include "compositor/cogl-utils.h"
+#include "meta/display.h"
+#include "meta/meta-background-image.h"
+#include "meta/meta-background.h"
+#include "meta/meta-monitor-manager.h"
+#include "meta/util.h"
 
 enum
 {

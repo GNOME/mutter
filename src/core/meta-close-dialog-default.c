@@ -23,16 +23,18 @@
 
 #define _XOPEN_SOURCE /* for kill() */
 
-#include <config.h>
-#include "util-private.h"
-#include "window-private.h"
-#include <meta/meta-close-dialog.h>
-#include "meta-close-dialog-default-private.h"
-#include "x11/meta-x11-display-private.h"
+#include "config.h"
+
+#include "core/meta-close-dialog-default-private.h"
+#include "meta/meta-close-dialog.h"
 
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
+
+#include "core/util-private.h"
+#include "core/window-private.h"
+#include "x11/meta-x11-display-private.h"
 
 typedef struct _MetaCloseDialogDefaultPrivate MetaCloseDialogDefaultPrivate;
 

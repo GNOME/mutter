@@ -25,11 +25,10 @@
 #ifndef META_BACKEND_X11_H
 #define META_BACKEND_X11_H
 
-#include "backends/meta-backend-private.h"
-
 #include <stdint.h>
 #include <X11/Xlib.h>
 
+#include "backends/meta-backend-private.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 
 #define META_TYPE_BACKEND_X11 (meta_backend_x11_get_type ())

@@ -21,7 +21,7 @@
 #ifndef __META_COGL_UTILS_H__
 #define __META_COGL_UTILS_H__
 
-#include <cogl/cogl.h>
+#include "cogl/cogl.h"
 
 CoglPipeline * meta_create_texture_pipeline (CoglTexture *texture);
 

@@ -3,10 +3,10 @@
 #ifndef META_SURFACE_ACTOR_PRIVATE_H
 #define META_SURFACE_ACTOR_PRIVATE_H
 
-#include <config.h>
+#include "config.h"
 
-#include <meta/meta-shaped-texture.h>
-#include <meta/window.h>
+#include "meta/meta-shaped-texture.h"
+#include "meta/window.h"
 
 G_BEGIN_DECLS
 

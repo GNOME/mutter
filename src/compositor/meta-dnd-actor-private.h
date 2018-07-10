@@ -23,7 +23,7 @@
 #ifndef META_DND_ACTOR_PRIVATE_H
 #define META_DND_ACTOR_PRIVATE_H
 
-#include "meta-feedback-actor-private.h"
+#include "compositor/meta-feedback-actor-private.h"
 
 /**
  * MetaDnDActor:

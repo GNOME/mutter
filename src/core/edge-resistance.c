@@ -19,12 +19,14 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include "edge-resistance.h"
-#include "boxes-private.h"
-#include "display-private.h"
-#include "meta-workspace-manager-private.h"
-#include "workspace-private.h"
+#include "config.h"
+
+#include "core/edge-resistance.h"
+
+#include "core/boxes-private.h"
+#include "core/display-private.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/workspace-private.h"
 
 /* A simple macro for whether a given window's edges are potentially
  * relevant for resistance/snapping during a move/resize operation

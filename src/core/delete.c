@@ -22,13 +22,15 @@
 
 #define _XOPEN_SOURCE /* for kill() */
 
-#include <config.h>
-#include "util-private.h"
-#include "window-private.h"
-#include "compositor-private.h"
-#include <meta/meta-x11-errors.h>
-#include <meta/workspace.h>
+#include "config.h"
+
 #include <errno.h>
+
+#include "compositor/compositor-private.h"
+#include "core/util-private.h"
+#include "core/window-private.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/workspace.h"
 
 static void
 close_dialog_response_cb (MetaCloseDialog         *dialog,

@@ -26,6 +26,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-dbus-session-watcher.h"
+
 #include "meta-dbus-screen-cast.h"
 
 #define META_TYPE_SCREEN_CAST (meta_screen_cast_get_type ())

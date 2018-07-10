@@ -22,10 +22,11 @@
 #ifndef META_THEME_PRIVATE_H
 #define META_THEME_PRIVATE_H
 
-#include <meta/boxes.h>
-#include <meta/theme.h>
-#include <meta/common.h>
 #include <gtk/gtk.h>
+
+#include "meta/boxes.h"
+#include "meta/common.h"
+#include "meta/theme.h"
 
 /**
  * MetaStyleInfo: (skip)

@@ -22,8 +22,8 @@
 #ifndef META_CURSOR_H
 #define META_CURSOR_H
 
-#include <meta/common.h>
-#include <meta/boxes.h>
+#include "meta/common.h"
+#include "meta/boxes.h"
 
 #define META_TYPE_CURSOR_SPRITE (meta_cursor_sprite_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaCursorSprite,

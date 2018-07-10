@@ -25,7 +25,7 @@
 #ifndef META_STARTUP_NOTIFICATION_PRIVATE_H
 #define META_STARTUP_NOTIFICATION_PRIVATE_H
 
-#include "display-private.h"
+#include "core/display-private.h"
 
 #define META_TYPE_STARTUP_NOTIFICATION (meta_startup_notification_get_type ())
 

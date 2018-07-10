@@ -21,10 +21,10 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#include "config.h"
 
-#include <clutter/clutter.h>
-#include "meta-texture-rectangle.h"
+#include "clutter/clutter.h"
+#include "compositor/meta-texture-rectangle.h"
 
 static void
 texture_rectangle_check_cb (CoglTexture *sub_texture,

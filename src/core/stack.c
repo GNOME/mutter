@@ -25,21 +25,22 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include "stack.h"
-#include "meta-workspace-manager-private.h"
-#include "window-private.h"
-#include <meta/meta-x11-errors.h>
-#include "frame.h"
-#include <meta/group.h>
-#include <meta/prefs.h>
-#include <meta/workspace.h>
-#include "backends/meta-logical-monitor.h"
+#include "config.h"
+
+#include "core/stack.h"
 
 #include <X11/Xatom.h>
 
-#include "x11/meta-x11-display-private.h"
+#include "backends/meta-logical-monitor.h"
+#include "core/frame.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/window-private.h"
+#include "meta/group.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
+#include "meta/workspace.h"
 #include "x11/group-private.h"
+#include "x11/meta-x11-display-private.h"
 
 #define WINDOW_HAS_TRANSIENT_TYPE(w)                    \
           (w->type == META_WINDOW_DIALOG ||             \
