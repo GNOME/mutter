@@ -27,15 +27,15 @@
 
 #include "config.h"
 
+#include <glib/gi18n-lib.h>
 #include <string.h>
 
-#include "meta-backend-private.h"
-#include "meta-input-settings-private.h"
+#include "backends/meta-backend-private.h"
+#include "backends/meta-input-settings-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor.h"
-
-#include <glib/gi18n-lib.h>
-#include <meta/util.h>
+#include "core/display-private.h"
+#include "meta/util.h"
 
 static GQuark quark_tool_settings = 0;
 

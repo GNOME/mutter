@@ -23,9 +23,9 @@
 #ifndef META_WAYLAND_H
 #define META_WAYLAND_H
 
-#include <clutter/clutter.h>
-#include <meta/types.h>
-#include "meta-wayland-types.h"
+#include "clutter/clutter.h"
+#include "meta/types.h"
+#include "wayland/meta-wayland-types.h"
 
 void                    meta_wayland_override_display_name (char *display_name);
 

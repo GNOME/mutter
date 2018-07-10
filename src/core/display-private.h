@@ -25,28 +25,25 @@
 #ifndef META_DISPLAY_PRIVATE_H
 #define META_DISPLAY_PRIVATE_H
 
-#ifndef PACKAGE
-#error "config.h not included"
-#endif
+#include "meta/display.h"
 
 #include <glib.h>
+#include <X11/extensions/sync.h>
 #include <X11/Xlib.h>
-#include <meta/common.h>
-#include <meta/boxes.h>
-#include <meta/display.h>
-#include "keybindings-private.h"
-#include "startup-notification-private.h"
-#include "meta-gesture-tracker-private.h"
-#include "stack-tracker.h"
-#include <meta/prefs.h>
-#include <meta/barrier.h>
-#include <clutter/clutter.h>
 
 #ifdef HAVE_STARTUP_NOTIFICATION
 #include <libsn/sn.h>
 #endif
 
-#include <X11/extensions/sync.h>
+#include "clutter/clutter.h"
+#include "core/keybindings-private.h"
+#include "core/meta-gesture-tracker-private.h"
+#include "core/stack-tracker.h"
+#include "core/startup-notification-private.h"
+#include "meta/barrier.h"
+#include "meta/boxes.h"
+#include "meta/common.h"
+#include "meta/prefs.h"
 
 typedef struct _MetaBell       MetaBell;
 typedef struct _MetaStack      MetaStack;

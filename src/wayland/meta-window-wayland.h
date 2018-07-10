@@ -26,7 +26,7 @@
 #define META_WINDOW_WAYLAND_H
 
 #include "core/window-private.h"
-#include <meta/window.h>
+#include "meta/window.h"
 #include "wayland/meta-wayland-types.h"
 
 G_BEGIN_DECLS

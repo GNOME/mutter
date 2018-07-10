@@ -25,7 +25,7 @@
 #ifndef META_CURSOR_RENDERER_X11_H
 #define META_CURSOR_RENDERER_X11_H
 
-#include "meta-cursor-renderer.h"
+#include "backends/meta-cursor-renderer.h"
 
 #define META_TYPE_CURSOR_RENDERER_X11             (meta_cursor_renderer_x11_get_type ())
 #define META_CURSOR_RENDERER_X11(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_CURSOR_RENDERER_X11, MetaCursorRendererX11))

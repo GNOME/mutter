@@ -25,19 +25,18 @@
  * @short_description: An actor to draw a masked texture.
  */
 
-#include <config.h>
+#include "config.h"
 
-#include <meta/meta-shaped-texture.h>
-#include "meta-shaped-texture-private.h"
+#include "compositor/meta-shaped-texture-private.h"
 
-#include <cogl/cogl.h>
-#include <gdk/gdk.h> /* for gdk_rectangle_intersect() */
+#include <gdk/gdk.h>
 
-#include "clutter-utils.h"
-#include "meta-texture-tower.h"
-#include "region-utils.h"
-
-#include "meta-cullable.h"
+#include "cogl/cogl.h"
+#include "compositor/clutter-utils.h"
+#include "compositor/region-utils.h"
+#include "compositor/meta-cullable.h"
+#include "compositor/meta-texture-tower.h"
+#include "meta/meta-shaped-texture.h"
 
 /* MAX_MIPMAPPING_FPS needs to be as small as possible for the best GPU
  * performance, but higher than the refresh rate of commonly slow updating

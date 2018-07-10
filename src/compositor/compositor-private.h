@@ -5,11 +5,11 @@
 
 #include <X11/extensions/Xfixes.h>
 
-#include <meta/compositor.h>
-#include <meta/display.h>
-#include "meta-plugin-manager.h"
-#include "meta-window-actor-private.h"
-#include <clutter/clutter.h>
+#include "clutter/clutter.h"
+#include "compositor/meta-plugin-manager.h"
+#include "compositor/meta-window-actor-private.h"
+#include "meta/compositor.h"
+#include "meta/display.h"
 
 struct _MetaCompositor
 {

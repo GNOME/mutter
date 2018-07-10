@@ -27,12 +27,10 @@
 
 #include <glib-object.h>
 
-#include "meta-surface-actor.h"
-
-#include "wayland/meta-wayland.h"
-#include "wayland/meta-wayland-private.h"
-
 #include "backends/meta-monitor-manager-private.h"
+#include "compositor/meta-surface-actor.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland.h"
 
 G_BEGIN_DECLS
 

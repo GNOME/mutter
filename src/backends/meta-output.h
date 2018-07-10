@@ -22,6 +22,7 @@
 
 #include <glib-object.h>
 
+#include "backends/meta-backend-types.h"
 #include "backends/meta-gpu.h"
 
 struct _MetaTileInfo

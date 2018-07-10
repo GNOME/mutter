@@ -22,43 +22,39 @@
 
 #include "config.h"
 
-#include "meta-wayland-surface.h"
-
-#include <clutter/clutter.h>
-#include <clutter/wayland/clutter-wayland-compositor.h>
-#include <clutter/wayland/clutter-wayland-surface.h>
-#include <cogl/cogl-wayland-server.h>
+#include "wayland/meta-wayland-surface.h"
 
 #include <gobject/gvaluecollector.h>
 #include <wayland-server.h>
 
-#include "meta-wayland-private.h"
-#include "meta-xwayland-private.h"
-#include "meta-wayland-buffer.h"
-#include "meta-wayland-region.h"
-#include "meta-wayland-subsurface.h"
-#include "meta-wayland-seat.h"
-#include "meta-wayland-keyboard.h"
-#include "meta-wayland-pointer.h"
-#include "meta-wayland-data-device.h"
-#include "meta-wayland-outputs.h"
-#include "meta-wayland-xdg-shell.h"
-#include "meta-wayland-legacy-xdg-shell.h"
-#include "meta-wayland-wl-shell.h"
-#include "meta-wayland-gtk-shell.h"
-
-#include "meta-cursor-tracker-private.h"
-#include "display-private.h"
-#include "window-private.h"
-#include "meta-window-wayland.h"
-
-#include "compositor/region-utils.h"
+#include "backends/meta-cursor-tracker-private.h"
+#include "clutter/clutter.h"
+#include "clutter/wayland/clutter-wayland-compositor.h"
+#include "clutter/wayland/clutter-wayland-surface.h"
+#include "cogl/cogl-wayland-server.h"
 #include "compositor/meta-shaped-texture-private.h"
+#include "compositor/meta-surface-actor-wayland.h"
+#include "compositor/meta-surface-actor.h"
 #include "compositor/meta-window-actor-private.h"
-
-#include "meta-surface-actor.h"
-#include "meta-surface-actor-wayland.h"
-#include "meta-xwayland-private.h"
+#include "compositor/region-utils.h"
+#include "core/display-private.h"
+#include "core/window-private.h"
+#include "wayland/meta-wayland-buffer.h"
+#include "wayland/meta-wayland-data-device.h"
+#include "wayland/meta-wayland-gtk-shell.h"
+#include "wayland/meta-wayland-keyboard.h"
+#include "wayland/meta-wayland-legacy-xdg-shell.h"
+#include "wayland/meta-wayland-outputs.h"
+#include "wayland/meta-wayland-pointer.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-region.h"
+#include "wayland/meta-wayland-seat.h"
+#include "wayland/meta-wayland-subsurface.h"
+#include "wayland/meta-wayland-wl-shell.h"
+#include "wayland/meta-wayland-xdg-shell.h"
+#include "wayland/meta-window-wayland.h"
+#include "wayland/meta-xwayland-private.h"
+#include "wayland/meta-xwayland-private.h"
 
 enum {
   PENDING_STATE_SIGNAL_APPLIED,

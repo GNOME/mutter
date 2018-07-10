@@ -25,8 +25,9 @@
 #ifndef META_UTIL_PRIVATE_H
 #define META_UTIL_PRIVATE_H
 
-#include <meta/util.h>
 #include <glib/gi18n-lib.h>
+
+#include "meta/util.h"
 
 void     meta_set_verbose (gboolean setting);
 void     meta_set_debugging (gboolean setting);

@@ -15,13 +15,13 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#include "config.h"
 
-#include "wayland/meta-window-wayland.h"
-#include "wayland/meta-wayland.h"
-#include "core/window-private.h"
 #include "compositor/compositor-private.h"
-#include "meta-wayland-inhibit-shortcuts-dialog.h"
+#include "core/window-private.h"
+#include "wayland/meta-wayland-inhibit-shortcuts-dialog.h"
+#include "wayland/meta-wayland.h"
+#include "wayland/meta-window-wayland.h"
 
 static GQuark quark_surface_inhibit_shortcuts_data = 0;
 

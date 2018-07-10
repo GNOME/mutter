@@ -35,8 +35,8 @@
 
 #include "backends/x11/meta-crtc-xrandr.h"
 
-#include <stdlib.h>
 #include <X11/Xlib-xcb.h>
+#include <stdlib.h>
 #include <xcb/randr.h>
 
 #include "backends/meta-crtc.h"
