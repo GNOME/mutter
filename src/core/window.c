@@ -7987,7 +7987,15 @@ meta_window_set_transient_for (MetaWindow *window,
             }
         }
     }
+  else if (window->attached && parent == NULL)
+    {
+      guint32 timestamp;
 
+      timestamp =
+        meta_display_get_current_time_roundtrip (window->display);
+      meta_window_unmanage (window, timestamp);
+      return;
+    }
   /* We know this won't create a reference cycle because we check for loops */
   g_clear_object (&window->transient_for);
   window->transient_for = parent ? g_object_ref (parent) : NULL;
