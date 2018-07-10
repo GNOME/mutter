@@ -25,10 +25,11 @@
 #ifndef META_WAYLAND_REGION_H
 #define META_WAYLAND_REGION_H
 
-#include <glib.h>
 #include <cairo.h>
+#include <glib.h>
 #include <wayland-server.h>
-#include "meta-wayland-types.h"
+
+#include "wayland/meta-wayland-types.h"
 
 MetaWaylandRegion * meta_wayland_region_create (MetaWaylandCompositor *compositor,
                                                 struct wl_client      *client,

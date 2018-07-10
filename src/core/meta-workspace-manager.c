@@ -30,7 +30,6 @@
 
 #include "core/window-private.h"
 #include "core/workspace-private.h"
-
 #include "meta/meta-enum-types.h"
 #include "meta/prefs.h"
 #include "meta/util.h"

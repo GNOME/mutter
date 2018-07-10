@@ -35,6 +35,7 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "cogl/cogl.h"
 #include "meta/meta-backend.h"
+
 #include "meta-dbus-remote-desktop.h"
 
 #define META_REMOTE_DESKTOP_SESSION_DBUS_PATH "/org/gnome/Mutter/RemoteDesktop/Session"

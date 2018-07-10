@@ -20,18 +20,17 @@
 #ifndef META_WAYLAND_SURFACE_H
 #define META_WAYLAND_SURFACE_H
 
+#include <cairo.h>
+#include <glib.h>
 #include <wayland-server.h>
 #include <xkbcommon/xkbcommon.h>
-#include <clutter/clutter.h>
 
-#include <glib.h>
-#include <cairo.h>
-
-#include <meta/meta-cursor-tracker.h>
-#include "meta-wayland-types.h"
-#include "meta-surface-actor.h"
 #include "backends/meta-monitor-manager-private.h"
-#include "meta-wayland-pointer-constraints.h"
+#include "clutter/clutter.h"
+#include "compositor/meta-surface-actor.h"
+#include "meta/meta-cursor-tracker.h"
+#include "wayland/meta-wayland-pointer-constraints.h"
+#include "wayland/meta-wayland-types.h"
 
 typedef struct _MetaWaylandPendingState MetaWaylandPendingState;
 

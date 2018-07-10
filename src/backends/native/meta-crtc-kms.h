@@ -25,8 +25,8 @@
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
+#include "backends/meta-backend-types.h"
 #include "backends/meta-crtc.h"
-#include "backends/meta-gpu.h"
 #include "backends/native/meta-gpu-kms.h"
 
 gboolean meta_crtc_kms_is_transform_handled (MetaCrtc             *crtc,

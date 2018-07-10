@@ -47,19 +47,18 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <string.h>
 #include <errno.h>
-#include <stdlib.h>
 #include <fcntl.h>
-#include <unistd.h>
+#include <glib.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/mman.h>
-#include <clutter/evdev/clutter-evdev.h>
+#include <unistd.h>
 
-#include "display-private.h"
 #include "backends/meta-backend-private.h"
-
-#include "meta-wayland-private.h"
+#include "clutter/evdev/clutter-evdev.h"
+#include "core/display-private.h"
+#include "wayland/meta-wayland-private.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"

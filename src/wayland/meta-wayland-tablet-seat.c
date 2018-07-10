@@ -26,20 +26,20 @@
 #include "config.h"
 
 #include <glib.h>
-
 #include <wayland-server.h>
-#include "tablet-unstable-v2-server-protocol.h"
 
-#include "meta-wayland-private.h"
-#include "meta-wayland-tablet-seat.h"
-#include "meta-wayland-tablet.h"
-#include "meta-wayland-tablet-tool.h"
-#include "meta-wayland-tablet-pad.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-tablet-pad.h"
+#include "wayland/meta-wayland-tablet-seat.h"
+#include "wayland/meta-wayland-tablet-tool.h"
+#include "wayland/meta-wayland-tablet.h"
 
 #ifdef HAVE_NATIVE_BACKEND
-#include <clutter/evdev/clutter-evdev.h>
 #include "backends/native/meta-backend-native.h"
+#include "clutter/evdev/clutter-evdev.h"
 #endif
+
+#include "tablet-unstable-v2-server-protocol.h"
 
 static void
 unbind_resource (struct wl_resource *resource)

@@ -28,12 +28,11 @@
 
 #include <glib-object.h>
 
-#include "meta-surface-actor.h"
-
 #include <X11/extensions/Xdamage.h>
 
-#include <meta/display.h>
-#include <meta/window.h>
+#include "compositor/meta-surface-actor.h"
+#include "meta/display.h"
+#include "meta/window.h"
 
 G_BEGIN_DECLS
 

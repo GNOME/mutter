@@ -22,14 +22,14 @@
 #ifndef META_UI_H
 #define META_UI_H
 
-/* Don't include gtk.h or gdk.h here */
-#include <meta/common.h>
-#include <meta/types.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <cairo.h>
-#include <glib.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include <glib.h>
+
+#include "meta/common.h"
+#include "meta/types.h"
 
 typedef struct _MetaUI MetaUI;
 typedef struct _MetaUIFrame MetaUIFrame;

@@ -25,7 +25,7 @@
 #ifndef __META_CULLABLE_H__
 #define __META_CULLABLE_H__
 
-#include <clutter/clutter.h>
+#include "clutter/clutter.h"
 
 G_BEGIN_DECLS
 

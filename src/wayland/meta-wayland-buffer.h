@@ -25,13 +25,13 @@
 #ifndef META_WAYLAND_BUFFER_H
 #define META_WAYLAND_BUFFER_H
 
-#include <cogl/cogl.h>
 #include <cairo.h>
 #include <wayland-server.h>
 
-#include "meta-wayland-types.h"
-#include "meta-wayland-egl-stream.h"
-#include "meta-wayland-dma-buf.h"
+#include "cogl/cogl.h"
+#include "wayland/meta-wayland-types.h"
+#include "wayland/meta-wayland-egl-stream.h"
+#include "wayland/meta-wayland-dma-buf.h"
 
 typedef enum _MetaWaylandBufferType
 {

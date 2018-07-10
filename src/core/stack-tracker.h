@@ -34,8 +34,8 @@
 #ifndef META_STACK_TRACKER_H
 #define META_STACK_TRACKER_H
 
-#include <meta/display.h>
-#include <meta/window.h>
+#include "meta/display.h"
+#include "meta/window.h"
 
 typedef struct _MetaStackTracker MetaStackTracker;
 

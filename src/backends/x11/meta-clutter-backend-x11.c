@@ -30,10 +30,10 @@
 #include "backends/meta-renderer.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-stage-x11-nested.h"
-#include "clutter/clutter.h"
 #include "clutter/clutter-mutter.h"
-#include "meta/meta-backend.h"
+#include "clutter/clutter.h"
 #include "core/bell.h"
+#include "meta/meta-backend.h"
 
 struct _MetaClutterBackendX11
 {

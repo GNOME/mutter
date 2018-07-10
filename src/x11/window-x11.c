@@ -22,38 +22,33 @@
 
 #include "config.h"
 
-#include "meta-x11-display-private.h"
-#include "window-x11.h"
-#include "window-x11-private.h"
+#include "x11/window-x11.h"
+#include "x11/window-x11-private.h"
 
 #include <string.h>
 #include <X11/Xatom.h>
-#include <X11/Xlibint.h> /* For display->resource_mask */
+#include <X11/Xlibint.h>
 #include <X11/Xlib-xcb.h>
-
-#include <xcb/res.h>
-
 #include <X11/extensions/shape.h>
-
 #include <X11/extensions/Xcomposite.h>
-#include "core.h"
-
-#include <meta/common.h>
-#include <meta/meta-x11-errors.h>
-#include <meta/prefs.h>
-#include <meta/meta-cursor-tracker.h>
-
-#include "frame.h"
-#include "boxes-private.h"
-#include "window-private.h"
-#include "window-props.h"
-#include "xprops.h"
-#include "session.h"
-#include "workspace-private.h"
-#include "meta-workspace-manager-private.h"
+#include <xcb/res.h>
 
 #include "backends/meta-logical-monitor.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "core/boxes-private.h"
+#include "core/core.h"
+#include "core/frame.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/window-private.h"
+#include "core/workspace-private.h"
+#include "meta/common.h"
+#include "meta/meta-cursor-tracker.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
+#include "x11/meta-x11-display-private.h"
+#include "x11/session.h"
+#include "x11/window-props.h"
+#include "x11/xprops.h"
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaWindowX11, meta_window_x11, META_TYPE_WINDOW)
 

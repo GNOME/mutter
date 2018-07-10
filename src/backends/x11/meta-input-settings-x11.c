@@ -23,20 +23,22 @@
 
 #include "config.h"
 
-#include "meta-backend-x11.h"
-#include "meta-input-settings-x11.h"
+#include "backends/x11/meta-input-settings-x11.h"
 
-#include <string.h>
 #include <gdk/gdkx.h>
+#include <string.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/XInput2.h>
 #include <X11/XKBlib.h>
+
 #ifdef HAVE_LIBGUDEV
 #include <gudev/gudev.h>
 #endif
 
-#include <meta/meta-x11-errors.h>
 #include "backends/meta-logical-monitor.h"
+#include "backends/x11/meta-backend-x11.h"
+#include "core/display-private.h"
+#include "meta/meta-x11-errors.h"
 
 typedef struct _MetaInputSettingsX11Private
 {

@@ -27,10 +27,10 @@
 
 #include "backends/native/meta-renderer-native-gles3.h"
 
+#include <GLES3/gl3.h>
 #include <drm_fourcc.h>
 #include <errno.h>
 #include <gio/gio.h>
-#include <GLES3/gl3.h>
 #include <string.h>
 
 #include "backends/meta-egl-ext.h"
