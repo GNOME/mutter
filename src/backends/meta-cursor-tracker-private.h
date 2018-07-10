@@ -22,11 +22,10 @@
 #ifndef META_CURSOR_TRACKER_PRIVATE_H
 #define META_CURSOR_TRACKER_PRIVATE_H
 
-#include <meta/meta-cursor-tracker.h>
-
-#include "meta-cursor.h"
-#include "meta-cursor-renderer.h"
+#include "backends/meta-cursor.h"
+#include "backends/meta-cursor-renderer.h"
 #include "backends/x11/cm/meta-cursor-sprite-xfixes.h"
+#include "meta/meta-cursor-tracker.h"
 
 struct _MetaCursorTracker {
   GObject parent_instance;

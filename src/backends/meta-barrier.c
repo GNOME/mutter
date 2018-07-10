@@ -8,15 +8,20 @@
 
 #include "config.h"
 
+#include "meta/barrier.h"
+#include "backends/meta-barrier-private.h"
+
 #include <glib-object.h>
 
-#include <meta/util.h>
-#include <meta/barrier.h>
-#include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-barrier-native.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-barrier-x11.h"
-#include <meta/meta-enum-types.h>
+#include "meta/meta-enum-types.h"
+#include "meta/util.h"
+
+#ifdef HAVE_NATIVE_BACKEND
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-barrier-native.h"
+#endif
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaBarrier, meta_barrier, G_TYPE_OBJECT)
 G_DEFINE_TYPE (MetaBarrierImpl, meta_barrier_impl, G_TYPE_OBJECT)

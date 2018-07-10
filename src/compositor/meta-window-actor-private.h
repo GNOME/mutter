@@ -3,12 +3,11 @@
 #ifndef META_WINDOW_ACTOR_PRIVATE_H
 #define META_WINDOW_ACTOR_PRIVATE_H
 
-#include <config.h>
-
 #include <X11/extensions/Xdamage.h>
-#include <meta/compositor-mutter.h>
-#include "meta-surface-actor.h"
-#include "meta-plugin-manager.h"
+
+#include "compositor/meta-plugin-manager.h"
+#include "compositor/meta-surface-actor.h"
+#include "meta/compositor-mutter.h"
 
 MetaWindowActor *meta_window_actor_new (MetaWindow *window);
 

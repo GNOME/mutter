@@ -22,15 +22,15 @@
  * @short_description: Create and cache shadow textures for abritrary window shapes
  */
 
-#include <config.h>
+#include "config.h"
+
 #include <math.h>
 #include <string.h>
 
-#include <meta/meta-shadow-factory.h>
-#include <meta/util.h>
-
-#include "cogl-utils.h"
-#include "region-utils.h"
+#include "compositor/cogl-utils.h"
+#include "compositor/region-utils.h"
+#include "meta/meta-shadow-factory.h"
+#include "meta/util.h"
 
 /* This file implements blurring the shape of a window to produce a
  * shadow texture. The details are discussed below; a quick summary

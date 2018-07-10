@@ -17,16 +17,19 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include "theme-private.h"
-#include "frames.h" /* for META_TYPE_FRAMES */
-#include "util-private.h"
-#include <meta/prefs.h>
+#include "config.h"
+
+#include "ui/theme-private.h"
+
 #include <gtk/gtk.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdarg.h>
 #include <math.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "core/util-private.h"
+#include "meta/prefs.h"
+#include "ui/frames.h"
 
 #define DEBUG_FILL_STRUCT(s) memset ((s), 0xef, sizeof (*(s)))
 

@@ -23,13 +23,13 @@
 
 #include "config.h"
 
-#include <clutter/evdev/clutter-evdev.h>
 #include <linux/input-event-codes.h>
 #include <libinput.h>
 
-#include "meta-backend-native.h"
-#include "meta-input-settings-native.h"
 #include "backends/meta-logical-monitor.h"
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-input-settings-native.h"
+#include "clutter/evdev/clutter-evdev.h"
 
 G_DEFINE_TYPE (MetaInputSettingsNative, meta_input_settings_native, META_TYPE_INPUT_SETTINGS)
 

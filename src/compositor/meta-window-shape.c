@@ -23,10 +23,11 @@
 
 #include "config.h"
 
-#include <meta/meta-window-shape.h>
+#include "meta/meta-window-shape.h"
 
 #include <string.h>
-#include "region-utils.h"
+
+#include "compositor/region-utils.h"
 
 struct _MetaWindowShape
 {

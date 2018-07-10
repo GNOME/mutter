@@ -47,15 +47,18 @@
  * things with bells; some others are entirely no-ops in that case.
  */
 
-#include <config.h>
-#include "bell.h"
-#include "window-private.h"
-#include "util-private.h"
-#include "compositor/compositor-private.h"
-#include <meta/compositor.h>
+#include "config.h"
+
+#include "core/bell.h"
+
 #ifdef HAVE_LIBCANBERRA
 #include <canberra-gtk.h>
 #endif
+
+#include "compositor/compositor-private.h"
+#include "core/util-private.h"
+#include "core/window-private.h"
+#include "meta/compositor.h"
 
 G_DEFINE_TYPE (MetaBell, meta_bell, G_TYPE_OBJECT)
 

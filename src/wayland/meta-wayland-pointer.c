@@ -43,35 +43,34 @@
 
 #include "config.h"
 
-#include <clutter/clutter.h>
-#include <clutter/evdev/clutter-evdev.h>
-#include <cogl/cogl.h>
-#include <cogl/cogl-wayland-server.h>
 #include <linux/input.h>
+#include <string.h>
 
-#include "meta-wayland-pointer.h"
-#include "meta-wayland-popup.h"
-#include "meta-wayland-private.h"
-#include "meta-wayland-seat.h"
-#include "meta-wayland-surface.h"
-#include "meta-wayland-buffer.h"
-#include "meta-wayland-cursor-surface.h"
-#include "meta-xwayland.h"
-#include "meta-cursor.h"
-#include "meta-cursor-tracker-private.h"
-#include "meta-surface-actor-wayland.h"
-#include "meta/meta-cursor-tracker.h"
 #include "backends/meta-backend-private.h"
-#include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-cursor-renderer.h"
-
-#include "relative-pointer-unstable-v1-server-protocol.h"
+#include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-cursor.h"
+#include "clutter/clutter.h"
+#include "clutter/evdev/clutter-evdev.h"
+#include "cogl/cogl-wayland-server.h"
+#include "cogl/cogl.h"
+#include "compositor/meta-surface-actor-wayland.h"
+#include "meta/meta-cursor-tracker.h"
+#include "wayland/meta-wayland-buffer.h"
+#include "wayland/meta-wayland-cursor-surface.h"
+#include "wayland/meta-wayland-pointer.h"
+#include "wayland/meta-wayland-popup.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-seat.h"
+#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-xwayland.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #endif
 
-#include <string.h>
+#include "relative-pointer-unstable-v1-server-protocol.h"
 
 #define DEFAULT_AXIS_STEP_DISTANCE wl_fixed_from_int (10)
 

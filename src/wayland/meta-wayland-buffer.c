@@ -24,20 +24,19 @@
 
 #include "config.h"
 
-#include "meta-wayland-buffer.h"
-#include "meta-wayland-dma-buf.h"
-
-#include <clutter/clutter.h>
-#include <cogl/cogl-egl.h>
-#include <meta/util.h>
+#include "wayland/meta-wayland-buffer.h"
 
 #include <drm_fourcc.h>
+
+#include "backends/meta-backend-private.h"
+#include "clutter/clutter.h"
+#include "cogl/cogl-egl.h"
+#include "meta/util.h"
+#include "wayland/meta-wayland-dma-buf.h"
 
 #ifndef DRM_FORMAT_MOD_INVALID
 #define DRM_FORMAT_MOD_INVALID ((1ULL << 56) - 1)
 #endif
-
-#include "backends/meta-backend-private.h"
 
 enum
 {

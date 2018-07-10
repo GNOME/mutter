@@ -34,22 +34,21 @@
 #include "x11/meta-x11-display-private.h"
 
 #include <gdk/gdk.h>
-
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
 #include <X11/Xatom.h>
 #include <X11/XKBlib.h>
-#ifdef HAVE_RANDR
-#include <X11/extensions/Xrandr.h>
-#endif
 #include <X11/extensions/shape.h>
 #include <X11/Xcursor/Xcursor.h>
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/Xfixes.h>
 #include <X11/extensions/Xinerama.h>
+
+#ifdef HAVE_RANDR
+#include <X11/extensions/Xrandr.h>
+#endif
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"

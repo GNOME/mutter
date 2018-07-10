@@ -23,9 +23,9 @@
 #ifndef META_CONSTRAINTS_H
 #define META_CONSTRAINTS_H
 
-#include <meta/util.h>
-#include "window-private.h"
-#include "frame.h"
+#include "core/frame.h"
+#include "core/window-private.h"
+#include "meta/util.h"
 
 void meta_window_constrain (MetaWindow          *window,
                             MetaMoveResizeFlags  flags,

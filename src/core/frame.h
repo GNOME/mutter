@@ -22,8 +22,7 @@
 #ifndef META_FRAME_PRIVATE_H
 #define META_FRAME_PRIVATE_H
 
-#include "window-private.h"
-
+#include "core/window-private.h"
 #include "ui/frames.h"
 
 struct _MetaFrame

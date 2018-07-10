@@ -23,8 +23,9 @@
 #define META_WAYLAND_GTK_TEXT_INPUT_H
 
 #include <wayland-server.h>
-#include "wayland/meta-wayland-types.h"
+
 #include "meta/window.h"
+#include "wayland/meta-wayland-types.h"
 
 typedef struct _MetaWaylandGtkTextInput MetaWaylandGtkTextInput;
 

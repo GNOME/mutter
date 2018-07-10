@@ -22,13 +22,15 @@
  * @short_description: objects holding images loaded from files, used for backgrounds
  */
 
-#include <config.h>
+#include "config.h"
 
-#include <gio/gio.h>
+#include "meta/meta-background-image.h"
+
 #include <gdk-pixbuf/gdk-pixbuf.h>
-#include <clutter/clutter.h>
-#include <meta/meta-background-image.h>
-#include "cogl-utils.h"
+#include <gio/gio.h>
+
+#include "clutter/clutter.h"
+#include "compositor/cogl-utils.h"
 
 enum
 {

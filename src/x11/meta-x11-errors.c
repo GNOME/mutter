@@ -24,11 +24,14 @@
  * @short_description: Mutter X error handling
  */
 
-#include <config.h>
-#include <meta/meta-x11-errors.h>
+#include "config.h"
+
+#include "meta/meta-x11-errors.h"
+
 #include <errno.h>
 #include <stdlib.h>
 #include <gdk/gdkx.h>
+
 #include "x11/meta-x11-display-private.h"
 
 /* In GTK+-3.0, the error trapping code was significantly rewritten. The new code

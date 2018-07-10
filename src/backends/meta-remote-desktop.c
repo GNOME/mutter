@@ -32,12 +32,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "meta-dbus-remote-desktop.h"
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-remote-desktop-session.h"
 #include "backends/native/meta-cursor-renderer-native.h"
 #include "meta/meta-backend.h"
+
+#include "meta-dbus-remote-desktop.h"
 
 #define META_REMOTE_DESKTOP_DBUS_SERVICE "org.gnome.Mutter.RemoteDesktop"
 #define META_REMOTE_DESKTOP_DBUS_PATH "/org/gnome/Mutter/RemoteDesktop"

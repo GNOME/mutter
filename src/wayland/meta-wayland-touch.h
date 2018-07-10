@@ -22,11 +22,10 @@
 #ifndef META_WAYLAND_TOUCH_H
 #define META_WAYLAND_TOUCH_H
 
+#include <glib.h>
 #include <wayland-server.h>
 
-#include <glib.h>
-
-#include "meta-wayland-types.h"
+#include "wayland/meta-wayland-types.h"
 
 #define META_TYPE_WAYLAND_TOUCH (meta_wayland_touch_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandTouch, meta_wayland_touch,

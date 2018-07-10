@@ -40,7 +40,7 @@
  * by layer, then by stack_position within each layer.
  */
 
-#include "display-private.h"
+#include "core/display-private.h"
 
 /**
  * A sorted list of windows bearing some level of resemblance to the stack of

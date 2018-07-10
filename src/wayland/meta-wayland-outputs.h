@@ -26,7 +26,7 @@
 #define META_WAYLAND_OUTPUTS_H
 
 #include "backends/meta-monitor-manager-private.h"
-#include "meta-wayland-private.h"
+#include "wayland/meta-wayland-private.h"
 
 #define META_TYPE_WAYLAND_OUTPUT (meta_wayland_output_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandOutput, meta_wayland_output,

@@ -20,7 +20,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <meta/display.h>
+#include "meta/display.h"
 
 #ifndef META_EVENTS_X11_H
 #define META_EVENTS_X11_H

@@ -28,17 +28,17 @@
 
 #include "wayland/meta-wayland-dma-buf.h"
 
-#include "cogl/cogl.h"
-#include "cogl/cogl-egl.h"
+#include <drm_fourcc.h>
+
 #include "backends/meta-backend-private.h"
-#include "backends/meta-egl.h"
 #include "backends/meta-egl-ext.h"
+#include "backends/meta-egl.h"
+#include "cogl/cogl-egl.h"
+#include "cogl/cogl.h"
 #include "meta/meta-backend.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-versions.h"
-
-#include <drm_fourcc.h>
 
 #include "linux-dmabuf-unstable-v1-server-protocol.h"
 

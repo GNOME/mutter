@@ -26,20 +26,22 @@
  *
  */
 
-#include <meta/meta-plugin.h>
-#include "meta-plugin-manager.h"
-#include <meta/display.h>
-#include <meta/util.h>
+#include "config.h"
+
+#include "meta/meta-plugin.h"
 
 #include <string.h>
 #include <X11/Xlib.h>
 #include <X11/extensions/Xfixes.h>
 #include <X11/extensions/shape.h>
-#include <clutter/x11/clutter-x11.h>
 
-#include "compositor-private.h"
-#include "meta-window-actor-private.h"
-#include "meta-monitor-manager-private.h"
+#include "backends/meta-monitor-manager-private.h"
+#include "clutter/x11/clutter-x11.h"
+#include "compositor/compositor-private.h"
+#include "compositor/meta-window-actor-private.h"
+#include "compositor/meta-plugin-manager.h"
+#include "meta/display.h"
+#include "meta/util.h"
 
 struct _MetaPluginPrivate
 {

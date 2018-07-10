@@ -27,8 +27,8 @@
 #include <pipewire/pipewire.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-screen-cast-session.h"
 #include "backends/meta-remote-desktop-session.h"
+#include "backends/meta-screen-cast-session.h"
 
 #define META_SCREEN_CAST_DBUS_SERVICE "org.gnome.Mutter.ScreenCast"
 #define META_SCREEN_CAST_DBUS_PATH "/org/gnome/Mutter/ScreenCast"
