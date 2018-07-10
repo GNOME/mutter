@@ -24,15 +24,16 @@
 
 #include "config.h"
 
+#include "backends/native/meta-clutter-backend-native.h"
+
 #include <glib-object.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-renderer.h"
-#include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-stage-native.h"
 #include "clutter/clutter.h"
-#include "meta/meta-backend.h"
 #include "core/bell.h"
+#include "meta/meta-backend.h"
 
 struct _MetaClutterBackendNative
 {

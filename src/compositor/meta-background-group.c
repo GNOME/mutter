@@ -14,10 +14,10 @@
  * and details on implementation.
  */
 
-#include <config.h>
+#include "config.h"
 
-#include <meta/meta-background-group.h>
-#include "meta-cullable.h"
+#include "compositor/meta-cullable.h"
+#include "meta/meta-background-group.h"
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 

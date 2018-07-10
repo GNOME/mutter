@@ -19,7 +19,10 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clutter-utils.h"
+#include "config.h"
+
+#include "compositor/clutter-utils.h"
+
 #include <math.h>
 
 /* This file uses pixel-aligned region computation to determine what

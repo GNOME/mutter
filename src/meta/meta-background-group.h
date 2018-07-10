@@ -3,7 +3,7 @@
 #ifndef META_BACKGROUND_GROUP_H
 #define META_BACKGROUND_GROUP_H
 
-#include <clutter/clutter.h>
+#include "clutter/clutter.h"
 
 #define META_TYPE_BACKGROUND_GROUP            (meta_background_group_get_type ())
 #define META_BACKGROUND_GROUP(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_BACKGROUND_GROUP, MetaBackgroundGroup))

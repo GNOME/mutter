@@ -22,12 +22,11 @@
 #ifndef META_WAYLAND_TABLET_PAD_H
 #define META_WAYLAND_TABLET_PAD_H
 
+#include <glib.h>
 #include <wayland-server.h>
 
-#include <glib.h>
-
-#include "meta-wayland-types.h"
-#include "meta-cursor-renderer.h"
+#include "backends/meta-cursor-renderer.h"
+#include "wayland/meta-wayland-types.h"
 
 struct _MetaWaylandTabletPad
 {

@@ -25,24 +25,27 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <clutter/evdev/clutter-evdev.h>
+#include "wayland/meta-wayland-tablet-tool.h"
 
+#include <glib.h>
 #include <wayland-server.h>
-#include "tablet-unstable-v2-server-protocol.h"
-#include "meta-wayland-private.h"
-#include "meta-wayland-tablet-cursor-surface.h"
-#include "meta-surface-actor-wayland.h"
-#include "meta-wayland-tablet.h"
-#include "meta-wayland-tablet-seat.h"
-#include "meta-wayland-tablet-tool.h"
+
+#include "clutter/evdev/clutter-evdev.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-tablet-cursor-surface.h"
+#include "compositor/meta-surface-actor-wayland.h"
+#include "wayland/meta-wayland-tablet.h"
+#include "wayland/meta-wayland-tablet-seat.h"
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-logical-monitor.h"
 
 #ifdef HAVE_NATIVE_BACKEND
-#include "backends/native/meta-backend-native.h"
 #include <linux/input-event-codes.h>
+
+#include "backends/native/meta-backend-native.h"
 #endif
+
+#include "tablet-unstable-v2-server-protocol.h"
 
 #define TABLET_AXIS_MAX 65535
 

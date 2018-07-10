@@ -20,10 +20,9 @@
 #ifndef META_STAGE_PRIVATE_H
 #define META_STAGE_PRIVATE_H
 
-#include <meta/meta-stage.h>
-
-#include "meta-cursor.h"
-#include <meta/boxes.h>
+#include "backends/meta-cursor.h"
+#include "meta/boxes.h"
+#include "meta/meta-stage.h"
 
 G_BEGIN_DECLS
 

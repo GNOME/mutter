@@ -22,7 +22,7 @@
 #ifndef META_INPUT_SETTINGS_NATIVE_H
 #define META_INPUT_SETTINGS_NATIVE_H
 
-#include "meta-input-settings-private.h"
+#include "backends/meta-input-settings-private.h"
 
 #define META_TYPE_INPUT_SETTINGS_NATIVE             (meta_input_settings_native_get_type ())
 #define META_INPUT_SETTINGS_NATIVE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_INPUT_SETTINGS_NATIVE, MetaInputSettingsNative))

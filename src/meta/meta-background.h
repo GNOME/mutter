@@ -21,8 +21,10 @@
 #ifndef META_BACKGROUND_H
 #define META_BACKGROUND_H
 
-#include <clutter/clutter.h>
 #include <gsettings-desktop-schemas/gdesktop-enums.h>
+
+#include "clutter/clutter.h"
+#include "meta/display.h"
 
 /**
  * MetaBackground:

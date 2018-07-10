@@ -21,10 +21,10 @@
 #ifndef __META_REGION_UTILS_H__
 #define __META_REGION_UTILS_H__
 
-#include <clutter/clutter.h>
-
 #include <cairo.h>
 #include <glib.h>
+
+#include "clutter/clutter.h"
 
 typedef enum _MetaRoundingStrategy
 {

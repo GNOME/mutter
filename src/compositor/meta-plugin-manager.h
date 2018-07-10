@@ -22,8 +22,8 @@
 #ifndef META_PLUGIN_MANAGER_H_
 #define META_PLUGIN_MANAGER_H_
 
-#include <meta/types.h>
-#include <meta/meta-plugin.h>
+#include "meta/meta-plugin.h"
+#include "meta/types.h"
 
 typedef enum {
   META_PLUGIN_NONE,

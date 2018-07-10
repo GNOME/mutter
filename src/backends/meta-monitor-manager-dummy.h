@@ -23,8 +23,8 @@
 #ifndef META_MONITOR_MANAGER_DUMMY_H
 #define META_MONITOR_MANAGER_DUMMY_H
 
-#include "meta-monitor-manager-private.h"
 #include "backends/meta-gpu.h"
+#include "backends/meta-monitor-manager-private.h"
 
 #define META_TYPE_MONITOR_MANAGER_DUMMY (meta_monitor_manager_dummy_get_type ())
 G_DECLARE_FINAL_TYPE (MetaMonitorManagerDummy, meta_monitor_manager_dummy,

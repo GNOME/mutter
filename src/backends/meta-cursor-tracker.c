@@ -28,21 +28,20 @@
  */
 
 #include "config.h"
-#include "meta-cursor-tracker-private.h"
 
-#include <string.h>
-#include <meta/main.h>
-#include <meta/util.h>
-#include <meta/meta-x11-errors.h>
-
-#include <cogl/cogl.h>
-#include <clutter/clutter.h>
+#include "backends/meta-cursor-tracker-private.h"
 
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
+#include <string.h>
 
-#include "meta-backend-private.h"
+#include "backends/meta-backend-private.h"
 #include "backends/x11/cm/meta-cursor-sprite-xfixes.h"
+#include "cogl/cogl.h"
+#include "clutter/clutter.h"
+#include "meta/main.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/util.h"
 #include "x11/meta-x11-display-private.h"
 
 G_DEFINE_TYPE (MetaCursorTracker, meta_cursor_tracker, G_TYPE_OBJECT);

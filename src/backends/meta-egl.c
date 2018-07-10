@@ -24,16 +24,16 @@
 
 #include "config.h"
 
-#include "backends/meta-backend-private.h"
-#include "backends/meta-egl.h"
-#include "backends/meta-egl-ext.h"
-#include "meta/util.h"
-
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <gio/gio.h>
 #include <glib.h>
 #include <glib-object.h>
+
+#include "backends/meta-backend-private.h"
+#include "backends/meta-egl.h"
+#include "backends/meta-egl-ext.h"
+#include "meta/util.h"
 
 struct _MetaEgl
 {

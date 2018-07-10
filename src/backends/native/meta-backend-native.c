@@ -24,31 +24,30 @@
 
 #include "config.h"
 
-#include "meta-backend-native.h"
-#include "meta-backend-native-private.h"
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-backend-native-private.h"
 
-#include <meta/main.h>
-#include <clutter/evdev/clutter-evdev.h>
+#include <stdlib.h>
 
-#include "clutter/egl/clutter-egl.h"
-#include "clutter/evdev/clutter-evdev.h"
-#include "meta-barrier-native.h"
-#include "meta-border.h"
-#include "meta-monitor-manager-kms.h"
-#include "meta-cursor-renderer-native.h"
-#include "meta-launcher.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-pointer-constraint.h"
 #include "backends/meta-stage-private.h"
+#include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-clutter-backend-native.h"
+#include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-input-settings-native.h"
+#include "backends/native/meta-launcher.h"
+#include "backends/native/meta-monitor-manager-kms.h"
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-stage-native.h"
-
-#include <stdlib.h>
+#include "clutter/evdev/clutter-evdev.h"
+#include "clutter/egl/clutter-egl.h"
+#include "clutter/evdev/clutter-evdev.h"
+#include "core/meta-border.h"
+#include "meta/main.h"
 
 struct _MetaBackendNative
 {
@@ -157,17 +156,17 @@ constrain_all_screen_monitors (ClutterInputDevice *device,
       bottom = top + logical_monitor->rect.height;
 
       if ((cx >= left) && (cx < right) && (cy >= top) && (cy < bottom))
-	{
-	  if (*x < left)
-	    *x = left;
-	  if (*x >= right)
-	    *x = right - 1;
-	  if (*y < top)
-	    *y = top;
-	  if (*y >= bottom)
-	    *y = bottom - 1;
+        {
+          if (*x < left)
+            *x = left;
+          if (*x >= right)
+            *x = right - 1;
+          if (*y < top)
+            *y = top;
+          if (*y >= bottom)
+            *y = bottom - 1;
 
-	  return;
+          return;
         }
     }
 }
@@ -219,24 +218,24 @@ relative_motion_across_outputs (MetaMonitorManager *monitor_manager,
       MetaVector2 intersection;
 
       motion = (MetaLine2) {
-        .a = { x, y },
-        .b = { x + (dx * cur->scale), y + (dy * cur->scale) }
+          .a = { x, y },
+            .b = { x + (dx * cur->scale), y + (dy * cur->scale) }
       };
       left = (MetaLine2) {
-        { cur->rect.x, cur->rect.y },
-        { cur->rect.x, cur->rect.y + cur->rect.height }
+            { cur->rect.x, cur->rect.y },
+              { cur->rect.x, cur->rect.y + cur->rect.height }
       };
       right = (MetaLine2) {
-        { cur->rect.x + cur->rect.width, cur->rect.y },
-        { cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height }
+            { cur->rect.x + cur->rect.width, cur->rect.y },
+              { cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height }
       };
       top = (MetaLine2) {
-        { cur->rect.x, cur->rect.y },
-        { cur->rect.x + cur->rect.width, cur->rect.y }
+            { cur->rect.x, cur->rect.y },
+              { cur->rect.x + cur->rect.width, cur->rect.y }
       };
       bottom = (MetaLine2) {
-        { cur->rect.x, cur->rect.y + cur->rect.height },
-        { cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height }
+            { cur->rect.x, cur->rect.y + cur->rect.height },
+              { cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height }
       };
 
       if (direction != META_DISPLAY_RIGHT &&

@@ -27,7 +27,7 @@
 #ifndef __META_SHAPED_TEXTURE_PRIVATE_H__
 #define __META_SHAPED_TEXTURE_PRIVATE_H__
 
-#include <meta/meta-shaped-texture.h>
+#include "meta/meta-shaped-texture.h"
 
 ClutterActor *meta_shaped_texture_new (void);
 void meta_shaped_texture_set_texture (MetaShapedTexture *stex,
