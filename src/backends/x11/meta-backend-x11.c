@@ -24,29 +24,26 @@
 
 #include "config.h"
 
-#include <string.h>
-#include <stdlib.h>
+#include "backends/x11/meta-backend-x11.h"
 
-#include "meta-backend-x11.h"
-
-#include <clutter.h>
-#include <clutter/x11/clutter-x11.h>
-
-#include <X11/extensions/sync.h>
 #include <X11/XKBlib.h>
 #include <X11/Xlib-xcb.h>
+#include <X11/extensions/sync.h>
+#include <stdlib.h>
+#include <string.h>
 #include <xkbcommon/xkbcommon-x11.h>
 
+#include "backends/meta-dnd-private.h"
+#include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
-#include "meta/meta-cursor-tracker.h"
-
-#include <meta/util.h>
-#include "display-private.h"
+#include "clutter/clutter.h"
+#include "clutter/x11/clutter-x11.h"
 #include "compositor/compositor-private.h"
-#include "backends/meta-dnd-private.h"
-#include "backends/meta-idle-monitor-private.h"
+#include "core/display-private.h"
+#include "meta/meta-cursor-tracker.h"
+#include "meta/util.h"
 
 struct _MetaBackendX11Private
 {

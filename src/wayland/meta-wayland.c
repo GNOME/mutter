@@ -21,35 +21,32 @@
 
 #include "config.h"
 
-#include "meta-wayland.h"
-
-#include <clutter/clutter.h>
-#include <clutter/wayland/clutter-wayland-compositor.h>
-#include <clutter/wayland/clutter-wayland-surface.h>
+#include "wayland/meta-wayland.h"
 
 #include <sys/time.h>
 #include <string.h>
 #include <stdlib.h>
-
 #include <wayland-server.h>
 
-#include "meta-wayland-private.h"
-#include "meta-xwayland-private.h"
-#include "meta-wayland-region.h"
-#include "meta-wayland-seat.h"
-#include "meta-wayland-outputs.h"
-#include "meta-wayland-data-device.h"
-#include "meta-wayland-subsurface.h"
-#include "meta-wayland-tablet-manager.h"
-#include "meta-wayland-xdg-foreign.h"
-#include "meta-wayland-dma-buf.h"
-#include "meta-wayland-inhibit-shortcuts.h"
-#include "meta-wayland-inhibit-shortcuts-dialog.h"
-#include "meta-xwayland-grab-keyboard.h"
-#include "meta-xwayland.h"
-#include "meta-wayland-egl-stream.h"
-
-#include "main-private.h"
+#include "clutter/clutter.h"
+#include "clutter/wayland/clutter-wayland-compositor.h"
+#include "clutter/wayland/clutter-wayland-surface.h"
+#include "core/main-private.h"
+#include "wayland/meta-wayland-data-device.h"
+#include "wayland/meta-wayland-dma-buf.h"
+#include "wayland/meta-wayland-egl-stream.h"
+#include "wayland/meta-wayland-inhibit-shortcuts-dialog.h"
+#include "wayland/meta-wayland-inhibit-shortcuts.h"
+#include "wayland/meta-wayland-outputs.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-region.h"
+#include "wayland/meta-wayland-seat.h"
+#include "wayland/meta-wayland-subsurface.h"
+#include "wayland/meta-wayland-tablet-manager.h"
+#include "wayland/meta-wayland-xdg-foreign.h"
+#include "wayland/meta-xwayland-grab-keyboard.h"
+#include "wayland/meta-xwayland-private.h"
+#include "wayland/meta-xwayland.h"
 
 static MetaWaylandCompositor _meta_wayland_compositor;
 static char *_display_name_override;

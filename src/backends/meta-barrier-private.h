@@ -27,6 +27,7 @@
 #define META_BARRIER_PRIVATE_H
 
 #include "core/meta-border.h"
+#include "meta/barrier.h"
 
 G_BEGIN_DECLS
 

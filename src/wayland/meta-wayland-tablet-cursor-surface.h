@@ -22,7 +22,7 @@
 #ifndef META_WAYLAND_TABLET_CURSOR_SURFACE_H
 #define META_WAYLAND_TABLET_CURSOR_SURFACE_H
 
-#include "meta-wayland-cursor-surface.h"
+#include "wayland/meta-wayland-cursor-surface.h"
 
 #define META_TYPE_WAYLAND_TABLET_CURSOR_SURFACE (meta_wayland_tablet_cursor_surface_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandTabletCursorSurface,

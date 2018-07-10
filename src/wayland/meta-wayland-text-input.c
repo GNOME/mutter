@@ -21,13 +21,15 @@
 
 #include "config.h"
 
+#include "wayland/meta-wayland-text-input.h"
+
 #include <wayland-server.h>
 
-#include "text-input-unstable-v3-server-protocol.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
-#include "wayland/meta-wayland-text-input.h"
 #include "wayland/meta-wayland-versions.h"
+
+#include "text-input-unstable-v3-server-protocol.h"
 
 #define META_TYPE_WAYLAND_TEXT_INPUT_FOCUS (meta_wayland_text_input_focus_get_type ())
 

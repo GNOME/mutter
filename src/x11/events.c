@@ -21,6 +21,7 @@
  */
 
 #include "config.h"
+
 #include "x11/events.h"
 
 #include <X11/Xatom.h>
@@ -28,23 +29,23 @@
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/shape.h>
 
-#include <meta/meta-x11-errors.h>
-#include "meta/meta-backend.h"
-#include "bell.h"
-#include "display-private.h"
-#include "meta-workspace-manager-private.h"
-#include "window-private.h"
-#include "workspace-private.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "core/bell.h"
+#include "core/display-private.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/window-private.h"
+#include "core/workspace-private.h"
+#include "meta/meta-backend.h"
+#include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
 
 #ifdef HAVE_WAYLAND
-#include "wayland/meta-xwayland.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-xwayland-private.h"
+#include "wayland/meta-xwayland.h"
 #endif
 
 static XIEvent *

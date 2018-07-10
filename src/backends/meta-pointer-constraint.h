@@ -26,7 +26,8 @@
 #define META_POINTER_CONSTRAINT_H
 
 #include <glib-object.h>
-#include <clutter/clutter.h>
+
+#include "clutter/clutter.h"
 
 G_BEGIN_DECLS
 

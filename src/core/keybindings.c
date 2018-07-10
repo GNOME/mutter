@@ -27,32 +27,32 @@
  * @Short_Description: Key bindings
  */
 
-#include <config.h>
-#include "keybindings-private.h"
-#include "meta-workspace-manager-private.h"
-#include "workspace-private.h"
-#include <meta/compositor.h>
-#include <meta/meta-x11-errors.h>
-#include "edge-resistance.h"
-#include "frame.h"
-#include <meta/prefs.h>
-#include "meta-accel-parse.h"
-
-#ifdef __linux__
-#include <linux/input.h>
-#elif !defined KEY_GRAVE
-#define KEY_GRAVE 0x29 /* assume the use of xf86-input-keyboard */
-#endif
+#include "config.h"
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "backends/meta-monitor-manager-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "core/edge-resistance.h"
+#include "core/frame.h"
+#include "core/keybindings-private.h"
+#include "core/meta-accel-parse.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/workspace-private.h"
+#include "meta/compositor.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
+#endif
+
+#ifdef __linux__
+#include <linux/input.h>
+#elif !defined KEY_GRAVE
+#define KEY_GRAVE 0x29 /* assume the use of xf86-input-keyboard */
 #endif
 
 #define SCHEMA_COMMON_KEYBINDINGS "org.gnome.desktop.wm.keybindings"

@@ -23,6 +23,7 @@
 #include "backends/meta-crtc.h"
 #include "backends/meta-output.h"
 #include "compositor/meta-plugin-manager.h"
+#include "core/display-private.h"
 #include "core/main-private.h"
 #include "meta/main.h"
 #include "tests/meta-backend-test.h"

@@ -26,8 +26,8 @@
 #define META_XWAYLAND_H
 
 #include <glib.h>
-#include <meta/types.h>
 
+#include "meta/types.h"
 #include "wayland/meta-wayland-types.h"
 
 void

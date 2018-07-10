@@ -21,18 +21,18 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include "core.h"
-#include "frame.h"
-#include "meta-workspace-manager-private.h"
-#include "workspace-private.h"
-#include <meta/prefs.h>
-#include <meta/meta-x11-errors.h>
-#include "util-private.h"
+#include "config.h"
 
+#include "core/core.h"
+#include "core/frame.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/util-private.h"
+#include "core/workspace-private.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
 #include "x11/meta-x11-display-private.h"
-#include "x11/window-x11.h"
 #include "x11/window-x11-private.h"
+#include "x11/window-x11.h"
 
 /* Looks up the MetaWindow representing the frame of the given X window.
  * Used as a helper function by a bunch of the functions below.

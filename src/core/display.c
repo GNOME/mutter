@@ -30,57 +30,60 @@
 
 #define _XOPEN_SOURCE 600 /* for gethostname() */
 
-#include <config.h>
-#include "display-private.h"
-#include "events.h"
-#include "util-private.h"
-#include <meta/main.h>
-#include "main-private.h"
-#include "window-private.h"
-#include "boxes-private.h"
-#include "frame.h"
-#include <meta/meta-x11-errors.h>
-#include "keybindings-private.h"
-#include <meta/prefs.h>
-#include "workspace-private.h"
-#include "meta-workspace-manager-private.h"
-#include "bell.h"
-#include <meta/compositor.h>
-#include <meta/compositor-mutter.h>
+#include "config.h"
+
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <X11/Xatom.h>
-#include <meta/meta-enum-types.h>
-#include "meta-idle-monitor-dbus.h"
-#include "meta-cursor-tracker-private.h"
-#include <meta/meta-backend.h>
-#include "backends/meta-cursor-sprite-xcursor.h"
-#include "backends/meta-logical-monitor.h"
-#include "backends/native/meta-backend-native.h"
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/meta-stage-private.h"
-#include "backends/meta-input-settings-private.h"
-#include <clutter/x11/clutter-x11.h>
+#include <X11/Xcursor/Xcursor.h>
+#include <X11/extensions/shape.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
+#include <X11/extensions/Xfixes.h>
 
 #ifdef HAVE_RANDR
 #include <X11/extensions/Xrandr.h>
 #endif
-#include <X11/extensions/shape.h>
-#include <X11/Xcursor/Xcursor.h>
-#include <X11/extensions/Xcomposite.h>
-#include <X11/extensions/Xdamage.h>
-#include <X11/extensions/Xfixes.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 
-#include "x11/events.h"
+#include "backends/meta-cursor-sprite-xcursor.h"
+#include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-idle-monitor-dbus.h"
+#include "backends/meta-input-settings-private.h"
+#include "backends/meta-logical-monitor.h"
+#include "backends/meta-stage-private.h"
+#include "backends/x11/meta-backend-x11.h"
+#include "clutter/x11/clutter-x11.h"
+#include "core/bell.h"
+#include "core/boxes-private.h"
+#include "core/display-private.h"
+#include "core/events.h"
+#include "core/frame.h"
+#include "core/keybindings-private.h"
+#include "core/main-private.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/util-private.h"
+#include "core/window-private.h"
+#include "core/workspace-private.h"
+#include "meta/compositor-mutter.h"
+#include "meta/compositor.h"
+#include "meta/main.h"
+#include "meta/meta-backend.h"
+#include "meta/meta-enum-types.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
+#include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
-#include "x11/meta-x11-display-private.h"
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-xwayland-private.h"
 #include "wayland/meta-wayland-tablet-seat.h"
 #include "wayland/meta-wayland-tablet-pad.h"
+#endif
+
+#ifdef HAVE_NATIVE_BACKEND
+#include "backends/native/meta-backend-native.h"
 #endif
 
 /*

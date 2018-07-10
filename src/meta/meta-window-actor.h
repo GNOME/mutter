@@ -23,10 +23,10 @@
 #ifndef META_WINDOW_ACTOR_H_
 #define META_WINDOW_ACTOR_H_
 
-#include <clutter/clutter.h>
 #include <X11/Xlib.h>
 
-#include <meta/compositor.h>
+#include "clutter/clutter.h"
+#include "meta/compositor.h"
 
 /*
  * MetaWindowActor object (ClutterGroup sub-class)

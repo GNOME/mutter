@@ -23,8 +23,9 @@
 #define META_BOXES_PRIVATE_H
 
 #include <glib-object.h>
-#include <meta/common.h>
-#include <meta/boxes.h>
+
+#include "meta/boxes.h"
+#include "meta/common.h"
 
 #define BOX_LEFT(box)    ((box).x)                /* Leftmost pixel of rect */
 #define BOX_RIGHT(box)   ((box).x + (box).width)  /* One pixel past right   */

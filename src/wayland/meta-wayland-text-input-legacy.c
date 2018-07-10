@@ -23,11 +23,12 @@
 
 #include <wayland-server.h>
 
-#include "gtk-text-input-server-protocol.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-text-input-legacy.h"
 #include "wayland/meta-wayland-versions.h"
+
+#include "gtk-text-input-server-protocol.h"
 
 #define META_TYPE_WAYLAND_GTK_TEXT_INPUT_FOCUS (meta_wayland_gtk_text_input_focus_get_type ())
 

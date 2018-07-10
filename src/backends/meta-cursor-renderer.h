@@ -27,7 +27,7 @@
 
 #include <glib-object.h>
 
-#include "meta-cursor.h"
+#include "backends/meta-cursor.h"
 
 #define META_TYPE_CURSOR_RENDERER (meta_cursor_renderer_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaCursorRenderer, meta_cursor_renderer,
