@@ -254,7 +254,9 @@ bind_output (struct wl_client *client,
   MetaWaylandOutput *wayland_output = data;
   MetaLogicalMonitor *logical_monitor = wayland_output->logical_monitor;
   struct wl_resource *resource;
+#ifdef WITH_VERBOSE_MODE
   MetaMonitor *monitor;
+#endif
 
   resource = wl_resource_create (client, &wl_output_interface, version, id);
   wayland_output->resources = g_list_prepend (wayland_output->resources, resource);
@@ -265,6 +267,7 @@ bind_output (struct wl_client *client,
   if (!logical_monitor)
     return;
 
+#ifdef WITH_VERBOSE_MODE
   monitor = pick_main_monitor (logical_monitor);
 
   meta_verbose ("Binding monitor %p/%s (%u, %u, %u, %u) x %f\n",
@@ -273,6 +276,7 @@ bind_output (struct wl_client *client,
                 logical_monitor->rect.x, logical_monitor->rect.y,
                 logical_monitor->rect.width, logical_monitor->rect.height,
                 wayland_output->refresh_rate);
+#endif
 
   send_output_events (resource, wayland_output, logical_monitor, TRUE, NULL);
 }
