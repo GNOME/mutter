@@ -195,6 +195,7 @@ enum
   UNMANAGED,
   SIZE_CHANGED,
   POSITION_CHANGED,
+  SHOWN,
 
   LAST_SIGNAL
 };
@@ -636,6 +637,20 @@ meta_window_class_init (MetaWindowClass *klass)
    */
   window_signals[POSITION_CHANGED] =
     g_signal_new ("position-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
+  /**
+   * MetaWindow::shown:
+   * @window: a #MetaWindow
+   *
+   * This is emitted after a window has been shown.
+   */
+  window_signals[SHOWN] =
+    g_signal_new ("shown",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0,
@@ -2553,6 +2568,9 @@ meta_window_show (MetaWindow *window)
       g_signal_emit_by_name (window->display, "window-demands-attention",
                              window);
     }
+
+  if (did_show)
+    g_signal_emit (window, window_signals[SHOWN], 0);
 }
 
 static void
