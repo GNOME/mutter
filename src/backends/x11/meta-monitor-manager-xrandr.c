@@ -70,9 +70,7 @@ struct _MetaMonitorManagerXrandr
 
   xcb_timestamp_t last_xrandr_set_timestamp;
 
-#ifdef HAVE_XRANDR15
   GHashTable *tiled_monitor_atoms;
-#endif /* HAVE_XRANDR15 */
 
   float *supported_scales;
   int n_supported_scales;
@@ -85,14 +83,12 @@ struct _MetaMonitorManagerXrandrClass
 
 G_DEFINE_TYPE (MetaMonitorManagerXrandr, meta_monitor_manager_xrandr, META_TYPE_MONITOR_MANAGER);
 
-#ifdef HAVE_XRANDR15
 typedef struct _MetaMonitorXrandrData
 {
   Atom xrandr_name;
 } MetaMonitorXrandrData;
 
 GQuark quark_meta_monitor_xrandr_data;
-#endif /* HAVE_RANDR15 */
 
 Display *
 meta_monitor_manager_xrandr_get_xdisplay (MetaMonitorManagerXrandr *manager_xrandr)
@@ -669,7 +665,6 @@ meta_monitor_manager_xrandr_set_crtc_gamma (MetaMonitorManager *manager,
   XRRFreeGamma (gamma);
 }
 
-#ifdef HAVE_XRANDR15
 static MetaMonitorXrandrData *
 meta_monitor_xrandr_data_from_monitor (MetaMonitor *monitor)
 {
@@ -830,7 +825,6 @@ meta_monitor_manager_xrandr_init_monitors (MetaMonitorManagerXrandr *manager_xra
     }
   XRRFreeMonitors (m);
 }
-#endif
 
 static gboolean
 meta_monitor_manager_xrandr_is_transform_handled (MetaMonitorManager  *manager,
@@ -999,7 +993,6 @@ meta_monitor_manager_xrandr_constructed (GObject *object)
       manager_xrandr->has_randr15 = FALSE;
       XRRQueryVersion (manager_xrandr->xdisplay, &major_version,
                        &minor_version);
-#ifdef HAVE_XRANDR15
       if (major_version > 1 ||
           (major_version == 1 &&
            minor_version >= 5))
@@ -1008,7 +1001,6 @@ meta_monitor_manager_xrandr_constructed (GObject *object)
           manager_xrandr->tiled_monitor_atoms = g_hash_table_new (NULL, NULL);
         }
       meta_monitor_manager_xrandr_init_monitors (manager_xrandr);
-#endif
     }
 
   G_OBJECT_CLASS (meta_monitor_manager_xrandr_parent_class)->constructed (object);
@@ -1047,10 +1039,8 @@ meta_monitor_manager_xrandr_class_init (MetaMonitorManagerXrandrClass *klass)
   manager_class->change_backlight = meta_monitor_manager_xrandr_change_backlight;
   manager_class->get_crtc_gamma = meta_monitor_manager_xrandr_get_crtc_gamma;
   manager_class->set_crtc_gamma = meta_monitor_manager_xrandr_set_crtc_gamma;
-#ifdef HAVE_XRANDR15
   manager_class->tiled_monitor_added = meta_monitor_manager_xrandr_tiled_monitor_added;
   manager_class->tiled_monitor_removed = meta_monitor_manager_xrandr_tiled_monitor_removed;
-#endif
   manager_class->is_transform_handled = meta_monitor_manager_xrandr_is_transform_handled;
   manager_class->calculate_monitor_mode_scale = meta_monitor_manager_xrandr_calculate_monitor_mode_scale;
   manager_class->calculate_supported_scales = meta_monitor_manager_xrandr_calculate_supported_scales;
