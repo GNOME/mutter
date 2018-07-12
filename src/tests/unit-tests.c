@@ -262,7 +262,7 @@ main (int argc, char *argv[])
   test_init (argc, argv);
   init_tests (argc, argv);
 
-  meta_plugin_manager_load ("default");
+  meta_plugin_manager_load (test_get_plugin_name ());
 
   meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
                                           META_TYPE_BACKEND_TEST);
