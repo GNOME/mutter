@@ -46,6 +46,12 @@ void clutter_stage_capture_into (ClutterStage          *stage,
                                  cairo_rectangle_int_t *rect,
                                  uint8_t               *data);
 
+CLUTTER_EXPORT
+void clutter_stage_freeze_updates (ClutterStage *stage);
+
+CLUTTER_EXPORT
+void clutter_stage_thaw_updates (ClutterStage *stage);
+
 #undef __CLUTTER_H_INSIDE__
 
 #endif /* __CLUTTER_MUTTER_H__ */

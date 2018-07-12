@@ -146,6 +146,8 @@ struct _ClutterStagePrivate
   gpointer paint_data;
   GDestroyNotify paint_notify;
 
+  int update_freeze_count;
+
   guint relayout_pending       : 1;
   guint redraw_pending         : 1;
   guint is_fullscreen          : 1;
@@ -4899,4 +4901,59 @@ clutter_stage_capture_into (ClutterStage          *stage,
 
   view = get_view_at_rect (stage, rect);
   capture_view_into (stage, paint, view, rect, data, rect->width * bpp);
+}
+
+/**
+ * clutter_stage_freeze_updates:
+ *
+ * Freezing updates makes Clutter stop processing events,
+ * redrawing, and advancing timelines, by pausing the master clock. This is
+ * necessary when implementing a display server, to ensure that Clutter doesn't
+ * keep trying to page flip when DRM master has been dropped, e.g. when VT
+ * switched away.
+ *
+ * The master clock starts out running, so if you are VT switched away on
+ * startup, you need to call this immediately.
+ *
+ * To thaw updates, use clutter_stage_thaw_updates().
+ */
+void
+clutter_stage_freeze_updates (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  priv->update_freeze_count++;
+  if (priv->update_freeze_count == 1)
+    {
+      ClutterMasterClock *master_clock;
+
+      master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_set_paused (master_clock, TRUE);
+    }
+}
+
+/**
+ * clutter_stage_thaw_updates:
+ *
+ * Resumes a master clock that has previously been frozen with
+ * clutter_stage_freeze_updates(), and start pumping the master clock
+ * again at the next iteration. Note that if you're switching back to your
+ * own VT, you should probably also queue a stage redraw with
+ * clutter_stage_ensure_redraw().
+ */
+void
+clutter_stage_thaw_updates (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  g_assert (priv->update_freeze_count > 0);
+
+  priv->update_freeze_count--;
+  if (priv->update_freeze_count == 0)
+    {
+      ClutterMasterClock *master_clock;
+
+      master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_set_paused (master_clock, FALSE);
+    }
 }
