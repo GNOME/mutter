@@ -87,11 +87,6 @@ EGLDisplay      clutter_egl_display             (void);
 CLUTTER_EXPORT
 EGLDisplay      clutter_egl_get_egl_display     (void);
 
-CLUTTER_EXPORT
-void            clutter_egl_freeze_master_clock (void);
-CLUTTER_EXPORT
-void            clutter_egl_thaw_master_clock   (void);
-
 G_END_DECLS
 
 #endif /* __CLUTTER_EGL_H__ */

@@ -146,6 +146,8 @@ struct _ClutterStagePrivate
   gpointer paint_data;
   GDestroyNotify paint_notify;
 
+  int update_freeze_count;
+
   guint relayout_pending       : 1;
   guint redraw_pending         : 1;
   guint is_fullscreen          : 1;
@@ -4899,4 +4901,36 @@ clutter_stage_capture_into (ClutterStage          *stage,
 
   view = get_view_at_rect (stage, rect);
   capture_view_into (stage, paint, view, rect, data, rect->width * bpp);
+}
+
+void
+clutter_stage_freeze_updates (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  priv->update_freeze_count++;
+  if (priv->update_freeze_count == 1)
+    {
+      ClutterMasterClock *master_clock;
+
+      master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_set_paused (master_clock, TRUE);
+    }
+}
+
+void
+clutter_stage_thaw_updates (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  g_assert (priv->update_freeze_count > 0);
+
+  priv->update_freeze_count--;
+  if (priv->update_freeze_count == 0)
+    {
+      ClutterMasterClock *master_clock;
+
+      master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_set_paused (master_clock, FALSE);
+    }
 }
