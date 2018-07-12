@@ -664,8 +664,8 @@ pkgconfig_DATA = libmutter-$(LIBMUTTER_API_VERSION).pc
 EXTRA_DIST +=					\
 	$(wayland_protocols)			\
 	libmutter.pc.in				\
-	meta-enum-types.h.in			\
-	meta-enum-types.c.in			\
+	meta/meta-enum-types.h.in			\
+	meta/meta-enum-types.c.in			\
 	org.freedesktop.login1.xml		\
 	org.gnome.Mutter.DisplayConfig.xml	\
 	org.gnome.Mutter.IdleMonitor.xml	\
@@ -683,19 +683,19 @@ CLEANFILES += $(MUTTER_STAMP_FILES)
 
 meta/meta-enum-types.h: stamp-meta-enum-types.h Makefile
 	@true
-stamp-meta-enum-types.h: $(libmutterinclude_headers) meta-enum-types.h.in
+stamp-meta-enum-types.h: $(libmutterinclude_headers) meta/meta-enum-types.h.in
 	$(AM_V_GEN) ( cd $(srcdir) && \
 	  $(GLIB_MKENUMS) \
-	    --template meta-enum-types.h.in \
+	    --template meta/meta-enum-types.h.in \
 	  $(libmutterinclude_headers) ) > xgen-teth && \
 	(cmp -s xgen-teth meta/meta-enum-types.h || cp xgen-teth meta/meta-enum-types.h) && \
 	rm -f xgen-teth && \
 	echo timestamp > $(@F)
 
-meta-enum-types.c: stamp-meta-enum-types.h meta-enum-types.c.in
+meta-enum-types.c: stamp-meta-enum-types.h meta/meta-enum-types.c.in
 	  $(AM_V_GEN) ( cd $(srcdir) && \
 	  $(GLIB_MKENUMS) \
-	    --template meta-enum-types.c.in \
+	    --template meta/meta-enum-types.c.in \
 	  $(libmutterinclude_headers) ) > xgen-tetc && \
 	cp xgen-tetc meta-enum-types.c && \
 	rm -f xgen-tetc
