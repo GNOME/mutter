@@ -29,11 +29,6 @@ G_BEGIN_DECLS
 
 typedef struct _MetaOverlay    MetaOverlay;
 
-struct _MetaStage
-{
-  ClutterStage parent;
-};
-
 ClutterActor     *meta_stage_new                     (void);
 
 MetaOverlay      *meta_stage_create_cursor_overlay   (MetaStage   *stage);
