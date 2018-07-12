@@ -119,6 +119,8 @@ struct _MetaBackendPrivate
   guint sleep_signal_id;
   GCancellable *cancellable;
   GDBusConnection *system_bus;
+
+  gboolean was_headless;
 };
 typedef struct _MetaBackendPrivate MetaBackendPrivate;
 
@@ -218,6 +220,19 @@ meta_backend_monitors_changed (MetaBackend *backend)
     }
 
   meta_cursor_renderer_force_update (priv->cursor_renderer);
+
+  if (meta_monitor_manager_is_headless (priv->monitor_manager) &&
+      !priv->was_headless)
+    {
+      meta_stage_freeze_updates (META_STAGE (priv->stage));
+      priv->was_headless = TRUE;
+    }
+  else if (!meta_monitor_manager_is_headless (priv->monitor_manager) &&
+           priv->was_headless)
+    {
+      meta_stage_thaw_updates (META_STAGE (priv->stage));
+      priv->was_headless = FALSE;
+    }
 }
 
 void
