@@ -19,12 +19,12 @@ AM_CPPFLAGS = \
 	-DSN_API_NOT_YET_FROZEN=1					\
 	-DMUTTER_PLUGIN_DIR=\"$(MUTTER_PLUGIN_DIR)\"
 
-default_la_CFLAGS   = -fPIC
-default_la_SOURCES  = default.c
-default_la_LDFLAGS  = -module -avoid-version -no-undefined
-default_la_LIBADD   = $(CLUTTER_LIBS)
+libdefault_la_CFLAGS   = -fPIC
+libdefault_la_SOURCES  = default.c
+libdefault_la_LDFLAGS  = -module -avoid-version -no-undefined
+libdefault_la_LIBADD   = $(CLUTTER_LIBS)
 
-pkglib_LTLIBRARIES = default.la
+pkglib_LTLIBRARIES = libdefault.la
 
 # post-install hook to remove the .la and .a files we are not interested in
 # (There is no way to stop libtool generating static libs locally, and we
@@ -37,4 +37,4 @@ install-exec-hook:
 # since it counts on libtool to remove the .la files, so just kill the
 # .so file manually.
 uninstall-local:
-	-rm -f $(DESTDIR)$(pkglibdir)/default.so
+	-rm -f $(DESTDIR)$(pkglibdir)/libdefault.so
