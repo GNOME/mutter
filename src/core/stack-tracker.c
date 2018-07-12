@@ -778,6 +778,18 @@ meta_stack_tracker_configure_event (MetaStackTracker    *tracker,
   stack_tracker_event_received (tracker, &op);
 }
 
+static gboolean
+meta_stack_tracker_is_guard_window (MetaStackTracker *tracker,
+                                    uint64_t          stack_id)
+{
+  MetaX11Display *x11_display = tracker->display->x11_display;
+
+  if (!x11_display)
+    return FALSE;
+
+  return stack_id == x11_display->guard_window;
+}
+
 /**
  * meta_stack_tracker_get_stack:
  * @tracker: a #MetaStackTracker
@@ -1063,7 +1075,6 @@ meta_stack_tracker_lower (MetaStackTracker *tracker,
 static void
 meta_stack_tracker_keep_override_redirect_on_top (MetaStackTracker *tracker)
 {
-  MetaWindow *window;
   guint64 *stack;
   int n_windows, i;
   int topmost_non_or;
@@ -1072,6 +1083,8 @@ meta_stack_tracker_keep_override_redirect_on_top (MetaStackTracker *tracker)
 
   for (i = n_windows - 1; i >= 0; i--)
     {
+      MetaWindow *window;
+
       window = meta_display_lookup_stack_id (tracker->display, stack[i]);
       if (window && window->layer != META_LAYER_OVERRIDE_REDIRECT)
         break;
@@ -1081,6 +1094,11 @@ meta_stack_tracker_keep_override_redirect_on_top (MetaStackTracker *tracker)
 
   for (i -= 1; i >= 0; i--)
     {
+      MetaWindow *window;
+
+      if (meta_stack_tracker_is_guard_window (tracker, stack[i]))
+        break;
+
       window = meta_display_lookup_stack_id (tracker->display, stack[i]);
       if (window && window->layer == META_LAYER_OVERRIDE_REDIRECT)
         {
