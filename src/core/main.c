@@ -118,11 +118,6 @@ static void prefs_changed_callback (MetaPreference pref,
 static void
 meta_print_compilation_info (void)
 {
-#ifdef HAVE_RANDR
-  meta_verbose ("Compiled with randr extension\n");
-#else
-  meta_verbose ("Compiled without randr extension\n");
-#endif
 #ifdef HAVE_STARTUP_NOTIFICATION
   meta_verbose ("Compiled with startup notification\n");
 #else

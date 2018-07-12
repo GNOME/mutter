@@ -42,10 +42,6 @@
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/Xfixes.h>
 
-#ifdef HAVE_RANDR
-#include <X11/extensions/Xrandr.h>
-#endif
-
 #include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-monitor-dbus.h"

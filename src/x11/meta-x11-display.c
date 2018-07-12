@@ -45,10 +45,7 @@
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/Xfixes.h>
 #include <X11/extensions/Xinerama.h>
-
-#ifdef HAVE_RANDR
 #include <X11/extensions/Xrandr.h>
-#endif
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
