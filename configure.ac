@@ -100,6 +100,7 @@ MUTTER_PC_MODULES="
    xkbcommon >= 0.4.3
    xkbcommon-x11
    xrender
+   xrandr >= 1.5.0
    x11-xcb
    xcb-randr
    xcb-res
@@ -381,21 +382,7 @@ fi
 AC_DEFINE_UNQUOTED([XKB_BASE], ["`$PKG_CONFIG --variable xkb_base xkeyboard-config`"],
                                [XKB base dir])
 
-RANDR_LIBS=
-found_randr=no
-AC_CHECK_LIB(Xrandr, XRRUpdateConfiguration,
-               [AC_CHECK_HEADER(X11/extensions/Xrandr.h,
-                                RANDR_LIBS=-lXrandr found_randr=yes,,
-				[#include <X11/Xlib.h>])],
-               , -lXext $ALL_X_LIBS)
-
-if test "x$found_randr" = "xyes"; then
-   AC_DEFINE(HAVE_RANDR, , [Have the Xrandr extension library])
-   PKG_CHECK_EXISTS([xrandr >= 1.5.0],
-                 AC_DEFINE([HAVE_XRANDR15],[1],[Define if you have support for XRandR 1.5 or greater]))
-fi
-
-MUTTER_LIBS="$MUTTER_LIBS $RANDR_LIBS $X_LIBS $X_PRE_LIBS -lX11 $X_EXTRA_LIBS -lm"
+MUTTER_LIBS="$MUTTER_LIBS $X_LIBS $X_PRE_LIBS -lX11 $X_EXTRA_LIBS -lm"
 
 found_sm=no
 case "$MUTTER_LIBS" in
