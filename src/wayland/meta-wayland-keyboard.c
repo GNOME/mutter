@@ -778,7 +778,9 @@ gboolean
 meta_wayland_keyboard_handle_event (MetaWaylandKeyboard *keyboard,
                                     const ClutterKeyEvent *event)
 {
+#ifdef WITH_VERBOSE_MODE
   gboolean is_press = event->type == CLUTTER_KEY_PRESS;
+#endif
   gboolean handled;
 
   /* Synthetic key events are for autorepeat. Ignore those, as
