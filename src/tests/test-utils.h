@@ -79,4 +79,6 @@ TestClient * test_client_new (const char          *id,
 
 void test_client_destroy (TestClient *client);
 
+const char * test_get_plugin_name (void);
+
 #endif /* TEST_UTILS_H */
