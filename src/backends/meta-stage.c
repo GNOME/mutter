@@ -47,6 +47,8 @@ struct _MetaStage
 
   GList *overlays;
   gboolean is_active;
+
+  int update_freeze_count;
 };
 
 G_DEFINE_TYPE (MetaStage, meta_stage, CLUTTER_TYPE_STAGE);
@@ -296,4 +298,32 @@ meta_stage_set_active (MetaStage *stage,
    * See http://bugzilla.gnome.org/746670
    */
   clutter_stage_event (CLUTTER_STAGE (stage), &event);
+}
+
+void
+meta_stage_freeze_updates (MetaStage *stage)
+{
+  stage->update_freeze_count++;
+  if (stage->update_freeze_count == 1)
+    {
+      ClutterMasterClock *master_clock;
+
+      master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_set_paused (master_clock, TRUE);
+    }
+}
+
+void
+meta_stage_thaw_updates (MetaStage *stage)
+{
+  g_assert (stage->update_freeze_count > 0);
+
+  stage->update_freeze_count--;
+  if (stage->update_freeze_count == 0)
+    {
+      ClutterMasterClock *master_clock;
+
+      master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_set_paused (master_clock, FALSE);
+    }
 }

@@ -30,7 +30,6 @@
 #include <meta/main.h>
 #include <clutter/evdev/clutter-evdev.h>
 
-#include "clutter/egl/clutter-egl.h"
 #include "clutter/evdev/clutter-evdev.h"
 #include "meta-barrier-native.h"
 #include "meta-border.h"
@@ -626,13 +625,14 @@ void
 meta_backend_native_pause (MetaBackendNative *native)
 {
   MetaBackend *backend = META_BACKEND (native);
+  MetaStage *stage = META_STAGE (meta_backend_get_stage (backend));
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerKms *monitor_manager_kms =
     META_MONITOR_MANAGER_KMS (monitor_manager);
 
   clutter_evdev_release_devices ();
-  clutter_egl_freeze_master_clock ();
+  meta_stage_freeze_updates (stage);
 
   meta_monitor_manager_kms_pause (monitor_manager_kms);
 }
@@ -640,20 +640,19 @@ meta_backend_native_pause (MetaBackendNative *native)
 void meta_backend_native_resume (MetaBackendNative *native)
 {
   MetaBackend *backend = META_BACKEND (native);
+  MetaStage *stage = META_STAGE (meta_backend_get_stage (backend));
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerKms *monitor_manager_kms =
     META_MONITOR_MANAGER_KMS (monitor_manager);
-  ClutterActor *stage;
   MetaIdleMonitor *idle_monitor;
 
   meta_monitor_manager_kms_resume (monitor_manager_kms);
 
   clutter_evdev_reclaim_devices ();
-  clutter_egl_thaw_master_clock ();
+  meta_stage_thaw_updates (stage);
 
-  stage = meta_backend_get_stage (backend);
-  clutter_actor_queue_redraw (stage);
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
 
   idle_monitor = meta_backend_get_idle_monitor (backend, 0);
   meta_idle_monitor_reset_idletime (idle_monitor);

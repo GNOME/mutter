@@ -43,6 +43,10 @@ void              meta_stage_update_cursor_overlay   (MetaStage   *stage,
 void meta_stage_set_active (MetaStage *stage,
                             gboolean   is_active);
 
+void meta_stage_freeze_updates (MetaStage *stage);
+
+void meta_stage_thaw_updates (MetaStage *stage);
+
 G_END_DECLS
 
 #endif /* META_STAGE_PRIVATE_H */
