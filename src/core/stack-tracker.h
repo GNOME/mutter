@@ -79,6 +79,9 @@ void meta_stack_tracker_get_stack  (MetaStackTracker *tracker,
                                     guint64         **windows,
                                     int              *n_entries);
 
+gboolean meta_stack_tracker_is_guard_window (MetaStackTracker *tracker,
+                                             uint64_t          stack_id);
+
 void meta_stack_tracker_sync_stack       (MetaStackTracker *tracker);
 void meta_stack_tracker_queue_sync_stack (MetaStackTracker *tracker);
 
