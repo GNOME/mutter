@@ -443,3 +443,9 @@ test_client_destroy (TestClient *client)
   g_free (client->id);
   g_free (client);
 }
+
+const char *
+test_get_plugin_name (void)
+{
+  return "libdefault";
+}
