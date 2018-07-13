@@ -143,8 +143,13 @@ clutter_virtual_input_device_x11_notify_keyval (ClutterVirtualInputDevice *virtu
 
   if (!clutter_keymap_x11_keycode_for_keyval (keymap, keyval, &keycode, &level))
     {
-      g_warning ("No keycode found for keyval %x in current group", keyval);
-      return;
+      level = 0;
+
+      if (!clutter_keymap_x11_reserve_keycode (keymap, keyval, &keycode))
+        {
+          g_warning ("No keycode found for keyval %x in current group", keyval);
+          return;
+        }
     }
 
   if (key_state == CLUTTER_KEY_STATE_PRESSED)
@@ -155,7 +160,10 @@ clutter_virtual_input_device_x11_notify_keyval (ClutterVirtualInputDevice *virtu
                      key_state == CLUTTER_KEY_STATE_PRESSED, 0);
 
   if (key_state == CLUTTER_KEY_STATE_RELEASED)
-    clutter_keymap_x11_latch_modifiers (keymap, level, FALSE);
+    {
+      clutter_keymap_x11_release_keycode_if_needed (keymap, keycode);
+      clutter_keymap_x11_latch_modifiers (keymap, level, FALSE);
+    }
 }
 
 static void
