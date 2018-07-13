@@ -79,6 +79,7 @@ struct _ClutterKeymapX11
   guint current_cache_serial;
   DirectionCacheEntry group_direction_cache[4];
   int current_group;
+  KeyCode reserved_keycode;
 #endif
 
   guint caps_lock_state : 1;
@@ -764,6 +765,84 @@ clutter_keymap_x11_get_entries_for_keyval (ClutterKeymapX11  *keymap_x11,
     {
       return FALSE;
     }
+}
+
+gboolean
+clutter_keymap_x11_replace_keycode (ClutterKeymapX11 *keymap_x11,
+                                    KeyCode           keycode,
+                                    KeySym            keysym)
+{
+  g_return_val_if_fail (CLUTTER_IS_KEYMAP_X11 (keymap_x11), NoSymbol);
+  g_return_val_if_fail (keycode != 0, NoSymbol);
+
+#ifdef HAVE_XKB
+  if (CLUTTER_BACKEND_X11 (keymap_x11->backend)->use_xkb)
+    {
+      Display *dpy = clutter_x11_get_default_display ();
+      XkbDescPtr xkb = get_xkb (keymap_x11);
+      XkbMapChangesRec changes;
+
+      XFlush (dpy);
+
+      xkb->device_spec = XkbUseCoreKbd;
+      memset (&changes, 0, sizeof(changes));
+
+      if (keysym != NoSymbol)
+        {
+          int types[XkbNumKbdGroups] = { XkbOneLevelIndex };
+          XkbChangeTypesOfKey (xkb, keycode, 1, XkbGroup1Mask, types, &changes);
+          XkbKeySymEntry (xkb, keycode, 0, 0) = keysym;
+        }
+      else
+        {
+          // Reset to NoSymbol
+          XkbChangeTypesOfKey (xkb, keycode, 0, XkbGroup1Mask, NULL, &changes);
+        }
+
+      changes.changed = XkbKeySymsMask | XkbKeyTypesMask;
+      changes.first_key_sym = keycode;
+      changes.num_key_syms = 1;
+      changes.first_type = 0;
+      changes.num_types = xkb->map->num_types;
+      XkbChangeMap (dpy, xkb, &changes);
+
+      XFlush (dpy);
+
+      return TRUE;
+    }
+#endif
+  return FALSE;
+}
+
+guint
+clutter_keymap_x11_get_reserved_keycode (ClutterKeymapX11 *keymap_x11)
+{
+  g_return_val_if_fail (CLUTTER_IS_KEYMAP_X11 (keymap_x11), 0);
+
+#ifdef HAVE_XKB
+  if (CLUTTER_BACKEND_X11 (keymap_x11->backend)->use_xkb)
+    {
+      Display *dpy;
+      XkbDescPtr xkb;
+      int i;
+
+      if (keymap_x11->reserved_keycode != 0)
+        return keymap_x11->reserved_keycode;
+
+      dpy = clutter_x11_get_default_display ();
+      xkb = get_xkb (keymap_x11);
+
+      for (i = xkb->max_key_code; i >= xkb->min_key_code; --i)
+        {
+          if (XkbKeycodeToKeysym (dpy, i, 0, 0) == NoSymbol)
+            {
+              keymap_x11->reserved_keycode = i;
+              return keymap_x11->reserved_keycode;
+            }
+        }
+    }
+#endif
+  return 0;
 }
 
 void

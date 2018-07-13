@@ -143,19 +143,37 @@ clutter_virtual_input_device_x11_notify_keyval (ClutterVirtualInputDevice *virtu
 
   if (!clutter_keymap_x11_keycode_for_keyval (keymap, keyval, &keycode, &level))
     {
-      g_warning ("No keycode found for keyval %x in current group", keyval);
-      return;
+      keycode = clutter_keymap_x11_get_reserved_keycode (keymap);
+      level = 0;
+
+      if (keycode)
+        {
+          if (!clutter_keymap_x11_replace_keycode (keymap, keycode, keyval))
+            {
+              g_warning ("Failed to remap keysym %s to keycode %d", XKeysymToString (keyval), keycode);
+              return;
+            }
+        }
+      else
+        {
+          g_warning ("Failed to get a unused keycode to map keysym %s", XKeysymToString (keyval));
+          return;
+        }
     }
 
-  if (key_state)
+  if (key_state == CLUTTER_KEY_STATE_PRESSED)
     clutter_keymap_x11_latch_modifiers (keymap, level, TRUE);
 
   XTestFakeKeyEvent (clutter_x11_get_default_display (),
                      (KeyCode) keycode,
                      key_state == CLUTTER_KEY_STATE_PRESSED, 0);
 
-  if (!key_state)
-    clutter_keymap_x11_latch_modifiers (keymap, level, FALSE);
+  if (key_state == CLUTTER_KEY_STATE_RELEASED)
+    {
+      KeyCode reserved_keycode = clutter_keymap_x11_get_reserved_keycode (keymap);
+      clutter_keymap_x11_replace_keycode (keymap, reserved_keycode, NoSymbol);
+      clutter_keymap_x11_latch_modifiers (keymap, level, FALSE);
+    }
 }
 
 static void
