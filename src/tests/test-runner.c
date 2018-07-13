@@ -423,7 +423,8 @@ test_case_do (TestCase *test,
                            NULL))
         return FALSE;
     }
-  else if (strcmp (argv[0], "set_parent") == 0)
+  else if (strcmp (argv[0], "set_parent") == 0 ||
+           strcmp (argv[0], "set_parent_exported") == 0)
     {
       if (argc != 3)
         BAD_COMMAND("usage: %s <client-id>/<window-id> <parent-window-id>",
@@ -435,7 +436,7 @@ test_case_do (TestCase *test,
         return FALSE;
 
       if (!test_client_do (client, error,
-                           "set_parent", window_id,
+                           argv[0], window_id,
                            argv[2],
                            NULL))
         return FALSE;
