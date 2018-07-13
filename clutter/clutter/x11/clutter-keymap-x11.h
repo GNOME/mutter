@@ -67,6 +67,10 @@ void     clutter_keymap_x11_latch_modifiers (ClutterKeymapX11 *keymap_x11,
                                              uint32_t          level,
                                              gboolean          enable);
 uint32_t clutter_keymap_x11_get_current_group (ClutterKeymapX11 *keymap_x11);
+gboolean clutter_keymap_x11_replace_keycode (ClutterKeymapX11 *keymap_x11,
+                                             KeyCode           keycode,
+                                             KeySym            keysym);
+guint    clutter_keymap_x11_get_reserved_keycode (ClutterKeymapX11 *keymap_x11);
 
 G_END_DECLS
 
