@@ -138,25 +138,46 @@ pick_keycode_for_keyval_in_current_group (ClutterKeymapX11 *keymap,
                                           guint            *level_out)
 {
   ClutterKeymapKey *keys;
-  gint i, n_keys, group;
+  gint n_keys, group;
   gboolean found = FALSE;
 
-  if (!clutter_keymap_x11_get_entries_for_keyval (keymap, keyval, &keys, &n_keys))
-    return FALSE;
-
-  group = clutter_keymap_x11_get_current_group (keymap);
-
-  for (i = 0; i < n_keys; i++)
+  if (clutter_keymap_x11_get_entries_for_keyval (keymap, keyval, &keys, &n_keys))
     {
-      if (keys[i].group == group)
+      group = clutter_keymap_x11_get_current_group (keymap);
+
+      for (gint i = 0; i < n_keys; i++)
         {
-          *keycode_out = keys[i].keycode;
-          *level_out = keys[i].level;
-          found = TRUE;
+          if (keys[i].group == group)
+            {
+              *keycode_out = keys[i].keycode;
+              *level_out = keys[i].level;
+              found = TRUE;
+
+              break;
+            }
         }
+
+      g_free (keys);
     }
 
-  g_free (keys);
+  if (!found)
+    {
+      KeyCode reserved_keycode = clutter_keymap_x11_get_reserved_keycode (keymap);
+
+      if (reserved_keycode)
+        {
+          if (clutter_keymap_x11_replace_keycode (keymap, reserved_keycode, keyval))
+            {
+              *keycode_out = reserved_keycode;
+              *level_out = 0;
+              found = TRUE;
+            }
+        }
+      else
+        {
+          g_warning ("Failed to get a unused keycode to map keysym %s", XKeysymToString (keyval));
+        }
+    }
 
   return found;
 }
@@ -178,15 +199,19 @@ clutter_virtual_input_device_x11_notify_keyval (ClutterVirtualInputDevice *virtu
       return;
     }
 
-  if (key_state)
+  if (key_state == CLUTTER_KEY_STATE_PRESSED)
     clutter_keymap_x11_latch_modifiers (keymap, level, TRUE);
 
   XTestFakeKeyEvent (clutter_x11_get_default_display (),
                      (KeyCode) keycode,
                      key_state == CLUTTER_KEY_STATE_PRESSED, 0);
 
-  if (!key_state)
-    clutter_keymap_x11_latch_modifiers (keymap, level, FALSE);
+  if (key_state == CLUTTER_KEY_STATE_RELEASED)
+    {
+      KeyCode reserved_keycode = clutter_keymap_x11_get_reserved_keycode (keymap);
+      clutter_keymap_x11_replace_keycode (keymap, reserved_keycode, NoSymbol);
+      clutter_keymap_x11_latch_modifiers (keymap, level, FALSE);
+    }
 }
 
 static void
