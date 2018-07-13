@@ -79,6 +79,9 @@ struct _ClutterKeymapX11
   guint current_cache_serial;
   DirectionCacheEntry group_direction_cache[4];
   int current_group;
+
+  GHashTable *reserved_keycodes;
+  GQueue *available_keycodes;
 #endif
 
   guint caps_lock_state : 1;
@@ -441,16 +444,100 @@ clutter_keymap_x11_set_property (GObject      *gobject,
     }
 }
 
+#ifdef HAVE_XKB
+static void
+clutter_keymap_x11_refresh_reserved_keycodes (ClutterKeymapX11 *keymap_x11)
+{
+  Display *dpy = clutter_x11_get_default_display ();
+  GHashTableIter iter;
+  gpointer key, value;
+
+  g_hash_table_iter_init (&iter, keymap_x11->reserved_keycodes);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      guint reserved_keycode = GPOINTER_TO_UINT (key);
+      guint reserved_keysym = GPOINTER_TO_UINT (value);
+      guint actual_keysym = XkbKeycodeToKeysym (dpy, reserved_keycode, 0, 0);
+
+      /* If an available keycode is no longer mapped to the stored keysym, then
+       * the keycode should not be considered available anymore and should be
+       * removed both from the list of available and reserved keycodes.
+       */
+      if (reserved_keysym != actual_keysym)
+        {
+          g_hash_table_iter_remove (&iter);
+          g_queue_remove (keymap_x11->available_keycodes, key);
+        }
+    }
+}
+
+static gboolean
+clutter_keymap_x11_replace_keycode (ClutterKeymapX11 *keymap_x11,
+                                    KeyCode           keycode,
+                                    KeySym            keysym)
+{
+  if (CLUTTER_BACKEND_X11 (keymap_x11->backend)->use_xkb)
+    {
+      Display *dpy = clutter_x11_get_default_display ();
+      XkbDescPtr xkb = get_xkb (keymap_x11);
+      XkbMapChangesRec changes;
+
+      XFlush (dpy);
+
+      xkb->device_spec = XkbUseCoreKbd;
+      memset (&changes, 0, sizeof(changes));
+
+      if (keysym != NoSymbol)
+        {
+          int types[XkbNumKbdGroups] = { XkbOneLevelIndex };
+          XkbChangeTypesOfKey (xkb, keycode, 1, XkbGroup1Mask, types, &changes);
+          XkbKeySymEntry (xkb, keycode, 0, 0) = keysym;
+        }
+      else
+        {
+          /* Reset to NoSymbol */
+          XkbChangeTypesOfKey (xkb, keycode, 0, XkbGroup1Mask, NULL, &changes);
+        }
+
+      changes.changed = XkbKeySymsMask | XkbKeyTypesMask;
+      changes.first_key_sym = keycode;
+      changes.num_key_syms = 1;
+      changes.first_type = 0;
+      changes.num_types = xkb->map->num_types;
+      XkbChangeMap (dpy, xkb, &changes);
+
+      XFlush (dpy);
+
+      return TRUE;
+    }
+
+  return FALSE;
+}
+#endif
+
 static void
 clutter_keymap_x11_finalize (GObject *gobject)
 {
   ClutterKeymapX11 *keymap;
   ClutterEventTranslator *translator;
+  GHashTableIter iter;
+  gpointer key, value;
 
   keymap = CLUTTER_KEYMAP_X11 (gobject);
   translator = CLUTTER_EVENT_TRANSLATOR (keymap);
 
 #ifdef HAVE_XKB
+  clutter_keymap_x11_refresh_reserved_keycodes (keymap);
+  g_hash_table_iter_init (&iter, keymap->reserved_keycodes);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      guint keycode = GPOINTER_TO_UINT (key);
+      clutter_keymap_x11_replace_keycode (keymap, keycode, NoSymbol);
+    }
+
+  g_hash_table_destroy (keymap->reserved_keycodes);
+  g_queue_free (keymap->available_keycodes);
+
   _clutter_backend_remove_event_translator (keymap->backend, translator);
 
   if (keymap->xkb_desc != NULL)
@@ -459,6 +546,7 @@ clutter_keymap_x11_finalize (GObject *gobject)
 
   G_OBJECT_CLASS (clutter_keymap_x11_parent_class)->finalize (gobject);
 }
+
 
 static void
 clutter_keymap_x11_class_init (ClutterKeymapX11Class *klass)
@@ -483,6 +571,11 @@ clutter_keymap_x11_init (ClutterKeymapX11 *keymap)
 {
   keymap->current_direction = PANGO_DIRECTION_NEUTRAL;
   keymap->current_group = -1;
+
+#ifdef HAVE_XKB
+  keymap->reserved_keycodes = g_hash_table_new (NULL, NULL);
+  keymap->available_keycodes = g_queue_new ();
+#endif
 }
 
 static ClutterTranslateReturn
@@ -764,6 +857,80 @@ clutter_keymap_x11_get_entries_for_keyval (ClutterKeymapX11  *keymap_x11,
     {
       return FALSE;
     }
+}
+
+#ifdef HAVE_XKB
+static guint
+clutter_keymap_x11_get_available_keycode (ClutterKeymapX11 *keymap_x11)
+{
+  if (CLUTTER_BACKEND_X11 (keymap_x11->backend)->use_xkb)
+    {
+      clutter_keymap_x11_refresh_reserved_keycodes (keymap_x11);
+
+      if (g_hash_table_size (keymap_x11->reserved_keycodes) < 5)
+        {
+          Display *dpy = clutter_x11_get_default_display ();
+          XkbDescPtr xkb = get_xkb (keymap_x11);
+          guint i;
+
+          for (i = xkb->max_key_code; i >= xkb->min_key_code; --i)
+            {
+              if (XkbKeycodeToKeysym (dpy, i, 0, 0) == NoSymbol)
+                return i;
+            }
+        }
+
+      return GPOINTER_TO_UINT (g_queue_pop_head (keymap_x11->available_keycodes));
+    }
+
+  return 0;
+}
+#endif
+
+gboolean clutter_keymap_x11_reserve_keycode (ClutterKeymapX11 *keymap_x11,
+                                             guint             keyval,
+                                             guint            *keycode_out)
+{
+  g_return_val_if_fail (CLUTTER_IS_KEYMAP_X11 (keymap_x11), FALSE);
+  g_return_val_if_fail (keyval != 0, FALSE);
+  g_return_val_if_fail (keycode_out != NULL, FALSE);
+
+#ifdef HAVE_XKB
+  *keycode_out = clutter_keymap_x11_get_available_keycode (keymap_x11);
+
+  if (*keycode_out == NoSymbol)
+    {
+      g_warning ("Cannot reserve a keycode for keyval %d: no available keycode", keyval);
+      return FALSE;
+    }
+
+  if (!clutter_keymap_x11_replace_keycode (keymap_x11, *keycode_out, keyval))
+    {
+      g_warning ("Failed to remap keycode %d to keyval %d", *keycode_out, keyval);
+      return FALSE;
+    }
+
+  g_hash_table_insert (keymap_x11->reserved_keycodes, GUINT_TO_POINTER (*keycode_out), GUINT_TO_POINTER (keyval));
+  g_queue_remove (keymap_x11->available_keycodes, GUINT_TO_POINTER (*keycode_out));
+
+  return TRUE;
+#else
+  return FALSE;
+#endif
+}
+
+void clutter_keymap_x11_release_keycode_if_needed (ClutterKeymapX11 *keymap_x11,
+                                                   guint             keycode)
+{
+  g_return_if_fail (CLUTTER_IS_KEYMAP_X11 (keymap_x11));
+
+#ifdef HAVE_XKB
+  if (!g_hash_table_contains (keymap_x11->reserved_keycodes, GUINT_TO_POINTER (keycode)) ||
+      g_queue_index (keymap_x11->available_keycodes, GUINT_TO_POINTER (keycode)) != -1)
+    return;
+
+  g_queue_push_tail (keymap_x11->available_keycodes, GUINT_TO_POINTER (keycode));
+#endif
 }
 
 void
