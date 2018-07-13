@@ -58,7 +58,11 @@ gboolean clutter_keymap_x11_keycode_for_keyval (ClutterKeymapX11 *keymap_x11,
 void     clutter_keymap_x11_latch_modifiers (ClutterKeymapX11 *keymap_x11,
                                              uint32_t          level,
                                              gboolean          enable);
-
+gboolean clutter_keymap_x11_reserve_keycode (ClutterKeymapX11 *keymap_x11,
+                                             guint             keyval,
+                                             guint            *keycode_out);
+void     clutter_keymap_x11_release_keycode_if_needed (ClutterKeymapX11 *keymap_x11,
+                                                       guint             keycode);
 G_END_DECLS
 
 #endif /* __CLUTTER_KEYMAP_X11_H__ */
