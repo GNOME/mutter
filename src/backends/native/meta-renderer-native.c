@@ -1615,6 +1615,7 @@ gbm_get_next_fb_id (MetaGpuKms         *gpu_kms,
   uint32_t offsets[4] = { 0, };
   uint64_t modifiers[4] = { 0, };
   int i;
+  int plane_count;
 
   /* Now we need to set the CRTC to whatever is the front buffer */
   next_bo = gbm_surface_lock_front_buffer (gbm_surface);
@@ -1625,15 +1626,25 @@ gbm_get_next_fb_id (MetaGpuKms         *gpu_kms,
       return FALSE;
     }
 
-  for (i = 0; i < gbm_bo_get_plane_count (next_bo); i++)
+  plane_count = gbm_bo_get_plane_count (next_bo);
+  for (i = 0; i < plane_count; i++)
     {
-      strides[i] = gbm_bo_get_stride_for_plane (next_bo, i);
       handles[i] = gbm_bo_get_handle_for_plane (next_bo, i).u32;
+      if (handles[i] == ((uint32_t) -1)) break;
+
+      strides[i] = gbm_bo_get_stride_for_plane (next_bo, i);
       offsets[i] = gbm_bo_get_offset (next_bo, i);
       modifiers[i] = gbm_bo_get_modifier (next_bo);
     }
-  if (handles[0] == ((uint32_t) -1))
+  if (i < plane_count)
     {
+      if (errno != ENOSYS)
+        {
+          g_error ("Failed to fetch handle for plane: %m");
+          gbm_surface_release_buffer (gbm_surface, next_bo);
+          return FALSE;
+        }
+
       /* Failed to fetch handle to plane, falling back to old method */
       strides[0] = gbm_bo_get_stride (next_bo);
       handles[0] = gbm_bo_get_handle (next_bo).u32;
