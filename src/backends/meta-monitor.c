@@ -1553,6 +1553,22 @@ meta_monitor_calculate_mode_scale (MetaMonitor     *monitor,
   return calculate_scale (monitor, monitor_mode);
 }
 
+static gboolean
+is_logical_size_large_enough (gint width, gint height)
+{
+  return width >= MINIMUM_LOGICAL_WIDTH &&
+         height >= MINIMUM_LOGICAL_HEIGHT;
+}
+
+gboolean
+meta_monitor_mode_should_be_advertised (MetaMonitorMode *monitor_mode)
+{
+  g_return_val_if_fail (monitor_mode != NULL, FALSE);
+
+  return is_logical_size_large_enough (monitor_mode->spec.width,
+                                       monitor_mode->spec.height);
+}
+
 static float
 get_closest_scale_factor_for_resolution (float width,
                                          float height,
@@ -1573,8 +1589,7 @@ get_closest_scale_factor_for_resolution (float width,
 
   if (scale < MINIMUM_SCALE_FACTOR ||
       scale > MAXIMUM_SCALE_FACTOR ||
-      floorf (scaled_w) < MINIMUM_LOGICAL_WIDTH ||
-      floorf (scaled_h) < MINIMUM_LOGICAL_HEIGHT)
+      !is_logical_size_large_enough (floorf (scaled_w), floorf (scaled_h)))
     goto out;
 
   if (floorf (scaled_w) == scaled_w && floorf (scaled_h) == scaled_h)
