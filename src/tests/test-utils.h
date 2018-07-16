@@ -40,8 +40,8 @@ GQuark test_runner_error_quark (void);
 typedef struct _AsyncWaiter AsyncWaiter;
 typedef struct _TestClient TestClient;
 
-void test_init (int    argc,
-                char **argv);
+void test_init (int    *argc,
+                char ***argv);
 
 gboolean async_waiter_alarm_filter (AsyncWaiter           *waiter,
                                     MetaX11Display        *x11_display,

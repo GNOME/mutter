@@ -58,11 +58,14 @@ G_DEFINE_QUARK (test-runner-error-quark, test_runner_error)
 static char *test_client_path;
 
 void
-test_init (int    argc,
-           char **argv)
+test_init (int    *argc,
+           char ***argv)
 {
   char *basename = g_path_get_basename (argv[0]);
   char *dirname = g_path_get_dirname (argv[0]);
+
+  g_test_init (argc, argv, NULL);
+  g_test_bug_base ("http://bugzilla.gnome.org/show_bug.cgi?id=");
 
   if (g_str_has_prefix (basename, "lt-"))
     test_client_path = g_build_filename (dirname,
