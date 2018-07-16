@@ -447,5 +447,11 @@ test_client_destroy (TestClient *client)
 const char *
 test_get_plugin_name (void)
 {
-  return "libdefault";
+  const char *name;
+
+  name = g_getenv ("MUTTER_TEST_PLUGIN_PATH");
+  if (name)
+    return name;
+  else
+    return "libdefault";
 }
