@@ -21,7 +21,7 @@
  */
 
 /**
- * SECTION:display
+ * SECTION:x11-display
  * @title: MetaX11Display
  * @short_description: Mutter X display handler
  *
