@@ -496,7 +496,7 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
     {
       MetaWindow *window = constraint->surface->window;
 
-      if (!meta_window_appears_focused (window))
+      if (!window || !meta_window_appears_focused (window))
         return FALSE;
     }
 

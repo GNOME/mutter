@@ -1269,6 +1269,9 @@ meta_wayland_surface_begin_grab_op (MetaWaylandSurface *surface,
   if (grab_op == META_GRAB_OP_NONE)
     return FALSE;
 
+  if (!window)
+    return FALSE;
+
   /* This is an input driven operation so we set frame_action to
      constrain it in the same way as it would be if the window was
      being moved/resized via a SSD event. */

@@ -186,6 +186,9 @@ zxdg_toplevel_v6_set_parent (struct wl_client   *client,
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
   MetaWindow *transient_for = NULL;
 
+  if (!surface->window)
+    return;
+
   if (parent_resource)
     {
       MetaWaylandSurface *parent_surface =
@@ -352,6 +355,9 @@ zxdg_toplevel_v6_set_maximized (struct wl_client   *client,
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
 
+  if (!surface->window)
+    return;
+
   meta_window_force_placement (surface->window, TRUE);
   meta_window_maximize (surface->window, META_MAXIMIZE_BOTH);
 }
@@ -362,6 +368,9 @@ zxdg_toplevel_v6_unset_maximized (struct wl_client   *client,
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
 
+  if (!surface->window)
+    return;
+
   meta_window_unmaximize (surface->window, META_MAXIMIZE_BOTH);
 }
 
@@ -371,6 +380,9 @@ zxdg_toplevel_v6_set_fullscreen (struct wl_client   *client,
                                  struct wl_resource *output_resource)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+
+  if (!surface->window)
+    return;
 
   if (output_resource)
     {
@@ -388,6 +400,9 @@ zxdg_toplevel_v6_unset_fullscreen (struct wl_client   *client,
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
 
+  if (!surface->window)
+    return;
+
   meta_window_unmake_fullscreen (surface->window);
 }
 
@@ -396,6 +411,9 @@ zxdg_toplevel_v6_set_minimized (struct wl_client   *client,
                                 struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+
+  if (!surface->window)
+    return;
 
   meta_window_minimize (surface->window);
 }
@@ -499,6 +517,9 @@ fill_states (struct wl_array *states,
              MetaWindow      *window)
 {
   uint32_t *s;
+
+  if (!window)
+    return;
 
   if (META_WINDOW_MAXIMIZED (window))
     {

@@ -98,6 +98,9 @@ gtk_surface_set_modal (struct wl_client   *client,
   if (gtk_surface->is_modal)
     return;
 
+  if (!surface->window)
+    return;
+
   gtk_surface->is_modal = TRUE;
   meta_window_set_type (surface->window, META_WINDOW_MODAL_DIALOG);
 }
@@ -110,6 +113,9 @@ gtk_surface_unset_modal (struct wl_client   *client,
   MetaWaylandSurface *surface = gtk_surface->surface;
 
   if (!gtk_surface->is_modal)
+    return;
+
+  if (!surface->window)
     return;
 
   gtk_surface->is_modal = FALSE;
@@ -261,8 +267,10 @@ static void
 on_configure (MetaWaylandSurface    *surface,
               MetaWaylandGtkSurface *gtk_surface)
 {
-  send_configure (gtk_surface, surface->window);
+  if (!surface->window)
+    return;
 
+  send_configure (gtk_surface, surface->window);
 
   if (wl_resource_get_version (gtk_surface->resource) >= GTK_SURFACE1_CONFIGURE_EDGES_SINCE_VERSION)
     send_configure_edges (gtk_surface, surface->window);
