@@ -57,24 +57,41 @@ G_DEFINE_QUARK (test-runner-error-quark, test_runner_error)
 
 static char *test_client_path;
 
+static void
+ensure_test_client_path (int    argc,
+                         char **argv)
+{
+  test_client_path = g_test_build_filename (G_TEST_BUILT,
+                                            "src",
+                                            "tests",
+                                            "mutter-test-client",
+                                            NULL);
+  if (!g_file_test (test_client_path,
+                    G_FILE_TEST_EXISTS | G_FILE_TEST_IS_EXECUTABLE))
+    {
+      g_autofree char *basename;
+      g_autofree char *dirname = NULL;
+
+      basename = g_path_get_basename (argv[0]);
+
+      dirname = g_path_get_dirname (argv[0]);
+      test_client_path = g_build_filename (dirname,
+                                           "mutter-test-client", NULL);
+    }
+
+  if (!g_file_test (test_client_path,
+                    G_FILE_TEST_EXISTS | G_FILE_TEST_IS_EXECUTABLE))
+    g_error ("mutter-test-client executable not found");
+}
+
 void
 test_init (int    *argc,
            char ***argv)
 {
-  char *basename = g_path_get_basename (argv[0]);
-  char *dirname = g_path_get_dirname (argv[0]);
-
   g_test_init (argc, argv, NULL);
   g_test_bug_base ("http://bugzilla.gnome.org/show_bug.cgi?id=");
 
-  if (g_str_has_prefix (basename, "lt-"))
-    test_client_path = g_build_filename (dirname,
-                                         "../mutter-test-client", NULL);
-  else
-    test_client_path = g_build_filename (dirname,
-                                         "mutter-test-client", NULL);
-  g_free (basename);
-  g_free (dirname);
+  ensure_test_client_path (*argc, *argv);
 }
 
 AsyncWaiter *
