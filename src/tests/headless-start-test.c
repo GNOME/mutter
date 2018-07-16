@@ -167,9 +167,6 @@ create_headless_test_setup (void)
 static void
 init_tests (int argc, char **argv)
 {
-  g_test_init (&argc, &argv, NULL);
-  g_test_bug_base ("http://bugzilla.gnome.org/show_bug.cgi?id=");
-
   MetaMonitorTestSetup *initial_test_setup;
 
   initial_test_setup = create_headless_test_setup ();
@@ -185,6 +182,7 @@ init_tests (int argc, char **argv)
 int
 main (int argc, char *argv[])
 {
+  test_init (&argc, &argv);
   init_tests (argc, argv);
 
   meta_plugin_manager_load (test_get_plugin_name ());
