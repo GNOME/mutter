@@ -46,6 +46,8 @@
 #include "meta-backend-private.h"
 
 #define DEFAULT_DISPLAY_CONFIGURATION_TIMEOUT 20
+#define MINIMUM_MODE_WIDTH 675
+#define MINIMUM_MODE_HEIGHT 530
 
 enum
 {
@@ -1326,6 +1328,10 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
           mode_id = meta_monitor_mode_get_id (monitor_mode);
           meta_monitor_mode_get_resolution (monitor_mode,
                                             &mode_width, &mode_height);
+
+          if (mode_width < MINIMUM_MODE_WIDTH || mode_height < MINIMUM_MODE_WIDTH)
+            continue;
+
           refresh_rate = meta_monitor_mode_get_refresh_rate (monitor_mode);
 
           preferred_scale =
