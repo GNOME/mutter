@@ -23,7 +23,7 @@
 /**
  * SECTION:display
  * @title: MetaDisplay
- * @short_description: Mutter X display handler
+ * @short_description: Mutter display representation
  *
  * The display is represented as a #MetaDisplay struct.
  */
@@ -3613,7 +3613,7 @@ meta_display_focus_default_window (MetaDisplay *display,
  * meta_display_get_workspace_manager:
  * @display: a #MetaDisplay
  *
- * Returns: (transfer none) The workspace manager of the display
+ * Returns: (transfer none): The workspace manager of the display
  */
 MetaWorkspaceManager *
 meta_display_get_workspace_manager (MetaDisplay *display)
