@@ -241,9 +241,6 @@ run_tests (gpointer data)
 static void
 init_tests (int argc, char **argv)
 {
-  g_test_init (&argc, &argv, NULL);
-  g_test_bug_base ("http://bugzilla.gnome.org/show_bug.cgi?id=");
-
   g_test_add_func ("/util/meta-later/order", meta_test_util_later_order);
   g_test_add_func ("/util/meta-later/schedule-from-later",
                    meta_test_util_later_schedule_from_later);
@@ -259,7 +256,7 @@ init_tests (int argc, char **argv)
 int
 main (int argc, char *argv[])
 {
-  test_init (argc, argv);
+  test_init (&argc, &argv);
   init_tests (argc, argv);
 
   meta_plugin_manager_load (test_get_plugin_name ());
