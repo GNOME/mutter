@@ -4,7 +4,7 @@ NULL =
 
 DISTCLEANFILES =
 
-mutterlibdir = $(libdir)/mutter
+mutterlibdir = $(libdir)/mutter-@LIBMUTTER_API_VERSION@
 mutterlib_LTLIBRARIES = libmutter-cogl-gles2-@LIBMUTTER_API_VERSION@.la
 
 AM_CPPFLAGS = \
@@ -23,7 +23,7 @@ libmutter_cogl_gles2_@LIBMUTTER_API_VERSION@_la_LDFLAGS = \
 	-export-dynamic \
 	-export-symbols-regex "^gl*"
 
-coglgles2includedir = $(includedir)/mutter/cogl/cogl-gles2/GLES2
+coglgles2includedir = $(includedir)/mutter-@LIBMUTTER_API_VERSION@/cogl/cogl-gles2/GLES2
 coglgles2include_HEADERS = \
 	GLES2/gl2.h \
 	GLES2/gl2ext.h \
