@@ -1,3 +1,5 @@
+pkgdatadir = $(datadir)/mutter-$(LIBMUTTER_API_VERSION)
+pkglibdir = $(libdir)/mutter-$(LIBMUTTER_API_VERSION)
 
 SUBDIRS = cogl clutter data src po doc
 
