@@ -42,7 +42,7 @@ AC_SUBST(LIBMUTTER_API_VERSION)
 # Make the mutter versions visible to the cogl and clutter subdirs
 export LIBMUTTER_API_VERSION MUTTER_VERSION
 
-MUTTER_PLUGIN_DIR="$libdir/$PACKAGE/plugins"
+MUTTER_PLUGIN_DIR="$libdir/mutter-$LIBMUTTER_API_VERSION/plugins"
 AC_SUBST(MUTTER_PLUGIN_DIR)
 
 # Honor aclocal flags

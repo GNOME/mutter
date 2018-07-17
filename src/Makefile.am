@@ -1,6 +1,9 @@
 # Flag build for parallelism; see https://savannah.gnu.org/patch/?6905
 .AUTOPARALLEL:
 
+pkgdatadir = $(datadir)/mutter-$(LIBMUTTER_API_VERSION)
+pkglibdir = $(libdir)/mutter-$(LIBMUTTER_API_VERSION)
+
 lib_LTLIBRARIES = libmutter-@LIBMUTTER_API_VERSION@.la
 
 SUBDIRS=compositor/plugins
@@ -578,7 +581,7 @@ libmutterinclude_base_headers =			\
 	$(libmutterinclude_headers)		\
 	$(libmutterinclude_built_headers)
 
-libmutterincludedir = $(includedir)/mutter/meta
+libmutterincludedir = $(includedir)/mutter-@LIBMUTTER_API_VERSION@/meta
 
 libmutterinclude_HEADERS =			\
 	$(libmutterinclude_headers)
