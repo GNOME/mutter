@@ -1,8 +1,8 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-libdir=@libdir@/mutter
-includedir=@includedir@/mutter
 apiversion=@LIBMUTTER_API_VERSION@
+libdir=@libdir@/mutter-${apiversion}
+includedir=@includedir@/mutter-${apiversion}
 requires=@COGL_PKG_REQUIRES@
 
 Name: Cogl
