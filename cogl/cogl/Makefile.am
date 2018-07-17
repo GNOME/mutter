@@ -421,7 +421,7 @@ cogl_sources_c += \
 	winsys/cogl-winsys-egl-private.h
 endif
 
-mutterlibdir = $(libdir)/mutter
+mutterlibdir = $(libdir)/mutter-@LIBMUTTER_API_VERSION@
 mutterlib_LTLIBRARIES = libmutter-cogl-@LIBMUTTER_API_VERSION@.la
 
 libmutter_cogl_@LIBMUTTER_API_VERSION@_la_LIBADD = $(LIBM) $(COGL_DEP_LIBS) $(COGL_EXTRA_LDFLAGS)
@@ -447,7 +447,7 @@ cogl_headers = \
 	cogl-pango.h \
 	$(NULL)
 
-cogl_base_includedir = $(includedir)/mutter
+cogl_base_includedir = $(includedir)/mutter-@LIBMUTTER_API_VERSION@
 cogldeprecatedincludedir = $(cogl_base_includedir)/cogl/cogl/deprecated
 cogldeprecatedinclude_HEADERS = $(cogl_deprecated_h) $(cogl_deprecated_nonintrospected_h)
 
