@@ -22,7 +22,7 @@ source_h_priv = \
 	cogl-pango-pipeline-cache.h \
 	$(NULL)
 
-mutterlibdir = $(libdir)/mutter
+mutterlibdir = $(libdir)/mutter-@LIBMUTTER_API_VERSION@
 mutterlib_LTLIBRARIES = libmutter-cogl-pango-@LIBMUTTER_API_VERSION@.la
 
 libmutter_cogl_pango_@LIBMUTTER_API_VERSION@_la_SOURCES = $(source_c) $(source_h) $(source_h_priv)
@@ -45,7 +45,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)			\
 	-I$(top_builddir)
 
-cogl_base_includedir = $(includedir)/mutter
+cogl_base_includedir = $(includedir)/mutter-@LIBMUTTER_API_VERSION@
 cogl_pangoheadersdir = $(cogl_base_includedir)/cogl/cogl-pango
 cogl_pangoheaders_HEADERS = $(source_h)
 
