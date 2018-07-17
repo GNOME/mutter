@@ -32,7 +32,7 @@ AM_CFLAGS = $(CLUTTER_CFLAGS) $(MAINTAINER_CFLAGS)
 INTROSPECTION_GIRS =
 
 # the base include path for headers
-clutter_base_includedir = $(includedir)/mutter/clutter-$(LIBMUTTER_API_VERSION)
+clutter_base_includedir = $(includedir)/mutter-$(LIBMUTTER_API_VERSION)/clutter
 clutter_includedir = $(clutter_base_includedir)/clutter
 clutter_deprecateddir = $(clutter_base_includedir)/clutter/deprecated
 
@@ -567,7 +567,7 @@ nodist_clutter_include_HEADERS = clutter-config.h $(built_source_h)
 
 clutter_deprecated_HEADERS = $(deprecated_h)
 
-mutterlibdir = $(libdir)/mutter
+mutterlibdir = $(libdir)/mutter-@LIBMUTTER_API_VERSION@
 mutterlib_LTLIBRARIES = libmutter-clutter-@LIBMUTTER_API_VERSION@.la
 
 libmutter_clutter_@LIBMUTTER_API_VERSION@_la_LIBADD = \
