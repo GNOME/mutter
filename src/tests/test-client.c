@@ -144,7 +144,7 @@ process_line (const char *line)
     {
       if (argc != 3)
         {
-          g_print ("usage: menu <window-id> <parent-id>");
+          g_print ("usage: set_parent <window-id> <parent-id>");
           goto out;
         }
 
