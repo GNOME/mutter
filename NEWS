@@ -1,10 +1,20 @@
+3.29.4
+======
+* Fix crash with parent-less modal dialogs [Olivier; #174]
+* Preserve paint volumes where possible to optimize CPU usage [Carlos; #782344]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Iain Lane, Bastien Nocera
+
+Translators:
+  Daniel Șerbănescu [ro]
+
 3.29.3
 ======
 * Fix Korean Hangul support on wayland [Changwoo; #152]
 * Improve support for proprietary Nvidia driver [Jonas; #790316]
 * Only upload HW cursor sprite to the GPU that will display them [Jonas; #77]
-* nvidia [Miguel; #2]
-* nvidia [Miguel; #782575]
+* Improve EGLstream support [Miguel; #2, #782575]
 * Remove MetaScreen to prepare for non-mandatary X11 dependency
   [Armin, Jonas; #759538]
 * Misc. bug fixes [Olivier, Jonas, Sam; #160, !130, #786929, #788834]
