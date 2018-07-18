@@ -244,7 +244,7 @@ AC_ARG_ENABLE(remote-desktop,
   enable_remote_desktop=no
 )
 AS_IF([test "$enable_remote_desktop" = "yes"], [
-  MUTTER_PC_MODULES="$MUTTER_PC_MODULES libpipewire-0.1 >= 0.1.8"
+  MUTTER_PC_MODULES="$MUTTER_PC_MODULES libpipewire-0.1 >= 0.2.0"
   AC_DEFINE([HAVE_REMOTE_DESKTOP],[1], [Defined if screen cast and remote desktop support is enabled])
 ])
 AM_CONDITIONAL([HAVE_REMOTE_DESKTOP],[test "$enable_remote_desktop" = "yes"])
