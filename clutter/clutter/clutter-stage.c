@@ -892,13 +892,6 @@ _clutter_stage_queue_event (ClutterStage *stage,
 
   g_queue_push_tail (priv->event_queue, event);
 
-  if (first_event)
-    {
-      ClutterMasterClock *master_clock = _clutter_master_clock_get_default ();
-      _clutter_master_clock_start_running (master_clock);
-      _clutter_stage_schedule_update (stage);
-    }
-
   /* if needed, update the state of the input device of the event.
    * we do it here to avoid calling the same code from every backend
    * event processing function
@@ -919,6 +912,25 @@ _clutter_stage_queue_event (ClutterStage *stage,
       _clutter_input_device_set_state (device, event_state);
       _clutter_input_device_set_time (device, event_time);
     }
+
+  /* Only process events after the device state has been updated, so that
+   * event handlers polling the device state get the latest information.
+   */
+
+  if (!priv->throttle_motion_events)
+    {
+      /* The event frequency is not tied to the display frequency, so we don't
+       * need to involve or wait for the master clock. Just do it now.
+       */
+      _clutter_stage_process_queued_events (stage);
+    }
+  else if (first_event)
+    {
+      ClutterMasterClock *master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_start_running (master_clock);
+      _clutter_stage_schedule_update (stage);
+    }
+
 }
 
 gboolean
@@ -2313,7 +2325,7 @@ clutter_stage_init (ClutterStage *self)
   priv->is_user_resizable = FALSE;
   priv->is_cursor_visible = TRUE;
   priv->use_fog = FALSE;
-  priv->throttle_motion_events = TRUE;
+  priv->throttle_motion_events = FALSE;
   priv->min_size_changed = FALSE;
   priv->sync_delay = -1;
 
