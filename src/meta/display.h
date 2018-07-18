@@ -131,8 +131,9 @@ guint meta_display_add_keybinding    (MetaDisplay         *display,
 gboolean meta_display_remove_keybinding (MetaDisplay         *display,
                                          const char          *name);
 
-guint    meta_display_grab_accelerator   (MetaDisplay *display,
-                                          const char  *accelerator);
+guint    meta_display_grab_accelerator   (MetaDisplay        *display,
+                                          const char         *accelerator,
+                                          MetaKeyBindingFlags flags);
 gboolean meta_display_ungrab_accelerator (MetaDisplay *display,
                                           guint        action_id);
 
