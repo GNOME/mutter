@@ -1593,8 +1593,9 @@ handle_external_grab (MetaDisplay     *display,
 
 
 guint
-meta_display_grab_accelerator (MetaDisplay *display,
-                               const char  *accelerator)
+meta_display_grab_accelerator (MetaDisplay         *display,
+                               const char          *accelerator,
+                               MetaKeyBindingFlags  flags)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
   MetaKeyBinding *binding;
@@ -1636,6 +1637,7 @@ meta_display_grab_accelerator (MetaDisplay *display,
   binding->handler = HANDLER ("external-grab");
   binding->combo = combo;
   binding->resolved_combo = resolved_combo;
+  binding->flags = flags;
 
   g_hash_table_add (keys->key_bindings, binding);
   index_binding (keys, binding);
