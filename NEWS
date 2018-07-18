@@ -1,3 +1,16 @@
+3.28.3
+======
+* Handle touch events on server-side titlebars [Carlos; #770185]
+* Fix crash with unhandled mouse buttons on titlebars [Olivier; #160]
+* Fix Korean Hangul support on wayland [Changwoo; #152]
+* Fix crash when taking up from suspend [Jonas; #786929]
+* Fix crash with parent-less modal dialogs [Olivier; #174]
+* Misc. bug fixes [Olivier, Georges; #83, #112, #150, #104,
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Georges Basile Stavracas Neto,
+  Changwoo Ryu, Marco Trevisan (Treviño)
+
 3.28.2
 ======
 * Take inhibitors into account for monitoring idle [Bastien; #705942]
