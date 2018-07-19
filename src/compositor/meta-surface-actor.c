@@ -32,6 +32,7 @@ struct _MetaSurfaceActorPrivate
 static void cullable_iface_init (MetaCullableInterface *iface);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaSurfaceActor, meta_surface_actor, CLUTTER_TYPE_ACTOR,
+                                  G_ADD_PRIVATE (MetaSurfaceActor)
                                   G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
 
 enum {
@@ -142,8 +143,6 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
                                         0,
                                         NULL, NULL, NULL,
                                         G_TYPE_NONE, 0);
-
-  g_type_class_add_private (klass, sizeof (MetaSurfaceActorPrivate));
 }
 
 static void

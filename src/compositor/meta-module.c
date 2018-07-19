@@ -41,7 +41,7 @@ struct _MetaModulePrivate
 #define META_MODULE_GET_PRIVATE(obj) \
 (G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_MODULE, MetaModulePrivate))
 
-G_DEFINE_TYPE (MetaModule, meta_module, G_TYPE_TYPE_MODULE);
+G_DEFINE_TYPE_WITH_PRIVATE (MetaModule, meta_module, G_TYPE_TYPE_MODULE);
 
 static gboolean
 meta_module_load (GTypeModule *gmodule)
@@ -184,8 +184,6 @@ meta_module_class_init (MetaModuleClass *klass)
 							NULL,
 							G_PARAM_READWRITE |
 						      G_PARAM_CONSTRUCT_ONLY));
-
-  g_type_class_add_private (gobject_class, sizeof (MetaModulePrivate));
 }
 
 static void

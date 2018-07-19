@@ -70,9 +70,6 @@ static gboolean meta_shaped_texture_get_paint_volume (ClutterActor *self, Clutte
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture, CLUTTER_TYPE_ACTOR,
-                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
-
 #define META_SHAPED_TEXTURE_GET_PRIVATE(obj) \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_SHAPED_TEXTURE, \
                                 MetaShapedTexturePrivate))
@@ -117,6 +114,10 @@ struct _MetaShapedTexturePrivate
   guint create_mipmaps : 1;
 };
 
+G_DEFINE_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture, CLUTTER_TYPE_ACTOR,
+                         G_ADD_PRIVATE (MetaShapedTexture)
+                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
+
 static void
 meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
 {
@@ -136,8 +137,6 @@ meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
                                         0,
                                         NULL, NULL, NULL,
                                         G_TYPE_NONE, 0);
-
-  g_type_class_add_private (klass, sizeof (MetaShapedTexturePrivate));
 }
 
 static void
