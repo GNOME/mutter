@@ -801,6 +801,13 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
    */
   drm_resources = drmModeGetResources (kms_fd);
 
+  if (!drm_resources)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED, "No resources");
+      meta_launcher_close_restricted (launcher, kms_fd);
+      return NULL;
+    }
+
   n_connectors = drm_resources->count_connectors;
 
   drmModeFreeResources (drm_resources);
