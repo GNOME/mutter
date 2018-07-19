@@ -14,6 +14,7 @@ stackingdir = $(pkgdatadir)/tests/stacking
 dist_stacking_DATA =						\
 	$(srcdir)/tests/stacking/basic-x11.metatest 	\
 	$(srcdir)/tests/stacking/basic-wayland.metatest	\
+	$(srcdir)/tests/stacking/closed-transient.metatest	\
 	$(srcdir)/tests/stacking/minimized.metatest 	\
 	$(srcdir)/tests/stacking/mixed-windows.metatest     \
 	$(srcdir)/tests/stacking/set-parent.metatest	\
