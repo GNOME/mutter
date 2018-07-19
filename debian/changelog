@@ -1,3 +1,28 @@
+mutter (3.28.3-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+  * d/p/backends-Add-logical-monitor-monitor-output-crtc-ref-chai.patch,
+    d/p/backends-Move-MetaOutput-crtc-field-into-private-struct.patch,
+    d/p/clutter-device-evdev-Get-devices-from-main-seat-if-no-rea.patch,
+    d/p/clutter-evdev-Don-t-ignore-CAPS-lock-as-modifier.patch,
+    d/p/clutter-evdev-ignore-injected-events-from-IM.patch,
+    d/p/clutter-seat-evdev-Add-function-to-get-device-by-id.patch,
+    d/p/device-manager-evdev-Add-main-seat-to-seats-by-default.patch,
+    d/p/device-manager-evdev-Free-the-main-seat-on-finalize.patch,
+    d/p/device-manager-evdev-Set-and-unset-the-stage-for-the-main.patch,
+    d/p/frames-Allow-for-unknown-mouse-buttons.patch,
+    d/p/frames-Handle-touch-events.patch,
+    d/p/frames-Make-1st-button-motion-handlers-take-generic-event.patch,
+    d/p/renderer-native-Don-t-crash-if-the-FB-surface-can-t-be-lo.patch,
+    d/p/wayland-Compare-geometries-after-chaining-up.patch,
+    d/p/wayland-Don-t-reset-input-focus-on-text-commit.patch,
+    d/p/wayland-Use-cursor-position-in-logical-monitor.patch,
+    d/p/wayland-update-enter-leave-output-after-effects.patch,
+    d/p/window-actor-add-new-signal-effects-completed.patch:
+    Remove patches already applied on 3.28 branch
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 19 Jul 2018 13:11:58 +0200
+
 mutter (3.28.2-3) unstable; urgency=medium
 
   * Team upload
