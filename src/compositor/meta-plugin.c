@@ -41,20 +41,19 @@
 #include "meta-window-actor-private.h"
 #include "meta-monitor-manager-private.h"
 
-G_DEFINE_ABSTRACT_TYPE (MetaPlugin, meta_plugin, G_TYPE_OBJECT);
-
-#define META_PLUGIN_GET_PRIVATE(obj) \
-(G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_PLUGIN, MetaPluginPrivate))
-
 struct _MetaPluginPrivate
 {
   MetaCompositor *compositor;
 };
 
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaPlugin, meta_plugin, G_TYPE_OBJECT);
+
+#define META_PLUGIN_GET_PRIVATE(obj) \
+(G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_PLUGIN, MetaPluginPrivate))
+
 static void
 meta_plugin_class_init (MetaPluginClass *klass)
 {
-  g_type_class_add_private (klass, sizeof (MetaPluginPrivate));
 }
 
 static void

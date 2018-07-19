@@ -18,7 +18,7 @@
 #include "backends/x11/meta-barrier-x11.h"
 #include <meta/meta-enum-types.h>
 
-G_DEFINE_TYPE (MetaBarrier, meta_barrier, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (MetaBarrier, meta_barrier, G_TYPE_OBJECT)
 G_DEFINE_TYPE (MetaBarrierImpl, meta_barrier_impl, G_TYPE_OBJECT)
 
 enum {
@@ -281,8 +281,6 @@ meta_barrier_class_init (MetaBarrierClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   META_TYPE_BARRIER_EVENT);
-
-  g_type_class_add_private (object_class, sizeof(MetaBarrierPrivate));
 }
 
 void

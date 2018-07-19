@@ -191,6 +191,7 @@ static void do_send_frame_timings (MetaWindowActor  *self,
 static void cullable_iface_init (MetaCullableInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaWindowActor, meta_window_actor, CLUTTER_TYPE_ACTOR,
+                         G_ADD_PRIVATE (MetaWindowActor)
                          G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
 
 static void
@@ -205,8 +206,6 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
   GParamSpec   *pspec;
-
-  g_type_class_add_private (klass, sizeof (MetaWindowActorPrivate));
 
   object_class->dispose      = meta_window_actor_dispose;
   object_class->finalize     = meta_window_actor_finalize;
