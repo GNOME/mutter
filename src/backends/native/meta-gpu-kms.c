@@ -801,6 +801,16 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
    */
   drm_resources = drmModeGetResources (kms_fd);
 
+  if (!drm_resources)
+    {
+      g_set_error (error,
+                   META_GPU_KMS_ERROR,
+                   META_GPU_KMS_ERROR_NO_DRM_MODESET,
+                   "This GPU does not support DRM modesetting.");
+      meta_launcher_close_restricted (launcher, kms_fd);
+      return NULL;
+    }
+
   n_connectors = drm_resources->count_connectors;
 
   drmModeFreeResources (drm_resources);

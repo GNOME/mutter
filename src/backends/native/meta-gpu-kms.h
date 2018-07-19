@@ -32,6 +32,7 @@
 typedef enum
 {
   META_GPU_KMS_ERROR_NO_CONNECTORS,
+  META_GPU_KMS_ERROR_NO_DRM_MODESET,
 } MetaGpuKmsError;
 
 #define META_GPU_KMS_ERROR (meta_gpu_kms_error_quark ())
