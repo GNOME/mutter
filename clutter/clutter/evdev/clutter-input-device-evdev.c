@@ -433,6 +433,8 @@ key_event_is_modifier (ClutterEvent *event)
     case XKB_KEY_Super_R:
     case XKB_KEY_Hyper_L:
     case XKB_KEY_Hyper_R:
+    case XKB_KEY_Caps_Lock:
+    case XKB_KEY_Shift_Lock:
       return TRUE;
     default:
       return FALSE;
@@ -584,6 +586,12 @@ handle_stickykeys_press (ClutterEvent            *event,
     }
 
   depressed_mods = xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_DEPRESSED);
+  /* Ignore the lock modifier mask, that one cannot be sticky, yet the
+   * CAPS_LOCK key itself counts as a modifier as it might be remapped
+   * to some other modifier which can be sticky.
+   */
+  depressed_mods &= ~CLUTTER_LOCK_MASK;
+
   new_latched_mask = device->stickykeys_latched_mask;
   new_locked_mask = device->stickykeys_locked_mask;
 
@@ -1121,6 +1129,10 @@ clutter_input_device_evdev_process_kbd_a11y_event (ClutterEvent               *e
                                                    ClutterEmitInputDeviceEvent emit_event_func)
 {
   ClutterInputDeviceEvdev *device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (device);
+
+  /* Ignore key events injected from IM */
+  if (event->key.flags & CLUTTER_EVENT_FLAG_INPUT_METHOD)
+    goto emit_event;
 
   if (!device_evdev->a11y_flags & CLUTTER_A11Y_KEYBOARD_ENABLED)
     goto emit_event;
