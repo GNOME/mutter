@@ -176,6 +176,7 @@ struct _MetaBackgroundActorPrivate
 static void cullable_iface_init (MetaCullableInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaBackgroundActor, meta_background_actor, CLUTTER_TYPE_ACTOR,
+                         G_ADD_PRIVATE (MetaBackgroundActor)
                          G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
 
 static void
@@ -652,8 +653,6 @@ meta_background_actor_class_init (MetaBackgroundActorClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
   GParamSpec *param_spec;
-
-  g_type_class_add_private (klass, sizeof (MetaBackgroundActorPrivate));
 
   object_class->dispose = meta_background_actor_dispose;
   object_class->set_property = meta_background_actor_set_property;
