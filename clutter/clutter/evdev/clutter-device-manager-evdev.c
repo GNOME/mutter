@@ -793,10 +793,12 @@ evdev_add_device (ClutterDeviceManagerEvdev *manager_evdev,
       if (priv->main_seat->libinput_seat == NULL)
         seat = priv->main_seat;
       else
-        seat = clutter_seat_evdev_new (manager_evdev);
+        {
+          seat = clutter_seat_evdev_new (manager_evdev);
+          priv->seats = g_slist_append (priv->seats, seat);
+        }
 
       clutter_seat_evdev_set_libinput_seat (seat, libinput_seat);
-      priv->seats = g_slist_append (priv->seats, seat);
     }
 
   device = _clutter_input_device_evdev_new (manager, seat, libinput_device);
@@ -919,7 +921,6 @@ clutter_device_manager_evdev_get_device (ClutterDeviceManager *manager,
   ClutterDeviceManagerEvdev *manager_evdev;
   ClutterDeviceManagerEvdevPrivate *priv;
   GSList *l;
-  GSList *device_it;
 
   manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (manager);
   priv = manager_evdev->priv;
@@ -927,14 +928,10 @@ clutter_device_manager_evdev_get_device (ClutterDeviceManager *manager,
   for (l = priv->seats; l; l = l->next)
     {
       ClutterSeatEvdev *seat = l->data;
+      ClutterInputDevice *device = clutter_seat_evdev_get_device (seat, id);
 
-      for (device_it = seat->devices; device_it; device_it = device_it->next)
-        {
-          ClutterInputDevice *device = device_it->data;
-
-          if (clutter_input_device_get_device_id (device) == id)
-            return device;
-        }
+      if (device)
+        return device;
     }
 
   return NULL;
@@ -1967,6 +1964,7 @@ clutter_device_manager_evdev_constructed (GObject *gobject)
   xkb_context_unref (ctx);
 
   priv->main_seat = clutter_seat_evdev_new (manager_evdev);
+  priv->seats = g_slist_append (priv->seats, priv->main_seat);
 
   dispatch_libinput (manager_evdev);
 

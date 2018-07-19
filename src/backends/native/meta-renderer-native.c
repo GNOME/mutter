@@ -1601,6 +1601,12 @@ gbm_get_next_fb_id (MetaGpuKms         *gpu_kms,
   /* Now we need to set the CRTC to whatever is the front buffer */
   next_bo = gbm_surface_lock_front_buffer (gbm_surface);
 
+  if (!next_bo)
+    {
+      g_error ("Impossible to lock surface front buffer: %m");
+      return FALSE;
+    }
+
   for (i = 0; i < gbm_bo_get_plane_count (next_bo); i++)
     {
       strides[i] = gbm_bo_get_stride_for_plane (next_bo, i);
@@ -2083,6 +2089,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
   EGLDisplay egl_display = renderer_gpu_data->egl_display;
   MetaMonitor *monitor;
   MetaOutput *output;
+  MetaCrtc *crtc;
   EGLConfig egl_config;
   EGLStreamKHR egl_stream;
   EGLSurface egl_surface;
@@ -2106,6 +2113,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
 
   monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
   output = meta_monitor_get_main_output (monitor);
+  crtc = meta_output_get_assigned_crtc (output);
 
   /*
    * An "logical_monitor" may have multiple outputs/crtcs in case its tiled,
@@ -2113,7 +2121,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
    * lets pass the first one.
    */
   output_attribs[0] = EGL_DRM_CRTC_EXT;
-  output_attribs[1] = output->crtc->crtc_id;
+  output_attribs[1] = crtc->crtc_id;
   output_attribs[2] = EGL_NONE;
 
   if (!meta_egl_get_output_layers (egl, egl_display,
@@ -2711,12 +2719,10 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
 {
   MetaMonitor *main_monitor;
   MetaOutput *main_output;
-  MetaMonitorTransform crtc_transform;
+  MetaCrtc *crtc;
   main_monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
   main_output = meta_monitor_get_main_output (main_monitor);
-  crtc_transform =
-    meta_monitor_logical_to_crtc_transform (main_monitor,
-                                            logical_monitor->transform);
+  crtc = meta_output_get_assigned_crtc (main_output);
 
   /*
    * Pick any monitor and output and check; all CRTCs of a logical monitor will
@@ -2724,11 +2730,11 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
    */
 
   if (meta_monitor_manager_is_transform_handled (monitor_manager,
-                                                 main_output->crtc,
-                                                 crtc_transform))
+                                                 crtc,
+                                                 crtc->transform))
     return META_MONITOR_TRANSFORM_NORMAL;
   else
-    return crtc_transform;
+    return crtc->transform;
 }
 
 static MetaRendererView *
