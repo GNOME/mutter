@@ -1,4 +1,4 @@
-mutter (3.28.3-1) UNRELEASED; urgency=medium
+mutter (3.28.3-1) unstable; urgency=medium
 
   * New upstream release
   * d/p/backends-Add-logical-monitor-monitor-output-crtc-ref-chai.patch,
@@ -21,7 +21,7 @@ mutter (3.28.3-1) UNRELEASED; urgency=medium
     d/p/window-actor-add-new-signal-effects-completed.patch:
     Remove patches already applied on 3.28 branch
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 19 Jul 2018 13:11:58 +0200
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 19 Jul 2018 14:59:38 +0100
 
 mutter (3.28.2-3) unstable; urgency=medium
 
