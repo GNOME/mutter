@@ -58,7 +58,7 @@ Build-Depends: debhelper (>= 11),
                xauth <!nocheck>,
                zenity
 Standards-Version: 4.1.4
-Vcs-Git: https://salsa.debian.org/gnome-team/mutter.git
+Vcs-Git: https://salsa.debian.org/gnome-team/mutter.git -b debian/experimental
 Vcs-Browser: https://salsa.debian.org/gnome-team/mutter
 
 Package: mutter
