@@ -30,6 +30,7 @@
 
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-screen-cast-session.h"
+#include "backends/meta-remote-access-controller-private.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "cogl/cogl.h"
@@ -58,6 +59,8 @@ struct _MetaRemoteDesktopSession
   ClutterVirtualInputDevice *virtual_pointer;
   ClutterVirtualInputDevice *virtual_keyboard;
   ClutterVirtualInputDevice *virtual_touchscreen;
+
+  MetaRemoteDesktopSessionHandle *handle;
 };
 
 static void
@@ -74,10 +77,39 @@ G_DEFINE_TYPE_WITH_CODE (MetaRemoteDesktopSession,
                          G_IMPLEMENT_INTERFACE (META_TYPE_DBUS_SESSION,
                                                 meta_dbus_session_init_iface))
 
+struct _MetaRemoteDesktopSessionHandle
+{
+  MetaRemoteAccessHandle parent;
+
+  MetaRemoteDesktopSession *session;
+};
+
+G_DEFINE_TYPE (MetaRemoteDesktopSessionHandle,
+               meta_remote_desktop_session_handle,
+               META_TYPE_REMOTE_ACCESS_HANDLE)
+
+static MetaRemoteDesktopSessionHandle *
+meta_remote_desktop_session_handle_new (MetaRemoteDesktopSession *session);
+
 static gboolean
 meta_remote_desktop_session_is_running (MetaRemoteDesktopSession *session)
 {
   return !!session->virtual_pointer;
+}
+
+static void
+init_remote_access_handle (MetaRemoteDesktopSession *session)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaRemoteAccessController *remote_access_controller;
+  MetaRemoteAccessHandle *remote_access_handle;
+
+  session->handle = meta_remote_desktop_session_handle_new (session);
+
+  remote_access_controller = meta_backend_get_remote_access_controller (backend);
+  remote_access_handle = META_REMOTE_ACCESS_HANDLE (session->handle);
+  meta_remote_access_controller_notify_new_handle (remote_access_controller,
+                                                   remote_access_handle);
 }
 
 static gboolean
@@ -106,6 +138,8 @@ meta_remote_desktop_session_start (MetaRemoteDesktopSession *session,
     clutter_device_manager_create_virtual_device (device_manager,
                                                   CLUTTER_TOUCHSCREEN_DEVICE);
 
+  init_remote_access_handle (session);
+
   return TRUE;
 }
 
@@ -129,6 +163,14 @@ meta_remote_desktop_session_close (MetaRemoteDesktopSession *session)
   meta_dbus_session_notify_closed (META_DBUS_SESSION (session));
   meta_dbus_remote_desktop_session_emit_closed (skeleton);
   g_dbus_interface_skeleton_unexport (G_DBUS_INTERFACE_SKELETON (session));
+
+  if (session->handle)
+    {
+      MetaRemoteAccessHandle *remote_access_handle =
+        META_REMOTE_ACCESS_HANDLE (session->handle);
+
+      meta_remote_access_handle_notify_stopped (remote_access_handle);
+    }
 
   g_object_unref (session);
 }
@@ -728,6 +770,7 @@ meta_remote_desktop_session_finalize (GObject *object)
 
   g_assert (!meta_remote_desktop_session_is_running (session));
 
+  g_clear_object (&session->handle);
   g_free (session->peer_name);
   g_free (session->session_id);
   g_free (session->object_path);
@@ -761,4 +804,41 @@ meta_remote_desktop_session_class_init (MetaRemoteDesktopSessionClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_remote_desktop_session_finalize;
+}
+
+static MetaRemoteDesktopSessionHandle *
+meta_remote_desktop_session_handle_new (MetaRemoteDesktopSession *session)
+{
+  MetaRemoteDesktopSessionHandle *handle;
+
+  handle = g_object_new (META_TYPE_REMOTE_DESKTOP_SESSION_HANDLE, NULL);
+  handle->session = session;
+
+  return handle;
+}
+
+static void
+meta_remote_desktop_session_handle_stop (MetaRemoteAccessHandle *handle)
+{
+  MetaRemoteDesktopSession *session;
+
+  session = META_REMOTE_DESKTOP_SESSION_HANDLE (handle)->session;
+  if (!session)
+    return;
+
+  meta_remote_desktop_session_close (session);
+}
+
+static void
+meta_remote_desktop_session_handle_init (MetaRemoteDesktopSessionHandle *handle)
+{
+}
+
+static void
+meta_remote_desktop_session_handle_class_init (MetaRemoteDesktopSessionHandleClass *klass)
+{
+  MetaRemoteAccessHandleClass *remote_access_handle_class =
+    META_REMOTE_ACCESS_HANDLE_CLASS (klass);
+
+  remote_access_handle_class->stop = meta_remote_desktop_session_handle_stop;
 }

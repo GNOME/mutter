@@ -33,6 +33,12 @@ G_DECLARE_FINAL_TYPE (MetaRemoteDesktopSession, meta_remote_desktop_session,
                       META, REMOTE_DESKTOP_SESSION,
                       MetaDBusRemoteDesktopSessionSkeleton)
 
+#define META_TYPE_REMOTE_DESKTOP_SESSION_HANDLE (meta_remote_desktop_session_handle_get_type ())
+G_DECLARE_FINAL_TYPE (MetaRemoteDesktopSessionHandle,
+                      meta_remote_desktop_session_handle,
+                      META, REMOTE_DESKTOP_SESSION_HANDLE,
+                      MetaRemoteAccessHandle)
+
 char * meta_remote_desktop_session_get_object_path (MetaRemoteDesktopSession *session);
 
 char * meta_remote_desktop_session_get_session_id (MetaRemoteDesktopSession *session);

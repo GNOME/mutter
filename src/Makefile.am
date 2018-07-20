@@ -167,6 +167,9 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/meta-renderer.h		\
 	backends/meta-renderer-view.c		\
 	backends/meta-renderer-view.h		\
+	backends/meta-remote-access-controller.c	\
+	backends/meta-remote-access-controller-private.h	\
+	meta/meta-remote-access-controller.h	\
 	backends/edid-parse.c			\
 	backends/edid.h				\
 	backends/gsm-inhibitor-flag.h		\
@@ -554,6 +557,7 @@ libmutterinclude_headers =			\
 	meta/meta-idle-monitor.h		\
 	meta/meta-plugin.h			\
 	meta/meta-monitor-manager.h		\
+	meta/meta-remote-access-controller.h	\
 	meta/meta-settings.h			\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\
