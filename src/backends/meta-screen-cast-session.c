@@ -28,6 +28,7 @@
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-screen-cast-monitor-stream.h"
 #include "backends/meta-screen-cast-stream.h"
+#include "backends/meta-remote-access-controller-private.h"
 
 #define META_SCREEN_CAST_SESSION_DBUS_PATH "/org/gnome/Mutter/ScreenCast/Session"
 
@@ -41,6 +42,8 @@ struct _MetaScreenCastSession
   char *object_path;
 
   GList *streams;
+
+  MetaScreenCastSessionHandle *handle;
 };
 
 static void
@@ -57,6 +60,35 @@ G_DEFINE_TYPE_WITH_CODE (MetaScreenCastSession,
                          G_IMPLEMENT_INTERFACE (META_TYPE_DBUS_SESSION,
                                                 meta_dbus_session_init_iface))
 
+struct _MetaScreenCastSessionHandle
+{
+  MetaRemoteAccessHandle parent;
+
+  MetaScreenCastSession *session;
+};
+
+G_DEFINE_TYPE (MetaScreenCastSessionHandle,
+               meta_screen_cast_session_handle,
+               META_TYPE_REMOTE_ACCESS_HANDLE)
+
+static MetaScreenCastSessionHandle *
+meta_screen_cast_session_handle_new (MetaScreenCastSession *session);
+
+static void
+init_remote_access_handle (MetaScreenCastSession *session)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaRemoteAccessController *remote_access_controller;
+  MetaRemoteAccessHandle *remote_access_handle;
+
+  session->handle = meta_screen_cast_session_handle_new (session);
+
+  remote_access_controller = meta_backend_get_remote_access_controller (backend);
+  remote_access_handle = META_REMOTE_ACCESS_HANDLE (session->handle);
+  meta_remote_access_controller_notify_new_handle (remote_access_controller,
+                                                   remote_access_handle);
+}
+
 gboolean
 meta_screen_cast_session_start (MetaScreenCastSession  *session,
                                 GError                **error)
@@ -70,6 +102,8 @@ meta_screen_cast_session_start (MetaScreenCastSession  *session,
       if (!meta_screen_cast_stream_start (stream, error))
         return FALSE;
     }
+
+  init_remote_access_handle (session);
 
   return TRUE;
 }
@@ -93,6 +127,14 @@ meta_screen_cast_session_close (MetaScreenCastSession *session)
     }
 
   g_dbus_interface_skeleton_unexport (G_DBUS_INTERFACE_SKELETON (session));
+
+  if (session->handle)
+    {
+      MetaRemoteAccessHandle *remote_access_handle =
+        META_REMOTE_ACCESS_HANDLE (session->handle);
+
+      meta_remote_access_handle_notify_stopped (remote_access_handle);
+    }
 
   g_object_unref (session);
 }
@@ -361,6 +403,7 @@ meta_screen_cast_session_finalize (GObject *object)
 {
   MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (object);
 
+  g_clear_object (&session->handle);
   g_free (session->peer_name);
   g_free (session->object_path);
 
@@ -378,4 +421,41 @@ meta_screen_cast_session_class_init (MetaScreenCastSessionClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_screen_cast_session_finalize;
+}
+
+static MetaScreenCastSessionHandle *
+meta_screen_cast_session_handle_new (MetaScreenCastSession *session)
+{
+  MetaScreenCastSessionHandle *handle;
+
+  handle = g_object_new (META_TYPE_SCREEN_CAST_SESSION_HANDLE, NULL);
+  handle->session = session;
+
+  return handle;
+}
+
+static void
+meta_screen_cast_session_handle_stop (MetaRemoteAccessHandle *handle)
+{
+  MetaScreenCastSession *session;
+
+  session = META_SCREEN_CAST_SESSION_HANDLE (handle)->session;
+  if (!session)
+    return;
+
+  meta_screen_cast_session_close (session);
+}
+
+static void
+meta_screen_cast_session_handle_init (MetaScreenCastSessionHandle *handle)
+{
+}
+
+static void
+meta_screen_cast_session_handle_class_init (MetaScreenCastSessionHandleClass *klass)
+{
+  MetaRemoteAccessHandleClass *remote_access_handle_class =
+    META_REMOTE_ACCESS_HANDLE_CLASS (klass);
+
+  remote_access_handle_class->stop = meta_screen_cast_session_handle_stop;
 }
