@@ -26,6 +26,7 @@
 #include "backends/meta-screen-cast.h"
 
 #include "backends/meta-screen-cast-stream.h"
+#include "meta/meta-remote-access-controller.h"
 
 typedef enum _MetaScreenCastSessionType
 {
@@ -37,6 +38,12 @@ typedef enum _MetaScreenCastSessionType
 G_DECLARE_FINAL_TYPE (MetaScreenCastSession, meta_screen_cast_session,
                       META, SCREEN_CAST_SESSION,
                       MetaDBusScreenCastSessionSkeleton)
+
+#define META_TYPE_SCREEN_CAST_SESSION_HANDLE (meta_screen_cast_session_handle_get_type ())
+G_DECLARE_FINAL_TYPE (MetaScreenCastSessionHandle,
+                      meta_screen_cast_session_handle,
+                      META, SCREEN_CAST_SESSION_HANDLE,
+                      MetaRemoteAccessHandle)
 
 char * meta_screen_cast_session_get_object_path (MetaScreenCastSession *session);
 
