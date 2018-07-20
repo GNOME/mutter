@@ -547,8 +547,9 @@ meta_backend_x11_grab_device (MetaBackend *backend,
   XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
   int ret;
 
-  if (timestamp != META_CURRENT_TIME)
-    timestamp = MAX (timestamp, priv->latest_evtime);
+  if (timestamp != META_CURRENT_TIME &&
+      XSERVER_TIME_IS_BEFORE (timestamp, priv->latest_evtime))
+    timestamp = priv->latest_evtime;
 
   XISetMask (mask.mask, XI_ButtonPress);
   XISetMask (mask.mask, XI_ButtonRelease);
