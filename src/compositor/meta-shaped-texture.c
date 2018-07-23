@@ -160,7 +160,7 @@ set_unobscured_region (MetaShapedTexture *self,
 {
   MetaShapedTexturePrivate *priv = self->priv;
 
-  g_clear_pointer (&priv->unobscured_region, (GDestroyNotify) cairo_region_destroy);
+  g_clear_pointer (&priv->unobscured_region, cairo_region_destroy);
   if (unobscured_region)
     {
       guint width, height;
@@ -188,7 +188,7 @@ set_clip_region (MetaShapedTexture *self,
 {
   MetaShapedTexturePrivate *priv = self->priv;
 
-  g_clear_pointer (&priv->clip_region, (GDestroyNotify) cairo_region_destroy);
+  g_clear_pointer (&priv->clip_region, cairo_region_destroy);
   if (clip_region)
     priv->clip_region = cairo_region_copy (clip_region);
 }

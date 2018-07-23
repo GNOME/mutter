@@ -485,7 +485,7 @@ x11_selection_data_finish (MetaSelectionBridge *selection,
     x11_selection_data_send_finished (selection, success);
 
   g_clear_pointer (&selection->x11_selection,
-                   (GDestroyNotify) x11_selection_data_free);
+                   x11_selection_data_free);
 }
 
 static void
@@ -707,7 +707,7 @@ wayland_data_read_cb (GObject      *object,
         {
           reply_selection_request (&data->request_event, FALSE);
           g_clear_pointer (&selection->wayland_selection,
-                           (GDestroyNotify) wayland_selection_data_free);
+                           wayland_selection_data_free);
         }
 
       return;
@@ -753,7 +753,7 @@ wayland_data_read_cb (GObject      *object,
         }
 
       g_clear_pointer (&selection->wayland_selection,
-                       (GDestroyNotify) wayland_selection_data_free);
+                       wayland_selection_data_free);
     }
 }
 
@@ -868,7 +868,7 @@ meta_x11_source_cancel (MetaWaylandDataSource *source)
 
   x11_selection_data_send_finished (selection, FALSE);
   g_clear_pointer (&selection->x11_selection,
-                   (GDestroyNotify) x11_selection_data_free);
+                   x11_selection_data_free);
 }
 
 static void
@@ -1156,7 +1156,7 @@ meta_xwayland_selection_handle_selection_notify (MetaWaylandCompositor *composit
   if (event->property == None)
     {
       g_clear_pointer (&selection->x11_selection,
-                       (GDestroyNotify) x11_selection_data_free);
+                       x11_selection_data_free);
       return FALSE;
     }
 
@@ -1294,7 +1294,7 @@ meta_xwayland_selection_handle_selection_request (MetaWaylandCompositor *composi
     return FALSE;
 
   g_clear_pointer (&selection->wayland_selection,
-                   (GDestroyNotify) wayland_selection_data_free);
+                   wayland_selection_data_free);
 
   if (event->target == gdk_x11_get_xatom_by_name ("TARGETS"))
     {
@@ -1609,7 +1609,7 @@ meta_xwayland_selection_handle_xfixes_selection_notify (MetaWaylandCompositor *c
             }
 
           g_clear_pointer (&selection->x11_selection,
-                           (GDestroyNotify) x11_selection_data_free);
+                           x11_selection_data_free);
 
           XConvertSelection (xdisplay,
                              event->selection,
@@ -1748,9 +1748,9 @@ shutdown_selection_bridge (MetaSelectionBridge *selection)
   XDestroyWindow (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                   selection->window);
   g_clear_pointer (&selection->wayland_selection,
-                   (GDestroyNotify) wayland_selection_data_free);
+                   wayland_selection_data_free);
   g_clear_pointer (&selection->x11_selection,
-                   (GDestroyNotify) x11_selection_data_free);
+                   x11_selection_data_free);
 }
 
 void

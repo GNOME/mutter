@@ -185,7 +185,7 @@ set_clip_region (MetaBackgroundActor *self,
 {
   MetaBackgroundActorPrivate *priv = self->priv;
 
-  g_clear_pointer (&priv->clip_region, (GDestroyNotify) cairo_region_destroy);
+  g_clear_pointer (&priv->clip_region, cairo_region_destroy);
   if (clip_region)
     priv->clip_region = cairo_region_copy (clip_region);
 }
