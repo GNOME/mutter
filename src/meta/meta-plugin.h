@@ -303,7 +303,7 @@ struct _MetaPluginVersion
 /*
  * Convenience macro to set up the plugin type. Based on GEdit.
  */
-#define META_PLUGIN_DECLARE(ObjectName, object_name)                    \
+#define META_PLUGIN_DECLARE_WITH_CODE(ObjectName, object_name, CODE)    \
   G_MODULE_EXPORT MetaPluginVersion meta_plugin_version =               \
     {                                                                   \
       META_MAJOR_VERSION,                                               \
@@ -312,7 +312,8 @@ struct _MetaPluginVersion
       META_PLUGIN_API_VERSION                                           \
     };                                                                  \
                                                                         \
-  G_DEFINE_DYNAMIC_TYPE(ObjectName, object_name, META_TYPE_PLUGIN)      \
+  G_DEFINE_DYNAMIC_TYPE_EXTENDED(ObjectName, object_name,               \
+                                 META_TYPE_PLUGIN, 0, CODE)             \
                                                                         \
   /* Unused, but required by G_DEFINE_DYNAMIC_TYPE */                   \
   static void                                                           \
@@ -324,6 +325,9 @@ struct _MetaPluginVersion
     object_name##_register_type (type_module);                          \
     return object_name##_get_type ();                                   \
   }                                                                     \
+
+#define META_PLUGIN_DECLARE(ObjectName, object_name)                    \
+  META_PLUGIN_DECLARE_WITH_CODE(ObjectName, object_name, {})
 
 void
 meta_plugin_switch_workspace_completed (MetaPlugin *plugin);
