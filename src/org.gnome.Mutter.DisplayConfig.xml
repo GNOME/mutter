@@ -366,7 +366,7 @@
 	  2 : logical
 
 	With physical layout mode, each logical monitor has the same dimensions
-	an the monitor modes of the associated monitors assigned to it, no
+	as the monitor modes of the associated monitors assigned to it, no
 	matter what scale is in use.
 
 	With logical mode, the dimension of a logical monitor is the dimension
