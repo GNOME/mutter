@@ -784,10 +784,11 @@ void meta_window_update_resize (MetaWindow *window,
                                 int x, int y,
                                 gboolean force);
 
-void meta_window_move_resize_internal (MetaWindow          *window,
-                                       MetaMoveResizeFlags  flags,
-                                       int                  gravity,
-                                       MetaRectangle        frame_rect);
+void meta_window_move_resize_internal (MetaWindow                   *window,
+                                       MetaMoveResizeFlags          move_resize_flags,
+                                       MetaWindowUpdateMonitorFlags update_monitor_flags,
+                                       int                          gravity,
+                                       MetaRectangle                frame_rect);
 
 void meta_window_grab_op_began (MetaWindow *window, MetaGrabOp op);
 void meta_window_grab_op_ended (MetaWindow *window, MetaGrabOp op);
