@@ -140,6 +140,13 @@ typedef enum
   META_EDGE_CONSTRAINT_MONITOR = 2,
 } MetaEdgeConstraint;
 
+typedef enum
+{
+  META_WINDOW_UPDATE_MONITOR_NONE        = 0,
+  META_WINDOW_UPDATE_MONITOR_USER_ACTION = 1 << 0,
+  META_WINDOW_UPDATE_MONITOR_CHANGED     = 1 << 1,
+} MetaWindowUpdateMonitorFlags;
+
 struct _MetaWindow
 {
   GObject parent_instance;
@@ -548,8 +555,8 @@ struct _MetaWindowClass
                                   cairo_surface_t **icon,
                                   cairo_surface_t **mini_icon);
   uint32_t (*get_client_pid)     (MetaWindow *window);
-  void (*update_main_monitor)    (MetaWindow *window,
-                                  gboolean    user_op);
+  void (*update_main_monitor)    (MetaWindow                  *window,
+                                  MetaWindowUpdateMonitorFlags flags);
   void (*main_monitor_changed)   (MetaWindow *window,
                                   const MetaLogicalMonitor *old);
   void (*force_restore_shortcuts) (MetaWindow         *window,
@@ -766,8 +773,8 @@ void meta_window_activate_full (MetaWindow     *window,
 MetaLogicalMonitor * meta_window_calculate_main_logical_monitor (MetaWindow *window);
 
 MetaLogicalMonitor * meta_window_get_main_logical_monitor (MetaWindow *window);
-void meta_window_update_monitor (MetaWindow *window,
-                                 gboolean    user_op);
+void meta_window_update_monitor (MetaWindow                  *window,
+                                 MetaWindowUpdateMonitorFlags flags);
 
 void meta_window_set_urgent (MetaWindow *window,
                              gboolean    urgent);
