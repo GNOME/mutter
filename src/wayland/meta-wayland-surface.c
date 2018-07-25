@@ -592,6 +592,15 @@ parent_surface_state_applied (gpointer data,
 }
 
 void
+meta_wayland_surface_cache_pending_frame_callbacks (MetaWaylandSurface      *surface,
+                                                    MetaWaylandPendingState *pending)
+{
+  wl_list_insert_list (&surface->pending_frame_callback_list,
+                       &pending->frame_callback_list);
+  wl_list_init (&pending->frame_callback_list);
+}
+
+void
 meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
                                           MetaWaylandPendingState *pending)
 {
@@ -712,13 +721,7 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
     }
   else
     {
-      /* Since there is no role assigned to the surface yet, keep frame
-       * callbacks queued until a role is assigned and we know how
-       * the surface will be drawn.
-       */
-      wl_list_insert_list (&surface->pending_frame_callback_list,
-                           &pending->frame_callback_list);
-      wl_list_init (&pending->frame_callback_list);
+      meta_wayland_surface_cache_pending_frame_callbacks (surface, pending);
 
       if (pending->newly_attached)
         {
