@@ -6,10 +6,10 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: mutter 3.29.4\n"
+"Project-Id-Version: mutter 3.29.2\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=mutter&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2018-07-18 20:29+0200\n"
+"POT-Creation-Date: 2018-06-18 18:15+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -486,22 +486,22 @@ msgstr ""
 msgid "Show on-screen help"
 msgstr ""
 
-#: src/backends/meta-monitor-manager.c:886
+#: src/backends/meta-monitor-manager.c:903
 msgid "Built-in display"
 msgstr ""
 
-#: src/backends/meta-monitor-manager.c:909
+#: src/backends/meta-monitor-manager.c:926
 msgid "Unknown"
 msgstr ""
 
-#: src/backends/meta-monitor-manager.c:911
+#: src/backends/meta-monitor-manager.c:928
 msgid "Unknown Display"
 msgstr ""
 
 #. TRANSLATORS: this is a monitor vendor name, followed by a
 #. * size in inches, like 'Dell 15"'
 #.
-#: src/backends/meta-monitor-manager.c:919
+#: src/backends/meta-monitor-manager.c:936
 #, c-format
 msgid "%s %s"
 msgstr ""
@@ -514,75 +514,76 @@ msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr ""
 
-#: src/core/bell.c:254
+#: src/core/bell.c:194
 msgid "Bell event"
 msgstr ""
 
-#: src/core/main.c:191
+#: src/core/display.c:608
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr ""
+
+#: src/core/main.c:190
 msgid "Disable connection to session manager"
 msgstr ""
 
-#: src/core/main.c:197
+#: src/core/main.c:196
 msgid "Replace the running window manager"
 msgstr ""
 
-#: src/core/main.c:203
+#: src/core/main.c:202
 msgid "Specify session management ID"
 msgstr ""
 
-#: src/core/main.c:208
+#: src/core/main.c:207
 msgid "X Display to use"
 msgstr ""
 
-#: src/core/main.c:214
+#: src/core/main.c:213
 msgid "Initialize session from savefile"
 msgstr ""
 
-#: src/core/main.c:220
+#: src/core/main.c:219
 msgid "Make X calls synchronous"
 msgstr ""
 
-#: src/core/main.c:227
+#: src/core/main.c:226
 msgid "Run as a wayland compositor"
 msgstr ""
 
-#: src/core/main.c:233
+#: src/core/main.c:232
 msgid "Run as a nested compositor"
 msgstr ""
 
-#: src/core/main.c:239
-msgid "Run wayland compositor without starting Xwayland"
-msgstr ""
-
-#: src/core/main.c:247
+#: src/core/main.c:240
 msgid "Run as a full display server, rather than nested"
 msgstr ""
 
-#: src/core/main.c:253
+#: src/core/main.c:246
 msgid "Run with X11 backend"
 msgstr ""
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:148
+#: src/core/meta-close-dialog-default.c:147
 #, c-format
 msgid "“%s” is not responding."
 msgstr ""
 
-#: src/core/meta-close-dialog-default.c:150
+#: src/core/meta-close-dialog-default.c:149
 msgid "Application is not responding."
 msgstr ""
 
-#: src/core/meta-close-dialog-default.c:155
+#: src/core/meta-close-dialog-default.c:154
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
 msgstr ""
 
-#: src/core/meta-close-dialog-default.c:162
+#: src/core/meta-close-dialog-default.c:161
 msgid "_Force Quit"
 msgstr ""
 
-#: src/core/meta-close-dialog-default.c:162
+#: src/core/meta-close-dialog-default.c:161
 msgid "_Wait"
 msgstr ""
 
@@ -604,9 +605,21 @@ msgstr ""
 msgid "Mutter plugin to use"
 msgstr ""
 
-#: src/core/prefs.c:1915
+#: src/core/prefs.c:1997
 #, c-format
 msgid "Workspace %d"
+msgstr ""
+
+#: src/core/screen.c:584
+#, c-format
+msgid ""
+"Display “%s” already has a window manager; try using the --replace option to "
+"replace the current window manager."
+msgstr ""
+
+#: src/core/screen.c:669
+#, c-format
+msgid "Screen %d on display “%s” is invalid\n"
 msgstr ""
 
 #: src/core/util.c:120
@@ -618,34 +631,13 @@ msgstr ""
 msgid "Mode Switch: Mode %d"
 msgstr ""
 
-#: src/x11/meta-x11-display.c:666
-#, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-
-#: src/x11/meta-x11-display.c:1010
-msgid "Failed to initialize GDK\n"
-msgstr ""
-
-#: src/x11/meta-x11-display.c:1034
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr ""
-
-#: src/x11/meta-x11-display.c:1117
-#, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr ""
-
-#: src/x11/session.c:1819
+#: src/x11/session.c:1818
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
 msgstr ""
 
-#: src/x11/window-props.c:565
+#: src/x11/window-props.c:559
 #, c-format
 msgid "%s (on %s)"
 msgstr ""

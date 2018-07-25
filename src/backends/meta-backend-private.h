@@ -84,6 +84,8 @@ struct _MetaBackendClass
                        const char  *variants,
                        const char  *options);
 
+  gboolean (* is_lid_closed) (MetaBackend *backend);
+
   struct xkb_keymap * (* get_keymap) (MetaBackend *backend);
 
   xkb_layout_index_t (* get_keymap_layout_group) (MetaBackend *backend);
@@ -143,6 +145,8 @@ MetaLogicalMonitor * meta_backend_get_current_logical_monitor (MetaBackend *back
 struct xkb_keymap * meta_backend_get_keymap (MetaBackend *backend);
 
 xkb_layout_index_t meta_backend_get_keymap_layout_group (MetaBackend *backend);
+
+gboolean meta_backend_is_lid_closed (MetaBackend *backend);
 
 void meta_backend_update_last_device (MetaBackend *backend,
                                       int          device_id);

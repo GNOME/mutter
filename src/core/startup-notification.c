@@ -26,9 +26,9 @@
 
 #include <glib-object.h>
 
-#include <meta/errors.h>
+#include <meta/meta-x11-errors.h>
 #include "display-private.h"
-#include "screen-private.h"
+#include "x11/meta-x11-display-private.h"
 #include "startup-notification-private.h"
 
 /* This should be fairly long, as it should never be required unless
@@ -143,19 +143,19 @@ static void meta_startup_notification_ensure_timeout  (MetaStartupNotification *
 static void
 meta_startup_notification_update_feedback (MetaStartupNotification *sn)
 {
-  MetaScreen *screen = sn->display->screen;
+  MetaDisplay *display = sn->display;
 
   if (sn->startup_sequences != NULL)
     {
       meta_topic (META_DEBUG_STARTUP,
                   "Setting busy cursor\n");
-      meta_screen_set_cursor (screen, META_CURSOR_BUSY);
+      meta_display_set_cursor (display, META_CURSOR_BUSY);
     }
   else
     {
       meta_topic (META_DEBUG_STARTUP,
                   "Setting default cursor\n");
-      meta_screen_set_cursor (screen, META_CURSOR_DEFAULT);
+      meta_display_set_cursor (display, META_CURSOR_DEFAULT);
     }
 }
 
@@ -528,11 +528,6 @@ meta_startup_notification_finalize (GObject *object)
 {
   MetaStartupNotification *sn = META_STARTUP_NOTIFICATION (object);
 
-#ifdef HAVE_STARTUP_NOTIFICATION
-  sn_monitor_context_unref (sn->sn_context);
-  sn_display_unref (sn->sn_display);
-#endif
-
   if (sn->startup_sequence_timeout)
     g_source_remove (sn->startup_sequence_timeout);
 
@@ -589,7 +584,7 @@ sn_error_trap_push (SnDisplay *sn_display,
   MetaDisplay *display;
   display = meta_display_for_x_display (xdisplay);
   if (display != NULL)
-    meta_error_trap_push (display);
+    meta_x11_error_trap_push (display->x11_display);
 }
 
 static void
@@ -599,7 +594,7 @@ sn_error_trap_pop (SnDisplay *sn_display,
   MetaDisplay *display;
   display = meta_display_for_x_display (xdisplay);
   if (display != NULL)
-    meta_error_trap_pop (display);
+    meta_x11_error_trap_pop (display->x11_display);
 }
 
 static void
@@ -660,6 +655,33 @@ meta_startup_notification_sn_event (SnMonitorEvent *event,
 
   sn_startup_sequence_unref (sequence);
 }
+
+static void
+on_x11_display_opened (MetaStartupNotification *sn)
+{
+  MetaX11Display *x11_display = sn->display->x11_display;
+
+  sn->sn_display = sn_display_new (x11_display->xdisplay,
+                                   sn_error_trap_push,
+                                   sn_error_trap_pop);
+
+  sn->sn_context =
+    sn_monitor_context_new (sn->sn_display,
+                            meta_x11_display_get_screen_number (x11_display),
+                            meta_startup_notification_sn_event,
+                            sn,
+                            NULL);
+}
+
+static void
+on_x11_display_closing (MetaStartupNotification *sn)
+{
+  sn_monitor_context_unref (sn->sn_context);
+  sn->sn_context = NULL;
+
+  sn_display_unref (sn->sn_display);
+  sn->sn_display = NULL;
+}
 #endif
 
 static void
@@ -670,16 +692,22 @@ meta_startup_notification_constructed (GObject *object)
   g_assert (sn->display != NULL);
 
 #ifdef HAVE_STARTUP_NOTIFICATION
-  sn->sn_display = sn_display_new (sn->display->xdisplay,
-                                   sn_error_trap_push,
-                                   sn_error_trap_pop);
-  sn->sn_context =
-    sn_monitor_context_new (sn->sn_display,
-                            meta_ui_get_screen_number (),
-                            meta_startup_notification_sn_event,
-                            sn,
-                            NULL);
+  sn->sn_display = NULL;
+  sn->sn_context = NULL;
+
+  g_signal_connect_object (sn->display,
+                          "x11-display-opened",
+                           G_CALLBACK (on_x11_display_opened),
+                           sn,
+                           G_CONNECT_SWAPPED);
+
+  g_signal_connect_object (sn->display,
+                           "x11-display-closing",
+                           G_CALLBACK (on_x11_display_closing),
+                           sn,
+                           G_CONNECT_SWAPPED);
 #endif
+
   sn->startup_sequences = NULL;
   sn->startup_sequence_timeout = 0;
 }
@@ -752,6 +780,9 @@ meta_startup_notification_get_sequences (MetaStartupNotification *sn)
   GSList *sequences = NULL;
 #ifdef HAVE_STARTUP_NOTIFICATION
   GSList *l;
+
+  if (!sn->sn_display)
+    return sequences;
 
   /* We return a list of SnStartupSequences here */
   for (l = sn->startup_sequences; l; l = l->next)

@@ -176,7 +176,7 @@ translate_device_event (MetaBackendX11 *x11,
 
   meta_backend_x11_translate_device_event (x11, device_event);
 
-  if (!device_event->send_event && device_event->time != CurrentTime)
+  if (!device_event->send_event && device_event->time != META_CURRENT_TIME)
     {
       if (XSERVER_TIME_IS_BEFORE (device_event->time, priv->latest_evtime))
         {
@@ -332,7 +332,7 @@ handle_host_xevent (MetaBackend *backend,
         if (meta_plugin_manager_xevent_filter (compositor->plugin_mgr, event))
           bypass_clutter = TRUE;
 
-        if (meta_dnd_handle_xdnd_event (backend, compositor, display, event))
+        if (meta_dnd_handle_xdnd_event (backend, compositor, priv->xdisplay, event))
           bypass_clutter = TRUE;
       }
   }
@@ -547,7 +547,7 @@ meta_backend_x11_grab_device (MetaBackend *backend,
   XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
   int ret;
 
-  if (timestamp != CurrentTime)
+  if (timestamp != META_CURRENT_TIME)
     timestamp = MAX (timestamp, priv->latest_evtime);
 
   XISetMask (mask.mask, XI_ButtonPress);
@@ -801,4 +801,14 @@ meta_backend_x11_get_xwindow (MetaBackendX11 *x11)
 {
   ClutterActor *stage = meta_backend_get_stage (META_BACKEND (x11));
   return clutter_x11_get_stage_window (CLUTTER_STAGE (stage));
+}
+
+void
+meta_backend_x11_reload_cursor (MetaBackendX11 *x11)
+{
+  MetaBackend *backend = META_BACKEND (x11);
+  MetaCursorRenderer *cursor_renderer =
+    meta_backend_get_cursor_renderer (backend);
+
+  meta_cursor_renderer_force_update (cursor_renderer);
 }

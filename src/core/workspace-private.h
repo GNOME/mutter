@@ -37,7 +37,8 @@
 struct _MetaWorkspace
 {
   GObject parent_instance;
-  MetaScreen *screen;
+  MetaDisplay *display;
+  MetaWorkspaceManager *manager;
 
   GList *windows;
 
@@ -72,7 +73,7 @@ struct _MetaWorkspaceClass
   GObjectClass parent_class;
 };
 
-MetaWorkspace* meta_workspace_new           (MetaScreen    *screen);
+MetaWorkspace* meta_workspace_new           (MetaWorkspaceManager *workspace_manager);
 void           meta_workspace_remove        (MetaWorkspace *workspace);
 void           meta_workspace_add_window    (MetaWorkspace *workspace,
                                              MetaWindow    *window);

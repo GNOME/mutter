@@ -101,6 +101,13 @@ meta_surface_actor_pick (ClutterActor       *actor,
     clutter_actor_paint (child);
 }
 
+static gboolean
+meta_surface_actor_get_paint_volume (ClutterActor       *actor,
+                                     ClutterPaintVolume *volume)
+{
+  return clutter_paint_volume_set_from_allocation (volume, actor);
+}
+
 static void
 meta_surface_actor_dispose (GObject *object)
 {
@@ -120,6 +127,7 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
 
   object_class->dispose = meta_surface_actor_dispose;
   actor_class->pick = meta_surface_actor_pick;
+  actor_class->get_paint_volume = meta_surface_actor_get_paint_volume;
 
   signals[REPAINT_SCHEDULED] = g_signal_new ("repaint-scheduled",
                                              G_TYPE_FROM_CLASS (object_class),

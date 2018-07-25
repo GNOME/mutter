@@ -1,43 +1,63 @@
-3.28.3
+3.29.4
 ======
-* Handle touch events on server-side titlebars [Carlos; #770185]
-* Fix crash with unhandled mouse buttons on titlebars [Olivier; #160]
-* Fix Korean Hangul support on wayland [Changwoo; #152]
-* Fix crash when taking up from suspend [Jonas; #786929]
 * Fix crash with parent-less modal dialogs [Olivier; #174]
-* Misc. bug fixes [Olivier, Georges; #83, #112, #150, #104,
+* Preserve paint volumes where possible to optimize CPU usage [Carlos; #782344]
 
 Contributors:
-  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Georges Basile Stavracas Neto,
-  Changwoo Ryu, Marco Trevisan (Treviño)
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Iain Lane, Bastien Nocera
 
-3.28.2
+Translators:
+  Daniel Șerbănescu [ro]
+
+3.29.3
 ======
-* Take inhibitors into account for monitoring idle [Bastien; #705942]
-* Fix window animations on wayland [Georges; #780292]
-* Misc. bug fixes [Mario, Jonas, Olivier, Florian; gnome-shell#157, #130,
-  #21, #124, !96, #138, !102, #781471]
+* Fix Korean Hangul support on wayland [Changwoo; #152]
+* Improve support for proprietary Nvidia driver [Jonas; #790316]
+* Only upload HW cursor sprite to the GPU that will display them [Jonas; #77]
+* Improve EGLstream support [Miguel; #2, #782575]
+* Remove MetaScreen to prepare for non-mandatary X11 dependency
+  [Armin, Jonas; #759538]
+* Misc. bug fixes [Olivier, Jonas, Sam; #160, !130, #786929, #788834]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Armin Krezović, Corentin Noël,
+  Changwoo Ryu, Sam Spilsbury, Daniel Stone, Marco Trevisan (Treviño),
+  Miguel A. Vico, Daniel van Vugt
+
+Translators:
+  Yi-Jyun Pan [zh_TW], Jordi Mas [ca], Daniel Șerbănescu [ro], Fabio Tomat [fur]
+
+3.29.2
+======
+* Fix size change animations on wayland [Georges; #780292]
+* Handle touch events on server-side titlebars [Carlos; #770185]
+* Misc. bug fixes [Florian, Olivier, Jonas, Georges; #134, #124, !96, #138,
+  !102, #781471, #150]
 
 Contributors:
   Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Florian Müllner,
-  Georges Basile Stavracas Neto, Bastien Nocera, Mario Sanchez Prada,
-  Ray Strode, Marco Trevisan (Treviño)
+  Georges Basile Stavracas Neto, Marco Trevisan (Treviño), Daniel van Vugt
 
-3.28.1
+Translators:
+  Daniel Șerbănescu [ro], Marcos Lans [gl], Dz Chen [zh_CN]
+
+3.29.1
 ======
-* Fix various input-method regressions [Carlos; #65, #74, #66]
+* Fix various input-method regressions [Carlos, Olivier; #65, #74, #66, #112]
 * Fix wayland build on FreeBSD [Ting-Wei; #792280, #792717]
 * Fix swapped colors in screenshots (again) [Carlos; #72]
 * Allow building with elogind [Rasmus; !46]
 * Consider display rotation for cursor [Olivier; #85]
 * Fall back to non-modifier GBM surfaces [Daniel; #84]
-* Disable KMS modifiers by default [Jonas; #81]
-* Misc bug fixes [handsome-feng; !45]
+* Take inhibitors into account for monitoring idle [Bastien; #705942]
+* Misc. bug fixes [handsome-feng, Olivier, Mario, Jonas; !45, #83, #104,
+  gnome-shell#157, #130, #21]
 
 Contributors:
   Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, handsome-feng, Yussuf Khalil,
   Ting-Wei Lan, Aleksandr Mezin, Alberts Muktupāvels,
-  Georges Basile Stavracas Neto, Benjamin Otte, Daniel Stone, Rasmus Thomsen,
+  Georges Basile Stavracas Neto, Bastien Nocera, Benjamin Otte,
+  Mario Sanchez Prada, Daniel Stone, Ray Strode, Rasmus Thomsen,
   Marco Trevisan (Treviño), Daniel van Vugt
 
 Translators:

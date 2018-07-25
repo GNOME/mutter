@@ -30,6 +30,7 @@
 #include "wayland/meta-wayland.h"
 #include "window-private.h"
 #include "tests/test-utils.h"
+#include "x11/meta-x11-display-private.h"
 
 typedef struct {
   GHashTable *clients;
@@ -40,7 +41,7 @@ typedef struct {
 } TestCase;
 
 static gboolean
-test_case_alarm_filter (MetaDisplay           *display,
+test_case_alarm_filter (MetaX11Display        *x11_display,
                         XSyncAlarmNotifyEvent *event,
                         gpointer               data)
 {
@@ -48,12 +49,12 @@ test_case_alarm_filter (MetaDisplay           *display,
   GHashTableIter iter;
   gpointer key, value;
 
-  if (async_waiter_alarm_filter (test->waiter, display, event))
+  if (async_waiter_alarm_filter (test->waiter, x11_display, event))
     return TRUE;
 
   g_hash_table_iter_init (&iter, test->clients);
   while (g_hash_table_iter_next (&iter, &key, &value))
-    if (test_client_alarm_filter (value, display, event))
+    if (test_client_alarm_filter (value, x11_display, event))
       return TRUE;
 
   return FALSE;
@@ -102,8 +103,8 @@ test_case_new (void)
                                             test_case_log_func,
                                             test);
 
-  meta_display_set_alarm_filter (meta_get_display (),
-                                 test_case_alarm_filter, test);
+  meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
+                                     test_case_alarm_filter, test);
 
   test->clients = g_hash_table_new (g_str_hash, g_str_equal);
   test->waiter = async_waiter_new ();
@@ -212,7 +213,7 @@ test_case_assert_stacking (TestCase *test,
   GString *expected_string = g_string_new (NULL);
   int i;
 
-  meta_stack_tracker_get_stack (display->screen->stack_tracker, &windows, &n_windows);
+  meta_stack_tracker_get_stack (display->stack_tracker, &windows, &n_windows);
   for (i = 0; i < n_windows; i++)
     {
       MetaWindow *window = meta_display_lookup_stack_id (display, windows[i]);
@@ -222,7 +223,7 @@ test_case_assert_stacking (TestCase *test,
            * is managed as a MetaWindow.
            */
           if (META_STACK_ID_IS_X11 (windows[i]) &&
-              meta_ui_window_is_dummy (display->screen->ui, windows[i]))
+              meta_ui_window_is_dummy (display->x11_display->ui, windows[i]))
             continue;
 
           if (stack_string->len > 0)
@@ -233,7 +234,7 @@ test_case_assert_stacking (TestCase *test,
           else
             g_string_append_printf (stack_string, "(%s)", window->title);
         }
-      else if (windows[i] == display->screen->guard_window)
+      else if (windows[i] == display->x11_display->guard_window)
         {
           if (stack_string->len > 0)
             g_string_append_c (stack_string, ' ');
@@ -284,7 +285,7 @@ test_case_check_xserver_stacking (TestCase *test,
 
   guint64 *windows;
   int n_windows;
-  meta_stack_tracker_get_stack (display->screen->stack_tracker, &windows, &n_windows);
+  meta_stack_tracker_get_stack (display->stack_tracker, &windows, &n_windows);
 
   for (i = 0; i < n_windows; i++)
     {
@@ -301,8 +302,8 @@ test_case_check_xserver_stacking (TestCase *test,
   Window parent;
   Window *children;
   unsigned int n_children;
-  XQueryTree (display->xdisplay,
-              meta_screen_get_xroot (display->screen),
+  XQueryTree (display->x11_display->xdisplay,
+              display->x11_display->xroot,
               &root, &parent, &children, &n_children);
 
   for (i = 0; i < (int)n_children; i++)
@@ -324,6 +325,39 @@ test_case_check_xserver_stacking (TestCase *test,
   g_string_free (x11_string, TRUE);
 
   return *error == NULL;
+}
+
+typedef struct _WaitForShownData
+{
+  GMainLoop *loop;
+  MetaWindow *window;
+  guint shown_handler_id;
+} WaitForShownData;
+
+static void
+on_window_shown (MetaWindow       *window,
+                 WaitForShownData *data)
+{
+  g_main_loop_quit (data->loop);
+}
+
+static gboolean
+test_case_wait_for_showing_before_redraw (gpointer user_data)
+{
+  WaitForShownData *data = user_data;
+
+  if (meta_window_is_hidden (data->window))
+    {
+      data->shown_handler_id = g_signal_connect (data->window, "shown",
+                                                 G_CALLBACK (on_window_shown),
+                                                 data);
+    }
+  else
+    {
+      g_main_loop_quit (data->loop);
+    }
+
+  return FALSE;
 }
 
 static gboolean
@@ -389,7 +423,8 @@ test_case_do (TestCase *test,
                            NULL))
         return FALSE;
     }
-  else if (strcmp (argv[0], "set_parent") == 0)
+  else if (strcmp (argv[0], "set_parent") == 0 ||
+           strcmp (argv[0], "set_parent_exported") == 0)
     {
       if (argc != 3)
         BAD_COMMAND("usage: %s <client-id>/<window-id> <parent-window-id>",
@@ -401,13 +436,42 @@ test_case_do (TestCase *test,
         return FALSE;
 
       if (!test_client_do (client, error,
-                           "set_parent", window_id,
+                           argv[0], window_id,
                            argv[2],
                            NULL))
         return FALSE;
     }
-  else if (strcmp (argv[0], "show") == 0 ||
-           strcmp (argv[0], "hide") == 0 ||
+  else if (strcmp (argv[0], "show") == 0)
+    {
+      if (argc != 2)
+        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+
+      TestClient *client;
+      const char *window_id;
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      if (!test_client_do (client, error, argv[0], window_id, NULL))
+        return FALSE;
+
+      MetaWindow *window = test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      WaitForShownData data = {
+        .loop = g_main_loop_new (NULL, FALSE),
+        .window = window,
+      };
+      meta_later_add (META_LATER_BEFORE_REDRAW,
+                      test_case_wait_for_showing_before_redraw,
+                      &data,
+                      NULL);
+      g_main_loop_run (data.loop);
+      if (data.shown_handler_id)
+        g_signal_handler_disconnect (window, data.shown_handler_id);
+      g_main_loop_unref (data.loop);
+    }
+  else if (strcmp (argv[0], "hide") == 0 ||
            strcmp (argv[0], "activate") == 0 ||
            strcmp (argv[0], "raise") == 0 ||
            strcmp (argv[0], "lower") == 0 ||
@@ -500,7 +564,8 @@ test_case_destroy (TestCase *test,
 
   async_waiter_destroy (test->waiter);
 
-  meta_display_set_alarm_filter (meta_get_display (), NULL, NULL);
+  meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
+                                     NULL, NULL);
 
   g_hash_table_destroy (test->clients);
   g_free (test);

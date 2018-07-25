@@ -129,7 +129,11 @@ host_triplet = @host@
 @HAVE_WAYLAND_TRUE@	gtk-text-input-server-protocol.h				\
 @HAVE_WAYLAND_TRUE@	$(NULL)
 
-@HAVE_REMOTE_DESKTOP_TRUE@am__append_3 = \
+@HAVE_WAYLAND_EGLSTREAM_TRUE@@HAVE_WAYLAND_TRUE@am__append_3 = \
+@HAVE_WAYLAND_EGLSTREAM_TRUE@@HAVE_WAYLAND_TRUE@	wayland-eglstream-controller-server-protocol.h \
+@HAVE_WAYLAND_EGLSTREAM_TRUE@@HAVE_WAYLAND_TRUE@	$(NULL)
+
+@HAVE_REMOTE_DESKTOP_TRUE@am__append_4 = \
 @HAVE_REMOTE_DESKTOP_TRUE@	backends/meta-dbus-session-watcher.c	\
 @HAVE_REMOTE_DESKTOP_TRUE@	backends/meta-dbus-session-watcher.h	\
 @HAVE_REMOTE_DESKTOP_TRUE@	backends/meta-remote-desktop.c		\
@@ -150,9 +154,11 @@ host_triplet = @host@
 @HAVE_REMOTE_DESKTOP_TRUE@	backends/meta-screen-cast-stream-src.h	\
 @HAVE_REMOTE_DESKTOP_TRUE@	$(NULL)
 
-@HAVE_WAYLAND_TRUE@am__append_4 = \
+@HAVE_WAYLAND_TRUE@am__append_5 = \
 @HAVE_WAYLAND_TRUE@	compositor/meta-surface-actor-wayland.c	\
 @HAVE_WAYLAND_TRUE@	compositor/meta-surface-actor-wayland.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-cursor-sprite-wayland.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-cursor-sprite-wayland.h	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland.c			\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland.h			\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-private.h		\
@@ -214,10 +220,10 @@ host_triplet = @host@
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-touch.h		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface.c		\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface.h		\
-@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface-role-cursor.c	\
-@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface-role-cursor.h	\
-@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface-role-tablet-cursor.c	\
-@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface-role-tablet-cursor.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-cursor-surface.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-cursor-surface.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-cursor-surface.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-cursor-surface.h	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-actor-surface.c	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-actor-surface.h	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-subsurface.c	\
@@ -252,7 +258,7 @@ host_triplet = @host@
 @HAVE_WAYLAND_TRUE@	wayland/meta-xwayland-grab-keyboard.h  	\
 @HAVE_WAYLAND_TRUE@	$(NULL)
 
-@HAVE_NATIVE_BACKEND_TRUE@am__append_5 = \
+@HAVE_NATIVE_BACKEND_TRUE@am__append_6 = \
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-backend-native.c		\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-backend-native.h		\
 @HAVE_NATIVE_BACKEND_TRUE@	backends/native/meta-backend-native-private.h	\
@@ -289,8 +295,8 @@ bin_PROGRAMS = mutter$(EXEEXT)
 noinst_PROGRAMS = $(am__EXEEXT_3) testboxes$(EXEEXT)
 libexec_PROGRAMS = mutter-restart-helper$(EXEEXT)
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@installedtestsbin_PROGRAMS = $(am__EXEEXT_2)
-@BUILDOPT_INSTALL_TESTS_FALSE@@HAVE_WAYLAND_TRUE@am__append_6 = $(test_programs)
-@HAVE_WAYLAND_TRUE@am__append_7 = tests/mutter-all.test.in
+@BUILDOPT_INSTALL_TESTS_FALSE@@HAVE_WAYLAND_TRUE@am__append_7 = $(test_programs)
+@HAVE_WAYLAND_TRUE@am__append_8 = tests/mutter-all.test.in
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
@@ -359,12 +365,14 @@ am__libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES_DIST =  \
 	backends/meta-cursor-tracker.c \
 	backends/meta-cursor-tracker-private.h \
 	backends/meta-cursor-renderer.c \
-	backends/meta-cursor-renderer.h backends/meta-dnd-private.h \
-	backends/meta-egl.c backends/meta-egl.h \
-	backends/meta-egl-ext.h backends/meta-gles3.c \
-	backends/meta-gles3.h backends/meta-gles3-table.h \
-	backends/meta-gpu.c backends/meta-gpu.h \
-	backends/meta-display-config-shared.h \
+	backends/meta-cursor-renderer.h \
+	backends/meta-cursor-sprite-xcursor.c \
+	backends/meta-cursor-sprite-xcursor.h \
+	backends/meta-dnd-private.h backends/meta-egl.c \
+	backends/meta-egl.h backends/meta-egl-ext.h \
+	backends/meta-gles3.c backends/meta-gles3.h \
+	backends/meta-gles3-table.h backends/meta-gpu.c \
+	backends/meta-gpu.h backends/meta-display-config-shared.h \
 	backends/meta-idle-monitor.c \
 	backends/meta-idle-monitor-private.h \
 	backends/meta-idle-monitor-dbus.c \
@@ -406,6 +414,8 @@ am__libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES_DIST =  \
 	backends/x11/meta-gpu-xrandr.c backends/x11/meta-gpu-xrandr.h \
 	backends/x11/cm/meta-backend-x11-cm.c \
 	backends/x11/cm/meta-backend-x11-cm.h \
+	backends/x11/cm/meta-cursor-sprite-xfixes.c \
+	backends/x11/cm/meta-cursor-sprite-xfixes.h \
 	backends/x11/cm/meta-renderer-x11-cm.c \
 	backends/x11/cm/meta-renderer-x11-cm.h \
 	backends/x11/nested/meta-backend-x11-nested.c \
@@ -475,12 +485,14 @@ am__libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES_DIST =  \
 	core/meta-inhibit-shortcuts-dialog-default-private.h \
 	core/delete.c core/display.c core/display-private.h \
 	meta/display.h core/edge-resistance.c core/edge-resistance.h \
-	core/events.c core/events.h core/errors.c meta/errors.h \
-	core/frame.c core/frame.h core/meta-gesture-tracker.c \
-	core/meta-gesture-tracker-private.h core/keybindings.c \
+	core/events.c core/events.h core/frame.c core/frame.h \
+	core/meta-gesture-tracker.c \
+	core/meta-gesture-tracker-private.h \
+	core/meta-workspace-manager.c \
+	core/meta-workspace-manager-private.h \
+	meta/meta-workspace-manager.h core/keybindings.c \
 	core/keybindings-private.h core/main-private.h core/main.c \
 	core/place.c core/place.h core/prefs.c meta/prefs.h \
-	core/screen.c core/screen-private.h meta/screen.h \
 	core/startup-notification.c \
 	core/startup-notification-private.h meta/types.h \
 	core/restart.c core/stack.c core/stack.h core/stack-tracker.c \
@@ -489,13 +501,15 @@ am__libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES_DIST =  \
 	meta/window.h core/workspace.c core/workspace-private.h \
 	meta/common.h core/core.h ui/ui.h ui/frames.c ui/frames.h \
 	ui/theme.c meta/theme.h ui/theme-private.h ui/ui.c \
-	x11/atomnames.h x11/events.c x11/events.h x11/group-private.h \
-	x11/group-props.c x11/group-props.h x11/group.c meta/group.h \
-	x11/iconcache.c x11/iconcache.h x11/session.c x11/session.h \
-	x11/window-props.c x11/window-props.h x11/window-x11.c \
-	x11/window-x11.h x11/window-x11-private.h x11/xprops.c \
-	x11/xprops.h x11/mutter-Xatomtype.h \
-	backends/meta-dbus-session-watcher.c \
+	x11/atomnames.h x11/meta-x11-display.c \
+	x11/meta-x11-display-private.h meta/meta-x11-display.h \
+	x11/meta-x11-errors.c meta/meta-x11-errors.h x11/events.c \
+	x11/events.h x11/group-private.h x11/group-props.c \
+	x11/group-props.h x11/group.c meta/group.h x11/iconcache.c \
+	x11/iconcache.h x11/session.c x11/session.h x11/window-props.c \
+	x11/window-props.h x11/window-x11.c x11/window-x11.h \
+	x11/window-x11-private.h x11/xprops.c x11/xprops.h \
+	x11/mutter-Xatomtype.h backends/meta-dbus-session-watcher.c \
 	backends/meta-dbus-session-watcher.h \
 	backends/meta-remote-desktop.c backends/meta-remote-desktop.h \
 	backends/meta-remote-desktop-session.c \
@@ -512,7 +526,9 @@ am__libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES_DIST =  \
 	backends/meta-screen-cast-stream-src.c \
 	backends/meta-screen-cast-stream-src.h \
 	compositor/meta-surface-actor-wayland.c \
-	compositor/meta-surface-actor-wayland.h wayland/meta-wayland.c \
+	compositor/meta-surface-actor-wayland.h \
+	wayland/meta-cursor-sprite-wayland.c \
+	wayland/meta-cursor-sprite-wayland.h wayland/meta-wayland.c \
 	wayland/meta-wayland.h wayland/meta-wayland-private.h \
 	wayland/meta-xwayland.c wayland/meta-xwayland.h \
 	wayland/meta-xwayland-selection.c \
@@ -562,10 +578,10 @@ am__libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES_DIST =  \
 	wayland/meta-wayland-tablet-pad-strip.h \
 	wayland/meta-wayland-touch.c wayland/meta-wayland-touch.h \
 	wayland/meta-wayland-surface.c wayland/meta-wayland-surface.h \
-	wayland/meta-wayland-surface-role-cursor.c \
-	wayland/meta-wayland-surface-role-cursor.h \
-	wayland/meta-wayland-surface-role-tablet-cursor.c \
-	wayland/meta-wayland-surface-role-tablet-cursor.h \
+	wayland/meta-wayland-cursor-surface.c \
+	wayland/meta-wayland-cursor-surface.h \
+	wayland/meta-wayland-tablet-cursor-surface.c \
+	wayland/meta-wayland-tablet-cursor-surface.h \
 	wayland/meta-wayland-actor-surface.c \
 	wayland/meta-wayland-actor-surface.h \
 	wayland/meta-wayland-subsurface.c \
@@ -636,6 +652,7 @@ am__objects_1 =
 @HAVE_REMOTE_DESKTOP_TRUE@	$(am__objects_1)
 @HAVE_WAYLAND_TRUE@am__objects_3 =  \
 @HAVE_WAYLAND_TRUE@	compositor/meta-surface-actor-wayland.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-cursor-sprite-wayland.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-xwayland.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-xwayland-selection.lo \
@@ -665,8 +682,8 @@ am__objects_1 =
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-pad-strip.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-touch.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface.lo \
-@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface-role-cursor.lo \
-@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-surface-role-tablet-cursor.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-cursor-surface.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-tablet-cursor-surface.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-actor-surface.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-subsurface.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-shell-surface.lo \
@@ -702,7 +719,8 @@ am_libmutter_@LIBMUTTER_API_VERSION@_la_OBJECTS =  \
 	backends/meta-backend.lo backends/meta-barrier.lo \
 	backends/meta-crtc.lo backends/meta-cursor.lo \
 	backends/meta-cursor-tracker.lo \
-	backends/meta-cursor-renderer.lo backends/meta-egl.lo \
+	backends/meta-cursor-renderer.lo \
+	backends/meta-cursor-sprite-xcursor.lo backends/meta-egl.lo \
 	backends/meta-gles3.lo backends/meta-gpu.lo \
 	backends/meta-idle-monitor.lo \
 	backends/meta-idle-monitor-dbus.lo \
@@ -724,6 +742,7 @@ am_libmutter_@LIBMUTTER_API_VERSION@_la_OBJECTS =  \
 	backends/x11/meta-cursor-renderer-x11.lo \
 	backends/x11/meta-gpu-xrandr.lo \
 	backends/x11/cm/meta-backend-x11-cm.lo \
+	backends/x11/cm/meta-cursor-sprite-xfixes.lo \
 	backends/x11/cm/meta-renderer-x11-cm.lo \
 	backends/x11/nested/meta-backend-x11-nested.lo \
 	backends/x11/nested/meta-cursor-renderer-x11-nested.lo \
@@ -759,15 +778,17 @@ am_libmutter_@LIBMUTTER_API_VERSION@_la_OBJECTS =  \
 	core/meta-inhibit-shortcuts-dialog.lo \
 	core/meta-inhibit-shortcuts-dialog-default.lo core/delete.lo \
 	core/display.lo core/edge-resistance.lo core/events.lo \
-	core/errors.lo core/frame.lo core/meta-gesture-tracker.lo \
-	core/keybindings.lo core/main.lo core/place.lo core/prefs.lo \
-	core/screen.lo core/startup-notification.lo core/restart.lo \
-	core/stack.lo core/stack-tracker.lo core/util.lo \
-	core/window.lo core/workspace.lo ui/frames.lo ui/theme.lo \
-	ui/ui.lo x11/events.lo x11/group-props.lo x11/group.lo \
-	x11/iconcache.lo x11/session.lo x11/window-props.lo \
-	x11/window-x11.lo x11/xprops.lo $(am__objects_1) \
-	$(am__objects_2) $(am__objects_3) $(am__objects_4)
+	core/frame.lo core/meta-gesture-tracker.lo \
+	core/meta-workspace-manager.lo core/keybindings.lo \
+	core/main.lo core/place.lo core/prefs.lo \
+	core/startup-notification.lo core/restart.lo core/stack.lo \
+	core/stack-tracker.lo core/util.lo core/window.lo \
+	core/workspace.lo ui/frames.lo ui/theme.lo ui/ui.lo \
+	x11/meta-x11-display.lo x11/meta-x11-errors.lo x11/events.lo \
+	x11/group-props.lo x11/group.lo x11/iconcache.lo \
+	x11/session.lo x11/window-props.lo x11/window-x11.lo \
+	x11/xprops.lo $(am__objects_1) $(am__objects_2) \
+	$(am__objects_3) $(am__objects_4)
 am__objects_5 = meta-dbus-idle-monitor.lo
 am__objects_6 = meta-dbus-display-config.lo
 am__objects_7 = meta-dbus-login1.lo
@@ -790,11 +811,12 @@ am__objects_7 = meta-dbus-login1.lo
 @HAVE_WAYLAND_TRUE@	xdg-output-unstable-v1-protocol.lo \
 @HAVE_WAYLAND_TRUE@	xwayland-keyboard-grab-unstable-v1-protocol.lo \
 @HAVE_WAYLAND_TRUE@	gtk-text-input-protocol.lo $(am__objects_1)
-am__objects_12 = $(am__objects_5) $(am__objects_6) $(am__objects_7) \
+@HAVE_WAYLAND_EGLSTREAM_TRUE@@HAVE_WAYLAND_TRUE@am__objects_12 = $(am__objects_1)
+am__objects_13 = $(am__objects_5) $(am__objects_6) $(am__objects_7) \
 	meta-enum-types.lo $(am__objects_1) $(am__objects_10) \
-	$(am__objects_11)
+	$(am__objects_11) $(am__objects_12)
 nodist_libmutter_@LIBMUTTER_API_VERSION@_la_OBJECTS =  \
-	$(am__objects_12)
+	$(am__objects_13)
 libmutter_@LIBMUTTER_API_VERSION@_la_OBJECTS =  \
 	$(am_libmutter_@LIBMUTTER_API_VERSION@_la_OBJECTS) \
 	$(nodist_libmutter_@LIBMUTTER_API_VERSION@_la_OBJECTS)
@@ -944,12 +966,14 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__dist_stacking_DATA_DIST = tests/stacking/basic-x11.metatest \
-	tests/stacking/basic-wayland.metatest \
-	tests/stacking/minimized.metatest \
-	tests/stacking/mixed-windows.metatest \
-	tests/stacking/set-parent.metatest \
-	tests/stacking/override-redirect.metatest
+am__dist_stacking_DATA_DIST =  \
+	$(srcdir)/tests/stacking/basic-x11.metatest \
+	$(srcdir)/tests/stacking/basic-wayland.metatest \
+	$(srcdir)/tests/stacking/minimized.metatest \
+	$(srcdir)/tests/stacking/mixed-windows.metatest \
+	$(srcdir)/tests/stacking/set-parent.metatest \
+	$(srcdir)/tests/stacking/set-parent-exported.metatest \
+	$(srcdir)/tests/stacking/override-redirect.metatest
 DATA = $(dist_stacking_DATA) $(gir_DATA) $(installedtests_DATA) \
 	$(pkgconfig_DATA) $(typelib_DATA)
 HEADERS = $(libmutterinclude_HEADERS) \
@@ -1128,6 +1152,9 @@ SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
 SYSTEMD_LIBS = @SYSTEMD_LIBS@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
+WAYLAND_EGLSTREAM_CFLAGS = @WAYLAND_EGLSTREAM_CFLAGS@
+WAYLAND_EGLSTREAM_DATADIR = @WAYLAND_EGLSTREAM_DATADIR@
+WAYLAND_EGLSTREAM_LIBS = @WAYLAND_EGLSTREAM_LIBS@
 WAYLAND_PROTOCOLS_CFLAGS = @WAYLAND_PROTOCOLS_CFLAGS@
 WAYLAND_PROTOCOLS_DATADIR = @WAYLAND_PROTOCOLS_DATADIR@
 WAYLAND_PROTOCOLS_LIBS = @WAYLAND_PROTOCOLS_LIBS@
@@ -1199,7 +1226,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libmutter-@LIBMUTTER_API_VERSION@.la
 SUBDIRS = compositor/plugins
-EXTRA_DIST = $(am__append_7) $(wayland_protocols) libmutter.pc.in \
+EXTRA_DIST = $(am__append_8) $(wayland_protocols) libmutter.pc.in \
 	meta-enum-types.h.in meta-enum-types.c.in \
 	org.freedesktop.login1.xml org.gnome.Mutter.DisplayConfig.xml \
 	org.gnome.Mutter.IdleMonitor.xml \
@@ -1247,7 +1274,8 @@ AM_CPPFLAGS = \
 mutter_built_sources = $(dbus_idle_built_sources) \
 	$(dbus_display_config_built_sources) \
 	$(dbus_login1_built_sources) meta/meta-enum-types.h \
-	meta-enum-types.c $(NULL) $(am__append_1) $(am__append_2)
+	meta-enum-types.c $(NULL) $(am__append_1) $(am__append_2) \
+	$(am__append_3)
 wayland_protocols = \
 	wayland/protocol/gtk-shell.xml		\
 	wayland/protocol/gtk-primary-selection.xml	\
@@ -1263,12 +1291,14 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =  \
 	backends/meta-cursor-tracker.c \
 	backends/meta-cursor-tracker-private.h \
 	backends/meta-cursor-renderer.c \
-	backends/meta-cursor-renderer.h backends/meta-dnd-private.h \
-	backends/meta-egl.c backends/meta-egl.h \
-	backends/meta-egl-ext.h backends/meta-gles3.c \
-	backends/meta-gles3.h backends/meta-gles3-table.h \
-	backends/meta-gpu.c backends/meta-gpu.h \
-	backends/meta-display-config-shared.h \
+	backends/meta-cursor-renderer.h \
+	backends/meta-cursor-sprite-xcursor.c \
+	backends/meta-cursor-sprite-xcursor.h \
+	backends/meta-dnd-private.h backends/meta-egl.c \
+	backends/meta-egl.h backends/meta-egl-ext.h \
+	backends/meta-gles3.c backends/meta-gles3.h \
+	backends/meta-gles3-table.h backends/meta-gpu.c \
+	backends/meta-gpu.h backends/meta-display-config-shared.h \
 	backends/meta-idle-monitor.c \
 	backends/meta-idle-monitor-private.h \
 	backends/meta-idle-monitor-dbus.c \
@@ -1310,6 +1340,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =  \
 	backends/x11/meta-gpu-xrandr.c backends/x11/meta-gpu-xrandr.h \
 	backends/x11/cm/meta-backend-x11-cm.c \
 	backends/x11/cm/meta-backend-x11-cm.h \
+	backends/x11/cm/meta-cursor-sprite-xfixes.c \
+	backends/x11/cm/meta-cursor-sprite-xfixes.h \
 	backends/x11/cm/meta-renderer-x11-cm.c \
 	backends/x11/cm/meta-renderer-x11-cm.h \
 	backends/x11/nested/meta-backend-x11-nested.c \
@@ -1379,12 +1411,14 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =  \
 	core/meta-inhibit-shortcuts-dialog-default-private.h \
 	core/delete.c core/display.c core/display-private.h \
 	meta/display.h core/edge-resistance.c core/edge-resistance.h \
-	core/events.c core/events.h core/errors.c meta/errors.h \
-	core/frame.c core/frame.h core/meta-gesture-tracker.c \
-	core/meta-gesture-tracker-private.h core/keybindings.c \
+	core/events.c core/events.h core/frame.c core/frame.h \
+	core/meta-gesture-tracker.c \
+	core/meta-gesture-tracker-private.h \
+	core/meta-workspace-manager.c \
+	core/meta-workspace-manager-private.h \
+	meta/meta-workspace-manager.h core/keybindings.c \
 	core/keybindings-private.h core/main-private.h core/main.c \
 	core/place.c core/place.h core/prefs.c meta/prefs.h \
-	core/screen.c core/screen-private.h meta/screen.h \
 	core/startup-notification.c \
 	core/startup-notification-private.h meta/types.h \
 	core/restart.c core/stack.c core/stack.h core/stack-tracker.c \
@@ -1393,13 +1427,16 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =  \
 	meta/window.h core/workspace.c core/workspace-private.h \
 	meta/common.h core/core.h ui/ui.h ui/frames.c ui/frames.h \
 	ui/theme.c meta/theme.h ui/theme-private.h ui/ui.c \
-	x11/atomnames.h x11/events.c x11/events.h x11/group-private.h \
-	x11/group-props.c x11/group-props.h x11/group.c meta/group.h \
-	x11/iconcache.c x11/iconcache.h x11/session.c x11/session.h \
-	x11/window-props.c x11/window-props.h x11/window-x11.c \
-	x11/window-x11.h x11/window-x11-private.h x11/xprops.c \
-	x11/xprops.h x11/mutter-Xatomtype.h $(NULL) $(am__append_3) \
-	$(am__append_4) $(am__append_5)
+	x11/atomnames.h x11/meta-x11-display.c \
+	x11/meta-x11-display-private.h meta/meta-x11-display.h \
+	x11/meta-x11-errors.c meta/meta-x11-errors.h x11/events.c \
+	x11/events.h x11/group-private.h x11/group-props.c \
+	x11/group-props.h x11/group.c meta/group.h x11/iconcache.c \
+	x11/iconcache.h x11/session.c x11/session.h x11/window-props.c \
+	x11/window-props.h x11/window-x11.c x11/window-x11.h \
+	x11/window-x11-private.h x11/xprops.c x11/xprops.h \
+	x11/mutter-Xatomtype.h $(NULL) $(am__append_4) $(am__append_5) \
+	$(am__append_6)
 nodist_libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES = $(mutter_built_sources)
 libmutter_@LIBMUTTER_API_VERSION@_la_LDFLAGS = \
 	-no-undefined -export-symbols-regex "^(meta|ag)_.*"
@@ -1420,7 +1457,6 @@ libmutterinclude_headers = \
 	meta/compositor-mutter.h		\
 	meta/compositor.h			\
 	meta/display.h				\
-	meta/errors.h				\
 	meta/group.h				\
 	meta/keybindings.h			\
 	meta/main.h				\
@@ -1443,8 +1479,10 @@ libmutterinclude_headers = \
 	meta/meta-window-actor.h		\
 	meta/meta-window-group.h		\
 	meta/meta-window-shape.h		\
+	meta/meta-workspace-manager.h		\
+	meta/meta-x11-display.h			\
+	meta/meta-x11-errors.h			\
 	meta/prefs.h				\
-	meta/screen.h				\
 	meta/theme.h				\
 	meta/types.h				\
 	meta/util.h				\
@@ -1481,12 +1519,13 @@ mutter_restart_helper_LDADD = $(MUTTER_LIBS)
 
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@stackingdir = $(pkgdatadir)/tests/stacking
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@dist_stacking_DATA = \
-@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	tests/stacking/basic-x11.metatest	\
-@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	tests/stacking/basic-wayland.metatest	\
-@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	tests/stacking/minimized.metatest   	\
-@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	tests/stacking/mixed-windows.metatest   \
-@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	tests/stacking/set-parent.metatest	\
-@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	tests/stacking/override-redirect.metatest
+@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/basic-x11.metatest 	\
+@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/basic-wayland.metatest	\
+@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/minimized.metatest 	\
+@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/mixed-windows.metatest     \
+@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/set-parent.metatest	\
+@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/set-parent-exported.metatest	\
+@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/override-redirect.metatest
 
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@installedtestsdir = $(datadir)/installed-tests/mutter
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@installedtests_DATA = mutter-all.test
@@ -1681,6 +1720,8 @@ backends/meta-cursor-tracker.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
 backends/meta-cursor-renderer.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
+backends/meta-cursor-sprite-xcursor.lo: backends/$(am__dirstamp) \
+	backends/$(DEPDIR)/$(am__dirstamp)
 backends/meta-egl.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
 backends/meta-gles3.lo: backends/$(am__dirstamp) \
@@ -1750,6 +1791,9 @@ backends/x11/cm/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) backends/x11/cm/$(DEPDIR)
 	@: > backends/x11/cm/$(DEPDIR)/$(am__dirstamp)
 backends/x11/cm/meta-backend-x11-cm.lo:  \
+	backends/x11/cm/$(am__dirstamp) \
+	backends/x11/cm/$(DEPDIR)/$(am__dirstamp)
+backends/x11/cm/meta-cursor-sprite-xfixes.lo:  \
 	backends/x11/cm/$(am__dirstamp) \
 	backends/x11/cm/$(DEPDIR)/$(am__dirstamp)
 backends/x11/cm/meta-renderer-x11-cm.lo:  \
@@ -1867,16 +1911,16 @@ core/display.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/edge-resistance.lo: core/$(am__dirstamp) \
 	core/$(DEPDIR)/$(am__dirstamp)
 core/events.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
-core/errors.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/frame.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/meta-gesture-tracker.lo: core/$(am__dirstamp) \
+	core/$(DEPDIR)/$(am__dirstamp)
+core/meta-workspace-manager.lo: core/$(am__dirstamp) \
 	core/$(DEPDIR)/$(am__dirstamp)
 core/keybindings.lo: core/$(am__dirstamp) \
 	core/$(DEPDIR)/$(am__dirstamp)
 core/main.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/place.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/prefs.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
-core/screen.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
 core/startup-notification.lo: core/$(am__dirstamp) \
 	core/$(DEPDIR)/$(am__dirstamp)
 core/restart.lo: core/$(am__dirstamp) core/$(DEPDIR)/$(am__dirstamp)
@@ -1901,6 +1945,10 @@ x11/$(am__dirstamp):
 x11/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) x11/$(DEPDIR)
 	@: > x11/$(DEPDIR)/$(am__dirstamp)
+x11/meta-x11-display.lo: x11/$(am__dirstamp) \
+	x11/$(DEPDIR)/$(am__dirstamp)
+x11/meta-x11-errors.lo: x11/$(am__dirstamp) \
+	x11/$(DEPDIR)/$(am__dirstamp)
 x11/events.lo: x11/$(am__dirstamp) x11/$(DEPDIR)/$(am__dirstamp)
 x11/group-props.lo: x11/$(am__dirstamp) x11/$(DEPDIR)/$(am__dirstamp)
 x11/group.lo: x11/$(am__dirstamp) x11/$(DEPDIR)/$(am__dirstamp)
@@ -1935,6 +1983,8 @@ wayland/$(am__dirstamp):
 wayland/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) wayland/$(DEPDIR)
 	@: > wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-cursor-sprite-wayland.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-xwayland.lo: wayland/$(am__dirstamp) \
@@ -1993,9 +2043,9 @@ wayland/meta-wayland-touch.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-surface.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
-wayland/meta-wayland-surface-role-cursor.lo: wayland/$(am__dirstamp) \
+wayland/meta-wayland-cursor-surface.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
-wayland/meta-wayland-surface-role-tablet-cursor.lo:  \
+wayland/meta-wayland-tablet-cursor-surface.lo:  \
 	wayland/$(am__dirstamp) wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-actor-surface.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
@@ -2343,6 +2393,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-barrier.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-crtc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-cursor-renderer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-cursor-sprite-xcursor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-cursor-tracker.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-cursor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-dbus-session-watcher.Plo@am__quote@
@@ -2400,6 +2451,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-renderer-x11.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/$(DEPDIR)/meta-stage-x11-nested.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/cm/$(DEPDIR)/meta-backend-x11-cm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/x11/cm/$(DEPDIR)/meta-cursor-sprite-xfixes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/cm/$(DEPDIR)/meta-renderer-x11-cm.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/nested/$(DEPDIR)/meta-backend-x11-nested.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/x11/nested/$(DEPDIR)/meta-cursor-renderer-x11-nested.Plo@am__quote@
@@ -2437,7 +2489,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/delete.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/display.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/edge-resistance.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/errors.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/events.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/frame.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/keybindings.Plo@am__quote@
@@ -2450,12 +2501,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/meta-gesture-tracker.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/meta-inhibit-shortcuts-dialog-default.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/meta-inhibit-shortcuts-dialog.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/meta-workspace-manager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/mutter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/place.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/prefs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/restart-helper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/restart.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/screen.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/stack-tracker.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/stack.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@core/$(DEPDIR)/startup-notification.Plo@am__quote@
@@ -2477,10 +2528,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@ui/$(DEPDIR)/frames.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ui/$(DEPDIR)/theme.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@ui/$(DEPDIR)/ui.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-cursor-sprite-wayland.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-pointer-confinement-wayland.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-pointer-lock-wayland.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-actor-surface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-buffer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-cursor-surface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-data-device.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-dma-buf.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-egl-stream.Plo@am__quote@
@@ -2501,9 +2554,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-seat.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-shell-surface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-subsurface.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-surface-role-cursor.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-surface-role-tablet-cursor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-surface.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-cursor-surface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-manager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-pad-group.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-pad-ring.Plo@am__quote@
@@ -2527,6 +2579,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/group-props.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/group.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/iconcache.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/meta-x11-display.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/meta-x11-errors.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/session.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/window-props.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@x11/$(DEPDIR)/window-x11.Plo@am__quote@
@@ -3065,6 +3119,9 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_stackingDATA \
 
 @HAVE_WAYLAND_TRUE@.PHONY: run-tests run-test-runner-tests run-unit-tests run-headless-start-test
 
+@HAVE_WAYLAND_TRUE@export G_TEST_SRCDIR = $(abs_srcdir)
+@HAVE_WAYLAND_TRUE@export G_TEST_BUILDDIR = $(abs_builddir)
+
 @HAVE_WAYLAND_TRUE@run-test-runner-tests: mutter-test-client mutter-test-runner
 @HAVE_WAYLAND_TRUE@	./mutter-test-runner $(dist_stacking_DATA)
 
@@ -3161,6 +3218,8 @@ endef
 %-protocol.c : $(srcdir)/wayland/protocol/%.xml
 	$(AM_V_GEN)$(WAYLAND_SCANNER) code $< $@
 %-server-protocol.h : $(srcdir)/wayland/protocol/%.xml
+	$(AM_V_GEN)$(WAYLAND_SCANNER) server-header $< $@
+%-server-protocol.h : $(WAYLAND_EGLSTREAM_DATADIR)/%.xml
 	$(AM_V_GEN)$(WAYLAND_SCANNER) server-header $< $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

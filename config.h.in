@@ -88,6 +88,9 @@
 /* Define if you want to enable Wayland support */
 #undef HAVE_WAYLAND
 
+/* Defined if Wayland EGLStream protocols are available */
+#undef HAVE_WAYLAND_EGLSTREAM
+
 /* Define to 1 if you have the <X11/SM/SMlib.h> header file. */
 #undef HAVE_X11_SM_SMLIB_H
 
