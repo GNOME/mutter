@@ -260,13 +260,8 @@ experimental_features_handler (GVariant *features_variant,
   g_variant_iter_init (&features_iter, features_variant);
   while (g_variant_iter_loop (&features_iter, "s", &feature))
     {
-      /* So far no experimental features defined. */
       if (g_str_equal (feature, "scale-monitor-framebuffer"))
         features |= META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER;
-      else if (g_str_equal (feature, "screen-cast"))
-        features |= META_EXPERIMENTAL_FEATURE_SCREEN_CAST;
-      else if (g_str_equal (feature, "remote-desktop"))
-        features |= META_EXPERIMENTAL_FEATURE_REMOTE_DESKTOP;
       else if (g_str_equal (feature, "kms-modifiers"))
         features |= META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
       else

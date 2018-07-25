@@ -34,8 +34,9 @@
 
 #include <meta/main.h>
 #include "util-private.h"
-#include <meta/errors.h>
+#include <meta/meta-x11-errors.h>
 #include "edid.h"
+#include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor.h"
@@ -346,28 +347,12 @@ meta_monitor_manager_lid_is_closed_changed (MetaMonitorManager *manager)
 }
 
 static void
-lid_is_closed_changed (UpClient   *client,
-                       GParamSpec *pspec,
-                       gpointer    user_data)
+lid_is_closed_changed (MetaBackend *backend,
+                       gboolean     lid_is_closed,
+                       gpointer     user_data)
 {
   MetaMonitorManager *manager = user_data;
-
   meta_monitor_manager_lid_is_closed_changed (manager);
-}
-
-static gboolean
-meta_monitor_manager_real_is_lid_closed (MetaMonitorManager *manager)
-{
-  if (!manager->up_client)
-    return FALSE;
-
-  return up_client_get_lid_is_closed (manager->up_client);
-}
-
-gboolean
-meta_monitor_manager_is_lid_closed (MetaMonitorManager *manager)
-{
-  return META_MONITOR_MANAGER_GET_CLASS (manager)->is_lid_closed (manager);
 }
 
 gboolean
@@ -719,8 +704,6 @@ static void
 meta_monitor_manager_constructed (GObject *object)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (object);
-  MetaMonitorManagerClass *manager_class =
-    META_MONITOR_MANAGER_GET_CLASS (manager);
   MetaBackend *backend = manager->backend;
   MetaSettings *settings = meta_backend_get_settings (backend);
 
@@ -730,19 +713,17 @@ meta_monitor_manager_constructed (GObject *object)
                       G_CALLBACK (experimental_features_changed),
                       manager);
 
-  if (manager_class->is_lid_closed == meta_monitor_manager_real_is_lid_closed)
-    {
-      manager->up_client = up_client_new ();
-      g_signal_connect_object (manager->up_client, "notify::lid-is-closed",
-                               G_CALLBACK (lid_is_closed_changed), manager, 0);
-    }
-
   g_signal_connect_object (manager, "notify::power-save-mode",
                            G_CALLBACK (power_save_mode_changed), manager, 0);
 
   g_signal_connect_object (meta_backend_get_orientation_manager (backend),
                            "orientation-changed",
                            G_CALLBACK (orientation_changed),
+                           manager, 0);
+
+  g_signal_connect_object (backend,
+                           "lid-is-closed-changed",
+                           G_CALLBACK (lid_is_closed_changed),
                            manager, 0);
 
   manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
@@ -776,7 +757,6 @@ meta_monitor_manager_dispose (GObject *object)
     }
 
   g_clear_object (&manager->config_manager);
-  g_clear_object (&manager->up_client);
 
   G_OBJECT_CLASS (meta_monitor_manager_parent_class)->dispose (object);
 }
@@ -844,7 +824,6 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
 
   klass->get_edid_file = meta_monitor_manager_real_get_edid_file;
   klass->read_edid = meta_monitor_manager_real_read_edid;
-  klass->is_lid_closed = meta_monitor_manager_real_is_lid_closed;
 
   signals[MONITORS_CHANGED_INTERNAL] =
     g_signal_new ("monitors-changed-internal",
@@ -1582,7 +1561,7 @@ meta_monitor_manager_is_config_applicable (MetaMonitorManager *manager,
             }
 
           if (meta_monitor_is_laptop_panel (monitor) &&
-              meta_monitor_manager_is_lid_closed (manager))
+              meta_backend_is_lid_closed (manager->backend))
             {
               g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                            "Refusing to activate a closed laptop panel");
@@ -2492,9 +2471,9 @@ meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
 }
 
 MetaLogicalMonitor *
-meta_monitor_manager_get_logical_monitor_neighbor (MetaMonitorManager *manager,
-                                                   MetaLogicalMonitor *logical_monitor,
-                                                   MetaScreenDirection direction)
+meta_monitor_manager_get_logical_monitor_neighbor (MetaMonitorManager  *manager,
+                                                   MetaLogicalMonitor  *logical_monitor,
+                                                   MetaDisplayDirection direction)
 {
   GList *l;
 
@@ -2984,7 +2963,7 @@ meta_monitor_manager_switch_config (MetaMonitorManager          *manager,
 gboolean
 meta_monitor_manager_can_switch_config (MetaMonitorManager *manager)
 {
-  return (!meta_monitor_manager_is_lid_closed (manager) &&
+  return (!meta_backend_is_lid_closed (manager->backend) &&
           g_list_length (manager->monitors) > 1);
 }
 

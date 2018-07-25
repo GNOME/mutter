@@ -46,6 +46,10 @@
 #include "meta-wayland-inhibit-shortcuts.h"
 #include "meta-wayland-inhibit-shortcuts-dialog.h"
 #include "meta-xwayland-grab-keyboard.h"
+#include "meta-xwayland.h"
+#include "meta-wayland-egl-stream.h"
+
+#include "main-private.h"
 
 static MetaWaylandCompositor _meta_wayland_compositor;
 static char *_display_name_override;
@@ -306,6 +310,8 @@ meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
 {
   memset (compositor, 0, sizeof (MetaWaylandCompositor));
   wl_list_init (&compositor->frame_callbacks);
+
+  compositor->scheduled_surface_associations = g_hash_table_new (NULL, NULL);
 }
 
 void
@@ -394,8 +400,13 @@ meta_wayland_init (void)
                                   meta_xwayland_global_filter,
                                   compositor);
 
-  if (!meta_xwayland_start (&compositor->xwayland_manager, compositor->wayland_display))
-    g_error ("Failed to start X Wayland");
+  meta_wayland_eglstream_controller_init (compositor);
+
+  if (meta_should_autostart_x11_display ())
+    {
+      if (!meta_xwayland_start (&compositor->xwayland_manager, compositor->wayland_display))
+        g_error ("Failed to start X Wayland");
+    }
 
   if (_display_name_override)
     {
@@ -416,7 +427,9 @@ meta_wayland_init (void)
       compositor->display_name = g_strdup (display_name);
     }
 
-  set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
+  if (meta_should_autostart_x11_display ())
+    set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
+
   set_gnome_env ("WAYLAND_DISPLAY", meta_wayland_get_wayland_display_name (compositor));
 }
 
@@ -481,4 +494,63 @@ void
 meta_wayland_compositor_flush_clients (MetaWaylandCompositor *compositor)
 {
   wl_display_flush_clients (compositor->wayland_display);
+}
+
+static void on_scheduled_association_unmanaged (MetaWindow *window,
+                                                gpointer    user_data);
+
+static void
+meta_wayland_compositor_remove_surface_association (MetaWaylandCompositor *compositor,
+                                                    int                    id)
+{
+  MetaWindow *window;
+
+  window = g_hash_table_lookup (compositor->scheduled_surface_associations,
+                                GINT_TO_POINTER (id));
+  if (window)
+    {
+      g_signal_handlers_disconnect_by_func (window,
+                                            on_scheduled_association_unmanaged,
+                                            GINT_TO_POINTER (id));
+      g_hash_table_remove (compositor->scheduled_surface_associations,
+                           GINT_TO_POINTER (id));
+    }
+}
+
+static void
+on_scheduled_association_unmanaged (MetaWindow *window,
+                                    gpointer    user_data)
+{
+  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+
+  meta_wayland_compositor_remove_surface_association (compositor,
+                                                      GPOINTER_TO_INT (user_data));
+}
+
+void
+meta_wayland_compositor_schedule_surface_association (MetaWaylandCompositor *compositor,
+                                                      int                    id,
+                                                      MetaWindow            *window)
+{
+  g_signal_connect (window, "unmanaged",
+                    G_CALLBACK (on_scheduled_association_unmanaged),
+                    GINT_TO_POINTER (id));
+  g_hash_table_insert (compositor->scheduled_surface_associations,
+                       GINT_TO_POINTER (id), window);
+}
+
+void
+meta_wayland_compositor_notify_surface_id (MetaWaylandCompositor *compositor,
+                                           int                    id,
+                                           MetaWaylandSurface    *surface)
+{
+  MetaWindow *window;
+
+  window = g_hash_table_lookup (compositor->scheduled_surface_associations,
+                                GINT_TO_POINTER (id));
+  if (window)
+    {
+      meta_xwayland_associate_window_with_surface (window, surface);
+      meta_wayland_compositor_remove_surface_association (compositor, id);
+    }
 }

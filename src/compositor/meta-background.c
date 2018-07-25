@@ -17,9 +17,11 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <meta/display.h>
 #include <meta/util.h>
 #include <meta/meta-background.h>
 #include <meta/meta-background-image.h>
+#include <meta/meta-monitor-manager.h>
 #include "meta-background-private.h"
 #include "cogl-utils.h"
 
@@ -44,7 +46,7 @@ struct _MetaBackgroundMonitor
 
 struct _MetaBackgroundPrivate
 {
-  MetaScreen *screen;
+  MetaDisplay *display;
   MetaBackgroundMonitor *monitors;
   int n_monitors;
 
@@ -68,7 +70,7 @@ struct _MetaBackgroundPrivate
 
 enum
 {
-  PROP_META_SCREEN = 1,
+  PROP_META_DISPLAY = 1,
   PROP_MONITOR,
 };
 
@@ -128,8 +130,7 @@ free_wallpaper_texture (MetaBackground *self)
 }
 
 static void
-on_monitors_changed (MetaScreen     *screen,
-                     MetaBackground *self)
+invalidate_monitor_backgrounds (MetaBackground *self)
 {
   MetaBackgroundPrivate *priv = self->priv;
 
@@ -138,11 +139,11 @@ on_monitors_changed (MetaScreen     *screen,
   priv->monitors = NULL;
   priv->n_monitors = 0;
 
-  if (priv->screen)
+  if (priv->display)
     {
       int i;
 
-      priv->n_monitors = meta_screen_get_n_monitors (screen);
+      priv->n_monitors = meta_display_get_n_monitors (priv->display);
       priv->monitors = g_new0 (MetaBackgroundMonitor, priv->n_monitors);
 
       for (i = 0; i < priv->n_monitors; i++)
@@ -151,27 +152,20 @@ on_monitors_changed (MetaScreen     *screen,
 }
 
 static void
-set_screen (MetaBackground *self,
-            MetaScreen     *screen)
+on_monitors_changed (MetaBackground *self)
+{
+  invalidate_monitor_backgrounds (self);
+}
+
+static void
+set_display (MetaBackground *self,
+             MetaDisplay    *display)
 {
   MetaBackgroundPrivate *priv = self->priv;
 
-  if (priv->screen != NULL)
-    {
-      g_signal_handlers_disconnect_by_func (priv->screen,
-                                            (gpointer)on_monitors_changed,
-                                            self);
-    }
+  g_set_object (&priv->display, display);
 
-  g_set_object (&priv->screen, screen);
-
-  if (priv->screen != NULL)
-    {
-      g_signal_connect (priv->screen, "monitors-changed",
-                        G_CALLBACK (on_monitors_changed), self);
-    }
-
-  on_monitors_changed (priv->screen, self);
+  invalidate_monitor_backgrounds (self);
 }
 
 static void
@@ -182,8 +176,8 @@ meta_background_set_property (GObject      *object,
 {
   switch (prop_id)
     {
-    case PROP_META_SCREEN:
-      set_screen (META_BACKGROUND (object), g_value_get_object (value));
+    case PROP_META_DISPLAY:
+      set_display (META_BACKGROUND (object), g_value_get_object (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -201,8 +195,8 @@ meta_background_get_property (GObject      *object,
 
   switch (prop_id)
     {
-    case PROP_META_SCREEN:
-      g_value_set_object (value, priv->screen);
+    case PROP_META_DISPLAY:
+      g_value_set_object (value, priv->display);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -304,7 +298,7 @@ meta_background_dispose (GObject *object)
   set_file (self, &priv->file1, &priv->background_image1, NULL);
   set_file (self, &priv->file2, &priv->background_image2, NULL);
 
-  set_screen (self, NULL);
+  set_display (self, NULL);
 
   G_OBJECT_CLASS (meta_background_parent_class)->dispose (object);
 }
@@ -322,11 +316,16 @@ meta_background_constructed (GObject *object)
 {
   MetaBackground        *self = META_BACKGROUND (object);
   MetaBackgroundPrivate *priv = self->priv;
+  MetaMonitorManager *monitor_manager = meta_monitor_manager_get ();
 
   G_OBJECT_CLASS (meta_background_parent_class)->constructed (object);
 
-  g_signal_connect_object (meta_screen_get_display (priv->screen), "gl-video-memory-purged",
+  g_signal_connect_object (priv->display, "gl-video-memory-purged",
                            G_CALLBACK (mark_changed), object, G_CONNECT_SWAPPED);
+
+  g_signal_connect_object (monitor_manager, "monitors-changed",
+                           G_CALLBACK (on_monitors_changed), self,
+                           G_CONNECT_SWAPPED);
 }
 
 static void
@@ -351,14 +350,14 @@ meta_background_class_init (MetaBackgroundClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
-  param_spec = g_param_spec_object ("meta-screen",
-                                    "MetaScreen",
-                                    "MetaScreen",
-                                    META_TYPE_SCREEN,
+  param_spec = g_param_spec_object ("meta-display",
+                                    "MetaDisplay",
+                                    "MetaDisplay",
+                                    META_TYPE_DISPLAY,
                                     G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_property (object_class,
-                                   PROP_META_SCREEN,
+                                   PROP_META_DISPLAY,
                                    param_spec);
 
 }
@@ -407,7 +406,7 @@ get_texture_area (MetaBackground          *self,
       set_texture_area_from_monitor_area (monitor_rect, texture_area);
       break;
     case G_DESKTOP_BACKGROUND_STYLE_WALLPAPER:
-      meta_screen_get_size (priv->screen, &screen_width, &screen_height);
+      meta_display_get_size (priv->display, &screen_width, &screen_height);
 
       /* Start off by centering a tile in the middle of the
        * total screen area.
@@ -476,7 +475,7 @@ get_texture_area (MetaBackground          *self,
         /* paint region is the union of all monitors, with the origin
          * of the region set to align with monitor associated with the background.
          */
-        meta_screen_get_size (priv->screen, &screen_width, &screen_height);
+        meta_display_get_size (priv->display, &screen_width, &screen_height);
 
         /* unclipped texture area is whole screen */
         image_area.width = screen_width;
@@ -750,7 +749,7 @@ meta_background_get_texture (MetaBackground         *self,
 
   monitor = &priv->monitors[monitor_index];
 
-  meta_screen_get_monitor_geometry (priv->screen, monitor_index, &geometry);
+  meta_display_get_monitor_geometry (priv->display, monitor_index, &geometry);
   monitor_area.x = geometry.x;
   monitor_area.y = geometry.y;
   monitor_area.width = geometry.width;
@@ -879,10 +878,10 @@ meta_background_get_texture (MetaBackground         *self,
 }
 
 MetaBackground *
-meta_background_new  (MetaScreen *screen)
+meta_background_new (MetaDisplay *display)
 {
   return g_object_new (META_TYPE_BACKGROUND,
-                       "meta-screen", screen,
+                       "meta-display", display,
                        NULL);
 }
 

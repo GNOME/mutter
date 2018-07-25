@@ -24,9 +24,10 @@
 #include <config.h>
 #include "frame.h"
 #include "bell.h"
-#include <meta/errors.h>
+#include <meta/meta-x11-errors.h>
 #include "keybindings-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "x11/meta-x11-display-private.h"
 
 #define EVENT_MASK (SubstructureRedirectMask |                     \
                     StructureNotifyMask | SubstructureNotifyMask | \
@@ -38,9 +39,12 @@ meta_window_ensure_frame (MetaWindow *window)
   MetaFrame *frame;
   XSetWindowAttributes attrs;
   gulong create_serial;
+  MetaX11Display *x11_display;
 
   if (window->frame)
     return;
+
+  x11_display = window->display->x11_display;
 
   frame = g_new (MetaFrame, 1);
 
@@ -61,8 +65,8 @@ meta_window_ensure_frame (MetaWindow *window)
                 frame->rect.x, frame->rect.y,
                 frame->rect.width, frame->rect.height);
 
-  frame->ui_frame = meta_ui_create_frame (window->screen->ui,
-                                          window->display->xdisplay,
+  frame->ui_frame = meta_ui_create_frame (x11_display->ui,
+                                          x11_display->xdisplay,
                                           frame->window,
                                           window->xvisual,
                                           frame->rect.x,
@@ -72,18 +76,18 @@ meta_window_ensure_frame (MetaWindow *window)
                                           &create_serial);
   frame->xwindow = frame->ui_frame->xwindow;
 
-  meta_stack_tracker_record_add (window->screen->stack_tracker,
+  meta_stack_tracker_record_add (window->display->stack_tracker,
                                  frame->xwindow,
                                  create_serial);
 
   meta_verbose ("Frame for %s is 0x%lx\n", frame->window->desc, frame->xwindow);
   attrs.event_mask = EVENT_MASK;
-  XChangeWindowAttributes (window->display->xdisplay,
+  XChangeWindowAttributes (x11_display->xdisplay,
 			   frame->xwindow, CWEventMask, &attrs);
 
-  meta_display_register_x_window (window->display, &frame->xwindow, window);
+  meta_x11_display_register_x_window (x11_display, &frame->xwindow, window);
 
-  meta_error_trap_push (window->display);
+  meta_x11_error_trap_push (x11_display);
   if (window->mapped)
     {
       window->mapped = FALSE; /* the reparent will unmap the window,
@@ -94,16 +98,16 @@ meta_window_ensure_frame (MetaWindow *window)
       window->unmaps_pending += 1;
     }
 
-  meta_stack_tracker_record_remove (window->screen->stack_tracker,
+  meta_stack_tracker_record_remove (window->display->stack_tracker,
                                     window->xwindow,
-                                    XNextRequest (window->display->xdisplay));
-  XReparentWindow (window->display->xdisplay,
+                                    XNextRequest (x11_display->xdisplay));
+  XReparentWindow (x11_display->xdisplay,
                    window->xwindow,
                    frame->xwindow,
                    frame->child_x,
                    frame->child_y);
   /* FIXME handle this error */
-  meta_error_trap_pop (window->display);
+  meta_x11_error_trap_pop (x11_display);
 
   /* stick frame to the window */
   window->frame = frame;
@@ -114,7 +118,7 @@ meta_window_ensure_frame (MetaWindow *window)
   meta_frame_update_style (frame);
   meta_frame_update_title (frame);
 
-  meta_ui_map_frame (frame->window->screen->ui, frame->xwindow);
+  meta_ui_map_frame (x11_display->ui, frame->xwindow);
 
   {
     MetaBackend *backend = meta_get_backend ();
@@ -125,7 +129,7 @@ meta_window_ensure_frame (MetaWindow *window)
         /* Since the backend selects for events on another connection,
          * make sure to sync the GTK+ connection to ensure that the
          * frame window has been created on the server at this point. */
-        XSync (window->display->xdisplay, False);
+        XSync (x11_display->xdisplay, False);
 
         unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
         XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
@@ -152,9 +156,12 @@ meta_window_destroy_frame (MetaWindow *window)
 {
   MetaFrame *frame;
   MetaFrameBorders borders;
+  MetaX11Display *x11_display;
 
   if (window->frame == NULL)
     return;
+
+  x11_display = window->display->x11_display;
 
   meta_verbose ("Unframing window %s\n", window->desc);
 
@@ -167,7 +174,7 @@ meta_window_destroy_frame (MetaWindow *window)
   /* Unparent the client window; it may be destroyed,
    * thus the error trap.
    */
-  meta_error_trap_push (window->display);
+  meta_x11_error_trap_push (x11_display);
   if (window->mapped)
     {
       window->mapped = FALSE; /* Keep track of unmapping it, so we
@@ -178,24 +185,23 @@ meta_window_destroy_frame (MetaWindow *window)
                   "Incrementing unmaps_pending on %s for reparent back to root\n", window->desc);
       window->unmaps_pending += 1;
     }
-  meta_stack_tracker_record_add (window->screen->stack_tracker,
+  meta_stack_tracker_record_add (window->display->stack_tracker,
                                  window->xwindow,
-                                 XNextRequest (window->display->xdisplay));
-  XReparentWindow (window->display->xdisplay,
+                                 XNextRequest (x11_display->xdisplay));
+  XReparentWindow (x11_display->xdisplay,
                    window->xwindow,
-                   window->screen->xroot,
+                   x11_display->xroot,
                    /* Using anything other than client root window coordinates
                     * coordinates here means we'll need to ensure a configure
                     * notify event is sent; see bug 399552.
                     */
                    window->frame->rect.x + borders.invisible.left,
                    window->frame->rect.y + borders.invisible.top);
-  meta_error_trap_pop (window->display);
+  meta_x11_error_trap_pop (x11_display);
 
   meta_ui_frame_unmanage (frame->ui_frame);
 
-  meta_display_unregister_x_window (window->display,
-                                    frame->xwindow);
+  meta_x11_display_unregister_x_window (x11_display, frame->xwindow);
 
   window->frame = NULL;
   if (window->frame_bounds)
@@ -369,18 +375,22 @@ void
 meta_frame_set_screen_cursor (MetaFrame	*frame,
 			      MetaCursor cursor)
 {
+  MetaX11Display *x11_display;
   Cursor xcursor;
   if (cursor == frame->current_cursor)
     return;
+
   frame->current_cursor = cursor;
+  x11_display = frame->window->display->x11_display;
+
   if (cursor == META_CURSOR_DEFAULT)
-    XUndefineCursor (frame->window->display->xdisplay, frame->xwindow);
+    XUndefineCursor (x11_display->xdisplay, frame->xwindow);
   else
     {
-      xcursor = meta_display_create_x_cursor (frame->window->display, cursor);
-      XDefineCursor (frame->window->display->xdisplay, frame->xwindow, xcursor);
-      XFlush (frame->window->display->xdisplay);
-      XFreeCursor (frame->window->display->xdisplay, xcursor);
+      xcursor = meta_x11_display_create_x_cursor (x11_display, cursor);
+      XDefineCursor (x11_display->xdisplay, frame->xwindow, xcursor);
+      XFlush (x11_display->xdisplay);
+      XFreeCursor (x11_display->xdisplay, xcursor);
     }
 }
 

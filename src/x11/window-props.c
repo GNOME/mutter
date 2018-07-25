@@ -40,7 +40,8 @@
 #include "window-props.h"
 #include "window-x11.h"
 #include "window-x11-private.h"
-#include <meta/errors.h>
+#include "x11/meta-x11-display-private.h"
+#include <meta/meta-x11-errors.h>
 #include "xprops.h"
 #include "frame.h"
 #include <meta/group.h>
@@ -48,6 +49,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "util-private.h"
+#include "meta-workspace-manager-private.h"
 
 #ifndef HOST_NAME_MAX
 /* Solaris headers apparently don't define this so do so manually; #326745 */
@@ -81,8 +83,8 @@ static void reload_prop_value          (MetaWindow          *window,
                                         MetaWindowPropHooks *hooks,
                                         MetaPropValue       *value,
                                         gboolean             initial);
-static MetaWindowPropHooks* find_hooks (MetaDisplay *display,
-                                        Atom         property);
+static MetaWindowPropHooks *find_hooks (MetaX11Display *x11_display,
+                                        Atom            property);
 
 
 void
@@ -94,7 +96,7 @@ meta_window_reload_property_from_xwindow (MetaWindow      *window,
   MetaPropValue value = { 0, };
   MetaWindowPropHooks *hooks;
 
-  hooks = find_hooks (window->display, property);
+  hooks = find_hooks (window->display->x11_display, property);
   if (!hooks)
     return;
 
@@ -103,7 +105,7 @@ meta_window_reload_property_from_xwindow (MetaWindow      *window,
 
   init_prop_value (window, hooks, &value);
 
-  meta_prop_get_values (window->display, xwindow,
+  meta_prop_get_values (window->display->x11_display, xwindow,
                         &value, 1);
 
   reload_prop_value (window, hooks, &value,
@@ -129,13 +131,14 @@ meta_window_load_initial_properties (MetaWindow *window)
   int i, j;
   MetaPropValue *values;
   int n_properties = 0;
+  MetaX11Display *x11_display = window->display->x11_display;
 
-  values = g_new0 (MetaPropValue, window->display->n_prop_hooks);
+  values = g_new0 (MetaPropValue, x11_display->n_prop_hooks);
 
   j = 0;
-  for (i = 0; i < window->display->n_prop_hooks; i++)
+  for (i = 0; i < x11_display->n_prop_hooks; i++)
     {
-      MetaWindowPropHooks *hooks = &window->display->prop_hooks_table[i];
+      MetaWindowPropHooks *hooks = &x11_display->prop_hooks_table[i];
       if (hooks->flags & LOAD_INIT)
         {
           init_prop_value (window, hooks, &values[j]);
@@ -144,13 +147,13 @@ meta_window_load_initial_properties (MetaWindow *window)
     }
   n_properties = j;
 
-  meta_prop_get_values (window->display, window->xwindow,
+  meta_prop_get_values (window->display->x11_display, window->xwindow,
                         values, n_properties);
 
   j = 0;
-  for (i = 0; i < window->display->n_prop_hooks; i++)
+  for (i = 0; i < x11_display->n_prop_hooks; i++)
     {
-      MetaWindowPropHooks *hooks = &window->display->prop_hooks_table[i];
+      MetaWindowPropHooks *hooks = &x11_display->prop_hooks_table[i];
       if (hooks->flags & LOAD_INIT)
         {
           /* If we didn't actually manage to load anything then we don't need
@@ -240,6 +243,7 @@ reload_net_wm_window_type (MetaWindow    *window,
                            MetaPropValue *value,
                            gboolean       initial)
 {
+  MetaX11Display *x11_display = window->display->x11_display;
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = window_x11->priv;
 
@@ -254,20 +258,20 @@ reload_net_wm_window_type (MetaWindow    *window,
           /* We break as soon as we find one we recognize,
            * supposed to prefer those near the front of the list
            */
-          if (atom == window->display->atom__NET_WM_WINDOW_TYPE_DESKTOP ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_DOCK ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_TOOLBAR ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_MENU ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_UTILITY ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_SPLASH ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_DIALOG ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_DROPDOWN_MENU ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_POPUP_MENU ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_TOOLTIP ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_NOTIFICATION ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_COMBO ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_DND ||
-              atom == window->display->atom__NET_WM_WINDOW_TYPE_NORMAL)
+          if (atom == x11_display->atom__NET_WM_WINDOW_TYPE_DESKTOP ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_DOCK ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_TOOLBAR ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_MENU ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_UTILITY ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_SPLASH ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_DIALOG ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_DROPDOWN_MENU ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_POPUP_MENU ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_TOOLTIP ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_NOTIFICATION ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_COMBO ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_DND ||
+              atom == x11_display->atom__NET_WM_WINDOW_TYPE_NORMAL)
             {
               priv->type_atom = atom;
               break;
@@ -286,7 +290,7 @@ reload_icon (MetaWindow    *window,
   MetaWindowX11Private *priv = window_x11->priv;
 
   meta_icon_cache_property_changed (&priv->icon_cache,
-                                    window->display,
+                                    window->display->x11_display,
                                     atom);
   meta_window_queue(window, META_QUEUE_UPDATE_ICON);
 }
@@ -296,7 +300,7 @@ reload_net_wm_icon (MetaWindow    *window,
                     MetaPropValue *value,
                     gboolean       initial)
 {
-  reload_icon (window, window->display->atom__NET_WM_ICON);
+  reload_icon (window, window->display->x11_display->atom__NET_WM_ICON);
 }
 
 static void
@@ -304,7 +308,7 @@ reload_kwm_win_icon (MetaWindow    *window,
                      MetaPropValue *value,
                      gboolean       initial)
 {
-  reload_icon (window, window->display->atom__KWM_WIN_ICON);
+  reload_icon (window, window->display->x11_display->atom__KWM_WIN_ICON);
 }
 
 static void
@@ -466,10 +470,10 @@ reload_net_wm_user_time_window (MetaWindow    *window,
       if (window->user_time_window != None)
         {
           /* See the comment to the meta_display_register_x_window call below. */
-          meta_display_unregister_x_window (window->display,
-                                            window->user_time_window);
+          meta_x11_display_unregister_x_window (window->display->x11_display,
+                                                window->user_time_window);
           /* Don't get events on not-managed windows */
-          XSelectInput (window->display->xdisplay,
+          XSelectInput (window->display->x11_display->xdisplay,
                         window->user_time_window,
                         NoEventMask);
         }
@@ -477,10 +481,12 @@ reload_net_wm_user_time_window (MetaWindow    *window,
       /* Ensure the new user time window is not used on another MetaWindow,
        * and unset its user time window if that is the case.
        */
-      prev_owner = meta_display_lookup_x_window (window->display, value->v.xwindow);
+      prev_owner = meta_x11_display_lookup_x_window (window->display->x11_display,
+                                                     value->v.xwindow);
       if (prev_owner && prev_owner->user_time_window == value->v.xwindow)
         {
-          meta_display_unregister_x_window (window->display, value->v.xwindow);
+          meta_x11_display_unregister_x_window (window->display->x11_display,
+                                               value->v.xwindow);
           prev_owner->user_time_window = None;
         }
 
@@ -500,11 +506,11 @@ reload_net_wm_user_time_window (MetaWindow    *window,
            * than atom__NET_WM_USER_TIME ones, but I just don't care
            * and it's not specified in the spec anyway.
            */
-          meta_display_register_x_window (window->display,
-                                          &window->user_time_window,
-                                          window);
+          meta_x11_display_register_x_window (window->display->x11_display,
+                                              &window->user_time_window,
+                                              window);
           /* Just listen for property notify events */
-          XSelectInput (window->display->xdisplay,
+          XSelectInput (window->display->x11_display->xdisplay,
                         window->user_time_window,
                         PropertyChangeMask);
 
@@ -515,7 +521,7 @@ reload_net_wm_user_time_window (MetaWindow    *window,
           meta_window_reload_property_from_xwindow (
             window,
             window->user_time_window,
-            window->display->atom__NET_WM_USER_TIME,
+            window->display->x11_display->atom__NET_WM_USER_TIME,
             initial);
         }
     }
@@ -564,18 +570,18 @@ set_title_text (MetaWindow  *window,
     *target = g_strdup (title);
 
   if (modified && atom != None)
-    meta_prop_set_utf8_string_hint (window->display,
+    meta_prop_set_utf8_string_hint (window->display->x11_display,
                                     window->xwindow,
                                     atom, *target);
 
   /* Bug 330671 -- Don't forget to clear _NET_WM_VISIBLE_(ICON_)NAME */
   if (!modified && previous_was_modified)
     {
-      meta_error_trap_push (window->display);
-      XDeleteProperty (window->display->xdisplay,
+      meta_x11_error_trap_push (window->display->x11_display);
+      XDeleteProperty (window->display->x11_display->xdisplay,
                        window->xwindow,
                        atom);
-      meta_error_trap_pop (window->display);
+      meta_x11_error_trap_pop (window->display->x11_display);
     }
 
   return modified;
@@ -594,7 +600,7 @@ set_window_title (MetaWindow *window,
     set_title_text (window,
                     priv->using_net_wm_visible_name,
                     title,
-                    window->display->atom__NET_WM_VISIBLE_NAME,
+                    window->display->x11_display->atom__NET_WM_VISIBLE_NAME,
                     &new_title);
   priv->using_net_wm_visible_name = modified;
 
@@ -775,6 +781,7 @@ reload_net_wm_state (MetaWindow    *window,
                      MetaPropValue *value,
                      gboolean       initial)
 {
+  MetaX11Display *x11_display = window->display->x11_display;
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = window_x11->priv;
 
@@ -808,32 +815,32 @@ reload_net_wm_state (MetaWindow    *window,
   i = 0;
   while (i < value->v.atom_list.n_atoms)
     {
-      if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_SHADED)
+      if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_SHADED)
         window->shaded = TRUE;
-      else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_MAXIMIZED_HORZ)
+      else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_MAXIMIZED_HORZ)
         window->maximize_horizontally_after_placement = TRUE;
-      else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_MAXIMIZED_VERT)
+      else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_MAXIMIZED_VERT)
         window->maximize_vertically_after_placement = TRUE;
-      else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_HIDDEN)
+      else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_HIDDEN)
         window->minimize_after_placement = TRUE;
-      else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_MODAL)
+      else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_MODAL)
         priv->wm_state_modal = TRUE;
-      else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_SKIP_TASKBAR)
+      else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_SKIP_TASKBAR)
         priv->wm_state_skip_taskbar = TRUE;
-      else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_SKIP_PAGER)
+      else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_SKIP_PAGER)
         priv->wm_state_skip_pager = TRUE;
-      else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_FULLSCREEN)
+      else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_FULLSCREEN)
         {
           window->fullscreen = TRUE;
           g_object_notify (G_OBJECT (window), "fullscreen");
         }
-      else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_ABOVE)
+      else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_ABOVE)
         window->wm_state_above = TRUE;
-      else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_BELOW)
+      else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_BELOW)
         window->wm_state_below = TRUE;
-      else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_DEMANDS_ATTENTION)
+      else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_DEMANDS_ATTENTION)
         window->wm_state_demands_attention = TRUE;
-      else if (value->v.atom_list.atoms[i] == window->display->atom__NET_WM_STATE_STICKY)
+      else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_STICKY)
         window->on_all_workspaces_requested = TRUE;
 
       ++i;
@@ -1021,6 +1028,7 @@ reload_net_startup_id (MetaWindow    *window,
                        MetaPropValue *value,
                        gboolean       initial)
 {
+  MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
   guint32 timestamp = window->net_wm_user_time;
   MetaWorkspace *workspace = NULL;
 
@@ -1037,13 +1045,14 @@ reload_net_startup_id (MetaWindow    *window,
     window->initial_timestamp_set = 0;
     window->initial_workspace_set = 0;
 
-    if (meta_screen_apply_startup_properties (window->screen, window))
+    if (meta_display_apply_startup_properties (window->display, window))
       {
 
         if (window->initial_timestamp_set)
           timestamp = window->initial_timestamp;
         if (window->initial_workspace_set)
-          workspace = meta_screen_get_workspace_by_index (window->screen, window->initial_workspace);
+          workspace = meta_workspace_manager_get_workspace_by_index (workspace_manager,
+                                                                     window->initial_workspace);
 
         meta_window_activate_with_workspace (window, timestamp, workspace);
       }
@@ -1533,13 +1542,13 @@ reload_wm_protocols (MetaWindow    *window,
   while (i < value->v.atom_list.n_atoms)
     {
       if (value->v.atom_list.atoms[i] ==
-          window->display->atom_WM_TAKE_FOCUS)
+          window->display->x11_display->atom_WM_TAKE_FOCUS)
         window->take_focus = TRUE;
       else if (value->v.atom_list.atoms[i] ==
-               window->display->atom_WM_DELETE_WINDOW)
+               window->display->x11_display->atom_WM_DELETE_WINDOW)
         window->delete_window = TRUE;
       else if (value->v.atom_list.atoms[i] ==
-               window->display->atom__NET_WM_PING)
+               window->display->x11_display->atom__NET_WM_PING)
         window->can_ping = TRUE;
       ++i;
     }
@@ -1609,7 +1618,7 @@ reload_wm_hints (MetaWindow    *window,
   meta_window_set_urgent (window, urgent);
 
   meta_icon_cache_property_changed (&priv->icon_cache,
-                                    window->display,
+                                    window->display->x11_display,
                                     XA_WM_HINTS);
 
   meta_window_queue (window, META_QUEUE_UPDATE_ICON | META_QUEUE_MOVE_RESIZE);
@@ -1627,7 +1636,8 @@ reload_transient_for (MetaWindow    *window,
     {
       transient_for = value->v.xwindow;
 
-      parent = meta_display_lookup_x_window (window->display, transient_for);
+      parent = meta_x11_display_lookup_x_window (window->display->x11_display,
+                                                 transient_for);
       if (!parent)
         {
           meta_warning ("Invalid WM_TRANSIENT_FOR window 0x%lx specified for %s.\n",
@@ -1646,8 +1656,8 @@ reload_transient_for (MetaWindow    *window,
               break;
             }
 
-          parent = meta_display_lookup_x_window (parent->display,
-                                                 parent->xtransient_for);
+          parent = meta_x11_display_lookup_x_window (parent->display->x11_display,
+                                                     parent->xtransient_for);
         }
     }
   else
@@ -1663,12 +1673,13 @@ reload_transient_for (MetaWindow    *window,
   else
     meta_verbose ("Window %s is not transient\n", window->desc);
 
-  if (window->xtransient_for == None || window->xtransient_for == window->screen->xroot)
+  if (window->xtransient_for == None ||
+      window->xtransient_for == window->display->x11_display->xroot)
     meta_window_set_transient_for (window, NULL);
   else
     {
-      parent = meta_display_lookup_x_window (window->display,
-                                             window->xtransient_for);
+      parent = meta_x11_display_lookup_x_window (window->display->x11_display,
+                                                 window->xtransient_for);
       meta_window_set_transient_for (window, parent);
     }
 }
@@ -1792,8 +1803,8 @@ RELOAD_STRING (gtk_menubar_object_path,     "gtk-menubar-object-path")
 #undef RELOAD_STRING
 
 /**
- * meta_display_init_window_prop_hooks:
- * @display: The #MetaDisplay
+ * meta_x11_display_init_window_prop_hooks:
+ * @x11_display: The #MetaDX11isplay
  *
  * Initialises the property hooks system.  Each row in the table named "hooks"
  * represents an action to take when a property is found on a newly-created
@@ -1809,7 +1820,7 @@ RELOAD_STRING (gtk_menubar_object_path,     "gtk-menubar-object-path")
  * This value may be NULL, in which case no callback will be called.
  */
 void
-meta_display_init_window_prop_hooks (MetaDisplay *display)
+meta_x11_display_init_window_prop_hooks (MetaX11Display *x11_display)
 {
   /* The ordering here is significant for the properties we load
    * initially: they are roughly ordered in the order we want them to
@@ -1825,54 +1836,54 @@ meta_display_init_window_prop_hooks (MetaDisplay *display)
    *    for different types of override-redirect windows.
    */
   MetaWindowPropHooks hooks[] = {
-    { display->atom_WM_CLIENT_MACHINE, META_PROP_VALUE_STRING,   reload_wm_client_machine, LOAD_INIT | INCLUDE_OR },
-    { display->atom__NET_WM_NAME,      META_PROP_VALUE_UTF8,     reload_net_wm_name,       LOAD_INIT | INCLUDE_OR },
-    { XA_WM_CLASS,                     META_PROP_VALUE_CLASS_HINT, reload_wm_class,        LOAD_INIT | INCLUDE_OR },
-    { display->atom__NET_WM_PID,       META_PROP_VALUE_CARDINAL, reload_net_wm_pid,        LOAD_INIT | INCLUDE_OR },
-    { XA_WM_NAME,                      META_PROP_VALUE_TEXT_PROPERTY, reload_wm_name,      LOAD_INIT | INCLUDE_OR },
-    { display->atom__MUTTER_HINTS,     META_PROP_VALUE_TEXT_PROPERTY, reload_mutter_hints, LOAD_INIT | INCLUDE_OR },
-    { display->atom__NET_WM_OPAQUE_REGION, META_PROP_VALUE_CARDINAL_LIST, reload_opaque_region, LOAD_INIT | INCLUDE_OR },
-    { display->atom__NET_WM_DESKTOP,   META_PROP_VALUE_CARDINAL, reload_net_wm_desktop,    LOAD_INIT | INIT_ONLY },
-    { display->atom__NET_STARTUP_ID,   META_PROP_VALUE_UTF8,     reload_net_startup_id,    LOAD_INIT },
-    { display->atom__NET_WM_SYNC_REQUEST_COUNTER, META_PROP_VALUE_SYNC_COUNTER_LIST, reload_update_counter, LOAD_INIT | INCLUDE_OR },
-    { XA_WM_NORMAL_HINTS,              META_PROP_VALUE_SIZE_HINTS, reload_normal_hints,    LOAD_INIT },
-    { display->atom_WM_PROTOCOLS,      META_PROP_VALUE_ATOM_LIST, reload_wm_protocols,     LOAD_INIT },
-    { XA_WM_HINTS,                     META_PROP_VALUE_WM_HINTS,  reload_wm_hints,         LOAD_INIT },
-    { display->atom__NET_WM_USER_TIME, META_PROP_VALUE_CARDINAL, reload_net_wm_user_time,  LOAD_INIT },
-    { display->atom__NET_WM_STATE,     META_PROP_VALUE_ATOM_LIST, reload_net_wm_state,     LOAD_INIT | INIT_ONLY },
-    { display->atom__MOTIF_WM_HINTS,   META_PROP_VALUE_MOTIF_HINTS, reload_mwm_hints,      LOAD_INIT },
-    { XA_WM_TRANSIENT_FOR,             META_PROP_VALUE_WINDOW,    reload_transient_for,    LOAD_INIT },
-    { display->atom__GTK_THEME_VARIANT, META_PROP_VALUE_UTF8,     reload_gtk_theme_variant, LOAD_INIT },
-    { display->atom__GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED, META_PROP_VALUE_CARDINAL,     reload_gtk_hide_titlebar_when_maximized, LOAD_INIT },
-    { display->atom__GTK_APPLICATION_ID,               META_PROP_VALUE_UTF8,         reload_gtk_application_id,               LOAD_INIT },
-    { display->atom__GTK_UNIQUE_BUS_NAME,              META_PROP_VALUE_UTF8,         reload_gtk_unique_bus_name,              LOAD_INIT },
-    { display->atom__GTK_APPLICATION_OBJECT_PATH,      META_PROP_VALUE_UTF8,         reload_gtk_application_object_path,      LOAD_INIT },
-    { display->atom__GTK_WINDOW_OBJECT_PATH,           META_PROP_VALUE_UTF8,         reload_gtk_window_object_path,           LOAD_INIT },
-    { display->atom__GTK_APP_MENU_OBJECT_PATH,         META_PROP_VALUE_UTF8,         reload_gtk_app_menu_object_path,         LOAD_INIT },
-    { display->atom__GTK_MENUBAR_OBJECT_PATH,          META_PROP_VALUE_UTF8,         reload_gtk_menubar_object_path,          LOAD_INIT },
-    { display->atom__GTK_FRAME_EXTENTS,                META_PROP_VALUE_CARDINAL_LIST,reload_gtk_frame_extents,                LOAD_INIT },
-    { display->atom__NET_WM_USER_TIME_WINDOW, META_PROP_VALUE_WINDOW, reload_net_wm_user_time_window, LOAD_INIT },
-    { display->atom__NET_WM_ICON,      META_PROP_VALUE_INVALID,  reload_net_wm_icon,  NONE },
-    { display->atom__KWM_WIN_ICON,     META_PROP_VALUE_INVALID,  reload_kwm_win_icon, NONE },
-    { display->atom__NET_WM_ICON_GEOMETRY, META_PROP_VALUE_CARDINAL_LIST, reload_icon_geometry, LOAD_INIT },
-    { display->atom_WM_CLIENT_LEADER,  META_PROP_VALUE_INVALID, complain_about_broken_client, NONE },
-    { display->atom_SM_CLIENT_ID,      META_PROP_VALUE_INVALID, complain_about_broken_client, NONE },
-    { display->atom_WM_WINDOW_ROLE,    META_PROP_VALUE_STRING, reload_wm_window_role, LOAD_INIT | FORCE_INIT },
-    { display->atom__NET_WM_WINDOW_TYPE, META_PROP_VALUE_ATOM_LIST, reload_net_wm_window_type, LOAD_INIT | INCLUDE_OR | FORCE_INIT },
-    { display->atom__NET_WM_STRUT,         META_PROP_VALUE_INVALID, reload_struts, NONE },
-    { display->atom__NET_WM_STRUT_PARTIAL, META_PROP_VALUE_INVALID, reload_struts, NONE },
-    { display->atom__NET_WM_BYPASS_COMPOSITOR, META_PROP_VALUE_CARDINAL,  reload_bypass_compositor, LOAD_INIT | INCLUDE_OR },
-    { display->atom__NET_WM_WINDOW_OPACITY, META_PROP_VALUE_CARDINAL, reload_window_opacity, LOAD_INIT | INCLUDE_OR },
+    { x11_display->atom_WM_CLIENT_MACHINE, META_PROP_VALUE_STRING,   reload_wm_client_machine, LOAD_INIT | INCLUDE_OR },
+    { x11_display->atom__NET_WM_NAME,      META_PROP_VALUE_UTF8,     reload_net_wm_name,       LOAD_INIT | INCLUDE_OR },
+    { XA_WM_CLASS,                         META_PROP_VALUE_CLASS_HINT, reload_wm_class,        LOAD_INIT | INCLUDE_OR },
+    { x11_display->atom__NET_WM_PID,       META_PROP_VALUE_CARDINAL, reload_net_wm_pid,        LOAD_INIT | INCLUDE_OR },
+    { XA_WM_NAME,                          META_PROP_VALUE_TEXT_PROPERTY, reload_wm_name,      LOAD_INIT | INCLUDE_OR },
+    { x11_display->atom__MUTTER_HINTS,     META_PROP_VALUE_TEXT_PROPERTY, reload_mutter_hints, LOAD_INIT | INCLUDE_OR },
+    { x11_display->atom__NET_WM_OPAQUE_REGION, META_PROP_VALUE_CARDINAL_LIST, reload_opaque_region, LOAD_INIT | INCLUDE_OR },
+    { x11_display->atom__NET_WM_DESKTOP,   META_PROP_VALUE_CARDINAL, reload_net_wm_desktop,    LOAD_INIT | INIT_ONLY },
+    { x11_display->atom__NET_STARTUP_ID,   META_PROP_VALUE_UTF8,     reload_net_startup_id,    LOAD_INIT },
+    { x11_display->atom__NET_WM_SYNC_REQUEST_COUNTER, META_PROP_VALUE_SYNC_COUNTER_LIST, reload_update_counter, LOAD_INIT | INCLUDE_OR },
+    { XA_WM_NORMAL_HINTS,                  META_PROP_VALUE_SIZE_HINTS, reload_normal_hints,    LOAD_INIT },
+    { x11_display->atom_WM_PROTOCOLS,      META_PROP_VALUE_ATOM_LIST, reload_wm_protocols,     LOAD_INIT },
+    { XA_WM_HINTS,                         META_PROP_VALUE_WM_HINTS,  reload_wm_hints,         LOAD_INIT },
+    { x11_display->atom__NET_WM_USER_TIME, META_PROP_VALUE_CARDINAL, reload_net_wm_user_time,  LOAD_INIT },
+    { x11_display->atom__NET_WM_STATE,     META_PROP_VALUE_ATOM_LIST, reload_net_wm_state,     LOAD_INIT | INIT_ONLY },
+    { x11_display->atom__MOTIF_WM_HINTS,   META_PROP_VALUE_MOTIF_HINTS, reload_mwm_hints,      LOAD_INIT },
+    { XA_WM_TRANSIENT_FOR,                 META_PROP_VALUE_WINDOW,    reload_transient_for,    LOAD_INIT },
+    { x11_display->atom__GTK_THEME_VARIANT, META_PROP_VALUE_UTF8,     reload_gtk_theme_variant, LOAD_INIT },
+    { x11_display->atom__GTK_HIDE_TITLEBAR_WHEN_MAXIMIZED, META_PROP_VALUE_CARDINAL,     reload_gtk_hide_titlebar_when_maximized, LOAD_INIT },
+    { x11_display->atom__GTK_APPLICATION_ID,               META_PROP_VALUE_UTF8,         reload_gtk_application_id,               LOAD_INIT },
+    { x11_display->atom__GTK_UNIQUE_BUS_NAME,              META_PROP_VALUE_UTF8,         reload_gtk_unique_bus_name,              LOAD_INIT },
+    { x11_display->atom__GTK_APPLICATION_OBJECT_PATH,      META_PROP_VALUE_UTF8,         reload_gtk_application_object_path,      LOAD_INIT },
+    { x11_display->atom__GTK_WINDOW_OBJECT_PATH,           META_PROP_VALUE_UTF8,         reload_gtk_window_object_path,           LOAD_INIT },
+    { x11_display->atom__GTK_APP_MENU_OBJECT_PATH,         META_PROP_VALUE_UTF8,         reload_gtk_app_menu_object_path,         LOAD_INIT },
+    { x11_display->atom__GTK_MENUBAR_OBJECT_PATH,          META_PROP_VALUE_UTF8,         reload_gtk_menubar_object_path,          LOAD_INIT },
+    { x11_display->atom__GTK_FRAME_EXTENTS,                META_PROP_VALUE_CARDINAL_LIST,reload_gtk_frame_extents,                LOAD_INIT },
+    { x11_display->atom__NET_WM_USER_TIME_WINDOW, META_PROP_VALUE_WINDOW, reload_net_wm_user_time_window, LOAD_INIT },
+    { x11_display->atom__NET_WM_ICON,      META_PROP_VALUE_INVALID,  reload_net_wm_icon,  NONE },
+    { x11_display->atom__KWM_WIN_ICON,     META_PROP_VALUE_INVALID,  reload_kwm_win_icon, NONE },
+    { x11_display->atom__NET_WM_ICON_GEOMETRY, META_PROP_VALUE_CARDINAL_LIST, reload_icon_geometry, LOAD_INIT },
+    { x11_display->atom_WM_CLIENT_LEADER,  META_PROP_VALUE_INVALID, complain_about_broken_client, NONE },
+    { x11_display->atom_SM_CLIENT_ID,      META_PROP_VALUE_INVALID, complain_about_broken_client, NONE },
+    { x11_display->atom_WM_WINDOW_ROLE,    META_PROP_VALUE_STRING, reload_wm_window_role, LOAD_INIT | FORCE_INIT },
+    { x11_display->atom__NET_WM_WINDOW_TYPE, META_PROP_VALUE_ATOM_LIST, reload_net_wm_window_type, LOAD_INIT | INCLUDE_OR | FORCE_INIT },
+    { x11_display->atom__NET_WM_STRUT,         META_PROP_VALUE_INVALID, reload_struts, NONE },
+    { x11_display->atom__NET_WM_STRUT_PARTIAL, META_PROP_VALUE_INVALID, reload_struts, NONE },
+    { x11_display->atom__NET_WM_BYPASS_COMPOSITOR, META_PROP_VALUE_CARDINAL,  reload_bypass_compositor, LOAD_INIT | INCLUDE_OR },
+    { x11_display->atom__NET_WM_WINDOW_OPACITY, META_PROP_VALUE_CARDINAL, reload_window_opacity, LOAD_INIT | INCLUDE_OR },
     { 0 },
   };
 
   MetaWindowPropHooks *table = g_memdup (hooks, sizeof (hooks)),
     *cursor = table;
 
-  g_assert (display->prop_hooks == NULL);
+  g_assert (x11_display->prop_hooks == NULL);
 
-  display->prop_hooks_table = (gpointer) table;
-  display->prop_hooks = g_hash_table_new (NULL, NULL);
+  x11_display->prop_hooks_table = (gpointer) table;
+  x11_display->prop_hooks = g_hash_table_new (NULL, NULL);
 
   while (cursor->property)
     {
@@ -1886,28 +1897,28 @@ meta_display_init_window_prop_hooks (MetaDisplay *display)
        * anything 32 bits or less, and atoms are 32 bits with the top three
        * bits clear.  (Scheifler & Gettys, 2e, p372)
        */
-      g_hash_table_insert (display->prop_hooks,
+      g_hash_table_insert (x11_display->prop_hooks,
                            GINT_TO_POINTER (cursor->property),
                            cursor);
       cursor++;
     }
-  display->n_prop_hooks = cursor - table;
+  x11_display->n_prop_hooks = cursor - table;
 }
 
 void
-meta_display_free_window_prop_hooks (MetaDisplay *display)
+meta_x11_display_free_window_prop_hooks (MetaX11Display *x11_display)
 {
-  g_hash_table_unref (display->prop_hooks);
-  display->prop_hooks = NULL;
+  g_hash_table_unref (x11_display->prop_hooks);
+  x11_display->prop_hooks = NULL;
 
-  g_free (display->prop_hooks_table);
-  display->prop_hooks_table = NULL;
+  g_free (x11_display->prop_hooks_table);
+  x11_display->prop_hooks_table = NULL;
 }
 
-static MetaWindowPropHooks*
-find_hooks (MetaDisplay *display,
-            Atom         property)
+static MetaWindowPropHooks *
+find_hooks (MetaX11Display *x11_display,
+            Atom            property)
 {
-  return g_hash_table_lookup (display->prop_hooks,
+  return g_hash_table_lookup (x11_display->prop_hooks,
                               GINT_TO_POINTER (property));
 }

@@ -840,6 +840,7 @@ struct _ClutterActorPrivate
   guint needs_compute_expand        : 1;
   guint needs_x_expand              : 1;
   guint needs_y_expand              : 1;
+  guint needs_paint_volume_update   : 1;
 };
 
 enum
@@ -1503,6 +1504,8 @@ clutter_actor_real_map (ClutterActor *self)
                 _clutter_actor_get_debug_name (self));
 
   CLUTTER_ACTOR_SET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
+
+  self->priv->needs_paint_volume_update = TRUE;
 
   stage = _clutter_actor_get_stage_internal (self);
   priv->pick_id = _clutter_stage_acquire_pick_id (CLUTTER_STAGE (stage), self);
@@ -2737,6 +2740,7 @@ clutter_actor_real_queue_relayout (ClutterActor *self)
   priv->needs_width_request  = TRUE;
   priv->needs_height_request = TRUE;
   priv->needs_allocation     = TRUE;
+  priv->needs_paint_volume_update = TRUE;
 
   /* reset the cached size requests */
   memset (priv->width_requests, 0,
@@ -2821,7 +2825,7 @@ _clutter_actor_fully_transform_vertices (ClutterActor *self,
   /* Note: we pass NULL as the ancestor because we don't just want the modelview
    * that gets us to stage coordinates, we want to go all the way to eye
    * coordinates */
-  _clutter_actor_apply_relative_transformation_matrix (self, NULL, &modelview);
+  _clutter_actor_get_relative_transformation_matrix (self, NULL, &modelview);
 
   /* Fetch the projection and viewport */
   _clutter_stage_get_projection_matrix (CLUTTER_STAGE (stage), &projection);
@@ -8518,6 +8522,7 @@ clutter_actor_init (ClutterActor *self)
   priv->needs_width_request = TRUE;
   priv->needs_height_request = TRUE;
   priv->needs_allocation = TRUE;
+  priv->needs_paint_volume_update = TRUE;
 
   priv->cached_width_age = 1;
   priv->cached_height_age = 1;
@@ -10083,6 +10088,9 @@ clutter_actor_allocate (ClutterActor           *self,
       CLUTTER_NOTE (LAYOUT, "No allocation needed");
       return;
     }
+
+  if (CLUTTER_ACTOR_IS_MAPPED (self))
+    self->priv->needs_paint_volume_update = TRUE;
 
   if (!stage_allocation_changed)
     {
@@ -12971,6 +12979,9 @@ clutter_actor_add_child_internal (ClutterActor              *self,
       child->priv->needs_width_request = TRUE;
       child->priv->needs_height_request = TRUE;
       child->priv->needs_allocation = TRUE;
+
+      if (CLUTTER_ACTOR_IS_MAPPED (child))
+        child->priv->needs_paint_volume_update = TRUE;
 
       /* we only queue a relayout here, because any possible
        * redraw has already been queued either by show() or
@@ -17514,11 +17525,16 @@ _clutter_actor_get_paint_volume_mutable (ClutterActor *self)
   priv = self->priv;
 
   if (priv->paint_volume_valid)
-    clutter_paint_volume_free (&priv->paint_volume);
+    {
+      if (!priv->needs_paint_volume_update)
+        return &priv->paint_volume;
+      clutter_paint_volume_free (&priv->paint_volume);
+    }
 
   if (_clutter_actor_get_paint_volume_real (self, &priv->paint_volume))
     {
       priv->paint_volume_valid = TRUE;
+      priv->needs_paint_volume_update = FALSE;
       return &priv->paint_volume;
     }
   else

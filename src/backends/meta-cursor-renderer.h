@@ -26,12 +26,7 @@
 #define META_CURSOR_RENDERER_H
 
 #include <glib-object.h>
-#include <X11/Xcursor/Xcursor.h>
-#ifdef HAVE_WAYLAND
-#include <wayland-server.h>
-#endif
 
-#include <meta/screen.h>
 #include "meta-cursor.h"
 
 #define META_TYPE_CURSOR_RENDERER (meta_cursor_renderer_get_type ())
@@ -44,14 +39,6 @@ struct _MetaCursorRendererClass
 
   gboolean (* update_cursor) (MetaCursorRenderer *renderer,
                               MetaCursorSprite   *cursor_sprite);
-#ifdef HAVE_WAYLAND
-  void (* realize_cursor_from_wl_buffer) (MetaCursorRenderer *renderer,
-                                          MetaCursorSprite *cursor_sprite,
-                                          struct wl_resource *buffer);
-#endif
-  void (* realize_cursor_from_xcursor) (MetaCursorRenderer *renderer,
-                                        MetaCursorSprite *cursor_sprite,
-                                        XcursorImage *xc_image);
 };
 
 MetaCursorRenderer * meta_cursor_renderer_new (void);
@@ -69,16 +56,6 @@ MetaCursorSprite * meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer
 
 ClutterRect meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
                                                  MetaCursorSprite   *cursor_sprite);
-
-#ifdef HAVE_WAYLAND
-void meta_cursor_renderer_realize_cursor_from_wl_buffer (MetaCursorRenderer *renderer,
-                                                         MetaCursorSprite   *cursor_sprite,
-                                                         struct wl_resource *buffer);
-#endif
-
-void meta_cursor_renderer_realize_cursor_from_xcursor (MetaCursorRenderer *renderer,
-                                                       MetaCursorSprite   *cursor_sprite,
-                                                       XcursorImage       *xc_image);
 
 void meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
                                         MetaCursorSprite   *cursor_sprite);

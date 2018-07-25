@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include "keybindings-private.h"
 #include "meta-accel-parse.h"
+#include "x11/meta-x11-display-private.h"
 
 /* If you add a key, it needs updating in init() and in the gsettings
  * notify listener and of course in the .schemas file.
@@ -52,6 +53,7 @@
 #define KEY_GNOME_ACCESSIBILITY "toolkit-accessibility"
 #define KEY_GNOME_ANIMATIONS "enable-animations"
 #define KEY_GNOME_CURSOR_THEME "cursor-theme"
+#define KEY_GNOME_CURSOR_SIZE "cursor-size"
 #define KEY_XKB_OPTIONS "xkb-options"
 
 #define KEY_OVERLAY_KEY "overlay-key"
@@ -127,24 +129,12 @@ static gboolean update_binding         (MetaKeyPref *binding,
 static gboolean update_key_binding     (const char  *key,
                                         gchar      **strokes);
 
-static void wayland_settings_changed (GSettings      *settings,
-                                      gchar          *key,
-                                      gpointer        data);
 static void settings_changed (GSettings      *settings,
                               gchar          *key,
                               gpointer        data);
 static void bindings_changed (GSettings      *settings,
                               gchar          *key,
                               gpointer        data);
-
-static void shell_shows_app_menu_changed (GtkSettings *settings,
-                                          GParamSpec  *pspec,
-                                          gpointer     data);
-
-static void update_cursor_size_from_gtk (GtkSettings *settings,
-                                         GParamSpec *pspec,
-                                         gpointer data);
-static void update_cursor_size (void);
 
 static void queue_changed (MetaPreference  pref);
 
@@ -159,7 +149,6 @@ static gboolean iso_next_group_handler (GVariant*, gpointer*, gpointer);
 static void     do_override               (char *key, char *schema);
 
 static void     init_bindings             (void);
-
 
 typedef struct
 {
@@ -492,6 +481,13 @@ static MetaIntPreference preferences_int[] =
         META_PREF_DRAG_THRESHOLD,
       },
       &drag_threshold
+    },
+    {
+      { "cursor-size",
+        SCHEMA_INTERFACE,
+        META_PREF_CURSOR_SIZE,
+      },
+      &cursor_size
     },
     { { NULL, 0, 0 }, NULL },
   };
@@ -860,8 +856,6 @@ meta_prefs_remove_listener (MetaPrefsChangedFunc func,
 
       tmp = tmp->next;
     }
-
-  meta_bug ("Did not find listener to remove\n");
 }
 
 static void
@@ -971,18 +965,9 @@ meta_prefs_init (void)
                     G_CALLBACK (settings_changed), NULL);
   g_signal_connect (settings, "changed::" KEY_GNOME_CURSOR_THEME,
                     G_CALLBACK (settings_changed), NULL);
-  if (meta_is_wayland_compositor ())
-    g_signal_connect (settings, "changed::cursor-size",
-                      G_CALLBACK (wayland_settings_changed), NULL);
+  g_signal_connect (settings, "changed::" KEY_GNOME_CURSOR_SIZE,
+                    G_CALLBACK (settings_changed), NULL);
   g_hash_table_insert (settings_schemas, g_strdup (SCHEMA_INTERFACE), settings);
-
-  g_signal_connect (gtk_settings_get_default (),
-                    "notify::gtk-shell-shows-app-menu",
-                    G_CALLBACK (shell_shows_app_menu_changed), NULL);
-
-  if (!meta_is_wayland_compositor ())
-    g_signal_connect (gtk_settings_get_default (), "notify::gtk-cursor-theme-size",
-                      G_CALLBACK (update_cursor_size_from_gtk), NULL);
 
   settings = g_settings_new (SCHEMA_INPUT_SOURCES);
   g_signal_connect (settings, "changed::" KEY_XKB_OPTIONS,
@@ -1003,9 +988,6 @@ meta_prefs_init (void)
   handle_preference_init_string ();
   handle_preference_init_string_array ();
   handle_preference_init_int ();
-
-  update_cursor_size ();
-  shell_shows_app_menu_changed (gtk_settings_get_default (), NULL, NULL);
 
   init_bindings ();
 }
@@ -1146,20 +1128,6 @@ meta_prefs_override_preference_schema (const char *key, const char *schema)
 
 
 static void
-wayland_settings_changed (GSettings      *settings,
-                          gchar          *key,
-                          gpointer        data)
-{
-  GVariant *value = g_settings_get_value (settings, key);
-  const GVariantType *type = g_variant_get_type (value);
-
-  g_return_if_fail (g_variant_type_equal (type, G_VARIANT_TYPE_INT32));
-  g_return_if_fail (g_str_equal (key, "cursor-size"));
-
-  update_cursor_size ();
-}
-
-static void
 settings_changed (GSettings *settings,
                   gchar *key,
                   gpointer data)
@@ -1218,69 +1186,6 @@ bindings_changed (GSettings *settings,
     queue_changed (META_PREF_KEYBINDINGS);
 
   g_strfreev (strokes);
-}
-
-static void
-shell_shows_app_menu_changed (GtkSettings *settings,
-                              GParamSpec *pspec,
-                              gpointer data)
-{
-  int shell_shows_app_menu = 1;
-  gboolean changed = FALSE;
-
-  g_object_get (settings,
-                "gtk-shell-shows-app-menu", &shell_shows_app_menu,
-                NULL);
-
-
-  changed = (show_fallback_app_menu == !!shell_shows_app_menu);
-
-  show_fallback_app_menu = !shell_shows_app_menu;
-
-  if (changed)
-    queue_changed (META_PREF_BUTTON_LAYOUT);
-}
-
-static void
-update_cursor_size (void)
-{
-  if (meta_is_wayland_compositor ())
-    {
-      /* When running as a Wayland compositor, since we size of the cursor
-       * depends on what output it is on, we cannot use the GTK+
-       * "gtk-cursor-theme-size" setting because it has already been multiplied
-       * by the primary monitor scale. So, instead get the non-premultiplied
-       * cursor size value directly from gsettings instead.
-       */
-      cursor_size =
-        g_settings_get_int (SETTINGS (SCHEMA_INTERFACE), "cursor-size");
-    }
-  else
-    {
-      update_cursor_size_from_gtk (gtk_settings_get_default (), NULL, NULL);
-    }
-}
-
-static void
-update_cursor_size_from_gtk (GtkSettings *settings,
-                             GParamSpec *pspec,
-                             gpointer data)
-{
-  GdkScreen *screen = gdk_screen_get_default ();
-  GValue value = G_VALUE_INIT;
-  int xsettings_cursor_size = 24;
-
-  g_value_init (&value, G_TYPE_INT);
-  if (gdk_screen_get_setting (screen, "gtk-cursor-theme-size", &value))
-    {
-      xsettings_cursor_size = g_value_get_int (&value);
-    }
-
-  if (xsettings_cursor_size != cursor_size)
-    {
-      cursor_size = xsettings_cursor_size;
-      queue_changed (META_PREF_CURSOR_SIZE);
-    }
 }
 
 /**
@@ -1343,6 +1248,19 @@ gboolean
 meta_prefs_get_show_fallback_app_menu (void)
 {
   return show_fallback_app_menu;
+}
+
+void
+meta_prefs_set_show_fallback_app_menu (gboolean whether)
+{
+  gboolean changed = FALSE;
+
+  changed = (show_fallback_app_menu == !whether);
+
+  show_fallback_app_menu = whether;
+
+  if (changed)
+    queue_changed (META_PREF_BUTTON_LAYOUT);
 }
 
 const char*

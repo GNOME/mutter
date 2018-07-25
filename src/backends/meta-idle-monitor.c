@@ -246,7 +246,8 @@ meta_idle_monitor_init (MetaIdleMonitor *monitor)
   /* Monitor inhibitors */
   monitor->session_proxy =
     g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
-                                   G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS,
+                                   G_DBUS_PROXY_FLAGS_DO_NOT_CONNECT_SIGNALS |
+                                   G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
                                    NULL,
                                    "org.gnome.SessionManager",
                                    "/org/gnome/SessionManager",
@@ -262,8 +263,11 @@ meta_idle_monitor_init (MetaIdleMonitor *monitor)
 
   v = g_dbus_proxy_get_cached_property (monitor->session_proxy,
                                         "InhibitedActions");
-  monitor->inhibited = g_variant_get_uint32 (v) & GSM_INHIBITOR_FLAG_IDLE;
-  g_variant_unref (v);
+  if (v)
+    {
+      monitor->inhibited = g_variant_get_uint32 (v) & GSM_INHIBITOR_FLAG_IDLE;
+      g_variant_unref (v);
+    }
 }
 
 /**

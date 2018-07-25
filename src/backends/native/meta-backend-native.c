@@ -29,7 +29,6 @@
 
 #include <meta/main.h>
 #include <clutter/evdev/clutter-evdev.h>
-#include <libupower-glib/upower.h>
 
 #include "clutter/egl/clutter-egl.h"
 #include "clutter/evdev/clutter-evdev.h"
@@ -212,7 +211,7 @@ relative_motion_across_outputs (MetaMonitorManager *monitor_manager,
   MetaLogicalMonitor *cur = current;
   float x = cur_x, y = cur_y;
   float dx = *dx_inout, dy = *dy_inout;
-  MetaScreenDirection direction = -1;
+  MetaDisplayDirection direction = -1;
 
   while (cur)
     {
@@ -240,18 +239,18 @@ relative_motion_across_outputs (MetaMonitorManager *monitor_manager,
         { cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height }
       };
 
-      if (direction != META_SCREEN_RIGHT &&
+      if (direction != META_DISPLAY_RIGHT &&
           meta_line2_intersects_with (&motion, &left, &intersection))
-        direction = META_SCREEN_LEFT;
-      else if (direction != META_SCREEN_LEFT &&
+        direction = META_DISPLAY_LEFT;
+      else if (direction != META_DISPLAY_LEFT &&
                meta_line2_intersects_with (&motion, &right, &intersection))
-        direction = META_SCREEN_RIGHT;
-      else if (direction != META_SCREEN_DOWN &&
+        direction = META_DISPLAY_RIGHT;
+      else if (direction != META_DISPLAY_DOWN &&
                meta_line2_intersects_with (&motion, &top, &intersection))
-        direction = META_SCREEN_UP;
-      else if (direction != META_SCREEN_UP &&
+        direction = META_DISPLAY_UP;
+      else if (direction != META_DISPLAY_UP &&
                meta_line2_intersects_with (&motion, &bottom, &intersection))
-        direction = META_SCREEN_DOWN;
+        direction = META_DISPLAY_DOWN;
       else
         {
           /* We reached the dest logical monitor */
@@ -645,8 +644,6 @@ void meta_backend_native_resume (MetaBackendNative *native)
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerKms *monitor_manager_kms =
     META_MONITOR_MANAGER_KMS (monitor_manager);
-  MetaCursorRenderer *cursor_renderer;
-  MetaCursorRendererNative *cursor_renderer_native;
   ClutterActor *stage;
   MetaIdleMonitor *idle_monitor;
 
@@ -657,10 +654,6 @@ void meta_backend_native_resume (MetaBackendNative *native)
 
   stage = meta_backend_get_stage (backend);
   clutter_actor_queue_redraw (stage);
-
-  cursor_renderer = meta_backend_get_cursor_renderer (backend);
-  cursor_renderer_native = META_CURSOR_RENDERER_NATIVE (cursor_renderer);
-  meta_cursor_renderer_native_force_update (cursor_renderer_native);
 
   idle_monitor = meta_backend_get_idle_monitor (backend, 0);
   meta_idle_monitor_reset_idletime (idle_monitor);

@@ -47,6 +47,12 @@ typedef struct _MetaKmsSource
   MetaGpuKms *gpu_kms;
 } MetaKmsSource;
 
+typedef struct _MetaGpuKmsFlipClosureContainer
+{
+  GClosure *flip_closure;
+  MetaGpuKms *gpu_kms;
+} MetaGpuKmsFlipClosureContainer;
+
 struct _MetaGpuKms
 {
   MetaGpu parent;
@@ -64,7 +70,6 @@ struct _MetaGpuKms
   gboolean page_flips_not_supported;
 };
 
-G_DEFINE_QUARK (MetaGpuKmsError, meta_gpu_kms_error)
 G_DEFINE_TYPE (MetaGpuKms, meta_gpu_kms, META_TYPE_GPU)
 
 static gboolean
@@ -204,11 +209,26 @@ meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
   return TRUE;
 }
 
-typedef struct _GpuClosureContainer
+MetaGpuKmsFlipClosureContainer *
+meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
+                                GClosure   *flip_closure)
 {
-  GClosure *flip_closure;
-  MetaGpuKms *gpu_kms;
-} GpuClosureContainer;
+  MetaGpuKmsFlipClosureContainer *closure_container;
+
+  closure_container = g_new0 (MetaGpuKmsFlipClosureContainer, 1);
+  *closure_container = (MetaGpuKmsFlipClosureContainer) {
+    .flip_closure = flip_closure,
+    .gpu_kms = gpu_kms
+  };
+
+  return closure_container;
+}
+
+void
+meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container)
+{
+  g_free (closure_container);
+}
 
 gboolean
 meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
@@ -234,14 +254,11 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
 
   if (!gpu_kms->page_flips_not_supported)
     {
-      GpuClosureContainer *closure_container;
+      MetaGpuKmsFlipClosureContainer *closure_container;
       int kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
-      closure_container = g_new0 (GpuClosureContainer, 1);
-      *closure_container = (GpuClosureContainer) {
-        .flip_closure = flip_closure,
-        .gpu_kms = gpu_kms
-      };
+      closure_container = meta_gpu_kms_wrap_flip_closure (gpu_kms,
+                                                          flip_closure);
 
       ret = drmModePageFlip (kms_fd,
                              crtc->crtc_id,
@@ -250,7 +267,7 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
                              closure_container);
       if (ret != 0 && ret != -EACCES)
         {
-          g_free (closure_container);
+          meta_gpu_kms_flip_closure_container_free (closure_container);
           g_warning ("Failed to flip: %s", strerror (-ret));
           gpu_kms->page_flips_not_supported = TRUE;
         }
@@ -281,12 +298,12 @@ page_flip_handler (int           fd,
                    unsigned int  usec,
                    void         *user_data)
 {
-  GpuClosureContainer *closure_container = user_data;
+  MetaGpuKmsFlipClosureContainer *closure_container = user_data;
   GClosure *flip_closure = closure_container->flip_closure;
   MetaGpuKms *gpu_kms = closure_container->gpu_kms;
 
   invoke_flip_closure (flip_closure, gpu_kms);
-  g_free (closure_container);
+  meta_gpu_kms_flip_closure_container_free (closure_container);
 }
 
 gboolean
@@ -756,8 +773,6 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
      are freed by the platform-independent layer. */
   free_resources (gpu_kms);
 
-  g_assert (resources.resources->count_connectors > 0);
-
   init_connectors (gpu_kms, resources.resources);
   init_modes (gpu_kms, resources.resources);
   init_crtcs (gpu_kms, &resources);
@@ -781,39 +796,11 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
   GSource *source;
   MetaKmsSource *kms_source;
   MetaGpuKms *gpu_kms;
-  drmModeRes *drm_resources;
-  guint n_connectors;
   int kms_fd;
 
   kms_fd = meta_launcher_open_restricted (launcher, kms_file_path, error);
   if (kms_fd == -1)
     return NULL;
-
-  /* Some GPUs might have no connectors, for example dedicated GPUs on PRIME (hybrid) laptops.
-   * These GPUs cannot render anything on separate screens, and they are aggressively switched
-   * off by the kernel.
-   *
-   * If we add these PRIME GPUs to the GPU list anyway, Mutter keeps awakening the secondary GPU,
-   * and doing this causes a considerable stuttering. These GPUs are usually put to sleep again
-   * after ~2s without a workload.
-   *
-   * For now, to avoid this situation, only create the MetaGpuKms when the GPU has any connectors.
-   */
-  drm_resources = drmModeGetResources (kms_fd);
-
-  n_connectors = drm_resources->count_connectors;
-
-  drmModeFreeResources (drm_resources);
-
-  if (n_connectors == 0)
-    {
-      g_set_error (error,
-                   META_GPU_KMS_ERROR,
-                   META_GPU_KMS_ERROR_NO_CONNECTORS,
-                   "No connectors available in this GPU. This is probably a dedicated GPU in a hybrid setup.");
-      meta_launcher_close_restricted (launcher, kms_fd);
-      return NULL;
-    }
 
   gpu_kms = g_object_new (META_TYPE_GPU_KMS,
                           "monitor-manager", monitor_manager_kms,

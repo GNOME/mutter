@@ -37,6 +37,7 @@
 #include "keybindings-private.h"
 #include "startup-notification-private.h"
 #include "meta-gesture-tracker-private.h"
+#include "stack-tracker.h"
 #include <meta/prefs.h>
 #include <meta/barrier.h>
 #include <clutter/clutter.h>
@@ -47,11 +48,9 @@
 
 #include <X11/extensions/sync.h>
 
+typedef struct _MetaBell       MetaBell;
 typedef struct _MetaStack      MetaStack;
 typedef struct _MetaUISlave    MetaUISlave;
-
-typedef struct _MetaGroupPropHooks  MetaGroupPropHooks;
-typedef struct _MetaWindowPropHooks MetaWindowPropHooks;
 
 typedef struct MetaEdgeResistanceData MetaEdgeResistanceData;
 
@@ -102,32 +101,16 @@ typedef enum {
   META_EVENT_ROUTE_FRAME_BUTTON,
 } MetaEventRoute;
 
-typedef gboolean (*MetaAlarmFilter) (MetaDisplay           *display,
-                                     XSyncAlarmNotifyEvent *event,
-                                     gpointer               data);
+typedef void (* MetaDisplayWindowFunc) (MetaWindow *window,
+                                        gpointer    user_data);
 
 struct _MetaDisplay
 {
   GObject parent_instance;
 
-  char *name;
-  Display *xdisplay;
+  MetaX11Display *x11_display;
 
   int clutter_event_filter;
-
-  Window leader_window;
-  Window timestamp_pinging_window;
-
-  /* Pull in all the names of atoms as fields; we will intern them when the
-   * class is constructed.
-   */
-#define item(x)  Atom atom_##x;
-#include <x11/atomnames.h>
-#undef item
-
-  /* The window and serial of the most recent FocusIn event. */
-  Window server_focus_window;
-  gulong server_focus_serial;
 
   /* Our best guess as to the "currently" focused window (that is, the
    * window that we expect will be focused at the point when the X
@@ -135,10 +118,6 @@ struct _MetaDisplay
    * or event that caused this.
    */
   MetaWindow *focus_window;
-  /* For windows we've focused that don't necessarily have an X window,
-   * like the no_focus_window or the stage X window. */
-  Window focus_xwindow;
-  gulong focus_serial;
 
   /* last timestamp passed to XSetInputFocus */
   guint32 last_focus_time;
@@ -169,8 +148,6 @@ struct _MetaDisplay
   guint focused_by_us : 1;
 
   /*< private-ish >*/
-  MetaScreen *screen;
-  GHashTable *xids;
   GHashTable *stamps;
   GHashTable *wayland_windows;
 
@@ -229,9 +206,6 @@ struct _MetaDisplay
    * to avoid some race conditions on EnterNotify events
    */
   int         sentinel_counter;
-
-  int         xkb_base_event_type;
-  guint32     last_bell_time;
   int	      grab_resize_timeout_id;
 
   MetaKeyBindingManager key_binding_manager;
@@ -245,60 +219,31 @@ struct _MetaDisplay
   /* Closing down the display */
   int closing;
 
-  /* Managed by group.c */
-  GHashTable *groups_by_leader;
-
-  /* Managed by window-props.c */
-  MetaWindowPropHooks *prop_hooks_table;
-  GHashTable *prop_hooks;
-  int n_prop_hooks;
-
-  /* Managed by group-props.c */
-  MetaGroupPropHooks *group_prop_hooks;
-
   /* Managed by compositor.c */
   MetaCompositor *compositor;
 
   MetaGestureTracker *gesture_tracker;
   ClutterEventSequence *pointer_emulating_sequence;
 
-  MetaAlarmFilter alarm_filter;
-  gpointer alarm_filter_data;
-
-  int composite_event_base;
-  int composite_error_base;
-  int composite_major_version;
-  int composite_minor_version;
-  int damage_event_base;
-  int damage_error_base;
-  int xfixes_event_base;
-  int xfixes_error_base;
-  int xinput_error_base;
-  int xinput_event_base;
-  int xinput_opcode;
-
   ClutterActor *current_pad_osd;
 
   MetaStartupNotification *startup_notification;
 
-  int xsync_event_base;
-  int xsync_error_base;
-  int shape_event_base;
-  int shape_error_base;
-  unsigned int have_xsync : 1;
-#define META_DISPLAY_HAS_XSYNC(display) ((display)->have_xsync)
-  unsigned int have_shape : 1;
-#define META_DISPLAY_HAS_SHAPE(display) ((display)->have_shape)
-  unsigned int have_composite : 1;
-  unsigned int have_damage : 1;
-#define META_DISPLAY_HAS_COMPOSITE(display) ((display)->have_composite)
-#define META_DISPLAY_HAS_DAMAGE(display) ((display)->have_damage)
-#ifdef HAVE_XI23
-  gboolean have_xinput_23 : 1;
-#define META_DISPLAY_HAS_XINPUT_23(display) ((display)->have_xinput_23)
-#else
-#define META_DISPLAY_HAS_XINPUT_23(display) FALSE
-#endif /* HAVE_XI23 */
+  MetaCursor current_cursor;
+
+  MetaStack *stack;
+  MetaStackTracker *stack_tracker;
+
+  guint tile_preview_timeout_id;
+  guint preview_tile_mode : 2;
+
+  GSList *startup_sequences;
+
+  guint work_area_later;
+  guint check_fullscreen_later;
+
+  MetaBell *bell;
+  MetaWorkspaceManager *workspace_manager;
 };
 
 struct _MetaDisplayClass
@@ -322,27 +267,14 @@ struct _MetaDisplayClass
   )
 
 gboolean      meta_display_open                (void);
-void          meta_display_close               (MetaDisplay *display,
-                                                guint32      timestamp);
 
-void          meta_display_unmanage_windows_for_screen (MetaDisplay *display,
-                                                        MetaScreen  *screen,
-                                                        guint32      timestamp);
+void meta_display_manage_all_windows (MetaDisplay *display);
+void meta_display_unmanage_windows   (MetaDisplay *display,
+                                      guint32      timestamp);
 
 /* Utility function to compare the stacking of two windows */
 int           meta_display_stack_cmp           (const void *a,
                                                 const void *b);
-
-/* A given MetaWindow may have various X windows that "belong"
- * to it, such as the frame window.
- */
-MetaWindow* meta_display_lookup_x_window     (MetaDisplay *display,
-                                              Window       xwindow);
-void        meta_display_register_x_window   (MetaDisplay *display,
-                                              Window      *xwindowp,
-                                              MetaWindow  *window);
-void        meta_display_unregister_x_window (MetaDisplay *display,
-                                              Window       xwindow);
 
 /* Each MetaWindow is uniquely identified by a 64-bit "stamp"; unlike a
  * a MetaWindow *, a stamp will never be recycled
@@ -372,14 +304,6 @@ void        meta_display_register_wayland_window   (MetaDisplay *display,
 void        meta_display_unregister_wayland_window (MetaDisplay *display,
                                                     MetaWindow  *window);
 
-MetaWindow* meta_display_lookup_sync_alarm     (MetaDisplay *display,
-                                                XSyncAlarm   alarm);
-void        meta_display_register_sync_alarm   (MetaDisplay *display,
-                                                XSyncAlarm  *alarmp,
-                                                MetaWindow  *window);
-void        meta_display_unregister_sync_alarm (MetaDisplay *display,
-                                                XSyncAlarm   alarm);
-
 void        meta_display_notify_window_created (MetaDisplay  *display,
                                                 MetaWindow   *window);
 
@@ -389,10 +313,8 @@ GSList*     meta_display_list_windows        (MetaDisplay          *display,
 MetaDisplay* meta_display_for_x_display  (Display     *xdisplay);
 MetaDisplay* meta_get_display            (void);
 
-Cursor         meta_display_create_x_cursor (MetaDisplay *display,
-                                             MetaCursor   cursor);
-
-void     meta_display_update_cursor (MetaDisplay *display);
+void meta_display_reload_cursor (MetaDisplay *display);
+void meta_display_update_cursor (MetaDisplay *display);
 
 void    meta_display_check_threshold_reached (MetaDisplay *display,
                                               int          x,
@@ -409,11 +331,6 @@ void meta_display_ungrab_focus_window_button (MetaDisplay *display,
 
 /* Next function is defined in edge-resistance.c */
 void meta_display_cleanup_edges              (MetaDisplay *display);
-
-/* make a request to ensure the event serial has changed */
-void     meta_display_increment_event_serial (MetaDisplay *display);
-
-void     meta_display_update_active_window_hint (MetaDisplay *display);
 
 /* utility goo */
 const char* meta_event_mode_to_string   (int m);
@@ -448,16 +365,6 @@ void meta_display_accelerator_activate (MetaDisplay     *display,
                                         ClutterKeyEvent *event);
 gboolean meta_display_modifiers_accelerator_activate (MetaDisplay *display);
 
-#ifdef HAVE_XI23
-gboolean meta_display_process_barrier_xevent (MetaDisplay *display,
-                                              XIEvent     *event);
-#endif /* HAVE_XI23 */
-
-void meta_display_set_input_focus_xwindow (MetaDisplay *display,
-                                           MetaScreen  *screen,
-                                           Window       window,
-                                           guint32      timestamp);
-
 void meta_display_sync_wayland_input_focus (MetaDisplay *display);
 void meta_display_update_focus_window (MetaDisplay *display,
                                        MetaWindow  *window,
@@ -485,16 +392,11 @@ gboolean meta_display_show_resize_popup (MetaDisplay *display,
                                          int display_w,
                                          int display_h);
 
-void meta_restart_init (void);
-void meta_restart_finish (void);
+void meta_set_is_restart (gboolean whether);
 
 void meta_display_cancel_touch (MetaDisplay *display);
 
 gboolean meta_display_windows_are_interactable (MetaDisplay *display);
-
-void meta_display_set_alarm_filter (MetaDisplay    *display,
-                                    MetaAlarmFilter filter,
-                                    gpointer        data);
 
 void meta_display_show_tablet_mapping_notification (MetaDisplay        *display,
                                                     ClutterInputDevice *pad,
@@ -506,5 +408,26 @@ void meta_display_notify_pad_group_switch (MetaDisplay        *display,
                                            guint               n_group,
                                            guint               n_mode,
                                            guint               n_modes);
+
+void meta_display_foreach_window (MetaDisplay           *display,
+                                  MetaListWindowsFlags   flags,
+                                  MetaDisplayWindowFunc  func,
+                                  gpointer               data);
+
+void meta_display_restacked (MetaDisplay *display);
+
+
+void meta_display_update_tile_preview (MetaDisplay *display,
+                                       gboolean     delay);
+void meta_display_hide_tile_preview   (MetaDisplay *display);
+
+gboolean meta_display_apply_startup_properties (MetaDisplay *display,
+                                                MetaWindow  *window);
+
+void meta_display_queue_workarea_recalc  (MetaDisplay *display);
+void meta_display_queue_check_fullscreen (MetaDisplay *display);
+
+MetaWindow *meta_display_get_pointer_window (MetaDisplay *display,
+                                             MetaWindow  *not_this_one);
 
 #endif

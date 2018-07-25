@@ -26,7 +26,7 @@
 
 #include "meta-window-wayland.h"
 
-#include <meta/errors.h>
+#include <meta/meta-x11-errors.h>
 #include <errno.h>
 #include <string.h> /* for strerror () */
 #include "window-private.h"
@@ -88,7 +88,7 @@ meta_window_wayland_manage (MetaWindow *window)
   meta_display_register_wayland_window (display, window);
 
   {
-    meta_stack_tracker_record_add (window->screen->stack_tracker,
+    meta_stack_tracker_record_add (window->display->stack_tracker,
                                    window->stamp,
                                    0);
   }
@@ -100,7 +100,7 @@ static void
 meta_window_wayland_unmanage (MetaWindow *window)
 {
   {
-    meta_stack_tracker_record_remove (window->screen->stack_tracker,
+    meta_stack_tracker_record_remove (window->display->stack_tracker,
                                       window->stamp,
                                       0);
   }
@@ -139,10 +139,10 @@ meta_window_wayland_focus (MetaWindow *window,
                            guint32     timestamp)
 {
   if (window->input)
-    meta_display_set_input_focus_window (window->display,
-                                         window,
-                                         FALSE,
-                                         timestamp);
+    meta_x11_display_set_input_focus_window (window->display->x11_display,
+                                             window,
+                                             FALSE,
+                                             timestamp);
 }
 
 static void
@@ -594,7 +594,6 @@ meta_window_wayland_new (MetaDisplay        *display,
                          MetaWaylandSurface *surface)
 {
   XWindowAttributes attrs = { 0 };
-  MetaScreen *scr = display->screen;
   MetaWindow *window;
 
   /*
@@ -615,12 +614,11 @@ meta_window_wayland_new (MetaDisplay        *display,
    * X requests (passing a window xid of None) until we thoroughly audit all
    * the code to make sure it knows about non X based clients...
    */
-  meta_error_trap_push (display); /* Push a trap over all of window
-                                   * creation, to reduce XSync() calls
-                                   */
+  meta_x11_error_trap_push (display->x11_display); /* Push a trap over all of window
+                                                * creation, to reduce XSync() calls
+                                                */
 
   window = _meta_window_shared_new (display,
-                                    scr,
                                     META_WINDOW_CLIENT_TYPE_WAYLAND,
                                     surface,
                                     None,
@@ -629,7 +627,7 @@ meta_window_wayland_new (MetaDisplay        *display,
                                     &attrs);
   window->can_ping = TRUE;
 
-  meta_error_trap_pop (display); /* pop the XSync()-reducing trap */
+  meta_x11_error_trap_pop (display->x11_display); /* pop the XSync()-reducing trap */
 
   return window;
 }

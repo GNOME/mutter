@@ -33,7 +33,6 @@ struct _MetaMonitorManagerTest
 
   MetaGpu *gpu;
 
-  gboolean is_lid_closed;
   gboolean handles_transforms;
 
   int tiled_monitor_count;
@@ -82,13 +81,6 @@ meta_monitor_manager_test_emulate_hotplug (MetaMonitorManagerTest *manager_test,
 }
 
 void
-meta_monitor_manager_test_set_is_lid_closed (MetaMonitorManagerTest *manager_test,
-                                             gboolean                is_lid_closed)
-{
-  manager_test->is_lid_closed = is_lid_closed;
-}
-
-void
 meta_monitor_manager_test_set_handles_transforms (MetaMonitorManagerTest *manager_test,
                                                   gboolean                handles_transforms)
 {
@@ -125,14 +117,6 @@ meta_monitor_manager_test_read_current (MetaMonitorManager *manager)
 
   meta_gpu_take_outputs (manager_test->gpu,
                          manager_test->test_setup->outputs);
-}
-
-static gboolean
-meta_monitor_manager_test_is_lid_closed (MetaMonitorManager *manager)
-{
-  MetaMonitorManagerTest *manager_test = META_MONITOR_MANAGER_TEST (manager);
-
-  return manager_test->is_lid_closed;
 }
 
 static void
@@ -496,7 +480,6 @@ meta_monitor_manager_test_class_init (MetaMonitorManagerTestClass *klass)
 
   object_class->dispose = meta_monitor_manager_test_dispose;
 
-  manager_class->is_lid_closed = meta_monitor_manager_test_is_lid_closed;
   manager_class->ensure_initial_config = meta_monitor_manager_test_ensure_initial_config;
   manager_class->apply_monitors_config = meta_monitor_manager_test_apply_monitors_config;
   manager_class->tiled_monitor_added = meta_monitor_manager_test_tiled_monitor_added;

@@ -105,6 +105,7 @@ enum {
   SURFACE_CONFIGURE,
   SURFACE_SHORTCUTS_INHIBITED,
   SURFACE_SHORTCUTS_RESTORED,
+  SURFACE_GEOMETRY_CHANGED,
   N_SURFACE_SIGNALS
 };
 
@@ -128,18 +129,6 @@ meta_wayland_surface_role_is_on_logical_monitor (MetaWaylandSurfaceRole *surface
 static MetaWaylandSurface *
 meta_wayland_surface_role_get_toplevel (MetaWaylandSurfaceRole *surface_role);
 
-static void
-surface_actor_mapped_notify (MetaSurfaceActorWayland *surface_actor,
-                             GParamSpec              *pspec,
-                             MetaWaylandSurface      *surface);
-static void
-surface_actor_allocation_notify (MetaSurfaceActorWayland *surface_actor,
-                                 GParamSpec              *pspec,
-                                 MetaWaylandSurface      *surface);
-static void
-surface_actor_position_notify (MetaSurfaceActorWayland *surface_actor,
-                               GParamSpec              *pspec,
-                               MetaWaylandSurface      *surface);
 static void
 window_position_changed (MetaWindow         *window,
                          MetaWaylandSurface *surface);
@@ -312,7 +301,7 @@ surface_process_damage (MetaWaylandSurface *surface,
       cairo_rectangle_int_t rect;
       cairo_region_get_rectangle (scaled_region, i, &rect);
 
-      meta_surface_actor_process_damage (surface->surface_actor,
+      meta_surface_actor_process_damage (meta_wayland_surface_get_actor (surface),
                                          rect.x, rect.y,
                                          rect.width, rect.height);
     }
@@ -655,14 +644,14 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
               goto cleanup;
             }
 
-          if (switched_buffer)
+          if (switched_buffer && meta_wayland_surface_get_actor (surface))
             {
               MetaShapedTexture *stex;
               CoglTexture *texture;
               CoglSnippet *snippet;
               gboolean is_y_inverted;
 
-              stex = meta_surface_actor_get_texture (surface->surface_actor);
+              stex = meta_surface_actor_get_texture (meta_wayland_surface_get_actor (surface));
               texture = meta_wayland_buffer_get_texture (pending->buffer);
               snippet = meta_wayland_buffer_create_snippet (pending->buffer);
               is_y_inverted = meta_wayland_buffer_is_y_inverted (pending->buffer);
@@ -686,8 +675,9 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
   if (pending->scale > 0)
     surface->scale = pending->scale;
 
-  if (!cairo_region_is_empty (pending->surface_damage) ||
-      !cairo_region_is_empty (pending->buffer_damage))
+  if (meta_wayland_surface_get_actor (surface) &&
+      (!cairo_region_is_empty (pending->surface_damage) ||
+       !cairo_region_is_empty (pending->buffer_damage)))
     surface_process_damage (surface,
                             pending->surface_damage,
                             pending->buffer_damage);
@@ -762,6 +752,10 @@ cleanup:
 static void
 meta_wayland_surface_commit (MetaWaylandSurface *surface)
 {
+  if (surface->pending->buffer &&
+      !meta_wayland_buffer_is_realized (surface->pending->buffer))
+    meta_wayland_buffer_realize (surface->pending->buffer);
+
   /*
    * If this is a sub-surface and it is in effective synchronous mode, only
    * cache the pending surface state until either one of the following two
@@ -1149,7 +1143,7 @@ meta_wayland_surface_set_window (MetaWaylandSurface *surface,
 
   surface->window = window;
 
-  clutter_actor_set_reactive (CLUTTER_ACTOR (surface->surface_actor), !!window);
+  clutter_actor_set_reactive (CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface)), !!window);
   sync_drag_dest_funcs (surface);
 
   if (was_unmapped)
@@ -1177,16 +1171,6 @@ wl_surface_destructor (struct wl_resource *resource)
 
   g_signal_emit (surface, surface_signals[SURFACE_DESTROY], 0);
 
-  g_signal_handlers_disconnect_by_func (surface->surface_actor,
-                                        surface_actor_mapped_notify,
-                                        surface);
-  g_signal_handlers_disconnect_by_func (surface->surface_actor,
-                                        surface_actor_allocation_notify,
-                                        surface);
-  g_signal_handlers_disconnect_by_func (surface->surface_actor,
-                                        surface_actor_position_notify,
-                                        surface);
-
   g_clear_object (&surface->role);
 
   /* If we still have a window at the time of destruction, that means that
@@ -1212,8 +1196,6 @@ wl_surface_destructor (struct wl_resource *resource)
   if (surface->input_region)
     cairo_region_destroy (surface->input_region);
 
-  g_object_unref (surface->surface_actor);
-
   meta_wayland_compositor_destroy_frame_callbacks (compositor, surface);
 
   g_hash_table_foreach (surface->outputs_to_destroy_notify_id, surface_output_disconnect_signal, surface);
@@ -1236,30 +1218,6 @@ wl_surface_destructor (struct wl_resource *resource)
 }
 
 static void
-surface_actor_mapped_notify (MetaSurfaceActorWayland *surface_actor,
-                             GParamSpec              *pspec,
-                             MetaWaylandSurface      *surface)
-{
-  meta_wayland_surface_update_outputs_recursively (surface);
-}
-
-static void
-surface_actor_allocation_notify (MetaSurfaceActorWayland *surface_actor,
-                                 GParamSpec              *pspec,
-                                 MetaWaylandSurface      *surface)
-{
-  meta_wayland_surface_update_outputs_recursively (surface);
-}
-
-static void
-surface_actor_position_notify (MetaSurfaceActorWayland *surface_actor,
-                               GParamSpec              *pspec,
-                               MetaWaylandSurface      *surface)
-{
-  meta_wayland_surface_update_outputs_recursively (surface);
-}
-
-static void
 window_position_changed (MetaWindow         *window,
                          MetaWaylandSurface *surface)
 {
@@ -1271,21 +1229,6 @@ window_actor_effects_completed (MetaWindowActor    *window_actor,
                                 MetaWaylandSurface *surface)
 {
   meta_wayland_surface_update_outputs_recursively (surface);
-}
-
-void
-meta_wayland_surface_create_surface_actor (MetaWaylandSurface *surface)
-{
-  MetaSurfaceActor *surface_actor;
-
-  surface_actor = meta_surface_actor_wayland_new (surface);
-  surface->surface_actor = g_object_ref_sink (surface_actor);
-}
-
-void
-meta_wayland_surface_clear_surface_actor (MetaWaylandSurface *surface)
-{
-  g_clear_object (&surface->surface_actor);
 }
 
 MetaWaylandSurface *
@@ -1302,27 +1245,14 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
   surface->resource = wl_resource_create (client, &wl_surface_interface, wl_resource_get_version (compositor_resource), id);
   wl_resource_set_implementation (surface->resource, &meta_wayland_wl_surface_interface, surface, wl_surface_destructor);
 
-  surface->surface_actor = g_object_ref_sink (meta_surface_actor_wayland_new (surface));
-
   wl_list_init (&surface->pending_frame_callback_list);
-
-  g_signal_connect_object (surface->surface_actor,
-                           "notify::allocation",
-                           G_CALLBACK (surface_actor_allocation_notify),
-                           surface, 0);
-  g_signal_connect_object (surface->surface_actor,
-                           "notify::position",
-                           G_CALLBACK (surface_actor_position_notify),
-                           surface, 0);
-  g_signal_connect_object (surface->surface_actor,
-                           "notify::mapped",
-                           G_CALLBACK (surface_actor_mapped_notify),
-                           surface, 0);
 
   sync_drag_dest_funcs (surface);
 
   surface->outputs_to_destroy_notify_id = g_hash_table_new (NULL, NULL);
   surface->shortcut_inhibited_seats = g_hash_table_new (NULL, NULL);
+
+  meta_wayland_compositor_notify_surface_id (compositor, id, surface);
 
   return surface;
 }
@@ -1343,7 +1273,6 @@ meta_wayland_surface_begin_grab_op (MetaWaylandSurface *surface,
      constrain it in the same way as it would be if the window was
      being moved/resized via a SSD event. */
   return meta_display_begin_grab_op (window->display,
-                                     window->screen,
                                      window,
                                      grab_op,
                                      TRUE, /* pointer_already_grabbed */
@@ -1506,7 +1435,7 @@ meta_wayland_surface_get_relative_coordinates (MetaWaylandSurface *surface,
   else
     {
       ClutterActor *actor =
-        CLUTTER_ACTOR (meta_surface_actor_get_texture (surface->surface_actor));
+        CLUTTER_ACTOR (meta_surface_actor_get_texture (meta_wayland_surface_get_actor (surface)));
 
       clutter_actor_transform_stage_point (actor, abs_x, abs_y, sx, sy);
       *sx /= surface->scale;
@@ -1522,7 +1451,7 @@ meta_wayland_surface_get_absolute_coordinates (MetaWaylandSurface *surface,
                                                float               *y)
 {
   ClutterActor *actor =
-    CLUTTER_ACTOR (meta_surface_actor_get_texture (surface->surface_actor));
+    CLUTTER_ACTOR (meta_surface_actor_get_texture (meta_wayland_surface_get_actor (surface)));
   ClutterVertex sv = {
     .x = sx * surface->scale,
     .y = sy * surface->scale,
@@ -1539,6 +1468,10 @@ static void
 meta_wayland_surface_init (MetaWaylandSurface *surface)
 {
   surface->pending = g_object_new (META_TYPE_WAYLAND_PENDING_STATE, NULL);
+
+  g_signal_connect (surface, "geometry-changed",
+                    G_CALLBACK (meta_wayland_surface_update_outputs_recursively),
+                    NULL);
 }
 
 static void
@@ -1580,6 +1513,13 @@ meta_wayland_surface_class_init (MetaWaylandSurfaceClass *klass)
 
   surface_signals[SURFACE_SHORTCUTS_RESTORED] =
     g_signal_new ("shortcuts-restored",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
+  surface_signals[SURFACE_GEOMETRY_CHANGED] =
+    g_signal_new ("geometry-changed",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL,
@@ -1791,4 +1731,19 @@ meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurface *surface,
     return FALSE;
 
   return g_hash_table_contains (surface->shortcut_inhibited_seats, seat);
+}
+
+MetaSurfaceActor *
+meta_wayland_surface_get_actor (MetaWaylandSurface *surface)
+{
+  if (!surface->role || !META_IS_WAYLAND_ACTOR_SURFACE (surface->role))
+    return NULL;
+
+  return meta_wayland_actor_surface_get_actor (META_WAYLAND_ACTOR_SURFACE (surface->role));
+}
+
+void
+meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface)
+{
+  g_signal_emit (surface, surface_signals[SURFACE_GEOMETRY_CHANGED], 0);
 }

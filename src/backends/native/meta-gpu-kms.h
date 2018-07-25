@@ -29,16 +29,10 @@
 #include "backends/meta-gpu.h"
 #include "backends/native/meta-monitor-manager-kms.h"
 
-typedef enum
-{
-  META_GPU_KMS_ERROR_NO_CONNECTORS,
-} MetaGpuKmsError;
-
-#define META_GPU_KMS_ERROR (meta_gpu_kms_error_quark ())
-GQuark meta_gpu_kms_error_quark (void);
-
 #define META_TYPE_GPU_KMS (meta_gpu_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaGpuKms, meta_gpu_kms, META, GPU_KMS, MetaGpu)
+
+typedef struct _MetaGpuKmsFlipClosureContainer MetaGpuKmsFlipClosureContainer;
 
 typedef struct _MetaKmsResources
 {
@@ -91,5 +85,10 @@ gboolean meta_drm_mode_equal (const drmModeModeInfo *one,
                               const drmModeModeInfo *two);
 
 float meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *mode);
+
+MetaGpuKmsFlipClosureContainer * meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
+                                                                 GClosure   *flip_closure);
+
+void meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container);
 
 #endif /* META_GPU_KMS_H */

@@ -1,15 +1,15 @@
 AC_PREREQ(2.62)
 
 m4_define([mutter_major_version], [3])
-m4_define([mutter_minor_version], [28])
-m4_define([mutter_micro_version], [3])
+m4_define([mutter_minor_version], [29])
+m4_define([mutter_micro_version], [4])
 
 m4_define([mutter_version],
           [mutter_major_version.mutter_minor_version.mutter_micro_version])
 
 m4_define([mutter_plugin_api_version], [3])
 
-m4_define([libmutter_api_version], [2])
+m4_define([libmutter_api_version], [3])
 
 AC_INIT([mutter], [mutter_version],
         [http://bugzilla.gnome.org/enter_bug.cgi?product=mutter])
@@ -88,7 +88,6 @@ MUTTER_PC_MODULES="
    cairo >= 1.10.0
    gsettings-desktop-schemas >= 3.21.4
    json-glib-1.0
-   upower-glib >= 0.99.0
    gnome-desktop-3.0
    xcomposite >= 0.2
    xcursor
@@ -290,13 +289,24 @@ AS_IF([test "$have_native_backend" = "yes"], [
 ])
 AM_CONDITIONAL([HAVE_NATIVE_BACKEND],[test "$have_native_backend" = "yes"])
 
+MUTTER_WAYLAND_EGLSTREAM_MODULES="wayland-eglstream-protocols"
+
 AC_ARG_ENABLE(egl-device,
   AS_HELP_STRING([--enable-egl-device], [enable support for EGLDevice on top of KMS]),,
   enable_egl_device=no
+  have_wayland_eglstream=no
 )
 AS_IF([test "$enable_egl_device" = "yes"], [
   AC_DEFINE([HAVE_EGL_DEVICE],[1], [Defined if EGLDevice support is enabled])
+  PKG_CHECK_EXISTS([$MUTTER_WAYLAND_EGLSTREAM_MODULES], [have_wayland_eglstream=yes], [have_wayland_eglstream=no])
 ])
+AS_IF([test "$have_wayland_eglstream" = "yes"], [
+  AC_DEFINE([HAVE_WAYLAND_EGLSTREAM],[1],[Defined if Wayland EGLStream protocols are available])
+  PKG_CHECK_MODULES(WAYLAND_EGLSTREAM, [$MUTTER_WAYLAND_EGLSTREAM_MODULES],
+                    [ac_wayland_eglstream_pkgdatadir=`$PKG_CONFIG --variable=pkgdatadir $MUTTER_WAYLAND_EGLSTREAM_MODULES`])
+  AC_SUBST(WAYLAND_EGLSTREAM_DATADIR, $ac_wayland_eglstream_pkgdatadir)
+])
+AM_CONDITIONAL([HAVE_WAYLAND_EGLSTREAM],[test "$have_wayland_eglstream" = "yes"])
 
 MUTTER_WAYLAND_MODULES="wayland-server >= 1.13.0"
 
@@ -549,6 +559,7 @@ mutter-$VERSION
 	Introspection:            ${found_introspection}
 	Session management:       ${found_sm}
 	Wayland:                  ${have_wayland}
+	Wayland EGLStream:        ${have_wayland_eglstream}
 	Native (KMS) backend:     ${have_native_backend}
 	EGLDevice:                ${enable_egl_device}
 	Remote desktop:           ${enable_remote_desktop}

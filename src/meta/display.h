@@ -26,6 +26,7 @@
 #include <meta/types.h>
 #include <meta/prefs.h>
 #include <meta/common.h>
+#include <meta/workspace.h>
 
 /**
  * MetaTabList:
@@ -73,20 +74,15 @@ GType meta_display_get_type (void) G_GNUC_CONST;
 
 #define meta_XFree(p) do { if ((p)) XFree ((p)); } while (0)
 
-int meta_display_get_xinput_opcode (MetaDisplay *display);
 gboolean meta_display_supports_extended_barriers (MetaDisplay *display);
-Display *meta_display_get_xdisplay (MetaDisplay *display);
-MetaCompositor *meta_display_get_compositor (MetaDisplay *display);
 
-gboolean meta_display_has_shape (MetaDisplay *display);
+void meta_display_close (MetaDisplay *display,
+                         guint32      timestamp);
+
+MetaCompositor *meta_display_get_compositor  (MetaDisplay *display);
+MetaX11Display *meta_display_get_x11_display (MetaDisplay *display);
 
 MetaWindow *meta_display_get_focus_window (MetaDisplay *display);
-
-gboolean  meta_display_xwindow_is_a_no_focus_window (MetaDisplay *display,
-                                                     Window xwindow);
-
-int meta_display_get_damage_event_base (MetaDisplay *display);
-int meta_display_get_shape_event_base (MetaDisplay *display);
 
 gboolean meta_display_xserver_time_is_before (MetaDisplay *display,
                                               guint32      time1,
@@ -111,7 +107,6 @@ MetaWindow* meta_display_get_tab_current (MetaDisplay   *display,
                                           MetaWorkspace *workspace);
 
 gboolean meta_display_begin_grab_op (MetaDisplay *display,
-                                     MetaScreen  *screen,
                                      MetaWindow  *window,
                                      MetaGrabOp   op,
                                      gboolean     pointer_already_grabbed,
@@ -145,37 +140,11 @@ guint meta_display_get_keybinding_action (MetaDisplay  *display,
                                           unsigned int  keycode,
                                           unsigned long mask);
 
-/* meta_display_set_input_focus_window is like XSetInputFocus, except
- * that (a) it can't detect timestamps later than the current time,
- * since Mutter isn't part of the XServer, and thus gives erroneous
- * behavior in this circumstance (so don't do it), (b) it uses
- * display->last_focus_time since we don't have access to the true
- * Xserver one, (c) it makes use of display->user_time since checking
- * whether a window should be allowed to be focused should depend
- * on user_time events (see bug 167358, comment 15 in particular)
- */
-void meta_display_set_input_focus_window   (MetaDisplay *display,
-                                            MetaWindow  *window,
-                                            gboolean     focus_frame,
-                                            guint32      timestamp);
-
-/* meta_display_focus_the_no_focus_window is called when the
- * designated no_focus_window should be focused, but is otherwise the
- * same as meta_display_set_input_focus_window
- */
-void meta_display_focus_the_no_focus_window (MetaDisplay *display,
-                                             MetaScreen  *screen,
-                                             guint32      timestamp);
-
 GSList *meta_display_sort_windows_by_stacking (MetaDisplay *display,
                                                GSList      *windows);
 
 void meta_display_add_ignored_crossing_serial (MetaDisplay  *display,
                                                unsigned long serial);
-
-void meta_display_unmanage_screen (MetaDisplay *display,
-                                   MetaScreen  *screen,
-                                   guint32      timestamp);
 
 void meta_display_clear_mouse_mode (MetaDisplay *display);
 
@@ -195,5 +164,66 @@ gchar * meta_display_get_pad_action_label (MetaDisplay        *display,
                                            ClutterInputDevice *pad,
                                            MetaPadActionType   action_type,
                                            guint               action_number);
+
+void meta_display_get_size (MetaDisplay *display,
+                            int         *width,
+                            int         *height);
+
+void meta_display_set_cursor (MetaDisplay *display,
+                              MetaCursor   cursor);
+
+GSList *meta_display_get_startup_sequences (MetaDisplay *display);
+
+/**
+ * MetaDisplayDirection:
+ * @META_DISPLAY_UP: up
+ * @META_DISPLAY_DOWN: down
+ * @META_DISPLAY_LEFT: left
+ * @META_DISPLAY_RIGHT: right
+ */
+typedef enum
+{
+  META_DISPLAY_UP,
+  META_DISPLAY_DOWN,
+  META_DISPLAY_LEFT,
+  META_DISPLAY_RIGHT
+} MetaDisplayDirection;
+
+int  meta_display_get_n_monitors       (MetaDisplay   *display);
+int  meta_display_get_primary_monitor  (MetaDisplay   *display);
+int  meta_display_get_current_monitor  (MetaDisplay   *display);
+void meta_display_get_monitor_geometry (MetaDisplay   *display,
+                                        int            monitor,
+                                        MetaRectangle *geometry);
+
+gboolean meta_display_get_monitor_in_fullscreen (MetaDisplay *display,
+                                                 int          monitor);
+
+int meta_display_get_monitor_index_for_rect (MetaDisplay   *display,
+                                             MetaRectangle *rect);
+
+int meta_display_get_monitor_neighbor_index (MetaDisplay         *display,
+                                             int                  which_monitor,
+                                             MetaDisplayDirection dir);
+
+void meta_display_focus_default_window (MetaDisplay *display,
+                                        guint32      timestamp);
+
+/**
+ * MetaDisplayCorner:
+ * @META_DISPLAY_TOPLEFT: top-left corner
+ * @META_DISPLAY_TOPRIGHT: top-right corner
+ * @META_DISPLAY_BOTTOMLEFT: bottom-left corner
+ * @META_DISPLAY_BOTTOMRIGHT: bottom-right corner
+ */
+typedef enum
+{
+  META_DISPLAY_TOPLEFT,
+  META_DISPLAY_TOPRIGHT,
+  META_DISPLAY_BOTTOMLEFT,
+  META_DISPLAY_BOTTOMRIGHT
+} MetaDisplayCorner;
+
+MetaWorkspaceManager *meta_display_get_workspace_manager (MetaDisplay *display);
 
 #endif
