@@ -71,15 +71,13 @@ gtk_surface_set_dbus_properties (struct wl_client   *client,
 {
   MetaWaylandGtkSurface *gtk_surface = wl_resource_get_user_data (resource);
   MetaWaylandSurface *surface = gtk_surface->surface;
+  MetaWindow *window;
 
-  /* Broken client, let it die instead of us */
-  if (!surface->window)
-    {
-      meta_warning ("meta-wayland-surface: set_dbus_properties called with invalid window!\n");
-      return;
-    }
+  window = surface->window;
+  if (!window)
+    return;
 
-  meta_window_set_gtk_dbus_properties (surface->window,
+  meta_window_set_gtk_dbus_properties (window,
                                        application_id,
                                        unique_bus_name,
                                        app_menu_path,
@@ -94,6 +92,11 @@ gtk_surface_set_modal (struct wl_client   *client,
 {
   MetaWaylandGtkSurface *gtk_surface = wl_resource_get_user_data (resource);
   MetaWaylandSurface *surface = gtk_surface->surface;
+  MetaWindow *window;
+
+  window = surface->window;
+  if (!window)
+    return;
 
   if (gtk_surface->is_modal)
     return;
@@ -108,6 +111,11 @@ gtk_surface_unset_modal (struct wl_client   *client,
 {
   MetaWaylandGtkSurface *gtk_surface = wl_resource_get_user_data (resource);
   MetaWaylandSurface *surface = gtk_surface->surface;
+  MetaWindow *window;
+
+  window = surface->window;
+  if (!window)
+    return;
 
   if (!gtk_surface->is_modal)
     return;
@@ -123,8 +131,9 @@ gtk_surface_present (struct wl_client   *client,
 {
   MetaWaylandGtkSurface *gtk_surface = wl_resource_get_user_data (resource);
   MetaWaylandSurface *surface = gtk_surface->surface;
-  MetaWindow *window = surface->window;
+  MetaWindow *window;
 
+  window = surface->window;
   if (!window)
     return;
 
