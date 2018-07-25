@@ -298,14 +298,23 @@ meta_wayland_keyboard_broadcast_key (MetaWaylandKeyboard *keyboard,
     {
       MetaWaylandInputDevice *input_device =
         META_WAYLAND_INPUT_DEVICE (keyboard);
+      uint32_t serial;
 
-      keyboard->key_serial =
-        meta_wayland_input_device_next_serial (input_device);
+      serial = meta_wayland_input_device_next_serial (input_device);
+
+      if (state)
+        {
+          keyboard->key_down_serial = serial;
+          keyboard->key_down_keycode = key;
+        }
+      else
+        {
+          keyboard->key_up_serial = serial;
+          keyboard->key_up_keycode = key;
+        }
 
       wl_resource_for_each (resource, &keyboard->focus_resource_list)
-        {
-          wl_keyboard_send_key (resource, keyboard->key_serial, time, key, state);
-        }
+        wl_keyboard_send_key (resource, serial, time, key, state);
     }
 
   /* Eat the key events if we have a focused surface. */
@@ -1026,7 +1035,9 @@ gboolean
 meta_wayland_keyboard_can_popup (MetaWaylandKeyboard *keyboard,
                                  uint32_t             serial)
 {
-  return keyboard->key_serial == serial;
+  return (keyboard->key_down_serial == serial ||
+          ((keyboard->key_down_keycode == keyboard->key_up_keycode) &&
+           keyboard->key_up_serial == serial));
 }
 
 void
