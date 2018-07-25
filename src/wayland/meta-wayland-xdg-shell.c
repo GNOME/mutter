@@ -961,6 +961,7 @@ meta_wayland_xdg_popup_commit (MetaWaylandSurfaceRole  *surface_role,
   if (!surface->buffer_ref.buffer && xdg_surface_priv->first_buffer_attached)
     {
       meta_wayland_xdg_surface_reset (xdg_surface);
+      meta_wayland_surface_cache_pending_frame_callbacks (surface, pending);
       return;
     }
 
