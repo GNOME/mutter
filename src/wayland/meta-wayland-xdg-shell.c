@@ -626,7 +626,12 @@ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
 
   if (!surface->buffer_ref.buffer && xdg_surface_priv->first_buffer_attached)
     {
+      MetaWaylandActorSurface *actor_surface =
+        META_WAYLAND_ACTOR_SURFACE (xdg_toplevel);
+
       meta_wayland_xdg_surface_reset (xdg_surface);
+      meta_wayland_actor_surface_queue_frame_callbacks (actor_surface,
+                                                        pending);
       return;
     }
 
