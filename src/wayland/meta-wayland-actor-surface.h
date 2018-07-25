@@ -40,4 +40,7 @@ void meta_wayland_actor_surface_sync_actor_state (MetaWaylandActorSurface *actor
 
 double meta_wayland_actor_surface_calculate_scale (MetaWaylandActorSurface *actor_surface);
 
+void queue_surface_actor_queue_frame_callbacks (MetaWaylandSurface      *surface,
+                                                MetaWaylandPendingState *pending);
+
 #endif /* META_WAYLAND_ACTOR_SURFACE_H */

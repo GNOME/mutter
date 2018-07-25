@@ -47,9 +47,9 @@ meta_wayland_actor_surface_assigned (MetaWaylandSurfaceRole *surface_role)
   wl_list_init (&surface->pending_frame_callback_list);
 }
 
-static void
-queue_surface_actor_frame_callbacks (MetaWaylandSurface      *surface,
-                                     MetaWaylandPendingState *pending)
+void
+queue_surface_actor_queue_frame_callbacks (MetaWaylandSurface      *surface,
+                                           MetaWaylandPendingState *pending)
 {
   MetaSurfaceActorWayland *surface_actor =
     META_SURFACE_ACTOR_WAYLAND (surface->surface_actor);
@@ -167,7 +167,7 @@ meta_wayland_actor_surface_commit (MetaWaylandSurfaceRole  *surface_role,
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWaylandSurface *toplevel_surface;
 
-  queue_surface_actor_frame_callbacks (surface, pending);
+  queue_surface_actor_queue_frame_callbacks (surface, pending);
 
   toplevel_surface = meta_wayland_surface_get_toplevel (surface);
   if (!toplevel_surface || !toplevel_surface->window)
