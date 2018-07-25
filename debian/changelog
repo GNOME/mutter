@@ -1,4 +1,4 @@
-mutter (3.29.4-1) UNRELEASED; urgency=medium
+mutter (3.29.4-1) experimental; urgency=medium
 
   * debian/control*, gbp.conf: Update for experimental (3.29 series).
   * New upstream release 3.29.4 (etc)
@@ -25,7 +25,7 @@ mutter (3.29.4-1) UNRELEASED; urgency=medium
     this is applied upstream.
   * debian/*: SONAME 2 -> 3
 
- -- Iain Lane <laney@debian.org>  Wed, 25 Jul 2018 13:50:32 +0100
+ -- Iain Lane <laney@debian.org>  Wed, 25 Jul 2018 17:39:37 +0100
 
 mutter (3.28.3-1) unstable; urgency=medium
 
