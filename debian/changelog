@@ -19,6 +19,8 @@ mutter (3.29.4-1) UNRELEASED; urgency=medium
     + Consider display rotation for cursor
     + Fall back to non-modifier GBM surfaces
     + Take inhibitors into account for monitoring idle
+  * debian/control*: Drop libupower-glib BD - mutter now accesses upower
+    directly.
 
  -- Iain Lane <laney@debian.org>  Wed, 25 Jul 2018 13:50:32 +0100
 
