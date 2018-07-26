@@ -1,5 +1,5 @@
-libmutter-2.so.0 libmutter-2-0 #MINVER#
-* Build-Depends-Package: libmutter-2-dev
+libmutter-3.so.0 libmutter-3-0 #MINVER#
+* Build-Depends-Package: libmutter-3-dev
  meta_activate_session@Base 3.28.2
  meta_activate_vt@Base 3.28.2
  meta_actor_is_untransformed@Base 3.28.2
