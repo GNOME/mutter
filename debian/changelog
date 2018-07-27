@@ -1,3 +1,13 @@
+mutter (3.29.4-2) experimental; urgency=medium
+
+  * Generate dependencies for libmutter-3-0, not libmutter-2-0
+  * d/libmutter-3-0.symbols: Update
+  * Standards-Version: 4.1.5 (no changes required)
+  * Set Rules-Requires-Root to no
+  * d/copyright: Remove obsolete FSF postal addresses
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 27 Jul 2018 09:49:53 +0100
+
 mutter (3.29.4-1) experimental; urgency=medium
 
   * debian/control*, gbp.conf: Update for experimental (3.29 series).
