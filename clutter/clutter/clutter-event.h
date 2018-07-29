@@ -772,7 +772,10 @@ void                    clutter_event_get_gesture_motion_delta       (const Clut
                                                                       gdouble                *dx,
                                                                       gdouble                *dy);
 
+CLUTTER_AVAILABLE_IN_1_26
 ClutterScrollSource      clutter_event_get_scroll_source             (const ClutterEvent     *event);
+
+CLUTTER_AVAILABLE_IN_1_26
 ClutterScrollFinishFlags clutter_event_get_scroll_finish_flags       (const ClutterEvent     *event);
 
 CLUTTER_EXPORT
