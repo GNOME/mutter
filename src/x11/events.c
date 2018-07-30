@@ -1028,13 +1028,6 @@ convert_property (MetaX11Display *x11_display,
   if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
     return FALSE;
 
-  /* Be sure the PropertyNotify has arrived so we
-   * can send SelectionNotify
-   */
-  /* FIXME the error trap pop synced anyway, right? */
-  meta_topic (META_DEBUG_SYNC, "Syncing on %s\n", G_STRFUNC);
-  XSync (x11_display->xdisplay, False);
-
   return TRUE;
 }
 
