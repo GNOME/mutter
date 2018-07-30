@@ -814,7 +814,7 @@ meta_input_settings_find_monitor (MetaInputSettings   *input_settings,
   gchar **edid;
 
   priv = meta_input_settings_get_instance_private (input_settings);
-  edid = g_settings_get_strv (settings, "display");
+  edid = g_settings_get_strv (settings, "output");
   n_values = g_strv_length (edid);
 
   if (n_values != 3)
@@ -1157,7 +1157,7 @@ mapped_device_changed_cb (GSettings         *settings,
                           const gchar       *key,
                           DeviceMappingInfo *info)
 {
-  if (strcmp (key, "display") == 0)
+  if (strcmp (key, "output") == 0)
     update_device_display (info->input_settings, settings, info->device);
   else if (strcmp (key, "mapping") == 0)
     update_tablet_mapping (info->input_settings, settings, info->device);
@@ -2071,7 +2071,7 @@ meta_input_settings_cycle_tablet_output (MetaInputSettings  *input_settings,
       edid[1] = "";
       edid[2] = "";
     }
-  g_settings_set_strv (info->settings, "display", edid);
+  g_settings_set_strv (info->settings, "output", edid);
 
   meta_display_show_tablet_mapping_notification (meta_get_display (),
                                                  device, pretty_name);
