@@ -5,6 +5,7 @@ core-Return-1-if-meta_window_get_monitor-is-called-on-an-.patch
 bgo768531_workaround-startup-notifications.patch
 native-gpu-Handle-drmModeSetCrtc-failing-gracefully.patch
 gpu-kms-Don-t-crash-if-drmModeGetResources-returns-N.patch
+window-wayland-Always-update-monitor-for-non-user-ops.patch
 debian/synaptics-support.patch
 debian/skip-failing-tests.patch
 debian/skip-failing-tests-325.patch
