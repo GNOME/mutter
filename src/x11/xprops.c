@@ -933,11 +933,6 @@ meta_prop_get_values (MetaX11Display *x11_display,
       ++i;
     }
 
-  /* Get replies for all our tasks */
-  meta_topic (META_DEBUG_SYNC, "Syncing to get %d GetProperty replies in %s\n",
-              n_values, G_STRFUNC);
-  XSync (x11_display->xdisplay, False);
-
   /* Collect results, should arrive in order requested */
   i = 0;
   while (i < n_values)
