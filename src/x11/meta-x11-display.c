@@ -1704,7 +1704,7 @@ meta_x11_display_set_cm_selection (MetaX11Display *x11_display)
   Atom a;
   guint32 timestamp;
 
-  timestamp = meta_x11_display_get_current_time_roundtrip (x11_display);
+  timestamp = meta_display_get_current_time_roundtrip (x11_display->display);
   g_snprintf (selection, sizeof (selection), "_NET_WM_CM_S%d",
               DefaultScreen (x11_display->xdisplay));
   a = XInternAtom (x11_display->xdisplay, selection, False);

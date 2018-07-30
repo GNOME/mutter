@@ -916,7 +916,7 @@ handle_input_xevent (MetaX11Display *x11_display,
                           "125492).  Setting the default focus window.\n");
               meta_workspace_focus_default_window (workspace_manager->active_workspace,
                                                    NULL,
-                                                   meta_x11_display_get_current_time_roundtrip (x11_display));
+                                                   meta_display_get_current_time_roundtrip (display));
             }
           else if (enter_event->evtype == XI_FocusIn &&
                    enter_event->mode == XINotifyNormal &&
@@ -928,7 +928,7 @@ handle_input_xevent (MetaX11Display *x11_display,
                           "153220).  Setting the default focus window.\n");
               meta_workspace_focus_default_window (workspace_manager->active_workspace,
                                                    NULL,
-                                                   meta_x11_display_get_current_time_roundtrip (x11_display));
+                                                   meta_display_get_current_time_roundtrip (display));
             }
         }
       break;
@@ -1556,7 +1556,7 @@ handle_other_xevent (MetaX11Display *x11_display,
                       meta_warning ("Received a NET_CURRENT_DESKTOP message "
                                     "from a broken (outdated) client who sent "
                                     "a 0 timestamp\n");
-                      time = meta_x11_display_get_current_time_roundtrip (x11_display);
+                      time = meta_display_get_current_time_roundtrip (display);
                     }
 
                   if (workspace)
@@ -1584,7 +1584,7 @@ handle_other_xevent (MetaX11Display *x11_display,
 
                   showing_desktop = event->xclient.data.l[0] != 0;
                   /* FIXME: Braindead protocol doesn't have a timestamp */
-                  timestamp = meta_x11_display_get_current_time_roundtrip (x11_display);
+                  timestamp = meta_display_get_current_time_roundtrip (display);
                   meta_verbose ("Request to %s desktop\n",
                                 showing_desktop ? "show" : "hide");
 
