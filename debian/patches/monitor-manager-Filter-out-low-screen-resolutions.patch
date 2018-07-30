@@ -1,0 +1,90 @@
+From: Andrea Azzarone <azzaronea@gmail.com>
+Date: Mon, 16 Jul 2018 18:09:40 +0200
+Subject: monitor-manager: Filter out low screen resolutions
+
+Avoid exporting through org.gnome.Mutter.DisplayConfig.GetCurrentState
+excessively-low screen resolutions setting both a minimum width and a minimum
+height. GetCurrentState is e.g. used by Gnome Control Center to build a list of
+selectable resolutions.
+
+Fixes: https://bugzilla.gnome.org/show_bug.cgi?id=793223
+
+(cherry picked from commit 649c26e05a67c52a4f5acf6b4aa3b1217e9bc9c0)
+
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/gnome-control-center/+bug/1772831
+Bug-GNOME: https://bugzilla.gnome.org/show_bug.cgi?id=793223
+Applied-Upstream: 3.28.4, commit:https://gitlab.gnome.org/GNOME/mutter/commit/0c5e61a2a
+---
+ src/backends/meta-monitor-manager.c |  4 ++++
+ src/backends/meta-monitor.c         | 19 +++++++++++++++++--
+ src/backends/meta-monitor.h         |  2 ++
+ 3 files changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/src/backends/meta-monitor-manager.c b/src/backends/meta-monitor-manager.c
+index 5bd34ad..c4c1db5 100644
+--- a/src/backends/meta-monitor-manager.c
++++ b/src/backends/meta-monitor-manager.c
+@@ -1323,9 +1323,13 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
+           GVariantBuilder mode_properties_builder;
+           MetaCrtcModeFlag mode_flags;
+ 
++          if (!meta_monitor_mode_should_be_advertised (monitor_mode))
++            continue;
++
+           mode_id = meta_monitor_mode_get_id (monitor_mode);
+           meta_monitor_mode_get_resolution (monitor_mode,
+                                             &mode_width, &mode_height);
++
+           refresh_rate = meta_monitor_mode_get_refresh_rate (monitor_mode);
+ 
+           preferred_scale =
+diff --git a/src/backends/meta-monitor.c b/src/backends/meta-monitor.c
+index 9833066..92c61c0 100644
+--- a/src/backends/meta-monitor.c
++++ b/src/backends/meta-monitor.c
+@@ -1553,6 +1553,22 @@ meta_monitor_calculate_mode_scale (MetaMonitor     *monitor,
+   return calculate_scale (monitor, monitor_mode);
+ }
+ 
++static gboolean
++is_logical_size_large_enough (gint width, gint height)
++{
++  return width >= MINIMUM_LOGICAL_WIDTH &&
++         height >= MINIMUM_LOGICAL_HEIGHT;
++}
++
++gboolean
++meta_monitor_mode_should_be_advertised (MetaMonitorMode *monitor_mode)
++{
++  g_return_val_if_fail (monitor_mode != NULL, FALSE);
++
++  return is_logical_size_large_enough (monitor_mode->spec.width,
++                                       monitor_mode->spec.height);
++}
++
+ static float
+ get_closest_scale_factor_for_resolution (float width,
+                                          float height,
+@@ -1573,8 +1589,7 @@ get_closest_scale_factor_for_resolution (float width,
+ 
+   if (scale < MINIMUM_SCALE_FACTOR ||
+       scale > MAXIMUM_SCALE_FACTOR ||
+-      floorf (scaled_w) < MINIMUM_LOGICAL_WIDTH ||
+-      floorf (scaled_h) < MINIMUM_LOGICAL_HEIGHT)
++      !is_logical_size_large_enough (floorf (scaled_w), floorf (scaled_h)))
+     goto out;
+ 
+   if (floorf (scaled_w) == scaled_w && floorf (scaled_h) == scaled_h)
+diff --git a/src/backends/meta-monitor.h b/src/backends/meta-monitor.h
+index bc79778..213ff2c 100644
+--- a/src/backends/meta-monitor.h
++++ b/src/backends/meta-monitor.h
+@@ -219,6 +219,8 @@ gboolean meta_monitor_mode_foreach_output (MetaMonitor        *monitor,
+                                            gpointer            user_data,
+                                            GError            **error);
+ 
++gboolean meta_monitor_mode_should_be_advertised (MetaMonitorMode *monitor_mode);
++
+ MetaMonitorSpec * meta_monitor_spec_clone (MetaMonitorSpec *monitor_id);
+ 
+ gboolean meta_monitor_spec_equals (MetaMonitorSpec *monitor_id,
