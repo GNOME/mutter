@@ -1,3 +1,10 @@
+mutter (3.29.4-3) UNRELEASED; urgency=medium
+
+  * d/p/window-wayland-Always-update-monitor-for-non-user-ops.patch:
+    - Always update monitor in wayland, avoiding crash (LP: #1784398)
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Mon, 30 Jul 2018 18:27:50 +0200
+
 mutter (3.29.4-2) experimental; urgency=medium
 
   * Generate dependencies for libmutter-3-0, not libmutter-2-0
