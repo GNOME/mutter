@@ -2,6 +2,8 @@ mutter (3.29.4-3) UNRELEASED; urgency=medium
 
   * d/p/window-wayland-Always-update-monitor-for-non-user-ops.patch:
     - Always update monitor in wayland, avoiding crash (LP: #1784398)
+  * d/p/monitor-manager-Filter-out-low-screen-resolutions.patch:
+    - Don't return screen resolutions that can't be applied (LP: #1772831)
 
  -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Mon, 30 Jul 2018 18:27:50 +0200
 

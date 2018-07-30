@@ -2,6 +2,7 @@ theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 clutter-Smooth-out-master-clock-to-smooth-visuals.patch
 bgo768531_workaround-startup-notifications.patch
+monitor-manager-Filter-out-low-screen-resolutions.patch
 window-wayland-Always-update-monitor-for-non-user-ops.patch
 debian/synaptics-support.patch
 debian/skip-failing-tests.patch
