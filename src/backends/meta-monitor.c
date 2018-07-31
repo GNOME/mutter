@@ -203,13 +203,9 @@ meta_monitor_get_main_output (MetaMonitor *monitor)
 gboolean
 meta_monitor_is_active (MetaMonitor *monitor)
 {
-  MetaOutput *output;
-  MetaCrtc *crtc;
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-  crtc = meta_output_get_assigned_crtc (output);
-
-  return crtc && crtc->current_mode;
+  return !!priv->current_mode;
 }
 
 gboolean
@@ -1411,6 +1407,18 @@ meta_monitor_get_current_mode (MetaMonitor *monitor)
   return priv->current_mode;
 }
 
+static gboolean
+is_current_mode_known (MetaMonitor *monitor)
+{
+  MetaOutput *output;
+  MetaCrtc *crtc;
+
+  output = meta_monitor_get_main_output (monitor);
+  crtc = meta_output_get_assigned_crtc (output);
+
+  return meta_monitor_is_active (monitor) == (crtc && crtc->current_mode);
+}
+
 void
 meta_monitor_derive_current_mode (MetaMonitor *monitor)
 {
@@ -1430,6 +1438,8 @@ meta_monitor_derive_current_mode (MetaMonitor *monitor)
     }
 
   priv->current_mode = current_mode;
+
+  g_warn_if_fail (is_current_mode_known (monitor));
 }
 
 void
