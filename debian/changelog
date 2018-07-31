@@ -1,4 +1,6 @@
-mutter (3.28.3-2) UNRELEASED; urgency=medium
+mutter (3.28.3-2) unstable; urgency=medium
+
+  * Team upload
 
   [ Iain Lane ]
   * debian/gbp.conf: Set the upstream branch to upstream/3.28.x, since we've
@@ -6,7 +8,8 @@ mutter (3.28.3-2) UNRELEASED; urgency=medium
 
   [ Marco Trevisan (Treviño) ]
   * d/p/native-gpu-Handle-drmModeSetCrtc-failing-gracefully.patch:
-    - Avoid crashing when warning about wrongly set crtc mode (LP: #1754949)
+    - Avoid crashing when warning about wrongly set crtc mode
+      (LP: #1754949)
   * d/p/gpu-kms-Don-t-crash-if-drmModeGetResources-returns-N.patch:
     - Don't crash if drmModeGetResources returns NULL  (LP: #1767956)
   * d/p/window-wayland-Always-update-monitor-for-non-user-ops.patch:
@@ -15,15 +18,21 @@ mutter (3.28.3-2) UNRELEASED; urgency=medium
     - Don't return screen resolutions that can't be applied (LP: #1772831)
   * d/p/window-Don-t-refuse-to-move-focus-to-the-grab-window.patch,
     d/p/window-Explicitly-exclude-unmanaging-window-from-focus-ag.patch:
-    - Don't crash if a modal dialog closes while being dragged (LP: #1422253)
+    - Don't crash if a modal dialog closes while being dragged
+      (LP: #1422253)
   * d/p/monitor-Use-current-monitor-mode-to-check-whether-active.patch:
-    - Don't try to use an invalid monitor mode to figure out scaling (LP: #1723615)
+    - Don't try to use an invalid monitor mode to figure out scaling
+      (LP: #1723615)
 
   [ Simon McVittie ]
   * Sort patch series in upstream order, with patches applied upstream
     first
+  * d/copyright: Remove obsolete FSF postal addresses
+  * Standards-Version: 4.1.5 (no changes required)
+  * Set Rules-Requires-Root to no
+  * Update symbols file
 
- -- Iain Lane <laney@debian.org>  Wed, 25 Jul 2018 13:47:12 +0100
+ -- Simon McVittie <smcv@debian.org>  Tue, 31 Jul 2018 15:35:03 +0100
 
 mutter (3.28.3-1) unstable; urgency=medium
 
