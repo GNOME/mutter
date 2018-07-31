@@ -1,3 +1,17 @@
+3.29.90
+=======
+* Various crash fixes [Olivier, Jonas, Florian; #189, #70, #194, #15, #130]
+* Don't expose resolutions that are below the minimum [Andrea; #793223]
+* Remove support for preference overrides [Florian; #786496]
+* Misc. bug fixes and cleanups [Daniel, Jonas, Florian; #131, #245, !176]
+
+Contributors:
+  Jonas Ådahl, Andrea Azzarone, Olivier Fourdan, Florian Müllner, Kevin Tamool,
+  Daniel van Vugt
+
+Translators:
+  Daniel Mustieles [es], Claude Paroz [fr]
+
 3.29.4
 ======
 * Fix crash with parent-less modal dialogs [Olivier; #174]
