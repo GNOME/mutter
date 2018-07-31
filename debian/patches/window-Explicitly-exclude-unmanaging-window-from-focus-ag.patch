@@ -1,0 +1,30 @@
+From: =?utf-8?q?Florian_M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 25 May 2018 21:24:17 +0200
+Subject: window: Explicitly exclude unmanaging window from focus again
+
+Since commit b3b9d9e16 we no longer have to pass the unmanaging window
+to make sure we don't try to focus it again, however the parameter also
+influences the focus policy by giving ancestors preference over the normal
+stack order.
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/15
+Origin: upstream, 3.29.90, commit:d99442d6e6b7c9b383863cc754db609398d4e65b
+---
+ src/core/window.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/core/window.c b/src/core/window.c
+index 5e0148c..e323668 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -1483,7 +1483,9 @@ meta_window_unmanage (MetaWindow  *window,
+       meta_topic (META_DEBUG_FOCUS,
+                   "Focusing default window since we're unmanaging %s\n",
+                   window->desc);
+-      meta_workspace_focus_default_window (workspace_manager->active_workspace, NULL, timestamp);
++      meta_workspace_focus_default_window (workspace_manager->active_workspace,
++                                           window,
++                                           timestamp);
+     }
+   else
+     {

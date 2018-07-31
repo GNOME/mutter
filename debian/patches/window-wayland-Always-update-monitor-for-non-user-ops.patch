@@ -24,7 +24,7 @@ Applied-upstream: 3.29.90, commit:https://gitlab.gnome.org/GNOME/mutter/commit/a
  1 file changed, 6 insertions(+)
 
 diff --git a/src/wayland/meta-window-wayland.c b/src/wayland/meta-window-wayland.c
-index 705bc49..8bafb25 100644
+index 260bd2d..601ea1b 100644
 --- a/src/wayland/meta-window-wayland.c
 +++ b/src/wayland/meta-window-wayland.c
 @@ -413,6 +413,12 @@ meta_window_wayland_update_main_monitor (MetaWindow *window,

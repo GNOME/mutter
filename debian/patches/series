@@ -1,5 +1,9 @@
 window-wayland-Always-update-monitor-for-non-user-ops.patch
+native-gpu-Handle-drmModeSetCrtc-failing-gracefully.patch
+wayland-Nullify-monitor-resources-when-updating-outputs.patch
 monitor-manager-Filter-out-low-screen-resolutions.patch
+window-Don-t-refuse-to-move-focus-to-the-grab-window.patch
+window-Explicitly-exclude-unmanaging-window-from-focus-ag.patch
 theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 clutter-Smooth-out-master-clock-to-smooth-visuals.patch

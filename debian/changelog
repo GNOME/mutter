@@ -9,6 +9,13 @@ mutter (3.29.4-3) UNRELEASED; urgency=medium
   [ Simon McVittie ]
   * d/p/series: Sort patches that were already applied upstream to the
     beginning of the patch series
+  * d/p/window-Don-t-refuse-to-move-focus-to-the-grab-window.patch,
+    d/p/window-Explicitly-exclude-unmanaging-window-from-focus-ag.patch:
+    Add patches from upstream to avoid crashing if a modal dialog closes
+    while being dragged (LP: #1422253)
+  * d/p/native-gpu-Handle-drmModeSetCrtc-failing-gracefully.patch,
+    d/p/wayland-Nullify-monitor-resources-when-updating-outputs.patch:
+    Add more bug fixes from upstream
 
  -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Mon, 30 Jul 2018 18:27:50 +0200
 

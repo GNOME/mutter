@@ -1,0 +1,33 @@
+From: =?utf-8?q?Florian_M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 25 May 2018 20:18:23 +0200
+Subject: window: Don't refuse to move focus to the grab window
+
+We refuse to move focus while a grab operation is in place. While this
+generally makes sense, there's no reason why the window that owns the
+grab shouldn't be given the regular input focus as well - we pretty
+much assume that the grab window is also the focus window anyway.
+
+In fact there's a strong reason for allowing the focus change here:
+If the grab window isn't the focus window, it probably has a modal
+transient that is focused instead, and a likely reason for the focus
+request is that the transient is being unmanaged and we must move
+the focus elsewhere.
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/15
+Origin: upstream, 3.29.90, commit:148da24f9510ebd23d750b8224aa0ab3a549e69e
+---
+ src/core/window.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/core/window.c b/src/core/window.c
+index 7ded9f3..5e0148c 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -4644,6 +4644,7 @@ meta_window_focus (MetaWindow  *window,
+               window->desc, window->input, window->take_focus);
+ 
+   if (window->display->grab_window &&
++      window->display->grab_window != window &&
+       window->display->grab_window->all_keys_grabbed &&
+       !window->display->grab_window->unmanaging)
+     {
