@@ -26,10 +26,10 @@ Applied-Upstream: 3.28.4, commit:https://gitlab.gnome.org/GNOME/mutter/commit/51
  1 file changed, 1 insertion(+)
 
 diff --git a/src/core/window.c b/src/core/window.c
-index d54711b..f9094a3 100644
+index 743326c..5b1eb5b 100644
 --- a/src/core/window.c
 +++ b/src/core/window.c
-@@ -4627,6 +4627,7 @@ meta_window_focus (MetaWindow  *window,
+@@ -4620,6 +4620,7 @@ meta_window_focus (MetaWindow  *window,
                window->desc, window->input, window->take_focus);
  
    if (window->display->grab_window &&

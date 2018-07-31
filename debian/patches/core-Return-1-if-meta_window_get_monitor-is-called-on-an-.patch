@@ -16,10 +16,10 @@ Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/bionic/+source/gnome-shell/+bug/17
  1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/src/core/window.c b/src/core/window.c
-index 743326c..441b5be 100644
+index cc0813a..f9094a3 100644
 --- a/src/core/window.c
 +++ b/src/core/window.c
-@@ -3750,11 +3750,16 @@ maybe_move_attached_dialog (MetaWindow *window,
+@@ -3752,11 +3752,16 @@ maybe_move_attached_dialog (MetaWindow *window,
   *
   * Gets index of the monitor that this window is on.
   *

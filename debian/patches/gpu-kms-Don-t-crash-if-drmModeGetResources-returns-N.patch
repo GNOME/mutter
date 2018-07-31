@@ -18,10 +18,10 @@ Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/gnome-shell/+bug/1767956
  1 file changed, 7 insertions(+)
 
 diff --git a/src/backends/native/meta-gpu-kms.c b/src/backends/native/meta-gpu-kms.c
-index c4a6fb0..1d1c288 100644
+index 613a607..259cd71 100644
 --- a/src/backends/native/meta-gpu-kms.c
 +++ b/src/backends/native/meta-gpu-kms.c
-@@ -804,6 +804,13 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
+@@ -801,6 +801,13 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
     */
    drm_resources = drmModeGetResources (kms_fd);
  

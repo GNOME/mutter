@@ -19,7 +19,7 @@ Applied-Upstream: 3.28.4, commit:https://gitlab.gnome.org/GNOME/mutter/commit/13
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/src/core/window.c b/src/core/window.c
-index 441b5be..d54711b 100644
+index 5b1eb5b..cc0813a 100644
 --- a/src/core/window.c
 +++ b/src/core/window.c
 @@ -1469,7 +1469,9 @@ meta_window_unmanage (MetaWindow  *window,
