@@ -1,0 +1,84 @@
+From: =?utf-8?q?Jonas_=C3=85dahl?= <jadahl@gmail.com>
+Date: Tue, 31 Jul 2018 13:18:51 +0200
+Subject: monitor: Use current monitor mode to check whether active
+
+For historical reasons meta_monitor_is_active() checked whether it is
+active by checking whether the main output have a CRTC assigned and
+whether that CRTC has a current mode. At a later point, the MetaMonitor
+got its own mode abstraction (MetaMonitorMode), but
+meta_monitor_is_active() was never updated to use this.
+
+An issue with checking the main output's CRTC state is that, if there is
+some CRTC mode combination that for some reason isn't properly detected
+by the MetaMonitorMode abstraction (e.g. some tiling configuration not
+yet handled), meta_monitor_is_active() would return TRUE, even though no
+(abstracted) mode was set. This would cause confusion here and there,
+leading to NULL pointer dereferences due to the assumption that if a
+monitor is active, it has an active mode.
+
+Instead, change meta_monitor_is_active() to directly check the current
+monitor mode, and log a warning if the main output still happen to have
+a CRTC with a mode assigned to it. This way, when an not undrestood CRTC
+mode combination is encountered, instead of dereferencing NULL pointers,
+simply assume the monitor is not active, which means that it will not be
+managed or rendered by mutter at all.
+
+https://gitlab.gnome.org/GNOME/mutter/issues/130
+
+(cherry picked from commit 4d465eac0806eb1ead375e2852d4a9d6bc24524f)
+
+Bug-GNOME: https://gitlab.gnome.org/GNOME/mutter/issues/130
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/gnome-shell/+bug/1723615
+Applied-Upstream: 3.28.4, commit:https://gitlab.gnome.org/GNOME/mutter/commit/d0d80780
+---
+ src/backends/meta-monitor.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
+
+diff --git a/src/backends/meta-monitor.c b/src/backends/meta-monitor.c
+index 92c61c0..60f3674 100644
+--- a/src/backends/meta-monitor.c
++++ b/src/backends/meta-monitor.c
+@@ -203,13 +203,9 @@ meta_monitor_get_main_output (MetaMonitor *monitor)
+ gboolean
+ meta_monitor_is_active (MetaMonitor *monitor)
+ {
+-  MetaOutput *output;
+-  MetaCrtc *crtc;
+-
+-  output = meta_monitor_get_main_output (monitor);
+-  crtc = meta_output_get_assigned_crtc (output);
++  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+ 
+-  return crtc && crtc->current_mode;
++  return !!priv->current_mode;
+ }
+ 
+ gboolean
+@@ -1411,6 +1407,18 @@ meta_monitor_get_current_mode (MetaMonitor *monitor)
+   return priv->current_mode;
+ }
+ 
++static gboolean
++is_current_mode_known (MetaMonitor *monitor)
++{
++  MetaOutput *output;
++  MetaCrtc *crtc;
++
++  output = meta_monitor_get_main_output (monitor);
++  crtc = meta_output_get_assigned_crtc (output);
++
++  return meta_monitor_is_active (monitor) == (crtc && crtc->current_mode);
++}
++
+ void
+ meta_monitor_derive_current_mode (MetaMonitor *monitor)
+ {
+@@ -1430,6 +1438,8 @@ meta_monitor_derive_current_mode (MetaMonitor *monitor)
+     }
+ 
+   priv->current_mode = current_mode;
++
++  g_warn_if_fail (is_current_mode_known (monitor));
+ }
+ 
+ void

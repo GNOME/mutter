@@ -16,6 +16,8 @@ mutter (3.28.3-2) UNRELEASED; urgency=medium
   * d/p/window-Don-t-refuse-to-move-focus-to-the-grab-window.patch,
     d/p/window-Explicitly-exclude-unmanaging-window-from-focus-ag.patch:
     - Don't crash if a modal dialog closes while being dragged (LP: #1422253)
+  * d/p/monitor-Use-current-monitor-mode-to-check-whether-active.patch:
+    - Don't try to use an invalid monitor mode to figure out scaling (LP: #1723615)
 
   [ Simon McVittie ]
   * Sort patch series in upstream order, with patches applied upstream
