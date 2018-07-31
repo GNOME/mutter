@@ -781,6 +781,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_monitor_mode_get_refresh_rate@Base 3.28.2
  meta_monitor_mode_get_resolution@Base 3.28.2
  meta_monitor_mode_get_spec@Base 3.28.2
+ meta_monitor_mode_should_be_advertised@Base 3.29.4-3~
  meta_monitor_normal_get_type@Base 3.28.2
  meta_monitor_normal_new@Base 3.28.2
  meta_monitor_set_current_mode@Base 3.28.2
