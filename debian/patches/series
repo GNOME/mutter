@@ -4,6 +4,7 @@ wayland-Nullify-monitor-resources-when-updating-outputs.patch
 monitor-manager-Filter-out-low-screen-resolutions.patch
 window-Don-t-refuse-to-move-focus-to-the-grab-window.patch
 window-Explicitly-exclude-unmanaging-window-from-focus-ag.patch
+monitor-Use-current-monitor-mode-to-check-whether-active.patch
 theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 clutter-Smooth-out-master-clock-to-smooth-visuals.patch

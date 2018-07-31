@@ -1,3 +1,11 @@
+mutter (3.29.4-4) UNRELEASED; urgency=medium
+
+  [ Marco Trevisan (Treviño) ]
+  * d/p/monitor-Use-current-monitor-mode-to-check-whether-active.patch:
+    - Don't try to use an invalid monitor mode to figure out scaling (LP: #1723615)
+
+ -- Simon McVittie <smcv@debian.org>  Tue, 31 Jul 2018 15:05:42 +0100
+
 mutter (3.29.4-3) experimental; urgency=medium
 
   * Team upload
