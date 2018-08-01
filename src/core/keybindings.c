@@ -70,6 +70,9 @@ static gboolean add_builtin_keybinding (MetaDisplay          *display,
                                         MetaKeyHandlerFunc    handler,
                                         int                   handler_arg);
 
+static MetaKeyBinding *get_keybinding (MetaKeyBindingManager *keys,
+                                       MetaResolvedKeyCombo  *resolved_combo);
+
 static void
 resolved_key_combo_reset (MetaResolvedKeyCombo *resolved_combo)
 {
@@ -830,11 +833,17 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
       if (grab->combo.keysym != None || grab->combo.keycode != 0)
         {
           MetaKeyHandler *handler = HANDLER ("external-grab");
+          MetaKeyBinding *existing;
+          MetaResolvedKeyCombo resolved_combo = { NULL, 0 };
 
           b = g_slice_new0 (MetaKeyBinding);
+
+          resolve_key_combo (keys, &grab->combo, &resolved_combo);
+          existing = get_keybinding (keys, &resolved_combo);
+
           b->name = grab->name;
           b->handler = handler;
-          b->flags = handler->flags;
+          b->flags = existing ? existing->flags : handler->flags;
           b->combo = grab->combo;
 
           g_hash_table_add (keys->key_bindings, b);
