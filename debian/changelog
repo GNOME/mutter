@@ -1,8 +1,15 @@
-mutter (3.29.4-4) UNRELEASED; urgency=medium
+mutter (3.29.90-1) UNRELEASED; urgency=medium
 
-  [ Marco Trevisan (Treviño) ]
-  * d/p/monitor-Use-current-monitor-mode-to-check-whether-active.patch:
-    - Don't try to use an invalid monitor mode to figure out scaling (LP: #1723615)
+  * New upstream release
+    - Don't try to use an invalid monitor mode to figure out scaling
+      (LP: #1723615)
+  * d/p/window-wayland-Always-update-monitor-for-non-user-ops.patch,
+    d/p/native-gpu-Handle-drmModeSetCrtc-failing-gracefully.patch,
+    d/p/wayland-Nullify-monitor-resources-when-updating-outputs.patch,
+    d/p/monitor-manager-Filter-out-low-screen-resolutions.patch,
+    d/p/window-Don-t-refuse-to-move-focus-to-the-grab-window.patch,
+    d/p/window-Explicitly-exclude-unmanaging-window-from-focus-ag.patch:
+    Drop patches that were applied upstream
 
  -- Simon McVittie <smcv@debian.org>  Tue, 31 Jul 2018 15:05:42 +0100
 
