@@ -784,6 +784,9 @@ reload_combos (MetaKeyBindingManager *keys)
   g_hash_table_foreach (keys->key_bindings, binding_reload_combos_foreach, keys);
 }
 
+static MetaKeyBinding * get_keybinding (MetaKeyBindingManager *keys,
+                                        MetaResolvedKeyCombo  *resolved_combo);
+
 static void
 rebuild_binding_table (MetaKeyBindingManager *keys,
                        GList                  *prefs,
@@ -830,11 +833,17 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
       if (grab->combo.keysym != None || grab->combo.keycode != 0)
         {
           MetaKeyHandler *handler = HANDLER ("external-grab");
+          MetaKeyBinding *existing;
+          MetaResolvedKeyCombo resolved_combo = { NULL, 0 };
 
           b = g_slice_new0 (MetaKeyBinding);
+
+          resolve_key_combo (keys, &grab->combo, &resolved_combo);
+          existing = get_keybinding (keys, &resolved_combo);
+
           b->name = grab->name;
           b->handler = handler;
-          b->flags = handler->flags;
+          b->flags = existing ? existing->flags : handler->flags;
           b->combo = grab->combo;
 
           g_hash_table_add (keys->key_bindings, b);
@@ -1590,7 +1599,6 @@ handle_external_grab (MetaDisplay     *display,
   guint action = get_keybinding_action (keys, &binding->resolved_combo);
   meta_display_accelerator_activate (display, action, event);
 }
-
 
 guint
 meta_display_grab_accelerator (MetaDisplay         *display,
