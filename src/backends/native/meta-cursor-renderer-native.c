@@ -749,7 +749,7 @@ cursor_gpu_state_free (MetaCursorNativeGpuState *cursor_gpu_state)
   int i;
 
   for (i = 0; i < HW_CURSOR_BUFFER_COUNT; i++)
-    g_clear_pointer (&cursor_gpu_state->bos[i], (GDestroyNotify) gbm_bo_destroy);
+    g_clear_pointer (&cursor_gpu_state->bos[i], gbm_bo_destroy);
   g_free (cursor_gpu_state);
 }
 
@@ -789,7 +789,7 @@ on_cursor_sprite_texture_changed (MetaCursorSprite *cursor_sprite)
       guint pending_bo;
       pending_bo = get_pending_cursor_sprite_gbm_bo_index (cursor_gpu_state);
       g_clear_pointer (&cursor_gpu_state->bos[pending_bo],
-                       (GDestroyNotify) gbm_bo_destroy);
+                       gbm_bo_destroy);
       cursor_gpu_state->pending_bo_state = META_CURSOR_GBM_BO_STATE_INVALIDATED;
     }
 }

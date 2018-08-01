@@ -29,6 +29,7 @@
 
 #include <clutter/clutter.h>
 #include "meta/meta-dnd.h"
+#include "meta/meta-remote-access-controller.h"
 
 typedef struct _MetaBackend        MetaBackend;
 typedef struct _MetaBackendClass   MetaBackendClass;
@@ -53,6 +54,8 @@ ClutterActor *meta_backend_get_stage (MetaBackend *backend);
 MetaDnd      *meta_backend_get_dnd   (MetaBackend *backend);
 
 MetaSettings *meta_backend_get_settings (MetaBackend *backend);
+
+MetaRemoteAccessController * meta_backend_get_remote_access_controller (MetaBackend *backend);
 
 void meta_clutter_init (void);
 

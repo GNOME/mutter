@@ -39,6 +39,7 @@
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-screen-cast.h"
+#include "backends/meta-remote-access-controller-private.h"
 #include "backends/meta-remote-desktop.h"
 #endif
 
@@ -93,6 +94,7 @@ struct _MetaBackendPrivate
   MetaEgl *egl;
   MetaSettings *settings;
 #ifdef HAVE_REMOTE_DESKTOP
+  MetaRemoteAccessController *remote_access_controller;
   MetaDbusSessionWatcher *dbus_session_watcher;
   MetaScreenCast *screen_cast;
   MetaRemoteDesktop *remote_desktop;
@@ -143,6 +145,7 @@ meta_backend_finalize (GObject *object)
   g_clear_object (&priv->remote_desktop);
   g_clear_object (&priv->screen_cast);
   g_clear_object (&priv->dbus_session_watcher);
+  g_clear_object (&priv->remote_access_controller);
 #endif
 
   if (priv->sleep_signal_id)
@@ -456,6 +459,8 @@ meta_backend_real_post_init (MetaBackend *backend)
   priv->input_settings = meta_backend_create_input_settings (backend);
 
 #ifdef HAVE_REMOTE_DESKTOP
+  priv->remote_access_controller =
+    g_object_new (META_TYPE_REMOTE_ACCESS_CONTROLLER, NULL);
   priv->dbus_session_watcher = g_object_new (META_TYPE_DBUS_SESSION_WATCHER, NULL);
   priv->screen_cast = meta_screen_cast_new (priv->dbus_session_watcher);
   priv->remote_desktop = meta_remote_desktop_new (priv->dbus_session_watcher);
@@ -914,6 +919,24 @@ meta_backend_get_remote_desktop (MetaBackend *backend)
   return priv->remote_desktop;
 }
 #endif /* HAVE_REMOTE_DESKTOP */
+
+/**
+ * meta_backend_get_remote_access_controller:
+ * @backend: A #MetaBackend
+ *
+ * Return Value: (transfer none): The #MetaRemoteAccessController
+ */
+MetaRemoteAccessController *
+meta_backend_get_remote_access_controller (MetaBackend *backend)
+{
+#ifdef HAVE_REMOTE_DESKTOP
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->remote_access_controller;
+#else
+  return NULL;
+#endif
+}
 
 /**
  * meta_backend_grab_device: (skip)

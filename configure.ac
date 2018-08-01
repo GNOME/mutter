@@ -2,7 +2,7 @@ AC_PREREQ(2.62)
 
 m4_define([mutter_major_version], [3])
 m4_define([mutter_minor_version], [29])
-m4_define([mutter_micro_version], [4])
+m4_define([mutter_micro_version], [90])
 
 m4_define([mutter_version],
           [mutter_major_version.mutter_minor_version.mutter_micro_version])
@@ -244,7 +244,7 @@ AC_ARG_ENABLE(remote-desktop,
   enable_remote_desktop=no
 )
 AS_IF([test "$enable_remote_desktop" = "yes"], [
-  MUTTER_PC_MODULES="$MUTTER_PC_MODULES libpipewire-0.1 >= 0.1.8"
+  MUTTER_PC_MODULES="$MUTTER_PC_MODULES libpipewire-0.1 >= 0.2.0"
   AC_DEFINE([HAVE_REMOTE_DESKTOP],[1], [Defined if screen cast and remote desktop support is enabled])
 ])
 AM_CONDITIONAL([HAVE_REMOTE_DESKTOP],[test "$enable_remote_desktop" = "yes"])

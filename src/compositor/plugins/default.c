@@ -98,8 +98,6 @@ static void confirm_display_change (MetaPlugin *plugin);
 
 static const MetaPluginInfo * plugin_info (MetaPlugin *plugin);
 
-META_PLUGIN_DECLARE(MetaDefaultPlugin, meta_default_plugin);
-
 /*
  * Plugin private data that we store in the .plugin_private member.
  */
@@ -115,6 +113,9 @@ struct _MetaDefaultPluginPrivate
 
   MetaPluginInfo         info;
 };
+
+META_PLUGIN_DECLARE_WITH_CODE (MetaDefaultPlugin, meta_default_plugin,
+                               G_ADD_PRIVATE_DYNAMIC (MetaDefaultPlugin));
 
 /*
  * Per actor private data we attach to each actor.
@@ -209,8 +210,6 @@ meta_default_plugin_class_init (MetaDefaultPluginClass *klass)
   plugin_class->kill_window_effects   = kill_window_effects;
   plugin_class->kill_switch_workspace = kill_switch_workspace;
   plugin_class->confirm_display_change = confirm_display_change;
-
-  g_type_class_add_private (gobject_class, sizeof (MetaDefaultPluginPrivate));
 }
 
 static void
