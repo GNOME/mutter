@@ -1483,7 +1483,9 @@ meta_window_unmanage (MetaWindow  *window,
       meta_topic (META_DEBUG_FOCUS,
                   "Focusing default window since we're unmanaging %s\n",
                   window->desc);
-      meta_workspace_focus_default_window (workspace_manager->active_workspace, NULL, timestamp);
+      meta_workspace_focus_default_window (workspace_manager->active_workspace,
+                                           window,
+                                           timestamp);
     }
   else
     {
@@ -4644,6 +4646,7 @@ meta_window_focus (MetaWindow  *window,
               window->desc, window->input, window->take_focus);
 
   if (window->display->grab_window &&
+      window->display->grab_window != window &&
       window->display->grab_window->all_keys_grabbed &&
       !window->display->grab_window->unmanaging)
     {

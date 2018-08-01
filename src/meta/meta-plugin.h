@@ -303,7 +303,7 @@ struct _MetaPluginVersion
 /*
  * Convenience macro to set up the plugin type. Based on GEdit.
  */
-#define META_PLUGIN_DECLARE(ObjectName, object_name)                    \
+#define META_PLUGIN_DECLARE_WITH_CODE(ObjectName, object_name, CODE)    \
   G_MODULE_EXPORT MetaPluginVersion meta_plugin_version =               \
     {                                                                   \
       META_MAJOR_VERSION,                                               \
@@ -312,64 +312,30 @@ struct _MetaPluginVersion
       META_PLUGIN_API_VERSION                                           \
     };                                                                  \
                                                                         \
-  static GType g_define_type_id = 0;                                    \
-                                                                        \
   /* Prototypes */                                                      \
-  G_MODULE_EXPORT                                                       \
-  GType object_name##_get_type (void);                                  \
+  G_MODULE_EXPORT GType                                                 \
+  object_name##_get_type (void);                                        \
                                                                         \
-  G_MODULE_EXPORT                                                       \
-  GType object_name##_register_type (GTypeModule *type_module);         \
-                                                                        \
-  G_MODULE_EXPORT                                                       \
-  GType meta_plugin_register_type (GTypeModule *type_module);           \
-                                                                        \
-  GType                                                                 \
-  object_name##_get_type (void)                                         \
-  {                                                                     \
-    return g_define_type_id;                                            \
-  }                                                                     \
-                                                                        \
-  static void object_name##_init (ObjectName *self);                    \
-  static void object_name##_class_init (ObjectName##Class *klass);      \
-  static gpointer object_name##_parent_class = NULL;                    \
-  static void object_name##_class_intern_init (gpointer klass)          \
-  {                                                                     \
-    object_name##_parent_class = g_type_class_peek_parent (klass);      \
-    object_name##_class_init ((ObjectName##Class *) klass);             \
-  }                                                                     \
-                                                                        \
-  GType                                                                 \
-  object_name##_register_type (GTypeModule *type_module)                \
-  {                                                                     \
-    static const GTypeInfo our_info =                                   \
-      {                                                                 \
-        sizeof (ObjectName##Class),                                     \
-        NULL, /* base_init */                                           \
-        NULL, /* base_finalize */                                       \
-        (GClassInitFunc) object_name##_class_intern_init,               \
-        NULL,                                                           \
-        NULL, /* class_data */                                          \
-        sizeof (ObjectName),                                            \
-        0, /* n_preallocs */                                            \
-        (GInstanceInitFunc) object_name##_init                          \
-      };                                                                \
-                                                                        \
-    g_define_type_id = g_type_module_register_type (type_module,        \
-                                                    META_TYPE_PLUGIN,   \
-                                                    #ObjectName,        \
-                                                    &our_info,          \
-                                                    0);                 \
+  G_MODULE_EXPORT GType                                                 \
+  meta_plugin_register_type (GTypeModule *type_module);                 \
                                                                         \
                                                                         \
-    return g_define_type_id;                                            \
-  }                                                                     \
+  G_DEFINE_DYNAMIC_TYPE_EXTENDED(ObjectName, object_name,               \
+                                 META_TYPE_PLUGIN, 0, CODE)             \
+                                                                        \
+  /* Unused, but required by G_DEFINE_DYNAMIC_TYPE */                   \
+  static void                                                           \
+  object_name##_class_finalize (ObjectName##Class *klass) {}            \
                                                                         \
   G_MODULE_EXPORT GType                                                 \
   meta_plugin_register_type (GTypeModule *type_module)                  \
   {                                                                     \
-    return object_name##_register_type (type_module);                   \
+    object_name##_register_type (type_module);                          \
+    return object_name##_get_type ();                                   \
   }                                                                     \
+
+#define META_PLUGIN_DECLARE(ObjectName, object_name)                    \
+  META_PLUGIN_DECLARE_WITH_CODE(ObjectName, object_name, {})
 
 void
 meta_plugin_switch_workspace_completed (MetaPlugin *plugin);

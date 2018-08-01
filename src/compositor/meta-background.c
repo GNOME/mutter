@@ -74,7 +74,7 @@ enum
   PROP_MONITOR,
 };
 
-G_DEFINE_TYPE (MetaBackground, meta_background, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (MetaBackground, meta_background, G_TYPE_OBJECT)
 
 static gboolean texture_has_alpha (CoglTexture *texture);
 
@@ -333,8 +333,6 @@ meta_background_class_init (MetaBackgroundClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GParamSpec *param_spec;
-
-  g_type_class_add_private (klass, sizeof (MetaBackgroundPrivate));
 
   object_class->dispose = meta_background_dispose;
   object_class->finalize = meta_background_finalize;

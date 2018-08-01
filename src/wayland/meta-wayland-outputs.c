@@ -365,12 +365,38 @@ meta_wayland_output_new (MetaWaylandCompositor *compositor,
 }
 
 static void
-nullify_logical_monitor (gpointer key,
-                         gpointer value,
-                         gpointer data)
+make_output_resources_inert (MetaWaylandOutput *wayland_output)
+{
+  GList *l;
+
+  for (l = wayland_output->resources; l; l = l->next)
+    {
+      struct wl_resource *output_resource = l->data;
+
+      wl_resource_set_user_data (output_resource, NULL);
+    }
+  g_list_free (wayland_output->resources);
+  wayland_output->resources = NULL;
+
+  for (l = wayland_output->xdg_output_resources; l; l = l->next)
+    {
+      struct wl_resource *xdg_output_resource = l->data;
+
+      wl_resource_set_user_data (xdg_output_resource, NULL);
+    }
+  g_list_free (wayland_output->xdg_output_resources);
+  wayland_output->xdg_output_resources = NULL;
+}
+
+static void
+make_output_inert (gpointer key,
+                   gpointer value,
+                   gpointer data)
 {
   MetaWaylandOutput *wayland_output = value;
+
   wayland_output->logical_monitor = NULL;
+  make_output_resources_inert (wayland_output);
 }
 
 static gboolean
@@ -420,7 +446,7 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
                            wayland_output);
     }
 
-  g_hash_table_foreach (compositor->outputs, nullify_logical_monitor, NULL);
+  g_hash_table_foreach (compositor->outputs, make_output_inert, NULL);
   g_timeout_add_seconds (10, delayed_destroy_outputs, compositor->outputs);
 
   return new_table;
@@ -442,30 +468,13 @@ static void
 meta_wayland_output_finalize (GObject *object)
 {
   MetaWaylandOutput *wayland_output = META_WAYLAND_OUTPUT (object);
-  GList *l;
 
   wl_global_destroy (wayland_output->global);
 
   /* Make sure the wl_output destructor doesn't try to access MetaWaylandOutput
    * after we have freed it.
    */
-  for (l = wayland_output->resources; l; l = l->next)
-    {
-      struct wl_resource *output_resource = l->data;
-
-      wl_resource_set_user_data (output_resource, NULL);
-    }
-
-  g_list_free (wayland_output->resources);
-
-  for (l = wayland_output->xdg_output_resources; l; l = l->next)
-    {
-      struct wl_resource *xdg_output_resource = l->data;
-
-      wl_resource_set_user_data (xdg_output_resource, NULL);
-    }
-
-  g_list_free (wayland_output->xdg_output_resources);
+  make_output_resources_inert (wayland_output);
 
   G_OBJECT_CLASS (meta_wayland_output_parent_class)->finalize (object);
 }

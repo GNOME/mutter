@@ -399,7 +399,10 @@ am__libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES_DIST =  \
 	backends/meta-settings-private.h backends/meta-stage-private.h \
 	backends/meta-stage.c backends/meta-renderer.c \
 	backends/meta-renderer.h backends/meta-renderer-view.c \
-	backends/meta-renderer-view.h backends/edid-parse.c \
+	backends/meta-renderer-view.h \
+	backends/meta-remote-access-controller.c \
+	backends/meta-remote-access-controller-private.h \
+	meta/meta-remote-access-controller.h backends/edid-parse.c \
 	backends/edid.h backends/gsm-inhibitor-flag.h \
 	backends/x11/meta-backend-x11.c \
 	backends/x11/meta-backend-x11.h \
@@ -734,8 +737,9 @@ am_libmutter_@LIBMUTTER_API_VERSION@_la_OBJECTS =  \
 	backends/meta-orientation-manager.lo backends/meta-output.lo \
 	backends/meta-pointer-constraint.lo backends/meta-settings.lo \
 	backends/meta-stage.lo backends/meta-renderer.lo \
-	backends/meta-renderer-view.lo backends/edid-parse.lo \
-	backends/x11/meta-backend-x11.lo \
+	backends/meta-renderer-view.lo \
+	backends/meta-remote-access-controller.lo \
+	backends/edid-parse.lo backends/x11/meta-backend-x11.lo \
 	backends/x11/meta-barrier-x11.lo \
 	backends/x11/meta-clutter-backend-x11.lo \
 	backends/x11/meta-crtc-xrandr.lo \
@@ -969,6 +973,7 @@ am__can_run_installinfo = \
 am__dist_stacking_DATA_DIST =  \
 	$(srcdir)/tests/stacking/basic-x11.metatest \
 	$(srcdir)/tests/stacking/basic-wayland.metatest \
+	$(srcdir)/tests/stacking/closed-transient.metatest \
 	$(srcdir)/tests/stacking/minimized.metatest \
 	$(srcdir)/tests/stacking/mixed-windows.metatest \
 	$(srcdir)/tests/stacking/set-parent.metatest \
@@ -1325,7 +1330,10 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =  \
 	backends/meta-settings-private.h backends/meta-stage-private.h \
 	backends/meta-stage.c backends/meta-renderer.c \
 	backends/meta-renderer.h backends/meta-renderer-view.c \
-	backends/meta-renderer-view.h backends/edid-parse.c \
+	backends/meta-renderer-view.h \
+	backends/meta-remote-access-controller.c \
+	backends/meta-remote-access-controller-private.h \
+	meta/meta-remote-access-controller.h backends/edid-parse.c \
 	backends/edid.h backends/gsm-inhibitor-flag.h \
 	backends/x11/meta-backend-x11.c \
 	backends/x11/meta-backend-x11.h \
@@ -1472,6 +1480,7 @@ libmutterinclude_headers = \
 	meta/meta-idle-monitor.h		\
 	meta/meta-plugin.h			\
 	meta/meta-monitor-manager.h		\
+	meta/meta-remote-access-controller.h	\
 	meta/meta-settings.h			\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\
@@ -1521,6 +1530,7 @@ mutter_restart_helper_LDADD = $(MUTTER_LIBS)
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@dist_stacking_DATA = \
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/basic-x11.metatest 	\
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/basic-wayland.metatest	\
+@BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/closed-transient.metatest	\
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/minimized.metatest 	\
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/mixed-windows.metatest     \
 @BUILDOPT_INSTALL_TESTS_TRUE@@HAVE_WAYLAND_TRUE@	$(srcdir)/tests/stacking/set-parent.metatest	\
@@ -1761,6 +1771,8 @@ backends/meta-stage.lo: backends/$(am__dirstamp) \
 backends/meta-renderer.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
 backends/meta-renderer-view.lo: backends/$(am__dirstamp) \
+	backends/$(DEPDIR)/$(am__dirstamp)
+backends/meta-remote-access-controller.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
 backends/edid-parse.lo: backends/$(am__dirstamp) \
 	backends/$(DEPDIR)/$(am__dirstamp)
@@ -2413,6 +2425,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-orientation-manager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-output.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-pointer-constraint.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-remote-access-controller.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-remote-desktop-session.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-remote-desktop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@backends/$(DEPDIR)/meta-renderer-view.Plo@am__quote@

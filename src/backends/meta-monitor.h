@@ -219,6 +219,8 @@ gboolean meta_monitor_mode_foreach_output (MetaMonitor        *monitor,
                                            gpointer            user_data,
                                            GError            **error);
 
+gboolean meta_monitor_mode_should_be_advertised (MetaMonitorMode *monitor_mode);
+
 MetaMonitorSpec * meta_monitor_spec_clone (MetaMonitorSpec *monitor_id);
 
 gboolean meta_monitor_spec_equals (MetaMonitorSpec *monitor_id,
