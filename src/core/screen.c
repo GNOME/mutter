@@ -1397,7 +1397,9 @@ meta_screen_update_cursor (MetaScreen *screen)
 
   XDefineCursor (display->xdisplay, screen->xroot, xcursor);
   XFlush (display->xdisplay);
-  XFreeCursor (display->xdisplay, xcursor);
+
+  if (xcursor)
+    XFreeCursor (display->xdisplay, xcursor);
 }
 
 void
