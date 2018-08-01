@@ -1,5 +1,6 @@
-mutter (3.29.90-1) UNRELEASED; urgency=medium
+mutter (3.29.90-1) experimental; urgency=medium
 
+  * Team upload
   * New upstream release
     - Don't try to use an invalid monitor mode to figure out scaling
       (LP: #1723615)
@@ -15,7 +16,7 @@ mutter (3.29.90-1) UNRELEASED; urgency=medium
       meta_prefs_override_preference_schema()
     - Add Breaks on previous experimental gnome-shell
 
- -- Simon McVittie <smcv@debian.org>  Tue, 31 Jul 2018 15:05:42 +0100
+ -- Simon McVittie <smcv@debian.org>  Wed, 01 Aug 2018 09:03:19 +0100
 
 mutter (3.29.4-3) experimental; urgency=medium
 
