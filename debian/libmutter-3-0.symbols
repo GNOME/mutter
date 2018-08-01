@@ -21,6 +21,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_backend_get_monitor_manager@Base 3.28.2
  meta_backend_get_orientation_manager@Base 3.28.2
  meta_backend_get_relative_motion_deltas@Base 3.28.2
+ meta_backend_get_remote_access_controller@Base 3.29.90
  meta_backend_get_renderer@Base 3.28.2
  meta_backend_get_settings@Base 3.28.2
  meta_backend_get_stage@Base 3.28.2
@@ -902,7 +903,6 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_prefs_get_workspace_name@Base 3.28.2
  meta_prefs_get_workspaces_only_on_primary@Base 3.28.2
  meta_prefs_init@Base 3.28.2
- meta_prefs_override_preference_schema@Base 3.28.2
  meta_prefs_remove_keybinding@Base 3.28.2
  meta_prefs_remove_listener@Base 3.28.2
  meta_prefs_set_force_fullscreen@Base 3.28.2
@@ -967,6 +967,11 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_region_iterator_next@Base 3.28.2
  meta_region_scale@Base 3.28.2
  meta_register_with_session@Base 3.28.2
+ meta_remote_access_controller_get_type@Base 3.29.90
+ meta_remote_access_controller_notify_new_handle@Base 3.29.90
+ meta_remote_access_handle_get_type@Base 3.29.90
+ meta_remote_access_handle_notify_stopped@Base 3.29.90
+ meta_remote_access_handle_stop@Base 3.29.90
  meta_remove_verbose_topic@Base 3.28.2
  meta_renderer_create_cogl_renderer@Base 3.28.2
  meta_renderer_get_type@Base 3.28.2
