@@ -1483,7 +1483,9 @@ meta_x11_display_reload_cursor (MetaX11Display *x11_display)
 
   XDefineCursor (x11_display->xdisplay, x11_display->xroot, xcursor);
   XFlush (x11_display->xdisplay);
-  XFreeCursor (x11_display->xdisplay, xcursor);
+
+  if (xcursor)
+    XFreeCursor (x11_display->xdisplay, xcursor);
 }
 
 static void
