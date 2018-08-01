@@ -312,6 +312,14 @@ struct _MetaPluginVersion
       META_PLUGIN_API_VERSION                                           \
     };                                                                  \
                                                                         \
+  /* Prototypes */                                                      \
+  G_MODULE_EXPORT GType                                                 \
+  object_name##_get_type (void);                                        \
+                                                                        \
+  G_MODULE_EXPORT GType                                                 \
+  meta_plugin_register_type (GTypeModule *type_module);                 \
+                                                                        \
+                                                                        \
   G_DEFINE_DYNAMIC_TYPE_EXTENDED(ObjectName, object_name,               \
                                  META_TYPE_PLUGIN, 0, CODE)             \
                                                                         \
