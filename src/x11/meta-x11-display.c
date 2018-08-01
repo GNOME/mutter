@@ -1481,9 +1481,17 @@ meta_x11_display_reload_cursor (MetaX11Display *x11_display)
   /* Set a cursor for X11 applications that don't specify their own */
   xcursor = meta_x11_display_create_x_cursor (x11_display, cursor);
 
-  XDefineCursor (x11_display->xdisplay, x11_display->xroot, xcursor);
-  XFlush (x11_display->xdisplay);
-  XFreeCursor (x11_display->xdisplay, xcursor);
+  if (xcursor)
+    {
+      XDefineCursor (x11_display->xdisplay, x11_display->xroot, xcursor);
+      XFlush (x11_display->xdisplay);
+      XFreeCursor (x11_display->xdisplay, xcursor);
+    }
+  else
+    {
+      XDefineCursor (x11_display->xdisplay, x11_display->xroot, None);
+      XFlush (x11_display->xdisplay);
+    }
 }
 
 static void
