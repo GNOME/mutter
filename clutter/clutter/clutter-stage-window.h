@@ -77,10 +77,6 @@ struct _ClutterStageWindowIface
 
   void              (* redraw)                  (ClutterStageWindow *stage_window);
 
-  void              (* get_dirty_pixel)         (ClutterStageWindow *stage_window,
-                                                 ClutterStageView   *view,
-                                                 int *x, int *y);
-
   gboolean          (* can_clip_redraws)        (ClutterStageWindow *stage_window);
 
   GList            *(* get_views)               (ClutterStageWindow *stage_window);
@@ -130,10 +126,6 @@ void              _clutter_stage_window_set_accept_focus        (ClutterStageWin
                                                                  gboolean            accept_focus);
 
 void              _clutter_stage_window_redraw                  (ClutterStageWindow *window);
-
-void              _clutter_stage_window_get_dirty_pixel         (ClutterStageWindow *window,
-                                                                 ClutterStageView   *view,
-                                                                 int *x, int *y);
 
 gboolean          _clutter_stage_window_can_clip_redraws        (ClutterStageWindow *window);
 
