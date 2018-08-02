@@ -540,6 +540,12 @@ CLUTTER_EXPORT
 gboolean         clutter_actor_box_contains      (const ClutterActorBox *box,
                                                   gfloat                 x,
                                                   gfloat                 y);
+
+CLUTTER_EXPORT
+gboolean         clutter_actor_box_contains_pixel (const ClutterActorBox *box,
+                                                   gint                   x,
+                                                   gint                   y);
+
 CLUTTER_EXPORT
 void             clutter_actor_box_from_vertices (ClutterActorBox       *box,
                                                   const ClutterVertex    verts[]);
