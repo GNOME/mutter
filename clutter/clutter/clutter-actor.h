@@ -902,6 +902,10 @@ void                            clutter_actor_bind_model_with_properties        
                                                                                  const char                 *first_model_property,
                                                                                  ...);
 
+CLUTTER_EXPORT
+void clutter_actor_pick_box (ClutterActor          *self,
+                             const ClutterActorBox *box);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_ACTOR_H__ */
