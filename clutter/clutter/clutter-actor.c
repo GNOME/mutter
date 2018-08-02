@@ -725,8 +725,6 @@ struct _ClutterActorPrivate
 
   gchar *name; /* a non-unique name, used for debugging */
 
-  gint32 pick_id; /* per-stage unique id, used for picking */
-
   /* a back-pointer to the Pango context that we can use
    * to create pre-configured PangoLayout
    */
@@ -1273,6 +1271,131 @@ clutter_actor_verify_map_state (ClutterActor *self)
 
 #endif /* CLUTTER_ENABLE_DEBUG */
 
+static gboolean
+_clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
+                                             const ClutterActorBox *box,
+                                             ClutterActorBox       *stage_box)
+{
+  ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+  CoglMatrix stage_transform, inv_stage_transform;
+  CoglMatrix modelview, transform_to_stage;
+  gfloat z, w;
+
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
+  g_return_val_if_fail (box != NULL, FALSE);
+  g_return_val_if_fail (stage_box != NULL, FALSE);
+
+  g_return_val_if_fail (stage != NULL, FALSE);
+  g_return_val_if_fail (box->x1 <= box->x2, FALSE);
+  g_return_val_if_fail (box->y1 <= box->y2, FALSE);
+
+  *stage_box = *box;
+
+  /* Below is generally equivalent to:
+   *
+   * _clutter_actor_get_relative_transformation_matrix (self,
+   *                                                    stage,
+   *                                                    &transform_to_stage);
+   *
+   * but we do it the hard way here instead so as to accurately include any
+   * cogl transformations that an actor's paint function might have added in.
+   * Those additional transformations are only known to cogl matrices and not
+   * known to the clutter getter like above. So this way we more accurately
+   * represent what's really getting painted.
+   */
+  clutter_actor_get_transform (stage, &stage_transform);
+  if (!cogl_matrix_get_inverse (&stage_transform, &inv_stage_transform))
+    return FALSE;
+  cogl_get_modelview_matrix (&modelview);
+  cogl_matrix_multiply (&transform_to_stage, &inv_stage_transform, &modelview);
+
+  /* Cheating slightly here. We're assuming the box is still a rectangle after
+   * transformation so just take two opposing corners. This is a useful
+   * shortcut because:
+   *  (a) it's computationally simpler for pick testing later to handle only
+   *      rectangles and not arbitrarily shaped quadrilaterals; and
+   *  (b) it's computationally much simpler for computing clipping when all
+   *      you have to intersect is rectangles and not quads.
+   *
+   * Conceptually this means we only support 2D transformations now, so 3D
+   * or skewing transformations won't get completely accurate picking results.
+   * Although they should still be usuable since we're taking opposing corners.
+   * And it's a moot point anyway while nobody is attempting to do picking on
+   * 3D-transformed actors.
+   */
+  z = 0.f;
+  w = 1.f;
+  cogl_matrix_transform_point (&transform_to_stage,
+                               &stage_box->x1,
+                               &stage_box->y1,
+                               &z,
+                               &w);
+
+  z = 0.f;
+  w = 1.f;
+  cogl_matrix_transform_point (&transform_to_stage,
+                               &stage_box->x2,
+                               &stage_box->y2,
+                               &z,
+                               &w);
+
+  return TRUE;
+}
+
+/**
+ * clutter_actor_pick_box:
+ * @self: The #ClutterActor being "pick" painted.
+ * @box: A rectangle in the actor's own local coordinates.
+ *
+ * Logs (does a virtual paint of) a rectangle for picking. Note that @box is
+ * in the actor's own local coordinates, so is usually {0,0,width,height}
+ * to include the whole actor. That is unless the actor has a shaped input
+ * region in which case you may wish to log the (multiple) smaller rectangles
+ * that make up the input region.
+ */
+void
+clutter_actor_pick_box (ClutterActor          *self,
+                        const ClutterActorBox *box)
+{
+  ClutterActor *stage;
+  ClutterActorBox stage_box;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+  g_return_if_fail (box != NULL);
+
+  stage = _clutter_actor_get_stage_internal (self);
+
+  if (_clutter_actor_transform_local_box_to_stage (self, box, &stage_box))
+    _clutter_stage_log_pick (CLUTTER_STAGE (stage), &stage_box, self);
+}
+
+static void
+_clutter_actor_push_pick_clip (ClutterActor          *self,
+                               const ClutterActorBox *clip)
+{
+  ClutterActor *stage;
+  ClutterActorBox stage_clip;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+  g_return_if_fail (clip != NULL);
+
+  stage = _clutter_actor_get_stage_internal (self);
+
+  if (_clutter_actor_transform_local_box_to_stage (self, clip, &stage_clip))
+    _clutter_stage_push_pick_clip (CLUTTER_STAGE (stage), &stage_clip);
+}
+
+static void
+_clutter_actor_pop_pick_clip (ClutterActor *self)
+{
+  ClutterActor *stage;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+
+  stage = _clutter_actor_get_stage_internal (self);
+  _clutter_stage_pop_pick_clip (CLUTTER_STAGE (stage));
+}
+
 static void
 clutter_actor_set_mapped (ClutterActor *self,
                           gboolean      mapped)
@@ -1501,8 +1624,7 @@ clutter_actor_update_map_state (ClutterActor  *self,
 static void
 clutter_actor_real_map (ClutterActor *self)
 {
-  ClutterActorPrivate *priv = self->priv;
-  ClutterActor *stage, *iter;
+  ClutterActor *iter;
 
   g_assert (!CLUTTER_ACTOR_IS_MAPPED (self));
 
@@ -1512,13 +1634,6 @@ clutter_actor_real_map (ClutterActor *self)
   CLUTTER_ACTOR_SET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
 
   self->priv->needs_paint_volume_update = TRUE;
-
-  stage = _clutter_actor_get_stage_internal (self);
-  priv->pick_id = _clutter_stage_acquire_pick_id (CLUTTER_STAGE (stage), self);
-
-  CLUTTER_NOTE (ACTOR, "Pick id '%d' for actor '%s'",
-                priv->pick_id,
-                _clutter_actor_get_debug_name (self));
 
   /* notify on parent mapped before potentially mapping
    * children, so apps see a top-down notification.
@@ -1621,11 +1736,6 @@ clutter_actor_real_unmap (ClutterActor *self)
       ClutterStage *stage;
 
       stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
-
-      if (stage != NULL)
-        _clutter_stage_release_pick_id (stage, priv->pick_id);
-
-      priv->pick_id = -1;
 
       if (stage != NULL &&
           clutter_stage_get_key_focus (stage) == self)
@@ -2227,46 +2337,14 @@ static void
 clutter_actor_real_pick (ClutterActor       *self,
 			 const ClutterColor *color)
 {
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
-
-  /* the default implementation is just to paint a rectangle
-   * with the same size of the actor using the passed color
-   */
   if (clutter_actor_should_pick_paint (self))
     {
-      static CoglPipeline *default_pick_pipeline = NULL;
-      ClutterActorBox box = { 0, };
-      CoglPipeline *pick_pipeline;
-      float width, height;
+      ClutterActorBox box = {0,
+                             0,
+                             clutter_actor_get_width (self),
+                             clutter_actor_get_height (self)};
 
-      if (G_UNLIKELY (default_pick_pipeline == NULL))
-        {
-          CoglContext *ctx =
-            clutter_backend_get_cogl_context (clutter_get_default_backend ());
-
-          default_pick_pipeline = cogl_pipeline_new (ctx);
-        }
-
-      g_assert (default_pick_pipeline != NULL);
-      pick_pipeline = cogl_pipeline_copy (default_pick_pipeline);
-
-      clutter_actor_get_allocation_box (self, &box);
-
-      width = box.x2 - box.x1;
-      height = box.y2 - box.y1;
-
-      cogl_pipeline_set_color4ub (pick_pipeline,
-                                  color->red,
-                                  color->green,
-                                  color->blue,
-                                  color->alpha);
-
-      cogl_framebuffer_draw_rectangle (framebuffer,
-                                       pick_pipeline,
-                                       0, 0,
-                                       width, height);
-
-      cogl_object_unref (pick_pipeline);
+      clutter_actor_pick_box (self, &box);
     }
 
   /* XXX - this thoroughly sucks, but we need to maintain compatibility
@@ -3549,15 +3627,6 @@ actor_has_shader_data (ClutterActor *self)
   return g_object_get_qdata (G_OBJECT (self), quark_shader_data) != NULL;
 }
 
-guint32
-_clutter_actor_get_pick_id (ClutterActor *self)
-{
-  if (self->priv->pick_id < 0)
-    return 0;
-
-  return self->priv->pick_id;
-}
-
 /* This is the same as clutter_actor_add_effect except that it doesn't
    queue a redraw and it doesn't notify on the effect property */
 static void
@@ -3789,6 +3858,7 @@ clutter_actor_paint (ClutterActor *self)
 {
   ClutterActorPrivate *priv;
   ClutterPickMode pick_mode;
+  ClutterActorBox clip;
   gboolean clip_set = FALSE;
   gboolean shader_applied = FALSE;
   ClutterStage *stage;
@@ -3881,24 +3951,37 @@ clutter_actor_paint (ClutterActor *self)
 
   if (priv->has_clip)
     {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
-      cogl_framebuffer_push_rectangle_clip (fb,
-                                            priv->clip.origin.x,
-                                            priv->clip.origin.y,
-                                            priv->clip.origin.x + priv->clip.size.width,
-                                            priv->clip.origin.y + priv->clip.size.height);
+      clip.x1 = priv->clip.origin.x;
+      clip.y1 = priv->clip.origin.y;
+      clip.x2 = priv->clip.origin.x + priv->clip.size.width;
+      clip.y2 = priv->clip.origin.y + priv->clip.size.height;
       clip_set = TRUE;
     }
   else if (priv->clip_to_allocation)
     {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
-      gfloat width, height;
-
-      width  = priv->allocation.x2 - priv->allocation.x1;
-      height = priv->allocation.y2 - priv->allocation.y1;
-
-      cogl_framebuffer_push_rectangle_clip (fb, 0, 0, width, height);
+      clip.x1 = 0.f;
+      clip.y1 = 0.f;
+      clip.x2 = priv->allocation.x2 - priv->allocation.x1;
+      clip.y2 = priv->allocation.y2 - priv->allocation.y1;
       clip_set = TRUE;
+    }
+
+  if (clip_set)
+    {
+      if (pick_mode == CLUTTER_PICK_NONE)
+        {
+          CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
+
+          cogl_framebuffer_push_rectangle_clip (fb,
+                                                clip.x1,
+                                                clip.y1,
+                                                clip.x2,
+                                                clip.y2);
+        }
+      else
+        {
+          _clutter_actor_push_pick_clip (self, &clip);
+        }
     }
 
   if (pick_mode == CLUTTER_PICK_NONE)
@@ -3991,9 +4074,16 @@ done:
 
   if (clip_set)
     {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
+      if (pick_mode == CLUTTER_PICK_NONE)
+        {
+          CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
 
-      cogl_framebuffer_pop_clip (fb);
+          cogl_framebuffer_pop_clip (fb);
+        }
+      else
+        {
+          _clutter_actor_pop_pick_clip (self);
+        }
     }
 
   cogl_pop_matrix ();
@@ -4064,11 +4154,12 @@ clutter_actor_continue_paint (ClutterActor *self)
         {
           ClutterColor col = { 0, };
 
-          _clutter_id_to_color (_clutter_actor_get_pick_id (self), &col);
-
-          /* Actor will then paint silhouette of itself in supplied
-           * color.  See clutter_stage_get_actor_at_pos() for where
-           * picking is enabled.
+          /* The actor will log a silhouette of itself to the stage pick log.
+           * Note that the picking color is no longer used as the "log" instead
+           * keeps a weak pointer to the actor itself. But we keep the color
+           * parameter for now so as to maintain ABI compatibility. The color
+           * parameter can be removed when someone feels like breaking the ABI
+           * along with gnome-shell.
            *
            * XXX:2.0 - Call the pick() virtual directly
            */
@@ -8543,8 +8634,6 @@ clutter_actor_init (ClutterActor *self)
   ClutterActorPrivate *priv;
 
   self->priv = priv = clutter_actor_get_instance_private (self);
-
-  priv->pick_id = -1;
 
   priv->opacity = 0xff;
   priv->show_on_set_parent = TRUE;

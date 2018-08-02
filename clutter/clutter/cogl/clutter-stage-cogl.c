@@ -945,55 +945,6 @@ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
 }
 
 static void
-clutter_stage_cogl_get_dirty_pixel (ClutterStageWindow *stage_window,
-                                    ClutterStageView   *view,
-                                    int                *x,
-                                    int                *y)
-{
-  CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
-  gboolean has_buffer_age =
-    cogl_is_onscreen (framebuffer) &&
-    is_buffer_age_enabled ();
-  float fb_scale;
-  gboolean scale_is_fractional;
-
-  fb_scale = clutter_stage_view_get_scale (view);
-  if (fb_scale != floorf (fb_scale))
-    scale_is_fractional = TRUE;
-  else
-    scale_is_fractional = FALSE;
-
-  /*
-   * Buffer damage is tracked in the framebuffer coordinate space
-   * using the damage history. When fractional scaling is used, a
-   * coordinate on the stage might not correspond to the exact position of any
-   * physical pixel, which causes issues when painting using the pick mode.
-   *
-   * For now, always use the (0, 0) pixel for picking when using fractional
-   * framebuffer scaling.
-   */
-  if (!has_buffer_age || scale_is_fractional)
-    {
-      *x = 0;
-      *y = 0;
-    }
-  else
-    {
-      ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (view);
-      ClutterStageViewCoglPrivate *view_priv =
-        clutter_stage_view_cogl_get_instance_private (view_cogl);
-      cairo_rectangle_int_t view_layout;
-      cairo_rectangle_int_t *fb_damage;
-
-      clutter_stage_view_get_layout (view, &view_layout);
-
-      fb_damage = &view_priv->damage_history[DAMAGE_HISTORY (view_priv->damage_index - 1)];
-      *x = fb_damage->x / fb_scale;
-      *y = fb_damage->y / fb_scale;
-    }
-}
-
-static void
 clutter_stage_window_iface_init (ClutterStageWindowIface *iface)
 {
   iface->realize = clutter_stage_cogl_realize;
@@ -1010,7 +961,6 @@ clutter_stage_window_iface_init (ClutterStageWindowIface *iface)
   iface->ignoring_redraw_clips = clutter_stage_cogl_ignoring_redraw_clips;
   iface->get_redraw_clip_bounds = clutter_stage_cogl_get_redraw_clip_bounds;
   iface->redraw = clutter_stage_cogl_redraw;
-  iface->get_dirty_pixel = clutter_stage_cogl_get_dirty_pixel;
 }
 
 static void
