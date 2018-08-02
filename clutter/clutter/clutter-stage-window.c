@@ -275,24 +275,6 @@ _clutter_stage_window_redraw (ClutterStageWindow *window)
     iface->redraw (window);
 }
 
-
-void
-_clutter_stage_window_get_dirty_pixel (ClutterStageWindow *window,
-                                       ClutterStageView   *view,
-                                       int *x, int *y)
-{
-  ClutterStageWindowInterface *iface;
-
-  *x = 0;
-  *y = 0;
-
-  g_return_if_fail (CLUTTER_IS_STAGE_WINDOW (window));
-
-  iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
-  if (iface->get_dirty_pixel)
-    iface->get_dirty_pixel (window, view, x, y);
-}
-
 gboolean
 _clutter_stage_window_can_clip_redraws (ClutterStageWindow *window)
 {
