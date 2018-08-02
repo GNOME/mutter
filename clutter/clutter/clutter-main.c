@@ -130,7 +130,6 @@ static const GDebugKey clutter_debug_keys[] = {
 
 static const GDebugKey clutter_pick_debug_keys[] = {
   { "nop-picking", CLUTTER_DEBUG_NOP_PICKING },
-  { "dump-pick-buffers", CLUTTER_DEBUG_DUMP_PICK_BUFFERS },
 };
 
 static const GDebugKey clutter_paint_debug_keys[] = {
@@ -541,125 +540,6 @@ gboolean
 clutter_get_motion_events_enabled (void)
 {
   return _clutter_context_get_motion_events_enabled ();
-}
-
-void
-_clutter_id_to_color (guint         id_,
-                      ClutterColor *col)
-{
-  ClutterMainContext *ctx;
-  gint red, green, blue;
-
-  ctx = _clutter_context_get_default ();
-
-  if (ctx->fb_g_mask == 0)
-    {
-      /* Figure out framebuffer masks used for pick */
-      cogl_get_bitmasks (&ctx->fb_r_mask,
-			 &ctx->fb_g_mask,
-			 &ctx->fb_b_mask, NULL);
-
-      ctx->fb_r_mask_used = ctx->fb_r_mask;
-      ctx->fb_g_mask_used = ctx->fb_g_mask;
-      ctx->fb_b_mask_used = ctx->fb_b_mask;
-
-      /* XXX - describe what "fuzzy picking" is */
-      if (clutter_use_fuzzy_picking)
-	{
-	  ctx->fb_r_mask_used--;
-	  ctx->fb_g_mask_used--;
-	  ctx->fb_b_mask_used--;
-	}
-    }
-
-  /* compute the numbers we'll store in the components */
-  red   = (id_ >> (ctx->fb_g_mask_used+ctx->fb_b_mask_used))
-        & (0xff >> (8-ctx->fb_r_mask_used));
-  green = (id_ >> ctx->fb_b_mask_used)
-        & (0xff >> (8-ctx->fb_g_mask_used));
-  blue  = (id_)
-        & (0xff >> (8-ctx->fb_b_mask_used));
-
-  /* shift left bits a bit and add one, this circumvents
-   * at least some potential rounding errors in GL/GLES
-   * driver / hw implementation.
-   */
-  if (ctx->fb_r_mask_used != ctx->fb_r_mask)
-    red = red * 2;
-  if (ctx->fb_g_mask_used != ctx->fb_g_mask)
-    green = green * 2;
-  if (ctx->fb_b_mask_used != ctx->fb_b_mask)
-    blue  = blue  * 2;
-
-  /* shift up to be full 8bit values */
-  red   = (red   << (8 - ctx->fb_r_mask)) | (0x7f >> (ctx->fb_r_mask_used));
-  green = (green << (8 - ctx->fb_g_mask)) | (0x7f >> (ctx->fb_g_mask_used));
-  blue  = (blue  << (8 - ctx->fb_b_mask)) | (0x7f >> (ctx->fb_b_mask_used));
-
-  col->red   = red;
-  col->green = green;
-  col->blue  = blue;
-  col->alpha = 0xff;
-
-  /* XXX: We rotate the nibbles of the colors here so that there is a
-   * visible variation between colors of sequential actor identifiers;
-   * otherwise pick buffers dumped to an image will pretty much just look
-   * black.
-   */
-  if (G_UNLIKELY (clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS))
-    {
-      col->red   = (col->red << 4)   | (col->red >> 4);
-      col->green = (col->green << 4) | (col->green >> 4);
-      col->blue  = (col->blue << 4)  | (col->blue >> 4);
-    }
-}
-
-guint
-_clutter_pixel_to_id (guchar pixel[4])
-{
-  ClutterMainContext *ctx;
-  gint red, green, blue;
-  guint retval;
-
-  ctx = _clutter_context_get_default ();
-
-  /* reduce the pixel components to the number of bits actually used of the
-   * 8bits.
-   */
-  if (G_UNLIKELY (clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS))
-    {
-      guchar tmp;
-
-      /* XXX: In _clutter_id_to_color we rotated the nibbles of the colors so
-       * that there is a visible variation between colors of sequential actor
-       * identifiers (otherwise pick buffers dumped to an image will pretty
-       * much just look black.) Here we reverse that rotation.
-       */
-      tmp = ((pixel[0] << 4) | (pixel[0] >> 4));
-      red = tmp >> (8 - ctx->fb_r_mask);
-      tmp = ((pixel[1] << 4) | (pixel[1] >> 4));
-      green = tmp >> (8 - ctx->fb_g_mask);
-      tmp = ((pixel[2] << 4) | (pixel[2] >> 4));
-      blue = tmp >> (8 - ctx->fb_b_mask);
-    }
-  else
-    {
-      red   = pixel[0] >> (8 - ctx->fb_r_mask);
-      green = pixel[1] >> (8 - ctx->fb_g_mask);
-      blue  = pixel[2] >> (8 - ctx->fb_b_mask);
-    }
-
-  /* divide potentially by two if 'fuzzy' */
-  red   = red   >> (ctx->fb_r_mask - ctx->fb_r_mask_used);
-  green = green >> (ctx->fb_g_mask - ctx->fb_g_mask_used);
-  blue  = blue  >> (ctx->fb_b_mask - ctx->fb_b_mask_used);
-
-  /* combine the correct per component values into the final id */
-  retval = blue
-         + (green <<  ctx->fb_b_mask_used)
-         + (red << (ctx->fb_b_mask_used + ctx->fb_g_mask_used));
-
-  return retval;
 }
 
 static CoglPangoFontMap *

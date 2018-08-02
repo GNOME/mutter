@@ -27,8 +27,7 @@ typedef enum {
 } ClutterDebugFlag;
 
 typedef enum {
-  CLUTTER_DEBUG_NOP_PICKING         = 1 << 0,
-  CLUTTER_DEBUG_DUMP_PICK_BUFFERS   = 1 << 1
+  CLUTTER_DEBUG_NOP_PICKING         = 1 << 0
 } ClutterPickDebugFlag;
 
 typedef enum {
