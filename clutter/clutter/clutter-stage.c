@@ -105,6 +105,14 @@ struct _ClutterStageQueueRedrawEntry
   ClutterPaintVolume clip;
 };
 
+struct _PickRecord
+{
+  ClutterActorBox box;
+  ClutterActor   *actor;
+};
+
+typedef struct _PickRecord PickRecord;
+
 struct _ClutterStagePrivate
 {
   /* the stage implementation */
@@ -138,7 +146,10 @@ struct _ClutterStagePrivate
   GTimer *fps_timer;
   gint32 timer_n_frames;
 
-  ClutterIDPool *pick_id_pool;
+  GArray         *pick_stack;
+  GArray         *pick_clip_stack;
+  gboolean        pick_stack_frozen;
+  ClutterPickMode cached_pick_mode;
 
 #ifdef CLUTTER_ENABLE_DEBUG
   gulong redraw_count;
@@ -314,6 +325,114 @@ clutter_stage_get_preferred_height (ClutterActor *self,
 
   if (natural_height_p)
     *natural_height_p = geom.height;
+}
+
+/* In order to keep weak pointers valid between frames we need them to not
+ * move in memory, so the stack is marked as "frozen".
+ */
+static void
+_clutter_stage_freeze_pick_stack (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  int i;
+
+  if (priv->pick_stack_frozen)
+    return;
+
+  for (i = 0; i < priv->pick_stack->len; i++)
+    {
+      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
+
+      if (rec->actor)
+        g_object_add_weak_pointer (G_OBJECT (rec->actor),
+                                   (gpointer) &rec->actor);
+    }
+
+  priv->pick_stack_frozen = TRUE;
+}
+
+static void
+_clutter_stage_thaw_pick_stack (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  int i;
+
+  if (!priv->pick_stack_frozen)
+    return;
+
+  for (i = 0; i < priv->pick_stack->len; i++)
+    {
+      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
+
+      if (rec->actor)
+        g_object_remove_weak_pointer (G_OBJECT (rec->actor),
+                                      (gpointer) &rec->actor);
+    }
+
+  priv->pick_stack_frozen = FALSE;
+}
+
+static void
+_clutter_stage_clear_pick_stack (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  _clutter_stage_thaw_pick_stack (stage);
+  g_array_set_size (priv->pick_stack, 0);
+  g_array_set_size (priv->pick_clip_stack, 0);
+  priv->cached_pick_mode = CLUTTER_PICK_NONE;
+}
+
+void
+_clutter_stage_log_pick (ClutterStage          *stage,
+                         const ClutterActorBox *box,
+                         ClutterActor          *actor)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  PickRecord rec = {*box, actor};
+  int i;
+
+  g_assert (!priv->pick_stack_frozen);
+
+  /* If any clipping has been set then we only keep the subset of box that
+   * is within all the clipping rectangles.
+   */
+  for (i = 0; i < priv->pick_clip_stack->len; i++)
+    {
+      ClutterActorBox *clip =
+        &g_array_index (priv->pick_clip_stack, ClutterActorBox, i);
+
+      rec.box.x1 = MAX (rec.box.x1, clip->x1);
+      rec.box.y1 = MAX (rec.box.y1, clip->y1);
+      rec.box.x2 = MIN (rec.box.x2, clip->x2);
+      rec.box.y2 = MIN (rec.box.y2, clip->y2);
+
+      if (rec.box.x2 <= rec.box.x1 || rec.box.y2 <= rec.box.y1)
+        return;
+    }
+
+  g_array_append_val (priv->pick_stack, rec);
+}
+
+void
+_clutter_stage_push_pick_clip (ClutterStage          *stage,
+                               const ClutterActorBox *box)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  g_assert (!priv->pick_stack_frozen);
+  g_array_append_val (priv->pick_clip_stack, *box);
+}
+
+void
+_clutter_stage_pop_pick_clip (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  guint len = priv->pick_clip_stack->len;
+
+  g_assert (!priv->pick_stack_frozen);
+  g_assert (len > 0);
+  g_array_set_size (priv->pick_clip_stack, len - 1);
 }
 
 static inline void
@@ -625,6 +744,9 @@ clutter_stage_do_paint_view (ClutterStage                *stage,
   float clip_poly[8];
   float viewport[4];
   cairo_rectangle_int_t geom;
+
+  /* Any mode of painting/picking invalidates the pick stack */
+  _clutter_stage_clear_pick_stack (stage);
 
   _clutter_stage_window_get_geometry (priv->impl, &geom);
 
@@ -1391,39 +1513,6 @@ clutter_stage_get_redraw_clip_bounds (ClutterStage          *stage,
     }
 }
 
-static void
-read_pixels_to_file (char *filename_stem,
-                     int   x,
-                     int   y,
-                     int   width,
-                     int   height)
-{
-  guint8 *data;
-  cairo_surface_t *surface;
-  static int read_count = 0;
-  char *filename = g_strdup_printf ("%s-%05d.png",
-                                    filename_stem,
-                                    read_count);
-
-  data = g_malloc (4 * width * height);
-  cogl_read_pixels (x, y, width, height,
-                    COGL_READ_PIXELS_COLOR_BUFFER,
-                    CLUTTER_CAIRO_FORMAT_ARGB32,
-                    data);
-
-  surface = cairo_image_surface_create_for_data (data, CAIRO_FORMAT_RGB24,
-                                                 width, height,
-                                                 width * 4);
-
-  cairo_surface_write_to_png (surface, filename);
-  cairo_surface_destroy (surface);
-
-  g_free (data);
-  g_free (filename);
-
-  read_count++;
-}
-
 static ClutterActor *
 _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                                 gint              x,
@@ -1431,139 +1520,42 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                                 ClutterPickMode   mode,
                                 ClutterStageView *view)
 {
-  ClutterActor *actor = CLUTTER_ACTOR (stage);
+  ClutterMainContext *context = _clutter_context_get_default ();
+  int i;
   ClutterStagePrivate *priv = stage->priv;
   CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
-  cairo_rectangle_int_t view_layout;
-  ClutterMainContext *context;
-  guchar pixel[4] = { 0xff, 0xff, 0xff, 0xff };
-  CoglColor stage_pick_id;
-  gboolean dither_enabled_save;
-  ClutterActor *retval;
-  gint dirty_x;
-  gint dirty_y;
-  gint read_x;
-  gint read_y;
-  float fb_width, fb_height;
-  float fb_scale;
-  float viewport_offset_x;
-  float viewport_offset_y;
 
-  priv = stage->priv;
-
-  context = _clutter_context_get_default ();
-  fb_scale = clutter_stage_view_get_scale (view);
-  clutter_stage_view_get_layout (view, &view_layout);
-
-  fb_width = view_layout.width * fb_scale;
-  fb_height = view_layout.height * fb_scale;
-  cogl_push_framebuffer (fb);
-
-  /* needed for when a context switch happens */
-  _clutter_stage_maybe_setup_viewport (stage, view);
-
-  /* FIXME: For some reason leaving the cogl clip stack empty causes the
-   * picking to not work at all, so setting it the whole framebuffer content
-   * for now. */
-  cogl_framebuffer_push_scissor_clip (fb, 0, 0,
-                                      view_layout.width * fb_scale,
-                                      view_layout.height * fb_scale);
-
-  _clutter_stage_window_get_dirty_pixel (priv->impl, view, &dirty_x, &dirty_y);
-
-  if (G_LIKELY (!(clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS)))
+  if (mode != priv->cached_pick_mode)
     {
-      CLUTTER_NOTE (PICK, "Pushing pick scissor clip x: %d, y: %d, 1x1",
-                    (int) dirty_x * fb_scale,
-                    (int) dirty_y * fb_scale);
-      cogl_framebuffer_push_scissor_clip (fb, dirty_x * fb_scale, dirty_y * fb_scale, 1, 1);
+      _clutter_stage_clear_pick_stack (stage);
+
+      /* We don't render to the fb, but have to set one to stop the cogl matrix
+       * operations from crashing in paint functions. Because the matrices are
+       * stored relative to the current fb.
+       */
+      cogl_push_framebuffer (fb);
+      context->pick_mode = mode;
+      _clutter_stage_paint_view (stage, view, NULL);
+      context->pick_mode = CLUTTER_PICK_NONE;
+      priv->cached_pick_mode = mode;
+      cogl_pop_framebuffer ();
+
+      _clutter_stage_freeze_pick_stack (stage);
     }
 
-  viewport_offset_x = x * fb_scale - dirty_x * fb_scale;
-  viewport_offset_y = y * fb_scale - dirty_y * fb_scale;
-  CLUTTER_NOTE (PICK, "Setting viewport to %f, %f, %f, %f",
-                priv->viewport[0] * fb_scale - viewport_offset_x,
-                priv->viewport[1] * fb_scale - viewport_offset_y,
-                priv->viewport[2] * fb_scale,
-                priv->viewport[3] * fb_scale);
-  cogl_framebuffer_set_viewport (fb,
-                                 priv->viewport[0] * fb_scale - viewport_offset_x,
-                                 priv->viewport[1] * fb_scale - viewport_offset_y,
-                                 priv->viewport[2] * fb_scale,
-                                 priv->viewport[3] * fb_scale);
-
-  read_x = dirty_x * fb_scale;
-  read_y = dirty_y * fb_scale;
-
-  CLUTTER_NOTE (PICK, "Performing pick at %i,%i on view %dx%d+%d+%d s: %d",
-                x, y,
-                view_layout.width, view_layout.height,
-                view_layout.x, view_layout.y, fb_scale);
-
-  cogl_color_init_from_4ub (&stage_pick_id, 255, 255, 255, 255);
-  cogl_clear (&stage_pick_id, COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH);
-
-  /* Disable dithering (if any) when doing the painting in pick mode */
-  dither_enabled_save = cogl_framebuffer_get_dither_enabled (fb);
-  cogl_framebuffer_set_dither_enabled (fb, FALSE);
-
-  /* Render the entire scence in pick mode - just single colored silhouette's
-   * are drawn offscreen (as we never swap buffers)
-  */
-  context->pick_mode = mode;
-  _clutter_stage_paint_view (stage, view, NULL);
-  context->pick_mode = CLUTTER_PICK_NONE;
-
-  /* Read the color of the screen co-ords pixel. RGBA_8888_PRE is used
-     even though we don't care about the alpha component because under
-     GLES this is the only format that is guaranteed to work so Cogl
-     will end up having to do a conversion if any other format is
-     used. The format is requested as pre-multiplied because Cogl
-     assumes that all pixels in the framebuffer are premultiplied so
-     it avoids a conversion. */
-  cogl_framebuffer_read_pixels (fb,
-                                read_x, read_y, 1, 1,
-                                COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                                pixel);
-
-  if (G_UNLIKELY (clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS))
+  /* Search all "painted" pickable actors from front to back. A linear search
+   * is required, and also performs fine since there is typically only
+   * on the order of dozens of actors in the list (on screen) at a time.
+   */
+  for (i = priv->pick_stack->len - 1; i >= 0; i--)
     {
-      char *file_name =
-        g_strdup_printf ("pick-buffer-%s-view-x-%d",
-                         _clutter_actor_get_debug_name (actor),
-                         view_layout.x);
+      const PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
 
-      read_pixels_to_file (file_name, 0, 0, fb_width, fb_height);
-
-      g_free (file_name);
+      if (rec->actor && clutter_actor_box_contains (&rec->box, x, y))
+        return rec->actor;
     }
 
-  /* Restore whether GL_DITHER was enabled */
-  cogl_framebuffer_set_dither_enabled (fb, dither_enabled_save);
-
-  if (G_LIKELY (!(clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS)))
-    cogl_framebuffer_pop_clip (fb);
-
-  cogl_framebuffer_pop_clip (fb);
-
-  _clutter_stage_dirty_viewport (stage);
-
-  if (pixel[0] == 0xff && pixel[1] == 0xff && pixel[2] == 0xff)
-    retval = actor;
-  else
-    {
-      guint32 id_ = _clutter_pixel_to_id (pixel);
-
-      retval = _clutter_stage_get_actor_by_pick_id (stage, id_);
-      CLUTTER_NOTE (PICK, "Picking actor %s with id %u (pixel: 0x%x%x%x%x",
-                    G_OBJECT_TYPE_NAME (retval),
-                    id_,
-                    pixel[0], pixel[1], pixel[2], pixel[3]);
-    }
-
-  cogl_pop_framebuffer ();
-
-  return retval;
+  return CLUTTER_ACTOR (stage);
 }
 
 static ClutterStageView *
@@ -1876,7 +1868,9 @@ clutter_stage_finalize (GObject *object)
 
   g_array_free (priv->paint_volume_stack, TRUE);
 
-  _clutter_id_pool_free (priv->pick_id_pool);
+  _clutter_stage_clear_pick_stack (stage);
+  g_array_free (priv->pick_clip_stack, TRUE);
+  g_array_free (priv->pick_stack, TRUE);
 
   if (priv->fps_timer != NULL)
     g_timer_destroy (priv->fps_timer);
@@ -2374,7 +2368,9 @@ clutter_stage_init (ClutterStage *self)
   priv->paint_volume_stack =
     g_array_new (FALSE, FALSE, sizeof (ClutterPaintVolume));
 
-  priv->pick_id_pool = _clutter_id_pool_new (256);
+  priv->pick_stack = g_array_new (FALSE, FALSE, sizeof (PickRecord));
+  priv->pick_clip_stack = g_array_new (FALSE, FALSE, sizeof (ClutterActorBox));
+  priv->cached_pick_mode = CLUTTER_PICK_NONE;
 }
 
 /**
@@ -4149,6 +4145,15 @@ _clutter_stage_queue_actor_redraw (ClutterStage *stage,
   CLUTTER_NOTE (CLIPPING, "stage_queue_actor_redraw (actor=%s, clip=%p): ",
                 _clutter_actor_get_debug_name (actor), clip);
 
+  /* Someone may invalidate the pick cache with a queued redraw and/or
+   * clutter_actor_set_clip, and then call clutter_stage_get_actor_at_pos
+   * immediately. This is unusual because it means they're trying to do
+   * picking blindly without yet having drawn the changes on screen. But it's
+   * permissible and is also the approach taken by the 'actor-pick'
+   * conformance test, so it has to work. Invalidate the cache:
+   */
+  _clutter_stage_clear_pick_stack (stage);
+
   if (!priv->redraw_pending)
     {
       ClutterMasterClock *master_clock;
@@ -4407,39 +4412,6 @@ CoglFramebuffer *
 _clutter_stage_get_active_framebuffer (ClutterStage *stage)
 {
   return stage->priv->active_framebuffer;
-}
-
-gint32
-_clutter_stage_acquire_pick_id (ClutterStage *stage,
-                                ClutterActor *actor)
-{
-  ClutterStagePrivate *priv = stage->priv;
-
-  g_assert (priv->pick_id_pool != NULL);
-
-  return _clutter_id_pool_add (priv->pick_id_pool, actor);
-}
-
-void
-_clutter_stage_release_pick_id (ClutterStage *stage,
-                                gint32        pick_id)
-{
-  ClutterStagePrivate *priv = stage->priv;
-
-  g_assert (priv->pick_id_pool != NULL);
-
-  _clutter_id_pool_remove (priv->pick_id_pool, pick_id);
-}
-
-ClutterActor *
-_clutter_stage_get_actor_by_pick_id (ClutterStage *stage,
-                                     gint32        pick_id)
-{
-  ClutterStagePrivate *priv = stage->priv;
-
-  g_assert (priv->pick_id_pool != NULL);
-
-  return _clutter_id_pool_lookup (priv->pick_id_pool, pick_id);
 }
 
 void
