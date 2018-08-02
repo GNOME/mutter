@@ -74,6 +74,15 @@ gint64    _clutter_stage_get_update_time                  (ClutterStage *stage);
 void     _clutter_stage_clear_update_time                 (ClutterStage *stage);
 gboolean _clutter_stage_has_full_redraw_queued            (ClutterStage *stage);
 
+void _clutter_stage_log_pick (ClutterStage          *stage,
+                              const ClutterActorBox *box,
+                              ClutterActor          *actor);
+
+void _clutter_stage_push_pick_clip (ClutterStage          *stage,
+                                    const ClutterActorBox *box);
+
+void _clutter_stage_pop_pick_clip (ClutterStage *stage);
+
 ClutterActor *_clutter_stage_do_pick (ClutterStage    *stage,
                                       gint             x,
                                       gint             y,
@@ -91,13 +100,6 @@ ClutterStageQueueRedrawEntry *_clutter_stage_queue_actor_redraw            (Clut
 void                          _clutter_stage_queue_redraw_entry_invalidate (ClutterStageQueueRedrawEntry *entry);
 
 CoglFramebuffer *_clutter_stage_get_active_framebuffer (ClutterStage *stage);
-
-gint32          _clutter_stage_acquire_pick_id          (ClutterStage *stage,
-                                                         ClutterActor *actor);
-void            _clutter_stage_release_pick_id          (ClutterStage *stage,
-                                                         gint32        pick_id);
-ClutterActor *  _clutter_stage_get_actor_by_pick_id     (ClutterStage *stage,
-                                                         gint32        pick_id);
 
 void            _clutter_stage_add_pointer_drag_actor    (ClutterStage       *stage,
                                                           ClutterInputDevice *device,
