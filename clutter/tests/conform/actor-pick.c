@@ -20,84 +20,10 @@ struct _State
   gboolean pass;
 };
 
-struct _ShiftEffect
-{
-  ClutterShaderEffect parent_instance;
-};
-
-struct _ShiftEffectClass
-{
-  ClutterShaderEffectClass parent_class;
-};
-
-typedef struct _ShiftEffect       ShiftEffect;
-typedef struct _ShiftEffectClass  ShiftEffectClass;
-
-#define TYPE_SHIFT_EFFECT        (shift_effect_get_type ())
-
-GType shift_effect_get_type (void);
-
-G_DEFINE_TYPE (ShiftEffect,
-               shift_effect,
-               CLUTTER_TYPE_SHADER_EFFECT);
-
-static void
-shader_paint (ClutterEffect           *effect,
-              ClutterEffectPaintFlags  flags)
-{
-  ClutterShaderEffect *shader = CLUTTER_SHADER_EFFECT (effect);
-  float tex_width;
-  ClutterActor *actor =
-    clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (effect));
-
-  if (g_test_verbose ())
-    g_debug ("shader_paint");
-
-  clutter_shader_effect_set_shader_source (shader,
-    "uniform sampler2D tex;\n"
-    "uniform float step;\n"
-    "void main (void)\n"
-    "{\n"
-    "  cogl_color_out = texture2D(tex, vec2 (cogl_tex_coord_in[0].s + step,\n"
-    "                                        cogl_tex_coord_in[0].t));\n"
-    "}\n");
-
-  tex_width = clutter_actor_get_width (actor);
-
-  clutter_shader_effect_set_uniform (shader, "tex", G_TYPE_INT, 1, 0);
-  clutter_shader_effect_set_uniform (shader, "step", G_TYPE_FLOAT, 1,
-                                     SHIFT_STEP / tex_width);
-
-  CLUTTER_EFFECT_CLASS (shift_effect_parent_class)->paint (effect, flags);
-}
-
-static void
-shader_pick (ClutterEffect           *effect,
-             ClutterEffectPaintFlags  flags)
-{
-  shader_paint (effect, flags);
-}
-
-static void
-shift_effect_class_init (ShiftEffectClass *klass)
-{
-  ClutterEffectClass *shader_class = CLUTTER_EFFECT_CLASS (klass);
-
-  shader_class->paint = shader_paint;
-  shader_class->pick = shader_pick;
-}
-
-static void
-shift_effect_init (ShiftEffect *self)
-{
-}
-
 static const char *test_passes[] = {
   "No covering actor",
   "Invisible covering actor",
   "Clipped covering actor",
-  "Blur effect",
-  "Shift effect",
 };
 
 static gboolean
@@ -150,37 +76,6 @@ on_timeout (gpointer data)
 
           if (g_test_verbose ())
             g_print ("Clipped covering actor:\n");
-        }
-      else if (test_num == 3)
-        {
-          if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
-            continue;
-
-          clutter_actor_hide (over_actor);
-
-          clutter_actor_add_effect_with_name (CLUTTER_ACTOR (state->stage),
-                                              "blur",
-                                              clutter_blur_effect_new ());
-
-          if (g_test_verbose ())
-            g_print ("With blur effect:\n");
-        }
-      else if (test_num == 4)
-        {
-          if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
-            continue;
-
-          clutter_actor_hide (over_actor);
-          clutter_actor_remove_effect_by_name (CLUTTER_ACTOR (state->stage),
-                                               "blur");
-
-          clutter_actor_add_effect_with_name (CLUTTER_ACTOR (state->stage),
-                                              "shift",
-                                              g_object_new (TYPE_SHIFT_EFFECT,
-                                                            NULL));
-
-          if (g_test_verbose ())
-            g_print ("With shift effect:\n");
         }
 
       for (y = 0; y < ACTORS_Y; y++)
