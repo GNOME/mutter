@@ -338,6 +338,28 @@ clutter_actor_box_contains (const ClutterActorBox *box,
 }
 
 /**
+ * clutter_actor_box_contains_pixel:
+ * @box: a #ClutterActorBox
+ * @x: X coordinate of the pixel's left edge
+ * @y: Y coordinate of the pixel's top edge
+ *
+ * Checks whether a pixel with @x, @y coordinates is contained
+ * within @box
+ *
+ * Return value: %TRUE if the pixel is contained by the #ClutterActorBox
+ */
+gboolean
+clutter_actor_box_contains_pixel (const ClutterActorBox *box,
+                                  gint                   x,
+                                  gint                   y)
+{
+  g_return_val_if_fail (box != NULL, FALSE);
+
+  return x >= box->x1 && x < (gint) box->x2 &&
+         y >= box->y1 && y < (gint) box->y2;
+}
+
+/**
  * clutter_actor_box_from_vertices:
  * @box: a #ClutterActorBox
  * @verts: (array fixed-size=4): array of four #ClutterVertex
