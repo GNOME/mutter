@@ -43,7 +43,6 @@ clutter_conform_tests_deprecated_tests = [
   'behaviours',
   'group',
   'rectangle',
-  'texture',
 ]
 
 clutter_conform_tests = []
