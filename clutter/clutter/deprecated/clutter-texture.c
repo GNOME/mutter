@@ -588,83 +588,6 @@ gen_texcoords_and_draw_cogl_rectangle (ClutterActor *self)
 			              0, 0, t_w, t_h);
 }
 
-static CoglPipeline *
-create_pick_pipeline (ClutterActor *self)
-{
-  ClutterTexture *texture = CLUTTER_TEXTURE (self);
-  ClutterTexturePrivate *priv = texture->priv;
-  CoglPipeline *pick_pipeline = cogl_pipeline_copy (texture_template_pipeline);
-  GError *error = NULL;
-
-  if (!cogl_pipeline_set_layer_combine (pick_pipeline, 0,
-                                        "RGBA = "
-                                        "  MODULATE (CONSTANT, TEXTURE[A])",
-                                        &error))
-    {
-      if (!priv->seen_create_pick_pipeline_warning)
-        g_warning ("Error setting up texture combine for shaped "
-                   "texture picking: %s", error->message);
-      priv->seen_create_pick_pipeline_warning = TRUE;
-      g_error_free (error);
-      cogl_object_unref (pick_pipeline);
-      return NULL;
-    }
-
-  cogl_pipeline_set_blend (pick_pipeline,
-                           "RGBA = ADD (SRC_COLOR[RGBA], 0)",
-                           NULL);
-
-  cogl_pipeline_set_alpha_test_function (pick_pipeline,
-                                         COGL_PIPELINE_ALPHA_FUNC_EQUAL,
-                                         1.0);
-
-  return pick_pipeline;
-}
-
-static void
-clutter_texture_pick (ClutterActor       *self,
-                      const ClutterColor *color)
-{
-  ClutterTexture *texture = CLUTTER_TEXTURE (self);
-  ClutterTexturePrivate *priv = texture->priv;
-
-  if (!clutter_actor_should_pick_paint (self))
-    return;
-
-  if (G_LIKELY (priv->pick_with_alpha_supported) && priv->pick_with_alpha)
-    {
-      CoglColor pick_color;
-
-      if (priv->pick_pipeline == NULL)
-        priv->pick_pipeline = create_pick_pipeline (self);
-
-      if (priv->pick_pipeline == NULL)
-        {
-          priv->pick_with_alpha_supported = FALSE;
-          CLUTTER_ACTOR_CLASS (clutter_texture_parent_class)->pick (self,
-                                                                    color);
-          return;
-        }
-
-      if (priv->fbo_handle != NULL)
-        update_fbo (self);
-
-      cogl_color_init_from_4ub (&pick_color,
-                                color->red,
-                                color->green,
-                                color->blue,
-                                0xff);
-      cogl_pipeline_set_layer_combine_constant (priv->pick_pipeline,
-                                                0, &pick_color);
-      cogl_pipeline_set_layer_texture (priv->pick_pipeline, 0,
-                                       clutter_texture_get_cogl_texture (texture));
-      cogl_set_source (priv->pick_pipeline);
-      gen_texcoords_and_draw_cogl_rectangle (self);
-    }
-  else
-    CLUTTER_ACTOR_CLASS (clutter_texture_parent_class)->pick (self, color);
-}
-
 static void
 clutter_texture_paint (ClutterActor *self)
 {
@@ -781,12 +704,6 @@ clutter_texture_dispose (GObject *object)
     {
       cogl_object_unref (priv->pipeline);
       priv->pipeline = NULL;
-    }
-
-  if (priv->pick_pipeline != NULL)
-    {
-      cogl_object_unref (priv->pick_pipeline);
-      priv->pick_pipeline = NULL;
     }
 
   G_OBJECT_CLASS (clutter_texture_parent_class)->dispose (object);
@@ -960,7 +877,6 @@ clutter_texture_class_init (ClutterTextureClass *klass)
   GParamSpec *pspec;
 
   actor_class->paint            = clutter_texture_paint;
-  actor_class->pick             = clutter_texture_pick;
   actor_class->get_paint_volume = clutter_texture_get_paint_volume;
   actor_class->realize          = clutter_texture_realize;
   actor_class->unrealize        = clutter_texture_unrealize;
@@ -1279,11 +1195,9 @@ clutter_texture_init (ClutterTexture *self)
   priv->repeat_y          = FALSE;
   priv->sync_actor_size   = TRUE;
   priv->fbo_handle        = NULL;
-  priv->pick_pipeline     = NULL;
   priv->keep_aspect_ratio = FALSE;
   priv->pick_with_alpha   = FALSE;
   priv->pick_with_alpha_supported = TRUE;
-  priv->seen_create_pick_pipeline_warning = FALSE;
 
   if (G_UNLIKELY (texture_template_pipeline == NULL))
     {
@@ -3068,13 +2982,8 @@ clutter_texture_set_pick_with_alpha (ClutterTexture *texture,
   if (priv->pick_with_alpha == pick_with_alpha)
     return;
 
-  if (!pick_with_alpha && priv->pick_pipeline != NULL)
-    {
-      cogl_object_unref (priv->pick_pipeline);
-      priv->pick_pipeline = NULL;
-    }
+  g_assert (!pick_with_alpha);  /* No longer supported */
 
-  /* NB: the pick pipeline is created lazily when we first pick */
   priv->pick_with_alpha = pick_with_alpha;
 
   /* NB: actors are expected to call clutter_actor_queue_redraw when
