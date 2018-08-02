@@ -204,11 +204,6 @@ gboolean      _clutter_feature_init (GError **error);
 gboolean        _clutter_diagnostic_enabled     (void);
 void            _clutter_diagnostic_message     (const char *fmt, ...);
 
-/* Picking code */
-guint           _clutter_pixel_to_id            (guchar        pixel[4]);
-void            _clutter_id_to_color            (guint         id,
-                                                 ClutterColor *col);
-
 void            _clutter_set_sync_to_vblank     (gboolean      sync_to_vblank);
 
 /* use this function as the accumulator if you have a signal with
