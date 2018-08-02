@@ -2223,6 +2223,39 @@ _clutter_actor_rerealize (ClutterActor    *self,
 }
 
 static void
+_clutter_actor_log_pick (ClutterActor *self,
+                         float         width,
+                         float         height)
+{
+  ClutterActorBox box = {0.f, 0.f, width, height};
+  ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+
+  if (stage)
+    {
+      CoglMatrix matrix;
+      gfloat z, w;
+
+      _clutter_actor_get_relative_transformation_matrix (self, stage, &matrix);
+
+      z = 0.f;
+      w = 1.f;
+      cogl_matrix_transform_point (&matrix, &box.x1, &box.y1, &z, &w);
+
+      z = 0.f;
+      w = 1.f;
+      cogl_matrix_transform_point (&matrix, &box.x2, &box.y2, &z, &w);
+    }
+
+  /* TODO: clutter_stage_log_pick (stage, &box, self); */
+
+  printf("vv: _clutter_actor_log_pick %.1fx%.1f (%.1f,%.1f) -> (%.1f,%.1f)\n",
+         width, height,
+         box.x1, box.y1,
+         box.x2, box.y2);
+  fflush(stdout);
+}
+
+static void
 clutter_actor_real_pick (ClutterActor       *self,
 			 const ClutterColor *color)
 {
@@ -2245,6 +2278,7 @@ clutter_actor_real_pick (ClutterActor       *self,
                                 color->alpha);
 
       cogl_rectangle (0, 0, width, height);
+      _clutter_actor_log_pick (self, width, height);
     }
 
   /* XXX - this thoroughly sucks, but we need to maintain compatibility
