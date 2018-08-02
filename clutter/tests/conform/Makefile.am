@@ -54,7 +54,6 @@ deprecated_tests = \
 	behaviours \
 	group \
 	rectangle \
-	texture \
 	$(NULL)
 
 test_programs = $(actor_tests) $(general_tests) $(classes_tests) $(deprecated_tests)
