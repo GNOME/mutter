@@ -62,38 +62,23 @@ meta_surface_actor_pick (ClutterActor       *actor,
   else
     {
       int n_rects;
-      float *rectangles;
       int i;
-      CoglPipeline *pipeline;
-      CoglContext *ctx;
-      CoglFramebuffer *fb;
-      CoglColor cogl_color;
 
       n_rects = cairo_region_num_rectangles (priv->input_region);
-      rectangles = g_alloca (sizeof (float) * 4 * n_rects);
 
       for (i = 0; i < n_rects; i++)
         {
           cairo_rectangle_int_t rect;
-          int pos = i * 4;
+          ClutterActorBox box;
 
           cairo_region_get_rectangle (priv->input_region, i, &rect);
 
-          rectangles[pos + 0] = rect.x;
-          rectangles[pos + 1] = rect.y;
-          rectangles[pos + 2] = rect.x + rect.width;
-          rectangles[pos + 3] = rect.y + rect.height;
+          box.x1 = rect.x;
+          box.y1 = rect.y;
+          box.x2 = rect.x + rect.width;
+          box.y2 = rect.y + rect.height;
+          clutter_actor_pick_box (actor, &box);
         }
-
-      ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
-      fb = cogl_get_draw_framebuffer ();
-
-      cogl_color_init_from_4ub (&cogl_color, color->red, color->green, color->blue, color->alpha);
-
-      pipeline = cogl_pipeline_new (ctx);
-      cogl_pipeline_set_color (pipeline, &cogl_color);
-      cogl_framebuffer_draw_rectangles (fb, pipeline, rectangles, n_rects);
-      cogl_object_unref (pipeline);
     }
 
   clutter_actor_iter_init (&iter, actor);
