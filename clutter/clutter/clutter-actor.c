@@ -2228,21 +2228,49 @@ clutter_actor_pick_box (ClutterActor          *self,
 {
   ClutterActor *stage = _clutter_actor_get_stage_internal (self);
   ClutterActorBox stage_box = *box;
-  CoglMatrix matrix;
+  CoglMatrix stage_transform, inv_stage_transform;
+  CoglMatrix modelview, transform_to_stage;
   gfloat z, w;
 
   if (!stage || box->x1 == box->x2 || box->y1 == box->y2)
     return;
 
-  _clutter_actor_get_relative_transformation_matrix (self, stage, &matrix);
+  /* Below is generally equivalent to:
+   *
+   * _clutter_actor_get_relative_transformation_matrix (self,
+   *                                                    stage,
+   *                                                    &transform_to_stage);
+   *
+   * but we do it the hard way here instead so as to accurately include any
+   * cogl transformations that an actor's paint function might have added in.
+   * Those additional transformations are only known to cogl matrices and not
+   * known to the clutter getter like above. So this way we more accurately
+   * represent what's really getting painted.
+   */
+  clutter_actor_get_transform (stage, &stage_transform);
+  if (!cogl_matrix_get_inverse (&stage_transform, &inv_stage_transform))
+    return;
+  cogl_get_modelview_matrix (&modelview);
+  cogl_matrix_multiply (&transform_to_stage, &inv_stage_transform, &modelview);
+
+  /* TODO: To support the general 3D/skewing transformation case this should be
+   *       a quadrilateral and not a box that the pick log contains.
+   */
+  z = 0.f;
+  w = 1.f;
+  cogl_matrix_transform_point (&transform_to_stage,
+                               &stage_box.x1,
+                               &stage_box.y1,
+                               &z,
+                               &w);
 
   z = 0.f;
   w = 1.f;
-  cogl_matrix_transform_point (&matrix, &stage_box.x1, &stage_box.y1, &z, &w);
-
-  z = 0.f;
-  w = 1.f;
-  cogl_matrix_transform_point (&matrix, &stage_box.x2, &stage_box.y2, &z, &w);
+  cogl_matrix_transform_point (&transform_to_stage,
+                               &stage_box.x2, 
+                               &stage_box.y2,
+                               &z,
+                               &w);
 
   _clutter_stage_log_pick (CLUTTER_STAGE (stage), &stage_box, self);
 }
