@@ -2222,36 +2222,29 @@ _clutter_actor_rerealize (ClutterActor    *self,
     clutter_actor_realize (self); /* realize self and all parents */
 }
 
-static void
-_clutter_actor_log_pick (ClutterActor *self,
-                         float         width,
-                         float         height)
+void
+clutter_actor_pick_box (ClutterActor          *self,
+                        const ClutterActorBox *box)
 {
   ClutterActor *stage = _clutter_actor_get_stage_internal (self);
-  ClutterActorBox box;
+  ClutterActorBox stage_box = *box;
   CoglMatrix matrix;
   gfloat z, w;
 
-  if (!stage || !width || !height)
+  if (!stage || box->x1 == box->x2 || box->y1 == box->y2)
     return;
 
   _clutter_actor_get_relative_transformation_matrix (self, stage, &matrix);
 
-  box.x1 = 0.f;
-  box.y1 = 0.f;
   z = 0.f;
   w = 1.f;
-  cogl_matrix_transform_point (&matrix, &box.x1, &box.y1, &z, &w);
+  cogl_matrix_transform_point (&matrix, &stage_box.x1, &stage_box.y1, &z, &w);
 
-  box.x2 = width;
-  box.y2 = height;
   z = 0.f;
   w = 1.f;
-  cogl_matrix_transform_point (&matrix, &box.x2, &box.y2, &z, &w);
+  cogl_matrix_transform_point (&matrix, &stage_box.x2, &stage_box.y2, &z, &w);
 
-  /* XXX Do we need to intersect box with the cogl clipping rectangle too? */
-
-  _clutter_stage_log_pick (CLUTTER_STAGE (stage), &box, self);
+  _clutter_stage_log_pick (CLUTTER_STAGE (stage), &stage_box, self);
 }
 
 static void
@@ -2264,20 +2257,9 @@ clutter_actor_real_pick (ClutterActor       *self,
   if (clutter_actor_should_pick_paint (self))
     {
       ClutterActorBox box = { 0, };
-      float width, height;
 
       clutter_actor_get_allocation_box (self, &box);
-
-      width = box.x2 - box.x1;
-      height = box.y2 - box.y1;
-
-      cogl_set_source_color4ub (color->red,
-                                color->green,
-                                color->blue,
-                                color->alpha);
-
-      //cogl_rectangle (0, 0, width, height);
-      _clutter_actor_log_pick (self, width, height);
+      clutter_actor_pick_box (self, &box);
     }
 
   /* XXX - this thoroughly sucks, but we need to maintain compatibility
