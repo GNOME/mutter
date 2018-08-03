@@ -1604,6 +1604,8 @@ _clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
    */
   cogl_push_framebuffer (fb);
 
+  /* TODO: Consider using a separate dummy FB? */
+
   g_array_set_size (priv->pick_stack, 0);
 
   context->pick_mode = mode;
