@@ -2269,7 +2269,7 @@ clutter_actor_pick_box (ClutterActor          *self,
   z = 0.f;
   w = 1.f;
   cogl_matrix_transform_point (&transform_to_stage,
-                               &stage_box.x2, 
+                               &stage_box.x2,
                                &stage_box.y2,
                                &z,
                                &w);
