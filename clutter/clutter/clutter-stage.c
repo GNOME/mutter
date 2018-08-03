@@ -1034,6 +1034,13 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
   g_object_unref (stage);
 }
 
+void
+_clutter_stage_log_pick (ClutterStage          *stage,
+                         const ClutterActorBox *box,
+                         ClutterActor          *actor)
+{
+}
+
 /**
  * _clutter_stage_needs_update:
  * @stage: A #ClutterStage
