@@ -85,6 +85,13 @@ meta_xwayland_keyboard_grab_end (MetaXwaylandKeyboardActiveGrab *active_grab)
 {
   MetaWaylandSeat *seat = active_grab->seat;
 
+  if (seat->keyboard->grab->interface->key == meta_xwayland_keyboard_grab_key)
+    {
+      meta_wayland_keyboard_end_grab (active_grab->keyboard_grab.keyboard);
+      meta_wayland_keyboard_set_focus (active_grab->keyboard_grab.keyboard, NULL);
+      meta_display_sync_wayland_input_focus (meta_get_display ());
+    }
+
   if (!active_grab->surface)
     return;
 
@@ -102,13 +109,6 @@ meta_xwayland_keyboard_grab_end (MetaXwaylandKeyboardActiveGrab *active_grab)
       g_signal_handler_disconnect (active_grab->surface->role,
                                    active_grab->window_associate_handler);
       active_grab->window_associate_handler = 0;
-    }
-
-  if (seat->keyboard->grab->interface->key == meta_xwayland_keyboard_grab_key)
-    {
-      meta_wayland_keyboard_end_grab (active_grab->keyboard_grab.keyboard);
-      meta_wayland_keyboard_set_focus (active_grab->keyboard_grab.keyboard, NULL);
-      meta_display_sync_wayland_input_focus (meta_get_display ());
     }
 
   active_grab->surface = NULL;
