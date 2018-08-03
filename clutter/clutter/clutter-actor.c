@@ -2276,7 +2276,7 @@ clutter_actor_real_pick (ClutterActor       *self,
                                 color->blue,
                                 color->alpha);
 
-      cogl_rectangle (0, 0, width, height);
+      //cogl_rectangle (0, 0, width, height);
       _clutter_actor_log_pick (self, width, height);
     }
 
