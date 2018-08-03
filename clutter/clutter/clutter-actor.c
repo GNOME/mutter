@@ -2249,6 +2249,8 @@ _clutter_actor_log_pick (ClutterActor *self,
   w = 1.f;
   cogl_matrix_transform_point (&matrix, &box.x2, &box.y2, &z, &w);
 
+  /* XXX Do we need to intersect box with the cogl clipping rectangle too? */
+
   _clutter_stage_log_pick (CLUTTER_STAGE (stage), &box, self);
 }
 
