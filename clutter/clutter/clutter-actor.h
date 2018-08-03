@@ -896,6 +896,7 @@ void                            clutter_actor_bind_model_with_properties        
                                                                                  const char                 *first_model_property,
                                                                                  ...);
 
+CLUTTER_AVAILABLE_IN_ALL
 void clutter_actor_pick_box (ClutterActor          *self,
                              const ClutterActorBox *box);
 
