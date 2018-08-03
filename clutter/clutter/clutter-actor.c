@@ -2227,24 +2227,27 @@ _clutter_actor_log_pick (ClutterActor *self,
                          float         width,
                          float         height)
 {
-  ClutterActorBox box = {0.f, 0.f, width, height};
   ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+  ClutterActorBox box;
+  CoglMatrix matrix;
+  gfloat z, w;
 
-  if (stage)
-    {
-      CoglMatrix matrix;
-      gfloat z, w;
+  if (!stage || !width || !height)
+    return;
 
-      _clutter_actor_get_relative_transformation_matrix (self, stage, &matrix);
+  _clutter_actor_get_relative_transformation_matrix (self, stage, &matrix);
 
-      z = 0.f;
-      w = 1.f;
-      cogl_matrix_transform_point (&matrix, &box.x1, &box.y1, &z, &w);
+  box.x1 = 0.f;
+  box.y1 = 0.f;
+  z = 0.f;
+  w = 1.f;
+  cogl_matrix_transform_point (&matrix, &box.x1, &box.y1, &z, &w);
 
-      z = 0.f;
-      w = 1.f;
-      cogl_matrix_transform_point (&matrix, &box.x2, &box.y2, &z, &w);
-    }
+  box.x2 = width;
+  box.y2 = height;
+  z = 0.f;
+  w = 1.f;
+  cogl_matrix_transform_point (&matrix, &box.x2, &box.y2, &z, &w);
 
   /* TODO: clutter_stage_log_pick (stage, &box, self); */
 
