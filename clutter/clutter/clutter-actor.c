@@ -2230,7 +2230,9 @@ clutter_actor_pick_box (ClutterActor          *self,
   ClutterActorBox stage_box = *box;
   CoglMatrix stage_transform, inv_stage_transform;
   CoglMatrix modelview, transform_to_stage;
+  CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
   gfloat z, w;
+  int clip_x1, clip_y1, clip_x2, clip_y2;
 
   if (!stage || box->x1 == box->x2 || box->y1 == box->y2)
     return;
@@ -2250,7 +2252,7 @@ clutter_actor_pick_box (ClutterActor          *self,
   clutter_actor_get_transform (stage, &stage_transform);
   if (!cogl_matrix_get_inverse (&stage_transform, &inv_stage_transform))
     return;
-  cogl_get_modelview_matrix (&modelview);
+  cogl_framebuffer_get_modelview_matrix (fb, &modelview);
   cogl_matrix_multiply (&transform_to_stage, &inv_stage_transform, &modelview);
 
   /* TODO: To support the general 3D/skewing transformation case this should be
@@ -2272,7 +2274,19 @@ clutter_actor_pick_box (ClutterActor          *self,
                                &z,
                                &w);
 
-  _clutter_stage_log_pick (CLUTTER_STAGE (stage), &stage_box, self);
+  cogl_framebuffer_get_clip_bounds (fb,
+                                    &clip_x1,
+                                    &clip_y1,
+                                    &clip_x2,
+                                    &clip_y2);
+
+  stage_box.x1 = MAX (stage_box.x1, clip_x1);
+  stage_box.y1 = MAX (stage_box.y1, clip_y1);
+  stage_box.x2 = MIN (stage_box.x2, clip_x2);
+  stage_box.y2 = MIN (stage_box.y2, clip_y2);
+
+  if (stage_box.x1 < stage_box.x2 && stage_box.y1 < stage_box.y2)
+    _clutter_stage_log_pick (CLUTTER_STAGE (stage), &stage_box, self);
 }
 
 static void
