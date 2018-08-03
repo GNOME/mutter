@@ -107,8 +107,8 @@ struct _ClutterStageQueueRedrawEntry
 
 struct _PickRecord
 {
-  ClutterActorBox  box;
-  ClutterActor    *actor;
+  ClutterActorBox box;
+  ClutterActor   *actor;
 };
 
 typedef struct _PickRecord PickRecord;
