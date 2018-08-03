@@ -148,6 +148,7 @@ struct _ClutterStagePrivate
 
   ClutterIDPool *pick_id_pool;
   GArray *pick_stack;
+  ClutterPickMode cached_pick_mode;
 
 #ifdef CLUTTER_ENABLE_DEBUG
   gulong redraw_count;
@@ -676,6 +677,8 @@ clutter_stage_do_paint_view (ClutterStage                *stage,
   _clutter_stage_paint_volume_stack_free_all (stage);
   _clutter_stage_update_active_framebuffer (stage, framebuffer);
   clutter_actor_paint (CLUTTER_ACTOR (stage));
+
+  priv->cached_pick_mode = CLUTTER_PICK_NONE;
 }
 
 /* This provides a common point of entry for painting the scenegraph
@@ -1598,17 +1601,21 @@ _clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
   CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
   int i;
 
-  g_array_set_size (priv->pick_stack, 0);
+  if (mode != priv->cached_pick_mode)
+    {
+      g_array_set_size (priv->pick_stack, 0);
 
-  /* We don't render to the fb, but have to set one to stop the cogl matrix
-   * operations from crashing in paint functions. Because the matrices are
-   * stored relative to the current fb.
-   */
-  cogl_push_framebuffer (fb);
-  context->pick_mode = mode;
-  _clutter_stage_paint_view (stage, view, NULL);
-  context->pick_mode = CLUTTER_PICK_NONE;
-  cogl_pop_framebuffer ();
+      /* We don't render to the fb, but have to set one to stop the cogl matrix
+       * operations from crashing in paint functions. Because the matrices are
+       * stored relative to the current fb.
+       */
+      cogl_push_framebuffer (fb);
+      context->pick_mode = mode;
+      _clutter_stage_paint_view (stage, view, NULL);
+      context->pick_mode = CLUTTER_PICK_NONE;
+      priv->cached_pick_mode = mode;
+      cogl_pop_framebuffer ();
+    }
 
   for (i = priv->pick_stack->len - 1; i >= 0; i--)
     {
@@ -2434,7 +2441,7 @@ clutter_stage_init (ClutterStage *self)
 
   priv->pick_stack =
     g_array_sized_new (FALSE, FALSE, sizeof (PickRecord), 256);
-
+  priv->cached_pick_mode = CLUTTER_PICK_NONE;
   priv->pick_id_pool = _clutter_id_pool_new (256);
 }
 
