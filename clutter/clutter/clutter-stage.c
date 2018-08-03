@@ -105,6 +105,14 @@ struct _ClutterStageQueueRedrawEntry
   ClutterPaintVolume clip;
 };
 
+struct _PickRecord
+{
+  ClutterActorBox  box;
+  ClutterActor    *actor; /* XXX weak ref? */
+};
+
+typedef struct _PickRecord PickRecord;
+
 struct _ClutterStagePrivate
 {
   /* the stage implementation */
@@ -139,6 +147,7 @@ struct _ClutterStagePrivate
   gint32 timer_n_frames;
 
   ClutterIDPool *pick_id_pool;
+  GArray *pick_stack;
 
 #ifdef CLUTTER_ENABLE_DEBUG
   gulong redraw_count;
@@ -1039,6 +1048,10 @@ _clutter_stage_log_pick (ClutterStage          *stage,
                          const ClutterActorBox *box,
                          ClutterActor          *actor)
 {
+  ClutterStagePrivate *priv = stage->priv;
+  PickRecord rec = {*box, actor};
+
+  g_array_append_val (priv->pick_stack, rec);
 }
 
 /**
@@ -1573,6 +1586,43 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
   return retval;
 }
 
+static ClutterActor *
+_clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
+                                          gint              x,
+                                          gint              y,
+                                          ClutterPickMode   mode,
+                                          ClutterStageView *view)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  ClutterMainContext *context = _clutter_context_get_default ();
+  CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
+  int i;
+
+  /* We don't render to the fb, but have to set it to stop the cogl matrix
+   * operations from crashing in clutter_actor_paint. Because the matrices are
+   * stored local to the current fb.
+   */
+  cogl_push_framebuffer (fb);
+
+  g_array_set_size (priv->pick_stack, 0);
+
+  context->pick_mode = mode;
+  _clutter_stage_paint_view (stage, view, NULL);
+  context->pick_mode = CLUTTER_PICK_NONE;
+
+  for (i = priv->pick_stack->len - 1; i >= 0; i--)
+    {
+      const PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
+
+      if (clutter_actor_box_contains (&rec->box, x, y))
+        return rec->actor;
+    }
+
+  cogl_pop_framebuffer ();
+
+  return CLUTTER_ACTOR (stage);
+}
+
 static ClutterStageView *
 get_view_at (ClutterStage *stage,
              int           x,
@@ -1625,7 +1675,8 @@ _clutter_stage_do_pick (ClutterStage   *stage,
 
   view = get_view_at (stage, x, y);
   if (view)
-    return _clutter_stage_do_pick_on_view (stage, x, y, mode, view);
+    //return _clutter_stage_do_pick_on_view (stage, x, y, mode, view);
+    return _clutter_stage_do_geometric_pick_on_view (stage, x, y, mode, view);
 
   return actor;
 }
@@ -1880,6 +1931,8 @@ clutter_stage_finalize (GObject *object)
   g_queue_free (priv->event_queue);
 
   g_free (priv->title);
+
+  g_array_free (priv->pick_stack, TRUE);
 
   g_array_free (priv->paint_volume_stack, TRUE);
 
@@ -2380,6 +2433,9 @@ clutter_stage_init (ClutterStage *self)
 
   priv->paint_volume_stack =
     g_array_new (FALSE, FALSE, sizeof (ClutterPaintVolume));
+
+  priv->pick_stack =
+    g_array_sized_new (FALSE, FALSE, sizeof (PickRecord), 256);
 
   priv->pick_id_pool = _clutter_id_pool_new (256);
 }
