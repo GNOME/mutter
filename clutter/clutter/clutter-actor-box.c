@@ -319,7 +319,7 @@ clutter_actor_box_get_area (const ClutterActorBox *box)
  * @y: Y coordinate of the point
  *
  * Checks whether a point with @x, @y coordinates is contained
- * withing @box
+ * within @box
  *
  * Return value: %TRUE if the point is contained by the #ClutterActorBox
  *
@@ -332,8 +332,8 @@ clutter_actor_box_contains (const ClutterActorBox *box,
 {
   g_return_val_if_fail (box != NULL, FALSE);
 
-  return (x > box->x1 && x < box->x2) &&
-         (y > box->y1 && y < box->y2);
+  return (x >= box->x1 && x <= box->x2) &&
+         (y >= box->y1 && y <= box->y2);
 }
 
 /**
