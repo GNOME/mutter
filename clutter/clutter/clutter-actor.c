@@ -2249,13 +2249,7 @@ _clutter_actor_log_pick (ClutterActor *self,
   w = 1.f;
   cogl_matrix_transform_point (&matrix, &box.x2, &box.y2, &z, &w);
 
-  /* TODO: clutter_stage_log_pick (stage, &box, self); */
-
-  printf("vv: _clutter_actor_log_pick %.1fx%.1f (%.1f,%.1f) -> (%.1f,%.1f)\n",
-         width, height,
-         box.x1, box.y1,
-         box.x2, box.y2);
-  fflush(stdout);
+  _clutter_stage_log_pick (CLUTTER_STAGE (stage), &box, self);
 }
 
 static void
