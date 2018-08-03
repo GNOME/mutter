@@ -108,7 +108,7 @@ struct _ClutterStageQueueRedrawEntry
 struct _PickRecord
 {
   ClutterActorBox  box;
-  ClutterActor    *actor; /* XXX weak ref? */
+  ClutterActor    *actor;
 };
 
 typedef struct _PickRecord PickRecord;
@@ -1046,6 +1046,20 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
   g_object_unref (stage);
 }
 
+static void
+_picked_actor_destroyed (gpointer data,
+                         GObject *actor)
+{
+  ClutterStage *stage = CLUTTER_STAGE (data);
+  ClutterStagePrivate *priv = stage->priv;
+
+  /* Invalidate the cache, discarding everything including the pointer to
+   * the destroyed actor.
+   */
+  priv->cached_pick_mode = CLUTTER_PICK_NONE;
+  g_array_set_size (priv->pick_stack, 0);
+}
+
 void
 _clutter_stage_log_pick (ClutterStage          *stage,
                          const ClutterActorBox *box,
@@ -1054,6 +1068,7 @@ _clutter_stage_log_pick (ClutterStage          *stage,
   ClutterStagePrivate *priv = stage->priv;
   PickRecord rec = {*box, actor};
 
+  g_object_weak_ref (G_OBJECT (actor), _picked_actor_destroyed, stage);
   g_array_append_val (priv->pick_stack, rec);
 }
 
@@ -1617,6 +1632,10 @@ _clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
       cogl_pop_framebuffer ();
     }
 
+  /* Search all "painted" pickable actors from front to back. A linear search
+   * is required, and also performs fine since there is typically only
+   * between 5 and 100 pickable actors in the list (on screen) at a time.
+   */
   for (i = priv->pick_stack->len - 1; i >= 0; i--)
     {
       const PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
