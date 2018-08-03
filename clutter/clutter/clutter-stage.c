@@ -1598,19 +1598,17 @@ _clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
   CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
   int i;
 
-  /* We don't render to the fb, but have to set it to stop the cogl matrix
-   * operations from crashing in clutter_actor_paint. Because the matrices are
-   * stored local to the current fb.
-   */
-  cogl_push_framebuffer (fb);
-
-  /* TODO: Consider using a separate dummy FB? */
-
   g_array_set_size (priv->pick_stack, 0);
 
+  /* We don't render to the fb, but have to set one to stop the cogl matrix
+   * operations from crashing in paint functions. Because the matrices are
+   * stored relative to the current fb.
+   */
+  cogl_push_framebuffer (fb);
   context->pick_mode = mode;
   _clutter_stage_paint_view (stage, view, NULL);
   context->pick_mode = CLUTTER_PICK_NONE;
+  cogl_pop_framebuffer ();
 
   for (i = priv->pick_stack->len - 1; i >= 0; i--)
     {
@@ -1619,8 +1617,6 @@ _clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
       if (clutter_actor_box_contains (&rec->box, x, y))
         return rec->actor;
     }
-
-  cogl_pop_framebuffer ();
 
   return CLUTTER_ACTOR (stage);
 }
