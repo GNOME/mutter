@@ -9,6 +9,7 @@ mutter (3.29.90-2) UNRELEASED; urgency=medium
   * d/p/renderer-native-Check-calculated-transform-when-creating-.patch:
     Apply proposed patch to fix a regression with rotated screens
     (Closes: #905363)
+  * d/gbp.conf: Don't number patches
 
  -- Simon McVittie <smcv@debian.org>  Fri, 03 Aug 2018 10:09:52 +0100
 
