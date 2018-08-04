@@ -652,13 +652,6 @@ cogl_framebuffer_push_primitive_clip (CoglFramebuffer *framebuffer,
 void
 cogl_framebuffer_pop_clip (CoglFramebuffer *framebuffer);
 
-void
-cogl_framebuffer_get_clip_bounds (CoglFramebuffer *framebuffer,
-                                  int *x0,
-                                  int *y0,
-                                  int *x1,
-                                  int *y1);
-
 /**
  * cogl_framebuffer_get_red_bits:
  * @framebuffer: a pointer to a #CoglFramebuffer
