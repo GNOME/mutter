@@ -1670,13 +1670,6 @@ _clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
       _clutter_stage_freeze_pick_stack (stage);
     }
 
-  /* FIXME: For some actors like the gnome-shell calendar dates and popup menus
-   *        the ClutterActorBox is WRONG, leading to offset picking.
-   *        This seems to be fixed during painting such that the paint box
-   *        gets offset to the right location, but we have the wrong
-   *        allocation box stored in pick_stack.
-   */
-
   /* Search all "painted" pickable actors from front to back. A linear search
    * is required, and also performs fine since there is typically only
    * on the order of dozens of actors in the list (on screen) at a time.
@@ -1684,8 +1677,20 @@ _clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
   for (i = priv->pick_stack->len - 1; i >= 0; i--)
     {
       const PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
+      ClutterActorBox pbox;
 
-      if (rec->actor && clutter_actor_box_contains (&rec->box, x, y))
+      if (!rec->actor)
+        continue;
+
+      /* FIXME: For some actors their original allocation box is now wrong
+       *        so as a workaround we revert to the paint box, which is
+       *        theoretically wrong (because it may be expanded from a paint
+       *        volume), but practically right.
+       */
+
+      clutter_actor_get_paint_box (rec->actor, &pbox);
+//      if (clutter_actor_box_contains (&rec->box, x, y))
+      if (clutter_actor_box_contains (&pbox, x, y))  // workaround
         return rec->actor;
     }
 
