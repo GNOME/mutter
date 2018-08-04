@@ -1,0 +1,85 @@
+From: =?utf-8?q?Jonas_=C3=85dahl?= <jadahl@gmail.com>
+Date: Mon, 23 Jul 2018 21:36:57 +0200
+Subject: renderer/native: Check calculated transform when creating view
+
+The "backends: Move MetaOutput::crtc field into private struct"
+accidentally changed the view transform calculation code to assume that
+"MetaCrtc::transform" corresponds to the transform of the CRTC; so is
+not the case yet; one must calculate the transform from the logical
+monitor, and check whether it is supported by the CRTC using
+meta_monitor_manager_is_transform_handled(). This commit restores the
+old behaviour that doesn't use MetaCrtc::transform when calculating the
+view transform.
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/216
+Forwarded: https://gitlab.gnome.org/GNOME/mutter/merge_requests/175
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=905363
+---
+ src/backends/native/meta-renderer-native.c         | 9 +++++++--
+ src/backends/x11/nested/meta-renderer-x11-nested.c | 8 ++++++--
+ 2 files changed, 13 insertions(+), 4 deletions(-)
+
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index 4c79532..f7fa591 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -2732,9 +2732,14 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
+   MetaMonitor *main_monitor;
+   MetaOutput *main_output;
+   MetaCrtc *crtc;
++  MetaMonitorTransform crtc_transform;
++
+   main_monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
+   main_output = meta_monitor_get_main_output (main_monitor);
+   crtc = meta_output_get_assigned_crtc (main_output);
++  crtc_transform =
++    meta_monitor_logical_to_crtc_transform (main_monitor,
++                                            logical_monitor->transform);
+ 
+   /*
+    * Pick any monitor and output and check; all CRTCs of a logical monitor will
+@@ -2743,10 +2748,10 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
+ 
+   if (meta_monitor_manager_is_transform_handled (monitor_manager,
+                                                  crtc,
+-                                                 crtc->transform))
++                                                 crtc_transform))
+     return META_MONITOR_TRANSFORM_NORMAL;
+   else
+-    return crtc->transform;
++    return crtc_transform;
+ }
+ 
+ static MetaRendererView *
+diff --git a/src/backends/x11/nested/meta-renderer-x11-nested.c b/src/backends/x11/nested/meta-renderer-x11-nested.c
+index 8fdf46b..b29b9c6 100644
+--- a/src/backends/x11/nested/meta-renderer-x11-nested.c
++++ b/src/backends/x11/nested/meta-renderer-x11-nested.c
+@@ -51,10 +51,14 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
+   MetaMonitor *main_monitor;
+   MetaOutput *main_output;
+   MetaCrtc *crtc;
++  MetaMonitorTransform crtc_transform;
+ 
+   main_monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
+   main_output = meta_monitor_get_main_output (main_monitor);
+   crtc = meta_output_get_assigned_crtc (main_output);
++  crtc_transform =
++    meta_monitor_logical_to_crtc_transform (main_monitor,
++                                            logical_monitor->transform);
+   /*
+    * Pick any monitor and output and check; all CRTCs of a logical monitor will
+    * always have the same transform assigned to them.
+@@ -62,10 +66,10 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
+ 
+   if (meta_monitor_manager_is_transform_handled (monitor_manager,
+                                                  crtc,
+-                                                 crtc->transform))
++                                                 crtc_transform))
+     return META_MONITOR_TRANSFORM_NORMAL;
+   else
+-    return crtc->transform;
++    return crtc_transform;
+ }
+ 
+ static MetaRendererView *
