@@ -517,18 +517,6 @@ _cogl_framebuffer_set_clip_stack (CoglFramebuffer *framebuffer,
 }
 
 void
-cogl_framebuffer_get_clip_bounds (CoglFramebuffer *framebuffer,
-                                  int *x0,
-                                  int *y0,
-                                  int *x1,
-                                  int *y1)
-{
-  CoglClipStack *clip_stack = _cogl_framebuffer_get_clip_stack (framebuffer);
-
-  _cogl_clip_stack_get_bounds (clip_stack, x0, y0, x1, y1);
-}
-
-void
 cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
                                float x,
                                float y,
