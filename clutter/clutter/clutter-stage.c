@@ -109,6 +109,7 @@ struct _PickRecord
 {
   ClutterActorBox box;
   ClutterActor   *actor;
+  gboolean        actor_is_weak_ptr;
 };
 
 typedef struct _PickRecord PickRecord;
@@ -147,7 +148,9 @@ struct _ClutterStagePrivate
   gint32 timer_n_frames;
 
   ClutterIDPool *pick_id_pool;
-  GArray *pick_stack;
+
+  GArray         *pick_stack;
+  gboolean        pick_stack_frozen;
   ClutterPickMode cached_pick_mode;
 
 #ifdef CLUTTER_ENABLE_DEBUG
@@ -1047,18 +1050,51 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
 }
 
 static void
-_picked_actor_destroyed (gpointer data,
-                         GObject *actor)
+_clutter_stage_clear_pick_stack (ClutterStage *stage)
 {
-  ClutterStage *stage = CLUTTER_STAGE (data);
   ClutterStagePrivate *priv = stage->priv;
+  int i;
 
-  /* Invalidate the cache, discarding everything including the pointer to
-   * the destroyed actor.
-   */
-  priv->cached_pick_mode = CLUTTER_PICK_NONE;
+  for (i = 0; i < priv->pick_stack->len; i++)
+    {
+      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
+
+      if (rec->actor_is_weak_ptr)
+        {
+          if (rec->actor)
+            g_object_remove_weak_pointer (G_OBJECT (rec->actor),
+                                          (gpointer) &rec->actor);
+          rec->actor_is_weak_ptr = FALSE;
+        }
+    }
+
+  priv->pick_stack_frozen = FALSE;
   g_array_set_size (priv->pick_stack, 0);
 }
+
+/* In order to keep weak pointers valid between frames we need them to not
+ * move in memory, so the stack is marked as "frozen".
+ */
+static void
+_clutter_stage_freeze_pick_stack (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  int i;
+
+  for (i = 0; i < priv->pick_stack->len; i++)
+    {
+      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
+
+      if (!rec->actor_is_weak_ptr && rec->actor)
+        {
+          g_object_add_weak_pointer (G_OBJECT (rec->actor),
+                                     (gpointer) &rec->actor);
+          rec->actor_is_weak_ptr = TRUE;
+        }
+    }
+
+  priv->pick_stack_frozen = TRUE;
+ }
 
 void
 _clutter_stage_log_pick (ClutterStage          *stage,
@@ -1066,9 +1102,9 @@ _clutter_stage_log_pick (ClutterStage          *stage,
                          ClutterActor          *actor)
 {
   ClutterStagePrivate *priv = stage->priv;
-  PickRecord rec = {*box, actor};
+  PickRecord rec = {*box, actor, FALSE};
 
-  g_object_weak_ref (G_OBJECT (actor), _picked_actor_destroyed, stage);
+  g_assert (!priv->pick_stack_frozen);
   g_array_append_val (priv->pick_stack, rec);
 }
 
@@ -1618,7 +1654,7 @@ _clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
 
   if (mode != priv->cached_pick_mode)
     {
-      g_array_set_size (priv->pick_stack, 0);
+      _clutter_stage_clear_pick_stack (stage);
 
       /* We don't render to the fb, but have to set one to stop the cogl matrix
        * operations from crashing in paint functions. Because the matrices are
@@ -1630,17 +1666,19 @@ _clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
       context->pick_mode = CLUTTER_PICK_NONE;
       priv->cached_pick_mode = mode;
       cogl_pop_framebuffer ();
+
+      _clutter_stage_freeze_pick_stack (stage);
     }
 
   /* Search all "painted" pickable actors from front to back. A linear search
    * is required, and also performs fine since there is typically only
-   * between 5 and 100 pickable actors in the list (on screen) at a time.
+   * on the order of dozens of actors in the list (on screen) at a time.
    */
   for (i = priv->pick_stack->len - 1; i >= 0; i--)
     {
       const PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
 
-      if (clutter_actor_box_contains (&rec->box, x, y))
+      if (rec->actor && clutter_actor_box_contains (&rec->box, x, y))
         return rec->actor;
     }
 
@@ -1956,6 +1994,7 @@ clutter_stage_finalize (GObject *object)
 
   g_free (priv->title);
 
+  _clutter_stage_clear_pick_stack (stage);
   g_array_free (priv->pick_stack, TRUE);
 
   g_array_free (priv->paint_volume_stack, TRUE);
