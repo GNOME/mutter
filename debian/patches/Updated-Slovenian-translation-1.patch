@@ -1,0 +1,56 @@
+From: =?utf-8?q?Matej_Urban=C4=8Di=C4=8D?= <mateju@svn.gnome.org>
+Date: Fri, 3 Aug 2018 17:23:46 +0200
+Subject: Updated Slovenian translation
+
+Origin: upstream, 3.29.91, commit:a87c447b722e5dc03dfc39619ac455444fa6a985
+---
+ po/sl.po | 22 +++++++++-------------
+ 1 file changed, 9 insertions(+), 13 deletions(-)
+
+diff --git a/po/sl.po b/po/sl.po
+index eda930f..d60dff6 100644
+--- a/po/sl.po
++++ b/po/sl.po
+@@ -10,8 +10,8 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: mutter master\n"
+ "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
+-"POT-Creation-Date: 2018-08-01 11:10+0000\n"
+-"PO-Revision-Date: 2018-08-03 12:12+0200\n"
++"POT-Creation-Date: 2018-08-03 10:14+0000\n"
++"PO-Revision-Date: 2018-08-03 17:00+0200\n"
+ "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
+ "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
+ "Language: sl_SI\n"
+@@ -387,7 +387,6 @@ msgid "Enable experimental features"
+ msgstr "Omogoči preizkusne možnosti"
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:108
+-#, fuzzy
+ msgid ""
+ "To enable experimental features, add the feature keyword to the list. "
+ "Whether the feature requires restarting the compositor depends on the given "
+@@ -398,16 +397,13 @@ msgid ""
+ "space, while scaling monitor framebuffers instead of window content, to "
+ "manage HiDPI monitors. Does not require a restart."
+ msgstr ""
+-"Za omogočanje preizkusnih možnosti je treba dodati ključne besede na seznam. "
+-"Ali vpisana možnost zahteva ponovni zagon sestavljalnika, je odvisno od "
+-"posamezne možnosti. Te možnosti niso zahtevane niti nastavljive. Trenutno so "
+-"na voljo ključne besede: • »scale-monitor-framebuffer« – določi privzeto "
+-"rabo sistema mutter za logične zaslone v logičnem točkovnem koordinatnem "
+-"prostoru, pri čemer prilagaja predpomnilnik in ne vsebine za upravljanje z "
+-"zasloni HiDPI. Možnost ne zahteva ponovnega zagona. • »remote-desktop« – "
+-"omogoči podporo oddaljenim namizjem. Za souporabo zaslona mora biti "
+-"omogočena tudi možnost »screen-cast«. • »screen-cast« – omogoči podporo "
+-"objavljanja na zaslon."
++"Za omogočanje preizkusnih možnosti je treba dodati ključne besede na seznam "
++"ključev. Ali vpisana možnost zahteva ponovni zagon sestavljalnika, je "
++"odvisno od posamezne možnosti. Te možnosti niso zahtevane niti nastavljive. "
++"Trenutno so na voljo ključne besede: • »scale-monitor-framebuffer« – določi "
++"privzeto rabo sistema mutter za logične zaslone v logičnem točkovnem "
++"koordinatnem prostoru, pri čemer prilagaja predpomnilnik in ne vsebine za "
++"upravljanje z zasloni HiDPI. Možnost ne zahteva ponovnega zagona."
+ 
+ #: data/org.gnome.mutter.gschema.xml.in:141
+ msgid "Select window from tab popup"
