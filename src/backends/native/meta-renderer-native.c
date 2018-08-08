@@ -2594,8 +2594,6 @@ meta_renderer_native_create_onscreen (MetaRendererNative   *renderer_native,
     }
 
   onscreen = cogl_onscreen_new (context, width, height);
-  cogl_onscreen_set_swap_throttled (onscreen, TRUE);
-
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (onscreen), error))
     {
       cogl_object_unref (onscreen);
