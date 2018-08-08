@@ -11,4 +11,3 @@ cogl_config_env = configure_file(
 
 subdir('conform')
 subdir('unit')
-subdir('micro-perf')
