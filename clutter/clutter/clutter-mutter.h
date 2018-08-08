@@ -35,9 +35,6 @@ CLUTTER_EXPORT
 void clutter_set_custom_backend_func (ClutterBackend *(* func) (void));
 
 CLUTTER_EXPORT
-gboolean        _clutter_get_sync_to_vblank     (void);
-
-CLUTTER_EXPORT
 int64_t clutter_stage_get_frame_counter (ClutterStage *stage);
 
 CLUTTER_EXPORT
