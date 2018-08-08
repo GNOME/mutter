@@ -131,6 +131,8 @@ _cogl_framebuffer_init (CoglFramebuffer *framebuffer,
 
   framebuffer->journal = _cogl_journal_new (framebuffer);
 
+  framebuffer->config.swap_throttled = TRUE;
+
   /* Ensure we know the framebuffer->clear_color* members can't be
    * referenced for our fast-path read-pixel optimization (see
    * _cogl_journal_try_read_pixel()) until some region of the
