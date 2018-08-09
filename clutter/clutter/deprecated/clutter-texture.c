@@ -589,22 +589,6 @@ gen_texcoords_and_draw_cogl_rectangle (ClutterActor *self)
 }
 
 static void
-clutter_texture_pick (ClutterActor       *self,
-                      const ClutterColor *color)
-{
-  ClutterTexture *texture = CLUTTER_TEXTURE (self);
-  ClutterTexturePrivate *priv = texture->priv;
-
-  if (!clutter_actor_should_pick_paint (self))
-    return;
-
-  if (G_LIKELY (priv->pick_with_alpha_supported) && priv->pick_with_alpha)
-    g_warning ("clutter_texture_pick with alpha is no longer supported.");
-
-  CLUTTER_ACTOR_CLASS (clutter_texture_parent_class)->pick (self, color);
-}
-
-static void
 clutter_texture_paint (ClutterActor *self)
 {
   ClutterTexture *texture = CLUTTER_TEXTURE (self);
@@ -893,7 +877,6 @@ clutter_texture_class_init (ClutterTextureClass *klass)
   GParamSpec *pspec;
 
   actor_class->paint            = clutter_texture_paint;
-  actor_class->pick             = clutter_texture_pick;
   actor_class->get_paint_volume = clutter_texture_get_paint_volume;
   actor_class->realize          = clutter_texture_realize;
   actor_class->unrealize        = clutter_texture_unrealize;
