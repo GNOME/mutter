@@ -68,6 +68,8 @@ struct _MetaGpuKms
   int max_buffer_height;
 
   gboolean page_flips_not_supported;
+
+  MetaKmsResources resources;
 };
 
 G_DEFINE_TYPE (MetaGpuKms, meta_gpu_kms, META_TYPE_GPU)
@@ -726,20 +728,29 @@ init_outputs (MetaGpuKms       *gpu_kms,
   setup_output_clones (gpu);
 }
 
-static void
+static gboolean
 meta_kms_resources_init (MetaKmsResources *resources,
-                         int               fd)
+                         int               fd,
+                         GError          **error)
 {
   drmModeRes *drm_resources;
   unsigned int i;
 
   drm_resources = drmModeGetResources (fd);
+
+  if (drm_resources == NULL) {
+    g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED, "No resources");
+    return FALSE;
+  }
+
   resources->resources = drm_resources;
 
   resources->n_encoders = (unsigned int) drm_resources->count_encoders;
   resources->encoders = g_new (drmModeEncoder *, resources->n_encoders);
   for (i = 0; i < resources->n_encoders; i++)
     resources->encoders[i] = drmModeGetEncoder (fd, drm_resources->encoders[i]);
+
+  return TRUE;
 }
 
 static void
@@ -761,9 +772,7 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
   MetaMonitorManager *monitor_manager =
     meta_gpu_get_monitor_manager (gpu);
-  MetaKmsResources resources;
-
-  meta_kms_resources_init (&resources, gpu_kms->fd);
+  MetaKmsResources resources = gpu_kms->resources;
 
   gpu_kms->max_buffer_width = resources.resources->max_width;
   gpu_kms->max_buffer_height = resources.resources->max_height;
@@ -812,6 +821,11 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
   gpu_kms->fd = kms_fd;
   gpu_kms->file_path = g_strdup (kms_file_path);
 
+  if (!meta_kms_resources_init (&gpu_kms->resources, gpu_kms->fd, error)) {
+    g_clear_object (&gpu_kms);
+    return NULL;
+  }
+
   drmSetClientCap (gpu_kms->fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
 
   source = g_source_new (&kms_event_funcs, sizeof (MetaKmsSource));
@@ -841,7 +855,7 @@ meta_gpu_kms_finalize (GObject *object)
     meta_launcher_close_restricted (launcher, gpu_kms->fd);
   g_clear_pointer (&gpu_kms->file_path, g_free);
 
-  g_source_destroy (gpu_kms->source);
+  g_clear_pointer (&gpu_kms->source, g_source_destroy);
 
   free_resources (gpu_kms);
 
