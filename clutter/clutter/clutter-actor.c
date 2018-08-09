@@ -15190,9 +15190,8 @@ clutter_actor_transform_stage_point (ClutterActor *self,
    *   http://www.cs.cmu.edu/~ph/src/texfund/
    *
    * Our texture is a rectangle with origin [0, 0], so we are mapping from
-   * quad to rectangle only, which significantly simplifies things; the
-   * function calls have been unrolled, and most of the math is done in fixed
-   * point.
+   * quad to rectangle only, which significantly simplifies things.
+   * Function calls have been unrolled.
    */
   clutter_actor_get_abs_allocation_vertices (self, v);
 
