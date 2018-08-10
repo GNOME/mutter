@@ -1,0 +1,88 @@
+#!/usr/bin/python3
+#
+# Copyright (C) 2018 Georges Basile Stavracas Neto <gbsneto@gnome.org>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+
+
+from gi.repository import GLib, Gio
+
+import argparse
+import logging
+import sys
+
+log = logging.getLogger('mutter-profiler')
+
+def setup_logging(enable_debug):
+    """Setup the logging level"""
+    log_level = logging.INFO
+
+    if enable_debug:
+        log_level = logging.DEBUG
+        logging.info('Debug enabled')
+
+    log.setLevel(log_level)
+
+
+def start_profiler(seconds):
+    """
+    Calls the D-Bus method for profiling with the passed number
+    of seconds. The result is printed for debugging purposes but
+    not used.
+
+    @seconds: number of seconds to capture profiling data
+    """
+    proxy = Gio.DBusProxy.new_for_bus_sync(
+        Gio.BusType.SESSION,
+        Gio.DBusProxyFlags.DO_NOT_AUTO_START,
+        None,
+        'org.gnome.Mutter.IdleMonitor',
+        '/org/gnome/Sysprof/Profiler',
+        'org.gnome.Sysprof.Capturer',
+        None)
+
+    params = GLib.Variant('(a{sv})', ({
+        'timeout': GLib.Variant('u', seconds),
+    }, ))
+    log.debug('Sending parameters: {}'.format(params))
+
+
+    result = proxy.call_sync('Capture', params, 0, 10000, None)
+    log.debug('Result: {}'.format(result))
+
+    if result[0] != -1:
+        log.critical('Wrong result received')
+    else:
+        log.info('Success')
+
+
+def main():
+    """Sets various options and runs the auxiliary helper."""
+    parser = argparse.ArgumentParser(
+        description='Capture Mutter profiling data with Sysprof')
+    parser.add_argument('seconds', type=int,
+        help='Timeout (in seconds) to capture data')
+    parser.add_argument('-d', '--debug', action='store_true',
+        help='Show debug messages')
+
+    args = parser.parse_args()
+
+    setup_logging(args.debug)
+    start_profiler(args.seconds)
+
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())
+
