@@ -64,6 +64,7 @@
 #include "clutter/clutter-mutter.h"
 #include "meta/main.h"
 #include "meta/meta-backend.h"
+#include "backends/meta-profiler.h"
 #include "meta/util.h"
 
 #ifdef HAVE_REMOTE_DESKTOP
@@ -126,6 +127,7 @@ struct _MetaBackendPrivate
   MetaScreenCast *screen_cast;
   MetaRemoteDesktop *remote_desktop;
 #endif
+  MetaProfiler *profiler;
 
   ClutterBackend *clutter_backend;
   ClutterActor *stage;
@@ -192,6 +194,7 @@ meta_backend_finalize (GObject *object)
   g_hash_table_destroy (priv->device_monitors);
 
   g_clear_object (&priv->settings);
+  g_clear_object (&priv->profiler);
 
   G_OBJECT_CLASS (meta_backend_parent_class)->finalize (object);
 }
@@ -514,6 +517,8 @@ meta_backend_real_post_init (MetaBackend *backend)
       reset_pointer_position (backend);
       priv->is_pointer_position_initialized = TRUE;
     }
+
+  priv->profiler = meta_profiler_new ();
 }
 
 static MetaCursorRenderer *
