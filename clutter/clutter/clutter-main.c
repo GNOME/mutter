@@ -142,6 +142,7 @@ static const GDebugKey clutter_paint_debug_keys[] = {
   { "disable-offscreen-redirect", CLUTTER_DEBUG_DISABLE_OFFSCREEN_REDIRECT },
   { "continuous-redraw", CLUTTER_DEBUG_CONTINUOUS_REDRAW },
   { "paint-deform-tiles", CLUTTER_DEBUG_PAINT_DEFORM_TILES },
+  { "damage-region", CLUTTER_DEBUG_PAINT_DAMAGE_REGION },
 };
 
 static void
@@ -1364,6 +1365,9 @@ clutter_init_real (GError **error)
       clutter_paint_debug_flags |=
         CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS | CLUTTER_DEBUG_DISABLE_CULLING;
     }
+
+  if (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)
+    g_message ("Enabling damaged region");
 
   /* this will take care of initializing Cogl's state and
    * query the GL machinery for features
