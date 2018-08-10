@@ -726,20 +726,33 @@ init_outputs (MetaGpuKms       *gpu_kms,
   setup_output_clones (gpu);
 }
 
-static void
+static gboolean
 meta_kms_resources_init (MetaKmsResources *resources,
-                         int               fd)
+                         int               fd,
+                         GError          **error)
 {
   drmModeRes *drm_resources;
   unsigned int i;
 
   drm_resources = drmModeGetResources (fd);
+
+  if (drm_resources == NULL)
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_FAILED,
+                   "Calling drmModeGetResources() failed; assuming we have no outputs");
+      return FALSE;
+    }
+
   resources->resources = drm_resources;
 
   resources->n_encoders = (unsigned int) drm_resources->count_encoders;
   resources->encoders = g_new (drmModeEncoder *, resources->n_encoders);
   for (i = 0; i < resources->n_encoders; i++)
     resources->encoders[i] = drmModeGetEncoder (fd, drm_resources->encoders[i]);
+
+  return TRUE;
 }
 
 static void
@@ -751,7 +764,8 @@ meta_kms_resources_release (MetaKmsResources *resources)
     drmModeFreeEncoder (resources->encoders[i]);
   g_free (resources->encoders);
 
-  drmModeFreeResources (resources->resources);
+  if (resources->resources != NULL)
+    drmModeFreeResources (resources->resources);
 }
 
 static gboolean
@@ -763,7 +777,8 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
     meta_gpu_get_monitor_manager (gpu);
   MetaKmsResources resources;
 
-  meta_kms_resources_init (&resources, gpu_kms->fd);
+  if (!meta_kms_resources_init (&resources, gpu_kms->fd, error))
+    return FALSE;
 
   gpu_kms->max_buffer_width = resources.resources->max_width;
   gpu_kms->max_buffer_height = resources.resources->max_height;
