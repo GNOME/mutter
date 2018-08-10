@@ -617,6 +617,20 @@ dbus_idle_monitor_built_sources = gnome.gdbus_codegen('meta-dbus-idle-monitor',
   )
 mutter_built_sources += dbus_idle_monitor_built_sources
 
+if have_tracing
+  mutter_sources += [
+    'backends/meta-profiler.c',
+    'backends/meta-profiler.h',
+  ]
+
+  dbus_sysprof3_profiler_built_sources = gnome.gdbus_codegen('meta-dbus-sysprof3-profiler',
+      'org.gnome.Sysprof3.Profiler.xml',
+      interface_prefix: 'org.gnome.',
+      namespace: 'MetaDBus',
+    )
+  mutter_built_sources += dbus_sysprof3_profiler_built_sources
+endif
+
 if have_native_backend
   cvt = find_program('cvt')
 
