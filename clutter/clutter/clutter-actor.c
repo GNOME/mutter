@@ -1722,6 +1722,22 @@ set_show_on_set_parent (ClutterActor *self,
     }
 }
 
+static void
+clutter_actor_queue_redraw_on_parent (ClutterActor *self)
+{
+  const ClutterPaintVolume *pv;
+
+  if (!self->priv->parent)
+    return;
+
+  /* A relayout/redraw is underway */
+  if (self->priv->needs_allocation)
+    return;
+
+  pv = clutter_actor_get_transformed_paint_volume (self, self->priv->parent);
+  _clutter_actor_queue_redraw_with_clip (self->priv->parent, 0, pv);
+}
+
 /**
  * clutter_actor_show:
  * @self: A #ClutterActor
@@ -13655,7 +13671,7 @@ clutter_actor_set_child_above_sibling (ClutterActor *self,
                                     sibling);
   g_object_unref(child);
 
-  clutter_actor_queue_relayout (self);
+  clutter_actor_queue_redraw_on_parent (child);
 }
 
 /**
@@ -13702,7 +13718,7 @@ clutter_actor_set_child_below_sibling (ClutterActor *self,
                                     sibling);
   g_object_unref(child);
 
-  clutter_actor_queue_relayout (self);
+  clutter_actor_queue_redraw_on_parent (child);
 }
 
 /**
