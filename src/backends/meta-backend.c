@@ -50,6 +50,7 @@
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-dummy.h"
+#include "backends/meta-profiler.h"
 #include "backends/meta-settings-private.h"
 
 #define META_IDLE_MONITOR_CORE_DEVICE 0
@@ -99,6 +100,7 @@ struct _MetaBackendPrivate
   MetaScreenCast *screen_cast;
   MetaRemoteDesktop *remote_desktop;
 #endif
+  MetaProfiler *profiler;
 
   ClutterBackend *clutter_backend;
   ClutterActor *stage;
@@ -163,6 +165,7 @@ meta_backend_finalize (GObject *object)
   g_hash_table_destroy (priv->device_monitors);
 
   g_clear_object (&priv->settings);
+  g_clear_object (&priv->profiler);
 
   G_OBJECT_CLASS (meta_backend_parent_class)->finalize (object);
 }
@@ -471,6 +474,8 @@ meta_backend_real_post_init (MetaBackend *backend)
       reset_pointer_position (backend);
       priv->is_pointer_position_initialized = TRUE;
     }
+
+  priv->profiler = meta_profiler_new ();
 }
 
 static MetaCursorRenderer *
