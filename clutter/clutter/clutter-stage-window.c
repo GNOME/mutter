@@ -182,6 +182,11 @@ _clutter_stage_window_add_redraw_clip (ClutterStageWindow    *window,
 
   g_return_if_fail (CLUTTER_IS_STAGE_WINDOW (window));
 
+  if (stage_clip)
+    g_message ("Setting redraw clip to %dx%dx%dx%d", stage_clip->x, stage_clip->y, stage_clip->width, stage_clip->height);
+  else
+    g_message ("Setting redraw clip to NULL");
+
   iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
   if (iface->add_redraw_clip != NULL)
     iface->add_redraw_clip (window, stage_clip);

@@ -354,6 +354,58 @@ valid_buffer_age (ClutterStageViewCogl *view_cogl,
   return age < MIN (view_priv->damage_index, DAMAGE_HISTORY_MAX);
 }
 
+static void
+paint_damage_region (ClutterStageWindow    *stage_window,
+                     ClutterStageView      *view,
+                     cairo_rectangle_int_t *swap_region)
+{
+  CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  static CoglPipeline *overlay_blue = NULL;
+  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  ClutterActor *actor = CLUTTER_ACTOR (stage_cogl->wrapper);
+  float x_1 = swap_region->x;
+  float x_2 = swap_region->x + swap_region->width;
+  float y_1 = swap_region->y;
+  float y_2 = swap_region->y + swap_region->height;
+  CoglMatrix modelview;
+
+  if (G_UNLIKELY (overlay_blue == NULL))
+    {
+      overlay_blue = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_color4ub (overlay_blue, 0x00, 0x00, 0x33, 0x33);
+    }
+
+  cogl_framebuffer_push_matrix (framebuffer);
+  cogl_matrix_init_identity (&modelview);
+  _clutter_actor_apply_modelview_transform (actor, &modelview);
+  cogl_framebuffer_set_modelview_matrix (framebuffer, &modelview);
+
+  /* Blue for the swap region */
+  cogl_framebuffer_draw_rectangle (framebuffer, overlay_blue, x_1, y_1, x_2, y_2);
+
+  /* Red for the clip */
+  if (stage_cogl->initialized_redraw_clip)
+    {
+      static CoglPipeline *overlay_red = NULL;
+
+      if (G_UNLIKELY (overlay_red == NULL))
+        {
+          overlay_red = cogl_pipeline_new (ctx);
+          cogl_pipeline_set_color4ub (overlay_red, 0x33, 0x00, 0x00, 0x33);
+        }
+
+      x_1 = stage_cogl->bounding_redraw_clip.x;
+      x_2 = stage_cogl->bounding_redraw_clip.x + stage_cogl->bounding_redraw_clip.width;
+      y_1 = stage_cogl->bounding_redraw_clip.y;
+      y_2 = stage_cogl->bounding_redraw_clip.y + stage_cogl->bounding_redraw_clip.height;
+
+      cogl_framebuffer_draw_rectangle (framebuffer, overlay_red, x_1, y_1, x_2, y_2);
+    }
+
+  cogl_framebuffer_pop_matrix (framebuffer);
+}
+
 static gboolean
 swap_framebuffer (ClutterStageWindow    *stage_window,
                   ClutterStageView      *view,
@@ -372,6 +424,9 @@ swap_framebuffer (ClutterStageWindow    *stage_window,
     ndamage = 1;
   else
     ndamage = 0;
+
+  if (G_UNLIKELY ((clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)))
+    paint_damage_region (stage_window, view, swap_region);
 
   if (cogl_is_onscreen (framebuffer))
     {
