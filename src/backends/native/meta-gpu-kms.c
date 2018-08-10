@@ -787,8 +787,8 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
           g_warning ("meta_kms_resources_init failed: %s, assuming we have no outputs",
                      local_error->message);
           gpu_kms->resources_init_failed_before = TRUE;
-          return TRUE;
         }
+        return TRUE;
     }
 
   gpu_kms->max_buffer_width = resources.resources->max_width;
