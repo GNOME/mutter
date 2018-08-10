@@ -49,6 +49,7 @@ mutter_built_sources = \
 	$(dbus_idle_built_sources)		\
 	$(dbus_display_config_built_sources)	\
 	$(dbus_login1_built_sources)		\
+	$(dbus_sysprof_capturer_built_sources)	\
 	meta/meta-enum-types.h			\
 	meta-enum-types.c			\
 	$(NULL)
@@ -157,6 +158,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/meta-orientation-manager.h	\
 	backends/meta-output.c			\
 	backends/meta-output.h			\
+	backends/meta-profiler.c		\
+	backends/meta-profiler.h		\
 	backends/meta-pointer-constraint.c	\
 	backends/meta-pointer-constraint.h	\
 	backends/meta-settings.c		\
@@ -678,6 +681,7 @@ EXTRA_DIST +=					\
 	org.gnome.Mutter.IdleMonitor.xml	\
 	org.gnome.Mutter.RemoteDesktop.xml	\
 	org.gnome.Mutter.ScreenCast.xml	\
+	org.gnome.Sysprof.Capturer.xml		\
 	backends/native/gen-default-modes.py	\
 	$(NULL)
 
@@ -755,6 +759,16 @@ $(dbus_login1_built_sources) : Makefile.am org.freedesktop.login1.xml
 		--generate-c-code meta-dbus-login1					\
 		--c-generate-autocleanup all						\
 		$(srcdir)/org.freedesktop.login1.xml
+
+dbus_sysprof_capturer_built_sources = meta-dbus-sysprof-capturer.c meta-dbus-sysprof-capturer.h
+
+$(dbus_sysprof_capturer_built_sources) : Makefile.am org.gnome.Sysprof.Capturer.xml
+	$(AM_V_GEN)gdbus-codegen							\
+		--interface-prefix org.gnome						\
+		--c-namespace MetaDBus							\
+		--generate-c-code meta-dbus-sysprof-capturer				\
+		--c-generate-autocleanup all						\
+		$(srcdir)/org.gnome.Sysprof.Capturer.xml
 
 backends/native/meta-default-modes.h: backends/native/gen-default-modes.py Makefile.am
 	@if test -n "$(CVT)"; then \
