@@ -212,6 +212,8 @@ mutter_sources = [
   'backends/meta-output.h',
   'backends/meta-pointer-constraint.c',
   'backends/meta-pointer-constraint.h',
+  'backends/meta-profiler.c',
+  'backends/meta-profiler.h',
   'backends/meta-remote-access-controller-private.h',
   'backends/meta-remote-access-controller.c',
   'backends/meta-renderer.c',
@@ -603,6 +605,13 @@ dbus_idle_monitor_built_sources = gnome.gdbus_codegen('meta-dbus-idle-monitor',
     object_manager: true,
   )
 mutter_built_sources += dbus_idle_monitor_built_sources
+
+dbus_sysprof_capturer_built_sources = gnome.gdbus_codegen('meta-dbus-sysprof-capturer',
+    'org.gnome.Sysprof.Capturer.xml',
+    interface_prefix: 'org.gnome.',
+    namespace: 'MetaDBus',
+  )
+mutter_built_sources += dbus_sysprof_capturer_built_sources
 
 if have_native_backend
   cvt = find_program('cvt')
