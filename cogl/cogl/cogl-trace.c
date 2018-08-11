@@ -53,6 +53,13 @@ cogl_trace_context_new (int fd)
 }
 
 static void
+cogl_trace_context_free (CoglTraceContext *trace_context)
+{
+  g_clear_pointer (&trace_context->writer, sp_capture_writer_unref);
+  g_free (trace_context);
+}
+
+static void
 ensure_trace_context (int fd)
 {
   static GMutex mutex;
@@ -128,6 +135,10 @@ disable_tracing_idle_callback (gpointer user_data)
   g_mutex_lock (&cogl_trace_mutex);
   trace_context = cogl_trace_context;
   sp_capture_writer_flush (trace_context->writer);
+
+  g_clear_pointer (&cogl_trace_context,
+                   (GDestroyNotify) cogl_trace_context_free);
+
   g_mutex_unlock (&cogl_trace_mutex);
 
   return G_SOURCE_REMOVE;
