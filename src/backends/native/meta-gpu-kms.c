@@ -812,6 +812,22 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
   return TRUE;
 }
 
+gboolean
+meta_gpu_kms_can_have_outputs (MetaGpuKms *gpu_kms,
+                               GError     **error)
+{
+  if (gpu_kms->n_connectors == 0)
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_FAILED,
+                   "GPU has 0 usable connectors, can't use it");
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 MetaGpuKms *
 meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
                   const char             *kms_file_path,
@@ -839,6 +855,8 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
   gpu_kms->file_path = g_strdup (kms_file_path);
 
   drmSetClientCap (gpu_kms->fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
+
+  meta_gpu_kms_read_current (META_GPU (gpu_kms), NULL);
 
   source = g_source_new (&kms_event_funcs, sizeof (MetaKmsSource));
   kms_source = (MetaKmsSource *) source;
