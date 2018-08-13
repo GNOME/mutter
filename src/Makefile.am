@@ -459,8 +459,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-wayland-subsurface.h	\
 	wayland/meta-wayland-shell-surface.c	\
 	wayland/meta-wayland-shell-surface.h	\
-	wayland/meta-wayland-text-input.c	\
-	wayland/meta-wayland-text-input.h	\
+	wayland/meta-wayland-text-input-legacy.c	\
+	wayland/meta-wayland-text-input-legacy.h	\
 	wayland/meta-wayland-types.h		\
 	wayland/meta-wayland-versions.h		\
 	wayland/meta-wayland-outputs.c		\

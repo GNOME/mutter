@@ -26,10 +26,10 @@
 #include "gtk-text-input-server-protocol.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
-#include "wayland/meta-wayland-text-input.h"
+#include "wayland/meta-wayland-text-input-legacy.h"
 #include "wayland/meta-wayland-versions.h"
 
-#define META_TYPE_WAYLAND_TEXT_INPUT_FOCUS (meta_wayland_text_input_focus_get_type ())
+#define META_TYPE_WAYLAND_GTK_TEXT_INPUT_FOCUS (meta_wayland_gtk_text_input_focus_get_type ())
 
 typedef enum
 {
@@ -39,9 +39,9 @@ typedef enum
   META_WAYLAND_PENDING_STATE_SURROUNDING_TEXT = 1 << 2,
 } MetaWaylandTextInputPendingState;
 
-typedef struct _MetaWaylandTextInput MetaWaylandTextInput;
+typedef struct _MetaWaylandGtkTextInput MetaWaylandGtkTextInput;
 
-struct _MetaWaylandTextInput
+struct _MetaWaylandGtkTextInput
 {
   MetaWaylandSeat *seat;
   ClutterInputFocus *input_focus;
@@ -67,23 +67,24 @@ struct _MetaWaylandTextInput
   uint32_t content_type_purpose;
 };
 
-struct _MetaWaylandTextInputFocus
+struct _MetaWaylandGtkTextInputFocus
 {
   ClutterInputFocus parent_instance;
-  MetaWaylandTextInput *text_input;
+  MetaWaylandGtkTextInput *text_input;
 };
 
-G_DECLARE_FINAL_TYPE (MetaWaylandTextInputFocus, meta_wayland_text_input_focus,
-                      META, WAYLAND_TEXT_INPUT_FOCUS, ClutterInputFocus)
-G_DEFINE_TYPE (MetaWaylandTextInputFocus, meta_wayland_text_input_focus,
+G_DECLARE_FINAL_TYPE (MetaWaylandGtkTextInputFocus,
+                      meta_wayland_gtk_text_input_focus,
+                      META, WAYLAND_GTK_TEXT_INPUT_FOCUS, ClutterInputFocus)
+G_DEFINE_TYPE (MetaWaylandGtkTextInputFocus, meta_wayland_gtk_text_input_focus,
                CLUTTER_TYPE_INPUT_FOCUS)
 
 static void
 meta_wayland_text_input_focus_request_surrounding (ClutterInputFocus *focus)
 {
-  MetaWaylandTextInput *text_input;
+  MetaWaylandGtkTextInput *text_input;
 
-  text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
+  text_input = META_WAYLAND_GTK_TEXT_INPUT_FOCUS (focus)->text_input;
   clutter_input_focus_set_surrounding (focus,
 				       text_input->surrounding.text,
 				       text_input->surrounding.cursor,
@@ -95,10 +96,10 @@ meta_wayland_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
                                                   guint              cursor,
                                                   guint              len)
 {
-  MetaWaylandTextInput *text_input;
+  MetaWaylandGtkTextInput *text_input;
   struct wl_resource *resource;
 
-  text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
+  text_input = META_WAYLAND_GTK_TEXT_INPUT_FOCUS (focus)->text_input;
 
   wl_resource_for_each (resource, &text_input->focus_resource_list)
     {
@@ -110,10 +111,10 @@ static void
 meta_wayland_text_input_focus_commit_text (ClutterInputFocus *focus,
                                            const gchar       *text)
 {
-  MetaWaylandTextInput *text_input;
+  MetaWaylandGtkTextInput *text_input;
   struct wl_resource *resource;
 
-  text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
+  text_input = META_WAYLAND_GTK_TEXT_INPUT_FOCUS (focus)->text_input;
 
   wl_resource_for_each (resource, &text_input->focus_resource_list)
     {
@@ -127,10 +128,10 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
                                                 const gchar       *text,
                                                 guint              cursor)
 {
-  MetaWaylandTextInput *text_input;
+  MetaWaylandGtkTextInput *text_input;
   struct wl_resource *resource;
 
-  text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
+  text_input = META_WAYLAND_GTK_TEXT_INPUT_FOCUS (focus)->text_input;
 
   wl_resource_for_each (resource, &text_input->focus_resource_list)
     {
@@ -139,7 +140,7 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
 }
 
 static void
-meta_wayland_text_input_focus_class_init (MetaWaylandTextInputFocusClass *klass)
+meta_wayland_gtk_text_input_focus_class_init (MetaWaylandGtkTextInputFocusClass *klass)
 {
   ClutterInputFocusClass *focus_class = CLUTTER_INPUT_FOCUS_CLASS (klass);
 
@@ -150,16 +151,16 @@ meta_wayland_text_input_focus_class_init (MetaWaylandTextInputFocusClass *klass)
 }
 
 static void
-meta_wayland_text_input_focus_init (MetaWaylandTextInputFocus *focus)
+meta_wayland_gtk_text_input_focus_init (MetaWaylandGtkTextInputFocus *focus)
 {
 }
 
 static ClutterInputFocus *
-meta_wayland_text_input_focus_new (MetaWaylandTextInput *text_input)
+meta_wayland_text_input_focus_new (MetaWaylandGtkTextInput *text_input)
 {
-  MetaWaylandTextInputFocus *focus;
+  MetaWaylandGtkTextInputFocus *focus;
 
-  focus = g_object_new (META_TYPE_WAYLAND_TEXT_INPUT_FOCUS, NULL);
+  focus = g_object_new (META_TYPE_WAYLAND_GTK_TEXT_INPUT_FOCUS, NULL);
   focus->text_input = text_input;
 
   return CLUTTER_INPUT_FOCUS (focus);
@@ -169,10 +170,10 @@ static void
 text_input_handle_focus_surface_destroy (struct wl_listener *listener,
 					 void               *data)
 {
-  MetaWaylandTextInput *text_input = wl_container_of (listener, text_input,
-						      surface_listener);
+  MetaWaylandGtkTextInput *text_input = wl_container_of (listener, text_input,
+                                                         surface_listener);
 
-  meta_wayland_text_input_set_focus (text_input, NULL);
+  meta_wayland_gtk_text_input_set_focus (text_input, NULL);
 }
 
 static void
@@ -199,8 +200,8 @@ move_resources_for_client (struct wl_list *destination,
 }
 
 void
-meta_wayland_text_input_set_focus (MetaWaylandTextInput *text_input,
-				   MetaWaylandSurface   *surface)
+meta_wayland_gtk_text_input_set_focus (MetaWaylandGtkTextInput *text_input,
+                                       MetaWaylandSurface      *surface)
 {
   if (text_input->surface == surface)
     return;
@@ -286,7 +287,7 @@ text_input_enable (struct wl_client   *client,
                    uint32_t            serial,
                    uint32_t            flags)
 {
-  MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
+  MetaWaylandGtkTextInput *text_input = wl_resource_get_user_data (resource);
   ClutterInputFocus *focus = text_input->input_focus;
   ClutterInputMethod *input_method;
   gboolean show_preedit;
@@ -314,7 +315,7 @@ static void
 text_input_disable (struct wl_client   *client,
                     struct wl_resource *resource)
 {
-  MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
+  MetaWaylandGtkTextInput *text_input = wl_resource_get_user_data (resource);
   ClutterInputFocus *focus = text_input->input_focus;
   ClutterInputMethod *input_method;
 
@@ -335,7 +336,7 @@ text_input_set_surrounding_text (struct wl_client   *client,
                                  int32_t             cursor,
                                  int32_t             anchor)
 {
-  MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
+  MetaWaylandGtkTextInput *text_input = wl_resource_get_user_data (resource);
 
   g_free (text_input->surrounding.text);
   text_input->surrounding.text = g_strdup (text);
@@ -416,7 +417,7 @@ text_input_set_content_type (struct wl_client   *client,
                              uint32_t            hint,
                              uint32_t            purpose)
 {
-  MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
+  MetaWaylandGtkTextInput *text_input = wl_resource_get_user_data (resource);
 
   if (!text_input->surface)
     return;
@@ -434,7 +435,7 @@ text_input_set_cursor_rectangle (struct wl_client   *client,
                                  int32_t             width,
                                  int32_t             height)
 {
-  MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
+  MetaWaylandGtkTextInput *text_input = wl_resource_get_user_data (resource);
 
   if (!text_input->surface)
     return;
@@ -447,7 +448,7 @@ static void
 text_input_commit_state (struct wl_client   *client,
                          struct wl_resource *resource)
 {
-  MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
+  MetaWaylandGtkTextInput *text_input = wl_resource_get_user_data (resource);
   ClutterInputFocus *focus = text_input->input_focus;
 
   if (!clutter_input_focus_is_focused (focus))
@@ -503,12 +504,12 @@ static struct gtk_text_input_interface meta_text_input_interface = {
   text_input_commit_state,
 };
 
-MetaWaylandTextInput *
-meta_wayland_text_input_new (MetaWaylandSeat *seat)
+MetaWaylandGtkTextInput *
+meta_wayland_gtk_text_input_new (MetaWaylandSeat *seat)
 {
-  MetaWaylandTextInput *text_input;
+  MetaWaylandGtkTextInput *text_input;
 
-  text_input = g_new0 (MetaWaylandTextInput, 1);
+  text_input = g_new0 (MetaWaylandGtkTextInput, 1);
   text_input->input_focus = meta_wayland_text_input_focus_new (text_input);
   text_input->seat = seat;
 
@@ -520,18 +521,18 @@ meta_wayland_text_input_new (MetaWaylandSeat *seat)
 }
 
 void
-meta_wayland_text_input_destroy (MetaWaylandTextInput *text_input)
+meta_wayland_gtk_text_input_destroy (MetaWaylandGtkTextInput *text_input)
 {
-  meta_wayland_text_input_set_focus (text_input, NULL);
+  meta_wayland_gtk_text_input_set_focus (text_input, NULL);
   g_object_unref (text_input->input_focus);
   g_free (text_input);
 }
 
 static void
-meta_wayland_text_input_create_new_resource (MetaWaylandTextInput *text_input,
-                                             struct wl_client     *client,
-                                             struct wl_resource   *seat_resource,
-                                             uint32_t              id)
+meta_wayland_text_input_create_new_resource (MetaWaylandGtkTextInput *text_input,
+                                             struct wl_client        *client,
+                                             struct wl_resource      *seat_resource,
+                                             uint32_t                 id)
 {
   struct wl_resource *text_input_resource;
 
@@ -576,7 +577,7 @@ text_input_manager_get_text_input (struct wl_client   *client,
 {
   MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
 
-  meta_wayland_text_input_create_new_resource (seat->text_input, client,
+  meta_wayland_text_input_create_new_resource (seat->gtk_text_input, client,
                                                seat_resource, id);
 }
 
@@ -603,18 +604,18 @@ bind_text_input (struct wl_client *client,
 }
 
 gboolean
-meta_wayland_text_input_init (MetaWaylandCompositor *compositor)
+meta_wayland_gtk_text_input_init (MetaWaylandCompositor *compositor)
 {
   return (wl_global_create (compositor->wayland_display,
                             &gtk_text_input_manager_interface,
                             META_GTK_TEXT_INPUT_VERSION,
-                            compositor->seat->text_input,
+                            compositor->seat->gtk_text_input,
                             bind_text_input) != NULL);
 }
 
 gboolean
-meta_wayland_text_input_handle_event (MetaWaylandTextInput *text_input,
-                                      const ClutterEvent   *event)
+meta_wayland_gtk_text_input_handle_event (MetaWaylandGtkTextInput *text_input,
+                                          const ClutterEvent      *event)
 {
   if (!text_input->surface ||
       !clutter_input_focus_is_focused (text_input->input_focus))
