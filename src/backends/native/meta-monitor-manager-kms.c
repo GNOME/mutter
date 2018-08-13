@@ -663,7 +663,8 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
                                                primary_gpu_path,
                                                error);
   g_list_free_full (gpu_paths, g_free);
-  if (!manager_kms->primary_gpu)
+  if (!manager_kms->primary_gpu ||
+      !meta_gpu_kms_can_have_outputs (manager_kms->primary_gpu)
     return FALSE;
 
   meta_monitor_manager_kms_connect_uevent_handler (manager_kms);
