@@ -686,6 +686,22 @@ experimental_features_changed (MetaSettings           *settings,
   meta_settings_update_ui_scaling_factor (settings);
 }
 
+static gboolean
+meta_monitor_manager_can_have_outputs (MetaMonitorManager *manager)
+{
+  GList *l;
+
+  for (l = manager->gpus; l; l = l->next)
+    {
+      MetaGpu *gpu = META_GPU (l->data);
+
+      if (META_GPU_GET_CLASS (gpu)->can_have_outputs (gpu))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 void
 meta_monitor_manager_setup (MetaMonitorManager *manager)
 {
@@ -694,6 +710,12 @@ meta_monitor_manager_setup (MetaMonitorManager *manager)
   manager->config_manager = meta_monitor_config_manager_new (manager);
 
   meta_monitor_manager_read_current_state (manager);
+
+  if (!meta_monitor_manager_can_have_outputs (manager))
+    {
+      g_critical ("None of the present GPUs can have outputs. Cannot continue.");
+      meta_exit (META_EXIT_ERROR);
+    }
 
   meta_monitor_manager_ensure_initial_config (manager);
 

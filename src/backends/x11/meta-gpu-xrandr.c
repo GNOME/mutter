@@ -260,6 +260,12 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
   return TRUE;
 }
 
+static gboolean
+meta_gpu_xrandr_can_have_outputs (MetaGpu *gpu)
+{
+  return TRUE;
+}
+
 MetaGpuXrandr *
 meta_gpu_xrandr_new (MetaMonitorManagerXrandr *monitor_manager_xrandr)
 {
@@ -293,4 +299,5 @@ meta_gpu_xrandr_class_init (MetaGpuXrandrClass *klass)
   object_class->finalize = meta_gpu_xrandr_finalize;
 
   gpu_class->read_current = meta_gpu_xrandr_read_current;
+  gpu_class->can_have_outputs = meta_gpu_xrandr_can_have_outputs;
 }
