@@ -642,10 +642,12 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
                                         GError      **error)
 {
   MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (initable);
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
   const char *subsystems[2] = { "drm", NULL };
   GList *gpu_paths;
   g_autofree char *primary_gpu_path = NULL;
   GList *l;
+  gboolean can_have_outputs;
 
   manager_kms->udev = g_udev_client_new (subsystems);
 
@@ -690,6 +692,24 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
                                     META_GPU (gpu_kms));
     }
   g_list_free_full (gpu_paths, g_free);
+
+  can_have_outputs = FALSE;
+  for (l = meta_monitor_manager_get_gpus (manager); l; l = l->next)
+    {
+      MetaGpuKms *gpu_kms = l->data;
+
+      if (meta_gpu_kms_can_have_outputs (gpu_kms))
+        {
+          can_have_outputs = TRUE;
+          break;
+        }
+    }
+  if (!can_have_outputs)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "No GPUs with outputs found");
+      return FALSE;
+    }
 
   return TRUE;
 }
