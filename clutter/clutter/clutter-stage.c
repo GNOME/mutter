@@ -1687,10 +1687,12 @@ _clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
        *        theoretically wrong (because it may be expanded from a paint
        *        volume), but practically right.
        */
-
+#if 1
+      if (clutter_actor_box_contains (&rec->box, x, y))
+#else  // workaround
       clutter_actor_get_paint_box (rec->actor, &pbox);
-//      if (clutter_actor_box_contains (&rec->box, x, y))
-      if (clutter_actor_box_contains (&pbox, x, y))  // workaround
+      if (clutter_actor_box_contains (&pbox, x, y))
+#endif
         return rec->actor;
     }
 
