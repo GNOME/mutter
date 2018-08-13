@@ -203,6 +203,12 @@ meta_gpu_init (MetaGpu *gpu)
 {
 }
 
+static gboolean
+meta_gpu_can_have_outputs_default (MetaGpu *gpu G_GNUC_UNUSED)
+{
+  return TRUE;
+}
+
 static void
 meta_gpu_class_init (MetaGpuClass *klass)
 {
@@ -211,6 +217,8 @@ meta_gpu_class_init (MetaGpuClass *klass)
   object_class->set_property = meta_gpu_set_property;
   object_class->get_property = meta_gpu_get_property;
   object_class->finalize = meta_gpu_finalize;
+
+  klass->can_have_outputs = meta_gpu_can_have_outputs_default;
 
   obj_props[PROP_MONITOR_MANAGER] =
     g_param_spec_object ("monitor-manager",
