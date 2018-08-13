@@ -35,6 +35,7 @@ struct _MetaGpuClass
 
   gboolean (* read_current) (MetaGpu  *gpu,
                              GError  **error);
+  gboolean (* can_have_outputs) (MetaGpu  *gpu);
 };
 
 int meta_gpu_get_kms_fd (MetaGpu *gpu);

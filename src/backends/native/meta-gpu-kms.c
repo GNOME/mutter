@@ -812,6 +812,14 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
   return TRUE;
 }
 
+static gboolean
+meta_gpu_kms_can_have_outputs (MetaGpu  *gpu)
+{
+  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
+
+  return gpu_kms->n_connectors > 0;
+}
+
 MetaGpuKms *
 meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
                   const char             *kms_file_path,
@@ -839,6 +847,8 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
   gpu_kms->file_path = g_strdup (kms_file_path);
 
   drmSetClientCap (gpu_kms->fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
+
+  meta_gpu_kms_read_current (META_GPU (gpu_kms), NULL);
 
   source = g_source_new (&kms_event_funcs, sizeof (MetaKmsSource));
   kms_source = (MetaKmsSource *) source;
@@ -889,4 +899,5 @@ meta_gpu_kms_class_init (MetaGpuKmsClass *klass)
   object_class->finalize = meta_gpu_kms_finalize;
 
   gpu_class->read_current = meta_gpu_kms_read_current;
+  gpu_class->can_have_outputs = meta_gpu_kms_can_have_outputs;
 }
