@@ -19,28 +19,24 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_WAYLAND_TEXT_INPUT_H
-#define META_WAYLAND_TEXT_INPUT_H
+#ifndef META_WAYLAND_GTK_TEXT_INPUT_H
+#define META_WAYLAND_GTK_TEXT_INPUT_H
 
 #include <wayland-server.h>
 #include "wayland/meta-wayland-types.h"
 #include "meta/window.h"
 
-#define META_TYPE_WAYLAND_TEXT_INPUT (meta_wayland_text_input_get_type ())
-G_DECLARE_FINAL_TYPE (MetaWaylandTextInput,
-                      meta_wayland_text_input,
-                      META, WAYLAND_TEXT_INPUT,
-                      GObject);
+typedef struct _MetaWaylandGtkTextInput MetaWaylandGtkTextInput;
 
-MetaWaylandTextInput * meta_wayland_text_input_new (MetaWaylandSeat *seat);
-void meta_wayland_text_input_destroy (MetaWaylandTextInput *text_input);
+MetaWaylandGtkTextInput * meta_wayland_gtk_text_input_new (MetaWaylandSeat *seat);
+void meta_wayland_gtk_text_input_destroy (MetaWaylandGtkTextInput *text_input);
 
-gboolean meta_wayland_text_input_init (MetaWaylandCompositor *compositor);
+gboolean meta_wayland_gtk_text_input_init (MetaWaylandCompositor *compositor);
 
-void meta_wayland_text_input_set_focus (MetaWaylandTextInput *text_input,
-					MetaWaylandSurface   *surface);
+void meta_wayland_gtk_text_input_set_focus (MetaWaylandGtkTextInput *text_input,
+                                            MetaWaylandSurface      *surface);
 
-gboolean meta_wayland_text_input_handle_event (MetaWaylandTextInput *text_input,
-                                               const ClutterEvent   *event);
+gboolean meta_wayland_gtk_text_input_handle_event (MetaWaylandGtkTextInput *text_input,
+                                                   const ClutterEvent      *event);
 
-#endif /* META_WAYLAND_TEXT_INPUT_H */
+#endif /* META_WAYLAND_GTK_TEXT_INPUT_H */
