@@ -663,7 +663,8 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
                                                primary_gpu_path,
                                                error);
   g_list_free_full (gpu_paths, g_free);
-  if (!manager_kms->primary_gpu)
+  if (!manager_kms->primary_gpu ||
+      !meta_gpu_kms_can_have_outputs (manager_kms->primary_gpu, error))
     return FALSE;
 
   meta_monitor_manager_kms_connect_uevent_handler (manager_kms);
@@ -683,6 +684,14 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
         {
           g_warning ("Failed to open secondary gpu '%s': %s",
                      gpu_path, secondary_error->message);
+          continue;
+        }
+
+      if (!meta_gpu_kms_can_have_outputs (gpu_kms, &secondary_error))
+        {
+          g_warning ("Couldn't add secondary gpu '%s': %s",
+                     gpu_path, secondary_error->message);
+          g_clear_object (&gpu_kms);
           continue;
         }
 
