@@ -94,6 +94,8 @@ src/xwayland-keyboard-grab-unstable-v1-protocol.c
 src/xwayland-keyboard-grab-unstable-v1-server-protocol.h
 src/tablet-unstable-v*-protocol.c
 src/tablet-unstable-v*-server-protocol.h
+src/text-input-unstable-v*-protocol.c
+src/text-input-unstable-v*-server-protocol.h
 src/keyboard-shortcuts-inhibit-unstable-v*-protocol.c
 src/keyboard-shortcuts-inhibit-unstable-v*-server-protocol.h
 src/linux-dmabuf-unstable-v*-protocol.c
