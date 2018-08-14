@@ -87,7 +87,7 @@ const ClutterPlane *_clutter_stage_get_clip (ClutterStage *stage);
 ClutterStageQueueRedrawEntry *_clutter_stage_queue_actor_redraw            (ClutterStage                 *stage,
                                                                             ClutterStageQueueRedrawEntry *entry,
                                                                             ClutterActor                 *actor,
-                                                                            ClutterPaintVolume           *clip);
+                                                                            const ClutterPaintVolume     *clip);
 void                          _clutter_stage_queue_redraw_entry_invalidate (ClutterStageQueueRedrawEntry *entry);
 
 CoglFramebuffer *_clutter_stage_get_active_framebuffer (ClutterStage *stage);
