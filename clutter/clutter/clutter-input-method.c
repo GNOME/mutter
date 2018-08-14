@@ -34,6 +34,7 @@ struct _ClutterInputMethodPrivate
   ClutterInputContentHintFlags content_hints;
   ClutterInputContentPurpose content_purpose;
   gboolean can_show_preedit;
+  gboolean has_focus;
 };
 
 enum {
@@ -228,21 +229,22 @@ clutter_input_method_focus_in (ClutterInputMethod *im,
 
   priv = clutter_input_method_get_instance_private (im);
 
-  if (priv->focus == focus)
+  if (focus && priv->focus == focus && priv->has_focus)
     return;
 
-  if (priv->focus)
+  if (priv->focus && priv->focus != focus)
     clutter_input_method_focus_out (im);
-
-  g_set_object (&priv->focus, focus);
 
   if (focus)
     {
       klass = CLUTTER_INPUT_METHOD_GET_CLASS (im);
       klass->focus_in (im, focus);
 
-      clutter_input_focus_focus_in (priv->focus, im);
+      clutter_input_focus_focus_in (focus, im);
     }
+
+  priv->focus = focus;
+  priv->has_focus = TRUE;
 }
 
 void
@@ -255,14 +257,22 @@ clutter_input_method_focus_out (ClutterInputMethod *im)
 
   priv = clutter_input_method_get_instance_private (im);
 
-  if (!priv->focus)
+  /* Own priv->focus even if priv->has_focus is FALSE because
+   * clutter_input_method_set_preedit_text() can be called to the
+   * no focus context.
+   */
+  if (!priv->has_focus)
+    return;
+
+  if (!priv->focus || !G_IS_OBJECT (priv->focus))
     return;
 
   clutter_input_focus_focus_out (priv->focus);
-  g_clear_object (&priv->focus);
 
   klass = CLUTTER_INPUT_METHOD_GET_CLASS (im);
   klass->focus_out (im);
+
+  priv->has_focus = FALSE;
 
   g_signal_emit (im, signals[INPUT_PANEL_STATE],
                  0, CLUTTER_INPUT_PANEL_STATE_OFF);
@@ -274,7 +284,9 @@ clutter_input_method_get_focus (ClutterInputMethod *im)
   ClutterInputMethodPrivate *priv;
 
   priv = clutter_input_method_get_instance_private (im);
-  return priv->focus;
+  if (priv->has_focus && G_IS_OBJECT (priv->focus))
+    return priv->focus;
+  return NULL;
 }
 
 void
@@ -286,7 +298,7 @@ clutter_input_method_commit (ClutterInputMethod *im,
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
   priv = clutter_input_method_get_instance_private (im);
-  if (priv->focus)
+  if (priv->focus && G_IS_OBJECT (priv->focus))
     clutter_input_focus_commit (priv->focus, text);
 }
 
@@ -300,7 +312,7 @@ clutter_input_method_delete_surrounding (ClutterInputMethod *im,
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
   priv = clutter_input_method_get_instance_private (im);
-  if (priv->focus)
+  if (priv->focus && G_IS_OBJECT (priv->focus))
     clutter_input_focus_delete_surrounding (priv->focus, offset, len);
 }
 
@@ -312,7 +324,7 @@ clutter_input_method_request_surrounding (ClutterInputMethod *im)
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
   priv = clutter_input_method_get_instance_private (im);
-  if (priv->focus)
+  if (priv->focus && G_IS_OBJECT (priv->focus))
     clutter_input_focus_request_surrounding (priv->focus);
 }
 
@@ -334,7 +346,7 @@ clutter_input_method_set_preedit_text (ClutterInputMethod *im,
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
   priv = clutter_input_method_get_instance_private (im);
-  if (priv->focus)
+  if (priv->focus && G_IS_OBJECT (priv->focus))
     clutter_input_focus_set_preedit_text (priv->focus, preedit, cursor);
 }
 
