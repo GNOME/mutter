@@ -4145,10 +4145,10 @@ _clutter_stage_get_clip (ClutterStage *stage)
  * didn't explicitly do so.
  */
 ClutterStageQueueRedrawEntry *
-_clutter_stage_queue_actor_redraw (ClutterStage *stage,
+_clutter_stage_queue_actor_redraw (ClutterStage                 *stage,
                                    ClutterStageQueueRedrawEntry *entry,
-                                   ClutterActor *actor,
-                                   ClutterPaintVolume *clip)
+                                   ClutterActor                 *actor,
+                                   const ClutterPaintVolume     *clip)
 {
   ClutterStagePrivate *priv = stage->priv;
 
