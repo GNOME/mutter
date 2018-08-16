@@ -45,13 +45,19 @@ G_DEFINE_TYPE (MetaRendererX11, meta_renderer_x11, META_TYPE_RENDERER)
 static const CoglWinsysVtable *
 get_x11_cogl_winsys_vtable (CoglRenderer *renderer)
 {
+#ifdef COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
   if (meta_is_wayland_compositor ())
     return _cogl_winsys_egl_xlib_get_vtable ();
+#endif
 
   switch (renderer->driver)
     {
     case COGL_DRIVER_GLES2:
+#ifdef COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
       return _cogl_winsys_egl_xlib_get_vtable ();
+#else
+      break;
+#endif
     case COGL_DRIVER_GL:
     case COGL_DRIVER_GL3:
       return _cogl_winsys_glx_get_vtable ();
