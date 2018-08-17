@@ -1650,23 +1650,11 @@ _clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
   for (i = priv->pick_stack->len - 1; i >= 0; i--)
     {
       const PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
-      ClutterActorBox pbox;
 
       if (!rec->actor)
         continue;
 
-      /* FIXME: For some actors their original allocation box is now wrong
-       *        so as a workaround we revert to the paint box, which is
-       *        theoretically wrong (because it may be expanded from a paint
-       *        volume), but practically right.
-       */
-#if 0   /* Ugly workaround */
-      clutter_actor_get_paint_box (rec->actor, &pbox);
-      if (clutter_actor_box_contains (&pbox, x, y))
-#else
-      (void) pbox;
       if (clutter_actor_box_contains (&rec->box, x, y))
-#endif
         return rec->actor;
     }
 

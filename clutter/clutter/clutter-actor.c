@@ -2284,9 +2284,10 @@ clutter_actor_real_pick (ClutterActor       *self,
    */
   if (clutter_actor_should_pick_paint (self))
     {
-      ClutterActorBox box = { 0, };
+      ClutterActorBox box = {0, 0,
+                             clutter_actor_get_width (self),
+                             clutter_actor_get_height (self)};
 
-      clutter_actor_get_allocation_box (self, &box);
       clutter_actor_pick_box (self, &box);
     }
 
