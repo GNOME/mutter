@@ -1055,13 +1055,6 @@ _pick_actor_finalized (gpointer data,
   ClutterStagePrivate *priv = stage->priv;
   int i;
 
-  /* Searching the whole array might not sound very efficient when we know
-   * exactly what we called g_object_weak_ref on, but it's necessary for a few
-   * reasons:
-   *  - an actor can appear in the array multiple times
-   *  - the address of the original array element may change with resizing
-   *  - the index of the original array element may change with compaction
-   */
   for (i = 0; i < priv->pick_stack->len; i++)
     {
       PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
@@ -1069,6 +1062,11 @@ _pick_actor_finalized (gpointer data,
       if (G_OBJECT (rec->actor) == actor_object)
         rec->actor = NULL;
     }
+
+  /* We now have a slightly sparse array. But doing compaction would be a
+   * waste of time because _clutter_stage_do_pick_on_view will soon enough
+   * clear the entire array and rebuild it compactly.
+   */
 }
 
 void
