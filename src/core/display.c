@@ -46,6 +46,7 @@
 #include <X11/extensions/Xrandr.h>
 #endif
 
+#include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-monitor-dbus.h"
 #include "backends/meta-input-settings-private.h"
