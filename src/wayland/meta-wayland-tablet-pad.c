@@ -131,7 +131,9 @@ MetaWaylandTabletPad *
 meta_wayland_tablet_pad_new (ClutterInputDevice    *device,
                              MetaWaylandTabletSeat *tablet_seat)
 {
+#ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_get_backend ();
+#endif
   MetaWaylandTabletPad *pad;
   guint n_elems, i;
 
