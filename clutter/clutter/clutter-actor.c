@@ -4086,11 +4086,12 @@ clutter_actor_continue_paint (ClutterActor *self)
         {
           ClutterColor col = { 0, };
 
-          _clutter_id_to_color (_clutter_actor_get_pick_id (self), &col);
-
-          /* Actor will then paint silhouette of itself in supplied
-           * color.  See clutter_stage_get_actor_at_pos() for where
-           * picking is enabled.
+          /* The actor will log a silhouette of itself to the stage pick log.
+           * Note that the picking color is no longer used as the "log" instead
+           * keeps a weak pointer to the actor itself. But we keep the color
+           * parameter for now so as to maintain ABI compatibility. The color
+           * parameter can be removed when someone feels like breaking the ABI
+           * along with gnome-shell.
            *
            * XXX:2.0 - Call the pick() virtual directly
            */

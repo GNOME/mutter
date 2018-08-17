@@ -1440,187 +1440,12 @@ clutter_stage_get_redraw_clip_bounds (ClutterStage          *stage,
     }
 }
 
-static void
-read_pixels_to_file (char *filename_stem,
-                     int   x,
-                     int   y,
-                     int   width,
-                     int   height)
-{
-  guint8 *data;
-  cairo_surface_t *surface;
-  static int read_count = 0;
-  char *filename = g_strdup_printf ("%s-%05d.png",
-                                    filename_stem,
-                                    read_count);
-
-  data = g_malloc (4 * width * height);
-  cogl_read_pixels (x, y, width, height,
-                    COGL_READ_PIXELS_COLOR_BUFFER,
-                    CLUTTER_CAIRO_FORMAT_ARGB32,
-                    data);
-
-  surface = cairo_image_surface_create_for_data (data, CAIRO_FORMAT_RGB24,
-                                                 width, height,
-                                                 width * 4);
-
-  cairo_surface_write_to_png (surface, filename);
-  cairo_surface_destroy (surface);
-
-  g_free (data);
-  g_free (filename);
-
-  read_count++;
-}
-
 static ClutterActor *
 _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                                 gint              x,
                                 gint              y,
                                 ClutterPickMode   mode,
                                 ClutterStageView *view)
-{
-  ClutterActor *actor = CLUTTER_ACTOR (stage);
-  ClutterStagePrivate *priv = stage->priv;
-  CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
-  cairo_rectangle_int_t view_layout;
-  ClutterMainContext *context;
-  guchar pixel[4] = { 0xff, 0xff, 0xff, 0xff };
-  CoglColor stage_pick_id;
-  gboolean dither_enabled_save;
-  ClutterActor *retval;
-  gint dirty_x;
-  gint dirty_y;
-  gint read_x;
-  gint read_y;
-  float fb_width, fb_height;
-  float fb_scale;
-  float viewport_offset_x;
-  float viewport_offset_y;
-
-  priv = stage->priv;
-
-  context = _clutter_context_get_default ();
-  fb_scale = clutter_stage_view_get_scale (view);
-  clutter_stage_view_get_layout (view, &view_layout);
-
-  fb_width = view_layout.width * fb_scale;
-  fb_height = view_layout.height * fb_scale;
-  cogl_push_framebuffer (fb);
-
-  /* needed for when a context switch happens */
-  _clutter_stage_maybe_setup_viewport (stage, view);
-
-  /* FIXME: For some reason leaving the cogl clip stack empty causes the
-   * picking to not work at all, so setting it the whole framebuffer content
-   * for now. */
-  cogl_framebuffer_push_scissor_clip (fb, 0, 0,
-                                      view_layout.width * fb_scale,
-                                      view_layout.height * fb_scale);
-
-  _clutter_stage_window_get_dirty_pixel (priv->impl, view, &dirty_x, &dirty_y);
-
-  if (G_LIKELY (!(clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS)))
-    {
-      CLUTTER_NOTE (PICK, "Pushing pick scissor clip x: %d, y: %d, 1x1",
-                    (int) dirty_x * fb_scale,
-                    (int) dirty_y * fb_scale);
-      cogl_framebuffer_push_scissor_clip (fb, dirty_x * fb_scale, dirty_y * fb_scale, 1, 1);
-    }
-
-  viewport_offset_x = x * fb_scale - dirty_x * fb_scale;
-  viewport_offset_y = y * fb_scale - dirty_y * fb_scale;
-  CLUTTER_NOTE (PICK, "Setting viewport to %f, %f, %f, %f",
-                priv->viewport[0] * fb_scale - viewport_offset_x,
-                priv->viewport[1] * fb_scale - viewport_offset_y,
-                priv->viewport[2] * fb_scale,
-                priv->viewport[3] * fb_scale);
-  cogl_framebuffer_set_viewport (fb,
-                                 priv->viewport[0] * fb_scale - viewport_offset_x,
-                                 priv->viewport[1] * fb_scale - viewport_offset_y,
-                                 priv->viewport[2] * fb_scale,
-                                 priv->viewport[3] * fb_scale);
-
-  read_x = dirty_x * fb_scale;
-  read_y = dirty_y * fb_scale;
-
-  CLUTTER_NOTE (PICK, "Performing pick at %i,%i on view %dx%d+%d+%d s: %d",
-                x, y,
-                view_layout.width, view_layout.height,
-                view_layout.x, view_layout.y, fb_scale);
-
-  cogl_color_init_from_4ub (&stage_pick_id, 255, 255, 255, 255);
-  cogl_clear (&stage_pick_id, COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH);
-
-  /* Disable dithering (if any) when doing the painting in pick mode */
-  dither_enabled_save = cogl_framebuffer_get_dither_enabled (fb);
-  cogl_framebuffer_set_dither_enabled (fb, FALSE);
-
-  /* Render the entire scence in pick mode - just single colored silhouette's
-   * are drawn offscreen (as we never swap buffers)
-  */
-  context->pick_mode = mode;
-  _clutter_stage_paint_view (stage, view, NULL);
-  context->pick_mode = CLUTTER_PICK_NONE;
-
-  /* Read the color of the screen co-ords pixel. RGBA_8888_PRE is used
-     even though we don't care about the alpha component because under
-     GLES this is the only format that is guaranteed to work so Cogl
-     will end up having to do a conversion if any other format is
-     used. The format is requested as pre-multiplied because Cogl
-     assumes that all pixels in the framebuffer are premultiplied so
-     it avoids a conversion. */
-  cogl_framebuffer_read_pixels (fb,
-                                read_x, read_y, 1, 1,
-                                COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                                pixel);
-
-  if (G_UNLIKELY (clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS))
-    {
-      char *file_name =
-        g_strdup_printf ("pick-buffer-%s-view-x-%d",
-                         _clutter_actor_get_debug_name (actor),
-                         view_layout.x);
-
-      read_pixels_to_file (file_name, 0, 0, fb_width, fb_height);
-
-      g_free (file_name);
-    }
-
-  /* Restore whether GL_DITHER was enabled */
-  cogl_framebuffer_set_dither_enabled (fb, dither_enabled_save);
-
-  if (G_LIKELY (!(clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS)))
-    cogl_framebuffer_pop_clip (fb);
-
-  cogl_framebuffer_pop_clip (fb);
-
-  _clutter_stage_dirty_viewport (stage);
-
-  if (pixel[0] == 0xff && pixel[1] == 0xff && pixel[2] == 0xff)
-    retval = actor;
-  else
-    {
-      guint32 id_ = _clutter_pixel_to_id (pixel);
-
-      retval = _clutter_stage_get_actor_by_pick_id (stage, id_);
-      CLUTTER_NOTE (PICK, "Picking actor %s with id %u (pixel: 0x%x%x%x%x",
-                    G_OBJECT_TYPE_NAME (retval),
-                    id_,
-                    pixel[0], pixel[1], pixel[2], pixel[3]);
-    }
-
-  cogl_pop_framebuffer ();
-
-  return retval;
-}
-
-static ClutterActor *
-_clutter_stage_do_geometric_pick_on_view (ClutterStage     *stage,
-                                          gint              x,
-                                          gint              y,
-                                          ClutterPickMode   mode,
-                                          ClutterStageView *view)
 {
   ClutterStagePrivate *priv = stage->priv;
   ClutterMainContext *context = _clutter_context_get_default ();
@@ -1713,8 +1538,7 @@ _clutter_stage_do_pick (ClutterStage   *stage,
 
   view = get_view_at (stage, x, y);
   if (view)
-    //return _clutter_stage_do_pick_on_view (stage, x, y, mode, view);
-    return _clutter_stage_do_geometric_pick_on_view (stage, x, y, mode, view);
+    return _clutter_stage_do_pick_on_view (stage, x, y, mode, view);
 
   return actor;
 }
