@@ -137,7 +137,6 @@ static const GDebugKey clutter_debug_keys[] = {
 
 static const GDebugKey clutter_pick_debug_keys[] = {
   { "nop-picking", CLUTTER_DEBUG_NOP_PICKING },
-  { "dump-pick-buffers", CLUTTER_DEBUG_DUMP_PICK_BUFFERS },
 };
 
 static const GDebugKey clutter_paint_debug_keys[] = {
