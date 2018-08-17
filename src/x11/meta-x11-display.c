@@ -48,6 +48,7 @@
 #include <X11/extensions/Xrandr.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-settings-private.h"
 #include "backends/x11/meta-backend-x11.h"
