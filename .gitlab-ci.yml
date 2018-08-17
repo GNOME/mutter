@@ -2,6 +2,7 @@ image: registry.gitlab.gnome.org/gnome/mutter/master:v1
 
 stages:
  - build
+ - test
 
 build-mutter:
   stage: build
@@ -9,3 +10,15 @@ build-mutter:
     - meson . build -Degl_device=true -Dwayland_eglstream=true
     - ninja -C build
     - ninja -C build install
+
+test-mutter:
+  stage: test
+  script:
+    - meson . build -Degl_device=true -Dwayland_eglstream=true
+    - ninja -C build
+    - glib-compile-schemas $PWD/build/data
+    - env XDG_RUNTIME_DIR=/tmp/ GSETTINGS_SCHEMA_DIR=$PWD/build/data dbus-run-session -- xvfb-run -s '+iglx -noreset' meson test -C build --verbose --no-stdsplit
+  artifacts:
+    paths:
+      - build/meson-logs
+    when: on_failure
