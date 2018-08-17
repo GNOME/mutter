@@ -42,7 +42,6 @@ classes_tests = \
 general_tests = \
 	binding-pool \
 	color \
-	events-touch \
 	interval \
 	model \
 	script-parser \
