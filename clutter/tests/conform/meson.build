@@ -34,7 +34,6 @@ clutter_conform_tests_classes_tests = [
 clutter_conform_tests_general_tests = [
   'binding-pool',
   'color',
-  'events-touch',
   'interval',
   'model',
   'script-parser',
