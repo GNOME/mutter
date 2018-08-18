@@ -2324,8 +2324,7 @@ clutter_stage_init (ClutterStage *self)
   priv->paint_volume_stack =
     g_array_new (FALSE, FALSE, sizeof (ClutterPaintVolume));
 
-  priv->pick_stack =
-    g_array_sized_new (FALSE, FALSE, sizeof (PickRecord), 256);
+  priv->pick_stack = g_array_new (FALSE, FALSE, sizeof (PickRecord));
   priv->cached_pick_mode = CLUTTER_PICK_NONE;
 }
 
