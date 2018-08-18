@@ -1048,31 +1048,6 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
   g_object_unref (stage);
 }
 
-static void
-_clutter_stage_thaw_pick_stack (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv = stage->priv;
-  int i;
-
-  for (i = 0; i < priv->pick_stack->len; i++)
-    {
-      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
-
-      if (priv->pick_stack_frozen && rec->actor)
-        g_object_remove_weak_pointer (G_OBJECT (rec->actor),
-                                      (gpointer) &rec->actor);
-    }
-
-  priv->pick_stack_frozen = FALSE;
-}
-
-static void
-_clutter_stage_clear_pick_stack (ClutterStage *stage)
-{
-  _clutter_stage_thaw_pick_stack (stage);
-  g_array_set_size (stage->priv->pick_stack, 0);
-}
-
 /* In order to keep weak pointers valid between frames we need them to not
  * move in memory, so the stack is marked as "frozen".
  */
@@ -1095,7 +1070,35 @@ _clutter_stage_freeze_pick_stack (ClutterStage *stage)
     }
 
   priv->pick_stack_frozen = TRUE;
- }
+}
+
+static void
+_clutter_stage_thaw_pick_stack (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  int i;
+
+  if (!priv->pick_stack_frozen)
+    return;
+
+  for (i = 0; i < priv->pick_stack->len; i++)
+    {
+      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
+
+      if (rec->actor)
+        g_object_remove_weak_pointer (G_OBJECT (rec->actor),
+                                      (gpointer) &rec->actor);
+    }
+
+  priv->pick_stack_frozen = FALSE;
+}
+
+static void
+_clutter_stage_clear_pick_stack (ClutterStage *stage)
+{
+  _clutter_stage_thaw_pick_stack (stage);
+  g_array_set_size (stage->priv->pick_stack, 0);
+}
 
 void
 _clutter_stage_log_pick (ClutterStage          *stage,
