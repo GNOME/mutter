@@ -109,6 +109,7 @@ struct _PickRecord
 {
   ClutterActorBox box;
   ClutterActor   *actor;
+  gboolean        actor_is_weak_ptr;
 };
 
 typedef struct _PickRecord PickRecord;
@@ -149,6 +150,7 @@ struct _ClutterStagePrivate
   ClutterIDPool *pick_id_pool;
 
   GArray         *pick_stack;
+  gboolean        pick_stack_frozen;
   ClutterPickMode cached_pick_mode;
 
 #ifdef CLUTTER_ENABLE_DEBUG
@@ -1048,10 +1050,8 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
 }
 
 static void
-_pick_actor_finalized (gpointer data,
-                       GObject *actor_object)
+_clutter_stage_clear_pick_stack (ClutterStage *stage)
 {
-  ClutterStage *stage = CLUTTER_STAGE (data);
   ClutterStagePrivate *priv = stage->priv;
   int i;
 
@@ -1059,15 +1059,42 @@ _pick_actor_finalized (gpointer data,
     {
       PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
 
-      if (G_OBJECT (rec->actor) == actor_object)
-        rec->actor = NULL;
+      if (rec->actor_is_weak_ptr)
+        {
+          if (rec->actor)
+            g_object_remove_weak_pointer (G_OBJECT (rec->actor),
+                                          (gpointer) &rec->actor);
+          rec->actor_is_weak_ptr = FALSE;
+        }
     }
 
-  /* We now have a slightly sparse array. But doing compaction would be a
-   * waste of time because _clutter_stage_do_pick_on_view will soon enough
-   * clear the entire array and rebuild it compactly.
-   */
+  priv->pick_stack_frozen = FALSE;
+  g_array_set_size (priv->pick_stack, 0);
 }
+
+/* In order to keep weak pointers valid between frames we need them to not
+ * move in memory, so the stack is marked as "frozen".
+ */
+static void
+_clutter_stage_freeze_pick_stack (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  int i;
+
+  for (i = 0; i < priv->pick_stack->len; i++)
+    {
+      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
+
+      if (!rec->actor_is_weak_ptr && rec->actor)
+        {
+          g_object_add_weak_pointer (G_OBJECT (rec->actor),
+                                     (gpointer) &rec->actor);
+          rec->actor_is_weak_ptr = TRUE;
+        }
+    }
+
+  priv->pick_stack_frozen = TRUE;
+ }
 
 void
 _clutter_stage_log_pick (ClutterStage          *stage,
@@ -1075,9 +1102,9 @@ _clutter_stage_log_pick (ClutterStage          *stage,
                          ClutterActor          *actor)
 {
   ClutterStagePrivate *priv = stage->priv;
-  PickRecord rec = {*box, actor};
+  PickRecord rec = {*box, actor, FALSE};
 
-  g_object_weak_ref (G_OBJECT (actor), _pick_actor_finalized, stage);
+  g_assert (!priv->pick_stack_frozen);
   g_array_append_val (priv->pick_stack, rec);
 }
 
@@ -1452,7 +1479,7 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
 
   if (mode != priv->cached_pick_mode)
     {
-      g_array_set_size (priv->pick_stack, 0);
+      _clutter_stage_clear_pick_stack (stage);
 
       /* We don't render to the fb, but have to set one to stop the cogl matrix
        * operations from crashing in paint functions. Because the matrices are
@@ -1464,6 +1491,8 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
       context->pick_mode = CLUTTER_PICK_NONE;
       priv->cached_pick_mode = mode;
       cogl_pop_framebuffer ();
+
+      _clutter_stage_freeze_pick_stack (stage);
     }
 
   /* Search all "painted" pickable actors from front to back. A linear search
@@ -1792,6 +1821,7 @@ clutter_stage_finalize (GObject *object)
 
   g_free (priv->title);
 
+  _clutter_stage_clear_pick_stack (stage);
   g_array_free (priv->pick_stack, TRUE);
 
   g_array_free (priv->paint_volume_stack, TRUE);
