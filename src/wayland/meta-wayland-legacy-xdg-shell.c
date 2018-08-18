@@ -1304,8 +1304,9 @@ meta_wayland_zxdg_surface_v6_commit (MetaWaylandSurfaceRole  *surface_role,
 
   if (pending->has_new_geometry)
     {
-      /* If we have new geometry, use it. */
-      priv->geometry = pending->new_geometry;
+      meta_wayland_shell_surface_determine_geometry (shell_surface,
+                                                     &pending->new_geometry,
+                                                     &priv->geometry);
       priv->has_set_geometry = TRUE;
     }
   else if (!priv->has_set_geometry)
