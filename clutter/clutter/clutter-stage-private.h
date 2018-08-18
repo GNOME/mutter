@@ -74,14 +74,14 @@ gint64    _clutter_stage_get_update_time                  (ClutterStage *stage);
 void     _clutter_stage_clear_update_time                 (ClutterStage *stage);
 gboolean _clutter_stage_has_full_redraw_queued            (ClutterStage *stage);
 
+void _clutter_stage_log_pick (ClutterStage          *stage,
+                              const ClutterActorBox *box,
+                              ClutterActor          *actor);
+
 ClutterActor *_clutter_stage_do_pick (ClutterStage    *stage,
                                       gint             x,
                                       gint             y,
                                       ClutterPickMode  mode);
-
-void _clutter_stage_log_pick (ClutterStage          *stage,
-                              const ClutterActorBox *box,
-                              ClutterActor          *actor);
 
 ClutterPaintVolume *_clutter_stage_paint_volume_stack_allocate (ClutterStage *stage);
 void                _clutter_stage_paint_volume_stack_free_all (ClutterStage *stage);

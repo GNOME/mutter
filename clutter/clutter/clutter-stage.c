@@ -326,6 +326,73 @@ clutter_stage_get_preferred_height (ClutterActor *self,
     *natural_height_p = geom.height;
 }
 
+/* In order to keep weak pointers valid between frames we need them to not
+ * move in memory, so the stack is marked as "frozen".
+ */
+static void
+_clutter_stage_freeze_pick_stack (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  int i;
+
+  if (priv->pick_stack_frozen)
+    return;
+
+  for (i = 0; i < priv->pick_stack->len; i++)
+    {
+      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
+
+      if (rec->actor)
+        g_object_add_weak_pointer (G_OBJECT (rec->actor),
+                                   (gpointer) &rec->actor);
+    }
+
+  priv->pick_stack_frozen = TRUE;
+}
+
+static void
+_clutter_stage_thaw_pick_stack (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  int i;
+
+  if (!priv->pick_stack_frozen)
+    return;
+
+  for (i = 0; i < priv->pick_stack->len; i++)
+    {
+      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
+
+      if (rec->actor)
+        g_object_remove_weak_pointer (G_OBJECT (rec->actor),
+                                      (gpointer) &rec->actor);
+    }
+
+  priv->pick_stack_frozen = FALSE;
+}
+
+static void
+_clutter_stage_clear_pick_stack (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  _clutter_stage_thaw_pick_stack (stage);
+  g_array_set_size (priv->pick_stack, 0);
+  priv->cached_pick_mode = CLUTTER_PICK_NONE;
+}
+
+void
+_clutter_stage_log_pick (ClutterStage          *stage,
+                         const ClutterActorBox *box,
+                         ClutterActor          *actor)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  PickRecord rec = {*box, actor};
+
+  g_assert (!priv->pick_stack_frozen);
+  g_array_append_val (priv->pick_stack, rec);
+}
+
 static inline void
 queue_full_redraw (ClutterStage *stage)
 {
@@ -636,6 +703,9 @@ clutter_stage_do_paint_view (ClutterStage                *stage,
   float viewport[4];
   cairo_rectangle_int_t geom;
 
+  /* Any mode of painting/picking invalidates the pick stack */
+  _clutter_stage_clear_pick_stack (stage);
+
   _clutter_stage_window_get_geometry (priv->impl, &geom);
 
   viewport[0] = priv->viewport[0];
@@ -677,8 +747,6 @@ clutter_stage_do_paint_view (ClutterStage                *stage,
   _clutter_stage_paint_volume_stack_free_all (stage);
   _clutter_stage_update_active_framebuffer (stage, framebuffer);
   clutter_actor_paint (CLUTTER_ACTOR (stage));
-
-  priv->cached_pick_mode = CLUTTER_PICK_NONE;
 }
 
 /* This provides a common point of entry for painting the scenegraph
@@ -1046,70 +1114,6 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
   g_object_unref (stage);
 }
 
-/* In order to keep weak pointers valid between frames we need them to not
- * move in memory, so the stack is marked as "frozen".
- */
-static void
-_clutter_stage_freeze_pick_stack (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv = stage->priv;
-  int i;
-
-  if (priv->pick_stack_frozen)
-    return;
-
-  for (i = 0; i < priv->pick_stack->len; i++)
-    {
-      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
-
-      if (rec->actor)
-        g_object_add_weak_pointer (G_OBJECT (rec->actor),
-                                   (gpointer) &rec->actor);
-    }
-
-  priv->pick_stack_frozen = TRUE;
-}
-
-static void
-_clutter_stage_thaw_pick_stack (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv = stage->priv;
-  int i;
-
-  if (!priv->pick_stack_frozen)
-    return;
-
-  for (i = 0; i < priv->pick_stack->len; i++)
-    {
-      PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
-
-      if (rec->actor)
-        g_object_remove_weak_pointer (G_OBJECT (rec->actor),
-                                      (gpointer) &rec->actor);
-    }
-
-  priv->pick_stack_frozen = FALSE;
-}
-
-static void
-_clutter_stage_clear_pick_stack (ClutterStage *stage)
-{
-  _clutter_stage_thaw_pick_stack (stage);
-  g_array_set_size (stage->priv->pick_stack, 0);
-}
-
-void
-_clutter_stage_log_pick (ClutterStage          *stage,
-                         const ClutterActorBox *box,
-                         ClutterActor          *actor)
-{
-  ClutterStagePrivate *priv = stage->priv;
-  PickRecord rec = {*box, actor};
-
-  g_assert (!priv->pick_stack_frozen);
-  g_array_append_val (priv->pick_stack, rec);
-}
-
 /**
  * _clutter_stage_needs_update:
  * @stage: A #ClutterStage
@@ -1474,10 +1478,10 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                                 ClutterPickMode   mode,
                                 ClutterStageView *view)
 {
-  ClutterStagePrivate *priv = stage->priv;
   ClutterMainContext *context = _clutter_context_get_default ();
-  CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
   int i;
+  ClutterStagePrivate *priv = stage->priv;
+  CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
 
   if (mode != priv->cached_pick_mode)
     {
@@ -1505,10 +1509,7 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
     {
       const PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
 
-      if (!rec->actor)
-        continue;
-
-      if (clutter_actor_box_contains (&rec->box, x, y))
+      if (rec->actor && clutter_actor_box_contains (&rec->box, x, y))
         return rec->actor;
     }
 
@@ -1823,10 +1824,10 @@ clutter_stage_finalize (GObject *object)
 
   g_free (priv->title);
 
+  g_array_free (priv->paint_volume_stack, TRUE);
+
   _clutter_stage_clear_pick_stack (stage);
   g_array_free (priv->pick_stack, TRUE);
-
-  g_array_free (priv->paint_volume_stack, TRUE);
 
   if (priv->fps_timer != NULL)
     g_timer_destroy (priv->fps_timer);

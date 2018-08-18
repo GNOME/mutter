@@ -1498,7 +1498,6 @@ clutter_actor_update_map_state (ClutterActor  *self,
 static void
 clutter_actor_real_map (ClutterActor *self)
 {
-  ClutterActorPrivate *priv = self->priv;
   ClutterActor *iter;
 
   g_assert (!CLUTTER_ACTOR_IS_MAPPED (self));
