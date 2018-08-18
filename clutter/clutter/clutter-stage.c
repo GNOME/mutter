@@ -109,7 +109,6 @@ struct _PickRecord
 {
   ClutterActorBox box;
   ClutterActor   *actor;
-  gboolean        actor_is_weak_ptr;
 };
 
 typedef struct _PickRecord PickRecord;
@@ -1050,7 +1049,7 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
 }
 
 static void
-_clutter_stage_clear_pick_stack (ClutterStage *stage)
+_clutter_stage_thaw_pick_stack (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
   int i;
@@ -1059,17 +1058,19 @@ _clutter_stage_clear_pick_stack (ClutterStage *stage)
     {
       PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
 
-      if (rec->actor_is_weak_ptr)
-        {
-          if (rec->actor)
-            g_object_remove_weak_pointer (G_OBJECT (rec->actor),
-                                          (gpointer) &rec->actor);
-          rec->actor_is_weak_ptr = FALSE;
-        }
+      if (priv->pick_stack_frozen && rec->actor)
+        g_object_remove_weak_pointer (G_OBJECT (rec->actor),
+                                      (gpointer) &rec->actor);
     }
 
   priv->pick_stack_frozen = FALSE;
-  g_array_set_size (priv->pick_stack, 0);
+}
+
+static void
+_clutter_stage_clear_pick_stack (ClutterStage *stage)
+{
+  _clutter_stage_thaw_pick_stack (stage);
+  g_array_set_size (stage->priv->pick_stack, 0);
 }
 
 /* In order to keep weak pointers valid between frames we need them to not
@@ -1081,16 +1082,16 @@ _clutter_stage_freeze_pick_stack (ClutterStage *stage)
   ClutterStagePrivate *priv = stage->priv;
   int i;
 
+  if (priv->pick_stack_frozen)
+    return;
+
   for (i = 0; i < priv->pick_stack->len; i++)
     {
       PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
 
-      if (!rec->actor_is_weak_ptr && rec->actor)
-        {
-          g_object_add_weak_pointer (G_OBJECT (rec->actor),
-                                     (gpointer) &rec->actor);
-          rec->actor_is_weak_ptr = TRUE;
-        }
+      if (rec->actor)
+        g_object_add_weak_pointer (G_OBJECT (rec->actor),
+                                   (gpointer) &rec->actor);
     }
 
   priv->pick_stack_frozen = TRUE;
@@ -1102,7 +1103,7 @@ _clutter_stage_log_pick (ClutterStage          *stage,
                          ClutterActor          *actor)
 {
   ClutterStagePrivate *priv = stage->priv;
-  PickRecord rec = {*box, actor, FALSE};
+  PickRecord rec = {*box, actor};
 
   g_assert (!priv->pick_stack_frozen);
   g_array_append_val (priv->pick_stack, rec);
