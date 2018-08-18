@@ -65,6 +65,26 @@ meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_su
 }
 
 void
+meta_wayland_shell_surface_determine_geometry (MetaWaylandShellSurface *shell_surface,
+                                               MetaRectangle           *set_geometry,
+                                               MetaRectangle           *out_geometry)
+{
+  MetaRectangle bounding_geometry = { 0 };
+  MetaRectangle intersected_geometry = { 0 };
+
+  meta_wayland_shell_surface_calculate_geometry (shell_surface,
+                                                 &bounding_geometry);
+
+  bounding_geometry.x = set_geometry->x;
+  bounding_geometry.y = set_geometry->y;
+
+  meta_rectangle_intersect (set_geometry, &bounding_geometry,
+                            &intersected_geometry);
+
+  *out_geometry = intersected_geometry;
+}
+
+void
 meta_wayland_shell_surface_set_window (MetaWaylandShellSurface *shell_surface,
                                        MetaWindow              *window)
 {
