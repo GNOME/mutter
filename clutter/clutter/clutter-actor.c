@@ -725,8 +725,6 @@ struct _ClutterActorPrivate
 
   gchar *name; /* a non-unique name, used for debugging */
 
-  gint32 pick_id; /* per-stage unique id, used for picking */
-
   /* a back-pointer to the Pango context that we can use
    * to create pre-configured PangoLayout
    */
@@ -1501,7 +1499,7 @@ static void
 clutter_actor_real_map (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
-  ClutterActor *stage, *iter;
+  ClutterActor *iter;
 
   g_assert (!CLUTTER_ACTOR_IS_MAPPED (self));
 
@@ -1511,13 +1509,6 @@ clutter_actor_real_map (ClutterActor *self)
   CLUTTER_ACTOR_SET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
 
   self->priv->needs_paint_volume_update = TRUE;
-
-  stage = _clutter_actor_get_stage_internal (self);
-  priv->pick_id = _clutter_stage_acquire_pick_id (CLUTTER_STAGE (stage), self);
-
-  CLUTTER_NOTE (ACTOR, "Pick id '%d' for actor '%s'",
-                priv->pick_id,
-                _clutter_actor_get_debug_name (self));
 
   /* notify on parent mapped before potentially mapping
    * children, so apps see a top-down notification.
@@ -1620,11 +1611,6 @@ clutter_actor_real_unmap (ClutterActor *self)
       ClutterStage *stage;
 
       stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
-
-      if (stage != NULL)
-        _clutter_stage_release_pick_id (stage, priv->pick_id);
-
-      priv->pick_id = -1;
 
       if (stage != NULL &&
           clutter_stage_get_key_focus (stage) == self)
@@ -3569,15 +3555,6 @@ static inline gboolean
 actor_has_shader_data (ClutterActor *self)
 {
   return g_object_get_qdata (G_OBJECT (self), quark_shader_data) != NULL;
-}
-
-guint32
-_clutter_actor_get_pick_id (ClutterActor *self)
-{
-  if (self->priv->pick_id < 0)
-    return 0;
-
-  return self->priv->pick_id;
 }
 
 /* This is the same as clutter_actor_add_effect except that it doesn't
@@ -8566,8 +8543,6 @@ clutter_actor_init (ClutterActor *self)
   ClutterActorPrivate *priv;
 
   self->priv = priv = clutter_actor_get_instance_private (self);
-
-  priv->pick_id = -1;
 
   priv->opacity = 0xff;
   priv->show_on_set_parent = TRUE;

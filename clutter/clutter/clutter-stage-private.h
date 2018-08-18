@@ -96,13 +96,6 @@ void                          _clutter_stage_queue_redraw_entry_invalidate (Clut
 
 CoglFramebuffer *_clutter_stage_get_active_framebuffer (ClutterStage *stage);
 
-gint32          _clutter_stage_acquire_pick_id          (ClutterStage *stage,
-                                                         ClutterActor *actor);
-void            _clutter_stage_release_pick_id          (ClutterStage *stage,
-                                                         gint32        pick_id);
-ClutterActor *  _clutter_stage_get_actor_by_pick_id     (ClutterStage *stage,
-                                                         gint32        pick_id);
-
 void            _clutter_stage_add_pointer_drag_actor    (ClutterStage       *stage,
                                                           ClutterInputDevice *device,
                                                           ClutterActor       *actor);

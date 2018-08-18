@@ -146,8 +146,6 @@ struct _ClutterStagePrivate
   GTimer *fps_timer;
   gint32 timer_n_frames;
 
-  ClutterIDPool *pick_id_pool;
-
   GArray         *pick_stack;
   gboolean        pick_stack_frozen;
   ClutterPickMode cached_pick_mode;
@@ -1830,8 +1828,6 @@ clutter_stage_finalize (GObject *object)
 
   g_array_free (priv->paint_volume_stack, TRUE);
 
-  _clutter_id_pool_free (priv->pick_id_pool);
-
   if (priv->fps_timer != NULL)
     g_timer_destroy (priv->fps_timer);
 
@@ -2331,7 +2327,6 @@ clutter_stage_init (ClutterStage *self)
   priv->pick_stack =
     g_array_sized_new (FALSE, FALSE, sizeof (PickRecord), 256);
   priv->cached_pick_mode = CLUTTER_PICK_NONE;
-  priv->pick_id_pool = _clutter_id_pool_new (256);
 }
 
 /**
@@ -4364,39 +4359,6 @@ CoglFramebuffer *
 _clutter_stage_get_active_framebuffer (ClutterStage *stage)
 {
   return stage->priv->active_framebuffer;
-}
-
-gint32
-_clutter_stage_acquire_pick_id (ClutterStage *stage,
-                                ClutterActor *actor)
-{
-  ClutterStagePrivate *priv = stage->priv;
-
-  g_assert (priv->pick_id_pool != NULL);
-
-  return _clutter_id_pool_add (priv->pick_id_pool, actor);
-}
-
-void
-_clutter_stage_release_pick_id (ClutterStage *stage,
-                                gint32        pick_id)
-{
-  ClutterStagePrivate *priv = stage->priv;
-
-  g_assert (priv->pick_id_pool != NULL);
-
-  _clutter_id_pool_remove (priv->pick_id_pool, pick_id);
-}
-
-ClutterActor *
-_clutter_stage_get_actor_by_pick_id (ClutterStage *stage,
-                                     gint32        pick_id)
-{
-  ClutterStagePrivate *priv = stage->priv;
-
-  g_assert (priv->pick_id_pool != NULL);
-
-  return _clutter_id_pool_lookup (priv->pick_id_pool, pick_id);
 }
 
 void
