@@ -83,6 +83,27 @@ Description: lightweight GTK+ window manager
  .
  This package contains the core binaries.
 
+Package: gir1.2-mutter-3
+Section: introspection
+Architecture: any
+Multi-Arch: same
+Depends: libmutter-3-0 (= ${binary:Version}),
+         ${gir:Depends},
+         ${misc:Depends},
+         ${shlibs:Depends}
+Breaks: gnome-shell (<< 3.13.92~)
+Description: GObject introspection data for Mutter
+ Mutter is a small window manager, using GTK+ and Clutter to do
+ everything.
+ .
+ Mutter is the clutter-based evolution of Metacity, which, as the
+ author says, is a "Boring window manager for the adult in you. Many
+ window managers are like Marshmallow Froot Loops; Metacity is like
+ Cheerios."
+ .
+ This package contains the GObject introspection data which may be
+ used to generate dynamic bindings.
+
 Package: libmutter-3-0
 Section: libs
 Architecture: any
@@ -105,22 +126,6 @@ Description: window manager library from the Mutter window manager
  .
  This package contains the window manager shared library, used by mutter
  itself, and gnome-shell.
-
-Package: mutter-common
-Section: misc
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: shared files for the Mutter window manager
- Mutter is a small window manager, using GTK+ and Clutter to do
- everything.
- .
- Mutter is the clutter-based evolution of Metacity, which, as the
- author says, is a "Boring window manager for the adult in you. Many
- window managers are like Marshmallow Froot Loops; Metacity is like
- Cheerios."
- .
- This package contains the shared files.
 
 Package: libmutter-3-dev
 Section: libdevel
@@ -164,16 +169,12 @@ Description: Development files for the Mutter window manager
  .
  This package contains the development files.
 
-Package: gir1.2-mutter-3
-Section: introspection
-Architecture: any
-Multi-Arch: same
-Depends: libmutter-3-0 (= ${binary:Version}),
-         ${gir:Depends},
-         ${misc:Depends},
-         ${shlibs:Depends}
-Breaks: gnome-shell (<< 3.13.92~)
-Description: GObject introspection data for Mutter
+Package: mutter-common
+Section: misc
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends}
+Description: shared files for the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
  .
@@ -182,5 +183,4 @@ Description: GObject introspection data for Mutter
  window managers are like Marshmallow Froot Loops; Metacity is like
  Cheerios."
  .
- This package contains the GObject introspection data which may be
- used to generate dynamic bindings.
+ This package contains the shared files.
