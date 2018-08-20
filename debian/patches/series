@@ -1,6 +1,3 @@
-clutter-actor-Inherit-clone-branch-depth-from-parent.patch
-Updated-Slovenian-translation.patch
-Updated-Slovenian-translation-1.patch
 renderer-native-Check-calculated-transform-when-creating-.patch
 theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch

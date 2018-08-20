@@ -17,7 +17,7 @@ Last-Update: 2018-03-16
  2 files changed, 148 insertions(+), 17 deletions(-)
 
 diff --git a/clutter/clutter/x11/clutter-device-manager-xi2.c b/clutter/clutter/x11/clutter-device-manager-xi2.c
-index 62f5583..b22982a 100644
+index 141f424..43f9a3e 100644
 --- a/clutter/clutter/x11/clutter-device-manager-xi2.c
 +++ b/clutter/clutter/x11/clutter-device-manager-xi2.c
 @@ -267,8 +267,9 @@ is_touch_device (XIAnyClassInfo         **classes,
