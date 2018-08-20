@@ -9,6 +9,7 @@ mutter (3.29.91-1) UNRELEASED; urgency=medium
   * d/control: Normalize package stanza order with wrap-and-sort -abk
   * Standards-Version: 4.2.0 (no changes required)
   * d/libmutter-3-0.symbols: Update
+  * d/rules: Tell dh_shlibdeps about our private libraries
 
  -- Simon McVittie <smcv@debian.org>  Mon, 20 Aug 2018 19:38:15 +0100
 
