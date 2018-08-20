@@ -1625,12 +1625,23 @@ gbm_get_next_fb_id (MetaGpuKms         *gpu_kms,
       return FALSE;
     }
 
-  for (i = 0; i < gbm_bo_get_plane_count (next_bo); i++)
+  if (gbm_bo_get_handle_for_plane (next_bo, 0).s32 == -1)
     {
-      strides[i] = gbm_bo_get_stride_for_plane (next_bo, i);
-      handles[i] = gbm_bo_get_handle_for_plane (next_bo, i).u32;
-      offsets[i] = gbm_bo_get_offset (next_bo, i);
-      modifiers[i] = gbm_bo_get_modifier (next_bo);
+      /* Failed to fetch handle to plane, falling back to old method */
+      strides[0] = gbm_bo_get_stride (next_bo);
+      handles[0] = gbm_bo_get_handle (next_bo).u32;
+      offsets[0] = 0;
+      modifiers[0] = DRM_FORMAT_MOD_INVALID;
+    }
+  else
+    {
+      for (i = 0; i < gbm_bo_get_plane_count (next_bo); i++)
+        {
+          strides[i] = gbm_bo_get_stride_for_plane (next_bo, i);
+          handles[i] = gbm_bo_get_handle_for_plane (next_bo, i).u32;
+          offsets[i] = gbm_bo_get_offset (next_bo, i);
+          modifiers[i] = gbm_bo_get_modifier (next_bo);
+        }
     }
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);

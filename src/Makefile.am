@@ -88,6 +88,8 @@ mutter_built_sources += \
 	xdg-output-unstable-v1-server-protocol.h			\
 	xwayland-keyboard-grab-unstable-v1-protocol.c			\
 	xwayland-keyboard-grab-unstable-v1-server-protocol.h		\
+	text-input-unstable-v3-protocol.c				\
+	text-input-unstable-v3-server-protocol.h			\
 	gtk-text-input-protocol.c					\
 	gtk-text-input-server-protocol.h				\
 	$(NULL)
@@ -459,6 +461,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-wayland-subsurface.h	\
 	wayland/meta-wayland-shell-surface.c	\
 	wayland/meta-wayland-shell-surface.h	\
+	wayland/meta-wayland-text-input-legacy.c	\
+	wayland/meta-wayland-text-input-legacy.h	\
 	wayland/meta-wayland-text-input.c	\
 	wayland/meta-wayland-text-input.h	\
 	wayland/meta-wayland-types.h		\
