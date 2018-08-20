@@ -2,7 +2,7 @@ AC_PREREQ(2.62)
 
 m4_define([mutter_major_version], [3])
 m4_define([mutter_minor_version], [29])
-m4_define([mutter_micro_version], [90])
+m4_define([mutter_micro_version], [91])
 
 m4_define([mutter_version],
           [mutter_major_version.mutter_minor_version.mutter_micro_version])
@@ -244,7 +244,7 @@ AC_ARG_ENABLE(remote-desktop,
   enable_remote_desktop=no
 )
 AS_IF([test "$enable_remote_desktop" = "yes"], [
-  MUTTER_PC_MODULES="$MUTTER_PC_MODULES libpipewire-0.1 >= 0.2.0"
+  MUTTER_PC_MODULES="$MUTTER_PC_MODULES libpipewire-0.2 >= 0.2.2"
   AC_DEFINE([HAVE_REMOTE_DESKTOP],[1], [Defined if screen cast and remote desktop support is enabled])
 ])
 AM_CONDITIONAL([HAVE_REMOTE_DESKTOP],[test "$enable_remote_desktop" = "yes"])
@@ -325,7 +325,7 @@ AS_IF([test "$have_wayland" = "yes"], [
   AC_SUBST([WAYLAND_SCANNER])
   AC_DEFINE([HAVE_WAYLAND],[1],[Define if you want to enable Wayland support])
 
-  PKG_CHECK_MODULES(WAYLAND_PROTOCOLS, [wayland-protocols >= 1.12],
+  PKG_CHECK_MODULES(WAYLAND_PROTOCOLS, [wayland-protocols >= 1.16],
 		    [ac_wayland_protocols_pkgdatadir=`$PKG_CONFIG --variable=pkgdatadir wayland-protocols`])
   AC_SUBST(WAYLAND_PROTOCOLS_DATADIR, $ac_wayland_protocols_pkgdatadir)
 ])

@@ -378,6 +378,7 @@ typedef enum
   META_KEY_BINDING_BUILTIN      = 1 << 1,
   META_KEY_BINDING_IS_REVERSED  = 1 << 2,
   META_KEY_BINDING_NON_MASKABLE = 1 << 3,
+  META_KEY_BINDING_IGNORE_AUTOREPEAT = 1 << 4,
 } MetaKeyBindingFlags;
 
 /**

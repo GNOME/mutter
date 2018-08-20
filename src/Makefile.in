@@ -125,6 +125,8 @@ host_triplet = @host@
 @HAVE_WAYLAND_TRUE@	xdg-output-unstable-v1-server-protocol.h			\
 @HAVE_WAYLAND_TRUE@	xwayland-keyboard-grab-unstable-v1-protocol.c			\
 @HAVE_WAYLAND_TRUE@	xwayland-keyboard-grab-unstable-v1-server-protocol.h		\
+@HAVE_WAYLAND_TRUE@	text-input-unstable-v3-protocol.c				\
+@HAVE_WAYLAND_TRUE@	text-input-unstable-v3-server-protocol.h			\
 @HAVE_WAYLAND_TRUE@	gtk-text-input-protocol.c					\
 @HAVE_WAYLAND_TRUE@	gtk-text-input-server-protocol.h				\
 @HAVE_WAYLAND_TRUE@	$(NULL)
@@ -230,6 +232,8 @@ host_triplet = @host@
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-subsurface.h	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-shell-surface.c	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-shell-surface.h	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-text-input-legacy.c	\
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-text-input-legacy.h	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-text-input.c	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-text-input.h	\
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-types.h		\
@@ -591,6 +595,8 @@ am__libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES_DIST =  \
 	wayland/meta-wayland-subsurface.h \
 	wayland/meta-wayland-shell-surface.c \
 	wayland/meta-wayland-shell-surface.h \
+	wayland/meta-wayland-text-input-legacy.c \
+	wayland/meta-wayland-text-input-legacy.h \
 	wayland/meta-wayland-text-input.c \
 	wayland/meta-wayland-text-input.h wayland/meta-wayland-types.h \
 	wayland/meta-wayland-versions.h wayland/meta-wayland-outputs.c \
@@ -690,6 +696,7 @@ am__objects_1 =
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-actor-surface.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-subsurface.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-shell-surface.lo \
+@HAVE_WAYLAND_TRUE@	wayland/meta-wayland-text-input-legacy.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-text-input.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-outputs.lo \
 @HAVE_WAYLAND_TRUE@	wayland/meta-wayland-xdg-foreign.lo \
@@ -814,6 +821,7 @@ am__objects_7 = meta-dbus-login1.lo
 @HAVE_WAYLAND_TRUE@	keyboard-shortcuts-inhibit-unstable-v1-protocol.lo \
 @HAVE_WAYLAND_TRUE@	xdg-output-unstable-v1-protocol.lo \
 @HAVE_WAYLAND_TRUE@	xwayland-keyboard-grab-unstable-v1-protocol.lo \
+@HAVE_WAYLAND_TRUE@	text-input-unstable-v3-protocol.lo \
 @HAVE_WAYLAND_TRUE@	gtk-text-input-protocol.lo $(am__objects_1)
 @HAVE_WAYLAND_EGLSTREAM_TRUE@@HAVE_WAYLAND_TRUE@am__objects_12 = $(am__objects_1)
 am__objects_13 = $(am__objects_5) $(am__objects_6) $(am__objects_7) \
@@ -2065,6 +2073,8 @@ wayland/meta-wayland-subsurface.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-shell-surface.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
+wayland/meta-wayland-text-input-legacy.lo: wayland/$(am__dirstamp) \
+	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-text-input.lo: wayland/$(am__dirstamp) \
 	wayland/$(DEPDIR)/$(am__dirstamp)
 wayland/meta-wayland-outputs.lo: wayland/$(am__dirstamp) \
@@ -2395,6 +2405,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pointer-gestures-unstable-v1-protocol.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/relative-pointer-unstable-v1-protocol.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tablet-unstable-v2-protocol.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/text-input-unstable-v3-protocol.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xdg-foreign-unstable-v1-protocol.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xdg-output-unstable-v1-protocol.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xdg-shell-protocol.Plo@am__quote@
@@ -2577,6 +2588,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-seat.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet-tool.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-tablet.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-text-input-legacy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-text-input.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-touch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@wayland/$(DEPDIR)/meta-wayland-wl-shell.Plo@am__quote@
