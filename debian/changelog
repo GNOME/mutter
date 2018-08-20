@@ -1,6 +1,7 @@
 mutter (3.29.91-1) UNRELEASED; urgency=medium
 
   * New upstream development release
+  * Update wayland-protocols build-dependency to 1.16
 
  -- Simon McVittie <smcv@debian.org>  Mon, 20 Aug 2018 19:38:15 +0100
 
