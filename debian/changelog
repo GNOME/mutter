@@ -1,5 +1,6 @@
-mutter (3.29.91-1) UNRELEASED; urgency=medium
+mutter (3.29.91-1) experimental; urgency=medium
 
+  * Team upload
   * New upstream development release
   * Update wayland-protocols build-dependency to 1.16
   * d/copyright: Update
@@ -11,7 +12,7 @@ mutter (3.29.91-1) UNRELEASED; urgency=medium
   * d/libmutter-3-0.symbols: Update
   * d/rules: Tell dh_shlibdeps about our private libraries
 
- -- Simon McVittie <smcv@debian.org>  Mon, 20 Aug 2018 19:38:15 +0100
+ -- Simon McVittie <smcv@debian.org>  Mon, 20 Aug 2018 21:17:31 +0100
 
 mutter (3.29.90-2) experimental; urgency=medium
 
