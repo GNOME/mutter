@@ -1261,6 +1261,12 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_wayland_get_wayland_display_name@Base 3.28.2
  meta_wayland_get_xwayland_display_name@Base 3.28.2
  meta_wayland_gtk_shell_init@Base 3.28.2
+ meta_wayland_gtk_text_input_destroy@Base 3.29.91
+ meta_wayland_gtk_text_input_focus_get_type@Base 3.29.91
+ meta_wayland_gtk_text_input_handle_event@Base 3.29.91
+ meta_wayland_gtk_text_input_init@Base 3.29.91
+ meta_wayland_gtk_text_input_new@Base 3.29.91
+ meta_wayland_gtk_text_input_set_focus@Base 3.29.91
  meta_wayland_init@Base 3.28.2
  meta_wayland_input_device_get_seat@Base 3.28.2
  meta_wayland_input_device_get_type@Base 3.28.2
