@@ -1,3 +1,21 @@
+3.29.91
+=======
+* Various crash fixes [Olivier, Iain; #255, #223]
+* Fix lock up with some DRI drivers [Alex; #127]
+* Send correct button codes from virtual evdev devices [Jonas; !190]
+* Improve grab-device clock updates on X11 [Jeff; !174]
+* Fix popups closing immediately on key down [Jonas; !180]
+* Prevent clients from modifying the shared keymap [Jonas; #784206]
+
+Contributors:
+  Jonas Ådahl, Andrea Azzarone, Piotr Drąg, Olivier Fourdan, Carlos Garnacho,
+  Jan Grulich, Iain Lane, Alex Villacís Lasso, Jeff Smith, Daniel van Vugt
+
+Translators:
+  Matej Urbančič [sl], Mario Blättermann [de], Piotr Drąg [pl],
+  Aurimas Černius [lt], Yi-Jyun Pan [zh_TW], Emin Tufan Çetin [tr],
+  Fabio Tomat [fur], Bruce Cowan [en_GB]
+
 3.29.90
 =======
 * Various crash fixes [Olivier, Jonas, Florian; #189, #70, #194, #15, #130]
