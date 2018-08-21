@@ -4653,6 +4653,9 @@ meta_window_focus (MetaWindow  *window,
 
   g_return_if_fail (!window->override_redirect);
 
+  /* This is a oneshot flag */
+  window->restore_focus_on_map = FALSE;
+
   meta_topic (META_DEBUG_FOCUS,
               "Setting input focus to window %s, input: %d take_focus: %d\n",
               window->desc, window->input, window->take_focus);
