@@ -150,6 +150,10 @@ struct _MetaX11Display
 #else
 #define META_X11_DISPLAY_HAS_XINPUT_23(x11_display) FALSE
 #endif /* HAVE_XI23 */
+#ifdef HAVE_STARTUP_NOTIFICATION
+  SnDisplay *sn_display;
+  SnMonitorContext *sn_context;
+#endif /* HAVE_STARTUP_NOTIFICATION */
 };
 
 MetaX11Display *meta_x11_display_new (MetaDisplay *display, GError **error);
