@@ -761,7 +761,7 @@ meta_display_open (void)
 
   display->workspace_manager = meta_workspace_manager_new (display);
 
-  display->startup_notification = meta_startup_notification_get (display);
+  display->startup_notification = meta_startup_notification_new (display);
   g_signal_connect (display->startup_notification, "changed",
                     G_CALLBACK (on_startup_notification_changed), display);
 
