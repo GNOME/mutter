@@ -33,6 +33,7 @@
 #include "meta/common.h"
 #include "meta/types.h"
 #include "meta/meta-x11-display.h"
+#include "meta-x11-startup-notification.h"
 #include "ui/ui.h"
 
 typedef struct _MetaGroupPropHooks  MetaGroupPropHooks;
@@ -150,6 +151,8 @@ struct _MetaX11Display
 #else
 #define META_X11_DISPLAY_HAS_XINPUT_23(x11_display) FALSE
 #endif /* HAVE_XI23 */
+
+  MetaX11StartupNotification *startup_notification;
 };
 
 MetaX11Display *meta_x11_display_new (MetaDisplay *display, GError **error);

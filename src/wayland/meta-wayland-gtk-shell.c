@@ -312,11 +312,18 @@ gtk_shell_set_startup_id (struct wl_client   *client,
                           struct wl_resource *resource,
                           const char         *startup_id)
 {
+  MetaStartupSequence *sequence;
   MetaDisplay *display;
 
   display = meta_get_display ();
-  meta_startup_notification_remove_sequence (display->startup_notification,
-                                             startup_id);
+
+  sequence = meta_startup_notification_lookup_sequence (display->startup_notification,
+                                                        startup_id);
+  if (sequence)
+    {
+      meta_startup_notification_remove_sequence (display->startup_notification,
+                                                 sequence);
+    }
 }
 
 static void

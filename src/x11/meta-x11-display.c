@@ -66,6 +66,7 @@
 #include "x11/group-props.h"
 #include "x11/window-props.h"
 #include "x11/xprops.h"
+#include "x11/meta-x11-startup-notification.h"
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-xwayland-private.h"
@@ -101,6 +102,8 @@ static void
 meta_x11_display_dispose (GObject *object)
 {
   MetaX11Display *x11_display = META_X11_DISPLAY (object);
+
+  meta_x11_startup_notification_release (x11_display);
 
   meta_prefs_remove_listener (prefs_changed_callback, x11_display);
 
@@ -1349,6 +1352,8 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
                            x11_display, 0);
 
   set_x11_bell_is_audible (x11_display, meta_prefs_bell_is_audible ());
+
+  meta_x11_startup_notification_init (x11_display);
 
   return x11_display;
 }
