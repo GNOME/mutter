@@ -3644,3 +3644,9 @@ meta_display_get_workspace_manager (MetaDisplay *display)
 {
   return display->workspace_manager;
 }
+
+MetaStartupNotification *
+meta_display_get_startup_notification (MetaDisplay *display)
+{
+  return display->startup_notification;
+}
