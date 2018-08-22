@@ -39,6 +39,7 @@
 #include "meta/meta-backend.h"
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/meta-startup-notification-x11.h"
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
 
@@ -1744,8 +1745,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   meta_spew_event_print (x11_display, event);
 #endif
 
-  if (meta_startup_notification_handle_xevent (display->startup_notification,
-                                               event))
+  if (meta_x11_startup_notification_handle_xevent (x11_display, event))
     {
       bypass_gtk = bypass_compositor = TRUE;
       goto out;
