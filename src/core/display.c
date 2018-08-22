@@ -3149,10 +3149,9 @@ gboolean
 meta_display_apply_startup_properties (MetaDisplay *display,
                                        MetaWindow  *window)
 {
-#ifdef HAVE_STARTUP_NOTIFICATION
   const char *startup_id;
-  GSList *l;
-  SnStartupSequence *sequence;
+  GSList *startup_sequences, *l;
+  MetaStartupSequence *sequence;
 
   /* Does the window have a startup ID stored? */
   startup_id = meta_window_get_startup_id (window);
@@ -3162,6 +3161,8 @@ meta_display_apply_startup_properties (MetaDisplay *display,
               window->desc,
               startup_id ? startup_id : "(none)");
 
+  startup_sequences =
+    meta_startup_notification_get_sequences (display->startup_notification);
   sequence = NULL;
   if (!startup_id)
     {
@@ -3169,12 +3170,12 @@ meta_display_apply_startup_properties (MetaDisplay *display,
        * startup-notification library whether there's anything
        * stored for the resource name or resource class hints.
        */
-      for (l = display->startup_sequences; l; l = l->next)
+      for (l = startup_sequences; l; l = l->next)
         {
           const char *wmclass;
-          SnStartupSequence *seq = l->data;
+          MetaStartupSequence *seq = l->data;
 
-          wmclass = sn_startup_sequence_get_wmclass (seq);
+          wmclass = meta_startup_sequence_get_wmclass (seq);
 
           if (wmclass != NULL &&
               ((window->res_class &&
@@ -3185,15 +3186,15 @@ meta_display_apply_startup_properties (MetaDisplay *display,
               sequence = seq;
 
               g_assert (window->startup_id == NULL);
-              window->startup_id = g_strdup (sn_startup_sequence_get_id (sequence));
+              window->startup_id = g_strdup (meta_startup_sequence_get_id (sequence));
               startup_id = window->startup_id;
 
               meta_topic (META_DEBUG_STARTUP,
                           "Ending legacy sequence %s due to window %s\n",
-                          sn_startup_sequence_get_id (sequence),
+                          meta_startup_sequence_get_id (sequence),
                           window->desc);
 
-              sn_startup_sequence_complete (sequence);
+              meta_startup_sequence_complete (sequence);
               break;
             }
         }
@@ -3209,12 +3210,12 @@ meta_display_apply_startup_properties (MetaDisplay *display,
    */
   if (sequence == NULL)
     {
-      for (l = display->startup_sequences; l != NULL; l = l->next)
+      for (l = startup_sequences; l != NULL; l = l->next)
         {
-          SnStartupSequence *seq = l->data;
+          MetaStartupSequence *seq = l->data;
           const char *id;
 
-          id = sn_startup_sequence_get_id (seq);
+          id = meta_startup_sequence_get_id (seq);
 
           if (strcmp (id, startup_id) == 0)
             {
@@ -3234,7 +3235,7 @@ meta_display_apply_startup_properties (MetaDisplay *display,
 
       if (!window->initial_workspace_set)
         {
-          int space = sn_startup_sequence_get_workspace (sequence);
+          int space = meta_startup_sequence_get_workspace (sequence);
           if (space >= 0)
             {
               meta_topic (META_DEBUG_STARTUP,
@@ -3249,7 +3250,7 @@ meta_display_apply_startup_properties (MetaDisplay *display,
 
       if (!window->initial_timestamp_set)
         {
-          guint32 timestamp = sn_startup_sequence_get_timestamp (sequence);
+          guint32 timestamp = meta_startup_sequence_get_timestamp (sequence);
           meta_topic (META_DEBUG_STARTUP,
                       "Setting initial window timestamp to %u based on startup info\n",
                       timestamp);
@@ -3267,8 +3268,6 @@ meta_display_apply_startup_properties (MetaDisplay *display,
                   "Did not find startup sequence for window %s ID \"%s\"\n",
                   window->desc, startup_id);
     }
-
-#endif /* HAVE_STARTUP_NOTIFICATION */
 
   return FALSE;
 }
