@@ -88,6 +88,7 @@ typedef struct {
   gchar *id;
   gint64 timestamp;
   gint workspace;
+  guint completed : 1;
 } MetaStartupSequencePrivate;
 
 G_DEFINE_TYPE (MetaStartupNotification,
@@ -286,33 +287,111 @@ meta_startup_sequence_class_init (MetaStartupSequenceClass *klass)
   g_object_class_install_properties (object_class, N_SEQ_PROPS, seq_props);
 }
 
-static const gchar *
+const gchar *
 meta_startup_sequence_get_id (MetaStartupSequence *seq)
 {
   MetaStartupSequencePrivate *priv;
+
+  g_return_val_if_fail (META_IS_STARTUP_SEQUENCE (seq), NULL);
 
   priv = meta_startup_sequence_get_instance_private (seq);
   return priv->id;
 }
 
-static gint64
+gint64
 meta_startup_sequence_get_timestamp (MetaStartupSequence *seq)
 {
   MetaStartupSequencePrivate *priv;
+
+  g_return_val_if_fail (META_IS_STARTUP_SEQUENCE (seq), 0);
 
   priv = meta_startup_sequence_get_instance_private (seq);
   return priv->timestamp;
 }
 
-static void
+void
 meta_startup_sequence_complete (MetaStartupSequence *seq)
 {
   MetaStartupSequenceClass *klass;
+  MetaStartupSequencePrivate *priv;
 
+  g_return_if_fail (META_IS_STARTUP_SEQUENCE (seq));
+
+  priv = meta_startup_sequence_get_instance_private (seq);
+  if (priv->completed)
+    return;
+
+  priv->completed = TRUE;
   klass = META_STARTUP_SEQUENCE_GET_CLASS (seq);
 
   if (klass->complete)
     klass->complete (seq);
+}
+
+gboolean
+meta_startup_sequence_get_completed (MetaStartupSequence *seq)
+{
+  MetaStartupSequencePrivate *priv;
+
+  g_return_val_if_fail (META_IS_STARTUP_SEQUENCE (seq), FALSE);
+
+  priv = meta_startup_sequence_get_instance_private (seq);
+  return priv->completed;
+}
+
+const gchar *
+meta_startup_sequence_get_name (MetaStartupSequence *seq)
+{
+  MetaStartupSequencePrivate *priv;
+
+  g_return_val_if_fail (META_IS_STARTUP_SEQUENCE (seq), NULL);
+
+  priv = meta_startup_sequence_get_instance_private (seq);
+  return priv->name;
+}
+
+int
+meta_startup_sequence_get_workspace (MetaStartupSequence *seq)
+{
+  MetaStartupSequencePrivate *priv;
+
+  g_return_val_if_fail (META_IS_STARTUP_SEQUENCE (seq), 0);
+
+  priv = meta_startup_sequence_get_instance_private (seq);
+  return priv->workspace;
+}
+
+const gchar *
+meta_startup_sequence_get_icon_name (MetaStartupSequence *seq)
+{
+  MetaStartupSequencePrivate *priv;
+
+  g_return_val_if_fail (META_IS_STARTUP_SEQUENCE (seq), NULL);
+
+  priv = meta_startup_sequence_get_instance_private (seq);
+  return priv->icon_name;
+}
+
+const gchar *
+meta_startup_sequence_get_application_id (MetaStartupSequence *seq)
+{
+  MetaStartupSequencePrivate *priv;
+
+  g_return_val_if_fail (META_IS_STARTUP_SEQUENCE (seq), NULL);
+
+  priv = meta_startup_sequence_get_instance_private (seq);
+  return priv->application_id;
+}
+
+const gchar *
+meta_startup_sequence_get_wmclass (MetaStartupSequence *seq)
+{
+  MetaStartupSequencePrivate *priv;
+
+  g_return_val_if_fail (META_IS_STARTUP_SEQUENCE (seq), NULL);
+
+  priv = meta_startup_sequence_get_instance_private (seq);
+  return priv->wmclass;
 }
 
 void
