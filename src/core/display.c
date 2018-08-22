@@ -146,7 +146,6 @@ enum
   ACTIVE_WORKSPACE_CHANGED,
   IN_FULLSCREEN_CHANGED,
   SHOWING_DESKTOP_CHANGED,
-  STARTUP_SEQUENCE_CHANGED,
   RESTACKED,
   WORKAREAS_CHANGED,
   LAST_SIGNAL
@@ -464,13 +463,6 @@ meta_display_class_init (MetaDisplayClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
-  display_signals[STARTUP_SEQUENCE_CHANGED] =
-    g_signal_new ("startup-sequence-changed",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0, NULL, NULL, NULL,
-                  G_TYPE_NONE, 1, G_TYPE_POINTER);
-
   display_signals[RESTACKED] =
     g_signal_new ("restacked",
                   G_TYPE_FROM_CLASS (klass),
@@ -627,41 +619,6 @@ gesture_tracker_state_changed (MetaGestureTracker   *tracker,
 }
 
 static void
-on_startup_notification_changed (MetaStartupNotification *sn,
-                                 gpointer                 sequence,
-                                 MetaDisplay             *display)
-{
-  GSList *sequences, *l;
-  SnStartupSequence *seq;
-
-  g_slist_free (display->startup_sequences);
-  display->startup_sequences = NULL;
-
-  sequences =
-    meta_startup_notification_get_sequences (display->startup_notification);
-
-  for (l = sequences; l; l = l->next)
-    {
-      if (!META_IS_STARTUP_SEQUENCE_X11 (l->data))
-        continue;
-
-      g_object_get (G_OBJECT (l->data),
-                    "seq", &seq,
-                    NULL);
-      display->startup_sequences = g_slist_prepend (display->startup_sequences,
-                                                    seq);
-    }
-
-  if (META_IS_STARTUP_SEQUENCE_X11 (sequence))
-    {
-      g_object_get (G_OBJECT (sequence),
-                    "seq", &seq,
-                    NULL);
-      g_signal_emit_by_name (display, "startup-sequence-changed", seq);
-    }
-}
-
-static void
 on_ui_scaling_factor_changed (MetaSettings *settings,
                               MetaDisplay  *display)
 {
@@ -760,8 +717,6 @@ meta_display_open (void)
   display->workspace_manager = meta_workspace_manager_new (display);
 
   display->startup_notification = meta_startup_notification_new (display);
-  g_signal_connect (display->startup_notification, "changed",
-                    G_CALLBACK (on_startup_notification_changed), display);
 
   display->bell = meta_bell_new (display);
 
@@ -3123,18 +3078,6 @@ meta_display_hide_tile_preview (MetaDisplay *display)
 
   display->preview_tile_mode = META_TILE_NONE;
   meta_compositor_hide_tile_preview (display->compositor);
-}
-
-/**
- * meta_display_get_startup_sequences: (skip)
- * @display:
- *
- * Return value: (transfer none): Currently active #SnStartupSequence items
- */
-GSList *
-meta_display_get_startup_sequences (MetaDisplay *display)
-{
-  return display->startup_sequences;
 }
 
 /* Sets the initial_timestamp and initial_workspace properties
