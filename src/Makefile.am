@@ -311,6 +311,7 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	meta/prefs.h				\
 	core/startup-notification.c		\
 	core/startup-notification-private.h	\
+	meta/meta-startup-notification.h	\
 	meta/types.h				\
 	core/restart.c				\
 	core/stack.c				\
@@ -568,6 +569,7 @@ libmutterinclude_headers =			\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\
 	meta/meta-stage.h			\
+	meta/meta-startup-notification.h	\
 	meta/meta-window-actor.h		\
 	meta/meta-window-group.h		\
 	meta/meta-window-shape.h		\
