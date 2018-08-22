@@ -144,6 +144,11 @@ meta_startup_sequence_x11_new (SnStartupSequence *seq)
   timestamp = sn_startup_sequence_get_timestamp (seq) * 1000;
   return g_object_new (META_TYPE_STARTUP_SEQUENCE_X11,
                        "id", sn_startup_sequence_get_id (seq),
+                       "icon-name", sn_startup_sequence_get_icon_name (seq),
+                       "application-id", sn_startup_sequence_get_application_id (seq),
+                       "wmclass", sn_startup_sequence_get_wmclass (seq),
+                       "name", sn_startup_sequence_get_name (seq),
+                       "workspace", sn_startup_sequence_get_workspace (seq),
                        "timestamp", timestamp,
                        "seq", seq,
                        NULL);
