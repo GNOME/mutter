@@ -313,6 +313,7 @@ meta_window_finalize (GObject *object)
   g_free (window->gtk_app_menu_object_path);
   g_free (window->gtk_menubar_object_path);
   g_free (window->placement_rule);
+  g_free (window->constrained_placement_rule);
 
   G_OBJECT_CLASS (meta_window_parent_class)->finalize (object);
 }
@@ -3752,13 +3753,23 @@ meta_window_updates_are_frozen (MetaWindow *window)
   return FALSE;
 }
 
+static void
+meta_window_reposition (MetaWindow *window)
+{
+  meta_window_move_resize_internal (window,
+                                    (META_MOVE_RESIZE_MOVE_ACTION |
+                                     META_MOVE_RESIZE_RESIZE_ACTION),
+                                    NorthWestGravity,
+                                    window->rect);
+}
+
 static gboolean
-maybe_move_attached_dialog (MetaWindow *window,
+maybe_move_attached_window (MetaWindow *window,
                             void       *data)
 {
-  if (meta_window_is_attached_dialog (window))
-    /* It ignores x,y for such a dialog  */
-    meta_window_move_frame (window, FALSE, 0, 0);
+  if (meta_window_is_attached_dialog (window) ||
+      meta_window_get_placement_rule (window))
+    meta_window_reposition (window);
 
   return FALSE;
 }
@@ -4053,7 +4064,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
       window->frame_bounds = NULL;
     }
 
-  meta_window_foreach_transient (window, maybe_move_attached_dialog, NULL);
+  meta_window_foreach_transient (window, maybe_move_attached_window, NULL);
 
   meta_stack_update_window_tile_matches (window->display->stack,
                                          workspace_manager->active_workspace);
