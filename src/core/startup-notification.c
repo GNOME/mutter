@@ -38,8 +38,8 @@
  */
 #define STARTUP_TIMEOUT 15000000
 
-typedef struct _MetaStartupNotificationSequence MetaStartupNotificationSequence;
-typedef struct _MetaStartupNotificationSequenceClass MetaStartupNotificationSequenceClass;
+typedef struct _MetaStartupSequence MetaStartupSequence;
+typedef struct _MetaStartupSequenceClass MetaStartupSequenceClass;
 
 enum {
   PROP_SN_0,
@@ -83,30 +83,30 @@ struct _MetaStartupNotification
   guint startup_sequence_timeout;
 };
 
-#define META_TYPE_STARTUP_NOTIFICATION_SEQUENCE \
-  (meta_startup_notification_sequence_get_type ())
+#define META_TYPE_STARTUP_SEQUENCE \
+  (meta_startup_sequence_get_type ())
 
-G_DECLARE_DERIVABLE_TYPE (MetaStartupNotificationSequence,
-                          meta_startup_notification_sequence,
-                          META, STARTUP_NOTIFICATION_SEQUENCE,
+G_DECLARE_DERIVABLE_TYPE (MetaStartupSequence,
+                          meta_startup_sequence,
+                          META, STARTUP_SEQUENCE,
                           GObject)
 
 typedef struct {
   gchar *id;
   gint64 timestamp;
-} MetaStartupNotificationSequencePrivate;
+} MetaStartupSequencePrivate;
 
-struct _MetaStartupNotificationSequenceClass {
+struct _MetaStartupSequenceClass {
   GObjectClass parent_class;
 
-  void (* complete) (MetaStartupNotificationSequence *sequence);
+  void (* complete) (MetaStartupSequence *sequence);
 };
 
 G_DEFINE_TYPE (MetaStartupNotification,
                meta_startup_notification,
                G_TYPE_OBJECT)
-G_DEFINE_TYPE_WITH_PRIVATE (MetaStartupNotificationSequence,
-                            meta_startup_notification_sequence,
+G_DEFINE_TYPE_WITH_PRIVATE (MetaStartupSequence,
+                            meta_startup_sequence,
                             G_TYPE_OBJECT)
 
 #ifdef HAVE_STARTUP_NOTIFICATION
@@ -117,24 +117,24 @@ enum {
   N_SEQ_X11_PROPS
 };
 
-struct _MetaStartupNotificationSequenceX11 {
-  MetaStartupNotificationSequence parent_instance;
+struct _MetaStartupSequenceX11 {
+  MetaStartupSequence parent_instance;
   SnStartupSequence *seq;
 };
 
 static GParamSpec *seq_x11_props[N_SEQ_X11_PROPS];
 
-#define META_TYPE_STARTUP_NOTIFICATION_SEQUENCE_X11 \
-  (meta_startup_notification_sequence_x11_get_type ())
+#define META_TYPE_STARTUP_SEQUENCE_X11 \
+  (meta_startup_sequence_x11_get_type ())
 
-G_DECLARE_FINAL_TYPE (MetaStartupNotificationSequenceX11,
-                      meta_startup_notification_sequence_x11,
-                      META, STARTUP_NOTIFICATION_SEQUENCE_X11,
-                      MetaStartupNotificationSequence)
+G_DECLARE_FINAL_TYPE (MetaStartupSequenceX11,
+                      meta_startup_sequence_x11,
+                      META, STARTUP_SEQUENCE_X11,
+                      MetaStartupSequence)
 
-G_DEFINE_TYPE (MetaStartupNotificationSequenceX11,
-               meta_startup_notification_sequence_x11,
-               META_TYPE_STARTUP_NOTIFICATION_SEQUENCE)
+G_DEFINE_TYPE (MetaStartupSequenceX11,
+               meta_startup_sequence_x11,
+               META_TYPE_STARTUP_SEQUENCE)
 
 static void meta_startup_notification_ensure_timeout  (MetaStartupNotification *sn);
 
@@ -160,34 +160,34 @@ meta_startup_notification_update_feedback (MetaStartupNotification *sn)
 }
 
 static void
-meta_startup_notification_sequence_init (MetaStartupNotificationSequence *seq)
+meta_startup_sequence_init (MetaStartupSequence *seq)
 {
 }
 
 static void
-meta_startup_notification_sequence_finalize (GObject *object)
+meta_startup_sequence_finalize (GObject *object)
 {
-  MetaStartupNotificationSequence *seq;
-  MetaStartupNotificationSequencePrivate *priv;
+  MetaStartupSequence *seq;
+  MetaStartupSequencePrivate *priv;
 
-  seq = META_STARTUP_NOTIFICATION_SEQUENCE (object);
-  priv = meta_startup_notification_sequence_get_instance_private (seq);
+  seq = META_STARTUP_SEQUENCE (object);
+  priv = meta_startup_sequence_get_instance_private (seq);
   g_free (priv->id);
 
-  G_OBJECT_CLASS (meta_startup_notification_sequence_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_startup_sequence_parent_class)->finalize (object);
 }
 
 static void
-meta_startup_notification_sequence_set_property (GObject      *object,
-                                                 guint         prop_id,
-                                                 const GValue *value,
-                                                 GParamSpec   *pspec)
+meta_startup_sequence_set_property (GObject      *object,
+                                    guint         prop_id,
+                                    const GValue *value,
+                                    GParamSpec   *pspec)
 {
-  MetaStartupNotificationSequence *seq;
-  MetaStartupNotificationSequencePrivate *priv;
+  MetaStartupSequence *seq;
+  MetaStartupSequencePrivate *priv;
 
-  seq = META_STARTUP_NOTIFICATION_SEQUENCE (object);
-  priv = meta_startup_notification_sequence_get_instance_private (seq);
+  seq = META_STARTUP_SEQUENCE (object);
+  priv = meta_startup_sequence_get_instance_private (seq);
 
   switch (prop_id)
     {
@@ -204,16 +204,16 @@ meta_startup_notification_sequence_set_property (GObject      *object,
 }
 
 static void
-meta_startup_notification_sequence_get_property (GObject    *object,
-                                                 guint       prop_id,
-                                                 GValue     *value,
-                                                 GParamSpec *pspec)
+meta_startup_sequence_get_property (GObject    *object,
+                                    guint       prop_id,
+                                    GValue     *value,
+                                    GParamSpec *pspec)
 {
-  MetaStartupNotificationSequence *seq;
-  MetaStartupNotificationSequencePrivate *priv;
+  MetaStartupSequence *seq;
+  MetaStartupSequencePrivate *priv;
 
-  seq = META_STARTUP_NOTIFICATION_SEQUENCE (object);
-  priv = meta_startup_notification_sequence_get_instance_private (seq);
+  seq = META_STARTUP_SEQUENCE (object);
+  priv = meta_startup_sequence_get_instance_private (seq);
 
   switch (prop_id)
     {
@@ -230,14 +230,14 @@ meta_startup_notification_sequence_get_property (GObject    *object,
 }
 
 static void
-meta_startup_notification_sequence_class_init (MetaStartupNotificationSequenceClass *klass)
+meta_startup_sequence_class_init (MetaStartupSequenceClass *klass)
 {
   GObjectClass *object_class;
 
   object_class = G_OBJECT_CLASS (klass);
-  object_class->finalize = meta_startup_notification_sequence_finalize;
-  object_class->set_property = meta_startup_notification_sequence_set_property;
-  object_class->get_property = meta_startup_notification_sequence_get_property;
+  object_class->finalize = meta_startup_sequence_finalize;
+  object_class->set_property = meta_startup_sequence_set_property;
+  object_class->get_property = meta_startup_sequence_get_property;
 
   seq_props[PROP_SEQ_ID] =
     g_param_spec_string ("id",
@@ -258,30 +258,30 @@ meta_startup_notification_sequence_class_init (MetaStartupNotificationSequenceCl
 }
 
 static const gchar *
-meta_startup_notification_sequence_get_id (MetaStartupNotificationSequence *seq)
+meta_startup_sequence_get_id (MetaStartupSequence *seq)
 {
-  MetaStartupNotificationSequencePrivate *priv;
+  MetaStartupSequencePrivate *priv;
 
-  priv = meta_startup_notification_sequence_get_instance_private (seq);
+  priv = meta_startup_sequence_get_instance_private (seq);
   return priv->id;
 }
 
 #ifdef HAVE_STARTUP_NOTIFICATION
 static gint64
-meta_startup_notification_sequence_get_timestamp (MetaStartupNotificationSequence *seq)
+meta_startup_sequence_get_timestamp (MetaStartupSequence *seq)
 {
-  MetaStartupNotificationSequencePrivate *priv;
+  MetaStartupSequencePrivate *priv;
 
-  priv = meta_startup_notification_sequence_get_instance_private (seq);
+  priv = meta_startup_sequence_get_instance_private (seq);
   return priv->timestamp;
 }
 
 static void
-meta_startup_notification_sequence_complete (MetaStartupNotificationSequence *seq)
+meta_startup_sequence_complete (MetaStartupSequence *seq)
 {
-  MetaStartupNotificationSequenceClass *klass;
+  MetaStartupSequenceClass *klass;
 
-  klass = META_STARTUP_NOTIFICATION_SEQUENCE_GET_CLASS (seq);
+  klass = META_STARTUP_SEQUENCE_GET_CLASS (seq);
 
   if (klass->complete)
     klass->complete (seq);
@@ -290,34 +290,34 @@ meta_startup_notification_sequence_complete (MetaStartupNotificationSequence *se
 
 #ifdef HAVE_STARTUP_NOTIFICATION
 static void
-meta_startup_notification_sequence_x11_complete (MetaStartupNotificationSequence *seq)
+meta_startup_sequence_x11_complete (MetaStartupSequence *seq)
 {
-  MetaStartupNotificationSequenceX11 *seq_x11;
+  MetaStartupSequenceX11 *seq_x11;
 
-  seq_x11 = META_STARTUP_NOTIFICATION_SEQUENCE_X11 (seq);
+  seq_x11 = META_STARTUP_SEQUENCE_X11 (seq);
   sn_startup_sequence_complete (seq_x11->seq);
 }
 
 static void
-meta_startup_notification_sequence_x11_finalize (GObject *object)
+meta_startup_sequence_x11_finalize (GObject *object)
 {
-  MetaStartupNotificationSequenceX11 *seq;
+  MetaStartupSequenceX11 *seq;
 
-  seq = META_STARTUP_NOTIFICATION_SEQUENCE_X11 (object);
+  seq = META_STARTUP_SEQUENCE_X11 (object);
   sn_startup_sequence_unref (seq->seq);
 
-  G_OBJECT_CLASS (meta_startup_notification_sequence_x11_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_startup_sequence_x11_parent_class)->finalize (object);
 }
 
 static void
-meta_startup_notification_sequence_x11_set_property (GObject      *object,
-                                                     guint         prop_id,
-                                                     const GValue *value,
-                                                     GParamSpec   *pspec)
+meta_startup_sequence_x11_set_property (GObject      *object,
+                                        guint         prop_id,
+                                        const GValue *value,
+                                        GParamSpec   *pspec)
 {
-  MetaStartupNotificationSequenceX11 *seq;
+  MetaStartupSequenceX11 *seq;
 
-  seq = META_STARTUP_NOTIFICATION_SEQUENCE_X11 (object);
+  seq = META_STARTUP_SEQUENCE_X11 (object);
 
   switch (prop_id)
     {
@@ -332,14 +332,14 @@ meta_startup_notification_sequence_x11_set_property (GObject      *object,
 }
 
 static void
-meta_startup_notification_sequence_x11_get_property (GObject    *object,
-                                                     guint       prop_id,
-                                                     GValue     *value,
-                                                     GParamSpec *pspec)
+meta_startup_sequence_x11_get_property (GObject    *object,
+                                        guint       prop_id,
+                                        GValue     *value,
+                                        GParamSpec *pspec)
 {
-  MetaStartupNotificationSequenceX11 *seq;
+  MetaStartupSequenceX11 *seq;
 
-  seq = META_STARTUP_NOTIFICATION_SEQUENCE_X11 (object);
+  seq = META_STARTUP_SEQUENCE_X11 (object);
 
   switch (prop_id)
     {
@@ -353,23 +353,23 @@ meta_startup_notification_sequence_x11_get_property (GObject    *object,
 }
 
 static void
-meta_startup_notification_sequence_x11_init (MetaStartupNotificationSequenceX11 *seq)
+meta_startup_sequence_x11_init (MetaStartupSequenceX11 *seq)
 {
 }
 
 static void
-meta_startup_notification_sequence_x11_class_init (MetaStartupNotificationSequenceX11Class *klass)
+meta_startup_sequence_x11_class_init (MetaStartupSequenceX11Class *klass)
 {
-  MetaStartupNotificationSequenceClass *seq_class;
+  MetaStartupSequenceClass *seq_class;
   GObjectClass *object_class;
 
-  seq_class = META_STARTUP_NOTIFICATION_SEQUENCE_CLASS (klass);
-  seq_class->complete = meta_startup_notification_sequence_x11_complete;
+  seq_class = META_STARTUP_SEQUENCE_CLASS (klass);
+  seq_class->complete = meta_startup_sequence_x11_complete;
 
   object_class = G_OBJECT_CLASS (klass);
-  object_class->finalize = meta_startup_notification_sequence_x11_finalize;
-  object_class->set_property = meta_startup_notification_sequence_x11_set_property;
-  object_class->get_property = meta_startup_notification_sequence_x11_get_property;
+  object_class->finalize = meta_startup_sequence_x11_finalize;
+  object_class->set_property = meta_startup_sequence_x11_set_property;
+  object_class->get_property = meta_startup_sequence_x11_get_property;
 
   seq_x11_props[PROP_SEQ_X11_SEQ] =
     g_param_spec_pointer ("seq",
@@ -382,13 +382,13 @@ meta_startup_notification_sequence_x11_class_init (MetaStartupNotificationSequen
                                      seq_x11_props);
 }
 
-static MetaStartupNotificationSequence *
-meta_startup_notification_sequence_x11_new (SnStartupSequence *seq)
+static MetaStartupSequence *
+meta_startup_sequence_x11_new (SnStartupSequence *seq)
 {
   gint64 timestamp;
 
   timestamp = sn_startup_sequence_get_timestamp (seq) * 1000;
-  return g_object_new (META_TYPE_STARTUP_NOTIFICATION_SEQUENCE_X11,
+  return g_object_new (META_TYPE_STARTUP_SEQUENCE_X11,
                        "id", sn_startup_sequence_get_id (seq),
                        "timestamp", timestamp,
                        "seq", seq,
@@ -396,8 +396,8 @@ meta_startup_notification_sequence_x11_new (SnStartupSequence *seq)
 }
 
 static void
-meta_startup_notification_add_sequence_internal (MetaStartupNotification         *sn,
-                                                 MetaStartupNotificationSequence *seq)
+meta_startup_notification_add_sequence_internal (MetaStartupNotification *sn,
+                                                 MetaStartupSequence     *seq)
 {
   sn->startup_sequences = g_slist_prepend (sn->startup_sequences,
                                            g_object_ref (seq));
@@ -410,17 +410,17 @@ static void
 collect_timed_out_foreach (void *element,
                            void *data)
 {
-  MetaStartupNotificationSequence *sequence = element;
+  MetaStartupSequence *sequence = element;
   CollectTimedOutData *ctod = data;
   gint64 elapsed, timestamp;
 
-  timestamp = meta_startup_notification_sequence_get_timestamp (sequence);
+  timestamp = meta_startup_sequence_get_timestamp (sequence);
   elapsed = ctod->now - timestamp;
 
   meta_topic (META_DEBUG_STARTUP,
               "Sequence used %" G_GINT64_FORMAT " ms vs. %d max: %s\n",
               elapsed, STARTUP_TIMEOUT,
-              meta_startup_notification_sequence_get_id (sequence));
+              meta_startup_sequence_get_id (sequence));
 
   if (elapsed > STARTUP_TIMEOUT)
     ctod->list = g_slist_prepend (ctod->list, sequence);
@@ -441,13 +441,13 @@ startup_sequence_timeout (void *data)
 
   for (l = ctod.list; l != NULL; l = l->next)
     {
-      MetaStartupNotificationSequence *sequence = l->data;
+      MetaStartupSequence *sequence = l->data;
 
       meta_topic (META_DEBUG_STARTUP,
                   "Timed out sequence %s\n",
-                  meta_startup_notification_sequence_get_id (sequence));
+                  meta_startup_sequence_get_id (sequence));
 
-      meta_startup_notification_sequence_complete (sequence);
+      meta_startup_sequence_complete (sequence);
     }
 
   g_slist_free (ctod.list);
@@ -482,8 +482,8 @@ meta_startup_notification_ensure_timeout (MetaStartupNotification *sn)
 #endif
 
 static void
-meta_startup_notification_remove_sequence_internal (MetaStartupNotification         *sn,
-                                                    MetaStartupNotificationSequence *seq)
+meta_startup_notification_remove_sequence_internal (MetaStartupNotification *sn,
+                                                    MetaStartupSequence     *seq)
 {
   sn->startup_sequences = g_slist_remove (sn->startup_sequences, seq);
   meta_startup_notification_update_feedback (sn);
@@ -498,18 +498,18 @@ meta_startup_notification_remove_sequence_internal (MetaStartupNotification     
   g_object_unref (seq);
 }
 
-static MetaStartupNotificationSequence *
+static MetaStartupSequence *
 meta_startup_notification_lookup_sequence (MetaStartupNotification *sn,
                                            const gchar             *id)
 {
-  MetaStartupNotificationSequence *seq;
+  MetaStartupSequence *seq;
   const gchar *seq_id;
   GSList *l;
 
   for (l = sn->startup_sequences; l; l = l->next)
     {
       seq = l->data;
-      seq_id = meta_startup_notification_sequence_get_id (seq);
+      seq_id = meta_startup_sequence_get_id (seq);
 
       if (g_str_equal (seq_id, id))
         return l->data;
@@ -602,7 +602,7 @@ meta_startup_notification_sn_event (SnMonitorEvent *event,
                                     void           *user_data)
 {
   MetaStartupNotification *sn = user_data;
-  MetaStartupNotificationSequence *seq;
+  MetaStartupSequence *seq;
   SnStartupSequence *sequence;
 
   sequence = sn_monitor_event_get_startup_sequence (event);
@@ -622,7 +622,7 @@ meta_startup_notification_sn_event (SnMonitorEvent *event,
                     sn_startup_sequence_get_id (sequence),
                     wmclass ? wmclass : "(unset)");
 
-        seq = meta_startup_notification_sequence_x11_new (sequence);
+        seq = meta_startup_sequence_x11_new (sequence);
         meta_startup_notification_add_sequence_internal (sn, seq);
         g_object_unref (seq);
       }
@@ -757,7 +757,7 @@ void
 meta_startup_notification_remove_sequence (MetaStartupNotification *sn,
                                            const gchar             *id)
 {
-  MetaStartupNotificationSequence *seq;
+  MetaStartupSequence *seq;
 
   seq = meta_startup_notification_lookup_sequence (sn, id);
   if (seq)
@@ -787,12 +787,12 @@ meta_startup_notification_get_sequences (MetaStartupNotification *sn)
   /* We return a list of SnStartupSequences here */
   for (l = sn->startup_sequences; l; l = l->next)
     {
-      MetaStartupNotificationSequenceX11 *seq_x11;
+      MetaStartupSequenceX11 *seq_x11;
 
-      if (!META_IS_STARTUP_NOTIFICATION_SEQUENCE_X11 (l->data))
+      if (!META_IS_STARTUP_SEQUENCE_X11 (l->data))
         continue;
 
-      seq_x11 = META_STARTUP_NOTIFICATION_SEQUENCE_X11 (l->data);
+      seq_x11 = META_STARTUP_SEQUENCE_X11 (l->data);
       sequences = g_slist_prepend (sequences, seq_x11->seq);
     }
 #endif
