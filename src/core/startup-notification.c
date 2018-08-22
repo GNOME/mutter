@@ -47,6 +47,11 @@ enum {
   PROP_SEQ_0,
   PROP_SEQ_ID,
   PROP_SEQ_TIMESTAMP,
+  PROP_SEQ_ICON_NAME,
+  PROP_SEQ_APPLICATION_ID,
+  PROP_SEQ_WMCLASS,
+  PROP_SEQ_WORKSPACE,
+  PROP_SEQ_NAME,
   N_SEQ_PROPS
 };
 
@@ -76,8 +81,13 @@ struct _MetaStartupNotification
 };
 
 typedef struct {
-  gchar *id;
-  gint64 timestamp;
+  char *wmclass;
+  char *name;
+  char *application_id;
+  char *icon_name;
+  char *id;
+  uint64_t timestamp;
+  int workspace;
 } MetaStartupSequencePrivate;
 
 G_DEFINE_TYPE (MetaStartupNotification,
@@ -123,6 +133,10 @@ meta_startup_sequence_finalize (GObject *object)
   seq = META_STARTUP_SEQUENCE (object);
   priv = meta_startup_sequence_get_instance_private (seq);
   g_free (priv->id);
+  g_free (priv->wmclass);
+  g_free (priv->name);
+  g_free (priv->application_id);
+  g_free (priv->icon_name);
 
   G_OBJECT_CLASS (meta_startup_sequence_parent_class)->finalize (object);
 }
@@ -145,7 +159,22 @@ meta_startup_sequence_set_property (GObject      *object,
       priv->id = g_value_dup_string (value);
       break;
     case PROP_SEQ_TIMESTAMP:
-      priv->timestamp = g_value_get_int64 (value);
+      priv->timestamp = g_value_get_uint64 (value);
+      break;
+    case PROP_SEQ_ICON_NAME:
+      priv->icon_name = g_value_dup_string (value);
+      break;
+    case PROP_SEQ_APPLICATION_ID:
+      priv->application_id = g_value_dup_string (value);
+      break;
+    case PROP_SEQ_WMCLASS:
+      priv->wmclass = g_value_dup_string (value);
+      break;
+    case PROP_SEQ_WORKSPACE:
+      priv->workspace = g_value_get_int (value);
+      break;
+    case PROP_SEQ_NAME:
+      priv->name = g_value_dup_string (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -171,7 +200,22 @@ meta_startup_sequence_get_property (GObject    *object,
       g_value_set_string (value, priv->id);
       break;
     case PROP_SEQ_TIMESTAMP:
-      g_value_set_int64 (value, priv->timestamp);
+      g_value_set_uint64 (value, priv->timestamp);
+      break;
+    case PROP_SEQ_ICON_NAME:
+      g_value_set_string (value, priv->icon_name);
+      break;
+    case PROP_SEQ_APPLICATION_ID:
+      g_value_set_string (value, priv->application_id);
+      break;
+    case PROP_SEQ_WMCLASS:
+      g_value_set_string (value, priv->wmclass);
+      break;
+    case PROP_SEQ_WORKSPACE:
+      g_value_set_int (value, priv->workspace);
+      break;
+    case PROP_SEQ_NAME:
+      g_value_set_string (value, priv->name);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -197,12 +241,47 @@ meta_startup_sequence_class_init (MetaStartupSequenceClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY);
   seq_props[PROP_SEQ_TIMESTAMP] =
-    g_param_spec_int64 ("timestamp",
-                        "Timestamp",
-                        "Timestamp",
-                        G_MININT64, G_MAXINT64, 0,
-                        G_PARAM_READWRITE |
-                        G_PARAM_CONSTRUCT_ONLY);
+    g_param_spec_uint64 ("timestamp",
+                         "Timestamp",
+                         "Timestamp",
+                         0, G_MAXUINT64, 0,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY);
+  seq_props[PROP_SEQ_ICON_NAME] =
+    g_param_spec_string ("icon-name",
+                         "Icon name",
+                         "Icon name",
+                         NULL,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY);
+  seq_props[PROP_SEQ_APPLICATION_ID] =
+    g_param_spec_string ("application-id",
+                         "Application ID",
+                         "Application ID",
+                         NULL,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY);
+  seq_props[PROP_SEQ_WMCLASS] =
+    g_param_spec_string ("wmclass",
+                         "WM class",
+                         "WM class",
+                         NULL,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY);
+  seq_props[PROP_SEQ_WORKSPACE] =
+    g_param_spec_int ("workspace",
+                      "Workspace",
+                      "Workspace",
+                      G_MININT, G_MAXINT, -1,
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT_ONLY);
+  seq_props[PROP_SEQ_NAME] =
+    g_param_spec_string ("name",
+                         "Name",
+                         "Name",
+                         NULL,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (object_class, N_SEQ_PROPS, seq_props);
 }
