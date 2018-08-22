@@ -49,7 +49,7 @@ G_DECLARE_DERIVABLE_TYPE (MetaStartupSequence,
                           GObject)
 
 MetaStartupNotification *
-         meta_startup_notification_get             (MetaDisplay             *display);
+         meta_startup_notification_new             (MetaDisplay             *display);
 
 gboolean meta_startup_notification_handle_xevent   (MetaStartupNotification *sn,
                                                     XEvent                  *xevent);

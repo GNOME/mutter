@@ -538,16 +538,11 @@ meta_startup_notification_class_init (MetaStartupNotificationClass *klass)
 }
 
 MetaStartupNotification *
-meta_startup_notification_get (MetaDisplay *display)
+meta_startup_notification_new (MetaDisplay *display)
 {
-  static MetaStartupNotification *notification = NULL;
-
-  if (!notification)
-    notification = g_object_new (META_TYPE_STARTUP_NOTIFICATION,
-                                 "display", display,
-                                 NULL);
-
-  return notification;
+  return g_object_new (META_TYPE_STARTUP_NOTIFICATION,
+                       "display", display,
+                       NULL);
 }
 
 GSList *
