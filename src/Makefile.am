@@ -340,6 +340,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	meta/meta-x11-display.h			\
 	x11/meta-x11-errors.c			\
 	meta/meta-x11-errors.h			\
+	x11/meta-startup-notification-x11.c	\
+	x11/meta-startup-notification-x11.h	\
 	x11/events.c				\
 	x11/events.h				\
 	x11/group-private.h			\

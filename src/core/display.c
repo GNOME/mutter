@@ -75,6 +75,7 @@
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/meta-startup-notification-x11.h"
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-xwayland-private.h"
@@ -630,10 +631,34 @@ on_startup_notification_changed (MetaStartupNotification *sn,
                                  gpointer                 sequence,
                                  MetaDisplay             *display)
 {
+  GSList *sequences, *l;
+  SnStartupSequence *seq;
+
   g_slist_free (display->startup_sequences);
-  display->startup_sequences =
+  display->startup_sequences = NULL;
+
+  sequences =
     meta_startup_notification_get_sequences (display->startup_notification);
-  g_signal_emit_by_name (display, "startup-sequence-changed", sequence);
+
+  for (l = sequences; l; l = l->next)
+    {
+      if (!META_IS_STARTUP_SEQUENCE_X11 (l->data))
+        continue;
+
+      g_object_get (G_OBJECT (l->data),
+                    "seq", &seq,
+                    NULL);
+      display->startup_sequences = g_slist_prepend (display->startup_sequences,
+                                                    seq);
+    }
+
+  if (META_IS_STARTUP_SEQUENCE_X11 (sequence))
+    {
+      g_object_get (G_OBJECT (sequence),
+                    "seq", &seq,
+                    NULL);
+      g_signal_emit_by_name (display, "startup-sequence-changed", seq);
+    }
 }
 
 static void
