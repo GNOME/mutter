@@ -149,8 +149,8 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
   clutter_actor_set_scale (CLUTTER_ACTOR (stex), actor_scale, actor_scale);
 
   surface_rect = (cairo_rectangle_int_t) {
-    .width = meta_wayland_surface_get_width (surface),
-    .height = meta_wayland_surface_get_height (surface),
+    .width = meta_wayland_surface_get_width (surface) * surface->scale,
+    .height = meta_wayland_surface_get_height (surface) * surface->scale,
   };
 
   if (surface->input_region)
