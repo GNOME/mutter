@@ -61,6 +61,7 @@
 #include "backends/native/meta-monitor-manager-kms.h"
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-renderer-native-gles3.h"
+#include "meta-marshal.h"
 #include "cogl/cogl.h"
 #include "core/boxes-private.h"
 
@@ -1155,6 +1156,8 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
 static void
 on_crtc_flipped (GClosure         *closure,
                  MetaGpuKms       *gpu_kms,
+                 MetaCrtc         *crtc,
+                 int64_t           page_flip_time_ns,
                  MetaRendererView *view)
 {
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
@@ -1166,11 +1169,9 @@ on_crtc_flipped (GClosure         *closure,
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   CoglFrameInfo *frame_info;
-  MetaCrtc *crtc;
   float refresh_rate;
 
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
-  crtc = meta_gpu_kms_get_last_flip_crtc (gpu_kms);
   refresh_rate = crtc && crtc->current_mode ?
                  crtc->current_mode->refresh_rate :
                  0.0f;
@@ -1182,8 +1183,7 @@ on_crtc_flipped (GClosure         *closure,
    */
   if (refresh_rate >= frame_info->refresh_rate)
     {
-      frame_info->presentation_time =
-        meta_gpu_kms_get_last_flip_time_ns (gpu_kms);
+      frame_info->presentation_time = page_flip_time_ns;
       frame_info->refresh_rate = refresh_rate;
     }
 
@@ -1561,7 +1561,8 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   flip_closure = g_cclosure_new (G_CALLBACK (on_crtc_flipped),
                                  g_object_ref (view),
                                  (GClosureNotify) flip_closure_destroyed);
-  g_closure_set_marshal (flip_closure, g_cclosure_marshal_VOID__OBJECT);
+  g_closure_set_marshal (flip_closure,
+                         g_cclosure_user_marshal_VOID__OBJECT_OBJECT_INT64);
 
   /* Either flip the CRTC's of the monitor info, if we are drawing just part
    * of the stage, or all of the CRTC's if we are drawing the whole stage.

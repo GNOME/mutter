@@ -64,8 +64,6 @@ struct _MetaGpuKms
   GSource *source;
 
   clockid_t clock_id;
-  int64_t last_flip_time_ns;  /* nanoseconds relative to clock_id */
-  MetaCrtc *last_flip_crtc;
 
   drmModeConnector **connectors;
   unsigned int n_connectors;
@@ -171,18 +169,26 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms *gpu_kms,
 
 static void
 invoke_flip_closure (GClosure   *flip_closure,
-                     MetaGpuKms *gpu_kms)
+                     MetaGpuKms *gpu_kms,
+                     MetaCrtc   *crtc,
+                     int64_t     page_flip_time_ns)
 {
   GValue params[] = {
     G_VALUE_INIT,
-    G_VALUE_INIT
+    G_VALUE_INIT,
+    G_VALUE_INIT,
+    G_VALUE_INIT,
   };
 
   g_value_init (&params[0], G_TYPE_POINTER);
   g_value_set_pointer (&params[0], flip_closure);
   g_value_init (&params[1], G_TYPE_OBJECT);
   g_value_set_object (&params[1], gpu_kms);
-  g_closure_invoke (flip_closure, NULL, 2, params, NULL);
+  g_value_init (&params[2], G_TYPE_OBJECT);
+  g_value_set_object (&params[2], crtc);
+  g_value_init (&params[3], G_TYPE_INT64);
+  g_value_set_int64 (&params[3], page_flip_time_ns);
+  g_closure_invoke (flip_closure, NULL, 4, params, NULL);
   g_closure_unref (flip_closure);
 }
 
@@ -334,10 +340,10 @@ page_flip_handler (int           fd,
   MetaGpuKms *gpu_kms = closure_container->gpu_kms;
   struct timeval page_flip_time = {sec, usec};
 
-  gpu_kms->last_flip_time_ns = timeval_to_nanoseconds (&page_flip_time);
-  gpu_kms->last_flip_crtc = closure_container->crtc;
-
-  invoke_flip_closure (flip_closure, gpu_kms);
+  invoke_flip_closure (flip_closure,
+                       gpu_kms,
+                       closure_container->crtc,
+                       timeval_to_nanoseconds (&page_flip_time));
   meta_gpu_kms_flip_closure_container_free (closure_container);
 }
 
@@ -419,18 +425,6 @@ meta_gpu_kms_get_current_time_ns (MetaGpuKms *gpu_kms)
     return 0;
 
   return timespec_to_nanoseconds (&ts);
-}
-
-int64_t
-meta_gpu_kms_get_last_flip_time_ns (MetaGpuKms *gpu_kms)
-{
-  return gpu_kms->last_flip_time_ns;
-}
-
-MetaCrtc *
-meta_gpu_kms_get_last_flip_crtc (MetaGpuKms *gpu_kms)
-{
-  return gpu_kms->last_flip_crtc;
 }
 
 void
