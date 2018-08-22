@@ -27,6 +27,7 @@
 #include <meta/prefs.h>
 #include <meta/common.h>
 #include <meta/workspace.h>
+#include <meta/meta-startup-notification.h>
 
 /**
  * MetaTabList:
@@ -225,5 +226,6 @@ typedef enum
 } MetaDisplayCorner;
 
 MetaWorkspaceManager *meta_display_get_workspace_manager (MetaDisplay *display);
+MetaStartupNotification * meta_display_get_startup_notification (MetaDisplay *display);
 
 #endif
