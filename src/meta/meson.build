@@ -25,6 +25,7 @@ mutter_public_headers = [
   'meta-shadow-factory.h',
   'meta-shaped-texture.h',
   'meta-stage.h',
+  'meta-startup-notification.h',
   'meta-window-actor.h',
   'meta-window-group.h',
   'meta-window-shape.h',
