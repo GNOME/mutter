@@ -25,12 +25,9 @@
 #ifndef META_STARTUP_NOTIFICATION_PRIVATE_H
 #define META_STARTUP_NOTIFICATION_PRIVATE_H
 
+#include <meta/meta-startup-notification.h>
 #include "display-private.h"
 
-#define META_TYPE_STARTUP_NOTIFICATION (meta_startup_notification_get_type ())
-#define META_TYPE_STARTUP_SEQUENCE (meta_startup_sequence_get_type ())
-
-typedef struct _MetaStartupSequence MetaStartupSequence;
 typedef struct _MetaStartupSequenceClass MetaStartupSequenceClass;
 
 struct _MetaStartupSequenceClass
@@ -62,7 +59,5 @@ void     meta_startup_notification_remove_sequence (MetaStartupNotification *sn,
 MetaStartupSequence *
          meta_startup_notification_lookup_sequence (MetaStartupNotification *sn,
                                                     const gchar             *id);
-
-GSList * meta_startup_notification_get_sequences   (MetaStartupNotification *sn);
 
 #endif /* META_STARTUP_NOTIFICATION_PRIVATE_H */
