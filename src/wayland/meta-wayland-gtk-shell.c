@@ -46,6 +46,9 @@ typedef struct _MetaWaylandGtkSurface
 struct _MetaWaylandGtkShell
 {
   GObject parent;
+
+  GList *shell_resources;
+  uint32_t capabilities;
 };
 
 G_DEFINE_TYPE (MetaWaylandGtkShell, meta_wayland_gtk_shell, G_TYPE_OBJECT)
@@ -364,22 +367,31 @@ static const struct gtk_shell1_interface meta_wayland_gtk_shell_interface = {
 };
 
 static void
+gtk_shell_destructor (struct wl_resource *resource)
+{
+  MetaWaylandGtkShell *gtk_shell = wl_resource_get_user_data (resource);
+
+  gtk_shell->shell_resources = g_list_remove (gtk_shell->shell_resources,
+                                              resource);
+}
+
+static void
 bind_gtk_shell (struct wl_client *client,
                 void             *data,
                 guint32           version,
                 guint32           id)
 {
+  MetaWaylandGtkShell *gtk_shell = data;
   struct wl_resource *resource;
-  uint32_t capabilities = 0;
 
   resource = wl_resource_create (client, &gtk_shell1_interface, version, id);
   wl_resource_set_implementation (resource, &meta_wayland_gtk_shell_interface,
-                                  data, NULL);
+                                  data, gtk_shell_destructor);
 
-  if (!meta_prefs_get_show_fallback_app_menu ())
-    capabilities = GTK_SHELL1_CAPABILITY_GLOBAL_APP_MENU;
+  gtk_shell->shell_resources = g_list_prepend (gtk_shell->shell_resources,
+                                               resource);
 
-  gtk_shell1_send_capabilities (resource, capabilities);
+  gtk_shell1_send_capabilities (resource, gtk_shell->capabilities);
 }
 
 static void
@@ -394,6 +406,41 @@ meta_wayland_gtk_shell_class_init (MetaWaylandGtkShellClass *klass)
     g_quark_from_static_string ("-meta-wayland-gtk-shell-surface-data");
 }
 
+static uint32_t
+calculate_capabilities (void)
+{
+  uint32_t capabilities = 0;
+
+  if (!meta_prefs_get_show_fallback_app_menu ())
+    capabilities = GTK_SHELL1_CAPABILITY_GLOBAL_APP_MENU;
+
+  return capabilities;
+}
+
+static void
+prefs_changed (MetaPreference pref,
+               gpointer       user_data)
+{
+  MetaWaylandGtkShell *gtk_shell = user_data;
+  uint32_t new_capabilities;
+  GList *l;
+
+  if (pref != META_PREF_BUTTON_LAYOUT)
+    return;
+
+  new_capabilities = calculate_capabilities ();
+  if (gtk_shell->capabilities == new_capabilities)
+    return;
+  gtk_shell->capabilities = new_capabilities;
+
+  for (l = gtk_shell->shell_resources; l; l = l->next)
+    {
+      struct wl_resource *resource = l->data;
+
+      gtk_shell1_send_capabilities (resource, gtk_shell->capabilities);
+    }
+}
+
 static MetaWaylandGtkShell *
 meta_wayland_gtk_shell_new (MetaWaylandCompositor *compositor)
 {
@@ -406,6 +453,10 @@ meta_wayland_gtk_shell_new (MetaWaylandCompositor *compositor)
                         META_GTK_SHELL1_VERSION,
                         gtk_shell, bind_gtk_shell) == NULL)
     g_error ("Failed to register a global gtk-shell object");
+
+  gtk_shell->capabilities = calculate_capabilities ();
+
+  meta_prefs_add_listener (prefs_changed, gtk_shell);
 
   return gtk_shell;
 }
