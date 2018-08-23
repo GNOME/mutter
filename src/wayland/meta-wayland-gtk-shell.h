@@ -22,6 +22,10 @@
 
 #include "wayland/meta-wayland.h"
 
-void meta_wayland_gtk_shell_init (MetaWaylandCompositor *compositor);
+#define META_TYPE_WAYLAND_GTK_SHELL (meta_wayland_gtk_shell_get_type ())
+G_DECLARE_FINAL_TYPE (MetaWaylandGtkShell, meta_wayland_gtk_shell,
+                      META, WAYLAND_GTK_SHELL, GObject)
+
+void meta_wayland_init_gtk_shell (MetaWaylandCompositor *compositor);
 
 #endif /* META_WAYLAND_GTK_SHELL_H */
