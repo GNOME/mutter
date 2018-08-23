@@ -48,13 +48,17 @@
 #include "wayland/meta-xwayland-private.h"
 #include "wayland/meta-xwayland.h"
 
-static MetaWaylandCompositor _meta_wayland_compositor;
+static MetaWaylandCompositor *_meta_wayland_compositor;
 static char *_display_name_override;
+
+G_DEFINE_TYPE (MetaWaylandCompositor, meta_wayland_compositor, G_TYPE_OBJECT)
 
 MetaWaylandCompositor *
 meta_wayland_compositor_get_default (void)
 {
-  return &_meta_wayland_compositor;
+  g_assert (_meta_wayland_compositor);
+
+  return _meta_wayland_compositor;
 }
 
 typedef struct
@@ -305,26 +309,31 @@ meta_wayland_log_func (const char *fmt,
 static void
 meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
 {
-  memset (compositor, 0, sizeof (MetaWaylandCompositor));
   wl_list_init (&compositor->frame_callbacks);
 
   compositor->scheduled_surface_associations = g_hash_table_new (NULL, NULL);
-}
-
-void
-meta_wayland_pre_clutter_init (void)
-{
-  MetaWaylandCompositor *compositor = &_meta_wayland_compositor;
-
-  meta_wayland_compositor_init (compositor);
 
   wl_log_set_handler_server (meta_wayland_log_func);
 
   compositor->wayland_display = wl_display_create ();
   if (compositor->wayland_display == NULL)
     g_error ("Failed to create the global wl_display");
+}
 
+static void
+meta_wayland_compositor_class_init (MetaWaylandCompositorClass *klass)
+{
+}
+
+void
+meta_wayland_pre_clutter_init (void)
+{
+  MetaWaylandCompositor *compositor;
+
+  compositor = g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
   clutter_wayland_set_compositor_display (compositor->wayland_display);
+
+  _meta_wayland_compositor = compositor;
 }
 
 static bool
