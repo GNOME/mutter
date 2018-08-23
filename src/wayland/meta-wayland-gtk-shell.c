@@ -43,6 +43,13 @@ typedef struct _MetaWaylandGtkSurface
   gulong configure_handler_id;
 } MetaWaylandGtkSurface;
 
+struct _MetaWaylandGtkShell
+{
+  GObject parent;
+};
+
+G_DEFINE_TYPE (MetaWaylandGtkShell, meta_wayland_gtk_shell, G_TYPE_OBJECT)
+
 static void
 gtk_surface_destructor (struct wl_resource *resource)
 {
@@ -368,15 +375,38 @@ bind_gtk_shell (struct wl_client *client,
   gtk_shell1_send_capabilities (resource, capabilities);
 }
 
-void
-meta_wayland_gtk_shell_init (MetaWaylandCompositor *compositor)
+static void
+meta_wayland_gtk_shell_init (MetaWaylandGtkShell *gtk_shell)
+{
+}
+
+static void
+meta_wayland_gtk_shell_class_init (MetaWaylandGtkShellClass *klass)
 {
   quark_gtk_surface_data =
     g_quark_from_static_string ("-meta-wayland-gtk-shell-surface-data");
+}
+
+static MetaWaylandGtkShell *
+meta_wayland_gtk_shell_new (MetaWaylandCompositor *compositor)
+{
+  MetaWaylandGtkShell *gtk_shell;
+
+  gtk_shell = g_object_new (META_TYPE_GTK_SHELL, NULL);
 
   if (wl_global_create (compositor->wayland_display,
                         &gtk_shell1_interface,
                         META_GTK_SHELL1_VERSION,
-                        compositor, bind_gtk_shell) == NULL)
+                        gtk_shell, bind_gtk_shell) == NULL)
     g_error ("Failed to register a global gtk-shell object");
+
+  return gtk_shell;
+}
+
+void
+meta_wayland_init_gtk_shell (MetaWaylandCompositor *compositor)
+{
+  g_object_set_data_full (G_OBJECT (compositor), "-meta-wayland-gtk-shell",
+                          meta_wayland_gtk_shell_new (compositor),
+                          g_object_unref);
 }

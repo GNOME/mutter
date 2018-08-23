@@ -1285,7 +1285,7 @@ meta_wayland_shell_init (MetaWaylandCompositor *compositor)
   meta_wayland_xdg_shell_init (compositor);
   meta_wayland_legacy_xdg_shell_init (compositor);
   meta_wayland_wl_shell_init (compositor);
-  meta_wayland_gtk_shell_init (compositor);
+  meta_wayland_init_gtk_shell (compositor);
 }
 
 void
