@@ -17537,7 +17537,11 @@ _clutter_actor_get_paint_volume_mutable (ClutterActor *self)
 
   if (priv->paint_volume_valid)
     {
-      if (!priv->needs_paint_volume_update)
+      /* If effects are applied, the actor paint volume
+       * needs to be recomputed on each paint, since those
+       * paint volumes could change over the duration of the
+       * effect. */
+      if (!priv->needs_paint_volume_update && !clutter_actor_has_effects (self))
         return &priv->paint_volume;
       clutter_paint_volume_free (&priv->paint_volume);
     }
