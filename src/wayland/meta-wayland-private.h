@@ -63,6 +63,8 @@ typedef struct
 
 struct _MetaWaylandCompositor
 {
+  GObject parent;
+
   struct wl_display *wayland_display;
   char *display_name;
   GHashTable *outputs;
@@ -75,5 +77,9 @@ struct _MetaWaylandCompositor
 
   GHashTable *scheduled_surface_associations;
 };
+
+#define META_TYPE_WAYLAND_COMPOSITOR meta_wayland_compositor_get_type ()
+G_DECLARE_FINAL_TYPE (MetaWaylandCompositor, meta_wayland_compositor,
+                      META, WAYLAND_COMPOSITOR, GObject)
 
 #endif /* META_WAYLAND_PRIVATE_H */
