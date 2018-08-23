@@ -223,7 +223,10 @@ meta_startup_notification_sn_event (SnMonitorEvent *event,
 
         seq = meta_startup_notification_lookup_sequence (sn, sn_startup_sequence_get_id (sequence));
         if (seq)
-          meta_startup_notification_remove_sequence (sn, seq);
+          {
+            meta_startup_sequence_complete (seq);
+            meta_startup_notification_remove_sequence (sn, seq);
+          }
       }
       break;
 
