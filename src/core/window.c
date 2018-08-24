@@ -3803,7 +3803,7 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
   if (window->override_redirect || window->type == META_WINDOW_DESKTOP)
     {
       meta_window_update_monitor (window,
-                                  META_WINDOW_UPDATE_MONITOR_FLAGS_NONE);
+                                  META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE);
       return;
     }
 
@@ -3839,7 +3839,7 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
   else
     {
       meta_window_update_monitor (window,
-                                  META_WINDOW_UPDATE_MONITOR_FLAGS_NONE);
+                                  META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE);
     }
 }
 

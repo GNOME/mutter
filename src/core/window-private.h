@@ -125,6 +125,7 @@ typedef enum _MetaWindowUpdateMonitorFlags
 {
   META_WINDOW_UPDATE_MONITOR_FLAGS_NONE = 0,
   META_WINDOW_UPDATE_MONITOR_FLAGS_USER_OP = 1 << 0,
+  META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE = 1 << 1,
 } MetaWindowUpdateMonitorFlags;
 
 typedef struct _MetaPlacementRule
