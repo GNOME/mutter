@@ -189,7 +189,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
 
       /* Wayland surface coordinate space -> stage coordinate space */
       scaled_opaque_region = meta_region_scale (surface->opaque_region,
-                                                surface->scale);
+                                                geometry_scale);
       cairo_region_intersect_rectangle (scaled_opaque_region, &surface_rect);
       meta_surface_actor_set_opaque_region (surface_actor,
                                             scaled_opaque_region);
