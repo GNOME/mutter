@@ -203,6 +203,7 @@ struct _MetaKeyGrab {
   char *name;
   guint action;
   MetaKeyCombo combo;
+  gint flags;
 };
 
 static void
@@ -834,7 +835,7 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
           b = g_slice_new0 (MetaKeyBinding);
           b->name = grab->name;
           b->handler = handler;
-          b->flags = handler->flags;
+          b->flags = grab->flags;
           b->combo = grab->combo;
 
           g_hash_table_add (keys->key_bindings, b);
@@ -1629,6 +1630,7 @@ meta_display_grab_accelerator (MetaDisplay         *display,
   grab->action = next_dynamic_keybinding_action ();
   grab->name = meta_external_binding_name_for_action (grab->action);
   grab->combo = combo;
+  grab->flags = flags;
 
   g_hash_table_insert (external_grabs, grab->name, grab);
 
