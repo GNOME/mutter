@@ -1501,8 +1501,8 @@ meta_window_x11_update_icon (MetaWindow       *window,
 }
 
 static void
-meta_window_x11_update_main_monitor (MetaWindow *window,
-                                     gboolean    user_op)
+meta_window_x11_update_main_monitor (MetaWindow                   *window,
+                                     MetaWindowUpdateMonitorFlags  flags)
 {
   window->monitor = meta_window_calculate_main_logical_monitor (window);
 }
@@ -3339,7 +3339,7 @@ meta_window_x11_configure_notify (MetaWindow      *window,
   priv->client_rect = window->rect;
   window->buffer_rect = window->rect;
 
-  meta_window_update_monitor (window, FALSE);
+  meta_window_update_monitor (window, META_WINDOW_UPDATE_MONITOR_FLAGS_NONE);
 
   /* Whether an override-redirect window is considered fullscreen depends
    * on its geometry.
