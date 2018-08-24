@@ -413,7 +413,7 @@ meta_window_wayland_update_main_monitor (MetaWindow                   *window,
       return;
     }
 
-  if (flags & META_WINDOW_UPDATE_MONITOR_FLAGS_USER_OP)
+  if (flags & META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE)
     {
       window->monitor = to;
       return;
