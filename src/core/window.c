@@ -3804,7 +3804,8 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
 
   if (window->override_redirect || window->type == META_WINDOW_DESKTOP)
     {
-      meta_window_update_monitor (window, FALSE);
+      meta_window_update_monitor (window,
+                                  META_WINDOW_UPDATE_MONITOR_FLAGS_NONE);
       return;
     }
 
@@ -3839,18 +3840,19 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
     }
   else
     {
-      meta_window_update_monitor (window, FALSE);
+      meta_window_update_monitor (window,
+                                  META_WINDOW_UPDATE_MONITOR_FLAGS_NONE);
     }
 }
 
 void
-meta_window_update_monitor (MetaWindow *window,
-                            gboolean    user_op)
+meta_window_update_monitor (MetaWindow                   *window,
+                            MetaWindowUpdateMonitorFlags  flags)
 {
   const MetaLogicalMonitor *old;
 
   old = window->monitor;
-  META_WINDOW_GET_CLASS (window)->update_main_monitor (window, user_op);
+  META_WINDOW_GET_CLASS (window)->update_main_monitor (window, flags);
   if (old != window->monitor)
     {
       meta_window_on_all_workspaces_changed (window);
@@ -3864,7 +3866,8 @@ meta_window_update_monitor (MetaWindow *window,
        * That should be handled by explicitly moving the window before changing the
        * workspace.
        */
-      if (meta_prefs_get_workspaces_only_on_primary () && user_op &&
+      if (meta_prefs_get_workspaces_only_on_primary () &&
+          flags & META_WINDOW_UPDATE_MONITOR_FLAGS_USER_OP &&
           meta_window_is_on_primary_monitor (window)  &&
           window->screen->active_workspace != window->workspace)
         meta_window_change_workspace (window, window->screen->active_workspace);
@@ -3907,6 +3910,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
   MetaRectangle constrained_rect;
   MetaMoveResizeResultFlags result = 0;
   gboolean moved_or_resized = FALSE;
+  MetaWindowUpdateMonitorFlags update_monitor_flags;
 
   g_return_if_fail (!window->override_redirect);
 
@@ -4007,13 +4011,17 @@ meta_window_move_resize_internal (MetaWindow          *window,
                                             did_placement);
     }
 
+  update_monitor_flags = META_WINDOW_UPDATE_MONITOR_FLAGS_NONE;
+  if (flags & META_MOVE_RESIZE_USER_ACTION)
+    update_monitor_flags |= META_WINDOW_UPDATE_MONITOR_FLAGS_USER_OP;
+
   if (window->monitor)
     {
       guint old_output_winsys_id;
 
       old_output_winsys_id = window->monitor->winsys_id;
 
-      meta_window_update_monitor (window, flags & META_MOVE_RESIZE_USER_ACTION);
+      meta_window_update_monitor (window, update_monitor_flags);
 
       if (old_output_winsys_id != window->monitor->winsys_id &&
           flags & META_MOVE_RESIZE_MOVE_ACTION && flags & META_MOVE_RESIZE_USER_ACTION)
@@ -4021,7 +4029,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
     }
   else
     {
-      meta_window_update_monitor (window, flags & META_MOVE_RESIZE_USER_ACTION);
+      meta_window_update_monitor (window, update_monitor_flags);
     }
 
   if ((result & META_MOVE_RESIZE_RESULT_FRAME_SHAPE_CHANGED) && window->frame_bounds)
