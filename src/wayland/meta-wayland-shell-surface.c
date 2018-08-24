@@ -83,7 +83,7 @@ meta_wayland_shell_surface_set_window (MetaWaylandShellSurface *shell_surface,
     meta_wayland_surface_role_get_surface (surface_role);
 
   meta_wayland_surface_set_window (surface, window);
-  meta_window_update_monitor (window, FALSE);
+  meta_window_update_monitor (window, META_WINDOW_UPDATE_MONITOR_FLAGS_NONE);
 }
 
 void
