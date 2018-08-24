@@ -159,6 +159,12 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
   int pending_flips;
 } MetaOnscreenNativeSecondaryGpuState;
 
+typedef struct _ConcurrentFlip
+{
+  MetaRendererView *view;
+  int pending_crtcs_count;
+} ConcurrentFlip;
+
 typedef struct _MetaOnscreenNative
 {
   MetaRendererNative *renderer_native;
@@ -193,7 +199,7 @@ typedef struct _MetaOnscreenNative
   GSource *retry_page_flips_source;
 
   MetaRendererView *view;
-  int total_pending_flips;
+  ConcurrentFlip *last_flip;
 } MetaOnscreenNative;
 
 struct _MetaRendererNative
@@ -1292,12 +1298,13 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
 }
 
 static void
-on_crtc_flipped (GClosure         *closure,
-                 MetaGpuKms       *gpu_kms,
-                 MetaCrtc         *crtc,
-                 int64_t           page_flip_time_ns,
-                 MetaRendererView *view)
+on_crtc_flipped (GClosure       *closure,
+                 MetaGpuKms     *gpu_kms,
+                 MetaCrtc       *crtc,
+                 int64_t         page_flip_time_ns,
+                 ConcurrentFlip *flip)
 {
+  MetaRendererView *view = flip->view;
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
   CoglFramebuffer *framebuffer =
     clutter_stage_view_get_onscreen (stage_view);
@@ -1333,8 +1340,8 @@ on_crtc_flipped (GClosure         *closure,
       secondary_gpu_state->pending_flips--;
     }
 
-  onscreen_native->total_pending_flips--;
-  if (onscreen_native->total_pending_flips == 0)
+  flip->pending_crtcs_count--;
+  if (flip->pending_crtcs_count == 0)
     {
       MetaRendererNativeGpuData *renderer_gpu_data;
 
@@ -1376,8 +1383,9 @@ free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
 }
 
 static void
-flip_closure_destroyed (MetaRendererView *view)
+flip_closure_destroyed (ConcurrentFlip *flip)
 {
+  MetaRendererView *view = flip->view;
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
   CoglFramebuffer *framebuffer =
     clutter_stage_view_get_onscreen (stage_view);
@@ -1412,7 +1420,11 @@ flip_closure_destroyed (MetaRendererView *view)
       onscreen_native->pending_queue_swap_notify = FALSE;
     }
 
-  g_object_unref (view);
+  if (onscreen_native->last_flip == flip)
+    onscreen_native->last_flip = NULL;
+
+  g_object_unref (flip->view);
+  g_free (flip);
 }
 
 #ifdef HAVE_EGL_DEVICE
@@ -1552,7 +1564,7 @@ retry_page_flips (gpointer user_data)
               secondary_gpu_state->pending_flips--;
             }
 
-          onscreen_native->total_pending_flips--;
+          onscreen_native->last_flip->pending_crtcs_count--;
         }
 
       retry_page_flip_data_free (retry_page_flip_data);
@@ -1712,7 +1724,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen  *onscreen,
             }
         }
 
-      onscreen_native->total_pending_flips++;
+      onscreen_native->last_flip->pending_crtcs_count++;
       if (secondary_gpu_state)
         secondary_gpu_state->pending_flips++;
 
@@ -1721,7 +1733,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen  *onscreen,
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       if (flip_egl_stream (onscreen_native,
                            flip_closure))
-        onscreen_native->total_pending_flips++;
+        onscreen_native->last_flip->pending_crtcs_count++;
       break;
 #endif
     }
@@ -1918,6 +1930,11 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   MetaRendererView *view = onscreen_native->view;
   GClosure *flip_closure;
   MetaLogicalMonitor *logical_monitor;
+  ConcurrentFlip *flip;
+
+  flip = g_new0 (ConcurrentFlip, 1);
+  flip->view = g_object_ref (view);
+  onscreen_native->last_flip = flip;
 
   /*
    * Create a closure that either will be invoked or destructed.
@@ -1930,7 +1947,7 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
    * closure will be destructed before this function goes out of scope.
    */
   flip_closure = g_cclosure_new (G_CALLBACK (on_crtc_flipped),
-                                 g_object_ref (view),
+                                 flip,
                                  (GClosureNotify) flip_closure_destroyed);
   g_closure_set_marshal (flip_closure, meta_marshal_VOID__OBJECT_OBJECT_INT64);
 
@@ -1974,7 +1991,8 @@ wait_for_pending_flips (CoglOnscreen *onscreen)
         meta_gpu_kms_wait_for_flip (secondary_gpu_state->gpu_kms, NULL);
     }
 
-  while (onscreen_native->total_pending_flips)
+  while (onscreen_native->last_flip &&
+         onscreen_native->last_flip->pending_crtcs_count > 0)
     meta_gpu_kms_wait_for_flip (onscreen_native->render_gpu, NULL);
 }
 
