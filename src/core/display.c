@@ -3082,6 +3082,33 @@ meta_display_hide_tile_preview (MetaDisplay *display)
   meta_compositor_hide_tile_preview (display->compositor);
 }
 
+static MetaStartupSequence *
+find_startup_sequence_by_wmclass (MetaDisplay *display,
+                                  MetaWindow  *window)
+{
+  GSList *startup_sequences, *l;
+
+  startup_sequences =
+    meta_startup_notification_get_sequences (display->startup_notification);
+
+  for (l = startup_sequences; l; l = l->next)
+    {
+      MetaStartupSequence *sequence = l->data;
+      const char *wmclass;
+
+      wmclass = meta_startup_sequence_get_wmclass (sequence);
+
+      if (wmclass != NULL &&
+          ((window->res_class &&
+            strcmp (wmclass, window->res_class) == 0) ||
+           (window->res_name &&
+            strcmp (wmclass, window->res_name) == 0)))
+        return sequence;
+    }
+
+  return NULL;
+}
+
 /* Sets the initial_timestamp and initial_workspace properties
  * of a window according to information given us by the
  * startup-notification library.
@@ -3095,8 +3122,7 @@ meta_display_apply_startup_properties (MetaDisplay *display,
                                        MetaWindow  *window)
 {
   const char *startup_id;
-  GSList *startup_sequences, *l;
-  MetaStartupSequence *sequence;
+  MetaStartupSequence *sequence = NULL;
 
   /* Does the window have a startup ID stored? */
   startup_id = meta_window_get_startup_id (window);
@@ -3106,42 +3132,26 @@ meta_display_apply_startup_properties (MetaDisplay *display,
               window->desc,
               startup_id ? startup_id : "(none)");
 
-  startup_sequences =
-    meta_startup_notification_get_sequences (display->startup_notification);
-  sequence = NULL;
   if (!startup_id)
     {
       /* No startup ID stored for the window. Let's ask the
        * startup-notification library whether there's anything
        * stored for the resource name or resource class hints.
        */
-      for (l = startup_sequences; l; l = l->next)
+      sequence = find_startup_sequence_by_wmclass (display, window);
+
+      if (sequence)
         {
-          const char *wmclass;
-          MetaStartupSequence *seq = l->data;
+          g_assert (window->startup_id == NULL);
+          window->startup_id = g_strdup (meta_startup_sequence_get_id (sequence));
+          startup_id = window->startup_id;
 
-          wmclass = meta_startup_sequence_get_wmclass (seq);
+          meta_topic (META_DEBUG_STARTUP,
+                      "Ending legacy sequence %s due to window %s\n",
+                      meta_startup_sequence_get_id (sequence),
+                      window->desc);
 
-          if (wmclass != NULL &&
-              ((window->res_class &&
-                strcmp (wmclass, window->res_class) == 0) ||
-               (window->res_name &&
-                strcmp (wmclass, window->res_name) == 0)))
-            {
-              sequence = seq;
-
-              g_assert (window->startup_id == NULL);
-              window->startup_id = g_strdup (meta_startup_sequence_get_id (sequence));
-              startup_id = window->startup_id;
-
-              meta_topic (META_DEBUG_STARTUP,
-                          "Ending legacy sequence %s due to window %s\n",
-                          meta_startup_sequence_get_id (sequence),
-                          window->desc);
-
-              meta_startup_sequence_complete (sequence);
-              break;
-            }
+          meta_startup_sequence_complete (sequence);
         }
     }
 
@@ -3155,19 +3165,9 @@ meta_display_apply_startup_properties (MetaDisplay *display,
    */
   if (sequence == NULL)
     {
-      for (l = startup_sequences; l != NULL; l = l->next)
-        {
-          MetaStartupSequence *seq = l->data;
-          const char *id;
-
-          id = meta_startup_sequence_get_id (seq);
-
-          if (strcmp (id, startup_id) == 0)
-            {
-              sequence = seq;
-              break;
-            }
-        }
+      sequence =
+        meta_startup_notification_lookup_sequence (display->startup_notification,
+                                                   startup_id);
     }
 
   if (sequence != NULL)
