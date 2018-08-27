@@ -624,6 +624,13 @@ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
   MetaRectangle old_geometry;
   gboolean geometry_changed;
 
+  window = surface->window;
+  if (!window)
+    {
+      meta_wayland_surface_cache_pending_frame_callbacks (surface, pending);
+      return;
+    }
+
   if (!surface->buffer_ref.buffer && xdg_surface_priv->first_buffer_attached)
     {
       MetaWaylandActorSurface *actor_surface =
@@ -635,7 +642,6 @@ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
       return;
     }
 
-  window = surface->window;
   old_geometry = xdg_surface_priv->geometry;
 
   surface_role_class =
