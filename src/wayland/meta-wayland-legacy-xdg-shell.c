@@ -598,10 +598,17 @@ meta_wayland_zxdg_toplevel_v6_commit (MetaWaylandSurfaceRole  *surface_role,
   MetaWaylandSurfaceRoleClass *surface_role_class;
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
-  MetaWindow *window = surface->window;
+  MetaWindow *window;
   MetaRectangle window_geometry;
   MetaRectangle old_geometry;
   gboolean geometry_changed;
+
+  window = surface->window;
+  if (!window)
+    {
+      meta_wayland_surface_cache_pending_frame_callbacks (surface, pending);
+      return;
+    }
 
   old_geometry = xdg_surface_priv->geometry;
 
