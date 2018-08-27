@@ -261,6 +261,9 @@ MetaWaylandSurface *meta_wayland_surface_get_toplevel (MetaWaylandSurface *surfa
 
 MetaWindow *        meta_wayland_surface_get_toplevel_window (MetaWaylandSurface *surface);
 
+void                meta_wayland_surface_cache_pending_frame_callbacks (MetaWaylandSurface      *surface,
+                                                                        MetaWaylandPendingState *pending);
+
 void                meta_wayland_surface_queue_pending_frame_callbacks (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_queue_pending_state_frame_callbacks (MetaWaylandSurface      *surface,
