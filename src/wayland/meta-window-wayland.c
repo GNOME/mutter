@@ -392,7 +392,7 @@ meta_window_wayland_update_main_monitor (MetaWindow                   *window,
   toplevel_window = meta_wayland_surface_get_toplevel_window (window->surface);
   if (toplevel_window != window)
     {
-      meta_window_update_monitor (window, flags);
+      meta_window_update_monitor (toplevel_window, flags);
       window->monitor = toplevel_window->monitor;
       return;
     }
