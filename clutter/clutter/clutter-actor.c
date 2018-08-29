@@ -2207,29 +2207,20 @@ _clutter_actor_rerealize (ClutterActor    *self,
     clutter_actor_realize (self); /* realize self and all parents */
 }
 
-/**
- * clutter_actor_pick_box:
- * @self: The #ClutterActor being "pick" painted.
- * @box: A rectangle in the actor's own local coordinates.
- *
- * Logs (does a virtual paint of) a rectangle for picking. Note that @box is
- * in the actor's own local coordinates, so is usually {0,0,width,height}
- * to include the whole actor. That is unless the actor has a shaped input
- * region in which case you may wish to log the (multiple) smaller rectangles
- * that make up the input region.
- */
-void
-clutter_actor_pick_box (ClutterActor          *self,
-                        const ClutterActorBox *box)
+static void
+_clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
+                                             const ClutterActorBox *box,
+                                             ClutterActorBox       *stage_box)
 {
   ClutterActor *stage = _clutter_actor_get_stage_internal (self);
-  ClutterActorBox stage_box = *box;
   CoglMatrix stage_transform, inv_stage_transform;
   CoglMatrix modelview, transform_to_stage;
   gfloat z, w;
 
-  if (!stage || box->x1 == box->x2 || box->y1 == box->y2)
+  if (!stage || box->x1 >= box->x2 || box->y1 >= box->y2)
     return;
+
+  *stage_box = *box;
 
   /* Below is generally equivalent to:
    *
@@ -2249,25 +2240,56 @@ clutter_actor_pick_box (ClutterActor          *self,
   cogl_get_modelview_matrix (&modelview);
   cogl_matrix_multiply (&transform_to_stage, &inv_stage_transform, &modelview);
 
-  /* TODO: To support the general 3D/skewing transformation case this should be
-   *       a quadrilateral and not a box that the pick log contains.
+  /* Cheating slightly here. We're assuming the box is still a rectangle after
+   * transformation so just take two opposing corners. This is a useful
+   * shortcut because:
+   *  (a) it's computationally simpler for pick testing later to handle only
+   *      rectangles and not arbitrarily shaped quadrilaterals; and
+   *  (b) it's computationally much simpler for computing clipping when all
+   *      you have to intersect is rectangles and not quads.
+   *
+   * Conceptually this means we only support 2D transformations now, so 3D
+   * or skewing transformations won't get completely accurate picking results.
+   * Although they should still be usuable since we're taking opposing corners.
+   * And it's a moot point anyway while nobody is attempting to do picking on
+   * 3D-transformed actors.
    */
   z = 0.f;
   w = 1.f;
   cogl_matrix_transform_point (&transform_to_stage,
-                               &stage_box.x1,
-                               &stage_box.y1,
+                               &stage_box->x1,
+                               &stage_box->y1,
                                &z,
                                &w);
 
   z = 0.f;
   w = 1.f;
   cogl_matrix_transform_point (&transform_to_stage,
-                               &stage_box.x2,
-                               &stage_box.y2,
+                               &stage_box->x2,
+                               &stage_box->y2,
                                &z,
                                &w);
+}
 
+/**
+ * clutter_actor_pick_box:
+ * @self: The #ClutterActor being "pick" painted.
+ * @box: A rectangle in the actor's own local coordinates.
+ *
+ * Logs (does a virtual paint of) a rectangle for picking. Note that @box is
+ * in the actor's own local coordinates, so is usually {0,0,width,height}
+ * to include the whole actor. That is unless the actor has a shaped input
+ * region in which case you may wish to log the (multiple) smaller rectangles
+ * that make up the input region.
+ */
+void
+clutter_actor_pick_box (ClutterActor          *self,
+                        const ClutterActorBox *box)
+{
+  ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+  ClutterActorBox stage_box;
+
+  _clutter_actor_transform_local_box_to_stage (self, box, &stage_box);
   _clutter_stage_log_pick (CLUTTER_STAGE (stage), &stage_box, self);
 }
 
@@ -3773,6 +3795,25 @@ clutter_actor_paint_node (ClutterActor     *actor,
   return TRUE;
 }
 
+static void
+_clutter_actor_push_pick_clip (ClutterActor          *self,
+                               const ClutterActorBox *clip)
+{
+  ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+  ClutterActorBox stage_clip;
+
+  _clutter_actor_transform_local_box_to_stage (self, clip, &stage_clip);
+  _clutter_stage_push_pick_clip (CLUTTER_STAGE (stage), &stage_clip);
+}
+
+static void
+_clutter_actor_pop_pick_clip (ClutterActor *self)
+{
+  ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+
+  _clutter_stage_pop_pick_clip (CLUTTER_STAGE (stage));
+}
+
 /**
  * clutter_actor_paint:
  * @self: A #ClutterActor
@@ -3796,6 +3837,7 @@ clutter_actor_paint (ClutterActor *self)
 {
   ClutterActorPrivate *priv;
   ClutterPickMode pick_mode;
+  ClutterActorBox clip;
   gboolean clip_set = FALSE;
   gboolean shader_applied = FALSE;
   ClutterStage *stage;
@@ -3888,24 +3930,37 @@ clutter_actor_paint (ClutterActor *self)
 
   if (priv->has_clip)
     {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
-      cogl_framebuffer_push_rectangle_clip (fb,
-                                            priv->clip.origin.x,
-                                            priv->clip.origin.y,
-                                            priv->clip.origin.x + priv->clip.size.width,
-                                            priv->clip.origin.y + priv->clip.size.height);
+      clip.x1 = priv->clip.origin.x;
+      clip.y1 = priv->clip.origin.y;
+      clip.x2 = priv->clip.origin.x + priv->clip.size.width;
+      clip.y2 = priv->clip.origin.y + priv->clip.size.height;
       clip_set = TRUE;
     }
   else if (priv->clip_to_allocation)
     {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
-      gfloat width, height;
-
-      width  = priv->allocation.x2 - priv->allocation.x1;
-      height = priv->allocation.y2 - priv->allocation.y1;
-
-      cogl_framebuffer_push_rectangle_clip (fb, 0, 0, width, height);
+      clip.x1 = 0.f;
+      clip.y1 = 0.f;
+      clip.x2 = priv->allocation.x2 - priv->allocation.x1;
+      clip.y2 = priv->allocation.y2 - priv->allocation.y1;
       clip_set = TRUE;
+    }
+
+  if (clip_set)
+    {
+      if (pick_mode == CLUTTER_PICK_NONE)
+        {
+          CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
+
+          cogl_framebuffer_push_rectangle_clip (fb,
+                                                clip.x1,
+                                                clip.y1,
+                                                clip.x2,
+                                                clip.y2);
+        }
+      else
+        {
+          _clutter_actor_push_pick_clip (self, &clip);
+        }
     }
 
   if (pick_mode == CLUTTER_PICK_NONE)
@@ -3998,9 +4053,16 @@ done:
 
   if (clip_set)
     {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
+      if (pick_mode == CLUTTER_PICK_NONE)
+        {
+          CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
 
-      cogl_framebuffer_pop_clip (fb);
+          cogl_framebuffer_pop_clip (fb);
+        }
+      else
+        {
+          _clutter_actor_pop_pick_clip (self);
+        }
     }
 
   cogl_pop_matrix ();

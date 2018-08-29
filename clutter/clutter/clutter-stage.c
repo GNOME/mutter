@@ -147,6 +147,7 @@ struct _ClutterStagePrivate
   gint32 timer_n_frames;
 
   GArray         *pick_stack;
+  GArray         *pick_clip_stack;
   gboolean        pick_stack_frozen;
   ClutterPickMode cached_pick_mode;
 
@@ -378,6 +379,7 @@ _clutter_stage_clear_pick_stack (ClutterStage *stage)
 
   _clutter_stage_thaw_pick_stack (stage);
   g_array_set_size (priv->pick_stack, 0);
+  g_array_set_size (priv->pick_clip_stack, 0);
   priv->cached_pick_mode = CLUTTER_PICK_NONE;
 }
 
@@ -388,9 +390,49 @@ _clutter_stage_log_pick (ClutterStage          *stage,
 {
   ClutterStagePrivate *priv = stage->priv;
   PickRecord rec = {*box, actor};
+  int i;
 
   g_assert (!priv->pick_stack_frozen);
+
+  /* If any clipping has been set then we only keep the subset of box that
+   * is within all the clipping rectangles.
+   */
+  for (i = 0; i < priv->pick_clip_stack->len; i++)
+    {
+      ClutterActorBox *clip =
+        &g_array_index (priv->pick_clip_stack, ClutterActorBox, i);
+
+      rec.box.x1 = MAX (rec.box.x1, clip->x1);
+      rec.box.y1 = MAX (rec.box.y1, clip->y1);
+      rec.box.x2 = MIN (rec.box.x2, clip->x2);
+      rec.box.y2 = MIN (rec.box.y2, clip->y2);
+
+      if (rec.box.x2 <= rec.box.x1 || rec.box.y2 <= rec.box.y1)
+        return;
+    }
+
   g_array_append_val (priv->pick_stack, rec);
+}
+
+void
+_clutter_stage_push_pick_clip (ClutterStage          *stage,
+                               const ClutterActorBox *box)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  g_assert (!priv->pick_stack_frozen);
+  g_array_append_val (priv->pick_clip_stack, *box);
+}
+
+void
+_clutter_stage_pop_pick_clip (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  guint len = priv->pick_clip_stack->len;
+
+  g_assert (!priv->pick_stack_frozen);
+  g_assert (len > 0);
+  g_array_set_size (priv->pick_clip_stack, len - 1);
 }
 
 static inline void
@@ -1827,6 +1869,7 @@ clutter_stage_finalize (GObject *object)
   g_array_free (priv->paint_volume_stack, TRUE);
 
   _clutter_stage_clear_pick_stack (stage);
+  g_array_free (priv->pick_clip_stack, TRUE);
   g_array_free (priv->pick_stack, TRUE);
 
   if (priv->fps_timer != NULL)
@@ -2326,6 +2369,7 @@ clutter_stage_init (ClutterStage *self)
     g_array_new (FALSE, FALSE, sizeof (ClutterPaintVolume));
 
   priv->pick_stack = g_array_new (FALSE, FALSE, sizeof (PickRecord));
+  priv->pick_clip_stack = g_array_new (FALSE, FALSE, sizeof (ClutterActorBox));
   priv->cached_pick_mode = CLUTTER_PICK_NONE;
 }
 
@@ -4100,6 +4144,15 @@ _clutter_stage_queue_actor_redraw (ClutterStage *stage,
 
   CLUTTER_NOTE (CLIPPING, "stage_queue_actor_redraw (actor=%s, clip=%p): ",
                 _clutter_actor_get_debug_name (actor), clip);
+
+  /* Someone may invalidate the pick cache with a queued redraw and/or
+   * clutter_actor_set_clip, and then call clutter_stage_get_actor_at_pos
+   * immediately. This is unusual because it means they're trying to do
+   * picking blindly without yet having drawn the changes on screen. But it's
+   * permissible and is also the approach taken by the 'actor-pick'
+   * conformance test, so it has to work. Invalidate the cache:
+   */
+  _clutter_stage_clear_pick_stack (stage);
 
   if (!priv->redraw_pending)
     {
