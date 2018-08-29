@@ -1,3 +1,20 @@
+3.29.92
+=======
+* Avoid crash when a cursor is not found [Sebastian; #254]
+* Fix screen rotation regression [Jonas; #216]
+* Handle requests to unmanaged windows gracefully [Jonas; #240]
+* Move popups together with their parent [Jonas; #274]
+* Fix non-lowercase letters on virtual key devices [Carlos; gnome-shell#135]
+* Misc. bug fixes [Iain, Jonas; #223, #192, #279]
+
+Contributors:
+  Jonas Ådahl, Carlos Garnacho, Sebastian Keller, Iain Lane, Robert Mader,
+  Daniel van Vugt
+
+Translators:
+  Gwan-gyeong Mun [ko], Kukuh Syafaat [id], Milo Casagrande [it],
+  Anders Jonsson [sv], Rafael Fontenelle [pt_BR], Marek Cernocky [cs]
+
 3.29.91
 =======
 * Various crash fixes [Olivier, Iain; #255, #223]
