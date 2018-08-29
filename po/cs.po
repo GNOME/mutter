@@ -694,7 +694,7 @@ msgstr ""
 
 #: src/x11/meta-x11-display.c:1010
 msgid "Failed to initialize GDK\n"
-msgstr "Selhala inicializace GDK"
+msgstr "Selhala inicializace GDK\n"
 
 #: src/x11/meta-x11-display.c:1034
 #, c-format
