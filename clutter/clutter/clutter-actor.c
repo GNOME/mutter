@@ -3787,6 +3787,7 @@ clutter_actor_paint (ClutterActor *self)
 {
   ClutterActorPrivate *priv;
   ClutterPickMode pick_mode;
+  ClutterActorBox clip;
   gboolean clip_set = FALSE;
   gboolean shader_applied = FALSE;
   ClutterStage *stage;
@@ -3879,24 +3880,37 @@ clutter_actor_paint (ClutterActor *self)
 
   if (priv->has_clip)
     {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
-      cogl_framebuffer_push_rectangle_clip (fb,
-                                            priv->clip.origin.x,
-                                            priv->clip.origin.y,
-                                            priv->clip.origin.x + priv->clip.size.width,
-                                            priv->clip.origin.y + priv->clip.size.height);
+      clip.x1 = priv->clip.origin.x;
+      clip.y1 = priv->clip.origin.y;
+      clip.x2 = priv->clip.origin.x + priv->clip.size.width;
+      clip.y2 = priv->clip.origin.y + priv->clip.size.height;
       clip_set = TRUE;
     }
   else if (priv->clip_to_allocation)
     {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
-      gfloat width, height;
-
-      width  = priv->allocation.x2 - priv->allocation.x1;
-      height = priv->allocation.y2 - priv->allocation.y1;
-
-      cogl_framebuffer_push_rectangle_clip (fb, 0, 0, width, height);
+      clip.x1 = 0.f;
+      clip.y1 = 0.f;
+      clip.x2 = priv->allocation.x2 - priv->allocation.x1;
+      clip.y2 = priv->allocation.y2 - priv->allocation.y1;
       clip_set = TRUE;
+    }
+
+  if (clip_set)
+    {
+      if (pick_mode == CLUTTER_PICK_NONE)
+        {
+          CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
+
+          cogl_framebuffer_push_rectangle_clip (fb,
+                                                clip.x1,
+                                                clip.y1,
+                                                clip.x2,
+                                                clip.y2);
+        }
+      else
+        {
+          _clutter_stage_push_pick_clip (stage, &clip);
+        }
     }
 
   if (pick_mode == CLUTTER_PICK_NONE)
@@ -3989,9 +4003,16 @@ done:
 
   if (clip_set)
     {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
+      if (pick_mode == CLUTTER_PICK_NONE)
+        {
+          CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
 
-      cogl_framebuffer_pop_clip (fb);
+          cogl_framebuffer_pop_clip (fb);
+        }
+      else
+        {
+          _clutter_stage_pop_pick_clip (stage);
+        }
     }
 
   cogl_pop_matrix ();
