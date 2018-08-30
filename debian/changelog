@@ -1,3 +1,12 @@
+mutter (3.29.92-1) UNRELEASED; urgency=medium
+
+  * New upstream development release
+  * Rebase patch series
+  * d/p/renderer-native-Check-calculated-transform-when-creating-.patch:
+    - dropped as applied upstream
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 29 Aug 2018 20:53:19 -0500
+
 mutter (3.29.91-1) experimental; urgency=medium
 
   * Team upload
