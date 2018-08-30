@@ -191,6 +191,11 @@ xdg_toplevel_set_parent (struct wl_client   *client,
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
   MetaWindow *transient_for = NULL;
+  MetaWindow *window;
+
+  window = surface->window;
+  if (!window)
+    return;
 
   if (parent_resource)
     {
@@ -200,7 +205,7 @@ xdg_toplevel_set_parent (struct wl_client   *client,
       transient_for = parent_surface->window;
     }
 
-  meta_window_set_transient_for (surface->window, transient_for);
+  meta_window_set_transient_for (window, transient_for);
 }
 
 static void
@@ -209,11 +214,16 @@ xdg_toplevel_set_title (struct wl_client   *client,
                         const char         *title)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+  MetaWindow *window;
+
+  window = surface->window;
+  if (!window)
+    return;
 
   if (!g_utf8_validate (title, -1, NULL))
     title = "";
 
-  meta_window_set_title (surface->window, title);
+  meta_window_set_title (window, title);
 }
 
 static void
@@ -222,11 +232,16 @@ xdg_toplevel_set_app_id (struct wl_client   *client,
                          const char         *app_id)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+  MetaWindow *window;
+
+  window = surface->window;
+  if (!window)
+    return;
 
   if (!g_utf8_validate (app_id, -1, NULL))
     app_id = "";
 
-  meta_window_set_wm_class (surface->window, app_id, app_id);
+  meta_window_set_wm_class (window, app_id, app_id);
 }
 
 static void
@@ -239,15 +254,20 @@ xdg_toplevel_show_window_menu (struct wl_client   *client,
 {
   MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+  MetaWindow *window;
   int monitor_scale;
+
+  window = surface->window;
+  if (!window)
+    return;
 
   if (!meta_wayland_seat_get_grab_info (seat, surface, serial, FALSE, NULL, NULL))
     return;
 
-  monitor_scale = surface->window->monitor->scale;
-  meta_window_show_menu (surface->window, META_WINDOW_MENU_WM,
-                         surface->window->buffer_rect.x + (x * monitor_scale),
-                         surface->window->buffer_rect.y + (y * monitor_scale));
+  monitor_scale = window->monitor->scale;
+  meta_window_show_menu (window, META_WINDOW_MENU_WM,
+                         window->buffer_rect.x + (x * monitor_scale),
+                         window->buffer_rect.y + (y * monitor_scale));
 }
 
 static void
@@ -258,7 +278,12 @@ xdg_toplevel_move (struct wl_client   *client,
 {
   MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+  MetaWindow *window;
   float x, y;
+
+  window = surface->window;
+  if (!window)
+    return;
 
   if (!meta_wayland_seat_get_grab_info (seat, surface, serial, TRUE, &x, &y))
     return;
@@ -298,8 +323,13 @@ xdg_toplevel_resize (struct wl_client   *client,
 {
   MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+  MetaWindow *window;
   gfloat x, y;
   MetaGrabOp grab_op;
+
+  window = surface->window;
+  if (!window)
+    return;
 
   if (!meta_wayland_seat_get_grab_info (seat, surface, serial, TRUE, &x, &y))
     return;
@@ -357,7 +387,11 @@ xdg_toplevel_set_maximized (struct wl_client   *client,
                             struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
-  MetaWindow *window = surface->window;
+  MetaWindow *window;
+
+  window = surface->window;
+  if (!window)
+    return;
 
   meta_window_force_placement (window, TRUE);
   meta_window_maximize (window, META_MAXIMIZE_BOTH);
@@ -368,8 +402,13 @@ xdg_toplevel_unset_maximized (struct wl_client   *client,
                               struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+  MetaWindow *window;
 
-  meta_window_unmaximize (surface->window, META_MAXIMIZE_BOTH);
+  window = surface->window;
+  if (!window)
+    return;
+
+  meta_window_unmaximize (window, META_MAXIMIZE_BOTH);
 }
 
 static void
@@ -378,6 +417,11 @@ xdg_toplevel_set_fullscreen (struct wl_client   *client,
                              struct wl_resource *output_resource)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+  MetaWindow *window;
+
+  window = surface->window;
+  if (!window)
+    return;
 
   if (output_resource)
     {
@@ -385,12 +429,12 @@ xdg_toplevel_set_fullscreen (struct wl_client   *client,
 
       if (output)
         {
-          meta_window_move_to_monitor (surface->window,
+          meta_window_move_to_monitor (window,
                                        output->logical_monitor->number);
         }
     }
 
-  meta_window_make_fullscreen (surface->window);
+  meta_window_make_fullscreen (window);
 }
 
 static void
@@ -398,8 +442,13 @@ xdg_toplevel_unset_fullscreen (struct wl_client   *client,
                                struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+  MetaWindow *window;
 
-  meta_window_unmake_fullscreen (surface->window);
+  window = surface->window;
+  if (!window)
+    return;
+
+  meta_window_unmake_fullscreen (window);
 }
 
 static void
@@ -407,8 +456,13 @@ xdg_toplevel_set_minimized (struct wl_client   *client,
                             struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+  MetaWindow *window;
 
-  meta_window_minimize (surface->window);
+  window = surface->window;
+  if (!window)
+    return;
+
+  meta_window_minimize (window);
 }
 
 static const struct xdg_toplevel_interface meta_wayland_xdg_toplevel_interface = {
@@ -624,13 +678,24 @@ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
   MetaRectangle old_geometry;
   gboolean geometry_changed;
 
-  if (!surface->buffer_ref.buffer && xdg_surface_priv->first_buffer_attached)
+  window = surface->window;
+  if (!window)
     {
-      meta_wayland_xdg_surface_reset (xdg_surface);
+      meta_wayland_surface_cache_pending_frame_callbacks (surface, pending);
       return;
     }
 
-  window = surface->window;
+  if (!surface->buffer_ref.buffer && xdg_surface_priv->first_buffer_attached)
+    {
+      MetaWaylandActorSurface *actor_surface =
+        META_WAYLAND_ACTOR_SURFACE (xdg_toplevel);
+
+      meta_wayland_xdg_surface_reset (xdg_surface);
+      meta_wayland_actor_surface_queue_frame_callbacks (actor_surface,
+                                                        pending);
+      return;
+    }
+
   old_geometry = xdg_surface_priv->geometry;
 
   surface_role_class =
@@ -956,6 +1021,7 @@ meta_wayland_xdg_popup_commit (MetaWaylandSurfaceRole  *surface_role,
   if (!surface->buffer_ref.buffer && xdg_surface_priv->first_buffer_attached)
     {
       meta_wayland_xdg_surface_reset (xdg_surface);
+      meta_wayland_surface_cache_pending_frame_callbacks (surface, pending);
       return;
     }
 
@@ -1369,8 +1435,9 @@ meta_wayland_xdg_surface_commit (MetaWaylandSurfaceRole  *surface_role,
 
   if (pending->has_new_geometry)
     {
-      /* If we have new geometry, use it. */
-      priv->geometry = pending->new_geometry;
+      meta_wayland_shell_surface_determine_geometry (shell_surface,
+                                                     &pending->new_geometry,
+                                                     &priv->geometry);
       priv->has_set_geometry = TRUE;
     }
   else if (!priv->has_set_geometry)

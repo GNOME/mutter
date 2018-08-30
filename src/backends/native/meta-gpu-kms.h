@@ -53,6 +53,8 @@ gboolean meta_gpu_kms_apply_crtc_mode (MetaGpuKms *gpu_kms,
                                        int         y,
                                        uint32_t    fb_id);
 
+gboolean meta_gpu_kms_can_have_outputs (MetaGpuKms *gpu_kms);
+
 gboolean meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
                                       MetaCrtc   *crtc);
 

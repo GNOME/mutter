@@ -371,8 +371,8 @@ scale_rect_size (MetaRectangle *rect,
 }
 
 static void
-meta_window_wayland_update_main_monitor (MetaWindow *window,
-                                         gboolean    user_op)
+meta_window_wayland_update_main_monitor (MetaWindow                   *window,
+                                         MetaWindowUpdateMonitorFlags  flags)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -392,7 +392,7 @@ meta_window_wayland_update_main_monitor (MetaWindow *window,
   toplevel_window = meta_wayland_surface_get_toplevel_window (window->surface);
   if (toplevel_window != window)
     {
-      meta_window_update_monitor (toplevel_window, user_op);
+      meta_window_update_monitor (toplevel_window, flags);
       window->monitor = toplevel_window->monitor;
       return;
     }
@@ -413,7 +413,7 @@ meta_window_wayland_update_main_monitor (MetaWindow *window,
       return;
     }
 
-  if (!user_op)
+  if (flags & META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE)
     {
       window->monitor = to;
       return;
