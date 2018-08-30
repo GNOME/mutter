@@ -2,6 +2,8 @@ mutter (3.29.92-1) UNRELEASED; urgency=medium
 
   [ Marco Trevisan (Treviño) ]
   * New upstream development release
+    - Fix a crash when drmModeGetResources() fails, for example when
+      using Wayland on Nvidia hardware (Closes: #900002)
   * Rebase patch series
   * d/p/renderer-native-Check-calculated-transform-when-creating-.patch:
     - dropped as applied upstream
