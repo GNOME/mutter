@@ -10,6 +10,7 @@ mutter (3.29.92-1) UNRELEASED; urgency=medium
 
   [ Simon McVittie ]
   * Standards-Version: 4.2.1 (no changes required)
+  * Update debian/libmutter-3-0.symbols
 
  -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 29 Aug 2018 20:53:19 -0500
 

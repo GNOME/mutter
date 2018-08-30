@@ -544,6 +544,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_gpu_get_type@Base 3.28.2
  meta_gpu_has_hotplug_mode_update@Base 3.28.2
  meta_gpu_kms_apply_crtc_mode@Base 3.28.2
+ meta_gpu_kms_can_have_outputs@Base 3.29.92
  meta_gpu_kms_flip_closure_container_free@Base 3.29.4
  meta_gpu_kms_flip_crtc@Base 3.28.2
  meta_gpu_kms_get_fd@Base 3.28.2
@@ -1185,6 +1186,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_wayland_actor_surface_calculate_scale@Base 3.28.2
  meta_wayland_actor_surface_get_actor@Base 3.29.4
  meta_wayland_actor_surface_get_type@Base 3.28.2
+ meta_wayland_actor_surface_queue_frame_callbacks@Base 3.29.92
  meta_wayland_actor_surface_reset_actor@Base 3.29.4
  meta_wayland_actor_surface_sync_actor_state@Base 3.28.2
  meta_wayland_buffer_attach@Base 3.28.2
@@ -1352,6 +1354,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_wayland_shell_surface_calculate_geometry@Base 3.28.2
  meta_wayland_shell_surface_close@Base 3.28.2
  meta_wayland_shell_surface_configure@Base 3.28.2
+ meta_wayland_shell_surface_determine_geometry@Base 3.29.92
  meta_wayland_shell_surface_get_type@Base 3.28.2
  meta_wayland_shell_surface_managed@Base 3.28.2
  meta_wayland_shell_surface_ping@Base 3.28.2
@@ -1363,6 +1366,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_wayland_surface_apply_pending_state@Base 3.28.2
  meta_wayland_surface_assign_role@Base 3.28.2
  meta_wayland_surface_begin_grab_op@Base 3.28.2
+ meta_wayland_surface_cache_pending_frame_callbacks@Base 3.29.92
  meta_wayland_surface_calculate_input_region@Base 3.28.2
  meta_wayland_surface_cancel_inhibit_shortcuts_dialog@Base 3.28.2
  meta_wayland_surface_configure_notify@Base 3.28.2
@@ -1377,10 +1381,12 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_wayland_surface_get_absolute_coordinates@Base 3.28.2
  meta_wayland_surface_get_actor@Base 3.29.4
  meta_wayland_surface_get_buffer@Base 3.28.2
+ meta_wayland_surface_get_height@Base 3.29.92
  meta_wayland_surface_get_relative_coordinates@Base 3.28.2
  meta_wayland_surface_get_toplevel@Base 3.28.2
  meta_wayland_surface_get_toplevel_window@Base 3.28.2
  meta_wayland_surface_get_type@Base 3.28.2
+ meta_wayland_surface_get_width@Base 3.29.92
  meta_wayland_surface_inhibit_shortcuts@Base 3.28.2
  meta_wayland_surface_inhibit_shortcuts_dialog_init@Base 3.28.2
  meta_wayland_surface_is_effectively_synchronized@Base 3.28.2
