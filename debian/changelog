@@ -1,4 +1,6 @@
-mutter (3.29.92-1) UNRELEASED; urgency=medium
+mutter (3.29.92-1) experimental; urgency=medium
+
+  * Team upload
 
   [ Marco Trevisan (Treviño) ]
   * New upstream development release
@@ -12,7 +14,7 @@ mutter (3.29.92-1) UNRELEASED; urgency=medium
   * Standards-Version: 4.2.1 (no changes required)
   * Update debian/libmutter-3-0.symbols
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 29 Aug 2018 20:53:19 -0500
+ -- Simon McVittie <smcv@debian.org>  Thu, 30 Aug 2018 08:45:01 +0100
 
 mutter (3.29.91-1) experimental; urgency=medium
 
