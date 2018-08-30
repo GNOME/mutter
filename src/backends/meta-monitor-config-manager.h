@@ -69,6 +69,7 @@ struct _MetaMonitorsConfig
   MetaMonitorsConfigFlag flags;
 
   MetaLogicalMonitorLayoutMode layout_mode;
+  MetaMonitorSwitchConfigType pending_switch_config;
 };
 
 #define META_TYPE_MONITORS_CONFIG (meta_monitors_config_get_type ())
@@ -123,6 +124,10 @@ MetaMonitorsConfig * meta_monitors_config_new (MetaMonitorManager           *mon
                                                GList                        *logical_monitor_configs,
                                                MetaLogicalMonitorLayoutMode  layout_mode,
                                                MetaMonitorsConfigFlag        flags);
+
+MetaMonitorSwitchConfigType meta_monitors_config_get_pending_switch_config (MetaMonitorsConfig *config);
+
+void meta_monitors_config_switch_config_complete (MetaMonitorsConfig *config);
 
 unsigned int meta_monitors_config_key_hash (gconstpointer config_key);
 

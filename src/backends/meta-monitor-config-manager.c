@@ -1227,6 +1227,18 @@ meta_monitors_config_key_equal (gconstpointer data_a,
   return TRUE;
 }
 
+MetaMonitorSwitchConfigType
+meta_monitors_config_get_pending_switch_config (MetaMonitorsConfig *config)
+{
+  return config->pending_switch_config;
+}
+
+void
+meta_monitors_config_switch_config_complete (MetaMonitorsConfig *config)
+{
+  config->pending_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
+}
+
 MetaMonitorsConfig *
 meta_monitors_config_new_full (GList                        *logical_monitor_configs,
                                GList                        *disabled_monitor_specs,
@@ -1242,6 +1254,7 @@ meta_monitors_config_new_full (GList                        *logical_monitor_con
                                               disabled_monitor_specs);
   config->layout_mode = layout_mode;
   config->flags = flags;
+  config->pending_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
 
   return config;
 }
