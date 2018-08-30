@@ -53,7 +53,7 @@ Build-Depends: debhelper (>= 11),
                xvfb <!nocheck>,
                zenity
 Rules-Requires-Root: no
-Standards-Version: 4.2.0
+Standards-Version: 4.2.1
 Vcs-Git: https://salsa.debian.org/gnome-team/mutter.git -b debian/experimental
 Vcs-Browser: https://salsa.debian.org/gnome-team/mutter
 
