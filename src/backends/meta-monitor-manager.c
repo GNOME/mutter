@@ -561,7 +561,9 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
       g_clear_object (&config);
     }
 
-  config = meta_monitor_config_manager_create_linear (manager->config_manager);
+  config =
+    meta_monitor_config_manager_create_for_switch_config (manager->config_manager,
+                                                          META_MONITOR_SWITCH_CONFIG_ALL_LINEAR);
   if (config)
     {
       if (!meta_monitor_manager_apply_monitors_config (manager,
@@ -2621,8 +2623,6 @@ meta_monitor_manager_read_current_state (MetaMonitorManager *manager)
 static void
 meta_monitor_manager_notify_monitors_changed (MetaMonitorManager *manager)
 {
-  manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
-
   meta_backend_monitors_changed (manager->backend);
 
   g_signal_emit (manager, signals[MONITORS_CHANGED_INTERNAL], 0);
@@ -2679,10 +2679,17 @@ meta_monitor_manager_update_logical_state (MetaMonitorManager *manager,
                                            MetaMonitorsConfig *config)
 {
   if (config)
-    manager->layout_mode = config->layout_mode;
+    {
+      manager->layout_mode = config->layout_mode;
+      manager->current_switch_config =
+        meta_monitors_config_get_switch_config (config);
+    }
   else
-    manager->layout_mode =
-      meta_monitor_manager_get_default_layout_mode (manager);
+    {
+      manager->layout_mode =
+        meta_monitor_manager_get_default_layout_mode (manager);
+      manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
+    }
 
   meta_monitor_manager_rebuild_logical_monitors (manager, config);
 }
@@ -2724,6 +2731,12 @@ void
 meta_monitor_manager_update_logical_state_derived (MetaMonitorManager *manager,
                                                    MetaMonitorsConfig *config)
 {
+  if (config)
+    manager->current_switch_config =
+      meta_monitors_config_get_switch_config (config);
+  else
+    manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
+
   manager->layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
 
   meta_monitor_manager_rebuild_logical_monitors_derived (manager, config);
