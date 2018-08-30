@@ -2619,9 +2619,11 @@ meta_monitor_manager_read_current_state (MetaMonitorManager *manager)
 }
 
 static void
-meta_monitor_manager_notify_monitors_changed (MetaMonitorManager *manager)
+meta_monitor_manager_notify_monitors_changed (MetaMonitorManager *manager,
+                                              MetaMonitorsConfig *config)
 {
-  manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
+  if (config == NULL)
+    manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
 
   meta_backend_monitors_changed (manager->backend);
 
@@ -2702,7 +2704,7 @@ meta_monitor_manager_rebuild (MetaMonitorManager *manager,
 
   meta_monitor_manager_update_logical_state (manager, config);
 
-  meta_monitor_manager_notify_monitors_changed (manager);
+  meta_monitor_manager_notify_monitors_changed (manager, config);
 
   g_list_free_full (old_logical_monitors, g_object_unref);
 }
@@ -2744,7 +2746,7 @@ meta_monitor_manager_rebuild_derived (MetaMonitorManager *manager,
 
   meta_monitor_manager_update_logical_state_derived (manager, config);
 
-  meta_monitor_manager_notify_monitors_changed (manager);
+  meta_monitor_manager_notify_monitors_changed (manager, config);
 
   g_list_free_full (old_logical_monitors, g_object_unref);
 }
