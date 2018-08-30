@@ -257,8 +257,6 @@ surface_process_damage (MetaWaylandSurface *surface,
                         cairo_region_t     *buffer_region)
 {
   MetaWaylandBuffer *buffer = surface->buffer_ref.buffer;
-  unsigned int buffer_width;
-  unsigned int buffer_height;
   cairo_rectangle_int_t surface_rect;
   cairo_region_t *scaled_region;
   int i, n_rectangles;
@@ -273,11 +271,9 @@ surface_process_damage (MetaWaylandSurface *surface,
   /* Intersect the damage region with the surface region before scaling in
    * order to avoid integer overflow when scaling a damage region is too large
    * (for example INT32_MAX which mesa passes). */
-  buffer_width = cogl_texture_get_width (buffer->texture);
-  buffer_height = cogl_texture_get_height (buffer->texture);
   surface_rect = (cairo_rectangle_int_t) {
-    .width = buffer_width / surface->scale,
-    .height = buffer_height / surface->scale,
+    .width = meta_wayland_surface_get_width (surface),
+    .height = meta_wayland_surface_get_height (surface),
   };
   cairo_region_intersect_rectangle (surface_region, &surface_rect);
 
@@ -592,6 +588,15 @@ parent_surface_state_applied (gpointer data,
 }
 
 void
+meta_wayland_surface_cache_pending_frame_callbacks (MetaWaylandSurface      *surface,
+                                                    MetaWaylandPendingState *pending)
+{
+  wl_list_insert_list (&surface->pending_frame_callback_list,
+                       &pending->frame_callback_list);
+  wl_list_init (&pending->frame_callback_list);
+}
+
+void
 meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
                                           MetaWaylandPendingState *pending)
 {
@@ -712,13 +717,7 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
     }
   else
     {
-      /* Since there is no role assigned to the surface yet, keep frame
-       * callbacks queued until a role is assigned and we know how
-       * the surface will be drawn.
-       */
-      wl_list_insert_list (&surface->pending_frame_callback_list,
-                           &pending->frame_callback_list);
-      wl_list_init (&pending->frame_callback_list);
+      meta_wayland_surface_cache_pending_frame_callbacks (surface, pending);
 
       if (pending->newly_attached)
         {
@@ -1689,15 +1688,13 @@ meta_wayland_surface_calculate_input_region (MetaWaylandSurface *surface)
 {
   cairo_region_t *region;
   cairo_rectangle_int_t buffer_rect;
-  CoglTexture *texture;
 
   if (!surface->buffer_ref.buffer)
     return NULL;
 
-  texture = surface->buffer_ref.buffer->texture;
   buffer_rect = (cairo_rectangle_int_t) {
-    .width = cogl_texture_get_width (texture) / surface->scale,
-    .height = cogl_texture_get_height (texture) / surface->scale,
+    .width = meta_wayland_surface_get_width (surface),
+    .height = meta_wayland_surface_get_height (surface),
   };
   region = cairo_region_create_rectangle (&buffer_rect);
 
@@ -1746,4 +1743,38 @@ void
 meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface)
 {
   g_signal_emit (surface, surface_signals[SURFACE_GEOMETRY_CHANGED], 0);
+}
+
+int
+meta_wayland_surface_get_width (MetaWaylandSurface *surface)
+{
+  MetaWaylandBuffer *buffer;
+
+  buffer = surface->buffer_ref.buffer;
+  if (buffer)
+    {
+      CoglTexture *texture = meta_wayland_buffer_get_texture (buffer);
+      return cogl_texture_get_width (texture) / surface->scale;
+    }
+  else
+    {
+      return 0;
+    }
+}
+
+int
+meta_wayland_surface_get_height (MetaWaylandSurface *surface)
+{
+  MetaWaylandBuffer *buffer;
+
+  buffer = surface->buffer_ref.buffer;
+  if (buffer)
+    {
+      CoglTexture *texture = meta_wayland_buffer_get_texture (buffer);
+      return cogl_texture_get_height (texture) / surface->scale;
+    }
+  else
+    {
+      return 0;
+    }
 }

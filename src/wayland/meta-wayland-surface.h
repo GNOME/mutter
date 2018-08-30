@@ -256,6 +256,9 @@ MetaWaylandSurface *meta_wayland_surface_get_toplevel (MetaWaylandSurface *surfa
 
 MetaWindow *        meta_wayland_surface_get_toplevel_window (MetaWaylandSurface *surface);
 
+void                meta_wayland_surface_cache_pending_frame_callbacks (MetaWaylandSurface      *surface,
+                                                                        MetaWaylandPendingState *pending);
+
 void                meta_wayland_surface_queue_pending_frame_callbacks (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_queue_pending_state_frame_callbacks (MetaWaylandSurface      *surface,
@@ -301,5 +304,8 @@ gboolean            meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurf
 MetaSurfaceActor *  meta_wayland_surface_get_actor (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface);
+
+int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
+int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
 
 #endif

@@ -787,7 +787,7 @@ constrain_custom_rule (MetaWindow         *window,
   MetaPlacementRule *placement_rule;
   MetaRectangle intersection;
   gboolean constraint_satisfied;
-  MetaPlacementRule current_rule;
+  MetaPlacementRule *current_rule;
 
   if (priority > PRIORITY_CUSTOM_RULE)
     return TRUE;
@@ -796,6 +796,14 @@ constrain_custom_rule (MetaWindow         *window,
   if (!placement_rule)
     return TRUE;
 
+  if (window->constrained_placement_rule)
+    {
+      meta_window_process_placement (window,
+                                     window->constrained_placement_rule,
+                                     &info->current.x, &info->current.y);
+      return TRUE;
+    }
+
   meta_rectangle_intersect (&info->current, &info->work_area_monitor,
                             &intersection);
 
@@ -803,24 +811,28 @@ constrain_custom_rule (MetaWindow         *window,
                                                    placement_rule,
                                                    &intersection);
 
-  if (constraint_satisfied || check_only)
+  if (check_only)
     return constraint_satisfied;
 
-  current_rule = *placement_rule;
+  current_rule = g_new0 (MetaPlacementRule, 1);
+  *current_rule = *placement_rule;
+
+  if (constraint_satisfied)
+    goto done;
 
   if (info->current.width != intersection.width &&
-      (current_rule.constraint_adjustment &
+      (current_rule->constraint_adjustment &
        META_PLACEMENT_CONSTRAINT_ADJUSTMENT_FLIP_X))
     {
-      try_flip_window_position (window, info, &current_rule,
+      try_flip_window_position (window, info, current_rule,
                                 META_PLACEMENT_CONSTRAINT_ADJUSTMENT_FLIP_X,
                                 &info->current, &intersection);
     }
   if (info->current.height != intersection.height &&
-      (current_rule.constraint_adjustment &
+      (current_rule->constraint_adjustment &
        META_PLACEMENT_CONSTRAINT_ADJUSTMENT_FLIP_Y))
     {
-      try_flip_window_position (window, info, &current_rule,
+      try_flip_window_position (window, info, current_rule,
                                 META_PLACEMENT_CONSTRAINT_ADJUSTMENT_FLIP_Y,
                                 &info->current, &intersection);
     }
@@ -832,9 +844,9 @@ constrain_custom_rule (MetaWindow         *window,
                                                    &intersection);
 
   if (constraint_satisfied)
-    return TRUE;
+    goto done;
 
-  if (current_rule.constraint_adjustment &
+  if (current_rule->constraint_adjustment &
       META_PLACEMENT_CONSTRAINT_ADJUSTMENT_SLIDE_X)
     {
       if (info->current.x != intersection.x)
@@ -842,7 +854,7 @@ constrain_custom_rule (MetaWindow         *window,
       else if (info->current.width != intersection.width)
         info->current.x -= info->current.width - intersection.width;
     }
-  if (current_rule.constraint_adjustment &
+  if (current_rule->constraint_adjustment &
       META_PLACEMENT_CONSTRAINT_ADJUSTMENT_SLIDE_Y)
     {
       if (info->current.y != intersection.y)
@@ -858,20 +870,24 @@ constrain_custom_rule (MetaWindow         *window,
                                                    &intersection);
 
   if (constraint_satisfied)
-    return TRUE;
+    goto done;
 
-  if (current_rule.constraint_adjustment &
+  if (current_rule->constraint_adjustment &
       META_PLACEMENT_CONSTRAINT_ADJUSTMENT_RESIZE_X)
     {
       info->current.x = intersection.x;
       info->current.width = intersection.width;
     }
-  if (current_rule.constraint_adjustment &
+  if (current_rule->constraint_adjustment &
       META_PLACEMENT_CONSTRAINT_ADJUSTMENT_RESIZE_Y)
     {
       info->current.y = intersection.y;
       info->current.height = intersection.height;
     }
+
+done:
+  g_clear_pointer (&window->constrained_placement_rule, g_free);
+  window->constrained_placement_rule = current_rule;
 
   return TRUE;
 }

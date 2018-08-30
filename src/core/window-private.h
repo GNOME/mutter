@@ -121,6 +121,13 @@ typedef enum
   META_PLACEMENT_CONSTRAINT_ADJUSTMENT_RESIZE_Y = 1 << 5,
 } MetaPlacementConstraintAdjustment;
 
+typedef enum _MetaWindowUpdateMonitorFlags
+{
+  META_WINDOW_UPDATE_MONITOR_FLAGS_NONE = 0,
+  META_WINDOW_UPDATE_MONITOR_FLAGS_USER_OP = 1 << 0,
+  META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE = 1 << 1,
+} MetaWindowUpdateMonitorFlags;
+
 typedef struct _MetaPlacementRule
 {
   MetaRectangle anchor_rect;
@@ -514,6 +521,7 @@ struct _MetaWindow
   guint bypass_compositor;
 
   MetaPlacementRule *placement_rule;
+  MetaPlacementRule *constrained_placement_rule;
 };
 
 struct _MetaWindowClass
@@ -548,8 +556,8 @@ struct _MetaWindowClass
                                   cairo_surface_t **icon,
                                   cairo_surface_t **mini_icon);
   uint32_t (*get_client_pid)     (MetaWindow *window);
-  void (*update_main_monitor)    (MetaWindow *window,
-                                  gboolean    user_op);
+  void (*update_main_monitor)    (MetaWindow                   *window,
+                                  MetaWindowUpdateMonitorFlags  flags);
   void (*main_monitor_changed)   (MetaWindow *window,
                                   const MetaLogicalMonitor *old);
   void (*force_restore_shortcuts) (MetaWindow         *window,
@@ -766,8 +774,8 @@ void meta_window_activate_full (MetaWindow     *window,
 MetaLogicalMonitor * meta_window_calculate_main_logical_monitor (MetaWindow *window);
 
 MetaLogicalMonitor * meta_window_get_main_logical_monitor (MetaWindow *window);
-void meta_window_update_monitor (MetaWindow *window,
-                                 gboolean    user_op);
+void meta_window_update_monitor (MetaWindow                   *window,
+                                 MetaWindowUpdateMonitorFlags  flags);
 
 void meta_window_set_urgent (MetaWindow *window,
                              gboolean    urgent);
