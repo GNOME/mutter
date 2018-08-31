@@ -2996,7 +2996,11 @@ clutter_stage_read_pixels (ClutterStage *stage,
  * @y: Y coordinate to check
  *
  * Checks the scene at the coordinates @x and @y and returns a pointer
- * to the #ClutterActor at those coordinates.
+ * to the #ClutterActor at those coordinates. The result is the actor which
+ * would be at the specified location on the next redraw, and is not
+ * necessarily that which was there on the previous redraw. This allows the
+ * function to perform chronologically correctly after any queued changes to
+ * the scene, and even if nothing has been drawn.
  *
  * By using @pick_mode it is possible to control which actors will be
  * painted and thus available.
