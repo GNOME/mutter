@@ -11,15 +11,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-02-07 18:39+0000\n"
-"PO-Revision-Date: 2018-02-23 23:53+0100\n"
-"Last-Translator: Balázs Úr <urbalazs@gmail.com>\n"
+"POT-Creation-Date: 2018-07-07 09:58+0000\n"
+"PO-Revision-Date: 2018-08-31 13:00+0200\n"
+"Last-Translator: Meskó Balázs <mesko.balazs@fsf.hu>\n"
 "Language-Team: Hungarian <gnome-hu-list at gnome dot org>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.2\n"
+"X-Generator: Poedit 2.0.8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -395,10 +395,7 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
-"enables remote desktop support. To support remote desktop with screen "
-"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
-"screen cast support."
+"manage HiDPI monitors. Does not require a restart."
 msgstr ""
 "A kísérleti funkciók engedélyezéséhez adja hozzá a funkció kulcsszavát a "
 "listához. A funkció a betűszedő újraindítását igényelheti az adott "
@@ -409,24 +406,21 @@ msgstr ""
 "teszi a mutter programot a logikai monitorok elrendezéséhez egy logikai "
 "képpontkoordináta-térben, miközben átméretezi a monitor keretpufferét az "
 "ablaktartalom helyett azért, hogy kezelje a HiDPI monitorokat. Nem igényel "
-"újraindítást. • „remote-desktop” — engedélyezi a távoli asztal támogatást. A "
-"távoli asztal képernyőmegosztással való támogatásához a „screen-cast” "
-"funkciónak is engedélyezve kell lennie. • „screen-cast” — engedélyezi a "
-"képernyőrögzítés támogatását."
+"újraindítást."
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Select window from tab popup"
 msgstr "Ablakok kiválasztása tab billentyűre felugró ablakból"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:146
 msgid "Cancel tab popup"
 msgstr "Tab felugró kikapcsolása"
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Switch monitor configurations"
 msgstr "Monitorkonfiguráció átváltása"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:156
 msgid "Rotates the built-in monitor configuration"
 msgstr "Cserélgeti a beépített monitorkonfigurációkat"
 
@@ -531,7 +525,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2260
+#: src/backends/meta-input-settings.c:2325
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Módkapcsoló (%d. csoport)"
@@ -539,30 +533,30 @@ msgstr "Módkapcsoló (%d. csoport)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2283
+#: src/backends/meta-input-settings.c:2348
 msgid "Switch monitor"
 msgstr "Monitorváltás"
 
-#: src/backends/meta-input-settings.c:2285
+#: src/backends/meta-input-settings.c:2350
 msgid "Show on-screen help"
 msgstr "Képernyősúgó megjelenítése"
 
-#: src/backends/meta-monitor-manager.c:900
+#: src/backends/meta-monitor-manager.c:907
 msgid "Built-in display"
 msgstr "Beépített kijelző"
 
-#: src/backends/meta-monitor-manager.c:923
+#: src/backends/meta-monitor-manager.c:930
 msgid "Unknown"
 msgstr "Ismeretlen"
 
-#: src/backends/meta-monitor-manager.c:925
+#: src/backends/meta-monitor-manager.c:932
 msgid "Unknown Display"
 msgstr "Ismeretlen kijelző"
 
 #. TRANSLATORS: this is a monitor vendor name, followed by a
 #. * size in inches, like 'Dell 15"'
 #.
-#: src/backends/meta-monitor-manager.c:933
+#: src/backends/meta-monitor-manager.c:940
 #, c-format
 msgid "%s %s"
 msgstr "%s %s"
@@ -577,67 +571,66 @@ msgstr ""
 "Már fut egy másik kompozitálás-kezelő a(z) %i. képernyőn a(z) „%s” "
 "megjelenítőn."
 
-#: src/core/bell.c:194
+#: src/core/bell.c:254
 msgid "Bell event"
 msgstr "Csengetés esemény"
 
-#: src/core/display.c:608
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Nem sikerült megnyitni a(z) „%s” X Window rendszer képernyőt\n"
-
-#: src/core/main.c:190
+#: src/core/main.c:191
 msgid "Disable connection to session manager"
 msgstr "A munkamenet-kezelőhöz való csatlakozás tiltása"
 
-#: src/core/main.c:196
+#: src/core/main.c:197
 msgid "Replace the running window manager"
 msgstr "A futó ablakkezelő helyettesítése"
 
-#: src/core/main.c:202
+#: src/core/main.c:203
 msgid "Specify session management ID"
 msgstr "A munkamenet-kezelő azonosítójának megadása"
 
-#: src/core/main.c:207
+#: src/core/main.c:208
 msgid "X Display to use"
 msgstr "A használandó X megjelenítő"
 
-#: src/core/main.c:213
+#: src/core/main.c:214
 msgid "Initialize session from savefile"
 msgstr "A munkamenet előkészítése a mentési fájlból"
 
-#: src/core/main.c:219
+#: src/core/main.c:220
 msgid "Make X calls synchronous"
 msgstr "Az X-hívások szinkronná tétele"
 
-#: src/core/main.c:226
+#: src/core/main.c:227
 msgid "Run as a wayland compositor"
 msgstr "Futtatás wayland betűszedőként"
 
-#: src/core/main.c:232
+#: src/core/main.c:233
 msgid "Run as a nested compositor"
 msgstr "Futtatás beágyazott betűszedőként"
 
-#: src/core/main.c:240
+#: src/core/main.c:239
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Wayland kompozitáló futtatása az Xwayland elíntása nélkül"
+
+#: src/core/main.c:247
 msgid "Run as a full display server, rather than nested"
 msgstr ""
 "Futtatás teljes megjelenítő kiszolgálóként az egymásba ágyazott helyett"
 
-#: src/core/main.c:246
+#: src/core/main.c:253
 msgid "Run with X11 backend"
 msgstr "Futtatás X11 háttérprogrammal"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:147
+#: src/core/meta-close-dialog-default.c:148
 #, c-format
 msgid "“%s” is not responding."
 msgstr "„%s” nem válaszol."
 
-#: src/core/meta-close-dialog-default.c:149
+#: src/core/meta-close-dialog-default.c:150
 msgid "Application is not responding."
 msgstr "Az alkalmazás nem válaszol."
 
-#: src/core/meta-close-dialog-default.c:154
+#: src/core/meta-close-dialog-default.c:155
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -645,11 +638,11 @@ msgstr ""
 "Várhat egy kicsit a folytatódására, vagy kikényszerítheti az alkalmazás "
 "teljes kilépését."
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:162
 msgid "_Force Quit"
 msgstr "_Erőltetett kilépés"
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:162
 msgid "_Wait"
 msgstr "Vá_rakozás"
 
@@ -676,12 +669,21 @@ msgstr "Verzió kiírása"
 msgid "Mutter plugin to use"
 msgstr "Használandó Mutter bővítmény"
 
-#: src/core/prefs.c:1997
+#: src/core/prefs.c:1915
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. munkaterület"
 
-#: src/core/screen.c:583
+#: src/core/util.c:120
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr "A Mutter ablakkezelőt a részletes mód támogatása nélkül fordították\n"
+
+#: src/wayland/meta-wayland-tablet-pad.c:567
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "Módkapcsoló: %d. mód"
+
+#: src/x11/meta-x11-display.c:666
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -690,21 +692,21 @@ msgstr ""
 "A(z) „%s” kijelző már rendelkezik ablakkezelővel; próbálja a --replace "
 "kapcsolóval helyettesíteni a jelenlegi ablakkezelőt."
 
-#: src/core/screen.c:668
+#: src/x11/meta-x11-display.c:1010
+msgid "Failed to initialize GDK\n"
+msgstr "A GDK előkészítése meghiúsult\n"
+
+#: src/x11/meta-x11-display.c:1034
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "Nem sikerült megnyitni a(z) „%s” X Window rendszer képernyőt\n"
+
+#: src/x11/meta-x11-display.c:1117
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "A(z) %d. képernyő a(z) „%s” megjelenítőn érvénytelen\n"
 
-#: src/core/util.c:120
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "A Mutter ablakkezelőt a részletes mód támogatása nélkül fordították\n"
-
-#: src/wayland/meta-wayland-tablet-pad.c:563
-#, c-format
-msgid "Mode Switch: Mode %d"
-msgstr "Módkapcsoló: %d. mód"
-
-#: src/x11/session.c:1818
+#: src/x11/session.c:1819
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -712,8 +714,7 @@ msgstr ""
 "Az alábbi ablakok nem támogatják az „aktuális beállítások mentését”, emiatt "
 "ezeket a legközelebbi bejelentkezéskor manuálisan újra kell indítania."
 
-#: src/x11/window-props.c:559
+#: src/x11/window-props.c:565
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (ezen: %s)"
-
