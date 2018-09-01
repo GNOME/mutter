@@ -776,6 +776,7 @@ if have_wayland
     ['gtk-primary-selection', 'private', ],
     ['gtk-shell', 'private', ],
     ['gtk-text-input', 'private', ],
+    ['inputfd', 'unstable', 'v1', ],
     ['keyboard-shortcuts-inhibit', 'unstable', 'v1', ],
     ['linux-dmabuf', 'unstable', 'v1', ],
     ['pointer-constraints', 'unstable', 'v1', ],
