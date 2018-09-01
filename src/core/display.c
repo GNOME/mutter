@@ -52,6 +52,7 @@
 #include "meta-idle-monitor-dbus.h"
 #include "meta-cursor-tracker-private.h"
 #include <meta/meta-backend.h>
+#include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/x11/meta-backend-x11.h"
