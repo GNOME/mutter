@@ -34,6 +34,7 @@
 #include "meta-wayland-seat.h"
 #include "meta-wayland-pointer-gestures.h"
 #include "meta-wayland-tablet-manager.h"
+#include "meta-wayland-inputfd-manager.h"
 
 typedef struct _MetaXWaylandSelection MetaXWaylandSelection;
 
@@ -72,6 +73,7 @@ struct _MetaWaylandCompositor
 
   MetaWaylandSeat *seat;
   MetaWaylandTabletManager *tablet_manager;
+  MetaWaylandInputFdManager *inputfd_manager;
 
   GHashTable *scheduled_surface_associations;
 };

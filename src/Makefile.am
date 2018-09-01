@@ -92,6 +92,8 @@ mutter_built_sources += \
 	text-input-unstable-v3-server-protocol.h			\
 	gtk-text-input-protocol.c					\
 	gtk-text-input-server-protocol.h				\
+	inputfd-unstable-v1-protocol.c					\
+	inputfd-unstable-v1-server-protocol.h				\
 	$(NULL)
 
 if HAVE_WAYLAND_EGLSTREAM
@@ -411,6 +413,12 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-wayland-egl-stream.h	\
 	wayland/meta-wayland-input-device.c	\
 	wayland/meta-wayland-input-device.h	\
+	wayland/meta-wayland-inputfd-evdev-device.c	\
+	wayland/meta-wayland-inputfd-evdev-device.h	\
+	wayland/meta-wayland-inputfd-manager.c	\
+	wayland/meta-wayland-inputfd-manager.h	\
+	wayland/meta-wayland-inputfd-seat.c	\
+	wayland/meta-wayland-inputfd-seat.h	\
 	wayland/meta-wayland-pointer-gestures.c	\
 	wayland/meta-wayland-pointer-gestures.h	\
 	wayland/meta-wayland-pointer-gesture-swipe.c	\
