@@ -633,6 +633,7 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_text_input_init (compositor);
   meta_wayland_init_presentation_time (compositor);
   meta_wayland_activation_init (compositor);
+  meta_wayland_inputfd_manager_init (compositor);
 
   /* Xwayland specific protocol, needs to be filtered out for all other clients */
   if (meta_xwayland_grab_keyboard_init (compositor))

@@ -66,4 +66,8 @@ typedef struct _MetaWaylandDmaBufManager MetaWaylandDmaBufManager;
 
 typedef struct _MetaXWaylandManager MetaXWaylandManager;
 
+typedef struct _MetaWaylandInputFdManager MetaWaylandInputFdManager;
+typedef struct _MetaWaylandInputFdSeat MetaWaylandInputFdSeat;
+typedef struct _MetaWaylandInputFdEvdevDevice MetaWaylandInputFdEvdevDevice;
+
 #endif

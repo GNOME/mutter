@@ -24,6 +24,7 @@
 #include "wayland/meta-wayland-seat.h"
 
 #include "wayland/meta-wayland-data-device.h"
+#include "wayland/meta-wayland-inputfd-seat.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-tablet-seat.h"
 #include "wayland/meta-wayland-versions.h"
@@ -168,7 +169,16 @@ meta_wayland_seat_set_capabilities (MetaWaylandSeat *seat,
         meta_display_sync_wayland_input_focus (display);
     }
   else if (CAPABILITY_DISABLED (prev_flags, flags, WL_SEAT_CAPABILITY_KEYBOARD))
-    meta_wayland_keyboard_disable (seat->keyboard);
+    {
+      MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+      MetaWaylandInputFdSeat *inputfd_seat;
+
+      meta_wayland_keyboard_disable (seat->keyboard);
+
+      inputfd_seat = meta_wayland_inputfd_manager_ensure_seat (compositor->inputfd_manager,
+                                                               seat);
+      meta_wayland_inputfd_seat_set_focus (inputfd_seat, NULL);
+    }
 
   if (CAPABILITY_ENABLED (prev_flags, flags, WL_SEAT_CAPABILITY_TOUCH))
     meta_wayland_touch_enable (seat->touch);
@@ -411,6 +421,7 @@ meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                                    MetaWaylandSurface *surface)
 {
   MetaWaylandTabletSeat *tablet_seat;
+  MetaWaylandInputFdSeat *inputfd_seat;
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
 
   if (meta_wayland_seat_has_keyboard (seat))
@@ -424,6 +435,10 @@ meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
   meta_wayland_tablet_seat_set_pad_focus (tablet_seat, surface);
 
   meta_wayland_text_input_set_focus (seat->text_input, surface);
+
+  inputfd_seat = meta_wayland_inputfd_manager_ensure_seat (compositor->inputfd_manager,
+                                                           seat);
+  meta_wayland_inputfd_seat_set_focus (inputfd_seat, surface);
 }
 
 gboolean

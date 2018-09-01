@@ -600,6 +600,12 @@ if have_wayland
     'wayland/meta-wayland-inhibit-shortcuts-dialog.c',
     'wayland/meta-wayland-inhibit-shortcuts-dialog.h',
     'wayland/meta-wayland-inhibit-shortcuts.h',
+    'wayland/meta-wayland-inputfd-evdev-device.c',
+    'wayland/meta-wayland-inputfd-evdev-device.h',
+    'wayland/meta-wayland-inputfd-manager.c',
+    'wayland/meta-wayland-inputfd-manager.h',
+    'wayland/meta-wayland-inputfd-seat.c',
+    'wayland/meta-wayland-inputfd-seat.h',
     'wayland/meta-wayland-input-device.c',
     'wayland/meta-wayland-input-device.h',
     'wayland/meta-wayland-keyboard.c',
@@ -962,6 +968,7 @@ if have_wayland
   #  - protocol version (if stability is 'unstable')
   wayland_protocols = [
     ['gtk-shell', 'private', ],
+    ['inputfd', 'staging', 'v1', ],
     ['keyboard-shortcuts-inhibit', 'unstable', 'v1', ],
     ['linux-dmabuf', 'unstable', 'v1', ],
     ['pointer-constraints', 'unstable', 'v1', ],
