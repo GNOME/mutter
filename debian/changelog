@@ -1,3 +1,10 @@
+mutter (3.30.0-1) UNRELEASED; urgency=medium
+
+  * New upstream release:
+    - Updated translations
+
+ -- Didier Roche <didrocks@ubuntu.com>  Tue, 04 Sep 2018 18:58:52 +0200
+
 mutter (3.29.92-1) experimental; urgency=medium
 
   * Team upload
