@@ -14,16 +14,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-03-03 13:19+0000\n"
-"PO-Revision-Date: 2018-05-07 19:37+0200\n"
-"Last-Translator: marcos <marcoslansgarza@gmail.com>\n"
-"Language-Team: Galician\n"
+"POT-Creation-Date: 2018-08-26 03:59+0000\n"
+"PO-Revision-Date: 2018-08-30 00:18+0200\n"
+"Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
+"Language-Team: Proxecto Trasno <proxecto@trasno.gal>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Virtaal 0.7.1\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -394,6 +394,18 @@ msgid "Enable experimental features"
 msgstr "Activar as características experimentais"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
+#| msgid ""
+#| "To enable experimental features, add the feature keyword to the list. "
+#| "Whether the feature requires restarting the compositor depends on the "
+#| "given feature. Any experimental feature is not required to still be "
+#| "available, or configurable. Don’t expect adding anything in this setting "
+#| "to be future proof. Currently possible keywords: • “scale-monitor-"
+#| "framebuffer” — makes mutter default to layout logical monitors in a "
+#| "logical pixel coordinate space, while scaling monitor framebuffers "
+#| "instead of window content, to manage HiDPI monitors. Does not require a "
+#| "restart. • “remote-desktop” — enables remote desktop support. To support "
+#| "remote desktop with screen sharing, “screen-cast” must also be enabled. • "
+#| "“screen-cast” — enables screen cast support."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -402,10 +414,7 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
-"enables remote desktop support. To support remote desktop with screen "
-"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
-"screen cast support."
+"manage HiDPI monitors. Does not require a restart."
 msgstr ""
 "Para activar as características experimentais, engada a palabra chave da "
 "característica á lista. Depende da característica que se deba reiniciar ou "
@@ -415,25 +424,21 @@ msgstr ""
 "son: «scale-monitor-framebuffer» — fai que mutter de maneira predeterminada "
 "dispoña os monitores lóxicos nun espacio lóxico de coordenadas de píxeles, "
 "mentres escala framebuffers de monitores no lugar do contido de xanela, para "
-"administrar monitores HiDPI. Non require un reinicio. «remote-desktop» — "
-"permite a compatibilidade con compartición de pantalla. Para admitir o "
-"escritorio remoto con compartición de pantalla tamén debe activar «screen-"
-"cast». • «screen-cast» — permite a compatibilidade coa retransmisión de "
-"pantalla."
+"administrar monitores HiDPI. Non require un reinicio."
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Select window from tab popup"
 msgstr "Seleccionar xanela da lapela emerxente"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:146
 msgid "Cancel tab popup"
 msgstr "Cancelar lapela emerxente"
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Switch monitor configurations"
 msgstr "Cambiar preferencias do monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:156
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rota a configuración do monitor embebido"
 
@@ -554,22 +559,22 @@ msgstr "Cambiar monitor"
 msgid "Show on-screen help"
 msgstr "Mostrar axuda en pantalla"
 
-#: src/backends/meta-monitor-manager.c:900
+#: src/backends/meta-monitor-manager.c:886
 msgid "Built-in display"
 msgstr "Pantalla embebida"
 
-#: src/backends/meta-monitor-manager.c:923
+#: src/backends/meta-monitor-manager.c:909
 msgid "Unknown"
 msgstr "Descoñecido"
 
-#: src/backends/meta-monitor-manager.c:925
+#: src/backends/meta-monitor-manager.c:911
 msgid "Unknown Display"
 msgstr "Pantalla descoñecida"
 
 #. TRANSLATORS: this is a monitor vendor name, followed by a
 #. * size in inches, like 'Dell 15"'
 #.
-#: src/backends/meta-monitor-manager.c:933
+#: src/backends/meta-monitor-manager.c:919
 #, c-format
 msgid "%s %s"
 msgstr "%s %s"
@@ -584,66 +589,65 @@ msgstr ""
 "Xa se está a executar outro xestor de composición na pantalla %i na "
 "visualización «%s»."
 
-#: src/core/bell.c:194
+#: src/core/bell.c:254
 msgid "Bell event"
 msgstr "Evento de campá"
 
-#: src/core/display.c:608
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Produciuse un erro ao abrir a visualización do X Window System «%s»\n"
-
-#: src/core/main.c:190
+#: src/core/main.c:191
 msgid "Disable connection to session manager"
 msgstr "Desactivar a conexión ao xestor de sesión"
 
-#: src/core/main.c:196
+#: src/core/main.c:197
 msgid "Replace the running window manager"
 msgstr "Substituír o xestor de xanelas en execución"
 
-#: src/core/main.c:202
+#: src/core/main.c:203
 msgid "Specify session management ID"
 msgstr "Especificar o ID de xestión de sesión"
 
-#: src/core/main.c:207
+#: src/core/main.c:208
 msgid "X Display to use"
 msgstr "Pantalla X que se vai usar"
 
-#: src/core/main.c:213
+#: src/core/main.c:214
 msgid "Initialize session from savefile"
 msgstr "Inicializar sesión desde o ficheiro de salvagarda"
 
-#: src/core/main.c:219
+#: src/core/main.c:220
 msgid "Make X calls synchronous"
 msgstr "Facer que as chamadas a X sexan sincrónicas"
 
-#: src/core/main.c:226
+#: src/core/main.c:227
 msgid "Run as a wayland compositor"
 msgstr "Executar como compositor de wayland"
 
-#: src/core/main.c:232
+#: src/core/main.c:233
 msgid "Run as a nested compositor"
 msgstr "Executar como compositor anidado"
 
-#: src/core/main.c:240
+#: src/core/main.c:239
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Executar o compositor de wayland sen iniciar Xwayland"
+
+#: src/core/main.c:247
 msgid "Run as a full display server, rather than nested"
 msgstr "Executar como un servidor de pantalla completo, fronte a un aniñado"
 
-#: src/core/main.c:246
+#: src/core/main.c:253
 msgid "Run with X11 backend"
 msgstr "Executar coa infraestructura de X11"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:147
+#: src/core/meta-close-dialog-default.c:148
 #, c-format
 msgid "“%s” is not responding."
 msgstr "«%s» non está respondendo."
 
-#: src/core/meta-close-dialog-default.c:149
+#: src/core/meta-close-dialog-default.c:150
 msgid "Application is not responding."
 msgstr "O Aplicativo non está respondendo."
 
-#: src/core/meta-close-dialog-default.c:154
+#: src/core/meta-close-dialog-default.c:155
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -651,11 +655,11 @@ msgstr ""
 "Pode elixir esperar un momento para ver se continúa ou forzar ao aplicativo "
 "a pechar completamente."
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:162
 msgid "_Force Quit"
 msgstr "_Forzar a saída"
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:162
 msgid "_Wait"
 msgstr "Espe_rar"
 
@@ -682,24 +686,10 @@ msgstr "Imprimir versión"
 msgid "Mutter plugin to use"
 msgstr "Engadido de mutter que usar"
 
-#: src/core/prefs.c:1997
+#: src/core/prefs.c:1787
 #, c-format
 msgid "Workspace %d"
 msgstr "Espazo de traballo %d"
-
-#: src/core/screen.c:583
-#, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"A pantalla «%s» ten xa un xestor de xanelas, tente usar a opción --replace "
-"para substituír o xestor de xanelas."
-
-#: src/core/screen.c:668
-#, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "A pantalla %d na visualización «%s» non é válida\n"
 
 #: src/core/util.c:120
 msgid "Mutter was compiled without support for verbose mode\n"
@@ -710,7 +700,30 @@ msgstr "Mutter foi compilado sen compatibilidade para o modo detallado\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Modo conmutador: Modo %d"
 
-#: src/x11/session.c:1818
+#: src/x11/meta-x11-display.c:666
+#, c-format
+msgid ""
+"Display “%s” already has a window manager; try using the --replace option to "
+"replace the current window manager."
+msgstr ""
+"A pantalla «%s» ten xa un xestor de xanelas, tente usar a opción --replace "
+"para substituír o xestor de xanelas."
+
+#: src/x11/meta-x11-display.c:1010
+msgid "Failed to initialize GDK\n"
+msgstr "Procuciuse un fallo ao inicializar GDK\n"
+
+#: src/x11/meta-x11-display.c:1034
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "Produciuse un erro ao abrir a visualización do X Window System «%s»\n"
+
+#: src/x11/meta-x11-display.c:1117
+#, c-format
+msgid "Screen %d on display “%s” is invalid\n"
+msgstr "A pantalla %d na visualización «%s» non é válida\n"
+
+#: src/x11/session.c:1819
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -718,7 +731,7 @@ msgstr ""
 "Estas xanelas non soportan «save current setup» e terán que reiniciarse "
 "manualmente a próxima vez que inicie a sesión."
 
-#: src/x11/window-props.c:559
+#: src/x11/window-props.c:565
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (en %s)"
