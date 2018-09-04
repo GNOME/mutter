@@ -20,8 +20,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-02-06 04:14+0000\n"
-"PO-Revision-Date: 2018-03-07 22:29+0100\n"
+"POT-Creation-Date: 2018-07-07 09:58+0000\n"
+"PO-Revision-Date: 2018-08-30 20:57+0200\n"
 "Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -403,37 +403,23 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
-"enables remote desktop support. To support remote desktop with screen "
-"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
-"screen cast support."
-msgstr ""
-"For at slå eksperimentelle funktioner til, skal du tilføje "
-"funktionsnøgleordet til listen. Om funktionen kræver genstart af "
-"kompositoren afhænger af den givne funktion. Der er ingen garanti for at "
-"eksperimentelle funktion forbliver tilgængelige eller mulige at konfigurere. "
-"Forvent ikke at noget i denne indstilling nødvendigvis fungerer i fremtiden. "
-"Mulige nøgleord i øjeblikket: • “scale-monitor-framebuffer” — får mutter til "
-"som standard at arrangere logiske skærme i et logisk pixelkoordinatrum, mens "
-"skærmes framebuffere skaleres frem for vinduesindholdet for at håndtere "
-"HiDPI-skærme. Fjernskrivebord med skærmdeling understøttes hvis “screen-"
-"cast” også er aktiveret. • “screen-cast” — aktiverer understøttelse af "
-"skærmoptagelse."
+"manage HiDPI monitors. Does not require a restart."
+msgstr "For at slå eksperimentelle funktioner til, skal du tilføje funktionsnøgleordet til listen. Om funktionen kræver genstart af kompositoren afhænger af den givne funktion. Der er ingen garanti for at eksperimentelle funktion forbliver tilgængelige eller mulige at konfigurere. Forvent ikke at noget i denne indstilling nødvendigvis fungerer i fremtiden. Mulige nøgleord i øjeblikket: • “scale-monitor-framebuffer” — får mutter til som standard at arrangere logiske skærme i et logisk pixelkoordinatrum, mens skærmes framebuffere skaleres frem for vinduesindholdet for at håndtere HiDPI-skærme. Kræver ikke genstart."
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Select window from tab popup"
 msgstr "Vælg vindue fra tab-pop-op"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:146
 msgid "Cancel tab popup"
 msgstr "Annullér faneblads-pop-op"
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Switch monitor configurations"
 msgstr "Skift skærmkonfiguration"
 
 # Mærkelig ting at rotere.  De mener nok at skifte cyclisk mellem nogle stykker, men "built-in"?
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:156
 msgid "Rotates the built-in monitor configuration"
 msgstr "Roterer den indbyggede skærmkonfiguration"
 
@@ -500,7 +486,11 @@ msgid ""
 "the client must also either send a specific X11 ClientMessage to the root "
 "window or be among the applications white-listed in key “xwayland-grab-"
 "access-rules”."
-msgstr "Tillad tastaturindfangelse af X11-programmer, som kører i Xwayland. For at en X11-tastaturindfangelse behandles i Wayland, skal klienten også enten sende en specifik X11-ClientMessage til rodvinduet eller være blandt de godkendte programmer i nøglen “xwayland-grab-access-rules”."
+msgstr ""
+"Tillad tastaturindfangelse af X11-programmer, som kører i Xwayland. For at "
+"en X11-tastaturindfangelse behandles i Wayland, skal klienten også enten "
+"sende en specifik X11-ClientMessage til rodvinduet eller være blandt de "
+"godkendte programmer i nøglen “xwayland-grab-access-rules”."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:77
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -518,12 +508,22 @@ msgid ""
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
-msgstr "Anfør navne på ressourcer eller ressourceklasser for X11-vinduer som tillades eller ikke tillades at udføre X11-tastaturindfangelse under Xwayland. Ressourcenavnet eller ressourceklassen for et givent X11-vindue kan findes med kommandoen “xprop WM_CLASS”. Værdierne understøtter jokertegnene “*” og “?”. Værdier som begynder med “!” forbydes, hvilket har præcedens over godkendelse, og dette tillader at fjerne programmer som ellers findes i systemets standardliste. Denne liste inkluderer følgende programmer: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@”. Brugere kan afbryde en eksisterende indfangelse ved hjælp af den særlige tastaturgenvej defineret ved nøglen “restore-shortcuts”."
+msgstr ""
+"Anfør navne på ressourcer eller ressourceklasser for X11-vinduer som "
+"tillades eller ikke tillades at udføre X11-tastaturindfangelse under "
+"Xwayland. Ressourcenavnet eller ressourceklassen for et givent X11-vindue "
+"kan findes med kommandoen “xprop WM_CLASS”. Værdierne understøtter "
+"jokertegnene “*” og “?”. Værdier som begynder med “!” forbydes, hvilket har "
+"præcedens over godkendelse, og dette tillader at fjerne programmer som "
+"ellers findes i systemets standardliste. Denne liste inkluderer følgende "
+"programmer: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@”. Brugere kan afbryde en "
+"eksisterende indfangelse ved hjælp af den særlige tastaturgenvej defineret "
+"ved nøglen “restore-shortcuts”."
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2260
+#: src/backends/meta-input-settings.c:2325
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Tilstandsskift (Gruppe %d)"
@@ -531,30 +531,30 @@ msgstr "Tilstandsskift (Gruppe %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2283
+#: src/backends/meta-input-settings.c:2348
 msgid "Switch monitor"
 msgstr "Skift skærm"
 
-#: src/backends/meta-input-settings.c:2285
+#: src/backends/meta-input-settings.c:2350
 msgid "Show on-screen help"
 msgstr "Vis integreret hjælp"
 
-#: src/backends/meta-monitor-manager.c:900
+#: src/backends/meta-monitor-manager.c:907
 msgid "Built-in display"
 msgstr "Indbygget terminal"
 
-#: src/backends/meta-monitor-manager.c:923
+#: src/backends/meta-monitor-manager.c:930
 msgid "Unknown"
 msgstr "Ukendt"
 
-#: src/backends/meta-monitor-manager.c:925
+#: src/backends/meta-monitor-manager.c:932
 msgid "Unknown Display"
 msgstr "Ukendt terminal"
 
 #. TRANSLATORS: this is a monitor vendor name, followed by a
 #. * size in inches, like 'Dell 15"'
 #.
-#: src/backends/meta-monitor-manager.c:933
+#: src/backends/meta-monitor-manager.c:940
 #, c-format
 msgid "%s %s"
 msgstr "%s %s"
@@ -568,66 +568,65 @@ msgid ""
 msgstr ""
 "En anden komposithåndtering kører allerede på skærm %i på terminal “%s”."
 
-#: src/core/bell.c:194
+#: src/core/bell.c:254
 msgid "Bell event"
 msgstr "Bip-hændelse"
 
-#: src/core/display.c:608
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Kunne ikke åbne X Window System-terminalen “%s”\n"
-
-#: src/core/main.c:190
+#: src/core/main.c:191
 msgid "Disable connection to session manager"
 msgstr "Deaktivér forbindelse til sessionshåndtering"
 
-#: src/core/main.c:196
+#: src/core/main.c:197
 msgid "Replace the running window manager"
 msgstr "Erstat den kørende vindueshåndtering"
 
-#: src/core/main.c:202
+#: src/core/main.c:203
 msgid "Specify session management ID"
 msgstr "Angiv sessionhåndterings-id"
 
-#: src/core/main.c:207
+#: src/core/main.c:208
 msgid "X Display to use"
 msgstr "X-terminal som bruges"
 
-#: src/core/main.c:213
+#: src/core/main.c:214
 msgid "Initialize session from savefile"
 msgstr "Initialisér session fra gemt fil"
 
-#: src/core/main.c:219
+#: src/core/main.c:220
 msgid "Make X calls synchronous"
 msgstr "Gør kald til X synkrone"
 
-#: src/core/main.c:226
+#: src/core/main.c:227
 msgid "Run as a wayland compositor"
 msgstr "Kør som en wayland-kompositor"
 
-#: src/core/main.c:232
+#: src/core/main.c:233
 msgid "Run as a nested compositor"
 msgstr "Kør som en indlejret kompositor"
 
-#: src/core/main.c:240
+#: src/core/main.c:239
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Kør wayland-kompositoren uden at starte Xwayland"
+
+#: src/core/main.c:247
 msgid "Run as a full display server, rather than nested"
 msgstr "Kør som fuld terminalserver, frem for indlejret"
 
-#: src/core/main.c:246
+#: src/core/main.c:253
 msgid "Run with X11 backend"
 msgstr "Kør med X11-motor"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:147
+#: src/core/meta-close-dialog-default.c:148
 #, c-format
 msgid "“%s” is not responding."
 msgstr "“%s” svarer ikke."
 
-#: src/core/meta-close-dialog-default.c:149
+#: src/core/meta-close-dialog-default.c:150
 msgid "Application is not responding."
 msgstr "Program svarer ikke."
 
-#: src/core/meta-close-dialog-default.c:154
+#: src/core/meta-close-dialog-default.c:155
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -635,11 +634,11 @@ msgstr ""
 "Du kan vælge at vente et lille stykke tid på at programmet fortsætter, eller "
 "du kan tvinge programmet til at afslutte fuldstændigt."
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:162
 msgid "_Force Quit"
 msgstr "_Tving til at afslutte"
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:162
 msgid "_Wait"
 msgstr "_Vent"
 
@@ -666,12 +665,21 @@ msgstr "Vis version"
 msgid "Mutter plugin to use"
 msgstr "Mutter-udvidelsesmodul der skal bruges"
 
-#: src/core/prefs.c:1997
+#: src/core/prefs.c:1915
 #, c-format
 msgid "Workspace %d"
 msgstr "Arbejdsområde %d"
 
-#: src/core/screen.c:583
+#: src/core/util.c:120
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr "Mutter blev kompileret uden understøttelse for uddybende tilstand\n"
+
+#: src/wayland/meta-wayland-tablet-pad.c:567
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "Tilstandsskift: Tilstand %d"
+
+#: src/x11/meta-x11-display.c:666
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -680,21 +688,21 @@ msgstr ""
 "Terminalen “%s” har allerede en vindueshåndtering; prøv tilvalget --replace "
 "for at erstatte den aktuelle vindueshåndtering."
 
-#: src/core/screen.c:668
+#: src/x11/meta-x11-display.c:1010
+msgid "Failed to initialize GDK\n"
+msgstr "Kunne ikke klargøre GDK\n"
+
+#: src/x11/meta-x11-display.c:1034
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "Kunne ikke åbne X Window System-terminalen “%s”\n"
+
+#: src/x11/meta-x11-display.c:1117
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Skærm %d på terminal “%s” er ugyldig\n"
 
-#: src/core/util.c:120
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter blev kompileret uden understøttelse for uddybende tilstand\n"
-
-#: src/wayland/meta-wayland-tablet-pad.c:563
-#, c-format
-msgid "Mode Switch: Mode %d"
-msgstr "Tilstandsskift: Tilstand %d"
-
-#: src/x11/session.c:1818
+#: src/x11/session.c:1819
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -703,7 +711,7 @@ msgstr ""
 "manuelt næste gang, du logger på."
 
 # Lad os håbe dette er rigtigt
-#: src/x11/window-props.c:559
+#: src/x11/window-props.c:565
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
