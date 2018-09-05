@@ -42,21 +42,12 @@ meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_su
     META_WAYLAND_SURFACE_ROLE (shell_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
-  MetaWaylandBuffer *buffer;
-  CoglTexture *texture;
   MetaRectangle geometry;
   GList *l;
 
-  buffer = surface->buffer_ref.buffer;
-  if (!buffer)
-    return;
-
-  texture = meta_wayland_buffer_get_texture (buffer);
   geometry = (MetaRectangle) {
-    .x = 0,
-    .y = 0,
-    .width = cogl_texture_get_width (texture) / surface->scale,
-    .height = cogl_texture_get_height (texture) / surface->scale,
+    .width = meta_wayland_surface_get_width (surface),
+    .height = meta_wayland_surface_get_height (surface),
   };
 
   for (l = surface->subsurfaces; l; l = l->next)
@@ -74,6 +65,23 @@ meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_su
 }
 
 void
+meta_wayland_shell_surface_determine_geometry (MetaWaylandShellSurface *shell_surface,
+                                               MetaRectangle           *set_geometry,
+                                               MetaRectangle           *out_geometry)
+{
+  MetaRectangle bounding_geometry = { 0 };
+  MetaRectangle intersected_geometry = { 0 };
+
+  meta_wayland_shell_surface_calculate_geometry (shell_surface,
+                                                 &bounding_geometry);
+
+  meta_rectangle_intersect (set_geometry, &bounding_geometry,
+                            &intersected_geometry);
+
+  *out_geometry = intersected_geometry;
+}
+
+void
 meta_wayland_shell_surface_set_window (MetaWaylandShellSurface *shell_surface,
                                        MetaWindow              *window)
 {
@@ -83,7 +91,7 @@ meta_wayland_shell_surface_set_window (MetaWaylandShellSurface *shell_surface,
     meta_wayland_surface_role_get_surface (surface_role);
 
   meta_wayland_surface_set_window (surface, window);
-  meta_window_update_monitor (window, FALSE);
+  meta_window_update_monitor (window, META_WINDOW_UPDATE_MONITOR_FLAGS_NONE);
 }
 
 void

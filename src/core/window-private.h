@@ -36,7 +36,7 @@
 #include <meta/compositor.h>
 #include <meta/window.h>
 #include <meta/meta-close-dialog.h>
-#include "screen-private.h"
+#include "backends/meta-logical-monitor.h"
 #include <meta/util.h>
 #include "stack.h"
 #include <X11/Xutil.h>
@@ -121,6 +121,13 @@ typedef enum
   META_PLACEMENT_CONSTRAINT_ADJUSTMENT_RESIZE_Y = 1 << 5,
 } MetaPlacementConstraintAdjustment;
 
+typedef enum _MetaWindowUpdateMonitorFlags
+{
+  META_WINDOW_UPDATE_MONITOR_FLAGS_NONE = 0,
+  META_WINDOW_UPDATE_MONITOR_FLAGS_USER_OP = 1 << 0,
+  META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE = 1 << 1,
+} MetaWindowUpdateMonitorFlags;
+
 typedef struct _MetaPlacementRule
 {
   MetaRectangle anchor_rect;
@@ -145,7 +152,6 @@ struct _MetaWindow
   GObject parent_instance;
 
   MetaDisplay *display;
-  MetaScreen *screen;
   guint64 stamp;
   MetaLogicalMonitor *monitor;
   MetaWorkspace *workspace;
@@ -515,6 +521,7 @@ struct _MetaWindow
   guint bypass_compositor;
 
   MetaPlacementRule *placement_rule;
+  MetaPlacementRule *constrained_placement_rule;
 };
 
 struct _MetaWindowClass
@@ -549,8 +556,8 @@ struct _MetaWindowClass
                                   cairo_surface_t **icon,
                                   cairo_surface_t **mini_icon);
   uint32_t (*get_client_pid)     (MetaWindow *window);
-  void (*update_main_monitor)    (MetaWindow *window,
-                                  gboolean    user_op);
+  void (*update_main_monitor)    (MetaWindow                   *window,
+                                  MetaWindowUpdateMonitorFlags  flags);
   void (*main_monitor_changed)   (MetaWindow *window,
                                   const MetaLogicalMonitor *old);
   void (*force_restore_shortcuts) (MetaWindow         *window,
@@ -586,7 +593,6 @@ struct _MetaWindowClass
 #define META_WINDOW_ALLOWS_VERTICAL_RESIZE(w)   (META_WINDOW_ALLOWS_RESIZE_EXCEPT_HINTS (w) && (w)->size_hints.min_height < (w)->size_hints.max_height)
 
 MetaWindow * _meta_window_shared_new       (MetaDisplay         *display,
-                                            MetaScreen          *screen,
                                             MetaWindowClientType client_type,
                                             MetaWaylandSurface  *surface,
                                             Window               xwindow,
@@ -768,8 +774,8 @@ void meta_window_activate_full (MetaWindow     *window,
 MetaLogicalMonitor * meta_window_calculate_main_logical_monitor (MetaWindow *window);
 
 MetaLogicalMonitor * meta_window_get_main_logical_monitor (MetaWindow *window);
-void meta_window_update_monitor (MetaWindow *window,
-                                 gboolean    user_op);
+void meta_window_update_monitor (MetaWindow                   *window,
+                                 MetaWindowUpdateMonitorFlags  flags);
 
 void meta_window_set_urgent (MetaWindow *window,
                              gboolean    urgent);

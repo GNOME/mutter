@@ -64,7 +64,7 @@ typedef struct
 struct _MetaWaylandCompositor
 {
   struct wl_display *wayland_display;
-  const char *display_name;
+  char *display_name;
   GHashTable *outputs;
   struct wl_list frame_callbacks;
 
@@ -72,6 +72,8 @@ struct _MetaWaylandCompositor
 
   MetaWaylandSeat *seat;
   MetaWaylandTabletManager *tablet_manager;
+
+  GHashTable *scheduled_surface_associations;
 };
 
 #endif /* META_WAYLAND_PRIVATE_H */

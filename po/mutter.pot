@@ -6,10 +6,10 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: mutter 3.29.4\n"
+"Project-Id-Version: mutter 3.29.90\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
 "product=mutter&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2018-07-18 20:29+0200\n"
+"POT-Creation-Date: 2018-08-06 20:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -604,7 +604,7 @@ msgstr ""
 msgid "Mutter plugin to use"
 msgstr ""
 
-#: src/core/prefs.c:1915
+#: src/core/prefs.c:1787
 #, c-format
 msgid "Workspace %d"
 msgstr ""

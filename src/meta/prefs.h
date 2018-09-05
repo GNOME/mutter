@@ -115,9 +115,6 @@ void meta_prefs_remove_listener (MetaPrefsChangedFunc func,
 
 void meta_prefs_init (void);
 
-void meta_prefs_override_preference_schema (const char *key,
-                                            const char *schema);
-
 const char* meta_preference_to_string (MetaPreference pref);
 
 MetaVirtualModifier         meta_prefs_get_mouse_button_mods  (void);
@@ -140,7 +137,9 @@ gboolean                    meta_prefs_get_gnome_animations   (void);
 gboolean                    meta_prefs_get_edge_tiling        (void);
 gboolean                    meta_prefs_get_auto_maximize      (void);
 gboolean                    meta_prefs_get_center_new_windows (void);
+
 gboolean                    meta_prefs_get_show_fallback_app_menu (void);
+void                        meta_prefs_set_show_fallback_app_menu (gboolean whether);
 
 void                        meta_prefs_get_button_layout (MetaButtonLayout *button_layout);
 
@@ -379,12 +378,12 @@ typedef enum
   META_KEY_BINDING_BUILTIN      = 1 << 1,
   META_KEY_BINDING_IS_REVERSED  = 1 << 2,
   META_KEY_BINDING_NON_MASKABLE = 1 << 3,
+  META_KEY_BINDING_IGNORE_AUTOREPEAT = 1 << 4,
 } MetaKeyBindingFlags;
 
 /**
  * MetaKeyHandlerFunc:
  * @display: a #MetaDisplay
- * @screen: a #MetaScreen
  * @window: a #MetaWindow
  * @event: (type gpointer): a #ClutterKeyEvent
  * @binding: a #MetaKeyBinding
@@ -392,7 +391,6 @@ typedef enum
  *
  */
 typedef void (* MetaKeyHandlerFunc) (MetaDisplay     *display,
-                                     MetaScreen      *screen,
                                      MetaWindow      *window,
                                      ClutterKeyEvent *event,
                                      MetaKeyBinding  *binding,

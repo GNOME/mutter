@@ -74,9 +74,8 @@ typedef struct
 {
   struct xkb_keymap *keymap;
   struct xkb_state *state;
-  int keymap_fd;
   size_t keymap_size;
-  char *keymap_area;
+  char *keymap_string;
 } MetaWaylandXkbInfo;
 
 struct _MetaWaylandKeyboard
@@ -89,7 +88,12 @@ struct _MetaWaylandKeyboard
   MetaWaylandSurface *focus_surface;
   struct wl_listener focus_surface_listener;
   uint32_t focus_serial;
-  uint32_t key_serial;
+
+  uint32_t key_down_keycode;
+  uint32_t key_down_serial;
+
+  uint32_t key_up_keycode;
+  uint32_t key_up_serial;
 
   MetaWaylandXkbInfo xkb_info;
   enum xkb_state_component mods_changed;

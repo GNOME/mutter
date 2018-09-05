@@ -203,13 +203,9 @@ meta_monitor_get_main_output (MetaMonitor *monitor)
 gboolean
 meta_monitor_is_active (MetaMonitor *monitor)
 {
-  MetaOutput *output;
-  MetaCrtc *crtc;
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-  crtc = meta_output_get_assigned_crtc (output);
-
-  return crtc && crtc->current_mode;
+  return !!priv->current_mode;
 }
 
 gboolean
@@ -1411,6 +1407,18 @@ meta_monitor_get_current_mode (MetaMonitor *monitor)
   return priv->current_mode;
 }
 
+static gboolean
+is_current_mode_known (MetaMonitor *monitor)
+{
+  MetaOutput *output;
+  MetaCrtc *crtc;
+
+  output = meta_monitor_get_main_output (monitor);
+  crtc = meta_output_get_assigned_crtc (output);
+
+  return meta_monitor_is_active (monitor) == (crtc && crtc->current_mode);
+}
+
 void
 meta_monitor_derive_current_mode (MetaMonitor *monitor)
 {
@@ -1430,6 +1438,8 @@ meta_monitor_derive_current_mode (MetaMonitor *monitor)
     }
 
   priv->current_mode = current_mode;
+
+  g_warn_if_fail (is_current_mode_known (monitor));
 }
 
 void
@@ -1553,6 +1563,22 @@ meta_monitor_calculate_mode_scale (MetaMonitor     *monitor,
   return calculate_scale (monitor, monitor_mode);
 }
 
+static gboolean
+is_logical_size_large_enough (gint width, gint height)
+{
+  return width >= MINIMUM_LOGICAL_WIDTH &&
+         height >= MINIMUM_LOGICAL_HEIGHT;
+}
+
+gboolean
+meta_monitor_mode_should_be_advertised (MetaMonitorMode *monitor_mode)
+{
+  g_return_val_if_fail (monitor_mode != NULL, FALSE);
+
+  return is_logical_size_large_enough (monitor_mode->spec.width,
+                                       monitor_mode->spec.height);
+}
+
 static float
 get_closest_scale_factor_for_resolution (float width,
                                          float height,
@@ -1573,8 +1599,7 @@ get_closest_scale_factor_for_resolution (float width,
 
   if (scale < MINIMUM_SCALE_FACTOR ||
       scale > MAXIMUM_SCALE_FACTOR ||
-      floorf (scaled_w) < MINIMUM_LOGICAL_WIDTH ||
-      floorf (scaled_h) < MINIMUM_LOGICAL_HEIGHT)
+      !is_logical_size_large_enough (floorf (scaled_w), floorf (scaled_h)))
     goto out;
 
   if (floorf (scaled_w) == scaled_w && floorf (scaled_h) == scaled_h)

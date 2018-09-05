@@ -88,9 +88,17 @@ mutter_built_sources += \
 	xdg-output-unstable-v1-server-protocol.h			\
 	xwayland-keyboard-grab-unstable-v1-protocol.c			\
 	xwayland-keyboard-grab-unstable-v1-server-protocol.h		\
+	text-input-unstable-v3-protocol.c				\
+	text-input-unstable-v3-server-protocol.h			\
 	gtk-text-input-protocol.c					\
 	gtk-text-input-server-protocol.h				\
 	$(NULL)
+
+if HAVE_WAYLAND_EGLSTREAM
+mutter_built_sources += \
+	wayland-eglstream-controller-server-protocol.h \
+	$(NULL)
+endif
 endif
 
 wayland_protocols =				\
@@ -114,6 +122,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/meta-cursor-tracker-private.h	\
 	backends/meta-cursor-renderer.c		\
 	backends/meta-cursor-renderer.h		\
+	backends/meta-cursor-sprite-xcursor.c	\
+	backends/meta-cursor-sprite-xcursor.h	\
 	backends/meta-dnd-private.h		\
 	backends/meta-egl.c			\
 	backends/meta-egl.h			\
@@ -159,6 +169,9 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/meta-renderer.h		\
 	backends/meta-renderer-view.c		\
 	backends/meta-renderer-view.h		\
+	backends/meta-remote-access-controller.c	\
+	backends/meta-remote-access-controller-private.h	\
+	meta/meta-remote-access-controller.h	\
 	backends/edid-parse.c			\
 	backends/edid.h				\
 	backends/gsm-inhibitor-flag.h		\
@@ -176,6 +189,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/x11/meta-gpu-xrandr.h			\
 	backends/x11/cm/meta-backend-x11-cm.c		\
 	backends/x11/cm/meta-backend-x11-cm.h		\
+	backends/x11/cm/meta-cursor-sprite-xfixes.c	\
+	backends/x11/cm/meta-cursor-sprite-xfixes.h	\
 	backends/x11/cm/meta-renderer-x11-cm.c		\
 	backends/x11/cm/meta-renderer-x11-cm.h		\
 	backends/x11/nested/meta-backend-x11-nested.c	\
@@ -279,12 +294,13 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	core/edge-resistance.h			\
 	core/events.c				\
 	core/events.h				\
-	core/errors.c				\
-	meta/errors.h				\
 	core/frame.c				\
 	core/frame.h				\
 	core/meta-gesture-tracker.c		\
 	core/meta-gesture-tracker-private.h	\
+	core/meta-workspace-manager.c		\
+	core/meta-workspace-manager-private.h	\
+	meta/meta-workspace-manager.h		\
 	core/keybindings.c			\
 	core/keybindings-private.h		\
 	core/main-private.h			\
@@ -293,9 +309,6 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	core/place.h				\
 	core/prefs.c				\
 	meta/prefs.h				\
-	core/screen.c				\
-	core/screen-private.h			\
-	meta/screen.h				\
 	core/startup-notification.c		\
 	core/startup-notification-private.h	\
 	meta/types.h				\
@@ -322,6 +335,11 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	ui/theme-private.h			\
 	ui/ui.c					\
 	x11/atomnames.h				\
+	x11/meta-x11-display.c			\
+	x11/meta-x11-display-private.h		\
+	meta/meta-x11-display.h			\
+	x11/meta-x11-errors.c			\
+	meta/meta-x11-errors.h			\
 	x11/events.c				\
 	x11/events.h				\
 	x11/group-private.h			\
@@ -370,6 +388,8 @@ if HAVE_WAYLAND
 libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	compositor/meta-surface-actor-wayland.c	\
 	compositor/meta-surface-actor-wayland.h	\
+	wayland/meta-cursor-sprite-wayland.c	\
+	wayland/meta-cursor-sprite-wayland.h	\
 	wayland/meta-wayland.c			\
 	wayland/meta-wayland.h			\
 	wayland/meta-wayland-private.h		\
@@ -431,16 +451,18 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-wayland-touch.h		\
 	wayland/meta-wayland-surface.c		\
 	wayland/meta-wayland-surface.h		\
-	wayland/meta-wayland-surface-role-cursor.c	\
-	wayland/meta-wayland-surface-role-cursor.h	\
-	wayland/meta-wayland-surface-role-tablet-cursor.c	\
-	wayland/meta-wayland-surface-role-tablet-cursor.h	\
+	wayland/meta-wayland-cursor-surface.c	\
+	wayland/meta-wayland-cursor-surface.h	\
+	wayland/meta-wayland-tablet-cursor-surface.c	\
+	wayland/meta-wayland-tablet-cursor-surface.h	\
 	wayland/meta-wayland-actor-surface.c	\
 	wayland/meta-wayland-actor-surface.h	\
 	wayland/meta-wayland-subsurface.c	\
 	wayland/meta-wayland-subsurface.h	\
 	wayland/meta-wayland-shell-surface.c	\
 	wayland/meta-wayland-shell-surface.h	\
+	wayland/meta-wayland-text-input-legacy.c	\
+	wayland/meta-wayland-text-input-legacy.h	\
 	wayland/meta-wayland-text-input.c	\
 	wayland/meta-wayland-text-input.h	\
 	wayland/meta-wayland-types.h		\
@@ -524,7 +546,6 @@ libmutterinclude_headers =			\
 	meta/compositor-mutter.h		\
 	meta/compositor.h			\
 	meta/display.h				\
-	meta/errors.h				\
 	meta/group.h				\
 	meta/keybindings.h			\
 	meta/main.h				\
@@ -540,6 +561,7 @@ libmutterinclude_headers =			\
 	meta/meta-idle-monitor.h		\
 	meta/meta-plugin.h			\
 	meta/meta-monitor-manager.h		\
+	meta/meta-remote-access-controller.h	\
 	meta/meta-settings.h			\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\
@@ -547,8 +569,10 @@ libmutterinclude_headers =			\
 	meta/meta-window-actor.h		\
 	meta/meta-window-group.h		\
 	meta/meta-window-shape.h		\
+	meta/meta-workspace-manager.h		\
+	meta/meta-x11-display.h			\
+	meta/meta-x11-errors.h			\
 	meta/prefs.h				\
-	meta/screen.h				\
 	meta/theme.h				\
 	meta/types.h				\
 	meta/util.h				\
@@ -759,4 +783,6 @@ endef
 %-protocol.c : $(srcdir)/wayland/protocol/%.xml
 	$(AM_V_GEN)$(WAYLAND_SCANNER) code $< $@
 %-server-protocol.h : $(srcdir)/wayland/protocol/%.xml
+	$(AM_V_GEN)$(WAYLAND_SCANNER) server-header $< $@
+%-server-protocol.h : $(WAYLAND_EGLSTREAM_DATADIR)/%.xml
 	$(AM_V_GEN)$(WAYLAND_SCANNER) server-header $< $@

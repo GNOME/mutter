@@ -193,8 +193,8 @@ meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
 }
 
 static void
-update_cursor (MetaCursorRenderer *renderer,
-               MetaCursorSprite   *cursor_sprite)
+meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
+                                    MetaCursorSprite   *cursor_sprite)
 {
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
   gboolean handled_by_backend;
@@ -237,7 +237,7 @@ meta_cursor_renderer_set_cursor (MetaCursorRenderer *renderer,
     return;
   priv->displayed_cursor = cursor_sprite;
 
-  update_cursor (renderer, cursor_sprite);
+  meta_cursor_renderer_update_cursor (renderer, cursor_sprite);
 }
 
 void
@@ -246,7 +246,7 @@ meta_cursor_renderer_force_update (MetaCursorRenderer *renderer)
   MetaCursorRendererPrivate *priv =
     meta_cursor_renderer_get_instance_private (renderer);
 
-  update_cursor (renderer, priv->displayed_cursor);
+  meta_cursor_renderer_update_cursor (renderer, priv->displayed_cursor);
 }
 
 void
@@ -261,7 +261,7 @@ meta_cursor_renderer_set_position (MetaCursorRenderer *renderer,
   priv->current_x = x;
   priv->current_y = y;
 
-  update_cursor (renderer, priv->displayed_cursor);
+  meta_cursor_renderer_update_cursor (renderer, priv->displayed_cursor);
 }
 
 ClutterPoint
@@ -282,29 +282,4 @@ meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer)
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
 
   return priv->displayed_cursor;
-}
-
-#ifdef HAVE_WAYLAND
-void
-meta_cursor_renderer_realize_cursor_from_wl_buffer (MetaCursorRenderer *renderer,
-                                                    MetaCursorSprite   *cursor_sprite,
-                                                    struct wl_resource *buffer)
-{
-
-  MetaCursorRendererClass *renderer_class = META_CURSOR_RENDERER_GET_CLASS (renderer);
-
-  if (renderer_class->realize_cursor_from_wl_buffer)
-    renderer_class->realize_cursor_from_wl_buffer (renderer, cursor_sprite, buffer);
-}
-#endif
-
-void
-meta_cursor_renderer_realize_cursor_from_xcursor (MetaCursorRenderer *renderer,
-                                                  MetaCursorSprite   *cursor_sprite,
-                                                  XcursorImage       *xc_image)
-{
-  MetaCursorRendererClass *renderer_class = META_CURSOR_RENDERER_GET_CLASS (renderer);
-
-  if (renderer_class->realize_cursor_from_xcursor)
-    renderer_class->realize_cursor_from_xcursor (renderer, cursor_sprite, xc_image);
 }

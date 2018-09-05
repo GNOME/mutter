@@ -43,21 +43,16 @@
 #include "ui.h"
 #include "util-private.h"
 #include "display-private.h"
+#include "x11/meta-x11-display-private.h"
 
 static gboolean restart_helper_started = FALSE;
 static gboolean restart_message_shown = FALSE;
 static gboolean is_restart = FALSE;
 
 void
-meta_restart_init (void)
+meta_set_is_restart (gboolean whether)
 {
-  Display *xdisplay = meta_ui_get_display ();
-  Atom atom_restart_helper = XInternAtom (xdisplay, "_MUTTER_RESTART_HELPER", False);
-  Window restart_helper_window = None;
-
-  restart_helper_window = XGetSelectionOwner (xdisplay, atom_restart_helper);
-  if (restart_helper_window)
-    is_restart = TRUE;
+  is_restart = whether;
 }
 
 static void
@@ -184,17 +179,6 @@ meta_restart (const char *message)
   restart_check_ready ();
 
   return;
-}
-
-void
-meta_restart_finish (void)
-{
-  if (is_restart)
-    {
-      Display *xdisplay = meta_display_get_xdisplay (meta_get_display ());
-      Atom atom_restart_helper = XInternAtom (xdisplay, "_MUTTER_RESTART_HELPER", False);
-      XSetSelectionOwner (xdisplay, atom_restart_helper, None, CurrentTime);
-    }
 }
 
 /**

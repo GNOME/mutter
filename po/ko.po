@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-02-06 04:14+0000\n"
-"PO-Revision-Date: 2018-02-24 16:14+0900\n"
+"POT-Creation-Date: 2018-08-24 11:54+0000\n"
+"PO-Revision-Date: 2018-08-25 12:08+0300\n"
 "Last-Translator: Gwan-gyeong Mun <elongbug@gmail.com>\n"
 "Language-Team: GNOME Korea <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
@@ -394,34 +394,29 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
-"enables remote desktop support. To support remote desktop with screen "
-"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
-"screen cast support."
+"manage HiDPI monitors. Does not require a restart."
 msgstr ""
 "실험적인 기능을 사용하려면, 해당 기능 키워드를 목록에 추가하십시오. 기능에 따"
 "라 컴포지터를 다시 시작해야 할 수도 있습니다. 실험적인 기능은 사용할 수 없을 "
 "수도 있고, 설정할 수 없을 수도 있습니다. 이 설정에 추가한 사항이 앞으로 버전"
 "에서도 동작할 거라고 기대하지 마십시오. 현재 가능한 값은: • “scale-monitor-"
-"framebuffer” — 머터에서 논리적인 모니터를 논리적인 픽셀 좌표계로 배치합니다. "
-"창의 내용의 크기를 조정하지 않고 모니터 프레임버퍼 크기를 조정합니다. 재시작"
-"은 필요하지 않습니다. • “remote-desktop” — 원격 데스크톱 기능을 사용합니다.  "
-"원격 데스크톱을 화면 공유와 같이 사용하려면, “screen-cast” 설정도 켜져 있어"
-"야 합니다. • “screen-cast” — 화면 전송 기능을 사용합니다."
+"framebuffer” — 머터는 기본적으로 논리 픽셀 좌표 공간에서 논리 모니터를 배치하"
+"고, HiDPI 모니터를 관리하기 위해 윈도우 내용 대신 모니터 프레임버퍼를 스케일"
+"링합니다. 재시작은 필요하지 않습니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Select window from tab popup"
 msgstr "탭 팝업에서 창 선택"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:146
 msgid "Cancel tab popup"
 msgstr "탭 팝업 취소"
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Switch monitor configurations"
 msgstr "모니터 설정 전환"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:156
 msgid "Rotates the built-in monitor configuration"
 msgstr "내장된 모니터 설정을 돌아가면서 전환합니다"
 
@@ -523,7 +518,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2260
+#: src/backends/meta-input-settings.c:2325
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "모드 전환 (그룹 %d)"
@@ -531,30 +526,30 @@ msgstr "모드 전환 (그룹 %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2283
+#: src/backends/meta-input-settings.c:2348
 msgid "Switch monitor"
 msgstr "모니터 전환"
 
-#: src/backends/meta-input-settings.c:2285
+#: src/backends/meta-input-settings.c:2350
 msgid "Show on-screen help"
 msgstr "화면 도움말 표시"
 
-#: src/backends/meta-monitor-manager.c:900
+#: src/backends/meta-monitor-manager.c:886
 msgid "Built-in display"
 msgstr "내장 디스플레이"
 
-#: src/backends/meta-monitor-manager.c:923
+#: src/backends/meta-monitor-manager.c:909
 msgid "Unknown"
 msgstr "알 수 없음"
 
-#: src/backends/meta-monitor-manager.c:925
+#: src/backends/meta-monitor-manager.c:911
 msgid "Unknown Display"
 msgstr "알 수 없는 디스플레이"
 
 #. TRANSLATORS: this is a monitor vendor name, followed by a
 #. * size in inches, like 'Dell 15"'
 #.
-#: src/backends/meta-monitor-manager.c:933
+#: src/backends/meta-monitor-manager.c:919
 #, c-format
 msgid "%s %s"
 msgstr "%s %s"
@@ -569,76 +564,75 @@ msgstr ""
 "다른 창 구성 관리 프로그램이 이미 디스플레이 “%2$s” 화면 %1$i번에서 실행 중입"
 "니다."
 
-#: src/core/bell.c:194
+#: src/core/bell.c:254
 msgid "Bell event"
 msgstr "삑소리 이벤트"
 
-#: src/core/display.c:608
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "X 윈도 시스템 디스플레이 “%s”을(를) 여는데 실패하였습니다\n"
-
-#: src/core/main.c:190
+#: src/core/main.c:191
 msgid "Disable connection to session manager"
 msgstr "세션 관리자와 연결 하지 않습니다"
 
-#: src/core/main.c:196
+#: src/core/main.c:197
 msgid "Replace the running window manager"
 msgstr "실행 중인 창 관리자를 바꿉니다"
 
-#: src/core/main.c:202
+#: src/core/main.c:203
 msgid "Specify session management ID"
 msgstr "세션 관리 ID를 지정합니다"
 
-#: src/core/main.c:207
+#: src/core/main.c:208
 msgid "X Display to use"
 msgstr "사용할 X 디스플레이"
 
-#: src/core/main.c:213
+#: src/core/main.c:214
 msgid "Initialize session from savefile"
 msgstr "저장 파일에서 세션을 초기화 합니다"
 
-#: src/core/main.c:219
+#: src/core/main.c:220
 msgid "Make X calls synchronous"
 msgstr "동기 X 호출을 합니다"
 
-#: src/core/main.c:226
+#: src/core/main.c:227
 msgid "Run as a wayland compositor"
 msgstr "웨일랜드 컴포지터로 실행합니다"
 
-#: src/core/main.c:232
+#: src/core/main.c:233
 msgid "Run as a nested compositor"
 msgstr "중첩 컴포지터로 실행합니다"
 
-#: src/core/main.c:240
+#: src/core/main.c:239
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "웨일랜드 컴포지터를 X웨일랜드 시작없이 실행합니다"
+
+#: src/core/main.c:247
 msgid "Run as a full display server, rather than nested"
 msgstr "전체 디스플레이 서버로 실행, 중첩 컴포지터가 아님"
 
-#: src/core/main.c:246
+#: src/core/main.c:253
 msgid "Run with X11 backend"
 msgstr "X11 백 엔드로 실행 합니다"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:147
+#: src/core/meta-close-dialog-default.c:148
 #, c-format
 msgid "“%s” is not responding."
 msgstr "“%s” 창이 반응하지 않습니다."
 
-#: src/core/meta-close-dialog-default.c:149
+#: src/core/meta-close-dialog-default.c:150
 msgid "Application is not responding."
 msgstr "프로그램이 반응하지 않습니다."
 
-#: src/core/meta-close-dialog-default.c:154
+#: src/core/meta-close-dialog-default.c:155
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
 msgstr "좀 더 기다리거나 해당 프로그램을 강제로 끝낼 수 있습니다."
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:162
 msgid "_Force Quit"
 msgstr "강제로 끝내기(_F)"
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:162
 msgid "_Wait"
 msgstr "기다리기(_W)"
 
@@ -665,12 +659,21 @@ msgstr "버전을 출력합니다"
 msgid "Mutter plugin to use"
 msgstr "사용할 머터 플러그인"
 
-#: src/core/prefs.c:1997
+#: src/core/prefs.c:1787
 #, c-format
 msgid "Workspace %d"
 msgstr "작업 공간 %d"
 
-#: src/core/screen.c:583
+#: src/core/util.c:120
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr "머터가 자세한 모드 지원 없이 컴파일 되었습니다\n"
+
+#: src/wayland/meta-wayland-tablet-pad.c:567
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "모드 전환: 모드 %d"
+
+#: src/x11/meta-x11-display.c:666
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -679,21 +682,21 @@ msgstr ""
 "디스플레이  “%s”에 이미 창 관리자가 있습니다. 현재 창 관리자를 바꾸려면 --"
 "replace 옵션을 써보십시오."
 
-#: src/core/screen.c:668
+#: src/x11/meta-x11-display.c:1010
+msgid "Failed to initialize GDK\n"
+msgstr "GDK 초기화에 실패했습니다\n"
+
+#: src/x11/meta-x11-display.c:1034
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "X 윈도 시스템 디스플레이 “%s”을(를) 여는데 실패하였습니다\n"
+
+#: src/x11/meta-x11-display.c:1117
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "디스플레이 “%2$s”의 화면 %1$d은(는) 잘못되었습니다\n"
 
-#: src/core/util.c:120
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "머터가 자세한 모드 지원 없이 컴파일 되었습니다\n"
-
-#: src/wayland/meta-wayland-tablet-pad.c:563
-#, c-format
-msgid "Mode Switch: Mode %d"
-msgstr "모드 전환: 모드 %d"
-
-#: src/x11/session.c:1818
+#: src/x11/session.c:1819
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -702,7 +705,7 @@ msgstr ""
 "로 다시 시작해야 합니다."
 
 # <창제목> (on <기계>)
-#: src/x11/window-props.c:559
+#: src/x11/window-props.c:565
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s에서)"

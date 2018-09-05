@@ -24,11 +24,13 @@
 #include <config.h>
 #include "core.h"
 #include "frame.h"
+#include "meta-workspace-manager-private.h"
 #include "workspace-private.h"
 #include <meta/prefs.h>
-#include <meta/errors.h>
+#include <meta/meta-x11-errors.h>
 #include "util-private.h"
 
+#include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
 #include "x11/window-x11-private.h"
 
@@ -51,7 +53,7 @@ get_window (Display *xdisplay,
   MetaWindow *window;
 
   display = meta_display_for_x_display (xdisplay);
-  window = meta_display_lookup_x_window (display, frame_xwindow);
+  window = meta_x11_display_lookup_x_window (display->x11_display, frame_xwindow);
 
   if (window == NULL || window->frame == NULL)
     {
@@ -76,6 +78,8 @@ static gboolean
 lower_window_and_transients (MetaWindow *window,
                              gpointer   data)
 {
+  MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
+
   meta_window_lower (window);
 
   meta_window_foreach_transient (window, lower_window_and_transients, NULL);
@@ -86,22 +90,22 @@ lower_window_and_transients (MetaWindow *window,
        * Do extra sanity checks to avoid possible race conditions.
        * (Borrowed from window.c.)
        */
-      if (window->screen->active_workspace &&
+      if (workspace_manager->active_workspace &&
           meta_window_located_on_workspace (window,
-                                            window->screen->active_workspace))
+                                            workspace_manager->active_workspace))
         {
           GList* link;
-          link = g_list_find (window->screen->active_workspace->mru_list,
+          link = g_list_find (workspace_manager->active_workspace->mru_list,
                               window);
           g_assert (link);
 
-          window->screen->active_workspace->mru_list =
-            g_list_remove_link (window->screen->active_workspace->mru_list,
+          workspace_manager->active_workspace->mru_list =
+            g_list_remove_link (workspace_manager->active_workspace->mru_list,
                                 link);
           g_list_free (link);
 
-          window->screen->active_workspace->mru_list =
-            g_list_append (window->screen->active_workspace->mru_list,
+          workspace_manager->active_workspace->mru_list =
+            g_list_append (workspace_manager->active_workspace->mru_list,
                            window);
         }
     }
@@ -115,6 +119,7 @@ meta_core_user_lower_and_unfocus (Display *xdisplay,
                                   guint32  timestamp)
 {
   MetaWindow *window = get_window (xdisplay, frame_xwindow);
+  MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
 
   lower_window_and_transients (window, NULL);
 
@@ -122,7 +127,7 @@ meta_core_user_lower_and_unfocus (Display *xdisplay,
   * the focus window, assume that's always the case. (Typically,
   * this will be invoked via keyboard action or by a mouse action;
   * in either case the window or a modal child will have been focused.) */
-  meta_workspace_focus_default_window (window->screen->active_workspace,
+  meta_workspace_focus_default_window (workspace_manager->active_workspace,
                                        NULL,
                                        timestamp);
 }
@@ -219,14 +224,10 @@ meta_core_begin_grab_op (Display    *xdisplay,
 {
   MetaWindow *window = get_window (xdisplay, frame_xwindow);
   MetaDisplay *display;
-  MetaScreen *screen;
 
   display = meta_display_for_x_display (xdisplay);
-  screen = display->screen;
 
-  g_assert (screen != NULL);
-
-  return meta_display_begin_grab_op (display, screen, window,
+  return meta_display_begin_grab_op (display, window,
                                      op, pointer_already_grabbed,
                                      frame_action,
                                      button, modmask,

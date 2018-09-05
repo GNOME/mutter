@@ -1,3 +1,143 @@
+mutter (3.30.0-1) experimental; urgency=medium
+
+  * New upstream release:
+    - Updated translations
+
+ -- Didier Roche <didrocks@ubuntu.com>  Tue, 04 Sep 2018 18:58:52 +0200
+
+mutter (3.29.92-1) experimental; urgency=medium
+
+  * Team upload
+
+  [ Marco Trevisan (Treviño) ]
+  * New upstream development release
+    - Fix a crash when drmModeGetResources() fails, for example when
+      using Wayland on Nvidia hardware (Closes: #900002)
+  * Rebase patch series
+  * d/p/renderer-native-Check-calculated-transform-when-creating-.patch:
+    - dropped as applied upstream
+
+  [ Simon McVittie ]
+  * Standards-Version: 4.2.1 (no changes required)
+  * Update debian/libmutter-3-0.symbols
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 30 Aug 2018 08:45:01 +0100
+
+mutter (3.29.91-1) experimental; urgency=medium
+
+  * Team upload
+  * New upstream development release
+  * Update wayland-protocols build-dependency to 1.16
+  * d/copyright: Update
+  * Rebase patch series
+  * d/*.install: Sort file lists (wrap-and-sort -a)
+  * Normalize package lists with wrap-and-sort -a
+  * d/control: Normalize package stanza order with wrap-and-sort -abk
+  * Standards-Version: 4.2.0 (no changes required)
+  * d/libmutter-3-0.symbols: Update
+  * d/rules: Tell dh_shlibdeps about our private libraries
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 20 Aug 2018 21:17:31 +0100
+
+mutter (3.29.90-2) experimental; urgency=medium
+
+  * Team upload
+  * Build-depend on GLib 2.57.2 for the new approach to overriding
+    GSettings per desktop
+  * d/p/clutter-actor-Inherit-clone-branch-depth-from-parent.patch,
+    d/p/Updated-Slovenian-translation.patch,
+    d/p/Updated-Slovenian-translation-1.patch:
+    Update to upstream 3.29.90-3-ga87c447b7
+  * d/p/renderer-native-Check-calculated-transform-when-creating-.patch:
+    Apply proposed patch to fix a regression with rotated screens
+    (Closes: #905363)
+  * d/gbp.conf: Don't number patches
+
+ -- Simon McVittie <smcv@debian.org>  Sat, 04 Aug 2018 16:32:49 +0100
+
+mutter (3.29.90-1) experimental; urgency=medium
+
+  * Team upload
+  * New upstream release
+    - Don't try to use an invalid monitor mode to figure out scaling
+      (LP: #1723615)
+  * d/p/window-wayland-Always-update-monitor-for-non-user-ops.patch,
+    d/p/native-gpu-Handle-drmModeSetCrtc-failing-gracefully.patch,
+    d/p/wayland-Nullify-monitor-resources-when-updating-outputs.patch,
+    d/p/monitor-manager-Filter-out-low-screen-resolutions.patch,
+    d/p/window-Don-t-refuse-to-move-focus-to-the-grab-window.patch,
+    d/p/window-Explicitly-exclude-unmanaging-window-from-focus-ag.patch:
+    Drop patches that were applied upstream
+  * d/libmutter-3-0.symbols: Update
+    - Ignore ABI change in experimental: removal of
+      meta_prefs_override_preference_schema()
+    - Add Breaks on previous experimental gnome-shell
+
+ -- Simon McVittie <smcv@debian.org>  Wed, 01 Aug 2018 09:03:19 +0100
+
+mutter (3.29.4-3) experimental; urgency=medium
+
+  * Team upload
+
+  [ Marco Trevisan (Treviño) ]
+  * d/p/window-wayland-Always-update-monitor-for-non-user-ops.patch:
+    - Always update monitor in wayland, avoiding crash (LP: #1784398)
+  * d/p/monitor-manager-Filter-out-low-screen-resolutions.patch:
+    - Don't return screen resolutions that can't be applied (LP: #1772831)
+
+  [ Simon McVittie ]
+  * d/p/series: Sort patches that were already applied upstream to the
+    beginning of the patch series
+  * d/p/window-Don-t-refuse-to-move-focus-to-the-grab-window.patch,
+    d/p/window-Explicitly-exclude-unmanaging-window-from-focus-ag.patch:
+    Add patches from upstream to avoid crashing if a modal dialog closes
+    while being dragged (LP: #1422253)
+  * d/p/native-gpu-Handle-drmModeSetCrtc-failing-gracefully.patch,
+    d/p/wayland-Nullify-monitor-resources-when-updating-outputs.patch:
+    Add more bug fixes from upstream
+  * Update symbols file
+
+ -- Simon McVittie <smcv@debian.org>  Tue, 31 Jul 2018 09:43:13 +0100
+
+mutter (3.29.4-2) experimental; urgency=medium
+
+  * Generate dependencies for libmutter-3-0, not libmutter-2-0
+  * d/libmutter-3-0.symbols: Update
+  * Standards-Version: 4.1.5 (no changes required)
+  * Set Rules-Requires-Root to no
+  * d/copyright: Remove obsolete FSF postal addresses
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 27 Jul 2018 09:49:53 +0100
+
+mutter (3.29.4-1) experimental; urgency=medium
+
+  * debian/control*, gbp.conf: Update for experimental (3.29 series).
+  * New upstream release 3.29.4 (etc)
+    + Fix crash with parent-less modal dialogs
+    + Preserve paint volumes where possible to optimize CPU usage
+    + Fix Korean Hangul support on wayland
+    + Improve support for proprietary Nvidia driver
+    + Only upload HW cursor sprite to the GPU that will display them
+    + Improve EGLstream support
+    + Remove MetaScreen to prepare for non-mandatary X11 dependency
+    + Misc. bug fixes
+    + Fix size change animations on wayland
+    + Handle touch events on server-side titlebars
+    + Fix various input-method regressions
+    + Fix wayland build on FreeBSD
+    + Fix swapped colors in screenshots (again)
+    + Allow building with elogind
+    + Consider display rotation for cursor
+    + Fall back to non-modifier GBM surfaces
+    + Take inhibitors into account for monitoring idle
+  * debian/control*: Drop libupower-glib BD - mutter now accesses upower
+    directly.
+  * d/p/core-Return-1-if-meta_window_get_monitor-is-called-on-an-.patch: Drop,
+    this is applied upstream.
+  * debian/*: SONAME 2 -> 3
+
+ -- Iain Lane <laney@debian.org>  Wed, 25 Jul 2018 17:39:37 +0100
+
 mutter (3.28.3-2) unstable; urgency=medium
 
   * Team upload

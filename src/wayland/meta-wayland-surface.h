@@ -137,7 +137,6 @@ struct _MetaWaylandSurface
   /* Generic stuff */
   struct wl_resource *resource;
   MetaWaylandCompositor *compositor;
-  MetaSurfaceActor *surface_actor;
   MetaWaylandSurfaceRole *role;
   MetaWindow *window;
   cairo_region_t *input_region;
@@ -231,10 +230,6 @@ void                meta_wayland_surface_unref_buffer_use_count (MetaWaylandSurf
 void                meta_wayland_surface_set_window (MetaWaylandSurface *surface,
                                                      MetaWindow         *window);
 
-void                meta_wayland_surface_create_surface_actor (MetaWaylandSurface *surface);
-
-void                meta_wayland_surface_clear_surface_actor (MetaWaylandSurface *surface);
-
 void                meta_wayland_surface_configure_notify (MetaWaylandSurface *surface,
                                                            int                 new_x,
                                                            int                 new_y,
@@ -260,6 +255,9 @@ void                meta_wayland_surface_update_outputs (MetaWaylandSurface *sur
 MetaWaylandSurface *meta_wayland_surface_get_toplevel (MetaWaylandSurface *surface);
 
 MetaWindow *        meta_wayland_surface_get_toplevel_window (MetaWaylandSurface *surface);
+
+void                meta_wayland_surface_cache_pending_frame_callbacks (MetaWaylandSurface      *surface,
+                                                                        MetaWaylandPendingState *pending);
 
 void                meta_wayland_surface_queue_pending_frame_callbacks (MetaWaylandSurface *surface);
 
@@ -302,5 +300,12 @@ void                meta_wayland_surface_restore_shortcuts (MetaWaylandSurface *
 
 gboolean            meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurface *surface,
                                                                  MetaWaylandSeat    *seat);
+
+MetaSurfaceActor *  meta_wayland_surface_get_actor (MetaWaylandSurface *surface);
+
+void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface);
+
+int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
+int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
 
 #endif
