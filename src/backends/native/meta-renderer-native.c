@@ -126,6 +126,7 @@ typedef struct _MetaDumbBuffer
   uint64_t map_size;
   int width;
   int height;
+  int stride_bytes;
 } MetaDumbBuffer;
 
 typedef struct _MetaOnscreenNativeSecondaryGpuState
@@ -1786,6 +1787,7 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
   int width, height;
   uint8_t *target_data;
+  int target_stride_bytes;
   uint32_t target_fb_id;
   MetaDumbBuffer *next_dumb_fb;
   MetaDumbBuffer *current_dumb_fb;
@@ -1804,12 +1806,14 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   g_assert (height == secondary_gpu_state->cpu.dumb_fb->height);
 
   target_data = secondary_gpu_state->cpu.dumb_fb->map;
+  target_stride_bytes = secondary_gpu_state->cpu.dumb_fb->stride_bytes;
   target_fb_id = secondary_gpu_state->cpu.dumb_fb->fb_id;
 
   meta_renderer_native_gles3_read_pixels (egl,
                                           renderer_native->gles3,
                                           width, height,
-                                          target_data);
+                                          target_data,
+                                          target_stride_bytes);
 
   secondary_gpu_state->gbm.next_fb_id = target_fb_id;
 }
@@ -2306,6 +2310,7 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
   dumb_fb->map_size = create_arg.size;
   dumb_fb->width = width;
   dumb_fb->height = height;
+  dumb_fb->stride_bytes = create_arg.pitch;
 
   return TRUE;
 
