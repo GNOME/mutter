@@ -1,7 +1,12 @@
-mutter (3.30.0-1) experimental; urgency=medium
+mutter (3.30.0-1) UNRELEASED; urgency=medium
 
+  [ Didier Roche ]
   * New upstream release:
     - Updated translations
+
+  [ Iain Lane ]
+  * Merge experimental branch back into master and update references to it
+    accordingly. This upload is going to unstable.
 
  -- Didier Roche <didrocks@ubuntu.com>  Tue, 04 Sep 2018 18:58:52 +0200
 
