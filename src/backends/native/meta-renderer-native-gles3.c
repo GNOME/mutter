@@ -243,9 +243,12 @@ meta_renderer_native_gles3_read_pixels (MetaEgl   *egl,
                                         MetaGles3 *gles3,
                                         int        width,
                                         int        height,
-                                        uint8_t   *target_data)
+                                        uint8_t   *target_data,
+                                        int        target_stride_bytes)
 {
   int y;
+
+  g_assert (target_stride_bytes >= 0);
 
   GLBAS (gles3, glFinish, ());
 
@@ -253,6 +256,6 @@ meta_renderer_native_gles3_read_pixels (MetaEgl   *egl,
     {
       GLBAS (gles3, glReadPixels, (0, height - y, width, 1,
                                    GL_RGBA, GL_UNSIGNED_BYTE,
-                                   target_data + width * y * 4));
+                                   target_data + y * target_stride_bytes));
     }
 }
