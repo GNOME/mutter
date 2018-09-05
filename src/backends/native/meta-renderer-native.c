@@ -2246,6 +2246,15 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
 
   if (fb_id == 0)
     {
+      if (format != DRM_FORMAT_XRGB8888)
+        {
+          g_set_error (error, G_IO_ERROR,
+                       G_IO_ERROR_FAILED,
+                       "drmModeAddFB does not support format 0x%x",
+                       format);
+          goto err_add_fb;
+        }
+
       if (drmModeAddFB (kms_fd, width, height,
                         24 /* depth of RGBX8888 */,
                         32 /* bpp of RGBX8888 */,
