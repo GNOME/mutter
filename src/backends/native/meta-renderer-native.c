@@ -124,6 +124,8 @@ typedef struct _MetaDumbBuffer
   uint32_t handle;
   void *map;
   uint64_t map_size;
+  int width;
+  int height;
 } MetaDumbBuffer;
 
 typedef struct _MetaOnscreenNativeSecondaryGpuState
@@ -1798,6 +1800,9 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
     next_dumb_fb = &secondary_gpu_state->cpu.dumb_fbs[0];
   secondary_gpu_state->cpu.dumb_fb = next_dumb_fb;
 
+  g_assert (width == secondary_gpu_state->cpu.dumb_fb->width);
+  g_assert (height == secondary_gpu_state->cpu.dumb_fb->height);
+
   target_data = secondary_gpu_state->cpu.dumb_fb->map;
   target_fb_id = secondary_gpu_state->cpu.dumb_fb->fb_id;
 
@@ -2299,6 +2304,8 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
   dumb_fb->handle = create_arg.handle;
   dumb_fb->map = map;
   dumb_fb->map_size = create_arg.size;
+  dumb_fb->width = width;
+  dumb_fb->height = height;
 
   return TRUE;
 
