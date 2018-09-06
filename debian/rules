@@ -23,6 +23,11 @@ CONFFLAGS += \
 	--disable-native-backend
 endif
 
+# pipewire is not in Ubuntu main yet
+ifneq ($(shell dpkg-vendor --query vendor),Ubuntu)
+	CONFFLAGS += --enable-remote-desktop
+endif
+
 override_dh_auto_configure:
 	dh_auto_configure -- \
 		--libexecdir="\$${prefix}/lib/mutter" \
