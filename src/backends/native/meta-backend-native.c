@@ -62,14 +62,10 @@
 struct _MetaBackendNative
 {
   MetaBackend parent;
-};
 
-struct _MetaBackendNativePrivate
-{
   MetaLauncher *launcher;
   MetaBarrierManagerNative *barrier_manager;
 };
-typedef struct _MetaBackendNativePrivate MetaBackendNativePrivate;
 
 static GInitableIface *initable_parent_iface;
 
@@ -77,7 +73,6 @@ static void
 initable_iface_init (GInitableIface *initable_iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaBackendNative, meta_backend_native, META_TYPE_BACKEND,
-                         G_ADD_PRIVATE (MetaBackendNative)
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 initable_iface_init))
 
@@ -85,9 +80,8 @@ static void
 meta_backend_native_finalize (GObject *object)
 {
   MetaBackendNative *native = META_BACKEND_NATIVE (object);
-  MetaBackendNativePrivate *priv = meta_backend_native_get_instance_private (native);
 
-  meta_launcher_free (priv->launcher);
+  meta_launcher_free (native->launcher);
 
   G_OBJECT_CLASS (meta_backend_native_parent_class)->finalize (object);
 }
@@ -99,10 +93,8 @@ constrain_to_barriers (ClutterInputDevice *device,
                        float              *new_y)
 {
   MetaBackendNative *native = META_BACKEND_NATIVE (meta_get_backend ());
-  MetaBackendNativePrivate *priv =
-    meta_backend_native_get_instance_private (native);
 
-  meta_barrier_manager_native_process (priv->barrier_manager,
+  meta_barrier_manager_native_process (native->barrier_manager,
                                        device,
                                        time,
                                        new_x, new_y);
@@ -575,26 +567,22 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
 static void
 meta_backend_native_init (MetaBackendNative *native)
 {
-  MetaBackendNativePrivate *priv = meta_backend_native_get_instance_private (native);
   GError *error = NULL;
 
-  priv->launcher = meta_launcher_new (&error);
-  if (priv->launcher == NULL)
+  native->launcher = meta_launcher_new (&error);
+  if (native->launcher == NULL)
     {
       g_warning ("Can't initialize KMS backend: %s\n", error->message);
       exit (1);
     }
 
-  priv->barrier_manager = meta_barrier_manager_native_new ();
+  native->barrier_manager = meta_barrier_manager_native_new ();
 }
 
 MetaLauncher *
 meta_backend_native_get_launcher (MetaBackendNative *native)
 {
-  MetaBackendNativePrivate *priv =
-    meta_backend_native_get_instance_private (native);
-
-  return priv->launcher;
+  return native->launcher;
 }
 
 gboolean
@@ -610,10 +598,7 @@ meta_activate_vt (int vt, GError **error)
 MetaBarrierManagerNative *
 meta_backend_native_get_barrier_manager (MetaBackendNative *native)
 {
-  MetaBackendNativePrivate *priv =
-    meta_backend_native_get_instance_private (native);
-
-  return priv->barrier_manager;
+  return native->barrier_manager;
 }
 
 /**
@@ -634,9 +619,8 @@ meta_activate_session (void)
     return TRUE;
 
   MetaBackendNative *native = META_BACKEND_NATIVE (backend);
-  MetaBackendNativePrivate *priv = meta_backend_native_get_instance_private (native);
 
-  if (!meta_launcher_activate_session (priv->launcher, &error))
+  if (!meta_launcher_activate_session (native->launcher, &error))
     {
       g_warning ("Could not activate session: %s\n", error->message);
       g_error_free (error);
