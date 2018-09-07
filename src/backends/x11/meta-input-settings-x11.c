@@ -782,6 +782,7 @@ meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *setti
     return;
 
   /* Grab the puke bucket! */
+  meta_x11_error_trap_push (display->x11_display);
   xdev = device_ensure_xdevice (device);
   if (xdev)
     {
