@@ -107,6 +107,7 @@ struct _MetaShapedTexturePrivate
   cairo_rectangle_int_t viewport_src_rect;
   guint viewport_dest_width, viewport_dest_height;
   guint viewport_scale;
+  enum wl_output_transform viewport_transform;
 
   guint tex_width, tex_height;
   guint fallback_width, fallback_height;
@@ -159,6 +160,7 @@ meta_shaped_texture_init (MetaShapedTexture *self)
   priv->create_mipmaps = TRUE;
   priv->is_y_inverted = TRUE;
   priv->viewport_scale = 1;
+  priv->viewport_transform = WL_OUTPUT_TRANSFORM_NORMAL;
 }
 
 static void
@@ -346,22 +348,22 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
 
   if(priv->viewport_src_rect.width > 0)
     {
-      src_x      = priv->viewport_src_rect.x      * priv->viewport_scale;
-      src_y      = priv->viewport_src_rect.y      * priv->viewport_scale;
-      src_width  = priv->viewport_src_rect.width  * priv->viewport_scale;
+      src_x = priv->viewport_src_rect.x * priv->viewport_scale;
+      src_y = priv->viewport_src_rect.y * priv->viewport_scale;
+      src_width = priv->viewport_src_rect.width * priv->viewport_scale;
       src_height = priv->viewport_src_rect.height * priv->viewport_scale;
     }
   else
     {
-      src_x      = 0;
-      src_y      = 0;
-      src_width  = priv->tex_width;
+      src_x = 0;
+      src_y = 0;
+      src_width = priv->tex_width;
       src_height = priv->tex_height;
     }
 
-  coords[0] = rect->x      * src_width  / (alloc->x2 - alloc->x1) + src_x;
-  coords[1] = rect->y      * src_height / (alloc->y2 - alloc->y1) + src_y;
-  coords[2] = rect->width  * src_width  / (alloc->x2 - alloc->x1) + coords[0];
+  coords[0] = rect->x * src_width / (alloc->x2 - alloc->x1) + src_x;
+  coords[1] = rect->y * src_height / (alloc->y2 - alloc->y1) + src_y;
+  coords[2] = rect->width * src_width / (alloc->x2 - alloc->x1) + coords[0];
   coords[3] = rect->height * src_height / (alloc->y2 - alloc->y1) + coords[1];
 
   coords[0] /= priv->tex_width;
@@ -374,6 +376,50 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
   coords[6] = coords[2];
   coords[7] = coords[3];
 
+  if (priv->viewport_transform != WL_OUTPUT_TRANSFORM_NORMAL)
+    {
+      CoglMatrix matrix;
+      CoglEuler euler;
+      int n;
+
+      cogl_matrix_init_translation (&matrix, 0.5, 0.5, 0.0);
+      switch(priv->viewport_transform)
+        {
+          case WL_OUTPUT_TRANSFORM_90:
+            euler = (CoglEuler) {0.0, 0.0, 90.0};
+            break;
+          case WL_OUTPUT_TRANSFORM_180:
+            euler = (CoglEuler) {0.0, 0.0, 180.0};
+            break;
+          case WL_OUTPUT_TRANSFORM_270:
+            euler = (CoglEuler) {0.0, 0.0, 270.0};
+            break;
+          case WL_OUTPUT_TRANSFORM_FLIPPED:
+            euler = (CoglEuler) {0.0, 180.0, 0.0};
+            break;
+          case WL_OUTPUT_TRANSFORM_FLIPPED_90:
+            euler = (CoglEuler) {0.0, 180.0, 90.0};
+            break;
+          case WL_OUTPUT_TRANSFORM_FLIPPED_180:
+            euler = (CoglEuler) {0.0, 180.0, 180.0};
+            break;
+          case WL_OUTPUT_TRANSFORM_FLIPPED_270:
+            euler = (CoglEuler) {0.0, 180.0, 270.0};
+            break;
+          default:
+            euler = (CoglEuler) {0.0, 0.0, 0.0};
+            break;
+        }
+      cogl_matrix_rotate_euler (&matrix, &euler);
+      cogl_matrix_translate (&matrix, -0.5, -0.5, 0.0);
+
+      n = cogl_pipeline_get_n_layers(pipeline);
+      for (int i=0;i<n;i++)
+        {
+          cogl_pipeline_set_layer_matrix(pipeline, i, &matrix);
+        }
+    }
+
   cogl_framebuffer_draw_multitextured_rectangle (fb, pipeline,
                                                  x1, y1, x2, y2,
                                                  &coords[0], 8);
@@ -383,7 +429,7 @@ static void
 update_size (MetaShapedTexture *stex)
 {
   MetaShapedTexturePrivate *priv = stex->priv;
-  guint dest_width, dest_height;
+  guint dest_width, dest_height, temp;
 
   if (priv->viewport_dest_width > 0)
     {
@@ -399,6 +445,24 @@ update_size (MetaShapedTexture *stex)
     {
       dest_width = priv->tex_width;
       dest_height = priv->tex_height;
+    }
+
+  switch(priv->viewport_transform)
+    {
+      default:
+      case WL_OUTPUT_TRANSFORM_NORMAL:
+      case WL_OUTPUT_TRANSFORM_180:
+      case WL_OUTPUT_TRANSFORM_FLIPPED:
+      case WL_OUTPUT_TRANSFORM_FLIPPED_180:
+        break;
+      case WL_OUTPUT_TRANSFORM_90:
+      case WL_OUTPUT_TRANSFORM_270:
+      case WL_OUTPUT_TRANSFORM_FLIPPED_90:
+      case WL_OUTPUT_TRANSFORM_FLIPPED_270:
+        temp = dest_width;
+        dest_width = dest_height;
+        dest_height = temp;
+        break;
     }
 
   if (priv->dest_width != dest_width ||
@@ -478,6 +542,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
   MetaShapedTexture *stex = (MetaShapedTexture *) actor;
   MetaShapedTexturePrivate *priv = stex->priv;
   guint dest_width, dest_height;
+  enum wl_output_transform transform;
   guchar opacity;
   CoglContext *ctx;
   CoglFramebuffer *fb;
@@ -536,6 +601,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
         }
     }
 
+  transform = priv->viewport_transform;
   dest_width = priv->dest_width;
   dest_height = priv->dest_height;
 
@@ -560,7 +626,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
   clutter_actor_get_allocation_box (actor, &alloc);
 
   cairo_region_t *blended_region;
-  gboolean use_opaque_region = (priv->opaque_region != NULL && opacity == 255);
+  gboolean use_opaque_region = (priv->opaque_region != NULL && opacity == 255 &&
+                                transform == 0);
 
   if (use_opaque_region)
     {
@@ -668,7 +735,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
       cogl_color_init_from_4ub (&color, opacity, opacity, opacity, opacity);
       cogl_pipeline_set_color (blended_pipeline, &color);
 
-      if (blended_region != NULL)
+      if (blended_region != NULL && transform != 0)
         {
           /* 1) blended_region is not empty. Paint the rectangles. */
           int i;
@@ -999,16 +1066,18 @@ meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex)
 }
 
 void
-meta_shaped_texture_set_viewport (MetaShapedTexture           *stex,
-                                  cairo_rectangle_int_t       *src_rect,
-                                  int                         dest_width,
-                                  int                         dest_height,
-                                  int                         scale)
+meta_shaped_texture_set_viewport (MetaShapedTexture        *stex,
+                                  cairo_rectangle_int_t    *src_rect,
+                                  int                      dest_width,
+                                  int                      dest_height,
+                                  int                      scale,
+                                  enum wl_output_transform transform)
 {
   MetaShapedTexturePrivate *priv = stex->priv;
 
   priv->viewport_src_rect = *src_rect;
   priv->viewport_scale = scale;
+  priv->viewport_transform = transform;
 
   priv->viewport_dest_width = dest_width;
   priv->viewport_dest_height = dest_height;
