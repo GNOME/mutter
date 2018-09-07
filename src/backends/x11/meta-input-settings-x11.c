@@ -783,6 +783,9 @@ meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *setti
 
   /* Grab the puke bucket! */
   xdev = device_ensure_xdevice (device);
+
+  meta_x11_error_trap_push (display->x11_display);
+
   if (xdev)
     {
       guchar map[8] = {
