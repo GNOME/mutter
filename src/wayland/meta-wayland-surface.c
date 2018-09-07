@@ -253,6 +253,93 @@ meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
 }
 
 static void
+meta_wayland_surface_transformed_coord(int width, int height,
+                                       enum wl_output_transform transform,
+			                                 int32_t scale,
+			                                 float sx, float sy, float *bx, float *by)
+{
+	switch (transform)
+    {
+	    case WL_OUTPUT_TRANSFORM_NORMAL:
+	    default:
+		    *bx = sx;
+		    *by = sy;
+		    break;
+	    case WL_OUTPUT_TRANSFORM_FLIPPED:
+		    *bx = width - sx;
+		    *by = sy;
+		    break;
+	    case WL_OUTPUT_TRANSFORM_90:
+		    *bx = height - sy;
+		    *by = sx;
+		    break;
+	    case WL_OUTPUT_TRANSFORM_FLIPPED_90:
+		    *bx = height - sy;
+		    *by = width - sx;
+		    break;
+	    case WL_OUTPUT_TRANSFORM_180:
+		    *bx = width - sx;
+		    *by = height - sy;
+		    break;
+	    case WL_OUTPUT_TRANSFORM_FLIPPED_180:
+		    *bx = sx;
+		    *by = height - sy;
+		    break;
+	    case WL_OUTPUT_TRANSFORM_270:
+		    *bx = sy;
+		    *by = width - sx;
+		    break;
+	    case WL_OUTPUT_TRANSFORM_FLIPPED_270:
+		    *bx = sy;
+		    *by = sx;
+		    break;
+	  }
+
+	*bx *= scale;
+	*by *= scale;
+}
+
+static cairo_rectangle_int_t
+meta_wayland_surface_transformed_rect(int width, int height,
+                                      enum wl_output_transform transform,
+		                                  int32_t scale,
+			                                cairo_rectangle_int_t rect)
+{
+	float x1, x2, y1, y2;
+
+	cairo_rectangle_int_t ret;
+
+	meta_wayland_surface_transformed_coord(width, height, transform, scale,
+				 rect.x, rect.y, &x1, &y1);
+	meta_wayland_surface_transformed_coord(width, height, transform, scale,
+				 rect.x + rect.width, rect.y + rect.height, &x2, &y2);
+
+	if (x1 <= x2)
+    {
+		  ret.x = x1;
+		  ret.width = x2 - x1;
+	  }
+  else
+    {
+		  ret.x = x2;
+		  ret.width = x1 - x2;
+	  }
+
+	if (y1 <= y2)
+    {
+		  ret.y = y1;
+		  ret.height = y2;
+	  }
+  else
+    {
+		  ret.y = y2;
+		  ret.height = y1 - y2;
+	  }
+
+	return ret;
+}
+
+static void
 meta_wayland_surface_surface_to_buffer_coordinate (MetaWaylandSurface *surface,
                                                    float sx, float sy,
                                                    float *bx, float *by)
@@ -310,11 +397,12 @@ meta_wayland_surface_surface_to_buffer_region (MetaWaylandSurface *surface,
   cairo_rectangle_int_t *rects;
   cairo_rectangle_int_t surface_rect;
   cairo_region_t *scaled_region;
-  float xf, yf;
+  float x1, x2, y1, y2;
 
   if (vp->buffer.scale == 1 &&
       vp->buffer.src_rect.width == 0 &&
-      vp->surface.width == 0)
+      vp->surface.width == 0 &&
+      vp->buffer.transform == WL_OUTPUT_TRANSFORM_NORMAL)
     return cairo_region_copy (region);
 
   n_rects = cairo_region_num_rectangles (region);
@@ -325,23 +413,26 @@ meta_wayland_surface_surface_to_buffer_region (MetaWaylandSurface *surface,
     {
       cairo_region_get_rectangle (region, i, &rects[i]);
 
-      // use coordinates instead of width/height
-      rects[i].width  += rects[i].x;
-      rects[i].height += rects[i].y;
+      meta_wayland_surface_surface_to_buffer_coordinate (surface,
+                                                         rects[i].x,
+                                                         rects[i].y,
+                                                         &x1, &y1);
 
-      meta_wayland_surface_surface_to_buffer_coordinate (surface, rects[i].x,
-                                                         rects[i].y, &xf, &yf);
-      rects[i].x = floorf(xf * vp->buffer.scale);
-      rects[i].y = floorf(yf * vp->buffer.scale);
+      meta_wayland_surface_surface_to_buffer_coordinate (surface,
+                                                         rects[i].x + rects[i].width,
+                                                         rects[i].y + rects[i].height,
+                                                         &x2, &y2);
+      rects[i].x = floorf(x1);
+      rects[i].y = floorf(y1);
+      rects[i].width  = ceilf(x2) - rects[i].x;
+      rects[i].height = ceilf(y2) - rects[i].y;
 
-      meta_wayland_surface_surface_to_buffer_coordinate (surface, rects[i].width,
-                                                         rects[i].height, &xf, &yf);
-      rects[i].width  = ceilf(xf * vp->buffer.scale);
-      rects[i].height = ceilf(yf * vp->buffer.scale);
-
-      // use width/height again instead of coordinates
-      rects[i].width  -= rects[i].x;
-      rects[i].height -= rects[i].y;
+      rects[i] = meta_wayland_surface_transformed_rect(
+                              meta_wayland_surface_get_buffer_width (surface),
+                              meta_wayland_surface_get_buffer_height (surface),
+                              vp->buffer.transform,
+                              vp->buffer.scale,
+                              rects[i]);
     }
 
   scaled_region = cairo_region_create_rectangles (rects, n_rects);
@@ -804,6 +895,7 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
     {
       surface->buffer_viewport.buffer.scale = pending->buffer_viewport.buffer.scale;
       surface->buffer_viewport.buffer.src_rect = pending->buffer_viewport.buffer.src_rect;
+      surface->buffer_viewport.buffer.transform = pending->buffer_viewport.buffer.transform;
       surface->buffer_viewport.surface.width = pending->buffer_viewport.surface.width;
       surface->buffer_viewport.surface.height = pending->buffer_viewport.surface.height;
 
@@ -813,7 +905,8 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
                                            &surface->buffer_viewport.buffer.src_rect,
                                            surface->buffer_viewport.surface.width,
                                            surface->buffer_viewport.surface.height,
-                                           surface->buffer_viewport.buffer.scale);
+                                           surface->buffer_viewport.buffer.scale,
+                                           surface->buffer_viewport.buffer.transform);
         }
     }
 
@@ -1066,7 +1159,17 @@ wl_surface_set_buffer_transform (struct wl_client *client,
                                  struct wl_resource *resource,
                                  int32_t transform)
 {
-  g_warning ("TODO: support set_buffer_transform request");
+  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
+  if(transform >= WL_OUTPUT_TRANSFORM_NORMAL &&
+     transform <= WL_OUTPUT_TRANSFORM_FLIPPED_270)
+    {
+      surface->pending->buffer_viewport.buffer.transform = transform;
+      surface->pending->has_new_buffer_viewport = TRUE;
+    }
+  else
+    {
+      g_warning ("Trying to set invalid buffer_transform of %d\n", transform);
+    }
 }
 
 static void
@@ -1888,31 +1991,54 @@ meta_wayland_surface_get_scale(MetaWaylandSurface *surface)
   return surface->buffer_viewport.buffer.scale;
 }
 
+enum wl_output_transform
+meta_wayland_surface_get_transform(MetaWaylandSurface *surface)
+{
+  return surface->buffer_viewport.buffer.transform;
+}
+
 void
 meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface)
 {
   g_signal_emit (surface, surface_signals[SURFACE_GEOMETRY_CHANGED], 0);
 }
 
-int
-meta_wayland_surface_get_width (MetaWaylandSurface *surface)
+static int
+surface_get_dimension (MetaWaylandSurface *surface, gboolean getWidth)
 {
   MetaWaylandBuffer *buffer = surface->buffer_ref.buffer;
   MetaWaylandBufferViewport *vp = &surface->buffer_viewport;
 
+  switch(vp->buffer.transform)
+    {
+      default:
+      case WL_OUTPUT_TRANSFORM_NORMAL:
+      case WL_OUTPUT_TRANSFORM_180:
+      case WL_OUTPUT_TRANSFORM_FLIPPED:
+      case WL_OUTPUT_TRANSFORM_FLIPPED_180:
+        break;
+      case WL_OUTPUT_TRANSFORM_90:
+      case WL_OUTPUT_TRANSFORM_270:
+      case WL_OUTPUT_TRANSFORM_FLIPPED_90:
+      case WL_OUTPUT_TRANSFORM_FLIPPED_270:
+        getWidth = !getWidth;
+        break;
+    }
+
   if (vp->surface.width > 0)
     {
-      return vp->surface.width;
+      return getWidth ? vp->surface.width : vp->surface.height;
     }
   else if (vp->buffer.src_rect.width > 0)
     {
-      return vp->buffer.src_rect.width;
+      return getWidth ? vp->buffer.src_rect.width : vp->buffer.src_rect.height;
     }
   else if (buffer)
     {
-      CoglTexture *texture = meta_wayland_buffer_get_texture (buffer);
       int scale = meta_wayland_surface_get_scale (surface);
-      return cogl_texture_get_width (texture) / scale;
+      int ret = getWidth ? meta_wayland_surface_get_buffer_width (surface) : \
+                           meta_wayland_surface_get_buffer_height (surface);
+      return ret > 0 ? ret / scale : 0;
     }
   else
     {
@@ -1921,24 +2047,42 @@ meta_wayland_surface_get_width (MetaWaylandSurface *surface)
 }
 
 int
+meta_wayland_surface_get_width (MetaWaylandSurface *surface)
+{
+  return surface_get_dimension(surface, TRUE);
+}
+
+int
 meta_wayland_surface_get_height (MetaWaylandSurface *surface)
 {
-  MetaWaylandBuffer *buffer = surface->buffer_ref.buffer;
-  MetaWaylandBufferViewport *vp = &surface->buffer_viewport;
+  return surface_get_dimension(surface, FALSE);
+}
 
-  if (vp->surface.width > 0)
-    {
-      return vp->surface.height;
-    }
-  else if (vp->buffer.src_rect.width > 0)
-    {
-      return vp->buffer.src_rect.height;
-    }
-  else if (buffer)
+int
+meta_wayland_surface_get_buffer_width (MetaWaylandSurface *surface)
+{
+  MetaWaylandBuffer *buffer = surface->buffer_ref.buffer;
+
+  if (buffer)
     {
       CoglTexture *texture = meta_wayland_buffer_get_texture (buffer);
-      int scale = meta_wayland_surface_get_scale (surface);
-      return cogl_texture_get_height (texture) / scale;
+      return cogl_texture_get_width (texture);
+    }
+  else
+    {
+      return 0;
+    }
+}
+
+int
+meta_wayland_surface_get_buffer_height (MetaWaylandSurface *surface)
+{
+  MetaWaylandBuffer *buffer = surface->buffer_ref.buffer;
+
+  if (buffer)
+    {
+      CoglTexture *texture = meta_wayland_buffer_get_texture (buffer);
+      return cogl_texture_get_height (texture);
     }
   else
     {

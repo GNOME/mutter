@@ -66,7 +66,8 @@ void meta_surface_actor_set_viewport (MetaSurfaceActor        *self,
                                       cairo_rectangle_int_t   *src_rect,
                                       int                      dest_width,
                                       int                      dest_height,
-                                      int                      scale);
+                                      int                      scale,
+                                      enum wl_output_transform transform);
 void meta_surface_actor_process_damage (MetaSurfaceActor *actor,
                                         int x, int y, int width, int height);
 void meta_surface_actor_pre_paint (MetaSurfaceActor *actor);
