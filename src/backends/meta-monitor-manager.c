@@ -875,21 +875,39 @@ diagonal_to_str (double d)
   return g_strdup_printf ("%d\"", (int) (d + 0.5));
 }
 
+gboolean
+meta_monitor_has_aspect_as_size(int width_mm, int height_mm)
+{
+  return (width_mm == 1600 && height_mm == 900) ||
+     (width_mm == 1600 && height_mm == 1000) ||
+     (width_mm == 160 && height_mm == 90) ||
+     (width_mm == 160 && height_mm == 100) ||
+     (width_mm == 16 && height_mm == 9) ||
+     (width_mm == 16 && height_mm == 10);
+}
+
 static char *
 make_display_name (MetaMonitorManager *manager,
                    MetaOutput         *output)
 {
   g_autofree char *inches = NULL;
   g_autofree char *vendor_name = NULL;
+  g_autofree char *product_name = NULL;
 
   if (meta_output_is_laptop (output))
       return g_strdup (_("Built-in display"));
 
-  if (output->width_mm > 0 && output->height_mm > 0)
+  if ((output->width_mm > 0 && output->height_mm > 0) &&
+      !meta_monitor_has_aspect_as_size(output->width_mm, output->height_mm)
+     )
     {
       double d = sqrt (output->width_mm * output->width_mm +
                        output->height_mm * output->height_mm);
       inches = diagonal_to_str (d / 25.4);
+    }
+  else
+    {
+      product_name = g_strdup(output->product);
     }
 
   if (g_strcmp0 (output->vendor, "unknown") != 0)
@@ -918,10 +936,13 @@ make_display_name (MetaMonitorManager *manager,
        */
       return g_strdup_printf (_("%s %s"), vendor_name, inches);
     }
-  else
+  else if (product_name != NULL)
     {
-      return g_strdup (vendor_name);
+      return g_strdup_printf (_("%s %s"), vendor_name, product_name);
     }
+  else {
+      return g_strdup (vendor_name);
+  }
 }
 
 static const char *
