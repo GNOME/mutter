@@ -2133,7 +2133,6 @@ meta_window_move_resize_request (MetaWindow *window,
            * the monitor.
            */
           if (meta_prefs_get_force_fullscreen() &&
-              !window->hide_titlebar_when_maximized &&
               (window->decorated || !meta_window_is_client_decorated (window)) &&
               meta_rectangle_equal (&rect, &monitor_rect) &&
               window->has_fullscreen_func &&
