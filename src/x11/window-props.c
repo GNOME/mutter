@@ -1729,7 +1729,8 @@ reload_gtk_hide_titlebar_when_maximized (MetaWindow    *window,
 
   window->hide_titlebar_when_maximized = requested_value;
 
-  if (META_WINDOW_MAXIMIZED (window))
+  if (META_WINDOW_MAXIMIZED (window) ||
+      META_WINDOW_TILED_SIDE_BY_SIDE (window))
     {
       meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
       meta_window_frame_size_changed (window);
