@@ -254,10 +254,12 @@ meta_surface_actor_set_viewport (MetaSurfaceActor         *self,
                                  cairo_rectangle_int_t    *src_rect,
                                  int                      dest_width,
                                  int                      dest_height,
-                                 int                      scale)
+                                 int                      scale,
+                                 enum wl_output_transform transform)
 {
   MetaSurfaceActorPrivate *priv = self->priv;
-  meta_shaped_texture_set_viewport (priv->texture, src_rect, dest_width, dest_height, scale);
+  meta_shaped_texture_set_viewport (priv->texture, src_rect, dest_width,
+                                    dest_height, scale, transform);
 }
 
 static gboolean
