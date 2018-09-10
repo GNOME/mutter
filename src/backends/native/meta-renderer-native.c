@@ -1336,10 +1336,19 @@ on_crtc_flipped (GClosure         *closure,
 
   if (gpu_kms != render_gpu)
     {
+      MetaRendererNativeGpuData *renderer_gpu_data;
       MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
+
+      renderer_gpu_data =
+        meta_renderer_native_get_gpu_data (renderer_native,
+                                           gpu_kms);
 
       secondary_gpu_state = get_secondary_gpu_state (onscreen, gpu_kms);
       secondary_gpu_state->pending_flips--;
+#ifdef HAVE_EGL_DEVICE
+      if (renderer_gpu_data->secondary.mode == META_RENDERER_NATIVE_MODE_EGL_DEVICE)
+        release_dumb_fb (&secondary_gpu_state->egl.dumb_fb, gpu_kms);
+#endif
     }
 
   onscreen_native->total_pending_flips--;
@@ -1361,6 +1370,8 @@ on_crtc_flipped (GClosure         *closure,
           break;
 #ifdef HAVE_EGL_DEVICE
         case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
+          release_dumb_fb (&onscreen_native->egl.dumb_fb,
+                           onscreen_native->render_gpu);
           break;
 #endif
         }
