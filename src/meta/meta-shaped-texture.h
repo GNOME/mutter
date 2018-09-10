@@ -26,6 +26,7 @@
 
 #include <clutter/clutter.h>
 #include <X11/Xlib.h>
+#include <wayland-server.h>
 
 G_BEGIN_DECLS
 
