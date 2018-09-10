@@ -1083,11 +1083,14 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
       CLUTTER_NOTE (ACTOR, "Recomputing layout");
 
       CLUTTER_SET_PRIVATE_FLAGS (stage, CLUTTER_IN_RELAYOUT);
+      COGL_TRACE_BEGIN (ClutterStageSizeNegotiation);
 
       natural_width = natural_height = 0;
       clutter_actor_get_preferred_size (CLUTTER_ACTOR (stage),
                                         NULL, NULL,
                                         &natural_width, &natural_height);
+
+      COGL_TRACE_END (ClutterStageSizeNegotiation);
 
       box.x1 = 0;
       box.y1 = 0;
@@ -1098,8 +1101,12 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
                     (int) natural_width,
                     (int) natural_height);
 
+      COGL_TRACE_BEGIN (ClutterStageSizeAllocation);
+
       clutter_actor_allocate (CLUTTER_ACTOR (stage),
                               &box, CLUTTER_ALLOCATION_NONE);
+
+      COGL_TRACE_END (ClutterStageSizeNegotiation);
 
       CLUTTER_UNSET_PRIVATE_FLAGS (stage, CLUTTER_IN_RELAYOUT);
     }
