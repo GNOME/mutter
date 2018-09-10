@@ -161,6 +161,7 @@ struct _MetaWaylandSurface
   GList *subsurfaces;
   GHashTable *outputs_to_destroy_notify_id;
   MetaWaylandBufferViewport buffer_viewport;
+  struct wl_resource *viewport_resource;
 
   /* Buffer reference state. */
   struct {
@@ -322,8 +323,11 @@ MetaSurfaceActor *  meta_wayland_surface_get_actor (MetaWaylandSurface *surface)
 void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface);
 
 int                 meta_wayland_surface_get_scale(MetaWaylandSurface *surface);
+enum wl_output_transform meta_wayland_surface_get_transform(MetaWaylandSurface *surface);
 
 int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
+int                 meta_wayland_surface_get_buffer_width (MetaWaylandSurface *surface);
+int                 meta_wayland_surface_get_buffer_height (MetaWaylandSurface *surface);
 
 #endif
