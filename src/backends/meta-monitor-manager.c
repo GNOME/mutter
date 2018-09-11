@@ -496,9 +496,11 @@ should_use_stored_config (MetaMonitorManager *manager)
 MetaMonitorsConfig *
 meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
 {
+  g_autoptr (MetaMonitorsConfig) initial_config = NULL;
   MetaMonitorsConfig *config = NULL;
   GError *error = NULL;
   gboolean use_stored_config;
+  MetaMonitorsConfigKey *current_state_key;
   MetaMonitorsConfigMethod method;
   MetaMonitorsConfigMethod fallback_method =
     META_MONITORS_CONFIG_METHOD_TEMPORARY;
@@ -508,6 +510,18 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
     method = META_MONITORS_CONFIG_METHOD_PERSISTENT;
   else
     method = META_MONITORS_CONFIG_METHOD_TEMPORARY;
+
+  initial_config = meta_monitor_config_manager_create_initial (manager->config_manager);
+
+  if (initial_config)
+    {
+      current_state_key = meta_create_monitors_config_key_for_current_state (manager);
+
+      /* don't ever reuse initial configuration, if the monitor topology changed
+       */
+      if (current_state_key && !meta_monitors_config_key_equal (current_state_key, initial_config->key))
+        g_clear_object (&initial_config);
+    }
 
   if (use_stored_config)
     {
@@ -576,7 +590,7 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
       g_clear_object (&config);
     }
 
-  config = meta_monitor_config_manager_create_current (manager->config_manager);
+  config = g_steal_pointer (&initial_config);
   if (config)
     {
       if (!meta_monitor_manager_apply_monitors_config (manager,
