@@ -300,7 +300,7 @@ typedef enum
 
 /* Relative directions or sides seem to come up all over the place... */
 /* FIXME: Replace
- *   screen.[ch]:MetaScreenDirection,
+ *   display.[ch]:MetaDisplayDirection,
  *   workspace.[ch]:MetaMotionDirection,
  * with the use of MetaDirection.
  */
