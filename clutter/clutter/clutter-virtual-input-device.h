@@ -46,7 +46,9 @@ typedef enum _ClutterButtonState
 typedef enum _ClutterKeyState
 {
   CLUTTER_KEY_STATE_RELEASED,
-  CLUTTER_KEY_STATE_PRESSED
+  CLUTTER_KEY_STATE_PRESSED,
+  CLUTTER_KEY_STATE_IM_RELEASED,
+  CLUTTER_KEY_STATE_IM_PRESSED
 } ClutterKeyState;
 
 struct _ClutterVirtualInputDeviceClass

@@ -35,13 +35,14 @@
 #include "clutter-input-device-evdev.h"
 #include "clutter-input-device-tool-evdev.h"
 #include "clutter-main.h"
+#include "clutter-virtual-input-device.h"
 
 /* Try to keep the pointer inside the stage. Hopefully no one is using
  * this backend with stages smaller than this. */
 #define INITIAL_POINTER_X 16
 #define INITIAL_POINTER_Y 16
 
-#define AUTOREPEAT_VALUE 2
+#define AUTOREPEAT_VALUE 100
 
 #define DISCRETE_SCROLL_STEP 10.0
 
@@ -246,7 +247,7 @@ update_button_count (ClutterSeatEvdev *seat,
                      uint32_t          button,
                      uint32_t          state)
 {
-  if (state)
+  if ((state + 2) % 2)
     {
       return ++seat->button_count[button];
     }
@@ -271,14 +272,15 @@ clutter_seat_evdev_notify_key (ClutterSeatEvdev   *seat,
   ClutterStage *stage;
   ClutterEvent *event = NULL;
   enum xkb_state_component changed_state;
+  uint32_t pressed = (state + 2) % 2;
 
   if (state != AUTOREPEAT_VALUE)
     {
       /* Drop any repeated button press (for example from virtual devices. */
-      int count = update_button_count (seat, key, state);
-      if (state && count > 1)
+      int count = update_button_count (seat, key, pressed);
+      if (pressed && count > 1)
         return;
-      if (!state && count != 0)
+      if (!pressed && count != 0)
         return;
     }
 
@@ -296,8 +298,15 @@ clutter_seat_evdev_notify_key (ClutterSeatEvdev   *seat,
 					     stage,
 					     seat->xkb,
 					     seat->button_state,
-					     us2ms (time_us), key, state);
+					     us2ms (time_us), key, pressed);
   _clutter_evdev_event_set_event_code (event, key);
+
+  if (state == CLUTTER_KEY_STATE_IM_RELEASED || state == CLUTTER_KEY_STATE_IM_PRESSED )
+    {
+      clutter_event_set_flags (event, clutter_event_get_flags (event) |
+                               CLUTTER_EVENT_FLAG_INPUT_METHOD);
+
+    }
 
   /* We must be careful and not pass multiple releases to xkb, otherwise it gets
      confused and locks the modifiers */
@@ -305,7 +314,7 @@ clutter_seat_evdev_notify_key (ClutterSeatEvdev   *seat,
     {
       changed_state = xkb_state_update_key (seat->xkb,
                                             event->key.hardware_keycode,
-                                            state ? XKB_KEY_DOWN : XKB_KEY_UP);
+                                            pressed ? XKB_KEY_DOWN : XKB_KEY_UP);
     }
   else
     {
@@ -318,7 +327,7 @@ clutter_seat_evdev_notify_key (ClutterSeatEvdev   *seat,
   if (update_keys && (changed_state & XKB_STATE_LEDS))
     clutter_seat_evdev_sync_leds (seat);
 
-  if (state == 0 ||             /* key release */
+  if ((pressed == 0 && state != AUTOREPEAT_VALUE) ||  /* key release */
       !seat->repeat ||
       !xkb_keymap_key_repeats (xkb_state_get_keymap (seat->xkb),
                                event->key.hardware_keycode))
@@ -327,7 +336,7 @@ clutter_seat_evdev_notify_key (ClutterSeatEvdev   *seat,
       return;
     }
 
-  if (state == 1)               /* key press */
+  if (pressed == 1)                                   /* key press */
     seat->repeat_count = 0;
 
   seat->repeat_count += 1;

@@ -70,7 +70,7 @@ update_button_count (ClutterVirtualInputDeviceEvdev *virtual_evdev,
                      uint32_t                        button,
                      uint32_t                        state)
 {
-  if (state)
+  if ((state + 2) % 2)
     return ++virtual_evdev->button_count[button];
   else
     return --virtual_evdev->button_count[button];
@@ -268,7 +268,7 @@ clutter_virtual_input_device_evdev_notify_key (ClutterVirtualInputDevice *virtua
     {
       g_warning ("Received multiple virtual 0x%x key %s (ignoring)", key,
 		 key_state == CLUTTER_KEY_STATE_PRESSED ? "presses" : "releases");
-      update_button_count (virtual_evdev, key, 1 - key_state);
+      update_button_count (virtual_evdev, key, (key_state + 1) % 2);
       return;
     }
 
