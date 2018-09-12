@@ -883,7 +883,9 @@ meta_monitor_has_aspect_as_size (MetaMonitor *monitor)
 
   meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
 
-  return (width_mm == 160 && height_mm == 90) ||
+  return (width_mm == 1600 && height_mm == 900) ||
+     (width_mm == 1600 && height_mm == 1000) ||
+     (width_mm == 160 && height_mm == 90) ||
      (width_mm == 160 && height_mm == 100) ||
      (width_mm == 16 && height_mm == 9) ||
      (width_mm == 16 && height_mm == 10);
