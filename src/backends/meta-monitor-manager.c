@@ -876,38 +876,43 @@ diagonal_to_str (double d)
 }
 
 gboolean
-meta_monitor_has_aspect_as_size(int width_mm, int height_mm)
+meta_monitor_has_aspect_as_size (MetaMonitor *monitor)
 {
-  return (width_mm == 1600 && height_mm == 900) ||
-     (width_mm == 1600 && height_mm == 1000) ||
-     (width_mm == 160 && height_mm == 90) ||
-     (width_mm == 160 && height_mm == 100) ||
-     (width_mm == 16 && height_mm == 9) ||
-     (width_mm == 16 && height_mm == 10);
+  MetaOutput *output = meta_monitor_get_main_output (monitor);
+
+  return (output->width_mm == 1600 && output->height_mm == 900) ||
+     (output->width_mm == 1600 && output->height_mm == 1000) ||
+     (output->width_mm == 160 && output->height_mm == 90) ||
+     (output->width_mm == 160 && output->height_mm == 100) ||
+     (output->width_mm == 16 && output->height_mm == 9) ||
+     (output->width_mm == 16 && output->height_mm == 10);
 }
 
 static char *
 make_display_name (MetaMonitorManager *manager,
-                   MetaOutput         *output)
+                   MetaMonitor        *monitor)
 {
   g_autofree char *inches = NULL;
   g_autofree char *vendor_name = NULL;
   g_autofree char *product_name = NULL;
 
+  MetaOutput *output = meta_monitor_get_main_output (monitor);
+
   if (meta_output_is_laptop (output))
       return g_strdup (_("Built-in display"));
 
-  if ((output->width_mm > 0 && output->height_mm > 0) &&
-      !meta_monitor_has_aspect_as_size(output->width_mm, output->height_mm)
-     )
+  if (output->width_mm > 0 && output->height_mm > 0)
     {
-      double d = sqrt (output->width_mm * output->width_mm +
-                       output->height_mm * output->height_mm);
-      inches = diagonal_to_str (d / 25.4);
-    }
-  else
-    {
-      product_name = g_strdup(output->product);
+      if (!meta_monitor_has_aspect_as_size (monitor))
+        {
+          double d = sqrt (output->width_mm * output->width_mm +
+                           output->height_mm * output->height_mm);
+          inches = diagonal_to_str (d / 25.4);
+        }
+      else
+        {
+          product_name = g_strdup (output->product);
+        }
     }
 
   if (g_strcmp0 (output->vendor, "unknown") != 0)
@@ -940,9 +945,10 @@ make_display_name (MetaMonitorManager *manager,
     {
       return g_strdup_printf (_("%s %s"), vendor_name, product_name);
     }
-  else {
+  else
+    {
       return g_strdup (vendor_name);
-  }
+    }
 }
 
 static const char *
@@ -1089,7 +1095,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
       g_variant_builder_add (&properties, "{sv}", "height-mm",
                              g_variant_new_int32 (output->height_mm));
       g_variant_builder_add (&properties, "{sv}", "display-name",
-                             g_variant_new_take_string (make_display_name (manager, output)));
+                             g_variant_new_take_string (g_strdup (output->name)));
       g_variant_builder_add (&properties, "{sv}", "backlight",
                              g_variant_new_int32 (output->backlight));
       g_variant_builder_add (&properties, "{sv}", "min-backlight-step",
@@ -1393,8 +1399,7 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
                              "is-builtin",
                              g_variant_new_boolean (is_builtin));
 
-      main_output = meta_monitor_get_main_output (monitor);
-      display_name = make_display_name (manager, main_output);
+      display_name = make_display_name (manager, monitor);
       g_variant_builder_add (&monitor_properties_builder, "{sv}",
                              "display-name",
                              g_variant_new_take_string (display_name));

@@ -1523,7 +1523,7 @@ calculate_scale (MetaMonitor     *monitor,
    * Somebody encoded the aspect ratio (16/9 or 16/10) instead of the physical
    * size.
    */
-  if (meta_monitor_has_aspect_as_size(width_mm, height_mm))
+  if (meta_monitor_has_aspect_as_size (monitor))
     goto out;
 
   if (width_mm > 0 && height_mm > 0)

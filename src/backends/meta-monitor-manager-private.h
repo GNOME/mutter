@@ -370,7 +370,7 @@ void meta_monitor_manager_clear_output (MetaOutput *output);
 void meta_monitor_manager_clear_mode (MetaCrtcMode *mode);
 void meta_monitor_manager_clear_crtc (MetaCrtc *crtc);
 
-gboolean meta_monitor_has_aspect_as_size(int width_mm, int height_mm);
+gboolean meta_monitor_has_aspect_as_size (MetaMonitor *monitor);
 
 /* Returns true if transform causes width and height to be inverted
    This is true for the odd transforms in the enum */
