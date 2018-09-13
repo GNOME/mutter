@@ -586,6 +586,10 @@ should_have_hw_cursor (MetaCursorRenderer *renderer,
   if (!cursor_sprite)
     return FALSE;
 
+  if (meta_cursor_renderer_is_hw_cursors_inhibited (renderer,
+                                                    cursor_sprite))
+    return FALSE;
+
   for (l = gpus; l; l = l->next)
     {
       MetaGpuKms *gpu_kms = l->data;
