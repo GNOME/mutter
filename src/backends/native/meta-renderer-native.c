@@ -2099,7 +2099,7 @@ meta_renderer_native_create_surface_gbm (CoglOnscreen        *onscreen,
 #ifdef HAVE_EGL_DEVICE
 static gboolean
 meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
-                                                MetaLogicalMonitor *logical_monitor,
+                                                MetaMonitor        *monitor,
                                                 int                 width,
                                                 int                 height,
                                                 EGLStreamKHR       *out_egl_stream,
@@ -2116,7 +2116,6 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
   MetaEgl *egl =
     meta_renderer_native_get_egl (renderer_gpu_data->renderer_native);
   EGLDisplay egl_display = renderer_gpu_data->egl_display;
-  MetaMonitor *monitor;
   MetaOutput *output;
   MetaCrtc *crtc;
   EGLConfig egl_config;
@@ -2140,15 +2139,9 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
   if (egl_stream == EGL_NO_STREAM_KHR)
     return FALSE;
 
-  monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
   output = meta_monitor_get_main_output (monitor);
   crtc = meta_output_get_assigned_crtc (output);
 
-  /*
-   * An "logical_monitor" may have multiple outputs/crtcs in case its tiled,
-   * but as far as I can tell, EGL only allows you to pass one crtc_id, so
-   * lets pass the first one.
-   */
   output_attribs[0] = EGL_DRM_CRTC_EXT;
   output_attribs[1] = crtc->crtc_id;
   output_attribs[2] = EGL_NONE;
@@ -2376,6 +2369,7 @@ meta_onscreen_native_allocate (CoglOnscreen *onscreen,
 #ifdef HAVE_EGL_DEVICE
   MetaRendererView *view;
   MetaLogicalMonitor *logical_monitor;
+  MetaMonitor *monitor;
   EGLStreamKHR egl_stream;
 #endif
 
@@ -2418,8 +2412,16 @@ meta_onscreen_native_allocate (CoglOnscreen *onscreen,
 
       view = onscreen_native->view;
       logical_monitor = meta_renderer_view_get_logical_monitor (view);
+
+      /*
+       * An "logical_monitor" may have multiple outputs/crtcs in case its tiled,
+       * but as far as I can tell, EGL only allows you to pass one crtc_id, so
+       * lets pass the first one.
+       */
+      monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
+
       if (!meta_renderer_native_create_surface_egl_device (onscreen,
-                                                           logical_monitor,
+                                                           monitor,
                                                            width, height,
                                                            &egl_stream,
                                                            &egl_surface,
