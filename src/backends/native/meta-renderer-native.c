@@ -3091,17 +3091,17 @@ init_secondary_gpu_data (MetaRendererNativeGpuData *renderer_gpu_data)
   init_secondary_gpu_data_cpu (renderer_gpu_data);
 }
 
-static MetaRendererNativeGpuData *
-create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
-                              MetaGpuKms          *gpu_kms,
-                              GError             **error)
+static gboolean
+init_renderer_gpu_data_gbm (MetaRendererNative         *renderer_native,
+                            MetaRendererNativeGpuData  *renderer_gpu_data,
+                            MetaGpuKms                 *gpu_kms,
+                            GError                    **error)
 {
   MetaMonitorManagerKms *monitor_manager_kms;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
   struct gbm_device *gbm_device;
   EGLDisplay egl_display;
   int kms_fd;
-  MetaRendererNativeGpuData *renderer_gpu_data;
   MetaGpuKms *primary_gpu;
 
   if (!meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
@@ -3114,7 +3114,7 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "Missing extension for GBM renderer: EGL_KHR_platform_gbm");
-      return NULL;
+      return FALSE;
     }
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
@@ -3125,7 +3125,7 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "Failed to create gbm device: %s", g_strerror (errno));
-      return NULL;
+      return FALSE;
     }
 
   egl_display = meta_egl_get_platform_display (egl,
@@ -3134,13 +3134,12 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
   if (egl_display == EGL_NO_DISPLAY)
     {
       gbm_device_destroy (gbm_device);
-      return NULL;
+      return FALSE;
     }
 
   if (!meta_egl_initialize (egl, egl_display, error))
-    return NULL;
+    return FALSE;
 
-  renderer_gpu_data = meta_create_renderer_native_gpu_data (gpu_kms);
   renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->gbm.device = gbm_device;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
@@ -3149,9 +3148,9 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
   monitor_manager_kms = renderer_native->monitor_manager_kms;
   primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
   if (gpu_kms != primary_gpu)
-    init_secondary_gpu_data (renderer_gpu_data);
+    renderer_gpu_data->secondary.mode = META_RENDERER_NATIVE_MODE_GBM;
 
-  return renderer_gpu_data;
+  return TRUE;
 }
 
 #ifdef HAVE_EGL_DEVICE
@@ -3270,10 +3269,11 @@ get_egl_device_display (MetaRendererNative  *renderer_native,
                                         error);
 }
 
-static MetaRendererNativeGpuData *
-create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
-                                     MetaGpuKms          *gpu_kms,
-                                     GError             **error)
+static gboolean
+init_renderer_gpu_data_egl_device (MetaRendererNative         *renderer_native,
+                                   MetaRendererNativeGpuData  *renderer_gpu_data,
+                                   MetaGpuKms                 *gpu_kms,
+                                   GError                    **error)
 {
   MetaMonitorManagerKms *monitor_manager_kms =
     renderer_native->monitor_manager_kms;
@@ -3282,14 +3282,13 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
   char **missing_extensions;
   EGLDeviceEXT egl_device;
   EGLDisplay egl_display;
-  MetaRendererNativeGpuData *renderer_gpu_data;
 
   if (!meta_is_stage_views_enabled())
     {
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "EGLDevice requires stage views enabled");
-      return NULL;
+      return FALSE;
     }
 
   primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
@@ -3298,20 +3297,20 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "EGLDevice currently only works with single GPU systems");
-      return NULL;
+      return FALSE;
     }
 
   egl_device = find_egl_device (renderer_native, gpu_kms, error);
   if (egl_device == EGL_NO_DEVICE_EXT)
-    return NULL;
+    return FALSE;
 
   egl_display = get_egl_device_display (renderer_native, gpu_kms,
                                         egl_device, error);
   if (egl_display == EGL_NO_DISPLAY)
-    return NULL;
+    return FALSE;
 
   if (!meta_egl_initialize (egl, egl_display, error))
-    return NULL;
+    return FALSE;
 
   if (!meta_egl_has_extensions (egl,
                                 egl_display,
@@ -3334,16 +3333,15 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
                    missing_extensions_str);
       g_free (missing_extensions_str);
       g_free (missing_extensions);
-      return NULL;
+      return FALSE;
     }
 
-  renderer_gpu_data = meta_create_renderer_native_gpu_data (gpu_kms);
   renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->egl.device = egl_device;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_EGL_DEVICE;
   renderer_gpu_data->egl_display = egl_display;
 
-  return renderer_gpu_data;
+  return TRUE;
 }
 #endif /* HAVE_EGL_DEVICE */
 
@@ -3352,11 +3350,14 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
                                                MetaGpuKms          *gpu_kms,
                                                GError             **error)
 {
-  MetaRendererNativeGpuData *renderer_gpu_data;
+  MetaRendererNativeGpuData *renderer_gpu_data = NULL;
+  gboolean initialized;
   GError *gbm_error = NULL;
 #ifdef HAVE_EGL_DEVICE
   GError *egl_device_error = NULL;
 #endif
+
+  renderer_gpu_data = meta_create_renderer_native_gpu_data (gpu_kms);
 
 #ifdef HAVE_EGL_DEVICE
   /* Try to initialize the EGLDevice backend first. Whenever we use a
@@ -3364,21 +3365,33 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
    * we'll fall back to GBM (which will always succeed as it has a software
    * rendering fallback)
    */
-  renderer_gpu_data = create_renderer_gpu_data_egl_device (renderer_native,
-                                                           gpu_kms,
-                                                           &egl_device_error);
-  if (renderer_gpu_data)
+  initialized = init_renderer_gpu_data_egl_device (renderer_native,
+                                                   renderer_gpu_data,
+                                                   gpu_kms,
+                                                   &egl_device_error);
+  if (initialized)
     return renderer_gpu_data;
 #endif
 
-  renderer_gpu_data = create_renderer_gpu_data_gbm (renderer_native,
-                                                    gpu_kms,
-                                                    &gbm_error);
-  if (renderer_gpu_data)
+  initialized = init_renderer_gpu_data_gbm (renderer_native,
+                                            renderer_gpu_data,
+                                            gpu_kms,
+                                            &gbm_error);
+  if (initialized)
     {
+      MetaMonitorManagerKms *monitor_manager_kms;
+      MetaGpuKms *primary_gpu;
+
 #ifdef HAVE_EGL_DEVICE
       g_error_free (egl_device_error);
 #endif
+
+      monitor_manager_kms = renderer_native->monitor_manager_kms;
+      primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
+
+      if (gpu_kms != primary_gpu)
+        init_secondary_gpu_data (renderer_gpu_data);
+
       return renderer_gpu_data;
     }
 
@@ -3399,6 +3412,8 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
 #ifdef HAVE_EGL_DEVICE
   g_error_free (egl_device_error);
 #endif
+
+  meta_renderer_native_gpu_data_free (renderer_gpu_data);
 
   return NULL;
 }
