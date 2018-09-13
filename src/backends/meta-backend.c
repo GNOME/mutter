@@ -462,7 +462,7 @@ meta_backend_real_post_init (MetaBackend *backend)
   priv->remote_access_controller =
     g_object_new (META_TYPE_REMOTE_ACCESS_CONTROLLER, NULL);
   priv->dbus_session_watcher = g_object_new (META_TYPE_DBUS_SESSION_WATCHER, NULL);
-  priv->screen_cast = meta_screen_cast_new (priv->dbus_session_watcher);
+  priv->screen_cast = meta_screen_cast_new (backend, priv->dbus_session_watcher);
   priv->remote_desktop = meta_remote_desktop_new (priv->dbus_session_watcher);
 #endif /* HAVE_REMOTE_DESKTOP */
 

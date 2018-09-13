@@ -34,11 +34,12 @@ G_DECLARE_FINAL_TYPE (MetaScreenCastMonitorStream,
                       META, SCREEN_CAST_MONITOR_STREAM,
                       MetaScreenCastStream)
 
-MetaScreenCastMonitorStream * meta_screen_cast_monitor_stream_new (GDBusConnection    *connection,
-								   MetaMonitorManager *monitor_manager,
-                                                                   MetaMonitor        *monitor,
-                                                                   ClutterStage       *stage,
-                                                                   GError            **error);
+MetaScreenCastMonitorStream * meta_screen_cast_monitor_stream_new (MetaScreenCastSession  *session,
+                                                                   GDBusConnection        *connection,
+                                                                   MetaMonitorManager     *monitor_manager,
+                                                                   MetaMonitor            *monitor,
+                                                                   ClutterStage           *stage,
+                                                                   GError                **error);
 
 ClutterStage * meta_screen_cast_monitor_stream_get_stage (MetaScreenCastMonitorStream *monitor_stream);
 

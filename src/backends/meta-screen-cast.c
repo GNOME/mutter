@@ -38,6 +38,8 @@ struct _MetaScreenCast
 {
   MetaDBusScreenCastSkeleton parent;
 
+  MetaBackend *backend;
+
   int dbus_name_id;
 
   GList *sessions;
@@ -60,6 +62,12 @@ meta_screen_cast_get_connection (MetaScreenCast *screen_cast)
     G_DBUS_INTERFACE_SKELETON (screen_cast);
 
   return g_dbus_interface_skeleton_get_connection (interface_skeleton);
+}
+
+MetaBackend *
+meta_screen_cast_get_backend (MetaScreenCast *screen_cast)
+{
+  return screen_cast->backend;
 }
 
 static gboolean
@@ -244,11 +252,13 @@ meta_screen_cast_finalize (GObject *object)
 }
 
 MetaScreenCast *
-meta_screen_cast_new (MetaDbusSessionWatcher *session_watcher)
+meta_screen_cast_new (MetaBackend            *backend,
+                      MetaDbusSessionWatcher *session_watcher)
 {
   MetaScreenCast *screen_cast;
 
   screen_cast = g_object_new (META_TYPE_SCREEN_CAST, NULL);
+  screen_cast->backend = backend;
   screen_cast->session_watcher = session_watcher;
 
   return screen_cast;

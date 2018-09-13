@@ -103,6 +103,8 @@ MetaMonitorNormal * meta_monitor_normal_new (MetaGpu    *gpu,
 
 MetaMonitorSpec * meta_monitor_get_spec (MetaMonitor *monitor);
 
+MetaMonitorManager * meta_monitor_get_monitor_manager (MetaMonitor *monitor);
+
 MetaGpu * meta_monitor_get_gpu (MetaMonitor *monitor);
 
 gboolean meta_monitor_is_active (MetaMonitor *monitor);

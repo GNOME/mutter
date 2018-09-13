@@ -25,6 +25,7 @@
 
 #include <glib-object.h>
 
+#include "backends/meta-screen-cast.h"
 #include "backends/meta-screen-cast-stream-src.h"
 #include "meta-dbus-screen-cast.h"
 
@@ -54,6 +55,8 @@ gboolean meta_screen_cast_stream_start (MetaScreenCastStream *stream,
 void meta_screen_cast_stream_close (MetaScreenCastStream *stream);
 
 char * meta_screen_cast_stream_get_object_path (MetaScreenCastStream *stream);
+
+MetaScreenCastSession * meta_screen_cast_stream_get_session (MetaScreenCastStream *stream);
 
 void meta_screen_cast_stream_transform_position (MetaScreenCastStream *stream,
                                                  double                stream_x,

@@ -178,6 +178,14 @@ meta_monitor_generate_spec (MetaMonitor *monitor)
   priv->spec = monitor_spec;
 }
 
+MetaMonitorManager *
+meta_monitor_get_monitor_manager (MetaMonitor *monitor)
+{
+  MetaGpu *gpu = meta_monitor_get_gpu (monitor);
+
+  return meta_gpu_get_monitor_manager (gpu);
+}
+
 MetaGpu *
 meta_monitor_get_gpu (MetaMonitor *monitor)
 {

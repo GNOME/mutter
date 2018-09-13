@@ -36,6 +36,8 @@ struct _MetaScreenCastSession
 {
   MetaDBusScreenCastSessionSkeleton parent;
 
+  MetaScreenCast *screen_cast;
+
   char *peer_name;
 
   MetaScreenCastSessionType session_type;
@@ -155,6 +157,12 @@ meta_screen_cast_session_get_stream (MetaScreenCastSession *session,
     }
 
   return NULL;
+}
+
+MetaScreenCast *
+meta_screen_cast_session_get_screen_cast (MetaScreenCastSession *session)
+{
+  return session->screen_cast;
 }
 
 char *
@@ -298,7 +306,8 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
 
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-  monitor_stream = meta_screen_cast_monitor_stream_new (connection,
+  monitor_stream = meta_screen_cast_monitor_stream_new (session,
+                                                        connection,
                                                         monitor_manager,
                                                         monitor,
                                                         stage,
@@ -381,6 +390,7 @@ meta_screen_cast_session_new (MetaScreenCast             *screen_cast,
   static unsigned int global_session_number = 0;
 
   session = g_object_new (META_TYPE_SCREEN_CAST_SESSION, NULL);
+  session->screen_cast = screen_cast;
   session->session_type = session_type;
   session->peer_name = g_strdup (peer_name);
   session->object_path =

@@ -105,11 +105,12 @@ meta_screen_cast_monitor_stream_get_monitor (MetaScreenCastMonitorStream *monito
 }
 
 MetaScreenCastMonitorStream *
-meta_screen_cast_monitor_stream_new (GDBusConnection     *connection,
-                                     MetaMonitorManager  *monitor_manager,
-                                     MetaMonitor         *monitor,
-                                     ClutterStage        *stage,
-                                     GError             **error)
+meta_screen_cast_monitor_stream_new (MetaScreenCastSession  *session,
+                                     GDBusConnection        *connection,
+                                     MetaMonitorManager     *monitor_manager,
+                                     MetaMonitor            *monitor,
+                                     ClutterStage           *stage,
+                                     GError                **error)
 {
   MetaScreenCastMonitorStream *monitor_stream;
 
@@ -123,6 +124,7 @@ meta_screen_cast_monitor_stream_new (GDBusConnection     *connection,
                                    NULL,
                                    error,
                                    "connection", connection,
+                                   "session", session,
                                    "monitor", monitor,
                                    NULL);
   if (!monitor_stream)

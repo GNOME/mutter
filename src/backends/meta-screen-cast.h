@@ -25,8 +25,11 @@
 
 #include <glib-object.h>
 
+#include "backends/meta-backend-private.h"
 #include "backends/meta-dbus-session-watcher.h"
 #include "meta-dbus-screen-cast.h"
+
+typedef struct _MetaScreenCastSession MetaScreenCastSession;
 
 #define META_TYPE_SCREEN_CAST (meta_screen_cast_get_type ())
 G_DECLARE_FINAL_TYPE (MetaScreenCast, meta_screen_cast,
@@ -35,6 +38,9 @@ G_DECLARE_FINAL_TYPE (MetaScreenCast, meta_screen_cast,
 
 GDBusConnection * meta_screen_cast_get_connection (MetaScreenCast *screen_cast);
 
-MetaScreenCast * meta_screen_cast_new (MetaDbusSessionWatcher *session_watcher);
+MetaBackend * meta_screen_cast_get_backend (MetaScreenCast *screen_cast);
+
+MetaScreenCast * meta_screen_cast_new (MetaBackend            *backend,
+                                       MetaDbusSessionWatcher *session_watcher);
 
 #endif /* META_SCREEN_CAST_H */
