@@ -35,6 +35,9 @@
 
 #include "meta-stage-private.h"
 
+G_DEFINE_INTERFACE (MetaHwCursorInhibitor, meta_hw_cursor_inhibitor,
+                    G_TYPE_OBJECT)
+
 struct _MetaCursorRendererPrivate
 {
   float current_x;
@@ -44,6 +47,8 @@ struct _MetaCursorRendererPrivate
   MetaOverlay *stage_overlay;
   gboolean handled_by_backend;
   guint post_paint_func_id;
+
+  GList *hw_cursor_inhibitors;
 };
 typedef struct _MetaCursorRendererPrivate MetaCursorRendererPrivate;
 
@@ -54,6 +59,21 @@ enum {
 static guint signals[LAST_SIGNAL];
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorRenderer, meta_cursor_renderer, G_TYPE_OBJECT);
+
+static gboolean
+meta_hw_cursor_inhibitor_is_cursor_sprite_inhibited (MetaHwCursorInhibitor *inhibitor,
+                                                     MetaCursorSprite      *cursor_sprite)
+{
+  MetaHwCursorInhibitorInterface *iface =
+    META_HW_CURSOR_INHIBITOR_GET_IFACE (inhibitor);
+
+  return iface->is_cursor_sprite_inhibited (inhibitor, cursor_sprite);
+}
+
+static void
+meta_hw_cursor_inhibitor_default_init (MetaHwCursorInhibitorInterface *iface)
+{
+}
 
 void
 meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
@@ -282,4 +302,46 @@ meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer)
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
 
   return priv->displayed_cursor;
+}
+
+void
+meta_cursor_renderer_add_hw_cursor_inhibitor (MetaCursorRenderer    *renderer,
+                                              MetaHwCursorInhibitor *inhibitor)
+{
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+
+  priv->hw_cursor_inhibitors = g_list_prepend (priv->hw_cursor_inhibitors,
+                                               inhibitor);
+}
+
+void
+meta_cursor_renderer_remove_hw_cursor_inhibitor (MetaCursorRenderer    *renderer,
+                                                 MetaHwCursorInhibitor *inhibitor)
+{
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+
+  priv->hw_cursor_inhibitors = g_list_remove (priv->hw_cursor_inhibitors,
+                                              inhibitor);
+}
+
+gboolean
+meta_cursor_renderer_is_hw_cursors_inhibited (MetaCursorRenderer *renderer,
+                                              MetaCursorSprite   *cursor_sprite)
+{
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+  GList *l;
+
+  for (l = priv->hw_cursor_inhibitors; l; l = l->next)
+    {
+      MetaHwCursorInhibitor *inhibitor = l->data;
+
+      if (meta_hw_cursor_inhibitor_is_cursor_sprite_inhibited (inhibitor,
+                                                               cursor_sprite))
+        return TRUE;
+    }
+
+  return FALSE;
 }
