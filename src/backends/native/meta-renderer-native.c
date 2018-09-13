@@ -113,6 +113,10 @@ typedef struct _MetaRendererNativeGpuData
   struct {
     MetaSharedFramebufferCopyMode copy_mode;
 
+#ifdef HAVE_EGL_DEVICE
+    EGLDisplay egl_display;
+#endif
+
     /* For GPU blit mode */
     EGLContext egl_context;
     EGLConfig egl_config;
@@ -250,6 +254,27 @@ meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data
 
   if (renderer_gpu_data->egl_display != EGL_NO_DISPLAY)
     meta_egl_terminate (egl, renderer_gpu_data->egl_display, NULL);
+
+#ifdef HAVE_EGL_DEVICE
+  if (renderer_gpu_data->secondary.egl_display != EGL_NO_DISPLAY)
+    {
+      GError *error = NULL;
+      if (meta_egl_make_current (egl,
+                                 renderer_gpu_data->secondary.egl_display,
+                                 EGL_NO_SURFACE, EGL_NO_SURFACE,
+                                 renderer_gpu_data->secondary.egl_context,
+                                 &error))
+        {
+          meta_egl_terminate (egl, renderer_gpu_data->secondary.egl_display, NULL);
+        }
+      else
+        {
+          g_warning ("could not switch to secondary gpu: %s",
+                     error->message);
+          g_clear_error (&error);
+        }
+    }
+#endif
 
   g_clear_pointer (&renderer_gpu_data->gbm.device, gbm_device_destroy);
   g_free (renderer_gpu_data);
@@ -3290,15 +3315,20 @@ init_renderer_gpu_data_gbm (MetaRendererNative         *renderer_native,
   if (!meta_egl_initialize (egl, egl_display, error))
     return FALSE;
 
-  renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->gbm.device = gbm_device;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
   renderer_gpu_data->egl_display = egl_display;
 
-  monitor_manager_kms = renderer_native->monitor_manager_kms;
-  primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
-  if (gpu_kms != primary_gpu)
-    renderer_gpu_data->secondary.mode = META_RENDERER_NATIVE_MODE_GBM;
+  if (renderer_gpu_data->renderer_native == NULL)
+    {
+      renderer_gpu_data->renderer_native = renderer_native;
+
+      monitor_manager_kms = renderer_native->monitor_manager_kms;
+      primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
+
+      if (gpu_kms != primary_gpu)
+        renderer_gpu_data->secondary.mode = META_RENDERER_NATIVE_MODE_GBM;
+    }
 
   return TRUE;
 }
@@ -3441,15 +3471,6 @@ init_renderer_gpu_data_egl_device (MetaRendererNative         *renderer_native,
       return FALSE;
     }
 
-  primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
-  if (gpu_kms != primary_gpu)
-    {
-      g_set_error (error, G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "EGLDevice currently only works with single GPU systems");
-      return FALSE;
-    }
-
   egl_device = find_egl_device (renderer_native, gpu_kms, error);
   if (egl_device == EGL_NO_DEVICE_EXT)
     return FALSE;
@@ -3488,8 +3509,20 @@ init_renderer_gpu_data_egl_device (MetaRendererNative         *renderer_native,
 
   renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->egl.device = egl_device;
-  renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_EGL_DEVICE;
-  renderer_gpu_data->egl_display = egl_display;
+
+  primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
+  if (gpu_kms != primary_gpu)
+    {
+      renderer_gpu_data->egl_display = EGL_NO_DISPLAY;
+      renderer_gpu_data->secondary.mode = META_RENDERER_NATIVE_MODE_EGL_DEVICE;
+      renderer_gpu_data->secondary.egl_display = egl_display;
+    }
+  else
+    {
+      renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_EGL_DEVICE;
+      renderer_gpu_data->egl_display = egl_display;
+      renderer_gpu_data->secondary.egl_display = EGL_NO_DISPLAY;
+    }
 
   return TRUE;
 }
@@ -3519,7 +3552,12 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
                                                    renderer_gpu_data,
                                                    gpu_kms,
                                                    &egl_device_error);
-  if (initialized)
+
+  /* we currently only support eglstreams for the sole display
+   * or the secondary display. If we're using it for the primary
+   * display, assume non-hybrid graphics.
+   */
+  if (initialized && renderer_gpu_data->egl_display != EGL_NO_DISPLAY)
     return renderer_gpu_data;
 #endif
 
