@@ -42,4 +42,14 @@ void meta_renderer_native_gles3_read_pixels (MetaEgl   *egl,
                                              int        height,
                                              uint8_t   *target_data);
 
+gboolean meta_renderer_native_gles3_draw_pixels (MetaEgl        *egl,
+                                                 MetaGles3      *gles3,
+                                                 unsigned int    width,
+                                                 unsigned int    height,
+                                                 uint8_t        *pixels,
+                                                 GError        **error);
+
+void meta_renderer_native_gles3_load_basic_shaders (MetaEgl   *egl,
+                                                    MetaGles3 *gles3);
+
 #endif /* META_RENDERER_NATIVE_GLES3_H */
