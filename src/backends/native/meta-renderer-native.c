@@ -3092,19 +3092,23 @@ create_secondary_egl_config (MetaEgl               *egl,
                              GError               **error)
 {
   EGLint attributes[] = {
+    EGL_NONE, EGL_NONE, /* reserved for surface type */
     EGL_RED_SIZE, 1,
     EGL_GREEN_SIZE, 1,
     EGL_BLUE_SIZE, 1,
     EGL_ALPHA_SIZE, EGL_DONT_CARE,
     EGL_BUFFER_SIZE, EGL_DONT_CARE,
     EGL_RENDERABLE_TYPE, EGL_OPENGL_ES3_BIT,
-    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-    EGL_NONE
+    EGL_NONE,
   };
+  size_t i = 0;
 
   switch (mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
+      attributes[i++] = EGL_SURFACE_TYPE;
+      attributes[i++] = EGL_WINDOW_BIT;
+
       return choose_egl_config_from_gbm_format (egl,
                                                 egl_display,
                                                 attributes,
@@ -3113,6 +3117,9 @@ create_secondary_egl_config (MetaEgl               *egl,
                                                 error);
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
+      attributes[i++] = EGL_SURFACE_TYPE;
+      attributes[i++] = EGL_STREAM_BIT_KHR;
+
       return meta_egl_choose_first_config (egl,
                                            egl_display,
                                            attributes,
