@@ -37,4 +37,15 @@ gboolean meta_renderer_native_gles3_blit_shared_bo (MetaEgl       *egl,
                                                     struct gbm_bo *shared_bo,
                                                     GError       **error);
 
+gboolean meta_renderer_native_gles3_prepare_for_drawing (MetaEgl    *egl,
+                                                         MetaGles3  *gles3,
+                                                         GError    **error);
+
+gboolean meta_renderer_native_gles3_draw_pixels (MetaEgl        *egl,
+                                                 MetaGles3      *gles3,
+                                                 unsigned int    width,
+                                                 unsigned int    height,
+                                                 uint8_t        *pixels,
+                                                 GError        **error);
+
 #endif /* META_RENDERER_NATIVE_GLES3_H */
