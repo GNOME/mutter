@@ -2219,6 +2219,8 @@ meta_renderer_native_create_surface_gbm (CoglOnscreen        *onscreen,
 static gboolean
 meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
                                                 MetaMonitor        *monitor,
+                                                EGLDisplay          egl_display,
+                                                EGLConfig           egl_config,
                                                 int                 width,
                                                 int                 height,
                                                 EGLStreamKHR       *out_egl_stream,
@@ -2228,16 +2230,13 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = framebuffer->context;
   CoglDisplay *cogl_display = cogl_context->display;
-  CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
   CoglRenderer *cogl_renderer = cogl_display->renderer;
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
   MetaEgl *egl =
     meta_renderer_native_get_egl (renderer_gpu_data->renderer_native);
-  EGLDisplay egl_display = renderer_gpu_data->egl_display;
   MetaOutput *output;
   MetaCrtc *crtc;
-  EGLConfig egl_config;
   EGLStreamKHR egl_stream;
   EGLSurface egl_surface;
   EGLint num_layers;
@@ -2291,7 +2290,6 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
       return FALSE;
     }
 
-  egl_config = cogl_display_egl->egl_config;
   egl_surface = meta_egl_create_stream_producer_surface (egl,
                                                          egl_display,
                                                          egl_config,
@@ -2492,6 +2490,9 @@ meta_onscreen_native_allocate (CoglOnscreen *onscreen,
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+  CoglContext *cogl_context = framebuffer->context;
+  CoglDisplay *cogl_display = cogl_context->display;
+  CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaRendererNativeGpuData *renderer_gpu_data;
   struct gbm_surface *gbm_surface;
@@ -2554,6 +2555,8 @@ meta_onscreen_native_allocate (CoglOnscreen *onscreen,
 
       if (!meta_renderer_native_create_surface_egl_device (onscreen,
                                                            monitor,
+                                                           renderer_gpu_data->egl_display,
+                                                           cogl_display_egl->egl_config,
                                                            width, height,
                                                            &egl_stream,
                                                            &egl_surface,
