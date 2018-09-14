@@ -37,8 +37,8 @@ void meta_shaped_texture_set_is_y_inverted (MetaShapedTexture *stex,
 void meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
                                       CoglSnippet       *snippet);
 void meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
-                                            guint              fallback_width,
-                                            guint              fallback_height);
+                                            int                fallback_width,
+                                            int                fallback_height);
 gboolean meta_shaped_texture_is_obscured (MetaShapedTexture *self);
 cairo_region_t * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex);
 
