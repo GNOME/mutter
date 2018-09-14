@@ -619,7 +619,9 @@ reload_net_wm_name (MetaWindow    *window,
 
   if (value->type != META_PROP_VALUE_INVALID)
     {
-      set_window_title (window, value->v.str);
+      g_autofree gchar *title = g_locale_to_utf8 (value->v.str, -1,
+                                           NULL, NULL, NULL);
+      set_window_title (window, title);
       priv->using_net_wm_name = TRUE;
 
       meta_verbose ("Using _NET_WM_NAME for new title of %s: \"%s\"\n",
@@ -651,8 +653,7 @@ reload_wm_name (MetaWindow    *window,
 
   if (value->type != META_PROP_VALUE_INVALID)
     {
-      g_autofree gchar *title = g_convert (value->v.str, -1,
-                                           "UTF-8", "LATIN1",
+      g_autofree gchar *title = g_locale_to_utf8 (value->v.str, -1,
                                            NULL, NULL, NULL);
       set_window_title (window, title);
 
@@ -989,11 +990,9 @@ reload_wm_class (MetaWindow    *window,
 {
   if (value->type != META_PROP_VALUE_INVALID)
     {
-      g_autofree gchar *res_class = g_convert (value->v.class_hint.res_class, -1,
-                                               "UTF-8", "LATIN1",
+      g_autofree gchar *res_class = g_locale_to_utf8 (value->v.class_hint.res_class, -1,
                                                NULL, NULL, NULL);
-      g_autofree gchar *res_name = g_convert (value->v.class_hint.res_name, -1,
-                                              "UTF-8", "LATIN1",
+      g_autofree gchar *res_name = g_locale_to_utf8 (value->v.class_hint.res_name, -1,
                                               NULL, NULL, NULL);
       meta_window_set_wm_class (window, res_class, res_name);
     }
