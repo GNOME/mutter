@@ -565,6 +565,7 @@ struct _MetaWindowClass
   gboolean (*shortcuts_inhibited) (MetaWindow         *window,
                                    ClutterInputDevice *source);
   gboolean (*is_stackable)        (MetaWindow *window);
+  gboolean (*are_updates_frozen)  (MetaWindow *window);
 };
 
 /* These differ from window->has_foo_func in that they consider

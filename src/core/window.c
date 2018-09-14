@@ -3743,14 +3743,7 @@ meta_window_activate_with_workspace (MetaWindow     *window,
 gboolean
 meta_window_updates_are_frozen (MetaWindow *window)
 {
-  if (window->extended_sync_request_counter &&
-      window->sync_request_serial % 2 == 1)
-    return TRUE;
-
-  if (window->sync_request_serial < window->sync_request_wait_serial)
-    return TRUE;
-
-  return FALSE;
+  return META_WINDOW_GET_CLASS (window)->are_updates_frozen (window);
 }
 
 static void
