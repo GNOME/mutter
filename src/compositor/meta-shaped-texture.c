@@ -103,8 +103,8 @@ struct _MetaShapedTexturePrivate
   cairo_region_t *clip_region;
   cairo_region_t *unobscured_region;
 
-  guint tex_width, tex_height;
-  guint fallback_width, fallback_height;
+  int tex_width, tex_height;
+  int fallback_width, fallback_height;
 
   gint64 prev_invalidation, last_invalidation;
   guint fast_updates;
@@ -163,7 +163,7 @@ set_unobscured_region (MetaShapedTexture *self,
   g_clear_pointer (&priv->unobscured_region, cairo_region_destroy);
   if (unobscured_region)
     {
-      guint width, height;
+      int width, height;
 
       if (priv->texture)
         {
@@ -354,7 +354,7 @@ set_cogl_texture (MetaShapedTexture *stex,
                   CoglTexture       *cogl_tex)
 {
   MetaShapedTexturePrivate *priv;
-  guint width, height;
+  int width, height;
 
   g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
 
@@ -416,7 +416,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
 {
   MetaShapedTexture *stex = (MetaShapedTexture *) actor;
   MetaShapedTexturePrivate *priv = stex->priv;
-  guint tex_width, tex_height;
+  int tex_width, tex_height;
   guchar opacity;
   CoglContext *ctx;
   CoglFramebuffer *fb;
@@ -641,7 +641,7 @@ meta_shaped_texture_get_preferred_width (ClutterActor *self,
                                          gfloat       *natural_width_p)
 {
   MetaShapedTexturePrivate *priv = META_SHAPED_TEXTURE (self)->priv;
-  guint width;
+  int width;
 
   if (priv->texture)
     width = priv->tex_width;
@@ -661,7 +661,7 @@ meta_shaped_texture_get_preferred_height (ClutterActor *self,
                                           gfloat       *natural_height_p)
 {
   MetaShapedTexturePrivate *priv = META_SHAPED_TEXTURE (self)->priv;
-  guint height;
+  int height;
 
   if (priv->texture)
     height = priv->tex_height;
@@ -1028,8 +1028,8 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
 
 void
 meta_shaped_texture_set_fallback_size (MetaShapedTexture *self,
-                                       guint              fallback_width,
-                                       guint              fallback_height)
+                                       int                fallback_width,
+                                       int                fallback_height)
 {
   MetaShapedTexturePrivate *priv = self->priv;
 
