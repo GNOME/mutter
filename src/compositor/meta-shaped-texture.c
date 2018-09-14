@@ -417,6 +417,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
   MetaShapedTexture *stex = (MetaShapedTexture *) actor;
   MetaShapedTexturePrivate *priv = stex->priv;
   int tex_width, tex_height;
+  cairo_rectangle_int_t tex_rect;
   guchar opacity;
   CoglContext *ctx;
   CoglFramebuffer *fb;
@@ -481,7 +482,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
   if (tex_width == 0 || tex_height == 0) /* no contents yet */
     return;
 
-  cairo_rectangle_int_t tex_rect = { 0, 0, tex_width, tex_height };
+  tex_rect = (cairo_rectangle_int_t) { 0, 0, tex_width, tex_height };
 
   /* Use nearest-pixel interpolation if the texture is unscaled. This
    * improves performance, especially with software rendering.
