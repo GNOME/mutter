@@ -32,9 +32,9 @@
 typedef struct _MetaCrtcKmsScanouts
 {
   /* These fields are maintained by MetaGpuKms on a per-CRTC basis. */
-  MetaKmsFramebuffer *previous, *current, *next;
-  GClosure           *next_closure;
-  int                 next_x, next_y;
+  MetaKmsBuffer *previous, *current, *next;
+  GClosure      *next_closure;
+  int            next_x, next_y;
 } MetaCrtcKmsScanouts;
 
 gboolean meta_crtc_kms_is_transform_handled (MetaCrtc             *crtc,

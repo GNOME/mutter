@@ -142,11 +142,11 @@ invoke_flip_closure (GClosure   *flip_closure,
 }
 
 gboolean
-meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
-                              MetaCrtc           *crtc,
-                              int                 x,
-                              int                 y,
-                              MetaKmsFramebuffer *kms_fb)
+meta_gpu_kms_apply_crtc_mode (MetaGpuKms    *gpu_kms,
+                              MetaCrtc      *crtc,
+                              int            x,
+                              int            y,
+                              MetaKmsBuffer *kms_fb)
 {
   MetaGpu *gpu = meta_crtc_get_gpu (crtc);
   int kms_fd = meta_gpu_kms_get_fd (gpu_kms);
@@ -154,7 +154,7 @@ meta_gpu_kms_apply_crtc_mode (MetaGpuKms         *gpu_kms,
   unsigned int n_connectors;
   drmModeModeInfo *mode;
   MetaCrtcKmsScanouts *scanouts;
-  uint32_t fb_id = kms_fb ? meta_kms_framebuffer_get_fb_id (kms_fb) : 0;
+  uint32_t fb_id = kms_fb ? meta_kms_buffer_get_fb_id (kms_fb) : 0;
 
   get_crtc_drm_connectors (gpu, crtc, &connectors, &n_connectors);
 
@@ -259,13 +259,13 @@ meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closur
 }
 
 gboolean
-meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
-                        MetaCrtc           *crtc,
-                        int                 x,
-                        int                 y,
-                        MetaKmsFramebuffer *kms_fb,
-                        GClosure           *flip_closure,
-                        gboolean           *fb_in_use)
+meta_gpu_kms_flip_crtc (MetaGpuKms    *gpu_kms,
+                        MetaCrtc      *crtc,
+                        int            x,
+                        int            y,
+                        MetaKmsBuffer *kms_fb,
+                        GClosure      *flip_closure,
+                        gboolean      *fb_in_use)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
@@ -300,7 +300,7 @@ meta_gpu_kms_flip_crtc (MetaGpuKms         *gpu_kms,
 
       ret = drmModePageFlip (kms_fd,
                              crtc->crtc_id,
-                             meta_kms_framebuffer_get_fb_id (kms_fb),
+                             meta_kms_buffer_get_fb_id (kms_fb),
                              DRM_MODE_PAGE_FLIP_EVENT,
                              closure_container);
       if (ret == -EBUSY)
@@ -385,7 +385,7 @@ page_flip_handler (int           fd,
       if (scanouts->next)
         {
           gboolean fb_in_use;
-          MetaKmsFramebuffer *next_fb = scanouts->next;
+          MetaKmsBuffer *next_fb = scanouts->next;
           GClosure *next_closure = scanouts->next_closure;
 
           scanouts->next = NULL;
