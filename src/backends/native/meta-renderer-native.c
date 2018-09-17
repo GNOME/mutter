@@ -1304,23 +1304,18 @@ flip_closure_destroyed (MetaRendererView *view)
 #ifdef HAVE_EGL_DEVICE
 static gboolean
 flip_egl_stream (MetaOnscreenNative *onscreen_native,
+                 MetaGpuKms         *gpu_kms,
+                 EGLDisplay          egl_display,
+                 EGLStreamKHR       *egl_stream,
                  GClosure           *flip_closure)
 {
-  MetaRendererNativeGpuData *renderer_gpu_data;
-  EGLDisplay *egl_display;
   MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
   MetaGpuKmsFlipClosureContainer *closure_container;
   EGLAttrib *acquire_attribs;
   GError *error = NULL;
 
-  renderer_gpu_data =
-    meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
-                                       onscreen_native->render_gpu);
-  if (renderer_gpu_data->egl.no_egl_output_drm_flip_event)
-    return FALSE;
-
   closure_container =
-    meta_gpu_kms_wrap_flip_closure (onscreen_native->render_gpu, flip_closure);
+    meta_gpu_kms_wrap_flip_closure (gpu_kms, flip_closure);
 
   acquire_attribs = (EGLAttrib[]) {
     EGL_DRM_FLIP_EVENT_DATA_NV,
@@ -1328,10 +1323,9 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
     EGL_NONE
   };
 
-  egl_display = renderer_gpu_data->egl_display;
   if (!meta_egl_stream_consumer_acquire_attrib (egl,
                                                 egl_display,
-                                                onscreen_native->egl.stream,
+                                                egl_stream,
                                                 acquire_attribs,
                                                 &error))
     {
@@ -1340,7 +1334,8 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
         {
           g_warning ("Failed to flip EGL stream (%s), relying on clock from "
                      "now on", error->message);
-          renderer_gpu_data->egl.no_egl_output_drm_flip_event = TRUE;
+          /* FIXME: need to pass this out i guess
+           */
         }
       g_error_free (error);
       meta_gpu_kms_flip_closure_container_free (closure_container);
@@ -1350,6 +1345,29 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
   g_closure_ref (flip_closure);
 
   return TRUE;
+}
+
+static gboolean
+flip_primary_egl_stream (MetaOnscreenNative *onscreen_native,
+                         GClosure           *flip_closure)
+{
+  MetaRendererNativeGpuData *renderer_gpu_data;
+  gboolean ret;
+
+  renderer_gpu_data =
+    meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
+                                       onscreen_native->render_gpu);
+  if (renderer_gpu_data->egl.no_egl_output_drm_flip_event)
+    return FALSE;
+
+  ret = flip_egl_stream (onscreen_native,
+                         onscreen_native->render_gpu,
+                         renderer_gpu_data->egl_display,
+                         onscreen_native->egl.stream,
+                         flip_closure);
+  g_closure_ref (flip_closure);
+
+  return ret;
 }
 #endif /* HAVE_EGL_DEVICE */
 
@@ -1407,8 +1425,8 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      if (flip_egl_stream (onscreen_native,
-                           flip_closure))
+      if (flip_primary_egl_stream (onscreen_native,
+                                   flip_closure))
         onscreen_native->total_pending_flips++;
       *fb_in_use = TRUE;
       break;
