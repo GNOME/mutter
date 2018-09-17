@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2013 Red Hat Inc.
+ * Copyright (C) 2018 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,6 +52,15 @@
 #include <gudev/gudev.h>
 
 #define DRM_CARD_UDEV_DEVICE_TYPE "drm_minor"
+
+enum
+{
+  GPU_ADDED,
+
+  LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
 
 typedef struct
 {
@@ -374,6 +384,45 @@ handle_hotplug_event (MetaMonitorManager *manager)
 }
 
 static void
+gpu_hotplug (MetaMonitorManagerKms *manager_kms,
+             GUdevDevice *device)
+{
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
+  g_autoptr (GError) error = NULL;
+  const char *gpu_path = g_udev_device_get_device_file (device);
+  MetaGpuKms *gpu_kms;
+  GList *gpus, *l;
+
+  /* Make sure we haven't added this device already to avoid
+   * races with meta_monitor_manager_kms_initable_init */
+  gpus = meta_monitor_manager_get_gpus (manager);
+  for (l = gpus; l; l = l->next)
+    {
+      MetaGpuKms *gpu_kms = l->data;
+
+      if (!g_strcmp0 (gpu_path, meta_gpu_kms_get_file_path (gpu_kms)))
+        {
+          g_warning ("Failed to hotplug secondary gpu '%s': %s",
+                     gpu_path, "device already present");
+          return;
+        }
+    }
+
+  gpu_kms = meta_gpu_kms_new (manager_kms, gpu_path, &error);
+  if (!gpu_kms)
+    {
+      g_warning ("Failed to hotplug secondary gpu '%s': %s",
+                 gpu_path, error->message);
+      g_clear_error (&error);
+      return;
+    }
+  meta_monitor_manager_add_gpu (META_MONITOR_MANAGER (manager_kms),
+                                META_GPU (gpu_kms));
+
+  g_signal_emit (manager_kms, signals[GPU_ADDED], 0, gpu_kms);
+}
+
+static void
 on_uevent (GUdevClient *client,
            const char  *action,
            GUdevDevice *device,
@@ -381,6 +430,22 @@ on_uevent (GUdevClient *client,
 {
   MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (user_data);
   MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
+
+  if (g_str_equal (action, "add") &&
+      g_udev_device_get_device_file (device) != NULL)
+    {
+      MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+      MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+      MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
+      const gchar *device_seat = g_udev_device_get_property (device, "ID_SEAT");
+      const char *seat_id = meta_launcher_get_seat_id (launcher);
+
+      if (!device_seat)
+        device_seat = "seat0";
+
+      if (!g_strcmp0 (seat_id, device_seat))
+        gpu_hotplug (manager_kms, device);
+    }
 
   if (!g_udev_device_get_property_as_boolean (device, "HOTPLUG"))
     return;
@@ -756,4 +821,12 @@ meta_monitor_manager_kms_class_init (MetaMonitorManagerKmsClass *klass)
   manager_class->get_capabilities = meta_monitor_manager_kms_get_capabilities;
   manager_class->get_max_screen_size = meta_monitor_manager_kms_get_max_screen_size;
   manager_class->get_default_layout_mode = meta_monitor_manager_kms_get_default_layout_mode;
+
+  signals[GPU_ADDED] =
+    g_signal_new ("gpu-added",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1, G_TYPE_OBJECT);
 }
