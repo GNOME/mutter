@@ -622,10 +622,11 @@ get_gpu_paths (MetaMonitorManagerKms *manager_kms,
                   break;
                 }
             }
-          else
-            {
-              gpu_paths = g_list_append (gpu_paths, g_strdup (device_path));
-            }
+        }
+
+      if (gpu_type == GPU_TYPE_SECONDARY)
+        {
+          gpu_paths = g_list_append (gpu_paths, g_strdup (device_path));
         }
     }
 
