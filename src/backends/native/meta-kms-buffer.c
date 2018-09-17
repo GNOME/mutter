@@ -19,6 +19,7 @@
  * Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
  */
 
+#include "config.h"
 #include "backends/native/meta-kms-buffer.h"
 
 #include <xf86drm.h>
