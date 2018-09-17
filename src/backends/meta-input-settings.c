@@ -709,22 +709,6 @@ update_touchpad_send_events (MetaInputSettings  *input_settings,
     }
 }
 
-gboolean
-meta_input_device_is_trackball (ClutterInputDevice *device)
-{
-  gboolean is_trackball;
-  char *name;
-
-  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
-    return FALSE;
-
-  name = g_ascii_strdown (clutter_input_device_get_device_name (device), -1);
-  is_trackball = strstr (name, "trackball") != NULL;
-  g_free (name);
-
-  return is_trackball;
-}
-
 static void
 update_trackball_scroll_button (MetaInputSettings  *input_settings,
                                 ClutterInputDevice *device)
@@ -733,11 +717,12 @@ update_trackball_scroll_button (MetaInputSettings  *input_settings,
   MetaInputSettingsPrivate *priv;
   guint button;
 
-  if (device && !meta_input_device_is_trackball (device))
-    return;
-
   priv = meta_input_settings_get_instance_private (input_settings);
   input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
+
+  if (device && !input_settings_class->is_trackball_device (input_settings, device))
+    return;
+
   /* This key is 'i' in the schema but it also specifies a minimum
    * range of 0 so the cast here is safe. */
   button = (guint) g_settings_get_int (priv->trackball_settings, "scroll-wheel-emulation-button");
@@ -756,7 +741,7 @@ update_trackball_scroll_button (MetaInputSettings  *input_settings,
         {
           device = devices->data;
 
-          if (meta_input_device_is_trackball (device))
+          if (input_settings_class->is_trackball_device (input_settings, device))
             input_settings_class->set_scroll_button (input_settings, device, button);
 
           devices = devices->next;
