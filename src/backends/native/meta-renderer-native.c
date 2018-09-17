@@ -3016,6 +3016,11 @@ meta_renderer_native_get_property (GObject    *object,
 }
 
 static void
+on_gpu_added (MetaMonitorManager *monitor_manager,
+              MetaGpuKms         *gpu_kms,
+              MetaRendererNative *renderer_native);
+
+static void
 meta_renderer_native_set_property (GObject      *object,
                                    guint         prop_id,
                                    const GValue *value,
@@ -3492,6 +3497,48 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
 }
 
 static gboolean
+create_renderer_gpu_data (MetaRendererNative  *renderer_native,
+                          MetaGpuKms          *gpu_kms,
+                          GError             **error)
+{
+  MetaRendererNativeGpuData *renderer_gpu_data;
+
+  renderer_gpu_data =
+    meta_renderer_native_create_renderer_gpu_data (renderer_native,
+                                                   gpu_kms,
+                                                   error);
+  if (!renderer_gpu_data)
+    return FALSE;
+
+  g_hash_table_insert (renderer_native->gpu_datas,
+                       gpu_kms,
+                       renderer_gpu_data);
+
+  return TRUE;
+}
+
+static void
+on_gpu_added (MetaMonitorManager *monitor_manager,
+              MetaGpuKms         *gpu_kms,
+              MetaRendererNative *renderer_native)
+{
+  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
+  GError *error = NULL;
+
+  if (!create_renderer_gpu_data (renderer_native, gpu_kms, &error))
+    {
+      g_warning ("on_gpu_added: could not create gpu_data for gpu %s: %s",
+                 meta_gpu_kms_get_file_path (gpu_kms), error->message);
+      g_clear_error (&error);
+    }
+
+  _cogl_winsys_egl_ensure_current (cogl_display);
+}
+
+static gboolean
 meta_renderer_native_initable_init (GInitable     *initable,
                                     GCancellable  *cancellable,
                                     GError       **error)
@@ -3508,18 +3555,9 @@ meta_renderer_native_initable_init (GInitable     *initable,
   for (l = gpus; l; l = l->next)
     {
       MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
-      MetaRendererNativeGpuData *renderer_gpu_data;
 
-      renderer_gpu_data =
-        meta_renderer_native_create_renderer_gpu_data (renderer_native,
-                                                       gpu_kms,
-                                                       error);
-      if (!renderer_gpu_data)
+      if (!create_renderer_gpu_data (renderer_native, gpu_kms, error))
         return FALSE;
-
-      g_hash_table_insert (renderer_native->gpu_datas,
-                           gpu_kms,
-                           renderer_gpu_data);
     }
 
   return TRUE;
@@ -3554,6 +3592,9 @@ meta_renderer_native_constructed (GObject *object)
   if (meta_settings_is_experimental_feature_enabled (
         settings, META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS))
     renderer_native->use_modifiers = TRUE;
+
+  g_signal_connect (renderer_native->monitor_manager_kms, "gpu-added",
+                    G_CALLBACK (on_gpu_added), renderer_native);
 
   G_OBJECT_CLASS (meta_renderer_native_parent_class)->constructed (object);
 }
