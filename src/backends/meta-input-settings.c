@@ -719,7 +719,7 @@ meta_input_device_is_trackball (ClutterInputDevice *device)
     return FALSE;
 
   name = g_ascii_strdown (clutter_input_device_get_device_name (device), -1);
-  is_trackball = strstr (name, "trackball") != NULL;
+  is_trackball = strstr (name, "trackball") != NULL || strstr (name, "kensington expert mouse") != NULL;
   g_free (name);
 
   return is_trackball;
