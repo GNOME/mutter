@@ -1382,11 +1382,12 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
+  MetaRendererNativeMode renderer_mode;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaGpuKms *gpu_kms;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state = NULL;
-  uint32_t fb_id;
+  uint32_t fb_id = 0;
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   if (!meta_gpu_kms_is_crtc_active (gpu_kms, crtc))
@@ -1397,31 +1398,39 @@ meta_onscreen_native_flip_crtc (CoglOnscreen *onscreen,
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
-  switch (renderer_gpu_data->mode)
+
+  if (gpu_kms == render_gpu)
+    {
+      renderer_mode = renderer_gpu_data->mode;
+    }
+  else
+    {
+      secondary_gpu_state = get_secondary_gpu_state (onscreen, gpu_kms);
+      renderer_mode = renderer_gpu_data->secondary.mode;
+    }
+
+  switch (renderer_mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
       if (gpu_kms == render_gpu)
-        {
-          fb_id = onscreen_native->gbm.next_fb_id;
-        }
+        fb_id = onscreen_native->gbm.next_fb_id;
       else
+        fb_id = secondary_gpu_state->gbm.next_fb_id;
+
+      if (fb_id)
         {
-          secondary_gpu_state = get_secondary_gpu_state (onscreen, gpu_kms);
-          fb_id = secondary_gpu_state->gbm.next_fb_id;
+          if (!meta_gpu_kms_flip_crtc (gpu_kms,
+                                       crtc,
+                                       x, y,
+                                       fb_id,
+                                       flip_closure,
+                                       fb_in_use))
+            return;
+
+          onscreen_native->total_pending_flips++;
+          if (secondary_gpu_state)
+            secondary_gpu_state->pending_flips++;
         }
-
-      if (!meta_gpu_kms_flip_crtc (gpu_kms,
-                                   crtc,
-                                   x, y,
-                                   fb_id,
-                                   flip_closure,
-                                   fb_in_use))
-        return;
-
-      onscreen_native->total_pending_flips++;
-      if (secondary_gpu_state)
-        secondary_gpu_state->pending_flips++;
-
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
