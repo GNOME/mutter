@@ -506,8 +506,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=		\
 	backends/native/meta-cursor-renderer-native.c	\
 	backends/native/meta-cursor-renderer-native.h	\
 	backends/native/meta-default-modes.h		\
-	backends/native/meta-kms-framebuffer.c		\
-	backends/native/meta-kms-framebuffer.h		\
+	backends/native/meta-kms-buffer.c		\
+	backends/native/meta-kms-buffer.h		\
 	backends/native/meta-gpu-kms.c			\
 	backends/native/meta-gpu-kms.h			\
 	backends/native/meta-input-settings-native.c	\

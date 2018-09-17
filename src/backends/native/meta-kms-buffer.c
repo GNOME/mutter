@@ -19,7 +19,7 @@
  * Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
  */
 
-#include "backends/native/meta-kms-framebuffer.h"
+#include "backends/native/meta-kms-buffer.h"
 
 #include <xf86drm.h>
 #include <xf86drmMode.h>
@@ -28,7 +28,7 @@
 
 #define INVALID_FB_ID 0U
 
-struct _MetaKmsFramebuffer
+struct _MetaKmsBuffer
 {
   GObject parent;
 
@@ -43,12 +43,12 @@ struct _MetaKmsFramebuffer
   uint32_t fb_id;
 };
 
-G_DEFINE_TYPE (MetaKmsFramebuffer, meta_kms_framebuffer, G_TYPE_OBJECT)
+G_DEFINE_TYPE (MetaKmsBuffer, meta_kms_buffer, G_TYPE_OBJECT)
 
 static gboolean
-meta_kms_framebuffer_acquire_swapped_buffer (MetaKmsFramebuffer *kms_framebuffer,
-                                             gboolean            use_modifiers,
-                                             GError            **error)
+meta_kms_buffer_acquire_swapped_buffer (MetaKmsBuffer *kms_buffer,
+                                        gboolean       use_modifiers,
+                                        GError       **error)
 {
   uint32_t handles[4] = {0, 0, 0, 0};
   uint32_t strides[4] = {0, 0, 0, 0};
@@ -59,16 +59,16 @@ meta_kms_framebuffer_acquire_swapped_buffer (MetaKmsFramebuffer *kms_framebuffer
   int i;
   int drm_fd;
 
-  g_return_val_if_fail (META_IS_KMS_FRAMEBUFFER (kms_framebuffer), FALSE);
-  g_return_val_if_fail (kms_framebuffer->gbm_bo == NULL, FALSE);
-  g_return_val_if_fail (kms_framebuffer->gbm_surface != NULL, FALSE);
-  g_return_val_if_fail (kms_framebuffer->gpu_kms != NULL, FALSE);
+  g_return_val_if_fail (META_IS_KMS_BUFFER (kms_buffer), FALSE);
+  g_return_val_if_fail (kms_buffer->gbm_bo == NULL, FALSE);
+  g_return_val_if_fail (kms_buffer->gbm_surface != NULL, FALSE);
+  g_return_val_if_fail (kms_buffer->gpu_kms != NULL, FALSE);
   g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
 
-  drm_fd = meta_gpu_kms_get_fd (kms_framebuffer->gpu_kms);
+  drm_fd = meta_gpu_kms_get_fd (kms_buffer->gpu_kms);
   g_return_val_if_fail (drm_fd >= 0, FALSE);
 
-  bo = gbm_surface_lock_front_buffer (kms_framebuffer->gbm_surface);
+  bo = gbm_surface_lock_front_buffer (kms_buffer->gbm_surface);
   if (bo == NULL)
     {
       g_set_error (error,
@@ -111,7 +111,7 @@ meta_kms_framebuffer_acquire_swapped_buffer (MetaKmsFramebuffer *kms_framebuffer
                                       strides,
                                       offsets,
                                       modifiers,
-                                      &kms_framebuffer->fb_id,
+                                      &kms_buffer->fb_id,
                                       DRM_MODE_FB_MODIFIERS))
         {
           int e = errno;
@@ -121,7 +121,7 @@ meta_kms_framebuffer_acquire_swapped_buffer (MetaKmsFramebuffer *kms_framebuffer
                        g_io_error_from_errno (e),
                        "drmModeAddFB2WithModifiers failed: %s",
                        g_strerror (e));
-          gbm_surface_release_buffer (kms_framebuffer->gbm_surface, bo);
+          gbm_surface_release_buffer (kms_buffer->gbm_surface, bo);
           return FALSE;
         }
     }
@@ -132,7 +132,7 @@ meta_kms_framebuffer_acquire_swapped_buffer (MetaKmsFramebuffer *kms_framebuffer
                           handles,
                           strides,
                           offsets,
-                          &kms_framebuffer->fb_id,
+                          &kms_buffer->fb_id,
                           0))
     {
       if (drmModeAddFB (drm_fd,
@@ -142,7 +142,7 @@ meta_kms_framebuffer_acquire_swapped_buffer (MetaKmsFramebuffer *kms_framebuffer
                         32,
                         strides[0],
                         handles[0],
-                        &kms_framebuffer->fb_id))
+                        &kms_buffer->fb_id))
         {
           int e = errno;
 
@@ -151,119 +151,119 @@ meta_kms_framebuffer_acquire_swapped_buffer (MetaKmsFramebuffer *kms_framebuffer
                        g_io_error_from_errno (e),
                        "drmModeAddFB failed: %s",
                        g_strerror (e));
-          gbm_surface_release_buffer (kms_framebuffer->gbm_surface, bo);
+          gbm_surface_release_buffer (kms_buffer->gbm_surface, bo);
           return FALSE;
         }
     }
 
-  kms_framebuffer->gbm_bo = bo;
+  kms_buffer->gbm_bo = bo;
 
   return TRUE;
 }
 
-MetaKmsFramebuffer*
-meta_kms_framebuffer_new_from_gbm (MetaGpuKms         *gpu_kms,
-                                   struct gbm_surface *gbm_surface,
-                                   gboolean            use_modifiers,
-                                   GError            **error)
+MetaKmsBuffer *
+meta_kms_buffer_new_from_gbm (MetaGpuKms         *gpu_kms,
+                              struct gbm_surface *gbm_surface,
+                              gboolean            use_modifiers,
+                              GError            **error)
 {
-  MetaKmsFramebuffer *kms_fb;
+  MetaKmsBuffer *kms_buffer;
 
   g_return_val_if_fail (META_IS_GPU_KMS (gpu_kms), NULL);
   g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
-  kms_fb = g_object_new (META_TYPE_KMS_FRAMEBUFFER, NULL);
-  kms_fb->gpu_kms = META_GPU_KMS (g_object_ref (gpu_kms));
-  kms_fb->gbm_surface = gbm_surface;
-  if (!meta_kms_framebuffer_acquire_swapped_buffer (kms_fb,
-                                                    use_modifiers,
-                                                    error))
-    g_clear_object (&kms_fb);
+  kms_buffer = g_object_new (META_TYPE_KMS_BUFFER, NULL);
+  kms_buffer->gpu_kms = META_GPU_KMS (g_object_ref (gpu_kms));
+  kms_buffer->gbm_surface = gbm_surface;
+  if (!meta_kms_buffer_acquire_swapped_buffer (kms_buffer,
+                                               use_modifiers,
+                                               error))
+    g_clear_object (&kms_buffer);
 
-  return kms_fb;
+  return kms_buffer;
 }
 
-MetaKmsFramebuffer*
-meta_kms_framebuffer_new_from_dumb (MetaGpuKms *gpu_kms,
-                                    uint32_t    dumb_fb_id)
+MetaKmsBuffer *
+meta_kms_buffer_new_from_dumb (MetaGpuKms *gpu_kms,
+                               uint32_t    dumb_fb_id)
 {
-  MetaKmsFramebuffer *kms_fb;
+  MetaKmsBuffer *kms_buffer;
 
   g_return_val_if_fail (META_IS_GPU_KMS (gpu_kms), NULL);
 
-  kms_fb = g_object_new (META_TYPE_KMS_FRAMEBUFFER, NULL);
-  kms_fb->gpu_kms = META_GPU_KMS (g_object_ref (gpu_kms));
-  kms_fb->fb_id = dumb_fb_id;
+  kms_buffer = g_object_new (META_TYPE_KMS_BUFFER, NULL);
+  kms_buffer->gpu_kms = META_GPU_KMS (g_object_ref (gpu_kms));
+  kms_buffer->fb_id = dumb_fb_id;
 
-  return kms_fb;
+  return kms_buffer;
 }
 
 uint32_t
-meta_kms_framebuffer_get_fb_id (const MetaKmsFramebuffer *kms_framebuffer)
+meta_kms_buffer_get_fb_id (const MetaKmsBuffer *kms_buffer)
 {
-  g_return_val_if_fail (kms_framebuffer != NULL, INVALID_FB_ID);
+  g_return_val_if_fail (kms_buffer != NULL, INVALID_FB_ID);
 
-  return kms_framebuffer->fb_id;
+  return kms_buffer->fb_id;
 }
 
 struct gbm_bo *
-meta_kms_framebuffer_get_bo (const MetaKmsFramebuffer *kms_framebuffer)
+meta_kms_buffer_get_bo (const MetaKmsBuffer *kms_buffer)
 {
-  g_return_val_if_fail (kms_framebuffer != NULL, NULL);
+  g_return_val_if_fail (kms_buffer != NULL, NULL);
 
-  return kms_framebuffer->gbm_bo;
+  return kms_buffer->gbm_bo;
 }
 
 static void
-meta_kms_framebuffer_init (MetaKmsFramebuffer *kms_framebuffer)
+meta_kms_buffer_init (MetaKmsBuffer *kms_buffer)
 {
-  kms_framebuffer->fb_id = INVALID_FB_ID;
+  kms_buffer->fb_id = INVALID_FB_ID;
 }
 
 static void
-meta_kms_framebuffer_dispose (GObject *object)
+meta_kms_buffer_dispose (GObject *object)
 {
-  MetaKmsFramebuffer *kms_framebuffer = META_KMS_FRAMEBUFFER (object);
-  int drm_fd = kms_framebuffer->gpu_kms ?
-               meta_gpu_kms_get_fd (kms_framebuffer->gpu_kms) :
+  MetaKmsBuffer *kms_buffer = META_KMS_BUFFER (object);
+  int drm_fd = kms_buffer->gpu_kms ?
+               meta_gpu_kms_get_fd (kms_buffer->gpu_kms) :
                -1;
 
   if (drm_fd >= 0 &&
-      kms_framebuffer->fb_id != INVALID_FB_ID &&
-      kms_framebuffer->gbm_bo)  /* We don't own dumb buffers, for now... */
+      kms_buffer->fb_id != INVALID_FB_ID &&
+      kms_buffer->gbm_bo)  /* We don't own dumb buffers, for now... */
     {
-      drmModeRmFB (drm_fd, kms_framebuffer->fb_id);
-      kms_framebuffer->fb_id = INVALID_FB_ID;
+      drmModeRmFB (drm_fd, kms_buffer->fb_id);
+      kms_buffer->fb_id = INVALID_FB_ID;
     }
 
-  g_clear_object (&kms_framebuffer->gpu_kms);
+  g_clear_object (&kms_buffer->gpu_kms);
 
-  G_OBJECT_CLASS (meta_kms_framebuffer_parent_class)->dispose (object);
+  G_OBJECT_CLASS (meta_kms_buffer_parent_class)->dispose (object);
 }
 
 static void
-meta_kms_framebuffer_finalize (GObject *object)
+meta_kms_buffer_finalize (GObject *object)
 {
-  MetaKmsFramebuffer *kms_framebuffer = META_KMS_FRAMEBUFFER (object);
+  MetaKmsBuffer *kms_buffer = META_KMS_BUFFER (object);
 
-  if (kms_framebuffer->gbm_surface && kms_framebuffer->gbm_bo)
-    gbm_surface_release_buffer (kms_framebuffer->gbm_surface,
-                                kms_framebuffer->gbm_bo);
+  if (kms_buffer->gbm_surface && kms_buffer->gbm_bo)
+    gbm_surface_release_buffer (kms_buffer->gbm_surface,
+                                kms_buffer->gbm_bo);
 
-  kms_framebuffer->fb_id = INVALID_FB_ID;
-  kms_framebuffer->gbm_bo = NULL;
+  kms_buffer->fb_id = INVALID_FB_ID;
+  kms_buffer->gbm_bo = NULL;
 
   /* We don't own these: */
-  kms_framebuffer->gbm_surface = NULL;
+  kms_buffer->gbm_surface = NULL;
 
-  G_OBJECT_CLASS (meta_kms_framebuffer_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_kms_buffer_parent_class)->finalize (object);
 }
 
 static void
-meta_kms_framebuffer_class_init (MetaKmsFramebufferClass *klass)
+meta_kms_buffer_class_init (MetaKmsBufferClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->dispose = meta_kms_framebuffer_dispose;
-  object_class->finalize = meta_kms_framebuffer_finalize;
+  object_class->dispose = meta_kms_buffer_dispose;
+  object_class->finalize = meta_kms_buffer_finalize;
 }

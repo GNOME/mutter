@@ -19,8 +19,8 @@
  * Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
  */
 
-#ifndef META_KMS_FRAMEBUFFER_H
-#define META_KMS_FRAMEBUFFER_H
+#ifndef META_KMS_BUFFER_H
+#define META_KMS_BUFFER_H
 
 #include <gbm.h>
 #include <glib-object.h>
@@ -28,21 +28,21 @@
 #include "config.h"
 #include "backends/native/meta-gpu-kms.h"
 
-#define META_TYPE_KMS_FRAMEBUFFER (meta_kms_framebuffer_get_type ())
-G_DECLARE_FINAL_TYPE (MetaKmsFramebuffer, meta_kms_framebuffer, META, KMS_FRAMEBUFFER, GObject)
+#define META_TYPE_KMS_BUFFER (meta_kms_buffer_get_type ())
+G_DECLARE_FINAL_TYPE (MetaKmsBuffer, meta_kms_buffer, META, KMS_BUFFER, GObject)
 
-MetaKmsFramebuffer*
-meta_kms_framebuffer_new_from_gbm (MetaGpuKms         *gpu_kms,
-                                   struct gbm_surface *gbm_surface,
-                                   gboolean            use_modifiers,
-                                   GError            **error);
+MetaKmsBuffer *
+meta_kms_buffer_new_from_gbm (MetaGpuKms         *gpu_kms,
+                              struct gbm_surface *gbm_surface,
+                              gboolean            use_modifiers,
+                              GError            **error);
 
-MetaKmsFramebuffer*
-meta_kms_framebuffer_new_from_dumb (MetaGpuKms *gpu_kms,
-                                    uint32_t    dumb_fb_id);
+MetaKmsBuffer *
+meta_kms_buffer_new_from_dumb (MetaGpuKms *gpu_kms,
+                               uint32_t    dumb_fb_id);
 
-uint32_t meta_kms_framebuffer_get_fb_id (const MetaKmsFramebuffer *kms_fb);
+uint32_t meta_kms_buffer_get_fb_id (const MetaKmsBuffer *kms_buffer);
 
-struct gbm_bo *meta_kms_framebuffer_get_bo (const MetaKmsFramebuffer *kms_fb);
+struct gbm_bo *meta_kms_buffer_get_bo (const MetaKmsBuffer *kms_buffer);
 
-#endif /* META_KMS_FRAMEBUFFER_H */
+#endif /* META_KMS_BUFFER_H */
