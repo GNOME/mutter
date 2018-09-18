@@ -40,7 +40,8 @@ struct _MetaInputSettingsClass
   GObjectClass parent_class;
 
   void (* set_send_events)   (MetaInputSettings        *settings,
-                              ClutterInputDevice       *device, GDesktopDeviceSendEvents  mode);
+                              ClutterInputDevice       *device,
+                              GDesktopDeviceSendEvents  mode);
   void (* set_matrix)        (MetaInputSettings  *settings,
                               ClutterInputDevice *device,
                               gfloat              matrix[6]);
@@ -114,7 +115,7 @@ struct _MetaInputSettingsClass
                                   GDesktopStylusButtonAction  tertiary);
   gboolean (* has_two_finger_scroll) (MetaInputSettings  *settings,
                                       ClutterInputDevice *device);
-  gboolean (* is_trackball_device) (MetaInputSettings *settings,
+  gboolean (* is_trackball_device) (MetaInputSettings  *settings,
                                     ClutterInputDevice *device);
 };
 

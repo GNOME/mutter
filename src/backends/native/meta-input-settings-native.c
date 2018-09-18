@@ -589,6 +589,7 @@ meta_input_settings_native_class_init (MetaInputSettingsNativeClass *klass)
   input_settings_class->set_stylus_button_map = meta_input_settings_native_set_stylus_button_map;
 
   input_settings_class->has_two_finger_scroll = meta_input_settings_native_has_two_finger_scroll;
+
   input_settings_class->is_trackball_device = meta_input_settings_native_is_trackball_device;
 }
 
