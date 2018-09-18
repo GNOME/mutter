@@ -309,7 +309,9 @@ get_standalone_layer (MetaWindow *window)
     default:
       if (window->wm_state_below)
         layer = META_LAYER_BOTTOM;
-      else if (window->wm_state_above && !META_WINDOW_MAXIMIZED (window))
+      else if (window->wm_state_above &&
+               !meta_window_is_fullscreen (window) &&
+               !META_WINDOW_MAXIMIZED (window))
         layer = META_LAYER_TOP;
       else
         layer = META_LAYER_NORMAL;
