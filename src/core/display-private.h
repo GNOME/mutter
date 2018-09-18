@@ -40,6 +40,7 @@
 #include "core/meta-gesture-tracker-private.h"
 #include "core/stack-tracker.h"
 #include "core/startup-notification-private.h"
+#include "core/meta-introspect.h"
 #include "meta/barrier.h"
 #include "meta/boxes.h"
 #include "meta/common.h"
@@ -241,6 +242,8 @@ struct _MetaDisplay
 
   MetaBell *bell;
   MetaWorkspaceManager *workspace_manager;
+
+  MetaIntrospect *introspect;
 };
 
 struct _MetaDisplayClass
