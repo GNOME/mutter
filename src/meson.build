@@ -333,6 +333,8 @@ mutter_sources = [
   'core/meta-inhibit-shortcuts-dialog-default-private.h',
   'core/meta-workspace-manager.c',
   'core/meta-workspace-manager-private.h',
+  'core/meta-introspect.c',
+  'core/meta-introspect.h',
   'core/place.c',
   'core/place.h',
   'core/prefs.c',
@@ -633,6 +635,13 @@ if have_remote_desktop
     )
   mutter_built_sources += dbus_screen_cast_built_sources
 endif
+
+dbus_introspect_built_sources = gnome.gdbus_codegen('meta-dbus-introspect',
+  'org.gnome.Mutter.Introspect.xml',
+  interface_prefix: 'org.gnome.Mutter.',
+  namespace: 'MetaDBus',
+)
+mutter_built_sources += dbus_introspect_built_sources
 
 if have_wayland
   # Format:

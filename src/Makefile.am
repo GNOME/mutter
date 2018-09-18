@@ -49,6 +49,7 @@ mutter_built_sources = \
 	$(dbus_idle_built_sources)		\
 	$(dbus_display_config_built_sources)	\
 	$(dbus_login1_built_sources)		\
+	$(dbus_introspect_built_sources)	\
 	meta/meta-enum-types.h			\
 	meta-enum-types.c			\
 	meta-default-modes.h			\
@@ -291,6 +292,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	meta/meta-inhibit-shortcuts-dialog.h	\
 	core/meta-inhibit-shortcuts-dialog-default.c	\
 	core/meta-inhibit-shortcuts-dialog-default-private.h \
+	core/meta-introspect.c			\
+	core/meta-introspect.h			\
 	core/delete.c				\
 	core/display.c				\
 	core/display-private.h			\
@@ -780,6 +783,15 @@ $(dbus_login1_built_sources) : Makefile.am org.freedesktop.login1.xml
 		--generate-c-code meta-dbus-login1					\
 		--c-generate-autocleanup all						\
 		$(srcdir)/org.freedesktop.login1.xml
+
+dbus_introspect_built_sources = meta-dbus-introspect.c meta-dbus-introspect.h
+
+$(dbus_introspect_built_sources) : Makefile.am org.gnome.Mutter.Introspect.xml
+	$(AM_V_GEN)gdbus-codegen							\
+		--interface-prefix org.gnome.Mutter					\
+		--c-namespace MetaDBus							\
+		--generate-c-code meta-dbus-introspect					\
+		$(srcdir)/org.gnome.Mutter.Introspect.xml
 
 meta-default-modes.h: backends/native/gen-default-modes.py Makefile.am
 	@if test -n "$(CVT)"; then \
