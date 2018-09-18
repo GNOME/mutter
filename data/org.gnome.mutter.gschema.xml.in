@@ -120,6 +120,7 @@
                                         framebuffers instead of window content,
                                         to manage HiDPI monitors. Does not
                                         require a restart.
+        • “window-list”               — enables window list support.
       </description>
     </key>
 
