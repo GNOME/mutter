@@ -397,6 +397,8 @@ if have_remote_desktop
   mutter_sources += [
     'backends/meta-dbus-session-watcher.c',
     'backends/meta-dbus-session-watcher.h',
+    'backends/meta-window-list.c',
+    'backends/meta-window-list.h',
     'backends/meta-remote-desktop.c',
     'backends/meta-remote-desktop.h',
     'backends/meta-remote-desktop-session.c',
@@ -619,6 +621,13 @@ if have_remote_desktop
       namespace: 'MetaDBus',
     )
   mutter_built_sources += dbus_screen_cast_built_sources
+
+  dbus_remote_control_built_sources = gnome.gdbus_codegen('meta-dbus-window-list',
+      'org.gnome.Mutter.WindowList.xml',
+      interface_prefix: 'org.gnome.Mutter.',
+      namespace: 'MetaDBus',
+    )
+  mutter_built_sources += dbus_remote_control_built_sources
 endif
 
 cvt = find_program('cvt')

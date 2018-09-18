@@ -46,6 +46,7 @@
 #include "backends/meta-remote-access-controller-private.h"
 #include "backends/meta-remote-desktop.h"
 #include "backends/meta-screen-cast.h"
+#include "backends/meta-window-list.h"
 #endif
 
 #ifdef HAVE_NATIVE_BACKEND
@@ -100,6 +101,7 @@ struct _MetaBackendPrivate
   MetaDbusSessionWatcher *dbus_session_watcher;
   MetaScreenCast *screen_cast;
   MetaRemoteDesktop *remote_desktop;
+  MetaWindowList *window_list;
 #endif
 
   ClutterBackend *clutter_backend;
@@ -444,6 +446,18 @@ meta_backend_create_input_settings (MetaBackend *backend)
   return META_BACKEND_GET_CLASS (backend)->create_input_settings (backend);
 }
 
+#ifdef HAVE_REMOTE_DESKTOP
+static gboolean
+is_window_list_enabled (MetaBackend *backend)
+{
+  MetaSettings *settings = meta_backend_get_settings (backend);
+
+  return meta_settings_is_experimental_feature_enabled (
+    settings,
+    META_EXPERIMENTAL_FEATURE_WINDOW_LIST);
+}
+#endif /* HAVE_REMOTE_DESKTOP */
+
 static void
 meta_backend_real_post_init (MetaBackend *backend)
 {
@@ -481,6 +495,8 @@ meta_backend_real_post_init (MetaBackend *backend)
   priv->dbus_session_watcher = g_object_new (META_TYPE_DBUS_SESSION_WATCHER, NULL);
   priv->screen_cast = meta_screen_cast_new (priv->dbus_session_watcher);
   priv->remote_desktop = meta_remote_desktop_new (priv->dbus_session_watcher);
+  if (is_window_list_enabled (backend))
+    priv->window_list = meta_window_list_new (priv->dbus_session_watcher);
 #endif /* HAVE_REMOTE_DESKTOP */
 
   if (!meta_monitor_manager_is_headless (priv->monitor_manager))
