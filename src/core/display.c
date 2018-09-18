@@ -627,6 +627,16 @@ on_ui_scaling_factor_changed (MetaSettings *settings,
   meta_display_reload_cursor (display);
 }
 
+static void
+meta_display_introspect_set_enabled (MetaDisplay *display,
+                                     gboolean     is_enabled)
+{
+  if (display->introspect && !is_enabled)
+    g_clear_object (&display->introspect);
+  else if (!display->introspect && is_enabled)
+    display->introspect = meta_introspect_new ();
+}
+
 /**
  * meta_display_open:
  *
@@ -776,6 +786,10 @@ meta_display_open (void)
     meta_x11_display_focus_the_no_focus_window (display->x11_display, timestamp);
 
   meta_idle_monitor_init_dbus ();
+
+  meta_display_introspect_set_enabled (display,
+                                       meta_prefs_get_is_introspect_enabled ());
+
 
   /* Done opening new display */
   display->display_opening = FALSE;
@@ -950,6 +964,8 @@ meta_display_close (MetaDisplay *display,
     }
 
   meta_display_shutdown_keys (display);
+
+  meta_display_introspect_set_enabled (display, FALSE);
 
   g_clear_object (&display->bell);
   g_clear_object (&display->startup_notification);
@@ -2473,6 +2489,9 @@ prefs_changed_callback (MetaPreference pref,
     {
       meta_display_reload_cursor (display);
     }
+  else if (pref == META_PREF_ENABLE_INTROSPECT)
+    meta_display_introspect_set_enabled (display,
+                                         meta_prefs_get_is_introspect_enabled ());
 }
 
 void
