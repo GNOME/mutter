@@ -333,6 +333,8 @@ mutter_sources = [
   'core/meta-inhibit-shortcuts-dialog-default-private.h',
   'core/meta-workspace-manager.c',
   'core/meta-workspace-manager-private.h',
+  'core/meta-introspect.c',
+  'core/meta-introspect.h',
   'core/place.c',
   'core/place.h',
   'core/prefs.c',
@@ -633,6 +635,13 @@ default_modes_h = custom_target('meta-default-modes',
   command: [gen_default_modes, '@OUTPUT@']
 )
 mutter_built_sources += default_modes_h
+
+dbus_introspect_built_sources = gnome.gdbus_codegen('meta-dbus-introspect',
+  'org.gnome.Mutter.Introspect.xml',
+  interface_prefix: 'org.gnome.Mutter.',
+  namespace: 'MetaDBus',
+)
+mutter_built_sources += dbus_introspect_built_sources
 
 if have_wayland
   # Format:

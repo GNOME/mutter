@@ -777,6 +777,8 @@ meta_display_open (void)
 
   meta_idle_monitor_init_dbus ();
 
+  display->introspect = meta_introspect_new ();
+
   /* Done opening new display */
   display->display_opening = FALSE;
 
@@ -954,6 +956,7 @@ meta_display_close (MetaDisplay *display,
   g_clear_object (&display->bell);
   g_clear_object (&display->startup_notification);
   g_clear_object (&display->workspace_manager);
+  g_clear_object (&display->introspect);
 
   g_object_unref (display);
   the_display = NULL;
