@@ -40,8 +40,7 @@ struct _MetaInputSettingsClass
   GObjectClass parent_class;
 
   void (* set_send_events)   (MetaInputSettings        *settings,
-                              ClutterInputDevice       *device,
-                              GDesktopDeviceSendEvents  mode);
+                              ClutterInputDevice       *device, GDesktopDeviceSendEvents  mode);
   void (* set_matrix)        (MetaInputSettings  *settings,
                               ClutterInputDevice *device,
                               gfloat              matrix[6]);
@@ -115,6 +114,8 @@ struct _MetaInputSettingsClass
                                   GDesktopStylusButtonAction  tertiary);
   gboolean (* has_two_finger_scroll) (MetaInputSettings  *settings,
                                       ClutterInputDevice *device);
+  gboolean (* is_trackball_device) (MetaInputSettings *settings,
+                                    ClutterInputDevice *device);
 };
 
 GSettings *           meta_input_settings_get_tablet_settings (MetaInputSettings  *settings,
@@ -140,7 +141,5 @@ gchar *                    meta_input_settings_get_pad_action_label      (MetaIn
 WacomDevice * meta_input_settings_get_tablet_wacom_device (MetaInputSettings *settings,
                                                            ClutterInputDevice *device);
 #endif
-
-gboolean meta_input_device_is_trackball (ClutterInputDevice *device);
 
 #endif /* META_INPUT_SETTINGS_PRIVATE_H */
