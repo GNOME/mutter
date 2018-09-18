@@ -120,6 +120,14 @@
                                         framebuffers instead of window content,
                                         to manage HiDPI monitors. Does not
                                         require a restart.
+
+        • “introspect”                — enables introspection support, this allows
+                                        clients to query the list of windows and
+                                        their characteristics through D-BUS.
+                                        This can be used for automated tests such
+                                        as “dogtail”, but should be kept disabled
+                                        otherwise. Requires a restart to take
+                                        effect.
       </description>
     </key>
 

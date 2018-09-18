@@ -60,6 +60,7 @@ if HAVE_REMOTE_DESKTOP
 mutter_built_sources += \
 	$(dbus_remote_desktop_built_sources)	\
 	$(dbus_screen_cast_built_sources)	\
+	$(dbus_remote_control_built_sources)	\
 	$(NULL)
 endif
 
@@ -371,6 +372,8 @@ if HAVE_REMOTE_DESKTOP
 libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	backends/meta-dbus-session-watcher.c	\
 	backends/meta-dbus-session-watcher.h	\
+	backends/meta-introspect.c		\
+	backends/meta-introspect.h		\
 	backends/meta-remote-desktop.c		\
 	backends/meta-remote-desktop.h		\
 	backends/meta-remote-desktop-session.c	\
@@ -767,6 +770,15 @@ $(dbus_screen_cast_built_sources) : Makefile.am org.gnome.Mutter.ScreenCast.xml
 		--c-namespace MetaDBus							\
 		--generate-c-code meta-dbus-screen-cast					\
 		$(srcdir)/org.gnome.Mutter.ScreenCast.xml
+
+dbus_remote_control_built_sources = meta-dbus-introspect.c meta-dbus-introspect.h
+
+$(dbus_remote_control_built_sources) : Makefile.am org.gnome.Mutter.Introspect.xml
+	$(AM_V_GEN)gdbus-codegen							\
+		--interface-prefix org.gnome.Mutter					\
+		--c-namespace MetaDBus							\
+		--generate-c-code meta-dbus-introspect					\
+		$(srcdir)/org.gnome.Mutter.Introspect.xml
 endif
 
 dbus_login1_built_sources = meta-dbus-login1.c meta-dbus-login1.h

@@ -264,6 +264,8 @@ experimental_features_handler (GVariant *features_variant,
         features |= META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER;
       else if (g_str_equal (feature, "kms-modifiers"))
         features |= META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
+      else if (g_str_equal (feature, "introspect"))
+        features |= META_EXPERIMENTAL_FEATURE_INTROSPECT;
       else
         g_info ("Unknown experimental feature '%s'\n", feature);
     }
