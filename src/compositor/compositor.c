@@ -374,6 +374,11 @@ meta_begin_modal_for_plugin (MetaCompositor   *compositor,
   if (!grab_devices (options, timestamp))
     return FALSE;
 
+  g_set_object (&compositor->restore_focus_window,
+                meta_display_get_focus_window (display));
+  meta_x11_display_focus_the_no_focus_window (display->x11_display,
+                                              timestamp);
+
   display->grab_op = META_GRAB_OP_COMPOSITOR;
   display->event_route = META_EVENT_ROUTE_COMPOSITOR_GRAB;
   display->grab_window = NULL;
@@ -416,6 +421,19 @@ meta_end_modal_for_plugin (MetaCompositor *compositor,
   display->grab_window = NULL;
   display->grab_have_pointer = FALSE;
   display->grab_have_keyboard = FALSE;
+
+  if (compositor->restore_focus_window)
+    {
+      if (!compositor->restore_focus_window->unmanaging &&
+          !meta_display_get_focus_window (display))
+        {
+          meta_x11_display_set_input_focus_window (display->x11_display,
+                                                   compositor->restore_focus_window,
+                                                   FALSE, timestamp);
+        }
+
+      g_clear_object (&compositor->restore_focus_window);
+    }
 
   meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp);
   meta_backend_ungrab_device (backend, META_VIRTUAL_CORE_KEYBOARD_ID, timestamp);
