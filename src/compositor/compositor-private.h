@@ -40,6 +40,8 @@ struct _MetaCompositor
 
   MetaPluginManager *plugin_mgr;
 
+  MetaWindow *restore_focus_window;
+
   gboolean frame_has_updated_xsurfaces;
   gboolean have_x11_sync_object;
 };
