@@ -277,9 +277,9 @@ meta_renderer_native_gles3_draw_pixels (MetaEgl        *egl,
 
   GLBAS (gles3, glBindBuffer, (GL_ARRAY_BUFFER, vertex_buffer));
   GLBAS (gles3, glEnableVertexAttribArray, (0));
-  GLBAS (gles3, glVertexAttribPointer, (0, 2, GL_FLOAT, GL_FALSE, sizeof (struct vertex), (void *) offsetof (struct vertex, position)));
+  GLBAS (gles3, glVertexAttribPointer, (0, sizeof (struct position) / sizeof (float), GL_FLOAT, GL_FALSE, sizeof (struct vertex), (void *) offsetof (struct vertex, position)));
   GLBAS (gles3, glEnableVertexAttribArray, (1));
-  GLBAS (gles3, glVertexAttribPointer, (1, 2, GL_FLOAT, GL_FALSE, sizeof (struct vertex), (void *) offsetof (struct vertex, texture_coordinate)));
+  GLBAS (gles3, glVertexAttribPointer, (1, sizeof (struct texture_coordinate) / sizeof (float), GL_FLOAT, GL_FALSE, sizeof (struct vertex), (void *) offsetof (struct vertex, texture_coordinate)));
   GLBAS (gles3, glDrawElements, (GL_TRIANGLES, G_N_ELEMENTS (triangles) * (sizeof (struct triangle) / sizeof (unsigned int)), GL_UNSIGNED_INT, 0));
 
   return TRUE;
