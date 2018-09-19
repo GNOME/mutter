@@ -798,6 +798,7 @@ meta_compositor_hide_window (MetaCompositor *compositor,
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
   meta_window_actor_hide (window_actor, effect);
+  meta_stack_tracker_queue_sync_stack (compositor->display->screen->stack_tracker);
 }
 
 void
@@ -943,6 +944,9 @@ get_top_visible_window_actor (MetaCompositor *compositor)
       MetaWindowActor *window_actor = l->data;
       MetaWindow *window = meta_window_actor_get_meta_window (window_actor);
       MetaRectangle buffer_rect;
+
+      if (!window->visible_to_compositor)
+        continue;
 
       meta_window_get_buffer_rect (window, &buffer_rect);
 
