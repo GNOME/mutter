@@ -951,6 +951,9 @@ get_top_visible_window_actor (MetaCompositor *compositor)
       MetaRectangle buffer_rect;
       MetaRectangle display_rect = { 0 };
 
+      if (!window->visible_to_compositor)
+        continue;
+
       meta_window_get_buffer_rect (window, &buffer_rect);
       meta_display_get_size (compositor->display,
                              &display_rect.width, &display_rect.height);
