@@ -11257,6 +11257,23 @@ clutter_actor_set_height (ClutterActor *self,
                                     height);
 }
 
+static void
+_clutter_actor_shallow_queue_relayout (ClutterActor *self)
+{
+  ClutterActor *parent = self->priv->parent;
+
+  if (parent && (parent->flags & CLUTTER_ACTOR_NO_LAYOUT))
+    {
+      clutter_actor_allocate_preferred_size (self, CLUTTER_ALLOCATION_NONE);
+      parent->priv->needs_paint_volume_update = TRUE;
+      clutter_actor_queue_redraw (self);
+    }
+  else
+    {
+      clutter_actor_queue_relayout (self);
+    }
+}
+
 static inline void
 clutter_actor_set_x_internal (ClutterActor *self,
                               float         x)
@@ -11277,7 +11294,7 @@ clutter_actor_set_x_internal (ClutterActor *self,
 
   clutter_actor_notify_if_geometry_changed (self, &old);
 
-  clutter_actor_queue_relayout (self);
+  _clutter_actor_shallow_queue_relayout (self);
 }
 
 static inline void
@@ -11300,7 +11317,7 @@ clutter_actor_set_y_internal (ClutterActor *self,
 
   clutter_actor_notify_if_geometry_changed (self, &old);
 
-  clutter_actor_queue_relayout (self);
+  _clutter_actor_shallow_queue_relayout (self);
 }
 
 static void
@@ -11329,7 +11346,7 @@ clutter_actor_set_position_internal (ClutterActor       *self,
 
   clutter_actor_notify_if_geometry_changed (self, &old);
 
-  clutter_actor_queue_relayout (self);
+  _clutter_actor_shallow_queue_relayout (self);
 }
 
 /**
