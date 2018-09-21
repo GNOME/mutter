@@ -58,6 +58,12 @@ gboolean meta_gpu_kms_can_have_outputs (MetaGpuKms *gpu_kms);
 gboolean meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
                                       MetaCrtc   *crtc);
 
+gboolean meta_gpu_kms_is_boot_gpu (MetaGpuKms *gpu_kms);
+void meta_gpu_kms_set_boot_gpu (MetaGpuKms *gpu_kms);
+
+gboolean meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms);
+void meta_gpu_kms_set_platform_device (MetaGpuKms *gpu_kms);
+
 gboolean meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
                                  MetaCrtc   *crtc,
                                  int         x,
