@@ -1161,6 +1161,8 @@ _meta_window_shared_new (MetaDisplay         *display,
       window->has_resize_func = FALSE;
     }
 
+  window->id = meta_display_generate_window_id (display);
+
   META_WINDOW_GET_CLASS (window)->manage (window);
 
   if (!window->override_redirect)
