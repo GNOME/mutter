@@ -1161,6 +1161,8 @@ _meta_window_shared_new (MetaDisplay         *display,
       window->has_resize_func = FALSE;
     }
 
+  window->id = meta_display_generate_window_id (display);
+
   META_WINDOW_GET_CLASS (window)->manage (window);
 
   if (!window->override_redirect)
@@ -8514,4 +8516,18 @@ gboolean
 meta_window_is_stackable (MetaWindow *window)
 {
   return META_WINDOW_GET_CLASS (window)->is_stackable (window);
+}
+
+/**
+ * meta_window_get_id:
+ * @window: a #MetaWindow
+ *
+ * Returns the window id associated with window.
+ *
+ * Returns: (transfer none): The window id
+ */
+uint64_t
+meta_window_get_id (MetaWindow *window)
+{
+  return window->id;
 }
