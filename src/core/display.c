@@ -3592,3 +3592,40 @@ meta_display_get_startup_notification (MetaDisplay *display)
 {
   return display->startup_notification;
 }
+
+MetaWindow *
+meta_display_get_window_from_id (MetaDisplay *display,
+                                 uint64_t     win_id)
+{
+  GSList *windows = meta_display_list_windows (display, META_LIST_DEFAULT);
+  GSList *tmp;
+  MetaWindow *matching_window = NULL;
+
+  tmp = windows;
+  while (tmp != NULL)
+    {
+      MetaWindow *window = tmp->data;
+
+      if (window->win_id == win_id)
+        {
+          matching_window = window;
+          break;
+        }
+      tmp = tmp->next;
+    }
+  g_slist_free (windows);
+
+  return matching_window;
+}
+
+uint64_t
+meta_display_generate_window_id (MetaDisplay *display)
+{
+  uint64_t new_window_id;
+
+  do {
+    new_window_id = ((uint64_t) g_random_int () << 32) + g_random_int ();
+  } while (meta_display_get_window_from_id (display, new_window_id));
+
+  return new_window_id;
+}
