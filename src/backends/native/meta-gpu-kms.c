@@ -70,6 +70,9 @@ struct _MetaGpuKms
   gboolean page_flips_not_supported;
 
   gboolean resources_init_failed_before;
+
+  gboolean is_boot_gpu;
+  gboolean is_platform_device;
 };
 
 G_DEFINE_TYPE (MetaGpuKms, meta_gpu_kms, META_TYPE_GPU)
@@ -392,6 +395,30 @@ meta_gpu_kms_set_power_save_mode (MetaGpuKms *gpu_kms,
 
       meta_output_kms_set_power_save_mode (output, state);
     }
+}
+
+void
+meta_gpu_kms_set_boot_gpu (MetaGpuKms *gpu_kms)
+{
+  gpu_kms->is_boot_gpu = TRUE;
+}
+
+gboolean
+meta_gpu_kms_is_boot_gpu (MetaGpuKms *gpu_kms)
+{
+  return gpu_kms->is_boot_gpu;
+}
+
+void
+meta_gpu_kms_set_platform_device (MetaGpuKms *gpu_kms)
+{
+  gpu_kms->is_platform_device = TRUE;
+}
+
+gboolean
+meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms)
+{
+  return gpu_kms->is_platform_device;
 }
 
 static void
