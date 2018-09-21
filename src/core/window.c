@@ -1161,6 +1161,9 @@ _meta_window_shared_new (MetaDisplay         *display,
       window->has_resize_func = FALSE;
     }
 
+  /* Generate a unique window-id that is unrelated to any windowing backend */
+  window->win_id = meta_display_generate_window_id (display);
+
   META_WINDOW_GET_CLASS (window)->manage (window);
 
   if (!window->override_redirect)
