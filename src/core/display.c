@@ -3592,3 +3592,39 @@ meta_display_get_startup_notification (MetaDisplay *display)
 {
   return display->startup_notification;
 }
+
+MetaWindow *
+meta_display_get_window_from_id (MetaDisplay *display,
+                                 uint64_t     win_id)
+{
+  GSList *windows = meta_display_list_windows (display, META_LIST_DEFAULT);
+  GSList *l;
+  MetaWindow *matching_window = NULL;
+
+  for (l = windows; l; l = l->next)
+    {
+      MetaWindow *window = l->data;
+
+      if (window->id == win_id)
+        {
+          matching_window = window;
+          break;
+        }
+    }
+  g_slist_free (windows);
+
+  return matching_window;
+}
+
+uint64_t
+meta_display_generate_window_id (MetaDisplay *display)
+{
+  static uint64_t base_window_id;
+  static uint64_t last_window_id;
+
+  if (!base_window_id)
+    base_window_id = g_random_int () + 1;
+
+  /* We can overflow here, that's fine */
+  return (base_window_id + last_window_id++);
+}
