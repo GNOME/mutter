@@ -3617,3 +3617,30 @@ meta_display_get_workspace_manager (MetaDisplay *display)
 {
   return display->workspace_manager;
 }
+
+MetaWindow *
+meta_display_get_window_from_id (MetaDisplay *display,
+                                 uint64_t     win_id)
+{
+  GSList *windows;
+  GSList *tmp;
+  MetaWindow *matching_window = NULL;
+
+  windows = meta_display_list_windows (display, META_LIST_DEFAULT);
+
+  tmp = windows;
+  while (tmp != NULL)
+    {
+      MetaWindow *window = tmp->data;
+
+      if (window->win_id == win_id)
+        {
+          matching_window = window;
+          break;
+        }
+      tmp = tmp->next;
+    }
+  g_slist_free (windows);
+
+  return matching_window;
+}

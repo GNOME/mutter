@@ -42,6 +42,9 @@
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-wayland-xdg-shell.h"
 
+#define WAYLAND_WIN_ID_BASE (1 << 31) /* X11 uses 29 bits for XID */
+static uint32_t last_wayland_win_id;
+
 struct _MetaWindowWayland
 {
   MetaWindow parent;
@@ -659,6 +662,7 @@ meta_window_wayland_new (MetaDisplay        *display,
                                     META_COMP_EFFECT_CREATE,
                                     &attrs);
   window->can_ping = TRUE;
+  window->win_id = WAYLAND_WIN_ID_BASE + (++last_wayland_win_id);
 
   meta_x11_error_trap_pop (display->x11_display); /* pop the XSync()-reducing trap */
 

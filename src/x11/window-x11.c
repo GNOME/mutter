@@ -3263,6 +3263,10 @@ meta_window_x11_new (MetaDisplay       *display,
     }
 
   meta_x11_error_trap_pop (x11_display); /* pop the XSync()-reducing trap */
+
+  /* On X11, the win_id is the XID */
+  window->win_id = xwindow;
+
   return window;
 
 error:
