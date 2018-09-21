@@ -153,6 +153,7 @@ struct _MetaWindow
 
   MetaDisplay *display;
   MetaScreen *screen;
+  uint64_t id;
   guint64 stamp;
   MetaLogicalMonitor *monitor;
   MetaWorkspace *workspace;

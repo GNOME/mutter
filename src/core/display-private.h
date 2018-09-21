@@ -507,4 +507,8 @@ void meta_display_notify_pad_group_switch (MetaDisplay        *display,
                                            guint               n_mode,
                                            guint               n_modes);
 
+MetaWindow *meta_display_get_window_from_id (MetaDisplay *display,
+                                             uint64_t     window_id);
+uint64_t    meta_display_generate_window_id (MetaDisplay *display);
+
 #endif
