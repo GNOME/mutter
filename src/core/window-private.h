@@ -151,6 +151,7 @@ struct _MetaWindow
   GObject parent_instance;
 
   MetaDisplay *display;
+  uint64_t win_id;
   guint64 stamp;
   MetaLogicalMonitor *monitor;
   MetaWorkspace *workspace;
