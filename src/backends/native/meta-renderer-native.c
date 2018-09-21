@@ -3189,13 +3189,11 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
                               MetaGpuKms          *gpu_kms,
                               GError             **error)
 {
-  MetaMonitorManagerKms *monitor_manager_kms;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
   struct gbm_device *gbm_device;
   EGLDisplay egl_display;
   int kms_fd;
   MetaRendererNativeGpuData *renderer_gpu_data;
-  MetaGpuKms *primary_gpu;
 
   if (!meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
                                 "EGL_MESA_platform_gbm",
@@ -3239,10 +3237,7 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
   renderer_gpu_data->egl_display = egl_display;
 
-  monitor_manager_kms = renderer_native->monitor_manager_kms;
-  primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
-  if (gpu_kms != primary_gpu)
-    init_secondary_gpu_data (renderer_gpu_data);
+  init_secondary_gpu_data (renderer_gpu_data);
 
   return renderer_gpu_data;
 }
@@ -3558,6 +3553,14 @@ meta_renderer_native_initable_init (GInitable     *initable,
 
       if (!create_renderer_gpu_data (renderer_native, gpu_kms, error))
         return FALSE;
+    }
+
+  if (!meta_monitor_manager_kms_set_primary_gpu (monitor_manager_kms))
+    {
+      g_warning ("could not set a GPU to be primary");
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "could not set a GPU to be primary");
+      return FALSE;
     }
 
   return TRUE;
