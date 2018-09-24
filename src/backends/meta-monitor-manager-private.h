@@ -385,4 +385,6 @@ void meta_monitor_manager_clear_output (MetaOutput *output);
 void meta_monitor_manager_clear_mode (MetaCrtcMode *mode);
 void meta_monitor_manager_clear_crtc (MetaCrtc *crtc);
 
+gboolean meta_monitor_has_aspect_as_size (MetaMonitor *monitor);
+
 #endif /* META_MONITOR_MANAGER_PRIVATE_H */
