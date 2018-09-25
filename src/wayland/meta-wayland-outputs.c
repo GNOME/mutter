@@ -591,6 +591,12 @@ meta_xdg_output_manager_get_xdg_output (struct wl_client   *client,
   wayland_output->xdg_output_resources =
     g_list_prepend (wayland_output->xdg_output_resources, xdg_output_resource);
 
+  /* We may not have the `logical_monitor` created yet, in which case there's
+   * no event to send at this point
+   */
+  if (!wayland_output->logical_monitor)
+    return;
+
   send_xdg_output_events (xdg_output_resource,
                           wayland_output,
                           wayland_output->logical_monitor,
