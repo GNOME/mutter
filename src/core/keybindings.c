@@ -2839,7 +2839,10 @@ handle_move_to_corner_backend (MetaDisplay           *display,
   MetaRectangle frame_rect;
   int new_x, new_y;
 
-  meta_window_get_work_area_all_monitors (window, &work_area);
+  if (!window->monitor)
+    return;
+
+  meta_window_get_work_area_current_monitor (window, &work_area);
   meta_window_get_frame_rect (window, &frame_rect);
 
   switch (gravity)
