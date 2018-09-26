@@ -25,7 +25,9 @@ endif
 
 # pipewire is not in Ubuntu main yet
 ifneq ($(shell dpkg-vendor --query vendor),Ubuntu)
+ifeq ($(DEB_HOST_ARCH_OS),linux)
 	CONFFLAGS += --enable-remote-desktop
+endif
 endif
 
 override_dh_auto_configure:
