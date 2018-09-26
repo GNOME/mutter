@@ -1,3 +1,18 @@
+mutter (3.30.0-2) unstable; urgency=medium
+
+  [ Jeremy Bicha ]
+  * Build with remote desktop support except on Ubuntu.
+    Note that this feature requires gnome-remote-desktop to be installed (not
+    available in Debian yet).
+    Ubuntu will need pipewire to be promoted to main to enable this.
+
+  [ Laurent Bigonville ]
+  * Only enable the remote desktop feature on linux architectures
+  * debian/libmutter-3-0.symbols: Add the newly exported symbols for the
+    remote desktop feature
+
+ -- Laurent Bigonville <bigon@debian.org>  Wed, 26 Sep 2018 08:34:14 +0200
+
 mutter (3.30.0-1) unstable; urgency=medium
 
   [ Didier Roche ]
