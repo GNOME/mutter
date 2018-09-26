@@ -22,6 +22,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_backend_get_orientation_manager@Base 3.28.2
  meta_backend_get_relative_motion_deltas@Base 3.28.2
  meta_backend_get_remote_access_controller@Base 3.29.90
+ (arch=linux-any|optional)meta_backend_get_remote_desktop@Base 3.30.0-2~
  meta_backend_get_renderer@Base 3.28.2
  meta_backend_get_settings@Base 3.28.2
  meta_backend_get_stage@Base 3.28.2
@@ -317,6 +318,157 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_dbus_object_skeleton_get_type@Base 3.28.2
  meta_dbus_object_skeleton_new@Base 3.28.2
  meta_dbus_object_skeleton_set_idle_monitor@Base 3.28.2
+ (arch=linux-any|optional)meta_dbus_remote_desktop_call_create_session@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_call_create_session_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_call_create_session_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_complete_create_session@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_get_supported_device_types@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_get_version@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_interface_info@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_override_properties@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_proxy_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_proxy_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_proxy_new_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_proxy_new_for_bus@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_proxy_new_for_bus_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_proxy_new_for_bus_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_proxy_new_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_keyboard_keycode@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_keyboard_keycode_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_keyboard_keycode_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_keyboard_keysym@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_keyboard_keysym_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_keyboard_keysym_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_axis@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_axis_discrete@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_axis_discrete_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_axis_discrete_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_axis_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_axis_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_button@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_button_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_button_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_motion_absolute@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_motion_absolute_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_motion_absolute_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_motion_relative@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_motion_relative_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_pointer_motion_relative_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_touch_down@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_touch_down_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_touch_down_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_touch_motion@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_touch_motion_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_touch_motion_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_touch_up@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_touch_up_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_notify_touch_up_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_start@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_start_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_start_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_stop@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_stop_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_call_stop_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_complete_notify_keyboard_keycode@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_complete_notify_keyboard_keysym@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_complete_notify_pointer_axis@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_complete_notify_pointer_axis_discrete@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_complete_notify_pointer_button@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_complete_notify_pointer_motion_absolute@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_complete_notify_pointer_motion_relative@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_complete_notify_touch_down@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_complete_notify_touch_motion@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_complete_notify_touch_up@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_complete_start@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_complete_stop@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_dup_session_id@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_emit_closed@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_get_session_id@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_interface_info@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_override_properties@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_proxy_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_proxy_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_proxy_new_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_proxy_new_for_bus@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_proxy_new_for_bus_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_proxy_new_for_bus_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_proxy_new_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_set_session_id@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_skeleton_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_session_skeleton_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_set_supported_device_types@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_set_version@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_skeleton_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_remote_desktop_skeleton_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_call_create_session@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_call_create_session_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_call_create_session_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_complete_create_session@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_get_version@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_interface_info@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_override_properties@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_proxy_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_proxy_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_proxy_new_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_proxy_new_for_bus@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_proxy_new_for_bus_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_proxy_new_for_bus_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_proxy_new_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_call_record_monitor@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_call_record_monitor_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_call_record_monitor_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_call_record_window@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_call_record_window_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_call_record_window_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_call_start@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_call_start_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_call_start_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_call_stop@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_call_stop_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_call_stop_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_complete_record_monitor@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_complete_record_window@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_complete_start@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_complete_stop@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_emit_closed@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_interface_info@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_override_properties@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_proxy_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_proxy_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_proxy_new_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_proxy_new_for_bus@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_proxy_new_for_bus_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_proxy_new_for_bus_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_proxy_new_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_skeleton_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_session_skeleton_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_set_version@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_skeleton_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_skeleton_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_dup_parameters@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_emit_pipewire_stream_added@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_get_parameters@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_interface_info@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_override_properties@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_proxy_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_proxy_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_proxy_new_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_proxy_new_for_bus@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_proxy_new_for_bus_finish@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_proxy_new_for_bus_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_proxy_new_sync@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_set_parameters@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_skeleton_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_screen_cast_stream_skeleton_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_session_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_session_notify_closed@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_session_watcher_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_dbus_session_watcher_watch_session@Base 3.30.0-2~
  meta_debug_spew_real@Base 3.28.2
  meta_debug_topic_get_type@Base 3.28.2
  meta_direction_get_type@Base 3.28.2
@@ -973,6 +1125,17 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_remote_access_handle_get_type@Base 3.29.90
  meta_remote_access_handle_notify_stopped@Base 3.29.90
  meta_remote_access_handle_stop@Base 3.29.90
+ (arch=linux-any|optional)meta_remote_desktop_get_connection@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_remote_desktop_get_session@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_remote_desktop_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_remote_desktop_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_remote_desktop_session_close@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_remote_desktop_session_get_object_path@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_remote_desktop_session_get_session_id@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_remote_desktop_session_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_remote_desktop_session_handle_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_remote_desktop_session_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_remote_desktop_session_register_screen_cast@Base 3.30.0-2~
  meta_remove_verbose_topic@Base 3.28.2
  meta_renderer_create_cogl_renderer@Base 3.28.2
  meta_renderer_get_type@Base 3.28.2
@@ -998,6 +1161,30 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_restart@Base 3.28.2
  meta_retheme_all@Base 3.28.2
  meta_run@Base 3.28.2
+ (arch=linux-any|optional)meta_screen_cast_get_connection@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_monitor_stream_get_monitor@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_monitor_stream_get_stage@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_monitor_stream_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_monitor_stream_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_monitor_stream_src_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_monitor_stream_src_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_session_close@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_session_get_object_path@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_session_get_stream@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_session_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_session_handle_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_session_new@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_session_start@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_stream_close@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_stream_get_object_path@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_stream_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_stream_src_get_stream@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_stream_src_get_type@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_stream_src_maybe_record_frame@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_stream_start@Base 3.30.0-2~
+ (arch=linux-any|optional)meta_screen_cast_stream_transform_position@Base 3.30.0-2~
  meta_session_init@Base 3.28.2
  meta_set_debugging@Base 3.28.2
  meta_set_gnome_wm_keybindings@Base 3.28.2
