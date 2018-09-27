@@ -1776,22 +1776,82 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
                       &secondary_gpu_state->gbm.next_fb_id);
 }
 
+typedef struct _PixelFormatMap {
+  uint32_t drm_format;
+  CoglPixelFormat cogl_format;
+  CoglTextureComponents cogl_components;
+} PixelFormatMap;
+
+static const PixelFormatMap pixel_format_map[] = {
+/* DRM formats are defined as little-endian, not machine endian. */
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+  { DRM_FORMAT_RGB565,   COGL_PIXEL_FORMAT_RGB_565,       COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_ABGR8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_XBGR8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_ARGB8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_XRGB8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_BGRA8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_BGRX8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_RGBA8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_RGBX8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+#elif G_BYTE_ORDER == G_BIG_ENDIAN
+  /* DRM_FORMAT_RGB565 cannot be expressed. */
+  { DRM_FORMAT_ABGR8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_XBGR8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_ARGB8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_XRGB8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_BGRA8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_BGRX8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_RGBA8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_RGBX8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+#else
+#error "unexpected G_BYTE_ORDER"
+#endif
+};
+
+static gboolean
+cogl_pixel_format_from_drm_format (uint32_t               drm_format,
+                                   CoglPixelFormat       *out_format,
+                                   CoglTextureComponents *out_components)
+{
+  const size_t n = G_N_ELEMENTS (pixel_format_map);
+  size_t i;
+
+  for (i = 0; i < n; i++)
+    {
+      if (pixel_format_map[i].drm_format == drm_format)
+        break;
+    }
+
+  if (i == n)
+    return FALSE;
+
+  if (out_format)
+    *out_format = pixel_format_map[i].cogl_format;
+
+  if (out_components)
+    *out_components = pixel_format_map[i].cogl_components;
+
+  return TRUE;
+}
+
 static void
 copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
                              MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
                              MetaRendererNativeGpuData           *renderer_gpu_data)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
-  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-  MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
+  CoglContext *cogl_context = framebuffer->context;
   int width, height;
   uint8_t *target_data;
   int target_stride_bytes;
   uint32_t target_fb_id;
+  uint32_t target_drm_format;
   MetaDumbBuffer *next_dumb_fb;
   MetaDumbBuffer *current_dumb_fb;
+  CoglBitmap *dumb_bitmap;
+  CoglPixelFormat cogl_format;
+  gboolean ret;
 
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
@@ -1809,12 +1869,28 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   target_data = secondary_gpu_state->cpu.dumb_fb->map;
   target_stride_bytes = secondary_gpu_state->cpu.dumb_fb->stride_bytes;
   target_fb_id = secondary_gpu_state->cpu.dumb_fb->fb_id;
+  target_drm_format = secondary_gpu_state->cpu.dumb_fb->drm_format;
 
-  meta_renderer_native_gles3_read_pixels (egl,
-                                          renderer_native->gles3,
-                                          width, height,
-                                          target_data,
-                                          target_stride_bytes);
+  ret = cogl_pixel_format_from_drm_format (target_drm_format,
+                                           &cogl_format,
+                                           NULL);
+  g_assert (ret);
+
+  dumb_bitmap = cogl_bitmap_new_for_data (cogl_context,
+                                          width,
+                                          height,
+                                          cogl_format,
+                                          target_stride_bytes,
+                                          target_data);
+
+  if (!cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
+                                                 0 /* x */,
+                                                 0 /* y */,
+                                                 COGL_READ_PIXELS_COLOR_BUFFER,
+                                                 dumb_bitmap))
+    g_warning ("Failed to CPU-copy to a secondary GPU output");
+
+  cogl_object_unref (dumb_bitmap);
 
   secondary_gpu_state->gbm.next_fb_id = target_fb_id;
 }
