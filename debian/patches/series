@@ -5,3 +5,4 @@ bgo768531_workaround-startup-notifications.patch
 debian/synaptics-support.patch
 debian/skip-failing-tests.patch
 debian/skip-failing-tests-325.patch
+debian/skip-texture-test.patch

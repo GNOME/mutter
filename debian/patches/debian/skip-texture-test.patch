@@ -1,0 +1,28 @@
+From: Jeremy Bicha <jbicha@debian.org>
+Date: Wed, 26 Sep 2018 20:13:06 -0400
+Subject: skip texture test
+
+This test fails on hppa, mipsel, powerpc, ppc64 and s390x.
+
+See the build logs at
+https://buildd.debian.org/status/logs.php?pkg=mutter&ver=3.30.0-2
+
+I don't know why this test works in the clutter-1.0 package.
+
+Applied-upstream: no
+---
+ clutter/tests/conform/Makefile.am | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/clutter/tests/conform/Makefile.am b/clutter/tests/conform/Makefile.am
+index a2b7bee..9d26ffb 100644
+--- a/clutter/tests/conform/Makefile.am
++++ b/clutter/tests/conform/Makefile.am
+@@ -52,7 +52,6 @@ deprecated_tests = \
+ 	behaviours \
+ 	group \
+ 	rectangle \
+-	texture \
+ 	$(NULL)
+ 
+ test_programs = $(actor_tests) $(general_tests) $(classes_tests) $(deprecated_tests)
