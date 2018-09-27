@@ -23,6 +23,14 @@ CONFFLAGS += \
 	--disable-native-backend
 endif
 
+ifeq ($(DEB_HOST_ARCH),$(findstring $(DEB_HOST_ARCH),armel armhf))
+CONFFLAGS += \
+	--with-default-driver=gles2
+else
+CONFFLAGS += \
+	--with-default-driver=gl
+endif
+
 # pipewire is not in Ubuntu main yet
 ifneq ($(shell dpkg-vendor --query vendor),Ubuntu)
 ifeq ($(DEB_HOST_ARCH_OS),linux)
@@ -35,6 +43,9 @@ override_dh_auto_configure:
 		--libexecdir="\$${prefix}/lib/mutter" \
 		--enable-startup-notification \
 		--enable-compile-warnings \
+		--disable-cogl-gles2 \
+		--enable-gles2 \
+		--with-gles2-libname=libGLESv2.so.2 \
 		$(CONFFLAGS)
 
 override_dh_auto_test:
