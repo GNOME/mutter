@@ -1,5 +1,6 @@
-mutter (3.30.0-3) UNRELEASED; urgency=medium
+mutter (3.30.0-3) unstable; urgency=medium
 
+  * Team upload
   * Add missing changes to previous changelog entry
   * d/p/window-unmanage-dialog-when-clearing-transient_for.patch,
     d/p/actor-Fix-logic-error-in-determining-terminal-effect-for-.patch,
@@ -12,7 +13,7 @@ mutter (3.30.0-3) UNRELEASED; urgency=medium
     - In particular the last of those patches should fix a crash
       on gnome-shell startup (Closes: #909243)
 
- -- Simon McVittie <smcv@debian.org>  Fri, 28 Sep 2018 10:24:45 +0100
+ -- Simon McVittie <smcv@debian.org>  Fri, 28 Sep 2018 10:48:08 +0100
 
 mutter (3.30.0-2) unstable; urgency=medium
 
