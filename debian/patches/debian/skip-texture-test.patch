@@ -9,6 +9,8 @@ https://buildd.debian.org/status/logs.php?pkg=mutter&ver=3.30.0-2
 
 I don't know why this test works in the clutter-1.0 package.
 
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/324
+
 Applied-upstream: no
 ---
  clutter/tests/conform/Makefile.am | 1 -
