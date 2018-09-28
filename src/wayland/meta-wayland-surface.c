@@ -599,7 +599,10 @@ pending_state_init (MetaWaylandPendingState *state)
   state->has_new_min_size = FALSE;
   state->has_new_max_size = FALSE;
 
-  state->has_new_buffer_viewport = FALSE;
+  state->has_new_scale = FALSE;
+  state->has_new_viewport_src_rect = FALSE;
+  state->has_new_viewport_dest = FALSE;
+  state->has_new_transform = FALSE;
   state->buffer_viewport.buffer.transform = WL_OUTPUT_TRANSFORM_NORMAL;
   state->buffer_viewport.buffer.scale = 1;
   state->buffer_viewport.buffer.src_rect = (cairo_rectangle_int_t) { 0 };
@@ -709,14 +712,29 @@ merge_pending_state (MetaWaylandPendingState *from,
       to->has_new_max_size = TRUE;
     }
 
-  if(from->has_new_buffer_viewport)
+  if(from->has_new_scale)
     {
-      to->has_new_buffer_viewport = from->has_new_buffer_viewport;
-      to->buffer_viewport.buffer.transform = from->buffer_viewport.buffer.transform;
       to->buffer_viewport.buffer.scale = from->buffer_viewport.buffer.scale;
+      to->has_new_scale = TRUE;
+    }
+
+  if(from->has_new_viewport_src_rect)
+    {
       to->buffer_viewport.buffer.src_rect = from->buffer_viewport.buffer.src_rect;
+      to->has_new_viewport_src_rect = TRUE;
+    }
+
+  if(from->has_new_viewport_dest)
+    {
       to->buffer_viewport.surface.width = from->buffer_viewport.surface.width;
       to->buffer_viewport.surface.height = from->buffer_viewport.surface.height;
+      to->has_new_viewport_dest = TRUE;
+    }
+
+  if(from->has_new_transform)
+    {
+      to->buffer_viewport.buffer.transform = from->buffer_viewport.buffer.transform;
+      to->has_new_transform = TRUE;
     }
 
   if (to->buffer && to->buffer_destroy_handler_id == 0)
@@ -891,22 +909,50 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
                               !wl_shm_buffer_get (pending->buffer->resource));
     }
 
-  if (pending->has_new_buffer_viewport)
+  if (pending->has_new_scale)
     {
       surface->buffer_viewport.buffer.scale = pending->buffer_viewport.buffer.scale;
+
+      if(meta_wayland_surface_get_actor (surface))
+        {
+          meta_surface_actor_set_scale (meta_wayland_surface_get_actor (surface),
+                                        surface->buffer_viewport.buffer.scale);
+        }
+    }
+
+  if (pending->has_new_viewport_src_rect)
+    {
       surface->buffer_viewport.buffer.src_rect = pending->buffer_viewport.buffer.src_rect;
-      surface->buffer_viewport.buffer.transform = pending->buffer_viewport.buffer.transform;
+
+      if(meta_wayland_surface_get_actor (surface))
+        {
+          meta_surface_actor_set_viewport_src_rect (meta_wayland_surface_get_actor (surface),
+                                                    &surface->buffer_viewport.buffer.src_rect);
+        }
+    }
+
+  if (pending->has_new_viewport_dest)
+    {
       surface->buffer_viewport.surface.width = pending->buffer_viewport.surface.width;
       surface->buffer_viewport.surface.height = pending->buffer_viewport.surface.height;
 
       if(meta_wayland_surface_get_actor (surface))
         {
-          meta_surface_actor_set_viewport (meta_wayland_surface_get_actor (surface),
-                                           &surface->buffer_viewport.buffer.src_rect,
-                                           surface->buffer_viewport.surface.width,
-                                           surface->buffer_viewport.surface.height,
-                                           surface->buffer_viewport.buffer.scale,
-                                           surface->buffer_viewport.buffer.transform);
+          meta_surface_actor_set_viewport_dest (meta_wayland_surface_get_actor (surface),
+                                                surface->buffer_viewport.surface.width,
+                                                surface->buffer_viewport.surface.height);
+        }
+    }
+
+
+  if (pending->has_new_transform)
+    {
+      surface->buffer_viewport.buffer.transform = pending->buffer_viewport.buffer.transform;
+
+      if(meta_wayland_surface_get_actor (surface))
+        {
+          meta_surface_actor_set_transform (meta_wayland_surface_get_actor (surface),
+                                            surface->buffer_viewport.buffer.transform);
         }
     }
 
@@ -1163,8 +1209,15 @@ wl_surface_set_buffer_transform (struct wl_client *client,
   if(transform >= WL_OUTPUT_TRANSFORM_NORMAL &&
      transform <= WL_OUTPUT_TRANSFORM_FLIPPED_270)
     {
-      surface->pending->buffer_viewport.buffer.transform = transform;
-      surface->pending->has_new_buffer_viewport = TRUE;
+      if(transform != (int32_t)surface->buffer_viewport.buffer.transform)
+        {
+          surface->pending->buffer_viewport.buffer.transform = transform;
+          surface->pending->has_new_transform = TRUE;
+        }
+      else
+        {
+          surface->pending->has_new_transform = FALSE;
+        }
     }
   else
     {
@@ -1180,8 +1233,15 @@ wl_surface_set_buffer_scale (struct wl_client *client,
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
   if (scale > 0)
     {
-      surface->pending->buffer_viewport.buffer.scale = scale;
-      surface->pending->has_new_buffer_viewport = TRUE;
+      if(scale != surface->buffer_viewport.buffer.scale)
+        {
+          surface->pending->buffer_viewport.buffer.scale = scale;
+          surface->pending->has_new_scale = TRUE;
+        }
+      else
+        {
+          surface->pending->has_new_scale = FALSE;
+        }
     }
   else
     {
