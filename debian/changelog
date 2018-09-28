@@ -1,7 +1,27 @@
+mutter (3.30.0-4) UNRELEASED; urgency=medium
+
+  * Try again to put all the changes since 3.30.0-2 in their correct
+    debian/changelog entries
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 28 Sep 2018 16:19:39 +0100
+
 mutter (3.30.0-3) unstable; urgency=medium
 
   * Team upload
-  * Add missing changes to previous changelog entry
+
+  [ Jeremy Bicha ]
+  * Add debian/skip-texture-test.patch:
+    - Skip the texture test since it fails on several architectures
+  * Don't ignore build test failures
+  * Update debian/gbp.conf
+
+  [ Laurent Bigonville ]
+  * debian/rules: Enable gles2 support (Closes: #883307)
+    - Use gles2 by default on armel and armhf
+  * debian/control.in: Drop libcogl-dev build-dependency now that we
+    are using an embedded version of it
+
+  [ Simon McVittie ]
   * d/p/window-unmanage-dialog-when-clearing-transient_for.patch,
     d/p/actor-Fix-logic-error-in-determining-terminal-effect-for-.patch,
     d/p/actor-Always-use-get_paint_volume-override-for-active-eff.patch,
@@ -22,19 +42,11 @@ mutter (3.30.0-2) unstable; urgency=medium
     Note that this feature requires gnome-remote-desktop to be installed (not
     available in Debian yet).
     Ubuntu will need pipewire to be promoted to main to enable this.
-  * Add debian/skip-texture-test.patch:
-    - Skip the texture test since it fails on several architectures
-  * Don't ignore build test failures
-  * Update debian/gbp.conf
 
   [ Laurent Bigonville ]
   * Only enable the remote desktop feature on linux architectures
   * debian/libmutter-3-0.symbols: Add the newly exported symbols for the
     remote desktop feature
-  * debian/rules: Enable gles2 support (Closes: #883307)
-    - Use gles2 by default on armel and armhf
-  * debian/control.in: Drop libcogl-dev build-dependency now that we
-    are using an embedded version of it
 
  -- Laurent Bigonville <bigon@debian.org>  Wed, 26 Sep 2018 08:34:14 +0200
 
