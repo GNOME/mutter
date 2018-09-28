@@ -336,15 +336,37 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
                          ClutterActorBox       *alloc,
                          MetaShapedTexture     *stex)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
+  MetaShapedTexturePrivate *priv;
   float coords[8];
   float x1, y1, x2, y2;
   float src_x, src_y, src_width, src_height;
+  guint tex_width, tex_height;
+
+  priv = stex->priv;
 
   x1 = rect->x;
   y1 = rect->y;
   x2 = rect->x + rect->width;
   y2 = rect->y + rect->height;
+
+  switch(priv->viewport_transform)
+    {
+      default:
+      case WL_OUTPUT_TRANSFORM_NORMAL:
+      case WL_OUTPUT_TRANSFORM_180:
+      case WL_OUTPUT_TRANSFORM_FLIPPED:
+      case WL_OUTPUT_TRANSFORM_FLIPPED_180:
+        tex_width = priv->tex_width;
+        tex_height = priv->tex_height;
+        break;
+      case WL_OUTPUT_TRANSFORM_90:
+      case WL_OUTPUT_TRANSFORM_270:
+      case WL_OUTPUT_TRANSFORM_FLIPPED_90:
+      case WL_OUTPUT_TRANSFORM_FLIPPED_270:
+        tex_width = priv->tex_height;
+        tex_height = priv->tex_width;
+        break;
+    }
 
   if(priv->viewport_src_rect.width > 0)
     {
@@ -357,8 +379,8 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
     {
       src_x = 0;
       src_y = 0;
-      src_width = priv->tex_width;
-      src_height = priv->tex_height;
+      src_width = tex_width;
+      src_height = tex_height;
     }
 
   coords[0] = rect->x * src_width / (alloc->x2 - alloc->x1) + src_x;
@@ -366,10 +388,10 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
   coords[2] = rect->width * src_width / (alloc->x2 - alloc->x1) + coords[0];
   coords[3] = rect->height * src_height / (alloc->y2 - alloc->y1) + coords[1];
 
-  coords[0] /= priv->tex_width;
-  coords[1] /= priv->tex_height;
-  coords[2] /= priv->tex_width;
-  coords[3] /= priv->tex_height;
+  coords[0] /= tex_width;
+  coords[1] /= tex_height;
+  coords[2] /= tex_width;
+  coords[3] /= tex_height;
 
   coords[4] = coords[0];
   coords[5] = coords[1];
@@ -378,65 +400,39 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
 
   if (priv->viewport_transform != WL_OUTPUT_TRANSFORM_NORMAL)
     {
-      CoglMatrix matrix, rev_matrix;
+      CoglMatrix matrix;
       CoglEuler euler;
       int n;
 
-      /*cogl_matrix_init_translation (&matrix,
-                                    (coords[0] + coords[2]) / 2,
-                                    (coords[1] + coords[3]) / 2,
-                                    0.0);*/
       cogl_matrix_init_translation (&matrix, 0.5, 0.5, 0.0);
       switch(priv->viewport_transform)
         {
           case WL_OUTPUT_TRANSFORM_90:
-            /*cogl_matrix_init_translation (&matrix,
-                                          (coords[1] + coords[3]) / 2.0,
-                                          1.0-((coords[0] + coords[2]) / 2.0),
-                                          0.0);*/
             cogl_euler_init (&euler, 0.0, 0.0, 90.0);
-            /*cogl_matrix_rotate_euler (&matrix, &euler);
-            cogl_matrix_translate (&matrix,
-                                   -((coords[1] + coords[3]) / 2.0),
-                                   -(1.0-((coords[0] + coords[2]) / 2.0)),
-                                   0.0);*/
             break;
           case WL_OUTPUT_TRANSFORM_180:
-            /*cogl_matrix_init_translation (&matrix,
-                                          1.0-((coords[0] + coords[2]) / 2.0),
-                                          1.0-((coords[1] + coords[3]) / 2.0),
-                                          0.0);*/
             cogl_euler_init (&euler, 0.0, 0.0, 180.0);
-            /*cogl_matrix_rotate_euler (&matrix, &euler);
-            cogl_matrix_translate (&matrix,
-                                   -(1.0-((coords[0] + coords[2]) / 2.0)),
-                                   -(1.0-((coords[1] + coords[3]) / 2.0)),
-                                   0.0);*/
             break;
           case WL_OUTPUT_TRANSFORM_270:
             cogl_euler_init (&euler, 0.0, 0.0, 270.0);
             break;
           case WL_OUTPUT_TRANSFORM_FLIPPED:
-            cogl_euler_init (&euler, 0.0, 180.0, 0.0);
+            cogl_euler_init (&euler, 180.0, 0.0, 0.0);
             break;
           case WL_OUTPUT_TRANSFORM_FLIPPED_90:
             cogl_euler_init (&euler, 0.0, 180.0, 90.0);
             break;
           case WL_OUTPUT_TRANSFORM_FLIPPED_180:
-            cogl_euler_init (&euler, 0.0, 180.0, 180.0);
+            cogl_euler_init (&euler, 180.0, 0.0, 180.0);
             break;
           case WL_OUTPUT_TRANSFORM_FLIPPED_270:
             cogl_euler_init (&euler, 0.0, 180.0, 270.0);
             break;
           default:
-            cogl_euler_init (&euler, 0.0, 0.0, 0.0);
-            break;
+            g_warning ("Invalid transform: %u\n", priv->viewport_transform);
+            return;
         }
       cogl_matrix_rotate_euler (&matrix, &euler);
-      /*cogl_matrix_translate (&matrix,
-                             -((coords[0] + coords[2]) / 2),
-                             -((coords[1] + coords[3]) / 2),
-                             0.0);*/
       cogl_matrix_translate (&matrix, -0.5, -0.5, 0.0);
 
       n = cogl_pipeline_get_n_layers(pipeline);
@@ -469,26 +465,24 @@ update_size (MetaShapedTexture *stex)
     }
   else
     {
-      dest_width = priv->tex_width;
-      dest_height = priv->tex_height;
-    }
-
-  switch(priv->viewport_transform)
-    {
-      default:
-      case WL_OUTPUT_TRANSFORM_NORMAL:
-      case WL_OUTPUT_TRANSFORM_180:
-      case WL_OUTPUT_TRANSFORM_FLIPPED:
-      case WL_OUTPUT_TRANSFORM_FLIPPED_180:
-        break;
-      case WL_OUTPUT_TRANSFORM_90:
-      case WL_OUTPUT_TRANSFORM_270:
-      case WL_OUTPUT_TRANSFORM_FLIPPED_90:
-      case WL_OUTPUT_TRANSFORM_FLIPPED_270:
-        temp = dest_width;
-        dest_width = dest_height;
-        dest_height = temp;
-        break;
+      switch(priv->viewport_transform)
+        {
+          default:
+          case WL_OUTPUT_TRANSFORM_NORMAL:
+          case WL_OUTPUT_TRANSFORM_180:
+          case WL_OUTPUT_TRANSFORM_FLIPPED:
+          case WL_OUTPUT_TRANSFORM_FLIPPED_180:
+            dest_width = priv->tex_width;
+            dest_height = priv->tex_height;
+            break;
+          case WL_OUTPUT_TRANSFORM_90:
+          case WL_OUTPUT_TRANSFORM_270:
+          case WL_OUTPUT_TRANSFORM_FLIPPED_90:
+          case WL_OUTPUT_TRANSFORM_FLIPPED_270:
+            dest_width = priv->tex_height;
+            dest_height = priv->tex_width;
+            break;
+        }
     }
 
   if (priv->dest_width != dest_width ||
@@ -1090,21 +1084,44 @@ meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex)
 }
 
 void
-meta_shaped_texture_set_viewport (MetaShapedTexture        *stex,
-                                  cairo_rectangle_int_t    *src_rect,
-                                  int                      dest_width,
-                                  int                      dest_height,
-                                  int                      scale,
-                                  enum wl_output_transform transform)
+meta_shaped_texture_set_scale (MetaShapedTexture *stex,
+                              int scale)
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+
+  priv->viewport_scale = scale;
+  update_size (stex);
+}
+
+void
+meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture     *stex,
+                                           cairo_rectangle_int_t *src_rect)
 {
   MetaShapedTexturePrivate *priv = stex->priv;
 
   priv->viewport_src_rect = *src_rect;
-  priv->viewport_scale = scale;
-  priv->viewport_transform = transform;
+  update_size (stex);
+}
+
+void
+meta_shaped_texture_set_viewport_dest (MetaShapedTexture *stex,
+                                       int dest_width,
+                                       int dest_height)
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
 
   priv->viewport_dest_width = dest_width;
   priv->viewport_dest_height = dest_height;
+  update_size (stex);
+}
+
+void
+meta_shaped_texture_set_transform (MetaShapedTexture        *stex,
+                                   enum wl_output_transform transform)
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+
+  priv->viewport_transform = transform;
   update_size (stex);
 }
 

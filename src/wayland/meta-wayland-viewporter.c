@@ -31,22 +31,19 @@ destroy_wl_viewport (struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
 
-  if(!surface)
+  if (!surface)
     return;
 
-  surface->viewport_resource = NULL;
+  g_clear_object (&surface->viewport_resource);
 
-  /* FIXME: The reset  is currently broken as of git master (3.29.90 + ~21)
-   * on program close, the pending state seems to get deleted without unsetting
-   * the pointer
-
-  if(!surface->pending)
+  if (!surface->pending)
     return;
-  surface->pending->buffer_viewport.buffer.src_rect = (cairo_rectangle_int_t) { 0 };
-  surface->pending->buffer_viewport.surface.width = 0;
-  surface->pending->buffer_viewport.surface.height = 0;
-  surface->pending->has_new_buffer_viewport = TRUE;
-  */
+
+  surface->pending->buffer_viewport.buffer.src_rect = (MetaRectangle) { -1 };
+  surface->pending->buffer_viewport.surface.width = -1;
+  surface->pending->buffer_viewport.surface.height = -1;
+  surface->pending->has_new_viewport_src_rect = TRUE;
+  surface->pending->has_new_viewport_dest = TRUE;
 }
 
 static void
@@ -64,8 +61,14 @@ viewport_set_source (struct wl_client *client,
                      wl_fixed_t src_width,
                      wl_fixed_t src_height)
 {
-  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
-  if(!surface)
+  MetaWaylandSurface *surface;
+  MetaWaylandPendingState *pending;
+  MetaWaylandBufferViewport *vp;
+  MetaWaylandBufferViewport *pending_vp;
+  MetaRectangle new_rect;
+
+  surface = wl_resource_get_user_data (resource);
+  if (!surface)
     {
       wl_resource_post_error (resource,
                               WP_VIEWPORT_ERROR_NO_SURFACE,
@@ -73,26 +76,29 @@ viewport_set_source (struct wl_client *client,
       return;
     }
 
-  int x = floor(wl_fixed_to_double (src_x));
-  int y = floor(wl_fixed_to_double (src_y));
-  int width = ceil(wl_fixed_to_double (src_width));
-  int height = ceil(wl_fixed_to_double (src_height));
+  pending = surface->pending;
+  vp = &surface->buffer_viewport;
+  pending_vp = &pending->buffer_viewport;
+  new_rect = (MetaRectangle) {
+              floor(wl_fixed_to_double (src_x)),
+              floor(wl_fixed_to_double (src_y)),
+              ceil(wl_fixed_to_double (src_width)),
+              ceil(wl_fixed_to_double (src_height))};
 
-  if(x >= 0 && y >= 0 && width > 0 && height > 0)
+  if ((new_rect.x >= 0 && new_rect.y >= 0 &&
+      new_rect.width > 0 && new_rect.height > 0) ||
+      (new_rect.x == -1 && new_rect.y == -1 &&
+      new_rect.width == -1 && new_rect.height == -1))
     {
-      surface->pending->buffer_viewport.buffer.src_rect.x = x;
-      surface->pending->buffer_viewport.buffer.src_rect.y = y;
-      surface->pending->buffer_viewport.buffer.src_rect.width = width;
-      surface->pending->buffer_viewport.buffer.src_rect.height = height;
-      surface->pending->has_new_buffer_viewport = TRUE;
-    }
-  else if(x == -1 && y == -1 && width == -1 && height == -1)
-    {
-      surface->pending->buffer_viewport.buffer.src_rect.x = 0;
-      surface->pending->buffer_viewport.buffer.src_rect.y = 0;
-      surface->pending->buffer_viewport.buffer.src_rect.width = 0;
-      surface->pending->buffer_viewport.buffer.src_rect.height = 0;
-      surface->pending->has_new_buffer_viewport = TRUE;
+      if (!meta_rectangle_equal(&new_rect, &vp->buffer.src_rect))
+        {
+          pending_vp->buffer.src_rect = new_rect;
+          pending->has_new_viewport_src_rect = TRUE;
+        }
+      else
+        {
+          pending->has_new_viewport_src_rect = FALSE;
+        }
     }
   else
     {
@@ -108,8 +114,13 @@ viewport_set_destination (struct wl_client *client,
                           int dst_width,
                           int dst_height)
 {
-  MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
-  if(!surface)
+  MetaWaylandSurface *surface;
+  MetaWaylandPendingState *pending;
+  MetaWaylandBufferViewport *vp;
+  MetaWaylandBufferViewport *pending_vp;
+
+  surface = wl_resource_get_user_data (resource);
+  if (!surface)
     {
       wl_resource_post_error (resource,
                               WP_VIEWPORT_ERROR_NO_SURFACE,
@@ -117,17 +128,22 @@ viewport_set_destination (struct wl_client *client,
       return;
     }
 
-  if(dst_width > 0 && dst_height > 0)
+  pending = surface->pending;
+  vp = &surface->buffer_viewport;
+  pending_vp = &pending->buffer_viewport;
+
+  if ((dst_width > 0 && dst_height > 0) || (dst_width == -1 && dst_height == -1))
     {
-      surface->pending->buffer_viewport.surface.width = dst_width;
-      surface->pending->buffer_viewport.surface.height = dst_height;
-      surface->pending->has_new_buffer_viewport = TRUE;
-    }
-  else if(dst_width == -1 && dst_height == -1)
-    {
-      surface->pending->buffer_viewport.surface.width = 0;
-      surface->pending->buffer_viewport.surface.height = 0;
-      surface->pending->has_new_buffer_viewport = TRUE;
+      if (vp->surface.width != dst_width || vp->surface.height != dst_height)
+        {
+          pending_vp->surface.width = dst_width;
+          pending_vp->surface.height = dst_height;
+          pending->has_new_viewport_dest = TRUE;
+        }
+      else
+        {
+          pending->has_new_viewport_dest = FALSE;
+        }
     }
   else
     {

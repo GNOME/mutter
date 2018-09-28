@@ -82,7 +82,7 @@ struct _MetaWaylandBufferViewport
   struct {
     uint32_t transform;
     int scale;
-    cairo_rectangle_int_t src_rect;
+    MetaRectangle src_rect;
   } buffer;
 
   struct {
@@ -126,7 +126,10 @@ struct _MetaWaylandPendingState
   int new_max_width;
   int new_max_height;
 
-  gboolean has_new_buffer_viewport;
+  gboolean has_new_scale;
+  gboolean has_new_viewport_src_rect;
+  gboolean has_new_viewport_dest;
+  gboolean has_new_transform;
   MetaWaylandBufferViewport buffer_viewport;
 };
 
