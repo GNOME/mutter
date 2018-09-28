@@ -250,16 +250,40 @@ meta_surface_actor_get_opaque_region (MetaSurfaceActor *actor)
 }
 
 void
-meta_surface_actor_set_viewport (MetaSurfaceActor         *self,
-                                 cairo_rectangle_int_t    *src_rect,
-                                 int                      dest_width,
-                                 int                      dest_height,
-                                 int                      scale,
-                                 enum wl_output_transform transform)
+meta_surface_actor_set_scale (MetaSurfaceActor *self,
+                              int scale)
 {
   MetaSurfaceActorPrivate *priv = self->priv;
-  meta_shaped_texture_set_viewport (priv->texture, src_rect, dest_width,
-                                    dest_height, scale, transform);
+
+  meta_shaped_texture_set_scale (priv->texture, scale);
+}
+
+void
+meta_surface_actor_set_viewport_src_rect (MetaSurfaceActor      *self,
+                                          cairo_rectangle_int_t *src_rect)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_set_viewport_src_rect (priv->texture, src_rect);
+}
+
+void
+meta_surface_actor_set_viewport_dest (MetaSurfaceActor *self,
+                                     int dest_width,
+                                     int dest_height)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_set_viewport_dest (priv->texture, dest_width, dest_height);
+}
+
+void
+meta_surface_actor_set_transform (MetaSurfaceActor         *self,
+                                  enum wl_output_transform transform)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_set_transform (priv->texture, transform);
 }
 
 static gboolean

@@ -92,6 +92,9 @@ mutter_built_sources += \
 	text-input-unstable-v3-server-protocol.h			\
 	gtk-text-input-protocol.c					\
 	gtk-text-input-server-protocol.h				\
+	viewporter-protocol.c						\
+	viewporter-server-protocol.h					\
+
 	$(NULL)
 
 if HAVE_WAYLAND_EGLSTREAM
@@ -489,6 +492,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-wayland-inhibit-shortcuts-dialog.h	\
 	wayland/meta-xwayland-grab-keyboard.c  	\
 	wayland/meta-xwayland-grab-keyboard.h  	\
+	wayland/meta-wayland-viewporter.c       \
+	wayland/meta-wayland-viewporter.h       \
 	$(NULL)
 endif
 
