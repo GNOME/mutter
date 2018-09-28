@@ -1,6 +1,16 @@
 mutter (3.30.0-3) UNRELEASED; urgency=medium
 
   * Add missing changes to previous changelog entry
+  * d/p/window-unmanage-dialog-when-clearing-transient_for.patch,
+    d/p/actor-Fix-logic-error-in-determining-terminal-effect-for-.patch,
+    d/p/actor-Always-use-get_paint_volume-override-for-active-eff.patch,
+    d/p/actor-Also-recompute-paint-volume-if-we-recently-dropped-.patch,
+    d/p/compositor-Skip-windows-not-visible-to-the-compositor.patch,
+    d/p/wayland-No-xdg-output-events-without-a-logical-monitor.patch:
+    Cherry-pick the same changes from upstream git master that have been
+    applied to the upstream gnome-3-28 branch
+    - In particular the last of those patches should fix a crash
+      on gnome-shell startup (Closes: #909243)
 
  -- Simon McVittie <smcv@debian.org>  Fri, 28 Sep 2018 10:24:45 +0100
 

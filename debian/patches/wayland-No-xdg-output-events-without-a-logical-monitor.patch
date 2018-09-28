@@ -1,0 +1,41 @@
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Tue, 25 Sep 2018 13:50:09 +0200
+Subject: wayland: No xdg-output events without a logical monitor
+
+To avoid a known race condition in the wl_output protocol documented in
+https://phabricator.freedesktop.org/T7722, mutter delays the `wl_output`
+destruction but nullify the `logical_monitor` associated with the
+`wl_output` and the binding routine `bind_output()` makes sure not to
+send wl_output events if the `logical_monitor` is `NULL` (see commit
+1923db97).
+
+The binding routine for `xdg_output` however does not check for such a
+condition, hence if the output configuration changes while a client is
+binding to xdg-output (typically Xwayland at startup), mutter would
+crash while trying to access the `logical_monitor` which was nullified
+by the change in configuration.
+
+Just like `bind_output()` does for wl_output, do not send xdg-output
+events if there is no `logical_monitor` yet.
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/194
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=909243
+Origin: upstream, 3.31.0, commit:68ec9ac017157def9b7c25dd8141dc0e93d9f918
+---
+ src/wayland/meta-wayland-outputs.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/wayland/meta-wayland-outputs.c b/src/wayland/meta-wayland-outputs.c
+index 544ce34..bd0a3b1 100644
+--- a/src/wayland/meta-wayland-outputs.c
++++ b/src/wayland/meta-wayland-outputs.c
+@@ -591,6 +591,9 @@ meta_xdg_output_manager_get_xdg_output (struct wl_client   *client,
+   wayland_output->xdg_output_resources =
+     g_list_prepend (wayland_output->xdg_output_resources, xdg_output_resource);
+ 
++  if (!wayland_output->logical_monitor)
++    return;
++
+   send_xdg_output_events (xdg_output_resource,
+                           wayland_output,
+                           wayland_output->logical_monitor,

@@ -1,0 +1,40 @@
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Tue, 10 Jul 2018 16:42:42 +0200
+Subject: window: unmanage dialog when clearing transient_for
+
+On Wayland, xdg-foreign would leave a modal dialog managed even after
+the imported surface is destroyed.
+
+This is sub-optimal and this breaks the atomic relationship one would
+expect between the parent and its modal dialog.
+
+Make sure we unmanage the dialog if transient_for is unset even for
+Wayland native windows.
+
+Related: https://gitlab.gnome.org/GNOME/mutter/issues/174
+Related: https://gitlab.gnome.org/GNOME/mutter/issues/221
+Origin: upstream, 3.31.0, commit:b443bd42ac738092817addf48e0b363d140cad26
+---
+ src/core/window.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/core/window.c b/src/core/window.c
+index c06f52c..a0a986e 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -7987,7 +7987,15 @@ meta_window_set_transient_for (MetaWindow *window,
+             }
+         }
+     }
++  else if (window->attached && parent == NULL)
++    {
++      guint32 timestamp;
+ 
++      timestamp =
++        meta_display_get_current_time_roundtrip (window->display);
++      meta_window_unmanage (window, timestamp);
++      return;
++    }
+   /* We know this won't create a reference cycle because we check for loops */
+   g_clear_object (&window->transient_for);
+   window->transient_for = parent ? g_object_ref (parent) : NULL;

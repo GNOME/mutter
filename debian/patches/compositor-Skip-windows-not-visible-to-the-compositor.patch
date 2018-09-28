@@ -1,0 +1,47 @@
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Wed, 19 Sep 2018 16:08:52 +0200
+Subject: compositor: Skip windows not visible to the compositor
+
+The compositor will automatically unredirect the top most window which
+is fully visible on screen. When unredirecting windows, it also shapes
+the compositor overlay window (COW) so that other redirected windows
+still shows correctly.
+
+The function `get_top_visible_window_actor()` however will simply walks
+down the window list, so if a window is placed on a layer above and
+unredirected, then iconified by the client, it will still be picked up
+by `get_top_visible_window_actor()` and he compositor will reckon it's
+still unredirected while not in a visible state anymore, thus leaving a
+black area on screen.
+
+Make sure we skip the windows not known to the compositor while picking
+the top visible window actor to avoid this issue.
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/306
+Origin: upstream, 3.31.0, commit:2fb3db7659caa3627a473fefabc4d6a87f688cee
+---
+ src/compositor/compositor.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/compositor/compositor.c b/src/compositor/compositor.c
+index e45d10c..e1f5973 100644
+--- a/src/compositor/compositor.c
++++ b/src/compositor/compositor.c
+@@ -804,6 +804,7 @@ meta_compositor_hide_window (MetaCompositor *compositor,
+ {
+   MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+   meta_window_actor_hide (window_actor, effect);
++  meta_stack_tracker_queue_sync_stack (compositor->display->stack_tracker);
+ }
+ 
+ void
+@@ -951,6 +952,9 @@ get_top_visible_window_actor (MetaCompositor *compositor)
+       MetaRectangle buffer_rect;
+       MetaRectangle display_rect = { 0 };
+ 
++      if (!window->visible_to_compositor)
++        continue;
++
+       meta_window_get_buffer_rect (window, &buffer_rect);
+       meta_display_get_size (compositor->display,
+                              &display_rect.width, &display_rect.height);

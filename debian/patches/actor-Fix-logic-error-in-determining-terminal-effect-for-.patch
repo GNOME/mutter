@@ -1,0 +1,32 @@
+From: Sam Spilsbury <sam@endlessm.com>
+Date: Wed, 29 Aug 2018 08:27:16 +0800
+Subject: actor: Fix logic error in determining terminal effect for paint
+ volume
+
+Previously we were checking l->data != NULL || (l->data != NULL &&
+l->data != priv->current_effect). This would continue the loop even
+if l->data == priv->current_effect, since l->data != NULL, which was
+not the intention of that loop.
+
+We also don't need to check that l->data != NULL before checking if
+it does not match the current_effect, since we already checked
+that current_effect was non-NULL before entering the loop.
+
+Origin: upstream, 3.31.0, commit:4270eef16ecbc5447c9869596567f2866c9265d7
+---
+ clutter/clutter/clutter-actor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 34baefd..8e16006 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -17485,7 +17485,7 @@ _clutter_actor_get_paint_volume_real (ClutterActor *self,
+            */
+           effects = _clutter_meta_group_peek_metas (priv->effects);
+           for (l = effects;
+-               l != NULL || (l != NULL && l->data != priv->current_effect);
++               l != NULL && l->data != priv->current_effect;
+                l = l->next)
+             {
+               if (!_clutter_effect_get_paint_volume (l->data, pv))

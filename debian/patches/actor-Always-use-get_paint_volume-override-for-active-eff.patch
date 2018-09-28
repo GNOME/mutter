@@ -1,0 +1,109 @@
+From: Sam Spilsbury <sam@endlessm.com>
+Date: Wed, 29 Aug 2018 08:32:29 +0800
+Subject: actor: Always use get_paint_volume override for active effects
+
+If an effect is active and it overrides the paint volume, we should
+always recompute the paint volume when requested and not use the
+cache, since the paint volume override can change from call to
+call depending on what phase of painting we are in. For instance,
+if we are part way through painting effects and request the
+paint volume, the paint volume should only go up to the current
+effect, but in a later call to compute repaint regions, the
+paint volume needs to expand to accomadate the effect.
+
+This still involves a lot of recomputation in the case of effects -
+in a later clutter version it would be worth adding an API to
+allow effects to explicitly recompute and return a new the paint
+volume up to the current effect as opposed to recomputing
+the cached one.
+
+Origin: upstream, 3.31.0, commit:5d19aee23a55a642517ec43b116e4452ab0c6cf1
+---
+ clutter/clutter/clutter-actor.c          | 34 +++++++++++++++++++++++++++++++-
+ clutter/clutter/clutter-effect-private.h |  1 +
+ clutter/clutter/clutter-effect.c         |  8 ++++++++
+ 3 files changed, 42 insertions(+), 1 deletion(-)
+
+diff --git a/clutter/clutter/clutter-actor.c b/clutter/clutter/clutter-actor.c
+index 8e16006..843e04a 100644
+--- a/clutter/clutter/clutter-actor.c
++++ b/clutter/clutter/clutter-actor.c
+@@ -17521,6 +17521,32 @@ _clutter_actor_get_paint_volume_real (ClutterActor *self,
+   return TRUE;
+ }
+ 
++static gboolean
++_clutter_actor_has_active_paint_volume_override_effects (ClutterActor *self)
++{
++  const GList *l;
++
++  if (self->priv->effects == NULL)
++    return FALSE;
++
++  /* We just need to all effects current effect to see
++   * if anyone wants to override the paint volume. If so, then
++   * we need to recompute, since the paint volume returned can
++   * change from call to call. */
++  for (l = _clutter_meta_group_peek_metas (self->priv->effects);
++       l != NULL;
++       l = l->next)
++    {
++      ClutterEffect *effect = l->data;
++
++      if (clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (effect)) &&
++          _clutter_effect_has_custom_paint_volume (effect))
++        return TRUE;
++    }
++
++  return FALSE;
++}
++
+ /* The public clutter_actor_get_paint_volume API returns a const
+  * pointer since we return a pointer directly to the cached
+  * PaintVolume associated with the actor and don't want the user to
+@@ -17537,7 +17563,13 @@ _clutter_actor_get_paint_volume_mutable (ClutterActor *self)
+ 
+   if (priv->paint_volume_valid)
+     {
+-      if (!priv->needs_paint_volume_update)
++      /* If effects are applied, the actor paint volume
++       * needs to be recomputed on each paint, since those
++       * paint volumes could change over the duration of the
++       * effect. */
++      if (!priv->needs_paint_volume_update &&
++          priv->current_effect == NULL &&
++          !_clutter_actor_has_active_paint_volume_override_effects (self))
+         return &priv->paint_volume;
+       clutter_paint_volume_free (&priv->paint_volume);
+     }
+diff --git a/clutter/clutter/clutter-effect-private.h b/clutter/clutter/clutter-effect-private.h
+index 578b6a1..c1e9b3b 100644
+--- a/clutter/clutter/clutter-effect-private.h
++++ b/clutter/clutter/clutter-effect-private.h
+@@ -9,6 +9,7 @@ gboolean        _clutter_effect_pre_paint               (ClutterEffect
+ void            _clutter_effect_post_paint              (ClutterEffect           *effect);
+ gboolean        _clutter_effect_get_paint_volume        (ClutterEffect           *effect,
+                                                          ClutterPaintVolume      *volume);
++gboolean        _clutter_effect_has_custom_paint_volume (ClutterEffect           *effect);
+ void            _clutter_effect_paint                   (ClutterEffect           *effect,
+                                                          ClutterEffectPaintFlags  flags);
+ void            _clutter_effect_pick                    (ClutterEffect           *effect,
+diff --git a/clutter/clutter/clutter-effect.c b/clutter/clutter/clutter-effect.c
+index 06df7ff..5db5541 100644
+--- a/clutter/clutter/clutter-effect.c
++++ b/clutter/clutter/clutter-effect.c
+@@ -308,6 +308,14 @@ _clutter_effect_get_paint_volume (ClutterEffect      *effect,
+   return CLUTTER_EFFECT_GET_CLASS (effect)->get_paint_volume (effect, volume);
+ }
+ 
++gboolean
++_clutter_effect_has_custom_paint_volume (ClutterEffect *effect)
++{
++  g_return_val_if_fail (CLUTTER_IS_EFFECT (effect), FALSE);
++
++  return CLUTTER_EFFECT_GET_CLASS (effect)->get_paint_volume != clutter_effect_real_get_paint_volume;
++}
++
+ /**
+  * clutter_effect_queue_repaint:
+  * @effect: A #ClutterEffect which needs redrawing
