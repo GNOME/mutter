@@ -9,6 +9,4 @@ theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 clutter-Smooth-out-master-clock-to-smooth-visuals.patch
 bgo768531_workaround-startup-notifications.patch
 debian/synaptics-support.patch
-debian/skip-failing-tests.patch
-debian/skip-failing-tests-325.patch
 debian/skip-texture-test.patch
