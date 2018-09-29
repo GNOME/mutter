@@ -49,7 +49,7 @@ override_dh_auto_configure:
 		$(CONFFLAGS)
 
 override_dh_auto_test:
-	xvfb-run dh_auto_test
+	xvfb-run -a dh_auto_test
 
 override_dh_install:
 	find debian/tmp -name '*.la' -print -delete
