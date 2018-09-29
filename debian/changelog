@@ -1,9 +1,16 @@
-mutter (3.30.0-4) UNRELEASED; urgency=medium
+mutter (3.30.0-4) unstable; urgency=medium
 
+  [ Simon McVittie ]
   * Try again to put all the changes since 3.30.0-2 in their correct
     debian/changelog entries
 
- -- Simon McVittie <smcv@debian.org>  Fri, 28 Sep 2018 16:19:39 +0100
+  [ Jeremy Bicha ]
+  * Drop 2 patches that no longer seem needed:
+    - debian/skip-failing-tests.patch
+    - debian/skip-failing-tests-325.patch
+  * Use "xvfb-run -a" instead of just xvfb-run for build tests
+
+ -- Jeremy Bicha <jbicha@debian.org>  Sat, 29 Sep 2018 12:03:42 -0400
 
 mutter (3.30.0-3) unstable; urgency=medium
 
