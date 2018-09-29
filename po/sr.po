@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-02-06 04:14+0000\n"
-"PO-Revision-Date: 2018-02-21 21:58+0100\n"
+"POT-Creation-Date: 2018-09-06 15:48+0000\n"
+"PO-Revision-Date: 2018-09-29 12:05+0200\n"
 "Last-Translator: Марко М. Костић <marko.m.kostic@gmail.com>\n"
 "Language-Team: српски <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
@@ -397,10 +397,7 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
-"enables remote desktop support. To support remote desktop with screen "
-"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
-"screen cast support."
+"manage HiDPI monitors. Does not require a restart."
 msgstr ""
 "Да укључите пробне функције, додајте кључну реч функције на списак. Да ли "
 "функција захтева поновно покретање састављача зависи од дате функције. Није "
@@ -410,24 +407,21 @@ msgstr ""
 "да матер подразумевано распоређује логичке екране у логичком координантном "
 "простору пиксела, приликом промене величине спремишта кадрова екрана уместо "
 "садржаја прозора, зарад управљања екранима високе резолуције. Не захтева "
-"поновно покретање. • “remote-desktop” — омогућава удаљену техничку подршку. "
-"Да бисте подржали удаљену техничку подршку са дељењем екрана, “screen-cast” "
-"такође мора бити омогућен. • “screen-cast” — омогућава подршку за "
-"пројектовање екрана."
+"поновно покретање."
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Select window from tab popup"
 msgstr "Бира прозор из језичка искакања"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:146
 msgid "Cancel tab popup"
 msgstr "Отказивање језичка искакања"
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Switch monitor configurations"
 msgstr "Мења подешавања монитора"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:156
 msgid "Rotates the built-in monitor configuration"
 msgstr "Заокреће уграђена подешавања монитора"
 
@@ -531,7 +525,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2260
+#: src/backends/meta-input-settings.c:2325
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Режим прекидача (група %d)"
@@ -539,30 +533,30 @@ msgstr "Режим прекидача (група %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2283
+#: src/backends/meta-input-settings.c:2348
 msgid "Switch monitor"
 msgstr "Промени монитор"
 
-#: src/backends/meta-input-settings.c:2285
+#: src/backends/meta-input-settings.c:2350
 msgid "Show on-screen help"
 msgstr "Прикажи помоћ на екрану"
 
-#: src/backends/meta-monitor-manager.c:900
+#: src/backends/meta-monitor-manager.c:886
 msgid "Built-in display"
 msgstr "Уграђени дисплеј"
 
-#: src/backends/meta-monitor-manager.c:923
+#: src/backends/meta-monitor-manager.c:909
 msgid "Unknown"
 msgstr "Непознато"
 
-#: src/backends/meta-monitor-manager.c:925
+#: src/backends/meta-monitor-manager.c:911
 msgid "Unknown Display"
 msgstr "Непознат дисплеј"
 
 #. TRANSLATORS: this is a monitor vendor name, followed by a
 #. * size in inches, like 'Dell 15"'
 #.
-#: src/backends/meta-monitor-manager.c:933
+#: src/backends/meta-monitor-manager.c:919
 #, c-format
 msgid "%s %s"
 msgstr "%s %s"
@@ -574,68 +568,67 @@ msgstr "%s %s"
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr ""
-"Неки други композитни управник је већ покренут на приказу %i еркана „%s“."
+"Неки други композитни управник је већ покренут на приказу %i екрана „%s“."
 
-#: src/core/bell.c:194
+#: src/core/bell.c:254
 msgid "Bell event"
 msgstr "Звонца"
 
-#: src/core/display.c:608
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Нисам успео да отворим екран „%s“ Икс система прозора\n"
-
-#: src/core/main.c:190
+#: src/core/main.c:191
 msgid "Disable connection to session manager"
 msgstr "Искључује везу са управником сесије"
 
-#: src/core/main.c:196
+#: src/core/main.c:197
 msgid "Replace the running window manager"
 msgstr "Мења текућег управника прозорима"
 
-#: src/core/main.c:202
+#: src/core/main.c:203
 msgid "Specify session management ID"
 msgstr "Наводи ИБ управника сесије"
 
-#: src/core/main.c:207
+#: src/core/main.c:208
 msgid "X Display to use"
 msgstr "Икс екран који ће бити коришћен"
 
-#: src/core/main.c:213
+#: src/core/main.c:214
 msgid "Initialize session from savefile"
 msgstr "Покреће сесију из датотеке чувања"
 
-#: src/core/main.c:219
+#: src/core/main.c:220
 msgid "Make X calls synchronous"
 msgstr "Чини Икс позиве усклађеним"
 
-#: src/core/main.c:226
+#: src/core/main.c:227
 msgid "Run as a wayland compositor"
-msgstr "Ради као вајландов саставник"
+msgstr "Ради као вејлендов композитор"
 
-#: src/core/main.c:232
+#: src/core/main.c:233
 msgid "Run as a nested compositor"
-msgstr "Ради као угнеждени саставник"
+msgstr "Ради као угнежђени композитор"
 
-#: src/core/main.c:240
+#: src/core/main.c:239
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Ради као вејлендов композитор без покретања Икс-вејленда"
+
+#: src/core/main.c:247
 msgid "Run as a full display server, rather than nested"
 msgstr "Ради као пуни сервер приказа, уместо као угнеждени"
 
-#: src/core/main.c:246
+#: src/core/main.c:253
 msgid "Run with X11 backend"
 msgstr "Покрени на Икс11 позадинцу"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:147
+#: src/core/meta-close-dialog-default.c:148
 #, c-format
 msgid "“%s” is not responding."
 msgstr "„%s“ не даје одзив."
 
-#: src/core/meta-close-dialog-default.c:149
+#: src/core/meta-close-dialog-default.c:150
 msgid "Application is not responding."
 msgstr "Програм не даје одзив."
 
-#: src/core/meta-close-dialog-default.c:154
+#: src/core/meta-close-dialog-default.c:155
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -643,11 +636,11 @@ msgstr ""
 "Можете мало сачекати док се програм не сабере или приморати програм да "
 "комплетно прекине са радом."
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:162
 msgid "_Force Quit"
 msgstr "_Приморај излаз"
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:162
 msgid "_Wait"
 msgstr "_Сачекај"
 
@@ -674,12 +667,21 @@ msgstr "Исписује издање"
 msgid "Mutter plugin to use"
 msgstr "Прикључци Матера за коришћење"
 
-#: src/core/prefs.c:1997
+#: src/core/prefs.c:1787
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. радни простор"
 
-#: src/core/screen.c:583
+#: src/core/util.c:120
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr "Матер је преведен без подршке за опширан режим\n"
+
+#: src/wayland/meta-wayland-tablet-pad.c:567
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "Режим прекидача: Режим %d"
+
+#: src/x11/meta-x11-display.c:666
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -688,21 +690,21 @@ msgstr ""
 "Приказ „%s“ већ има управника прозора; пробајте да користите опцију „--"
 "replace“ да замените тренутног управника прозора."
 
-#: src/core/screen.c:668
+#: src/x11/meta-x11-display.c:1010
+msgid "Failed to initialize GDK\n"
+msgstr "Нисам успео да покренем ГДК\n"
+
+#: src/x11/meta-x11-display.c:1034
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "Нисам успео да отворим екран „%s“ Икс система прозора\n"
+
+#: src/x11/meta-x11-display.c:1117
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Приказ „%d“ на екрану „%s“ није исправан\n"
 
-#: src/core/util.c:120
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Матер је преведен без подршке за опширан режим\n"
-
-#: src/wayland/meta-wayland-tablet-pad.c:563
-#, c-format
-msgid "Mode Switch: Mode %d"
-msgstr "Режим прекидача: Режим %d"
-
-#: src/x11/session.c:1818
+#: src/x11/session.c:1819
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -710,7 +712,7 @@ msgstr ""
 "Ови прозори не подржавају могућност „сачувај тренутна подешавања“ па ћете "
 "морати ручно да их поново покренете када се следећи пут пријавите."
 
-#: src/x11/window-props.c:559
+#: src/x11/window-props.c:565
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
