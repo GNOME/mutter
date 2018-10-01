@@ -222,7 +222,7 @@ msgstr "Přepnout okno na všechny/jednu pracovní plochu"
 
 #: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
-msgstr "Když je okno zakryté vynést jej do popředí, jinak odsunout do pozadí"
+msgstr "Zakryté okno vynést do popředí, jinak odsunout do pozadí"
 
 #: data/50-mutter-windows.xml:31
 msgid "Raise window above other windows"
