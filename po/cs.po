@@ -106,27 +106,27 @@ msgstr "Přepnout na minulý systémový ovládací prvek"
 
 #: data/50-mutter-navigation.xml:79
 msgid "Switch windows directly"
-msgstr "Přepnout do minulého okna"
+msgstr "Přepnout přímo do okna"
 
 #: data/50-mutter-navigation.xml:84
 msgid "Switch directly to previous window"
-msgstr "Přepnout přímo na předchozí okno"
+msgstr "Přepnout přímo do předchozího okna"
 
 #: data/50-mutter-navigation.xml:88
 msgid "Switch windows of an app directly"
-msgstr "Přepnout do jiného okna aplikace"
+msgstr "Přepnout přímo do jiného okna aplikace"
 
 #: data/50-mutter-navigation.xml:93
 msgid "Switch directly to previous window of an app"
-msgstr "Přepnout do předchozího okna aplikace"
+msgstr "Přepnout přímo do předchozího okna aplikace"
 
 #: data/50-mutter-navigation.xml:97
 msgid "Switch system controls directly"
-msgstr "Přepnout na minulý systémový ovládací prvek"
+msgstr "Přepnout přímo na systémový ovládací prvek"
 
 #: data/50-mutter-navigation.xml:102
 msgid "Switch directly to previous system control"
-msgstr "Přepnout přímo na předchozí systémové ovládací prvky"
+msgstr "Přepnout přímo na předchozí systémový ovládací prvek"
 
 #: data/50-mutter-navigation.xml:105
 msgid "Hide all normal windows"
