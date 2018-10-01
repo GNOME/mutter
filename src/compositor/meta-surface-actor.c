@@ -249,6 +249,47 @@ meta_surface_actor_get_opaque_region (MetaSurfaceActor *actor)
   return meta_shaped_texture_get_opaque_region (priv->texture);
 }
 
+void
+meta_surface_actor_set_scale (MetaSurfaceActor *self,
+                              int scale)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_set_scale (priv->texture, scale);
+}
+
+void
+meta_surface_actor_set_viewport_src_rect (MetaSurfaceActor *self,
+                                          float            src_x,
+                                          float            src_y,
+                                          float            src_width,
+                                          float            src_height)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_set_viewport_src_rect (priv->texture, src_x, src_y,
+                                             src_width, src_height);
+}
+
+void
+meta_surface_actor_set_viewport_dest (MetaSurfaceActor *self,
+                                     int dest_width,
+                                     int dest_height)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_set_viewport_dest (priv->texture, dest_width, dest_height);
+}
+
+void
+meta_surface_actor_set_transform (MetaSurfaceActor         *self,
+                                  enum wl_output_transform transform)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_set_transform (priv->texture, transform);
+}
+
 static gboolean
 is_frozen (MetaSurfaceActor *self)
 {
