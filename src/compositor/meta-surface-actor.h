@@ -62,6 +62,18 @@ void meta_surface_actor_set_opaque_region (MetaSurfaceActor *self,
                                            cairo_region_t   *region);
 cairo_region_t * meta_surface_actor_get_opaque_region (MetaSurfaceActor *self);
 
+void meta_surface_actor_set_scale (MetaSurfaceActor *self, int scale);
+void meta_surface_actor_set_viewport_src_rect (MetaSurfaceActor *self,
+                                               float            src_x,
+                                               float            src_y,
+                                               float            src_width,
+                                               float            src_height);
+void meta_surface_actor_set_viewport_dest (MetaSurfaceActor *self,
+                                           int dest_width,
+                                           int dest_height);
+void meta_surface_actor_set_transform (MetaSurfaceActor         *self,
+                                       enum wl_output_transform transform);
+
 void meta_surface_actor_process_damage (MetaSurfaceActor *actor,
                                         int x, int y, int width, int height);
 void meta_surface_actor_pre_paint (MetaSurfaceActor *actor);
