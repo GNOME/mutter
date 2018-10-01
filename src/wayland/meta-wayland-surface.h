@@ -80,9 +80,12 @@ G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleDND,
 struct _MetaWaylandBufferViewport
 {
   struct {
-    uint32_t transform;
+    enum wl_output_transform transform;
     int scale;
-    cairo_rectangle_int_t src_rect;
+    float src_x;
+    float src_y;
+		float src_width;
+    float src_height;
   } buffer;
 
   struct {
@@ -126,7 +129,10 @@ struct _MetaWaylandPendingState
   int new_max_width;
   int new_max_height;
 
-  gboolean has_new_buffer_viewport;
+  gboolean has_new_scale;
+  gboolean has_new_viewport_src_rect;
+  gboolean has_new_viewport_dest;
+  gboolean has_new_transform;
   MetaWaylandBufferViewport buffer_viewport;
 };
 
@@ -161,6 +167,7 @@ struct _MetaWaylandSurface
   GList *subsurfaces;
   GHashTable *outputs_to_destroy_notify_id;
   MetaWaylandBufferViewport buffer_viewport;
+  struct wl_resource *viewport_resource;
 
   /* Buffer reference state. */
   struct {
@@ -322,8 +329,11 @@ MetaSurfaceActor *  meta_wayland_surface_get_actor (MetaWaylandSurface *surface)
 void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface);
 
 int                 meta_wayland_surface_get_scale(MetaWaylandSurface *surface);
+enum wl_output_transform meta_wayland_surface_get_transform(MetaWaylandSurface *surface);
 
 int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
+int                 meta_wayland_surface_get_buffer_width (MetaWaylandSurface *surface);
+int                 meta_wayland_surface_get_buffer_height (MetaWaylandSurface *surface);
 
 #endif
