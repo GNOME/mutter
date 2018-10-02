@@ -437,7 +437,22 @@ clutter_input_method_filter_key_event (ClutterInputMethod    *im,
   g_return_val_if_fail (key != NULL, FALSE);
 
   if (clutter_event_get_flags ((ClutterEvent *) key) & CLUTTER_EVENT_FLAG_INPUT_METHOD)
-    return FALSE;
+    {
+      if (key->hardware_keycode == 0 && key->unicode_value > 0)
+        {
+          char str[7] = { 0, };
+
+          /* A virtual event with no associated keycode has been sent by
+           * the input method. postprocess it as commit() with the keyval's
+           * UTF-8 string.
+           */
+          g_unichar_to_utf8 (key->unicode_value, str);
+          clutter_input_method_commit (im, str);
+          return TRUE;
+        }
+
+      return FALSE;
+    }
   if (!im_class->filter_key_event)
     return FALSE;
 
