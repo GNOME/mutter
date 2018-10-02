@@ -3448,12 +3448,19 @@ on_gpu_added (MetaMonitorManager *monitor_manager,
 {
   GError *error = NULL;
 
+  EGLContext ctx = eglGetCurrentContext ();
+  EGLDisplay dpy = eglGetCurrentDisplay ();
+  EGLSurface read = eglGetCurrentSurface (EGL_READ);
+  EGLSurface draw = eglGetCurrentSurface (EGL_DRAW);
+
   if (!create_renderer_gpu_data (renderer_native, gpu_kms, &error))
     {
       g_warning ("on_gpu_added: could not create gpu_data for gpu %s: %s",
                  meta_gpu_kms_get_file_path (gpu_kms), error->message);
       g_clear_error (&error);
     }
+
+  eglMakeCurrent (dpy, draw, read, ctx);
 }
 
 static gboolean
