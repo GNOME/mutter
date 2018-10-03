@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017 Red Hat
+ * Copyright (c) 2018 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -256,6 +257,8 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
   get_crtc_drm_connectors (gpu, crtc, &connectors, &n_connectors);
   g_assert (n_connectors > 0);
   g_free (connectors);
+
+  g_assert (fb_id != 0);
 
   if (!gpu_kms->page_flips_not_supported)
     {
