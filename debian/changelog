@@ -1,3 +1,10 @@
+mutter (3.30.0-5) unstable; urgency=medium
+
+  * Restore debian/skip-failing-tests-325.patch:
+    - The test still fails on mips
+
+ -- Jeremy Bicha <jbicha@debian.org>  Tue, 02 Oct 2018 20:51:51 -0400
+
 mutter (3.30.0-4) unstable; urgency=medium
 
   [ Simon McVittie ]
