@@ -67,6 +67,15 @@ static const char *clutter_input_axis_atom_names[] = {
 
 #define N_AXIS_ATOMS    G_N_ELEMENTS (clutter_input_axis_atom_names)
 
+static const char *wacom_type_atoms[] = {
+    "STYLUS",
+    "CURSOR",
+    "ERASER",
+    "PAD",
+    "TOUCH"
+};
+#define N_WACOM_TYPE_ATOMS G_N_ELEMENTS (wacom_type_atoms)
+
 enum {
   PAD_AXIS_FIRST  = 3, /* First axes are always x/y/pressure, ignored in pads */
   PAD_AXIS_STRIP1 = PAD_AXIS_FIRST,
@@ -398,6 +407,70 @@ get_pad_features (XIDeviceInfo *info,
   *n_strips = strips;
 }
 
+/* The Wacom driver exports the tool type as property. Use that over
+   guessing based on the device name */
+static gboolean
+guess_source_from_wacom_type (ClutterBackendX11       *backend_x11,
+                              XIDeviceInfo            *info,
+                              ClutterInputDeviceType  *source_out)
+{
+  gulong nitems, bytes_after;
+  guint32 *data = NULL;
+  int rc, format;
+  Atom type;
+  Atom prop;
+  Atom device_type;
+  Atom types[N_WACOM_TYPE_ATOMS];
+
+  prop = XInternAtom (backend_x11->xdpy, "Wacom Tool Type", True);
+  if (prop == None)
+    return FALSE;
+
+  clutter_x11_trap_x_errors ();
+  rc = XIGetProperty (backend_x11->xdpy,
+                      info->deviceid,
+                      prop,
+                      0, 1, False, XA_ATOM, &type, &format, &nitems, &bytes_after,
+                      (guchar **) &data);
+  clutter_x11_untrap_x_errors ();
+
+
+  if (rc != Success || type != XA_ATOM || format != 32 || nitems != 1)
+    {
+      XFree (data);
+      return FALSE;
+    }
+
+  device_type = *data;
+  XFree (data);
+
+  if (device_type == 0)
+      return FALSE;
+
+  rc = XInternAtoms (backend_x11->xdpy,
+                     (char **)wacom_type_atoms,
+                     N_WACOM_TYPE_ATOMS,
+                     False,
+                     types);
+  if (rc == 0)
+      return FALSE;
+
+  if (device_type == types[0])
+      *source_out = CLUTTER_PEN_DEVICE;
+  else if (device_type == types[1])
+      *source_out = CLUTTER_CURSOR_DEVICE;
+  else if (device_type == types[2])
+      *source_out = CLUTTER_ERASER_DEVICE;
+  else if (device_type == types[3])
+      *source_out = CLUTTER_PAD_DEVICE;
+  else if (device_type == types[4])
+      *source_out = CLUTTER_TOUCHSCREEN_DEVICE;
+  else
+      return FALSE;
+
+  return TRUE;
+}
+
 static ClutterInputDevice *
 create_device (ClutterDeviceManagerXI2 *manager_xi2,
                ClutterBackendX11       *backend_x11,
@@ -425,7 +498,7 @@ create_device (ClutterDeviceManagerXI2 *manager_xi2,
     {
       source = touch_source;
     }
-  else
+  else if (!guess_source_from_wacom_type (backend_x11, info, &source))
     {
       gchar *name;
 
