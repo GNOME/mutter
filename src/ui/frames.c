@@ -1025,19 +1025,16 @@ meta_frame_left_click_event (MetaUIFrame        *frame,
     case META_FRAME_CONTROL_MINIMIZE:
     case META_FRAME_CONTROL_DELETE:
     case META_FRAME_CONTROL_MENU:
-    case META_FRAME_CONTROL_APPMENU:
       frame->grab_button = get_button_number (event);
       frame->button_state = META_BUTTON_STATE_PRESSED;
       frame->prelit_control = control;
       redraw_control (frame, control);
 
-      if (control == META_FRAME_CONTROL_MENU ||
-          control == META_FRAME_CONTROL_APPMENU)
+      if (control == META_FRAME_CONTROL_MENU)
         {
           MetaFrameGeometry fgeom;
           GdkRectangle *rect;
           MetaRectangle root_rect;
-          MetaWindowMenuType menu;
           int win_x, win_y;
 
           meta_ui_frame_calc_geometry (frame, &fgeom);
@@ -1051,9 +1048,6 @@ meta_frame_left_click_event (MetaUIFrame        *frame,
           root_rect.width = rect->width;
           root_rect.height = rect->height;
 
-          menu = control == META_FRAME_CONTROL_MENU ? META_WINDOW_MENU_WM
-            : META_WINDOW_MENU_APP;
-
           /* if the compositor takes a grab for showing the menu, we will
            * get a LeaveNotify event we want to ignore, to keep the pressed
            * button state while the menu is open
@@ -1061,7 +1055,7 @@ meta_frame_left_click_event (MetaUIFrame        *frame,
           frame->maybe_ignore_leave_notify = TRUE;
           meta_core_show_window_menu_for_rect (display,
                                                frame->xwindow,
-                                               menu,
+                                               META_WINDOW_MENU_WM,
                                                &root_rect,
                                                evtime);
         }
@@ -1257,8 +1251,6 @@ meta_ui_frame_update_prelit_control (MetaUIFrame     *frame,
       break;
     case META_FRAME_CONTROL_MENU:
       break;
-    case META_FRAME_CONTROL_APPMENU:
-      break;
     case META_FRAME_CONTROL_MINIMIZE:
       break;
     case META_FRAME_CONTROL_MAXIMIZE:
@@ -1299,7 +1291,6 @@ meta_ui_frame_update_prelit_control (MetaUIFrame     *frame,
   switch (control)
     {
     case META_FRAME_CONTROL_MENU:
-    case META_FRAME_CONTROL_APPMENU:
     case META_FRAME_CONTROL_MINIMIZE:
     case META_FRAME_CONTROL_MAXIMIZE:
     case META_FRAME_CONTROL_DELETE:
@@ -1532,9 +1523,6 @@ meta_ui_frame_paint (MetaUIFrame  *frame,
     case META_FRAME_CONTROL_MENU:
       button_type = META_BUTTON_TYPE_MENU;
       break;
-    case META_FRAME_CONTROL_APPMENU:
-      button_type = META_BUTTON_TYPE_APPMENU;
-      break;
     case META_FRAME_CONTROL_MINIMIZE:
       button_type = META_BUTTON_TYPE_MINIMIZE;
       break;
@@ -1690,9 +1678,6 @@ control_rect (MetaFrameControl control,
     case META_FRAME_CONTROL_MENU:
       rect = &fgeom->menu_rect.visible;
       break;
-    case META_FRAME_CONTROL_APPMENU:
-      rect = &fgeom->appmenu_rect.visible;
-      break;
     case META_FRAME_CONTROL_MINIMIZE:
       rect = &fgeom->min_rect.visible;
       break;
@@ -1757,9 +1742,6 @@ get_control (MetaUIFrame *frame, int root_x, int root_y)
 
   if (POINT_IN_RECT (x, y, fgeom.menu_rect.clickable))
     return META_FRAME_CONTROL_MENU;
-
-  if (POINT_IN_RECT (x, y, fgeom.appmenu_rect.clickable))
-    return META_FRAME_CONTROL_APPMENU;
 
   flags = meta_frame_get_flags (frame->meta_window->frame);
   type = meta_window_get_frame_type (frame->meta_window);

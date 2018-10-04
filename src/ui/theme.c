@@ -166,11 +166,6 @@ rect_for_function (MetaFrameGeometry *fgeom,
         return &fgeom->menu_rect;
       else
         return NULL;
-    case META_BUTTON_FUNCTION_APPMENU:
-      if (flags & META_FRAME_ALLOWS_APPMENU)
-        return &fgeom->appmenu_rect;
-      else
-        return NULL;
     case META_BUTTON_FUNCTION_MINIMIZE:
       if (flags & META_FRAME_ALLOWS_MINIMIZE)
         return &fgeom->min_rect;
@@ -519,10 +514,6 @@ meta_frame_layout_calc_geometry (MetaFrameLayout        *layout,
         continue;
       else if (strip_button (left_func_rects, &n_left, &fgeom->menu_rect))
         continue;
-      else if (strip_button (right_func_rects, &n_right, &fgeom->appmenu_rect))
-        continue;
-      else if (strip_button (left_func_rects, &n_left, &fgeom->appmenu_rect))
-        continue;
       else
         {
           meta_bug ("Could not find a button to strip. n_left = %d n_right = %d\n",
@@ -690,10 +681,6 @@ get_button_rect (MetaButtonType           type,
       *rect = fgeom->menu_rect.visible;
       break;
 
-    case META_BUTTON_TYPE_APPMENU:
-      *rect = fgeom->appmenu_rect.visible;
-      break;
-
     default:
     case META_BUTTON_TYPE_LAST:
       g_assert_not_reached ();
@@ -712,8 +699,6 @@ get_class_from_button_type (MetaButtonType type)
       return "maximize";
     case META_BUTTON_TYPE_MINIMIZE:
       return "minimize";
-    case META_BUTTON_TYPE_APPMENU:
-      return "appmenu";
     default:
       return NULL;
     }
@@ -867,9 +852,6 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
                break;
             case META_BUTTON_TYPE_MENU:
                icon_name = "open-menu-symbolic";
-               break;
-            case META_BUTTON_TYPE_APPMENU:
-               surface = cairo_surface_reference (mini_icon);
                break;
             default:
                icon_name = NULL;

@@ -1259,8 +1259,6 @@ button_function_from_string (const char *str)
 {
   if (strcmp (str, "menu") == 0)
     return META_BUTTON_FUNCTION_MENU;
-  else if (strcmp (str, "appmenu") == 0)
-    return META_BUTTON_FUNCTION_APPMENU;
   else if (strcmp (str, "minimize") == 0)
     return META_BUTTON_FUNCTION_MINIMIZE;
   else if (strcmp (str, "maximize") == 0)
