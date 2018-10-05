@@ -1,0 +1,45 @@
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Wed, 5 Sep 2018 10:38:09 +0300
+Subject: renderer/native: check format for drmModeAddFB fallback
+
+If drmModeAddFB2() does not work, the fallback to drmModeAddFB() can
+only handle a single specific format. Make sure the requested format is
+that one format, and fail the operation otherwise.
+
+This should at least makes the failure mode obvious on such old systems
+where the kernel does not support AddFB2, rather than producing wrong
+colors.
+
+(cherry picked from commit 3e1ca62782043e3d58d21c205a217624e72faf9c)
+---
+ src/backends/native/meta-renderer-native.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index 08b9bef..6eaa0b4 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -3,6 +3,7 @@
+ /*
+  * Copyright (C) 2011 Intel Corporation.
+  * Copyright (C) 2016 Red Hat
++ * Copyright (c) 2018 DisplayLink (UK) Ltd.
+  *
+  * Permission is hereby granted, free of charge, to any person
+  * obtaining a copy of this software and associated documentation
+@@ -2246,6 +2247,15 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
+ 
+   if (fb_id == 0)
+     {
++      if (format != DRM_FORMAT_XRGB8888)
++        {
++          g_set_error (error, G_IO_ERROR,
++                       G_IO_ERROR_FAILED,
++                       "drmModeAddFB does not support format 0x%x",
++                       format);
++          goto err_add_fb;
++        }
++
+       if (drmModeAddFB (kms_fd, width, height,
+                         24 /* depth of RGBX8888 */,
+                         32 /* bpp of RGBX8888 */,

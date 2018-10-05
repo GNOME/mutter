@@ -1,0 +1,207 @@
+From: =?utf-8?q?Jonas_=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 14 Sep 2018 18:52:56 +0200
+Subject: shaped-texture: Transform clip and opaque region to texture space
+
+The clip and opaque region are both in a translated stage coordinate
+space, where the origin is in the top left corner of the painted
+texture. The painting, however, is in the texture coordinate space,
+so when the texture is scaled, the coordinate spaces differ.
+
+Handle this by transforming the clip and opaque region to texture
+coordinate space before computing the blend region and the opaque region
+to paint.
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/issues/300
+(cherry picked from commit ff08e19f52962dcd877ba8dc61d57b2e9acbcdbb)
+---
+ src/compositor/meta-shaped-texture.c | 83 ++++++++++++++++++++++++------------
+ 1 file changed, 55 insertions(+), 28 deletions(-)
+
+diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
+index 5378b6c..5328a91 100644
+--- a/src/compositor/meta-shaped-texture.c
++++ b/src/compositor/meta-shaped-texture.c
+@@ -35,6 +35,7 @@
+ 
+ #include "clutter-utils.h"
+ #include "meta-texture-tower.h"
++#include "region-utils.h"
+ 
+ #include "meta-cullable.h"
+ 
+@@ -416,9 +417,14 @@ meta_shaped_texture_paint (ClutterActor *actor)
+ {
+   MetaShapedTexture *stex = (MetaShapedTexture *) actor;
+   MetaShapedTexturePrivate *priv = stex->priv;
++  double tex_scale;
+   int tex_width, tex_height;
+   cairo_rectangle_int_t tex_rect;
+   guchar opacity;
++  gboolean use_opaque_region;
++  cairo_region_t *clip_tex_region;
++  cairo_region_t *opaque_tex_region;
++  cairo_region_t *blended_tex_region;
+   CoglContext *ctx;
+   CoglFramebuffer *fb;
+   CoglTexture *paint_tex = NULL;
+@@ -476,6 +482,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
+         }
+     }
+ 
++  clutter_actor_get_scale (actor, &tex_scale, NULL);
+   tex_width = priv->tex_width;
+   tex_height = priv->tex_height;
+ 
+@@ -499,40 +506,61 @@ meta_shaped_texture_paint (ClutterActor *actor)
+   opacity = clutter_actor_get_paint_opacity (actor);
+   clutter_actor_get_allocation_box (actor, &alloc);
+ 
+-  cairo_region_t *blended_region;
+-  gboolean use_opaque_region = (priv->opaque_region != NULL && opacity == 255);
++  if (priv->opaque_region && opacity == 255)
++    {
++      opaque_tex_region =
++        meta_region_scale_double (priv->opaque_region,
++                                  1.0 / tex_scale,
++                                  META_ROUNDING_STRATEGY_SHRINK);
++      use_opaque_region = TRUE;
++    }
++  else
++    {
++      use_opaque_region = FALSE;
++    }
++
++  if (priv->clip_region)
++    {
++      clip_tex_region =
++        meta_region_scale_double (priv->clip_region,
++                                  1.0 / tex_scale,
++                                  META_ROUNDING_STRATEGY_GROW);
++    }
++  else
++    {
++      clip_tex_region = NULL;
++    }
+ 
+   if (use_opaque_region)
+     {
+-      if (priv->clip_region != NULL)
+-        blended_region = cairo_region_copy (priv->clip_region);
++      if (clip_tex_region)
++        blended_tex_region = cairo_region_copy (clip_tex_region);
+       else
+-        blended_region = cairo_region_create_rectangle (&tex_rect);
++        blended_tex_region = cairo_region_create_rectangle (&tex_rect);
+ 
+-      cairo_region_subtract (blended_region, priv->opaque_region);
++      cairo_region_subtract (blended_tex_region, opaque_tex_region);
+     }
+   else
+     {
+-      if (priv->clip_region != NULL)
+-        blended_region = cairo_region_reference (priv->clip_region);
++      if (clip_tex_region)
++        blended_tex_region = cairo_region_reference (clip_tex_region);
+       else
+-        blended_region = NULL;
++        blended_tex_region = NULL;
+     }
+ 
+   /* Limit to how many separate rectangles we'll draw; beyond this just
+    * fall back and draw the whole thing */
+ #define MAX_RECTS 16
+ 
+-  if (blended_region != NULL)
++  if (blended_tex_region)
+     {
+-      int n_rects = cairo_region_num_rectangles (blended_region);
++      int n_rects = cairo_region_num_rectangles (blended_tex_region);
+       if (n_rects > MAX_RECTS)
+         {
+           /* Fall back to taking the fully blended path. */
+           use_opaque_region = FALSE;
+ 
+-          cairo_region_destroy (blended_region);
+-          blended_region = NULL;
++          g_clear_pointer (&blended_tex_region, cairo_region_destroy);
+         }
+     }
+ 
+@@ -544,14 +572,14 @@ meta_shaped_texture_paint (ClutterActor *actor)
+       int n_rects;
+       int i;
+ 
+-      if (priv->clip_region != NULL)
++      if (clip_tex_region)
+         {
+-          region = cairo_region_copy (priv->clip_region);
+-          cairo_region_intersect (region, priv->opaque_region);
++          region = cairo_region_copy (clip_tex_region);
++          cairo_region_intersect (region, opaque_tex_region);
+         }
+       else
+         {
+-          region = cairo_region_reference (priv->opaque_region);
++          region = cairo_region_reference (opaque_tex_region);
+         }
+ 
+       if (!cairo_region_is_empty (region))
+@@ -575,14 +603,14 @@ meta_shaped_texture_paint (ClutterActor *actor)
+   /* Now, go ahead and paint the blended parts. */
+ 
+   /* We have three cases:
+-   *   1) blended_region has rectangles - paint the rectangles.
+-   *   2) blended_region is empty - don't paint anything
+-   *   3) blended_region is NULL - paint fully-blended.
++   *   1) blended_tex_region has rectangles - paint the rectangles.
++   *   2) blended_tex_region is empty - don't paint anything
++   *   3) blended_tex_region is NULL - paint fully-blended.
+    *
+    *   1) and 3) are the times where we have to paint stuff. This tests
+    *   for 1) and 3).
+    */
+-  if (blended_region == NULL || !cairo_region_is_empty (blended_region))
++  if (!blended_tex_region || !cairo_region_is_empty (blended_tex_region))
+     {
+       CoglPipeline *blended_pipeline;
+ 
+@@ -604,16 +632,16 @@ meta_shaped_texture_paint (ClutterActor *actor)
+       cogl_color_init_from_4ub (&color, opacity, opacity, opacity, opacity);
+       cogl_pipeline_set_color (blended_pipeline, &color);
+ 
+-      if (blended_region != NULL)
++      if (blended_tex_region)
+         {
+-          /* 1) blended_region is not empty. Paint the rectangles. */
++          /* 1) blended_tex_region is not empty. Paint the rectangles. */
+           int i;
+-          int n_rects = cairo_region_num_rectangles (blended_region);
++          int n_rects = cairo_region_num_rectangles (blended_tex_region);
+ 
+           for (i = 0; i < n_rects; i++)
+             {
+               cairo_rectangle_int_t rect;
+-              cairo_region_get_rectangle (blended_region, i, &rect);
++              cairo_region_get_rectangle (blended_tex_region, i, &rect);
+ 
+               if (!gdk_rectangle_intersect (&tex_rect, &rect, &rect))
+                 continue;
+@@ -623,7 +651,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
+         }
+       else
+         {
+-          /* 3) blended_region is NULL. Do a full paint. */
++          /* 3) blended_tex_region is NULL. Do a full paint. */
+           cogl_framebuffer_draw_rectangle (fb, blended_pipeline,
+                                            0, 0,
+                                            alloc.x2 - alloc.x1,
+@@ -631,8 +659,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
+         }
+     }
+ 
+-  if (blended_region != NULL)
+-    cairo_region_destroy (blended_region);
++  g_clear_pointer (&blended_tex_region, cairo_region_destroy);
+ }
+ 
+ static void

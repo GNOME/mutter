@@ -20,7 +20,7 @@ events if there is no `logical_monitor` yet.
 
 Bug: https://gitlab.gnome.org/GNOME/mutter/issues/194
 Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=909243
-Origin: upstream, 3.31.0, commit:68ec9ac017157def9b7c25dd8141dc0e93d9f918
+Origin: upstream, 3.30.1, commit:68ec9ac017157def9b7c25dd8141dc0e93d9f918
 ---
  src/wayland/meta-wayland-outputs.c | 3 +++
  1 file changed, 3 insertions(+)

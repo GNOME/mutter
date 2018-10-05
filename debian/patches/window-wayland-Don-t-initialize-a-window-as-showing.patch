@@ -1,0 +1,61 @@
+From: =?utf-8?q?Jonas_=C3=85dahl?= <jadahl@gmail.com>
+Date: Fri, 5 Oct 2018 15:31:46 +0200
+Subject: window/wayland: Don't initialize a window as showing
+
+With Wayland, a window is not showing until it's shown. Until this
+patch, the initial state of MetaWindow, on the other hand, was that a
+window is initialized as showing. This means that for a window to
+actually be classified as shown (MetaWindow::hidden set to FALSE),
+something would first have to hide it.
+
+Normally, this wasn't an issue, as normally we'd first create a window,
+determine it shouldn't be visible (due to missing buffer), hide it
+before the next paint, then eventually show it. This doesn't work if
+mutter isn't drawing any frames at the moment (e.g. the user switched
+VT), as we'd miss the hiding before showing as e result of a buffer
+being attached. The most visible side effect is that a window can't be
+moved as the window actor remains frozen.
+
+This commit fixes this issue by correctly classifying a newly created
+Wayland window as "hidden".
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/issues/331
+(cherry picked from commit 49780245f4187a438cd311cb2faab0069bd075ba)
+---
+ src/core/window.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/src/core/window.c b/src/core/window.c
+index 2e24e4e..79f0b2e 100644
+--- a/src/core/window.c
++++ b/src/core/window.c
+@@ -1045,7 +1045,6 @@ _meta_window_shared_new (MetaDisplay         *display,
+   window->tab_unminimized = FALSE;
+   window->iconic = FALSE;
+   window->mapped = attrs->map_state != IsUnmapped;
+-  window->hidden = FALSE;
+   window->known_to_compositor = FALSE;
+   window->visible_to_compositor = FALSE;
+   window->pending_compositor_effect = effect;
+@@ -1084,10 +1083,17 @@ _meta_window_shared_new (MetaDisplay         *display,
+   window->mwm_has_move_func = TRUE;
+   window->mwm_has_resize_func = TRUE;
+ 
+-  if (client_type == META_WINDOW_CLIENT_TYPE_X11)
+-    window->decorated = TRUE;
+-  else
+-    window->decorated = FALSE;
++  switch (client_type)
++    {
++    case META_WINDOW_CLIENT_TYPE_X11:
++      window->decorated = TRUE;
++      window->hidden = FALSE;
++      break;
++    case META_WINDOW_CLIENT_TYPE_WAYLAND:
++      window->decorated = FALSE;
++      window->hidden = TRUE;
++      break;
++    }
+ 
+   window->has_close_func = TRUE;
+   window->has_minimize_func = TRUE;

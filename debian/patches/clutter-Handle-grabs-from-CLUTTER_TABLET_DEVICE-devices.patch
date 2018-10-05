@@ -1,0 +1,34 @@
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Fri, 7 Sep 2018 15:15:21 +0200
+Subject: clutter: Handle grabs from CLUTTER_TABLET_DEVICE devices
+
+Those would result in warnings. Actually, these should be dealt
+similarly to pointers, as they get their own standalone pointer
+cursor in Wayland.
+
+Related: https://gitlab.gnome.org/GNOME/gnome-shell/issues/540
+(cherry picked from commit 9cfd1853160e2de922b5248a87c7fa290c8848a9)
+---
+ clutter/clutter/clutter-main.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/clutter/clutter/clutter-main.c b/clutter/clutter/clutter-main.c
+index 46537f3..1c1d6f7 100644
+--- a/clutter/clutter/clutter-main.c
++++ b/clutter/clutter/clutter-main.c
+@@ -2757,6 +2757,7 @@ clutter_input_device_grab (ClutterInputDevice *device,
+   switch (device->device_type)
+     {
+     case CLUTTER_POINTER_DEVICE:
++    case CLUTTER_TABLET_DEVICE:
+       grab_actor = &(device->pointer_grab_actor);
+       break;
+ 
+@@ -2802,6 +2803,7 @@ clutter_input_device_ungrab (ClutterInputDevice *device)
+   switch (device->device_type)
+     {
+     case CLUTTER_POINTER_DEVICE:
++    case CLUTTER_TABLET_DEVICE:
+       grab_actor = &(device->pointer_grab_actor);
+       break;
+ 

@@ -1,0 +1,24 @@
+From: =?utf-8?q?Florian_M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Fri, 7 Sep 2018 19:37:19 +0200
+Subject: input-settings-x11: Push error trap
+
+Pops are lonely without push, so add one for a happy error trap.
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/294
+Origin: upstream, 3.30.1, commit:a3d9f987c8303550bc740cba4645c8fba161c7fb
+---
+ src/backends/x11/meta-input-settings-x11.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/backends/x11/meta-input-settings-x11.c b/src/backends/x11/meta-input-settings-x11.c
+index 14a199e..cfcdf2e 100644
+--- a/src/backends/x11/meta-input-settings-x11.c
++++ b/src/backends/x11/meta-input-settings-x11.c
+@@ -782,6 +782,7 @@ meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *setti
+     return;
+ 
+   /* Grab the puke bucket! */
++  meta_x11_error_trap_push (display->x11_display);
+   xdev = device_ensure_xdevice (device);
+   if (xdev)
+     {

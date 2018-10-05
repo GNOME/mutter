@@ -1,0 +1,166 @@
+From: Tony Novak <afn2@cornell.edu>
+Date: Mon, 17 Sep 2018 15:31:16 -0400
+Subject: input-settings: detect trackball using udev ID_INPUT_TRACKBALL
+
+Previously, trackballs were detected based on the presence of the
+substring "trackball" in the device name. This had the downside of
+missing devices, such as the Kensington Expert Mouse, which don't have
+"trackball" in their names.
+
+Rather than depending on the device name, use the ID_INPUT_TRACKBALL
+property from udev to determine whether or not to treat a device as a
+trackball.
+
+This adds a new function, `is_trackball_device`, to MetaInputEvents, and
+eliminates the `meta_input_device_is_trackball` function.
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/issues/258
+(cherry picked from commit 8685de9607f85e51bd50abf214dffedb17d019d2)
+---
+ src/backends/meta-input-settings-private.h       |  4 ++--
+ src/backends/meta-input-settings.c               | 25 +++++-------------------
+ src/backends/native/meta-input-settings-native.c |  8 +++++---
+ src/backends/x11/meta-input-settings-x11.c       |  9 +++++----
+ 4 files changed, 17 insertions(+), 29 deletions(-)
+
+diff --git a/src/backends/meta-input-settings-private.h b/src/backends/meta-input-settings-private.h
+index 893d4ec..8e037cb 100644
+--- a/src/backends/meta-input-settings-private.h
++++ b/src/backends/meta-input-settings-private.h
+@@ -115,6 +115,8 @@ struct _MetaInputSettingsClass
+                                   GDesktopStylusButtonAction  tertiary);
+   gboolean (* has_two_finger_scroll) (MetaInputSettings  *settings,
+                                       ClutterInputDevice *device);
++  gboolean (* is_trackball_device) (MetaInputSettings  *settings,
++                                    ClutterInputDevice *device);
+ };
+ 
+ GSettings *           meta_input_settings_get_tablet_settings (MetaInputSettings  *settings,
+@@ -141,6 +143,4 @@ WacomDevice * meta_input_settings_get_tablet_wacom_device (MetaInputSettings *se
+                                                            ClutterInputDevice *device);
+ #endif
+ 
+-gboolean meta_input_device_is_trackball (ClutterInputDevice *device);
+-
+ #endif /* META_INPUT_SETTINGS_PRIVATE_H */
+diff --git a/src/backends/meta-input-settings.c b/src/backends/meta-input-settings.c
+index fd3ba3d..48ebe59 100644
+--- a/src/backends/meta-input-settings.c
++++ b/src/backends/meta-input-settings.c
+@@ -709,22 +709,6 @@ update_touchpad_send_events (MetaInputSettings  *input_settings,
+     }
+ }
+ 
+-gboolean
+-meta_input_device_is_trackball (ClutterInputDevice *device)
+-{
+-  gboolean is_trackball;
+-  char *name;
+-
+-  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
+-    return FALSE;
+-
+-  name = g_ascii_strdown (clutter_input_device_get_device_name (device), -1);
+-  is_trackball = strstr (name, "trackball") != NULL;
+-  g_free (name);
+-
+-  return is_trackball;
+-}
+-
+ static void
+ update_trackball_scroll_button (MetaInputSettings  *input_settings,
+                                 ClutterInputDevice *device)
+@@ -733,11 +717,12 @@ update_trackball_scroll_button (MetaInputSettings  *input_settings,
+   MetaInputSettingsPrivate *priv;
+   guint button;
+ 
+-  if (device && !meta_input_device_is_trackball (device))
+-    return;
+-
+   priv = meta_input_settings_get_instance_private (input_settings);
+   input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
++
++  if (device && !input_settings_class->is_trackball_device (input_settings, device))
++    return;
++
+   /* This key is 'i' in the schema but it also specifies a minimum
+    * range of 0 so the cast here is safe. */
+   button = (guint) g_settings_get_int (priv->trackball_settings, "scroll-wheel-emulation-button");
+@@ -756,7 +741,7 @@ update_trackball_scroll_button (MetaInputSettings  *input_settings,
+         {
+           device = devices->data;
+ 
+-          if (meta_input_device_is_trackball (device))
++          if (input_settings_class->is_trackball_device (input_settings, device))
+             input_settings_class->set_scroll_button (input_settings, device, button);
+ 
+           devices = devices->next;
+diff --git a/src/backends/native/meta-input-settings-native.c b/src/backends/native/meta-input-settings-native.c
+index 7450725..7ff94e2 100644
+--- a/src/backends/native/meta-input-settings-native.c
++++ b/src/backends/native/meta-input-settings-native.c
+@@ -398,9 +398,10 @@ is_mouse_device (ClutterInputDevice *device)
+ }
+ 
+ static gboolean
+-is_trackball_device (ClutterInputDevice *device)
++meta_input_settings_native_is_trackball_device (MetaInputSettings  *settings,
++                                                ClutterInputDevice *device)
+ {
+-  return meta_input_device_is_trackball (device);
++  return has_udev_property (device, "ID_INPUT_TRACKBALL");
+ }
+ 
+ static void
+@@ -419,7 +420,7 @@ meta_input_settings_native_set_trackball_accel_profile (MetaInputSettings
+                                                         ClutterInputDevice         *device,
+                                                         GDesktopPointerAccelProfile profile)
+ {
+-  if (!is_trackball_device (device))
++  if (!meta_input_settings_native_is_trackball_device (settings, device))
+     return;
+ 
+   set_device_accel_profile (device, profile);
+@@ -588,6 +589,7 @@ meta_input_settings_native_class_init (MetaInputSettingsNativeClass *klass)
+   input_settings_class->set_stylus_button_map = meta_input_settings_native_set_stylus_button_map;
+ 
+   input_settings_class->has_two_finger_scroll = meta_input_settings_native_has_two_finger_scroll;
++  input_settings_class->is_trackball_device = meta_input_settings_native_is_trackball_device;
+ }
+ 
+ static void
+diff --git a/src/backends/x11/meta-input-settings-x11.c b/src/backends/x11/meta-input-settings-x11.c
+index cfcdf2e..7e1f035 100644
+--- a/src/backends/x11/meta-input-settings-x11.c
++++ b/src/backends/x11/meta-input-settings-x11.c
+@@ -500,10 +500,10 @@ is_mouse (MetaInputSettings  *settings,
+ }
+ 
+ static gboolean
+-is_trackball (MetaInputSettings  *settings,
+-              ClutterInputDevice *device)
++meta_input_settings_x11_is_trackball_device (MetaInputSettings  *settings,
++                                             ClutterInputDevice *device)
+ {
+-  return meta_input_device_is_trackball (device);
++  return has_udev_property (settings, device, "ID_INPUT_TRACKBALL");
+ }
+ 
+ static void
+@@ -566,7 +566,7 @@ meta_input_settings_x11_set_trackball_accel_profile (MetaInputSettings
+                                                      ClutterInputDevice         *device,
+                                                      GDesktopPointerAccelProfile profile)
+ {
+-  if (!is_trackball (settings, device))
++  if (!meta_input_settings_x11_is_trackball_device (settings, device))
+     return;
+ 
+   set_device_accel_profile (device, profile);
+@@ -852,6 +852,7 @@ meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
+   input_settings_class->set_stylus_button_map = meta_input_settings_x11_set_stylus_button_map;
+ 
+   input_settings_class->has_two_finger_scroll = meta_input_settings_x11_has_two_finger_scroll;
++  input_settings_class->is_trackball_device = meta_input_settings_x11_is_trackball_device;
+ }
+ 
+ static void

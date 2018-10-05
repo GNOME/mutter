@@ -19,7 +19,7 @@ Applied-upstream: no
  1 file changed, 1 deletion(-)
 
 diff --git a/clutter/tests/conform/Makefile.am b/clutter/tests/conform/Makefile.am
-index 0f4681f..28fcbb5 100644
+index 9cef08b..690b527 100644
 --- a/clutter/tests/conform/Makefile.am
 +++ b/clutter/tests/conform/Makefile.am
 @@ -26,7 +26,6 @@ actor_tests = \

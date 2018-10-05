@@ -57,7 +57,7 @@ index 141f424..43f9a3e 100644
  get_device_ids (ClutterBackendX11  *backend_x11,
                  XIDeviceInfo       *info,
 diff --git a/src/backends/x11/meta-input-settings-x11.c b/src/backends/x11/meta-input-settings-x11.c
-index 14a199e..3cbffde 100644
+index 7e1f035..55fcc52 100644
 --- a/src/backends/x11/meta-input-settings-x11.c
 +++ b/src/backends/x11/meta-input-settings-x11.c
 @@ -169,8 +169,6 @@ meta_input_settings_x11_set_send_events (MetaInputSettings        *settings,

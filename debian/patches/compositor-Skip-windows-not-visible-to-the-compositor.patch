@@ -18,7 +18,7 @@ Make sure we skip the windows not known to the compositor while picking
 the top visible window actor to avoid this issue.
 
 Bug: https://gitlab.gnome.org/GNOME/mutter/issues/306
-Origin: upstream, 3.31.0, commit:2fb3db7659caa3627a473fefabc4d6a87f688cee
+Origin: upstream, 3.30.1, commit:2fb3db7659caa3627a473fefabc4d6a87f688cee
 ---
  src/compositor/compositor.c | 4 ++++
  1 file changed, 4 insertions(+)

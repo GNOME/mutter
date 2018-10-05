@@ -5,7 +5,7 @@ Subject: actor: Also recompute paint volume if we recently dropped effects
 Otherwise we'll be stuck with the same paint volume on the last
 frame of the given effect, which could be wrong.
 
-Origin: upstream, 3.31.0, commit:a8a3c1017fd8604f4f7db272a867ae17b0214cf7
+Origin: upstream, 3.30.1, commit:a8a3c1017fd8604f4f7db272a867ae17b0214cf7
 ---
  clutter/clutter/clutter-actor.c | 15 +++++++++++++--
  1 file changed, 13 insertions(+), 2 deletions(-)

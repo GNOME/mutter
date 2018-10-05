@@ -1,0 +1,50 @@
+From: Pekka Paalanen <pekka.paalanen@collabora.co.uk>
+Date: Wed, 5 Sep 2018 11:48:08 +0300
+Subject: renderer/native: assert dumb buffer size on CPU copy
+
+Track the allocated dumb buffer size in MetaDumbBuffer. Assert that the
+size is as expected in copy_shared_framebuffer_cpu().
+
+This is just to ensure that Cogl and the real size match. The size from
+Cogl was used in the copy, so getting that wrong might have written
+beyond the allocation.
+
+This is a safety measure and has not been observed to happen yet.
+
+(cherry picked from commit 72e236106f96ae9410e2a6dc6f2f2ac6fe26d224)
+---
+ src/backends/native/meta-renderer-native.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
+index 6eaa0b4..eb7f087 100644
+--- a/src/backends/native/meta-renderer-native.c
++++ b/src/backends/native/meta-renderer-native.c
+@@ -124,6 +124,8 @@ typedef struct _MetaDumbBuffer
+   uint32_t handle;
+   void *map;
+   uint64_t map_size;
++  int width;
++  int height;
+ } MetaDumbBuffer;
+ 
+ typedef struct _MetaOnscreenNativeSecondaryGpuState
+@@ -1798,6 +1800,9 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
+     next_dumb_fb = &secondary_gpu_state->cpu.dumb_fbs[0];
+   secondary_gpu_state->cpu.dumb_fb = next_dumb_fb;
+ 
++  g_assert (width == secondary_gpu_state->cpu.dumb_fb->width);
++  g_assert (height == secondary_gpu_state->cpu.dumb_fb->height);
++
+   target_data = secondary_gpu_state->cpu.dumb_fb->map;
+   target_fb_id = secondary_gpu_state->cpu.dumb_fb->fb_id;
+ 
+@@ -2299,6 +2304,8 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
+   dumb_fb->handle = create_arg.handle;
+   dumb_fb->map = map;
+   dumb_fb->map_size = create_arg.size;
++  dumb_fb->width = width;
++  dumb_fb->height = height;
+ 
+   return TRUE;
+ 

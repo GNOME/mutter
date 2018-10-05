@@ -13,7 +13,7 @@ Wayland native windows.
 
 Related: https://gitlab.gnome.org/GNOME/mutter/issues/174
 Related: https://gitlab.gnome.org/GNOME/mutter/issues/221
-Origin: upstream, 3.31.0, commit:b443bd42ac738092817addf48e0b363d140cad26
+Origin: upstream, 3.30.1, commit:b443bd42ac738092817addf48e0b363d140cad26
 ---
  src/core/window.c | 8 ++++++++
  1 file changed, 8 insertions(+)
