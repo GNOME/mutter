@@ -313,7 +313,6 @@ meta_window_finalize (GObject *object)
   g_free (window->gtk_app_menu_object_path);
   g_free (window->gtk_menubar_object_path);
   g_free (window->placement_rule);
-  g_free (window->constrained_placement_rule);
 
   G_OBJECT_CLASS (meta_window_parent_class)->finalize (object);
 }
