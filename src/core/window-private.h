@@ -524,7 +524,9 @@ struct _MetaWindow
   guint bypass_compositor;
 
   MetaPlacementRule *placement_rule;
-  MetaPlacementRule *constrained_placement_rule;
+  gboolean placement_rule_constrained;
+  int constrained_placement_rule_offset_x;
+  int constrained_placement_rule_offset_y;
 };
 
 struct _MetaWindowClass
