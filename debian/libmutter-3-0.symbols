@@ -751,7 +751,6 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_inhibit_shortcuts_dialog_show@Base 3.28.2
  meta_init@Base 3.28.2
  meta_init_backend@Base 3.28.2
- meta_input_device_is_trackball@Base 3.28.2
  meta_input_settings_get_pad_action_label@Base 3.28.2
  meta_input_settings_get_tablet_logical_monitor@Base 3.28.2
  meta_input_settings_get_tablet_mapping@Base 3.28.2
@@ -1119,6 +1118,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_region_iterator_init@Base 3.28.2
  meta_region_iterator_next@Base 3.28.2
  meta_region_scale@Base 3.28.2
+ meta_region_scale_double@Base 3.30.0-6~
  meta_register_with_session@Base 3.28.2
  meta_remote_access_controller_get_type@Base 3.29.90
  meta_remote_access_controller_notify_new_handle@Base 3.29.90

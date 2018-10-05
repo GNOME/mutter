@@ -4,6 +4,9 @@ mutter (3.30.0-6) UNRELEASED; urgency=medium
     According to upstream, all of this should be in 3.30.1.
     - In particular this fixes a crash when combining a touchscreen
       and graphics tablet (Closes: #910370)
+  * d/libmutter-3-0.symbols:
+    - Ignore removal of private function meta_input_device_is_trackball()
+    - Add meta_region_scale_double()
 
  -- Simon McVittie <smcv@debian.org>  Fri, 05 Oct 2018 19:02:40 +0100
 
