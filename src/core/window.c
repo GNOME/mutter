@@ -1045,7 +1045,10 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->tab_unminimized = FALSE;
   window->iconic = FALSE;
   window->mapped = attrs->map_state != IsUnmapped;
-  window->hidden = FALSE;
+  if (client_type == META_WINDOW_CLIENT_TYPE_X11)
+    window->hidden = FALSE;
+  else if (client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
+    window->hidden = TRUE;
   window->known_to_compositor = FALSE;
   window->visible_to_compositor = FALSE;
   window->pending_compositor_effect = effect;
