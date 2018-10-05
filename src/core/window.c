@@ -1045,7 +1045,6 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->tab_unminimized = FALSE;
   window->iconic = FALSE;
   window->mapped = attrs->map_state != IsUnmapped;
-  window->hidden = FALSE;
   window->known_to_compositor = FALSE;
   window->visible_to_compositor = FALSE;
   window->pending_compositor_effect = effect;
@@ -1084,10 +1083,17 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->mwm_has_move_func = TRUE;
   window->mwm_has_resize_func = TRUE;
 
-  if (client_type == META_WINDOW_CLIENT_TYPE_X11)
-    window->decorated = TRUE;
-  else
-    window->decorated = FALSE;
+  switch (client_type)
+    {
+    case META_WINDOW_CLIENT_TYPE_X11:
+      window->decorated = TRUE;
+      window->hidden = FALSE;
+      break;
+    case META_WINDOW_CLIENT_TYPE_WAYLAND:
+      window->decorated = FALSE;
+      window->hidden = TRUE;
+      break;
+    }
 
   window->has_close_func = TRUE;
   window->has_minimize_func = TRUE;
