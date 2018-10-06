@@ -112,6 +112,7 @@ static gboolean edge_tiling = FALSE;
 static gboolean force_fullscreen = TRUE;
 static gboolean auto_maximize = TRUE;
 static gboolean show_fallback_app_menu = FALSE;
+static gboolean middle_emulation = FALSE;
 
 static GDesktopVisualBellType visual_bell_type = G_DESKTOP_VISUAL_BELL_FULLSCREEN_FLASH;
 static MetaButtonLayout button_layout;
@@ -381,6 +382,13 @@ static MetaBoolPreference preferences_bool[] =
         META_PREF_AUTO_MAXIMIZE,
       },
       &auto_maximize,
+    },
+    {
+      { "middle-emulation",
+        SCHEMA_MOUSE,
+        META_PREF_MIDDLE_EMULATION,
+      },
+      &middle_emulation,
     },
     { { NULL, 0, 0 }, NULL },
   };
@@ -1642,6 +1650,9 @@ meta_preference_to_string (MetaPreference pref)
 
     case META_PREF_AUTO_MAXIMIZE:
       return "AUTO_MAXIMIZE";
+
+    case META_PREF_MIDDLE_EMULATION:
+      return "MIDDLE_EMULATION";
     }
 
   return "(unknown)";
@@ -2032,6 +2043,12 @@ gboolean
 meta_prefs_get_auto_maximize (void)
 {
   return auto_maximize;
+}
+
+gboolean
+meta_prefs_get_middle_emulation (void)
+{
+  return middle_emulation;
 }
 
 MetaKeyBindingAction
