@@ -115,6 +115,7 @@ static gboolean edge_tiling = FALSE;
 static gboolean force_fullscreen = TRUE;
 static gboolean auto_maximize = TRUE;
 static gboolean show_fallback_app_menu = TRUE;
+static gboolean middle_click_emulation = FALSE;
 
 static GDesktopVisualBellType visual_bell_type = G_DESKTOP_VISUAL_BELL_FULLSCREEN_FLASH;
 static MetaButtonLayout button_layout;
@@ -393,6 +394,13 @@ static MetaBoolPreference preferences_bool[] =
         META_PREF_LOCATE_POINTER,
       },
       &locate_pointer_is_enabled,
+    },
+    {
+      { "middle-click-emulation",
+        SCHEMA_MOUSE,
+        META_PREF_MIDDLE_CLICK_EMULATION,
+      },
+      &middle_click_emulation,
     },
     { { NULL, 0, 0 }, NULL },
   };
@@ -1695,6 +1703,9 @@ meta_preference_to_string (MetaPreference pref)
 
     case META_PREF_LOCATE_POINTER:
       return "LOCATE_POINTER";
+
+    case META_PREF_MIDDLE_CLICK_EMULATION:
+      return "MIDDLE_CLICK_EMULATION";
     }
 
   return "(unknown)";
@@ -2105,6 +2116,12 @@ gboolean
 meta_prefs_get_auto_maximize (void)
 {
   return auto_maximize;
+}
+
+gboolean
+meta_prefs_get_middle_click_emulation (void)
+{
+  return middle_click_emulation;
 }
 
 MetaKeyBindingAction
