@@ -808,6 +808,17 @@ meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *setti
 }
 
 static void
+meta_input_settings_x11_set_middle_emulation (MetaInputSettings  *settings,
+                                              ClutterInputDevice *device,
+                                              gboolean            enabled)
+{
+  guchar value = enabled ? 1 : 0;
+
+  change_property (device, "libinput Middle Emulation Enabled",
+                   XA_INTEGER, 8, &value, 1);
+}
+
+static void
 meta_input_settings_x11_set_stylus_pressure (MetaInputSettings      *settings,
                                              ClutterInputDevice     *device,
                                              ClutterInputDeviceTool *tool,
@@ -851,6 +862,7 @@ meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
   input_settings_class->set_stylus_pressure = meta_input_settings_x11_set_stylus_pressure;
   input_settings_class->set_stylus_button_map = meta_input_settings_x11_set_stylus_button_map;
 
+  input_settings_class->set_middle_emulation = meta_input_settings_x11_set_middle_emulation;
   input_settings_class->has_two_finger_scroll = meta_input_settings_x11_has_two_finger_scroll;
   input_settings_class->is_trackball_device = meta_input_settings_x11_is_trackball_device;
 }

@@ -113,6 +113,9 @@ struct _MetaInputSettingsClass
                                   GDesktopStylusButtonAction  primary,
                                   GDesktopStylusButtonAction  secondary,
                                   GDesktopStylusButtonAction  tertiary);
+  void (* set_middle_emulation) (MetaInputSettings  *settings,
+                                 ClutterInputDevice *device,
+                                 gboolean            enabled);
   gboolean (* has_two_finger_scroll) (MetaInputSettings  *settings,
                                       ClutterInputDevice *device);
   gboolean (* is_trackball_device) (MetaInputSettings  *settings,

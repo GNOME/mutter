@@ -65,6 +65,7 @@
  * @META_PREF_AUTO_MAXIMIZE: auto-maximize
  * @META_PREF_CENTER_NEW_WINDOWS: center new windows
  * @META_PREF_DRAG_THRESHOLD: drag threshold
+ * @META_PREF_MIDDLE_EMULATION: middle emulation
  */
 
 /* Keep in sync with GSettings schemas! */
@@ -103,6 +104,7 @@ typedef enum
   META_PREF_AUTO_MAXIMIZE,
   META_PREF_CENTER_NEW_WINDOWS,
   META_PREF_DRAG_THRESHOLD,
+  META_PREF_MIDDLE_EMULATION,
 } MetaPreference;
 
 typedef void (* MetaPrefsChangedFunc) (MetaPreference pref,
@@ -136,6 +138,7 @@ gboolean                    meta_prefs_get_gnome_accessibility (void);
 gboolean                    meta_prefs_get_gnome_animations   (void);
 gboolean                    meta_prefs_get_edge_tiling        (void);
 gboolean                    meta_prefs_get_auto_maximize      (void);
+gboolean                    meta_prefs_get_middle_emulation   (void);
 gboolean                    meta_prefs_get_center_new_windows (void);
 
 gboolean                    meta_prefs_get_show_fallback_app_menu (void);
