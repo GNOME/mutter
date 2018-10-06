@@ -34,6 +34,7 @@
 #include "meta-wayland-tablet-pad-group.h"
 #include "meta-wayland-tablet-pad-ring.h"
 #include "meta-wayland-tablet-pad-strip.h"
+#include "meta/meta-backend.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include <clutter/evdev/clutter-evdev.h>
@@ -123,9 +124,9 @@ gboolean
 meta_wayland_tablet_pad_group_has_button (MetaWaylandTabletPadGroup *group,
                                           guint                      button)
 {
+#ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_get_backend ();
 
-#ifdef HAVE_NATIVE_BACKEND
   if (META_IS_BACKEND_NATIVE (backend))
     {
       struct libinput_device *libinput_device;

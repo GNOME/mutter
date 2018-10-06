@@ -36,8 +36,10 @@
 #include "meta-wayland-tablet.h"
 #include "meta-wayland-tablet-seat.h"
 #include "meta-wayland-tablet-tool.h"
+#include "backends/meta-backend-private.h"
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "meta/meta-backend.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"

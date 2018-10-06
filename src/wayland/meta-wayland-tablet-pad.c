@@ -40,6 +40,8 @@
 #include "meta-wayland-tablet-pad-group.h"
 #include "meta-wayland-tablet-pad-ring.h"
 #include "meta-wayland-tablet-pad-strip.h"
+#include "backends/meta-backend-private.h"
+#include "meta/meta-backend.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include <clutter/evdev/clutter-evdev.h>
@@ -133,7 +135,9 @@ MetaWaylandTabletPad *
 meta_wayland_tablet_pad_new (ClutterInputDevice    *device,
                              MetaWaylandTabletSeat *tablet_seat)
 {
+#ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_get_backend ();
+#endif
   MetaWaylandTabletPad *pad;
   guint n_elems, i;
 
