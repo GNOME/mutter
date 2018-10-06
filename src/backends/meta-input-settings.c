@@ -422,6 +422,42 @@ get_settings_for_device_type (MetaInputSettings      *input_settings,
 }
 
 static void
+update_middle_emulation (MetaInputSettings  *input_settings,
+                         GSettings          *settings,
+                         ClutterInputDevice *device)
+{
+  GSettings *settings;
+  ConfigBoolFunc func;
+  const gchar *key = "emulate-middle";
+
+  if (settings == priv->mouse_settings)
+    func = META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_mouse_middle_emulation;
+  else if (settings == priv->touchpad_settings)
+    func = META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_touchpad_middle_emulation;
+  else if (settings == priv->trackball_settings)
+    func = META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_trackpad_middle_emulation;
+  else
+    return;
+
+  if (device)
+    {
+      settings = get_settings_for_device_type (input_settings,
+                                               clutter_input_device_get_device_type (device));
+      if (!settings)
+        return;
+
+      settings_device_set_bool_setting (input_settings, device, func,
+                                        g_settings_get_boolean (settings, key));
+    }
+  else
+    {
+      settings = get_settings_for_device_type (input_settings, CLUTTER_POINTER_DEVICE);
+      settings_set_bool_setting (input_settings, CLUTTER_POINTER_DEVICE, func,
+                                 g_settings_get_boolean (settings, key));
+    }
+}
+
+static void
 update_device_speed (MetaInputSettings      *input_settings,
                      ClutterInputDevice     *device)
 {
@@ -1115,6 +1151,8 @@ meta_input_settings_changed_cb (GSettings  *settings,
         update_device_natural_scroll (input_settings, NULL);
       else if (strcmp (key, "accel-profile") == 0)
         update_pointer_accel_profile (input_settings, settings, NULL);
+      else if (strcmp (key, "middle-emulation") == 0)
+        update_middle_emulation (input_settings, settings, NULL);
     }
   else if (settings == priv->touchpad_settings)
     {
@@ -1138,6 +1176,8 @@ meta_input_settings_changed_cb (GSettings  *settings,
         update_touchpad_two_finger_scroll (input_settings, NULL);
       else if (strcmp (key, "click-method") == 0)
         update_touchpad_click_method (input_settings, NULL);
+      else if (strcmp (key, "middle-emulation") == 0)
+        update_middle_emulation (input_settings, settings, NULL);
     }
   else if (settings == priv->trackball_settings)
     {
@@ -1145,6 +1185,8 @@ meta_input_settings_changed_cb (GSettings  *settings,
         update_trackball_scroll_button (input_settings, NULL);
       else if (strcmp (key, "accel-profile") == 0)
         update_pointer_accel_profile (input_settings, settings, NULL);
+      else if (strcmp (key, "middle-emulation") == 0)
+        update_middle_emulation (input_settings, settings, NULL);
     }
   else if (settings == priv->keyboard_settings)
     {
@@ -1655,6 +1697,10 @@ apply_device_settings (MetaInputSettings  *input_settings,
                                 device);
   load_keyboard_a11y_settings (input_settings, device);
   load_pointer_a11y_settings (input_settings, device);
+
+  update_middle_emulation (input_settings, priv->mouse_settings, device);
+  update_middle_emulation (input_settings, priv->touchpad_settings, device);
+  update_middle_emulation (input_settings, priv->trackball_settings, device);
 }
 
 static void
