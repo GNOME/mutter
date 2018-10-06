@@ -66,6 +66,7 @@
  * @META_PREF_CENTER_NEW_WINDOWS: center new windows
  * @META_PREF_DRAG_THRESHOLD: drag threshold
  * @META_PREF_LOCATE_POINTER: show pointer location
+ * @META_PREF_MIDDLE_CLICK_EMULATION: middle click emulation
  */
 
 /* Keep in sync with GSettings schemas! */
@@ -105,6 +106,7 @@ typedef enum
   META_PREF_CENTER_NEW_WINDOWS,
   META_PREF_DRAG_THRESHOLD,
   META_PREF_LOCATE_POINTER,
+  META_PREF_MIDDLE_CLICK_EMULATION,
 } MetaPreference;
 
 typedef void (* MetaPrefsChangedFunc) (MetaPreference pref,
@@ -178,6 +180,9 @@ gboolean                    meta_prefs_get_edge_tiling        (void);
 
 META_EXPORT
 gboolean                    meta_prefs_get_auto_maximize      (void);
+
+META_EXPORT
+gboolean                    meta_prefs_get_middle_click_emulation (void);
 
 META_EXPORT
 gboolean                    meta_prefs_get_center_new_windows (void);
