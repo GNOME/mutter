@@ -27,6 +27,10 @@
 #include <clutter/clutter.h>
 #include <X11/Xlib.h>
 
+#ifdef HAVE_WAYLAND
+#include <wayland-server.h>
+#endif
+
 G_BEGIN_DECLS
 
 #define META_TYPE_SHAPED_TEXTURE            (meta_shaped_texture_get_type())
