@@ -1,4 +1,6 @@
-mutter (3.30.0-6) UNRELEASED; urgency=medium
+mutter (3.30.0-6) unstable; urgency=medium
+
+  * Team upload
 
   [ Simon McVittie ]
   * Update to upstream git master branch at commit 3.30.0-28-g95649fd2b.
@@ -14,7 +16,7 @@ mutter (3.30.0-6) UNRELEASED; urgency=medium
     - Go back to skipping the actor-shader-effect-test since it's flaky
     (LP: #1795556)
 
- -- Simon McVittie <smcv@debian.org>  Mon, 08 Oct 2018 07:11:03 +0100
+ -- Simon McVittie <smcv@debian.org>  Mon, 08 Oct 2018 07:53:09 +0100
 
 mutter (3.30.0-5) unstable; urgency=medium
 
