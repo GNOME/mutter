@@ -26,6 +26,12 @@
 #include <cairo.h>
 #include <glib.h>
 
+typedef enum _MetaRoundingStrategy
+{
+  META_ROUNDING_STRATEGY_SHRINK,
+  META_ROUNDING_STRATEGY_GROW,
+} MetaRoundingStrategy;
+
 /**
  * MetaRegionIterator:
  * @region: region being iterated
@@ -92,11 +98,16 @@ void     meta_region_iterator_init      (MetaRegionIterator *iter,
 gboolean meta_region_iterator_at_end    (MetaRegionIterator *iter);
 void     meta_region_iterator_next      (MetaRegionIterator *iter);
 
-cairo_region_t *meta_region_scale (cairo_region_t *region, int scale);
+cairo_region_t * meta_region_scale (cairo_region_t *region,
+                                    int             scale);
 
-cairo_region_t *meta_make_border_region (cairo_region_t *region,
-                                         int             x_amount,
-                                         int             y_amount,
-                                         gboolean        flip);
+cairo_region_t * meta_region_scale_double (cairo_region_t       *region,
+                                           double                scale,
+                                           MetaRoundingStrategy  rounding_strategy);
+
+cairo_region_t * meta_make_border_region (cairo_region_t *region,
+                                          int             x_amount,
+                                          int             y_amount,
+                                          gboolean        flip);
 
 #endif /* __META_REGION_UTILS_H__ */

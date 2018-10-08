@@ -173,6 +173,51 @@ meta_region_iterator_next (MetaRegionIterator *iter)
 }
 
 cairo_region_t *
+meta_region_scale_double (cairo_region_t       *region,
+                          double                scale,
+                          MetaRoundingStrategy  rounding_strategy)
+{
+  int n_rects, i;
+  cairo_rectangle_int_t *rects;
+  cairo_region_t *scaled_region;
+
+  g_return_val_if_fail (scale > 0.0, NULL);
+
+  if (scale == 1.0)
+    return cairo_region_copy (region);
+
+  n_rects = cairo_region_num_rectangles (region);
+
+  rects = g_malloc (sizeof(cairo_rectangle_int_t) * n_rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      cairo_region_get_rectangle (region, i, &rects[i]);
+
+      switch (rounding_strategy)
+        {
+        case META_ROUNDING_STRATEGY_SHRINK:
+          rects[i].x = (int) ceil (rects[i].x * scale);
+          rects[i].y = (int) ceil (rects[i].y * scale);
+          rects[i].width = (int) floor (rects[i].width * scale);
+          rects[i].height = (int) floor (rects[i].height * scale);
+          break;
+        case META_ROUNDING_STRATEGY_GROW:
+          rects[i].x = (int) floor (rects[i].x * scale);
+          rects[i].y = (int) floor (rects[i].y * scale);
+          rects[i].width = (int) ceil (rects[i].width * scale);
+          rects[i].height = (int) ceil (rects[i].height * scale);
+          break;
+        }
+    }
+
+  scaled_region = cairo_region_create_rectangles (rects, n_rects);
+
+  g_free (rects);
+
+  return scaled_region;
+}
+
+cairo_region_t *
 meta_region_scale (cairo_region_t *region, int scale)
 {
   int n_rects, i;

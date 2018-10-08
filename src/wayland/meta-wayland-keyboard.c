@@ -642,7 +642,7 @@ default_grab_key (MetaWaylandKeyboardGrab *grab,
 {
   MetaWaylandKeyboard *keyboard = grab->keyboard;
   gboolean is_press = event->type == CLUTTER_KEY_PRESS;
-  guint32 code;
+  guint32 code = 0;
 #ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_get_backend ();
 #endif
@@ -655,7 +655,7 @@ default_grab_key (MetaWaylandKeyboardGrab *grab,
 #ifdef HAVE_NATIVE_BACKEND
   if (META_IS_BACKEND_NATIVE (backend))
     code = clutter_evdev_event_get_event_code (event);
-  else
+  if (code == 0)
 #endif
     code = evdev_code (&event->key);
 

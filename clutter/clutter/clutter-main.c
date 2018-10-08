@@ -2757,6 +2757,7 @@ clutter_input_device_grab (ClutterInputDevice *device,
   switch (device->device_type)
     {
     case CLUTTER_POINTER_DEVICE:
+    case CLUTTER_TABLET_DEVICE:
       grab_actor = &(device->pointer_grab_actor);
       break;
 
@@ -2802,6 +2803,7 @@ clutter_input_device_ungrab (ClutterInputDevice *device)
   switch (device->device_type)
     {
     case CLUTTER_POINTER_DEVICE:
+    case CLUTTER_TABLET_DEVICE:
       grab_actor = &(device->pointer_grab_actor);
       break;
 

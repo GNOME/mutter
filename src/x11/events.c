@@ -1374,6 +1374,12 @@ handle_other_xevent (MetaX11Display *x11_display,
           window = meta_window_x11_new (display, event->xmap.window,
                                         FALSE, META_COMP_EFFECT_CREATE);
         }
+      else if (window && window->restore_focus_on_map)
+        {
+          meta_window_focus (window,
+                             meta_display_get_current_time_roundtrip (display));
+        }
+
       break;
     case MapRequest:
       if (window == NULL)

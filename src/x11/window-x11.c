@@ -1577,6 +1577,19 @@ meta_window_x11_is_stackable (MetaWindow *window)
   return !window->override_redirect;
 }
 
+static gboolean
+meta_window_x11_are_updates_frozen (MetaWindow *window)
+{
+  if (window->extended_sync_request_counter &&
+      window->sync_request_serial % 2 == 1)
+    return TRUE;
+
+  if (window->sync_request_serial < window->sync_request_wait_serial)
+    return TRUE;
+
+  return FALSE;
+}
+
 static void
 meta_window_x11_class_init (MetaWindowX11Class *klass)
 {
@@ -1601,6 +1614,7 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->force_restore_shortcuts = meta_window_x11_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_x11_shortcuts_inhibited;
   window_class->is_stackable = meta_window_x11_is_stackable;
+  window_class->are_updates_frozen = meta_window_x11_are_updates_frozen;
 }
 
 void

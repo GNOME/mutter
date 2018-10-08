@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017 Red Hat
+ * Copyright (c) 2018 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,6 +41,7 @@ void meta_renderer_native_gles3_read_pixels (MetaEgl   *egl,
                                              MetaGles3 *gles3,
                                              int        width,
                                              int        height,
-                                             uint8_t   *target_data);
+                                             uint8_t   *target_data,
+                                             int        target_stride_bytes);
 
 #endif /* META_RENDERER_NATIVE_GLES3_H */

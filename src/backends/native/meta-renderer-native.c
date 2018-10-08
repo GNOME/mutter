@@ -3,6 +3,7 @@
 /*
  * Copyright (C) 2011 Intel Corporation.
  * Copyright (C) 2016 Red Hat
+ * Copyright (c) 2018 DisplayLink (UK) Ltd.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -123,6 +124,9 @@ typedef struct _MetaDumbBuffer
   uint32_t handle;
   void *map;
   uint64_t map_size;
+  int width;
+  int height;
+  int stride_bytes;
 } MetaDumbBuffer;
 
 typedef struct _MetaOnscreenNativeSecondaryGpuState
@@ -1783,6 +1787,7 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
   int width, height;
   uint8_t *target_data;
+  int target_stride_bytes;
   uint32_t target_fb_id;
   MetaDumbBuffer *next_dumb_fb;
   MetaDumbBuffer *current_dumb_fb;
@@ -1797,13 +1802,18 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
     next_dumb_fb = &secondary_gpu_state->cpu.dumb_fbs[0];
   secondary_gpu_state->cpu.dumb_fb = next_dumb_fb;
 
+  g_assert (width == secondary_gpu_state->cpu.dumb_fb->width);
+  g_assert (height == secondary_gpu_state->cpu.dumb_fb->height);
+
   target_data = secondary_gpu_state->cpu.dumb_fb->map;
+  target_stride_bytes = secondary_gpu_state->cpu.dumb_fb->stride_bytes;
   target_fb_id = secondary_gpu_state->cpu.dumb_fb->fb_id;
 
   meta_renderer_native_gles3_read_pixels (egl,
                                           renderer_native->gles3,
                                           width, height,
-                                          target_data);
+                                          target_data,
+                                          target_stride_bytes);
 
   secondary_gpu_state->gbm.next_fb_id = target_fb_id;
 }
@@ -2246,6 +2256,15 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
 
   if (fb_id == 0)
     {
+      if (format != DRM_FORMAT_XRGB8888)
+        {
+          g_set_error (error, G_IO_ERROR,
+                       G_IO_ERROR_FAILED,
+                       "drmModeAddFB does not support format 0x%x",
+                       format);
+          goto err_add_fb;
+        }
+
       if (drmModeAddFB (kms_fd, width, height,
                         24 /* depth of RGBX8888 */,
                         32 /* bpp of RGBX8888 */,
@@ -2289,6 +2308,9 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
   dumb_fb->handle = create_arg.handle;
   dumb_fb->map = map;
   dumb_fb->map_size = create_arg.size;
+  dumb_fb->width = width;
+  dumb_fb->height = height;
+  dumb_fb->stride_bytes = create_arg.pitch;
 
   return TRUE;
 

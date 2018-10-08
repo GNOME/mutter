@@ -690,6 +690,7 @@ struct _MetaWaylandDragGrab {
   struct wl_client       *drag_client;
 
   MetaWaylandSurface     *drag_focus;
+  gulong                  drag_focus_destroy_handler_id;
   struct wl_resource     *drag_focus_data_device;
   struct wl_listener      drag_focus_listener;
 
@@ -715,6 +716,17 @@ destroy_drag_focus (struct wl_listener *listener, void *data)
   MetaWaylandDragGrab *grab = wl_container_of (listener, grab, drag_focus_listener);
 
   grab->drag_focus_data_device = NULL;
+
+  g_signal_handler_disconnect (grab->drag_focus,
+                               grab->drag_focus_destroy_handler_id);
+  grab->drag_focus = NULL;
+}
+
+static void
+on_drag_focus_destroyed (MetaWaylandSurface  *surface,
+                         MetaWaylandDragGrab *grab)
+{
+  meta_wayland_surface_drag_dest_focus_out (grab->drag_focus);
   grab->drag_focus = NULL;
 }
 
@@ -777,6 +789,8 @@ meta_wayland_drag_grab_set_focus (MetaWaylandDragGrab *drag_grab,
   if (drag_grab->drag_focus)
     {
       meta_wayland_surface_drag_dest_focus_out (drag_grab->drag_focus);
+      g_signal_handler_disconnect (drag_grab->drag_focus,
+                                   drag_grab->drag_focus_destroy_handler_id);
       drag_grab->drag_focus = NULL;
     }
 
@@ -804,6 +818,10 @@ meta_wayland_drag_grab_set_focus (MetaWaylandDragGrab *drag_grab,
     offer = meta_wayland_data_source_send_offer (source, data_device_resource);
 
   drag_grab->drag_focus = surface;
+  drag_grab->drag_focus_destroy_handler_id =
+    g_signal_connect (surface, "destroy",
+                      G_CALLBACK (on_drag_focus_destroyed),
+                      drag_grab);
   drag_grab->drag_focus_data_device = data_device_resource;
 
   meta_wayland_surface_drag_dest_focus_in (drag_grab->drag_focus,

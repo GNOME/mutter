@@ -415,6 +415,9 @@ struct _MetaWindow
   /* whether or not the window is from a program running on another machine */
   guint is_remote : 1;
 
+  /* whether focus should be restored on map */
+  guint restore_focus_on_map : 1;
+
   /* if non-NULL, the bounds of the window frame */
   cairo_region_t *frame_bounds;
 
@@ -521,7 +524,9 @@ struct _MetaWindow
   guint bypass_compositor;
 
   MetaPlacementRule *placement_rule;
-  MetaPlacementRule *constrained_placement_rule;
+  gboolean placement_rule_constrained;
+  int constrained_placement_rule_offset_x;
+  int constrained_placement_rule_offset_y;
 };
 
 struct _MetaWindowClass
@@ -565,6 +570,7 @@ struct _MetaWindowClass
   gboolean (*shortcuts_inhibited) (MetaWindow         *window,
                                    ClutterInputDevice *source);
   gboolean (*is_stackable)        (MetaWindow *window);
+  gboolean (*are_updates_frozen)  (MetaWindow *window);
 };
 
 /* These differ from window->has_foo_func in that they consider
