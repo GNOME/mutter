@@ -1,3 +1,21 @@
+3.30.1
+======
+* Improve trackball detection [Tony; #258]
+* Fix clipping of scaled surfaces [Jonas; #300]
+* Improve tracking of monitor switch configuration [Daniel; !213]
+* Fix parent-relative positioning of constrained windows [Jonas; #332]
+* Add clutter_input_method_forward_key() method [Carlos; gnome-shell#531]
+* Various crash fixes [Olivier, Jonas; #194, #336]
+* Misc. bug fixes [Carlos, Florian, Olivier, Jonas; gnome-shell#540, #294,
+  #221, !229, #30, #331]
+
+Contributors:
+  Jonas Ådahl, Daniel Drake, Olivier Fourdan, Carlos Garnacho, Peter Hutterer,
+  Ting-Wei Lan, Florian Müllner, Tony Novak, Pekka Paalanen, Sam Spilsbury
+
+Translators:
+  Yuras Shumovich [be], Марко Костић [sr], Marek Cernocky [cs]
+
 3.30.0
 ======
 
