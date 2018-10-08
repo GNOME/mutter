@@ -1,10 +1,10 @@
 mutter (3.30.0-6) UNRELEASED; urgency=medium
 
   [ Simon McVittie ]
-  * Update to upstream git master branch at commit 3.30.0-27-g49780245f.
+  * Update to upstream git master branch at commit 3.30.0-28-g95649fd2b.
     According to upstream, all of this should be in 3.30.1.
     - In particular this fixes a crash when combining a touchscreen
-      and graphics tablet (Closes: #910370)
+      and graphics tablet (Closes: #910370, #908153, LP: #1788483)
   * d/libmutter-3-0.symbols:
     - Ignore removal of private function meta_input_device_is_trackball()
     - Add meta_region_scale_double()

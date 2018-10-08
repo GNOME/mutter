@@ -25,6 +25,7 @@ region-utils-Some-whitespace-fixes.patch
 region-utils-Add-API-to-scale-an-integer-region-with-a-do.patch
 shaped-texture-Transform-clip-and-opaque-region-to-textur.patch
 window-wayland-Don-t-initialize-a-window-as-showing.patch
+wayland-data-device-Focus-out-when-focus-surface-destroye.patch
 theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 clutter-Smooth-out-master-clock-to-smooth-visuals.patch
