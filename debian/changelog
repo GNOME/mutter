@@ -1,5 +1,6 @@
 mutter (3.30.0-6) UNRELEASED; urgency=medium
 
+  [ Simon McVittie ]
   * Update to upstream git master branch at commit 3.30.0-27-g49780245f.
     According to upstream, all of this should be in 3.30.1.
     - In particular this fixes a crash when combining a touchscreen
@@ -8,7 +9,12 @@ mutter (3.30.0-6) UNRELEASED; urgency=medium
     - Ignore removal of private function meta_input_device_is_trackball()
     - Add meta_region_scale_double()
 
- -- Simon McVittie <smcv@debian.org>  Fri, 05 Oct 2018 19:02:40 +0100
+  [ Jeremy Bicha ]
+  * Modify debian/skip-failing-tests.patch:
+    - Go back to skipping the actor-shader-effect-test since it's flaky
+    (LP: #1795556)
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 08 Oct 2018 07:11:03 +0100
 
 mutter (3.30.0-5) unstable; urgency=medium
 
