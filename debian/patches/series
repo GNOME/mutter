@@ -1,9 +1,3 @@
-window-unmanage-dialog-when-clearing-transient_for.patch
-actor-Fix-logic-error-in-determining-terminal-effect-for-.patch
-actor-Always-use-get_paint_volume-override-for-active-eff.patch
-actor-Also-recompute-paint-volume-if-we-recently-dropped-.patch
-compositor-Skip-windows-not-visible-to-the-compositor.patch
-wayland-No-xdg-output-events-without-a-logical-monitor.patch
 theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 clutter-Smooth-out-master-clock-to-smooth-visuals.patch
