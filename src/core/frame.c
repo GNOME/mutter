@@ -109,6 +109,12 @@ meta_window_ensure_frame (MetaWindow *window)
   /* FIXME handle this error */
   meta_x11_error_trap_pop (x11_display);
 
+  /* Ensure focus is restored after the unmap/map events triggered
+   * by XReparentWindow().
+   */
+  if (meta_window_has_focus (window))
+    window->restore_focus_on_map = TRUE;
+
   /* stick frame to the window */
   window->frame = frame;
 
@@ -200,6 +206,12 @@ meta_window_destroy_frame (MetaWindow *window)
   meta_x11_error_trap_pop (x11_display);
 
   meta_ui_frame_unmanage (frame->ui_frame);
+
+  /* Ensure focus is restored after the unmap/map events triggered
+   * by XReparentWindow().
+   */
+  if (meta_window_has_focus (window))
+    window->restore_focus_on_map = TRUE;
 
   meta_x11_display_unregister_x_window (x11_display, frame->xwindow);
 

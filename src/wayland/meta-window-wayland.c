@@ -57,6 +57,8 @@ struct _MetaWindowWayland
   int last_sent_y;
   int last_sent_width;
   int last_sent_height;
+
+  gboolean has_been_shown;
 };
 
 struct _MetaWindowWaylandClass
@@ -539,6 +541,19 @@ appears_focused_changed (GObject    *object,
 }
 
 static void
+on_window_shown (MetaWindow *window)
+{
+  MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  gboolean has_been_shown;
+
+  has_been_shown = wl_window->has_been_shown;
+  wl_window->has_been_shown = TRUE;
+
+  if (!has_been_shown)
+    meta_compositor_sync_updates_frozen (window->display->compositor, window);
+}
+
+static void
 meta_window_wayland_init (MetaWindowWayland *wl_window)
 {
   MetaWindow *window = META_WINDOW (wl_window);
@@ -547,6 +562,8 @@ meta_window_wayland_init (MetaWindowWayland *wl_window)
 
   g_signal_connect (window, "notify::appears-focused",
                     G_CALLBACK (appears_focused_changed), NULL);
+  g_signal_connect (window, "shown",
+                    G_CALLBACK (on_window_shown), NULL);
 }
 
 static void
@@ -573,6 +590,14 @@ meta_window_wayland_is_stackable (MetaWindow *window)
   return meta_wayland_surface_get_buffer (window->surface) != NULL;
 }
 
+static gboolean
+meta_window_wayland_are_updates_frozen (MetaWindow *window)
+{
+  MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+
+  return !wl_window->has_been_shown;
+}
+
 static void
 meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
 {
@@ -593,6 +618,7 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->force_restore_shortcuts = meta_window_wayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_wayland_shortcuts_inhibited;
   window_class->is_stackable = meta_window_wayland_is_stackable;
+  window_class->are_updates_frozen = meta_window_wayland_are_updates_frozen;
 }
 
 MetaWindow *

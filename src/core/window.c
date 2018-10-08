@@ -313,7 +313,6 @@ meta_window_finalize (GObject *object)
   g_free (window->gtk_app_menu_object_path);
   g_free (window->gtk_menubar_object_path);
   g_free (window->placement_rule);
-  g_free (window->constrained_placement_rule);
 
   G_OBJECT_CLASS (meta_window_parent_class)->finalize (object);
 }
@@ -1045,7 +1044,6 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->tab_unminimized = FALSE;
   window->iconic = FALSE;
   window->mapped = attrs->map_state != IsUnmapped;
-  window->hidden = FALSE;
   window->known_to_compositor = FALSE;
   window->visible_to_compositor = FALSE;
   window->pending_compositor_effect = effect;
@@ -1084,10 +1082,17 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->mwm_has_move_func = TRUE;
   window->mwm_has_resize_func = TRUE;
 
-  if (client_type == META_WINDOW_CLIENT_TYPE_X11)
-    window->decorated = TRUE;
-  else
-    window->decorated = FALSE;
+  switch (client_type)
+    {
+    case META_WINDOW_CLIENT_TYPE_X11:
+      window->decorated = TRUE;
+      window->hidden = FALSE;
+      break;
+    case META_WINDOW_CLIENT_TYPE_WAYLAND:
+      window->decorated = FALSE;
+      window->hidden = TRUE;
+      break;
+    }
 
   window->has_close_func = TRUE;
   window->has_minimize_func = TRUE;
@@ -3743,14 +3748,7 @@ meta_window_activate_with_workspace (MetaWindow     *window,
 gboolean
 meta_window_updates_are_frozen (MetaWindow *window)
 {
-  if (window->extended_sync_request_counter &&
-      window->sync_request_serial % 2 == 1)
-    return TRUE;
-
-  if (window->sync_request_serial < window->sync_request_wait_serial)
-    return TRUE;
-
-  return FALSE;
+  return META_WINDOW_GET_CLASS (window)->are_updates_frozen (window);
 }
 
 static void
@@ -4659,6 +4657,9 @@ meta_window_focus (MetaWindow  *window,
   MetaWindow *modal_transient;
 
   g_return_if_fail (!window->override_redirect);
+
+  /* This is a oneshot flag */
+  window->restore_focus_on_map = FALSE;
 
   meta_topic (META_DEBUG_FOCUS,
               "Setting input focus to window %s, input: %d take_focus: %d\n",
@@ -7987,7 +7988,15 @@ meta_window_set_transient_for (MetaWindow *window,
             }
         }
     }
+  else if (window->attached && parent == NULL)
+    {
+      guint32 timestamp;
 
+      timestamp =
+        meta_display_get_current_time_roundtrip (window->display);
+      meta_window_unmanage (window, timestamp);
+      return;
+    }
   /* We know this won't create a reference cycle because we check for loops */
   g_clear_object (&window->transient_for);
   window->transient_for = parent ? g_object_ref (parent) : NULL;

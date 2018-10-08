@@ -788,6 +788,8 @@ constrain_custom_rule (MetaWindow         *window,
   MetaRectangle intersection;
   gboolean constraint_satisfied;
   MetaPlacementRule *current_rule;
+  MetaWindow *parent;
+  MetaRectangle parent_rect;
 
   if (priority > PRIORITY_CUSTOM_RULE)
     return TRUE;
@@ -796,11 +798,15 @@ constrain_custom_rule (MetaWindow         *window,
   if (!placement_rule)
     return TRUE;
 
-  if (window->constrained_placement_rule)
+  if (window->placement_rule_constrained)
     {
-      meta_window_process_placement (window,
-                                     window->constrained_placement_rule,
-                                     &info->current.x, &info->current.y);
+      parent = meta_window_get_transient_for (window);
+      meta_window_get_frame_rect (parent, &parent_rect);
+      info->current.x =
+        parent_rect.x + window->constrained_placement_rule_offset_x;
+      info->current.y =
+        parent_rect.y + window->constrained_placement_rule_offset_y;
+
       return TRUE;
     }
 
@@ -886,8 +892,12 @@ constrain_custom_rule (MetaWindow         *window,
     }
 
 done:
-  g_clear_pointer (&window->constrained_placement_rule, g_free);
-  window->constrained_placement_rule = current_rule;
+  window->placement_rule_constrained = TRUE;
+
+  parent = meta_window_get_transient_for (window);
+  meta_window_get_frame_rect (parent, &parent_rect);
+  window->constrained_placement_rule_offset_x = info->current.x - parent_rect.x;
+  window->constrained_placement_rule_offset_y = info->current.y - parent_rect.y;
 
   return TRUE;
 }
