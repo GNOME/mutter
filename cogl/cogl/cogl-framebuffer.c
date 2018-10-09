@@ -66,7 +66,8 @@ static void _cogl_offscreen_free (CoglOffscreen *offscreen);
 COGL_OBJECT_DEFINE_WITH_CODE_GTYPE (Offscreen, offscreen,
                                     _cogl_offscreen_class.virt_unref =
                                     _cogl_framebuffer_unref);
-COGL_GTYPE_DEFINE_CLASS (Offscreen, offscreen);
+COGL_GTYPE_DEFINE_CLASS (Offscreen, offscreen,
+                         COGL_GTYPE_IMPLEMENT_INTERFACE (framebuffer));
 COGL_OBJECT_DEFINE_DEPRECATED_REF_COUNTING (offscreen);
 COGL_GTYPE_DEFINE_INTERFACE (Framebuffer, framebuffer);
 
