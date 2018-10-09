@@ -2787,6 +2787,60 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
     return crtc_transform;
 }
 
+static CoglContext *
+cogl_context_from_renderer_native (MetaRendererNative *renderer_native)
+{
+  MetaMonitorManager *monitor_manager =
+    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
+  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+
+  return clutter_backend_get_cogl_context (clutter_backend);
+}
+
+static gboolean
+should_force_shadow_fb (MetaRendererNative *renderer_native,
+                        MetaGpuKms         *primary_gpu)
+{
+  CoglContext *cogl_context =
+    cogl_context_from_renderer_native (renderer_native);
+  CoglGpuInfo *info = &cogl_context->gpu;
+  int kms_fd;
+  uint64_t prefer_shadow = 0;
+
+  switch (info->architecture)
+    {
+    case COGL_GPU_INFO_ARCHITECTURE_UNKNOWN:
+    case COGL_GPU_INFO_ARCHITECTURE_SANDYBRIDGE:
+    case COGL_GPU_INFO_ARCHITECTURE_SGX:
+    case COGL_GPU_INFO_ARCHITECTURE_MALI:
+      return FALSE;
+    case COGL_GPU_INFO_ARCHITECTURE_LLVMPIPE:
+    case COGL_GPU_INFO_ARCHITECTURE_SOFTPIPE:
+    case COGL_GPU_INFO_ARCHITECTURE_SWRAST:
+      break;
+    }
+
+  kms_fd = meta_gpu_kms_get_fd (primary_gpu);
+  if (drmGetCap (kms_fd, DRM_CAP_DUMB_PREFER_SHADOW, &prefer_shadow) == 0)
+    {
+      if (prefer_shadow)
+        {
+          static gboolean logged_once = FALSE;
+
+          if (!logged_once)
+            {
+              g_message ("Forcing shadow framebuffer");
+              logged_once = TRUE;
+            }
+
+          return TRUE;
+        }
+    }
+
+  return FALSE;
+}
+
 static MetaRendererView *
 meta_renderer_native_create_view (MetaRenderer       *renderer,
                                   MetaLogicalMonitor *logical_monitor)
@@ -2796,10 +2850,8 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
     renderer_native->monitor_manager_kms;
   MetaMonitorManager *monitor_manager =
     META_MONITOR_MANAGER (monitor_manager_kms);
-  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
-    clutter_backend_get_cogl_context (clutter_backend);
+    cogl_context_from_renderer_native (renderer_native);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   MetaGpuKms *primary_gpu;
   CoglDisplayEGL *cogl_display_egl;
@@ -2834,7 +2886,8 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   if (!onscreen)
     g_error ("Failed to allocate onscreen framebuffer: %s", error->message);
 
-  if (view_transform != META_MONITOR_TRANSFORM_NORMAL)
+  if (view_transform != META_MONITOR_TRANSFORM_NORMAL ||
+      should_force_shadow_fb (renderer_native, primary_gpu))
     {
       offscreen = meta_renderer_native_create_offscreen (renderer_native,
                                                          cogl_context,
