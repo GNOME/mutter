@@ -62,8 +62,14 @@ cogl_1_public_h = \
 	cogl1-context.h 		\
 	cogl-bitmap.h 		\
 	cogl-color.h 			\
+	cogl-framebuffer.h		\
 	cogl-matrix.h 		\
 	cogl-offscreen.h 		\
+	cogl-object.h			\
+	cogl-onscreen.h			\
+	cogl-pipeline.h 		\
+	cogl-pipeline-state.h 	\
+	cogl-pipeline-layer-state.h 	\
 	cogl-primitives.h 		\
 	cogl-texture.h 		\
 	cogl-types.h 			\
@@ -71,15 +77,11 @@ cogl_1_public_h = \
 	$(NULL)
 
 cogl_nonintrospected_h = \
-	cogl-object.h 		\
 	cogl-renderer.h 		\
 	cogl-swap-chain.h 		\
 	cogl-onscreen-template.h 	\
 	cogl-display.h 		\
 	cogl-context.h 		\
-	cogl-pipeline.h 		\
-	cogl-pipeline-state.h 	\
-	cogl-pipeline-layer-state.h 	\
 	cogl-snippet.h		\
 	cogl-gles2.h			\
 	cogl-gles2-types.h		\
@@ -88,8 +90,6 @@ cogl_nonintrospected_h = \
 	cogl-indices.h 		\
 	cogl-attribute.h 		\
 	cogl-primitive.h 		\
-	cogl-framebuffer.h		\
-	cogl-onscreen.h		\
 	cogl-frame-info.h		\
 	cogl-vector.h 		\
 	cogl-euler.h 			\
