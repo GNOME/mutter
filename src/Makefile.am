@@ -383,6 +383,10 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	backends/meta-screen-cast-monitor-stream.h	\
 	backends/meta-screen-cast-monitor-stream-src.c	\
 	backends/meta-screen-cast-monitor-stream-src.h	\
+	backends/meta-screen-cast-window-stream-src.c	\
+	backends/meta-screen-cast-window-stream-src.h	\
+	backends/meta-screen-cast-window-stream.c	\
+	backends/meta-screen-cast-window-stream.h	\
 	backends/meta-screen-cast-session.c	\
 	backends/meta-screen-cast-session.h	\
 	backends/meta-screen-cast-stream.c	\
