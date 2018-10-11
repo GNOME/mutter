@@ -117,7 +117,10 @@ get_crtc_drm_connectors (MetaGpu       *gpu,
 
       assigned_crtc = meta_output_get_assigned_crtc (output);
       if (assigned_crtc == crtc)
-        g_array_append_val (connectors_array, output->winsys_id);
+        {
+          guint32 connector_id = meta_output_kms_get_connector_id (output);
+          g_array_append_val (connectors_array, connector_id);
+        }
     }
 
   *n_connectors = connectors_array->len;
@@ -525,8 +528,8 @@ create_mode (const drmModeModeInfo *drm_mode,
 }
 
 static MetaOutput *
-find_output_by_id (GList *outputs,
-                   glong  id)
+find_output_by_connector_id (GList *outputs,
+                             glong  id)
 {
   GList *l;
 
@@ -534,7 +537,7 @@ find_output_by_id (GList *outputs,
     {
       MetaOutput *output = l->data;
 
-      if (output->winsys_id == id)
+      if (meta_output_kms_get_connector_id (output) == id)
         return output;
     }
 
@@ -711,7 +714,7 @@ init_outputs (MetaGpuKms       *gpu_kms,
           MetaOutput *old_output;
           GError *error = NULL;
 
-          old_output = find_output_by_id (old_outputs, connector->connector_id);
+          old_output = find_output_by_connector_id (old_outputs, connector->connector_id);
           output = meta_create_kms_output (gpu_kms, connector, resources,
                                            old_output,
                                            &error);
