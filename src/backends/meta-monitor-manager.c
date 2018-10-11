@@ -561,9 +561,7 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
       g_clear_object (&config);
     }
 
-  config =
-    meta_monitor_config_manager_create_for_switch_config (manager->config_manager,
-                                                          META_MONITOR_SWITCH_CONFIG_ALL_LINEAR);
+  config = meta_monitor_config_manager_create_linear (manager->config_manager);
   if (config)
     {
       if (!meta_monitor_manager_apply_monitors_config (manager,
