@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017 Red Hat
+ * Copyright (C) 2018 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,6 +58,7 @@ struct _MetaGpuKms
 {
   MetaGpu parent;
 
+  uint16_t id;
   int fd;
   char *file_path;
   GSource *source;
@@ -372,6 +374,12 @@ int
 meta_gpu_kms_get_fd (MetaGpuKms *gpu_kms)
 {
   return gpu_kms->fd;
+}
+
+uint16_t
+meta_gpu_kms_get_id (MetaGpuKms *gpu_kms)
+{
+  return gpu_kms->id;
 }
 
 const char *
@@ -885,7 +893,10 @@ meta_gpu_kms_finalize (GObject *object)
 static void
 meta_gpu_kms_init (MetaGpuKms *gpu_kms)
 {
+  static uint16_t id = 0;
+
   gpu_kms->fd = -1;
+  gpu_kms->id = ++id;
 }
 
 static void
