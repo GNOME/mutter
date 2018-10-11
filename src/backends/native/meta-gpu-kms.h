@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017 Red Hat
+ * Copyright (C) 2018 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,6 +71,8 @@ gboolean meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
                                      GError    **error);
 
 int meta_gpu_kms_get_fd (MetaGpuKms *gpu_kms);
+
+uint32_t meta_gpu_kms_get_id (MetaGpuKms *gpu_kms);
 
 const char * meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms);
 
