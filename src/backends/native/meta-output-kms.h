@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017 Red Hat
+ * Copyright (C) 2018 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +33,8 @@ void meta_output_kms_set_power_save_mode (MetaOutput *output,
 
 gboolean meta_output_kms_can_clone (MetaOutput *output,
                                     MetaOutput *other_output);
+
+guint32 meta_output_kms_get_connector_id (MetaOutput *output);
 
 GBytes * meta_output_kms_read_edid (MetaOutput *output);
 
