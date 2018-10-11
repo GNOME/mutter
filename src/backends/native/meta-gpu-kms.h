@@ -71,6 +71,8 @@ gboolean meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
 
 int meta_gpu_kms_get_fd (MetaGpuKms *gpu_kms);
 
+guint16 meta_gpu_kms_get_id (MetaGpuKms *gpu_kms);
+
 const char * meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms);
 
 void meta_gpu_kms_get_max_buffer_size (MetaGpuKms *gpu_kms,

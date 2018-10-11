@@ -57,6 +57,7 @@ struct _MetaGpuKms
 {
   MetaGpu parent;
 
+  guint16 id;
   int fd;
   char *file_path;
   GSource *source;
@@ -372,6 +373,12 @@ int
 meta_gpu_kms_get_fd (MetaGpuKms *gpu_kms)
 {
   return gpu_kms->fd;
+}
+
+guint16
+meta_gpu_kms_get_id (MetaGpuKms *gpu_kms)
+{
+  return gpu_kms->id;
 }
 
 const char *
@@ -885,7 +892,10 @@ meta_gpu_kms_finalize (GObject *object)
 static void
 meta_gpu_kms_init (MetaGpuKms *gpu_kms)
 {
+  static guint16 id = 0;
+
   gpu_kms->fd = -1;
+  gpu_kms->id = ++id;
 }
 
 static void
