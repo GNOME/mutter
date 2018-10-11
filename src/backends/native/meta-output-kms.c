@@ -512,6 +512,7 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   unsigned int i;
   unsigned int crtc_mask;
   int fd;
+  uint32_t id;
 
   output = g_object_new (META_TYPE_OUTPUT, NULL);
 
@@ -520,8 +521,10 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   output->driver_notify = (GDestroyNotify) meta_output_destroy_notify;
 
   output->gpu = gpu;
-  output->winsys_id = connector->connector_id;
   output->name = make_output_name (connector);
+
+  id = meta_gpu_kms_get_id (gpu_kms);
+  output->winsys_id = ((uint64_t) id << 32) | connector->connector_id;
 
   switch (connector->subpixel)
     {
