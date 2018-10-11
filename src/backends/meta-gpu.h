@@ -37,8 +37,6 @@ struct _MetaGpuClass
                              GError  **error);
 };
 
-int meta_gpu_get_kms_fd (MetaGpu *gpu);
-
 const char * meta_gpu_get_kms_file_path (MetaGpu *gpu);
 
 gboolean meta_gpu_read_current (MetaGpu  *gpu,
