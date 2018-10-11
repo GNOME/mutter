@@ -33,6 +33,8 @@ void meta_output_kms_set_power_save_mode (MetaOutput *output,
 gboolean meta_output_kms_can_clone (MetaOutput *output,
                                     MetaOutput *other_output);
 
+guint32 meta_output_kms_get_connector_id (MetaOutput *output);
+
 GBytes * meta_output_kms_read_edid (MetaOutput *output);
 
 MetaOutput * meta_create_kms_output (MetaGpuKms        *gpu_kms,
