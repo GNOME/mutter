@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2013-2017 Red Hat
+ * Copyright (C) 2018 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -74,6 +75,14 @@ meta_output_kms_set_underscan (MetaOutput *output)
   meta_crtc_kms_set_underscan (crtc, output->is_underscanning);
 }
 
+uint32_t
+meta_output_kms_get_connector_id (MetaOutput *output)
+{
+  MetaOutputKms *output_kms = output->driver_private;
+
+  return output_kms->connector->connector_id;
+}
+
 void
 meta_output_kms_set_power_save_mode (MetaOutput *output,
                                      uint64_t    state)
@@ -87,7 +96,7 @@ meta_output_kms_set_power_save_mode (MetaOutput *output,
       int fd;
 
       fd = meta_gpu_kms_get_fd (gpu_kms);
-      if (drmModeObjectSetProperty (fd, output->winsys_id,
+      if (drmModeObjectSetProperty (fd, output_kms->connector->connector_id,
                                     DRM_MODE_OBJECT_CONNECTOR,
                                     output_kms->dpms_prop_id, state) < 0)
         g_warning ("Failed to set power save mode for output %s: %s",
