@@ -3155,7 +3155,8 @@ meta_renderer_native_ensure_gles3 (MetaRendererNative *renderer_native)
 }
 
 static gboolean
-init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
+init_secondary_gpu_data_gpu (MetaGpuKms                *gpu_kms,
+                             MetaRendererNativeGpuData *renderer_gpu_data,
                              GError                   **error)
 {
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
@@ -3164,6 +3165,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   EGLConfig egl_config;
   EGLContext egl_context;
   char **missing_gl_extensions;
+  const char *renderer_str;
 
   if (!create_secondary_egl_config (egl, renderer_gpu_data->mode, egl_display,
                                     &egl_config, error))
@@ -3184,6 +3186,14 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
     {
       meta_egl_destroy_context (egl, egl_display, egl_context, NULL);
       return FALSE;
+    }
+
+  renderer_str = (const char *) glGetString (GL_RENDERER);
+  if (!g_str_has_prefix (renderer_str, "llvmpipe") &&
+      !g_str_has_prefix (renderer_str, "softpipe") &&
+      !g_str_has_prefix (renderer_str, "swrast"))
+    {
+      meta_gpu_kms_set_hw_capable (gpu_kms);
     }
 
   if (!meta_gles3_has_extensions (renderer_native->gles3,
@@ -3215,11 +3225,12 @@ init_secondary_gpu_data_cpu (MetaRendererNativeGpuData *renderer_gpu_data)
 }
 
 static void
-init_secondary_gpu_data (MetaRendererNativeGpuData *renderer_gpu_data)
+init_secondary_gpu_data (MetaGpuKms                *gpu_kms,
+                         MetaRendererNativeGpuData *renderer_gpu_data)
 {
   GError *error = NULL;
 
-  if (init_secondary_gpu_data_gpu (renderer_gpu_data, &error))
+  if (init_secondary_gpu_data_gpu (gpu_kms, renderer_gpu_data, &error))
     return;
 
   g_warning ("Failed to initialize accelerated iGPU/dGPU framebuffer sharing: %s",
@@ -3282,7 +3293,7 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
   renderer_gpu_data->egl_display = egl_display;
 
-  init_secondary_gpu_data (renderer_gpu_data);
+  init_secondary_gpu_data (gpu_kms, renderer_gpu_data);
 
   return renderer_gpu_data;
 }
