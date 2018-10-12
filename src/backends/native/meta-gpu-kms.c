@@ -75,6 +75,7 @@ struct _MetaGpuKms
 
   gboolean is_boot_gpu;
   gboolean is_platform_device;
+  gboolean is_hw_capable;
 };
 
 G_DEFINE_TYPE (MetaGpuKms, meta_gpu_kms, META_TYPE_GPU)
@@ -423,6 +424,18 @@ gboolean
 meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms)
 {
   return gpu_kms->is_platform_device;
+}
+
+void
+meta_gpu_kms_set_hw_capable (MetaGpuKms *gpu_kms)
+{
+  gpu_kms->is_hw_capable = TRUE;
+}
+
+gboolean
+meta_gpu_kms_is_hw_capable (MetaGpuKms *gpu_kms)
+{
+  return gpu_kms->is_hw_capable;
 }
 
 static void
