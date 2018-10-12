@@ -651,7 +651,10 @@ reload_wm_name (MetaWindow    *window,
 
   if (value->type != META_PROP_VALUE_INVALID)
     {
-      set_window_title (window, value->v.str);
+      g_autofree gchar *title = g_convert (value->v.str, -1,
+                                           "UTF-8", "LATIN1",
+                                           NULL, NULL, NULL);
+      set_window_title (window, title);
 
       meta_verbose ("Using WM_NAME for new title of %s: \"%s\"\n",
                     window->desc, window->title);
