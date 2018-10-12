@@ -3271,8 +3271,8 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
   renderer_gpu_data->egl_display = egl_display;
 
-  if (gpu_kms != renderer_native->primary_gpu_kms)
-    init_secondary_gpu_data (renderer_gpu_data);
+  /* For all GPUs, even if primary. */
+  init_secondary_gpu_data (renderer_gpu_data);
 
   return renderer_gpu_data;
 }
