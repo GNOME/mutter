@@ -3616,10 +3616,6 @@ meta_renderer_native_initable_init (GInitable     *initable,
   GList *gpus;
   GList *l;
 
-  renderer_native->primary_gpu_kms = choose_primary_gpu (monitor_manager);
-  if (!renderer_native->primary_gpu_kms)
-    return FALSE;
-
   gpus = meta_monitor_manager_get_gpus (monitor_manager);
   for (l = gpus; l; l = l->next)
     {
@@ -3628,6 +3624,10 @@ meta_renderer_native_initable_init (GInitable     *initable,
       if (!create_renderer_gpu_data (renderer_native, gpu_kms, error))
         return FALSE;
     }
+
+  renderer_native->primary_gpu_kms = choose_primary_gpu (monitor_manager);
+  if (!renderer_native->primary_gpu_kms)
+    return FALSE;
 
   return TRUE;
 }
