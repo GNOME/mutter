@@ -604,12 +604,22 @@ meta_monitor_manager_kms_set_primary_gpu (MetaMonitorManagerKms *manager_kms)
         goto out;
     }
 
-  /* Otherwise get a platform device */
+  /* Otherwise get a platform device that is HW capable */
   for (l = gpus; l; l = l->next)
     {
       gpu_kms = META_GPU_KMS (l->data);
 
-      if (meta_gpu_kms_is_platform_device (gpu_kms))
+      if (meta_gpu_kms_is_platform_device (gpu_kms) &&
+          meta_gpu_kms_is_hw_capable (gpu_kms))
+        goto out;
+    }
+
+  /* Fall back to any HW capable device */
+  for (l = gpus; l; l = l->next)
+    {
+      gpu_kms = META_GPU_KMS (l->data);
+
+      if (meta_gpu_kms_is_hw_capable (gpu_kms))
         goto out;
     }
 
