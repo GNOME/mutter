@@ -1,7 +1,7 @@
 libmutter-3.so.0 libmutter-3-0 #MINVER#
 * Build-Depends-Package: libmutter-3-dev
- meta_activate_session@Base 3.28.2
- meta_activate_vt@Base 3.28.2
+ (arch=linux-any)meta_activate_session@Base 3.28.2
+ (arch=linux-any)meta_activate_vt@Base 3.28.2
  meta_actor_is_untransformed@Base 3.28.2
  meta_actor_painting_untransformed@Base 3.28.2
  meta_actor_vertices_are_untransformed@Base 3.28.2
@@ -31,11 +31,11 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_backend_is_lid_closed@Base 3.29.4
  meta_backend_lock_layout_group@Base 3.28.2
  meta_backend_monitors_changed@Base 3.28.2
- meta_backend_native_get_barrier_manager@Base 3.28.2
- meta_backend_native_get_launcher@Base 3.28.2
- meta_backend_native_get_type@Base 3.28.2
- meta_backend_native_pause@Base 3.28.2
- meta_backend_native_resume@Base 3.28.2
+ (arch=linux-any)meta_backend_native_get_barrier_manager@Base 3.28.2
+ (arch=linux-any)meta_backend_native_get_launcher@Base 3.28.2
+ (arch=linux-any)meta_backend_native_get_type@Base 3.28.2
+ (arch=linux-any)meta_backend_native_pause@Base 3.28.2
+ (arch=linux-any)meta_backend_native_resume@Base 3.28.2
  meta_backend_notify_keymap_changed@Base 3.28.2
  meta_backend_notify_keymap_layout_group_changed@Base 3.28.2
  meta_backend_set_client_pointer_constraint@Base 3.28.2
@@ -83,13 +83,13 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_barrier_event_unref@Base 3.28.2
  meta_barrier_get_type@Base 3.28.2
  meta_barrier_impl_get_type@Base 3.28.2
- meta_barrier_impl_native_get_type@Base 3.28.2
- meta_barrier_impl_native_new@Base 3.28.2
+ (arch=linux-any)meta_barrier_impl_native_get_type@Base 3.28.2
+ (arch=linux-any)meta_barrier_impl_native_new@Base 3.28.2
  meta_barrier_impl_x11_get_type@Base 3.28.2
  meta_barrier_impl_x11_new@Base 3.28.2
  meta_barrier_is_active@Base 3.28.2
- meta_barrier_manager_native_new@Base 3.28.2
- meta_barrier_manager_native_process@Base 3.28.2
+ (arch=linux-any)meta_barrier_manager_native_new@Base 3.28.2
+ (arch=linux-any)meta_barrier_manager_native_process@Base 3.28.2
  meta_barrier_release@Base 3.28.2
  meta_begin_modal_for_plugin@Base 3.28.2
  meta_bell_get_type@Base 3.29.4
@@ -102,7 +102,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_border_set_allows_directions@Base 3.28.2
  meta_bug@Base 3.28.2
  meta_button_function_get_type@Base 3.28.2
- meta_calculate_drm_mode_refresh_rate@Base 3.28.2
+ (arch=linux-any)meta_calculate_drm_mode_refresh_rate@Base 3.28.2
  meta_close_dialog_default_get_type@Base 3.28.2
  meta_close_dialog_default_new@Base 3.28.2
  meta_close_dialog_focus@Base 3.28.2
@@ -112,8 +112,8 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_close_dialog_response@Base 3.28.2
  meta_close_dialog_response_get_type@Base 3.28.2
  meta_close_dialog_show@Base 3.28.2
- meta_clutter_backend_native_get_stage_native@Base 3.28.2
- meta_clutter_backend_native_get_type@Base 3.28.2
+ (arch=linux-any)meta_clutter_backend_native_get_stage_native@Base 3.28.2
+ (arch=linux-any)meta_clutter_backend_native_get_type@Base 3.28.2
  meta_clutter_backend_x11_get_type@Base 3.28.2
  meta_clutter_init@Base 3.28.2
  meta_comp_effect_get_type@Base 3.28.2
@@ -157,8 +157,8 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_core_toggle_maximize_horizontally@Base 3.28.2
  meta_core_toggle_maximize_vertically@Base 3.28.2
  meta_core_user_lower_and_unfocus@Base 3.28.2
- meta_create_kms_crtc@Base 3.28.2
- meta_create_kms_output@Base 3.28.2
+ (arch=linux-any)meta_create_kms_crtc@Base 3.28.2
+ (arch=linux-any)meta_create_kms_output@Base 3.28.2
  meta_create_monitors_config_key_for_current_state@Base 3.28.2
  meta_create_texture@Base 3.28.2
  meta_create_texture_pipeline@Base 3.28.2
@@ -167,10 +167,10 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_create_xrandr_output@Base 3.28.2
  meta_crtc_get_gpu@Base 3.28.2
  meta_crtc_get_type@Base 3.28.2
- meta_crtc_kms_apply_transform@Base 3.28.2
- meta_crtc_kms_get_modifiers@Base 3.28.2
- meta_crtc_kms_is_transform_handled@Base 3.28.2
- meta_crtc_kms_set_underscan@Base 3.28.2
+ (arch=linux-any)meta_crtc_kms_apply_transform@Base 3.28.2
+ (arch=linux-any)meta_crtc_kms_get_modifiers@Base 3.28.2
+ (arch=linux-any)meta_crtc_kms_is_transform_handled@Base 3.28.2
+ (arch=linux-any)meta_crtc_kms_set_underscan@Base 3.28.2
  meta_crtc_mode_get_type@Base 3.28.2
  meta_crtc_xrandr_set_config@Base 3.28.2
  meta_cullable_cull_out@Base 3.28.2
@@ -185,8 +185,8 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_cursor_renderer_get_cursor@Base 3.28.2
  meta_cursor_renderer_get_position@Base 3.28.2
  meta_cursor_renderer_get_type@Base 3.28.2
- meta_cursor_renderer_native_get_type@Base 3.28.2
- meta_cursor_renderer_native_new@Base 3.28.2
+ (arch=linux-any)meta_cursor_renderer_native_get_type@Base 3.28.2
+ (arch=linux-any)meta_cursor_renderer_native_new@Base 3.28.2
  meta_cursor_renderer_new@Base 3.28.2
  meta_cursor_renderer_set_cursor@Base 3.28.2
  meta_cursor_renderer_set_position@Base 3.28.2
@@ -204,9 +204,9 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_cursor_sprite_set_texture@Base 3.28.2
  meta_cursor_sprite_set_texture_scale@Base 3.28.2
  meta_cursor_sprite_tick_frame@Base 3.28.2
- meta_cursor_sprite_wayland_get_buffer@Base 3.29.4
- meta_cursor_sprite_wayland_get_type@Base 3.29.4
- meta_cursor_sprite_wayland_new@Base 3.29.4
+ (arch=linux-any)meta_cursor_sprite_wayland_get_buffer@Base 3.29.4
+ (arch=linux-any)meta_cursor_sprite_wayland_get_type@Base 3.29.4
+ (arch=linux-any)meta_cursor_sprite_wayland_new@Base 3.29.4
  meta_cursor_sprite_xcursor_get_current_image@Base 3.29.4
  meta_cursor_sprite_xcursor_get_cursor@Base 3.29.4
  meta_cursor_sprite_xcursor_get_type@Base 3.29.4
@@ -582,9 +582,9 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_dnd_actor_new@Base 3.28.2
  meta_dnd_get_type@Base 3.28.2
  meta_dnd_handle_xdnd_event@Base 3.28.2
- meta_dnd_wayland_handle_begin_modal@Base 3.28.2
- meta_dnd_wayland_handle_end_modal@Base 3.28.2
- meta_drm_mode_equal@Base 3.28.2
+ (arch=linux-any)meta_dnd_wayland_handle_begin_modal@Base 3.28.2
+ (arch=linux-any)meta_dnd_wayland_handle_end_modal@Base 3.28.2
+ (arch=linux-any)meta_drm_mode_equal@Base 3.28.2
  meta_edge_type_get_type@Base 3.28.2
  meta_egl_choose_all_configs@Base 3.28.2
  meta_egl_choose_first_config@Base 3.28.2
@@ -662,7 +662,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_frames_new@Base 3.28.2
  meta_free_gslist_and_elements@Base 3.28.2
  meta_g_utf8_strndup@Base 3.28.2
- meta_gbm_device_from_gpu@Base 3.28.2
+ (arch=linux-any)meta_gbm_device_from_gpu@Base 3.28.2
  meta_generate_random_id@Base 3.28.2
  meta_gesture_tracker_get_n_current_touches@Base 3.28.2
  meta_gesture_tracker_get_sequence_state@Base 3.28.2
@@ -695,20 +695,20 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_gpu_get_outputs@Base 3.28.2
  meta_gpu_get_type@Base 3.28.2
  meta_gpu_has_hotplug_mode_update@Base 3.28.2
- meta_gpu_kms_apply_crtc_mode@Base 3.28.2
- meta_gpu_kms_can_have_outputs@Base 3.29.92
- meta_gpu_kms_flip_closure_container_free@Base 3.29.4
- meta_gpu_kms_flip_crtc@Base 3.28.2
- meta_gpu_kms_get_fd@Base 3.28.2
- meta_gpu_kms_get_file_path@Base 3.28.2
- meta_gpu_kms_get_max_buffer_size@Base 3.28.2
- meta_gpu_kms_get_mode_from_drm_mode@Base 3.28.2
- meta_gpu_kms_get_type@Base 3.28.2
- meta_gpu_kms_is_crtc_active@Base 3.28.2
- meta_gpu_kms_new@Base 3.28.2
- meta_gpu_kms_set_power_save_mode@Base 3.28.2
- meta_gpu_kms_wait_for_flip@Base 3.28.2
- meta_gpu_kms_wrap_flip_closure@Base 3.29.4
+ (arch=linux-any)meta_gpu_kms_apply_crtc_mode@Base 3.28.2
+ (arch=linux-any)meta_gpu_kms_can_have_outputs@Base 3.29.92
+ (arch=linux-any)meta_gpu_kms_flip_closure_container_free@Base 3.29.4
+ (arch=linux-any)meta_gpu_kms_flip_crtc@Base 3.28.2
+ (arch=linux-any)meta_gpu_kms_get_fd@Base 3.28.2
+ (arch=linux-any)meta_gpu_kms_get_file_path@Base 3.28.2
+ (arch=linux-any)meta_gpu_kms_get_max_buffer_size@Base 3.28.2
+ (arch=linux-any)meta_gpu_kms_get_mode_from_drm_mode@Base 3.28.2
+ (arch=linux-any)meta_gpu_kms_get_type@Base 3.28.2
+ (arch=linux-any)meta_gpu_kms_is_crtc_active@Base 3.28.2
+ (arch=linux-any)meta_gpu_kms_new@Base 3.28.2
+ (arch=linux-any)meta_gpu_kms_set_power_save_mode@Base 3.28.2
+ (arch=linux-any)meta_gpu_kms_wait_for_flip@Base 3.28.2
+ (arch=linux-any)meta_gpu_kms_wrap_flip_closure@Base 3.29.4
  meta_gpu_read_current@Base 3.28.2
  meta_gpu_take_crtcs@Base 3.28.2
  meta_gpu_take_modes@Base 3.28.2
@@ -759,7 +759,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_input_settings_get_type@Base 3.28.2
  meta_input_settings_handle_pad_event@Base 3.28.2
  meta_input_settings_is_pad_button_grabbed@Base 3.28.2
- meta_input_settings_native_get_type@Base 3.28.2
+ (arch=linux-any)meta_input_settings_native_get_type@Base 3.28.2
  meta_input_settings_x11_get_type@Base 3.28.2
  meta_invalidate_default_icons@Base 3.28.2
  meta_is_debugging@Base 3.28.2
@@ -782,13 +782,13 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_later_add@Base 3.28.2
  meta_later_remove@Base 3.28.2
  meta_later_type_get_type@Base 3.28.2
- meta_launcher_activate_session@Base 3.28.2
- meta_launcher_activate_vt@Base 3.28.2
- meta_launcher_close_restricted@Base 3.28.2
- meta_launcher_free@Base 3.28.2
- meta_launcher_get_seat_id@Base 3.28.2
- meta_launcher_new@Base 3.28.2
- meta_launcher_open_restricted@Base 3.28.2
+ (arch=linux-any)meta_launcher_activate_session@Base 3.28.2
+ (arch=linux-any)meta_launcher_activate_vt@Base 3.28.2
+ (arch=linux-any)meta_launcher_close_restricted@Base 3.28.2
+ (arch=linux-any)meta_launcher_free@Base 3.28.2
+ (arch=linux-any)meta_launcher_get_seat_id@Base 3.28.2
+ (arch=linux-any)meta_launcher_new@Base 3.28.2
+ (arch=linux-any)meta_launcher_open_restricted@Base 3.28.2
  meta_line2_intersects_with@Base 3.28.2
  meta_locale_direction_get_type@Base 3.28.2
  meta_logical_monitor_add_monitor@Base 3.28.2
@@ -907,10 +907,10 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_monitor_manager_is_headless@Base 3.28.2
  meta_monitor_manager_is_scale_supported@Base 3.28.2
  meta_monitor_manager_is_transform_handled@Base 3.28.2
- meta_monitor_manager_kms_get_primary_gpu@Base 3.28.2
- meta_monitor_manager_kms_get_type@Base 3.28.2
- meta_monitor_manager_kms_pause@Base 3.28.2
- meta_monitor_manager_kms_resume@Base 3.28.2
+ (arch=linux-any)meta_monitor_manager_kms_get_primary_gpu@Base 3.28.2
+ (arch=linux-any)meta_monitor_manager_kms_get_type@Base 3.28.2
+ (arch=linux-any)meta_monitor_manager_kms_pause@Base 3.28.2
+ (arch=linux-any)meta_monitor_manager_kms_resume@Base 3.28.2
  meta_monitor_manager_lid_is_closed_changed@Base 3.28.2
  meta_monitor_manager_on_hotplug@Base 3.28.2
  meta_monitor_manager_read_current_state@Base 3.28.2
@@ -963,10 +963,10 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_output_get_gpu@Base 3.28.2
  meta_output_get_type@Base 3.28.2
  meta_output_is_laptop@Base 3.28.2
- meta_output_kms_can_clone@Base 3.28.2
- meta_output_kms_read_edid@Base 3.28.2
- meta_output_kms_set_power_save_mode@Base 3.28.2
- meta_output_kms_set_underscan@Base 3.28.2
+ (arch=linux-any)meta_output_kms_can_clone@Base 3.28.2
+ (arch=linux-any)meta_output_kms_read_edid@Base 3.28.2
+ (arch=linux-any)meta_output_kms_set_power_save_mode@Base 3.28.2
+ (arch=linux-any)meta_output_kms_set_underscan@Base 3.28.2
  meta_output_parse_edid@Base 3.28.2
  meta_output_unassign_crtc@Base 3.28.2
  meta_output_xrandr_apply_mode@Base 3.28.2
@@ -1005,12 +1005,12 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_plugin_size_change_completed@Base 3.28.2
  meta_plugin_switch_workspace_completed@Base 3.28.2
  meta_plugin_unminimize_completed@Base 3.28.2
- meta_pointer_confinement_wayland_get_type@Base 3.28.2
- meta_pointer_confinement_wayland_new@Base 3.28.2
+ (arch=linux-any)meta_pointer_confinement_wayland_get_type@Base 3.28.2
+ (arch=linux-any)meta_pointer_confinement_wayland_new@Base 3.28.2
  meta_pointer_constraint_constrain@Base 3.28.2
  meta_pointer_constraint_get_type@Base 3.28.2
- meta_pointer_lock_wayland_get_type@Base 3.28.2
- meta_pointer_lock_wayland_new@Base 3.28.2
+ (arch=linux-any)meta_pointer_lock_wayland_get_type@Base 3.28.2
+ (arch=linux-any)meta_pointer_lock_wayland_new@Base 3.28.2
  meta_pop_no_msg_prefix@Base 3.28.2
  meta_preference_get_type@Base 3.28.2
  meta_preference_to_string@Base 3.28.2
@@ -1142,14 +1142,14 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_renderer_create_cogl_renderer@Base 3.28.2
  meta_renderer_get_type@Base 3.28.2
  meta_renderer_get_views@Base 3.28.2
- meta_renderer_native_finish_frame@Base 3.28.2
- meta_renderer_native_get_frame_counter@Base 3.28.2
- meta_renderer_native_get_type@Base 3.28.2
- meta_renderer_native_gles3_blit_shared_bo@Base 3.28.2
- meta_renderer_native_gles3_read_pixels@Base 3.28.2
- meta_renderer_native_new@Base 3.28.2
- meta_renderer_native_queue_modes_reset@Base 3.28.2
- meta_renderer_native_supports_mirroring@Base 3.28.2
+ (arch=linux-any)meta_renderer_native_finish_frame@Base 3.28.2
+ (arch=linux-any)meta_renderer_native_get_frame_counter@Base 3.28.2
+ (arch=linux-any)meta_renderer_native_get_type@Base 3.28.2
+ (arch=linux-any)meta_renderer_native_gles3_blit_shared_bo@Base 3.28.2
+ (arch=linux-any)meta_renderer_native_gles3_read_pixels@Base 3.28.2
+ (arch=linux-any)meta_renderer_native_new@Base 3.28.2
+ (arch=linux-any)meta_renderer_native_queue_modes_reset@Base 3.28.2
+ (arch=linux-any)meta_renderer_native_supports_mirroring@Base 3.28.2
  meta_renderer_rebuild_views@Base 3.28.2
  meta_renderer_set_legacy_view@Base 3.28.2
  meta_renderer_view_get_logical_monitor@Base 3.28.2
@@ -1279,8 +1279,8 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_stage_create_cursor_overlay@Base 3.28.2
  meta_stage_get_type@Base 3.28.2
  meta_stage_is_focused@Base 3.28.2
- meta_stage_native_get_type@Base 3.28.2
- meta_stage_native_rebuild_views@Base 3.28.2
+ (arch=linux-any)meta_stage_native_get_type@Base 3.28.2
+ (arch=linux-any)meta_stage_native_rebuild_views@Base 3.28.2
  meta_stage_new@Base 3.28.2
  meta_stage_remove_cursor_overlay@Base 3.28.2
  meta_stage_set_active@Base 3.28.2
@@ -1313,10 +1313,10 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_surface_actor_set_opaque_region@Base 3.28.2
  meta_surface_actor_set_unredirected@Base 3.28.2
  meta_surface_actor_should_unredirect@Base 3.28.2
- meta_surface_actor_wayland_add_frame_callbacks@Base 3.28.2
- meta_surface_actor_wayland_get_surface@Base 3.28.2
- meta_surface_actor_wayland_get_type@Base 3.28.2
- meta_surface_actor_wayland_new@Base 3.28.2
+ (arch=linux-any)meta_surface_actor_wayland_add_frame_callbacks@Base 3.28.2
+ (arch=linux-any)meta_surface_actor_wayland_get_surface@Base 3.28.2
+ (arch=linux-any)meta_surface_actor_wayland_get_type@Base 3.28.2
+ (arch=linux-any)meta_surface_actor_wayland_new@Base 3.28.2
  meta_surface_actor_x11_get_type@Base 3.28.2
  meta_surface_actor_x11_new@Base 3.28.2
  meta_surface_actor_x11_set_size@Base 3.28.2
@@ -1372,320 +1372,320 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_verify_monitors_config@Base 3.28.2
  meta_virtual_modifier_get_type@Base 3.28.2
  meta_warning@Base 3.28.2
- meta_wayland_actor_surface_calculate_scale@Base 3.28.2
- meta_wayland_actor_surface_get_actor@Base 3.29.4
- meta_wayland_actor_surface_get_type@Base 3.28.2
- meta_wayland_actor_surface_queue_frame_callbacks@Base 3.29.92
- meta_wayland_actor_surface_reset_actor@Base 3.29.4
- meta_wayland_actor_surface_sync_actor_state@Base 3.28.2
- meta_wayland_buffer_attach@Base 3.28.2
- meta_wayland_buffer_create_snippet@Base 3.28.2
- meta_wayland_buffer_from_resource@Base 3.28.2
- meta_wayland_buffer_get_resource@Base 3.29.4
- meta_wayland_buffer_get_texture@Base 3.28.2
- meta_wayland_buffer_get_type@Base 3.28.2
- meta_wayland_buffer_is_realized@Base 3.29.4
- meta_wayland_buffer_is_y_inverted@Base 3.28.2
- meta_wayland_buffer_process_damage@Base 3.28.2
- meta_wayland_buffer_realize@Base 3.29.4
- meta_wayland_compositor_destroy_frame_callbacks@Base 3.28.2
- meta_wayland_compositor_flush_clients@Base 3.28.2
- meta_wayland_compositor_get_default@Base 3.28.2
- meta_wayland_compositor_handle_event@Base 3.28.2
- meta_wayland_compositor_is_shortcuts_inhibited@Base 3.28.2
- meta_wayland_compositor_notify_surface_id@Base 3.29.4
- meta_wayland_compositor_paint_finished@Base 3.28.2
- meta_wayland_compositor_repick@Base 3.28.2
- meta_wayland_compositor_restore_shortcuts@Base 3.28.2
- meta_wayland_compositor_schedule_surface_association@Base 3.29.4
- meta_wayland_compositor_set_input_focus@Base 3.28.2
- meta_wayland_compositor_update@Base 3.28.2
- meta_wayland_compositor_update_key_state@Base 3.28.2
- meta_wayland_cursor_surface_get_hotspot@Base 3.29.4
- meta_wayland_cursor_surface_get_renderer@Base 3.29.4
- meta_wayland_cursor_surface_get_sprite@Base 3.29.4
- meta_wayland_cursor_surface_get_type@Base 3.29.4
- meta_wayland_cursor_surface_set_hotspot@Base 3.29.4
- meta_wayland_cursor_surface_set_renderer@Base 3.29.4
- meta_wayland_data_device_end_drag@Base 3.28.2
- meta_wayland_data_device_get_current_grab@Base 3.28.2
- meta_wayland_data_device_get_drag_dest_funcs@Base 3.28.2
- meta_wayland_data_device_init@Base 3.28.2
- meta_wayland_data_device_is_dnd_surface@Base 3.28.2
- meta_wayland_data_device_manager_init@Base 3.28.2
- meta_wayland_data_device_set_dnd_source@Base 3.28.2
- meta_wayland_data_device_set_keyboard_focus@Base 3.28.2
- meta_wayland_data_device_set_primary@Base 3.28.2
- meta_wayland_data_device_set_selection@Base 3.28.2
- meta_wayland_data_device_start_drag@Base 3.28.2
- meta_wayland_data_source_add_mime_type@Base 3.28.2
- meta_wayland_data_source_get_actions@Base 3.28.2
- meta_wayland_data_source_get_current_action@Base 3.28.2
- meta_wayland_data_source_get_mime_types@Base 3.28.2
- meta_wayland_data_source_get_type@Base 3.28.2
- meta_wayland_data_source_get_user_action@Base 3.28.2
- meta_wayland_data_source_has_mime_type@Base 3.28.2
- meta_wayland_data_source_has_target@Base 3.28.2
- meta_wayland_data_source_notify_finish@Base 3.28.2
- meta_wayland_data_source_primary_get_type@Base 3.28.2
- meta_wayland_data_source_send@Base 3.28.2
- meta_wayland_data_source_set_actions@Base 3.28.2
- meta_wayland_data_source_set_current_action@Base 3.28.2
- meta_wayland_data_source_set_has_target@Base 3.28.2
- meta_wayland_data_source_wayland_get_type@Base 3.28.2
- meta_wayland_data_source_xwayland_get_type@Base 3.28.2
- meta_wayland_dma_buf_buffer_attach@Base 3.28.2
- meta_wayland_dma_buf_buffer_get_type@Base 3.28.2
- meta_wayland_dma_buf_from_buffer@Base 3.28.2
- meta_wayland_dma_buf_init@Base 3.28.2
- meta_wayland_drag_grab_get_focus@Base 3.28.2
- meta_wayland_drag_grab_set_focus@Base 3.28.2
- meta_wayland_drag_grab_update_feedback_actor@Base 3.28.2
- meta_wayland_egl_stream_attach@Base 3.28.2
- meta_wayland_egl_stream_create_snippet@Base 3.28.2
- meta_wayland_egl_stream_create_texture@Base 3.28.2
- meta_wayland_egl_stream_get_type@Base 3.28.2
- meta_wayland_egl_stream_is_y_inverted@Base 3.28.2
- meta_wayland_egl_stream_new@Base 3.28.2
- meta_wayland_eglstream_controller_init@Base 3.29.4
- meta_wayland_finalize@Base 3.28.2
- meta_wayland_get_wayland_display_name@Base 3.28.2
- meta_wayland_get_xwayland_display_name@Base 3.28.2
- meta_wayland_gtk_shell_init@Base 3.28.2
- meta_wayland_gtk_text_input_destroy@Base 3.29.91
- meta_wayland_gtk_text_input_focus_get_type@Base 3.29.91
- meta_wayland_gtk_text_input_handle_event@Base 3.29.91
- meta_wayland_gtk_text_input_init@Base 3.29.91
- meta_wayland_gtk_text_input_new@Base 3.29.91
- meta_wayland_gtk_text_input_set_focus@Base 3.29.91
- meta_wayland_init@Base 3.28.2
- meta_wayland_input_device_get_seat@Base 3.28.2
- meta_wayland_input_device_get_type@Base 3.28.2
- meta_wayland_input_device_next_serial@Base 3.28.2
- meta_wayland_is_egl_stream_buffer@Base 3.28.2
- meta_wayland_keyboard_can_popup@Base 3.28.2
- meta_wayland_keyboard_create_new_resource@Base 3.28.2
- meta_wayland_keyboard_disable@Base 3.28.2
- meta_wayland_keyboard_enable@Base 3.28.2
- meta_wayland_keyboard_end_grab@Base 3.28.2
- meta_wayland_keyboard_get_focus_client@Base 3.28.2
- meta_wayland_keyboard_get_type@Base 3.28.2
- meta_wayland_keyboard_handle_event@Base 3.28.2
- meta_wayland_keyboard_set_focus@Base 3.28.2
- meta_wayland_keyboard_shortcuts_inhibit_init@Base 3.28.2
- meta_wayland_keyboard_start_grab@Base 3.28.2
- meta_wayland_keyboard_update@Base 3.28.2
- meta_wayland_keyboard_update_key_state@Base 3.28.2
- meta_wayland_legacy_xdg_shell_init@Base 3.28.2
- meta_wayland_output_get_type@Base 3.28.2
- meta_wayland_outputs_init@Base 3.28.2
- meta_wayland_override_display_name@Base 3.28.2
- meta_wayland_pending_state_get_type@Base 3.28.2
- meta_wayland_pointer_broadcast_frame@Base 3.28.2
- meta_wayland_pointer_can_grab_surface@Base 3.28.2
- meta_wayland_pointer_can_popup@Base 3.28.2
- meta_wayland_pointer_constraint_calculate_effective_region@Base 3.28.2
- meta_wayland_pointer_constraint_get_seat@Base 3.28.2
- meta_wayland_pointer_constraint_get_surface@Base 3.28.2
- meta_wayland_pointer_constraint_get_type@Base 3.28.2
- meta_wayland_pointer_constraints_init@Base 3.28.2
- meta_wayland_pointer_create_new_resource@Base 3.28.2
- meta_wayland_pointer_disable@Base 3.28.2
- meta_wayland_pointer_enable@Base 3.28.2
- meta_wayland_pointer_end_grab@Base 3.28.2
- meta_wayland_pointer_end_popup_grab@Base 3.28.2
- meta_wayland_pointer_gesture_pinch_create_new_resource@Base 3.28.2
- meta_wayland_pointer_gesture_pinch_handle_event@Base 3.28.2
- meta_wayland_pointer_gesture_swipe_create_new_resource@Base 3.28.2
- meta_wayland_pointer_gesture_swipe_handle_event@Base 3.28.2
- meta_wayland_pointer_gestures_init@Base 3.28.2
- meta_wayland_pointer_get_pointer_client@Base 3.28.2
- meta_wayland_pointer_get_relative_coordinates@Base 3.28.2
- meta_wayland_pointer_get_seat@Base 3.28.2
- meta_wayland_pointer_get_top_popup@Base 3.28.2
- meta_wayland_pointer_get_type@Base 3.28.2
- meta_wayland_pointer_grab_is_popup_grab@Base 3.28.2
- meta_wayland_pointer_handle_event@Base 3.28.2
- meta_wayland_pointer_repick@Base 3.28.2
- meta_wayland_pointer_send_button@Base 3.28.2
- meta_wayland_pointer_send_motion@Base 3.28.2
- meta_wayland_pointer_send_relative_motion@Base 3.28.2
- meta_wayland_pointer_set_focus@Base 3.28.2
- meta_wayland_pointer_start_grab@Base 3.28.2
- meta_wayland_pointer_start_popup_grab@Base 3.28.2
- meta_wayland_pointer_unbind_pointer_client_resource@Base 3.28.2
- meta_wayland_pointer_update@Base 3.28.2
- meta_wayland_pointer_update_cursor_surface@Base 3.28.2
- meta_wayland_popup_create@Base 3.28.2
- meta_wayland_popup_destroy@Base 3.28.2
- meta_wayland_popup_dismiss@Base 3.28.2
- meta_wayland_popup_get_top_popup@Base 3.28.2
- meta_wayland_popup_grab_create@Base 3.28.2
- meta_wayland_popup_grab_destroy@Base 3.28.2
- meta_wayland_popup_grab_get_top_popup@Base 3.28.2
- meta_wayland_popup_surface_get_type@Base 3.28.2
- meta_wayland_pre_clutter_init@Base 3.28.2
- meta_wayland_region_create@Base 3.28.2
- meta_wayland_region_peek_cairo_region@Base 3.28.2
- meta_wayland_relative_pointer_init@Base 3.28.2
- meta_wayland_seat_can_popup@Base 3.28.2
- meta_wayland_seat_free@Base 3.28.2
- meta_wayland_seat_get_grab_info@Base 3.28.2
- meta_wayland_seat_handle_event@Base 3.28.2
- meta_wayland_seat_has_keyboard@Base 3.28.2
- meta_wayland_seat_has_pointer@Base 3.28.2
- meta_wayland_seat_has_touch@Base 3.28.2
- meta_wayland_seat_init@Base 3.28.2
- meta_wayland_seat_repick@Base 3.28.2
- meta_wayland_seat_set_input_focus@Base 3.28.2
- meta_wayland_seat_update@Base 3.28.2
- meta_wayland_shell_init@Base 3.28.2
- meta_wayland_shell_surface_calculate_geometry@Base 3.28.2
- meta_wayland_shell_surface_close@Base 3.28.2
- meta_wayland_shell_surface_configure@Base 3.28.2
- meta_wayland_shell_surface_determine_geometry@Base 3.29.92
- meta_wayland_shell_surface_get_type@Base 3.28.2
- meta_wayland_shell_surface_managed@Base 3.28.2
- meta_wayland_shell_surface_ping@Base 3.28.2
- meta_wayland_shell_surface_set_window@Base 3.28.2
- meta_wayland_subsurface_get_type@Base 3.28.2
- meta_wayland_subsurface_parent_state_applied@Base 3.28.2
- meta_wayland_subsurface_union_geometry@Base 3.28.2
- meta_wayland_subsurfaces_init@Base 3.28.2
- meta_wayland_surface_apply_pending_state@Base 3.28.2
- meta_wayland_surface_assign_role@Base 3.28.2
- meta_wayland_surface_begin_grab_op@Base 3.28.2
- meta_wayland_surface_cache_pending_frame_callbacks@Base 3.29.92
- meta_wayland_surface_calculate_input_region@Base 3.28.2
- meta_wayland_surface_cancel_inhibit_shortcuts_dialog@Base 3.28.2
- meta_wayland_surface_configure_notify@Base 3.28.2
- meta_wayland_surface_create@Base 3.28.2
- meta_wayland_surface_delete@Base 3.28.2
- meta_wayland_surface_destroy_window@Base 3.28.2
- meta_wayland_surface_drag_dest_drop@Base 3.28.2
- meta_wayland_surface_drag_dest_focus_in@Base 3.28.2
- meta_wayland_surface_drag_dest_focus_out@Base 3.28.2
- meta_wayland_surface_drag_dest_motion@Base 3.28.2
- meta_wayland_surface_drag_dest_update@Base 3.28.2
- meta_wayland_surface_get_absolute_coordinates@Base 3.28.2
- meta_wayland_surface_get_actor@Base 3.29.4
- meta_wayland_surface_get_buffer@Base 3.28.2
- meta_wayland_surface_get_height@Base 3.29.92
- meta_wayland_surface_get_relative_coordinates@Base 3.28.2
- meta_wayland_surface_get_toplevel@Base 3.28.2
- meta_wayland_surface_get_toplevel_window@Base 3.28.2
- meta_wayland_surface_get_type@Base 3.28.2
- meta_wayland_surface_get_width@Base 3.29.92
- meta_wayland_surface_inhibit_shortcuts@Base 3.28.2
- meta_wayland_surface_inhibit_shortcuts_dialog_init@Base 3.28.2
- meta_wayland_surface_is_effectively_synchronized@Base 3.28.2
- meta_wayland_surface_is_shortcuts_inhibited@Base 3.28.2
- meta_wayland_surface_notify_geometry_changed@Base 3.29.4
- meta_wayland_surface_ping@Base 3.28.2
- meta_wayland_surface_queue_pending_frame_callbacks@Base 3.28.2
- meta_wayland_surface_queue_pending_state_frame_callbacks@Base 3.28.2
- meta_wayland_surface_ref_buffer_use_count@Base 3.28.2
- meta_wayland_surface_restore_shortcuts@Base 3.28.2
- meta_wayland_surface_role_dnd_get_type@Base 3.28.2
- meta_wayland_surface_role_get_surface@Base 3.28.2
- meta_wayland_surface_role_get_type@Base 3.28.2
- meta_wayland_surface_role_xwayland_get_type@Base 3.28.2
- meta_wayland_surface_set_window@Base 3.28.2
- meta_wayland_surface_show_inhibit_shortcuts_dialog@Base 3.28.2
- meta_wayland_surface_unref_buffer_use_count@Base 3.28.2
- meta_wayland_surface_update_outputs@Base 3.28.2
- meta_wayland_surface_window_managed@Base 3.28.2
- meta_wayland_tablet_create_new_resource@Base 3.28.2
- meta_wayland_tablet_cursor_surface_get_type@Base 3.29.4
- meta_wayland_tablet_free@Base 3.28.2
- meta_wayland_tablet_lookup_resource@Base 3.28.2
- meta_wayland_tablet_manager_consumes_event@Base 3.28.2
- meta_wayland_tablet_manager_ensure_seat@Base 3.28.2
- meta_wayland_tablet_manager_free@Base 3.28.2
- meta_wayland_tablet_manager_handle_event@Base 3.28.2
- meta_wayland_tablet_manager_init@Base 3.28.2
- meta_wayland_tablet_manager_update@Base 3.28.2
- meta_wayland_tablet_manager_update_cursor_position@Base 3.28.2
- meta_wayland_tablet_new@Base 3.28.2
- meta_wayland_tablet_notify@Base 3.28.2
- meta_wayland_tablet_pad_create_new_resource@Base 3.28.2
- meta_wayland_tablet_pad_free@Base 3.28.2
- meta_wayland_tablet_pad_get_label@Base 3.28.2
- meta_wayland_tablet_pad_group_create_new_resource@Base 3.28.2
- meta_wayland_tablet_pad_group_free@Base 3.28.2
- meta_wayland_tablet_pad_group_handle_event@Base 3.28.2
- meta_wayland_tablet_pad_group_has_button@Base 3.28.2
- meta_wayland_tablet_pad_group_is_mode_switch_button@Base 3.28.2
- meta_wayland_tablet_pad_group_lookup_resource@Base 3.28.2
- meta_wayland_tablet_pad_group_new@Base 3.28.2
- meta_wayland_tablet_pad_group_notify@Base 3.28.2
- meta_wayland_tablet_pad_group_sync_focus@Base 3.28.2
- meta_wayland_tablet_pad_group_update@Base 3.28.2
- meta_wayland_tablet_pad_handle_event@Base 3.28.2
- meta_wayland_tablet_pad_lookup_resource@Base 3.28.2
- meta_wayland_tablet_pad_new@Base 3.28.2
- meta_wayland_tablet_pad_notify@Base 3.28.2
- meta_wayland_tablet_pad_ring_create_new_resource@Base 3.28.2
- meta_wayland_tablet_pad_ring_free@Base 3.28.2
- meta_wayland_tablet_pad_ring_handle_event@Base 3.28.2
- meta_wayland_tablet_pad_ring_new@Base 3.28.2
- meta_wayland_tablet_pad_ring_set_group@Base 3.28.2
- meta_wayland_tablet_pad_ring_sync_focus@Base 3.28.2
- meta_wayland_tablet_pad_set_focus@Base 3.28.2
- meta_wayland_tablet_pad_strip_create_new_resource@Base 3.28.2
- meta_wayland_tablet_pad_strip_free@Base 3.28.2
- meta_wayland_tablet_pad_strip_handle_event@Base 3.28.2
- meta_wayland_tablet_pad_strip_new@Base 3.28.2
- meta_wayland_tablet_pad_strip_set_group@Base 3.28.2
- meta_wayland_tablet_pad_strip_sync_focus@Base 3.28.2
- meta_wayland_tablet_pad_update@Base 3.28.2
- meta_wayland_tablet_seat_create_new_resource@Base 3.28.2
- meta_wayland_tablet_seat_free@Base 3.28.2
- meta_wayland_tablet_seat_handle_event@Base 3.28.2
- meta_wayland_tablet_seat_lookup_pad@Base 3.28.2
- meta_wayland_tablet_seat_lookup_paired_pads@Base 3.28.2
- meta_wayland_tablet_seat_lookup_paired_tablet@Base 3.28.2
- meta_wayland_tablet_seat_lookup_resource@Base 3.28.2
- meta_wayland_tablet_seat_lookup_tablet@Base 3.28.2
- meta_wayland_tablet_seat_lookup_tool@Base 3.28.2
- meta_wayland_tablet_seat_new@Base 3.28.2
- meta_wayland_tablet_seat_notify_tool@Base 3.28.2
- meta_wayland_tablet_seat_set_pad_focus@Base 3.28.2
- meta_wayland_tablet_seat_update@Base 3.28.2
- meta_wayland_tablet_tool_can_grab_surface@Base 3.28.2
- meta_wayland_tablet_tool_create_new_resource@Base 3.28.2
- meta_wayland_tablet_tool_free@Base 3.28.2
- meta_wayland_tablet_tool_handle_event@Base 3.28.2
- meta_wayland_tablet_tool_lookup_resource@Base 3.28.2
- meta_wayland_tablet_tool_new@Base 3.28.2
- meta_wayland_tablet_tool_set_cursor_position@Base 3.28.2
- meta_wayland_tablet_tool_update@Base 3.28.2
- meta_wayland_text_input_destroy@Base 3.28.2
- meta_wayland_text_input_focus_get_type@Base 3.28.2
- meta_wayland_text_input_handle_event@Base 3.28.2
- meta_wayland_text_input_init@Base 3.28.2
- meta_wayland_text_input_new@Base 3.28.2
- meta_wayland_text_input_set_focus@Base 3.28.2
- meta_wayland_touch_can_popup@Base 3.28.2
- meta_wayland_touch_cancel@Base 3.28.2
- meta_wayland_touch_create_new_resource@Base 3.28.2
- meta_wayland_touch_disable@Base 3.28.2
- meta_wayland_touch_enable@Base 3.28.2
- meta_wayland_touch_find_grab_sequence@Base 3.28.2
- meta_wayland_touch_get_press_coords@Base 3.28.2
- meta_wayland_touch_get_type@Base 3.28.2
- meta_wayland_touch_handle_event@Base 3.28.2
- meta_wayland_touch_update@Base 3.28.2
- meta_wayland_wl_shell_init@Base 3.28.2
- meta_wayland_wl_shell_surface_get_type@Base 3.28.2
- meta_wayland_xdg_foreign_init@Base 3.28.2
- meta_wayland_xdg_popup_get_type@Base 3.28.2
- meta_wayland_xdg_shell_init@Base 3.28.2
- meta_wayland_xdg_surface_get_type@Base 3.28.2
- meta_wayland_xdg_toplevel_get_type@Base 3.28.2
- meta_wayland_zxdg_popup_v6_get_type@Base 3.28.2
- meta_wayland_zxdg_surface_v6_get_type@Base 3.28.2
- meta_wayland_zxdg_toplevel_v6_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_actor_surface_calculate_scale@Base 3.28.2
+ (arch=linux-any)meta_wayland_actor_surface_get_actor@Base 3.29.4
+ (arch=linux-any)meta_wayland_actor_surface_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_actor_surface_queue_frame_callbacks@Base 3.29.92
+ (arch=linux-any)meta_wayland_actor_surface_reset_actor@Base 3.29.4
+ (arch=linux-any)meta_wayland_actor_surface_sync_actor_state@Base 3.28.2
+ (arch=linux-any)meta_wayland_buffer_attach@Base 3.28.2
+ (arch=linux-any)meta_wayland_buffer_create_snippet@Base 3.28.2
+ (arch=linux-any)meta_wayland_buffer_from_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_buffer_get_resource@Base 3.29.4
+ (arch=linux-any)meta_wayland_buffer_get_texture@Base 3.28.2
+ (arch=linux-any)meta_wayland_buffer_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_buffer_is_realized@Base 3.29.4
+ (arch=linux-any)meta_wayland_buffer_is_y_inverted@Base 3.28.2
+ (arch=linux-any)meta_wayland_buffer_process_damage@Base 3.28.2
+ (arch=linux-any)meta_wayland_buffer_realize@Base 3.29.4
+ (arch=linux-any)meta_wayland_compositor_destroy_frame_callbacks@Base 3.28.2
+ (arch=linux-any)meta_wayland_compositor_flush_clients@Base 3.28.2
+ (arch=linux-any)meta_wayland_compositor_get_default@Base 3.28.2
+ (arch=linux-any)meta_wayland_compositor_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_compositor_is_shortcuts_inhibited@Base 3.28.2
+ (arch=linux-any)meta_wayland_compositor_notify_surface_id@Base 3.29.4
+ (arch=linux-any)meta_wayland_compositor_paint_finished@Base 3.28.2
+ (arch=linux-any)meta_wayland_compositor_repick@Base 3.28.2
+ (arch=linux-any)meta_wayland_compositor_restore_shortcuts@Base 3.28.2
+ (arch=linux-any)meta_wayland_compositor_schedule_surface_association@Base 3.29.4
+ (arch=linux-any)meta_wayland_compositor_set_input_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_compositor_update@Base 3.28.2
+ (arch=linux-any)meta_wayland_compositor_update_key_state@Base 3.28.2
+ (arch=linux-any)meta_wayland_cursor_surface_get_hotspot@Base 3.29.4
+ (arch=linux-any)meta_wayland_cursor_surface_get_renderer@Base 3.29.4
+ (arch=linux-any)meta_wayland_cursor_surface_get_sprite@Base 3.29.4
+ (arch=linux-any)meta_wayland_cursor_surface_get_type@Base 3.29.4
+ (arch=linux-any)meta_wayland_cursor_surface_set_hotspot@Base 3.29.4
+ (arch=linux-any)meta_wayland_cursor_surface_set_renderer@Base 3.29.4
+ (arch=linux-any)meta_wayland_data_device_end_drag@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_device_get_current_grab@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_device_get_drag_dest_funcs@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_device_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_device_is_dnd_surface@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_device_manager_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_device_set_dnd_source@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_device_set_keyboard_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_device_set_primary@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_device_set_selection@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_device_start_drag@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_add_mime_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_get_actions@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_get_current_action@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_get_mime_types@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_get_user_action@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_has_mime_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_has_target@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_notify_finish@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_primary_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_send@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_set_actions@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_set_current_action@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_set_has_target@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_wayland_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_data_source_xwayland_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_dma_buf_buffer_attach@Base 3.28.2
+ (arch=linux-any)meta_wayland_dma_buf_buffer_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_dma_buf_from_buffer@Base 3.28.2
+ (arch=linux-any)meta_wayland_dma_buf_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_drag_grab_get_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_drag_grab_set_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_drag_grab_update_feedback_actor@Base 3.28.2
+ (arch=linux-any)meta_wayland_egl_stream_attach@Base 3.28.2
+ (arch=linux-any)meta_wayland_egl_stream_create_snippet@Base 3.28.2
+ (arch=linux-any)meta_wayland_egl_stream_create_texture@Base 3.28.2
+ (arch=linux-any)meta_wayland_egl_stream_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_egl_stream_is_y_inverted@Base 3.28.2
+ (arch=linux-any)meta_wayland_egl_stream_new@Base 3.28.2
+ (arch=linux-any)meta_wayland_eglstream_controller_init@Base 3.29.4
+ (arch=linux-any)meta_wayland_finalize@Base 3.28.2
+ (arch=linux-any)meta_wayland_get_wayland_display_name@Base 3.28.2
+ (arch=linux-any)meta_wayland_get_xwayland_display_name@Base 3.28.2
+ (arch=linux-any)meta_wayland_gtk_shell_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_gtk_text_input_destroy@Base 3.29.91
+ (arch=linux-any)meta_wayland_gtk_text_input_focus_get_type@Base 3.29.91
+ (arch=linux-any)meta_wayland_gtk_text_input_handle_event@Base 3.29.91
+ (arch=linux-any)meta_wayland_gtk_text_input_init@Base 3.29.91
+ (arch=linux-any)meta_wayland_gtk_text_input_new@Base 3.29.91
+ (arch=linux-any)meta_wayland_gtk_text_input_set_focus@Base 3.29.91
+ (arch=linux-any)meta_wayland_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_input_device_get_seat@Base 3.28.2
+ (arch=linux-any)meta_wayland_input_device_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_input_device_next_serial@Base 3.28.2
+ (arch=linux-any)meta_wayland_is_egl_stream_buffer@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_can_popup@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_create_new_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_disable@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_enable@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_end_grab@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_get_focus_client@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_set_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_shortcuts_inhibit_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_start_grab@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_update@Base 3.28.2
+ (arch=linux-any)meta_wayland_keyboard_update_key_state@Base 3.28.2
+ (arch=linux-any)meta_wayland_legacy_xdg_shell_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_output_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_outputs_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_override_display_name@Base 3.28.2
+ (arch=linux-any)meta_wayland_pending_state_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_broadcast_frame@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_can_grab_surface@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_can_popup@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_constraint_calculate_effective_region@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_constraint_get_seat@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_constraint_get_surface@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_constraint_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_constraints_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_create_new_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_disable@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_enable@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_end_grab@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_end_popup_grab@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_gesture_pinch_create_new_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_gesture_pinch_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_gesture_swipe_create_new_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_gesture_swipe_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_gestures_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_get_pointer_client@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_get_relative_coordinates@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_get_seat@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_get_top_popup@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_grab_is_popup_grab@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_repick@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_send_button@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_send_motion@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_send_relative_motion@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_set_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_start_grab@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_start_popup_grab@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_unbind_pointer_client_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_update@Base 3.28.2
+ (arch=linux-any)meta_wayland_pointer_update_cursor_surface@Base 3.28.2
+ (arch=linux-any)meta_wayland_popup_create@Base 3.28.2
+ (arch=linux-any)meta_wayland_popup_destroy@Base 3.28.2
+ (arch=linux-any)meta_wayland_popup_dismiss@Base 3.28.2
+ (arch=linux-any)meta_wayland_popup_get_top_popup@Base 3.28.2
+ (arch=linux-any)meta_wayland_popup_grab_create@Base 3.28.2
+ (arch=linux-any)meta_wayland_popup_grab_destroy@Base 3.28.2
+ (arch=linux-any)meta_wayland_popup_grab_get_top_popup@Base 3.28.2
+ (arch=linux-any)meta_wayland_popup_surface_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_pre_clutter_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_region_create@Base 3.28.2
+ (arch=linux-any)meta_wayland_region_peek_cairo_region@Base 3.28.2
+ (arch=linux-any)meta_wayland_relative_pointer_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_seat_can_popup@Base 3.28.2
+ (arch=linux-any)meta_wayland_seat_free@Base 3.28.2
+ (arch=linux-any)meta_wayland_seat_get_grab_info@Base 3.28.2
+ (arch=linux-any)meta_wayland_seat_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_seat_has_keyboard@Base 3.28.2
+ (arch=linux-any)meta_wayland_seat_has_pointer@Base 3.28.2
+ (arch=linux-any)meta_wayland_seat_has_touch@Base 3.28.2
+ (arch=linux-any)meta_wayland_seat_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_seat_repick@Base 3.28.2
+ (arch=linux-any)meta_wayland_seat_set_input_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_seat_update@Base 3.28.2
+ (arch=linux-any)meta_wayland_shell_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_shell_surface_calculate_geometry@Base 3.28.2
+ (arch=linux-any)meta_wayland_shell_surface_close@Base 3.28.2
+ (arch=linux-any)meta_wayland_shell_surface_configure@Base 3.28.2
+ (arch=linux-any)meta_wayland_shell_surface_determine_geometry@Base 3.29.92
+ (arch=linux-any)meta_wayland_shell_surface_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_shell_surface_managed@Base 3.28.2
+ (arch=linux-any)meta_wayland_shell_surface_ping@Base 3.28.2
+ (arch=linux-any)meta_wayland_shell_surface_set_window@Base 3.28.2
+ (arch=linux-any)meta_wayland_subsurface_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_subsurface_parent_state_applied@Base 3.28.2
+ (arch=linux-any)meta_wayland_subsurface_union_geometry@Base 3.28.2
+ (arch=linux-any)meta_wayland_subsurfaces_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_apply_pending_state@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_assign_role@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_begin_grab_op@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_cache_pending_frame_callbacks@Base 3.29.92
+ (arch=linux-any)meta_wayland_surface_calculate_input_region@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_cancel_inhibit_shortcuts_dialog@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_configure_notify@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_create@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_delete@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_destroy_window@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_drag_dest_drop@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_drag_dest_focus_in@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_drag_dest_focus_out@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_drag_dest_motion@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_drag_dest_update@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_get_absolute_coordinates@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_get_actor@Base 3.29.4
+ (arch=linux-any)meta_wayland_surface_get_buffer@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_get_height@Base 3.29.92
+ (arch=linux-any)meta_wayland_surface_get_relative_coordinates@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_get_toplevel@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_get_toplevel_window@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_get_width@Base 3.29.92
+ (arch=linux-any)meta_wayland_surface_inhibit_shortcuts@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_inhibit_shortcuts_dialog_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_is_effectively_synchronized@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_is_shortcuts_inhibited@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_notify_geometry_changed@Base 3.29.4
+ (arch=linux-any)meta_wayland_surface_ping@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_queue_pending_frame_callbacks@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_queue_pending_state_frame_callbacks@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_ref_buffer_use_count@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_restore_shortcuts@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_role_dnd_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_role_get_surface@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_role_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_role_xwayland_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_set_window@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_show_inhibit_shortcuts_dialog@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_unref_buffer_use_count@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_update_outputs@Base 3.28.2
+ (arch=linux-any)meta_wayland_surface_window_managed@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_create_new_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_cursor_surface_get_type@Base 3.29.4
+ (arch=linux-any)meta_wayland_tablet_free@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_lookup_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_manager_consumes_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_manager_ensure_seat@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_manager_free@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_manager_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_manager_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_manager_update@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_manager_update_cursor_position@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_new@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_notify@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_create_new_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_free@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_get_label@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_group_create_new_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_group_free@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_group_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_group_has_button@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_group_is_mode_switch_button@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_group_lookup_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_group_new@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_group_notify@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_group_sync_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_group_update@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_lookup_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_new@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_notify@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_ring_create_new_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_ring_free@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_ring_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_ring_new@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_ring_set_group@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_ring_sync_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_set_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_strip_create_new_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_strip_free@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_strip_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_strip_new@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_strip_set_group@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_strip_sync_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_pad_update@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_create_new_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_free@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_lookup_pad@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_lookup_paired_pads@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_lookup_paired_tablet@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_lookup_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_lookup_tablet@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_lookup_tool@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_new@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_notify_tool@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_set_pad_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_seat_update@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_tool_can_grab_surface@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_tool_create_new_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_tool_free@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_tool_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_tool_lookup_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_tool_new@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_tool_set_cursor_position@Base 3.28.2
+ (arch=linux-any)meta_wayland_tablet_tool_update@Base 3.28.2
+ (arch=linux-any)meta_wayland_text_input_destroy@Base 3.28.2
+ (arch=linux-any)meta_wayland_text_input_focus_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_text_input_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_text_input_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_text_input_new@Base 3.28.2
+ (arch=linux-any)meta_wayland_text_input_set_focus@Base 3.28.2
+ (arch=linux-any)meta_wayland_touch_can_popup@Base 3.28.2
+ (arch=linux-any)meta_wayland_touch_cancel@Base 3.28.2
+ (arch=linux-any)meta_wayland_touch_create_new_resource@Base 3.28.2
+ (arch=linux-any)meta_wayland_touch_disable@Base 3.28.2
+ (arch=linux-any)meta_wayland_touch_enable@Base 3.28.2
+ (arch=linux-any)meta_wayland_touch_find_grab_sequence@Base 3.28.2
+ (arch=linux-any)meta_wayland_touch_get_press_coords@Base 3.28.2
+ (arch=linux-any)meta_wayland_touch_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_touch_handle_event@Base 3.28.2
+ (arch=linux-any)meta_wayland_touch_update@Base 3.28.2
+ (arch=linux-any)meta_wayland_wl_shell_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_wl_shell_surface_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_xdg_foreign_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_xdg_popup_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_xdg_shell_init@Base 3.28.2
+ (arch=linux-any)meta_wayland_xdg_surface_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_xdg_toplevel_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_zxdg_popup_v6_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_zxdg_surface_v6_get_type@Base 3.28.2
+ (arch=linux-any)meta_wayland_zxdg_toplevel_v6_get_type@Base 3.28.2
  meta_window_activate@Base 3.28.2
  meta_window_activate_full@Base 3.28.2
  meta_window_activate_with_workspace@Base 3.28.2
@@ -1851,7 +1851,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_window_move_to_monitor@Base 3.28.2
  meta_window_on_all_workspaces_changed@Base 3.28.2
  meta_window_place@Base 3.28.2
- meta_window_place_with_placement_rule@Base 3.28.2
+ (arch=linux-any)meta_window_place_with_placement_rule@Base 3.28.2
  meta_window_process_placement@Base 3.28.2
  meta_window_queue@Base 3.28.2
  meta_window_raise@Base 3.28.2
@@ -1919,16 +1919,16 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_window_update_resize@Base 3.28.2
  meta_window_update_struts@Base 3.28.2
  meta_window_updates_are_frozen@Base 3.28.2
- meta_window_wayland_get_geometry_scale@Base 3.28.2
- meta_window_wayland_get_max_size@Base 3.28.2
- meta_window_wayland_get_min_size@Base 3.28.2
- meta_window_wayland_get_type@Base 3.28.2
- meta_window_wayland_move_resize@Base 3.28.2
- meta_window_wayland_needs_move_resize@Base 3.28.2
- meta_window_wayland_new@Base 3.28.2
- meta_window_wayland_place_relative_to@Base 3.28.2
- meta_window_wayland_set_max_size@Base 3.28.2
- meta_window_wayland_set_min_size@Base 3.28.2
+ (arch=linux-any)meta_window_wayland_get_geometry_scale@Base 3.28.2
+ (arch=linux-any)meta_window_wayland_get_max_size@Base 3.28.2
+ (arch=linux-any)meta_window_wayland_get_min_size@Base 3.28.2
+ (arch=linux-any)meta_window_wayland_get_type@Base 3.28.2
+ (arch=linux-any)meta_window_wayland_move_resize@Base 3.28.2
+ (arch=linux-any)meta_window_wayland_needs_move_resize@Base 3.28.2
+ (arch=linux-any)meta_window_wayland_new@Base 3.28.2
+ (arch=linux-any)meta_window_wayland_place_relative_to@Base 3.28.2
+ (arch=linux-any)meta_window_wayland_set_max_size@Base 3.28.2
+ (arch=linux-any)meta_window_wayland_set_min_size@Base 3.28.2
  meta_window_x11_client_message@Base 3.28.2
  meta_window_x11_configure_notify@Base 3.28.2
  meta_window_x11_configure_request@Base 3.28.2
@@ -1945,7 +1945,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_window_x11_update_input_region@Base 3.28.2
  meta_window_x11_update_shape_region@Base 3.28.2
  meta_window_x11_update_sync_request_counter@Base 3.28.2
- meta_window_xwayland_get_type@Base 3.28.2
+ (arch=linux-any)meta_window_xwayland_get_type@Base 3.28.2
  meta_workspace_activate@Base 3.28.2
  meta_workspace_activate_with_focus@Base 3.28.2
  meta_workspace_add_window@Base 3.28.2
@@ -2035,17 +2035,17 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_x11_error_trap_pop_with_return@Base 3.29.4
  meta_x11_error_trap_push@Base 3.29.4
  meta_x11_init_gdk_display@Base 3.29.4
- meta_xwayland_associate_window_with_surface@Base 3.29.4
- meta_xwayland_complete_init@Base 3.28.2
- meta_xwayland_grab_keyboard_init@Base 3.28.2
- meta_xwayland_handle_wl_surface_id@Base 3.28.2
- meta_xwayland_init_selection@Base 3.28.2
- meta_xwayland_is_xwayland_surface@Base 3.28.2
- meta_xwayland_selection_get_drag_dest_funcs@Base 3.28.2
- meta_xwayland_selection_handle_event@Base 3.28.2
- meta_xwayland_shutdown_selection@Base 3.28.2
- meta_xwayland_start@Base 3.28.2
- meta_xwayland_stop@Base 3.28.2
+ (arch=linux-any)meta_xwayland_associate_window_with_surface@Base 3.29.4
+ (arch=linux-any)meta_xwayland_complete_init@Base 3.28.2
+ (arch=linux-any)meta_xwayland_grab_keyboard_init@Base 3.28.2
+ (arch=linux-any)meta_xwayland_handle_wl_surface_id@Base 3.28.2
+ (arch=linux-any)meta_xwayland_init_selection@Base 3.28.2
+ (arch=linux-any)meta_xwayland_is_xwayland_surface@Base 3.28.2
+ (arch=linux-any)meta_xwayland_selection_get_drag_dest_funcs@Base 3.28.2
+ (arch=linux-any)meta_xwayland_selection_handle_event@Base 3.28.2
+ (arch=linux-any)meta_xwayland_shutdown_selection@Base 3.28.2
+ (arch=linux-any)meta_xwayland_start@Base 3.28.2
+ (arch=linux-any)meta_xwayland_stop@Base 3.28.2
 libmutter-clutter-3.so libmutter-3-0 #MINVER#
 * Build-Depends-Package: libmutter-3-dev
  _clutter_backend_add_event_translator@Base 3.29.4
@@ -2438,7 +2438,7 @@ libmutter-clutter-3.so libmutter-3-0 #MINVER#
  clutter_animator_set_timeline@Base 3.29.4
  clutter_animator_start@Base 3.29.4
  clutter_backend_bell_notify@Base 3.29.4
- clutter_backend_egl_native_get_type@Base 3.29.4
+ (arch=linux-any)clutter_backend_egl_native_get_type@Base 3.29.4
  clutter_backend_get_cogl_context@Base 3.29.4
  clutter_backend_get_double_click_distance@Base 3.29.4
  clutter_backend_get_double_click_time@Base 3.29.4
@@ -2719,33 +2719,33 @@ libmutter-clutter-3.so libmutter-3-0 #MINVER#
  clutter_effect_get_type@Base 3.29.4
  clutter_effect_paint_flags_get_type@Base 3.29.4
  clutter_effect_queue_repaint@Base 3.29.4
- clutter_egl_display@Base 3.29.4
- clutter_egl_freeze_master_clock@Base 3.29.4
- clutter_egl_get_egl_display@Base 3.29.4
- clutter_egl_thaw_master_clock@Base 3.29.4
- clutter_eglx_display@Base 3.29.4
- clutter_evdev_add_filter@Base 3.29.4
- clutter_evdev_event_get_event_code@Base 3.29.4
- clutter_evdev_event_get_relative_motion@Base 3.29.4
- clutter_evdev_event_get_time_usec@Base 3.29.4
- clutter_evdev_event_sequence_get_slot@Base 3.29.4
- clutter_evdev_get_keyboard_layout_index@Base 3.29.4
- clutter_evdev_get_keyboard_map@Base 3.29.4
- clutter_evdev_input_device_get_libinput_device@Base 3.29.4
- clutter_evdev_input_device_tool_set_button_code@Base 3.29.4
- clutter_evdev_input_device_tool_set_pressure_curve@Base 3.29.4
- clutter_evdev_reclaim_devices@Base 3.29.4
- clutter_evdev_release_devices@Base 3.29.4
- clutter_evdev_remove_filter@Base 3.29.4
- clutter_evdev_set_device_callbacks@Base 3.29.4
- clutter_evdev_set_keyboard_layout_index@Base 3.29.4
- clutter_evdev_set_keyboard_map@Base 3.29.4
- clutter_evdev_set_keyboard_numlock@Base 3.29.4
- clutter_evdev_set_keyboard_repeat@Base 3.29.4
- clutter_evdev_set_pointer_constrain_callback@Base 3.29.4
- clutter_evdev_set_relative_motion_filter@Base 3.29.4
- clutter_evdev_set_seat_id@Base 3.29.4
- clutter_evdev_warp_pointer@Base 3.29.4
+ (arch=linux-any)clutter_egl_display@Base 3.29.4
+ (arch=linux-any)clutter_egl_freeze_master_clock@Base 3.29.4
+ (arch=linux-any)clutter_egl_get_egl_display@Base 3.29.4
+ (arch=linux-any)clutter_egl_thaw_master_clock@Base 3.29.4
+ (arch=linux-any)clutter_eglx_display@Base 3.29.4
+ (arch=linux-any)clutter_evdev_add_filter@Base 3.29.4
+ (arch=linux-any)clutter_evdev_event_get_event_code@Base 3.29.4
+ (arch=linux-any)clutter_evdev_event_get_relative_motion@Base 3.29.4
+ (arch=linux-any)clutter_evdev_event_get_time_usec@Base 3.29.4
+ (arch=linux-any)clutter_evdev_event_sequence_get_slot@Base 3.29.4
+ (arch=linux-any)clutter_evdev_get_keyboard_layout_index@Base 3.29.4
+ (arch=linux-any)clutter_evdev_get_keyboard_map@Base 3.29.4
+ (arch=linux-any)clutter_evdev_input_device_get_libinput_device@Base 3.29.4
+ (arch=linux-any)clutter_evdev_input_device_tool_set_button_code@Base 3.29.4
+ (arch=linux-any)clutter_evdev_input_device_tool_set_pressure_curve@Base 3.29.4
+ (arch=linux-any)clutter_evdev_reclaim_devices@Base 3.29.4
+ (arch=linux-any)clutter_evdev_release_devices@Base 3.29.4
+ (arch=linux-any)clutter_evdev_remove_filter@Base 3.29.4
+ (arch=linux-any)clutter_evdev_set_device_callbacks@Base 3.29.4
+ (arch=linux-any)clutter_evdev_set_keyboard_layout_index@Base 3.29.4
+ (arch=linux-any)clutter_evdev_set_keyboard_map@Base 3.29.4
+ (arch=linux-any)clutter_evdev_set_keyboard_numlock@Base 3.29.4
+ (arch=linux-any)clutter_evdev_set_keyboard_repeat@Base 3.29.4
+ (arch=linux-any)clutter_evdev_set_pointer_constrain_callback@Base 3.29.4
+ (arch=linux-any)clutter_evdev_set_relative_motion_filter@Base 3.29.4
+ (arch=linux-any)clutter_evdev_set_seat_id@Base 3.29.4
+ (arch=linux-any)clutter_evdev_warp_pointer@Base 3.29.4
  clutter_event_add_filter@Base 3.29.4
  clutter_event_copy@Base 3.29.4
  clutter_event_flags_get_type@Base 3.29.4
@@ -3756,14 +3756,14 @@ libmutter-clutter-3.so libmutter-3-0 #MINVER#
  clutter_virtual_input_device_notify_touch_down@Base 3.29.4
  clutter_virtual_input_device_notify_touch_motion@Base 3.29.4
  clutter_virtual_input_device_notify_touch_up@Base 3.29.4
- clutter_wayland_set_compositor_display@Base 3.29.4
- clutter_wayland_surface_attach_buffer@Base 3.29.4
- clutter_wayland_surface_damage_buffer@Base 3.29.4
- clutter_wayland_surface_get_cogl_texture@Base 3.29.4
- clutter_wayland_surface_get_surface@Base 3.29.4
- clutter_wayland_surface_get_type@Base 3.29.4
- clutter_wayland_surface_new@Base 3.29.4
- clutter_wayland_surface_set_surface@Base 3.29.4
+ (arch=linux-any)clutter_wayland_set_compositor_display@Base 3.29.4
+ (arch=linux-any)clutter_wayland_surface_attach_buffer@Base 3.29.4
+ (arch=linux-any)clutter_wayland_surface_damage_buffer@Base 3.29.4
+ (arch=linux-any)clutter_wayland_surface_get_cogl_texture@Base 3.29.4
+ (arch=linux-any)clutter_wayland_surface_get_surface@Base 3.29.4
+ (arch=linux-any)clutter_wayland_surface_get_type@Base 3.29.4
+ (arch=linux-any)clutter_wayland_surface_new@Base 3.29.4
+ (arch=linux-any)clutter_wayland_surface_set_surface@Base 3.29.4
  clutter_x11_add_filter@Base 3.29.4
  clutter_x11_disable_event_retrieval@Base 3.29.4
  clutter_x11_enable_xinput@Base 3.29.4
@@ -4588,9 +4588,9 @@ libmutter-cogl-3.so libmutter-3-0 #MINVER#
  cogl_vertex_buffer_submit@Base 3.29.4
  cogl_vertex_buffer_unref@Base 3.29.4
  cogl_viewport@Base 3.29.4
- cogl_wayland_display_set_compositor_display@Base 3.29.4
- cogl_wayland_texture_2d_new_from_buffer@Base 3.29.4
- cogl_wayland_texture_set_region_from_shm_buffer@Base 3.29.4
+ (arch=linux-any)cogl_wayland_display_set_compositor_display@Base 3.29.4
+ (arch=linux-any)cogl_wayland_texture_2d_new_from_buffer@Base 3.29.4
+ (arch=linux-any)cogl_wayland_texture_set_region_from_shm_buffer@Base 3.29.4
  cogl_x11_onscreen_get_visual_xid@Base 3.29.4
  cogl_x11_onscreen_get_window_xid@Base 3.29.4
  cogl_x11_onscreen_set_foreign_window_xid@Base 3.29.4
