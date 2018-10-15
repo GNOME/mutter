@@ -1,3 +1,5 @@
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+
 /*
  * Wayland Support
  *
@@ -54,5 +56,6 @@
 #define META_ZWP_XWAYLAND_KEYBOARD_GRAB_V1_VERSION 1
 #define META_GTK_TEXT_INPUT_VERSION         1
 #define META_ZWP_TEXT_INPUT_V3_VERSION      1
+#define META_WP_VIEWPORTER_VERSION          1
 
 #endif

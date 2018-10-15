@@ -1,3 +1,5 @@
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
+
 /*
  * shaped texture
  *
@@ -29,6 +31,10 @@
 
 #include "meta/meta-shaped-texture.h"
 
+#ifdef HAVE_WAYLAND
+#include <wayland-server.h>
+#endif
+
 ClutterActor *meta_shaped_texture_new (void);
 void meta_shaped_texture_set_texture (MetaShapedTexture *stex,
                                       CoglTexture       *texture);
@@ -41,5 +47,19 @@ void meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
                                             int                fallback_height);
 gboolean meta_shaped_texture_is_obscured (MetaShapedTexture *self);
 cairo_region_t * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex);
+
+#ifdef HAVE_WAYLAND
+void meta_shaped_texture_set_scale (MetaShapedTexture *stex, int scale);
+void meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture *stex,
+                                                float              src_x,
+                                                float              src_y,
+                                                float              src_width,
+                                                float              src_height);
+void meta_shaped_texture_set_viewport_dest (MetaShapedTexture *stex,
+                                            int dest_width,
+                                            int dest_height);
+void meta_shaped_texture_set_transform (MetaShapedTexture        *stex,
+                                        enum wl_output_transform  transform);
+#endif
 
 #endif
