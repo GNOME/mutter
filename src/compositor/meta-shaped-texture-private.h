@@ -29,6 +29,18 @@
 
 #include "meta/meta-shaped-texture.h"
 
+typedef enum
+{
+  TRANSFORM_NORMAL,
+  TRANSFORM_90,
+  TRANSFORM_180,
+  TRANSFORM_270,
+  TRANSFORM_FLIPPED,
+  TRANSFORM_FLIPPED_90,
+  TRANSFORM_FLIPPED_180,
+  TRANSFORM_FLIPPED_270
+} MetaShapedTextureTransform;
+
 ClutterActor *meta_shaped_texture_new (void);
 void meta_shaped_texture_set_texture (MetaShapedTexture *stex,
                                       CoglTexture       *texture);
@@ -41,5 +53,17 @@ void meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
                                             int                fallback_height);
 gboolean meta_shaped_texture_is_obscured (MetaShapedTexture *self);
 cairo_region_t * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex);
+
+void meta_shaped_texture_set_size_changed (MetaShapedTexture *stex);
+void meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture *stex,
+                                                float              src_x,
+                                                float              src_y,
+                                                float              src_width,
+                                                float              src_height);
+void meta_shaped_texture_set_viewport_dest (MetaShapedTexture *stex,
+                                            int                dest_width,
+                                            int                dest_height);
+void meta_shaped_texture_set_transform (MetaShapedTexture          *stex,
+                                        MetaShapedTextureTransform  transform);
 
 #endif
