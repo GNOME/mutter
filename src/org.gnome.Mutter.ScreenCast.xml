@@ -86,7 +86,10 @@
 
 	Record a single window.
 
-	Available @properties include: (none)
+	Available @properties include:
+
+	* "window-id" (t): Id of the window to record.
+
     -->
     <method name="RecordWindow">
       <arg name="properties" type="a{sv}" direction="in" />
