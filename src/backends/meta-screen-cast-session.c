@@ -30,6 +30,7 @@
 #include "backends/meta-screen-cast-window-stream.h"
 #include "backends/meta-screen-cast-stream.h"
 #include "backends/meta-remote-access-controller-private.h"
+#include "core/display-private.h"
 
 #define META_SCREEN_CAST_SESSION_DBUS_PATH "/org/gnome/Mutter/ScreenCast/Session"
 
@@ -339,6 +340,7 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
   MetaWindow *window = NULL;
   GError *error = NULL;
   MetaDisplay *display;
+  GVariant *window_id_variant = NULL;
   MetaScreenCastWindowStream *window_stream;
   MetaScreenCastStream *stream;
   char *stream_path;
@@ -351,8 +353,23 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
       return TRUE;
     }
 
+  if (properties_variant)
+    window_id_variant = g_variant_lookup_value (properties_variant,
+                                                "window-id",
+                                                G_VARIANT_TYPE ("t"));
+
   display = meta_get_display();
-  window = meta_display_get_focus_window (display);
+  if (window_id_variant)
+    {
+      uint64_t window_id;
+      g_variant_get (window_id_variant, "t", &window_id);
+      window = meta_display_get_window_from_id (display, window_id);
+    }
+  else
+    {
+      window = meta_display_get_focus_window (display);
+    }
+
   if (!window)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
