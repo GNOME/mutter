@@ -27,6 +27,7 @@
 
 #include "backends/meta-monitor-manager-private.h"
 #include "clutter/clutter.h"
+#include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-surface-actor.h"
 #include "meta/meta-cursor-tracker.h"
 #include "wayland/meta-wayland-pointer-constraints.h"
@@ -86,8 +87,6 @@ struct _MetaWaylandPendingState
   int32_t dx;
   int32_t dy;
 
-  int scale;
-
   /* wl_surface.damage */
   cairo_region_t *surface_damage;
   /* wl_surface.damage_buffer */
@@ -111,6 +110,19 @@ struct _MetaWaylandPendingState
   gboolean has_new_max_size;
   int new_max_width;
   int new_max_height;
+
+  gboolean has_new_scale;
+  int scale;
+  gboolean has_new_viewport_src_rect;
+  float viewport_src_x;
+  float viewport_src_y;
+  float viewport_src_width;
+  float viewport_src_height;
+  gboolean has_new_viewport_dest;
+  int viewport_dest_width;
+  int viewport_dest_height;
+  gboolean has_new_transform;
+  MetaShapedTextureTransform transform;
 };
 
 struct _MetaWaylandDragDestFuncs
@@ -140,10 +152,19 @@ struct _MetaWaylandSurface
   MetaWindow *window;
   cairo_region_t *input_region;
   cairo_region_t *opaque_region;
-  int scale;
   int32_t offset_x, offset_y;
   GList *subsurfaces;
   GHashTable *outputs_to_destroy_notify_id;
+  struct wl_resource *viewport_resource;
+
+  int scale;
+  float viewport_src_x;
+  float viewport_src_y;
+  float viewport_src_width;
+  float viewport_src_height;
+  int viewport_dest_width;
+  int viewport_dest_height;
+  MetaShapedTextureTransform transform;
 
   /* Buffer reference state. */
   struct {
