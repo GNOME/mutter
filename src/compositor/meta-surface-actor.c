@@ -38,7 +38,7 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaSurfaceActor, meta_surface_actor, CLUTTER_
 enum {
   REPAINT_SCHEDULED,
   SIZE_CHANGED,
-
+  OBSCURED_CHANGED,
   LAST_SIGNAL,
 };
 
@@ -143,6 +143,12 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
                                         0,
                                         NULL, NULL, NULL,
                                         G_TYPE_NONE, 0);
+  signals[OBSCURED_CHANGED] = g_signal_new ("obscured-changed",
+                                       G_TYPE_FROM_CLASS (object_class),
+                                       G_SIGNAL_RUN_LAST,
+                                       0,
+                                       NULL, NULL, NULL,
+                                       G_TYPE_NONE, 0);
 }
 
 static void
@@ -174,6 +180,14 @@ texture_size_changed (MetaShapedTexture *texture,
   g_signal_emit (actor, signals[SIZE_CHANGED], 0);
 }
 
+void
+texture_obscured_changed (MetaShapedTexture *texture,
+                      gpointer           user_data)
+{
+  MetaSurfaceActor *actor = META_SURFACE_ACTOR (user_data);
+  g_signal_emit (actor, signals[OBSCURED_CHANGED], 0);
+}
+
 static void
 meta_surface_actor_init (MetaSurfaceActor *self)
 {
@@ -186,6 +200,8 @@ meta_surface_actor_init (MetaSurfaceActor *self)
   priv->texture = META_SHAPED_TEXTURE (meta_shaped_texture_new ());
   g_signal_connect_object (priv->texture, "size-changed",
                            G_CALLBACK (texture_size_changed), self, 0);
+  g_signal_connect_object (priv->texture, "obscured-changed",
+                           G_CALLBACK (texture_obscured_changed), self, 0);
   clutter_actor_add_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->texture));
 }
 
@@ -385,3 +401,4 @@ meta_surface_actor_get_window (MetaSurfaceActor *self)
 {
   return META_SURFACE_ACTOR_GET_CLASS (self)->get_window (self);
 }
+

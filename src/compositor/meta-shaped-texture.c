@@ -77,6 +77,7 @@ static void cullable_iface_init (MetaCullableInterface *iface);
 
 enum {
   SIZE_CHANGED,
+  OBSCURED_CHANGED,
 
   LAST_SIGNAL,
 };
@@ -96,6 +97,7 @@ struct _MetaShapedTexturePrivate
   CoglPipeline *unblended_pipeline;
 
   gboolean is_y_inverted;
+  gboolean is_obscured;
 
   /* The region containing only fully opaque pixels */
   cairo_region_t *opaque_region;
@@ -138,6 +140,12 @@ meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
                                         0,
                                         NULL, NULL, NULL,
                                         G_TYPE_NONE, 0);
+  signals[OBSCURED_CHANGED] = g_signal_new ("obscured-changed",
+                                        G_TYPE_FROM_CLASS (gobject_class),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,
+                                        NULL, NULL, NULL,
+                                        G_TYPE_NONE, 0);
 }
 
 static void
@@ -153,6 +161,7 @@ meta_shaped_texture_init (MetaShapedTexture *self)
   priv->mask_texture = NULL;
   priv->create_mipmaps = TRUE;
   priv->is_y_inverted = TRUE;
+  priv->is_obscured = FALSE;
 }
 
 static void
@@ -160,6 +169,7 @@ set_unobscured_region (MetaShapedTexture *self,
                        cairo_region_t    *unobscured_region)
 {
   MetaShapedTexturePrivate *priv = self->priv;
+  gboolean is_obscured;
 
   g_clear_pointer (&priv->unobscured_region, cairo_region_destroy);
   if (unobscured_region)
@@ -180,6 +190,12 @@ set_unobscured_region (MetaShapedTexture *self,
       cairo_rectangle_int_t bounds = { 0, 0, width, height };
       priv->unobscured_region = cairo_region_copy (unobscured_region);
       cairo_region_intersect_rectangle (priv->unobscured_region, &bounds);
+      is_obscured = cairo_region_is_empty (priv->unobscured_region);
+      if (priv->is_obscured != is_obscured)
+        {
+          priv->is_obscured = is_obscured;
+          g_signal_emit (self, signals[OBSCURED_CHANGED], 0);
+        }
     }
 }
 
