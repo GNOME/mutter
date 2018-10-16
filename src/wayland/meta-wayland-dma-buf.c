@@ -3,6 +3,7 @@
 /*
  * Copyright (C) 2016 Red Hat Inc.
  * Copyright (C) 2017 Intel Corporation
+ * Copyright (C) 2018 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,6 +86,13 @@ meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer *buffer,
 
   switch (dma_buf->drm_format)
     {
+    /*
+     * NOTE: The cogl_format here is only used for texture color channel
+     * swizzling as compared to COGL_PIXEL_FORMAT_ARGB. It is *not* used
+     * for accessing the buffer memory. EGL will access the buffer
+     * memory according to the DRM fourcc code. Cogl will not mmap
+     * and access the buffer memory at all.
+     */
     case DRM_FORMAT_XRGB8888:
       cogl_format = COGL_PIXEL_FORMAT_RGB_888;
       break;
