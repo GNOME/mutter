@@ -65,7 +65,7 @@ struct _MetaOutput
   MetaGpu *gpu;
 
   /* The low-level ID of this output, used to apply back configuration */
-  glong winsys_id;
+  uint64_t winsys_id;
   char *name;
   char *vendor;
   char *product;
