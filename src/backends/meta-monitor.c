@@ -73,7 +73,7 @@ typedef struct _MetaMonitorPrivate
    * (it's an attempt to keep windows on the same monitor, and preferably on
    * the primary one).
    */
-  long winsys_id;
+  uint64_t winsys_id;
 } MetaMonitorPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitor, meta_monitor, G_TYPE_OBJECT)
