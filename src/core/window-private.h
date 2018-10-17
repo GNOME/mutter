@@ -231,7 +231,7 @@ struct _MetaWindow
 
   double tile_hfraction;
 
-  int preferred_output_winsys_id;
+  uint64_t preferred_output_winsys_id;
 
   /* Whether we're shaded */
   guint shaded : 1;
