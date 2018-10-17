@@ -136,7 +136,7 @@ typedef struct _MonitorTestCaseSetup
 
 typedef struct _MonitorTestCaseMonitorCrtcMode
 {
-  int output;
+  uint64_t output;
   int crtc_mode;
 } MetaTestCaseMonitorCrtcMode;
 
@@ -151,7 +151,7 @@ typedef struct _MonitorTestCaseMonitorMode
 
 typedef struct _MonitorTestCaseMonitor
 {
-  long outputs[MAX_N_OUTPUTS];
+  uint64_t outputs[MAX_N_OUTPUTS];
   int n_outputs;
   MetaMonitorTestCaseMonitorMode modes[MAX_N_MODES];
   int n_modes;
@@ -409,7 +409,7 @@ destroy_monitor_test_clients (void)
 
 static MetaOutput *
 output_from_winsys_id (MetaMonitorManager *monitor_manager,
-                       long                winsys_id)
+                       uint64_t            winsys_id)
 {
   MetaMonitorManagerTest *monitor_manager_test =
     META_MONITOR_MANAGER_TEST (monitor_manager);
@@ -714,7 +714,7 @@ check_monitor_configuration (MonitorTestCase *test_case)
       for (l_output = outputs, j = 0; l_output; l_output = l_output->next, j++)
         {
           MetaOutput *output = l_output->data;
-          long winsys_id = test_case->expect.monitors[i].outputs[j];
+          uint64_t winsys_id = test_case->expect.monitors[i].outputs[j];
 
           g_assert (output == output_from_winsys_id (monitor_manager,
                                                      winsys_id));
