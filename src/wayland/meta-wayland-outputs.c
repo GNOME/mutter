@@ -415,7 +415,7 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
 
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
-  new_table = g_hash_table_new_full (NULL, NULL, NULL,
+  new_table = g_hash_table_new_full (g_int64_hash, g_int64_equal, NULL,
                                      wayland_output_destroy_notify);
 
   for (l = logical_monitors; l; l = l->next)
@@ -428,12 +428,12 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
 
       wayland_output =
         g_hash_table_lookup (compositor->outputs,
-                             GSIZE_TO_POINTER (logical_monitor->winsys_id));
+                             logical_monitor->winsys_id);
 
       if (wayland_output)
         {
           g_hash_table_steal (compositor->outputs,
-                              GSIZE_TO_POINTER (logical_monitor->winsys_id));
+                              logical_monitor->winsys_id);
         }
       else
         {
@@ -442,7 +442,7 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
 
       wayland_output_update_for_output (wayland_output, logical_monitor);
       g_hash_table_insert (new_table,
-                           GSIZE_TO_POINTER (logical_monitor->winsys_id),
+                           logical_monitor->winsys_id,
                            wayland_output);
     }
 
@@ -639,7 +639,8 @@ meta_wayland_outputs_init (MetaWaylandCompositor *compositor)
   g_signal_connect (monitors, "monitors-changed-internal",
                     G_CALLBACK (on_monitors_changed), compositor);
 
-  compositor->outputs = g_hash_table_new_full (NULL, NULL, NULL, wayland_output_destroy_notify);
+  compositor->outputs = g_hash_table_new_full (g_int64_hash, g_int64_equal, NULL,
+                                               wayland_output_destroy_notify);
   compositor->outputs = meta_wayland_compositor_update_outputs (compositor, monitors);
 
   wl_global_create (compositor->wayland_display,
