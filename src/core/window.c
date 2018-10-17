@@ -3798,7 +3798,7 @@ meta_window_get_main_logical_monitor (MetaWindow *window)
 
 static MetaLogicalMonitor *
 find_monitor_by_winsys_id (MetaWindow *window,
-                           guint       winsys_id)
+                           uint64_t    winsys_id)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -4052,7 +4052,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   if (window->monitor)
     {
-      guint old_output_winsys_id;
+      uint64_t old_output_winsys_id;
 
       old_output_winsys_id = window->monitor->winsys_id;
 

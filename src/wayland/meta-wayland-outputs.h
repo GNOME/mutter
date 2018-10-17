@@ -44,6 +44,8 @@ struct _MetaWaylandOutput
 
   GList                    *resources;
   GList                    *xdg_output_resources;
+
+  uint64_t                  winsys_id;
 };
 
 void meta_wayland_outputs_init (MetaWaylandCompositor *compositor);
