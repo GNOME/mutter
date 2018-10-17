@@ -304,7 +304,17 @@ get_standalone_layer (MetaWindow *window)
     case META_WINDOW_NOTIFICATION:
     case META_WINDOW_COMBO:
     case META_WINDOW_OVERRIDE_OTHER:
-      layer = META_LAYER_OVERRIDE_REDIRECT;
+      switch (window->client_type)
+        {
+        case META_WINDOW_CLIENT_TYPE_X11:
+          layer = META_LAYER_OVERRIDE_REDIRECT;
+          break;
+        case META_WINDOW_CLIENT_TYPE_WAYLAND:
+          layer = META_LAYER_NORMAL;
+          break;
+        default:
+          g_assert_not_reached ();
+        }
       break;
     default:
       if (window->wm_state_below)
