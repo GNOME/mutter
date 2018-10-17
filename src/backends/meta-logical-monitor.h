@@ -51,7 +51,7 @@ struct _MetaLogicalMonitor
      (it's an attempt to keep windows on the same monitor, and preferably on
      the primary one).
   */
-  glong winsys_id;
+  uint64_t winsys_id;
 
   GList *monitors;
 };
