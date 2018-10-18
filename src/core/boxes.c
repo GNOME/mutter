@@ -208,7 +208,6 @@ meta_rectangle_intersect (const MetaRectangle *src1,
 
   g_return_val_if_fail (src1 != NULL, FALSE);
   g_return_val_if_fail (src2 != NULL, FALSE);
-  g_return_val_if_fail (dest != NULL, FALSE);
 
   return_val = FALSE;
 
@@ -219,16 +218,22 @@ meta_rectangle_intersect (const MetaRectangle *src1,
 
   if (dest_w > 0 && dest_h > 0)
     {
-      dest->x = dest_x;
-      dest->y = dest_y;
-      dest->width = dest_w;
-      dest->height = dest_h;
+      if (dest)
+        {
+          dest->x = dest_x;
+          dest->y = dest_y;
+          dest->width = dest_w;
+          dest->height = dest_h;
+        }
       return_val = TRUE;
     }
   else
     {
-      dest->width = 0;
-      dest->height = 0;
+      if (dest)
+        {
+          dest->width = 0;
+          dest->height = 0;
+        }
     }
 
   return return_val;
