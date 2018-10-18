@@ -527,6 +527,8 @@ struct _MetaWindow
   gboolean placement_rule_constrained;
   int constrained_placement_rule_offset_x;
   int constrained_placement_rule_offset_y;
+
+  guint unmanage_idle_id;
 };
 
 struct _MetaWindowClass
@@ -610,6 +612,7 @@ MetaWindow * _meta_window_shared_new       (MetaDisplay         *display,
 
 void        meta_window_unmanage           (MetaWindow  *window,
                                             guint32      timestamp);
+void        meta_window_unmanage_on_idle   (MetaWindow *window);
 void        meta_window_queue              (MetaWindow  *window,
                                             guint queuebits);
 void        meta_window_tile               (MetaWindow        *window,
