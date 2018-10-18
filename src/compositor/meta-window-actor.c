@@ -170,6 +170,8 @@ static void meta_window_actor_get_property (GObject      *object,
                                             GValue       *value,
                                             GParamSpec   *pspec);
 
+static void meta_window_actor_queue_relayout (ClutterActor *actor);
+
 static void meta_window_actor_paint (ClutterActor *actor);
 
 static gboolean meta_window_actor_get_paint_volume (ClutterActor       *actor,
@@ -213,6 +215,7 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
   object_class->get_property = meta_window_actor_get_property;
   object_class->constructed  = meta_window_actor_constructed;
 
+  actor_class->queue_relayout = meta_window_actor_queue_relayout;
   actor_class->paint = meta_window_actor_paint;
   actor_class->get_paint_volume = meta_window_actor_get_paint_volume;
 
@@ -708,6 +711,23 @@ assign_frame_counter_to_frames (MetaWindowActor *self)
       if (frame->frame_counter == -1)
         frame->frame_counter = clutter_stage_get_frame_counter (stage);
     }
+}
+
+static void
+meta_window_actor_queue_relayout (ClutterActor *actor)
+{
+  /* Window actors are not traditional widgets whose size and position
+   * changing should trigger reallocation of the parent (MetaWindowGroup).
+   * By localizing the queue_layout to our own branch of the scene graph we
+   * avoid the default clutter_actor_real_queue_relayout trickling up to the
+   * stage, and so we avoid a full scene relayout when only the window is
+   * moving or resizing.
+   */
+  clutter_actor_allocate_preferred_size (actor, CLUTTER_ALLOCATION_NONE);
+
+  /* We will also receive a queue_redraw from clutter_actor_queue_relayout
+   * after this function returns.
+   */
 }
 
 static void
