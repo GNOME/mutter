@@ -36,10 +36,10 @@
  * using clutter_actor_destroy(), which will take care of destroying all the
  * actors contained inside them.
  *
- * #ClutterStage is a proxy actor, wrapping the backend-specific
- * implementation of the windowing system. It is possible to subclass
- * #ClutterStage, as long as every overridden virtual function chains up to
- * the parent class corresponding function.
+ * #ClutterStage is a proxy actor, wrapping the backend-specific implementation
+ * (a #StageWindow) of the windowing system. It is possible to subclass
+ * #ClutterStage, as long as every overridden virtual function chains up to the
+ * parent class corresponding function.
  */
 
 #include "clutter-build-config.h"
@@ -2249,6 +2249,8 @@ clutter_stage_class_init (ClutterStageClass *klass)
    * @stage: the stage that received the event
    * @frame_event: a #CoglFrameEvent
    * @frame_info: a #ClutterFrameInfo
+   *
+   * Signals that the #ClutterStage was presented on the screen to the user.
    */
   stage_signals[PRESENTED] =
     g_signal_new (I_("presented"),
@@ -3989,6 +3991,12 @@ clutter_stage_get_minimum_size (ClutterStage *stage,
     *height_p = (guint) height;
 }
 
+/**
+ * _clutter_stage_schedule_update:
+ * @window: a #ClutterStage actor
+ *
+ * Schedules a redraw of the #ClutterStage at the next optimal timestamp.
+ */
 void
 _clutter_stage_schedule_update (ClutterStage *stage)
 {
@@ -4005,7 +4013,18 @@ _clutter_stage_schedule_update (ClutterStage *stage)
                                                 stage->priv->sync_delay);
 }
 
-/* Returns the earliest time the stage is ready to update */
+/**
+ * _clutter_stage_get_update_time:
+ * @stage: a #ClutterStage actor
+ *
+ * Returns the earliest time in which the stage is ready to update. The update
+ * time is set when _clutter_stage_schedule_update() is called. This can then
+ * be used by e.g. the #ClutterMasterClock to know when the stage needs to be
+ * redrawn.
+ *
+ * Returns: -1 if no redraw is needed; 0 if the backend doesn't know, or the
+ * timestamp (in microseconds) otherwise.
+ */
 gint64
 _clutter_stage_get_update_time (ClutterStage *stage)
 {
@@ -4021,6 +4040,13 @@ _clutter_stage_get_update_time (ClutterStage *stage)
   return _clutter_stage_window_get_update_time (stage_window);
 }
 
+/**
+ * _clutter_stage_clear_update_time:
+ * @stage: a #ClutterStage actor
+ *
+ * Resets the update time. Call this after a redraw, so that the update time
+ * can again be updated.
+ */
 void
 _clutter_stage_clear_update_time (ClutterStage *stage)
 {

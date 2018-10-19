@@ -3,7 +3,20 @@
 /**
  * SECTION:meta-window-actor
  * @title: MetaWindowActor
- * @short_description: An actor representing a top-level window in the scene graph
+ * @short_description: An actor representing a top-level window in the scene
+ *   graph
+ *
+ * #MetaWindowActor is a #ClutterActor that adds a notion of a window to the
+ * Clutter scene graph. It contains a #MetaWindow which provides the windowing
+ * API, and the #MetaCompositor that handles it.  For the actual content of the
+ * window, it contains a #MetaSurfaceActor.
+ *
+ * #MetaWindowActor takes care of the rendering features you need for your
+ * window. For example, it will take the windows' requested opacity and use
+ * that for clutter_actor_set_opacity(). Furthermore, it will also draw a
+ * shadow around the window (using #MetaShadow) and deal with synchronization
+ * between events of the window and the actual render loop. See
+ * MetaWindowActor::first-frame for an example of the latter.
  */
 
 #include "config.h"

@@ -311,6 +311,14 @@ meta_cursor_tracker_unset_window_cursor (MetaCursorTracker *tracker)
   set_window_cursor (tracker, FALSE, NULL);
 }
 
+/**
+ * meta_cursor_tracker_set_root_cursor:
+ * @tracker: a #MetaCursorTracker object.
+ * @cursor_sprite: (transfer none): the new root cursor
+ *
+ * Sets the root cursor (the cursor that is shown if not modified by a window).
+ * The #MetaCursorTracker will take a strong reference to the sprite.
+ */
 void
 meta_cursor_tracker_set_root_cursor (MetaCursorTracker *tracker,
                                      MetaCursorSprite  *cursor_sprite)

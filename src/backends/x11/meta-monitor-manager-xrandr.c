@@ -23,6 +23,18 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * SECTION:meta-monitor-manager-xrandr
+ * @title: MetaMonitorManagerXrandr
+ * @short_description: A subclass of #MetaMonitorManager using XRadR
+ *
+ * #MetaMonitorManagerXrandr is a subclass of #MetaMonitorManager which
+ * implements its functionality using the RandR X protocol.
+ *
+ * See also #MetaMonitorManagerKms for a native implementation using Linux DRM
+ * and udev.
+ */
+
 #include "config.h"
 
 #include "backends/x11/meta-monitor-manager-xrandr.h"
