@@ -22,6 +22,22 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
+/**
+ * SECTION:meta-backend
+ * @title: MetaBackend
+ * @short_description: Handles monitor config, modesetting, cursor sprites, ...
+ *
+ * MetaBackend is the abstraction that deals with several things like:
+ * - Monitor configuration (using an internal #MetaMonitorManager)
+ * - Modesetting (depending on the backend, this can be done either by X or KMS)
+ * - Input device configuration
+ * - Setting the hardware cursor sprite (using #MetaCursorTracker)
+ * - Interacting with logind
+ * - ... and much more
+ *
+ * Note that the #MetaBackend is completely unrelated to #ClutterBackend.
+ */
+
 #include "config.h"
 
 #include <stdlib.h>
@@ -1117,6 +1133,14 @@ meta_backend_get_client_pointer_constraint (MetaBackend *backend)
   return priv->client_pointer_constraint;
 }
 
+/**
+ * meta_backend_set_client_pointer_constraint:
+ * @backend: a #MetaBackend object.
+ * @constraint: (nullable): the client constraint to follow.
+ *
+ * Sets the current pointer constraint. If @constraint is %NULL, the current
+ * one is removed
+ */
 void
 meta_backend_set_client_pointer_constraint (MetaBackend           *backend,
                                             MetaPointerConstraint *constraint)
@@ -1239,6 +1263,14 @@ meta_clutter_init (void)
   meta_backend_post_init (_backend);
 }
 
+/**
+ * meta_is_stage_views_enabled:
+ *
+ * Returns whether the #ClutterStage can be rendered using multiple stage views.
+ * In practice, this means we can define a separate framebuffer for each
+ * #MetaLogicalMonitor, rather than rendering everything into a single
+ * framebuffer. For example: in X11, onle one single framebuffer is allowed.
+ */
 gboolean
 meta_is_stage_views_enabled (void)
 {

@@ -22,6 +22,17 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
+/**
+ * SECTION:meta-clutter-backend-native
+ * @title: MetaClutterBackendNatve
+ * @short_description: A native backend which renders using EGL.
+ *
+ * MetaClutterBackendNative is a "native" #ClutterBackend, which means it will
+ * render its stage(views) using #CoglRenderer<!-- -->s.
+ *
+ * Note that MetaClutterBackendNative is something different than e #MetBackend.
+ */
+
 #include "config.h"
 
 #include <glib-object.h>

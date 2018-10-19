@@ -19,6 +19,21 @@
  * 02111-1307, USA.
  */
 
+/**
+ * SECTION:meta-logical-monitor
+ * @title: MetaLogicalMonitor
+ * @short_description: An abstraction for a monitor(set) and its configuration.
+ *
+ * A MetaLogicalMonitor represents a single "logical" monitor: a single
+ * viewport, with its own transformations (e.g. scaling). It can consist of one
+ * ore more #MetaMonitor<!-- -->s; the latter can happen for example when 2
+ * monitors are mirrored.
+ *
+ * The abstracion of the MetaLogicalMonitor allows us to abstract away the
+ * specifics of the monitors' setup. It can then be used in a relatively easy
+ * way in e.g. #MetaRendererView.
+ */
+
 #include "config.h"
 
 #include "backends/meta-logical-monitor.h"
