@@ -22,6 +22,19 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
+/**
+ * SECTION:meta-pointer-constraint
+ * @title: MetaPointerConstraint
+ * @short_description: Pointer client constraints.
+ *
+ * A MetaPointerConstraint can be used to implement any kind of pointer
+ * constraint as requested by a client, such as cursor lock.
+ *
+ * Examples of pointer constraints are "pointer confinement" and "pointer
+ * locking" (as defined in the wayland pointer constraint protocol extension),
+ * which restrict movement in relation to a given client.
+ */
+
 #include "config.h"
 
 #include "backends/meta-pointer-constraint.h"
@@ -40,6 +53,19 @@ meta_pointer_constraint_class_init (MetaPointerConstraintClass *klass)
 {
 }
 
+/**
+ * meta_pointer_constraint_constrain:
+ * @constraint: a #MetaPointerConstraint.
+ * @device; the device of the pointer.
+ * @time: the timestamp (in ms) of the event.
+ * @prev_x: X-coordinate of the previous pointer position.
+ * @prev_y: Y-coordinate of the previous pointer position.
+ * @x: The modifiable X-coordinate to which the pointer would like to go to.
+ * @y: The modifiable Y-coordinate to which the pointer would like to go to.
+ *
+ * Constrains the pointer movement from point (@prev_x, @prev_y) to (@x, @y),
+ * if needed.
+ */
 void
 meta_pointer_constraint_constrain (MetaPointerConstraint *constraint,
                                    ClutterInputDevice    *device,

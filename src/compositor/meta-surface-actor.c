@@ -5,8 +5,14 @@
  * @title: MetaSurfaceActor
  * @short_description: An actor representing a surface in the scene graph
  *
- * A surface can be either a shaped texture, or a group of shaped texture,
- * used to draw the content of a window.
+ * MetaSurfaceActor is an abstract class which represents a surface in the
+ * Clutter scene graph. A subclass can implement the specifics of a surface
+ * depending on the way it is handled by a display protocol.
+ *
+ * An important feature of #MetaSurfaceActor is that it allows you to set an
+ * "input region": all events that occur in the surface, but outside of the
+ * input region are to be explicitly ignored. By default, this region is to
+ * %NULL, which means events on the whole surface is allowed.
  */
 
 #include "config.h"
