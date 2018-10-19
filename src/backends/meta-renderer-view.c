@@ -15,6 +15,19 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * SECTION:meta-renderer-view
+ * @title: MetaRendererView
+ * @short_description: Renders (a part of) the global stage.
+ *
+ * A MetaRendererView object is responsible for rendering (a part of) the
+ * global stage, or more precisely: the part that matches what can be seen on a
+ * #MetaLogicalMonitor. By splitting up the rendering into different parts and
+ * attaching it to a #MetaLogicalMonitor, we can do the rendering so that each
+ * renderer view is responsible for applying the right #MetaMonitorTransform
+ * and the right scaling.
+ */
+
 #include "config.h"
 
 #include "backends/meta-renderer-view.h"

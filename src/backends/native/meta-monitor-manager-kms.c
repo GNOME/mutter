@@ -22,6 +22,18 @@
  * Author: Giovanni Campagna <gcampagn@redhat.com>
  */
 
+/**
+ * SECTION:meta-monitor-manager-kms
+ * @title: MetaMonitorManagerKms
+ * @short_description: A subclass of #MetaMonitorManager using Linux DRM
+ *
+ * #MetaMonitorManagerKms is a subclass of #MetaMonitorManager which
+ * implements its functionality "natively": it uses the appropriate
+ * functions of the Linux DRM kernel module and using a udev client.
+ *
+ * See also #MetaMonitorManagerXrandr for an implementation using XRandR.
+ */
+
 #include "config.h"
 
 #include "backends/native/meta-monitor-manager-kms.h"

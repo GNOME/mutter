@@ -21,9 +21,39 @@
  */
 
 /**
- * SECTION:window
+ * SECTION:meta-window
  * @title: MetaWindow
- * @short_description: Mutter X managed windows
+ * @short_description: A display-agnostic abstraction for a window.
+ *
+ * #MetaWindow is the core abstraction in Mutter of a window. It has the
+ * properties you'd expect, such as a title, an icon, whether it's fullscreen,
+ * has decorations, etc.
+ *
+ * Since a lot of different kinds of windows exist, each window also a
+ * #MetaWindowType which denotes which kind of window we're exactly dealing
+ * with. For example, one expects slightly different behaviour from a dialog
+ * than a "normal" window. The type of a window can be queried with
+ * meta_window_get_type().
+ *
+ * Common API for windows include:
+ * - Minimizing: meta_window_minimize() / meta_window_unminimize()
+ * - Maximizing: meta_window_maximize() / meta_window_unmaximize()
+ * - Fullscreen: meta_window_make_fullscreen() / meta_window_unmake_fullscreen()
+ *               / meta_window_is_fullscreen()
+ *
+ * Each #MetaWindow is part of either one or all #MetaWorkspace<!-- -->s of the
+ * desktop. You can activate a window on a certain workspace using
+ * meta_window_activate_with_workspace(), and query on which workspace it is
+ * located using meta_window_located_on_workspace(). The workspace it is part
+ * of can be obtained using meta_window_get_workspace().
+ *
+ * Each display protocol should make a subclass to be compatible with that
+ * protocols' specifics, for example #MetaWindowX11 and #MetaWindowWayland.
+ * This is independent of the protocol that the client uses, which is modeled
+ * using the #MetaWindowClientType enum.
+ *
+ * To integrate within the Clutter scene graph, which deals with the actual
+ * rendering, each #MetaWindow will be part of a #MetaWindowActor.
  */
 
 #include "config.h"

@@ -22,6 +22,18 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
+/**
+ * SECTION:meta-renderer
+ * @title: MetaRenderer
+ * @short_description: Keeps track of the different renderer views.
+ *
+ * A MetaRenderer object contains a list of #MetaRendererView<!-- -->s, each
+ * responsible for rendering a part of the stage, corresponding to each
+ * #MetaLogicalMonitor. It keeps track of this list by querying the list of
+ * #MetaLogicalMonitor<!-- -->s in the #MetaMonitorManager, and creating a
+ * renderer view for each.
+ */
+
 #include "config.h"
 
 #include "backends/meta-renderer.h"
@@ -51,6 +63,13 @@ meta_renderer_create_view (MetaRenderer       *renderer,
                                                           logical_monitor);
 }
 
+/**
+ * meta_renderer_rebuild_views:
+ * @renderer: a #MetaRenderer object
+ *
+ * Rebuilds the internal list of #MetaRendererView objects (this also means the
+ * original list is unconditionally freed).
+ */
 void
 meta_renderer_rebuild_views (MetaRenderer *renderer)
 {
@@ -87,6 +106,16 @@ meta_renderer_set_legacy_view (MetaRenderer     *renderer,
   priv->views = g_list_append (priv->views, legacy_view);
 }
 
+/**
+ * meta_renderer_get_views:
+ * @renderer: a #MetaRenderer object
+ *
+ * Returns a list of #MetaRendererView objects, each dealing with a part of the
+ * stage.
+ *
+ * Returns: (transfer-none) (element-type MetaRendererView): a list of
+ * #MetaRendererView objects.
+ */
 GList *
 meta_renderer_get_views (MetaRenderer *renderer)
 {
