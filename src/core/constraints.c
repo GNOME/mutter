@@ -779,7 +779,7 @@ try_flip_window_position (MetaWindow                       *window,
 }
 
 static gboolean
-is_custom_rule_satisfied (ConstraintInfo    *info,
+is_custom_rule_satisfied (MetaRectangle     *rect,
                           MetaPlacementRule *placement_rule,
                           MetaRectangle     *intersection)
 {
@@ -790,9 +790,9 @@ is_custom_rule_satisfied (ConstraintInfo    *info,
   y_constrain_actions = (META_PLACEMENT_CONSTRAINT_ADJUSTMENT_SLIDE_Y |
                          META_PLACEMENT_CONSTRAINT_ADJUSTMENT_FLIP_Y);
   if ((placement_rule->constraint_adjustment & x_constrain_actions &&
-       info->current.width != intersection->width) ||
+       rect->width != intersection->width) ||
       (placement_rule->constraint_adjustment & y_constrain_actions &&
-       info->current.height != intersection->height))
+       rect->height != intersection->height))
     return FALSE;
   else
     return TRUE;
@@ -807,6 +807,7 @@ constrain_custom_rule (MetaWindow         *window,
   MetaPlacementRule *placement_rule;
   MetaRectangle intersection;
   gboolean constraint_satisfied;
+  MetaRectangle adjusted_unconstrained;
   MetaPlacementRule current_rule;
   MetaWindow *parent;
   MetaRectangle parent_rect;
@@ -818,26 +819,47 @@ constrain_custom_rule (MetaWindow         *window,
   if (!placement_rule)
     return TRUE;
 
+  adjusted_unconstrained = info->current;
+
   switch (window->placement_state)
     {
     case META_PLACEMENT_STATE_UNCONSTRAINED:
       break;
     case META_PLACEMENT_STATE_CONSTRAINED:
+      parent = meta_window_get_transient_for (window);
+      meta_window_get_frame_rect (parent, &parent_rect);
+      adjusted_unconstrained.x =
+        parent_rect.x + window->constrained_placement_rule_offset_x;
+      adjusted_unconstrained.y =
+        parent_rect.y + window->constrained_placement_rule_offset_y;
+      break;
+    }
+
+  meta_rectangle_intersect (&adjusted_unconstrained, &info->work_area_monitor,
+                            &intersection);
+
+  constraint_satisfied = (meta_rectangle_equal (&info->current,
+                                                &adjusted_unconstrained) &&
+                          is_custom_rule_satisfied (&adjusted_unconstrained,
+                                                    placement_rule,
+                                                    &intersection));
+
+  if (check_only)
+    return constraint_satisfied;
+
+  current_rule = *placement_rule;
+
+  switch (window->placement_state)
+    {
+    case META_PLACEMENT_STATE_CONSTRAINED:
       {
         MetaRectangle parent_buffer_rect;
 
-        parent = meta_window_get_transient_for (window);
-        meta_window_get_frame_rect (parent, &parent_rect);
-        info->current.x =
-          parent_rect.x + window->constrained_placement_rule_offset_x;
-        info->current.y =
-          parent_rect.y + window->constrained_placement_rule_offset_y;
-
         meta_window_get_buffer_rect (parent, &parent_buffer_rect);
-        if (!meta_rectangle_intersect (&info->current,
+        if (!meta_rectangle_intersect (&adjusted_unconstrained,
                                        &parent_buffer_rect,
                                        NULL) &&
-            !meta_rectangle_is_adjacent_to (&info->current,
+            !meta_rectangle_is_adjacent_to (&adjusted_unconstrained,
                                             &parent_buffer_rect))
           {
             g_warning ("Buggy client caused popup to be placed outside of "
@@ -845,22 +867,16 @@ constrain_custom_rule (MetaWindow         *window,
             info->should_unmanage = TRUE;
             return TRUE;
           }
-
-        return TRUE;
+        else
+          {
+            info->current = adjusted_unconstrained;
+            goto done;
+          }
+        break;
       }
+    case META_PLACEMENT_STATE_UNCONSTRAINED:
+      break;
     }
-
-  meta_rectangle_intersect (&info->current, &info->work_area_monitor,
-                            &intersection);
-
-  constraint_satisfied = is_custom_rule_satisfied (info,
-                                                   placement_rule,
-                                                   &intersection);
-
-  if (check_only)
-    return constraint_satisfied;
-
-  current_rule = *placement_rule;
 
   if (constraint_satisfied)
     goto done;
@@ -884,7 +900,7 @@ constrain_custom_rule (MetaWindow         *window,
 
   meta_rectangle_intersect (&info->current, &info->work_area_monitor,
                             &intersection);
-  constraint_satisfied = is_custom_rule_satisfied (info,
+  constraint_satisfied = is_custom_rule_satisfied (&info->current,
                                                    placement_rule,
                                                    &intersection);
 
@@ -910,7 +926,7 @@ constrain_custom_rule (MetaWindow         *window,
 
   meta_rectangle_intersect (&info->current, &info->work_area_monitor,
                             &intersection);
-  constraint_satisfied = is_custom_rule_satisfied (info,
+  constraint_satisfied = is_custom_rule_satisfied (&info->current,
                                                    placement_rule,
                                                    &intersection);
 
