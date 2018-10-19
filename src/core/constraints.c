@@ -818,28 +818,34 @@ constrain_custom_rule (MetaWindow         *window,
   if (!placement_rule)
     return TRUE;
 
-  if (window->placement_rule_constrained)
+  switch (window->placement_state)
     {
-      MetaRectangle parent_buffer_rect;
+    case META_PLACEMENT_STATE_UNCONSTRAINED:
+      break;
+    case META_PLACEMENT_STATE_CONSTRAINED:
+      {
+        MetaRectangle parent_buffer_rect;
 
-      parent = meta_window_get_transient_for (window);
-      meta_window_get_frame_rect (parent, &parent_rect);
-      info->current.x =
-        parent_rect.x + window->constrained_placement_rule_offset_x;
-      info->current.y =
-        parent_rect.y + window->constrained_placement_rule_offset_y;
+        parent = meta_window_get_transient_for (window);
+        meta_window_get_frame_rect (parent, &parent_rect);
+        info->current.x =
+          parent_rect.x + window->constrained_placement_rule_offset_x;
+        info->current.y =
+          parent_rect.y + window->constrained_placement_rule_offset_y;
 
-      meta_window_get_buffer_rect (parent, &parent_buffer_rect);
-      if (!meta_rectangle_overlap (&info->current, &parent_buffer_rect) &&
-          !meta_rectangle_is_adjacent_to (&info->current, &parent_buffer_rect))
-        {
-          g_warning ("Buggy client caused popup to be placed outside of parent "
-                     "window");
-          info->should_unmanage = TRUE;
-          return TRUE;
-        }
+        meta_window_get_buffer_rect (parent, &parent_buffer_rect);
+        if (!meta_rectangle_overlap (&info->current, &parent_buffer_rect) &&
+            !meta_rectangle_is_adjacent_to (&info->current,
+                                            &parent_buffer_rect))
+          {
+            g_warning ("Buggy client caused popup to be placed outside of "
+                       "parent window");
+            info->should_unmanage = TRUE;
+            return TRUE;
+          }
 
-      return TRUE;
+        return TRUE;
+      }
     }
 
   meta_rectangle_intersect (&info->current, &info->work_area_monitor,
@@ -923,7 +929,7 @@ constrain_custom_rule (MetaWindow         *window,
     }
 
 done:
-  window->placement_rule_constrained = TRUE;
+  window->placement_state = META_PLACEMENT_STATE_CONSTRAINED;
 
   parent = meta_window_get_transient_for (window);
   meta_window_get_frame_rect (parent, &parent_rect);
