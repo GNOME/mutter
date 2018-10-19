@@ -22,6 +22,16 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
+/**
+ * SECTION:meta-pointer-confinement-wayland
+ * @title: MetaPointerConfinementWayland
+ * @short_description: A #MetaPointerConstraint implementing pointer confinement
+ *
+ * A MetaPointerConfinementConstraint implements the client pointer constraint
+ * "pointer confinement": the cursor should not be able to "break out" of a
+ * certain area defined by the client requesting it.
+ */
+
 #include "config.h"
 
 #include "wayland/meta-pointer-confinement-wayland.h"
