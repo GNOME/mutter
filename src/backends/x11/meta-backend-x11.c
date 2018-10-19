@@ -22,6 +22,15 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
+/**
+ * SECTION:meta-backend-x11
+ * @title: MetaBackendX11
+ * @short_description: A X11 MetaBackend
+ *
+ * MetaBackendX11 is an implementation of #MetaBackend using X and X
+ * extensions, like XInput and XKB.
+ */
+
 #include "config.h"
 
 #include "backends/x11/meta-backend-x11.h"

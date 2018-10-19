@@ -1,17 +1,5 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-/**
- * \file screen-private.h  Handling of monitor configuration
- *
- * Managing multiple monitors
- * This file contains structures and functions that handle
- * multiple monitors, including reading the current configuration
- * and available hardware, and applying it.
- *
- * This interface is private to mutter, API users should look
- * at MetaScreen instead.
- */
-
 /*
  * Copyright (C) 2001 Havoc Pennington
  * Copyright (C) 2003 Rob Adams
@@ -151,6 +139,48 @@ struct _MetaMonitorManager
   MetaMonitorSwitchConfigType current_switch_config;
 };
 
+/**
+ * MetaMonitorManagerClass:
+ *
+ * @read_edid: Returns the raw Extended Display Identification Data (EDID)
+ *   for the given #MetaOutput object. Use meta_output_parse_edid() to parse
+ *   afterwards.
+ *
+ * @ensure_initial_config: Called on setup. Makes sure an initial config
+ *   is loaded.
+ *
+ * @apply_monitors_config: Tries to apply the given config using the given
+ *   method. Throws an error if something went wrong.
+ *
+ * @set_power_save_mode: Sets the #MetaPowerSave mode (for all displays).
+ *
+ * @change_backlight: Changes the backlight intensity to the given value (in
+ *   percent).
+ *
+ * @get_crtc_gamma: Queries and returns the gamma rampQueries and returns the
+ *   gamma ramp.
+ *
+ * @set_crtc_gamma: Sets custom display LUT (look up table) for each primary
+ *   color. Each table is indexed by a value that represents input intensity,
+ *   and yields a value that represents output intensity.
+ *
+ * @tiled_monitor_added: Should be called by a #MetaMonitor when it is created.
+ *
+ * @tiled_monitor_removed: Should be called by a #MetaMonitor when it is
+ *   destroyed.
+ *
+ * @is_transform_handled: vfunc for
+ *   meta_monitor_manager_is_transform_handled().
+ * @calculate_monitor_mode_scale: vfunc for
+ *   meta_monitor_manager_calculate_monitor_mode_scale().
+ * @calculate_supported_scales: vfunc for
+ *   meta_monitor_manager_calculate_supported_scales().
+ * @get_capabilities: vfunc for meta_monitor_manager_get_capabilities().
+ * @get_max_screen_size: vfunc for meta_monitor_manager_get_max_screen_size().
+ * @get_default_layout_mode: vfunc for meta_monitor_manager_get_default_layout_mode().
+ *
+ * The base class for a #MetaMonitorManager.
+ */
 struct _MetaMonitorManagerClass
 {
   MetaDBusDisplayConfigSkeletonClass parent_class;

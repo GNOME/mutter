@@ -22,6 +22,16 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
+/**
+ * SECTION:meta-backend-native
+ * @title: MetaBackendNative
+ * @short_description: A native (KMS/evdev) MetaBackend
+ *
+ * MetaBackendNative is an implementation of #MetaBackend that uses "native"
+ * technologies like DRM/KMS and libinput/evdev to perform hte necessary
+ * functions.
+ */
+
 #include "config.h"
 
 #include "backends/native/meta-backend-native.h"

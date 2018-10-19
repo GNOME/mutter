@@ -23,6 +23,20 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * SECTION:meta-monitor-manager
+ * @title: MetaMonitorManager
+ * @short_description: A manager for multiple monitors
+ *
+ * #MetaMonitorManager is an abstract class which contains methods to handle
+ * multiple monitors (both #MetaMonitor and #MetaLogicalMonitor) and GPU's
+ * (#MetaGpu). Its functions include reading and/or changing the current
+ * configuration and available capabiliies.
+ *
+ * The #MetaMonitorManager also provides the "org.gnome.Mutter.DisplayConfig"
+ * DBus service, so apps like GNOME Settings can use this functionality.
+ */
+
 #include "config.h"
 
 #include "backends/meta-monitor-manager-private.h"
@@ -354,6 +368,15 @@ lid_is_closed_changed (MetaBackend *backend,
   meta_monitor_manager_lid_is_closed_changed (manager);
 }
 
+/**
+ * meta_monitor_manager_is_headless:
+ * @manager: A #MetaMonitorManager object
+ *
+ * Returns whether the monitor manager is headless, i.e. without
+ * any #MetaLogicalMonitor<!-- -->s attached to it.
+ *
+ * Returns: %TRUE if no monitors are attached, %FALSE otherwise.
+ */
 gboolean
 meta_monitor_manager_is_headless (MetaMonitorManager *manager)
 {
@@ -390,6 +413,14 @@ meta_monitor_manager_calculate_supported_scales (MetaMonitorManager          *ma
                                                     n_supported_scales);
 }
 
+/**
+ * meta_monitor_manager_get_capabilities:
+ * @manager: A #MetaMonitorManager object
+ *
+ * Queries the capabilities of the monitor manager.
+ *
+ * Returns: #MetaMonitorManagerCapability flags representing the capabilities.
+ */
 MetaMonitorManagerCapability
 meta_monitor_manager_get_capabilities (MetaMonitorManager *manager)
 {
@@ -2295,12 +2326,31 @@ meta_monitor_manager_get (void)
   return meta_backend_get_monitor_manager (backend);
 }
 
+/**
+ * meta_monitor_manager_get_num_logical_monitors:
+ * @manager: A #MetaMonitorManager object
+ *
+ * Returns the number of #MetaLogicalMonitor<!-- -->s (can be 0 in case of a
+ * headless setup).
+ *
+ * Returns: the total number of #MetaLogicalMonitor<!-- -->s.
+ */
 int
 meta_monitor_manager_get_num_logical_monitors (MetaMonitorManager *manager)
 {
   return g_list_length (manager->logical_monitors);
 }
 
+/**
+ * meta_monitor_manager_get_logical_monitors:
+ * @manager: A #MetaMonitorManager object
+ *
+ * Returns the list of #MetaLogicalMonitor<!-- -->s that is handled. See also
+ * meta_monitor_manager_get_num_logical_monitors() if you only need the size of
+ * the list.
+ *
+ * Returns: (transfer none) (nullable): the list of logical monitors.
+ */
 GList *
 meta_monitor_manager_get_logical_monitors (MetaMonitorManager *manager)
 {
@@ -2341,12 +2391,30 @@ find_monitor (MetaMonitorManager *monitor_manager,
   return NULL;
 }
 
+/**
+ * meta_monitor_manager_get_primary_monitor:
+ * @manager: A #MetaMonitorManager object
+ *
+ * Returns the primary monitor. This can be %NULL (e.g. when running headless).
+ *
+ * Returns: (transfer none) (nullable): The primary #MetaMonitor, or %NULL if
+ *          none.
+ */
 MetaMonitor *
 meta_monitor_manager_get_primary_monitor (MetaMonitorManager *manager)
 {
   return find_monitor (manager, meta_monitor_is_primary);
 }
 
+/**
+ * meta_monitor_manager_get_laptop_panel:
+ * @manager: A #MetaMonitorManager object
+ *
+ * Returns the #MetaMonitor that represents the built-in laptop panel (if
+ * applicable).
+ *
+ * Returns: (transfer none) (nullable): The laptop panel, or %NULL if none.
+ */
 MetaMonitor *
 meta_monitor_manager_get_laptop_panel (MetaMonitorManager *manager)
 {
@@ -2395,6 +2463,18 @@ meta_monitor_manager_get_monitor_from_spec (MetaMonitorManager *manager,
   return NULL;
 }
 
+/**
+ * meta_monitor_manager_get_logical_monitor_at:
+ * @manager: A #MetaMonitorManager object
+ * @x: The x-coordinate
+ * @y: The y-coordinate
+ *
+ * Finds the #MetaLogicalMonitor at the given @x and @y coordinates in the
+ * total layout.
+ *
+ * Returns: (transfer none) (nullable): The #MetaLogicalMonitor at the given
+ *          point, or %NULL if none.
+ */
 MetaLogicalMonitor *
 meta_monitor_manager_get_logical_monitor_at (MetaMonitorManager *manager,
                                              float               x,
@@ -2413,6 +2493,17 @@ meta_monitor_manager_get_logical_monitor_at (MetaMonitorManager *manager,
   return NULL;
 }
 
+/**
+ * meta_monitor_manager_get_logical_monitor_from_rect:
+ * @manager: A #MetaMonitorManager object
+ * @rect: The rectangle
+ *
+ * Finds the #MetaLogicalMonitor which has the largest area in common with the
+ * given @rect in the total layout.
+ *
+ * Returns: (transfer none) (nullable): The #MetaLogicalMonitor which
+ *          corresponds the most to the given @rect, or %NULL if none.
+ */
 MetaLogicalMonitor *
 meta_monitor_manager_get_logical_monitor_from_rect (MetaMonitorManager *manager,
                                                     MetaRectangle      *rect)
@@ -2472,12 +2563,29 @@ meta_monitor_manager_get_logical_monitor_neighbor (MetaMonitorManager  *manager,
   return NULL;
 }
 
+/**
+ * meta_monitor_manager_get_monitors:
+ * @manager: A #MetaMonitorManager object
+ *
+ * Returns the list of #MetaMonitor<!-- -->s. See also
+ * meta_monitor_manager_get_logical_monitors() for a list of
+ * #MetaLogicalMonitor<!-- -->s.
+ *
+ * Returns: (transfer none) (nullable): the list of #MetaMonitor<!-- -->s.
+ */
 GList *
 meta_monitor_manager_get_monitors (MetaMonitorManager *manager)
 {
   return manager->monitors;
 }
 
+/**
+ * meta_monitor_manager_get_capabilities:
+ * @manager: A #MetaMonitorManager object
+ *
+ * Should only be called by subclasses. Adds a #MetaGpu to the internal list of
+ * GPU's.
+ */
 void
 meta_monitor_manager_add_gpu (MetaMonitorManager *manager,
                               MetaGpu            *gpu)
@@ -2888,6 +2996,12 @@ meta_monitor_manager_get_monitor_for_connector (MetaMonitorManager *manager,
   return -1;
 }
 
+/**
+ * meta_monitor_manager_get_is_builtin_display_on:
+ * @manager: A #MetaMonitorManager object
+ *
+ * Returns whether the built-in display (i.e. a laptop panel) is turned on.
+ */
 gboolean
 meta_monitor_manager_get_is_builtin_display_on (MetaMonitorManager *manager)
 {
