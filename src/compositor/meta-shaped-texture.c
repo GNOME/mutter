@@ -516,6 +516,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
     }
   else
     {
+      opaque_tex_region = NULL;
       use_opaque_region = FALSE;
     }
 
@@ -659,6 +660,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
         }
     }
 
+  g_clear_pointer (&clip_tex_region, cairo_region_destroy);
+  g_clear_pointer (&opaque_tex_region, cairo_region_destroy);
   g_clear_pointer (&blended_tex_region, cairo_region_destroy);
 }
 
