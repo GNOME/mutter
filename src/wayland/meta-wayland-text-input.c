@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017, 2018 Red Hat
+ * Copyright (C) 2018       Purism SPC
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,7 +56,10 @@ struct _MetaWaylandTextInput
 
   MetaWaylandTextInputPendingState pending_state;
 
-  GHashTable *resource_serials;
+  /* tracks the state of the outbound stream for each resource */
+  GHashTable *resource_stream_serials;
+  /* tracks the last known client state */
+  GHashTable *resource_client_serials;
 
   struct
   {
@@ -96,22 +100,68 @@ meta_wayland_text_input_focus_request_surrounding (ClutterInputFocus *focus)
 }
 
 static uint32_t
-lookup_serial (MetaWaylandTextInput *text_input,
-               struct wl_resource   *resource)
+lookup_client_serial (MetaWaylandTextInput *text_input,
+                      struct wl_resource   *resource)
 {
-  return GPOINTER_TO_UINT (g_hash_table_lookup (text_input->resource_serials,
+  return GPOINTER_TO_UINT (g_hash_table_lookup (text_input->resource_client_serials,
                                                 resource));
 }
 
 static void
-increment_serial (MetaWaylandTextInput *text_input,
-                  struct wl_resource   *resource)
+increment_client_serial (MetaWaylandTextInput *text_input,
+                         struct wl_resource   *resource)
 {
   uint32_t serial;
 
-  serial = lookup_serial (text_input, resource);
-  g_hash_table_insert (text_input->resource_serials, resource,
+  serial = lookup_client_serial (text_input, resource);
+  g_hash_table_insert (text_input->resource_client_serials, resource,
                        GUINT_TO_POINTER (serial + 1));
+}
+
+static uint32_t
+lookup_stream_serial (MetaWaylandTextInput *text_input,
+                      struct wl_resource   *resource)
+{
+  return GPOINTER_TO_UINT (g_hash_table_lookup (text_input->resource_stream_serials,
+                                                resource));
+}
+
+static uint32_t
+next_stream_serial (MetaWaylandTextInput *text_input,
+                    struct wl_resource   *resource)
+{
+  uint32_t serial;
+  serial = lookup_stream_serial (text_input, resource);
+  g_hash_table_insert (text_input->resource_stream_serials, resource,
+                       GUINT_TO_POINTER (serial + 1));
+  return serial;
+}
+
+static gint
+sync_stream_serial (MetaWaylandTextInput *text_input,
+                    struct wl_resource   *resource,
+                    gboolean              change_source_other)
+{
+  uint32_t stream_serial;
+  uint32_t client_serial;
+
+  stream_serial = lookup_stream_serial (text_input, resource);
+  client_serial = lookup_client_serial (text_input, resource);
+  
+  /* Client serial being ahead is always something that needs to be corrected.
+   * When another source caused the commit, the following stream serials are
+   * invalid and need to be corrected. */
+  if (client_serial > stream_serial || change_source_other)
+    g_hash_table_insert (text_input->resource_stream_serials, resource,
+                         GUINT_TO_POINTER (client_serial));
+
+  /* If the client serial is ahead, then no events were lost. When the last
+   * commit was caused by the IM, then the client is still catching up and
+   * didn't lose anything yet. */
+  if (client_serial > stream_serial || !change_source_other)
+    return 0;
+
+  return stream_serial - client_serial;
 }
 
 static void
@@ -128,7 +178,7 @@ meta_wayland_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
     {
       zwp_text_input_v3_send_delete_surrounding_text (resource, cursor, len);
       zwp_text_input_v3_send_done (resource,
-                                   lookup_serial (text_input, resource));
+                                   next_stream_serial (text_input, resource));
     }
 }
 
@@ -146,7 +196,7 @@ meta_wayland_text_input_focus_commit_text (ClutterInputFocus *focus,
       zwp_text_input_v3_send_preedit_string (resource, NULL, 0, 0);
       zwp_text_input_v3_send_commit_string (resource, text);
       zwp_text_input_v3_send_done (resource,
-                                   lookup_serial (text_input, resource));
+                                   next_stream_serial (text_input, resource));
     }
 }
 
@@ -164,7 +214,7 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
     {
       zwp_text_input_v3_send_preedit_string (resource, text, cursor, cursor);
       zwp_text_input_v3_send_done (resource,
-                                   lookup_serial (text_input, resource));
+                                   next_stream_serial (text_input, resource));
     }
 }
 
@@ -295,7 +345,8 @@ text_input_destructor (struct wl_resource *resource)
 {
   MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
 
-  g_hash_table_remove (text_input->resource_serials, resource);
+  g_hash_table_remove (text_input->resource_stream_serials, resource);
+  g_hash_table_remove (text_input->resource_client_serials, resource);
   wl_list_remove (wl_resource_get_link (resource));
 }
 
@@ -469,8 +520,17 @@ text_input_commit_state (struct wl_client   *client,
   MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
   ClutterInputFocus *focus = text_input->input_focus;
   gboolean toggle_panel = FALSE;
+  gboolean change_cause_other = FALSE;
+  gint missed_event_count = 0;
 
-  increment_serial (text_input, resource);
+  increment_client_serial (text_input, resource);
+  
+  change_cause_other = (text_input->pending_state & META_WAYLAND_PENDING_STATE_CHANGE_CAUSE)
+                        && text_input->text_change_cause == ZWP_TEXT_INPUT_V3_CHANGE_CAUSE_OTHER;
+
+  missed_event_count = sync_stream_serial (text_input, resource, change_cause_other);
+  if (missed_event_count)
+    meta_warning ("Application unsynced text_input %d events ago", missed_event_count);
 
   if (text_input->surface == NULL)
     return;
@@ -571,7 +631,8 @@ meta_wayland_text_input_new (MetaWaylandSeat *seat)
   wl_list_init (&text_input->focus_resource_list);
   text_input->surface_listener.notify = text_input_handle_focus_surface_destroy;
 
-  text_input->resource_serials = g_hash_table_new (NULL, NULL);
+  text_input->resource_stream_serials = g_hash_table_new (NULL, NULL);
+  text_input->resource_client_serials = g_hash_table_new (NULL, NULL);
 
   return text_input;
 }
@@ -581,7 +642,8 @@ meta_wayland_text_input_destroy (MetaWaylandTextInput *text_input)
 {
   meta_wayland_text_input_set_focus (text_input, NULL);
   g_object_unref (text_input->input_focus);
-  g_hash_table_destroy (text_input->resource_serials);
+  g_hash_table_destroy (text_input->resource_stream_serials);
+  g_hash_table_destroy (text_input->resource_client_serials);
   g_free (text_input);
 }
 
