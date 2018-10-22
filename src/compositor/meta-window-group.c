@@ -197,8 +197,40 @@ meta_window_group_class_init (MetaWindowGroupClass *klass)
 }
 
 static void
+on_monitors_changed (MetaMonitorManager *monitor_manager,
+                     MetaWindowGroup    *window_group)
+{
+  ClutterActor *actor = CLUTTER_ACTOR (window_group);
+
+  clutter_actor_queue_relayout (actor);
+}
+
+static void
 meta_window_group_init (MetaWindowGroup *window_group)
 {
+  ClutterActor *actor = CLUTTER_ACTOR (window_group);
+  MetaMonitorManager *monitor_manager = meta_monitor_manager_get ();
+
+  clutter_actor_set_flags (actor, CLUTTER_ACTOR_NO_LAYOUT);
+
+  /* Hotplugging monitors causes background actors (children of the window
+   * group) to change and trigger relayouts. Without CLUTTER_ACTOR_NO_LAYOUT
+   * this would automatically trickle up to the stage and then reallocate
+   * everything including all windows and backgrounds.
+   *
+   * After introducing CLUTTER_ACTOR_NO_LAYOUT however, we need to ensure that
+   * relayout of the whole window group happens manually. Otherwise you get
+   * backgrounds left unallocated (totally clipped so not rendering), and
+   * window actors that have been moved to the remaining monitors might not
+   * know their scaling factors need to change. So this is more explicit than
+   * it was prior to CLUTTER_ACTOR_NO_LAYOUT but the performance benefits are
+   * worth it.
+   */
+  g_signal_connect_object (monitor_manager,
+                           "monitors-changed",
+                           G_CALLBACK (on_monitors_changed),
+                           window_group,
+                           G_CONNECT_AFTER);
 }
 
 ClutterActor *
