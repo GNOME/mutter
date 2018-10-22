@@ -663,7 +663,6 @@ meta_wayland_zxdg_toplevel_v6_commit (MetaWaylandSurfaceRole  *surface_role,
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWindow *window;
-  MetaRectangle window_geometry;
   MetaRectangle old_geometry;
   gboolean geometry_changed;
 
@@ -697,6 +696,8 @@ meta_wayland_zxdg_toplevel_v6_commit (MetaWaylandSurfaceRole  *surface_role,
 
   if (geometry_changed || meta_window_wayland_needs_move_resize (window))
     {
+      MetaRectangle window_geometry;
+
       window_geometry =
         meta_wayland_zxdg_surface_v6_get_window_geometry (xdg_surface);
       meta_window_wayland_move_resize (window,
