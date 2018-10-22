@@ -46,11 +46,11 @@ typedef struct _MetaWindowWaylandClass MetaWindowWaylandClass;
 MetaWindow * meta_window_wayland_new       (MetaDisplay        *display,
                                             MetaWaylandSurface *surface);
 
-void meta_window_wayland_move_resize (MetaWindow        *window,
-                                      MetaWaylandSerial *acked_configure_serial,
-                                      MetaRectangle      new_geom,
-                                      int                dx,
-                                      int                dy);
+void meta_window_wayland_finish_move_resize (MetaWindow        *window,
+                                             MetaWaylandSerial *acked_configure_serial,
+                                             MetaRectangle      new_geom,
+                                             int                dx,
+                                             int                dy);
 int meta_window_wayland_get_geometry_scale (MetaWindow *window);
 
 void meta_window_wayland_place_relative_to (MetaWindow *window,
@@ -78,6 +78,6 @@ void meta_window_wayland_get_max_size (MetaWindow *window,
                                        int        *width,
                                        int        *height);
 
-gboolean meta_window_wayland_needs_move_resize (MetaWindow *window);
+gboolean meta_window_wayland_has_pending_move_resize (MetaWindow *window);
 
 #endif

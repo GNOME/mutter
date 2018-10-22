@@ -4039,7 +4039,9 @@ meta_window_move_resize_internal (MetaWindow          *window,
   /* The action has to be a move, a resize or the wayland client
    * acking our choice of size.
    */
-  g_assert (flags & (META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION | META_MOVE_RESIZE_WAYLAND_RESIZE));
+  g_assert (flags & (META_MOVE_RESIZE_MOVE_ACTION |
+                     META_MOVE_RESIZE_RESIZE_ACTION |
+                     META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE));
 
   did_placement = !window->placed && window->calc_placement;
 
@@ -4071,7 +4073,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
       unconstrained_rect.width = window->rect.width;
       unconstrained_rect.height = window->rect.height;
     }
-  else if ((flags & META_MOVE_RESIZE_WAYLAND_RESIZE))
+  else if ((flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE))
     {
       /* This is a Wayland buffer acking our size. The new rect is
        * just the existing one we have. Ignore the passed-in rect

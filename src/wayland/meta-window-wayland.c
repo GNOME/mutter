@@ -265,7 +265,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
     {
       can_move_now = TRUE;
     }
-  else if (flags & META_MOVE_RESIZE_WAYLAND_RESIZE)
+  else if (flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE)
     {
       /* This is a call to wl_surface_commit(), ignore the constrained_rect and
        * update the real client size to match the buffer size.
@@ -514,7 +514,7 @@ meta_window_wayland_main_monitor_changed (MetaWindow               *window,
   scale_size (&window->size_hints.max_width, &window->size_hints.max_height, scale_factor);
 
   /* Window geometry offset (XXX: Need a better place, see
-   * meta_window_wayland_move_resize). */
+   * meta_window_wayland_finish_move_resize). */
   window->custom_frame_extents.left =
     (int)(scale_factor * window->custom_frame_extents.left);
   window->custom_frame_extents.top =
@@ -748,11 +748,11 @@ meta_window_wayland_get_geometry_scale (MetaWindow *window)
  * Complete a resize operation from a wayland client.
  */
 void
-meta_window_wayland_move_resize (MetaWindow        *window,
-                                 MetaWaylandSerial *acked_configure_serial,
-                                 MetaRectangle      new_geom,
-                                 int                dx,
-                                 int                dy)
+meta_window_wayland_finish_move_resize (MetaWindow        *window,
+                                        MetaWaylandSerial *acked_configure_serial,
+                                        MetaRectangle      new_geom,
+                                        int                dx,
+                                        int                dy)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
   int geometry_scale;
@@ -781,7 +781,7 @@ meta_window_wayland_move_resize (MetaWindow        *window,
   window->custom_frame_extents.left = new_geom.x;
   window->custom_frame_extents.top = new_geom.y;
 
-  flags = META_MOVE_RESIZE_WAYLAND_RESIZE;
+  flags = META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE;
 
   pending_ack_configure = is_pending_ack_configure (wl_window, acked_configure_serial);
 
@@ -995,7 +995,7 @@ meta_window_wayland_get_max_size (MetaWindow *window,
 }
 
 gboolean
-meta_window_wayland_needs_move_resize (MetaWindow *window)
+meta_window_wayland_has_pending_move_resize (MetaWindow *window)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
 

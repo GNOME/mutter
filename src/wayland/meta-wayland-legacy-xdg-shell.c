@@ -693,16 +693,18 @@ meta_wayland_zxdg_toplevel_v6_commit (MetaWaylandSurfaceRole  *surface_role,
 
   geometry_changed = !meta_rectangle_equal (&old_geometry, &xdg_surface_priv->geometry);
 
-  if (geometry_changed || meta_window_wayland_needs_move_resize (window))
+  if (geometry_changed || meta_window_wayland_has_pending_move_resize (window))
     {
       MetaRectangle window_geometry;
+      MetaWaylandSerial *acked_configure_serial;
 
       window_geometry =
         meta_wayland_zxdg_surface_v6_get_window_geometry (xdg_surface);
-      meta_window_wayland_move_resize (window,
-                                       &xdg_surface_priv->acked_configure_serial,
-                                       window_geometry,
-                                       pending->dx, pending->dy);
+      acked_configure_serial = &xdg_surface_priv->acked_configure_serial;
+      meta_window_wayland_finish_move_resize (window,
+                                              acked_configure_serial,
+                                              window_geometry,
+                                              pending->dx, pending->dy);
     }
   else if (pending->dx != 0 || pending->dy != 0)
     {
@@ -994,10 +996,10 @@ meta_wayland_zxdg_popup_v6_commit (MetaWaylandSurfaceRole  *surface_role,
 
   window_geometry =
     meta_wayland_zxdg_surface_v6_get_window_geometry (xdg_surface);
-  meta_window_wayland_move_resize (surface->window,
-                                   NULL,
-                                   window_geometry,
-                                   pending->dx, pending->dy);
+  meta_window_wayland_finish_move_resize (surface->window,
+                                          NULL,
+                                          window_geometry,
+                                          pending->dx, pending->dy);
 }
 
 static MetaWaylandSurface *
