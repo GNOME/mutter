@@ -602,9 +602,9 @@ wl_shell_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
     return;
 
   meta_wayland_shell_surface_calculate_geometry (shell_surface, &geom);
-  meta_window_wayland_move_resize (window,
-                                   NULL,
-                                   geom, pending->dx, pending->dy);
+  meta_window_wayland_finish_move_resize (window,
+                                          NULL,
+                                          geom, pending->dx, pending->dy);
 }
 
 static MetaWaylandSurface *
