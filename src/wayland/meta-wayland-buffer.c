@@ -181,6 +181,19 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
       components = COGL_TEXTURE_COMPONENTS_RGB;
       break;
 #endif
+    case WL_SHM_FORMAT_NV12:
+      g_warning ("FORMAT IS NV12");
+    case WL_SHM_FORMAT_NV21:
+      g_warning ("FORMAT IS NV21");
+    case WL_SHM_FORMAT_YUV422:
+      g_warning ("FORMAT IS YUV422");
+    case WL_SHM_FORMAT_YVU422:
+      g_warning ("FORMAT IS YVU422");
+    case WL_SHM_FORMAT_YUV444:
+      g_warning ("FORMAT IS YUV444");
+    case WL_SHM_FORMAT_YVU444:
+      g_warning ("FORMAT IS YVU444");
+
     default:
       g_warn_if_reached ();
       format = COGL_PIXEL_FORMAT_ARGB_8888;
@@ -287,6 +300,10 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
       break;
     case EGL_TEXTURE_RGBA:
       cogl_format = COGL_PIXEL_FORMAT_RGBA_8888_PRE;
+      break;
+    case EGL_TEXTURE_Y_UV_WL:
+      g_warning ("Got a NV12 color format texture!!");
+      cogl_format = COGL_PIXEL_FORMAT_Y_UV;
       break;
     default:
       g_set_error (error, G_IO_ERROR,
