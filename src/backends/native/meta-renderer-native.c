@@ -3186,6 +3186,21 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   else
     is_hardware = TRUE;
 
+  if (!is_hardware)
+    {
+      meta_egl_make_current (egl,
+                             egl_display,
+                             EGL_NO_SURFACE,
+                             EGL_NO_SURFACE,
+                             EGL_NO_CONTEXT,
+                             NULL);
+      meta_egl_destroy_context (egl, egl_display, egl_context, NULL);
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Do not want to use software renderer (%s), falling back to CPU copy path",
+                   renderer_str);
+      return FALSE;
+    }
+
   if (!meta_gles3_has_extensions (renderer_native->gles3,
                                   &missing_gl_extensions,
                                   "GL_OES_EGL_image_external",
