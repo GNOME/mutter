@@ -503,7 +503,8 @@ text_input_commit_state (struct wl_client   *client,
           clutter_input_method_focus_out (input_method);
         }
     }
-  else if (!clutter_input_focus_is_focused (focus))
+
+  if (!clutter_input_focus_is_focused (focus))
     return;
 
   if (text_input->pending_state & META_WAYLAND_PENDING_STATE_CONTENT_TYPE)
