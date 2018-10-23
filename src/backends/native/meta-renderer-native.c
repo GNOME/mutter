@@ -3364,7 +3364,6 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   EGLContext egl_context;
   const char **missing_gl_extensions;
   const char *renderer_str;
-  gboolean is_hardware;
 
   if (!create_secondary_egl_config (egl, renderer_gpu_data->mode, egl_display,
                                     &egl_config, error))
@@ -3391,9 +3390,19 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   if (g_str_has_prefix (renderer_str, "llvmpipe") ||
       g_str_has_prefix (renderer_str, "softpipe") ||
       g_str_has_prefix (renderer_str, "swrast"))
-    is_hardware = FALSE;
-  else
-    is_hardware = TRUE;
+    {
+      meta_egl_make_current (egl,
+                             egl_display,
+                             EGL_NO_SURFACE,
+                             EGL_NO_SURFACE,
+                             EGL_NO_CONTEXT,
+                             NULL);
+      meta_egl_destroy_context (egl, egl_display, egl_context, NULL);
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Do not want to use software renderer (%s), falling back to CPU copy path",
+                   renderer_str);
+      return FALSE;
+    }
 
   if (!meta_gles3_has_extensions (renderer_native->gles3,
                                   &missing_gl_extensions,
@@ -3411,7 +3420,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
       g_free (missing_gl_extensions);
     }
 
-  renderer_gpu_data->secondary.is_hardware_rendering = is_hardware;
+  renderer_gpu_data->secondary.is_hardware_rendering = TRUE;
   renderer_gpu_data->secondary.egl_context = egl_context;
   renderer_gpu_data->secondary.egl_config = egl_config;
   renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_GPU;
