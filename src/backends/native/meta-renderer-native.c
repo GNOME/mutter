@@ -3068,12 +3068,18 @@ init_secondary_gpu_data_gpu (MetaGpuKms                *gpu_kms,
     }
 
   renderer_str = (const char *) glGetString (GL_RENDERER);
-  if (!g_str_has_prefix (renderer_str, "llvmpipe") &&
-      !g_str_has_prefix (renderer_str, "softpipe") &&
-      !g_str_has_prefix (renderer_str, "swrast"))
+  if (g_str_has_prefix (renderer_str, "llvmpipe") ||
+      g_str_has_prefix (renderer_str, "softpipe") ||
+      g_str_has_prefix (renderer_str, "swrast"))
     {
-      meta_gpu_kms_set_hw_capable (gpu_kms);
+      meta_egl_destroy_context (egl, egl_display, egl_context, NULL);
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Do not want to use software renderer (%s), falling back to CPU copy path",
+                   renderer_str);
+      return FALSE;
     }
+
+  meta_gpu_kms_set_hw_capable (gpu_kms);
 
   if (!meta_gles3_has_extensions (renderer_native->gles3,
                                   &missing_gl_extensions,
