@@ -3074,54 +3074,54 @@ update_edge_constraints (MetaWindow *window)
   switch (window->tile_mode)
     {
     case META_TILE_NONE:
-      window->edge_constraints[0] = META_EDGE_CONSTRAINT_NONE;
-      window->edge_constraints[1] = META_EDGE_CONSTRAINT_NONE;
-      window->edge_constraints[2] = META_EDGE_CONSTRAINT_NONE;
-      window->edge_constraints[3] = META_EDGE_CONSTRAINT_NONE;
+      window->edge_constraints.top = META_EDGE_CONSTRAINT_NONE;
+      window->edge_constraints.right = META_EDGE_CONSTRAINT_NONE;
+      window->edge_constraints.bottom = META_EDGE_CONSTRAINT_NONE;
+      window->edge_constraints.left = META_EDGE_CONSTRAINT_NONE;
       break;
 
     case META_TILE_MAXIMIZED:
-      window->edge_constraints[0] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[1] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[2] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[3] = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.top = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.right = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.bottom = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.left = META_EDGE_CONSTRAINT_MONITOR;
       break;
 
     case META_TILE_LEFT:
-      window->edge_constraints[0] = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.top = META_EDGE_CONSTRAINT_MONITOR;
 
       if (window->tile_match)
-        window->edge_constraints[1] = META_EDGE_CONSTRAINT_WINDOW;
+        window->edge_constraints.right = META_EDGE_CONSTRAINT_WINDOW;
       else
-        window->edge_constraints[1] = META_EDGE_CONSTRAINT_NONE;
+        window->edge_constraints.right = META_EDGE_CONSTRAINT_NONE;
 
-      window->edge_constraints[2] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[3] = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.bottom = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.left = META_EDGE_CONSTRAINT_MONITOR;
       break;
 
     case META_TILE_RIGHT:
-      window->edge_constraints[0] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[1] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[2] = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.top = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.right = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.bottom = META_EDGE_CONSTRAINT_MONITOR;
 
       if (window->tile_match)
-        window->edge_constraints[3] = META_EDGE_CONSTRAINT_WINDOW;
+        window->edge_constraints.left = META_EDGE_CONSTRAINT_WINDOW;
       else
-        window->edge_constraints[3] = META_EDGE_CONSTRAINT_NONE;
+        window->edge_constraints.left = META_EDGE_CONSTRAINT_NONE;
       break;
     }
 
   /* h/vmaximize also modify the edge constraints */
   if (window->maximized_vertically)
     {
-      window->edge_constraints[0] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[2] = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.top = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.bottom = META_EDGE_CONSTRAINT_MONITOR;
     }
 
   if (window->maximized_horizontally)
     {
-      window->edge_constraints[1] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[3] = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.right = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.left = META_EDGE_CONSTRAINT_MONITOR;
     }
 }
 

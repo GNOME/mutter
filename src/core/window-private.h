@@ -222,11 +222,12 @@ struct _MetaWindow
   guint saved_maximize : 1;
   int tile_monitor_number;
 
-  /* 0 - top
-   * 1 - right
-   * 2 - bottom
-   * 3 - left */
-  MetaEdgeConstraint edge_constraints[4];
+  struct {
+    MetaEdgeConstraint top;
+    MetaEdgeConstraint right;
+    MetaEdgeConstraint bottom;
+    MetaEdgeConstraint left;
+  } edge_constraints;
 
   double tile_hfraction;
 
