@@ -573,31 +573,27 @@ on_parent_surface_unmapped (MetaWaylandSurface  *parent_surface,
 }
 
 static void
-fill_states (struct wl_array *states,
-             MetaWindow      *window)
+add_state_value (struct wl_array         *states,
+                 enum xdg_toplevel_state  state)
 {
   uint32_t *s;
 
+  s = wl_array_add (states, sizeof *s);
+  *s = state;
+}
+
+static void
+fill_states (struct wl_array *states,
+             MetaWindow      *window)
+{
   if (META_WINDOW_MAXIMIZED (window))
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = XDG_TOPLEVEL_STATE_MAXIMIZED;
-    }
+    add_state_value (states, XDG_TOPLEVEL_STATE_MAXIMIZED);
   if (meta_window_is_fullscreen (window))
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = XDG_TOPLEVEL_STATE_FULLSCREEN;
-    }
+    add_state_value (states, XDG_TOPLEVEL_STATE_FULLSCREEN);
   if (meta_grab_op_is_resizing (window->display->grab_op))
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = XDG_TOPLEVEL_STATE_RESIZING;
-    }
+    add_state_value (states, XDG_TOPLEVEL_STATE_RESIZING);
   if (meta_window_appears_focused (window))
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = XDG_TOPLEVEL_STATE_ACTIVATED;
-    }
+    add_state_value (states, XDG_TOPLEVEL_STATE_ACTIVATED);
 }
 
 static void
