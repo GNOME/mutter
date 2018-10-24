@@ -95,6 +95,7 @@ enum
   SURFACE_SHORTCUTS_INHIBITED,
   SURFACE_SHORTCUTS_RESTORED,
   SURFACE_GEOMETRY_CHANGED,
+  SURFACE_PRE_STATE_APPLIED,
   N_SURFACE_SIGNALS
 };
 
@@ -668,6 +669,11 @@ void
 meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
                                           MetaWaylandPendingState *pending)
 {
+  if (g_signal_has_handler_pending (surface,
+                                    surface_signals[SURFACE_PRE_STATE_APPLIED],
+                                    0, FALSE))
+    g_signal_emit (surface, surface_signals[SURFACE_PRE_STATE_APPLIED], 0);
+
   if (surface->role)
     {
       meta_wayland_surface_role_pre_commit (surface->role, pending);
@@ -1666,6 +1672,13 @@ meta_wayland_surface_class_init (MetaWaylandSurfaceClass *klass)
                   G_TYPE_NONE, 0);
   surface_signals[SURFACE_GEOMETRY_CHANGED] =
     g_signal_new ("geometry-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
+  surface_signals[SURFACE_PRE_STATE_APPLIED] =
+    g_signal_new ("pre-state-applied",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL,
