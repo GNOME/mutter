@@ -821,13 +821,14 @@ constrain_custom_rule (MetaWindow         *window,
 
   adjusted_unconstrained = info->current;
 
+  parent = meta_window_get_transient_for (window);
+  meta_window_get_frame_rect (parent, &parent_rect);
+
   switch (window->placement_state)
     {
     case META_PLACEMENT_STATE_UNCONSTRAINED:
       break;
     case META_PLACEMENT_STATE_CONSTRAINED:
-      parent = meta_window_get_transient_for (window);
-      meta_window_get_frame_rect (parent, &parent_rect);
       adjusted_unconstrained.x =
         parent_rect.x + window->constrained_placement_rule_offset_x;
       adjusted_unconstrained.y =
@@ -948,8 +949,6 @@ constrain_custom_rule (MetaWindow         *window,
 done:
   window->placement_state = META_PLACEMENT_STATE_CONSTRAINED;
 
-  parent = meta_window_get_transient_for (window);
-  meta_window_get_frame_rect (parent, &parent_rect);
   window->constrained_placement_rule_offset_x = info->current.x - parent_rect.x;
   window->constrained_placement_rule_offset_y = info->current.y - parent_rect.y;
 
