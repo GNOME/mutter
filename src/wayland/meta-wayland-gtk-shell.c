@@ -202,11 +202,20 @@ send_configure_edges (MetaWaylandGtkSurface *gtk_surface,
 }
 
 static void
+add_state_value (struct wl_array         *states,
+                 enum gtk_surface1_state  state)
+{
+  uint32_t *s;
+
+  s = wl_array_add (states, sizeof *s);
+  *s = state;
+}
+
+static void
 fill_states (struct wl_array    *states,
              MetaWindow         *window,
              struct wl_resource *resource)
 {
-  uint32_t *s;
   int version;
 
   version = wl_resource_get_version (resource);
@@ -214,38 +223,23 @@ fill_states (struct wl_array    *states,
   if (version < GTK_SURFACE1_CONFIGURE_EDGES_SINCE_VERSION &&
       (window->tile_mode == META_TILE_LEFT ||
        window->tile_mode == META_TILE_RIGHT))
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = GTK_SURFACE1_STATE_TILED;
-    }
+    add_state_value (states, GTK_SURFACE1_STATE_TILED);
 
   if (version >= GTK_SURFACE1_STATE_TILED_TOP_SINCE_VERSION &&
       window->edge_constraints.top != META_EDGE_CONSTRAINT_NONE)
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = GTK_SURFACE1_STATE_TILED_TOP;
-    }
+    add_state_value (states, GTK_SURFACE1_STATE_TILED_TOP);
 
   if (version >= GTK_SURFACE1_STATE_TILED_RIGHT_SINCE_VERSION &&
       window->edge_constraints.right != META_EDGE_CONSTRAINT_NONE)
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = GTK_SURFACE1_STATE_TILED_RIGHT;
-    }
+    add_state_value (states, GTK_SURFACE1_STATE_TILED_RIGHT);
 
   if (version >= GTK_SURFACE1_STATE_TILED_BOTTOM_SINCE_VERSION &&
       window->edge_constraints.bottom != META_EDGE_CONSTRAINT_NONE)
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = GTK_SURFACE1_STATE_TILED_BOTTOM;
-    }
+    add_state_value (states, GTK_SURFACE1_STATE_TILED_BOTTOM);
 
   if (version >= GTK_SURFACE1_STATE_TILED_LEFT_SINCE_VERSION &&
       window->edge_constraints.left != META_EDGE_CONSTRAINT_NONE)
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = GTK_SURFACE1_STATE_TILED_LEFT;
-    }
+    add_state_value (states, GTK_SURFACE1_STATE_TILED_LEFT);
 }
 
 static void
