@@ -583,9 +583,15 @@ add_state_value (struct wl_array         *states,
 }
 
 static void
-fill_states (struct wl_array *states,
-             MetaWindow      *window)
+fill_states (MetaWaylandXdgToplevel *xdg_toplevel,
+             struct wl_array        *states)
 {
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (xdg_toplevel);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWindow *window = surface->window;
+
   if (META_WINDOW_MAXIMIZED (window))
     add_state_value (states, XDG_TOPLEVEL_STATE_MAXIMIZED);
   if (meta_window_is_fullscreen (window))
@@ -594,6 +600,19 @@ fill_states (struct wl_array *states,
     add_state_value (states, XDG_TOPLEVEL_STATE_RESIZING);
   if (meta_window_appears_focused (window))
     add_state_value (states, XDG_TOPLEVEL_STATE_ACTIVATED);
+
+  if (wl_resource_get_version (xdg_toplevel->resource) >=
+      XDG_TOPLEVEL_STATE_TILED_LEFT_SINCE_VERSION)
+    {
+      if (window->edge_constraints.top != META_EDGE_CONSTRAINT_NONE)
+        add_state_value (states, XDG_TOPLEVEL_STATE_TILED_TOP);
+      if (window->edge_constraints.right != META_EDGE_CONSTRAINT_NONE)
+        add_state_value (states, XDG_TOPLEVEL_STATE_TILED_RIGHT);
+      if (window->edge_constraints.bottom != META_EDGE_CONSTRAINT_NONE)
+        add_state_value (states, XDG_TOPLEVEL_STATE_TILED_BOTTOM);
+      if (window->edge_constraints.left != META_EDGE_CONSTRAINT_NONE)
+        add_state_value (states, XDG_TOPLEVEL_STATE_TILED_LEFT);
+    }
 }
 
 static void
@@ -603,15 +622,11 @@ meta_wayland_xdg_toplevel_send_configure (MetaWaylandXdgToplevel *xdg_toplevel,
                                           MetaWaylandSerial      *sent_serial)
 {
   MetaWaylandXdgSurface *xdg_surface = META_WAYLAND_XDG_SURFACE (xdg_toplevel);
-  MetaWaylandSurfaceRole *surface_role =
-    META_WAYLAND_SURFACE_ROLE (xdg_toplevel);
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
   struct wl_array states;
   uint32_t serial;
 
   wl_array_init (&states);
-  fill_states (&states, surface->window);
+  fill_states (xdg_toplevel, &states);
 
   xdg_toplevel_send_configure (xdg_toplevel->resource,
                                new_width, new_height,
