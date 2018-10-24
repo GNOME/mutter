@@ -162,29 +162,25 @@ fill_edge_states (struct wl_array *states,
 {
   uint32_t *s;
 
-  /* Top */
-  if (window->edge_constraints[0] != META_EDGE_CONSTRAINT_MONITOR)
+  if (window->edge_constraints.top != META_EDGE_CONSTRAINT_MONITOR)
     {
       s = wl_array_add (states, sizeof *s);
       *s = GTK_SURFACE1_EDGE_CONSTRAINT_RESIZABLE_TOP;
     }
 
-  /* Right */
-  if (window->edge_constraints[1] != META_EDGE_CONSTRAINT_MONITOR)
+  if (window->edge_constraints.right != META_EDGE_CONSTRAINT_MONITOR)
     {
       s = wl_array_add (states, sizeof *s);
       *s = GTK_SURFACE1_EDGE_CONSTRAINT_RESIZABLE_RIGHT;
     }
 
-  /* Bottom */
-  if (window->edge_constraints[2] != META_EDGE_CONSTRAINT_MONITOR)
+  if (window->edge_constraints.bottom != META_EDGE_CONSTRAINT_MONITOR)
     {
       s = wl_array_add (states, sizeof *s);
       *s = GTK_SURFACE1_EDGE_CONSTRAINT_RESIZABLE_BOTTOM;
     }
 
-  /* Left */
-  if (window->edge_constraints[3] != META_EDGE_CONSTRAINT_MONITOR)
+  if (window->edge_constraints.left != META_EDGE_CONSTRAINT_MONITOR)
     {
       s = wl_array_add (states, sizeof *s);
       *s = GTK_SURFACE1_EDGE_CONSTRAINT_RESIZABLE_LEFT;
@@ -224,28 +220,28 @@ fill_states (struct wl_array    *states,
     }
 
   if (version >= GTK_SURFACE1_STATE_TILED_TOP_SINCE_VERSION &&
-      window->edge_constraints[0] != META_EDGE_CONSTRAINT_NONE)
+      window->edge_constraints.top != META_EDGE_CONSTRAINT_NONE)
     {
       s = wl_array_add (states, sizeof *s);
       *s = GTK_SURFACE1_STATE_TILED_TOP;
     }
 
   if (version >= GTK_SURFACE1_STATE_TILED_RIGHT_SINCE_VERSION &&
-      window->edge_constraints[1] != META_EDGE_CONSTRAINT_NONE)
+      window->edge_constraints.right != META_EDGE_CONSTRAINT_NONE)
     {
       s = wl_array_add (states, sizeof *s);
       *s = GTK_SURFACE1_STATE_TILED_RIGHT;
     }
 
   if (version >= GTK_SURFACE1_STATE_TILED_BOTTOM_SINCE_VERSION &&
-      window->edge_constraints[2] != META_EDGE_CONSTRAINT_NONE)
+      window->edge_constraints.bottom != META_EDGE_CONSTRAINT_NONE)
     {
       s = wl_array_add (states, sizeof *s);
       *s = GTK_SURFACE1_STATE_TILED_BOTTOM;
     }
 
   if (version >= GTK_SURFACE1_STATE_TILED_LEFT_SINCE_VERSION &&
-      window->edge_constraints[3] != META_EDGE_CONSTRAINT_NONE)
+      window->edge_constraints.left != META_EDGE_CONSTRAINT_NONE)
     {
       s = wl_array_add (states, sizeof *s);
       *s = GTK_SURFACE1_STATE_TILED_LEFT;

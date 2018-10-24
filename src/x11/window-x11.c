@@ -55,6 +55,18 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/x11/meta-backend-x11.h"
 
+enum _MetaGtkEdgeConstraints
+{
+  META_GTK_EDGE_CONSTRAINT_TOP_TILED = 1 << 0,
+  META_GTK_EDGE_CONSTRAINT_TOP_RESIZABLE = 1 << 1,
+  META_GTK_EDGE_CONSTRAINT_RIGHT_TILED = 1 << 2,
+  META_GTK_EDGE_CONSTRAINT_RIGHT_RESIZABLE = 1 << 3,
+  META_GTK_EDGE_CONSTRAINT_BOTTOM_TILED = 1 << 4,
+  META_GTK_EDGE_CONSTRAINT_BOTTOM_RESIZABLE = 1 << 5,
+  META_GTK_EDGE_CONSTRAINT_LEFT_TILED = 1 << 6,
+  META_GTK_EDGE_CONSTRAINT_LEFT_RESIZABLE = 1 << 7
+} MetaGtkEdgeConstraints;
+
 G_DEFINE_TYPE_WITH_PRIVATE (MetaWindowX11, meta_window_x11, META_TYPE_WINDOW)
 
 static void
@@ -911,22 +923,71 @@ update_net_frame_extents (MetaWindow *window)
   meta_x11_error_trap_pop (x11_display);
 }
 
+static gboolean
+is_edge_constraint_resizable (MetaEdgeConstraint constraint)
+{
+  switch (constraint)
+    {
+    case META_EDGE_CONSTRAINT_NONE:
+    case META_EDGE_CONSTRAINT_WINDOW:
+      return TRUE;
+    case META_EDGE_CONSTRAINT_MONITOR:
+      return FALSE;
+    }
+
+  g_assert_not_reached ();
+}
+
+static gboolean
+is_edge_constraint_tiled (MetaEdgeConstraint constraint)
+{
+  switch (constraint)
+    {
+    case META_EDGE_CONSTRAINT_NONE:
+      return FALSE;
+    case META_EDGE_CONSTRAINT_WINDOW:
+    case META_EDGE_CONSTRAINT_MONITOR:
+      return TRUE;
+    }
+
+  g_assert_not_reached ();
+}
+
+static unsigned long
+edge_constraints_to_gtk_edge_constraints (MetaWindow *window)
+{
+  unsigned long gtk_edge_constraints = 0;
+
+  if (is_edge_constraint_tiled (window->edge_constraints.top))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_TOP_TILED;
+  if (is_edge_constraint_resizable (window->edge_constraints.top))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_TOP_RESIZABLE;
+
+  if (is_edge_constraint_tiled (window->edge_constraints.right))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_RIGHT_TILED;
+  if (is_edge_constraint_resizable (window->edge_constraints.right))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_RIGHT_RESIZABLE;
+
+  if (is_edge_constraint_tiled (window->edge_constraints.bottom))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_BOTTOM_TILED;
+  if (is_edge_constraint_resizable (window->edge_constraints.bottom))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_BOTTOM_RESIZABLE;
+
+  if (is_edge_constraint_tiled (window->edge_constraints.left))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_LEFT_TILED;
+  if (is_edge_constraint_resizable (window->edge_constraints.left))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_LEFT_RESIZABLE;
+
+  return gtk_edge_constraints;
+}
+
 static void
 update_gtk_edge_constraints (MetaWindow *window)
 {
   MetaX11Display *x11_display = window->display->x11_display;
-  MetaEdgeConstraint *constraints = window->edge_constraints;
   unsigned long data[1];
 
-  /* Edge constraints */
-  data[0] = (constraints[0] != META_EDGE_CONSTRAINT_NONE ? 1 : 0)    << 0 |
-            (constraints[0] != META_EDGE_CONSTRAINT_MONITOR ? 1 : 0) << 1 |
-            (constraints[1] != META_EDGE_CONSTRAINT_NONE ? 1 : 0)    << 2 |
-            (constraints[1] != META_EDGE_CONSTRAINT_MONITOR ? 1 : 0) << 3 |
-            (constraints[2] != META_EDGE_CONSTRAINT_NONE ? 1 : 0)    << 4 |
-            (constraints[2] != META_EDGE_CONSTRAINT_MONITOR ? 1 : 0) << 5 |
-            (constraints[3] != META_EDGE_CONSTRAINT_NONE ? 1 : 0)    << 6 |
-            (constraints[3] != META_EDGE_CONSTRAINT_MONITOR ? 1 : 0) << 7;
+  data[0] = edge_constraints_to_gtk_edge_constraints (window);
 
   meta_verbose ("Setting _GTK_EDGE_CONSTRAINTS to %lu\n", data[0]);
 
