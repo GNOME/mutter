@@ -207,7 +207,7 @@ fill_states (struct wl_array    *states,
              struct wl_resource *resource)
 {
   uint32_t *s;
-  guint version;
+  int version;
 
   version = wl_resource_get_version (resource);
 
