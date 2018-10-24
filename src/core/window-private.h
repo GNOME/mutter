@@ -215,7 +215,8 @@ struct _MetaWindow
   guint minimize_after_placement : 1;
 
   /* The current tile mode */
-  guint tile_mode : 2;
+  MetaTileMode tile_mode;
+
   /* The last "full" maximized/unmaximized state. We need to keep track of
    * that to toggle between normal/tiled or maximized/tiled states. */
   guint saved_maximize : 1;
