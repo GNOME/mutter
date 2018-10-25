@@ -4014,16 +4014,6 @@ _clutter_stage_get_update_time (ClutterStage *stage)
   return _clutter_stage_window_get_update_time (stage_window);
 }
 
-void
-_clutter_stage_clear_update_time (ClutterStage *stage)
-{
-  ClutterStageWindow *stage_window;
-
-  stage_window = _clutter_stage_get_window (stage);
-  if (stage_window)
-    _clutter_stage_window_clear_update_time (stage_window);
-}
-
 /**
  * clutter_stage_set_no_clear_hint:
  * @stage: a #ClutterStage

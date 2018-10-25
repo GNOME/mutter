@@ -154,9 +154,6 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
   float refresh_rate;
   gint64 refresh_interval;
 
-  if (stage_cogl->update_time != -1)
-    return;
-
   now = g_get_monotonic_time ();
 
   if (sync_delay < 0)
@@ -200,14 +197,6 @@ clutter_stage_cogl_get_update_time (ClutterStageWindow *stage_window)
     return -1; /* in the future, indefinite */
 
   return stage_cogl->update_time;
-}
-
-static void
-clutter_stage_cogl_clear_update_time (ClutterStageWindow *stage_window)
-{
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-
-  stage_cogl->update_time = -1;
 }
 
 static ClutterActor *
@@ -945,7 +934,6 @@ clutter_stage_window_iface_init (ClutterStageWindowIface *iface)
   iface->hide = clutter_stage_cogl_hide;
   iface->schedule_update = clutter_stage_cogl_schedule_update;
   iface->get_update_time = clutter_stage_cogl_get_update_time;
-  iface->clear_update_time = clutter_stage_cogl_clear_update_time;
   iface->add_redraw_clip = clutter_stage_cogl_add_redraw_clip;
   iface->has_redraw_clips = clutter_stage_cogl_has_redraw_clips;
   iface->ignoring_redraw_clips = clutter_stage_cogl_ignoring_redraw_clips;

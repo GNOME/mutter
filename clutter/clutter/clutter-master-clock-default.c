@@ -253,10 +253,7 @@ master_clock_reschedule_stage_updates (ClutterMasterClockDefault *master_clock,
 
   for (l = stages; l != NULL; l = l->next)
     {
-      /* Clear the old update time */
-      _clutter_stage_clear_update_time (l->data);
-
-      /* And if there is still work to be done, schedule a new one */
+      /* If there is still work to be done, revise the update time. */
       if (master_clock->timelines ||
           _clutter_stage_has_queued_events (l->data) ||
           _clutter_stage_needs_update (l->data))

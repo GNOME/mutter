@@ -158,23 +158,6 @@ _clutter_stage_window_get_update_time (ClutterStageWindow *window)
 }
 
 void
-_clutter_stage_window_clear_update_time (ClutterStageWindow *window)
-{
-  ClutterStageWindowIface *iface;
-
-  g_return_if_fail (CLUTTER_IS_STAGE_WINDOW (window));
-
-  iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
-  if (iface->clear_update_time == NULL)
-    {
-      g_assert (!clutter_feature_available (CLUTTER_FEATURE_SWAP_EVENTS));
-      return;
-    }
-
-  iface->clear_update_time (window);
-}
-
-void
 _clutter_stage_window_add_redraw_clip (ClutterStageWindow    *window,
                                        cairo_rectangle_int_t *stage_clip)
 {

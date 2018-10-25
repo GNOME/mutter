@@ -62,7 +62,6 @@ struct _ClutterStageWindowIface
   void              (* schedule_update)         (ClutterStageWindow *stage_window,
                                                  int                 sync_delay);
   gint64            (* get_update_time)         (ClutterStageWindow *stage_window);
-  void              (* clear_update_time)       (ClutterStageWindow *stage_window);
 
   void              (* add_redraw_clip)         (ClutterStageWindow    *stage_window,
                                                  cairo_rectangle_int_t *stage_rectangle);
