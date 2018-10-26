@@ -60,7 +60,7 @@
           gettext-domain="@GETTEXT_DOMAIN@">
 
     <key name="xwayland-allow-grabs" type="b">
-      <default>false</default>
+      <default>true</default>
       <summary>Allow grabs with Xwayland</summary>
       <description>
         Allow keyboard grabs issued by X11 applications running in Xwayland
@@ -73,7 +73,7 @@
     </key>
 
     <key name="xwayland-grab-access-rules" type="as">
-      <default>[]</default>
+      <default>['@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@']</default>
       <summary>Xwayland applications allowed to issue keyboard grabs</summary>
       <description>
         List the resource names or resource class of X11 windows either
