@@ -71,6 +71,10 @@ G_DEFINE_TYPE_WITH_CODE (ClutterStageCogl,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_STAGE_WINDOW,
                                                 clutter_stage_window_iface_init));
 
+static void
+clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
+                                    gint                sync_delay);
+
 enum {
   PROP_0,
   PROP_WRAPPER,
@@ -123,6 +127,16 @@ _clutter_stage_cogl_presented (ClutterStageCogl *stage_cogl,
     }
 
   _clutter_stage_presented (stage_cogl->wrapper, frame_event, frame_info);
+
+  if (frame_event == COGL_FRAME_EVENT_COMPLETE &&
+      stage_cogl->update_time != -1)
+    {
+      ClutterStageWindow *stage_window = CLUTTER_STAGE_WINDOW (stage_cogl);
+
+      stage_cogl->update_time = -1;
+      clutter_stage_cogl_schedule_update (stage_window,
+                                          stage_cogl->last_sync_delay);
+    }
 }
 
 static gboolean
@@ -156,6 +170,8 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
 
   if (stage_cogl->update_time != -1)
     return;
+
+  stage_cogl->last_sync_delay = sync_delay;
 
   now = g_get_monotonic_time ();
 
