@@ -6,7 +6,7 @@ project('mutter', 'c',
 
 mutter_plugin_api_version = '3'
 
-libmutter_api_version = '3'
+libmutter_api_version = '4'
 
 # generic version requirements
 glib_req = '>= 2.53.2'

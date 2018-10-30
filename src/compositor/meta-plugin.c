@@ -43,15 +43,13 @@
 #include "meta/display.h"
 #include "meta/util.h"
 
-struct _MetaPluginPrivate
+
+typedef struct _MetaPluginPrivate
 {
   MetaCompositor *compositor;
-};
+} MetaPluginPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaPlugin, meta_plugin, G_TYPE_OBJECT);
-
-#define META_PLUGIN_GET_PRIVATE(obj) \
-(G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_PLUGIN, MetaPluginPrivate))
 
 static void
 meta_plugin_class_init (MetaPluginClass *klass)
@@ -61,7 +59,6 @@ meta_plugin_class_init (MetaPluginClass *klass)
 static void
 meta_plugin_init (MetaPlugin *self)
 {
-  self->priv = META_PLUGIN_GET_PRIVATE (self);
 }
 
 const MetaPluginInfo *
@@ -90,7 +87,7 @@ _meta_plugin_xevent_filter (MetaPlugin *plugin,
 void
 meta_plugin_switch_workspace_completed (MetaPlugin *plugin)
 {
-  MetaPluginPrivate *priv = META_PLUGIN (plugin)->priv;
+  MetaPluginPrivate *priv = meta_plugin_get_instance_private (plugin);
 
   meta_switch_workspace_completed (priv->compositor);
 }
@@ -164,7 +161,7 @@ meta_plugin_begin_modal (MetaPlugin       *plugin,
                          MetaModalOptions  options,
                          guint32           timestamp)
 {
-  MetaPluginPrivate *priv = META_PLUGIN (plugin)->priv;
+  MetaPluginPrivate *priv = meta_plugin_get_instance_private (plugin);
 
   return meta_begin_modal_for_plugin (priv->compositor, plugin,
                                       options, timestamp);
@@ -185,7 +182,7 @@ void
 meta_plugin_end_modal (MetaPlugin *plugin,
                        guint32     timestamp)
 {
-  MetaPluginPrivate *priv = META_PLUGIN (plugin)->priv;
+  MetaPluginPrivate *priv = meta_plugin_get_instance_private (plugin);
 
   meta_end_modal_for_plugin (priv->compositor, plugin, timestamp);
 }
@@ -201,7 +198,7 @@ meta_plugin_end_modal (MetaPlugin *plugin,
 MetaDisplay *
 meta_plugin_get_display (MetaPlugin *plugin)
 {
-  MetaPluginPrivate *priv = META_PLUGIN (plugin)->priv;
+  MetaPluginPrivate *priv = meta_plugin_get_instance_private (plugin);
 
   return priv->compositor->display;
 }
@@ -209,7 +206,7 @@ meta_plugin_get_display (MetaPlugin *plugin)
 void
 _meta_plugin_set_compositor (MetaPlugin *plugin, MetaCompositor *compositor)
 {
-  MetaPluginPrivate *priv = META_PLUGIN (plugin)->priv;
+  MetaPluginPrivate *priv = meta_plugin_get_instance_private (plugin);
 
   priv->compositor = compositor;
 }
