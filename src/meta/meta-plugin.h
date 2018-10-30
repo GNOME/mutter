@@ -33,25 +33,11 @@
 #include <X11/extensions/Xfixes.h>
 #include <gmodule.h>
 
-#define META_TYPE_PLUGIN            (meta_plugin_get_type ())
-#define META_PLUGIN(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_PLUGIN, MetaPlugin))
-#define META_PLUGIN_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_PLUGIN, MetaPluginClass))
-#define META_IS_PLUGIN(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_PLUGIN))
-#define META_IS_PLUGIN_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_PLUGIN))
-#define META_PLUGIN_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_PLUGIN, MetaPluginClass))
+#define META_TYPE_PLUGIN (meta_plugin_get_type ())
+G_DECLARE_DERIVABLE_TYPE (MetaPlugin, meta_plugin, META, PLUGIN, GObject)
 
-typedef struct _MetaPlugin        MetaPlugin;
-typedef struct _MetaPluginClass   MetaPluginClass;
 typedef struct _MetaPluginVersion MetaPluginVersion;
 typedef struct _MetaPluginInfo    MetaPluginInfo;
-typedef struct _MetaPluginPrivate MetaPluginPrivate;
-
-struct _MetaPlugin
-{
-  GObject parent;
-
-  MetaPluginPrivate *priv;
-};
 
 /**
  * MetaPluginClass:
