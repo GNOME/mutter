@@ -34,31 +34,9 @@
  * the background that are obscured by other windows.
  */
 
-#define META_TYPE_BACKGROUND_ACTOR            (meta_background_actor_get_type ())
-#define META_BACKGROUND_ACTOR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_BACKGROUND_ACTOR, MetaBackgroundActor))
-#define META_BACKGROUND_ACTOR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), META_TYPE_BACKGROUND_ACTOR, MetaBackgroundActorClass))
-#define META_IS_BACKGROUND_ACTOR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_BACKGROUND_ACTOR))
-#define META_IS_BACKGROUND_ACTOR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), META_TYPE_BACKGROUND_ACTOR))
-#define META_BACKGROUND_ACTOR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), META_TYPE_BACKGROUND_ACTOR, MetaBackgroundActorClass))
+#define META_TYPE_BACKGROUND_ACTOR (meta_background_actor_get_type ())
+G_DECLARE_FINAL_TYPE (MetaBackgroundActor, meta_background_actor, META, BACKGROUND_ACTOR, ClutterActor)
 
-typedef struct _MetaBackgroundActor        MetaBackgroundActor;
-typedef struct _MetaBackgroundActorClass   MetaBackgroundActorClass;
-typedef struct _MetaBackgroundActorPrivate MetaBackgroundActorPrivate;
-
-struct _MetaBackgroundActorClass
-{
-  /*< private >*/
-  ClutterActorClass parent_class;
-};
-
-struct _MetaBackgroundActor
-{
-  ClutterActor parent;
-
-  MetaBackgroundActorPrivate *priv;
-};
-
-GType meta_background_actor_get_type (void);
 
 ClutterActor *meta_background_actor_new    (MetaDisplay *display,
                                             int          monitor);

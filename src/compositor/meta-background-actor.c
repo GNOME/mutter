@@ -149,8 +149,10 @@ typedef enum {
   PIPELINE_GRADIENT = (1 << 2),
 } PipelineFlags;
 
-struct _MetaBackgroundActorPrivate
+struct _MetaBackgroundActor
 {
+  ClutterActor parent;
+
   MetaDisplay *display;
   int monitor;
 
@@ -176,32 +178,28 @@ struct _MetaBackgroundActorPrivate
 static void cullable_iface_init (MetaCullableInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaBackgroundActor, meta_background_actor, CLUTTER_TYPE_ACTOR,
-                         G_ADD_PRIVATE (MetaBackgroundActor)
                          G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
 
 static void
 set_clip_region (MetaBackgroundActor *self,
                  cairo_region_t      *clip_region)
 {
-  MetaBackgroundActorPrivate *priv = self->priv;
-
-  g_clear_pointer (&priv->clip_region, cairo_region_destroy);
+  g_clear_pointer (&self->clip_region, cairo_region_destroy);
   if (clip_region)
-    priv->clip_region = cairo_region_copy (clip_region);
+    self->clip_region = cairo_region_copy (clip_region);
 }
 
 static void
 meta_background_actor_dispose (GObject *object)
 {
   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (object);
-  MetaBackgroundActorPrivate *priv = self->priv;
 
   set_clip_region (self, NULL);
   meta_background_actor_set_background (self, NULL);
-  if (priv->pipeline)
+  if (self->pipeline)
     {
-      cogl_object_unref (priv->pipeline);
-      priv->pipeline = NULL;
+      cogl_object_unref (self->pipeline);
+      self->pipeline = NULL;
     }
 
   G_OBJECT_CLASS (meta_background_actor_parent_class)->dispose (object);
@@ -212,11 +210,10 @@ get_preferred_size (MetaBackgroundActor *self,
                     gfloat              *width,
                     gfloat              *height)
 {
-  MetaBackgroundActorPrivate *priv = META_BACKGROUND_ACTOR (self)->priv;
   MetaRectangle monitor_geometry;
 
-  meta_display_get_monitor_geometry (priv->display,
-                                     priv->monitor,
+  meta_display_get_monitor_geometry (self->display,
+                                     self->monitor,
                                      &monitor_geometry);
 
   if (width != NULL)
@@ -325,7 +322,6 @@ static void
 setup_pipeline (MetaBackgroundActor   *self,
                 cairo_rectangle_int_t *actor_pixel_rect)
 {
-  MetaBackgroundActorPrivate *priv = self->priv;
   PipelineFlags pipeline_flags = 0;
   guint8 opacity;
   float color_component;
@@ -334,75 +330,75 @@ setup_pipeline (MetaBackgroundActor   *self,
   opacity = clutter_actor_get_paint_opacity (CLUTTER_ACTOR (self));
   if (opacity < 255)
     pipeline_flags |= PIPELINE_BLEND;
-  if (priv->vignette && clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
+  if (self->vignette && clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
     pipeline_flags |= PIPELINE_VIGNETTE;
-  if (priv->gradient && clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
+  if (self->gradient && clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
     pipeline_flags |= PIPELINE_GRADIENT;
 
-  if (priv->pipeline &&
-      pipeline_flags != priv->pipeline_flags)
+  if (self->pipeline &&
+      pipeline_flags != self->pipeline_flags)
     {
-      cogl_object_unref (priv->pipeline);
-      priv->pipeline = NULL;
+      cogl_object_unref (self->pipeline);
+      self->pipeline = NULL;
     }
 
-  if (priv->pipeline == NULL)
+  if (self->pipeline == NULL)
     {
-      priv->pipeline_flags = pipeline_flags;
-      priv->pipeline = make_pipeline (pipeline_flags);
-      priv->changed = CHANGED_ALL;
+      self->pipeline_flags = pipeline_flags;
+      self->pipeline = make_pipeline (pipeline_flags);
+      self->changed = CHANGED_ALL;
     }
 
-  if ((priv->changed & CHANGED_BACKGROUND) != 0)
+  if ((self->changed & CHANGED_BACKGROUND) != 0)
     {
       CoglPipelineWrapMode wrap_mode;
-      CoglTexture *texture = meta_background_get_texture (priv->background,
-                                                          priv->monitor,
-                                                          &priv->texture_area,
+      CoglTexture *texture = meta_background_get_texture (self->background,
+                                                          self->monitor,
+                                                          &self->texture_area,
                                                           &wrap_mode);
-      priv->force_bilinear = texture &&
-        (priv->texture_area.width != (int)cogl_texture_get_width (texture) ||
-         priv->texture_area.height != (int)cogl_texture_get_height (texture));
+      self->force_bilinear = texture &&
+        (self->texture_area.width != (int)cogl_texture_get_width (texture) ||
+         self->texture_area.height != (int)cogl_texture_get_height (texture));
 
-      cogl_pipeline_set_layer_texture (priv->pipeline, 0, texture);
-      cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, wrap_mode);
+      cogl_pipeline_set_layer_texture (self->pipeline, 0, texture);
+      cogl_pipeline_set_layer_wrap_mode (self->pipeline, 0, wrap_mode);
 
-      priv->changed &= ~CHANGED_BACKGROUND;
+      self->changed &= ~CHANGED_BACKGROUND;
     }
 
-  if ((priv->changed & CHANGED_VIGNETTE_PARAMETERS) != 0)
+  if ((self->changed & CHANGED_VIGNETTE_PARAMETERS) != 0)
     {
-      cogl_pipeline_set_uniform_1f (priv->pipeline,
-                                    cogl_pipeline_get_uniform_location (priv->pipeline,
+      cogl_pipeline_set_uniform_1f (self->pipeline,
+                                    cogl_pipeline_get_uniform_location (self->pipeline,
                                                                         "vignette_sharpness"),
-                                    priv->vignette_sharpness);
+                                    self->vignette_sharpness);
 
-      priv->changed &= ~CHANGED_VIGNETTE_PARAMETERS;
+      self->changed &= ~CHANGED_VIGNETTE_PARAMETERS;
     }
 
-  if ((priv->changed & CHANGED_GRADIENT_PARAMETERS) != 0)
+  if ((self->changed & CHANGED_GRADIENT_PARAMETERS) != 0)
     {
       MetaRectangle monitor_geometry;
       float gradient_height_perc;
 
-      meta_display_get_monitor_geometry (priv->display,
-                                         priv->monitor, &monitor_geometry);
-      gradient_height_perc = MAX (0.0001, priv->gradient_height / (float)monitor_geometry.height);
-      cogl_pipeline_set_uniform_1f (priv->pipeline,
-                                    cogl_pipeline_get_uniform_location (priv->pipeline,
+      meta_display_get_monitor_geometry (self->display,
+                                         self->monitor, &monitor_geometry);
+      gradient_height_perc = MAX (0.0001, self->gradient_height / (float)monitor_geometry.height);
+      cogl_pipeline_set_uniform_1f (self->pipeline,
+                                    cogl_pipeline_get_uniform_location (self->pipeline,
                                                                         "gradient_height_perc"),
                                     gradient_height_perc);
-      cogl_pipeline_set_uniform_1f (priv->pipeline,
-                                    cogl_pipeline_get_uniform_location (priv->pipeline,
+      cogl_pipeline_set_uniform_1f (self->pipeline,
+                                    cogl_pipeline_get_uniform_location (self->pipeline,
                                                                         "gradient_max_darkness"),
-                                    priv->gradient_max_darkness);
+                                    self->gradient_max_darkness);
 
-      priv->changed &= ~CHANGED_GRADIENT_PARAMETERS;
+      self->changed &= ~CHANGED_GRADIENT_PARAMETERS;
     }
 
-  if (priv->vignette)
+  if (self->vignette)
     {
-      color_component = priv->vignette_brightness * opacity / 255.;
+      color_component = self->vignette_brightness * opacity / 255.;
 
       if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
         {
@@ -410,50 +406,49 @@ setup_pipeline (MetaBackgroundActor   *self,
            * be there if we were drawing the vignette, which is
            * (1 - (pi/12.) * vignette_sharpness) [exercise for the reader :]
            */
-          color_component *= (1 - 0.74 * priv->vignette_sharpness);
+          color_component *= (1 - 0.74 * self->vignette_sharpness);
         }
     }
   else
     color_component = opacity / 255.;
 
-  cogl_pipeline_set_color4f (priv->pipeline,
+  cogl_pipeline_set_color4f (self->pipeline,
                              color_component,
                              color_component,
                              color_component,
                              opacity / 255.);
 
-  if (!priv->force_bilinear &&
+  if (!self->force_bilinear &&
       meta_actor_painting_untransformed (actor_pixel_rect->width, actor_pixel_rect->height, NULL, NULL))
     filter = COGL_PIPELINE_FILTER_NEAREST;
   else
     filter = COGL_PIPELINE_FILTER_LINEAR;
 
-  cogl_pipeline_set_layer_filters (priv->pipeline, 0, filter, filter);
+  cogl_pipeline_set_layer_filters (self->pipeline, 0, filter, filter);
 }
 
 static void
 set_glsl_parameters (MetaBackgroundActor   *self,
                      cairo_rectangle_int_t *actor_pixel_rect)
 {
-  MetaBackgroundActorPrivate *priv = self->priv;
   float scale[2];
   float offset[2];
 
   /* Compute a scale and offset for transforming texture coordinates to the
    * coordinate system from [-0.5 to 0.5] across the area of the actor
    */
-  scale[0] = priv->texture_area.width / (float)actor_pixel_rect->width;
-  scale[1] = priv->texture_area.height / (float)actor_pixel_rect->height;
-  offset[0] = priv->texture_area.x / (float)actor_pixel_rect->width - 0.5;
-  offset[1] = priv->texture_area.y / (float)actor_pixel_rect->height - 0.5;
+  scale[0] = self->texture_area.width / (float)actor_pixel_rect->width;
+  scale[1] = self->texture_area.height / (float)actor_pixel_rect->height;
+  offset[0] = self->texture_area.x / (float)actor_pixel_rect->width - 0.5;
+  offset[1] = self->texture_area.y / (float)actor_pixel_rect->height - 0.5;
 
-  cogl_pipeline_set_uniform_float (priv->pipeline,
-                                   cogl_pipeline_get_uniform_location (priv->pipeline,
+  cogl_pipeline_set_uniform_float (self->pipeline,
+                                   cogl_pipeline_get_uniform_location (self->pipeline,
                                                                        "scale"),
                                    2, 1, scale);
 
-  cogl_pipeline_set_uniform_float (priv->pipeline,
-                                   cogl_pipeline_get_uniform_location (priv->pipeline,
+  cogl_pipeline_set_uniform_float (self->pipeline,
+                                   cogl_pipeline_get_uniform_location (self->pipeline,
                                                                        "offset"),
                                    2, 1, offset);
 }
@@ -493,13 +488,12 @@ static void
 meta_background_actor_paint (ClutterActor *actor)
 {
   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (actor);
-  MetaBackgroundActorPrivate *priv = self->priv;
   ClutterActorBox actor_box;
   cairo_rectangle_int_t actor_pixel_rect;
   CoglFramebuffer *fb;
   int i;
 
-  if ((priv->clip_region && cairo_region_is_empty (priv->clip_region)))
+  if ((self->clip_region && cairo_region_is_empty (self->clip_region)))
     return;
 
   clutter_actor_get_content_box (actor, &actor_box);
@@ -519,27 +513,27 @@ meta_background_actor_paint (ClutterActor *actor)
 
   /* Now figure out what to actually paint.
    */
-  if (priv->clip_region != NULL)
+  if (self->clip_region != NULL)
     {
-      int n_rects = cairo_region_num_rectangles (priv->clip_region);
+      int n_rects = cairo_region_num_rectangles (self->clip_region);
       if (n_rects <= MAX_RECTS)
         {
            for (i = 0; i < n_rects; i++)
              {
                cairo_rectangle_int_t rect;
-               cairo_region_get_rectangle (priv->clip_region, i, &rect);
+               cairo_region_get_rectangle (self->clip_region, i, &rect);
 
                if (!gdk_rectangle_intersect (&actor_pixel_rect, &rect, &rect))
                  continue;
 
-               paint_clipped_rectangle (fb, priv->pipeline, &rect, &priv->texture_area);
+               paint_clipped_rectangle (fb, self->pipeline, &rect, &self->texture_area);
              }
 
            return;
         }
     }
 
-  paint_clipped_rectangle (fb, priv->pipeline, &actor_pixel_rect, &priv->texture_area);
+  paint_clipped_rectangle (fb, self->pipeline, &actor_pixel_rect, &self->texture_area);
 }
 
 static void
@@ -549,12 +543,11 @@ meta_background_actor_set_property (GObject      *object,
                                     GParamSpec   *pspec)
 {
   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (object);
-  MetaBackgroundActorPrivate *priv = self->priv;
 
   switch (prop_id)
     {
     case PROP_META_DISPLAY:
-      priv->display = g_value_get_object (value);
+      self->display = g_value_get_object (value);
       break;
     case PROP_MONITOR:
       meta_background_actor_set_monitor (self, g_value_get_int (value));
@@ -565,38 +558,38 @@ meta_background_actor_set_property (GObject      *object,
     case PROP_GRADIENT:
       meta_background_actor_set_gradient (self,
                                           g_value_get_boolean (value),
-                                          priv->gradient_height,
-                                          priv->gradient_max_darkness);
+                                          self->gradient_height,
+                                          self->gradient_max_darkness);
       break;
     case PROP_GRADIENT_HEIGHT:
       meta_background_actor_set_gradient (self,
-                                          priv->gradient,
+                                          self->gradient,
                                           g_value_get_int (value),
-                                          priv->gradient_max_darkness);
+                                          self->gradient_max_darkness);
       break;
     case PROP_GRADIENT_MAX_DARKNESS:
       meta_background_actor_set_gradient (self,
-                                          priv->gradient,
-                                          priv->gradient_height,
+                                          self->gradient,
+                                          self->gradient_height,
                                           g_value_get_double (value));
       break;
     case PROP_VIGNETTE:
       meta_background_actor_set_vignette (self,
                                           g_value_get_boolean (value),
-                                          priv->vignette_brightness,
-                                          priv->vignette_sharpness);
+                                          self->vignette_brightness,
+                                          self->vignette_sharpness);
       break;
     case PROP_VIGNETTE_SHARPNESS:
       meta_background_actor_set_vignette (self,
-                                          priv->vignette,
-                                          priv->vignette_brightness,
+                                          self->vignette,
+                                          self->vignette_brightness,
                                           g_value_get_double (value));
       break;
     case PROP_VIGNETTE_BRIGHTNESS:
       meta_background_actor_set_vignette (self,
-                                          priv->vignette,
+                                          self->vignette,
                                           g_value_get_double (value),
-                                          priv->vignette_sharpness);
+                                          self->vignette_sharpness);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -610,36 +603,36 @@ meta_background_actor_get_property (GObject      *object,
                                     GValue       *value,
                                     GParamSpec   *pspec)
 {
-  MetaBackgroundActorPrivate *priv = META_BACKGROUND_ACTOR (object)->priv;
+  MetaBackgroundActor *self = META_BACKGROUND_ACTOR (object);
 
   switch (prop_id)
     {
     case PROP_META_DISPLAY:
-      g_value_set_object (value, priv->display);
+      g_value_set_object (value, self->display);
       break;
     case PROP_MONITOR:
-      g_value_set_int (value, priv->monitor);
+      g_value_set_int (value, self->monitor);
       break;
     case PROP_BACKGROUND:
-      g_value_set_object (value, priv->background);
+      g_value_set_object (value, self->background);
       break;
     case PROP_GRADIENT:
-      g_value_set_boolean (value, priv->gradient);
+      g_value_set_boolean (value, self->gradient);
       break;
     case PROP_GRADIENT_HEIGHT:
-      g_value_set_int (value, priv->gradient_height);
+      g_value_set_int (value, self->gradient_height);
       break;
     case PROP_GRADIENT_MAX_DARKNESS:
-      g_value_set_double (value, priv->gradient_max_darkness);
+      g_value_set_double (value, self->gradient_max_darkness);
       break;
     case PROP_VIGNETTE:
-      g_value_set_boolean (value, priv->vignette);
+      g_value_set_boolean (value, self->vignette);
       break;
     case PROP_VIGNETTE_BRIGHTNESS:
-      g_value_set_double (value, priv->vignette_brightness);
+      g_value_set_double (value, self->vignette_brightness);
       break;
     case PROP_VIGNETTE_SHARPNESS:
-      g_value_set_double (value, priv->vignette_sharpness);
+      g_value_set_double (value, self->vignette_sharpness);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -757,19 +750,13 @@ meta_background_actor_class_init (MetaBackgroundActorClass *klass)
 static void
 meta_background_actor_init (MetaBackgroundActor *self)
 {
-  MetaBackgroundActorPrivate *priv;
+  self->gradient = FALSE;
+  self->gradient_height = 0;
+  self->gradient_max_darkness = 0.0;
 
-  priv = self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self,
-                                                   META_TYPE_BACKGROUND_ACTOR,
-                                                   MetaBackgroundActorPrivate);
-
-  priv->gradient = FALSE;
-  priv->gradient_height = 0;
-  priv->gradient_max_darkness = 0.0;
-
-  priv->vignette = FALSE;
-  priv->vignette_brightness = 1.0;
-  priv->vignette_sharpness = 0.0;
+  self->vignette = FALSE;
+  self->vignette_brightness = 1.0;
+  self->vignette_sharpness = 0.0;
 }
 
 /**
@@ -828,17 +815,14 @@ cullable_iface_init (MetaCullableInterface *iface)
 cairo_region_t *
 meta_background_actor_get_clip_region (MetaBackgroundActor *self)
 {
-  MetaBackgroundActorPrivate *priv = self->priv;
-  return priv->clip_region;
+  return self->clip_region;
 }
 
 static void
 invalidate_pipeline (MetaBackgroundActor *self,
                      ChangedFlags         changed)
 {
-  MetaBackgroundActorPrivate *priv = self->priv;
-
-  priv->changed |= changed;
+  self->changed |= changed;
 }
 
 static void
@@ -853,29 +837,25 @@ void
 meta_background_actor_set_background (MetaBackgroundActor *self,
                                       MetaBackground      *background)
 {
-  MetaBackgroundActorPrivate *priv;
-
   g_return_if_fail (META_IS_BACKGROUND_ACTOR (self));
   g_return_if_fail (background == NULL || META_IS_BACKGROUND (background));
 
-  priv = self->priv;
-
-  if (background == priv->background)
+  if (background == self->background)
     return;
 
-  if (priv->background)
+  if (self->background)
     {
-      g_signal_handlers_disconnect_by_func (priv->background,
+      g_signal_handlers_disconnect_by_func (self->background,
                                             (gpointer)on_background_changed,
                                             self);
-      g_object_unref (priv->background);
-      priv->background = NULL;
+      g_object_unref (self->background);
+      self->background = NULL;
     }
 
   if (background)
     {
-      priv->background = g_object_ref (background);
-      g_signal_connect (priv->background, "changed",
+      self->background = g_object_ref (background);
+      g_signal_connect (self->background, "changed",
                         G_CALLBACK (on_background_changed), self);
     }
 
@@ -889,28 +869,25 @@ meta_background_actor_set_gradient (MetaBackgroundActor *self,
                                     int                  height,
                                     double               max_darkness)
 {
-  MetaBackgroundActorPrivate *priv;
   gboolean changed = FALSE;
 
   g_return_if_fail (META_IS_BACKGROUND_ACTOR (self));
   g_return_if_fail (height >= 0);
   g_return_if_fail (max_darkness >= 0. && max_darkness <= 1.);
 
-  priv = self->priv;
-
   enabled = enabled != FALSE && height != 0;
 
-  if (enabled != priv->gradient)
+  if (enabled != self->gradient)
     {
-      priv->gradient = enabled;
+      self->gradient = enabled;
       invalidate_pipeline (self, CHANGED_EFFECTS);
       changed = TRUE;
     }
 
-  if (height != priv->gradient_height || max_darkness != priv->gradient_max_darkness)
+  if (height != self->gradient_height || max_darkness != self->gradient_max_darkness)
     {
-      priv->gradient_height = height;
-      priv->gradient_max_darkness = max_darkness;
+      self->gradient_height = height;
+      self->gradient_max_darkness = max_darkness;
       invalidate_pipeline (self, CHANGED_GRADIENT_PARAMETERS);
       changed = TRUE;
     }
@@ -923,20 +900,19 @@ void
 meta_background_actor_set_monitor (MetaBackgroundActor *self,
                                    int                  monitor)
 {
-  MetaBackgroundActorPrivate *priv = self->priv;
   MetaRectangle old_monitor_geometry;
   MetaRectangle new_monitor_geometry;
-  MetaDisplay *display = priv->display;
+  MetaDisplay *display = self->display;
 
-  if(priv->monitor == monitor)
+  if(self->monitor == monitor)
       return;
 
-  meta_display_get_monitor_geometry (display, priv->monitor, &old_monitor_geometry);
+  meta_display_get_monitor_geometry (display, self->monitor, &old_monitor_geometry);
   meta_display_get_monitor_geometry (display, monitor, &new_monitor_geometry);
   if(old_monitor_geometry.height != new_monitor_geometry.height)
       invalidate_pipeline (self, CHANGED_GRADIENT_PARAMETERS);
 
-  priv->monitor = monitor;
+  self->monitor = monitor;
 }
 
 void
@@ -945,28 +921,25 @@ meta_background_actor_set_vignette (MetaBackgroundActor *self,
                                     double               brightness,
                                     double               sharpness)
 {
-  MetaBackgroundActorPrivate *priv;
   gboolean changed = FALSE;
 
   g_return_if_fail (META_IS_BACKGROUND_ACTOR (self));
   g_return_if_fail (brightness >= 0. && brightness <= 1.);
   g_return_if_fail (sharpness >= 0.);
 
-  priv = self->priv;
-
   enabled = enabled != FALSE;
 
-  if (enabled != priv->vignette)
+  if (enabled != self->vignette)
     {
-      priv->vignette = enabled;
+      self->vignette = enabled;
       invalidate_pipeline (self, CHANGED_EFFECTS);
       changed = TRUE;
     }
 
-  if (brightness != priv->vignette_brightness || sharpness != priv->vignette_sharpness)
+  if (brightness != self->vignette_brightness || sharpness != self->vignette_sharpness)
     {
-      priv->vignette_brightness = brightness;
-      priv->vignette_sharpness = sharpness;
+      self->vignette_brightness = brightness;
+      self->vignette_sharpness = sharpness;
       invalidate_pipeline (self, CHANGED_VIGNETTE_PARAMETERS);
       changed = TRUE;
     }

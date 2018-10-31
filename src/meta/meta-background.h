@@ -32,33 +32,11 @@
  * the background that are obscured by other windows.
  */
 
-#define META_TYPE_BACKGROUND            (meta_background_get_type ())
-#define META_BACKGROUND(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_BACKGROUND, MetaBackground))
-#define META_BACKGROUND_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), META_TYPE_BACKGROUND, MetaBackgroundClass))
-#define META_IS_BACKGROUND(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_BACKGROUND))
-#define META_IS_BACKGROUND_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), META_TYPE_BACKGROUND))
-#define META_BACKGROUND_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), META_TYPE_BACKGROUND, MetaBackgroundClass))
+#define META_TYPE_BACKGROUND (meta_background_get_type ())
+G_DECLARE_FINAL_TYPE (MetaBackground, meta_background, META, BACKGROUND, GObject)
 
-typedef struct _MetaBackground        MetaBackground;
-typedef struct _MetaBackgroundClass   MetaBackgroundClass;
-typedef struct _MetaBackgroundPrivate MetaBackgroundPrivate;
-
-struct _MetaBackgroundClass
-{
-  /*< private >*/
-  GObjectClass parent_class;
-};
-
-struct _MetaBackground
-{
-  GObject parent;
-
-  MetaBackgroundPrivate *priv;
-};
 
 void meta_background_refresh_all (void);
-
-GType meta_background_get_type (void);
 
 MetaBackground *meta_background_new (MetaDisplay *display);
 
