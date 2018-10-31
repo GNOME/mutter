@@ -10,16 +10,11 @@
 
 G_BEGIN_DECLS
 
-#define META_TYPE_SURFACE_ACTOR            (meta_surface_actor_get_type())
-#define META_SURFACE_ACTOR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_SURFACE_ACTOR, MetaSurfaceActor))
-#define META_SURFACE_ACTOR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), META_TYPE_SURFACE_ACTOR, MetaSurfaceActorClass))
-#define META_IS_SURFACE_ACTOR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_SURFACE_ACTOR))
-#define META_IS_SURFACE_ACTOR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), META_TYPE_SURFACE_ACTOR))
-#define META_SURFACE_ACTOR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), META_TYPE_SURFACE_ACTOR, MetaSurfaceActorClass))
-
-typedef struct _MetaSurfaceActor        MetaSurfaceActor;
-typedef struct _MetaSurfaceActorClass   MetaSurfaceActorClass;
-typedef struct _MetaSurfaceActorPrivate MetaSurfaceActorPrivate;
+#define META_TYPE_SURFACE_ACTOR (meta_surface_actor_get_type ())
+G_DECLARE_DERIVABLE_TYPE (MetaSurfaceActor,
+                          meta_surface_actor,
+                          META, SURFACE_ACTOR,
+                          ClutterActor)
 
 struct _MetaSurfaceActorClass
 {
@@ -38,15 +33,6 @@ struct _MetaSurfaceActorClass
 
   MetaWindow *(* get_window)      (MetaSurfaceActor *actor);
 };
-
-struct _MetaSurfaceActor
-{
-  ClutterActor            parent;
-
-  MetaSurfaceActorPrivate *priv;
-};
-
-GType meta_surface_actor_get_type (void);
 
 cairo_surface_t *meta_surface_actor_get_image (MetaSurfaceActor      *self,
                                                cairo_rectangle_int_t *clip);
