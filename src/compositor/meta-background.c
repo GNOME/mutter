@@ -47,8 +47,10 @@ struct _MetaBackgroundMonitor
   CoglFramebuffer *fbo;
 };
 
-struct _MetaBackgroundPrivate
+struct _MetaBackground
 {
+  GObject parent;
+
   MetaDisplay *display;
   MetaBackgroundMonitor *monitors;
   int n_monitors;
@@ -77,7 +79,7 @@ enum
   PROP_MONITOR,
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaBackground, meta_background, G_TYPE_OBJECT)
+G_DEFINE_TYPE (MetaBackground, meta_background, G_TYPE_OBJECT)
 
 static gboolean texture_has_alpha (CoglTexture *texture);
 
@@ -86,13 +88,11 @@ static GSList *all_backgrounds = NULL;
 static void
 free_fbos (MetaBackground *self)
 {
-  MetaBackgroundPrivate *priv = self->priv;
-
   int i;
 
-  for (i = 0; i < priv->n_monitors; i++)
+  for (i = 0; i < self->n_monitors; i++)
     {
-      MetaBackgroundMonitor *monitor = &priv->monitors[i];
+      MetaBackgroundMonitor *monitor = &self->monitors[i];
       if (monitor->fbo)
         {
           cogl_object_unref (monitor->fbo);
@@ -109,48 +109,42 @@ free_fbos (MetaBackground *self)
 static void
 free_color_texture (MetaBackground *self)
 {
-  MetaBackgroundPrivate *priv = self->priv;
-
-  if (priv->color_texture != NULL)
+  if (self->color_texture != NULL)
     {
-      cogl_object_unref (priv->color_texture);
-      priv->color_texture = NULL;
+      cogl_object_unref (self->color_texture);
+      self->color_texture = NULL;
     }
 }
 
 static void
 free_wallpaper_texture (MetaBackground *self)
 {
-  MetaBackgroundPrivate *priv = self->priv;
-
-  if (priv->wallpaper_texture != NULL)
+  if (self->wallpaper_texture != NULL)
     {
-      cogl_object_unref (priv->wallpaper_texture);
-      priv->wallpaper_texture = NULL;
+      cogl_object_unref (self->wallpaper_texture);
+      self->wallpaper_texture = NULL;
     }
 
-  priv->wallpaper_allocation_failed = FALSE;
+  self->wallpaper_allocation_failed = FALSE;
 }
 
 static void
 invalidate_monitor_backgrounds (MetaBackground *self)
 {
-  MetaBackgroundPrivate *priv = self->priv;
-
   free_fbos (self);
-  g_free (priv->monitors);
-  priv->monitors = NULL;
-  priv->n_monitors = 0;
+  g_free (self->monitors);
+  self->monitors = NULL;
+  self->n_monitors = 0;
 
-  if (priv->display)
+  if (self->display)
     {
       int i;
 
-      priv->n_monitors = meta_display_get_n_monitors (priv->display);
-      priv->monitors = g_new0 (MetaBackgroundMonitor, priv->n_monitors);
+      self->n_monitors = meta_display_get_n_monitors (self->display);
+      self->monitors = g_new0 (MetaBackgroundMonitor, self->n_monitors);
 
-      for (i = 0; i < priv->n_monitors; i++)
-        priv->monitors[i].dirty = TRUE;
+      for (i = 0; i < self->n_monitors; i++)
+        self->monitors[i].dirty = TRUE;
     }
 }
 
@@ -164,9 +158,7 @@ static void
 set_display (MetaBackground *self,
              MetaDisplay    *display)
 {
-  MetaBackgroundPrivate *priv = self->priv;
-
-  g_set_object (&priv->display, display);
+  g_set_object (&self->display, display);
 
   invalidate_monitor_backgrounds (self);
 }
@@ -194,12 +186,12 @@ meta_background_get_property (GObject      *object,
                               GValue       *value,
                               GParamSpec   *pspec)
 {
-  MetaBackgroundPrivate *priv = META_BACKGROUND (object)->priv;
+  MetaBackground *self = META_BACKGROUND (object);
 
   switch (prop_id)
     {
     case PROP_META_DISPLAY:
-      g_value_set_object (value, priv->display);
+      g_value_set_object (value, self->display);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -210,14 +202,13 @@ meta_background_get_property (GObject      *object,
 static gboolean
 need_prerender (MetaBackground *self)
 {
-  MetaBackgroundPrivate *priv = self->priv;
-  CoglTexture *texture1 = priv->background_image1 ? meta_background_image_get_texture (priv->background_image1) : NULL;
-  CoglTexture *texture2 = priv->background_image2 ? meta_background_image_get_texture (priv->background_image2) : NULL;
+  CoglTexture *texture1 = self->background_image1 ? meta_background_image_get_texture (self->background_image1) : NULL;
+  CoglTexture *texture2 = self->background_image2 ? meta_background_image_get_texture (self->background_image2) : NULL;
 
   if (texture1 == NULL && texture2 == NULL)
     return FALSE;
 
-  if (texture2 == NULL && priv->style == G_DESKTOP_BACKGROUND_STYLE_WALLPAPER)
+  if (texture2 == NULL && self->style == G_DESKTOP_BACKGROUND_STYLE_WALLPAPER)
     return FALSE;
 
   return TRUE;
@@ -226,14 +217,13 @@ need_prerender (MetaBackground *self)
 static void
 mark_changed (MetaBackground *self)
 {
-  MetaBackgroundPrivate *priv = self->priv;
   int i;
 
   if (!need_prerender (self))
     free_fbos (self);
 
-  for (i = 0; i < priv->n_monitors; i++)
-    priv->monitors[i].dirty = TRUE;
+  for (i = 0; i < self->n_monitors; i++)
+    self->monitors[i].dirty = TRUE;
 
   g_signal_emit (self, signals[CHANGED], 0);
 }
@@ -293,13 +283,12 @@ static void
 meta_background_dispose (GObject *object)
 {
   MetaBackground        *self = META_BACKGROUND (object);
-  MetaBackgroundPrivate *priv = self->priv;
 
   free_color_texture (self);
   free_wallpaper_texture (self);
 
-  set_file (self, &priv->file1, &priv->background_image1, NULL);
-  set_file (self, &priv->file2, &priv->background_image2, NULL);
+  set_file (self, &self->file1, &self->background_image1, NULL);
+  set_file (self, &self->file2, &self->background_image2, NULL);
 
   set_display (self, NULL);
 
@@ -318,12 +307,11 @@ static void
 meta_background_constructed (GObject *object)
 {
   MetaBackground        *self = META_BACKGROUND (object);
-  MetaBackgroundPrivate *priv = self->priv;
   MetaMonitorManager *monitor_manager = meta_monitor_manager_get ();
 
   G_OBJECT_CLASS (meta_background_parent_class)->constructed (object);
 
-  g_signal_connect_object (priv->display, "gl-video-memory-purged",
+  g_signal_connect_object (self->display, "gl-video-memory-purged",
                            G_CALLBACK (mark_changed), object, G_CONNECT_SWAPPED);
 
   g_signal_connect_object (monitor_manager, "monitors-changed",
@@ -366,9 +354,6 @@ meta_background_class_init (MetaBackgroundClass *klass)
 static void
 meta_background_init (MetaBackground *self)
 {
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self,
-                                            META_TYPE_BACKGROUND,
-                                            MetaBackgroundPrivate);
   all_backgrounds = g_slist_prepend (all_backgrounds, self);
 }
 
@@ -388,7 +373,6 @@ get_texture_area (MetaBackground          *self,
                   CoglTexture             *texture,
                   cairo_rectangle_int_t   *texture_area)
 {
-  MetaBackgroundPrivate *priv = self->priv;
   cairo_rectangle_int_t image_area;
   int screen_width, screen_height;
   float texture_width, texture_height;
@@ -397,7 +381,7 @@ get_texture_area (MetaBackground          *self,
   texture_width = cogl_texture_get_width (texture);
   texture_height = cogl_texture_get_height (texture);
 
-  switch (priv->style)
+  switch (self->style)
     {
     case G_DESKTOP_BACKGROUND_STYLE_STRETCHED:
     default:
@@ -407,7 +391,7 @@ get_texture_area (MetaBackground          *self,
       set_texture_area_from_monitor_area (monitor_rect, texture_area);
       break;
     case G_DESKTOP_BACKGROUND_STYLE_WALLPAPER:
-      meta_display_get_size (priv->display, &screen_width, &screen_height);
+      meta_display_get_size (self->display, &screen_width, &screen_height);
 
       /* Start off by centering a tile in the middle of the
        * total screen area.
@@ -444,9 +428,9 @@ get_texture_area (MetaBackground          *self,
       monitor_x_scale = monitor_rect->width / texture_width;
       monitor_y_scale = monitor_rect->height / texture_height;
 
-      if ((priv->style == G_DESKTOP_BACKGROUND_STYLE_SCALED &&
+      if ((self->style == G_DESKTOP_BACKGROUND_STYLE_SCALED &&
            (monitor_x_scale < monitor_y_scale)) ||
-          (priv->style == G_DESKTOP_BACKGROUND_STYLE_ZOOM &&
+          (self->style == G_DESKTOP_BACKGROUND_STYLE_ZOOM &&
            (monitor_x_scale > monitor_y_scale)))
         {
           /* Fill image to exactly fit actor horizontally */
@@ -476,7 +460,7 @@ get_texture_area (MetaBackground          *self,
         /* paint region is the union of all monitors, with the origin
          * of the region set to align with monitor associated with the background.
          */
-        meta_display_get_size (priv->display, &screen_width, &screen_height);
+        meta_display_get_size (self->display, &screen_width, &screen_height);
 
         /* unclipped texture area is whole screen */
         image_area.width = screen_width;
@@ -499,13 +483,12 @@ draw_texture (MetaBackground        *self,
               CoglTexture           *texture,
               cairo_rectangle_int_t *monitor_area)
 {
-  MetaBackgroundPrivate *priv = self->priv;
   cairo_rectangle_int_t texture_area;
   gboolean bare_region_visible;
 
   get_texture_area (self, monitor_area, texture, &texture_area);
 
-  switch (priv->style)
+  switch (self->style)
     {
     case G_DESKTOP_BACKGROUND_STYLE_STRETCHED:
     case G_DESKTOP_BACKGROUND_STYLE_WALLPAPER:
@@ -550,9 +533,7 @@ draw_texture (MetaBackground        *self,
 static void
 ensure_color_texture (MetaBackground *self)
 {
-  MetaBackgroundPrivate *priv = self->priv;
-
-  if (priv->color_texture == NULL)
+  if (self->color_texture == NULL)
     {
       ClutterBackend *backend = clutter_get_default_backend ();
       CoglContext *ctx = clutter_backend_get_cogl_context (backend);
@@ -560,18 +541,18 @@ ensure_color_texture (MetaBackground *self)
       uint8_t pixels[6];
       int width, height;
 
-      if (priv->shading_direction == G_DESKTOP_BACKGROUND_SHADING_SOLID)
+      if (self->shading_direction == G_DESKTOP_BACKGROUND_SHADING_SOLID)
         {
           width = 1;
           height = 1;
 
-          pixels[0] = priv->color.red;
-          pixels[1] = priv->color.green;
-          pixels[2] = priv->color.blue;
+          pixels[0] = self->color.red;
+          pixels[1] = self->color.green;
+          pixels[2] = self->color.blue;
         }
       else
         {
-          switch (priv->shading_direction)
+          switch (self->shading_direction)
             {
             case G_DESKTOP_BACKGROUND_SHADING_VERTICAL:
               width = 1;
@@ -585,15 +566,15 @@ ensure_color_texture (MetaBackground *self)
               g_return_if_reached ();
             }
 
-          pixels[0] = priv->color.red;
-          pixels[1] = priv->color.green;
-          pixels[2] = priv->color.blue;
-          pixels[3] = priv->second_color.red;
-          pixels[4] = priv->second_color.green;
-          pixels[5] = priv->second_color.blue;
+          pixels[0] = self->color.red;
+          pixels[1] = self->color.green;
+          pixels[2] = self->color.blue;
+          pixels[3] = self->second_color.red;
+          pixels[4] = self->second_color.green;
+          pixels[5] = self->second_color.blue;
         }
 
-      priv->color_texture = COGL_TEXTURE (cogl_texture_2d_new_from_data (ctx, width, height,
+      self->color_texture = COGL_TEXTURE (cogl_texture_2d_new_from_data (ctx, width, height,
                                                                          COGL_PIXEL_FORMAT_RGB_888,
                                                                          width * 3,
                                                                          pixels,
@@ -656,9 +637,7 @@ static gboolean
 ensure_wallpaper_texture (MetaBackground *self,
                           CoglTexture    *texture)
 {
-  MetaBackgroundPrivate *priv = self->priv;
-
-  if (priv->wallpaper_texture == NULL && !priv->wallpaper_allocation_failed)
+  if (self->wallpaper_texture == NULL && !self->wallpaper_allocation_failed)
     {
       int width = cogl_texture_get_width (texture);
       int height = cogl_texture_get_height (texture);
@@ -667,10 +646,10 @@ ensure_wallpaper_texture (MetaBackground *self,
       CoglError *catch_error = NULL;
       CoglPipeline *pipeline;
 
-      priv->wallpaper_texture = meta_create_texture (width, height,
+      self->wallpaper_texture = meta_create_texture (width, height,
                                                      COGL_TEXTURE_COMPONENTS_RGBA,
                                                      META_TEXTURE_FLAGS_NONE);
-      offscreen = cogl_offscreen_new_with_texture (priv->wallpaper_texture);
+      offscreen = cogl_offscreen_new_with_texture (self->wallpaper_texture);
       fbo = COGL_FRAMEBUFFER (offscreen);
 
       if (!cogl_framebuffer_allocate (fbo, &catch_error))
@@ -681,11 +660,11 @@ ensure_wallpaper_texture (MetaBackground *self,
            */
           cogl_error_free (catch_error);
 
-          cogl_object_unref (priv->wallpaper_texture);
-          priv->wallpaper_texture = NULL;
+          cogl_object_unref (self->wallpaper_texture);
+          self->wallpaper_texture = NULL;
           cogl_object_unref (fbo);
 
-          priv->wallpaper_allocation_failed = TRUE;
+          self->wallpaper_allocation_failed = TRUE;
           return FALSE;
         }
 
@@ -703,7 +682,7 @@ ensure_wallpaper_texture (MetaBackground *self,
           ensure_color_texture (self);
 
           pipeline = create_pipeline (PIPELINE_OVER_REVERSE);
-          cogl_pipeline_set_layer_texture (pipeline, 0, priv->color_texture);
+          cogl_pipeline_set_layer_texture (pipeline, 0, self->color_texture);
           cogl_framebuffer_draw_rectangle (fbo, pipeline, 0, 0, width, height);
           cogl_object_unref (pipeline);
         }
@@ -711,7 +690,7 @@ ensure_wallpaper_texture (MetaBackground *self,
       cogl_object_unref (fbo);
     }
 
-  return priv->wallpaper_texture != NULL;
+  return self->wallpaper_texture != NULL;
 }
 
 static CoglPipelineWrapMode
@@ -738,26 +717,24 @@ meta_background_get_texture (MetaBackground         *self,
                              cairo_rectangle_int_t  *texture_area,
                              CoglPipelineWrapMode   *wrap_mode)
 {
-  MetaBackgroundPrivate *priv;
   MetaBackgroundMonitor *monitor;
   MetaRectangle geometry;
   cairo_rectangle_int_t monitor_area;
   CoglTexture *texture1, *texture2;
 
   g_return_val_if_fail (META_IS_BACKGROUND (self), NULL);
-  priv = self->priv;
-  g_return_val_if_fail (monitor_index >= 0 && monitor_index < priv->n_monitors, NULL);
+  g_return_val_if_fail (monitor_index >= 0 && monitor_index < self->n_monitors, NULL);
 
-  monitor = &priv->monitors[monitor_index];
+  monitor = &self->monitors[monitor_index];
 
-  meta_display_get_monitor_geometry (priv->display, monitor_index, &geometry);
+  meta_display_get_monitor_geometry (self->display, monitor_index, &geometry);
   monitor_area.x = geometry.x;
   monitor_area.y = geometry.y;
   monitor_area.width = geometry.width;
   monitor_area.height = geometry.height;
 
-  texture1 = priv->background_image1 ? meta_background_image_get_texture (priv->background_image1) : NULL;
-  texture2 = priv->background_image2 ? meta_background_image_get_texture (priv->background_image2) : NULL;
+  texture1 = self->background_image1 ? meta_background_image_get_texture (self->background_image1) : NULL;
+  texture2 = self->background_image2 ? meta_background_image_get_texture (self->background_image2) : NULL;
 
   if (texture1 == NULL && texture2 == NULL)
     {
@@ -766,19 +743,19 @@ meta_background_get_texture (MetaBackground         *self,
         set_texture_area_from_monitor_area (&monitor_area, texture_area);
       if (wrap_mode)
         *wrap_mode = COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE;
-      return priv->color_texture;
+      return self->color_texture;
     }
 
-  if (texture2 == NULL && priv->style == G_DESKTOP_BACKGROUND_STYLE_WALLPAPER &&
-      priv->shading_direction == G_DESKTOP_BACKGROUND_SHADING_SOLID &&
+  if (texture2 == NULL && self->style == G_DESKTOP_BACKGROUND_STYLE_WALLPAPER &&
+      self->shading_direction == G_DESKTOP_BACKGROUND_SHADING_SOLID &&
       ensure_wallpaper_texture (self, texture1))
     {
       if (texture_area)
-        get_texture_area (self, &monitor_area, priv->wallpaper_texture,
+        get_texture_area (self, &monitor_area, self->wallpaper_texture,
                           texture_area);
       if (wrap_mode)
         *wrap_mode = COGL_PIPELINE_WRAP_MODE_REPEAT;
-      return priv->wallpaper_texture;
+      return self->wallpaper_texture;
     }
 
   if (monitor->dirty)
@@ -815,13 +792,13 @@ meta_background_get_texture (MetaBackground         *self,
       cogl_framebuffer_orthographic (monitor->fbo, 0, 0,
                                      monitor_area.width, monitor_area.height, -1., 1.);
 
-      if (texture2 != NULL && priv->blend_factor != 0.0)
+      if (texture2 != NULL && self->blend_factor != 0.0)
         {
           CoglPipeline *pipeline = create_pipeline (PIPELINE_REPLACE);
           cogl_pipeline_set_color4f (pipeline,
-                                      priv->blend_factor, priv->blend_factor, priv->blend_factor, priv->blend_factor);
+                                      self->blend_factor, self->blend_factor, self->blend_factor, self->blend_factor);
           cogl_pipeline_set_layer_texture (pipeline, 0, texture2);
-          cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (priv->style));
+          cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (self->style));
 
           bare_region_visible = draw_texture (self,
                                               monitor->fbo, pipeline,
@@ -836,16 +813,16 @@ meta_background_get_texture (MetaBackground         *self,
                                     0.0, 0.0, 0.0, 0.0);
         }
 
-      if (texture1 != NULL && priv->blend_factor != 1.0)
+      if (texture1 != NULL && self->blend_factor != 1.0)
         {
           CoglPipeline *pipeline = create_pipeline (PIPELINE_ADD);
           cogl_pipeline_set_color4f (pipeline,
-                                     (1 - priv->blend_factor),
-                                     (1 - priv->blend_factor),
-                                     (1 - priv->blend_factor),
-                                     (1 - priv->blend_factor));;
+                                     (1 - self->blend_factor),
+                                     (1 - self->blend_factor),
+                                     (1 - self->blend_factor),
+                                     (1 - self->blend_factor));;
           cogl_pipeline_set_layer_texture (pipeline, 0, texture1);
-          cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (priv->style));
+          cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (self->style));
 
           bare_region_visible = bare_region_visible || draw_texture (self,
                                                                      monitor->fbo, pipeline,
@@ -859,7 +836,7 @@ meta_background_get_texture (MetaBackground         *self,
           CoglPipeline *pipeline = create_pipeline (PIPELINE_OVER_REVERSE);
 
           ensure_color_texture (self);
-          cogl_pipeline_set_layer_texture (pipeline, 0, priv->color_texture);
+          cogl_pipeline_set_layer_texture (pipeline, 0, self->color_texture);
           cogl_framebuffer_draw_rectangle (monitor->fbo,
                                            pipeline,
                                            0, 0,
@@ -906,17 +883,13 @@ meta_background_set_gradient (MetaBackground            *self,
                               ClutterColor              *color,
                               ClutterColor              *second_color)
 {
-  MetaBackgroundPrivate *priv;
-
   g_return_if_fail (META_IS_BACKGROUND (self));
   g_return_if_fail (color != NULL);
   g_return_if_fail (second_color != NULL);
 
-  priv = self->priv;
-
-  priv->shading_direction = shading_direction;
-  priv->color = *color;
-  priv->second_color = *second_color;
+  self->shading_direction = shading_direction;
+  self->color = *color;
+  self->second_color = *second_color;
 
   free_color_texture (self);
   free_wallpaper_texture (self);
@@ -940,18 +913,14 @@ meta_background_set_blend (MetaBackground          *self,
                            double                   blend_factor,
                            GDesktopBackgroundStyle  style)
 {
-  MetaBackgroundPrivate *priv;
-
   g_return_if_fail (META_IS_BACKGROUND (self));
   g_return_if_fail (blend_factor >= 0.0 && blend_factor <= 1.0);
 
-  priv = self->priv;
+  set_file (self, &self->file1, &self->background_image1, file1);
+  set_file (self, &self->file2, &self->background_image2, file2);
 
-  set_file (self, &priv->file1, &priv->background_image1, file1);
-  set_file (self, &priv->file2, &priv->background_image2, file2);
-
-  priv->blend_factor = blend_factor;
-  priv->style = style;
+  self->blend_factor = blend_factor;
+  self->style = style;
 
   free_wallpaper_texture (self);
   mark_changed (self);
