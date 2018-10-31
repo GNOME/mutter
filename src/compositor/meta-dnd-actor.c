@@ -39,16 +39,16 @@ enum {
   PROP_DRAG_START_Y
 };
 
-typedef struct _MetaDnDActorPrivate MetaDnDActorPrivate;
-
-struct _MetaDnDActorPrivate
+struct _MetaDnDActor
 {
+  MetaFeedbackActor parent;
+
   ClutterActor *drag_origin;
   int drag_start_x;
   int drag_start_y;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaDnDActor, meta_dnd_actor, META_TYPE_FEEDBACK_ACTOR)
+G_DEFINE_TYPE (MetaDnDActor, meta_dnd_actor, META_TYPE_FEEDBACK_ACTOR)
 
 static void
 meta_dnd_actor_set_property (GObject      *object,
@@ -57,18 +57,17 @@ meta_dnd_actor_set_property (GObject      *object,
                              GParamSpec   *pspec)
 {
   MetaDnDActor *self = META_DND_ACTOR (object);
-  MetaDnDActorPrivate *priv = meta_dnd_actor_get_instance_private (self);
 
   switch (prop_id)
     {
     case PROP_DRAG_ORIGIN:
-      priv->drag_origin = g_value_get_object (value);
+      self->drag_origin = g_value_get_object (value);
       break;
     case PROP_DRAG_START_X:
-      priv->drag_start_x = g_value_get_int (value);
+      self->drag_start_x = g_value_get_int (value);
       break;
     case PROP_DRAG_START_Y:
-      priv->drag_start_y = g_value_get_int (value);
+      self->drag_start_y = g_value_get_int (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -83,18 +82,17 @@ meta_dnd_actor_get_property (GObject      *object,
                              GParamSpec   *pspec)
 {
   MetaDnDActor *self = META_DND_ACTOR (object);
-  MetaDnDActorPrivate *priv = meta_dnd_actor_get_instance_private (self);
 
   switch (prop_id)
     {
     case PROP_DRAG_ORIGIN:
-      g_value_set_object (value, priv->drag_origin);
+      g_value_set_object (value, self->drag_origin);
       break;
     case PROP_DRAG_START_X:
-      g_value_set_int (value, priv->drag_start_x);
+      g_value_set_int (value, self->drag_start_x);
       break;
     case PROP_DRAG_START_Y:
-      g_value_set_int (value, priv->drag_start_y);
+      g_value_set_int (value, self->drag_start_y);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -185,13 +183,11 @@ void
 meta_dnd_actor_drag_finish (MetaDnDActor *self,
                             gboolean      success)
 {
-  MetaDnDActorPrivate *priv;
   ClutterActor *actor;
 
   g_return_if_fail (META_IS_DND_ACTOR (self));
 
   actor = CLUTTER_ACTOR (self);
-  priv = meta_dnd_actor_get_instance_private (self);
 
   if (success)
     {
@@ -207,18 +203,18 @@ meta_dnd_actor_drag_finish (MetaDnDActor *self,
       clutter_actor_set_easing_duration (actor, DRAG_FAILED_DURATION);
       clutter_actor_set_opacity (actor, 0);
 
-      if (CLUTTER_ACTOR_IS_VISIBLE (priv->drag_origin))
+      if (CLUTTER_ACTOR_IS_VISIBLE (self->drag_origin))
         {
           int anchor_x, anchor_y;
           ClutterPoint dest;
 
-          clutter_actor_get_transformed_position (priv->drag_origin,
+          clutter_actor_get_transformed_position (self->drag_origin,
                                                   &dest.x, &dest.y);
           meta_feedback_actor_get_anchor (META_FEEDBACK_ACTOR (self),
                                           &anchor_x, &anchor_y);
 
-          dest.x += priv->drag_start_x - anchor_x;
-          dest.y += priv->drag_start_y - anchor_y;
+          dest.x += self->drag_start_x - anchor_x;
+          dest.y += self->drag_start_y - anchor_y;
           clutter_actor_set_position (actor, dest.x, dest.y);
         }
 

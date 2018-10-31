@@ -30,7 +30,10 @@
 #include <meta/types.h>
 
 #define META_TYPE_WORKSPACE_MANAGER (meta_workspace_manager_get_type ())
-G_DECLARE_FINAL_TYPE (MetaWorkspaceManager, meta_workspace_manager, META, WORKSPACE_MANAGER, GObject)
+G_DECLARE_FINAL_TYPE (MetaWorkspaceManager,
+                      meta_workspace_manager,
+                      META, WORKSPACE_MANAGER,
+                      GObject)
 
 GList *meta_workspace_manager_get_workspaces (MetaWorkspaceManager *workspace_manager);
 
