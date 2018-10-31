@@ -70,10 +70,6 @@ static gboolean meta_shaped_texture_get_paint_volume (ClutterActor *self, Clutte
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
-#define META_SHAPED_TEXTURE_GET_PRIVATE(obj) \
-  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_SHAPED_TEXTURE, \
-                                MetaShapedTexturePrivate))
-
 enum {
   SIZE_CHANGED,
 
@@ -82,8 +78,16 @@ enum {
 
 static guint signals[LAST_SIGNAL];
 
-struct _MetaShapedTexturePrivate
+/**
+ * MetaShapedTexture:
+ *
+ * The <structname>MetaShapedTexture</structname> structure contains
+ * only private data and should be accessed using the provided API
+ */
+struct _MetaShapedTexture
 {
+  ClutterActor parent;
+
   MetaTextureTower *paint_tower;
 
   CoglTexture *texture;
@@ -119,7 +123,6 @@ struct _MetaShapedTexturePrivate
 };
 
 G_DEFINE_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture, CLUTTER_TYPE_ACTOR,
-                         G_ADD_PRIVATE (MetaShapedTexture)
                          G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
 
 static void
@@ -146,25 +149,19 @@ meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
 static void
 invalidate_size (MetaShapedTexture *stex)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
-
-  priv->size_invalid = TRUE;
+  stex->size_invalid = TRUE;
 }
 
 static void
 meta_shaped_texture_init (MetaShapedTexture *self)
 {
-  MetaShapedTexturePrivate *priv;
+  self->paint_tower = meta_texture_tower_new ();
 
-  priv = self->priv = META_SHAPED_TEXTURE_GET_PRIVATE (self);
-
-  priv->paint_tower = meta_texture_tower_new ();
-
-  priv->texture = NULL;
-  priv->mask_texture = NULL;
-  priv->create_mipmaps = TRUE;
-  priv->is_y_inverted = TRUE;
-  priv->transform = META_MONITOR_TRANSFORM_NORMAL;
+  self->texture = NULL;
+  self->mask_texture = NULL;
+  self->create_mipmaps = TRUE;
+  self->is_y_inverted = TRUE;
+  self->transform = META_MONITOR_TRANSFORM_NORMAL;
 
   g_signal_connect (self,
                     "notify::scale-x",
@@ -175,44 +172,43 @@ meta_shaped_texture_init (MetaShapedTexture *self)
 static void
 update_size (MetaShapedTexture *stex)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
   int dst_width;
   int dst_height;
 
-  if (meta_monitor_transform_is_rotated (priv->transform))
+  if (meta_monitor_transform_is_rotated (stex->transform))
     {
-      if (priv->texture)
+      if (stex->texture)
         {
-          dst_width = priv->tex_height;
-          dst_height = priv->tex_width;
+          dst_width = stex->tex_height;
+          dst_height = stex->tex_width;
         }
       else
         {
-          dst_width = priv->fallback_height;
-          dst_height = priv->fallback_width;
+          dst_width = stex->fallback_height;
+          dst_height = stex->fallback_width;
         }
     }
   else
     {
-      if (priv->texture)
+      if (stex->texture)
         {
-          dst_width = priv->tex_width;
-          dst_height = priv->tex_height;
+          dst_width = stex->tex_width;
+          dst_height = stex->tex_height;
         }
       else
         {
-          dst_width = priv->fallback_width;
-          dst_height = priv->fallback_height;
+          dst_width = stex->fallback_width;
+          dst_height = stex->fallback_height;
         }
     }
 
-  priv->size_invalid = FALSE;
+  stex->size_invalid = FALSE;
 
-  if (priv->dst_width != dst_width ||
-      priv->dst_height != dst_height)
+  if (stex->dst_width != dst_width ||
+      stex->dst_height != dst_height)
     {
-      priv->dst_width = dst_width;
-      priv->dst_height = dst_height;
+      stex->dst_width = dst_width;
+      stex->dst_height = dst_height;
       meta_shaped_texture_set_mask_texture (stex, NULL);
       clutter_actor_queue_relayout (CLUTTER_ACTOR (stex));
       g_signal_emit (stex, signals[SIZE_CHANGED], 0);
@@ -222,9 +218,7 @@ update_size (MetaShapedTexture *stex)
 static void
 ensure_size_valid (MetaShapedTexture *stex)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
-
-  if (priv->size_invalid)
+  if (stex->size_invalid)
     update_size (stex);
 }
 
@@ -232,20 +226,18 @@ static void
 set_unobscured_region (MetaShapedTexture *self,
                        cairo_region_t    *unobscured_region)
 {
-  MetaShapedTexturePrivate *priv = self->priv;
-
-  g_clear_pointer (&priv->unobscured_region, cairo_region_destroy);
+  g_clear_pointer (&self->unobscured_region, cairo_region_destroy);
   if (unobscured_region)
     {
       int width, height;
 
       ensure_size_valid (self);
-      width = priv->dst_width;
-      height = priv->dst_height;
+      width = self->dst_width;
+      height = self->dst_height;
 
       cairo_rectangle_int_t bounds = { 0, 0, width, height };
-      priv->unobscured_region = cairo_region_copy (unobscured_region);
-      cairo_region_intersect_rectangle (priv->unobscured_region, &bounds);
+      self->unobscured_region = cairo_region_copy (unobscured_region);
+      cairo_region_intersect_rectangle (self->unobscured_region, &bounds);
     }
 }
 
@@ -253,41 +245,36 @@ static void
 set_clip_region (MetaShapedTexture *self,
                  cairo_region_t    *clip_region)
 {
-  MetaShapedTexturePrivate *priv = self->priv;
-
-  g_clear_pointer (&priv->clip_region, cairo_region_destroy);
+  g_clear_pointer (&self->clip_region, cairo_region_destroy);
   if (clip_region)
-    priv->clip_region = cairo_region_copy (clip_region);
+    self->clip_region = cairo_region_copy (clip_region);
 }
 
 static void
-meta_shaped_texture_reset_pipelines (MetaShapedTexture *stex)
+meta_shaped_texture_reset_pipelines (MetaShapedTexture *self)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
-
-  g_clear_pointer (&priv->base_pipeline, cogl_object_unref);
-  g_clear_pointer (&priv->masked_pipeline, cogl_object_unref);
-  g_clear_pointer (&priv->unblended_pipeline, cogl_object_unref);
+  g_clear_pointer (&self->base_pipeline, cogl_object_unref);
+  g_clear_pointer (&self->masked_pipeline, cogl_object_unref);
+  g_clear_pointer (&self->unblended_pipeline, cogl_object_unref);
 }
 
 static void
 meta_shaped_texture_dispose (GObject *object)
 {
   MetaShapedTexture *self = (MetaShapedTexture *) object;
-  MetaShapedTexturePrivate *priv = self->priv;
 
-  if (priv->remipmap_timeout_id)
+  if (self->remipmap_timeout_id)
     {
-      g_source_remove (priv->remipmap_timeout_id);
-      priv->remipmap_timeout_id = 0;
+      g_source_remove (self->remipmap_timeout_id);
+      self->remipmap_timeout_id = 0;
     }
 
-  if (priv->paint_tower)
-    meta_texture_tower_free (priv->paint_tower);
-  priv->paint_tower = NULL;
+  if (self->paint_tower)
+    meta_texture_tower_free (self->paint_tower);
+  self->paint_tower = NULL;
 
-  g_clear_pointer (&priv->texture, cogl_object_unref);
-  g_clear_pointer (&priv->opaque_region, cairo_region_destroy);
+  g_clear_pointer (&self->texture, cogl_object_unref);
+  g_clear_pointer (&self->opaque_region, cairo_region_destroy);
 
   meta_shaped_texture_set_mask_texture (self, NULL);
   set_unobscured_region (self, NULL);
@@ -295,7 +282,7 @@ meta_shaped_texture_dispose (GObject *object)
 
   meta_shaped_texture_reset_pipelines (self);
 
-  g_clear_pointer (&priv->snippet, cogl_object_unref);
+  g_clear_pointer (&self->snippet, cogl_object_unref);
 
   G_OBJECT_CLASS (meta_shaped_texture_parent_class)->dispose (object);
 }
@@ -304,11 +291,10 @@ static CoglPipeline *
 get_base_pipeline (MetaShapedTexture *stex,
                    CoglContext       *ctx)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
   CoglPipeline *pipeline;
 
-  if (priv->base_pipeline)
-    return priv->base_pipeline;
+  if (stex->base_pipeline)
+    return stex->base_pipeline;
 
   pipeline = cogl_pipeline_new (ctx);
   cogl_pipeline_set_layer_wrap_mode_s (pipeline, 0,
@@ -319,7 +305,7 @@ get_base_pipeline (MetaShapedTexture *stex,
                                        COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
   cogl_pipeline_set_layer_wrap_mode_t (pipeline, 1,
                                        COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
-  if (!priv->is_y_inverted)
+  if (!stex->is_y_inverted)
     {
       CoglMatrix matrix;
 
@@ -329,13 +315,13 @@ get_base_pipeline (MetaShapedTexture *stex,
       cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
     }
 
-  if (priv->transform != META_MONITOR_TRANSFORM_NORMAL)
+  if (stex->transform != META_MONITOR_TRANSFORM_NORMAL)
     {
       CoglMatrix matrix;
       CoglEuler euler;
 
       cogl_matrix_init_translation (&matrix, 0.5, 0.5, 0.0);
-      switch (priv->transform)
+      switch (stex->transform)
         {
         case META_MONITOR_TRANSFORM_90:
           cogl_euler_init (&euler, 0.0, 0.0, 90.0);
@@ -368,60 +354,58 @@ get_base_pipeline (MetaShapedTexture *stex,
       cogl_pipeline_set_layer_matrix (pipeline, 1, &matrix);
     }
 
-  if (priv->snippet)
-    cogl_pipeline_add_layer_snippet (pipeline, 0, priv->snippet);
+  if (stex->snippet)
+    cogl_pipeline_add_layer_snippet (pipeline, 0, stex->snippet);
 
-  priv->base_pipeline = pipeline;
+  stex->base_pipeline = pipeline;
 
-  return priv->base_pipeline;
+  return stex->base_pipeline;
 }
 
 static CoglPipeline *
-get_unmasked_pipeline (MetaShapedTexture *stex,
+get_unmasked_pipeline (MetaShapedTexture *self,
                        CoglContext       *ctx)
 {
-  return get_base_pipeline (stex, ctx);
+  return get_base_pipeline (self, ctx);
 }
 
 static CoglPipeline *
-get_masked_pipeline (MetaShapedTexture *stex,
+get_masked_pipeline (MetaShapedTexture *self,
                      CoglContext       *ctx)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
   CoglPipeline *pipeline;
 
-  if (priv->masked_pipeline)
-    return priv->masked_pipeline;
+  if (self->masked_pipeline)
+    return self->masked_pipeline;
 
-  pipeline = cogl_pipeline_copy (get_base_pipeline (stex, ctx));
+  pipeline = cogl_pipeline_copy (get_base_pipeline (self, ctx));
   cogl_pipeline_set_layer_combine (pipeline, 1,
                                    "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
                                    NULL);
 
-  priv->masked_pipeline = pipeline;
+  self->masked_pipeline = pipeline;
 
   return pipeline;
 }
 
 static CoglPipeline *
-get_unblended_pipeline (MetaShapedTexture *stex,
+get_unblended_pipeline (MetaShapedTexture *self,
                         CoglContext       *ctx)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
   CoglPipeline *pipeline;
   CoglColor color;
 
-  if (priv->unblended_pipeline)
-    return priv->unblended_pipeline;
+  if (self->unblended_pipeline)
+    return self->unblended_pipeline;
 
-  pipeline = cogl_pipeline_copy (get_base_pipeline (stex, ctx));
+  pipeline = cogl_pipeline_copy (get_base_pipeline (self, ctx));
   cogl_color_init_from_4ub (&color, 255, 255, 255, 255);
   cogl_pipeline_set_blend (pipeline,
                            "RGBA = ADD (SRC_COLOR, 0)",
                            NULL);
   cogl_pipeline_set_color (pipeline, &color);
 
-  priv->unblended_pipeline = pipeline;
+  self->unblended_pipeline = pipeline;
 
   return pipeline;
 }
@@ -456,20 +440,17 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
 }
 
 static void
-set_cogl_texture (MetaShapedTexture *stex,
+set_cogl_texture (MetaShapedTexture *self,
                   CoglTexture       *cogl_tex)
 {
-  MetaShapedTexturePrivate *priv;
   int width, height;
 
-  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (self));
 
-  priv = stex->priv;
+  if (self->texture)
+    cogl_object_unref (self->texture);
 
-  if (priv->texture)
-    cogl_object_unref (priv->texture);
-
-  priv->texture = cogl_tex;
+  self->texture = cogl_tex;
 
   if (cogl_tex != NULL)
     {
@@ -483,12 +464,12 @@ set_cogl_texture (MetaShapedTexture *stex,
       height = 0;
     }
 
-  if (priv->tex_width != width ||
-      priv->tex_height != height)
+  if (self->tex_width != width ||
+      self->tex_height != height)
     {
-      priv->tex_width = width;
-      priv->tex_height = height;
-      update_size (stex);
+      self->tex_width = width;
+      self->tex_height = height;
+      update_size (self);
     }
 
   /* NB: We don't queue a redraw of the actor here because we don't
@@ -496,21 +477,20 @@ set_cogl_texture (MetaShapedTexture *stex,
    * previous buffer. We only queue a redraw in response to surface
    * damage. */
 
-  if (priv->create_mipmaps)
-    meta_texture_tower_set_base_texture (priv->paint_tower, cogl_tex);
+  if (self->create_mipmaps)
+    meta_texture_tower_set_base_texture (self->paint_tower, cogl_tex);
 }
 
 static gboolean
 texture_is_idle_and_not_mipmapped (gpointer user_data)
 {
-  MetaShapedTexture *stex = META_SHAPED_TEXTURE (user_data);
-  MetaShapedTexturePrivate *priv = stex->priv;
+  MetaShapedTexture *self = META_SHAPED_TEXTURE (user_data);
 
-  if ((g_get_monotonic_time () - priv->earliest_remipmap) < 0)
+  if ((g_get_monotonic_time () - self->earliest_remipmap) < 0)
     return G_SOURCE_CONTINUE;
 
-  clutter_actor_queue_redraw (CLUTTER_ACTOR (stex));
-  priv->remipmap_timeout_id = 0;
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
+  self->remipmap_timeout_id = 0;
 
   return G_SOURCE_REMOVE;
 }
@@ -518,8 +498,7 @@ texture_is_idle_and_not_mipmapped (gpointer user_data)
 static void
 meta_shaped_texture_paint (ClutterActor *actor)
 {
-  MetaShapedTexture *stex = (MetaShapedTexture *) actor;
-  MetaShapedTexturePrivate *priv = stex->priv;
+  MetaShapedTexture *self = (MetaShapedTexture *) actor;
   double tex_scale;
   int dst_width, dst_height;
   cairo_rectangle_int_t tex_rect;
@@ -535,11 +514,11 @@ meta_shaped_texture_paint (ClutterActor *actor)
   CoglPipelineFilter filter;
   gint64 now = g_get_monotonic_time ();
 
-  if (priv->clip_region && cairo_region_is_empty (priv->clip_region))
+  if (self->clip_region && cairo_region_is_empty (self->clip_region))
     return;
 
-  if (!CLUTTER_ACTOR_IS_REALIZED (CLUTTER_ACTOR (stex)))
-    clutter_actor_realize (CLUTTER_ACTOR (stex));
+  if (!CLUTTER_ACTOR_IS_REALIZED (CLUTTER_ACTOR (self)))
+    clutter_actor_realize (CLUTTER_ACTOR (self));
 
   /* The GL EXT_texture_from_pixmap extension does allow for it to be
    * used together with SGIS_generate_mipmap, however this is very
@@ -556,40 +535,40 @@ meta_shaped_texture_paint (ClutterActor *actor)
    * Setting the texture quality to high without SGIS_generate_mipmap
    * support for TFP textures will result in fallbacks to XGetImage.
    */
-  if (priv->create_mipmaps && priv->last_invalidation)
+  if (self->create_mipmaps && self->last_invalidation)
     {
-      gint64 age = now - priv->last_invalidation;
+      gint64 age = now - self->last_invalidation;
 
       if (age >= MIN_MIPMAP_AGE_USEC ||
-          priv->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
-        paint_tex = meta_texture_tower_get_paint_texture (priv->paint_tower);
+          self->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
+        paint_tex = meta_texture_tower_get_paint_texture (self->paint_tower);
     }
 
   if (paint_tex == NULL)
     {
-      paint_tex = COGL_TEXTURE (priv->texture);
+      paint_tex = COGL_TEXTURE (self->texture);
 
       if (paint_tex == NULL)
         return;
 
-      if (priv->create_mipmaps)
+      if (self->create_mipmaps)
         {
           /* Minus 1000 to ensure we don't fail the age test in timeout */
-          priv->earliest_remipmap = now + MIN_MIPMAP_AGE_USEC - 1000;
+          self->earliest_remipmap = now + MIN_MIPMAP_AGE_USEC - 1000;
 
-          if (!priv->remipmap_timeout_id)
-            priv->remipmap_timeout_id =
+          if (!self->remipmap_timeout_id)
+            self->remipmap_timeout_id =
               g_timeout_add (MIN_MIPMAP_AGE_USEC / 1000,
                              texture_is_idle_and_not_mipmapped,
-                             stex);
+                             self);
         }
     }
 
   clutter_actor_get_scale (actor, &tex_scale, NULL);
-  ensure_size_valid (stex);
-  dst_width = priv->dst_width;
-  dst_height = priv->dst_height;
+  ensure_size_valid (self);
+  dst_width = self->dst_width;
 
+  dst_height = self->dst_height;
   if (dst_width == 0 || dst_height == 0) /* no contents yet */
     return;
 
@@ -610,10 +589,10 @@ meta_shaped_texture_paint (ClutterActor *actor)
   opacity = clutter_actor_get_paint_opacity (actor);
   clutter_actor_get_allocation_box (actor, &alloc);
 
-  if (priv->opaque_region && opacity == 255)
+  if (self->opaque_region && opacity == 255)
     {
       opaque_tex_region =
-        meta_region_scale_double (priv->opaque_region,
+        meta_region_scale_double (self->opaque_region,
                                   1.0 / tex_scale,
                                   META_ROUNDING_STRATEGY_SHRINK);
       use_opaque_region = TRUE;
@@ -624,10 +603,10 @@ meta_shaped_texture_paint (ClutterActor *actor)
       use_opaque_region = FALSE;
     }
 
-  if (priv->clip_region)
+  if (self->clip_region)
     {
       clip_tex_region =
-        meta_region_scale_double (priv->clip_region,
+        meta_region_scale_double (self->clip_region,
                                   1.0 / tex_scale,
                                   META_ROUNDING_STRATEGY_GROW);
     }
@@ -689,7 +668,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
 
       if (!cairo_region_is_empty (region))
         {
-          opaque_pipeline = get_unblended_pipeline (stex, ctx);
+          opaque_pipeline = get_unblended_pipeline (self, ctx);
           cogl_pipeline_set_layer_texture (opaque_pipeline, 0, paint_tex);
           cogl_pipeline_set_layer_filters (opaque_pipeline, 0, filter, filter);
 
@@ -719,14 +698,14 @@ meta_shaped_texture_paint (ClutterActor *actor)
     {
       CoglPipeline *blended_pipeline;
 
-      if (priv->mask_texture == NULL)
+      if (self->mask_texture == NULL)
         {
-          blended_pipeline = get_unmasked_pipeline (stex, ctx);
+          blended_pipeline = get_unmasked_pipeline (self, ctx);
         }
       else
         {
-          blended_pipeline = get_masked_pipeline (stex, ctx);
-          cogl_pipeline_set_layer_texture (blended_pipeline, 1, priv->mask_texture);
+          blended_pipeline = get_masked_pipeline (self, ctx);
+          cogl_pipeline_set_layer_texture (blended_pipeline, 1, self->mask_texture);
           cogl_pipeline_set_layer_filters (blended_pipeline, 1, filter, filter);
         }
 
@@ -776,14 +755,13 @@ meta_shaped_texture_get_preferred_width (ClutterActor *self,
                                          gfloat       *natural_width_p)
 {
   MetaShapedTexture *stex = META_SHAPED_TEXTURE (self);
-  MetaShapedTexturePrivate *priv = stex->priv;
 
   ensure_size_valid (stex);
 
   if (min_width_p)
-    *min_width_p = priv->dst_width;
+    *min_width_p = stex->dst_width;
   if (natural_width_p)
-    *natural_width_p = priv->dst_width;
+    *natural_width_p = stex->dst_width;
 }
 
 static void
@@ -793,20 +771,18 @@ meta_shaped_texture_get_preferred_height (ClutterActor *self,
                                           gfloat       *natural_height_p)
 {
   MetaShapedTexture *stex = META_SHAPED_TEXTURE (self);
-  MetaShapedTexturePrivate *priv = stex->priv;
 
   ensure_size_valid (stex);
 
   if (min_height_p)
-    *min_height_p = priv->dst_height;
+    *min_height_p = stex->dst_height;
   if (natural_height_p)
-    *natural_height_p = priv->dst_height;
+    *natural_height_p = stex->dst_height;
 }
 
 static cairo_region_t *
 effective_unobscured_region (MetaShapedTexture *self)
 {
-  MetaShapedTexturePrivate *priv = self->priv;
   ClutterActor *actor;
 
   /* Fail if we have any mapped clones. */
@@ -819,7 +795,7 @@ effective_unobscured_region (MetaShapedTexture *self)
     }
   while (actor != NULL);
 
-  return priv->unobscured_region;
+  return self->unobscured_region;
 }
 
 static gboolean
@@ -830,45 +806,37 @@ meta_shaped_texture_get_paint_volume (ClutterActor *actor,
 }
 
 void
-meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
+meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *self,
 					gboolean           create_mipmaps)
 {
-  MetaShapedTexturePrivate *priv;
-
-  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
-
-  priv = stex->priv;
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (self));
 
   create_mipmaps = create_mipmaps != FALSE;
 
-  if (create_mipmaps != priv->create_mipmaps)
+  if (create_mipmaps != self->create_mipmaps)
     {
       CoglTexture *base_texture;
-      priv->create_mipmaps = create_mipmaps;
-      base_texture = create_mipmaps ? priv->texture : NULL;
-      meta_texture_tower_set_base_texture (priv->paint_tower, base_texture);
+      self->create_mipmaps = create_mipmaps;
+      base_texture = create_mipmaps ? self->texture : NULL;
+      meta_texture_tower_set_base_texture (self->paint_tower, base_texture);
     }
 }
 
 void
-meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
+meta_shaped_texture_set_mask_texture (MetaShapedTexture *self,
                                       CoglTexture       *mask_texture)
 {
-  MetaShapedTexturePrivate *priv;
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (self));
 
-  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
-
-  priv = stex->priv;
-
-  g_clear_pointer (&priv->mask_texture, cogl_object_unref);
+  g_clear_pointer (&self->mask_texture, cogl_object_unref);
 
   if (mask_texture != NULL)
     {
-      priv->mask_texture = mask_texture;
-      cogl_object_ref (priv->mask_texture);
+      self->mask_texture = mask_texture;
+      cogl_object_ref (self->mask_texture);
     }
 
-  clutter_actor_queue_redraw (CLUTTER_ACTOR (stex));
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
 }
 
 gboolean
@@ -884,7 +852,7 @@ meta_shaped_texture_is_obscured (MetaShapedTexture *self)
 
 /**
  * meta_shaped_texture_update_area:
- * @stex: #MetaShapedTexture
+ * @self: #MetaShapedTexture
  * @x: the x coordinate of the damaged area
  * @y: the y coordinate of the damaged area
  * @width: the width of the damaged area
@@ -896,38 +864,35 @@ meta_shaped_texture_is_obscured (MetaShapedTexture *self)
  * Return value: Whether a redraw have been queued or not
  */
 gboolean
-meta_shaped_texture_update_area (MetaShapedTexture *stex,
+meta_shaped_texture_update_area (MetaShapedTexture *self,
 				 int                x,
 				 int                y,
 				 int                width,
 				 int                height)
 {
-  MetaShapedTexturePrivate *priv;
   cairo_region_t *unobscured_region;
   const cairo_rectangle_int_t clip = { x, y, width, height };
 
-  priv = stex->priv;
-
-  if (priv->texture == NULL)
+  if (self->texture == NULL)
     return FALSE;
 
-  meta_texture_tower_update_area (priv->paint_tower, x, y, width, height);
+  meta_texture_tower_update_area (self->paint_tower, x, y, width, height);
 
-  priv->prev_invalidation = priv->last_invalidation;
-  priv->last_invalidation = g_get_monotonic_time ();
+  self->prev_invalidation = self->last_invalidation;
+  self->last_invalidation = g_get_monotonic_time ();
 
-  if (priv->prev_invalidation)
+  if (self->prev_invalidation)
     {
-      gint64 interval = priv->last_invalidation - priv->prev_invalidation;
+      gint64 interval = self->last_invalidation - self->prev_invalidation;
       gboolean fast_update = interval < MIN_MIPMAP_AGE_USEC;
 
       if (!fast_update)
-        priv->fast_updates = 0;
-      else if (priv->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
-        priv->fast_updates++;
+        self->fast_updates = 0;
+      else if (self->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
+        self->fast_updates++;
     }
 
-  unobscured_region = effective_unobscured_region (stex);
+  unobscured_region = effective_unobscured_region (self);
   if (unobscured_region)
     {
       cairo_region_t *intersection;
@@ -942,7 +907,7 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
         {
           cairo_rectangle_int_t damage_rect;
           cairo_region_get_extents (intersection, &damage_rect);
-          clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stex), &damage_rect);
+          clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (self), &damage_rect);
           cairo_region_destroy (intersection);
           return TRUE;
         }
@@ -952,77 +917,73 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
     }
   else
     {
-      clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stex), &clip);
+      clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (self), &clip);
       return TRUE;
     }
 }
 
 /**
  * meta_shaped_texture_set_texture:
- * @stex: The #MetaShapedTexture
+ * @self: The #MetaShapedTexture
  * @pixmap: The #CoglTexture to display
  */
 void
-meta_shaped_texture_set_texture (MetaShapedTexture *stex,
+meta_shaped_texture_set_texture (MetaShapedTexture *self,
                                  CoglTexture       *texture)
 {
-  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (self));
 
-  set_cogl_texture (stex, texture);
+  set_cogl_texture (self, texture);
 }
 
 /**
  * meta_shaped_texture_set_is_y_inverted: (skip)
  */
 void
-meta_shaped_texture_set_is_y_inverted (MetaShapedTexture *stex,
+meta_shaped_texture_set_is_y_inverted (MetaShapedTexture *self,
                                        gboolean           is_y_inverted)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
-
-  if (priv->is_y_inverted == is_y_inverted)
+  if (self->is_y_inverted == is_y_inverted)
     return;
 
-  meta_shaped_texture_reset_pipelines (stex);
+  meta_shaped_texture_reset_pipelines (self);
 
-  priv->is_y_inverted = is_y_inverted;
+  self->is_y_inverted = is_y_inverted;
 }
 
 /**
  * meta_shaped_texture_set_snippet: (skip)
  */
 void
-meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
+meta_shaped_texture_set_snippet (MetaShapedTexture *self,
                                  CoglSnippet       *snippet)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
-
-  if (priv->snippet == snippet)
+  if (self->snippet == snippet)
     return;
 
-  meta_shaped_texture_reset_pipelines (stex);
+  meta_shaped_texture_reset_pipelines (self);
 
-  g_clear_pointer (&priv->snippet, cogl_object_unref);
+  g_clear_pointer (&self->snippet, cogl_object_unref);
   if (snippet)
-    priv->snippet = cogl_object_ref (snippet);
+    self->snippet = cogl_object_ref (snippet);
 }
 
 /**
  * meta_shaped_texture_get_texture:
- * @stex: The #MetaShapedTexture
+ * @self: The #MetaShapedTexture
  *
  * Returns: (transfer none): the unshaped texture
  */
 CoglTexture *
-meta_shaped_texture_get_texture (MetaShapedTexture *stex)
+meta_shaped_texture_get_texture (MetaShapedTexture *self)
 {
-  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
-  return COGL_TEXTURE (stex->priv->texture);
+  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (self), NULL);
+  return COGL_TEXTURE (self->texture);
 }
 
 /**
  * meta_shaped_texture_set_opaque_region:
- * @stex: a #MetaShapedTexture
+ * @self: a #MetaShapedTexture
  * @opaque_region: (transfer full): the region of the texture that
  *   can have blending turned off.
  *
@@ -1032,41 +993,34 @@ meta_shaped_texture_get_texture (MetaShapedTexture *stex)
  * optimization purposes.
  */
 void
-meta_shaped_texture_set_opaque_region (MetaShapedTexture *stex,
+meta_shaped_texture_set_opaque_region (MetaShapedTexture *self,
                                        cairo_region_t    *opaque_region)
 {
-  MetaShapedTexturePrivate *priv;
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (self));
 
-  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
-
-  priv = stex->priv;
-
-  if (priv->opaque_region)
-    cairo_region_destroy (priv->opaque_region);
+  if (self->opaque_region)
+    cairo_region_destroy (self->opaque_region);
 
   if (opaque_region)
-    priv->opaque_region = cairo_region_reference (opaque_region);
+    self->opaque_region = cairo_region_reference (opaque_region);
   else
-    priv->opaque_region = NULL;
+    self->opaque_region = NULL;
 }
 
 cairo_region_t *
-meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex)
+meta_shaped_texture_get_opaque_region (MetaShapedTexture *self)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
-  return priv->opaque_region;
+  return self->opaque_region;
 }
 
 void
 meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
                                    MetaMonitorTransform  transform)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
-
-  if (priv->transform == transform)
+  if (stex->transform == transform)
     return;
 
-  priv->transform = transform;
+  stex->transform = transform;
 
   meta_shaped_texture_reset_pipelines (stex);
   invalidate_size (stex);
@@ -1074,7 +1028,7 @@ meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
 
 /**
  * meta_shaped_texture_get_image:
- * @stex: A #MetaShapedTexture
+ * @self: A #MetaShapedTexture
  * @clip: A clipping rectangle, to help prevent extra processing.
  * In the case that the clipping rectangle is partially or fully
  * outside the bounds of the texture, the rectangle will be clipped.
@@ -1087,16 +1041,16 @@ meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
  * cairo_surface_destroy().
  */
 cairo_surface_t *
-meta_shaped_texture_get_image (MetaShapedTexture     *stex,
+meta_shaped_texture_get_image (MetaShapedTexture     *self,
                                cairo_rectangle_int_t *clip)
 {
   CoglTexture *texture, *mask_texture;
   cairo_rectangle_int_t texture_rect = { 0, 0, 0, 0 };
   cairo_surface_t *surface;
 
-  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
+  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (self), NULL);
 
-  texture = COGL_TEXTURE (stex->priv->texture);
+  texture = COGL_TEXTURE (self->texture);
 
   if (texture == NULL)
     return NULL;
@@ -1132,7 +1086,7 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
   if (clip != NULL)
     cogl_object_unref (texture);
 
-  mask_texture = stex->priv->mask_texture;
+  mask_texture = self->mask_texture;
   if (mask_texture != NULL)
     {
       cairo_t *cr;
@@ -1175,10 +1129,8 @@ meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
                                        int                fallback_width,
                                        int                fallback_height)
 {
-  MetaShapedTexturePrivate *priv = stex->priv;
-
-  priv->fallback_width = fallback_width;
-  priv->fallback_height = fallback_height;
+  stex->fallback_width = fallback_width;
+  stex->fallback_height = fallback_height;
 
   invalidate_size (stex);
 }
@@ -1189,19 +1141,18 @@ meta_shaped_texture_cull_out (MetaCullable   *cullable,
                               cairo_region_t *clip_region)
 {
   MetaShapedTexture *self = META_SHAPED_TEXTURE (cullable);
-  MetaShapedTexturePrivate *priv = self->priv;
 
   set_unobscured_region (self, unobscured_region);
   set_clip_region (self, clip_region);
 
   if (clutter_actor_get_paint_opacity (CLUTTER_ACTOR (self)) == 0xff)
     {
-      if (priv->opaque_region)
+      if (self->opaque_region)
         {
           if (unobscured_region)
-            cairo_region_subtract (unobscured_region, priv->opaque_region);
+            cairo_region_subtract (unobscured_region, self->opaque_region);
           if (clip_region)
-            cairo_region_subtract (clip_region, priv->opaque_region);
+            cairo_region_subtract (clip_region, self->opaque_region);
         }
     }
 }

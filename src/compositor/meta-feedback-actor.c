@@ -35,15 +35,13 @@ enum {
   PROP_ANCHOR_Y
 };
 
-typedef struct _MetaFeedbackActorPrivate MetaFeedbackActorPrivate;
-
-struct _MetaFeedbackActorPrivate
+typedef struct _MetaFeedbackActorPrivate
 {
   int anchor_x;
   int anchor_y;
   int pos_x;
   int pos_y;
-};
+} MetaFeedbackActorPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaFeedbackActor, meta_feedback_actor, CLUTTER_TYPE_ACTOR)
 
