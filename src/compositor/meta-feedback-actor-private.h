@@ -31,15 +31,9 @@
  * This class handles the rendering of user interaction feedback
  */
 
-#define META_TYPE_FEEDBACK_ACTOR            (meta_feedback_actor_get_type ())
-#define META_FEEDBACK_ACTOR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_FEEDBACK_ACTOR, MetaFeedbackActor))
-#define META_FEEDBACK_ACTOR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), META_TYPE_FEEDBACK_ACTOR, MetaFeedbackActorClass))
-#define META_IS_FEEDBACK_ACTOR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_FEEDBACK_ACTOR))
-#define META_IS_FEEDBACK_ACTOR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), META_TYPE_FEEDBACK_ACTOR))
-#define META_FEEDBACK_ACTOR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), META_TYPE_FEEDBACK_ACTOR, MetaFeedbackActorClass))
+#define META_TYPE_FEEDBACK_ACTOR (meta_feedback_actor_get_type ())
+G_DECLARE_DERIVABLE_TYPE (MetaFeedbackActor, meta_feedback_actor, META, FEEDBACK_ACTOR, ClutterActor)
 
-typedef struct _MetaFeedbackActor        MetaFeedbackActor;
-typedef struct _MetaFeedbackActorClass   MetaFeedbackActorClass;
 
 struct _MetaFeedbackActorClass
 {
@@ -47,12 +41,6 @@ struct _MetaFeedbackActorClass
   ClutterActorClass parent_class;
 };
 
-struct _MetaFeedbackActor
-{
-  ClutterActor parent;
-};
-
-GType meta_feedback_actor_get_type (void);
 
 ClutterActor *meta_feedback_actor_new (int anchor_x,
                                        int anchor_y);
