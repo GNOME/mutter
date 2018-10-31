@@ -49,10 +49,6 @@ struct _MetaCursorTracker {
   MetaCursorSpriteXfixes *xfixes_cursor;
 };
 
-struct _MetaCursorTrackerClass {
-  GObjectClass parent_class;
-};
-
 gboolean meta_cursor_tracker_handle_xevent (MetaCursorTracker *tracker,
 					    XEvent            *xevent);
 

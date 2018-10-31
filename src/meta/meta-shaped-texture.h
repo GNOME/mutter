@@ -30,38 +30,12 @@
 
 G_BEGIN_DECLS
 
-#define META_TYPE_SHAPED_TEXTURE            (meta_shaped_texture_get_type())
-#define META_SHAPED_TEXTURE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj),META_TYPE_SHAPED_TEXTURE, MetaShapedTexture))
-#define META_SHAPED_TEXTURE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), META_TYPE_SHAPED_TEXTURE, MetaShapedTextureClass))
-#define META_IS_SHAPED_TEXTURE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_SHAPED_TEXTURE))
-#define META_IS_SHAPED_TEXTURE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), META_TYPE_SHAPED_TEXTURE))
-#define META_SHAPED_TEXTURE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), META_TYPE_SHAPED_TEXTURE, MetaShapedTextureClass))
+#define META_TYPE_SHAPED_TEXTURE (meta_shaped_texture_get_type ())
+G_DECLARE_FINAL_TYPE (MetaShapedTexture,
+                      meta_shaped_texture,
+                      META, SHAPED_TEXTURE,
+                      ClutterActor)
 
-typedef struct _MetaShapedTexture        MetaShapedTexture;
-typedef struct _MetaShapedTextureClass   MetaShapedTextureClass;
-typedef struct _MetaShapedTexturePrivate MetaShapedTexturePrivate;
-
-struct _MetaShapedTextureClass
-{
-  /*< private >*/
-  ClutterActorClass parent_class;
-};
-
-/**
- * MetaShapedTexture:
- *
- * The <structname>MetaShapedTexture</structname> structure contains
- * only private data and should be accessed using the provided API
- */
-struct _MetaShapedTexture
-{
-  /*< private >*/
-  ClutterActor parent;
-
-  MetaShapedTexturePrivate *priv;
-};
-
-GType meta_shaped_texture_get_type (void) G_GNUC_CONST;
 
 void meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
 					     gboolean           create_mipmaps);
