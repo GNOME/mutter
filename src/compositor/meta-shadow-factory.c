@@ -106,11 +106,6 @@ struct _MetaShadowFactory
   GHashTable *shadow_classes;
 };
 
-struct _MetaShadowFactoryClass
-{
-  GObjectClass parent_class;
-};
-
 enum
 {
   CHANGED,
