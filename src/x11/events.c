@@ -1139,6 +1139,18 @@ process_selection_request (MetaX11Display *x11_display,
 }
 
 static gboolean
+close_display_idle_cb (gpointer user_data)
+{
+  MetaX11Display *x11_display = META_X11_DISPLAY (user_data);
+
+  meta_display_close (x11_display->display,
+                      x11_display->xselectionclear_timestamp);
+  x11_display->display_close_idle = 0;
+
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean
 process_selection_clear (MetaX11Display *x11_display,
                          XEvent         *event)
 {
@@ -1163,8 +1175,13 @@ process_selection_clear (MetaX11Display *x11_display,
   meta_verbose ("Got selection clear for on display %s\n",
                 x11_display->name);
 
-  meta_display_close (x11_display->display,
-                      event->xselectionclear.time);
+  /* We can't close a GdkDisplay in an even handler. */
+  if (!x11_display->display_close_idle)
+    {
+      x11_display->xselectionclear_timestamp = event->xselectionclear.time;
+      x11_display->display_close_idle = g_idle_add (close_display_idle_cb, x11_display);
+    }
+
   return TRUE;
 }
 
@@ -1818,11 +1835,8 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
     {
       if (process_selection_clear (x11_display, event))
         {
-          /* This means we called meta_display_unmanage_screen, which
-           * means the MetaDisplay is effectively dead. We don't want
-           * to poke into display->current_time below, since that would
-           * crash, so just directly return. */
-          return TRUE;
+          bypass_gtk = TRUE;
+          goto out;
         }
     }
 
