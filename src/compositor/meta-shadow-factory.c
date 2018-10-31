@@ -22,7 +22,15 @@
  * @short_description: Create and cache shadow textures for abritrary window shapes
  */
 
-#include "config.h"
+/**
+ * MetaShadowFactory:
+ *
+ * #MetaShadowFactory is used to create window shadows. It caches shadows internally
+ * so that multiple shadows created for the same shape with the same radius will
+ * share the same MetaShadow.
+ */
+
+#include <config.h>
 
 #include <math.h>
 #include <string.h>
