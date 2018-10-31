@@ -92,6 +92,9 @@ struct _MetaX11Display
   Atom wm_sn_atom;
   guint32 wm_sn_timestamp;
 
+  guint display_close_idle;
+  guint32 xselectionclear_timestamp;
+
   Window wm_cm_selection_window;
 
   Window composite_overlay_window;

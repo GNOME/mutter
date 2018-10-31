@@ -215,6 +215,12 @@ meta_x11_display_dispose (GObject *object)
       x11_display->gdk_display = NULL;
     }
 
+  if (x11_display->display_close_idle)
+    {
+      g_source_remove (x11_display->display_close_idle);
+      x11_display->display_close_idle = 0;
+    }
+
   g_free (x11_display->name);
   x11_display->name = NULL;
 
@@ -1185,6 +1191,9 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   x11_display->leader_window = None;
   x11_display->timestamp_pinging_window = None;
   x11_display->wm_sn_selection_window = None;
+
+  x11_display->display_close_idle = 0;
+  x11_display->xselectionclear_timestamp = 0;
 
   x11_display->last_bell_time = 0;
   x11_display->focus_serial = 0;
