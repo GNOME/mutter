@@ -29,16 +29,12 @@
 #include "meta/types.h"
 #include "meta/workspace.h"
 
-#define META_TYPE_CURSOR_TRACKER            (meta_cursor_tracker_get_type ())
-#define META_CURSOR_TRACKER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_CURSOR_TRACKER, MetaCursorTracker))
-#define META_CURSOR_TRACKER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_CURSOR_TRACKER, MetaCursorTrackerClass))
-#define META_IS_CURSOR_TRACKER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_CURSOR_TRACKER))
-#define META_IS_CURSOR_TRACKER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_CURSOR_TRACKER))
-#define META_CURSOR_TRACKER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_CURSOR_TRACKER, MetaCursorTrackerClass))
+#define META_TYPE_CURSOR_TRACKER (meta_cursor_tracker_get_type ())
+G_DECLARE_FINAL_TYPE (MetaCursorTracker,
+                      meta_cursor_tracker,
+                      META, CURSOR_TRACKER,
+                      GObject)
 
-typedef struct _MetaCursorTrackerClass   MetaCursorTrackerClass;
-
-GType meta_cursor_tracker_get_type (void);
 
 MetaCursorTracker *meta_cursor_tracker_get_for_display (MetaDisplay *display);
 
