@@ -309,6 +309,9 @@ check_has_pointing_device (ClutterDeviceManager *manager)
       if (clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE ||
           clutter_input_device_get_device_type (device) == CLUTTER_KEYBOARD_DEVICE)
         continue;
+      if (clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE &&
+          meta_is_wayland_compositor ())
+        continue;
 
       return TRUE;
     }
@@ -328,8 +331,12 @@ check_pointer_visibility (ClutterDeviceManager *manager)
     {
       ClutterInputDevice *device = devices->data;
 
-      if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_MASTER &&
-          clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE)
+      if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_SLAVE)
+        continue;
+
+      if (clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE ||
+          (clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE &&
+           meta_is_wayland_compositor ()))
         {
           pointer_visible = FALSE;
           break;
@@ -1031,6 +1038,12 @@ update_last_device (MetaBackend *backend)
   switch (device_type)
     {
     case CLUTTER_KEYBOARD_DEVICE:
+      break;
+    case CLUTTER_TABLET_DEVICE:
+      if (meta_is_wayland_compositor ())
+        meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
+      else
+        meta_cursor_tracker_set_pointer_visible (cursor_tracker, TRUE);
       break;
     case CLUTTER_TOUCHSCREEN_DEVICE:
       meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
