@@ -184,7 +184,10 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
 
   stage_cogl->update_time = stage_cogl->last_presentation_time + 1000 * sync_delay;
 
-  while (stage_cogl->update_time < now)
+  /* Target the next physical display frame. If that means we only have half
+   * a frame render time then still try to make it...
+   */
+  while (stage_cogl->update_time < (now - refresh_interval/2))
     stage_cogl->update_time += refresh_interval;
 }
 
