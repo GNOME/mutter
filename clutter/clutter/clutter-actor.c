@@ -1112,6 +1112,8 @@ static GQuark quark_shader_data = 0;
 static GQuark quark_actor_layout_info = 0;
 static GQuark quark_actor_transform_info = 0;
 static GQuark quark_actor_animation_info = 0;
+static GQuark quark_continuous = 0;
+static GQuark quark_discrete = 0;
 
 G_DEFINE_TYPE_WITH_CODE (ClutterActor,
                          clutter_actor,
@@ -6341,6 +6343,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
   quark_actor_layout_info = g_quark_from_static_string ("-clutter-actor-layout-info");
   quark_actor_transform_info = g_quark_from_static_string ("-clutter-actor-transform-info");
   quark_actor_animation_info = g_quark_from_static_string ("-clutter-actor-animation-info");
+  quark_discrete = g_quark_from_static_string ("discrete");
+  quark_continuous = g_quark_from_static_string ("continuous");
 
   object_class->constructor = clutter_actor_constructor;
   object_class->set_property = clutter_actor_set_property;
@@ -8352,7 +8356,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   actor_signals[CAPTURED_EVENT] =
     g_signal_new (I_("captured-event"),
 		  G_TYPE_FROM_CLASS (object_class),
-		  G_SIGNAL_RUN_LAST,
+		  G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
 		  G_STRUCT_OFFSET (ClutterActorClass, captured_event),
 		  _clutter_boolean_handled_accumulator, NULL,
 		  _clutter_marshal_BOOLEAN__BOXED,
@@ -13927,8 +13931,40 @@ clutter_actor_event (ClutterActor       *actor,
 
   if (capture)
     {
-      g_signal_emit (actor, actor_signals[CAPTURED_EVENT], 0,
-		     event,
+      GQuark detail;
+
+      switch (event->type)
+        {
+        case CLUTTER_MOTION:
+        case CLUTTER_TOUCH_UPDATE:
+        case CLUTTER_SCROLL:
+        case CLUTTER_PAD_STRIP:
+        case CLUTTER_PAD_RING:
+          detail = quark_continuous;
+          break;
+        case CLUTTER_TOUCHPAD_PINCH:
+          if (((const ClutterTouchpadPinchEvent *)event)->phase ==
+              CLUTTER_TOUCHPAD_GESTURE_PHASE_UPDATE)
+            detail = quark_continuous;
+          else
+            detail = quark_discrete;
+          break;
+        case CLUTTER_TOUCHPAD_SWIPE:
+          if (((const ClutterTouchpadSwipeEvent *)event)->phase ==
+              CLUTTER_TOUCHPAD_GESTURE_PHASE_UPDATE)
+            detail = quark_continuous;
+          else
+            detail = quark_discrete;
+          break;
+        default:
+          detail = quark_discrete;
+          break;
+        }
+
+      g_signal_emit (actor,
+                     actor_signals[CAPTURED_EVENT],
+                     detail,
+                     event,
                      &retval);
       goto out;
     }
