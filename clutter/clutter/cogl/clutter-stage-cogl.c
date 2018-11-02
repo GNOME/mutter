@@ -152,6 +152,8 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
   gint64 now;
   float refresh_rate;
   gint64 refresh_interval;
+  int64_t min_render_time, max_render_time;
+  int64_t earliest_update_time, earliest_presentation_time;
 
   if (stage_cogl->update_time != -1)
     return;
@@ -186,7 +188,16 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
 
   stage_cogl->update_time = stage_cogl->last_presentation_time + 1000 * sync_delay;
 
-  while (stage_cogl->update_time < now)
+  min_render_time = refresh_interval / 2;
+  max_render_time = refresh_interval - 1000 * sync_delay;
+
+  if (min_render_time > max_render_time)
+    min_render_time = max_render_time;
+
+  earliest_presentation_time = now + min_render_time;
+  earliest_update_time = earliest_presentation_time - max_render_time;
+
+  while (stage_cogl->update_time < earliest_update_time)
     stage_cogl->update_time += refresh_interval;
 }
 
