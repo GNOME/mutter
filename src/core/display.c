@@ -554,9 +554,9 @@ enable_compositor (MetaDisplay *display)
       if (!META_X11_DISPLAY_HAS_COMPOSITE (x11_display) ||
           !META_X11_DISPLAY_HAS_DAMAGE (x11_display))
         {
-          meta_warning ("Missing %s extension required for compositing",
-                        !META_X11_DISPLAY_HAS_COMPOSITE (x11_display) ?
-                        "composite" : "damage");
+          meta_fatal ("Missing %s extension required for compositing",
+                      !META_X11_DISPLAY_HAS_COMPOSITE (x11_display) ?
+                      "composite" : "damage");
           return;
         }
 
@@ -564,7 +564,9 @@ enable_compositor (MetaDisplay *display)
                      x11_display->composite_minor_version;
       if (version < 3)
         {
-          meta_warning ("Your version of COMPOSITE is too old.");
+          meta_fatal ("Your version of COMPOSITE (%d.%d) is too old. Version 3.0 or later required.",
+                      x11_display->composite_major_version,
+                      x11_display->composite_minor_version);
           return;
         }
     }
