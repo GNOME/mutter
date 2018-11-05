@@ -94,7 +94,7 @@ MUTTER_PC_MODULES="
    xdamage
    xext
    xfixes
-   xi >= 1.6.0
+   xi >= 1.6.99.1
    xkbfile
    xkeyboard-config
    xkbcommon >= 0.4.3
@@ -346,9 +346,6 @@ AC_DEFINE_UNQUOTED([XWAYLAND_GRAB_DEFAULT_ACCESS_RULES],
                     "$with_XWAYLAND_GRAB_DEFAULT_ACCESS_RULES",
                     [Xwayland applications allowed to issue keyboard grabs])
 AC_SUBST(XWAYLAND_GRAB_DEFAULT_ACCESS_RULES)
-
-PKG_CHECK_EXISTS([xi >= 1.6.99.1],
-                 AC_DEFINE([HAVE_XI23],[1],[Define if you have support for XInput 2.3 or greater]))
 
 AC_PATH_XTRA
 
