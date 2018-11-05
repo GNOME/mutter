@@ -180,11 +180,9 @@ meta_barrier_constructed (GObject *object)
   if (META_IS_BACKEND_NATIVE (meta_get_backend ()))
     priv->impl = meta_barrier_impl_native_new (barrier);
 #endif
-#if defined(HAVE_XI23)
   if (META_IS_BACKEND_X11 (meta_get_backend ()) &&
       !meta_is_wayland_compositor ())
     priv->impl = meta_barrier_impl_x11_new (barrier);
-#endif
 
   if (priv->impl == NULL)
     g_warning ("Created a non-working barrier");
