@@ -401,10 +401,8 @@ query_xi_extension (MetaX11Display *x11_display)
           if (version >= 22)
             has_xi = TRUE;
 
-#ifdef HAVE_XI23
           if (version >= 23)
             x11_display->have_xinput_23 = TRUE;
-#endif /* HAVE_XI23 */
         }
     }
 
@@ -778,13 +776,11 @@ init_event_masks (MetaX11Display *x11_display)
   XISetMask (mask.mask, XI_Leave);
   XISetMask (mask.mask, XI_FocusIn);
   XISetMask (mask.mask, XI_FocusOut);
-#ifdef HAVE_XI23
   if (META_X11_DISPLAY_HAS_XINPUT_23 (x11_display))
     {
       XISetMask (mask.mask, XI_BarrierHit);
       XISetMask (mask.mask, XI_BarrierLeave);
     }
-#endif /* HAVE_XI23 */
   XISelectEvents (x11_display->xdisplay, x11_display->xroot, &mask, 1);
 
   event_mask = (SubstructureRedirectMask | SubstructureNotifyMask |

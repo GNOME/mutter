@@ -85,13 +85,11 @@ get_input_event (MetaX11Display *x11_display,
           if (((XIEnterEvent *) input_event)->deviceid == META_VIRTUAL_CORE_POINTER_ID)
             return input_event;
           break;
-#ifdef HAVE_XI23
         case XI_BarrierHit:
         case XI_BarrierLeave:
           if (((XIBarrierEvent *) input_event)->deviceid == META_VIRTUAL_CORE_POINTER_ID)
             return input_event;
           break;
-#endif /* HAVE_XI23 */
         default:
           break;
         }
@@ -117,11 +115,9 @@ xievent_get_modified_window (MetaX11Display *x11_display,
     case XI_Enter:
     case XI_Leave:
       return ((XIEnterEvent *) input_event)->event;
-#ifdef HAVE_XI23
     case XI_BarrierHit:
     case XI_BarrierLeave:
       return ((XIBarrierEvent *) input_event)->event;
-#endif /* HAVE_XI23 */
     }
 
   return None;
@@ -380,14 +376,12 @@ meta_spew_xi2_event (MetaX11Display *x11_display,
     case XI_Leave:
       name = "XI_Leave";
       break;
-#ifdef HAVE_XI23
     case XI_BarrierHit:
       name = "XI_BarrierHit";
       break;
     case XI_BarrierLeave:
       name = "XI_BarrierLeave";
       break;
-#endif /* HAVE_XI23 */
     }
 
   switch (input_event->evtype)
@@ -1795,13 +1789,11 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
         }
     }
 
-#ifdef HAVE_XI23
   if (meta_x11_display_process_barrier_xevent (x11_display, input_event))
     {
       bypass_gtk = bypass_compositor = TRUE;
       goto out;
     }
-#endif /* HAVE_XI23 */
 
   if (handle_input_xevent (x11_display, input_event, event->xany.serial))
     {

@@ -31,8 +31,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_XI23
-
 #include <glib-object.h>
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/Xfixes.h>
@@ -217,5 +215,3 @@ static void
 meta_barrier_impl_x11_init (MetaBarrierImplX11 *self)
 {
 }
-
-#endif /* HAVE_XI23 */
