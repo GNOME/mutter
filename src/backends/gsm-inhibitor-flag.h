@@ -23,6 +23,9 @@
 
 G_BEGIN_DECLS
 
+/* This file was copied from gnome-session, so don't apply our code style */
+/* *INDENT-OFF* */
+
 typedef enum {
         GSM_INHIBITOR_FLAG_LOGOUT      = 1 << 0,
         GSM_INHIBITOR_FLAG_SWITCH_USER = 1 << 1,
@@ -30,6 +33,8 @@ typedef enum {
         GSM_INHIBITOR_FLAG_IDLE        = 1 << 3,
         GSM_INHIBITOR_FLAG_AUTOMOUNT   = 1 << 4
 } GsmInhibitorFlag;
+
+/* *INDENT-ON* */
 
 G_END_DECLS
 
