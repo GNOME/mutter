@@ -60,7 +60,11 @@ get_x11_cogl_winsys_vtable (CoglRenderer *renderer)
 #endif
     case COGL_DRIVER_GL:
     case COGL_DRIVER_GL3:
+#ifdef COGL_HAS_GLX_SUPPORT
       return _cogl_winsys_glx_get_vtable ();
+#else
+      break;
+#endif
     case COGL_DRIVER_ANY:
     case COGL_DRIVER_NOP:
       break;

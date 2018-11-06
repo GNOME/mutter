@@ -91,7 +91,9 @@ struct _MetaBackendPrivate
   MetaCursorRenderer *cursor_renderer;
   MetaInputSettings *input_settings;
   MetaRenderer *renderer;
+#ifdef HAVE_EGL
   MetaEgl *egl;
+#endif
   MetaSettings *settings;
 #ifdef HAVE_REMOTE_DESKTOP
   MetaRemoteAccessController *remote_access_controller;
@@ -774,7 +776,9 @@ meta_backend_initable_init (GInitable     *initable,
 
   priv->settings = meta_settings_new (backend);
 
+#ifdef HAVE_EGL
   priv->egl = g_object_new (META_TYPE_EGL, NULL);
+#endif
 
   priv->orientation_manager = g_object_new (META_TYPE_ORIENTATION_MANAGER, NULL);
 
@@ -885,6 +889,7 @@ meta_backend_get_renderer (MetaBackend *backend)
   return priv->renderer;
 }
 
+#ifdef HAVE_EGL
 /**
  * meta_backend_get_egl: (skip)
  */
@@ -895,6 +900,7 @@ meta_backend_get_egl (MetaBackend *backend)
 
   return priv->egl;
 }
+#endif /* HAVE_EGL */
 
 /**
  * meta_backend_get_settings: (skip)

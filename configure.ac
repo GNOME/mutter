@@ -290,6 +290,8 @@ AS_IF([test "$have_native_backend" = "yes"], [
 ])
 AM_CONDITIONAL([HAVE_NATIVE_BACKEND],[test "$have_native_backend" = "yes"])
 
+AC_DEFINE([HAVE_EGL],[1], [Defined if EGL support is enabled])
+
 MUTTER_WAYLAND_EGLSTREAM_MODULES="wayland-eglstream-protocols"
 
 AC_ARG_ENABLE(egl-device,
