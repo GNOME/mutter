@@ -12,6 +12,7 @@ cogl_test_journal = executable('test-journal',
   dependencies: [
     cogl_deps,
     libmutter_cogl_dep,
+    libmutter_cogl_path_dep,
   ],
   install: false,
 )
