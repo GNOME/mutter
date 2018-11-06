@@ -26,6 +26,8 @@
 
 #include "wayland/meta-wayland-egl-stream.h"
 
+#include <dlfcn.h>
+
 #include "backends/meta-backend-private.h"
 #include "backends/meta-egl-ext.h"
 #include "backends/meta-egl.h"
@@ -33,10 +35,6 @@
 #include "meta/meta-backend.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
-
-#ifdef HAVE_WAYLAND_EGLSTREAM
-
-#include <dlfcn.h>
 
 #include "wayland-eglstream-controller-server-protocol.h"
 
@@ -86,12 +84,9 @@ bind_eglstream_controller (struct wl_client *client,
                                   NULL);
 }
 
-#endif /* HAVE_WAYLAND_EGLSTREAM */
-
 gboolean
 meta_wayland_eglstream_controller_init (MetaWaylandCompositor *compositor)
 {
-#ifdef HAVE_WAYLAND_EGLSTREAM
   /*
    * wl_eglstream_controller_interface is provided by
    * libnvidia-egl-wayland.so.1
@@ -127,7 +122,6 @@ fail:
     dlclose(lib);
 
   g_debug ("WL: Unable to initialize wl_eglstream_controller.");
-#endif
 
   return FALSE;
 }

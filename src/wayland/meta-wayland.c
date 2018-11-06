@@ -398,7 +398,9 @@ meta_wayland_init (void)
                                   meta_xwayland_global_filter,
                                   compositor);
 
+#ifdef HAVE_WAYLAND_EGLSTREAM
   meta_wayland_eglstream_controller_init (compositor);
+#endif
 
   if (meta_should_autostart_x11_display ())
     {

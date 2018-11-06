@@ -38,7 +38,9 @@ typedef enum _MetaWaylandBufferType
   META_WAYLAND_BUFFER_TYPE_UNKNOWN,
   META_WAYLAND_BUFFER_TYPE_SHM,
   META_WAYLAND_BUFFER_TYPE_EGL_IMAGE,
+#ifdef HAVE_WAYLAND_EGLSTREAM
   META_WAYLAND_BUFFER_TYPE_EGL_STREAM,
+#endif
   META_WAYLAND_BUFFER_TYPE_DMA_BUF,
 } MetaWaylandBufferType;
 
@@ -54,9 +56,11 @@ struct _MetaWaylandBuffer
 
   MetaWaylandBufferType type;
 
+#ifdef HAVE_WAYLAND_EGLSTREAM
   struct {
     MetaWaylandEglStream *stream;
   } egl_stream;
+#endif
 
   struct {
     MetaWaylandDmaBufBuffer *dma_buf;

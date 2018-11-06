@@ -408,8 +408,6 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-wayland-data-device.c      \
 	wayland/meta-wayland-data-device.h      \
 	wayland/meta-wayland-data-device-private.h	\
-	wayland/meta-wayland-egl-stream.c	\
-	wayland/meta-wayland-egl-stream.h	\
 	wayland/meta-wayland-input-device.c	\
 	wayland/meta-wayland-input-device.h	\
 	wayland/meta-wayland-pointer-gestures.c	\
@@ -491,6 +489,13 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-xwayland-grab-keyboard.c  	\
 	wayland/meta-xwayland-grab-keyboard.h  	\
 	$(NULL)
+
+if HAVE_WAYLAND_EGLSTREAM
+libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
+	wayland/meta-wayland-egl-stream.c	\
+	wayland/meta-wayland-egl-stream.h	\
+	$(NULL)
+endif
 endif
 
 if HAVE_NATIVE_BACKEND
