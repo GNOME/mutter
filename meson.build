@@ -32,6 +32,7 @@ atk_req = '>= 2.5.3'
 
 # optional version requirements
 udev_req = '>= 228'
+gudev_req = '>= 232'
 
 # wayland version requirements
 wayland_server_req = '>= 1.13.0'
@@ -157,7 +158,7 @@ endif
 have_libgudev = get_option('udev')
 if have_libgudev
   libudev_dep = dependency('libudev', version: udev_req)
-  gudev_dep = dependency('gudev-1.0', version: udev_req)
+  gudev_dep = dependency('gudev-1.0', version: gudev_req)
 endif
 
 have_native_backend = get_option('native_backend')
