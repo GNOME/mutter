@@ -80,10 +80,10 @@ libmutter_cogl_test_conformance = executable('test-conformance',
   include_directories: cogl_test_conformance_includes,
   dependencies: [
     cogl_deps,
+    libmutter_cogl_dep,
     libmutter_cogl_path_dep,
-    libmutter_cogl_test_fixtures_dep
+    libmutter_cogl_test_fixtures_dep,
   ],
-  link_with: [libmutter_cogl],
   install: false,
 )
 

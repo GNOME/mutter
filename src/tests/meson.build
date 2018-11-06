@@ -5,6 +5,7 @@ tests_c_args = mutter_c_args
 
 tests_deps = [
   mutter_deps,
+  libmutter_dep,
   libmutter_cogl_dep,
   libmutter_clutter_dep,
 ]
@@ -34,7 +35,6 @@ test_runner = executable('mutter-test-runner',
   ],
   include_directories: tests_includepath,
   c_args: tests_c_args,
-  link_with: [libmutter],
   dependencies: [tests_deps],
   install: false,
 )
@@ -61,7 +61,6 @@ unit_tests = executable('mutter-test-unit-tests',
   ],
   include_directories: tests_includepath,
   c_args: tests_c_args,
-  link_with: [libmutter],
   dependencies: [tests_deps],
   install: false,
 )
@@ -78,7 +77,6 @@ headless_start_test = executable('mutter-headless-start-test',
   ],
   include_directories: tests_includepath,
   c_args: tests_c_args,
-  link_with: [libmutter],
   dependencies: [tests_deps],
   install: false,
 )

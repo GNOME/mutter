@@ -18,6 +18,7 @@ cogl_pango_deps = [
   cogl_deps,
   pango_dep,
   pangocairo_dep,
+  libmutter_cogl_dep,
 ]
 
 libmutter_cogl_pango = shared_library('mutter-cogl-pango-' + libmutter_api_version,
@@ -25,11 +26,14 @@ libmutter_cogl_pango = shared_library('mutter-cogl-pango-' + libmutter_api_versi
   c_args: cogl_c_args,
   include_directories: [cogl_includepath, cogl_path_includepath],
   link_depends: 'libmutter-cogl-pango.map',
-  dependencies: cogl_pango_deps,
-  link_with: libmutter_cogl,
+  dependencies: [cogl_pango_deps],
   install_rpath: pkglibdir,
   install_dir: pkglibdir,
   install: true,
+)
+
+libmutter_cogl_pango_dep = declare_dependency(
+  link_with: libmutter_cogl_pango,
 )
 
 if have_introspection
@@ -44,8 +48,11 @@ if have_introspection
       'Pango-1.0',
       'PangoCairo-1.0'
     ],
-    dependencies: [cogl_deps, pango_dep],
-    link_with: [libmutter_cogl, libmutter_cogl_pango],
+    dependencies: [
+      cogl_deps,
+      pango_dep,
+      libmutter_cogl_pango_dep,
+    ],
     extra_args: [
       '-UCOGL_COMPILATION',
       '-DG_LOG_DOMAIN=\"CoglPango\"',

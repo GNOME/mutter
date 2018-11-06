@@ -782,8 +782,10 @@ if have_introspection
       libmutter_cogl_pango_gir[0],
       libmutter_clutter_gir[0],
     ],
-    dependencies: [mutter_deps],
-    link_with: [libmutter],
+    dependencies: [
+      mutter_deps,
+      libmutter_dep,
+    ],
     extra_args: mutter_c_args + [
       '-U_GNU_SOURCE',
     ],

@@ -9,7 +9,9 @@ cogl_test_journal = executable('test-journal',
     '-DTESTS_DATADIR="@0@"'.format(join_paths(cogl_srcdir, 'tests/data')),
   ],
   include_directories: cogl_includepath,
-  dependencies: cogl_deps,
-  link_with: [libmutter_cogl],
+  dependencies: [
+    cogl_deps,
+    libmutter_cogl_dep,
+  ],
   install: false,
 )
