@@ -5431,8 +5431,8 @@ meta_test_monitor_custom_lid_switch_config (void)
 
   /* Lid was closed */
 
-  test_case.expect.crtcs[0].current_mode = -1;
-  test_case.expect.crtcs[1].transform = META_MONITOR_TRANSFORM_90;
+  test_case.expect.crtcs[1].current_mode = -1;
+  test_case.expect.crtcs[0].transform = META_MONITOR_TRANSFORM_90;
   test_case.expect.monitors[0].current_mode = -1;
   test_case.expect.logical_monitors[0].layout =
     (MetaRectangle) { .width = 768, .height = 1024 };
