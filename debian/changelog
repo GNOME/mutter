@@ -1,4 +1,6 @@
-mutter (3.30.1-3) UNRELEASED; urgency=medium
+mutter (3.30.1-3) unstable; urgency=medium
+
+  * Team upload
 
   [ Jeremy Bicha ]
   * Only depend on libegl1-mesa-dev on Linux
@@ -10,7 +12,7 @@ mutter (3.30.1-3) UNRELEASED; urgency=medium
     - In particular this fixes two memory leaks introduced in 3.30.1
       (Closes: #913028)
 
- -- Jeremy Bicha <jbicha@debian.org>  Sun, 14 Oct 2018 15:28:43 -0400
+ -- Simon McVittie <smcv@debian.org>  Tue, 06 Nov 2018 09:33:22 +0000
 
 mutter (3.30.1-2) unstable; urgency=medium
 
