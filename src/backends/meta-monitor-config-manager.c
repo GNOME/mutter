@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2016 Red Hat
+ * Copyright (c) 2018 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,11 +97,17 @@ static MetaCrtc *
 find_unassigned_crtc (MetaOutput *output,
                       GPtrArray  *crtc_infos)
 {
+  MetaCrtc *crtc;
   unsigned int i;
+
+  /* first try to keep the previous CRTC if possible */
+  crtc = meta_output_get_assigned_crtc (output);
+  if (crtc && !is_crtc_assigned (crtc, crtc_infos))
+    return crtc;
 
   for (i = 0; i < output->n_possible_crtcs; i++)
     {
-      MetaCrtc *crtc = output->possible_crtcs[i];
+      crtc = output->possible_crtcs[i];
 
       if (is_crtc_assigned (crtc, crtc_infos))
         continue;
