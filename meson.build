@@ -31,7 +31,7 @@ libwacom_req = '>= 0.13'
 atk_req = '>= 2.5.3'
 
 # optional version requirements
-udev_req = '>= 232'
+udev_req = '>= 228'
 
 # wayland version requirements
 wayland_server_req = '>= 1.13.0'
