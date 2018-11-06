@@ -3867,11 +3867,11 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
                                       &old->rect,
                                       &new->rect);
     }
-  else
-    {
-      meta_window_update_monitor (window,
-                                  META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE);
-    }
+
+  /* meta_window_move_resize_internal() may not have updated the monitor,
+   * make sure we do it now... */
+  meta_window_update_monitor (window,
+                              META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE);
 }
 
 void
