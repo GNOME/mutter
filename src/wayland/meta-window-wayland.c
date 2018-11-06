@@ -776,7 +776,11 @@ meta_window_wayland_move_resize (MetaWindow        *window,
     flags |= META_MOVE_RESIZE_RESIZE_ACTION;
 
   gravity = meta_resize_gravity_from_grab_op (window->display->grab_op);
-  meta_window_move_resize_internal (window, flags, gravity, rect);
+  meta_window_move_resize_internal (window,
+                                    flags,
+                                    META_WINDOW_UPDATE_MONITOR_FLAGS_NONE,
+                                    gravity,
+                                    rect);
 }
 
 void
