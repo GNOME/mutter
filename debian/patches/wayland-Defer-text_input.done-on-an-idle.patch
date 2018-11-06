@@ -1,0 +1,124 @@
+From: Carlos Garnacho <carlosg@gnome.org>
+Date: Thu, 18 Oct 2018 02:08:24 +0200
+Subject: wayland: Defer text_input.done on an idle
+
+IBus naturally doesn't know how to implement the text-input protocol,
+and some input methods emit event streams that are incompatible with the
+protocol, if not assumed to be part of an grouped series of events. As
+IBus doesn't have any API to let us know about such groupings, let's
+fake it by adding a specially crafted idle callback.
+
+The idle callback has a known limitation; if there is an idle callback
+with a higher priority, that either doesn't remove itself, or
+reschedules itself before the next idle, we'll never get triggered.
+This, however, is unlikely to actually be the bigger problem in such
+situations, as it'd likely mean we'd have a 100% CPU bug.
+
+Bug: https://gitlab.gnome.org/GNOME/gtk/issues/1365
+Applied-upstream: 3.30.2, commit:d364fa50ba0b10ffd33baf857e21c5f3a6ae7412
+---
+ src/wayland/meta-wayland-text-input.c | 60 +++++++++++++++++++++++++++++++----
+ 1 file changed, 54 insertions(+), 6 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-text-input.c b/src/wayland/meta-wayland-text-input.c
+index 8681430..0493760 100644
+--- a/src/wayland/meta-wayland-text-input.c
++++ b/src/wayland/meta-wayland-text-input.c
+@@ -70,6 +70,8 @@ struct _MetaWaylandTextInput
+   uint32_t content_type_purpose;
+   uint32_t text_change_cause;
+   gboolean enabled;
++
++  guint done_idle_id;
+ };
+ 
+ struct _MetaWaylandTextInputFocus
+@@ -114,6 +116,52 @@ increment_serial (MetaWaylandTextInput *text_input,
+                        GUINT_TO_POINTER (serial + 1));
+ }
+ 
++static gboolean
++done_idle_cb (gpointer user_data)
++{
++  ClutterInputFocus *focus = user_data;
++  MetaWaylandTextInput *text_input;
++  struct wl_resource *resource;
++
++  text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
++
++  wl_resource_for_each (resource, &text_input->focus_resource_list)
++    {
++      zwp_text_input_v3_send_done (resource,
++                                   lookup_serial (text_input, resource));
++    }
++
++  text_input->done_idle_id = 0;
++  return G_SOURCE_REMOVE;
++}
++
++static void
++meta_wayland_text_input_focus_defer_done (ClutterInputFocus *focus)
++{
++  MetaWaylandTextInput *text_input;
++
++  text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
++
++  if (text_input->done_idle_id != 0)
++    return;
++
++  /* This operates on 3 principles:
++   * - GDBus uses G_PRIORITY_DEFAULT to put messages in the thread default main
++   *   context.
++   * - All relevant ClutterInputFocus methods are ultimately backed by
++   *   DBus methods inside IBus.
++   * - We want to run .done after them all. The slightly lower
++   *   G_PRIORITY_DEFAULT + 1 priority should ensure we at least group
++   *   all messages seen so far.
++   *
++   * FIXME: .done may be delayed indefinitely if there's a high enough
++   *        priority idle source in the main loop. It's unlikely that
++   *        recurring idles run at this high priority though.
++   */
++  text_input->done_idle_id = g_idle_add_full (G_PRIORITY_DEFAULT + 1,
++                                              done_idle_cb, focus, NULL);
++}
++
+ static void
+ meta_wayland_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
+                                                   guint              cursor,
+@@ -127,9 +175,9 @@ meta_wayland_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
+   wl_resource_for_each (resource, &text_input->focus_resource_list)
+     {
+       zwp_text_input_v3_send_delete_surrounding_text (resource, cursor, len);
+-      zwp_text_input_v3_send_done (resource,
+-                                   lookup_serial (text_input, resource));
+     }
++
++  meta_wayland_text_input_focus_defer_done (focus);
+ }
+ 
+ static void
+@@ -145,9 +193,9 @@ meta_wayland_text_input_focus_commit_text (ClutterInputFocus *focus,
+     {
+       zwp_text_input_v3_send_preedit_string (resource, NULL, 0, 0);
+       zwp_text_input_v3_send_commit_string (resource, text);
+-      zwp_text_input_v3_send_done (resource,
+-                                   lookup_serial (text_input, resource));
+     }
++
++  meta_wayland_text_input_focus_defer_done (focus);
+ }
+ 
+ static void
+@@ -163,9 +211,9 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
+   wl_resource_for_each (resource, &text_input->focus_resource_list)
+     {
+       zwp_text_input_v3_send_preedit_string (resource, text, cursor, cursor);
+-      zwp_text_input_v3_send_done (resource,
+-                                   lookup_serial (text_input, resource));
+     }
++
++  meta_wayland_text_input_focus_defer_done (focus);
+ }
+ 
+ static void

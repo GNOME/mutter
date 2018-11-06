@@ -17,10 +17,10 @@ Applied-upstream: no
  1 file changed, 1 deletion(-)
 
 diff --git a/clutter/tests/conform/Makefile.am b/clutter/tests/conform/Makefile.am
-index 0dec96e..ec83939 100644
+index 9cef08b..0f4681f 100644
 --- a/clutter/tests/conform/Makefile.am
 +++ b/clutter/tests/conform/Makefile.am
-@@ -53,7 +53,6 @@ deprecated_tests = \
+@@ -55,7 +55,6 @@ deprecated_tests = \
  	behaviours \
  	group \
  	rectangle \

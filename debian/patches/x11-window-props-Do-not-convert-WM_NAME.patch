@@ -1,0 +1,35 @@
+From: =?utf-8?q?Florian_M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Tue, 9 Oct 2018 00:40:33 +0200
+Subject: x11/window-props: Do not convert WM_NAME
+
+The WM_NAME property is of type TEXT_PROPERTY, which is supposed to be
+returned as UTF-8. Commit 840378ae68 broke that assumption, resulting
+in crashes with non-UTF8 locales; however the "fix" of converting from
+LATIN1 to UTF8 is wrong as well, as the conversion will spit out garbage
+when the input encoding isn't actually LATIN1.
+
+Now that the original issue in text_property_to_utf8() has been fixed,
+we can simply revert the relevant bits of commit d62491f46eba748e.
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/merge_requests/227
+Applied-upstream: 3.30.2, commit:62775d191372da864e00797ef4d64cb22f18ccd8
+---
+ src/x11/window-props.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/src/x11/window-props.c b/src/x11/window-props.c
+index d06a89a..d165c2c 100644
+--- a/src/x11/window-props.c
++++ b/src/x11/window-props.c
+@@ -651,10 +651,7 @@ reload_wm_name (MetaWindow    *window,
+ 
+   if (value->type != META_PROP_VALUE_INVALID)
+     {
+-      g_autofree gchar *title = g_convert (value->v.str, -1,
+-                                           "UTF-8", "LATIN1",
+-                                           NULL, NULL, NULL);
+-      set_window_title (window, title);
++      set_window_title (window, value->v.str);
+ 
+       meta_verbose ("Using WM_NAME for new title of %s: \"%s\"\n",
+                     window->desc, window->title);

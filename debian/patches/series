@@ -1,3 +1,9 @@
+x11-window-props-Do-not-convert-WM_NAME.patch
+xprops-Make-sure-text_property_to_utf8-returns-UTF8.patch
+constraints-Make-current-placement-rule-stack-allocated.patch
+shaped-texture-Clean-up-texture-regions.patch
+wayland-Defer-text_input.done-on-an-idle.patch
+Update-Slovak-translation.patch
 theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 clutter-Smooth-out-master-clock-to-smooth-visuals.patch

@@ -1,7 +1,14 @@
 mutter (3.30.1-3) UNRELEASED; urgency=medium
 
+  [ Jeremy Bicha ]
   * Only depend on libegl1-mesa-dev on Linux
   * debian/libmutter-3-0.symbols: Mark many symbols as Linux-only
+
+  [ Simon McVittie ]
+  * debian/patches: Update to upstream gnome-3-30 branch at commit
+    3.30.1-8-g1abab3fe2
+    - In particular this fixes two memory leaks introduced in 3.30.1
+      (Closes: #913028)
 
  -- Jeremy Bicha <jbicha@debian.org>  Sun, 14 Oct 2018 15:28:43 -0400
 

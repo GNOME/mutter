@@ -1,0 +1,41 @@
+From: =?utf-8?q?Florian_M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Tue, 9 Oct 2018 00:29:01 +0200
+Subject: xprops: Make sure text_property_to_utf8() returns UTF8
+
+Commit 840378ae682 changed the code to use XmbTextPropertyToTextList()
+instead of gdk_text_property_to_utf8_list_for_display(), but didn't
+take into account that the replacement returns text in the current
+locale's encoding, while any callers (rightfully) expect UTF8.
+
+Fix this by converting the text if necessary.
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/merge_requests/227
+Applied-upstream: 3.30.2, commit:76abe87090830b27e2c624b9854ca94829b04a75
+---
+ src/x11/xprops.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/x11/xprops.c b/src/x11/xprops.c
+index ae05afe..2bef299 100644
+--- a/src/x11/xprops.c
++++ b/src/x11/xprops.c
+@@ -639,6 +639,7 @@ text_property_to_utf8 (Display *xdisplay,
+ {
+   char *ret = NULL;
+   char **local_list = NULL;
++  const char *charset = NULL;
+   int count = 0;
+   int res;
+ 
+@@ -649,7 +650,10 @@ text_property_to_utf8 (Display *xdisplay,
+   if (count == 0)
+     goto out;
+ 
+-  ret = g_strdup (local_list[0]);
++  if (g_get_charset (&charset))
++    ret = g_strdup (local_list[0]);
++  else
++    ret = g_convert (local_list[0], -1, "UTF-8", charset, NULL, NULL, NULL);
+ 
+  out:
+   XFreeStringList (local_list);
