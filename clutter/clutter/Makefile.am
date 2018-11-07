@@ -438,6 +438,9 @@ backend_source_c_priv += $(x11_source_c_priv)
 # the list of files we want to introspect on X11
 x11_introspection = $(x11_source_c) $(x11_source_h)
 
+clutterx11_includedir = $(clutter_includedir)/x11
+clutterx11_include_HEADERS = $(x11_source_h)
+
 mutter-clutter-x11-@LIBMUTTER_API_VERSION@.pc: mutter-clutter-$(LIBMUTTER_API_VERSION).pc
 	$(QUIET_GEN)cp -f $< $(@F)
 
