@@ -132,6 +132,39 @@ calculate_wayland_output_scale (MetaLogicalMonitor *logical_monitor)
 }
 
 static void
+get_rotated_physical_dimensions (MetaMonitor *monitor,
+                                 int         *width_mm,
+                                 int         *height_mm)
+{
+  int monitor_width_mm, monitor_height_mm;
+  MetaLogicalMonitor *logical_monitor;
+
+  meta_monitor_get_physical_dimensions (monitor,
+                                        &monitor_width_mm,
+                                        &monitor_height_mm);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+
+  if (meta_monitor_transform_is_rotated (logical_monitor->transform))
+    {
+      *width_mm = monitor_height_mm;
+      *height_mm = monitor_width_mm;
+    }
+  else
+    {
+      *width_mm = monitor_width_mm;
+      *height_mm = monitor_height_mm;
+    }
+}
+
+static gboolean
+is_different_rotation (MetaLogicalMonitor *a,
+                       MetaLogicalMonitor *b)
+{
+  return (meta_monitor_transform_is_rotated (a->transform) !=
+          meta_monitor_transform_is_rotated (b->transform));
+}
+
+static void
 send_output_events (struct wl_resource *resource,
                     MetaWaylandOutput  *wayland_output,
                     MetaLogicalMonitor *logical_monitor,
@@ -163,7 +196,8 @@ send_output_events (struct wl_resource *resource,
 
   if (need_all_events ||
       old_logical_monitor->rect.x != logical_monitor->rect.x ||
-      old_logical_monitor->rect.y != logical_monitor->rect.y)
+      old_logical_monitor->rect.y != logical_monitor->rect.y ||
+      is_different_rotation (old_logical_monitor, logical_monitor))
     {
       int width_mm, height_mm;
       const char *vendor;
@@ -178,7 +212,7 @@ send_output_events (struct wl_resource *resource,
        * Arbitrarily use whatever monitor is the first in the logical monitor
        * and use that for these details.
        */
-      meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
+      get_rotated_physical_dimensions (monitor, &width_mm, &height_mm);
       vendor = meta_monitor_get_vendor (monitor);
       product = meta_monitor_get_product (monitor);
 
