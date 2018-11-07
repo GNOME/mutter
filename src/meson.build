@@ -720,6 +720,7 @@ libmutter = shared_library(libmutter_name,
     mutter_sources,
     mutter_built_sources,
   ],
+  soversion: '0.0.0',
   include_directories: mutter_includes,
   c_args: mutter_c_args,
   dependencies: [
