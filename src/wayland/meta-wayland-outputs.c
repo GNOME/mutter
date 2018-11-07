@@ -131,6 +131,47 @@ calculate_wayland_output_scale (MetaLogicalMonitor *logical_monitor)
   return ceilf (scale);
 }
 
+static gboolean
+is_rotated(MetaLogicalMonitor *logical_monitor)
+{
+  switch (logical_monitor->transform)
+    {
+      case META_MONITOR_TRANSFORM_90:
+      case META_MONITOR_TRANSFORM_FLIPPED_90:
+      case META_MONITOR_TRANSFORM_270:
+      case META_MONITOR_TRANSFORM_FLIPPED_270:
+        return TRUE;
+        break;
+      default:
+        break;
+    }
+
+  return FALSE;
+}
+
+static void
+get_rotated_physical_dimensions(MetaLogicalMonitor *logical_monitor,
+                                int                *width_mm,
+                                int                *height_mm)
+{
+  MetaMonitor *monitor = pick_main_monitor (logical_monitor);
+  int monitor_width_mm, monitor_height_mm;
+
+  meta_monitor_get_physical_dimensions (monitor,
+                                        &monitor_width_mm,
+                                        &monitor_height_mm);
+  if (is_rotated(logical_monitor))
+    {
+      *width_mm = monitor_height_mm;
+      *height_mm = monitor_width_mm;
+    }
+  else
+    {
+      *width_mm = monitor_width_mm;
+      *height_mm = monitor_height_mm;
+    }
+}
+
 static void
 send_output_events (struct wl_resource *resource,
                     MetaWaylandOutput  *wayland_output,
@@ -163,7 +204,8 @@ send_output_events (struct wl_resource *resource,
 
   if (need_all_events ||
       old_logical_monitor->rect.x != logical_monitor->rect.x ||
-      old_logical_monitor->rect.y != logical_monitor->rect.y)
+      old_logical_monitor->rect.y != logical_monitor->rect.y ||
+      is_rotated (old_logical_monitor) != is_rotated (logical_monitor))
     {
       int width_mm, height_mm;
       const char *vendor;
@@ -178,7 +220,7 @@ send_output_events (struct wl_resource *resource,
        * Arbitrarily use whatever monitor is the first in the logical monitor
        * and use that for these details.
        */
-      meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
+      get_rotated_physical_dimensions (logical_monitor, &width_mm, &height_mm);
       vendor = meta_monitor_get_vendor (monitor);
       product = meta_monitor_get_product (monitor);
 
