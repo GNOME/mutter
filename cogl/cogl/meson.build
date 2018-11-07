@@ -468,6 +468,7 @@ endif
 libmutter_cogl_name = 'mutter-cogl-' + libmutter_api_version
 libmutter_cogl = shared_library(libmutter_cogl_name,
   sources: [cogl_sources, cogl_headers_all],
+  soversion: 0,
   c_args: cogl_c_args,
   include_directories: cogl_includepath,
   link_depends: 'libmutter-cogl.map',

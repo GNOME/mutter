@@ -10,6 +10,7 @@ cogl_gles2_sources = [
 
 libmutter_cogl_gles2 = shared_library('mutter-cogl-gles2-' + libmutter_api_version,
   sources: [cogl_gles2_sources, cogl_gles2_public_headers],
+  soversion: 0,
   c_args: cogl_c_args,
   include_directories: [cogl_includepath, cogl_path_includepath],
   link_depends: 'libmutter-cogl-gles2.map',
