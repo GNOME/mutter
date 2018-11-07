@@ -544,6 +544,9 @@ cally_sources_private = \
 	cally/cally-actor-private.h	\
 	$(NULL)
 
+cally_includedir = $(clutter_base_includedir)/cally
+cally_include_HEADERS = $(cally_sources_h)
+
 # general build rules:
 # you should not need to modify anything below this point
 
