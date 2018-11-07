@@ -753,6 +753,22 @@ executable('mutter',
   install: true,
 )
 
+executable('mutter-restart-helper',
+  sources: [
+    files('core/restart-helper.c'),
+  ],
+  include_directories: [
+    top_includepath,
+  ],
+  c_args: mutter_c_args,
+  dependencies: [
+    x11_dep,
+    xcomposite_dep,
+  ],
+  install_dir: libexecdir,
+  install: true,
+)
+
 if have_introspection
   mutter_introspected_sources = []
   foreach source : mutter_sources
