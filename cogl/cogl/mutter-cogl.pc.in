@@ -8,6 +8,6 @@ requires=@COGL_PKG_REQUIRES@
 Name: Cogl
 Description: An object oriented GL/GLES Abstraction/Utility Layer
 Version: @MUTTER_VERSION@
-Libs: -L${libdir} -lmutter-cogl-@LIBMUTTER_API_VERSION@
+Libs: -L${libdir} -lmutter-cogl-${apiversion}
 Cflags: -I${includedir}/cogl
 Requires: ${requires}
