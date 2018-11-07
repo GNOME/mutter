@@ -1,5 +1,5 @@
 pkgdatadir = $(datadir)/mutter-$(LIBMUTTER_API_VERSION)
-pkglibdir = $(libdir)/mutter-$(LIBMUTTER_API_VERSION)
+pkglibdir = $(MUTTER_PLUGIN_DIR)
 
 AM_CPPFLAGS = \
 	$(MUTTER_CFLAGS)						\
