@@ -58,7 +58,7 @@ typedef struct _CoglOnscreen CoglOnscreen;
 GType cogl_onscreen_get_gtype (void);
 
 /**
- * cogl_onscreen_new: (constructor)
+ * cogl_onscreen_new: (constructor) (skip)
  * @context: A #CoglContext
  * @width: The desired framebuffer width
  * @height: The desired framebuffer height
@@ -84,8 +84,8 @@ typedef void (*CoglOnscreenX11MaskCallback) (CoglOnscreen *onscreen,
  * @onscreen: The unallocated framebuffer to associated with an X
  *            window.
  * @xid: The XID of an existing X window
- * @update: A callback that notifies of updates to what Cogl requires
- *          to be in the core X protocol event mask.
+ * @update: (scope async): A callback that notifies of updates to what Cogl
+ *          requires to be in the core X protocol event mask.
  * @user_data: user data passed to @update
  *
  * Ideally we would recommend that you let Cogl be responsible for
