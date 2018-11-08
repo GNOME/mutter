@@ -1498,7 +1498,7 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                 view_layout.x, view_layout.y, fb_scale);
 
   cogl_color_init_from_4ub (&stage_pick_id, 255, 255, 255, 255);
-  cogl_clear (&stage_pick_id, COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH);
+  cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH, &stage_pick_id);
 
   /* Disable dithering (if any) when doing the painting in pick mode */
   dither_enabled_save = cogl_framebuffer_get_dither_enabled (fb);
