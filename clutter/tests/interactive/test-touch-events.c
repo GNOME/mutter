@@ -31,7 +31,7 @@ static GQueue events = G_QUEUE_INIT;
 static GQueue all_events = G_QUEUE_INIT;
 static gboolean new_surface = TRUE;
 
-static const ClutterColor const static_colors[] = {
+static const ClutterColor static_colors[] = {
   { 0xff, 0x00, 0x00, 0xff },   /* red */
   { 0x80, 0x00, 0x00, 0xff },   /* dark red */
   { 0x00, 0xff, 0x00, 0xff },   /* green */
