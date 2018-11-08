@@ -321,11 +321,13 @@ static void
 clutter_wayland_surface_paint (ClutterActor *self)
 {
   ClutterWaylandSurfacePrivate *priv;
+  CoglFramebuffer *framebuffer;
   ClutterActorBox box;
 
   g_return_if_fail (CLUTTER_WAYLAND_IS_SURFACE (self));
 
   priv = CLUTTER_WAYLAND_SURFACE (self)->priv;
+  framebuffer = cogl_get_draw_framebuffer ();
 
   if (G_UNLIKELY (priv->pipeline == NULL))
     {
@@ -343,9 +345,11 @@ clutter_wayland_surface_paint (ClutterActor *self)
                                        COGL_TEXTURE (priv->buffer));
     }
 
-  cogl_set_source (priv->pipeline);
   clutter_actor_get_allocation_box (self, &box);
-  cogl_rectangle (0, 0, box.x2 - box.x1, box.y2 - box.y1);
+  cogl_framebuffer_draw_rectangle (framebuffer,
+                                   priv->pipeline,
+                                   0, 0,
+                                   box.x2 - box.x1, box.y2 - box.y1);
 }
 
 static void
