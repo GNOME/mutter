@@ -561,7 +561,9 @@ update_fbo (ClutterActor *self)
 }
 
 static void
-gen_texcoords_and_draw_cogl_rectangle (ClutterActor *self)
+gen_texcoords_and_draw_cogl_rectangle (ClutterActor    *self,
+                                       CoglPipeline    *pipeline,
+                                       CoglFramebuffer *framebuffer)
 {
   ClutterTexture *texture = CLUTTER_TEXTURE (self);
   ClutterTexturePrivate *priv = texture->priv;
@@ -580,10 +582,12 @@ gen_texcoords_and_draw_cogl_rectangle (ClutterActor *self)
   else
     t_h = 1.0;
 
-  cogl_rectangle_with_texture_coords (0, 0,
-			              box.x2 - box.x1,
-                                      box.y2 - box.y1,
-			              0, 0, t_w, t_h);
+  cogl_framebuffer_draw_textured_rectangle (framebuffer,
+                                            pipeline,
+                                            0, 0,
+                                            box.x2 - box.x1,
+                                            box.y2 - box.y1,
+                                            0, 0, t_w, t_h);
 }
 
 static CoglPipeline *
@@ -625,6 +629,7 @@ clutter_texture_pick (ClutterActor       *self,
 {
   ClutterTexture *texture = CLUTTER_TEXTURE (self);
   ClutterTexturePrivate *priv = texture->priv;
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
 
   if (!clutter_actor_should_pick_paint (self))
     return;
@@ -656,8 +661,7 @@ clutter_texture_pick (ClutterActor       *self,
                                                 0, &pick_color);
       cogl_pipeline_set_layer_texture (priv->pick_pipeline, 0,
                                        clutter_texture_get_cogl_texture (texture));
-      cogl_set_source (priv->pick_pipeline);
-      gen_texcoords_and_draw_cogl_rectangle (self);
+      gen_texcoords_and_draw_cogl_rectangle (self, priv->pick_pipeline, framebuffer);
     }
   else
     CLUTTER_ACTOR_CLASS (clutter_texture_parent_class)->pick (self, color);
@@ -669,6 +673,7 @@ clutter_texture_paint (ClutterActor *self)
   ClutterTexture *texture = CLUTTER_TEXTURE (self);
   ClutterTexturePrivate *priv = texture->priv;
   guint8 paint_opacity = clutter_actor_get_paint_opacity (self);
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
 
   CLUTTER_NOTE (PAINT,
                 "painting texture '%s'",
@@ -683,9 +688,8 @@ clutter_texture_paint (ClutterActor *self)
                               paint_opacity,
                               paint_opacity,
                               paint_opacity);
-  cogl_set_source (priv->pipeline);
 
-  gen_texcoords_and_draw_cogl_rectangle (self);
+  gen_texcoords_and_draw_cogl_rectangle (self, priv->pipeline, framebuffer);
 }
 
 static gboolean
