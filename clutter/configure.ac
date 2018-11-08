@@ -320,14 +320,6 @@ AS_IF([test "x$SUPPORT_X11" = "x1"],
         clutter_save_LIBS="$LIBS"
         LIBS="$LIBS $X11_LIBS"
 
-        have_xge=no
-        AC_CHECK_FUNC([XGetEventData],
-                      [
-                        AC_DEFINE([HAVE_XGE], [1], [Define to 1 if X Generic Extensions is available])
-                        have_xge=yes
-                        X11_EXTS="$X11_EXTS xge"
-                      ])
-
         CPPFLAGS="$clutter_save_CPPFLAGS"
         LIBS="$clutter_save_LIBS"
 
