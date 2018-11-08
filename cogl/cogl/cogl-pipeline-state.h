@@ -669,7 +669,7 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
                                 CoglHandle program);
 
 /**
- * cogl_pipeline_set_depth_state:
+ * cogl_pipeline_set_depth_state: (skip)
  * @pipeline: A #CoglPipeline object
  * @state: A #CoglDepthState struct
  * @error: A #CoglError to report failures to setup the given @state.
@@ -694,7 +694,7 @@ cogl_pipeline_set_depth_state (CoglPipeline *pipeline,
                                CoglError **error);
 
 /**
- * cogl_pipeline_get_depth_state:
+ * cogl_pipeline_get_depth_state: (skip)
  * @pipeline: A #CoglPipeline object
  * @state_out: (out): A destination #CoglDepthState struct
  *
@@ -955,7 +955,7 @@ cogl_pipeline_set_uniform_matrix (CoglPipeline *pipeline,
                                   const float *value);
 
 /**
- * cogl_pipeline_add_snippet:
+ * cogl_pipeline_add_snippet: (skip)
  * @pipeline: A #CoglPipeline
  * @snippet: The #CoglSnippet to add to the vertex processing hook
  *
