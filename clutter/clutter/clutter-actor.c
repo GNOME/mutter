@@ -2223,29 +2223,51 @@ _clutter_actor_rerealize (ClutterActor    *self,
     clutter_actor_realize (self); /* realize self and all parents */
 }
 
+static CoglPipeline *default_pick_pipeline = NULL;
+
 static void
 clutter_actor_real_pick (ClutterActor       *self,
 			 const ClutterColor *color)
 {
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+
   /* the default implementation is just to paint a rectangle
    * with the same size of the actor using the passed color
    */
   if (clutter_actor_should_pick_paint (self))
     {
       ClutterActorBox box = { 0, };
+      CoglPipeline *pick_pipeline;
       float width, height;
+
+      if (G_UNLIKELY (default_pick_pipeline == NULL))
+        {
+          CoglContext *ctx =
+            clutter_backend_get_cogl_context (clutter_get_default_backend ());
+
+          default_pick_pipeline = cogl_pipeline_new (ctx);
+        }
+
+      g_assert (default_pick_pipeline != NULL);
+      pick_pipeline = cogl_pipeline_copy (default_pick_pipeline);
 
       clutter_actor_get_allocation_box (self, &box);
 
       width = box.x2 - box.x1;
       height = box.y2 - box.y1;
 
-      cogl_set_source_color4ub (color->red,
-                                color->green,
-                                color->blue,
-                                color->alpha);
+      cogl_pipeline_set_color4ub (pick_pipeline,
+                                  color->red,
+                                  color->green,
+                                  color->blue,
+                                  color->alpha);
 
-      cogl_rectangle (0, 0, width, height);
+      cogl_framebuffer_draw_rectangle (framebuffer,
+                                       pick_pipeline,
+                                       0, 0,
+                                       width, height);
+
+      cogl_object_unref (pick_pipeline);
     }
 
   /* XXX - this thoroughly sucks, but we need to maintain compatibility
