@@ -17,9 +17,10 @@ Internally it uses a fork of Cogl, a hardware acceleration abstraction library
 used to simplify usage of OpenGL pipelines, as well as a fork af Clutter, a
 scene graph and user interface toolkit.
 
-Mutter is used by GNOME Shell, the GNOME core user interface. It can also be run
-standalone, using the command "mutter", but just running plain mutter is only
-intended for debugging purposes.
+Mutter is used by for example GNOME Shell, the GNOME core user interface and by 
+Gala, elementary OS's window manager. It can also be run standalone, using the 
+command "mutter", but just running plain mutter is only intended for debugging 
+purposes.
 
 ## License
 
