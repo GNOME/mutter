@@ -713,6 +713,7 @@ meta_window_actor_paint (ClutterActor *actor)
   MetaWindowActorPrivate *priv = self->priv;
   gboolean appears_focused = meta_window_appears_focused (priv->window);
   MetaShadow *shadow = appears_focused ? priv->focused_shadow : priv->unfocused_shadow;
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
 
  /* This window got damage when obscured; we set up a timer
   * to send frame completion events, but since we're drawing
@@ -751,6 +752,7 @@ meta_window_actor_paint (ClutterActor *actor)
         }
 
       meta_shadow_paint (shadow,
+                         framebuffer,
                          params.x_offset + shape_bounds.x,
                          params.y_offset + shape_bounds.y,
                          shape_bounds.width,

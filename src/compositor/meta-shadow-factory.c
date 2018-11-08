@@ -203,16 +203,16 @@ meta_shadow_unref (MetaShadow *shadow)
  * size needs to be passed in here.)
  */
 void
-meta_shadow_paint (MetaShadow     *shadow,
-                   int             window_x,
-                   int             window_y,
-                   int             window_width,
-                   int             window_height,
-                   guint8          opacity,
-                   cairo_region_t *clip,
-                   gboolean        clip_strictly)
+meta_shadow_paint (MetaShadow      *shadow,
+                   CoglFramebuffer *framebuffer,
+                   int              window_x,
+                   int              window_y,
+                   int              window_width,
+                   int              window_height,
+                   guint8           opacity,
+                   cairo_region_t  *clip,
+                   gboolean         clip_strictly)
 {
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
   float texture_width = cogl_texture_get_width (shadow->texture);
   float texture_height = cogl_texture_get_height (shadow->texture);
   int i, j;
