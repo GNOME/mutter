@@ -185,6 +185,8 @@ struct _ClutterTextPrivate
   ClutterInputContentHintFlags input_hints;
   ClutterInputContentPurpose input_purpose;
 
+  CoglPipeline *color_pipeline;
+
   /* bitfields */
   guint alignment               : 2;
   guint wrap                    : 1;
@@ -1632,6 +1634,8 @@ clutter_text_finalize (GObject *gobject)
     pango_attr_list_unref (priv->effective_attrs);
   if (priv->preedit_attrs)
     pango_attr_list_unref (priv->preedit_attrs);
+  if (priv->color_pipeline)
+    cogl_object_unref (priv->color_pipeline);
 
   clutter_text_dirty_paint_volume (self);
 
@@ -1744,7 +1748,8 @@ add_selection_rectangle_to_path (ClutterText           *text,
 
 /* Draws the selected text, its background, and the cursor */
 static void
-selection_paint (ClutterText *self)
+selection_paint (ClutterText     *self,
+                 CoglFramebuffer *fb)
 {
   ClutterTextPrivate *priv = self->priv;
   ClutterActor *actor = CLUTTER_ACTOR (self);
@@ -1762,15 +1767,18 @@ selection_paint (ClutterText *self)
       else
         color = &priv->text_color;
 
-      cogl_set_source_color4ub (color->red,
-                                color->green,
-                                color->blue,
-                                paint_opacity * color->alpha / 255);
+      cogl_pipeline_set_color4ub (priv->color_pipeline,
+                                  color->red,
+                                  color->green,
+                                  color->blue,
+                                  paint_opacity * color->alpha / 255);
 
-      cogl_rectangle (priv->cursor_rect.origin.x,
-                      priv->cursor_rect.origin.y,
-                      priv->cursor_rect.origin.x + priv->cursor_rect.size.width,
-                      priv->cursor_rect.origin.y + priv->cursor_rect.size.height);
+      cogl_framebuffer_draw_rectangle (fb,
+                                       priv->color_pipeline,
+                                       priv->cursor_rect.origin.x,
+                                       priv->cursor_rect.origin.y,
+                                       priv->cursor_rect.origin.x + priv->cursor_rect.size.width,
+                                       priv->cursor_rect.origin.y + priv->cursor_rect.size.height);
     }
   else
     {
@@ -1778,11 +1786,6 @@ selection_paint (ClutterText *self)
       PangoLayout *layout = clutter_text_get_layout (self);
       CoglPath *selection_path = cogl_path_new ();
       CoglColor cogl_color = { 0, };
-      CoglFramebuffer *fb;
-
-      fb = cogl_get_draw_framebuffer ();
-      if (G_UNLIKELY (fb == NULL))
-        return;
 
       /* Paint selection background */
       if (priv->selection_color_set)
@@ -2410,11 +2413,17 @@ clutter_text_paint (ClutterActor *self)
                      * bg_color.alpha
                      / 255;
 
-      cogl_set_source_color4ub (bg_color.red,
-                                bg_color.green,
-                                bg_color.blue,
-                                bg_color.alpha);
-      cogl_rectangle (0, 0, alloc_width, alloc_height);
+
+      cogl_pipeline_set_color4ub (priv->color_pipeline,
+                                  bg_color.red,
+                                  bg_color.green,
+                                  bg_color.blue,
+                                  bg_color.alpha);
+
+      cogl_framebuffer_draw_rectangle (fb,
+                                       priv->color_pipeline,
+                                       0, 0,
+                                       alloc_width, alloc_height);
     }
 
   /* don't bother painting an empty text actor, unless it's
@@ -2546,7 +2555,7 @@ clutter_text_paint (ClutterActor *self)
                             real_opacity);
   cogl_pango_render_layout (layout, priv->text_x, priv->text_y, &color, 0);
 
-  selection_paint (text);
+  selection_paint (text, fb);
 
   if (clip_set)
     cogl_framebuffer_pop_clip (fb);
@@ -4297,6 +4306,7 @@ clutter_text_init (ClutterText *self)
 {
   ClutterSettings *settings;
   ClutterTextPrivate *priv;
+  CoglContext *ctx;
   gchar *font_name;
   int i, password_hint_time;
 
@@ -4371,6 +4381,9 @@ clutter_text_init (ClutterText *self)
                       NULL);
 
   priv->input_focus = clutter_text_input_focus_new (self);
+
+  ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  priv->color_pipeline = cogl_pipeline_new (ctx);
 }
 
 /**
