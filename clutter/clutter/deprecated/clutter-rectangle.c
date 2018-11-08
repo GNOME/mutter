@@ -52,6 +52,8 @@
 
 struct _ClutterRectanglePrivate
 {
+  CoglPipeline *pipeline;
+
   ClutterColor color;
   ClutterColor border_color;
 
@@ -81,6 +83,7 @@ static void
 clutter_rectangle_paint (ClutterActor *self)
 {
   ClutterRectanglePrivate *priv = CLUTTER_RECTANGLE (self)->priv;
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
   ClutterGeometry geom;
   guint8 tmp_alpha;
 
@@ -89,6 +92,13 @@ clutter_rectangle_paint (ClutterActor *self)
 		clutter_actor_get_name (self) ? clutter_actor_get_name (self)
                                               : "unknown");
   clutter_actor_get_allocation_geometry (self, &geom);
+
+  if (G_UNLIKELY (priv->pipeline == NULL))
+    {
+      CoglContext *ctx =
+        clutter_backend_get_cogl_context (clutter_get_default_backend ());
+      priv->pipeline = cogl_pipeline_new (ctx);
+    }
 
   if (priv->has_border)
     {
@@ -106,42 +116,53 @@ clutter_rectangle_paint (ClutterActor *self)
                     / 255;
 
           /* paint the border */
-          cogl_set_source_color4ub (priv->border_color.red,
-                                    priv->border_color.green,
-                                    priv->border_color.blue,
-                                    tmp_alpha);
+          cogl_pipeline_set_color4ub (priv->pipeline,
+                                      priv->border_color.red,
+                                      priv->border_color.green,
+                                      priv->border_color.blue,
+                                      tmp_alpha);
 
           /* this sucks, but it's the only way to make a border */
-          cogl_rectangle (priv->border_width, 0,
-                          geom.width,
-                          priv->border_width);
+          cogl_framebuffer_draw_rectangle (framebuffer,
+                                           priv->pipeline,
+                                           priv->border_width, 0,
+                                           geom.width,
+                                           priv->border_width);
 
-          cogl_rectangle (geom.width - priv->border_width,
-                          priv->border_width,
-                          geom.width,
-                          geom.height);
+          cogl_framebuffer_draw_rectangle (framebuffer,
+                                           priv->pipeline,
+                                           geom.width - priv->border_width,
+                                           priv->border_width,
+                                           geom.width, geom.height);
 
-          cogl_rectangle (0, geom.height - priv->border_width,
-                          geom.width - priv->border_width,
-                          geom.height);
+          cogl_framebuffer_draw_rectangle (framebuffer,
+                                           priv->pipeline,
+                                           0, geom.height - priv->border_width,
+                                           geom.width - priv->border_width,
+                                           geom.height);
 
-          cogl_rectangle (0, 0,
-                          priv->border_width,
-                          geom.height - priv->border_width);
+          cogl_framebuffer_draw_rectangle (framebuffer,
+                                           priv->pipeline,
+                                           0, 0,
+                                           priv->border_width,
+                                           geom.height - priv->border_width);
 
           tmp_alpha = clutter_actor_get_paint_opacity (self)
                     * priv->color.alpha
                     / 255;
 
           /* now paint the rectangle */
-          cogl_set_source_color4ub (priv->color.red,
-                                    priv->color.green,
-                                    priv->color.blue,
-                                    tmp_alpha);
+          cogl_pipeline_set_color4ub (priv->pipeline,
+                                      priv->color.red,
+                                      priv->color.green,
+                                      priv->color.blue,
+                                      tmp_alpha);
 
-          cogl_rectangle (priv->border_width, priv->border_width,
-                          geom.width - priv->border_width,
-                          geom.height - priv->border_width);
+          cogl_framebuffer_draw_rectangle (framebuffer,
+                                           priv->pipeline,
+                                           priv->border_width, priv->border_width,
+                                           geom.width - priv->border_width,
+                                           geom.height - priv->border_width);
         }
       else
         {
@@ -153,12 +174,15 @@ clutter_rectangle_paint (ClutterActor *self)
                     * priv->border_color.alpha
                     / 255;
 
-          cogl_set_source_color4ub (priv->border_color.red,
-                                    priv->border_color.green,
-                                    priv->border_color.blue,
-                                    tmp_alpha);
+          cogl_pipeline_set_color4ub (priv->pipeline,
+                                      priv->border_color.red,
+                                      priv->border_color.green,
+                                      priv->border_color.blue,
+                                      tmp_alpha);
 
-          cogl_rectangle (0, 0, geom.width, geom.height);
+          cogl_framebuffer_draw_rectangle (framebuffer,
+                                           priv->pipeline,
+                                           0, 0, geom.width, geom.height);
         }
     }
   else
@@ -170,12 +194,15 @@ clutter_rectangle_paint (ClutterActor *self)
                 * priv->color.alpha
                 / 255;
 
-      cogl_set_source_color4ub (priv->color.red,
-                                priv->color.green,
-                                priv->color.blue,
-                                tmp_alpha);
+      cogl_pipeline_set_color4ub (priv->pipeline,
+                                  priv->color.red,
+                                  priv->color.green,
+                                  priv->color.blue,
+                                  tmp_alpha);
 
-      cogl_rectangle (0, 0, geom.width, geom.height);
+      cogl_framebuffer_draw_rectangle (framebuffer,
+                                       priv->pipeline,
+                                       0, 0, geom.width, geom.height);
     }
 }
 
@@ -258,6 +285,11 @@ clutter_rectangle_get_property (GObject    *object,
 static void
 clutter_rectangle_finalize (GObject *object)
 {
+  ClutterRectanglePrivate *priv = CLUTTER_RECTANGLE(object)->priv;
+
+  if (priv->pipeline)
+    cogl_object_unref (priv->pipeline);
+
   G_OBJECT_CLASS (clutter_rectangle_parent_class)->finalize (object);
 }
 
