@@ -63,7 +63,44 @@ debug_event_cb (ClutterActor *actor,
     case CLUTTER_DELETE:
       printf("[%s] DELETE", source);
       break;
+    case CLUTTER_TOUCH_BEGIN:
+      g_print ("[%s] TOUCH BEGIN", source);
+      break;
+    case CLUTTER_TOUCH_UPDATE:
+      g_print ("[%s] TOUCH UPDATE", source);
+      break;
+    case CLUTTER_TOUCH_END:
+      g_print ("[%s] TOUCH END", source);
+      break;
+    case CLUTTER_TOUCH_CANCEL:
+      g_print ("[%s] TOUCH CANCEL", source);
+      break;
+    case CLUTTER_TOUCHPAD_PINCH:
+      g_print ("[%s] TOUCHPAD PINCH", source);
+      break;
+    case CLUTTER_TOUCHPAD_SWIPE:
+      g_print ("[%s] TOUCHPAD SWIPE", source);
+      break;
+    case CLUTTER_PROXIMITY_IN:
+      g_print ("[%s] PROXIMITY IN", source);
+      break;
+    case CLUTTER_PROXIMITY_OUT:
+      g_print ("[%s] PROXIMITY OUT", source);
+      break;
+    case CLUTTER_PAD_BUTTON_PRESS:
+      g_print ("[%s] PAD BUTTON PRESS", source);
+      break;
+    case CLUTTER_PAD_BUTTON_RELEASE:
+      g_print ("[%s] PAD BUTTON RELEASE", source);
+      break;
+    case CLUTTER_PAD_STRIP:
+      g_print ("[%s] PAD STRIP", source);
+      break;
+    case CLUTTER_PAD_RING:
+      g_print ("[%s] PAD RING", source);
+      break;
     case CLUTTER_NOTHING:
+    default:
       return FALSE;
     }
 
