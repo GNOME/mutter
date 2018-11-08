@@ -1,3 +1,11 @@
+mutter (3.30.1-4) UNRELEASED; urgency=medium
+
+  * d/p/x11-close-display-in-an-idle-function.patch:
+    - close the x11 display in an idle function. This fixes a crash when running
+      'gnome-shell --replace'.
+
+ -- Andrea Azzarone <andrea.azzarone@canonical.com>  Thu, 08 Nov 2018 10:55:53 +0000
+
 mutter (3.30.1-3) unstable; urgency=medium
 
   * Team upload

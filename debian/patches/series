@@ -10,3 +10,4 @@ clutter-Smooth-out-master-clock-to-smooth-visuals.patch
 bgo768531_workaround-startup-notifications.patch
 debian/synaptics-support.patch
 debian/skip-texture-test.patch
+x11-close-display-in-an-idle-function.patch
