@@ -352,6 +352,7 @@ static void
 clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect)
 {
   ClutterOffscreenEffectPrivate *priv = effect->priv;
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
   guint8 paint_opacity;
 
   paint_opacity = clutter_actor_get_paint_opacity (priv->actor);
@@ -361,18 +362,19 @@ clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect)
                               paint_opacity,
                               paint_opacity,
                               paint_opacity);
-  cogl_set_source (priv->target);
 
   /* At this point we are in stage coordinates translated so if
    * we draw our texture using a textured quad the size of the paint
    * box then we will overlay where the actor would have drawn if it
    * hadn't been redirected offscreen.
    */
-  cogl_rectangle_with_texture_coords (0, 0,
-                                      cogl_texture_get_width (priv->texture),
-                                      cogl_texture_get_height (priv->texture),
-                                      0.0, 0.0,
-                                      1.0, 1.0);
+  cogl_framebuffer_draw_textured_rectangle (framebuffer,
+                                            priv->target,
+                                            0, 0,
+                                            cogl_texture_get_width (priv->texture),
+                                            cogl_texture_get_height (priv->texture),
+                                            0.0, 0.0,
+                                            1.0, 1.0);
 }
 
 static void

@@ -155,6 +155,7 @@ static void
 clutter_desaturate_effect_paint_target (ClutterOffscreenEffect *effect)
 {
   ClutterDesaturateEffect *self = CLUTTER_DESATURATE_EFFECT (effect);
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
   ClutterActor *actor;
   CoglHandle texture;
   guint8 paint_opacity;
@@ -170,13 +171,12 @@ clutter_desaturate_effect_paint_target (ClutterOffscreenEffect *effect)
                               paint_opacity,
                               paint_opacity,
                               paint_opacity);
-  cogl_push_source (self->pipeline);
 
-  cogl_rectangle (0, 0,
-                  cogl_texture_get_width (texture),
-                  cogl_texture_get_height (texture));
-
-  cogl_pop_source ();
+  cogl_framebuffer_draw_rectangle (framebuffer,
+                                   self->pipeline,
+                                   0, 0,
+                                   cogl_texture_get_width (texture),
+                                   cogl_texture_get_height (texture));
 }
 
 static void
