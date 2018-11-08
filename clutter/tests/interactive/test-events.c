@@ -371,7 +371,32 @@ input_cb (ClutterActor *actor,
     case CLUTTER_DELETE:
       g_print ("[%s] DELETE", clutter_actor_get_name (source_actor));
       break;
+    case CLUTTER_TOUCHPAD_PINCH:
+      g_print ("[%s] TOUCHPAD PINCH", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_TOUCHPAD_SWIPE:
+      g_print ("[%s] TOUCHPAD SWIPE", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_PROXIMITY_IN:
+      g_print ("[%s] PROXIMITY IN", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_PROXIMITY_OUT:
+      g_print ("[%s] PROXIMITY OUT", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_PAD_BUTTON_PRESS:
+      g_print ("[%s] PAD BUTTON PRESS", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_PAD_BUTTON_RELEASE:
+      g_print ("[%s] PAD BUTTON RELEASE", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_PAD_STRIP:
+      g_print ("[%s] PAD STRIP", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_PAD_RING:
+      g_print ("[%s] PAD RING", clutter_actor_get_name (source_actor));
+      break;
     case CLUTTER_NOTHING:
+    default:
       return FALSE;
     }
 
