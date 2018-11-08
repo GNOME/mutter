@@ -602,7 +602,7 @@ cogl_framebuffer_push_rectangle_clip (CoglFramebuffer *framebuffer,
                                       float y_2);
 
 /**
- * cogl_framebuffer_push_primitive_clip:
+ * cogl_framebuffer_push_primitive_clip: (skip)
  * @framebuffer: A #CoglFramebuffer pointer
  * @primitive: A #CoglPrimitive describing a flat 2D shape
  * @bounds_x1: x coordinate for the top-left corner of the primitives
@@ -1087,7 +1087,7 @@ cogl_framebuffer_resolve_samples_region (CoglFramebuffer *framebuffer,
                                          int height);
 
 /**
- * cogl_framebuffer_get_context:
+ * cogl_framebuffer_get_context: (skip)
  * @framebuffer: A #CoglFramebuffer
  *
  * Can be used to query the #CoglContext a given @framebuffer was
@@ -1150,7 +1150,7 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
                           float alpha);
 
 /**
- * cogl_framebuffer_draw_primitive:
+ * cogl_framebuffer_draw_primitive: (skip)
  * @framebuffer: A destination #CoglFramebuffer
  * @pipeline: A #CoglPipeline state object
  * @primitive: A #CoglPrimitive geometry object
@@ -1221,7 +1221,7 @@ cogl_framebuffer_vdraw_attributes (CoglFramebuffer *framebuffer,
                                    ...) COGL_GNUC_NULL_TERMINATED;
 
 /**
- * cogl_framebuffer_draw_attributes:
+ * cogl_framebuffer_draw_attributes: (skip)
  * @framebuffer: A destination #CoglFramebuffer
  * @pipeline: A #CoglPipeline state object
  * @mode: The #CoglVerticesMode defining the topology of vertices
@@ -1269,7 +1269,7 @@ cogl_framebuffer_draw_attributes (CoglFramebuffer *framebuffer,
                                   int n_attributes);
 
 /**
- * cogl_framebuffer_vdraw_indexed_attributes:
+ * cogl_framebuffer_vdraw_indexed_attributes: (skip)
  * @framebuffer: A destination #CoglFramebuffer
  * @pipeline: A #CoglPipeline state object
  * @mode: The #CoglVerticesMode defining the topology of vertices
@@ -1335,7 +1335,7 @@ cogl_framebuffer_vdraw_indexed_attributes (CoglFramebuffer *framebuffer,
                                            ...) COGL_GNUC_NULL_TERMINATED;
 
 /**
- * cogl_framebuffer_draw_indexed_attributes:
+ * cogl_framebuffer_draw_indexed_attributes: (skip)
  * @framebuffer: A destination #CoglFramebuffer
  * @pipeline: A #CoglPipeline state object
  * @mode: The #CoglVerticesMode defining the topology of vertices
