@@ -148,6 +148,7 @@ static void
 clutter_colorize_effect_paint_target (ClutterOffscreenEffect *effect)
 {
   ClutterColorizeEffect *self = CLUTTER_COLORIZE_EFFECT (effect);
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
   ClutterActor *actor;
   guint8 paint_opacity;
 
@@ -159,11 +160,11 @@ clutter_colorize_effect_paint_target (ClutterOffscreenEffect *effect)
                               paint_opacity,
                               paint_opacity,
                               paint_opacity);
-  cogl_push_source (self->pipeline);
 
-  cogl_rectangle (0, 0, self->tex_width, self->tex_height);
-
-  cogl_pop_source ();
+  cogl_framebuffer_draw_rectangle (framebuffer,
+                                   self->pipeline,
+                                   0, 0,
+                                   self->tex_width, self->tex_height);
 }
 
 static void
