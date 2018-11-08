@@ -2227,25 +2227,43 @@ static void
 clutter_actor_real_pick (ClutterActor       *self,
 			 const ClutterColor *color)
 {
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+
   /* the default implementation is just to paint a rectangle
    * with the same size of the actor using the passed color
    */
   if (clutter_actor_should_pick_paint (self))
     {
+      static CoglPipeline *color_pipeline = NULL;
       ClutterActorBox box = { 0, };
+      CoglColor cogl_color;
       float width, height;
+
+      if (G_UNLIKELY (color_pipeline == NULL))
+        {
+          CoglContext *ctx =
+            clutter_backend_get_cogl_context (clutter_get_default_backend ());
+
+          color_pipeline = cogl_pipeline_new (ctx);
+        }
 
       clutter_actor_get_allocation_box (self, &box);
 
       width = box.x2 - box.x1;
       height = box.y2 - box.y1;
 
-      cogl_set_source_color4ub (color->red,
+      cogl_color_init_from_4ub (&cogl_color,
+                                color->red,
                                 color->green,
                                 color->blue,
                                 color->alpha);
+      cogl_color_premultiply (&cogl_color);
+      cogl_pipeline_set_color (color_pipeline, &cogl_color);
 
-      cogl_rectangle (0, 0, width, height);
+      cogl_framebuffer_draw_rectangle (framebuffer,
+                                       color_pipeline,
+                                       0, 0,
+                                       width, height);
     }
 
   /* XXX - this thoroughly sucks, but we need to maintain compatibility
