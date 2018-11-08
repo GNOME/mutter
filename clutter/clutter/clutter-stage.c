@@ -1389,11 +1389,12 @@ clutter_stage_get_redraw_clip_bounds (ClutterStage          *stage,
 }
 
 static void
-read_pixels_to_file (char *filename_stem,
-                     int   x,
-                     int   y,
-                     int   width,
-                     int   height)
+read_pixels_to_file (CoglFramebuffer *fb,
+                     char            *filename_stem,
+                     int              x,
+                     int              y,
+                     int              width,
+                     int              height)
 {
   guint8 *data;
   cairo_surface_t *surface;
@@ -1403,10 +1404,10 @@ read_pixels_to_file (char *filename_stem,
                                     read_count);
 
   data = g_malloc (4 * width * height);
-  cogl_read_pixels (x, y, width, height,
-                    COGL_READ_PIXELS_COLOR_BUFFER,
-                    CLUTTER_CAIRO_FORMAT_ARGB32,
-                    data);
+  cogl_framebuffer_read_pixels (fb,
+                                x, y, width, height,
+                                CLUTTER_CAIRO_FORMAT_ARGB32,
+                                data);
 
   surface = cairo_image_surface_create_for_data (data, CAIRO_FORMAT_RGB24,
                                                  width, height,
@@ -1530,7 +1531,7 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                          _clutter_actor_get_debug_name (actor),
                          view_layout.x);
 
-      read_pixels_to_file (file_name, 0, 0, fb_width, fb_height);
+      read_pixels_to_file (fb, file_name, 0, 0, fb_width, fb_height);
 
       g_free (file_name);
     }
