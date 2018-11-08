@@ -277,6 +277,8 @@ static const ClutterColor default_selection_color = {   0,   0,   0, 255 };
 static const ClutterColor default_text_color      = {   0,   0,   0, 255 };
 static const ClutterColor default_selected_text_color = {   0,   0,   0, 255 };
 
+static CoglPipeline *default_color_pipeline = NULL;
+
 static ClutterAnimatableIface *parent_animatable_iface = NULL;
 static ClutterScriptableIface *parent_scriptable_iface = NULL;
 
@@ -1744,7 +1746,8 @@ add_selection_rectangle_to_path (ClutterText           *text,
 
 /* Draws the selected text, its background, and the cursor */
 static void
-selection_paint (ClutterText *self)
+selection_paint (ClutterText     *self,
+                 CoglFramebuffer *fb)
 {
   ClutterTextPrivate *priv = self->priv;
   ClutterActor *actor = CLUTTER_ACTOR (self);
@@ -1756,21 +1759,30 @@ selection_paint (ClutterText *self)
 
   if (priv->position == priv->selection_bound)
     {
+      CoglPipeline *color_pipeline = cogl_pipeline_copy (default_color_pipeline);
+      CoglColor cogl_color;
+
       /* No selection, just draw the cursor */
       if (priv->cursor_color_set)
         color = &priv->cursor_color;
       else
         color = &priv->text_color;
 
-      cogl_set_source_color4ub (color->red,
+
+      cogl_color_init_from_4ub (&cogl_color,
+                                color->red,
                                 color->green,
                                 color->blue,
                                 paint_opacity * color->alpha / 255);
+      cogl_color_premultiply (&cogl_color);
+      cogl_pipeline_set_color (color_pipeline, &cogl_color);
 
-      cogl_rectangle (priv->cursor_rect.origin.x,
-                      priv->cursor_rect.origin.y,
-                      priv->cursor_rect.origin.x + priv->cursor_rect.size.width,
-                      priv->cursor_rect.origin.y + priv->cursor_rect.size.height);
+      cogl_framebuffer_draw_rectangle (fb,
+                                       color_pipeline,
+                                       priv->cursor_rect.origin.x,
+                                       priv->cursor_rect.origin.y,
+                                       priv->cursor_rect.origin.x + priv->cursor_rect.size.width,
+                                       priv->cursor_rect.origin.y + priv->cursor_rect.size.height);
     }
   else
     {
@@ -1778,11 +1790,6 @@ selection_paint (ClutterText *self)
       PangoLayout *layout = clutter_text_get_layout (self);
       CoglPath *selection_path = cogl_path_new ();
       CoglColor cogl_color = { 0, };
-      CoglFramebuffer *fb;
-
-      fb = cogl_get_draw_framebuffer ();
-      if (G_UNLIKELY (fb == NULL))
-        return;
 
       /* Paint selection background */
       if (priv->selection_color_set)
@@ -1791,11 +1798,6 @@ selection_paint (ClutterText *self)
         color = &priv->cursor_color;
       else
         color = &priv->text_color;
-
-      cogl_set_source_color4ub (color->red,
-                                color->green,
-                                color->blue,
-                                paint_opacity * color->alpha / 255);
 
       clutter_text_foreach_selection_rectangle (self,
                                                 add_selection_rectangle_to_path,
@@ -2400,9 +2402,19 @@ clutter_text_paint (ClutterActor *self)
   alloc_width = alloc.x2 - alloc.x1;
   alloc_height = alloc.y2 - alloc.y1;
 
+  if (G_UNLIKELY (default_color_pipeline == NULL))
+    {
+      CoglContext *ctx =
+        clutter_backend_get_cogl_context (clutter_get_default_backend ());
+      default_color_pipeline = cogl_pipeline_new (ctx);
+    }
+
+  g_assert (default_color_pipeline != NULL);
+
   g_object_get (self, "background-color-set", &bg_color_set, NULL);
   if (bg_color_set)
     {
+      CoglPipeline *color_pipeline = cogl_pipeline_copy (default_color_pipeline);
       ClutterColor bg_color;
 
       clutter_actor_get_background_color (self, &bg_color);
@@ -2410,11 +2422,20 @@ clutter_text_paint (ClutterActor *self)
                      * bg_color.alpha
                      / 255;
 
-      cogl_set_source_color4ub (bg_color.red,
+      cogl_color_init_from_4ub (&color,
+                                bg_color.red,
                                 bg_color.green,
                                 bg_color.blue,
                                 bg_color.alpha);
-      cogl_rectangle (0, 0, alloc_width, alloc_height);
+      cogl_color_premultiply (&color);
+      cogl_pipeline_set_color (color_pipeline, &color);
+
+      cogl_framebuffer_draw_rectangle (fb,
+                                       color_pipeline,
+                                       0, 0,
+                                       alloc_width, alloc_height);
+
+      cogl_object_unref (color_pipeline);
     }
 
   /* don't bother painting an empty text actor, unless it's
@@ -2546,7 +2567,7 @@ clutter_text_paint (ClutterActor *self)
                             real_opacity);
   cogl_pango_render_layout (layout, priv->text_x, priv->text_y, &color, 0);
 
-  selection_paint (text);
+  selection_paint (text, fb);
 
   if (clip_set)
     cogl_framebuffer_pop_clip (fb);
