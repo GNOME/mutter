@@ -26,6 +26,7 @@
 #include <cairo.h>
 
 #include "clutter/clutter.h"
+#include "cogl/cogl.h"
 #include "meta/meta-window-shape.h"
 
 GType meta_shadow_get_type (void) G_GNUC_CONST;
@@ -97,6 +98,7 @@ typedef struct _MetaShadow MetaShadow;
 MetaShadow *meta_shadow_ref         (MetaShadow            *shadow);
 void        meta_shadow_unref       (MetaShadow            *shadow);
 void        meta_shadow_paint       (MetaShadow            *shadow,
+                                     CoglFramebuffer       *framebuffer,
                                      int                    window_x,
                                      int                    window_y,
                                      int                    window_width,
