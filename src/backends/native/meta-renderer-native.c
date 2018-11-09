@@ -676,7 +676,7 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
       if (!init_dumb_fb (dumb_fb,
                          gpu_kms,
                          width, height,
-                         GBM_FORMAT_XBGR8888,
+                         DRM_FORMAT_XBGR8888,
                          error))
         {
           secondary_gpu_state_free (secondary_gpu_state);
@@ -2434,7 +2434,7 @@ meta_onscreen_native_allocate (CoglOnscreen *onscreen,
       if (!init_dumb_fb (&onscreen_native->egl.dumb_fb,
                          onscreen_native->render_gpu,
                          width, height,
-                         GBM_FORMAT_XRGB8888,
+                         DRM_FORMAT_XRGB8888,
                          error))
         return FALSE;
 
