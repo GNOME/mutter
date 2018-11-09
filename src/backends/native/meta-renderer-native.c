@@ -127,6 +127,7 @@ typedef struct _MetaDumbBuffer
   int width;
   int height;
   int stride_bytes;
+  uint32_t drm_format;
 } MetaDumbBuffer;
 
 typedef struct _MetaOnscreenNativeSecondaryGpuState
@@ -2311,6 +2312,7 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
   dumb_fb->width = width;
   dumb_fb->height = height;
   dumb_fb->stride_bytes = create_arg.pitch;
+  dumb_fb->drm_format = format;
 
   return TRUE;
 
