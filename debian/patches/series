@@ -7,7 +7,6 @@ Update-Slovak-translation.patch
 x11-close-display-in-an-idle-function.patch
 theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
-clutter-Smooth-out-master-clock-to-smooth-visuals.patch
 bgo768531_workaround-startup-notifications.patch
 debian/synaptics-support.patch
 debian/skip-texture-test.patch
