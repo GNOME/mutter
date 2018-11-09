@@ -277,7 +277,6 @@ deprecated_h = \
 	deprecated/clutter-keysyms.h			\
 	deprecated/clutter-list-model.h			\
 	deprecated/clutter-main.h			\
-	deprecated/clutter-media.h			\
 	deprecated/clutter-model.h			\
 	deprecated/clutter-rectangle.h		\
 	deprecated/clutter-score.h 			\
@@ -312,7 +311,6 @@ deprecated_c = \
 	deprecated/clutter-input-device-deprecated.c	\
 	deprecated/clutter-layout-manager-deprecated.c \
 	deprecated/clutter-list-model.c			\
-	deprecated/clutter-media.c			\
 	deprecated/clutter-model.c			\
 	deprecated/clutter-rectangle.c 		\
 	deprecated/clutter-score.c 			\
