@@ -10,5 +10,5 @@ Name: libmutter
 Description: Mutter window manager library
 Requires: gsettings-desktop-schemas gtk+-3.0 mutter-clutter-${apiversion} x11
 Version: @VERSION@
-Libs: -L${libdir} -lmutter-@${apiversion}
-Cflags: -I${includedir}/mutter-@${apiversion}
+Libs: -L${libdir} -lmutter-${apiversion}
+Cflags: -I${includedir}/mutter-${apiversion}
