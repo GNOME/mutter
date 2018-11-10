@@ -581,6 +581,15 @@ dbus_idle_monitor_built_sources = gnome.gdbus_codegen('meta-dbus-idle-monitor',
 mutter_built_sources += dbus_idle_monitor_built_sources
 
 if have_native_backend
+  cvt = find_program('cvt')
+
+  gen_default_modes = find_program('backends/native/gen-default-modes.py')
+  default_modes_h = custom_target('meta-default-modes',
+    output: 'meta-default-modes.h',
+    command: [gen_default_modes, '@OUTPUT@']
+  )
+  mutter_built_sources += default_modes_h
+
   gdbus_codegen = find_program('gdbus-codegen')
   dbus_login1_built_sources = custom_target('meta-dbus-login1',
     input: 'org.freedesktop.login1.xml',
@@ -616,15 +625,6 @@ if have_remote_desktop
     )
   mutter_built_sources += dbus_screen_cast_built_sources
 endif
-
-cvt = find_program('cvt')
-
-gen_default_modes = find_program('backends/native/gen-default-modes.py')
-default_modes_h = custom_target('meta-default-modes',
-  output: 'meta-default-modes.h',
-  command: [gen_default_modes, '@OUTPUT@']
-)
-mutter_built_sources += default_modes_h
 
 if have_wayland
   # Format:
