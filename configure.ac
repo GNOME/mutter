@@ -430,9 +430,11 @@ AC_CHECK_DECL([GL_EXT_x11_sync_object],
               [AC_MSG_ERROR([GL_EXT_x11_sync_object definition not found, please update your GL headers])],
               [#include <GL/glx.h>])
 
-AC_PATH_PROG([CVT],[cvt],[])
-if test x"$CVT" = xno; then
-  AC_MSG_ERROR([cvt not found in your path])
+if test "$have_native_backend" = yes; then
+  AC_PATH_PROG([CVT],[cvt],[])
+  if test x"$CVT" = x; then
+    AC_MSG_ERROR([cvt not found in your path])
+  fi
 fi
 
 #### Warnings (last since -Werror can disturb other tests)
