@@ -271,16 +271,11 @@ deprecated_h = \
 	deprecated/clutter-box.h			\
 	deprecated/clutter-cairo-texture.h		\
 	deprecated/clutter-container.h		\
-	deprecated/clutter-frame-source.h		\
 	deprecated/clutter-group.h			\
 	deprecated/clutter-input-device.h		\
 	deprecated/clutter-keysyms.h			\
-	deprecated/clutter-list-model.h			\
 	deprecated/clutter-main.h			\
-	deprecated/clutter-media.h			\
-	deprecated/clutter-model.h			\
 	deprecated/clutter-rectangle.h		\
-	deprecated/clutter-score.h 			\
 	deprecated/clutter-shader.h 			\
 	deprecated/clutter-stage-manager.h		\
 	deprecated/clutter-stage.h			\
@@ -288,7 +283,6 @@ deprecated_h = \
 	deprecated/clutter-table-layout.h		\
 	deprecated/clutter-texture.h			\
 	deprecated/clutter-timeline.h 		\
-	deprecated/clutter-timeout-pool.h 		\
 	deprecated/clutter-util.h 			\
 	$(NULL)
 
@@ -307,31 +301,14 @@ deprecated_c = \
 	deprecated/clutter-behaviour-scale.c		\
 	deprecated/clutter-box.c			\
 	deprecated/clutter-cairo-texture.c		\
-	deprecated/clutter-frame-source.c		\
 	deprecated/clutter-group.c 			\
 	deprecated/clutter-input-device-deprecated.c	\
 	deprecated/clutter-layout-manager-deprecated.c \
-	deprecated/clutter-list-model.c			\
-	deprecated/clutter-media.c			\
-	deprecated/clutter-model.c			\
 	deprecated/clutter-rectangle.c 		\
-	deprecated/clutter-score.c 			\
 	deprecated/clutter-shader.c 			\
 	deprecated/clutter-state.c			\
 	deprecated/clutter-table-layout.c		\
 	deprecated/clutter-texture.c 			\
-	deprecated/clutter-timeout-pool.c		\
-	$(NULL)
-
-# deprecated private headers; these should not be installed
-deprecated_h_priv = \
-	deprecated/clutter-model-private.h	\
-	deprecated/clutter-timeout-interval.h	\
-	$(NULL)
-
-# deprecated private source code; these should not be introspected
-deprecated_c_priv = \
-	deprecated/clutter-timeout-interval.c	\
 	$(NULL)
 
 # built sources
@@ -595,8 +572,6 @@ libmutter_clutter_@LIBMUTTER_API_VERSION@_la_SOURCES = \
 	$(source_h_priv) \
 	$(deprecated_c) \
 	$(deprecated_h) \
-	$(deprecated_c_priv) \
-	$(deprecated_h_priv) \
 	$(cally_sources_c) \
 	$(cally_sources_h) \
 	$(cally_sources_private) \

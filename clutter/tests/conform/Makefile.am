@@ -43,7 +43,6 @@ general_tests = \
 	binding-pool \
 	color \
 	interval \
-	model \
 	script-parser \
 	units \
 	$(NULL)

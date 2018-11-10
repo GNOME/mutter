@@ -231,16 +231,11 @@ clutter_deprecated_headers = [
   'deprecated/clutter-box.h',
   'deprecated/clutter-cairo-texture.h',
   'deprecated/clutter-container.h',
-  'deprecated/clutter-frame-source.h',
   'deprecated/clutter-group.h',
   'deprecated/clutter-input-device.h',
   'deprecated/clutter-keysyms.h',
-  'deprecated/clutter-list-model.h',
   'deprecated/clutter-main.h',
-  'deprecated/clutter-media.h',
-  'deprecated/clutter-model.h',
   'deprecated/clutter-rectangle.h',
-  'deprecated/clutter-score.h',
   'deprecated/clutter-shader.h',
   'deprecated/clutter-stage-manager.h',
   'deprecated/clutter-stage.h',
@@ -248,7 +243,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-table-layout.h',
   'deprecated/clutter-texture.h',
   'deprecated/clutter-timeline.h',
-  'deprecated/clutter-timeout-pool.h',
   'deprecated/clutter-util.h',
 ]
 
@@ -266,29 +260,14 @@ clutter_deprecated_sources = [
   'deprecated/clutter-behaviour-scale.c',
   'deprecated/clutter-box.c',
   'deprecated/clutter-cairo-texture.c',
-  'deprecated/clutter-frame-source.c',
   'deprecated/clutter-group.c',
   'deprecated/clutter-input-device-deprecated.c',
   'deprecated/clutter-layout-manager-deprecated.c',
-  'deprecated/clutter-list-model.c',
-  'deprecated/clutter-media.c',
-  'deprecated/clutter-model.c',
   'deprecated/clutter-rectangle.c',
-  'deprecated/clutter-score.c',
   'deprecated/clutter-shader.c',
   'deprecated/clutter-state.c',
   'deprecated/clutter-table-layout.c',
   'deprecated/clutter-texture.c',
-  'deprecated/clutter-timeout-pool.c',
-]
-
-clutter_deprecated_private_headers = [
-  'deprecated/clutter-model-private.h',
-  'deprecated/clutter-timeout-interval.h',
-]
-
-clutter_deprecated_nonintrospected_sources = [
-  'deprecated/clutter-timeout-interval.c',
 ]
 
 clutter_backend_sources = []
@@ -508,9 +487,7 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
     clutter_private_headers,
     clutter_nonintrospected_sources,
     clutter_deprecated_sources,
-    clutter_deprecated_nonintrospected_sources,
     clutter_deprecated_headers,
-    clutter_deprecated_private_headers,
     clutter_backend_sources,
     clutter_backend_nonintrospected_sources,
     clutter_backend_headers,
