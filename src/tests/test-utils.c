@@ -92,6 +92,8 @@ test_init (int    *argc,
   g_test_bug_base ("http://bugzilla.gnome.org/show_bug.cgi?id=");
 
   ensure_test_client_path (*argc, *argv);
+
+  meta_wayland_override_display_name ("mutter-test-display");
 }
 
 AsyncWaiter *
