@@ -21156,6 +21156,7 @@ clutter_actor_bind_model_with_properties (ClutterActor *self,
 
       model_property = va_arg (args, char *);
     }
+  va_end (args);
 
   clutter_actor_bind_model (self, model, bind_child_with_properties, clos, bind_closure_free);
 }
