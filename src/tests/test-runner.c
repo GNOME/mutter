@@ -797,7 +797,6 @@ main (int argc, char **argv)
   g_option_context_free (ctx);
 
   meta_plugin_manager_load (test_get_plugin_name ());
-  meta_wayland_override_display_name ("mutter-test-display");
 
   meta_init ();
   meta_register_with_session ();

@@ -189,7 +189,6 @@ main (int argc, char *argv[])
 
   meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
                                           META_TYPE_BACKEND_TEST);
-  meta_wayland_override_display_name ("mutter-test-display");
 
   meta_init ();
   meta_register_with_session ();
