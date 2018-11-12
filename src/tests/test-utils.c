@@ -27,6 +27,7 @@
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "wayland/meta-wayland.h"
+#include "wayland/meta-xwayland.h"
 #include "x11/meta-x11-display-private.h"
 
 struct _TestClient {
@@ -94,6 +95,7 @@ test_init (int    *argc,
   ensure_test_client_path (*argc, *argv);
 
   meta_wayland_override_display_name ("mutter-test-display");
+  meta_xwayland_override_display_number (512);
 }
 
 AsyncWaiter *
