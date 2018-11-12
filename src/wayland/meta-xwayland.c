@@ -59,6 +59,8 @@ G_DEFINE_TYPE (MetaWaylandSurfaceRoleXWayland,
                meta_wayland_surface_role_xwayland,
                META_TYPE_WAYLAND_ACTOR_SURFACE)
 
+static int display_number_override = -1;
+
 void
 meta_xwayland_associate_window_with_surface (MetaWindow          *window,
                                              MetaWaylandSurface  *surface)
@@ -371,6 +373,12 @@ x_io_error (Display *display)
   return 0;
 }
 
+void
+meta_xwayland_override_display_number (int number)
+{
+  display_number_override = number;
+}
+
 static gboolean
 choose_xdisplay (MetaXWaylandManager *manager)
 {
@@ -378,11 +386,9 @@ choose_xdisplay (MetaXWaylandManager *manager)
   char *lock_file = NULL;
   gboolean fatal = FALSE;
 
-  /* Hack to keep the unused Xwayland instance on
-   * the login screen from taking the prime :0 display
-   * number.
-   */
-  if (g_getenv ("RUNNING_UNDER_GDM") != NULL)
+  if (display_number_override != -1)
+    display = display_number_override;
+  else if (!g_getenv ("RUNNING_UNDER_GDM"))
     display = 1024;
 
   do
