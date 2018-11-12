@@ -1,4 +1,4 @@
-mutter (3.30.1-4) UNRELEASED; urgency=medium
+mutter (3.30.1-4) unstable; urgency=medium
 
   [ Andrea Azzarone ]
   * d/p/x11-close-display-in-an-idle-function.patch:
@@ -10,7 +10,7 @@ mutter (3.30.1-4) UNRELEASED; urgency=medium
     abandoned upstream, but also seems to be limiting refresh rates in
     Xorg sessions to 60Hz when previously they were unlimited (LP: #1763892).
 
- -- Andrea Azzarone <andrea.azzarone@canonical.com>  Thu, 08 Nov 2018 10:55:53 +0000
+ -- Andrea Azzarone <andrea.azzarone@canonical.com>  Mon, 12 Nov 2018 11:53:37 +0000
 
 mutter (3.30.1-3) unstable; urgency=medium
 
