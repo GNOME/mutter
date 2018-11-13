@@ -108,6 +108,7 @@ stacking_tests = files([
   'stacking/closed-transient-no-input-no-take-focus-parent.metatest',
   'stacking/closed-transient-no-input-no-take-focus-parents.metatest',
   'stacking/closed-transient-no-input-parent.metatest',
+  'stacking/closed-transient-no-input-parent-delayed-focus-default-cancelled.metatest',
   'stacking/minimized.metatest',
   'stacking/mixed-windows.metatest',
   'stacking/set-parent.metatest',
