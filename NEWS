@@ -1,3 +1,18 @@
+3.30.2
+======
+* Fix handling of non-UTF8 encodings [Florian; !227]
+* Fix memory leaks introduced in 3.30.1 [Jonas; #653]
+* Work around hangul text input bug [Carlos; gtk#1365]
+* Fix crash when restarting window manager [Andrea; gnome-shell#595]
+* Fix crash on monitor hotplug [Olivier; #189]
+
+Contributors:
+  Jonas Ådahl, Andrea Azzarone, Olivier Fourdan, Carlos Garnacho,
+  Florian Müllner, Akira Nakajima
+
+Translators:
+  Dušan Kazik [sk]
+
 3.30.1
 ======
 * Improve trackball detection [Tony; #258]
