@@ -752,8 +752,7 @@ meta_window_x11_focus (MetaWindow *window,
    * Still, we have to do this or keynav breaks for these windows.
    */
   if (window->frame &&
-      (window->shaded ||
-       !(window->input || window->take_focus)))
+      (window->shaded || !meta_window_is_focusable (window)))
     {
       meta_topic (META_DEBUG_FOCUS,
                   "Focusing frame of %s\n", window->desc);
@@ -1628,6 +1627,12 @@ meta_window_x11_shortcuts_inhibited (MetaWindow         *window,
 }
 
 static gboolean
+meta_window_x11_is_focusable (MetaWindow *window)
+{
+  return window->input || window->take_focus;
+}
+
+static gboolean
 meta_window_x11_is_stackable (MetaWindow *window)
 {
   return !window->override_redirect;
@@ -1669,6 +1674,7 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->get_client_pid = meta_window_x11_get_client_pid;
   window_class->force_restore_shortcuts = meta_window_x11_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_x11_shortcuts_inhibited;
+  window_class->is_focusable = meta_window_x11_is_focusable;
   window_class->is_stackable = meta_window_x11_is_stackable;
   window_class->are_updates_frozen = meta_window_x11_are_updates_frozen;
 }
