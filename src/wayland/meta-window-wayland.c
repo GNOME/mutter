@@ -141,7 +141,7 @@ static void
 meta_window_wayland_focus (MetaWindow *window,
                            guint32     timestamp)
 {
-  if (window->input)
+  if (meta_window_is_focusable (window))
     meta_x11_display_set_input_focus_window (window->display->x11_display,
                                              window,
                                              FALSE,
@@ -586,6 +586,12 @@ meta_window_wayland_shortcuts_inhibited (MetaWindow         *window,
 }
 
 static gboolean
+meta_window_wayland_is_focusable (MetaWindow *window)
+{
+  return window->input;
+}
+
+static gboolean
 meta_window_wayland_is_stackable (MetaWindow *window)
 {
   return meta_wayland_surface_get_buffer (window->surface) != NULL;
@@ -618,6 +624,7 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->get_client_pid = meta_window_wayland_get_client_pid;
   window_class->force_restore_shortcuts = meta_window_wayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_wayland_shortcuts_inhibited;
+  window_class->is_focusable = meta_window_wayland_is_focusable;
   window_class->is_stackable = meta_window_wayland_is_stackable;
   window_class->are_updates_frozen = meta_window_wayland_are_updates_frozen;
 }
