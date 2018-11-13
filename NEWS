@@ -1,3 +1,20 @@
+3.31.2
+======
+* Fix handling of non-UTF8 encodings [Florian; !227]
+* Fix memory leaks introduced in 3.30.1 [Jonas; #653]
+* Fix regression when overriding workspace layout [Ron; #270]
+* Fix crash when restarting window manager [Andrea; gnome-shell#595]
+* Add meson build support [Jonas; !167]
+* Freeze clock when headless [Jonas; !170]
+* Fix crash on monitor hotplug [Olivier; #189]
+* Misc. bug fixes [Jonas; #353, !132, #382]
+
+Contributors:
+  Jonas Ådahl, Andrea Azzarone, Olivier Fourdan, Niels De Graef,
+  Alexander Mikhaylenko, Florian Müllner, Akira Nakajima,
+  Georges Basile Stavracas Neto, Pekka Paalanen, Peter Uithoven,
+  Daniel van Vugt, Ron Yorston
+
 3.30.1
 ======
 * Improve trackball detection [Tony; #258]
