@@ -275,6 +275,37 @@ test_case_assert_stacking (TestCase *test,
 }
 
 static gboolean
+test_case_assert_focused (TestCase    *test,
+                          const char  *expected_window,
+                          GError     **error)
+{
+  MetaDisplay *display = meta_get_display ();
+
+  if (!display->focus_window)
+    {
+      if (g_strcmp0 (expected_window, "none") != 0)
+        {
+          g_set_error (error, TEST_RUNNER_ERROR, TEST_RUNNER_ERROR_ASSERTION_FAILED,
+                       "focus: expected='%s', actual='none'", expected_window);
+        }
+    }
+  else
+    {
+      const char *focused = display->focus_window->title;
+
+      if (g_str_has_prefix (focused, "test/"))
+        focused += 5;
+
+      if (g_strcmp0 (focused, expected_window) != 0)
+        g_set_error (error, TEST_RUNNER_ERROR, TEST_RUNNER_ERROR_ASSERTION_FAILED,
+                     "focus: expected='%s', actual='%s'",
+                     expected_window, focused);
+    }
+
+  return *error == NULL;
+}
+
+static gboolean
 test_case_check_xserver_stacking (TestCase *test,
                                   GError  **error)
 {
@@ -558,6 +589,11 @@ test_case_do (TestCase *test,
         return FALSE;
 
       if (!test_case_check_xserver_stacking (test, error))
+        return FALSE;
+    }
+  else if (strcmp (argv[0], "assert_focused") == 0)
+    {
+      if (!test_case_assert_focused (test, argv[1], error))
         return FALSE;
     }
   else
