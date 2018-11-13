@@ -161,6 +161,24 @@ process_line (const char *line)
       gtk_window_set_transient_for (GTK_WINDOW (window),
                                     GTK_WINDOW (parent_window));
     }
+  else if (strcmp (argv[0], "accept_focus") == 0)
+    {
+      if (argc != 3)
+        {
+          g_print ("usage: %s <window-id> [true|false]", argv[0]);
+          goto out;
+        }
+
+      GtkWidget *window = lookup_window (argv[1]);
+      if (!window)
+        {
+          g_print ("unknown window %s", argv[1]);
+          goto out;
+        }
+
+      gboolean enabled = g_ascii_strcasecmp (argv[2], "true") == 0;
+      gtk_window_set_accept_focus (GTK_WINDOW (window), enabled);
+    }
   else if (strcmp (argv[0], "show") == 0)
     {
       if (argc != 2)
