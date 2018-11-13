@@ -38,6 +38,7 @@ test_client = executable('mutter-test-client',
   dependencies: [
     gtk3_dep,
     gio_unix_dep,
+    x11_dep,
     xext_dep,
   ],
   install: have_installed_tests,
