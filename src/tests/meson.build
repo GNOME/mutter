@@ -84,10 +84,13 @@ headless_start_test = executable('mutter-headless-start-test',
 stacking_tests = files([
   'stacking/basic-x11.metatest',
   'stacking/basic-wayland.metatest',
+  'stacking/client-side-decorated.metatest',
+  'stacking/closed-transient.metatest',
   'stacking/minimized.metatest',
   'stacking/mixed-windows.metatest',
   'stacking/set-parent.metatest',
   'stacking/override-redirect.metatest',
+  'stacking/set-parent-exported.metatest',
 ])
 
 test('mutter/stacking', test_runner,
