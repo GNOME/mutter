@@ -2205,7 +2205,7 @@ window_state_on_map (MetaWindow *window,
   /* don't initially focus windows that are intended to not accept
    * focus
    */
-  if (!(window->input || window->take_focus))
+  if (!meta_window_is_focusable (window))
     {
       *takes_focus = FALSE;
       return;
@@ -8510,6 +8510,15 @@ meta_window_shortcuts_inhibited (MetaWindow         *window,
                                  ClutterInputDevice *source)
 {
   return META_WINDOW_GET_CLASS (window)->shortcuts_inhibited (window, source);
+}
+
+gboolean
+meta_window_is_focusable (MetaWindow *window)
+{
+  if (window->unmanaging)
+    return FALSE;
+
+  return META_WINDOW_GET_CLASS (window)->is_focusable (window);
 }
 
 gboolean
