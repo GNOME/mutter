@@ -1340,7 +1340,7 @@ find_focusable_ancestor (MetaWindow *window,
   MetaWorkspaceFocusableAncestorData *mwfa = data;
   MetaWindow **result = mwfa->win;
 
-  if ((window->input || window->take_focus) &&
+  if (meta_window_is_focusable (window) &&
       meta_window_located_on_workspace (window, mwfa->workspace) &&
       meta_window_showing_on_its_workspace (window))
     {

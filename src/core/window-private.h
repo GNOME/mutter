@@ -569,6 +569,7 @@ struct _MetaWindowClass
                                    ClutterInputDevice *source);
   gboolean (*shortcuts_inhibited) (MetaWindow         *window,
                                    ClutterInputDevice *source);
+  gboolean (*is_focusable)        (MetaWindow *window);
   gboolean (*is_stackable)        (MetaWindow *window);
   gboolean (*are_updates_frozen)  (MetaWindow *window);
 };
@@ -662,6 +663,8 @@ void        meta_window_update_unfocused_button_grabs (MetaWindow *window);
 
 void     meta_window_set_focused_internal (MetaWindow *window,
                                            gboolean    focused);
+
+gboolean meta_window_is_focusable (MetaWindow *window);
 
 void     meta_window_current_workspace_changed (MetaWindow *window);
 
