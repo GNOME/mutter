@@ -827,12 +827,34 @@ meta_window_x11_focus (MetaWindow *window,
                * Normally, we want to just leave the focus undisturbed until
                * the window responds to WM_TAKE_FOCUS, but if we're unmanaging
                * the current focus window we *need* to move the focus away, so
-               * we focus the no_focus_window now (and set
-               * display->focus_window to that) before sending WM_TAKE_FOCUS.
+               * we focus the default focus window excluding this one,
+               * before sending WM_TAKE_FOCUS.
                */
               if (window->display->focus_window != NULL &&
                   window->display->focus_window->unmanaging)
-                meta_display_unset_input_focus (window->display, timestamp);
+                {
+                  MetaWindow *focus_window = window;
+                  MetaWorkspace *workspace = window->workspace;
+                  MetaStack *stack = workspace->display->stack;
+
+                  while (TRUE)
+                    {
+                      focus_window = meta_stack_get_default_focus_window (stack,
+                                                                          workspace,
+                                                                          focus_window);
+                      if (!focus_window)
+                        break;
+
+                      if (focus_window->input ||
+                          (focus_window->shaded && focus_window->frame))
+                        break;
+                    }
+
+                  if (focus_window)
+                    meta_window_x11_focus (focus_window, timestamp);
+                  else
+                    meta_display_unset_input_focus (window->display, timestamp);
+                }
             }
 
           request_take_focus (window, timestamp);
