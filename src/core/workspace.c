@@ -86,6 +86,12 @@ typedef struct _MetaWorkspaceLogicalMonitorData
   MetaRectangle logical_monitor_work_area;
 } MetaWorkspaceLogicalMonitorData;
 
+typedef struct _MetaWorkspaceFocusableAncestorData
+{
+  MetaWorkspace *workspace;
+  MetaWindow *out_window;
+} MetaWorkspaceFocusableAncestorData;
+
 static MetaWorkspaceLogicalMonitorData *
 meta_workspace_get_logical_monitor_data (MetaWorkspace      *workspace,
                                          MetaLogicalMonitor *logical_monitor)
@@ -1327,13 +1333,20 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
 }
 
 static gboolean
-record_ancestor (MetaWindow *window,
-                 void       *data)
+find_focusable_ancestor (MetaWindow *window,
+                         gpointer    user_data)
 {
-  MetaWindow **result = data;
+  MetaWorkspaceFocusableAncestorData *data = user_data;
 
-  *result = window;
-  return FALSE; /* quit with the first ancestor we find */
+  if (!window->unmanaging && (window->input || window->take_focus) &&
+      meta_window_located_on_workspace (window, data->workspace) &&
+      meta_window_showing_on_its_workspace (window))
+    {
+      data->out_window = window;
+      return FALSE;
+    }
+
+  return TRUE;
 }
 
 /* Focus ancestor of not_this_one if there is one */
@@ -1355,11 +1368,15 @@ focus_ancestor_or_top_window (MetaWorkspace *workspace,
   if (not_this_one)
     {
       MetaWindow *ancestor;
-      ancestor = NULL;
-      meta_window_foreach_ancestor (not_this_one, record_ancestor, &ancestor);
-      if (ancestor != NULL &&
-          meta_window_located_on_workspace (ancestor, workspace) &&
-          meta_window_showing_on_its_workspace (ancestor))
+      MetaWorkspaceFocusableAncestorData data;
+
+      data = (MetaWorkspaceFocusableAncestorData) {
+        .workspace = workspace,
+      };
+      meta_window_foreach_ancestor (not_this_one, find_focusable_ancestor, &data);
+      ancestor = data.out_window;
+
+      if (ancestor)
         {
           meta_topic (META_DEBUG_FOCUS,
                       "Focusing %s, ancestor of %s\n",
