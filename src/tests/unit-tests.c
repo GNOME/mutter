@@ -265,8 +265,7 @@ main (int argc, char *argv[])
                                           META_TYPE_BACKEND_TEST);
   meta_wayland_override_display_name ("mutter-test-display");
 
-  meta_init ();
-  meta_register_with_session ();
+  test_meta_init ();
 
   g_idle_add (run_tests, NULL);
 
