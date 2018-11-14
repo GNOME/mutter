@@ -61,6 +61,7 @@
 #include <cogl/cogl1-context.h>
 #include <cogl/cogl-bitmap.h>
 #include <cogl/cogl-color.h>
+#include <cogl/cogl-colorspace-conversion.h>
 #include <cogl/cogl-matrix.h>
 #include <cogl/cogl-matrix-stack.h>
 #include <cogl/cogl-offscreen.h>
@@ -111,6 +112,7 @@
 #include <cogl/cogl-sub-texture.h>
 #include <cogl/cogl-atlas-texture.h>
 #include <cogl/cogl-meta-texture.h>
+#include <cogl/cogl-multi-plane-texture.h>
 #include <cogl/cogl-primitive-texture.h>
 #include <cogl/cogl-index-buffer.h>
 #include <cogl/cogl-attribute-buffer.h>
