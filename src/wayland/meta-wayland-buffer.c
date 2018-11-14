@@ -163,17 +163,18 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
                                   CoglTextureComponents *components_out)
 {
   CoglPixelFormat format;
-  CoglTextureComponents components = COGL_TEXTURE_COMPONENTS_RGBA;
 
+  g_warning ("SHM BUFFER_FORMAT: %d", wl_shm_buffer_get_format (shm_buffer));
   switch (wl_shm_buffer_get_format (shm_buffer))
     {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     case WL_SHM_FORMAT_ARGB8888:
       format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_RGBA;
       break;
     case WL_SHM_FORMAT_XRGB8888:
       format = COGL_PIXEL_FORMAT_ARGB_8888;
-      components = COGL_TEXTURE_COMPONENTS_RGB;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_RGB;
       break;
 #elif G_BYTE_ORDER == G_LITTLE_ENDIAN
     case WL_SHM_FORMAT_ARGB8888:
@@ -181,18 +182,52 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
       break;
     case WL_SHM_FORMAT_XRGB8888:
       format = COGL_PIXEL_FORMAT_BGRA_8888;
-      components = COGL_TEXTURE_COMPONENTS_RGB;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_RGB;
       break;
 #endif
+    case WL_SHM_FORMAT_NV12:
+      format = COGL_PIXEL_FORMAT_NV12;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_RG;
+      break;
+    case WL_SHM_FORMAT_NV21:
+      format = COGL_PIXEL_FORMAT_NV21;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_RG;
+      break;
+    case WL_SHM_FORMAT_YUV422:
+      format = COGL_PIXEL_FORMAT_YUV422;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_A;
+      break;
+    case WL_SHM_FORMAT_YVU422:
+      format = COGL_PIXEL_FORMAT_YVU422;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_A;
+      break;
+    case WL_SHM_FORMAT_YUV444:
+      format = COGL_PIXEL_FORMAT_YUV444;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_A;
+      break;
+    case WL_SHM_FORMAT_YVU444:
+      format = COGL_PIXEL_FORMAT_YVU444;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_A;
+      break;
+
     default:
       g_warn_if_reached ();
       format = COGL_PIXEL_FORMAT_ARGB_8888;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_RGBA;
     }
 
   if (format_out)
     *format_out = format;
-  if (components_out)
-    *components_out = components;
 }
 
 static gboolean
@@ -205,45 +240,72 @@ shm_buffer_attach (MetaWaylandBuffer *buffer,
   struct wl_shm_buffer *shm_buffer;
   int stride, width, height;
   CoglPixelFormat format;
-  CoglTextureComponents components;
-  CoglBitmap *bitmap;
-  CoglTexture *texture;
+  CoglTextureComponents components[3];
+  guint i, n_planes;
+  guint h_factors[3], v_factors[3];
+  gsize offset = 0;
+  const guint8 *data;
+  GPtrArray *bitmaps;
+  gboolean ret;
 
   if (buffer->texture)
     return TRUE;
 
+  /* Query the necessary parameters */
   shm_buffer = wl_shm_buffer_get (buffer->resource);
   stride = wl_shm_buffer_get_stride (shm_buffer);
   width = wl_shm_buffer_get_width (shm_buffer);
   height = wl_shm_buffer_get_height (shm_buffer);
 
+  /* Safely access the data inside the buffer */
   wl_shm_buffer_begin_access (shm_buffer);
 
-  shm_buffer_get_cogl_pixel_format (shm_buffer, &format, &components);
+  shm_buffer_get_cogl_pixel_format (shm_buffer, &format, components);
+  n_planes = cogl_pixel_format_get_n_planes (format);
+  cogl_pixel_format_get_subsampling_factors (format, h_factors,  v_factors);
 
-  bitmap = cogl_bitmap_new_for_data (cogl_context,
-                                     width, height,
-                                     format,
-                                     stride,
-                                     wl_shm_buffer_get_data (shm_buffer));
+  data = wl_shm_buffer_get_data (shm_buffer);
 
-  texture = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
-  cogl_texture_set_components (COGL_TEXTURE (texture), components);
+  bitmaps = g_ptr_array_new_full (n_planes, cogl_object_unref);
+      g_warning ("Attaching SHM buffer");
+  for (i = 0; i < n_planes; i++)
+    {
+      CoglBitmap *bitmap;
 
-  cogl_object_unref (bitmap);
+      /* Internally, the texture's planes are laid out in memory as one
+       * contiguous block, so we have to consider any subsampling (based on the
+       * pixel format). */
+      if (i == 0)
+        offset = 0;
+      else
+        offset += (stride / h_factors[i-1]) * (height / v_factors[i-1]);
 
-  if (!cogl_texture_allocate (COGL_TEXTURE (texture), error))
-    g_clear_pointer (&texture, cogl_object_unref);
+      g_warning ("Creating plane %d, h_factor = %d, v_factor = %d, offset = %d", i, h_factors[i], v_factors[i], offset);
 
+      bitmap = cogl_bitmap_new_for_data (cogl_context,
+                                         width / h_factors[i],
+                                         height / v_factors[i],
+                                         format, /* XXX this we have to change later */
+                                         stride, /* XXX Do we need to change this too?*/
+                                         data + offset);
+      g_assert (bitmap);
+
+      g_ptr_array_add (bitmaps, bitmap);
+    }
+
+  buffer->texture = cogl_multi_plane_texture_new_from_bitmaps (format,
+                                             g_ptr_array_free (bitmaps, FALSE),
+                                             n_planes, error);
+  buffer->is_y_inverted = TRUE;
+  ret = TRUE;
+
+out:
   wl_shm_buffer_end_access (shm_buffer);
 
-  buffer->texture = texture;
-  buffer->is_y_inverted = TRUE;
+  if (!ret)
+    g_ptr_array_free (bitmaps, TRUE);
 
-  if (!buffer->texture)
-    return FALSE;
-
-  return TRUE;
+  return ret;
 }
 
 static gboolean
@@ -257,12 +319,15 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
   int format, width, height, y_inverted;
   CoglPixelFormat cogl_format;
-  EGLImageKHR egl_image;
-  CoglTexture2D *texture;
+  guint i, n_planes;
+  GPtrArray *planes;
+  gboolean ret = FALSE;
+  EGLint attrib_list[3] = { EGL_NONE, EGL_NONE, EGL_NONE };
 
   if (buffer->texture)
     return TRUE;
 
+  /* Query the necessary properties */
   if (!meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
                                       EGL_TEXTURE_FORMAT, &format,
                                       error))
@@ -283,6 +348,7 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
                                       NULL))
     y_inverted = EGL_TRUE;
 
+  /* Map the EGL texture format to CoglPixelFormat, if possible */
   switch (format)
     {
     case EGL_TEXTURE_RGB:
@@ -291,6 +357,14 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
     case EGL_TEXTURE_RGBA:
       cogl_format = COGL_PIXEL_FORMAT_RGBA_8888_PRE;
       break;
+    case EGL_TEXTURE_Y_UV_WL:
+      g_warning ("Got a NV12 color format texture!!");
+      cogl_format = COGL_PIXEL_FORMAT_NV12;
+      break;
+    case EGL_TEXTURE_Y_U_V_WL:
+      g_warning ("Got a YUV 4:4:4 color format texture!!");
+      cogl_format = COGL_PIXEL_FORMAT_YUV444;
+      break;
     default:
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
@@ -298,30 +372,56 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
       return FALSE;
     }
 
-  /* The WL_bind_wayland_display spec states that EGL_NO_CONTEXT is to be used
-   * in conjunction with the EGL_WAYLAND_BUFFER_WL target. */
-  egl_image = meta_egl_create_image (egl, egl_display, EGL_NO_CONTEXT,
-                                     EGL_WAYLAND_BUFFER_WL, buffer->resource,
-                                     NULL,
-                                     error);
-  if (egl_image == EGL_NO_IMAGE_KHR)
-    return FALSE;
+  n_planes = cogl_pixel_format_get_n_planes (cogl_format);
+  planes = g_ptr_array_new_full (n_planes, cogl_object_unref);
 
-  texture = cogl_egl_texture_2d_new_from_image (cogl_context,
-                                                width, height,
-                                                cogl_format,
-                                                egl_image,
-                                                error);
+  /* Each EGLImage is a plane in the final texture */
+  for (i = 0; i < n_planes; i++)
+    {
+      EGLImageKHR egl_img;
+      CoglTexture2D *texture;
 
-  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
+      /* Specify that we want the i'th plane */
+      attrib_list[0] = EGL_WAYLAND_PLANE_WL;
+      attrib_list[1] = i;
 
-  if (!texture)
-    return FALSE;
+      /* The WL_bind_wayland_display spec states that EGL_NO_CONTEXT is to be
+       * used in conjunction with the EGL_WAYLAND_BUFFER_WL target. */
+      egl_img = meta_egl_create_image (egl, egl_display, EGL_NO_CONTEXT,
+                                       EGL_WAYLAND_BUFFER_WL, buffer->resource,
+                                       attrib_list,
+                                       error);
 
-  buffer->texture = COGL_TEXTURE (texture);
+      if (G_UNLIKELY (egl_img == EGL_NO_IMAGE_KHR))
+        goto out;
+
+      texture = cogl_egl_texture_2d_new_from_image (cogl_context,
+                                                    width, height,
+                                                    cogl_format,
+                                                    egl_img,
+                                                    error);
+
+      meta_egl_destroy_image (egl, egl_display, egl_img, NULL);
+
+      if (G_UNLIKELY (!texture))
+        goto out;
+
+      g_ptr_array_add (planes, texture);
+    }
+
+
+  buffer->texture = cogl_multi_plane_texture_new (cogl_format,
+                                             g_ptr_array_free (planes, FALSE),
+                                             n_planes);
   buffer->is_y_inverted = !!y_inverted;
 
-  return TRUE;
+  ret = TRUE;
+
+out:
+  if (!ret)
+    g_ptr_array_free (planes, TRUE);
+
+  return ret;
 }
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
@@ -358,14 +458,18 @@ meta_wayland_buffer_attach (MetaWaylandBuffer *buffer,
   switch (buffer->type)
     {
     case META_WAYLAND_BUFFER_TYPE_SHM:
+      g_warning ("GOT SHM BUFFER");
       return shm_buffer_attach (buffer, error);
     case META_WAYLAND_BUFFER_TYPE_EGL_IMAGE:
+      g_warning ("GOT EGL IMAGE BUFFER");
       return egl_image_buffer_attach (buffer, error);
 #ifdef HAVE_WAYLAND_EGLSTREAM
     case META_WAYLAND_BUFFER_TYPE_EGL_STREAM:
+      g_warning ("GOT EGL STREAM BUFFER");
       return egl_stream_buffer_attach (buffer, error);
 #endif
     case META_WAYLAND_BUFFER_TYPE_DMA_BUF:
+      g_warning ("GOT DMA BUF BUFFER");
       return meta_wayland_dma_buf_buffer_attach (buffer, error);
     case META_WAYLAND_BUFFER_TYPE_UNKNOWN:
       g_assert_not_reached ();
@@ -375,7 +479,7 @@ meta_wayland_buffer_attach (MetaWaylandBuffer *buffer,
   g_assert_not_reached ();
 }
 
-CoglTexture *
+CoglMultiPlaneTexture *
 meta_wayland_buffer_get_texture (MetaWaylandBuffer *buffer)
 {
   return buffer->texture;
@@ -406,40 +510,65 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
                            GError           **error)
 {
   struct wl_shm_buffer *shm_buffer;
-  int i, n_rectangles;
+  gint j, n_rectangles;
   gboolean set_texture_failed = FALSE;
+  CoglPixelFormat format;
+  CoglTextureComponents components[3];
+  guint h_factors[3], v_factors[3];
+  guint offset = 0;
+  const uint8_t *data;
+  int32_t stride;
+  guint i, n_planes = cogl_multi_plane_texture_get_n_planes (buffer->texture);
 
   n_rectangles = cairo_region_num_rectangles (region);
 
   shm_buffer = wl_shm_buffer_get (buffer->resource);
+
+  /* Get the data */
   wl_shm_buffer_begin_access (shm_buffer);
+  data = wl_shm_buffer_get_data (shm_buffer);
 
-  for (i = 0; i < n_rectangles; i++)
+  /* Query the necessary properties */
+  stride = wl_shm_buffer_get_stride (shm_buffer);
+  shm_buffer_get_cogl_pixel_format (shm_buffer, &format, components);
+  cogl_pixel_format_get_subsampling_factors (format, h_factors, v_factors);
+
+  for (i = 0; i < n_planes; i++)
     {
-      const uint8_t *data = wl_shm_buffer_get_data (shm_buffer);
-      int32_t stride = wl_shm_buffer_get_stride (shm_buffer);
-      CoglPixelFormat format;
-      int bpp;
-      cairo_rectangle_int_t rect;
+      CoglTexture *plane;
 
-      shm_buffer_get_cogl_pixel_format (shm_buffer, &format, NULL);
-      bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
-      cairo_region_get_rectangle (region, i, &rect);
+      plane = cogl_multi_plane_texture_get_plane (buffer->texture, i);
 
-      if (!_cogl_texture_set_region (buffer->texture,
-                                     rect.width, rect.height,
-                                     format,
-                                     stride,
-                                     data + rect.x * bpp + rect.y * stride,
-                                     rect.x, rect.y,
-                                     0,
-                                     error))
+      for (j = 0; j < n_rectangles; j++)
         {
-          set_texture_failed = TRUE;
-          break;
+          cairo_rectangle_int_t rect;
+
+          cairo_region_get_rectangle (region, i, &rect);
+
+          /* Calculate the offset in the buffer */
+          if (i > 0)
+            offset += (stride / h_factors[i-1]) * (rect.height / v_factors[i-1]);
+
+          g_warning ("Creating plane %d/%d, h_factor = %d, v_factor = %d, offset = %d",
+                     i, n_planes, h_factors[i], v_factors[i], offset);
+
+          if (!_cogl_texture_set_region (plane,
+                                         rect.width / h_factors[i],
+                                         rect.height / v_factors[i],
+                                         _cogl_texture_get_format (plane),
+                                         stride,
+                                         data + offset,
+                                         rect.x, rect.y,
+                                         0,
+                                         error))
+            {
+              set_texture_failed = TRUE;
+              goto out;
+            }
         }
     }
 
+out:
   wl_shm_buffer_end_access (shm_buffer);
 
   return !set_texture_failed;
@@ -486,7 +615,7 @@ meta_wayland_buffer_finalize (GObject *object)
 {
   MetaWaylandBuffer *buffer = META_WAYLAND_BUFFER (object);
 
-  g_clear_pointer (&buffer->texture, cogl_object_unref);
+  cogl_clear_object (&buffer->texture);
 #ifdef HAVE_WAYLAND_EGLSTREAM
   g_clear_object (&buffer->egl_stream.stream);
 #endif

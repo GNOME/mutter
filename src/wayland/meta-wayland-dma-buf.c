@@ -78,6 +78,7 @@ meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer *buffer,
   CoglPixelFormat cogl_format;
   EGLImageKHR egl_image;
   CoglTexture2D *texture;
+  CoglTexture **textures;
   EGLint attribs[64];
   int attr_idx = 0;
 
@@ -196,7 +197,9 @@ meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer *buffer,
   if (!texture)
     return FALSE;
 
-  buffer->texture = COGL_TEXTURE (texture);
+  textures = g_new (CoglTexture *, 1);
+  textures[0] = COGL_TEXTURE (texture);
+  buffer->texture = cogl_multi_plane_texture_new (cogl_format, textures, 1);
   buffer->is_y_inverted = dma_buf->is_y_inverted;
 
   return TRUE;

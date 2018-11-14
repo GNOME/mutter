@@ -86,13 +86,15 @@ struct _MetaShapedTexturePrivate
 {
   MetaTextureTower *paint_tower;
 
-  CoglTexture *texture;
+  CoglMultiPlaneTexture *texture;
   CoglTexture *mask_texture;
   CoglSnippet *snippet;
 
   CoglPipeline *base_pipeline;
   CoglPipeline *masked_pipeline;
   CoglPipeline *unblended_pipeline;
+
+  CoglColorspaceConversion *colorspace_conversion;
 
   gboolean is_y_inverted;
 
@@ -264,10 +266,11 @@ static void
 meta_shaped_texture_reset_pipelines (MetaShapedTexture *stex)
 {
   MetaShapedTexturePrivate *priv = stex->priv;
+  g_warning ("resetting pipelines!");
 
-  g_clear_pointer (&priv->base_pipeline, cogl_object_unref);
-  g_clear_pointer (&priv->masked_pipeline, cogl_object_unref);
-  g_clear_pointer (&priv->unblended_pipeline, cogl_object_unref);
+  cogl_clear_object (&priv->base_pipeline);
+  cogl_clear_object (&priv->masked_pipeline);
+  cogl_clear_object (&priv->unblended_pipeline);
 }
 
 static void
@@ -286,7 +289,8 @@ meta_shaped_texture_dispose (GObject *object)
     meta_texture_tower_free (priv->paint_tower);
   priv->paint_tower = NULL;
 
-  g_clear_pointer (&priv->texture, cogl_object_unref);
+  cogl_clear_object (&priv->colorspace_conversion);
+  cogl_clear_object (&priv->texture);
   g_clear_pointer (&priv->opaque_region, cairo_region_destroy);
 
   meta_shaped_texture_set_mask_texture (self, NULL);
@@ -295,7 +299,7 @@ meta_shaped_texture_dispose (GObject *object)
 
   meta_shaped_texture_reset_pipelines (self);
 
-  g_clear_pointer (&priv->snippet, cogl_object_unref);
+  cogl_clear_object (&priv->snippet);
 
   G_OBJECT_CLASS (meta_shaped_texture_parent_class)->dispose (object);
 }
@@ -306,19 +310,20 @@ get_base_pipeline (MetaShapedTexture *stex,
 {
   MetaShapedTexturePrivate *priv = stex->priv;
   CoglPipeline *pipeline;
+  guint i = 0;
 
   if (priv->base_pipeline)
     return priv->base_pipeline;
 
   pipeline = cogl_pipeline_new (ctx);
-  cogl_pipeline_set_layer_wrap_mode_s (pipeline, 0,
-                                       COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
-  cogl_pipeline_set_layer_wrap_mode_t (pipeline, 0,
-                                       COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
-  cogl_pipeline_set_layer_wrap_mode_s (pipeline, 1,
-                                       COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
-  cogl_pipeline_set_layer_wrap_mode_t (pipeline, 1,
-                                       COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+  for (i = 0; i < cogl_multi_plane_texture_get_n_planes (priv->texture); i++)
+    {
+      cogl_pipeline_set_layer_wrap_mode_s (pipeline, i,
+                                           COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+      cogl_pipeline_set_layer_wrap_mode_t (pipeline, i,
+                                           COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+    }
+
   if (!priv->is_y_inverted)
     {
       CoglMatrix matrix;
@@ -369,7 +374,10 @@ get_base_pipeline (MetaShapedTexture *stex,
     }
 
   if (priv->snippet)
-    cogl_pipeline_add_layer_snippet (pipeline, 0, priv->snippet);
+    {
+      for (i = 0; i < cogl_multi_plane_texture_get_n_planes (priv->texture); i++)
+        cogl_pipeline_add_layer_snippet (pipeline, i, priv->snippet);
+    }
 
   priv->base_pipeline = pipeline;
 
@@ -389,14 +397,19 @@ get_masked_pipeline (MetaShapedTexture *stex,
 {
   MetaShapedTexturePrivate *priv = stex->priv;
   CoglPipeline *pipeline;
+  gint i, n_layers = 0;
 
   if (priv->masked_pipeline)
     return priv->masked_pipeline;
 
   pipeline = cogl_pipeline_copy (get_base_pipeline (stex, ctx));
-  cogl_pipeline_set_layer_combine (pipeline, 1,
-                                   "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
-                                   NULL);
+  n_layers = cogl_multi_plane_texture_get_n_planes (pipeline);
+  for (i = 0; i < n_layers; i++)
+    {
+      cogl_pipeline_set_layer_combine (pipeline, i,
+                                       "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
+                                       NULL);
+    }
 
   priv->masked_pipeline = pipeline;
 
@@ -409,17 +422,15 @@ get_unblended_pipeline (MetaShapedTexture *stex,
 {
   MetaShapedTexturePrivate *priv = stex->priv;
   CoglPipeline *pipeline;
-  CoglColor color;
 
   if (priv->unblended_pipeline)
     return priv->unblended_pipeline;
 
   pipeline = cogl_pipeline_copy (get_base_pipeline (stex, ctx));
-  cogl_color_init_from_4ub (&color, 255, 255, 255, 255);
   cogl_pipeline_set_blend (pipeline,
                            "RGBA = ADD (SRC_COLOR, 0)",
                            NULL);
-  cogl_pipeline_set_color (pipeline, &color);
+  cogl_pipeline_set_color4ub (pipeline, 255, 255, 255, 255);
 
   priv->unblended_pipeline = pipeline;
 
@@ -456,8 +467,34 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
 }
 
 static void
-set_cogl_texture (MetaShapedTexture *stex,
-                  CoglTexture       *cogl_tex)
+check_texture_color_format (MetaShapedTexture *self,
+                            CoglMultiPlaneTexture *texture)
+{
+  MetaShapedTexturePrivate *priv = self->priv;
+  CoglPixelFormat format = cogl_multi_plane_texture_get_format (texture);
+  guint n_layers = cogl_pipeline_get_n_layers (priv->base_pipeline);
+
+  if (priv->colorspace_conversion != NULL)
+      return;
+
+  cogl_clear_object (&priv->colorspace_conversion);
+  priv->colorspace_conversion = cogl_colorspace_conversion_new (format);
+
+  /* Check if a snippet is actually necessary */
+  if (priv->colorspace_conversion == NULL)
+    return;
+
+  /* XXX disable for now, our changes are still incompatible with texturetower*/
+  meta_shaped_texture_set_create_mipmaps (self, FALSE);
+
+  cogl_colorspace_conversion_attach_to_pipeline (priv->colorspace_conversion,
+                                                 priv->base_pipeline,
+                                                 n_layers - 1);
+}
+
+static void
+set_planar_texture (MetaShapedTexture *stex,
+                    CoglMultiPlaneTexture *planar_tex)
 {
   MetaShapedTexturePrivate *priv;
   int width, height;
@@ -466,16 +503,14 @@ set_cogl_texture (MetaShapedTexture *stex,
 
   priv = stex->priv;
 
-  if (priv->texture)
-    cogl_object_unref (priv->texture);
+  cogl_clear_object (&priv->texture);
+  priv->texture = planar_tex;
 
-  priv->texture = cogl_tex;
-
-  if (cogl_tex != NULL)
+  if (planar_tex != NULL)
     {
-      cogl_object_ref (cogl_tex);
-      width = cogl_texture_get_width (COGL_TEXTURE (cogl_tex));
-      height = cogl_texture_get_height (COGL_TEXTURE (cogl_tex));
+      cogl_object_ref (planar_tex);
+      width = cogl_multi_plane_texture_get_width (planar_tex);
+      height = cogl_multi_plane_texture_get_height (planar_tex);
     }
   else
     {
@@ -483,6 +518,7 @@ set_cogl_texture (MetaShapedTexture *stex,
       height = 0;
     }
 
+  /* Do we have a different size? */
   if (priv->tex_width != width ||
       priv->tex_height != height)
     {
@@ -491,13 +527,24 @@ set_cogl_texture (MetaShapedTexture *stex,
       update_size (stex);
     }
 
+  /* Check if we need to do color conversion to RGBA */
+  if (planar_tex != NULL && priv->base_pipeline != NULL)
+    {
+      check_texture_color_format (stex, planar_tex);
+    }
+
   /* NB: We don't queue a redraw of the actor here because we don't
    * know how much of the buffer has changed with respect to the
    * previous buffer. We only queue a redraw in response to surface
    * damage. */
 
-  if (priv->create_mipmaps)
-    meta_texture_tower_set_base_texture (priv->paint_tower, cogl_tex);
+  if (FALSE)
+  /* if (priv->create_mipmaps) */
+    {
+      /* XXX */
+      CoglTexture *cogl_tex = cogl_multi_plane_texture_get_plane (planar_tex, 0);
+      meta_texture_tower_set_base_texture (priv->paint_tower, cogl_tex);
+    }
 }
 
 static gboolean
@@ -530,13 +577,14 @@ meta_shaped_texture_paint (ClutterActor *actor)
   cairo_region_t *blended_tex_region;
   CoglContext *ctx;
   CoglFramebuffer *fb;
-  CoglTexture *paint_tex = NULL;
+  CoglMultiPlaneTexture *paint_tex = NULL;
+  guint n_planes;
   ClutterActorBox alloc;
   CoglPipelineFilter filter;
   gint64 now = g_get_monotonic_time ();
 
-  if (priv->clip_region && cairo_region_is_empty (priv->clip_region))
-    return;
+  /* if (priv->clip_region && cairo_region_is_empty (priv->clip_region)) */
+  /*   return; */
 
   if (!CLUTTER_ACTOR_IS_REALIZED (CLUTTER_ACTOR (stex)))
     clutter_actor_realize (CLUTTER_ACTOR (stex));
@@ -556,7 +604,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
    * Setting the texture quality to high without SGIS_generate_mipmap
    * support for TFP textures will result in fallbacks to XGetImage.
    */
-  if (priv->create_mipmaps && priv->last_invalidation)
+  if (FALSE)
+  /* if (priv->create_mipmaps && priv->last_invalidation) */
     {
       gint64 age = now - priv->last_invalidation;
 
@@ -567,12 +616,13 @@ meta_shaped_texture_paint (ClutterActor *actor)
 
   if (paint_tex == NULL)
     {
-      paint_tex = COGL_TEXTURE (priv->texture);
+      paint_tex = priv->texture;
 
       if (paint_tex == NULL)
         return;
 
-      if (priv->create_mipmaps)
+      if (FALSE)
+      /* if (priv->create_mipmaps) */
         {
           /* Minus 1000 to ensure we don't fail the age test in timeout */
           priv->earliest_remipmap = now + MIN_MIPMAP_AGE_USEC - 1000;
@@ -584,6 +634,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
                              stex);
         }
     }
+
+  n_planes = cogl_multi_plane_texture_get_n_planes (paint_tex);
 
   clutter_actor_get_scale (actor, &tex_scale, NULL);
   ensure_size_valid (stex);
@@ -690,8 +742,15 @@ meta_shaped_texture_paint (ClutterActor *actor)
       if (!cairo_region_is_empty (region))
         {
           opaque_pipeline = get_unblended_pipeline (stex, ctx);
-          cogl_pipeline_set_layer_texture (opaque_pipeline, 0, paint_tex);
-          cogl_pipeline_set_layer_filters (opaque_pipeline, 0, filter, filter);
+
+          for (i = 0; i < n_planes; i++)
+            {
+              CoglTexture *plane = cogl_multi_plane_texture_get_plane (paint_tex, i);
+
+
+              cogl_pipeline_set_layer_texture (opaque_pipeline, i, plane);
+              cogl_pipeline_set_layer_filters (opaque_pipeline, i, filter, filter);
+            }
 
           n_rects = cairo_region_num_rectangles (region);
           for (i = 0; i < n_rects; i++)
@@ -718,6 +777,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
   if (!blended_tex_region || !cairo_region_is_empty (blended_tex_region))
     {
       CoglPipeline *blended_pipeline;
+      guint i;
 
       if (priv->mask_texture == NULL)
         {
@@ -726,16 +786,21 @@ meta_shaped_texture_paint (ClutterActor *actor)
       else
         {
           blended_pipeline = get_masked_pipeline (stex, ctx);
-          cogl_pipeline_set_layer_texture (blended_pipeline, 1, priv->mask_texture);
-          cogl_pipeline_set_layer_filters (blended_pipeline, 1, filter, filter);
+          cogl_pipeline_set_layer_texture (blended_pipeline, n_planes, priv->mask_texture);
+          cogl_pipeline_set_layer_filters (blended_pipeline, n_planes, filter, filter);
         }
 
-      cogl_pipeline_set_layer_texture (blended_pipeline, 0, paint_tex);
-      cogl_pipeline_set_layer_filters (blended_pipeline, 0, filter, filter);
+      for (i = 0; i < n_planes; i++)
+        {
+          CoglTexture *plane = cogl_multi_plane_texture_get_plane (paint_tex, i);
+          g_warning ("Blended pipeline: adding layer %d, %p", i, plane);
 
-      CoglColor color;
-      cogl_color_init_from_4ub (&color, opacity, opacity, opacity, opacity);
-      cogl_pipeline_set_color (blended_pipeline, &color);
+          cogl_pipeline_set_layer_texture (blended_pipeline, i, plane);
+          cogl_pipeline_set_layer_filters (blended_pipeline, i, filter, filter);
+        }
+
+      cogl_pipeline_set_color4ub (blended_pipeline,
+                                  opacity, opacity, opacity, opacity);
 
       if (blended_tex_region)
         {
@@ -960,15 +1025,15 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
 /**
  * meta_shaped_texture_set_texture:
  * @stex: The #MetaShapedTexture
- * @pixmap: The #CoglTexture to display
+ * @pixmap: The #CoglMultiPlaneTexture to display
  */
 void
 meta_shaped_texture_set_texture (MetaShapedTexture *stex,
-                                 CoglTexture       *texture)
+                                 CoglMultiPlaneTexture *texture)
 {
   g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
 
-  set_cogl_texture (stex, texture);
+  set_planar_texture (stex, texture);
 }
 
 /**
@@ -1002,7 +1067,7 @@ meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
 
   meta_shaped_texture_reset_pipelines (stex);
 
-  g_clear_pointer (&priv->snippet, cogl_object_unref);
+  cogl_clear_object (&priv->snippet);
   if (snippet)
     priv->snippet = cogl_object_ref (snippet);
 }
@@ -1017,7 +1082,8 @@ CoglTexture *
 meta_shaped_texture_get_texture (MetaShapedTexture *stex)
 {
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
-  return COGL_TEXTURE (stex->priv->texture);
+
+  return cogl_multi_plane_texture_get_plane (stex->priv->texture, 0);
 }
 
 /**
@@ -1086,23 +1152,25 @@ meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
  * Returns: (transfer full): a new cairo surface to be freed with
  * cairo_surface_destroy().
  */
+  /* XXX Still need to fix this, but apparently only used for screenshot */
 cairo_surface_t *
 meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                cairo_rectangle_int_t *clip)
 {
-  CoglTexture *texture, *mask_texture;
+  CoglMultiPlaneTexture *texture, *mask_texture;
   cairo_rectangle_int_t texture_rect = { 0, 0, 0, 0 };
   cairo_surface_t *surface;
+  CoglContext *ctx;
 
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
 
-  texture = COGL_TEXTURE (stex->priv->texture);
+  texture = stex->priv->texture;
 
   if (texture == NULL)
     return NULL;
 
-  texture_rect.width = cogl_texture_get_width (texture);
-  texture_rect.height = cogl_texture_get_height (texture);
+  texture_rect.width = cogl_multi_plane_texture_get_width (texture);
+  texture_rect.height = cogl_multi_plane_texture_get_height (texture);
 
   if (clip != NULL)
     {
@@ -1112,17 +1180,18 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
         return NULL;
     }
 
+  ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+
   if (clip != NULL)
-    texture = cogl_texture_new_from_sub_texture (texture,
-                                                 clip->x,
-                                                 clip->y,
-                                                 clip->width,
-                                                 clip->height);
+    texture = cogl_sub_texture_new (ctx, texture,
+                                    clip->x, clip->y,
+                                    clip->width, clip->height);
 
   surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                        cogl_texture_get_width (texture),
-                                        cogl_texture_get_height (texture));
+                                        cogl_multi_plane_texture_get_width (texture),
+                                        cogl_multi_plane_texture_get_height (texture));
 
+  /* XXX */
   cogl_texture_get_data (texture, CLUTTER_CAIRO_FORMAT_ARGB32,
                          cairo_image_surface_get_stride (surface),
                          cairo_image_surface_get_data (surface));
@@ -1130,7 +1199,7 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
   cairo_surface_mark_dirty (surface);
 
   if (clip != NULL)
-    cogl_object_unref (texture);
+    g_object_unref (texture);
 
   mask_texture = stex->priv->mask_texture;
   if (mask_texture != NULL)
@@ -1139,15 +1208,13 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
       cairo_surface_t *mask_surface;
 
       if (clip != NULL)
-        mask_texture = cogl_texture_new_from_sub_texture (mask_texture,
-                                                          clip->x,
-                                                          clip->y,
-                                                          clip->width,
-                                                          clip->height);
+        mask_texture = cogl_sub_texture_new (ctx, mask_texture,
+                                             clip->x, clip->y,
+                                             clip->width, clip->height);
 
       mask_surface = cairo_image_surface_create (CAIRO_FORMAT_A8,
-                                                 cogl_texture_get_width (mask_texture),
-                                                 cogl_texture_get_height (mask_texture));
+                                                 cogl_multi_plane_texture_get_width (mask_texture),
+                                                 cogl_multi_plane_texture_get_height (mask_texture));
 
       cogl_texture_get_data (mask_texture, COGL_PIXEL_FORMAT_A_8,
                              cairo_image_surface_get_stride (mask_surface),
@@ -1223,5 +1290,6 @@ cullable_iface_init (MetaCullableInterface *iface)
 ClutterActor *
 meta_shaped_texture_new (void)
 {
+    g_warning ("New MetaShapedTexture!");
   return g_object_new (META_TYPE_SHAPED_TEXTURE, NULL);
 }

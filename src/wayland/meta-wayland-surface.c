@@ -259,8 +259,8 @@ get_buffer_width (MetaWaylandSurface *surface)
 
   if (buffer)
     {
-      CoglTexture *texture = meta_wayland_buffer_get_texture (buffer);
-      return cogl_texture_get_width (texture);
+      CoglMultiPlaneTexture *texture = meta_wayland_buffer_get_texture (buffer);
+      return cogl_multi_plane_texture_get_width (texture);
     }
   else
     {
@@ -275,8 +275,8 @@ get_buffer_height (MetaWaylandSurface *surface)
 
   if (buffer)
     {
-      CoglTexture *texture = meta_wayland_buffer_get_texture (buffer);
-      return cogl_texture_get_height (texture);
+      CoglMultiPlaneTexture *texture = meta_wayland_buffer_get_texture (buffer);
+      return cogl_multi_plane_texture_get_height (texture);
     }
   else
     {
@@ -706,7 +706,7 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
           if (switched_buffer && meta_wayland_surface_get_actor (surface))
             {
               MetaShapedTexture *stex;
-              CoglTexture *texture;
+              CoglMultiPlaneTexture *texture;
               CoglSnippet *snippet;
               gboolean is_y_inverted;
 

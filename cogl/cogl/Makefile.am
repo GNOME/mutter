@@ -62,6 +62,7 @@ cogl_1_public_h = \
 	cogl1-context.h 		\
 	cogl-bitmap.h 		\
 	cogl-color.h 			\
+	cogl-colorspace-conversion.h 			\
 	cogl-framebuffer.h		\
 	cogl-matrix.h 		\
 	cogl-offscreen.h 		\
@@ -105,6 +106,7 @@ cogl_nonintrospected_h = \
 	cogl-sub-texture.h            \
 	cogl-atlas-texture.h          \
 	cogl-meta-texture.h		\
+	cogl-multi-plane-texture.h		\
 	cogl-primitive-texture.h	\
 	cogl-depth-state.h 		\
 	cogl-buffer.h 		\
@@ -115,6 +117,7 @@ cogl_nonintrospected_h = \
 	cogl-error.h			\
 	cogl-bitmap.h			\
 	cogl-color.h			\
+	cogl-colorspace-conversion.h 			\
 	cogl-matrix.h			\
 	cogl-texture.h		\
 	cogl-types.h			\
@@ -237,6 +240,7 @@ cogl_sources_c = \
 	cogl-feature-private.c                \
 	cogl-color-private.h    		\
 	cogl-color.c				\
+	cogl-colorspace-conversion.c				\
 	cogl-buffer-private.h 		\
 	cogl-buffer.c				\
 	cogl-pixel-buffer-private.h		\
@@ -306,6 +310,7 @@ cogl_sources_c = \
 	cogl-atlas-texture-private.h          \
 	cogl-atlas-texture.c                  \
 	cogl-meta-texture.c			\
+	cogl-multi-plane-texture.c		\
 	cogl-primitive-texture.c		\
 	cogl-blit.h				\
 	cogl-blit.c				\
