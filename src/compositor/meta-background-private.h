@@ -11,4 +11,6 @@ CoglTexture *meta_background_get_texture (MetaBackground         *self,
                                           cairo_rectangle_int_t  *texture_area,
                                           CoglPipelineWrapMode   *wrap_mode);
 
+gboolean     meta_background_is_gradient (MetaBackground         *self);
+
 #endif /* META_BACKGROUND_PRIVATE_H */
