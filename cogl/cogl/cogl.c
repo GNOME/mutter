@@ -816,3 +816,126 @@ _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format)
 
   return aligned;
 }
+
+guint
+cogl_pixel_format_get_n_planes (CoglPixelFormat format)
+{
+  switch (format)
+    {
+    default:
+      return 1;
+    case COGL_PIXEL_FORMAT_XRGB88888_A8:
+    case COGL_PIXEL_FORMAT_XBGR88888_A8:
+    case COGL_PIXEL_FORMAT_RGBX88888_A8:
+    case COGL_PIXEL_FORMAT_BGRX88888_A8:
+    case COGL_PIXEL_FORMAT_RGB888_A8:
+    case COGL_PIXEL_FORMAT_BGR888_A8:
+    case COGL_PIXEL_FORMAT_RGB565_A8:
+    case COGL_PIXEL_FORMAT_BGR565_A8:
+    case COGL_PIXEL_FORMAT_NV12:
+    case COGL_PIXEL_FORMAT_NV21:
+    case COGL_PIXEL_FORMAT_NV16:
+    case COGL_PIXEL_FORMAT_NV61:
+    case COGL_PIXEL_FORMAT_NV24:
+    case COGL_PIXEL_FORMAT_NV42:
+      return 2;
+    case COGL_PIXEL_FORMAT_YUV410:
+    case COGL_PIXEL_FORMAT_YVU410:
+    case COGL_PIXEL_FORMAT_YUV411:
+    case COGL_PIXEL_FORMAT_YVU411:
+    case COGL_PIXEL_FORMAT_YUV420:
+    case COGL_PIXEL_FORMAT_YVU420:
+    case COGL_PIXEL_FORMAT_YUV422:
+    case COGL_PIXEL_FORMAT_YVU422:
+    case COGL_PIXEL_FORMAT_YUV444:
+    case COGL_PIXEL_FORMAT_YVU444:
+      return 3;
+    }
+
+  g_assert_not_reached ();
+}
+
+void
+cogl_pixel_format_get_subsampling_factors (CoglPixelFormat format,
+                                           guint *horizontal_factors,
+                                           guint *vertical_factors)
+{
+  switch (format)
+    {
+    /* Packed formats (single plane) */
+    default:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      break;
+
+    /* 2 planes */
+    case COGL_PIXEL_FORMAT_NV12:
+    case COGL_PIXEL_FORMAT_NV21:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 2;
+      vertical_factors[1] = 2;
+      break;
+
+    case COGL_PIXEL_FORMAT_XRGB88888_A8:
+    case COGL_PIXEL_FORMAT_XBGR88888_A8:
+    case COGL_PIXEL_FORMAT_RGBX88888_A8:
+    case COGL_PIXEL_FORMAT_BGRX88888_A8:
+    case COGL_PIXEL_FORMAT_RGB888_A8:
+    case COGL_PIXEL_FORMAT_BGR888_A8:
+    case COGL_PIXEL_FORMAT_RGB565_A8:
+    case COGL_PIXEL_FORMAT_BGR565_A8:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 1;
+      vertical_factors[1] = 1;
+      break;
+
+    /* 3 planes */
+    case COGL_PIXEL_FORMAT_YUV410:
+    case COGL_PIXEL_FORMAT_YVU410:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 4;
+      vertical_factors[1] = 4;
+      horizontal_factors[2] = 4;
+      vertical_factors[2] = 4;
+      break;
+    case COGL_PIXEL_FORMAT_YUV411:
+    case COGL_PIXEL_FORMAT_YVU411:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 4;
+      vertical_factors[1] = 1;
+      horizontal_factors[2] = 4;
+      vertical_factors[2] = 1;
+      break;
+    case COGL_PIXEL_FORMAT_YUV420:
+    case COGL_PIXEL_FORMAT_YVU420:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 2;
+      vertical_factors[1] = 2;
+      horizontal_factors[2] = 2;
+      vertical_factors[2] = 2;
+      break;
+    case COGL_PIXEL_FORMAT_YUV422:
+    case COGL_PIXEL_FORMAT_YVU422:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 2;
+      vertical_factors[1] = 1;
+      horizontal_factors[2] = 2;
+      vertical_factors[2] = 1;
+      break;
+    case COGL_PIXEL_FORMAT_YUV444:
+    case COGL_PIXEL_FORMAT_YVU444:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 1;
+      vertical_factors[1] = 1;
+      horizontal_factors[2] = 1;
+      vertical_factors[2] = 1;
+      break;
+    }
+}
