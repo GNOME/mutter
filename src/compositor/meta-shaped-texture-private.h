@@ -28,10 +28,11 @@
 #define __META_SHAPED_TEXTURE_PRIVATE_H__
 
 #include "meta/meta-shaped-texture.h"
+#include "compositor/meta-planar-texture.h"
 
 ClutterActor *meta_shaped_texture_new (void);
 void meta_shaped_texture_set_texture (MetaShapedTexture *stex,
-                                      CoglTexture       *texture);
+                                      MetaPlanarTexture *texture);
 void meta_shaped_texture_set_is_y_inverted (MetaShapedTexture *stex,
                                             gboolean           is_y_inverted);
 void meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
