@@ -78,7 +78,8 @@ foreach test : clutter_conform_tests
     install: false,
   )
 
-  test('clutter/conform/@0@'.format(test), test_executable,
+  test(test, test_executable,
+    suite: ['clutter', 'clutter/conform'],
     env: test_env
   )
 endforeach

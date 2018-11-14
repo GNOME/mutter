@@ -32,7 +32,8 @@ cogl_unit_unit_tests = custom_target('cogl-tests-unit-unit-tests',
   install: false,
 )
 
-test('cogl/unit', cogl_run_tests,
+test('unit', cogl_run_tests,
+  suite: ['cogl'],
   args: [
     cogl_config_env,
     libmutter_cogl_test_unit,
