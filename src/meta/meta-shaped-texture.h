@@ -52,7 +52,7 @@ gboolean meta_shaped_texture_update_area (MetaShapedTexture *stex,
                                           int                height);
 
 META_EXPORT
-CoglTexture * meta_shaped_texture_get_texture (MetaShapedTexture *stex);
+CoglMultiPlaneTexture * meta_shaped_texture_get_texture (MetaShapedTexture *stex);
 
 META_EXPORT
 void meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
