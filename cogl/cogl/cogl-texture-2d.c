@@ -240,6 +240,7 @@ cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
                                     int width,
                                     int height,
                                     CoglPixelFormat format,
+                                    CoglTextureComponents components,
                                     EGLImageKHR image,
                                     CoglError **error)
 {
@@ -263,6 +264,9 @@ cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
   loader->src.egl_image.format = format;
 
   tex = _cogl_texture_2d_create_base (ctx, width, height, format, loader);
+
+  /* Make sure we've set the right components before allocating */
+  cogl_texture_set_components (COGL_TEXTURE (tex), components);
 
   if (!cogl_texture_allocate (COGL_TEXTURE (tex), error))
     {
