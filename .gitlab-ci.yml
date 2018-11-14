@@ -6,6 +6,27 @@ stages:
 build-mutter:
   stage: build
   script:
-    - meson . build -Degl_device=true -Dwayland_eglstream=true
+    - meson . build -Degl_device=true -Dwayland_eglstream=true -Dheadless_tests=enabled
     - ninja -C build
     - ninja -C build install
+
+test-cogl:
+  stage: test
+  dependencies:
+    - build-mutter
+  script:
+    - meson -C build test --suite cogl-headless
+
+test-clutter:
+  stage: test
+  dependencies:
+    - build-mutter
+  script:
+    - meson -C build test --suite clutter-headless
+
+test-mutter:
+  stage: test
+  dependencies:
+    - build-mutter
+  script:
+    - meson -C build test --suite mutter-headless
