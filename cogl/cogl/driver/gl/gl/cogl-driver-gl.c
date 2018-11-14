@@ -277,6 +277,10 @@ _cogl_driver_pixel_format_to_gl_with_target (CoglContext *context,
       gltype = GL_UNSIGNED_INT_24_8;
       break;
 
+    case COGL_PIXEL_FORMAT_Y_UV:
+      g_warning ("FIXME");
+      break;
+
     case COGL_PIXEL_FORMAT_ANY:
     case COGL_PIXEL_FORMAT_YUV:
       g_assert_not_reached ();

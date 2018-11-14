@@ -105,6 +105,7 @@ cogl_nonintrospected_h = \
 	cogl-sub-texture.h            \
 	cogl-atlas-texture.h          \
 	cogl-meta-texture.h		\
+	cogl-multi-plane-texture.h		\
 	cogl-primitive-texture.h	\
 	cogl-depth-state.h 		\
 	cogl-buffer.h 		\
@@ -306,6 +307,7 @@ cogl_sources_c = \
 	cogl-atlas-texture-private.h          \
 	cogl-atlas-texture.c                  \
 	cogl-meta-texture.c			\
+	cogl-multi-plane-texture.c		\
 	cogl-primitive-texture.c		\
 	cogl-blit.h				\
 	cogl-blit.c				\
