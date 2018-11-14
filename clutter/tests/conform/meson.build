@@ -82,4 +82,13 @@ foreach test : clutter_conform_tests
     suite: ['clutter', 'clutter/conform'],
     env: test_env
   )
+
+  if have_headless_tests
+    test(test, xvfb,
+      args: test_executable,
+      suite: ['clutter-headless', 'clutter-headless/conform', 'headless'],
+      env: test_env,
+      is_parallel: false,
+    )
+  endif
 endforeach

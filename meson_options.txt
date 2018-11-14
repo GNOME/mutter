@@ -123,6 +123,12 @@ option('tests',
   description: 'Enable mutter tests'
 )
 
+option('headless_tests',
+  type: 'feature',
+  value: 'auto',
+  description: 'Enable mutter headless tests'
+)
+
 option('verbose',
   type: 'boolean',
   value: true,

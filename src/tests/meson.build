@@ -107,6 +107,18 @@ foreach stacking_test: stacking_tests
     is_parallel: false,
     timeout: 60,
   )
+  if have_headless_tests
+    test(stacking_test, xvfb,
+      suite: ['mutter-headless', 'mutter-headless/stacking', 'headless'],
+      env: test_env,
+      args: [
+        test_runner,
+        files(join_paths('stacking', stacking_test + '.metatest')),
+      ],
+      is_parallel: false,
+      timeout: 60,
+    )
+  endif
 endforeach
 
 test('normal', unit_tests,
@@ -122,3 +134,21 @@ test('headless-start', headless_start_test,
   is_parallel: false,
   timeout: 60,
 )
+
+if have_headless_tests
+  test('normal', xvfb,
+    args: unit_tests,
+    suite: ['mutter-headless', 'mutter-headless/unit', 'headless'],
+    env: test_env,
+    is_parallel: false,
+    timeout: 60,
+  )
+
+  test('headless-start', xvfb,
+    args: headless_start_test,
+    suite: ['mutter-headless', 'mutter-headless/unit', 'headless'],
+    env: test_env,
+    is_parallel: false,
+    timeout: 60,
+  )
+endif

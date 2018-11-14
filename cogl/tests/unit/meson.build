@@ -32,12 +32,22 @@ cogl_unit_unit_tests = custom_target('cogl-tests-unit-unit-tests',
   install: false,
 )
 
+cogl_unit_test_args = [
+  cogl_config_env,
+  libmutter_cogl_test_unit,
+  cogl_unit_unit_tests
+]
 test('unit', cogl_run_tests,
   suite: ['cogl'],
-  args: [
-    cogl_config_env,
-    libmutter_cogl_test_unit,
-    cogl_unit_unit_tests
-  ],
+  args: cogl_unit_test_args,
   is_parallel: false,
 )
+
+if have_headless_tests
+  test('unit', xvfb,
+    suite: ['cogl-headless', 'headless'],
+    args: [ cogl_run_tests.path() ] + cogl_unit_test_args,
+    is_parallel: false,
+    timeout: 90,
+  )
+endif

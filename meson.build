@@ -245,6 +245,26 @@ if have_tests
   endif
 endif
 
+headless_tests_option = get_option('headless_tests')
+have_headless_tests = not headless_tests_option.disabled()
+if have_headless_tests
+  if not have_tests and not have_cogl_tests and not have_clutter_tests
+    have_headless_tests = false
+    if headless_tests_option.enabled()
+      error('Headless tests are enabled, but no other test suite is')
+    endif
+  endif
+  if have_headless_tests
+    xvfb = find_program('xvfb-run', required: headless_tests_option.enabled())
+    have_headless_tests = xvfb.found()
+  endif
+endif
+if have_headless_tests
+  headless_tests_suite = ['headless']
+else
+  headless_tests_suite = []
+endif
+
 required_functions = [
   'ffs',
   'clz',

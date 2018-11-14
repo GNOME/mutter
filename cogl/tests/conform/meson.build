@@ -105,3 +105,17 @@ test('conform', cogl_run_tests,
   is_parallel: false,
   timeout: 60,
 )
+
+if have_headless_tests
+  test('conform', xvfb,
+    suite: ['cogl-headless', 'headless'],
+    args: [
+      cogl_run_tests.path(),
+      cogl_config_env,
+      libmutter_cogl_test_conformance,
+      cogl_conform_unit_tests
+    ],
+    is_parallel: false,
+    timeout: 500,
+  )
+endif
