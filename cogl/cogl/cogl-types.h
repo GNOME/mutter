@@ -269,7 +269,7 @@ typedef struct _CoglTextureVertex       CoglTextureVertex;
  * @COGL_PIXEL_FORMAT_RGB_565: RGB, 16 bits
  * @COGL_PIXEL_FORMAT_RGBA_4444: RGBA, 16 bits
  * @COGL_PIXEL_FORMAT_RGBA_5551: RGBA, 16 bits
- * @COGL_PIXEL_FORMAT_YUV: Not currently supported
+ * @COGL_PIXEL_FORMAT_YUV: Obsolete. See the other YUV-based formats.
  * @COGL_PIXEL_FORMAT_G_8: Single luminance component
  * @COGL_PIXEL_FORMAT_RGB_888: RGB, 24 bits
  * @COGL_PIXEL_FORMAT_BGR_888: BGR, 24 bits
@@ -353,7 +353,41 @@ typedef enum { /*< prefix=COGL_PIXEL_FORMAT >*/
   COGL_PIXEL_FORMAT_DEPTH_16  = (9 | COGL_DEPTH_BIT),
   COGL_PIXEL_FORMAT_DEPTH_32  = (3 | COGL_DEPTH_BIT),
 
-  COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8 = (3 | COGL_DEPTH_BIT | COGL_STENCIL_BIT)
+  COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8 = (3 | COGL_DEPTH_BIT | COGL_STENCIL_BIT),
+
+
+ /* From here on out, we simply enumerate with sequential values in the most
+  * significant enum byte. See the comments above if you don't know why. */
+
+  /* The following list is inspired by drm_fourcc.h */
+
+  /* Packed YCbCr */
+  COGL_PIXEL_FORMAT_YUYV = (1 << 24),
+  COGL_PIXEL_FORMAT_YVYU = (2 << 24),
+  COGL_PIXEL_FORMAT_UYVY = (3 << 24),
+  COGL_PIXEL_FORMAT_VYUY = (4 << 24),
+
+  COGL_PIXEL_FORMAT_AYUV = (5 << 24),
+
+  /* 2 plane YCbCr */
+  COGL_PIXEL_FORMAT_NV12 = (6 << 24),
+  COGL_PIXEL_FORMAT_NV21 = (7 << 24),
+  COGL_PIXEL_FORMAT_NV16 = (8 << 24),
+  COGL_PIXEL_FORMAT_NV61 = (9 << 24),
+  COGL_PIXEL_FORMAT_NV24 = (10 << 24),
+  COGL_PIXEL_FORMAT_NV42 = (11 << 24),
+
+  /* 3 plane YCbCr */
+  COGL_PIXEL_FORMAT_YUV410 = (12 << 24),
+  COGL_PIXEL_FORMAT_YVU410 = (13 << 24),
+  COGL_PIXEL_FORMAT_YUV411 = (14 << 24),
+  COGL_PIXEL_FORMAT_YVU411 = (15 << 24),
+  COGL_PIXEL_FORMAT_YUV420 = (16 << 24),
+  COGL_PIXEL_FORMAT_YVU420 = (17 << 24),
+  COGL_PIXEL_FORMAT_YUV422 = (18 << 24),
+  COGL_PIXEL_FORMAT_YVU422 = (19 << 24),
+  COGL_PIXEL_FORMAT_YUV444 = (20 << 24),
+  COGL_PIXEL_FORMAT_YVU444 = (21 << 24)
 } CoglPixelFormat;
 
 /**
