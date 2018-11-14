@@ -7,5 +7,8 @@ RUN dnf -y update && dnf -y upgrade && \
 # Until Fedora catches up with meson build-deps
     dnf install -y meson xorg-x11-server-Xorg gnome-settings-daemon-devel egl-wayland-devel xorg-x11-server-Xwayland && \
 
+# To enable testing headless
+    dnf install -y xorg-x11-server-Xvfb && \
+
     dnf install -y intltool redhat-rpm-config make && \
     dnf clean all

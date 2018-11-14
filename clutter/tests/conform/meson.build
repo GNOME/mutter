@@ -89,6 +89,7 @@ foreach test : clutter_conform_tests
       suite: ['clutter-headless', 'clutter-headless/conform', 'headless'],
       env: test_env,
       is_parallel: false,
+      timeout: 60,
     )
   endif
 endforeach
