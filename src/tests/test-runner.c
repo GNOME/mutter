@@ -799,8 +799,7 @@ main (int argc, char **argv)
   meta_plugin_manager_load (test_get_plugin_name ());
   meta_wayland_override_display_name ("mutter-test-display");
 
-  meta_init ();
-  meta_register_with_session ();
+  test_meta_init ();
 
   RunTestsInfo info;
   info.tests = (char **)tests->pdata;

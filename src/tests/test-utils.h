@@ -43,6 +43,8 @@ typedef struct _TestClient TestClient;
 void test_init (int    *argc,
                 char ***argv);
 
+void test_meta_init (void);
+
 gboolean async_waiter_alarm_filter (AsyncWaiter           *waiter,
                                     MetaX11Display        *x11_display,
                                     XSyncAlarmNotifyEvent *event);

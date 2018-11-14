@@ -22,6 +22,7 @@
 #include "tests/test-utils.h"
 
 #include <gio/gio.h>
+#include <meta/main.h>
 #include <string.h>
 
 #include "core/display-private.h"
@@ -92,6 +93,21 @@ test_init (int    *argc,
   g_test_bug_base ("http://bugzilla.gnome.org/show_bug.cgi?id=");
 
   ensure_test_client_path (*argc, *argv);
+}
+
+void
+test_meta_init ()
+{
+  GLogLevelFlags log_flags;
+
+  /* Accept warnings in mutter initialization, as `failed to bind` one */
+  log_flags = g_log_set_always_fatal (G_LOG_FATAL_MASK);
+  g_log_set_always_fatal (log_flags & ~G_LOG_LEVEL_WARNING);
+
+  meta_init ();
+  meta_register_with_session ();
+
+  g_log_set_always_fatal (log_flags);
 }
 
 AsyncWaiter *
