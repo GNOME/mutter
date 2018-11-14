@@ -800,6 +800,7 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
                                         tex->width,
                                         tex->height,
                                         texture_format,
+                                        COGL_TEXTURE_COMPONENTS_RGBA,
                                         egl_tex_pixmap->image,
                                         NULL));
 
