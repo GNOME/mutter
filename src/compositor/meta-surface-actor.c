@@ -325,7 +325,8 @@ gboolean
 meta_surface_actor_is_argb32 (MetaSurfaceActor *self)
 {
   MetaShapedTexture *stex = meta_surface_actor_get_texture (self);
-  CoglTexture *texture = meta_shaped_texture_get_texture (stex);
+  CoglMultiPlaneTexture *mtex = meta_shaped_texture_get_texture (stex);
+  CoglTexture *texture;
 
   /* If we don't have a texture, like during initialization, assume
    * that we're ARGB32.
@@ -335,9 +336,14 @@ meta_surface_actor_is_argb32 (MetaSurfaceActor *self)
    * place. This prevents us from continually redirecting and
    * unredirecting on every paint.
    */
-  if (!texture)
+  if (!mtex)
     return !meta_surface_actor_is_unredirected (self);
 
+  /* Are we dealing with multiple planes? Then it can't be argb32 either */
+  if (cogl_multi_plane_texture_get_n_planes (mtex) != 1)
+    return FALSE;
+
+  texture = cogl_multi_plane_texture_get_plane (mtex, 0);
   switch (cogl_texture_get_components (texture))
     {
     case COGL_TEXTURE_COMPONENTS_A:
