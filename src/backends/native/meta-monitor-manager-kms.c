@@ -606,16 +606,6 @@ meta_monitor_manager_kms_set_primary_gpu (MetaMonitorManagerKms *manager_kms)
         goto out;
     }
 
-  /* Otherwise get a platform device that is HW capable */
-  for (l = gpus; l; l = l->next)
-    {
-      gpu_kms = META_GPU_KMS (l->data);
-
-      if (meta_gpu_kms_is_platform_device (gpu_kms) &&
-          meta_gpu_kms_is_hw_capable (gpu_kms))
-        goto out;
-    }
-
   /* Fall back to any HW capable device */
   for (l = gpus; l; l = l->next)
     {
@@ -667,7 +657,6 @@ get_gpus (MetaMonitorManagerKms *manager_kms)
     {
       GUdevDevice *dev = l->data;
       MetaGpuKms *gpu_kms;
-      g_autoptr (GUdevDevice) platform_device = NULL;
       g_autoptr (GUdevDevice) pci_device = NULL;
       const char *device_path;
       const char *device_type;
@@ -703,12 +692,6 @@ get_gpus (MetaMonitorManagerKms *manager_kms)
           g_clear_error (&error);
           continue;
         }
-
-      platform_device = g_udev_device_get_parent_with_subsystem (dev,
-                                                                 "platform",
-                                                                 NULL);
-      if (platform_device != NULL)
-        meta_gpu_kms_set_platform_device (gpu_kms);
 
       pci_device = g_udev_device_get_parent_with_subsystem (dev, "pci", NULL);
       if (pci_device != NULL)
