@@ -171,6 +171,8 @@ struct _MetaBackgroundActorPrivate
   gboolean force_bilinear;
 
   cairo_region_t *clip_region;
+
+  double texel_inset_x, texel_inset_y;
 };
 
 static void cullable_iface_init (MetaCullableInterface *iface);
@@ -367,6 +369,17 @@ setup_pipeline (MetaBackgroundActor   *self,
       cogl_pipeline_set_layer_texture (priv->pipeline, 0, texture);
       cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, wrap_mode);
 
+      if (meta_background_is_gradient (priv->background))
+        {
+          priv->texel_inset_x = 1.0 / (2 * cogl_texture_get_width (texture));
+          priv->texel_inset_y = 1.0 / (2 * cogl_texture_get_height (texture));
+        }
+      else
+        {
+          priv->texel_inset_x = 0.0;
+          priv->texel_inset_y = 0.0;
+        }
+
       priv->changed &= ~CHANGED_BACKGROUND;
     }
 
@@ -462,7 +475,9 @@ static void
 paint_clipped_rectangle (CoglFramebuffer       *fb,
                          CoglPipeline          *pipeline,
                          cairo_rectangle_int_t *rect,
-                         cairo_rectangle_int_t *texture_area)
+                         cairo_rectangle_int_t *texture_area,
+                         float                  texel_inset_x,
+                         float                  texel_inset_y)
 {
   float x1, y1, x2, y2;
   float tx1, ty1, tx2, ty2;
@@ -472,10 +487,10 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
   x2 = rect->x + rect->width;
   y2 = rect->y + rect->height;
 
-  tx1 = (x1 - texture_area->x) / texture_area->width;
-  ty1 = (y1 - texture_area->y) / texture_area->height;
-  tx2 = (x2 - texture_area->x) / texture_area->width;
-  ty2 = (y2 - texture_area->y) / texture_area->height;
+  tx1 = (x1 - texture_area->x) / texture_area->width + texel_inset_x;
+  ty1 = (y1 - texture_area->y) / texture_area->height + texel_inset_y;
+  tx2 = (x2 - texture_area->x) / texture_area->width - texel_inset_x;
+  ty2 = (y2 - texture_area->y) / texture_area->height - texel_inset_y;
 
   cogl_framebuffer_draw_textured_rectangle (fb, pipeline,
                                             x1, y1, x2, y2,
@@ -532,14 +547,14 @@ meta_background_actor_paint (ClutterActor *actor)
                if (!gdk_rectangle_intersect (&actor_pixel_rect, &rect, &rect))
                  continue;
 
-               paint_clipped_rectangle (fb, priv->pipeline, &rect, &priv->texture_area);
+               paint_clipped_rectangle (fb, priv->pipeline, &rect, &priv->texture_area, priv->texel_inset_x, priv->texel_inset_y);
              }
 
            return;
         }
     }
 
-  paint_clipped_rectangle (fb, priv->pipeline, &actor_pixel_rect, &priv->texture_area);
+  paint_clipped_rectangle (fb, priv->pipeline, &actor_pixel_rect, &priv->texture_area, priv->texel_inset_x, priv->texel_inset_y);
 }
 
 static void
@@ -770,6 +785,9 @@ meta_background_actor_init (MetaBackgroundActor *self)
   priv->vignette = FALSE;
   priv->vignette_brightness = 1.0;
   priv->vignette_sharpness = 0.0;
+
+  priv->texel_inset_x = 0.0;
+  priv->texel_inset_y = 0.0;
 }
 
 /**

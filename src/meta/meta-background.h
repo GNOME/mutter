@@ -79,4 +79,6 @@ void meta_background_set_blend    (MetaBackground            *self,
                                    double                     blend_factor,
                                    GDesktopBackgroundStyle    style);
 
+gboolean meta_background_is_gradient (MetaBackground *self);
+
 #endif /* META_BACKGROUND_H */
