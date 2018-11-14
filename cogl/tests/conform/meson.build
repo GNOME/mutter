@@ -111,7 +111,8 @@ cogl_conform_unit_tests = custom_target('cogl-tests-conform-unit-tests',
   install_dir: cogl_installed_tests_libexecdir,
 )
 
-test('cogl/conform', cogl_run_tests,
+test('conform', cogl_run_tests,
+  suite: ['cogl'],
   args: [
     cogl_config_env,
     libmutter_cogl_test_conformance,
