@@ -75,7 +75,6 @@ struct _MetaGpuKms
   gboolean resources_init_failed_before;
 
   gboolean is_boot_gpu;
-  gboolean is_platform_device;
   gboolean is_hw_capable;
 };
 
@@ -424,18 +423,6 @@ gboolean
 meta_gpu_kms_is_boot_gpu (MetaGpuKms *gpu_kms)
 {
   return gpu_kms->is_boot_gpu;
-}
-
-void
-meta_gpu_kms_set_platform_device (MetaGpuKms *gpu_kms)
-{
-  gpu_kms->is_platform_device = TRUE;
-}
-
-gboolean
-meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms)
-{
-  return gpu_kms->is_platform_device;
 }
 
 void
