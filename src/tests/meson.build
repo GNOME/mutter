@@ -82,29 +82,32 @@ headless_start_test = executable('mutter-headless-start-test',
   install: false,
 )
 
-stacking_tests = files([
-  'stacking/basic-x11.metatest',
-  'stacking/basic-wayland.metatest',
-  'stacking/client-side-decorated.metatest',
-  'stacking/closed-transient.metatest',
-  'stacking/closed-transient-no-input-no-take-focus-parent.metatest',
-  'stacking/closed-transient-no-input-no-take-focus-parents.metatest',
-  'stacking/closed-transient-no-input-parent.metatest',
-  'stacking/minimized.metatest',
-  'stacking/mixed-windows.metatest',
-  'stacking/set-parent.metatest',
-  'stacking/override-redirect.metatest',
-  'stacking/set-parent-exported.metatest',
-])
+stacking_tests = [
+  'basic-x11',
+  'basic-wayland',
+  'client-side-decorated',
+  'closed-transient',
+  'closed-transient-no-input-no-take-focus-parent',
+  'closed-transient-no-input-no-take-focus-parents',
+  'closed-transient-no-input-parent',
+  'minimized',
+  'mixed-windows',
+  'set-parent',
+  'override-redirect',
+  'set-parent-exported',
+]
 
-test('mutter/stacking', test_runner,
-  env: test_env,
-  args: [
-    stacking_tests,
-  ],
-  is_parallel: false,
-  timeout: 60,
-)
+foreach stacking_test: stacking_tests
+  test(stacking_test, test_runner,
+    suite: ['mutter/stacking'],
+    env: test_env,
+    args: [
+      files(join_paths('stacking', stacking_test + '.metatest')),
+    ],
+    is_parallel: false,
+    timeout: 60,
+  )
+endforeach
 
 test('mutter/unit', unit_tests,
   env: test_env,
