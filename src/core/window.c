@@ -121,6 +121,7 @@ static gboolean queue_calc_showing_func (MetaWindow *window,
                                          void       *data);
 
 static void meta_window_move_between_rects (MetaWindow          *window,
+                                            MetaMoveResizeFlags  move_resize_flags,
                                             const MetaRectangle *old_area,
                                             const MetaRectangle *new_area);
 
@@ -3865,6 +3866,7 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
        * monitors changed and the same index could be refereing
        * to a different monitor. */
       meta_window_move_between_rects (window,
+                                      META_MOVE_RESIZE_FORCE_UPDATE_MONITOR,
                                       &old->rect,
                                       &new->rect);
     }
@@ -4046,6 +4048,8 @@ meta_window_move_resize_internal (MetaWindow          *window,
   update_monitor_flags = META_WINDOW_UPDATE_MONITOR_FLAGS_NONE;
   if (flags & META_MOVE_RESIZE_USER_ACTION)
     update_monitor_flags |= META_WINDOW_UPDATE_MONITOR_FLAGS_USER_OP;
+  if (flags & META_MOVE_RESIZE_FORCE_UPDATE_MONITOR)
+    update_monitor_flags |= META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE;
 
   if (window->monitor)
     {
@@ -4105,6 +4109,7 @@ meta_window_move_frame (MetaWindow *window,
 
 static void
 meta_window_move_between_rects (MetaWindow  *window,
+                                MetaMoveResizeFlags  move_resize_flags,
                                 const MetaRectangle *old_area,
                                 const MetaRectangle *new_area)
 {
@@ -4128,7 +4133,12 @@ meta_window_move_between_rects (MetaWindow  *window,
   window->saved_rect.x = window->unconstrained_rect.x;
   window->saved_rect.y = window->unconstrained_rect.y;
 
-  meta_window_move_resize_now (window);
+  meta_window_move_resize_internal (window,
+                                    move_resize_flags |
+                                    META_MOVE_RESIZE_MOVE_ACTION |
+                                    META_MOVE_RESIZE_RESIZE_ACTION,
+                                    NorthWestGravity,
+                                    window->unconstrained_rect);
 }
 
 /**
@@ -4189,14 +4199,14 @@ meta_window_move_to_monitor (MetaWindow  *window,
       window->unconstrained_rect.height == 0 ||
       !meta_rectangle_overlap (&window->unconstrained_rect, &old_area))
     {
-      meta_window_move_between_rects (window, NULL, &new_area);
+      meta_window_move_between_rects (window, 0, NULL, &new_area);
     }
   else
     {
       if (monitor == window->monitor->number)
         return;
 
-      meta_window_move_between_rects (window, &old_area, &new_area);
+      meta_window_move_between_rects (window, 0, &old_area, &new_area);
     }
 
   window->preferred_output_winsys_id = window->monitor->winsys_id;
