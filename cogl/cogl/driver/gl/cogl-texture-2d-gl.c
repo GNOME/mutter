@@ -209,6 +209,8 @@ allocate_from_bitmap (CoglTexture2D *tex_2d,
   GLenum gl_format;
   GLenum gl_type;
 
+  g_warning ("allocate_from_bitmap()");
+
   internal_format =
     _cogl_texture_determine_internal_format (tex, cogl_bitmap_get_format (bmp));
 
@@ -348,6 +350,8 @@ allocate_from_gl_foreign (CoglTexture2D *tex_2d,
   CoglPixelFormat format = loader->src.gl_foreign.format;
   GLint gl_compressed = GL_FALSE;
   GLenum gl_int_format = 0;
+
+  g_warning ("allocate_from_egl_image_foreign()");
 
   if (!ctx->texture_driver->allows_foreign_gl_target (ctx, GL_TEXTURE_2D))
     {
