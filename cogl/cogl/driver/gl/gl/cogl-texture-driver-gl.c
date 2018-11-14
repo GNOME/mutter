@@ -210,6 +210,8 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
   int level_width;
   int level_height;
 
+  g_warning ("uploading subregion to gl");
+
   cogl_texture_get_gl_texture (texture, &gl_handle, &gl_target);
 
   data = _cogl_bitmap_gl_bind (source_bmp, COGL_BUFFER_ACCESS_READ, 0, &internal_error);
@@ -313,6 +315,8 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
   int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
   gboolean status = TRUE;
   CoglError *internal_error = NULL;
+
+  g_warning ("uploading to gl");
 
   data = _cogl_bitmap_gl_bind (source_bmp,
                                COGL_BUFFER_ACCESS_READ,
