@@ -132,7 +132,7 @@ struct _MetaWaylandEglStream
 
   EGLStreamKHR egl_stream;
   MetaWaylandBuffer *buffer;
-  CoglTexture2D *texture;
+  CoglTexture2D *texture_2d;
   gboolean is_y_inverted;
 };
 
@@ -177,13 +177,13 @@ stream_texture_destroyed (gpointer data)
 {
   MetaWaylandEglStream *stream = data;
 
-  stream->texture = NULL;
+  stream->texture_2d = NULL;
 
   g_object_unref (stream);
 }
 
 static gboolean
-alloc_egl_stream_texture (CoglTexture2D *texture,
+alloc_egl_stream_texture (CoglTexture2D *texture_2d,
                           gpointer       user_data,
                           GError       **error)
 {
@@ -199,7 +199,7 @@ alloc_egl_stream_texture (CoglTexture2D *texture,
                                                        error);
 }
 
-CoglTexture2D *
+CoglMultiPlaneTexture *
 meta_wayland_egl_stream_create_texture (MetaWaylandEglStream *stream,
                                         GError              **error)
 {
@@ -208,7 +208,7 @@ meta_wayland_egl_stream_create_texture (MetaWaylandEglStream *stream,
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
-  CoglTexture2D *texture;
+  CoglTexture2D *texture_2d;
   int width, height;
   int y_inverted;
 
@@ -230,29 +230,29 @@ meta_wayland_egl_stream_create_texture (MetaWaylandEglStream *stream,
                                       NULL))
     y_inverted = EGL_TRUE;
 
-  texture =
+  texture_2d =
     cogl_texture_2d_new_from_egl_image_external (cogl_context,
                                                  width, height,
                                                  alloc_egl_stream_texture,
                                                  g_object_ref (stream),
                                                  stream_texture_destroyed,
                                                  error);
-  if (!texture)
+  if (!texture_2d)
     {
       g_object_unref (stream);
       return NULL;
     }
 
-  if (!cogl_texture_allocate (COGL_TEXTURE (texture), error))
+  if (!cogl_texture_allocate (COGL_TEXTURE (texture_2d), error))
     {
-      cogl_object_unref (texture);
+      cogl_object_unref (texture_2d);
       return NULL;
     }
 
-  stream->texture = texture;
+  stream->texture_2d = texture_2d;
   stream->is_y_inverted = !!y_inverted;
 
-  return texture;
+  return cogl_multi_plane_texture_new_single_plane (format, texture_2d);
 }
 
 gboolean
@@ -337,7 +337,7 @@ meta_wayland_egl_stream_finalize (GObject *object)
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
 
-  g_assert (!stream->texture);
+  g_assert (!stream->texture_2d);
 
   meta_egl_destroy_stream (egl, egl_display, stream->egl_stream, NULL);
 
