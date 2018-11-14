@@ -109,13 +109,15 @@ foreach stacking_test: stacking_tests
   )
 endforeach
 
-test('mutter/unit', unit_tests,
+test('normal', unit_tests,
+  suite: ['mutter/unit'],
   env: test_env,
   is_parallel: false,
   timeout: 60,
 )
 
-test('mutter/unit/headless-start', headless_start_test,
+test('headless-start', headless_start_test,
+  suite: ['mutter/unit'],
   env: test_env,
   is_parallel: false,
   timeout: 60,
