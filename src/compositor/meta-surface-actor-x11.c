@@ -45,7 +45,7 @@ struct _MetaSurfaceActorX11
 
   MetaDisplay *display;
 
-  CoglTexture *texture;
+  CoglMultiPlaneTexture *texture;
   Pixmap pixmap;
   Damage damage;
 
@@ -129,8 +129,9 @@ set_pixmap (MetaSurfaceActorX11 *self,
   else if (G_UNLIKELY (!cogl_texture_pixmap_x11_is_using_tfp_extension (COGL_TEXTURE_PIXMAP_X11 (texture))))
     g_warning ("NOTE: Not using GLX TFP!\n");
 
-  self->texture = texture;
-  meta_shaped_texture_set_texture (stex, texture);
+  /* FIXME: we need to find out the format here */
+  self->texture = cogl_multi_plane_texture_new_single_plane (COGL_PIXEL_FORMAT_ANY, texture);
+  meta_shaped_texture_set_texture (stex, self->texture);
 }
 
 static void
@@ -187,6 +188,7 @@ meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
                                        int x, int y, int width, int height)
 {
   MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
+  CoglTexture *texture;
 
   self->received_damage = TRUE;
 
@@ -210,7 +212,8 @@ meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
   if (!is_visible (self))
     return;
 
-  cogl_texture_pixmap_x11_update_area (COGL_TEXTURE_PIXMAP_X11 (self->texture),
+  texture = cogl_multi_plane_texture_get_plane (self->texture, 0);
+  cogl_texture_pixmap_x11_update_area (COGL_TEXTURE_PIXMAP_X11 (texture),
                                        x, y, width, height);
 }
 

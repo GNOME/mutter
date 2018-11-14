@@ -1503,10 +1503,12 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
   guchar *mask_data;
   guint tex_width, tex_height;
   MetaShapedTexture *stex;
-  CoglTexture *paint_tex, *mask_texture;
+  CoglMultiPlaneTexture *paint_tex;
+  CoglTexture *mask_texture;
   int stride;
   cairo_t *cr;
   cairo_surface_t *surface;
+  CoglError *error = NULL;
 
   stex = meta_surface_actor_get_texture (priv->surface);
   g_return_if_fail (stex);
@@ -1517,8 +1519,8 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
   if (paint_tex == NULL)
     return;
 
-  tex_width = cogl_texture_get_width (paint_tex);
-  tex_height = cogl_texture_get_height (paint_tex);
+  tex_width = cogl_multi_plane_texture_get_width (paint_tex);
+  tex_height = cogl_multi_plane_texture_get_height (paint_tex);
 
   stride = cairo_format_stride_for_width (CAIRO_FORMAT_A8, tex_width);
 
@@ -1559,31 +1561,14 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
   cairo_destroy (cr);
   cairo_surface_destroy (surface);
 
-  if (meta_texture_rectangle_check (paint_tex))
-    {
-      mask_texture = COGL_TEXTURE (cogl_texture_rectangle_new_with_size (ctx, tex_width, tex_height));
-      cogl_texture_set_components (mask_texture, COGL_TEXTURE_COMPONENTS_A);
-      cogl_texture_set_region (mask_texture,
-                               0, 0, /* src_x/y */
-                               0, 0, /* dst_x/y */
-                               tex_width, tex_height, /* dst_width/height */
-                               tex_width, tex_height, /* width/height */
-                               COGL_PIXEL_FORMAT_A_8,
-                               stride, mask_data);
-    }
-  else
-    {
-      CoglError *error = NULL;
+  mask_texture = COGL_TEXTURE (cogl_texture_2d_new_from_data (ctx, tex_width, tex_height,
+                                                              COGL_PIXEL_FORMAT_A_8,
+                                                              stride, mask_data, &error));
 
-      mask_texture = COGL_TEXTURE (cogl_texture_2d_new_from_data (ctx, tex_width, tex_height,
-                                                                  COGL_PIXEL_FORMAT_A_8,
-                                                                  stride, mask_data, &error));
-
-      if (error)
-        {
-          g_warning ("Failed to allocate mask texture: %s", error->message);
-          cogl_error_free (error);
-        }
+  if (error)
+    {
+      g_warning ("Failed to allocate mask texture: %s", error->message);
+      cogl_error_free (error);
     }
 
   meta_shaped_texture_set_mask_texture (stex, mask_texture);

@@ -247,7 +247,7 @@ get_buffer_width (MetaWaylandSurface *surface)
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
 
   if (buffer)
-    return cogl_texture_get_width (surface->texture);
+    return cogl_multi_plane_texture_get_width (surface->texture);
   else
     return 0;
 }
@@ -258,7 +258,7 @@ get_buffer_height (MetaWaylandSurface *surface)
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
 
   if (buffer)
-    return cogl_texture_get_height (surface->texture);
+    return cogl_multi_plane_texture_get_height (surface->texture);
   else
     return 0;
 }
@@ -722,7 +722,7 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
           if (changed_texture && meta_wayland_surface_get_actor (surface))
             {
               MetaShapedTexture *stex;
-              CoglTexture *texture;
+              CoglMultiPlaneTexture *texture;
               CoglSnippet *snippet;
               gboolean is_y_inverted;
 
@@ -1843,7 +1843,7 @@ meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurface *surface,
   return g_hash_table_contains (surface->shortcut_inhibited_seats, seat);
 }
 
-CoglTexture *
+CoglMultiPlaneTexture *
 meta_wayland_surface_get_texture (MetaWaylandSurface *surface)
 {
   return surface->texture;
