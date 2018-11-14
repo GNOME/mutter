@@ -58,7 +58,7 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (META_WAYLAND_SURFACE_ROLE (cursor_surface));
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (priv->cursor_sprite);
-  CoglTexture *texture;
+  CoglMultiPlaneTexture *texture;
 
   if (!priv->cursor_renderer)
     return;
@@ -66,8 +66,13 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
   texture = meta_wayland_surface_get_texture (surface);
   if (texture)
     {
+      CoglTexture *plane;
+
+      /* XXX We assume that we get a simple (single-plane) texture here */
+      plane = cogl_multi_plane_texture_get_plane (texture, 0);
+
       meta_cursor_sprite_set_texture (cursor_sprite,
-                                      texture,
+                                      plane,
                                       priv->hot_x * surface->scale,
                                       priv->hot_y * surface->scale);
     }
