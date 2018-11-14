@@ -102,5 +102,5 @@ test('cogl/conform', cogl_run_tests,
     cogl_conform_unit_tests
   ],
   is_parallel: false,
-  timeout: 120,
+  timeout: 240,
 )
