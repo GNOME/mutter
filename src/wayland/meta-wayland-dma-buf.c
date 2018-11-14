@@ -56,14 +56,148 @@ struct _MetaWaylandDmaBufBuffer
   int width;
   int height;
   uint32_t drm_format;
-  uint64_t drm_modifier;
   bool is_y_inverted;
+
+  guint n_planes;
+  uint64_t drm_modifier[META_WAYLAND_DMA_BUF_MAX_FDS];
   int fds[META_WAYLAND_DMA_BUF_MAX_FDS];
   int offsets[META_WAYLAND_DMA_BUF_MAX_FDS];
   unsigned int strides[META_WAYLAND_DMA_BUF_MAX_FDS];
 };
 
 G_DEFINE_TYPE (MetaWaylandDmaBufBuffer, meta_wayland_dma_buf_buffer, G_TYPE_OBJECT);
+
+static CoglPixelFormat
+drm_buffer_get_cogl_pixel_format (MetaWaylandDmaBufBuffer *dma_buf)
+{
+      g_warning ("Got dma format %d", dma_buf->drm_format);
+  switch (dma_buf->drm_format)
+    {
+    /*
+     * NOTE: The cogl_format here is only used for texture color channel
+     * swizzling as compared to COGL_PIXEL_FORMAT_ARGB. It is *not* used
+     * for accessing the buffer memory. EGL will access the buffer
+     * memory according to the DRM fourcc code. Cogl will not mmap
+     * and access the buffer memory at all.
+     */
+    case DRM_FORMAT_XRGB8888:
+      return COGL_PIXEL_FORMAT_RGB_888;
+    case DRM_FORMAT_ARGB8888:
+      return COGL_PIXEL_FORMAT_ARGB_8888_PRE;
+    case DRM_FORMAT_ARGB2101010:
+      return COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
+    case DRM_FORMAT_RGB565:
+      return COGL_PIXEL_FORMAT_RGB_565;
+    case DRM_FORMAT_YUYV:
+      return COGL_PIXEL_FORMAT_YUYV;
+    case DRM_FORMAT_NV12:
+      return COGL_PIXEL_FORMAT_NV12;
+    case DRM_FORMAT_NV21:
+      return COGL_PIXEL_FORMAT_NV21;
+    case DRM_FORMAT_YUV410:
+      return COGL_PIXEL_FORMAT_YUV410;
+    case DRM_FORMAT_YVU410:
+      return COGL_PIXEL_FORMAT_YVU410;
+    case DRM_FORMAT_YUV411:
+      return COGL_PIXEL_FORMAT_YUV411;
+    case DRM_FORMAT_YVU411:
+      return COGL_PIXEL_FORMAT_YVU411;
+    case DRM_FORMAT_YUV420:
+      return COGL_PIXEL_FORMAT_YUV420;
+    case DRM_FORMAT_YVU420:
+      return COGL_PIXEL_FORMAT_YVU420;
+    case DRM_FORMAT_YUV422:
+      return COGL_PIXEL_FORMAT_YUV422;
+    case DRM_FORMAT_YVU422:
+      return COGL_PIXEL_FORMAT_YVU422;
+    case DRM_FORMAT_YUV444:
+      return COGL_PIXEL_FORMAT_YUV444;
+    case DRM_FORMAT_YVU444:
+      return COGL_PIXEL_FORMAT_YVU444;
+    default:
+      return COGL_PIXEL_FORMAT_ANY;
+    }
+}
+
+static EGLImageKHR
+create_egl_image_from_dmabuf (MetaEgl                 *egl,
+                              EGLDisplay               egl_display,
+                              MetaWaylandDmaBufBuffer *dma_buf,
+                              uint32_t                 drm_format,
+                              GError                 **error)
+{
+  EGLint attribs[64];
+  int attr_idx = 0;
+
+  attribs[attr_idx++] = EGL_WIDTH;
+  attribs[attr_idx++] = dma_buf->width;
+  attribs[attr_idx++] = EGL_HEIGHT;
+  attribs[attr_idx++] = dma_buf->height;
+  attribs[attr_idx++] = EGL_LINUX_DRM_FOURCC_EXT;
+  attribs[attr_idx++] = drm_format;
+
+  attribs[attr_idx++] = EGL_DMA_BUF_PLANE0_FD_EXT;
+  attribs[attr_idx++] = dma_buf->fds[0];
+  attribs[attr_idx++] = EGL_DMA_BUF_PLANE0_OFFSET_EXT;
+  attribs[attr_idx++] = dma_buf->offsets[0];
+  attribs[attr_idx++] = EGL_DMA_BUF_PLANE0_PITCH_EXT;
+  attribs[attr_idx++] = dma_buf->strides[0];
+  attribs[attr_idx++] = EGL_DMA_BUF_PLANE0_MODIFIER_LO_EXT;
+  attribs[attr_idx++] = dma_buf->drm_modifier[0] & 0xffffffff;
+  attribs[attr_idx++] = EGL_DMA_BUF_PLANE0_MODIFIER_HI_EXT;
+  attribs[attr_idx++] = dma_buf->drm_modifier[0] >> 32;
+
+  if (dma_buf->fds[1] >= 0)
+    {
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE1_FD_EXT;
+      attribs[attr_idx++] = dma_buf->fds[1];
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE1_OFFSET_EXT;
+      attribs[attr_idx++] = dma_buf->offsets[1];
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE1_PITCH_EXT;
+      attribs[attr_idx++] = dma_buf->strides[1];
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE1_MODIFIER_LO_EXT;
+      attribs[attr_idx++] = dma_buf->drm_modifier[1] & 0xffffffff;
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE1_MODIFIER_HI_EXT;
+      attribs[attr_idx++] = dma_buf->drm_modifier[1] >> 32;
+    }
+
+  if (dma_buf->fds[2] >= 0)
+    {
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE2_FD_EXT;
+      attribs[attr_idx++] = dma_buf->fds[2];
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE2_OFFSET_EXT;
+      attribs[attr_idx++] = dma_buf->offsets[2];
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE2_PITCH_EXT;
+      attribs[attr_idx++] = dma_buf->strides[2];
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE2_MODIFIER_LO_EXT;
+      attribs[attr_idx++] = dma_buf->drm_modifier[2] & 0xffffffff;
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE2_MODIFIER_HI_EXT;
+      attribs[attr_idx++] = dma_buf->drm_modifier[2] >> 32;
+    }
+
+  if (dma_buf->fds[3] >= 0)
+    {
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE3_FD_EXT;
+      attribs[attr_idx++] = dma_buf->fds[3];
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE3_OFFSET_EXT;
+      attribs[attr_idx++] = dma_buf->offsets[3];
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE3_PITCH_EXT;
+      attribs[attr_idx++] = dma_buf->strides[3];
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE3_MODIFIER_LO_EXT;
+      attribs[attr_idx++] = dma_buf->drm_modifier[3] & 0xffffffff;
+      attribs[attr_idx++] = EGL_DMA_BUF_PLANE3_MODIFIER_HI_EXT;
+      attribs[attr_idx++] = dma_buf->drm_modifier[3] >> 32;
+    }
+
+  attribs[attr_idx++] = EGL_NONE;
+
+  /* The EXT_image_dma_buf_import spec states that EGL_NO_CONTEXT is to be
+   * used in conjunction with the EGL_LINUX_DMA_BUF_EXT target. Similarly,
+   * the native buffer is named in the attribs. */
+  return meta_egl_create_image (egl, egl_display, EGL_NO_CONTEXT,
+                                EGL_LINUX_DMA_BUF_EXT, NULL, attribs,
+                                error);
+}
 
 static gboolean
 meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
@@ -76,137 +210,79 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
   MetaWaylandDmaBufBuffer *dma_buf = buffer->dma_buf.dma_buf;
   CoglPixelFormat cogl_format;
-  EGLImageKHR egl_image;
-  CoglTexture2D *texture;
-  EGLint attribs[64];
-  int attr_idx = 0;
+  GPtrArray *planes;
+  guint i = 0, n_planes = 1;
 
   if (buffer->dma_buf.texture)
     return TRUE;
 
-  switch (dma_buf->drm_format)
+  cogl_format = drm_buffer_get_cogl_pixel_format (dma_buf);
+  if (G_UNLIKELY (cogl_format == COGL_PIXEL_FORMAT_ANY))
     {
-    /*
-     * NOTE: The cogl_format here is only used for texture color channel
-     * swizzling as compared to COGL_PIXEL_FORMAT_ARGB. It is *not* used
-     * for accessing the buffer memory. EGL will access the buffer
-     * memory according to the DRM fourcc code. Cogl will not mmap
-     * and access the buffer memory at all.
-     */
-    case DRM_FORMAT_XRGB8888:
-      cogl_format = COGL_PIXEL_FORMAT_RGB_888;
-      break;
-    case DRM_FORMAT_ARGB8888:
-      cogl_format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
-      break;
-    case DRM_FORMAT_ARGB2101010:
-      cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
-      break;
-    case DRM_FORMAT_RGB565:
-      cogl_format = COGL_PIXEL_FORMAT_RGB_565;
-      break;
-    default:
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "Unsupported buffer format %d", dma_buf->drm_format);
       return FALSE;
     }
+  g_warning ("Dmabuf: Got cogl format %s", cogl_pixel_format_to_string (cogl_format));
 
-  attribs[attr_idx++] = EGL_WIDTH;
-  attribs[attr_idx++] = dma_buf->width;
-  attribs[attr_idx++] = EGL_HEIGHT;
-  attribs[attr_idx++] = dma_buf->height;
-  attribs[attr_idx++] = EGL_LINUX_DRM_FOURCC_EXT;
-  attribs[attr_idx++] = dma_buf->drm_format;
+  n_planes = cogl_pixel_format_get_n_planes (cogl_format);
+  /* If this isn't correct, then something went very wrong, so bail out */
+  g_warning ("n_planes == %d <-> dma_buf planes = %d", n_planes, dma_buf->n_planes);
+  /* FIXME uncomment */
+  /* g_return_val_if_fail (n_planes == dma_buf->n_planes, FALSE); */
 
-  attribs[attr_idx++] = EGL_DMA_BUF_PLANE0_FD_EXT;
-  attribs[attr_idx++] = dma_buf->fds[0];
-  attribs[attr_idx++] = EGL_DMA_BUF_PLANE0_OFFSET_EXT;
-  attribs[attr_idx++] = dma_buf->offsets[0];
-  attribs[attr_idx++] = EGL_DMA_BUF_PLANE0_PITCH_EXT;
-  attribs[attr_idx++] = dma_buf->strides[0];
-  attribs[attr_idx++] = EGL_DMA_BUF_PLANE0_MODIFIER_LO_EXT;
-  attribs[attr_idx++] = dma_buf->drm_modifier & 0xffffffff;
-  attribs[attr_idx++] = EGL_DMA_BUF_PLANE0_MODIFIER_HI_EXT;
-  attribs[attr_idx++] = dma_buf->drm_modifier >> 32;
+  /*XXX probeersel*/
+  /* cogl_format = COGL_PIXEL_FORMAT_NV12; */
 
-  if (dma_buf->fds[1] >= 0)
+  planes = g_ptr_array_new_full (n_planes, cogl_object_unref);
+
+  /* Each EGLImage is a plane in the final CoglMultiPlaneTexture */
+  for (i = 0; i < dma_buf->n_planes; i++)
     {
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE1_FD_EXT;
-      attribs[attr_idx++] = dma_buf->fds[1];
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE1_OFFSET_EXT;
-      attribs[attr_idx++] = dma_buf->offsets[1];
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE1_PITCH_EXT;
-      attribs[attr_idx++] = dma_buf->strides[1];
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE1_MODIFIER_LO_EXT;
-      attribs[attr_idx++] = dma_buf->drm_modifier & 0xffffffff;
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE1_MODIFIER_HI_EXT;
-      attribs[attr_idx++] = dma_buf->drm_modifier >> 32;
+      EGLImageKHR egl_img;
+      CoglTexture2D *plane;
+
+      egl_img = create_egl_image_from_dmabuf (egl,
+                                              egl_display,
+                                              dma_buf,
+                                              dma_buf->drm_format,
+                                              error);
+      if (G_UNLIKELY (egl_img == EGL_NO_IMAGE_KHR))
+        goto on_error;
+
+      plane = cogl_egl_texture_2d_new_from_image (cogl_context,
+                                                  dma_buf->width,
+                                                  dma_buf->height,
+                                                  cogl_format,
+                                                  egl_img,
+                                                  error);
+
+      meta_egl_destroy_image (egl, egl_display, egl_img, NULL);
+
+      if (G_UNLIKELY (!plane))
+        goto on_error;
+
+      g_ptr_array_add (planes, plane);
     }
 
-  if (dma_buf->fds[2] >= 0)
-    {
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE2_FD_EXT;
-      attribs[attr_idx++] = dma_buf->fds[2];
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE2_OFFSET_EXT;
-      attribs[attr_idx++] = dma_buf->offsets[2];
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE2_PITCH_EXT;
-      attribs[attr_idx++] = dma_buf->strides[2];
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE2_MODIFIER_LO_EXT;
-      attribs[attr_idx++] = dma_buf->drm_modifier & 0xffffffff;
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE2_MODIFIER_HI_EXT;
-      attribs[attr_idx++] = dma_buf->drm_modifier >> 32;
-    }
-
-  if (dma_buf->fds[3] >= 0)
-    {
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE3_FD_EXT;
-      attribs[attr_idx++] = dma_buf->fds[3];
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE3_OFFSET_EXT;
-      attribs[attr_idx++] = dma_buf->offsets[3];
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE3_PITCH_EXT;
-      attribs[attr_idx++] = dma_buf->strides[3];
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE3_MODIFIER_LO_EXT;
-      attribs[attr_idx++] = dma_buf->drm_modifier & 0xffffffff;
-      attribs[attr_idx++] = EGL_DMA_BUF_PLANE3_MODIFIER_HI_EXT;
-      attribs[attr_idx++] = dma_buf->drm_modifier >> 32;
-    }
-
-  attribs[attr_idx++] = EGL_NONE;
-  attribs[attr_idx++] = EGL_NONE;
-
-  /* The EXT_image_dma_buf_import spec states that EGL_NO_CONTEXT is to be used
-   * in conjunction with the EGL_LINUX_DMA_BUF_EXT target. Similarly, the
-   * native buffer is named in the attribs. */
-  egl_image = meta_egl_create_image (egl, egl_display, EGL_NO_CONTEXT,
-                                     EGL_LINUX_DMA_BUF_EXT, NULL, attribs,
-                                     error);
-  if (egl_image == EGL_NO_IMAGE_KHR)
-    return FALSE;
-
-  texture = cogl_egl_texture_2d_new_from_image (cogl_context,
-                                                dma_buf->width,
-                                                dma_buf->height,
-                                                cogl_format,
-                                                egl_image,
-                                                error);
-
-  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
-
-  if (!texture)
-    return FALSE;
-
-  buffer->dma_buf.texture = COGL_TEXTURE (texture);
+  buffer->dma_buf.texture = cogl_multi_plane_texture_new (cogl_format,
+                                                  (CoglTexture **) g_ptr_array_free (planes, FALSE),
+                                                  dma_buf->n_planes);
   buffer->is_y_inverted = dma_buf->is_y_inverted;
 
   return TRUE;
+
+on_error:
+  g_ptr_array_free (planes, TRUE);
+  return FALSE;
 }
 
 gboolean
-meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
-                                    CoglTexture       **texture,
-                                    gboolean           *changed_texture,
-                                    GError            **error)
+meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer      *buffer,
+                                    CoglMultiPlaneTexture **texture,
+                                    gboolean               *changed_texture,
+                                    GError                **error)
 {
   if (!meta_wayland_dma_buf_realize_texture (buffer, error))
     return FALSE;
@@ -233,8 +309,10 @@ buffer_params_add (struct wl_client   *client,
   drm_modifier = ((uint64_t) drm_modifier_hi) << 32;
   drm_modifier |= ((uint64_t) drm_modifier_lo) & 0xffffffff;
 
+  g_warning ("buffer_params_add %d", plane_idx);
+
   dma_buf = wl_resource_get_user_data (resource);
-  if (!dma_buf)
+  if (G_UNLIKELY (!dma_buf))
     {
       wl_resource_post_error (resource,
                               ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_ALREADY_USED,
@@ -242,7 +320,7 @@ buffer_params_add (struct wl_client   *client,
       return;
     }
 
-  if (plane_idx >= META_WAYLAND_DMA_BUF_MAX_FDS)
+  if (G_UNLIKELY (plane_idx >= META_WAYLAND_DMA_BUF_MAX_FDS))
     {
       wl_resource_post_error (resource,
                               ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_PLANE_IDX,
@@ -251,7 +329,7 @@ buffer_params_add (struct wl_client   *client,
       return;
     }
 
-  if (dma_buf->fds[plane_idx] != -1)
+  if (G_UNLIKELY (dma_buf->fds[plane_idx] != -1))
     {
       wl_resource_post_error (resource,
                               ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_PLANE_SET,
@@ -260,17 +338,19 @@ buffer_params_add (struct wl_client   *client,
       return;
     }
 
-  if (dma_buf->drm_modifier != DRM_FORMAT_MOD_INVALID &&
-      dma_buf->drm_modifier != drm_modifier)
-    {
-      wl_resource_post_error (resource,
-                              ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_INVALID_WL_BUFFER,
-                              "mismatching modifier between planes");
-      return;
-    }
+  /* if (G_UNLIKELY (dma_buf->drm_modifier[plane_idx] != DRM_FORMAT_MOD_INVALID && */
+  /*     dma_buf->drm_modifier != drm_modifier)) */
+  /*   { */
+  /*     wl_resource_post_error (resource, */
+  /*                             ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_INVALID_WL_BUFFER, */
+  /*                             "mismatching modifier between planes"); */
+  /*     return; */
+  /*   } */
 
-  dma_buf->drm_modifier = drm_modifier;
+
+  dma_buf->n_planes = plane_idx + 1;
   dma_buf->fds[plane_idx] = fd;
+  dma_buf->drm_modifier[plane_idx] = drm_modifier;
   dma_buf->offsets[plane_idx] = offset;
   dma_buf->strides[plane_idx] = stride;
 }
@@ -550,6 +630,16 @@ dma_buf_bind (struct wl_client *client,
   send_modifiers (resource, DRM_FORMAT_XRGB8888);
   send_modifiers (resource, DRM_FORMAT_ARGB2101010);
   send_modifiers (resource, DRM_FORMAT_RGB565);
+  send_modifiers (resource, DRM_FORMAT_NV12);
+  send_modifiers (resource, DRM_FORMAT_YUV410);
+  send_modifiers (resource, DRM_FORMAT_YVU410);
+  send_modifiers (resource, DRM_FORMAT_YUV411);
+  send_modifiers (resource, DRM_FORMAT_YVU420);
+  send_modifiers (resource, DRM_FORMAT_YVU420);
+  send_modifiers (resource, DRM_FORMAT_YUV422);
+  send_modifiers (resource, DRM_FORMAT_YVU422);
+  send_modifiers (resource, DRM_FORMAT_YUV444);
+  send_modifiers (resource, DRM_FORMAT_YVU444);
 }
 
 gboolean
@@ -598,10 +688,12 @@ meta_wayland_dma_buf_buffer_init (MetaWaylandDmaBufBuffer *dma_buf)
 {
   int i;
 
-  dma_buf->drm_modifier = DRM_FORMAT_MOD_INVALID;
 
   for (i = 0; i < META_WAYLAND_DMA_BUF_MAX_FDS; i++)
-    dma_buf->fds[i] = -1;
+    {
+      dma_buf->drm_modifier[i] = DRM_FORMAT_MOD_INVALID;
+      dma_buf->fds[i] = -1;
+    }
 }
 
 static void
