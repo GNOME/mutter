@@ -25,7 +25,6 @@
 #include "deprecated/clutter-keysyms.h"
 #include "deprecated/clutter-main.h"
 #include "deprecated/clutter-rectangle.h"
-#include "deprecated/clutter-shader.h"
 #include "deprecated/clutter-stage-manager.h"
 #include "deprecated/clutter-stage.h"
 #include "deprecated/clutter-state.h"

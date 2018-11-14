@@ -116,7 +116,6 @@ typedef struct _ClutterEventSequence            ClutterEventSequence;
 
 typedef struct _ClutterFog                      ClutterFog; /* deprecated */
 typedef struct _ClutterBehaviour                ClutterBehaviour; /* deprecated */
-typedef struct _ClutterShader                   ClutterShader; /* deprecated */
 
 /**
  * ClutterPaintVolume:

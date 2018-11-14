@@ -1108,7 +1108,6 @@ static void clutter_actor_pop_in_cloned_branch (ClutterActor *self,
   { _transform; }                                                      \
   cogl_matrix_translate ((m), -_tx, -_ty, -_tz);        } G_STMT_END
 
-static GQuark quark_shader_data = 0;
 static GQuark quark_actor_layout_info = 0;
 static GQuark quark_actor_transform_info = 0;
 static GQuark quark_actor_animation_info = 0;
@@ -3522,12 +3521,6 @@ _clutter_actor_update_last_paint_volume (ClutterActor *self)
   priv->last_paint_volume_valid = TRUE;
 }
 
-static inline gboolean
-actor_has_shader_data (ClutterActor *self)
-{
-  return g_object_get_qdata (G_OBJECT (self), quark_shader_data) != NULL;
-}
-
 guint32
 _clutter_actor_get_pick_id (ClutterActor *self)
 {
@@ -3769,7 +3762,6 @@ clutter_actor_paint (ClutterActor *self)
   ClutterActorPrivate *priv;
   ClutterPickMode pick_mode;
   gboolean clip_set = FALSE;
-  gboolean shader_applied = FALSE;
   ClutterStage *stage;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
@@ -3940,13 +3932,6 @@ clutter_actor_paint (ClutterActor *self)
 
   if (priv->effects == NULL)
     {
-      if (pick_mode == CLUTTER_PICK_NONE &&
-          actor_has_shader_data (self))
-        {
-          _clutter_actor_shader_pre_paint (self, FALSE);
-          shader_applied = TRUE;
-        }
-
       priv->next_effect_to_paint = NULL;
     }
   else
@@ -3954,9 +3939,6 @@ clutter_actor_paint (ClutterActor *self)
       _clutter_meta_group_peek_metas (priv->effects);
 
   clutter_actor_continue_paint (self);
-
-  if (shader_applied)
-    _clutter_actor_shader_post_paint (self);
 
   if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_VOLUMES &&
                   pick_mode == CLUTTER_PICK_NONE))
@@ -6297,7 +6279,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  quark_shader_data = g_quark_from_static_string ("-clutter-actor-shader-data");
   quark_actor_layout_info = g_quark_from_static_string ("-clutter-actor-layout-info");
   quark_actor_transform_info = g_quark_from_static_string ("-clutter-actor-transform-info");
   quark_actor_animation_info = g_quark_from_static_string ("-clutter-actor-animation-info");
