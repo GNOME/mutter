@@ -51,7 +51,7 @@ struct _MetaWaylandBuffer
   struct wl_resource *resource;
   struct wl_listener destroy_listener;
 
-  CoglTexture *texture;
+  CoglMultiPlaneTexture *texture;
   gboolean is_y_inverted;
 
   MetaWaylandBufferType type;
@@ -77,7 +77,7 @@ gboolean                meta_wayland_buffer_is_realized         (MetaWaylandBuff
 gboolean                meta_wayland_buffer_realize             (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_attach              (MetaWaylandBuffer     *buffer,
                                                                  GError               **error);
-CoglTexture *           meta_wayland_buffer_get_texture         (MetaWaylandBuffer     *buffer);
+CoglMultiPlaneTexture * meta_wayland_buffer_get_texture         (MetaWaylandBuffer     *buffer);
 CoglSnippet *           meta_wayland_buffer_create_snippet      (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_is_y_inverted       (MetaWaylandBuffer     *buffer);
 void                    meta_wayland_buffer_process_damage      (MetaWaylandBuffer     *buffer,

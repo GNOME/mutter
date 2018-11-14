@@ -796,6 +796,43 @@ _cogl_pixel_format_get_bytes_per_pixel (CoglPixelFormat format)
   return bpp_lut [format & 0xf];
 }
 
+/*
+ * XXX document.
+ *
+ * XXX lol, this is even per macropixel, not per pixel :D
+ */
+void
+cogl_pixel_format_get_bits_per_pixel (CoglPixelFormat format, guint *bpp_out)
+{
+  /* "old" formats */
+  if (format & (0xff << 24))
+    {
+      switch (format)
+        {
+        case COGL_PIXEL_FORMAT_NV12:
+        case COGL_PIXEL_FORMAT_NV21:
+          bpp_out[0] = 8;
+          bpp_out[1] = 4;
+          break;
+        case COGL_PIXEL_FORMAT_YUV420:
+        case COGL_PIXEL_FORMAT_YVU420:
+          bpp_out[0] = 8;
+          bpp_out[1] = 2;
+          bpp_out[2] = 2;
+          break;
+        }
+    }
+  else
+    {
+      int bpp_lut[] = { 0, 1, 3, 4,
+                        2, 2, 2, 0,
+                        1, 2, 0, 0,
+                        3, 4, 0, 0 };
+
+      bpp_out[0] =  8 * bpp_lut [format & 0xf];
+    }
+}
+
 /* Note: this also refers to the mapping defined above for
  * _cogl_pixel_format_get_bytes_per_pixel() */
 CoglBool
@@ -816,3 +853,189 @@ _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format)
 
   return aligned;
 }
+
+guint
+cogl_pixel_format_get_n_planes (CoglPixelFormat format)
+{
+  switch (format)
+    {
+    default:
+      return 1;
+    case COGL_PIXEL_FORMAT_XRGB88888_A8:
+    case COGL_PIXEL_FORMAT_XBGR88888_A8:
+    case COGL_PIXEL_FORMAT_RGBX88888_A8:
+    case COGL_PIXEL_FORMAT_BGRX88888_A8:
+    case COGL_PIXEL_FORMAT_RGB888_A8:
+    case COGL_PIXEL_FORMAT_BGR888_A8:
+    case COGL_PIXEL_FORMAT_RGB565_A8:
+    case COGL_PIXEL_FORMAT_BGR565_A8:
+    case COGL_PIXEL_FORMAT_NV12:
+    case COGL_PIXEL_FORMAT_NV21:
+    case COGL_PIXEL_FORMAT_NV16:
+    case COGL_PIXEL_FORMAT_NV61:
+    case COGL_PIXEL_FORMAT_NV24:
+    case COGL_PIXEL_FORMAT_NV42:
+      return 2;
+    case COGL_PIXEL_FORMAT_YUV410:
+    case COGL_PIXEL_FORMAT_YVU410:
+    case COGL_PIXEL_FORMAT_YUV411:
+    case COGL_PIXEL_FORMAT_YVU411:
+    case COGL_PIXEL_FORMAT_YUV420:
+    case COGL_PIXEL_FORMAT_YVU420:
+    case COGL_PIXEL_FORMAT_YUV422:
+    case COGL_PIXEL_FORMAT_YVU422:
+    case COGL_PIXEL_FORMAT_YUV444:
+    case COGL_PIXEL_FORMAT_YVU444:
+      return 3;
+    }
+
+  g_assert_not_reached ();
+}
+
+void
+cogl_pixel_format_get_subsampling_factors (CoglPixelFormat format,
+                                           guint *horizontal_factors,
+                                           guint *vertical_factors)
+{
+  switch (format)
+    {
+    /* Packed formats (single plane) */
+    default:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      break;
+
+    /* 2 planes */
+    case COGL_PIXEL_FORMAT_NV12:
+    case COGL_PIXEL_FORMAT_NV21:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 2;
+      vertical_factors[1] = 2;
+      break;
+
+    case COGL_PIXEL_FORMAT_XRGB88888_A8:
+    case COGL_PIXEL_FORMAT_XBGR88888_A8:
+    case COGL_PIXEL_FORMAT_RGBX88888_A8:
+    case COGL_PIXEL_FORMAT_BGRX88888_A8:
+    case COGL_PIXEL_FORMAT_RGB888_A8:
+    case COGL_PIXEL_FORMAT_BGR888_A8:
+    case COGL_PIXEL_FORMAT_RGB565_A8:
+    case COGL_PIXEL_FORMAT_BGR565_A8:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 1;
+      vertical_factors[1] = 1;
+      break;
+
+    /* 3 planes */
+    case COGL_PIXEL_FORMAT_YUV410:
+    case COGL_PIXEL_FORMAT_YVU410:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 4;
+      vertical_factors[1] = 4;
+      horizontal_factors[2] = 4;
+      vertical_factors[2] = 4;
+      break;
+    case COGL_PIXEL_FORMAT_YUV411:
+    case COGL_PIXEL_FORMAT_YVU411:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 4;
+      vertical_factors[1] = 1;
+      horizontal_factors[2] = 4;
+      vertical_factors[2] = 1;
+      break;
+    case COGL_PIXEL_FORMAT_YUV420:
+    case COGL_PIXEL_FORMAT_YVU420:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 2;
+      vertical_factors[1] = 2;
+      horizontal_factors[2] = 2;
+      vertical_factors[2] = 2;
+      break;
+    case COGL_PIXEL_FORMAT_YUV422:
+    case COGL_PIXEL_FORMAT_YVU422:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 2;
+      vertical_factors[1] = 1;
+      horizontal_factors[2] = 2;
+      vertical_factors[2] = 1;
+      break;
+    case COGL_PIXEL_FORMAT_YUV444:
+    case COGL_PIXEL_FORMAT_YVU444:
+      horizontal_factors[0] = 1;
+      vertical_factors[0] = 1;
+      horizontal_factors[1] = 1;
+      vertical_factors[1] = 1;
+      horizontal_factors[2] = 1;
+      vertical_factors[2] = 1;
+      break;
+    }
+}
+
+/* void */
+/* cogl_pixel_format_get_texture_components (CoglPixelFormat format, */
+/*                                           CoglTextureComponents *components_out) */
+/* { */
+/*   /1* Check for Pre-YUV formats *1/ */
+/*   if (format & 0xf000) */
+/*     { */
+/*       switch (format) */
+/*         { */
+/*         /1* 2 planes *1/ */
+/*         case COGL_PIXEL_FORMAT_NV12: */
+/*         case COGL_PIXEL_FORMAT_NV21: */
+/*           components_out[0] = COGL_TEXTURE_COMPONENTS_R; */
+/*           components_out[1] = COGL_TEXTURE_COMPONENTS_RG; */
+/*           break; */
+
+/*           /1* XXX TODO *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_XRGB88888_A8: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_XBGR88888_A8: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_RGBX88888_A8: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_BGRX88888_A8: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_RGB888_A8: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_BGR888_A8: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_RGB565_A8: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_BGR565_A8: *1/ */
+
+/*         /1* /2* 3 planes *2/ *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_YUV410: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_YVU410: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_YUV411: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_YVU411: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_YUV420: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_YVU420: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_YUV422: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_YVU422: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_YUV444: *1/ */
+/*         /1* case COGL_PIXEL_FORMAT_YVU444: *1/ */
+
+/*         default: */
+/*           /1* XXX At this point, we might crash 'n burn *1/ */
+/*           g_assert_not_reached (); */
+/*           components_out[0] = COGL_TEXTURE_COMPONENTS_RGB; */
+/*           break; */
+/*         } */
+/*     } */
+/*   else */
+/*     { */
+/*       if (format == COGL_PIXEL_FORMAT_ANY) */
+/*         format = COGL_PIXEL_FORMAT_RGBA_8888_PRE; */
+
+/*       if (format == COGL_PIXEL_FORMAT_A_8) */
+/*         components_out[0] = COGL_TEXTURE_COMPONENTS_A; */
+/*       else if (format == COGL_PIXEL_FORMAT_RG_88) */
+/*         components_out[0] = COGL_TEXTURE_COMPONENTS_RG; */
+/*       else if (format & COGL_DEPTH_BIT) */
+/*         components_out[0] = COGL_TEXTURE_COMPONENTS_DEPTH; */
+/*       else if (format & COGL_A_BIT) */
+/*         components_out[0] = COGL_TEXTURE_COMPONENTS_RGBA; */
+/*       else */
+/*         components_out[0] = COGL_TEXTURE_COMPONENTS_RGB; */
+/*     } */
+/* } */
