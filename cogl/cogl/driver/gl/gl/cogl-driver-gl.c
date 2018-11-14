@@ -108,6 +108,9 @@ _cogl_driver_pixel_format_to_gl_with_target (CoglContext *context,
 
   required_format = format;
 
+  if (format == COGL_PIXEL_FORMAT_Y_UV)
+      g_warning ("cogl-driver-gl: GOT NV12!!");
+
   /* Find GL equivalents */
   switch (format)
     {
