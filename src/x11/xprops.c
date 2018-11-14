@@ -639,6 +639,7 @@ text_property_to_utf8 (Display *xdisplay,
 {
   char *ret = NULL;
   char **local_list = NULL;
+  const char *charset = NULL;
   int count = 0;
   int res;
 
@@ -649,7 +650,10 @@ text_property_to_utf8 (Display *xdisplay,
   if (count == 0)
     goto out;
 
-  ret = g_strdup (local_list[0]);
+  if (g_get_charset (&charset))
+    ret = g_strdup (local_list[0]);
+  else
+    ret = g_convert (local_list[0], -1, "UTF-8", charset, NULL, NULL, NULL);
 
  out:
   XFreeStringList (local_list);
