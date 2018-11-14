@@ -145,7 +145,7 @@ G_BEGIN_DECLS
  * @COGL_PIXEL_FORMAT_RGB_565: RGB, 16 bits
  * @COGL_PIXEL_FORMAT_RGBA_4444: RGBA, 16 bits
  * @COGL_PIXEL_FORMAT_RGBA_5551: RGBA, 16 bits
- * @COGL_PIXEL_FORMAT_YUV: Not currently supported
+ * @COGL_PIXEL_FORMAT_YUV: Obsolete. See the other YUV-based formats.
  * @COGL_PIXEL_FORMAT_R_8: Single red component, 8 bits
  * @COGL_PIXEL_FORMAT_RGB_888: RGB, 24 bits
  * @COGL_PIXEL_FORMAT_BGR_888: BGR, 24 bits
@@ -167,6 +167,35 @@ G_BEGIN_DECLS
  * @COGL_PIXEL_FORMAT_BGRA_1010102_PRE: Premultiplied BGRA, 32 bits, 10 bpc
  * @COGL_PIXEL_FORMAT_ARGB_2101010_PRE: Premultiplied ARGB, 32 bits, 10 bpc
  * @COGL_PIXEL_FORMAT_ABGR_2101010_PRE: Premultiplied ABGR, 32 bits, 10 bpc
+ * @COGL_PIXEL_FORMAT_YUYV: YUYV, 32 bits, 16 bpc (Y), 8 bpc (U & V)
+ * @COGL_PIXEL_FORMAT_YVYU: YVYU, 32 bits, 16 bpc (Y), 8 bpc (V & U)
+ * @COGL_PIXEL_FORMAT_UYVY: UYVY, 32 bits, 16 bpc (Y), 8 bpc (V & U)
+ * @COGL_PIXEL_FORMAT_VYUY: VYUV, 32 bits, 16 bpc (Y), 8 bpc (V & U)
+ * @COGL_PIXEL_FORMAT_AYUV: AYUV, 32 bits, 8 bpc
+ * @COGL_PIXEL_FORMAT_XRGB8888_A8: 2 planes: 1 RGB-plane (64-bit), 1 alpha-plane
+ * @COGL_PIXEL_FORMAT_XBGR8888_A8: 2 planes: 1 BGR-plane (64-bit), 1 alpha-plane
+ * @COGL_PIXEL_FORMAT_RGBX8888_A8: 2 planes: 1 RGB-plane (64-bit), 1 alpha-plane
+ * @COGL_PIXEL_FORMAT_BGRX8888_A8: 2 planes: 1 BGR-plane (64-bit), 1 alpha-plane
+ * @COGL_PIXEL_FORMAT_RGB888_A8: 2 planes: 1 RGB-plane (32-bit), 1 alpha-plane
+ * @COGL_PIXEL_FORMAT_BGR888_A8: 2 planes: 1 BGR-plane (32-bit), 1 alpha-plane
+ * @COGL_PIXEL_FORMAT_RGB565_A8: 2 planes: 1 RGB-plane (16-bit), 1 alpha-plane
+ * @COGL_PIXEL_FORMAT_BGR565_A8: 2 planes: 1 BGR-plane (16-bit), 1 alpha-plane
+ * @COGL_PIXEL_FORMAT_NV12: 2 planes: 1 Y-plane, 1 UV-plane (2x2 subsampled)
+ * @COGL_PIXEL_FORMAT_NV21: 2 planes: 1 Y-plane, 1 VU-plane (2x2 subsampled)
+ * @COGL_PIXEL_FORMAT_NV16: 2 planes: 1 Y-plane, 1 UV-plane (2x1 subsampled)
+ * @COGL_PIXEL_FORMAT_NV61: 2 planes: 1 Y-plane, 1 VU-plane (2x1 subsampled)
+ * @COGL_PIXEL_FORMAT_NV24: 2 planes: 1 Y-plane, 1 UV-plane
+ * @COGL_PIXEL_FORMAT_NV42: 2 planes: 1 Y-plane, 1 VU-plane
+ * @COGL_PIXEL_FORMAT_YUV410: 3 planes: 1 Y-plane, 1 U-plane (4x4 subsampled), 1 V-plane (4x4 subsampled)
+ * @COGL_PIXEL_FORMAT_YVU410: 3 planes: 1 Y-plane, 1 V-plane (4x4 subsampled), 1 U-plane (4x4 subsampled)
+ * @COGL_PIXEL_FORMAT_YUV411: 3 planes: 1 Y-plane, 1 U-plane (4x1 subsampled), 1 V-plane (4x1 subsampled)
+ * @COGL_PIXEL_FORMAT_YVU411: 3 planes: 1 Y-plane, 1 V-plane (4x1 subsampled), 1 U-plane (4x1 subsampled)
+ * @COGL_PIXEL_FORMAT_YUV420: 3 planes: 1 Y-plane, 1 U-plane (2x2 subsampled), 1 V-plane (2x2 subsampled)
+ * @COGL_PIXEL_FORMAT_YVU420: 3 planes: 1 Y-plane, 1 V-plane (2x2 subsampled), 1 U-plane (2x2 subsampled)
+ * @COGL_PIXEL_FORMAT_YUV422: 3 planes: 1 Y-plane, 1 U-plane (2x1 subsampled), 1 V-plane (2x1 subsampled)
+ * @COGL_PIXEL_FORMAT_YVU422: 3 planes: 1 Y-plane, 1 V-plane (2x1 subsampled), 1 U-plane (2x1 subsampled)
+ * @COGL_PIXEL_FORMAT_YUV444: 3 planes: 1 Y-plane, 1 U-plane, 1 V-plane
+ * @COGL_PIXEL_FORMAT_YVU444: 3 planes: 1 Y-plane, 1 V-plane, 1 U-plane
  *
  * Pixel formats used by Cogl. For the formats with a byte per
  * component, the order of the components specify the order in
@@ -230,8 +259,58 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
   COGL_PIXEL_FORMAT_DEPTH_16  = (9 | COGL_DEPTH_BIT),
   COGL_PIXEL_FORMAT_DEPTH_32  = (3 | COGL_DEPTH_BIT),
 
-  COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8 = (3 | COGL_DEPTH_BIT | COGL_STENCIL_BIT)
+  COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8 = (3 | COGL_DEPTH_BIT | COGL_STENCIL_BIT),
+
+ /* From here on out, we simply enumerate with sequential values in the most
+  * significant enum byte. See the comments above if you want to know why. */
+
+  /* The following list is basically synced with Linux's <drm_fourcc.h> */
+
+  /* Packed YUV */
+  COGL_PIXEL_FORMAT_YUYV = (1 << 24),
+  COGL_PIXEL_FORMAT_YVYU = (2 << 24),
+  COGL_PIXEL_FORMAT_UYVY = (3 << 24),
+  COGL_PIXEL_FORMAT_VYUY = (4 << 24),
+
+  COGL_PIXEL_FORMAT_AYUV = (5 << 24),
+
+  /* 2 plane RGB + A */
+  COGL_PIXEL_FORMAT_XRGB8888_A8 = ( 6 << 24),
+  COGL_PIXEL_FORMAT_XBGR8888_A8 = ( 7 << 24),
+  COGL_PIXEL_FORMAT_RGBX8888_A8 = ( 8 << 24),
+  COGL_PIXEL_FORMAT_BGRX8888_A8 = ( 9 << 24),
+  COGL_PIXEL_FORMAT_RGB888_A8    = (10 << 24),
+  COGL_PIXEL_FORMAT_BGR888_A8    = (11 << 24),
+  COGL_PIXEL_FORMAT_RGB565_A8    = (12 << 24),
+  COGL_PIXEL_FORMAT_BGR565_A8    = (13 << 24),
+
+  /* 2 plane YUV */
+  COGL_PIXEL_FORMAT_NV12 = (14 << 24),
+  COGL_PIXEL_FORMAT_NV21 = (15 << 24),
+  COGL_PIXEL_FORMAT_NV16 = (16 << 24),
+  COGL_PIXEL_FORMAT_NV61 = (17 << 24),
+  COGL_PIXEL_FORMAT_NV24 = (18 << 24),
+  COGL_PIXEL_FORMAT_NV42 = (19 << 24),
+
+  /* 3 plane YUV */
+  COGL_PIXEL_FORMAT_YUV410 = (20 << 24),
+  COGL_PIXEL_FORMAT_YVU410 = (21 << 24),
+  COGL_PIXEL_FORMAT_YUV411 = (22 << 24),
+  COGL_PIXEL_FORMAT_YVU411 = (23 << 24),
+  COGL_PIXEL_FORMAT_YUV420 = (24 << 24),
+  COGL_PIXEL_FORMAT_YVU420 = (25 << 24),
+  COGL_PIXEL_FORMAT_YUV422 = (26 << 24),
+  COGL_PIXEL_FORMAT_YVU422 = (27 << 24),
+  COGL_PIXEL_FORMAT_YUV444 = (28 << 24),
+  COGL_PIXEL_FORMAT_YVU444 = (29 << 24)
 } CoglPixelFormat;
+
+/**
+ * COGL_PIXEL_FORMAT_MAX_PLANES:
+ *
+ * The maximum number of planes
+ */
+#define COGL_PIXEL_FORMAT_MAX_PLANES (4)
 
 /*
  * _cogl_pixel_format_get_bytes_per_pixel:
@@ -242,7 +321,7 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
  * Return value: The number of bytes taken for a pixel of the given
  *               @format.
  */
-int
+uint8_t
 _cogl_pixel_format_get_bytes_per_pixel (CoglPixelFormat format);
 
 /*
@@ -285,6 +364,29 @@ _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format);
   (((format) & COGL_A_BIT) && (format) != COGL_PIXEL_FORMAT_A_8)
 
 /**
+ * cogl_pixel_format_get_n_planes:
+ * @format: The format for which to get the number of planes
+ *
+ * Returns the number of planes the given CoglPixelFormat specifies.
+ */
+guint
+cogl_pixel_format_get_n_planes (CoglPixelFormat format);
+
+/**
+ * cogl_pixel_format_get_subsampling_factors:
+ * @format: The format to get the subsampling factors from.
+ *
+ * Returns the subsampling in both the horizontal as the vertical direction.
+ */
+void
+cogl_pixel_format_get_subsampling_factors (CoglPixelFormat format,
+                                           uint8_t *horizontal_factors,
+                                           uint8_t *vertical_factors);
+
+void
+cogl_pixel_format_get_bytes_per_pixel_ (CoglPixelFormat format, uint8_t *bpp_out);
+
+/**
  * cogl_pixel_format_to_string:
  * @format: a #CoglPixelFormat
  *
@@ -294,6 +396,10 @@ _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format);
  */
 const char *
 cogl_pixel_format_to_string (CoglPixelFormat format);
+
+void
+cogl_pixel_format_get_cogl_components (CoglPixelFormat        format,
+                                       guint *components_out);
 
 G_END_DECLS
 
