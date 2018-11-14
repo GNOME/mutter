@@ -981,3 +981,12 @@ meta_background_refresh_all (void)
   for (l = all_backgrounds; l; l = l->next)
     mark_changed (l->data);
 }
+
+gboolean
+meta_background_is_gradient (MetaBackground *self)
+{
+  g_return_val_if_fail (META_IS_BACKGROUND (self), FALSE);
+
+  return self->shading_direction == G_DESKTOP_BACKGROUND_SHADING_VERTICAL ||
+         self->shading_direction == G_DESKTOP_BACKGROUND_SHADING_HORIZONTAL;
+}
