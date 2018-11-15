@@ -30,6 +30,9 @@
 #include "meta/meta-monitor-manager.h"
 #include "meta/util.h"
 
+#define MIN_FILTER COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST
+#define MAG_FILTER COGL_PIPELINE_FILTER_LINEAR
+
 enum
 {
   CHANGED,
@@ -694,6 +697,7 @@ ensure_wallpaper_texture (MetaBackground *self,
 
       pipeline = create_pipeline (PIPELINE_REPLACE);
       cogl_pipeline_set_layer_texture (pipeline, 0, texture);
+      cogl_pipeline_set_layer_filters (pipeline, 0, MIN_FILTER, MAG_FILTER);
       cogl_framebuffer_draw_textured_rectangle (fbo, pipeline, 0, 0, width, height,
                                                 0., 0., 1., 1.);
       cogl_object_unref (pipeline);
@@ -821,6 +825,7 @@ meta_background_get_texture (MetaBackground         *self,
           cogl_pipeline_set_color4f (pipeline,
                                       priv->blend_factor, priv->blend_factor, priv->blend_factor, priv->blend_factor);
           cogl_pipeline_set_layer_texture (pipeline, 0, texture2);
+          cogl_pipeline_set_layer_filters (pipeline, 0, MIN_FILTER, MAG_FILTER);
           cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (priv->style));
 
           bare_region_visible = draw_texture (self,
@@ -845,6 +850,7 @@ meta_background_get_texture (MetaBackground         *self,
                                      (1 - priv->blend_factor),
                                      (1 - priv->blend_factor));;
           cogl_pipeline_set_layer_texture (pipeline, 0, texture1);
+          cogl_pipeline_set_layer_filters (pipeline, 0, MIN_FILTER, MAG_FILTER);
           cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (priv->style));
 
           bare_region_visible = bare_region_visible || draw_texture (self,
