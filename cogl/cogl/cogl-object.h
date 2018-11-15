@@ -76,6 +76,20 @@ void
 cogl_object_unref (void *object);
 
 /**
+ * cogl_clear_object: (skip)
+ * @object_ptr: a pointer to a #CoglObject reference
+ *
+ * Clears a reference to a #CoglObject.
+ *
+ * @object_ptr must not be %NULL.
+ *
+ * If the reference is %NULL then this function does nothing.
+ * Otherwise, the reference count of the object is decreased using
+ * cogl_object_unref() and the pointer is set to %NULL.
+ **/
+#define cogl_clear_object(object_ptr) g_clear_pointer ((object_ptr), cogl_object_unref)
+
+/**
  * CoglUserDataKey:
  * @unused: ignored.
  *
