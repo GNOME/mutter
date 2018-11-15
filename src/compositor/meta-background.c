@@ -629,6 +629,11 @@ create_pipeline (PipelineType type)
       cogl_pipeline_set_blend (templates[type], blend_strings[type], NULL);
     }
 
+  cogl_pipeline_set_layer_filters (templates[type],
+                                   0,
+                                   COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST,
+                                   COGL_PIPELINE_FILTER_LINEAR);
+
   return cogl_pipeline_copy (templates[type]);
 }
 
