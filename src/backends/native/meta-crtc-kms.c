@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2013-2017 Red Hat
+ * Copyright (C) 2018 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,7 +45,12 @@ typedef struct _MetaCrtcKms
   uint32_t rotation_map[ALL_TRANSFORMS];
   uint32_t all_hw_transforms;
 
-  GArray *modifiers_xrgb8888;
+  /*
+   * primary plane's supported formats and maybe modifiers
+   * key: GUINT_TO_POINTER (format)
+   * value: owned GArray* (uint64_t modifier), or NULL
+   */
+  GHashTable *formats_modifiers;
 } MetaCrtcKms;
 
 gboolean
@@ -180,10 +186,8 @@ meta_crtc_kms_get_modifiers (MetaCrtc *crtc,
 {
   MetaCrtcKms *crtc_kms = crtc->driver_private;
 
-  if (format != DRM_FORMAT_XRGB8888)
-    return NULL;
-
-  return crtc_kms->modifiers_xrgb8888;
+  return g_hash_table_lookup (crtc_kms->formats_modifiers,
+                              GUINT_TO_POINTER (format));
 }
 
 static inline uint32_t *
@@ -200,6 +204,15 @@ modifiers_ptr (struct drm_format_modifier_blob *blob)
 }
 
 static void
+free_modifier_array (GArray *arr)
+{
+  if (!arr)
+    return;
+
+  g_array_free (arr, TRUE);
+}
+
+static void
 parse_formats (MetaCrtc *crtc,
                int       kms_fd,
                uint32_t  blob_id)
@@ -209,8 +222,9 @@ parse_formats (MetaCrtc *crtc,
   struct drm_format_modifier_blob *blob_fmt;
   uint32_t *formats;
   struct drm_format_modifier *modifiers;
-  unsigned int i;
-  unsigned int xrgb_idx = UINT_MAX;
+  unsigned int fmt_i, mod_i;
+
+  g_return_if_fail (g_hash_table_size (crtc_kms->formats_modifiers) == 0);
 
   if (blob_id == 0)
     return;
@@ -227,43 +241,36 @@ parse_formats (MetaCrtc *crtc,
 
   blob_fmt = blob->data;
 
-  /* Find the index of our XRGB8888 format. */
   formats = formats_ptr (blob_fmt);
-  for (i = 0; i < blob_fmt->count_formats; i++)
-    {
-      if (formats[i] == DRM_FORMAT_XRGB8888)
-        {
-          xrgb_idx = i;
-          break;
-        }
-    }
-
-  if (xrgb_idx == UINT_MAX)
-    {
-      drmModeFreePropertyBlob (blob);
-      return;
-    }
-
   modifiers = modifiers_ptr (blob_fmt);
-  crtc_kms->modifiers_xrgb8888 = g_array_new (FALSE, FALSE, sizeof (uint64_t));
-  for (i = 0; i < blob_fmt->count_modifiers; i++)
+
+  for (fmt_i = 0; fmt_i < blob_fmt->count_formats; fmt_i++)
     {
-      /* The modifier advertisement blob is partitioned into groups of
-       * 64 formats. */
-      if (xrgb_idx < modifiers[i].offset ||
-          xrgb_idx > modifiers[i].offset + 63)
-        continue;
+      GArray *mod_tmp = g_array_new (FALSE, FALSE, sizeof (uint64_t));
 
-      if (!(modifiers[i].formats & (1 << (xrgb_idx - modifiers[i].offset))))
-        continue;
+      for (mod_i = 0; mod_i < blob_fmt->count_modifiers; mod_i++)
+        {
+          struct drm_format_modifier *modifier = &modifiers[mod_i];
 
-      g_array_append_val (crtc_kms->modifiers_xrgb8888, modifiers[i].modifier);
-    }
+          /* The modifier advertisement blob is partitioned into groups of
+           * 64 formats. */
+          if (fmt_i < modifier->offset || fmt_i > modifier->offset + 63)
+            continue;
 
-  if (crtc_kms->modifiers_xrgb8888->len == 0)
-    {
-      g_array_free (crtc_kms->modifiers_xrgb8888, TRUE);
-      crtc_kms->modifiers_xrgb8888 = NULL;
+          if (!(modifier->formats & (1 << (fmt_i - modifier->offset))))
+            continue;
+
+          g_array_append_val (mod_tmp, modifier->modifier);
+        }
+
+      if (mod_tmp->len == 0)
+        {
+          free_modifier_array (mod_tmp);
+          mod_tmp = NULL;
+        }
+
+      g_hash_table_insert (crtc_kms->formats_modifiers,
+                           GUINT_TO_POINTER (formats[fmt_i]), mod_tmp);
     }
 
   drmModeFreePropertyBlob (blob);
@@ -423,8 +430,7 @@ meta_crtc_destroy_notify (MetaCrtc *crtc)
 {
   MetaCrtcKms *crtc_kms = crtc->driver_private;
 
-  if (crtc_kms->modifiers_xrgb8888)
-    g_array_free (crtc_kms->modifiers_xrgb8888, TRUE);
+  g_hash_table_destroy (crtc_kms->formats_modifiers);
   g_free (crtc->driver_private);
 }
 
@@ -468,6 +474,12 @@ meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
 
   crtc_kms = g_new0 (MetaCrtcKms, 1);
   crtc_kms->index = crtc_index;
+
+  crtc_kms->formats_modifiers =
+    g_hash_table_new_full (g_direct_hash,
+                           g_direct_equal,
+                           NULL,
+                           (GDestroyNotify) free_modifier_array);
 
   crtc->driver_private = crtc_kms;
   crtc->driver_notify = (GDestroyNotify) meta_crtc_destroy_notify;
