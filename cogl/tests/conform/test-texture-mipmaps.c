@@ -115,7 +115,7 @@ test_texture_mipmaps (TestUtilsGTestFixture *fixture,
 
   clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
 
-  group = clutter_group_new ();
+  group = clutter_actor_new ();
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), group);
 
   /* We force continuous redrawing of the stage, since we need to skip

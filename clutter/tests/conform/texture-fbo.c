@@ -31,7 +31,7 @@ static ClutterActor *
 create_source (void)
 {
   int x, y;
-  ClutterActor *group = clutter_group_new ();
+  ClutterActor *group = clutter_actor_new ();
 
   /* Create a group with a different coloured rectangle at each
      corner */

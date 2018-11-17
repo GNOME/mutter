@@ -331,7 +331,7 @@ on_toggle_click (ClutterActor *button, ClutterEvent *event,
 static ClutterActor *
 make_toggle (const char *label_text, gboolean *toggle_val)
 {
-  ClutterActor *group = clutter_group_new ();
+  ClutterActor *group = clutter_actor_new ();
   ClutterActor *label = clutter_text_new_with_text ("Sans 14", label_text);
   ClutterActor *button = clutter_text_new_with_text ("Sans 14", "");
 

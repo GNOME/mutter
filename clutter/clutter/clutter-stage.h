@@ -28,8 +28,8 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
+#include <clutter/clutter-actor-private.h>
 #include <clutter/clutter-types.h>
-#include <clutter/clutter-group.h>
 
 G_BEGIN_DECLS
 
@@ -55,10 +55,11 @@ typedef struct _ClutterStagePrivate ClutterStagePrivate;
 struct _ClutterStage
 {
   /*< private >*/
-  ClutterGroup parent_instance;
+  ClutterActor parent_instance;
 
   ClutterStagePrivate *priv;
 };
+
 /**
  * ClutterStageClass:
  * @fullscreen: handler for the #ClutterStage::fullscreen signal
@@ -75,7 +76,7 @@ struct _ClutterStage
 struct _ClutterStageClass
 {
   /*< private >*/
-  ClutterGroupClass parent_class;
+  ClutterActorClass parent_class;
 
   /*< public >*/
   /* signals */

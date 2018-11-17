@@ -72,7 +72,7 @@ main (int argc, char *argv[])
   clutter_actor_set_size (button4, SIZE, SIZE);
 
   for (i = 0; i < 4; i++) {
-    group[i] = clutter_group_new ();
+    group[i] = clutter_actor_new ();
     clutter_actor_set_position (group[i], SIZE / 2, SIZE / 2);
     clutter_actor_set_size (group[i], SIZE, SIZE);
 

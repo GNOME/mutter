@@ -17,7 +17,7 @@ make_source (void)
 
   ClutterColor  yellow = {0xff, 0xff, 0x00, 0xff};
 
-  source  = clutter_group_new ();
+  source  = clutter_actor_new ();
 
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
   actor = clutter_texture_new_from_file (file, &error);

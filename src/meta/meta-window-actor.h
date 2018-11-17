@@ -29,7 +29,7 @@
 #include "meta/compositor.h"
 
 /*
- * MetaWindowActor object (ClutterGroup sub-class)
+ * MetaWindowActor object (ClutterActor sub-class)
  */
 #define META_TYPE_WINDOW_ACTOR            (meta_window_actor_get_type ())
 #define META_WINDOW_ACTOR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_WINDOW_ACTOR, MetaWindowActor))

@@ -82,7 +82,7 @@ opacity_paint (void)
 
   stage = clutter_test_get_stage ();
 
-  group1 = clutter_group_new ();
+  group1 = clutter_actor_new ();
   clutter_actor_set_opacity (group1, 128);
   clutter_container_add (CLUTTER_CONTAINER (stage), group1, NULL);
   clutter_actor_set_position (group1, 10, 30);
@@ -109,7 +109,7 @@ opacity_paint (void)
 
   clutter_actor_destroy (label);
 
-  group2 = clutter_group_new ();
+  group2 = clutter_actor_new ();
   clutter_container_add (CLUTTER_CONTAINER (group1), group2, NULL);
   clutter_actor_set_position (group2, 10, 60);
 

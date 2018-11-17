@@ -172,7 +172,7 @@ test_vertex_buffer_contiguous (TestUtilsGTestFixture *fixture,
   clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_clr);
   clutter_actor_get_geometry (stage, &state.stage_geom);
 
-  group = clutter_group_new ();
+  group = clutter_actor_new ();
   clutter_actor_set_size (group,
 			  state.stage_geom.width,
 			  state.stage_geom.height);

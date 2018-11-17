@@ -204,7 +204,7 @@ static void free_queue_redraw_entry (ClutterStageQueueRedrawEntry *entry);
 
 static void clutter_container_iface_init (ClutterContainerIface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (ClutterStage, clutter_stage, CLUTTER_TYPE_GROUP,
+G_DEFINE_TYPE_WITH_CODE (ClutterStage, clutter_stage, CLUTTER_TYPE_ACTOR,
                          G_ADD_PRIVATE (ClutterStage)
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
                                                 clutter_container_iface_init))
@@ -685,10 +685,6 @@ _clutter_stage_paint_view (ClutterStage                *stage,
   g_signal_emit (stage, stage_signals[AFTER_PAINT], 0);
 }
 
-/* If we don't implement this here, we get the paint function
- * from the deprecated clutter-group class, which doesn't
- * respect the Z order as it uses our empty sort_depth_order.
- */
 static void
 clutter_stage_paint (ClutterActor *self)
 {
@@ -707,9 +703,9 @@ clutter_stage_pick (ClutterActor       *self,
   ClutterActorIter iter;
   ClutterActor *child;
 
-  /* Note: we don't chain up to our parent as we don't want any geometry
-   * emitted for the stage itself. The stage's pick id is effectively handled
-   * by the call to cogl_clear done in clutter-main.c:_clutter_do_pick_async()
+  /* Note: we don't want any geometry emitted for the stage itself. The stage's
+   * pick id is effectively handled by the call to cogl_clear done in
+   * clutter-main.c:_clutter_do_pick_async()
    */
   clutter_actor_iter_init (&iter, self);
   while (clutter_actor_iter_next (&iter, &child))
@@ -756,9 +752,6 @@ clutter_stage_show_all (ClutterActor *self)
   ClutterActorIter iter;
   ClutterActor *child;
 
-  /* we don't do a recursive show_all(), to maintain the old
-   * invariants from ClutterGroup
-   */
   clutter_actor_iter_init (&iter, self);
   while (clutter_actor_iter_next (&iter, &child))
     clutter_actor_show (child);
@@ -789,9 +782,6 @@ clutter_stage_hide_all (ClutterActor *self)
 
   clutter_actor_hide (self);
 
-  /* we don't do a recursive hide_all(), to maintain the old invariants
-   * from ClutterGroup
-   */
   clutter_actor_iter_init (&iter, self);
   while (clutter_actor_iter_next (&iter, &child))
     clutter_actor_hide (child);

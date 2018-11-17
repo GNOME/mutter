@@ -26,7 +26,6 @@
 #include "cally-actor.h"
 #include "cally-clone.h"
 #include "cally-factory.h"
-#include "cally-group.h"
 #include "cally-main.h"
 #include "cally-rectangle.h"
 #include "cally-root.h"

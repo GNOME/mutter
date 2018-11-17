@@ -56,7 +56,7 @@ main (int argc, char *argv[])
   clutter_stage_set_color (CLUTTER_STAGE (stage), CLUTTER_COLOR_Black);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Text");
 
-  group = clutter_group_new ();
+  group = clutter_actor_new ();
   clutter_actor_set_size (group, STAGE_WIDTH, STAGE_WIDTH);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), group);
 

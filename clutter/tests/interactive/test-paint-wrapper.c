@@ -271,7 +271,7 @@ test_paint_wrapper_main (int argc, char *argv[])
     }
 
   /* create a new group to hold multiple actors in a group */
-  oh->group = clutter_group_new();
+  oh->group = clutter_actor_new();
 
   oh->hand = g_new (ClutterActor*, n_hands);
 

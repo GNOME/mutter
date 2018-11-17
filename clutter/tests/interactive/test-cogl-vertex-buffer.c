@@ -317,7 +317,7 @@ create_dummy_actor (guint width, guint height)
   ClutterActor *group, *rect;
   ClutterColor clr = { 0xff, 0xff, 0xff, 0xff};
 
-  group = clutter_group_new ();
+  group = clutter_actor_new ();
   rect = clutter_rectangle_new_with_color (&clr);
   clutter_actor_set_size (rect, width, height);
   clutter_actor_hide (rect);

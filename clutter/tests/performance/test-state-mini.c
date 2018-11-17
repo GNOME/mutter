@@ -38,7 +38,7 @@ static ClutterActor *new_rect (gint r,
 {
   GError *error = NULL;
   ClutterColor *color = clutter_color_new (r, g, b, a);
-  ClutterActor *group = clutter_group_new ();
+  ClutterActor *group = clutter_actor_new ();
   ClutterActor *rectangle = clutter_rectangle_new_with_color (color);
   ClutterActor *hand = NULL;
 

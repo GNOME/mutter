@@ -127,7 +127,7 @@ test_cogl_multitexture_main (int argc, char *argv[])
    * default paint handler, so that we can easily control
    * painting in a paint signal handler, without having to
    * sub-class anything etc. */
-  state->group = clutter_group_new ();
+  state->group = clutter_actor_new ();
   clutter_actor_set_position (state->group, stage_w / 2, stage_h / 2);
   g_signal_connect (state->group, "paint",
 		    G_CALLBACK(material_rectangle_paint), state);

@@ -27,6 +27,7 @@
 #define __CLUTTER_BACKEND_EGL_NATIVE_H__
 
 #include <glib-object.h>
+#include <gio/gio.h>
 #include <cogl/cogl.h>
 #include <cogl/cogl-egl.h>
 #include <clutter/clutter-event.h>

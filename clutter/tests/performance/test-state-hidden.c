@@ -37,7 +37,7 @@ static ClutterActor *new_rect (gint r,
                                gint a)
 {
   ClutterColor *color = clutter_color_new (r, g, b, a);
-  ClutterActor *group = clutter_group_new ();
+  ClutterActor *group = clutter_actor_new ();
   ClutterActor *rectangle = clutter_rectangle_new_with_color (color);
 
   gchar *file = g_build_filename (TESTS_DATA_DIR, "redhand.png", NULL);
@@ -63,7 +63,7 @@ main (gint    argc,
     g_error ("Failed to initialize Clutter");
 
   stage = clutter_stage_new ();
-  group = clutter_group_new ();
+  group = clutter_actor_new ();
   layout_state = clutter_state_new ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "State Performance [hidden]");
   clutter_stage_set_color (CLUTTER_STAGE (stage), CLUTTER_COLOR_Black);

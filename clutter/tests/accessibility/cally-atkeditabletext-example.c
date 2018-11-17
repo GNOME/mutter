@@ -149,7 +149,7 @@ _create_button (const gchar *text)
   ClutterActor *rectangle  = NULL;
   ClutterActor *label      = NULL;
 
-  button = clutter_group_new ();
+  button = clutter_actor_new ();
   rectangle = clutter_rectangle_new_with_color (CLUTTER_COLOR_Magenta);
   clutter_actor_set_size (rectangle, 375, 35);
 

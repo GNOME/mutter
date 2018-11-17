@@ -43,7 +43,7 @@
  *
  * Constraints can be used with fixed layout managers, like
  * #ClutterFixedLayout, or with actors implicitly using a fixed layout
- * manager, like #ClutterGroup and #ClutterStage.
+ * manager, like #ClutterStage.
  *
  * Constraints provide a way to build user interfaces by using
  * relations between #ClutterActors, without explicit fixed

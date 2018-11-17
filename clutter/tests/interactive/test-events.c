@@ -496,7 +496,7 @@ test_events_main (int argc, char *argv[])
   g_signal_connect (actor, "event", G_CALLBACK (input_cb), "yellow box");
 
   /* note group not reactive */
-  group = clutter_group_new ();
+  group = clutter_actor_new ();
   clutter_container_add (CLUTTER_CONTAINER (group), actor, NULL);
   clutter_container_add (CLUTTER_CONTAINER (stage), group, NULL);
   clutter_actor_set_position (group, 100, 350);

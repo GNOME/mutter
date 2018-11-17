@@ -257,7 +257,7 @@ test_pixmap_main (int argc, char **argv)
 
   if (!disable_x11)
     {
-      group = clutter_group_new ();
+      group = clutter_actor_new ();
       clutter_container_add_actor (CLUTTER_CONTAINER (stage), group);
       label = clutter_text_new_with_text ("fixed",
                                           "ClutterX11Texture (Window)");
@@ -289,7 +289,7 @@ test_pixmap_main (int argc, char **argv)
     XDrawLine (xdpy, win_remote, gc, 0+i*20, 0, 10+i*20+i, 200);
 
 
-  group = clutter_group_new ();
+  group = clutter_actor_new ();
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), group);
   label = clutter_text_new_with_text ("fixed", "ClutterX11Texture (Pixmap)");
   clutter_container_add_actor (CLUTTER_CONTAINER (group), label);

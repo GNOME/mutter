@@ -20,7 +20,6 @@
 #include "deprecated/clutter-box.h"
 #include "deprecated/clutter-cairo-texture.h"
 #include "deprecated/clutter-container.h"
-#include "deprecated/clutter-group.h"
 #include "deprecated/clutter-input-device.h"
 #include "deprecated/clutter-keysyms.h"
 #include "deprecated/clutter-main.h"

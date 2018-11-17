@@ -78,7 +78,6 @@ source_h =					\
 	clutter-flow-layout.h		\
 	clutter-gesture-action.h 	\
 	clutter-grid-layout.h 	\
-	clutter-group.h 		\
 	clutter-image.h		\
 	clutter-input-device.h	\
 	clutter-input-device-tool.h	\
@@ -271,7 +270,6 @@ deprecated_h = \
 	deprecated/clutter-box.h			\
 	deprecated/clutter-cairo-texture.h		\
 	deprecated/clutter-container.h		\
-	deprecated/clutter-group.h			\
 	deprecated/clutter-input-device.h		\
 	deprecated/clutter-keysyms.h			\
 	deprecated/clutter-main.h			\
@@ -300,7 +298,6 @@ deprecated_c = \
 	deprecated/clutter-behaviour-scale.c		\
 	deprecated/clutter-box.c			\
 	deprecated/clutter-cairo-texture.c		\
-	deprecated/clutter-group.c 			\
 	deprecated/clutter-input-device-deprecated.c	\
 	deprecated/clutter-layout-manager-deprecated.c \
 	deprecated/clutter-rectangle.c 		\
