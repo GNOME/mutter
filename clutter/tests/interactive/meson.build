@@ -54,7 +54,6 @@ clutter_tests_interactive_test_sources = [
   'test-scrolling.c',
   'test-swipe-action.c',
   'test-cogl-point-sprites.c',
-  'test-table-layout.c',
   'test-path-constraint.c',
   'test-state-script.c',
   'test-devices.c',

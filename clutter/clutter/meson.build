@@ -237,7 +237,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-stage-manager.h',
   'deprecated/clutter-stage.h',
   'deprecated/clutter-state.h',
-  'deprecated/clutter-table-layout.h',
   'deprecated/clutter-texture.h',
   'deprecated/clutter-timeline.h',
   'deprecated/clutter-util.h',
@@ -261,7 +260,6 @@ clutter_deprecated_sources = [
   'deprecated/clutter-layout-manager-deprecated.c',
   'deprecated/clutter-rectangle.c',
   'deprecated/clutter-state.c',
-  'deprecated/clutter-table-layout.c',
   'deprecated/clutter-texture.c',
 ]
 

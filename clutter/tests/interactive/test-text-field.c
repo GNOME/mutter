@@ -228,6 +228,7 @@ create_entry (const ClutterColor *color,
   clutter_text_set_max_length (CLUTTER_TEXT (retval), max_length);
   clutter_text_set_selected_text_color (CLUTTER_TEXT (retval), &selected_text);
   clutter_actor_set_background_color (retval, CLUTTER_COLOR_LightGray);
+  clutter_actor_set_x_expand (retval, TRUE);
   if (attrs)
     clutter_text_set_attributes (CLUTTER_TEXT (retval), attrs);
 
@@ -247,7 +248,7 @@ test_text_field_main (gint    argc,
 {
   ClutterActor *stage;
   ClutterActor *box, *label, *entry;
-  ClutterLayoutManager *table;
+  ClutterGridLayout *grid;
   PangoAttrList *entry_attrs;
 
   if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
@@ -258,12 +259,12 @@ test_text_field_main (gint    argc,
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_Black);
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
 
-  table = clutter_table_layout_new ();
-  clutter_table_layout_set_column_spacing (CLUTTER_TABLE_LAYOUT (table), 6);
-  clutter_table_layout_set_row_spacing (CLUTTER_TABLE_LAYOUT (table), 6);
+  grid = CLUTTER_GRID_LAYOUT (clutter_grid_layout_new ());
+  clutter_grid_layout_set_column_spacing (grid, 6);
+  clutter_grid_layout_set_row_spacing (grid, 6);
 
   box = clutter_actor_new ();
-  clutter_actor_set_layout_manager (box, table);
+  clutter_actor_set_layout_manager (box, grid);
   clutter_actor_add_constraint (box, clutter_bind_constraint_new (stage, CLUTTER_BIND_WIDTH, -24.0));
   clutter_actor_add_constraint (box, clutter_bind_constraint_new (stage, CLUTTER_BIND_HEIGHT, -24.0));
   clutter_actor_set_position (box, 12, 12);
@@ -271,46 +272,20 @@ test_text_field_main (gint    argc,
 
   label = create_label (CLUTTER_COLOR_White, "<b>Input field:</b>");
   g_object_set (label, "min-width", 150.0, NULL);
-  clutter_actor_add_child (box, label);
-  clutter_layout_manager_child_set (table, CLUTTER_CONTAINER (box), label,
-                                    "row", 0,
-                                    "column", 0,
-                                    "x-expand", FALSE,
-                                    "y-expand", FALSE,
-                                    NULL);
+  clutter_grid_layout_attach (grid, label, 0, 0, 1, 1);
 
   entry_attrs = pango_attr_list_new ();
   pango_attr_list_insert (entry_attrs, pango_attr_underline_new (PANGO_UNDERLINE_ERROR));
   pango_attr_list_insert (entry_attrs, pango_attr_underline_color_new (65535, 0, 0));
   entry = create_entry (CLUTTER_COLOR_Black, "somme misspeeled textt", entry_attrs, 0, 0);
-  clutter_actor_add_child (box, entry);
-  clutter_layout_manager_child_set (table, CLUTTER_CONTAINER (box), entry,
-                                    "row", 0,
-                                    "column", 1,
-                                    "x-expand", TRUE,
-                                    "x-fill", TRUE,
-                                    "y-expand", FALSE,
-                                    NULL);
+  clutter_grid_layout_attach (grid, entry, 1, 0, 1, 1);
   clutter_actor_grab_key_focus (entry);
 
   label = create_label (CLUTTER_COLOR_White, "<b>A very long password field:</b>");
-  clutter_actor_add_child (box, label);
-  clutter_layout_manager_child_set (table, CLUTTER_CONTAINER (box), label,
-                                    "row", 1,
-                                    "column", 0,
-                                    "x-expand", FALSE,
-                                    "y-expand", FALSE,
-                                    NULL);
+  clutter_grid_layout_attach (grid, label, 0, 1, 1, 1);
 
   entry = create_entry (CLUTTER_COLOR_Black, "password", NULL, '*', 8);
-  clutter_actor_add_child (box, entry);
-  clutter_layout_manager_child_set (table, CLUTTER_CONTAINER (box), entry,
-                                    "row", 1,
-                                    "column", 1,
-                                    "x-expand", TRUE,
-                                    "x-fill", TRUE,
-                                    "y-expand", FALSE,
-                                    NULL);
+  clutter_grid_layout_attach (grid, entry, 1, 1, 1, 1);
 
   clutter_actor_show (stage);
 
