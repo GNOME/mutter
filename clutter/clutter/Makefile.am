@@ -267,7 +267,6 @@ deprecated_h = \
 	deprecated/clutter-behaviour-rotate.h 	\
 	deprecated/clutter-behaviour-scale.h 		\
 	deprecated/clutter-bin-layout.h		\
-	deprecated/clutter-box.h			\
 	deprecated/clutter-cairo-texture.h		\
 	deprecated/clutter-container.h		\
 	deprecated/clutter-input-device.h		\
@@ -295,7 +294,6 @@ deprecated_c = \
 	deprecated/clutter-behaviour-path.c		\
 	deprecated/clutter-behaviour-rotate.c		\
 	deprecated/clutter-behaviour-scale.c		\
-	deprecated/clutter-box.c			\
 	deprecated/clutter-cairo-texture.c		\
 	deprecated/clutter-input-device-deprecated.c	\
 	deprecated/clutter-layout-manager-deprecated.c \

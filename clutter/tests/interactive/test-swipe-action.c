@@ -128,44 +128,32 @@ test_swipe_action_main (int argc, char *argv[])
   attach_action (rect, BOTH);
 
   {
-    ClutterLayoutManager *layout = clutter_box_layout_new ();
+    ClutterLayoutManager *layout = clutter_grid_layout_new ();
     ClutterActor *box, *label;
     float offset;
 
-    clutter_box_layout_set_vertical (CLUTTER_BOX_LAYOUT (layout), TRUE);
-    clutter_box_layout_set_spacing (CLUTTER_BOX_LAYOUT (layout), 6);
+    clutter_grid_layout_set_orientation (CLUTTER_GRID_LAYOUT (layout),
+                                         CLUTTER_ORIENTATION_VERTICAL);
+    clutter_grid_layout_set_row_spacing (CLUTTER_GRID_LAYOUT (layout), 6);
+    clutter_grid_layout_set_column_spacing (CLUTTER_GRID_LAYOUT (layout), 6);
 
-    box = clutter_box_new (layout);
+    box = clutter_actor_new ();
+    clutter_actor_set_layout_manager (box, layout);
 
     label = clutter_text_new ();
     clutter_text_set_markup (CLUTTER_TEXT (label),
                              "<b>Red</b>: vertical swipes only");
-    clutter_box_layout_pack (CLUTTER_BOX_LAYOUT (layout),
-                             label,
-                             TRUE,
-                             TRUE, TRUE,
-                             CLUTTER_BOX_ALIGNMENT_START,
-                             CLUTTER_BOX_ALIGNMENT_CENTER);
+    clutter_actor_add_child (box, label);
 
     label = clutter_text_new ();
     clutter_text_set_markup (CLUTTER_TEXT (label),
                              "<b>Blue</b>: horizontal swipes only");
-    clutter_box_layout_pack (CLUTTER_BOX_LAYOUT (layout),
-                             label,
-                             TRUE,
-                             TRUE, TRUE,
-                             CLUTTER_BOX_ALIGNMENT_START,
-                             CLUTTER_BOX_ALIGNMENT_CENTER);
+    clutter_actor_add_child (box, label);
 
     label = clutter_text_new ();
     clutter_text_set_markup (CLUTTER_TEXT (label),
                              "<b>Green</b>: both");
-    clutter_box_layout_pack (CLUTTER_BOX_LAYOUT (layout),
-                             label,
-                             TRUE,
-                             TRUE, TRUE,
-                             CLUTTER_BOX_ALIGNMENT_START,
-                             CLUTTER_BOX_ALIGNMENT_CENTER);
+    clutter_actor_add_child (box, label);
 
     offset = clutter_actor_get_height (stage)
            - clutter_actor_get_height (box)

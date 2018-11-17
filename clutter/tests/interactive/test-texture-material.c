@@ -18,7 +18,8 @@ test_texture_material_main (int argc, char *argv[])
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
 
   manager = clutter_flow_layout_new (CLUTTER_FLOW_HORIZONTAL);
-  box = clutter_box_new (manager);
+  box = clutter_actor_new ();
+  clutter_actor_set_layout_manager (box, manager);
   clutter_actor_add_constraint (box, clutter_bind_constraint_new (stage, CLUTTER_BIND_WIDTH, -25.0));
   clutter_actor_add_constraint (box, clutter_bind_constraint_new (stage, CLUTTER_BIND_HEIGHT, -25.0));
   clutter_actor_set_position (box, 25.0, 25.0);

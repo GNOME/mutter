@@ -2,7 +2,7 @@
   { "id" : "manager", "type" : "ClutterBoxLayout" },
 
   {
-    "id" : "container", "type" : "ClutterBox",
+    "id" : "container", "type" : "ClutterActor",
     "layout-manager" : "manager",
     "children" : [
       {

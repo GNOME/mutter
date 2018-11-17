@@ -17,7 +17,6 @@
 #include "deprecated/clutter-behaviour-rotate.h"
 #include "deprecated/clutter-behaviour-scale.h"
 #include "deprecated/clutter-bin-layout.h"
-#include "deprecated/clutter-box.h"
 #include "deprecated/clutter-cairo-texture.h"
 #include "deprecated/clutter-container.h"
 #include "deprecated/clutter-input-device.h"

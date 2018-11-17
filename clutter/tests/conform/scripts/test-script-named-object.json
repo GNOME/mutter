@@ -1,10 +1,9 @@
 [
   {
     "id" : "layout",
-    "type" : "ClutterBoxLayout",
-    "orientation" : "vertical",
-    "spacing" : 12,
-    "pack-start" : false
+    "type" : "ClutterGridLayout",
+    "row-spacing" : 6,
+    "column-spacing" : 12
   },
   {
     "type" : "ClutterStage",
@@ -12,7 +11,7 @@
     "children" : [
       {
         "id" : "test",
-        "type" : "ClutterBox",
+        "type" : "ClutterActor",
         "layout-manager" : "layout",
         "children" : [
           {

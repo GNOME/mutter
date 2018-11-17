@@ -251,10 +251,10 @@ script_object_property (void)
   g_assert_no_error (error);
 
   actor = clutter_script_get_object (script, "test");
-  g_assert (CLUTTER_IS_BOX (actor));
+  g_assert (CLUTTER_IS_ACTOR (actor));
 
-  manager = clutter_box_get_layout_manager (CLUTTER_BOX (actor));
-  g_assert (CLUTTER_IS_BIN_LAYOUT (manager));
+  manager = clutter_actor_get_layout_manager (CLUTTER_ACTOR (actor));
+  g_assert (CLUTTER_IS_BOX_LAYOUT (manager));
 
   g_object_unref (script);
   g_free (test_file);
@@ -277,11 +277,14 @@ script_named_object (void)
   g_assert_no_error (error);
 
   actor = clutter_script_get_object (script, "test");
-  g_assert (CLUTTER_IS_BOX (actor));
+  g_assert (CLUTTER_IS_ACTOR (actor));
 
-  manager = clutter_box_get_layout_manager (CLUTTER_BOX (actor));
-  g_assert (CLUTTER_IS_BOX_LAYOUT (manager));
-  g_assert (clutter_box_layout_get_vertical (CLUTTER_BOX_LAYOUT (manager)));
+  manager = clutter_actor_get_layout_manager (CLUTTER_ACTOR (actor));
+  g_assert (CLUTTER_IS_GRID_LAYOUT (manager));
+  g_assert_cmpuint (clutter_grid_layout_get_row_spacing (CLUTTER_GRID_LAYOUT (manager)),
+                    ==, 6);
+  g_assert_cmpuint (clutter_grid_layout_get_column_spacing (CLUTTER_GRID_LAYOUT (manager)),
+                    ==, 12);
 
   g_object_unref (script);
   g_free (test_file);

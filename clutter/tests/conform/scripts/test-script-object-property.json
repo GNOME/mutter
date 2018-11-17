@@ -1,7 +1,7 @@
 {
   "id" : "test",
-  "type" : "ClutterBox",
-  "layout-manager" : { "id" : "layout", "type" : "ClutterBinLayout" },
+  "type" : "ClutterActor",
+  "layout-manager" : { "id" : "layout", "type" : "ClutterBoxLayout" },
   "children" : [
     {
       "id" : "child-1",
