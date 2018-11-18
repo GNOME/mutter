@@ -341,6 +341,10 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	meta/meta-x11-display.h			\
 	x11/meta-x11-errors.c			\
 	meta/meta-x11-errors.h			\
+	x11/meta-x11-selection-input-stream.c	\
+	x11/meta-x11-selection-input-stream-private.h	\
+	x11/meta-x11-selection-output-stream.c	\
+	x11/meta-x11-selection-output-stream-private.h	\
 	x11/events.c				\
 	x11/events.h				\
 	x11/group-private.h			\
