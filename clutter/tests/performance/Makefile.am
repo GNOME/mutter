@@ -1,11 +1,6 @@
 check_PROGRAMS = \
 	test-picking \
-	test-text-perf \
-	test-state \
-	test-state-interactive \
-	test-state-hidden \
-	test-state-mini \
-	test-state-pick
+	test-text-perf
 
 common_ldadd = $(top_builddir)/clutter/libmutter-clutter-@LIBMUTTER_API_VERSION@.la
 

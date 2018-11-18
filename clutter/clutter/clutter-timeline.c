@@ -24,7 +24,7 @@
 /**
  * SECTION:clutter-timeline
  * @short_description: A class for time-based events
- * @see_also: #ClutterAnimation, #ClutterAnimator, #ClutterState
+ * @see_also: #ClutterAnimation
  *
  * #ClutterTimeline is a base class for managing time-based event that cause
  * Clutter to redraw a stage, such as animations.
@@ -71,7 +71,7 @@
  * when reaching completion by using the #ClutterTimeline:auto-reverse property.
  *
  * Timelines are used in the Clutter animation framework by classes like
- * #ClutterAnimation, #ClutterAnimator, and #ClutterState.
+ * #ClutterAnimation.
  *
  * ## Defining Timelines in ClutterScript
  *

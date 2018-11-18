@@ -32,8 +32,7 @@
  * Since: 0.2
  *
  * Deprecated: 1.6: Use the #ClutterActor:opacity property and
- *   clutter_actor_animate(), or #ClutterAnimator, or #ClutterState
- *   instead.
+ *   clutter_actor_animate().
  */
 
 #include "clutter-build-config.h"

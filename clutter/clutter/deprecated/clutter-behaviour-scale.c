@@ -31,8 +31,7 @@
  * A #ClutterBehaviourScale interpolates actors size between two values.
  *
  * Deprecated: 1.6: Use the #ClutterActor:scale-x and #ClutterActor:scale-y
- *   properties, and clutter_actor_animate(), or #ClutterAnimator or
- *   #ClutterState instead.
+ *   properties, and clutter_actor_animate() instead.
  */
 
 #include "clutter-build-config.h"

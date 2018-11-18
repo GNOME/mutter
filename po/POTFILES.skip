@@ -56,7 +56,6 @@ clutter/clutter/clutter-virtual-input-device.c
 clutter/clutter/clutter-zoom-action.c
 clutter/clutter/deprecated/clutter-alpha.c
 clutter/clutter/deprecated/clutter-animation.c
-clutter/clutter/deprecated/clutter-animator.c
 clutter/clutter/deprecated/clutter-behaviour.c
 clutter/clutter/deprecated/clutter-behaviour-depth.c
 clutter/clutter/deprecated/clutter-behaviour-ellipse.c
@@ -67,7 +66,6 @@ clutter/clutter/deprecated/clutter-behaviour-scale.c
 clutter/clutter/deprecated/clutter-box.c
 clutter/clutter/deprecated/clutter-cairo-texture.c
 clutter/clutter/deprecated/clutter-rectangle.c
-clutter/clutter/deprecated/clutter-state.c
 clutter/clutter/deprecated/clutter-table-layout.c
 clutter/clutter/deprecated/clutter-texture.c
 clutter/clutter/evdev/clutter-input-device-evdev.c

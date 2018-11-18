@@ -31,8 +31,7 @@
  * The #ClutterBehaviourRotate is available since version 0.4.
  *
  * Deprecated: 1.6: Use the #ClutterActor rotation properties and
- *   clutter_actor_animate(), or #ClutterAnimator, or #ClutterState
- *   instead.
+ *   clutter_actor_animate() instead.
  */
 
 #include "clutter-build-config.h"

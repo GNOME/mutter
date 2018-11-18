@@ -9,9 +9,6 @@ UNIT_TESTS = \
 	test-script.c \
 	test-grab.c \
 	test-cogl-shader-glsl.c \
-	test-animator.c \
-	test-state.c \
-	test-state-animator.c \
 	test-fbo.c \
 	test-multistage.c \
 	test-cogl-tex-tile.c \
@@ -37,7 +34,6 @@ UNIT_TESTS = \
 	test-swipe-action.c \
 	test-cogl-point-sprites.c \
 	test-path-constraint.c \
-	test-state-script.c \
 	test-devices.c \
 	test-content.c \
 	test-keyframe-transition.c \

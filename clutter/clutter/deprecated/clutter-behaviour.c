@@ -25,8 +25,7 @@
  * SECTION:clutter-behaviour
  * @Title: ClutterBehaviour
  * @short_description: Class for providing behaviours to actors
- * @Deprecated: 1.6: Use clutter_actor_animate(), #ClutterAnimator or
- *   #ClutterState instead
+ * @Deprecated: 1.6: Use clutter_actor_animate() instead
  *
  * #ClutterBehaviour is the base class for implementing behaviours.  A
  * behaviour is a controller object for #ClutterActor<!-- -->s; you can

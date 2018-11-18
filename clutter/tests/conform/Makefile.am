@@ -49,7 +49,6 @@ general_tests = \
 
 # Test for deprecated functionality
 deprecated_tests = \
-	animator \
 	behaviours \
 	group \
 	rectangle \
@@ -61,9 +60,6 @@ test_programs = $(actor_tests) $(general_tests) $(classes_tests) $(deprecated_te
 dist_test_data = $(script_ui_files)
 script_ui_files = $(addprefix scripts/,$(script_tests))
 script_tests = \
-	test-animator-1.json \
-	test-animator-2.json \
-	test-animator-3.json \
 	test-script-animation.json \
 	test-script-child.json \
 	test-script-implicit-alpha.json \
@@ -74,8 +70,7 @@ script_tests = \
 	test-script-named-object.json \
 	test-script-object-property.json \
 	test-script-single.json \
-	test-script-timeline-markers.json \
-	test-state-1.json
+	test-script-timeline-markers.json
 
 TESTS_ENVIRONMENT += G_ENABLE_DIAGNOSTIC=0 CLUTTER_ENABLE_DIAGNOSTIC=0 CLUTTER_SCALE=1
 

@@ -217,7 +217,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-alpha.h',
   'deprecated/clutter-animatable.h',
   'deprecated/clutter-animation.h',
-  'deprecated/clutter-animator.h',
   'deprecated/clutter-backend.h',
   'deprecated/clutter-behaviour.h',
   'deprecated/clutter-behaviour-depth.h',
@@ -235,7 +234,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-rectangle.h',
   'deprecated/clutter-stage-manager.h',
   'deprecated/clutter-stage.h',
-  'deprecated/clutter-state.h',
   'deprecated/clutter-texture.h',
   'deprecated/clutter-timeline.h',
   'deprecated/clutter-util.h',
@@ -245,7 +243,6 @@ clutter_deprecated_sources = [
   'deprecated/clutter-actor-deprecated.c',
   'deprecated/clutter-alpha.c',
   'deprecated/clutter-animation.c',
-  'deprecated/clutter-animator.c',
   'deprecated/clutter-behaviour.c',
   'deprecated/clutter-behaviour-depth.c',
   'deprecated/clutter-behaviour-ellipse.c',
@@ -257,7 +254,6 @@ clutter_deprecated_sources = [
   'deprecated/clutter-input-device-deprecated.c',
   'deprecated/clutter-layout-manager-deprecated.c',
   'deprecated/clutter-rectangle.c',
-  'deprecated/clutter-state.c',
   'deprecated/clutter-texture.c',
 ]
 

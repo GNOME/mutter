@@ -90,8 +90,6 @@ typedef struct _ClutterVertex                   ClutterVertex;
 
 typedef struct _ClutterAlpha            	ClutterAlpha;
 typedef struct _ClutterAnimation                ClutterAnimation;
-typedef struct _ClutterAnimator         	ClutterAnimator;
-typedef struct _ClutterState            	ClutterState;
 
 typedef struct _ClutterInputDeviceTool          ClutterInputDeviceTool;
 typedef struct _ClutterInputDevice              ClutterInputDevice;
