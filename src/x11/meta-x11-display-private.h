@@ -123,6 +123,11 @@ struct _MetaX11Display
 
   MetaUI *ui;
 
+  struct {
+    GList *input_streams;
+    GList *output_streams;
+  } selection;
+
   guint keys_grabbed : 1;
 
   int composite_event_base;
