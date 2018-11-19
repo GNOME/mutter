@@ -291,13 +291,13 @@ get_masked_pipeline (MetaShapedTexture *stex,
 
   pipeline = cogl_pipeline_copy (get_base_pipeline (stex, ctx));
   n_layers = meta_planar_texture_get_n_planes (pipeline);
-  for (i = 0; i < n_layers; i++)
-    {
-      cogl_pipeline_set_layer_combine (pipeline, i,
-                                       "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
-                                       /* "RGBA = REPLACE (PREVIOUS)", */
-                                       NULL);
-    }
+  /* for (i = 0; i < n_layers; i++) */
+  /*   { */
+  /*     cogl_pipeline_set_layer_combine (pipeline, i, */
+  /*                                      "RGBA = MODULATE (PREVIOUS, TEXTURE[A])", */
+  /*                                      /1* "RGBA = REPLACE (PREVIOUS)", *1/ */
+  /*                                      NULL); */
+  /*   } */
 
   priv->masked_pipeline = pipeline;
 
@@ -362,104 +362,74 @@ check_texture_color_format (MetaShapedTexture *self,
 {
   CoglPixelFormat format = meta_planar_texture_get_format (texture);
   /* CoglSnippet *snippet1, *snippet2, *snippet3 = NULL; */
+  static CoglSnippet *func_snippet = NULL;
   static CoglSnippet *snippet3 = NULL;
   /* static gboolean snippet_set = FALSE; */
-  gint i = 0;
+  /* gint i = 0; */
   gint n_layers = 0;
 
     n_layers = cogl_pipeline_get_n_layers (self->priv->base_pipeline);
 
-  /* const gchar *shader =    "vec4\n" */
-  /*                          "meta_convert_y_uv_to_rgb (sampler2D sampler, vec2 UV)\n" */
-  /*                          "{\n" */
-  /*                          "  vec4 color;\n" */
-  /*                          "  float y = 1.1640625 *\n" */
-  /*                          "            (texture2D (sampler, UV).a -\n" */
-  /*                          "             0.0625);\n" */
-  /*                          "  vec2 uv = texture2D (sampler, UV).rg;\n" */
-  /*                          "  uv -= 0.5;\n" */
-  /*                          "  float u = uv.x;\n" */
-  /*                          "  float v = uv.y;\n" */
-  /*                          "  color.r = y + 1.59765625 * v;\n" */
-  /*                          "  color.g = y - 0.390625 * u - 0.8125 * v;\n" */
-  /*                          "  color.b = y + 2.015625 * u;\n" */
-  /*                          "  color.a = 1.0;\n" */
-  /*                          "  return color;\n" */
-  /*                          "}\n"; */
+    if (func_snippet == NULL)
+      {
+        /* CoglGstVideoSink version */
+          /* XXX are we using Y_UV or Y_xUxV? Maybe check for RG support? */
+        const gchar *func_snippet_str =
+             "vec4\n"
+             "cogl_nv12_to_rgba (vec2 UV)\n"
+             "{\n"
+             "  vec4 color;\n"
 
-  /* snippet1 = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX_GLOBALS, */
-  /*                              shader, */
-                               /* NULL); */
-  /* snippet2 = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT_GLOBALS, */
-                               /* shader, */
-                               /* NULL); */
-  if (snippet3 == NULL) {
-    snippet3 = cogl_snippet_new (COGL_SNIPPET_HOOK_LAYER_FRAGMENT,
-       NULL,
-       "{\n"
-       "  vec4 color;\n"
-       "  vec2 UV;\n"
+             "  float y = 1.1640625 * (texture2D (cogl_sampler0, UV).x - 0.0625);\n"
+             "  vec2 uv = texture2D (cogl_sampler1, UV).ga;\n"
+             "  uv -= 0.5;\n"
+             "  float u = uv.x;\n"
+             "  float v = uv.y;\n"
 
-       /* function arguments */
-       "  UV = cogl_tex_coord0_in.st;\n"
+             "  color.r = y + 1.59765625 * v;\n"
+             /* "  color.r = 0.0;\n" */
+             "  color.g = y - 0.390625 * u - 0.8125 * v;\n"
+             /* "  color.g = 0.0;\n" */
+             "  color.b = y + 2.015625 * u;\n"
+             "  color.b = 0.0;\n"
+             "  color.a = 1.0;\n"
 
-       /* Weston version */
-       /* "  float y = 1.16438356 * (texture2D(cogl_sampler0, UV).r - 0.0625);\n" */
-       /* "  float u = texture2D(cogl_sampler1, cogl_tex_coord1_in.st).r - 0.5;\n" */
-       /* "  float v = texture2D(cogl_sampler1, cogl_tex_coord1_in.st).g - 0.5;\n" */
+             "  return color;\n"
+             "}\n";
 
-       /* "  color.r = y + 1.59602678 * v;\n" */
-       /* "  color.g = y - 0.39176229 * u - 0.81296764 * v;\n" */
-       /* "  color.b = y + 2.01723214 * u;\n" */
-       /* "  color.a = 1.0;\n" */
+        func_snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX_GLOBALS,
+                                         func_snippet_str,
+                                         NULL);
+        cogl_pipeline_add_snippet (self->priv->base_pipeline, func_snippet);
 
-       /* CoglGstVideoSink version */
-       "  float y = 1.1640625 * (texture2D (cogl_sampler0, UV).a - 0.0625);\n"
-       "  vec2 uv = texture2D (cogl_sampler1, UV).rg;\n"
-       "  uv -= 0.5;\n"
-       "  float u = uv.x;\n"
-       "  float v = uv.y;\n"
+        func_snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT_GLOBALS,
+                                         func_snippet_str,
+                                         NULL);
+        cogl_pipeline_add_snippet (self->priv->base_pipeline, func_snippet);
+      }
 
-       "  color.r = y + 1.59765625 * v;\n"
-       "  color.g = y - 0.390625 * u - 0.8125 * v;\n"
-       "  color.b = y + 2.015625 * u;\n"
-       /* "  color.r = 1.0;\n" */
-       /* "  color.g = 1.0;\n" */
-       /* "  color.b = 1.0;\n" */
-       "  color.a = 1.0;\n"
-
-       "  cogl_layer = color;\n"
-       /* "  cogl_layer *= color;\n" */
-       "}\n");
-  }
+  if (snippet3 == NULL)
+    {
+      snippet3 = cogl_snippet_new (COGL_SNIPPET_HOOK_LAYER_FRAGMENT,
+         NULL,
+         "cogl_layer = cogl_nv12_to_rgba(cogl_tex_coord0_in.st);\n");
+    }
 
   switch (format)
     {
     case COGL_PIXEL_FORMAT_Y_UV:
       g_warning ("got a MetaShapedTexture with pixel format NV12!");
-          meta_shaped_texture_set_create_mipmaps (self, FALSE);
-      /* cogl_pipeline_add_snippet (get_unblended_pipeline (self), snippet1); */
-      /* cogl_pipeline_add_snippet (get_unblended_pipeline (self), snippet2); */
-      /* if (n_layers > 0 && snippet_set == FALSE) */
-      /*   { */
-        for (i = 0; i < n_layers; i++) {
-          /* cogl_pipeline_add_layer_snippet (self->priv->base_pipeline, n_layers - 1, snippet3); */
-          g_warning ("Adding snippet for layer %d!", i);
-          cogl_pipeline_add_layer_snippet (self->priv->base_pipeline, i, snippet3);
-        }
-      /* snippet_set = TRUE; */
+      meta_shaped_texture_set_create_mipmaps (self, FALSE);
+
+      cogl_pipeline_add_layer_snippet (self->priv->base_pipeline, 0, snippet3);
+      cogl_pipeline_add_layer_snippet (self->priv->base_pipeline, 1, snippet3);
+
       break;
     default:
       g_info ("normal pixel format");
       /* do nothing */
       break;
     }
-
-  /* if (snippet != NULL) */
-  /*   { */
-  /*     cogl_pipeline_add_snippet (self->priv->base_pipeline, */
-  /*                                snippet); */
-  /*   } */
 }
 
 static void
@@ -722,6 +692,12 @@ meta_shaped_texture_paint (ClutterActor *actor)
               cogl_pipeline_set_layer_texture (opaque_pipeline, i, plane);
               /* cogl_pipeline_set_layer_filters (opaque_pipeline, i, filter, filter); */
             }
+      cogl_pipeline_set_layer_combine (opaque_pipeline, n_planes,
+                                       /* "RGB=MODULATE(PREVIOUS, TEXTURE_0[A])\n" */
+                                       /*  "A=REPLACE(PREVIOUS[A])", */
+                                       "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
+                                       /* "RGBA = REPLACE (PREVIOUS)", */
+                                       NULL);
 
           n_rects = cairo_region_num_rectangles (region);
           for (i = 0; i < n_rects; i++)
@@ -770,6 +746,12 @@ meta_shaped_texture_paint (ClutterActor *actor)
 
           cogl_pipeline_set_layer_texture (blended_pipeline, i, plane);
           /* cogl_pipeline_set_layer_filters (blended_pipeline, i, filter, filter); */
+      cogl_pipeline_set_layer_combine (blended_pipeline, n_planes,
+                                       /* "RGB=MODULATE(PREVIOUS, TEXTURE_0[A])\n" */
+                                       /*  "A=REPLACE(PREVIOUS[A])", */
+                                       "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
+                                       /* "RGBA = REPLACE (PREVIOUS)", */
+                                       NULL);
         }
 
       CoglColor color;
