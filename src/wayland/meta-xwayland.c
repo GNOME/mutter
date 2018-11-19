@@ -36,7 +36,8 @@
 #include "meta/main.h"
 #include "wayland/meta-wayland-actor-surface.h"
 
-enum {
+enum
+{
   XWAYLAND_SURFACE_WINDOW_ASSOCIATED,
 
   XWAYLAND_SURFACE_LAST_SIGNAL
@@ -44,7 +45,8 @@ enum {
 
 guint xwayland_surface_signals[XWAYLAND_SURFACE_LAST_SIGNAL];
 
-#define META_TYPE_WAYLAND_SURFACE_ROLE_XWAYLAND (meta_wayland_surface_role_xwayland_get_type ())
+#define META_TYPE_WAYLAND_SURFACE_ROLE_XWAYLAND ( \
+    meta_wayland_surface_role_xwayland_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleXWayland,
                       meta_wayland_surface_role_xwayland,
                       META, WAYLAND_SURFACE_ROLE_XWAYLAND,
@@ -62,8 +64,8 @@ G_DEFINE_TYPE (MetaWaylandSurfaceRoleXWayland,
 static int display_number_override = -1;
 
 void
-meta_xwayland_associate_window_with_surface (MetaWindow          *window,
-                                             MetaWaylandSurface  *surface)
+meta_xwayland_associate_window_with_surface (MetaWindow         *window,
+                                             MetaWaylandSurface *surface)
 {
   MetaDisplay *display = window->display;
 
@@ -155,7 +157,7 @@ try_display (int    display,
 
   filename = g_strdup_printf ("/tmp/.X%d-lock", display);
 
- again:
+again:
   fd = open (filename, O_WRONLY | O_CLOEXEC | O_CREAT | O_EXCL, 0444);
 
   if (fd < 0 && errno == EEXIST)
@@ -203,7 +205,7 @@ try_display (int    display,
 
   ret = TRUE;
 
- out:
+out:
   if (!ret)
     {
       g_free (filename);
@@ -222,7 +224,8 @@ try_display (int    display,
 }
 
 static char *
-create_lock_file (int display, int *display_out)
+create_lock_file (int  display,
+                  int *display_out)
 {
   char *filename;
   int fd;
@@ -471,7 +474,7 @@ meta_xwayland_start (MetaXWaylandManager *manager,
   int xwayland_client_fd[2];
   int displayfd[2];
   gboolean started = FALSE;
-  g_autoptr(GSubprocessLauncher) launcher = NULL;
+  g_autoptr (GSubprocessLauncher) launcher = NULL;
   GSubprocessFlags flags;
   GError *error = NULL;
 
@@ -480,7 +483,8 @@ meta_xwayland_start (MetaXWaylandManager *manager,
 
   /* We want xwayland to be a wayland client so we make a socketpair to setup a
    * wayland protocol connection. */
-  if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, xwayland_client_fd) < 0)
+  if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0,
+                  xwayland_client_fd) < 0)
     {
       g_warning ("xwayland_client_fd socketpair failed\n");
       goto out;
@@ -517,7 +521,8 @@ meta_xwayland_start (MetaXWaylandManager *manager,
    * want core dumps from Xwayland but only if a real bug occurs...
    */
   manager->proc = g_subprocess_launcher_spawn (launcher, &error,
-                                               XWAYLAND_PATH, manager->display_name,
+                                               XWAYLAND_PATH,
+                                               manager->display_name,
                                                "-rootless",
                                                "-terminate",
                                                "-accessx",
@@ -566,10 +571,10 @@ void
 meta_xwayland_complete_init (MetaDisplay *display)
 {
   /* We install an X IO error handler in addition to the child watch,
-     because after Xlib connects our child watch may not be called soon
-     enough, and therefore we won't crash when X exits (and most important
-     we won't reset the tty).
-  */
+   *  because after Xlib connects our child watch may not be called soon
+   *  enough, and therefore we won't crash when X exits (and most important
+   *  we won't reset the tty).
+   */
   XSetIOErrorHandler (x_io_error);
 
   g_signal_connect (display, "x11-display-closing",
@@ -603,7 +608,8 @@ xwayland_surface_assigned (MetaWaylandSurfaceRole *surface_role)
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWaylandSurfaceRoleClass *surface_role_class =
-    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_surface_role_xwayland_parent_class);
+    META_WAYLAND_SURFACE_ROLE_CLASS (
+      meta_wayland_surface_role_xwayland_parent_class);
 
   /* See comment in xwayland_surface_commit for why we reply even though the
    * surface may not be drawn the next frame.
@@ -622,7 +628,8 @@ xwayland_surface_commit (MetaWaylandSurfaceRole  *surface_role,
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWaylandSurfaceRoleClass *surface_role_class =
-    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_surface_role_xwayland_parent_class);
+    META_WAYLAND_SURFACE_ROLE_CLASS (
+      meta_wayland_surface_role_xwayland_parent_class);
 
   /* For Xwayland windows, throttling frames when the window isn't actually
    * drawn is less useful, because Xwayland still has to do the drawing sent
@@ -652,7 +659,8 @@ meta_wayland_surface_role_xwayland_init (MetaWaylandSurfaceRoleXWayland *role)
 }
 
 static void
-meta_wayland_surface_role_xwayland_class_init (MetaWaylandSurfaceRoleXWaylandClass *klass)
+meta_wayland_surface_role_xwayland_class_init (
+  MetaWaylandSurfaceRoleXWaylandClass *klass)
 {
   MetaWaylandSurfaceRoleClass *surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (klass);

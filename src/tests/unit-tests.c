@@ -188,7 +188,8 @@ static void
 meta_test_adjecent_to (void)
 {
   MetaRectangle base = { .x = 10, .y = 10, .width = 10, .height = 10 };
-  MetaRectangle adjecent[] = {
+  MetaRectangle adjecent[] =
+  {
     { .x = 20, .y = 10, .width = 10, .height = 10 },
     { .x = 0, .y = 10, .width = 10, .height = 10 },
     { .x = 0, .y = 1, .width = 10, .height = 10 },
@@ -196,7 +197,8 @@ meta_test_adjecent_to (void)
     { .x = 10, .y = 20, .width = 10, .height = 10 },
     { .x = 10, .y = 0, .width = 10, .height = 10 },
   };
-  MetaRectangle not_adjecent[] = {
+  MetaRectangle not_adjecent[] =
+  {
     { .x = 0, .y = 0, .width = 10, .height = 10 },
     { .x = 20, .y = 20, .width = 10, .height = 10 },
     { .x = 21, .y = 10, .width = 10, .height = 10 },
@@ -239,7 +241,8 @@ run_tests (gpointer data)
 }
 
 static void
-init_tests (int argc, char **argv)
+init_tests (int    argc,
+            char **argv)
 {
   g_test_add_func ("/util/meta-later/order", meta_test_util_later_order);
   g_test_add_func ("/util/meta-later/schedule-from-later",
@@ -254,7 +257,8 @@ init_tests (int argc, char **argv)
 }
 
 int
-main (int argc, char *argv[])
+main (int   argc,
+      char *argv[])
 {
   test_init (&argc, &argv);
   init_tests (argc, argv);

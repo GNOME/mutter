@@ -31,12 +31,13 @@
 #include "backends/native/meta-input-settings-native.h"
 #include "clutter/evdev/clutter-evdev.h"
 
-G_DEFINE_TYPE (MetaInputSettingsNative, meta_input_settings_native, META_TYPE_INPUT_SETTINGS)
+G_DEFINE_TYPE (MetaInputSettingsNative, meta_input_settings_native,
+               META_TYPE_INPUT_SETTINGS)
 
 static void
-meta_input_settings_native_set_send_events (MetaInputSettings        *settings,
-                                            ClutterInputDevice       *device,
-                                            GDesktopDeviceSendEvents  mode)
+meta_input_settings_native_set_send_events (MetaInputSettings       *settings,
+                                            ClutterInputDevice      *device,
+                                            GDesktopDeviceSendEvents mode)
 {
   enum libinput_config_send_events_mode libinput_mode;
   struct libinput_device *libinput_device;
@@ -46,12 +47,15 @@ meta_input_settings_native_set_send_events (MetaInputSettings        *settings,
     case G_DESKTOP_DEVICE_SEND_EVENTS_DISABLED:
       libinput_mode = LIBINPUT_CONFIG_SEND_EVENTS_DISABLED;
       break;
+
     case G_DESKTOP_DEVICE_SEND_EVENTS_DISABLED_ON_EXTERNAL_MOUSE:
       libinput_mode = LIBINPUT_CONFIG_SEND_EVENTS_DISABLED_ON_EXTERNAL_MOUSE;
       break;
+
     case G_DESKTOP_DEVICE_SEND_EVENTS_ENABLED:
       libinput_mode = LIBINPUT_CONFIG_SEND_EVENTS_ENABLED;
       break;
+
     default:
       g_assert_not_reached ();
     }
@@ -122,9 +126,10 @@ meta_input_settings_native_set_tap_enabled (MetaInputSettings  *settings,
 }
 
 static void
-meta_input_settings_native_set_tap_and_drag_enabled (MetaInputSettings  *settings,
-                                                     ClutterInputDevice *device,
-                                                     gboolean            enabled)
+meta_input_settings_native_set_tap_and_drag_enabled (
+  MetaInputSettings  *settings,
+  ClutterInputDevice *device,
+  gboolean            enabled)
 {
   struct libinput_device *libinput_device;
 
@@ -140,9 +145,10 @@ meta_input_settings_native_set_tap_and_drag_enabled (MetaInputSettings  *setting
 }
 
 static void
-meta_input_settings_native_set_disable_while_typing (MetaInputSettings  *settings,
-                                                     ClutterInputDevice *device,
-                                                     gboolean            enabled)
+meta_input_settings_native_set_disable_while_typing (
+  MetaInputSettings  *settings,
+  ClutterInputDevice *device,
+  gboolean            enabled)
 {
   struct libinput_device *libinput_device;
 
@@ -175,8 +181,8 @@ meta_input_settings_native_set_invert_scroll (MetaInputSettings  *settings,
 }
 
 static gboolean
-device_set_scroll_method (struct libinput_device             *libinput_device,
-                          enum libinput_config_scroll_method  method)
+device_set_scroll_method (struct libinput_device            *libinput_device,
+                          enum libinput_config_scroll_method method)
 {
   enum libinput_config_status status =
     libinput_device_config_scroll_set_method (libinput_device, method);
@@ -184,8 +190,8 @@ device_set_scroll_method (struct libinput_device             *libinput_device,
 }
 
 static gboolean
-device_set_click_method (struct libinput_device            *libinput_device,
-                         enum libinput_config_click_method  method)
+device_set_click_method (struct libinput_device           *libinput_device,
+                         enum libinput_config_click_method method)
 {
   enum libinput_config_status status =
     libinput_device_config_click_set_method (libinput_device, method);
@@ -193,16 +199,18 @@ device_set_click_method (struct libinput_device            *libinput_device,
 }
 
 static void
-meta_input_settings_native_set_edge_scroll (MetaInputSettings            *settings,
-                                            ClutterInputDevice           *device,
-                                            gboolean                      edge_scrolling_enabled)
+meta_input_settings_native_set_edge_scroll (MetaInputSettings  *settings,
+                                            ClutterInputDevice *device,
+                                            gboolean            edge_scrolling_enabled)
 {
   struct libinput_device *libinput_device;
   enum libinput_config_scroll_method current, method;
 
   libinput_device = clutter_evdev_input_device_get_libinput_device (device);
 
-  method = edge_scrolling_enabled ? LIBINPUT_CONFIG_SCROLL_EDGE : LIBINPUT_CONFIG_SCROLL_NO_SCROLL;
+  method =
+    edge_scrolling_enabled ? LIBINPUT_CONFIG_SCROLL_EDGE :
+    LIBINPUT_CONFIG_SCROLL_NO_SCROLL;
   current = libinput_device_config_scroll_get_method (libinput_device);
   current &= ~LIBINPUT_CONFIG_SCROLL_EDGE;
 
@@ -210,16 +218,18 @@ meta_input_settings_native_set_edge_scroll (MetaInputSettings            *settin
 }
 
 static void
-meta_input_settings_native_set_two_finger_scroll (MetaInputSettings            *settings,
-                                                  ClutterInputDevice           *device,
-                                                  gboolean                      two_finger_scroll_enabled)
+meta_input_settings_native_set_two_finger_scroll (MetaInputSettings  *settings,
+                                                  ClutterInputDevice *device,
+                                                  gboolean            two_finger_scroll_enabled)
 {
   struct libinput_device *libinput_device;
   enum libinput_config_scroll_method current, method;
 
   libinput_device = clutter_evdev_input_device_get_libinput_device (device);
 
-  method = two_finger_scroll_enabled ? LIBINPUT_CONFIG_SCROLL_2FG : LIBINPUT_CONFIG_SCROLL_NO_SCROLL;
+  method =
+    two_finger_scroll_enabled ? LIBINPUT_CONFIG_SCROLL_2FG :
+    LIBINPUT_CONFIG_SCROLL_NO_SCROLL;
   current = libinput_device_config_scroll_get_method (libinput_device);
   current &= ~LIBINPUT_CONFIG_SCROLL_2FG;
 
@@ -236,7 +246,8 @@ meta_input_settings_native_has_two_finger_scroll (MetaInputSettings  *settings,
   if (!libinput_device)
     return FALSE;
 
-  return libinput_device_config_scroll_get_methods (libinput_device) & LIBINPUT_CONFIG_SCROLL_2FG;
+  return libinput_device_config_scroll_get_methods (libinput_device) &
+         LIBINPUT_CONFIG_SCROLL_2FG;
 }
 
 static void
@@ -275,9 +286,10 @@ meta_input_settings_native_set_scroll_button (MetaInputSettings  *settings,
 }
 
 static void
-meta_input_settings_native_set_click_method (MetaInputSettings           *settings,
-                                             ClutterInputDevice          *device,
-                                             GDesktopTouchpadClickMethod  mode)
+meta_input_settings_native_set_click_method (
+  MetaInputSettings          *settings,
+  ClutterInputDevice         *device,
+  GDesktopTouchpadClickMethod mode)
 {
   enum libinput_config_click_method click_method = 0;
   struct libinput_device *libinput_device;
@@ -289,21 +301,26 @@ meta_input_settings_native_set_click_method (MetaInputSettings           *settin
   switch (mode)
     {
     case G_DESKTOP_TOUCHPAD_CLICK_METHOD_DEFAULT:
-      click_method = libinput_device_config_click_get_default_method (libinput_device);
+      click_method = libinput_device_config_click_get_default_method (
+        libinput_device);
       break;
+
     case G_DESKTOP_TOUCHPAD_CLICK_METHOD_NONE:
       click_method = LIBINPUT_CONFIG_CLICK_METHOD_NONE;
       break;
+
     case G_DESKTOP_TOUCHPAD_CLICK_METHOD_AREAS:
       click_method = LIBINPUT_CONFIG_CLICK_METHOD_BUTTON_AREAS;
       break;
+
     case G_DESKTOP_TOUCHPAD_CLICK_METHOD_FINGERS:
       click_method = LIBINPUT_CONFIG_CLICK_METHOD_CLICKFINGER;
       break;
+
     default:
       g_assert_not_reached ();
       return;
-  }
+    }
 
   device_set_click_method (libinput_device, click_method);
 }
@@ -334,11 +351,14 @@ set_device_accel_profile (ClutterInputDevice         *device,
     case G_DESKTOP_POINTER_ACCEL_PROFILE_FLAT:
       libinput_profile = LIBINPUT_CONFIG_ACCEL_PROFILE_FLAT;
       break;
+
     case G_DESKTOP_POINTER_ACCEL_PROFILE_ADAPTIVE:
       libinput_profile = LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE;
       break;
+
     default:
       g_warn_if_reached ();
+
     case G_DESKTOP_POINTER_ACCEL_PROFILE_DEFAULT:
       libinput_profile =
         libinput_device_config_accel_get_default_profile (libinput_device);
@@ -405,9 +425,10 @@ meta_input_settings_native_is_trackball_device (MetaInputSettings  *settings,
 }
 
 static void
-meta_input_settings_native_set_mouse_accel_profile (MetaInputSettings          *settings,
-                                                    ClutterInputDevice         *device,
-                                                    GDesktopPointerAccelProfile profile)
+meta_input_settings_native_set_mouse_accel_profile (
+  MetaInputSettings          *settings,
+  ClutterInputDevice         *device,
+  GDesktopPointerAccelProfile profile)
 {
   if (!is_mouse_device (device))
     return;
@@ -416,9 +437,10 @@ meta_input_settings_native_set_mouse_accel_profile (MetaInputSettings          *
 }
 
 static void
-meta_input_settings_native_set_trackball_accel_profile (MetaInputSettings          *settings,
-                                                        ClutterInputDevice         *device,
-                                                        GDesktopPointerAccelProfile profile)
+meta_input_settings_native_set_trackball_accel_profile (
+  MetaInputSettings          *settings,
+  ClutterInputDevice         *device,
+  GDesktopPointerAccelProfile profile)
 {
   if (!meta_input_settings_native_is_trackball_device (settings, device))
     return;
@@ -427,9 +449,9 @@ meta_input_settings_native_set_trackball_accel_profile (MetaInputSettings       
 }
 
 static void
-meta_input_settings_native_set_tablet_mapping (MetaInputSettings     *settings,
-                                               ClutterInputDevice    *device,
-                                               GDesktopTabletMapping  mapping)
+meta_input_settings_native_set_tablet_mapping (MetaInputSettings    *settings,
+                                               ClutterInputDevice   *device,
+                                               GDesktopTabletMapping mapping)
 {
   ClutterInputDeviceMapping dev_mapping;
 
@@ -467,9 +489,9 @@ meta_input_settings_native_set_tablet_keep_aspect (MetaInputSettings  *settings,
 
           backend = meta_get_backend ();
           monitor_manager = meta_backend_get_monitor_manager (backend);
-	  meta_monitor_manager_get_screen_size (monitor_manager,
-						&width,
-						&height);
+          meta_monitor_manager_get_screen_size (monitor_manager,
+                                                &width,
+                                                &height);
         }
 
       aspect_ratio = (double) width / height;
@@ -497,8 +519,11 @@ meta_input_settings_native_set_tablet_area (MetaInputSettings  *settings,
   offset_x = -padding_left * scale_x;
   offset_y = -padding_top * scale_y;
 
-  gfloat matrix[6] = { scale_x, 0., offset_x,
-                       0., scale_y, offset_y };
+  gfloat matrix[6] =
+  {
+    scale_x, 0., offset_x,
+    0., scale_y, offset_y
+  };
 
   libinput_device = clutter_evdev_input_device_get_libinput_device (device);
   if (!libinput_device ||
@@ -509,10 +534,11 @@ meta_input_settings_native_set_tablet_area (MetaInputSettings  *settings,
 }
 
 static void
-meta_input_settings_native_set_stylus_pressure (MetaInputSettings      *settings,
-                                                ClutterInputDevice     *device,
-                                                ClutterInputDeviceTool *tool,
-                                                const gint              curve[4])
+meta_input_settings_native_set_stylus_pressure (
+  MetaInputSettings      *settings,
+  ClutterInputDevice     *device,
+  ClutterInputDeviceTool *tool,
+  const gint              curve[4])
 {
   gdouble pressure_curve[4];
 
@@ -531,12 +557,16 @@ action_to_evcode (GDesktopStylusButtonAction action)
     {
     case G_DESKTOP_STYLUS_BUTTON_ACTION_MIDDLE:
       return BTN_STYLUS;
+
     case G_DESKTOP_STYLUS_BUTTON_ACTION_RIGHT:
       return BTN_STYLUS2;
+
     case G_DESKTOP_STYLUS_BUTTON_ACTION_BACK:
       return BTN_BACK;
+
     case G_DESKTOP_STYLUS_BUTTON_ACTION_FORWARD:
       return BTN_FORWARD;
+
     case G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT:
     default:
       return 0;
@@ -544,16 +574,18 @@ action_to_evcode (GDesktopStylusButtonAction action)
 }
 
 static void
-meta_input_settings_native_set_stylus_button_map (MetaInputSettings          *settings,
-                                                  ClutterInputDevice         *device,
-                                                  ClutterInputDeviceTool     *tool,
-                                                  GDesktopStylusButtonAction  primary,
-                                                  GDesktopStylusButtonAction  secondary,
-                                                  GDesktopStylusButtonAction  tertiary)
+meta_input_settings_native_set_stylus_button_map (
+  MetaInputSettings         *settings,
+  ClutterInputDevice        *device,
+  ClutterInputDeviceTool    *tool,
+  GDesktopStylusButtonAction primary,
+  GDesktopStylusButtonAction secondary,
+  GDesktopStylusButtonAction tertiary)
 {
   clutter_evdev_input_device_tool_set_button_code (tool, CLUTTER_BUTTON_MIDDLE,
                                                    action_to_evcode (primary));
-  clutter_evdev_input_device_tool_set_button_code (tool, CLUTTER_BUTTON_SECONDARY,
+  clutter_evdev_input_device_tool_set_button_code (tool,
+                                                   CLUTTER_BUTTON_SECONDARY,
                                                    action_to_evcode (secondary));
   clutter_evdev_input_device_tool_set_button_code (tool, 8, /* Back */
                                                    action_to_evcode (tertiary));
@@ -562,34 +594,55 @@ meta_input_settings_native_set_stylus_button_map (MetaInputSettings          *se
 static void
 meta_input_settings_native_class_init (MetaInputSettingsNativeClass *klass)
 {
-  MetaInputSettingsClass *input_settings_class = META_INPUT_SETTINGS_CLASS (klass);
+  MetaInputSettingsClass *input_settings_class = META_INPUT_SETTINGS_CLASS (
+    klass);
 
-  input_settings_class->set_send_events = meta_input_settings_native_set_send_events;
+  input_settings_class->set_send_events =
+    meta_input_settings_native_set_send_events;
   input_settings_class->set_matrix = meta_input_settings_native_set_matrix;
   input_settings_class->set_speed = meta_input_settings_native_set_speed;
-  input_settings_class->set_left_handed = meta_input_settings_native_set_left_handed;
-  input_settings_class->set_tap_enabled = meta_input_settings_native_set_tap_enabled;
-  input_settings_class->set_tap_and_drag_enabled = meta_input_settings_native_set_tap_and_drag_enabled;
-  input_settings_class->set_invert_scroll = meta_input_settings_native_set_invert_scroll;
-  input_settings_class->set_edge_scroll = meta_input_settings_native_set_edge_scroll;
-  input_settings_class->set_two_finger_scroll = meta_input_settings_native_set_two_finger_scroll;
-  input_settings_class->set_scroll_button = meta_input_settings_native_set_scroll_button;
-  input_settings_class->set_click_method = meta_input_settings_native_set_click_method;
-  input_settings_class->set_keyboard_repeat = meta_input_settings_native_set_keyboard_repeat;
-  input_settings_class->set_disable_while_typing = meta_input_settings_native_set_disable_while_typing;
+  input_settings_class->set_left_handed =
+    meta_input_settings_native_set_left_handed;
+  input_settings_class->set_tap_enabled =
+    meta_input_settings_native_set_tap_enabled;
+  input_settings_class->set_tap_and_drag_enabled =
+    meta_input_settings_native_set_tap_and_drag_enabled;
+  input_settings_class->set_invert_scroll =
+    meta_input_settings_native_set_invert_scroll;
+  input_settings_class->set_edge_scroll =
+    meta_input_settings_native_set_edge_scroll;
+  input_settings_class->set_two_finger_scroll =
+    meta_input_settings_native_set_two_finger_scroll;
+  input_settings_class->set_scroll_button =
+    meta_input_settings_native_set_scroll_button;
+  input_settings_class->set_click_method =
+    meta_input_settings_native_set_click_method;
+  input_settings_class->set_keyboard_repeat =
+    meta_input_settings_native_set_keyboard_repeat;
+  input_settings_class->set_disable_while_typing =
+    meta_input_settings_native_set_disable_while_typing;
 
-  input_settings_class->set_tablet_mapping = meta_input_settings_native_set_tablet_mapping;
-  input_settings_class->set_tablet_keep_aspect = meta_input_settings_native_set_tablet_keep_aspect;
-  input_settings_class->set_tablet_area = meta_input_settings_native_set_tablet_area;
+  input_settings_class->set_tablet_mapping =
+    meta_input_settings_native_set_tablet_mapping;
+  input_settings_class->set_tablet_keep_aspect =
+    meta_input_settings_native_set_tablet_keep_aspect;
+  input_settings_class->set_tablet_area =
+    meta_input_settings_native_set_tablet_area;
 
-  input_settings_class->set_mouse_accel_profile = meta_input_settings_native_set_mouse_accel_profile;
-  input_settings_class->set_trackball_accel_profile = meta_input_settings_native_set_trackball_accel_profile;
+  input_settings_class->set_mouse_accel_profile =
+    meta_input_settings_native_set_mouse_accel_profile;
+  input_settings_class->set_trackball_accel_profile =
+    meta_input_settings_native_set_trackball_accel_profile;
 
-  input_settings_class->set_stylus_pressure = meta_input_settings_native_set_stylus_pressure;
-  input_settings_class->set_stylus_button_map = meta_input_settings_native_set_stylus_button_map;
+  input_settings_class->set_stylus_pressure =
+    meta_input_settings_native_set_stylus_pressure;
+  input_settings_class->set_stylus_button_map =
+    meta_input_settings_native_set_stylus_button_map;
 
-  input_settings_class->has_two_finger_scroll = meta_input_settings_native_has_two_finger_scroll;
-  input_settings_class->is_trackball_device = meta_input_settings_native_is_trackball_device;
+  input_settings_class->has_two_finger_scroll =
+    meta_input_settings_native_has_two_finger_scroll;
+  input_settings_class->is_trackball_device =
+    meta_input_settings_native_is_trackball_device;
 }
 
 static void

@@ -19,7 +19,8 @@
 /**
  * SECTION:meta-shadow-factory
  * @title: MetaShadowFactory
- * @short_description: Create and cache shadow textures for abritrary window shapes
+ * @short_description: Create and cache shadow textures for abritrary window
+ *shapes
  */
 
 #include "config.h"
@@ -52,7 +53,7 @@
  * - We approximate the 1D gaussian blur as 3 successive box filters.
  */
 
-typedef struct _MetaShadowCacheKey  MetaShadowCacheKey;
+typedef struct _MetaShadowCacheKey MetaShadowCacheKey;
 typedef struct _MetaShadowClassInfo MetaShadowClassInfo;
 
 struct _MetaShadowCacheKey
@@ -122,18 +123,19 @@ static guint signals[LAST_SIGNAL] = { 0 };
 
 /* The first element in this array also defines the default parameters
  * for newly created classes */
-MetaShadowClassInfo default_shadow_classes[] = {
-  { "normal",       { 10, -1, 0, 3, 128 }, { 8, -1, 0, 2, 64 } },
-  { "dialog",       { 10, -1, 0, 3, 128 }, { 8, -1, 0, 2, 64 } },
+MetaShadowClassInfo default_shadow_classes[] =
+{
+  { "normal", { 10, -1, 0, 3, 128 }, { 8, -1, 0, 2, 64 } },
+  { "dialog", { 10, -1, 0, 3, 128 }, { 8, -1, 0, 2, 64 } },
   { "modal_dialog", { 10, -1, 0, 3, 128 }, { 8, -1, 0, 2, 64 } },
-  { "utility",      { 10, -1, 0, 3, 128 }, { 8, -1, 0, 2, 64 } },
-  { "border",       { 10, -1, 0, 3, 128 }, { 8, -1, 0, 2, 64 } },
-  { "menu",         { 10, -1, 0, 3, 128 }, { 8, -1, 0, 2, 64 } },
+  { "utility", { 10, -1, 0, 3, 128 }, { 8, -1, 0, 2, 64 } },
+  { "border", { 10, -1, 0, 3, 128 }, { 8, -1, 0, 2, 64 } },
+  { "menu", { 10, -1, 0, 3, 128 }, { 8, -1, 0, 2, 64 } },
 
-  { "popup-menu",    { 1, -1, 0, 0, 128 }, { 1, -1, 0, 0, 128 } },
+  { "popup-menu", { 1, -1, 0, 0, 128 }, { 1, -1, 0, 0, 128 } },
   { "dropdown-menu", { 1, -1, 0, 0, 128 }, { 1, -1, 0, 0, 128 } },
 
-  { "attached",      { 0, -1, 0, 0, 0 }, { 0, -1, 0, 0, 0 } }
+  { "attached", { 0, -1, 0, 0, 0 }, { 0, -1, 0, 0, 0 } }
 };
 
 G_DEFINE_TYPE (MetaShadowFactory, meta_shadow_factory, G_TYPE_OBJECT);
@@ -143,7 +145,8 @@ meta_shadow_cache_key_hash (gconstpointer val)
 {
   const MetaShadowCacheKey *key = val;
 
-  return 59 * key->radius + 67 * key->top_fade + 73 * meta_window_shape_hash (key->shape);
+  return 59 * key->radius + 67 * key->top_fade + 73 * meta_window_shape_hash (
+    key->shape);
 }
 
 static gboolean
@@ -153,7 +156,8 @@ meta_shadow_cache_key_equal (gconstpointer a,
   const MetaShadowCacheKey *key_a = a;
   const MetaShadowCacheKey *key_b = b;
 
-  return (key_a->radius == key_b->radius && key_a->top_fade == key_b->top_fade &&
+  return (key_a->radius == key_b->radius &&
+          key_a->top_fade == key_b->top_fade &&
           meta_window_shape_equal (key_a->shape, key_b->shape));
 }
 
@@ -231,8 +235,12 @@ meta_shadow_paint (MetaShadow     *shadow,
       n_x = 3;
 
       src_x[0] = 0.0;
-      src_x[1] = (shadow->inner_border_left + shadow->outer_border_left) / texture_width;
-      src_x[2] = (texture_width - (shadow->inner_border_right + shadow->outer_border_right)) / texture_width;
+      src_x[1] = (shadow->inner_border_left + shadow->outer_border_left) /
+                 texture_width;
+      src_x[2] =
+        (texture_width -
+         (shadow->inner_border_right + shadow->outer_border_right)) /
+        texture_width;
       src_x[3] = 1.0;
 
       dest_x[0] = window_x - shadow->outer_border_left;
@@ -256,8 +264,12 @@ meta_shadow_paint (MetaShadow     *shadow,
       n_y = 3;
 
       src_y[0] = 0.0;
-      src_y[1] = (shadow->inner_border_top + shadow->outer_border_top) / texture_height;
-      src_y[2] = (texture_height - (shadow->inner_border_bottom + shadow->outer_border_bottom)) / texture_height;
+      src_y[1] = (shadow->inner_border_top + shadow->outer_border_top) /
+                 texture_height;
+      src_y[2] =
+        (texture_height -
+         (shadow->inner_border_bottom + shadow->outer_border_bottom)) /
+        texture_height;
       src_y[3] = 1.0;
 
       dest_y[0] = window_y - shadow->outer_border_top;
@@ -330,22 +342,35 @@ meta_shadow_paint (MetaShadow     *shadow,
 
                   cairo_region_get_rectangle (intersection, k, &rect);
 
-                  /* Separately linear interpolate X and Y coordinates in the source
+                  /* Separately linear interpolate X and Y coordinates in the
+                   * source
                    * based on the destination X and Y coordinates */
 
-                  src_x1 = (src_x[i] * (dest_rect.x + dest_rect.width - rect.x) +
-                            src_x[i + 1] * (rect.x - dest_rect.x)) / dest_rect.width;
-                  src_x2 = (src_x[i] * (dest_rect.x + dest_rect.width - (rect.x + rect.width)) +
-                            src_x[i + 1] * (rect.x + rect.width - dest_rect.x)) / dest_rect.width;
+                  src_x1 =
+                    (src_x[i] * (dest_rect.x + dest_rect.width - rect.x) +
+                     src_x[i + 1] * (rect.x - dest_rect.x)) /
+                    dest_rect.width;
+                  src_x2 =
+                    (src_x[i] *
+                     (dest_rect.x + dest_rect.width - (rect.x + rect.width)) +
+                     src_x[i + 1] *
+                     (rect.x + rect.width - dest_rect.x)) / dest_rect.width;
 
-                  src_y1 = (src_y[j] * (dest_rect.y + dest_rect.height - rect.y) +
-                            src_y[j + 1] * (rect.y - dest_rect.y)) / dest_rect.height;
-                  src_y2 = (src_y[j] * (dest_rect.y + dest_rect.height - (rect.y + rect.height)) +
-                            src_y[j + 1] * (rect.y + rect.height - dest_rect.y)) / dest_rect.height;
+                  src_y1 =
+                    (src_y[j] * (dest_rect.y + dest_rect.height - rect.y) +
+                     src_y[j + 1] * (rect.y - dest_rect.y)) /
+                    dest_rect.height;
+                  src_y2 =
+                    (src_y[j] *
+                     (dest_rect.y + dest_rect.height - (rect.y + rect.height)) +
+                     src_y[j + 1] *
+                     (rect.y + rect.height - dest_rect.y)) / dest_rect.height;
 
                   cogl_rectangle_with_texture_coords (rect.x, rect.y,
-                                                      rect.x + rect.width, rect.y + rect.height,
-                                                      src_x1, src_y1, src_x2, src_y2);
+                                                      rect.x + rect.width,
+                                                      rect.y + rect.height,
+                                                      src_x1, src_y1, src_x2,
+                                                      src_y2);
                 }
 
               cairo_region_destroy (intersection);
@@ -375,14 +400,16 @@ meta_shadow_get_bounds  (MetaShadow            *shadow,
 {
   bounds->x = window_x - shadow->outer_border_left;
   bounds->y = window_y - shadow->outer_border_top;
-  bounds->width = window_width + shadow->outer_border_left + shadow->outer_border_right;
-  bounds->height = window_height + shadow->outer_border_top + shadow->outer_border_bottom;
+  bounds->width = window_width + shadow->outer_border_left +
+                  shadow->outer_border_right;
+  bounds->height = window_height + shadow->outer_border_top +
+                   shadow->outer_border_bottom;
 }
 
 static void
 meta_shadow_class_info_free (MetaShadowClassInfo *class_info)
 {
-  g_free ((char *)class_info->name);
+  g_free ((char *) class_info->name);
   g_slice_free (MetaShadowClassInfo, class_info);
 }
 
@@ -397,7 +424,7 @@ meta_shadow_factory_init (MetaShadowFactory *factory)
   factory->shadow_classes = g_hash_table_new_full (g_str_hash,
                                                    g_str_equal,
                                                    NULL,
-                                                   (GDestroyNotify)meta_shadow_class_info_free);
+                                                   (GDestroyNotify) meta_shadow_class_info_free);
 
   for (i = 0; i < G_N_ELEMENTS (default_shadow_classes); i++)
     {
@@ -407,7 +434,7 @@ meta_shadow_factory_init (MetaShadowFactory *factory)
       class_info->name = g_strdup (class_info->name);
 
       g_hash_table_insert (factory->shadow_classes,
-                           (char *)class_info->name, class_info);
+                           (char *) class_info->name, class_info);
     }
 }
 
@@ -487,7 +514,7 @@ meta_shadow_factory_get_default (void)
 static int
 get_box_filter_size (int radius)
 {
-  return (int)(0.5 + radius * (0.75 * sqrt(2*M_PI)));
+  return (int) (0.5 + radius * (0.75 * sqrt (2 * M_PI)));
 }
 
 /* The "spread" of the filter is the number of pixels from an original
@@ -566,13 +593,13 @@ blur_xspan (guchar *row,
 }
 
 static void
-blur_rows (cairo_region_t   *convolve_region,
-           int               x_offset,
-           int               y_offset,
-           guchar           *buffer,
-           int               buffer_width,
-           int               buffer_height,
-           int               d)
+blur_rows (cairo_region_t *convolve_region,
+           int             x_offset,
+           int             y_offset,
+           guchar         *buffer,
+           int             buffer_width,
+           int             buffer_height,
+           int             d)
 {
   int i, j;
   int n_rectangles;
@@ -650,8 +677,8 @@ flip_buffer (guchar *buffer,
       for (j0 = 0; j0 < height; j0 += BLOCK_SIZE)
         for (i0 = 0; i0 <= j0; i0 += BLOCK_SIZE)
           {
-            int max_j = MIN(j0 + BLOCK_SIZE, height);
-            int max_i = MIN(i0 + BLOCK_SIZE, width);
+            int max_j = MIN (j0 + BLOCK_SIZE, height);
+            int max_i = MIN (i0 + BLOCK_SIZE, width);
             int i, j;
 
             if (i0 == j0)
@@ -686,8 +713,8 @@ flip_buffer (guchar *buffer,
       for (i0 = 0; i0 < width; i0 += BLOCK_SIZE)
         for (j0 = 0; j0 < height; j0 += BLOCK_SIZE)
           {
-            int max_j = MIN(j0 + BLOCK_SIZE, height);
-            int max_i = MIN(i0 + BLOCK_SIZE, width);
+            int max_j = MIN (j0 + BLOCK_SIZE, height);
+            int max_i = MIN (i0 + BLOCK_SIZE, width);
             int i, j;
 
             for (i = i0; i < max_i; i++)
@@ -790,22 +817,45 @@ make_shadow (MetaShadow     *shadow,
   /* Step 6: fade out the top, if applicable */
   if (shadow->key.top_fade >= 0)
     {
-      for (j = y_offset; j < y_offset + MIN (shadow->key.top_fade, extents.height + shadow->outer_border_bottom); j++)
-        fade_bytes(buffer + j * buffer_width, buffer_width, j - y_offset, shadow->key.top_fade);
+      for (j = y_offset;
+           j <
+           y_offset +
+           MIN (shadow->key.top_fade,
+                extents.height + shadow->outer_border_bottom);
+           j++)
+        fade_bytes (buffer + j * buffer_width, buffer_width, j - y_offset,
+                    shadow->key.top_fade);
     }
 
-  /* We offset the passed in pixels to crop off the extra area we allocated at the top
-   * in the case of top_fade >= 0. We also account for padding at the left for symmetry
+  /* We offset the passed in pixels to crop off the extra area we allocated at
+   * the top
+   * in the case of top_fade >= 0. We also account for padding at the left for
+   *symmetry
    * though that doesn't currently occur.
    */
   shadow->texture = COGL_TEXTURE (cogl_texture_2d_new_from_data (ctx,
-                                                                 shadow->outer_border_left + extents.width + shadow->outer_border_right,
-                                                                 shadow->outer_border_top + extents.height + shadow->outer_border_bottom,
+                                                                 shadow->
+                                                                 outer_border_left
+                                                                 + extents.width
+                                                                 + shadow->
+                                                                 outer_border_right,
+                                                                 shadow->
+                                                                 outer_border_top
+                                                                 + extents.
+                                                                 height +
+                                                                 shadow->
+                                                                 outer_border_bottom,
                                                                  COGL_PIXEL_FORMAT_A_8,
                                                                  buffer_width,
                                                                  (buffer +
-                                                                  (y_offset - shadow->outer_border_top) * buffer_width +
-                                                                  (x_offset - shadow->outer_border_left)),
+                                                                  (y_offset -
+                                                                   shadow->
+                                                                   outer_border_top)
+                                                                  * buffer_width
+                                                                  +
+                                                                  (x_offset -
+                                                                   shadow->
+                                                                   outer_border_left)),
                                                                  &error));
 
   if (error)
@@ -827,8 +877,9 @@ get_shadow_params (MetaShadowFactory *factory,
                    gboolean           focused,
                    gboolean           create)
 {
-  MetaShadowClassInfo *class_info = g_hash_table_lookup (factory->shadow_classes,
-                                                         class_name);
+  MetaShadowClassInfo *class_info = g_hash_table_lookup (
+    factory->shadow_classes,
+    class_name);
   if (class_info == NULL)
     {
       if (create)
@@ -838,7 +889,7 @@ get_shadow_params (MetaShadowFactory *factory,
           class_info->name = g_strdup (class_info->name);
 
           g_hash_table_insert (factory->shadow_classes,
-                               (char *)class_info->name, class_info);
+                               (char *) class_info->name, class_info);
         }
       else
         {
@@ -883,9 +934,12 @@ meta_shadow_factory_get_shadow (MetaShadowFactory *factory,
   MetaShadow *shadow;
   cairo_region_t *region;
   int spread;
-  int shape_border_top, shape_border_right, shape_border_bottom, shape_border_left;
-  int inner_border_top, inner_border_right, inner_border_bottom, inner_border_left;
-  int outer_border_top, outer_border_right, outer_border_bottom, outer_border_left;
+  int shape_border_top, shape_border_right, shape_border_bottom,
+      shape_border_left;
+  int inner_border_top, inner_border_right, inner_border_bottom,
+      inner_border_left;
+  int outer_border_top, outer_border_right, outer_border_bottom,
+      outer_border_left;
   gboolean scale_width, scale_height;
   gboolean cacheable;
   int center_width, center_height;
@@ -969,13 +1023,15 @@ meta_shadow_factory_get_shadow (MetaShadowFactory *factory,
 
   shadow->scale_width = scale_width;
   if (scale_width)
-    center_width = inner_border_left + inner_border_right - (shape_border_left + shape_border_right);
+    center_width = inner_border_left + inner_border_right -
+                   (shape_border_left + shape_border_right);
   else
     center_width = width - (shape_border_left + shape_border_right);
 
   shadow->scale_height = scale_height;
   if (scale_height)
-    center_height = inner_border_top + inner_border_bottom - (shape_border_top + shape_border_bottom);
+    center_height = inner_border_top + inner_border_bottom -
+                    (shape_border_top + shape_border_bottom);
   else
     center_height = height - (shape_border_top + shape_border_bottom);
 
@@ -1034,7 +1090,8 @@ meta_shadow_factory_set_params (MetaShadowFactory *factory,
  * @factory: a #MetaShadowFactory
  * @class_name: name of the class of shadow to get the params for
  * @focused: whether the shadow is for a focused window
- * @params: (out caller-allocates): location to store the current parameter values
+ * @params: (out caller-allocates): location to store the current parameter
+ *values
  *
  * Gets the shadow parameters for a particular class of shadows
  * for either the focused or unfocused state. If the class name

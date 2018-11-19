@@ -49,7 +49,7 @@ struct _MetaGpuXrandr
 G_DEFINE_TYPE (MetaGpuXrandr, meta_gpu_xrandr, META_TYPE_GPU)
 
 XRRScreenResources *
-meta_gpu_xrandr_get_resources (MetaGpuXrandr *gpu_xrandr)
+meta_gpu_xrandr_get_resources (MetaGpuXrandr * gpu_xrandr)
 {
   return gpu_xrandr->resources;
 }
@@ -82,8 +82,8 @@ get_xmode_name (XRRModeInfo *xmode)
 }
 
 static gboolean
-meta_gpu_xrandr_read_current (MetaGpu  *gpu,
-                              GError  **error)
+meta_gpu_xrandr_read_current (MetaGpu *gpu,
+                              GError **error)
 {
   MetaGpuXrandr *gpu_xrandr = META_GPU_XRANDR (gpu);
   MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
@@ -118,15 +118,19 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
         case DPMSModeOn:
           monitor_manager->power_save_mode = META_POWER_SAVE_ON;
           break;
+
         case DPMSModeStandby:
           monitor_manager->power_save_mode = META_POWER_SAVE_STANDBY;
           break;
+
         case DPMSModeSuspend:
           monitor_manager->power_save_mode = META_POWER_SAVE_SUSPEND;
           break;
+
         case DPMSModeOff:
           monitor_manager->power_save_mode = META_POWER_SAVE_OFF;
           break;
+
         default:
           monitor_manager->power_save_mode = META_POWER_SAVE_UNSUPPORTED;
           break;
@@ -163,7 +167,7 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
   modes = NULL;
   crtcs = NULL;
 
-  for (i = 0; i < (unsigned)resources->nmode; i++)
+  for (i = 0; i < (unsigned) resources->nmode; i++)
     {
       XRRModeInfo *xmode = &resources->modes[i];
       MetaCrtcMode *mode;
@@ -174,7 +178,7 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
       mode->width = xmode->width;
       mode->height = xmode->height;
       mode->refresh_rate = (xmode->dotClock /
-                            ((float)xmode->hTotal * xmode->vTotal));
+                            ((float) xmode->hTotal * xmode->vTotal));
       mode->flags = xmode->modeFlags;
       mode->name = get_xmode_name (xmode);
 
@@ -182,7 +186,7 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
     }
   meta_gpu_take_modes (gpu, modes);
 
-  for (i = 0; i < (unsigned)resources->ncrtc; i++)
+  for (i = 0; i < (unsigned) resources->ncrtc; i++)
     {
       XRRCrtcInfo *xrandr_crtc;
       RRCrtc crtc_id;
@@ -203,7 +207,7 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
   primary_output = XRRGetOutputPrimary (xdisplay,
                                         DefaultRootWindow (xdisplay));
 
-  for (i = 0; i < (unsigned)resources->noutput; i++)
+  for (i = 0; i < (unsigned) resources->noutput; i++)
     {
       RROutput output_id;
       XRROutputInfo *xrandr_output;

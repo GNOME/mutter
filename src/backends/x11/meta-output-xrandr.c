@@ -143,7 +143,7 @@ static int
 normalize_backlight (MetaOutput *output,
                      int         hw_value)
 {
-  return round ((double)(hw_value - output->backlight_min) /
+  return round ((double) (hw_value - output->backlight_min) /
                 (output->backlight_max - output->backlight_min) * 100.0);
 }
 
@@ -161,12 +161,13 @@ meta_output_xrandr_change_backlight (MetaOutput *output,
   atom = XInternAtom (xdisplay, "Backlight", False);
 
   xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
-                                    (XID)output->winsys_id,
+                                    (XID) output->winsys_id,
                                     atom, XCB_ATOM_INTEGER, 32,
                                     XCB_PROP_MODE_REPLACE,
                                     1, &hw_value);
 
-  /* We're not selecting for property notifies, so update the value immediately */
+  /* We're not selecting for property notifies, so update the value immediately
+   * */
   output->backlight = normalize_backlight (output, hw_value);
 }
 
@@ -184,7 +185,7 @@ output_get_integer_property (MetaOutput *output,
 
   atom = XInternAtom (xdisplay, propname, False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) output->winsys_id,
                         atom,
                         0, G_MAXLONG, False, False, XA_INTEGER,
                         &actual_type, &actual_format,
@@ -193,7 +194,7 @@ output_get_integer_property (MetaOutput *output,
   exists = (actual_type == XA_INTEGER && actual_format == 32 && nitems == 1);
 
   if (exists && value != NULL)
-    *value = ((int*)buffer)[0];
+    *value = ((int *) buffer)[0];
 
   XFree (buffer);
   return exists;
@@ -212,7 +213,7 @@ output_get_property_exists (MetaOutput *output,
 
   atom = XInternAtom (xdisplay, propname, False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) output->winsys_id,
                         atom,
                         0, G_MAXLONG, False, False, AnyPropertyType,
                         &actual_type, &actual_format,
@@ -236,7 +237,7 @@ output_get_boolean_property (MetaOutput *output,
 
   atom = XInternAtom (xdisplay, propname, False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) output->winsys_id,
                         atom,
                         0, G_MAXLONG, False, False, XA_CARDINAL,
                         &actual_type, &actual_format,
@@ -245,7 +246,7 @@ output_get_boolean_property (MetaOutput *output,
   if (actual_type != XA_CARDINAL || actual_format != 32 || nitems < 1)
     return FALSE;
 
-  return ((int*)buffer)[0];
+  return ((int *) buffer)[0];
 }
 
 static gboolean
@@ -266,7 +267,7 @@ output_get_underscanning_xrandr (MetaOutput *output)
 
   atom = XInternAtom (xdisplay, "underscan", False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) output->winsys_id,
                         atom,
                         0, G_MAXLONG, False, False, XA_ATOM,
                         &actual_type, &actual_format,
@@ -275,7 +276,7 @@ output_get_underscanning_xrandr (MetaOutput *output)
   if (actual_type != XA_ATOM || actual_format != 32 || nitems < 1)
     return FALSE;
 
-  str = XGetAtomName (xdisplay, *(Atom *)buffer);
+  str = XGetAtomName (xdisplay, *(Atom *) buffer);
   return (strcmp (str, "on") == 0);
 }
 
@@ -293,7 +294,7 @@ output_get_supports_underscanning_xrandr (MetaOutput *output)
 
   atom = XInternAtom (xdisplay, "underscan", False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) output->winsys_id,
                         atom,
                         0, G_MAXLONG, False, False, XA_ATOM,
                         &actual_type, &actual_format,
@@ -336,7 +337,7 @@ output_get_backlight_xrandr (MetaOutput *output)
 
   atom = XInternAtom (xdisplay, "Backlight", False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) output->winsys_id,
                         atom,
                         0, G_MAXLONG, False, False, XA_INTEGER,
                         &actual_type, &actual_format,
@@ -345,7 +346,7 @@ output_get_backlight_xrandr (MetaOutput *output)
   if (actual_type != XA_INTEGER || actual_format != 32 || nitems < 1)
     return FALSE;
 
-  value = ((int*)buffer)[0];
+  value = ((int *) buffer)[0];
   if (value > 0)
     return normalize_backlight (output, value);
   else
@@ -387,10 +388,10 @@ output_get_backlight_limits_xrandr (MetaOutput *output)
 }
 
 static guint8 *
-get_edid_property (Display  *xdisplay,
-                   RROutput  output,
-                   Atom      atom,
-                   gsize    *len)
+get_edid_property (Display *xdisplay,
+                   RROutput output,
+                   Atom     atom,
+                   gsize   *len)
 {
   unsigned char *prop;
   int actual_format;
@@ -522,7 +523,7 @@ output_get_connector_type_from_prop (MetaOutput *output)
 
   atom = XInternAtom (xdisplay, "ConnectorType", False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) output->winsys_id,
                         atom,
                         0, G_MAXLONG, False, False, XA_ATOM,
                         &actual_type, &actual_format,
@@ -618,7 +619,7 @@ output_get_panel_orientation_transform (MetaOutput *output)
   g_autofree char *str = NULL;
 
   atom = XInternAtom (xdisplay, "panel orientation", False);
-  XRRGetOutputProperty (xdisplay, (XID)output->winsys_id, atom,
+  XRRGetOutputProperty (xdisplay, (XID) output->winsys_id, atom,
                         0, G_MAXLONG, False, False, XA_ATOM,
                         &actual_type, &actual_format,
                         &nitems, &bytes_after, &buffer);
@@ -626,7 +627,7 @@ output_get_panel_orientation_transform (MetaOutput *output)
   if (actual_type != XA_ATOM || actual_format != 32 || nitems < 1)
     return META_MONITOR_TRANSFORM_NORMAL;
 
-  str = XGetAtomName (xdisplay, *(Atom *)buffer);
+  str = XGetAtomName (xdisplay, *(Atom *) buffer);
   if (strcmp (str, "Upside Down") == 0)
     return META_MONITOR_TRANSFORM_180;
 
@@ -666,7 +667,7 @@ output_get_tile_info (MetaOutput *output)
 
   if (actual_type == XA_INTEGER && actual_format == 32 && nitems == 8)
     {
-      long *values = (long *)prop;
+      long *values = (long *) prop;
       output->tile_info.group_id = values[0];
       output->tile_info.flags = values[1];
       output->tile_info.max_h_tiles = values[2];
@@ -781,7 +782,7 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
     output_get_panel_orientation_transform (output);
 
   if (meta_monitor_transform_is_rotated (
-                                output->panel_orientation_transform))
+        output->panel_orientation_transform))
     {
       output->width_mm = xrandr_output->mm_height;
       output->height_mm = xrandr_output->mm_width;

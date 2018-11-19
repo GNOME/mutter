@@ -30,7 +30,7 @@ static void
 texture_rectangle_check_cb (CoglTexture *sub_texture,
                             const float *sub_texture_coords,
                             const float *meta_coords,
-                            void *user_data)
+                            void        *user_data)
 {
   gboolean *result = user_data;
 

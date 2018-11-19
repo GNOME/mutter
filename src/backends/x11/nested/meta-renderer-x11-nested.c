@@ -103,14 +103,16 @@ create_offscreen (CoglContext *cogl_context,
 }
 
 static void
-meta_renderer_x11_nested_resize_legacy_view (MetaRendererX11Nested *renderer_x11_nested,
-                                             int                    width,
-                                             int                    height)
+meta_renderer_x11_nested_resize_legacy_view (
+  MetaRendererX11Nested *renderer_x11_nested,
+  int                    width,
+  int                    height)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_x11_nested);
   MetaBackend *backend = meta_get_backend ();
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   MetaRendererView *legacy_view;
   cairo_rectangle_int_t view_layout;
   CoglOffscreen *fake_onscreen;
@@ -124,8 +126,8 @@ meta_renderer_x11_nested_resize_legacy_view (MetaRendererX11Nested *renderer_x11
     return;
 
   view_layout = (cairo_rectangle_int_t) {
-      .width = width,
-        .height = height
+    .width = width,
+    .height = height
   };
 
   fake_onscreen = create_offscreen (cogl_context, width, height);
@@ -137,14 +139,16 @@ meta_renderer_x11_nested_resize_legacy_view (MetaRendererX11Nested *renderer_x11
 }
 
 void
-meta_renderer_x11_nested_ensure_legacy_view (MetaRendererX11Nested *renderer_x11_nested,
-                                             int                    width,
-                                             int                    height)
+meta_renderer_x11_nested_ensure_legacy_view (
+  MetaRendererX11Nested *renderer_x11_nested,
+  int                    width,
+  int                    height)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_x11_nested);
   MetaBackend *backend = meta_get_backend ();
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   cairo_rectangle_int_t view_layout;
   CoglOffscreen *fake_onscreen;
   MetaRendererView *legacy_view;
@@ -178,7 +182,8 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   MetaMonitorTransform view_transform;
   float view_scale;
   int width, height;
@@ -234,4 +239,3 @@ meta_renderer_x11_nested_class_init (MetaRendererX11NestedClass *klass)
 
   renderer_class->create_view = meta_renderer_x11_nested_create_view;
 }
-

@@ -83,7 +83,8 @@ meta_cursor_renderer_x11_nested_init (MetaCursorRendererX11Nested *x11_nested)
 }
 
 static void
-meta_cursor_renderer_x11_nested_class_init (MetaCursorRendererX11NestedClass *klass)
+meta_cursor_renderer_x11_nested_class_init (
+  MetaCursorRendererX11NestedClass *klass)
 {
   MetaCursorRendererClass *renderer_class = META_CURSOR_RENDERER_CLASS (klass);
 

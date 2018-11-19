@@ -30,7 +30,8 @@
 #include "wayland/meta-xwayland.h"
 #include "x11/meta-x11-display-private.h"
 
-struct _TestClient {
+struct _TestClient
+{
   char *id;
   MetaWindowClientType type;
   GSubprocess *subprocess;
@@ -45,7 +46,8 @@ struct _TestClient {
   AsyncWaiter *waiter;
 };
 
-struct _AsyncWaiter {
+struct _AsyncWaiter
+{
   XSyncCounter counter;
   int counter_value;
   XSyncAlarm alarm;
@@ -54,7 +56,7 @@ struct _AsyncWaiter {
   int counter_wait_value;
 };
 
-G_DEFINE_QUARK (test-runner-error-quark, test_runner_error)
+G_DEFINE_QUARK (test - runner - error - quark, test_runner_error)
 
 static char *test_client_path;
 
@@ -285,7 +287,7 @@ test_client_do (TestClient *client,
       goto out;
     }
 
- out:
+out:
   g_string_free (command, TRUE);
   g_free (line);
 
@@ -384,8 +386,8 @@ test_client_new (const char          *id,
   const char *wayland_display_name;
   const char *x11_display_name;
 
-  launcher =  g_subprocess_launcher_new ((G_SUBPROCESS_FLAGS_STDIN_PIPE |
-                                          G_SUBPROCESS_FLAGS_STDOUT_PIPE));
+  launcher = g_subprocess_launcher_new ((G_SUBPROCESS_FLAGS_STDIN_PIPE |
+                                         G_SUBPROCESS_FLAGS_STDOUT_PIPE));
 
   g_assert (meta_is_wayland_compositor ());
   compositor = meta_wayland_compositor_get_default ();
@@ -404,7 +406,8 @@ test_client_new (const char          *id,
                                             test_client_path,
                                             "--client-id",
                                             id,
-                                            (type == META_WINDOW_CLIENT_TYPE_WAYLAND ?
+                                            (type ==
+                                             META_WINDOW_CLIENT_TYPE_WAYLAND ?
                                              "--wayland" : NULL),
                                             NULL);
   g_object_unref (launcher);

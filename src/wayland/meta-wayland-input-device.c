@@ -47,7 +47,7 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaWaylandInputDevice,
                             G_TYPE_OBJECT)
 
 MetaWaylandSeat *
-meta_wayland_input_device_get_seat (MetaWaylandInputDevice *input_device)
+meta_wayland_input_device_get_seat (MetaWaylandInputDevice * input_device)
 {
   MetaWaylandInputDevicePrivate *priv =
     meta_wayland_input_device_get_instance_private (input_device);
@@ -85,7 +85,7 @@ meta_wayland_input_device_set_property (GObject      *object,
 }
 
 static void
-meta_wayland_input_device_get_property (GObject      *object,
+meta_wayland_input_device_get_property (GObject    *object,
                                         guint       prop_id,
                                         GValue     *value,
                                         GParamSpec *pspec)

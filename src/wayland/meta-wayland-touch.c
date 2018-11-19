@@ -61,7 +61,8 @@ struct _MetaWaylandTouchInfo
 
 #ifdef HAVE_NATIVE_BACKEND
 static void
-move_resources (struct wl_list *destination, struct wl_list *source)
+move_resources (struct wl_list *destination,
+                struct wl_list *source)
 {
   wl_list_insert_list (destination, source);
   wl_list_init (source);
@@ -69,18 +70,18 @@ move_resources (struct wl_list *destination, struct wl_list *source)
 
 static void
 move_resources_for_client (struct wl_list   *destination,
-			   struct wl_list   *source,
-			   struct wl_client *client)
+                           struct wl_list   *source,
+                           struct wl_client *client)
 {
   struct wl_resource *resource, *tmp;
   wl_resource_for_each_safe (resource, tmp, source)
-    {
-      if (wl_resource_get_client (resource) == client)
-        {
-          wl_list_remove (wl_resource_get_link (resource));
-          wl_list_insert (destination, wl_resource_get_link (resource));
-        }
-    }
+  {
+    if (wl_resource_get_client (resource) == client)
+      {
+        wl_list_remove (wl_resource_get_link (resource));
+        wl_list_insert (destination, wl_resource_get_link (resource));
+      }
+  }
 }
 
 static void
@@ -120,9 +121,12 @@ touch_surface_decrement_touch (MetaWaylandTouchSurface *touch_surface)
 }
 
 static void
-touch_handle_surface_destroy (struct wl_listener *listener, void *data)
+touch_handle_surface_destroy (struct wl_listener *listener,
+                              void               *data)
 {
-  MetaWaylandTouchSurface *touch_surface = wl_container_of (listener, touch_surface, surface_destroy_listener);
+  MetaWaylandTouchSurface *touch_surface = wl_container_of (listener,
+                                                            touch_surface,
+                                                            surface_destroy_listener);
   MetaWaylandSurface *surface = touch_surface->surface;
   MetaWaylandTouch *touch = touch_surface->touch;
   MetaWaylandTouchInfo *touch_info;
@@ -134,7 +138,7 @@ touch_handle_surface_destroy (struct wl_listener *listener, void *data)
    * on the touch_surface to 0, also freeing touch_surface and removing
    * from the touch_surfaces hashtable.
    */
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &touch_info))
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &touch_info))
     {
       if (touch_info->touch_surface == touch_surface)
         g_hash_table_iter_remove (&iter);
@@ -167,7 +171,8 @@ touch_surface_get (MetaWaylandTouch   *touch,
   wl_list_init (&touch_surface->resource_list);
   move_resources_for_client (&touch_surface->resource_list,
                              &touch->resource_list,
-                             wl_resource_get_client (touch_surface->surface->resource));
+                             wl_resource_get_client (touch_surface->surface->
+                                                     resource));
 
   g_hash_table_insert (touch->touch_surfaces, surface, touch_surface);
 
@@ -228,14 +233,16 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
       actor = clutter_event_get_source (event);
 
       if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
-        surface = meta_surface_actor_wayland_get_surface (META_SURFACE_ACTOR_WAYLAND (actor));
+        surface = meta_surface_actor_wayland_get_surface (META_SURFACE_ACTOR_WAYLAND (
+                                                            actor));
 
       if (!surface)
         return;
 
       touch_info = touch_get_info (touch, sequence, TRUE);
       touch_info->touch_surface = touch_surface_get (touch, surface);
-      clutter_event_get_coords (event, &touch_info->start_x, &touch_info->start_y);
+      clutter_event_get_coords (event, &touch_info->start_x,
+                                &touch_info->start_y);
     }
   else
     touch_info = touch_get_info (touch, sequence, FALSE);
@@ -275,15 +282,15 @@ handle_touch_begin (MetaWaylandTouch   *touch,
     return;
 
   l = &touch_info->touch_surface->resource_list;
-  wl_resource_for_each(resource, l)
-    {
-      wl_touch_send_down (resource, touch_info->slot_serial,
-                          clutter_event_get_time (event),
-                          touch_info->touch_surface->surface->resource,
-                          touch_info->slot,
-                          wl_fixed_from_double (touch_info->x),
-                          wl_fixed_from_double (touch_info->y));
-    }
+  wl_resource_for_each (resource, l)
+  {
+    wl_touch_send_down (resource, touch_info->slot_serial,
+                        clutter_event_get_time (event),
+                        touch_info->touch_surface->surface->resource,
+                        touch_info->slot,
+                        wl_fixed_from_double (touch_info->x),
+                        wl_fixed_from_double (touch_info->y));
+  }
 
   touch_info->begin_delivered = TRUE;
 #endif /* HAVE_NATIVE_BACKEND */
@@ -306,14 +313,14 @@ handle_touch_update (MetaWaylandTouch   *touch,
     return;
 
   l = &touch_info->touch_surface->resource_list;
-  wl_resource_for_each(resource, l)
-    {
-      wl_touch_send_motion (resource,
-                            clutter_event_get_time (event),
-                            touch_info->slot,
-                            wl_fixed_from_double (touch_info->x),
-                            wl_fixed_from_double (touch_info->y));
-    }
+  wl_resource_for_each (resource, l)
+  {
+    wl_touch_send_motion (resource,
+                          clutter_event_get_time (event),
+                          touch_info->slot,
+                          wl_fixed_from_double (touch_info->x),
+                          wl_fixed_from_double (touch_info->y));
+  }
 #endif /* HAVE_NATIVE_BACKEND */
 }
 
@@ -336,12 +343,12 @@ handle_touch_end (MetaWaylandTouch   *touch,
   if (touch_info->begin_delivered)
     {
       l = &touch_info->touch_surface->resource_list;
-      wl_resource_for_each(resource, l)
-        {
-          wl_touch_send_up (resource, touch_info->slot_serial,
-                            clutter_event_get_time (event),
-                            touch_info->slot);
-        }
+      wl_resource_for_each (resource, l)
+      {
+        wl_touch_send_up (resource, touch_info->slot_serial,
+                          clutter_event_get_time (event),
+                          touch_info->slot);
+      }
     }
 
   g_hash_table_remove (touch->touches, sequence);
@@ -358,7 +365,7 @@ touch_get_surfaces (MetaWaylandTouch *touch,
 
   g_hash_table_iter_init (&iter, touch->touches);
 
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &touch_info))
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &touch_info))
     {
       if (only_updated && !touch_info->updated)
         continue;
@@ -386,10 +393,10 @@ touch_send_frame_event (MetaWaylandTouch *touch)
       struct wl_list *l;
 
       l = &touch_surface->resource_list;
-      wl_resource_for_each(resource, l)
-        {
-          wl_touch_send_frame (resource);
-        }
+      wl_resource_for_each (resource, l)
+      {
+        wl_touch_send_frame (resource);
+      }
     }
 
   g_list_free (surfaces);
@@ -418,9 +425,9 @@ check_send_frame_event (MetaWaylandTouch   *touch,
     }
   else
 #endif /* HAVE_NATIVE_BACKEND */
-    {
-      send_frame_event = TRUE;
-    }
+  {
+    send_frame_event = TRUE;
+  }
 
   if (send_frame_event)
     touch_send_frame_event (touch);
@@ -465,7 +472,8 @@ touch_release (struct wl_client   *client,
   wl_resource_destroy (resource);
 }
 
-static const struct wl_touch_interface touch_interface = {
+static const struct wl_touch_interface touch_interface =
+{
   touch_release,
 };
 
@@ -497,8 +505,8 @@ meta_wayland_touch_cancel (MetaWaylandTouch *touch)
       struct wl_list *l;
 
       l = &touch_surface->resource_list;
-      wl_resource_for_each(resource, l)
-        wl_touch_send_cancel (resource);
+      wl_resource_for_each (resource, l)
+      wl_touch_send_cancel (resource);
     }
 
   g_hash_table_remove_all (touch->touches);
@@ -516,7 +524,8 @@ evdev_filter_func (struct libinput_event *event,
     {
     case LIBINPUT_EVENT_TOUCH_DOWN:
     case LIBINPUT_EVENT_TOUCH_UP:
-    case LIBINPUT_EVENT_TOUCH_MOTION: {
+    case LIBINPUT_EVENT_TOUCH_MOTION:
+    {
       struct libinput_event_touch *touch_event;
       int32_t slot;
 
@@ -529,6 +538,7 @@ evdev_filter_func (struct libinput_event *event,
       touch->frame_slots |= (1 << slot);
       break;
     }
+
     case LIBINPUT_EVENT_TOUCH_CANCEL:
       /* Clutter translates this into individual CLUTTER_TOUCH_CANCEL events,
        * which are not so useful when sending a global signal as the protocol
@@ -536,6 +546,7 @@ evdev_filter_func (struct libinput_event *event,
        */
       meta_wayland_touch_cancel (touch);
       break;
+
     default:
       break;
     }
@@ -559,7 +570,8 @@ meta_wayland_touch_enable (MetaWaylandTouch *touch)
   wl_list_init (&touch->resource_list);
 
   manager = clutter_device_manager_get_default ();
-  touch->device = clutter_device_manager_get_core_device (manager, CLUTTER_TOUCHSCREEN_DEVICE);
+  touch->device = clutter_device_manager_get_core_device (manager,
+                                                          CLUTTER_TOUCHSCREEN_DEVICE);
 
 #ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_get_backend ();
@@ -599,7 +611,8 @@ meta_wayland_touch_create_new_resource (MetaWaylandTouch   *touch,
       return;
     }
 
-  cr = wl_resource_create (client, &wl_touch_interface, wl_resource_get_version (seat_resource), id);
+  cr = wl_resource_create (client, &wl_touch_interface, wl_resource_get_version (
+                             seat_resource), id);
   wl_resource_set_implementation (cr, &touch_interface, touch, unbind_resource);
   wl_list_insert (&touch->resource_list, wl_resource_get_link (cr));
 }
@@ -616,7 +629,7 @@ meta_wayland_touch_can_popup (MetaWaylandTouch *touch,
 
   g_hash_table_iter_init (&iter, touch->touches);
 
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &touch_info))
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &touch_info))
     {
       if (touch_info->slot_serial == serial)
         return TRUE;
@@ -638,11 +651,11 @@ meta_wayland_touch_find_grab_sequence (MetaWaylandTouch   *touch,
 
   g_hash_table_iter_init (&iter, touch->touches);
 
-  while (g_hash_table_iter_next (&iter, (gpointer*) &sequence,
-                                 (gpointer*) &touch_info))
+  while (g_hash_table_iter_next (&iter, (gpointer *) &sequence,
+                                 (gpointer *) &touch_info))
     {
       if (touch_info->slot_serial == serial &&
-	  touch_info->touch_surface->surface == surface)
+          touch_info->touch_surface->surface == surface)
         return sequence;
     }
 

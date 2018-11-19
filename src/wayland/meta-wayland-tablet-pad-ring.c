@@ -60,10 +60,10 @@ meta_wayland_tablet_pad_ring_free (MetaWaylandTabletPadRing *ring)
   struct wl_resource *resource, *next;
 
   wl_resource_for_each_safe (resource, next, &ring->resource_list)
-    {
-      wl_list_remove (wl_resource_get_link (resource));
-      wl_list_init (wl_resource_get_link (resource));
-    }
+  {
+    wl_list_remove (wl_resource_get_link (resource));
+    wl_list_init (wl_resource_get_link (resource));
+  }
 
   g_free (ring->feedback);
   g_slice_free (MetaWaylandTabletPadRing, ring);
@@ -90,16 +90,18 @@ tablet_pad_ring_destroy (struct wl_client   *client,
   wl_resource_destroy (resource);
 }
 
-static const struct zwp_tablet_pad_ring_v2_interface ring_interface = {
+static const struct zwp_tablet_pad_ring_v2_interface ring_interface =
+{
   tablet_pad_ring_set_feedback,
   tablet_pad_ring_destroy,
 };
 
 struct wl_resource *
-meta_wayland_tablet_pad_ring_create_new_resource (MetaWaylandTabletPadRing *ring,
-                                                  struct wl_client         *client,
-                                                  struct wl_resource       *group_resource,
-                                                  uint32_t                  id)
+meta_wayland_tablet_pad_ring_create_new_resource (
+  MetaWaylandTabletPadRing *ring,
+  struct wl_client         *client,
+  struct wl_resource       *group_resource,
+  uint32_t                  id)
 {
   struct wl_resource *resource;
 
@@ -134,46 +136,47 @@ meta_wayland_tablet_pad_ring_handle_event (MetaWaylandTabletPadRing *ring,
     }
 
   wl_resource_for_each (resource, focus_resources)
-    {
-      gdouble angle = event->pad_ring.angle;
+  {
+    gdouble angle = event->pad_ring.angle;
 
-      if (source_known)
-        zwp_tablet_pad_ring_v2_send_source (resource, source);
+    if (source_known)
+      zwp_tablet_pad_ring_v2_send_source (resource, source);
 
-      if (angle >= 0)
-        zwp_tablet_pad_ring_v2_send_angle (resource,
-                                           wl_fixed_from_double (angle));
-      else
-        zwp_tablet_pad_ring_v2_send_stop (resource);
+    if (angle >= 0)
+      zwp_tablet_pad_ring_v2_send_angle (resource,
+                                         wl_fixed_from_double (angle));
+    else
+      zwp_tablet_pad_ring_v2_send_stop (resource);
 
-      zwp_tablet_pad_ring_v2_send_frame (resource,
-                                         clutter_event_get_time (event));
-    }
+    zwp_tablet_pad_ring_v2_send_frame (resource,
+                                       clutter_event_get_time (event));
+  }
 
   return TRUE;
 }
 
 static void
-move_resources (struct wl_list *destination, struct wl_list *source)
+move_resources (struct wl_list *destination,
+                struct wl_list *source)
 {
   wl_list_insert_list (destination, source);
   wl_list_init (source);
 }
 
 static void
-move_resources_for_client (struct wl_list *destination,
-			   struct wl_list *source,
-			   struct wl_client *client)
+move_resources_for_client (struct wl_list   *destination,
+                           struct wl_list   *source,
+                           struct wl_client *client)
 {
   struct wl_resource *resource, *tmp;
   wl_resource_for_each_safe (resource, tmp, source)
-    {
-      if (wl_resource_get_client (resource) == client)
-        {
-          wl_list_remove (wl_resource_get_link (resource));
-          wl_list_insert (destination, wl_resource_get_link (resource));
-        }
-    }
+  {
+    if (wl_resource_get_client (resource) == client)
+      {
+        wl_list_remove (wl_resource_get_link (resource));
+        wl_list_insert (destination, wl_resource_get_link (resource));
+      }
+  }
 }
 
 void
@@ -190,13 +193,14 @@ meta_wayland_tablet_pad_ring_sync_focus (MetaWaylandTabletPadRing *ring)
     {
       move_resources_for_client (&ring->focus_resource_list,
                                  &ring->resource_list,
-                                 wl_resource_get_client (ring->pad->focus_surface->resource));
+                                 wl_resource_get_client (ring->pad->
+                                                         focus_surface->resource));
     }
 }
 
 void
 meta_wayland_tablet_pad_ring_set_group (MetaWaylandTabletPadRing  *ring,
-					MetaWaylandTabletPadGroup *group)
+                                        MetaWaylandTabletPadGroup *group)
 {
   /* Group is static, can only be set once */
   g_assert (ring->group == NULL);

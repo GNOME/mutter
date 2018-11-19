@@ -66,24 +66,26 @@ get_window_for_event (MetaDisplay        *display,
   switch (display->event_route)
     {
     case META_EVENT_ROUTE_NORMAL:
-      {
-        ClutterActor *source;
+    {
+      ClutterActor *source;
 
-        /* Always use the key focused window for key events. */
-        if (IS_KEY_EVENT (event))
-            return stage_has_key_focus () ? display->focus_window : NULL;
+      /* Always use the key focused window for key events. */
+      if (IS_KEY_EVENT (event))
+        return stage_has_key_focus () ? display->focus_window : NULL;
 
-        source = clutter_event_get_source (event);
-        if (META_IS_SURFACE_ACTOR (source))
-          return meta_surface_actor_get_window (META_SURFACE_ACTOR (source));
-        else
-          return NULL;
-      }
+      source = clutter_event_get_source (event);
+      if (META_IS_SURFACE_ACTOR (source))
+        return meta_surface_actor_get_window (META_SURFACE_ACTOR (source));
+      else
+        return NULL;
+    }
+
     case META_EVENT_ROUTE_WINDOW_OP:
     case META_EVENT_ROUTE_COMPOSITOR_GRAB:
     case META_EVENT_ROUTE_WAYLAND_POPUP:
     case META_EVENT_ROUTE_FRAME_BUTTON:
       return display->grab_window;
+
     default:
       g_assert_not_reached ();
     }
@@ -216,7 +218,8 @@ meta_display_handle_event (MetaDisplay        *display,
        event->type == CLUTTER_PAD_RING ||
        event->type == CLUTTER_PAD_STRIP))
     {
-      if (meta_input_settings_handle_pad_event (meta_backend_get_input_settings (backend),
+      if (meta_input_settings_handle_pad_event (meta_backend_get_input_settings (
+                                                  backend),
                                                 event))
         {
           bypass_wayland = bypass_clutter = TRUE;
@@ -229,7 +232,8 @@ meta_display_handle_event (MetaDisplay        *display,
   if (source)
     {
       meta_backend_update_last_device (backend,
-                                       clutter_input_device_get_device_id (source));
+                                       clutter_input_device_get_device_id (
+                                         source));
     }
 
 #ifdef HAVE_WAYLAND
@@ -239,9 +243,11 @@ meta_display_handle_event (MetaDisplay        *display,
 
       compositor = meta_wayland_compositor_get_default ();
 
-      if (meta_wayland_tablet_manager_consumes_event (compositor->tablet_manager, event))
+      if (meta_wayland_tablet_manager_consumes_event (compositor->tablet_manager,
+                                                      event))
         {
-          meta_wayland_tablet_manager_update_cursor_position (compositor->tablet_manager, event);
+          meta_wayland_tablet_manager_update_cursor_position (
+            compositor->tablet_manager, event);
         }
       else
         {
@@ -369,9 +375,10 @@ meta_display_handle_event (MetaDisplay        *display,
             {
               if (META_IS_BACKEND_X11 (backend))
                 {
-                  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+                  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (
+                                                                       backend));
                   meta_verbose ("Allowing events time %u\n",
-                                (unsigned int)event->button.time);
+                                (unsigned int) event->button.time);
                   XIAllowEvents (xdisplay, clutter_event_get_device_id (event),
                                  XIReplayDevice, event->button.time);
                 }
@@ -392,7 +399,7 @@ meta_display_handle_event (MetaDisplay        *display,
       goto out;
     }
 
- out:
+out:
   /* If the compositor has a grab, don't pass that through to Wayland */
   if (display->event_route == META_EVENT_ROUTE_COMPOSITOR_GRAB)
     bypass_wayland = TRUE;

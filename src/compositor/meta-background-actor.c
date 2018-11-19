@@ -97,7 +97,8 @@ enum
   PROP_VIGNETTE_BRIGHTNESS
 };
 
-typedef enum {
+typedef enum
+{
   CHANGED_BACKGROUND = 1 << 0,
   CHANGED_EFFECTS = 1 << 2,
   CHANGED_VIGNETTE_PARAMETERS = 1 << 3,
@@ -106,44 +107,45 @@ typedef enum {
 } ChangedFlags;
 
 #define GRADIENT_VERTEX_SHADER_DECLARATIONS                             \
-"uniform vec2 scale;\n"                                                 \
-"varying vec2 position;\n"                                              \
+  "uniform vec2 scale;\n"                                                 \
+  "varying vec2 position;\n"                                              \
 
 #define GRADIENT_VERTEX_SHADER_CODE                                     \
-"position = cogl_tex_coord0_in.xy * scale;\n"                           \
+  "position = cogl_tex_coord0_in.xy * scale;\n"                           \
 
 #define GRADIENT_FRAGMENT_SHADER_DECLARATIONS                           \
-"uniform float gradient_height_perc;\n"                                 \
-"uniform float gradient_max_darkness;\n"                                \
-"varying vec2 position;\n"                                              \
+  "uniform float gradient_height_perc;\n"                                 \
+  "uniform float gradient_max_darkness;\n"                                \
+  "varying vec2 position;\n"                                              \
 
 #define GRADIENT_FRAGMENT_SHADER_CODE                                                    \
-"float min_brightness = 1.0 - gradient_max_darkness;\n"                                  \
-"float gradient_y_pos = min(position.y, gradient_height_perc) / gradient_height_perc;\n" \
-"float pixel_brightness = (1.0 - min_brightness) * gradient_y_pos + min_brightness;\n"   \
-"cogl_color_out.rgb = cogl_color_out.rgb * pixel_brightness;\n"                          \
+  "float min_brightness = 1.0 - gradient_max_darkness;\n"                                  \
+  "float gradient_y_pos = min(position.y, gradient_height_perc) / gradient_height_perc;\n" \
+  "float pixel_brightness = (1.0 - min_brightness) * gradient_y_pos + min_brightness;\n"   \
+  "cogl_color_out.rgb = cogl_color_out.rgb * pixel_brightness;\n"                          \
 
 #define VIGNETTE_VERTEX_SHADER_DECLARATIONS                             \
-"uniform vec2 scale;\n"                                                 \
-"uniform vec2 offset;\n"                                                \
-"varying vec2 position;\n"                                              \
+  "uniform vec2 scale;\n"                                                 \
+  "uniform vec2 offset;\n"                                                \
+  "varying vec2 position;\n"                                              \
 
 #define VIGNETTE_VERTEX_SHADER_CODE                                     \
-"position = cogl_tex_coord0_in.xy * scale + offset;\n"                  \
+  "position = cogl_tex_coord0_in.xy * scale + offset;\n"                  \
 
 #define VIGNETTE_FRAGMENT_SHADER_DECLARATIONS                           \
-"uniform float vignette_sharpness;\n"                                   \
-"varying vec2 position;\n"                                              \
+  "uniform float vignette_sharpness;\n"                                   \
+  "varying vec2 position;\n"                                              \
 
 #define VIGNETTE_FRAGMENT_SHADER_CODE                                          \
-"float t = 2.0 * length(position);\n"                                          \
-"t = min(t, 1.0);\n"                                                           \
-"float pixel_brightness = 1.0 - t * vignette_sharpness;\n"                     \
-"cogl_color_out.rgb = cogl_color_out.rgb * pixel_brightness;\n"                \
+  "float t = 2.0 * length(position);\n"                                          \
+  "t = min(t, 1.0);\n"                                                           \
+  "float pixel_brightness = 1.0 - t * vignette_sharpness;\n"                     \
+  "cogl_color_out.rgb = cogl_color_out.rgb * pixel_brightness;\n"                \
 
 typedef struct _MetaBackgroundLayer MetaBackgroundLayer;
 
-typedef enum {
+typedef enum
+{
   PIPELINE_VIGNETTE = (1 << 0),
   PIPELINE_BLEND = (1 << 1),
   PIPELINE_GRADIENT = (1 << 2),
@@ -175,9 +177,11 @@ struct _MetaBackgroundActorPrivate
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaBackgroundActor, meta_background_actor, CLUTTER_TYPE_ACTOR,
+G_DEFINE_TYPE_WITH_CODE (MetaBackgroundActor, meta_background_actor,
+                         CLUTTER_TYPE_ACTOR,
                          G_ADD_PRIVATE (MetaBackgroundActor)
-                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
+                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE,
+                                                cullable_iface_init));
 
 static void
 set_clip_region (MetaBackgroundActor *self,
@@ -280,16 +284,18 @@ make_pipeline (PipelineFlags pipeline_flags)
           static CoglSnippet *vignette_fragment_snippet;
 
           if (!vignette_vertex_snippet)
-            vignette_vertex_snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX,
-                                                        VIGNETTE_VERTEX_SHADER_DECLARATIONS,
-                                                        VIGNETTE_VERTEX_SHADER_CODE);
+            vignette_vertex_snippet = cogl_snippet_new (
+              COGL_SNIPPET_HOOK_VERTEX,
+              VIGNETTE_VERTEX_SHADER_DECLARATIONS,
+              VIGNETTE_VERTEX_SHADER_CODE);
 
           cogl_pipeline_add_snippet (*templatep, vignette_vertex_snippet);
 
           if (!vignette_fragment_snippet)
-            vignette_fragment_snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
-                                                          VIGNETTE_FRAGMENT_SHADER_DECLARATIONS,
-                                                          VIGNETTE_FRAGMENT_SHADER_CODE);
+            vignette_fragment_snippet = cogl_snippet_new (
+              COGL_SNIPPET_HOOK_FRAGMENT,
+              VIGNETTE_FRAGMENT_SHADER_DECLARATIONS,
+              VIGNETTE_FRAGMENT_SHADER_CODE);
 
           cogl_pipeline_add_snippet (*templatep, vignette_fragment_snippet);
         }
@@ -300,16 +306,18 @@ make_pipeline (PipelineFlags pipeline_flags)
           static CoglSnippet *gradient_fragment_snippet;
 
           if (!gradient_vertex_snippet)
-            gradient_vertex_snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX,
-                                                        GRADIENT_VERTEX_SHADER_DECLARATIONS,
-                                                        GRADIENT_VERTEX_SHADER_CODE);
+            gradient_vertex_snippet = cogl_snippet_new (
+              COGL_SNIPPET_HOOK_VERTEX,
+              GRADIENT_VERTEX_SHADER_DECLARATIONS,
+              GRADIENT_VERTEX_SHADER_CODE);
 
           cogl_pipeline_add_snippet (*templatep, gradient_vertex_snippet);
 
           if (!gradient_fragment_snippet)
-            gradient_fragment_snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
-                                                          GRADIENT_FRAGMENT_SHADER_DECLARATIONS,
-                                                          GRADIENT_FRAGMENT_SHADER_CODE);
+            gradient_fragment_snippet = cogl_snippet_new (
+              COGL_SNIPPET_HOOK_FRAGMENT,
+              GRADIENT_FRAGMENT_SHADER_DECLARATIONS,
+              GRADIENT_FRAGMENT_SHADER_CODE);
 
           cogl_pipeline_add_snippet (*templatep, gradient_fragment_snippet);
         }
@@ -334,9 +342,11 @@ setup_pipeline (MetaBackgroundActor   *self,
   opacity = clutter_actor_get_paint_opacity (CLUTTER_ACTOR (self));
   if (opacity < 255)
     pipeline_flags |= PIPELINE_BLEND;
-  if (priv->vignette && clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
+  if (priv->vignette &&
+      clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
     pipeline_flags |= PIPELINE_VIGNETTE;
-  if (priv->gradient && clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
+  if (priv->gradient &&
+      clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
     pipeline_flags |= PIPELINE_GRADIENT;
 
   if (priv->pipeline &&
@@ -361,8 +371,10 @@ setup_pipeline (MetaBackgroundActor   *self,
                                                           &priv->texture_area,
                                                           &wrap_mode);
       priv->force_bilinear = texture &&
-        (priv->texture_area.width != (int)cogl_texture_get_width (texture) ||
-         priv->texture_area.height != (int)cogl_texture_get_height (texture));
+                             (priv->texture_area.width !=
+                              (int) cogl_texture_get_width (texture) ||
+                              priv->texture_area.height !=
+                              (int) cogl_texture_get_height (texture));
 
       cogl_pipeline_set_layer_texture (priv->pipeline, 0, texture);
       cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0, wrap_mode);
@@ -373,7 +385,8 @@ setup_pipeline (MetaBackgroundActor   *self,
   if ((priv->changed & CHANGED_VIGNETTE_PARAMETERS) != 0)
     {
       cogl_pipeline_set_uniform_1f (priv->pipeline,
-                                    cogl_pipeline_get_uniform_location (priv->pipeline,
+                                    cogl_pipeline_get_uniform_location (priv->
+                                                                        pipeline,
                                                                         "vignette_sharpness"),
                                     priv->vignette_sharpness);
 
@@ -387,13 +400,17 @@ setup_pipeline (MetaBackgroundActor   *self,
 
       meta_display_get_monitor_geometry (priv->display,
                                          priv->monitor, &monitor_geometry);
-      gradient_height_perc = MAX (0.0001, priv->gradient_height / (float)monitor_geometry.height);
+      gradient_height_perc = MAX (0.0001,
+                                  priv->gradient_height /
+                                  (float) monitor_geometry.height);
       cogl_pipeline_set_uniform_1f (priv->pipeline,
-                                    cogl_pipeline_get_uniform_location (priv->pipeline,
+                                    cogl_pipeline_get_uniform_location (priv->
+                                                                        pipeline,
                                                                         "gradient_height_perc"),
                                     gradient_height_perc);
       cogl_pipeline_set_uniform_1f (priv->pipeline,
-                                    cogl_pipeline_get_uniform_location (priv->pipeline,
+                                    cogl_pipeline_get_uniform_location (priv->
+                                                                        pipeline,
                                                                         "gradient_max_darkness"),
                                     priv->gradient_max_darkness);
 
@@ -423,7 +440,8 @@ setup_pipeline (MetaBackgroundActor   *self,
                              opacity / 255.);
 
   if (!priv->force_bilinear &&
-      meta_actor_painting_untransformed (actor_pixel_rect->width, actor_pixel_rect->height, NULL, NULL))
+      meta_actor_painting_untransformed (actor_pixel_rect->width,
+                                         actor_pixel_rect->height, NULL, NULL))
     filter = COGL_PIPELINE_FILTER_NEAREST;
   else
     filter = COGL_PIPELINE_FILTER_LINEAR;
@@ -442,18 +460,20 @@ set_glsl_parameters (MetaBackgroundActor   *self,
   /* Compute a scale and offset for transforming texture coordinates to the
    * coordinate system from [-0.5 to 0.5] across the area of the actor
    */
-  scale[0] = priv->texture_area.width / (float)actor_pixel_rect->width;
-  scale[1] = priv->texture_area.height / (float)actor_pixel_rect->height;
-  offset[0] = priv->texture_area.x / (float)actor_pixel_rect->width - 0.5;
-  offset[1] = priv->texture_area.y / (float)actor_pixel_rect->height - 0.5;
+  scale[0] = priv->texture_area.width / (float) actor_pixel_rect->width;
+  scale[1] = priv->texture_area.height / (float) actor_pixel_rect->height;
+  offset[0] = priv->texture_area.x / (float) actor_pixel_rect->width - 0.5;
+  offset[1] = priv->texture_area.y / (float) actor_pixel_rect->height - 0.5;
 
   cogl_pipeline_set_uniform_float (priv->pipeline,
-                                   cogl_pipeline_get_uniform_location (priv->pipeline,
+                                   cogl_pipeline_get_uniform_location (priv->
+                                                                       pipeline,
                                                                        "scale"),
                                    2, 1, scale);
 
   cogl_pipeline_set_uniform_float (priv->pipeline,
-                                   cogl_pipeline_get_uniform_location (priv->pipeline,
+                                   cogl_pipeline_get_uniform_location (priv->
+                                                                       pipeline,
                                                                        "offset"),
                                    2, 1, offset);
 }
@@ -524,22 +544,24 @@ meta_background_actor_paint (ClutterActor *actor)
       int n_rects = cairo_region_num_rectangles (priv->clip_region);
       if (n_rects <= MAX_RECTS)
         {
-           for (i = 0; i < n_rects; i++)
-             {
-               cairo_rectangle_int_t rect;
-               cairo_region_get_rectangle (priv->clip_region, i, &rect);
+          for (i = 0; i < n_rects; i++)
+            {
+              cairo_rectangle_int_t rect;
+              cairo_region_get_rectangle (priv->clip_region, i, &rect);
 
-               if (!gdk_rectangle_intersect (&actor_pixel_rect, &rect, &rect))
-                 continue;
+              if (!gdk_rectangle_intersect (&actor_pixel_rect, &rect, &rect))
+                continue;
 
-               paint_clipped_rectangle (fb, priv->pipeline, &rect, &priv->texture_area);
-             }
+              paint_clipped_rectangle (fb, priv->pipeline, &rect,
+                                       &priv->texture_area);
+            }
 
-           return;
+          return;
         }
     }
 
-  paint_clipped_rectangle (fb, priv->pipeline, &actor_pixel_rect, &priv->texture_area);
+  paint_clipped_rectangle (fb, priv->pipeline, &actor_pixel_rect,
+                           &priv->texture_area);
 }
 
 static void
@@ -556,48 +578,57 @@ meta_background_actor_set_property (GObject      *object,
     case PROP_META_DISPLAY:
       priv->display = g_value_get_object (value);
       break;
+
     case PROP_MONITOR:
       meta_background_actor_set_monitor (self, g_value_get_int (value));
       break;
+
     case PROP_BACKGROUND:
       meta_background_actor_set_background (self, g_value_get_object (value));
       break;
+
     case PROP_GRADIENT:
       meta_background_actor_set_gradient (self,
                                           g_value_get_boolean (value),
                                           priv->gradient_height,
                                           priv->gradient_max_darkness);
       break;
+
     case PROP_GRADIENT_HEIGHT:
       meta_background_actor_set_gradient (self,
                                           priv->gradient,
                                           g_value_get_int (value),
                                           priv->gradient_max_darkness);
       break;
+
     case PROP_GRADIENT_MAX_DARKNESS:
       meta_background_actor_set_gradient (self,
                                           priv->gradient,
                                           priv->gradient_height,
                                           g_value_get_double (value));
       break;
+
     case PROP_VIGNETTE:
       meta_background_actor_set_vignette (self,
                                           g_value_get_boolean (value),
                                           priv->vignette_brightness,
                                           priv->vignette_sharpness);
       break;
+
     case PROP_VIGNETTE_SHARPNESS:
       meta_background_actor_set_vignette (self,
                                           priv->vignette,
                                           priv->vignette_brightness,
                                           g_value_get_double (value));
       break;
+
     case PROP_VIGNETTE_BRIGHTNESS:
       meta_background_actor_set_vignette (self,
                                           priv->vignette,
                                           g_value_get_double (value),
                                           priv->vignette_sharpness);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -605,10 +636,10 @@ meta_background_actor_set_property (GObject      *object,
 }
 
 static void
-meta_background_actor_get_property (GObject      *object,
-                                    guint         prop_id,
-                                    GValue       *value,
-                                    GParamSpec   *pspec)
+meta_background_actor_get_property (GObject    *object,
+                                    guint       prop_id,
+                                    GValue     *value,
+                                    GParamSpec *pspec)
 {
   MetaBackgroundActorPrivate *priv = META_BACKGROUND_ACTOR (object)->priv;
 
@@ -617,30 +648,39 @@ meta_background_actor_get_property (GObject      *object,
     case PROP_META_DISPLAY:
       g_value_set_object (value, priv->display);
       break;
+
     case PROP_MONITOR:
       g_value_set_int (value, priv->monitor);
       break;
+
     case PROP_BACKGROUND:
       g_value_set_object (value, priv->background);
       break;
+
     case PROP_GRADIENT:
       g_value_set_boolean (value, priv->gradient);
       break;
+
     case PROP_GRADIENT_HEIGHT:
       g_value_set_int (value, priv->gradient_height);
       break;
+
     case PROP_GRADIENT_MAX_DARKNESS:
       g_value_set_double (value, priv->gradient_max_darkness);
       break;
+
     case PROP_VIGNETTE:
       g_value_set_boolean (value, priv->vignette);
       break;
+
     case PROP_VIGNETTE_BRIGHTNESS:
       g_value_set_double (value, priv->vignette_brightness);
       break;
+
     case PROP_VIGNETTE_SHARPNESS:
       g_value_set_double (value, priv->vignette_sharpness);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -659,7 +699,8 @@ meta_background_actor_class_init (MetaBackgroundActorClass *klass)
   object_class->get_property = meta_background_actor_get_property;
 
   actor_class->get_preferred_width = meta_background_actor_get_preferred_width;
-  actor_class->get_preferred_height = meta_background_actor_get_preferred_height;
+  actor_class->get_preferred_height =
+    meta_background_actor_get_preferred_height;
   actor_class->get_paint_volume = meta_background_actor_get_paint_volume;
   actor_class->paint = meta_background_actor_paint;
 
@@ -716,8 +757,8 @@ meta_background_actor_class_init (MetaBackgroundActorClass *klass)
   param_spec = g_param_spec_double ("gradient-max-darkness",
                                     "Gradient Max Darkness",
                                     "How dark is the gradient initially",
-                                     0.0, 1.0, 0.0,
-                                     G_PARAM_READWRITE);
+                                    0.0, 1.0, 0.0,
+                                    G_PARAM_READWRITE);
 
   g_object_class_install_property (object_class,
                                    PROP_GRADIENT_MAX_DARKNESS,
@@ -866,7 +907,7 @@ meta_background_actor_set_background (MetaBackgroundActor *self,
   if (priv->background)
     {
       g_signal_handlers_disconnect_by_func (priv->background,
-                                            (gpointer)on_background_changed,
+                                            (gpointer) on_background_changed,
                                             self);
       g_object_unref (priv->background);
       priv->background = NULL;
@@ -907,7 +948,8 @@ meta_background_actor_set_gradient (MetaBackgroundActor *self,
       changed = TRUE;
     }
 
-  if (height != priv->gradient_height || max_darkness != priv->gradient_max_darkness)
+  if (height != priv->gradient_height ||
+      max_darkness != priv->gradient_max_darkness)
     {
       priv->gradient_height = height;
       priv->gradient_max_darkness = max_darkness;
@@ -929,12 +971,13 @@ meta_background_actor_set_monitor (MetaBackgroundActor *self,
   MetaDisplay *display = priv->display;
 
   if(priv->monitor == monitor)
-      return;
+    return;
 
-  meta_display_get_monitor_geometry (display, priv->monitor, &old_monitor_geometry);
+  meta_display_get_monitor_geometry (display, priv->monitor,
+                                     &old_monitor_geometry);
   meta_display_get_monitor_geometry (display, monitor, &new_monitor_geometry);
   if(old_monitor_geometry.height != new_monitor_geometry.height)
-      invalidate_pipeline (self, CHANGED_GRADIENT_PARAMETERS);
+    invalidate_pipeline (self, CHANGED_GRADIENT_PARAMETERS);
 
   priv->monitor = monitor;
 }
@@ -963,7 +1006,8 @@ meta_background_actor_set_vignette (MetaBackgroundActor *self,
       changed = TRUE;
     }
 
-  if (brightness != priv->vignette_brightness || sharpness != priv->vignette_sharpness)
+  if (brightness != priv->vignette_brightness ||
+      sharpness != priv->vignette_sharpness)
     {
       priv->vignette_brightness = brightness;
       priv->vignette_sharpness = sharpness;

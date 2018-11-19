@@ -103,7 +103,8 @@ meta_crtc_xrandr_set_config (MetaCrtc            *crtc,
 static MetaMonitorTransform
 meta_monitor_transform_from_xrandr (Rotation rotation)
 {
-  static const MetaMonitorTransform y_reflected_map[4] = {
+  static const MetaMonitorTransform y_reflected_map[4] =
+  {
     META_MONITOR_TRANSFORM_FLIPPED_180,
     META_MONITOR_TRANSFORM_FLIPPED_90,
     META_MONITOR_TRANSFORM_FLIPPED,
@@ -117,12 +118,15 @@ meta_monitor_transform_from_xrandr (Rotation rotation)
     case RR_Rotate_0:
       ret = META_MONITOR_TRANSFORM_NORMAL;
       break;
+
     case RR_Rotate_90:
       ret = META_MONITOR_TRANSFORM_90;
       break;
+
     case RR_Rotate_180:
       ret = META_MONITOR_TRANSFORM_180;
       break;
+
     case RR_Rotate_270:
       ret = META_MONITOR_TRANSFORM_270;
       break;
@@ -136,7 +140,8 @@ meta_monitor_transform_from_xrandr (Rotation rotation)
     return ret;
 }
 
-#define ALL_ROTATIONS (RR_Rotate_0 | RR_Rotate_90 | RR_Rotate_180 | RR_Rotate_270)
+#define ALL_ROTATIONS (RR_Rotate_0 | RR_Rotate_90 | RR_Rotate_180 | \
+                       RR_Rotate_270)
 
 static MetaMonitorTransform
 meta_monitor_transform_from_xrandr_all (Rotation rotation)

@@ -28,7 +28,8 @@ struct _MetaWindowGroup
 static void cullable_iface_init (MetaCullableInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaWindowGroup, meta_window_group, CLUTTER_TYPE_ACTOR,
-                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
+                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE,
+                                                cullable_iface_init));
 
 static void
 meta_window_group_cull_out (MetaCullable   *cullable,
@@ -115,7 +116,8 @@ meta_window_group_paint (ClutterActor *actor)
 
   cairo_region_translate (clip_region, -paint_x_origin, -paint_y_origin);
 
-  meta_cullable_cull_out (META_CULLABLE (window_group), unobscured_region, clip_region);
+  meta_cullable_cull_out (META_CULLABLE (
+                            window_group), unobscured_region, clip_region);
 
   cairo_region_destroy (unobscured_region);
   cairo_region_destroy (clip_region);

@@ -45,42 +45,53 @@ get_random_rect (MetaRectangle *rect)
 {
   rect->x = rand () % 1600;
   rect->y = rand () % 1200;
-  rect->width  = rand () % 1600 + 1;
+  rect->width = rand () % 1600 + 1;
   rect->height = rand () % 1200 + 1;
 }
 
-static MetaRectangle*
-new_meta_rect (int x, int y, int width, int height)
+static MetaRectangle *
+new_meta_rect (int x,
+               int y,
+               int width,
+               int height)
 {
-  MetaRectangle* temporary;
+  MetaRectangle *temporary;
   temporary = g_new (MetaRectangle, 1);
   temporary->x = x;
   temporary->y = y;
-  temporary->width  = width;
+  temporary->width = width;
   temporary->height = height;
 
   return temporary;
 }
 
-static MetaStrut*
-new_meta_strut (int x, int y, int width, int height, int side)
+static MetaStrut *
+new_meta_strut (int x,
+                int y,
+                int width,
+                int height,
+                int side)
 {
-  MetaStrut* temporary;
+  MetaStrut *temporary;
   temporary = g_new (MetaStrut, 1);
-  temporary->rect = meta_rect(x, y, width, height);
+  temporary->rect = meta_rect (x, y, width, height);
   temporary->side = side;
 
   return temporary;
 }
 
-static MetaEdge*
-new_screen_edge (int x, int y, int width, int height, int side_type)
+static MetaEdge *
+new_screen_edge (int x,
+                 int y,
+                 int width,
+                 int height,
+                 int side_type)
 {
-  MetaEdge* temporary;
+  MetaEdge *temporary;
   temporary = g_new (MetaEdge, 1);
   temporary->rect.x = x;
   temporary->rect.y = y;
-  temporary->rect.width  = width;
+  temporary->rect.width = width;
   temporary->rect.height = height;
   temporary->side_type = side_type;
   temporary->edge_type = META_EDGE_SCREEN;
@@ -88,14 +99,18 @@ new_screen_edge (int x, int y, int width, int height, int side_type)
   return temporary;
 }
 
-static MetaEdge*
-new_monitor_edge (int x, int y, int width, int height, int side_type)
+static MetaEdge *
+new_monitor_edge (int x,
+                  int y,
+                  int width,
+                  int height,
+                  int side_type)
 {
-  MetaEdge* temporary;
+  MetaEdge *temporary;
   temporary = g_new (MetaEdge, 1);
   temporary->rect.x = x;
   temporary->rect.y = y;
-  temporary->rect.width  = width;
+  temporary->rect.width = width;
   temporary->rect.height = height;
   temporary->side_type = side_type;
   temporary->edge_type = META_EDGE_MONITOR;
@@ -121,10 +136,10 @@ test_area (void)
 static void
 test_intersect (void)
 {
-  MetaRectangle a = {100, 200,  50,  40};
-  MetaRectangle b = {  0,  50, 110, 152};
-  MetaRectangle c = {  0,   0,  10,  10};
-  MetaRectangle d = {100, 100,  50,  50};
+  MetaRectangle a = {100, 200, 50, 40};
+  MetaRectangle b = {  0, 50, 110, 152};
+  MetaRectangle c = {  0, 0, 10, 10};
+  MetaRectangle d = {100, 100, 50, 50};
   MetaRectangle b_intersect_d = {100, 100, 10, 50};
   MetaRectangle temp;
   MetaRectangle temp2;
@@ -154,7 +169,7 @@ test_equal (void)
   MetaRectangle e = {10, 62, 4, 18};
   MetaRectangle f = {27, 12, 4, 18};
 
-  g_assert ( meta_rectangle_equal (&a, &b));
+  g_assert (meta_rectangle_equal (&a, &b));
   g_assert (!meta_rectangle_equal (&a, &c));
   g_assert (!meta_rectangle_equal (&a, &d));
   g_assert (!meta_rectangle_equal (&a, &e));
@@ -175,11 +190,11 @@ test_overlap_funcs (void)
                  meta_rectangle_vert_overlap (&temp1, &temp2)));
     }
 
-  temp1 = meta_rect ( 0, 0, 10, 10);
-  temp2 = meta_rect (20, 0, 10,  5);
+  temp1 = meta_rect (0, 0, 10, 10);
+  temp2 = meta_rect (20, 0, 10, 5);
   g_assert (!meta_rectangle_overlap (&temp1, &temp2));
   g_assert (!meta_rectangle_horiz_overlap (&temp1, &temp2));
-  g_assert ( meta_rectangle_vert_overlap (&temp1, &temp2));
+  g_assert (meta_rectangle_vert_overlap (&temp1, &temp2));
 }
 
 static void
@@ -208,13 +223,13 @@ test_basic_fitting (void)
                 meta_rectangle_could_fit_rect (&temp2, &temp1) == TRUE);
     }
 
-  temp1 = meta_rect ( 0, 0, 10, 10);
-  temp2 = meta_rect ( 5, 5,  5,  5);
-  temp3 = meta_rect ( 8, 2,  3,  7);
-  g_assert ( meta_rectangle_contains_rect (&temp1, &temp2));
+  temp1 = meta_rect (0, 0, 10, 10);
+  temp2 = meta_rect (5, 5, 5, 5);
+  temp3 = meta_rect (8, 2, 3, 7);
+  g_assert (meta_rectangle_contains_rect (&temp1, &temp2));
   g_assert (!meta_rectangle_contains_rect (&temp2, &temp1));
   g_assert (!meta_rectangle_contains_rect (&temp1, &temp3));
-  g_assert ( meta_rectangle_could_fit_rect (&temp1, &temp3));
+  g_assert (meta_rectangle_could_fit_rect (&temp1, &temp3));
   g_assert (!meta_rectangle_could_fit_rect (&temp3, &temp2));
 }
 
@@ -230,7 +245,7 @@ free_strut_list (GSList *struts)
   g_slist_free (struts);
 }
 
-static GSList*
+static GSList *
 get_strut_list (int which)
 {
   GSList *ans;
@@ -238,45 +253,74 @@ get_strut_list (int which)
 
   ans = NULL;
 
-  g_assert (which >=0 && which <= 6);
+  g_assert (which >= 0 && which <= 6);
   switch (which)
     {
     case 0:
       break;
+
     case 1:
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   20, META_SIDE_TOP));
-      ans = g_slist_prepend (ans, new_meta_strut ( 400, 1160, 1600,   40, META_SIDE_BOTTOM));
+      ans =
+        g_slist_prepend (ans, new_meta_strut (0, 0, 1600, 20, META_SIDE_TOP));
+      ans =
+        g_slist_prepend (ans,
+                         new_meta_strut (400, 1160, 1600, 40,
+                                         META_SIDE_BOTTOM));
       break;
+
     case 2:
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   20, META_SIDE_TOP));
-      ans = g_slist_prepend (ans, new_meta_strut ( 800, 1100,  400,  100, META_SIDE_BOTTOM));
-      ans = g_slist_prepend (ans, new_meta_strut ( 300, 1150,  150,   50, META_SIDE_BOTTOM));
+      ans =
+        g_slist_prepend (ans, new_meta_strut (0, 0, 1600, 20, META_SIDE_TOP));
+      ans =
+        g_slist_prepend (ans,
+                         new_meta_strut (800, 1100, 400, 100,
+                                         META_SIDE_BOTTOM));
+      ans =
+        g_slist_prepend (ans,
+                         new_meta_strut (300, 1150, 150, 50, META_SIDE_BOTTOM));
       break;
+
     case 3:
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   20, META_SIDE_TOP));
-      ans = g_slist_prepend (ans, new_meta_strut ( 800, 1100,  400,  100, META_SIDE_LEFT));
-      ans = g_slist_prepend (ans, new_meta_strut ( 300, 1150,   80,   50, META_SIDE_BOTTOM));
-      ans = g_slist_prepend (ans, new_meta_strut ( 700,  525,  200,  150, wc));
+      ans =
+        g_slist_prepend (ans, new_meta_strut (0, 0, 1600, 20, META_SIDE_TOP));
+      ans =
+        g_slist_prepend (ans,
+                         new_meta_strut (800, 1100, 400, 100, META_SIDE_LEFT));
+      ans =
+        g_slist_prepend (ans,
+                         new_meta_strut (300, 1150, 80, 50, META_SIDE_BOTTOM));
+      ans = g_slist_prepend (ans, new_meta_strut (700, 525, 200, 150, wc));
       break;
+
     case 4:
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0,  800, 1200, META_SIDE_LEFT));
-      ans = g_slist_prepend (ans, new_meta_strut ( 800,    0, 1600,   20, META_SIDE_TOP));
+      ans =
+        g_slist_prepend (ans, new_meta_strut (0, 0, 800, 1200, META_SIDE_LEFT));
+      ans =
+        g_slist_prepend (ans, new_meta_strut (800, 0, 1600, 20, META_SIDE_TOP));
       break;
+
     case 5:
-      ans = g_slist_prepend (ans, new_meta_strut ( 800,    0, 1600,   20, META_SIDE_TOP));
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0,  800, 1200, META_SIDE_LEFT));
-      ans = g_slist_prepend (ans, new_meta_strut ( 800,   10,  800, 1200, META_SIDE_RIGHT));
+      ans =
+        g_slist_prepend (ans, new_meta_strut (800, 0, 1600, 20, META_SIDE_TOP));
+      ans =
+        g_slist_prepend (ans, new_meta_strut (0, 0, 800, 1200, META_SIDE_LEFT));
+      ans =
+        g_slist_prepend (ans,
+                         new_meta_strut (800, 10, 800, 1200, META_SIDE_RIGHT));
       break;
+
     case 6:
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   40, META_SIDE_TOP));
-      ans = g_slist_prepend (ans, new_meta_strut (   0,    0, 1600,   20, META_SIDE_TOP));
+      ans =
+        g_slist_prepend (ans, new_meta_strut (0, 0, 1600, 40, META_SIDE_TOP));
+      ans =
+        g_slist_prepend (ans, new_meta_strut (0, 0, 1600, 20, META_SIDE_TOP));
       break;
     }
 
   return ans;
 }
 
-static GList*
+static GList *
 get_screen_region (int which)
 {
   GList *ret;
@@ -287,13 +331,14 @@ get_screen_region (int which)
   ret = NULL;
 
   struts = get_strut_list (which);
-  ret = meta_rectangle_get_minimal_spanning_set_for_region (&basic_rect, struts);
+  ret =
+    meta_rectangle_get_minimal_spanning_set_for_region (&basic_rect, struts);
   free_strut_list (struts);
 
   return ret;
 }
 
-static GList*
+static GList *
 get_screen_edges (int which)
 {
   GList *ret;
@@ -310,32 +355,36 @@ get_screen_edges (int which)
   return ret;
 }
 
-static GList*
-get_monitor_edges (int which_monitor_set, int which_strut_set)
+static GList *
+get_monitor_edges (int which_monitor_set,
+                   int which_strut_set)
 {
   GList *ret;
   GSList *struts;
   GList *xins;
 
   xins = NULL;
-  g_assert (which_monitor_set >=0 && which_monitor_set <= 3);
+  g_assert (which_monitor_set >= 0 && which_monitor_set <= 3);
   switch (which_monitor_set)
     {
     case 0:
-      xins = g_list_prepend (xins, new_meta_rect (  0,   0, 1600, 1200));
+      xins = g_list_prepend (xins, new_meta_rect (0, 0, 1600, 1200));
       break;
+
     case 1:
-      xins = g_list_prepend (xins, new_meta_rect (  0,   0,  800, 1200));
-      xins = g_list_prepend (xins, new_meta_rect (800,   0,  800, 1200));
+      xins = g_list_prepend (xins, new_meta_rect (0, 0, 800, 1200));
+      xins = g_list_prepend (xins, new_meta_rect (800, 0, 800, 1200));
       break;
+
     case 2:
-      xins = g_list_prepend (xins, new_meta_rect (  0,   0, 1600,  600));
-      xins = g_list_prepend (xins, new_meta_rect (  0, 600, 1600,  600));
+      xins = g_list_prepend (xins, new_meta_rect (0, 0, 1600, 600));
+      xins = g_list_prepend (xins, new_meta_rect (0, 600, 1600, 600));
       break;
+
     case 3:
-      xins = g_list_prepend (xins, new_meta_rect (  0,   0, 1600,  600));
-      xins = g_list_prepend (xins, new_meta_rect (  0, 600,  800,  600));
-      xins = g_list_prepend (xins, new_meta_rect (800, 600,  800,  600));
+      xins = g_list_prepend (xins, new_meta_rect (0, 0, 1600, 600));
+      xins = g_list_prepend (xins, new_meta_rect (0, 600, 800, 600));
+      xins = g_list_prepend (xins, new_meta_rect (800, 600, 800, 600));
       break;
     }
 
@@ -370,8 +419,8 @@ test_merge_regions (void)
    *   number of those merges that were of the form A is adjacent to B
    */
 
-  GList* region;
-  GList* compare;
+  GList *region;
+  GList *compare;
   int num_contains, num_merged, num_part_contains, num_adjacent;
 
   num_contains = num_merged = num_part_contains = num_adjacent = 0;
@@ -481,7 +530,8 @@ test_merge_regions (void)
                       meta_rectangle_to_string (bla, rect1));
 #endif
 
-              /* Deleting the rect we're compare others to is a little tricker */
+              /* Deleting the rect we're compare others to is a little tricker
+               * */
               if (compare == delete_me)
                 {
                   compare = compare->next;
@@ -526,7 +576,8 @@ test_merge_regions (void)
 #endif
 
 static void
-verify_lists_are_equal (GList *code, GList *answer)
+verify_lists_are_equal (GList *code,
+                        GList *answer)
 {
   int which = 0;
 
@@ -535,9 +586,9 @@ verify_lists_are_equal (GList *code, GList *answer)
       MetaRectangle *a = code->data;
       MetaRectangle *b = answer->data;
 
-      if (a->x      != b->x     ||
-          a->y      != b->y     ||
-          a->width  != b->width ||
+      if (a->x != b->x ||
+          a->y != b->y ||
+          a->width != b->width ||
           a->height != b->height)
         {
           g_error ("%dth item in code answer answer lists do not match; "
@@ -576,8 +627,8 @@ verify_lists_are_equal (GList *code, GList *answer)
 static void
 test_regions_okay (void)
 {
-  GList* region;
-  GList* tmp;
+  GList *region;
+  GList *tmp;
 
   /*************************************************************/
   /* Make sure test region 0 has the right spanning rectangles */
@@ -594,7 +645,7 @@ test_regions_okay (void)
   /*************************************************************/
   region = get_screen_region (1);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_meta_rect (0, 20,  400, 1180));
+  tmp = g_list_prepend (tmp, new_meta_rect (0, 20, 400, 1180));
   tmp = g_list_prepend (tmp, new_meta_rect (0, 20, 1600, 1140));
   verify_lists_are_equal (region, tmp);
   meta_rectangle_free_list_and_elements (tmp);
@@ -605,11 +656,11 @@ test_regions_okay (void)
   /*************************************************************/
   region = get_screen_region (2);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20,  300, 1180));
-  tmp = g_list_prepend (tmp, new_meta_rect ( 450,   20,  350, 1180));
-  tmp = g_list_prepend (tmp, new_meta_rect (1200,   20,  400, 1180));
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20,  800, 1130));
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20, 1600, 1080));
+  tmp = g_list_prepend (tmp, new_meta_rect (0, 20, 300, 1180));
+  tmp = g_list_prepend (tmp, new_meta_rect (450, 20, 350, 1180));
+  tmp = g_list_prepend (tmp, new_meta_rect (1200, 20, 400, 1180));
+  tmp = g_list_prepend (tmp, new_meta_rect (0, 20, 800, 1130));
+  tmp = g_list_prepend (tmp, new_meta_rect (0, 20, 1600, 1080));
   verify_lists_are_equal (region, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (region);
@@ -619,13 +670,16 @@ test_regions_okay (void)
   /*************************************************************/
   region = get_screen_region (3);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20,  300, 1180)); /* 354000 */
-  tmp = g_list_prepend (tmp, new_meta_rect ( 380,   20,  1220, 1180)); /* 377600 */
-  tmp = g_list_prepend (tmp, new_meta_rect (   0,   20,  1600, 1130)); /* 791000 */
+  tmp = g_list_prepend (tmp, new_meta_rect (0, 20, 300, 1180));       /* 354000
+                                                                       * */
+  tmp = g_list_prepend (tmp, new_meta_rect (380, 20, 1220, 1180));     /* 377600
+                                                                        * */
+  tmp = g_list_prepend (tmp, new_meta_rect (0, 20, 1600, 1130));       /* 791000
+                                                                        * */
 #if 0
   printf ("Got to here...\n");
-  char region_list[(RECT_LENGTH+2) * g_list_length (region)];
-  char tmp_list[   (RECT_LENGTH+2) * g_list_length (tmp)];
+  char region_list[(RECT_LENGTH + 2) * g_list_length (region)];
+  char tmp_list[   (RECT_LENGTH + 2) * g_list_length (tmp)];
   meta_rectangle_region_to_string (region, ", ", region_list);
   meta_rectangle_region_to_string (region, ", ", tmp_list);
   printf ("%s vs. %s\n", region_list, tmp_list);
@@ -639,7 +693,7 @@ test_regions_okay (void)
   /*************************************************************/
   region = get_screen_region (4);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_meta_rect ( 800,   20,  800, 1180));
+  tmp = g_list_prepend (tmp, new_meta_rect (800, 20, 800, 1180));
   verify_lists_are_equal (region, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (region);
@@ -662,7 +716,7 @@ test_regions_okay (void)
 static void
 test_region_fitting (void)
 {
-  GList* region;
+  GList *region;
   MetaRectangle rect;
 
   /* See test_basic_fitting() for how/why these automated random tests work */
@@ -704,7 +758,7 @@ test_region_fitting (void)
 static void
 test_clamping_to_region (void)
 {
-  GList* region;
+  GList *region;
   MetaRectangle rect;
   MetaRectangle min_size;
   FixedDirections fixed_directions;
@@ -754,7 +808,8 @@ test_clamping_to_region (void)
   g_assert (rect.width == 400 && rect.height == 1180);
 
   rect = meta_rect (50, 50, 10000, 10000);
-  min_size.width = 600;  min_size.height = 1170;
+  min_size.width = 600;
+  min_size.height = 1170;
 
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
                          "No rect whose size to clamp to found*");
@@ -767,7 +822,8 @@ test_clamping_to_region (void)
   g_assert (rect.width == 600 && rect.height == 1170);
 
   rect = meta_rect (350, 50, 100, 1100);
-  min_size.width = 1;  min_size.height = 1;
+  min_size.width = 1;
+  min_size.height = 1;
   fixed_directions = FIXED_DIRECTION_X;
   meta_rectangle_clamp_to_fit_into_region (region,
                                            fixed_directions,
@@ -776,7 +832,8 @@ test_clamping_to_region (void)
   g_assert (rect.width == 100 && rect.height == 1100);
 
   rect = meta_rect (300, 70, 500, 1100);
-  min_size.width = 1;  min_size.height = 1;
+  min_size.width = 1;
+  min_size.height = 1;
   fixed_directions = FIXED_DIRECTION_Y;
   meta_rectangle_clamp_to_fit_into_region (region,
                                            fixed_directions,
@@ -785,7 +842,8 @@ test_clamping_to_region (void)
   g_assert (rect.width == 400 && rect.height == 1100);
 
   rect = meta_rect (300, 70, 999999, 999999);
-  min_size.width = 100;  min_size.height = 200;
+  min_size.width = 100;
+  min_size.height = 200;
   fixed_directions = FIXED_DIRECTION_Y;
 
   g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
@@ -807,7 +865,7 @@ rect_overlaps_region (const GList         *spanning_rects,
 {
   /* FIXME: Should I move this to boxes.[ch]? */
   const GList *temp;
-  gboolean     overlaps;
+  gboolean overlaps;
 
   temp = spanning_rects;
   overlaps = FALSE;
@@ -825,7 +883,7 @@ gboolean time_to_print = FALSE;
 static void
 test_clipping_to_region (void)
 {
-  GList* region;
+  GList *region;
   MetaRectangle rect, temp;
   FixedDirections fixed_directions = 0;
   int i;
@@ -885,7 +943,7 @@ test_clipping_to_region (void)
 static void
 test_shoving_into_region (void)
 {
-  GList* region;
+  GList *region;
   MetaRectangle rect, temp;
   FixedDirections fixed_directions = 0;
   int i;
@@ -906,7 +964,7 @@ test_shoving_into_region (void)
   region = get_screen_region (2);
 
   rect = meta_rect (300, 1000, 400, 200);
-  temp = meta_rect (300,  950, 400, 200);
+  temp = meta_rect (300, 950, 400, 200);
   meta_rectangle_shove_into_region (region,
                                     fixed_directions,
                                     &rect);
@@ -920,28 +978,28 @@ test_shoving_into_region (void)
   g_assert (meta_rectangle_equal (&rect, &temp));
 
   rect = meta_rect (425, 1000, 300, 200);
-  temp = meta_rect (425,  950, 300, 200);
+  temp = meta_rect (425, 950, 300, 200);
   meta_rectangle_shove_into_region (region,
                                     FIXED_DIRECTION_X,
                                     &rect);
   g_assert (meta_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 300, 1000, 400, 200);
+  rect = meta_rect (300, 1000, 400, 200);
   temp = meta_rect (1200, 1000, 400, 200);
   meta_rectangle_shove_into_region (region,
                                     FIXED_DIRECTION_Y,
                                     &rect);
   g_assert (meta_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 800, 1150, 400,  50);  /* Completely "offscreen" :) */
-  temp = meta_rect ( 800, 1050, 400,  50);
+  rect = meta_rect (800, 1150, 400, 50);    /* Completely "offscreen" :) */
+  temp = meta_rect (800, 1050, 400, 50);
   meta_rectangle_shove_into_region (region,
                                     0,
                                     &rect);
   g_assert (meta_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect (-1000,  0, 400, 150);  /* Offscreen in 2 directions */
-  temp = meta_rect (    0, 20, 400, 150);
+  rect = meta_rect (-1000, 0, 400, 150);   /* Offscreen in 2 directions */
+  temp = meta_rect (0, 20, 400, 150);
   meta_rectangle_shove_into_region (region,
                                     0,
                                     &rect);
@@ -951,7 +1009,8 @@ test_shoving_into_region (void)
 }
 
 static void
-verify_edge_lists_are_equal (GList *code, GList *answer)
+verify_edge_lists_are_equal (GList *code,
+                             GList *answer)
 {
   int which = 0;
 
@@ -1000,12 +1059,12 @@ verify_edge_lists_are_equal (GList *code, GList *answer)
 static void
 test_find_onscreen_edges (void)
 {
-  GList* edges;
-  GList* tmp;
+  GList *edges;
+  GList *tmp;
 
-  int left   = META_DIRECTION_LEFT;
-  int right  = META_DIRECTION_RIGHT;
-  int top    = META_DIRECTION_TOP;
+  int left = META_DIRECTION_LEFT;
+  int right = META_DIRECTION_RIGHT;
+  int top = META_DIRECTION_TOP;
   int bottom = META_DIRECTION_BOTTOM;
 
   /*************************************************/
@@ -1013,10 +1072,10 @@ test_find_onscreen_edges (void)
   /*************************************************/
   edges = get_screen_edges (0);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_screen_edge (   0, 1200, 1600, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge (   0,    0, 1600, 0, top));
-  tmp = g_list_prepend (tmp, new_screen_edge (1600,    0, 0, 1200, right));
-  tmp = g_list_prepend (tmp, new_screen_edge (   0,    0, 0, 1200, left));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 1200, 1600, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 0, 1600, 0, top));
+  tmp = g_list_prepend (tmp, new_screen_edge (1600, 0, 0, 1200, right));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 0, 0, 1200, left));
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
@@ -1026,12 +1085,12 @@ test_find_onscreen_edges (void)
   /*************************************************/
   edges = get_screen_edges (1);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_screen_edge (   0, 1200,  400, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 400, 1160, 1200, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge (   0,   20, 1600, 0, top));
-  tmp = g_list_prepend (tmp, new_screen_edge (1600,   20, 0, 1140, right));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 400, 1160, 0,   40, right));
-  tmp = g_list_prepend (tmp, new_screen_edge (   0,   20, 0, 1180, left));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 1200, 400, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (400, 1160, 1200, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 20, 1600, 0, top));
+  tmp = g_list_prepend (tmp, new_screen_edge (1600, 20, 0, 1140, right));
+  tmp = g_list_prepend (tmp, new_screen_edge (400, 1160, 0, 40, right));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 20, 0, 1180, left));
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
@@ -1041,18 +1100,18 @@ test_find_onscreen_edges (void)
   /*************************************************/
   edges = get_screen_edges (2);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_screen_edge (1200, 1200,  400, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 450, 1200,  350, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge (   0, 1200,  300, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 300, 1150,  150, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 800, 1100,  400, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge (   0,   20, 1600, 0, top));
-  tmp = g_list_prepend (tmp, new_screen_edge (1600,   20, 0, 1180, right));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 800, 1100, 0,  100, right));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 300, 1150, 0,   50, right));
-  tmp = g_list_prepend (tmp, new_screen_edge (1200, 1100, 0,  100, left));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 450, 1150, 0,   50, left));
-  tmp = g_list_prepend (tmp, new_screen_edge (   0,   20, 0, 1180, left));
+  tmp = g_list_prepend (tmp, new_screen_edge (1200, 1200, 400, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (450, 1200, 350, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 1200, 300, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (300, 1150, 150, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (800, 1100, 400, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 20, 1600, 0, top));
+  tmp = g_list_prepend (tmp, new_screen_edge (1600, 20, 0, 1180, right));
+  tmp = g_list_prepend (tmp, new_screen_edge (800, 1100, 0, 100, right));
+  tmp = g_list_prepend (tmp, new_screen_edge (300, 1150, 0, 50, right));
+  tmp = g_list_prepend (tmp, new_screen_edge (1200, 1100, 0, 100, left));
+  tmp = g_list_prepend (tmp, new_screen_edge (450, 1150, 0, 50, left));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 20, 0, 1180, left));
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
@@ -1062,30 +1121,31 @@ test_find_onscreen_edges (void)
   /*************************************************/
   edges = get_screen_edges (3);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_screen_edge (1200, 1200,  400, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 380, 1200,  420, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge (   0, 1200,  300, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 300, 1150,   80, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 800, 1100,  400, 0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 700,  525, 200,  0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 700,  675, 200,  0, top));
-  tmp = g_list_prepend (tmp, new_screen_edge (   0,   20, 1600, 0, top));
-  tmp = g_list_prepend (tmp, new_screen_edge (1600,   20, 0, 1180, right));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 800, 1100, 0,  100, right));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 700,  525, 0,  150, right));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 300, 1150, 0,   50, right));
-  tmp = g_list_prepend (tmp, new_screen_edge (1200, 1100, 0,  100, left));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 900,  525, 0,  150, left));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 380, 1150, 0,   50, left));
-  tmp = g_list_prepend (tmp, new_screen_edge (   0,   20, 0, 1180, left));
+  tmp = g_list_prepend (tmp, new_screen_edge (1200, 1200, 400, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (380, 1200, 420, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 1200, 300, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (300, 1150, 80, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (800, 1100, 400, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (700, 525, 200, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (700, 675, 200, 0, top));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 20, 1600, 0, top));
+  tmp = g_list_prepend (tmp, new_screen_edge (1600, 20, 0, 1180, right));
+  tmp = g_list_prepend (tmp, new_screen_edge (800, 1100, 0, 100, right));
+  tmp = g_list_prepend (tmp, new_screen_edge (700, 525, 0, 150, right));
+  tmp = g_list_prepend (tmp, new_screen_edge (300, 1150, 0, 50, right));
+  tmp = g_list_prepend (tmp, new_screen_edge (1200, 1100, 0, 100, left));
+  tmp = g_list_prepend (tmp, new_screen_edge (900, 525, 0, 150, left));
+  tmp = g_list_prepend (tmp, new_screen_edge (380, 1150, 0, 50, left));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 20, 0, 1180, left));
 
 #if 0
   #define FUDGE 50 /* number of edges */
-  char big_buffer1[(EDGE_LENGTH+2)*FUDGE], big_buffer2[(EDGE_LENGTH+2)*FUDGE];
+  char big_buffer1[(EDGE_LENGTH + 2) * FUDGE],
+       big_buffer2[(EDGE_LENGTH + 2) * FUDGE];
   meta_rectangle_edge_list_to_string (edges, "\n ", big_buffer1);
-  meta_rectangle_edge_list_to_string (tmp,   "\n ", big_buffer2);
-  printf("Generated edge list:\n %s\nComparison edges list:\n %s\n",
-         big_buffer1, big_buffer2);
+  meta_rectangle_edge_list_to_string (tmp, "\n ", big_buffer2);
+  printf ("Generated edge list:\n %s\nComparison edges list:\n %s\n",
+          big_buffer1, big_buffer2);
 #endif
 
   verify_edge_lists_are_equal (edges, tmp);
@@ -1097,10 +1157,10 @@ test_find_onscreen_edges (void)
   /*************************************************/
   edges = get_screen_edges (4);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_screen_edge ( 800, 1200, 800,  0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 800,   20, 800,  0, top));
-  tmp = g_list_prepend (tmp, new_screen_edge (1600,   20, 0, 1180, right));
-  tmp = g_list_prepend (tmp, new_screen_edge ( 800,   20, 0, 1180, left));
+  tmp = g_list_prepend (tmp, new_screen_edge (800, 1200, 800, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (800, 20, 800, 0, top));
+  tmp = g_list_prepend (tmp, new_screen_edge (1600, 20, 0, 1180, right));
+  tmp = g_list_prepend (tmp, new_screen_edge (800, 20, 0, 1180, left));
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
@@ -1119,10 +1179,10 @@ test_find_onscreen_edges (void)
   /*************************************************/
   edges = get_screen_edges (6);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_screen_edge (   0, 1200, 1600,  0, bottom));
-  tmp = g_list_prepend (tmp, new_screen_edge (   0,   40, 1600,  0, top));
-  tmp = g_list_prepend (tmp, new_screen_edge (1600,   40, 0,  1160, right));
-  tmp = g_list_prepend (tmp, new_screen_edge (   0,   40, 0,  1160, left));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 1200, 1600, 0, bottom));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 40, 1600, 0, top));
+  tmp = g_list_prepend (tmp, new_screen_edge (1600, 40, 0, 1160, right));
+  tmp = g_list_prepend (tmp, new_screen_edge (0, 40, 0, 1160, left));
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
@@ -1131,12 +1191,12 @@ test_find_onscreen_edges (void)
 static void
 test_find_nonintersected_monitor_edges (void)
 {
-  GList* edges;
-  GList* tmp;
+  GList *edges;
+  GList *tmp;
 
-  int left   = META_DIRECTION_LEFT;
-  int right  = META_DIRECTION_RIGHT;
-  int top    = META_DIRECTION_TOP;
+  int left = META_DIRECTION_LEFT;
+  int right = META_DIRECTION_RIGHT;
+  int top = META_DIRECTION_TOP;
   int bottom = META_DIRECTION_BOTTOM;
 
   /*************************************************************************/
@@ -1153,8 +1213,8 @@ test_find_nonintersected_monitor_edges (void)
   /*************************************************************************/
   edges = get_monitor_edges (2, 1);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_monitor_edge (   0,  600, 1600, 0, bottom));
-  tmp = g_list_prepend (tmp, new_monitor_edge (   0,  600, 1600, 0, top));
+  tmp = g_list_prepend (tmp, new_monitor_edge (0, 600, 1600, 0, bottom));
+  tmp = g_list_prepend (tmp, new_monitor_edge (0, 600, 1600, 0, top));
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
@@ -1164,15 +1224,16 @@ test_find_nonintersected_monitor_edges (void)
   /*************************************************************************/
   edges = get_monitor_edges (1, 2);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_monitor_edge ( 800,   20, 0, 1080, right));
-  tmp = g_list_prepend (tmp, new_monitor_edge ( 800,   20, 0, 1180, left));
+  tmp = g_list_prepend (tmp, new_monitor_edge (800, 20, 0, 1080, right));
+  tmp = g_list_prepend (tmp, new_monitor_edge (800, 20, 0, 1180, left));
 #if 0
   #define FUDGE 50
-  char big_buffer1[(EDGE_LENGTH+2)*FUDGE], big_buffer2[(EDGE_LENGTH+2)*FUDGE];
+  char big_buffer1[(EDGE_LENGTH + 2) * FUDGE],
+       big_buffer2[(EDGE_LENGTH + 2) * FUDGE];
   meta_rectangle_edge_list_to_string (edges, "\n ", big_buffer1);
-  meta_rectangle_edge_list_to_string (tmp,   "\n ", big_buffer2);
-  printf("Generated edge list:\n %s\nComparison edges list:\n %s\n",
-         big_buffer1, big_buffer2);
+  meta_rectangle_edge_list_to_string (tmp, "\n ", big_buffer2);
+  printf ("Generated edge list:\n %s\nComparison edges list:\n %s\n",
+          big_buffer1, big_buffer2);
 #endif
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
@@ -1183,12 +1244,12 @@ test_find_nonintersected_monitor_edges (void)
   /*************************************************************************/
   edges = get_monitor_edges (3, 3);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_monitor_edge ( 900,  600,  700, 0, bottom));
-  tmp = g_list_prepend (tmp, new_monitor_edge (   0,  600,  700, 0, bottom));
-  tmp = g_list_prepend (tmp, new_monitor_edge ( 900,  600,  700, 0, top));
-  tmp = g_list_prepend (tmp, new_monitor_edge (   0,  600,  700, 0, top));
-  tmp = g_list_prepend (tmp, new_monitor_edge ( 800,  675, 0,  425, right));
-  tmp = g_list_prepend (tmp, new_monitor_edge ( 800,  675, 0,  525, left));
+  tmp = g_list_prepend (tmp, new_monitor_edge (900, 600, 700, 0, bottom));
+  tmp = g_list_prepend (tmp, new_monitor_edge (0, 600, 700, 0, bottom));
+  tmp = g_list_prepend (tmp, new_monitor_edge (900, 600, 700, 0, top));
+  tmp = g_list_prepend (tmp, new_monitor_edge (0, 600, 700, 0, top));
+  tmp = g_list_prepend (tmp, new_monitor_edge (800, 675, 0, 425, right));
+  tmp = g_list_prepend (tmp, new_monitor_edge (800, 675, 0, 525, left));
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
@@ -1198,9 +1259,9 @@ test_find_nonintersected_monitor_edges (void)
   /*************************************************************************/
   edges = get_monitor_edges (3, 4);
   tmp = NULL;
-  tmp = g_list_prepend (tmp, new_monitor_edge ( 800,  600,  800, 0, bottom));
-  tmp = g_list_prepend (tmp, new_monitor_edge ( 800,  600,  800, 0, top));
-  tmp = g_list_prepend (tmp, new_monitor_edge ( 800,  600,  0, 600, right));
+  tmp = g_list_prepend (tmp, new_monitor_edge (800, 600, 800, 0, bottom));
+  tmp = g_list_prepend (tmp, new_monitor_edge (800, 600, 800, 0, top));
+  tmp = g_list_prepend (tmp, new_monitor_edge (800, 600, 0, 600, right));
   verify_edge_lists_are_equal (edges, tmp);
   meta_rectangle_free_list_and_elements (tmp);
   meta_rectangle_free_list_and_elements (edges);
@@ -1223,8 +1284,8 @@ test_gravity_resize (void)
   rect.x = -500;  /* Some random amount not equal to oldrect.x to ensure that
                    * the resize is done with respect to oldrect instead of rect
                    */
-  oldrect = meta_rect ( 50,  300, 250, 400);
-  temp    = meta_rect ( 50,  300,  20,   5);
+  oldrect = meta_rect (50, 300, 250, 400);
+  temp = meta_rect (50, 300, 20, 5);
   meta_rectangle_resize_with_gravity (&oldrect,
                                       &rect,
                                       NorthWestGravity,
@@ -1232,8 +1293,8 @@ test_gravity_resize (void)
                                       5);
   g_assert (meta_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 50,  300, 250, 400);
-  temp = meta_rect (165,  300,  20,   5);
+  rect = meta_rect (50, 300, 250, 400);
+  temp = meta_rect (165, 300, 20, 5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       NorthGravity,
@@ -1241,8 +1302,8 @@ test_gravity_resize (void)
                                       5);
   g_assert (meta_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 50,  300, 250, 400);
-  temp = meta_rect (280,  300,  20,   5);
+  rect = meta_rect (50, 300, 250, 400);
+  temp = meta_rect (280, 300, 20, 5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       NorthEastGravity,
@@ -1250,8 +1311,8 @@ test_gravity_resize (void)
                                       5);
   g_assert (meta_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 50,  300, 250, 400);
-  temp = meta_rect ( 50,  695,  50,   5);
+  rect = meta_rect (50, 300, 250, 400);
+  temp = meta_rect (50, 695, 50, 5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       SouthWestGravity,
@@ -1259,8 +1320,8 @@ test_gravity_resize (void)
                                       5);
   g_assert (meta_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 50,  300, 250, 400);
-  temp = meta_rect (150,  695,  50,   5);
+  rect = meta_rect (50, 300, 250, 400);
+  temp = meta_rect (150, 695, 50, 5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       SouthGravity,
@@ -1268,8 +1329,8 @@ test_gravity_resize (void)
                                       5);
   g_assert (meta_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 50,  300, 250, 400);
-  temp = meta_rect (250,  695,  50,   5);
+  rect = meta_rect (50, 300, 250, 400);
+  temp = meta_rect (250, 695, 50, 5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       SouthEastGravity,
@@ -1277,8 +1338,8 @@ test_gravity_resize (void)
                                       5);
   g_assert (meta_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect (167,  738, 237, 843);
-  temp = meta_rect (167, 1113, 832,  93);
+  rect = meta_rect (167, 738, 237, 843);
+  temp = meta_rect (167, 1113, 832, 93);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       WestGravity,
@@ -1286,8 +1347,8 @@ test_gravity_resize (void)
                                       93);
   g_assert (meta_rectangle_equal (&rect, &temp));
 
-  rect = meta_rect ( 167,  738, 237, 843);
-  temp = meta_rect (-131, 1113, 833,  93);
+  rect = meta_rect (167, 738, 237, 843);
+  temp = meta_rect (-131, 1113, 833, 93);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       CenterGravity,
@@ -1296,7 +1357,7 @@ test_gravity_resize (void)
   g_assert (meta_rectangle_equal (&rect, &temp));
 
   rect = meta_rect (300, 1000, 400, 200);
-  temp = meta_rect (270,  994, 430, 212);
+  temp = meta_rect (270, 994, 430, 212);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
                                       EastGravity,
@@ -1321,46 +1382,62 @@ test_find_closest_point_to_line (void)
   double x1, y1, x2, y2, px, py, rx, ry;
   double answer_x, answer_y;
 
-  x1 =  3.0;  y1 =  49.0;
-  x2 =  2.0;  y2 = - 1.0;
-  px = -2.6;  py =  19.1;
-  answer_x = 2.4; answer_y = 19;
-  meta_rectangle_find_linepoint_closest_to_point (x1,  y1,
-                                                  x2,  y2,
-                                                  px,  py,
+  x1 = 3.0;
+  y1 = 49.0;
+  x2 = 2.0;
+  y2 = -1.0;
+  px = -2.6;
+  py = 19.1;
+  answer_x = 2.4;
+  answer_y = 19;
+  meta_rectangle_find_linepoint_closest_to_point (x1, y1,
+                                                  x2, y2,
+                                                  px, py,
                                                   &rx, &ry);
   g_assert (fabs (rx - answer_x) < EPSILON && fabs (ry - answer_y) < EPSILON);
 
   /* Special test for x1 == x2, so that slop of line is infinite */
-  x1 =  3.0;  y1 =  49.0;
-  x2 =  3.0;  y2 = - 1.0;
-  px = -2.6;  py =  19.1;
-  answer_x = 3.0; answer_y = 19.1;
-  meta_rectangle_find_linepoint_closest_to_point (x1,  y1,
-                                                  x2,  y2,
-                                                  px,  py,
+  x1 = 3.0;
+  y1 = 49.0;
+  x2 = 3.0;
+  y2 = -1.0;
+  px = -2.6;
+  py = 19.1;
+  answer_x = 3.0;
+  answer_y = 19.1;
+  meta_rectangle_find_linepoint_closest_to_point (x1, y1,
+                                                  x2, y2,
+                                                  px, py,
                                                   &rx, &ry);
   g_assert (fabs (rx - answer_x) < EPSILON && fabs (ry - answer_y) < EPSILON);
 
   /* Special test for y1 == y2, so perp line has slope of infinity */
-  x1 =  3.14;  y1 =   7.0;
-  x2 =  2.718; y2 =   7.0;
-  px = -2.6;   py =  19.1;
-  answer_x = -2.6; answer_y = 7;
-  meta_rectangle_find_linepoint_closest_to_point (x1,  y1,
-                                                  x2,  y2,
-                                                  px,  py,
+  x1 = 3.14;
+  y1 = 7.0;
+  x2 = 2.718;
+  y2 = 7.0;
+  px = -2.6;
+  py = 19.1;
+  answer_x = -2.6;
+  answer_y = 7;
+  meta_rectangle_find_linepoint_closest_to_point (x1, y1,
+                                                  x2, y2,
+                                                  px, py,
                                                   &rx, &ry);
   g_assert (fabs (rx - answer_x) < EPSILON && fabs (ry - answer_y) < EPSILON);
 
   /* Test when we the point we want to be closest to is actually on the line */
-  x1 =  3.0;  y1 =  49.0;
-  x2 =  2.0;  y2 = - 1.0;
-  px =  2.4;  py =  19.0;
-  answer_x = 2.4; answer_y = 19;
-  meta_rectangle_find_linepoint_closest_to_point (x1,  y1,
-                                                  x2,  y2,
-                                                  px,  py,
+  x1 = 3.0;
+  y1 = 49.0;
+  x2 = 2.0;
+  y2 = -1.0;
+  px = 2.4;
+  py = 19.0;
+  answer_x = 2.4;
+  answer_y = 19;
+  meta_rectangle_find_linepoint_closest_to_point (x1, y1,
+                                                  x2, y2,
+                                                  px, py,
                                                   &rx, &ry);
   g_assert (fabs (rx - answer_x) < EPSILON && fabs (ry - answer_y) < EPSILON);
 }

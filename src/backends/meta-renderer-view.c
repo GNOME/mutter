@@ -46,7 +46,7 @@ G_DEFINE_TYPE (MetaRendererView, meta_renderer_view,
                CLUTTER_TYPE_STAGE_VIEW_COGL)
 
 MetaLogicalMonitor *
-meta_renderer_view_get_logical_monitor (MetaRendererView *view)
+meta_renderer_view_get_logical_monitor (MetaRendererView * view)
 {
   return view->logical_monitor;
 }
@@ -69,31 +69,38 @@ meta_renderer_view_get_offscreen_transformation_matrix (ClutterStageView *view,
     {
     case META_MONITOR_TRANSFORM_NORMAL:
       break;
+
     case META_MONITOR_TRANSFORM_90:
       cogl_matrix_rotate (matrix, 90, 0, 0, 1);
       cogl_matrix_translate (matrix, 0, -1, 0);
       break;
+
     case META_MONITOR_TRANSFORM_180:
       cogl_matrix_rotate (matrix, 180, 0, 0, 1);
       cogl_matrix_translate (matrix, -1, -1, 0);
       break;
+
     case META_MONITOR_TRANSFORM_270:
       cogl_matrix_rotate (matrix, 270, 0, 0, 1);
       cogl_matrix_translate (matrix, -1, 0, 0);
       break;
+
     case META_MONITOR_TRANSFORM_FLIPPED:
       cogl_matrix_scale (matrix, -1, 1, 1);
       cogl_matrix_translate (matrix, -1, 0, 0);
       break;
+
     case META_MONITOR_TRANSFORM_FLIPPED_90:
       cogl_matrix_scale (matrix, -1, 1, 1);
       cogl_matrix_rotate (matrix, 90, 0, 0, 1);
       break;
+
     case META_MONITOR_TRANSFORM_FLIPPED_180:
       cogl_matrix_scale (matrix, -1, 1, 1);
       cogl_matrix_rotate (matrix, 180, 0, 0, 1);
       cogl_matrix_translate (matrix, 0, -1, 0);
       break;
+
     case META_MONITOR_TRANSFORM_FLIPPED_270:
       cogl_matrix_scale (matrix, -1, 1, 1);
       cogl_matrix_rotate (matrix, 270, 0, 0, 1);
@@ -113,14 +120,15 @@ meta_renderer_view_setup_offscreen_blit_pipeline (ClutterStageView *view,
 }
 
 static void
-meta_renderer_view_set_transform (MetaRendererView     *view,
-                                  MetaMonitorTransform  transform)
+meta_renderer_view_set_transform (MetaRendererView    *view,
+                                  MetaMonitorTransform transform)
 {
   if (view->transform == transform)
     return;
 
   view->transform = transform;
-  clutter_stage_view_invalidate_offscreen_blit_pipeline (CLUTTER_STAGE_VIEW (view));
+  clutter_stage_view_invalidate_offscreen_blit_pipeline (CLUTTER_STAGE_VIEW (
+                                                           view));
 }
 
 static void
@@ -136,9 +144,11 @@ meta_renderer_view_get_property (GObject    *object,
     case PROP_MONITOR_INFO:
       g_value_set_pointer (value, view->logical_monitor);
       break;
+
     case PROP_TRANSFORM:
       g_value_set_uint (value, view->transform);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -158,9 +168,11 @@ meta_renderer_view_set_property (GObject      *object,
     case PROP_MONITOR_INFO:
       view->logical_monitor = g_value_get_pointer (value);
       break;
+
     case PROP_TRANSFORM:
       meta_renderer_view_set_transform (view, g_value_get_uint (value));
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;

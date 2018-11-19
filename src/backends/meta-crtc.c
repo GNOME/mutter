@@ -26,7 +26,7 @@ G_DEFINE_TYPE (MetaCrtc, meta_crtc, G_TYPE_OBJECT)
 G_DEFINE_TYPE (MetaCrtcMode, meta_crtc_mode, G_TYPE_OBJECT)
 
 MetaGpu *
-meta_crtc_get_gpu (MetaCrtc *crtc)
+meta_crtc_get_gpu (MetaCrtc * crtc)
 {
   return crtc->gpu;
 }

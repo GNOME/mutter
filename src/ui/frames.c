@@ -41,17 +41,17 @@
 
 #define DEFAULT_INNER_BUTTON_BORDER 3
 
-static void meta_frames_destroy       (GtkWidget       *object);
-static void meta_frames_finalize      (GObject         *object);
-static void meta_frames_style_updated (GtkWidget       *widget);
+static void meta_frames_destroy (GtkWidget *object);
+static void meta_frames_finalize (GObject *object);
+static void meta_frames_style_updated (GtkWidget *widget);
 
-static gboolean meta_frames_draw                  (GtkWidget           *widget,
-                                                   cairo_t             *cr);
+static gboolean meta_frames_draw (GtkWidget *widget,
+                                  cairo_t   *cr);
 
 static void meta_ui_frame_attach_style (MetaUIFrame *frame);
 
-static void meta_ui_frame_paint        (MetaUIFrame  *frame,
-                                        cairo_t      *cr);
+static void meta_ui_frame_paint (MetaUIFrame *frame,
+                                 cairo_t     *cr);
 
 static void meta_ui_frame_calc_geometry (MetaUIFrame       *frame,
                                          MetaFrameGeometry *fgeom);
@@ -59,19 +59,20 @@ static void meta_ui_frame_calc_geometry (MetaUIFrame       *frame,
 static void meta_ui_frame_update_prelit_control (MetaUIFrame     *frame,
                                                  MetaFrameControl control);
 
-static void meta_frames_font_changed          (MetaFrames *frames);
+static void meta_frames_font_changed (MetaFrames *frames);
 static void meta_frames_button_layout_changed (MetaFrames *frames);
 
 
-static GdkRectangle*    control_rect (MetaFrameControl   control,
-                                      MetaFrameGeometry *fgeom);
-static MetaFrameControl get_control  (MetaUIFrame       *frame,
-                                      int                x,
-                                      int                y);
+static GdkRectangle *control_rect (MetaFrameControl   control,
+                                   MetaFrameGeometry *fgeom);
+static MetaFrameControl get_control (MetaUIFrame *frame,
+                                     int          x,
+                                     int          y);
 
 G_DEFINE_TYPE (MetaFrames, meta_frames, GTK_TYPE_WINDOW);
 
-enum {
+enum
+{
   META_ACTION_CLICK,
   META_ACTION_RIGHT_CLICK,
   META_ACTION_MIDDLE_CLICK,
@@ -100,11 +101,11 @@ meta_frames_constructor (GType                  gtype,
 static void
 meta_frames_class_init (MetaFramesClass *class)
 {
-  GObjectClass   *gobject_class;
+  GObjectClass *gobject_class;
   GtkWidgetClass *widget_class;
 
   gobject_class = G_OBJECT_CLASS (class);
-  widget_class = (GtkWidgetClass*) class;
+  widget_class = (GtkWidgetClass *) class;
 
   gobject_class->constructor = meta_frames_constructor;
   gobject_class->finalize = meta_frames_finalize;
@@ -120,13 +121,13 @@ static gint
 unsigned_long_equal (gconstpointer v1,
                      gconstpointer v2)
 {
-  return *((const gulong*) v1) == *((const gulong*) v2);
+  return *((const gulong *) v1) == *((const gulong *) v2);
 }
 
 static guint
 unsigned_long_hash (gconstpointer v)
 {
-  gulong val = * (const gulong *) v;
+  gulong val = *(const gulong *) v;
 
   /* I'm not sure this works so well. */
 #if GLIB_SIZEOF_LONG > 4
@@ -145,9 +146,11 @@ prefs_changed_callback (MetaPreference pref,
     case META_PREF_TITLEBAR_FONT:
       meta_frames_font_changed (META_FRAMES (data));
       break;
+
     case META_PREF_BUTTON_LAYOUT:
       meta_frames_button_layout_changed (META_FRAMES (data));
       break;
+
     default:
       break;
     }
@@ -168,8 +171,12 @@ meta_frames_get_theme_variant (MetaFrames  *frames,
   style_info = g_hash_table_lookup (frames->style_variants, variant);
   if (style_info == NULL)
     {
-      style_info = meta_theme_create_style_info (gtk_widget_get_screen (GTK_WIDGET (frames)), variant);
-      g_hash_table_insert (frames->style_variants, g_strdup (variant), style_info);
+      style_info =
+        meta_theme_create_style_info (gtk_widget_get_screen (GTK_WIDGET (
+                                                               frames)),
+                                      variant);
+      g_hash_table_insert (frames->style_variants, g_strdup (
+                             variant), style_info);
     }
 
   return style_info;
@@ -191,7 +198,8 @@ update_style_contexts (MetaFrames *frames)
   variants = g_hash_table_get_keys (frames->style_variants);
   for (variant = variants; variant; variant = variant->next)
     {
-      style_info = meta_theme_create_style_info (screen, (char *)variant->data);
+      style_info =
+        meta_theme_create_style_info (screen, (char *) variant->data);
       g_hash_table_insert (frames->style_variants,
                            g_strdup (variant->data), style_info);
     }
@@ -206,7 +214,8 @@ meta_frames_init (MetaFrames *frames)
   frames->frames = g_hash_table_new (unsigned_long_hash, unsigned_long_equal);
 
   frames->style_variants = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                  g_free, (GDestroyNotify)meta_style_info_unref);
+                                                  g_free,
+                                                  (GDestroyNotify) meta_style_info_unref);
 
   update_style_contexts (frames);
 
@@ -214,7 +223,9 @@ meta_frames_init (MetaFrames *frames)
 }
 
 static void
-listify_func (gpointer key, gpointer value, gpointer data)
+listify_func (gpointer key,
+              gpointer value,
+              gpointer data)
 {
   GSList **listp;
 
@@ -275,12 +286,15 @@ meta_frames_finalize (GObject *object)
 }
 
 static void
-queue_recalc_func (gpointer key, gpointer value, gpointer data)
+queue_recalc_func (gpointer key,
+                   gpointer value,
+                   gpointer data)
 {
   MetaUIFrame *frame = value;
 
   invalidate_whole_window (frame);
-  meta_core_queue_frame_resize (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
+  meta_core_queue_frame_resize (GDK_DISPLAY_XDISPLAY (
+                                  gdk_display_get_default ()),
                                 frame->xwindow);
 
   g_clear_object (&frame->text_layout);
@@ -298,11 +312,12 @@ meta_frames_font_changed (MetaFrames *frames)
   /* Queue a draw/resize on all frames */
   g_hash_table_foreach (frames->frames,
                         queue_recalc_func, frames);
-
 }
 
 static void
-queue_draw_func (gpointer key, gpointer value, gpointer data)
+queue_draw_func (gpointer key,
+                 gpointer value,
+                 gpointer data)
 {
   MetaUIFrame *frame = value;
   invalidate_whole_window (frame);
@@ -316,7 +331,9 @@ meta_frames_button_layout_changed (MetaFrames *frames)
 }
 
 static void
-reattach_style_func (gpointer key, gpointer value, gpointer data)
+reattach_style_func (gpointer key,
+                     gpointer value,
+                     gpointer data)
 {
   MetaUIFrame *frame = value;
   meta_ui_frame_attach_style (frame);
@@ -341,8 +358,8 @@ meta_frames_style_updated  (GtkWidget *widget)
 }
 
 static void
-meta_ui_frame_ensure_layout (MetaUIFrame    *frame,
-                             MetaFrameType   type)
+meta_ui_frame_ensure_layout (MetaUIFrame  *frame,
+                             MetaFrameType type)
 {
   MetaFrames *frames = frame->frames;
   GtkWidget *widget;
@@ -365,7 +382,8 @@ meta_ui_frame_ensure_layout (MetaUIFrame    *frame,
       PangoFontDescription *font_desc;
       int size;
 
-      frame->text_layout = gtk_widget_create_pango_layout (widget, frame->title);
+      frame->text_layout =
+        gtk_widget_create_pango_layout (widget, frame->title);
 
       pango_layout_set_ellipsize (frame->text_layout, PANGO_ELLIPSIZE_END);
       pango_layout_set_auto_dir (frame->text_layout, FALSE);
@@ -386,7 +404,8 @@ meta_ui_frame_ensure_layout (MetaUIFrame    *frame,
         {
           frame->text_height =
             meta_pango_font_desc_get_text_height (font_desc,
-                                                  gtk_widget_get_pango_context (widget));
+                                                  gtk_widget_get_pango_context (
+                                                    widget));
 
           g_hash_table_replace (frames->text_heights,
                                 GINT_TO_POINTER (size),
@@ -428,7 +447,7 @@ meta_ui_frame_calc_geometry (MetaUIFrame       *frame,
                             fgeom);
 }
 
-MetaFrames*
+MetaFrames *
 meta_frames_new (void)
 {
   MetaFrames *frames;
@@ -483,13 +502,15 @@ meta_ui_frame_attach_style (MetaUIFrame *frame)
 
   variant = frame->meta_window->gtk_theme_variant;
   if (variant == NULL)
-    variant = get_global_theme_variant (frame->frames);;
+    variant = get_global_theme_variant (frame->frames);
+  ;
 
   if (variant == NULL || *variant == '\0')
     frame->style_info = meta_style_info_ref (frames->normal_style);
   else
-    frame->style_info = meta_style_info_ref (meta_frames_get_theme_variant (frames,
-                                                                            variant));
+    frame->style_info =
+      meta_style_info_ref (meta_frames_get_theme_variant (frames,
+                                                          variant));
 }
 
 MetaUIFrame *
@@ -522,7 +543,8 @@ meta_frames_manage_window (MetaFrames *frames,
   frame->prelit_control = META_FRAME_CONTROL_NONE;
   frame->button_state = META_BUTTON_STATE_NORMAL;
 
-  meta_core_grab_buttons (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow);
+  meta_core_grab_buttons (GDK_DISPLAY_XDISPLAY (
+                            gdk_display_get_default ()), frame->xwindow);
 
   g_hash_table_replace (frames->frames, &frame->xwindow, frame);
 
@@ -535,7 +557,8 @@ meta_ui_frame_unmanage (MetaUIFrame *frame)
   MetaFrames *frames = frame->frames;
 
   /* restore the cursor */
-  meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
+  meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (
+                                 gdk_display_get_default ()),
                                frame->xwindow,
                                META_CURSOR_DEFAULT);
 
@@ -556,7 +579,7 @@ meta_ui_frame_unmanage (MetaUIFrame *frame)
 }
 
 void
-meta_ui_frame_get_borders (MetaUIFrame *frame,
+meta_ui_frame_get_borders (MetaUIFrame      *frame,
                            MetaFrameBorders *borders)
 {
   MetaFrameFlags flags;
@@ -614,9 +637,12 @@ get_visible_region (MetaUIFrame       *frame,
       const float radius = corner;
       int i;
 
-      for (i=0; i<corner; i++)
+      for (i = 0; i < corner; i++)
         {
-          const int width = floor(0.5 + radius - sqrt(radius*radius - (radius-(i+0.5))*(radius-(i+0.5))));
+          const int width =
+            floor (0.5 + radius -
+                   sqrt (radius * radius - (radius - (i + 0.5)) *
+                         (radius - (i + 0.5))));
           rect.x = frame_rect.x;
           rect.y = frame_rect.y + i;
           rect.width = width;
@@ -632,9 +658,12 @@ get_visible_region (MetaUIFrame       *frame,
       const float radius = corner;
       int i;
 
-      for (i=0; i<corner; i++)
+      for (i = 0; i < corner; i++)
         {
-          const int width = floor(0.5 + radius - sqrt(radius*radius - (radius-(i+0.5))*(radius-(i+0.5))));
+          const int width =
+            floor (0.5 + radius -
+                   sqrt (radius * radius - (radius - (i + 0.5)) *
+                         (radius - (i + 0.5))));
           rect.x = frame_rect.x + frame_rect.width - width;
           rect.y = frame_rect.y + i;
           rect.width = width;
@@ -650,9 +679,12 @@ get_visible_region (MetaUIFrame       *frame,
       const float radius = corner;
       int i;
 
-      for (i=0; i<corner; i++)
+      for (i = 0; i < corner; i++)
         {
-          const int width = floor(0.5 + radius - sqrt(radius*radius - (radius-(i+0.5))*(radius-(i+0.5))));
+          const int width =
+            floor (0.5 + radius -
+                   sqrt (radius * radius - (radius - (i + 0.5)) *
+                         (radius - (i + 0.5))));
           rect.x = frame_rect.x;
           rect.y = frame_rect.y + frame_rect.height - i - 1;
           rect.width = width;
@@ -668,9 +700,12 @@ get_visible_region (MetaUIFrame       *frame,
       const float radius = corner;
       int i;
 
-      for (i=0; i<corner; i++)
+      for (i = 0; i < corner; i++)
         {
-          const int width = floor(0.5 + radius - sqrt(radius*radius - (radius-(i+0.5))*(radius-(i+0.5))));
+          const int width =
+            floor (0.5 + radius -
+                   sqrt (radius * radius - (radius - (i + 0.5)) *
+                         (radius - (i + 0.5))));
           rect.x = frame_rect.x + frame_rect.width - width;
           rect.y = frame_rect.y + frame_rect.height - i - 1;
           rect.width = width;
@@ -697,7 +732,10 @@ meta_ui_frame_get_bounds (MetaUIFrame *frame)
 
 void
 meta_ui_frame_move_resize (MetaUIFrame *frame,
-                           int x, int y, int width, int height)
+                           int          x,
+                           int          y,
+                           int          width,
+                           int          height)
 {
   int old_width, old_height;
 
@@ -718,7 +756,7 @@ meta_ui_frame_queue_draw (MetaUIFrame *frame)
 
 void
 meta_ui_frame_set_title (MetaUIFrame *frame,
-                         const char *title)
+                         const char  *title)
 {
   g_free (frame->title);
   frame->title = g_strdup (title);
@@ -736,7 +774,7 @@ meta_ui_frame_update_style (MetaUIFrame *frame)
 }
 
 static void
-redraw_control (MetaUIFrame *frame,
+redraw_control (MetaUIFrame     *frame,
                 MetaFrameControl control)
 {
   MetaFrameGeometry fgeom;
@@ -772,50 +810,50 @@ meta_frame_titlebar_event (MetaUIFrame        *frame,
   switch (action)
     {
     case G_DESKTOP_TITLEBAR_ACTION_TOGGLE_SHADE:
-      {
-        if (flags & META_FRAME_ALLOWS_SHADE)
-          {
-            if (flags & META_FRAME_SHADED)
-              meta_window_unshade (frame->meta_window, evtime);
-            else
-              meta_window_shade (frame->meta_window, evtime);
-          }
-      }
-      break;
+    {
+      if (flags & META_FRAME_ALLOWS_SHADE)
+        {
+          if (flags & META_FRAME_SHADED)
+            meta_window_unshade (frame->meta_window, evtime);
+          else
+            meta_window_shade (frame->meta_window, evtime);
+        }
+    }
+    break;
 
     case G_DESKTOP_TITLEBAR_ACTION_TOGGLE_MAXIMIZE:
-      {
-        if (flags & META_FRAME_ALLOWS_MAXIMIZE)
-          {
-            meta_core_toggle_maximize (display, frame->xwindow);
-          }
-      }
-      break;
+    {
+      if (flags & META_FRAME_ALLOWS_MAXIMIZE)
+        {
+          meta_core_toggle_maximize (display, frame->xwindow);
+        }
+    }
+    break;
 
     case G_DESKTOP_TITLEBAR_ACTION_TOGGLE_MAXIMIZE_HORIZONTALLY:
-      {
-        if (flags & META_FRAME_ALLOWS_MAXIMIZE)
-          {
-            meta_core_toggle_maximize_horizontally (display, frame->xwindow);
-          }
-      }
-      break;
+    {
+      if (flags & META_FRAME_ALLOWS_MAXIMIZE)
+        {
+          meta_core_toggle_maximize_horizontally (display, frame->xwindow);
+        }
+    }
+    break;
 
     case G_DESKTOP_TITLEBAR_ACTION_TOGGLE_MAXIMIZE_VERTICALLY:
-      {
-        if (flags & META_FRAME_ALLOWS_MAXIMIZE)
-          {
-            meta_core_toggle_maximize_vertically (display, frame->xwindow);
-          }
-      }
-      break;
+    {
+      if (flags & META_FRAME_ALLOWS_MAXIMIZE)
+        {
+          meta_core_toggle_maximize_vertically (display, frame->xwindow);
+        }
+    }
+    break;
 
     case G_DESKTOP_TITLEBAR_ACTION_MINIMIZE:
-      {
-        if (flags & META_FRAME_ALLOWS_MINIMIZE)
-          meta_window_minimize (frame->meta_window);
-      }
-      break;
+    {
+      if (flags & META_FRAME_ALLOWS_MINIMIZE)
+        meta_window_minimize (frame->meta_window);
+    }
+    break;
 
     case G_DESKTOP_TITLEBAR_ACTION_NONE:
       /* Yaay, a sane user that doesn't use that other weird crap! */
@@ -848,20 +886,20 @@ meta_frame_double_click_event (MetaUIFrame        *frame,
 }
 
 static gboolean
-meta_frame_middle_click_event (MetaUIFrame *frame,
+meta_frame_middle_click_event (MetaUIFrame        *frame,
                                ClutterButtonEvent *event)
 {
-  int action = meta_prefs_get_action_middle_click_titlebar();
+  int action = meta_prefs_get_action_middle_click_titlebar ();
 
   return meta_frame_titlebar_event (frame, (const ClutterEvent *) event,
                                     action);
 }
 
 static gboolean
-meta_frame_right_click_event (MetaUIFrame *frame,
+meta_frame_right_click_event (MetaUIFrame        *frame,
                               ClutterButtonEvent *event)
 {
-  int action = meta_prefs_get_action_right_click_titlebar();
+  int action = meta_prefs_get_action_right_click_titlebar ();
 
   return meta_frame_titlebar_event (frame, (const ClutterEvent *) event,
                                     action);
@@ -939,20 +977,28 @@ grab_op_from_resize_control (MetaFrameControl control)
     {
     case META_FRAME_CONTROL_RESIZE_SE:
       return META_GRAB_OP_RESIZING_SE;
+
     case META_FRAME_CONTROL_RESIZE_S:
       return META_GRAB_OP_RESIZING_S;
+
     case META_FRAME_CONTROL_RESIZE_SW:
       return META_GRAB_OP_RESIZING_SW;
+
     case META_FRAME_CONTROL_RESIZE_NE:
       return META_GRAB_OP_RESIZING_NE;
+
     case META_FRAME_CONTROL_RESIZE_N:
       return META_GRAB_OP_RESIZING_N;
+
     case META_FRAME_CONTROL_RESIZE_NW:
       return META_GRAB_OP_RESIZING_NW;
+
     case META_FRAME_CONTROL_RESIZE_E:
       return META_GRAB_OP_RESIZING_E;
+
     case META_FRAME_CONTROL_RESIZE_W:
       return META_GRAB_OP_RESIZING_W;
+
     default:
       g_assert_not_reached ();
     }
@@ -971,14 +1017,18 @@ get_action (const ClutterEvent *event)
             return META_ACTION_DOUBLE_CLICK;
           else
             return META_ACTION_CLICK;
+
         case CLUTTER_BUTTON_SECONDARY:
           return META_ACTION_RIGHT_CLICK;
+
         case CLUTTER_BUTTON_MIDDLE:
           return META_ACTION_MIDDLE_CLICK;
+
         default:
           meta_verbose ("No action triggered for button %u %s\n",
                         event->button.button,
-                        (event->type == CLUTTER_BUTTON_PRESS) ? "press" : "release");
+                        (event->type ==
+                         CLUTTER_BUTTON_PRESS) ? "press" : "release");
         }
     }
   else if (event->type == CLUTTER_TOUCH_BEGIN ||
@@ -1052,7 +1102,7 @@ meta_frame_left_click_event (MetaUIFrame        *frame,
           root_rect.height = rect->height;
 
           menu = control == META_FRAME_CONTROL_MENU ? META_WINDOW_MENU_WM
-            : META_WINDOW_MENU_APP;
+                 : META_WINDOW_MENU_APP;
 
           /* if the compositor takes a grab for showing the menu, we will
            * get a LeaveNotify event we want to ignore, to keep the pressed
@@ -1072,6 +1122,7 @@ meta_frame_left_click_event (MetaUIFrame        *frame,
         }
 
       return TRUE;
+
     case META_FRAME_CONTROL_RESIZE_SE:
     case META_FRAME_CONTROL_RESIZE_S:
     case META_FRAME_CONTROL_RESIZE_SW:
@@ -1085,24 +1136,27 @@ meta_frame_left_click_event (MetaUIFrame        *frame,
                                x, y, evtime);
 
       return TRUE;
-    case META_FRAME_CONTROL_TITLE:
-      {
-        MetaFrameFlags flags = meta_frame_get_flags (frame->meta_window->frame);
 
-        if (flags & META_FRAME_ALLOWS_MOVE)
-          {
-            meta_frames_try_grab_op (frame,
-                                     META_GRAB_OP_MOVING,
-                                     x, y, evtime);
-          }
-      }
+    case META_FRAME_CONTROL_TITLE:
+    {
+      MetaFrameFlags flags = meta_frame_get_flags (frame->meta_window->frame);
+
+      if (flags & META_FRAME_ALLOWS_MOVE)
+        {
+          meta_frames_try_grab_op (frame,
+                                   META_GRAB_OP_MOVING,
+                                   x, y, evtime);
+        }
+    }
 
       return TRUE;
+
     case META_FRAME_CONTROL_NONE:
       /* We can get this for example when trying to resize window
        * that cannot be resized (e. g. it is maximized and the theme
        * currently used has borders for maximized windows), see #751884 */
       return FALSE;
+
     default:
       g_assert_not_reached ();
     }
@@ -1163,10 +1217,14 @@ handle_press_event (MetaUIFrame        *frame,
     {
     case META_ACTION_CLICK:
       return meta_frame_left_click_event (frame, event);
+
     case META_ACTION_MIDDLE_CLICK:
-      return meta_frame_middle_click_event (frame, (ClutterButtonEvent *) event);
+      return meta_frame_middle_click_event (frame,
+                                            (ClutterButtonEvent *) event);
+
     case META_ACTION_RIGHT_CLICK:
       return meta_frame_right_click_event (frame, (ClutterButtonEvent *) event);
+
     default:
       return FALSE;
     }
@@ -1202,6 +1260,7 @@ handle_release_event (MetaUIFrame        *frame,
         case META_FRAME_CONTROL_MINIMIZE:
           meta_window_minimize (frame->meta_window);
           break;
+
         case META_FRAME_CONTROL_MAXIMIZE:
           /* Focus the window on the maximize */
           meta_window_focus (frame->meta_window, evtime);
@@ -1209,14 +1268,17 @@ handle_release_event (MetaUIFrame        *frame,
             meta_window_raise (frame->meta_window);
           meta_window_maximize (frame->meta_window, META_MAXIMIZE_BOTH);
           break;
+
         case META_FRAME_CONTROL_UNMAXIMIZE:
           if (meta_prefs_get_raise_on_click ())
             meta_window_raise (frame->meta_window);
           meta_window_unmaximize (frame->meta_window, META_MAXIMIZE_BOTH);
           break;
+
         case META_FRAME_CONTROL_DELETE:
           meta_window_delete (frame->meta_window, evtime);
           break;
+
         default:
           break;
         }
@@ -1249,50 +1311,67 @@ meta_ui_frame_update_prelit_control (MetaUIFrame     *frame,
     {
     case META_FRAME_CONTROL_CLIENT_AREA:
       break;
+
     case META_FRAME_CONTROL_NONE:
       break;
+
     case META_FRAME_CONTROL_TITLE:
       break;
+
     case META_FRAME_CONTROL_DELETE:
       break;
+
     case META_FRAME_CONTROL_MENU:
       break;
+
     case META_FRAME_CONTROL_APPMENU:
       break;
+
     case META_FRAME_CONTROL_MINIMIZE:
       break;
+
     case META_FRAME_CONTROL_MAXIMIZE:
       break;
+
     case META_FRAME_CONTROL_UNMAXIMIZE:
       break;
+
     case META_FRAME_CONTROL_RESIZE_SE:
       cursor = META_CURSOR_SE_RESIZE;
       break;
+
     case META_FRAME_CONTROL_RESIZE_S:
       cursor = META_CURSOR_SOUTH_RESIZE;
       break;
+
     case META_FRAME_CONTROL_RESIZE_SW:
       cursor = META_CURSOR_SW_RESIZE;
       break;
+
     case META_FRAME_CONTROL_RESIZE_N:
       cursor = META_CURSOR_NORTH_RESIZE;
       break;
+
     case META_FRAME_CONTROL_RESIZE_NE:
       cursor = META_CURSOR_NE_RESIZE;
       break;
+
     case META_FRAME_CONTROL_RESIZE_NW:
       cursor = META_CURSOR_NW_RESIZE;
       break;
+
     case META_FRAME_CONTROL_RESIZE_W:
       cursor = META_CURSOR_WEST_RESIZE;
       break;
+
     case META_FRAME_CONTROL_RESIZE_E:
       cursor = META_CURSOR_EAST_RESIZE;
       break;
     }
 
   /* set/unset the prelight cursor */
-  meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
+  meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (
+                                 gdk_display_get_default ()),
                                frame->xwindow,
                                cursor);
 
@@ -1306,6 +1385,7 @@ meta_ui_frame_update_prelit_control (MetaUIFrame     *frame,
     case META_FRAME_CONTROL_UNMAXIMIZE:
       /* leave control set */
       break;
+
     default:
       /* Only prelight buttons */
       control = META_FRAME_CONTROL_NONE;
@@ -1443,17 +1523,20 @@ meta_ui_frame_get_mask (MetaUIFrame *frame,
   meta_style_info_set_flags (frame->style_info, flags);
   meta_ui_frame_get_borders (frame, &borders);
 
-  /* See comment in meta_frame_layout_draw_with_style() for details on HiDPI handling */
+  /* See comment in meta_frame_layout_draw_with_style() for details on HiDPI
+   * handling */
   scale = meta_theme_get_window_scaling_factor ();
   surface = cairo_get_target (cr);
   cairo_surface_get_device_scale (surface, &xscale, &yscale);
   cairo_surface_set_device_scale (surface, scale, scale);
 
-  gtk_render_background (frame->style_info->styles[META_STYLE_ELEMENT_FRAME], cr,
+  gtk_render_background (frame->style_info->styles[META_STYLE_ELEMENT_FRAME],
+                         cr,
                          borders.invisible.left / scale,
                          borders.invisible.top / scale,
                          frame_rect.width / scale, frame_rect.height / scale);
-  gtk_render_background (frame->style_info->styles[META_STYLE_ELEMENT_TITLEBAR], cr,
+  gtk_render_background (frame->style_info->styles[META_STYLE_ELEMENT_TITLEBAR],
+                         cr,
                          borders.invisible.left / scale,
                          borders.invisible.top / scale,
                          frame_rect.width / scale, borders.total.top / scale);
@@ -1510,8 +1593,8 @@ meta_frames_draw (GtkWidget *widget,
 }
 
 static void
-meta_ui_frame_paint (MetaUIFrame  *frame,
-                     cairo_t      *cr)
+meta_ui_frame_paint (MetaUIFrame *frame,
+                     cairo_t     *cr)
 {
   MetaFrameFlags flags;
   MetaFrameType type;
@@ -1532,21 +1615,27 @@ meta_ui_frame_paint (MetaUIFrame  *frame,
     case META_FRAME_CONTROL_MENU:
       button_type = META_BUTTON_TYPE_MENU;
       break;
+
     case META_FRAME_CONTROL_APPMENU:
       button_type = META_BUTTON_TYPE_APPMENU;
       break;
+
     case META_FRAME_CONTROL_MINIMIZE:
       button_type = META_BUTTON_TYPE_MINIMIZE;
       break;
+
     case META_FRAME_CONTROL_MAXIMIZE:
       button_type = META_BUTTON_TYPE_MAXIMIZE;
       break;
+
     case META_FRAME_CONTROL_UNMAXIMIZE:
       button_type = META_BUTTON_TYPE_MAXIMIZE;
       break;
+
     case META_FRAME_CONTROL_DELETE:
       button_type = META_BUTTON_TYPE_CLOSE;
       break;
+
     default:
       break;
     }
@@ -1577,7 +1666,7 @@ meta_ui_frame_paint (MetaUIFrame  *frame,
 }
 
 static gboolean
-handle_enter_notify_event (MetaUIFrame *frame,
+handle_enter_notify_event (MetaUIFrame          *frame,
                            ClutterCrossingEvent *event)
 {
   MetaFrameControl control;
@@ -1591,7 +1680,7 @@ handle_enter_notify_event (MetaUIFrame *frame,
 }
 
 static gboolean
-handle_leave_notify_event (MetaUIFrame *frame,
+handle_leave_notify_event (MetaUIFrame          *frame,
                            ClutterCrossingEvent *event)
 {
   Display *display;
@@ -1615,7 +1704,7 @@ handle_leave_notify_event (MetaUIFrame *frame,
 }
 
 gboolean
-meta_ui_frame_handle_event (MetaUIFrame *frame,
+meta_ui_frame_handle_event (MetaUIFrame        *frame,
                             const ClutterEvent *event)
 {
   if (event->type == CLUTTER_TOUCH_BEGIN ||
@@ -1657,23 +1746,28 @@ meta_ui_frame_handle_event (MetaUIFrame *frame,
     case CLUTTER_BUTTON_PRESS:
     case CLUTTER_TOUCH_BEGIN:
       return handle_press_event (frame, event);
+
     case CLUTTER_BUTTON_RELEASE:
     case CLUTTER_TOUCH_END:
       return handle_release_event (frame, event);
+
     case CLUTTER_MOTION:
     case CLUTTER_TOUCH_UPDATE:
       return handle_motion_event (frame, event);
+
     case CLUTTER_ENTER:
       return handle_enter_notify_event (frame, (ClutterCrossingEvent *) event);
+
     case CLUTTER_LEAVE:
       return handle_leave_notify_event (frame, (ClutterCrossingEvent *) event);
+
     default:
       return FALSE;
     }
 }
 
-static GdkRectangle*
-control_rect (MetaFrameControl control,
+static GdkRectangle *
+control_rect (MetaFrameControl   control,
               MetaFrameGeometry *fgeom)
 {
   GdkRectangle *rect;
@@ -1684,40 +1778,55 @@ control_rect (MetaFrameControl control,
     case META_FRAME_CONTROL_TITLE:
       rect = &fgeom->title_rect;
       break;
+
     case META_FRAME_CONTROL_DELETE:
       rect = &fgeom->close_rect.visible;
       break;
+
     case META_FRAME_CONTROL_MENU:
       rect = &fgeom->menu_rect.visible;
       break;
+
     case META_FRAME_CONTROL_APPMENU:
       rect = &fgeom->appmenu_rect.visible;
       break;
+
     case META_FRAME_CONTROL_MINIMIZE:
       rect = &fgeom->min_rect.visible;
       break;
+
     case META_FRAME_CONTROL_MAXIMIZE:
     case META_FRAME_CONTROL_UNMAXIMIZE:
       rect = &fgeom->max_rect.visible;
       break;
+
     case META_FRAME_CONTROL_RESIZE_SE:
       break;
+
     case META_FRAME_CONTROL_RESIZE_S:
       break;
+
     case META_FRAME_CONTROL_RESIZE_SW:
       break;
+
     case META_FRAME_CONTROL_RESIZE_N:
       break;
+
     case META_FRAME_CONTROL_RESIZE_NE:
       break;
+
     case META_FRAME_CONTROL_RESIZE_NW:
       break;
+
     case META_FRAME_CONTROL_RESIZE_W:
       break;
+
     case META_FRAME_CONTROL_RESIZE_E:
       break;
+
     case META_FRAME_CONTROL_NONE:
       break;
+
     case META_FRAME_CONTROL_CLIENT_AREA:
       break;
     }
@@ -1728,7 +1837,9 @@ control_rect (MetaFrameControl control,
 #define TOP_RESIZE_HEIGHT 4
 #define CORNER_SIZE_MULT 2
 static MetaFrameControl
-get_control (MetaUIFrame *frame, int root_x, int root_y)
+get_control (MetaUIFrame *frame,
+             int          root_x,
+             int          root_y)
 {
   MetaFrameGeometry fgeom;
   MetaFrameFlags flags;
@@ -1801,7 +1912,8 @@ get_control (MetaUIFrame *frame, int root_x, int root_y)
       else if (has_horiz)
         return META_FRAME_CONTROL_RESIZE_E;
     }
-  else if (y >= (fgeom.height - fgeom.borders.total.bottom * CORNER_SIZE_MULT) &&
+  else if (y >=
+           (fgeom.height - fgeom.borders.total.bottom * CORNER_SIZE_MULT) &&
            x <= fgeom.borders.total.left * CORNER_SIZE_MULT)
     {
       if (has_vert && has_horiz)
@@ -1812,7 +1924,8 @@ get_control (MetaUIFrame *frame, int root_x, int root_y)
         return META_FRAME_CONTROL_RESIZE_W;
     }
   else if (y < (fgeom.borders.invisible.top * CORNER_SIZE_MULT) &&
-           x <= (fgeom.borders.total.left * CORNER_SIZE_MULT) && has_north_resize)
+           x <= (fgeom.borders.total.left * CORNER_SIZE_MULT) &&
+           has_north_resize)
     {
       if (has_vert && has_horiz)
         return META_FRAME_CONTROL_RESIZE_NW;
@@ -1822,7 +1935,8 @@ get_control (MetaUIFrame *frame, int root_x, int root_y)
         return META_FRAME_CONTROL_RESIZE_W;
     }
   else if (y < (fgeom.borders.invisible.top * CORNER_SIZE_MULT) &&
-           x >= (fgeom.width - fgeom.borders.total.right * CORNER_SIZE_MULT) && has_north_resize)
+           x >= (fgeom.width - fgeom.borders.total.right * CORNER_SIZE_MULT) &&
+           has_north_resize)
     {
       if (has_vert && has_horiz)
         return META_FRAME_CONTROL_RESIZE_NE;

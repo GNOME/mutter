@@ -62,7 +62,8 @@ struct _MetaEgl
 
   PFNEGLSTREAMCONSUMEROUTPUTEXTPROC eglStreamConsumerOutputEXT;
 
-  PFNEGLSTREAMCONSUMERGLTEXTUREEXTERNALKHRPROC eglStreamConsumerGLTextureExternalKHR;
+  PFNEGLSTREAMCONSUMERGLTEXTUREEXTERNALKHRPROC
+    eglStreamConsumerGLTextureExternalKHR;
 
   PFNEGLSTREAMCONSUMERACQUIREKHRPROC eglStreamConsumerAcquireKHR;
   PFNEGLSTREAMCONSUMERACQUIREATTRIBNVPROC eglStreamConsumerAcquireAttribNV;
@@ -73,7 +74,7 @@ struct _MetaEgl
 
 G_DEFINE_TYPE (MetaEgl, meta_egl, G_TYPE_OBJECT)
 
-G_DEFINE_QUARK (-meta-egl-error-quark, meta_egl_error)
+G_DEFINE_QUARK (-meta - egl - error - quark, meta_egl_error)
 
 static const char *
 get_egl_error_str (EGLint error_number)
@@ -83,61 +84,95 @@ get_egl_error_str (EGLint error_number)
     case EGL_SUCCESS:
       return "The last function succeeded without error.";
       break;
+
     case EGL_NOT_INITIALIZED:
-      return "EGL is not initialized, or could not be initialized, for the specified EGL display connection.";
+      return
+        "EGL is not initialized, or could not be initialized, for the specified EGL display connection.";
       break;
+
     case EGL_BAD_ACCESS:
-      return "EGL cannot access a requested resource (for example a context is bound in another thread).";
+      return
+        "EGL cannot access a requested resource (for example a context is bound in another thread).";
       break;
+
     case EGL_BAD_ALLOC:
       return "EGL failed to allocate resources for the requested operation.";
       break;
+
     case EGL_BAD_ATTRIBUTE:
-      return "An unrecognized attribute or attribute value was passed in the attribute list.";
+      return
+        "An unrecognized attribute or attribute value was passed in the attribute list.";
       break;
+
     case EGL_BAD_CONTEXT:
-      return "An EGLContext argument does not name a valid EGL rendering context.";
+      return
+        "An EGLContext argument does not name a valid EGL rendering context.";
       break;
+
     case EGL_BAD_CONFIG:
-      return "An EGLConfig argument does not name a valid EGL frame buffer configuration.";
+      return
+        "An EGLConfig argument does not name a valid EGL frame buffer configuration.";
       break;
+
     case EGL_BAD_CURRENT_SURFACE:
-      return "The current surface of the calling thread is a window, pixel buffer or pixmap that is no longer valid.";
+      return
+        "The current surface of the calling thread is a window, pixel buffer or pixmap that is no longer valid.";
       break;
+
     case EGL_BAD_DISPLAY:
-      return "An EGLDisplay argument does not name a valid EGL display connection.";
+      return
+        "An EGLDisplay argument does not name a valid EGL display connection.";
       break;
+
     case EGL_BAD_SURFACE:
-      return "An EGLSurface argument does not name a valid surface (window, pixel buffer or pixmap) configured for GL rendering.";
+      return
+        "An EGLSurface argument does not name a valid surface (window, pixel buffer or pixmap) configured for GL rendering.";
       break;
+
     case EGL_BAD_MATCH:
-      return "Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).";
+      return
+        "Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).";
       break;
+
     case EGL_BAD_PARAMETER:
       return "One or more argument values are invalid.";
       break;
+
     case EGL_BAD_NATIVE_PIXMAP:
-      return "A NativePixmapType argument does not refer to a valid native pixmap.";
+      return
+        "A NativePixmapType argument does not refer to a valid native pixmap.";
       break;
+
     case EGL_BAD_NATIVE_WINDOW:
-      return "A NativeWindowType argument does not refer to a valid native window.";
+      return
+        "A NativeWindowType argument does not refer to a valid native window.";
       break;
+
     case EGL_CONTEXT_LOST:
-      return "A power management event has occurred. The application must destroy all contexts and reinitialise OpenGL ES state and objects to continue rendering. ";
+      return
+        "A power management event has occurred. The application must destroy all contexts and reinitialise OpenGL ES state and objects to continue rendering. ";
       break;
+
     case EGL_BAD_STREAM_KHR:
       return "An EGLStreamKHR argument does not name a valid EGL stream.";
       break;
+
     case EGL_BAD_STATE_KHR:
       return "An EGLStreamKHR argument is not in a valid state";
       break;
+
     case EGL_BAD_DEVICE_EXT:
       return "An EGLDeviceEXT argument does not name a valid EGL device.";
       break;
+
     case EGL_BAD_OUTPUT_LAYER_EXT:
-      return "An EGLOutputLayerEXT argument does not name a valid EGL output layer.";
+      return
+        "An EGLOutputLayerEXT argument does not name a valid EGL output layer.";
+
     case EGL_RESOURCE_BUSY_EXT:
-      return "The operation could not be completed on the requested resource because it is temporary unavailable.";
+      return
+        "The operation could not be completed on the requested resource because it is temporary unavailable.";
+
     default:
       return "Unknown error";
       break;
@@ -266,12 +301,12 @@ meta_egl_get_proc_address (MetaEgl    *egl,
 }
 
 gboolean
-meta_egl_get_config_attrib (MetaEgl     *egl,
-                            EGLDisplay   display,
-                            EGLConfig    config,
-                            EGLint       attribute,
-                            EGLint      *value,
-                            GError     **error)
+meta_egl_get_config_attrib (MetaEgl   *egl,
+                            EGLDisplay display,
+                            EGLConfig  config,
+                            EGLint     attribute,
+                            EGLint    *value,
+                            GError   **error)
 {
   if (!eglGetConfigAttrib (display,
                            config,
@@ -286,11 +321,11 @@ meta_egl_get_config_attrib (MetaEgl     *egl,
 }
 
 EGLConfig *
-meta_egl_choose_all_configs (MetaEgl       *egl,
-                             EGLDisplay     display,
-                             const EGLint  *attrib_list,
-                             EGLint        *out_num_configs,
-                             GError       **error)
+meta_egl_choose_all_configs (MetaEgl      *egl,
+                             EGLDisplay    display,
+                             const EGLint *attrib_list,
+                             EGLint       *out_num_configs,
+                             GError      **error)
 {
   EGLint num_configs;
   EGLConfig *configs;
@@ -312,7 +347,8 @@ meta_egl_choose_all_configs (MetaEgl       *egl,
 
   configs = g_new0 (EGLConfig, num_configs);
 
-  if (!eglChooseConfig (display, attrib_list, configs, num_configs, &num_matches))
+  if (!eglChooseConfig (display, attrib_list, configs, num_configs,
+                        &num_matches))
     {
       g_free (configs);
       set_egl_error (error);
@@ -332,11 +368,11 @@ meta_egl_choose_all_configs (MetaEgl       *egl,
 }
 
 gboolean
-meta_egl_choose_first_config (MetaEgl       *egl,
-                              EGLDisplay     display,
-                              const EGLint  *attrib_list,
-                              EGLConfig     *chosen_config,
-                              GError       **error)
+meta_egl_choose_first_config (MetaEgl      *egl,
+                              EGLDisplay    display,
+                              const EGLint *attrib_list,
+                              EGLConfig    *chosen_config,
+                              GError      **error)
 {
   EGLint num_configs;
   EGLConfig *configs;
@@ -358,7 +394,8 @@ meta_egl_choose_first_config (MetaEgl       *egl,
 
   configs = g_new0 (EGLConfig, num_configs);
 
-  if (!eglChooseConfig (display, attrib_list, configs, num_configs, &num_matches))
+  if (!eglChooseConfig (display, attrib_list, configs, num_configs,
+                        &num_matches))
     {
       g_free (configs);
       set_egl_error (error);
@@ -615,7 +652,7 @@ meta_egl_query_wayland_buffer (MetaEgl            *egl,
                                GError            **error)
 {
   if (!is_egl_proc_valid (egl->eglQueryWaylandBufferWL, error))
-   return FALSE;
+    return FALSE;
 
   if (!egl->eglQueryWaylandBufferWL (display, buffer, attribute, value))
     {
@@ -827,10 +864,10 @@ meta_egl_create_stream_attrib (MetaEgl         *egl,
 }
 
 EGLSurface
-meta_egl_create_stream_producer_surface (MetaEgl     *egl,
-                                         EGLDisplay   display,
-                                         EGLConfig    config,
-                                         EGLStreamKHR stream,
+meta_egl_create_stream_producer_surface (MetaEgl      *egl,
+                                         EGLDisplay    display,
+                                         EGLConfig     config,
+                                         EGLStreamKHR  stream,
                                          const EGLint *attrib_list,
                                          GError      **error)
 {
@@ -944,7 +981,7 @@ meta_egl_query_dma_buf_formats (MetaEgl   *egl,
       return FALSE;
     }
 
-    return TRUE;
+  return TRUE;
 }
 
 gboolean
@@ -968,7 +1005,7 @@ meta_egl_query_dma_buf_modifiers (MetaEgl      *egl,
       return FALSE;
     }
 
-    return TRUE;
+  return TRUE;
 }
 
 #define GET_EGL_PROC_ADDR(proc) \

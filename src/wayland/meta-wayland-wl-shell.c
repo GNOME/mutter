@@ -147,7 +147,7 @@ wl_shell_surface_destructor (struct wl_resource *resource)
 static void
 wl_shell_surface_pong (struct wl_client   *client,
                        struct wl_resource *resource,
-                       uint32_t serial)
+                       uint32_t            serial)
 {
   MetaDisplay *display = meta_get_display ();
 
@@ -158,7 +158,7 @@ static void
 wl_shell_surface_move (struct wl_client   *client,
                        struct wl_resource *resource,
                        struct wl_resource *seat_resource,
-                       uint32_t serial)
+                       uint32_t            serial)
 {
   MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
   MetaWaylandSurface *surface =
@@ -246,7 +246,7 @@ wl_shell_surface_set_state (MetaWaylandSurface     *surface,
 }
 
 static void
-wl_shell_surface_set_toplevel (struct wl_client *client,
+wl_shell_surface_set_toplevel (struct wl_client   *client,
                                struct wl_resource *resource)
 {
   MetaWaylandSurface *surface =
@@ -318,7 +318,8 @@ wl_shell_surface_set_fullscreen (struct wl_client   *client,
 }
 
 static void
-meta_wayland_wl_shell_surface_create_popup (MetaWaylandWlShellSurface *wl_shell_surface)
+meta_wayland_wl_shell_surface_create_popup (
+  MetaWaylandWlShellSurface *wl_shell_surface)
 {
   MetaWaylandPopupSurface *popup_surface =
     META_WAYLAND_POPUP_SURFACE (wl_shell_surface);
@@ -412,9 +413,9 @@ wl_shell_surface_set_title (struct wl_client   *client,
 }
 
 static void
-wl_shell_surface_set_class (struct wl_client *client,
+wl_shell_surface_set_class (struct wl_client   *client,
                             struct wl_resource *resource,
-                            const char *class_)
+                            const char         *class_)
 {
   MetaWaylandWlShellSurface *wl_shell_surface =
     META_WAYLAND_WL_SHELL_SURFACE (wl_resource_get_user_data (resource));
@@ -432,7 +433,9 @@ wl_shell_surface_set_class (struct wl_client *client,
     meta_window_set_wm_class (surface->window, class_, class_);
 }
 
-static const struct wl_shell_surface_interface meta_wayland_wl_shell_surface_interface = {
+static const struct wl_shell_surface_interface
+  meta_wayland_wl_shell_surface_interface =
+{
   wl_shell_surface_pong,
   wl_shell_surface_move,
   wl_shell_surface_resize,
@@ -545,7 +548,8 @@ wl_shell_get_shell_surface (struct wl_client   *client,
   create_wl_shell_surface_window (surface);
 }
 
-static const struct wl_shell_interface meta_wayland_wl_shell_interface = {
+static const struct wl_shell_interface meta_wayland_wl_shell_interface =
+{
   wl_shell_get_shell_surface,
 };
 
@@ -558,7 +562,8 @@ bind_wl_shell (struct wl_client *client,
   struct wl_resource *resource;
 
   resource = wl_resource_create (client, &wl_shell_interface, version, id);
-  wl_resource_set_implementation (resource, &meta_wayland_wl_shell_interface, data, NULL);
+  wl_resource_set_implementation (resource, &meta_wayland_wl_shell_interface,
+                                  data, NULL);
 }
 
 static void
@@ -676,7 +681,8 @@ meta_wayland_wl_shell_surface_popup_done (MetaWaylandPopupSurface *popup_surface
 }
 
 static void
-meta_wayland_wl_shell_surface_popup_dismiss (MetaWaylandPopupSurface *popup_surface)
+meta_wayland_wl_shell_surface_popup_dismiss (
+  MetaWaylandPopupSurface *popup_surface)
 {
   MetaWaylandWlShellSurface *wl_shell_surface =
     META_WAYLAND_WL_SHELL_SURFACE (popup_surface);
@@ -691,7 +697,8 @@ meta_wayland_wl_shell_surface_popup_dismiss (MetaWaylandPopupSurface *popup_surf
 }
 
 static MetaWaylandSurface *
-meta_wayland_wl_shell_surface_popup_get_surface (MetaWaylandPopupSurface *popup_surface)
+meta_wayland_wl_shell_surface_popup_get_surface (
+  MetaWaylandPopupSurface *popup_surface)
 {
   MetaWaylandSurfaceRole *surface_role =
     META_WAYLAND_SURFACE_ROLE (popup_surface);

@@ -61,7 +61,8 @@ struct _GestureActionData
 
 struct _MetaGestureTrackerPrivate
 {
-  GHashTable *sequences; /* Hashtable of ClutterEventSequence->MetaSequenceInfo */
+  GHashTable *sequences; /* Hashtable of ClutterEventSequence->MetaSequenceInfo
+                          * */
 
   MetaSequenceState stage_state;
   GArray *stage_gestures; /* Array of GestureActionData */
@@ -69,7 +70,8 @@ struct _MetaGestureTrackerPrivate
   guint autodeny_timeout;
 };
 
-enum {
+enum
+{
   PROP_0,
   PROP_AUTODENY_TIMEOUT,
   PROP_LAST,
@@ -77,7 +79,8 @@ enum {
 
 static GParamSpec *obj_props[PROP_LAST];
 
-enum {
+enum
+{
   STATE_CHANGED,
   N_SIGNALS
 };
@@ -88,14 +91,16 @@ static guint signals[N_SIGNALS] = { 0 };
 
 static void meta_gesture_tracker_untrack_stage (MetaGestureTracker *tracker);
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaGestureTracker, meta_gesture_tracker, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE (MetaGestureTracker, meta_gesture_tracker,
+                            G_TYPE_OBJECT)
 
 static void
 meta_gesture_tracker_finalize (GObject *object)
 {
   MetaGestureTrackerPrivate *priv;
 
-  priv = meta_gesture_tracker_get_instance_private (META_GESTURE_TRACKER (object));
+  priv = meta_gesture_tracker_get_instance_private (META_GESTURE_TRACKER (
+                                                      object));
 
   g_hash_table_destroy (priv->sequences);
   g_array_free (priv->stage_gestures, TRUE);
@@ -112,13 +117,15 @@ meta_gesture_tracker_set_property (GObject      *object,
 {
   MetaGestureTrackerPrivate *priv;
 
-  priv = meta_gesture_tracker_get_instance_private (META_GESTURE_TRACKER (object));
+  priv = meta_gesture_tracker_get_instance_private (META_GESTURE_TRACKER (
+                                                      object));
 
   switch (prop_id)
     {
     case PROP_AUTODENY_TIMEOUT:
       priv->autodeny_timeout = g_value_get_uint (value);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -133,13 +140,15 @@ meta_gesture_tracker_get_property (GObject    *object,
 {
   MetaGestureTrackerPrivate *priv;
 
-  priv = meta_gesture_tracker_get_instance_private (META_GESTURE_TRACKER (object));
+  priv = meta_gesture_tracker_get_instance_private (META_GESTURE_TRACKER (
+                                                      object));
 
   switch (prop_id)
     {
     case PROP_AUTODENY_TIMEOUT:
       g_value_set_uint (value, priv->autodeny_timeout);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -158,7 +167,8 @@ meta_gesture_tracker_class_init (MetaGestureTrackerClass *klass)
   obj_props[PROP_AUTODENY_TIMEOUT] = g_param_spec_uint ("autodeny-timeout",
                                                         "Auto-deny timeout",
                                                         "Auto-deny timeout",
-                                                        0, G_MAXUINT, DEFAULT_AUTODENY_TIMEOUT,
+                                                        0, G_MAXUINT,
+                                                        DEFAULT_AUTODENY_TIMEOUT,
                                                         G_PARAM_STATIC_STRINGS |
                                                         G_PARAM_READWRITE |
                                                         G_PARAM_CONSTRUCT_ONLY);
@@ -267,7 +277,7 @@ meta_gesture_tracker_set_state (MetaGestureTracker *tracker,
   g_hash_table_iter_init (&iter, priv->sequences);
   priv->stage_state = state;
 
-  while (g_hash_table_iter_next (&iter, (gpointer*) &sequence, NULL))
+  while (g_hash_table_iter_next (&iter, (gpointer *) &sequence, NULL))
     meta_gesture_tracker_set_sequence_state (tracker, sequence, state);
 
   return TRUE;
@@ -349,7 +359,8 @@ meta_gesture_tracker_init (MetaGestureTracker *tracker)
   priv->sequences = g_hash_table_new_full (NULL, NULL, NULL,
                                            (GDestroyNotify) meta_sequence_info_free);
   priv->stage_gestures = g_array_new (FALSE, FALSE, sizeof (GestureActionData));
-  g_array_set_clear_func (priv->stage_gestures, (GDestroyNotify) clear_gesture_data);
+  g_array_set_clear_func (priv->stage_gestures,
+                          (GDestroyNotify) clear_gesture_data);
 }
 
 MetaGestureTracker *
@@ -411,7 +422,7 @@ meta_gesture_tracker_untrack_stage (MetaGestureTracker *tracker)
 
 gboolean
 meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
-				   const ClutterEvent *event)
+                                   const ClutterEvent *event)
 {
   MetaGestureTrackerPrivate *priv;
   ClutterEventSequence *sequence;
@@ -451,6 +462,7 @@ meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
         }
       state = info->state;
       break;
+
     case CLUTTER_TOUCH_END:
       info = g_hash_table_lookup (priv->sequences, sequence);
 
@@ -470,6 +482,7 @@ meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
       if (g_hash_table_size (priv->sequences) == 0)
         meta_gesture_tracker_untrack_stage (tracker);
       break;
+
     case CLUTTER_TOUCH_UPDATE:
       info = g_hash_table_lookup (priv->sequences, sequence);
 
@@ -485,6 +498,7 @@ meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
                                                  META_SEQUENCE_REJECTED);
       state = info->state;
       break;
+
     default:
       return FALSE;
       break;
@@ -544,7 +558,8 @@ meta_gesture_tracker_set_sequence_state (MetaGestureTracker   *tracker,
   info->state = state;
   g_signal_emit (tracker, signals[STATE_CHANGED], 0, sequence, info->state);
 
-  /* If the sequence was denied, set immediately to PENDING_END after emission */
+  /* If the sequence was denied, set immediately to PENDING_END after emission
+   * */
   if (state == META_SEQUENCE_REJECTED)
     {
       info->state = META_SEQUENCE_PENDING_END;
@@ -561,7 +576,8 @@ meta_gesture_tracker_get_sequence_state (MetaGestureTracker   *tracker,
   MetaGestureTrackerPrivate *priv;
   MetaSequenceInfo *info;
 
-  g_return_val_if_fail (META_IS_GESTURE_TRACKER (tracker), META_SEQUENCE_PENDING_END);
+  g_return_val_if_fail (META_IS_GESTURE_TRACKER (
+                          tracker), META_SEQUENCE_PENDING_END);
 
   priv = meta_gesture_tracker_get_instance_private (tracker);
   info = g_hash_table_lookup (priv->sequences, sequence);

@@ -65,7 +65,8 @@ handle_reset_idletime (MetaDBusIdleMonitor   *skeleton,
   return TRUE;
 }
 
-typedef struct {
+typedef struct
+{
   MetaDBusIdleMonitor *dbus_monitor;
   MetaIdleMonitor *monitor;
   char *dbus_name;
@@ -92,11 +93,14 @@ dbus_idle_callback (MetaIdleMonitor *monitor,
                     gpointer         user_data)
 {
   DBusWatch *watch = user_data;
-  GDBusInterfaceSkeleton *skeleton = G_DBUS_INTERFACE_SKELETON (watch->dbus_monitor);
+  GDBusInterfaceSkeleton *skeleton = G_DBUS_INTERFACE_SKELETON (
+    watch->dbus_monitor);
 
-  g_dbus_connection_emit_signal (g_dbus_interface_skeleton_get_connection (skeleton),
+  g_dbus_connection_emit_signal (g_dbus_interface_skeleton_get_connection (
+                                   skeleton),
                                  watch->dbus_name,
-                                 g_dbus_interface_skeleton_get_object_path (skeleton),
+                                 g_dbus_interface_skeleton_get_object_path (
+                                   skeleton),
                                  "org.gnome.Mutter.IdleMonitor",
                                  "WatchFired",
                                  g_variant_new ("(u)", watch_id),
@@ -123,8 +127,10 @@ make_dbus_watch (MetaDBusIdleMonitor   *skeleton,
   watch = g_slice_new (DBusWatch);
   watch->dbus_monitor = g_object_ref (skeleton);
   watch->monitor = g_object_ref (monitor);
-  watch->dbus_name = g_strdup (g_dbus_method_invocation_get_sender (invocation));
-  watch->name_watcher_id = g_bus_watch_name_on_connection (g_dbus_method_invocation_get_connection (invocation),
+  watch->dbus_name =
+    g_strdup (g_dbus_method_invocation_get_sender (invocation));
+  watch->name_watcher_id = g_bus_watch_name_on_connection (g_dbus_method_invocation_get_connection (
+                                                             invocation),
                                                            watch->dbus_name,
                                                            G_BUS_NAME_WATCHER_FLAGS_NONE,
                                                            NULL, /* appeared */
@@ -144,9 +150,11 @@ handle_add_idle_watch (MetaDBusIdleMonitor   *skeleton,
 
   watch = make_dbus_watch (skeleton, invocation, monitor);
   watch->watch_id = meta_idle_monitor_add_idle_watch (monitor, interval,
-                                                      dbus_idle_callback, watch, destroy_dbus_watch);
+                                                      dbus_idle_callback, watch,
+                                                      destroy_dbus_watch);
 
-  meta_dbus_idle_monitor_complete_add_idle_watch (skeleton, invocation, watch->watch_id);
+  meta_dbus_idle_monitor_complete_add_idle_watch (skeleton, invocation,
+                                                  watch->watch_id);
 
   return TRUE;
 }
@@ -160,10 +168,12 @@ handle_add_user_active_watch (MetaDBusIdleMonitor   *skeleton,
 
   watch = make_dbus_watch (skeleton, invocation, monitor);
   watch->watch_id = meta_idle_monitor_add_user_active_watch (monitor,
-                                                             dbus_idle_callback, watch,
+                                                             dbus_idle_callback,
+                                                             watch,
                                                              destroy_dbus_watch);
 
-  meta_dbus_idle_monitor_complete_add_user_active_watch (skeleton, invocation, watch->watch_id);
+  meta_dbus_idle_monitor_complete_add_user_active_watch (skeleton, invocation,
+                                                         watch->watch_id);
 
   return TRUE;
 }
@@ -192,7 +202,8 @@ create_monitor_skeleton (GDBusObjectManagerServer *manager,
   g_signal_connect_object (skeleton, "handle-add-idle-watch",
                            G_CALLBACK (handle_add_idle_watch), monitor, 0);
   g_signal_connect_object (skeleton, "handle-add-user-active-watch",
-                           G_CALLBACK (handle_add_user_active_watch), monitor, 0);
+                           G_CALLBACK (handle_add_user_active_watch), monitor,
+                           0);
   g_signal_connect_object (skeleton, "handle-remove-watch",
                            G_CALLBACK (handle_remove_watch), monitor, 0);
   g_signal_connect_object (skeleton, "handle-reset-idletime",
@@ -203,7 +214,8 @@ create_monitor_skeleton (GDBusObjectManagerServer *manager,
   object = meta_dbus_object_skeleton_new (path);
   meta_dbus_object_skeleton_set_idle_monitor (object, skeleton);
 
-  g_dbus_object_manager_server_export (manager, G_DBUS_OBJECT_SKELETON (object));
+  g_dbus_object_manager_server_export (manager,
+                                       G_DBUS_OBJECT_SKELETON (object));
 
   g_object_unref (skeleton);
   g_object_unref (object);
@@ -214,7 +226,6 @@ on_device_added (ClutterDeviceManager     *device_manager,
                  ClutterInputDevice       *device,
                  GDBusObjectManagerServer *manager)
 {
-
   MetaIdleMonitor *monitor;
   int device_id;
   char *path;
@@ -254,8 +265,9 @@ on_bus_acquired (GDBusConnection *connection,
 
   manager = g_dbus_object_manager_server_new ("/org/gnome/Mutter/IdleMonitor");
 
-  /* We never clear the core monitor, as that's supposed to cumulate idle times from
-     all devices */
+  /* We never clear the core monitor, as that's supposed to cumulate idle times
+   * from
+   *  all devices */
   monitor = meta_idle_monitor_get_core ();
   path = g_strdup ("/org/gnome/Mutter/IdleMonitor/Core");
   create_monitor_skeleton (manager, monitor, path);

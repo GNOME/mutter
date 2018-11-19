@@ -116,7 +116,9 @@ typedef struct _MetaCursorNativePrivate
 
 static GQuark quark_cursor_renderer_native_gpu_data = 0;
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorRendererNative, meta_cursor_renderer_native, META_TYPE_CURSOR_RENDERER);
+G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorRendererNative,
+                            meta_cursor_renderer_native,
+                            META_TYPE_CURSOR_RENDERER);
 
 static void
 realize_cursor_sprite (MetaCursorRenderer *renderer,
@@ -172,7 +174,8 @@ meta_cursor_renderer_native_finalize (GObject *object)
 }
 
 static guint
-get_pending_cursor_sprite_gbm_bo_index (MetaCursorNativeGpuState *cursor_gpu_state)
+get_pending_cursor_sprite_gbm_bo_index (
+  MetaCursorNativeGpuState *cursor_gpu_state)
 {
   return (cursor_gpu_state->active_bo + 1) % HW_CURSOR_BUFFER_COUNT;
 }
@@ -333,11 +336,13 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
     }
 
   scaled_crtc_rect = (ClutterRect) {
-    .origin = {
+    .origin =
+    {
       .x = crtc_x / scale,
       .y = crtc_y / scale
     },
-    .size = {
+    .size =
+    {
       .width = crtc_width / scale,
       .height = crtc_height / scale
     },
@@ -395,7 +400,9 @@ update_hw_cursor (MetaCursorRendererNative *native,
   if (cursor_sprite)
     rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
   else
-    rect = (ClutterRect) { 0 };
+    rect = (ClutterRect) {
+      0
+    };
 
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
@@ -410,7 +417,8 @@ update_hw_cursor (MetaCursorRendererNative *native,
         .in_cursor_renderer_native = native,
         .in_logical_monitor = logical_monitor,
         .in_local_cursor_rect = (ClutterRect) {
-          .origin = {
+          .origin =
+          {
             .x = rect.origin.x - logical_monitor->rect.x,
             .y = rect.origin.y - logical_monitor->rect.y
           },
@@ -460,8 +468,10 @@ has_valid_cursor_sprite_gbm_bo (MetaCursorSprite *cursor_sprite,
     {
     case META_CURSOR_GBM_BO_STATE_NONE:
       return get_active_cursor_sprite_gbm_bo (cursor_gpu_state) != NULL;
+
     case META_CURSOR_GBM_BO_STATE_SET:
       return TRUE;
+
     case META_CURSOR_GBM_BO_STATE_INVALIDATED:
       return FALSE;
     }
@@ -512,7 +522,8 @@ cursor_over_transformed_logical_monitor (MetaCursorRenderer *renderer,
 
           transform = meta_logical_monitor_get_transform (logical_monitor);
           /* Get transform corrected for LCD panel-orientation. */
-          transform = meta_monitor_logical_to_crtc_transform (monitor, transform);
+          transform =
+            meta_monitor_logical_to_crtc_transform (monitor, transform);
           if (transform != META_MONITOR_TRANSFORM_NORMAL)
             return TRUE;
         }
@@ -544,7 +555,7 @@ can_draw_cursor_unscaled (MetaCursorRenderer *renderer,
   gboolean has_visible_crtc_sprite = FALSE;
 
   if (!meta_is_stage_views_scaled ())
-   return meta_cursor_sprite_get_texture_scale (cursor_sprite) == 1.0;
+    return meta_cursor_sprite_get_texture_scale (cursor_sprite) == 1.0;
 
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
@@ -856,7 +867,7 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
   if (width > cursor_width || height > cursor_height)
     {
       meta_warning ("Invalid theme cursor size (must be at most %ux%u)\n",
-                    (unsigned int)cursor_width, (unsigned int)cursor_height);
+                    (unsigned int) cursor_width, (unsigned int) cursor_height);
       return;
     }
 
@@ -876,7 +887,7 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
           return;
         }
 
-      memset (buf, 0, sizeof(buf));
+      memset (buf, 0, sizeof (buf));
       for (i = 0; i < height; i++)
         memcpy (buf + i * 4 * cursor_width, pixels + i * rowstride, width * 4);
       if (gbm_bo_write (bo, buf, cursor_width * cursor_height * 4) != 0)
@@ -915,6 +926,7 @@ is_cursor_hw_state_valid (MetaCursorSprite *cursor_sprite,
     case META_CURSOR_GBM_BO_STATE_SET:
     case META_CURSOR_GBM_BO_STATE_NONE:
       return TRUE;
+
     case META_CURSOR_GBM_BO_STATE_INVALIDATED:
       return FALSE;
     }
@@ -973,16 +985,20 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
         case WL_SHM_FORMAT_ARGB8888:
           gbm_format = GBM_FORMAT_ARGB8888;
           break;
+
         case WL_SHM_FORMAT_XRGB8888:
           gbm_format = GBM_FORMAT_XRGB8888;
           break;
+
 #else
         case WL_SHM_FORMAT_ARGB8888:
           gbm_format = GBM_FORMAT_ARGB8888;
           break;
+
         case WL_SHM_FORMAT_XRGB8888:
           gbm_format = GBM_FORMAT_XRGB8888;
           break;
+
 #endif
         default:
           g_warn_if_reached ();
@@ -1015,7 +1031,8 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
 
       if (width != cursor_width || height != cursor_height)
         {
-          meta_warning ("Invalid cursor size (must be 64x64), falling back to software (GL) cursors\n");
+          meta_warning (
+            "Invalid cursor size (must be 64x64), falling back to software (GL) cursors\n");
           return;
         }
 

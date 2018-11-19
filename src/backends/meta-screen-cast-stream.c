@@ -61,8 +61,8 @@ G_DEFINE_TYPE_WITH_CODE (MetaScreenCastStream,
                          G_ADD_PRIVATE (MetaScreenCastStream))
 
 static MetaScreenCastStreamSrc *
-meta_screen_cast_stream_create_src (MetaScreenCastStream  *stream,
-                                    GError               **error)
+meta_screen_cast_stream_create_src (MetaScreenCastStream * stream,
+                                    GError * *error)
 {
   return META_SCREEN_CAST_STREAM_GET_CLASS (stream)->create_src (stream,
                                                                  error);
@@ -98,8 +98,8 @@ on_stream_src_ready (MetaScreenCastStreamSrc *src,
 }
 
 gboolean
-meta_screen_cast_stream_start (MetaScreenCastStream  *stream,
-                               GError               **error)
+meta_screen_cast_stream_start (MetaScreenCastStream *stream,
+                               GError              **error)
 {
   MetaScreenCastStreamPrivate *priv =
     meta_screen_cast_stream_get_instance_private (stream);
@@ -165,6 +165,7 @@ meta_screen_cast_stream_set_property (GObject      *object,
     case PROP_CONNECTION:
       priv->connection = g_value_get_object (value);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -185,6 +186,7 @@ meta_screen_cast_stream_get_property (GObject    *object,
     case PROP_CONNECTION:
       g_value_set_object (value, priv->connection);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -206,9 +208,9 @@ meta_screen_cast_stream_finalize (GObject *object)
 }
 
 static gboolean
-meta_screen_cast_stream_initable_init (GInitable     *initable,
-                                       GCancellable  *cancellable,
-                                       GError       **error)
+meta_screen_cast_stream_initable_init (GInitable    *initable,
+                                       GCancellable *cancellable,
+                                       GError      **error)
 {
   MetaScreenCastStream *stream = META_SCREEN_CAST_STREAM (initable);
   MetaDBusScreenCastStream *skeleton = META_DBUS_SCREEN_CAST_STREAM (stream);

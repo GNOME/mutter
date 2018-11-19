@@ -33,12 +33,12 @@
 
 struct _MetaWaylandKeyboardShotscutsInhibit
 {
-  MetaWaylandSurface      *surface;
-  MetaWaylandSeat         *seat;
-  gulong                   inhibit_shortcut_handler;
-  gulong                   restore_shortcut_handler;
-  gulong                   surface_destroyed_handler;
-  struct wl_resource      *resource;
+  MetaWaylandSurface *surface;
+  MetaWaylandSeat *seat;
+  gulong inhibit_shortcut_handler;
+  gulong restore_shortcut_handler;
+  gulong surface_destroyed_handler;
+  struct wl_resource *resource;
 };
 
 static void
@@ -49,7 +49,8 @@ zwp_keyboard_shortcuts_inhibit_destructor (struct wl_resource *resource)
   shortcut_inhibit = wl_resource_get_user_data (resource);
   if (shortcut_inhibit->surface)
     {
-      meta_wayland_surface_cancel_inhibit_shortcuts_dialog (shortcut_inhibit->surface);
+      meta_wayland_surface_cancel_inhibit_shortcuts_dialog (
+        shortcut_inhibit->surface);
 
       g_signal_handler_disconnect (shortcut_inhibit->surface,
                                    shortcut_inhibit->surface_destroyed_handler);
@@ -74,9 +75,10 @@ zwp_keyboard_shortcuts_inhibit_destroy (struct wl_client   *client,
 }
 
 static const struct zwp_keyboard_shortcuts_inhibit_manager_v1_interface
-  meta_keyboard_shortcuts_inhibit_interface = {
-    zwp_keyboard_shortcuts_inhibit_destroy,
-  };
+  meta_keyboard_shortcuts_inhibit_interface =
+{
+  zwp_keyboard_shortcuts_inhibit_destroy,
+};
 
 static void
 surface_destroyed_cb (MetaWaylandSurface                  *surface,
@@ -108,11 +110,12 @@ zwp_keyboard_shortcuts_inhibit_manager_destroy (struct wl_client   *client,
 }
 
 static void
-zwp_keyboard_shortcuts_inhibit_manager_inhibit_shortcuts (struct wl_client   *client,
-                                                          struct wl_resource *resource,
-                                                          uint32_t            id,
-                                                          struct wl_resource *surface_resource,
-                                                          struct wl_resource *seat_resource)
+zwp_keyboard_shortcuts_inhibit_manager_inhibit_shortcuts (
+  struct wl_client   *client,
+  struct wl_resource *resource,
+  uint32_t            id,
+  struct wl_resource *surface_resource,
+  struct wl_resource *seat_resource)
 {
   MetaWaylandKeyboardShotscutsInhibit *shortcut_inhibit;
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
@@ -120,10 +123,10 @@ zwp_keyboard_shortcuts_inhibit_manager_inhibit_shortcuts (struct wl_client   *cl
   struct wl_resource *keyboard_shortcuts_inhibit_resource;
 
   keyboard_shortcuts_inhibit_resource =
-      wl_resource_create (client,
-                          &zwp_keyboard_shortcuts_inhibitor_v1_interface,
-                          META_ZWP_KEYBOARD_SHORTCUTS_INHIBIT_V1_VERSION,
-                          id);
+    wl_resource_create (client,
+                        &zwp_keyboard_shortcuts_inhibitor_v1_interface,
+                        META_ZWP_KEYBOARD_SHORTCUTS_INHIBIT_V1_VERSION,
+                        id);
 
   shortcut_inhibit = g_new0 (MetaWaylandKeyboardShotscutsInhibit, 1);
   shortcut_inhibit->surface = surface;
@@ -154,10 +157,11 @@ zwp_keyboard_shortcuts_inhibit_manager_inhibit_shortcuts (struct wl_client   *cl
 }
 
 static const struct zwp_keyboard_shortcuts_inhibit_manager_v1_interface
-  meta_keyboard_shortcuts_inhibit_manager_interface = {
-    zwp_keyboard_shortcuts_inhibit_manager_destroy,
-    zwp_keyboard_shortcuts_inhibit_manager_inhibit_shortcuts,
-  };
+  meta_keyboard_shortcuts_inhibit_manager_interface =
+{
+  zwp_keyboard_shortcuts_inhibit_manager_destroy,
+  zwp_keyboard_shortcuts_inhibit_manager_inhibit_shortcuts,
+};
 
 static void
 bind_keyboard_shortcuts_inhibit (struct wl_client *client,

@@ -52,9 +52,9 @@
  */
 #define MIN_FAST_UPDATES_BEFORE_UNMIPMAP 20
 
-static void meta_shaped_texture_dispose  (GObject    *object);
+static void meta_shaped_texture_dispose (GObject *object);
 
-static void meta_shaped_texture_paint (ClutterActor       *actor);
+static void meta_shaped_texture_paint (ClutterActor *actor);
 
 static void meta_shaped_texture_get_preferred_width (ClutterActor *self,
                                                      gfloat        for_height,
@@ -66,7 +66,8 @@ static void meta_shaped_texture_get_preferred_height (ClutterActor *self,
                                                       gfloat       *min_height_p,
                                                       gfloat       *natural_height_p);
 
-static gboolean meta_shaped_texture_get_paint_volume (ClutterActor *self, ClutterPaintVolume *volume);
+static gboolean meta_shaped_texture_get_paint_volume (ClutterActor       *self,
+                                                      ClutterPaintVolume *volume);
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
@@ -74,7 +75,8 @@ static void cullable_iface_init (MetaCullableInterface *iface);
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_SHAPED_TEXTURE, \
                                 MetaShapedTexturePrivate))
 
-enum {
+enum
+{
   SIZE_CHANGED,
 
   LAST_SIGNAL,
@@ -114,9 +116,11 @@ struct _MetaShapedTexturePrivate
   guint create_mipmaps : 1;
 };
 
-G_DEFINE_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture, CLUTTER_TYPE_ACTOR,
+G_DEFINE_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture,
+                         CLUTTER_TYPE_ACTOR,
                          G_ADD_PRIVATE (MetaShapedTexture)
-                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
+                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE,
+                                                cullable_iface_init));
 
 static void
 meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
@@ -488,7 +492,9 @@ meta_shaped_texture_paint (ClutterActor *actor)
   if (tex_width == 0 || tex_height == 0) /* no contents yet */
     return;
 
-  tex_rect = (cairo_rectangle_int_t) { 0, 0, tex_width, tex_height };
+  tex_rect = (cairo_rectangle_int_t) {
+    0, 0, tex_width, tex_height
+  };
 
   /* Use nearest-pixel interpolation if the texture is unscaled. This
    * improves performance, especially with software rendering.
@@ -621,7 +627,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
       else
         {
           blended_pipeline = get_masked_pipeline (stex, ctx);
-          cogl_pipeline_set_layer_texture (blended_pipeline, 1, priv->mask_texture);
+          cogl_pipeline_set_layer_texture (blended_pipeline, 1,
+                                           priv->mask_texture);
           cogl_pipeline_set_layer_filters (blended_pipeline, 1, filter, filter);
         }
 
@@ -724,7 +731,7 @@ effective_unobscured_region (MetaShapedTexture *self)
 }
 
 static gboolean
-meta_shaped_texture_get_paint_volume (ClutterActor *actor,
+meta_shaped_texture_get_paint_volume (ClutterActor       *actor,
                                       ClutterPaintVolume *volume)
 {
   return clutter_paint_volume_set_from_allocation (volume, actor);
@@ -732,7 +739,7 @@ meta_shaped_texture_get_paint_volume (ClutterActor *actor,
 
 void
 meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
-					gboolean           create_mipmaps)
+                                        gboolean           create_mipmaps)
 {
   MetaShapedTexturePrivate *priv;
 
@@ -798,10 +805,10 @@ meta_shaped_texture_is_obscured (MetaShapedTexture *self)
  */
 gboolean
 meta_shaped_texture_update_area (MetaShapedTexture *stex,
-				 int                x,
-				 int                y,
-				 int                width,
-				 int                height)
+                                 int                x,
+                                 int                y,
+                                 int                width,
+                                 int                height)
 {
   MetaShapedTexturePrivate *priv;
   cairo_region_t *unobscured_region;
@@ -843,7 +850,8 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
         {
           cairo_rectangle_int_t damage_rect;
           cairo_region_get_extents (intersection, &damage_rect);
-          clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stex), &damage_rect);
+          clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (
+                                                  stex), &damage_rect);
           cairo_region_destroy (intersection);
           return TRUE;
         }
@@ -1032,8 +1040,10 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                                           clip->height);
 
       mask_surface = cairo_image_surface_create (CAIRO_FORMAT_A8,
-                                                 cogl_texture_get_width (mask_texture),
-                                                 cogl_texture_get_height (mask_texture));
+                                                 cogl_texture_get_width (
+                                                   mask_texture),
+                                                 cogl_texture_get_height (
+                                                   mask_texture));
 
       cogl_texture_get_data (mask_texture, COGL_PIXEL_FORMAT_A_8,
                              cairo_image_surface_get_stride (mask_surface),

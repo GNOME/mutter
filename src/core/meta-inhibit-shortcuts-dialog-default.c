@@ -25,7 +25,8 @@
 #include "core/window-private.h"
 #include "meta/meta-inhibit-shortcuts-dialog.h"
 
-typedef struct _MetaInhibitShortcutsDialogDefaultPrivate MetaInhibitShortcutsDialogDefaultPrivate;
+typedef struct _MetaInhibitShortcutsDialogDefaultPrivate
+  MetaInhibitShortcutsDialogDefaultPrivate;
 
 struct _MetaInhibitShortcutsDialogDefault
 {
@@ -33,25 +34,32 @@ struct _MetaInhibitShortcutsDialogDefault
   MetaWindow *window;
 };
 
-enum {
+enum
+{
   PROP_0,
   PROP_WINDOW,
   N_PROPS
 };
 
-static void meta_inhibit_shortcuts_dialog_iface_init (MetaInhibitShortcutsDialogInterface *iface);
+static void meta_inhibit_shortcuts_dialog_iface_init (
+  MetaInhibitShortcutsDialogInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaInhibitShortcutsDialogDefault, meta_inhibit_shortcuts_dialog_default,
+G_DEFINE_TYPE_WITH_CODE (MetaInhibitShortcutsDialogDefault,
+                         meta_inhibit_shortcuts_dialog_default,
                          G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE (META_TYPE_INHIBIT_SHORTCUTS_DIALOG,
-                                                meta_inhibit_shortcuts_dialog_iface_init))
+                         G_IMPLEMENT_INTERFACE (
+                           META_TYPE_INHIBIT_SHORTCUTS_DIALOG,
+                           meta_inhibit_shortcuts_dialog_iface_init))
 
 static void
 meta_inhibit_shortcuts_dialog_default_show (MetaInhibitShortcutsDialog *dialog)
 {
-  /* Default to allow shortcuts inhibitor, but complain that no dialog is implemented */
-  g_warning ("No MetaInhibitShortcutDialog implementation, falling back on allowing");
-  meta_inhibit_shortcuts_dialog_response (dialog, META_INHIBIT_SHORTCUTS_DIALOG_RESPONSE_ALLOW);
+  /* Default to allow shortcuts inhibitor, but complain that no dialog is
+   * implemented */
+  g_warning (
+    "No MetaInhibitShortcutDialog implementation, falling back on allowing");
+  meta_inhibit_shortcuts_dialog_response (dialog,
+                                          META_INHIBIT_SHORTCUTS_DIALOG_RESPONSE_ALLOW);
 }
 
 static void
@@ -60,7 +68,8 @@ meta_inhibit_shortcuts_dialog_default_hide (MetaInhibitShortcutsDialog *dialog)
 }
 
 static void
-meta_inhibit_shortcuts_dialog_iface_init (MetaInhibitShortcutsDialogInterface *iface)
+meta_inhibit_shortcuts_dialog_iface_init (
+  MetaInhibitShortcutsDialogInterface *iface)
 {
   iface->show = meta_inhibit_shortcuts_dialog_default_show;
   iface->hide = meta_inhibit_shortcuts_dialog_default_hide;
@@ -81,6 +90,7 @@ meta_inhibit_shortcuts_dialog_default_set_property (GObject      *object,
     case PROP_WINDOW:
       dialog->window = g_value_get_object (value);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -101,24 +111,29 @@ meta_inhibit_shortcuts_dialog_default_get_property (GObject    *object,
     case PROP_WINDOW:
       g_value_set_object (value, dialog->window);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
 }
 
 static void
-meta_inhibit_shortcuts_dialog_default_class_init (MetaInhibitShortcutsDialogDefaultClass *klass)
+meta_inhibit_shortcuts_dialog_default_class_init (
+  MetaInhibitShortcutsDialogDefaultClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->set_property = meta_inhibit_shortcuts_dialog_default_set_property;
-  object_class->get_property = meta_inhibit_shortcuts_dialog_default_get_property;
+  object_class->set_property =
+    meta_inhibit_shortcuts_dialog_default_set_property;
+  object_class->get_property =
+    meta_inhibit_shortcuts_dialog_default_get_property;
 
   g_object_class_override_property (object_class, PROP_WINDOW, "window");
 }
 
 static void
-meta_inhibit_shortcuts_dialog_default_init (MetaInhibitShortcutsDialogDefault *dialog)
+meta_inhibit_shortcuts_dialog_default_init (
+  MetaInhibitShortcutsDialogDefault *dialog)
 {
 }
 

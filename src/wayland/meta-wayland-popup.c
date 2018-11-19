@@ -53,10 +53,10 @@ G_DEFINE_INTERFACE (MetaWaylandPopupSurface, meta_wayland_popup_surface,
 
 struct _MetaWaylandPopupGrab
 {
-  MetaWaylandPointerGrab  generic;
+  MetaWaylandPointerGrab generic;
 
-  struct wl_client       *grab_client;
-  struct wl_list          all_popups;
+  struct wl_client *grab_client;
+  struct wl_list all_popups;
 };
 
 struct _MetaWaylandPopup
@@ -93,14 +93,15 @@ meta_wayland_popup_surface_dismiss (MetaWaylandPopupSurface *popup_surface)
 static MetaWaylandSurface *
 meta_wayland_popup_surface_get_surface (MetaWaylandPopupSurface *popup_surface)
 {
-  return META_WAYLAND_POPUP_SURFACE_GET_IFACE (popup_surface)->get_surface (popup_surface);
+  return META_WAYLAND_POPUP_SURFACE_GET_IFACE (popup_surface)->get_surface (
+    popup_surface);
 }
 
 static void
 popup_grab_focus (MetaWaylandPointerGrab *grab,
-		  MetaWaylandSurface     *surface)
+                  MetaWaylandSurface     *surface)
 {
-  MetaWaylandPopupGrab *popup_grab = (MetaWaylandPopupGrab*)grab;
+  MetaWaylandPopupGrab *popup_grab = (MetaWaylandPopupGrab *) grab;
   MetaWaylandSeat *seat = meta_wayland_pointer_get_seat (grab->pointer);
 
   /*
@@ -113,7 +114,7 @@ popup_grab_focus (MetaWaylandPointerGrab *grab,
     return;
 
   /* Popup grabs are in owner-events mode (ie, events for the same client
-     are reported as normal) */
+   *  are reported as normal) */
   if (surface &&
       wl_resource_get_client (surface->resource) == popup_grab->grab_client)
     meta_wayland_pointer_set_focus (grab->pointer, surface);
@@ -123,21 +124,21 @@ popup_grab_focus (MetaWaylandPointerGrab *grab,
 
 static void
 popup_grab_motion (MetaWaylandPointerGrab *grab,
-		   const ClutterEvent     *event)
+                   const ClutterEvent     *event)
 {
   meta_wayland_pointer_send_motion (grab->pointer, event);
 }
 
 static void
 popup_grab_button (MetaWaylandPointerGrab *grab,
-		   const ClutterEvent     *event)
+                   const ClutterEvent     *event)
 {
   MetaWaylandPointer *pointer = grab->pointer;
 
   if (pointer->focus_surface)
     meta_wayland_pointer_send_button (grab->pointer, event);
   else if (clutter_event_type (event) == CLUTTER_BUTTON_RELEASE &&
-	   pointer->button_count == 0)
+           pointer->button_count == 0)
     meta_wayland_pointer_end_popup_grab (grab->pointer);
 }
 
@@ -147,7 +148,8 @@ popup_grab_cancel (MetaWaylandPointerGrab *grab)
   meta_wayland_pointer_end_popup_grab (grab->pointer);
 }
 
-static MetaWaylandPointerGrabInterface popup_grab_interface = {
+static MetaWaylandPointerGrabInterface popup_grab_interface =
+{
   popup_grab_focus,
   popup_grab_motion,
   popup_grab_button,
@@ -188,7 +190,7 @@ meta_wayland_popup_grab_begin (MetaWaylandPopupGrab *grab,
   MetaWaylandPointer *pointer = grab->generic.pointer;
   MetaWindow *window = surface->window;
 
-  meta_wayland_pointer_start_grab (pointer, (MetaWaylandPointerGrab*)grab);
+  meta_wayland_pointer_start_grab (pointer, (MetaWaylandPointerGrab *) grab);
   meta_display_begin_grab_op (window->display,
                               window,
                               META_GRAB_OP_WAYLAND_POPUP,
@@ -210,10 +212,10 @@ meta_wayland_popup_grab_end (MetaWaylandPopupGrab *grab)
   g_assert (grab->generic.interface == &popup_grab_interface);
 
   wl_list_for_each_safe (popup, tmp, &grab->all_popups, link)
-    {
-      meta_wayland_popup_surface_done (popup->popup_surface);
-      meta_wayland_popup_destroy (popup);
-    }
+  {
+    meta_wayland_popup_surface_done (popup->popup_surface);
+    meta_wayland_popup_destroy (popup);
+  }
 
   {
     MetaDisplay *display = meta_get_display ();

@@ -199,9 +199,12 @@ typedef struct _MonitorTestCase
   MonitorTestCaseExpect expect;
 } MonitorTestCase;
 
-static MonitorTestCase initial_test_case = {
-  .setup = {
-    .modes = {
+static MonitorTestCase initial_test_case =
+{
+  .setup =
+  {
+    .modes =
+    {
       {
         .width = 1024,
         .height = 768,
@@ -209,8 +212,9 @@ static MonitorTestCase initial_test_case = {
       }
     },
     .n_modes = 1,
-    .outputs = {
-       {
+    .outputs =
+    {
+      {
         .crtc = 0,
         .modes = { 0 },
         .n_modes = 1,
@@ -232,7 +236,8 @@ static MonitorTestCase initial_test_case = {
       }
     },
     .n_outputs = 2,
-    .crtcs = {
+    .crtcs =
+    {
       {
         .current_mode = 0
       },
@@ -243,17 +248,21 @@ static MonitorTestCase initial_test_case = {
     .n_crtcs = 2
   },
 
-  .expect = {
-    .monitors = {
+  .expect =
+  {
+    .monitors =
+    {
       {
         .outputs = { 0 },
         .n_outputs = 1,
-        .modes = {
+        .modes =
+        {
           {
             .width = 1024,
             .height = 768,
             .refresh_rate = 60.0,
-            .crtc_modes = {
+            .crtc_modes =
+            {
               {
                 .output = 0,
                 .crtc_mode = 0
@@ -269,12 +278,14 @@ static MonitorTestCase initial_test_case = {
       {
         .outputs = { 1 },
         .n_outputs = 1,
-        .modes = {
+        .modes =
+        {
           {
             .width = 1024,
             .height = 768,
             .refresh_rate = 60.0,
-            .crtc_modes = {
+            .crtc_modes =
+            {
               {
                 .output = 1,
                 .crtc_mode = 0
@@ -289,7 +300,8 @@ static MonitorTestCase initial_test_case = {
       }
     },
     .n_monitors = 2,
-    .logical_monitors = {
+    .logical_monitors =
+    {
       {
         .monitors = { 0 },
         .n_monitors = 1,
@@ -306,7 +318,8 @@ static MonitorTestCase initial_test_case = {
     .n_logical_monitors = 2,
     .primary_logical_monitor = 0,
     .n_outputs = 2,
-    .crtcs = {
+    .crtcs =
+    {
       {
         .current_mode = 0,
       },
@@ -794,7 +807,8 @@ check_monitor_configuration (MonitorTestCase *test_case)
           data = (CheckMonitorModeData) {
             .monitor_manager = monitor_manager,
             .expect_crtc_mode_iter =
-              test_case->expect.monitors[i].modes[expected_current_mode_index].crtc_modes
+              test_case->expect.monitors[i].modes[expected_current_mode_index].
+              crtc_modes
           };
           meta_monitor_mode_foreach_output (monitor, expected_current_mode,
                                             check_current_monitor_mode,
@@ -826,7 +840,8 @@ check_monitor_configuration (MonitorTestCase *test_case)
   else
     {
       MonitorTestCaseLogicalMonitor *test_logical_monitor =
-        &test_case->expect.logical_monitors[test_case->expect.primary_logical_monitor];
+        &test_case->expect.logical_monitors[test_case->expect.
+                                            primary_logical_monitor];
       MetaLogicalMonitor *logical_monitor;
 
       logical_monitor =
@@ -1032,9 +1047,9 @@ create_monitor_test_setup (MonitorTestCase *test_case,
         meta_output_assign_crtc (output, crtc);
       output->winsys_id = i;
       output->name = (is_laptop_panel ? g_strdup_printf ("eDP-%d",
-                                                  ++n_laptop_panels)
-                               : g_strdup_printf ("DP-%d",
-                                                  ++n_normal_panels));
+                                                         ++n_laptop_panels)
+                      : g_strdup_printf ("DP-%d",
+                                         ++n_normal_panels));
       output->vendor = g_strdup ("MetaProduct's Inc.");
       output->product = g_strdup ("MetaMonitor");
       output->serial = g_strdup (serial);
@@ -1053,7 +1068,7 @@ create_monitor_test_setup (MonitorTestCase *test_case,
       output->possible_clones = NULL;
       output->backlight = -1;
       output->connector_type = (is_laptop_panel ? META_CONNECTOR_TYPE_eDP
-                                         : META_CONNECTOR_TYPE_DisplayPort);
+                                : META_CONNECTOR_TYPE_DisplayPort);
       output->tile_info = test_case->setup.outputs[i].tile_info;
       output->is_underscanning = test_case->setup.outputs[i].is_underscanning;
       output->panel_orientation_transform =
@@ -1095,16 +1110,19 @@ meta_test_monitor_one_disconnected_linear_config (void)
   test_case.setup.n_outputs = 1;
 
   test_case.expect = (MonitorTestCaseExpect) {
-    .monitors = {
+    .monitors =
+    {
       {
         .outputs = { 0 },
         .n_outputs = 1,
-        .modes = {
+        .modes =
+        {
           {
             .width = 1024,
             .height = 768,
             .refresh_rate = 60.0,
-            .crtc_modes = {
+            .crtc_modes =
+            {
               {
                 .output = 0,
                 .crtc_mode = 0
@@ -1119,7 +1137,8 @@ meta_test_monitor_one_disconnected_linear_config (void)
       }
     },
     .n_monitors = 1,
-    .logical_monitors = {
+    .logical_monitors =
+    {
       {
         .monitors = { 0 },
         .n_monitors = 1,
@@ -1130,7 +1149,8 @@ meta_test_monitor_one_disconnected_linear_config (void)
     .n_logical_monitors = 1,
     .primary_logical_monitor = 0,
     .n_outputs = 1,
-    .crtcs = {
+    .crtcs =
+    {
       {
         .current_mode = 0,
       },
@@ -1154,7 +1174,8 @@ meta_test_monitor_one_off_linear_config (void)
 {
   MonitorTestCase test_case;
   MetaMonitorTestSetup *test_setup;
-  MonitorTestCaseOutput outputs[] = {
+  MonitorTestCaseOutput outputs[] =
+  {
     {
       .crtc = 0,
       .modes = { 0 },
@@ -1185,16 +1206,19 @@ meta_test_monitor_one_off_linear_config (void)
   test_case.setup.crtcs[1].current_mode = -1;
 
   test_case.expect = (MonitorTestCaseExpect) {
-    .monitors = {
+    .monitors =
+    {
       {
         .outputs = { 0 },
         .n_outputs = 1,
-        .modes = {
+        .modes =
+        {
           {
             .width = 1024,
             .height = 768,
             .refresh_rate = 60.0,
-            .crtc_modes = {
+            .crtc_modes =
+            {
               {
                 .output = 0,
                 .crtc_mode = 0
@@ -1210,12 +1234,14 @@ meta_test_monitor_one_off_linear_config (void)
       {
         .outputs = { 1 },
         .n_outputs = 1,
-        .modes = {
+        .modes =
+        {
           {
             .width = 1024,
             .height = 768,
             .refresh_rate = 60.0,
-            .crtc_modes = {
+            .crtc_modes =
+            {
               {
                 .output = 1,
                 .crtc_mode = 0
@@ -1230,7 +1256,8 @@ meta_test_monitor_one_off_linear_config (void)
       }
     },
     .n_monitors = 2,
-    .logical_monitors = {
+    .logical_monitors =
+    {
       {
         .monitors = { 0 },
         .n_monitors = 1,
@@ -1247,7 +1274,8 @@ meta_test_monitor_one_off_linear_config (void)
     .n_logical_monitors = 2,
     .primary_logical_monitor = 0,
     .n_outputs = 2,
-    .crtcs = {
+    .crtcs =
+    {
       {
         .current_mode = 0,
       },
@@ -1269,9 +1297,12 @@ meta_test_monitor_one_off_linear_config (void)
 static void
 meta_test_monitor_preferred_linear_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 800,
           .height = 600,
@@ -1289,7 +1320,8 @@ meta_test_monitor_preferred_linear_config (void)
         }
       },
       .n_modes = 3,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0, 1, 2 },
@@ -1302,7 +1334,8 @@ meta_test_monitor_preferred_linear_config (void)
         }
       },
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         }
@@ -1310,17 +1343,21 @@ meta_test_monitor_preferred_linear_config (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -1331,7 +1368,8 @@ meta_test_monitor_preferred_linear_config (void)
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 1
@@ -1342,7 +1380,8 @@ meta_test_monitor_preferred_linear_config (void)
               .width = 1280,
               .height = 720,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 2
@@ -1357,7 +1396,8 @@ meta_test_monitor_preferred_linear_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -1368,7 +1408,8 @@ meta_test_monitor_preferred_linear_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 1,
         }
@@ -1389,9 +1430,12 @@ meta_test_monitor_preferred_linear_config (void)
 static void
 meta_test_monitor_tiled_linear_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 400,
           .height = 600,
@@ -1399,7 +1443,8 @@ meta_test_monitor_tiled_linear_config (void)
         },
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0 },
@@ -1409,7 +1454,8 @@ meta_test_monitor_tiled_linear_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -1428,7 +1474,8 @@ meta_test_monitor_tiled_linear_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -1440,7 +1487,8 @@ meta_test_monitor_tiled_linear_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         },
@@ -1451,17 +1499,21 @@ meta_test_monitor_tiled_linear_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0, 1 },
           .n_outputs = 2,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -1480,7 +1532,8 @@ meta_test_monitor_tiled_linear_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -1491,7 +1544,8 @@ meta_test_monitor_tiled_linear_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -1518,9 +1572,12 @@ meta_test_monitor_tiled_linear_config (void)
 static void
 meta_test_monitor_tiled_non_preferred_linear_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 640,
           .height = 480,
@@ -1543,7 +1600,8 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
         },
       },
       .n_modes = 4,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0, 2 },
@@ -1553,7 +1611,8 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -1572,7 +1631,8 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -1584,7 +1644,8 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         },
@@ -1595,17 +1656,21 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0, 1 },
           .n_outputs = 2,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 120.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 2
@@ -1620,7 +1685,8 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
               .width = 800,
               .height = 600,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = -1
@@ -1635,7 +1701,8 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = -1
@@ -1654,7 +1721,8 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -1665,7 +1733,8 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 2,
         },
@@ -1691,9 +1760,12 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
 static void
 meta_test_monitor_tiled_non_main_origin_linear_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 400,
           .height = 600,
@@ -1706,7 +1778,8 @@ meta_test_monitor_tiled_non_main_origin_linear_config (void)
         },
       },
       .n_modes = 2,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0, 1 },
@@ -1716,7 +1789,8 @@ meta_test_monitor_tiled_non_main_origin_linear_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -1735,7 +1809,8 @@ meta_test_monitor_tiled_non_main_origin_linear_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -1747,7 +1822,8 @@ meta_test_monitor_tiled_non_main_origin_linear_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         },
@@ -1758,17 +1834,21 @@ meta_test_monitor_tiled_non_main_origin_linear_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0, 1 },
           .n_outputs = 2,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0,
@@ -1783,7 +1863,8 @@ meta_test_monitor_tiled_non_main_origin_linear_config (void)
               .width = 800,
               .height = 600,
               .refresh_rate = 30.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 1
@@ -1802,7 +1883,8 @@ meta_test_monitor_tiled_non_main_origin_linear_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -1813,7 +1895,8 @@ meta_test_monitor_tiled_non_main_origin_linear_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
           .x = 400,
@@ -1840,9 +1923,12 @@ meta_test_monitor_tiled_non_main_origin_linear_config (void)
 static void
 meta_test_monitor_hidpi_linear_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1280,
           .height = 720,
@@ -1855,7 +1941,8 @@ meta_test_monitor_hidpi_linear_config (void)
         }
       },
       .n_modes = 2,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -1881,7 +1968,8 @@ meta_test_monitor_hidpi_linear_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         },
@@ -1892,17 +1980,21 @@ meta_test_monitor_hidpi_linear_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1280,
               .height = 720,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -1918,12 +2010,14 @@ meta_test_monitor_hidpi_linear_config (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 1
@@ -1938,7 +2032,8 @@ meta_test_monitor_hidpi_linear_config (void)
         }
       },
       .n_monitors = 2,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -1955,7 +2050,8 @@ meta_test_monitor_hidpi_linear_config (void)
       .n_logical_monitors = 2,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -1994,9 +2090,12 @@ set_suggested_output_position (MetaOutput *output,
 static void
 meta_test_monitor_suggested_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 800,
           .height = 600,
@@ -2009,7 +2108,8 @@ meta_test_monitor_suggested_config (void)
         }
       },
       .n_modes = 2,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -2032,7 +2132,8 @@ meta_test_monitor_suggested_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         },
@@ -2043,17 +2144,21 @@ meta_test_monitor_suggested_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -2069,12 +2174,14 @@ meta_test_monitor_suggested_config (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 1
@@ -2093,7 +2200,8 @@ meta_test_monitor_suggested_config (void)
        * Logical monitors expectations altered to correspond to the
        * "suggested_x/y" changed further below.
        */
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -2110,7 +2218,8 @@ meta_test_monitor_suggested_config (void)
       .n_logical_monitors = 2,
       .primary_logical_monitor = 1,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -2141,9 +2250,12 @@ meta_test_monitor_suggested_config (void)
 static void
 meta_test_monitor_limited_crtcs (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -2151,7 +2263,8 @@ meta_test_monitor_limited_crtcs (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0 },
@@ -2174,7 +2287,8 @@ meta_test_monitor_limited_crtcs (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         }
@@ -2182,17 +2296,21 @@ meta_test_monitor_limited_crtcs (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -2208,12 +2326,14 @@ meta_test_monitor_limited_crtcs (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 0
@@ -2228,7 +2348,8 @@ meta_test_monitor_limited_crtcs (void)
         }
       },
       .n_monitors = 2,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -2239,7 +2360,8 @@ meta_test_monitor_limited_crtcs (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         }
@@ -2267,9 +2389,12 @@ meta_test_monitor_limited_crtcs (void)
 static void
 meta_test_monitor_lid_switch_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -2277,7 +2402,8 @@ meta_test_monitor_lid_switch_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -2301,7 +2427,8 @@ meta_test_monitor_lid_switch_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -2312,17 +2439,21 @@ meta_test_monitor_lid_switch_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -2338,12 +2469,14 @@ meta_test_monitor_lid_switch_config (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 0
@@ -2358,7 +2491,8 @@ meta_test_monitor_lid_switch_config (void)
         }
       },
       .n_monitors = 2,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -2375,7 +2509,8 @@ meta_test_monitor_lid_switch_config (void)
       .n_logical_monitors = 2,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -2438,9 +2573,12 @@ meta_test_monitor_lid_switch_config (void)
 static void
 meta_test_monitor_lid_opened_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -2448,7 +2586,8 @@ meta_test_monitor_lid_opened_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -2472,7 +2611,8 @@ meta_test_monitor_lid_opened_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -2483,17 +2623,21 @@ meta_test_monitor_lid_opened_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -2509,12 +2653,14 @@ meta_test_monitor_lid_opened_config (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 0
@@ -2529,7 +2675,8 @@ meta_test_monitor_lid_opened_config (void)
         }
       },
       .n_monitors = 2,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 1 },
           .n_monitors = 1,
@@ -2546,7 +2693,8 @@ meta_test_monitor_lid_opened_config (void)
       .n_logical_monitors = 1, /* Second one checked after lid opened. */
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1,
         },
@@ -2587,9 +2735,12 @@ meta_test_monitor_lid_opened_config (void)
 static void
 meta_test_monitor_lid_closed_no_external (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -2597,7 +2748,8 @@ meta_test_monitor_lid_closed_no_external (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -2611,7 +2763,8 @@ meta_test_monitor_lid_closed_no_external (void)
         }
       },
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         }
@@ -2619,17 +2772,21 @@ meta_test_monitor_lid_closed_no_external (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -2644,7 +2801,8 @@ meta_test_monitor_lid_closed_no_external (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -2655,7 +2813,8 @@ meta_test_monitor_lid_closed_no_external (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -2680,9 +2839,12 @@ meta_test_monitor_lid_closed_no_external (void)
 static void
 meta_test_monitor_lid_closed_with_hotplugged_external (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -2690,7 +2852,8 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0 },
@@ -2714,7 +2877,8 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
         }
       },
       .n_outputs = 1, /* Second is hotplugged later */
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         },
@@ -2725,17 +2889,21 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -2751,12 +2919,14 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 0
@@ -2771,7 +2941,8 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
         }
       },
       .n_monitors = 1, /* Second is hotplugged later */
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -2788,7 +2959,8 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
       .n_logical_monitors = 1, /* Second is hotplugged later */
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -2908,14 +3080,17 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
 static void
 meta_test_monitor_no_outputs (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
       .n_modes = 0,
       .n_outputs = 0,
       .n_crtcs = 0
     },
 
-    .expect = {
+    .expect =
+    {
       .n_monitors = 0,
       .n_logical_monitors = 0,
       .primary_logical_monitor = -1,
@@ -2960,9 +3135,12 @@ meta_test_monitor_no_outputs (void)
 static void
 meta_test_monitor_underscanning_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -2970,7 +3148,8 @@ meta_test_monitor_underscanning_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -2984,7 +3163,8 @@ meta_test_monitor_underscanning_config (void)
         }
       },
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         }
@@ -2992,17 +3172,21 @@ meta_test_monitor_underscanning_config (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -3018,7 +3202,8 @@ meta_test_monitor_underscanning_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -3029,7 +3214,8 @@ meta_test_monitor_underscanning_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         }
@@ -3050,9 +3236,12 @@ meta_test_monitor_underscanning_config (void)
 static void
 meta_test_monitor_preferred_non_first_mode (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 800,
           .height = 600,
@@ -3067,7 +3256,8 @@ meta_test_monitor_preferred_non_first_mode (void)
         },
       },
       .n_modes = 2,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0, 1 },
@@ -3080,7 +3270,8 @@ meta_test_monitor_preferred_non_first_mode (void)
         }
       },
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         }
@@ -3088,17 +3279,21 @@ meta_test_monitor_preferred_non_first_mode (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 1
@@ -3113,7 +3308,8 @@ meta_test_monitor_preferred_non_first_mode (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -3124,7 +3320,8 @@ meta_test_monitor_preferred_non_first_mode (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 1,
         }
@@ -3153,7 +3350,7 @@ meta_test_monitor_non_upright_panel (void)
     .height = 1024,
     .refresh_rate = 60.0,
   };
-  test_case.setup.n_modes = 2;  
+  test_case.setup.n_modes = 2;
   test_case.setup.outputs[0].modes[0] = 1;
   test_case.setup.outputs[0].preferred_mode = 1;
   test_case.setup.outputs[0].panel_orientation_transform =
@@ -3178,9 +3375,12 @@ meta_test_monitor_non_upright_panel (void)
 static void
 meta_test_monitor_custom_vertical_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -3193,7 +3393,8 @@ meta_test_monitor_custom_vertical_config (void)
         }
       },
       .n_modes = 2,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -3216,7 +3417,8 @@ meta_test_monitor_custom_vertical_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -3227,17 +3429,21 @@ meta_test_monitor_custom_vertical_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -3253,12 +3459,14 @@ meta_test_monitor_custom_vertical_config (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 1
@@ -3273,7 +3481,8 @@ meta_test_monitor_custom_vertical_config (void)
         }
       },
       .n_monitors = 2,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -3290,7 +3499,8 @@ meta_test_monitor_custom_vertical_config (void)
       .n_logical_monitors = 2,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -3317,9 +3527,12 @@ meta_test_monitor_custom_vertical_config (void)
 static void
 meta_test_monitor_custom_primary_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -3332,7 +3545,8 @@ meta_test_monitor_custom_primary_config (void)
         }
       },
       .n_modes = 2,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -3355,7 +3569,8 @@ meta_test_monitor_custom_primary_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -3366,17 +3581,21 @@ meta_test_monitor_custom_primary_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -3392,12 +3611,14 @@ meta_test_monitor_custom_primary_config (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 1
@@ -3412,7 +3633,8 @@ meta_test_monitor_custom_primary_config (void)
         }
       },
       .n_monitors = 2,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -3429,7 +3651,8 @@ meta_test_monitor_custom_primary_config (void)
       .n_logical_monitors = 2,
       .primary_logical_monitor = 1,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -3456,9 +3679,12 @@ meta_test_monitor_custom_primary_config (void)
 static void
 meta_test_monitor_custom_underscanning_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -3466,7 +3692,8 @@ meta_test_monitor_custom_underscanning_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -3479,7 +3706,8 @@ meta_test_monitor_custom_underscanning_config (void)
         },
       },
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -3487,17 +3715,21 @@ meta_test_monitor_custom_underscanning_config (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -3513,7 +3745,8 @@ meta_test_monitor_custom_underscanning_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -3524,7 +3757,8 @@ meta_test_monitor_custom_underscanning_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         }
@@ -3548,9 +3782,12 @@ meta_test_monitor_custom_underscanning_config (void)
 static void
 meta_test_monitor_custom_scale_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1920,
           .height = 1080,
@@ -3558,7 +3795,8 @@ meta_test_monitor_custom_scale_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -3571,7 +3809,8 @@ meta_test_monitor_custom_scale_config (void)
         },
       },
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -3579,17 +3818,21 @@ meta_test_monitor_custom_scale_config (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1920,
               .height = 1080,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -3604,7 +3847,8 @@ meta_test_monitor_custom_scale_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -3615,7 +3859,8 @@ meta_test_monitor_custom_scale_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         }
@@ -3645,9 +3890,12 @@ meta_test_monitor_custom_scale_config (void)
 static void
 meta_test_monitor_custom_fractional_scale_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1200,
           .height = 900,
@@ -3655,7 +3903,8 @@ meta_test_monitor_custom_fractional_scale_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -3668,7 +3917,8 @@ meta_test_monitor_custom_fractional_scale_config (void)
         },
       },
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -3676,17 +3926,21 @@ meta_test_monitor_custom_fractional_scale_config (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1200,
               .height = 900,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -3701,7 +3955,8 @@ meta_test_monitor_custom_fractional_scale_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -3712,7 +3967,8 @@ meta_test_monitor_custom_fractional_scale_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         }
@@ -3742,9 +3998,12 @@ meta_test_monitor_custom_fractional_scale_config (void)
 static void
 meta_test_monitor_custom_high_precision_fractional_scale_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -3752,7 +4011,8 @@ meta_test_monitor_custom_high_precision_fractional_scale_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -3765,7 +4025,8 @@ meta_test_monitor_custom_high_precision_fractional_scale_config (void)
         },
       },
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -3773,17 +4034,21 @@ meta_test_monitor_custom_high_precision_fractional_scale_config (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -3798,18 +4063,20 @@ meta_test_monitor_custom_high_precision_fractional_scale_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
           .layout = { .x = 0, .y = 0, .width = 744, .height = 558 },
-          .scale = 1024.0/744.0 /* 1.3763440847396851 */
+          .scale = 1024.0 / 744.0 /* 1.3763440847396851 */
         }
       },
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         }
@@ -3839,9 +4106,12 @@ meta_test_monitor_custom_high_precision_fractional_scale_config (void)
 static void
 meta_test_monitor_custom_tiled_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 400,
           .height = 600,
@@ -3849,7 +4119,8 @@ meta_test_monitor_custom_tiled_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0 },
@@ -3859,7 +4130,8 @@ meta_test_monitor_custom_tiled_config (void)
           .n_possible_crtcs = 2,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -3878,7 +4150,8 @@ meta_test_monitor_custom_tiled_config (void)
           .n_possible_crtcs = 2,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -3890,7 +4163,8 @@ meta_test_monitor_custom_tiled_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -3901,17 +4175,21 @@ meta_test_monitor_custom_tiled_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0, 1 },
           .n_outputs = 2,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0,
@@ -3930,7 +4208,8 @@ meta_test_monitor_custom_tiled_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -3941,7 +4220,8 @@ meta_test_monitor_custom_tiled_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -3976,9 +4256,12 @@ meta_test_monitor_custom_tiled_config (void)
 static void
 meta_test_monitor_custom_tiled_custom_resolution_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 400,
           .height = 600,
@@ -3991,7 +4274,8 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
         }
       },
       .n_modes = 2,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0, 1 },
@@ -4001,7 +4285,8 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
           .n_possible_crtcs = 2,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -4020,7 +4305,8 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
           .n_possible_crtcs = 2,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -4032,7 +4318,8 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         },
@@ -4043,17 +4330,21 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0, 1 },
           .n_outputs = 2,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0,
@@ -4068,7 +4359,8 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
               .width = 640,
               .height = 480,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 1,
@@ -4087,7 +4379,8 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -4098,7 +4391,8 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 1,
         },
@@ -4133,9 +4427,12 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
 static void
 meta_test_monitor_custom_tiled_non_preferred_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 640,
           .height = 480,
@@ -4158,7 +4455,8 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
         },
       },
       .n_modes = 4,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0, 2 },
@@ -4168,7 +4466,8 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -4187,7 +4486,8 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -4199,7 +4499,8 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         },
@@ -4210,17 +4511,21 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0, 1 },
           .n_outputs = 2,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 120.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 2
@@ -4235,7 +4540,8 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
               .width = 800,
               .height = 600,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = -1
@@ -4250,7 +4556,8 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = -1
@@ -4269,7 +4576,8 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -4280,7 +4588,8 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1,
         },
@@ -4307,9 +4616,12 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
 static void
 meta_test_monitor_custom_mirrored_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 800,
           .height = 600,
@@ -4317,7 +4629,8 @@ meta_test_monitor_custom_mirrored_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -4340,7 +4653,8 @@ meta_test_monitor_custom_mirrored_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -4351,17 +4665,21 @@ meta_test_monitor_custom_mirrored_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -4377,12 +4695,14 @@ meta_test_monitor_custom_mirrored_config (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 0
@@ -4397,7 +4717,8 @@ meta_test_monitor_custom_mirrored_config (void)
         }
       },
       .n_monitors = 2,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0, 1 },
           .n_monitors = 2,
@@ -4408,7 +4729,8 @@ meta_test_monitor_custom_mirrored_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -4435,9 +4757,12 @@ meta_test_monitor_custom_mirrored_config (void)
 static void
 meta_test_monitor_custom_first_rotated_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -4445,7 +4770,8 @@ meta_test_monitor_custom_first_rotated_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -4468,7 +4794,8 @@ meta_test_monitor_custom_first_rotated_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -4479,17 +4806,21 @@ meta_test_monitor_custom_first_rotated_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -4505,12 +4836,14 @@ meta_test_monitor_custom_first_rotated_config (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 0
@@ -4525,7 +4858,8 @@ meta_test_monitor_custom_first_rotated_config (void)
         }
       },
       .n_monitors = 2,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -4543,7 +4877,8 @@ meta_test_monitor_custom_first_rotated_config (void)
       .n_logical_monitors = 2,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
           .transform = META_MONITOR_TRANSFORM_270
@@ -4569,9 +4904,12 @@ meta_test_monitor_custom_first_rotated_config (void)
 static void
 meta_test_monitor_custom_second_rotated_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -4579,7 +4917,8 @@ meta_test_monitor_custom_second_rotated_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -4602,7 +4941,8 @@ meta_test_monitor_custom_second_rotated_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -4613,17 +4953,21 @@ meta_test_monitor_custom_second_rotated_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -4639,12 +4983,14 @@ meta_test_monitor_custom_second_rotated_config (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 0
@@ -4659,7 +5005,8 @@ meta_test_monitor_custom_second_rotated_config (void)
         }
       },
       .n_monitors = 2,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -4677,7 +5024,8 @@ meta_test_monitor_custom_second_rotated_config (void)
       .n_logical_monitors = 2,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -4703,9 +5051,12 @@ meta_test_monitor_custom_second_rotated_config (void)
 static void
 meta_test_monitor_custom_second_rotated_tiled_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -4718,7 +5069,8 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
         }
       },
       .n_modes = 2,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -4738,7 +5090,8 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
           .n_possible_crtcs = 2,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -4757,7 +5110,8 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
           .n_possible_crtcs = 2,
           .width_mm = 222,
           .height_mm = 125,
-          .tile_info = {
+          .tile_info =
+          {
             .group_id = 1,
             .max_h_tiles = 2,
             .max_v_tiles = 1,
@@ -4769,7 +5123,8 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
         }
       },
       .n_outputs = 3,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         },
@@ -4783,17 +5138,21 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
       .n_crtcs = 3
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -4809,12 +5168,14 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
         {
           .outputs = { 1, 2 },
           .n_outputs = 2,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 1,
@@ -4833,7 +5194,8 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
         }
       },
       .n_monitors = 2,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -4851,7 +5213,8 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
       .n_logical_monitors = 2,
       .primary_logical_monitor = 0,
       .n_outputs = 3,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -4892,9 +5255,12 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
 static void
 meta_test_monitor_custom_second_rotated_nonnative_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -4902,7 +5268,8 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0 },
@@ -4925,7 +5292,8 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -4936,17 +5304,21 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -4962,12 +5334,14 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 0
@@ -4982,7 +5356,8 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
         }
       },
       .n_monitors = 2,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -5000,7 +5375,8 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
       .n_logical_monitors = 2,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -5040,9 +5416,12 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
 static void
 meta_test_monitor_custom_interlaced_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -5056,7 +5435,8 @@ meta_test_monitor_custom_interlaced_config (void)
         }
       },
       .n_modes = 2,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = 0,
           .modes = { 0, 1 },
@@ -5069,7 +5449,8 @@ meta_test_monitor_custom_interlaced_config (void)
         },
       },
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0
         },
@@ -5077,18 +5458,22 @@ meta_test_monitor_custom_interlaced_config (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
               .flags = META_CRTC_MODE_FLAG_NONE,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0,
@@ -5100,7 +5485,8 @@ meta_test_monitor_custom_interlaced_config (void)
               .height = 768,
               .refresh_rate = 60.000495910644531,
               .flags = META_CRTC_MODE_FLAG_INTERLACE,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 1,
@@ -5115,7 +5501,8 @@ meta_test_monitor_custom_interlaced_config (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -5126,7 +5513,8 @@ meta_test_monitor_custom_interlaced_config (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 1,
         }
@@ -5150,9 +5538,12 @@ meta_test_monitor_custom_interlaced_config (void)
 static void
 meta_test_monitor_custom_oneoff (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 800,
           .height = 600,
@@ -5160,7 +5551,8 @@ meta_test_monitor_custom_oneoff (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0 },
@@ -5184,7 +5576,8 @@ meta_test_monitor_custom_oneoff (void)
         }
       },
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         },
@@ -5195,17 +5588,21 @@ meta_test_monitor_custom_oneoff (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -5221,12 +5618,14 @@ meta_test_monitor_custom_oneoff (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 0
@@ -5241,7 +5640,8 @@ meta_test_monitor_custom_oneoff (void)
         }
       },
       .n_monitors = 2,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -5253,7 +5653,8 @@ meta_test_monitor_custom_oneoff (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 2,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -5279,9 +5680,12 @@ meta_test_monitor_custom_oneoff (void)
 static void
 meta_test_monitor_custom_lid_switch_config (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 1024,
           .height = 768,
@@ -5289,7 +5693,8 @@ meta_test_monitor_custom_lid_switch_config (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .modes = { 0 },
           .n_modes = 1,
@@ -5311,7 +5716,8 @@ meta_test_monitor_custom_lid_switch_config (void)
         }
       },
       .n_outputs = 1, /* Second one hot plugged later */
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         },
@@ -5322,17 +5728,21 @@ meta_test_monitor_custom_lid_switch_config (void)
       .n_crtcs = 2
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -5348,12 +5758,14 @@ meta_test_monitor_custom_lid_switch_config (void)
         {
           .outputs = { 1 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 1024,
               .height = 768,
               .refresh_rate = 60.000495910644531,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 1,
                   .crtc_mode = 0
@@ -5368,7 +5780,8 @@ meta_test_monitor_custom_lid_switch_config (void)
         }
       },
       .n_monitors = 1, /* Second one hot plugged later */
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -5386,7 +5799,8 @@ meta_test_monitor_custom_lid_switch_config (void)
       .n_logical_monitors = 1, /* Second one hot plugged later */
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
           .transform = META_MONITOR_TRANSFORM_270
@@ -5418,8 +5832,11 @@ meta_test_monitor_custom_lid_switch_config (void)
   test_case.expect.crtcs[1].current_mode = 0;
   test_case.expect.crtcs[1].transform = META_MONITOR_TRANSFORM_270;
   test_case.expect.logical_monitors[0].layout =
-    (MetaRectangle) { .width = 1024, .height = 768 };
-  test_case.expect.logical_monitors[0].transform = META_MONITOR_TRANSFORM_NORMAL;
+    (MetaRectangle) {
+    .width = 1024, .height = 768
+  };
+  test_case.expect.logical_monitors[0].transform =
+    META_MONITOR_TRANSFORM_NORMAL;
   test_case.expect.logical_monitors[1].transform = META_MONITOR_TRANSFORM_270;
   test_case.expect.n_logical_monitors = 2;
   test_case.expect.screen_width = 1024 + 768;
@@ -5435,7 +5852,9 @@ meta_test_monitor_custom_lid_switch_config (void)
   test_case.expect.crtcs[1].transform = META_MONITOR_TRANSFORM_90;
   test_case.expect.monitors[0].current_mode = -1;
   test_case.expect.logical_monitors[0].layout =
-    (MetaRectangle) { .width = 768, .height = 1024 };
+    (MetaRectangle) {
+    .width = 768, .height = 1024
+  };
   test_case.expect.logical_monitors[0].monitors[0] = 1;
   test_case.expect.logical_monitors[0].transform = META_MONITOR_TRANSFORM_90;
   test_case.expect.n_logical_monitors = 1;
@@ -5455,9 +5874,12 @@ meta_test_monitor_custom_lid_switch_config (void)
   test_case.expect.crtcs[1].transform = META_MONITOR_TRANSFORM_270;
   test_case.expect.monitors[0].current_mode = 0;
   test_case.expect.logical_monitors[0].layout =
-    (MetaRectangle) { .width = 1024, .height = 768 };
+    (MetaRectangle) {
+    .width = 1024, .height = 768
+  };
   test_case.expect.logical_monitors[0].monitors[0] = 0;
-  test_case.expect.logical_monitors[0].transform = META_MONITOR_TRANSFORM_NORMAL;
+  test_case.expect.logical_monitors[0].transform =
+    META_MONITOR_TRANSFORM_NORMAL;
   test_case.expect.logical_monitors[1].transform = META_MONITOR_TRANSFORM_270;
   test_case.expect.n_logical_monitors = 2;
   test_case.expect.screen_width = 1024 + 768;
@@ -5472,9 +5894,12 @@ meta_test_monitor_custom_lid_switch_config (void)
 static void
 meta_test_monitor_migrated_rotated (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 800,
           .height = 600,
@@ -5482,7 +5907,8 @@ meta_test_monitor_migrated_rotated (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0 },
@@ -5495,7 +5921,8 @@ meta_test_monitor_migrated_rotated (void)
         }
       },
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         }
@@ -5503,17 +5930,21 @@ meta_test_monitor_migrated_rotated (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -5528,7 +5959,8 @@ meta_test_monitor_migrated_rotated (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -5540,7 +5972,8 @@ meta_test_monitor_migrated_rotated (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
           .transform = META_MONITOR_TRANSFORM_270
@@ -5613,9 +6046,12 @@ meta_test_monitor_migrated_rotated (void)
 static void
 meta_test_monitor_migrated_wiggle_discard (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 800,
           .height = 600,
@@ -5623,7 +6059,8 @@ meta_test_monitor_migrated_wiggle_discard (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0 },
@@ -5636,7 +6073,8 @@ meta_test_monitor_migrated_wiggle_discard (void)
         }
       },
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         }
@@ -5644,17 +6082,21 @@ meta_test_monitor_migrated_wiggle_discard (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 59.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -5669,7 +6111,8 @@ meta_test_monitor_migrated_wiggle_discard (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -5681,7 +6124,8 @@ meta_test_monitor_migrated_wiggle_discard (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
         }
@@ -5757,9 +6201,12 @@ meta_test_monitor_migrated_wiggle_discard (void)
 static void
 meta_test_monitor_migrated_wiggle (void)
 {
-  MonitorTestCase test_case = {
-    .setup = {
-      .modes = {
+  MonitorTestCase test_case =
+  {
+    .setup =
+    {
+      .modes =
+      {
         {
           .width = 800,
           .height = 600,
@@ -5767,7 +6214,8 @@ meta_test_monitor_migrated_wiggle (void)
         }
       },
       .n_modes = 1,
-      .outputs = {
+      .outputs =
+      {
         {
           .crtc = -1,
           .modes = { 0 },
@@ -5780,7 +6228,8 @@ meta_test_monitor_migrated_wiggle (void)
         }
       },
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = -1
         }
@@ -5788,17 +6237,21 @@ meta_test_monitor_migrated_wiggle (void)
       .n_crtcs = 1
     },
 
-    .expect = {
-      .monitors = {
+    .expect =
+    {
+      .monitors =
+      {
         {
           .outputs = { 0 },
           .n_outputs = 1,
-          .modes = {
+          .modes =
+          {
             {
               .width = 800,
               .height = 600,
               .refresh_rate = 60.0,
-              .crtc_modes = {
+              .crtc_modes =
+              {
                 {
                   .output = 0,
                   .crtc_mode = 0
@@ -5813,7 +6266,8 @@ meta_test_monitor_migrated_wiggle (void)
         }
       },
       .n_monitors = 1,
-      .logical_monitors = {
+      .logical_monitors =
+      {
         {
           .monitors = { 0 },
           .n_monitors = 1,
@@ -5825,7 +6279,8 @@ meta_test_monitor_migrated_wiggle (void)
       .n_logical_monitors = 1,
       .primary_logical_monitor = 0,
       .n_outputs = 1,
-      .crtcs = {
+      .crtcs =
+      {
         {
           .current_mode = 0,
           .transform = META_MONITOR_TRANSFORM_90
@@ -5896,8 +6351,8 @@ meta_test_monitor_migrated_wiggle (void)
 }
 
 static void
-test_case_setup (void       **fixture,
-                 const void   *data)
+test_case_setup (void      **fixture,
+                 const void *data)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -5918,7 +6373,7 @@ add_monitor_test (const char *test_path,
 {
   g_test_add (test_path, gpointer, NULL,
               test_case_setup,
-              (void (* ) (void **, const void *)) test_func,
+              (void (*)(void **, const void *))test_func,
               NULL);
 }
 
@@ -5978,8 +6433,9 @@ init_monitor_tests (void)
                     meta_test_monitor_custom_scale_config);
   add_monitor_test ("/backends/monitor/custom/fractional-scale-config",
                     meta_test_monitor_custom_fractional_scale_config);
-  add_monitor_test ("/backends/monitor/custom/high-precision-fractional-scale-config",
-                    meta_test_monitor_custom_high_precision_fractional_scale_config);
+  add_monitor_test (
+    "/backends/monitor/custom/high-precision-fractional-scale-config",
+    meta_test_monitor_custom_high_precision_fractional_scale_config);
   add_monitor_test ("/backends/monitor/custom/tiled-config",
                     meta_test_monitor_custom_tiled_config);
   add_monitor_test ("/backends/monitor/custom/tiled-custom-resolution-config",

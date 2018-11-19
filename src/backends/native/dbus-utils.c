@@ -32,7 +32,8 @@
  * which follows the same escaping convention as systemd.
  */
 static inline gboolean
-_esc_ident_bad (gchar c, gboolean is_first)
+_esc_ident_bad (gchar    c,
+                gboolean is_first)
 {
   return ((c < 'a' || c > 'z') &&
           (c < 'A' || c > 'Z') &&
@@ -82,7 +83,7 @@ escape_dbus_component (const gchar *name)
               g_string_append_len (op, first_ok, ptr - first_ok);
             }
           /* escape the unsafe character */
-          g_string_append_printf (op, "_%02x", (unsigned char)(*ptr));
+          g_string_append_printf (op, "_%02x", (unsigned char) (*ptr));
           /* restart after it */
           first_ok = ptr + 1;
         }

@@ -51,7 +51,7 @@ find_largest_sizes (gulong *data,
       w = data[0];
       h = data[1];
 
-      if (nitems < ((gulong)(w * h) + 2))
+      if (nitems < ((gulong) (w * h) + 2))
         return FALSE; /* not enough data */
 
       *width = MAX (w, *width);
@@ -107,7 +107,7 @@ find_best_size (gulong  *data,
       w = data[0];
       h = data[1];
 
-      if (nitems < ((gulong)(w * h) + 2))
+      if (nitems < ((gulong) (w * h) + 2))
         break; /* not enough data */
 
       if (best_start == NULL)
@@ -161,7 +161,9 @@ find_best_size (gulong  *data,
 }
 
 static cairo_surface_t *
-argbdata_to_surface (gulong *argb_data, int w, int h)
+argbdata_to_surface (gulong *argb_data,
+                     int     w,
+                     int     h)
 {
   cairo_surface_t *surface;
   int y, x, stride;
@@ -213,11 +215,11 @@ read_rgb_icon (MetaX11Display   *x11_display,
   type = None;
   data = NULL;
   result = XGetWindowProperty (x11_display->xdisplay,
-			       xwindow,
+                               xwindow,
                                x11_display->atom__NET_WM_ICON,
-			       0, G_MAXLONG,
-			       False, XA_CARDINAL, &type, &format, &nitems,
-			       &bytes_after, &data);
+                               0, G_MAXLONG,
+                               False, XA_CARDINAL, &type, &format, &nitems,
+                               &bytes_after, &data);
   err = meta_x11_error_trap_pop_with_return (x11_display);
 
   if (err != Success ||
@@ -230,7 +232,7 @@ read_rgb_icon (MetaX11Display   *x11_display,
       return FALSE;
     }
 
-  data_as_long = (gulong *)data;
+  data_as_long = (gulong *) data;
 
   if (!find_best_size (data_as_long, nitems,
                        ideal_width, ideal_height,
@@ -295,24 +297,31 @@ standard_pict_format_for_depth (int depth)
     {
     case 1:
       return PictStandardA1;
+
     case 24:
       return PictStandardRGB24;
+
     case 32:
       return PictStandardARGB32;
+
     default:
       g_assert_not_reached ();
     }
 }
 
 static XRenderPictFormat *
-pict_format_for_depth (Display *xdisplay, int depth)
+pict_format_for_depth (Display *xdisplay,
+                       int      depth)
 {
-  return XRenderFindStandardFormat (xdisplay, standard_pict_format_for_depth (depth));
+  return XRenderFindStandardFormat (xdisplay,
+                                    standard_pict_format_for_depth (depth));
 }
 
 static cairo_surface_t *
-surface_from_pixmap (Display *xdisplay, Pixmap xpixmap,
-                     int width, int height)
+surface_from_pixmap (Display *xdisplay,
+                     Pixmap   xpixmap,
+                     int      width,
+                     int      height)
 {
   Window root_return;
   int x_ret, y_ret;
@@ -322,8 +331,12 @@ surface_from_pixmap (Display *xdisplay, Pixmap xpixmap,
                      &x_ret, &y_ret, &w_ret, &h_ret, &bw_ret, &depth_ret))
     return NULL;
 
-  return cairo_xlib_surface_create_with_xrender_format (xdisplay, xpixmap, DefaultScreenOfDisplay (xdisplay),
-                                                        pict_format_for_depth (xdisplay, depth_ret), w_ret, h_ret);
+  return cairo_xlib_surface_create_with_xrender_format (xdisplay, xpixmap, DefaultScreenOfDisplay (
+                                                          xdisplay),
+                                                        pict_format_for_depth (
+                                                          xdisplay,
+                                                          depth_ret), w_ret,
+                                                        h_ret);
 }
 
 static gboolean
@@ -361,8 +374,10 @@ try_pixmap_and_mask (MetaX11Display   *x11_display,
 
       masked = cairo_surface_create_similar_image (icon,
                                                    CAIRO_FORMAT_ARGB32,
-                                                   cairo_xlib_surface_get_width (icon),
-                                                   cairo_xlib_surface_get_height (icon));
+                                                   cairo_xlib_surface_get_width (
+                                                     icon),
+                                                   cairo_xlib_surface_get_height (
+                                                     icon));
       cr = cairo_create (masked);
 
       cairo_set_source_surface (cr, icon, 0, 0);
@@ -407,12 +422,12 @@ get_kwm_win_icon (MetaX11Display *x11_display,
   icons = NULL;
   result = XGetWindowProperty (x11_display->xdisplay, xwindow,
                                x11_display->atom__KWM_WIN_ICON,
-			       0, G_MAXLONG,
-			       False,
+                               0, G_MAXLONG,
+                               False,
                                x11_display->atom__KWM_WIN_ICON,
-			       &type, &format, &nitems,
-			       &bytes_after, &data);
-  icons = (Pixmap *)data;
+                               &type, &format, &nitems,
+                               &bytes_after, &data);
+  icons = (Pixmap *) data;
 
   err = meta_x11_error_trap_pop_with_return (x11_display);
   if (err != Success ||

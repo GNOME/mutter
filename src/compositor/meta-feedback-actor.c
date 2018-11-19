@@ -30,7 +30,8 @@
 #include "compositor/meta-feedback-actor-private.h"
 #include "core/display-private.h"
 
-enum {
+enum
+{
   PROP_ANCHOR_X = 1,
   PROP_ANCHOR_Y
 };
@@ -45,7 +46,8 @@ struct _MetaFeedbackActorPrivate
   int pos_y;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaFeedbackActor, meta_feedback_actor, CLUTTER_TYPE_ACTOR)
+G_DEFINE_TYPE_WITH_PRIVATE (MetaFeedbackActor, meta_feedback_actor,
+                            CLUTTER_TYPE_ACTOR)
 
 static void
 meta_feedback_actor_constructed (GObject *object)
@@ -60,7 +62,8 @@ meta_feedback_actor_constructed (GObject *object)
 static void
 meta_feedback_actor_update_position (MetaFeedbackActor *self)
 {
-  MetaFeedbackActorPrivate *priv = meta_feedback_actor_get_instance_private (self);
+  MetaFeedbackActorPrivate *priv = meta_feedback_actor_get_instance_private (
+    self);
 
   clutter_actor_set_position (CLUTTER_ACTOR (self),
                               priv->pos_x - priv->anchor_x,
@@ -74,7 +77,8 @@ meta_feedback_actor_set_property (GObject      *object,
                                   GParamSpec   *pspec)
 {
   MetaFeedbackActor *self = META_FEEDBACK_ACTOR (object);
-  MetaFeedbackActorPrivate *priv = meta_feedback_actor_get_instance_private (self);
+  MetaFeedbackActorPrivate *priv = meta_feedback_actor_get_instance_private (
+    self);
 
   switch (prop_id)
     {
@@ -82,10 +86,12 @@ meta_feedback_actor_set_property (GObject      *object,
       priv->anchor_x = g_value_get_int (value);
       meta_feedback_actor_update_position (self);
       break;
+
     case PROP_ANCHOR_Y:
       priv->anchor_y = g_value_get_int (value);
       meta_feedback_actor_update_position (self);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -93,22 +99,25 @@ meta_feedback_actor_set_property (GObject      *object,
 }
 
 static void
-meta_feedback_actor_get_property (GObject      *object,
-                                  guint         prop_id,
-                                  GValue       *value,
-                                  GParamSpec   *pspec)
+meta_feedback_actor_get_property (GObject    *object,
+                                  guint       prop_id,
+                                  GValue     *value,
+                                  GParamSpec *pspec)
 {
   MetaFeedbackActor *self = META_FEEDBACK_ACTOR (object);
-  MetaFeedbackActorPrivate *priv = meta_feedback_actor_get_instance_private (self);
+  MetaFeedbackActorPrivate *priv = meta_feedback_actor_get_instance_private (
+    self);
 
   switch (prop_id)
     {
     case PROP_ANCHOR_X:
       g_value_set_int (value, priv->anchor_x);
       break;
+
     case PROP_ANCHOR_Y:
       g_value_set_int (value, priv->anchor_y);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -220,9 +229,9 @@ meta_feedback_actor_get_anchor (MetaFeedbackActor *self,
 }
 
 void
-meta_feedback_actor_set_position (MetaFeedbackActor  *self,
-                                  int                 x,
-                                  int                 y)
+meta_feedback_actor_set_position (MetaFeedbackActor *self,
+                                  int                x,
+                                  int                y)
 {
   MetaFeedbackActorPrivate *priv;
 

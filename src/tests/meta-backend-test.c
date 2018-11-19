@@ -66,6 +66,7 @@ meta_backend_test_class_init (MetaBackendTestClass *klass)
 {
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
 
-  backend_class->create_monitor_manager = meta_backend_test_create_monitor_manager;
+  backend_class->create_monitor_manager =
+    meta_backend_test_create_monitor_manager;
   backend_class->is_lid_closed = meta_backend_test_is_lid_closed;
 }

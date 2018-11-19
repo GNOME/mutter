@@ -30,10 +30,12 @@ enum
 
 static guint inhibit_dialog_signals[LAST_SIGNAL] = { 0, };
 
-G_DEFINE_INTERFACE (MetaInhibitShortcutsDialog, meta_inhibit_shortcuts_dialog, G_TYPE_OBJECT)
+G_DEFINE_INTERFACE (MetaInhibitShortcutsDialog, meta_inhibit_shortcuts_dialog,
+                    G_TYPE_OBJECT)
 
 static void
-meta_inhibit_shortcuts_dialog_default_init (MetaInhibitShortcutsDialogInterface *iface)
+meta_inhibit_shortcuts_dialog_default_init (
+  MetaInhibitShortcutsDialogInterface *iface)
 {
   g_object_interface_install_property (iface,
                                        g_param_spec_object ("window",
@@ -41,7 +43,8 @@ meta_inhibit_shortcuts_dialog_default_init (MetaInhibitShortcutsDialogInterface 
                                                             "Window",
                                                             META_TYPE_WINDOW,
                                                             G_PARAM_READWRITE |
-                                                            G_PARAM_CONSTRUCT_ONLY |
+                                                            G_PARAM_CONSTRUCT_ONLY
+                                                            |
                                                             G_PARAM_STATIC_STRINGS));
   inhibit_dialog_signals[RESPONSE] =
     g_signal_new ("response",
@@ -95,8 +98,9 @@ meta_inhibit_shortcuts_dialog_hide (MetaInhibitShortcutsDialog *dialog)
  * implementations.
  **/
 void
-meta_inhibit_shortcuts_dialog_response (MetaInhibitShortcutsDialog         *dialog,
-                                        MetaInhibitShortcutsDialogResponse  response)
+meta_inhibit_shortcuts_dialog_response (
+  MetaInhibitShortcutsDialog        *dialog,
+  MetaInhibitShortcutsDialogResponse response)
 {
   g_signal_emit (dialog, inhibit_dialog_signals[RESPONSE], 0, response);
   meta_inhibit_shortcuts_dialog_hide (dialog);

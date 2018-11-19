@@ -82,8 +82,8 @@ G_DEFINE_TYPE_WITH_CODE (MetaMonitorManagerKms, meta_monitor_manager_kms,
                                                 initable_iface_init))
 
 static GBytes *
-meta_monitor_manager_kms_read_edid (MetaMonitorManager *manager,
-                                    MetaOutput         *output)
+meta_monitor_manager_kms_read_edid (MetaMonitorManager * manager,
+                                    MetaOutput * output)
 {
   return meta_output_kms_read_edid (output);
 }
@@ -95,22 +95,27 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
   uint64_t state;
   GList *l;
 
-  switch (mode) {
-  case META_POWER_SAVE_ON:
-    state = DRM_MODE_DPMS_ON;
-    break;
-  case META_POWER_SAVE_STANDBY:
-    state = DRM_MODE_DPMS_STANDBY;
-    break;
-  case META_POWER_SAVE_SUSPEND:
-    state = DRM_MODE_DPMS_SUSPEND;
-    break;
-  case META_POWER_SAVE_OFF:
-    state = DRM_MODE_DPMS_OFF;
-    break;
-  default:
-    return;
-  }
+  switch (mode)
+    {
+    case META_POWER_SAVE_ON:
+      state = DRM_MODE_DPMS_ON;
+      break;
+
+    case META_POWER_SAVE_STANDBY:
+      state = DRM_MODE_DPMS_STANDBY;
+      break;
+
+    case META_POWER_SAVE_SUSPEND:
+      state = DRM_MODE_DPMS_SUSPEND;
+      break;
+
+    case META_POWER_SAVE_OFF:
+      state = DRM_MODE_DPMS_OFF;
+      break;
+
+    default:
+      return;
+    }
 
   for (l = manager->gpus; l; l = l->next)
     {
@@ -132,10 +137,10 @@ meta_monitor_manager_kms_ensure_initial_config (MetaMonitorManager *manager)
 
 static void
 apply_crtc_assignments (MetaMonitorManager *manager,
-                        MetaCrtcInfo       **crtcs,
-                        unsigned int         n_crtcs,
-                        MetaOutputInfo     **outputs,
-                        unsigned int         n_outputs)
+                        MetaCrtcInfo      **crtcs,
+                        unsigned int        n_crtcs,
+                        MetaOutputInfo    **outputs,
+                        unsigned int        n_outputs)
 {
   unsigned i;
   GList *l;
@@ -193,7 +198,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
       meta_crtc_kms_apply_transform (crtc);
     }
   /* Disable CRTCs not mentioned in the list (they have is_dirty == FALSE,
-     because they weren't seen in the first loop) */
+   *  because they weren't seen in the first loop) */
   for (l = manager->gpus; l; l = l->next)
     {
       MetaGpu *gpu = l->data;
@@ -283,10 +288,11 @@ update_screen_size (MetaMonitorManager *manager,
 }
 
 static gboolean
-meta_monitor_manager_kms_apply_monitors_config (MetaMonitorManager      *manager,
-                                                MetaMonitorsConfig      *config,
-                                                MetaMonitorsConfigMethod method,
-                                                GError                 **error)
+meta_monitor_manager_kms_apply_monitors_config (
+  MetaMonitorManager      *manager,
+  MetaMonitorsConfig      *config,
+  MetaMonitorsConfigMethod method,
+  GError                 **error)
 {
   GPtrArray *crtc_infos;
   GPtrArray *output_infos;
@@ -327,12 +333,12 @@ meta_monitor_manager_kms_apply_monitors_config (MetaMonitorManager      *manager
 }
 
 static void
-meta_monitor_manager_kms_get_crtc_gamma (MetaMonitorManager  *manager,
-                                         MetaCrtc            *crtc,
-                                         gsize               *size,
-                                         unsigned short     **red,
-                                         unsigned short     **green,
-                                         unsigned short     **blue)
+meta_monitor_manager_kms_get_crtc_gamma (MetaMonitorManager *manager,
+                                         MetaCrtc           *crtc,
+                                         gsize              *size,
+                                         unsigned short    **red,
+                                         unsigned short    **green,
+                                         unsigned short    **blue)
 {
   MetaGpu *gpu = meta_crtc_get_gpu (crtc);
   int kms_fd = meta_gpu_kms_get_fd (META_GPU_KMS (gpu));
@@ -387,7 +393,8 @@ on_uevent (GUdevClient *client,
 }
 
 static void
-meta_monitor_manager_kms_connect_uevent_handler (MetaMonitorManagerKms *manager_kms)
+meta_monitor_manager_kms_connect_uevent_handler (
+  MetaMonitorManagerKms *manager_kms)
 {
   manager_kms->uevent_handler_id = g_signal_connect (manager_kms->udev,
                                                      "uevent",
@@ -396,7 +403,8 @@ meta_monitor_manager_kms_connect_uevent_handler (MetaMonitorManagerKms *manager_
 }
 
 static void
-meta_monitor_manager_kms_disconnect_uevent_handler (MetaMonitorManagerKms *manager_kms)
+meta_monitor_manager_kms_disconnect_uevent_handler (
+  MetaMonitorManagerKms *manager_kms)
 {
   g_signal_handler_disconnect (manager_kms->udev,
                                manager_kms->uevent_handler_id);
@@ -427,19 +435,21 @@ meta_monitor_manager_kms_is_transform_handled (MetaMonitorManager  *manager,
 }
 
 static float
-meta_monitor_manager_kms_calculate_monitor_mode_scale (MetaMonitorManager *manager,
-                                                       MetaMonitor        *monitor,
-                                                       MetaMonitorMode    *monitor_mode)
+meta_monitor_manager_kms_calculate_monitor_mode_scale (
+  MetaMonitorManager *manager,
+  MetaMonitor        *monitor,
+  MetaMonitorMode    *monitor_mode)
 {
   return meta_monitor_calculate_mode_scale (monitor, monitor_mode);
 }
 
 static float *
-meta_monitor_manager_kms_calculate_supported_scales (MetaMonitorManager          *manager,
-                                                     MetaLogicalMonitorLayoutMode layout_mode,
-                                                     MetaMonitor                 *monitor,
-                                                     MetaMonitorMode             *monitor_mode,
-                                                     int                         *n_supported_scales)
+meta_monitor_manager_kms_calculate_supported_scales (
+  MetaMonitorManager          *manager,
+  MetaLogicalMonitorLayoutMode layout_mode,
+  MetaMonitor                 *monitor,
+  MetaMonitorMode             *monitor_mode,
+  int                         *n_supported_scales)
 {
   MetaMonitorScalesConstraint constraints =
     META_MONITOR_SCALES_CONSTRAINT_NONE;
@@ -448,6 +458,7 @@ meta_monitor_manager_kms_calculate_supported_scales (MetaMonitorManager         
     {
     case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
       break;
+
     case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
       constraints |= META_MONITOR_SCALES_CONSTRAINT_NO_FRAC;
       break;
@@ -742,15 +753,23 @@ meta_monitor_manager_kms_class_init (MetaMonitorManagerKmsClass *klass)
   object_class->dispose = meta_monitor_manager_kms_dispose;
 
   manager_class->read_edid = meta_monitor_manager_kms_read_edid;
-  manager_class->ensure_initial_config = meta_monitor_manager_kms_ensure_initial_config;
-  manager_class->apply_monitors_config = meta_monitor_manager_kms_apply_monitors_config;
-  manager_class->set_power_save_mode = meta_monitor_manager_kms_set_power_save_mode;
+  manager_class->ensure_initial_config =
+    meta_monitor_manager_kms_ensure_initial_config;
+  manager_class->apply_monitors_config =
+    meta_monitor_manager_kms_apply_monitors_config;
+  manager_class->set_power_save_mode =
+    meta_monitor_manager_kms_set_power_save_mode;
   manager_class->get_crtc_gamma = meta_monitor_manager_kms_get_crtc_gamma;
   manager_class->set_crtc_gamma = meta_monitor_manager_kms_set_crtc_gamma;
-  manager_class->is_transform_handled = meta_monitor_manager_kms_is_transform_handled;
-  manager_class->calculate_monitor_mode_scale = meta_monitor_manager_kms_calculate_monitor_mode_scale;
-  manager_class->calculate_supported_scales = meta_monitor_manager_kms_calculate_supported_scales;
+  manager_class->is_transform_handled =
+    meta_monitor_manager_kms_is_transform_handled;
+  manager_class->calculate_monitor_mode_scale =
+    meta_monitor_manager_kms_calculate_monitor_mode_scale;
+  manager_class->calculate_supported_scales =
+    meta_monitor_manager_kms_calculate_supported_scales;
   manager_class->get_capabilities = meta_monitor_manager_kms_get_capabilities;
-  manager_class->get_max_screen_size = meta_monitor_manager_kms_get_max_screen_size;
-  manager_class->get_default_layout_mode = meta_monitor_manager_kms_get_default_layout_mode;
+  manager_class->get_max_screen_size =
+    meta_monitor_manager_kms_get_max_screen_size;
+  manager_class->get_default_layout_mode =
+    meta_monitor_manager_kms_get_default_layout_mode;
 }

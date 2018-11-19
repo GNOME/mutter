@@ -85,7 +85,7 @@ meta_window_ensure_frame (MetaWindow *window)
   meta_verbose ("Frame for %s is 0x%lx\n", frame->window->desc, frame->xwindow);
   attrs.event_mask = EVENT_MASK;
   XChangeWindowAttributes (x11_display->xdisplay,
-			   frame->xwindow, CWEventMask, &attrs);
+                           frame->xwindow, CWEventMask, &attrs);
 
   meta_x11_display_register_x_window (x11_display, &frame->xwindow, window);
 
@@ -96,7 +96,8 @@ meta_window_ensure_frame (MetaWindow *window)
                                * we don't want to take that as a withdraw
                                */
       meta_topic (META_DEBUG_WINDOW_STATE,
-                  "Incrementing unmaps_pending on %s for reparent\n", window->desc);
+                  "Incrementing unmaps_pending on %s for reparent\n",
+                  window->desc);
       window->unmaps_pending += 1;
     }
 
@@ -132,7 +133,8 @@ meta_window_ensure_frame (MetaWindow *window)
     MetaBackend *backend = meta_get_backend ();
     if (META_IS_BACKEND_X11 (backend))
       {
-        Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+        Display *xdisplay =
+          meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
 
         /* Since the backend selects for events on another connection,
          * make sure to sync the GTK+ connection to ensure that the
@@ -140,7 +142,8 @@ meta_window_ensure_frame (MetaWindow *window)
         XSync (x11_display->xdisplay, False);
 
         unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
-        XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
+        XIEventMask mask =
+        { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
 
         XISelectEvents (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
                         frame->xwindow, &mask, 1);
@@ -190,7 +193,8 @@ meta_window_destroy_frame (MetaWindow *window)
                                * by the client.
                                */
       meta_topic (META_DEBUG_WINDOW_STATE,
-                  "Incrementing unmaps_pending on %s for reparent back to root\n", window->desc);
+                  "Incrementing unmaps_pending on %s for reparent back to root\n",
+                  window->desc);
       window->unmaps_pending += 1;
     }
   meta_stack_tracker_record_add (window->display->stack_tracker,
@@ -244,9 +248,9 @@ meta_frame_get_flags (MetaFrame *frame)
 
   if (frame->window->border_only)
     {
-      ; /* FIXME this may disable the _function_ as well as decor
-         * in some cases, which is sort of wrong.
-         */
+      /* FIXME this may disable the _function_ as well as decor
+       * in some cases, which is sort of wrong.
+       */
     }
   else
     {
@@ -314,10 +318,10 @@ meta_frame_get_flags (MetaFrame *frame)
 void
 meta_frame_borders_clear (MetaFrameBorders *self)
 {
-  self->visible.top    = self->invisible.top    = self->total.top    = 0;
+  self->visible.top = self->invisible.top = self->total.top = 0;
   self->visible.bottom = self->invisible.bottom = self->total.bottom = 0;
-  self->visible.left   = self->invisible.left   = self->total.left   = 0;
-  self->visible.right  = self->invisible.right  = self->total.right  = 0;
+  self->visible.left = self->invisible.left = self->total.left = 0;
+  self->visible.right = self->invisible.right = self->total.right = 0;
 }
 
 void
@@ -358,10 +362,10 @@ meta_frame_sync_to_window (MetaFrame *frame,
               frame->rect.y + frame->rect.height);
 
   meta_ui_frame_move_resize (frame->ui_frame,
-			     frame->rect.x,
-			     frame->rect.y,
-			     frame->rect.width,
-			     frame->rect.height);
+                             frame->rect.x,
+                             frame->rect.y,
+                             frame->rect.width,
+                             frame->rect.height);
 
   return need_resize;
 }
@@ -373,8 +377,8 @@ meta_frame_get_frame_bounds (MetaFrame *frame)
 }
 
 void
-meta_frame_get_mask (MetaFrame                    *frame,
-                     cairo_t                      *cr)
+meta_frame_get_mask (MetaFrame *frame,
+                     cairo_t   *cr)
 {
   meta_ui_frame_get_mask (frame->ui_frame, cr);
 }
@@ -386,8 +390,8 @@ meta_frame_queue_draw (MetaFrame *frame)
 }
 
 void
-meta_frame_set_screen_cursor (MetaFrame	*frame,
-			      MetaCursor cursor)
+meta_frame_set_screen_cursor (MetaFrame *frame,
+                              MetaCursor cursor)
 {
   MetaX11Display *x11_display;
   Cursor xcursor;

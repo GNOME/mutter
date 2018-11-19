@@ -62,7 +62,8 @@ struct _MetaWaylandDmaBufBuffer
   unsigned int strides[META_WAYLAND_DMA_BUF_MAX_FDS];
 };
 
-G_DEFINE_TYPE (MetaWaylandDmaBufBuffer, meta_wayland_dma_buf_buffer, G_TYPE_OBJECT);
+G_DEFINE_TYPE (MetaWaylandDmaBufBuffer, meta_wayland_dma_buf_buffer,
+               G_TYPE_OBJECT);
 
 gboolean
 meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer *buffer,
@@ -71,7 +72,8 @@ meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer *buffer,
   MetaBackend *backend = meta_get_backend ();
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
   MetaWaylandDmaBufBuffer *dma_buf = buffer->dma_buf.dma_buf;
   CoglPixelFormat cogl_format;
@@ -88,15 +90,19 @@ meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer *buffer,
     case DRM_FORMAT_XRGB8888:
       cogl_format = COGL_PIXEL_FORMAT_RGB_888;
       break;
+
     case DRM_FORMAT_ARGB8888:
       cogl_format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
       break;
+
     case DRM_FORMAT_ARGB2101010:
       cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
       break;
+
     case DRM_FORMAT_RGB565:
       cogl_format = COGL_PIXEL_FORMAT_RGB_565;
       break;
+
     default:
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
@@ -289,7 +295,7 @@ meta_wayland_dma_buf_from_buffer (MetaWaylandBuffer *buffer)
 {
   if (wl_resource_instance_of (buffer->resource, &wl_buffer_interface,
                                &dma_buf_buffer_impl))
-      return wl_resource_get_user_data (buffer->resource);
+    return wl_resource_get_user_data (buffer->resource);
 
   return NULL;
 }
@@ -380,16 +386,16 @@ buffer_params_create_common (struct wl_client   *client,
                                   error ? error->message : "unknown error");
         }
 
-        /* will unref the MetaWaylandBuffer */
-        wl_resource_destroy (buffer->resource);
-        return;
+      /* will unref the MetaWaylandBuffer */
+      wl_resource_destroy (buffer->resource);
+      return;
     }
 
-    /* If buffer_id is 0, we are using the non-immediate interface, so
-     * need to send a success event with our buffer. */
-    if (buffer_id == 0)
-      zwp_linux_buffer_params_v1_send_created (params_resource,
-                                               buffer->resource);
+  /* If buffer_id is 0, we are using the non-immediate interface, so
+   * need to send a success event with our buffer. */
+  if (buffer_id == 0)
+    zwp_linux_buffer_params_v1_send_created (params_resource,
+                                             buffer->resource);
 }
 
 static void
@@ -417,7 +423,8 @@ buffer_params_create_immed (struct wl_client   *client,
                                height, format, flags);
 }
 
-static const struct zwp_linux_buffer_params_v1_interface buffer_params_implementation =
+static const struct zwp_linux_buffer_params_v1_interface
+  buffer_params_implementation =
 {
   buffer_params_destroy,
   buffer_params_add,
@@ -466,7 +473,8 @@ send_modifiers (struct wl_resource *resource,
   MetaBackend *backend = meta_get_backend ();
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
   EGLint num_modifiers;
   EGLuint64KHR *modifiers;
@@ -478,7 +486,8 @@ send_modifiers (struct wl_resource *resource,
 
   /* The modifier event was only added in v3; v1 and v2 only have the format
    * event. */
-  if (wl_resource_get_version (resource) < ZWP_LINUX_DMABUF_V1_MODIFIER_SINCE_VERSION)
+  if (wl_resource_get_version (resource) <
+      ZWP_LINUX_DMABUF_V1_MODIFIER_SINCE_VERSION)
     return;
 
   /* First query the number of available modifiers, then allocate an array,
@@ -535,7 +544,8 @@ meta_wayland_dma_buf_init (MetaWaylandCompositor *compositor)
   MetaBackend *backend = meta_get_backend ();
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
 
   g_assert (backend && egl && clutter_backend && cogl_context && egl_display);

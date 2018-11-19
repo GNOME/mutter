@@ -113,7 +113,8 @@ struct _MetaWaylandXdgPopup
 
   gboolean dismissed_by_client;
 
-  struct {
+  struct
+  {
     MetaWaylandSurface *parent_surface;
 
     /*
@@ -137,13 +138,16 @@ G_DEFINE_TYPE_WITH_CODE (MetaWaylandXdgPopup,
                                                 popup_surface_iface_init));
 
 static MetaPlacementRule
-meta_wayland_xdg_positioner_to_placement (MetaWaylandXdgPositioner *xdg_positioner);
+meta_wayland_xdg_positioner_to_placement (
+  MetaWaylandXdgPositioner *xdg_positioner);
 
 static struct wl_resource *
-meta_wayland_xdg_surface_get_wm_base_resource (MetaWaylandXdgSurface *xdg_surface);
+meta_wayland_xdg_surface_get_wm_base_resource (
+  MetaWaylandXdgSurface *xdg_surface);
 
 static MetaRectangle
-meta_wayland_xdg_surface_get_window_geometry (MetaWaylandXdgSurface *xdg_surface);
+meta_wayland_xdg_surface_get_window_geometry (
+  MetaWaylandXdgSurface *xdg_surface);
 
 static uint32_t
 meta_wayland_xdg_surface_send_configure (MetaWaylandXdgSurface *xdg_surface);
@@ -261,7 +265,8 @@ xdg_toplevel_show_window_menu (struct wl_client   *client,
   if (!window)
     return;
 
-  if (!meta_wayland_seat_get_grab_info (seat, surface, serial, FALSE, NULL, NULL))
+  if (!meta_wayland_seat_get_grab_info (seat, surface, serial, FALSE, NULL,
+                                        NULL))
     return;
 
   monitor_scale = window->monitor->scale;
@@ -465,7 +470,8 @@ xdg_toplevel_set_minimized (struct wl_client   *client,
   meta_window_minimize (window);
 }
 
-static const struct xdg_toplevel_interface meta_wayland_xdg_toplevel_interface = {
+static const struct xdg_toplevel_interface meta_wayland_xdg_toplevel_interface =
+{
   xdg_toplevel_destroy,
   xdg_toplevel_set_parent,
   xdg_toplevel_set_title,
@@ -547,7 +553,8 @@ xdg_popup_grab (struct wl_client   *client,
   xdg_popup->setup.grab_serial = serial;
 }
 
-static const struct xdg_popup_interface meta_wayland_xdg_popup_interface = {
+static const struct xdg_popup_interface meta_wayland_xdg_popup_interface =
+{
   xdg_popup_destroy,
   xdg_popup_grab,
 };
@@ -573,8 +580,8 @@ on_parent_surface_unmapped (MetaWaylandSurface  *parent_surface,
 }
 
 static void
-add_state_value (struct wl_array         *states,
-                 enum xdg_toplevel_state  state)
+add_state_value (struct wl_array        *states,
+                 enum xdg_toplevel_state state)
 {
   uint32_t *s;
 
@@ -656,7 +663,8 @@ is_new_size_hints_valid (MetaWindow              *window,
     }
   else
     {
-      meta_window_wayland_get_min_size (window, &new_min_width, &new_min_height);
+      meta_window_wayland_get_min_size (window, &new_min_width,
+                                        &new_min_height);
     }
 
   if (pending->has_new_max_size)
@@ -666,7 +674,8 @@ is_new_size_hints_valid (MetaWindow              *window,
     }
   else
     {
-      meta_window_wayland_get_max_size (window, &new_max_width, &new_max_height);
+      meta_window_wayland_get_max_size (window, &new_max_width,
+                                        &new_max_height);
     }
   /* Zero means unlimited */
   return ((new_max_width == 0 || new_min_width <= new_max_width) &&
@@ -677,7 +686,8 @@ static void
 meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
                                   MetaWaylandPendingState *pending)
 {
-  MetaWaylandXdgToplevel *xdg_toplevel = META_WAYLAND_XDG_TOPLEVEL (surface_role);
+  MetaWaylandXdgToplevel *xdg_toplevel =
+    META_WAYLAND_XDG_TOPLEVEL (surface_role);
   MetaWaylandXdgSurface *xdg_surface = META_WAYLAND_XDG_SURFACE (xdg_toplevel);
   MetaWaylandXdgSurfacePrivate *xdg_surface_priv =
     meta_wayland_xdg_surface_get_instance_private (xdg_surface);
@@ -722,11 +732,13 @@ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
   if (!pending->newly_attached)
     return;
 
-  geometry_changed = !meta_rectangle_equal (&old_geometry, &xdg_surface_priv->geometry);
+  geometry_changed = !meta_rectangle_equal (&old_geometry,
+                                            &xdg_surface_priv->geometry);
 
   if (geometry_changed || meta_window_wayland_needs_move_resize (window))
     {
-      window_geometry = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);
+      window_geometry = meta_wayland_xdg_surface_get_window_geometry (
+        xdg_surface);
       meta_window_wayland_move_resize (window,
                                        &xdg_surface_priv->acked_configure_serial,
                                        window_geometry,
@@ -760,7 +772,6 @@ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
           wl_resource_post_error (surface->resource,
                                   XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
                                   "Invalid min/max size");
-
         }
     }
 
@@ -789,7 +800,8 @@ meta_wayland_xdg_toplevel_reset (MetaWaylandXdgSurface *xdg_surface)
 
   meta_wayland_surface_destroy_window (surface);
 
-  meta_wayland_actor_surface_reset_actor (META_WAYLAND_ACTOR_SURFACE (surface_role));
+  meta_wayland_actor_surface_reset_actor (META_WAYLAND_ACTOR_SURFACE (
+                                            surface_role));
   window = meta_window_wayland_new (meta_get_display (), surface);
   meta_wayland_shell_surface_set_window (shell_surface, window);
 
@@ -837,7 +849,8 @@ meta_wayland_xdg_toplevel_close (MetaWaylandShellSurface *shell_surface)
 }
 
 static void
-meta_wayland_xdg_toplevel_shell_client_destroyed (MetaWaylandXdgSurface *xdg_surface)
+meta_wayland_xdg_toplevel_shell_client_destroyed (
+  MetaWaylandXdgSurface *xdg_surface)
 {
   MetaWaylandXdgToplevel *xdg_toplevel =
     META_WAYLAND_XDG_TOPLEVEL (xdg_surface);
@@ -1140,7 +1153,8 @@ meta_wayland_xdg_popup_managed (MetaWaylandShellSurface *shell_surface,
 }
 
 static void
-meta_wayland_xdg_popup_shell_client_destroyed (MetaWaylandXdgSurface *xdg_surface)
+meta_wayland_xdg_popup_shell_client_destroyed (
+  MetaWaylandXdgSurface *xdg_surface)
 {
   MetaWaylandXdgPopup *xdg_popup = META_WAYLAND_XDG_POPUP (xdg_surface);
   struct wl_resource *xdg_wm_base_resource =
@@ -1251,7 +1265,8 @@ meta_wayland_xdg_popup_class_init (MetaWaylandXdgPopupClass *klass)
 }
 
 static struct wl_resource *
-meta_wayland_xdg_surface_get_wm_base_resource (MetaWaylandXdgSurface *xdg_surface)
+meta_wayland_xdg_surface_get_wm_base_resource (
+  MetaWaylandXdgSurface *xdg_surface)
 {
   MetaWaylandXdgSurfacePrivate *priv =
     meta_wayland_xdg_surface_get_instance_private (xdg_surface);
@@ -1382,7 +1397,8 @@ xdg_surface_ack_configure (struct wl_client   *client,
   priv->acked_configure_serial.value = serial;
 }
 
-static const struct xdg_surface_interface meta_wayland_xdg_surface_interface = {
+static const struct xdg_surface_interface meta_wayland_xdg_surface_interface =
+{
   xdg_surface_destroy,
   xdg_surface_get_toplevel,
   xdg_surface_get_popup,
@@ -1410,7 +1426,9 @@ meta_wayland_xdg_surface_real_reset (MetaWaylandXdgSurface *xdg_surface)
 
   priv->first_buffer_attached = FALSE;
   priv->configure_sent = FALSE;
-  priv->geometry = (MetaRectangle) { 0 };
+  priv->geometry = (MetaRectangle) {
+    0
+  };
   priv->has_set_geometry = FALSE;
 }
 
@@ -1509,7 +1527,8 @@ meta_wayland_xdg_surface_ping (MetaWaylandShellSurface *shell_surface,
 }
 
 static void
-meta_wayland_xdg_surface_real_shell_client_destroyed (MetaWaylandXdgSurface *xdg_surface)
+meta_wayland_xdg_surface_real_shell_client_destroyed (
+  MetaWaylandXdgSurface *xdg_surface)
 {
   MetaWaylandXdgSurfacePrivate *priv =
     meta_wayland_xdg_surface_get_instance_private (xdg_surface);
@@ -1538,11 +1557,11 @@ meta_wayland_xdg_surface_set_property (GObject      *object,
   switch (prop_id)
     {
     case XDG_SURFACE_PROP_SHELL_CLIENT:
-      priv->shell_client  = g_value_get_pointer (value);
+      priv->shell_client = g_value_get_pointer (value);
       break;
 
     case XDG_SURFACE_PROP_RESOURCE:
-      priv->resource  = g_value_get_pointer (value);
+      priv->resource = g_value_get_pointer (value);
       break;
 
     default:
@@ -1623,7 +1642,8 @@ meta_wayland_xdg_surface_class_init (MetaWaylandXdgSurfaceClass *klass)
 }
 
 static void
-meta_wayland_xdg_surface_shell_client_destroyed (MetaWaylandXdgSurface *xdg_surface)
+meta_wayland_xdg_surface_shell_client_destroyed (
+  MetaWaylandXdgSurface *xdg_surface)
 {
   MetaWaylandXdgSurfaceClass *xdg_surface_class =
     META_WAYLAND_XDG_SURFACE_GET_CLASS (xdg_surface);
@@ -1632,8 +1652,9 @@ meta_wayland_xdg_surface_shell_client_destroyed (MetaWaylandXdgSurface *xdg_surf
 }
 
 static void
-meta_wayland_xdg_surface_constructor_finalize (MetaWaylandXdgSurfaceConstructor *constructor,
-                                               MetaWaylandXdgSurface            *xdg_surface)
+meta_wayland_xdg_surface_constructor_finalize (
+  MetaWaylandXdgSurfaceConstructor *constructor,
+  MetaWaylandXdgSurface            *xdg_surface)
 {
   MetaWaylandXdgShellClient *shell_client = constructor->shell_client;
 
@@ -1677,7 +1698,8 @@ xdg_surface_constructor_get_toplevel (struct wl_client   *client,
   if (!meta_wayland_surface_assign_role (surface,
                                          META_TYPE_WAYLAND_XDG_TOPLEVEL,
                                          "shell-client", shell_client,
-                                         "xdg-surface-resource", xdg_surface_resource,
+                                         "xdg-surface-resource",
+                                         xdg_surface_resource,
                                          NULL))
     {
       wl_resource_post_error (resource, XDG_WM_BASE_ERROR_ROLE,
@@ -1689,7 +1711,8 @@ xdg_surface_constructor_get_toplevel (struct wl_client   *client,
   xdg_toplevel = META_WAYLAND_XDG_TOPLEVEL (surface->role);
   xdg_toplevel->resource = wl_resource_create (client,
                                                &xdg_toplevel_interface,
-                                               wl_resource_get_version (resource),
+                                               wl_resource_get_version (
+                                                 resource),
                                                id);
   wl_resource_set_implementation (xdg_toplevel->resource,
                                   &meta_wayland_xdg_toplevel_interface,
@@ -1715,7 +1738,8 @@ xdg_surface_constructor_get_popup (struct wl_client   *client,
     wl_resource_get_user_data (resource);
   MetaWaylandXdgShellClient *shell_client = constructor->shell_client;
   MetaWaylandSurface *surface = constructor->surface;
-  struct wl_resource *xdg_wm_base_resource = constructor->shell_client->resource;
+  struct wl_resource *xdg_wm_base_resource =
+    constructor->shell_client->resource;
   struct wl_resource *xdg_surface_resource = constructor->resource;
   MetaWaylandSurface *parent_surface =
     surface_from_xdg_surface_resource (parent_resource);
@@ -1726,7 +1750,8 @@ xdg_surface_constructor_get_popup (struct wl_client   *client,
   if (!meta_wayland_surface_assign_role (surface,
                                          META_TYPE_WAYLAND_XDG_POPUP,
                                          "shell-client", shell_client,
-                                         "xdg-surface-resource", xdg_surface_resource,
+                                         "xdg-surface-resource",
+                                         xdg_surface_resource,
                                          NULL))
     {
       wl_resource_post_error (xdg_wm_base_resource, XDG_WM_BASE_ERROR_ROLE,
@@ -1786,7 +1811,9 @@ xdg_surface_constructor_ack_configure (struct wl_client   *client,
                           "xdg_surface::ack_configure called before constructed");
 }
 
-static const struct xdg_surface_interface meta_wayland_xdg_surface_constructor_interface = {
+static const struct xdg_surface_interface
+  meta_wayland_xdg_surface_constructor_interface =
+{
   xdg_surface_constructor_destroy,
   xdg_surface_constructor_get_toplevel,
   xdg_surface_constructor_get_popup,
@@ -1814,22 +1841,31 @@ positioner_anchor_to_placement_anchor (uint32_t anchor)
     {
     case XDG_POSITIONER_ANCHOR_NONE:
       return META_PLACEMENT_ANCHOR_NONE;
+
     case XDG_POSITIONER_ANCHOR_TOP:
       return META_PLACEMENT_ANCHOR_TOP;
+
     case XDG_POSITIONER_ANCHOR_BOTTOM:
       return META_PLACEMENT_ANCHOR_BOTTOM;
+
     case XDG_POSITIONER_ANCHOR_LEFT:
       return META_PLACEMENT_ANCHOR_LEFT;
+
     case XDG_POSITIONER_ANCHOR_RIGHT:
       return META_PLACEMENT_ANCHOR_RIGHT;
+
     case XDG_POSITIONER_ANCHOR_TOP_LEFT:
       return (META_PLACEMENT_ANCHOR_TOP | META_PLACEMENT_ANCHOR_LEFT);
+
     case XDG_POSITIONER_ANCHOR_BOTTOM_LEFT:
       return (META_PLACEMENT_ANCHOR_BOTTOM | META_PLACEMENT_ANCHOR_LEFT);
+
     case XDG_POSITIONER_ANCHOR_TOP_RIGHT:
       return (META_PLACEMENT_ANCHOR_TOP | META_PLACEMENT_ANCHOR_RIGHT);
+
     case XDG_POSITIONER_ANCHOR_BOTTOM_RIGHT:
       return (META_PLACEMENT_ANCHOR_BOTTOM | META_PLACEMENT_ANCHOR_RIGHT);
+
     default:
       g_assert_not_reached ();
     }
@@ -1842,39 +1878,51 @@ positioner_gravity_to_placement_gravity (uint32_t gravity)
     {
     case XDG_POSITIONER_GRAVITY_NONE:
       return META_PLACEMENT_GRAVITY_NONE;
+
     case XDG_POSITIONER_GRAVITY_TOP:
       return META_PLACEMENT_GRAVITY_TOP;
+
     case XDG_POSITIONER_GRAVITY_BOTTOM:
       return META_PLACEMENT_GRAVITY_BOTTOM;
+
     case XDG_POSITIONER_GRAVITY_LEFT:
       return META_PLACEMENT_GRAVITY_LEFT;
+
     case XDG_POSITIONER_GRAVITY_RIGHT:
       return META_PLACEMENT_GRAVITY_RIGHT;
+
     case XDG_POSITIONER_GRAVITY_TOP_LEFT:
       return (META_PLACEMENT_GRAVITY_TOP | META_PLACEMENT_GRAVITY_LEFT);
+
     case XDG_POSITIONER_GRAVITY_BOTTOM_LEFT:
       return (META_PLACEMENT_GRAVITY_BOTTOM | META_PLACEMENT_GRAVITY_LEFT);
+
     case XDG_POSITIONER_GRAVITY_TOP_RIGHT:
       return (META_PLACEMENT_GRAVITY_TOP | META_PLACEMENT_GRAVITY_RIGHT);
+
     case XDG_POSITIONER_GRAVITY_BOTTOM_RIGHT:
       return (META_PLACEMENT_GRAVITY_BOTTOM | META_PLACEMENT_GRAVITY_RIGHT);
+
     default:
       g_assert_not_reached ();
     }
 }
 
 static MetaPlacementRule
-meta_wayland_xdg_positioner_to_placement (MetaWaylandXdgPositioner *xdg_positioner)
+meta_wayland_xdg_positioner_to_placement (
+  MetaWaylandXdgPositioner *xdg_positioner)
 {
   return (MetaPlacementRule) {
-    .anchor_rect = xdg_positioner->anchor_rect,
-    .gravity = positioner_gravity_to_placement_gravity (xdg_positioner->gravity),
-    .anchor = positioner_anchor_to_placement_anchor (xdg_positioner->anchor),
-    .constraint_adjustment = xdg_positioner->constraint_adjustment,
-    .offset_x = xdg_positioner->offset_x,
-    .offset_y = xdg_positioner->offset_y,
-    .width = xdg_positioner->width,
-    .height = xdg_positioner->height,
+           .anchor_rect = xdg_positioner->anchor_rect,
+           .gravity = positioner_gravity_to_placement_gravity (
+             xdg_positioner->gravity),
+           .anchor = positioner_anchor_to_placement_anchor (
+             xdg_positioner->anchor),
+           .constraint_adjustment = xdg_positioner->constraint_adjustment,
+           .offset_x = xdg_positioner->offset_x,
+           .offset_y = xdg_positioner->offset_y,
+           .width = xdg_positioner->width,
+           .height = xdg_positioner->height,
   };
 }
 
@@ -1998,7 +2046,9 @@ xdg_positioner_set_offset (struct wl_client   *client,
   positioner->offset_y = y;
 }
 
-static const struct xdg_positioner_interface meta_wayland_xdg_positioner_interface = {
+static const struct xdg_positioner_interface
+  meta_wayland_xdg_positioner_interface =
+{
   xdg_positioner_destroy,
   xdg_positioner_set_size,
   xdg_positioner_set_anchor_rect,
@@ -2020,7 +2070,8 @@ static void
 xdg_wm_base_destroy (struct wl_client   *client,
                      struct wl_resource *resource)
 {
-  MetaWaylandXdgShellClient *shell_client = wl_resource_get_user_data (resource);
+  MetaWaylandXdgShellClient *shell_client =
+    wl_resource_get_user_data (resource);
 
   if (shell_client->surfaces || shell_client->surface_constructors)
     wl_resource_post_error (resource, XDG_WM_BASE_ERROR_DEFUNCT_SURFACES,
@@ -2054,7 +2105,8 @@ xdg_wm_base_get_xdg_surface (struct wl_client   *client,
                              uint32_t            id,
                              struct wl_resource *surface_resource)
 {
-  MetaWaylandXdgShellClient *shell_client = wl_resource_get_user_data (resource);
+  MetaWaylandXdgShellClient *shell_client =
+    wl_resource_get_user_data (resource);
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
   MetaWaylandXdgSurfaceConstructor *constructor;
 
@@ -2067,7 +2119,8 @@ xdg_wm_base_get_xdg_surface (struct wl_client   *client,
     }
 
   if (surface->role && META_IS_WAYLAND_XDG_SURFACE (surface->role) &&
-      meta_wayland_xdg_surface_is_assigned (META_WAYLAND_XDG_SURFACE (surface->role)))
+      meta_wayland_xdg_surface_is_assigned (META_WAYLAND_XDG_SURFACE (surface->
+                                                                      role)))
     {
       wl_resource_post_error (surface_resource,
                               XDG_WM_BASE_ERROR_ROLE,
@@ -2089,7 +2142,8 @@ xdg_wm_base_get_xdg_surface (struct wl_client   *client,
   constructor->shell_client = shell_client;
   constructor->resource = wl_resource_create (client,
                                               &xdg_surface_interface,
-                                              wl_resource_get_version (resource),
+                                              wl_resource_get_version (
+                                                resource),
                                               id);
   wl_resource_set_implementation (constructor->resource,
                                   &meta_wayland_xdg_surface_constructor_interface,
@@ -2110,7 +2164,8 @@ xdg_wm_base_pong (struct wl_client   *client,
   meta_display_pong_for_serial (display, serial);
 }
 
-static const struct xdg_wm_base_interface meta_wayland_xdg_wm_base_interface = {
+static const struct xdg_wm_base_interface meta_wayland_xdg_wm_base_interface =
+{
   xdg_wm_base_destroy,
   xdg_wm_base_create_positioner,
   xdg_wm_base_get_xdg_surface,
@@ -2134,7 +2189,7 @@ meta_wayland_xdg_shell_client_destroy (MetaWaylandXdgShellClient *shell_client)
       MetaWaylandXdgSurface *xdg_surface =
         g_list_first (shell_client->surfaces)->data;
 
-      meta_wayland_xdg_surface_shell_client_destroyed  (xdg_surface);
+      meta_wayland_xdg_surface_shell_client_destroyed (xdg_surface);
     }
   g_list_free (shell_client->surfaces);
 

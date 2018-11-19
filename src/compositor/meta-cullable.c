@@ -108,10 +108,11 @@ meta_cullable_cull_out_children (MetaCullable   *cullable,
           clutter_actor_get_position (child, &x, &y);
 
           /* Temporarily move to the coordinate system of the actor */
-          cairo_region_translate (unobscured_region, - x, - y);
-          cairo_region_translate (clip_region, - x, - y);
+          cairo_region_translate (unobscured_region, -x, -y);
+          cairo_region_translate (clip_region, -x, -y);
 
-          meta_cullable_cull_out (META_CULLABLE (child), unobscured_region, clip_region);
+          meta_cullable_cull_out (META_CULLABLE (
+                                    child), unobscured_region, clip_region);
 
           cairo_region_translate (unobscured_region, x, y);
           cairo_region_translate (clip_region, x, y);
@@ -183,7 +184,8 @@ meta_cullable_cull_out (MetaCullable   *cullable,
                         cairo_region_t *unobscured_region,
                         cairo_region_t *clip_region)
 {
-  META_CULLABLE_GET_IFACE (cullable)->cull_out (cullable, unobscured_region, clip_region);
+  META_CULLABLE_GET_IFACE (cullable)->cull_out (cullable, unobscured_region,
+                                                clip_region);
 }
 
 /**

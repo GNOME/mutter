@@ -65,8 +65,8 @@ meta_gpu_has_hotplug_mode_update (MetaGpu *gpu)
 }
 
 gboolean
-meta_gpu_read_current (MetaGpu  *gpu,
-                       GError  **error)
+meta_gpu_read_current (MetaGpu *gpu,
+                       GError **error)
 {
   MetaGpuPrivate *priv = meta_gpu_get_instance_private (gpu);
   gboolean ret;
@@ -131,7 +131,7 @@ meta_gpu_take_outputs (MetaGpu *gpu,
 
 void
 meta_gpu_take_crtcs (MetaGpu *gpu,
-                    GList   *crtcs)
+                     GList   *crtcs)
 {
   MetaGpuPrivate *priv = meta_gpu_get_instance_private (gpu);
 
@@ -161,6 +161,7 @@ meta_gpu_set_property (GObject      *object,
     case PROP_MONITOR_MANAGER:
       priv->monitor_manager = g_value_get_object (value);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -180,6 +181,7 @@ meta_gpu_get_property (GObject    *object,
     case PROP_MONITOR_MANAGER:
       g_value_set_object (value, priv->monitor_manager);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }

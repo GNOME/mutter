@@ -30,7 +30,7 @@ typedef struct _MetaOutputPrivate
 G_DEFINE_TYPE_WITH_PRIVATE (MetaOutput, meta_output, G_TYPE_OBJECT)
 
 MetaGpu *
-meta_output_get_gpu (MetaOutput *output)
+meta_output_get_gpu (MetaOutput * output)
 {
   return output->gpu;
 }

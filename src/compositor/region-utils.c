@@ -30,17 +30,20 @@
  * that are unsorted or overlap; unioning such a set of rectangles 1-by-1
  * using cairo_region_union_rectangle() produces O(N^2) behavior (if the union
  * adds or removes rectangles in the middle of the region, then it has to
- * move all the rectangles after that.) To avoid this behavior, MetaRegionBuilder
+ * move all the rectangles after that.) To avoid this behavior,
+ *MetaRegionBuilder
  * creates regions for small groups of rectangles and merges them together in
  * a binary tree.
  *
- * Possible improvement: From a glance at the code, accumulating all the rectangles
+ * Possible improvement: From a glance at the code, accumulating all the
+ *rectangles
  *  into a flat array and then calling the (not usefully documented)
  *  cairo_region_create_rectangles() would have the same behavior and would be
  *  simpler and a bit more efficient.
  */
 
-/* Optimium performance seems to be with MAX_CHUNK_RECTANGLES=4; 8 is about 10% slower.
+/* Optimium performance seems to be with MAX_CHUNK_RECTANGLES=4; 8 is about 10%
+ * slower.
  * But using 8 may be more robust to systems with slow malloc(). */
 #define MAX_CHUNK_RECTANGLES 8
 
@@ -112,7 +115,7 @@ meta_region_builder_finish (MetaRegionBuilder *builder)
             result = builder->levels[i];
           else
             {
-              cairo_region_union(result, builder->levels[i]);
+              cairo_region_union (result, builder->levels[i]);
               cairo_region_destroy (builder->levels[i]);
             }
         }
@@ -165,7 +168,8 @@ meta_region_iterator_next (MetaRegionIterator *iter)
 
   if (iter->i + 1 < iter->n_rectangles)
     {
-      cairo_region_get_rectangle (iter->region, iter->i + 1, &iter->next_rectangle);
+      cairo_region_get_rectangle (iter->region, iter->i + 1,
+                                  &iter->next_rectangle);
       iter->line_end = iter->next_rectangle.y != iter->rectangle.y;
     }
   else
@@ -175,9 +179,9 @@ meta_region_iterator_next (MetaRegionIterator *iter)
 }
 
 cairo_region_t *
-meta_region_scale_double (cairo_region_t       *region,
-                          double                scale,
-                          MetaRoundingStrategy  rounding_strategy)
+meta_region_scale_double (cairo_region_t      *region,
+                          double               scale,
+                          MetaRoundingStrategy rounding_strategy)
 {
   int n_rects, i;
   cairo_rectangle_int_t *rects;
@@ -190,7 +194,7 @@ meta_region_scale_double (cairo_region_t       *region,
 
   n_rects = cairo_region_num_rectangles (region);
 
-  rects = g_malloc (sizeof(cairo_rectangle_int_t) * n_rects);
+  rects = g_malloc (sizeof (cairo_rectangle_int_t) * n_rects);
   for (i = 0; i < n_rects; i++)
     {
       cairo_region_get_rectangle (region, i, &rects[i]);
@@ -203,6 +207,7 @@ meta_region_scale_double (cairo_region_t       *region,
           rects[i].width = (int) floor (rects[i].width * scale);
           rects[i].height = (int) floor (rects[i].height * scale);
           break;
+
         case META_ROUNDING_STRATEGY_GROW:
           rects[i].x = (int) floor (rects[i].x * scale);
           rects[i].y = (int) floor (rects[i].y * scale);
@@ -220,7 +225,8 @@ meta_region_scale_double (cairo_region_t       *region,
 }
 
 cairo_region_t *
-meta_region_scale (cairo_region_t *region, int scale)
+meta_region_scale (cairo_region_t *region,
+                   int             scale)
 {
   int n_rects, i;
   cairo_rectangle_int_t *rects;
@@ -231,7 +237,7 @@ meta_region_scale (cairo_region_t *region, int scale)
 
   n_rects = cairo_region_num_rectangles (region);
 
-  rects = g_malloc (sizeof(cairo_rectangle_int_t) * n_rects);
+  rects = g_malloc (sizeof (cairo_rectangle_int_t) * n_rects);
   for (i = 0; i < n_rects; i++)
     {
       cairo_region_get_rectangle (region, i, &rects[i]);
@@ -249,23 +255,25 @@ meta_region_scale (cairo_region_t *region, int scale)
 }
 
 static void
-add_expanded_rect (MetaRegionBuilder  *builder,
-                   int                 x,
-                   int                 y,
-                   int                 width,
-                   int                 height,
-                   int                 x_amount,
-                   int                 y_amount,
-                   gboolean            flip)
+add_expanded_rect (MetaRegionBuilder *builder,
+                   int                x,
+                   int                y,
+                   int                width,
+                   int                height,
+                   int                x_amount,
+                   int                y_amount,
+                   gboolean           flip)
 {
   if (flip)
     meta_region_builder_add_rectangle (builder,
                                        y - y_amount, x - x_amount,
-                                       height + 2 * y_amount, width + 2 * x_amount);
+                                       height + 2 * y_amount,
+                                       width + 2 * x_amount);
   else
     meta_region_builder_add_rectangle (builder,
                                        x - x_amount, y - y_amount,
-                                       width + 2 * x_amount, height + 2 * y_amount);
+                                       width + 2 * x_amount,
+                                       height + 2 * y_amount);
 }
 
 static cairo_region_t *
@@ -337,10 +345,14 @@ expand_region_inverse (cairo_region_t *region,
 
       if (iter.line_end)
         {
-          if (extents.x + extents.width > iter.rectangle.x + iter.rectangle.width)
+          if (extents.x + extents.width >
+              iter.rectangle.x + iter.rectangle.width)
             add_expanded_rect (&builder,
-                               iter.rectangle.x + iter.rectangle.width, iter.rectangle.y,
-                               (extents.x + extents.width) - (iter.rectangle.x + iter.rectangle.width), iter.rectangle.height,
+                               iter.rectangle.x + iter.rectangle.width,
+                               iter.rectangle.y,
+                               (extents.x + extents.width) -
+                               (iter.rectangle.x + iter.rectangle.width),
+                               iter.rectangle.height,
                                x_amount, y_amount, flip);
           last_x = extents.x;
         }

@@ -42,7 +42,7 @@ struct _MetaGles3
 G_DEFINE_TYPE (MetaGles3, meta_gles3, G_TYPE_OBJECT)
 
 MetaGles3Table *
-meta_gles3_get_table (MetaGles3 *gles3)
+meta_gles3_get_table (MetaGles3 * gles3)
 {
   return &gles3->table;
 }
@@ -69,18 +69,24 @@ get_gl_error_str (GLenum gl_error)
     {
     case GL_NO_ERROR:
       return "No error has been recorded.";
+
     case GL_INVALID_ENUM:
       return "An unacceptable value is specified for an enumerated argument.";
+
     case GL_INVALID_VALUE:
-        return "A numeric argument is out of range.";
+      return "A numeric argument is out of range.";
+
     case GL_INVALID_OPERATION:
-        return "The specified operation is not allowed in the current state.";
+      return "The specified operation is not allowed in the current state.";
+
     case GL_INVALID_FRAMEBUFFER_OPERATION:
-        return "The framebuffer object is not complete.";
+      return "The framebuffer object is not complete.";
+
     case GL_OUT_OF_MEMORY:
-        return "There is not enough memory left to execute the command.";
+      return "There is not enough memory left to execute the command.";
+
     default:
-        return "Unknown error";
+      return "Unknown error";
     }
 }
 

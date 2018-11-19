@@ -51,7 +51,7 @@ struct _MetaPluginPrivate
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaPlugin, meta_plugin, G_TYPE_OBJECT);
 
 #define META_PLUGIN_GET_PRIVATE(obj) \
-(G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_PLUGIN, MetaPluginPrivate))
+  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_PLUGIN, MetaPluginPrivate))
 
 static void
 meta_plugin_class_init (MetaPluginClass *klass)
@@ -67,7 +67,7 @@ meta_plugin_init (MetaPlugin *self)
 const MetaPluginInfo *
 meta_plugin_get_info (MetaPlugin *plugin)
 {
-  MetaPluginClass  *klass = META_PLUGIN_GET_CLASS (plugin);
+  MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
 
   if (klass && klass->plugin_info)
     return klass->plugin_info (plugin);
@@ -150,7 +150,8 @@ meta_plugin_destroy_completed (MetaPlugin      *plugin,
  * passive X grabs in Meta can trigger but not be handled by the normal
  * keybinding handling code.) However, the plugin can establish the keyboard
  * and/or mouse grabs ahead of time and pass in the
- * %META_MODAL_POINTER_ALREADY_GRABBED and/or %META_MODAL_KEYBOARD_ALREADY_GRABBED
+ * %META_MODAL_POINTER_ALREADY_GRABBED and/or
+ *%META_MODAL_KEYBOARD_ALREADY_GRABBED
  * options. This facility is provided for two reasons: first to allow using
  * this function to establish modality after a passive grab, and second to
  * allow using obscure features of XGrabPointer() and XGrabKeyboard() without
@@ -160,9 +161,9 @@ meta_plugin_destroy_completed (MetaPlugin      *plugin,
  *  mouse and made the plugin modal.
  */
 gboolean
-meta_plugin_begin_modal (MetaPlugin       *plugin,
-                         MetaModalOptions  options,
-                         guint32           timestamp)
+meta_plugin_begin_modal (MetaPlugin      *plugin,
+                         MetaModalOptions options,
+                         guint32          timestamp)
 {
   MetaPluginPrivate *priv = META_PLUGIN (plugin)->priv;
 
@@ -207,7 +208,8 @@ meta_plugin_get_display (MetaPlugin *plugin)
 }
 
 void
-_meta_plugin_set_compositor (MetaPlugin *plugin, MetaCompositor *compositor)
+_meta_plugin_set_compositor (MetaPlugin     *plugin,
+                             MetaCompositor *compositor)
 {
   MetaPluginPrivate *priv = META_PLUGIN (plugin)->priv;
 

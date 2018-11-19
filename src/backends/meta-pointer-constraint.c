@@ -46,8 +46,8 @@ meta_pointer_constraint_constrain (MetaPointerConstraint *constraint,
                                    guint32                time,
                                    float                  prev_x,
                                    float                  prev_y,
-                                   float                  *x,
-                                   float                  *y)
+                                   float                 *x,
+                                   float                 *y)
 {
   META_POINTER_CONSTRAINT_GET_CLASS (constraint)->constrain (constraint,
                                                              device,

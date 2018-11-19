@@ -127,13 +127,15 @@ meta_x11_display_dispose (GObject *object)
 
   if (x11_display->wm_sn_selection_window != None)
     {
-      XDestroyWindow (x11_display->xdisplay, x11_display->wm_sn_selection_window);
+      XDestroyWindow (x11_display->xdisplay,
+                      x11_display->wm_sn_selection_window);
       x11_display->wm_sn_selection_window = None;
     }
 
   if (x11_display->timestamp_pinging_window != None)
     {
-      XDestroyWindow (x11_display->xdisplay, x11_display->timestamp_pinging_window);
+      XDestroyWindow (x11_display->xdisplay,
+                      x11_display->timestamp_pinging_window);
       x11_display->timestamp_pinging_window = None;
     }
 
@@ -271,10 +273,11 @@ query_xsync_extension (MetaX11Display *x11_display)
       XSyncSetPriority (x11_display->xdisplay, None, 10);
     }
 
-  meta_verbose ("Attempted to init Xsync, found version %d.%d error base %d event base %d\n",
-                major, minor,
-                x11_display->xsync_error_base,
-                x11_display->xsync_event_base);
+  meta_verbose (
+    "Attempted to init Xsync, found version %d.%d error base %d event base %d\n",
+    major, minor,
+    x11_display->xsync_error_base,
+    x11_display->xsync_event_base);
 }
 
 static void
@@ -402,7 +405,7 @@ query_xi_extension (MetaX11Display *x11_display)
                        &x11_display->xinput_error_base,
                        &x11_display->xinput_event_base))
     {
-        if (XIQueryVersion (x11_display->xdisplay, &major, &minor) == Success)
+      if (XIQueryVersion (x11_display->xdisplay, &major, &minor) == Success)
         {
           int version = (major * 10) + minor;
           if (version >= 22)
@@ -414,7 +417,8 @@ query_xi_extension (MetaX11Display *x11_display)
     }
 
   if (!has_xi)
-    meta_fatal ("X server doesn't have the XInput extension, version 2.2 or newer\n");
+    meta_fatal (
+      "X server doesn't have the XInput extension, version 2.2 or newer\n");
 }
 
 /*
@@ -484,7 +488,7 @@ shutdown_x11_bell (MetaX11Display *x11_display)
  */
 static void
 set_x11_bell_is_audible (MetaX11Display *x11_display,
-                         gboolean is_audible)
+                         gboolean        is_audible)
 {
 #ifdef HAVE_LIBCANBERRA
   /* When we are playing sounds using libcanberra support, we handle the
@@ -522,14 +526,15 @@ set_desktop_geometry_hint (MetaX11Display *x11_display)
   data[0] = monitor_width;
   data[1] = monitor_height;
 
-  meta_verbose ("Setting _NET_DESKTOP_GEOMETRY to %lu, %lu\n", data[0], data[1]);
+  meta_verbose ("Setting _NET_DESKTOP_GEOMETRY to %lu, %lu\n", data[0],
+                data[1]);
 
   meta_x11_error_trap_push (x11_display);
   XChangeProperty (x11_display->xdisplay,
                    x11_display->xroot,
                    x11_display->atom__NET_DESKTOP_GEOMETRY,
                    XA_CARDINAL,
-                   32, PropModeReplace, (guchar*) data, 2);
+                   32, PropModeReplace, (guchar *) data, 2);
   meta_x11_error_trap_pop (x11_display);
 }
 
@@ -554,7 +559,7 @@ set_desktop_viewport_hint (MetaX11Display *x11_display)
                    x11_display->xroot,
                    x11_display->atom__NET_DESKTOP_VIEWPORT,
                    XA_CARDINAL,
-                   32, PropModeReplace, (guchar*) data, 2);
+                   32, PropModeReplace, (guchar *) data, 2);
   meta_x11_error_trap_pop (x11_display);
 }
 
@@ -571,7 +576,7 @@ set_wm_check_hint (MetaX11Display *x11_display)
                    x11_display->xroot,
                    x11_display->atom__NET_SUPPORTING_WM_CHECK,
                    XA_WINDOW,
-                   32, PropModeReplace, (guchar*) data, 1);
+                   32, PropModeReplace, (guchar *) data, 1);
 
   return Success;
 }
@@ -587,9 +592,10 @@ unset_wm_check_hint (MetaX11Display *x11_display)
 static int
 set_supported_hint (MetaX11Display *x11_display)
 {
-  Atom atoms[] = {
+  Atom atoms[] =
+  {
 #define EWMH_ATOMS_ONLY
-#define item(x)  x11_display->atom_##x,
+#define item(x)  x11_display->atom_ ## x,
 #include "x11/atomnames.h"
 #undef item
 #undef EWMH_ATOMS_ONLY
@@ -603,7 +609,7 @@ set_supported_hint (MetaX11Display *x11_display)
                    x11_display->atom__NET_SUPPORTED,
                    XA_ATOM,
                    32, PropModeReplace,
-                   (guchar*) atoms, G_N_ELEMENTS(atoms));
+                   (guchar *) atoms, G_N_ELEMENTS (atoms));
 
   return Success;
 }
@@ -633,7 +639,7 @@ set_wm_icon_size_hint (MetaX11Display *x11_display)
                    x11_display->xroot,
                    x11_display->atom_WM_ICON_SIZE,
                    XA_CARDINAL,
-                   32, PropModeReplace, (guchar*) vals, N_VALS);
+                   32, PropModeReplace, (guchar *) vals, N_VALS);
 
   return Success;
 #undef N_VALS
@@ -658,13 +664,15 @@ take_manager_selection (MetaX11Display *x11_display,
           /* We want to find out when the current selection owner dies */
           meta_x11_error_trap_push (x11_display);
           attrs.event_mask = StructureNotifyMask;
-          XChangeWindowAttributes (x11_display->xdisplay, current_owner, CWEventMask, &attrs);
+          XChangeWindowAttributes (x11_display->xdisplay, current_owner,
+                                   CWEventMask, &attrs);
           if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
             current_owner = None; /* don't wait for it to die later on */
         }
       else
         {
-          meta_warning (_("Display “%s” already has a window manager; try using the --replace option to replace the current window manager."),
+          meta_warning (_(
+                          "Display “%s” already has a window manager; try using the --replace option to replace the current window manager."),
                         x11_display->name);
           return None;
         }
@@ -673,13 +681,16 @@ take_manager_selection (MetaX11Display *x11_display,
   /* We need SelectionClear and SelectionRequest events on the new owner,
    * but those cannot be masked, so we only need NoEventMask.
    */
-  new_owner = meta_x11_display_create_offscreen_window (x11_display, xroot, NoEventMask);
+  new_owner = meta_x11_display_create_offscreen_window (x11_display, xroot,
+                                                        NoEventMask);
 
-  XSetSelectionOwner (x11_display->xdisplay, manager_atom, new_owner, timestamp);
+  XSetSelectionOwner (x11_display->xdisplay, manager_atom, new_owner,
+                      timestamp);
 
   if (XGetSelectionOwner (x11_display->xdisplay, manager_atom) != new_owner)
     {
-      meta_warning ("Could not acquire selection: %s", XGetAtomName (x11_display->xdisplay, manager_atom));
+      meta_warning ("Could not acquire selection: %s",
+                    XGetAtomName (x11_display->xdisplay, manager_atom));
       return None;
     }
 
@@ -694,7 +705,8 @@ take_manager_selection (MetaX11Display *x11_display,
     ev.data.l[0] = timestamp;
     ev.data.l[1] = manager_atom;
 
-    XSendEvent (x11_display->xdisplay, xroot, False, StructureNotifyMask, (XEvent *) &ev);
+    XSendEvent (x11_display->xdisplay, xroot, False, StructureNotifyMask,
+                (XEvent *) &ev);
   }
 
   /* Wait for old window manager to go away */
@@ -706,7 +718,8 @@ take_manager_selection (MetaX11Display *x11_display,
 
       meta_verbose ("Waiting for old window manager to exit\n");
       do
-        XWindowEvent (x11_display->xdisplay, current_owner, StructureNotifyMask, &event);
+        XWindowEvent (x11_display->xdisplay, current_owner, StructureNotifyMask,
+                      &event);
       while (event.type != DestroyNotify);
     }
 
@@ -754,7 +767,7 @@ init_leader_window (MetaX11Display *x11_display,
                    x11_display->leader_window,
                    x11_display->atom__NET_SUPPORTING_WM_CHECK,
                    XA_WINDOW,
-                   32, PropModeReplace, (guchar*) data, 1);
+                   32, PropModeReplace, (guchar *) data, 1);
 
   XWindowEvent (x11_display->xdisplay,
                 x11_display->leader_window,
@@ -762,7 +775,7 @@ init_leader_window (MetaX11Display *x11_display,
                 &event);
 
   if (timestamp)
-   *timestamp = event.xproperty.time;
+    *timestamp = event.xproperty.time;
 
   /* Make it painfully clear that we can't rely on PropertyNotify events on
    * this window, as per bug 354213.
@@ -819,7 +832,7 @@ set_active_workspace_hint (MetaWorkspaceManager *workspace_manager,
                    x11_display->xroot,
                    x11_display->atom__NET_CURRENT_DESKTOP,
                    XA_CARDINAL,
-                   32, PropModeReplace, (guchar*) data, 1);
+                   32, PropModeReplace, (guchar *) data, 1);
   meta_x11_error_trap_pop (x11_display);
 }
 
@@ -843,7 +856,7 @@ set_number_of_spaces_hint (MetaWorkspaceManager *workspace_manager,
                    x11_display->xroot,
                    x11_display->atom__NET_NUMBER_OF_DESKTOPS,
                    XA_CARDINAL,
-                   32, PropModeReplace, (guchar*) data, 1);
+                   32, PropModeReplace, (guchar *) data, 1);
   meta_x11_error_trap_pop (x11_display);
 }
 
@@ -860,7 +873,7 @@ set_showing_desktop_hint (MetaWorkspaceManager *workspace_manager,
                    x11_display->xroot,
                    x11_display->atom__NET_SHOWING_DESKTOP,
                    XA_CARDINAL,
-                   32, PropModeReplace, (guchar*) data, 1);
+                   32, PropModeReplace, (guchar *) data, 1);
   meta_x11_error_trap_pop (x11_display);
 }
 
@@ -899,7 +912,7 @@ set_workspace_names (MetaX11Display *x11_display)
                    x11_display->atom__NET_DESKTOP_NAMES,
                    x11_display->atom_UTF8_STRING,
                    8, PropModeReplace,
-                   (unsigned char *)flattened->str, flattened->len);
+                   (unsigned char *) flattened->str, flattened->len);
   meta_x11_error_trap_pop (x11_display);
 
   g_string_free (flattened, TRUE);
@@ -937,7 +950,7 @@ set_work_area_hint (MetaDisplay    *display,
                    x11_display->xroot,
                    x11_display->atom__NET_WORKAREA,
                    XA_CARDINAL, 32, PropModeReplace,
-                   (guchar*) data, num_workspaces*4);
+                   (guchar *) data, num_workspaces * 4);
   meta_x11_error_trap_pop (x11_display);
 
   g_free (data);
@@ -1015,13 +1028,13 @@ meta_x11_init_gdk_display (GError **error)
     }
 
   if (gdk_gl_env)
-    g_setenv("GDK_GL", gdk_gl_env, TRUE);
+    g_setenv ("GDK_GL", gdk_gl_env, TRUE);
   else
-    unsetenv("GDK_GL");
+    unsetenv ("GDK_GL");
 
   /* We need to be able to fully trust that the window and monitor sizes
-     that Gdk reports corresponds to the X ones, so we disable the automatic
-     scale handling */
+   *  that Gdk reports corresponds to the X ones, so we disable the automatic
+   *  scale handling */
   gdk_x11_display_set_window_scale (gdk_display, 1);
 
   meta_verbose ("Opening display '%s'\n", XDisplayName (NULL));
@@ -1057,7 +1070,8 @@ meta_x11_init_gdk_display (GError **error)
  * it already has a window manager, and sets the error appropriately.
  */
 MetaX11Display *
-meta_x11_display_new (MetaDisplay *display, GError **error)
+meta_x11_display_new (MetaDisplay *display,
+                      GError     **error)
 {
   MetaX11Display *x11_display;
   Display *xdisplay;
@@ -1079,12 +1093,13 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
     meta_backend_get_monitor_manager (backend);
 
   /* A list of all atom names, so that we can intern them in one go. */
-  const char *atom_names[] = {
+  const char *atom_names[] =
+  {
 #define item(x) #x,
 #include "x11/atomnames.h"
 #undef item
   };
-  Atom atoms[G_N_ELEMENTS(atom_names)];
+  Atom atoms[G_N_ELEMENTS (atom_names)];
 
   g_assert (prepared_gdk_display);
   gdk_display = g_steal_pointer (&prepared_gdk_display);
@@ -1151,11 +1166,11 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   x11_display->default_depth = DefaultDepthOfScreen (xscreen);
 
   meta_verbose ("Creating %d atoms\n", (int) G_N_ELEMENTS (atom_names));
-  XInternAtoms (xdisplay, (char **)atom_names, G_N_ELEMENTS (atom_names),
+  XInternAtoms (xdisplay, (char **) atom_names, G_N_ELEMENTS (atom_names),
                 False, atoms);
 
   i = 0;
-#define item(x) x11_display->atom_##x = atoms[i++];
+#define item(x) x11_display->atom_ ## x = atoms[i++];
 #include "x11/atomnames.h"
 #undef item
 
@@ -1218,7 +1233,8 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   sprintf (buf, "WM_S%d", number);
 
   wm_sn_atom = XInternAtom (xdisplay, buf, False);
-  new_wm_sn_owner = take_manager_selection (x11_display, xroot, wm_sn_atom, timestamp, replace_current_wm);
+  new_wm_sn_owner = take_manager_selection (x11_display, xroot, wm_sn_atom,
+                                            timestamp, replace_current_wm);
   if (new_wm_sn_owner == None)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -1242,7 +1258,8 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   /* If we're a Wayland compositor, then we don't grab the COW, since it
    * will map it. */
   if (!meta_is_wayland_compositor ())
-    x11_display->composite_overlay_window = XCompositeGetOverlayWindow (xdisplay, xroot);
+    x11_display->composite_overlay_window = XCompositeGetOverlayWindow (
+      xdisplay, xroot);
 
   /* Now that we've gotten taken a reference count on the COW, we
    * can close the helper that is holding on to it */
@@ -1253,7 +1270,8 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   x11_display->no_focus_window =
     meta_x11_display_create_offscreen_window (x11_display,
                                               xroot,
-                                              FocusChangeMask|KeyPressMask|KeyReleaseMask);
+                                              FocusChangeMask | KeyPressMask |
+                                              KeyReleaseMask);
   XMapWindow (xdisplay, x11_display->no_focus_window);
   /* Done with no_focus_window stuff */
 
@@ -1286,8 +1304,9 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
                     (int) current_workspace_index);
 
       /* Switch to the _NET_CURRENT_DESKTOP workspace */
-      current_workspace = meta_workspace_manager_get_workspace_by_index (display->workspace_manager,
-                                                                         current_workspace_index);
+      current_workspace = meta_workspace_manager_get_workspace_by_index (
+        display->workspace_manager,
+        current_workspace_index);
 
       if (current_workspace != NULL)
         meta_workspace_activate (current_workspace, timestamp);
@@ -1312,13 +1331,16 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
           meta_XFree (list);
         }
 
-        if (num > meta_workspace_manager_get_n_workspaces (display->workspace_manager))
-          meta_workspace_manager_update_num_workspaces (display->workspace_manager, timestamp, num);
+      if (num >
+          meta_workspace_manager_get_n_workspaces (display->workspace_manager))
+        meta_workspace_manager_update_num_workspaces (
+          display->workspace_manager, timestamp, num);
     }
 
   set_active_workspace_hint (display->workspace_manager, x11_display);
 
-  g_signal_connect_object (display->workspace_manager, "active-workspace-changed",
+  g_signal_connect_object (display->workspace_manager,
+                           "active-workspace-changed",
                            G_CALLBACK (set_active_workspace_hint),
                            x11_display, 0);
 
@@ -1330,7 +1352,8 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
 
   set_showing_desktop_hint (display->workspace_manager, x11_display);
 
-  g_signal_connect_object (display->workspace_manager, "showing-desktop-changed",
+  g_signal_connect_object (display->workspace_manager,
+                           "showing-desktop-changed",
                            G_CALLBACK (set_showing_desktop_hint),
                            x11_display, 0);
 
@@ -1432,7 +1455,7 @@ meta_x11_display_create_offscreen_window (MetaX11Display *x11_display,
                         0,
                         CopyFromParent,
                         CopyFromParent,
-                        (Visual *)CopyFromParent,
+                        (Visual *) CopyFromParent,
                         CWOverrideRedirect | CWEventMask,
                         &attrs);
 }
@@ -1637,7 +1660,8 @@ create_guard_window (MetaX11Display *x11_display)
         MetaBackendX11 *backend = META_BACKEND_X11 (meta_get_backend ());
         Display *backend_xdisplay = meta_backend_x11_get_xdisplay (backend);
         unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
-        XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
+        XIEventMask mask =
+        { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
 
         XISetMask (mask.mask, XI_ButtonPress);
         XISetMask (mask.mask, XI_ButtonRelease);
@@ -1713,13 +1737,15 @@ meta_x11_display_set_cm_selection (MetaX11Display *x11_display)
               DefaultScreen (x11_display->xdisplay));
   a = XInternAtom (x11_display->xdisplay, selection, False);
 
-  x11_display->wm_cm_selection_window = take_manager_selection (x11_display, x11_display->xroot, a, timestamp, TRUE);
+  x11_display->wm_cm_selection_window = take_manager_selection (x11_display,
+                                                                x11_display->xroot, a, timestamp,
+                                                                TRUE);
 }
 
 static Bool
-find_timestamp_predicate (Display  *xdisplay,
-                          XEvent   *ev,
-                          XPointer  arg)
+find_timestamp_predicate (Display *xdisplay,
+                          XEvent  *ev,
+                          XPointer arg)
 {
   MetaX11Display *x11_display = (MetaX11Display *) arg;
 
@@ -1764,7 +1790,7 @@ meta_x11_display_get_current_time_roundtrip (MetaX11Display *x11_display)
  */
 gboolean
 meta_x11_display_xwindow_is_a_no_focus_window (MetaX11Display *x11_display,
-                                               Window xwindow)
+                                               Window          xwindow)
 {
   return xwindow == x11_display->no_focus_window;
 }
@@ -1798,7 +1824,7 @@ meta_x11_display_update_active_window_hint (MetaX11Display *x11_display)
                    x11_display->xroot,
                    x11_display->atom__NET_ACTIVE_WINDOW,
                    XA_WINDOW,
-                   32, PropModeReplace, (guchar*) data, 1);
+                   32, PropModeReplace, (guchar *) data, 1);
   meta_x11_error_trap_pop (x11_display);
 }
 
@@ -1850,7 +1876,8 @@ request_xserver_input_focus_change (MetaX11Display *x11_display,
 
   x11_display->display->last_focus_time = timestamp;
 
-  if (meta_window == NULL || meta_window != x11_display->display->autoraise_window)
+  if (meta_window == NULL ||
+      meta_window != x11_display->display->autoraise_window)
     meta_display_remove_autoraise_callback (x11_display->display);
 }
 
@@ -1965,8 +1992,9 @@ meta_x11_display_ensure_xinerama_indices (MetaX11Display *x11_display)
 }
 
 int
-meta_x11_display_logical_monitor_to_xinerama_index (MetaX11Display     *x11_display,
-                                                    MetaLogicalMonitor *logical_monitor)
+meta_x11_display_logical_monitor_to_xinerama_index (
+  MetaX11Display     *x11_display,
+  MetaLogicalMonitor *logical_monitor)
 {
   MetaX11DisplayLogicalMonitorData *logical_monitor_data;
 
@@ -2055,7 +2083,8 @@ meta_x11_display_update_workspace_names (MetaX11Display *x11_display)
 void
 meta_x11_display_update_workspace_layout (MetaX11Display *x11_display)
 {
-  MetaWorkspaceManager *workspace_manager = x11_display->display->workspace_manager;
+  MetaWorkspaceManager *workspace_manager =
+    x11_display->display->workspace_manager;
   gboolean vertical_layout = FALSE;
   int n_rows = -1;
   int n_columns = 1;
@@ -2083,11 +2112,14 @@ meta_x11_display_update_workspace_layout (MetaX11Display *x11_display)
             case _NET_WM_ORIENTATION_HORZ:
               vertical_layout = FALSE;
               break;
+
             case _NET_WM_ORIENTATION_VERT:
               vertical_layout = TRUE;
               break;
+
             default:
-              meta_warning ("Someone set a weird orientation in _NET_DESKTOP_LAYOUT\n");
+              meta_warning (
+                "Someone set a weird orientation in _NET_DESKTOP_LAYOUT\n");
               break;
             }
 
@@ -2096,7 +2128,9 @@ meta_x11_display_update_workspace_layout (MetaX11Display *x11_display)
 
           if (rows <= 0 && cols <= 0)
             {
-              meta_warning ("Columns = %d rows = %d in _NET_DESKTOP_LAYOUT makes no sense\n", rows, cols);
+              meta_warning (
+                "Columns = %d rows = %d in _NET_DESKTOP_LAYOUT makes no sense\n",
+                rows, cols);
             }
           else
             {
@@ -2118,17 +2152,22 @@ meta_x11_display_update_workspace_layout (MetaX11Display *x11_display)
                 case _NET_WM_TOPLEFT:
                   starting_corner = META_DISPLAY_TOPLEFT;
                   break;
+
                 case _NET_WM_TOPRIGHT:
                   starting_corner = META_DISPLAY_TOPRIGHT;
                   break;
+
                 case _NET_WM_BOTTOMRIGHT:
                   starting_corner = META_DISPLAY_BOTTOMRIGHT;
                   break;
+
                 case _NET_WM_BOTTOMLEFT:
                   starting_corner = META_DISPLAY_BOTTOMLEFT;
                   break;
+
                 default:
-                  meta_warning ("Someone set a weird starting corner in _NET_DESKTOP_LAYOUT\n");
+                  meta_warning (
+                    "Someone set a weird starting corner in _NET_DESKTOP_LAYOUT\n");
                   break;
                 }
             }
@@ -2136,7 +2175,8 @@ meta_x11_display_update_workspace_layout (MetaX11Display *x11_display)
       else
         {
           meta_warning ("Someone set _NET_DESKTOP_LAYOUT to %d integers instead of 4 "
-                        "(3 is accepted for backwards compat)\n", n_items);
+                        "(3 is accepted for backwards compat)\n",
+                        n_items);
         }
 
       meta_XFree (list);

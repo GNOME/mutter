@@ -70,7 +70,8 @@ struct _MetaWindowWaylandClass
 G_DEFINE_TYPE (MetaWindowWayland, meta_window_wayland, META_TYPE_WINDOW)
 
 static int
-get_window_geometry_scale_for_logical_monitor (MetaLogicalMonitor *logical_monitor)
+get_window_geometry_scale_for_logical_monitor (
+  MetaLogicalMonitor *logical_monitor)
 {
   g_assert (logical_monitor);
 
@@ -172,7 +173,8 @@ meta_window_wayland_grab_op_began (MetaWindow *window,
   if (meta_grab_op_is_resizing (op))
     surface_state_changed (window);
 
-  META_WINDOW_CLASS (meta_window_wayland_parent_class)->grab_op_began (window, op);
+  META_WINDOW_CLASS (meta_window_wayland_parent_class)->grab_op_began (window,
+                                                                       op);
 }
 
 static void
@@ -182,7 +184,8 @@ meta_window_wayland_grab_op_ended (MetaWindow *window,
   if (meta_grab_op_is_resizing (op))
     surface_state_changed (window);
 
-  META_WINDOW_CLASS (meta_window_wayland_parent_class)->grab_op_ended (window, op);
+  META_WINDOW_CLASS (meta_window_wayland_parent_class)->grab_op_ended (window,
+                                                                       op);
 }
 
 static void
@@ -296,7 +299,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
         }
       else
         {
-          /* We're just moving the window, so we don't need to wait for a configure
+          /* We're just moving the window, so we don't need to wait for a
+           * configure
            * and then ack to simply move the window. */
           can_move_now = TRUE;
         }
@@ -322,7 +326,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
       int new_buffer_x = new_x - window->custom_frame_extents.left;
       int new_buffer_y = new_y - window->custom_frame_extents.top;
 
-      if (new_buffer_x != window->buffer_rect.x || new_buffer_y != window->buffer_rect.y)
+      if (new_buffer_x != window->buffer_rect.x ||
+          new_buffer_y != window->buffer_rect.y)
         {
           *result |= META_MOVE_RESIZE_RESULT_MOVED;
           window->buffer_rect.x = new_buffer_x;
@@ -344,7 +349,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
           wl_window->pending_move_y = new_y;
         }
 
-      wl_window->has_pending_state_change = (flags & META_MOVE_RESIZE_STATE_CHANGED) != 0;
+      wl_window->has_pending_state_change =
+        (flags & META_MOVE_RESIZE_STATE_CHANGED) != 0;
     }
 }
 
@@ -374,8 +380,8 @@ scale_rect_size (MetaRectangle *rect,
 }
 
 static void
-meta_window_wayland_update_main_monitor (MetaWindow                   *window,
-                                         MetaWindowUpdateMonitorFlags  flags)
+meta_window_wayland_update_main_monitor (MetaWindow                  *window,
+                                         MetaWindowUpdateMonitorFlags flags)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -486,15 +492,17 @@ meta_window_wayland_main_monitor_changed (MetaWindow               *window,
   scale_rect_size (&window->rect, scale_factor);
   scale_rect_size (&window->unconstrained_rect, scale_factor);
   scale_rect_size (&window->saved_rect, scale_factor);
-  scale_size (&window->size_hints.min_width, &window->size_hints.min_height, scale_factor);
-  scale_size (&window->size_hints.max_width, &window->size_hints.max_height, scale_factor);
+  scale_size (&window->size_hints.min_width, &window->size_hints.min_height,
+              scale_factor);
+  scale_size (&window->size_hints.max_width, &window->size_hints.max_height,
+              scale_factor);
 
   /* Window geometry offset (XXX: Need a better place, see
    * meta_window_wayland_move_resize). */
   window->custom_frame_extents.left =
-    (int)(scale_factor * window->custom_frame_extents.left);
+    (int) (scale_factor * window->custom_frame_extents.left);
   window->custom_frame_extents.top =
-    (int)(scale_factor * window->custom_frame_extents.top);
+    (int) (scale_factor * window->custom_frame_extents.top);
 
   /* Buffer rect. */
   scale_rect_size (&window->buffer_rect, scale_factor);
@@ -528,8 +536,9 @@ meta_window_wayland_get_client_pid (MetaWindow *window)
   struct wl_resource *resource = surface->resource;
   pid_t pid;
 
-  wl_client_get_credentials (wl_resource_get_client (resource), &pid, NULL, NULL);
-  return (uint32_t)pid;
+  wl_client_get_credentials (wl_resource_get_client (resource), &pid, NULL,
+                             NULL);
+  return (uint32_t) pid;
 }
 
 static void
@@ -616,7 +625,8 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->update_main_monitor = meta_window_wayland_update_main_monitor;
   window_class->main_monitor_changed = meta_window_wayland_main_monitor_changed;
   window_class->get_client_pid = meta_window_wayland_get_client_pid;
-  window_class->force_restore_shortcuts = meta_window_wayland_force_restore_shortcuts;
+  window_class->force_restore_shortcuts =
+    meta_window_wayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_wayland_shortcuts_inhibited;
   window_class->is_stackable = meta_window_wayland_is_stackable;
   window_class->are_updates_frozen = meta_window_wayland_are_updates_frozen;
@@ -647,9 +657,11 @@ meta_window_wayland_new (MetaDisplay        *display,
    * X requests (passing a window xid of None) until we thoroughly audit all
    * the code to make sure it knows about non X based clients...
    */
-  meta_x11_error_trap_push (display->x11_display); /* Push a trap over all of window
-                                                * creation, to reduce XSync() calls
-                                                */
+  meta_x11_error_trap_push (display->x11_display); /* Push a trap over all of
+                                                    * window
+                                                    * creation, to reduce
+                                                    *XSync() calls
+                                                    */
 
   window = _meta_window_shared_new (display,
                                     META_WINDOW_CLIENT_TYPE_WAYLAND,
@@ -660,7 +672,8 @@ meta_window_wayland_new (MetaDisplay        *display,
                                     &attrs);
   window->can_ping = TRUE;
 
-  meta_x11_error_trap_pop (display->x11_display); /* pop the XSync()-reducing trap */
+  meta_x11_error_trap_pop (display->x11_display); /* pop the XSync()-reducing
+                                                   * trap */
 
   return window;
 }
@@ -678,7 +691,8 @@ is_pending_ack_configure (MetaWindowWayland *wl_window,
 
       /* If we're waiting for a configure and this isn't an ACK for
        * the configure we're waiting for, then fizzle it out. */
-      if (acked_configure_serial->value != wl_window->pending_configure_serial.value)
+      if (acked_configure_serial->value !=
+          wl_window->pending_configure_serial.value)
         return FALSE;
     }
 
@@ -735,7 +749,8 @@ meta_window_wayland_move_resize (MetaWindow        *window,
 
   flags = META_MOVE_RESIZE_WAYLAND_RESIZE;
 
-  pending_ack_configure = is_pending_ack_configure (wl_window, acked_configure_serial);
+  pending_ack_configure = is_pending_ack_configure (wl_window,
+                                                    acked_configure_serial);
 
   /* x/y are ignored when we're doing interactive resizing */
   if (!meta_grab_op_is_resizing (window->display->grab_op))
@@ -873,10 +888,12 @@ meta_window_wayland_set_max_size (MetaWindow *window,
   new_height = height + (window->custom_frame_extents.top +
                          window->custom_frame_extents.bottom);
 
-  window->size_hints.max_width = (int) ((new_width > 0 && new_width < G_MAXINT) ?
-                                        new_width : G_MAXINT);
-  window->size_hints.max_height = (int)  ((new_height > 0 && new_height < G_MAXINT) ?
-                                          new_height : G_MAXINT);
+  window->size_hints.max_width =
+    (int) ((new_width > 0 && new_width < G_MAXINT) ?
+           new_width : G_MAXINT);
+  window->size_hints.max_height =
+    (int) ((new_height > 0 && new_height < G_MAXINT) ?
+           new_height : G_MAXINT);
   window->size_hints.flags |= PMaxSize;
 }
 

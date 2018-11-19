@@ -46,11 +46,12 @@
 static void
 meta_topic_real_valist (MetaDebugTopic topic,
                         const char    *format,
-                        va_list        args) G_GNUC_PRINTF(2, 0);
+                        va_list        args) G_GNUC_PRINTF (2, 0);
 #endif
 
 static gboolean
-meta_later_remove_from_list (guint later_id, GSList **laters_list);
+meta_later_remove_from_list (guint    later_id,
+                             GSList **laters_list);
 
 static gint verbose_topics = 0;
 static gboolean is_debugging = FALSE;
@@ -59,7 +60,7 @@ static int no_prefix = 0;
 static gboolean is_wayland_compositor = FALSE;
 
 #ifdef WITH_VERBOSE_MODE
-static FILE* logfile = NULL;
+static FILE *logfile = NULL;
 
 static void
 ensure_logfile (void)
@@ -250,14 +251,15 @@ void
 meta_free_gslist_and_elements (GSList *list_to_deep_free)
 {
   g_slist_foreach (list_to_deep_free,
-                   (void (*)(gpointer,gpointer))&g_free, /* ew, for ugly */
+                   (void (*)(gpointer, gpointer)) & g_free, /* ew, for ugly */
                    NULL);
   g_slist_free (list_to_deep_free);
 }
 
 #ifdef WITH_VERBOSE_MODE
 void
-meta_debug_spew_real (const char *format, ...)
+meta_debug_spew_real (const char *format,
+                      ...)
 {
   va_list args;
   gchar *str;
@@ -286,7 +288,8 @@ meta_debug_spew_real (const char *format, ...)
 
 #ifdef WITH_VERBOSE_MODE
 void
-meta_verbose_real (const char *format, ...)
+meta_verbose_real (const char *format,
+                   ...)
 {
   va_list args;
 
@@ -297,57 +300,80 @@ meta_verbose_real (const char *format, ...)
 #endif /* WITH_VERBOSE_MODE */
 
 #ifdef WITH_VERBOSE_MODE
-static const char*
+static const char *
 topic_name (MetaDebugTopic topic)
 {
   switch (topic)
     {
     case META_DEBUG_FOCUS:
       return "FOCUS";
+
     case META_DEBUG_WORKAREA:
       return "WORKAREA";
+
     case META_DEBUG_STACK:
       return "STACK";
+
     case META_DEBUG_THEMES:
       return "THEMES";
+
     case META_DEBUG_SM:
       return "SM";
+
     case META_DEBUG_EVENTS:
       return "EVENTS";
+
     case META_DEBUG_WINDOW_STATE:
       return "WINDOW_STATE";
+
     case META_DEBUG_WINDOW_OPS:
       return "WINDOW_OPS";
+
     case META_DEBUG_PLACEMENT:
       return "PLACEMENT";
+
     case META_DEBUG_GEOMETRY:
       return "GEOMETRY";
+
     case META_DEBUG_PING:
       return "PING";
+
     case META_DEBUG_XINERAMA:
       return "XINERAMA";
+
     case META_DEBUG_KEYBINDINGS:
       return "KEYBINDINGS";
+
     case META_DEBUG_SYNC:
       return "SYNC";
+
     case META_DEBUG_ERRORS:
       return "ERRORS";
+
     case META_DEBUG_STARTUP:
       return "STARTUP";
+
     case META_DEBUG_PREFS:
       return "PREFS";
+
     case META_DEBUG_GROUPS:
       return "GROUPS";
+
     case META_DEBUG_RESIZING:
       return "RESIZING";
+
     case META_DEBUG_SHAPES:
       return "SHAPES";
+
     case META_DEBUG_COMPOSITOR:
       return "COMPOSITOR";
+
     case META_DEBUG_EDGE_RESISTANCE:
       return "EDGE_RESISTANCE";
+
     case META_DEBUG_DBUS:
       return "DBUS";
+
     case META_DEBUG_VERBOSE:
       return "VERBOSE";
     }
@@ -394,7 +420,7 @@ meta_topic_real_valist (MetaDebugTopic topic,
 
 void
 meta_topic_real (MetaDebugTopic topic,
-                 const char *format,
+                 const char    *format,
                  ...)
 {
   va_list args;
@@ -406,7 +432,8 @@ meta_topic_real (MetaDebugTopic topic,
 #endif /* WITH_VERBOSE_MODE */
 
 void
-meta_bug (const char *format, ...)
+meta_bug (const char *format,
+          ...)
 {
   va_list args;
   gchar *str;
@@ -437,7 +464,8 @@ meta_bug (const char *format, ...)
 }
 
 void
-meta_warning (const char *format, ...)
+meta_warning (const char *format,
+              ...)
 {
   va_list args;
   gchar *str;
@@ -465,7 +493,8 @@ meta_warning (const char *format, ...)
 }
 
 void
-meta_fatal (const char *format, ...)
+meta_fatal (const char *format,
+            ...)
 {
   va_list args;
   gchar *str;
@@ -513,7 +542,6 @@ meta_pop_no_msg_prefix (void)
 void
 meta_exit (MetaExitCode code)
 {
-
   exit (code);
 }
 
@@ -521,13 +549,13 @@ gint
 meta_unsigned_long_equal (gconstpointer v1,
                           gconstpointer v2)
 {
-  return *((const gulong*) v1) == *((const gulong*) v2);
+  return *((const gulong *) v1) == *((const gulong *) v2);
 }
 
 guint
 meta_unsigned_long_hash  (gconstpointer v)
 {
-  gulong val = * (const gulong *) v;
+  gulong val = *(const gulong *) v;
 
   /* I'm not sure this works so well. */
 #if GLIB_SIZEOF_LONG > 4
@@ -537,7 +565,7 @@ meta_unsigned_long_hash  (gconstpointer v)
 #endif
 }
 
-const char*
+const char *
 meta_gravity_to_string (int gravity)
 {
   switch (gravity)
@@ -545,40 +573,50 @@ meta_gravity_to_string (int gravity)
     case NorthWestGravity:
       return "NorthWestGravity";
       break;
+
     case NorthGravity:
       return "NorthGravity";
       break;
+
     case NorthEastGravity:
       return "NorthEastGravity";
       break;
+
     case WestGravity:
       return "WestGravity";
       break;
+
     case CenterGravity:
       return "CenterGravity";
       break;
+
     case EastGravity:
       return "EastGravity";
       break;
+
     case SouthWestGravity:
       return "SouthWestGravity";
       break;
+
     case SouthGravity:
       return "SouthGravity";
       break;
+
     case SouthEastGravity:
       return "SouthEastGravity";
       break;
+
     case StaticGravity:
       return "StaticGravity";
       break;
+
     default:
       return "NorthWestGravity";
       break;
     }
 }
 
-char*
+char *
 meta_external_binding_name_for_action (guint keybinding_action)
 {
   return g_strdup_printf ("external-grab-%u", keybinding_action);
@@ -625,9 +663,9 @@ meta_show_dialog (const char *type,
                   const char *ok_text,
                   const char *cancel_text,
                   const char *icon_name,
-                  const int transient_for,
-                  GSList *columns,
-                  GSList *entries)
+                  const int   transient_for,
+                  GSList     *columns,
+                  GSList     *entries)
 {
   GError *error = NULL;
   GSList *tmp;
@@ -662,7 +700,7 @@ meta_show_dialog (const char *type,
     {
       append_argument (args, "--ok-label");
       append_argument (args, ok_text);
-     }
+    }
 
   if (cancel_text)
     {
@@ -693,7 +731,7 @@ meta_show_dialog (const char *type,
 
   if (transient_for)
     {
-      gchar *env = g_strdup_printf("%d", transient_for);
+      gchar *env = g_strdup_printf ("%d", transient_for);
       setenv ("WINDOWID", env, 1);
       g_free (env);
 
@@ -703,14 +741,14 @@ meta_show_dialog (const char *type,
   g_ptr_array_add (args, NULL); /* NULL-terminate */
 
   g_spawn_async (
-                 "/",
-                 (gchar**) args->pdata,
-                 NULL,
-                 G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
-                 NULL, NULL,
-                 &child_pid,
-                 &error
-                 );
+    "/",
+    (gchar **) args->pdata,
+    NULL,
+    G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
+    NULL, NULL,
+    &child_pid,
+    &error
+    );
 
   if (transient_for)
     unsetenv ("WINDOWID");
@@ -744,7 +782,8 @@ typedef struct
   gboolean run_once;
 } MetaLater;
 
-static GSList *laters[] = {
+static GSList *laters[] =
+{
   NULL, /* META_LATER_RESIZE */
   NULL, /* META_LATER_CALC_SHOWING */
   NULL, /* META_LATER_CHECK_FULLSCREEN */
@@ -852,8 +891,9 @@ ensure_later_repaint_func (void)
     later_timeline = clutter_timeline_new (G_MAXUINT);
 
   if (later_repaint_func == 0)
-    later_repaint_func = clutter_threads_add_repaint_func (run_all_repaint_laters,
-                                                           NULL, NULL);
+    later_repaint_func = clutter_threads_add_repaint_func (
+      run_all_repaint_laters,
+      NULL, NULL);
 
   /* Make sure the repaint function gets run */
   clutter_timeline_start (later_timeline);
@@ -878,13 +918,16 @@ call_idle_later (gpointer data)
 
 /**
  * meta_later_add:
- * @when:     enumeration value determining the phase at which to run the callback
+ * @when:     enumeration value determining the phase at which to run the
+ *callback
  * @func:     callback to run later
  * @data:     data to pass to the callback
- * @notify:   function to call to destroy @data when it is no longer in use, or %NULL
+ * @notify:   function to call to destroy @data when it is no longer in use, or
+ *%NULL
  *
  * Sets up a callback  to be called at some later time. @when determines the
- * particular later occasion at which it is called. This is much like g_idle_add(),
+ * particular later occasion at which it is called. This is much like
+ *g_idle_add(),
  * except that the functions interact properly with clutter event handling.
  * If a "later" function is added from a clutter event handler, and is supposed
  * to be run before the stage is redrawn, it will be run before that redraw
@@ -921,18 +964,22 @@ meta_later_add (MetaLaterType  when,
        * handler will get hit first and we want to call this function
        * there so it will happen before GTK+ repaints.
        */
-      later->source = g_idle_add_full (META_PRIORITY_RESIZE, call_idle_later, later, NULL);
+      later->source = g_idle_add_full (META_PRIORITY_RESIZE, call_idle_later,
+                                       later, NULL);
       g_source_set_name_by_id (later->source, "[mutter] call_idle_later");
       ensure_later_repaint_func ();
       break;
+
     case META_LATER_CALC_SHOWING:
     case META_LATER_CHECK_FULLSCREEN:
     case META_LATER_SYNC_STACK:
     case META_LATER_BEFORE_REDRAW:
       ensure_later_repaint_func ();
       break;
+
     case META_LATER_IDLE:
-      later->source = g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, call_idle_later, later, NULL);
+      later->source = g_idle_add_full (G_PRIORITY_DEFAULT_IDLE, call_idle_later,
+                                       later, NULL);
       g_source_set_name_by_id (later->source, "[mutter] call_idle_later");
       break;
     }
@@ -941,7 +988,8 @@ meta_later_add (MetaLaterType  when,
 }
 
 static gboolean
-meta_later_remove_from_list (guint later_id, GSList **laters_list)
+meta_later_remove_from_list (guint    later_id,
+                             GSList **laters_list)
 {
   GSList *l;
 
@@ -988,8 +1036,10 @@ meta_get_locale_direction (void)
     {
     case GTK_TEXT_DIR_LTR:
       return META_LOCALE_DIRECTION_LTR;
+
     case GTK_TEXT_DIR_RTL:
       return META_LOCALE_DIRECTION_RTL;
+
     default:
       g_assert_not_reached ();
     }
@@ -1012,4 +1062,3 @@ meta_generate_random_id (GRand *rand,
 }
 
 /* eof util.c */
-

@@ -34,16 +34,19 @@
 
 #include "x11/meta-x11-display-private.h"
 
-/* In GTK+-3.0, the error trapping code was significantly rewritten. The new code
+/* In GTK+-3.0, the error trapping code was significantly rewritten. The new
+ * code
  * has some neat features (like knowing automatically if a sync is needed or not
- * and handling errors asynchronously when the error code isn't needed immediately),
+ * and handling errors asynchronously when the error code isn't needed
+ *immediately),
  * but it's basically incompatible with the hacks we played with GTK+-2.0 to
  * use a custom error handler along with gdk_error_trap_push().
  *
  * Since the main point of our custom error trap was to get the error logged
  * to the right place, with GTK+-3.0 we simply omit our own error handler and
  * use the GTK+ handling straight-up.
- * (See https://bugzilla.gnome.org/show_bug.cgi?id=630216 for restoring logging.)
+ * (See https://bugzilla.gnome.org/show_bug.cgi?id=630216 for restoring
+ *logging.)
  */
 
 void

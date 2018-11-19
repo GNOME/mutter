@@ -81,7 +81,7 @@ process_line (const char *line)
     {
       int i;
 
-      if (argc  < 2)
+      if (argc < 2)
         {
           g_print ("usage: create <id> [override|csd]");
           goto out;
@@ -109,7 +109,8 @@ process_line (const char *line)
           goto out;
         }
 
-      GtkWidget *window = gtk_window_new (override ? GTK_WINDOW_POPUP : GTK_WINDOW_TOPLEVEL);
+      GtkWidget *window = gtk_window_new (
+        override ? GTK_WINDOW_POPUP : GTK_WINDOW_TOPLEVEL);
       g_hash_table_insert (windows, g_strdup (argv[1]), window);
 
       if (csd)
@@ -135,12 +136,12 @@ process_line (const char *line)
            * destroying it, we force initialization at a more predictable time.
            */
           GdkWindow *window_gdk = gtk_widget_get_window (window);
-          cairo_surface_t *surface = gdk_window_create_similar_surface (window_gdk,
-                                                                        CAIRO_CONTENT_COLOR,
-                                                                        1, 1);
+          cairo_surface_t *surface = gdk_window_create_similar_surface (
+            window_gdk,
+            CAIRO_CONTENT_COLOR,
+            1, 1);
           cairo_surface_destroy (surface);
         }
-
     }
   else if (strcmp (argv[0], "set_parent") == 0)
     {
@@ -342,12 +343,13 @@ process_line (const char *line)
           goto out;
         }
 
-      counter = strtoul(argv[1], NULL, 10);
-      value = atoi(argv[2]);
+      counter = strtoul (argv[1], NULL, 10);
+      value = atoi (argv[2]);
       XSyncValue sync_value;
       XSyncIntToValue (&sync_value, value);
 
-      XSyncSetCounter (gdk_x11_display_get_xdisplay (gdk_display_get_default ()),
+      XSyncSetCounter (gdk_x11_display_get_xdisplay (
+                         gdk_display_get_default ()),
                        counter, sync_value);
     }
   else if (strcmp (argv[0], "minimize") == 0)
@@ -386,7 +388,7 @@ process_line (const char *line)
 
   g_print ("OK\n");
 
- out:
+out:
   g_strfreev (argv);
 }
 
@@ -398,7 +400,8 @@ on_line_received (GObject      *source,
   GDataInputStream *in = G_DATA_INPUT_STREAM (source);
   GError *error = NULL;
   gsize length;
-  char *line = g_data_input_stream_read_line_finish_utf8 (in, result, &length, &error);
+  char *line = g_data_input_stream_read_line_finish_utf8 (in, result, &length,
+                                                          &error);
 
   if (line == NULL)
     {
@@ -420,7 +423,8 @@ read_next_line (GDataInputStream *in)
                                        on_line_received, NULL);
 }
 
-const GOptionEntry options[] = {
+const GOptionEntry options[] =
+{
   {
     "wayland", 0, 0, G_OPTION_ARG_NONE,
     &wayland,
@@ -437,7 +441,8 @@ const GOptionEntry options[] = {
 };
 
 int
-main(int argc, char **argv)
+main(int    argc,
+     char **argv)
 {
   GOptionContext *context = g_option_context_new (NULL);
   GError *error = NULL;

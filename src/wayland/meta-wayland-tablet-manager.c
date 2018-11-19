@@ -45,7 +45,8 @@ is_tablet_device (ClutterInputDevice *device)
 {
   ClutterInputDeviceType device_type;
 
-  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
+  if (clutter_input_device_get_device_mode (device) ==
+      CLUTTER_INPUT_MODE_MASTER)
     return FALSE;
 
   device_type = clutter_input_device_get_device_type (device);
@@ -63,7 +64,8 @@ tablet_manager_get_tablet_seat (struct wl_client   *client,
                                 guint32             id,
                                 struct wl_resource *seat_resource)
 {
-  MetaWaylandTabletManager *tablet_manager = wl_resource_get_user_data (resource);
+  MetaWaylandTabletManager *tablet_manager =
+    wl_resource_get_user_data (resource);
   MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
   MetaWaylandTabletSeat *tablet_seat;
 
@@ -79,7 +81,8 @@ tablet_manager_destroy (struct wl_client   *client,
   wl_resource_destroy (resource);
 }
 
-static const struct zwp_tablet_manager_v2_interface tablet_manager_interface = {
+static const struct zwp_tablet_manager_v2_interface tablet_manager_interface =
+{
   tablet_manager_get_tablet_seat,
   tablet_manager_destroy
 };
@@ -153,7 +156,8 @@ meta_wayland_tablet_manager_lookup_seat (MetaWaylandTabletManager *manager,
 
   g_hash_table_iter_init (&iter, manager->seats);
 
-  while (g_hash_table_iter_next (&iter, (gpointer*) &seat, (gpointer*) &tablet_seat))
+  while (g_hash_table_iter_next (&iter, (gpointer *) &seat,
+                                 (gpointer *) &tablet_seat))
     {
       if (meta_wayland_tablet_seat_lookup_tablet (tablet_seat, device) ||
           meta_wayland_tablet_seat_lookup_pad (tablet_seat, device))
@@ -197,6 +201,7 @@ meta_wayland_tablet_manager_update (MetaWaylandTabletManager *manager,
     case CLUTTER_PAD_STRIP:
       meta_wayland_tablet_seat_update (tablet_seat, event);
       break;
+
     default:
       break;
     }
@@ -226,6 +231,7 @@ meta_wayland_tablet_manager_handle_event (MetaWaylandTabletManager *manager,
     case CLUTTER_PAD_RING:
     case CLUTTER_PAD_STRIP:
       return meta_wayland_tablet_seat_handle_event (tablet_seat, event);
+
     default:
       return CLUTTER_EVENT_PROPAGATE;
     }
@@ -249,8 +255,9 @@ meta_wayland_tablet_manager_ensure_seat (MetaWaylandTabletManager *manager,
 }
 
 void
-meta_wayland_tablet_manager_update_cursor_position (MetaWaylandTabletManager *manager,
-                                                    const ClutterEvent       *event)
+meta_wayland_tablet_manager_update_cursor_position (
+  MetaWaylandTabletManager *manager,
+  const ClutterEvent       *event)
 {
   MetaWaylandTabletSeat *tablet_seat = NULL;
   MetaWaylandTabletTool *tool = NULL;

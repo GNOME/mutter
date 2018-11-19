@@ -44,8 +44,8 @@ G_DEFINE_TYPE (MetaClutterBackendX11, meta_clutter_backend_x11,
                CLUTTER_TYPE_BACKEND_X11)
 
 static CoglRenderer *
-meta_clutter_backend_x11_get_renderer (ClutterBackend  *clutter_backend,
-                                       GError         **error)
+meta_clutter_backend_x11_get_renderer (ClutterBackend * clutter_backend,
+                                       GError * *error)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
@@ -54,9 +54,9 @@ meta_clutter_backend_x11_get_renderer (ClutterBackend  *clutter_backend,
 }
 
 static ClutterStageWindow *
-meta_clutter_backend_x11_create_stage (ClutterBackend  *backend,
-                                       ClutterStage    *wrapper,
-                                       GError         **error)
+meta_clutter_backend_x11_create_stage (ClutterBackend *backend,
+                                       ClutterStage   *wrapper,
+                                       GError        **error)
 {
   ClutterEventTranslator *translator;
   ClutterStageWindow *stage;
@@ -65,12 +65,12 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *backend,
   if (meta_is_wayland_compositor ())
     stage_type = META_TYPE_STAGE_X11_NESTED;
   else
-    stage_type  = CLUTTER_TYPE_STAGE_X11;
+    stage_type = CLUTTER_TYPE_STAGE_X11;
 
   stage = g_object_new (stage_type,
-			"backend", backend,
-			"wrapper", wrapper,
-			NULL);
+                        "backend", backend,
+                        "wrapper", wrapper,
+                        NULL);
 
   /* the X11 stage does event translation */
   translator = CLUTTER_EVENT_TRANSLATOR (stage);
@@ -80,7 +80,7 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *backend,
 }
 
 static void
-meta_clutter_backend_x11_bell_notify (ClutterBackend  *backend)
+meta_clutter_backend_x11_bell_notify (ClutterBackend *backend)
 {
   MetaDisplay *display = meta_get_display ();
 

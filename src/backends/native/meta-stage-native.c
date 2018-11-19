@@ -32,7 +32,7 @@
 #include "meta/meta-monitor-manager.h"
 #include "meta/util.h"
 
-static GQuark quark_view_frame_closure  = 0;
+static GQuark quark_view_frame_closure = 0;
 
 struct _MetaStageNative
 {
@@ -73,10 +73,12 @@ frame_cb (CoglOnscreen  *onscreen,
       presented_frame_counter = stage_native->presented_frame_counter_sync;
       stage_native->presented_frame_counter_sync = global_frame_counter;
       break;
+
     case COGL_FRAME_EVENT_COMPLETE:
       presented_frame_counter = stage_native->presented_frame_counter_complete;
       stage_native->presented_frame_counter_complete = global_frame_counter;
       break;
+
     default:
       g_assert_not_reached ();
     }

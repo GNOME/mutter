@@ -25,7 +25,8 @@
 #include "meta/meta-close-dialog.h"
 #include "meta/meta-enum-types.h"
 
-enum {
+enum
+{
   RESPONSE,
   N_SIGNALS
 };
@@ -102,8 +103,8 @@ meta_close_dialog_hide (MetaCloseDialog *dialog)
  * implementations.
  **/
 void
-meta_close_dialog_response (MetaCloseDialog         *dialog,
-                            MetaCloseDialogResponse  response)
+meta_close_dialog_response (MetaCloseDialog        *dialog,
+                            MetaCloseDialogResponse response)
 {
   g_signal_emit (dialog, dialog_signals[RESPONSE], 0, response);
   meta_close_dialog_hide (dialog);
@@ -120,7 +121,8 @@ meta_close_dialog_response (MetaCloseDialog         *dialog,
 gboolean
 meta_close_dialog_is_visible (MetaCloseDialog *dialog)
 {
-  return GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (dialog), quark_visible));
+  return GPOINTER_TO_INT (g_object_get_qdata (G_OBJECT (dialog),
+                                              quark_visible));
 }
 
 /**

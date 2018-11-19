@@ -258,10 +258,12 @@ maybe_spoof_event_as_stage_event (MetaBackendX11 *x11,
     case XI_TouchEnd:
       translate_device_event (x11, (XIDeviceEvent *) input_event);
       break;
+
     case XI_Enter:
     case XI_Leave:
       translate_crossing_event (x11, (XIEnterEvent *) input_event);
       break;
+
     default:
       break;
     }
@@ -329,7 +331,8 @@ handle_host_xevent (MetaBackend *backend,
         if (meta_plugin_manager_xevent_filter (compositor->plugin_mgr, event))
           bypass_clutter = TRUE;
 
-        if (meta_dnd_handle_xdnd_event (backend, compositor, priv->xdisplay, event))
+        if (meta_dnd_handle_xdnd_event (backend, compositor, priv->xdisplay,
+                                        event))
           bypass_clutter = TRUE;
       }
   }
@@ -352,6 +355,7 @@ handle_host_xevent (MetaBackend *backend,
             case XkbMapNotify:
               keymap_changed (backend);
               break;
+
             case XkbStateNotify:
               if (xkb_ev->state.changed & XkbGroupLockMask)
                 {
@@ -368,6 +372,7 @@ handle_host_xevent (MetaBackend *backend,
                                                                      layout_group);
                 }
               break;
+
             default:
               break;
             }
@@ -383,7 +388,8 @@ handle_host_xevent (MetaBackend *backend,
   XFreeEventData (priv->xdisplay, &event->xcookie);
 }
 
-typedef struct {
+typedef struct
+{
   GSource base;
   GPollFD event_poll_fd;
   MetaBackend *backend;
@@ -415,9 +421,9 @@ x_event_source_check (GSource *source)
 }
 
 static gboolean
-x_event_source_dispatch (GSource     *source,
-                         GSourceFunc  callback,
-                         gpointer     user_data)
+x_event_source_dispatch (GSource    *source,
+                         GSourceFunc callback,
+                         gpointer    user_data)
 {
   XEventSource *x_source = (XEventSource *) source;
   MetaBackend *backend = x_source->backend;
@@ -436,7 +442,8 @@ x_event_source_dispatch (GSource     *source,
   return TRUE;
 }
 
-static GSourceFuncs x_event_funcs = {
+static GSourceFuncs x_event_funcs =
+{
   x_event_source_prepare,
   x_event_source_check,
   x_event_source_dispatch,
@@ -482,7 +489,8 @@ meta_backend_x11_post_init (MetaBackend *backend)
 
   priv->source = x_event_source_new (backend);
 
-  if (!XSyncQueryExtension (priv->xdisplay, &priv->xsync_event_base, &priv->xsync_error_base) ||
+  if (!XSyncQueryExtension (priv->xdisplay, &priv->xsync_event_base,
+                            &priv->xsync_error_base) ||
       !XSyncInitialize (priv->xdisplay, &major, &minor))
     meta_fatal ("Could not initialize XSync");
 
@@ -498,7 +506,8 @@ meta_backend_x11_post_init (MetaBackend *backend)
                        &priv->xinput_error_base,
                        &priv->xinput_event_base))
     {
-      major = 2; minor = 3;
+      major = 2;
+      minor = 3;
       if (XIQueryVersion (priv->xdisplay, &major, &minor) == Success)
         {
           int version = (major * 10) + minor;
@@ -508,7 +517,8 @@ meta_backend_x11_post_init (MetaBackend *backend)
     }
 
   if (!has_xi)
-    meta_fatal ("X server doesn't have the XInput extension, version 2.2 or newer\n");
+    meta_fatal (
+      "X server doesn't have the XInput extension, version 2.2 or newer\n");
 
   if (!xkb_x11_setup_xkb_extension (priv->xcb,
                                     XKB_X11_MIN_MAJOR_XKB_VERSION,
@@ -517,8 +527,9 @@ meta_backend_x11_post_init (MetaBackend *backend)
                                     NULL, NULL,
                                     &priv->xkb_event_base,
                                     &priv->xkb_error_base))
-    meta_fatal ("X server doesn't have the XKB extension, version %d.%d or newer\n",
-                XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION);
+    meta_fatal (
+      "X server doesn't have the XKB extension, version %d.%d or newer\n",
+      XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION);
 
   META_BACKEND_CLASS (meta_backend_x11_parent_class)->post_init (backend);
 
@@ -634,10 +645,12 @@ meta_backend_x11_get_keymap (MetaBackend *backend)
       struct xkb_context *context = xkb_context_new (XKB_CONTEXT_NO_FLAGS);
       priv->keymap = xkb_x11_keymap_new_from_device (context,
                                                      priv->xcb,
-                                                     xkb_x11_get_core_keyboard_device_id (priv->xcb),
+                                                     xkb_x11_get_core_keyboard_device_id (
+                                                       priv->xcb),
                                                      XKB_KEYMAP_COMPILE_NO_FLAGS);
       if (priv->keymap == NULL)
-        priv->keymap = xkb_keymap_new_from_names (context, NULL, XKB_KEYMAP_COMPILE_NO_FLAGS);
+        priv->keymap = xkb_keymap_new_from_names (context, NULL,
+                                                  XKB_KEYMAP_COMPILE_NO_FLAGS);
 
       xkb_context_unref (context);
     }
@@ -663,7 +676,7 @@ meta_backend_x11_set_numlock (MetaBackend *backend,
 
 void
 meta_backend_x11_handle_event (MetaBackendX11 *x11,
-                               XEvent      *xevent)
+                               XEvent         *xevent)
 {
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
 
@@ -762,14 +775,17 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_backend_x11_finalize;
-  backend_class->create_clutter_backend = meta_backend_x11_create_clutter_backend;
+  backend_class->create_clutter_backend =
+    meta_backend_x11_create_clutter_backend;
   backend_class->post_init = meta_backend_x11_post_init;
   backend_class->grab_device = meta_backend_x11_grab_device;
   backend_class->ungrab_device = meta_backend_x11_ungrab_device;
   backend_class->warp_pointer = meta_backend_x11_warp_pointer;
-  backend_class->get_current_logical_monitor = meta_backend_x11_get_current_logical_monitor;
+  backend_class->get_current_logical_monitor =
+    meta_backend_x11_get_current_logical_monitor;
   backend_class->get_keymap = meta_backend_x11_get_keymap;
-  backend_class->get_keymap_layout_group = meta_backend_x11_get_keymap_layout_group;
+  backend_class->get_keymap_layout_group =
+    meta_backend_x11_get_keymap_layout_group;
   backend_class->set_numlock = meta_backend_x11_set_numlock;
 }
 
@@ -780,7 +796,7 @@ meta_backend_x11_init (MetaBackendX11 *x11)
    * in Cogl - see meta_renderer_x11_create_cogl_renderer(). We call it here
    * to hopefully call it before any other use of XLib.
    */
-  XInitThreads();
+  XInitThreads ();
 
   /* We do X11 event retrieval ourselves */
   clutter_x11_disable_event_retrieval ();

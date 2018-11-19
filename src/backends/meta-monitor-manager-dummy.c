@@ -62,7 +62,8 @@ typedef struct _MetaOutputDummy
   float scale;
 } MetaOutputDummy;
 
-G_DEFINE_TYPE (MetaMonitorManagerDummy, meta_monitor_manager_dummy, META_TYPE_MONITOR_MANAGER);
+G_DEFINE_TYPE (MetaMonitorManagerDummy, meta_monitor_manager_dummy,
+               META_TYPE_MONITOR_MANAGER);
 
 struct _MetaGpuDummy
 {
@@ -106,7 +107,8 @@ append_monitor (MetaMonitorManager *manager,
 {
   MetaMonitorManagerDummy *manager_dummy = META_MONITOR_MANAGER_DUMMY (manager);
   MetaGpu *gpu = manager_dummy->gpu;
-  CrtcModeSpec mode_specs[] = {
+  CrtcModeSpec mode_specs[] =
+  {
     {
       .width = 800,
       .height = 600,
@@ -195,7 +197,8 @@ append_tiled_monitor (MetaMonitorManager *manager,
 {
   MetaMonitorManagerDummy *manager_dummy = META_MONITOR_MANAGER_DUMMY (manager);
   MetaGpu *gpu = manager_dummy->gpu;
-  CrtcModeSpec mode_specs[] = {
+  CrtcModeSpec mode_specs[] =
+  {
     {
       .width = 800,
       .height = 600,
@@ -483,7 +486,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
 
           for (j = 0; j < crtc_info->outputs->len; j++)
             {
-              output = ((MetaOutput**)crtc_info->outputs->pdata)[j];
+              output = ((MetaOutput **) crtc_info->outputs->pdata)[j];
 
               output->is_dirty = TRUE;
               meta_output_assign_crtc (output, crtc);
@@ -566,10 +569,11 @@ update_screen_size (MetaMonitorManager *manager,
 }
 
 static gboolean
-meta_monitor_manager_dummy_apply_monitors_config (MetaMonitorManager      *manager,
-                                                  MetaMonitorsConfig      *config,
-                                                  MetaMonitorsConfigMethod method,
-                                                  GError                 **error)
+meta_monitor_manager_dummy_apply_monitors_config (
+  MetaMonitorManager      *manager,
+  MetaMonitorsConfig      *config,
+  MetaMonitorsConfigMethod method,
+  GError                 **error)
 {
   GPtrArray *crtc_infos;
   GPtrArray *output_infos;
@@ -621,9 +625,10 @@ meta_monitor_manager_dummy_is_transform_handled (MetaMonitorManager  *manager,
 }
 
 static float
-meta_monitor_manager_dummy_calculate_monitor_mode_scale (MetaMonitorManager *manager,
-                                                         MetaMonitor        *monitor,
-                                                         MetaMonitorMode    *monitor_mode)
+meta_monitor_manager_dummy_calculate_monitor_mode_scale (
+  MetaMonitorManager *manager,
+  MetaMonitor        *monitor,
+  MetaMonitorMode    *monitor_mode)
 {
   MetaOutput *output;
   MetaOutputDummy *output_dummy;
@@ -635,11 +640,12 @@ meta_monitor_manager_dummy_calculate_monitor_mode_scale (MetaMonitorManager *man
 }
 
 static float *
-meta_monitor_manager_dummy_calculate_supported_scales (MetaMonitorManager          *manager,
-                                                       MetaLogicalMonitorLayoutMode layout_mode,
-                                                       MetaMonitor                 *monitor,
-                                                       MetaMonitorMode             *monitor_mode,
-                                                       int                         *n_supported_scales)
+meta_monitor_manager_dummy_calculate_supported_scales (
+  MetaMonitorManager          *manager,
+  MetaLogicalMonitorLayoutMode layout_mode,
+  MetaMonitor                 *monitor,
+  MetaMonitorMode             *monitor_mode,
+  int                         *n_supported_scales)
 {
   MetaMonitorScalesConstraint constraints =
     META_MONITOR_SCALES_CONSTRAINT_NONE;
@@ -648,6 +654,7 @@ meta_monitor_manager_dummy_calculate_supported_scales (MetaMonitorManager       
     {
     case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
       break;
+
     case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
       constraints |= META_MONITOR_SCALES_CONSTRAINT_NO_FRAC;
       break;
@@ -718,14 +725,21 @@ meta_monitor_manager_dummy_class_init (MetaMonitorManagerDummyClass *klass)
 {
   MetaMonitorManagerClass *manager_class = META_MONITOR_MANAGER_CLASS (klass);
 
-  manager_class->ensure_initial_config = meta_monitor_manager_dummy_ensure_initial_config;
-  manager_class->apply_monitors_config = meta_monitor_manager_dummy_apply_monitors_config;
-  manager_class->is_transform_handled = meta_monitor_manager_dummy_is_transform_handled;
-  manager_class->calculate_monitor_mode_scale = meta_monitor_manager_dummy_calculate_monitor_mode_scale;
-  manager_class->calculate_supported_scales = meta_monitor_manager_dummy_calculate_supported_scales;
+  manager_class->ensure_initial_config =
+    meta_monitor_manager_dummy_ensure_initial_config;
+  manager_class->apply_monitors_config =
+    meta_monitor_manager_dummy_apply_monitors_config;
+  manager_class->is_transform_handled =
+    meta_monitor_manager_dummy_is_transform_handled;
+  manager_class->calculate_monitor_mode_scale =
+    meta_monitor_manager_dummy_calculate_monitor_mode_scale;
+  manager_class->calculate_supported_scales =
+    meta_monitor_manager_dummy_calculate_supported_scales;
   manager_class->get_capabilities = meta_monitor_manager_dummy_get_capabilities;
-  manager_class->get_max_screen_size = meta_monitor_manager_dummy_get_max_screen_size;
-  manager_class->get_default_layout_mode = meta_monitor_manager_dummy_get_default_layout_mode;
+  manager_class->get_max_screen_size =
+    meta_monitor_manager_dummy_get_max_screen_size;
+  manager_class->get_default_layout_mode =
+    meta_monitor_manager_dummy_get_default_layout_mode;
 }
 
 static void
@@ -748,8 +762,8 @@ meta_monitor_manager_dummy_init (MetaMonitorManagerDummy *manager_dummy)
 }
 
 static gboolean
-meta_gpu_dummy_read_current (MetaGpu  *gpu,
-                             GError  **error)
+meta_gpu_dummy_read_current (MetaGpu *gpu,
+                             GError **error)
 {
   MetaMonitorManager *manager = meta_gpu_get_monitor_manager (gpu);
 

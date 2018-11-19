@@ -57,8 +57,11 @@ round_to_fixed (float x)
 /* Help macros to scale from OpenGL <-1,1> coordinates system to
  * window coordinates ranging [0,window-size]. Borrowed from clutter-utils.c
  */
-#define MTX_GL_SCALE_X(x,w,v1,v2) ((((((x) / (w)) + 1.0f) / 2.0f) * (v1)) + (v2))
-#define MTX_GL_SCALE_Y(y,w,v1,v2) ((v1) - (((((y) / (w)) + 1.0f) / 2.0f) * (v1)) + (v2))
+#define MTX_GL_SCALE_X(x, w, v1, \
+                       v2) ((((((x) / (w)) + 1.0f) / 2.0f) * (v1)) + (v2))
+#define MTX_GL_SCALE_Y(y, w, v1, \
+                       v2) ((v1) - (((((y) / (w)) + 1.0f) / 2.0f) * (v1)) + \
+                            (v2))
 
 /* This helper function checks if (according to our fixed point precision)
  * the vertices @verts form a box of width @widthf and height @heightf
@@ -76,12 +79,17 @@ meta_actor_vertices_are_untransformed (ClutterVertex *verts,
   int v0x, v0y, v1x, v1y, v2x, v2y, v3x, v3y;
   int x, y;
 
-  width = round_to_fixed (widthf); height = round_to_fixed (heightf);
+  width = round_to_fixed (widthf);
+  height = round_to_fixed (heightf);
 
-  v0x = round_to_fixed (verts[0].x); v0y = round_to_fixed (verts[0].y);
-  v1x = round_to_fixed (verts[1].x); v1y = round_to_fixed (verts[1].y);
-  v2x = round_to_fixed (verts[2].x); v2y = round_to_fixed (verts[2].y);
-  v3x = round_to_fixed (verts[3].x); v3y = round_to_fixed (verts[3].y);
+  v0x = round_to_fixed (verts[0].x);
+  v0y = round_to_fixed (verts[0].y);
+  v1x = round_to_fixed (verts[1].x);
+  v1y = round_to_fixed (verts[1].y);
+  v2x = round_to_fixed (verts[2].x);
+  v2y = round_to_fixed (verts[2].y);
+  v3x = round_to_fixed (verts[3].x);
+  v3y = round_to_fixed (verts[3].y);
 
   /* Using shifting for converting fixed => int, gets things right for
    * negative values. / 256. wouldn't do the same
@@ -124,7 +132,8 @@ meta_actor_is_untransformed (ClutterActor *actor,
   clutter_actor_get_size (actor, &widthf, &heightf);
   clutter_actor_get_abs_allocation_vertices (actor, verts);
 
-  return meta_actor_vertices_are_untransformed (verts, widthf, heightf, x_origin, y_origin);
+  return meta_actor_vertices_are_untransformed (verts, widthf, heightf,
+                                                x_origin, y_origin);
 }
 
 /**
@@ -146,10 +155,10 @@ meta_actor_is_untransformed (ClutterActor *actor,
  * transform.
  */
 gboolean
-meta_actor_painting_untransformed (int              paint_width,
-                                   int              paint_height,
-                                   int             *x_origin,
-                                   int             *y_origin)
+meta_actor_painting_untransformed (int  paint_width,
+                                   int  paint_height,
+                                   int *x_origin,
+                                   int *y_origin)
 {
   CoglMatrix modelview, projection, modelview_projection;
   ClutterVertex vertices[4];
@@ -181,13 +190,15 @@ meta_actor_painting_untransformed (int              paint_width,
   for (i = 0; i < 4; i++)
     {
       float w = 1;
-      cogl_matrix_transform_point (&modelview_projection, &vertices[i].x, &vertices[i].y, &vertices[i].z, &w);
+      cogl_matrix_transform_point (&modelview_projection, &vertices[i].x,
+                                   &vertices[i].y, &vertices[i].z, &w);
       vertices[i].x = MTX_GL_SCALE_X (vertices[i].x, w,
                                       viewport[2], viewport[0]);
       vertices[i].y = MTX_GL_SCALE_Y (vertices[i].y, w,
                                       viewport[3], viewport[1]);
     }
 
-  return meta_actor_vertices_are_untransformed (vertices, paint_width, paint_height, x_origin, y_origin);
+  return meta_actor_vertices_are_untransformed (vertices, paint_width,
+                                                paint_height, x_origin,
+                                                y_origin);
 }
-

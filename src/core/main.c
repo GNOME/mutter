@@ -147,12 +147,12 @@ meta_print_self_identity (void)
   g_date_set_time_t (&d, time (NULL));
   g_date_strftime (buf, sizeof (buf), "%x", &d);
   meta_verbose ("Mutter version %s running on %s\n",
-    VERSION, buf);
+                VERSION, buf);
 
   /* Locale and encoding. */
   g_get_charset (&charset);
   meta_verbose ("Running in locale \"%s\" with encoding \"%s\"\n",
-    setlocale (LC_ALL, NULL), charset);
+                setlocale (LC_ALL, NULL), charset);
 
   /* Compilation settings. */
   meta_print_compilation_info ();
@@ -162,23 +162,24 @@ meta_print_self_identity (void)
  * The set of possible options that can be set on Mutter's
  * command line.
  */
-static gchar    *opt_save_file;
-static gchar    *opt_display_name;
-static gchar    *opt_client_id;
-static gboolean  opt_replace_wm;
-static gboolean  opt_disable_sm;
-static gboolean  opt_sync;
+static gchar *opt_save_file;
+static gchar *opt_display_name;
+static gchar *opt_client_id;
+static gboolean opt_replace_wm;
+static gboolean opt_disable_sm;
+static gboolean opt_sync;
 #ifdef HAVE_WAYLAND
-static gboolean  opt_wayland;
-static gboolean  opt_nested;
-static gboolean  opt_no_x11;
+static gboolean opt_wayland;
+static gboolean opt_nested;
+static gboolean opt_no_x11;
 #endif
 #ifdef HAVE_NATIVE_BACKEND
-static gboolean  opt_display_server;
+static gboolean opt_display_server;
 #endif
-static gboolean  opt_x11;
+static gboolean opt_x11;
 
-static GOptionEntry meta_options[] = {
+static GOptionEntry meta_options[] =
+{
   {
     "sm-disable", 0, 0, G_OPTION_ARG_NONE,
     &opt_disable_sm,
@@ -263,7 +264,8 @@ meta_get_option_context (void)
   GOptionContext *ctx;
 
   if (setlocale (LC_ALL, "") == NULL)
-    meta_warning ("Locale not understood by C library, internationalization will not work\n");
+    meta_warning (
+      "Locale not understood by C library, internationalization will not work\n");
   bindtextdomain (GETTEXT_PACKAGE, MUTTER_LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
@@ -301,7 +303,8 @@ meta_finalize (void)
 
   if (display)
     meta_display_close (display,
-                        META_CURRENT_TIME); /* I doubt correct timestamps matter here */
+                        META_CURRENT_TIME); /* I doubt correct timestamps matter
+                                             * here */
 
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
@@ -321,8 +324,8 @@ on_sigterm (gpointer user_data)
 static gboolean
 session_type_is_supported (const char *session_type)
 {
-   return (g_strcmp0 (session_type, "x11") == 0) ||
-          (g_strcmp0 (session_type, "wayland") == 0);
+  return (g_strcmp0 (session_type, "x11") == 0) ||
+         (g_strcmp0 (session_type, "wayland") == 0);
 }
 
 static char *
@@ -439,7 +442,8 @@ calculate_compositor_configuration (MetaCompositorType *compositor_type,
   if ((opt_wayland || opt_nested) && opt_x11)
 #endif
     {
-      meta_warning ("Can't run both as Wayland compositor and X11 compositing manager\n");
+      meta_warning (
+        "Can't run both as Wayland compositor and X11 compositing manager\n");
       meta_exit (META_EXIT_ERROR);
     }
 
@@ -464,7 +468,7 @@ calculate_compositor_configuration (MetaCompositorType *compositor_type,
     *compositor_type = META_COMPOSITOR_TYPE_WAYLAND;
   else
 #endif /* HAVE_WAYLAND */
-    *compositor_type = META_COMPOSITOR_TYPE_X11;
+  *compositor_type = META_COMPOSITOR_TYPE_X11;
 
 #ifdef HAVE_WAYLAND
   if (opt_nested)
@@ -498,10 +502,10 @@ calculate_compositor_configuration (MetaCompositorType *compositor_type,
     }
   else
 #endif /* HAVE_WAYLAND */
-    {
-      *backend_gtype = META_TYPE_BACKEND_X11_CM;
-      return;
-    }
+  {
+    *backend_gtype = META_TYPE_BACKEND_X11_CM;
+    return;
+  }
 }
 
 static gboolean _compositor_configuration_overridden = FALSE;
@@ -533,13 +537,13 @@ meta_init (void)
 
   sigemptyset (&empty_mask);
   act.sa_handler = SIG_IGN;
-  act.sa_mask    = empty_mask;
-  act.sa_flags   = 0;
-  if (sigaction (SIGPIPE,  &act, NULL) < 0)
+  act.sa_mask = empty_mask;
+  act.sa_flags = 0;
+  if (sigaction (SIGPIPE, &act, NULL) < 0)
     g_printerr ("Failed to register SIGPIPE handler: %s\n",
                 g_strerror (errno));
 #ifdef SIGXFSZ
-  if (sigaction (SIGXFSZ,  &act, NULL) < 0)
+  if (sigaction (SIGXFSZ, &act, NULL) < 0)
     g_printerr ("Failed to register SIGXFSZ handler: %s\n",
                 g_strerror (errno));
 #endif
@@ -592,7 +596,8 @@ meta_init (void)
   meta_clutter_init ();
 
 #ifdef HAVE_WAYLAND
-  /* Bring up Wayland. This also launches Xwayland and sets DISPLAY as well... */
+  /* Bring up Wayland. This also launches Xwayland and sets DISPLAY as well...
+   * */
   if (meta_is_wayland_compositor ())
     meta_wayland_init ();
 #endif
@@ -627,7 +632,8 @@ meta_init (void)
 /**
  * meta_register_with_session:
  *
- * Registers mutter with the session manager.  Call this after completing your own
+ * Registers mutter with the session manager.  Call this after completing your
+ *own
  * initialization.
  *
  * This should be called when the session manager can safely continue to the

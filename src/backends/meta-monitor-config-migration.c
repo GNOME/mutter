@@ -24,7 +24,8 @@
  */
 
 /*
- * Portions of this file are derived from gnome-desktop/libgnome-desktop/gnome-rr-config.c
+ * Portions of this file are derived from
+ *gnome-desktop/libgnome-desktop/gnome-rr-config.c
  *
  * Copyright 2007, 2008, Red Hat, Inc.
  * Copyright 2010 Giovanni Campagna
@@ -44,10 +45,11 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "meta/boxes.h"
 
-#define META_MONITORS_CONFIG_MIGRATION_ERROR (meta_monitors_config_migration_error_quark ())
+#define META_MONITORS_CONFIG_MIGRATION_ERROR ( \
+    meta_monitors_config_migration_error_quark ())
 static GQuark meta_monitors_config_migration_error_quark (void);
 
-G_DEFINE_QUARK (meta-monitors-config-migration-error-quark,
+G_DEFINE_QUARK (meta - monitors - config - migration - error - quark,
                 meta_monitors_config_migration_error)
 
 enum _MetaConfigMigrationError
@@ -198,125 +200,125 @@ handle_start_element (GMarkupParseContext *context,
   switch (parser->state)
     {
     case STATE_INITIAL:
-      {
-        char *version;
+    {
+      char *version;
 
-        if (strcmp (element_name, "monitors") != 0)
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid document element %s", element_name);
-            return;
-          }
-
-        if (!g_markup_collect_attributes (element_name,
-                                          attribute_names,
-                                          attribute_values,
-                                          error,
-                                          G_MARKUP_COLLECT_STRING,
-                                          "version", &version,
-                                          G_MARKUP_COLLECT_INVALID))
+      if (strcmp (element_name, "monitors") != 0)
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                       "Invalid document element %s", element_name);
           return;
+        }
 
-        if (strcmp (version, "1") != 0)
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                         "Invalid or unsupported version %s", version);
-            return;
-          }
-
-        parser->state = STATE_MONITORS;
+      if (!g_markup_collect_attributes (element_name,
+                                        attribute_names,
+                                        attribute_values,
+                                        error,
+                                        G_MARKUP_COLLECT_STRING,
+                                        "version", &version,
+                                        G_MARKUP_COLLECT_INVALID))
         return;
-      }
+
+      if (strcmp (version, "1") != 0)
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                       "Invalid or unsupported version %s", version);
+          return;
+        }
+
+      parser->state = STATE_MONITORS;
+      return;
+    }
 
     case STATE_MONITORS:
-      {
-        if (strcmp (element_name, "configuration") != 0)
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid toplevel element %s", element_name);
-            return;
-          }
+    {
+      if (strcmp (element_name, "configuration") != 0)
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                       "Invalid toplevel element %s", element_name);
+          return;
+        }
 
-        parser->key_array = g_array_new (FALSE, FALSE,
-                                         sizeof (MetaOutputKey));
-        parser->output_array = g_array_new (FALSE, FALSE,
-                                            sizeof (MetaOutputConfig));
-        parser->state = STATE_CONFIGURATION;
-        return;
-      }
+      parser->key_array = g_array_new (FALSE, FALSE,
+                                       sizeof (MetaOutputKey));
+      parser->output_array = g_array_new (FALSE, FALSE,
+                                          sizeof (MetaOutputConfig));
+      parser->state = STATE_CONFIGURATION;
+      return;
+    }
 
     case STATE_CONFIGURATION:
-      {
-        if (strcmp (element_name, "clone") == 0 &&
-            parser->unknown_count == 0)
-          {
-            parser->state = STATE_CLONE;
-          }
-        else if (strcmp (element_name, "output") == 0 &&
-                 parser->unknown_count == 0)
-          {
-            char *name;
+    {
+      if (strcmp (element_name, "clone") == 0 &&
+          parser->unknown_count == 0)
+        {
+          parser->state = STATE_CLONE;
+        }
+      else if (strcmp (element_name, "output") == 0 &&
+               parser->unknown_count == 0)
+        {
+          char *name;
 
-            if (!g_markup_collect_attributes (element_name,
-                                              attribute_names,
-                                              attribute_values,
-                                              error,
-                                              G_MARKUP_COLLECT_STRING,
-                                              "name", &name,
-                                              G_MARKUP_COLLECT_INVALID))
-              return;
+          if (!g_markup_collect_attributes (element_name,
+                                            attribute_names,
+                                            attribute_values,
+                                            error,
+                                            G_MARKUP_COLLECT_STRING,
+                                            "name", &name,
+                                            G_MARKUP_COLLECT_INVALID))
+            return;
 
-            memset (&parser->key, 0, sizeof (MetaOutputKey));
-            memset (&parser->output, 0, sizeof (MetaOutputConfig));
+          memset (&parser->key, 0, sizeof (MetaOutputKey));
+          memset (&parser->output, 0, sizeof (MetaOutputConfig));
 
-            parser->key.connector = g_strdup (name);
-            parser->state = STATE_OUTPUT;
-          }
-        else
-          {
-            parser->unknown_count++;
-          }
+          parser->key.connector = g_strdup (name);
+          parser->state = STATE_OUTPUT;
+        }
+      else
+        {
+          parser->unknown_count++;
+        }
 
-        return;
-      }
+      return;
+    }
 
     case STATE_OUTPUT:
-      {
-        if ((strcmp (element_name, "vendor") == 0 ||
-             strcmp (element_name, "product") == 0 ||
-             strcmp (element_name, "serial") == 0 ||
-             strcmp (element_name, "width") == 0 ||
-             strcmp (element_name, "height") == 0 ||
-             strcmp (element_name, "rate") == 0 ||
-             strcmp (element_name, "x") == 0 ||
-             strcmp (element_name, "y") == 0 ||
-             strcmp (element_name, "rotation") == 0 ||
-             strcmp (element_name, "reflect_x") == 0 ||
-             strcmp (element_name, "reflect_y") == 0 ||
-             strcmp (element_name, "primary") == 0 ||
-             strcmp (element_name, "presentation") == 0 ||
-             strcmp (element_name, "underscanning") == 0) &&
-            parser->unknown_count == 0)
-          {
-            parser->state = STATE_OUTPUT_FIELD;
+    {
+      if ((strcmp (element_name, "vendor") == 0 ||
+           strcmp (element_name, "product") == 0 ||
+           strcmp (element_name, "serial") == 0 ||
+           strcmp (element_name, "width") == 0 ||
+           strcmp (element_name, "height") == 0 ||
+           strcmp (element_name, "rate") == 0 ||
+           strcmp (element_name, "x") == 0 ||
+           strcmp (element_name, "y") == 0 ||
+           strcmp (element_name, "rotation") == 0 ||
+           strcmp (element_name, "reflect_x") == 0 ||
+           strcmp (element_name, "reflect_y") == 0 ||
+           strcmp (element_name, "primary") == 0 ||
+           strcmp (element_name, "presentation") == 0 ||
+           strcmp (element_name, "underscanning") == 0) &&
+          parser->unknown_count == 0)
+        {
+          parser->state = STATE_OUTPUT_FIELD;
 
-            parser->output_field = g_strdup (element_name);
-          }
-        else
-          {
-            parser->unknown_count++;
-          }
+          parser->output_field = g_strdup (element_name);
+        }
+      else
+        {
+          parser->unknown_count++;
+        }
 
-        return;
-      }
+      return;
+    }
 
     case STATE_CLONE:
     case STATE_OUTPUT_FIELD:
-      {
-        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                     "Unexpected element %s", element_name);
-        return;
-      }
+    {
+      g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                   "Unexpected element %s", element_name);
+      return;
+    }
 
     default:
       g_assert_not_reached ();
@@ -334,92 +336,92 @@ handle_end_element (GMarkupParseContext *context,
   switch (parser->state)
     {
     case STATE_MONITORS:
-      {
-        parser->state = STATE_INITIAL;
-        return;
-      }
+    {
+      parser->state = STATE_INITIAL;
+      return;
+    }
 
     case STATE_CONFIGURATION:
-      {
-        if (strcmp (element_name, "configuration") == 0 &&
-            parser->unknown_count == 0)
-          {
-            MetaLegacyMonitorsConfig *config = legacy_config_new ();
+    {
+      if (strcmp (element_name, "configuration") == 0 &&
+          parser->unknown_count == 0)
+        {
+          MetaLegacyMonitorsConfig *config = legacy_config_new ();
 
-            g_assert (parser->key_array->len == parser->output_array->len);
+          g_assert (parser->key_array->len == parser->output_array->len);
 
-            config->n_outputs = parser->key_array->len;
-            config->keys = (void*)g_array_free (parser->key_array, FALSE);
-            config->outputs = (void*)g_array_free (parser->output_array, FALSE);
+          config->n_outputs = parser->key_array->len;
+          config->keys = (void *) g_array_free (parser->key_array, FALSE);
+          config->outputs = (void *) g_array_free (parser->output_array, FALSE);
 
-            g_hash_table_replace (parser->configs, config, config);
+          g_hash_table_replace (parser->configs, config, config);
 
-            parser->key_array = NULL;
-            parser->output_array = NULL;
-            parser->state = STATE_MONITORS;
-          }
-        else
-          {
-            parser->unknown_count--;
+          parser->key_array = NULL;
+          parser->output_array = NULL;
+          parser->state = STATE_MONITORS;
+        }
+      else
+        {
+          parser->unknown_count--;
 
-            g_assert (parser->unknown_count >= 0);
-          }
+          g_assert (parser->unknown_count >= 0);
+        }
 
-        return;
-      }
+      return;
+    }
 
     case STATE_OUTPUT:
-      {
-        if (strcmp (element_name, "output") == 0 && parser->unknown_count == 0)
-          {
-            if (parser->key.vendor == NULL ||
-                parser->key.product == NULL ||
-                parser->key.serial == NULL)
-              {
-                /* Disconnected output, ignore */
-                free_output_key (&parser->key);
-              }
-            else
-              {
-                if (parser->output.rect.width == 0 ||
-                    parser->output.rect.height == 0)
-                  parser->output.enabled = FALSE;
-                else
-                  parser->output.enabled = TRUE;
+    {
+      if (strcmp (element_name, "output") == 0 && parser->unknown_count == 0)
+        {
+          if (parser->key.vendor == NULL ||
+              parser->key.product == NULL ||
+              parser->key.serial == NULL)
+            {
+              /* Disconnected output, ignore */
+              free_output_key (&parser->key);
+            }
+          else
+            {
+              if (parser->output.rect.width == 0 ||
+                  parser->output.rect.height == 0)
+                parser->output.enabled = FALSE;
+              else
+                parser->output.enabled = TRUE;
 
-                g_array_append_val (parser->key_array, parser->key);
-                g_array_append_val (parser->output_array, parser->output);
-              }
+              g_array_append_val (parser->key_array, parser->key);
+              g_array_append_val (parser->output_array, parser->output);
+            }
 
-            memset (&parser->key, 0, sizeof (MetaOutputKey));
-            memset (&parser->output, 0, sizeof (MetaOutputConfig));
+          memset (&parser->key, 0, sizeof (MetaOutputKey));
+          memset (&parser->output, 0, sizeof (MetaOutputConfig));
 
-            parser->state = STATE_CONFIGURATION;
-          }
-        else
-          {
-            parser->unknown_count--;
+          parser->state = STATE_CONFIGURATION;
+        }
+      else
+        {
+          parser->unknown_count--;
 
-            g_assert (parser->unknown_count >= 0);
-          }
+          g_assert (parser->unknown_count >= 0);
+        }
 
-        return;
-      }
+      return;
+    }
 
     case STATE_CLONE:
-      {
-        parser->state = STATE_CONFIGURATION;
-        return;
-      }
+    {
+      parser->state = STATE_CONFIGURATION;
+      return;
+    }
 
     case STATE_OUTPUT_FIELD:
-      {
-        g_free (parser->output_field);
-        parser->output_field = NULL;
+    {
+      g_free (parser->output_field);
+      parser->output_field = NULL;
 
-        parser->state = STATE_OUTPUT;
-        return;
-      }
+      parser->state = STATE_OUTPUT;
+      return;
+    }
 
     case STATE_INITIAL:
     default:
@@ -451,10 +453,10 @@ read_int (const char *text,
 }
 
 static void
-read_float (const char  *text,
-            gsize        text_len,
-            gfloat      *field,
-            GError     **error)
+read_float (const char *text,
+            gsize       text_len,
+            gfloat     *field,
+            GError    **error)
 {
   char buf[64];
   gfloat v;
@@ -474,9 +476,9 @@ read_float (const char  *text,
 }
 
 static gboolean
-read_bool (const char  *text,
-           gsize        text_len,
-           GError     **error)
+read_bool (const char *text,
+           gsize       text_len,
+           GError    **error)
 {
   if (strncmp (text, "no", text_len) == 0)
     return FALSE;
@@ -484,7 +486,7 @@ read_bool (const char  *text,
     return TRUE;
   else
     g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                 "Invalid boolean value %.*s", (int)text_len, text);
+                 "Invalid boolean value %.*s", (int) text_len, text);
 
   return FALSE;
 }
@@ -514,101 +516,101 @@ handle_text (GMarkupParseContext *context,
   switch (parser->state)
     {
     case STATE_MONITORS:
-      {
-        if (!is_all_whitespace (text, text_len))
-          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                       "Unexpected content at this point");
-        return;
-      }
+    {
+      if (!is_all_whitespace (text, text_len))
+        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                     "Unexpected content at this point");
+      return;
+    }
 
     case STATE_CONFIGURATION:
-      {
-        if (parser->unknown_count == 0)
-          {
-            if (!is_all_whitespace (text, text_len))
-              g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                           "Unexpected content at this point");
-          }
-        else
-          {
-            /* Handling unknown element, ignore */
-          }
+    {
+      if (parser->unknown_count == 0)
+        {
+          if (!is_all_whitespace (text, text_len))
+            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                         "Unexpected content at this point");
+        }
+      else
+        {
+          /* Handling unknown element, ignore */
+        }
 
-        return;
-      }
+      return;
+    }
 
     case STATE_OUTPUT:
-      {
-        if (parser->unknown_count == 0)
-          {
-            if (!is_all_whitespace (text, text_len))
-              g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                           "Unexpected content at this point");
-          }
-        else
-          {
-            /* Handling unknown element, ignore */
-          }
-        return;
-      }
+    {
+      if (parser->unknown_count == 0)
+        {
+          if (!is_all_whitespace (text, text_len))
+            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                         "Unexpected content at this point");
+        }
+      else
+        {
+          /* Handling unknown element, ignore */
+        }
+      return;
+    }
 
     case STATE_CLONE:
-      {
-        /* Ignore the clone flag */
-        return;
-      }
+    {
+      /* Ignore the clone flag */
+      return;
+    }
 
     case STATE_OUTPUT_FIELD:
-      {
-        if (strcmp (parser->output_field, "vendor") == 0)
-          parser->key.vendor = g_strndup (text, text_len);
-        else if (strcmp (parser->output_field, "product") == 0)
-          parser->key.product = g_strndup (text, text_len);
-        else if (strcmp (parser->output_field, "serial") == 0)
-          parser->key.serial = g_strndup (text, text_len);
-        else if (strcmp (parser->output_field, "width") == 0)
-          read_int (text, text_len, &parser->output.rect.width, error);
-        else if (strcmp (parser->output_field, "height") == 0)
-          read_int (text, text_len, &parser->output.rect.height, error);
-        else if (strcmp (parser->output_field, "rate") == 0)
-          read_float (text, text_len, &parser->output.refresh_rate, error);
-        else if (strcmp (parser->output_field, "x") == 0)
-          read_int (text, text_len, &parser->output.rect.x, error);
-        else if (strcmp (parser->output_field, "y") == 0)
-          read_int (text, text_len, &parser->output.rect.y, error);
-        else if (strcmp (parser->output_field, "rotation") == 0)
-          {
-            if (strncmp (text, "normal", text_len) == 0)
-              parser->output.transform = META_MONITOR_TRANSFORM_NORMAL;
-            else if (strncmp (text, "left", text_len) == 0)
-              parser->output.transform = META_MONITOR_TRANSFORM_90;
-            else if (strncmp (text, "upside_down", text_len) == 0)
-              parser->output.transform = META_MONITOR_TRANSFORM_180;
-            else if (strncmp (text, "right", text_len) == 0)
-              parser->output.transform = META_MONITOR_TRANSFORM_270;
-            else
-              g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                           "Invalid rotation type %.*s", (int)text_len, text);
-          }
-        else if (strcmp (parser->output_field, "reflect_x") == 0)
-          parser->output.transform += read_bool (text, text_len, error) ?
-            META_MONITOR_TRANSFORM_FLIPPED : 0;
-        else if (strcmp (parser->output_field, "reflect_y") == 0)
-          {
-            if (read_bool (text, text_len, error))
-              g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                           "Y reflection is not supported");
-          }
-        else if (strcmp (parser->output_field, "primary") == 0)
-          parser->output.is_primary = read_bool (text, text_len, error);
-        else if (strcmp (parser->output_field, "presentation") == 0)
-          parser->output.is_presentation = read_bool (text, text_len, error);
-        else if (strcmp (parser->output_field, "underscanning") == 0)
-          parser->output.is_underscanning = read_bool (text, text_len, error);
-        else
-          g_assert_not_reached ();
-        return;
-      }
+    {
+      if (strcmp (parser->output_field, "vendor") == 0)
+        parser->key.vendor = g_strndup (text, text_len);
+      else if (strcmp (parser->output_field, "product") == 0)
+        parser->key.product = g_strndup (text, text_len);
+      else if (strcmp (parser->output_field, "serial") == 0)
+        parser->key.serial = g_strndup (text, text_len);
+      else if (strcmp (parser->output_field, "width") == 0)
+        read_int (text, text_len, &parser->output.rect.width, error);
+      else if (strcmp (parser->output_field, "height") == 0)
+        read_int (text, text_len, &parser->output.rect.height, error);
+      else if (strcmp (parser->output_field, "rate") == 0)
+        read_float (text, text_len, &parser->output.refresh_rate, error);
+      else if (strcmp (parser->output_field, "x") == 0)
+        read_int (text, text_len, &parser->output.rect.x, error);
+      else if (strcmp (parser->output_field, "y") == 0)
+        read_int (text, text_len, &parser->output.rect.y, error);
+      else if (strcmp (parser->output_field, "rotation") == 0)
+        {
+          if (strncmp (text, "normal", text_len) == 0)
+            parser->output.transform = META_MONITOR_TRANSFORM_NORMAL;
+          else if (strncmp (text, "left", text_len) == 0)
+            parser->output.transform = META_MONITOR_TRANSFORM_90;
+          else if (strncmp (text, "upside_down", text_len) == 0)
+            parser->output.transform = META_MONITOR_TRANSFORM_180;
+          else if (strncmp (text, "right", text_len) == 0)
+            parser->output.transform = META_MONITOR_TRANSFORM_270;
+          else
+            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                         "Invalid rotation type %.*s", (int) text_len, text);
+        }
+      else if (strcmp (parser->output_field, "reflect_x") == 0)
+        parser->output.transform += read_bool (text, text_len, error) ?
+                                    META_MONITOR_TRANSFORM_FLIPPED : 0;
+      else if (strcmp (parser->output_field, "reflect_y") == 0)
+        {
+          if (read_bool (text, text_len, error))
+            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                         "Y reflection is not supported");
+        }
+      else if (strcmp (parser->output_field, "primary") == 0)
+        parser->output.is_primary = read_bool (text, text_len, error);
+      else if (strcmp (parser->output_field, "presentation") == 0)
+        parser->output.is_presentation = read_bool (text, text_len, error);
+      else if (strcmp (parser->output_field, "underscanning") == 0)
+        parser->output.is_underscanning = read_bool (text, text_len, error);
+      else
+        g_assert_not_reached ();
+      return;
+    }
 
     case STATE_INITIAL:
     default:
@@ -616,7 +618,8 @@ handle_text (GMarkupParseContext *context,
     }
 }
 
-static const GMarkupParser config_parser = {
+static const GMarkupParser config_parser =
+{
   .start_element = handle_start_element,
   .end_element = handle_end_element,
   .text = handle_text,
@@ -815,36 +818,43 @@ try_derive_tiled_monitor_config (MetaLegacyMonitorsConfig *config,
       mode_width = max_x - min_x;
       mode_height = max_y - min_y;
       break;
+
     case META_MONITOR_TRANSFORM_90:
       origin_tile = bottom_left_tile;
       mode_width = max_y - min_y;
       mode_height = max_x - min_x;
       break;
+
     case META_MONITOR_TRANSFORM_180:
       origin_tile = bottom_right_tile;
       mode_width = max_x - min_x;
       mode_height = max_y - min_y;
       break;
+
     case META_MONITOR_TRANSFORM_270:
       origin_tile = top_right_tile;
       mode_width = max_y - min_y;
       mode_height = max_x - min_x;
       break;
+
     case META_MONITOR_TRANSFORM_FLIPPED:
       origin_tile = bottom_left_tile;
       mode_width = max_x - min_x;
       mode_height = max_y - min_y;
       break;
+
     case META_MONITOR_TRANSFORM_FLIPPED_90:
       origin_tile = bottom_right_tile;
       mode_width = max_y - min_y;
       mode_height = max_x - min_x;
       break;
+
     case META_MONITOR_TRANSFORM_FLIPPED_180:
       origin_tile = top_right_tile;
       mode_width = max_x - min_x;
       mode_height = max_y - min_y;
       break;
+
     case META_MONITOR_TRANSFORM_FLIPPED_270:
       origin_tile = top_left_tile;
       mode_width = max_y - min_y;
@@ -988,6 +998,7 @@ derive_logical_monitor_configs (MetaLegacyMonitorsConfig *config,
                     {
                     case META_MONITORS_CONFIG_MIGRATION_ERROR_NOT_TILED:
                       break;
+
                     case META_MONITORS_CONFIG_MIGRATION_ERROR_NOT_MAIN_TILE:
                       continue;
                     }

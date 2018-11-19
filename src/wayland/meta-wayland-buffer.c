@@ -51,7 +51,7 @@ G_DEFINE_TYPE (MetaWaylandBuffer, meta_wayland_buffer, G_TYPE_OBJECT);
 
 static void
 meta_wayland_buffer_destroy_handler (struct wl_listener *listener,
-                                     void *data)
+                                     void               *data)
 {
   MetaWaylandBuffer *buffer =
     wl_container_of (listener, buffer, destroy_listener);
@@ -106,7 +106,8 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
   MetaBackend *backend = meta_get_backend ();
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
 #ifdef HAVE_WAYLAND_EGLSTREAM
   MetaWaylandEglStream *stream;
@@ -171,18 +172,22 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
     case WL_SHM_FORMAT_ARGB8888:
       format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
       break;
+
     case WL_SHM_FORMAT_XRGB8888:
       format = COGL_PIXEL_FORMAT_ARGB_8888;
       components = COGL_TEXTURE_COMPONENTS_RGB;
       break;
+
 #elif G_BYTE_ORDER == G_LITTLE_ENDIAN
     case WL_SHM_FORMAT_ARGB8888:
       format = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
       break;
+
     case WL_SHM_FORMAT_XRGB8888:
       format = COGL_PIXEL_FORMAT_BGRA_8888;
       components = COGL_TEXTURE_COMPONENTS_RGB;
       break;
+
 #endif
     default:
       g_warn_if_reached ();
@@ -201,7 +206,8 @@ shm_buffer_attach (MetaWaylandBuffer *buffer,
 {
   MetaBackend *backend = meta_get_backend ();
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   struct wl_shm_buffer *shm_buffer;
   int stride, width, height;
   CoglPixelFormat format;
@@ -253,7 +259,8 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
   MetaBackend *backend = meta_get_backend ();
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
   int format, width, height, y_inverted;
   CoglPixelFormat cogl_format;
@@ -288,9 +295,11 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
     case EGL_TEXTURE_RGB:
       cogl_format = COGL_PIXEL_FORMAT_RGB_888;
       break;
+
     case EGL_TEXTURE_RGBA:
       cogl_format = COGL_PIXEL_FORMAT_RGBA_8888_PRE;
       break;
+
     default:
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
@@ -326,8 +335,8 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
 static gboolean
-egl_stream_buffer_attach (MetaWaylandBuffer  *buffer,
-                          GError            **error)
+egl_stream_buffer_attach (MetaWaylandBuffer *buffer,
+                          GError           **error)
 {
   MetaWaylandEglStream *stream = buffer->egl_stream.stream;
 
@@ -359,14 +368,18 @@ meta_wayland_buffer_attach (MetaWaylandBuffer *buffer,
     {
     case META_WAYLAND_BUFFER_TYPE_SHM:
       return shm_buffer_attach (buffer, error);
+
     case META_WAYLAND_BUFFER_TYPE_EGL_IMAGE:
       return egl_image_buffer_attach (buffer, error);
+
 #ifdef HAVE_WAYLAND_EGLSTREAM
     case META_WAYLAND_BUFFER_TYPE_EGL_STREAM:
       return egl_stream_buffer_attach (buffer, error);
+
 #endif
     case META_WAYLAND_BUFFER_TYPE_DMA_BUF:
       return meta_wayland_dma_buf_buffer_attach (buffer, error);
+
     case META_WAYLAND_BUFFER_TYPE_UNKNOWN:
       g_assert_not_reached ();
       return FALSE;
@@ -459,6 +472,7 @@ meta_wayland_buffer_process_damage (MetaWaylandBuffer *buffer,
     case META_WAYLAND_BUFFER_TYPE_SHM:
       res = process_shm_buffer_damage (buffer, region, &error);
       break;
+
     case META_WAYLAND_BUFFER_TYPE_EGL_IMAGE:
 #ifdef HAVE_WAYLAND_EGLSTREAM
     case META_WAYLAND_BUFFER_TYPE_EGL_STREAM:
@@ -466,6 +480,7 @@ meta_wayland_buffer_process_damage (MetaWaylandBuffer *buffer,
     case META_WAYLAND_BUFFER_TYPE_DMA_BUF:
       res = TRUE;
       break;
+
     case META_WAYLAND_BUFFER_TYPE_UNKNOWN:
       g_set_error (&error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,

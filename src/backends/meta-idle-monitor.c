@@ -41,7 +41,7 @@
 #include "meta/meta-idle-monitor.h"
 #include "meta/util.h"
 
-G_STATIC_ASSERT(sizeof(unsigned long) == sizeof(gpointer));
+G_STATIC_ASSERT (sizeof (unsigned long) == sizeof (gpointer));
 
 enum
 {
@@ -106,6 +106,7 @@ meta_idle_monitor_get_property (GObject    *object,
     case PROP_DEVICE_ID:
       g_value_set_int (value, monitor->device_id);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -124,6 +125,7 @@ meta_idle_monitor_set_property (GObject      *object,
     case PROP_DEVICE_ID:
       monitor->device_id = g_value_get_int (value);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -149,8 +151,10 @@ meta_idle_monitor_class_init (MetaIdleMonitorClass *klass)
                       "Device ID",
                       "The device to listen to idletime on",
                       0, 255, 0,
-                      G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
-  g_object_class_install_property (object_class, PROP_DEVICE_ID, obj_props[PROP_DEVICE_ID]);
+                      G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT_ONLY);
+  g_object_class_install_property (object_class, PROP_DEVICE_ID,
+                                   obj_props[PROP_DEVICE_ID]);
 }
 
 static void
@@ -213,15 +217,16 @@ update_inhibited (MetaIdleMonitor *monitor,
 }
 
 static void
-meta_idle_monitor_inhibited_actions_changed (GDBusProxy  *session,
-                                             GVariant    *changed,
-                                             char       **invalidated,
-                                             gpointer     user_data)
+meta_idle_monitor_inhibited_actions_changed (GDBusProxy *session,
+                                             GVariant   *changed,
+                                             char      **invalidated,
+                                             gpointer    user_data)
 {
   MetaIdleMonitor *monitor = user_data;
   GVariant *v;
 
-  v = g_variant_lookup_value (changed, "InhibitedActions", G_VARIANT_TYPE_UINT32);
+  v =
+    g_variant_lookup_value (changed, "InhibitedActions", G_VARIANT_TYPE_UINT32);
   if (v)
     {
       gboolean inhibited;
@@ -311,9 +316,9 @@ get_next_watch_serial (void)
 }
 
 static gboolean
-idle_monitor_dispatch_timeout (GSource     *source,
-                               GSourceFunc  callback,
-                               gpointer     user_data)
+idle_monitor_dispatch_timeout (GSource    *source,
+                               GSourceFunc callback,
+                               gpointer    user_data)
 {
   MetaIdleMonitorWatch *watch = (MetaIdleMonitorWatch *) user_data;
 
@@ -323,7 +328,8 @@ idle_monitor_dispatch_timeout (GSource     *source,
   return TRUE;
 }
 
-static GSourceFuncs idle_monitor_source_funcs = {
+static GSourceFuncs idle_monitor_source_funcs =
+{
   .prepare = NULL,
   .check = NULL,
   .dispatch = idle_monitor_dispatch_timeout,
@@ -331,11 +337,11 @@ static GSourceFuncs idle_monitor_source_funcs = {
 };
 
 static MetaIdleMonitorWatch *
-make_watch (MetaIdleMonitor           *monitor,
-            guint64                    timeout_msec,
-            MetaIdleMonitorWatchFunc   callback,
-            gpointer                   user_data,
-            GDestroyNotify             notify)
+make_watch (MetaIdleMonitor         *monitor,
+            guint64                  timeout_msec,
+            MetaIdleMonitorWatchFunc callback,
+            gpointer                 user_data,
+            GDestroyNotify           notify)
 {
   MetaIdleMonitorWatch *watch;
 
@@ -395,11 +401,11 @@ make_watch (MetaIdleMonitor           *monitor,
  * meta_idle_monitor_add_user_active_watch().
  */
 guint
-meta_idle_monitor_add_idle_watch (MetaIdleMonitor	       *monitor,
-                                  guint64	                interval_msec,
-                                  MetaIdleMonitorWatchFunc      callback,
-                                  gpointer			user_data,
-                                  GDestroyNotify		notify)
+meta_idle_monitor_add_idle_watch (MetaIdleMonitor         *monitor,
+                                  guint64                  interval_msec,
+                                  MetaIdleMonitorWatchFunc callback,
+                                  gpointer                 user_data,
+                                  GDestroyNotify           notify)
 {
   MetaIdleMonitorWatch *watch;
 
@@ -432,10 +438,10 @@ meta_idle_monitor_add_idle_watch (MetaIdleMonitor	       *monitor,
  * meta_idle_monitor_add_idle_watch(), has triggered.
  */
 guint
-meta_idle_monitor_add_user_active_watch (MetaIdleMonitor          *monitor,
-                                         MetaIdleMonitorWatchFunc  callback,
-                                         gpointer		   user_data,
-                                         GDestroyNotify	           notify)
+meta_idle_monitor_add_user_active_watch (MetaIdleMonitor         *monitor,
+                                         MetaIdleMonitorWatchFunc callback,
+                                         gpointer                 user_data,
+                                         GDestroyNotify           notify)
 {
   MetaIdleMonitorWatch *watch;
 
@@ -461,7 +467,7 @@ meta_idle_monitor_add_user_active_watch (MetaIdleMonitor          *monitor,
  */
 void
 meta_idle_monitor_remove_watch (MetaIdleMonitor *monitor,
-                                guint	         id)
+                                guint            id)
 {
   g_return_if_fail (META_IS_IDLE_MONITOR (monitor));
 

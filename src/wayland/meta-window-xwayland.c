@@ -84,6 +84,7 @@ meta_window_xwayland_get_property (GObject    *object,
     case PROP_XWAYLAND_MAY_GRAB_KEYBOARD:
       g_value_set_boolean (value, window->xwayland_may_grab_keyboard);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -103,6 +104,7 @@ meta_window_xwayland_set_property (GObject      *object,
     case PROP_XWAYLAND_MAY_GRAB_KEYBOARD:
       window->xwayland_may_grab_keyboard = g_value_get_boolean (value);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -115,7 +117,8 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  window_class->force_restore_shortcuts = meta_window_xwayland_force_restore_shortcuts;
+  window_class->force_restore_shortcuts =
+    meta_window_xwayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_xwayland_shortcuts_inhibited;
 
   gobject_class->get_property = meta_window_xwayland_get_property;

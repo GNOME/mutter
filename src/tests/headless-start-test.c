@@ -165,7 +165,8 @@ create_headless_test_setup (void)
 }
 
 static void
-init_tests (int argc, char **argv)
+init_tests (int    argc,
+            char **argv)
 {
   MetaMonitorTestSetup *initial_test_setup;
 
@@ -180,7 +181,8 @@ init_tests (int argc, char **argv)
 }
 
 int
-main (int argc, char *argv[])
+main (int   argc,
+      char *argv[])
 {
   test_init (&argc, &argv);
   init_tests (argc, argv);

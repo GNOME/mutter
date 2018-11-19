@@ -128,7 +128,7 @@ meta_fraction_from_double (double src)
     }
 
   return (MetaFraction) {
-    .num = N,
-    .denom = D
+           .num = N,
+           .denom = D
   };
 }

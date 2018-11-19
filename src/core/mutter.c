@@ -28,10 +28,10 @@
 #include "meta/util.h"
 
 static gboolean
-print_version (const gchar    *option_name,
-               const gchar    *value,
-               gpointer        data,
-               GError        **error)
+print_version (const gchar *option_name,
+               const gchar *value,
+               gpointer     data,
+               GError     **error)
 {
   const int latest_year = 2011;
 
@@ -45,7 +45,8 @@ print_version (const gchar    *option_name,
 
 static const char *plugin = "libdefault";
 
-GOptionEntry mutter_options[] = {
+GOptionEntry mutter_options[] =
+{
   {
     "version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK,
     print_version,
@@ -62,7 +63,8 @@ GOptionEntry mutter_options[] = {
 };
 
 int
-main (int argc, char **argv)
+main (int    argc,
+      char **argv)
 {
   GOptionContext *ctx;
   GError *error = NULL;

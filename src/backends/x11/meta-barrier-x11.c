@@ -161,9 +161,11 @@ meta_barrier_fire_xevent (MetaBarrier    *barrier,
     case XI_BarrierHit:
       _meta_barrier_emit_hit_signal (barrier, event);
       break;
+
     case XI_BarrierLeave:
       _meta_barrier_emit_left_signal (barrier, event);
       break;
+
     default:
       g_assert_not_reached ();
     }
@@ -186,6 +188,7 @@ meta_x11_display_process_barrier_xevent (MetaX11Display *x11_display,
     case XI_BarrierHit:
     case XI_BarrierLeave:
       break;
+
     default:
       return FALSE;
     }

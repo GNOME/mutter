@@ -88,10 +88,13 @@ read_iio_proxy (MetaOrientationManager *self)
 
   if (has_accel)
     {
-      v = g_dbus_proxy_get_cached_property (self->iio_proxy, "AccelerometerOrientation");
+      v = g_dbus_proxy_get_cached_property (self->iio_proxy,
+                                            "AccelerometerOrientation");
       if (v)
         {
-          self->curr_orientation = orientation_from_string (g_variant_get_string (v, NULL));
+          self->curr_orientation = orientation_from_string (g_variant_get_string (
+                                                              v,
+                                                              NULL));
           g_variant_unref (v);
         }
     }

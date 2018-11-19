@@ -21,8 +21,10 @@
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaBackgroundGroup, meta_background_group, CLUTTER_TYPE_ACTOR,
-                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
+G_DEFINE_TYPE_WITH_CODE (MetaBackgroundGroup, meta_background_group,
+                         CLUTTER_TYPE_ACTOR,
+                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE,
+                                                cullable_iface_init));
 
 static void
 meta_background_group_class_init (MetaBackgroundGroupClass *klass)

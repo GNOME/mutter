@@ -154,8 +154,10 @@ meta_texture_tower_set_base_texture (MetaTextureTower *tower,
       width = cogl_texture_get_width (tower->textures[0]);
       height = cogl_texture_get_height (tower->textures[0]);
 
-      tower->n_levels = 1 + MAX ((int)(M_LOG2E * log (width)), (int)(M_LOG2E * log (height)));
-      tower->n_levels = MIN(tower->n_levels, MAX_TEXTURE_LEVELS);
+      tower->n_levels = 1 +
+                        MAX ((int) (M_LOG2E * log (width)),
+                             (int) (M_LOG2E * log (height)));
+      tower->n_levels = MIN (tower->n_levels, MAX_TEXTURE_LEVELS);
 
       meta_texture_tower_update_area (tower, 0, 0, width, height);
     }
@@ -244,7 +246,8 @@ meta_texture_tower_update_area (MetaTextureTower *tower,
  * Meta.
  */
 static int
-get_paint_level (int width, int height)
+get_paint_level (int width,
+                 int height)
 {
   CoglMatrix projection, modelview, pm;
   float v[4];
@@ -290,41 +293,42 @@ get_paint_level (int width, int height)
 
   /* We'll simplify the equations below for a bit of micro-optimization.
    * The commented out code is the unsimplified version.
-
-  // Partial derivates of window coordinates:
-  //
-  //  x_w = 0.5 * viewport_width * x_c / w_c + viewport_center_x
-  //  y_w = 0.5 * viewport_height * y_c / w_c + viewport_center_y
-  //
-  // with respect to u, v, using
-  // d(a/b)/dx = da/dx * (1/b) - a * db/dx / (b^2)
-
-  dxdu = 0.5 * viewport_width * (pm.xx - pm.wx * (xc/wc)) / wc;
-  dxdv = 0.5 * viewport_width * (pm.xy - pm.wy * (xc/wc)) / wc;
-  dydu = 0.5 * viewport_height * (pm.yx - pm.wx * (yc/wc)) / wc;
-  dydv = 0.5 * viewport_height * (pm.yy - pm.wy * (yc/wc)) / wc;
-
-  // Compute the inverse partials as the matrix inverse
-  det = dxdu * dydv - dxdv * dydu;
-
-  dudx =   dydv / det;
-  dudy = - dxdv / det;
-  dvdx = - dydu / det;
-  dvdy =   dvdu / det;
-
-  // Scale factor; maximum of the distance in texels for a change of 1 pixel
-  // in the X direction or 1 pixel in the Y direction
-  rho = MAX (sqrt (dudx * dudx + dvdx * dvdx), sqrt(dudy * dudy + dvdy * dvdy));
-
-  // Level of detail
-  lambda = log2 (rho) + LOD_BIAS;
-  */
+   *
+   *  // Partial derivates of window coordinates:
+   *  //
+   *  //  x_w = 0.5 * viewport_width * x_c / w_c + viewport_center_x
+   *  //  y_w = 0.5 * viewport_height * y_c / w_c + viewport_center_y
+   *  //
+   *  // with respect to u, v, using
+   *  // d(a/b)/dx = da/dx * (1/b) - a * db/dx / (b^2)
+   *
+   *  dxdu = 0.5 * viewport_width * (pm.xx - pm.wx * (xc/wc)) / wc;
+   *  dxdv = 0.5 * viewport_width * (pm.xy - pm.wy * (xc/wc)) / wc;
+   *  dydu = 0.5 * viewport_height * (pm.yx - pm.wx * (yc/wc)) / wc;
+   *  dydv = 0.5 * viewport_height * (pm.yy - pm.wy * (yc/wc)) / wc;
+   *
+   *  // Compute the inverse partials as the matrix inverse
+   *  det = dxdu * dydv - dxdv * dydu;
+   *
+   *  dudx =   dydv / det;
+   *  dudy = - dxdv / det;
+   *  dvdx = - dydu / det;
+   *  dvdy =   dvdu / det;
+   *
+   *  // Scale factor; maximum of the distance in texels for a change of 1 pixel
+   *  // in the X direction or 1 pixel in the Y direction
+   *  rho = MAX (sqrt (dudx * dudx + dvdx * dvdx), sqrt(dudy * dudy + dvdy *
+   *dvdy));
+   *
+   *  // Level of detail
+   *  lambda = log2 (rho) + LOD_BIAS;
+   */
 
   /* dxdu * wc, etc */
-  dxdu_ = 0.5 * viewport_width * (pm.xx - pm.wx * (xc/wc));
-  dxdv_ = 0.5 * viewport_width * (pm.xy - pm.wy * (xc/wc));
-  dydu_ = 0.5 * viewport_height * (pm.yx - pm.wx * (yc/wc));
-  dydv_ = 0.5 * viewport_height * (pm.yy - pm.wy * (yc/wc));
+  dxdu_ = 0.5 * viewport_width * (pm.xx - pm.wx * (xc / wc));
+  dxdv_ = 0.5 * viewport_width * (pm.xy - pm.wy * (xc / wc));
+  dydu_ = 0.5 * viewport_height * (pm.yx - pm.wx * (yc / wc));
+  dydv_ = 0.5 * viewport_height * (pm.yy - pm.wy * (yc / wc));
 
   /* det * wc^2 */
   det_ = dxdu_ * dydv_ - dxdv_ * dydu_;
@@ -337,13 +341,14 @@ get_paint_level (int width, int height)
   lambda = 0.5 * M_LOG2E * log (rho_sq * wc * wc / det_sq) + LOD_BIAS;
 
 #if 0
-  g_print ("%g %g %g\n", 0.5 * viewport_width * pm.xx / pm.ww, 0.5 * viewport_height * pm.yy / pm.ww, lambda);
+  g_print ("%g %g %g\n", 0.5 * viewport_width * pm.xx / pm.ww,
+           0.5 * viewport_height * pm.yy / pm.ww, lambda);
 #endif
 
   if (lambda <= 0.)
     return 0;
   else
-    return (int)(0.5 + lambda);
+    return (int) (0.5 + lambda);
 }
 
 static gboolean
@@ -365,7 +370,8 @@ texture_tower_create_texture (MetaTextureTower *tower,
       CoglContext *context = clutter_backend_get_cogl_context (backend);
       CoglTextureRectangle *texture_rectangle;
 
-      texture_rectangle = cogl_texture_rectangle_new_with_size (context, width, height);
+      texture_rectangle = cogl_texture_rectangle_new_with_size (context, width,
+                                                                height);
       tower->textures[level] = COGL_TEXTURE (texture_rectangle);
     }
   else
@@ -407,14 +413,16 @@ texture_tower_revalidate (MetaTextureTower *tower,
       return;
     }
 
-  cogl_framebuffer_orthographic (fb, 0, 0, dest_texture_width, dest_texture_height, -1., 1.);
+  cogl_framebuffer_orthographic (fb, 0, 0, dest_texture_width,
+                                 dest_texture_height, -1., 1.);
 
   if (!tower->pipeline_template)
     {
       CoglContext *ctx =
         clutter_backend_get_cogl_context (clutter_get_default_backend ());
       tower->pipeline_template = cogl_pipeline_new (ctx);
-      cogl_pipeline_set_blend (tower->pipeline_template, "RGBA = ADD (SRC_COLOR, 0)", NULL);
+      cogl_pipeline_set_blend (tower->pipeline_template,
+                               "RGBA = ADD (SRC_COLOR, 0)", NULL);
     }
 
   pipeline = cogl_pipeline_copy (tower->pipeline_template);
@@ -426,7 +434,8 @@ texture_tower_revalidate (MetaTextureTower *tower,
                                             (2. * invalid->x1) / source_texture_width,
                                             (2. * invalid->y1) / source_texture_height,
                                             (2. * invalid->x2) / source_texture_width,
-                                            (2. * invalid->y2) / source_texture_height);
+                                            (2. * invalid->y2) /
+                                            source_texture_height);
 
   cogl_object_unref (pipeline);
 
@@ -461,7 +470,7 @@ meta_texture_tower_get_paint_texture (MetaTextureTower *tower)
   texture_width = cogl_texture_get_width (tower->textures[0]);
   texture_height = cogl_texture_get_height (tower->textures[0]);
 
-  level = get_paint_level(texture_width, texture_height);
+  level = get_paint_level (texture_width, texture_height);
   if (level < 0) /* singular paint matrix, scaled to nothing */
     return NULL;
   level = MIN (level, tower->n_levels - 1);
@@ -473,22 +482,24 @@ meta_texture_tower_get_paint_texture (MetaTextureTower *tower)
       int i;
 
       for (i = 1; i <= level; i++)
-       {
-         /* Use "floor" convention here to be consistent with the NPOT texture extension */
-         texture_width = MAX (1, texture_width / 2);
-         texture_height = MAX (1, texture_height / 2);
+        {
+          /* Use "floor" convention here to be consistent with the NPOT texture
+           * extension */
+          texture_width = MAX (1, texture_width / 2);
+          texture_height = MAX (1, texture_height / 2);
 
-         if (tower->textures[i] == NULL)
-           texture_tower_create_texture (tower, i, texture_width, texture_height);
-       }
+          if (tower->textures[i] == NULL)
+            texture_tower_create_texture (tower, i, texture_width,
+                                          texture_height);
+        }
 
       for (i = 1; i <= level; i++)
-       {
-         if (tower->invalid[level].x2 != tower->invalid[level].x1 &&
-             tower->invalid[level].y2 != tower->invalid[level].y1)
-           texture_tower_revalidate (tower, i);
-       }
-   }
+        {
+          if (tower->invalid[level].x2 != tower->invalid[level].x1 &&
+              tower->invalid[level].y2 != tower->invalid[level].y1)
+            texture_tower_revalidate (tower, i);
+        }
+    }
 
   return tower->textures[level];
 }

@@ -30,7 +30,8 @@
 #include "backends/meta-screen-cast-stream.h"
 #include "backends/meta-remote-access-controller-private.h"
 
-#define META_SCREEN_CAST_SESSION_DBUS_PATH "/org/gnome/Mutter/ScreenCast/Session"
+#define META_SCREEN_CAST_SESSION_DBUS_PATH \
+  "/org/gnome/Mutter/ScreenCast/Session"
 
 struct _MetaScreenCastSession
 {
@@ -55,8 +56,9 @@ meta_dbus_session_init_iface (MetaDbusSessionInterface *iface);
 G_DEFINE_TYPE_WITH_CODE (MetaScreenCastSession,
                          meta_screen_cast_session,
                          META_DBUS_TYPE_SCREEN_CAST_SESSION_SKELETON,
-                         G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_SCREEN_CAST_SESSION,
-                                                meta_screen_cast_session_init_iface)
+                         G_IMPLEMENT_INTERFACE (
+                           META_DBUS_TYPE_SCREEN_CAST_SESSION,
+                           meta_screen_cast_session_init_iface)
                          G_IMPLEMENT_INTERFACE (META_TYPE_DBUS_SESSION,
                                                 meta_dbus_session_init_iface))
 
@@ -72,7 +74,7 @@ G_DEFINE_TYPE (MetaScreenCastSessionHandle,
                META_TYPE_REMOTE_ACCESS_HANDLE)
 
 static MetaScreenCastSessionHandle *
-meta_screen_cast_session_handle_new (MetaScreenCastSession *session);
+meta_screen_cast_session_handle_new (MetaScreenCastSession * session);
 
 static void
 init_remote_access_handle (MetaScreenCastSession *session)
@@ -83,15 +85,16 @@ init_remote_access_handle (MetaScreenCastSession *session)
 
   session->handle = meta_screen_cast_session_handle_new (session);
 
-  remote_access_controller = meta_backend_get_remote_access_controller (backend);
+  remote_access_controller =
+    meta_backend_get_remote_access_controller (backend);
   remote_access_handle = META_REMOTE_ACCESS_HANDLE (session->handle);
   meta_remote_access_controller_notify_new_handle (remote_access_controller,
                                                    remote_access_handle);
 }
 
 gboolean
-meta_screen_cast_session_start (MetaScreenCastSession  *session,
-                                GError                **error)
+meta_screen_cast_session_start (MetaScreenCastSession *session,
+                                GError               **error)
 {
   GList *l;
 
@@ -122,6 +125,7 @@ meta_screen_cast_session_close (MetaScreenCastSession *session)
     case META_SCREEN_CAST_SESSION_TYPE_NORMAL:
       meta_dbus_screen_cast_session_emit_closed (skeleton);
       break;
+
     case META_SCREEN_CAST_SESSION_TYPE_REMOTE_DESKTOP:
       break;
     }
@@ -190,6 +194,7 @@ handle_start (MetaDBusScreenCastSession *skeleton,
     {
     case META_SCREEN_CAST_SESSION_TYPE_NORMAL:
       break;
+
     case META_SCREEN_CAST_SESSION_TYPE_REMOTE_DESKTOP:
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
@@ -231,6 +236,7 @@ handle_stop (MetaDBusScreenCastSession *skeleton,
     {
     case META_SCREEN_CAST_SESSION_TYPE_NORMAL:
       break;
+
     case META_SCREEN_CAST_SESSION_TYPE_REMOTE_DESKTOP:
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
@@ -370,10 +376,10 @@ meta_dbus_session_init_iface (MetaDbusSessionInterface *iface)
 }
 
 MetaScreenCastSession *
-meta_screen_cast_session_new (MetaScreenCast             *screen_cast,
-                              MetaScreenCastSessionType   session_type,
-                              const char                 *peer_name,
-                              GError                    **error)
+meta_screen_cast_session_new (MetaScreenCast           *screen_cast,
+                              MetaScreenCastSessionType session_type,
+                              const char               *peer_name,
+                              GError                  **error)
 {
   GDBusInterfaceSkeleton *interface_skeleton;
   MetaScreenCastSession *session;
@@ -452,7 +458,8 @@ meta_screen_cast_session_handle_init (MetaScreenCastSessionHandle *handle)
 }
 
 static void
-meta_screen_cast_session_handle_class_init (MetaScreenCastSessionHandleClass *klass)
+meta_screen_cast_session_handle_class_init (
+  MetaScreenCastSessionHandleClass *klass)
 {
   MetaRemoteAccessHandleClass *remote_access_handle_class =
     META_REMOTE_ACCESS_HANDLE_CLASS (klass);

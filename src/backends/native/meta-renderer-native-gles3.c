@@ -46,18 +46,18 @@
 #endif
 
 static EGLImageKHR
-create_egl_image (MetaEgl       *egl,
-                  EGLDisplay     egl_display,
-                  EGLContext     egl_context,
-                  unsigned int   width,
-                  unsigned int   height,
-                  uint32_t       n_planes,
-                  uint32_t      *strides,
-                  uint32_t      *offsets,
-                  uint64_t      *modifiers,
-                  uint32_t       format,
-                  int            fd,
-                  GError       **error)
+create_egl_image (MetaEgl     *egl,
+                  EGLDisplay   egl_display,
+                  EGLContext   egl_context,
+                  unsigned int width,
+                  unsigned int height,
+                  uint32_t     n_planes,
+                  uint32_t    *strides,
+                  uint32_t    *offsets,
+                  uint64_t    *modifiers,
+                  uint32_t     format,
+                  int          fd,
+                  GError     **error)
 {
   EGLint attribs[37];
   int atti = 0;
@@ -141,10 +141,10 @@ create_egl_image (MetaEgl       *egl,
 }
 
 static void
-paint_egl_image (MetaGles3   *gles3,
-                 EGLImageKHR  egl_image,
-                 int          width,
-                 int          height)
+paint_egl_image (MetaGles3  *gles3,
+                 EGLImageKHR egl_image,
+                 int         width,
+                 int         height)
 {
   GLuint texture;
   GLuint framebuffer;
@@ -169,8 +169,9 @@ paint_egl_image (MetaGles3   *gles3,
   GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_WRAP_R_OES,
                                   GL_CLAMP_TO_EDGE));
 
-  GLBAS (gles3, glFramebufferTexture2D, (GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                                         GL_TEXTURE_2D, texture, 0));
+  GLBAS (gles3, glFramebufferTexture2D,
+         (GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+          GL_TEXTURE_2D, texture, 0));
 
   GLBAS (gles3, glBindFramebuffer, (GL_READ_FRAMEBUFFER, framebuffer));
   GLBAS (gles3, glBlitFramebuffer, (0, height, width, 0,
@@ -180,13 +181,13 @@ paint_egl_image (MetaGles3   *gles3,
 }
 
 gboolean
-meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
-                                           MetaGles3      *gles3,
-                                           EGLDisplay      egl_display,
-                                           EGLContext      egl_context,
-                                           EGLSurface      egl_surface,
-                                           struct gbm_bo  *shared_bo,
-                                           GError        **error)
+meta_renderer_native_gles3_blit_shared_bo (MetaEgl       *egl,
+                                           MetaGles3     *gles3,
+                                           EGLDisplay     egl_display,
+                                           EGLContext     egl_context,
+                                           EGLSurface     egl_surface,
+                                           struct gbm_bo *shared_bo,
+                                           GError       **error)
 {
   int shared_bo_fd;
   unsigned int width;

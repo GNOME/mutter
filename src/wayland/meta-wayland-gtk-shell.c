@@ -141,7 +141,8 @@ gtk_surface_present (struct wl_client   *client,
                              META_CLIENT_TYPE_APPLICATION, NULL);
 }
 
-static const struct gtk_surface1_interface meta_wayland_gtk_surface_interface = {
+static const struct gtk_surface1_interface meta_wayland_gtk_surface_interface =
+{
   gtk_surface_set_dbus_properties,
   gtk_surface_set_modal,
   gtk_surface_unset_modal,
@@ -202,8 +203,8 @@ send_configure_edges (MetaWaylandGtkSurface *gtk_surface,
 }
 
 static void
-add_state_value (struct wl_array         *states,
-                 enum gtk_surface1_state  state)
+add_state_value (struct wl_array        *states,
+                 enum gtk_surface1_state state)
 {
   uint32_t *s;
 
@@ -263,7 +264,8 @@ on_configure (MetaWaylandSurface    *surface,
   send_configure (gtk_surface, surface->window);
 
 
-  if (wl_resource_get_version (gtk_surface->resource) >= GTK_SURFACE1_CONFIGURE_EDGES_SINCE_VERSION)
+  if (wl_resource_get_version (gtk_surface->resource) >=
+      GTK_SURFACE1_CONFIGURE_EDGES_SINCE_VERSION)
     send_configure_edges (gtk_surface, surface->window);
 }
 
@@ -289,7 +291,8 @@ gtk_shell_get_gtk_surface (struct wl_client   *client,
   gtk_surface->surface = surface;
   gtk_surface->resource = wl_resource_create (client,
                                               &gtk_surface1_interface,
-                                              wl_resource_get_version (resource),
+                                              wl_resource_get_version (
+                                                resource),
                                               id);
   wl_resource_set_implementation (gtk_surface->resource,
                                   &meta_wayland_gtk_surface_interface,
@@ -297,7 +300,8 @@ gtk_shell_get_gtk_surface (struct wl_client   *client,
 
   gtk_surface->configure_handler_id = g_signal_connect (surface,
                                                         "configure",
-                                                        G_CALLBACK (on_configure),
+                                                        G_CALLBACK (
+                                                          on_configure),
                                                         gtk_surface);
 
   g_object_set_qdata_full (G_OBJECT (surface),
@@ -342,7 +346,8 @@ gtk_shell_system_bell (struct wl_client   *client,
     }
 }
 
-static const struct gtk_shell1_interface meta_wayland_gtk_shell_interface = {
+static const struct gtk_shell1_interface meta_wayland_gtk_shell_interface =
+{
   gtk_shell_get_gtk_surface,
   gtk_shell_set_startup_id,
   gtk_shell_system_bell,

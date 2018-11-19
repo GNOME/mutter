@@ -153,7 +153,8 @@ meta_backend_finalize (GObject *object)
 #endif
 
   if (priv->sleep_signal_id)
-    g_dbus_connection_signal_unsubscribe (priv->system_bus, priv->sleep_signal_id);
+    g_dbus_connection_signal_unsubscribe (priv->system_bus,
+                                          priv->sleep_signal_id);
   if (priv->upower_watch_id)
     g_bus_unwatch_name (priv->upower_watch_id);
   g_cancellable_cancel (priv->cancellable);
@@ -206,7 +207,8 @@ meta_backend_monitors_changed (MetaBackend *backend)
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   ClutterDeviceManager *manager = clutter_device_manager_get_default ();
-  ClutterInputDevice *device = clutter_device_manager_get_core_device (manager, CLUTTER_POINTER_DEVICE);
+  ClutterInputDevice *device = clutter_device_manager_get_core_device (manager,
+                                                                       CLUTTER_POINTER_DEVICE);
   ClutterPoint point;
 
   meta_backend_sync_screen_size (backend);
@@ -277,7 +279,8 @@ create_device_monitor (MetaBackend *backend,
   g_assert (g_hash_table_lookup (priv->device_monitors, &device_id) == NULL);
 
   idle_monitor = meta_backend_create_idle_monitor (backend, device_id);
-  g_hash_table_insert (priv->device_monitors, &idle_monitor->device_id, idle_monitor);
+  g_hash_table_insert (priv->device_monitors, &idle_monitor->device_id,
+                       idle_monitor);
 }
 
 static void
@@ -313,8 +316,10 @@ on_device_added (ClutterDeviceManager *device_manager,
 static inline gboolean
 device_is_slave_touchscreen (ClutterInputDevice *device)
 {
-  return (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_MASTER &&
-          clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE);
+  return (clutter_input_device_get_device_mode (device) !=
+          CLUTTER_INPUT_MODE_MASTER &&
+          clutter_input_device_get_device_type (device) ==
+          CLUTTER_TOUCHSCREEN_DEVICE);
 }
 
 static inline gboolean
@@ -328,10 +333,13 @@ check_has_pointing_device (ClutterDeviceManager *manager)
     {
       ClutterInputDevice *device = devices->data;
 
-      if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
+      if (clutter_input_device_get_device_mode (device) ==
+          CLUTTER_INPUT_MODE_MASTER)
         continue;
-      if (clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE ||
-          clutter_input_device_get_device_type (device) == CLUTTER_KEYBOARD_DEVICE)
+      if (clutter_input_device_get_device_type (device) ==
+          CLUTTER_TOUCHSCREEN_DEVICE ||
+          clutter_input_device_get_device_type (device) ==
+          CLUTTER_KEYBOARD_DEVICE)
         continue;
 
       return TRUE;
@@ -351,8 +359,10 @@ check_has_slave_touchscreen (ClutterDeviceManager *manager)
     {
       ClutterInputDevice *device = devices->data;
 
-      if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_MASTER &&
-          clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE)
+      if (clutter_input_device_get_device_mode (device) !=
+          CLUTTER_INPUT_MODE_MASTER &&
+          clutter_input_device_get_device_type (device) ==
+          CLUTTER_TOUCHSCREEN_DEVICE)
         return TRUE;
     }
 
@@ -458,7 +468,8 @@ meta_backend_real_post_init (MetaBackend *backend)
 
   meta_backend_sync_screen_size (backend);
 
-  priv->cursor_renderer = META_BACKEND_GET_CLASS (backend)->create_cursor_renderer (backend);
+  priv->cursor_renderer =
+    META_BACKEND_GET_CLASS (backend)->create_cursor_renderer (backend);
 
   priv->device_monitors =
     g_hash_table_new_full (g_int_hash, g_int_equal,
@@ -478,7 +489,8 @@ meta_backend_real_post_init (MetaBackend *backend)
 #ifdef HAVE_REMOTE_DESKTOP
   priv->remote_access_controller =
     g_object_new (META_TYPE_REMOTE_ACCESS_CONTROLLER, NULL);
-  priv->dbus_session_watcher = g_object_new (META_TYPE_DBUS_SESSION_WATCHER, NULL);
+  priv->dbus_session_watcher = g_object_new (META_TYPE_DBUS_SESSION_WATCHER,
+                                             NULL);
   priv->screen_cast = meta_screen_cast_new (priv->dbus_session_watcher);
   priv->remote_desktop = meta_remote_desktop_new (priv->dbus_session_watcher);
 #endif /* HAVE_REMOTE_DESKTOP */
@@ -521,12 +533,12 @@ meta_backend_real_select_stage_events (MetaBackend *backend)
 }
 
 static gboolean
-meta_backend_real_get_relative_motion_deltas (MetaBackend *backend,
-                                             const         ClutterEvent *event,
-                                             double        *dx,
-                                             double        *dy,
-                                             double        *dx_unaccel,
-                                             double        *dy_unaccel)
+meta_backend_real_get_relative_motion_deltas (MetaBackend        *backend,
+                                              const ClutterEvent *event,
+                                              double             *dx,
+                                              double             *dy,
+                                              double             *dx_unaccel,
+                                              double             *dy_unaccel)
 {
   return FALSE;
 }
@@ -655,7 +667,7 @@ meta_backend_constructed (GObject *object)
   MetaBackend *backend = META_BACKEND (object);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaBackendClass *backend_class =
-   META_BACKEND_GET_CLASS (backend);
+    META_BACKEND_GET_CLASS (backend);
 
   if (backend_class->is_lid_closed != meta_backend_real_is_lid_closed)
     return;
@@ -683,7 +695,8 @@ meta_backend_class_init (MetaBackendClass *klass)
   klass->grab_device = meta_backend_real_grab_device;
   klass->ungrab_device = meta_backend_real_ungrab_device;
   klass->select_stage_events = meta_backend_real_select_stage_events;
-  klass->get_relative_motion_deltas = meta_backend_real_get_relative_motion_deltas;
+  klass->get_relative_motion_deltas =
+    meta_backend_real_get_relative_motion_deltas;
   klass->is_lid_closed = meta_backend_real_is_lid_closed;
 
   signals[KEYMAP_CHANGED] =
@@ -782,9 +795,9 @@ system_bus_gotten_cb (GObject      *object,
 }
 
 static gboolean
-meta_backend_initable_init (GInitable     *initable,
-                            GCancellable  *cancellable,
-                            GError       **error)
+meta_backend_initable_init (GInitable    *initable,
+                            GCancellable *cancellable,
+                            GError      **error)
 {
   MetaBackend *backend = META_BACKEND (initable);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
@@ -795,7 +808,8 @@ meta_backend_initable_init (GInitable     *initable,
   priv->egl = g_object_new (META_TYPE_EGL, NULL);
 #endif
 
-  priv->orientation_manager = g_object_new (META_TYPE_ORIENTATION_MANAGER, NULL);
+  priv->orientation_manager =
+    g_object_new (META_TYPE_ORIENTATION_MANAGER, NULL);
 
   priv->monitor_manager = meta_backend_create_monitor_manager (backend, error);
   if (!priv->monitor_manager)
@@ -967,7 +981,8 @@ meta_backend_grab_device (MetaBackend *backend,
                           int          device_id,
                           uint32_t     timestamp)
 {
-  return META_BACKEND_GET_CLASS (backend)->grab_device (backend, device_id, timestamp);
+  return META_BACKEND_GET_CLASS (backend)->grab_device (backend, device_id,
+                                                        timestamp);
 }
 
 /**
@@ -978,7 +993,8 @@ meta_backend_ungrab_device (MetaBackend *backend,
                             int          device_id,
                             uint32_t     timestamp)
 {
-  return META_BACKEND_GET_CLASS (backend)->ungrab_device (backend, device_id, timestamp);
+  return META_BACKEND_GET_CLASS (backend)->ungrab_device (backend, device_id,
+                                                          timestamp);
 }
 
 /**
@@ -1004,7 +1020,8 @@ meta_backend_set_keymap (MetaBackend *backend,
                          const char  *variants,
                          const char  *options)
 {
-  META_BACKEND_GET_CLASS (backend)->set_keymap (backend, layouts, variants, options);
+  META_BACKEND_GET_CLASS (backend)->set_keymap (backend, layouts, variants,
+                                                options);
 }
 
 /**
@@ -1025,7 +1042,7 @@ meta_backend_get_keymap_layout_group (MetaBackend *backend)
 
 void
 meta_backend_lock_layout_group (MetaBackend *backend,
-                                guint idx)
+                                guint        idx)
 {
   META_BACKEND_GET_CLASS (backend)->lock_layout_group (backend, idx);
 }
@@ -1075,9 +1092,11 @@ update_last_device (MetaBackend *backend)
     {
     case CLUTTER_KEYBOARD_DEVICE:
       break;
+
     case CLUTTER_TOUCHSCREEN_DEVICE:
       meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
       break;
+
     default:
       meta_cursor_tracker_set_pointer_visible (cursor_tracker, TRUE);
       break;
@@ -1101,7 +1120,8 @@ meta_backend_update_last_device (MetaBackend *backend,
   device = clutter_device_manager_get_device (manager, device_id);
 
   if (!device ||
-      clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
+      clutter_input_device_get_device_mode (device) ==
+      CLUTTER_INPUT_MODE_MASTER)
     return;
 
   priv->current_device_id = device_id;
@@ -1116,12 +1136,12 @@ meta_backend_update_last_device (MetaBackend *backend,
 }
 
 gboolean
-meta_backend_get_relative_motion_deltas (MetaBackend *backend,
-                                         const        ClutterEvent *event,
-                                         double       *dx,
-                                         double       *dy,
-                                         double       *dx_unaccel,
-                                         double       *dy_unaccel)
+meta_backend_get_relative_motion_deltas (MetaBackend        *backend,
+                                         const ClutterEvent *event,
+                                         double             *dx,
+                                         double             *dy,
+                                         double             *dx_unaccel,
+                                         double             *dy_unaccel)
 {
   MetaBackendClass *klass = META_BACKEND_GET_CLASS (backend);
   return klass->get_relative_motion_deltas (backend,
@@ -1163,8 +1183,8 @@ meta_backend_set_client_pointer_constraint (MetaBackend           *backend,
  */
 
 static gboolean
-event_prepare (GSource    *source,
-               gint       *timeout_)
+event_prepare (GSource *source,
+               gint    *timeout_)
 {
   *timeout_ = -1;
 
@@ -1193,7 +1213,8 @@ event_dispatch (GSource    *source,
   return TRUE;
 }
 
-static GSourceFuncs event_funcs = {
+static GSourceFuncs event_funcs =
+{
   event_prepare,
   event_check,
   event_dispatch

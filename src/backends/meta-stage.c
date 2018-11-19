@@ -30,7 +30,8 @@
 #include "meta/meta-monitor-manager.h"
 #include "meta/util.h"
 
-struct _MetaOverlay {
+struct _MetaOverlay
+{
   gboolean enabled;
 
   CoglPipeline *pipeline;
@@ -55,7 +56,8 @@ static MetaOverlay *
 meta_overlay_new (void)
 {
   MetaOverlay *overlay;
-  CoglContext *ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  CoglContext *ctx = clutter_backend_get_cogl_context (
+    clutter_get_default_backend ());
 
   overlay = g_slice_new0 (MetaOverlay);
   overlay->pipeline = cogl_pipeline_new (ctx);

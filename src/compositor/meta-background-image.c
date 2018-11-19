@@ -19,7 +19,8 @@
 /**
  * SECTION:meta-background-image
  * @title: MetaBackgroundImage
- * @short_description: objects holding images loaded from files, used for backgrounds
+ * @short_description: objects holding images loaded from files, used for
+ *backgrounds
  */
 
 #include "config.h"
@@ -67,7 +68,8 @@ struct _MetaBackgroundImageClass
   GObjectClass parent_class;
 };
 
-G_DEFINE_TYPE (MetaBackgroundImageCache, meta_background_image_cache, G_TYPE_OBJECT);
+G_DEFINE_TYPE (MetaBackgroundImageCache, meta_background_image_cache,
+               G_TYPE_OBJECT);
 
 static void
 meta_background_image_cache_init (MetaBackgroundImageCache *cache)
@@ -193,7 +195,8 @@ file_loaded (GObject      *source_object,
                                  META_TEXTURE_ALLOW_SLICING);
 
   if (!cogl_texture_set_data (texture,
-                              has_alpha ? COGL_PIXEL_FORMAT_RGBA_8888 : COGL_PIXEL_FORMAT_RGB_888,
+                              has_alpha ? COGL_PIXEL_FORMAT_RGBA_8888 :
+                              COGL_PIXEL_FORMAT_RGB_888,
                               row_stride,
                               pixels, 0,
                               &catch_error))
@@ -226,7 +229,8 @@ out:
  * signal will be emitted exactly once. The 'loaded' state means that the
  * loading process finished, whether it succeeded or failed.
  *
- * Return value: (transfer full): a #MetaBackgroundImage to dereference to get the loaded texture
+ * Return value: (transfer full): a #MetaBackgroundImage to dereference to get
+ *the loaded texture
  */
 MetaBackgroundImage *
 meta_background_image_cache_load (MetaBackgroundImageCache *cache,

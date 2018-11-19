@@ -155,7 +155,8 @@ check_monitor_configuration (MetaMonitorConfigStore        *config_store,
                        ==,
                        config_expect->logical_monitors[i].is_presentation);
 
-      g_assert_cmpint ((int) g_list_length (logical_monitor_config->monitor_configs),
+      g_assert_cmpint ((int) g_list_length (logical_monitor_config->
+                                            monitor_configs),
                        ==,
                        config_expect->logical_monitors[i].n_monitors);
 
@@ -221,12 +222,16 @@ check_monitor_configurations (MonitorStoreTestExpect *expect)
 static void
 meta_test_monitor_store_single (void)
 {
-  MonitorStoreTestExpect expect = {
-    .configurations = {
+  MonitorStoreTestExpect expect =
+  {
+    .configurations =
+    {
       {
-        .logical_monitors = {
+        .logical_monitors =
+        {
           {
-            .layout = {
+            .layout =
+            {
               .x = 0,
               .y = 0,
               .width = 1920,
@@ -235,13 +240,15 @@ meta_test_monitor_store_single (void)
             .scale = 1,
             .is_primary = TRUE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 1920,
                   .height = 1080,
                   .refresh_rate = 60.000495910644531
@@ -265,12 +272,16 @@ meta_test_monitor_store_single (void)
 static void
 meta_test_monitor_store_vertical (void)
 {
-  MonitorStoreTestExpect expect = {
-    .configurations = {
+  MonitorStoreTestExpect expect =
+  {
+    .configurations =
+    {
       {
-        .logical_monitors = {
+        .logical_monitors =
+        {
           {
-            .layout = {
+            .layout =
+            {
               .x = 0,
               .y = 0,
               .width = 1024,
@@ -279,13 +290,15 @@ meta_test_monitor_store_vertical (void)
             .scale = 1,
             .is_primary = TRUE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 1024,
                   .height = 768,
                   .refresh_rate = 60.000495910644531
@@ -295,7 +308,8 @@ meta_test_monitor_store_vertical (void)
             .n_monitors = 1,
           },
           {
-            .layout = {
+            .layout =
+            {
               .x = 0,
               .y = 768,
               .width = 800,
@@ -304,13 +318,15 @@ meta_test_monitor_store_vertical (void)
             .scale = 1,
             .is_primary = FALSE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-2",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 800,
                   .height = 600,
                   .refresh_rate = 60.000495910644531
@@ -334,12 +350,16 @@ meta_test_monitor_store_vertical (void)
 static void
 meta_test_monitor_store_primary (void)
 {
-  MonitorStoreTestExpect expect = {
-    .configurations = {
+  MonitorStoreTestExpect expect =
+  {
+    .configurations =
+    {
       {
-        .logical_monitors = {
+        .logical_monitors =
+        {
           {
-            .layout = {
+            .layout =
+            {
               .x = 0,
               .y = 0,
               .width = 1024,
@@ -348,13 +368,15 @@ meta_test_monitor_store_primary (void)
             .scale = 1,
             .is_primary = FALSE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 1024,
                   .height = 768,
                   .refresh_rate = 60.000495910644531
@@ -364,7 +386,8 @@ meta_test_monitor_store_primary (void)
             .n_monitors = 1,
           },
           {
-            .layout = {
+            .layout =
+            {
               .x = 1024,
               .y = 0,
               .width = 800,
@@ -373,13 +396,15 @@ meta_test_monitor_store_primary (void)
             .scale = 1,
             .is_primary = TRUE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-2",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 800,
                   .height = 600,
                   .refresh_rate = 60.000495910644531
@@ -403,12 +428,16 @@ meta_test_monitor_store_primary (void)
 static void
 meta_test_monitor_store_underscanning (void)
 {
-  MonitorStoreTestExpect expect = {
-    .configurations = {
+  MonitorStoreTestExpect expect =
+  {
+    .configurations =
+    {
       {
-        .logical_monitors = {
+        .logical_monitors =
+        {
           {
-            .layout = {
+            .layout =
+            {
               .x = 0,
               .y = 0,
               .width = 1024,
@@ -417,14 +446,16 @@ meta_test_monitor_store_underscanning (void)
             .scale = 1,
             .is_primary = TRUE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
                 .is_underscanning = TRUE,
-                .mode = {
+                .mode =
+                {
                   .width = 1024,
                   .height = 768,
                   .refresh_rate = 60.000495910644531
@@ -448,12 +479,16 @@ meta_test_monitor_store_underscanning (void)
 static void
 meta_test_monitor_store_scale (void)
 {
-  MonitorStoreTestExpect expect = {
-    .configurations = {
+  MonitorStoreTestExpect expect =
+  {
+    .configurations =
+    {
       {
-        .logical_monitors = {
+        .logical_monitors =
+        {
           {
-            .layout = {
+            .layout =
+            {
               .x = 0,
               .y = 0,
               .width = 960,
@@ -462,13 +497,15 @@ meta_test_monitor_store_scale (void)
             .scale = 2,
             .is_primary = TRUE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 1920,
                   .height = 1080,
                   .refresh_rate = 60.000495910644531
@@ -498,12 +535,16 @@ meta_test_monitor_store_scale (void)
 static void
 meta_test_monitor_store_fractional_scale (void)
 {
-  MonitorStoreTestExpect expect = {
-    .configurations = {
+  MonitorStoreTestExpect expect =
+  {
+    .configurations =
+    {
       {
-        .logical_monitors = {
+        .logical_monitors =
+        {
           {
-            .layout = {
+            .layout =
+            {
               .x = 0,
               .y = 0,
               .width = 800,
@@ -512,13 +553,15 @@ meta_test_monitor_store_fractional_scale (void)
             .scale = 1.5,
             .is_primary = TRUE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 1200,
                   .height = 900,
                   .refresh_rate = 60.000495910644531
@@ -548,12 +591,16 @@ meta_test_monitor_store_fractional_scale (void)
 static void
 meta_test_monitor_store_high_precision_fractional_scale (void)
 {
-  MonitorStoreTestExpect expect = {
-    .configurations = {
+  MonitorStoreTestExpect expect =
+  {
+    .configurations =
+    {
       {
-        .logical_monitors = {
+        .logical_monitors =
+        {
           {
-            .layout = {
+            .layout =
+            {
               .x = 0,
               .y = 0,
               .width = 744,
@@ -562,13 +609,15 @@ meta_test_monitor_store_high_precision_fractional_scale (void)
             .scale = 1.3763440847396851,
             .is_primary = TRUE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 1024,
                   .height = 768,
                   .refresh_rate = 60.000495910644531
@@ -598,12 +647,16 @@ meta_test_monitor_store_high_precision_fractional_scale (void)
 static void
 meta_test_monitor_store_mirrored (void)
 {
-  MonitorStoreTestExpect expect = {
-    .configurations = {
+  MonitorStoreTestExpect expect =
+  {
+    .configurations =
+    {
       {
-        .logical_monitors = {
+        .logical_monitors =
+        {
           {
-            .layout = {
+            .layout =
+            {
               .x = 0,
               .y = 0,
               .width = 800,
@@ -611,13 +664,15 @@ meta_test_monitor_store_mirrored (void)
             },
             .scale = 1,
             .is_primary = TRUE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 800,
                   .height = 600,
                   .refresh_rate = 60.000495910644531
@@ -628,7 +683,8 @@ meta_test_monitor_store_mirrored (void)
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 800,
                   .height = 600,
                   .refresh_rate = 60.000495910644531
@@ -652,12 +708,16 @@ meta_test_monitor_store_mirrored (void)
 static void
 meta_test_monitor_store_first_rotated (void)
 {
-  MonitorStoreTestExpect expect = {
-    .configurations = {
+  MonitorStoreTestExpect expect =
+  {
+    .configurations =
+    {
       {
-        .logical_monitors = {
+        .logical_monitors =
+        {
           {
-            .layout = {
+            .layout =
+            {
               .x = 0,
               .y = 0,
               .width = 768,
@@ -667,13 +727,15 @@ meta_test_monitor_store_first_rotated (void)
             .transform = META_MONITOR_TRANSFORM_270,
             .is_primary = TRUE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 1024,
                   .height = 768,
                   .refresh_rate = 60.000495910644531
@@ -683,7 +745,8 @@ meta_test_monitor_store_first_rotated (void)
             .n_monitors = 1,
           },
           {
-            .layout = {
+            .layout =
+            {
               .x = 768,
               .y = 0,
               .width = 1024,
@@ -693,13 +756,15 @@ meta_test_monitor_store_first_rotated (void)
             .transform = META_MONITOR_TRANSFORM_NORMAL,
             .is_primary = FALSE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-2",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 1024,
                   .height = 768,
                   .refresh_rate = 60.000495910644531
@@ -723,12 +788,16 @@ meta_test_monitor_store_first_rotated (void)
 static void
 meta_test_monitor_store_second_rotated (void)
 {
-  MonitorStoreTestExpect expect = {
-    .configurations = {
+  MonitorStoreTestExpect expect =
+  {
+    .configurations =
+    {
       {
-        .logical_monitors = {
+        .logical_monitors =
+        {
           {
-            .layout = {
+            .layout =
+            {
               .x = 0,
               .y = 256,
               .width = 1024,
@@ -738,13 +807,15 @@ meta_test_monitor_store_second_rotated (void)
             .transform = META_MONITOR_TRANSFORM_NORMAL,
             .is_primary = TRUE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 1024,
                   .height = 768,
                   .refresh_rate = 60.000495910644531
@@ -754,7 +825,8 @@ meta_test_monitor_store_second_rotated (void)
             .n_monitors = 1,
           },
           {
-            .layout = {
+            .layout =
+            {
               .x = 1024,
               .y = 0,
               .width = 768,
@@ -764,13 +836,15 @@ meta_test_monitor_store_second_rotated (void)
             .transform = META_MONITOR_TRANSFORM_90,
             .is_primary = FALSE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-2",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 1024,
                   .height = 768,
                   .refresh_rate = 60.000495910644531
@@ -794,12 +868,16 @@ meta_test_monitor_store_second_rotated (void)
 static void
 meta_test_monitor_store_interlaced (void)
 {
-  MonitorStoreTestExpect expect = {
-    .configurations = {
+  MonitorStoreTestExpect expect =
+  {
+    .configurations =
+    {
       {
-        .logical_monitors = {
+        .logical_monitors =
+        {
           {
-            .layout = {
+            .layout =
+            {
               .x = 0,
               .y = 0,
               .width = 1024,
@@ -808,13 +886,15 @@ meta_test_monitor_store_interlaced (void)
             .scale = 1,
             .is_primary = TRUE,
             .is_presentation = FALSE,
-            .monitors = {
+            .monitors =
+            {
               {
                 .connector = "DP-1",
                 .vendor = "MetaProduct's Inc.",
                 .product = "MetaMonitor",
                 .serial = "0x123456",
-                .mode = {
+                .mode =
+                {
                   .width = 1024,
                   .height = 768,
                   .refresh_rate = 60.000495910644531,

@@ -46,7 +46,8 @@
 
 G_DEFINE_TYPE (MetaCursorTracker, meta_cursor_tracker, G_TYPE_OBJECT);
 
-enum {
+enum
+{
   CURSOR_CHANGED,
   LAST_SIGNAL
 };
@@ -204,7 +205,7 @@ meta_cursor_tracker_handle_xevent (MetaCursorTracker *tracker,
   if (xevent->xany.type != x11_display->xfixes_event_base + XFixesCursorNotify)
     return FALSE;
 
-  notify_event = (XFixesCursorNotifyEvent *)xevent;
+  notify_event = (XFixesCursorNotifyEvent *) xevent;
   if (notify_event->subtype != XFixesDisplayCursorNotify)
     return FALSE;
 
@@ -337,9 +338,9 @@ meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
 }
 
 static void
-get_pointer_position_gdk (int         *x,
-                          int         *y,
-                          int         *mods)
+get_pointer_position_gdk (int *x,
+                          int *y,
+                          int *mods)
 {
   GdkSeat *gseat;
   GdkDevice *gdevice;
@@ -352,20 +353,21 @@ get_pointer_position_gdk (int         *x,
   if (mods)
     gdk_device_get_state (gdevice,
                           gdk_screen_get_root_window (gscreen),
-                          NULL, (GdkModifierType*)mods);
+                          NULL, (GdkModifierType *) mods);
 }
 
 static void
-get_pointer_position_clutter (int         *x,
-                              int         *y,
-                              int         *mods)
+get_pointer_position_clutter (int *x,
+                              int *y,
+                              int *mods)
 {
   ClutterDeviceManager *cmanager;
   ClutterInputDevice *cdevice;
   ClutterPoint point;
 
   cmanager = clutter_device_manager_get_default ();
-  cdevice = clutter_device_manager_get_core_device (cmanager, CLUTTER_POINTER_DEVICE);
+  cdevice = clutter_device_manager_get_core_device (cmanager,
+                                                    CLUTTER_POINTER_DEVICE);
 
   clutter_input_device_get_coords (cdevice, NULL, &point);
   if (x)
@@ -382,15 +384,17 @@ meta_cursor_tracker_get_pointer (MetaCursorTracker   *tracker,
                                  int                 *y,
                                  ClutterModifierType *mods)
 {
-  /* We can't use the clutter interface when not running as a wayland compositor,
-     because we need to query the server, rather than using the last cached value.
-     OTOH, on wayland we can't use GDK, because that only sees the events
-     we forward to xwayland.
-  */
+  /* We can't use the clutter interface when not running as a wayland
+   * compositor,
+   *  because we need to query the server, rather than using the last cached
+   * value.
+   *  OTOH, on wayland we can't use GDK, because that only sees the events
+   *  we forward to xwayland.
+   */
   if (meta_is_wayland_compositor ())
-    get_pointer_position_clutter (x, y, (int*)mods);
+    get_pointer_position_clutter (x, y, (int *) mods);
   else
-    get_pointer_position_gdk (x, y, (int*)mods);
+    get_pointer_position_gdk (x, y, (int *) mods);
 }
 
 void

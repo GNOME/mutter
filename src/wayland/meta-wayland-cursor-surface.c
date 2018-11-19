@@ -56,7 +56,8 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
   MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (META_WAYLAND_SURFACE_ROLE (cursor_surface));
+    meta_wayland_surface_role_get_surface (META_WAYLAND_SURFACE_ROLE (
+                                             cursor_surface));
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (priv->cursor_sprite);
 
@@ -207,10 +208,11 @@ meta_wayland_cursor_surface_dispose (GObject *object)
   MetaWaylandFrameCallback *cb, *next;
 
   wl_list_for_each_safe (cb, next, &priv->frame_callbacks, link)
-    wl_resource_destroy (cb->resource);
+  wl_resource_destroy (cb->resource);
 
   g_signal_handlers_disconnect_by_func (priv->cursor_sprite,
-                                        cursor_sprite_prepare_at, cursor_surface);
+                                        cursor_sprite_prepare_at,
+                                        cursor_surface);
 
   g_clear_object (&priv->cursor_renderer);
   g_clear_object (&priv->cursor_sprite);
@@ -291,9 +293,10 @@ meta_wayland_cursor_surface_get_sprite (MetaWaylandCursorSurface *cursor_surface
 }
 
 void
-meta_wayland_cursor_surface_set_hotspot (MetaWaylandCursorSurface *cursor_surface,
-                                         int                       hotspot_x,
-                                         int                       hotspot_y)
+meta_wayland_cursor_surface_set_hotspot (
+  MetaWaylandCursorSurface *cursor_surface,
+  int                       hotspot_x,
+  int                       hotspot_y)
 {
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
@@ -308,9 +311,10 @@ meta_wayland_cursor_surface_set_hotspot (MetaWaylandCursorSurface *cursor_surfac
 }
 
 void
-meta_wayland_cursor_surface_get_hotspot (MetaWaylandCursorSurface *cursor_surface,
-                                         int                      *hotspot_x,
-                                         int                      *hotspot_y)
+meta_wayland_cursor_surface_get_hotspot (
+  MetaWaylandCursorSurface *cursor_surface,
+  int                      *hotspot_x,
+  int                      *hotspot_y)
 {
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
@@ -344,8 +348,9 @@ on_cursor_painted (MetaCursorRenderer       *renderer,
 }
 
 void
-meta_wayland_cursor_surface_set_renderer (MetaWaylandCursorSurface *cursor_surface,
-                                          MetaCursorRenderer       *renderer)
+meta_wayland_cursor_surface_set_renderer (
+  MetaWaylandCursorSurface *cursor_surface,
+  MetaCursorRenderer       *renderer)
 {
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
@@ -364,7 +369,8 @@ meta_wayland_cursor_surface_set_renderer (MetaWaylandCursorSurface *cursor_surfa
     {
       priv->cursor_painted_handler_id =
         g_signal_connect_object (renderer, "cursor-painted",
-                                 G_CALLBACK (on_cursor_painted), cursor_surface, 0);
+                                 G_CALLBACK (
+                                   on_cursor_painted), cursor_surface, 0);
       g_object_ref (renderer);
     }
 
@@ -373,7 +379,8 @@ meta_wayland_cursor_surface_set_renderer (MetaWaylandCursorSurface *cursor_surfa
 }
 
 MetaCursorRenderer *
-meta_wayland_cursor_surface_get_renderer (MetaWaylandCursorSurface *cursor_surface)
+meta_wayland_cursor_surface_get_renderer (
+  MetaWaylandCursorSurface *cursor_surface)
 {
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);

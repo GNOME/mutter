@@ -76,6 +76,7 @@ meta_cursor_sprite_xfixes_get_property (GObject    *object,
     case PROP_DISPLAY:
       g_value_set_object (value, sprite_xfixes->display);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -95,6 +96,7 @@ meta_cursor_sprite_xfixes_set_property (GObject      *object,
     case PROP_DISPLAY:
       sprite_xfixes->display = g_value_get_object (value);
       break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -102,8 +104,8 @@ meta_cursor_sprite_xfixes_set_property (GObject      *object,
 }
 
 MetaCursorSpriteXfixes *
-meta_cursor_sprite_xfixes_new (MetaDisplay  *display,
-                               GError      **error)
+meta_cursor_sprite_xfixes_new (MetaDisplay *display,
+                               GError     **error)
 {
   return g_initable_new (META_TYPE_CURSOR_SPRITE_XFIXES,
                          NULL, error,
@@ -112,9 +114,9 @@ meta_cursor_sprite_xfixes_new (MetaDisplay  *display,
 }
 
 static gboolean
-meta_cursor_sprite_xfixes_initable_init (GInitable     *initable,
-                                         GCancellable  *cancellable,
-                                         GError       **error)
+meta_cursor_sprite_xfixes_initable_init (GInitable    *initable,
+                                         GCancellable *cancellable,
+                                         GError      **error)
 {
   MetaCursorSpriteXfixes *sprite_xfixes =
     META_CURSOR_SPRITE_XFIXES (initable);
@@ -172,12 +174,12 @@ meta_cursor_sprite_xfixes_initable_init (GInitable     *initable,
   clutter_backend = clutter_get_default_backend ();
   cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   texture = cogl_texture_2d_new_from_data (cogl_context,
-                                          cursor_image->width,
-                                          cursor_image->height,
-                                          CLUTTER_CAIRO_FORMAT_ARGB32,
-                                          cursor_image->width * 4, /* stride */
-                                          cursor_data,
-                                          error);
+                                           cursor_image->width,
+                                           cursor_image->height,
+                                           CLUTTER_CAIRO_FORMAT_ARGB32,
+                                           cursor_image->width * 4, /* stride */
+                                           cursor_data,
+                                           error);
 
   if (free_cursor_data)
     g_free (cursor_data);
