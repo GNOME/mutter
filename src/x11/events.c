@@ -39,6 +39,7 @@
 #include "meta/meta-backend.h"
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/meta-x11-selection-private.h"
 #include "x11/meta-x11-selection-input-stream-private.h"
 #include "x11/meta-x11-selection-output-stream-private.h"
 #include "x11/window-x11.h"
@@ -1724,6 +1725,8 @@ process_selection_event (MetaX11Display *x11_display,
 {
   gboolean handled = FALSE;
   GList *l;
+
+  handled |= meta_x11_selection_handle_event (x11_display, event);
 
   for (l = x11_display->selection.input_streams; l && !handled; l = l->next)
     handled |= meta_x11_selection_input_stream_xevent (l->data, event);
