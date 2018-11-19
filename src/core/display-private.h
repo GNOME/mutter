@@ -242,6 +242,9 @@ struct _MetaDisplay
 
   MetaBell *bell;
   MetaWorkspaceManager *workspace_manager;
+
+  MetaSelectionSource *selection_source;
+  GBytes *saved_clipboard;
   MetaSelection *selection;
 };
 
