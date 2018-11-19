@@ -321,6 +321,8 @@ mutter_sources = [
   'core/meta-accel-parse.h',
   'core/meta-border.c',
   'core/meta-border.h',
+  'core/meta-clipboard-manager.c',
+  'core/meta-clipboard-manager.h',
   'core/meta-close-dialog.c',
   'core/meta-close-dialog-default.c',
   'core/meta-close-dialog-default-private.h',
