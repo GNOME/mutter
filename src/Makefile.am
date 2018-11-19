@@ -453,6 +453,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-wayland-popup.h		\
 	wayland/meta-wayland-seat.c		\
 	wayland/meta-wayland-seat.h		\
+	wayland/meta-wayland-selection-source.c		\
+	wayland/meta-wayland-selection-source-private.h	\
 	wayland/meta-wayland-tablet.c		\
 	wayland/meta-wayland-tablet.h		\
 	wayland/meta-wayland-tablet-manager.c	\
