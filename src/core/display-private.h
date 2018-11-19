@@ -245,6 +245,8 @@ struct _MetaDisplay
 
   MetaSoundPlayer *sound_player;
 
+  MetaSelectionSource *selection_source;
+  GBytes *saved_clipboard;
   MetaSelection *selection;
 };
 
