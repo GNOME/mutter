@@ -30,6 +30,7 @@
 
 #include "backends/meta-monitor-manager-private.h"
 #include "core/display-private.h"
+#include "core/meta-selection-source.h"
 #include "meta/common.h"
 #include "meta/types.h"
 #include "meta/meta-x11-display.h"
@@ -125,6 +126,9 @@ struct _MetaX11Display
 
   struct {
     Window xwindow;
+    MetaSelectionSource *owners[META_N_SELECTION_TYPES];
+    GCancellable *cancellables[META_N_SELECTION_TYPES];
+
     GList *input_streams;
     GList *output_streams;
   } selection;
