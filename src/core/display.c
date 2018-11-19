@@ -57,6 +57,7 @@
 #include "core/frame.h"
 #include "core/keybindings-private.h"
 #include "core/main-private.h"
+#include "core/meta-clipboard-manager.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/util-private.h"
 #include "core/window-private.h"
@@ -725,6 +726,7 @@ meta_display_open (void)
   display->bell = meta_bell_new (display);
 
   display->selection = meta_selection_new (display);
+  meta_clipboard_manager_init (display);
 
   if (meta_should_autostart_x11_display ())
     {
@@ -961,6 +963,8 @@ meta_display_close (MetaDisplay *display,
   g_clear_object (&display->startup_notification);
   g_clear_object (&display->workspace_manager);
   g_clear_object (&display->sound_player);
+
+  meta_clipboard_manager_shutdown (display);
 
   g_object_unref (display);
   the_display = NULL;
