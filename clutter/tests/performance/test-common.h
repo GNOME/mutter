@@ -92,9 +92,9 @@ static gboolean perf_fake_mouse_cb (gpointer stage)
       event2->crossing.source = stage;
       event2->crossing.x = 10;
       event2->crossing.y = 10;
-      event2->crossing.device = device;
       event2->crossing.related = NULL;
 
+      clutter_event_set_device (event2, device);
       clutter_input_device_update_from_event (device, event2, TRUE);
 
       clutter_event_put (event2);
@@ -104,7 +104,7 @@ static gboolean perf_fake_mouse_cb (gpointer stage)
 
   clutter_actor_get_size (stage, &w, &h);
   event->motion.stage = stage;
-  event->motion.device = device;
+  clutter_event_set_device (event, device);
 
   /* called about every 60fps, and do 10 picks per stage */
   for (i = 0; i < 10; i++)
