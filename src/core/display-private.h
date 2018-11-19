@@ -38,6 +38,7 @@
 #include "clutter/clutter.h"
 #include "core/keybindings-private.h"
 #include "core/meta-gesture-tracker-private.h"
+#include "core/meta-selection.h"
 #include "core/stack-tracker.h"
 #include "core/startup-notification-private.h"
 #include "meta/barrier.h"
@@ -241,6 +242,7 @@ struct _MetaDisplay
 
   MetaBell *bell;
   MetaWorkspaceManager *workspace_manager;
+  MetaSelection *selection;
 };
 
 struct _MetaDisplayClass
@@ -430,5 +432,7 @@ MetaWindow *meta_display_get_pointer_window (MetaDisplay *display,
 MetaWindow *meta_display_get_window_from_id (MetaDisplay *display,
                                              uint64_t     window_id);
 uint64_t    meta_display_generate_window_id (MetaDisplay *display);
+
+MetaSelection * meta_display_get_selection (MetaDisplay *display);
 
 #endif

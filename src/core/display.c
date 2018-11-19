@@ -722,6 +722,8 @@ meta_display_open (void)
 
   display->bell = meta_bell_new (display);
 
+  display->selection = meta_selection_new (display);
+
   if (meta_should_autostart_x11_display ())
     {
       x11_display = meta_x11_display_new (display, &error);
@@ -3628,4 +3630,10 @@ meta_display_generate_window_id (MetaDisplay *display)
 
   /* We can overflow here, that's fine */
   return (base_window_id + last_window_id++);
+}
+
+MetaSelection *
+meta_display_get_selection (MetaDisplay *display)
+{
+  return display->selection;
 }
