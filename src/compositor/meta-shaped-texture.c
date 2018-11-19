@@ -105,6 +105,11 @@ struct _MetaShapedTexturePrivate
 
   gboolean size_invalid;
   MetaShapedTextureTransform transform;
+  gboolean has_viewport_src;
+  float viewport_src_x, viewport_src_y;
+  float viewport_src_width, viewport_src_height;
+  gboolean has_viewport_dest;
+  int viewport_dest_width, viewport_dest_height;
 
   int tex_width, tex_height;
   int fallback_width, fallback_height;
@@ -168,19 +173,44 @@ update_size (MetaShapedTexture *stex)
 
   priv = stex->priv;
 
-  switch (priv->transform)
+  if (priv->has_viewport_dest)
     {
-      default:
-        dest_width = priv->tex_width;
-        dest_height = priv->tex_height;
-        break;
-      case META_SHAPED_TEXTURE_TRANSFORM_90:
-      case META_SHAPED_TEXTURE_TRANSFORM_270:
-      case META_SHAPED_TEXTURE_TRANSFORM_FLIPPED_90:
-      case META_SHAPED_TEXTURE_TRANSFORM_FLIPPED_270:
-        dest_width = priv->tex_height;
-        dest_height = priv->tex_width;
-        break;
+      ClutterActor *actor;
+      double tex_scale;
+
+      actor = CLUTTER_ACTOR (stex);
+      clutter_actor_get_scale (actor, &tex_scale, NULL);
+
+      dest_width = priv->viewport_dest_width / tex_scale;
+      dest_height = priv->viewport_dest_height / tex_scale;
+    }
+  else if (priv->has_viewport_src)
+    {
+      ClutterActor *actor;
+      double tex_scale;
+
+      actor = CLUTTER_ACTOR (stex);
+      clutter_actor_get_scale (actor, &tex_scale, NULL);
+
+      dest_width = priv->viewport_src_width / tex_scale;
+      dest_height = priv->viewport_src_height / tex_scale;
+    }
+  else
+    {
+      switch (priv->transform)
+        {
+          default:
+            dest_width = priv->tex_width;
+            dest_height = priv->tex_height;
+            break;
+          case META_SHAPED_TEXTURE_TRANSFORM_90:
+          case META_SHAPED_TEXTURE_TRANSFORM_270:
+          case META_SHAPED_TEXTURE_TRANSFORM_FLIPPED_90:
+          case META_SHAPED_TEXTURE_TRANSFORM_FLIPPED_270:
+            dest_width = priv->tex_height;
+            dest_height = priv->tex_width;
+            break;
+        }
     }
 
   priv->size_invalid = FALSE;
@@ -427,20 +457,71 @@ static void
 paint_clipped_rectangle (CoglFramebuffer       *fb,
                          CoglPipeline          *pipeline,
                          cairo_rectangle_int_t *rect,
-                         ClutterActorBox       *alloc)
+                         ClutterActorBox       *alloc,
+                         MetaShapedTexture     *stex)
 {
+  MetaShapedTexturePrivate *priv;
   float coords[8];
   float x1, y1, x2, y2;
+  float alloc_width;
+  float alloc_height;
 
+  priv = stex->priv;
   x1 = rect->x;
   y1 = rect->y;
   x2 = rect->x + rect->width;
   y2 = rect->y + rect->height;
+  alloc_width = alloc->x2 - alloc->x1;
+  alloc_height = alloc->y2 - alloc->y1;
 
-  coords[0] = rect->x / (alloc->x2 - alloc->x1);
-  coords[1] = rect->y / (alloc->y2 - alloc->y1);
-  coords[2] = (rect->x + rect->width) / (alloc->x2 - alloc->x1);
-  coords[3] = (rect->y + rect->height) / (alloc->y2 - alloc->y1);
+  if (priv->has_viewport_src)
+    {
+      ClutterActor *actor;
+      double tex_scale;
+      float src_x;
+      float src_y;
+      float src_width;
+      float src_height;
+
+      actor = CLUTTER_ACTOR (stex);
+      clutter_actor_get_scale (actor, &tex_scale, NULL);
+
+      src_x = priv->viewport_src_x / tex_scale;
+      src_y = priv->viewport_src_y / tex_scale;
+      src_width = priv->viewport_src_width / tex_scale;
+      src_height = priv->viewport_src_height / tex_scale;
+
+      coords[0] = rect->x * src_width / alloc_width + src_x;
+      coords[1] = rect->y * src_height / alloc_height + src_y;
+      coords[2] = rect->width * src_width / alloc_width + coords[0];
+      coords[3] = rect->height * src_height / alloc_height + coords[1];
+
+      switch (priv->transform)
+        {
+          default:
+            coords[0] /= priv->tex_width;
+            coords[1] /= priv->tex_height;
+            coords[2] /= priv->tex_width;
+            coords[3] /= priv->tex_height;
+            break;
+          case META_SHAPED_TEXTURE_TRANSFORM_90:
+          case META_SHAPED_TEXTURE_TRANSFORM_270:
+          case META_SHAPED_TEXTURE_TRANSFORM_FLIPPED_90:
+          case META_SHAPED_TEXTURE_TRANSFORM_FLIPPED_270:
+            coords[0] /= priv->tex_height;
+            coords[1] /= priv->tex_width;
+            coords[2] /= priv->tex_height;
+            coords[3] /= priv->tex_width;
+            break;
+        }
+    }
+  else
+    {
+      coords[0] = rect->x / alloc_width;
+      coords[1] = rect->y / alloc_height;
+      coords[2] = (rect->x + rect->width) / alloc_width;
+      coords[3] = (rect->y + rect->height) / alloc_height;
+    }
 
   coords[4] = coords[0];
   coords[5] = coords[1];
@@ -697,7 +778,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
               paint_clipped_rectangle (fb,
                                        opaque_pipeline,
                                        &rect,
-                                       &alloc);
+                                       &alloc,
+                                       stex);
             }
         }
 
@@ -753,7 +835,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
               paint_clipped_rectangle (fb,
                                        blended_pipeline,
                                        &rect,
-                                       &alloc);
+                                       &alloc,
+                                       stex);
             }
         }
       else
@@ -762,7 +845,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
           paint_clipped_rectangle (fb,
                                    blended_pipeline,
                                    &tex_rect,
-                                   &alloc);
+                                   &alloc,
+                                   stex);
         }
     }
 
@@ -1091,6 +1175,37 @@ meta_shaped_texture_set_transform (MetaShapedTexture          *stex,
   priv->transform = transform;
 
   meta_shaped_texture_reset_pipelines (stex);
+  meta_shaped_texture_invalidate_size (stex);
+}
+
+void
+meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture *stex,
+                                           float              src_x,
+                                           float              src_y,
+                                           float              src_width,
+                                           float              src_height)
+
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+
+  priv->viewport_src_x = src_x;
+  priv->viewport_src_y = src_y;
+  priv->viewport_src_width = src_width;
+  priv->viewport_src_height = src_height;
+  priv->has_viewport_src = src_width > 0;
+  meta_shaped_texture_invalidate_size (stex);
+}
+
+void
+meta_shaped_texture_set_viewport_dest (MetaShapedTexture *stex,
+                                       int                dest_width,
+                                       int                dest_height)
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+
+  priv->viewport_dest_width = dest_width;
+  priv->viewport_dest_height = dest_height;
+  priv->has_viewport_dest = dest_width > 0;
   meta_shaped_texture_invalidate_size (stex);
 }
 
