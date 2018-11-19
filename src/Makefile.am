@@ -295,6 +295,10 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	meta/meta-inhibit-shortcuts-dialog.h	\
 	core/meta-inhibit-shortcuts-dialog-default.c	\
 	core/meta-inhibit-shortcuts-dialog-default-private.h \
+	core/meta-selection.c                   \
+	core/meta-selection.h                   \
+	core/meta-selection-source.c            \
+	core/meta-selection-source.h            \
 	core/meta-sound-player.c		\
 	core/delete.c				\
 	core/display.c				\
