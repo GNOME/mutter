@@ -1093,7 +1093,7 @@ clutter_event_set_device (ClutterEvent       *event,
     {
       ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
 
-      real_event->device = device;
+      g_set_object (&real_event->device, device);
     }
 
   switch (event->type)
@@ -1372,6 +1372,12 @@ clutter_event_copy (const ClutterEvent *event)
       new_real_event->latched_state = real_event->latched_state;
       new_real_event->locked_state = real_event->locked_state;
       new_real_event->tool = real_event->tool;
+
+      if (new_real_event->source_device)
+        g_object_ref (new_real_event->source_device);
+
+      if (new_real_event->device)
+        g_object_ref (new_real_event->device);
     }
 
   device = clutter_event_get_device (event);
@@ -1432,6 +1438,17 @@ clutter_event_free (ClutterEvent *event)
   if (G_LIKELY (event != NULL))
     {
       _clutter_backend_free_event_data (clutter_get_default_backend (), event);
+
+      if (is_event_allocated (event))
+        {
+          ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
+
+          if (real_event->source_device)
+            g_object_unref (real_event->source_device);
+
+          if (real_event->device)
+            g_object_unref (real_event->device);
+        }
 
       switch (event->type)
         {
@@ -1687,7 +1704,7 @@ clutter_event_set_source_device (ClutterEvent       *event,
     return;
 
   real_event = (ClutterEventPrivate *) event;
-  real_event->source_device = device;
+  g_set_object (&real_event->source_device, device);
 }
 
 /**
