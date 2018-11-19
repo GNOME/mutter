@@ -247,6 +247,9 @@ struct _MetaDisplay
   MetaWorkspaceManager *workspace_manager;
 
   MetaSoundPlayer *sound_player;
+
+  MetaSelectionSource *selection_source;
+  GBytes *saved_clipboard;
   MetaSelection *selection;
 };
 
