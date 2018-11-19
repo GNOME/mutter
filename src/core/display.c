@@ -740,6 +740,8 @@ meta_display_open (void)
 
   display->bell = meta_bell_new (display);
 
+  display->selection = meta_selection_new (display);
+
   if (meta_should_autostart_x11_display ())
     {
       x11_display = meta_x11_display_new (display, &error);
@@ -3616,4 +3618,10 @@ MetaWorkspaceManager *
 meta_display_get_workspace_manager (MetaDisplay *display)
 {
   return display->workspace_manager;
+}
+
+MetaSelection *
+meta_display_get_selection (MetaDisplay *display)
+{
+  return display->selection;
 }
