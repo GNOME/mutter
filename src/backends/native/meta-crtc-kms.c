@@ -40,7 +40,6 @@ typedef struct _MetaCrtcKms
   uint32_t underscan_hborder_prop_id;
   uint32_t underscan_vborder_prop_id;
   uint32_t primary_plane_id;
-  uint32_t formats_prop_id;
   uint32_t rotation_prop_id;
   uint32_t rotation_map[ALL_TRANSFORMS];
   uint32_t all_hw_transforms;
@@ -370,7 +369,6 @@ init_crtc_rotations (MetaCrtc *crtc,
                                               "IN_FORMATS", &prop);
               if (fmts_idx >= 0)
                 {
-                  crtc_kms->formats_prop_id = props->props[fmts_idx];
                   parse_formats (crtc, kms_fd, props->prop_values[fmts_idx]);
                   drmModeFreeProperty (prop);
                 }
