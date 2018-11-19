@@ -115,6 +115,14 @@ struct _MetaWaylandPendingState
   int scale;
   gboolean has_new_transform;
   MetaShapedTextureTransform transform;
+  gboolean has_new_viewport_src_rect;
+  float viewport_src_x;
+  float viewport_src_y;
+  float viewport_src_width;
+  float viewport_src_height;
+  gboolean has_new_viewport_dest;
+  int viewport_dest_width;
+  int viewport_dest_height;
 };
 
 struct _MetaWaylandDragDestFuncs
@@ -147,9 +155,18 @@ struct _MetaWaylandSurface
   int32_t offset_x, offset_y;
   GList *subsurfaces;
   GHashTable *outputs_to_destroy_notify_id;
+  struct wl_resource *viewport_resource;
 
   int scale;
   MetaShapedTextureTransform transform;
+  gboolean has_viewport_src_rect;
+  float viewport_src_x;
+  float viewport_src_y;
+  float viewport_src_width;
+  float viewport_src_height;
+  gboolean has_viewport_dest;
+  int viewport_dest_width;
+  int viewport_dest_height;
 
   /* Buffer reference state. */
   struct {
