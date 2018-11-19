@@ -454,6 +454,8 @@ if have_wayland
     'wayland/meta-pointer-confinement-wayland.h',
     'wayland/meta-pointer-lock-wayland.c',
     'wayland/meta-pointer-lock-wayland.h',
+    'wayland/meta-selection-source-wayland.c',
+    'wayland/meta-selection-source-wayland-private.h',
     'wayland/meta-wayland-actor-surface.c',
     'wayland/meta-wayland-actor-surface.h',
     'wayland/meta-wayland-buffer.c',
