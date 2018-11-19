@@ -212,6 +212,21 @@ free_modifier_array (GArray *arr)
 }
 
 static void
+set_formats_from_array (MetaCrtc       *crtc,
+                        const uint32_t *formats,
+                        size_t          count_formats)
+{
+  MetaCrtcKms *crtc_kms = crtc->driver_private;
+  size_t i;
+
+  for (i = 0; i < count_formats; i++)
+    {
+      g_hash_table_insert (crtc_kms->formats_modifiers,
+                           GUINT_TO_POINTER (formats[i]), NULL);
+    }
+}
+
+static void
 parse_formats (MetaCrtc *crtc,
                int       kms_fd,
                uint32_t  blob_id)
@@ -371,6 +386,14 @@ init_crtc_rotations (MetaCrtc *crtc,
                 {
                   parse_formats (crtc, kms_fd, props->prop_values[fmts_idx]);
                   drmModeFreeProperty (prop);
+                }
+
+              /* fall back to universal plane formats without modifiers */
+              if (g_hash_table_size (crtc_kms->formats_modifiers) == 0)
+                {
+                  set_formats_from_array (crtc,
+                                          drm_plane->formats,
+                                          drm_plane->count_formats);
                 }
             }
 
