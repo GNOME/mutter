@@ -160,6 +160,7 @@ meta_remote_desktop_session_close (MetaRemoteDesktopSession *session)
 
   g_clear_object (&session->virtual_pointer);
   g_clear_object (&session->virtual_keyboard);
+  g_clear_object (&session->virtual_touchscreen);
 
   meta_dbus_session_notify_closed (META_DBUS_SESSION (session));
   meta_dbus_remote_desktop_session_emit_closed (skeleton);
