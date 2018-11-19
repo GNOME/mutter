@@ -61,6 +61,7 @@
 
 #include "x11/events.h"
 #include "x11/group-props.h"
+#include "x11/meta-x11-selection-private.h"
 #include "x11/window-props.h"
 #include "x11/xprops.h"
 
@@ -104,6 +105,8 @@ meta_x11_display_dispose (GObject *object)
   meta_prefs_remove_listener (prefs_changed_callback, x11_display);
 
   meta_x11_display_ungrab_keys (x11_display);
+
+  meta_x11_selection_shutdown (x11_display);
 
   if (x11_display->ui)
     {
@@ -1355,6 +1358,7 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   set_x11_bell_is_audible (x11_display, meta_prefs_bell_is_audible ());
 
   meta_x11_startup_notification_init (x11_display);
+  meta_x11_selection_init (x11_display);
 
   return x11_display;
 }
