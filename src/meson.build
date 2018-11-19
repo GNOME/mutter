@@ -484,6 +484,8 @@ if have_wayland
     'wayland/meta-wayland-region.h',
     'wayland/meta-wayland-seat.c',
     'wayland/meta-wayland-seat.h',
+    'wayland/meta-wayland-selection-source.c',
+    'wayland/meta-wayland-selection-source-private.h',
     'wayland/meta-wayland-shell-surface.c',
     'wayland/meta-wayland-shell-surface.h',
     'wayland/meta-wayland-subsurface.c',
