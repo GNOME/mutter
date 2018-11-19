@@ -344,6 +344,8 @@ mutter_sources = [
   'core/meta-selection.h',
   'core/meta-selection-source.c',
   'core/meta-selection-source.h',
+  'core/meta-selection-source-memory.c',
+  'core/meta-selection-source-memory.h',
   'core/meta-sound-player.c',
   'core/meta-workspace-manager.c',
   'core/meta-workspace-manager-private.h',
