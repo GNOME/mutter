@@ -103,8 +103,12 @@ struct _MetaShapedTexturePrivate
   cairo_region_t *clip_region;
   cairo_region_t *unobscured_region;
 
+  gboolean size_invalid;
+  MetaShapedTextureTransform transform;
+
   int tex_width, tex_height;
   int fallback_width, fallback_height;
+  int dest_width, dest_height;
 
   gint64 prev_invalidation, last_invalidation;
   guint fast_updates;
@@ -152,6 +156,66 @@ meta_shaped_texture_init (MetaShapedTexture *self)
   priv->mask_texture = NULL;
   priv->create_mipmaps = TRUE;
   priv->is_y_inverted = TRUE;
+  priv->transform = META_SHAPED_TEXTURE_TRANSFORM_NORMAL;
+}
+
+static void
+update_size (MetaShapedTexture *stex)
+{
+  MetaShapedTexturePrivate *priv;
+  int dest_width;
+  int dest_height;
+
+  priv = stex->priv;
+
+  switch (priv->transform)
+    {
+      default:
+        dest_width = priv->tex_width;
+        dest_height = priv->tex_height;
+        break;
+      case META_SHAPED_TEXTURE_TRANSFORM_90:
+      case META_SHAPED_TEXTURE_TRANSFORM_270:
+      case META_SHAPED_TEXTURE_TRANSFORM_FLIPPED_90:
+      case META_SHAPED_TEXTURE_TRANSFORM_FLIPPED_270:
+        dest_width = priv->tex_height;
+        dest_height = priv->tex_width;
+        break;
+    }
+
+  priv->size_invalid = FALSE;
+
+  if (priv->dest_width != dest_width ||
+      priv->dest_height != dest_height)
+    {
+      priv->dest_width = dest_width;
+      priv->dest_height = dest_height;
+      meta_shaped_texture_set_mask_texture (stex, NULL);
+      clutter_actor_queue_relayout (CLUTTER_ACTOR (stex));
+      g_signal_emit (stex, signals[SIZE_CHANGED], 0);
+    }
+}
+
+static int
+get_dest_width (MetaShapedTexture *self)
+{
+  MetaShapedTexturePrivate *priv = self->priv;
+
+  if (priv->size_invalid)
+    update_size (self);
+
+  return priv->dest_width;
+}
+
+static int
+get_dest_height (MetaShapedTexture *self)
+{
+  MetaShapedTexturePrivate *priv = self->priv;
+
+  if (priv->size_invalid)
+    update_size (self);
+
+  return priv->dest_height;
 }
 
 static void
@@ -167,8 +231,8 @@ set_unobscured_region (MetaShapedTexture *self,
 
       if (priv->texture)
         {
-          width = priv->tex_width;
-          height = priv->tex_height;
+          width = get_dest_width (self);
+          height = get_dest_height (self);
         }
       else
         {
@@ -260,6 +324,45 @@ get_base_pipeline (MetaShapedTexture *stex,
       cogl_matrix_scale (&matrix, 1, -1, 1);
       cogl_matrix_translate (&matrix, 0, -1, 0);
       cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
+    }
+
+  if (priv->transform != META_SHAPED_TEXTURE_TRANSFORM_NORMAL)
+    {
+      CoglMatrix matrix;
+      CoglEuler euler;
+
+      cogl_matrix_init_translation (&matrix, 0.5, 0.5, 0.0);
+      switch (priv->transform)
+        {
+          case META_SHAPED_TEXTURE_TRANSFORM_90:
+            cogl_euler_init (&euler, 0.0, 0.0, 90.0);
+            break;
+          case META_SHAPED_TEXTURE_TRANSFORM_180:
+            cogl_euler_init (&euler, 0.0, 0.0, 180.0);
+            break;
+          case META_SHAPED_TEXTURE_TRANSFORM_270:
+            cogl_euler_init (&euler, 0.0, 0.0, 270.0);
+            break;
+          case META_SHAPED_TEXTURE_TRANSFORM_FLIPPED:
+            cogl_euler_init (&euler, 180.0, 0.0, 0.0);
+            break;
+          case META_SHAPED_TEXTURE_TRANSFORM_FLIPPED_90:
+            cogl_euler_init (&euler, 0.0, 180.0, 90.0);
+            break;
+          case META_SHAPED_TEXTURE_TRANSFORM_FLIPPED_180:
+            cogl_euler_init (&euler, 180.0, 0.0, 180.0);
+            break;
+          case META_SHAPED_TEXTURE_TRANSFORM_FLIPPED_270:
+            cogl_euler_init (&euler, 0.0, 180.0, 270.0);
+            break;
+          default:
+            cogl_euler_init (&euler, 0.0, 0.0, 0.0);
+        }
+      cogl_matrix_rotate_euler (&matrix, &euler);
+      cogl_matrix_translate (&matrix, -0.5, -0.5, 0.0);
+
+      cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
+      cogl_pipeline_set_layer_matrix (pipeline, 1, &matrix);
     }
 
   if (priv->snippet)
@@ -382,9 +485,7 @@ set_cogl_texture (MetaShapedTexture *stex,
     {
       priv->tex_width = width;
       priv->tex_height = height;
-      meta_shaped_texture_set_mask_texture (stex, NULL);
-      clutter_actor_queue_relayout (CLUTTER_ACTOR (stex));
-      g_signal_emit (stex, signals[SIZE_CHANGED], 0);
+      update_size (stex);
     }
 
   /* NB: We don't queue a redraw of the actor here because we don't
@@ -417,7 +518,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
   MetaShapedTexture *stex = (MetaShapedTexture *) actor;
   MetaShapedTexturePrivate *priv = stex->priv;
   double tex_scale;
-  int tex_width, tex_height;
+  int dest_width, dest_height;
   cairo_rectangle_int_t tex_rect;
   guchar opacity;
   gboolean use_opaque_region;
@@ -482,13 +583,13 @@ meta_shaped_texture_paint (ClutterActor *actor)
     }
 
   clutter_actor_get_scale (actor, &tex_scale, NULL);
-  tex_width = priv->tex_width;
-  tex_height = priv->tex_height;
+  dest_width = get_dest_width (stex);
+  dest_height = get_dest_height (stex);
 
-  if (tex_width == 0 || tex_height == 0) /* no contents yet */
+  if (dest_width == 0 || dest_height == 0) /* no contents yet */
     return;
 
-  tex_rect = (cairo_rectangle_int_t) { 0, 0, tex_width, tex_height };
+  tex_rect = (cairo_rectangle_int_t) { 0, 0, dest_width, dest_height };
 
   /* Use nearest-pixel interpolation if the texture is unscaled. This
    * improves performance, especially with software rendering.
@@ -496,7 +597,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
 
   filter = COGL_PIPELINE_FILTER_LINEAR;
 
-  if (meta_actor_painting_untransformed (tex_width, tex_height, NULL, NULL))
+  if (meta_actor_painting_untransformed (dest_width, dest_height, NULL, NULL))
     filter = COGL_PIPELINE_FILTER_NEAREST;
 
   ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
@@ -593,7 +694,10 @@ meta_shaped_texture_paint (ClutterActor *actor)
             {
               cairo_rectangle_int_t rect;
               cairo_region_get_rectangle (region, i, &rect);
-              paint_clipped_rectangle (fb, opaque_pipeline, &rect, &alloc);
+              paint_clipped_rectangle (fb,
+                                       opaque_pipeline,
+                                       &rect,
+                                       &alloc);
             }
         }
 
@@ -646,16 +750,19 @@ meta_shaped_texture_paint (ClutterActor *actor)
               if (!gdk_rectangle_intersect (&tex_rect, &rect, &rect))
                 continue;
 
-              paint_clipped_rectangle (fb, blended_pipeline, &rect, &alloc);
+              paint_clipped_rectangle (fb,
+                                       blended_pipeline,
+                                       &rect,
+                                       &alloc);
             }
         }
       else
         {
           /* 3) blended_tex_region is NULL. Do a full paint. */
-          cogl_framebuffer_draw_rectangle (fb, blended_pipeline,
-                                           0, 0,
-                                           alloc.x2 - alloc.x1,
-                                           alloc.y2 - alloc.y1);
+          paint_clipped_rectangle (fb,
+                                   blended_pipeline,
+                                   &tex_rect,
+                                   &alloc);
         }
     }
 
@@ -670,11 +777,15 @@ meta_shaped_texture_get_preferred_width (ClutterActor *self,
                                          gfloat       *min_width_p,
                                          gfloat       *natural_width_p)
 {
-  MetaShapedTexturePrivate *priv = META_SHAPED_TEXTURE (self)->priv;
+  MetaShapedTexture *stex;
+  MetaShapedTexturePrivate *priv;
   int width;
 
+  stex = META_SHAPED_TEXTURE (self);
+  priv = stex->priv;
+
   if (priv->texture)
-    width = priv->tex_width;
+    width = get_dest_width (stex);
   else
     width = priv->fallback_width;
 
@@ -690,11 +801,15 @@ meta_shaped_texture_get_preferred_height (ClutterActor *self,
                                           gfloat       *min_height_p,
                                           gfloat       *natural_height_p)
 {
-  MetaShapedTexturePrivate *priv = META_SHAPED_TEXTURE (self)->priv;
+  MetaShapedTexture *stex;
+  MetaShapedTexturePrivate *priv;
   int height;
 
+  stex = META_SHAPED_TEXTURE (self);
+  priv = stex->priv;
+
   if (priv->texture)
-    height = priv->tex_height;
+    height = get_dest_height (stex);
   else
     height = priv->fallback_height;
 
@@ -956,6 +1071,27 @@ meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex)
 {
   MetaShapedTexturePrivate *priv = stex->priv;
   return priv->opaque_region;
+}
+
+void
+meta_shaped_texture_invalidate_size (MetaShapedTexture *stex)
+
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+
+  priv->size_invalid = TRUE;
+}
+
+void
+meta_shaped_texture_set_transform (MetaShapedTexture          *stex,
+                                   MetaShapedTextureTransform transform)
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+
+  priv->transform = transform;
+
+  meta_shaped_texture_reset_pipelines (stex);
+  meta_shaped_texture_invalidate_size (stex);
 }
 
 /**
