@@ -1,0 +1,163 @@
+/*
+ * Copyright (C) 2018 Red Hat
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * Author: Carlos Garnacho <carlosg@gnome.org>
+ */
+#include "config.h"
+
+#include "core/meta-clipboard-manager.h"
+#include "core/meta-selection-source-memory.h"
+
+#define MAX_TEXT_SIZE (4 * 1024 * 1024) /* 4MB */
+#define MAX_IMAGE_SIZE (200 * 1024 * 1024) /* 200MB */
+
+/* Supported mimetype globs, from least to most preferred */
+static struct {
+  const gchar *mimetype_glob;
+  gssize max_transfer_size;
+} supported_mimetypes[] = {
+  { "text/plain",               MAX_TEXT_SIZE },
+  { "text/plain;charset=utf-8", MAX_TEXT_SIZE },
+  { "image/*",                  MAX_IMAGE_SIZE },
+};
+
+static gboolean
+mimetype_match (const gchar *mimetype,
+                int         *idx,
+                gssize      *max_transfer_size)
+{
+  int i;
+
+  for (i = 0; i < G_N_ELEMENTS (supported_mimetypes); i++)
+    {
+      if (g_pattern_match_simple (supported_mimetypes[i].mimetype_glob, mimetype))
+        {
+          *max_transfer_size = supported_mimetypes[i].max_transfer_size;
+          *idx = i;
+          return TRUE;
+        }
+    }
+
+  return FALSE;
+}
+
+static void
+transfer_cb (MetaSelection *selection,
+             GAsyncResult  *result,
+             GOutputStream *stream)
+{
+  MetaDisplay *display = meta_get_display ();
+  GError *error = NULL;
+
+  if (!meta_selection_transfer_finish (selection, result, &error))
+    {
+      g_error_free (error);
+      g_object_unref (stream);
+      return;
+    }
+
+  g_output_stream_close (stream, NULL, NULL);
+  display->saved_clipboard =
+    g_memory_output_stream_steal_as_bytes (G_MEMORY_OUTPUT_STREAM (stream));
+  g_object_unref (stream);
+}
+
+static void
+owner_changed_cb (MetaSelection       *selection,
+                  MetaSelectionType    selection_type,
+                  MetaSelectionSource *source,
+                  MetaDisplay         *display)
+{
+  /* Only track CLIPBOARD selection changed */
+  if (selection_type != META_SELECTION_CLIPBOARD)
+    return;
+
+  if (source && source != display->selection_source)
+    {
+      GOutputStream *output;
+      GList *mimetypes, *l;
+      int best_idx = -1;
+      const gchar *best = NULL;
+      gssize transfer_size = -1;
+
+      /* New selection source, initiate inspection */
+      g_clear_object (&display->selection_source);
+      g_clear_pointer (&display->saved_clipboard_mimetype, g_free);
+      g_clear_pointer (&display->saved_clipboard, g_bytes_unref);
+
+      mimetypes = meta_selection_get_mimetypes (selection, selection_type);
+
+      for (l = mimetypes; l; l = l->next)
+        {
+          gssize max_transfer_size;
+          int idx;
+
+          if (!mimetype_match (l->data, &idx, &max_transfer_size))
+            continue;
+
+          if (best_idx < idx)
+            {
+              best_idx = idx;
+              best = l->data;
+              transfer_size = max_transfer_size;
+            }
+        }
+
+      if (best_idx < 0)
+        return;
+
+      display->saved_clipboard_mimetype = g_strdup (best);
+      output = g_memory_output_stream_new_resizable ();
+      meta_selection_transfer_async (selection,
+                                     META_SELECTION_CLIPBOARD,
+                                     best,
+                                     transfer_size,
+                                     output,
+                                     NULL,
+                                     (GAsyncReadyCallback) transfer_cb,
+                                     output);
+    }
+  else if (!source && display->saved_clipboard)
+    {
+      /* Selection source is gone, time to take over */
+      source = meta_selection_source_memory_new (display->saved_clipboard_mimetype,
+                                                 display->saved_clipboard);
+      g_set_object (&display->selection_source, source);
+      meta_selection_set_owner (selection, selection_type, source);
+    }
+}
+
+void
+meta_clipboard_manager_init (MetaDisplay *display)
+{
+  MetaSelection *selection;
+
+  selection = meta_display_get_selection (display);
+  g_signal_connect_after (selection, "owner-changed",
+                          G_CALLBACK (owner_changed_cb), display);
+}
+
+void
+meta_clipboard_manager_shutdown (MetaDisplay *display)
+{
+  MetaSelection *selection;
+
+  g_clear_pointer (&display->saved_clipboard, g_bytes_unref);
+  selection = meta_display_get_selection (display);
+  g_signal_handlers_disconnect_by_func (selection, owner_changed_cb, display);
+}
