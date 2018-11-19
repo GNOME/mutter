@@ -324,7 +324,6 @@ new_absolute_motion_event (ClutterInputDevice *input_device,
   _clutter_evdev_event_set_time_usec (event, time_us);
   event->motion.time = us2ms (time_us);
   event->motion.stage = stage;
-  event->motion.device = seat->core_pointer;
   _clutter_xkb_translate_state (event, seat->xkb, seat->button_state);
   event->motion.x = x;
   event->motion.y = y;
@@ -332,6 +331,7 @@ new_absolute_motion_event (ClutterInputDevice *input_device,
                                                     &event->motion.x,
                                                     &event->motion.y);
   event->motion.axes = axes;
+  clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
@@ -519,7 +519,6 @@ notify_proximity (ClutterInputDevice *input_device,
 
   event->proximity.time = us2ms (time_us);
   event->proximity.stage = CLUTTER_STAGE (stage);
-  event->proximity.device = seat->core_pointer;
   clutter_event_set_device_tool (event, device_evdev->last_tool);
   clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);

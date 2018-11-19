@@ -385,7 +385,6 @@ new_absolute_motion_event (ClutterSeatEvdev   *seat,
   _clutter_evdev_event_set_time_usec (event, time_us);
   event->motion.time = us2ms (time_us);
   event->motion.stage = stage;
-  event->motion.device = seat->core_pointer;
   _clutter_xkb_translate_state (event, seat->xkb, seat->button_state);
   event->motion.x = x;
   event->motion.y = y;
@@ -631,7 +630,6 @@ notify_scroll (ClutterInputDevice       *input_device,
   _clutter_evdev_event_set_time_usec (event, time_us);
   event->scroll.time = us2ms (time_us);
   event->scroll.stage = CLUTTER_STAGE (stage);
-  event->scroll.device = seat->core_pointer;
   _clutter_xkb_translate_state (event, seat->xkb, seat->button_state);
 
   /* libinput pointer axis events are in pointer motion coordinate space.
@@ -684,7 +682,6 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
   _clutter_evdev_event_set_time_usec (event, time_us);
   event->scroll.time = us2ms (time_us);
   event->scroll.stage = CLUTTER_STAGE (stage);
-  event->scroll.device = seat->core_pointer;
   _clutter_xkb_translate_state (event, seat->xkb, seat->button_state);
 
   event->scroll.direction = direction;
@@ -813,7 +810,6 @@ clutter_seat_evdev_notify_touch_event (ClutterSeatEvdev   *seat,
   _clutter_evdev_event_set_time_usec (event, time_us);
   event->touch.time = us2ms (time_us);
   event->touch.stage = CLUTTER_STAGE (stage);
-  event->touch.device = seat->core_pointer;
   event->touch.x = x;
   event->touch.y = y;
   clutter_input_device_evdev_translate_coordinates (input_device, stage,
