@@ -26,56 +26,56 @@
  */
 
 /***********************************************************
-Copyright 1988 by Wyse Technology, Inc., San Jose, Ca,
-Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts,
-
-                        All Rights Reserved
-
-Permission to use, copy, modify, and distribute this software and its
-documentation for any purpose and without fee is hereby granted,
-provided that the above copyright notice appear in all copies and that
-both that copyright notice and this permission notice appear in
-supporting documentation, and that the name Digital not be
-used in advertising or publicity pertaining to distribution of the
-software without specific, written prior permission.
-
-DIGITAL AND WYSE DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-EVENT SHALL DIGITAL OR WYSE BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF
-USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-
-******************************************************************/
+ *  Copyright 1988 by Wyse Technology, Inc., San Jose, Ca,
+ *  Copyright 1987 by Digital Equipment Corporation, Maynard, Massachusetts,
+ *
+ *                       All Rights Reserved
+ *
+ *  Permission to use, copy, modify, and distribute this software and its
+ *  documentation for any purpose and without fee is hereby granted,
+ *  provided that the above copyright notice appear in all copies and that
+ *  both that copyright notice and this permission notice appear in
+ *  supporting documentation, and that the name Digital not be
+ *  used in advertising or publicity pertaining to distribution of the
+ *  software without specific, written prior permission.
+ *
+ *  DIGITAL AND WYSE DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ *  INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
+ *  EVENT SHALL DIGITAL OR WYSE BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+ *  CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF
+ *  USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+ *  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *  PERFORMANCE OF THIS SOFTWARE.
+ *
+ ******************************************************************/
 
 /*
-
-Copyright 1987, 1988, 1998  The Open Group
-
-Permission to use, copy, modify, distribute, and sell this software and its
-documentation for any purpose is hereby granted without fee, provided that
-the above copyright notice appear in all copies and that both that
-copyright notice and this permission notice appear in supporting
-documentation.
-
-The above copyright notice and this permission notice shall be included
-in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR
-OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-
-Except as contained in this notice, the name of The Open Group shall
-not be used in advertising or otherwise to promote the sale, use or
-other dealings in this Software without prior written authorization
-from The Open Group.
-
-*/
+ *
+ *  Copyright 1987, 1988, 1998  The Open Group
+ *
+ *  Permission to use, copy, modify, distribute, and sell this software and its
+ *  documentation for any purpose is hereby granted without fee, provided that
+ *  the above copyright notice appear in all copies and that both that
+ *  copyright notice and this permission notice appear in supporting
+ *  documentation.
+ *
+ *  The above copyright notice and this permission notice shall be included
+ *  in all copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ *  OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ *  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ *  IN NO EVENT SHALL THE OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ *  OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ *  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *  OTHER DEALINGS IN THE SOFTWARE.
+ *
+ *  Except as contained in this notice, the name of The Open Group shall
+ *  not be used in advertising or otherwise to promote the sale, use or
+ *  other dealings in this Software without prior written authorization
+ *  from The Open Group.
+ *
+ */
 
 
 #include "config.h"
@@ -97,13 +97,13 @@ from The Open Group.
 typedef struct
 {
   MetaX11Display *x11_display;
-  Window          xwindow;
-  Atom            xatom;
-  Atom            type;
-  int             format;
-  unsigned long   n_items;
-  unsigned long   bytes_after;
-  unsigned char  *prop;
+  Window xwindow;
+  Atom xatom;
+  Atom type;
+  int format;
+  unsigned long n_items;
+  unsigned long bytes_after;
+  unsigned char *prop;
 } GetPropertyResults;
 
 static gboolean
@@ -156,14 +156,15 @@ validate_or_free_results (GetPropertyResults *results,
   if (res_name == NULL)
     res_name = "unknown";
 
-  meta_warning ("Window 0x%lx has property %s\nthat was expected to have type %s format %d\nand actually has type %s format %d n_items %d.\nThis is most likely an application bug, not a window manager bug.\nThe window has title=\"%s\" class=\"%s\" name=\"%s\"\n",
-                results->xwindow,
-                prop_name ? prop_name : "(bad atom)",
-                expected_name ? expected_name : "(bad atom)",
-                expected_format,
-                type_name ? type_name : "(bad atom)",
-                results->format, (int) results->n_items,
-                title, res_class, res_name);
+  meta_warning (
+    "Window 0x%lx has property %s\nthat was expected to have type %s format %d\nand actually has type %s format %d n_items %d.\nThis is most likely an application bug, not a window manager bug.\nThe window has title=\"%s\" class=\"%s\" name=\"%s\"\n",
+    results->xwindow,
+    prop_name ? prop_name : "(bad atom)",
+    expected_name ? expected_name : "(bad atom)",
+    expected_format,
+    type_name ? type_name : "(bad atom)",
+    results->format, (int) results->n_items,
+    title, res_class, res_name);
 
   if (type_name)
     XFree (type_name);
@@ -190,9 +191,9 @@ async_get_property (xcb_connection_t *xcb_conn, Window xwindow,
 }
 
 static gboolean
-async_get_property_finish (xcb_connection_t          *xcb_conn,
-                           xcb_get_property_cookie_t  cookie,
-                           GetPropertyResults        *results)
+async_get_property_finish (xcb_connection_t         *xcb_conn,
+                           xcb_get_property_cookie_t cookie,
+                           GetPropertyResults       *results)
 {
   xcb_get_property_reply_t *reply;
   xcb_generic_error_t *error;
@@ -257,7 +258,7 @@ atom_list_from_results (GetPropertyResults *results,
   if (!validate_or_free_results (results, 32, XA_ATOM, FALSE))
     return FALSE;
 
-  *atoms_p = (uint32_t*) results->prop;
+  *atoms_p = (uint32_t *) results->prop;
   *n_atoms_p = results->n_items;
   results->prop = NULL;
 
@@ -324,8 +325,8 @@ motif_hints_from_results (GetPropertyResults *results,
       return FALSE;
     }
 
-  memcpy(*hints_p, results->prop, MIN (sizeof (MotifWmHints),
-                                       results->n_items * sizeof (uint32_t)));
+  memcpy (*hints_p, results->prop, MIN (sizeof (MotifWmHints),
+                                        results->n_items * sizeof (uint32_t)));
 
   g_free (results->prop);
   results->prop = NULL;
@@ -395,7 +396,7 @@ utf8_string_from_results (GetPropertyResults *results,
     return FALSE;
 
   if (results->n_items > 0 &&
-      !g_utf8_validate ((gchar *)results->prop, results->n_items, NULL))
+      !g_utf8_validate ((gchar *) results->prop, results->n_items, NULL))
     {
       char *name;
 
@@ -454,9 +455,9 @@ utf8_list_from_results (GetPropertyResults *results,
    * by XGetWindowProperty
    */
 
-  retval = g_new0 (char*, n_strings + 1);
+  retval = g_new0 (char *, n_strings + 1);
 
-  p = (char *)results->prop;
+  p = (char *) results->prop;
   i = 0;
   while (i < n_strings)
     {
@@ -467,8 +468,9 @@ utf8_list_from_results (GetPropertyResults *results,
           meta_x11_error_trap_push (results->x11_display);
           name = XGetAtomName (results->x11_display->xdisplay, results->xatom);
           meta_x11_error_trap_pop (results->x11_display);
-          meta_warning ("Property %s on window 0x%lx contained invalid UTF-8 for item %d in the list\n",
-                        name, results->xwindow, i);
+          meta_warning (
+            "Property %s on window 0x%lx contained invalid UTF-8 for item %d in the list\n",
+            name, results->xwindow, i);
           meta_XFree (name);
           g_free (results->prop);
           results->prop = NULL;
@@ -494,11 +496,11 @@ utf8_list_from_results (GetPropertyResults *results,
 
 /* returns g_malloc not Xmalloc memory */
 gboolean
-meta_prop_get_utf8_list (MetaX11Display   *x11_display,
-                         Window            xwindow,
-                         Atom              xatom,
-                         char           ***str_p,
-                         int              *n_str_p)
+meta_prop_get_utf8_list (MetaX11Display *x11_display,
+                         Window          xwindow,
+                         Atom            xatom,
+                         char         ***str_p,
+                         int            *n_str_p)
 {
   GetPropertyResults results;
 
@@ -515,14 +517,14 @@ meta_prop_get_utf8_list (MetaX11Display   *x11_display,
 void
 meta_prop_set_utf8_string_hint (MetaX11Display *x11_display,
                                 Window          xwindow,
-                                Atom           atom,
-                                const char    *val)
+                                Atom            atom,
+                                const char     *val)
 {
   meta_x11_error_trap_push (x11_display);
   XChangeProperty (x11_display->xdisplay,
                    xwindow, atom,
                    x11_display->atom_UTF8_STRING,
-                   8, PropModeReplace, (guchar*) val, strlen (val));
+                   8, PropModeReplace, (guchar *) val, strlen (val));
   meta_x11_error_trap_pop (x11_display);
 }
 
@@ -634,7 +636,7 @@ meta_prop_get_cardinal_with_atom_type (MetaX11Display *x11_display,
 }
 
 static char *
-text_property_to_utf8 (Display *xdisplay,
+text_property_to_utf8 (Display             *xdisplay,
                        const XTextProperty *prop)
 {
   char *ret = NULL;
@@ -644,7 +646,8 @@ text_property_to_utf8 (Display *xdisplay,
   int res;
 
   res = XmbTextPropertyToTextList (xdisplay, prop, &local_list, &count);
-  if (res == XNoMemory || res == XLocaleNotSupported || res == XConverterNotFound)
+  if (res == XNoMemory || res == XLocaleNotSupported ||
+      res == XConverterNotFound)
     goto out;
 
   if (count == 0)
@@ -655,7 +658,7 @@ text_property_to_utf8 (Display *xdisplay,
   else
     ret = g_convert (local_list[0], -1, "UTF-8", charset, NULL, NULL, NULL);
 
- out:
+out:
   XFreeStringList (local_list);
   return ret;
 }
@@ -709,7 +712,7 @@ wm_hints_from_results (GetPropertyResults *results,
 
   hints = calloc (1, sizeof (XWMHints));
 
-  raw = (xPropWMHints*) results->prop;
+  raw = (xPropWMHints *) results->prop;
 
   hints->flags = raw->flags;
   hints->input = (raw->input ? True : False);
@@ -748,30 +751,30 @@ class_hint_from_results (GetPropertyResults *results,
     return FALSE;
 
   len_name = strlen ((char *) results->prop);
-  if (! (class_hint->res_name = malloc (len_name+1)))
+  if (!(class_hint->res_name = malloc (len_name + 1)))
     {
       g_free (results->prop);
       results->prop = NULL;
       return FALSE;
     }
 
-  strcpy (class_hint->res_name, (char *)results->prop);
+  strcpy (class_hint->res_name, (char *) results->prop);
 
   if (len_name == (int) results->n_items)
     len_name--;
 
-  len_class = strlen ((char *)results->prop + len_name + 1);
+  len_class = strlen ((char *) results->prop + len_name + 1);
 
-  if (! (class_hint->res_class = malloc(len_class+1)))
+  if (!(class_hint->res_class = malloc (len_class + 1)))
     {
-      XFree(class_hint->res_name);
+      XFree (class_hint->res_name);
       class_hint->res_name = NULL;
       g_free (results->prop);
       results->prop = NULL;
       return FALSE;
     }
 
-  strcpy (class_hint->res_class, (char *)results->prop + len_name + 1);
+  strcpy (class_hint->res_class, (char *) results->prop + len_name + 1);
 
   g_free (results->prop);
   results->prop = NULL;
@@ -800,7 +803,7 @@ size_hints_from_results (GetPropertyResults *results,
       return FALSE;
     }
 
-  raw = (xPropSizeHints*) results->prop;
+  raw = (xPropSizeHints *) results->prop;
 
   hints = malloc (sizeof (XSizeHints));
 
@@ -809,11 +812,11 @@ size_hints_from_results (GetPropertyResults *results,
   hints->y = raw->y;
   hints->width = raw->width;
   hints->height = raw->height;
-  hints->min_width  = raw->minWidth;
+  hints->min_width = raw->minWidth;
   hints->min_height = raw->minHeight;
-  hints->max_width  = raw->maxWidth;
+  hints->max_width = raw->maxWidth;
   hints->max_height = raw->maxHeight;
-  hints->width_inc  = raw->widthInc;
+  hints->width_inc = raw->widthInc;
   hints->height_inc = raw->heightInc;
   hints->min_aspect.x = raw->minAspectX;
   hints->min_aspect.y = raw->minAspectY;
@@ -829,7 +832,7 @@ size_hints_from_results (GetPropertyResults *results,
       *flags_p |= (PBaseSize | PWinGravity);
     }
 
-  hints->flags &= (*flags_p);	/* get rid of unwanted bits */
+  hints->flags &= (*flags_p);   /* get rid of unwanted bits */
 
   g_free (results->prop);
   results->prop = NULL;
@@ -839,7 +842,7 @@ size_hints_from_results (GetPropertyResults *results,
   return TRUE;
 }
 
-static char*
+static char *
 latin1_to_utf8 (const char *text)
 {
   GString *str;
@@ -890,7 +893,8 @@ meta_prop_get_values (MetaX11Display *x11_display,
                * property notify on an atom we don't care about.
                */
               if (values[i].atom != None)
-                meta_bug ("META_PROP_VALUE_INVALID requested in %s\n", G_STRFUNC);
+                meta_bug ("META_PROP_VALUE_INVALID requested in %s\n",
+                          G_STRFUNC);
               break;
             case META_PROP_VALUE_UTF8_LIST:
             case META_PROP_VALUE_UTF8:
@@ -927,13 +931,14 @@ meta_prop_get_values (MetaX11Display *x11_display,
               break;
             case META_PROP_VALUE_SYNC_COUNTER:
             case META_PROP_VALUE_SYNC_COUNTER_LIST:
-	      values[i].required_type = XA_CARDINAL;
+              values[i].required_type = XA_CARDINAL;
               break;
             }
         }
 
       if (values[i].atom != None)
-        tasks[i] = async_get_property (xcb_conn, xwindow, values[i].atom, values[i].required_type);
+        tasks[i] = async_get_property (xcb_conn, xwindow, values[i].atom,
+                                       values[i].required_type);
       ++i;
     }
 
@@ -1015,7 +1020,8 @@ meta_prop_get_values (MetaX11Display *x11_display,
         case META_PROP_VALUE_CARDINAL_LIST:
           if (!cardinal_list_from_results (&results,
                                            &values[i].v.cardinal_list.cardinals,
-                                           &values[i].v.cardinal_list.n_cardinals))
+                                           &values[i].v.cardinal_list.
+                                           n_cardinals))
             values[i].type = META_PROP_VALUE_INVALID;
           break;
         case META_PROP_VALUE_CARDINAL:
@@ -1066,7 +1072,7 @@ meta_prop_get_values (MetaX11Display *x11_display,
           break;
         }
 
-    next:
+next:
       ++i;
     }
 

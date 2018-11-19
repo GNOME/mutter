@@ -41,7 +41,7 @@ meta_session_init (const char *client_id,
   meta_topic (META_DEBUG_SM, "Compiled without session management support\n");
 }
 
-const MetaWindowSessionInfo*
+const MetaWindowSessionInfo *
 meta_window_lookup_saved_state (MetaWindow *window)
 {
   return NULL;
@@ -50,7 +50,6 @@ meta_window_lookup_saved_state (MetaWindow *window)
 void
 meta_window_release_saved_state (const MetaWindowSessionInfo *info)
 {
-  ;
 }
 #else /* HAVE_SM */
 
@@ -74,20 +73,21 @@ meta_window_release_saved_state (const MetaWindowSessionInfo *info)
 static void ice_io_error_handler (IceConn connection);
 
 static void new_ice_connection (IceConn connection, IcePointer client_data,
-				Bool opening, IcePointer *watch_data);
+                                Bool opening, IcePointer *watch_data);
 
-static void        save_state         (void);
-static char*       load_state         (const char *previous_save_file);
+static void        save_state (void);
+static char *load_state (const char *previous_save_file);
 static void        regenerate_save_file (void);
-static const char* full_save_file       (void);
-static void        warn_about_lame_clients_and_finish_interact (gboolean shutdown);
-static void        disconnect         (void);
+static const char *full_save_file (void);
+static void        warn_about_lame_clients_and_finish_interact (
+  gboolean shutdown);
+static void        disconnect (void);
 
 /* This is called when data is available on an ICE connection.  */
 static gboolean
-process_ice_messages (GIOChannel *channel,
+process_ice_messages (GIOChannel  *channel,
                       GIOCondition condition,
-                      gpointer client_data)
+                      gpointer     client_data)
 {
   IceConn connection = (IceConn) client_data;
   IceProcessMessagesStatus status;
@@ -118,10 +118,10 @@ process_ice_messages (GIOChannel *channel,
 }
 
 /* This is called when a new ICE connection is made.  It arranges for
-   the ICE connection to be handled via the event loop.  */
+ *  the ICE connection to be handled via the event loop.  */
 static void
 new_ice_connection (IceConn connection, IcePointer client_data, Bool opening,
-		    IcePointer *watch_data)
+                    IcePointer *watch_data)
 {
   guint input_id;
 
@@ -148,7 +148,7 @@ new_ice_connection (IceConn connection, IcePointer client_data, Bool opening,
     }
   else
     {
-      input_id = GPOINTER_TO_UINT ((gpointer) *watch_data);
+      input_id = GPOINTER_TO_UINT ((gpointer) * watch_data);
 
       g_source_remove (input_id);
     }
@@ -157,12 +157,12 @@ new_ice_connection (IceConn connection, IcePointer client_data, Bool opening,
 static IceIOErrorHandler ice_installed_handler;
 
 /* We call any handler installed before (or after) gnome_ice_init but
-   avoid calling the default libICE handler which does an exit() */
+ *  avoid calling the default libICE handler which does an exit() */
 static void
 ice_io_error_handler (IceConn connection)
 {
-    if (ice_installed_handler)
-      (*ice_installed_handler) (connection);
+  if (ice_installed_handler)
+    (*ice_installed_handler)(connection);
 }
 
 static void
@@ -170,7 +170,7 @@ ice_init (void)
 {
   static gboolean ice_initted = FALSE;
 
-  if (! ice_initted)
+  if (!ice_initted)
     {
       IceIOErrorHandler default_handler;
 
@@ -178,7 +178,7 @@ ice_init (void)
       default_handler = IceSetIOErrorHandler (ice_io_error_handler);
 
       if (ice_installed_handler == default_handler)
-	ice_installed_handler = NULL;
+        ice_installed_handler = NULL;
 
       IceAddConnectionWatch (new_ice_connection, NULL);
 
@@ -200,23 +200,23 @@ typedef enum
   STATE_REGISTERING
 } ClientState;
 
-static void save_phase_2_callback       (SmcConn   smc_conn,
-                                         SmPointer client_data);
-static void interact_callback           (SmcConn   smc_conn,
-                                         SmPointer client_data);
+static void save_phase_2_callback (SmcConn   smc_conn,
+                                   SmPointer client_data);
+static void interact_callback (SmcConn   smc_conn,
+                               SmPointer client_data);
 static void shutdown_cancelled_callback (SmcConn   smc_conn,
                                          SmPointer client_data);
-static void save_complete_callback      (SmcConn   smc_conn,
-                                         SmPointer client_data);
-static void die_callback                (SmcConn   smc_conn,
-                                         SmPointer client_data);
-static void save_yourself_callback      (SmcConn   smc_conn,
-                                         SmPointer client_data,
-                                         int       save_style,
-                                         Bool      shutdown,
-                                         int       interact_style,
-                                         Bool      fast);
-static void set_clone_restart_commands  (void);
+static void save_complete_callback (SmcConn   smc_conn,
+                                    SmPointer client_data);
+static void die_callback (SmcConn   smc_conn,
+                          SmPointer client_data);
+static void save_yourself_callback (SmcConn   smc_conn,
+                                    SmPointer client_data,
+                                    int       save_style,
+                                    Bool      shutdown,
+                                    int       interact_style,
+                                    Bool      fast);
+static void set_clone_restart_commands (void);
 
 static char *client_id = NULL;
 static gpointer session_connection = NULL;
@@ -255,7 +255,7 @@ meta_session_init (const char *previous_client_id,
   ice_init ();
 
   mask = SmcSaveYourselfProcMask | SmcDieProcMask |
-    SmcSaveCompleteProcMask | SmcShutdownCancelledProcMask;
+         SmcSaveCompleteProcMask | SmcShutdownCancelledProcMask;
 
   callbacks.save_yourself.callback = save_yourself_callback;
   callbacks.save_yourself.client_data = NULL;
@@ -276,7 +276,7 @@ meta_session_init (const char *previous_client_id,
                        SmProtoMinor,
                        mask,
                        &callbacks,
-                       (char*) previous_client_id,
+                       (char *) previous_client_id,
                        &client_id,
                        255, buf);
 
@@ -315,48 +315,48 @@ meta_session_init (const char *previous_client_id,
 
     prgname = g_get_prgname ();
 
-    prop1.name = (char *)SmProgram;
-    prop1.type = (char *)SmARRAY8;
+    prop1.name = (char *) SmProgram;
+    prop1.type = (char *) SmARRAY8;
     prop1.num_vals = 1;
     prop1.vals = &prop1val;
-    prop1val.value = (char *)prgname;
+    prop1val.value = (char *) prgname;
     prop1val.length = strlen (prgname);
 
     /* twm sets getuid() for this, but the SM spec plainly
      * says pw_name, twm is on crack
      */
-    prop2.name = (char *)SmUserID;
-    prop2.type = (char *)SmARRAY8;
+    prop2.name = (char *) SmUserID;
+    prop2.type = (char *) SmARRAY8;
     prop2.num_vals = 1;
     prop2.vals = &prop2val;
-    prop2val.value = (char*) g_get_user_name ();
+    prop2val.value = (char *) g_get_user_name ();
     prop2val.length = strlen (prop2val.value);
 
-    prop3.name = (char *)SmRestartStyleHint;
-    prop3.type = (char *)SmCARD8;
+    prop3.name = (char *) SmRestartStyleHint;
+    prop3.type = (char *) SmCARD8;
     prop3.num_vals = 1;
     prop3.vals = &prop3val;
     prop3val.value = &hint;
     prop3val.length = 1;
 
     sprintf (pid, "%d", getpid ());
-    prop4.name = (char *)SmProcessID;
-    prop4.type = (char *)SmARRAY8;
+    prop4.name = (char *) SmProcessID;
+    prop4.type = (char *) SmARRAY8;
     prop4.num_vals = 1;
     prop4.vals = &prop4val;
     prop4val.value = pid;
     prop4val.length = strlen (prop4val.value);
 
     /* Always start in home directory */
-    prop5.name = (char *)SmCurrentDirectory;
-    prop5.type = (char *)SmARRAY8;
+    prop5.name = (char *) SmCurrentDirectory;
+    prop5.type = (char *) SmARRAY8;
     prop5.num_vals = 1;
     prop5.vals = &prop5val;
-    prop5val.value = (char*) g_get_home_dir ();
+    prop5val.value = (char *) g_get_home_dir ();
     prop5val.length = strlen (prop5val.value);
 
-    prop6.name = (char *)"_GSM_Priority";
-    prop6.type = (char *)SmCARD8;
+    prop6.name = (char *) "_GSM_Priority";
+    prop6.type = (char *) SmCARD8;
     prop6.num_vals = 1;
     prop6.vals = &prop6val;
     prop6val.value = &priority;
@@ -372,7 +372,7 @@ meta_session_init (const char *previous_client_id,
     SmcSetProperties (session_connection, 6, props);
   }
 
- out:
+out:
   g_free (saved_client_id);
 }
 
@@ -413,7 +413,8 @@ save_yourself_possibly_done (gboolean shutdown,
       Status status;
 
       status = SmcInteractRequest (session_connection,
-                                   /* ignore this feature of the protocol by always
+                                   /* ignore this feature of the protocol by
+                                    * always
                                     * claiming normal
                                     */
                                    SmDialogNormal,
@@ -485,13 +486,13 @@ save_yourself_callback (SmcConn   smc_conn,
       /* Double check that this is a section 7.2 SaveYourself: */
 
       if (save_style == SmSaveLocal &&
-	  interact_style == SmInteractStyleNone &&
-	  !shutdown && !fast)
-	{
-	  /* The protocol requires this even if xsm ignores it. */
-	  SmcSaveYourselfDone (session_connection, successful);
-	  return;
-	}
+          interact_style == SmInteractStyleNone &&
+          !shutdown && !fast)
+        {
+          /* The protocol requires this even if xsm ignores it. */
+          SmcSaveYourselfDone (session_connection, successful);
+          return;
+        }
     }
 #endif
 
@@ -591,15 +592,15 @@ set_clone_restart_commands (void)
 
   /* Restart (use same client ID) */
 
-  prop1.name = (char *)SmRestartCommand;
-  prop1.type = (char *)SmLISTofARRAY8;
+  prop1.name = (char *) SmRestartCommand;
+  prop1.type = (char *) SmLISTofARRAY8;
 
   g_return_if_fail (client_id);
 
   i = 0;
-  restartv[i] = (char *)prgname;
+  restartv[i] = (char *) prgname;
   ++i;
-  restartv[i] = (char *)"--sm-client-id";
+  restartv[i] = (char *) "--sm-client-id";
   ++i;
   restartv[i] = client_id;
   ++i;
@@ -618,12 +619,12 @@ set_clone_restart_commands (void)
   /* Clone (no client ID) */
 
   i = 0;
-  clonev[i] = (char *)prgname;
+  clonev[i] = (char *) prgname;
   ++i;
   clonev[i] = NULL;
 
-  prop2.name = (char *)SmCloneCommand;
-  prop2.type = (char *)SmLISTofARRAY8;
+  prop2.name = (char *) SmCloneCommand;
+  prop2.type = (char *) SmLISTofARRAY8;
 
   prop2.vals = g_new (SmPropValue, i);
   i = 0;
@@ -638,16 +639,16 @@ set_clone_restart_commands (void)
   /* Discard */
 
   i = 0;
-  discardv[i] = (char *)"rm";
+  discardv[i] = (char *) "rm";
   ++i;
-  discardv[i] = (char *)"-f";
+  discardv[i] = (char *) "-f";
   ++i;
-  discardv[i] = (char*) full_save_file ();
+  discardv[i] = (char *) full_save_file ();
   ++i;
   discardv[i] = NULL;
 
-  prop3.name = (char *)SmDiscardCommand;
-  prop3.type = (char *)SmLISTofARRAY8;
+  prop3.name = (char *) SmDiscardCommand;
+  prop3.type = (char *) SmLISTofARRAY8;
 
   prop3.vals = g_new (SmPropValue, i);
   i = 0;
@@ -676,7 +677,7 @@ set_clone_restart_commands (void)
  * session manager.
  */
 
-static const char*
+static const char *
 window_type_to_string (MetaWindowType type)
 {
   switch (type)
@@ -770,7 +771,7 @@ window_gravity_from_string (const char *str)
     return NorthWestGravity;
 }
 
-static char*
+static char *
 encode_text_as_utf8_markup (const char *text)
 {
   /* text can be any encoding, and is nul-terminated.
@@ -795,7 +796,7 @@ encode_text_as_utf8_markup (const char *text)
   return escaped;
 }
 
-static char*
+static char *
 decode_text_from_utf8 (const char *text)
 {
   /* Convert back from the encoded (but not escaped) UTF-8 */
@@ -839,8 +840,8 @@ save_state (void)
    * can just use the directory name from that.
    */
   mutter_dir = g_strconcat (g_get_user_config_dir (),
-                              G_DIR_SEPARATOR_S "mutter",
-                              NULL);
+                            G_DIR_SEPARATOR_S "mutter",
+                            NULL);
 
   session_dir = g_strconcat (mutter_dir,
                              G_DIR_SEPARATOR_S "sessions",
@@ -873,11 +874,13 @@ save_state (void)
 
   /* The file format is:
    * <mutter_session id="foo">
-   *   <window id="bar" class="XTerm" name="xterm" title="/foo/bar" role="blah" type="normal" stacking="5">
+   *   <window id="bar" class="XTerm" name="xterm" title="/foo/bar" role="blah"
+   *type="normal" stacking="5">
    *     <workspace index="2"/>
    *     <workspace index="4"/>
    *     <sticky/> <minimized/> <maximized/>
-   *     <geometry x="100" y="100" width="200" height="200" gravity="northwest"/>
+   *     <geometry x="100" y="100" width="200" height="200"
+   *gravity="northwest"/>
    *   </window>
    * </mutter_session>
    *
@@ -918,17 +921,18 @@ save_state (void)
 
           sm_client_id = encode_text_as_utf8_markup (window->sm_client_id);
           res_class = window->res_class ?
-            encode_text_as_utf8_markup (window->res_class) : NULL;
+                      encode_text_as_utf8_markup (window->res_class) : NULL;
           res_name = window->res_name ?
-            encode_text_as_utf8_markup (window->res_name) : NULL;
+                     encode_text_as_utf8_markup (window->res_name) : NULL;
           role = window->role ?
-            encode_text_as_utf8_markup (window->role) : NULL;
+                 encode_text_as_utf8_markup (window->role) : NULL;
           if (window->title)
             title = g_markup_escape_text (window->title, -1);
           else
             title = NULL;
 
-          meta_topic (META_DEBUG_SM, "Saving session managed window %s, client ID '%s'\n",
+          meta_topic (META_DEBUG_SM,
+                      "Saving session managed window %s, client ID '%s'\n",
                       window->desc, window->sm_client_id);
 
           fprintf (outfile,
@@ -951,7 +955,9 @@ save_state (void)
           if (window->on_all_workspaces_requested)
             {
               fputs ("    <sticky/>\n", outfile);
-            } else {
+            }
+          else
+            {
               int n;
               if (window->workspace)
                 n = meta_workspace_index (window->workspace);
@@ -992,7 +998,8 @@ save_state (void)
         }
       else
         {
-          meta_topic (META_DEBUG_SM, "Not saving window '%s', not session managed\n",
+          meta_topic (META_DEBUG_SM,
+                      "Not saving window '%s', not session managed\n",
                       window->desc);
         }
 
@@ -1004,7 +1011,7 @@ save_state (void)
 
   fputs ("</mutter_session>\n", outfile);
 
- out:
+out:
   if (outfile)
     {
       /* FIXME need a dialog for this */
@@ -1041,25 +1048,26 @@ typedef struct
 } ParseData;
 
 static void                   session_info_free (MetaWindowSessionInfo *info);
-static MetaWindowSessionInfo* session_info_new  (void);
+static MetaWindowSessionInfo *session_info_new (void);
 
-static void start_element_handler (GMarkupParseContext  *context,
-                                   const gchar          *element_name,
-                                   const gchar         **attribute_names,
-                                   const gchar         **attribute_values,
-                                   gpointer              user_data,
-                                   GError              **error);
-static void end_element_handler   (GMarkupParseContext  *context,
-                                   const gchar          *element_name,
-                                   gpointer              user_data,
-                                   GError              **error);
-static void text_handler          (GMarkupParseContext  *context,
-                                   const gchar          *text,
-                                   gsize                 text_len,
-                                   gpointer              user_data,
-                                   GError              **error);
+static void start_element_handler (GMarkupParseContext *context,
+                                   const gchar         *element_name,
+                                   const gchar        **attribute_names,
+                                   const gchar        **attribute_values,
+                                   gpointer             user_data,
+                                   GError             **error);
+static void end_element_handler (GMarkupParseContext *context,
+                                 const gchar         *element_name,
+                                 gpointer             user_data,
+                                 GError             **error);
+static void text_handler (GMarkupParseContext *context,
+                          const gchar         *text,
+                          gsize                text_len,
+                          gpointer             user_data,
+                          GError             **error);
 
-static GMarkupParser mutter_session_parser = {
+static GMarkupParser mutter_session_parser =
+{
   start_element_handler,
   end_element_handler,
   text_handler,
@@ -1069,7 +1077,7 @@ static GMarkupParser mutter_session_parser = {
 
 static GSList *window_info_list = NULL;
 
-static char*
+static char *
 load_state (const char *previous_save_file)
 {
   GMarkupParseContext *context;
@@ -1143,7 +1151,7 @@ load_state (const char *previous_save_file)
 
   goto out;
 
- error:
+error:
 
   meta_warning ("Failed to parse saved session file: %s\n",
                 error->message);
@@ -1155,7 +1163,7 @@ load_state (const char *previous_save_file)
   g_free (parse_data.previous_id);
   parse_data.previous_id = NULL;
 
- out:
+out:
 
   g_free (text);
 
@@ -1193,7 +1201,7 @@ start_element_handler  (GMarkupParseContext *context,
             {
               g_set_error (error,
                            G_MARKUP_ERROR,
-                       G_MARKUP_ERROR_PARSE,
+                           G_MARKUP_ERROR_PARSE,
                            "<mutter_session> attribute seen but we already have the session ID");
               return;
             }
@@ -1489,7 +1497,8 @@ end_element_handler    (GMarkupParseContext *context,
       window_info_list = g_slist_prepend (window_info_list,
                                           pd->info);
 
-      meta_topic (META_DEBUG_SM, "Loaded window info from session with class: %s name: %s role: %s\n",
+      meta_topic (META_DEBUG_SM,
+                  "Loaded window info from session with class: %s name: %s role: %s\n",
                   pd->info->res_class ? pd->info->res_class : "(none)",
                   pd->info->res_name ? pd->info->res_name : "(none)",
                   pd->info->role ? pd->info->role : "(none)");
@@ -1522,7 +1531,7 @@ both_null_or_matching (const char *a,
     return FALSE;
 }
 
-static GSList*
+static GSList *
 get_possible_matches (MetaWindow *window)
 {
   /* Get all windows with this client ID */
@@ -1547,7 +1556,8 @@ get_possible_matches (MetaWindow *window)
           both_null_or_matching (info->res_name, window->res_name) &&
           both_null_or_matching (info->role, window->role))
         {
-          meta_topic (META_DEBUG_SM, "Window %s may match saved window with class: %s name: %s role: %s\n",
+          meta_topic (META_DEBUG_SM,
+                      "Window %s may match saved window with class: %s name: %s role: %s\n",
                       window->desc,
                       info->res_class ? info->res_class : "(none)",
                       info->res_name ? info->res_name : "(none)",
@@ -1560,28 +1570,35 @@ get_possible_matches (MetaWindow *window)
           if (meta_is_verbose ())
             {
               if (!both_null_or_matching (info->id, window->sm_client_id))
-                meta_topic (META_DEBUG_SM, "Window %s has SM client ID %s, saved state has %s, no match\n",
+                meta_topic (META_DEBUG_SM,
+                            "Window %s has SM client ID %s, saved state has %s, no match\n",
                             window->desc,
                             window->sm_client_id ? window->sm_client_id : "(none)",
                             info->id ? info->id : "(none)");
-              else if (!both_null_or_matching (info->res_class, window->res_class))
-                meta_topic (META_DEBUG_SM, "Window %s has class %s doesn't match saved class %s, no match\n",
+              else if (!both_null_or_matching (info->res_class,
+                                               window->res_class))
+                meta_topic (META_DEBUG_SM,
+                            "Window %s has class %s doesn't match saved class %s, no match\n",
                             window->desc,
                             window->res_class ? window->res_class : "(none)",
                             info->res_class ? info->res_class : "(none)");
 
-              else if (!both_null_or_matching (info->res_name, window->res_name))
-                meta_topic (META_DEBUG_SM, "Window %s has name %s doesn't match saved name %s, no match\n",
+              else if (!both_null_or_matching (info->res_name,
+                                               window->res_name))
+                meta_topic (META_DEBUG_SM,
+                            "Window %s has name %s doesn't match saved name %s, no match\n",
                             window->desc,
                             window->res_name ? window->res_name : "(none)",
                             info->res_name ? info->res_name : "(none)");
               else if (!both_null_or_matching (info->role, window->role))
-                meta_topic (META_DEBUG_SM, "Window %s has role %s doesn't match saved role %s, no match\n",
+                meta_topic (META_DEBUG_SM,
+                            "Window %s has role %s doesn't match saved role %s, no match\n",
                             window->desc,
                             window->role ? window->role : "(none)",
                             info->role ? info->role : "(none)");
               else
-                meta_topic (META_DEBUG_SM, "???? should not happen - window %s doesn't match saved state %s for no good reason\n",
+                meta_topic (META_DEBUG_SM,
+                            "???? should not happen - window %s doesn't match saved state %s for no good reason\n",
                             window->desc, info->id);
             }
         }
@@ -1592,7 +1609,7 @@ get_possible_matches (MetaWindow *window)
   return retval;
 }
 
-static const MetaWindowSessionInfo*
+static const MetaWindowSessionInfo *
 find_best_match (GSList     *infos,
                  MetaWindow *window)
 {
@@ -1635,7 +1652,7 @@ find_best_match (GSList     *infos,
     return infos->data;
 }
 
-const MetaWindowSessionInfo*
+const MetaWindowSessionInfo *
 meta_window_lookup_saved_state (MetaWindow *window)
 {
   GSList *possibles;
@@ -1658,7 +1675,8 @@ meta_window_lookup_saved_state (MetaWindow *window)
 
   if (possibles == NULL)
     {
-      meta_topic (META_DEBUG_SM, "Window %s has no possible matches in the list of saved window states\n",
+      meta_topic (META_DEBUG_SM,
+                  "Window %s has no possible matches in the list of saved window states\n",
                   window->desc);
       return NULL;
     }
@@ -1678,7 +1696,7 @@ meta_window_release_saved_state (const MetaWindowSessionInfo *info)
    */
   window_info_list = g_slist_remove (window_info_list, info);
 
-  session_info_free ((MetaWindowSessionInfo*) info);
+  session_info_free ((MetaWindowSessionInfo *) info);
 }
 
 static void
@@ -1695,7 +1713,7 @@ session_info_free (MetaWindowSessionInfo *info)
   g_free (info);
 }
 
-static MetaWindowSessionInfo*
+static MetaWindowSessionInfo *
 session_info_new (void)
 {
   MetaWindowSessionInfo *info;
@@ -1708,7 +1726,7 @@ session_info_new (void)
   return info;
 }
 
-static char* full_save_path = NULL;
+static char *full_save_path = NULL;
 
 static void
 regenerate_save_file (void)
@@ -1716,17 +1734,18 @@ regenerate_save_file (void)
   g_free (full_save_path);
 
   if (client_id)
-    full_save_path = g_strconcat (g_get_user_config_dir (),
-                                  G_DIR_SEPARATOR_S "mutter"
-                                  G_DIR_SEPARATOR_S "sessions" G_DIR_SEPARATOR_S,
-                                  client_id,
-                                  ".ms",
-                                  NULL);
+    full_save_path = g_strconcat (
+      g_get_user_config_dir (),
+      G_DIR_SEPARATOR_S "mutter"
+      G_DIR_SEPARATOR_S "sessions" G_DIR_SEPARATOR_S,
+      client_id,
+      ".ms",
+      NULL);
   else
     full_save_path = NULL;
 }
 
-static const char*
+static const char *
 full_save_file (void)
 {
   return full_save_path;
@@ -1798,8 +1817,8 @@ warn_about_lame_clients_and_finish_interact (gboolean shutdown)
       return;
     }
 
-  columns = g_slist_prepend (columns, (gpointer)"Window");
-  columns = g_slist_prepend (columns, (gpointer)"Class");
+  columns = g_slist_prepend (columns, (gpointer) "Window");
+  columns = g_slist_prepend (columns, (gpointer) "Class");
 
   lame = g_slist_sort (lame, (GCompareFunc) windows_cmp_by_title);
 
@@ -1809,7 +1828,7 @@ warn_about_lame_clients_and_finish_interact (gboolean shutdown)
       MetaWindow *w = tmp->data;
 
       lame_details = g_slist_prepend (lame_details,
-                                      w->res_class ? w->res_class : (gpointer)"");
+                                      w->res_class ? w->res_class : (gpointer) "");
       lame_details = g_slist_prepend (lame_details,
                                       w->title);
 
@@ -1817,16 +1836,16 @@ warn_about_lame_clients_and_finish_interact (gboolean shutdown)
     }
   g_slist_free (lame);
 
-  pid = meta_show_dialog("--list",
-                         _("These windows do not support “save current setup” "
-                           "and will have to be restarted manually next time "
-                           "you log in."),
-                         "240",
-                         meta_get_display()->x11_display->screen_name,
-                         NULL, NULL, NULL,
-                         None,
-                         columns,
-                         lame_details);
+  pid = meta_show_dialog ("--list",
+                          _("These windows do not support “save current setup” "
+                            "and will have to be restarted manually next time "
+                            "you log in."),
+                          "240",
+                          meta_get_display ()->x11_display->screen_name,
+                          NULL, NULL, NULL,
+                          None,
+                          columns,
+                          lame_details);
 
   g_slist_free (lame_details);
 

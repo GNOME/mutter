@@ -43,7 +43,7 @@ G_DEFINE_TYPE (MetaScreenCastMonitorStreamSrc,
                META_TYPE_SCREEN_CAST_STREAM_SRC)
 
 static ClutterStage *
-get_stage (MetaScreenCastMonitorStreamSrc *monitor_src)
+get_stage (MetaScreenCastMonitorStreamSrc * monitor_src)
 {
   MetaScreenCastStreamSrc *src;
   MetaScreenCastStream *stream;
@@ -146,8 +146,9 @@ meta_screen_cast_monitor_stream_src_record_frame (MetaScreenCastStreamSrc *src,
 }
 
 MetaScreenCastMonitorStreamSrc *
-meta_screen_cast_monitor_stream_src_new (MetaScreenCastMonitorStream  *monitor_stream,
-                                         GError                      **error)
+meta_screen_cast_monitor_stream_src_new (
+  MetaScreenCastMonitorStream *monitor_stream,
+  GError                     **error)
 {
   return g_initable_new (META_TYPE_SCREEN_CAST_MONITOR_STREAM_SRC, NULL, error,
                          "stream", monitor_stream,
@@ -155,12 +156,14 @@ meta_screen_cast_monitor_stream_src_new (MetaScreenCastMonitorStream  *monitor_s
 }
 
 static void
-meta_screen_cast_monitor_stream_src_init (MetaScreenCastMonitorStreamSrc *monitor_src)
+meta_screen_cast_monitor_stream_src_init (
+  MetaScreenCastMonitorStreamSrc *monitor_src)
 {
 }
 
 static void
-meta_screen_cast_monitor_stream_src_class_init (MetaScreenCastMonitorStreamSrcClass *klass)
+meta_screen_cast_monitor_stream_src_class_init (
+  MetaScreenCastMonitorStreamSrcClass *klass)
 {
   MetaScreenCastStreamSrcClass *src_class =
     META_SCREEN_CAST_STREAM_SRC_CLASS (klass);

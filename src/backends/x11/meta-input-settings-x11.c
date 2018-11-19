@@ -50,7 +50,8 @@ typedef struct _MetaInputSettingsX11Private
 G_DEFINE_TYPE_WITH_PRIVATE (MetaInputSettingsX11, meta_input_settings_x11,
                             META_TYPE_INPUT_SETTINGS)
 
-enum {
+enum
+{
   SCROLL_METHOD_FIELD_2FG,
   SCROLL_METHOD_FIELD_EDGE,
   SCROLL_METHOD_FIELD_BUTTON,
@@ -62,7 +63,8 @@ device_free_xdevice (gpointer user_data)
 {
   MetaDisplay *display = meta_get_display ();
   MetaBackend *backend = meta_get_backend ();
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   XDevice *xdev = user_data;
 
   meta_x11_error_trap_push (display->x11_display);
@@ -75,7 +77,8 @@ device_ensure_xdevice (ClutterInputDevice *device)
 {
   MetaDisplay *display = meta_get_display ();
   MetaBackend *backend = meta_get_backend ();
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   int device_id = clutter_input_device_get_device_id (device);
   XDevice *xdev = NULL;
 
@@ -105,7 +108,8 @@ get_property (ClutterInputDevice *device,
               gulong              nitems)
 {
   MetaBackend *backend = meta_get_backend ();
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   gulong nitems_ret, bytes_after_ret;
   int rc, device_id, format_ret;
   Atom property_atom, type_ret;
@@ -120,11 +124,14 @@ get_property (ClutterInputDevice *device,
   rc = XIGetProperty (xdisplay, device_id, property_atom,
                       0, 10, False, type, &type_ret, &format_ret,
                       &nitems_ret, &bytes_after_ret, &data_ret);
-  if (rc == Success && type_ret == type && format_ret == format && nitems_ret >= nitems)
+  if (rc == Success && type_ret == type && format_ret == format &&
+      nitems_ret >= nitems)
     {
       if (nitems_ret > nitems)
-        g_warning ("Property '%s' for device '%s' returned %lu items, expected %lu",
-                   property, clutter_input_device_get_device_name (device), nitems_ret, nitems);
+        g_warning (
+          "Property '%s' for device '%s' returned %lu items, expected %lu",
+          property, clutter_input_device_get_device_name (
+            device), nitems_ret, nitems);
       return data_ret;
     }
 
@@ -141,7 +148,8 @@ change_property (ClutterInputDevice *device,
                  gulong              nitems)
 {
   MetaBackend *backend = meta_get_backend ();
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   int device_id;
   Atom property_atom;
   guchar *data_ret;
@@ -162,9 +170,9 @@ change_property (ClutterInputDevice *device,
 }
 
 static void
-meta_input_settings_x11_set_send_events (MetaInputSettings        *settings,
-                                         ClutterInputDevice       *device,
-                                         GDesktopDeviceSendEvents  mode)
+meta_input_settings_x11_set_send_events (MetaInputSettings       *settings,
+                                         ClutterInputDevice      *device,
+                                         GDesktopDeviceSendEvents mode)
 {
   guchar values[2] = { 0 }; /* disabled, disabled-on-external-mouse */
   guchar *available;
@@ -202,10 +210,14 @@ meta_input_settings_x11_set_matrix (MetaInputSettings  *settings,
                                     gfloat              matrix[6])
 {
   MetaBackend *backend = meta_get_backend ();
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
-  gfloat full_matrix[9] = { matrix[0], matrix[1], matrix[2],
-                            matrix[3], matrix[4], matrix[5],
-                            0, 0, 1 };
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  gfloat full_matrix[9] =
+  {
+    matrix[0], matrix[1], matrix[2],
+    matrix[3], matrix[4], matrix[5],
+    0, 0, 1
+  };
 
   change_property (device, "Coordinate Transformation Matrix",
                    XInternAtom (xdisplay, "FLOAT", False),
@@ -218,7 +230,8 @@ meta_input_settings_x11_set_speed (MetaInputSettings  *settings,
                                    gdouble             speed)
 {
   MetaBackend *backend = meta_get_backend ();
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   gfloat value = speed;
 
   change_property (device, "libinput Accel Speed",
@@ -297,11 +310,12 @@ meta_input_settings_x11_set_invert_scroll (MetaInputSettings  *settings,
 }
 
 static void
-meta_input_settings_x11_set_edge_scroll (MetaInputSettings            *settings,
-                                         ClutterInputDevice           *device,
-                                         gboolean                      edge_scroll_enabled)
+meta_input_settings_x11_set_edge_scroll (MetaInputSettings  *settings,
+                                         ClutterInputDevice *device,
+                                         gboolean            edge_scroll_enabled)
 {
-  guchar values[SCROLL_METHOD_NUM_FIELDS] = { 0 }; /* 2fg, edge, button. The last value is unused */
+  guchar values[SCROLL_METHOD_NUM_FIELDS] = { 0 }; /* 2fg, edge, button. The
+                                                    * last value is unused */
   guchar *current = NULL;
   guchar *available = NULL;
 
@@ -320,17 +334,18 @@ meta_input_settings_x11_set_edge_scroll (MetaInputSettings            *settings,
   values[SCROLL_METHOD_FIELD_EDGE] = !!edge_scroll_enabled;
   change_property (device, "libinput Scroll Method Enabled",
                    XA_INTEGER, 8, &values, SCROLL_METHOD_NUM_FIELDS);
- out:
+out:
   meta_XFree (current);
   meta_XFree (available);
 }
 
 static void
-meta_input_settings_x11_set_two_finger_scroll (MetaInputSettings            *settings,
-                                               ClutterInputDevice           *device,
-                                               gboolean                      two_finger_scroll_enabled)
+meta_input_settings_x11_set_two_finger_scroll (MetaInputSettings  *settings,
+                                               ClutterInputDevice *device,
+                                               gboolean            two_finger_scroll_enabled)
 {
-  guchar values[SCROLL_METHOD_NUM_FIELDS] = { 0 }; /* 2fg, edge, button. The last value is unused */
+  guchar values[SCROLL_METHOD_NUM_FIELDS] = { 0 }; /* 2fg, edge, button. The
+                                                    * last value is unused */
   guchar *current = NULL;
   guchar *available = NULL;
 
@@ -349,7 +364,7 @@ meta_input_settings_x11_set_two_finger_scroll (MetaInputSettings            *set
   values[SCROLL_METHOD_FIELD_2FG] = !!two_finger_scroll_enabled;
   change_property (device, "libinput Scroll Method Enabled",
                    XA_INTEGER, 8, &values, SCROLL_METHOD_NUM_FIELDS);
- out:
+out:
   meta_XFree (current);
   meta_XFree (available);
 }
@@ -380,9 +395,9 @@ meta_input_settings_x11_set_scroll_button (MetaInputSettings  *settings,
 }
 
 static void
-meta_input_settings_x11_set_click_method (MetaInputSettings           *settings,
-                                          ClutterInputDevice          *device,
-                                          GDesktopTouchpadClickMethod  mode)
+meta_input_settings_x11_set_click_method (MetaInputSettings          *settings,
+                                          ClutterInputDevice         *device,
+                                          GDesktopTouchpadClickMethod mode)
 {
   guchar values[2] = { 0 }; /* buttonareas, clickfinger */
   guchar *defaults, *available;
@@ -413,7 +428,7 @@ meta_input_settings_x11_set_click_method (MetaInputSettings           *settings,
     default:
       g_assert_not_reached ();
       return;
-  }
+    }
 
   if ((values[0] && !available[0]) || (values[1] && !available[1]))
     g_warning ("Device '%s' does not support click method %d\n",
@@ -422,7 +437,7 @@ meta_input_settings_x11_set_click_method (MetaInputSettings           *settings,
     change_property (device, "libinput Click Method Enabled",
                      XA_INTEGER, 8, &values, 2);
 
-  meta_XFree(available);
+  meta_XFree (available);
 }
 
 static void
@@ -432,7 +447,8 @@ meta_input_settings_x11_set_keyboard_repeat (MetaInputSettings *settings,
                                              guint              interval)
 {
   MetaBackend *backend = meta_get_backend ();
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
 
   if (enabled)
     {
@@ -521,7 +537,7 @@ set_device_accel_profile (ClutterInputDevice         *device,
     return;
 
   available = get_property (device, "libinput Accel Profiles Available",
-                           XA_INTEGER, 8, 2);
+                            XA_INTEGER, 8, 2);
   if (!available)
     goto err_available;
 
@@ -553,9 +569,10 @@ err_available:
 }
 
 static void
-meta_input_settings_x11_set_mouse_accel_profile (MetaInputSettings          *settings,
-                                                 ClutterInputDevice         *device,
-                                                 GDesktopPointerAccelProfile profile)
+meta_input_settings_x11_set_mouse_accel_profile (
+  MetaInputSettings          *settings,
+  ClutterInputDevice         *device,
+  GDesktopPointerAccelProfile profile)
 {
   if (!is_mouse (settings, device))
     return;
@@ -564,9 +581,10 @@ meta_input_settings_x11_set_mouse_accel_profile (MetaInputSettings          *set
 }
 
 static void
-meta_input_settings_x11_set_trackball_accel_profile (MetaInputSettings          *settings,
-                                                     ClutterInputDevice         *device,
-                                                     GDesktopPointerAccelProfile profile)
+meta_input_settings_x11_set_trackball_accel_profile (
+  MetaInputSettings          *settings,
+  ClutterInputDevice         *device,
+  GDesktopPointerAccelProfile profile)
 {
   if (!meta_input_settings_x11_is_trackball_device (settings, device))
     return;
@@ -575,13 +593,14 @@ meta_input_settings_x11_set_trackball_accel_profile (MetaInputSettings          
 }
 
 static void
-meta_input_settings_x11_set_tablet_mapping (MetaInputSettings     *settings,
-                                            ClutterInputDevice    *device,
-                                            GDesktopTabletMapping  mapping)
+meta_input_settings_x11_set_tablet_mapping (MetaInputSettings    *settings,
+                                            ClutterInputDevice   *device,
+                                            GDesktopTabletMapping mapping)
 {
   MetaDisplay *display = meta_get_display ();
   MetaBackend *backend = meta_get_backend ();
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   XDevice *xdev;
 
   if (!display)
@@ -607,8 +626,8 @@ meta_input_settings_x11_set_tablet_mapping (MetaInputSettings     *settings,
       ClutterInputDeviceMapping dev_mapping;
 
       dev_mapping = (mapping == G_DESKTOP_TABLET_MAPPING_ABSOLUTE) ?
-        CLUTTER_INPUT_DEVICE_MAPPING_ABSOLUTE :
-        CLUTTER_INPUT_DEVICE_MAPPING_RELATIVE;
+                    CLUTTER_INPUT_DEVICE_MAPPING_ABSOLUTE :
+                    CLUTTER_INPUT_DEVICE_MAPPING_RELATIVE;
       clutter_input_device_set_mapping_mode (device, dev_mapping);
     }
 }
@@ -621,7 +640,8 @@ device_query_area (ClutterInputDevice *device,
                    gint               *height)
 {
   MetaBackend *backend = meta_get_backend ();
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   gint device_id, n_devices, i;
   XIDeviceInfo *info;
   Atom abs_x, abs_y;
@@ -768,16 +788,18 @@ action_to_button (GDesktopStylusButtonAction action,
 }
 
 static void
-meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *settings,
-                                               ClutterInputDevice         *device,
-                                               ClutterInputDeviceTool     *tool,
-                                               GDesktopStylusButtonAction  primary,
-                                               GDesktopStylusButtonAction  secondary,
-                                               GDesktopStylusButtonAction  tertiary)
+meta_input_settings_x11_set_stylus_button_map (
+  MetaInputSettings         *settings,
+  ClutterInputDevice        *device,
+  ClutterInputDeviceTool    *tool,
+  GDesktopStylusButtonAction primary,
+  GDesktopStylusButtonAction secondary,
+  GDesktopStylusButtonAction tertiary)
 {
   MetaDisplay *display = meta_get_display ();
   MetaBackend *backend = meta_get_backend ();
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   XDevice *xdev;
 
   if (!display)
@@ -788,7 +810,8 @@ meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *setti
   xdev = device_ensure_xdevice (device);
   if (xdev)
     {
-      guchar map[8] = {
+      guchar map[8] =
+      {
         CLUTTER_BUTTON_PRIMARY,
         action_to_button (primary, CLUTTER_BUTTON_MIDDLE),
         action_to_button (secondary, CLUTTER_BUTTON_SECONDARY),
@@ -825,36 +848,57 @@ static void
 meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  MetaInputSettingsClass *input_settings_class = META_INPUT_SETTINGS_CLASS (klass);
+  MetaInputSettingsClass *input_settings_class = META_INPUT_SETTINGS_CLASS (
+    klass);
 
   object_class->dispose = meta_input_settings_x11_dispose;
 
-  input_settings_class->set_send_events = meta_input_settings_x11_set_send_events;
+  input_settings_class->set_send_events =
+    meta_input_settings_x11_set_send_events;
   input_settings_class->set_matrix = meta_input_settings_x11_set_matrix;
   input_settings_class->set_speed = meta_input_settings_x11_set_speed;
-  input_settings_class->set_left_handed = meta_input_settings_x11_set_left_handed;
-  input_settings_class->set_tap_enabled = meta_input_settings_x11_set_tap_enabled;
-  input_settings_class->set_tap_and_drag_enabled = meta_input_settings_x11_set_tap_and_drag_enabled;
-  input_settings_class->set_disable_while_typing = meta_input_settings_x11_set_disable_while_typing;
-  input_settings_class->set_invert_scroll = meta_input_settings_x11_set_invert_scroll;
-  input_settings_class->set_edge_scroll = meta_input_settings_x11_set_edge_scroll;
-  input_settings_class->set_two_finger_scroll = meta_input_settings_x11_set_two_finger_scroll;
-  input_settings_class->set_scroll_button = meta_input_settings_x11_set_scroll_button;
-  input_settings_class->set_click_method = meta_input_settings_x11_set_click_method;
-  input_settings_class->set_keyboard_repeat = meta_input_settings_x11_set_keyboard_repeat;
+  input_settings_class->set_left_handed =
+    meta_input_settings_x11_set_left_handed;
+  input_settings_class->set_tap_enabled =
+    meta_input_settings_x11_set_tap_enabled;
+  input_settings_class->set_tap_and_drag_enabled =
+    meta_input_settings_x11_set_tap_and_drag_enabled;
+  input_settings_class->set_disable_while_typing =
+    meta_input_settings_x11_set_disable_while_typing;
+  input_settings_class->set_invert_scroll =
+    meta_input_settings_x11_set_invert_scroll;
+  input_settings_class->set_edge_scroll =
+    meta_input_settings_x11_set_edge_scroll;
+  input_settings_class->set_two_finger_scroll =
+    meta_input_settings_x11_set_two_finger_scroll;
+  input_settings_class->set_scroll_button =
+    meta_input_settings_x11_set_scroll_button;
+  input_settings_class->set_click_method =
+    meta_input_settings_x11_set_click_method;
+  input_settings_class->set_keyboard_repeat =
+    meta_input_settings_x11_set_keyboard_repeat;
 
-  input_settings_class->set_tablet_mapping = meta_input_settings_x11_set_tablet_mapping;
-  input_settings_class->set_tablet_keep_aspect = meta_input_settings_x11_set_tablet_keep_aspect;
-  input_settings_class->set_tablet_area = meta_input_settings_x11_set_tablet_area;
+  input_settings_class->set_tablet_mapping =
+    meta_input_settings_x11_set_tablet_mapping;
+  input_settings_class->set_tablet_keep_aspect =
+    meta_input_settings_x11_set_tablet_keep_aspect;
+  input_settings_class->set_tablet_area =
+    meta_input_settings_x11_set_tablet_area;
 
-  input_settings_class->set_mouse_accel_profile = meta_input_settings_x11_set_mouse_accel_profile;
-  input_settings_class->set_trackball_accel_profile = meta_input_settings_x11_set_trackball_accel_profile;
+  input_settings_class->set_mouse_accel_profile =
+    meta_input_settings_x11_set_mouse_accel_profile;
+  input_settings_class->set_trackball_accel_profile =
+    meta_input_settings_x11_set_trackball_accel_profile;
 
-  input_settings_class->set_stylus_pressure = meta_input_settings_x11_set_stylus_pressure;
-  input_settings_class->set_stylus_button_map = meta_input_settings_x11_set_stylus_button_map;
+  input_settings_class->set_stylus_pressure =
+    meta_input_settings_x11_set_stylus_pressure;
+  input_settings_class->set_stylus_button_map =
+    meta_input_settings_x11_set_stylus_button_map;
 
-  input_settings_class->has_two_finger_scroll = meta_input_settings_x11_has_two_finger_scroll;
-  input_settings_class->is_trackball_device = meta_input_settings_x11_is_trackball_device;
+  input_settings_class->has_two_finger_scroll =
+    meta_input_settings_x11_has_two_finger_scroll;
+  input_settings_class->is_trackball_device =
+    meta_input_settings_x11_is_trackball_device;
 }
 
 static void

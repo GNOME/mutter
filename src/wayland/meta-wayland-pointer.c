@@ -74,7 +74,8 @@
 
 #define DEFAULT_AXIS_STEP_DISTANCE wl_fixed_from_int (10)
 
-enum {
+enum
+{
   FOCUS_SURFACE_CHANGED,
 
   LAST_SIGNAL
@@ -119,25 +120,28 @@ meta_wayland_pointer_client_free (MetaWaylandPointerClient *pointer_client)
    * resources in the pointer client instance gets removed.
    */
   wl_resource_for_each_safe (resource, next, &pointer_client->pointer_resources)
-    {
-      wl_list_remove (wl_resource_get_link (resource));
-      wl_list_init (wl_resource_get_link (resource));
-    }
-  wl_resource_for_each_safe (resource, next, &pointer_client->swipe_gesture_resources)
-    {
-      wl_list_remove (wl_resource_get_link (resource));
-      wl_list_init (wl_resource_get_link (resource));
-    }
-  wl_resource_for_each_safe (resource, next, &pointer_client->pinch_gesture_resources)
-    {
-      wl_list_remove (wl_resource_get_link (resource));
-      wl_list_init (wl_resource_get_link (resource));
-    }
-  wl_resource_for_each_safe (resource, next, &pointer_client->relative_pointer_resources)
-    {
-      wl_list_remove (wl_resource_get_link (resource));
-      wl_list_init (wl_resource_get_link (resource));
-    }
+  {
+    wl_list_remove (wl_resource_get_link (resource));
+    wl_list_init (wl_resource_get_link (resource));
+  }
+  wl_resource_for_each_safe (resource, next,
+                             &pointer_client->swipe_gesture_resources)
+  {
+    wl_list_remove (wl_resource_get_link (resource));
+    wl_list_init (wl_resource_get_link (resource));
+  }
+  wl_resource_for_each_safe (resource, next,
+                             &pointer_client->pinch_gesture_resources)
+  {
+    wl_list_remove (wl_resource_get_link (resource));
+    wl_list_init (wl_resource_get_link (resource));
+  }
+  wl_resource_for_each_safe (resource, next,
+                             &pointer_client->relative_pointer_resources)
+  {
+    wl_list_remove (wl_resource_get_link (resource));
+    wl_list_init (wl_resource_get_link (resource));
+  }
 
   g_slice_free (MetaWaylandPointerClient, pointer_client);
 }
@@ -195,7 +199,8 @@ meta_wayland_pointer_cleanup_pointer_client (MetaWaylandPointer       *pointer,
 }
 
 void
-meta_wayland_pointer_unbind_pointer_client_resource (struct wl_resource *resource)
+meta_wayland_pointer_unbind_pointer_client_resource (
+  struct wl_resource *resource)
 {
   MetaWaylandPointer *pointer = wl_resource_get_user_data (resource);
   MetaWaylandPointerClient *pointer_client;
@@ -237,23 +242,24 @@ sync_focus_surface (MetaWaylandPointer *pointer)
 
     case META_EVENT_ROUTE_NORMAL:
     case META_EVENT_ROUTE_WAYLAND_POPUP:
-      {
-        const MetaWaylandPointerGrabInterface *interface = pointer->grab->interface;
-        interface->focus (pointer->grab, pointer->current);
-      }
-      break;
+    {
+      const MetaWaylandPointerGrabInterface *interface =
+        pointer->grab->interface;
+      interface->focus (pointer->grab, pointer->current);
+    }
+    break;
 
     default:
       g_assert_not_reached ();
     }
-
 }
 
 static void
 meta_wayland_pointer_send_frame (MetaWaylandPointer *pointer,
-				 struct wl_resource *resource)
+                                 struct wl_resource *resource)
 {
-  if (wl_resource_get_version (resource) >= WL_POINTER_AXIS_SOURCE_SINCE_VERSION)
+  if (wl_resource_get_version (resource) >=
+      WL_POINTER_AXIS_SOURCE_SINCE_VERSION)
     wl_pointer_send_frame (resource);
 }
 
@@ -266,9 +272,9 @@ meta_wayland_pointer_broadcast_frame (MetaWaylandPointer *pointer)
     return;
 
   wl_resource_for_each (resource, &pointer->focus_client->pointer_resources)
-    {
-      meta_wayland_pointer_send_frame (pointer, resource);
-    }
+  {
+    meta_wayland_pointer_send_frame (pointer, resource);
+  }
 }
 
 void
@@ -297,7 +303,7 @@ meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
   time_us = clutter_evdev_event_get_time_usec (event);
   if (time_us == 0)
 #endif
-    time_us = clutter_event_get_time (event) * 1000ULL;
+  time_us = clutter_event_get_time (event) * 1000ULL;
   time_us_hi = (uint32_t) (time_us >> 32);
   time_us_lo = (uint32_t) time_us;
   dxf = wl_fixed_from_double (dx);
@@ -307,15 +313,15 @@ meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
 
   wl_resource_for_each (resource,
                         &pointer->focus_client->relative_pointer_resources)
-    {
-      zwp_relative_pointer_v1_send_relative_motion (resource,
-                                                    time_us_hi,
-                                                    time_us_lo,
-                                                    dxf,
-                                                    dyf,
-                                                    dx_unaccelf,
-                                                    dy_unaccelf);
-    }
+  {
+    zwp_relative_pointer_v1_send_relative_motion (resource,
+                                                  time_us_hi,
+                                                  time_us_lo,
+                                                  dxf,
+                                                  dyf,
+                                                  dx_unaccelf,
+                                                  dy_unaccelf);
+  }
 }
 
 void
@@ -336,11 +342,11 @@ meta_wayland_pointer_send_motion (MetaWaylandPointer *pointer,
                                                  &sx, &sy);
 
   wl_resource_for_each (resource, &pointer->focus_client->pointer_resources)
-    {
-      wl_pointer_send_motion (resource, time,
-                              wl_fixed_from_double (sx),
-                              wl_fixed_from_double (sy));
-    }
+  {
+    wl_pointer_send_motion (resource, time,
+                            wl_fixed_from_double (sx),
+                            wl_fixed_from_double (sy));
+  }
 
   meta_wayland_pointer_send_relative_motion (pointer, event);
 
@@ -371,39 +377,39 @@ meta_wayland_pointer_send_button (MetaWaylandPointer *pointer,
         button = clutter_evdev_event_get_event_code (event);
       else
 #endif
-        {
-          button = clutter_event_get_button (event);
-          switch (button)
-            {
-            case 1:
-              button = BTN_LEFT;
-              break;
+      {
+        button = clutter_event_get_button (event);
+        switch (button)
+          {
+          case 1:
+            button = BTN_LEFT;
+            break;
 
-              /* The evdev input right and middle button numbers are swapped
-                 relative to how Clutter numbers them */
-            case 2:
-              button = BTN_MIDDLE;
-              break;
+          /* The evdev input right and middle button numbers are swapped
+           *  relative to how Clutter numbers them */
+          case 2:
+            button = BTN_MIDDLE;
+            break;
 
-            case 3:
-              button = BTN_RIGHT;
-              break;
+          case 3:
+            button = BTN_RIGHT;
+            break;
 
-            default:
-              button = button + (BTN_LEFT - 1) + 4;
-              break;
-            }
-        }
+          default:
+            button = button + (BTN_LEFT - 1) + 4;
+            break;
+          }
+      }
 
       time = clutter_event_get_time (event);
       serial = meta_wayland_input_device_next_serial (input_device);
 
       wl_resource_for_each (resource, &pointer->focus_client->pointer_resources)
-        {
-          wl_pointer_send_button (resource, serial,
-                                  time, button,
-                                  event_type == CLUTTER_BUTTON_PRESS ? 1 : 0);
-        }
+      {
+        wl_pointer_send_button (resource, serial,
+                                time, button,
+                                event_type == CLUTTER_BUTTON_PRESS ? 1 : 0);
+      }
 
       meta_wayland_pointer_broadcast_frame (pointer);
     }
@@ -442,7 +448,7 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
 
 static void
 default_grab_motion (MetaWaylandPointerGrab *grab,
-		     const ClutterEvent     *event)
+                     const ClutterEvent     *event)
 {
   MetaWaylandPointer *pointer = grab->pointer;
 
@@ -451,21 +457,22 @@ default_grab_motion (MetaWaylandPointerGrab *grab,
 
 static void
 default_grab_button (MetaWaylandPointerGrab *grab,
-		     const ClutterEvent     *event)
+                     const ClutterEvent     *event)
 {
   MetaWaylandPointer *pointer = grab->pointer;
 
   meta_wayland_pointer_send_button (pointer, event);
 }
 
-static const MetaWaylandPointerGrabInterface default_pointer_grab_interface = {
+static const MetaWaylandPointerGrabInterface default_pointer_grab_interface =
+{
   default_grab_focus,
   default_grab_motion,
   default_grab_button
 };
 
 static void
-meta_wayland_pointer_on_cursor_changed (MetaCursorTracker *cursor_tracker,
+meta_wayland_pointer_on_cursor_changed (MetaCursorTracker  *cursor_tracker,
                                         MetaWaylandPointer *pointer)
 {
   if (pointer->cursor_surface)
@@ -486,7 +493,8 @@ meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
   pointer->cursor_surface = NULL;
 
   manager = clutter_device_manager_get_default ();
-  pointer->device = clutter_device_manager_get_core_device (manager, CLUTTER_POINTER_DEVICE);
+  pointer->device = clutter_device_manager_get_core_device (manager,
+                                                            CLUTTER_POINTER_DEVICE);
 
   g_signal_connect (cursor_tracker,
                     "cursor-changed",
@@ -523,10 +531,10 @@ static int
 count_buttons (const ClutterEvent *event)
 {
   static gint maskmap[5] =
-    {
-      CLUTTER_BUTTON1_MASK, CLUTTER_BUTTON2_MASK, CLUTTER_BUTTON3_MASK,
-      CLUTTER_BUTTON4_MASK, CLUTTER_BUTTON5_MASK
-    };
+  {
+    CLUTTER_BUTTON1_MASK, CLUTTER_BUTTON2_MASK, CLUTTER_BUTTON3_MASK,
+    CLUTTER_BUTTON4_MASK, CLUTTER_BUTTON5_MASK
+  };
   ClutterModifierType mod_mask;
   int i, count;
 
@@ -535,7 +543,7 @@ count_buttons (const ClutterEvent *event)
   for (i = 0; i < 5; i++)
     {
       if (mod_mask & maskmap[i])
-	count++;
+        count++;
     }
 
   return count;
@@ -633,7 +641,8 @@ handle_button_event (MetaWaylandPointer *pointer,
 {
   gboolean implicit_grab;
 
-  implicit_grab = (event->type == CLUTTER_BUTTON_PRESS) && (pointer->button_count == 1);
+  implicit_grab = (event->type == CLUTTER_BUTTON_PRESS) &&
+                  (pointer->button_count == 1);
   if (implicit_grab)
     {
       pointer->grab_button = clutter_event_get_button (event);
@@ -702,17 +711,17 @@ handle_scroll_event (MetaWaylandPointer *pointer,
       break;
 
     case CLUTTER_SCROLL_SMOOTH:
-      {
-        double dx, dy;
-        /* Clutter smooth scroll events are in discrete steps (1 step = 1.0 long
-         * vector along one axis). To convert to smooth scroll events that are
-         * in pointer motion event space, multiply the vector with the 10. */
-        const double factor = 10.0;
-        clutter_event_get_scroll_delta (event, &dx, &dy);
-        x_value = wl_fixed_from_double (dx) * factor;
-        y_value = wl_fixed_from_double (dy) * factor;
-      }
-      break;
+    {
+      double dx, dy;
+      /* Clutter smooth scroll events are in discrete steps (1 step = 1.0 long
+       * vector along one axis). To convert to smooth scroll events that are
+       * in pointer motion event space, multiply the vector with the 10. */
+      const double factor = 10.0;
+      clutter_event_get_scroll_delta (event, &dx, &dy);
+      x_value = wl_fixed_from_double (dx) * factor;
+      y_value = wl_fixed_from_double (dy) * factor;
+    }
+    break;
 
     default:
       return;
@@ -721,43 +730,48 @@ handle_scroll_event (MetaWaylandPointer *pointer,
   if (pointer->focus_client)
     {
       wl_resource_for_each (resource, &pointer->focus_client->pointer_resources)
-        {
-          if (wl_resource_get_version (resource) >= WL_POINTER_AXIS_SOURCE_SINCE_VERSION)
-            wl_pointer_send_axis_source (resource, source);
+      {
+        if (wl_resource_get_version (resource) >=
+            WL_POINTER_AXIS_SOURCE_SINCE_VERSION)
+          wl_pointer_send_axis_source (resource, source);
 
-          /* X axis */
-          if (x_discrete != 0 &&
-              wl_resource_get_version (resource) >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
-            wl_pointer_send_axis_discrete (resource,
-                                           WL_POINTER_AXIS_HORIZONTAL_SCROLL,
-                                           x_discrete);
+        /* X axis */
+        if (x_discrete != 0 &&
+            wl_resource_get_version (resource) >=
+            WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
+          wl_pointer_send_axis_discrete (resource,
+                                         WL_POINTER_AXIS_HORIZONTAL_SCROLL,
+                                         x_discrete);
 
-          if (x_value)
-            wl_pointer_send_axis (resource, clutter_event_get_time (event),
-                                  WL_POINTER_AXIS_HORIZONTAL_SCROLL, x_value);
+        if (x_value)
+          wl_pointer_send_axis (resource, clutter_event_get_time (event),
+                                WL_POINTER_AXIS_HORIZONTAL_SCROLL, x_value);
 
-          if ((event->scroll.finish_flags & CLUTTER_SCROLL_FINISHED_HORIZONTAL) &&
-              wl_resource_get_version (resource) >= WL_POINTER_AXIS_STOP_SINCE_VERSION)
-            wl_pointer_send_axis_stop (resource,
-                                       clutter_event_get_time (event),
-                                       WL_POINTER_AXIS_HORIZONTAL_SCROLL);
-          /* Y axis */
-          if (y_discrete != 0 &&
-              wl_resource_get_version (resource) >= WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
-            wl_pointer_send_axis_discrete (resource,
-                                           WL_POINTER_AXIS_VERTICAL_SCROLL,
-                                           y_discrete);
+        if ((event->scroll.finish_flags & CLUTTER_SCROLL_FINISHED_HORIZONTAL) &&
+            wl_resource_get_version (resource) >=
+            WL_POINTER_AXIS_STOP_SINCE_VERSION)
+          wl_pointer_send_axis_stop (resource,
+                                     clutter_event_get_time (event),
+                                     WL_POINTER_AXIS_HORIZONTAL_SCROLL);
+        /* Y axis */
+        if (y_discrete != 0 &&
+            wl_resource_get_version (resource) >=
+            WL_POINTER_AXIS_DISCRETE_SINCE_VERSION)
+          wl_pointer_send_axis_discrete (resource,
+                                         WL_POINTER_AXIS_VERTICAL_SCROLL,
+                                         y_discrete);
 
-          if (y_value)
-            wl_pointer_send_axis (resource, clutter_event_get_time (event),
-                                  WL_POINTER_AXIS_VERTICAL_SCROLL, y_value);
+        if (y_value)
+          wl_pointer_send_axis (resource, clutter_event_get_time (event),
+                                WL_POINTER_AXIS_VERTICAL_SCROLL, y_value);
 
-          if ((event->scroll.finish_flags & CLUTTER_SCROLL_FINISHED_VERTICAL) &&
-              wl_resource_get_version (resource) >= WL_POINTER_AXIS_STOP_SINCE_VERSION)
-            wl_pointer_send_axis_stop (resource,
-                                       clutter_event_get_time (event),
-                                       WL_POINTER_AXIS_VERTICAL_SCROLL);
-        }
+        if ((event->scroll.finish_flags & CLUTTER_SCROLL_FINISHED_VERTICAL) &&
+            wl_resource_get_version (resource) >=
+            WL_POINTER_AXIS_STOP_SINCE_VERSION)
+          wl_pointer_send_axis_stop (resource,
+                                     clutter_event_get_time (event),
+                                     WL_POINTER_AXIS_VERTICAL_SCROLL);
+      }
 
       meta_wayland_pointer_broadcast_frame (pointer);
     }
@@ -830,8 +844,8 @@ meta_wayland_pointer_broadcast_enter (MetaWaylandPointer *pointer,
 
   wl_resource_for_each (pointer_resource,
                         &pointer->focus_client->pointer_resources)
-    meta_wayland_pointer_send_enter (pointer, pointer_resource,
-                                     serial, surface);
+  meta_wayland_pointer_send_enter (pointer, pointer_resource,
+                                   serial, surface);
 
   meta_wayland_pointer_broadcast_frame (pointer);
 }
@@ -845,8 +859,8 @@ meta_wayland_pointer_broadcast_leave (MetaWaylandPointer *pointer,
 
   wl_resource_for_each (pointer_resource,
                         &pointer->focus_client->pointer_resources)
-    meta_wayland_pointer_send_leave (pointer, pointer_resource,
-                                     serial, surface);
+  meta_wayland_pointer_send_leave (pointer, pointer_resource,
+                                   serial, surface);
 
   meta_wayland_pointer_broadcast_frame (pointer);
 }
@@ -903,7 +917,8 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
 
       if (pointer->focus_surface->window)
         meta_window_handle_enter (pointer->focus_surface->window,
-                                  /* XXX -- can we reliably get a timestamp for setting focus? */
+                                  /* XXX -- can we reliably get a timestamp for
+                                   * setting focus? */
                                   clutter_get_current_event_time (),
                                   pos.x, pos.y);
 
@@ -925,7 +940,7 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
 }
 
 void
-meta_wayland_pointer_start_grab (MetaWaylandPointer *pointer,
+meta_wayland_pointer_start_grab (MetaWaylandPointer     *pointer,
                                  MetaWaylandPointerGrab *grab)
 {
   const MetaWaylandPointerGrabInterface *interface;
@@ -967,7 +982,7 @@ meta_wayland_pointer_cancel_grab (MetaWaylandPointer *pointer)
 void
 meta_wayland_pointer_end_popup_grab (MetaWaylandPointer *pointer)
 {
-  MetaWaylandPopupGrab *popup_grab = (MetaWaylandPopupGrab*)pointer->grab;
+  MetaWaylandPopupGrab *popup_grab = (MetaWaylandPopupGrab *) pointer->grab;
 
   meta_wayland_popup_grab_destroy (popup_grab);
 }
@@ -985,7 +1000,7 @@ meta_wayland_pointer_start_popup_grab (MetaWaylandPointer      *pointer,
   if (pointer->grab == &pointer->default_grab)
     grab = meta_wayland_popup_grab_create (pointer, popup_surface);
   else
-    grab = (MetaWaylandPopupGrab*)pointer->grab;
+    grab = (MetaWaylandPopupGrab *) pointer->grab;
 
   return meta_wayland_popup_create (popup_surface, grab);
 }
@@ -998,15 +1013,16 @@ meta_wayland_pointer_repick (MetaWaylandPointer *pointer)
 
 void
 meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
-					       MetaWaylandSurface *surface,
-					       wl_fixed_t         *sx,
-					       wl_fixed_t         *sy)
+                                               MetaWaylandSurface *surface,
+                                               wl_fixed_t         *sx,
+                                               wl_fixed_t         *sy)
 {
   float xf = 0.0f, yf = 0.0f;
   ClutterPoint pos;
 
   clutter_input_device_get_coords (pointer->device, NULL, &pos);
-  meta_wayland_surface_get_relative_coordinates (surface, pos.x, pos.y, &xf, &yf);
+  meta_wayland_surface_get_relative_coordinates (surface, pos.x, pos.y, &xf,
+                                                 &yf);
 
   *sx = wl_fixed_from_double (xf);
   *sy = wl_fixed_from_double (yf);
@@ -1027,7 +1043,8 @@ meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
           MetaWaylandCursorSurface *cursor_surface =
             META_WAYLAND_CURSOR_SURFACE (pointer->cursor_surface->role);
 
-          cursor_sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
+          cursor_sprite =
+            meta_wayland_cursor_surface_get_sprite (cursor_surface);
         }
 
       meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor_sprite);
@@ -1090,7 +1107,8 @@ pointer_set_cursor (struct wl_client *client,
   MetaWaylandPointer *pointer = wl_resource_get_user_data (resource);
   MetaWaylandSurface *surface;
 
-  surface = (surface_resource ? wl_resource_get_user_data (surface_resource) : NULL);
+  surface =
+    (surface_resource ? wl_resource_get_user_data (surface_resource) : NULL);
 
   if (pointer->focus_surface == NULL)
     return;
@@ -1127,13 +1145,14 @@ pointer_set_cursor (struct wl_client *client,
 }
 
 static void
-pointer_release (struct wl_client *client,
+pointer_release (struct wl_client   *client,
                  struct wl_resource *resource)
 {
   wl_resource_destroy (resource);
 }
 
-static const struct wl_pointer_interface pointer_interface = {
+static const struct wl_pointer_interface pointer_interface =
+{
   pointer_set_cursor,
   pointer_release,
 };
@@ -1142,7 +1161,7 @@ void
 meta_wayland_pointer_create_new_resource (MetaWaylandPointer *pointer,
                                           struct wl_client   *client,
                                           struct wl_resource *seat_resource,
-                                          uint32_t id)
+                                          uint32_t            id)
 {
   struct wl_resource *resource;
   MetaWaylandPointerClient *pointer_client;
@@ -1209,23 +1228,25 @@ meta_wayland_pointer_get_top_popup (MetaWaylandPointer *pointer)
   if (!meta_wayland_pointer_grab_is_popup_grab (pointer->grab))
     return NULL;
 
-  grab = (MetaWaylandPopupGrab*)pointer->grab;
-  return meta_wayland_popup_grab_get_top_popup(grab);
+  grab = (MetaWaylandPopupGrab *) pointer->grab;
+  return meta_wayland_popup_grab_get_top_popup (grab);
 }
 
 static void
-relative_pointer_destroy (struct wl_client *client,
+relative_pointer_destroy (struct wl_client   *client,
                           struct wl_resource *resource)
 {
   wl_resource_destroy (resource);
 }
 
-static const struct zwp_relative_pointer_v1_interface relative_pointer_interface = {
+static const struct zwp_relative_pointer_v1_interface relative_pointer_interface
+  =
+  {
   relative_pointer_destroy
-};
+  };
 
 static void
-relative_pointer_manager_destroy (struct wl_client *client,
+relative_pointer_manager_destroy (struct wl_client   *client,
                                   struct wl_resource *resource)
 {
   wl_resource_destroy (resource);
@@ -1260,7 +1281,9 @@ relative_pointer_manager_get_relative_pointer (struct wl_client   *client,
                   wl_resource_get_link (resource));
 }
 
-static const struct zwp_relative_pointer_manager_v1_interface relative_pointer_manager = {
+static const struct zwp_relative_pointer_manager_v1_interface
+  relative_pointer_manager =
+{
   relative_pointer_manager_destroy,
   relative_pointer_manager_get_relative_pointer,
 };

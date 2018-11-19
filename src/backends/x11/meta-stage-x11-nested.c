@@ -229,11 +229,11 @@ draw_logical_monitor (MetaStageX11Nested    *stage_nested,
   meta_monitor_mode_foreach_crtc (monitor, current_mode,
                                   draw_crtc,
                                   &(DrawCrtcData) {
-                                    .stage_nested = stage_nested,
-                                    .texture = texture,
-                                    .view = view,
-                                    .logical_monitor = logical_monitor
-                                  },
+    .stage_nested = stage_nested,
+    .texture = texture,
+    .view = view,
+    .logical_monitor = logical_monitor
+  },
                                   NULL);
 }
 
@@ -274,7 +274,8 @@ meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window)
       logical_monitor = meta_renderer_view_get_logical_monitor (renderer_view);
       if (logical_monitor)
         {
-          draw_logical_monitor (stage_nested, logical_monitor, texture, view, &view_layout);
+          draw_logical_monitor (stage_nested, logical_monitor, texture, view,
+                                &view_layout);
         }
       else
         {
@@ -289,7 +290,8 @@ meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window)
             {
               logical_monitor = k->data;
 
-              draw_logical_monitor (stage_nested, logical_monitor, texture, view, &view_layout);
+              draw_logical_monitor (stage_nested, logical_monitor, texture,
+                                    view, &view_layout);
             }
         }
     }
@@ -316,7 +318,7 @@ meta_stage_x11_nested_unrealize (ClutterStageWindow *stage_window)
    * 1x1 one if we're unrealizing the current one, so Cogl doesn't
    * keep any reference to the foreign window.
    */
-  for (l = meta_renderer_get_views (renderer); l ;l = l->next)
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
     {
       ClutterStageView *view = l->data;
       CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);

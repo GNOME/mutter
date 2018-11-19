@@ -36,7 +36,8 @@
 #include "xdg-output-unstable-v1-server-protocol.h"
 
 
-enum {
+enum
+{
   OUTPUT_DESTROYED,
 
   LAST_SIGNAL
@@ -281,9 +282,9 @@ send_output_events (struct wl_resource *resource,
 
 static void
 bind_output (struct wl_client *client,
-             void *data,
-             guint32 version,
-             guint32 id)
+             void             *data,
+             guint32           version,
+             guint32           id)
 {
   MetaWaylandOutput *wayland_output = data;
   MetaLogicalMonitor *logical_monitor = wayland_output->logical_monitor;
@@ -293,7 +294,8 @@ bind_output (struct wl_client *client,
 #endif
 
   resource = wl_resource_create (client, &wl_output_interface, version, id);
-  wayland_output->resources = g_list_prepend (wayland_output->resources, resource);
+  wayland_output->resources = g_list_prepend (wayland_output->resources,
+                                              resource);
 
   wl_resource_set_user_data (resource, wayland_output);
   wl_resource_set_destructor (resource, output_resource_destroy);
@@ -342,7 +344,8 @@ meta_wayland_output_set_logical_monitor (MetaWaylandOutput  *wayland_output,
   if (current_mode == preferred_mode)
     wayland_output->mode_flags |= WL_OUTPUT_MODE_PREFERRED;
   wayland_output->scale = calculate_wayland_output_scale (logical_monitor);
-  wayland_output->refresh_rate = meta_monitor_mode_get_refresh_rate (current_mode);
+  wayland_output->refresh_rate = meta_monitor_mode_get_refresh_rate (
+    current_mode);
 }
 
 static void
@@ -356,13 +359,15 @@ wayland_output_update_for_output (MetaWaylandOutput  *wayland_output,
   for (iter = wayland_output->resources; iter; iter = iter->next)
     {
       struct wl_resource *resource = iter->data;
-      send_output_events (resource, wayland_output, logical_monitor, FALSE, &pending_done_event);
+      send_output_events (resource, wayland_output, logical_monitor, FALSE,
+                          &pending_done_event);
     }
 
   for (iter = wayland_output->xdg_output_resources; iter; iter = iter->next)
     {
       struct wl_resource *xdg_output = iter->data;
-      send_xdg_output_events (xdg_output, wayland_output, logical_monitor, FALSE, &pending_done_event);
+      send_xdg_output_events (xdg_output, wayland_output, logical_monitor,
+                              FALSE, &pending_done_event);
     }
 
   /* Send the "done" events if needed */
@@ -371,7 +376,8 @@ wayland_output_update_for_output (MetaWaylandOutput  *wayland_output,
       for (iter = wayland_output->resources; iter; iter = iter->next)
         {
           struct wl_resource *resource = iter->data;
-          if (wl_resource_get_version (resource) >= WL_OUTPUT_DONE_SINCE_VERSION)
+          if (wl_resource_get_version (resource) >=
+              WL_OUTPUT_DONE_SINCE_VERSION)
             wl_output_send_done (resource);
         }
 
@@ -382,7 +388,7 @@ wayland_output_update_for_output (MetaWaylandOutput  *wayland_output,
         }
     }
   /* It's very important that we change the output pointer here, as
-     the old structure is about to be freed by MetaMonitorManager */
+   *  the old structure is about to be freed by MetaMonitorManager */
   meta_wayland_output_set_logical_monitor (wayland_output, logical_monitor);
 }
 
@@ -478,7 +484,8 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
         }
       else
         {
-          wayland_output = meta_wayland_output_new (compositor, logical_monitor);
+          wayland_output =
+            meta_wayland_output_new (compositor, logical_monitor);
         }
 
       wayland_output_update_for_output (wayland_output, logical_monitor);
@@ -497,7 +504,8 @@ static void
 on_monitors_changed (MetaMonitorManager    *monitors,
                      MetaWaylandCompositor *compositor)
 {
-  compositor->outputs = meta_wayland_compositor_update_outputs (compositor, monitors);
+  compositor->outputs = meta_wayland_compositor_update_outputs (compositor,
+                                                                monitors);
 }
 
 static void
@@ -556,9 +564,10 @@ meta_xdg_output_destroy (struct wl_client   *client,
 }
 
 static const struct zxdg_output_v1_interface
-  meta_xdg_output_interface = {
-    meta_xdg_output_destroy,
-  };
+  meta_xdg_output_interface =
+{
+  meta_xdg_output_destroy,
+};
 
 static void
 send_xdg_output_events (struct wl_resource *resource,
@@ -649,10 +658,11 @@ meta_xdg_output_manager_destroy (struct wl_client   *client,
 }
 
 static const struct zxdg_output_manager_v1_interface
-  meta_xdg_output_manager_interface = {
-    meta_xdg_output_manager_destroy,
-    meta_xdg_output_manager_get_xdg_output,
-  };
+  meta_xdg_output_manager_interface =
+{
+  meta_xdg_output_manager_destroy,
+  meta_xdg_output_manager_get_xdg_output,
+};
 
 static void
 bind_xdg_output_manager (struct wl_client *client,
@@ -680,8 +690,10 @@ meta_wayland_outputs_init (MetaWaylandCompositor *compositor)
   g_signal_connect (monitors, "monitors-changed-internal",
                     G_CALLBACK (on_monitors_changed), compositor);
 
-  compositor->outputs = g_hash_table_new_full (NULL, NULL, NULL, wayland_output_destroy_notify);
-  compositor->outputs = meta_wayland_compositor_update_outputs (compositor, monitors);
+  compositor->outputs = g_hash_table_new_full (NULL, NULL, NULL,
+                                               wayland_output_destroy_notify);
+  compositor->outputs = meta_wayland_compositor_update_outputs (compositor,
+                                                                monitors);
 
   wl_global_create (compositor->wayland_display,
                     &zxdg_output_manager_v1_interface,

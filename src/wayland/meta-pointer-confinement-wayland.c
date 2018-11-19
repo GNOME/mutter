@@ -122,7 +122,7 @@ add_non_overlapping_edges (MetaBox     *boxes,
     }
   for (i = band_below_start; i < band_below_end; i++)
     {
-      MetaBox *box= &boxes[i];
+      MetaBox *box = &boxes[i];
       add_border (band_merge, box->x1, box->y1, box->x2, box->y1,
                   META_BORDER_MOTION_DIRECTION_NEGATIVE_Y);
     }
@@ -254,7 +254,7 @@ region_to_outline (cairo_region_t *region,
    *
    */
 
-  num_boxes  = cairo_region_num_rectangles (region);
+  num_boxes = cairo_region_num_rectangles (region);
   boxes = g_new (MetaBox, num_boxes);
   for (i = 0; i < num_boxes; i++)
     {
@@ -392,7 +392,7 @@ get_closest_border (GArray    *borders,
         continue;
 
       delta = meta_vector2_subtract (intersection, motion->a);
-      distance_2 = delta.x*delta.x + delta.y*delta.y;
+      distance_2 = delta.x * delta.x + delta.y * delta.y;
       if (distance_2 < closest_distance_2)
         {
           closest_border = border;
@@ -467,8 +467,8 @@ meta_pointer_confinement_wayland_constrain (MetaPointerConstraint *constraint,
                                             guint32                time,
                                             float                  prev_x,
                                             float                  prev_y,
-                                            float                  *x,
-                                            float                  *y)
+                                            float                 *x,
+                                            float                 *y)
 {
   MetaPointerConfinementWayland *self =
     META_POINTER_CONFINEMENT_WAYLAND (constraint);
@@ -493,9 +493,9 @@ meta_pointer_confinement_wayland_constrain (MetaPointerConstraint *constraint,
    * won't be clamped, but will be rounded up to be outside of the range
    * of wl_fixed_t. */
   if (sx > prev_sx)
-    sx += (float)wl_fixed_to_double(1);
+    sx += (float) wl_fixed_to_double (1);
   if (sy > prev_sy)
-    sy += (float)wl_fixed_to_double(1);
+    sy += (float) wl_fixed_to_double (1);
 
   borders = g_array_new (FALSE, FALSE, sizeof (MetaBorder));
 
@@ -572,7 +572,7 @@ point_to_border_distance_2 (MetaBorder *border,
 
   dx = fabsf (orig_x - x);
   dy = fabsf (orig_y - y);
-  return dx*dx + dy*dy;
+  return dx * dx + dy * dy;
 }
 
 static void
@@ -584,7 +584,8 @@ warp_to_behind_border (MetaBorder *border,
     {
     case META_BORDER_MOTION_DIRECTION_POSITIVE_X:
     case META_BORDER_MOTION_DIRECTION_NEGATIVE_X:
-      if (border->blocking_directions == META_BORDER_MOTION_DIRECTION_POSITIVE_X)
+      if (border->blocking_directions ==
+          META_BORDER_MOTION_DIRECTION_POSITIVE_X)
         *sx = border->line.a.x - wl_fixed_to_double (1);
       else
         *sx = border->line.a.x + wl_fixed_to_double (1);
@@ -595,7 +596,8 @@ warp_to_behind_border (MetaBorder *border,
       break;
     case META_BORDER_MOTION_DIRECTION_POSITIVE_Y:
     case META_BORDER_MOTION_DIRECTION_NEGATIVE_Y:
-      if (border->blocking_directions == META_BORDER_MOTION_DIRECTION_POSITIVE_Y)
+      if (border->blocking_directions ==
+          META_BORDER_MOTION_DIRECTION_POSITIVE_Y)
         *sy = border->line.a.y - wl_fixed_to_double (1);
       else
         *sy = border->line.a.y + wl_fixed_to_double (1);
@@ -628,7 +630,7 @@ meta_pointer_confinement_wayland_maybe_warp (MetaPointerConfinementWayland *self
   region =
     meta_wayland_pointer_constraint_calculate_effective_region (self->constraint);
 
-  if (!cairo_region_contains_point (region, (int)sx, (int)sy))
+  if (!cairo_region_contains_point (region, (int) sx, (int) sy))
     {
       GArray *borders;
       float closest_distance_2 = FLT_MAX;
@@ -657,7 +659,7 @@ meta_pointer_confinement_wayland_maybe_warp (MetaPointerConfinementWayland *self
       warp_to_behind_border (closest_border, &sx, &sy);
 
       meta_wayland_surface_get_absolute_coordinates (surface, sx, sy, &x, &y);
-      meta_backend_warp_pointer (meta_get_backend (), (int)x, (int)y);
+      meta_backend_warp_pointer (meta_get_backend (), (int) x, (int) y);
     }
 
   cairo_region_destroy (region);
@@ -708,15 +710,18 @@ meta_pointer_confinement_wayland_new (MetaWaylandPointerConstraint *constraint)
 }
 
 static void
-meta_pointer_confinement_wayland_init (MetaPointerConfinementWayland *confinement_wayland)
+meta_pointer_confinement_wayland_init (
+  MetaPointerConfinementWayland *confinement_wayland)
 {
 }
 
 static void
-meta_pointer_confinement_wayland_class_init (MetaPointerConfinementWaylandClass *klass)
+meta_pointer_confinement_wayland_class_init (
+  MetaPointerConfinementWaylandClass *klass)
 {
   MetaPointerConstraintClass *pointer_constraint_class =
     META_POINTER_CONSTRAINT_CLASS (klass);
 
-  pointer_constraint_class->constrain = meta_pointer_confinement_wayland_constrain;
+  pointer_constraint_class->constrain =
+    meta_pointer_confinement_wayland_constrain;
 }

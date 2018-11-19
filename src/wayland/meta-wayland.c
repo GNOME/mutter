@@ -67,7 +67,7 @@ static gboolean
 wayland_event_source_prepare (GSource *base,
                               int     *timeout)
 {
-  WaylandEventSource *source = (WaylandEventSource *)base;
+  WaylandEventSource *source = (WaylandEventSource *) base;
 
   *timeout = -1;
 
@@ -81,7 +81,7 @@ wayland_event_source_dispatch (GSource    *base,
                                GSourceFunc callback,
                                void       *data)
 {
-  WaylandEventSource *source = (WaylandEventSource *)base;
+  WaylandEventSource *source = (WaylandEventSource *) base;
   struct wl_event_loop *loop = wl_display_get_event_loop (source->display);
 
   wl_event_loop_dispatch (loop, 0);
@@ -148,10 +148,12 @@ wl_compositor_create_region (struct wl_client   *client,
   meta_wayland_region_create (compositor, client, resource, id);
 }
 
-static const struct wl_compositor_interface meta_wayland_wl_compositor_interface = {
+static const struct wl_compositor_interface meta_wayland_wl_compositor_interface
+  =
+  {
   wl_compositor_create_surface,
   wl_compositor_create_region
-};
+  };
 
 static void
 compositor_bind (struct wl_client *client,
@@ -181,7 +183,8 @@ void
 meta_wayland_compositor_update (MetaWaylandCompositor *compositor,
                                 const ClutterEvent    *event)
 {
-  if (meta_wayland_tablet_manager_consumes_event (compositor->tablet_manager, event))
+  if (meta_wayland_tablet_manager_consumes_event (compositor->tablet_manager,
+                                                  event))
     meta_wayland_tablet_manager_update (compositor->tablet_manager, event);
   else
     meta_wayland_seat_update (compositor->seat, event);
@@ -226,7 +229,8 @@ meta_wayland_compositor_handle_event (MetaWaylandCompositor *compositor,
  * @compositor: the #MetaWaylandCompositor
  * @key_vector: bit vector of key states
  * @key_vector_len: length of @key_vector
- * @offset: the key for the first evdev keycode is found at this offset in @key_vector
+ * @offset: the key for the first evdev keycode is found at this offset in
+ *@key_vector
  *
  * This function is used to resynchronize the key state that Mutter
  * is tracking with the actual keyboard state. This is useful, for example,
@@ -245,21 +249,22 @@ meta_wayland_compositor_update_key_state (MetaWaylandCompositor *compositor,
 }
 
 void
-meta_wayland_compositor_destroy_frame_callbacks (MetaWaylandCompositor *compositor,
-                                                 MetaWaylandSurface    *surface)
+meta_wayland_compositor_destroy_frame_callbacks (
+  MetaWaylandCompositor *compositor,
+  MetaWaylandSurface    *surface)
 {
   MetaWaylandFrameCallback *callback, *next;
 
   wl_list_for_each_safe (callback, next, &compositor->frame_callbacks, link)
-    {
-      if (callback->surface == surface)
-        wl_resource_destroy (callback->resource);
-    }
+  {
+    if (callback->surface == surface)
+      wl_resource_destroy (callback->resource);
+  }
 }
 
 static void
 set_gnome_env (const char *name,
-	       const char *value)
+               const char *value)
 {
   GDBusConnection *session_bus;
   GError *error = NULL;
@@ -270,21 +275,24 @@ set_gnome_env (const char *name,
   g_assert (session_bus);
 
   g_dbus_connection_call_sync (session_bus,
-			       "org.gnome.SessionManager",
-			       "/org/gnome/SessionManager",
-			       "org.gnome.SessionManager",
-			       "Setenv",
-			       g_variant_new ("(ss)", name, value),
-			       NULL,
-			       G_DBUS_CALL_FLAGS_NO_AUTO_START,
-			       -1, NULL, &error);
+                               "org.gnome.SessionManager",
+                               "/org/gnome/SessionManager",
+                               "org.gnome.SessionManager",
+                               "Setenv",
+                               g_variant_new ("(ss)", name, value),
+                               NULL,
+                               G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                               -1, NULL, &error);
   if (error)
     {
       char *remote_error;
 
       remote_error = g_dbus_error_get_remote_error (error);
-      if (g_strcmp0 (remote_error, "org.gnome.SessionManager.NotInInitialization") != 0)
-        meta_warning ("Failed to set environment variable %s for gnome-session: %s\n", name, error->message);
+      if (g_strcmp0 (remote_error,
+                     "org.gnome.SessionManager.NotInInitialization") != 0)
+        meta_warning (
+          "Failed to set environment variable %s for gnome-session: %s\n", name,
+          error->message);
 
       g_free (remote_error);
       g_error_free (error);
@@ -369,9 +377,9 @@ meta_wayland_init (void)
   g_source_attach (wayland_event_source, NULL);
 
   if (!wl_global_create (compositor->wayland_display,
-			 &wl_compositor_interface,
-			 META_WL_COMPOSITOR_VERSION,
-			 compositor, compositor_bind))
+                         &wl_compositor_interface,
+                         META_WL_COMPOSITOR_VERSION,
+                         compositor, compositor_bind))
     g_error ("Failed to register the global wl_compositor");
 
   wl_display_init_shm (compositor->wayland_display);
@@ -392,7 +400,8 @@ meta_wayland_init (void)
   meta_wayland_text_input_init (compositor);
   meta_wayland_gtk_text_input_init (compositor);
 
-  /* Xwayland specific protocol, needs to be filtered out for all other clients */
+  /* Xwayland specific protocol, needs to be filtered out for all other clients
+   * */
   if (meta_xwayland_grab_keyboard_init (compositor))
     wl_display_set_global_filter (compositor->wayland_display,
                                   meta_xwayland_global_filter,
@@ -404,7 +413,8 @@ meta_wayland_init (void)
 
   if (meta_should_autostart_x11_display ())
     {
-      if (!meta_xwayland_start (&compositor->xwayland_manager, compositor->wayland_display))
+      if (!meta_xwayland_start (&compositor->xwayland_manager,
+                                compositor->wayland_display))
         g_error ("Failed to start X Wayland");
     }
 
@@ -428,9 +438,11 @@ meta_wayland_init (void)
     }
 
   if (meta_should_autostart_x11_display ())
-    set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
+    set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (
+                     compositor));
 
-  set_gnome_env ("WAYLAND_DISPLAY", meta_wayland_get_wayland_display_name (compositor));
+  set_gnome_env ("WAYLAND_DISPLAY",
+                 meta_wayland_get_wayland_display_name (compositor));
 }
 
 const char *
@@ -476,8 +488,9 @@ meta_wayland_compositor_restore_shortcuts (MetaWaylandCompositor *compositor,
 }
 
 gboolean
-meta_wayland_compositor_is_shortcuts_inhibited (MetaWaylandCompositor *compositor,
-                                                ClutterInputDevice    *source)
+meta_wayland_compositor_is_shortcuts_inhibited (
+  MetaWaylandCompositor *compositor,
+  ClutterInputDevice    *source)
 {
   MetaWaylandKeyboard *keyboard;
 
@@ -500,8 +513,9 @@ static void on_scheduled_association_unmanaged (MetaWindow *window,
                                                 gpointer    user_data);
 
 static void
-meta_wayland_compositor_remove_surface_association (MetaWaylandCompositor *compositor,
-                                                    int                    id)
+meta_wayland_compositor_remove_surface_association (
+  MetaWaylandCompositor *compositor,
+  int                    id)
 {
   MetaWindow *window;
 
@@ -524,13 +538,15 @@ on_scheduled_association_unmanaged (MetaWindow *window,
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
 
   meta_wayland_compositor_remove_surface_association (compositor,
-                                                      GPOINTER_TO_INT (user_data));
+                                                      GPOINTER_TO_INT (
+                                                        user_data));
 }
 
 void
-meta_wayland_compositor_schedule_surface_association (MetaWaylandCompositor *compositor,
-                                                      int                    id,
-                                                      MetaWindow            *window)
+meta_wayland_compositor_schedule_surface_association (
+  MetaWaylandCompositor *compositor,
+  int                    id,
+  MetaWindow            *window)
 {
   g_signal_connect (window, "unmanaged",
                     G_CALLBACK (on_scheduled_association_unmanaged),

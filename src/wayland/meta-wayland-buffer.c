@@ -51,7 +51,7 @@ G_DEFINE_TYPE (MetaWaylandBuffer, meta_wayland_buffer, G_TYPE_OBJECT);
 
 static void
 meta_wayland_buffer_destroy_handler (struct wl_listener *listener,
-                                     void *data)
+                                     void               *data)
 {
   MetaWaylandBuffer *buffer =
     wl_container_of (listener, buffer, destroy_listener);
@@ -106,7 +106,8 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
   MetaBackend *backend = meta_get_backend ();
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
 #ifdef HAVE_WAYLAND_EGLSTREAM
   MetaWaylandEglStream *stream;
@@ -201,7 +202,8 @@ shm_buffer_attach (MetaWaylandBuffer *buffer,
 {
   MetaBackend *backend = meta_get_backend ();
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   struct wl_shm_buffer *shm_buffer;
   int stride, width, height;
   CoglPixelFormat format;
@@ -253,7 +255,8 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
   MetaBackend *backend = meta_get_backend ();
   MetaEgl *egl = meta_backend_get_egl (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
   int format, width, height, y_inverted;
   CoglPixelFormat cogl_format;
@@ -326,8 +329,8 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
 static gboolean
-egl_stream_buffer_attach (MetaWaylandBuffer  *buffer,
-                          GError            **error)
+egl_stream_buffer_attach (MetaWaylandBuffer *buffer,
+                          GError           **error)
 {
   MetaWaylandEglStream *stream = buffer->egl_stream.stream;
 

@@ -46,7 +46,8 @@ struct _MetaCloseDialogDefault
   guint child_watch_id;
 };
 
-enum {
+enum
+{
   PROP_0,
   PROP_WINDOW,
   N_PROPS
@@ -72,7 +73,8 @@ dialog_exited (GPid     pid,
 
   /* exit status of 0 means the user pressed "Force Quit" */
   if (WIFEXITED (status) && WEXITSTATUS (status) == 0)
-    g_signal_emit_by_name (dialog, "response", META_CLOSE_DIALOG_RESPONSE_FORCE_CLOSE);
+    g_signal_emit_by_name (dialog, "response",
+                           META_CLOSE_DIALOG_RESPONSE_FORCE_CLOSE);
 }
 
 static void
@@ -152,10 +154,10 @@ meta_close_dialog_default_show (MetaCloseDialog *dialog)
     tmp = g_strdup (_("Application is not responding."));
 
   window_content = g_strdup_printf (
-      "<big><b>%s</b></big>\n\n%s",
-      tmp,
-      _("You may choose to wait a short while for it to "
-        "continue or force the application to quit entirely."));
+    "<big><b>%s</b></big>\n\n%s",
+    tmp,
+    _("You may choose to wait a short while for it to "
+      "continue or force the application to quit entirely."));
 
   dialog_pid =
     meta_show_dialog ("--question",

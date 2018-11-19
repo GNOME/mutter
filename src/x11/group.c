@@ -37,7 +37,7 @@
 #include "x11/group-props.h"
 #include "x11/meta-x11-display-private.h"
 
-static MetaGroup*
+static MetaGroup *
 meta_group_new (MetaX11Display *x11_display,
                 Window          group_leader)
 {
@@ -59,12 +59,16 @@ meta_group_new (MetaX11Display *x11_display,
   xcb_generic_error_t *e;
   g_autofree xcb_get_window_attributes_reply_t *attrs =
     xcb_get_window_attributes_reply (xcb_conn,
-                                     xcb_get_window_attributes (xcb_conn, group_leader),
+                                     xcb_get_window_attributes (xcb_conn,
+                                                                group_leader),
                                      &e);
   if (e)
     return NULL;
 
-  const uint32_t events[] = { attrs->your_event_mask | XCB_EVENT_MASK_PROPERTY_CHANGE };
+  const uint32_t events[] =
+  {
+    attrs->your_event_mask | XCB_EVENT_MASK_PROPERTY_CHANGE
+  };
   xcb_change_window_attributes (xcb_conn, group_leader,
                                 XCB_CW_EVENT_MASK, events);
 
@@ -72,7 +76,8 @@ meta_group_new (MetaX11Display *x11_display,
     x11_display->groups_by_leader = g_hash_table_new (meta_unsigned_long_hash,
                                                       meta_unsigned_long_equal);
 
-  g_assert (g_hash_table_lookup (x11_display->groups_by_leader, &group_leader) == NULL);
+  g_assert (g_hash_table_lookup (x11_display->groups_by_leader,
+                                 &group_leader) == NULL);
 
   g_hash_table_insert (x11_display->groups_by_leader,
                        &group->group_leader,
@@ -130,7 +135,7 @@ meta_group_unref (MetaGroup *group)
  * @window: a #MetaWindow
  *
  */
-MetaGroup*
+MetaGroup *
 meta_window_get_group (MetaWindow *window)
 {
   if (window->unmanaging)
@@ -140,7 +145,7 @@ meta_window_get_group (MetaWindow *window)
 }
 
 void
-meta_window_compute_group (MetaWindow* window)
+meta_window_compute_group (MetaWindow *window)
 {
   MetaGroup *group;
   MetaWindow *ancestor;
@@ -254,7 +259,7 @@ meta_x11_display_lookup_group (MetaX11Display *x11_display,
  *
  * Returns: (transfer container) (element-type Meta.Window): List of windows
  */
-GSList*
+GSList *
 meta_group_list_windows (MetaGroup *group)
 {
   return g_slist_copy (group->windows);
@@ -298,7 +303,7 @@ meta_group_update_layers (MetaGroup *group)
   g_slist_free (frozen_stacks);
 }
 
-const char*
+const char *
 meta_group_get_startup_id (MetaGroup *group)
 {
   return group->startup_id;
@@ -311,14 +316,13 @@ meta_group_get_startup_id (MetaGroup *group)
  *
  */
 gboolean
-meta_group_property_notify (MetaGroup  *group,
-                            XEvent     *event)
+meta_group_property_notify (MetaGroup *group,
+                            XEvent    *event)
 {
   meta_group_reload_property (group,
                               event->xproperty.atom);
 
   return TRUE;
-
 }
 
 int
@@ -329,4 +333,3 @@ meta_group_get_size (MetaGroup *group)
 
   return group->refcount;
 }
-

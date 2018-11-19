@@ -46,13 +46,15 @@ struct _MetaCursorRendererPrivate
 };
 typedef struct _MetaCursorRendererPrivate MetaCursorRendererPrivate;
 
-enum {
+enum
+{
   CURSOR_PAINTED,
   LAST_SIGNAL
 };
 static guint signals[LAST_SIGNAL];
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorRenderer, meta_cursor_renderer, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorRenderer, meta_cursor_renderer,
+                            G_TYPE_OBJECT);
 
 void
 meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
@@ -65,7 +67,8 @@ static void
 queue_redraw (MetaCursorRenderer *renderer,
               MetaCursorSprite   *cursor_sprite)
 {
-  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (
+    renderer);
   MetaBackend *backend = meta_get_backend ();
   ClutterActor *stage = meta_backend_get_stage (backend);
   CoglTexture *texture;
@@ -117,7 +120,8 @@ static void
 meta_cursor_renderer_finalize (GObject *object)
 {
   MetaCursorRenderer *renderer = META_CURSOR_RENDERER (object);
-  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (
+    renderer);
   MetaBackend *backend = meta_get_backend ();
   ClutterActor *stage = meta_backend_get_stage (backend);
 
@@ -180,14 +184,16 @@ meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
   height = cogl_texture_get_height (texture);
 
   return (ClutterRect) {
-    .origin = {
-      .x = priv->current_x - (hot_x * texture_scale),
-      .y = priv->current_y - (hot_y * texture_scale)
-    },
-    .size = {
-      .width = width * texture_scale,
-      .height = height * texture_scale
-    }
+           .origin =
+           {
+             .x = priv->current_x - (hot_x * texture_scale),
+             .y = priv->current_y - (hot_y * texture_scale)
+           },
+           .size =
+           {
+             .width = width * texture_scale,
+             .height = height * texture_scale
+           }
   };
 }
 
@@ -195,7 +201,8 @@ static void
 meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
                                     MetaCursorSprite   *cursor_sprite)
 {
-  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (
+    renderer);
   gboolean handled_by_backend;
   gboolean should_redraw = FALSE;
 
@@ -230,7 +237,8 @@ void
 meta_cursor_renderer_set_cursor (MetaCursorRenderer *renderer,
                                  MetaCursorSprite   *cursor_sprite)
 {
-  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (
+    renderer);
 
   if (priv->displayed_cursor == cursor_sprite)
     return;
@@ -253,7 +261,8 @@ meta_cursor_renderer_set_position (MetaCursorRenderer *renderer,
                                    float               x,
                                    float               y)
 {
-  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (
+    renderer);
 
   g_assert (meta_is_wayland_compositor ());
 
@@ -270,15 +279,16 @@ meta_cursor_renderer_get_position (MetaCursorRenderer *renderer)
     meta_cursor_renderer_get_instance_private (renderer);
 
   return (ClutterPoint) {
-    .x = priv->current_x,
-    .y = priv->current_y
+           .x = priv->current_x,
+           .y = priv->current_y
   };
 }
 
 MetaCursorSprite *
 meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer)
 {
-  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (
+    renderer);
 
   return priv->displayed_cursor;
 }

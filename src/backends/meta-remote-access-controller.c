@@ -87,8 +87,9 @@ meta_remote_access_handle_notify_stopped (MetaRemoteAccessHandle *handle)
 }
 
 void
-meta_remote_access_controller_notify_new_handle (MetaRemoteAccessController *controller,
-                                                 MetaRemoteAccessHandle     *handle)
+meta_remote_access_controller_notify_new_handle (
+  MetaRemoteAccessController *controller,
+  MetaRemoteAccessHandle     *handle)
 {
   g_signal_emit (controller, controller_signals[CONTROLLER_NEW_HANDLE], 0,
                  handle);

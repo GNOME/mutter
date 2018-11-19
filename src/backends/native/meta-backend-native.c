@@ -64,7 +64,8 @@ static GInitableIface *initable_parent_iface;
 static void
 initable_iface_init (GInitableIface *initable_iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaBackendNative, meta_backend_native, META_TYPE_BACKEND,
+G_DEFINE_TYPE_WITH_CODE (MetaBackendNative, meta_backend_native,
+                         META_TYPE_BACKEND,
                          G_ADD_PRIVATE (MetaBackendNative)
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 initable_iface_init))
@@ -73,7 +74,8 @@ static void
 meta_backend_native_finalize (GObject *object)
 {
   MetaBackendNative *native = META_BACKEND_NATIVE (object);
-  MetaBackendNativePrivate *priv = meta_backend_native_get_instance_private (native);
+  MetaBackendNativePrivate *priv = meta_backend_native_get_instance_private (
+    native);
 
   meta_launcher_free (priv->launcher);
 
@@ -216,24 +218,40 @@ relative_motion_across_outputs (MetaMonitorManager *monitor_manager,
       MetaVector2 intersection;
 
       motion = (MetaLine2) {
-          .a = { x, y },
-            .b = { x + (dx * cur->scale), y + (dy * cur->scale) }
+        .a = { x, y },
+        .b = { x + (dx * cur->scale), y + (dy * cur->scale) }
       };
       left = (MetaLine2) {
-            { cur->rect.x, cur->rect.y },
-              { cur->rect.x, cur->rect.y + cur->rect.height }
+        {
+          cur->rect.x, cur->rect.y
+        },
+        {
+          cur->rect.x, cur->rect.y + cur->rect.height
+        }
       };
       right = (MetaLine2) {
-            { cur->rect.x + cur->rect.width, cur->rect.y },
-              { cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height }
+        {
+          cur->rect.x + cur->rect.width, cur->rect.y
+        },
+        {
+          cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height
+        }
       };
       top = (MetaLine2) {
-            { cur->rect.x, cur->rect.y },
-              { cur->rect.x + cur->rect.width, cur->rect.y }
+        {
+          cur->rect.x, cur->rect.y
+        },
+        {
+          cur->rect.x + cur->rect.width, cur->rect.y
+        }
       };
       bottom = (MetaLine2) {
-            { cur->rect.x, cur->rect.y + cur->rect.height },
-              { cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height }
+        {
+          cur->rect.x, cur->rect.y + cur->rect.height
+        },
+        {
+          cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height
+        }
       };
 
       if (direction != META_DISPLAY_RIGHT &&
@@ -284,17 +302,20 @@ relative_motion_filter (ClutterInputDevice *device,
   if (meta_is_stage_views_scaled ())
     return;
 
-  logical_monitor = meta_monitor_manager_get_logical_monitor_at (monitor_manager,
-                                                                 x, y);
+  logical_monitor = meta_monitor_manager_get_logical_monitor_at (
+    monitor_manager,
+    x, y);
   if (!logical_monitor)
     return;
 
   new_dx = (*dx) * logical_monitor->scale;
   new_dy = (*dy) * logical_monitor->scale;
 
-  dest_logical_monitor = meta_monitor_manager_get_logical_monitor_at (monitor_manager,
-                                                                      x + new_dx,
-                                                                      y + new_dy);
+  dest_logical_monitor = meta_monitor_manager_get_logical_monitor_at (
+    monitor_manager,
+    x + new_dx,
+    y +
+    new_dy);
   if (dest_logical_monitor &&
       dest_logical_monitor != logical_monitor)
     {
@@ -324,10 +345,12 @@ meta_backend_native_post_init (MetaBackend *backend)
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
 
-  clutter_evdev_set_pointer_constrain_callback (manager, pointer_constrain_callback,
+  clutter_evdev_set_pointer_constrain_callback (manager,
+                                                pointer_constrain_callback,
                                                 NULL, NULL);
   clutter_evdev_set_relative_motion_filter (manager, relative_motion_filter,
-                                            meta_backend_get_monitor_manager (backend));
+                                            meta_backend_get_monitor_manager (
+                                              backend));
 }
 
 static MetaMonitorManager *
@@ -374,7 +397,8 @@ meta_backend_native_warp_pointer (MetaBackend *backend,
                                   int          y)
 {
   ClutterDeviceManager *manager = clutter_device_manager_get_default ();
-  ClutterInputDevice *device = clutter_device_manager_get_core_device (manager, CLUTTER_POINTER_DEVICE);
+  ClutterInputDevice *device = clutter_device_manager_get_core_device (manager,
+                                                                       CLUTTER_POINTER_DEVICE);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
   /* XXX */
@@ -417,7 +441,8 @@ meta_backend_native_set_keymap (MetaBackend *backend,
   names.options = options;
 
   context = xkb_context_new (XKB_CONTEXT_NO_FLAGS);
-  keymap = xkb_keymap_new_from_names (context, &names, XKB_KEYMAP_COMPILE_NO_FLAGS);
+  keymap = xkb_keymap_new_from_names (context, &names,
+                                      XKB_KEYMAP_COMPILE_NO_FLAGS);
   xkb_context_unref (context);
 
   clutter_evdev_set_keyboard_map (manager, keymap);
@@ -466,12 +491,12 @@ meta_backend_native_set_numlock (MetaBackend *backend,
 }
 
 static gboolean
-meta_backend_native_get_relative_motion_deltas (MetaBackend *backend,
-                                                const        ClutterEvent *event,
-                                                double       *dx,
-                                                double       *dy,
-                                                double       *dx_unaccel,
-                                                double       *dy_unaccel)
+meta_backend_native_get_relative_motion_deltas (MetaBackend        *backend,
+                                                const ClutterEvent *event,
+                                                double             *dx,
+                                                double             *dy,
+                                                double             *dx_unaccel,
+                                                double             *dy_unaccel)
 {
   return clutter_evdev_event_get_relative_motion (event,
                                                   dx, dy,
@@ -493,9 +518,9 @@ meta_backend_native_update_screen_size (MetaBackend *backend,
 }
 
 static gboolean
-meta_backend_native_initable_init (GInitable     *initable,
-                                   GCancellable  *cancellable,
-                                   GError       **error)
+meta_backend_native_initable_init (GInitable    *initable,
+                                   GCancellable *cancellable,
+                                   GError      **error)
 {
   if (!meta_is_stage_views_enabled ())
     {
@@ -523,24 +548,31 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
 
   object_class->finalize = meta_backend_native_finalize;
 
-  backend_class->create_clutter_backend = meta_backend_native_create_clutter_backend;
+  backend_class->create_clutter_backend =
+    meta_backend_native_create_clutter_backend;
 
   backend_class->post_init = meta_backend_native_post_init;
 
-  backend_class->create_monitor_manager = meta_backend_native_create_monitor_manager;
-  backend_class->create_cursor_renderer = meta_backend_native_create_cursor_renderer;
+  backend_class->create_monitor_manager =
+    meta_backend_native_create_monitor_manager;
+  backend_class->create_cursor_renderer =
+    meta_backend_native_create_cursor_renderer;
   backend_class->create_renderer = meta_backend_native_create_renderer;
-  backend_class->create_input_settings = meta_backend_native_create_input_settings;
+  backend_class->create_input_settings =
+    meta_backend_native_create_input_settings;
 
   backend_class->warp_pointer = meta_backend_native_warp_pointer;
 
-  backend_class->get_current_logical_monitor = meta_backend_native_get_current_logical_monitor;
+  backend_class->get_current_logical_monitor =
+    meta_backend_native_get_current_logical_monitor;
 
   backend_class->set_keymap = meta_backend_native_set_keymap;
   backend_class->get_keymap = meta_backend_native_get_keymap;
-  backend_class->get_keymap_layout_group = meta_backend_native_get_keymap_layout_group;
+  backend_class->get_keymap_layout_group =
+    meta_backend_native_get_keymap_layout_group;
   backend_class->lock_layout_group = meta_backend_native_lock_layout_group;
-  backend_class->get_relative_motion_deltas = meta_backend_native_get_relative_motion_deltas;
+  backend_class->get_relative_motion_deltas =
+    meta_backend_native_get_relative_motion_deltas;
   backend_class->update_screen_size = meta_backend_native_update_screen_size;
   backend_class->set_numlock = meta_backend_native_set_numlock;
 }
@@ -548,7 +580,8 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
 static void
 meta_backend_native_init (MetaBackendNative *native)
 {
-  MetaBackendNativePrivate *priv = meta_backend_native_get_instance_private (native);
+  MetaBackendNativePrivate *priv = meta_backend_native_get_instance_private (
+    native);
   GError *error = NULL;
 
   priv->launcher = meta_launcher_new (&error);
@@ -607,7 +640,8 @@ meta_activate_session (void)
     return TRUE;
 
   MetaBackendNative *native = META_BACKEND_NATIVE (backend);
-  MetaBackendNativePrivate *priv = meta_backend_native_get_instance_private (native);
+  MetaBackendNativePrivate *priv = meta_backend_native_get_instance_private (
+    native);
 
   if (!meta_launcher_activate_session (priv->launcher, &error))
     {

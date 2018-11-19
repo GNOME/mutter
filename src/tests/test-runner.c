@@ -34,7 +34,8 @@
 #include "wayland/meta-wayland.h"
 #include "x11/meta-x11-display-private.h"
 
-typedef struct {
+typedef struct
+{
   GHashTable *clients;
   AsyncWaiter *waiter;
   GString *warning_messages;
@@ -123,10 +124,10 @@ test_case_wait (TestCase *test,
 
 #define BAD_COMMAND(...)                                                \
   G_STMT_START {                                                        \
-      g_set_error (error,                                               \
-                   TEST_RUNNER_ERROR, TEST_RUNNER_ERROR_BAD_COMMAND,    \
-                   __VA_ARGS__);                                        \
-      return FALSE;                                                     \
+    g_set_error (error,                                               \
+                 TEST_RUNNER_ERROR, TEST_RUNNER_ERROR_BAD_COMMAND,    \
+                 __VA_ARGS__);                                        \
+    return FALSE;                                                     \
   } G_STMT_END
 
 static TestClient *
@@ -152,7 +153,8 @@ test_case_parse_window_id (TestCase    *test,
   const char *slash = strchr (client_and_window_id, '/');
   char *tmp;
   if (slash == NULL)
-    BAD_COMMAND ("client/window ID %s doesnt' contain a /", client_and_window_id);
+    BAD_COMMAND ("client/window ID %s doesnt' contain a /",
+                 client_and_window_id);
 
   *window_id = slash + 1;
 
@@ -182,7 +184,8 @@ test_case_assert_stacking (TestCase *test,
       MetaWindow *window = meta_display_lookup_stack_id (display, windows[i]);
       if (window != NULL && window->title)
         {
-          /* See comment in meta_ui_new() about why the dummy window for GTK+ theming
+          /* See comment in meta_ui_new() about why the dummy window for GTK+
+           * theming
            * is managed as a MetaWindow.
            */
           if (META_STACK_ID_IS_X11 (windows[i]) &&
@@ -257,7 +260,7 @@ test_case_check_xserver_stacking (TestCase *test,
           if (local_string->len > 0)
             g_string_append_c (local_string, ' ');
 
-          g_string_append_printf (local_string, "%#lx", (Window)windows[i]);
+          g_string_append_printf (local_string, "%#lx", (Window) windows[i]);
         }
     }
 
@@ -269,12 +272,12 @@ test_case_check_xserver_stacking (TestCase *test,
               display->x11_display->xroot,
               &root, &parent, &children, &n_children);
 
-  for (i = 0; i < (int)n_children; i++)
+  for (i = 0; i < (int) n_children; i++)
     {
       if (x11_string->len > 0)
         g_string_append_c (x11_string, ' ');
 
-      g_string_append_printf (x11_string, "%#lx", (Window)children[i]);
+      g_string_append_printf (x11_string, "%#lx", (Window) children[i]);
     }
 
   if (strcmp (x11_string->str, local_string->str) != 0)
@@ -335,17 +338,17 @@ test_case_do (TestCase *test,
       TestClient *client;
 
       if (argc != 3)
-        BAD_COMMAND("usage: new_client <client-id> [wayland|x11]");
+        BAD_COMMAND ("usage: new_client <client-id> [wayland|x11]");
 
       if (strcmp (argv[2], "x11") == 0)
         type = META_WINDOW_CLIENT_TYPE_X11;
       else if (strcmp (argv[2], "wayland") == 0)
         type = META_WINDOW_CLIENT_TYPE_WAYLAND;
       else
-        BAD_COMMAND("usage: new_client <client-id> [wayland|x11]");
+        BAD_COMMAND ("usage: new_client <client-id> [wayland|x11]");
 
       if (g_hash_table_lookup (test->clients, argv[1]))
-        BAD_COMMAND("client %s already exists", argv[1]);
+        BAD_COMMAND ("client %s already exists", argv[1]);
 
       client = test_client_new (argv[1], type, error);
       if (!client)
@@ -356,7 +359,7 @@ test_case_do (TestCase *test,
   else if (strcmp (argv[0], "quit_client") == 0)
     {
       if (argc != 2)
-        BAD_COMMAND("usage: quit_client <client-id>");
+        BAD_COMMAND ("usage: quit_client <client-id>");
 
       TestClient *client = test_case_lookup_client (test, argv[1], error);
       if (!client)
@@ -373,11 +376,13 @@ test_case_do (TestCase *test,
       if (!(argc == 2 ||
             (argc == 3 && strcmp (argv[2], "override") == 0) ||
             (argc == 3 && strcmp (argv[2], "csd") == 0)))
-        BAD_COMMAND("usage: %s <client-id>/<window-id > [override|csd]", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id > [override|csd]",
+                     argv[0]);
 
       TestClient *client;
       const char *window_id;
-      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id,
+                                      error))
         return FALSE;
 
       if (!test_client_do (client, error,
@@ -390,12 +395,13 @@ test_case_do (TestCase *test,
            strcmp (argv[0], "set_parent_exported") == 0)
     {
       if (argc != 3)
-        BAD_COMMAND("usage: %s <client-id>/<window-id> <parent-window-id>",
-                    argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> <parent-window-id>",
+                     argv[0]);
 
       TestClient *client;
       const char *window_id;
-      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id,
+                                      error))
         return FALSE;
 
       if (!test_client_do (client, error,
@@ -407,11 +413,12 @@ test_case_do (TestCase *test,
   else if (strcmp (argv[0], "show") == 0)
     {
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
 
       TestClient *client;
       const char *window_id;
-      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id,
+                                      error))
         return FALSE;
 
       if (!test_client_do (client, error, argv[0], window_id, NULL))
@@ -421,7 +428,8 @@ test_case_do (TestCase *test,
       if (!window)
         return FALSE;
 
-      WaitForShownData data = {
+      WaitForShownData data =
+      {
         .loop = g_main_loop_new (NULL, FALSE),
         .window = window,
       };
@@ -443,11 +451,12 @@ test_case_do (TestCase *test,
            strcmp (argv[0], "destroy") == 0)
     {
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
 
       TestClient *client;
       const char *window_id;
-      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id,
+                                      error))
         return FALSE;
 
       if (!test_client_do (client, error, argv[0], window_id, NULL))
@@ -456,11 +465,12 @@ test_case_do (TestCase *test,
   else if (strcmp (argv[0], "local_activate") == 0)
     {
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
 
       TestClient *client;
       const char *window_id;
-      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id,
+                                      error))
         return FALSE;
 
       MetaWindow *window = test_client_find_window (client, window_id, error);
@@ -472,7 +482,7 @@ test_case_do (TestCase *test,
   else if (strcmp (argv[0], "wait") == 0)
     {
       if (argc != 1)
-        BAD_COMMAND("usage: %s", argv[0]);
+        BAD_COMMAND ("usage: %s", argv[0]);
 
       if (!test_case_wait (test, error))
         return FALSE;
@@ -487,7 +497,7 @@ test_case_do (TestCase *test,
     }
   else
     {
-      BAD_COMMAND("Unknown command %s", argv[0]);
+      BAD_COMMAND ("Unknown command %s", argv[0]);
     }
 
   return TRUE;
@@ -509,7 +519,6 @@ test_case_destroy (TestCase *test,
     {
       if (!test_client_do (value, error, "destroy_all", NULL))
         return FALSE;
-
     }
 
   if (!test_case_wait (test, error))
@@ -567,7 +576,8 @@ run_test (const char *filename,
       char **argv = NULL;
       if (!g_shell_parse_argv (line, &argc, &argv, &error))
         {
-          if (g_error_matches (error, G_SHELL_ERROR, G_SHELL_ERROR_EMPTY_STRING))
+          if (g_error_matches (error, G_SHELL_ERROR,
+                               G_SHELL_ERROR_EMPTY_STRING))
             {
               g_clear_error (&error);
               goto next;
@@ -578,7 +588,7 @@ run_test (const char *filename,
 
       test_case_do (test, argc, argv, &error);
 
-    next:
+next:
       if (error)
         g_prefix_error (&error, "%d: ", line_no);
 
@@ -597,7 +607,7 @@ run_test (const char *filename,
       }
   }
 
- out:
+out:
   if (in != NULL)
     g_object_unref (in);
 
@@ -607,7 +617,7 @@ run_test (const char *filename,
   const char *testspos = strstr (filename, "tests/");
   char *pretty_name;
   if (testspos)
-    pretty_name = g_strdup (testspos + strlen("tests/"));
+    pretty_name = g_strdup (testspos + strlen ("tests/"));
   else
     pretty_name = g_strdup (filename);
 
@@ -640,7 +650,8 @@ run_test (const char *filename,
   return success;
 }
 
-typedef struct {
+typedef struct
+{
   int n_tests;
   char **tests;
 } RunTestsInfo;
@@ -687,12 +698,12 @@ find_metatests_in_directory (GFile     *directory,
       switch (g_file_info_get_file_type (info))
         {
         case G_FILE_TYPE_REGULAR:
-          {
-            const char *name = g_file_info_get_name (info);
-            if (g_str_has_suffix (name, ".metatest"))
-              g_ptr_array_add (results, g_file_get_path (child));
-            break;
-          }
+        {
+          const char *name = g_file_info_get_name (info);
+          if (g_str_has_suffix (name, ".metatest"))
+            g_ptr_array_add (results, g_file_get_path (child));
+          break;
+        }
         case G_FILE_TYPE_DIRECTORY:
           find_metatests_in_directory (child, results, error);
           break;
@@ -721,7 +732,8 @@ find_metatests_in_directory (GFile     *directory,
 
 static gboolean all_tests = FALSE;
 
-const GOptionEntry options[] = {
+const GOptionEntry options[] =
+{
   {
     "all", 0, 0, G_OPTION_ARG_NONE,
     &all_tests,
@@ -783,7 +795,7 @@ main (int argc, char **argv)
 
   /* Then initalize mutter with a different set of arguments */
 
-  char *fake_args[] = { NULL, (char *)"--wayland", (char *)"--nested" };
+  char *fake_args[] = { NULL, (char *) "--wayland", (char *) "--nested" };
   fake_args[0] = argv[0];
   char **fake_argv = fake_args;
   int fake_argc = G_N_ELEMENTS (fake_args);
@@ -802,7 +814,7 @@ main (int argc, char **argv)
   meta_register_with_session ();
 
   RunTestsInfo info;
-  info.tests = (char **)tests->pdata;
+  info.tests = (char **) tests->pdata;
   info.n_tests = tests->len;
 
   g_idle_add (run_tests, &info);

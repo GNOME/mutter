@@ -1,4 +1,5 @@
-/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; c-basic-offset: 2; -*- */
+/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; c-basic-offset: 2;
+ * -*- */
 
 /**
  * SECTION:barrier
@@ -26,7 +27,8 @@
 G_DEFINE_TYPE_WITH_PRIVATE (MetaBarrier, meta_barrier, G_TYPE_OBJECT)
 G_DEFINE_TYPE (MetaBarrierImpl, meta_barrier_impl, G_TYPE_OBJECT)
 
-enum {
+enum
+{
   PROP_0,
 
   PROP_DISPLAY,
@@ -42,7 +44,8 @@ enum {
 
 static GParamSpec *obj_props[PROP_LAST];
 
-enum {
+enum
+{
   HIT,
   LEFT,
 
@@ -209,35 +212,40 @@ meta_barrier_class_init (MetaBarrierClass *klass)
                          "Display",
                          "The display to construct the pointer barrier on",
                          META_TYPE_DISPLAY,
-                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_X1] =
     g_param_spec_int ("x1",
                       "X1",
                       "The first X coordinate of the barrier",
                       0, G_MAXSHORT, 0,
-                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_Y1] =
     g_param_spec_int ("y1",
                       "Y1",
                       "The first Y coordinate of the barrier",
                       0, G_MAXSHORT, 0,
-                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_X2] =
     g_param_spec_int ("x2",
                       "X2",
                       "The second X coordinate of the barrier",
                       0, G_MAXSHORT, G_MAXSHORT,
-                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_Y2] =
     g_param_spec_int ("y2",
                       "Y2",
                       "The second Y coordinate of the barrier",
                       0, G_MAXSHORT, G_MAXSHORT,
-                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+                      G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_DIRECTIONS] =
     g_param_spec_flags ("directions",
@@ -245,7 +253,8 @@ meta_barrier_class_init (MetaBarrierClass *klass)
                         "A set of directions to let the pointer through",
                         META_TYPE_BARRIER_DIRECTION,
                         0,
-                        G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY | G_PARAM_STATIC_STRINGS);
+                        G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 
@@ -300,7 +309,8 @@ meta_barrier_destroy (MetaBarrier *barrier)
 static void
 meta_barrier_init (MetaBarrier *barrier)
 {
-  barrier->priv = G_TYPE_INSTANCE_GET_PRIVATE (barrier, META_TYPE_BARRIER, MetaBarrierPrivate);
+  barrier->priv = G_TYPE_INSTANCE_GET_PRIVATE (barrier, META_TYPE_BARRIER,
+                                               MetaBarrierPrivate);
 }
 
 void
@@ -336,7 +346,7 @@ meta_barrier_event_ref (MetaBarrierEvent *event)
   g_return_val_if_fail (event != NULL, NULL);
   g_return_val_if_fail (event->ref_count > 0, NULL);
 
-  g_atomic_int_inc ((volatile int *)&event->ref_count);
+  g_atomic_int_inc ((volatile int *) &event->ref_count);
   return event;
 }
 
@@ -346,7 +356,7 @@ meta_barrier_event_unref (MetaBarrierEvent *event)
   g_return_if_fail (event != NULL);
   g_return_if_fail (event->ref_count > 0);
 
-  if (g_atomic_int_dec_and_test ((volatile int *)&event->ref_count))
+  if (g_atomic_int_dec_and_test ((volatile int *) &event->ref_count))
     g_slice_free (MetaBarrierEvent, event);
 }
 

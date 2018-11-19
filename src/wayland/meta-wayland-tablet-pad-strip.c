@@ -60,10 +60,10 @@ meta_wayland_tablet_pad_strip_free (MetaWaylandTabletPadStrip *strip)
   struct wl_resource *resource, *next;
 
   wl_resource_for_each_safe (resource, next, &strip->resource_list)
-    {
-      wl_list_remove (wl_resource_get_link (resource));
-      wl_list_init (wl_resource_get_link (resource));
-    }
+  {
+    wl_list_remove (wl_resource_get_link (resource));
+    wl_list_init (wl_resource_get_link (resource));
+  }
 
   g_free (strip->feedback);
   g_slice_free (MetaWaylandTabletPadStrip, strip);
@@ -90,16 +90,18 @@ tablet_pad_strip_destroy (struct wl_client   *client,
   wl_resource_destroy (resource);
 }
 
-static const struct zwp_tablet_pad_strip_v2_interface strip_interface = {
+static const struct zwp_tablet_pad_strip_v2_interface strip_interface =
+{
   tablet_pad_strip_set_feedback,
   tablet_pad_strip_destroy,
 };
 
 struct wl_resource *
-meta_wayland_tablet_pad_strip_create_new_resource (MetaWaylandTabletPadStrip *strip,
-                                                   struct wl_client          *client,
-                                                   struct wl_resource        *group_resource,
-                                                   uint32_t                   id)
+meta_wayland_tablet_pad_strip_create_new_resource (
+  MetaWaylandTabletPadStrip *strip,
+  struct wl_client          *client,
+  struct wl_resource        *group_resource,
+  uint32_t                   id)
 {
   struct wl_resource *resource;
 
@@ -134,20 +136,21 @@ meta_wayland_tablet_pad_strip_handle_event (MetaWaylandTabletPadStrip *strip,
     }
 
   wl_resource_for_each (resource, focus_resources)
-    {
-      gdouble value = event->pad_strip.value;
+  {
+    gdouble value = event->pad_strip.value;
 
-      if (source_known)
-        zwp_tablet_pad_strip_v2_send_source (resource, source);
+    if (source_known)
+      zwp_tablet_pad_strip_v2_send_source (resource, source);
 
-      if (value >= 0)
-        zwp_tablet_pad_strip_v2_send_position (resource, (uint32_t) (value * 65535));
-      else
-        zwp_tablet_pad_strip_v2_send_stop (resource);
+    if (value >= 0)
+      zwp_tablet_pad_strip_v2_send_position (resource,
+                                             (uint32_t) (value * 65535));
+    else
+      zwp_tablet_pad_strip_v2_send_stop (resource);
 
-      zwp_tablet_pad_strip_v2_send_frame (resource,
-                                          clutter_event_get_time (event));
-    }
+    zwp_tablet_pad_strip_v2_send_frame (resource,
+                                        clutter_event_get_time (event));
+  }
 
   return TRUE;
 }
@@ -160,19 +163,19 @@ move_resources (struct wl_list *destination, struct wl_list *source)
 }
 
 static void
-move_resources_for_client (struct wl_list *destination,
-			   struct wl_list *source,
-			   struct wl_client *client)
+move_resources_for_client (struct wl_list   *destination,
+                           struct wl_list   *source,
+                           struct wl_client *client)
 {
   struct wl_resource *resource, *tmp;
   wl_resource_for_each_safe (resource, tmp, source)
-    {
-      if (wl_resource_get_client (resource) == client)
-        {
-          wl_list_remove (wl_resource_get_link (resource));
-          wl_list_insert (destination, wl_resource_get_link (resource));
-        }
-    }
+  {
+    if (wl_resource_get_client (resource) == client)
+      {
+        wl_list_remove (wl_resource_get_link (resource));
+        wl_list_insert (destination, wl_resource_get_link (resource));
+      }
+  }
 }
 
 void
@@ -189,7 +192,8 @@ meta_wayland_tablet_pad_strip_sync_focus (MetaWaylandTabletPadStrip *strip)
     {
       move_resources_for_client (&strip->focus_resource_list,
                                  &strip->resource_list,
-                                 wl_resource_get_client (strip->pad->focus_surface->resource));
+                                 wl_resource_get_client (strip->pad->
+                                                         focus_surface->resource));
     }
 }
 

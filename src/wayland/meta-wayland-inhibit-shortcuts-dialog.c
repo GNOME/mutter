@@ -27,12 +27,12 @@ static GQuark quark_surface_inhibit_shortcuts_data = 0;
 
 typedef struct _InhibitShortcutsData
 {
-  MetaWaylandSurface                *surface;
-  MetaWaylandSeat                   *seat;
-  MetaInhibitShortcutsDialog        *dialog;
-  gulong                             response_handler_id;
-  gboolean                           has_last_response;
-  gboolean                           request_canceled;
+  MetaWaylandSurface *surface;
+  MetaWaylandSeat *seat;
+  MetaInhibitShortcutsDialog *dialog;
+  gulong response_handler_id;
+  gboolean has_last_response;
+  gboolean request_canceled;
   MetaInhibitShortcutsDialogResponse last_response;
 } InhibitShortcutsData;
 
@@ -83,7 +83,8 @@ inhibit_shortcuts_dialog_response_apply (InhibitShortcutsData *data)
 {
   if (data->last_response == META_INHIBIT_SHORTCUTS_DIALOG_RESPONSE_ALLOW)
     meta_wayland_surface_inhibit_shortcuts (data->surface, data->seat);
-  else if (meta_wayland_surface_is_shortcuts_inhibited (data->surface, data->seat))
+  else if (meta_wayland_surface_is_shortcuts_inhibited (data->surface,
+                                                        data->seat))
     meta_wayland_surface_restore_shortcuts (data->surface, data->seat);
 }
 
@@ -104,8 +105,9 @@ inhibit_shortcuts_dialog_response_cb (MetaInhibitShortcutsDialog        *dialog,
 }
 
 static InhibitShortcutsData *
-meta_wayland_surface_ensure_inhibit_shortcuts_dialog (MetaWaylandSurface *surface,
-                                                      MetaWaylandSeat    *seat)
+meta_wayland_surface_ensure_inhibit_shortcuts_dialog (
+  MetaWaylandSurface *surface,
+  MetaWaylandSeat    *seat)
 {
   InhibitShortcutsData *data;
   MetaWindow *window;
@@ -165,7 +167,8 @@ meta_wayland_surface_show_inhibit_shortcuts_dialog (MetaWaylandSurface *surface,
 }
 
 void
-meta_wayland_surface_cancel_inhibit_shortcuts_dialog (MetaWaylandSurface *surface)
+meta_wayland_surface_cancel_inhibit_shortcuts_dialog (
+  MetaWaylandSurface *surface)
 {
   InhibitShortcutsData *data;
 

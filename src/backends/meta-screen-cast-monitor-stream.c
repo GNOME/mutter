@@ -93,23 +93,25 @@ on_monitors_changed (MetaMonitorManager          *monitor_manager,
 }
 
 ClutterStage *
-meta_screen_cast_monitor_stream_get_stage (MetaScreenCastMonitorStream *monitor_stream)
+meta_screen_cast_monitor_stream_get_stage (
+  MetaScreenCastMonitorStream *monitor_stream)
 {
   return monitor_stream->stage;
 }
 
 MetaMonitor *
-meta_screen_cast_monitor_stream_get_monitor (MetaScreenCastMonitorStream *monitor_stream)
+meta_screen_cast_monitor_stream_get_monitor (
+  MetaScreenCastMonitorStream *monitor_stream)
 {
   return monitor_stream->monitor;
 }
 
 MetaScreenCastMonitorStream *
-meta_screen_cast_monitor_stream_new (GDBusConnection     *connection,
-                                     MetaMonitorManager  *monitor_manager,
-                                     MetaMonitor         *monitor,
-                                     ClutterStage        *stage,
-                                     GError             **error)
+meta_screen_cast_monitor_stream_new (GDBusConnection    *connection,
+                                     MetaMonitorManager *monitor_manager,
+                                     MetaMonitor        *monitor,
+                                     ClutterStage       *stage,
+                                     GError            **error)
 {
   MetaScreenCastMonitorStream *monitor_stream;
 
@@ -138,8 +140,8 @@ meta_screen_cast_monitor_stream_new (GDBusConnection     *connection,
 }
 
 static MetaScreenCastStreamSrc *
-meta_screen_cast_monitor_stream_create_src (MetaScreenCastStream  *stream,
-                                            GError               **error)
+meta_screen_cast_monitor_stream_create_src (MetaScreenCastStream *stream,
+                                            GError              **error)
 {
   MetaScreenCastMonitorStream *monitor_stream =
     META_SCREEN_CAST_MONITOR_STREAM (stream);
@@ -177,11 +179,12 @@ meta_screen_cast_monitor_stream_set_parameters (MetaScreenCastStream *stream,
 }
 
 static void
-meta_screen_cast_monitor_stream_transform_position (MetaScreenCastStream *stream,
-                                                    double                stream_x,
-                                                    double                stream_y,
-                                                    double               *x,
-                                                    double               *y)
+meta_screen_cast_monitor_stream_transform_position (
+  MetaScreenCastStream *stream,
+  double                stream_x,
+  double                stream_y,
+  double               *x,
+  double               *y)
 {
   MetaScreenCastMonitorStream *monitor_stream =
     META_SCREEN_CAST_MONITOR_STREAM (stream);
@@ -208,7 +211,8 @@ meta_screen_cast_monitor_stream_set_property (GObject      *object,
     {
     case PROP_MONITOR:
       g_set_object (&monitor_stream->monitor, g_value_get_object (value));
-      logical_monitor = meta_monitor_get_logical_monitor (monitor_stream->monitor);
+      logical_monitor = meta_monitor_get_logical_monitor (
+        monitor_stream->monitor);
       g_set_object (&monitor_stream->logical_monitor, logical_monitor);
       break;
     default:
@@ -244,16 +248,19 @@ meta_screen_cast_monitor_stream_finalize (GObject *object)
   g_clear_object (&monitor_stream->monitor);
   g_clear_object (&monitor_stream->logical_monitor);
 
-  G_OBJECT_CLASS (meta_screen_cast_monitor_stream_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_screen_cast_monitor_stream_parent_class)->finalize (
+    object);
 }
 
 static void
-meta_screen_cast_monitor_stream_init (MetaScreenCastMonitorStream *monitor_stream)
+meta_screen_cast_monitor_stream_init (
+  MetaScreenCastMonitorStream *monitor_stream)
 {
 }
 
 static void
-meta_screen_cast_monitor_stream_class_init (MetaScreenCastMonitorStreamClass *klass)
+meta_screen_cast_monitor_stream_class_init (
+  MetaScreenCastMonitorStreamClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaScreenCastStreamClass *stream_class =
@@ -265,7 +272,8 @@ meta_screen_cast_monitor_stream_class_init (MetaScreenCastMonitorStreamClass *kl
 
   stream_class->create_src = meta_screen_cast_monitor_stream_create_src;
   stream_class->set_parameters = meta_screen_cast_monitor_stream_set_parameters;
-  stream_class->transform_position = meta_screen_cast_monitor_stream_transform_position;
+  stream_class->transform_position =
+    meta_screen_cast_monitor_stream_transform_position;
 
   g_object_class_install_property (object_class,
                                    PROP_MONITOR,

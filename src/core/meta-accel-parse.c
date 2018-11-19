@@ -154,14 +154,14 @@ static inline gboolean
 is_primary (const gchar *string)
 {
   return ((string[0] == '<') &&
-	  (string[1] == 'p' || string[1] == 'P') &&
-	  (string[2] == 'r' || string[2] == 'R') &&
-	  (string[3] == 'i' || string[3] == 'I') &&
-	  (string[4] == 'm' || string[4] == 'M') &&
-	  (string[5] == 'a' || string[5] == 'A') &&
-	  (string[6] == 'r' || string[6] == 'R') &&
-	  (string[7] == 'y' || string[7] == 'Y') &&
-	  (string[8] == '>'));
+          (string[1] == 'p' || string[1] == 'P') &&
+          (string[2] == 'r' || string[2] == 'R') &&
+          (string[3] == 'i' || string[3] == 'I') &&
+          (string[4] == 'm' || string[4] == 'M') &&
+          (string[5] == 'a' || string[5] == 'A') &&
+          (string[6] == 'r' || string[6] == 'R') &&
+          (string[7] == 'y' || string[7] == 'Y') &&
+          (string[8] == '>'));
 }
 
 static inline gboolean
@@ -174,8 +174,8 @@ is_keycode (const gchar *string)
 }
 
 static gboolean
-accelerator_parse (const gchar         *accelerator,
-                   MetaKeyCombo        *combo)
+accelerator_parse (const gchar  *accelerator,
+                   MetaKeyCombo *combo)
 {
   guint keyval, keycode;
   MetaVirtualModifier mods;
@@ -229,7 +229,8 @@ accelerator_parse (const gchar         *accelerator,
             }
           else if (len >= 6 && is_modx (accelerator))
             {
-              static const guint mod_vals[] = {
+              static const guint mod_vals[] =
+              {
                 META_VIRTUAL_ALT_MASK,
                 META_VIRTUAL_MOD2_MASK,
                 META_VIRTUAL_MOD3_MASK,
@@ -292,31 +293,33 @@ accelerator_parse (const gchar         *accelerator,
               keycode = strtoul (accelerator, NULL, 16);
               goto out;
             }
-	  else if (strcmp (accelerator, "Above_Tab") == 0)
+          else if (strcmp (accelerator, "Above_Tab") == 0)
             {
               keyval = META_KEY_ABOVE_TAB;
               goto out;
             }
           else
-	    {
-              keyval = xkb_keysym_from_name (accelerator, XKB_KEYSYM_CASE_INSENSITIVE);
-	      if (keyval == XKB_KEY_NoSymbol)
-	        {
+            {
+              keyval = xkb_keysym_from_name (accelerator,
+                                             XKB_KEYSYM_CASE_INSENSITIVE);
+              if (keyval == XKB_KEY_NoSymbol)
+                {
                   char *with_xf86 = g_strconcat ("XF86", accelerator, NULL);
-                  keyval = xkb_keysym_from_name (with_xf86, XKB_KEYSYM_CASE_INSENSITIVE);
+                  keyval = xkb_keysym_from_name (with_xf86,
+                                                 XKB_KEYSYM_CASE_INSENSITIVE);
                   g_free (with_xf86);
 
                   if (keyval == XKB_KEY_NoSymbol)
                     return FALSE;
                 }
-	    }
+            }
 
           accelerator += len;
           len -= len;
         }
     }
 
- out:
+out:
   combo->keysym = keyval;
   combo->keycode = keycode;
   combo->modifiers = mods;
@@ -329,7 +332,9 @@ meta_parse_accelerator (const char   *accel,
 {
   g_return_val_if_fail (combo != NULL, FALSE);
 
-  *combo = (MetaKeyCombo) { 0 };
+  *combo = (MetaKeyCombo) {
+    0
+  };
 
   if (!accel[0] || strcmp (accel, "disabled") == 0)
     return TRUE;

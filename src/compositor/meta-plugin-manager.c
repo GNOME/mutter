@@ -57,11 +57,11 @@ meta_plugin_manager_set_plugin_type (GType gtype)
  * Loads the given plugin.
  */
 void
-meta_plugin_manager_load (const gchar       *plugin_name)
+meta_plugin_manager_load (const gchar *plugin_name)
 {
   const gchar *dpath = MUTTER_PLUGIN_DIR "/";
-  gchar       *path;
-  MetaModule  *module;
+  gchar *path;
+  MetaModule *module;
 
   if (g_path_is_absolute (plugin_name))
     path = g_strdup (plugin_name);
@@ -76,7 +76,7 @@ meta_plugin_manager_load (const gchar       *plugin_name)
        * our untimely exit.
        */
       g_printerr ("Unable to load plugin module [%s]: %s",
-                  path, g_module_error());
+                  path, g_module_error ());
       exit (1);
     }
 
@@ -123,8 +123,8 @@ static void
 meta_plugin_manager_kill_window_effects (MetaPluginManager *plugin_mgr,
                                          MetaWindowActor   *actor)
 {
-  MetaPlugin        *plugin = plugin_mgr->plugin;
-  MetaPluginClass   *klass = META_PLUGIN_GET_CLASS (plugin);
+  MetaPlugin *plugin = plugin_mgr->plugin;
+  MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
 
   if (klass->kill_window_effects)
     klass->kill_window_effects (plugin, actor);
@@ -133,8 +133,8 @@ meta_plugin_manager_kill_window_effects (MetaPluginManager *plugin_mgr,
 static void
 meta_plugin_manager_kill_switch_workspace (MetaPluginManager *plugin_mgr)
 {
-  MetaPlugin        *plugin = plugin_mgr->plugin;
-  MetaPluginClass   *klass = META_PLUGIN_GET_CLASS (plugin);
+  MetaPlugin *plugin = plugin_mgr->plugin;
+  MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
 
   if (klass->kill_switch_workspace)
     klass->kill_switch_workspace (plugin);
@@ -234,7 +234,8 @@ meta_plugin_manager_event_size_change (MetaPluginManager *plugin_mgr,
     return FALSE;
 
   meta_plugin_manager_kill_window_effects (plugin_mgr, actor);
-  klass->size_change (plugin, actor, which_change, old_frame_rect, old_buffer_rect);
+  klass->size_change (plugin, actor, which_change, old_frame_rect,
+                      old_buffer_rect);
   return TRUE;
 }
 
@@ -247,10 +248,10 @@ meta_plugin_manager_event_size_change (MetaPluginManager *plugin_mgr,
  * appropriate post-effect cleanup is carried out.
  */
 gboolean
-meta_plugin_manager_switch_workspace (MetaPluginManager   *plugin_mgr,
-                                      gint                 from,
-                                      gint                 to,
-                                      MetaMotionDirection  direction)
+meta_plugin_manager_switch_workspace (MetaPluginManager  *plugin_mgr,
+                                      gint                from,
+                                      gint                to,
+                                      MetaMotionDirection direction)
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
@@ -346,11 +347,11 @@ meta_plugin_manager_hide_tile_preview (MetaPluginManager *plugin_mgr)
 }
 
 void
-meta_plugin_manager_show_window_menu (MetaPluginManager  *plugin_mgr,
-                                      MetaWindow         *window,
-                                      MetaWindowMenuType  menu,
-                                      int                 x,
-                                      int                 y)
+meta_plugin_manager_show_window_menu (MetaPluginManager *plugin_mgr,
+                                      MetaWindow        *window,
+                                      MetaWindowMenuType menu,
+                                      int                x,
+                                      int                y)
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
@@ -364,10 +365,10 @@ meta_plugin_manager_show_window_menu (MetaPluginManager  *plugin_mgr,
 }
 
 void
-meta_plugin_manager_show_window_menu_for_rect (MetaPluginManager  *plugin_mgr,
-                                               MetaWindow         *window,
-                                               MetaWindowMenuType  menu,
-					       MetaRectangle      *rect)
+meta_plugin_manager_show_window_menu_for_rect (MetaPluginManager *plugin_mgr,
+                                               MetaWindow        *window,
+                                               MetaWindowMenuType menu,
+                                               MetaRectangle     *rect)
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
@@ -394,8 +395,9 @@ meta_plugin_manager_create_close_dialog (MetaPluginManager *plugin_mgr,
 }
 
 MetaInhibitShortcutsDialog *
-meta_plugin_manager_create_inhibit_shortcuts_dialog (MetaPluginManager *plugin_mgr,
-                                                     MetaWindow        *window)
+meta_plugin_manager_create_inhibit_shortcuts_dialog (
+  MetaPluginManager *plugin_mgr,
+  MetaWindow        *window)
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);

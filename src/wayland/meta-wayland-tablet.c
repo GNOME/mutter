@@ -59,11 +59,11 @@ meta_wayland_tablet_free (MetaWaylandTablet *tablet)
   struct wl_resource *resource, *next;
 
   wl_resource_for_each_safe (resource, next, &tablet->resource_list)
-    {
-      zwp_tablet_v2_send_removed (resource);
-      wl_list_remove (wl_resource_get_link (resource));
-      wl_list_init (wl_resource_get_link (resource));
-    }
+  {
+    zwp_tablet_v2_send_removed (resource);
+    wl_list_remove (wl_resource_get_link (resource));
+    wl_list_init (wl_resource_get_link (resource));
+  }
 
   g_slice_free (MetaWaylandTablet, tablet);
 }
@@ -75,7 +75,8 @@ tablet_destroy (struct wl_client   *client,
   wl_resource_destroy (resource);
 }
 
-static const struct zwp_tablet_v2_interface tablet_interface = {
+static const struct zwp_tablet_v2_interface tablet_interface =
+{
   tablet_destroy
 };
 
@@ -87,7 +88,8 @@ meta_wayland_tablet_notify (MetaWaylandTablet  *tablet,
   const gchar *node_path, *vendor, *product;
   guint vid, pid;
 
-  zwp_tablet_v2_send_name (resource, clutter_input_device_get_device_name (device));
+  zwp_tablet_v2_send_name (resource,
+                           clutter_input_device_get_device_name (device));
 
   node_path = clutter_input_device_get_device_node (device);
   if (node_path)

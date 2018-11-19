@@ -46,7 +46,8 @@ struct _MetaBarrierManagerNative
   GHashTable *barriers;
 };
 
-typedef enum {
+typedef enum
+{
   /* The barrier is active and responsive to pointer motion. */
   META_BARRIER_STATE_ACTIVE,
 
@@ -67,14 +68,14 @@ typedef enum {
 
 struct _MetaBarrierImplNativePrivate
 {
-  MetaBarrier              *barrier;
+  MetaBarrier *barrier;
   MetaBarrierManagerNative *manager;
 
-  gboolean                  is_active;
-  MetaBarrierState          state;
-  int                       trigger_serial;
-  guint32                   last_event_time;
-  MetaBarrierDirection      blocked_dir;
+  gboolean is_active;
+  MetaBarrierState state;
+  int trigger_serial;
+  guint32 last_event_time;
+  MetaBarrierDirection blocked_dir;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaBarrierImplNative, meta_barrier_impl_native,
@@ -213,12 +214,15 @@ maybe_release_barriers (MetaBarrierManagerNative *manager,
                         float                     x,
                         float                     y)
 {
-  MetaLine2 motion = {
-    .a = {
+  MetaLine2 motion =
+  {
+    .a =
+    {
       .x = prev_x,
       .y = prev_y,
     },
-    .b = {
+    .b =
+    {
       .x = x,
       .y = y,
     },
@@ -233,14 +237,14 @@ typedef struct _MetaClosestBarrierData
 {
   struct
   {
-    MetaLine2                   motion;
-    MetaBarrierDirection        directions;
+    MetaLine2 motion;
+    MetaBarrierDirection directions;
   } in;
 
   struct
   {
-    float                       closest_distance_2;
-    MetaBarrierImplNative      *barrier_impl;
+    float closest_distance_2;
+    MetaBarrierImplNative *barrier_impl;
   } out;
 } MetaClosestBarrierData;
 
@@ -282,7 +286,7 @@ update_closest_barrier (gpointer key,
    * barrier. */
   dx = intersection.x - data->in.motion.a.x;
   dy = intersection.y - data->in.motion.a.y;
-  distance_2 = dx*dx + dy*dy;
+  distance_2 = dx * dx + dy * dy;
   if (data->out.barrier_impl == NULL ||
       distance_2 < data->out.closest_distance_2)
     {
@@ -303,13 +307,17 @@ get_closest_barrier (MetaBarrierManagerNative *manager,
   MetaClosestBarrierData closest_barrier_data;
 
   closest_barrier_data = (MetaClosestBarrierData) {
-    .in = {
-      .motion = {
-        .a = {
+    .in =
+    {
+      .motion =
+      {
+        .a =
+        {
           .x = prev_x,
           .y = prev_y,
         },
-        .b = {
+        .b =
+        {
           .x = x,
           .y = y,
         },
@@ -335,13 +343,13 @@ get_closest_barrier (MetaBarrierManagerNative *manager,
 
 typedef struct _MetaBarrierEventData
 {
-  guint32             time;
-  float               prev_x;
-  float               prev_y;
-  float               x;
-  float               y;
-  float               dx;
-  float               dy;
+  guint32 time;
+  float prev_x;
+  float prev_y;
+  float x;
+  float y;
+  float dx;
+  float dy;
 } MetaBarrierEventData;
 
 static void
@@ -372,7 +380,7 @@ emit_barrier_event (MetaBarrierImplNative *self,
     case META_BARRIER_STATE_LEFT:
       priv->state = META_BARRIER_STATE_ACTIVE;
 
-      /* Intentional fall-through. */
+    /* Intentional fall-through. */
     case META_BARRIER_STATE_HELD:
       event->dt = time - priv->last_event_time;
 
@@ -411,7 +419,8 @@ maybe_emit_barrier_event (gpointer key, gpointer value, gpointer user_data)
     meta_barrier_impl_native_get_instance_private (self);
   MetaBarrierEventData *data = user_data;
 
-  switch (priv->state) {
+  switch (priv->state)
+    {
     case META_BARRIER_STATE_ACTIVE:
       break;
     case META_BARRIER_STATE_HIT:
@@ -433,9 +442,9 @@ maybe_emit_barrier_event (gpointer key, gpointer value, gpointer user_data)
 /* Clamp (x, y) to the barrier and remove clamped direction from motion_dir. */
 static void
 clamp_to_barrier (MetaBarrierImplNative *self,
-                  MetaBarrierDirection *motion_dir,
-                  float *x,
-                  float *y)
+                  MetaBarrierDirection  *motion_dir,
+                  float                 *x,
+                  float                 *y)
 {
   MetaBarrierImplNativePrivate *priv =
     meta_barrier_impl_native_get_instance_private (self);

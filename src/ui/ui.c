@@ -98,15 +98,15 @@ set_background_none (Display *xdisplay,
 }
 
 MetaUIFrame *
-meta_ui_create_frame (MetaUI *ui,
-                      Display *xdisplay,
+meta_ui_create_frame (MetaUI     *ui,
+                      Display    *xdisplay,
                       MetaWindow *meta_window,
-                      Visual *xvisual,
-                      gint x,
-                      gint y,
-                      gint width,
-                      gint height,
-                      gulong *create_serial)
+                      Visual     *xvisual,
+                      gint        x,
+                      gint        y,
+                      gint        width,
+                      gint        height,
+                      gulong     *create_serial)
 {
   GdkDisplay *display = gdk_x11_lookup_xdisplay (xdisplay);
   GdkScreen *screen;
@@ -143,7 +143,7 @@ meta_ui_create_frame (MetaUI *ui,
   attrs.wmclass_class = NULL;
   attrs.override_redirect = FALSE;
 
-  attrs.width  = width;
+  attrs.width = width;
   attrs.height = height;
 
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
@@ -155,13 +155,14 @@ meta_ui_create_frame (MetaUI *ui,
   if (create_serial)
     *create_serial = XNextRequest (xdisplay);
   window =
-    gdk_window_new (gdk_screen_get_root_window(screen),
-		    &attrs, attributes_mask);
+    gdk_window_new (gdk_screen_get_root_window (screen),
+                    &attrs, attributes_mask);
 
   gdk_window_resize (window, width, height);
   set_background_none (xdisplay, GDK_WINDOW_XID (window));
 
-  return meta_frames_manage_window (ui->frames, meta_window, GDK_WINDOW_XID (window), window);
+  return meta_frames_manage_window (ui->frames, meta_window,
+                                    GDK_WINDOW_XID (window), window);
 }
 
 void
@@ -212,10 +213,10 @@ meta_ui_window_should_not_cause_focus (Display *xdisplay,
 }
 
 void
-meta_ui_theme_get_frame_borders (MetaUI *ui,
-                                 MetaFrameType      type,
-                                 MetaFrameFlags     flags,
-                                 MetaFrameBorders  *borders)
+meta_ui_theme_get_frame_borders (MetaUI           *ui,
+                                 MetaFrameType     type,
+                                 MetaFrameFlags    flags,
+                                 MetaFrameBorders *borders)
 {
   GdkDisplay *display;
   GdkScreen *screen;

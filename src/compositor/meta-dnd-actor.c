@@ -33,7 +33,8 @@
 
 #define DRAG_FAILED_DURATION 500
 
-enum {
+enum
+{
   PROP_DRAG_ORIGIN = 1,
   PROP_DRAG_START_X,
   PROP_DRAG_START_Y
@@ -48,7 +49,8 @@ struct _MetaDnDActorPrivate
   int drag_start_y;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaDnDActor, meta_dnd_actor, META_TYPE_FEEDBACK_ACTOR)
+G_DEFINE_TYPE_WITH_PRIVATE (MetaDnDActor, meta_dnd_actor,
+                            META_TYPE_FEEDBACK_ACTOR)
 
 static void
 meta_dnd_actor_set_property (GObject      *object,
@@ -77,10 +79,10 @@ meta_dnd_actor_set_property (GObject      *object,
 }
 
 static void
-meta_dnd_actor_get_property (GObject      *object,
-                             guint         prop_id,
-                             GValue       *value,
-                             GParamSpec   *pspec)
+meta_dnd_actor_get_property (GObject    *object,
+                             guint       prop_id,
+                             GValue     *value,
+                             GParamSpec *pspec)
 {
   MetaDnDActor *self = META_DND_ACTOR (object);
   MetaDnDActorPrivate *priv = meta_dnd_actor_get_instance_private (self);

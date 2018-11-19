@@ -99,8 +99,8 @@ meta_cursor_sprite_xcursor_get_cursor (MetaCursorSpriteXcursor *sprite_xcursor)
 }
 
 Cursor
-meta_create_x_cursor (Display    *xdisplay,
-                      MetaCursor  cursor)
+meta_create_x_cursor (Display   *xdisplay,
+                      MetaCursor cursor)
 {
   return XcursorLibraryLoadCursor (xdisplay, translate_meta_cursor (cursor));
 }
@@ -160,8 +160,9 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
 }
 
 void
-meta_cursor_sprite_xcursor_set_theme_scale (MetaCursorSpriteXcursor *sprite_xcursor,
-                                            int                      theme_scale)
+meta_cursor_sprite_xcursor_set_theme_scale (
+  MetaCursorSpriteXcursor *sprite_xcursor,
+  int                      theme_scale)
 {
   if (sprite_xcursor->theme_scale != theme_scale)
     sprite_xcursor->theme_dirty = TRUE;
@@ -178,7 +179,8 @@ meta_cursor_sprite_xcursor_is_animated (MetaCursorSprite *sprite)
 }
 
 XcursorImage *
-meta_cursor_sprite_xcursor_get_current_image (MetaCursorSpriteXcursor *sprite_xcursor)
+meta_cursor_sprite_xcursor_get_current_image (
+  MetaCursorSpriteXcursor *sprite_xcursor)
 {
   return sprite_xcursor->xcursor_images->images[sprite_xcursor->current_frame];
 }

@@ -48,12 +48,12 @@ handle_pinch_begin (MetaWaylandPointer *pointer,
   fingers = clutter_event_get_touchpad_gesture_finger_count (event);
 
   wl_resource_for_each (resource, &pointer_client->pinch_gesture_resources)
-    {
-      zwp_pointer_gesture_pinch_v1_send_begin (resource, serial,
-                                               clutter_event_get_time (event),
-                                               pointer->focus_surface->resource,
-                                               fingers);
-    }
+  {
+    zwp_pointer_gesture_pinch_v1_send_begin (resource, serial,
+                                             clutter_event_get_time (event),
+                                             pointer->focus_surface->resource,
+                                             fingers);
+  }
 }
 
 static void
@@ -70,14 +70,14 @@ handle_pinch_update (MetaWaylandPointer *pointer,
   scale = clutter_event_get_gesture_pinch_scale (event);
 
   wl_resource_for_each (resource, &pointer_client->pinch_gesture_resources)
-    {
-      zwp_pointer_gesture_pinch_v1_send_update (resource,
-                                                clutter_event_get_time (event),
-                                                wl_fixed_from_double (dx),
-                                                wl_fixed_from_double (dy),
-                                                wl_fixed_from_double (scale),
-                                                wl_fixed_from_double (rotation));
-    }
+  {
+    zwp_pointer_gesture_pinch_v1_send_update (resource,
+                                              clutter_event_get_time (event),
+                                              wl_fixed_from_double (dx),
+                                              wl_fixed_from_double (dy),
+                                              wl_fixed_from_double (scale),
+                                              wl_fixed_from_double (rotation));
+  }
 }
 
 static void
@@ -98,11 +98,11 @@ handle_pinch_end (MetaWaylandPointer *pointer,
     cancelled = TRUE;
 
   wl_resource_for_each (resource, &pointer_client->pinch_gesture_resources)
-    {
-      zwp_pointer_gesture_pinch_v1_send_end (resource, serial,
-                                             clutter_event_get_time (event),
-                                             cancelled);
-    }
+  {
+    zwp_pointer_gesture_pinch_v1_send_end (resource, serial,
+                                           clutter_event_get_time (event),
+                                           cancelled);
+  }
 }
 
 gboolean
@@ -141,15 +141,18 @@ pointer_gesture_pinch_destroy (struct wl_client   *client,
   wl_resource_destroy (resource);
 }
 
-static const struct zwp_pointer_gesture_pinch_v1_interface pointer_gesture_pinch_interface = {
+static const struct zwp_pointer_gesture_pinch_v1_interface
+  pointer_gesture_pinch_interface =
+{
   pointer_gesture_pinch_destroy
 };
 
 void
-meta_wayland_pointer_gesture_pinch_create_new_resource (MetaWaylandPointer *pointer,
-                                                        struct wl_client   *client,
-                                                        struct wl_resource *gestures_resource,
-                                                        uint32_t            id)
+meta_wayland_pointer_gesture_pinch_create_new_resource (
+  MetaWaylandPointer *pointer,
+  struct wl_client   *client,
+  struct wl_resource *gestures_resource,
+  uint32_t            id)
 {
   MetaWaylandPointerClient *pointer_client;
   struct wl_resource *res;
@@ -159,7 +162,8 @@ meta_wayland_pointer_gesture_pinch_create_new_resource (MetaWaylandPointer *poin
 
   res = wl_resource_create (client, &zwp_pointer_gesture_pinch_v1_interface,
                             wl_resource_get_version (gestures_resource), id);
-  wl_resource_set_implementation (res, &pointer_gesture_pinch_interface, pointer,
+  wl_resource_set_implementation (res, &pointer_gesture_pinch_interface,
+                                  pointer,
                                   meta_wayland_pointer_unbind_pointer_client_resource);
   wl_list_insert (&pointer_client->pinch_gesture_resources,
                   wl_resource_get_link (res));

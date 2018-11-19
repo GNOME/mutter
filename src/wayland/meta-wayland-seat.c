@@ -28,8 +28,12 @@
 #include "wayland/meta-wayland-tablet-seat.h"
 #include "wayland/meta-wayland-versions.h"
 
-#define CAPABILITY_ENABLED(prev, cur, capability) ((cur & (capability)) && !(prev & (capability)))
-#define CAPABILITY_DISABLED(prev, cur, capability) ((prev & (capability)) && !(cur & (capability)))
+#define CAPABILITY_ENABLED(prev, cur, \
+                           capability) ((cur & (capability)) && \
+                                        !(prev & (capability)))
+#define CAPABILITY_DISABLED(prev, cur, \
+                            capability) ((prev & (capability)) && \
+                                         !(cur & (capability)))
 
 static void
 unbind_resource (struct wl_resource *resource)
@@ -38,9 +42,9 @@ unbind_resource (struct wl_resource *resource)
 }
 
 static void
-seat_get_pointer (struct wl_client *client,
+seat_get_pointer (struct wl_client   *client,
                   struct wl_resource *resource,
-                  uint32_t id)
+                  uint32_t            id)
 {
   MetaWaylandSeat *seat = wl_resource_get_user_data (resource);
   MetaWaylandPointer *pointer = seat->pointer;
@@ -50,9 +54,9 @@ seat_get_pointer (struct wl_client *client,
 }
 
 static void
-seat_get_keyboard (struct wl_client *client,
+seat_get_keyboard (struct wl_client   *client,
                    struct wl_resource *resource,
-                   uint32_t id)
+                   uint32_t            id)
 {
   MetaWaylandSeat *seat = wl_resource_get_user_data (resource);
   MetaWaylandKeyboard *keyboard = seat->keyboard;
@@ -62,9 +66,9 @@ seat_get_keyboard (struct wl_client *client,
 }
 
 static void
-seat_get_touch (struct wl_client *client,
+seat_get_touch (struct wl_client   *client,
                 struct wl_resource *resource,
-                uint32_t id)
+                uint32_t            id)
 {
   MetaWaylandSeat *seat = wl_resource_get_user_data (resource);
   MetaWaylandTouch *touch = seat->touch;
@@ -73,7 +77,8 @@ seat_get_touch (struct wl_client *client,
     meta_wayland_touch_create_new_resource (touch, client, resource, id);
 }
 
-static const struct wl_seat_interface seat_interface = {
+static const struct wl_seat_interface seat_interface =
+{
   seat_get_pointer,
   seat_get_keyboard,
   seat_get_touch
@@ -81,15 +86,16 @@ static const struct wl_seat_interface seat_interface = {
 
 static void
 bind_seat (struct wl_client *client,
-           void *data,
-           guint32 version,
-           guint32 id)
+           void             *data,
+           guint32           version,
+           guint32           id)
 {
   MetaWaylandSeat *seat = data;
   struct wl_resource *resource;
 
   resource = wl_resource_create (client, &wl_seat_interface, version, id);
-  wl_resource_set_implementation (resource, &seat_interface, seat, unbind_resource);
+  wl_resource_set_implementation (resource, &seat_interface, seat,
+                                  unbind_resource);
   wl_list_insert (&seat->base_resource_list, wl_resource_get_link (resource));
 
   wl_seat_send_capabilities (resource, seat->capabilities);
@@ -114,7 +120,8 @@ lookup_device_capabilities (ClutterDeviceManager *device_manager)
        * keyboard/pointer device types, which is not truly representative of
        * the slave devices connected to them.
        */
-      if (clutter_input_device_get_device_mode (l->data) == CLUTTER_INPUT_MODE_MASTER)
+      if (clutter_input_device_get_device_mode (l->data) ==
+          CLUTTER_INPUT_MODE_MASTER)
         continue;
 
       device_type = clutter_input_device_get_device_type (l->data);
@@ -182,9 +189,9 @@ meta_wayland_seat_set_capabilities (MetaWaylandSeat *seat,
 
   /* Broadcast capability changes */
   wl_resource_for_each (resource, &seat->base_resource_list)
-    {
-      wl_seat_send_capabilities (resource, flags);
-    }
+  {
+    wl_seat_send_capabilities (resource, flags);
+  }
 }
 
 static void
@@ -237,7 +244,8 @@ meta_wayland_seat_new (MetaWaylandCompositor *compositor,
   g_signal_connect (device_manager, "device-removed",
                     G_CALLBACK (meta_wayland_seat_devices_updated), seat);
 
-  wl_global_create (display, &wl_seat_interface, META_WL_SEAT_VERSION, seat, bind_seat);
+  wl_global_create (display, &wl_seat_interface, META_WL_SEAT_VERSION, seat,
+                    bind_seat);
 
   meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
 
@@ -278,18 +286,19 @@ event_is_synthesized_crossing (const ClutterEvent *event)
     return FALSE;
 
   device = clutter_event_get_source_device (event);
-  return clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER;
+  return clutter_input_device_get_device_mode (device) ==
+         CLUTTER_INPUT_MODE_MASTER;
 }
 
 static gboolean
 event_from_supported_hardware_device (MetaWaylandSeat    *seat,
                                       const ClutterEvent *event)
 {
-  ClutterInputDevice     *input_device;
-  ClutterInputMode        input_mode;
-  ClutterInputDeviceType  device_type;
-  gboolean                hardware_device = FALSE;
-  gboolean                supported_device = FALSE;
+  ClutterInputDevice *input_device;
+  ClutterInputMode input_mode;
+  ClutterInputDeviceType device_type;
+  gboolean hardware_device = FALSE;
+  gboolean supported_device = FALSE;
 
   input_device = clutter_event_get_source_device (event);
 
@@ -347,7 +356,8 @@ meta_wayland_seat_update (MetaWaylandSeat    *seat,
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:
       if (meta_wayland_seat_has_keyboard (seat))
-        meta_wayland_keyboard_update (seat->keyboard, (const ClutterKeyEvent *) event);
+        meta_wayland_keyboard_update (seat->keyboard,
+                                      (const ClutterKeyEvent *) event);
       break;
 
     case CLUTTER_TOUCH_BEGIN:
@@ -363,7 +373,7 @@ meta_wayland_seat_update (MetaWaylandSeat    *seat,
 }
 
 gboolean
-meta_wayland_seat_handle_event (MetaWaylandSeat *seat,
+meta_wayland_seat_handle_event (MetaWaylandSeat    *seat,
                                 const ClutterEvent *event)
 {
   if (!(clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_INPUT_METHOD) &&
@@ -431,7 +441,8 @@ meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
       meta_wayland_data_device_set_keyboard_focus (&seat->data_device);
     }
 
-  tablet_seat = meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
+  tablet_seat = meta_wayland_tablet_manager_ensure_seat (
+    compositor->tablet_manager, seat);
   meta_wayland_tablet_seat_set_pad_focus (tablet_seat, surface);
 
   meta_wayland_text_input_set_focus (seat->text_input, surface);
@@ -451,7 +462,8 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat    *seat,
   GList *tools, *l;
 
   compositor = meta_wayland_compositor_get_default ();
-  tablet_seat = meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
+  tablet_seat = meta_wayland_tablet_manager_ensure_seat (
+    compositor->tablet_manager, seat);
   tools = g_hash_table_get_values (tablet_seat->tools);
 
   if (meta_wayland_seat_has_touch (seat))
@@ -470,7 +482,8 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat    *seat,
   if (meta_wayland_seat_has_pointer (seat))
     {
       if ((!require_pressed || seat->pointer->button_count > 0) &&
-          meta_wayland_pointer_can_grab_surface (seat->pointer, surface, serial))
+          meta_wayland_pointer_can_grab_surface (seat->pointer, surface,
+                                                 serial))
         {
           if (x)
             *x = seat->pointer->grab_x;

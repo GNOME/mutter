@@ -69,9 +69,11 @@ restart_helper_read_line_callback (GObject      *source_object,
 {
   GError *error = NULL;
   gsize length;
-  char *line = g_data_input_stream_read_line_finish_utf8 (G_DATA_INPUT_STREAM (source_object),
-                                                          res,
-                                                          &length, &error);
+  char *line =
+    g_data_input_stream_read_line_finish_utf8 (G_DATA_INPUT_STREAM (
+                                                 source_object),
+                                               res,
+                                               &length, &error);
   if (line == NULL)
     {
       meta_warning ("Failed to read output from restart helper%s%s\n",
@@ -111,13 +113,14 @@ restart_message_painted (gpointer data)
 void
 meta_restart (const char *message)
 {
-  MetaDisplay *display = meta_get_display();
+  MetaDisplay *display = meta_get_display ();
   GInputStream *unix_stream;
   GDataInputStream *data_stream;
   GError *error = NULL;
   int helper_out_fd;
 
-  static const char * const helper_argv[] = {
+  static const char * const helper_argv[] =
+  {
     MUTTER_LIBEXECDIR "/mutter-restart-helper", NULL
   };
 
@@ -140,7 +143,7 @@ meta_restart (const char *message)
    * reference to the Composite Overlay Window.
    */
   if (!g_spawn_async_with_pipes (NULL, /* working directory */
-                                 (char **)helper_argv,
+                                 (char **) helper_argv,
                                  NULL, /* envp */
                                  G_SPAWN_DEFAULT,
                                  NULL, NULL, /* child_setup */
@@ -170,7 +173,7 @@ meta_restart (const char *message)
 
   return;
 
- error:
+error:
   /* If starting the restart helper fails, then we just go ahead and restart
    * immediately. We won't get a smooth transition, since the overlay window
    * will be destroyed and recreated, but otherwise it will work fine.

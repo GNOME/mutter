@@ -82,14 +82,18 @@ static PangoFontDescription *titlebar_font = NULL;
 static MetaVirtualModifier mouse_button_mods = Mod1Mask;
 static MetaKeyCombo overlay_key_combo = { 0, 0, 0 };
 static GDesktopFocusMode focus_mode = G_DESKTOP_FOCUS_MODE_CLICK;
-static GDesktopFocusNewWindows focus_new_windows = G_DESKTOP_FOCUS_NEW_WINDOWS_SMART;
+static GDesktopFocusNewWindows focus_new_windows =
+  G_DESKTOP_FOCUS_NEW_WINDOWS_SMART;
 static gboolean raise_on_click = TRUE;
 static gboolean center_new_windows = FALSE;
 static gboolean attach_modal_dialogs = FALSE;
 static int num_workspaces = 4;
-static GDesktopTitlebarAction action_double_click_titlebar = G_DESKTOP_TITLEBAR_ACTION_TOGGLE_MAXIMIZE;
-static GDesktopTitlebarAction action_middle_click_titlebar = G_DESKTOP_TITLEBAR_ACTION_LOWER;
-static GDesktopTitlebarAction action_right_click_titlebar = G_DESKTOP_TITLEBAR_ACTION_MENU;
+static GDesktopTitlebarAction action_double_click_titlebar =
+  G_DESKTOP_TITLEBAR_ACTION_TOGGLE_MAXIMIZE;
+static GDesktopTitlebarAction action_middle_click_titlebar =
+  G_DESKTOP_TITLEBAR_ACTION_LOWER;
+static GDesktopTitlebarAction action_right_click_titlebar =
+  G_DESKTOP_TITLEBAR_ACTION_MENU;
 static gboolean dynamic_workspaces = FALSE;
 static gboolean disable_workarounds = FALSE;
 static gboolean auto_raise = FALSE;
@@ -104,9 +108,9 @@ static char *cursor_theme = NULL;
  * actual cursor size, multiplied with the global window scaling factor. On
  * Wayland, it will be the actual cursor size retrieved from gsettings.
  */
-static int   cursor_size = 24;
-static int   draggable_border_width = 10;
-static int   drag_threshold;
+static int cursor_size = 24;
+static int draggable_border_width = 10;
+static int drag_threshold;
 static gboolean resize_with_right_button = FALSE;
 static gboolean edge_tiling = FALSE;
 static gboolean force_fullscreen = TRUE;
@@ -114,7 +118,8 @@ static gboolean ignore_request_hide_titlebar = FALSE;
 static gboolean auto_maximize = TRUE;
 static gboolean show_fallback_app_menu = FALSE;
 
-static GDesktopVisualBellType visual_bell_type = G_DESKTOP_VISUAL_BELL_FULLSCREEN_FLASH;
+static GDesktopVisualBellType visual_bell_type =
+  G_DESKTOP_VISUAL_BELL_FULLSCREEN_FLASH;
 static MetaButtonLayout button_layout;
 
 /* NULL-terminated array */
@@ -126,29 +131,29 @@ static char *iso_next_group_option = NULL;
 
 static void handle_preference_update_enum (GSettings *settings,
                                            gchar     *key);
-static gboolean update_binding         (MetaKeyPref *binding,
-                                        gchar      **strokes);
-static gboolean update_key_binding     (const char  *key,
-                                        gchar      **strokes);
+static gboolean update_binding (MetaKeyPref *binding,
+                                gchar      **strokes);
+static gboolean update_key_binding (const char *key,
+                                    gchar     **strokes);
 
-static void settings_changed (GSettings      *settings,
-                              gchar          *key,
-                              gpointer        data);
-static void bindings_changed (GSettings      *settings,
-                              gchar          *key,
-                              gpointer        data);
+static void settings_changed (GSettings *settings,
+                              gchar     *key,
+                              gpointer   data);
+static void bindings_changed (GSettings *settings,
+                              gchar     *key,
+                              gpointer   data);
 
-static void queue_changed (MetaPreference  pref);
+static void queue_changed (MetaPreference pref);
 
 static void maybe_give_disable_workarounds_warning (void);
 
-static gboolean titlebar_handler (GVariant*, gpointer*, gpointer);
-static gboolean mouse_button_mods_handler (GVariant*, gpointer*, gpointer);
-static gboolean button_layout_handler (GVariant*, gpointer*, gpointer);
-static gboolean overlay_key_handler (GVariant*, gpointer*, gpointer);
-static gboolean iso_next_group_handler (GVariant*, gpointer*, gpointer);
+static gboolean titlebar_handler (GVariant *, gpointer *, gpointer);
+static gboolean mouse_button_mods_handler (GVariant *, gpointer *, gpointer);
+static gboolean button_layout_handler (GVariant *, gpointer *, gpointer);
+static gboolean overlay_key_handler (GVariant *, gpointer *, gpointer);
+static gboolean iso_next_group_handler (GVariant *, gpointer *, gpointer);
 
-static void     init_bindings             (void);
+static void     init_bindings (void);
 
 typedef struct
 {
@@ -223,274 +228,241 @@ typedef struct
 /* @@@ Don't use NULL lines at the end; glib can tell you how big it is */
 
 static MetaEnumPreference preferences_enum[] =
+{
   {
-    {
-      { "focus-new-windows",
-        SCHEMA_GENERAL,
-        META_PREF_FOCUS_NEW_WINDOWS,
-      },
-      &focus_new_windows,
-    },
-    {
-      { "focus-mode",
-        SCHEMA_GENERAL,
-        META_PREF_FOCUS_MODE,
-      },
-      &focus_mode,
-    },
-    {
-      { "visual-bell-type",
-        SCHEMA_GENERAL,
-        META_PREF_VISUAL_BELL_TYPE,
-      },
-      &visual_bell_type,
-    },
-    {
-      { "action-double-click-titlebar",
-        SCHEMA_GENERAL,
-        META_PREF_ACTION_DOUBLE_CLICK_TITLEBAR,
-      },
-      &action_double_click_titlebar,
-    },
-    {
-      { "action-middle-click-titlebar",
-        SCHEMA_GENERAL,
-        META_PREF_ACTION_MIDDLE_CLICK_TITLEBAR,
-      },
-      &action_middle_click_titlebar,
-    },
-    {
-      { "action-right-click-titlebar",
-        SCHEMA_GENERAL,
-        META_PREF_ACTION_RIGHT_CLICK_TITLEBAR,
-      },
-      &action_right_click_titlebar,
-    },
-    { { NULL, 0, 0 }, NULL },
-  };
+    { "focus-new-windows",
+      SCHEMA_GENERAL,
+      META_PREF_FOCUS_NEW_WINDOWS, },
+    &focus_new_windows,
+  },
+  {
+    { "focus-mode",
+      SCHEMA_GENERAL,
+      META_PREF_FOCUS_MODE, },
+    &focus_mode,
+  },
+  {
+    { "visual-bell-type",
+      SCHEMA_GENERAL,
+      META_PREF_VISUAL_BELL_TYPE, },
+    &visual_bell_type,
+  },
+  {
+    { "action-double-click-titlebar",
+      SCHEMA_GENERAL,
+      META_PREF_ACTION_DOUBLE_CLICK_TITLEBAR, },
+    &action_double_click_titlebar,
+  },
+  {
+    { "action-middle-click-titlebar",
+      SCHEMA_GENERAL,
+      META_PREF_ACTION_MIDDLE_CLICK_TITLEBAR, },
+    &action_middle_click_titlebar,
+  },
+  {
+    { "action-right-click-titlebar",
+      SCHEMA_GENERAL,
+      META_PREF_ACTION_RIGHT_CLICK_TITLEBAR, },
+    &action_right_click_titlebar,
+  },
+  { { NULL, 0, 0 }, NULL },
+};
 
 static MetaBoolPreference preferences_bool[] =
+{
   {
-    {
-      { "attach-modal-dialogs",
-        SCHEMA_MUTTER,
-        META_PREF_ATTACH_MODAL_DIALOGS,
-      },
-      &attach_modal_dialogs,
+    { "attach-modal-dialogs",
+      SCHEMA_MUTTER,
+      META_PREF_ATTACH_MODAL_DIALOGS, },
+    &attach_modal_dialogs,
+  },
+  {
+    { "center-new-windows",
+      SCHEMA_MUTTER,
+      META_PREF_CENTER_NEW_WINDOWS, },
+    &center_new_windows,
+  },
+  {
+    { "raise-on-click",
+      SCHEMA_GENERAL,
+      META_PREF_RAISE_ON_CLICK, },
+    &raise_on_click,
+  },
+  {
+    { "titlebar-uses-system-font",
+      SCHEMA_GENERAL,
+      META_PREF_TITLEBAR_FONT,   /* note! shares a pref */
     },
-    {
-      { "center-new-windows",
-        SCHEMA_MUTTER,
-        META_PREF_CENTER_NEW_WINDOWS,
-      },
-      &center_new_windows,
-    },
-    {
-      { "raise-on-click",
-        SCHEMA_GENERAL,
-        META_PREF_RAISE_ON_CLICK,
-      },
-      &raise_on_click,
-    },
-    {
-      { "titlebar-uses-system-font",
-        SCHEMA_GENERAL,
-        META_PREF_TITLEBAR_FONT, /* note! shares a pref */
-      },
-      &use_system_font,
-    },
-    {
-      { "dynamic-workspaces",
-        SCHEMA_MUTTER,
-        META_PREF_DYNAMIC_WORKSPACES,
-      },
-      &dynamic_workspaces,
-    },
-    {
-      { "disable-workarounds",
-        SCHEMA_GENERAL,
-        META_PREF_DISABLE_WORKAROUNDS,
-      },
-      &disable_workarounds,
-    },
-    {
-      { "auto-raise",
-        SCHEMA_GENERAL,
-        META_PREF_AUTO_RAISE,
-      },
-      &auto_raise,
-    },
-    {
-      { "focus-change-on-pointer-rest",
-        SCHEMA_MUTTER,
-        META_PREF_FOCUS_CHANGE_ON_POINTER_REST,
-      },
-      &focus_change_on_pointer_rest
-    },
-    {
-      { "visual-bell",
-        SCHEMA_GENERAL,
-        META_PREF_VISUAL_BELL,
-      },
-      &bell_is_visible, /* FIXME: change the name: it's confusing */
-    },
-    {
-      { "audible-bell",
-        SCHEMA_GENERAL,
-        META_PREF_AUDIBLE_BELL,
-      },
-      &bell_is_audible, /* FIXME: change the name: it's confusing */
-    },
-    {
-      { KEY_GNOME_ACCESSIBILITY,
-        SCHEMA_INTERFACE,
-        META_PREF_GNOME_ACCESSIBILITY,
-      },
-      &gnome_accessibility,
-    },
-    {
-      { KEY_GNOME_ANIMATIONS,
-        SCHEMA_INTERFACE,
-        META_PREF_GNOME_ANIMATIONS,
-      },
-      &gnome_animations,
-    },
-    {
-      { "resize-with-right-button",
-        SCHEMA_GENERAL,
-        META_PREF_RESIZE_WITH_RIGHT_BUTTON,
-      },
-      &resize_with_right_button,
-    },
-    {
-      { "edge-tiling",
-        SCHEMA_MUTTER,
-        META_PREF_EDGE_TILING,
-      },
-      &edge_tiling,
-    },
-    {
-      { "workspaces-only-on-primary",
-        SCHEMA_MUTTER,
-        META_PREF_WORKSPACES_ONLY_ON_PRIMARY,
-      },
-      &workspaces_only_on_primary,
-    },
-    {
-      { "auto-maximize",
-        SCHEMA_MUTTER,
-        META_PREF_AUTO_MAXIMIZE,
-      },
-      &auto_maximize,
-    },
-    { { NULL, 0, 0 }, NULL },
-  };
+    &use_system_font,
+  },
+  {
+    { "dynamic-workspaces",
+      SCHEMA_MUTTER,
+      META_PREF_DYNAMIC_WORKSPACES, },
+    &dynamic_workspaces,
+  },
+  {
+    { "disable-workarounds",
+      SCHEMA_GENERAL,
+      META_PREF_DISABLE_WORKAROUNDS, },
+    &disable_workarounds,
+  },
+  {
+    { "auto-raise",
+      SCHEMA_GENERAL,
+      META_PREF_AUTO_RAISE, },
+    &auto_raise,
+  },
+  {
+    { "focus-change-on-pointer-rest",
+      SCHEMA_MUTTER,
+      META_PREF_FOCUS_CHANGE_ON_POINTER_REST, },
+    &focus_change_on_pointer_rest
+  },
+  {
+    { "visual-bell",
+      SCHEMA_GENERAL,
+      META_PREF_VISUAL_BELL, },
+    &bell_is_visible,   /* FIXME: change the name: it's confusing */
+  },
+  {
+    { "audible-bell",
+      SCHEMA_GENERAL,
+      META_PREF_AUDIBLE_BELL, },
+    &bell_is_audible,   /* FIXME: change the name: it's confusing */
+  },
+  {
+    { KEY_GNOME_ACCESSIBILITY,
+      SCHEMA_INTERFACE,
+      META_PREF_GNOME_ACCESSIBILITY, },
+    &gnome_accessibility,
+  },
+  {
+    { KEY_GNOME_ANIMATIONS,
+      SCHEMA_INTERFACE,
+      META_PREF_GNOME_ANIMATIONS, },
+    &gnome_animations,
+  },
+  {
+    { "resize-with-right-button",
+      SCHEMA_GENERAL,
+      META_PREF_RESIZE_WITH_RIGHT_BUTTON, },
+    &resize_with_right_button,
+  },
+  {
+    { "edge-tiling",
+      SCHEMA_MUTTER,
+      META_PREF_EDGE_TILING, },
+    &edge_tiling,
+  },
+  {
+    { "workspaces-only-on-primary",
+      SCHEMA_MUTTER,
+      META_PREF_WORKSPACES_ONLY_ON_PRIMARY, },
+    &workspaces_only_on_primary,
+  },
+  {
+    { "auto-maximize",
+      SCHEMA_MUTTER,
+      META_PREF_AUTO_MAXIMIZE, },
+    &auto_maximize,
+  },
+  { { NULL, 0, 0 }, NULL },
+};
 
 static MetaStringPreference preferences_string[] =
+{
   {
-    {
-      { "mouse-button-modifier",
-        SCHEMA_GENERAL,
-        META_PREF_MOUSE_BUTTON_MODS,
-      },
-      mouse_button_mods_handler,
-      NULL,
-    },
-    {
-      { KEY_TITLEBAR_FONT,
-        SCHEMA_GENERAL,
-        META_PREF_TITLEBAR_FONT,
-      },
-      titlebar_handler,
-      NULL,
-    },
-    {
-      { "button-layout",
-        SCHEMA_GENERAL,
-        META_PREF_BUTTON_LAYOUT,
-      },
-      button_layout_handler,
-      NULL,
-    },
-    {
-      { "cursor-theme",
-        SCHEMA_INTERFACE,
-        META_PREF_CURSOR_THEME,
-      },
-      NULL,
-      &cursor_theme,
-    },
-    {
-      { "overlay-key",
-        SCHEMA_MUTTER,
-        META_PREF_KEYBINDINGS,
-      },
-      overlay_key_handler,
-      NULL,
-    },
-    { { NULL, 0, 0 }, NULL },
-  };
+    { "mouse-button-modifier",
+      SCHEMA_GENERAL,
+      META_PREF_MOUSE_BUTTON_MODS, },
+    mouse_button_mods_handler,
+    NULL,
+  },
+  {
+    { KEY_TITLEBAR_FONT,
+      SCHEMA_GENERAL,
+      META_PREF_TITLEBAR_FONT, },
+    titlebar_handler,
+    NULL,
+  },
+  {
+    { "button-layout",
+      SCHEMA_GENERAL,
+      META_PREF_BUTTON_LAYOUT, },
+    button_layout_handler,
+    NULL,
+  },
+  {
+    { "cursor-theme",
+      SCHEMA_INTERFACE,
+      META_PREF_CURSOR_THEME, },
+    NULL,
+    &cursor_theme,
+  },
+  {
+    { "overlay-key",
+      SCHEMA_MUTTER,
+      META_PREF_KEYBINDINGS, },
+    overlay_key_handler,
+    NULL,
+  },
+  { { NULL, 0, 0 }, NULL },
+};
 
 static MetaStringArrayPreference preferences_string_array[] =
+{
   {
-    {
-      { KEY_WORKSPACE_NAMES,
-        SCHEMA_GENERAL,
-        META_PREF_WORKSPACE_NAMES,
-      },
-      NULL,
-      &workspace_names,
-    },
-    {
-      { KEY_XKB_OPTIONS,
-        SCHEMA_INPUT_SOURCES,
-        META_PREF_KEYBINDINGS,
-      },
-      iso_next_group_handler,
-      NULL,
-    },
-    { { NULL, 0, 0 }, NULL },
-  };
+    { KEY_WORKSPACE_NAMES,
+      SCHEMA_GENERAL,
+      META_PREF_WORKSPACE_NAMES, },
+    NULL,
+    &workspace_names,
+  },
+  {
+    { KEY_XKB_OPTIONS,
+      SCHEMA_INPUT_SOURCES,
+      META_PREF_KEYBINDINGS, },
+    iso_next_group_handler,
+    NULL,
+  },
+  { { NULL, 0, 0 }, NULL },
+};
 
 static MetaIntPreference preferences_int[] =
+{
   {
-    {
-      { KEY_NUM_WORKSPACES,
-        SCHEMA_GENERAL,
-        META_PREF_NUM_WORKSPACES,
-      },
-      &num_workspaces
-    },
-    {
-      { "auto-raise-delay",
-        SCHEMA_GENERAL,
-        META_PREF_AUTO_RAISE_DELAY,
-      },
-      &auto_raise_delay
-    },
-    {
-      { "draggable-border-width",
-        SCHEMA_MUTTER,
-        META_PREF_DRAGGABLE_BORDER_WIDTH,
-      },
-      &draggable_border_width
-    },
-    {
-      { "drag-threshold",
-        SCHEMA_MOUSE,
-        META_PREF_DRAG_THRESHOLD,
-      },
-      &drag_threshold
-    },
-    {
-      { "cursor-size",
-        SCHEMA_INTERFACE,
-        META_PREF_CURSOR_SIZE,
-      },
-      &cursor_size
-    },
-    { { NULL, 0, 0 }, NULL },
-  };
+    { KEY_NUM_WORKSPACES,
+      SCHEMA_GENERAL,
+      META_PREF_NUM_WORKSPACES, },
+    &num_workspaces
+  },
+  {
+    { "auto-raise-delay",
+      SCHEMA_GENERAL,
+      META_PREF_AUTO_RAISE_DELAY, },
+    &auto_raise_delay
+  },
+  {
+    { "draggable-border-width",
+      SCHEMA_MUTTER,
+      META_PREF_DRAGGABLE_BORDER_WIDTH, },
+    &draggable_border_width
+  },
+  {
+    { "drag-threshold",
+      SCHEMA_MOUSE,
+      META_PREF_DRAG_THRESHOLD, },
+    &drag_threshold
+  },
+  {
+    { "cursor-size",
+      SCHEMA_INTERFACE,
+      META_PREF_CURSOR_SIZE, },
+    &cursor_size
+  },
+  { { NULL, 0, 0 }, NULL },
+};
 
 static void
 handle_preference_init_enum (void)
@@ -499,7 +471,7 @@ handle_preference_init_enum (void)
 
   while (cursor->base.key != NULL)
     {
-      if (cursor->target==NULL)
+      if (cursor->target == NULL)
         continue;
 
       *((gint *) cursor->target) =
@@ -516,7 +488,7 @@ handle_preference_init_bool (void)
 
   while (cursor->base.key != NULL)
     {
-      if (cursor->target!=NULL)
+      if (cursor->target != NULL)
         *cursor->target =
           g_settings_get_boolean (SETTINGS (cursor->base.schema),
                                   cursor->base.key);
@@ -616,7 +588,7 @@ handle_preference_init_int (void)
 
 static void
 handle_preference_update_enum (GSettings *settings,
-                               gchar *key)
+                               gchar     *key)
 {
   MetaEnumPreference *cursor = preferences_enum;
   gint old_value;
@@ -632,18 +604,18 @@ handle_preference_update_enum (GSettings *settings,
    * store the current value away.
    */
 
-  old_value = * ((gint *)cursor->target);
-  *((gint *)cursor->target) =
+  old_value = *((gint *) cursor->target);
+  *((gint *) cursor->target) =
     g_settings_get_enum (SETTINGS (cursor->base.schema), key);
 
   /* Did it change?  If so, tell the listeners about it. */
-  if (old_value != *((gint *)cursor->target))
+  if (old_value != *((gint *) cursor->target))
     queue_changed (cursor->base.pref);
 }
 
 static void
 handle_preference_update_bool (GSettings *settings,
-                               gchar *key)
+                               gchar     *key)
 {
   MetaBoolPreference *cursor = preferences_bool;
   gboolean old_value;
@@ -665,16 +637,16 @@ handle_preference_update_bool (GSettings *settings,
     g_settings_get_boolean (SETTINGS (cursor->base.schema), key);
 
   /* Did it change?  If so, tell the listeners about it. */
-  if (old_value != *((gboolean *)cursor->target))
+  if (old_value != *((gboolean *) cursor->target))
     queue_changed (cursor->base.pref);
 
-  if (cursor->base.pref==META_PREF_DISABLE_WORKAROUNDS)
+  if (cursor->base.pref == META_PREF_DISABLE_WORKAROUNDS)
     maybe_give_disable_workarounds_warning ();
 }
 
 static void
 handle_preference_update_string (GSettings *settings,
-                                 gchar *key)
+                                 gchar     *key)
 {
   MetaStringPreference *cursor = preferences_string;
   char *value;
@@ -683,7 +655,7 @@ handle_preference_update_string (GSettings *settings,
   while (cursor->base.key != NULL && strcmp (key, cursor->base.key) != 0)
     ++cursor;
 
-  if (cursor->base.key==NULL)
+  if (cursor->base.key == NULL)
     /* Didn't recognise that key. */
     return;
 
@@ -706,7 +678,7 @@ handle_preference_update_string (GSettings *settings,
 
       inform_listeners = (g_strcmp0 (value, *(cursor->target)) != 0);
 
-      g_free(*(cursor->target));
+      g_free (*(cursor->target));
 
       *(cursor->target) = value;
     }
@@ -717,7 +689,7 @@ handle_preference_update_string (GSettings *settings,
 
 static void
 handle_preference_update_string_array (GSettings *settings,
-                                       gchar *key)
+                                       gchar     *key)
 {
   MetaStringArrayPreference *cursor = preferences_string_array;
   gboolean inform_listeners = FALSE;
@@ -725,7 +697,7 @@ handle_preference_update_string_array (GSettings *settings,
   while (cursor->base.key != NULL && strcmp (key, cursor->base.key) != 0)
     ++cursor;
 
-  if (cursor->base.key==NULL)
+  if (cursor->base.key == NULL)
     /* Didn't recognise that key. */
     return;
 
@@ -767,7 +739,7 @@ handle_preference_update_string_array (GSettings *settings,
 
 static void
 handle_preference_update_int (GSettings *settings,
-                              gchar *key)
+                              gchar     *key)
 {
   MetaIntPreference *cursor = preferences_int;
   gint new_value;
@@ -860,7 +832,7 @@ emit_changed (MetaPreference pref)
     {
       MetaPrefsListener *l = tmp->data;
 
-      (* l->func) (pref, l->data);
+      (*l->func)(pref, l->data);
 
       tmp = tmp->next;
     }
@@ -956,7 +928,8 @@ meta_prefs_init (void)
   settings = g_settings_new (SCHEMA_INPUT_SOURCES);
   g_signal_connect (settings, "changed::" KEY_XKB_OPTIONS,
                     G_CALLBACK (settings_changed), NULL);
-  g_hash_table_insert (settings_schemas, g_strdup (SCHEMA_INPUT_SOURCES), settings);
+  g_hash_table_insert (settings_schemas, g_strdup (
+                         SCHEMA_INPUT_SOURCES), settings);
 
   /* Pick up initial values. */
 
@@ -989,7 +962,7 @@ find_pref (void                *prefs,
           return TRUE;
         }
 
-      p = (guchar *)p + pref_size;
+      p = (guchar *) p + pref_size;
     }
 
   return FALSE;
@@ -1003,8 +976,8 @@ find_pref (void                *prefs,
 
 static void
 settings_changed (GSettings *settings,
-                  gchar *key,
-                  gpointer data)
+                  gchar     *key,
+                  gpointer   data)
 {
   GVariant *value;
   const GVariantType *type;
@@ -1027,7 +1000,6 @@ settings_changed (GSettings *settings,
 
       while (cursor->base.key != NULL)
         {
-
           if (strcmp (key, cursor->base.key) == 0)
             found_enum = TRUE;
 
@@ -1050,8 +1022,8 @@ settings_changed (GSettings *settings,
 
 static void
 bindings_changed (GSettings *settings,
-                  gchar *key,
-                  gpointer data)
+                  gchar     *key,
+                  gpointer   data)
 {
   gchar **strokes;
   strokes = g_settings_get_strv (settings, key);
@@ -1137,7 +1109,7 @@ meta_prefs_set_show_fallback_app_menu (gboolean whether)
     queue_changed (META_PREF_BUTTON_LAYOUT);
 }
 
-const char*
+const char *
 meta_prefs_get_cursor_theme (void)
 {
   return cursor_theme;
@@ -1157,7 +1129,7 @@ meta_prefs_get_cursor_size (void)
 static gboolean
 titlebar_handler (GVariant *value,
                   gpointer *result,
-                  gpointer data)
+                  gpointer  data)
 {
   PangoFontDescription *desc;
   const gchar *string_value;
@@ -1314,9 +1286,9 @@ button_layout_handler (GVariant *value,
       while (buttons[b] != NULL)
         {
           MetaButtonFunction f = button_function_from_string (buttons[b]);
-          if (i > 0 && strcmp("spacer", buttons[b]) == 0)
+          if (i > 0 && strcmp ("spacer", buttons[b]) == 0)
             {
-              new_layout.left_buttons_has_spacer[i-1] = TRUE;
+              new_layout.left_buttons_has_spacer[i - 1] = TRUE;
             }
           else
             {
@@ -1328,7 +1300,8 @@ button_layout_handler (GVariant *value,
                 }
               else
                 {
-                  meta_topic (META_DEBUG_PREFS, "Ignoring unknown or already-used button name \"%s\"\n",
+                  meta_topic (META_DEBUG_PREFS,
+                              "Ignoring unknown or already-used button name \"%s\"\n",
                               buttons[b]);
                 }
             }
@@ -1365,9 +1338,9 @@ button_layout_handler (GVariant *value,
       while (buttons[b] != NULL)
         {
           MetaButtonFunction f = button_function_from_string (buttons[b]);
-          if (i > 0 && strcmp("spacer", buttons[b]) == 0)
+          if (i > 0 && strcmp ("spacer", buttons[b]) == 0)
             {
-              new_layout.right_buttons_has_spacer[i-1] = TRUE;
+              new_layout.right_buttons_has_spacer[i - 1] = TRUE;
             }
           else
             {
@@ -1379,7 +1352,8 @@ button_layout_handler (GVariant *value,
                 }
               else
                 {
-                  meta_topic (META_DEBUG_PREFS, "Ignoring unknown or already-used button name \"%s\"\n",
+                  meta_topic (META_DEBUG_PREFS,
+                              "Ignoring unknown or already-used button name \"%s\"\n",
                               buttons[b]);
                 }
             }
@@ -1399,19 +1373,24 @@ button_layout_handler (GVariant *value,
   g_strfreev (sides);
 
   /* Invert the button layout for RTL languages */
-  if (meta_get_locale_direction() == META_LOCALE_DIRECTION_RTL)
+  if (meta_get_locale_direction () == META_LOCALE_DIRECTION_RTL)
     {
       MetaButtonLayout rtl_layout;
       int j;
 
-      for (i = 0; new_layout.left_buttons[i] != META_BUTTON_FUNCTION_LAST; i++);
+      for (i = 0; new_layout.left_buttons[i] != META_BUTTON_FUNCTION_LAST; i++)
+        ;
       for (j = 0; j < i; j++)
         {
           rtl_layout.right_buttons[j] = new_layout.left_buttons[i - j - 1];
           if (j == 0)
-            rtl_layout.right_buttons_has_spacer[i - 1] = new_layout.left_buttons_has_spacer[i - j - 1];
+            rtl_layout.right_buttons_has_spacer[i -
+                                                1] =
+              new_layout.left_buttons_has_spacer[i - j - 1];
           else
-            rtl_layout.right_buttons_has_spacer[j - 1] = new_layout.left_buttons_has_spacer[i - j - 1];
+            rtl_layout.right_buttons_has_spacer[j -
+                                                1] =
+              new_layout.left_buttons_has_spacer[i - j - 1];
         }
       for (; j < MAX_BUTTONS_PER_CORNER; j++)
         {
@@ -1419,14 +1398,19 @@ button_layout_handler (GVariant *value,
           rtl_layout.right_buttons_has_spacer[j] = FALSE;
         }
 
-      for (i = 0; new_layout.right_buttons[i] != META_BUTTON_FUNCTION_LAST; i++);
+      for (i = 0; new_layout.right_buttons[i] != META_BUTTON_FUNCTION_LAST; i++)
+        ;
       for (j = 0; j < i; j++)
         {
           rtl_layout.left_buttons[j] = new_layout.right_buttons[i - j - 1];
           if (j == 0)
-            rtl_layout.left_buttons_has_spacer[i - 1] = new_layout.right_buttons_has_spacer[i - j - 1];
+            rtl_layout.left_buttons_has_spacer[i -
+                                               1] =
+              new_layout.right_buttons_has_spacer[i - j - 1];
           else
-            rtl_layout.left_buttons_has_spacer[j - 1] = new_layout.right_buttons_has_spacer[i - j - 1];
+            rtl_layout.left_buttons_has_spacer[j -
+                                               1] =
+              new_layout.right_buttons_has_spacer[i - j - 1];
         }
       for (; j < MAX_BUTTONS_PER_CORNER; j++)
         {
@@ -1511,7 +1495,7 @@ iso_next_group_handler (GVariant *value,
   return TRUE;
 }
 
-const PangoFontDescription*
+const PangoFontDescription *
 meta_prefs_get_titlebar_font (void)
 {
   if (use_system_font)
@@ -1539,7 +1523,7 @@ meta_prefs_get_disable_workarounds (void)
 }
 
 #ifdef WITH_VERBOSE_MODE
-const char*
+const char *
 meta_preference_to_string (MetaPreference pref)
 {
   /* TODO: better handled via GLib enum nicknames */
@@ -1654,7 +1638,7 @@ meta_prefs_set_num_workspaces (int n_workspaces)
 {
   MetaBasePreference *pref;
 
-  if (find_pref (preferences_int, sizeof(MetaIntPreference),
+  if (find_pref (preferences_int, sizeof (MetaIntPreference),
                  KEY_NUM_WORKSPACES, &pref))
     {
       g_settings_set_int (SETTINGS (pref->schema),
@@ -1683,7 +1667,7 @@ init_bindings (void)
   MetaKeyPref *pref;
 
   key_bindings = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
-                                        (GDestroyNotify)meta_key_pref_free);
+                                        (GDestroyNotify) meta_key_pref_free);
 
   pref = g_new0 (MetaKeyPref, 1);
   pref->name = g_strdup ("overlay-key");
@@ -1719,13 +1703,15 @@ update_binding (MetaKeyPref *binding,
         {
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Failed to parse new GSettings value\n");
-          meta_warning ("\"%s\" found in configuration database is not a valid value for keybinding \"%s\"\n",
-                        strokes[i], binding->name);
+          meta_warning (
+            "\"%s\" found in configuration database is not a valid value for keybinding \"%s\"\n",
+            strokes[i], binding->name);
 
           g_free (combo);
 
           /* Value is kept and will thus be removed next time we save the key.
-           * Changing the key in response to a modification could lead to cyclic calls. */
+           * Changing the key in response to a modification could lead to cyclic
+           *calls. */
           continue;
         }
 
@@ -1777,13 +1763,13 @@ update_key_binding (const char *key,
     return FALSE;
 }
 
-const char*
+const char *
 meta_prefs_get_workspace_name (int i)
 {
   const char *name;
 
   if (!workspace_names ||
-      g_strv_length (workspace_names) < (guint)i + 1 ||
+      g_strv_length (workspace_names) < (guint) i + 1 ||
       !*workspace_names[i])
     {
       char *generated_name = g_strdup_printf (_("Workspace %d"), i + 1);
@@ -1876,14 +1862,14 @@ meta_prefs_get_visual_bell_type (void)
 }
 
 gboolean
-meta_prefs_add_keybinding (const char           *name,
-                           GSettings            *settings,
-                           MetaKeyBindingAction  action,
-                           MetaKeyBindingFlags   flags)
+meta_prefs_add_keybinding (const char          *name,
+                           GSettings           *settings,
+                           MetaKeyBindingAction action,
+                           MetaKeyBindingFlags  flags)
 {
-  MetaKeyPref  *pref;
-  char        **strokes;
-  guint         id;
+  MetaKeyPref *pref;
+  char **strokes;
+  guint id;
 
   if (g_hash_table_lookup (key_bindings, name))
     {
@@ -1904,7 +1890,9 @@ meta_prefs_add_keybinding (const char           *name,
         {
           id = g_signal_connect (settings, "changed",
                                  G_CALLBACK (bindings_changed), NULL);
-          g_object_set_data (G_OBJECT (settings), "changed-signal", GUINT_TO_POINTER (id));
+          g_object_set_data (G_OBJECT (
+                               settings), "changed-signal", GUINT_TO_POINTER (
+                               id));
         }
     }
   else
@@ -1932,7 +1920,7 @@ gboolean
 meta_prefs_remove_keybinding (const char *name)
 {
   MetaKeyPref *pref;
-  guint        id;
+  guint id;
 
   pref = g_hash_table_lookup (key_bindings, name);
   if (!pref)
@@ -2041,19 +2029,19 @@ meta_prefs_get_keybinding_action (const char *name)
   MetaKeyPref *pref = g_hash_table_lookup (key_bindings, name);
 
   return pref ? pref->action
-              : META_KEYBINDING_ACTION_NONE;
+         : META_KEYBINDING_ACTION_NONE;
 }
 
 gint
 meta_prefs_get_mouse_button_resize (void)
 {
-  return resize_with_right_button ? 3: 2;
+  return resize_with_right_button ? 3 : 2;
 }
 
 gint
 meta_prefs_get_mouse_button_menu (void)
 {
-  return resize_with_right_button ? 2: 3;
+  return resize_with_right_button ? 2 : 3;
 }
 
 gboolean

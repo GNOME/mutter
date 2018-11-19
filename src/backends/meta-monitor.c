@@ -123,7 +123,8 @@ gboolean
 meta_monitor_spec_equals (MetaMonitorSpec *monitor_spec,
                           MetaMonitorSpec *other_monitor_spec)
 {
-  return (g_str_equal (monitor_spec->connector, other_monitor_spec->connector) &&
+  return (g_str_equal (monitor_spec->connector,
+                       other_monitor_spec->connector) &&
           g_str_equal (monitor_spec->vendor, other_monitor_spec->vendor) &&
           g_str_equal (monitor_spec->product, other_monitor_spec->product) &&
           g_str_equal (monitor_spec->serial, other_monitor_spec->serial));
@@ -353,8 +354,8 @@ meta_monitor_get_connector_type (MetaMonitor *monitor)
 }
 
 MetaMonitorTransform
-meta_monitor_logical_to_crtc_transform (MetaMonitor          *monitor,
-                                        MetaMonitorTransform  transform)
+meta_monitor_logical_to_crtc_transform (MetaMonitor         *monitor,
+                                        MetaMonitorTransform transform)
 {
   MetaOutput *output = meta_monitor_get_main_output (monitor);
   MetaMonitorTransform new_transform;
@@ -368,8 +369,8 @@ meta_monitor_logical_to_crtc_transform (MetaMonitor          *monitor,
 }
 
 MetaMonitorTransform
-meta_monitor_crtc_to_logical_transform (MetaMonitor          *monitor,
-                                        MetaMonitorTransform  transform)
+meta_monitor_crtc_to_logical_transform (MetaMonitor         *monitor,
+                                        MetaMonitorTransform transform)
 {
   MetaOutput *output = meta_monitor_get_main_output (monitor);
   MetaMonitorTransform new_transform;
@@ -483,10 +484,10 @@ meta_monitor_create_spec (MetaMonitor  *monitor,
     }
 
   return (MetaMonitorModeSpec) {
-    .width = width,
-    .height = height,
-    .refresh_rate = crtc_mode->refresh_rate,
-    .flags = crtc_mode->flags & HANDLED_CRTC_MODE_FLAGS
+           .width = width,
+           .height = height,
+           .refresh_rate = crtc_mode->refresh_rate,
+           .flags = crtc_mode->flags & HANDLED_CRTC_MODE_FLAGS
   };
 }
 
@@ -638,7 +639,8 @@ meta_monitor_normal_class_init (MetaMonitorNormalClass *klass)
   monitor_class->get_main_output = meta_monitor_normal_get_main_output;
   monitor_class->derive_layout = meta_monitor_normal_derive_layout;
   monitor_class->calculate_crtc_pos = meta_monitor_normal_calculate_crtc_pos;
-  monitor_class->get_suggested_position = meta_monitor_normal_get_suggested_position;
+  monitor_class->get_suggested_position =
+    meta_monitor_normal_get_suggested_position;
 }
 
 uint32_t
@@ -702,37 +704,45 @@ calculate_tile_coordinate (MetaMonitor         *monitor,
         {
         case META_MONITOR_TRANSFORM_NORMAL:
         case META_MONITOR_TRANSFORM_FLIPPED:
-          if (other_output->tile_info.loc_v_tile == output->tile_info.loc_v_tile &&
+          if (other_output->tile_info.loc_v_tile ==
+              output->tile_info.loc_v_tile &&
               other_output->tile_info.loc_h_tile < output->tile_info.loc_h_tile)
             x += other_output->tile_info.tile_w;
-          if (other_output->tile_info.loc_h_tile == output->tile_info.loc_h_tile &&
+          if (other_output->tile_info.loc_h_tile ==
+              output->tile_info.loc_h_tile &&
               other_output->tile_info.loc_v_tile < output->tile_info.loc_v_tile)
             y += other_output->tile_info.tile_h;
           break;
         case META_MONITOR_TRANSFORM_180:
         case META_MONITOR_TRANSFORM_FLIPPED_180:
-          if (other_output->tile_info.loc_v_tile == output->tile_info.loc_v_tile &&
+          if (other_output->tile_info.loc_v_tile ==
+              output->tile_info.loc_v_tile &&
               other_output->tile_info.loc_h_tile > output->tile_info.loc_h_tile)
             x += other_output->tile_info.tile_w;
-          if (other_output->tile_info.loc_h_tile == output->tile_info.loc_h_tile &&
+          if (other_output->tile_info.loc_h_tile ==
+              output->tile_info.loc_h_tile &&
               other_output->tile_info.loc_v_tile > output->tile_info.loc_v_tile)
             y += other_output->tile_info.tile_h;
           break;
         case META_MONITOR_TRANSFORM_270:
         case META_MONITOR_TRANSFORM_FLIPPED_270:
-          if (other_output->tile_info.loc_v_tile == output->tile_info.loc_v_tile &&
+          if (other_output->tile_info.loc_v_tile ==
+              output->tile_info.loc_v_tile &&
               other_output->tile_info.loc_h_tile < output->tile_info.loc_h_tile)
             y += other_output->tile_info.tile_w;
-          if (other_output->tile_info.loc_h_tile == output->tile_info.loc_h_tile &&
+          if (other_output->tile_info.loc_h_tile ==
+              output->tile_info.loc_h_tile &&
               other_output->tile_info.loc_v_tile < output->tile_info.loc_v_tile)
             x += other_output->tile_info.tile_h;
           break;
         case META_MONITOR_TRANSFORM_90:
         case META_MONITOR_TRANSFORM_FLIPPED_90:
-          if (other_output->tile_info.loc_v_tile == output->tile_info.loc_v_tile &&
+          if (other_output->tile_info.loc_v_tile ==
+              output->tile_info.loc_v_tile &&
               other_output->tile_info.loc_h_tile > output->tile_info.loc_h_tile)
             y += other_output->tile_info.tile_w;
-          if (other_output->tile_info.loc_h_tile == output->tile_info.loc_h_tile &&
+          if (other_output->tile_info.loc_h_tile ==
+              output->tile_info.loc_h_tile &&
               other_output->tile_info.loc_v_tile > output->tile_info.loc_v_tile)
             x += other_output->tile_info.tile_h;
           break;
@@ -1318,7 +1328,8 @@ meta_monitor_tiled_class_init (MetaMonitorTiledClass *klass)
   monitor_class->get_main_output = meta_monitor_tiled_get_main_output;
   monitor_class->derive_layout = meta_monitor_tiled_derive_layout;
   monitor_class->calculate_crtc_pos = meta_monitor_tiled_calculate_crtc_pos;
-  monitor_class->get_suggested_position = meta_monitor_tiled_get_suggested_position;
+  monitor_class->get_suggested_position =
+    meta_monitor_tiled_get_suggested_position;
 }
 
 static void
@@ -1368,7 +1379,8 @@ meta_monitor_mode_spec_equals (MetaMonitorModeSpec *monitor_mode_spec,
   return (monitor_mode_spec->width == other_monitor_mode_spec->width &&
           monitor_mode_spec->height == other_monitor_mode_spec->height &&
           ABS (monitor_mode_spec->refresh_rate -
-               other_monitor_mode_spec->refresh_rate) < MAXIMUM_REFRESH_RATE_DIFF &&
+               other_monitor_mode_spec->refresh_rate) <
+          MAXIMUM_REFRESH_RATE_DIFF &&
           monitor_mode_spec->flags == other_monitor_mode_spec->flags);
 }
 
@@ -1485,7 +1497,8 @@ meta_monitor_calculate_crtc_pos (MetaMonitor         *monitor,
  */
 #define HIDPI_MIN_HEIGHT 1200
 
-/* From http://en.wikipedia.org/wiki/4K_resolution#Resolutions_of_common_formats */
+/* From http://en.wikipedia.org/wiki/4K_resolution#Resolutions_of_common_formats
+ * */
 #define SMALLEST_4K_WIDTH 3656
 
 static float
@@ -1612,7 +1625,6 @@ get_closest_scale_factor_for_resolution (float width,
 
   do
     {
-
       for (j = 0; j < 2; j++)
         {
           float current_scale;

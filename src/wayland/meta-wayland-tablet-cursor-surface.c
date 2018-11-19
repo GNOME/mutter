@@ -38,6 +38,7 @@ meta_wayland_tablet_cursor_surface_init (MetaWaylandTabletCursorSurface *role)
 }
 
 static void
-meta_wayland_tablet_cursor_surface_class_init (MetaWaylandTabletCursorSurfaceClass *klass)
+meta_wayland_tablet_cursor_surface_class_init (
+  MetaWaylandTabletCursorSurfaceClass *klass)
 {
 }

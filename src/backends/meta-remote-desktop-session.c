@@ -38,7 +38,8 @@
 
 #include "meta-dbus-remote-desktop.h"
 
-#define META_REMOTE_DESKTOP_SESSION_DBUS_PATH "/org/gnome/Mutter/RemoteDesktop/Session"
+#define META_REMOTE_DESKTOP_SESSION_DBUS_PATH \
+  "/org/gnome/Mutter/RemoteDesktop/Session"
 
 enum _MetaRemoteDesktopNotifyAxisFlags
 {
@@ -65,7 +66,8 @@ struct _MetaRemoteDesktopSession
 };
 
 static void
-meta_remote_desktop_session_init_iface (MetaDBusRemoteDesktopSessionIface *iface);
+meta_remote_desktop_session_init_iface (
+  MetaDBusRemoteDesktopSessionIface *iface);
 
 static void
 meta_dbus_session_init_iface (MetaDbusSessionInterface *iface);
@@ -73,8 +75,9 @@ meta_dbus_session_init_iface (MetaDbusSessionInterface *iface);
 G_DEFINE_TYPE_WITH_CODE (MetaRemoteDesktopSession,
                          meta_remote_desktop_session,
                          META_DBUS_TYPE_REMOTE_DESKTOP_SESSION_SKELETON,
-                         G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_REMOTE_DESKTOP_SESSION,
-                                                meta_remote_desktop_session_init_iface)
+                         G_IMPLEMENT_INTERFACE (
+                           META_DBUS_TYPE_REMOTE_DESKTOP_SESSION,
+                           meta_remote_desktop_session_init_iface)
                          G_IMPLEMENT_INTERFACE (META_TYPE_DBUS_SESSION,
                                                 meta_dbus_session_init_iface))
 
@@ -90,7 +93,7 @@ G_DEFINE_TYPE (MetaRemoteDesktopSessionHandle,
                META_TYPE_REMOTE_ACCESS_HANDLE)
 
 static MetaRemoteDesktopSessionHandle *
-meta_remote_desktop_session_handle_new (MetaRemoteDesktopSession *session);
+meta_remote_desktop_session_handle_new (MetaRemoteDesktopSession * session);
 
 static gboolean
 meta_remote_desktop_session_is_running (MetaRemoteDesktopSession *session)
@@ -107,7 +110,8 @@ init_remote_access_handle (MetaRemoteDesktopSession *session)
 
   session->handle = meta_remote_desktop_session_handle_new (session);
 
-  remote_access_controller = meta_backend_get_remote_access_controller (backend);
+  remote_access_controller =
+    meta_backend_get_remote_access_controller (backend);
   remote_access_handle = META_REMOTE_ACCESS_HANDLE (session->handle);
   meta_remote_access_controller_notify_new_handle (remote_access_controller,
                                                    remote_access_handle);
@@ -197,9 +201,10 @@ on_screen_cast_session_closed (MetaScreenCastSession    *screen_cast_session,
 }
 
 gboolean
-meta_remote_desktop_session_register_screen_cast (MetaRemoteDesktopSession  *session,
-                                                  MetaScreenCastSession     *screen_cast_session,
-                                                  GError                   **error)
+meta_remote_desktop_session_register_screen_cast (
+  MetaRemoteDesktopSession *session,
+  MetaScreenCastSession    *screen_cast_session,
+  GError                  **error)
 {
   if (session->screen_cast_session)
     {
@@ -219,9 +224,9 @@ meta_remote_desktop_session_register_screen_cast (MetaRemoteDesktopSession  *ses
 }
 
 MetaRemoteDesktopSession *
-meta_remote_desktop_session_new (MetaRemoteDesktop  *remote_desktop,
-                                 const char         *peer_name,
-                                 GError            **error)
+meta_remote_desktop_session_new (MetaRemoteDesktop *remote_desktop,
+                                 const char        *peer_name,
+                                 GError           **error)
 {
   GDBusInterfaceSkeleton *interface_skeleton;
   MetaRemoteDesktopSession *session;
@@ -452,11 +457,12 @@ handle_notify_pointer_axis (MetaDBusRemoteDesktopSession *skeleton,
                        CLUTTER_SCROLL_FINISHED_VERTICAL);
     }
 
-  clutter_virtual_input_device_notify_scroll_continuous (session->virtual_pointer,
-                                                         CLUTTER_CURRENT_TIME,
-                                                         dx, dy,
-                                                         CLUTTER_SCROLL_SOURCE_FINGER,
-                                                         finish_flags);
+  clutter_virtual_input_device_notify_scroll_continuous (
+    session->virtual_pointer,
+    CLUTTER_CURRENT_TIME,
+    dx, dy,
+    CLUTTER_SCROLL_SOURCE_FINGER,
+    finish_flags);
 
   meta_dbus_remote_desktop_session_complete_notify_pointer_axis (skeleton,
                                                                  invocation);
@@ -522,13 +528,15 @@ handle_notify_pointer_axis_discrete (MetaDBusRemoteDesktopSession *skeleton,
   direction = discrete_steps_to_scroll_direction (axis, steps);
 
   for (step_count = 0; step_count < abs (steps); step_count++)
-    clutter_virtual_input_device_notify_discrete_scroll (session->virtual_pointer,
-                                                         CLUTTER_CURRENT_TIME,
-                                                         direction,
-                                                         CLUTTER_SCROLL_SOURCE_WHEEL);
+    clutter_virtual_input_device_notify_discrete_scroll (
+      session->virtual_pointer,
+      CLUTTER_CURRENT_TIME,
+      direction,
+      CLUTTER_SCROLL_SOURCE_WHEEL);
 
-  meta_dbus_remote_desktop_session_complete_notify_pointer_axis_discrete (skeleton,
-                                                                          invocation);
+  meta_dbus_remote_desktop_session_complete_notify_pointer_axis_discrete (
+    skeleton,
+    invocation);
 
   return TRUE;
 }
@@ -553,8 +561,9 @@ handle_notify_pointer_motion_relative (MetaDBusRemoteDesktopSession *skeleton,
                                                        CLUTTER_CURRENT_TIME,
                                                        dx, dy);
 
-  meta_dbus_remote_desktop_session_complete_notify_pointer_motion_relative (skeleton,
-                                                                            invocation);
+  meta_dbus_remote_desktop_session_complete_notify_pointer_motion_relative (
+    skeleton,
+    invocation);
 
   return TRUE;
 }
@@ -602,8 +611,9 @@ handle_notify_pointer_motion_absolute (MetaDBusRemoteDesktopSession *skeleton,
                                                        CLUTTER_CURRENT_TIME,
                                                        abs_x, abs_y);
 
-  meta_dbus_remote_desktop_session_complete_notify_pointer_motion_absolute (skeleton,
-                                                                            invocation);
+  meta_dbus_remote_desktop_session_complete_notify_pointer_motion_absolute (
+    skeleton,
+    invocation);
 
   return TRUE;
 }
@@ -699,10 +709,11 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
 
   meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y);
 
-  clutter_virtual_input_device_notify_touch_motion (session->virtual_touchscreen,
-                                                    CLUTTER_CURRENT_TIME,
-                                                    slot,
-                                                    abs_x, abs_y);
+  clutter_virtual_input_device_notify_touch_motion (
+    session->virtual_touchscreen,
+    CLUTTER_CURRENT_TIME,
+    slot,
+    abs_x, abs_y);
 
   meta_dbus_remote_desktop_session_complete_notify_touch_motion (skeleton,
                                                                  invocation);
@@ -712,8 +723,8 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
 
 static gboolean
 handle_notify_touch_up (MetaDBusRemoteDesktopSession *skeleton,
-                          GDBusMethodInvocation        *invocation,
-                          unsigned int                  slot)
+                        GDBusMethodInvocation        *invocation,
+                        unsigned int                  slot)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
 
@@ -726,8 +737,8 @@ handle_notify_touch_up (MetaDBusRemoteDesktopSession *skeleton,
     }
 
   clutter_virtual_input_device_notify_touch_up (session->virtual_touchscreen,
-                                                       CLUTTER_CURRENT_TIME,
-                                                       slot);
+                                                CLUTTER_CURRENT_TIME,
+                                                slot);
 
   meta_dbus_remote_desktop_session_complete_notify_touch_up (skeleton,
                                                              invocation);
@@ -744,9 +755,12 @@ meta_remote_desktop_session_init_iface (MetaDBusRemoteDesktopSessionIface *iface
   iface->handle_notify_keyboard_keysym = handle_notify_keyboard_keysym;
   iface->handle_notify_pointer_button = handle_notify_pointer_button;
   iface->handle_notify_pointer_axis = handle_notify_pointer_axis;
-  iface->handle_notify_pointer_axis_discrete = handle_notify_pointer_axis_discrete;
-  iface->handle_notify_pointer_motion_relative = handle_notify_pointer_motion_relative;
-  iface->handle_notify_pointer_motion_absolute = handle_notify_pointer_motion_absolute;
+  iface->handle_notify_pointer_axis_discrete =
+    handle_notify_pointer_axis_discrete;
+  iface->handle_notify_pointer_motion_relative =
+    handle_notify_pointer_motion_relative;
+  iface->handle_notify_pointer_motion_absolute =
+    handle_notify_pointer_motion_absolute;
   iface->handle_notify_touch_down = handle_notify_touch_down;
   iface->handle_notify_touch_motion = handle_notify_touch_motion;
   iface->handle_notify_touch_up = handle_notify_touch_up;
@@ -783,7 +797,7 @@ static void
 meta_remote_desktop_session_init (MetaRemoteDesktopSession *session)
 {
   MetaDBusRemoteDesktopSession *skeleton =
-    META_DBUS_REMOTE_DESKTOP_SESSION  (session);
+    META_DBUS_REMOTE_DESKTOP_SESSION (session);
   GRand *rand;
   static unsigned int global_session_number = 0;
 
@@ -791,7 +805,8 @@ meta_remote_desktop_session_init (MetaRemoteDesktopSession *session)
   session->session_id = meta_generate_random_id (rand, 32);
   g_rand_free (rand);
 
-  meta_dbus_remote_desktop_session_set_session_id (skeleton, session->session_id);
+  meta_dbus_remote_desktop_session_set_session_id (skeleton,
+                                                   session->session_id);
 
   session->object_path =
     g_strdup_printf (META_REMOTE_DESKTOP_SESSION_DBUS_PATH "/u%u",
@@ -801,7 +816,6 @@ meta_remote_desktop_session_init (MetaRemoteDesktopSession *session)
 static void
 meta_remote_desktop_session_class_init (MetaRemoteDesktopSessionClass *klass)
 {
-
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_remote_desktop_session_finalize;
@@ -836,7 +850,8 @@ meta_remote_desktop_session_handle_init (MetaRemoteDesktopSessionHandle *handle)
 }
 
 static void
-meta_remote_desktop_session_handle_class_init (MetaRemoteDesktopSessionHandleClass *klass)
+meta_remote_desktop_session_handle_class_init (
+  MetaRemoteDesktopSessionHandleClass *klass)
 {
   MetaRemoteAccessHandleClass *remote_access_handle_class =
     META_REMOTE_ACCESS_HANDLE_CLASS (klass);

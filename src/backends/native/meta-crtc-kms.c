@@ -48,8 +48,8 @@ typedef struct _MetaCrtcKms
 } MetaCrtcKms;
 
 gboolean
-meta_crtc_kms_is_transform_handled (MetaCrtc             *crtc,
-                                    MetaMonitorTransform  transform)
+meta_crtc_kms_is_transform_handled (MetaCrtc            *crtc,
+                                    MetaMonitorTransform transform)
 {
   MetaCrtcKms *crtc_kms = crtc->driver_private;
 
@@ -132,7 +132,6 @@ meta_crtc_kms_set_underscan (MetaCrtc *crtc,
                                     DRM_MODE_OBJECT_CRTC,
                                     crtc_kms->underscan_vborder_prop_id, value);
         }
-
     }
   else
     {
@@ -143,10 +142,10 @@ meta_crtc_kms_set_underscan (MetaCrtc *crtc,
 }
 
 static int
-find_property_index (MetaGpu                    *gpu,
-                     drmModeObjectPropertiesPtr  props,
-                     const char                 *prop_name,
-                     drmModePropertyPtr         *out_prop)
+find_property_index (MetaGpu                   *gpu,
+                     drmModeObjectPropertiesPtr props,
+                     const char                *prop_name,
+                     drmModePropertyPtr        *out_prop)
 {
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
   int kms_fd;
@@ -429,9 +428,9 @@ meta_crtc_destroy_notify (MetaCrtc *crtc)
 }
 
 MetaCrtc *
-meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
-                      drmModeCrtc  *drm_crtc,
-                      unsigned int  crtc_index)
+meta_create_kms_crtc (MetaGpuKms  *gpu_kms,
+                      drmModeCrtc *drm_crtc,
+                      unsigned int crtc_index)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaCrtc *crtc;
@@ -448,7 +447,7 @@ meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
   crtc->is_dirty = FALSE;
   crtc->transform = META_MONITOR_TRANSFORM_NORMAL;
   crtc->all_transforms = meta_is_stage_views_enabled () ?
-    ALL_TRANSFORMS_MASK : META_MONITOR_TRANSFORM_NORMAL;
+                         ALL_TRANSFORMS_MASK : META_MONITOR_TRANSFORM_NORMAL;
 
   if (drm_crtc->mode_valid)
     {

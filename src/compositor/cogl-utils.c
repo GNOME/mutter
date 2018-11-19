@@ -43,11 +43,11 @@ meta_create_texture_pipeline (CoglTexture *src_texture)
   CoglPipeline *pipeline;
 
   /* The only state used in the pipeline that would affect the shader
-     generation is the texture type on the layer. Therefore we create
-     a template pipeline which sets this state and all texture
-     pipelines are created as a copy of this. That way Cogl can find
-     the shader state for the pipeline more quickly by looking at the
-     pipeline ancestry instead of resorting to the shader cache. */
+   *  generation is the texture type on the layer. Therefore we create
+   *  a template pipeline which sets this state and all texture
+   *  pipelines are created as a copy of this. That way Cogl can find
+   *  the shader state for the pipeline more quickly by looking at the
+   *  pipeline ancestry instead of resorting to the shader cache. */
   if (G_UNLIKELY (texture_pipeline_template == NULL))
     {
       CoglContext *ctx =
@@ -119,14 +119,16 @@ meta_create_texture (int                   width,
     }
 
   if (should_use_rectangle)
-    texture = COGL_TEXTURE (cogl_texture_rectangle_new_with_size (ctx, width, height));
+    texture =
+      COGL_TEXTURE (cogl_texture_rectangle_new_with_size (ctx, width, height));
   else
     texture = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
   cogl_texture_set_components (texture, components);
 
   if ((flags & META_TEXTURE_ALLOW_SLICING) != 0)
     {
-      /* To find out if we need to slice the texture, we have to go ahead and force storage
+      /* To find out if we need to slice the texture, we have to go ahead and
+       * force storage
        * to be allocated
        */
       CoglError *catch_error = NULL;
@@ -134,7 +136,10 @@ meta_create_texture (int                   width,
         {
           cogl_error_free (catch_error);
           cogl_object_unref (texture);
-          texture = COGL_TEXTURE (cogl_texture_2d_sliced_new_with_size (ctx, width, height, COGL_TEXTURE_MAX_WASTE));
+          texture =
+            COGL_TEXTURE (cogl_texture_2d_sliced_new_with_size (ctx, width,
+                                                                height,
+                                                                COGL_TEXTURE_MAX_WASTE));
           cogl_texture_set_components (texture, components);
         }
     }

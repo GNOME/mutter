@@ -46,7 +46,7 @@ G_DEFINE_TYPE (MetaRendererView, meta_renderer_view,
                CLUTTER_TYPE_STAGE_VIEW_COGL)
 
 MetaLogicalMonitor *
-meta_renderer_view_get_logical_monitor (MetaRendererView *view)
+meta_renderer_view_get_logical_monitor (MetaRendererView * view)
 {
   return view->logical_monitor;
 }
@@ -113,14 +113,15 @@ meta_renderer_view_setup_offscreen_blit_pipeline (ClutterStageView *view,
 }
 
 static void
-meta_renderer_view_set_transform (MetaRendererView     *view,
-                                  MetaMonitorTransform  transform)
+meta_renderer_view_set_transform (MetaRendererView    *view,
+                                  MetaMonitorTransform transform)
 {
   if (view->transform == transform)
     return;
 
   view->transform = transform;
-  clutter_stage_view_invalidate_offscreen_blit_pipeline (CLUTTER_STAGE_VIEW (view));
+  clutter_stage_view_invalidate_offscreen_blit_pipeline (CLUTTER_STAGE_VIEW (
+                                                           view));
 }
 
 static void

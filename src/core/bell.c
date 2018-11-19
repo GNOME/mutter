@@ -191,7 +191,7 @@ bell_flash_window_frame (MetaWindow *window)
    * flashed state, no matter how loaded we are.
    */
   id = g_timeout_add_full (META_PRIORITY_REDRAW, 100,
-        bell_unflash_frame, window->frame, NULL);
+                           bell_unflash_frame, window->frame, NULL);
   g_source_set_name_by_id (id, "[mutter] bell_unflash_frame");
 }
 
@@ -260,9 +260,11 @@ bell_audible_notify (MetaDisplay *display,
   if (window)
     {
       ca_proplist_sets (p, CA_PROP_WINDOW_NAME, window->title);
-      ca_proplist_setf (p, CA_PROP_WINDOW_X11_XID, "%lu", (unsigned long)window->xwindow);
+      ca_proplist_setf (p, CA_PROP_WINDOW_X11_XID, "%lu",
+                        (unsigned long) window->xwindow);
       ca_proplist_sets (p, CA_PROP_APPLICATION_NAME, window->res_name);
-      ca_proplist_setf (p, CA_PROP_APPLICATION_PROCESS_ID, "%d", window->net_wm_pid);
+      ca_proplist_setf (p, CA_PROP_APPLICATION_PROCESS_ID, "%d",
+                        window->net_wm_pid);
     }
 
   res = ca_context_play_full (ca_gtk_context_get (), 1, p, NULL, NULL);

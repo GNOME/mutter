@@ -38,7 +38,8 @@
 #include "meta/boxes.h"
 
 #define PRIVATE_OWNER_FROM_FIELD(TypeName, field_ptr, field_name) \
-  (TypeName *)((guint8 *)(field_ptr) - G_PRIVATE_OFFSET (TypeName, field_name))
+  (TypeName *) ((guint8 *) (field_ptr) - \
+                G_PRIVATE_OFFSET (TypeName, field_name))
 
 enum
 {
@@ -163,7 +164,8 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
     }
   else if (spa_buffer->datas[0].type == priv->pipewire_type->data.MemFd)
     {
-      map = mmap (NULL, spa_buffer->datas[0].maxsize + spa_buffer->datas[0].mapoffset,
+      map = mmap (NULL,
+                  spa_buffer->datas[0].maxsize + spa_buffer->datas[0].mapoffset,
                   PROT_READ | PROT_WRITE, MAP_SHARED,
                   spa_buffer->datas[0].fd, 0);
       if (map == MAP_FAILED)
@@ -230,10 +232,10 @@ meta_screen_cast_stream_src_notify_closed (MetaScreenCastStreamSrc *src)
 }
 
 static void
-on_stream_state_changed (void                 *data,
-                         enum pw_stream_state  old,
-                         enum pw_stream_state  state,
-                         const char           *error_message)
+on_stream_state_changed (void                *data,
+                         enum pw_stream_state old,
+                         enum pw_stream_state state,
+                         const char          *error_message)
 {
   MetaScreenCastStreamSrc *src = data;
   MetaScreenCastStreamSrcPrivate *priv =
@@ -307,15 +309,16 @@ on_stream_format_changed (void                 *data,
                            params, G_N_ELEMENTS (params));
 }
 
-static const struct pw_stream_events stream_events = {
+static const struct pw_stream_events stream_events =
+{
   PW_VERSION_STREAM_EVENTS,
   .state_changed = on_stream_state_changed,
   .format_changed = on_stream_format_changed,
 };
 
 static struct pw_stream *
-create_pipewire_stream (MetaScreenCastStreamSrc  *src,
-                        GError                  **error)
+create_pipewire_stream (MetaScreenCastStreamSrc *src,
+                        GError                 **error)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
@@ -360,8 +363,8 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
     ":", spa_type->format_video.size, "R", &SPA_RECTANGLE (width, height),
     ":", spa_type->format_video.framerate, "F", &SPA_FRACTION (0, 1),
     ":", spa_type->format_video.max_framerate, "Fru", &max_framerate,
-                                                      PROP_RANGE (&min_framerate,
-                                                                  &max_framerate));
+    PROP_RANGE (&min_framerate,
+                &max_framerate));
 
   pw_stream_add_listener (pipewire_stream,
                           &priv->pipewire_stream_listener,
@@ -385,10 +388,10 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
 }
 
 static void
-on_state_changed (void                 *data,
-                  enum pw_remote_state  old,
-                  enum pw_remote_state  state,
-                  const char           *error_message)
+on_state_changed (void                *data,
+                  enum pw_remote_state old,
+                  enum pw_remote_state state,
+                  const char          *error_message)
 {
   MetaScreenCastStreamSrc *src = data;
   MetaScreenCastStreamSrcPrivate *priv =
@@ -430,9 +433,9 @@ pipewire_loop_source_prepare (GSource *base,
 }
 
 static gboolean
-pipewire_loop_source_dispatch (GSource     *source,
-                               GSourceFunc  callback,
-                               gpointer     user_data)
+pipewire_loop_source_dispatch (GSource    *source,
+                               GSourceFunc callback,
+                               gpointer    user_data)
 {
   MetaPipeWireSource *pipewire_source = (MetaPipeWireSource *) source;
   int result;
@@ -496,15 +499,16 @@ create_pipewire_source (void)
   return pipewire_source;
 }
 
-static const struct pw_remote_events remote_events = {
+static const struct pw_remote_events remote_events =
+{
   PW_VERSION_REMOTE_EVENTS,
   .state_changed = on_state_changed,
 };
 
 static gboolean
-meta_screen_cast_stream_src_initable_init (GInitable     *initable,
-                                           GCancellable  *cancellable,
-                                           GError       **error)
+meta_screen_cast_stream_src_initable_init (GInitable    *initable,
+                                           GCancellable *cancellable,
+                                           GError      **error)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (initable);
   MetaScreenCastStreamSrcPrivate *priv =
@@ -600,7 +604,7 @@ meta_screen_cast_stream_src_set_property (GObject      *object,
     {
     case PROP_STREAM:
       priv->stream = g_value_get_object (value);
-      break;;
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }

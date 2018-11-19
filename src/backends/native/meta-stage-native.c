@@ -32,7 +32,7 @@
 #include "meta/meta-monitor-manager.h"
 #include "meta/util.h"
 
-static GQuark quark_view_frame_closure  = 0;
+static GQuark quark_view_frame_closure = 0;
 
 struct _MetaStageNative
 {

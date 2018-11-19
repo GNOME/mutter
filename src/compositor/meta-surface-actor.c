@@ -31,11 +31,14 @@ struct _MetaSurfaceActorPrivate
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
-G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaSurfaceActor, meta_surface_actor, CLUTTER_TYPE_ACTOR,
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaSurfaceActor, meta_surface_actor,
+                                  CLUTTER_TYPE_ACTOR,
                                   G_ADD_PRIVATE (MetaSurfaceActor)
-                                  G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
+                                  G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE,
+                                                         cullable_iface_init));
 
-enum {
+enum
+{
   REPAINT_SCHEDULED,
   SIZE_CHANGED,
 
@@ -88,7 +91,8 @@ meta_surface_actor_pick (ClutterActor       *actor,
       ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
       fb = cogl_get_draw_framebuffer ();
 
-      cogl_color_init_from_4ub (&cogl_color, color->red, color->green, color->blue, color->alpha);
+      cogl_color_init_from_4ub (&cogl_color, color->red, color->green,
+                                color->blue, color->alpha);
 
       pipeline = cogl_pipeline_new (ctx);
       cogl_pipeline_set_color (pipeline, &cogl_color);
@@ -277,7 +281,10 @@ meta_surface_actor_process_damage (MetaSurfaceActor *self,
        * any drawing done to the window is always immediately reflected in the
        * texture regardless of damage event handling.
        */
-      cairo_rectangle_int_t rect = { .x = x, .y = y, .width = width, .height = height };
+      cairo_rectangle_int_t rect =
+      {
+        .x = x, .y = y, .width = width, .height = height
+      };
 
       if (!priv->pending_damage)
         priv->pending_damage = cairo_region_create_rectangle (&rect);
@@ -286,7 +293,8 @@ meta_surface_actor_process_damage (MetaSurfaceActor *self,
       return;
     }
 
-  META_SURFACE_ACTOR_GET_CLASS (self)->process_damage (self, x, y, width, height);
+  META_SURFACE_ACTOR_GET_CLASS (self)->process_damage (self, x, y, width,
+                                                       height);
 
   if (meta_surface_actor_is_visible (self))
     meta_surface_actor_update_area (self, x, y, width, height);
@@ -348,7 +356,8 @@ meta_surface_actor_set_frozen (MetaSurfaceActor *self,
       int i, n_rects = cairo_region_num_rectangles (priv->pending_damage);
       cairo_rectangle_int_t rect;
 
-      /* Since we ignore damage events while a window is frozen for certain effects
+      /* Since we ignore damage events while a window is frozen for certain
+       * effects
        * we need to apply the tracked damage now. */
 
       for (i = 0; i < n_rects; i++)

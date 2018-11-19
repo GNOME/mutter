@@ -92,8 +92,9 @@ meta_dbus_session_client_destroy (MetaDbusSessionClient *client)
 }
 
 static void
-meta_dbus_session_watcher_destroy_client (MetaDbusSessionWatcher *session_watcher,
-                                          MetaDbusSessionClient  *client)
+meta_dbus_session_watcher_destroy_client (
+  MetaDbusSessionWatcher *session_watcher,
+  MetaDbusSessionClient  *client)
 {
   g_hash_table_remove (session_watcher->clients, client->dbus_name);
 }
@@ -169,9 +170,10 @@ meta_dbus_session_watcher_get_client (MetaDbusSessionWatcher *session_watcher,
 }
 
 void
-meta_dbus_session_watcher_watch_session (MetaDbusSessionWatcher *session_watcher,
-                                         const char             *client_dbus_name,
-                                         MetaDbusSession        *session)
+meta_dbus_session_watcher_watch_session (
+  MetaDbusSessionWatcher *session_watcher,
+  const char             *client_dbus_name,
+  MetaDbusSession        *session)
 {
   MetaDbusSessionClient *client;
 

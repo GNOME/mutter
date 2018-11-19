@@ -38,7 +38,7 @@ typedef struct _MetaRendererPrivate
 G_DEFINE_TYPE_WITH_PRIVATE (MetaRenderer, meta_renderer, G_TYPE_OBJECT)
 
 CoglRenderer *
-meta_renderer_create_cogl_renderer (MetaRenderer *renderer)
+meta_renderer_create_cogl_renderer (MetaRenderer * renderer)
 {
   return META_RENDERER_GET_CLASS (renderer)->create_cogl_renderer (renderer);
 }

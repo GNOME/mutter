@@ -104,23 +104,23 @@ static MetaSyncRing meta_sync_ring = { 0 };
 static XSyncValue SYNC_VALUE_ZERO;
 static XSyncValue SYNC_VALUE_ONE;
 
-static const char*      (*meta_gl_get_string) (GLenum name);
-static void             (*meta_gl_get_integerv) (GLenum  pname,
-                                                 GLint  *params);
-static const char*      (*meta_gl_get_stringi) (GLenum name,
-                                                GLuint index);
-static void             (*meta_gl_delete_sync) (GLsync sync);
-static GLenum           (*meta_gl_client_wait_sync) (GLsync sync,
-                                                     GLbitfield flags,
-                                                     GLuint64 timeout);
-static void             (*meta_gl_wait_sync) (GLsync sync,
-                                              GLbitfield flags,
-                                              GLuint64 timeout);
-static GLsync           (*meta_gl_import_sync) (GLenum external_sync_type,
-                                                GLintptr external_sync,
-                                                GLbitfield flags);
-static GLsync           (*meta_gl_fence_sync) (GLenum condition,
-                                               GLbitfield flags);
+static const char *      (*meta_gl_get_string) (GLenum name);
+static void (*meta_gl_get_integerv) (GLenum pname,
+                                     GLint *params);
+static const char *      (*meta_gl_get_stringi) (GLenum name,
+                                                 GLuint index);
+static void (*meta_gl_delete_sync) (GLsync sync);
+static GLenum (*meta_gl_client_wait_sync) (GLsync     sync,
+                                           GLbitfield flags,
+                                           GLuint64   timeout);
+static void (*meta_gl_wait_sync) (GLsync     sync,
+                                  GLbitfield flags,
+                                  GLuint64   timeout);
+static GLsync (*meta_gl_import_sync) (GLenum     external_sync_type,
+                                      GLintptr   external_sync,
+                                      GLbitfield flags);
+static GLsync (*meta_gl_fence_sync) (GLenum     condition,
+                                     GLbitfield flags);
 
 static MetaSyncRing *
 meta_sync_ring_get (void)
@@ -132,13 +132,14 @@ meta_sync_ring_get (void)
 }
 
 static gboolean
-load_gl_symbol (const char  *name,
-                void       **func)
+load_gl_symbol (const char *name,
+                void      **func)
 {
   *func = cogl_get_proc_address (name);
   if (!*func)
     {
-      meta_verbose ("MetaSyncRing: failed to resolve required GL symbol \"%s\"\n", name);
+      meta_verbose (
+        "MetaSyncRing: failed to resolve required GL symbol \"%s\"\n", name);
       return FALSE;
     }
   return TRUE;
@@ -160,32 +161,32 @@ check_gl_extensions (void)
   switch (cogl_renderer_get_driver (cogl_renderer))
     {
     case COGL_DRIVER_GL3:
-      {
-        int num_extensions, i;
-        gboolean arb_sync = FALSE;
-        gboolean x11_sync_object = FALSE;
+    {
+      int num_extensions, i;
+      gboolean arb_sync = FALSE;
+      gboolean x11_sync_object = FALSE;
 
-        meta_gl_get_integerv (GL_NUM_EXTENSIONS, &num_extensions);
+      meta_gl_get_integerv (GL_NUM_EXTENSIONS, &num_extensions);
 
-        for (i = 0; i < num_extensions; ++i)
-          {
-            const char *ext = meta_gl_get_stringi (GL_EXTENSIONS, i);
+      for (i = 0; i < num_extensions; ++i)
+        {
+          const char *ext = meta_gl_get_stringi (GL_EXTENSIONS, i);
 
-            if (g_strcmp0 ("GL_ARB_sync", ext) == 0)
-              arb_sync = TRUE;
-            else if (g_strcmp0 ("GL_EXT_x11_sync_object", ext) == 0)
-              x11_sync_object = TRUE;
-          }
+          if (g_strcmp0 ("GL_ARB_sync", ext) == 0)
+            arb_sync = TRUE;
+          else if (g_strcmp0 ("GL_EXT_x11_sync_object", ext) == 0)
+            x11_sync_object = TRUE;
+        }
 
-        return arb_sync && x11_sync_object;
-      }
+      return arb_sync && x11_sync_object;
+    }
     case COGL_DRIVER_GL:
-      {
-        const char *extensions = meta_gl_get_string (GL_EXTENSIONS);
-        return (extensions != NULL &&
-                strstr (extensions, "GL_ARB_sync") != NULL &&
-                strstr (extensions, "GL_EXT_x11_sync_object") != NULL);
-      }
+    {
+      const char *extensions = meta_gl_get_string (GL_EXTENSIONS);
+      return (extensions != NULL &&
+              strstr (extensions, "GL_ARB_sync") != NULL &&
+              strstr (extensions, "GL_EXT_x11_sync_object") != NULL);
+    }
     default:
       break;
     }
@@ -231,7 +232,7 @@ load_required_symbols (void)
     goto out;
 
   success = TRUE;
- out:
+out:
   return success;
 }
 
@@ -321,7 +322,8 @@ meta_sync_new (Display *xdisplay)
 
   self->xdisplay = xdisplay;
 
-  self->xfence = XSyncCreateFence (xdisplay, DefaultRootWindow (xdisplay), FALSE);
+  self->xfence =
+    XSyncCreateFence (xdisplay, DefaultRootWindow (xdisplay), FALSE);
   self->gl_x11_sync = 0;
   self->gpu_fence = 0;
 
@@ -351,13 +353,14 @@ static void
 meta_sync_import (MetaSync *self)
 {
   g_return_if_fail (self->gl_x11_sync == 0);
-  self->gl_x11_sync = meta_gl_import_sync (GL_SYNC_X11_FENCE_EXT, self->xfence, 0);
+  self->gl_x11_sync = meta_gl_import_sync (GL_SYNC_X11_FENCE_EXT, self->xfence,
+                                           0);
 }
 
 static Bool
-alarm_event_predicate (Display  *dpy,
-                       XEvent   *event,
-                       XPointer  data)
+alarm_event_predicate (Display *dpy,
+                       XEvent  *event,
+                       XPointer data)
 {
   MetaSyncRing *ring = meta_sync_ring_get ();
 
@@ -366,7 +369,8 @@ alarm_event_predicate (Display  *dpy,
 
   if (event->type == ring->xsync_event_base + XSyncAlarmNotify)
     {
-      if (((MetaSync *) data)->xalarm == ((XSyncAlarmNotifyEvent *) event)->alarm)
+      if (((MetaSync *) data)->xalarm ==
+          ((XSyncAlarmNotifyEvent *) event)->alarm)
         return True;
     }
   return False;
@@ -389,12 +393,12 @@ meta_sync_free (MetaSync *self)
       /* nothing to do */
       break;
     case META_SYNC_STATE_RESET_PENDING:
-      {
-        XEvent event;
-        XIfEvent (self->xdisplay, &event, alarm_event_predicate, (XPointer) self);
-        meta_sync_handle_event (self, (XSyncAlarmNotifyEvent *) &event);
-      }
-      /* fall through */
+    {
+      XEvent event;
+      XIfEvent (self->xdisplay, &event, alarm_event_predicate, (XPointer) self);
+      meta_sync_handle_event (self, (XSyncAlarmNotifyEvent *) &event);
+    }
+    /* fall through */
     case META_SYNC_STATE_READY:
       XSyncTriggerFence (self->xdisplay, self->xfence);
       XFlush (self->xdisplay);
@@ -427,7 +431,8 @@ meta_sync_ring_init (Display *xdisplay)
   if (!load_required_symbols ())
     return FALSE;
 
-  if (!XSyncQueryExtension (xdisplay, &ring->xsync_event_base, &ring->xsync_error_base) ||
+  if (!XSyncQueryExtension (xdisplay, &ring->xsync_event_base,
+                            &ring->xsync_error_base) ||
       !XSyncInitialize (xdisplay, &major, &minor))
     return FALSE;
 
@@ -516,14 +521,17 @@ meta_sync_ring_after_frame (void)
 
   if (ring->warmup_syncs >= NUM_SYNCS / 2)
     {
-      guint reset_sync_idx = (ring->current_sync_idx + NUM_SYNCS - (NUM_SYNCS / 2)) % NUM_SYNCS;
+      guint reset_sync_idx =
+        (ring->current_sync_idx + NUM_SYNCS - (NUM_SYNCS / 2)) % NUM_SYNCS;
       MetaSync *sync_to_reset = ring->syncs_array[reset_sync_idx];
 
       GLenum status = meta_sync_check_update_finished (sync_to_reset, 0);
       if (status == GL_TIMEOUT_EXPIRED)
         {
-          meta_warning ("MetaSyncRing: We should never wait for a sync -- add more syncs?\n");
-          status = meta_sync_check_update_finished (sync_to_reset, MAX_SYNC_WAIT_TIME);
+          meta_warning (
+            "MetaSyncRing: We should never wait for a sync -- add more syncs?\n");
+          status = meta_sync_check_update_finished (sync_to_reset,
+                                                    MAX_SYNC_WAIT_TIME);
         }
 
       if (status != GL_ALREADY_SIGNALED && status != GL_CONDITION_SATISFIED)
@@ -559,7 +567,8 @@ meta_sync_ring_insert_wait (void)
 
   if (ring->current_sync->state != META_SYNC_STATE_READY)
     {
-      meta_warning ("MetaSyncRing: Sync object is not ready -- were events handled properly?\n");
+      meta_warning (
+        "MetaSyncRing: Sync object is not ready -- were events handled properly?\n");
       if (!meta_sync_ring_reboot (ring->xdisplay))
         return FALSE;
     }

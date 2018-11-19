@@ -35,8 +35,9 @@ G_DEFINE_ABSTRACT_TYPE (MetaWaylandShellSurface,
                         META_TYPE_WAYLAND_ACTOR_SURFACE)
 
 void
-meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_surface,
-                                               MetaRectangle           *out_geometry)
+meta_wayland_shell_surface_calculate_geometry (
+  MetaWaylandShellSurface *shell_surface,
+  MetaRectangle           *out_geometry)
 {
   MetaWaylandSurfaceRole *surface_role =
     META_WAYLAND_SURFACE_ROLE (shell_surface);
@@ -65,9 +66,10 @@ meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_su
 }
 
 void
-meta_wayland_shell_surface_determine_geometry (MetaWaylandShellSurface *shell_surface,
-                                               MetaRectangle           *set_geometry,
-                                               MetaRectangle           *out_geometry)
+meta_wayland_shell_surface_determine_geometry (
+  MetaWaylandShellSurface *shell_surface,
+  MetaRectangle           *set_geometry,
+  MetaRectangle           *out_geometry)
 {
   MetaRectangle bounding_geometry = { 0 };
   MetaRectangle intersected_geometry = { 0 };
@@ -143,8 +145,9 @@ meta_wayland_shell_surface_managed (MetaWaylandShellSurface *shell_surface,
 }
 
 static void
-meta_wayland_shell_surface_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                                           MetaWaylandPendingState *pending)
+meta_wayland_shell_surface_surface_commit (
+  MetaWaylandSurfaceRole  *surface_role,
+  MetaWaylandPendingState *pending)
 {
   MetaWaylandActorSurface *actor_surface =
     META_WAYLAND_ACTOR_SURFACE (surface_role);

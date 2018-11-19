@@ -32,8 +32,8 @@ G_DEFINE_TYPE (MetaBackendX11Nested, meta_backend_x11_nested,
                META_TYPE_BACKEND_X11)
 
 static MetaRenderer *
-meta_backend_x11_nested_create_renderer (MetaBackend *backend,
-                                         GError     **error)
+meta_backend_x11_nested_create_renderer (MetaBackend * backend,
+                                         GError * *error)
 {
   return g_object_new (META_TYPE_RENDERER_X11_NESTED, NULL);
 }
@@ -99,7 +99,8 @@ meta_backend_x11_nested_select_stage_events (MetaBackend *backend)
    * When we're a nested application, we want to behave like any other
    * application, so select these events like normal apps do.
    */
-  XISetMask (mask.mask, XI_TouchBegin); XISetMask (mask.mask, XI_TouchEnd);
+  XISetMask (mask.mask, XI_TouchBegin);
+  XISetMask (mask.mask, XI_TouchEnd);
   XISetMask (mask.mask, XI_TouchUpdate);
 
   XISelectEvents (xdisplay, xwin, &mask, 1);
@@ -112,9 +113,9 @@ meta_backend_x11_nested_select_stage_events (MetaBackend *backend)
    */
   XWindowAttributes xwa;
 
-  XGetWindowAttributes(xdisplay, xwin, &xwa);
-  XSelectInput(xdisplay, xwin,
-               xwa.your_event_mask | FocusChangeMask | KeymapStateMask);
+  XGetWindowAttributes (xdisplay, xwin, &xwa);
+  XSelectInput (xdisplay, xwin,
+                xwa.your_event_mask | FocusChangeMask | KeymapStateMask);
 }
 
 static void
@@ -185,14 +186,21 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
   MetaBackendX11Class *backend_x11_class = META_BACKEND_X11_CLASS (klass);
 
   backend_class->create_renderer = meta_backend_x11_nested_create_renderer;
-  backend_class->create_monitor_manager = meta_backend_x11_nested_create_monitor_manager;
-  backend_class->create_cursor_renderer = meta_backend_x11_nested_create_cursor_renderer;
-  backend_class->create_input_settings = meta_backend_x11_nested_create_input_settings;
-  backend_class->update_screen_size = meta_backend_x11_nested_update_screen_size;
-  backend_class->select_stage_events = meta_backend_x11_nested_select_stage_events;
+  backend_class->create_monitor_manager =
+    meta_backend_x11_nested_create_monitor_manager;
+  backend_class->create_cursor_renderer =
+    meta_backend_x11_nested_create_cursor_renderer;
+  backend_class->create_input_settings =
+    meta_backend_x11_nested_create_input_settings;
+  backend_class->update_screen_size =
+    meta_backend_x11_nested_update_screen_size;
+  backend_class->select_stage_events =
+    meta_backend_x11_nested_select_stage_events;
   backend_class->lock_layout_group = meta_backend_x11_nested_lock_layout_group;
   backend_class->set_keymap = meta_backend_x11_nested_set_keymap;
 
-  backend_x11_class->handle_host_xevent = meta_backend_x11_nested_handle_host_xevent;
-  backend_x11_class->translate_device_event = meta_backend_x11_nested_translate_device_event;
+  backend_x11_class->handle_host_xevent =
+    meta_backend_x11_nested_handle_host_xevent;
+  backend_x11_class->translate_device_event =
+    meta_backend_x11_nested_translate_device_event;
 }

@@ -36,22 +36,22 @@ enum
 
 struct _MetaModulePrivate
 {
-  GModule      *lib;
-  gchar        *path;
-  GType         plugin_type;
+  GModule *lib;
+  gchar *path;
+  GType plugin_type;
 };
 
 #define META_MODULE_GET_PRIVATE(obj) \
-(G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_MODULE, MetaModulePrivate))
+  (G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_MODULE, MetaModulePrivate))
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaModule, meta_module, G_TYPE_TYPE_MODULE);
 
 static gboolean
 meta_module_load (GTypeModule *gmodule)
 {
-  MetaModulePrivate  *priv = META_MODULE (gmodule)->priv;
-  MetaPluginVersion  *info = NULL;
-  GType                (*register_type) (GTypeModule *) = NULL;
+  MetaModulePrivate *priv = META_MODULE (gmodule)->priv;
+  MetaPluginVersion *info = NULL;
+  GType (*register_type) (GTypeModule *) = NULL;
 
   if (priv->lib && priv->plugin_type)
     return TRUE;
@@ -67,13 +67,13 @@ meta_module_load (GTypeModule *gmodule)
     }
 
   if (g_module_symbol (priv->lib, "meta_plugin_version",
-                       (gpointer *)(void *)&info) &&
+                       (gpointer *) (void *) &info) &&
       g_module_symbol (priv->lib, "meta_plugin_register_type",
-		       (gpointer *)(void *)&register_type) &&
+                       (gpointer *) (void *) &register_type) &&
       info && register_type)
     {
       if (info->version_api != META_PLUGIN_API_VERSION)
-	g_warning ("Plugin API mismatch for [%s]", priv->path);
+        g_warning ("Plugin API mismatch for [%s]", priv->path);
       else
         {
           GType plugin_type;
@@ -86,7 +86,7 @@ meta_module_load (GTypeModule *gmodule)
             }
           else
             {
-              priv->plugin_type =  plugin_type;
+              priv->plugin_type = plugin_type;
             }
 
           return TRUE;
@@ -168,25 +168,25 @@ meta_module_get_property (GObject    *object,
 static void
 meta_module_class_init (MetaModuleClass *klass)
 {
-  GObjectClass     *gobject_class = G_OBJECT_CLASS (klass);
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   GTypeModuleClass *gmodule_class = G_TYPE_MODULE_CLASS (klass);
 
-  gobject_class->finalize     = meta_module_finalize;
-  gobject_class->dispose      = meta_module_dispose;
+  gobject_class->finalize = meta_module_finalize;
+  gobject_class->dispose = meta_module_dispose;
   gobject_class->set_property = meta_module_set_property;
   gobject_class->get_property = meta_module_get_property;
 
-  gmodule_class->load         = meta_module_load;
-  gmodule_class->unload       = meta_module_unload;
+  gmodule_class->load = meta_module_load;
+  gmodule_class->unload = meta_module_unload;
 
   g_object_class_install_property (gobject_class,
-				   PROP_PATH,
-				   g_param_spec_string ("path",
-							"Path",
-							"Load path",
-							NULL,
-							G_PARAM_READWRITE |
-						      G_PARAM_CONSTRUCT_ONLY));
+                                   PROP_PATH,
+                                   g_param_spec_string ("path",
+                                                        "Path",
+                                                        "Load path",
+                                                        NULL,
+                                                        G_PARAM_READWRITE |
+                                                        G_PARAM_CONSTRUCT_ONLY));
 }
 
 static void
@@ -202,4 +202,3 @@ meta_module_get_plugin_type (MetaModule *module)
 
   return priv->plugin_type;
 }
-

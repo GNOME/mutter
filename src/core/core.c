@@ -53,7 +53,8 @@ get_window (Display *xdisplay,
   MetaWindow *window;
 
   display = meta_display_for_x_display (xdisplay);
-  window = meta_x11_display_lookup_x_window (display->x11_display, frame_xwindow);
+  window =
+    meta_x11_display_lookup_x_window (display->x11_display, frame_xwindow);
 
   if (window == NULL || window->frame == NULL)
     {
@@ -76,7 +77,7 @@ meta_core_queue_frame_resize (Display *xdisplay,
 
 static gboolean
 lower_window_and_transients (MetaWindow *window,
-                             gpointer   data)
+                             gpointer    data)
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
 
@@ -94,7 +95,7 @@ lower_window_and_transients (MetaWindow *window,
           meta_window_located_on_workspace (window,
                                             workspace_manager->active_workspace))
         {
-          GList* link;
+          GList *link;
           link = g_list_find (workspace_manager->active_workspace->mru_list,
                               window);
           g_assert (link);
@@ -123,10 +124,10 @@ meta_core_user_lower_and_unfocus (Display *xdisplay,
 
   lower_window_and_transients (window, NULL);
 
- /* Rather than try to figure that out whether we just lowered
-  * the focus window, assume that's always the case. (Typically,
-  * this will be invoked via keyboard action or by a mouse action;
-  * in either case the window or a modal child will have been focused.) */
+  /* Rather than try to figure that out whether we just lowered
+   * the focus window, assume that's always the case. (Typically,
+   * this will be invoked via keyboard action or by a mouse action;
+   * in either case the window or a modal child will have been focused.) */
   meta_workspace_focus_default_window (workspace_manager->active_workspace,
                                        NULL,
                                        timestamp);
@@ -134,7 +135,7 @@ meta_core_user_lower_and_unfocus (Display *xdisplay,
 
 void
 meta_core_toggle_maximize_vertically (Display *xdisplay,
-				      Window   frame_xwindow)
+                                      Window   frame_xwindow)
 {
   MetaWindow *window = get_window (xdisplay, frame_xwindow);
 
@@ -149,7 +150,7 @@ meta_core_toggle_maximize_vertically (Display *xdisplay,
 
 void
 meta_core_toggle_maximize_horizontally (Display *xdisplay,
-				        Window   frame_xwindow)
+                                        Window   frame_xwindow)
 {
   MetaWindow *window = get_window (xdisplay, frame_xwindow);
 
@@ -178,12 +179,12 @@ meta_core_toggle_maximize (Display *xdisplay,
 }
 
 void
-meta_core_show_window_menu (Display            *xdisplay,
-                            Window              frame_xwindow,
-                            MetaWindowMenuType  menu,
-                            int                 root_x,
-                            int                 root_y,
-                            guint32             timestamp)
+meta_core_show_window_menu (Display           *xdisplay,
+                            Window             frame_xwindow,
+                            MetaWindowMenuType menu,
+                            int                root_x,
+                            int                root_y,
+                            guint32            timestamp)
 {
   MetaWindow *window = get_window (xdisplay, frame_xwindow);
 
@@ -195,11 +196,11 @@ meta_core_show_window_menu (Display            *xdisplay,
 }
 
 void
-meta_core_show_window_menu_for_rect (Display            *xdisplay,
-                                     Window              frame_xwindow,
-                                     MetaWindowMenuType  menu,
-                                     MetaRectangle      *rect,
-                                     guint32             timestamp)
+meta_core_show_window_menu_for_rect (Display           *xdisplay,
+                                     Window             frame_xwindow,
+                                     MetaWindowMenuType menu,
+                                     MetaRectangle     *rect,
+                                     guint32            timestamp)
 {
   MetaWindow *window = get_window (xdisplay, frame_xwindow);
 
@@ -211,16 +212,16 @@ meta_core_show_window_menu_for_rect (Display            *xdisplay,
 }
 
 gboolean
-meta_core_begin_grab_op (Display    *xdisplay,
-                         Window      frame_xwindow,
-                         MetaGrabOp  op,
-                         gboolean    pointer_already_grabbed,
-                         gboolean    frame_action,
-                         int         button,
-                         gulong      modmask,
-                         guint32     timestamp,
-                         int         root_x,
-                         int         root_y)
+meta_core_begin_grab_op (Display   *xdisplay,
+                         Window     frame_xwindow,
+                         MetaGrabOp op,
+                         gboolean   pointer_already_grabbed,
+                         gboolean   frame_action,
+                         int        button,
+                         gulong     modmask,
+                         guint32    timestamp,
+                         int        root_x,
+                         int        root_y)
 {
   MetaWindow *window = get_window (xdisplay, frame_xwindow);
   MetaDisplay *display;
@@ -268,8 +269,8 @@ meta_core_grab_buttons  (Display *xdisplay,
 }
 
 void
-meta_core_set_screen_cursor (Display *xdisplay,
-                             Window   frame_on_screen,
+meta_core_set_screen_cursor (Display   *xdisplay,
+                             Window     frame_on_screen,
                              MetaCursor cursor)
 {
   MetaWindow *window = get_window (xdisplay, frame_on_screen);

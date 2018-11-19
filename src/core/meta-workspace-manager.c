@@ -46,7 +46,8 @@ enum
   LAST_SIGNAL
 };
 
-enum {
+enum
+{
   PROP_0,
 
   PROP_N_WORKSPACES
@@ -68,7 +69,9 @@ meta_workspace_manager_get_property (GObject    *object,
   switch (prop_id)
     {
     case PROP_N_WORKSPACES:
-      g_value_set_int (value, meta_workspace_manager_get_n_workspaces (workspace_manager));
+      g_value_set_int (value,
+                       meta_workspace_manager_get_n_workspaces (
+                         workspace_manager));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -168,7 +171,8 @@ meta_workspace_manager_init (MetaWorkspaceManager *workspace_manager)
 }
 
 void
-meta_workspace_manager_reload_work_areas (MetaWorkspaceManager *workspace_manager)
+meta_workspace_manager_reload_work_areas (
+  MetaWorkspaceManager *workspace_manager)
 {
   GList *l;
 
@@ -231,9 +235,11 @@ meta_workspace_manager_init_workspaces (MetaWorkspaceManager *workspace_manager)
   else
     num = meta_prefs_get_num_workspaces ();
 
-  meta_workspace_manager_update_num_workspaces (workspace_manager, META_CURRENT_TIME, num);
+  meta_workspace_manager_update_num_workspaces (workspace_manager,
+                                                META_CURRENT_TIME, num);
 
-  meta_workspace_activate (workspace_manager->workspaces->data, META_CURRENT_TIME);
+  meta_workspace_activate (workspace_manager->workspaces->data,
+                           META_CURRENT_TIME);
 
   meta_workspace_manager_reload_work_areas (workspace_manager);
 }
@@ -249,24 +255,28 @@ meta_workspace_manager_get_n_workspaces (MetaWorkspaceManager *workspace_manager
  * @workspace_manager: a #MetaWorkspaceManager
  * @index: index of one of the display's workspaces
  *
- * Gets the workspace object for one of a workspace manager's workspaces given the workspace
+ * Gets the workspace object for one of a workspace manager's workspaces given
+ *the workspace
  * index. It's valid to call this function with an out-of-range index and it
  * will robustly return %NULL.
  *
- * Return value: (transfer none): the workspace object with specified index, or %NULL
+ * Return value: (transfer none): the workspace object with specified index, or
+ *%NULL
  *   if the index is out of range.
  */
 MetaWorkspace *
-meta_workspace_manager_get_workspace_by_index (MetaWorkspaceManager *workspace_manager,
-                                               int                   idx)
+meta_workspace_manager_get_workspace_by_index (
+  MetaWorkspaceManager *workspace_manager,
+  int                   idx)
 {
   return g_list_nth_data (workspace_manager->workspaces, idx);
 }
 
 void
-meta_workspace_manager_remove_workspace (MetaWorkspaceManager *workspace_manager,
-                                         MetaWorkspace        *workspace,
-                                         guint32               timestamp)
+meta_workspace_manager_remove_workspace (
+  MetaWorkspaceManager *workspace_manager,
+  MetaWorkspace        *workspace,
+  guint32               timestamp)
 {
   GList *l;
   GList *next;
@@ -299,7 +309,8 @@ meta_workspace_manager_remove_workspace (MetaWorkspaceManager *workspace_manager
 
   /* To emit the signal after removing the workspace */
   index = meta_workspace_index (workspace);
-  active_index = meta_workspace_manager_get_active_workspace_index (workspace_manager);
+  active_index = meta_workspace_manager_get_active_workspace_index (
+    workspace_manager);
   active_index_changed = index < active_index;
 
   /* This also removes the workspace from the displays list */
@@ -339,15 +350,17 @@ meta_workspace_manager_remove_workspace (MetaWorkspaceManager *workspace_manager
  *   focusing a window on the new workspace. (Doesn't hurt to pass a valid
  *   timestamp when available even if not switching workspaces.)
  *
- * Append a new workspace to the workspace manager and (optionally) switch to that
+ * Append a new workspace to the workspace manager and (optionally) switch to
+ *that
  * display.
  *
  * Return value: (transfer none): the newly appended workspace.
  */
 MetaWorkspace *
-meta_workspace_manager_append_new_workspace (MetaWorkspaceManager *workspace_manager,
-                                             gboolean              activate,
-                                             guint32               timestamp)
+meta_workspace_manager_append_new_workspace (
+  MetaWorkspaceManager *workspace_manager,
+  gboolean              activate,
+  guint32               timestamp)
 {
   MetaWorkspace *w;
   int new_num;
@@ -376,9 +389,10 @@ meta_workspace_manager_append_new_workspace (MetaWorkspaceManager *workspace_man
 }
 
 void
-meta_workspace_manager_update_num_workspaces (MetaWorkspaceManager *workspace_manager,
-                                              guint32               timestamp,
-                                              int                   new_num)
+meta_workspace_manager_update_num_workspaces (
+  MetaWorkspaceManager *workspace_manager,
+  guint32               timestamp,
+  int                   new_num)
 {
   int old_num;
   GList *l;
@@ -450,11 +464,12 @@ meta_workspace_manager_update_num_workspaces (MetaWorkspaceManager *workspace_ma
 }
 
 void
-meta_workspace_manager_update_workspace_layout (MetaWorkspaceManager *workspace_manager,
-                                                MetaDisplayCorner     starting_corner,
-                                                gboolean              vertical_layout,
-                                                int                   n_rows,
-                                                int                   n_columns)
+meta_workspace_manager_update_workspace_layout (
+  MetaWorkspaceManager *workspace_manager,
+  MetaDisplayCorner     starting_corner,
+  gboolean              vertical_layout,
+  int                   n_rows,
+  int                   n_columns)
 {
   g_return_if_fail (META_IS_WORKSPACE_MANAGER (workspace_manager));
   g_return_if_fail (n_rows > 0 || n_columns > 0);
@@ -468,32 +483,38 @@ meta_workspace_manager_update_workspace_layout (MetaWorkspaceManager *workspace_
   workspace_manager->rows_of_workspaces = n_rows;
   workspace_manager->columns_of_workspaces = n_columns;
 
-  meta_verbose ("Workspace layout rows = %d cols = %d orientation = %d starting corner = %u\n",
-                workspace_manager->rows_of_workspaces,
-                workspace_manager->columns_of_workspaces,
-                workspace_manager->vertical_workspaces,
-                workspace_manager->starting_corner);
+  meta_verbose (
+    "Workspace layout rows = %d cols = %d orientation = %d starting corner = %u\n",
+    workspace_manager->rows_of_workspaces,
+    workspace_manager->columns_of_workspaces,
+    workspace_manager->vertical_workspaces,
+    workspace_manager->starting_corner);
 }
 
 /**
  * meta_workspace_manager_override_workspace_layout:
  * @workspace_manager: a #MetaWorkspaceManager
  * @starting_corner: the corner at which the first workspace is found
- * @vertical_layout: if %TRUE the workspaces are laid out in columns rather than rows
- * @n_rows: number of rows of workspaces, or -1 to determine the number of rows from
+ * @vertical_layout: if %TRUE the workspaces are laid out in columns rather than
+ *rows
+ * @n_rows: number of rows of workspaces, or -1 to determine the number of rows
+ *from
  *   @n_columns and the total number of workspaces
- * @n_columns: number of columns of workspaces, or -1 to determine the number of columns from
+ * @n_columns: number of columns of workspaces, or -1 to determine the number of
+ *columns from
  *   @n_rows and the total number of workspaces
  *
- * Explicitly set the layout of workspaces. Once this has been called, the contents of the
+ * Explicitly set the layout of workspaces. Once this has been called, the
+ *contents of the
  * _NET_DESKTOP_LAYOUT property on the root window are completely ignored.
  */
 void
-meta_workspace_manager_override_workspace_layout (MetaWorkspaceManager *workspace_manager,
-                                                  MetaDisplayCorner     starting_corner,
-                                                  gboolean              vertical_layout,
-                                                  int                   n_rows,
-                                                  int                   n_columns)
+meta_workspace_manager_override_workspace_layout (
+  MetaWorkspaceManager *workspace_manager,
+  MetaDisplayCorner     starting_corner,
+  gboolean              vertical_layout,
+  int                   n_rows,
+  int                   n_columns)
 {
   workspace_manager->workspace_layout_overridden = FALSE;
 
@@ -527,10 +548,11 @@ meta_workspace_manager_corner_to_string (MetaDisplayCorner corner)
 #endif /* WITH_VERBOSE_MODE */
 
 void
-meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_manager,
-                                              int                   num_workspaces,
-                                              int                   current_space,
-                                              MetaWorkspaceLayout  *layout)
+meta_workspace_manager_calc_workspace_layout (
+  MetaWorkspaceManager *workspace_manager,
+  int                   num_workspaces,
+  int                   current_space,
+  MetaWorkspaceLayout  *layout)
 {
   int rows, cols;
   int grid_area;
@@ -562,7 +584,8 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
                 "num_spaces = %d vertical = %s corner = %s\n",
                 rows, cols, current_space, num_workspaces,
                 workspace_manager->vertical_workspaces ? "(true)" : "(false)",
-                meta_workspace_manager_corner_to_string (workspace_manager->starting_corner));
+                meta_workspace_manager_corner_to_string (workspace_manager->
+                                                         starting_corner));
 
   /* ok, we want to setup the distances in the workspace array to go
    * in each direction. Remember, there are many ways that a workspace
@@ -614,7 +637,7 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
               r = 0;
               while (r < rows)
                 {
-                  grid[r*cols+c] = i;
+                  grid[r * cols + c] = i;
                   ++i;
                   ++r;
                 }
@@ -629,7 +652,7 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
               c = 0;
               while (c < cols)
                 {
-                  grid[r*cols+c] = i;
+                  grid[r * cols + c] = i;
                   ++i;
                   ++c;
                 }
@@ -646,7 +669,7 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
               r = 0;
               while (r < rows)
                 {
-                  grid[r*cols+c] = i;
+                  grid[r * cols + c] = i;
                   ++i;
                   ++r;
                 }
@@ -661,7 +684,7 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
               c = cols - 1;
               while (c >= 0)
                 {
-                  grid[r*cols+c] = i;
+                  grid[r * cols + c] = i;
                   ++i;
                   --c;
                 }
@@ -678,7 +701,7 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
               r = rows - 1;
               while (r >= 0)
                 {
-                  grid[r*cols+c] = i;
+                  grid[r * cols + c] = i;
                   ++i;
                   --r;
                 }
@@ -693,7 +716,7 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
               c = 0;
               while (c < cols)
                 {
-                  grid[r*cols+c] = i;
+                  grid[r * cols + c] = i;
                   ++i;
                   ++c;
                 }
@@ -710,7 +733,7 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
               r = rows - 1;
               while (r >= 0)
                 {
-                  grid[r*cols+c] = i;
+                  grid[r * cols + c] = i;
                   ++i;
                   --r;
                 }
@@ -725,7 +748,7 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
               c = cols - 1;
               while (c >= 0)
                 {
-                  grid[r*cols+c] = i;
+                  grid[r * cols + c] = i;
                   ++i;
                   --c;
                 }
@@ -747,15 +770,15 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
       c = 0;
       while (c < cols)
         {
-          if (grid[r*cols+c] == current_space)
+          if (grid[r * cols + c] == current_space)
             {
               current_row = r;
               current_col = c;
             }
-          else if (grid[r*cols+c] >= num_workspaces)
+          else if (grid[r * cols + c] >= num_workspaces)
             {
               /* flag nonexistent spaces with -1 */
-              grid[r*cols+c] = -1;
+              grid[r * cols + c] = -1;
             }
           ++c;
         }
@@ -782,9 +805,9 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
             {
               if (r == layout->current_row &&
                   c == layout->current_col)
-                meta_verbose ("*%2d ", layout->grid[r*layout->cols+c]);
+                meta_verbose ("*%2d ", layout->grid[r * layout->cols + c]);
               else
-                meta_verbose ("%3d ", layout->grid[r*layout->cols+c]);
+                meta_verbose ("%3d ", layout->grid[r * layout->cols + c]);
               ++c;
             }
           meta_verbose ("\n");
@@ -810,7 +833,8 @@ queue_windows_showing (MetaWorkspaceManager *workspace_manager)
    * active_workspace's window list, because the active_workspace's
    * window list may not contain the on_all_workspace windows.
    */
-  windows = meta_display_list_windows (workspace_manager->display, META_LIST_DEFAULT);
+  windows = meta_display_list_windows (workspace_manager->display,
+                                       META_LIST_DEFAULT);
 
   for (l = windows; l; l = l->next)
     {
@@ -823,8 +847,9 @@ queue_windows_showing (MetaWorkspaceManager *workspace_manager)
 }
 
 void
-meta_workspace_manager_minimize_all_on_active_workspace_except (MetaWorkspaceManager *workspace_manager,
-                                                                MetaWindow           *keep)
+meta_workspace_manager_minimize_all_on_active_workspace_except (
+  MetaWorkspaceManager *workspace_manager,
+  MetaWindow           *keep)
 {
   GList *l;
 
@@ -888,7 +913,8 @@ meta_workspace_manager_unshow_desktop (MetaWorkspaceManager *workspace_manager)
  * meta_workspace_manager_get_workspaces: (skip)
  * @workspace_manager: a #MetaWorkspaceManager
  *
- * Returns: (transfer none) (element-type Meta.Workspace): The workspaces for @display
+ * Returns: (transfer none) (element-type Meta.Workspace): The workspaces for
+ *@display
  */
 GList *
 meta_workspace_manager_get_workspaces (MetaWorkspaceManager *workspace_manager)
@@ -897,7 +923,8 @@ meta_workspace_manager_get_workspaces (MetaWorkspaceManager *workspace_manager)
 }
 
 int
-meta_workspace_manager_get_active_workspace_index (MetaWorkspaceManager *workspace_manager)
+meta_workspace_manager_get_active_workspace_index (
+  MetaWorkspaceManager *workspace_manager)
 {
   MetaWorkspace *active = workspace_manager->active_workspace;
 
@@ -914,16 +941,18 @@ meta_workspace_manager_get_active_workspace_index (MetaWorkspaceManager *workspa
  * Returns: (transfer none): The current workspace
  */
 MetaWorkspace *
-meta_workspace_manager_get_active_workspace (MetaWorkspaceManager *workspace_manager)
+meta_workspace_manager_get_active_workspace (
+  MetaWorkspaceManager *workspace_manager)
 {
   return workspace_manager->active_workspace;
 }
 
-void 
-meta_workspace_manager_workspace_switched (MetaWorkspaceManager *workspace_manager,
-                                           int                   from,
-                                           int                   to,
-                                           MetaMotionDirection   direction)
+void
+meta_workspace_manager_workspace_switched (
+  MetaWorkspaceManager *workspace_manager,
+  int                   from,
+  int                   to,
+  MetaMotionDirection   direction)
 {
   g_signal_emit (workspace_manager,
                  workspace_manager_signals[WORKSPACE_SWITCHED], 0,

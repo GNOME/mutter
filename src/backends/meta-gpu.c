@@ -65,8 +65,8 @@ meta_gpu_has_hotplug_mode_update (MetaGpu *gpu)
 }
 
 gboolean
-meta_gpu_read_current (MetaGpu  *gpu,
-                       GError  **error)
+meta_gpu_read_current (MetaGpu *gpu,
+                       GError **error)
 {
   MetaGpuPrivate *priv = meta_gpu_get_instance_private (gpu);
   gboolean ret;
@@ -131,7 +131,7 @@ meta_gpu_take_outputs (MetaGpu *gpu,
 
 void
 meta_gpu_take_crtcs (MetaGpu *gpu,
-                    GList   *crtcs)
+                     GList   *crtcs)
 {
   MetaGpuPrivate *priv = meta_gpu_get_instance_private (gpu);
 

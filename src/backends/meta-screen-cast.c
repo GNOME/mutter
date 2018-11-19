@@ -54,7 +54,7 @@ G_DEFINE_TYPE_WITH_CODE (MetaScreenCast, meta_screen_cast,
                                                 meta_screen_cast_init_iface))
 
 GDBusConnection *
-meta_screen_cast_get_connection (MetaScreenCast *screen_cast)
+meta_screen_cast_get_connection (MetaScreenCast * screen_cast)
 {
   GDBusInterfaceSkeleton *interface_skeleton =
     G_DBUS_INTERFACE_SKELETON (screen_cast);
@@ -63,9 +63,9 @@ meta_screen_cast_get_connection (MetaScreenCast *screen_cast)
 }
 
 static gboolean
-register_remote_desktop_screen_cast_session (MetaScreenCastSession  *session,
-                                             const char             *remote_desktop_session_id,
-                                             GError                **error)
+register_remote_desktop_screen_cast_session (MetaScreenCastSession *session,
+                                             const char            *remote_desktop_session_id,
+                                             GError               **error)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaRemoteDesktop *remote_desktop = meta_backend_get_remote_desktop (backend);

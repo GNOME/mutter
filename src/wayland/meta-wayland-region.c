@@ -33,19 +33,19 @@ struct _MetaWaylandRegion
 };
 
 static void
-wl_region_destroy (struct wl_client *client,
+wl_region_destroy (struct wl_client   *client,
                    struct wl_resource *resource)
 {
   wl_resource_destroy (resource);
 }
 
 static void
-wl_region_add (struct wl_client *client,
+wl_region_add (struct wl_client   *client,
                struct wl_resource *resource,
-               gint32 x,
-               gint32 y,
-               gint32 width,
-               gint32 height)
+               gint32              x,
+               gint32              y,
+               gint32              width,
+               gint32              height)
 {
   MetaWaylandRegion *region = wl_resource_get_user_data (resource);
   cairo_rectangle_int_t rectangle = { x, y, width, height };
@@ -54,12 +54,12 @@ wl_region_add (struct wl_client *client,
 }
 
 static void
-wl_region_subtract (struct wl_client *client,
+wl_region_subtract (struct wl_client   *client,
                     struct wl_resource *resource,
-                    gint32 x,
-                    gint32 y,
-                    gint32 width,
-                    gint32 height)
+                    gint32              x,
+                    gint32              y,
+                    gint32              width,
+                    gint32              height)
 {
   MetaWaylandRegion *region = wl_resource_get_user_data (resource);
   cairo_rectangle_int_t rectangle = { x, y, width, height };
@@ -67,7 +67,8 @@ wl_region_subtract (struct wl_client *client,
   cairo_region_subtract_rectangle (region->region, &rectangle);
 }
 
-static const struct wl_region_interface meta_wayland_wl_region_interface = {
+static const struct wl_region_interface meta_wayland_wl_region_interface =
+{
   wl_region_destroy,
   wl_region_add,
   wl_region_subtract
@@ -90,8 +91,11 @@ meta_wayland_region_create (MetaWaylandCompositor *compositor,
 {
   MetaWaylandRegion *region = g_slice_new0 (MetaWaylandRegion);
 
-  region->resource = wl_resource_create (client, &wl_region_interface, wl_resource_get_version (compositor_resource), id);
-  wl_resource_set_implementation (region->resource, &meta_wayland_wl_region_interface, region, wl_region_destructor);
+  region->resource = wl_resource_create (client, &wl_region_interface, wl_resource_get_version (
+                                           compositor_resource), id);
+  wl_resource_set_implementation (region->resource,
+                                  &meta_wayland_wl_region_interface, region,
+                                  wl_region_destructor);
 
   region->region = cairo_region_create ();
 

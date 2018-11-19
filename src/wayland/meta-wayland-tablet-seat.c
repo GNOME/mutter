@@ -97,9 +97,9 @@ broadcast_tablet_added (MetaWaylandTabletSeat *tablet_seat,
   struct wl_resource *resource;
 
   wl_resource_for_each (resource, &tablet_seat->resource_list)
-    {
-      notify_tablet_added (tablet_seat, resource, device);
-    }
+  {
+    notify_tablet_added (tablet_seat, resource, device);
+  }
 }
 
 static void
@@ -151,9 +151,9 @@ broadcast_pad_added (MetaWaylandTabletSeat *tablet_seat,
   struct wl_resource *resource;
 
   wl_resource_for_each (resource, &tablet_seat->resource_list)
-    {
-      notify_pad_added (tablet_seat, resource, device);
-    }
+  {
+    notify_pad_added (tablet_seat, resource, device);
+  }
 }
 
 static void
@@ -174,7 +174,8 @@ is_tablet_device (ClutterInputDevice *device)
 {
   ClutterInputDeviceType device_type;
 
-  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
+  if (clutter_input_device_get_device_mode (device) ==
+      CLUTTER_INPUT_MODE_MASTER)
     return FALSE;
 
   device_type = clutter_input_device_get_device_type (device);
@@ -190,7 +191,8 @@ is_pad_device (ClutterInputDevice *device)
 {
   ClutterInputDeviceType device_type;
 
-  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
+  if (clutter_input_device_get_device_mode (device) ==
+      CLUTTER_INPUT_MODE_MASTER)
     return FALSE;
 
   device_type = clutter_input_device_get_device_type (device);
@@ -252,7 +254,8 @@ tablet_seat_destroy (struct wl_client   *client,
   wl_resource_destroy (resource);
 }
 
-static const struct zwp_tablet_seat_v2_interface tablet_seat_interface = {
+static const struct zwp_tablet_seat_v2_interface tablet_seat_interface =
+{
   tablet_seat_destroy
 };
 
@@ -279,7 +282,8 @@ meta_wayland_tablet_seat_new (MetaWaylandTabletManager *manager,
                             G_CALLBACK (meta_wayland_tablet_seat_device_added),
                             tablet_seat);
   g_signal_connect_swapped (tablet_seat->device_manager, "device-removed",
-                            G_CALLBACK (meta_wayland_tablet_seat_device_removed),
+                            G_CALLBACK (
+                              meta_wayland_tablet_seat_device_removed),
                             tablet_seat);
 
   devices = clutter_device_manager_peek_devices (tablet_seat->device_manager);
@@ -296,10 +300,10 @@ meta_wayland_tablet_seat_free (MetaWaylandTabletSeat *tablet_seat)
   struct wl_resource *resource, *next;
 
   wl_resource_for_each_safe (resource, next, &tablet_seat->resource_list)
-    {
-      wl_list_remove (wl_resource_get_link (resource));
-      wl_list_init (wl_resource_get_link (resource));
-    }
+  {
+    wl_list_remove (wl_resource_get_link (resource));
+    wl_list_init (wl_resource_get_link (resource));
+  }
 
   g_signal_handlers_disconnect_by_data (tablet_seat->device_manager,
                                         tablet_seat);
@@ -310,10 +314,11 @@ meta_wayland_tablet_seat_free (MetaWaylandTabletSeat *tablet_seat)
 }
 
 struct wl_resource *
-meta_wayland_tablet_seat_create_new_resource (MetaWaylandTabletSeat *tablet_seat,
-                                              struct wl_client      *client,
-                                              struct wl_resource    *manager_resource,
-                                              uint32_t               id)
+meta_wayland_tablet_seat_create_new_resource (
+  MetaWaylandTabletSeat *tablet_seat,
+  struct wl_client      *client,
+  struct wl_resource    *manager_resource,
+  uint32_t               id)
 {
   struct wl_resource *resource;
 
@@ -399,7 +404,8 @@ meta_wayland_tablet_seat_update (MetaWaylandTabletSeat *tablet_seat,
       device_tool = clutter_event_get_device_tool (event);
 
       if (device && device_tool)
-        tool = meta_wayland_tablet_seat_ensure_tool (tablet_seat, device, device_tool);
+        tool = meta_wayland_tablet_seat_ensure_tool (tablet_seat, device,
+                                                     device_tool);
 
       if (!tool)
         return;
@@ -474,8 +480,8 @@ meta_wayland_tablet_seat_notify_tool (MetaWaylandTabletSeat *tablet_seat,
 }
 
 static GList *
-lookup_grouped_devices (ClutterInputDevice     *device,
-                        ClutterInputDeviceType  type)
+lookup_grouped_devices (ClutterInputDevice    *device,
+                        ClutterInputDeviceType type)
 {
   ClutterDeviceManager *device_manager;
   const GSList *devices, *l;
@@ -501,8 +507,9 @@ lookup_grouped_devices (ClutterInputDevice     *device,
 }
 
 MetaWaylandTablet *
-meta_wayland_tablet_seat_lookup_paired_tablet (MetaWaylandTabletSeat *tablet_seat,
-                                               MetaWaylandTabletPad  *pad)
+meta_wayland_tablet_seat_lookup_paired_tablet (
+  MetaWaylandTabletSeat *tablet_seat,
+  MetaWaylandTabletPad  *pad)
 {
   MetaWaylandTablet *tablet;
   GList *devices;

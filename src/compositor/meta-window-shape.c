@@ -144,9 +144,11 @@ meta_window_shape_new (cairo_region_t *region)
 
 #if 0
       g_print ("%d: +%d+%dx%dx%d => +%d+%dx%dx%d\n",
-               iter.i, iter.rectangle.x, iter.rectangle.y, iter.rectangle.width, iter.rectangle.height,
+               iter.i, iter.rectangle.x, iter.rectangle.y, iter.rectangle.width,
+               iter.rectangle.height,
                shape->rectangles[iter.i].x, shape->rectangles[iter.i].y,
-               hape->rectangles[iter.i].width, shape->rectangles[iter.i].height);
+               hape->rectangles[iter.i].width,
+               shape->rectangles[iter.i].height);
 #endif
 
       hash = hash * 31 + x1 * 17 + x2 * 27 + y1 * 37 + y2 * 43;
@@ -155,7 +157,8 @@ meta_window_shape_new (cairo_region_t *region)
   shape->hash = hash;
 
 #if 0
-  g_print ("%d %d %d %d: %#x\n\n", shape->top, shape->right, shape->bottom, shape->left, shape->hash);
+  g_print ("%d %d %d %d: %#x\n\n", shape->top, shape->right, shape->bottom,
+           shape->left, shape->hash);
 #endif
 
   return shape;

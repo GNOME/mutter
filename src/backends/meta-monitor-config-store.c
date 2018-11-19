@@ -32,7 +32,7 @@
 #define MONITORS_CONFIG_XML_FORMAT_VERSION 2
 
 #define QUOTE1(a) #a
-#define QUOTE(a) QUOTE1(a)
+#define QUOTE(a) QUOTE1 (a)
 
 /*
  * Example configuration:
@@ -130,7 +130,7 @@ enum
   META_MONITOR_CONFIG_STORE_ERROR_NEEDS_MIGRATION
 };
 
-G_DEFINE_QUARK (meta-monitor-config-store-error-quark,
+G_DEFINE_QUARK (meta - monitor - config - store - error - quark,
                 meta_monitor_config_store_error)
 
 typedef enum
@@ -185,316 +185,320 @@ G_DEFINE_TYPE (MetaMonitorConfigStore, meta_monitor_config_store,
                G_TYPE_OBJECT)
 
 static void
-handle_start_element (GMarkupParseContext  *context,
-                      const char           *element_name,
-                      const char          **attribute_names,
-                      const char          **attribute_values,
-                      gpointer              user_data,
-                      GError              **error)
+handle_start_element (GMarkupParseContext *context,
+                      const char          *element_name,
+                      const char         **attribute_names,
+                      const char         **attribute_values,
+                      gpointer             user_data,
+                      GError             **error)
 {
   ConfigParser *parser = user_data;
 
   switch (parser->state)
     {
     case STATE_INITIAL:
-      {
-        char *version;
+    {
+      char *version;
 
-        if (!g_str_equal (element_name, "monitors"))
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid document element '%s'", element_name);
-            return;
-          }
+      if (!g_str_equal (element_name, "monitors"))
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                       "Invalid document element '%s'", element_name);
+          return;
+        }
 
-        if (!g_markup_collect_attributes (element_name, attribute_names, attribute_values,
-                                          error,
-                                          G_MARKUP_COLLECT_STRING, "version", &version,
-                                          G_MARKUP_COLLECT_INVALID))
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                         "Missing config file format version");
-          }
-        
-        if (g_str_equal (version, "1"))
-          {
-            g_set_error_literal (error,
-                                 META_MONITOR_CONFIG_STORE_ERROR,
-                                 META_MONITOR_CONFIG_STORE_ERROR_NEEDS_MIGRATION,
-                                 "monitors.xml has the old format");
-            return;
-          }
+      if (!g_markup_collect_attributes (element_name, attribute_names,
+                                        attribute_values,
+                                        error,
+                                        G_MARKUP_COLLECT_STRING, "version",
+                                        &version,
+                                        G_MARKUP_COLLECT_INVALID))
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                       "Missing config file format version");
+        }
 
-        if (!g_str_equal (version, QUOTE (MONITORS_CONFIG_XML_FORMAT_VERSION)))
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                         "Invalid or unsupported version '%s'", version);
-            return;
-          }
+      if (g_str_equal (version, "1"))
+        {
+          g_set_error_literal (error,
+                               META_MONITOR_CONFIG_STORE_ERROR,
+                               META_MONITOR_CONFIG_STORE_ERROR_NEEDS_MIGRATION,
+                               "monitors.xml has the old format");
+          return;
+        }
 
-        parser->state = STATE_MONITORS;
-        return;
-      }
+      if (!g_str_equal (version, QUOTE (MONITORS_CONFIG_XML_FORMAT_VERSION)))
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                       "Invalid or unsupported version '%s'", version);
+          return;
+        }
+
+      parser->state = STATE_MONITORS;
+      return;
+    }
 
     case STATE_MONITORS:
-      {
-        if (!g_str_equal (element_name, "configuration"))
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid toplevel element '%s'", element_name);
-            return;
-          }
+    {
+      if (!g_str_equal (element_name, "configuration"))
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                       "Invalid toplevel element '%s'", element_name);
+          return;
+        }
 
-        parser->state = STATE_CONFIGURATION;
-        parser->current_was_migrated = FALSE;
+      parser->state = STATE_CONFIGURATION;
+      parser->current_was_migrated = FALSE;
 
-        return;
-      }
+      return;
+    }
 
     case STATE_CONFIGURATION:
-      {
-        if (g_str_equal (element_name, "logicalmonitor"))
-          {
-            parser->current_logical_monitor_config =
-              g_new0 (MetaLogicalMonitorConfig, 1);
+    {
+      if (g_str_equal (element_name, "logicalmonitor"))
+        {
+          parser->current_logical_monitor_config =
+            g_new0 (MetaLogicalMonitorConfig, 1);
 
-            parser->state = STATE_LOGICAL_MONITOR;
-          }
-        else if (g_str_equal (element_name, "migrated"))
-          {
-            parser->current_was_migrated = TRUE;
+          parser->state = STATE_LOGICAL_MONITOR;
+        }
+      else if (g_str_equal (element_name, "migrated"))
+        {
+          parser->current_was_migrated = TRUE;
 
-            parser->state = STATE_MIGRATED;
-          }
-        else if (g_str_equal (element_name, "disabled"))
-          {
-            parser->state = STATE_DISABLED;
-          }
-        else
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid configuration element '%s'", element_name);
-            return;
-          }
+          parser->state = STATE_MIGRATED;
+        }
+      else if (g_str_equal (element_name, "disabled"))
+        {
+          parser->state = STATE_DISABLED;
+        }
+      else
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                       "Invalid configuration element '%s'", element_name);
+          return;
+        }
 
-        return;
-      }
+      return;
+    }
 
     case STATE_MIGRATED:
-      {
-        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                     "Unexpected element '%s'", element_name);
-        return;
-      }
+    {
+      g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                   "Unexpected element '%s'", element_name);
+      return;
+    }
 
     case STATE_LOGICAL_MONITOR:
-      {
-        if (g_str_equal (element_name, "x"))
-          {
-            parser->state = STATE_LOGICAL_MONITOR_X;
-          }
-        else if (g_str_equal (element_name, "y"))
-          {
-            parser->state = STATE_LOGICAL_MONITOR_Y;
-          }
-        else if (g_str_equal (element_name, "scale"))
-          {
-            parser->state = STATE_LOGICAL_MONITOR_SCALE;
-          }
-        else if (g_str_equal (element_name, "primary"))
-          {
-            parser->state = STATE_LOGICAL_MONITOR_PRIMARY;
-          }
-        else if (g_str_equal (element_name, "presentation"))
-          {
-            parser->state = STATE_LOGICAL_MONITOR_PRESENTATION;
-          }
-        else if (g_str_equal (element_name, "transform"))
-          {
-            parser->state = STATE_TRANSFORM;
-          }
-        else if (g_str_equal (element_name, "monitor"))
-          {
-            parser->current_monitor_config = g_new0 (MetaMonitorConfig, 1);;
+    {
+      if (g_str_equal (element_name, "x"))
+        {
+          parser->state = STATE_LOGICAL_MONITOR_X;
+        }
+      else if (g_str_equal (element_name, "y"))
+        {
+          parser->state = STATE_LOGICAL_MONITOR_Y;
+        }
+      else if (g_str_equal (element_name, "scale"))
+        {
+          parser->state = STATE_LOGICAL_MONITOR_SCALE;
+        }
+      else if (g_str_equal (element_name, "primary"))
+        {
+          parser->state = STATE_LOGICAL_MONITOR_PRIMARY;
+        }
+      else if (g_str_equal (element_name, "presentation"))
+        {
+          parser->state = STATE_LOGICAL_MONITOR_PRESENTATION;
+        }
+      else if (g_str_equal (element_name, "transform"))
+        {
+          parser->state = STATE_TRANSFORM;
+        }
+      else if (g_str_equal (element_name, "monitor"))
+        {
+          parser->current_monitor_config = g_new0 (MetaMonitorConfig, 1);
 
-            parser->state = STATE_MONITOR;
-          }
-        else
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid monitor logicalmonitor element '%s'", element_name);
-            return;
-          }
+          parser->state = STATE_MONITOR;
+        }
+      else
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                       "Invalid monitor logicalmonitor element '%s'",
+                       element_name);
+          return;
+        }
 
-        return;
-      }
+      return;
+    }
 
     case STATE_LOGICAL_MONITOR_X:
     case STATE_LOGICAL_MONITOR_Y:
     case STATE_LOGICAL_MONITOR_SCALE:
     case STATE_LOGICAL_MONITOR_PRIMARY:
     case STATE_LOGICAL_MONITOR_PRESENTATION:
-      {
-        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                     "Invalid logical monitor element '%s'", element_name);
-        return;
-      }
+    {
+      g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                   "Invalid logical monitor element '%s'", element_name);
+      return;
+    }
 
     case STATE_TRANSFORM:
-      {
-        if (g_str_equal (element_name, "rotation"))
-          {
-            parser->state = STATE_TRANSFORM_ROTATION;
-          }
-        else if (g_str_equal (element_name, "flipped"))
-          {
-            parser->state = STATE_TRANSFORM_FLIPPED;
-          }
+    {
+      if (g_str_equal (element_name, "rotation"))
+        {
+          parser->state = STATE_TRANSFORM_ROTATION;
+        }
+      else if (g_str_equal (element_name, "flipped"))
+        {
+          parser->state = STATE_TRANSFORM_FLIPPED;
+        }
 
-        return;
-      }
+      return;
+    }
 
     case STATE_TRANSFORM_ROTATION:
     case STATE_TRANSFORM_FLIPPED:
-      {
-        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                     "Invalid transform element '%s'", element_name);
-        return;
-      }
+    {
+      g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                   "Invalid transform element '%s'", element_name);
+      return;
+    }
 
     case STATE_MONITOR:
-      {
-        if (g_str_equal (element_name, "monitorspec"))
-          {
-            parser->current_monitor_spec = g_new0 (MetaMonitorSpec, 1);
-            parser->monitor_spec_parent_state = STATE_MONITOR;
-            parser->state = STATE_MONITOR_SPEC;
-          }
-        else if (g_str_equal (element_name, "mode"))
-          {
-            parser->current_monitor_mode_spec = g_new0 (MetaMonitorModeSpec, 1);
+    {
+      if (g_str_equal (element_name, "monitorspec"))
+        {
+          parser->current_monitor_spec = g_new0 (MetaMonitorSpec, 1);
+          parser->monitor_spec_parent_state = STATE_MONITOR;
+          parser->state = STATE_MONITOR_SPEC;
+        }
+      else if (g_str_equal (element_name, "mode"))
+        {
+          parser->current_monitor_mode_spec = g_new0 (MetaMonitorModeSpec, 1);
 
-            parser->state = STATE_MONITOR_MODE;
-          }
-        else if (g_str_equal (element_name, "underscanning"))
-          {
-            parser->state = STATE_MONITOR_UNDERSCANNING;
-          }
-        else
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid monitor element '%s'", element_name);
-            return;
-          }
+          parser->state = STATE_MONITOR_MODE;
+        }
+      else if (g_str_equal (element_name, "underscanning"))
+        {
+          parser->state = STATE_MONITOR_UNDERSCANNING;
+        }
+      else
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                       "Invalid monitor element '%s'", element_name);
+          return;
+        }
 
-        return;
-      }
+      return;
+    }
 
     case STATE_MONITOR_SPEC:
-      {
-        if (g_str_equal (element_name, "connector"))
-          {
-            parser->state = STATE_MONITOR_SPEC_CONNECTOR;
-          }
-        else if (g_str_equal (element_name, "vendor"))
-          {
-            parser->state = STATE_MONITOR_SPEC_VENDOR;
-          }
-        else if (g_str_equal (element_name, "product"))
-          {
-            parser->state = STATE_MONITOR_SPEC_PRODUCT;
-          }
-        else if (g_str_equal (element_name, "serial"))
-          {
-            parser->state = STATE_MONITOR_SPEC_SERIAL;
-          }
-        else
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid monitor spec element '%s'", element_name);
-            return;
-          }
+    {
+      if (g_str_equal (element_name, "connector"))
+        {
+          parser->state = STATE_MONITOR_SPEC_CONNECTOR;
+        }
+      else if (g_str_equal (element_name, "vendor"))
+        {
+          parser->state = STATE_MONITOR_SPEC_VENDOR;
+        }
+      else if (g_str_equal (element_name, "product"))
+        {
+          parser->state = STATE_MONITOR_SPEC_PRODUCT;
+        }
+      else if (g_str_equal (element_name, "serial"))
+        {
+          parser->state = STATE_MONITOR_SPEC_SERIAL;
+        }
+      else
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                       "Invalid monitor spec element '%s'", element_name);
+          return;
+        }
 
-        return;
-      }
+      return;
+    }
 
     case STATE_MONITOR_SPEC_CONNECTOR:
     case STATE_MONITOR_SPEC_VENDOR:
     case STATE_MONITOR_SPEC_PRODUCT:
     case STATE_MONITOR_SPEC_SERIAL:
-      {
-        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                     "Invalid monitor spec element '%s'", element_name);
-        return;
-      }
+    {
+      g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                   "Invalid monitor spec element '%s'", element_name);
+      return;
+    }
 
     case STATE_MONITOR_MODE:
-      {
-        if (g_str_equal (element_name, "width"))
-          {
-            parser->state = STATE_MONITOR_MODE_WIDTH;
-          }
-        else if (g_str_equal (element_name, "height"))
-          {
-            parser->state = STATE_MONITOR_MODE_HEIGHT;
-          }
-        else if (g_str_equal (element_name, "rate"))
-          {
-            parser->state = STATE_MONITOR_MODE_RATE;
-          }
-        else if (g_str_equal (element_name, "flag"))
-          {
-            parser->state = STATE_MONITOR_MODE_FLAG;
-          }
-        else
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid mode element '%s'", element_name);
-            return;
-          }
+    {
+      if (g_str_equal (element_name, "width"))
+        {
+          parser->state = STATE_MONITOR_MODE_WIDTH;
+        }
+      else if (g_str_equal (element_name, "height"))
+        {
+          parser->state = STATE_MONITOR_MODE_HEIGHT;
+        }
+      else if (g_str_equal (element_name, "rate"))
+        {
+          parser->state = STATE_MONITOR_MODE_RATE;
+        }
+      else if (g_str_equal (element_name, "flag"))
+        {
+          parser->state = STATE_MONITOR_MODE_FLAG;
+        }
+      else
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                       "Invalid mode element '%s'", element_name);
+          return;
+        }
 
-        return;
-      }
+      return;
+    }
 
     case STATE_MONITOR_MODE_WIDTH:
     case STATE_MONITOR_MODE_HEIGHT:
     case STATE_MONITOR_MODE_RATE:
     case STATE_MONITOR_MODE_FLAG:
-      {
-        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                     "Invalid mode sub element '%s'", element_name);
-        return;
-      }
+    {
+      g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                   "Invalid mode sub element '%s'", element_name);
+      return;
+    }
 
     case STATE_MONITOR_UNDERSCANNING:
-      {
-        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                     "Invalid element '%s' under underscanning", element_name);
-        return;
-      }
+    {
+      g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                   "Invalid element '%s' under underscanning", element_name);
+      return;
+    }
 
     case STATE_DISABLED:
-      {
-        if (!g_str_equal (element_name, "monitorspec"))
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
-                         "Invalid element '%s' under disabled", element_name);
-            return;
-          }
+    {
+      if (!g_str_equal (element_name, "monitorspec"))
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                       "Invalid element '%s' under disabled", element_name);
+          return;
+        }
 
-        parser->current_monitor_spec = g_new0 (MetaMonitorSpec, 1);
-        parser->monitor_spec_parent_state = STATE_DISABLED;
-        parser->state = STATE_MONITOR_SPEC;
+      parser->current_monitor_spec = g_new0 (MetaMonitorSpec, 1);
+      parser->monitor_spec_parent_state = STATE_DISABLED;
+      parser->state = STATE_MONITOR_SPEC;
 
-        return;
-      }
+      return;
+    }
     }
 }
 
 static gboolean
-derive_logical_monitor_layout (MetaLogicalMonitorConfig    *logical_monitor_config,
-                               MetaLogicalMonitorLayoutMode layout_mode,
-                               GError                     **error)
+derive_logical_monitor_layout (
+  MetaLogicalMonitorConfig    *logical_monitor_config,
+  MetaLogicalMonitorLayoutMode layout_mode,
+  GError                     **error)
 {
   MetaMonitorConfig *monitor_config;
   int mode_width, mode_height;
@@ -551,22 +555,22 @@ finish_monitor_spec (ConfigParser *parser)
   switch (parser->monitor_spec_parent_state)
     {
     case STATE_MONITOR:
-      {
-        parser->current_monitor_config->monitor_spec =
-          parser->current_monitor_spec;
-        parser->current_monitor_spec = NULL;
+    {
+      parser->current_monitor_config->monitor_spec =
+        parser->current_monitor_spec;
+      parser->current_monitor_spec = NULL;
 
-        return;
-      }
+      return;
+    }
     case STATE_DISABLED:
-      {
-        parser->current_disabled_monitor_specs =
-          g_list_prepend (parser->current_disabled_monitor_specs,
-                          parser->current_monitor_spec);
-        parser->current_monitor_spec = NULL;
+    {
+      parser->current_disabled_monitor_specs =
+        g_list_prepend (parser->current_disabled_monitor_specs,
+                        parser->current_monitor_spec);
+      parser->current_monitor_spec = NULL;
 
-        return;
-      }
+      return;
+    }
 
     default:
       g_assert_not_reached ();
@@ -574,10 +578,10 @@ finish_monitor_spec (ConfigParser *parser)
 }
 
 static void
-handle_end_element (GMarkupParseContext  *context,
-                    const char           *element_name,
-                    gpointer              user_data,
-                    GError              **error)
+handle_end_element (GMarkupParseContext *context,
+                    const char          *element_name,
+                    gpointer             user_data,
+                    GError             **error)
 {
   ConfigParser *parser = user_data;
 
@@ -588,227 +592,227 @@ handle_end_element (GMarkupParseContext  *context,
     case STATE_LOGICAL_MONITOR_SCALE:
     case STATE_LOGICAL_MONITOR_PRIMARY:
     case STATE_LOGICAL_MONITOR_PRESENTATION:
-      {
-        parser->state = STATE_LOGICAL_MONITOR;
-        return;
-      }
+    {
+      parser->state = STATE_LOGICAL_MONITOR;
+      return;
+    }
 
     case STATE_TRANSFORM:
-      {
-        g_assert (g_str_equal (element_name, "transform"));
+    {
+      g_assert (g_str_equal (element_name, "transform"));
 
-        parser->current_logical_monitor_config->transform =
-          parser->current_transform;
-        if (parser->current_transform_flipped)
-          {
-            parser->current_logical_monitor_config->transform +=
-              META_MONITOR_TRANSFORM_FLIPPED;
-          }
+      parser->current_logical_monitor_config->transform =
+        parser->current_transform;
+      if (parser->current_transform_flipped)
+        {
+          parser->current_logical_monitor_config->transform +=
+            META_MONITOR_TRANSFORM_FLIPPED;
+        }
 
-        parser->current_transform = META_MONITOR_TRANSFORM_NORMAL;
-        parser->current_transform_flipped = FALSE;
+      parser->current_transform = META_MONITOR_TRANSFORM_NORMAL;
+      parser->current_transform_flipped = FALSE;
 
-        parser->state = STATE_LOGICAL_MONITOR;
-        return;
-      }
+      parser->state = STATE_LOGICAL_MONITOR;
+      return;
+    }
 
     case STATE_TRANSFORM_ROTATION:
     case STATE_TRANSFORM_FLIPPED:
-      {
-        parser->state = STATE_TRANSFORM;
-        return;
-      }
+    {
+      parser->state = STATE_TRANSFORM;
+      return;
+    }
 
     case STATE_MONITOR_SPEC_CONNECTOR:
     case STATE_MONITOR_SPEC_VENDOR:
     case STATE_MONITOR_SPEC_PRODUCT:
     case STATE_MONITOR_SPEC_SERIAL:
-      {
-        parser->state = STATE_MONITOR_SPEC;
-        return;
-      }
+    {
+      parser->state = STATE_MONITOR_SPEC;
+      return;
+    }
 
     case STATE_MONITOR_SPEC:
-      {
-        g_assert (g_str_equal (element_name, "monitorspec"));
+    {
+      g_assert (g_str_equal (element_name, "monitorspec"));
 
-        if (!meta_verify_monitor_spec (parser->current_monitor_spec, error))
-          return;
-
-        finish_monitor_spec (parser);
-
-        parser->state = parser->monitor_spec_parent_state;
+      if (!meta_verify_monitor_spec (parser->current_monitor_spec, error))
         return;
-      }
+
+      finish_monitor_spec (parser);
+
+      parser->state = parser->monitor_spec_parent_state;
+      return;
+    }
 
     case STATE_MONITOR_MODE_WIDTH:
     case STATE_MONITOR_MODE_HEIGHT:
     case STATE_MONITOR_MODE_RATE:
     case STATE_MONITOR_MODE_FLAG:
-      {
-        parser->state = STATE_MONITOR_MODE;
-        return;
-      }
+    {
+      parser->state = STATE_MONITOR_MODE;
+      return;
+    }
 
     case STATE_MONITOR_MODE:
-      {
-        g_assert (g_str_equal (element_name, "mode"));
+    {
+      g_assert (g_str_equal (element_name, "mode"));
 
-        if (!meta_verify_monitor_mode_spec (parser->current_monitor_mode_spec,
-                                            error))
-          return;
-
-        parser->current_monitor_config->mode_spec =
-          parser->current_monitor_mode_spec;
-        parser->current_monitor_mode_spec = NULL;
-
-        parser->state = STATE_MONITOR;
+      if (!meta_verify_monitor_mode_spec (parser->current_monitor_mode_spec,
+                                          error))
         return;
-      }
+
+      parser->current_monitor_config->mode_spec =
+        parser->current_monitor_mode_spec;
+      parser->current_monitor_mode_spec = NULL;
+
+      parser->state = STATE_MONITOR;
+      return;
+    }
 
     case STATE_MONITOR_UNDERSCANNING:
-      {
-        g_assert (g_str_equal (element_name, "underscanning"));
+    {
+      g_assert (g_str_equal (element_name, "underscanning"));
 
-        parser->state = STATE_MONITOR;
-        return;
-      }
+      parser->state = STATE_MONITOR;
+      return;
+    }
 
     case STATE_MONITOR:
-      {
-        MetaLogicalMonitorConfig *logical_monitor_config;
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config;
 
-        g_assert (g_str_equal (element_name, "monitor"));
+      g_assert (g_str_equal (element_name, "monitor"));
 
-        if (!meta_verify_monitor_config (parser->current_monitor_config, error))
-          return;
-
-        logical_monitor_config = parser->current_logical_monitor_config;
-
-        logical_monitor_config->monitor_configs =
-          g_list_append (logical_monitor_config->monitor_configs,
-                         parser->current_monitor_config);
-        parser->current_monitor_config = NULL;
-
-        parser->state = STATE_LOGICAL_MONITOR;
+      if (!meta_verify_monitor_config (parser->current_monitor_config, error))
         return;
-      }
+
+      logical_monitor_config = parser->current_logical_monitor_config;
+
+      logical_monitor_config->monitor_configs =
+        g_list_append (logical_monitor_config->monitor_configs,
+                       parser->current_monitor_config);
+      parser->current_monitor_config = NULL;
+
+      parser->state = STATE_LOGICAL_MONITOR;
+      return;
+    }
 
     case STATE_LOGICAL_MONITOR:
-      {
-        MetaLogicalMonitorConfig *logical_monitor_config =
-          parser->current_logical_monitor_config;
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config =
+        parser->current_logical_monitor_config;
 
-        g_assert (g_str_equal (element_name, "logicalmonitor"));
+      g_assert (g_str_equal (element_name, "logicalmonitor"));
 
-        if (parser->current_was_migrated)
-          logical_monitor_config->scale = -1;
-        else if (logical_monitor_config->scale == 0)
-          logical_monitor_config->scale = 1;
+      if (parser->current_was_migrated)
+        logical_monitor_config->scale = -1;
+      else if (logical_monitor_config->scale == 0)
+        logical_monitor_config->scale = 1;
 
-        parser->current_logical_monitor_configs =
-          g_list_append (parser->current_logical_monitor_configs,
-                         logical_monitor_config);
-        parser->current_logical_monitor_config = NULL;
+      parser->current_logical_monitor_configs =
+        g_list_append (parser->current_logical_monitor_configs,
+                       logical_monitor_config);
+      parser->current_logical_monitor_config = NULL;
 
-        parser->state = STATE_CONFIGURATION;
-        return;
-      }
+      parser->state = STATE_CONFIGURATION;
+      return;
+    }
 
     case STATE_MIGRATED:
-      {
-        g_assert (g_str_equal (element_name, "migrated"));
+    {
+      g_assert (g_str_equal (element_name, "migrated"));
 
-        parser->state = STATE_CONFIGURATION;
-        return;
-      }
+      parser->state = STATE_CONFIGURATION;
+      return;
+    }
 
     case STATE_DISABLED:
-      {
-        g_assert (g_str_equal (element_name, "disabled"));
+    {
+      g_assert (g_str_equal (element_name, "disabled"));
 
-        parser->state = STATE_CONFIGURATION;
-        return;
-      }
+      parser->state = STATE_CONFIGURATION;
+      return;
+    }
 
     case STATE_CONFIGURATION:
-      {
-        MetaMonitorConfigStore *store = parser->config_store;
-        MetaMonitorsConfig *config;
-        GList *l;
-        MetaLogicalMonitorLayoutMode layout_mode;
-        MetaMonitorsConfigFlag config_flags = META_MONITORS_CONFIG_FLAG_NONE;
+    {
+      MetaMonitorConfigStore *store = parser->config_store;
+      MetaMonitorsConfig *config;
+      GList *l;
+      MetaLogicalMonitorLayoutMode layout_mode;
+      MetaMonitorsConfigFlag config_flags = META_MONITORS_CONFIG_FLAG_NONE;
 
-        g_assert (g_str_equal (element_name, "configuration"));
+      g_assert (g_str_equal (element_name, "configuration"));
 
-        if (parser->current_was_migrated)
-          layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
-        else
-          layout_mode =
-            meta_monitor_manager_get_default_layout_mode (store->monitor_manager);
+      if (parser->current_was_migrated)
+        layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
+      else
+        layout_mode =
+          meta_monitor_manager_get_default_layout_mode (store->monitor_manager);
 
-        for (l = parser->current_logical_monitor_configs; l; l = l->next)
-          {
-            MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+      for (l = parser->current_logical_monitor_configs; l; l = l->next)
+        {
+          MetaLogicalMonitorConfig *logical_monitor_config = l->data;
 
-            if (!derive_logical_monitor_layout (logical_monitor_config,
-                                                layout_mode,
-                                                error))
-              return;
-
-            if (!meta_verify_logical_monitor_config (logical_monitor_config,
-                                                     layout_mode,
-                                                     store->monitor_manager,
-                                                     error))
-              return;
-          }
-
-        if (parser->current_was_migrated)
-          config_flags |= META_MONITORS_CONFIG_FLAG_MIGRATED;
-
-        config =
-          meta_monitors_config_new_full (parser->current_logical_monitor_configs,
-                                         parser->current_disabled_monitor_specs,
-                                         layout_mode,
-                                         config_flags);
-
-        parser->current_logical_monitor_configs = NULL;
-        parser->current_disabled_monitor_specs = NULL;
-
-        if (!meta_verify_monitors_config (config, store->monitor_manager,
-                                          error))
-          {
-            g_object_unref (config);
+          if (!derive_logical_monitor_layout (logical_monitor_config,
+                                              layout_mode,
+                                              error))
             return;
-          }
 
-        g_hash_table_replace (parser->config_store->configs,
-                              config->key, config);
+          if (!meta_verify_logical_monitor_config (logical_monitor_config,
+                                                   layout_mode,
+                                                   store->monitor_manager,
+                                                   error))
+            return;
+        }
 
-        parser->state = STATE_MONITORS;
-        return;
-      }
+      if (parser->current_was_migrated)
+        config_flags |= META_MONITORS_CONFIG_FLAG_MIGRATED;
+
+      config =
+        meta_monitors_config_new_full (parser->current_logical_monitor_configs,
+                                       parser->current_disabled_monitor_specs,
+                                       layout_mode,
+                                       config_flags);
+
+      parser->current_logical_monitor_configs = NULL;
+      parser->current_disabled_monitor_specs = NULL;
+
+      if (!meta_verify_monitors_config (config, store->monitor_manager,
+                                        error))
+        {
+          g_object_unref (config);
+          return;
+        }
+
+      g_hash_table_replace (parser->config_store->configs,
+                            config->key, config);
+
+      parser->state = STATE_MONITORS;
+      return;
+    }
 
     case STATE_MONITORS:
-      {
-        g_assert (g_str_equal (element_name, "monitors"));
+    {
+      g_assert (g_str_equal (element_name, "monitors"));
 
-        parser->state = STATE_INITIAL;
-        return;
-      }
+      parser->state = STATE_INITIAL;
+      return;
+    }
 
     case STATE_INITIAL:
-      {
-        g_assert_not_reached ();
-      }
+    {
+      g_assert_not_reached ();
+    }
     }
 }
 
 static gboolean
-read_int (const char  *text,
-          gsize        text_len,
-          gint        *out_value,
-          GError     **error)
+read_int (const char *text,
+          gsize       text_len,
+          gint       *out_value,
+          GError    **error)
 {
   char buf[64];
   int64_t value;
@@ -833,10 +837,10 @@ read_int (const char  *text,
 }
 
 static gboolean
-read_float (const char  *text,
-            gsize        text_len,
-            float       *out_value,
-            GError     **error)
+read_float (const char *text,
+            gsize       text_len,
+            float      *out_value,
+            GError    **error)
 {
   char buf[64];
   float value;
@@ -861,10 +865,10 @@ read_float (const char  *text,
 }
 
 static gboolean
-read_bool (const char  *text,
-           gsize        text_len,
-           gboolean    *out_value,
-           GError     **error)
+read_bool (const char *text,
+           gsize       text_len,
+           gboolean   *out_value,
+           GError    **error)
 {
   if (strncmp (text, "no", text_len) == 0)
     {
@@ -918,160 +922,161 @@ handle_text (GMarkupParseContext *context,
     case STATE_MONITOR_MODE:
     case STATE_TRANSFORM:
     case STATE_DISABLED:
-      {
-        if (!is_all_whitespace (text, text_len))
-          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                       "Unexpected content at this point");
-        return;
-      }
+    {
+      if (!is_all_whitespace (text, text_len))
+        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                     "Unexpected content at this point");
+      return;
+    }
 
     case STATE_MONITOR_SPEC_CONNECTOR:
-      {
-        parser->current_monitor_spec->connector = g_strndup (text, text_len);
-        return;
-      }
+    {
+      parser->current_monitor_spec->connector = g_strndup (text, text_len);
+      return;
+    }
 
     case STATE_MONITOR_SPEC_VENDOR:
-      {
-        parser->current_monitor_spec->vendor = g_strndup (text, text_len);
-        return;
-      }
+    {
+      parser->current_monitor_spec->vendor = g_strndup (text, text_len);
+      return;
+    }
 
     case STATE_MONITOR_SPEC_PRODUCT:
-      {
-        parser->current_monitor_spec->product = g_strndup (text, text_len);
-        return;
-      }
+    {
+      parser->current_monitor_spec->product = g_strndup (text, text_len);
+      return;
+    }
 
     case STATE_MONITOR_SPEC_SERIAL:
-      {
-        parser->current_monitor_spec->serial = g_strndup (text, text_len);
-        return;
-      }
+    {
+      parser->current_monitor_spec->serial = g_strndup (text, text_len);
+      return;
+    }
 
     case STATE_LOGICAL_MONITOR_X:
-      {
-        read_int (text, text_len,
-                  &parser->current_logical_monitor_config->layout.x, error);
-        return;
-      }
+    {
+      read_int (text, text_len,
+                &parser->current_logical_monitor_config->layout.x, error);
+      return;
+    }
 
     case STATE_LOGICAL_MONITOR_Y:
-      {
-        read_int (text, text_len,
-                  &parser->current_logical_monitor_config->layout.y, error);
-        return;
-      }
+    {
+      read_int (text, text_len,
+                &parser->current_logical_monitor_config->layout.y, error);
+      return;
+    }
 
     case STATE_LOGICAL_MONITOR_SCALE:
-      {
-        if (!read_float (text, text_len,
-                         &parser->current_logical_monitor_config->scale, error))
-          return;
-
-        if (parser->current_logical_monitor_config->scale <= 0.0)
-          {
-            g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                         "Logical monitor scale '%g' invalid",
-                         parser->current_logical_monitor_config->scale);
-            return;
-          }
-
+    {
+      if (!read_float (text, text_len,
+                       &parser->current_logical_monitor_config->scale, error))
         return;
-      }
+
+      if (parser->current_logical_monitor_config->scale <= 0.0)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "Logical monitor scale '%g' invalid",
+                       parser->current_logical_monitor_config->scale);
+          return;
+        }
+
+      return;
+    }
 
     case STATE_LOGICAL_MONITOR_PRIMARY:
-      {
-        read_bool (text, text_len,
-                   &parser->current_logical_monitor_config->is_primary,
-                   error);
-        return;
-      }
+    {
+      read_bool (text, text_len,
+                 &parser->current_logical_monitor_config->is_primary,
+                 error);
+      return;
+    }
 
     case STATE_LOGICAL_MONITOR_PRESENTATION:
-      {
-        read_bool (text, text_len,
-                   &parser->current_logical_monitor_config->is_presentation,
-                   error);
-        return;
-      }
+    {
+      read_bool (text, text_len,
+                 &parser->current_logical_monitor_config->is_presentation,
+                 error);
+      return;
+    }
 
     case STATE_TRANSFORM_ROTATION:
-      {
-        if (strncmp (text, "normal", text_len) == 0)
-          parser->current_transform = META_MONITOR_TRANSFORM_NORMAL;
-        else if (strncmp (text, "left", text_len) == 0)
-          parser->current_transform = META_MONITOR_TRANSFORM_90;
-        else if (strncmp (text, "upside_down", text_len) == 0)
-          parser->current_transform = META_MONITOR_TRANSFORM_180;
-        else if (strncmp (text, "right", text_len) == 0)
-          parser->current_transform = META_MONITOR_TRANSFORM_270;
-        else
-          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                       "Invalid rotation type %.*s", (int)text_len, text);
+    {
+      if (strncmp (text, "normal", text_len) == 0)
+        parser->current_transform = META_MONITOR_TRANSFORM_NORMAL;
+      else if (strncmp (text, "left", text_len) == 0)
+        parser->current_transform = META_MONITOR_TRANSFORM_90;
+      else if (strncmp (text, "upside_down", text_len) == 0)
+        parser->current_transform = META_MONITOR_TRANSFORM_180;
+      else if (strncmp (text, "right", text_len) == 0)
+        parser->current_transform = META_MONITOR_TRANSFORM_270;
+      else
+        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                     "Invalid rotation type %.*s", (int) text_len, text);
 
-        return;
-      }
+      return;
+    }
 
     case STATE_TRANSFORM_FLIPPED:
-      {
-        read_bool (text, text_len,
-                   &parser->current_transform_flipped,
-                   error);
-        return;
-      }
+    {
+      read_bool (text, text_len,
+                 &parser->current_transform_flipped,
+                 error);
+      return;
+    }
 
     case STATE_MONITOR_MODE_WIDTH:
-      {
-        read_int (text, text_len,
-                  &parser->current_monitor_mode_spec->width,
-                  error);
-        return;
-      }
+    {
+      read_int (text, text_len,
+                &parser->current_monitor_mode_spec->width,
+                error);
+      return;
+    }
 
     case STATE_MONITOR_MODE_HEIGHT:
-      {
-        read_int (text, text_len,
-                  &parser->current_monitor_mode_spec->height,
-                  error);
-        return;
-      }
+    {
+      read_int (text, text_len,
+                &parser->current_monitor_mode_spec->height,
+                error);
+      return;
+    }
 
     case STATE_MONITOR_MODE_RATE:
-      {
-        read_float (text, text_len,
-                    &parser->current_monitor_mode_spec->refresh_rate,
-                    error);
-        return;
-      }
+    {
+      read_float (text, text_len,
+                  &parser->current_monitor_mode_spec->refresh_rate,
+                  error);
+      return;
+    }
 
     case STATE_MONITOR_MODE_FLAG:
-      {
-        if (strncmp (text, "interlace", text_len) == 0)
-          {
-            parser->current_monitor_mode_spec->flags |=
-              META_CRTC_MODE_FLAG_INTERLACE;
-          }
-        else
-          {
-            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
-                         "Invalid mode flag %.*s", (int) text_len, text);
-          }
+    {
+      if (strncmp (text, "interlace", text_len) == 0)
+        {
+          parser->current_monitor_mode_spec->flags |=
+            META_CRTC_MODE_FLAG_INTERLACE;
+        }
+      else
+        {
+          g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                       "Invalid mode flag %.*s", (int) text_len, text);
+        }
 
-        return;
-      }
+      return;
+    }
 
     case STATE_MONITOR_UNDERSCANNING:
-      {
-        read_bool (text, text_len,
-                   &parser->current_monitor_config->enable_underscanning,
-                   error);
-        return;
-      }
+    {
+      read_bool (text, text_len,
+                 &parser->current_monitor_config->enable_underscanning,
+                 error);
+      return;
+    }
     }
 }
 
-static const GMarkupParser config_parser = {
+static const GMarkupParser config_parser =
+{
   .start_element = handle_start_element,
   .end_element = handle_end_element,
   .text = handle_text
@@ -1107,7 +1112,7 @@ read_config_file (MetaMonitorConfigStore *config_store,
                        meta_monitor_spec_free);
       g_free (parser.current_monitor_mode_spec);
       g_clear_pointer (&parser.current_monitor_config,
-                      meta_monitor_config_free);
+                       meta_monitor_config_free);
       g_clear_pointer (&parser.current_logical_monitor_config,
                        meta_logical_monitor_config_free);
       return FALSE;
@@ -1175,7 +1180,8 @@ append_monitors (GString *buffer,
         g_string_append_printf (buffer, "          <flag>interlace</flag>\n");
       g_string_append (buffer, "        </mode>\n");
       if (monitor_config->enable_underscanning)
-        g_string_append (buffer, "        <underscanning>yes</underscanning>\n");
+        g_string_append (buffer,
+                         "        <underscanning>yes</underscanning>\n");
       g_string_append (buffer, "      </monitor>\n");
     }
 }
@@ -1324,7 +1330,8 @@ saved_cb (GObject      *object,
     {
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         {
-          g_warning ("Saving monitor configuration failed: %s\n", error->message);
+          g_warning ("Saving monitor configuration failed: %s\n",
+                     error->message);
           g_clear_object (&data->config_store->save_cancellable);
         }
 
@@ -1468,7 +1475,8 @@ meta_monitor_config_store_get_config_count (MetaMonitorConfigStore *config_store
 }
 
 MetaMonitorManager *
-meta_monitor_config_store_get_monitor_manager (MetaMonitorConfigStore *config_store)
+meta_monitor_config_store_get_monitor_manager (
+  MetaMonitorConfigStore *config_store)
 {
   return config_store->monitor_manager;
 }

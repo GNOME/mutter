@@ -50,7 +50,7 @@ struct _MetaGpuTest
 
 G_DEFINE_TYPE (MetaGpuTest, meta_gpu_test, META_TYPE_GPU)
 
-static MetaMonitorTestSetup *_initial_test_setup = NULL;
+static MetaMonitorTestSetup * _initial_test_setup = NULL;
 
 void
 meta_monitor_manager_test_init_test_setup (MetaMonitorTestSetup *test_setup)
@@ -81,16 +81,18 @@ meta_monitor_manager_test_emulate_hotplug (MetaMonitorManagerTest *manager_test,
 }
 
 void
-meta_monitor_manager_test_set_handles_transforms (MetaMonitorManagerTest *manager_test,
-                                                  gboolean                handles_transforms)
+meta_monitor_manager_test_set_handles_transforms (
+  MetaMonitorManagerTest *manager_test,
+  gboolean                handles_transforms)
 {
-  g_assert (handles_transforms || meta_is_stage_views_enabled());
+  g_assert (handles_transforms || meta_is_stage_views_enabled ());
 
   manager_test->handles_transforms = handles_transforms;
 }
 
 int
-meta_monitor_manager_test_get_tiled_monitor_count (MetaMonitorManagerTest *manager_test)
+meta_monitor_manager_test_get_tiled_monitor_count (
+  MetaMonitorManagerTest *manager_test)
 {
   return manager_test->tiled_monitor_count;
 }
@@ -190,7 +192,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
 
           for (j = 0; j < crtc_info->outputs->len; j++)
             {
-              output = ((MetaOutput**)crtc_info->outputs->pdata)[j];
+              output = ((MetaOutput **) crtc_info->outputs->pdata)[j];
 
               output->is_dirty = TRUE;
               meta_output_assign_crtc (output, crtc);
@@ -274,10 +276,11 @@ update_screen_size (MetaMonitorManager *manager,
 }
 
 static gboolean
-meta_monitor_manager_test_apply_monitors_config (MetaMonitorManager      *manager,
-                                                 MetaMonitorsConfig      *config,
-                                                 MetaMonitorsConfigMethod method,
-                                                 GError                 **error)
+meta_monitor_manager_test_apply_monitors_config (
+  MetaMonitorManager      *manager,
+  MetaMonitorsConfig      *config,
+  MetaMonitorsConfigMethod method,
+  GError                 **error)
 {
   GPtrArray *crtc_infos;
   GPtrArray *output_infos;
@@ -356,9 +359,10 @@ meta_monitor_manager_test_is_transform_handled (MetaMonitorManager  *manager,
 }
 
 static float
-meta_monitor_manager_test_calculate_monitor_mode_scale (MetaMonitorManager *manager,
-                                                        MetaMonitor        *monitor,
-                                                        MetaMonitorMode    *monitor_mode)
+meta_monitor_manager_test_calculate_monitor_mode_scale (
+  MetaMonitorManager *manager,
+  MetaMonitor        *monitor,
+  MetaMonitorMode    *monitor_mode)
 {
   MetaOutput *output;
   MetaOutputTest *output_test;
@@ -373,11 +377,12 @@ meta_monitor_manager_test_calculate_monitor_mode_scale (MetaMonitorManager *mana
 }
 
 static float *
-meta_monitor_manager_test_calculate_supported_scales (MetaMonitorManager          *manager,
-                                                      MetaLogicalMonitorLayoutMode layout_mode,
-                                                      MetaMonitor                 *monitor,
-                                                      MetaMonitorMode             *monitor_mode,
-                                                      int                         *n_supported_scales)
+meta_monitor_manager_test_calculate_supported_scales (
+  MetaMonitorManager          *manager,
+  MetaLogicalMonitorLayoutMode layout_mode,
+  MetaMonitor                 *monitor,
+  MetaMonitorMode             *monitor_mode,
+  int                         *n_supported_scales)
 {
   MetaMonitorScalesConstraint constraints =
     META_MONITOR_SCALES_CONSTRAINT_NONE;
@@ -480,21 +485,30 @@ meta_monitor_manager_test_class_init (MetaMonitorManagerTestClass *klass)
 
   object_class->dispose = meta_monitor_manager_test_dispose;
 
-  manager_class->ensure_initial_config = meta_monitor_manager_test_ensure_initial_config;
-  manager_class->apply_monitors_config = meta_monitor_manager_test_apply_monitors_config;
-  manager_class->tiled_monitor_added = meta_monitor_manager_test_tiled_monitor_added;
-  manager_class->tiled_monitor_removed = meta_monitor_manager_test_tiled_monitor_removed;
-  manager_class->is_transform_handled = meta_monitor_manager_test_is_transform_handled;
-  manager_class->calculate_monitor_mode_scale = meta_monitor_manager_test_calculate_monitor_mode_scale;
-  manager_class->calculate_supported_scales = meta_monitor_manager_test_calculate_supported_scales;
+  manager_class->ensure_initial_config =
+    meta_monitor_manager_test_ensure_initial_config;
+  manager_class->apply_monitors_config =
+    meta_monitor_manager_test_apply_monitors_config;
+  manager_class->tiled_monitor_added =
+    meta_monitor_manager_test_tiled_monitor_added;
+  manager_class->tiled_monitor_removed =
+    meta_monitor_manager_test_tiled_monitor_removed;
+  manager_class->is_transform_handled =
+    meta_monitor_manager_test_is_transform_handled;
+  manager_class->calculate_monitor_mode_scale =
+    meta_monitor_manager_test_calculate_monitor_mode_scale;
+  manager_class->calculate_supported_scales =
+    meta_monitor_manager_test_calculate_supported_scales;
   manager_class->get_capabilities = meta_monitor_manager_test_get_capabilities;
-  manager_class->get_max_screen_size = meta_monitor_manager_test_get_max_screen_size;
-  manager_class->get_default_layout_mode = meta_monitor_manager_test_get_default_layout_mode;
+  manager_class->get_max_screen_size =
+    meta_monitor_manager_test_get_max_screen_size;
+  manager_class->get_default_layout_mode =
+    meta_monitor_manager_test_get_default_layout_mode;
 }
 
 static gboolean
-meta_gpu_test_read_current (MetaGpu  *gpu,
-                            GError  **error)
+meta_gpu_test_read_current (MetaGpu *gpu,
+                            GError **error)
 {
   MetaMonitorManager *manager = meta_gpu_get_monitor_manager (gpu);
 

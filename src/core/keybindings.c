@@ -62,13 +62,13 @@
 #define META_KEY_BINDING_PRIMARY_LAYOUT 0
 #define META_KEY_BINDING_SECONDARY_LAYOUT 1
 
-static gboolean add_builtin_keybinding (MetaDisplay          *display,
-                                        const char           *name,
-                                        GSettings            *settings,
-                                        MetaKeyBindingFlags   flags,
-                                        MetaKeyBindingAction  action,
-                                        MetaKeyHandlerFunc    handler,
-                                        int                   handler_arg);
+static gboolean add_builtin_keybinding (MetaDisplay         *display,
+                                        const char          *name,
+                                        GSettings           *settings,
+                                        MetaKeyBindingFlags  flags,
+                                        MetaKeyBindingAction action,
+                                        MetaKeyHandlerFunc   handler,
+                                        int                  handler_arg);
 
 static void
 resolved_key_combo_reset (MetaResolvedKeyCombo *resolved_combo)
@@ -129,13 +129,13 @@ meta_key_binding_copy (MetaKeyBinding *binding)
   return clone;
 }
 
-G_DEFINE_BOXED_TYPE(MetaKeyBinding,
-                    meta_key_binding,
-                    meta_key_binding_copy,
-                    meta_key_binding_free)
+G_DEFINE_BOXED_TYPE (MetaKeyBinding,
+                     meta_key_binding,
+                     meta_key_binding_copy,
+                     meta_key_binding_free)
 
 const char *
-meta_key_binding_get_name (MetaKeyBinding *binding)
+meta_key_binding_get_name (MetaKeyBinding * binding)
 {
   return binding->name;
 }
@@ -181,8 +181,8 @@ static gboolean process_keyboard_resize_grab (MetaDisplay     *display,
                                               MetaWindow      *window,
                                               ClutterKeyEvent *event);
 
-static void grab_key_bindings           (MetaDisplay *display);
-static void ungrab_key_bindings         (MetaDisplay *display);
+static void grab_key_bindings (MetaDisplay *display);
+static void ungrab_key_bindings (MetaDisplay *display);
 
 static GHashTable *key_handlers;
 static GHashTable *external_grabs;
@@ -199,7 +199,8 @@ key_handler_free (MetaKeyHandler *handler)
 }
 
 typedef struct _MetaKeyGrab MetaKeyGrab;
-struct _MetaKeyGrab {
+struct _MetaKeyGrab
+{
   char *name;
   guint action;
   MetaKeyCombo combo;
@@ -217,13 +218,13 @@ key_combo_key (MetaResolvedKeyCombo *resolved_combo,
                int                   i)
 {
   /* On X, keycodes are only 8 bits while libxkbcommon supports 32 bit
-     keycodes, but since we're using the same XKB keymaps that X uses,
-     we won't find keycodes bigger than 8 bits in practice. The bits
-     that mutter cares about in the modifier mask are also all in the
-     lower 8 bits both on X and clutter key events. This means that we
-     can use a 32 bit integer to safely concatenate both keycode and
-     mask and thus making it easy to use them as an index in a
-     GHashTable. */
+   *  keycodes, but since we're using the same XKB keymaps that X uses,
+   *  we won't find keycodes bigger than 8 bits in practice. The bits
+   *  that mutter cares about in the modifier mask are also all in the
+   *  lower 8 bits both on X and clutter key events. This means that we
+   *  can use a 32 bit integer to safely concatenate both keycode and
+   *  mask and thus making it easy to use them as an index in a
+   *  GHashTable. */
   guint32 key = resolved_combo->keycodes[i] & 0xffff;
   return (key << 16) | (resolved_combo->mask & 0xffff);
 }
@@ -237,15 +238,17 @@ reload_modmap (MetaKeyBindingManager *keys)
   xkb_mod_mask_t dummy_mask;
 
   /* Modifiers to find. */
-  struct {
+  struct
+  {
     const char *name;
     xkb_mod_mask_t *mask_p;
     xkb_mod_mask_t *virtual_mask_p;
-  } mods[] = {
+  } mods[] =
+  {
     { "ScrollLock", &scroll_lock_mask, &dummy_mask },
-    { "Meta",       &keys->meta_mask,  &keys->virtual_meta_mask },
-    { "Hyper",      &keys->hyper_mask, &keys->virtual_hyper_mask },
-    { "Super",      &keys->super_mask, &keys->virtual_super_mask },
+    { "Meta", &keys->meta_mask, &keys->virtual_meta_mask },
+    { "Hyper", &keys->hyper_mask, &keys->virtual_hyper_mask },
+    { "Super", &keys->super_mask, &keys->virtual_super_mask },
   };
 
   scratch_state = xkb_state_new (keymap);
@@ -261,7 +264,9 @@ reload_modmap (MetaKeyBindingManager *keys)
         {
           xkb_mod_mask_t vmodmask = (1 << idx);
           xkb_state_update_mask (scratch_state, vmodmask, 0, 0, 0, 0, 0);
-          *mask_p = xkb_state_serialize_mods (scratch_state, XKB_STATE_MODS_DEPRESSED) & ~vmodmask;
+          *mask_p = xkb_state_serialize_mods (scratch_state,
+                                              XKB_STATE_MODS_DEPRESSED) &
+                    ~vmodmask;
           *virtual_mask_p = vmodmask;
         }
       else
@@ -294,7 +299,8 @@ is_keycode_for_keysym (struct xkb_keymap *keymap,
   const xkb_keysym_t *syms;
   int num_syms, k;
 
-  num_syms = xkb_keymap_key_get_syms_by_level (keymap, keycode, layout, level, &syms);
+  num_syms = xkb_keymap_key_get_syms_by_level (keymap, keycode, layout, level,
+                                               &syms);
   for (k = 0; k < num_syms; k++)
     {
       if (syms[k] == keysym)
@@ -367,9 +373,9 @@ add_keysym_keycodes_from_layout (int                           keysym,
 /* Original code from gdk_x11_keymap_get_entries_for_keyval() in
  * gdkkeys-x11.c */
 static void
-get_keycodes_for_keysym (MetaKeyBindingManager  *keys,
-                         int                     keysym,
-                         MetaResolvedKeyCombo   *resolved_combo)
+get_keycodes_for_keysym (MetaKeyBindingManager *keys,
+                         int                    keysym,
+                         MetaResolvedKeyCombo  *resolved_combo)
 {
   unsigned int i;
   GArray *keycodes;
@@ -395,7 +401,7 @@ get_keycodes_for_keysym (MetaKeyBindingManager  *keys,
       add_keysym_keycodes_from_layout (keysym, layout, keycodes);
     }
 
- out:
+out:
   resolved_combo->len = keycodes->len;
   resolved_combo->keycodes =
     (xkb_keycode_t *) g_array_free (keycodes,
@@ -430,7 +436,8 @@ calculate_n_layout_levels (struct xkb_keymap *keymap,
                            xkb_layout_index_t layout_index)
 
 {
-  CalculateLayoutLevelState state = {
+  CalculateLayoutLevelState state =
+  {
     .keymap = keymap,
     .layout_index = layout_index,
 
@@ -457,7 +464,8 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
   if (iso_next_group_option == NULL)
     return;
 
-  get_keycodes_for_keysym (keys, XKB_KEY_ISO_Next_Group, keys->iso_next_group_combo);
+  get_keycodes_for_keysym (keys, XKB_KEY_ISO_Next_Group,
+                           keys->iso_next_group_combo);
 
   if (keys->iso_next_group_combo[0].len == 0)
     return;
@@ -527,8 +535,8 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
 
 static void
 devirtualize_modifiers (MetaKeyBindingManager *keys,
-                        MetaVirtualModifier     modifiers,
-                        unsigned int           *mask)
+                        MetaVirtualModifier    modifiers,
+                        unsigned int          *mask)
 {
   *mask = 0;
 
@@ -556,7 +564,7 @@ devirtualize_modifiers (MetaKeyBindingManager *keys,
 
 static void
 index_binding (MetaKeyBindingManager *keys,
-               MetaKeyBinding         *binding)
+               MetaKeyBinding        *binding)
 {
   int i;
 
@@ -594,7 +602,6 @@ resolve_key_combo (MetaKeyBindingManager *keys,
                    MetaKeyCombo          *combo,
                    MetaResolvedKeyCombo  *resolved_combo)
 {
-
   resolved_key_combo_reset (resolved_combo);
 
   if (combo->keysym != 0)
@@ -664,7 +671,8 @@ find_latin_keysym (struct xkb_keymap *keymap,
 static gboolean
 needs_secondary_layout (MetaKeyBindingKeyboardLayout *layout)
 {
-  gboolean required_keysyms_found[] = {
+  gboolean required_keysyms_found[] =
+  {
     FALSE, /* XKB_KEY_a */
     FALSE, /* XKB_KEY_b */
     FALSE, /* XKB_KEY_c */
@@ -692,7 +700,8 @@ needs_secondary_layout (MetaKeyBindingKeyboardLayout *layout)
     FALSE, /* XKB_KEY_y */
     FALSE, /* XKB_KEY_z */
   };
-  FindLatinKeysymsState state = {
+  FindLatinKeysymsState state =
+  {
     .layout = layout,
     .required_keysyms_found = required_keysyms_found,
     .n_required_keysyms = G_N_ELEMENTS (required_keysyms_found),
@@ -713,7 +722,9 @@ clear_active_keyboard_layouts (MetaKeyBindingManager *keys)
       MetaKeyBindingKeyboardLayout *layout = &keys->active_layouts[i];
 
       g_clear_pointer (&layout->keymap, xkb_keymap_unref);
-      *layout = (MetaKeyBindingKeyboardLayout) { 0 };
+      *layout = (MetaKeyBindingKeyboardLayout) {
+        0
+      };
     }
 }
 
@@ -731,12 +742,13 @@ create_us_layout (void)
   names.options = "";
 
   context = xkb_context_new (XKB_CONTEXT_NO_FLAGS);
-  keymap = xkb_keymap_new_from_names (context, &names, XKB_KEYMAP_COMPILE_NO_FLAGS);
+  keymap = xkb_keymap_new_from_names (context, &names,
+                                      XKB_KEYMAP_COMPILE_NO_FLAGS);
   xkb_context_unref (context);
 
   return (MetaKeyBindingKeyboardLayout) {
-    .keymap = keymap,
-    .n_levels = calculate_n_layout_levels (keymap, 0),
+           .keymap = keymap,
+           .n_levels = calculate_n_layout_levels (keymap, 0),
   };
 }
 
@@ -781,13 +793,14 @@ reload_combos (MetaKeyBindingManager *keys)
 
   reload_iso_next_group_combos (keys);
 
-  g_hash_table_foreach (keys->key_bindings, binding_reload_combos_foreach, keys);
+  g_hash_table_foreach (keys->key_bindings, binding_reload_combos_foreach,
+                        keys);
 }
 
 static void
 rebuild_binding_table (MetaKeyBindingManager *keys,
-                       GList                  *prefs,
-                       GList                  *grabs)
+                       GList                 *prefs,
+                       GList                 *grabs)
 {
   MetaKeyBinding *b;
   GList *p, *g;
@@ -797,7 +810,7 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
   p = prefs;
   while (p)
     {
-      MetaKeyPref *pref = (MetaKeyPref*)p->data;
+      MetaKeyPref *pref = (MetaKeyPref *) p->data;
       GSList *tmp = pref->combos;
 
       while (tmp)
@@ -826,7 +839,7 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
   g = grabs;
   while (g)
     {
-      MetaKeyGrab *grab = (MetaKeyGrab*)g->data;
+      MetaKeyGrab *grab = (MetaKeyGrab *) g->data;
       if (grab->combo.keysym != None || grab->combo.keycode != 0)
         {
           MetaKeyHandler *handler = HANDLER ("external-grab");
@@ -938,15 +951,15 @@ next_dynamic_keybinding_action (void)
 }
 
 static gboolean
-add_keybinding_internal (MetaDisplay          *display,
-                         const char           *name,
-                         GSettings            *settings,
-                         MetaKeyBindingFlags   flags,
-                         MetaKeyBindingAction  action,
-                         MetaKeyHandlerFunc    func,
-                         int                   data,
-                         gpointer              user_data,
-                         GDestroyNotify        free_data)
+add_keybinding_internal (MetaDisplay         *display,
+                         const char          *name,
+                         GSettings           *settings,
+                         MetaKeyBindingFlags  flags,
+                         MetaKeyBindingAction action,
+                         MetaKeyHandlerFunc   func,
+                         int                  data,
+                         gpointer             user_data,
+                         GDestroyNotify       free_data)
 {
   MetaKeyHandler *handler;
 
@@ -968,13 +981,13 @@ add_keybinding_internal (MetaDisplay          *display,
 }
 
 static gboolean
-add_builtin_keybinding (MetaDisplay          *display,
-                        const char           *name,
-                        GSettings            *settings,
-                        MetaKeyBindingFlags   flags,
-                        MetaKeyBindingAction  action,
-                        MetaKeyHandlerFunc    handler,
-                        int                   handler_arg)
+add_builtin_keybinding (MetaDisplay         *display,
+                        const char          *name,
+                        GSettings           *settings,
+                        MetaKeyBindingFlags  flags,
+                        MetaKeyBindingAction action,
+                        MetaKeyHandlerFunc   handler,
+                        int                  handler_arg)
 {
   return add_keybinding_internal (display, name, settings,
                                   flags | META_KEY_BINDING_BUILTIN,
@@ -993,9 +1006,11 @@ add_builtin_keybinding (MetaDisplay          *display,
  *
  * Add a keybinding at runtime. The key @name in @schema needs to be of
  * type %G_VARIANT_TYPE_STRING_ARRAY, with each string describing a
- * keybinding in the form of "&lt;Control&gt;a" or "&lt;Shift&gt;&lt;Alt&gt;F1". The parser
+ * keybinding in the form of "&lt;Control&gt;a" or "&lt;Shift&gt;&lt;Alt&gt;F1".
+ *The parser
  * is fairly liberal and allows lower or upper case, and also abbreviations
- * such as "&lt;Ctl&gt;" and "&lt;Ctrl&gt;". If the key is set to the empty list or a
+ * such as "&lt;Ctl&gt;" and "&lt;Ctrl&gt;". If the key is set to the empty list
+ *or a
  * list with a single element of either "" or "disabled", the keybinding is
  * disabled.
  *
@@ -1005,13 +1020,13 @@ add_builtin_keybinding (MetaDisplay          *display,
  *          added successfully, otherwise %META_KEYBINDING_ACTION_NONE
  */
 guint
-meta_display_add_keybinding (MetaDisplay         *display,
-                             const char          *name,
-                             GSettings           *settings,
-                             MetaKeyBindingFlags  flags,
-                             MetaKeyHandlerFunc   handler,
-                             gpointer             user_data,
-                             GDestroyNotify       free_data)
+meta_display_add_keybinding (MetaDisplay        *display,
+                             const char         *name,
+                             GSettings          *settings,
+                             MetaKeyBindingFlags flags,
+                             MetaKeyHandlerFunc  handler,
+                             gpointer            user_data,
+                             GDestroyNotify      free_data)
 {
   guint new_action = next_dynamic_keybinding_action ();
 
@@ -1078,7 +1093,7 @@ get_keybinding_action (MetaKeyBindingManager *keys,
 
 static xkb_mod_mask_t
 mask_from_event_params (MetaKeyBindingManager *keys,
-                        unsigned long mask)
+                        unsigned long          mask)
 {
   return mask & 0xff & ~keys->ignored_modifier_mask;
 }
@@ -1129,23 +1144,27 @@ reload_keybindings (MetaDisplay *display)
 
 static GArray *
 calc_grab_modifiers (MetaKeyBindingManager *keys,
-                     unsigned int modmask)
+                     unsigned int           modmask)
 {
   unsigned int ignored_mask;
   XIGrabModifiers mods;
   GArray *mods_array = g_array_new (FALSE, TRUE, sizeof (XIGrabModifiers));
 
   /* The X server crashes if XIAnyModifier gets passed in with any
-     other bits. It doesn't make sense to ask for a grab of
-     XIAnyModifier plus other bits anyway so we avoid that. */
+   *  other bits. It doesn't make sense to ask for a grab of
+   *  XIAnyModifier plus other bits anyway so we avoid that. */
   if (modmask & XIAnyModifier)
     {
-      mods = (XIGrabModifiers) { XIAnyModifier, 0 };
+      mods = (XIGrabModifiers) {
+        XIAnyModifier, 0
+      };
       g_array_append_val (mods_array, mods);
       return mods_array;
     }
 
-  mods = (XIGrabModifiers) { modmask, 0 };
+  mods = (XIGrabModifiers) {
+    modmask, 0
+  };
   g_array_append_val (mods_array, mods);
 
   for (ignored_mask = 1;
@@ -1154,7 +1173,9 @@ calc_grab_modifiers (MetaKeyBindingManager *keys,
     {
       if (ignored_mask & keys->ignored_modifier_mask)
         {
-          mods = (XIGrabModifiers) { modmask | ignored_mask, 0 };
+          mods = (XIGrabModifiers) {
+            modmask | ignored_mask, 0
+          };
           g_array_append_val (mods_array, mods);
         }
     }
@@ -1164,11 +1185,11 @@ calc_grab_modifiers (MetaKeyBindingManager *keys,
 
 static void
 meta_change_button_grab (MetaKeyBindingManager *keys,
-                         Window                  xwindow,
-                         gboolean                grab,
-                         gboolean                sync,
-                         int                     button,
-                         int                     modmask)
+                         Window                 xwindow,
+                         gboolean               grab,
+                         gboolean               sync,
+                         int                    button,
+                         int                    modmask)
 {
   if (meta_is_wayland_compositor ())
     return;
@@ -1193,11 +1214,11 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
                   button, xwindow, None,
                   sync ? XIGrabModeSync : XIGrabModeAsync,
                   XIGrabModeAsync, False,
-                  &mask, mods->len, (XIGrabModifiers *)mods->data);
+                  &mask, mods->len, (XIGrabModifiers *) mods->data);
   else
     XIUngrabButton (xdisplay,
                     META_VIRTUAL_CORE_POINTER_ID,
-                    button, xwindow, mods->len, (XIGrabModifiers *)mods->data);
+                    button, xwindow, mods->len, (XIGrabModifiers *) mods->data);
 
   g_array_free (mods, TRUE);
 }
@@ -1340,27 +1361,27 @@ prefs_changed_callback (MetaPreference pref,
       grab_key_bindings (display);
       break;
     case META_PREF_MOUSE_BUTTON_MODS:
-      {
-        GSList *windows, *l;
-        windows = meta_display_list_windows (display, META_LIST_DEFAULT);
+    {
+      GSList *windows, *l;
+      windows = meta_display_list_windows (display, META_LIST_DEFAULT);
 
-        for (l = windows; l; l = l->next)
-          {
-            MetaWindow *w = l->data;
-            meta_display_ungrab_window_buttons (display, w->xwindow);
-          }
+      for (l = windows; l; l = l->next)
+        {
+          MetaWindow *w = l->data;
+          meta_display_ungrab_window_buttons (display, w->xwindow);
+        }
 
-        update_window_grab_modifiers (keys);
+      update_window_grab_modifiers (keys);
 
-        for (l = windows; l; l = l->next)
-          {
-            MetaWindow *w = l->data;
-            if (w->type != META_WINDOW_DOCK)
-              meta_display_grab_window_buttons (display, w->xwindow);
-          }
+      for (l = windows; l; l = l->next)
+        {
+          MetaWindow *w = l->data;
+          if (w->type != META_WINDOW_DOCK)
+            meta_display_grab_window_buttons (display, w->xwindow);
+        }
 
-        g_slist_free (windows);
-      }
+      g_slist_free (windows);
+    }
     default:
       break;
     }
@@ -1422,12 +1443,12 @@ meta_change_keygrab (MetaKeyBindingManager *keys,
                        META_VIRTUAL_CORE_KEYBOARD_ID,
                        keycode, xwindow,
                        XIGrabModeSync, XIGrabModeAsync,
-                       False, &mask, mods->len, (XIGrabModifiers *)mods->data);
+                       False, &mask, mods->len, (XIGrabModifiers *) mods->data);
       else
         XIUngrabKeycode (xdisplay,
                          META_VIRTUAL_CORE_KEYBOARD_ID,
                          keycode, xwindow,
-                         mods->len, (XIGrabModifiers *)mods->data);
+                         mods->len, (XIGrabModifiers *) mods->data);
     }
 
   g_array_free (mods, TRUE);
@@ -1448,7 +1469,8 @@ change_keygrab_foreach (gpointer key,
 {
   ChangeKeygrabData *data = user_data;
   MetaKeyBinding *binding = value;
-  gboolean binding_is_per_window = (binding->flags & META_KEY_BINDING_PER_WINDOW) != 0;
+  gboolean binding_is_per_window =
+    (binding->flags & META_KEY_BINDING_PER_WINDOW) != 0;
 
   if (data->only_per_window != binding_is_per_window)
     return;
@@ -1456,14 +1478,15 @@ change_keygrab_foreach (gpointer key,
   if (binding->resolved_combo.len == 0)
     return;
 
-  meta_change_keygrab (data->keys, data->xwindow, data->grab, &binding->resolved_combo);
+  meta_change_keygrab (data->keys, data->xwindow, data->grab,
+                       &binding->resolved_combo);
 }
 
 static void
 change_binding_keygrabs (MetaKeyBindingManager *keys,
-                         Window                  xwindow,
-                         gboolean                only_per_window,
-                         gboolean                grab)
+                         Window                 xwindow,
+                         gboolean               only_per_window,
+                         gboolean               grab)
 {
   ChangeKeygrabData data;
 
@@ -1525,7 +1548,7 @@ change_window_keygrabs (MetaKeyBindingManager *keys,
 }
 
 void
-meta_window_grab_keys (MetaWindow  *window)
+meta_window_grab_keys (MetaWindow *window)
 {
   MetaDisplay *display = window->display;
   MetaKeyBindingManager *keys = &display->key_binding_manager;
@@ -1562,7 +1585,7 @@ meta_window_grab_keys (MetaWindow  *window)
 }
 
 void
-meta_window_ungrab_keys (MetaWindow  *window)
+meta_window_ungrab_keys (MetaWindow *window)
 {
   if (window->keys_grabbed)
     {
@@ -1622,7 +1645,8 @@ meta_display_grab_accelerator (MetaDisplay *display,
       return META_KEYBINDING_ACTION_NONE;
     }
 
-  meta_change_keygrab (keys, display->x11_display->xroot, TRUE, &resolved_combo);
+  meta_change_keygrab (keys, display->x11_display->xroot, TRUE,
+                       &resolved_combo);
 
   grab = g_new0 (MetaKeyGrab, 1);
   grab->action = next_dynamic_keybinding_action ();
@@ -1672,7 +1696,8 @@ meta_display_ungrab_accelerator (MetaDisplay *display,
       for (i = 0; i < binding->resolved_combo.len; i++)
         {
           guint32 index_key = key_combo_key (&binding->resolved_combo, i);
-          g_hash_table_remove (keys->key_bindings_index, GINT_TO_POINTER (index_key));
+          g_hash_table_remove (keys->key_bindings_index,
+                               GINT_TO_POINTER (index_key));
         }
 
       g_hash_table_remove (keys->key_bindings, binding);
@@ -1742,8 +1767,8 @@ ungrab_keyboard (guint32 timestamp)
 }
 
 gboolean
-meta_window_grab_all_keys (MetaWindow  *window,
-                           guint32      timestamp)
+meta_window_grab_all_keys (MetaWindow *window,
+                           guint32     timestamp)
 {
   Window grabwindow;
   gboolean retval;
@@ -1819,7 +1844,8 @@ meta_display_unfreeze_keyboard (MetaDisplay *display, guint32 timestamp)
   if (!META_IS_BACKEND_X11 (backend))
     return;
 
-  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  Display *xdisplay =
+    meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
 
   XIAllowEvents (xdisplay, META_VIRTUAL_CORE_KEYBOARD_ID,
                  XIAsyncDevice, timestamp);
@@ -1863,25 +1889,25 @@ invoke_handler (MetaDisplay     *display,
                 MetaKeyBinding  *binding)
 {
   if (handler->func)
-    (* handler->func) (display,
-                       handler->flags & META_KEY_BINDING_PER_WINDOW ?
-                       window : NULL,
-                       event,
-                       binding,
-                       handler->user_data);
+    (*handler->func)(display,
+                     handler->flags & META_KEY_BINDING_PER_WINDOW ?
+                     window : NULL,
+                     event,
+                     binding,
+                     handler->user_data);
   else
-    (* handler->default_func) (display,
-                               handler->flags & META_KEY_BINDING_PER_WINDOW ?
-                               window: NULL,
-                               event,
-                               binding,
-                               NULL);
+    (*handler->default_func)(display,
+                             handler->flags & META_KEY_BINDING_PER_WINDOW ?
+                             window : NULL,
+                             event,
+                             binding,
+                             NULL);
 }
 
 static gboolean
-process_event (MetaDisplay          *display,
-               MetaWindow           *window,
-               ClutterKeyEvent      *event)
+process_event (MetaDisplay     *display,
+               MetaWindow      *window,
+               ClutterKeyEvent *event)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
   xkb_keycode_t keycode = (xkb_keycode_t) event->hardware_keycode;
@@ -1942,16 +1968,16 @@ process_event (MetaDisplay          *display,
 
   return TRUE;
 
- not_found:
+not_found:
   meta_topic (META_DEBUG_KEYBINDINGS,
               "No handler found for this event in this binding table\n");
   return FALSE;
 }
 
 static gboolean
-process_overlay_key (MetaDisplay *display,
+process_overlay_key (MetaDisplay     *display,
                      ClutterKeyEvent *event,
-                     MetaWindow *window)
+                     MetaWindow      *window)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
   MetaBackend *backend = keys->backend;
@@ -1973,8 +1999,8 @@ process_overlay_key (MetaDisplay *display,
 
   if (keys->overlay_key_only_pressed)
     {
-      if (! resolved_key_combo_has_keycode (&keys->overlay_resolved_key_combo,
-                                            event->hardware_keycode))
+      if (!resolved_key_combo_has_keycode (&keys->overlay_resolved_key_combo,
+                                           event->hardware_keycode))
         {
           keys->overlay_key_only_pressed = FALSE;
 
@@ -1999,7 +2025,8 @@ process_overlay_key (MetaDisplay *display,
 
               if (xdisplay)
                 XIAllowEvents (xdisplay,
-                               clutter_input_device_get_device_id (event->device),
+                               clutter_input_device_get_device_id (
+                                 event->device),
                                XIAsyncDevice, event->time);
             }
           else
@@ -2008,7 +2035,8 @@ process_overlay_key (MetaDisplay *display,
                * per-window key bindings or to the application */
               if (xdisplay)
                 XIAllowEvents (xdisplay,
-                               clutter_input_device_get_device_id (event->device),
+                               clutter_input_device_get_device_id (
+                                 event->device),
                                XIReplayDevice, event->time);
 
               return FALSE;
@@ -2074,7 +2102,7 @@ process_overlay_key (MetaDisplay *display,
 }
 
 static gboolean
-process_iso_next_group (MetaDisplay *display,
+process_iso_next_group (MetaDisplay     *display,
                         ClutterKeyEvent *event)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
@@ -2091,14 +2119,14 @@ process_iso_next_group (MetaDisplay *display,
 
   for (i = 0; i < keys->n_iso_next_group_combos; ++i)
     {
-      for (j = 0; j <  keys->iso_next_group_combo[i].len; ++j)
+      for (j = 0; j < keys->iso_next_group_combo[i].len; ++j)
         {
           if (keycode == keys->iso_next_group_combo[i].keycodes[j] &&
               mask == keys->iso_next_group_combo[i].mask)
             {
               /* If the signal handler returns TRUE the keyboard will
-                 remain frozen. It's the signal handler's responsibility
-                 to unfreeze it. */
+               *  remain frozen. It's the signal handler's responsibility
+               *  to unfreeze it. */
               if (!meta_display_modifiers_accelerator_activate (display))
                 meta_display_unfreeze_keyboard (display, event->time);
               activate = TRUE;
@@ -2135,7 +2163,8 @@ process_key_event (MetaDisplay     *display,
     MetaBackend *backend = meta_get_backend ();
     if (META_IS_BACKEND_X11 (backend))
       {
-        Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+        Display *xdisplay =
+          meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
         XIAllowEvents (xdisplay,
                        clutter_input_device_get_device_id (event->device),
                        XIAsyncDevice, event->time);
@@ -2160,20 +2189,23 @@ process_key_event (MetaDisplay     *display,
                 {
                   meta_topic (META_DEBUG_KEYBINDINGS,
                               "Processing event for keyboard move\n");
-                  keep_grab = process_keyboard_move_grab (display, window, event);
+                  keep_grab =
+                    process_keyboard_move_grab (display, window, event);
                 }
               else
                 {
                   meta_topic (META_DEBUG_KEYBINDINGS,
                               "Processing event for keyboard resize\n");
-                  keep_grab = process_keyboard_resize_grab (display, window, event);
+                  keep_grab = process_keyboard_resize_grab (display, window,
+                                                            event);
                 }
             }
           else
             {
               meta_topic (META_DEBUG_KEYBINDINGS,
                           "Processing event for mouse-only move/resize\n");
-              keep_grab = process_mouse_move_resize_grab (display, window, event);
+              keep_grab =
+                process_mouse_move_resize_grab (display, window, event);
             }
         }
       if (!keep_grab)
@@ -2740,13 +2772,14 @@ static void
 handle_switch_to_last_workspace (MetaDisplay     *display,
                                  MetaWindow      *event_window,
                                  ClutterKeyEvent *event,
-                                 MetaKeyBinding *binding,
-                                 gpointer        dummy)
+                                 MetaKeyBinding  *binding,
+                                 gpointer         dummy)
 {
-    MetaWorkspaceManager *workspace_manager = display->workspace_manager;
-    gint target = meta_workspace_manager_get_n_workspaces (workspace_manager) - 1;
-    MetaWorkspace *workspace = meta_workspace_manager_get_workspace_by_index (workspace_manager, target);
-    meta_workspace_activate (workspace, event->time);
+  MetaWorkspaceManager *workspace_manager = display->workspace_manager;
+  gint target = meta_workspace_manager_get_n_workspaces (workspace_manager) - 1;
+  MetaWorkspace *workspace = meta_workspace_manager_get_workspace_by_index (
+    workspace_manager, target);
+  meta_workspace_activate (workspace, event->time);
 }
 
 static void
@@ -2766,12 +2799,14 @@ handle_switch_to_workspace (MetaDisplay     *display,
        * current workspace.
        */
 
-      workspace = meta_workspace_get_neighbor (workspace_manager->active_workspace,
-                                               which);
+      workspace = meta_workspace_get_neighbor (
+        workspace_manager->active_workspace,
+        which);
     }
   else
     {
-      workspace = meta_workspace_manager_get_workspace_by_index (workspace_manager, which);
+      workspace = meta_workspace_manager_get_workspace_by_index (
+        workspace_manager, which);
     }
 
   if (workspace)
@@ -2831,9 +2866,9 @@ handle_always_on_top (MetaDisplay     *display,
 }
 
 static void
-handle_move_to_corner_backend (MetaDisplay           *display,
-                               MetaWindow            *window,
-                               int                    gravity)
+handle_move_to_corner_backend (MetaDisplay *display,
+                               MetaWindow  *window,
+                               int          gravity)
 {
   MetaRectangle work_area;
   MetaRectangle frame_rect;
@@ -2986,8 +3021,9 @@ handle_move_to_center  (MetaDisplay     *display,
 
   meta_window_move_frame (window,
                           TRUE,
-                          work_area.x + (work_area.width  - frame_rect.width ) / 2,
-                          work_area.y + (work_area.height - frame_rect.height) / 2);
+                          work_area.x + (work_area.width - frame_rect.width) / 2,
+                          work_area.y + (work_area.height - frame_rect.height) /
+                          2);
 }
 
 static void
@@ -3025,7 +3061,7 @@ handle_panel (MetaDisplay     *display,
   action_atom = None;
   switch (action)
     {
-      /* FIXME: The numbers are wrong */
+    /* FIXME: The numbers are wrong */
     case META_KEYBINDING_ACTION_PANEL_MAIN_MENU:
       action_atom = x11_display->atom__GNOME_PANEL_ACTION_MAIN_MENU;
       break;
@@ -3055,9 +3091,9 @@ handle_panel (MetaDisplay     *display,
 
   XSendEvent (x11_display->xdisplay,
               x11_display->xroot,
-	      False,
-	      StructureNotifyMask,
-	      (XEvent*) &ev);
+              False,
+              StructureNotifyMask,
+              (XEvent *) &ev);
 
   meta_x11_error_trap_pop (x11_display);
 }
@@ -3171,10 +3207,11 @@ handle_toggle_tiled (MetaDisplay     *display,
   if ((META_WINDOW_TILED_LEFT (window) && mode == META_TILE_LEFT) ||
       (META_WINDOW_TILED_RIGHT (window) && mode == META_TILE_RIGHT))
     {
-      window->tile_monitor_number = window->saved_maximize ? window->monitor->number
+      window->tile_monitor_number =
+        window->saved_maximize ? window->monitor->number
         : -1;
       window->tile_mode = window->saved_maximize ? META_TILE_MAXIMIZED
-        : META_TILE_NONE;
+                          : META_TILE_NONE;
 
       if (window->saved_maximize)
         meta_window_maximize (window, META_MAXIMIZE_BOTH);
@@ -3325,7 +3362,8 @@ handle_move_to_workspace_last (MetaDisplay     *display,
     return;
 
   which = meta_workspace_manager_get_n_workspaces (workspace_manager) - 1;
-  workspace = meta_workspace_manager_get_workspace_by_index (workspace_manager, which);
+  workspace = meta_workspace_manager_get_workspace_by_index (workspace_manager,
+                                                             which);
   meta_window_change_workspace (window, workspace);
 }
 
@@ -3356,12 +3394,14 @@ handle_move_to_workspace  (MetaDisplay     *display,
   workspace = NULL;
   if (flip)
     {
-      workspace = meta_workspace_get_neighbor (workspace_manager->active_workspace,
-                                               which);
+      workspace = meta_workspace_get_neighbor (
+        workspace_manager->active_workspace,
+        which);
     }
   else
     {
-      workspace = meta_workspace_manager_get_workspace_by_index (workspace_manager, which);
+      workspace = meta_workspace_manager_get_workspace_by_index (
+        workspace_manager, which);
     }
 
   if (workspace)
@@ -3386,11 +3426,11 @@ handle_move_to_workspace  (MetaDisplay     *display,
 }
 
 static void
-handle_move_to_monitor (MetaDisplay    *display,
-                        MetaWindow     *window,
-		        ClutterKeyEvent *event,
-                        MetaKeyBinding *binding,
-                        gpointer        dummy)
+handle_move_to_monitor (MetaDisplay     *display,
+                        MetaWindow      *window,
+                        ClutterKeyEvent *event,
+                        MetaKeyBinding  *binding,
+                        gpointer         dummy)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -3410,9 +3450,9 @@ handle_move_to_monitor (MetaDisplay    *display,
 
 static void
 handle_raise_or_lower (MetaDisplay     *display,
-		       MetaWindow      *window,
-		       ClutterKeyEvent *event,
-		       MetaKeyBinding  *binding,
+                       MetaWindow      *window,
+                       ClutterKeyEvent *event,
+                       MetaKeyBinding  *binding,
                        gpointer         dummy)
 {
   /* Get window at pointer */
@@ -3504,11 +3544,11 @@ handle_switch_vt (MetaDisplay     *display,
 #endif /* HAVE_NATIVE_BACKEND */
 
 static void
-handle_switch_monitor (MetaDisplay    *display,
-                       MetaWindow     *window,
+handle_switch_monitor (MetaDisplay     *display,
+                       MetaWindow      *window,
                        ClutterKeyEvent *event,
-                       MetaKeyBinding *binding,
-                       gpointer        dummy)
+                       MetaKeyBinding  *binding,
+                       gpointer         dummy)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -3524,11 +3564,11 @@ handle_switch_monitor (MetaDisplay    *display,
 }
 
 static void
-handle_rotate_monitor (MetaDisplay    *display,
-                       MetaWindow     *window,
+handle_rotate_monitor (MetaDisplay     *display,
+                       MetaWindow      *window,
                        ClutterKeyEvent *event,
-                       MetaKeyBinding *binding,
-                       gpointer        dummy)
+                       MetaKeyBinding  *binding,
+                       gpointer         dummy)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -3567,10 +3607,10 @@ handle_restore_shortcuts (MetaDisplay     *display,
  * %FALSE otherwise.
  */
 gboolean
-meta_keybindings_set_custom_handler (const gchar        *name,
-                                     MetaKeyHandlerFunc  handler,
-                                     gpointer            user_data,
-                                     GDestroyNotify      free_data)
+meta_keybindings_set_custom_handler (const gchar       *name,
+                                     MetaKeyHandlerFunc handler,
+                                     gpointer           user_data,
+                                     GDestroyNotify     free_data)
 {
   MetaKeyHandler *key_handler = HANDLER (name);
 
@@ -3592,7 +3632,8 @@ init_builtin_key_bindings (MetaDisplay *display)
 {
   GSettings *common_keybindings = g_settings_new (SCHEMA_COMMON_KEYBINDINGS);
   GSettings *mutter_keybindings = g_settings_new (SCHEMA_MUTTER_KEYBINDINGS);
-  GSettings *mutter_wayland_keybindings = g_settings_new (SCHEMA_MUTTER_WAYLAND_KEYBINDINGS);
+  GSettings *mutter_wayland_keybindings = g_settings_new (
+    SCHEMA_MUTTER_WAYLAND_KEYBINDINGS);
 
   add_builtin_keybinding (display,
                           "switch-to-workspace-1",
@@ -3845,7 +3886,8 @@ init_builtin_key_bindings (MetaDisplay *display)
                           common_keybindings,
                           META_KEY_BINDING_NONE,
                           META_KEYBINDING_ACTION_PANEL_RUN_DIALOG,
-                          handle_panel, META_KEYBINDING_ACTION_PANEL_RUN_DIALOG);
+                          handle_panel,
+                          META_KEYBINDING_ACTION_PANEL_RUN_DIALOG);
 
   add_builtin_keybinding (display,
                           "set-spew-mark",
@@ -4383,7 +4425,8 @@ meta_display_init_keys (MetaDisplay *display)
   keys->super_mask = 0;
   keys->meta_mask = 0;
 
-  keys->key_bindings = g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) meta_key_binding_free);
+  keys->key_bindings = g_hash_table_new_full (NULL, NULL, NULL,
+                                              (GDestroyNotify) meta_key_binding_free);
   keys->key_bindings_index = g_hash_table_new (NULL, NULL);
 
   reload_modmap (keys);
@@ -4412,7 +4455,7 @@ meta_display_init_keys (MetaDisplay *display)
 
   external_grabs = g_hash_table_new_full (g_str_hash, g_str_equal,
                                           NULL,
-                                          (GDestroyNotify)meta_key_grab_free);
+                                          (GDestroyNotify) meta_key_grab_free);
 
   init_builtin_key_bindings (display);
 

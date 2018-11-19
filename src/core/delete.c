@@ -33,9 +33,9 @@
 #include "meta/workspace.h"
 
 static void
-close_dialog_response_cb (MetaCloseDialog         *dialog,
-                          MetaCloseDialogResponse  response,
-                          MetaWindow              *window)
+close_dialog_response_cb (MetaCloseDialog        *dialog,
+                          MetaCloseDialogResponse response,
+                          MetaWindow             *window)
 {
   if (response == META_CLOSE_DIALOG_RESPONSE_FORCE_CLOSE)
     meta_window_kill (window);
@@ -50,8 +50,9 @@ meta_window_ensure_close_dialog (MetaWindow *window)
     return;
 
   display = window->display;
-  window->close_dialog = meta_compositor_create_close_dialog (display->compositor,
-                                                              window);
+  window->close_dialog = meta_compositor_create_close_dialog (
+    display->compositor,
+    window);
   g_signal_connect (window->close_dialog, "response",
                     G_CALLBACK (close_dialog_response_cb), window);
 }
@@ -84,8 +85,8 @@ meta_window_check_alive (MetaWindow *window,
 }
 
 void
-meta_window_delete (MetaWindow  *window,
-                    guint32      timestamp)
+meta_window_delete (MetaWindow *window,
+                    guint32     timestamp)
 {
   META_WINDOW_GET_CLASS (window)->delete (window, timestamp);
 

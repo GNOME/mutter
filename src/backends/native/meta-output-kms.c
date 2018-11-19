@@ -182,7 +182,7 @@ output_get_tile_info (MetaGpuKms *gpu_kms,
     {
       int ret;
 
-      ret = sscanf ((char *)tile_blob->data, "%d:%d:%d:%d:%d:%d:%d:%d",
+      ret = sscanf ((char *) tile_blob->data, "%d:%d:%d:%d:%d:%d:%d:%d",
                     &output->tile_info.group_id,
                     &output->tile_info.flags,
                     &output->tile_info.max_h_tiles,
@@ -259,8 +259,8 @@ handle_panel_orientation (MetaOutput        *output,
 }
 
 static void
-find_connector_properties (MetaGpuKms    *gpu_kms,
-                           MetaOutput    *output)
+find_connector_properties (MetaGpuKms *gpu_kms,
+                           MetaOutput *output)
 {
   MetaOutputKms *output_kms = output->driver_private;
   drmModeConnector *connector = output_kms->connector;
@@ -311,7 +311,8 @@ find_connector_properties (MetaGpuKms    *gpu_kms,
 static char *
 make_output_name (drmModeConnector *connector)
 {
-  static const char * const connector_type_names[] = {
+  static const char * const connector_type_names[] =
+  {
     "None",
     "VGA",
     "DVI-I",
@@ -442,9 +443,9 @@ compare_modes (const void *one,
 }
 
 static gboolean
-init_output_modes (MetaOutput  *output,
-                   MetaGpuKms  *gpu_kms,
-                   GError     **error)
+init_output_modes (MetaOutput *output,
+                   MetaGpuKms *gpu_kms,
+                   GError    **error)
 {
   MetaOutputKms *output_kms = output->driver_private;
   unsigned int i;
@@ -488,11 +489,11 @@ init_output_modes (MetaOutput  *output,
 }
 
 MetaOutput *
-meta_create_kms_output (MetaGpuKms        *gpu_kms,
-                        drmModeConnector  *connector,
-                        MetaKmsResources  *resources,
-                        MetaOutput        *old_output,
-                        GError           **error)
+meta_create_kms_output (MetaGpuKms       *gpu_kms,
+                        drmModeConnector *connector,
+                        MetaKmsResources *resources,
+                        MetaOutput       *old_output,
+                        GError          **error)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaOutput *output;
@@ -570,17 +571,17 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
         continue;
 
       /* We only list CRTCs as supported if they are supported by all encoders
-         for this connectors.
-
-         This is what xf86-video-modesetting does (see drmmode_output_init())
-         */
+       *  for this connectors.
+       *
+       *  This is what xf86-video-modesetting does (see drmmode_output_init())
+       */
       crtc_mask &= output_kms->encoders[i]->possible_crtcs;
 
       if (output_kms->encoders[i]->encoder_id == connector->encoder_id)
         output_kms->current_encoder = output_kms->encoders[i];
     }
 
-  crtcs = g_array_new (FALSE, FALSE, sizeof (MetaCrtc*));
+  crtcs = g_array_new (FALSE, FALSE, sizeof (MetaCrtc *));
 
   for (l = meta_gpu_get_crtcs (gpu), i = 0; l; l = l->next, i++)
     {
@@ -593,7 +594,7 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
     }
 
   output->n_possible_crtcs = crtcs->len;
-  output->possible_crtcs = (void*)g_array_free (crtcs, FALSE);
+  output->possible_crtcs = (void *) g_array_free (crtcs, FALSE);
 
   if (output_kms->current_encoder && output_kms->current_encoder->crtc_id != 0)
     {
@@ -654,14 +655,16 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   output_get_tile_info (gpu_kms, output);
 
   /* FIXME: backlight is a very driver specific thing unfortunately,
-     every DDX does its own thing, and the dumb KMS API does not include it.
-
-     For example, xf86-video-intel has a list of paths to probe in /sys/class/backlight
-     (one for each major HW maker, and then some).
-     We can't do the same because we're not root.
-     It might be best to leave backlight out of the story and rely on the setuid
-     helper in gnome-settings-daemon.
-     */
+   *  every DDX does its own thing, and the dumb KMS API does not include it.
+   *
+   *  For example, xf86-video-intel has a list of paths to probe in
+   * /sys/class/backlight
+   *  (one for each major HW maker, and then some).
+   *  We can't do the same because we're not root.
+   *  It might be best to leave backlight out of the story and rely on the
+   * setuid
+   *  helper in gnome-settings-daemon.
+   */
   output->backlight_min = 0;
   output->backlight_max = 0;
   output->backlight = -1;

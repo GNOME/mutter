@@ -30,8 +30,8 @@
 G_DEFINE_TYPE (MetaLogicalMonitor, meta_logical_monitor, G_TYPE_OBJECT)
 
 static MetaMonitor *
-get_first_monitor (MetaMonitorManager *monitor_manager,
-                   GList              *monitor_configs)
+get_first_monitor (MetaMonitorManager * monitor_manager,
+                   GList * monitor_configs)
 {
   MetaMonitorConfig *first_monitor_config;
   MetaMonitorSpec *first_monitor_spec;
@@ -89,9 +89,9 @@ meta_logical_monitor_new (MetaMonitorManager       *monitor_manager,
   logical_monitor->is_presentation = TRUE;
   g_list_foreach (monitor_configs, (GFunc) add_monitor_from_config,
                   &(AddMonitorFromConfigData) {
-                    .monitor_manager = monitor_manager,
-                    .logical_monitor = logical_monitor
-                  });
+    .monitor_manager = monitor_manager,
+    .logical_monitor = logical_monitor
+  });
 
   return logical_monitor;
 }
@@ -240,7 +240,8 @@ meta_logical_monitor_foreach_crtc (MetaLogicalMonitor        *logical_monitor,
     {
       MetaMonitor *monitor = l->data;
       MetaMonitorMode *mode;
-      ForeachCrtcData data = {
+      ForeachCrtcData data =
+      {
         .logical_monitor = logical_monitor,
         .func = func,
         .user_data = user_data
@@ -279,9 +280,9 @@ meta_logical_monitor_class_init (MetaLogicalMonitorClass *klass)
 }
 
 gboolean
-meta_logical_monitor_has_neighbor (MetaLogicalMonitor   *logical_monitor,
-                                   MetaLogicalMonitor   *neighbor,
-                                   MetaDisplayDirection  neighbor_direction)
+meta_logical_monitor_has_neighbor (MetaLogicalMonitor  *logical_monitor,
+                                   MetaLogicalMonitor  *neighbor,
+                                   MetaDisplayDirection neighbor_direction)
 {
   switch (neighbor_direction)
     {

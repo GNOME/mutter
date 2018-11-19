@@ -54,7 +54,8 @@ static void
 pad_handle_focus_surface_destroy (struct wl_listener *listener,
                                   void               *data)
 {
-  MetaWaylandTabletPad *pad = wl_container_of (listener, pad, focus_surface_listener);
+  MetaWaylandTabletPad *pad = wl_container_of (listener, pad,
+                                               focus_surface_listener);
 
   meta_wayland_tablet_pad_set_focus (pad, NULL);
 }
@@ -69,7 +70,8 @@ group_rings_strips (MetaWaylandTabletPad *pad)
   struct libinput_device *libinput_device = NULL;
 
   if (META_IS_BACKEND_NATIVE (backend))
-    libinput_device = clutter_evdev_input_device_get_libinput_device (pad->device);
+    libinput_device = clutter_evdev_input_device_get_libinput_device (
+      pad->device);
 #endif
 
   for (n_group = 0, g = pad->groups; g; g = g->next)
@@ -79,7 +81,8 @@ group_rings_strips (MetaWaylandTabletPad *pad)
       struct libinput_tablet_pad_mode_group *mode_group = NULL;
 
       if (libinput_device)
-        mode_group = libinput_device_tablet_pad_get_mode_group (libinput_device, n_group);
+        mode_group = libinput_device_tablet_pad_get_mode_group (libinput_device,
+                                                                n_group);
 #endif
 
       for (n_elem = 0, l = pad->rings; l; l = l->next)
@@ -94,11 +97,11 @@ group_rings_strips (MetaWaylandTabletPad *pad)
             }
           else
 #endif
-            {
-              /* Assign everything to the first group */
-              if (n_group == 0)
-                meta_wayland_tablet_pad_ring_set_group (ring, group);
-            }
+          {
+            /* Assign everything to the first group */
+            if (n_group == 0)
+              meta_wayland_tablet_pad_ring_set_group (ring, group);
+          }
           n_elem++;
         }
 
@@ -114,11 +117,11 @@ group_rings_strips (MetaWaylandTabletPad *pad)
             }
           else
 #endif
-            {
-              /* Assign everything to the first group */
-              if (n_group == 0)
-                meta_wayland_tablet_pad_strip_set_group (strip, group);
-            }
+          {
+            /* Assign everything to the first group */
+            if (n_group == 0)
+              meta_wayland_tablet_pad_strip_set_group (strip, group);
+          }
 
           n_elem++;
         }
@@ -154,7 +157,8 @@ meta_wayland_tablet_pad_new (ClutterInputDevice    *device,
       struct libinput_device *libinput_device;
 
       libinput_device = clutter_evdev_input_device_get_libinput_device (device);
-      pad->n_buttons = libinput_device_tablet_pad_get_num_buttons (libinput_device);
+      pad->n_buttons = libinput_device_tablet_pad_get_num_buttons (
+        libinput_device);
     }
 #endif
 
@@ -199,11 +203,11 @@ meta_wayland_tablet_pad_free (MetaWaylandTabletPad *pad)
   meta_wayland_tablet_pad_set_focus (pad, NULL);
 
   wl_resource_for_each_safe (resource, next, &pad->resource_list)
-    {
-      zwp_tablet_pad_v2_send_removed (resource);
-      wl_list_remove (wl_resource_get_link (resource));
-      wl_list_init (wl_resource_get_link (resource));
-    }
+  {
+    zwp_tablet_pad_v2_send_removed (resource);
+    wl_list_remove (wl_resource_get_link (resource));
+    wl_list_init (wl_resource_get_link (resource));
+  }
 
   g_list_free_full (pad->groups,
                     (GDestroyNotify) meta_wayland_tablet_pad_group_free);
@@ -242,7 +246,8 @@ tablet_pad_set_feedback (struct wl_client   *client,
                          uint32_t            serial)
 {
   MetaWaylandTabletPad *pad = wl_resource_get_user_data (resource);
-  MetaWaylandTabletPadGroup *group = tablet_pad_lookup_button_group (pad, button);
+  MetaWaylandTabletPadGroup *group =
+    tablet_pad_lookup_button_group (pad, button);
   MetaInputSettings *input_settings;
 
   if (!group || group->mode_switch_serial != serial)
@@ -251,13 +256,15 @@ tablet_pad_set_feedback (struct wl_client   *client,
   input_settings = meta_backend_get_input_settings (meta_get_backend ());
 
   if (input_settings &&
-      meta_input_settings_is_pad_button_grabbed (input_settings, pad->device, button))
+      meta_input_settings_is_pad_button_grabbed (input_settings, pad->device,
+                                                 button))
     return;
 
   if (meta_wayland_tablet_pad_group_is_mode_switch_button (group, button))
     return;
 
-  g_hash_table_insert (pad->feedback, GUINT_TO_POINTER (button), g_strdup (str));
+  g_hash_table_insert (pad->feedback, GUINT_TO_POINTER (button),
+                       g_strdup (str));
 }
 
 static void
@@ -267,14 +274,15 @@ tablet_pad_destroy (struct wl_client   *client,
   wl_resource_destroy (resource);
 }
 
-static const struct zwp_tablet_pad_v2_interface pad_interface = {
+static const struct zwp_tablet_pad_v2_interface pad_interface =
+{
   tablet_pad_set_feedback,
   tablet_pad_destroy,
 };
 
 void
-meta_wayland_tablet_pad_notify (MetaWaylandTabletPad  *pad,
-                                struct wl_resource    *resource)
+meta_wayland_tablet_pad_notify (MetaWaylandTabletPad *pad,
+                                struct wl_resource   *resource)
 {
   struct wl_client *client = wl_resource_get_client (resource);
   const gchar *node_path;
@@ -353,11 +361,11 @@ handle_pad_button_event (MetaWaylandTabletPad *pad,
     return FALSE;
 
   wl_resource_for_each (resource, focus_resources)
-    {
-      zwp_tablet_pad_v2_send_button (resource,
-                                     clutter_event_get_time (event),
-                                     event->pad_button.button, button_state);
-    }
+  {
+    zwp_tablet_pad_v2_send_button (resource,
+                                   clutter_event_get_time (event),
+                                   event->pad_button.button, button_state);
+  }
 
   return TRUE;
 }
@@ -421,20 +429,20 @@ move_resources (struct wl_list *destination, struct wl_list *source)
 }
 
 static void
-move_resources_for_client (struct wl_list *destination,
-			   struct wl_list *source,
-			   struct wl_client *client)
+move_resources_for_client (struct wl_list   *destination,
+                           struct wl_list   *source,
+                           struct wl_client *client)
 {
   struct wl_resource *resource, *tmp;
 
   wl_resource_for_each_safe (resource, tmp, source)
-    {
-      if (wl_resource_get_client (resource) == client)
-        {
-          wl_list_remove (wl_resource_get_link (resource));
-          wl_list_insert (destination, wl_resource_get_link (resource));
-        }
-    }
+  {
+    if (wl_resource_get_client (resource) == client)
+      {
+        wl_list_remove (wl_resource_get_link (resource));
+        wl_list_insert (destination, wl_resource_get_link (resource));
+      }
+  }
 }
 
 static void
@@ -459,11 +467,11 @@ meta_wayland_tablet_pad_broadcast_enter (MetaWaylandTabletPad *pad,
   tablet_resource = meta_wayland_tablet_lookup_resource (tablet, client);
 
   wl_resource_for_each (resource, &pad->focus_resource_list)
-    {
-      zwp_tablet_pad_v2_send_enter (resource, serial,
-                                    tablet_resource,
-                                    surface->resource);
-    }
+  {
+    zwp_tablet_pad_v2_send_enter (resource, serial,
+                                  tablet_resource,
+                                  surface->resource);
+  }
 }
 
 static void
@@ -474,10 +482,10 @@ meta_wayland_tablet_pad_broadcast_leave (MetaWaylandTabletPad *pad,
   struct wl_resource *resource;
 
   wl_resource_for_each (resource, &pad->focus_resource_list)
-    {
-      zwp_tablet_pad_v2_send_leave (resource, serial,
-                                    surface->resource);
-    }
+  {
+    zwp_tablet_pad_v2_send_leave (resource, serial,
+                                  surface->resource);
+  }
 }
 
 void
@@ -493,7 +501,8 @@ meta_wayland_tablet_pad_set_focus (MetaWaylandTabletPad *pad,
 
   if (pad->focus_surface != NULL)
     {
-      struct wl_client *client = wl_resource_get_client (pad->focus_surface->resource);
+      struct wl_client *client = wl_resource_get_client (
+        pad->focus_surface->resource);
       struct wl_list *focus_resources = &pad->focus_resource_list;
 
       if (!wl_list_empty (focus_resources))
@@ -564,7 +573,9 @@ meta_wayland_tablet_pad_label_mode_switch_button (MetaWaylandTabletPad *pad,
       group = l->data;
 
       if (meta_wayland_tablet_pad_group_is_mode_switch_button (group, button))
-        return g_strdup_printf (_("Mode Switch: Mode %d"), group->current_mode + 1);
+        return g_strdup_printf (_(
+                                  "Mode Switch: Mode %d"),
+                                group->current_mode + 1);
     }
 
   return NULL;
@@ -572,8 +583,8 @@ meta_wayland_tablet_pad_label_mode_switch_button (MetaWaylandTabletPad *pad,
 
 gchar *
 meta_wayland_tablet_pad_get_label (MetaWaylandTabletPad *pad,
-				   MetaPadActionType     type,
-				   guint                 action)
+                                   MetaPadActionType     type,
+                                   guint                 action)
 {
   const gchar *label = NULL;
   gchar *mode_label;
@@ -581,30 +592,31 @@ meta_wayland_tablet_pad_get_label (MetaWaylandTabletPad *pad,
   switch (type)
     {
     case META_PAD_ACTION_BUTTON:
-      mode_label = meta_wayland_tablet_pad_label_mode_switch_button (pad, action);
+      mode_label =
+        meta_wayland_tablet_pad_label_mode_switch_button (pad, action);
       if (mode_label)
         return mode_label;
 
       label = g_hash_table_lookup (pad->feedback, GUINT_TO_POINTER (action));
       break;
     case META_PAD_ACTION_RING:
-      {
-        MetaWaylandTabletPadRing *ring;
+    {
+      MetaWaylandTabletPadRing *ring;
 
-        ring = g_list_nth_data (pad->rings, action);
-        if (ring)
-          label = ring->feedback;
-        break;
-      }
+      ring = g_list_nth_data (pad->rings, action);
+      if (ring)
+        label = ring->feedback;
+      break;
+    }
     case META_PAD_ACTION_STRIP:
-      {
-        MetaWaylandTabletPadStrip *strip;
+    {
+      MetaWaylandTabletPadStrip *strip;
 
-        strip = g_list_nth_data (pad->strips, action);
-        if (strip)
-          label = strip->feedback;
-        break;
-      }
+      strip = g_list_nth_data (pad->strips, action);
+      if (strip)
+        label = strip->feedback;
+      break;
+    }
     }
 
   return g_strdup (label);

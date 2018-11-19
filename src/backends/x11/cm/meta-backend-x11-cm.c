@@ -53,7 +53,10 @@ take_touch_grab (MetaBackend *backend)
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   Display *xdisplay = meta_backend_x11_get_xdisplay (x11);
   unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
-  XIEventMask mask = { META_VIRTUAL_CORE_POINTER_ID, sizeof (mask_bits), mask_bits };
+  XIEventMask mask =
+  {
+    META_VIRTUAL_CORE_POINTER_ID, sizeof (mask_bits), mask_bits
+  };
   XIGrabModifiers mods = { XIAnyModifier, 0 };
 
   XISetMask (mask.mask, XI_TouchBegin);
@@ -154,12 +157,12 @@ meta_backend_x11_cm_select_stage_events (MetaBackend *backend)
 }
 
 static void
-get_xkbrf_var_defs (Display           *xdisplay,
-                    const char        *layouts,
-                    const char        *variants,
-                    const char        *options,
-                    char             **rules_p,
-                    XkbRF_VarDefsRec  *var_defs)
+get_xkbrf_var_defs (Display          *xdisplay,
+                    const char       *layouts,
+                    const char       *variants,
+                    const char       *options,
+                    char            **rules_p,
+                    XkbRF_VarDefsRec *var_defs)
 {
   char *rules = NULL;
 
@@ -182,7 +185,7 @@ get_xkbrf_var_defs (Display           *xdisplay,
   var_defs->options = strdup (options);
 
   /* Sometimes, the property is a file path, and sometimes it's
-     not. Normalize it so it's always a file path. */
+   *  not. Normalize it so it's always a file path. */
   if (rules[0] == '/')
     *rules_p = g_strdup (rules);
   else
@@ -270,7 +273,8 @@ apply_keymap (MetaBackendX11 *x11)
       XkbComponentNamesRec xkb_comp_names = { 0 };
 
       XkbRF_GetComponents (xkb_rules, &xkb_var_defs, &xkb_comp_names);
-      upload_xkb_description (xdisplay, rules_file_path, &xkb_var_defs, &xkb_comp_names);
+      upload_xkb_description (xdisplay, rules_file_path, &xkb_var_defs,
+                              &xkb_comp_names);
 
       free_xkb_component_names (&xkb_comp_names);
       XkbRF_Free (xkb_rules, True);
@@ -399,16 +403,21 @@ meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
 
   backend_class->post_init = meta_backend_x11_cm_post_init;
   backend_class->create_renderer = meta_backend_x11_cm_create_renderer;
-  backend_class->create_monitor_manager = meta_backend_x11_cm_create_monitor_manager;
-  backend_class->create_cursor_renderer = meta_backend_x11_cm_create_cursor_renderer;
-  backend_class->create_input_settings = meta_backend_x11_cm_create_input_settings;
+  backend_class->create_monitor_manager =
+    meta_backend_x11_cm_create_monitor_manager;
+  backend_class->create_cursor_renderer =
+    meta_backend_x11_cm_create_cursor_renderer;
+  backend_class->create_input_settings =
+    meta_backend_x11_cm_create_input_settings;
   backend_class->update_screen_size = meta_backend_x11_cm_update_screen_size;
   backend_class->select_stage_events = meta_backend_x11_cm_select_stage_events;
   backend_class->lock_layout_group = meta_backend_x11_cm_lock_layout_group;
   backend_class->set_keymap = meta_backend_x11_cm_set_keymap;
 
-  backend_x11_class->handle_host_xevent = meta_backend_x11_cm_handle_host_xevent;
-  backend_x11_class->translate_device_event = meta_backend_x11_cm_translate_device_event;
-  backend_x11_class->translate_crossing_event = meta_backend_x11_cm_translate_crossing_event;
+  backend_x11_class->handle_host_xevent =
+    meta_backend_x11_cm_handle_host_xevent;
+  backend_x11_class->translate_device_event =
+    meta_backend_x11_cm_translate_device_event;
+  backend_x11_class->translate_crossing_event =
+    meta_backend_x11_cm_translate_crossing_event;
 }
-

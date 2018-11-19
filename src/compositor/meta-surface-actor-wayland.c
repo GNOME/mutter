@@ -91,9 +91,10 @@ meta_surface_actor_wayland_is_unredirected (MetaSurfaceActor *actor)
 
 void
 meta_surface_actor_wayland_add_frame_callbacks (MetaSurfaceActorWayland *self,
-                                                struct wl_list *frame_callbacks)
+                                                struct wl_list          *frame_callbacks)
 {
-  MetaSurfaceActorWaylandPrivate *priv = meta_surface_actor_wayland_get_instance_private (self);
+  MetaSurfaceActorWaylandPrivate *priv =
+    meta_surface_actor_wayland_get_instance_private (self);
 
   wl_list_insert_list (&priv->frame_callback_list, frame_callbacks);
 }
@@ -128,7 +129,7 @@ meta_surface_actor_wayland_get_preferred_width  (ClutterActor *actor,
                                      natural_width_p);
 
   if (min_width_p)
-     *min_width_p *= scale;
+    *min_width_p *= scale;
 
   if (natural_width_p)
     *natural_width_p *= scale;
@@ -152,7 +153,7 @@ meta_surface_actor_wayland_get_preferred_height  (ClutterActor *actor,
                                       natural_height_p);
 
   if (min_height_p)
-     *min_height_p *= scale;
+    *min_height_p *= scale;
 
   if (natural_height_p)
     *natural_height_p *= scale;
@@ -169,7 +170,8 @@ meta_surface_actor_wayland_paint (ClutterActor *actor)
     {
       MetaWaylandCompositor *compositor = priv->surface->compositor;
 
-      wl_list_insert_list (&compositor->frame_callbacks, &priv->frame_callback_list);
+      wl_list_insert_list (&compositor->frame_callbacks,
+                           &priv->frame_callback_list);
       wl_list_init (&priv->frame_callback_list);
     }
 
@@ -195,7 +197,7 @@ meta_surface_actor_wayland_dispose (GObject *object)
     }
 
   wl_list_for_each_safe (cb, next, &priv->frame_callback_list, link)
-    wl_resource_destroy (cb->resource);
+  wl_resource_destroy (cb->resource);
 
   G_OBJECT_CLASS (meta_surface_actor_wayland_parent_class)->dispose (object);
 }
@@ -207,17 +209,23 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  actor_class->get_preferred_width = meta_surface_actor_wayland_get_preferred_width;
-  actor_class->get_preferred_height = meta_surface_actor_wayland_get_preferred_height;
+  actor_class->get_preferred_width =
+    meta_surface_actor_wayland_get_preferred_width;
+  actor_class->get_preferred_height =
+    meta_surface_actor_wayland_get_preferred_height;
   actor_class->paint = meta_surface_actor_wayland_paint;
 
-  surface_actor_class->process_damage = meta_surface_actor_wayland_process_damage;
+  surface_actor_class->process_damage =
+    meta_surface_actor_wayland_process_damage;
   surface_actor_class->pre_paint = meta_surface_actor_wayland_pre_paint;
   surface_actor_class->is_visible = meta_surface_actor_wayland_is_visible;
 
-  surface_actor_class->should_unredirect = meta_surface_actor_wayland_should_unredirect;
-  surface_actor_class->set_unredirected = meta_surface_actor_wayland_set_unredirected;
-  surface_actor_class->is_unredirected = meta_surface_actor_wayland_is_unredirected;
+  surface_actor_class->should_unredirect =
+    meta_surface_actor_wayland_should_unredirect;
+  surface_actor_class->set_unredirected =
+    meta_surface_actor_wayland_set_unredirected;
+  surface_actor_class->is_unredirected =
+    meta_surface_actor_wayland_is_unredirected;
 
   surface_actor_class->get_window = meta_surface_actor_wayland_get_window;
 
@@ -232,8 +240,10 @@ meta_surface_actor_wayland_init (MetaSurfaceActorWayland *self)
 MetaSurfaceActor *
 meta_surface_actor_wayland_new (MetaWaylandSurface *surface)
 {
-  MetaSurfaceActorWayland *self = g_object_new (META_TYPE_SURFACE_ACTOR_WAYLAND, NULL);
-  MetaSurfaceActorWaylandPrivate *priv = meta_surface_actor_wayland_get_instance_private (self);
+  MetaSurfaceActorWayland *self = g_object_new (META_TYPE_SURFACE_ACTOR_WAYLAND,
+                                                NULL);
+  MetaSurfaceActorWaylandPrivate *priv =
+    meta_surface_actor_wayland_get_instance_private (self);
 
   g_assert (meta_is_wayland_compositor ());
 
@@ -248,6 +258,7 @@ meta_surface_actor_wayland_new (MetaWaylandSurface *surface)
 MetaWaylandSurface *
 meta_surface_actor_wayland_get_surface (MetaSurfaceActorWayland *self)
 {
-  MetaSurfaceActorWaylandPrivate *priv = meta_surface_actor_wayland_get_instance_private (self);
+  MetaSurfaceActorWaylandPrivate *priv =
+    meta_surface_actor_wayland_get_instance_private (self);
   return priv->surface;
 }

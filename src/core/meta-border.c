@@ -40,8 +40,8 @@ meta_vector2_add (const MetaVector2 a,
                   const MetaVector2 b)
 {
   return (MetaVector2) {
-    .x = a.x + b.x,
-    .y = a.y + b.y,
+           .x = a.x + b.x,
+           .y = a.y + b.y,
   };
 }
 
@@ -50,8 +50,8 @@ meta_vector2_multiply_constant (const float       c,
                                 const MetaVector2 a)
 {
   return (MetaVector2) {
-    .x = c * a.x,
-    .y = c * a.y,
+           .x = c * a.x,
+           .y = c * a.y,
   };
 }
 
@@ -137,10 +137,10 @@ unsigned int
 meta_border_get_allows_directions (MetaBorder *border)
 {
   return ~border->blocking_directions &
-    (META_BORDER_MOTION_DIRECTION_POSITIVE_X |
-     META_BORDER_MOTION_DIRECTION_POSITIVE_Y |
-     META_BORDER_MOTION_DIRECTION_NEGATIVE_X |
-     META_BORDER_MOTION_DIRECTION_NEGATIVE_Y);
+         (META_BORDER_MOTION_DIRECTION_POSITIVE_X |
+          META_BORDER_MOTION_DIRECTION_POSITIVE_Y |
+          META_BORDER_MOTION_DIRECTION_NEGATIVE_X |
+          META_BORDER_MOTION_DIRECTION_NEGATIVE_Y);
 }
 
 void

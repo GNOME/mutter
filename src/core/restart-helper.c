@@ -50,17 +50,18 @@ main (int    argc,
   XCompositeGetOverlayWindow (display, DefaultRootWindow (display));
 
   selection_window = XCreateWindow (display,
-				    DefaultRootWindow (display),
-				    -100, -100, 1, 1, 0,
-				    0,
-				    InputOnly,
-				    DefaultVisual (display, DefaultScreen (display)),
-				    mask, &xwa);
+                                    DefaultRootWindow (display),
+                                    -100, -100, 1, 1, 0,
+                                    0,
+                                    InputOnly,
+                                    DefaultVisual (display,
+                                                   DefaultScreen (display)),
+                                    mask, &xwa);
 
   XSetSelectionOwner (display,
-		      XInternAtom (display, "_MUTTER_RESTART_HELPER", False),
-		      selection_window,
-		      CurrentTime);
+                      XInternAtom (display, "_MUTTER_RESTART_HELPER", False),
+                      selection_window,
+                      CurrentTime);
 
   /* Mutter looks for an (arbitrary) line printed to stdout to know that
    * we have started and have a reference to the COW. XSync() so that
@@ -79,6 +80,6 @@ main (int    argc,
       /* Mutter restarted and unset the selection to indicate that
        * it has a reference on the COW again */
       if (xev.xany.type == SelectionClear)
-	return 0;
+        return 0;
     }
 }

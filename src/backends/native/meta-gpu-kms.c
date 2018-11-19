@@ -85,9 +85,9 @@ kms_event_check (GSource *source)
 }
 
 static gboolean
-kms_event_dispatch (GSource     *source,
-                    GSourceFunc  callback,
-                    gpointer     user_data)
+kms_event_dispatch (GSource    *source,
+                    GSourceFunc callback,
+                    gpointer    user_data)
 {
   MetaKmsSource *kms_source = (MetaKmsSource *) source;
 
@@ -96,17 +96,18 @@ kms_event_dispatch (GSource     *source,
   return G_SOURCE_CONTINUE;
 }
 
-static GSourceFuncs kms_event_funcs = {
+static GSourceFuncs kms_event_funcs =
+{
   NULL,
   kms_event_check,
   kms_event_dispatch
 };
 
 static void
-get_crtc_drm_connectors (MetaGpu       *gpu,
-                         MetaCrtc      *crtc,
-                         uint32_t     **connectors,
-                         unsigned int  *n_connectors)
+get_crtc_drm_connectors (MetaGpu      *gpu,
+                         MetaCrtc     *crtc,
+                         uint32_t    **connectors,
+                         unsigned int *n_connectors)
 {
   GArray *connectors_array = g_array_new (FALSE, FALSE, sizeof (uint32_t));
   GList *l;
@@ -169,7 +170,8 @@ static void
 invoke_flip_closure (GClosure   *flip_closure,
                      MetaGpuKms *gpu_kms)
 {
-  GValue params[] = {
+  GValue params[] =
+  {
     G_VALUE_INIT,
     G_VALUE_INIT
   };
@@ -232,7 +234,8 @@ meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
 }
 
 void
-meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container)
+meta_gpu_kms_flip_closure_container_free (
+  MetaGpuKmsFlipClosureContainer *closure_container)
 {
   g_free (closure_container);
 }
@@ -301,11 +304,11 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
 }
 
 static void
-page_flip_handler (int           fd,
-                   unsigned int  frame,
-                   unsigned int  sec,
-                   unsigned int  usec,
-                   void         *user_data)
+page_flip_handler (int          fd,
+                   unsigned int frame,
+                   unsigned int sec,
+                   unsigned int usec,
+                   void        *user_data)
 {
   MetaGpuKmsFlipClosureContainer *closure_container = user_data;
   GClosure *flip_closure = closure_container->flip_closure;
@@ -601,7 +604,8 @@ init_modes (MetaGpuKms *gpu_kms,
   /*
    * Gather all modes on all connected connectors.
    */
-  modes_table = g_hash_table_new (drm_mode_hash, (GEqualFunc) meta_drm_mode_equal);
+  modes_table = g_hash_table_new (drm_mode_hash,
+                                  (GEqualFunc) meta_drm_mode_equal);
   for (i = 0; i < gpu_kms->n_connectors; i++)
     {
       drmModeConnector *drm_connector;
@@ -733,9 +737,9 @@ init_outputs (MetaGpuKms       *gpu_kms,
 }
 
 static gboolean
-meta_kms_resources_init (MetaKmsResources  *resources,
-                         int                fd,
-                         GError           **error)
+meta_kms_resources_init (MetaKmsResources *resources,
+                         int               fd,
+                         GError          **error)
 
 {
   drmModeRes *drm_resources;
@@ -775,8 +779,8 @@ meta_kms_resources_release (MetaKmsResources *resources)
 }
 
 static gboolean
-meta_gpu_kms_read_current (MetaGpu  *gpu,
-                           GError  **error)
+meta_gpu_kms_read_current (MetaGpu *gpu,
+                           GError **error)
 {
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
   MetaMonitorManager *monitor_manager =
@@ -788,8 +792,9 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
     {
       if (!gpu_kms->resources_init_failed_before)
         {
-          g_warning ("meta_kms_resources_init failed: %s, assuming we have no outputs",
-                     local_error->message);
+          g_warning (
+            "meta_kms_resources_init failed: %s, assuming we have no outputs",
+            local_error->message);
           gpu_kms->resources_init_failed_before = TRUE;
         }
       return TRUE;
@@ -801,9 +806,9 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
   monitor_manager->power_save_mode = META_POWER_SAVE_ON;
 
   /* Note: we must not free the public structures (output, crtc, monitor
-     mode and monitor info) here, they must be kept alive until the API
-     users are done with them after we emit monitors-changed, and thus
-     are freed by the platform-independent layer. */
+   *  mode and monitor info) here, they must be kept alive until the API
+   *  users are done with them after we emit monitors-changed, and thus
+   *  are freed by the platform-independent layer. */
   free_resources (gpu_kms);
 
   init_connectors (gpu_kms, resources.resources);
@@ -823,9 +828,9 @@ meta_gpu_kms_can_have_outputs (MetaGpuKms *gpu_kms)
 }
 
 MetaGpuKms *
-meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
-                  const char             *kms_file_path,
-                  GError                **error)
+meta_gpu_kms_new (MetaMonitorManagerKms *monitor_manager_kms,
+                  const char            *kms_file_path,
+                  GError               **error)
 {
   MetaMonitorManager *monitor_manager =
     META_MONITOR_MANAGER (monitor_manager_kms);

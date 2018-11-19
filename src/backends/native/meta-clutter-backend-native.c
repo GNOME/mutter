@@ -46,7 +46,7 @@ G_DEFINE_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
                CLUTTER_TYPE_BACKEND_EGL_NATIVE)
 
 MetaStageNative *
-meta_clutter_backend_native_get_stage_native (ClutterBackend *backend)
+meta_clutter_backend_native_get_stage_native (ClutterBackend * backend)
 {
   MetaClutterBackendNative *clutter_backend_native =
     META_CLUTTER_BACKEND_NATIVE (backend);
@@ -55,8 +55,8 @@ meta_clutter_backend_native_get_stage_native (ClutterBackend *backend)
 }
 
 static CoglRenderer *
-meta_clutter_backend_native_get_renderer (ClutterBackend  *clutter_backend,
-                                          GError         **error)
+meta_clutter_backend_native_get_renderer (ClutterBackend *clutter_backend,
+                                          GError        **error)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
@@ -65,9 +65,9 @@ meta_clutter_backend_native_get_renderer (ClutterBackend  *clutter_backend,
 }
 
 static ClutterStageWindow *
-meta_clutter_backend_native_create_stage (ClutterBackend  *backend,
-                                          ClutterStage    *wrapper,
-                                          GError         **error)
+meta_clutter_backend_native_create_stage (ClutterBackend *backend,
+                                          ClutterStage   *wrapper,
+                                          GError        **error)
 {
   MetaClutterBackendNative *clutter_backend_native =
     META_CLUTTER_BACKEND_NATIVE (backend);
@@ -82,7 +82,7 @@ meta_clutter_backend_native_create_stage (ClutterBackend  *backend,
 }
 
 static void
-meta_clutter_backend_native_bell_notify (ClutterBackend  *backend)
+meta_clutter_backend_native_bell_notify (ClutterBackend *backend)
 {
   MetaDisplay *display = meta_get_display ();
 
@@ -90,7 +90,8 @@ meta_clutter_backend_native_bell_notify (ClutterBackend  *backend)
 }
 
 static void
-meta_clutter_backend_native_init (MetaClutterBackendNative *clutter_backend_nativen)
+meta_clutter_backend_native_init (
+  MetaClutterBackendNative *clutter_backend_nativen)
 {
 }
 
@@ -99,7 +100,9 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
 {
   ClutterBackendClass *clutter_backend_class = CLUTTER_BACKEND_CLASS (klass);
 
-  clutter_backend_class->get_renderer = meta_clutter_backend_native_get_renderer;
-  clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;
+  clutter_backend_class->get_renderer =
+    meta_clutter_backend_native_get_renderer;
+  clutter_backend_class->create_stage =
+    meta_clutter_backend_native_create_stage;
   clutter_backend_class->bell_notify = meta_clutter_backend_native_bell_notify;
 }

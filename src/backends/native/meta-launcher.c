@@ -60,10 +60,13 @@ meta_launcher_get_seat_id (MetaLauncher *launcher)
 }
 
 static gboolean
-find_systemd_session (gchar **session_id,
+find_systemd_session (gchar  **session_id,
                       GError **error)
 {
-  const gchar * const graphical_session_types[] = { "wayland", "x11", "mir", NULL };
+  const gchar * const graphical_session_types[] =
+  {
+    "wayland", "x11", "mir", NULL
+  };
   const gchar * const active_states[] = { "active", "online", NULL };
   g_autofree gchar *class = NULL;
   g_autofree gchar *local_session_id = NULL;
@@ -116,43 +119,43 @@ find_systemd_session (gchar **session_id,
               return FALSE;
             }
 
-        if (n_sessions == 0)
-          {
-            g_set_error (error,
-                         G_IO_ERROR,
-                         G_IO_ERROR_NOT_FOUND,
-                         "User %d has no sessions",
-                         getuid ());
-            return FALSE;
-          }
+          if (n_sessions == 0)
+            {
+              g_set_error (error,
+                           G_IO_ERROR,
+                           G_IO_ERROR_NOT_FOUND,
+                           "User %d has no sessions",
+                           getuid ());
+              return FALSE;
+            }
 
-        for (int i = 0; i < n_sessions; ++i)
-          {
-            saved_errno = sd_session_get_class (sessions[i], &class);
-            if (saved_errno < 0)
-              {
-                g_warning ("Couldn't get class for session '%d': %s",
-                           i,
-                           g_strerror (-saved_errno));
-                continue;
-              }
+          for (int i = 0; i < n_sessions; ++i)
+            {
+              saved_errno = sd_session_get_class (sessions[i], &class);
+              if (saved_errno < 0)
+                {
+                  g_warning ("Couldn't get class for session '%d': %s",
+                             i,
+                             g_strerror (-saved_errno));
+                  continue;
+                }
 
-            if (g_strcmp0 (class, "greeter") == 0)
-              {
-                local_session_id = g_strdup (sessions[i]);
-                break;
-              }
-          }
+              if (g_strcmp0 (class, "greeter") == 0)
+                {
+                  local_session_id = g_strdup (sessions[i]);
+                  break;
+                }
+            }
 
-        if (!local_session_id)
-          {
-            g_set_error (error,
-                         G_IO_ERROR,
-                         G_IO_ERROR_NOT_FOUND,
-                         "Couldn't find a session or a greeter session for user %d",
-                         getuid ());
-            return FALSE;
-          }
+          if (!local_session_id)
+            {
+              g_set_error (error,
+                           G_IO_ERROR,
+                           G_IO_ERROR_NOT_FOUND,
+                           "Couldn't find a session or a greeter session for user %d",
+                           getuid ());
+              return FALSE;
+            }
         }
       else
         {
@@ -191,29 +194,29 @@ find_systemd_session (gchar **session_id,
       return FALSE;
     }
 
-    /* and display sessions can be 'closing' if they are logged out but
-     * some processes are lingering; we shouldn't consider these */
-    saved_errno = sd_session_get_state (local_session_id, &state);
-    if (saved_errno < 0)
-      {
-        g_set_error (error,
-                     G_IO_ERROR,
-                     G_IO_ERROR_NOT_FOUND,
-                     "Couldn't get state for session '%s': %s",
-                     local_session_id,
-                     g_strerror (-saved_errno));
-        return FALSE;
-      }
+  /* and display sessions can be 'closing' if they are logged out but
+   * some processes are lingering; we shouldn't consider these */
+  saved_errno = sd_session_get_state (local_session_id, &state);
+  if (saved_errno < 0)
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_NOT_FOUND,
+                   "Couldn't get state for session '%s': %s",
+                   local_session_id,
+                   g_strerror (-saved_errno));
+      return FALSE;
+    }
 
-    if (!g_strv_contains (active_states, state))
-      {
-         g_set_error (error,
-                         G_IO_ERROR,
-                         G_IO_ERROR_NOT_FOUND,
-                         "Session '%s' is not active",
-                         local_session_id);
-         return FALSE;
-      }
+  if (!g_strv_contains (active_states, state))
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_NOT_FOUND,
+                   "Session '%s' is not active",
+                   local_session_id);
+      return FALSE;
+    }
 
   *session_id = g_steal_pointer (&local_session_id);
 
@@ -231,11 +234,13 @@ get_session_proxy (GCancellable *cancellable,
 
   if (!find_systemd_session (&session_id, &local_error))
     {
-      g_propagate_prefixed_error (error, local_error, "Could not get session ID: ");
+      g_propagate_prefixed_error (error, local_error,
+                                  "Could not get session ID: ");
       return NULL;
     }
 
-  proxy_path = get_escaped_dbus_path ("/org/freedesktop/login1/session", session_id);
+  proxy_path = get_escaped_dbus_path ("/org/freedesktop/login1/session",
+                                      session_id);
 
   session_proxy = login1_session_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                                          G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
@@ -243,7 +248,7 @@ get_session_proxy (GCancellable *cancellable,
                                                          proxy_path,
                                                          cancellable, error);
   if (!session_proxy)
-    g_prefix_error(error, "Could not get session proxy: ");
+    g_prefix_error (error, "Could not get session proxy: ");
 
   return session_proxy;
 }
@@ -258,7 +263,7 @@ get_seat_proxy (GCancellable *cancellable,
                                                          "/org/freedesktop/login1/seat/self",
                                                          cancellable, error);
   if (!seat)
-    g_prefix_error(error, "Could not get seat proxy: ");
+    g_prefix_error (error, "Could not get seat proxy: ");
 
   return seat;
 }
@@ -377,10 +382,10 @@ out:
 }
 
 static int
-on_evdev_device_open (const char  *path,
-                      int          flags,
-                      gpointer     user_data,
-                      GError     **error)
+on_evdev_device_open (const char *path,
+                      int         flags,
+                      gpointer    user_data,
+                      GError    **error)
 {
   MetaLauncher *self = user_data;
 
@@ -433,7 +438,8 @@ sync_active (MetaLauncher *self)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  gboolean active = login1_session_get_active (LOGIN1_SESSION (self->session_proxy));
+  gboolean active =
+    login1_session_get_active (LOGIN1_SESSION (self->session_proxy));
 
   if (active == self->session_active)
     return;
@@ -465,7 +471,8 @@ get_seat_id (GError **error)
 
   if (!find_systemd_session (&session_id, &local_error))
     {
-      g_propagate_prefixed_error (error, local_error, "Could not get session ID: ");
+      g_propagate_prefixed_error (error, local_error,
+                                  "Could not get session ID: ");
       return NULL;
     }
 
@@ -495,7 +502,8 @@ meta_launcher_new (GError **error)
   if (!session_proxy)
     goto fail;
 
-  if (!login1_session_call_take_control_sync (session_proxy, FALSE, NULL, error))
+  if (!login1_session_call_take_control_sync (session_proxy, FALSE, NULL,
+                                              error))
     {
       g_prefix_error (error, "Could not take control: ");
       goto fail;
@@ -524,11 +532,12 @@ meta_launcher_new (GError **error)
                                       on_evdev_device_close,
                                       self);
 
-  g_signal_connect (self->session_proxy, "notify::active", G_CALLBACK (on_active_changed), self);
+  g_signal_connect (self->session_proxy, "notify::active",
+                    G_CALLBACK (on_active_changed), self);
 
   return self;
 
- fail:
+fail:
   if (have_control)
     login1_session_call_release_control_sync (session_proxy, NULL, NULL);
   return NULL;
@@ -545,8 +554,8 @@ meta_launcher_free (MetaLauncher *self)
 }
 
 gboolean
-meta_launcher_activate_session (MetaLauncher  *launcher,
-                                GError       **error)
+meta_launcher_activate_session (MetaLauncher *launcher,
+                                GError      **error)
 {
   if (!login1_session_call_activate_sync (launcher->session_proxy, NULL, error))
     return FALSE;
@@ -556,9 +565,10 @@ meta_launcher_activate_session (MetaLauncher  *launcher,
 }
 
 gboolean
-meta_launcher_activate_vt (MetaLauncher  *launcher,
-                           signed char    vt,
-                           GError       **error)
+meta_launcher_activate_vt (MetaLauncher *launcher,
+                           signed char   vt,
+                           GError      **error)
 {
-  return login1_seat_call_switch_to_sync (launcher->seat_proxy, vt, NULL, error);
+  return login1_seat_call_switch_to_sync (launcher->seat_proxy, vt, NULL,
+                                          error);
 }

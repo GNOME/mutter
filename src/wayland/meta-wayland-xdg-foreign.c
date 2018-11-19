@@ -89,7 +89,8 @@ xdg_exported_destroy (struct wl_client   *client,
   wl_resource_destroy (resource);
 }
 
-static const struct zxdg_exported_v1_interface meta_xdg_exported_interface = {
+static const struct zxdg_exported_v1_interface meta_xdg_exported_interface =
+{
   xdg_exported_destroy,
 };
 
@@ -199,7 +200,8 @@ xdg_exporter_export (struct wl_client   *client,
   zxdg_exported_v1_send_handle (xdg_exported_resource, handle);
 }
 
-static const struct zxdg_exporter_v1_interface meta_xdg_exporter_interface = {
+static const struct zxdg_exporter_v1_interface meta_xdg_exporter_interface =
+{
   xdg_exporter_destroy,
   xdg_exporter_export,
 };
@@ -303,7 +305,8 @@ xdg_imported_set_parent_of (struct wl_client   *client,
     }
 }
 
-static const struct zxdg_imported_v1_interface meta_xdg_imported_interface = {
+static const struct zxdg_imported_v1_interface meta_xdg_imported_interface =
+{
   xdg_imported_destroy,
   xdg_imported_set_parent_of,
 };
@@ -396,7 +399,8 @@ xdg_importer_import (struct wl_client   *client,
   exported->imported = g_list_prepend (exported->imported, imported);
 }
 
-static const struct zxdg_importer_v1_interface meta_xdg_importer_interface = {
+static const struct zxdg_importer_v1_interface meta_xdg_importer_interface =
+{
   xdg_importer_destroy,
   xdg_importer_import,
 };

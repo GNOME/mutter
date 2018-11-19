@@ -381,7 +381,6 @@ wayland_settings_changed (GSettings    *wayland_settings,
                           gchar        *key,
                           MetaSettings *settings)
 {
-
   if (g_str_equal (key, "xwayland-allow-grabs"))
     {
       update_xwayland_allow_grabs (settings);
@@ -393,16 +392,16 @@ wayland_settings_changed (GSettings    *wayland_settings,
 }
 
 void
-meta_settings_get_xwayland_grab_patterns (MetaSettings  *settings,
-                                          GPtrArray    **whitelist_patterns,
-                                          GPtrArray    **blacklist_patterns)
+meta_settings_get_xwayland_grab_patterns (MetaSettings *settings,
+                                          GPtrArray   **whitelist_patterns,
+                                          GPtrArray   **blacklist_patterns)
 {
   *whitelist_patterns = settings->xwayland_grab_whitelist_patterns;
   *blacklist_patterns = settings->xwayland_grab_blacklist_patterns;
 }
 
 gboolean
- meta_settings_are_xwayland_grabs_allowed (MetaSettings *settings)
+meta_settings_are_xwayland_grabs_allowed (MetaSettings *settings)
 {
   return (settings->xwayland_allow_grabs);
 }

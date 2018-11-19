@@ -29,26 +29,26 @@
 #include "x11/meta-x11-display-private.h"
 #include "x11/xprops.h"
 
-typedef void (* InitValueFunc)   (MetaX11Display *x11_display,
-                                  Atom            property,
-                                  MetaPropValue  *value);
-typedef void (* ReloadValueFunc) (MetaGroup      *group,
-                                  MetaPropValue  *value);
+typedef void (*InitValueFunc)   (MetaX11Display *x11_display,
+                                 Atom            property,
+                                 MetaPropValue  *value);
+typedef void (*ReloadValueFunc) (MetaGroup     *group,
+                                 MetaPropValue *value);
 
 struct _MetaGroupPropHooks
 {
   Atom property;
-  InitValueFunc   init_func;
+  InitValueFunc init_func;
   ReloadValueFunc reload_func;
 };
 
-static void                init_prop_value   (MetaX11Display *x11_display,
-                                              Atom            property,
-                                              MetaPropValue  *value);
-static void                reload_prop_value (MetaGroup      *group,
-                                              MetaPropValue  *value);
-static MetaGroupPropHooks *find_hooks        (MetaX11Display *x11_display,
-                                              Atom            property);
+static void                init_prop_value (MetaX11Display *x11_display,
+                                            Atom            property,
+                                            MetaPropValue  *value);
+static void                reload_prop_value (MetaGroup     *group,
+                                              MetaPropValue *value);
+static MetaGroupPropHooks *find_hooks (MetaX11Display *x11_display,
+                                       Atom            property);
 
 void
 meta_group_reload_property (MetaGroup *group,
@@ -107,18 +107,18 @@ init_prop_value (MetaX11Display *x11_display,
 
   hooks = find_hooks (x11_display, property);
   if (hooks && hooks->init_func != NULL)
-    (* hooks->init_func) (x11_display, property, value);
+    (*hooks->init_func)(x11_display, property, value);
 }
 
 static void
-reload_prop_value (MetaGroup    *group,
+reload_prop_value (MetaGroup     *group,
                    MetaPropValue *value)
 {
   MetaGroupPropHooks *hooks;
 
   hooks = find_hooks (group->x11_display, value->atom);
   if (hooks && hooks->reload_func != NULL)
-    (* hooks->reload_func) (group, value);
+    (*hooks->reload_func)(group, value);
 }
 
 static void
@@ -212,7 +212,7 @@ meta_x11_display_free_group_prop_hooks (MetaX11Display *x11_display)
   x11_display->group_prop_hooks = NULL;
 }
 
-static MetaGroupPropHooks*
+static MetaGroupPropHooks *
 find_hooks (MetaX11Display *x11_display,
             Atom            property)
 {
