@@ -124,6 +124,7 @@ struct _MetaX11Display
   MetaUI *ui;
 
   struct {
+    Window window;
     GList *input_streams;
     GList *output_streams;
   } selection;
