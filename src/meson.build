@@ -379,6 +379,8 @@ mutter_sources = [
   'x11/group-props.h',
   'x11/iconcache.c',
   'x11/iconcache.h',
+  'x11/meta-selection-source-x11.c',
+  'x11/meta-selection-source-x11-private.h',
   'x11/meta-startup-notification-x11.c',
   'x11/meta-startup-notification-x11.h',
   'x11/meta-x11-display.c',
