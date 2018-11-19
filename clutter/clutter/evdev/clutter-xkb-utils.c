@@ -76,12 +76,12 @@ _clutter_key_event_new_from_evdev (ClutterInputDevice *device,
   else
     sym = XKB_KEY_NoSymbol;
 
-  event->key.device = core_device;
   event->key.stage = stage;
   event->key.time = _time;
   _clutter_xkb_translate_state (event, xkb_state, button_state);
   event->key.hardware_keycode = key;
   event->key.keyval = sym;
+  clutter_event_set_device (event, core_device);
   clutter_event_set_source_device (event, device);
 
   n = xkb_keysym_to_utf8 (sym, buffer, sizeof (buffer));
