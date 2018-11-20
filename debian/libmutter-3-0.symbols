@@ -755,7 +755,7 @@ libmutter-3.so.0 libmutter-3-0 #MINVER#
  meta_input_settings_get_tablet_logical_monitor@Base 3.28.2
  meta_input_settings_get_tablet_mapping@Base 3.28.2
  meta_input_settings_get_tablet_settings@Base 3.28.2
- meta_input_settings_get_tablet_wacom_device@Base 3.28.2
+ (arch=linux-any)meta_input_settings_get_tablet_wacom_device@Base 3.28.2
  meta_input_settings_get_type@Base 3.28.2
  meta_input_settings_handle_pad_event@Base 3.28.2
  meta_input_settings_is_pad_button_grabbed@Base 3.28.2
