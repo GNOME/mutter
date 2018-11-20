@@ -280,6 +280,11 @@ _cogl_driver_pixel_format_to_gl_with_target (CoglContext *context,
       gltype = GL_UNSIGNED_INT_24_8;
       break;
 
+    case COGL_PIXEL_FORMAT_Y_UV:
+      glintformat = GL_RGBA;
+      glformat = GL_RGBA;
+      break;
+
     case COGL_PIXEL_FORMAT_ANY:
     case COGL_PIXEL_FORMAT_YUV:
       g_assert_not_reached ();

@@ -51,14 +51,13 @@ guint           meta_planar_texture_get_width    (MetaPlanarTexture *self);
 
 guint           meta_planar_texture_get_height   (MetaPlanarTexture *self);
 
-/**
- * _cogl_pixel_format_get_n_planes:
- * @format: a #CoglPixelFormat
- *
- * Returns the number of planes the given CoglPixelFormat specifies.
- */
 guint
 _cogl_pixel_format_get_n_planes (CoglPixelFormat format);
+
+void
+_cogl_pixel_format_get_subsampling_parameters (CoglPixelFormat format,
+                                               guint *horizontal_params,
+                                               guint *vertical_params);
 
 
 G_END_DECLS

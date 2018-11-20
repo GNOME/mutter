@@ -387,13 +387,9 @@ check_texture_color_format (MetaShapedTexture *self,
              "  float v = uv.y;\n"
 
              "  color.r = y + 1.59765625 * v;\n"
-             /* "  color.r = 0.0;\n" */
              "  color.g = y - 0.390625 * u - 0.8125 * v;\n"
-             /* "  color.g = 0.0;\n" */
              "  color.b = y + 2.015625 * u;\n"
-             /* "  color.b = 0.0;\n" */
              "  color.a = 1.0;\n"
-             /* "  color = vec4 (y, u, u, 1.0);\n" */
 
              "  return color;\n"
              "}\n";

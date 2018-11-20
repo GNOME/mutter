@@ -147,3 +147,28 @@ _cogl_pixel_format_get_n_planes (CoglPixelFormat format)
 
   g_assert_not_reached ();
 }
+
+/**
+ * _cogl_pixel_format_get_subsampling_parameters:
+ *
+ * Returns the subsampling in both the horizontal as the vertical direction.
+ */
+void
+_cogl_pixel_format_get_subsampling_parameters (CoglPixelFormat format,
+                                               guint *horizontal_params,
+                                               guint *vertical_params)
+{
+  switch (format)
+    {
+    case COGL_PIXEL_FORMAT_Y_UV:
+      horizontal_params[0] = 1;
+      vertical_params[0] = 1;
+      horizontal_params[1] = 2;
+      vertical_params[1] = 2;
+      break;
+    default:
+      horizontal_params[0] = 1;
+      vertical_params[0] = 1;
+      break;
+    }
+}
