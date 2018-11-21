@@ -211,6 +211,19 @@ free_modifier_array (GArray *arr)
   g_array_free (arr, TRUE);
 }
 
+/*
+ * In case the DRM driver does not expose a format list for the
+ * primary plane (does not support universal planes nor
+ * IN_FORMATS property), hardcode something that is probably supported.
+ */
+static const uint32_t drm_default_formats[] =
+  {
+    DRM_FORMAT_XRGB8888 /* The format everything should always support by convention */,
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+    DRM_FORMAT_XBGR8888 /* OpenGL GL_RGBA, GL_UNSIGNED_BYTE format, hopefully supported */
+#endif
+  };
+
 static void
 set_formats_from_array (MetaCrtc       *crtc,
                         const uint32_t *formats,
@@ -407,6 +420,14 @@ init_crtc_rotations (MetaCrtc *crtc,
   crtc->all_transforms |= crtc_kms->all_hw_transforms;
 
   drmModeFreePlaneResources (planes);
+
+  /* final formats fallback to something hardcoded */
+  if (g_hash_table_size (crtc_kms->formats_modifiers) == 0)
+    {
+      set_formats_from_array (crtc,
+                              drm_default_formats,
+                              G_N_ELEMENTS (drm_default_formats));
+    }
 }
 
 static void
