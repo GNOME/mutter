@@ -179,6 +179,20 @@ find_property_index (MetaGpu                    *gpu,
   return -1;
 }
 
+/**
+ * meta_crtc_kms_get_modifiers:
+ * @crtc: a #MetaCrtc object that has to be a #MetaCrtcKms
+ * @format: a DRM pixel format
+ *
+ * Returns a pointer to a #GArray containing all the supported
+ * modifiers for the given DRM pixel format on the CRTC's primary
+ * plane. The array element type is uint64_t.
+ *
+ * The caller must not modify or destroy the array or its contents.
+ *
+ * Returns NULL if the modifiers are not known or the format is not
+ * supported.
+ */
 GArray *
 meta_crtc_kms_get_modifiers (MetaCrtc *crtc,
                              uint32_t  format)
