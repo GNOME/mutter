@@ -2497,6 +2497,46 @@ meta_monitor_manager_get_logical_monitor_neighbor (MetaMonitorManager  *manager,
   return NULL;
 }
 
+void
+meta_monitor_manager_get_logical_monitor_absolute_position (MetaMonitorManager *manager,
+                                                            MetaLogicalMonitor *logical_monitor,
+                                                            int                *x,
+                                                            int                *y)
+{
+  MetaLogicalMonitor *neighbor;
+
+  *x = 0;
+  *y = 0;
+
+  neighbor = logical_monitor;
+  do
+    {
+      neighbor = meta_monitor_manager_get_logical_monitor_neighbor (manager,
+                                                                    neighbor,
+                                                                    META_DISPLAY_LEFT);
+      if (neighbor)
+        *x += roundf (neighbor->rect.width * neighbor->scale);
+    }
+  while (neighbor != NULL);
+
+  if (*x == 0)
+    *x = logical_monitor->rect.x * logical_monitor->scale;
+
+  neighbor = logical_monitor;
+  do
+    {
+      neighbor = meta_monitor_manager_get_logical_monitor_neighbor (manager,
+                                                                    neighbor,
+                                                                    META_DISPLAY_UP);
+      if (neighbor)
+        *y += roundf (neighbor->rect.height * neighbor->scale);
+    }
+  while (neighbor != NULL);
+
+  if (*y == 0)
+    *y = logical_monitor->rect.y * logical_monitor->scale;
+}
+
 GList *
 meta_monitor_manager_get_monitors (MetaMonitorManager *manager)
 {
