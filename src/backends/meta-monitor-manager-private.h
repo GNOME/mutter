@@ -246,6 +246,11 @@ MetaLogicalMonitor *meta_monitor_manager_get_logical_monitor_neighbor (MetaMonit
                                                                        MetaLogicalMonitor  *logical_monitor,
                                                                        MetaDisplayDirection direction);
 
+void                meta_monitor_manager_get_logical_monitor_absolute_position (MetaMonitorManager *manager,
+                                                                                MetaLogicalMonitor  *logical_monitor,
+                                                                                int                *x,
+                                                                                int                *y);
+
 MetaMonitor *       meta_monitor_manager_get_primary_monitor (MetaMonitorManager *manager);
 
 MetaMonitor *       meta_monitor_manager_get_laptop_panel (MetaMonitorManager *manager);
