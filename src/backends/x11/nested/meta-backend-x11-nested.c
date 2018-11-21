@@ -22,6 +22,7 @@
 #include "backends/x11/nested/meta-backend-x11-nested.h"
 
 #include "backends/meta-monitor-manager-dummy.h"
+#include "backends/meta-logical-monitor.h"
 #include "backends/x11/nested/meta-backend-x11-nested.h"
 #include "backends/x11/nested/meta-cursor-renderer-x11-nested.h"
 #include "backends/x11/nested/meta-renderer-x11-nested.h"
@@ -69,6 +70,48 @@ meta_backend_x11_nested_update_screen_size (MetaBackend *backend,
 
   if (meta_is_stage_views_enabled ())
     {
+      MetaMonitorManager *monitor_manager;
+
+      monitor_manager = meta_backend_get_monitor_manager (backend);
+
+      if (meta_is_stage_views_scaled () &&
+          META_IS_MONITOR_MANAGER_DUMMY (monitor_manager) &&
+          !meta_monitor_manager_dummy_use_scaled_views (META_MONITOR_MANAGER_DUMMY (monitor_manager)))
+        {
+          GList *l;
+          GList *logical_monitors;
+          int absolute_width = 0;
+          int absolute_height = 0;
+
+          logical_monitors = meta_monitor_manager_get_logical_monitors (monitor_manager);
+
+          for (l = logical_monitors; l; l = l->next)
+            {
+              MetaLogicalMonitor *logical_monitor = l->data;
+              int right_edge;
+              int bottom_edge;
+
+              meta_monitor_manager_get_logical_monitor_absolute_position (monitor_manager,
+                                                                          logical_monitor,
+                                                                          &right_edge,
+                                                                          &bottom_edge);
+
+              right_edge += roundf (logical_monitor->rect.width * logical_monitor->scale);
+              if (right_edge > absolute_width)
+                absolute_width = right_edge;
+
+              bottom_edge += roundf (logical_monitor->rect.height * logical_monitor->scale);
+              if (bottom_edge > absolute_height)
+                absolute_height = bottom_edge;
+            }
+
+            if (absolute_width > 0)
+              width = absolute_width;
+
+            if (absolute_height > 0)
+              height = absolute_height;
+        }
+
       meta_renderer_rebuild_views (renderer);
       clutter_stage_update_resource_scales (CLUTTER_STAGE (stage));
     }
