@@ -80,6 +80,7 @@ typedef struct _CrtcModeSpec
   int height;
   float refresh_rate;
 } CrtcModeSpec;
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(CrtcModeSpec, g_free);
 
 static MetaCrtcMode *
 create_mode (CrtcModeSpec *spec,
@@ -106,7 +107,7 @@ append_monitor (MetaMonitorManager *manager,
 {
   MetaMonitorManagerDummy *manager_dummy = META_MONITOR_MANAGER_DUMMY (manager);
   MetaGpu *gpu = manager_dummy->gpu;
-  CrtcModeSpec mode_specs[] = {
+  CrtcModeSpec default_specs[] = {
     {
       .width = 800,
       .height = 600,
@@ -116,25 +117,71 @@ append_monitor (MetaMonitorManager *manager,
       .width = 1024,
       .height = 768,
       .refresh_rate = 60.0
-    }
+    },
+    {
+      .width = 1440,
+      .height = 900,
+      .refresh_rate = 60.0
+    },
+    {
+      .width = 1600,
+      .height = 920,
+      .refresh_rate = 60.0
+    },
   };
+  g_autolist(CrtcModeSpec) mode_specs = NULL;
+  gsize n_mode_specs = 0;
   GList *new_modes = NULL;
   MetaCrtc *crtc;
   MetaOutputDummy *output_dummy;
   MetaOutput *output;
   unsigned int i;
   unsigned int number;
+  const char *mode_specs_str;
   GList *l;
 
-  for (i = 0; i < G_N_ELEMENTS (mode_specs); i++)
+  for (i = 0; i < G_N_ELEMENTS (default_specs); i++)
+    {
+      CrtcModeSpec *spec = g_memdup (&default_specs[i], sizeof (CrtcModeSpec));
+      mode_specs = g_list_prepend (mode_specs, spec);
+    }
+
+  mode_specs_str = getenv ("MUTTER_DEBUG_DUMMY_MONITORS_SPECS");
+  if (mode_specs_str && *mode_specs_str != '\0')
+    {
+      g_auto (GStrv) specs = g_strsplit (mode_specs_str, ":", -1);
+      for (i = 0; specs[i]; ++i)
+        {
+          int w, h;
+          float rr = 60.0;
+
+          if (sscanf (specs[i], "%dx%d@%f", &w, &h, &rr) == 3 ||
+              sscanf (specs[i], "%dx%d", &w, &h) == 2)
+            {
+              if (w < META_MONITOR_MANAGER_MIN_SCREEN_WIDTH ||
+                  h < META_MONITOR_MANAGER_MIN_SCREEN_HEIGHT)
+                continue;
+
+              CrtcModeSpec *spec = g_new0 (CrtcModeSpec, 1);
+              spec->width = w;
+              spec->height = h;
+              spec->refresh_rate = rr;
+              mode_specs = g_list_prepend (mode_specs, spec);
+            }
+        }
+    }
+
+  for (l = mode_specs; l; l = l->next)
     {
       long mode_id;
       MetaCrtcMode *mode;
+      CrtcModeSpec *spec = l->data;
 
-      mode_id = g_list_length (*modes) + i + 1;
-      mode = create_mode (&mode_specs[i], mode_id);
+      mode_id = g_list_length (*modes) + n_mode_specs + 1;
+      mode = create_mode (spec, mode_id);
 
       new_modes = g_list_append (new_modes, mode);
+      n_mode_specs++;
     }
   *modes = g_list_concat (*modes, new_modes);
 
@@ -171,14 +218,14 @@ append_monitor (MetaMonitorManager *manager,
   output->driver_notify =
     (GDestroyNotify) meta_output_dummy_notify_destroy;
 
-  output->modes = g_new0 (MetaCrtcMode *, G_N_ELEMENTS (mode_specs));
+  output->modes = g_new0 (MetaCrtcMode *, n_mode_specs);
   for (l = new_modes, i = 0; l; l = l->next, i++)
     {
       MetaCrtcMode *mode = l->data;
 
       output->modes[i] = mode;
     }
-  output->n_modes = G_N_ELEMENTS (mode_specs);
+  output->n_modes = n_mode_specs;
   output->possible_crtcs = g_new0 (MetaCrtc *, 1);
   output->possible_crtcs[0] = g_list_last (*crtcs)->data;
   output->n_possible_crtcs = 1;
