@@ -203,6 +203,59 @@ meta_crtc_kms_get_modifiers (MetaCrtc *crtc,
                               GUINT_TO_POINTER (format));
 }
 
+/**
+ * meta_crtc_kms_copy_drm_format_list:
+ * @crtc: a #MetaCrtc object that has to be a #MetaCrtcKms
+ *
+ * Returns a new #GArray that the caller must destroy. The array
+ * contains all the DRM pixel formats the CRTC supports on
+ * its primary plane. The array element type is uint32_t.
+ */
+GArray *
+meta_crtc_kms_copy_drm_format_list (MetaCrtc *crtc)
+{
+  MetaCrtcKms *crtc_kms = crtc->driver_private;
+  GArray *formats;
+  GHashTableIter it;
+  gpointer key;
+  uint32_t drm_format;
+  guint n;
+
+  n = g_hash_table_size (crtc_kms->formats_modifiers);
+  g_return_val_if_fail (n > 0, NULL);
+
+  formats = g_array_sized_new (FALSE, FALSE, sizeof (uint32_t), n);
+  g_hash_table_iter_init (&it, crtc_kms->formats_modifiers);
+  while (g_hash_table_iter_next (&it, &key, NULL))
+    {
+      drm_format = GPOINTER_TO_UINT(key);
+      g_array_append_val (formats, drm_format);
+    }
+
+  return formats;
+}
+
+/**
+ * meta_crtc_kms_supports_format:
+ * @crtc: a #MetaCrtc object that has to be a #MetaCrtcKms
+ * @drm_format: a DRM pixel format
+ *
+ * Returns true if the CRTC supports the format on its primary plane.
+ */
+gboolean
+meta_crtc_kms_supports_format (MetaCrtc *crtc,
+                               uint32_t  drm_format)
+{
+  MetaCrtcKms *crtc_kms = crtc->driver_private;
+
+  g_return_val_if_fail (g_hash_table_size (crtc_kms->formats_modifiers) > 0,
+                        FALSE);
+
+  return g_hash_table_lookup_extended (crtc_kms->formats_modifiers,
+                                       GUINT_TO_POINTER (drm_format),
+                                       NULL, NULL);
+}
+
 static inline uint32_t *
 formats_ptr (struct drm_format_modifier_blob *blob)
 {
