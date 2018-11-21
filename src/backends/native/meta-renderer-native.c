@@ -70,6 +70,11 @@
 #define EGL_DRM_MASTER_FD_EXT 0x333C
 #endif
 
+/* added in libdrm 2.4.95 */
+#ifndef DRM_FORMAT_INVALID
+#define DRM_FORMAT_INVALID 0
+#endif
+
 enum
 {
   PROP_0,
@@ -241,6 +246,11 @@ free_current_secondary_bo (MetaGpuKms                          *gpu_kms,
 static void
 free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
                         MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state);
+
+static gboolean
+cogl_pixel_format_from_drm_format (uint32_t               drm_format,
+                                   CoglPixelFormat       *out_format,
+                                   CoglTextureComponents *out_components);
 
 static void
 meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data)
@@ -557,6 +567,72 @@ get_supported_modifiers (CoglOnscreen *onscreen,
   return modifiers;
 }
 
+struct get_supported_kms_formats_user_data
+{
+  GArray *formats;
+  MetaGpu *gpu;
+};
+
+static void
+get_supported_kms_formats_crtc_func (MetaLogicalMonitor *logical_monitor,
+                                     MetaCrtc           *crtc,
+                                     gpointer            user_data)
+{
+  struct get_supported_kms_formats_user_data *data = user_data;
+  gboolean supported = TRUE;
+  unsigned int i;
+
+  if (crtc->gpu != data->gpu)
+    return;
+
+  if (!data->formats)
+    {
+      /* MetaCrtcKms guarantees a non-empty list. */
+      data->formats = meta_crtc_kms_copy_drm_format_list (crtc);
+
+      return;
+    }
+
+  /* formats must be supported by all other CRTCs too */
+  for (i = 0; i < data->formats->len; i++)
+    {
+      uint32_t drm_format = g_array_index (data->formats, uint32_t, i);
+
+      if (!meta_crtc_kms_supports_format (crtc, drm_format))
+        {
+          supported = FALSE;
+          break;
+        }
+    }
+
+  if (!supported)
+    g_array_remove_index_fast (data->formats, i--);
+}
+
+static GArray *
+get_supported_kms_formats (CoglOnscreen *onscreen,
+                           MetaGpu      *gpu)
+{
+  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+  MetaLogicalMonitor *logical_monitor = onscreen_native->logical_monitor;
+  struct get_supported_kms_formats_user_data data = {
+    .formats = NULL,
+    .gpu = gpu
+  };
+
+  meta_logical_monitor_foreach_crtc (logical_monitor,
+                                     get_supported_kms_formats_crtc_func,
+                                     &data);
+  if (data.formats->len == 0)
+    {
+      g_array_free (data.formats, TRUE);
+      data.formats = NULL;
+    }
+
+  return data.formats;
+}
+
 static gboolean
 init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_native,
                                         CoglOnscreen               *onscreen,
@@ -649,6 +725,67 @@ secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_sta
   g_free (secondary_gpu_state);
 }
 
+static uint32_t
+pick_secondary_gpu_framebuffer_format_for_cpu (CoglOnscreen *onscreen,
+                                               MetaGpu      *gpu)
+{
+  /*
+   * cogl_framebuffer_read_pixels_into_bitmap () supported formats in
+   * preference order. Ideally these should depend on the render buffer
+   * format copy_shared_framebuffer_cpu () will be reading from but
+   * alpha channel ignored.
+   */
+  static const uint32_t preferred_formats[] =
+    {
+      /*
+       * DRM_FORMAT_XBGR8888 a.k.a GL_RGBA, GL_UNSIGNED_BYTE on
+       * little-endian is possibly the most optimized glReadPixels
+       * output format. glReadPixels cannot avoid manufacturing an alpha
+       * channel if the render buffer does not have one and converting
+       * to ABGR8888 may be more optimized than ARGB8888.
+       */
+      DRM_FORMAT_XBGR8888,
+      /* The rest are other fairly commonly used formats in OpenGL. */
+      DRM_FORMAT_XRGB8888,
+    };
+  g_autoptr (GArray) formats;
+  size_t k;
+  unsigned int i;
+  uint32_t drm_format;
+
+  formats = get_supported_kms_formats (onscreen, gpu);
+
+  /* Check if any of our preferred formats are supported. */
+  for (k = 0; k < G_N_ELEMENTS(preferred_formats); k++)
+    {
+      g_assert (cogl_pixel_format_from_drm_format (preferred_formats[k],
+                                                   NULL, NULL));
+
+      for (i = 0; i < formats->len; i++)
+        {
+          drm_format = g_array_index (formats, uint32_t, i);
+
+          if (drm_format == preferred_formats[k])
+            return drm_format;
+        }
+    }
+
+  /*
+   * Otherwise just pick an arbitrary format we recognize. The formats
+   * list is not in any specific order and we don't know any better
+   * either.
+   */
+  for (i = 0; i < formats->len; i++)
+    {
+      drm_format = g_array_index (formats, uint32_t, i);
+
+      if (cogl_pixel_format_from_drm_format (drm_format, NULL, NULL))
+        return drm_format;
+    }
+
+  return DRM_FORMAT_INVALID;
+}
+
 static gboolean
 init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_native,
                                         CoglOnscreen               *onscreen,
@@ -662,6 +799,16 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
   int width, height;
   unsigned int i;
+  uint32_t drm_format;
+
+  drm_format = pick_secondary_gpu_framebuffer_format_for_cpu (onscreen,
+                                                              META_GPU (gpu_kms));
+  if (drm_format == DRM_FORMAT_INVALID)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Could not find a suitable pixel format in CPU copy mode");
+      return FALSE;
+    }
 
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
@@ -678,7 +825,7 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
       if (!init_dumb_fb (dumb_fb,
                          gpu_kms,
                          width, height,
-                         DRM_FORMAT_XBGR8888,
+                         drm_format,
                          error))
         {
           secondary_gpu_state_free (secondary_gpu_state);
