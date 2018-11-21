@@ -198,6 +198,17 @@ draw_crtc (MetaMonitor         *monitor,
       viewport_width = monitor_crtc_mode->crtc_mode->width;
       viewport_height = monitor_crtc_mode->crtc_mode->height;
     }
+
+  if (meta_is_stage_views_scaled () && META_IS_MONITOR_NORMAL (monitor))
+    {
+      MetaBackend *backend = meta_get_backend ();
+      MetaMonitorManager *manager = meta_backend_get_monitor_manager (backend);
+      meta_monitor_manager_get_logical_monitor_absolute_position (manager,
+                                                                  logical_monitor,
+                                                                  &viewport_x,
+                                                                  &viewport_y);
+    }
+
   cogl_framebuffer_set_viewport (onscreen,
                                  viewport_x, viewport_y,
                                  viewport_width, viewport_height);
