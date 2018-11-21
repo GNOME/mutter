@@ -30,6 +30,7 @@
 #include "backends/meta-crtc.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor.h"
+#include "backends/meta-monitor-manager-dummy.h"
 #include "backends/meta-output.h"
 #include "backends/meta-renderer.h"
 #include "backends/x11/nested/meta-renderer-x11-nested.h"
@@ -122,7 +123,6 @@ draw_crtc (MetaMonitor         *monitor,
   CoglMatrix transform;
   float texture_width, texture_height;
   float sample_x, sample_y, sample_width, sample_height;
-  float scale;
   int viewport_x, viewport_y;
   int viewport_width, viewport_height;
   float s_1, t_1, s_2, t_2;
@@ -200,9 +200,26 @@ draw_crtc (MetaMonitor         *monitor,
       viewport_height = monitor_crtc_mode->crtc_mode->height;
     }
 
-  scale = clutter_stage_view_get_scale (data->view);
-  viewport_width = roundf (viewport_width / scale);
-  viewport_height = roundf (viewport_height / scale);
+  if (meta_is_stage_views_scaled () && META_IS_MONITOR_NORMAL (monitor))
+    {
+      MetaBackend *backend = meta_get_backend ();
+      MetaMonitorManager *manager = meta_backend_get_monitor_manager (backend);
+      MetaMonitorManagerDummy *dummy_manager = META_MONITOR_MANAGER_DUMMY (manager);
+
+      if (meta_monitor_manager_dummy_use_scaled_views (dummy_manager))
+        {
+          float scale = clutter_stage_view_get_scale (data->view);
+          viewport_width = roundf (viewport_width / scale);
+          viewport_height = roundf (viewport_height / scale);
+        }
+      else
+        {
+          meta_monitor_manager_get_logical_monitor_absolute_position (manager,
+                                                                      logical_monitor,
+                                                                      &viewport_x,
+                                                                      &viewport_y);
+        }
+    }
 
   cogl_framebuffer_set_viewport (onscreen,
                                  viewport_x, viewport_y,
