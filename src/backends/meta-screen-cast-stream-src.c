@@ -91,6 +91,9 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   struct spa_video_info_raw video_format;
 
   uint64_t last_frame_timestamp_us;
+
+  int stream_width;
+  int stream_height;
 } MetaScreenCastStreamSrcPrivate;
 
 static void
@@ -117,6 +120,19 @@ meta_screen_cast_stream_src_get_specs (MetaScreenCastStreamSrc *src,
   klass->get_specs (src, width, height, frame_rate);
 }
 
+static gboolean
+meta_screen_cast_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
+                                           MetaRectangle           *crop_rect)
+{
+  MetaScreenCastStreamSrcClass *klass =
+    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+
+  if (klass->get_videocrop)
+    return klass->get_videocrop (src, crop_rect);
+
+  return FALSE;
+}
+
 static void
 meta_screen_cast_stream_src_record_frame (MetaScreenCastStreamSrc *src,
                                           uint8_t                 *data)
@@ -132,8 +148,10 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  MetaRectangle crop_rect;
   struct pw_buffer *buffer;
   struct spa_buffer *spa_buffer;
+  struct spa_meta_video_crop *spa_meta_video_crop;
   uint8_t *map = NULL;
   uint8_t *data;
   uint64_t now_us;
@@ -182,6 +200,27 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
     }
 
   meta_screen_cast_stream_src_record_frame (src, data);
+
+  /* Update VideoCrop if needed */
+  spa_meta_video_crop = spa_buffer_find_meta (spa_buffer, priv->pipewire_type->meta.VideoCrop);
+  if (spa_meta_video_crop)
+    {
+      if (meta_screen_cast_stream_src_get_videocrop (src, &crop_rect))
+        {
+          spa_meta_video_crop->x = crop_rect.x;
+          spa_meta_video_crop->y = crop_rect.y;
+          spa_meta_video_crop->width = crop_rect.width;
+          spa_meta_video_crop->height = crop_rect.height;
+        }
+      else
+        {
+          spa_meta_video_crop->x = 0;
+          spa_meta_video_crop->y = 0;
+          spa_meta_video_crop->width = priv->stream_width;
+          spa_meta_video_crop->height = priv->stream_height;
+        }
+    }
+
   priv->last_frame_timestamp_us = now_us;
 
   if (map)
@@ -275,7 +314,7 @@ on_stream_format_changed (void                 *data,
   uint8_t params_buffer[1024];
   int32_t width, height, stride, size;
   struct spa_pod_builder pod_builder;
-  const struct spa_pod *params[1];
+  const struct spa_pod *params[2];
   const int bpp = 4;
 
   if (!format)
@@ -303,6 +342,12 @@ on_stream_format_changed (void                 *data,
     ":", pipewire_type->param_buffers.buffers, "iru", 16, PROP_RANGE (2, 16),
     ":", pipewire_type->param_buffers.align, "i", 16);
 
+  params[1] = spa_pod_builder_object (
+    &pod_builder,
+    pipewire_type->param.idMeta, pipewire_type->param_meta.Meta,
+    ":", pipewire_type->param_meta.type, "I", pipewire_type->meta.VideoCrop,
+    ":", pipewire_type->param_meta.size, "i", sizeof (struct spa_meta_video_crop));
+
   pw_stream_finish_format (priv->pipewire_stream, 0,
                            params, G_N_ELEMENTS (params));
 }
@@ -325,7 +370,6 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
     SPA_POD_BUILDER_INIT (buffer, sizeof (buffer));
   MetaSpaType *spa_type = &priv->spa_type;
   struct pw_type *pipewire_type = priv->pipewire_type;
-  int width, height;
   float frame_rate;
   MetaFraction frame_rate_fraction;
   struct spa_fraction max_framerate;
@@ -344,7 +388,10 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
       return NULL;
     }
 
-  meta_screen_cast_stream_src_get_specs (src, &width, &height, &frame_rate);
+  meta_screen_cast_stream_src_get_specs (src,
+                                         &priv->stream_width,
+                                         &priv->stream_height,
+                                         &frame_rate);
   frame_rate_fraction = meta_fraction_from_double (frame_rate);
 
   min_framerate = SPA_FRACTION (1, 1);
@@ -357,7 +404,8 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
     "I", spa_type->media_type.video,
     "I", spa_type->media_subtype.raw,
     ":", spa_type->format_video.format, "I", spa_type->video_format.BGRx,
-    ":", spa_type->format_video.size, "R", &SPA_RECTANGLE (width, height),
+    ":", spa_type->format_video.size, "R", &SPA_RECTANGLE (priv->stream_width,
+                                                           priv->stream_height),
     ":", spa_type->format_video.framerate, "F", &SPA_FRACTION (0, 1),
     ":", spa_type->format_video.max_framerate, "Fru", &max_framerate,
                                                       PROP_RANGE (&min_framerate,
