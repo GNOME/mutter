@@ -143,6 +143,30 @@ clutter_offscreen_effect_real_create_texture (ClutterOffscreenEffect *effect,
                                      COGL_PIXEL_FORMAT_RGBA_8888_PRE);
 }
 
+static void
+ensure_proper_pipeline_filter_for_scale (ClutterOffscreenEffect *self,
+                                         float                   resource_scale)
+{
+  CoglPipelineFilter filter;
+
+  if (!self->priv->target)
+    return;
+
+  /* If no fractional scaling is set, we're always going to render the texture
+     at a 1:1 texel:pixel ratio so, in such case we can use 'nearest' filtering
+     to decrease the effects of rounding errors in the geometry calculation;
+     if instead we we're using a global fractional scaling we need to make sure
+     that we're using the default linear effect, not to create artifacts when
+     scaling down the texture */
+  if (fmodf (resource_scale, 1.0f) == 0)
+    filter = COGL_PIPELINE_FILTER_NEAREST;
+  else
+    filter = COGL_PIPELINE_FILTER_LINEAR;
+
+  cogl_pipeline_set_layer_filters (self->priv->target, 0 /* layer_index */,
+                                   filter, filter);
+}
+
 static gboolean
 update_fbo (ClutterEffect *effect,
             int            target_width,
@@ -165,7 +189,10 @@ update_fbo (ClutterEffect *effect,
   if (priv->target_width == target_width &&
       priv->target_height == target_height &&
       priv->offscreen != NULL)
+  {
+    ensure_proper_pipeline_filter_for_scale (self, resource_scale);
     return TRUE;
+  }
 
   if (priv->target == NULL)
     {
@@ -173,17 +200,7 @@ update_fbo (ClutterEffect *effect,
         clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
       priv->target = cogl_pipeline_new (ctx);
-
-      if (fmodf (resource_scale, 1.0f) == 0)
-        {
-          /* We're always going to render the texture at a 1:1 texel:pixel
-            ratio so we can use 'nearest' filtering to decrease the
-            effects of rounding errors in the geometry calculation */
-          cogl_pipeline_set_layer_filters (priv->target,
-                                           0, /* layer_index */
-                                           COGL_PIPELINE_FILTER_NEAREST,
-                                           COGL_PIPELINE_FILTER_NEAREST);
-        }
+      ensure_proper_pipeline_filter_for_scale (self, resource_scale);
     }
 
   if (priv->texture != NULL)
