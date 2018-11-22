@@ -801,6 +801,7 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
   int width, height;
   unsigned int i;
   uint32_t drm_format;
+  MetaDrmFormatBuf tmp;
 
   drm_format = pick_secondary_gpu_framebuffer_format_for_cpu (onscreen,
                                                               META_GPU (gpu_kms));
@@ -813,6 +814,12 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
 
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
+
+  g_debug ("Secondary GPU %s using DRM format '%s' (0x%x) for a %dx%d output.",
+           meta_gpu_kms_get_file_path (gpu_kms),
+           meta_drm_format_to_string (&tmp, drm_format),
+           drm_format,
+           width, height);
 
   secondary_gpu_state = g_new0 (MetaOnscreenNativeSecondaryGpuState, 1);
   secondary_gpu_state->renderer_gpu_data = renderer_gpu_data;

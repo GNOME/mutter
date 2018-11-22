@@ -30,6 +30,11 @@
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-gpu-kms.h"
 
+/* added in libdrm 2.4.95 */
+#ifndef DRM_FORMAT_INVALID
+#define DRM_FORMAT_INVALID 0
+#endif
+
 #define ALL_TRANSFORMS (META_MONITOR_TRANSFORM_FLIPPED_270 + 1)
 #define ALL_TRANSFORMS_MASK ((1 << ALL_TRANSFORMS) - 1)
 
@@ -51,6 +56,39 @@ typedef struct _MetaCrtcKms
    */
   GHashTable *formats_modifiers;
 } MetaCrtcKms;
+
+/**
+ * meta_drm_format_to_string:
+ * @tmp: temporary buffer
+ * @drm_format: DRM fourcc pixel format
+ *
+ * Returns a pointer to a string naming the given pixel format,
+ * usually a pointer to the temporary buffer but not always.
+ * Invalid formats may return nonsense names.
+ *
+ * When calling this, allocate one MetaDrmFormatBuf on the stack to
+ * be used as the temporary buffer.
+ */
+const char *
+meta_drm_format_to_string (MetaDrmFormatBuf *tmp,
+                           uint32_t          drm_format)
+{
+  int i;
+
+  if (drm_format == DRM_FORMAT_INVALID)
+    return "INVALID";
+
+  G_STATIC_ASSERT (sizeof (tmp->s) == 5);
+  for (i = 0; i < 4; i++)
+    {
+      char c = (drm_format >> (i * 8)) & 0xff;
+      tmp->s[i] = g_ascii_isgraph (c) ? c : '.';
+    }
+
+  tmp->s[i] = 0;
+
+  return tmp->s;
+}
 
 gboolean
 meta_crtc_kms_is_transform_handled (MetaCrtc             *crtc,
