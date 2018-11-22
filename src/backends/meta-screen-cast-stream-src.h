@@ -26,6 +26,7 @@
 #include <glib-object.h>
 
 #include "clutter/clutter.h"
+#include "meta/boxes.h"
 
 typedef struct _MetaScreenCastStream MetaScreenCastStream;
 
@@ -47,6 +48,8 @@ struct _MetaScreenCastStreamSrcClass
   void (* disable) (MetaScreenCastStreamSrc *src);
   void (* record_frame) (MetaScreenCastStreamSrc *src,
                          uint8_t                 *data);
+  gboolean (* get_videocrop) (MetaScreenCastStreamSrc *src,
+                              MetaRectangle           *crop_rect);
 };
 
 void meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src);
