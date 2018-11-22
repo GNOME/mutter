@@ -4357,7 +4357,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
   /* clutter_actor_reparent() will emit ::parent-set for us */
   if (emit_parent_set && !CLUTTER_ACTOR_IN_REPARENT (child))
     {
-      clutter_actor_ensure_resource_scale (child);
+      child->priv->needs_compute_resource_scale = TRUE;
       g_signal_emit (child, actor_signals[PARENT_SET], 0, self);
     }
 
@@ -13026,7 +13026,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
   /* clutter_actor_reparent() will emit ::parent-set for us */
   if (emit_parent_set && !CLUTTER_ACTOR_IN_REPARENT (child))
     {
-      clutter_actor_ensure_resource_scale (child);
+      child->priv->needs_compute_resource_scale = TRUE;
       g_signal_emit (child, actor_signals[PARENT_SET], 0, NULL);
     }
 
@@ -13630,7 +13630,7 @@ clutter_actor_reparent (ClutterActor *self,
                                           insert_child_at_depth,
                                           NULL);
 
-      clutter_actor_ensure_resource_scale (self);
+      priv->needs_compute_resource_scale = TRUE;
 
       /* we emit the ::parent-set signal once */
       g_signal_emit (self, actor_signals[PARENT_SET], 0, old_parent);
