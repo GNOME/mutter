@@ -552,7 +552,7 @@ out:
 static void
 on_x11_display_closing (MetaDisplay *display)
 {
-  meta_xwayland_shutdown_selection ();
+  meta_xwayland_shutdown_dnd ();
 }
 
 /* To be called right after connecting */
@@ -568,7 +568,7 @@ meta_xwayland_complete_init (MetaDisplay *display)
 
   g_signal_connect (display, "x11-display-closing",
                     G_CALLBACK (on_x11_display_closing), NULL);
-  meta_xwayland_init_selection ();
+  meta_xwayland_init_dnd ();
 }
 
 void
