@@ -417,8 +417,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-wayland-private.h		\
 	wayland/meta-xwayland.c			\
 	wayland/meta-xwayland.h			\
-	wayland/meta-xwayland-selection.c	\
-	wayland/meta-xwayland-selection-private.h	\
+	wayland/meta-xwayland-dnd.c		\
+	wayland/meta-xwayland-dnd-private.h	\
 	wayland/meta-xwayland-private.h		\
 	wayland/meta-wayland-buffer.c      	\
 	wayland/meta-wayland-buffer.h      	\
