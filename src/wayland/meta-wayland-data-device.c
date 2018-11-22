@@ -27,6 +27,7 @@
 #include "wayland/meta-wayland-data-device.h"
 #include "wayland/meta-wayland-data-device-private.h"
 
+#include <gio/gunixoutputstream.h>
 #include <glib-unix.h>
 #include <glib.h>
 #include <stdio.h>
@@ -38,6 +39,7 @@
 #include "wayland/meta-wayland-pointer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
+#include "wayland/meta-wayland-selection-source-private.h"
 
 #include "gtk-primary-selection-server-protocol.h"
 
@@ -99,6 +101,11 @@ meta_wayland_data_source_primary_new (struct wl_resource *resource);
 
 static void
 drag_grab_data_source_destroyed (gpointer data, GObject *where_the_object_was);
+
+static struct wl_resource * create_clipboard_source_offer (MetaWaylandDataDevice *data_device,
+                                                           struct wl_resource    *target);
+static struct wl_resource * create_primary_source_offer   (MetaWaylandDataDevice *data_device,
+                                                           struct wl_resource    *target);
 
 static void
 unbind_resource (struct wl_resource *resource)
@@ -364,15 +371,58 @@ data_offer_accept (struct wl_client *client,
 }
 
 static void
+transfer_cb (MetaSelection *selection,
+             GAsyncResult  *res,
+             GOutputStream *stream)
+{
+  GError *error = NULL;
+
+  if (!meta_selection_transfer_finish (selection, res, &error))
+    {
+      g_warning ("Could not fetch selection data: %s\n", error->message);
+      g_error_free (error);
+    }
+
+  g_output_stream_close (stream, NULL, NULL);
+}
+
+static void
 data_offer_receive (struct wl_client *client, struct wl_resource *resource,
                     const char *mime_type, int32_t fd)
 {
   MetaWaylandDataOffer *offer = wl_resource_get_user_data (resource);
+  MetaDisplay *display = meta_get_display ();
+  MetaSelectionType selection_type;
+  GList *mime_types;
+  gboolean found;
 
-  if (offer->source)
-    meta_wayland_data_source_send (offer->source, mime_type, fd);
+  if (offer->dnd_actions != 0)
+    selection_type = META_SELECTION_DND;
   else
-    close (fd);
+    selection_type = META_SELECTION_CLIPBOARD;
+
+  mime_types = meta_selection_get_mimetypes (meta_display_get_selection (display),
+                                             selection_type);
+  found = g_list_find_custom (mime_types, mime_type, (GCompareFunc) g_strcmp0) != NULL;
+  g_list_free_full (mime_types, g_free);
+
+  if (found)
+    {
+      GOutputStream *stream;
+
+      stream = g_unix_output_stream_new (fd, TRUE);
+      meta_selection_transfer_async (meta_display_get_selection (display),
+                                     selection_type,
+                                     mime_type,
+                                     stream,
+                                     NULL,
+                                     (GAsyncReadyCallback) transfer_cb,
+                                     stream);
+    }
+  else
+    {
+      close (fd);
+    }
 }
 
 static void
@@ -459,26 +509,30 @@ static void
 primary_offer_receive (struct wl_client *client, struct wl_resource *resource,
                        const char *mime_type, int32_t fd)
 {
-  MetaWaylandDataOffer *offer = wl_resource_get_user_data (resource);
-  MetaWaylandDataSource *source = offer->source;
-  MetaWaylandSeat *seat;
+  MetaDisplay *display = meta_get_display ();
+  GOutputStream *stream;
+  GList *mime_types;
+  gboolean found;
 
-  if (!offer->source)
+  mime_types = meta_selection_get_mimetypes (meta_display_get_selection (display),
+                                             META_SELECTION_CLIPBOARD);
+  found = g_list_find_custom (mime_types, mime_type, (GCompareFunc) g_strcmp0) != NULL;
+  g_list_free_full (mime_types, g_free);
+
+  if (!found)
     {
       close (fd);
       return;
     }
 
-  seat = meta_wayland_data_source_get_seat (source);
-
-  if (wl_resource_get_client (offer->resource) !=
-      meta_wayland_keyboard_get_focus_client (seat->keyboard))
-    {
-      close (fd);
-      return;
-    }
-
-  meta_wayland_data_source_send (offer->source, mime_type, fd);
+  stream = g_unix_output_stream_new (fd, TRUE);
+  meta_selection_transfer_async (meta_display_get_selection (display),
+                                 META_SELECTION_PRIMARY,
+                                 mime_type,
+                                 stream,
+                                 NULL,
+                                 (GAsyncReadyCallback) transfer_cb,
+                                 stream);
 }
 
 static const struct gtk_primary_selection_offer_interface primary_offer_interface = {
@@ -577,35 +631,6 @@ meta_wayland_data_source_send_offer (MetaWaylandDataSource *source,
     wl_data_offer_send_offer (offer->resource, *p);
 
   data_offer_update_action (offer);
-  meta_wayland_data_source_set_current_offer (source, offer);
-
-  return offer->resource;
-}
-
-static struct wl_resource *
-meta_wayland_data_source_send_primary_offer (MetaWaylandDataSource *source,
-					     struct wl_resource    *target)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-  MetaWaylandDataOffer *offer = g_slice_new0 (MetaWaylandDataOffer);
-  char **p;
-
-  offer->source = source;
-  g_object_add_weak_pointer (G_OBJECT (source), (gpointer *)&offer->source);
-  offer->resource = wl_resource_create (wl_resource_get_client (target),
-                                        &gtk_primary_selection_offer_interface,
-                                        wl_resource_get_version (target), 0);
-  wl_resource_set_implementation (offer->resource,
-                                  &primary_offer_interface,
-                                  offer,
-                                  destroy_primary_offer);
-
-  gtk_primary_selection_device_send_data_offer (target, offer->resource);
-
-  wl_array_for_each (p, &priv->mime_types)
-    gtk_primary_selection_offer_send_offer (offer->resource, *p);
-
   meta_wayland_data_source_set_current_offer (source, offer);
 
   return offer->resource;
@@ -710,6 +735,34 @@ struct _MetaWaylandDragGrab {
 
   guint                   need_initial_focus : 1;
 };
+
+static void
+set_selection_source (MetaWaylandDataDevice *data_device,
+                      MetaSelectionType      selection_type,
+                      MetaSelectionSource   *selection_source)
+
+{
+  MetaDisplay *display = meta_get_display ();
+
+  meta_selection_set_owner (meta_display_get_selection (display),
+                            selection_type, selection_source);
+  g_set_object (&data_device->owners[selection_type], selection_source);
+}
+
+static void
+unset_selection_source (MetaWaylandDataDevice *data_device,
+                        MetaSelectionType      selection_type)
+{
+  MetaDisplay *display = meta_get_display ();
+
+  if (!data_device->owners[selection_type])
+    return;
+
+  meta_selection_unset_owner (meta_display_get_selection (display),
+                              selection_type,
+                              data_device->owners[selection_type]);
+  g_clear_object (&data_device->owners[selection_type]);
+}
 
 static void
 destroy_drag_focus (struct wl_listener *listener, void *data)
@@ -1090,6 +1143,18 @@ destroy_data_device_icon (struct wl_listener *listener, void *data)
     clutter_actor_remove_all_children (drag_grab->feedback_actor);
 }
 
+GList *
+array_to_list (struct wl_array *array)
+{
+  GList *l = NULL;
+  char **p;
+
+  wl_array_for_each (p, array)
+    l = g_list_prepend (l, g_strdup (*p));
+
+  return l;
+}
+
 void
 meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data_device,
                                      struct wl_client                      *client,
@@ -1188,6 +1253,8 @@ data_device_start_drag (struct wl_client *client,
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
   MetaWaylandSurface *surface = NULL, *icon_surface = NULL;
   MetaWaylandDataSource *drag_source = NULL;
+  MetaSelectionSource *selection_source;
+  GList *mimetypes;
 
   if (origin_resource)
     surface = wl_resource_get_user_data (origin_resource);
@@ -1223,6 +1290,16 @@ data_device_start_drag (struct wl_client *client,
       return;
     }
 
+  mimetypes = array_to_list (meta_wayland_data_source_get_mime_types (drag_source));
+  selection_source = meta_wayland_selection_source_new (source_resource,
+                                                        mimetypes,
+                                                        wl_data_source_send_send,
+                                                        wl_data_source_send_cancelled);
+  g_list_free_full (mimetypes, g_free);
+  set_selection_source (data_device, META_SELECTION_DND,
+                        selection_source);
+  g_print ("set dnd selection source...\n");
+
   meta_wayland_pointer_set_focus (seat->pointer, NULL);
   meta_wayland_data_device_start_drag (data_device, client,
                                        &drag_grab_interface,
@@ -1255,6 +1332,7 @@ selection_data_source_destroyed (gpointer data, GObject *object_was_here)
     }
 
   wl_signal_emit (&data_device->selection_ownership_signal, NULL);
+  unset_selection_source (data_device, META_SELECTION_CLIPBOARD);
 }
 
 static void
@@ -1314,6 +1392,8 @@ meta_wayland_source_drop_performed (MetaWaylandDataSource *source)
 static void
 meta_wayland_source_drag_finished (MetaWaylandDataSource *source)
 {
+  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaWaylandDataDevice *data_device = &compositor->seat->data_device;
   MetaWaylandDataSourceWayland *source_wayland =
     META_WAYLAND_DATA_SOURCE_WAYLAND (source);
   enum wl_data_device_manager_dnd_action action;
@@ -1327,6 +1407,8 @@ meta_wayland_source_drag_finished (MetaWaylandDataSource *source)
   if (wl_resource_get_version (source_wayland->resource) >=
       WL_DATA_SOURCE_DND_FINISHED_SINCE_VERSION)
     wl_data_source_send_dnd_finished (source_wayland->resource);
+
+  unset_selection_source (data_device, META_SELECTION_DND);
 }
 
 static void
@@ -1578,24 +1660,36 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
       data_device_resource = wl_resource_find_for_client (&data_device->resource_list, focus_client);
       if (data_device_resource)
         {
-          if (data_device->selection_data_source)
-            {
-              offer = meta_wayland_data_source_send_offer (data_device->selection_data_source, data_device_resource);
-              wl_data_device_send_selection (data_device_resource, offer);
-            }
-          else
-            {
-              wl_data_device_send_selection (data_device_resource, NULL);
-            }
+          offer = create_clipboard_source_offer (data_device, data_device_resource);
+          wl_data_device_send_selection (data_device_resource, offer);
         }
     }
 
   if (source)
     {
+      MetaWaylandDataSourceWayland *source_wayland =
+        META_WAYLAND_DATA_SOURCE_WAYLAND (source);
+      MetaSelectionSource *selection_source;
+      GList *mimetypes;
+
       meta_wayland_data_source_set_seat (source, seat);
       g_object_weak_ref (G_OBJECT (source),
                          selection_data_source_destroyed,
                          data_device);
+
+      mimetypes = array_to_list (meta_wayland_data_source_get_mime_types (source));
+      selection_source = meta_wayland_selection_source_new (source_wayland->resource,
+                                                            mimetypes,
+                                                            wl_data_source_send_send,
+                                                            wl_data_source_send_cancelled);
+      g_list_free_full (mimetypes, g_free);
+
+      set_selection_source (data_device, META_SELECTION_CLIPBOARD,
+                            selection_source);
+    }
+  else
+    {
+      unset_selection_source (data_device, META_SELECTION_CLIPBOARD);
     }
 
   wl_signal_emit (&data_device->selection_ownership_signal, source);
@@ -1660,6 +1754,7 @@ primary_source_destroyed (gpointer  data,
     }
 
   wl_signal_emit (&data_device->primary_ownership_signal, NULL);
+  unset_selection_source (data_device, META_SELECTION_PRIMARY);
 }
 
 void
@@ -1703,25 +1798,34 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
       data_device_resource = wl_resource_find_for_client (&data_device->primary_resource_list, focus_client);
       if (data_device_resource)
         {
-          if (data_device->primary_data_source)
-            {
-              offer = meta_wayland_data_source_send_primary_offer (data_device->primary_data_source,
-                                                                   data_device_resource);
-              gtk_primary_selection_device_send_selection (data_device_resource, offer);
-            }
-          else
-            {
-              gtk_primary_selection_device_send_selection (data_device_resource, NULL);
-            }
+          offer = create_primary_source_offer (data_device, data_device_resource);
+          gtk_primary_selection_device_send_selection (data_device_resource, offer);
         }
     }
 
   if (source)
     {
+      MetaSelectionSource *selection_source;
+      GList *mimetypes;
+
       meta_wayland_data_source_set_seat (source, seat);
       g_object_weak_ref (G_OBJECT (source),
                          primary_source_destroyed,
                          data_device);
+
+      mimetypes = array_to_list (meta_wayland_data_source_get_mime_types (source));
+      selection_source = meta_wayland_selection_source_new (META_WAYLAND_DATA_SOURCE_PRIMARY (source)->resource,
+                                                            mimetypes,
+                                                            gtk_primary_selection_source_send_send,
+                                                            gtk_primary_selection_source_send_cancelled);
+      g_list_free_full (mimetypes, g_free);
+
+      set_selection_source (data_device, META_SELECTION_PRIMARY,
+                            selection_source);
+    }
+  else
+    {
+      unset_selection_source (data_device, META_SELECTION_PRIMARY);
     }
 
   wl_signal_emit (&data_device->primary_ownership_signal, source);
@@ -1875,13 +1979,76 @@ meta_wayland_data_device_init (MetaWaylandDataDevice *data_device)
   wl_signal_init (&data_device->dnd_ownership_signal);
 }
 
+static struct wl_resource *
+create_clipboard_source_offer (MetaWaylandDataDevice *data_device,
+                               struct wl_resource    *target)
+{
+  MetaWaylandDataOffer *offer;
+  MetaDisplay *display = meta_get_display ();
+  GList *mimetypes, *l;
+
+  mimetypes = meta_selection_get_mimetypes (meta_display_get_selection (display),
+                                            META_SELECTION_CLIPBOARD);
+  if (!mimetypes)
+    return NULL;
+
+  offer = g_slice_new0 (MetaWaylandDataOffer);
+  offer->resource = wl_resource_create (wl_resource_get_client (target),
+                                        &wl_data_offer_interface,
+                                        wl_resource_get_version (target), 0);
+  wl_resource_set_implementation (offer->resource,
+                                  &data_offer_interface,
+                                  offer,
+                                  destroy_data_offer);
+
+  wl_data_device_send_data_offer (target, offer->resource);
+
+  for (l = mimetypes; l; l = l->next)
+    wl_data_offer_send_offer (offer->resource, l->data);
+
+  g_list_free_full (mimetypes, g_free);
+
+  return offer->resource;
+}
+
+static struct wl_resource *
+create_primary_source_offer (MetaWaylandDataDevice *data_device,
+                             struct wl_resource    *target)
+{
+  MetaWaylandDataOffer *offer;
+  MetaDisplay *display = meta_get_display ();
+  GList *mimetypes, *l;
+
+  mimetypes = meta_selection_get_mimetypes (meta_display_get_selection (display),
+                                            META_SELECTION_PRIMARY);
+  if (!mimetypes)
+    return NULL;
+
+  offer = g_slice_new0 (MetaWaylandDataOffer);
+  offer->resource = wl_resource_create (wl_resource_get_client (target),
+                                        &gtk_primary_selection_offer_interface,
+                                        wl_resource_get_version (target), 0);
+  wl_resource_set_implementation (offer->resource,
+                                  &primary_offer_interface,
+                                  offer,
+                                  destroy_primary_offer);
+
+  gtk_primary_selection_device_send_data_offer (target, offer->resource);
+
+  for (l = mimetypes; l; l = l->next)
+    gtk_primary_selection_offer_send_offer (offer->resource, l->data);
+
+  g_list_free_full (mimetypes, g_free);
+
+  return offer->resource;
+}
+
 void
 meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device)
 {
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
   struct wl_client *focus_client;
   struct wl_resource *data_device_resource, *offer;
-  MetaWaylandDataSource *source;
 
   focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
 
@@ -1896,31 +2063,15 @@ meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device)
   data_device_resource = wl_resource_find_for_client (&data_device->resource_list, focus_client);
   if (data_device_resource)
     {
-      source = data_device->selection_data_source;
-      if (source)
-        {
-          offer = meta_wayland_data_source_send_offer (source, data_device_resource);
-          wl_data_device_send_selection (data_device_resource, offer);
-        }
-      else
-        {
-          wl_data_device_send_selection (data_device_resource, NULL);
-        }
+      offer = create_clipboard_source_offer (data_device, data_device_resource);
+      wl_data_device_send_selection (data_device_resource, offer);
     }
 
   data_device_resource = wl_resource_find_for_client (&data_device->primary_resource_list, focus_client);
   if (data_device_resource)
     {
-      source = data_device->primary_data_source;
-      if (source)
-        {
-          offer = meta_wayland_data_source_send_primary_offer (source, data_device_resource);
-          gtk_primary_selection_device_send_selection (data_device_resource, offer);
-        }
-      else
-        {
-          gtk_primary_selection_device_send_selection (data_device_resource, NULL);
-        }
+      offer = create_primary_source_offer (data_device, data_device_resource);
+      gtk_primary_selection_device_send_selection (data_device_resource, offer);
     }
 }
 
