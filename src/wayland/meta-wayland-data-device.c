@@ -610,8 +610,8 @@ destroy_primary_offer (struct wl_resource *resource)
 }
 
 static struct wl_resource *
-meta_wayland_data_source_send_offer (MetaWaylandDataSource *source,
-                                     struct wl_resource *target)
+create_and_send_dnd_offer (MetaWaylandDataSource *source,
+                           struct wl_resource *target)
 {
   MetaWaylandDataSourcePrivate *priv =
     meta_wayland_data_source_get_instance_private (source);
@@ -872,7 +872,7 @@ meta_wayland_drag_grab_set_focus (MetaWaylandDragGrab *drag_grab,
   data_device_resource = wl_resource_find_for_client (&seat->data_device.resource_list, client);
 
   if (source && data_device_resource)
-    offer = meta_wayland_data_source_send_offer (source, data_device_resource);
+    offer = create_and_send_dnd_offer (source, data_device_resource);
 
   drag_grab->drag_focus = surface;
   drag_grab->drag_focus_destroy_handler_id =
