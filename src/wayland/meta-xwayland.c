@@ -388,7 +388,7 @@ choose_xdisplay (MetaXWaylandManager *manager)
 
   if (display_number_override != -1)
     display = display_number_override;
-  else if (!g_getenv ("RUNNING_UNDER_GDM"))
+  else if (g_getenv ("RUNNING_UNDER_GDM"))
     display = 1024;
 
   do
