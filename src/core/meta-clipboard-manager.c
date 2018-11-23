@@ -21,7 +21,7 @@
 #include "config.h"
 
 #include "core/meta-clipboard-manager.h"
-#include "core/meta-selection-source-memory.h"
+#include "meta/meta-selection-source-memory.h"
 
 #define MAX_TEXT_SIZE (4 * 1024 * 1024) /* 4MB */
 #define MAX_IMAGE_SIZE (200 * 1024 * 1024) /* 200MB */

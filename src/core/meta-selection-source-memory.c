@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include "core/meta-selection-source-memory.h"
+#include "meta/meta-selection-source-memory.h"
 
 struct _MetaSelectionSourceMemory
 {
