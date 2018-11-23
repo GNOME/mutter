@@ -43,5 +43,6 @@ typedef struct _MetaDnd         MetaDnd;
 typedef struct _MetaSettings    MetaSettings;
 
 typedef struct _MetaWorkspaceManager MetaWorkspaceManager;
+typedef struct _MetaSelection   MetaSelection;
 
 #endif
