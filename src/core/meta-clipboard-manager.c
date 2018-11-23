@@ -21,7 +21,7 @@
 #include "config.h"
 
 #include "core/meta-clipboard-manager.h"
-#include "core/meta-memory-selection-source.h"
+#include "meta/meta-memory-selection-source.h"
 
 static void
 transfer_cb (MetaSelection *selection,
