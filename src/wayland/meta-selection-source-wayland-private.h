@@ -24,7 +24,7 @@
 
 #include <wayland-server.h>
 
-#include "core/meta-selection-source.h"
+#include "meta/meta-selection-source.h"
 
 #define META_TYPE_SELECTION_SOURCE_WAYLAND (meta_selection_source_wayland_get_type ())
 
