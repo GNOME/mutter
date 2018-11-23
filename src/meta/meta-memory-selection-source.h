@@ -22,7 +22,7 @@
 #ifndef META_MEMORY_SELECTION_SOURCE_H
 #define META_MEMORY_SELECTION_SOURCE_H
 
-#include "core/meta-selection-source.h"
+#include "meta/meta-selection-source.h"
 
 #define META_TYPE_MEMORY_SELECTION_SOURCE (meta_memory_selection_source_get_type ())
 G_DECLARE_FINAL_TYPE (MetaMemorySelectionSource,

@@ -3636,6 +3636,12 @@ meta_display_generate_window_id (MetaDisplay *display)
   return (base_window_id + last_window_id++);
 }
 
+/**
+ * meta_display_get_selection:
+ * @display: a #MetaDisplay
+ *
+ * Returns: (transfer none): The selection manager of the display
+ */
 MetaSelection *
 meta_display_get_selection (MetaDisplay *display)
 {
