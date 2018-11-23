@@ -70,14 +70,6 @@ typedef int CoglBool;
 #define COGL_GNUC_NULL_TERMINATED
 #endif
 
-#if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)) && \
-  !defined (COGL_COMPILATION)
-#define COGL_GNUC_DEPRECATED                       \
-  __attribute__((__deprecated__))
-#else
-#define COGL_GNUC_DEPRECATED
-#endif /* __GNUC__ */
-
 /* Some structures are meant to be opaque but they have public
    definitions because we want the size to be public so they can be
    allocated on the stack. This macro is used to ensure that users
