@@ -22,7 +22,7 @@
 #ifndef META_X11_SELECTION_H
 #define META_X11_SELECTION_H
 
-#include "core/meta-selection.h"
+#include "meta/meta-selection.h"
 #include "x11/meta-x11-display-private.h"
 
 gboolean meta_x11_selection_handle_event (MetaX11Display *display,
