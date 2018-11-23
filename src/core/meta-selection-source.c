@@ -20,8 +20,8 @@
  */
 #include "config.h"
 
-#include "core/meta-selection.h"
-#include "core/meta-selection-source.h"
+#include "meta/meta-selection.h"
+#include "meta/meta-selection-source.h"
 
 typedef struct MetaSelectionSourcePrivate MetaSelectionSourcePrivate;
 
@@ -112,6 +112,16 @@ meta_selection_source_read_async (MetaSelectionSource *source,
                                                         user_data);
 }
 
+/**
+ * meta_selection_source_read_finish:
+ * @source: The selection source
+ * @result: The async result
+ * @error: Location for returned error
+ *
+ * Finishes a read from the selection source.
+ *
+ * Returns: (transfer full): The resulting #GInputStream
+ */
 GInputStream *
 meta_selection_source_read_finish (MetaSelectionSource  *source,
                                    GAsyncResult         *result,
@@ -122,12 +132,31 @@ meta_selection_source_read_finish (MetaSelectionSource  *source,
                                                                 error);
 }
 
+/**
+ * meta_selection_source_get_mimetypes:
+ * @source: The selection source
+ *
+ * Returns the list of supported mimetypes.
+ *
+ * Returns: (element-type utf8) (transfer full): The supported mimetypes
+ */
 GList *
 meta_selection_source_get_mimetypes (MetaSelectionSource  *source)
 {
   return META_SELECTION_SOURCE_GET_CLASS (source)->get_mimetypes (source);
 }
 
+/**
+ * meta_selection_source_get_selection_type:
+ * @source: the selection source
+ * @selection: (out): return location for the current selection type
+ *
+ * If the source is currently the owner of a selection, returns #TRUE
+ * and fills in @selection with the currently owned selection. Otherwise
+ * returns #FALSE.
+ *
+ * Returns: #TRUE if the source owns a selection.
+ **/
 gboolean
 meta_selection_source_get_selection_type (MetaSelectionSource *source,
                                           MetaSelectionType   *selection_type)
