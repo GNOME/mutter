@@ -30,8 +30,8 @@
 
 #include "backends/meta-monitor-manager-private.h"
 #include "core/display-private.h"
-#include "core/meta-selection-source.h"
 #include "meta/common.h"
+#include "meta/meta-selection-source.h"
 #include "meta/types.h"
 #include "meta/meta-x11-display.h"
 #include "ui/ui.h"

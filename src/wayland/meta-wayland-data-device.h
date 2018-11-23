@@ -27,7 +27,7 @@
 #include <wayland-server.h>
 
 #include "clutter/clutter.h"
-#include "core/meta-selection-source.h"
+#include "meta/meta-selection-source.h"
 #include "wayland/meta-wayland-types.h"
 
 typedef struct _MetaWaylandDragGrab MetaWaylandDragGrab;
