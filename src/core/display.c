@@ -3626,6 +3626,12 @@ meta_display_get_workspace_manager (MetaDisplay *display)
   return display->workspace_manager;
 }
 
+/**
+ * meta_display_get_selection:
+ * @display: a #MetaDisplay
+ *
+ * Returns: (transfer none): The selection manager of the display
+ */
 MetaSelection *
 meta_display_get_selection (MetaDisplay *display)
 {
