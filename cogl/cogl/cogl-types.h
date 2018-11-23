@@ -64,12 +64,6 @@ G_BEGIN_DECLS
  */
 typedef int CoglBool;
 
-#if __GNUC__ >= 4
-#define COGL_GNUC_NULL_TERMINATED __attribute__((__sentinel__))
-#else
-#define COGL_GNUC_NULL_TERMINATED
-#endif
-
 /* Some structures are meant to be opaque but they have public
    definitions because we want the size to be public so they can be
    allocated on the stack. This macro is used to ensure that users

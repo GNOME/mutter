@@ -1218,7 +1218,7 @@ cogl_framebuffer_vdraw_attributes (CoglFramebuffer *framebuffer,
                                    CoglVerticesMode mode,
                                    int first_vertex,
                                    int n_vertices,
-                                   ...) COGL_GNUC_NULL_TERMINATED;
+                                   ...) G_GNUC_NULL_TERMINATED;
 
 /**
  * cogl_framebuffer_draw_attributes: (skip)
@@ -1332,7 +1332,7 @@ cogl_framebuffer_vdraw_indexed_attributes (CoglFramebuffer *framebuffer,
                                            int first_vertex,
                                            int n_vertices,
                                            CoglIndices *indices,
-                                           ...) COGL_GNUC_NULL_TERMINATED;
+                                           ...) G_GNUC_NULL_TERMINATED;
 
 /**
  * cogl_framebuffer_draw_indexed_attributes: (skip)
