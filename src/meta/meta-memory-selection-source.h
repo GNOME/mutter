@@ -22,14 +22,17 @@
 #ifndef META_MEMORY_SELECTION_SOURCE_H
 #define META_MEMORY_SELECTION_SOURCE_H
 
-#include "core/meta-selection-source.h"
+#include <meta/types.h>
+#include <meta/meta-selection-source.h>
 
 #define META_TYPE_MEMORY_SELECTION_SOURCE (meta_memory_selection_source_get_type ())
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaMemorySelectionSource,
                       meta_memory_selection_source,
                       META, MEMORY_SELECTION_SOURCE,
                       MetaSelectionSource)
 
+META_EXPORT
 MetaSelectionSource * meta_memory_selection_source_new (const gchar *mimetype,
                                                         GBytes      *content);
 

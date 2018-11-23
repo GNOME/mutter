@@ -20,7 +20,7 @@
  */
 #include "config.h"
 
-#include "meta-selection.h"
+#include "meta/meta-selection.h"
 
 typedef struct TransferRequest TransferRequest;
 
@@ -85,6 +85,15 @@ meta_selection_new (MetaDisplay *display)
                        NULL);
 }
 
+/**
+ * meta_selection_set_owner:
+ * @selection: The selection manager
+ * @selection_type: Selection type
+ * @owner: New selection owner
+ *
+ * Sets @owner as the owner of the selection given by @selection_type,
+ * unsets any previous owner there was.
+ **/
 void
 meta_selection_set_owner (MetaSelection       *selection,
                           MetaSelectionType    selection_type,
@@ -104,6 +113,15 @@ meta_selection_set_owner (MetaSelection       *selection,
   g_signal_emit (selection, signals[OWNER_CHANGED], 0, selection_type, owner);
 }
 
+/**
+ * meta_selection_unset_owner:
+ * @selection: The selection manager
+ * @selection_type: Selection type
+ * @owner: Owner to unset
+ *
+ * Unsets @owner as the owner the selection given by @selection_type. If
+ * @owner does not own the selection, nothing is done.
+ **/
 void
 meta_selection_unset_owner (MetaSelection       *selection,
                             MetaSelectionType    selection_type,
@@ -121,6 +139,15 @@ meta_selection_unset_owner (MetaSelection       *selection,
     }
 }
 
+/**
+ * meta_selection_get_mimetypes:
+ * @selection: The selection manager
+ * @selection_type: Selection to query
+ *
+ * Returns the list of supported mimetypes for the given selection type.
+ *
+ * Returns: (element-type utf8) (transfer full): The supported mimetypes
+ */
 GList *
 meta_selection_get_mimetypes (MetaSelection        *selection,
                               MetaSelectionType     selection_type)
@@ -262,6 +289,20 @@ source_read_cb (MetaSelectionSource *source,
     }
 }
 
+/**
+ * meta_selection_transfer_async:
+ * @selection: The selection manager
+ * @selection_type: Selection type
+ * @mimetype: Mimetype to transfer
+ * @size: Maximum size to transfer, -1 for unlimited
+ * @output: Output stream to write contents to
+ * @cancellable: Cancellable
+ * @callback: User callback
+ * @user_data: User data
+ *
+ * Requests a transfer of @mimetype on the selection given by
+ * @selection_type.
+ **/
 void
 meta_selection_transfer_async (MetaSelection        *selection,
                                MetaSelectionType     selection_type,
@@ -292,6 +333,16 @@ meta_selection_transfer_async (MetaSelection        *selection,
                                     task);
 }
 
+/**
+ * meta_selection_transfer_finish:
+ * @selection: The selection manager
+ * @result: The async result
+ * @error: Location for returned error, or %NULL
+ *
+ * Finishes the transfer of a queried mimetype.
+ *
+ * Returns: #TRUE if the transfer was successful.
+ **/
 gboolean
 meta_selection_transfer_finish (MetaSelection  *selection,
                                 GAsyncResult   *result,

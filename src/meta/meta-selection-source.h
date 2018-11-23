@@ -22,6 +22,7 @@
 #define META_SELECTION_SOURCE_H
 
 #include <gio/gio.h>
+#include <meta/common.h>
 
 typedef enum
 {
@@ -36,6 +37,7 @@ typedef struct _MetaSelectionSource MetaSelectionSource;
 
 #define META_TYPE_SELECTION_SOURCE (meta_selection_source_get_type ())
 
+META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaSelectionSource,
                           meta_selection_source,
                           META, SELECTION_SOURCE,
@@ -61,18 +63,22 @@ struct _MetaSelectionSourceClass
                                   GError              **error);
 };
 
+META_EXPORT
 void           meta_selection_source_read_async  (MetaSelectionSource  *source,
                                                   const gchar          *mimetype,
                                                   GCancellable         *cancellable,
                                                   GAsyncReadyCallback   callback,
                                                   gpointer              user_data);
 
+META_EXPORT
 GInputStream * meta_selection_source_read_finish (MetaSelectionSource  *source,
                                                   GAsyncResult         *result,
                                                   GError              **error);
 
+META_EXPORT
 GList *  meta_selection_source_get_mimetypes     (MetaSelectionSource  *source);
 
+META_EXPORT
 gboolean meta_selection_source_get_selection     (MetaSelectionSource  *source,
                                                   MetaSelectionType    *selection);
 
