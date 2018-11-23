@@ -22,30 +22,36 @@
 #define META_SELECTION_H
 
 #include <gio/gio.h>
-
-#include "core/meta-selection-source.h"
-#include "meta/display.h"
+#include <meta/common.h>
+#include <meta/display.h>
+#include <meta/meta-selection-source.h>
 
 #define META_TYPE_SELECTION (meta_selection_get_type ())
 
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaSelection,
                       meta_selection,
                       META, SELECTION,
                       GObject)
 
+META_EXPORT
 MetaSelection *
          meta_selection_new                  (MetaDisplay *display);
 
+META_EXPORT
 void     meta_selection_set_owner            (MetaSelection        *selection,
                                               MetaSelectionType     selection_type,
                                               MetaSelectionSource  *owner);
+META_EXPORT
 void     meta_selection_unset_owner          (MetaSelection        *selection,
                                               MetaSelectionType     selection_type,
                                               MetaSelectionSource  *owner);
 
+META_EXPORT
 GList *  meta_selection_get_mimetypes        (MetaSelection        *selection,
                                               MetaSelectionType     selection_type);
 
+META_EXPORT
 void     meta_selection_transfer_async       (MetaSelection        *selection,
                                               MetaSelectionType     selection_type,
                                               const gchar          *mimetype,
@@ -54,6 +60,7 @@ void     meta_selection_transfer_async       (MetaSelection        *selection,
                                               GCancellable         *cancellable,
                                               GAsyncReadyCallback   callback,
                                               gpointer              user_data);
+META_EXPORT
 gboolean meta_selection_transfer_finish      (MetaSelection        *selection,
                                               GAsyncResult         *result,
                                               GError              **error);

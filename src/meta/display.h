@@ -294,4 +294,6 @@ MetaStartupNotification * meta_display_get_startup_notification (MetaDisplay *di
 META_EXPORT
 MetaSoundPlayer * meta_display_get_sound_player (MetaDisplay *display);
 
+MetaSelection * meta_display_get_selection (MetaDisplay *display);
+
 #endif
