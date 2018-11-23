@@ -294,11 +294,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	core/meta-inhibit-shortcuts-dialog-default.c	\
 	core/meta-inhibit-shortcuts-dialog-default-private.h \
 	core/meta-memory-selection-source.c	\
-	core/meta-memory-selection-source.h	\
 	core/meta-selection.c                   \
-	core/meta-selection.h                   \
 	core/meta-selection-source.c            \
-	core/meta-selection-source.h            \
 	core/delete.c				\
 	core/display.c				\
 	core/display-private.h			\
@@ -590,8 +587,11 @@ libmutterinclude_headers =			\
 	meta/meta-dnd.h			\
 	meta/meta-idle-monitor.h		\
 	meta/meta-plugin.h			\
+	meta/meta-memory-selection-source.h	\
 	meta/meta-monitor-manager.h		\
 	meta/meta-remote-access-controller.h	\
+	meta/meta-selection.h			\
+	meta/meta-selection-source.h		\
 	meta/meta-settings.h			\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\

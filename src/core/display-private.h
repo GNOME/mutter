@@ -38,12 +38,12 @@
 #include "clutter/clutter.h"
 #include "core/keybindings-private.h"
 #include "core/meta-gesture-tracker-private.h"
-#include "core/meta-selection.h"
 #include "core/stack-tracker.h"
 #include "core/startup-notification-private.h"
 #include "meta/barrier.h"
 #include "meta/boxes.h"
 #include "meta/common.h"
+#include "meta/meta-selection.h"
 #include "meta/prefs.h"
 
 typedef struct _MetaBell       MetaBell;
@@ -431,7 +431,5 @@ void meta_display_queue_check_fullscreen (MetaDisplay *display);
 
 MetaWindow *meta_display_get_pointer_window (MetaDisplay *display,
                                              MetaWindow  *not_this_one);
-
-MetaSelection * meta_display_get_selection (MetaDisplay *display);
 
 #endif

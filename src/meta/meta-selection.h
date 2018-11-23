@@ -23,8 +23,8 @@
 
 #include <gio/gio.h>
 
-#include "core/meta-selection-source.h"
 #include "meta/display.h"
+#include "meta/meta-selection-source.h"
 
 #define META_TYPE_SELECTION (meta_selection_get_type ())
 
