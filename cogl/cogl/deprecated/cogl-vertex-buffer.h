@@ -43,7 +43,7 @@
 #include <cogl/cogl-types.h>
 #include <cogl/cogl-macros.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-vertex-buffer
@@ -446,6 +446,6 @@ cogl_is_vertex_buffer (CoglHandle handle);
 COGL_DEPRECATED_FOR (cogl_primitive_API)
 CoglBool
 cogl_is_vertex_buffer_indices (CoglHandle handle);
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_VERTEX_BUFFER_H__ */

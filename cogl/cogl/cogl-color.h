@@ -50,7 +50,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * cogl_color_get_gtype:
@@ -595,6 +595,6 @@ cogl_color_init_from_hsl (CoglColor *color,
                           float      saturation,
                           float      luminance);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_COLOR_H__ */

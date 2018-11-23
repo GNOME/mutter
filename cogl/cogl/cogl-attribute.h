@@ -48,7 +48,7 @@ typedef struct _CoglAttribute CoglAttribute;
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-attribute
@@ -548,7 +548,7 @@ cogl_attribute_set_buffer (CoglAttribute *attribute,
 CoglBool
 cogl_is_attribute (void *object);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_ATTRIBUTE_H__ */
 

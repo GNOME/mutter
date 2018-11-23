@@ -40,7 +40,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-renderer
@@ -418,7 +418,7 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
                               CoglOutputCallback callback,
                               void *user_data);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_RENDERER_H__ */
 

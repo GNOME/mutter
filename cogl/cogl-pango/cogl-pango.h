@@ -54,7 +54,7 @@
 #include "cogl/cogl-macros.h"
 #endif
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /* It's too difficult to actually subclass the pango cairo font
  * map. Instead we just make a fake set of macros that actually just
@@ -294,6 +294,6 @@ cogl_pango_render_layout_line (PangoLayoutLine *line,
                                int y,
                                const CoglColor *color);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_PANGO_H__ */

@@ -38,7 +38,7 @@
 
 #include "cogl/cogl-context-private.h"
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 typedef struct _CoglPangoPipelineCache
 {
@@ -67,6 +67,6 @@ _cogl_pango_pipeline_cache_get (CoglPangoPipelineCache *cache,
 void
 _cogl_pango_pipeline_cache_free (CoglPangoPipelineCache *cache);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_PANGO_PIPELINE_CACHE_H__ */

@@ -37,7 +37,7 @@
 
 #include <glib.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 typedef enum {
   COGL_DEBUG_SLICING,
@@ -115,7 +115,7 @@ _cogl_parse_debug_string (const char *value,
                           CoglBool enable,
                           CoglBool ignore_help);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_DEBUG_H__ */
 

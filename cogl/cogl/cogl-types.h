@@ -43,16 +43,7 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/* Guard C code in headers, while including them from C++ */
-#ifdef  __cplusplus
-#define COGL_BEGIN_DECLS  extern "C" {
-#define COGL_END_DECLS    }
-#else
-#define COGL_BEGIN_DECLS
-#define COGL_END_DECLS
-#endif
-
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-types
@@ -891,6 +882,6 @@ typedef enum {
   COGL_STEREO_RIGHT
 } CoglStereoMode;
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_TYPES_H__ */

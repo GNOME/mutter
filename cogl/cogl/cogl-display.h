@@ -42,7 +42,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-display
@@ -204,7 +204,7 @@ cogl_display_setup (CoglDisplay *display,
 CoglBool
 cogl_is_display (void *object);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_DISPLAY_H__ */
 

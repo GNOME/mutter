@@ -56,7 +56,7 @@ typedef struct _CoglFramebuffer CoglFramebuffer;
 #include <cogl/cogl-texture.h>
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-framebuffer
@@ -1845,6 +1845,6 @@ typedef enum { /*< prefix=COGL_FRAMEBUFFER_ERROR >*/
 CoglBool
 cogl_is_framebuffer (void *object);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_FRAMEBUFFER_H */

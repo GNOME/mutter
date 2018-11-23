@@ -34,7 +34,7 @@
 #include <cogl/cogl-framebuffer.h>
 #include <cogl/cogl-macros.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * cogl_set_framebuffer: (skip)
@@ -260,6 +260,6 @@ COGL_DEPRECATED
 CoglPixelFormat
 cogl_framebuffer_get_color_format (CoglFramebuffer *framebuffer);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_FRAMEBUFFER_DEPRECATED_H__ */

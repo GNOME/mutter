@@ -44,7 +44,7 @@
 #include <cogl/cogl-quaternion.h>
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-matrix
@@ -794,6 +794,6 @@ GType cogl_matrix_get_gtype (void);
 GType
 cogl_gtype_matrix_get_type (void);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_MATRIX_H */

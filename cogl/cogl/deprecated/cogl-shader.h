@@ -39,7 +39,7 @@
 #include <cogl/cogl-defines.h>
 #include <cogl/cogl-macros.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-shaders
@@ -698,6 +698,6 @@ cogl_program_uniform_matrix (int          uniform_no,
                              CoglBool     transpose,
                              const float *value);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_SHADER_H__ */

@@ -58,7 +58,7 @@
 #include <cogl/cogl-egl-defines.h>
 #include <cogl/cogl-types.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * cogl_egl_context_get_egl_display:
@@ -99,7 +99,7 @@ EGLContext
 cogl_egl_context_get_egl_context (CoglContext *context);
 
 
-COGL_END_DECLS
+G_END_DECLS
 
 /* The gobject introspection scanner seems to parse public headers in
  * isolation which means we need to be extra careful about how we

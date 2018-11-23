@@ -59,7 +59,7 @@
 #include <cogl/cogl-xlib-renderer.h>
 #include <cogl/cogl-macros.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /*
  * cogl_xlib_get_display:
@@ -112,7 +112,7 @@ COGL_DEPRECATED_FOR (cogl_xlib_renderer_handle_event)
 CoglFilterReturn
 cogl_xlib_handle_event (XEvent *xevent);
 
-COGL_END_DECLS
+G_END_DECLS
 
 
 /* The gobject introspection scanner seems to parse public headers in

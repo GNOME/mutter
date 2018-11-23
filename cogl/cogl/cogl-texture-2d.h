@@ -44,7 +44,7 @@
 #include "cogl-egl-defines.h"
 #endif
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-texture-2d
@@ -265,6 +265,6 @@ cogl_texture_2d_egl_image_external_alloc_finish (CoglTexture2D *tex_2d,
 						 GDestroyNotify destroy);
 #endif
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_TEXTURE_2D_H */

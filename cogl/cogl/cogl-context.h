@@ -48,7 +48,7 @@ typedef struct _CoglContext CoglContext;
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-context
@@ -404,7 +404,7 @@ typedef enum _CoglGraphicsResetStatus
 CoglGraphicsResetStatus
 cogl_get_graphics_reset_status (CoglContext *context);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_CONTEXT_H__ */
 

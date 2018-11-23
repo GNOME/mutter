@@ -71,7 +71,7 @@
 #include <cogl/cogl-gles2-types.h>
 #endif
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-gles2
@@ -397,7 +397,7 @@ cogl_gles2_texture_get_handle (CoglTexture *texture,
 CoglBool
 cogl_is_gles2_context (void *object);
 
-COGL_END_DECLS
+G_END_DECLS
 
 /* The gobject introspection scanner seems to parse public headers in
  * isolation which means we need to be extra careful about how we

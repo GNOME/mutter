@@ -41,7 +41,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-output
@@ -249,7 +249,7 @@ cogl_output_get_subpixel_order (CoglOutput *output);
 float
 cogl_output_get_refresh_rate (CoglOutput *output);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_OUTPUT_H */
 

@@ -42,7 +42,7 @@
 #include <cogl/cogl-framebuffer.h>
 #include <cogl/cogl-macros.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * cogl_get_option_group:
@@ -857,6 +857,6 @@ COGL_DEPRECATED_FOR (CoglGLES2Context_API)
 void
 cogl_end_gl (void);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_1_CONTEXT_H__ */

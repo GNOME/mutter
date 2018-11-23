@@ -55,7 +55,7 @@
 
 #include <cogl/cogl-renderer.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * cogl_xlib_renderer_handle_event: (skip)
@@ -250,7 +250,7 @@ cogl_xlib_renderer_get_visual_info (CoglRenderer *renderer);
 void
 cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
                                                         CoglBool enable);
-COGL_END_DECLS
+G_END_DECLS
 
 /* The gobject introspection scanner seems to parse public headers in
  * isolation which means we need to be extra careful about how we

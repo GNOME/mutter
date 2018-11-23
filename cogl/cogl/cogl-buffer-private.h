@@ -42,7 +42,7 @@
 #include "cogl-context.h"
 #include "cogl-gl-header.h"
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 typedef struct _CoglBufferVtable CoglBufferVtable;
 
@@ -175,6 +175,6 @@ _cogl_buffer_map_for_fill_or_fallback (CoglBuffer *buffer);
 void
 _cogl_buffer_unmap_for_fill_or_fallback (CoglBuffer *buffer);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_BUFFER_PRIVATE_H__ */

@@ -41,7 +41,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 typedef struct _CoglOnscreenTemplate	      CoglOnscreenTemplate;
 
@@ -134,6 +134,6 @@ cogl_onscreen_template_set_stereo_enabled (
 CoglBool
 cogl_is_onscreen_template (void *object);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_ONSCREEN_TEMPLATE_H__ */

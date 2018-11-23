@@ -42,7 +42,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-index-buffer
@@ -97,7 +97,7 @@ cogl_index_buffer_new (CoglContext *context,
 CoglBool
 cogl_is_index_buffer (void *object);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_INDEX_BUFFER_H__ */
 

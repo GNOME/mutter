@@ -35,7 +35,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 typedef struct _CoglObject      CoglObject;
 
@@ -244,7 +244,7 @@ cogl_debug_object_foreach_type (CoglDebugObjectForeachTypeCallback func,
 void
 cogl_debug_object_print_instances (void);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_OBJECT_H */
 

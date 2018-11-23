@@ -43,7 +43,7 @@
 #endif
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * cogl_path_get_gtype:
@@ -535,7 +535,7 @@ COGL_DEPRECATED_FOR (cogl_framebuffer_push_path_clip)
 void
 cogl_clip_push_from_path (CoglPath *path);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_PATH_FUNCTIONS_H__ */
 

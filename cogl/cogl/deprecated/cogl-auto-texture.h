@@ -31,7 +31,7 @@
 #ifndef __COGL_AUTO_TEXTURE_H__
 #define __COGL_AUTO_TEXTURE_H__
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 #include <cogl/cogl-texture.h>
 
@@ -218,6 +218,6 @@ cogl_texture_new_from_sub_texture (CoglTexture *full_texture,
                                    int sub_width,
                                    int sub_height);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_AUTO_TEXTURE_H__ */

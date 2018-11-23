@@ -45,7 +45,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 typedef struct _CoglOnscreen CoglOnscreen;
 #define COGL_ONSCREEN(X) ((CoglOnscreen *)(X))
@@ -896,6 +896,6 @@ cogl_is_onscreen (void *object);
 int64_t
 cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_ONSCREEN_H */

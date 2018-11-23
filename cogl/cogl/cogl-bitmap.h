@@ -46,7 +46,7 @@ typedef struct _CoglBitmap CoglBitmap;
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * cogl_bitmap_get_gtype:
@@ -297,6 +297,6 @@ typedef enum {
 
 uint32_t cogl_bitmap_error_quark (void);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_BITMAP_H__ */

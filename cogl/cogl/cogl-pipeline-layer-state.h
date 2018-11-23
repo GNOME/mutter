@@ -40,7 +40,7 @@
 #include <cogl/cogl-matrix.h>
 #include <cogl/cogl-texture.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * CoglPipelineFilter:
@@ -611,6 +611,6 @@ cogl_pipeline_add_layer_snippet (CoglPipeline *pipeline,
                                  int layer,
                                  CoglSnippet *snippet);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_PIPELINE_LAYER_STATE_H__ */

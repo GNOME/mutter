@@ -57,7 +57,7 @@ typedef struct _CoglTexture CoglTexture;
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-texture
@@ -511,6 +511,6 @@ CoglBool
 cogl_texture_allocate (CoglTexture *texture,
                        CoglError **error);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_TEXTURE_H__ */
