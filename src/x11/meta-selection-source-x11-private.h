@@ -22,7 +22,7 @@
 #ifndef META_SELECTION_SOURCE_X11_H
 #define META_SELECTION_SOURCE_X11_H
 
-#include "core/meta-selection-source.h"
+#include "meta/meta-selection-source.h"
 #include "x11/meta-x11-display-private.h"
 
 #define META_TYPE_SELECTION_SOURCE_X11 (meta_selection_source_x11_get_type ())
