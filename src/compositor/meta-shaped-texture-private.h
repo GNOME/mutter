@@ -45,5 +45,13 @@ cairo_region_t * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex)
 
 void meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
                                         MetaMonitorTransform  transform);
+void meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture *stex,
+                                                float              src_x,
+                                                float              src_y,
+                                                float              src_width,
+                                                float              src_height);
+void meta_shaped_texture_set_viewport_dest (MetaShapedTexture *stex,
+                                            int                dest_width,
+                                            int                dest_height);
 
 #endif
