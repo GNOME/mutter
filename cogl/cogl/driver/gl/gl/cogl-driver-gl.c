@@ -44,7 +44,7 @@
 #include "driver/gl/cogl-clip-stack-gl-private.h"
 #include "driver/gl/cogl-buffer-gl-private.h"
 
-static CoglBool
+static gboolean
 _cogl_driver_pixel_format_from_gl_internal (CoglContext *context,
                                             GLenum gl_int_format,
                                             CoglPixelFormat *out_format)
@@ -311,7 +311,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext *context,
                                                       out_gltype);
 }
 
-static CoglBool
+static gboolean
 _cogl_get_gl_version (CoglContext *ctx,
                       int *major_out,
                       int *minor_out)
@@ -325,7 +325,7 @@ _cogl_get_gl_version (CoglContext *ctx,
   return _cogl_gl_util_parse_gl_version (version_string, major_out, minor_out);
 }
 
-static CoglBool
+static gboolean
 check_gl_version (CoglContext *ctx,
                   char **gl_extensions,
                   CoglError **error)
@@ -372,7 +372,7 @@ check_gl_version (CoglContext *ctx,
   return TRUE;
 }
 
-static CoglBool
+static gboolean
 _cogl_driver_update_features (CoglContext *ctx,
                               CoglError **error)
 {

@@ -649,7 +649,7 @@ delete_renderbuffers (CoglContext *ctx, GList *renderbuffers)
  * CoglTexture as the given CoglOffscreen. This function shouldn't
  * modify anything in
  */
-static CoglBool
+static gboolean
 try_creating_fbo (CoglContext *ctx,
                   CoglTexture *texture,
                   int texture_level,
@@ -763,7 +763,7 @@ try_creating_fbo (CoglContext *ctx,
   return TRUE;
 }
 
-CoglBool
+gboolean
 _cogl_framebuffer_try_creating_gl_fbo (CoglContext *ctx,
                                        CoglTexture *texture,
                                        int texture_level,
@@ -785,7 +785,7 @@ _cogl_framebuffer_try_creating_gl_fbo (CoglContext *ctx,
                            gl_framebuffer);
 }
 
-CoglBool
+gboolean
 _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                              CoglError **error)
 {
@@ -1241,7 +1241,7 @@ _cogl_framebuffer_gl_draw_indexed_attributes (CoglFramebuffer *framebuffer,
   _cogl_buffer_gl_unbind (buffer);
 }
 
-CoglBool
+gboolean
 _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                               int x,
                                               int y,
@@ -1258,7 +1258,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
   GLenum gl_intformat;
   GLenum gl_format;
   GLenum gl_type;
-  CoglBool pack_invert_set;
+  gboolean pack_invert_set;
   int status = FALSE;
 
   _cogl_framebuffer_flush_state (framebuffer,
@@ -1316,7 +1316,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
       CoglPixelFormat read_format;
       int bpp, rowstride;
       uint8_t *tmp_data;
-      CoglBool succeeded;
+      gboolean succeeded;
 
       if (_cogl_has_private_feature
           (ctx, COGL_PRIVATE_FEATURE_READ_PIXELS_ANY_FORMAT))
@@ -1373,7 +1373,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
       CoglBitmap *shared_bmp;
       CoglPixelFormat bmp_format;
       int bpp, rowstride;
-      CoglBool succeeded = FALSE;
+      gboolean succeeded = FALSE;
       uint8_t *pixels;
       CoglError *internal_error = NULL;
 

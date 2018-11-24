@@ -42,7 +42,7 @@ struct _CoglDriverVtable
 {
   /* TODO: factor this out since this is OpenGL specific and
    * so can be ignored by non-OpenGL drivers. */
-  CoglBool
+  gboolean
   (* pixel_format_from_gl_internal) (CoglContext *context,
                                      GLenum gl_int_format,
                                      CoglPixelFormat *out_format);
@@ -63,11 +63,11 @@ struct _CoglDriverVtable
                                       GLenum *out_glformat,
                                       GLenum *out_gltype);
 
-  CoglBool
+  gboolean
   (* update_features) (CoglContext *context,
                        CoglError **error);
 
-  CoglBool
+  gboolean
   (* offscreen_allocate) (CoglOffscreen *offscreen,
                           CoglError **error);
 
@@ -119,7 +119,7 @@ struct _CoglDriverVtable
                                            int n_attributes,
                                            CoglDrawFlags flags);
 
-  CoglBool
+  gboolean
   (* framebuffer_read_pixels_into_bitmap) (CoglFramebuffer *framebuffer,
                                            int x,
                                            int y,
@@ -135,7 +135,7 @@ struct _CoglDriverVtable
   /* Returns TRUE if the driver can support creating a 2D texture with
    * the given geometry and specified internal format.
    */
-  CoglBool
+  gboolean
   (* texture_2d_can_create) (CoglContext *ctx,
                              int width,
                              int height,
@@ -151,7 +151,7 @@ struct _CoglDriverVtable
 
   /* Allocates (uninitialized) storage for the given texture according
    * to the configured size and format of the texture */
-  CoglBool
+  gboolean
   (* texture_2d_allocate) (CoglTexture *tex,
                            CoglError **error);
 
@@ -187,7 +187,7 @@ struct _CoglDriverVtable
    * Since this may need to create the underlying storage first
    * it may throw a NO_MEMORY error.
    */
-  CoglBool
+  gboolean
   (* texture_2d_copy_from_bitmap) (CoglTexture2D *tex_2d,
                                    int src_x,
                                    int src_y,
@@ -251,7 +251,7 @@ struct _CoglDriverVtable
 
   /* Uploads data to the buffer without needing to map it necessarily
    */
-  CoglBool
+  gboolean
   (* buffer_set_data) (CoglBuffer *buffer,
                        unsigned int offset,
                        const void *data,

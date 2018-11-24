@@ -48,7 +48,7 @@
 #include "winsys/cogl-winsys-stub-private.h"
 #include "deprecated/cogl-clutter.h"
 
-CoglBool
+gboolean
 cogl_clutter_check_extension (const char *name, const char *ext)
 {
   char *end;
@@ -73,7 +73,7 @@ cogl_clutter_check_extension (const char *name, const char *ext)
   return FALSE;
 }
 
-CoglBool
+gboolean
 cogl_clutter_winsys_has_feature (CoglWinsysFeature feature)
 {
   return _cogl_winsys_has_feature (feature);

@@ -107,7 +107,7 @@ _cogl_buffer_error_domain (void);
  * Since: 1.2
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_is_buffer (void *object);
 
 /**
@@ -314,7 +314,7 @@ cogl_buffer_unmap (CoglBuffer *buffer);
  * Since: 1.2
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_buffer_set_data (CoglBuffer *buffer,
                       size_t offset,
                       const void *data,

@@ -41,7 +41,7 @@
 void
 _cogl_texture_2d_gl_free (CoglTexture2D *tex_2d);
 
-CoglBool
+gboolean
 _cogl_texture_2d_gl_can_create (CoglContext *ctx,
                                 int width,
                                 int height,
@@ -50,14 +50,14 @@ _cogl_texture_2d_gl_can_create (CoglContext *ctx,
 void
 _cogl_texture_2d_gl_init (CoglTexture2D *tex_2d);
 
-CoglBool
+gboolean
 _cogl_texture_2d_gl_allocate (CoglTexture *tex,
                               CoglError **error);
 
 CoglTexture2D *
 _cogl_texture_2d_gl_new_from_bitmap (CoglBitmap *bmp,
                                      CoglPixelFormat internal_format,
-                                     CoglBool can_convert_in_place,
+                                     gboolean can_convert_in_place,
                                      CoglError **error);
 
 #if defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base)
@@ -98,7 +98,7 @@ _cogl_texture_2d_gl_get_gl_handle (CoglTexture2D *tex_2d);
 void
 _cogl_texture_2d_gl_generate_mipmap (CoglTexture2D *tex_2d);
 
-CoglBool
+gboolean
 _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
                                       int src_x,
                                       int src_y,

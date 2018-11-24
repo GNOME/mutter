@@ -169,7 +169,7 @@ cogl2_path_get_fill_rule (CoglPath *path)
 
 static void
 _cogl_path_add_node (CoglPath *path,
-                     CoglBool new_sub_path,
+                     gboolean new_sub_path,
 		     float x,
 		     float y)
 {
@@ -299,7 +299,7 @@ _cogl_path_fill_nodes_with_clipped_rectangle (CoglPath *path,
   /* We need at least three stencil bits to combine clips */
   if (_cogl_framebuffer_get_stencil_bits (framebuffer) >= 3)
     {
-      static CoglBool seen_warning = FALSE;
+      static gboolean seen_warning = FALSE;
 
       if (!seen_warning)
         {
@@ -320,10 +320,10 @@ _cogl_path_fill_nodes_with_clipped_rectangle (CoglPath *path,
   cogl_framebuffer_pop_clip (framebuffer);
 }
 
-static CoglBool
+static gboolean
 validate_layer_cb (CoglPipelineLayer *layer, void *user_data)
 {
-  CoglBool *needs_fallback = user_data;
+  gboolean *needs_fallback = user_data;
   CoglTexture *texture = _cogl_pipeline_layer_get_texture (layer);
 
   /* If any of the layers of the current pipeline contain sliced
@@ -365,7 +365,7 @@ _cogl_path_fill_nodes (CoglPath *path,
     }
   else
     {
-      CoglBool needs_fallback = FALSE;
+      gboolean needs_fallback = FALSE;
       CoglPrimitive *primitive;
 
       _cogl_pipeline_foreach_layer_internal (pipeline,
@@ -538,7 +538,7 @@ cogl2_path_rectangle (CoglPath *path,
                       float x_2,
                       float y_2)
 {
-  CoglBool is_rectangle;
+  gboolean is_rectangle;
 
   /* If the path was previously empty and the rectangle isn't mirrored
      then we'll record that this is a simple rectangle path so that we
@@ -556,7 +556,7 @@ cogl2_path_rectangle (CoglPath *path,
   path->data->is_rectangle = is_rectangle;
 }
 
-CoglBool
+gboolean
 _cogl_path_is_rectangle (CoglPath *path)
 {
   return path->data->is_rectangle;

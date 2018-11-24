@@ -136,7 +136,7 @@ cogl_indices_get_offset (CoglIndices *indices)
 static void
 warn_about_midscene_changes (void)
 {
-  static CoglBool seen = FALSE;
+  static gboolean seen = FALSE;
   if (!seen)
     {
       g_warning ("Mid-scene modification of indices has "

@@ -112,8 +112,8 @@ _cogl_debug_check_environment (void);
 
 void
 _cogl_parse_debug_string (const char *value,
-                          CoglBool enable,
-                          CoglBool ignore_help);
+                          gboolean enable,
+                          gboolean ignore_help);
 
 G_END_DECLS
 
