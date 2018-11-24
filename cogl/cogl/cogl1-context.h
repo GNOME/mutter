@@ -88,7 +88,7 @@ cogl_get_features (void);
  * Deprecated: 1.10: Use cogl_has_feature() instead
  */
 COGL_DEPRECATED_FOR (cogl_has_feature)
-CoglBool
+gboolean
 cogl_features_available (CoglFeatureFlags features);
 
 /**
@@ -122,11 +122,11 @@ cogl_get_proc_address (const char *name);
  *   not appropriate to expose OpenGL extensions through the Cogl API. This
  *   function can be replaced by the following equivalent code:
  * |[
- *   CoglBool retval = (strstr (ext, name) != NULL) ? TRUE : FALSE;
+ *   gboolean retval = (strstr (ext, name) != NULL) ? TRUE : FALSE;
  * ]|
  */
 COGL_DEPRECATED
-CoglBool
+gboolean
 cogl_check_extension (const char *name,
                       const char *ext);
 
@@ -451,7 +451,7 @@ cogl_get_viewport (float v[4]);
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_depth_state)
 void
-cogl_set_depth_test_enabled (CoglBool setting);
+cogl_set_depth_test_enabled (gboolean setting);
 
 /**
  * cogl_get_depth_test_enabled:
@@ -463,7 +463,7 @@ cogl_set_depth_test_enabled (CoglBool setting);
  * Deprecated: 1.16: Use cogl_pipeline_set_depth_state() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_depth_state)
-CoglBool
+gboolean
 cogl_get_depth_test_enabled (void);
 
 /**
@@ -480,7 +480,7 @@ cogl_get_depth_test_enabled (void);
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_cull_face_mode)
 void
-cogl_set_backface_culling_enabled (CoglBool setting);
+cogl_set_backface_culling_enabled (gboolean setting);
 
 /**
  * cogl_get_backface_culling_enabled:
@@ -493,7 +493,7 @@ cogl_set_backface_culling_enabled (CoglBool setting);
  * Deprecated: 1.16: Use cogl_pipeline_get_cull_face_mode() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_get_cull_face_mode)
-CoglBool
+gboolean
 cogl_get_backface_culling_enabled (void);
 
 /**

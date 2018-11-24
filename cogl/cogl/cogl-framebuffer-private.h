@@ -57,11 +57,11 @@ typedef enum _CoglFramebufferType {
 typedef struct
 {
   CoglSwapChain *swap_chain;
-  CoglBool need_stencil;
+  gboolean need_stencil;
   int samples_per_pixel;
-  CoglBool swap_throttled;
-  CoglBool depth_texture_enabled;
-  CoglBool stereo_enabled;
+  gboolean swap_throttled;
+  gboolean depth_texture_enabled;
+  gboolean stereo_enabled;
 } CoglFramebufferConfig;
 
 /* Flags to pass to _cogl_offscreen_new_with_texture_full */
@@ -141,7 +141,7 @@ struct _CoglFramebuffer
   /* Format of the pixels in the framebuffer (including the expected
      premult state) */
   CoglPixelFormat     internal_format;
-  CoglBool            allocated;
+  gboolean            allocated;
 
   CoglMatrixStack    *modelview_stack;
   CoglMatrixStack    *projection_stack;
@@ -154,8 +154,8 @@ struct _CoglFramebuffer
 
   CoglClipStack      *clip_stack;
 
-  CoglBool            dither_enabled;
-  CoglBool            depth_writing_enabled;
+  gboolean            dither_enabled;
+  gboolean            depth_writing_enabled;
   CoglColorMask       color_mask;
   CoglStereoMode      stereo_mode;
 
@@ -182,14 +182,14 @@ struct _CoglFramebuffer
   int                 clear_clip_y0;
   int                 clear_clip_x1;
   int                 clear_clip_y1;
-  CoglBool            clear_clip_dirty;
+  gboolean            clear_clip_dirty;
 
   /* Whether something has been drawn to the buffer since the last
    * swap buffers or swap region. */
-  CoglBool            mid_scene;
+  gboolean            mid_scene;
 
   /* driver specific */
-  CoglBool            dirty_bitmasks;
+  gboolean            dirty_bitmasks;
   CoglFramebufferBits bits;
 
   int                 samples_per_pixel;
@@ -489,7 +489,7 @@ _cogl_framebuffer_get_projection_entry (CoglFramebuffer *framebuffer)
   return projection_stack->last_entry;
 }
 
-CoglBool
+gboolean
 _cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                            int x,
                                            int y,

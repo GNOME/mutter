@@ -73,7 +73,7 @@ _cogl_texture_2d_gl_free (CoglTexture2D *tex_2d)
 #endif
 }
 
-CoglBool
+gboolean
 _cogl_texture_2d_gl_can_create (CoglContext *ctx,
                                 int width,
                                 int height,
@@ -126,7 +126,7 @@ _cogl_texture_2d_gl_init (CoglTexture2D *tex_2d)
   tex_2d->egl_image_external.destroy = NULL;
 }
 
-static CoglBool
+static gboolean
 allocate_with_size (CoglTexture2D *tex_2d,
                     CoglTextureLoader *loader,
                     CoglError **error)
@@ -192,7 +192,7 @@ allocate_with_size (CoglTexture2D *tex_2d,
   return TRUE;
 }
 
-static CoglBool
+static gboolean
 allocate_from_bitmap (CoglTexture2D *tex_2d,
                       CoglTextureLoader *loader,
                       CoglError **error)
@@ -203,7 +203,7 @@ allocate_from_bitmap (CoglTexture2D *tex_2d,
   CoglPixelFormat internal_format;
   int width = cogl_bitmap_get_width (bmp);
   int height = cogl_bitmap_get_height (bmp);
-  CoglBool can_convert_in_place = loader->src.bitmap.can_convert_in_place;
+  gboolean can_convert_in_place = loader->src.bitmap.can_convert_in_place;
   CoglBitmap *upload_bmp;
   GLenum gl_intformat;
   GLenum gl_format;
@@ -299,7 +299,7 @@ allocate_from_bitmap (CoglTexture2D *tex_2d,
 }
 
 #if defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base)
-static CoglBool
+static gboolean
 allocate_from_egl_image (CoglTexture2D *tex_2d,
                          CoglTextureLoader *loader,
                          CoglError **error)
@@ -338,7 +338,7 @@ allocate_from_egl_image (CoglTexture2D *tex_2d,
 }
 #endif
 
-static CoglBool
+static gboolean
 allocate_from_gl_foreign (CoglTexture2D *tex_2d,
                           CoglTextureLoader *loader,
                           CoglError **error)
@@ -463,7 +463,7 @@ allocate_from_gl_foreign (CoglTexture2D *tex_2d,
 }
 
 #if defined (COGL_HAS_EGL_SUPPORT)
-static CoglBool
+static gboolean
 allocate_custom_egl_image_external (CoglTexture2D *tex_2d,
                                     CoglTextureLoader *loader,
                                     CoglError **error)
@@ -552,7 +552,7 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
 }
 #endif /* defined (COGL_HAS_EGL_SUPPORT) */
 
-CoglBool
+gboolean
 _cogl_texture_2d_gl_allocate (CoglTexture *tex,
                               CoglError **error)
 {
@@ -746,7 +746,7 @@ _cogl_texture_2d_gl_generate_mipmap (CoglTexture2D *tex_2d)
 #endif
 }
 
-CoglBool
+gboolean
 _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
                                       int src_x,
                                       int src_y,
@@ -764,7 +764,7 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
   CoglPixelFormat upload_format;
   GLenum gl_format;
   GLenum gl_type;
-  CoglBool status = TRUE;
+  gboolean status = TRUE;
 
   upload_bmp =
     _cogl_bitmap_convert_for_upload (bmp,

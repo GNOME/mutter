@@ -67,7 +67,7 @@ typedef struct
   /* Set once this object has had glDeleteShader called on it. We need
    * to keep track of this so we don't deref the data twice if the
    * application calls glDeleteShader multiple times */
-  CoglBool deleted;
+  gboolean deleted;
 } CoglGLES2ShaderData;
 
 typedef enum
@@ -96,7 +96,7 @@ typedef struct
   /* Set once this object has had glDeleteProgram called on it. We need
    * to keep track of this so we don't deref the data twice if the
    * application calls glDeleteProgram multiple times */
-  CoglBool deleted;
+  gboolean deleted;
 
   GLuint flip_vector_location;
 
@@ -136,7 +136,7 @@ struct _CoglGLES2Context
   /* This is set to FALSE until the first time the GLES2 context is
    * bound to something. We need to keep track of this so we can set
    * the viewport and scissor the first time it is bound. */
-  CoglBool has_been_bound;
+  gboolean has_been_bound;
 
   CoglFramebuffer *read_buffer;
   CoglGLES2Offscreen *gles2_read_buffer;
@@ -172,11 +172,11 @@ struct _CoglGLES2Context
   /* The following state is tracked separately from the GL context
    * because we need to modify it depending on whether we are flipping
    * the geometry. */
-  CoglBool viewport_dirty;
+  gboolean viewport_dirty;
   int viewport[4];
-  CoglBool scissor_dirty;
+  gboolean scissor_dirty;
   int scissor[4];
-  CoglBool front_face_dirty;
+  gboolean front_face_dirty;
   GLenum front_face;
 
   /* We need to keep track of the pack alignment so we can flip the

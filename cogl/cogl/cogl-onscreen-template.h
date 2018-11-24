@@ -100,7 +100,7 @@ cogl_onscreen_template_set_samples_per_pixel (
 void
 cogl_onscreen_template_set_swap_throttled (
                                           CoglOnscreenTemplate *onscreen_template,
-                                          CoglBool throttled);
+                                          gboolean throttled);
 
 /**
  * cogl_onscreen_template_set_stereo_enabled:
@@ -119,7 +119,7 @@ cogl_onscreen_template_set_swap_throttled (
 void
 cogl_onscreen_template_set_stereo_enabled (
 					   CoglOnscreenTemplate *onscreen_template,
-					   CoglBool enabled);
+					   gboolean enabled);
 /**
  * cogl_is_onscreen_template:
  * @object: A #CoglObject pointer
@@ -131,7 +131,7 @@ cogl_onscreen_template_set_stereo_enabled (
  * Since: 1.10
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_is_onscreen_template (void *object);
 
 G_END_DECLS

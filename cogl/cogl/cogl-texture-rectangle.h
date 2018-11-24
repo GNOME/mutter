@@ -86,7 +86,7 @@ GType cogl_texture_rectangle_get_gtype (void);
  * Return value: %TRUE if the object references a
  *               #CoglTextureRectangle, %FALSE otherwise.
  */
-CoglBool
+gboolean
 cogl_is_texture_rectangle (void *object);
 
 /**

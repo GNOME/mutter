@@ -96,7 +96,7 @@ cogl_path_copy (CoglPath *path);
  *
  * Since: 2.0
  */
-CoglBool
+gboolean
 cogl_is_path (void *object);
 
 #define cogl_path_move_to cogl2_path_move_to

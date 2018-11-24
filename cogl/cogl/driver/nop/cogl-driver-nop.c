@@ -42,7 +42,7 @@
 #include "cogl-attribute-nop-private.h"
 #include "cogl-clip-stack-nop-private.h"
 
-static CoglBool
+static gboolean
 _cogl_driver_update_features (CoglContext *ctx,
                               CoglError **error)
 {

@@ -209,7 +209,7 @@ on_paint (ClutterActor *actor, TestState *state)
 #endif
 }
 
-static CoglBool
+static gboolean
 queue_redraw (void *stage)
 {
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));

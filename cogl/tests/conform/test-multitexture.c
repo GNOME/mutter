@@ -103,7 +103,7 @@ on_paint (ClutterActor *actor, TestState *state)
 {
   CoglHandle tex0, tex1;
   CoglHandle material;
-  CoglBool status;
+  gboolean status;
   CoglError *error = NULL;
   float tex_coords[] = {
     0, 0, 0.5, 0.5, /* tex0 */
@@ -164,7 +164,7 @@ on_paint (ClutterActor *actor, TestState *state)
 #endif
 }
 
-static CoglBool
+static gboolean
 queue_redraw (void *stage)
 {
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));

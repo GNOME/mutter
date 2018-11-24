@@ -38,7 +38,7 @@
 #include "cogl-renderer-private.h"
 #include "cogl-private.h"
 
-CoglBool
+gboolean
 _cogl_feature_check (CoglRenderer *renderer,
                      const char *driver_prefix,
                      const CoglFeatureData *data,
@@ -52,7 +52,7 @@ _cogl_feature_check (CoglRenderer *renderer,
   const char *suffix = NULL;
   int func_num;
   CoglExtGlesAvailability gles_availability = 0;
-  CoglBool in_core;
+  gboolean in_core;
 
   switch (driver)
     {

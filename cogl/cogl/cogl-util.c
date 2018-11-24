@@ -94,8 +94,8 @@ _cogl_util_pixel_format_from_masks_real (unsigned long r_mask,
                                          unsigned long g_mask,
                                          unsigned long b_mask,
                                          int depth, int bpp,
-                                         CoglBool check_bgr,
-                                         CoglBool check_afirst,
+                                         gboolean check_bgr,
+                                         gboolean check_afirst,
                                          int recursion_depth)
 {
   CoglPixelFormat image_format;
@@ -163,7 +163,7 @@ _cogl_util_pixel_format_from_masks (unsigned long r_mask,
                                     unsigned long g_mask,
                                     unsigned long b_mask,
                                     int depth, int bpp,
-                                    CoglBool byte_order_is_lsb_first)
+                                    gboolean byte_order_is_lsb_first)
 {
   CoglPixelFormat image_format =
     _cogl_util_pixel_format_from_masks_real (r_mask, g_mask, b_mask,

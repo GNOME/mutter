@@ -49,7 +49,7 @@ typedef const CoglWinsysVtable *(*CoglCustomWinsysVtableGetter) (CoglRenderer *r
 struct _CoglRenderer
 {
   CoglObject _parent;
-  CoglBool connected;
+  gboolean connected;
   CoglDriver driver_override;
   const CoglDriverVtable *driver_vtable;
   const CoglTextureDriver *texture_driver;
@@ -69,9 +69,9 @@ struct _CoglRenderer
 
 #ifdef COGL_HAS_XLIB_SUPPORT
   Display *foreign_xdpy;
-  CoglBool xlib_enable_event_retrieval;
-  CoglBool xlib_want_reset_on_video_memory_purge;
-  CoglBool xlib_enable_threaded_swap_wait;
+  gboolean xlib_enable_event_retrieval;
+  gboolean xlib_want_reset_on_video_memory_purge;
+  gboolean xlib_enable_threaded_swap_wait;
 #endif
 
   CoglDriver driver;
@@ -109,6 +109,6 @@ _cogl_renderer_remove_native_filter (CoglRenderer *renderer,
 void *
 _cogl_renderer_get_proc_address (CoglRenderer *renderer,
                                  const char *name,
-                                 CoglBool in_core);
+                                 gboolean in_core);
 
 #endif /* __COGL_RENDERER_PRIVATE_H */

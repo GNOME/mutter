@@ -98,7 +98,7 @@ _cogl_transform_point (const CoglMatrix *matrix_mv,
                        float *x,
                        float *y);
 
-CoglBool
+gboolean
 _cogl_check_extension (const char *name, char * const *ext);
 
 void
@@ -108,9 +108,9 @@ void
 _cogl_init (void);
 
 void
-_cogl_push_source (CoglPipeline *pipeline, CoglBool enable_legacy);
+_cogl_push_source (CoglPipeline *pipeline, gboolean enable_legacy);
 
-CoglBool
+gboolean
 _cogl_get_enable_legacy_state (void);
 
 #define _cogl_has_private_feature(ctx, feature) \
@@ -152,7 +152,7 @@ _cogl_pixel_format_get_bytes_per_pixel (CoglPixelFormat format);
  *               endianness when dealing with the given @format
  *               else %FALSE.
  */
-CoglBool
+gboolean
 _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format);
 
 /*

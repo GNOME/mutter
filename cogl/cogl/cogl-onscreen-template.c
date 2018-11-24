@@ -89,7 +89,7 @@ cogl_onscreen_template_set_samples_per_pixel (
 void
 cogl_onscreen_template_set_swap_throttled (
                                           CoglOnscreenTemplate *onscreen_template,
-                                          CoglBool throttled)
+                                          gboolean throttled)
 {
   onscreen_template->config.swap_throttled = throttled;
 }
@@ -97,7 +97,7 @@ cogl_onscreen_template_set_swap_throttled (
 void
 cogl_onscreen_template_set_stereo_enabled (
 					   CoglOnscreenTemplate *onscreen_template,
-					   CoglBool enabled)
+					   gboolean enabled)
 {
   onscreen_template->config.stereo_enabled = enabled;
 }

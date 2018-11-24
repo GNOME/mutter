@@ -82,7 +82,7 @@ _cogl_gl_util_get_error (CoglContext *ctx);
 void
 _cogl_gl_util_clear_gl_errors (CoglContext *ctx);
 
-CoglBool
+gboolean
 _cogl_gl_util_catch_out_of_memory (CoglContext *ctx, CoglError **error);
 
 void
@@ -96,7 +96,7 @@ _cogl_gl_util_get_texture_target_string (CoglTextureType texture_type,
  * by the end of the string, a space or a full stop. Anything else
  * will be treated as invalid. Returns TRUE and sets major_out and
  * minor_out if it is succesfully parsed or FALSE otherwise. */
-CoglBool
+gboolean
 _cogl_gl_util_parse_gl_version (const char *version_string,
                                 int *major_out,
                                 int *minor_out);
