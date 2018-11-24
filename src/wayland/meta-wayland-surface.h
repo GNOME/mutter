@@ -115,6 +115,14 @@ struct _MetaWaylandPendingState
 
   gboolean has_new_buffer_transform;
   MetaMonitorTransform buffer_transform;
+  gboolean has_new_viewport_src_rect;
+  float viewport_src_x;
+  float viewport_src_y;
+  float viewport_src_width;
+  float viewport_src_height;
+  gboolean has_new_viewport_dst;
+  int viewport_dst_width;
+  int viewport_dst_height;
 };
 
 struct _MetaWaylandDragDestFuncs
@@ -203,6 +211,21 @@ struct _MetaWaylandSurface
     gboolean pending_pos;
     GSList *pending_placement_ops;
   } sub;
+
+  /* wl_viewporter */
+  struct {
+    struct wl_resource *resource;
+
+    gboolean has_src_rect;
+    float src_x;
+    float src_y;
+    float src_width;
+    float src_height;
+
+    gboolean has_dst;
+    int dst_width;
+    int dst_height;
+  } viewport;
 
   /* table of seats for which shortcuts are inhibited */
   GHashTable *shortcut_inhibited_seats;
