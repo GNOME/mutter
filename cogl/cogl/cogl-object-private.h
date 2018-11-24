@@ -202,7 +202,7 @@ COGL_OBJECT_COMMON_DEFINE_WITH_CODE(TypeName,                           \
                                     do { code; } while (0);             \
                                     _COGL_GTYPE_INIT_CLASS (type_name)) \
                                                                         \
-CoglBool                                                                \
+gboolean                                                                \
 cogl_is_##type_name (void *object)                                      \
 {                                                                       \
   CoglObject *obj = object;                                             \
@@ -217,7 +217,7 @@ cogl_is_##type_name (void *object)                                      \
                                                                         \
 COGL_OBJECT_COMMON_DEFINE_WITH_CODE(TypeName, type_name, code)          \
                                                                         \
-CoglBool                                                                \
+gboolean                                                                \
 cogl_is_##type_name (void *object)                                      \
 {                                                                       \
   CoglObject *obj = object;                                             \
@@ -232,7 +232,7 @@ cogl_is_##type_name (void *object)                                      \
                                                                         \
 COGL_OBJECT_COMMON_DEFINE_WITH_CODE(TypeName, type_name, code)          \
                                                                         \
-CoglBool                                                                \
+gboolean                                                                \
 _cogl_is_##type_name (void *object)                                     \
 {                                                                       \
   CoglObject *obj = object;                                             \

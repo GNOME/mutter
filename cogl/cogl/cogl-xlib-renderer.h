@@ -165,7 +165,7 @@ cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
  */
 void
 cogl_xlib_renderer_set_event_retrieval_enabled (CoglRenderer *renderer,
-                                                CoglBool enable);
+                                                gboolean enable);
 
 /**
  * cogl_xlib_renderer_set_threaded_swap_wait_enabled: (skip)
@@ -195,7 +195,7 @@ cogl_xlib_renderer_set_event_retrieval_enabled (CoglRenderer *renderer,
  */
 void
 cogl_xlib_renderer_set_threaded_swap_wait_enabled (CoglRenderer *renderer,
-						   CoglBool enable);
+						   gboolean enable);
 
 /**
  * cogl_xlib_renderer_get_display: (skip)
@@ -249,7 +249,7 @@ cogl_xlib_renderer_get_visual_info (CoglRenderer *renderer);
  */
 void
 cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
-                                                        CoglBool enable);
+                                                        gboolean enable);
 G_END_DECLS
 
 /* The gobject introspection scanner seems to parse public headers in

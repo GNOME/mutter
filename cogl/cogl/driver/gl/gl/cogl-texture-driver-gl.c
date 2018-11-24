@@ -196,10 +196,10 @@ _cogl_texture_driver_prep_gl_for_pixels_download (CoglContext *ctx,
                                     pixels_bpp);
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
                                              CoglTexture *texture,
-                                             CoglBool is_foreign,
+                                             gboolean is_foreign,
                                              int src_x,
                                              int src_y,
                                              int dst_x,
@@ -217,7 +217,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
   uint8_t *data;
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
   int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
-  CoglBool status = TRUE;
+  gboolean status = TRUE;
   CoglError *internal_error = NULL;
   int level_width;
   int level_height;
@@ -309,11 +309,11 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
   return status;
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
                                    GLenum gl_target,
                                    GLuint gl_handle,
-                                   CoglBool is_foreign,
+                                   gboolean is_foreign,
                                    CoglBitmap *source_bmp,
                                    GLint internal_gl_format,
                                    GLuint source_gl_format,
@@ -323,7 +323,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
   uint8_t *data;
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
   int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
-  CoglBool status = TRUE;
+  gboolean status = TRUE;
   CoglError *internal_error = NULL;
 
   data = _cogl_bitmap_gl_bind (source_bmp,
@@ -367,11 +367,11 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
   return status;
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_driver_upload_to_gl_3d (CoglContext *ctx,
                                       GLenum gl_target,
                                       GLuint gl_handle,
-                                      CoglBool is_foreign,
+                                      gboolean is_foreign,
                                       GLint height,
                                       GLint depth,
                                       CoglBitmap *source_bmp,
@@ -383,7 +383,7 @@ _cogl_texture_driver_upload_to_gl_3d (CoglContext *ctx,
   uint8_t *data;
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
   int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
-  CoglBool status = TRUE;
+  gboolean status = TRUE;
 
   data = _cogl_bitmap_gl_bind (source_bmp, COGL_BUFFER_ACCESS_READ, 0, error);
   if (!data)
@@ -420,7 +420,7 @@ _cogl_texture_driver_upload_to_gl_3d (CoglContext *ctx,
   return status;
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_driver_gl_get_tex_image (CoglContext *ctx,
                                        GLenum gl_target,
                                        GLenum dest_gl_format,
@@ -435,7 +435,7 @@ _cogl_texture_driver_gl_get_tex_image (CoglContext *ctx,
   return TRUE;
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_driver_size_supported_3d (CoglContext *ctx,
                                         GLenum gl_target,
                                         GLenum gl_format,
@@ -464,7 +464,7 @@ _cogl_texture_driver_size_supported_3d (CoglContext *ctx,
   return new_width != 0;
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_driver_size_supported (CoglContext *ctx,
                                      GLenum gl_target,
                                      GLenum gl_intformat,
@@ -510,7 +510,7 @@ _cogl_texture_driver_try_setting_gl_border_color
                              transparent_color) );
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_driver_allows_foreign_gl_target (CoglContext *ctx,
                                                GLenum gl_target)
 {

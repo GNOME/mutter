@@ -194,7 +194,7 @@ cogl_texture_3d_new_from_bitmap (CoglBitmap *bitmap,
  * Since: 1.4
  * Stability: Unstable
  */
-CoglBool
+gboolean
 cogl_is_texture_3d (void *object);
 
 G_END_DECLS

@@ -300,7 +300,7 @@ cogl_pipeline_remove_layer (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_pipeline_set_layer_combine (CoglPipeline *pipeline,
 				 int           layer_index,
 				 const char   *blend_string,
@@ -443,10 +443,10 @@ cogl_pipeline_get_layer_mag_filter (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_pipeline_set_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
                                                      int           layer_index,
-                                                     CoglBool      enable,
+                                                     gboolean      enable,
                                                      CoglError      **error);
 
 /**
@@ -463,7 +463,7 @@ cogl_pipeline_set_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_pipeline_get_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
                                                      int           layer_index);
 

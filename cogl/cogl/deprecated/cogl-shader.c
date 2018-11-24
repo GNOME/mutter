@@ -263,7 +263,7 @@ cogl_shader_get_type (CoglHandle  handle)
   return shader->type;
 }
 
-CoglBool
+gboolean
 cogl_shader_is_compiled (CoglHandle handle)
 {
 #if defined (HAVE_COGL_GL) || defined (HAVE_COGL_GLES2)

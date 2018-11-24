@@ -190,7 +190,7 @@ cogl_rectangles (const float *verts,
 void
 cogl_polygon (const CoglTextureVertex  *vertices,
               unsigned int              n_vertices,
-              CoglBool                  use_color);
+              gboolean                  use_color);
 
 G_END_DECLS
 

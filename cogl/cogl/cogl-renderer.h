@@ -103,7 +103,7 @@ GType cogl_renderer_get_gtype (void);
  * Since: 1.10
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_is_renderer (void *object);
 
 /**
@@ -231,7 +231,7 @@ cogl_renderer_get_n_fragment_texture_units (CoglRenderer *renderer);
  * Since: 1.10
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_renderer_check_onscreen_template (CoglRenderer *renderer,
                                        CoglOnscreenTemplate *onscreen_template,
                                        CoglError **error);
@@ -253,7 +253,7 @@ cogl_renderer_check_onscreen_template (CoglRenderer *renderer,
  * Since: 1.10
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_renderer_connect (CoglRenderer *renderer, CoglError **error);
 
 /**

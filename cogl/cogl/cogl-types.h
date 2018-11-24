@@ -52,18 +52,6 @@ G_BEGIN_DECLS
  * General types used by various Cogl functions.
 */
 
-/**
- * CoglBool:
- *
- * A boolean data type used throughout the Cogl C api. This should be
- * used in conjunction with the %TRUE and %FALSE macro defines for
- * setting and testing boolean values.
- *
- * Since: 2.0
- * Stability: stable
- */
-typedef int CoglBool;
-
 /* Some structures are meant to be opaque but they have public
    definitions because we want the size to be public so they can be
    allocated on the stack. This macro is used to ensure that users

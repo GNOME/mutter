@@ -76,7 +76,7 @@ struct _CoglPangoRenderer
   CoglPangoRendererCaches no_mipmap_caches;
   CoglPangoRendererCaches mipmap_caches;
 
-  CoglBool use_mipmapping;
+  gboolean use_mipmapping;
 
   /* The current display list that is being built */
   CoglPangoDisplayList *display_list;
@@ -102,7 +102,7 @@ struct _CoglPangoLayoutQdata
   /* Whether mipmapping was previously used to render this layout. We
      need to regenerate the display list if the mipmapping value is
      changed because it will be using a different set of textures */
-  CoglBool mipmapping_used;
+  gboolean mipmapping_used;
 };
 
 static void
@@ -534,12 +534,12 @@ _cogl_pango_renderer_clear_glyph_cache (CoglPangoRenderer *renderer)
 
 void
 _cogl_pango_renderer_set_use_mipmapping (CoglPangoRenderer *renderer,
-                                         CoglBool value)
+                                         gboolean value)
 {
   renderer->use_mipmapping = value;
 }
 
-CoglBool
+gboolean
 _cogl_pango_renderer_get_use_mipmapping (CoglPangoRenderer *renderer)
 {
   return renderer->use_mipmapping;
@@ -547,7 +547,7 @@ _cogl_pango_renderer_get_use_mipmapping (CoglPangoRenderer *renderer)
 
 static CoglPangoGlyphCacheValue *
 cogl_pango_renderer_get_cached_glyph (PangoRenderer *renderer,
-                                      CoglBool       create,
+                                      gboolean       create,
                                       PangoFont     *font,
                                       PangoGlyph     glyph)
 {

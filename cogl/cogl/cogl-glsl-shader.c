@@ -43,7 +43,7 @@
 
 #include <glib.h>
 
-static CoglBool
+static gboolean
 add_layer_vertex_boilerplate_cb (CoglPipelineLayer *layer,
                                  void *user_data)
 {
@@ -61,7 +61,7 @@ add_layer_vertex_boilerplate_cb (CoglPipelineLayer *layer,
   return TRUE;
 }
 
-static CoglBool
+static gboolean
 add_layer_fragment_boilerplate_cb (CoglPipelineLayer *layer,
                                    void *user_data)
 {

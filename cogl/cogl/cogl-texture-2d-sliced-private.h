@@ -62,6 +62,6 @@ _cogl_texture_2d_sliced_new_from_foreign (CoglContext *context,
 CoglTexture2DSliced *
 _cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
                                          int max_waste,
-                                         CoglBool can_convert_in_place);
+                                         gboolean can_convert_in_place);
 
 #endif /* __COGL_TEXTURE_2D_SLICED_PRIVATE_H */

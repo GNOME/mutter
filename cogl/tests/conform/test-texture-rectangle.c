@@ -202,7 +202,7 @@ on_paint (ClutterActor *actor, TestState *state)
   validate_result (state);
 }
 
-static CoglBool
+static gboolean
 queue_redraw (void *stage)
 {
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
@@ -210,7 +210,7 @@ queue_redraw (void *stage)
   return TRUE;
 }
 
-static CoglBool
+static gboolean
 check_rectangle_extension (void)
 {
   static const char rect_extension[] = "GL_ARB_texture_rectangle";
