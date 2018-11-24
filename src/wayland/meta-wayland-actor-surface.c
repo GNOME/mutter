@@ -206,6 +206,14 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
     }
 
   meta_surface_actor_set_transform (surface_actor, surface->buffer_transform);
+  meta_surface_actor_set_viewport_src_rect (surface_actor,
+                                            surface->viewport.src_x,
+                                            surface->viewport.src_y,
+                                            surface->viewport.src_width,
+                                            surface->viewport.src_height);
+  meta_surface_actor_set_viewport_dst (surface_actor,
+                                       surface->viewport.dst_width,
+                                       surface->viewport.dst_height);
 
   for (l = surface->subsurfaces; l; l = l->next)
     {
