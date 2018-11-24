@@ -58,7 +58,7 @@ _cogl_util_next_p2 (int a);
    It xors the integer reinterpretations of -1.0f and 1.0f. In theory
    they should only differ by the signbit so that gives a mask for the
    sign which we can just test against the value */
-static inline CoglBool
+static inline gboolean
 cogl_util_float_signbit (float x)
 {
   static const union { float f; uint32_t i; } negative_one = { -1.0f };
@@ -78,7 +78,7 @@ cogl_util_float_signbit (float x)
 #define COGL_UTIL_NEARBYINT(x) ((int) ((x) < 0.0f ? (x) - 0.5f : (x) + 0.5f))
 
 /* Returns whether the given integer is a power of two */
-static inline CoglBool
+static inline gboolean
 _cogl_util_is_pot (unsigned int num)
 {
   /* Make sure there is only one bit set */

@@ -56,7 +56,7 @@ _cogl_buffer_gl_map_range (CoglBuffer *buffer,
 void
 _cogl_buffer_gl_unmap (CoglBuffer *buffer);
 
-CoglBool
+gboolean
 _cogl_buffer_gl_set_data (CoglBuffer *buffer,
                           unsigned int offset,
                           const void *data,

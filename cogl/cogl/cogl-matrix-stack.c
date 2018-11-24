@@ -427,7 +427,7 @@ cogl_matrix_stack_pop (CoglMatrixStack *stack)
   stack->last_entry = new_top;
 }
 
-CoglBool
+gboolean
 cogl_matrix_stack_get_inverse (CoglMatrixStack *stack,
                                 CoglMatrix *inverse)
 {
@@ -686,7 +686,7 @@ _cogl_matrix_entry_skip_saves (CoglMatrixEntry *entry)
   return entry;
 }
 
-CoglBool
+gboolean
 cogl_matrix_entry_calculate_translation (CoglMatrixEntry *entry0,
                                          CoglMatrixEntry *entry1,
                                          float *x,
@@ -813,7 +813,7 @@ cogl_matrix_entry_calculate_translation (CoglMatrixEntry *entry0,
   return TRUE;
 }
 
-CoglBool
+gboolean
 cogl_matrix_entry_is_identity (CoglMatrixEntry *entry)
 {
   return entry ? entry->op == COGL_MATRIX_OP_LOAD_IDENTITY : FALSE;
@@ -821,7 +821,7 @@ cogl_matrix_entry_is_identity (CoglMatrixEntry *entry)
 
 static void
 _cogl_matrix_flush_to_gl_builtin (CoglContext *ctx,
-                                  CoglBool is_identity,
+                                  gboolean is_identity,
                                   CoglMatrix *matrix,
                                   CoglMatrixMode mode)
 {
@@ -863,13 +863,13 @@ _cogl_matrix_entry_flush_to_gl_builtins (CoglContext *ctx,
                                          CoglMatrixEntry *entry,
                                          CoglMatrixMode mode,
                                          CoglFramebuffer *framebuffer,
-                                         CoglBool disable_flip)
+                                         gboolean disable_flip)
 {
   g_assert (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_GL_FIXED));
 
 #ifdef HAVE_COGL_GL
   {
-    CoglBool needs_flip;
+    gboolean needs_flip;
     CoglMatrixEntryCache *cache;
 
     if (mode == COGL_MATRIX_PROJECTION)
@@ -901,7 +901,7 @@ _cogl_matrix_entry_flush_to_gl_builtins (CoglContext *ctx,
     if (!cache ||
         _cogl_matrix_entry_cache_maybe_update (cache, entry, needs_flip))
       {
-        CoglBool is_identity;
+        gboolean is_identity;
         CoglMatrix matrix;
 
         if (entry->op == COGL_MATRIX_OP_LOAD_IDENTITY)
@@ -940,7 +940,7 @@ _cogl_matrix_entry_flush_to_gl_builtins (CoglContext *ctx,
 #endif
 }
 
-CoglBool
+gboolean
 cogl_matrix_entry_equal (CoglMatrixEntry *entry0,
                          CoglMatrixEntry *entry1)
 {
@@ -1162,13 +1162,13 @@ _cogl_matrix_entry_cache_init (CoglMatrixEntryCache *cache)
 
 /* NB: This function can report false negatives since it never does a
  * deep comparison of the stack matrices. */
-CoglBool
+gboolean
 _cogl_matrix_entry_cache_maybe_update (CoglMatrixEntryCache *cache,
                                        CoglMatrixEntry *entry,
-                                       CoglBool flip)
+                                       gboolean flip)
 {
-  CoglBool is_identity;
-  CoglBool updated = FALSE;
+  gboolean is_identity;
+  gboolean updated = FALSE;
 
   if (cache->flipped != flip)
     {

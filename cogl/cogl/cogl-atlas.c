@@ -362,7 +362,7 @@ _cogl_atlas_notify_post_reorganize (CoglAtlas *atlas)
   g_hook_list_invoke (&atlas->post_reorganize_callbacks, FALSE);
 }
 
-CoglBool
+gboolean
 _cogl_atlas_reserve_space (CoglAtlas             *atlas,
                            unsigned int           width,
                            unsigned int           height,
@@ -372,7 +372,7 @@ _cogl_atlas_reserve_space (CoglAtlas             *atlas,
   CoglRectangleMap *new_map;
   CoglTexture2D *new_tex;
   unsigned int map_width = 0, map_height = 0;
-  CoglBool ret;
+  gboolean ret;
   CoglRectangleMapEntry new_position;
 
   /* Check if we can fit the rectangle into the existing map */

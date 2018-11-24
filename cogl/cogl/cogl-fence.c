@@ -50,7 +50,7 @@ _cogl_fence_check (CoglFenceClosure *fence)
   if (fence->type == FENCE_TYPE_WINSYS)
     {
       const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
-      CoglBool ret;
+      gboolean ret;
 
       ret = winsys->fence_is_complete (context, fence->fence_obj);
       if (!ret)

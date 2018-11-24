@@ -66,7 +66,7 @@ GType cogl_frame_info_get_gtype (void);
  * Since: 2.0
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_is_frame_info (void *object);
 
 /**

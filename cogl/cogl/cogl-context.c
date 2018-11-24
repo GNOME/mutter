@@ -645,7 +645,7 @@ cogl_context_get_renderer (CoglContext *context)
   return context->display->renderer;
 }
 
-CoglBool
+gboolean
 _cogl_context_update_features (CoglContext *context,
                                CoglError **error)
 {

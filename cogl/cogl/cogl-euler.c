@@ -158,7 +158,7 @@ cogl_euler_init_from_matrix (CoglEuler *euler,
   euler->roll = R;
 }
 
-CoglBool
+gboolean
 cogl_euler_equal (const void *v1, const void *v2)
 {
   const CoglEuler *a = v1;
