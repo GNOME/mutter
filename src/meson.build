@@ -478,6 +478,8 @@ if have_wayland
     'wayland/meta-wayland-subsurface.h',
     'wayland/meta-wayland-surface.c',
     'wayland/meta-wayland-surface.h',
+    'wayland/meta-wayland-surface-helper.c',
+    'wayland/meta-wayland-surface-helper.h',
     'wayland/meta-wayland-tablet.c',
     'wayland/meta-wayland-tablet-cursor-surface.c',
     'wayland/meta-wayland-tablet-cursor-surface.h',

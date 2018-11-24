@@ -27,6 +27,7 @@
 
 #include "backends/meta-monitor-manager-private.h"
 #include "clutter/clutter.h"
+#include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-surface-actor.h"
 #include "meta/meta-cursor-tracker.h"
 #include "wayland/meta-wayland-pointer-constraints.h"
@@ -85,7 +86,6 @@ struct _MetaWaylandPendingState
   gulong buffer_destroy_handler_id;
   int32_t dx;
   int32_t dy;
-
   int scale;
 
   /* wl_surface.damage */
@@ -111,6 +111,9 @@ struct _MetaWaylandPendingState
   gboolean has_new_max_size;
   int new_max_width;
   int new_max_height;
+
+  gboolean has_new_buffer_transform;
+  MetaMonitorTransform buffer_transform;
 };
 
 struct _MetaWaylandDragDestFuncs
@@ -144,6 +147,7 @@ struct _MetaWaylandSurface
   int32_t offset_x, offset_y;
   GList *subsurfaces;
   GHashTable *outputs_to_destroy_notify_id;
+  MetaMonitorTransform buffer_transform;
 
   /* Buffer reference state. */
   struct {
@@ -306,5 +310,8 @@ void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSur
 
 int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
+
+int                 meta_wayland_surface_get_buffer_width (MetaWaylandSurface *surface);
+int                 meta_wayland_surface_get_buffer_height (MetaWaylandSurface *surface);
 
 #endif
