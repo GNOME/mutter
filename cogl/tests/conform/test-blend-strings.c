@@ -55,7 +55,7 @@ test_blend_paint (TestState  *state,
 
   CoglHandle material;
   CoglPipeline *pipeline;
-  CoglBool status;
+  gboolean status;
   CoglError *error = NULL;
   int y_off;
   int x_off;
@@ -230,7 +230,7 @@ test_tex_combine (TestState *state,
   CoglColor combine_const_color;
 
   CoglHandle material;
-  CoglBool status;
+  gboolean status;
   CoglError *error = NULL;
   int y_off;
   int x_off;

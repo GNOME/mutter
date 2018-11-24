@@ -290,7 +290,7 @@ cogl_shader_unref (CoglHandle handle);
  * Deprecated: 1.16: Use #CoglSnippet api
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
-CoglBool
+gboolean
 cogl_is_shader (CoglHandle handle);
 
 /**
@@ -366,7 +366,7 @@ cogl_shader_get_type (CoglHandle handle);
  * Deprecated: 1.16: Use #CoglSnippet api
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
-CoglBool
+gboolean
 cogl_shader_is_compiled (CoglHandle handle);
 
 /**
@@ -421,7 +421,7 @@ cogl_program_unref (CoglHandle handle);
  * Deprecated: 1.16: Use #CoglSnippet api
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
-CoglBool
+gboolean
 cogl_is_program (CoglHandle handle);
 
 /**
@@ -605,7 +605,7 @@ cogl_program_set_uniform_matrix (CoglHandle program,
                                  int uniform_location,
                                  int dimensions,
                                  int count,
-                                 CoglBool transpose,
+                                 gboolean transpose,
                                  const float *value);
 
 /**
@@ -695,7 +695,7 @@ void
 cogl_program_uniform_matrix (int          uniform_no,
                              int          size,
                              int          count,
-                             CoglBool     transpose,
+                             gboolean     transpose,
                              const float *value);
 
 G_END_DECLS

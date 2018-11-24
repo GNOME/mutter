@@ -47,7 +47,7 @@ void
 _cogl_pipeline_node_set_parent_real (CoglNode *node,
                                      CoglNode *parent,
                                      CoglNodeUnparentVFunc unparent,
-                                     CoglBool take_strong_reference)
+                                     gboolean take_strong_reference)
 {
   /* NB: the old parent may indirectly be keeping the new parent alive
    * so we have to ref the new parent before unrefing the old.

@@ -48,8 +48,8 @@ _cogl_pango_renderer_clear_glyph_cache  (CoglPangoRenderer *renderer);
 
 void
 _cogl_pango_renderer_set_use_mipmapping (CoglPangoRenderer *renderer,
-                                         CoglBool value);
-CoglBool
+                                         gboolean value);
+gboolean
 _cogl_pango_renderer_get_use_mipmapping (CoglPangoRenderer *renderer);
 
 
