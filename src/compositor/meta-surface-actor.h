@@ -5,6 +5,7 @@
 
 #include "config.h"
 
+#include "backends/meta-backend-types.h"
 #include "meta/meta-shaped-texture.h"
 #include "meta/window.h"
 
@@ -76,6 +77,8 @@ void meta_surface_actor_set_unredirected (MetaSurfaceActor *actor,
                                           gboolean          unredirected);
 gboolean meta_surface_actor_is_unredirected (MetaSurfaceActor *actor);
 
+void meta_surface_actor_set_transform (MetaSurfaceActor     *self,
+                                       MetaMonitorTransform transform);
 G_END_DECLS
 
 #endif /* META_SURFACE_ACTOR_PRIVATE_H */
