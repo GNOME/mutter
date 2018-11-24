@@ -455,6 +455,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-wayland-touch.h		\
 	wayland/meta-wayland-surface.c		\
 	wayland/meta-wayland-surface.h		\
+	wayland/meta-wayland-surface-helper.c	\
+	wayland/meta-wayland-surface-helper.h	\
 	wayland/meta-wayland-cursor-surface.c	\
 	wayland/meta-wayland-cursor-surface.h	\
 	wayland/meta-wayland-tablet-cursor-surface.c	\
