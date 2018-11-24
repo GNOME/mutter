@@ -385,3 +385,12 @@ meta_surface_actor_get_window (MetaSurfaceActor *self)
 {
   return META_SURFACE_ACTOR_GET_CLASS (self)->get_window (self);
 }
+
+void
+meta_surface_actor_set_transform (MetaSurfaceActor     *self,
+                                  MetaMonitorTransform  transform)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_set_transform (priv->texture, transform);
+}
