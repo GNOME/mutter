@@ -19,8 +19,8 @@ tex_data[3 * 2 * 2] =
   };
 
 static void
-do_test (CoglBool check_orientation,
-         CoglBool use_glsl)
+do_test (gboolean check_orientation,
+         gboolean use_glsl)
 {
   int fb_width = cogl_framebuffer_get_width (test_fb);
   int fb_height = cogl_framebuffer_get_height (test_fb);
@@ -91,7 +91,7 @@ do_test (CoglBool check_orientation,
     }
   else
     {
-      CoglBool res =
+      gboolean res =
         cogl_pipeline_set_layer_point_sprite_coords_enabled (pipeline,
                                                              /* layer_index */
                                                              0,

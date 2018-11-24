@@ -80,7 +80,7 @@ canonicalize_key (CoglSamplerCacheEntry *key)
   key->wrap_mode_p = get_real_wrap_mode (key->wrap_mode_p);
 }
 
-static CoglBool
+static gboolean
 wrap_mode_equal_gl (CoglSamplerCacheWrapMode wrap_mode0,
                     CoglSamplerCacheWrapMode wrap_mode1)
 {
@@ -90,7 +90,7 @@ wrap_mode_equal_gl (CoglSamplerCacheWrapMode wrap_mode0,
   return get_real_wrap_mode (wrap_mode0) == get_real_wrap_mode (wrap_mode1);
 }
 
-static CoglBool
+static gboolean
 sampler_state_equal_gl (const void *value0,
                         const void *value1)
 {
@@ -135,7 +135,7 @@ hash_sampler_state_gl (const void *key)
   return _cogl_util_one_at_a_time_mix (hash);
 }
 
-static CoglBool
+static gboolean
 sampler_state_equal_cogl (const void *value0,
                           const void *value1)
 {

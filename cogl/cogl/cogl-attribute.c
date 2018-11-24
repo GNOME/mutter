@@ -65,11 +65,11 @@ static void _cogl_attribute_free (CoglAttribute *attribute);
 COGL_OBJECT_DEFINE (Attribute, attribute);
 COGL_GTYPE_DEFINE_CLASS (Attribute, attribute);
 
-static CoglBool
+static gboolean
 validate_cogl_attribute_name (const char *name,
                               char **real_attribute_name,
                               CoglAttributeNameID *name_id,
-                              CoglBool *normalized,
+                              gboolean *normalized,
                               int *layer_number)
 {
   name = name + 5; /* skip "cogl_" */
@@ -166,7 +166,7 @@ error:
   return NULL;
 }
 
-static CoglBool
+static gboolean
 validate_n_components (const CoglAttributeNameState *name_state,
                        int n_components)
 {
@@ -271,7 +271,7 @@ _cogl_attribute_new_const (CoglContext *context,
                            const char *name,
                            int n_components,
                            int n_columns,
-                           CoglBool transpose,
+                           gboolean transpose,
                            const float *value)
 {
   CoglAttribute *attribute = g_slice_new (CoglAttribute);
@@ -428,7 +428,7 @@ CoglAttribute *
 cogl_attribute_new_const_2x2fv (CoglContext *context,
                                 const char *name,
                                 const float *matrix2x2,
-                                CoglBool transpose)
+                                gboolean transpose)
 {
   return _cogl_attribute_new_const (context,
                                     name,
@@ -442,7 +442,7 @@ CoglAttribute *
 cogl_attribute_new_const_3x3fv (CoglContext *context,
                                 const char *name,
                                 const float *matrix3x3,
-                                CoglBool transpose)
+                                gboolean transpose)
 {
   return _cogl_attribute_new_const (context,
                                     name,
@@ -456,7 +456,7 @@ CoglAttribute *
 cogl_attribute_new_const_4x4fv (CoglContext *context,
                                 const char *name,
                                 const float *matrix4x4,
-                                CoglBool transpose)
+                                gboolean transpose)
 {
   return _cogl_attribute_new_const (context,
                                     name,
@@ -466,7 +466,7 @@ cogl_attribute_new_const_4x4fv (CoglContext *context,
                                     matrix4x4);
 }
 
-CoglBool
+gboolean
 cogl_attribute_get_normalized (CoglAttribute *attribute)
 {
   _COGL_RETURN_VAL_IF_FAIL (cogl_is_attribute (attribute), FALSE);
@@ -477,7 +477,7 @@ cogl_attribute_get_normalized (CoglAttribute *attribute)
 static void
 warn_about_midscene_changes (void)
 {
-  static CoglBool seen = FALSE;
+  static gboolean seen = FALSE;
   if (!seen)
     {
       g_warning ("Mid-scene modification of attributes has "
@@ -488,7 +488,7 @@ warn_about_midscene_changes (void)
 
 void
 cogl_attribute_set_normalized (CoglAttribute *attribute,
-                                      CoglBool normalized)
+                                      gboolean normalized)
 {
   _COGL_RETURN_IF_FAIL (cogl_is_attribute (attribute));
 
@@ -558,7 +558,7 @@ _cogl_attribute_free (CoglAttribute *attribute)
   g_slice_free (CoglAttribute, attribute);
 }
 
-static CoglBool
+static gboolean
 validate_layer_cb (CoglPipeline *pipeline,
                    int layer_index,
                    void *user_data)
@@ -566,7 +566,7 @@ validate_layer_cb (CoglPipeline *pipeline,
   CoglTexture *texture =
     cogl_pipeline_get_layer_texture (pipeline, layer_index);
   CoglFlushLayerState *state = user_data;
-  CoglBool status = TRUE;
+  gboolean status = TRUE;
 
   /* invalid textures will be handled correctly in
    * _cogl_pipeline_flush_layers_gl_state */

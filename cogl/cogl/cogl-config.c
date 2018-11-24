@@ -99,7 +99,7 @@ _cogl_config_read (void)
   GKeyFile *key_file = g_key_file_new ();
   const char * const *system_dirs = g_get_system_config_dirs ();
   char *filename;
-  CoglBool status = FALSE;
+  gboolean status = FALSE;
   int i;
 
   for (i = 0; system_dirs[i]; i++)

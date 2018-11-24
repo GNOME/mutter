@@ -54,9 +54,9 @@ typedef struct {
   /*< private >*/
   uint32_t COGL_PRIVATE (magic);
 
-  CoglBool COGL_PRIVATE (test_enabled);
+  gboolean COGL_PRIVATE (test_enabled);
   CoglDepthTestFunction COGL_PRIVATE (test_function);
-  CoglBool COGL_PRIVATE (write_enabled);
+  gboolean COGL_PRIVATE (write_enabled);
   float COGL_PRIVATE (range_near);
   float COGL_PRIVATE (range_far);
 
@@ -114,7 +114,7 @@ cogl_depth_state_init (CoglDepthState *state);
  */
 void
 cogl_depth_state_set_test_enabled (CoglDepthState *state,
-                                   CoglBool enable);
+                                   gboolean enable);
 
 /**
  * cogl_depth_state_get_test_enabled:
@@ -127,7 +127,7 @@ cogl_depth_state_set_test_enabled (CoglDepthState *state,
  * Since: 2.0
  * Stability: Unstable
  */
-CoglBool
+gboolean
 cogl_depth_state_get_test_enabled (CoglDepthState *state);
 
 /**
@@ -152,7 +152,7 @@ cogl_depth_state_get_test_enabled (CoglDepthState *state);
  */
 void
 cogl_depth_state_set_write_enabled (CoglDepthState *state,
-                                    CoglBool enable);
+                                    gboolean enable);
 
 /**
  * cogl_depth_state_get_write_enabled:
@@ -165,7 +165,7 @@ cogl_depth_state_set_write_enabled (CoglDepthState *state,
  * Since: 2.0
  * Stability: Unstable
  */
-CoglBool
+gboolean
 cogl_depth_state_get_write_enabled (CoglDepthState *state);
 
 /**

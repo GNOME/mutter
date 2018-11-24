@@ -429,7 +429,7 @@ cogl_matrix_stack_orthographic (CoglMatrixStack *stack,
  *   for degenerate transformations that can't be inverted (in this case the
  *   @inverse matrix will simply be initialized with the identity matrix)
  */
-CoglBool
+gboolean
 cogl_matrix_stack_get_inverse (CoglMatrixStack *stack,
                                CoglMatrix *inverse);
 
@@ -538,7 +538,7 @@ cogl_matrix_stack_set (CoglMatrixStack *stack,
  * Return value: %TRUE if @object is a #CoglMatrixStack, otherwise
  *               %FALSE.
  */
-CoglBool
+gboolean
 cogl_is_matrix_stack (void *object);
 
 /**
@@ -560,7 +560,7 @@ cogl_is_matrix_stack (void *object);
  *                @entry0 and the transform of @entry1 is a translation,
  *                otherwise %FALSE.
  */
-CoglBool
+gboolean
 cogl_matrix_entry_calculate_translation (CoglMatrixEntry *entry0,
                                          CoglMatrixEntry *entry1,
                                          float *x,
@@ -581,7 +581,7 @@ cogl_matrix_entry_calculate_translation (CoglMatrixEntry *entry0,
  * Return value: %TRUE if @entry is definitely an identity transform,
  *               otherwise %FALSE.
  */
-CoglBool
+gboolean
 cogl_matrix_entry_is_identity (CoglMatrixEntry *entry);
 
 /**
@@ -599,7 +599,7 @@ cogl_matrix_entry_is_identity (CoglMatrixEntry *entry);
  * Return value: %TRUE if @entry0 represents the same transform as
  *               @entry1, otherwise %FALSE.
  */
-CoglBool
+gboolean
 cogl_matrix_entry_equal (CoglMatrixEntry *entry0,
                          CoglMatrixEntry *entry1);
 
