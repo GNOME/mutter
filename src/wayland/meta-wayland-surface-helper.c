@@ -123,6 +123,43 @@ transformed_rect (int width,
   return ret;
 }
 
+static void
+surface_to_buffer_coordinate (MetaWaylandSurface *surface,
+                              float sx,
+                              float sy,
+                              float *bx,
+                              float *by)
+{
+  if (!surface->has_viewport_src_rect)
+    {
+      *bx = sx;
+      *by = sy;
+    }
+  else
+    {
+      float surface_width;
+      float surface_height;
+
+      if (surface->has_viewport_dest)
+        {
+          surface_width = surface->viewport_dest_width;
+          surface_height = surface->viewport_dest_height;
+        }
+      else
+        {
+          surface_width = meta_wayland_surface_get_buffer_width (surface) /
+                          surface->scale;
+          surface_height = meta_wayland_surface_get_buffer_height (surface) /
+                           surface->scale;
+        }
+
+      *bx = sx * surface->viewport_src_width / surface_width +
+            surface->viewport_src_x;
+      *by = sy * surface->viewport_src_height / surface_height +
+            surface->viewport_src_y;
+    }
+}
+
 cairo_region_t *
 meta_wayland_surface_helper_surface_to_buffer_region (MetaWaylandSurface *surface,
                                                       cairo_region_t     *region)
@@ -131,8 +168,14 @@ meta_wayland_surface_helper_surface_to_buffer_region (MetaWaylandSurface *surfac
   cairo_rectangle_int_t *rects;
   cairo_rectangle_int_t surface_rect;
   cairo_region_t *scaled_region;
+  float x1;
+  float x2;
+  float y1;
+  float y2;
 
   if (surface->scale == 1 &&
+      surface->viewport_src_width <= 0 &&
+      surface->viewport_dest_width <= 0 &&
       surface->buffer_transform == META_MONITOR_TRANSFORM_NORMAL)
     {
       return cairo_region_copy (region);
@@ -148,6 +191,14 @@ meta_wayland_surface_helper_surface_to_buffer_region (MetaWaylandSurface *surfac
       int height;
 
       cairo_region_get_rectangle (region, i, &rects[i]);
+
+      surface_to_buffer_coordinate (surface, rects[i].x, rects[i].y, &x1, &y1);
+      surface_to_buffer_coordinate (surface, rects[i].x + rects[i].width,
+                                    rects[i].y + rects[i].height, &x2, &y2);
+      rects[i].x = floorf(x1);
+      rects[i].y = floorf(y1);
+      rects[i].width  = ceilf(x2) - rects[i].x;
+      rects[i].height = ceilf(y2) - rects[i].y;
 
       width = meta_wayland_surface_get_buffer_width (surface) / surface->scale;
       height = meta_wayland_surface_get_buffer_height (surface) / surface->scale;
