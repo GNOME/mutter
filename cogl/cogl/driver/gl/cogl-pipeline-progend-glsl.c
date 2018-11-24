@@ -355,11 +355,11 @@ typedef struct
 {
   int unit;
   GLuint gl_program;
-  CoglBool update_all;
+  gboolean update_all;
   CoglPipelineProgramState *program_state;
 } UpdateUniformsState;
 
-static CoglBool
+static gboolean
 get_uniform_cb (CoglPipeline *pipeline,
                 int layer_index,
                 void *user_data)
@@ -413,7 +413,7 @@ get_uniform_cb (CoglPipeline *pipeline,
   return TRUE;
 }
 
-static CoglBool
+static gboolean
 update_constants_cb (CoglPipeline *pipeline,
                      int layer_index,
                      void *user_data)
@@ -486,7 +486,7 @@ typedef struct
   int value_index;
 } FlushUniformsClosure;
 
-static CoglBool
+static gboolean
 flush_uniform_cb (int uniform_num, void *user_data)
 {
   FlushUniformsClosure *data = user_data;
@@ -549,7 +549,7 @@ _cogl_pipeline_progend_glsl_flush_uniforms (CoglPipeline *pipeline,
                                             CoglPipelineProgramState *
                                                                   program_state,
                                             GLuint gl_program,
-                                            CoglBool program_changed)
+                                            gboolean program_changed)
 {
   CoglPipelineUniformsState *uniforms_state;
   FlushUniformsClosure data;
@@ -637,7 +637,7 @@ _cogl_pipeline_progend_glsl_flush_uniforms (CoglPipeline *pipeline,
     _cogl_bitmask_clear_all (&uniforms_state->changed_mask);
 }
 
-static CoglBool
+static gboolean
 _cogl_pipeline_progend_glsl_start (CoglPipeline *pipeline)
 {
   CoglHandle user_program;
@@ -661,7 +661,7 @@ _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
 {
   CoglPipelineProgramState *program_state;
   GLuint gl_program;
-  CoglBool program_changed = FALSE;
+  gboolean program_changed = FALSE;
   UpdateUniformsState state;
   CoglProgram *user_program;
   CoglPipelineCacheEntry *cache_entry = NULL;
@@ -925,14 +925,14 @@ static void
 _cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
                                        CoglFramebuffer *framebuffer)
 {
-  CoglBool needs_flip;
+  gboolean needs_flip;
   CoglMatrixEntry *projection_entry;
   CoglMatrixEntry *modelview_entry;
   CoglPipelineProgramState *program_state;
-  CoglBool modelview_changed;
-  CoglBool projection_changed;
-  CoglBool need_modelview;
-  CoglBool need_projection;
+  gboolean modelview_changed;
+  gboolean projection_changed;
+  gboolean need_modelview;
+  gboolean need_projection;
   CoglMatrix modelview, projection;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);

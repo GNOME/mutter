@@ -246,7 +246,7 @@ cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp);
  * Since: 1.16
  * Stability: Unstable
  */
-CoglBool
+gboolean
 cogl_is_atlas_texture (void *object);
 
 G_END_DECLS

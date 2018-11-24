@@ -549,7 +549,7 @@ cogl_matrix_init_from_euler (CoglMatrix *matrix,
  *
  * Since: 1.4
  */
-CoglBool
+gboolean
 cogl_matrix_equal (const void *v1, const void *v2);
 
 /**
@@ -599,7 +599,7 @@ cogl_matrix_free (CoglMatrix *matrix);
  *
  * Since: 1.2
  */
-CoglBool
+gboolean
 cogl_matrix_get_inverse (const CoglMatrix *matrix,
                          CoglMatrix *inverse);
 
@@ -747,7 +747,7 @@ cogl_matrix_project_points (const CoglMatrix *matrix,
  * Returns: %TRUE if @matrix is an identity matrix else %FALSE
  * Since: 1.8
  */
-CoglBool
+gboolean
 cogl_matrix_is_identity (const CoglMatrix *matrix);
 
 /**
