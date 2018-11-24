@@ -398,7 +398,7 @@ _cogl_primitive_free (CoglPrimitive *primitive)
 static void
 warn_about_midscene_changes (void)
 {
-  static CoglBool seen = FALSE;
+  static gboolean seen = FALSE;
   if (!seen)
     {
       g_warning ("Mid-scene modification of primitives has "

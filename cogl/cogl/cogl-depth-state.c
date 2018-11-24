@@ -50,13 +50,13 @@ cogl_depth_state_init (CoglDepthState *state)
 
 void
 cogl_depth_state_set_test_enabled (CoglDepthState *state,
-                                   CoglBool enabled)
+                                   gboolean enabled)
 {
   _COGL_RETURN_IF_FAIL (state->magic == COGL_DEPTH_STATE_MAGIC);
   state->test_enabled = enabled;
 }
 
-CoglBool
+gboolean
 cogl_depth_state_get_test_enabled (CoglDepthState *state)
 {
   _COGL_RETURN_VAL_IF_FAIL (state->magic == COGL_DEPTH_STATE_MAGIC, FALSE);
@@ -65,13 +65,13 @@ cogl_depth_state_get_test_enabled (CoglDepthState *state)
 
 void
 cogl_depth_state_set_write_enabled (CoglDepthState *state,
-                                    CoglBool enabled)
+                                    gboolean enabled)
 {
   _COGL_RETURN_IF_FAIL (state->magic == COGL_DEPTH_STATE_MAGIC);
   state->write_enabled = enabled;
 }
 
-CoglBool
+gboolean
 cogl_depth_state_get_write_enabled (CoglDepthState *state)
 {
   _COGL_RETURN_VAL_IF_FAIL (state->magic == COGL_DEPTH_STATE_MAGIC, FALSE);

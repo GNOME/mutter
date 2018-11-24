@@ -85,7 +85,7 @@ _cogl_texture_2d_free (CoglTexture2D *tex_2d)
 
 void
 _cogl_texture_2d_set_auto_mipmap (CoglTexture *tex,
-                                  CoglBool value)
+                                  gboolean value)
 {
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
 
@@ -133,7 +133,7 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
                                        COGL_PIXEL_FORMAT_RGBA_8888_PRE, loader);
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_2d_allocate (CoglTexture *tex,
                            CoglError **error)
 {
@@ -144,7 +144,7 @@ _cogl_texture_2d_allocate (CoglTexture *tex,
 
 CoglTexture2D *
 _cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp,
-                                  CoglBool can_convert_in_place)
+                                  gboolean can_convert_in_place)
 {
   CoglTextureLoader *loader;
 
@@ -313,7 +313,7 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer *shm_buffer,
     *components_out = components;
 }
 
-CoglBool
+gboolean
 cogl_wayland_texture_set_region_from_shm_buffer (CoglTexture *texture,
                                                  int src_x,
                                                  int src_y,
@@ -496,13 +496,13 @@ _cogl_texture_2d_get_max_waste (CoglTexture *tex)
   return -1;
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_2d_is_sliced (CoglTexture *tex)
 {
   return FALSE;
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_2d_can_hardware_repeat (CoglTexture *tex)
 {
   CoglContext *ctx = tex->context;
@@ -546,7 +546,7 @@ _cogl_texture_2d_transform_quad_coords_to_gl (CoglTexture *tex,
   return COGL_TRANSFORM_NO_REPEAT;
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_2d_get_gl_texture (CoglTexture *tex,
                                  GLuint *out_gl_handle,
                                  GLenum *out_gl_target)
@@ -595,7 +595,7 @@ _cogl_texture_2d_ensure_non_quad_rendering (CoglTexture *tex)
   /* Nothing needs to be done */
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_2d_set_region (CoglTexture *tex,
                              int src_x,
                              int src_y,
@@ -629,7 +629,7 @@ _cogl_texture_2d_set_region (CoglTexture *tex,
   return TRUE;
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_2d_get_data (CoglTexture *tex,
                            CoglPixelFormat format,
                            int rowstride,
@@ -659,7 +659,7 @@ _cogl_texture_2d_get_gl_format (CoglTexture *tex)
   return COGL_TEXTURE_2D (tex)->gl_internal_format;
 }
 
-static CoglBool
+static gboolean
 _cogl_texture_2d_is_foreign (CoglTexture *tex)
 {
   return COGL_TEXTURE_2D (tex)->is_foreign;

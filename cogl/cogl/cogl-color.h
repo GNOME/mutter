@@ -554,7 +554,7 @@ cogl_color_unpremultiply (CoglColor *color);
  *
  * Since: 1.0
  */
-CoglBool
+gboolean
 cogl_color_equal (const void *v1, const void *v2);
 
 /**

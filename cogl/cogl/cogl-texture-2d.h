@@ -82,7 +82,7 @@ GType cogl_texture_2d_get_gtype (void);
  * Return value: %TRUE if the object references a #CoglTexture2D,
  *   %FALSE otherwise
  */
-CoglBool
+gboolean
 cogl_is_texture_2d (void *object);
 
 /**

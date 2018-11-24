@@ -139,7 +139,7 @@ cogl_attribute_buffer_new (CoglContext *context,
  * Since: 1.4
  * Stability: Unstable
  */
-CoglBool
+gboolean
 cogl_is_attribute_buffer (void *object);
 
 G_END_DECLS

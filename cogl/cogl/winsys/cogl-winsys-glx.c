@@ -90,7 +90,7 @@ typedef struct _CoglOnscreenXlib
 {
   Window xwin;
   int x, y;
-  CoglBool is_foreign_xwin;
+  gboolean is_foreign_xwin;
   CoglOutput *output;
 } CoglOnscreenXlib;
 
@@ -99,9 +99,9 @@ typedef struct _CoglOnscreenGLX
   CoglOnscreenXlib _parent;
   GLXDrawable glxwin;
   uint32_t last_swap_vsync_counter;
-  CoglBool pending_sync_notify;
-  CoglBool pending_complete_notify;
-  CoglBool pending_resize_notify;
+  gboolean pending_sync_notify;
+  gboolean pending_complete_notify;
+  gboolean pending_resize_notify;
 
   GThread *swap_wait_thread;
   GQueue *swap_wait_queue;
@@ -109,21 +109,21 @@ typedef struct _CoglOnscreenGLX
   GMutex swap_wait_mutex;
   int swap_wait_pipe[2];
   GLXContext swap_wait_context;
-  CoglBool closing_down;
+  gboolean closing_down;
 } CoglOnscreenGLX;
 
 typedef struct _CoglPixmapTextureEyeGLX
 {
   CoglTexture *glx_tex;
-  CoglBool bind_tex_image_queued;
-  CoglBool pixmap_bound;
+  gboolean bind_tex_image_queued;
+  gboolean pixmap_bound;
 } CoglPixmapTextureEyeGLX;
 
 typedef struct _CoglTexturePixmapGLX
 {
   GLXPixmap glx_pixmap;
-  CoglBool has_mipmap_space;
-  CoglBool can_mipmap;
+  gboolean has_mipmap_space;
+  gboolean can_mipmap;
 
   CoglPixmapTextureEyeGLX left;
   CoglPixmapTextureEyeGLX right;
@@ -169,7 +169,7 @@ static const CoglFeatureData winsys_feature_data[] =
 static CoglFuncPtr
 _cogl_winsys_renderer_get_proc_address (CoglRenderer *renderer,
                                         const char *name,
-                                        CoglBool in_core)
+                                        gboolean in_core)
 {
   CoglGLXRenderer *glx_renderer = renderer->winsys;
 
@@ -347,8 +347,8 @@ flush_pending_notifications_cb (void *data,
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
       CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
-      CoglBool pending_sync_notify = glx_onscreen->pending_sync_notify;
-      CoglBool pending_complete_notify = glx_onscreen->pending_complete_notify;
+      gboolean pending_sync_notify = glx_onscreen->pending_sync_notify;
+      gboolean pending_complete_notify = glx_onscreen->pending_complete_notify;
 
       /* If swap_region is called then notifying the sync event could
        * potentially immediately queue a subsequent pending notify so
@@ -627,7 +627,7 @@ _cogl_winsys_renderer_disconnect (CoglRenderer *renderer)
   g_slice_free (CoglGLXRenderer, renderer->winsys);
 }
 
-static CoglBool
+static gboolean
 update_all_outputs (CoglRenderer *renderer)
 {
   GList *l;
@@ -659,7 +659,7 @@ _cogl_winsys_renderer_outputs_changed (CoglRenderer *renderer)
   update_all_outputs (renderer);
 }
 
-static CoglBool
+static gboolean
 resolve_core_glx_functions (CoglRenderer *renderer,
                             CoglError **error)
 {
@@ -752,7 +752,7 @@ update_base_winsys_features (CoglRenderer *renderer)
                     TRUE);
 }
 
-static CoglBool
+static gboolean
 _cogl_winsys_renderer_connect (CoglRenderer *renderer,
                                CoglError **error)
 {
@@ -825,7 +825,7 @@ error:
   return FALSE;
 }
 
-static CoglBool
+static gboolean
 update_winsys_features (CoglContext *context, CoglError **error)
 {
   CoglGLXDisplay *glx_display = context->display->winsys;
@@ -983,7 +983,7 @@ glx_attributes_from_framebuffer_config (CoglDisplay *display,
 /* It seems the GLX spec never defined an invalid GLXFBConfig that
  * we could overload as an indication of error, so we have to return
  * an explicit boolean status. */
-static CoglBool
+static gboolean
 find_fbconfig (CoglDisplay *display,
                CoglFramebufferConfig *config,
                GLXFBConfig *config_ret,
@@ -995,7 +995,7 @@ find_fbconfig (CoglDisplay *display,
   GLXFBConfig *configs = NULL;
   int n_configs;
   static int attributes[MAX_GLX_CONFIG_ATTRIBS];
-  CoglBool ret = TRUE;
+  gboolean ret = TRUE;
   int xscreen_num = DefaultScreen (xlib_renderer->xdpy);
 
   glx_attributes_from_framebuffer_config (display, config, attributes);
@@ -1122,14 +1122,14 @@ create_gl3_context (CoglDisplay *display,
                                                 attrib_list);
 }
 
-static CoglBool
+static gboolean
 create_context (CoglDisplay *display, CoglError **error)
 {
   CoglGLXDisplay *glx_display = display->winsys;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (display->renderer);
   CoglGLXRenderer *glx_renderer = display->renderer->winsys;
-  CoglBool support_transparent_windows =
+  gboolean support_transparent_windows =
     display->onscreen_template->config.swap_chain->has_alpha;
   GLXFBConfig config;
   CoglError *fbconfig_error = NULL;
@@ -1297,7 +1297,7 @@ _cogl_winsys_display_destroy (CoglDisplay *display)
   display->winsys = NULL;
 }
 
-static CoglBool
+static gboolean
 _cogl_winsys_display_setup (CoglDisplay *display,
                             CoglError **error)
 {
@@ -1322,7 +1322,7 @@ error:
   return FALSE;
 }
 
-static CoglBool
+static gboolean
 _cogl_winsys_context_init (CoglContext *context, CoglError **error)
 {
   context->winsys = g_new0 (CoglContextGLX, 1);
@@ -1342,7 +1342,7 @@ _cogl_winsys_context_deinit (CoglContext *context)
   g_free (context->winsys);
 }
 
-static CoglBool
+static gboolean
 _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
                             CoglError **error)
 {
@@ -2025,8 +2025,8 @@ _cogl_winsys_onscreen_swap_region (CoglOnscreen *onscreen,
   GLXDrawable drawable =
     glx_onscreen->glxwin ? glx_onscreen->glxwin : xlib_onscreen->xwin;
   uint32_t end_frame_vsync_counter = 0;
-  CoglBool have_counter;
-  CoglBool can_wait;
+  gboolean have_counter;
+  gboolean can_wait;
   int x_min = 0, x_max = 0, y_min = 0, y_max = 0;
 
   /*
@@ -2035,7 +2035,7 @@ _cogl_winsys_onscreen_swap_region (CoglOnscreen *onscreen,
    * case then we still want to use the vblank sync menchanism but
    * we only need it to throttle redraws.
    */
-  CoglBool blit_sub_buffer_is_synchronized =
+  gboolean blit_sub_buffer_is_synchronized =
      _cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SWAP_REGION_SYNCHRONIZED);
 
   int framebuffer_width =  cogl_framebuffer_get_width (framebuffer);
@@ -2237,7 +2237,7 @@ _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
   CoglGLXDisplay *glx_display = context->display->winsys;
   CoglOnscreenXlib *xlib_onscreen = onscreen->winsys;
   CoglOnscreenGLX *glx_onscreen = onscreen->winsys;
-  CoglBool have_counter;
+  gboolean have_counter;
   GLXDrawable drawable;
 
   /* XXX: theoretically this shouldn't be necessary but at least with
@@ -2275,7 +2275,7 @@ _cogl_winsys_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
         }
       else
         {
-          CoglBool can_wait = have_counter || glx_display->can_vblank_wait;
+          gboolean can_wait = have_counter || glx_display->can_vblank_wait;
 
           uint32_t end_frame_vsync_counter = 0;
 
@@ -2351,7 +2351,7 @@ _cogl_winsys_onscreen_update_swap_throttled (CoglOnscreen *onscreen)
 
 static void
 _cogl_winsys_onscreen_set_visibility (CoglOnscreen *onscreen,
-                                      CoglBool visibility)
+                                      gboolean visibility)
 {
   CoglContext *context = COGL_FRAMEBUFFER (onscreen)->context;
   CoglXlibRenderer *xlib_renderer =
@@ -2366,7 +2366,7 @@ _cogl_winsys_onscreen_set_visibility (CoglOnscreen *onscreen,
 
 static void
 _cogl_winsys_onscreen_set_resizable (CoglOnscreen *onscreen,
-                                     CoglBool resizable)
+                                     gboolean resizable)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = framebuffer->context;
@@ -2402,12 +2402,12 @@ _cogl_winsys_onscreen_set_resizable (CoglOnscreen *onscreen,
   XFree (size_hints);
 }
 
-static CoglBool
+static gboolean
 get_fbconfig_for_depth (CoglContext *context,
                         unsigned int depth,
-                        CoglBool stereo,
+                        gboolean stereo,
                         GLXFBConfig *fbconfig_ret,
-                        CoglBool *can_mipmap_ret)
+                        gboolean *can_mipmap_ret)
 {
   CoglXlibRenderer *xlib_renderer;
   CoglGLXRenderer *glx_renderer;
@@ -2417,7 +2417,7 @@ get_fbconfig_for_depth (CoglContext *context,
   int n_elements, i;
   int db, stencil, alpha, mipmap, rgba, value;
   int spare_cache_slot = 0;
-  CoglBool found = FALSE;
+  gboolean found = FALSE;
 
   xlib_renderer = _cogl_xlib_renderer_get_data (context->display->renderer);
   glx_renderer = context->display->renderer->winsys;
@@ -2561,7 +2561,7 @@ get_fbconfig_for_depth (CoglContext *context,
   return found;
 }
 
-static CoglBool
+static gboolean
 should_use_rectangle (CoglContext *context)
 {
 
@@ -2609,10 +2609,10 @@ should_use_rectangle (CoglContext *context)
   return context->rectangle_state == COGL_WINSYS_RECTANGLE_STATE_ENABLE;
 }
 
-static CoglBool
+static gboolean
 try_create_glx_pixmap (CoglContext *context,
                        CoglTexturePixmapX11 *tex_pixmap,
-                       CoglBool mipmap)
+                       gboolean mipmap)
 {
   CoglTexturePixmapGLX *glx_tex_pixmap = tex_pixmap->winsys;
   CoglRenderer *renderer;
@@ -2709,7 +2709,7 @@ try_create_glx_pixmap (CoglContext *context,
   return TRUE;
 }
 
-static CoglBool
+static gboolean
 _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
 {
   CoglTexturePixmapGLX *glx_tex_pixmap;
@@ -2818,10 +2818,10 @@ _cogl_winsys_texture_pixmap_x11_free (CoglTexturePixmapX11 *tex_pixmap)
   g_free (glx_tex_pixmap);
 }
 
-static CoglBool
+static gboolean
 _cogl_winsys_texture_pixmap_x11_update (CoglTexturePixmapX11 *tex_pixmap,
                                         CoglTexturePixmapStereoMode stereo_mode,
-                                        CoglBool needs_mipmap)
+                                        gboolean needs_mipmap)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_pixmap);
   CoglContext *ctx = COGL_TEXTURE (tex_pixmap)->context;

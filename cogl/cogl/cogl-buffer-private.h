@@ -57,7 +57,7 @@ struct _CoglBufferVtable
 
   void (* unmap) (CoglBuffer *buffer);
 
-  CoglBool (* set_data) (CoglBuffer *buffer,
+  gboolean (* set_data) (CoglBuffer *buffer,
                          unsigned int offset,
                          const void *data,
                          unsigned int size,
@@ -146,7 +146,7 @@ _cogl_buffer_immutable_ref (CoglBuffer *buffer);
 void
 _cogl_buffer_immutable_unref (CoglBuffer *buffer);
 
-CoglBool
+gboolean
 _cogl_buffer_set_data (CoglBuffer *buffer,
                        size_t offset,
                        const void *data,

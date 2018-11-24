@@ -155,7 +155,7 @@ typedef struct _CoglVertexBuffer
    * modifying a buffer. */
   GList  *new_attributes; /*!< attributes pending submission */
 
-  CoglBool dirty_attributes;
+  gboolean dirty_attributes;
 
   CoglPrimitive *primitive;
 

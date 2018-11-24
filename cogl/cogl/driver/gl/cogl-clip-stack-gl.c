@@ -202,7 +202,7 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
                             float y_1,
                             float x_2,
                             float y_2,
-                            CoglBool first)
+                            gboolean first)
 {
   CoglMatrixStack *projection_stack =
     _cogl_framebuffer_get_projection_stack (framebuffer);
@@ -272,8 +272,8 @@ add_stencil_clip_silhouette (CoglFramebuffer *framebuffer,
                              float bounds_y1,
                              float bounds_x2,
                              float bounds_y2,
-                             CoglBool merge,
-                             CoglBool need_clear,
+                             gboolean merge,
+                             gboolean need_clear,
                              void *user_data)
 {
   CoglMatrixStack *projection_stack =
@@ -383,8 +383,8 @@ add_stencil_clip_primitive (CoglFramebuffer *framebuffer,
                             float bounds_y1,
                             float bounds_x2,
                             float bounds_y2,
-                            CoglBool merge,
-                            CoglBool need_clear)
+                            gboolean merge,
+                            gboolean need_clear)
 {
   add_stencil_clip_silhouette (framebuffer,
                                paint_primitive_silhouette,
@@ -422,8 +422,8 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
 {
   CoglContext *ctx = framebuffer->context;
   int has_clip_planes;
-  CoglBool using_clip_planes = FALSE;
-  CoglBool using_stencil_buffer = FALSE;
+  gboolean using_clip_planes = FALSE;
+  gboolean using_stencil_buffer = FALSE;
   int scissor_x0;
   int scissor_y0;
   int scissor_x1;

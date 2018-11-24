@@ -268,7 +268,7 @@ _cogl_pipeline_snippet_list_hash (CoglPipelineSnippetList *list,
     }
 }
 
-CoglBool
+gboolean
 _cogl_pipeline_snippet_list_equal (CoglPipelineSnippetList *list0,
                                    CoglPipelineSnippetList *list1)
 {

@@ -103,7 +103,7 @@ struct _CoglContext
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)];
 
-  CoglBool needs_viewport_scissor_workaround;
+  gboolean needs_viewport_scissor_workaround;
   CoglFramebuffer *viewport_scissor_workaround_framebuffer;
 
   CoglPipeline *default_pipeline;
@@ -127,7 +127,7 @@ struct _CoglContext
   CoglBitmask       enable_custom_attributes_tmp;
   CoglBitmask       changed_bits_tmp;
 
-  CoglBool          legacy_backface_culling_enabled;
+  gboolean          legacy_backface_culling_enabled;
 
   /* A few handy matrix constants */
   CoglMatrix        identity_matrix;
@@ -185,19 +185,19 @@ struct _CoglContext
   /* Some simple caching, to minimize state changes... */
   CoglPipeline     *current_pipeline;
   unsigned long     current_pipeline_changes_since_flush;
-  CoglBool          current_pipeline_with_color_attrib;
-  CoglBool          current_pipeline_unknown_color_alpha;
+  gboolean          current_pipeline_with_color_attrib;
+  gboolean          current_pipeline_unknown_color_alpha;
   unsigned long     current_pipeline_age;
 
-  CoglBool          gl_blend_enable_cache;
+  gboolean          gl_blend_enable_cache;
 
-  CoglBool              depth_test_enabled_cache;
+  gboolean              depth_test_enabled_cache;
   CoglDepthTestFunction depth_test_function_cache;
-  CoglBool              depth_writing_enabled_cache;
+  gboolean              depth_writing_enabled_cache;
   float                 depth_range_near_cache;
   float                 depth_range_far_cache;
 
-  CoglBool              legacy_depth_test_enabled;
+  gboolean              legacy_depth_test_enabled;
 
   CoglBuffer       *current_buffer[COGL_BUFFER_BIND_TARGET_COUNT];
 
@@ -225,7 +225,7 @@ struct _CoglContext
   /* This becomes TRUE the first time the context is bound to an
    * onscreen buffer. This is used by cogl-framebuffer-gl to determine
    * when to initialise the glDrawBuffer state */
-  CoglBool was_bound_to_onscreen;
+  gboolean was_bound_to_onscreen;
 
   /* Primitives */
   CoglPath         *current_path;
@@ -241,7 +241,7 @@ struct _CoglContext
   CoglIndices      *rectangle_short_indices;
   int               rectangle_short_indices_len;
 
-  CoglBool          in_begin_gl_block;
+  gboolean          in_begin_gl_block;
 
   CoglPipeline     *texture_download_pipeline;
   CoglPipeline     *blit_texture_pipeline;
@@ -268,7 +268,7 @@ struct _CoglContext
   CoglPipelineProgramType current_vertex_program_type;
   GLuint                  current_gl_program;
 
-  CoglBool current_gl_dither_enabled;
+  gboolean current_gl_dither_enabled;
   CoglColorMask current_gl_color_mask;
   GLenum current_gl_draw_buffer;
 
@@ -280,7 +280,7 @@ struct _CoglContext
      doesn't need to be a valid pointer. We can't just use NULL in
      current_clip_stack to mark a dirty state because NULL is a valid
      stack (meaning no clipping) */
-  CoglBool          current_clip_stack_valid;
+  gboolean          current_clip_stack_valid;
   /* The clip state that was flushed. This isn't intended to be used
      as a stack to push and pop new entries. Instead the current stack
      that the user wants is part of the framebuffer state. This is
@@ -292,13 +292,13 @@ struct _CoglContext
      state. If TRUE then any further use of the stencil buffer (such
      as for drawing paths) would need to be merged with the existing
      stencil buffer */
-  CoglBool          current_clip_stack_uses_stencil;
+  gboolean          current_clip_stack_uses_stencil;
 
   /* This is used as a temporary buffer to fill a CoglBuffer when
      cogl_buffer_map fails and we only want to map to fill it with new
      data */
   GByteArray       *buffer_map_fallback_array;
-  CoglBool          buffer_map_fallback_in_use;
+  gboolean          buffer_map_fallback_in_use;
   size_t            buffer_map_fallback_offset;
 
   CoglWinsysRectangleState rectangle_state;
@@ -371,7 +371,7 @@ _cogl_context_get_winsys (CoglContext *context);
  * to know when to re-query the GL extensions. The backend should also
  * check whether the GL context is supported by Cogl. If not it should
  * return FALSE and set @error */
-CoglBool
+gboolean
 _cogl_context_update_features (CoglContext *context,
                                CoglError **error);
 

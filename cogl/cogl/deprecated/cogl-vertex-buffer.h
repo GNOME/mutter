@@ -180,7 +180,7 @@ cogl_vertex_buffer_add (CoglHandle         handle,
 		        const char        *attribute_name,
 			uint8_t            n_components,
 			CoglAttributeType  type,
-			CoglBool           normalized,
+			gboolean           normalized,
 			uint16_t           stride,
 			const void        *pointer);
 
@@ -427,7 +427,7 @@ cogl_vertex_buffer_indices_get_for_quads (unsigned int n_indices);
  * Deprecated: 1.16: Use the #CoglPrimitive api instead
  */
 COGL_DEPRECATED_FOR (cogl_primitive_API)
-CoglBool
+gboolean
 cogl_is_vertex_buffer (CoglHandle handle);
 
 /**
@@ -444,7 +444,7 @@ cogl_is_vertex_buffer (CoglHandle handle);
  * Deprecated: 1.16: Use the #CoglPrimitive api instead
  */
 COGL_DEPRECATED_FOR (cogl_primitive_API)
-CoglBool
+gboolean
 cogl_is_vertex_buffer_indices (CoglHandle handle);
 G_END_DECLS
 

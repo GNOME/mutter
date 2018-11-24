@@ -57,7 +57,7 @@ cogl_vector3_init_zero (float *vector)
   memset (vector, 0, sizeof (float) * 3);
 }
 
-CoglBool
+gboolean
 cogl_vector3_equal (const void *v1, const void *v2)
 {
   float *vector0 = (float *)v1;
@@ -75,7 +75,7 @@ cogl_vector3_equal (const void *v1, const void *v2)
     vector0[Z] == vector1[Z];
 }
 
-CoglBool
+gboolean
 cogl_vector3_equal_with_epsilon (const float *vector0,
                                  const float *vector1,
                                  float epsilon)
@@ -230,7 +230,7 @@ cogl_vector4_init_from_vector4 (float *vector, float *src)
   *vector4 = *src;
 }
 
-CoglBool
+gboolean
 cogl_vector4_equal (const void *v0, const void *v1)
 {
   _COGL_RETURN_VAL_IF_FAIL (v1 != NULL, FALSE);

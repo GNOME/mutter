@@ -167,7 +167,7 @@ _cogl_set_active_texture_unit (int unit_index)
 void
 _cogl_bind_gl_texture_transient (GLenum gl_target,
                                  GLuint gl_texture,
-                                 CoglBool is_foreign)
+                                 gboolean is_foreign)
 {
   CoglTextureUnit *unit;
 
@@ -355,7 +355,7 @@ _cogl_use_vertex_program (GLuint gl_program, CoglPipelineProgramType type)
 
 #if defined(HAVE_COGL_GLES2) || defined(HAVE_COGL_GL)
 
-static CoglBool
+static gboolean
 blend_factor_uses_constant (GLenum blend_factor)
 {
   return (blend_factor == GL_CONSTANT_COLOR ||
@@ -370,7 +370,7 @@ static void
 flush_depth_state (CoglContext *ctx,
                    CoglDepthState *depth_state)
 {
-  CoglBool depth_writing_enabled = depth_state->write_enabled;
+  gboolean depth_writing_enabled = depth_state->write_enabled;
 
   if (ctx->current_draw_buffer)
     depth_writing_enabled &= ctx->current_draw_buffer->depth_writing_enabled;
@@ -449,7 +449,7 @@ static void
 _cogl_pipeline_flush_color_blend_alpha_depth_state (
                                             CoglPipeline *pipeline,
                                             unsigned long pipelines_difference,
-                                            CoglBool      with_color_attrib)
+                                            gboolean      with_color_attrib)
 {
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
@@ -605,7 +605,7 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
         GE( ctx, glDisable (GL_CULL_FACE) );
       else
         {
-          CoglBool invert_winding;
+          gboolean invert_winding;
 
           GE( ctx, glEnable (GL_CULL_FACE) );
 
@@ -752,7 +752,7 @@ typedef struct
   unsigned long *layer_differences;
 } CoglPipelineFlushLayerState;
 
-static CoglBool
+static gboolean
 flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
 {
   CoglPipelineFlushLayerState *flush_state = user_data;
@@ -768,7 +768,7 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
    */
   if (G_UNLIKELY (unit_index >= get_max_activateable_texture_units ()))
     {
-      static CoglBool shown_warning = FALSE;
+      static gboolean shown_warning = FALSE;
 
       if (!shown_warning)
         {
@@ -896,7 +896,7 @@ static void
 _cogl_pipeline_flush_common_gl_state (CoglPipeline  *pipeline,
                                       unsigned long  pipelines_difference,
                                       unsigned long *layer_differences,
-                                      CoglBool       with_color_attrib)
+                                      gboolean       with_color_attrib)
 {
   CoglPipelineFlushLayerState state;
 
@@ -1011,7 +1011,7 @@ typedef struct
   unsigned long *layer_differences;
 } CoglPipelineCompareLayersState;
 
-static CoglBool
+static gboolean
 compare_layer_differences_cb (CoglPipelineLayer *layer, void *user_data)
 {
   CoglPipelineCompareLayersState *state = user_data;
@@ -1052,11 +1052,11 @@ typedef struct
   const CoglPipelineFragend *fragend;
   CoglPipeline *pipeline;
   unsigned long *layer_differences;
-  CoglBool error_adding_layer;
-  CoglBool added_layer;
+  gboolean error_adding_layer;
+  gboolean added_layer;
 } CoglPipelineAddLayerState;
 
-static CoglBool
+static gboolean
 vertend_add_layer_cb (CoglPipelineLayer *layer,
                       void *user_data)
 {
@@ -1081,7 +1081,7 @@ vertend_add_layer_cb (CoglPipelineLayer *layer,
   return TRUE;
 }
 
-static CoglBool
+static gboolean
 fragend_add_layer_cb (CoglPipelineLayer *layer,
                       void *user_data)
 {
@@ -1159,8 +1159,8 @@ void
 _cogl_pipeline_flush_gl_state (CoglContext *ctx,
                                CoglPipeline *pipeline,
                                CoglFramebuffer *framebuffer,
-                               CoglBool with_color_attrib,
-                               CoglBool unknown_color_alpha)
+                               gboolean with_color_attrib,
+                               gboolean unknown_color_alpha)
 {
   CoglPipeline *current_pipeline = ctx->current_pipeline;
   unsigned long pipelines_difference;
@@ -1203,7 +1203,7 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
           if (pipelines_difference & COGL_PIPELINE_STATE_AFFECTS_BLENDING ||
               pipeline->unknown_color_alpha != unknown_color_alpha)
             {
-              CoglBool save_real_blend_enable = pipeline->real_blend_enable;
+              gboolean save_real_blend_enable = pipeline->real_blend_enable;
 
               _cogl_pipeline_update_real_blend_enable (pipeline,
                                                        unknown_color_alpha);

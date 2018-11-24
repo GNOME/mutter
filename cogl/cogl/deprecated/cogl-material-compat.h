@@ -215,7 +215,7 @@ cogl_material_unref (CoglHandle material);
  * Deprecated: 1.16: Use cogl_is_pipeline() instead
  */
 COGL_DEPRECATED_FOR (cogl_is_pipeline)
-CoglBool
+gboolean
 cogl_is_material (CoglHandle handle);
 
 /**
@@ -638,7 +638,7 @@ cogl_material_set_alpha_test_function (CoglMaterial         *material,
  * Deprecated: 1.16: Use cogl_pipeline_set_blend() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_blend)
-CoglBool
+gboolean
 cogl_material_set_blend (CoglMaterial *material,
                          const char   *blend_string,
                          CoglError   **error);
@@ -899,7 +899,7 @@ cogl_material_remove_layer (CoglMaterial *material,
  * Deprecated: 1.16: Use cogl_pipeline_set_layer_combine() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_combine)
-CoglBool
+gboolean
 cogl_material_set_layer_combine (CoglMaterial *material,
 				 int           layer_index,
 				 const char   *blend_string,
@@ -1102,10 +1102,10 @@ cogl_material_set_layer_filters (CoglMaterial      *material,
  *                  instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_point_sprite_coords_enabled)
-CoglBool
+gboolean
 cogl_material_set_layer_point_sprite_coords_enabled (CoglMaterial *material,
                                                      int           layer_index,
-                                                     CoglBool      enable,
+                                                     gboolean      enable,
                                                      CoglError   **error);
 
 /**
@@ -1124,7 +1124,7 @@ cogl_material_set_layer_point_sprite_coords_enabled (CoglMaterial *material,
  *                  instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_get_layer_point_sprite_coords_enabled)
-CoglBool
+gboolean
 cogl_material_get_layer_point_sprite_coords_enabled (CoglMaterial *material,
                                                      int           layer_index);
 
@@ -1328,7 +1328,7 @@ cogl_material_layer_get_wrap_mode_p (CoglMaterialLayer *layer);
  * Deprecated: 1.16: Use cogl_pipeline_set_depth_state() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_depth_state)
-CoglBool
+gboolean
 cogl_material_set_depth_state (CoglMaterial *material,
                                const CoglDepthState *state,
                                CoglError **error);
@@ -1363,7 +1363,7 @@ cogl_material_get_depth_state (CoglMaterial *material,
  * Stability: Unstable
  * Deprecated: 1.16
  */
-typedef CoglBool (*CoglMaterialLayerCallback) (CoglMaterial *material,
+typedef gboolean (*CoglMaterialLayerCallback) (CoglMaterial *material,
                                                int layer_index,
                                                void *user_data);
 

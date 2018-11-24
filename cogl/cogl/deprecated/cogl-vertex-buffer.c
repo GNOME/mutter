@@ -304,7 +304,7 @@ validate_cogl_attribute (const char *cogl_attribute,
  *
  * maybe I should hang a compiled regex somewhere to handle this
  */
-static CoglBool
+static gboolean
 validate_custom_attribute_name (const char *attribute_name)
 {
   char *detail_seperator = NULL;
@@ -440,14 +440,14 @@ cogl_vertex_buffer_add (CoglHandle         handle,
 		        const char        *attribute_name,
 			uint8_t            n_components,
 			CoglAttributeType  type,
-			CoglBool           normalized,
+			gboolean           normalized,
 			uint16_t           stride,
 			const void        *pointer)
 {
   CoglVertexBuffer *buffer;
   char *cogl_attribute_name;
   GQuark name_quark;
-  CoglBool modifying_an_attrib = FALSE;
+  gboolean modifying_an_attrib = FALSE;
   CoglVertexBufferAttrib *attribute;
   CoglVertexBufferAttribFlags flags = 0;
   uint8_t texture_unit = 0;
@@ -612,7 +612,7 @@ cogl_vertex_buffer_delete (CoglHandle handle,
 static void
 set_attribute_enable (CoglHandle handle,
 		      const char *attribute_name,
-		      CoglBool state)
+		      gboolean state)
 {
   CoglVertexBuffer *buffer;
   char *cogl_attribute_name = canonize_attribute_name (attribute_name);
@@ -985,7 +985,7 @@ prep_strided_vbo_for_upload (CoglVertexBufferVBO *cogl_vbo)
   return lowest_pointer;
 }
 
-static CoglBool
+static gboolean
 upload_multipack_vbo_via_map_buffer (CoglVertexBufferVBO *cogl_vbo)
 {
   GList *tmp;
@@ -1093,7 +1093,7 @@ cogl_vertex_buffer_vbo_resolve (CoglVertexBuffer *buffer,
   GList *conflicts;
   GList *tmp;
   GList *next;
-  CoglBool found_target_vbo = FALSE;
+  gboolean found_target_vbo = FALSE;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
@@ -1513,7 +1513,7 @@ weak_override_source_destroyed_cb (CoglPipeline *pipeline,
   unref_pipeline_priv (pipeline_priv);
 }
 
-static CoglBool
+static gboolean
 validate_layer_cb (CoglPipeline *pipeline,
                    int layer_index,
                    void *user_data)
@@ -1527,7 +1527,7 @@ validate_layer_cb (CoglPipeline *pipeline,
       CoglPipelineWrapMode wrap_s;
       CoglPipelineWrapMode wrap_t;
       CoglPipelineWrapMode wrap_p;
-      CoglBool need_override_source = FALSE;
+      gboolean need_override_source = FALSE;
 
       /* By default COGL_PIPELINE_WRAP_MODE_AUTOMATIC becomes
        * GL_CLAMP_TO_EDGE but we want GL_REPEAT to maintain

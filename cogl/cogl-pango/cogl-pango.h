@@ -144,7 +144,7 @@ cogl_pango_ensure_glyph_cache_for_layout (PangoLayout *layout);
  */
 void
 cogl_pango_font_map_set_use_mipmapping (CoglPangoFontMap *font_map,
-                                        CoglBool value);
+                                        gboolean value);
 
 /**
  * cogl_pango_font_map_get_use_mipmapping:
@@ -157,7 +157,7 @@ cogl_pango_font_map_set_use_mipmapping (CoglPangoFontMap *font_map,
  *
  * Since: 1.0
  */
-CoglBool
+gboolean
 cogl_pango_font_map_get_use_mipmapping (CoglPangoFontMap *font_map);
 
 /**
