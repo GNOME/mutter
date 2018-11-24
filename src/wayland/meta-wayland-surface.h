@@ -113,6 +113,11 @@ struct _MetaWaylandPendingState
 
   gboolean has_new_buffer_transform;
   MetaMonitorTransform buffer_transform;
+  gboolean has_new_viewport_src_rect;
+  ClutterRect viewport_src_rect;
+  gboolean has_new_viewport_dst_size;
+  int viewport_dst_width;
+  int viewport_dst_height;
 };
 
 struct _MetaWaylandDragDestFuncs
@@ -201,6 +206,18 @@ struct _MetaWaylandSurface
     gboolean pending_pos;
     GSList *pending_placement_ops;
   } sub;
+
+  /* wp_viewporter */
+  struct {
+    struct wl_resource *resource;
+
+    gboolean has_src_rect;
+    ClutterRect src_rect;
+
+    gboolean has_dst_size;
+    int dst_width;
+    int dst_height;
+  } viewport;
 
   /* table of seats for which shortcuts are inhibited */
   GHashTable *shortcut_inhibited_seats;
