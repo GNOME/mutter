@@ -132,7 +132,7 @@ cogl_wayland_texture_2d_new_from_buffer (CoglContext *ctx,
  * Since: 1.18
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_wayland_texture_set_region_from_shm_buffer (CoglTexture *texture,
                                                  int src_x,
                                                  int src_y,

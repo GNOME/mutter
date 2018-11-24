@@ -82,9 +82,9 @@ typedef struct _CoglWinsysVtable
   GCallback
   (*renderer_get_proc_address) (CoglRenderer *renderer,
                                 const char *name,
-                                CoglBool in_core);
+                                gboolean in_core);
 
-  CoglBool
+  gboolean
   (*renderer_connect) (CoglRenderer *renderer, CoglError **error);
 
   void
@@ -93,13 +93,13 @@ typedef struct _CoglWinsysVtable
   void
   (*renderer_outputs_changed) (CoglRenderer *renderer);
 
-  CoglBool
+  gboolean
   (*display_setup) (CoglDisplay *display, CoglError **error);
 
   void
   (*display_destroy) (CoglDisplay *display);
 
-  CoglBool
+  gboolean
   (*context_init) (CoglContext *context, CoglError **error);
 
   void
@@ -108,7 +108,7 @@ typedef struct _CoglWinsysVtable
   void *
   (*context_create_gles2_context) (CoglContext *ctx, CoglError **error);
 
-  CoglBool
+  gboolean
   (*onscreen_init) (CoglOnscreen *onscreen, CoglError **error);
 
   void
@@ -124,7 +124,7 @@ typedef struct _CoglWinsysVtable
 
   void
   (*onscreen_set_visibility) (CoglOnscreen *onscreen,
-                              CoglBool visibility);
+                              gboolean visibility);
 
   /* Optional functions */
 
@@ -137,7 +137,7 @@ typedef struct _CoglWinsysVtable
                            int n_rectangles);
 
   void
-  (*onscreen_set_resizable) (CoglOnscreen *onscreen, CoglBool resizable);
+  (*onscreen_set_resizable) (CoglOnscreen *onscreen, gboolean resizable);
 
   int
   (*onscreen_get_buffer_age) (CoglOnscreen *onscreen);
@@ -146,15 +146,15 @@ typedef struct _CoglWinsysVtable
   (*onscreen_x11_get_window_xid) (CoglOnscreen *onscreen);
 
 #ifdef COGL_HAS_XLIB_SUPPORT
-  CoglBool
+  gboolean
   (*texture_pixmap_x11_create) (CoglTexturePixmapX11 *tex_pixmap);
   void
   (*texture_pixmap_x11_free) (CoglTexturePixmapX11 *tex_pixmap);
 
-  CoglBool
+  gboolean
   (*texture_pixmap_x11_update) (CoglTexturePixmapX11 *tex_pixmap,
                                 CoglTexturePixmapStereoMode stereo_mode,
-                                CoglBool needs_mipmap);
+                                gboolean needs_mipmap);
 
   void
   (*texture_pixmap_x11_damage_notify) (CoglTexturePixmapX11 *tex_pixmap);
@@ -167,7 +167,7 @@ typedef struct _CoglWinsysVtable
   void
   (*save_context) (CoglContext *ctx);
 
-  CoglBool
+  gboolean
   (*set_gles2_context) (CoglGLES2Context *gles2_ctx, CoglError **error);
 
   void
@@ -179,7 +179,7 @@ typedef struct _CoglWinsysVtable
   void *
   (*fence_add) (CoglContext *ctx);
 
-  CoglBool
+  gboolean
   (*fence_is_complete) (CoglContext *ctx, void *fence);
 
   void
@@ -189,7 +189,7 @@ typedef struct _CoglWinsysVtable
 
 typedef const CoglWinsysVtable *(*CoglWinsysVtableGetter) (void);
 
-CoglBool
+gboolean
 _cogl_winsys_has_feature (CoglWinsysFeature feature);
 
 #endif /* __COGL_WINSYS_PRIVATE_H */

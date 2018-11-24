@@ -138,7 +138,7 @@ on_paint (ClutterActor *actor, void *state)
   clutter_main_quit ();
 }
 
-static CoglBool
+static gboolean
 queue_redraw (void *stage)
 {
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));

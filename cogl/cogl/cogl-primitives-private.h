@@ -60,7 +60,7 @@ _cogl_framebuffer_draw_multitextured_rectangles (
                                         CoglPipeline *pipeline,
                                         CoglMultiTexturedRect *rects,
                                         int n_rects,
-                                        CoglBool disable_legacy_state);
+                                        gboolean disable_legacy_state);
 
 G_END_DECLS
 

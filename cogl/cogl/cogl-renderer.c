@@ -252,7 +252,7 @@ cogl_xlib_renderer_get_foreign_display (CoglRenderer *renderer)
 
 void
 cogl_xlib_renderer_set_event_retrieval_enabled (CoglRenderer *renderer,
-                                                CoglBool enable)
+                                                gboolean enable)
 {
   _COGL_RETURN_IF_FAIL (cogl_is_renderer (renderer));
   /* NB: Renderers are considered immutable once connected */
@@ -263,7 +263,7 @@ cogl_xlib_renderer_set_event_retrieval_enabled (CoglRenderer *renderer,
 
 void
 cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
-                                                        CoglBool enable)
+                                                        gboolean enable)
 {
   _COGL_RETURN_IF_FAIL (cogl_is_renderer (renderer));
   _COGL_RETURN_IF_FAIL (!renderer->connected);
@@ -273,7 +273,7 @@ cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
 
 void
 cogl_xlib_renderer_set_threaded_swap_wait_enabled (CoglRenderer *renderer,
-						   CoglBool enable)
+						   gboolean enable)
 {
   _COGL_RETURN_IF_FAIL (cogl_is_renderer (renderer));
   /* NB: Renderers are considered immutable once connected */
@@ -283,7 +283,7 @@ cogl_xlib_renderer_set_threaded_swap_wait_enabled (CoglRenderer *renderer,
 }
 #endif /* COGL_HAS_XLIB_SUPPORT */
 
-CoglBool
+gboolean
 cogl_renderer_check_onscreen_template (CoglRenderer *renderer,
                                        CoglOnscreenTemplate *onscreen_template,
                                        CoglError **error)
@@ -305,7 +305,7 @@ cogl_renderer_check_onscreen_template (CoglRenderer *renderer,
   return TRUE;
 }
 
-typedef CoglBool (*CoglDriverCallback) (CoglDriverDescription *description,
+typedef gboolean (*CoglDriverCallback) (CoglDriverDescription *description,
                                         void *user_data);
 
 static void
@@ -405,7 +405,7 @@ typedef struct _SatisfyConstraintsState
   const CoglDriverDescription *driver_description;
 } SatisfyConstraintsState;
 
-static CoglBool
+static gboolean
 satisfy_constraints (CoglDriverDescription *description,
                      void *user_data)
 {
@@ -432,7 +432,7 @@ satisfy_constraints (CoglDriverDescription *description,
   return FALSE;
 }
 
-static CoglBool
+static gboolean
 _cogl_renderer_choose_driver (CoglRenderer *renderer,
                               CoglError **error)
 {
@@ -472,7 +472,7 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
 
   if (driver_override != COGL_DRIVER_ANY)
     {
-      CoglBool found = FALSE;
+      gboolean found = FALSE;
       int i;
 
       for (i = 0; i < G_N_ELEMENTS (_cogl_drivers); i++)
@@ -554,7 +554,7 @@ cogl_renderer_set_custom_winsys (CoglRenderer                *renderer,
   renderer->custom_winsys_vtable_getter = winsys_vtable_getter;
 }
 
-static CoglBool
+static gboolean
 connect_custom_winsys (CoglRenderer *renderer,
                        CoglError   **error)
 {
@@ -588,12 +588,12 @@ connect_custom_winsys (CoglRenderer *renderer,
   return FALSE;
 }
 
-CoglBool
+gboolean
 cogl_renderer_connect (CoglRenderer *renderer, CoglError **error)
 {
   int i;
   GString *error_message;
-  CoglBool constraints_failed = FALSE;
+  gboolean constraints_failed = FALSE;
 
   if (renderer->connected)
     return TRUE;
@@ -613,7 +613,7 @@ cogl_renderer_connect (CoglRenderer *renderer, CoglError **error)
       const CoglWinsysVtable *winsys = _cogl_winsys_vtable_getters[i]();
       CoglError *tmp_error = NULL;
       GList *l;
-      CoglBool skip_due_to_constraints = FALSE;
+      gboolean skip_due_to_constraints = FALSE;
 
       if (renderer->winsys_id_override != COGL_WINSYS_ID_ANY)
         {
@@ -769,7 +769,7 @@ cogl_renderer_get_winsys_id (CoglRenderer *renderer)
 void *
 _cogl_renderer_get_proc_address (CoglRenderer *renderer,
                                  const char *name,
-                                 CoglBool in_core)
+                                 gboolean in_core)
 {
   const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
 

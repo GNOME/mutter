@@ -678,8 +678,8 @@ static gboolean
 check_onscreen_template (CoglRenderer         *renderer,
                          CoglSwapChain        *swap_chain,
                          CoglOnscreenTemplate *onscreen_template,
-                         CoglBool              enable_argb,
-                         CoglBool              enable_stereo,
+                         gboolean              enable_argb,
+                         gboolean              enable_stereo,
                          GError              **error)
 {
   GError *internal_error = NULL;
