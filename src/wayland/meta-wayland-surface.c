@@ -50,6 +50,7 @@
 #include "wayland/meta-wayland-region.h"
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-subsurface.h"
+#include "wayland/meta-wayland-viewporter.h"
 #include "wayland/meta-wayland-wl-shell.h"
 #include "wayland/meta-wayland-xdg-shell.h"
 #include "wayland/meta-window-wayland.h"
@@ -398,6 +399,9 @@ pending_state_init (MetaWaylandPendingState *state)
 
   state->has_new_buffer_transform = FALSE;
   state->buffer_transform = META_MONITOR_TRANSFORM_NORMAL;
+
+  state->has_new_viewport_src_rect = FALSE;
+  state->has_new_viewport_dest = FALSE;
 }
 
 static void
@@ -509,6 +513,22 @@ merge_pending_state (MetaWaylandPendingState *from,
     {
       to->buffer_transform = from->buffer_transform;
       to->has_new_buffer_transform = TRUE;
+    }
+
+  if (from->has_new_viewport_src_rect)
+    {
+      to->viewport_src_x = from->viewport_src_x;
+      to->viewport_src_y = from->viewport_src_y;
+      to->viewport_src_width = from->viewport_src_width;
+      to->viewport_src_height = from->viewport_src_height;
+      to->has_new_viewport_src_rect = TRUE;
+    }
+
+  if (from->has_new_viewport_dest)
+    {
+      to->viewport_dest_width = from->viewport_dest_width;
+      to->viewport_dest_height = from->viewport_dest_height;
+      to->has_new_viewport_dest = TRUE;
     }
 
   if (to->buffer && to->buffer_destroy_handler_id == 0)
@@ -699,6 +719,48 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
           stex = meta_surface_actor_get_texture (actor);
           meta_shaped_texture_set_transform (stex,
                                              surface->buffer_transform);
+        }
+    }
+
+  if (pending->has_new_viewport_src_rect)
+    {
+      MetaSurfaceActor *actor = meta_wayland_surface_get_actor (surface);
+
+      if (actor)
+        {
+          MetaShapedTexture *stex;
+
+          surface->viewport_src_x = pending->viewport_src_x;
+          surface->viewport_src_y = pending->viewport_src_y;
+          surface->viewport_src_width = pending->viewport_src_width;
+          surface->viewport_src_height = pending->viewport_src_height;
+          surface->has_viewport_src_rect = surface->viewport_src_width > 0;
+
+          stex = meta_surface_actor_get_texture (actor);
+          meta_shaped_texture_set_viewport_src_rect (stex,
+                                                     surface->viewport_src_x,
+                                                     surface->viewport_src_y,
+                                                     surface->viewport_src_width,
+                                                     surface->viewport_src_height);
+        }
+    }
+
+  if (pending->has_new_viewport_dest)
+    {
+      MetaSurfaceActor *actor = meta_wayland_surface_get_actor (surface);
+
+      if (actor)
+        {
+          MetaShapedTexture *stex;
+
+          surface->viewport_dest_width = pending->viewport_dest_width;
+          surface->viewport_dest_height = pending->viewport_dest_height;
+          surface->has_viewport_dest = surface->viewport_dest_height > 0;
+
+          stex = meta_surface_actor_get_texture (actor);
+          meta_shaped_texture_set_viewport_dest (stex,
+                                                 surface->viewport_dest_width,
+                                                 surface->viewport_dest_height);
         }
     }
 
@@ -1330,6 +1392,7 @@ meta_wayland_shell_init (MetaWaylandCompositor *compositor)
   meta_wayland_legacy_xdg_shell_init (compositor);
   meta_wayland_wl_shell_init (compositor);
   meta_wayland_gtk_shell_init (compositor);
+  meta_wayland_viewporter_init (compositor);
 }
 
 void
@@ -1789,27 +1852,49 @@ meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface)
 int
 meta_wayland_surface_get_width (MetaWaylandSurface *surface)
 {
-  int width;
-
-  if (meta_monitor_transform_is_rotated (surface->buffer_transform))
-    width = meta_wayland_surface_get_buffer_height (surface);
+  if (surface->has_viewport_dest)
+    {
+      return surface->viewport_dest_width;
+    }
+  else if (surface->has_viewport_src_rect)
+    {
+      return surface->viewport_src_width;
+    }
   else
-    width = meta_wayland_surface_get_buffer_width (surface);
+    {
+      int width;
 
-  return width / surface->scale;
+      if (meta_monitor_transform_is_rotated (surface->buffer_transform))
+        width = meta_wayland_surface_get_buffer_height (surface);
+      else
+        width = meta_wayland_surface_get_buffer_width (surface);
+
+      return width / surface->scale;
+    }
 }
 
 int
 meta_wayland_surface_get_height (MetaWaylandSurface *surface)
 {
-  int height;
-
-  if (meta_monitor_transform_is_rotated (surface->buffer_transform))
-    height = meta_wayland_surface_get_buffer_width (surface);
+  if (surface->has_viewport_dest)
+    {
+      return surface->viewport_dest_height;
+    }
+  else if (surface->has_viewport_src_rect)
+    {
+      return surface->viewport_src_height;
+    }
   else
-    height = meta_wayland_surface_get_buffer_height (surface);
+    {
+      int height;
 
-  return height / surface->scale;
+      if (meta_monitor_transform_is_rotated (surface->buffer_transform))
+        height = meta_wayland_surface_get_buffer_width (surface);
+      else
+        height = meta_wayland_surface_get_buffer_height (surface);
+
+      return height / surface->scale;
+    }
 }
 
 int

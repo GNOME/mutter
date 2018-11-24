@@ -114,6 +114,14 @@ struct _MetaWaylandPendingState
 
   gboolean has_new_buffer_transform;
   MetaMonitorTransform buffer_transform;
+  gboolean has_new_viewport_src_rect;
+  float viewport_src_x;
+  float viewport_src_y;
+  float viewport_src_width;
+  float viewport_src_height;
+  gboolean has_new_viewport_dest;
+  int viewport_dest_width;
+  int viewport_dest_height;
 };
 
 struct _MetaWaylandDragDestFuncs
@@ -148,6 +156,16 @@ struct _MetaWaylandSurface
   GList *subsurfaces;
   GHashTable *outputs_to_destroy_notify_id;
   MetaMonitorTransform buffer_transform;
+
+  struct wl_resource *viewport_resource;
+  gboolean has_viewport_src_rect;
+  float viewport_src_x;
+  float viewport_src_y;
+  float viewport_src_width;
+  float viewport_src_height;
+  gboolean has_viewport_dest;
+  int viewport_dest_width;
+  int viewport_dest_height;
 
   /* Buffer reference state. */
   struct {
