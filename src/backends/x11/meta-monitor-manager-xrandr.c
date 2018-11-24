@@ -77,9 +77,6 @@ struct _MetaMonitorManagerXrandr
   xcb_timestamp_t last_xrandr_set_timestamp;
 
   GHashTable *tiled_monitor_atoms;
-
-  float *supported_scales;
-  int n_supported_scales;
 };
 
 struct _MetaMonitorManagerXrandrClass
@@ -584,17 +581,6 @@ meta_monitor_manager_xrandr_ensure_initial_config (MetaMonitorManager *manager)
   meta_monitor_manager_update_logical_state_derived (manager, config);
 }
 
-static void
-meta_monitor_manager_xrandr_rebuild_derived (MetaMonitorManager *manager,
-                                             MetaMonitorsConfig *config)
-{
-  MetaMonitorManagerXrandr *manager_xrandr =
-    META_MONITOR_MANAGER_XRANDR (manager);
-
-  g_clear_pointer (&manager_xrandr->supported_scales, g_free);
-  meta_monitor_manager_rebuild_derived (manager, config);
-}
-
 static gboolean
 meta_monitor_manager_xrandr_apply_monitors_config (MetaMonitorManager      *manager,
                                                    MetaMonitorsConfig      *config,
@@ -609,7 +595,7 @@ meta_monitor_manager_xrandr_apply_monitors_config (MetaMonitorManager      *mana
       if (!manager->in_init)
         apply_crtc_assignments (manager, TRUE, NULL, 0, NULL, 0);
 
-      meta_monitor_manager_xrandr_rebuild_derived (manager, NULL);
+      meta_monitor_manager_rebuild_derived (manager, NULL);
       return TRUE;
     }
 
@@ -644,7 +630,7 @@ meta_monitor_manager_xrandr_apply_monitors_config (MetaMonitorManager      *mana
         }
       else
         {
-          meta_monitor_manager_xrandr_rebuild_derived (manager, config);
+          meta_monitor_manager_rebuild_derived (manager, config);
         }
     }
 
@@ -891,77 +877,6 @@ meta_monitor_manager_xrandr_calculate_monitor_mode_scale (MetaMonitorManager    
   return meta_monitor_calculate_mode_scale (monitor, monitor_mode, constraints);
 }
 
-static void
-add_supported_scale (GArray *supported_scales,
-                     float   scale)
-{
-  unsigned int i;
-
-  for (i = 0; i < supported_scales->len; i++)
-    {
-      float supported_scale = g_array_index (supported_scales, float, i);
-
-      if (scale == supported_scale)
-        return;
-    }
-
-  g_array_append_val (supported_scales, scale);
-}
-
-static int
-compare_scales (gconstpointer a,
-                gconstpointer b)
-{
-  float f = *(float *) a - *(float *) b;
-
-  if (f < 0)
-    return -1;
-  if (f > 0)
-    return 1;
-  return 0;
-}
-
-static void
-ensure_supported_monitor_scales (MetaMonitorManager *manager)
-{
-  MetaMonitorManagerXrandr *manager_xrandr =
-    META_MONITOR_MANAGER_XRANDR (manager);
-  MetaMonitorScalesConstraint constraints;
-  GList *l;
-  GArray *supported_scales;
-
-  if (manager_xrandr->supported_scales)
-    return;
-
-  constraints = META_MONITOR_SCALES_CONSTRAINT_NO_FRAC;
-  supported_scales = g_array_new (FALSE, FALSE, sizeof (float));
-
-  for (l = manager->monitors; l; l = l->next)
-    {
-      MetaMonitor *monitor = l->data;
-      MetaMonitorMode *monitor_mode;
-      float *monitor_scales;
-      int n_monitor_scales;
-      int i;
-
-      monitor_mode = meta_monitor_get_preferred_mode (monitor);
-      monitor_scales =
-        meta_monitor_calculate_supported_scales (monitor,
-                                                 monitor_mode,
-                                                 constraints,
-                                                 &n_monitor_scales);
-
-      for (i = 0; i < n_monitor_scales; i++)
-        add_supported_scale (supported_scales, monitor_scales[i]);
-      g_array_sort (supported_scales, compare_scales);
-      g_free (monitor_scales);
-    }
-
-  manager_xrandr->supported_scales = (float *) supported_scales->data;
-  manager_xrandr->n_supported_scales = supported_scales->len;
-  g_array_free (supported_scales, FALSE);
-}
-
 static float *
 meta_monitor_manager_xrandr_calculate_supported_scales (MetaMonitorManager           *manager,
                                                         MetaLogicalMonitorLayoutMode  layout_mode,
@@ -969,14 +884,12 @@ meta_monitor_manager_xrandr_calculate_supported_scales (MetaMonitorManager      
                                                         MetaMonitorMode              *monitor_mode,
                                                         int                          *n_supported_scales)
 {
-  MetaMonitorManagerXrandr *manager_xrandr =
-    META_MONITOR_MANAGER_XRANDR (manager);
+  MetaMonitorScalesConstraint constraints;
 
-  ensure_supported_monitor_scales (manager);
-
-  *n_supported_scales = manager_xrandr->n_supported_scales;
-  return g_memdup2 (manager_xrandr->supported_scales,
-                    manager_xrandr->n_supported_scales * sizeof (float));
+  constraints = META_MONITOR_SCALES_CONSTRAINT_NO_FRAC;
+  return meta_monitor_calculate_supported_scales (monitor, monitor_mode,
+                                                  constraints,
+                                                  n_supported_scales);
 }
 
 static MetaMonitorManagerCapability
@@ -1063,7 +976,6 @@ meta_monitor_manager_xrandr_finalize (GObject *object)
   MetaMonitorManagerXrandr *manager_xrandr = META_MONITOR_MANAGER_XRANDR (object);
 
   g_hash_table_destroy (manager_xrandr->tiled_monitor_atoms);
-  g_free (manager_xrandr->supported_scales);
 
   G_OBJECT_CLASS (meta_monitor_manager_xrandr_parent_class)->finalize (object);
 }
@@ -1148,7 +1060,7 @@ meta_monitor_manager_xrandr_handle_xevent (MetaMonitorManagerXrandr *manager_xra
           config = NULL;
         }
 
-      meta_monitor_manager_xrandr_rebuild_derived (manager, config);
+      meta_monitor_manager_rebuild_derived (manager, config);
     }
 
   return TRUE;
