@@ -25,4 +25,6 @@ cairo_region_t * meta_wayland_surface_helper_surface_to_buffer_region (MetaWayla
 
 MetaMonitorTransform meta_wayland_surface_helper_transform_from_wl_output_transform (int32_t transform_value);
 
+enum wl_output_transform meta_wayland_surface_helper_wl_output_transform_from_transform (MetaMonitorTransform transform);
+
 #endif

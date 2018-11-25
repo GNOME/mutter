@@ -145,6 +145,8 @@ const char * meta_monitor_get_serial (MetaMonitor *monitor);
 
 MetaConnectorType meta_monitor_get_connector_type (MetaMonitor *monitor);
 
+MetaMonitorTransform meta_monitor_get_transform (MetaMonitor *monitor);
+
 /* This function returns the transform corrected for the panel orientation */
 MetaMonitorTransform meta_monitor_logical_to_crtc_transform (MetaMonitor          *monitor,
                                                              MetaMonitorTransform  transform);

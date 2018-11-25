@@ -353,6 +353,15 @@ meta_monitor_get_connector_type (MetaMonitor *monitor)
 }
 
 MetaMonitorTransform
+meta_monitor_get_transform (MetaMonitor *monitor)
+{
+  MetaOutput *output;
+
+  output = meta_monitor_get_main_output (monitor);
+  return output->panel_orientation_transform;
+}
+
+MetaMonitorTransform
 meta_monitor_logical_to_crtc_transform (MetaMonitor          *monitor,
                                         MetaMonitorTransform  transform)
 {

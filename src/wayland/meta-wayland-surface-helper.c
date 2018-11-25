@@ -200,3 +200,27 @@ meta_wayland_surface_helper_transform_from_wl_output_transform (int32_t transfor
       return -1;
     }
 }
+
+enum wl_output_transform
+meta_wayland_surface_helper_wl_output_transform_from_transform (MetaMonitorTransform transform)
+{
+  switch (transform)
+    {
+    case META_MONITOR_TRANSFORM_90:
+      return WL_OUTPUT_TRANSFORM_90;
+    case META_MONITOR_TRANSFORM_180:
+      return WL_OUTPUT_TRANSFORM_180;
+    case META_MONITOR_TRANSFORM_270:
+      return WL_OUTPUT_TRANSFORM_270;
+    case META_MONITOR_TRANSFORM_FLIPPED:
+      return WL_OUTPUT_TRANSFORM_FLIPPED;
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+      return WL_OUTPUT_TRANSFORM_FLIPPED_90;
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+      return WL_OUTPUT_TRANSFORM_FLIPPED_180;
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      return WL_OUTPUT_TRANSFORM_FLIPPED_270;
+    default:
+      return WL_OUTPUT_TRANSFORM_NORMAL;
+    }
+}

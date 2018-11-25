@@ -32,6 +32,7 @@
 #include "backends/meta-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-surface-helper.h"
 
 #include "xdg-output-unstable-v1-server-protocol.h"
 
@@ -218,13 +219,7 @@ send_output_events (struct wl_resource *resource,
 
       subpixel_order = calculate_suitable_subpixel_order (logical_monitor);
 
-      /*
-       * TODO: When we support wl_surface.set_buffer_transform, pass along
-       * the correct transform here instead of always pretending its 'normal'.
-       * The reason for this is to try stopping clients from setting any buffer
-       * transform other than 'normal'.
-       */
-      transform = WL_OUTPUT_TRANSFORM_NORMAL;
+      transform = meta_wayland_surface_helper_wl_output_transform_from_transform (meta_monitor_get_transform (monitor));
 
       wl_output_send_geometry (resource,
                                logical_monitor->rect.x,
