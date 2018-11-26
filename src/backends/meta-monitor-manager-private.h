@@ -155,8 +155,6 @@ struct _MetaMonitorManagerClass
 {
   MetaDBusDisplayConfigSkeletonClass parent_class;
 
-  char* (*get_edid_file) (MetaMonitorManager *,
-                          MetaOutput         *);
   GBytes* (*read_edid) (MetaMonitorManager *,
                         MetaOutput         *);
 

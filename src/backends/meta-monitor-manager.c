@@ -769,13 +769,6 @@ meta_monitor_manager_real_read_edid (MetaMonitorManager *manager,
   return NULL;
 }
 
-static char *
-meta_monitor_manager_real_get_edid_file (MetaMonitorManager *manager,
-                                         MetaOutput         *output)
-{
-  return NULL;
-}
-
 static void
 meta_monitor_manager_set_property (GObject      *object,
                                    guint         prop_id,
@@ -823,7 +816,6 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
   object_class->get_property = meta_monitor_manager_get_property;
   object_class->set_property = meta_monitor_manager_set_property;
 
-  klass->get_edid_file = meta_monitor_manager_real_get_edid_file;
   klass->read_edid = meta_monitor_manager_real_read_edid;
 
   signals[MONITORS_CHANGED_INTERNAL] =
@@ -1024,7 +1016,6 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
       MetaOutput *output = l->data;
       GVariantBuilder crtcs, modes, clones, properties;
       GBytes *edid;
-      char *edid_file;
       MetaCrtc *crtc;
       int crtc_index;
 
@@ -1086,23 +1077,13 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
       g_variant_builder_add (&properties, "{sv}", "supports-underscanning",
                              g_variant_new_boolean (output->supports_underscanning));
 
-      edid_file = manager_class->get_edid_file (manager, output);
-      if (edid_file)
+      edid = manager_class->read_edid (manager, output);
+      if (edid)
         {
-          g_variant_builder_add (&properties, "{sv}", "edid-file",
-                                 g_variant_new_take_string (edid_file));
-        }
-      else
-        {
-          edid = manager_class->read_edid (manager, output);
-
-          if (edid)
-            {
-              g_variant_builder_add (&properties, "{sv}", "edid",
-                                     g_variant_new_from_bytes (G_VARIANT_TYPE ("ay"),
-                                                               edid, TRUE));
-              g_bytes_unref (edid);
-            }
+          g_variant_builder_add (&properties, "{sv}", "edid",
+                                 g_variant_new_from_bytes (G_VARIANT_TYPE ("ay"),
+                                                           edid, TRUE));
+          g_bytes_unref (edid);
         }
 
       if (output->tile_info.group_id)
