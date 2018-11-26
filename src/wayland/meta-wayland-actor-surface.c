@@ -205,6 +205,8 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
       meta_surface_actor_set_opaque_region (surface_actor, NULL);
     }
 
+  meta_surface_actor_set_transform (surface_actor, surface->buffer_transform);
+
   for (l = surface->subsurfaces; l; l = l->next)
     {
       MetaWaylandSurface *subsurface_surface = l->data;
