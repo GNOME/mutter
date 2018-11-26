@@ -56,6 +56,7 @@ struct _MetaWaylandOutput
   uint32_t mode_flags;
   float refresh_rate;
   int scale;
+  MetaMonitorTransform transform;
   int mode_width;
   int mode_height;
 
@@ -133,39 +134,6 @@ calculate_wayland_output_scale (MetaMonitor *monitor)
 }
 
 static void
-get_rotated_physical_dimensions (MetaMonitor *monitor,
-                                 int         *width_mm,
-                                 int         *height_mm)
-{
-  int monitor_width_mm, monitor_height_mm;
-  MetaLogicalMonitor *logical_monitor;
-
-  meta_monitor_get_physical_dimensions (monitor,
-                                        &monitor_width_mm,
-                                        &monitor_height_mm);
-  logical_monitor = meta_monitor_get_logical_monitor (monitor);
-
-  if (meta_monitor_transform_is_rotated (logical_monitor->transform))
-    {
-      *width_mm = monitor_height_mm;
-      *height_mm = monitor_width_mm;
-    }
-  else
-    {
-      *width_mm = monitor_width_mm;
-      *height_mm = monitor_height_mm;
-    }
-}
-
-static gboolean
-is_different_rotation (MetaLogicalMonitor *a,
-                       MetaLogicalMonitor *b)
-{
-  return (meta_monitor_transform_is_rotated (a->transform) !=
-          meta_monitor_transform_is_rotated (b->transform));
-}
-
-static void
 get_native_output_mode_resolution (MetaMonitor     *monitor,
                                    MetaMonitorMode *mode,
                                    int             *mode_width,
@@ -180,6 +148,31 @@ get_native_output_mode_resolution (MetaMonitor     *monitor,
     meta_monitor_mode_get_resolution (mode, mode_height, mode_width);
   else
     meta_monitor_mode_get_resolution (mode, mode_width, mode_height);
+}
+
+static enum wl_output_transform
+wl_output_transform_from_transform (MetaMonitorTransform transform)
+{
+  switch (transform)
+    {
+    case META_MONITOR_TRANSFORM_NORMAL:
+      return WL_OUTPUT_TRANSFORM_NORMAL;
+    case META_MONITOR_TRANSFORM_90:
+      return WL_OUTPUT_TRANSFORM_90;
+    case META_MONITOR_TRANSFORM_180:
+      return WL_OUTPUT_TRANSFORM_180;
+    case META_MONITOR_TRANSFORM_270:
+      return WL_OUTPUT_TRANSFORM_270;
+    case META_MONITOR_TRANSFORM_FLIPPED:
+      return WL_OUTPUT_TRANSFORM_FLIPPED;
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+      return WL_OUTPUT_TRANSFORM_FLIPPED_90;
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+      return WL_OUTPUT_TRANSFORM_FLIPPED_180;
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      return WL_OUTPUT_TRANSFORM_FLIPPED_270;
+    }
+  g_assert_not_reached ();
 }
 
 static void
@@ -199,6 +192,8 @@ send_output_events (struct wl_resource *resource,
   gint old_scale;
   float old_refresh_rate;
   float refresh_rate;
+  MetaMonitorTransform old_transform;
+  MetaMonitorTransform transform;
   int new_width, new_height;
 
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
@@ -206,26 +201,28 @@ send_output_events (struct wl_resource *resource,
     meta_monitor_get_logical_monitor (wayland_output->monitor);
   old_mode_flags = wayland_output->mode_flags;
   old_scale = wayland_output->scale;
+  old_transform = wayland_output->transform;
   old_refresh_rate = wayland_output->refresh_rate;
 
   current_mode = meta_monitor_get_current_mode (monitor);
   refresh_rate = meta_monitor_mode_get_refresh_rate (current_mode);
+  transform = meta_logical_monitor_get_transform (logical_monitor);
 
   gboolean need_done = FALSE;
 
   if (need_all_events ||
       old_logical_monitor->rect.x != logical_monitor->rect.x ||
       old_logical_monitor->rect.y != logical_monitor->rect.y ||
-      is_different_rotation (old_logical_monitor, logical_monitor))
+      old_transform != transform)
     {
       int width_mm, height_mm;
       const char *vendor;
       const char *product;
-      uint32_t transform;
+      uint32_t wl_transform;
       CoglSubpixelOrder cogl_subpixel_order;
       enum wl_output_subpixel subpixel_order;
 
-      get_rotated_physical_dimensions (monitor, &width_mm, &height_mm);
+      meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
       vendor = meta_monitor_get_vendor (monitor);
       product = meta_monitor_get_product (monitor);
 
@@ -233,13 +230,7 @@ send_output_events (struct wl_resource *resource,
       subpixel_order =
         cogl_subpixel_order_to_wl_output_subpixel (cogl_subpixel_order);
 
-      /*
-       * TODO: When we support wl_surface.set_buffer_transform, pass along
-       * the correct transform here instead of always pretending its 'normal'.
-       * The reason for this is to try stopping clients from setting any buffer
-       * transform other than 'normal'.
-       */
-      transform = WL_OUTPUT_TRANSFORM_NORMAL;
+      wl_transform = wl_output_transform_from_transform (transform);
 
       wl_output_send_geometry (resource,
                                logical_monitor->rect.x,
@@ -249,7 +240,7 @@ send_output_events (struct wl_resource *resource,
                                subpixel_order,
                                vendor,
                                product,
-                               transform);
+                               wl_transform);
       need_done = TRUE;
     }
 
@@ -344,6 +335,7 @@ meta_wayland_output_set_monitor (MetaWaylandOutput *wayland_output,
 {
   MetaMonitorMode *current_mode;
   MetaMonitorMode *preferred_mode;
+  MetaLogicalMonitor *logical_monitor;
 
   wayland_output->monitor = monitor;
   wayland_output->mode_flags = WL_OUTPUT_MODE_CURRENT;
@@ -355,6 +347,10 @@ meta_wayland_output_set_monitor (MetaWaylandOutput *wayland_output,
     wayland_output->mode_flags |= WL_OUTPUT_MODE_PREFERRED;
   wayland_output->scale = calculate_wayland_output_scale (monitor);
   wayland_output->refresh_rate = meta_monitor_mode_get_refresh_rate (current_mode);
+
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  wayland_output->transform =
+    meta_logical_monitor_get_transform (logical_monitor);
 
   get_native_output_mode_resolution (monitor,
                                      current_mode,
