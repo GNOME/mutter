@@ -577,6 +577,7 @@ meta_backend_x11_ungrab_device (MetaBackend *backend,
   int ret;
 
   ret = XIUngrabDevice (priv->xdisplay, device_id, timestamp);
+  XFlush (priv->xdisplay);
 
   return (ret == Success);
 }
