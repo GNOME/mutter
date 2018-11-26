@@ -171,10 +171,11 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     case WL_SHM_FORMAT_ARGB8888:
       format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
+      components[0] = COGL_TEXTURE_COMPONENTS_RGBA;
       break;
     case WL_SHM_FORMAT_XRGB8888:
       format = COGL_PIXEL_FORMAT_ARGB_8888;
-      components = COGL_TEXTURE_COMPONENTS_RGB;
+      components[0] = COGL_TEXTURE_COMPONENTS_RGB;
       break;
 #elif G_BYTE_ORDER == G_LITTLE_ENDIAN
     case WL_SHM_FORMAT_ARGB8888:
@@ -182,27 +183,42 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
       break;
     case WL_SHM_FORMAT_XRGB8888:
       format = COGL_PIXEL_FORMAT_BGRA_8888;
-      components = COGL_TEXTURE_COMPONENTS_RGB;
+      components[0] = COGL_TEXTURE_COMPONENTS_RGB;
       break;
 #endif
     case WL_SHM_FORMAT_NV12:
       format = COGL_PIXEL_FORMAT_NV12;
-      g_warning ("FORMAT IS NV12");
+      components[0] = COGL_TEXTURE_COMPONENTS_A;
+      components[1] = COGL_TEXTURE_COMPONENTS_RG;
       break;
     case WL_SHM_FORMAT_NV21:
-      g_warning ("FORMAT IS NV21");
+      format = COGL_PIXEL_FORMAT_NV21;
+      components[0] = COGL_TEXTURE_COMPONENTS_A;
+      components[1] = COGL_TEXTURE_COMPONENTS_RG;
       break;
     case WL_SHM_FORMAT_YUV422:
-      g_warning ("FORMAT IS YUV422");
+      format = COGL_PIXEL_FORMAT_YUV422;
+      components[0] = COGL_TEXTURE_COMPONENTS_A;
+      components[1] = COGL_TEXTURE_COMPONENTS_A;
+      components[2] = COGL_TEXTURE_COMPONENTS_A;
       break;
     case WL_SHM_FORMAT_YVU422:
-      g_warning ("FORMAT IS YVU422");
+      format = COGL_PIXEL_FORMAT_YVU422;
+      components[0] = COGL_TEXTURE_COMPONENTS_A;
+      components[1] = COGL_TEXTURE_COMPONENTS_A;
+      components[2] = COGL_TEXTURE_COMPONENTS_A;
       break;
     case WL_SHM_FORMAT_YUV444:
-      g_warning ("FORMAT IS YUV444");
+      format = COGL_PIXEL_FORMAT_YUV444;
+      components[0] = COGL_TEXTURE_COMPONENTS_A;
+      components[1] = COGL_TEXTURE_COMPONENTS_A;
+      components[2] = COGL_TEXTURE_COMPONENTS_A;
       break;
     case WL_SHM_FORMAT_YVU444:
-      g_warning ("FORMAT IS YVU444");
+      format = COGL_PIXEL_FORMAT_YVU444;
+      components[0] = COGL_TEXTURE_COMPONENTS_A;
+      components[1] = COGL_TEXTURE_COMPONENTS_A;
+      components[2] = COGL_TEXTURE_COMPONENTS_A;
       break;
 
     default:
@@ -212,8 +228,6 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
 
   if (format_out)
     *format_out = format;
-  if (components_out)
-    *components_out = components;
 }
 
 static gboolean
@@ -226,7 +240,7 @@ shm_buffer_attach (MetaWaylandBuffer *buffer,
   struct wl_shm_buffer *shm_buffer;
   int stride, width, height;
   CoglPixelFormat format;
-  CoglTextureComponents components;
+  CoglTextureComponents components[3];
   guint i, n_planes;
   guint h_factors[3], v_factors[3];
   gsize offset = 0;
@@ -274,7 +288,7 @@ shm_buffer_attach (MetaWaylandBuffer *buffer,
       g_assert (bitmap);
 
       plane = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
-      cogl_texture_set_components (COGL_TEXTURE (plane), components);
+      cogl_texture_set_components (COGL_TEXTURE (plane), components[i]);
 
       cogl_object_unref (bitmap);
 

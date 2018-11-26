@@ -939,3 +939,66 @@ cogl_pixel_format_get_subsampling_factors (CoglPixelFormat format,
       break;
     }
 }
+
+void
+cogl_pixel_format_get_texture_components (CoglPixelFormat format,
+                                          CoglTextureComponents *components_out)
+{
+  /* Check for Pre-YUV formats */
+  if (format & 0xf000)
+    {
+      switch (format)
+        {
+        /* 2 planes */
+        case COGL_PIXEL_FORMAT_NV12:
+        case COGL_PIXEL_FORMAT_NV21:
+          components_out[0] = COGL_TEXTURE_COMPONENTS_R;
+          components_out[1] = COGL_TEXTURE_COMPONENTS_RG;
+          break;
+
+          /* XXX TODO */
+        /* case COGL_PIXEL_FORMAT_XRGB88888_A8: */
+        /* case COGL_PIXEL_FORMAT_XBGR88888_A8: */
+        /* case COGL_PIXEL_FORMAT_RGBX88888_A8: */
+        /* case COGL_PIXEL_FORMAT_BGRX88888_A8: */
+        /* case COGL_PIXEL_FORMAT_RGB888_A8: */
+        /* case COGL_PIXEL_FORMAT_BGR888_A8: */
+        /* case COGL_PIXEL_FORMAT_RGB565_A8: */
+        /* case COGL_PIXEL_FORMAT_BGR565_A8: */
+
+        /* /1* 3 planes *1/ */
+        /* case COGL_PIXEL_FORMAT_YUV410: */
+        /* case COGL_PIXEL_FORMAT_YVU410: */
+        /* case COGL_PIXEL_FORMAT_YUV411: */
+        /* case COGL_PIXEL_FORMAT_YVU411: */
+        /* case COGL_PIXEL_FORMAT_YUV420: */
+        /* case COGL_PIXEL_FORMAT_YVU420: */
+        /* case COGL_PIXEL_FORMAT_YUV422: */
+        /* case COGL_PIXEL_FORMAT_YVU422: */
+        /* case COGL_PIXEL_FORMAT_YUV444: */
+        /* case COGL_PIXEL_FORMAT_YVU444: */
+
+        default:
+          /* XXX At this point, we might crash 'n burn */
+          g_assert_not_reached ();
+          components_out[0] = COGL_TEXTURE_COMPONENTS_RGB;
+          break;
+        }
+    }
+  else
+    {
+      if (format == COGL_PIXEL_FORMAT_ANY)
+        format = COGL_PIXEL_FORMAT_RGBA_8888_PRE;
+
+      if (format == COGL_PIXEL_FORMAT_A_8)
+        components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      else if (format == COGL_PIXEL_FORMAT_RG_88)
+        components_out[0] = COGL_TEXTURE_COMPONENTS_RG;
+      else if (format & COGL_DEPTH_BIT)
+        components_out[0] = COGL_TEXTURE_COMPONENTS_DEPTH;
+      else if (format & COGL_A_BIT)
+        components_out[0] = COGL_TEXTURE_COMPONENTS_RGBA;
+      else
+        components_out[0] = COGL_TEXTURE_COMPONENTS_RGB;
+    }
+}
