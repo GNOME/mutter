@@ -164,6 +164,31 @@ is_different_rotation (MetaLogicalMonitor *a,
           meta_monitor_transform_is_rotated (b->transform));
 }
 
+static enum wl_output_transform
+wl_output_transform_from_transform (MetaMonitorTransform transform)
+{
+  switch (transform)
+    {
+    case META_MONITOR_TRANSFORM_NORMAL:
+      return WL_OUTPUT_TRANSFORM_NORMAL;
+    case META_MONITOR_TRANSFORM_90:
+      return WL_OUTPUT_TRANSFORM_90;
+    case META_MONITOR_TRANSFORM_180:
+      return WL_OUTPUT_TRANSFORM_180;
+    case META_MONITOR_TRANSFORM_270:
+      return WL_OUTPUT_TRANSFORM_270;
+    case META_MONITOR_TRANSFORM_FLIPPED:
+      return WL_OUTPUT_TRANSFORM_FLIPPED;
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+      return WL_OUTPUT_TRANSFORM_FLIPPED_90;
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+      return WL_OUTPUT_TRANSFORM_FLIPPED_180;
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      return WL_OUTPUT_TRANSFORM_FLIPPED_270;
+    }
+  g_assert_not_reached ();
+}
+
 static void
 send_output_events (struct wl_resource *resource,
                     MetaWaylandOutput  *wayland_output,
@@ -202,7 +227,8 @@ send_output_events (struct wl_resource *resource,
       int width_mm, height_mm;
       const char *vendor;
       const char *product;
-      uint32_t transform;
+      uint32_t transform_value;
+      MetaMonitorTransform transform;
       enum wl_output_subpixel subpixel_order;
 
       /*
@@ -218,13 +244,8 @@ send_output_events (struct wl_resource *resource,
 
       subpixel_order = calculate_suitable_subpixel_order (logical_monitor);
 
-      /*
-       * TODO: When we support wl_surface.set_buffer_transform, pass along
-       * the correct transform here instead of always pretending its 'normal'.
-       * The reason for this is to try stopping clients from setting any buffer
-       * transform other than 'normal'.
-       */
-      transform = WL_OUTPUT_TRANSFORM_NORMAL;
+      transform = meta_logical_monitor_get_transform (logical_monitor);
+      transform_value = wl_output_transform_from_transform (transform);
 
       wl_output_send_geometry (resource,
                                logical_monitor->rect.x,
@@ -234,7 +255,7 @@ send_output_events (struct wl_resource *resource,
                                subpixel_order,
                                vendor,
                                product,
-                               transform);
+                               transform_value);
       need_done = TRUE;
     }
 
