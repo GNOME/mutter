@@ -62,6 +62,7 @@ cogl_1_public_h = \
 	cogl1-context.h 		\
 	cogl-bitmap.h 		\
 	cogl-color.h 			\
+	cogl-colorspace-conversion.h 			\
 	cogl-framebuffer.h		\
 	cogl-matrix.h 		\
 	cogl-offscreen.h 		\
@@ -116,6 +117,7 @@ cogl_nonintrospected_h = \
 	cogl-error.h			\
 	cogl-bitmap.h			\
 	cogl-color.h			\
+	cogl-colorspace-conversion.h 			\
 	cogl-matrix.h			\
 	cogl-texture.h		\
 	cogl-types.h			\
@@ -238,6 +240,7 @@ cogl_sources_c = \
 	cogl-feature-private.c                \
 	cogl-color-private.h    		\
 	cogl-color.c				\
+	cogl-colorspace-conversion.c				\
 	cogl-buffer-private.h 		\
 	cogl-buffer.c				\
 	cogl-pixel-buffer-private.h		\

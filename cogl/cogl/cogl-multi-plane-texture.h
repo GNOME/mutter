@@ -52,11 +52,23 @@ typedef struct _CoglMultiPlaneTexture CoglMultiPlaneTexture;
 
 
 /**
- * cogl_multiplane_texture_get_gtype:
+ * cogl_multi_plane_texture_get_gtype:
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
 GType cogl_multi_plane_texture_get_gtype (void);
+
+/**
+ * cogl_is_multi_plane_texture:
+ * @object: A #CoglObject pointer
+ *
+ * Gets whether the given @object references an existing CoglMultiPlaneTexture.
+ *
+ * Return value: %TRUE if the @object references a #CoglMultiPlaneTexture,
+ *   %FALSE otherwise
+ */
+gboolean
+cogl_is_multi_plane_texture (void *object);
 
 /**
  * cogl_multi_plane_texture_new:
@@ -158,18 +170,6 @@ guint           cogl_multi_plane_texture_get_width    (CoglMultiPlaneTexture *se
  * Returns: The height of the texture.
  */
 guint           cogl_multi_plane_texture_get_height   (CoglMultiPlaneTexture *self);
-
-/**
- * cogl_multi_plane_texture_create_color_conversion_snippets:
- *
- * Creates a trio of #CoglSnippets that allow you to use this texture inside
- * your pipeline. If no such shader is needed (e.g. because you already have
- * a single-plane RGBA texture), then they will be set to %NULL.
- */
-void cogl_multi_plane_texture_create_color_conversion_snippets (CoglMultiPlaneTexture *self,
-                                                                CoglSnippet **vertex_snippet_out,
-                                                                CoglSnippet **fragment_snippet_out,
-                                                                CoglSnippet **layer_snippet_out);
 
 G_END_DECLS
 

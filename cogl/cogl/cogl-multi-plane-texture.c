@@ -23,38 +23,6 @@
 #include "cogl-multi-plane-texture.h"
 #include "cogl-gtype-private.h"
 
-#define _COGL_YUV_TO_RGBA(res, y, u, v)                     \
-    res ".r = " y " + 1.59765625 * " v ";\n"                \
-    res ".g = " y " - 0.390625 * " u " - 0.8125 * " v ";\n" \
-    res ".b = " y " + 2.015625 * " u ";\n"                  \
-    res ".a = 1.0;\n"
-
-static const gchar nv12_to_rgba_shader[] =
-    "vec4\n"
-    "cogl_nv12_to_rgba (vec2 UV)\n"
-    "{\n"
-    "  vec4 color;\n"
-    "  float y = 1.1640625 * (texture2D (cogl_sampler0, UV).x - 0.0625);\n"
-    "  vec2 uv = texture2D (cogl_sampler1, UV).rg;\n"
-    "  uv -= 0.5;\n"
-    "  float u = uv.x;\n"
-    "  float v = uv.y;\n"
-       _COGL_YUV_TO_RGBA ("color", "y", "u", "v")
-    "  return color;\n"
-    "}\n";
-
-static const gchar yuv_to_rgba_shader[] =
-    "vec4\n"
-    "cogl_yuv_to_rgba (vec2 UV)\n"
-    "{\n"
-    "  vec4 color;\n"
-	"  float y = 1.16438356 * (texture2D(cogl_sampler0, UV).x - 0.0625);\n"
-	"  float u = texture2D(cogl_sampler1, UV).x - 0.5;\n"
-	"  float v = texture2D(cogl_sampler2, UV).x - 0.5;\n"
-       _COGL_YUV_TO_RGBA ("color", "y", "u", "v")
-    "  return color;\n"
-    "}\n";
-
 struct _CoglMultiPlaneTexture
 {
   CoglObject _parent;
@@ -113,46 +81,6 @@ cogl_multi_plane_texture_get_height (CoglMultiPlaneTexture *self)
   g_return_val_if_fail (self->n_planes > 0, 0);
 
   return cogl_texture_get_height (self->planes[0]);
-}
-
-void
-cogl_multi_plane_texture_create_color_conversion_snippets (CoglMultiPlaneTexture *self,
-                                                           CoglSnippet **vertex_snippet_out,
-                                                           CoglSnippet **fragment_snippet_out,
-                                                           CoglSnippet **layer_snippet_out)
-{
-  const gchar *global_hook;
-  const gchar *layer_hook;
-
-  switch (self->format)
-    {
-    case COGL_PIXEL_FORMAT_YUV444:
-      global_hook = yuv_to_rgba_shader;
-      layer_hook =  "cogl_layer = cogl_yuv_to_rgba(cogl_tex_coord0_in.st);\n";
-      break;
-    case COGL_PIXEL_FORMAT_NV12:
-      /* XXX are we using Y_UV or Y_xUxV? Maybe check for RG support? */
-      global_hook = nv12_to_rgba_shader;
-      layer_hook =  "cogl_layer = cogl_nv12_to_rgba(cogl_tex_coord0_in.st);\n";
-      break;
-    default:
-      *vertex_snippet_out = NULL;
-      *fragment_snippet_out = NULL;
-      *layer_snippet_out = NULL;
-      return;
-    }
-
-    *vertex_snippet_out = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX_GLOBALS,
-                                            global_hook,
-                                            NULL);
-
-    *fragment_snippet_out = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT_GLOBALS,
-                                              global_hook,
-                                              NULL);
-
-    *layer_snippet_out = cogl_snippet_new (COGL_SNIPPET_HOOK_LAYER_FRAGMENT,
-                                           NULL,
-                                           layer_hook);
 }
 
 static void

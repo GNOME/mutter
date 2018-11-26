@@ -319,7 +319,12 @@ add_supported_shm_formats (struct wl_display *display)
   /* Note that a Wayland compositor should support WL_SHM_FORMAT_ARGB8888 and
    * WL_SHM_FORMAT_XRGB8888 by default, so no need to add it here. */
   static const guint32 SUPPORTED_FORMATS[] = {
-    WL_SHM_FORMAT_NV12
+    WL_SHM_FORMAT_NV12,
+    WL_SHM_FORMAT_NV21,
+    WL_SHM_FORMAT_YUV422,
+    WL_SHM_FORMAT_YVU422,
+    WL_SHM_FORMAT_YUV444,
+    WL_SHM_FORMAT_YVU444
   };
 
   for (i = 0; i < G_N_ELEMENTS (SUPPORTED_FORMATS); i++)

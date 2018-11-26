@@ -94,6 +94,8 @@ struct _MetaShapedTexturePrivate
   CoglPipeline *masked_pipeline;
   CoglPipeline *unblended_pipeline;
 
+  CoglColorspaceConversion *colorspace_conversion;
+
   gboolean is_y_inverted;
 
   /* The region containing only fully opaque pixels */
@@ -220,7 +222,8 @@ meta_shaped_texture_dispose (GObject *object)
     meta_texture_tower_free (priv->paint_tower);
   priv->paint_tower = NULL;
 
-  g_clear_object (&priv->texture);
+  cogl_clear_object (&priv->colorspace_conversion);
+  cogl_clear_object (&priv->texture);
   g_clear_pointer (&priv->opaque_region, cairo_region_destroy);
 
   meta_shaped_texture_set_mask_texture (self, NULL);
@@ -361,32 +364,26 @@ static void
 check_texture_color_format (MetaShapedTexture *self,
                             CoglMultiPlaneTexture *texture)
 {
+  MetaShapedTexturePrivate *priv = self->priv;
   CoglPixelFormat format = cogl_multi_plane_texture_get_format (texture);
-  static CoglSnippet *func1 = NULL, *func2 = NULL, *snippet3 = NULL;
-  guint n_layers = 0;
+  guint n_layers = cogl_pipeline_get_n_layers (priv->base_pipeline);
 
-    n_layers = cogl_pipeline_get_n_layers (self->priv->base_pipeline);
-
-    if (func1 != NULL)
+  if (priv->colorspace_conversion != NULL)
       return;
 
-    cogl_multi_plane_texture_create_color_conversion_snippets (texture,
-                                                               &func1,
-                                                               &func2,
-                                                               &snippet3);
+  cogl_clear_object (&priv->colorspace_conversion);
+  priv->colorspace_conversion = cogl_colorspace_conversion_new (format);
 
-    /* Check if a snippet is actually necessary */
-    if (func1 != NULL)
-      {
-        cogl_pipeline_add_snippet (self->priv->base_pipeline, func1);
-        cogl_pipeline_add_snippet (self->priv->base_pipeline, func2);
-        meta_shaped_texture_set_create_mipmaps (self, FALSE);
+  /* Check if a snippet is actually necessary */
+  if (priv->colorspace_conversion == NULL)
+    return;
 
-        cogl_pipeline_add_layer_snippet (self->priv->base_pipeline,
-                                         n_layers - 1,
-                                         snippet3);
-      }
+  /* XXX disable for now, our changes are still incompatible with texturetower*/
+  meta_shaped_texture_set_create_mipmaps (self, FALSE);
 
+  cogl_colorspace_conversion_attach_to_pipeline (priv->colorspace_conversion,
+                                                 priv->base_pipeline,
+                                                 n_layers - 1);
 }
 
 static void

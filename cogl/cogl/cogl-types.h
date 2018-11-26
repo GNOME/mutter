@@ -408,6 +408,7 @@ typedef enum { /*< prefix=COGL_PIXEL_FORMAT >*/
 
 /**
  * cogl_pixel_format_get_n_planes:
+ * @format: The format for which to get the number of planes
  *
  * Returns the number of planes the given CoglPixelFormat specifies.
  */
@@ -416,6 +417,7 @@ cogl_pixel_format_get_n_planes (CoglPixelFormat format);
 
 /**
  * cogl_pixel_format_get_subsampling_factors:
+ * @format: The format to get the subsampling factors from.
  *
  * Returns the subsampling in both the horizontal as the vertical direction.
  */
@@ -423,6 +425,18 @@ void
 cogl_pixel_format_get_subsampling_factors (CoglPixelFormat format,
                                            guint *horizontal_factors,
                                            guint *vertical_factors);
+
+void
+cogl_pixel_format_get_bits_per_pixel (CoglPixelFormat format, guint *bpp_out);
+
+/**
+ * cogl_pixel_format_get_components:
+ *
+ * XXX make some comments here about (consistently) uploading multiple textures
+ */
+/* void */
+/* cogl_pixel_format_get_texture_components (CoglPixelFormat format, */
+/*                                           CoglTextureComponents *components_out); */
 
 /**
  * CoglFeatureFlags:
