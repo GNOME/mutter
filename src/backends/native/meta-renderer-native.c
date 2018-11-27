@@ -3582,7 +3582,7 @@ init_secondary_gpu_data_stream (MetaRendererNativeGpuData  *renderer_gpu_data,
       return FALSE;
     }
 
-  meta_renderer_native_gles3_load_basic_shaders (egl, renderer_native->gles3);
+  meta_renderer_native_gles3_prepare_for_drawing (egl, renderer_native->gles3, NULL);
 
   renderer_gpu_data->secondary.egl_context = egl_context;
   renderer_gpu_data->secondary.egl_config = egl_config;

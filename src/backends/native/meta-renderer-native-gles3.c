@@ -179,6 +179,61 @@ paint_egl_image (MetaGles3   *gles3,
                                     GL_NEAREST));
 }
 
+/* FIXME: all these declarations are just floating here
+ */
+struct __attribute__ ((__packed__)) position
+{
+  float x, y;
+};
+
+struct __attribute__ ((__packed__)) texture_coordinate
+{
+  float u, v;
+};
+
+struct __attribute__ ((__packed__)) vertex
+{
+  struct position position;
+  struct texture_coordinate texture_coordinate;
+};
+
+struct __attribute__ ((__packed__)) triangle
+{
+  unsigned int first_vertex;
+  unsigned int middle_vertex;
+  unsigned int last_vertex;
+};
+
+enum
+{
+  RIGHT_TOP_VERTEX = 0,
+  BOTTOM_RIGHT_VERTEX,
+  BOTTOM_LEFT_VERTEX,
+  TOP_LEFT_VERTEX
+};
+
+static const float view_left = -1.0f, view_right = 1.0f, view_top = 1.0f, view_bottom = -1.0f;
+static const float texture_left = 0.0f, texture_right = 1.0f, texture_top = 0.0f, texture_bottom = 1.0f;
+static GLuint vertex_array;
+static GLuint vertex_buffer;
+static GLuint triangle_buffer;
+
+struct vertex vertices[] = {
+  [RIGHT_TOP_VERTEX] = {{view_right, view_top},
+                        {texture_right, texture_top}},
+  [BOTTOM_RIGHT_VERTEX] = {{view_right, view_bottom},
+                           {texture_right, texture_bottom}},
+  [BOTTOM_LEFT_VERTEX] = {{view_left, view_bottom},
+                          {texture_left, texture_bottom}},
+  [TOP_LEFT_VERTEX] = {{view_left, view_top},
+                       {texture_left, texture_top}},
+};
+
+struct triangle triangles[] = {
+  {TOP_LEFT_VERTEX, BOTTOM_RIGHT_VERTEX, BOTTOM_LEFT_VERTEX},
+  {TOP_LEFT_VERTEX, RIGHT_TOP_VERTEX, BOTTOM_RIGHT_VERTEX},
+};
+
 gboolean
 meta_renderer_native_gles3_draw_pixels (MetaEgl        *egl,
                                         MetaGles3      *gles3,
@@ -187,101 +242,30 @@ meta_renderer_native_gles3_draw_pixels (MetaEgl        *egl,
                                         uint8_t        *pixels,
                                         GError        **error)
 {
-  GLuint vertex_array;
-  GLuint vertex_buffer;
-  GLuint triangle_buffer;
-  static const float view_left = -1.0f, view_right = 1.0f, view_top = 1.0f, view_bottom = -1.0f;
-  static const float texture_left = 0.0f, texture_right = 1.0f, texture_top = 0.0f, texture_bottom = 1.0f;
-
-  struct __attribute__ ((__packed__)) position
-  {
-    float x, y;
-  };
-
-  struct __attribute__ ((__packed__)) texture_coordinate
-  {
-    float u, v;
-  };
-
-  struct __attribute__ ((__packed__)) vertex
-  {
-    struct position position;
-    struct texture_coordinate texture_coordinate;
-  };
-
-  struct __attribute__ ((__packed__)) triangle
-  {
-    unsigned int first_vertex;
-    unsigned int middle_vertex;
-    unsigned int last_vertex;
-  };
-
-  enum
-  {
-    RIGHT_TOP_VERTEX = 0,
-    BOTTOM_RIGHT_VERTEX,
-    BOTTOM_LEFT_VERTEX,
-    TOP_LEFT_VERTEX
-  };
-
-  struct vertex vertices[] = {
-    [RIGHT_TOP_VERTEX] = {{view_right, view_top},
-                          {texture_right, texture_top}},
-    [BOTTOM_RIGHT_VERTEX] = {{view_right, view_bottom},
-                             {texture_right, texture_bottom}},
-    [BOTTOM_LEFT_VERTEX] = {{view_left, view_bottom},
-                            {texture_left, texture_bottom}},
-    [TOP_LEFT_VERTEX] = {{view_left, view_top},
-                         {texture_left, texture_top}},
-  };
-
-  struct triangle triangles[] = {
-    {TOP_LEFT_VERTEX, BOTTOM_RIGHT_VERTEX, BOTTOM_LEFT_VERTEX},
-    {TOP_LEFT_VERTEX, RIGHT_TOP_VERTEX, BOTTOM_RIGHT_VERTEX},
-  };
-
-  GLuint texture;
-
   meta_gles3_clear_error (gles3);
 
   GLBAS (gles3, glClearColor, (0.0,1.0,0.0,1.0));
   GLBAS (gles3, glClear, (GL_COLOR_BUFFER_BIT));
 
   GLBAS (gles3, glViewport, (0, 0, width, height));
-  GLBAS (gles3, glGenVertexArrays, (1, &vertex_array));
-  GLBAS (gles3, glBindVertexArray, (vertex_array));
-
-  GLBAS (gles3, glGenBuffers, (1, &vertex_buffer));
-  GLBAS (gles3, glBindBuffer, (GL_ARRAY_BUFFER, vertex_buffer));
-  GLBAS (gles3, glBufferData, (GL_ARRAY_BUFFER, sizeof (vertices), vertices, GL_STREAM_DRAW));
-
-  GLBAS (gles3, glGenBuffers, (1, &triangle_buffer));
-  GLBAS (gles3, glBindBuffer, (GL_ELEMENT_ARRAY_BUFFER, triangle_buffer));
-  GLBAS (gles3, glBufferData, (GL_ELEMENT_ARRAY_BUFFER, sizeof (triangles), triangles, GL_STREAM_DRAW));
-
-  GLBAS (gles3, glActiveTexture, (GL_TEXTURE0));
-  GLBAS (gles3, glGenTextures, (1, &texture));
-  GLBAS (gles3, glBindTexture, (GL_TEXTURE_2D, texture));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                                  GL_NEAREST));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                                  GL_NEAREST));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                                  GL_CLAMP_TO_EDGE));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-                                  GL_CLAMP_TO_EDGE));
-  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_WRAP_R_OES,
-                                  GL_CLAMP_TO_EDGE));
   GLBAS (gles3, glTexImage2D, (GL_TEXTURE_2D, 0, GL_RGBA,
                                width, height, 0, GL_RGBA,
                                GL_UNSIGNED_BYTE, pixels));
 
   GLBAS (gles3, glBindBuffer, (GL_ARRAY_BUFFER, vertex_buffer));
   GLBAS (gles3, glEnableVertexAttribArray, (0));
-  GLBAS (gles3, glVertexAttribPointer, (0, sizeof (struct position) / sizeof (float), GL_FLOAT, GL_FALSE, sizeof (struct vertex), (void *) offsetof (struct vertex, position)));
+  GLBAS (gles3, glVertexAttribPointer, (0,
+                                        sizeof (struct position) / sizeof (float), GL_FLOAT,
+                                        GL_FALSE,
+                                        sizeof (struct vertex), (void *) offsetof (struct vertex, position)));
   GLBAS (gles3, glEnableVertexAttribArray, (1));
-  GLBAS (gles3, glVertexAttribPointer, (1, sizeof (struct texture_coordinate) / sizeof (float), GL_FLOAT, GL_FALSE, sizeof (struct vertex), (void *) offsetof (struct vertex, texture_coordinate)));
-  GLBAS (gles3, glDrawElements, (GL_TRIANGLES, G_N_ELEMENTS (triangles) * (sizeof (struct triangle) / sizeof (unsigned int)), GL_UNSIGNED_INT, 0));
+  GLBAS (gles3, glVertexAttribPointer, (1,
+                                        sizeof (struct texture_coordinate) / sizeof (float), GL_FLOAT,
+                                        GL_FALSE,
+                                        sizeof (struct vertex), (void *) offsetof (struct vertex, texture_coordinate)));
+  GLBAS (gles3, glDrawElements, (GL_TRIANGLES,
+                                 G_N_ELEMENTS (triangles) * (sizeof (struct triangle) / sizeof (unsigned int)), GL_UNSIGNED_INT,
+                                 0));
 
   return TRUE;
 }
@@ -346,7 +330,7 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
   return TRUE;
 }
 
-void
+static void
 meta_renderer_native_gles3_load_basic_shaders (MetaEgl   *egl,
                                                MetaGles3 *gles3)
 {
@@ -422,4 +406,44 @@ out:
     glDeleteShader (vertex_shader);
   if (fragment_shader)
     glDeleteShader (fragment_shader);
+}
+
+gboolean
+meta_renderer_native_gles3_prepare_for_drawing (MetaEgl    *egl,
+                                                MetaGles3  *gles3,
+                                                GError    **error)
+{
+  GLuint texture;
+
+  meta_renderer_native_gles3_load_basic_shaders (egl, gles3);
+
+  meta_gles3_clear_error (gles3);
+
+  GLBAS (gles3, glGenVertexArrays, (1, &vertex_array));
+  GLBAS (gles3, glBindVertexArray, (vertex_array));
+
+  GLBAS (gles3, glGenBuffers, (1, &vertex_buffer));
+  GLBAS (gles3, glBindBuffer, (GL_ARRAY_BUFFER, vertex_buffer));
+  GLBAS (gles3, glBufferData, (GL_ARRAY_BUFFER, sizeof (vertices), vertices, GL_STREAM_DRAW));
+
+  GLBAS (gles3, glGenBuffers, (1, &triangle_buffer));
+  GLBAS (gles3, glBindBuffer, (GL_ELEMENT_ARRAY_BUFFER, triangle_buffer));
+  GLBAS (gles3, glBufferData, (GL_ELEMENT_ARRAY_BUFFER, sizeof (triangles), triangles, GL_STREAM_DRAW));
+
+  GLBAS (gles3, glActiveTexture, (GL_TEXTURE0));
+  GLBAS (gles3, glGenTextures, (1, &texture));
+  GLBAS (gles3, glBindTexture, (GL_TEXTURE_2D, texture));
+
+  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                                  GL_NEAREST));
+  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                                  GL_NEAREST));
+  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                                  GL_CLAMP_TO_EDGE));
+  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                                  GL_CLAMP_TO_EDGE));
+  GLBAS (gles3, glTexParameteri, (GL_TEXTURE_2D, GL_TEXTURE_WRAP_R_OES,
+                                  GL_CLAMP_TO_EDGE));
+
+  return TRUE;
 }
