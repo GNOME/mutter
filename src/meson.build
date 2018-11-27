@@ -745,6 +745,7 @@ libmutter = shared_library(libmutter_name,
 libmutter_dep = declare_dependency(
   link_with: libmutter,
   include_directories: mutter_includes,
+  sources: mutter_built_sources,
   dependencies: [
     libmutter_cogl_dep,
     libmutter_clutter_dep,
