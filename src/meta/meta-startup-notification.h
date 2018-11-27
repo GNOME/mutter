@@ -27,6 +27,9 @@ typedef struct _MetaStartupSequence MetaStartupSequence;
 
 GType         meta_startup_notification_get_type      (void);
 
+/**
+ * meta_startup_notification_get_sequences: (skip)
+ */
 GSList *      meta_startup_notification_get_sequences (MetaStartupNotification *sn);
 
 GType         meta_startup_sequence_get_type          (void);

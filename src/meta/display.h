@@ -224,6 +224,10 @@ typedef enum
 } MetaDisplayCorner;
 
 MetaWorkspaceManager *meta_display_get_workspace_manager (MetaDisplay *display);
+
+/**
+ * meta_display_get_startup_notification: (skip)
+ */
 MetaStartupNotification * meta_display_get_startup_notification (MetaDisplay *display);
 
 #endif
