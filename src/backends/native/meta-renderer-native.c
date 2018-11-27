@@ -690,7 +690,7 @@ init_secondary_gpu_state_stream_copy_mode (MetaRendererNative         *renderer_
   if (!init_dumb_fb (&secondary_gpu_state->egl.dumb_fb,
                      gpu_kms,
                      width, height,
-                     GBM_FORMAT_XRGB8888,
+                     DRM_FORMAT_XRGB8888,
                      error))
       goto failed;
 
@@ -2213,12 +2213,13 @@ copy_shared_framebuffer_stream (CoglOnscreen                        *onscreen,
                                 MetaRendererNativeGpuData           *renderer_gpu_data)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
-  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-  MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
+  CoglContext *cogl_context = framebuffer->context;
   int width, height;
   uint8_t *target_data;
+  uint32_t target_drm_format = DRM_FORMAT_XRGB8888;
+  CoglBitmap *dumb_bitmap;
+  CoglPixelFormat cogl_format;
+  gboolean ret;
 
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
@@ -2228,6 +2229,27 @@ copy_shared_framebuffer_stream (CoglOnscreen                        *onscreen,
                                           renderer_native->gles3,
                                           width, height,
                                           target_data);
+
+  ret = cogl_pixel_format_from_drm_format (target_drm_format,
+                                           &cogl_format,
+                                           NULL);
+  g_assert (ret);
+
+  dumb_bitmap = cogl_bitmap_new_for_data (cogl_context,
+                                          width,
+                                          height,
+                                          cogl_format,
+                                          target_stride_bytes,
+                                          target_data);
+
+  if (!cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
+                                                 0 /* x */,
+                                                 0 /* y */,
+                                                 COGL_READ_PIXELS_COLOR_BUFFER,
+                                                 dumb_bitmap))
+    g_warning ("Failed to read pixels from primary renderer");
+
+  cogl_object_unref (dumb_bitmap);
 }
 #endif
 
