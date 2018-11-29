@@ -1,4 +1,4 @@
-mutter (3.30.2-2) UNRELEASED; urgency=medium
+mutter (3.30.2-2) unstable; urgency=medium
 
   [ Daniel van Vugt ]
   * Add Sync-to-the-hardware-refresh-rate-not-just-60.00Hz.patch to render at
@@ -10,7 +10,7 @@ mutter (3.30.2-2) UNRELEASED; urgency=medium
   [ Patrice Duroux ]
   * add back lost NEWS (Closes: #914942)
 
- -- Iain Lane <laney@debian.org>  Thu, 29 Nov 2018 17:29:29 +0000
+ -- Iain Lane <laney@debian.org>  Thu, 29 Nov 2018 17:29:57 +0000
 
 mutter (3.30.2-1) unstable; urgency=medium
 
