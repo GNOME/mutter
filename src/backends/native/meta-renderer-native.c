@@ -3,7 +3,7 @@
 /*
  * Copyright (C) 2011 Intel Corporation.
  * Copyright (C) 2016 Red Hat
- * Copyright (c) 2018 DisplayLink (UK) Ltd.
+ * Copyright (c) 2018,2019 DisplayLink (UK) Ltd.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -91,8 +91,14 @@ static GParamSpec *obj_props[PROP_LAST];
 
 typedef enum _MetaSharedFramebufferCopyMode
 {
-  META_SHARED_FRAMEBUFFER_COPY_MODE_GPU,
-  META_SHARED_FRAMEBUFFER_COPY_MODE_CPU
+  /* the secondary GPU will make the copy */
+  META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU,
+  /*
+   * The copy is made in the primary GPU rendering context, either
+   * as a CPU copy through Cogl read-pixels or as primary GPU copy
+   * using glBlitFramebuffer.
+   */
+  META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY
 } MetaSharedFramebufferCopyMode;
 
 typedef struct _MetaRendererNativeGpuData
@@ -882,7 +888,7 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
 
   switch (renderer_gpu_data->secondary.copy_mode)
     {
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_GPU:
+    case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
       if (!init_secondary_gpu_state_gpu_copy_mode (renderer_native,
                                                    onscreen,
                                                    renderer_gpu_data,
@@ -890,7 +896,7 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
                                                    error))
         return FALSE;
       break;
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_CPU:
+    case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
       if (!init_secondary_gpu_state_cpu_copy_mode (renderer_native,
                                                    onscreen,
                                                    renderer_gpu_data,
@@ -974,10 +980,10 @@ free_current_secondary_bo (MetaGpuKms                          *gpu_kms,
   renderer_gpu_data = secondary_gpu_state->renderer_gpu_data;
   switch (renderer_gpu_data->secondary.copy_mode)
     {
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_GPU:
+    case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
       g_clear_object (&secondary_gpu_state->gbm.current_fb);
       break;
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_CPU:
+    case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
       break;
     }
 }
@@ -1379,10 +1385,10 @@ free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
   renderer_gpu_data = secondary_gpu_state->renderer_gpu_data;
   switch (renderer_gpu_data->secondary.copy_mode)
     {
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_GPU:
+    case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
       g_clear_object (&secondary_gpu_state->gbm.next_fb);
       break;
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_CPU:
+    case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
       break;
     }
 }
@@ -2260,10 +2266,10 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen *onscreen)
       renderer_gpu_data = secondary_gpu_state->renderer_gpu_data;
       switch (renderer_gpu_data->secondary.copy_mode)
         {
-        case META_SHARED_FRAMEBUFFER_COPY_MODE_GPU:
+        case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
           /* Done after eglSwapBuffers. */
           break;
-        case META_SHARED_FRAMEBUFFER_COPY_MODE_CPU:
+        case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
           copy_shared_framebuffer_cpu (onscreen,
                                        secondary_gpu_state,
                                        renderer_gpu_data);
@@ -2294,13 +2300,13 @@ update_secondary_gpu_state_post_swap_buffers (CoglOnscreen *onscreen,
                                            secondary_gpu_state->gpu_kms);
       switch (renderer_gpu_data->secondary.copy_mode)
         {
-        case META_SHARED_FRAMEBUFFER_COPY_MODE_GPU:
+        case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
           copy_shared_framebuffer_gpu (onscreen,
                                        secondary_gpu_state,
                                        renderer_gpu_data,
                                        egl_context_changed);
           break;
-        case META_SHARED_FRAMEBUFFER_COPY_MODE_CPU:
+        case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
           /* Done before eglSwapBuffers. */
           break;
         }
@@ -3609,7 +3615,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   renderer_gpu_data->secondary.is_hardware_rendering = TRUE;
   renderer_gpu_data->secondary.egl_context = egl_context;
   renderer_gpu_data->secondary.egl_config = egl_config;
-  renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_GPU;
+  renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU;
 
   return TRUE;
 
@@ -3629,7 +3635,7 @@ static void
 init_secondary_gpu_data_cpu (MetaRendererNativeGpuData *renderer_gpu_data)
 {
   renderer_gpu_data->secondary.is_hardware_rendering = FALSE;
-  renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_CPU;
+  renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
 }
 
 static void
