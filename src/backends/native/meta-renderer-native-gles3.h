@@ -2,7 +2,7 @@
 
 /*
  * Copyright (C) 2017 Red Hat
- * Copyright (c) 2018 DisplayLink (UK) Ltd.
+ * Copyright (c) 2018,2019 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,20 @@
 
 #include "backends/meta-egl.h"
 #include "backends/meta-gles3.h"
+
+EGLImageKHR
+create_egl_image (MetaEgl       *egl,
+                  EGLDisplay     egl_display,
+                  EGLContext     egl_context,
+                  unsigned int   width,
+                  unsigned int   height,
+                  uint32_t       n_planes,
+                  uint32_t      *strides,
+                  uint32_t      *offsets,
+                  uint64_t      *modifiers,
+                  uint32_t       format,
+                  int            fd,
+                  GError       **error);
 
 gboolean meta_renderer_native_gles3_blit_shared_bo (MetaEgl       *egl,
                                                     MetaGles3     *gles3,

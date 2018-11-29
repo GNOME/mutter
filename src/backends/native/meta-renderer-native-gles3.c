@@ -45,7 +45,7 @@
 #error "Somehow included OpenGL headers when we shouldn't have"
 #endif
 
-static EGLImageKHR
+EGLImageKHR
 create_egl_image (MetaEgl       *egl,
                   EGLDisplay     egl_display,
                   EGLContext     egl_context,
