@@ -542,15 +542,13 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
       for (j = 0; j < n_rectangles; j++)
         {
           cairo_rectangle_int_t rect;
+  gint height = wl_shm_buffer_get_height (shm_buffer);
 
           cairo_region_get_rectangle (region, i, &rect);
 
           /* Calculate the offset in the buffer */
           if (i > 0)
             offset += (stride / h_factors[i-1]) * (rect.height / v_factors[i-1]);
-
-          g_warning ("Creating plane %d/%d, h_factor = %d, v_factor = %d, offset = %d",
-                     i, n_planes, h_factors[i], v_factors[i], offset);
 
           if (!_cogl_texture_set_region (plane,
                                          rect.width / h_factors[i],
