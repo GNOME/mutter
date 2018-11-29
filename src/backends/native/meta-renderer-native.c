@@ -138,6 +138,7 @@ typedef struct _MetaDumbBuffer
   int height;
   int stride_bytes;
   uint32_t drm_format;
+  int dmabuf_fd;
 } MetaDumbBuffer;
 
 typedef struct _MetaOnscreenNativeSecondaryGpuState
@@ -239,6 +240,10 @@ init_dumb_fb (MetaDumbBuffer *dumb_fb,
               int             height,
               uint32_t        format,
               GError        **error);
+
+static int
+meta_dumb_buffer_ensure_dmabuf_fd (MetaDumbBuffer *dumb_fb,
+                                   MetaGpuKms     *gpu_kms);
 
 static MetaEgl *
 meta_renderer_native_get_egl (MetaRendererNative *renderer_native);
@@ -2461,6 +2466,7 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
   dumb_fb->height = height;
   dumb_fb->stride_bytes = create_arg.pitch;
   dumb_fb->drm_format = format;
+  dumb_fb->dmabuf_fd = -1;
 
   return TRUE;
 
@@ -2478,6 +2484,33 @@ err_ioctl:
   return FALSE;
 }
 
+static int
+meta_dumb_buffer_ensure_dmabuf_fd (MetaDumbBuffer *dumb_fb,
+                                   MetaGpuKms     *gpu_kms)
+{
+  int ret;
+  int kms_fd;
+  int dmabuf_fd;
+
+  if (dumb_fb->dmabuf_fd != -1)
+    return dumb_fb->dmabuf_fd;
+
+  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
+
+  ret = drmPrimeHandleToFD (kms_fd, dumb_fb->handle, DRM_CLOEXEC,
+                            &dmabuf_fd);
+  if (ret)
+    {
+      g_debug ("Failed to export dumb drm buffer: %s",
+               g_strerror (errno));
+      return -1;
+    }
+
+  dumb_fb->dmabuf_fd = dmabuf_fd;
+
+  return dumb_fb->dmabuf_fd;
+}
+
 static void
 release_dumb_fb (MetaDumbBuffer *dumb_fb,
                  MetaGpuKms     *gpu_kms)
@@ -2487,6 +2520,9 @@ release_dumb_fb (MetaDumbBuffer *dumb_fb,
 
   if (!dumb_fb->map)
     return;
+
+  if (dumb_fb->dmabuf_fd != -1)
+    close (dumb_fb->dmabuf_fd);
 
   munmap (dumb_fb->map, dumb_fb->map_size);
   dumb_fb->map = NULL;
