@@ -1,20 +1,31 @@
-Description: Sync to the hardware refresh rate, not just 60.00Hz 
- The Clutter master clock supports three synchronization methods in order of
- preference:
-   (a) Hardware presentation times
-   (b) Swap throttling
-   (c) Fake vsync at 60.00Hz
- X11 already supports all three but Wayland only has (c). This patch implements
- both (a) and (b) for Wayland bringing it in line with X11.
-Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
+From: Daniel van Vugt <daniel.van.vugt@canonical.com>
+Date: Thu, 29 Nov 2018 16:31:58 +0000
+Subject: Sync to the hardware refresh rate, not just 60.00Hz
+
+The Clutter master clock supports three synchronization methods in order of
+preference:
+  (a) Hardware presentation times
+  (b) Swap throttling
+  (c) Fake vsync at 60.00Hz
+X11 already supports all three but Wayland only has (c). This patch implements
+both (a) and (b) for Wayland bringing it in line with X11.
+
 Origin: https://gitlab.gnome.org/GNOME/mutter/merge_requests/171 via backport https://gitlab.gnome.org/GNOME/mutter/merge_requests/318
 Bug: https://bugzilla.gnome.org/show_bug.cgi?id=781296
 Bug-Ubuntu: https://bugs.launchpad.net/bugs/1763892
 Forwarded: yes
 Last-Update: 2018-11-23
+---
+ src/Makefile.am                            | 25 ++++++++++-
+ src/backends/native/meta-gpu-kms.c         | 69 +++++++++++++++++++++++++++---
+ src/backends/native/meta-gpu-kms.h         |  3 ++
+ src/backends/native/meta-renderer-native.c | 55 +++++++++++++++++++++---
+ src/meta-marshal.list                      |  1 +
+ 5 files changed, 142 insertions(+), 11 deletions(-)
+ create mode 100644 src/meta-marshal.list
 
 diff --git a/src/Makefile.am b/src/Makefile.am
-index 811e2b86b..56d539836 100644
+index 811e2b8..56d5398 100644
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
 @@ -51,6 +51,8 @@ mutter_built_sources = \
@@ -68,7 +79,7 @@ index 811e2b86b..56d539836 100644
 +		--output=$@ \
 +		$<
 diff --git a/src/backends/native/meta-gpu-kms.c b/src/backends/native/meta-gpu-kms.c
-index c3c5d0d68..26c759031 100644
+index c3c5d0d..26c7590 100644
 --- a/src/backends/native/meta-gpu-kms.c
 +++ b/src/backends/native/meta-gpu-kms.c
 @@ -27,6 +27,7 @@
@@ -235,7 +246,7 @@ index c3c5d0d68..26c759031 100644
    meta_kms_resources_release (&resources);
  
 diff --git a/src/backends/native/meta-gpu-kms.h b/src/backends/native/meta-gpu-kms.h
-index 5f77f191a..3e3f45c7e 100644
+index 5f77f19..3e3f45c 100644
 --- a/src/backends/native/meta-gpu-kms.h
 +++ b/src/backends/native/meta-gpu-kms.h
 @@ -73,6 +73,8 @@ int meta_gpu_kms_get_fd (MetaGpuKms *gpu_kms);
@@ -256,7 +267,7 @@ index 5f77f191a..3e3f45c7e 100644
  
  void meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container);
 diff --git a/src/backends/native/meta-renderer-native.c b/src/backends/native/meta-renderer-native.c
-index f58e6b3e0..24d6b8b6d 100644
+index f58e6b3..24d6b8b 100644
 --- a/src/backends/native/meta-renderer-native.c
 +++ b/src/backends/native/meta-renderer-native.c
 @@ -60,8 +60,9 @@
@@ -380,7 +391,7 @@ index f58e6b3e0..24d6b8b6d 100644
  
 diff --git a/src/meta-marshal.list b/src/meta-marshal.list
 new file mode 100644
-index 000000000..c1f4781d2
+index 0000000..c1f4781
 --- /dev/null
 +++ b/src/meta-marshal.list
 @@ -0,0 +1 @@
