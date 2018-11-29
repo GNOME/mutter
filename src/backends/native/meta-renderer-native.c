@@ -2126,6 +2126,18 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
     }
 }
 
+static MetaDumbBuffer *
+secondary_gpu_get_next_dumb_buffer (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
+{
+  MetaDumbBuffer *current_dumb_fb;
+
+  current_dumb_fb = secondary_gpu_state->cpu.dumb_fb;
+  if (current_dumb_fb == &secondary_gpu_state->cpu.dumb_fbs[0])
+    return &secondary_gpu_state->cpu.dumb_fbs[1];
+  else
+    return &secondary_gpu_state->cpu.dumb_fbs[0];
+}
+
 typedef struct _PixelFormatMap {
   uint32_t drm_format;
   CoglPixelFormat cogl_format;
@@ -2192,47 +2204,28 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = framebuffer->context;
-  int width, height;
-  uint8_t *target_data;
-  int target_stride_bytes;
-  uint32_t target_fb_id;
-  uint32_t target_drm_format;
-  MetaDumbBuffer *next_dumb_fb;
-  MetaDumbBuffer *current_dumb_fb;
+  MetaDumbBuffer *dumb_fb;
   CoglBitmap *dumb_bitmap;
   CoglPixelFormat cogl_format;
   gboolean ret;
   MetaDrmBufferDumb *buffer_dumb;
 
-  width = cogl_framebuffer_get_width (framebuffer);
-  height = cogl_framebuffer_get_height (framebuffer);
+  dumb_fb = secondary_gpu_get_next_dumb_buffer (secondary_gpu_state);
 
-  current_dumb_fb = secondary_gpu_state->cpu.dumb_fb;
-  if (current_dumb_fb == &secondary_gpu_state->cpu.dumb_fbs[0])
-    next_dumb_fb = &secondary_gpu_state->cpu.dumb_fbs[1];
-  else
-    next_dumb_fb = &secondary_gpu_state->cpu.dumb_fbs[0];
-  secondary_gpu_state->cpu.dumb_fb = next_dumb_fb;
+  g_assert (cogl_framebuffer_get_width (framebuffer) == dumb_fb->width);
+  g_assert (cogl_framebuffer_get_height (framebuffer) == dumb_fb->height);
 
-  g_assert (width == secondary_gpu_state->cpu.dumb_fb->width);
-  g_assert (height == secondary_gpu_state->cpu.dumb_fb->height);
-
-  target_data = secondary_gpu_state->cpu.dumb_fb->map;
-  target_stride_bytes = secondary_gpu_state->cpu.dumb_fb->stride_bytes;
-  target_fb_id = secondary_gpu_state->cpu.dumb_fb->fb_id;
-  target_drm_format = secondary_gpu_state->cpu.dumb_fb->drm_format;
-
-  ret = cogl_pixel_format_from_drm_format (target_drm_format,
+  ret = cogl_pixel_format_from_drm_format (dumb_fb->drm_format,
                                            &cogl_format,
                                            NULL);
   g_assert (ret);
 
   dumb_bitmap = cogl_bitmap_new_for_data (cogl_context,
-                                          width,
-                                          height,
+                                          dumb_fb->width,
+                                          dumb_fb->height,
                                           cogl_format,
-                                          target_stride_bytes,
-                                          target_data);
+                                          dumb_fb->stride_bytes,
+                                          dumb_fb->map);
 
   if (!cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
                                                  0 /* x */,
@@ -2244,8 +2237,9 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   cogl_object_unref (dumb_bitmap);
 
   g_clear_object (&secondary_gpu_state->gbm.next_fb);
-  buffer_dumb = meta_drm_buffer_dumb_new (target_fb_id);
+  buffer_dumb = meta_drm_buffer_dumb_new (dumb_fb->fb_id);
   secondary_gpu_state->gbm.next_fb = META_DRM_BUFFER (buffer_dumb);
+  secondary_gpu_state->cpu.dumb_fb = dumb_fb;
 }
 
 static void
