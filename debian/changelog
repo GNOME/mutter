@@ -20,7 +20,7 @@ mutter (3.30.1-4) unstable; urgency=medium
     - close the x11 display in an idle function. This fixes a crash when running
       'gnome-shell --replace'.
 
-  [ Daniel van Vugt]
+  [ Daniel van Vugt ]
   * Drop clutter-Smooth-out-master-clock-to-smooth-visuals.patch: It was
     abandoned upstream, but also seems to be limiting refresh rates in
     Xorg sessions to 60Hz when previously they were unlimited (LP: #1763892).
