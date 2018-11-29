@@ -145,14 +145,22 @@ cogl_multi_plane_texture_new_from_bitmaps (CoglPixelFormat format,
     {
       CoglTexture *plane;
 
+      if (format == COGL_PIXEL_FORMAT_NV12)
+      {
+        if (i == 0)
+          _cogl_bitmap_set_format (bitmaps[i], COGL_PIXEL_FORMAT_A_8);
+        else
+          _cogl_bitmap_set_format (bitmaps[i], COGL_PIXEL_FORMAT_RG_88);
+      }
+
       plane = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmaps[i]));
 
       if (format == COGL_PIXEL_FORMAT_NV12)
       {
         if (i == 0)
         {
-          _cogl_texture_set_internal_format (plane, COGL_PIXEL_FORMAT_RG_88);
-          _cogl_bitmap_set_format (bitmaps[i], COGL_PIXEL_FORMAT_RG_88);
+          _cogl_texture_set_internal_format (plane, COGL_PIXEL_FORMAT_A_8);
+          _cogl_bitmap_set_format (bitmaps[i], COGL_PIXEL_FORMAT_A_8);
         }
         else
         {
