@@ -183,11 +183,17 @@ static float
 derive_configured_global_scale (MetaMonitorManager *manager,
                                 MetaMonitorsConfig *config)
 {
-  MetaLogicalMonitorConfig *logical_monitor_config;
+  GList *l;
 
-  logical_monitor_config = config->logical_monitor_configs->data;
+  for (l = config->logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *monitor_config = l->data;
 
-  return logical_monitor_config->scale;
+      if (is_global_scale_matching_in_config (config, monitor_config->scale))
+        return monitor_config->scale;
+    }
+
+  return 1.0f;
 }
 
 static float
