@@ -394,3 +394,31 @@ meta_surface_actor_set_transform (MetaSurfaceActor     *self,
 
   meta_shaped_texture_set_transform (priv->texture, transform);
 }
+
+void
+meta_surface_actor_set_viewport_src_rect (MetaSurfaceActor  *self,
+                                          float              src_x,
+                                          float              src_y,
+                                          float              src_width,
+                                          float              src_height)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_set_viewport_src_rect (priv->texture,
+                                             src_x,
+                                             src_y,
+                                             src_width,
+                                             src_height);
+}
+
+void
+meta_surface_actor_set_viewport_dst (MetaSurfaceActor  *self,
+                                     int                dst_width,
+                                     int                dst_height)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_set_viewport_dst (priv->texture,
+                                        dst_width,
+                                        dst_height);
+}
