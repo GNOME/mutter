@@ -106,7 +106,7 @@ cogl_features_available (CoglFeatureFlags features);
  * Return value: a pointer to the requested function or %NULL if the
  *   function is not available.
  */
-CoglFuncPtr
+GCallback
 cogl_get_proc_address (const char *name);
 
 /**

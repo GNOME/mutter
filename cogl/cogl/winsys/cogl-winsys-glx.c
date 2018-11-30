@@ -166,7 +166,7 @@ static const CoglFeatureData winsys_feature_data[] =
 #include "winsys/cogl-winsys-glx-feature-functions.h"
   };
 
-static CoglFuncPtr
+static GCallback
 _cogl_winsys_renderer_get_proc_address (CoglRenderer *renderer,
                                         const char *name,
                                         CoglBool in_core)

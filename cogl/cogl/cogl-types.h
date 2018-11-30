@@ -125,15 +125,6 @@ cogl_handle_ref (CoglHandle handle);
 void
 cogl_handle_unref (CoglHandle handle);
 
-/**
- * CoglFuncPtr:
- *
- * The type used by cogl for function pointers, note that this type
- * is used as a generic catch-all cast for function pointers and the
- * actual arguments and return type may be different.
- */
-typedef void (* CoglFuncPtr) (void);
-
 /* We forward declare this in cogl-types to avoid circular dependencies
  * between cogl-matrix.h, cogl-euler.h and cogl-quaterion.h */
 typedef struct _CoglMatrix      CoglMatrix;

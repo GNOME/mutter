@@ -59,7 +59,7 @@
 
 #include "deprecated/cogl-framebuffer-deprecated.h"
 
-CoglFuncPtr
+GCallback
 cogl_get_proc_address (const char* name)
 {
   _COGL_GET_CONTEXT (ctx, NULL);
