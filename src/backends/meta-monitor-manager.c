@@ -125,6 +125,10 @@ meta_monitor_manager_get_active_monitor (MetaMonitorManager *manager);
 static void
 meta_monitor_manager_real_read_current_state (MetaMonitorManager *manager);
 
+static gboolean
+is_global_scale_matching_in_config (MetaMonitorsConfig *config,
+                                    float               scale);
+
 MetaBackend *
 meta_monitor_manager_get_backend (MetaMonitorManager *manager)
 {
@@ -1762,6 +1766,43 @@ meta_monitor_manager_is_scale_supported (MetaMonitorManager          *manager,
 }
 
 static gboolean
+is_global_scale_matching_in_config (MetaMonitorsConfig *config,
+                                    float               scale)
+{
+  GList *l;
+
+  for (l = config->logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+
+      if (!G_APPROX_VALUE (logical_monitor_config->scale, scale, FLT_EPSILON))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
+meta_monitor_manager_is_scale_supported_for_config (MetaMonitorManager *manager,
+                                                    MetaMonitorsConfig *config,
+                                                    MetaMonitor        *monitor,
+                                                    MetaMonitorMode    *monitor_mode,
+                                                    float               scale)
+{
+  if (meta_monitor_manager_is_scale_supported (manager, config->layout_mode,
+                                               monitor, monitor_mode, scale))
+    {
+      if (meta_monitor_manager_get_capabilities (manager) &
+          META_MONITOR_MANAGER_CAPABILITY_GLOBAL_SCALE_REQUIRED)
+        return is_global_scale_matching_in_config (config, scale);
+
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
 meta_monitor_manager_is_config_applicable (MetaMonitorManager *manager,
                                            MetaMonitorsConfig *config,
                                            GError            **error)
@@ -1799,11 +1840,11 @@ meta_monitor_manager_is_config_applicable (MetaMonitorManager *manager,
               return FALSE;
             }
 
-          if (!meta_monitor_manager_is_scale_supported (manager,
-                                                        config->layout_mode,
-                                                        monitor,
-                                                        monitor_mode,
-                                                        scale))
+          if (!meta_monitor_manager_is_scale_supported_for_config (manager,
+                                                                   config,
+                                                                   monitor,
+                                                                   monitor_mode,
+                                                                   scale))
             {
               g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                            "Scale not supported by backend");
