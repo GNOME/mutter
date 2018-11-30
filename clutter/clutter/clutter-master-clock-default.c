@@ -298,10 +298,11 @@ master_clock_next_frame_delay (ClutterMasterClockDefault *master_clock)
    * (NB: if there aren't even any timelines running then the master clock will
    * be completely stopped in master_clock_is_running())
    */
-  if (clutter_feature_available (CLUTTER_FEATURE_SYNC_TO_VBLANK) &&
+  if ((clutter_feature_available (CLUTTER_FEATURE_SYNC_TO_VBLANK) ||
+       clutter_feature_available (CLUTTER_FEATURE_SWAP_EVENTS)) &&
       !master_clock->idle)
     {
-      CLUTTER_NOTE (SCHEDULER, "vblank available and updated stages");
+      CLUTTER_NOTE (SCHEDULER, "throttling available and updated stages");
       return 0;
     }
 
