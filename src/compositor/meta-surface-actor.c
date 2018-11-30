@@ -394,3 +394,40 @@ meta_surface_actor_set_transform (MetaSurfaceActor     *self,
 
   meta_shaped_texture_set_transform (priv->texture, transform);
 }
+
+void
+meta_surface_actor_set_viewport_src_rect (MetaSurfaceActor  *self,
+                                          ClutterRect       *src_rect)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_set_viewport_src_rect (priv->texture, src_rect);
+}
+
+void
+meta_surface_actor_reset_viewport_src_rect (MetaSurfaceActor *self)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_reset_viewport_src_rect (priv->texture);
+}
+
+void
+meta_surface_actor_set_viewport_dst_size (MetaSurfaceActor *self,
+                                          int               dst_width,
+                                          int               dst_height)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_set_viewport_dst_size (priv->texture,
+                                             dst_width,
+                                             dst_height);
+}
+
+void
+meta_surface_actor_reset_viewport_dst_size (MetaSurfaceActor *self)
+{
+  MetaSurfaceActorPrivate *priv = self->priv;
+
+  meta_shaped_texture_reset_viewport_dst_size (priv->texture);
+}
