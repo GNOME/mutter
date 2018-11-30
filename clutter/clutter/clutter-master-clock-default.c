@@ -77,12 +77,6 @@ struct _ClutterMasterClockDefault
    */
   GSource *source;
 
-  /* If the master clock is idle that means it has
-   * fallen back to idle polling for timeline
-   * progressions and it may have been some time since
-   * the last real stage update.
-   */
-  guint idle : 1;
   guint ensure_next_iteration : 1;
 
   guint paused : 1;
@@ -298,8 +292,7 @@ master_clock_next_frame_delay (ClutterMasterClockDefault *master_clock)
    * (NB: if there aren't even any timelines running then the master clock will
    * be completely stopped in master_clock_is_running())
    */
-  if (clutter_feature_available (CLUTTER_FEATURE_SYNC_TO_VBLANK) &&
-      !master_clock->idle)
+  if (clutter_feature_available (CLUTTER_FEATURE_SYNC_TO_VBLANK))
     {
       CLUTTER_NOTE (SCHEDULER, "vblank available and updated stages");
       return 0;
@@ -530,7 +523,6 @@ clutter_clock_dispatch (GSource     *source,
 {
   ClutterClockSource *clock_source = (ClutterClockSource *) source;
   ClutterMasterClockDefault *master_clock = clock_source->master_clock;
-  gboolean stages_updated = FALSE;
   GSList *stages;
 
   CLUTTER_NOTE (SCHEDULER, "Master clock [tick]");
@@ -550,8 +542,6 @@ clutter_clock_dispatch (GSource     *source,
    */
   stages = master_clock_list_ready_stages (master_clock);
 
-  master_clock->idle = FALSE;
-
   /* Each frame is split into three separate phases: */
 
   /* 1. process all the events; each stage goes through its events queue
@@ -564,12 +554,7 @@ clutter_clock_dispatch (GSource     *source,
   master_clock_advance_timelines (master_clock);
 
   /* 3. relayout and redraw the stages */
-  stages_updated = master_clock_update_stages (master_clock, stages);
-
-  /* The master clock goes idle if no stages were updated and falls back
-   * to polling for timeline progressions... */
-  if (!stages_updated)
-    master_clock->idle = TRUE;
+  master_clock_update_stages (master_clock, stages);
 
   master_clock_reschedule_stage_updates (master_clock, stages);
 
@@ -609,7 +594,6 @@ clutter_master_clock_default_init (ClutterMasterClockDefault *self)
   source = clutter_clock_source_new (self);
   self->source = source;
 
-  self->idle = FALSE;
   self->ensure_next_iteration = FALSE;
   self->paused = FALSE;
 
