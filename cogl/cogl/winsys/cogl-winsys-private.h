@@ -79,7 +79,7 @@ typedef struct _CoglWinsysVtable
 
   /* Required functions */
 
-  CoglFuncPtr
+  GCallback
   (*renderer_get_proc_address) (CoglRenderer *renderer,
                                 const char *name,
                                 CoglBool in_core);

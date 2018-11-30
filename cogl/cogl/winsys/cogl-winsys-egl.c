@@ -138,7 +138,7 @@ get_error_string (void)
   }
 }
 
-static CoglFuncPtr
+static GCallback
 _cogl_winsys_renderer_get_proc_address (CoglRenderer *renderer,
                                         const char *name,
                                         CoglBool in_core)

@@ -49,7 +49,7 @@ static int _cogl_winsys_stub_dummy_ptr;
  * integration code.
  */
 
-static CoglFuncPtr
+static GCallback
 _cogl_winsys_renderer_get_proc_address (CoglRenderer *renderer,
                                         const char *name,
                                         CoglBool in_core)
