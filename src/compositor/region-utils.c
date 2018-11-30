@@ -457,3 +457,56 @@ meta_region_transform (cairo_region_t       *region,
 
   return transformed_region;
 }
+
+cairo_region_t *
+meta_region_crop_and_scale (cairo_region_t *region,
+                            ClutterRect     src_rect,
+                            int             dst_width,
+                            int             dst_height)
+{
+  int n_rects, i;
+  cairo_rectangle_int_t *rects;
+  cairo_region_t *viewport_region;
+
+  if (src_rect.origin.x == 0 &&
+      src_rect.origin.y == 0 &&
+      src_rect.size.width == dst_width &&
+      src_rect.size.height == dst_height)
+    {
+      return cairo_region_copy (region);
+    }
+
+  n_rects = cairo_region_num_rectangles (region);
+
+  rects = g_new0 (cairo_rectangle_int_t, n_rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      cairo_rectangle_int_t rect;
+      float x;
+      float y;
+      float width;
+      float height;
+
+      cairo_region_get_rectangle (region, i, &rects[i]);
+
+      rect = rects[i];
+
+      x = rect.x * (src_rect.size.width / dst_width) + src_rect.origin.x;
+      y = rect.y * (src_rect.size.height / dst_height) + src_rect.origin.y;
+      width = ((rect.x + rect.width) * (src_rect.size.width / dst_width) +
+               src_rect.origin.x) - x;
+      height = ((rect.y + rect.height) * (src_rect.size.height / dst_height) +
+                src_rect.origin.y) - y;
+
+      rects[i].x = floorf (x);
+      rects[i].y = floorf (y);
+      rects[i].width  = ceilf (width);
+      rects[i].height = ceilf (height);
+    }
+
+  viewport_region = cairo_region_create_rectangles (rects, n_rects);
+
+  g_free (rects);
+
+  return viewport_region;
+}
