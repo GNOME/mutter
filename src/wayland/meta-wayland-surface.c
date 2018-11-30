@@ -39,6 +39,7 @@
 #include "compositor/region-utils.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
+#include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-data-device.h"
 #include "wayland/meta-wayland-gtk-shell.h"
@@ -91,9 +92,14 @@ struct _MetaWaylandSurfaceRoleDND
   MetaWaylandSurfaceRole parent;
 };
 
+G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleDND,
+                      meta_wayland_surface_role_dnd,
+                      META, WAYLAND_SURFACE_ROLE_DND,
+                      MetaWaylandActorSurface);
+
 G_DEFINE_TYPE (MetaWaylandSurfaceRoleDND,
                meta_wayland_surface_role_dnd,
-               META_TYPE_WAYLAND_SURFACE_ROLE);
+               META_TYPE_WAYLAND_ACTOR_SURFACE);
 
 enum {
   SURFACE_DESTROY,
