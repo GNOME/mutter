@@ -79,6 +79,14 @@ gboolean meta_surface_actor_is_unredirected (MetaSurfaceActor *actor);
 
 void meta_surface_actor_set_transform (MetaSurfaceActor     *self,
                                        MetaMonitorTransform  transform);
+void meta_surface_actor_set_viewport_src_rect (MetaSurfaceActor  *self,
+                                               float              src_x,
+                                               float              src_y,
+                                               float              src_width,
+                                               float              src_height);
+void meta_surface_actor_set_viewport_dst (MetaSurfaceActor  *self,
+                                          int                dst_width,
+                                          int                dst_height);
 G_END_DECLS
 
 #endif /* META_SURFACE_ACTOR_PRIVATE_H */
