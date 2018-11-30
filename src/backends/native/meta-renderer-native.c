@@ -2070,6 +2070,8 @@ meta_renderer_native_init_egl_context (CoglContext *cogl_context,
 #endif
 
   COGL_FLAGS_SET (cogl_context->features,
+                  COGL_FEATURE_ID_PRESENTATION_TIME, TRUE);
+  COGL_FLAGS_SET (cogl_context->features,
                   COGL_FEATURE_ID_SWAP_BUFFERS_EVENT, TRUE);
   /* TODO: remove this deprecated feature */
   COGL_FLAGS_SET (cogl_context->winsys_features,
