@@ -116,4 +116,9 @@ cairo_region_t * meta_region_transform (cairo_region_t       *region,
                                         int                   width,
                                         int                   height);
 
+cairo_region_t * meta_region_crop_and_scale (cairo_region_t *region,
+                                             ClutterRect     src_rect,
+                                             int             dst_width,
+                                             int             dst_height);
+
 #endif /* __META_REGION_UTILS_H__ */
