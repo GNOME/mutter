@@ -116,4 +116,14 @@ cairo_region_t * meta_region_transform (cairo_region_t       *region,
                                         int                   width,
                                         int                   height);
 
+cairo_region_t * meta_region_viewport (cairo_region_t       *region,
+                                       int                   org_width,
+                                       int                   org_height,
+                                       float                 src_x,
+                                       float                 src_y,
+                                       float                 src_width,
+                                       float                 src_height,
+                                       int                   dst_width,
+                                       int                   dst_height);
+
 #endif /* __META_REGION_UTILS_H__ */
