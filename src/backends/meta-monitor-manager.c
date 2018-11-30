@@ -89,9 +89,6 @@ static gboolean
 meta_monitor_manager_is_config_complete (MetaMonitorManager *manager,
                                          MetaMonitorsConfig *config);
 
-static MetaMonitor *
-meta_monitor_manager_get_active_monitor (MetaMonitorManager *manager);
-
 static gboolean
 is_global_scale_matching_in_config (MetaMonitorsConfig *config,
                                     float               scale);
@@ -209,20 +206,65 @@ calculate_monitor_scale (MetaMonitorManager *manager,
                                                             monitor_mode);
 }
 
+static gboolean
+meta_monitor_manager_is_scale_supported_by_other_monitors (MetaMonitorManager *manager,
+                                                           MetaMonitor        *not_this_one,
+                                                           float               scale)
+{
+  GList *l;
+
+   for (l = manager->monitors; l; l = l->next)
+    {
+      MetaMonitor *monitor = l->data;
+      MetaMonitorMode *mode;
+
+      if (monitor == not_this_one || !meta_monitor_is_active (monitor))
+        continue;
+
+      mode = meta_monitor_get_current_mode (monitor);
+      if (!meta_monitor_manager_is_scale_supported (manager, manager->layout_mode,
+                                                    monitor, mode, scale))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
 static float
 derive_calculated_global_scale (MetaMonitorManager *manager)
 {
   MetaMonitor *monitor = NULL;
+  float scale;
+  GList *l;
 
+  scale = 1.0f;
   monitor = meta_monitor_manager_get_primary_monitor (manager);
 
-  if (!monitor || !meta_monitor_is_active (monitor))
-    monitor = meta_monitor_manager_get_active_monitor (manager);
+  if (monitor)
+    {
+      scale = calculate_monitor_scale (manager, monitor);
+      if (meta_monitor_manager_is_scale_supported_by_other_monitors (manager,
+                                                                     monitor,
+                                                                     scale))
+        return scale;
+    }
 
-  if (!monitor)
-    return 1.0;
+  for (l = manager->monitors; l; l = l->next)
+    {
+      MetaMonitor *other_monitor = l->data;
+      float monitor_scale;
 
-  return calculate_monitor_scale (manager, monitor);
+      if (other_monitor == monitor || !meta_monitor_is_active (other_monitor))
+        continue;
+
+      monitor_scale = calculate_monitor_scale (manager, other_monitor);
+      if (meta_monitor_manager_is_scale_supported_by_other_monitors (manager,
+                                                                     other_monitor,
+                                                                     monitor_scale))
+        scale = MAX (scale, monitor_scale);
+    }
+
+  return scale;
 }
 
 static float
@@ -2404,12 +2446,6 @@ MetaMonitor *
 meta_monitor_manager_get_laptop_panel (MetaMonitorManager *manager)
 {
   return find_monitor (manager, meta_monitor_is_laptop_panel);
-}
-
-static MetaMonitor *
-meta_monitor_manager_get_active_monitor (MetaMonitorManager *manager)
-{
-  return find_monitor (manager, meta_monitor_is_active);
 }
 
 MetaMonitor *
