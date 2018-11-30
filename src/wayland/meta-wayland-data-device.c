@@ -1143,7 +1143,7 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data
 
   if (icon_surface)
     {
-      ClutterActor *drag_origin_actor;
+      ClutterActor *drag_surface_actor;
 
       drag_grab->drag_surface = icon_surface;
 
@@ -1151,14 +1151,14 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data
       wl_resource_add_destroy_listener (icon_surface->resource,
                                         &drag_grab->drag_icon_listener);
 
-      drag_origin_actor = CLUTTER_ACTOR (meta_wayland_surface_get_actor (drag_grab->drag_origin));
+      drag_surface_actor = CLUTTER_ACTOR (meta_wayland_surface_get_actor (drag_grab->drag_surface));
 
-      drag_grab->feedback_actor = meta_dnd_actor_new (drag_origin_actor,
+      drag_grab->feedback_actor = meta_dnd_actor_new (CLUTTER_ACTOR (surface_actor),
                                                       drag_grab->drag_start_x,
                                                       drag_grab->drag_start_y);
       meta_feedback_actor_set_anchor (META_FEEDBACK_ACTOR (drag_grab->feedback_actor),
                                       0, 0);
-      clutter_actor_add_child (drag_grab->feedback_actor, drag_origin_actor);
+      clutter_actor_add_child (drag_grab->feedback_actor, drag_surface_actor);
 
       clutter_input_device_get_coords (seat->pointer->device, NULL, &pos);
       meta_feedback_actor_set_position (META_FEEDBACK_ACTOR (drag_grab->feedback_actor),
