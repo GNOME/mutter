@@ -298,7 +298,8 @@ master_clock_next_frame_delay (ClutterMasterClockDefault *master_clock)
    * (NB: if there aren't even any timelines running then the master clock will
    * be completely stopped in master_clock_is_running())
    */
-  if (clutter_feature_available (CLUTTER_FEATURE_SWAP_THROTTLE) &&
+  if ((clutter_feature_available (CLUTTER_FEATURE_SWAP_THROTTLE) ||
+       clutter_feature_available (CLUTTER_FEATURE_SWAP_EVENTS)) &&
       !master_clock->idle)
     {
       CLUTTER_NOTE (SCHEDULER, "swap throttling available and updated stages");
