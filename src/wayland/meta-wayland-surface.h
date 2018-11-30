@@ -70,10 +70,8 @@ struct _MetaWaylandSerial {
 };
 
 #define META_TYPE_WAYLAND_SURFACE_ROLE_DND (meta_wayland_surface_role_dnd_get_type ())
-G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleDND,
-                      meta_wayland_surface_role_dnd,
-                      META, WAYLAND_SURFACE_ROLE_DND,
-                      MetaWaylandSurfaceRole);
+
+GType meta_wayland_surface_role_dnd_get_type (void);
 
 struct _MetaWaylandPendingState
 {
