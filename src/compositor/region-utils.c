@@ -457,3 +457,79 @@ meta_region_transform (cairo_region_t       *region,
 
   return transformed_region;
 }
+
+cairo_region_t *
+meta_region_viewport (cairo_region_t       *region,
+                      int                   org_width,
+                      int                   org_height,
+                      float                 src_x,
+                      float                 src_y,
+                      float                 src_width,
+                      float                 src_height,
+                      int                   dst_width,
+                      int                   dst_height)
+{
+  int n_rects, i;
+  cairo_rectangle_int_t *rects;
+  cairo_region_t *viewport_region;
+
+  if (src_width <= 0 || dst_width <= 0)
+    return cairo_region_copy (region);
+
+  n_rects = cairo_region_num_rectangles (region);
+
+  rects = g_new0 (cairo_rectangle_int_t, n_rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      cairo_rectangle_int_t rect;
+      float x;
+      float y;
+      float width;
+      float height;
+
+      cairo_region_get_rectangle (region, i, &rects[i]);
+
+      rect = rects[i];
+
+      if (src_width > 0)
+        {
+          float tmp_width;
+          float tmp_height;
+
+          if (dst_width > 0)
+            {
+              tmp_width = dst_width;
+              tmp_height = dst_height;
+            }
+          else
+            {
+              tmp_width = org_width;
+              tmp_height = org_height;
+            }
+
+          x = rect.x * (src_width / tmp_width) + src_x;
+          y = rect.y * (src_height / tmp_height) + src_y;
+          width = ((rect.x + rect.width) * (src_width / tmp_width) + src_x) - x;
+          height = ((rect.y + rect.height) * (src_height / tmp_height) +
+                    src_y) - y;
+        }
+      else
+        {
+          x = rect.x * (width / dst_width);
+          y = rect.y * (height / dst_height);
+          width = (rect.x + rect.width) * (width / dst_width) - x;
+          height = (rect.y + rect.height) * (height / dst_height) - y;
+        }
+
+      rects[i].x = floorf(x);
+      rects[i].y = floorf(y);
+      rects[i].width  = ceilf(width);
+      rects[i].height = ceilf(height);
+    }
+
+  viewport_region = cairo_region_create_rectangles (rects, n_rects);
+
+  g_free (rects);
+
+  return viewport_region;
+}
