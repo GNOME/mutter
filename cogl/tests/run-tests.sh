@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if test -z "$G_DEBUG"; then
     G_DEBUG=fatal-warnings
