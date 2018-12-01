@@ -287,11 +287,13 @@ cdata.set('HAVE_INTROSPECTION', have_introspection)
 xkb_base = xkeyboard_config_dep.get_pkgconfig_variable('xkb_base')
 cdata.set_quoted('XKB_BASE', xkb_base)
 
-xwayland_path = get_option('xwayland_path')
-if xwayland_path == ''
-  xwayland_path = find_program('Xwayland').path()
+if have_wayland
+  xwayland_path = get_option('xwayland_path')
+  if xwayland_path == ''
+    xwayland_path = find_program('Xwayland').path()
+  endif
+  cdata.set_quoted('XWAYLAND_PATH', xwayland_path)
 endif
-cdata.set_quoted('XWAYLAND_PATH', xwayland_path)
 
 xwayland_grab_default_access_rules = get_option('xwayland_grab_default_access_rules')
 cdata.set_quoted('XWAYLAND_GRAB_DEFAULT_ACCESS_RULES',
