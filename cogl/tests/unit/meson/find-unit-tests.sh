@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 inputfile="$1"
 outputfile="$2"
