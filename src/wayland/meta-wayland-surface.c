@@ -1226,6 +1226,7 @@ meta_wayland_surface_set_window (MetaWaylandSurface *surface,
                                  MetaWindow         *window)
 {
   gboolean was_unmapped = surface->window && !window;
+  ClutterActor *actor;
 
   if (surface->window == window)
     return;
@@ -1242,7 +1243,10 @@ meta_wayland_surface_set_window (MetaWaylandSurface *surface,
 
   surface->window = window;
 
-  clutter_actor_set_reactive (CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface)), !!window);
+  actor = CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface));
+  if (actor)
+    clutter_actor_set_reactive (actor, !!window);
+
   sync_drag_dest_funcs (surface);
 
   if (was_unmapped)
