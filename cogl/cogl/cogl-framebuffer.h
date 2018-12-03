@@ -3,7 +3,8 @@
  *
  * A Low Level GPU Graphics and Utilities API
  *
- * Copyright (C) 2011 Intel Corporation.
+ * Copyright (C) 2007,2008,2009,2011 Intel Corporation.
+ * Copyright (C) 2019 DisplayLink (UK) Ltd.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -1796,6 +1797,69 @@ typedef enum /*< prefix=COGL_FRAMEBUFFER_ERROR >*/
  */
 gboolean
 cogl_is_framebuffer (void *object);
+
+/**
+ * cogl_blit_framebuffer:
+ * @src: The source #CoglFramebuffer
+ * @dest: The destination #CoglFramebuffer
+ * @src_x: Source x position
+ * @src_y: Source y position
+ * @dst_x: Destination x position
+ * @dst_y: Destination y position
+ * @width: Width of region to copy
+ * @height: Height of region to copy
+ * @error: optional error object
+ *
+ * @return FALSE for an immediately detected error, TRUE otherwise.
+ *
+ * This blits a region of the color buffer of the source buffer
+ * to the destination buffer. This function should only be
+ * called if the COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER feature is
+ * advertised.
+ *
+ * The source and destination rectangles are defined in offscreen
+ * framebuffer orientation. When copying between an offscreen and
+ * onscreen framebuffers, the image is y-flipped accordingly.
+ *
+ * The two buffers must have the same value types (e.g. floating-point,
+ * unsigned int, signed int, or fixed-point), but color formats do not
+ * need to match. This limitation comes from OpenGL ES 3.0 definition
+ * of glBlitFramebuffer.
+ *
+ * Note that this function differs a lot from the glBlitFramebuffer
+ * function provided by the GL_EXT_framebuffer_blit extension. Notably
+ * it doesn't support having different sizes for the source and
+ * destination rectangle. This doesn't seem
+ * like a particularly useful feature. If the application wanted to
+ * scale the results it may make more sense to draw a primitive
+ * instead.
+ *
+ * The GL function is documented to be affected by the scissor. This
+ * function therefore ensure that an empty clip stack is flushed
+ * before performing the blit which means the scissor is effectively
+ * ignored.
+ *
+ * The function also doesn't support specifying the buffers to copy
+ * and instead only the color buffer is copied. When copying the depth
+ * or stencil buffers the extension on GLES2.0 only supports copying
+ * the full buffer which would be awkward to document with this
+ * API. If we wanted to support that feature it may be better to have
+ * a separate function to copy the entire buffer for a given mask.
+ *
+ * The @c error argument is optional, it can be NULL. If it is not NULL
+ * and this function returns FALSE, an error object with a code from
+ * COGL_SYSTEM_ERROR will be created.
+ */
+gboolean
+cogl_blit_framebuffer (CoglFramebuffer *src,
+                       CoglFramebuffer *dest,
+                       int src_x,
+                       int src_y,
+                       int dst_x,
+                       int dst_y,
+                       int width,
+                       int height,
+                       GError **error);
 
 G_END_DECLS
 
