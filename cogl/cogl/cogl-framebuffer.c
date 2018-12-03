@@ -1344,26 +1344,38 @@ cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
   return ret;
 }
 
-void
-_cogl_blit_framebuffer (CoglFramebuffer *src,
-                        CoglFramebuffer *dest,
-                        int src_x,
-                        int src_y,
-                        int dst_x,
-                        int dst_y,
-                        int width,
-                        int height)
+gboolean
+cogl_blit_framebuffer (CoglFramebuffer *src,
+                       CoglFramebuffer *dest,
+                       int src_x,
+                       int src_y,
+                       int dst_x,
+                       int dst_y,
+                       int width,
+                       int height,
+                       CoglError **error)
 {
   CoglContext *ctx = src->context;
   int src_x1, src_y1, src_x2, src_y2;
   int dst_x1, dst_y1, dst_x2, dst_y2;
 
-  g_return_if_fail (_cogl_has_private_feature
-                    (ctx, COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER));
+  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER))
+    {
+      _cogl_set_error (error, COGL_SYSTEM_ERROR,
+                       COGL_SYSTEM_ERROR_UNSUPPORTED,
+                       "Cogl BLIT_FRAMEBUFFER is not supported by the system.");
+      return FALSE;
+    }
 
   /* The buffers must use the same premult convention */
-  g_return_if_fail ((src->internal_format & COGL_PREMULT_BIT) ==
-                    (dest->internal_format & COGL_PREMULT_BIT));
+  if ((src->internal_format & COGL_PREMULT_BIT) !=
+      (dest->internal_format & COGL_PREMULT_BIT))
+    {
+      _cogl_set_error (error, COGL_SYSTEM_ERROR,
+                       COGL_SYSTEM_ERROR_UNSUPPORTED,
+                       "cogl_blit_framebuffer premult mismatch.");
+      return FALSE;
+    }
 
   /* Make sure the current framebuffers are bound. We explicitly avoid
      flushing the clip state so we can bind our own empty state */
@@ -1421,6 +1433,8 @@ _cogl_blit_framebuffer (CoglFramebuffer *src,
                           dst_x1, dst_y1, dst_x2, dst_y2,
                           GL_COLOR_BUFFER_BIT,
                           GL_NEAREST);
+
+  return TRUE;
 }
 
 void
