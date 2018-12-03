@@ -291,6 +291,7 @@ surface_process_damage (MetaWaylandSurface *surface,
 {
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
   cairo_rectangle_int_t surface_rect;
+  cairo_rectangle_int_t buffer_rect;
   cairo_region_t *scaled_region;
   cairo_region_t *transformed_region;
   int i, n_rectangles;
@@ -301,6 +302,12 @@ surface_process_damage (MetaWaylandSurface *surface,
    */
   if (!buffer)
     return;
+
+  buffer_rect = (cairo_rectangle_int_t) {
+    .width = get_buffer_width (surface),
+    .height = get_buffer_height (surface),
+  };
+  cairo_region_intersect_rectangle (buffer_region, &buffer_rect);
 
   /* Intersect the damage region with the surface region before scaling in
    * order to avoid integer overflow when scaling a damage region is too large
@@ -316,8 +323,8 @@ surface_process_damage (MetaWaylandSurface *surface,
   scaled_region = meta_region_scale (surface_region, surface->scale);
   transformed_region = meta_region_transform (scaled_region,
                                               surface->buffer_transform,
-                                              get_buffer_width (surface),
-                                              get_buffer_height (surface));
+                                              buffer_rect.width,
+                                              buffer_rect.height);
 
   /* Now add the buffer damage on top of the scaled damage region, as buffer
    * damage is already in that scale. */
