@@ -321,8 +321,6 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
   CoglPixelFormat cogl_format;
   guint i, n_planes;
   GPtrArray *planes;
-  gboolean ret = FALSE;
-  EGLint attrib_list[3] = { EGL_NONE, EGL_NONE, EGL_NONE };
 
   if (buffer->texture)
     return TRUE;
@@ -378,22 +376,24 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
   /* Each EGLImage is a plane in the final texture */
   for (i = 0; i < n_planes; i++)
     {
+      EGLint egl_attribs[3];
       EGLImageKHR egl_img;
       CoglTexture2D *texture;
 
       /* Specify that we want the i'th plane */
-      attrib_list[0] = EGL_WAYLAND_PLANE_WL;
-      attrib_list[1] = i;
+      egl_attribs[0] = EGL_WAYLAND_PLANE_WL;
+      egl_attribs[1] = i;
+      egl_attribs[2] = EGL_NONE;
 
       /* The WL_bind_wayland_display spec states that EGL_NO_CONTEXT is to be
        * used in conjunction with the EGL_WAYLAND_BUFFER_WL target. */
       egl_img = meta_egl_create_image (egl, egl_display, EGL_NO_CONTEXT,
                                        EGL_WAYLAND_BUFFER_WL, buffer->resource,
-                                       attrib_list,
+                                       egl_attribs,
                                        error);
 
       if (G_UNLIKELY (egl_img == EGL_NO_IMAGE_KHR))
-        goto out;
+        goto on_error;
 
       texture = cogl_egl_texture_2d_new_from_image (cogl_context,
                                                     width, height,
@@ -404,7 +404,7 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
       meta_egl_destroy_image (egl, egl_display, egl_img, NULL);
 
       if (G_UNLIKELY (!texture))
-        goto out;
+        goto on_error;
 
       g_ptr_array_add (planes, texture);
     }
@@ -415,13 +415,12 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
                                              n_planes);
   buffer->is_y_inverted = !!y_inverted;
 
-  ret = TRUE;
+  return TRUE;
 
-out:
-  if (!ret)
-    g_ptr_array_free (planes, TRUE);
+on_error:
+  g_ptr_array_free (planes, TRUE);
 
-  return ret;
+  return FALSE;
 }
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
