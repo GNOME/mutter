@@ -406,7 +406,7 @@ handle_gpu_hotplug (MetaMonitorManagerKms *manager_kms,
         }
     }
 
-  gpu_kms = meta_gpu_kms_new (manager_kms, gpu_path, &error);
+  gpu_kms = meta_gpu_kms_new (manager_kms, gpu_path, 0, &error);
   if (!gpu_kms)
     {
       g_warning ("Failed to hotplug secondary gpu '%s': %s",
@@ -717,6 +717,7 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
   primary_gpu_path = g_strdup (gpu_paths->data);
   manager_kms->primary_gpu = meta_gpu_kms_new (manager_kms,
                                                primary_gpu_path,
+                                               0,
                                                error);
   g_list_free_full (gpu_paths, g_free);
   if (!manager_kms->primary_gpu)
@@ -734,7 +735,7 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
       char *gpu_path = l->data;
       MetaGpuKms *gpu_kms;
 
-      gpu_kms = meta_gpu_kms_new (manager_kms, gpu_path, &secondary_error);
+      gpu_kms = meta_gpu_kms_new (manager_kms, gpu_path, 0, &secondary_error);
       if (!gpu_kms)
         {
           g_warning ("Failed to open secondary gpu '%s': %s",
