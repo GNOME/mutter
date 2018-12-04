@@ -44,8 +44,16 @@ typedef struct _MetaKmsResources
 
 typedef void (*MetaKmsFlipCallback) (void *user_data);
 
+typedef enum _MetaGpuKmsFlag
+{
+  META_GPU_KMS_FLAG_NONE =                  0,
+  META_GPU_KMS_FLAG_BOOT_VGA =        (1 << 0),
+  META_GPU_KMS_FLAG_PLATFORM_DEVICE = (1 << 1),
+} MetaGpuKmsFlag;
+
 MetaGpuKms * meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
                                const char             *kms_file_path,
+                               MetaGpuKmsFlag          flags,
                                GError                **error);
 
 gboolean meta_gpu_kms_apply_crtc_mode (MetaGpuKms *gpu_kms,
@@ -58,6 +66,9 @@ gboolean meta_gpu_kms_can_have_outputs (MetaGpuKms *gpu_kms);
 
 gboolean meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
                                       MetaCrtc   *crtc);
+
+gboolean meta_gpu_kms_is_boot_vga (MetaGpuKms *gpu_kms);
+gboolean meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms);
 
 gboolean meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
                                  MetaCrtc   *crtc,
