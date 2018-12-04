@@ -147,8 +147,9 @@ cogl_multi_plane_texture_new_from_bitmaps (CoglPixelFormat format,
 
       if (format == COGL_PIXEL_FORMAT_NV12)
       {
+          /* Issue here: the data is inside the A coordinate, rather than the X coordinate */
         if (i == 0)
-          _cogl_bitmap_set_format (bitmaps[i], COGL_PIXEL_FORMAT_A_8);
+          _cogl_bitmap_set_format (bitmaps[i], COGL_PIXEL_FORMAT_G_8);
         else
           _cogl_bitmap_set_format (bitmaps[i], COGL_PIXEL_FORMAT_RG_88);
       }
@@ -159,8 +160,8 @@ cogl_multi_plane_texture_new_from_bitmaps (CoglPixelFormat format,
       {
         if (i == 0)
         {
-          _cogl_texture_set_internal_format (plane, COGL_PIXEL_FORMAT_A_8);
-          _cogl_bitmap_set_format (bitmaps[i], COGL_PIXEL_FORMAT_A_8);
+          _cogl_texture_set_internal_format (plane, COGL_PIXEL_FORMAT_G_8);
+          _cogl_bitmap_set_format (bitmaps[i], COGL_PIXEL_FORMAT_G_8);
         }
         else
         {
