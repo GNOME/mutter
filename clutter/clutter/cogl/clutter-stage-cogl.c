@@ -576,6 +576,15 @@ calculate_scissor_region (cairo_rectangle_int_t *fb_clip_region,
   };
 }
 
+static inline gboolean
+is_buffer_age_enabled (void)
+{
+  /* Buffer age is disabled when running with CLUTTER_PAINT=damage-region,
+   * to ensure the red damage represents the currently damaged area */
+  return !(clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION) &&
+         cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
+}
+
 static gboolean
 clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                                 ClutterStageView   *view)
@@ -613,9 +622,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     cogl_is_onscreen (fb) &&
     cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_SWAP_REGION);
 
-  has_buffer_age =
-    cogl_is_onscreen (fb) &&
-    cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
+  has_buffer_age = cogl_is_onscreen (fb) && is_buffer_age_enabled ();
 
   /* NB: a zero width redraw clip == full stage redraw */
   if (stage_cogl->bounding_redraw_clip.width == 0)
@@ -946,7 +953,7 @@ clutter_stage_cogl_get_dirty_pixel (ClutterStageWindow *stage_window,
   CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
   gboolean has_buffer_age =
     cogl_is_onscreen (framebuffer) &&
-    cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
+    is_buffer_age_enabled ();
   float fb_scale;
   gboolean scale_is_fractional;
 
