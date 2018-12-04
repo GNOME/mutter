@@ -77,6 +77,8 @@ struct _MetaGpuKms
   gboolean page_flips_not_supported;
 
   gboolean resources_init_failed_before;
+
+  MetaGpuKmsFlag flags;
 };
 
 G_DEFINE_TYPE (MetaGpuKms, meta_gpu_kms, META_TYPE_GPU)
@@ -455,6 +457,18 @@ meta_gpu_kms_set_power_save_mode (MetaGpuKms *gpu_kms,
 
       meta_output_kms_set_power_save_mode (output, state);
     }
+}
+
+gboolean
+meta_gpu_kms_is_boot_vga (MetaGpuKms *gpu_kms)
+{
+  return !!(gpu_kms->flags & META_GPU_KMS_FLAG_BOOT_VGA);
+}
+
+gboolean
+meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms)
+{
+  return !!(gpu_kms->flags & META_GPU_KMS_FLAG_PLATFORM_DEVICE);
 }
 
 static void
@@ -897,6 +911,7 @@ meta_gpu_kms_can_have_outputs (MetaGpuKms *gpu_kms)
 MetaGpuKms *
 meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
                   const char             *kms_file_path,
+                  MetaGpuKmsFlag          flags,
                   GError                **error)
 {
   MetaMonitorManager *monitor_manager =
@@ -917,6 +932,7 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
                           "monitor-manager", monitor_manager_kms,
                           NULL);
 
+  gpu_kms->flags = flags;
   gpu_kms->fd = kms_fd;
   gpu_kms->file_path = g_strdup (kms_file_path);
 
