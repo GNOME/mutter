@@ -15,6 +15,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-screen-cast-window.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
 #include "cogl/winsys/cogl-texture-pixmap-x11.h"
@@ -186,9 +187,12 @@ static void do_send_frame_timings (MetaWindowActor  *self,
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
+static void screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface);
+
 G_DEFINE_TYPE_WITH_CODE (MetaWindowActor, meta_window_actor, CLUTTER_TYPE_ACTOR,
                          G_ADD_PRIVATE (MetaWindowActor)
-                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
+                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init)
+                         G_IMPLEMENT_INTERFACE (META_TYPE_SCREEN_CAST_WINDOW, screen_cast_window_iface_init));
 
 static void
 frame_data_free (FrameData *frame)
@@ -2179,4 +2183,130 @@ MetaWindowActor *
 meta_window_actor_from_window (MetaWindow *window)
 {
   return META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+}
+
+static void
+meta_window_actor_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
+                                     MetaRectangle        *bounds)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
+  ClutterActor *clutter_actor;
+
+  clutter_actor = CLUTTER_ACTOR (meta_window_actor_get_texture (window_actor));
+  bounds->x = 0;
+  bounds->y = 0;
+  bounds->width = (int) clutter_actor_get_width (clutter_actor);
+  bounds->height = (int) clutter_actor_get_height (clutter_actor);
+}
+
+static void
+meta_window_actor_get_frame_bounds (MetaScreenCastWindow *screen_cast_window,
+                                    MetaRectangle        *bounds)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
+  MetaWindow *window;
+  MetaShapedTexture *stex;
+  MetaRectangle buffer_rect;
+  MetaRectangle frame_rect;
+  double scale_x, scale_y;
+
+  stex = meta_surface_actor_get_texture (window_actor->priv->surface);
+  clutter_actor_get_scale (CLUTTER_ACTOR (stex), &scale_x, &scale_y);
+
+  window = window_actor->priv->window;
+  meta_window_get_buffer_rect (window, &buffer_rect);
+  meta_window_get_frame_rect (window, &frame_rect);
+
+  bounds->x = (int) floor ((frame_rect.x - buffer_rect.x) / scale_x);
+  bounds->y = (int) floor ((frame_rect.y - buffer_rect.y) / scale_y);
+  bounds->width = (int) ceil (frame_rect.width / scale_x);
+  bounds->height = (int) ceil (frame_rect.height / scale_y);
+}
+
+static void
+meta_window_actor_transform_relative_position (MetaScreenCastWindow *screen_cast_window,
+                                               double                x,
+                                               double                y,
+                                               double               *x_out,
+                                               double               *y_out)
+
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
+  MetaShapedTexture *stex;
+  MetaRectangle bounds;
+  ClutterVertex v1 = { 0.f, }, v2 = { 0.f, };
+
+  meta_window_actor_get_frame_bounds (screen_cast_window, &bounds);
+
+  v1.x = CLAMP ((float) x,
+                bounds.x,
+                bounds.x + bounds.width);
+  v1.y = CLAMP ((float) y,
+                bounds.y,
+                bounds.y + bounds.height);
+
+  stex = meta_surface_actor_get_texture (window_actor->priv->surface);
+  clutter_actor_apply_transform_to_point (CLUTTER_ACTOR (stex), &v1, &v2);
+
+  *x_out = (double) v2.x;
+  *y_out = (double) v2.y;
+}
+
+static void
+meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
+                                MetaRectangle        *bounds,
+                                uint8_t              *data)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
+  cairo_surface_t *image;
+  MetaRectangle clip_rect;
+  uint8_t *cr_data;
+  int cr_stride;
+  int bpp = 4;
+
+  if (meta_window_actor_is_destroyed (window_actor))
+    return;
+
+  clip_rect = *bounds;
+  image = meta_surface_actor_get_image (window_actor->priv->surface, &clip_rect);
+  cr_data = cairo_image_surface_get_data (image);
+  cr_stride = cairo_image_surface_get_stride (image);
+
+  if (clip_rect.width < bounds->width || clip_rect.height < bounds->height)
+    {
+      uint8_t *src, *dst;
+      src = cr_data;
+      dst = data;
+
+      for (int i = 0; i < clip_rect.height; i++)
+        {
+          memcpy (dst, src, cr_stride);
+          if (clip_rect.width < bounds->width)
+            memset (dst + cr_stride, 0, (bounds->width * bpp) - cr_stride);
+
+          src += cr_stride;
+          dst += bounds->width * bpp;
+        }
+
+      for (int i = clip_rect.height; i < bounds->height; i++)
+        {
+          memset (dst, 0, bounds->width * bpp);
+          dst += bounds->width * bpp;
+        }
+    }
+  else
+    {
+      memcpy (data, cr_data, clip_rect.height * cr_stride);
+    }
+
+  cairo_surface_destroy (image);
+}
+
+static void
+screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
+{
+  iface->get_buffer_bounds = meta_window_actor_get_buffer_bounds;
+  iface->get_frame_bounds = meta_window_actor_get_frame_bounds;
+  iface->transform_relative_position = meta_window_actor_transform_relative_position;
+  iface->capture_into = meta_window_actor_capture_into;
 }
