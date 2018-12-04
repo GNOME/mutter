@@ -585,7 +585,6 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
     * Notify the compositor that the active workspace is changing.
     */
    comp = meta_display_get_compositor (workspace->display);
-   direction = 0;
 
    current_space = meta_workspace_index (old);
    new_space     = meta_workspace_index (workspace);
@@ -613,22 +612,22 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
 
    if (layout1.current_row < layout2.current_row)
      {
-       if (!direction)
-         direction = META_MOTION_DOWN;
+       if (direction == META_MOTION_LEFT)
+         direction = META_MOTION_DOWN_LEFT;
        else if (direction == META_MOTION_RIGHT)
          direction = META_MOTION_DOWN_RIGHT;
        else
-         direction = META_MOTION_DOWN_LEFT;
+         direction = META_MOTION_DOWN;
      }
 
    if (layout1.current_row > layout2.current_row)
      {
-       if (!direction)
-         direction = META_MOTION_UP;
+       if (direction == META_MOTION_LEFT)
+         direction = META_MOTION_UP_LEFT;
        else if (direction == META_MOTION_RIGHT)
          direction = META_MOTION_UP_RIGHT;
        else
-         direction = META_MOTION_UP_LEFT;
+         direction = META_MOTION_UP;
      }
 
    meta_workspace_manager_free_workspace_layout (&layout1);
