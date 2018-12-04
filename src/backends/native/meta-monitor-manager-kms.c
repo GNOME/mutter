@@ -550,15 +550,7 @@ meta_monitor_manager_kms_get_max_screen_size (MetaMonitorManager *manager,
                                               int                *max_width,
                                               int                *max_height)
 {
-  MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (manager);
-
-  if (meta_is_stage_views_enabled ())
-    return FALSE;
-
-  meta_gpu_kms_get_max_buffer_size (manager_kms->primary_gpu,
-                                    max_width, max_height);
-
-  return TRUE;
+  return FALSE;
 }
 
 static MetaLogicalMonitorLayoutMode
@@ -566,9 +558,6 @@ meta_monitor_manager_kms_get_default_layout_mode (MetaMonitorManager *manager)
 {
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaSettings *settings = meta_backend_get_settings (backend);
-
-  if (!meta_is_stage_views_enabled ())
-    return META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
 
   if (meta_settings_is_experimental_feature_enabled (
         settings,
