@@ -3424,14 +3424,6 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
   EGLDisplay egl_display;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  if (!meta_is_stage_views_enabled())
-    {
-      g_set_error (error, G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "EGLDevice requires stage views enabled");
-      return NULL;
-    }
-
   primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
   if (gpu_kms != primary_gpu)
     {
