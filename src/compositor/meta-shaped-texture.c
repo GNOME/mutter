@@ -449,7 +449,7 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
 }
 
 static void
-check_texture_color_format (MetaShapedTexture *self,
+check_texture_color_format (MetaShapedTexture *stex,
                             CoglMultiPlaneTexture *texture)
 {
   CoglPixelFormat format = cogl_multi_plane_texture_get_format (texture);
@@ -466,7 +466,7 @@ check_texture_color_format (MetaShapedTexture *self,
     return;
 
   /* XXX disable for now, our changes are still incompatible with texturetower*/
-  meta_shaped_texture_set_create_mipmaps (self, FALSE);
+  meta_shaped_texture_set_create_mipmaps (stex, FALSE);
 
   cogl_colorspace_conversion_attach_to_pipeline (stex->colorspace_conversion,
                                                  stex->base_pipeline,
@@ -1274,8 +1274,8 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                cairo_rectangle_int_t *clip)
 {
   cairo_rectangle_int_t *transformed_clip = NULL;
-  CoglTexture *texture, *mask_texture;
-  CoglMultiPlaneTexture *texture, *mask_texture;
+  CoglMultiPlaneTexture *texture;
+  CoglTexture *mask_texture;
   cairo_surface_t *surface;
   CoglContext *ctx;
 
