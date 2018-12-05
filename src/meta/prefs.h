@@ -65,6 +65,7 @@
  * @META_PREF_AUTO_MAXIMIZE: auto-maximize
  * @META_PREF_CENTER_NEW_WINDOWS: center new windows
  * @META_PREF_DRAG_THRESHOLD: drag threshold
+ * @META_PREF_ENABLE_INTROSPECT: enable introspection
  */
 
 /* Keep in sync with GSettings schemas! */
@@ -103,6 +104,7 @@ typedef enum
   META_PREF_AUTO_MAXIMIZE,
   META_PREF_CENTER_NEW_WINDOWS,
   META_PREF_DRAG_THRESHOLD,
+  META_PREF_ENABLE_INTROSPECT,
 } MetaPreference;
 
 typedef void (* MetaPrefsChangedFunc) (MetaPreference pref,
@@ -165,6 +167,8 @@ gboolean meta_prefs_get_workspaces_only_on_primary (void);
 
 int      meta_prefs_get_draggable_border_width (void);
 int      meta_prefs_get_drag_threshold (void);
+
+gboolean meta_prefs_get_is_introspect_enabled (void);
 
 /**
  * MetaKeyBindingAction:
