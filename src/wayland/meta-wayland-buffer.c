@@ -232,15 +232,15 @@ shm_buffer_attach (MetaWaylandBuffer *buffer,
 
   cogl_object_unref (bitmap);
 
-  if (!cogl_texture_allocate (COGL_TEXTURE (texture), error))
-    g_clear_pointer (&texture, cogl_object_unref);
+  if (G_UNLIKELY (!cogl_texture_allocate (COGL_TEXTURE (texture), error)))
+    cogl_clear_object (&texture);
 
   wl_shm_buffer_end_access (shm_buffer);
 
   buffer->texture = texture;
   buffer->is_y_inverted = TRUE;
 
-  if (!buffer->texture)
+  if (G_UNLIKELY (!buffer->texture))
     return FALSE;
 
   return TRUE;
@@ -259,23 +259,27 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
   CoglPixelFormat cogl_format;
   EGLImageKHR egl_image;
   CoglTexture2D *texture;
+  gboolean res = FALSE;
 
   if (buffer->texture)
     return TRUE;
 
-  if (!meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
-                                      EGL_TEXTURE_FORMAT, &format,
-                                      error))
+  res = meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
+                                       EGL_TEXTURE_FORMAT, &format,
+                                       error);
+  if (G_UNLIKELY (!res))
     return FALSE;
 
-  if (!meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
-                                      EGL_WIDTH, &width,
-                                      error))
+  res = meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
+                                       EGL_WIDTH, &width,
+                                       error);
+  if (G_UNLIKELY (!res))
     return FALSE;
 
-  if (!meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
-                                      EGL_HEIGHT, &height,
-                                      error))
+  res = meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
+                                       EGL_HEIGHT, &height,
+                                       error);
+  if (G_UNLIKELY (!res))
     return FALSE;
 
   if (!meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
@@ -304,7 +308,7 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
                                      EGL_WAYLAND_BUFFER_WL, buffer->resource,
                                      NULL,
                                      error);
-  if (egl_image == EGL_NO_IMAGE_KHR)
+  if (G_UNLIKELY (egl_image == EGL_NO_IMAGE_KHR))
     return FALSE;
 
   texture = cogl_egl_texture_2d_new_from_image (cogl_context,
@@ -315,7 +319,7 @@ egl_image_buffer_attach (MetaWaylandBuffer *buffer,
 
   meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
 
-  if (!texture)
+  if (G_UNLIKELY (!texture))
     return FALSE;
 
   buffer->texture = COGL_TEXTURE (texture);
@@ -346,7 +350,7 @@ meta_wayland_buffer_attach (MetaWaylandBuffer *buffer,
 {
   g_return_val_if_fail (buffer->resource, FALSE);
 
-  if (!meta_wayland_buffer_is_realized (buffer))
+  if (G_UNLIKELY (!meta_wayland_buffer_is_realized (buffer)))
     {
       /* The buffer should have been realized at surface commit time */
       g_set_error (error, G_IO_ERROR,
@@ -426,18 +430,17 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
       bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
       cairo_region_get_rectangle (region, i, &rect);
 
-      if (!_cogl_texture_set_region (buffer->texture,
-                                     rect.width, rect.height,
-                                     format,
-                                     stride,
-                                     data + rect.x * bpp + rect.y * stride,
-                                     rect.x, rect.y,
-                                     0,
-                                     error))
-        {
-          set_texture_failed = TRUE;
-          break;
-        }
+      set_texture_failed =
+        !_cogl_texture_set_region (buffer->texture,
+                                   rect.width, rect.height,
+                                   format,
+                                   stride,
+                                   data + rect.x * bpp + rect.y * stride,
+                                   rect.x, rect.y,
+                                   0,
+                                   error);
+      if (G_UNLIKELY (set_texture_failed))
+        break;
     }
 
   wl_shm_buffer_end_access (shm_buffer);
@@ -474,7 +477,7 @@ meta_wayland_buffer_process_damage (MetaWaylandBuffer *buffer,
       break;
     }
 
-  if (!res)
+  if (G_UNLIKELY (!res))
     {
       g_warning ("Failed to process Wayland buffer damage: %s", error->message);
       g_error_free (error);
