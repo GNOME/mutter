@@ -276,6 +276,8 @@ mutter_sources = [
   'compositor/meta-plugin.c',
   'compositor/meta-plugin-manager.c',
   'compositor/meta-plugin-manager.h',
+  'compositor/meta-screen-cast-window.c',
+  'compositor/meta-screen-cast-window.h',
   'compositor/meta-shadow-factory.c',
   'compositor/meta-shaped-texture.c',
   'compositor/meta-shaped-texture-private.h',
