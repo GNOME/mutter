@@ -112,6 +112,7 @@ static gboolean edge_tiling = FALSE;
 static gboolean force_fullscreen = TRUE;
 static gboolean auto_maximize = TRUE;
 static gboolean show_fallback_app_menu = FALSE;
+static gboolean enable_introspect = FALSE;
 
 static GDesktopVisualBellType visual_bell_type = G_DESKTOP_VISUAL_BELL_FULLSCREEN_FLASH;
 static MetaButtonLayout button_layout;
@@ -381,6 +382,13 @@ static MetaBoolPreference preferences_bool[] =
         META_PREF_AUTO_MAXIMIZE,
       },
       &auto_maximize,
+    },
+    {
+      { "enable-introspect",
+        SCHEMA_MUTTER,
+        META_PREF_ENABLE_INTROSPECT,
+      },
+      &enable_introspect,
     },
     { { NULL, 0, 0 }, NULL },
   };
@@ -1642,6 +1650,9 @@ meta_preference_to_string (MetaPreference pref)
 
     case META_PREF_AUTO_MAXIMIZE:
       return "AUTO_MAXIMIZE";
+
+    case META_PREF_ENABLE_INTROSPECT:
+      return "ENABLE_INTROSPECT";
     }
 
   return "(unknown)";
@@ -2083,4 +2094,10 @@ void
 meta_prefs_set_force_fullscreen (gboolean whether)
 {
   force_fullscreen = whether;
+}
+
+gboolean
+meta_prefs_get_is_introspect_enabled (void)
+{
+  return enable_introspect;
 }

@@ -102,6 +102,17 @@
       </description>
     </key>
 
+    <key name="enable-introspect" type="b">
+      <default>false</default>
+      <summary>Enables introspection support</summary>
+      <description>
+        When true, this allows clients to query the list of windows and
+        their various characteristics through D-BUS.
+        This can be used for automated tests such as “dogtail”, but should be
+        kept disabled otherwise.
+      </description>
+    </key>
+
     <key name="experimental-features" type="as">
       <default>[]</default>
       <summary>Enable experimental features</summary>
