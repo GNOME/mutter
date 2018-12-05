@@ -166,6 +166,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/meta-output.h			\
 	backends/meta-pointer-constraint.c	\
 	backends/meta-pointer-constraint.h	\
+	backends/meta-screen-cast-window.c	\
+	backends/meta-screen-cast-window.h	\
 	backends/meta-settings.c		\
 	backends/meta-settings-private.h	\
 	backends/meta-stage-private.h		\
