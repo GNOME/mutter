@@ -214,6 +214,8 @@ mutter_sources = [
   'backends/meta-renderer.h',
   'backends/meta-renderer-view.c',
   'backends/meta-renderer-view.h',
+  'backends/meta-screen-cast-window.c',
+  'backends/meta-screen-cast-window.h',
   'backends/meta-settings.c',
   'backends/meta-settings-private.h',
   'backends/meta-stage.c',
