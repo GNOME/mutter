@@ -86,7 +86,7 @@ MUTTER_PC_MODULES="
    gio-unix-2.0 >= 2.35.1
    pango >= 1.2.0
    cairo >= 1.10.0
-   gsettings-desktop-schemas >= 3.21.4
+   gsettings-desktop-schemas >= 3.31.0
    json-glib-1.0
    gnome-desktop-3.0
    xcomposite >= 0.2
