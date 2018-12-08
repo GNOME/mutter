@@ -1090,82 +1090,104 @@ cairo_surface_t *
 meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                cairo_rectangle_int_t *clip)
 {
-  CoglTexture *texture, *mask_texture;
-  cairo_rectangle_int_t texture_rect = { 0, 0, 0, 0 };
+  ClutterActor *actor = CLUTTER_ACTOR (stex);
+  MetaShapedTexturePrivate *priv = stex->priv;
+  CoglContext *ctx;
+  CoglFramebuffer *framebuffer;
+  CoglTexture *texture;
   cairo_surface_t *surface;
+  double tex_scale;
+  int dst_width;
+  int dst_height;
+  int pot;
 
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
 
-  texture = COGL_TEXTURE (stex->priv->texture);
+  ensure_size_valid (stex);
+  clutter_actor_get_scale (actor, &tex_scale, NULL);
+  dst_width = priv->dst_width * tex_scale;
+  dst_height = priv->dst_height * tex_scale;
 
-  if (texture == NULL)
-    return NULL;
+  ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
-  texture_rect.width = cogl_texture_get_width (texture);
-  texture_rect.height = cogl_texture_get_height (texture);
-
-  if (clip != NULL)
+  pot = cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT);
+  if (!pot)
     {
-      /* GdkRectangle is just a typedef of cairo_rectangle_int_t,
-       * so we can use the gdk_rectangle_* APIs on these. */
-      if (!gdk_rectangle_intersect (&texture_rect, clip, clip))
-        return NULL;
+      g_warning ("Driver needs textures as POT\n");
+      return NULL;
     }
 
-  if (clip != NULL)
-    texture = cogl_texture_new_from_sub_texture (texture,
-                                                 clip->x,
-                                                 clip->y,
-                                                 clip->width,
-                                                 clip->height);
+  texture = (CoglTexture*) cogl_texture_2d_new_with_size (ctx,
+                                                          dst_width,
+                                                          dst_height);
+
+  framebuffer = (CoglFramebuffer*) cogl_offscreen_new_with_texture (texture);
+  cogl_push_framebuffer (framebuffer);
+
+  CoglPipeline *pipeline = get_base_pipeline (stex, ctx);
+  CoglTexture *paint_tex = COGL_TEXTURE (priv->texture);
+
+  CoglMatrix matrix;
+  CoglEuler euler;
+
+  cogl_matrix_init_translation (&matrix, 0.5, 0.5, 0.0);
+  switch (priv->transform)
+    {
+    case META_MONITOR_TRANSFORM_NORMAL:
+      cogl_euler_init (&euler, 180.0, 0.0, 180.0);
+      break;
+    case META_MONITOR_TRANSFORM_90:
+      cogl_euler_init (&euler, 180.0, 0.0, 90.0);
+      break;
+    case META_MONITOR_TRANSFORM_180:
+      cogl_euler_init (&euler, 180.0, 0.0, 0.0);
+      break;
+    case META_MONITOR_TRANSFORM_270:
+      cogl_euler_init (&euler, 180.0, 0.0, 270.0);
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED:
+      cogl_euler_init (&euler, 0.0, 0.0, 180.0);
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+      cogl_euler_init (&euler, 180.0, 180.0, 90.0);
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+      cogl_euler_init (&euler, 0.0, 0.0, 0.0);
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      cogl_euler_init (&euler, 180.0, 180.0, 270.0);
+      break;
+    }
+  cogl_matrix_rotate_euler (&matrix, &euler);
+  cogl_matrix_translate (&matrix, -0.5, -0.5, 0.0);
+  cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
+
+  cogl_pipeline_set_layer_texture (pipeline, 0, paint_tex);
+  cogl_pipeline_set_layer_filters (pipeline, 0, COGL_PIPELINE_FILTER_LINEAR, COGL_PIPELINE_FILTER_LINEAR);
+
+  CoglColor color;
+  cogl_color_init_from_4ub (&color, 255, 255, 255, 255);
+  cogl_pipeline_set_color (pipeline, &color);
+
+  cogl_framebuffer_draw_rectangle (framebuffer,
+                                   pipeline,
+                                   -1.0, -1.0,
+                                   1.0, 1.0);
+
+  meta_shaped_texture_reset_pipelines (stex);
+
+  cogl_object_unref (framebuffer);
+  cogl_pop_framebuffer ();
 
   surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                        cogl_texture_get_width (texture),
-                                        cogl_texture_get_height (texture));
+                                        dst_width,
+                                        dst_height);
 
   cogl_texture_get_data (texture, CLUTTER_CAIRO_FORMAT_ARGB32,
                          cairo_image_surface_get_stride (surface),
                          cairo_image_surface_get_data (surface));
 
   cairo_surface_mark_dirty (surface);
-
-  if (clip != NULL)
-    cogl_object_unref (texture);
-
-  mask_texture = stex->priv->mask_texture;
-  if (mask_texture != NULL)
-    {
-      cairo_t *cr;
-      cairo_surface_t *mask_surface;
-
-      if (clip != NULL)
-        mask_texture = cogl_texture_new_from_sub_texture (mask_texture,
-                                                          clip->x,
-                                                          clip->y,
-                                                          clip->width,
-                                                          clip->height);
-
-      mask_surface = cairo_image_surface_create (CAIRO_FORMAT_A8,
-                                                 cogl_texture_get_width (mask_texture),
-                                                 cogl_texture_get_height (mask_texture));
-
-      cogl_texture_get_data (mask_texture, COGL_PIXEL_FORMAT_A_8,
-                             cairo_image_surface_get_stride (mask_surface),
-                             cairo_image_surface_get_data (mask_surface));
-
-      cairo_surface_mark_dirty (mask_surface);
-
-      cr = cairo_create (surface);
-      cairo_set_source_surface (cr, mask_surface, 0, 0);
-      cairo_set_operator (cr, CAIRO_OPERATOR_DEST_IN);
-      cairo_paint (cr);
-      cairo_destroy (cr);
-
-      cairo_surface_destroy (mask_surface);
-
-      if (clip != NULL)
-        cogl_object_unref (mask_texture);
-    }
 
   return surface;
 }
