@@ -296,6 +296,7 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	core/meta-memory-selection-source.c	\
 	core/meta-selection.c                   \
 	core/meta-selection-source.c            \
+	core/meta-sound.c			\
 	core/delete.c				\
 	core/display.c				\
 	core/display-private.h			\
@@ -595,6 +596,7 @@ libmutterinclude_headers =			\
 	meta/meta-settings.h			\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\
+	meta/meta-sound.h			\
 	meta/meta-stage.h			\
 	meta/meta-startup-notification.h	\
 	meta/meta-window-actor.h		\
