@@ -295,6 +295,7 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	meta/meta-inhibit-shortcuts-dialog.h	\
 	core/meta-inhibit-shortcuts-dialog-default.c	\
 	core/meta-inhibit-shortcuts-dialog-default-private.h \
+	core/meta-sound-player.c		\
 	core/delete.c				\
 	core/display.c				\
 	core/display-private.h			\
@@ -585,6 +586,7 @@ libmutterinclude_headers =			\
 	meta/meta-settings.h			\
 	meta/meta-shaped-texture.h		\
 	meta/meta-shadow-factory.h		\
+	meta/meta-sound-player.h		\
 	meta/meta-stage.h			\
 	meta/meta-startup-notification.h	\
 	meta/meta-window-actor.h		\
