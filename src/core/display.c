@@ -66,6 +66,7 @@
 #include "meta/main.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-enum-types.h"
+#include "meta/meta-sound.h"
 #include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
 #include "x11/meta-startup-notification-x11.h"
@@ -777,6 +778,8 @@ meta_display_open (void)
 
   meta_idle_monitor_init_dbus ();
 
+  display->sound = g_object_new (META_TYPE_SOUND, NULL);
+
   /* Done opening new display */
   display->display_opening = FALSE;
 
@@ -954,6 +957,7 @@ meta_display_close (MetaDisplay *display,
   g_clear_object (&display->bell);
   g_clear_object (&display->startup_notification);
   g_clear_object (&display->workspace_manager);
+  g_clear_object (&display->sound);
 
   g_object_unref (display);
   the_display = NULL;
@@ -3628,4 +3632,16 @@ meta_display_generate_window_id (MetaDisplay *display)
 
   /* We can overflow here, that's fine */
   return (base_window_id + last_window_id++);
+}
+
+/**
+ * meta_display_get_sound:
+ * @display: a #MetaDisplay
+ *
+ * Returns: (transfer none): The sound platform abstraction of the display
+ */
+MetaSound *
+meta_display_get_sound (MetaDisplay *display)
+{
+  return display->sound;
 }

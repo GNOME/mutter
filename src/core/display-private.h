@@ -241,6 +241,8 @@ struct _MetaDisplay
 
   MetaBell *bell;
   MetaWorkspaceManager *workspace_manager;
+
+  MetaSound *sound;
 };
 
 struct _MetaDisplayClass
