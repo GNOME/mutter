@@ -66,6 +66,7 @@
 #include "meta/main.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-enum-types.h"
+#include "meta/meta-sound.h"
 #include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
 #include "x11/meta-startup-notification-x11.h"
@@ -776,6 +777,8 @@ meta_display_open (void)
     meta_x11_display_focus_the_no_focus_window (display->x11_display, timestamp);
 
   meta_idle_monitor_init_dbus ();
+
+  display->sound = g_object_new (META_TYPE_SOUND, NULL);
 
   /* Done opening new display */
   display->display_opening = FALSE;
@@ -3596,4 +3599,16 @@ MetaStartupNotification *
 meta_display_get_startup_notification (MetaDisplay *display)
 {
   return display->startup_notification;
+}
+
+/**
+ * meta_display_get_sound:
+ * @display: a #MetaDisplay
+ *
+ * Returns: (transfer none): The sound platform abstraction of the display
+ */
+MetaSound *
+meta_display_get_sound (MetaDisplay *display)
+{
+  return display->sound;
 }
