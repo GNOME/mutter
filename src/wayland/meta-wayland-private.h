@@ -48,6 +48,7 @@ typedef struct
   char *lock_file;
   int abstract_fd;
   int unix_fd;
+  struct wl_display *wayland_display;
   struct wl_client *client;
   struct wl_resource *xserver_resource;
   char *display_name;
