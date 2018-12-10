@@ -464,9 +464,8 @@ on_displayfd_ready (int          fd,
   return G_SOURCE_REMOVE;
 }
 
-gboolean
-meta_xwayland_start (MetaXWaylandManager *manager,
-                     struct wl_display   *wl_display)
+static gboolean
+meta_xwayland_init_xserver (MetaXWaylandManager *manager)
 {
   int xwayland_client_fd[2];
   int displayfd[2];
@@ -474,9 +473,6 @@ meta_xwayland_start (MetaXWaylandManager *manager,
   g_autoptr(GSubprocessLauncher) launcher = NULL;
   GSubprocessFlags flags;
   GError *error = NULL;
-
-  if (!choose_xdisplay (manager))
-    goto out;
 
   /* We want xwayland to be a wayland client so we make a socketpair to setup a
    * wayland protocol connection. */
@@ -536,7 +532,8 @@ meta_xwayland_start (MetaXWaylandManager *manager,
   g_subprocess_wait_async (manager->proc, manager->xserver_died_cancellable,
                            xserver_died, NULL);
   g_unix_fd_add (displayfd[0], G_IO_IN, on_displayfd_ready, manager);
-  manager->client = wl_client_create (wl_display, xwayland_client_fd[0]);
+  manager->client = wl_client_create (manager->wayland_display,
+                                      xwayland_client_fd[0]);
 
   /* We need to run a mainloop until we know xwayland has a binding
    * for our xserver interface at which point we can assume it's
@@ -553,6 +550,17 @@ out:
       g_clear_pointer (&manager->lock_file, g_free);
     }
   return started;
+}
+
+gboolean
+meta_xwayland_start (MetaXWaylandManager *manager,
+                     struct wl_display   *wl_display)
+{
+  if (!choose_xdisplay (manager))
+    return FALSE;
+
+  manager->wayland_display = wl_display;
+  return meta_xwayland_init_xserver (manager);
 }
 
 static void
