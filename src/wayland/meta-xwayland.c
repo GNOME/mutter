@@ -465,32 +465,27 @@ on_displayfd_ready (int          fd,
   return G_SOURCE_REMOVE;
 }
 
-gboolean
-meta_xwayland_start (MetaXWaylandManager *manager,
-                     struct wl_display   *wl_display)
+static gboolean
+meta_xwayland_init_xserver (MetaXWaylandManager *manager)
 {
   int xwayland_client_fd[2];
   int displayfd[2];
-  gboolean started = FALSE;
   g_autoptr(GSubprocessLauncher) launcher = NULL;
   GSubprocessFlags flags;
   GError *error = NULL;
-
-  if (!choose_xdisplay (manager))
-    goto out;
 
   /* We want xwayland to be a wayland client so we make a socketpair to setup a
    * wayland protocol connection. */
   if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, xwayland_client_fd) < 0)
     {
       g_warning ("xwayland_client_fd socketpair failed\n");
-      goto out;
+      return FALSE;
     }
 
   if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, displayfd) < 0)
     {
       g_warning ("displayfd socketpair failed\n");
-      goto out;
+      return FALSE;
     }
 
   /* xwayland, please. */
@@ -530,14 +525,15 @@ meta_xwayland_start (MetaXWaylandManager *manager,
   if (!manager->proc)
     {
       g_error ("Failed to spawn Xwayland: %s", error->message);
-      goto out;
+      return FALSE;
     }
 
   manager->xserver_died_cancellable = g_cancellable_new ();
   g_subprocess_wait_async (manager->proc, manager->xserver_died_cancellable,
                            xserver_died, NULL);
   g_unix_fd_add (displayfd[0], G_IO_IN, on_displayfd_ready, manager);
-  manager->client = wl_client_create (wl_display, xwayland_client_fd[0]);
+  manager->client = wl_client_create (manager->wayland_display,
+                                      xwayland_client_fd[0]);
 
   /* We need to run a mainloop until we know xwayland has a binding
    * for our xserver interface at which point we can assume it's
@@ -545,15 +541,18 @@ meta_xwayland_start (MetaXWaylandManager *manager,
   manager->init_loop = g_main_loop_new (NULL, FALSE);
   g_main_loop_run (manager->init_loop);
 
-  started = TRUE;
+  return TRUE;
+}
 
-out:
-  if (!started)
-    {
-      unlink (manager->lock_file);
-      g_clear_pointer (&manager->lock_file, g_free);
-    }
-  return started;
+gboolean
+meta_xwayland_start (MetaXWaylandManager *manager,
+                     struct wl_display   *wl_display)
+{
+  if (!choose_xdisplay (manager))
+    return FALSE;
+
+  manager->wayland_display = wl_display;
+  return meta_xwayland_init_xserver (manager);
 }
 
 static void
