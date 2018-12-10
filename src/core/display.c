@@ -628,6 +628,38 @@ on_ui_scaling_factor_changed (MetaSettings *settings,
   meta_display_reload_cursor (display);
 }
 
+gboolean
+meta_display_init_x11 (MetaDisplay  *display,
+                       GError      **error)
+{
+  MetaX11Display *x11_display;
+
+  g_assert (display->x11_display == NULL);
+
+  x11_display = meta_x11_display_new (display, error);
+  if (!x11_display)
+    return FALSE;
+
+  display->x11_display = x11_display;
+  g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
+  meta_x11_display_create_guard_window (x11_display);
+
+  if (!display->display_opening)
+    meta_display_manage_all_windows (display);
+  return TRUE;
+}
+
+void
+meta_display_shutdown_x11 (MetaDisplay *display)
+{
+  if (!display->x11_display)
+    return;
+
+  g_signal_emit (display, display_signals[X11_DISPLAY_CLOSING], 0);
+  g_object_run_dispose (G_OBJECT (display->x11_display));
+  g_clear_object (&display->x11_display);
+}
+
 /**
  * meta_display_open:
  *
@@ -643,7 +675,6 @@ meta_display_open (void)
 {
   GError *error = NULL;
   MetaDisplay *display;
-  MetaX11Display *x11_display;
   int i;
   guint32 timestamp;
   Window old_active_xwindow = None;
@@ -724,10 +755,8 @@ meta_display_open (void)
 
   if (meta_should_autostart_x11_display ())
     {
-      x11_display = meta_x11_display_new (display, &error);
-      g_assert (x11_display != NULL); /* Required, for now */
-      display->x11_display = x11_display;
-      g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
+      if (!meta_display_init_x11 (display, &error))
+        g_error ("Failed to start Xwayland: %s", error->message);
 
       timestamp = display->x11_display->timestamp;
     }
@@ -944,12 +973,7 @@ meta_display_close (MetaDisplay *display,
   if (display->compositor)
     meta_compositor_destroy (display->compositor);
 
-  if (display->x11_display)
-    {
-      g_signal_emit (display, display_signals[X11_DISPLAY_CLOSING], 0);
-      g_object_run_dispose (G_OBJECT (display->x11_display));
-      g_clear_object (&display->x11_display);
-    }
+  meta_display_shutdown_x11 (display);
 
   meta_display_shutdown_keys (display);
 
