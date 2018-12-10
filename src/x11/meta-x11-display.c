@@ -96,6 +96,27 @@ static void prefs_changed_callback (MetaPreference pref,
                                     void          *data);
 
 static void
+meta_x11_display_unmanage_windows (MetaX11Display *x11_display)
+{
+  GList *windows, *l;
+  MetaWindow *window;
+
+  if (!x11_display->xids)
+    return;
+
+  windows = g_hash_table_get_values (x11_display->xids);
+  g_list_foreach (windows, (GFunc) g_object_ref, NULL);
+
+  for (l = windows; l; l = l->next)
+    {
+      window = l->data;
+      if (!window->unmanaging)
+        meta_window_unmanage (window, META_CURRENT_TIME);
+    }
+  g_list_free_full (windows, g_object_unref);
+}
+
+static void
 meta_x11_display_dispose (GObject *object)
 {
   MetaX11Display *x11_display = META_X11_DISPLAY (object);
@@ -107,6 +128,7 @@ meta_x11_display_dispose (GObject *object)
   meta_x11_display_ungrab_keys (x11_display);
 
   meta_x11_selection_shutdown (x11_display);
+  meta_x11_display_unmanage_windows (x11_display);
 
   if (x11_display->ui)
     {
