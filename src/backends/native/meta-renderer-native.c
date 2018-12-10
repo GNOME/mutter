@@ -195,6 +195,7 @@ struct _MetaRendererNative
   MetaRenderer parent;
 
   MetaMonitorManagerKms *monitor_manager_kms;
+  MetaGpuKms *primary_gpu_kms;
   MetaGles3 *gles3;
 
   gboolean use_modifiers;
@@ -2857,12 +2858,8 @@ static CoglRenderer *
 meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-  MetaMonitorManagerKms *monitor_manager_kms =
-    renderer_native->monitor_manager_kms;
-  MetaGpuKms *primary_gpu =
-    meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
 
-  return create_cogl_renderer_for_gpu (primary_gpu);
+  return create_cogl_renderer_for_gpu (renderer_native->primary_gpu_kms);
 }
 
 static void
@@ -2911,16 +2908,13 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                                   MetaLogicalMonitor *logical_monitor)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-  MetaMonitorManagerKms *monitor_manager_kms =
-    renderer_native->monitor_manager_kms;
   MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (monitor_manager_kms);
+    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
   MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
-  MetaGpuKms *primary_gpu;
   CoglDisplayEGL *cogl_display_egl;
   CoglOnscreenEGL *onscreen_egl;
   MetaMonitorTransform view_transform;
@@ -2941,9 +2935,8 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   width = roundf (logical_monitor->rect.width * scale);
   height = roundf (logical_monitor->rect.height * scale);
 
-  primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
   onscreen = meta_renderer_native_create_onscreen (renderer_native,
-                                                   primary_gpu,
+                                                   renderer_native->primary_gpu_kms,
                                                    logical_monitor,
                                                    cogl_context,
                                                    view_transform,
@@ -3230,13 +3223,11 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
                               MetaGpuKms          *gpu_kms,
                               GError             **error)
 {
-  MetaMonitorManagerKms *monitor_manager_kms;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
   struct gbm_device *gbm_device;
   EGLDisplay egl_display;
   int kms_fd;
   MetaRendererNativeGpuData *renderer_gpu_data;
-  MetaGpuKms *primary_gpu;
 
   if (!meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
                                 "EGL_MESA_platform_gbm",
@@ -3280,9 +3271,7 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
   renderer_gpu_data->egl_display = egl_display;
 
-  monitor_manager_kms = renderer_native->monitor_manager_kms;
-  primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
-  if (gpu_kms != primary_gpu)
+  if (gpu_kms != renderer_native->primary_gpu_kms)
     init_secondary_gpu_data (renderer_gpu_data);
 
   return renderer_gpu_data;
@@ -3409,17 +3398,13 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
                                      MetaGpuKms          *gpu_kms,
                                      GError             **error)
 {
-  MetaMonitorManagerKms *monitor_manager_kms =
-    renderer_native->monitor_manager_kms;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
-  MetaGpuKms *primary_gpu;
   char **missing_extensions;
   EGLDeviceEXT egl_device;
   EGLDisplay egl_display;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
-  if (gpu_kms != primary_gpu)
+  if (gpu_kms != renderer_native->primary_gpu)
     {
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
@@ -3571,6 +3556,38 @@ on_gpu_added (MetaMonitorManager *monitor_manager,
   _cogl_winsys_egl_ensure_current (cogl_display);
 }
 
+static MetaGpuKms *
+choose_primary_gpu (MetaMonitorManager *manager)
+{
+  MetaGpuKms *gpu_kms;
+  GList *gpus = meta_monitor_manager_get_gpus (manager);
+  GList *l;
+
+  if (!gpus)
+    return NULL;
+
+  /* Prefer a platform device */
+  for (l = gpus; l; l = l->next)
+    {
+      gpu_kms = META_GPU_KMS (l->data);
+
+      if (meta_gpu_kms_is_platform_device (gpu_kms))
+        return gpu_kms;
+    }
+
+  /* Otherwise a device we booted with */
+  for (l = gpus; l; l = l->next)
+    {
+      gpu_kms = META_GPU_KMS (l->data);
+
+      if (meta_gpu_kms_is_boot_vga (gpu_kms))
+        return gpu_kms;
+    }
+
+  /* Lastly, just pick the first device */
+  return META_GPU_KMS (gpus->data);
+}
+
 static gboolean
 meta_renderer_native_initable_init (GInitable     *initable,
                                     GCancellable  *cancellable,
@@ -3583,6 +3600,10 @@ meta_renderer_native_initable_init (GInitable     *initable,
     META_MONITOR_MANAGER (monitor_manager_kms);
   GList *gpus;
   GList *l;
+
+  renderer_native->primary_gpu_kms = choose_primary_gpu (monitor_manager);
+  if (!renderer_native->primary_gpu_kms)
+    return FALSE;
 
   gpus = meta_monitor_manager_get_gpus (monitor_manager);
   for (l = gpus; l; l = l->next)

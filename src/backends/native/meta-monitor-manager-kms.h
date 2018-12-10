@@ -35,8 +35,6 @@ G_DECLARE_FINAL_TYPE (MetaMonitorManagerKms, meta_monitor_manager_kms,
                       META, MONITOR_MANAGER_KMS,
                       MetaMonitorManager)
 
-MetaGpuKms * meta_monitor_manager_kms_get_primary_gpu (MetaMonitorManagerKms *manager_kms);
-
 void meta_monitor_manager_kms_pause (MetaMonitorManagerKms *manager_kms);
 
 void meta_monitor_manager_kms_resume (MetaMonitorManagerKms *manager_kms);

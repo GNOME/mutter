@@ -72,8 +72,6 @@ struct _MetaMonitorManagerKms
 {
   MetaMonitorManager parent_instance;
 
-  MetaGpuKms *primary_gpu;
-
   GUdevClient *udev;
   guint uevent_handler_id;
 };
@@ -568,12 +566,6 @@ meta_monitor_manager_kms_get_default_layout_mode (MetaMonitorManager *manager)
     return META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
 }
 
-MetaGpuKms *
-meta_monitor_manager_kms_get_primary_gpu (MetaMonitorManagerKms *manager_kms)
-{
-  return manager_kms->primary_gpu;
-}
-
 static gboolean
 init_gpus (MetaMonitorManagerKms *manager_kms)
 {
@@ -669,38 +661,6 @@ init_gpus (MetaMonitorManagerKms *manager_kms)
   return TRUE;
 }
 
-static MetaGpuKms *
-choose_primary_gpu (MetaMonitorManagerKms *manager_kms)
-{
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
-  MetaGpuKms *gpu_kms;
-  GList *gpus = meta_monitor_manager_get_gpus (manager);
-  GList *l;
-
-  g_return_val_if_fail (gpus, NULL);
-
-  /* Prefer a platform device */
-  for (l = gpus; l; l = l->next)
-    {
-      gpu_kms = META_GPU_KMS (l->data);
-
-      if (meta_gpu_kms_is_platform_device (gpu_kms))
-        return gpu_kms;
-    }
-
-  /* Otherwise a device we booted with */
-  for (l = gpus; l; l = l->next)
-    {
-      gpu_kms = META_GPU_KMS (l->data);
-
-      if (meta_gpu_kms_is_boot_vga (gpu_kms))
-        return gpu_kms;
-    }
-
-  /* Lastly, just pick the first device */
-  return META_GPU_KMS (gpus->data);
-}
-
 static gboolean
 meta_monitor_manager_kms_initable_init (GInitable    *initable,
                                         GCancellable *cancellable,
@@ -722,8 +682,6 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
                    "No GPUs found");
       return FALSE;
     }
-
-  manager_kms->primary_gpu = choose_primary_gpu (manager_kms);
 
   can_have_outputs = FALSE;
   for (l = meta_monitor_manager_get_gpus (manager); l; l = l->next)
