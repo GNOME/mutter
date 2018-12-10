@@ -422,4 +422,8 @@ void meta_display_queue_check_fullscreen (MetaDisplay *display);
 MetaWindow *meta_display_get_pointer_window (MetaDisplay *display,
                                              MetaWindow  *not_this_one);
 
+gboolean meta_display_init_x11     (MetaDisplay  *display,
+                                    GError      **error);
+void     meta_display_shutdown_x11 (MetaDisplay  *display);
+
 #endif
