@@ -1106,6 +1106,9 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   };
   Atom atoms[G_N_ELEMENTS(atom_names)];
 
+  if (!meta_x11_init_gdk_display (error))
+    return NULL;
+
   g_assert (prepared_gdk_display);
   gdk_display = g_steal_pointer (&prepared_gdk_display);
 
