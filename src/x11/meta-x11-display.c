@@ -1563,6 +1563,8 @@ MetaWindow *
 meta_x11_display_lookup_x_window (MetaX11Display *x11_display,
                                   Window          xwindow)
 {
+  if (!x11_display)
+    return NULL;
   return g_hash_table_lookup (x11_display->xids, &xwindow);
 }
 
