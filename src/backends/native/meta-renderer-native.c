@@ -112,6 +112,7 @@ typedef struct _MetaRendererNativeGpuData
    */
   struct {
     MetaSharedFramebufferCopyMode copy_mode;
+    gboolean is_hardware_rendering;
 
     /* For GPU blit mode */
     EGLContext egl_context;
@@ -3153,6 +3154,8 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   EGLConfig egl_config;
   EGLContext egl_context;
   char **missing_gl_extensions;
+  const char *renderer_str;
+  gboolean is_hardware;
 
   if (!create_secondary_egl_config (egl, renderer_gpu_data->mode, egl_display,
                                     &egl_config, error))
@@ -3175,6 +3178,14 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
       return FALSE;
     }
 
+  renderer_str = (const char *) glGetString (GL_RENDERER);
+  if (g_str_has_prefix (renderer_str, "llvmpipe") ||
+      g_str_has_prefix (renderer_str, "softpipe") ||
+      g_str_has_prefix (renderer_str, "swrast"))
+    is_hardware = FALSE;
+  else
+    is_hardware = TRUE;
+
   if (!meta_gles3_has_extensions (renderer_native->gles3,
                                   &missing_gl_extensions,
                                   "GL_OES_EGL_image_external",
@@ -3190,6 +3201,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
       g_free (missing_gl_extensions);
     }
 
+  renderer_gpu_data->secondary.is_hardware_rendering = is_hardware;
   renderer_gpu_data->secondary.egl_context = egl_context;
   renderer_gpu_data->secondary.egl_config = egl_config;
   renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_GPU;
@@ -3200,6 +3212,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
 static void
 init_secondary_gpu_data_cpu (MetaRendererNativeGpuData *renderer_gpu_data)
 {
+  renderer_gpu_data->secondary.is_hardware_rendering = FALSE;
   renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_CPU;
 }
 
@@ -3216,6 +3229,16 @@ init_secondary_gpu_data (MetaRendererNativeGpuData *renderer_gpu_data)
   g_error_free (error);
 
   init_secondary_gpu_data_cpu (renderer_gpu_data);
+}
+
+static gboolean
+gpu_kms_is_hardware_rendering (MetaRendererNative *renderer_native,
+                               MetaGpuKms         *gpu_kms)
+{
+  MetaRendererNativeGpuData *data;
+
+  data = meta_renderer_native_get_gpu_data (renderer_native, gpu_kms);
+  return data->secondary.is_hardware_rendering;
 }
 
 static MetaRendererNativeGpuData *
@@ -3565,7 +3588,8 @@ on_gpu_added (MetaMonitorManager *monitor_manager,
 }
 
 static MetaGpuKms *
-choose_primary_gpu (MetaMonitorManager *manager)
+choose_primary_gpu (MetaMonitorManager *manager,
+                    MetaRendererNative *renderer_native)
 {
   GList *gpus = meta_monitor_manager_get_gpus (manager);
   GList *l;
@@ -3573,21 +3597,32 @@ choose_primary_gpu (MetaMonitorManager *manager)
   if (!gpus)
     return NULL;
 
-  /* Prefer a platform device */
+  /* Prefer a hardware rendering platform device */
   for (l = gpus; l; l = l->next)
     {
       MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
 
-      if (meta_gpu_kms_is_platform_device (gpu_kms))
+      if (meta_gpu_kms_is_platform_device (gpu_kms) &&
+          gpu_kms_is_hardware_rendering (renderer_native, gpu_kms))
         return gpu_kms;
     }
 
-  /* Otherwise a device we booted with */
+  /* Otherwise a hardware rendering device we booted with */
   for (l = gpus; l; l = l->next)
     {
       MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
 
-      if (meta_gpu_kms_is_boot_vga (gpu_kms))
+      if (meta_gpu_kms_is_boot_vga (gpu_kms) &&
+          gpu_kms_is_hardware_rendering (renderer_native, gpu_kms))
+        return gpu_kms;
+    }
+
+  /* Fall back to any hardware rendering device */
+  for (l = gpus; l; l = l->next)
+    {
+      MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
+
+      if (gpu_kms_is_hardware_rendering (renderer_native, gpu_kms))
         return gpu_kms;
     }
 
@@ -3617,7 +3652,8 @@ meta_renderer_native_initable_init (GInitable     *initable,
         return FALSE;
     }
 
-  renderer_native->primary_gpu_kms = choose_primary_gpu (monitor_manager);
+  renderer_native->primary_gpu_kms = choose_primary_gpu (monitor_manager,
+                                                         renderer_native);
   if (!renderer_native->primary_gpu_kms)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
