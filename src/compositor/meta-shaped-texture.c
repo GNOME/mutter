@@ -1072,34 +1072,15 @@ meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
   invalidate_size (stex);
 }
 
-/**
- * meta_shaped_texture_get_image:
- * @stex: A #MetaShapedTexture
- * @clip: A clipping rectangle, to help prevent extra processing.
- * In the case that the clipping rectangle is partially or fully
- * outside the bounds of the texture, the rectangle will be clipped.
- *
- * Flattens the two layers of the shaped texture into one ARGB32
- * image by alpha blending the two images, and returns the flattened
- * image.
- *
- * Returns: (transfer full): a new cairo surface to be freed with
- * cairo_surface_destroy().
- */
-cairo_surface_t *
-meta_shaped_texture_get_image (MetaShapedTexture     *stex,
-                               cairo_rectangle_int_t *clip)
+static cairo_surface_t *
+get_image_texture (MetaShapedTexture     *stex,
+                   cairo_rectangle_int_t *clip)
 {
   CoglTexture *texture, *mask_texture;
   cairo_rectangle_int_t texture_rect = { 0, 0, 0, 0 };
   cairo_surface_t *surface;
 
-  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
-
   texture = COGL_TEXTURE (stex->priv->texture);
-
-  if (texture == NULL)
-    return NULL;
 
   texture_rect.width = cogl_texture_get_width (texture);
   texture_rect.height = cogl_texture_get_height (texture);
@@ -1168,6 +1149,208 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
     }
 
   return surface;
+}
+
+static cairo_surface_t *
+get_image_offscreen (MetaShapedTexture     *stex,
+                     cairo_rectangle_int_t *clip)
+{
+  ClutterActor *actor = CLUTTER_ACTOR (stex);
+  MetaShapedTexturePrivate *priv = stex->priv;
+  CoglContext *ctx;
+  CoglColor color;
+  CoglFramebuffer *framebuffer;
+  CoglFramebuffer *draw_fb;
+  CoglMatrix matrix;
+  CoglPipeline *pipeline;
+  CoglTexture *texture;
+  CoglTexture *sub_texture;
+  CoglTexture *paint_texture;
+  ClutterPerspective perspective;
+  ClutterActor *stage;
+  ClutterActorBox alloc;
+  cairo_rectangle_int_t paint_rect;
+  cairo_rectangle_int_t buffer_clip;
+  cairo_surface_t *surface;
+  guchar opacity;
+  double tex_scale;
+  int dst_width;
+  int dst_height;
+  int tex_width;
+  int tex_height;
+  int tex_width_p2;
+  int tex_height_p2;
+  float stage_width;
+  float stage_height;
+
+  draw_fb = cogl_get_draw_framebuffer ();
+  if (!draw_fb)
+    return NULL;
+
+  ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  stage = clutter_actor_get_stage (actor);
+  clutter_actor_get_size (stage, &stage_width, &stage_height);
+
+  ensure_size_valid (stex);
+  clutter_actor_get_scale (actor, &tex_scale, NULL);
+  dst_width = priv->dst_width;
+  dst_height = priv->dst_height;
+  tex_width = round (dst_width * tex_scale);
+  tex_height = round (dst_height * tex_scale);
+  tex_width_p2 = _cogl_util_next_p2 (tex_width);
+  tex_height_p2 = _cogl_util_next_p2 (tex_height);
+
+  texture = (CoglTexture*) cogl_texture_2d_new_with_size (ctx,
+                                                          tex_width_p2,
+                                                          tex_height_p2);
+
+  if (clip != NULL)
+    {
+      buffer_clip = *clip;
+      buffer_clip.x = (int) floor (buffer_clip.x / tex_scale);
+      buffer_clip.y = (int) floor (buffer_clip.y / tex_scale);
+      buffer_clip.width = (int) ceil (buffer_clip.width / tex_scale);
+      buffer_clip.height = (int) ceil (buffer_clip.height / tex_scale);
+
+      tex_width = buffer_clip.width;
+      tex_height = buffer_clip.height;
+    }
+
+  sub_texture = (CoglTexture *) cogl_sub_texture_new (ctx,
+                                                      texture,
+                                                      0,
+                                                      0,
+                                                      tex_width,
+                                                      tex_height);
+
+
+  framebuffer = (CoglFramebuffer *) cogl_offscreen_new_with_texture (sub_texture);
+
+  cogl_framebuffer_get_modelview_matrix (draw_fb, &matrix);
+  cogl_matrix_scale (&matrix,
+                     stage_width / tex_width,
+                     stage_height / tex_height,
+                     1);
+  cogl_framebuffer_set_modelview_matrix (framebuffer, &matrix);
+  cogl_framebuffer_set_viewport (framebuffer, 0, 0, tex_width, tex_height);
+  clutter_stage_get_perspective ((ClutterStage *) stage, &perspective);
+  cogl_framebuffer_perspective (framebuffer,
+                                perspective.fovy, perspective.aspect,
+                                perspective.z_near, perspective.z_far);
+
+  if (TRUE || priv->mask_texture == NULL)
+    {
+      pipeline = get_unmasked_pipeline (stex, ctx);
+    }
+  else
+    {
+      CoglTexture *mask_texture;
+
+      if (clip != NULL)
+        mask_texture = (CoglTexture *) cogl_sub_texture_new (ctx,
+                                                             priv->mask_texture,
+                                                             buffer_clip.x,
+                                                             buffer_clip.y,
+                                                             buffer_clip.width,
+                                                             buffer_clip.height);
+      else
+        mask_texture = priv->mask_texture;
+
+      pipeline = get_masked_pipeline (stex, ctx);
+      cogl_pipeline_set_layer_texture (pipeline, 1, mask_texture);
+      cogl_pipeline_set_layer_filters (pipeline, 1,
+                                       COGL_PIPELINE_FILTER_LINEAR,
+                                       COGL_PIPELINE_FILTER_LINEAR);
+    }
+
+  if (clip != NULL)
+    paint_texture = (CoglTexture *) cogl_sub_texture_new (ctx,
+                                                          priv->texture,
+                                                          buffer_clip.x,
+                                                          buffer_clip.y,
+                                                          buffer_clip.width,
+                                                          buffer_clip.height);
+  else
+    paint_texture = priv->texture;
+
+  cogl_pipeline_set_layer_texture (pipeline, 0, paint_texture);
+  cogl_pipeline_set_layer_filters (pipeline, 0,
+                                   COGL_PIPELINE_FILTER_LINEAR,
+                                   COGL_PIPELINE_FILTER_LINEAR);
+
+  opacity = clutter_actor_get_paint_opacity (actor);
+  cogl_color_init_from_4ub (&color, opacity, opacity, opacity, opacity);
+  cogl_pipeline_set_color (pipeline, &color);
+
+  paint_rect = (cairo_rectangle_int_t) {
+    .width = tex_width,
+    .height = tex_height
+  };
+  alloc = (ClutterActorBox) {
+    .x2 = tex_width,
+    .y2 = tex_height
+  };
+
+  paint_clipped_rectangle (framebuffer,
+                           pipeline,
+                           &paint_rect,
+                           &alloc);
+
+  meta_shaped_texture_reset_pipelines (stex);
+
+  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
+                                        tex_width,
+                                        tex_height);
+  cogl_texture_get_data ((CoglTexture *) sub_texture,
+                         CLUTTER_CAIRO_FORMAT_ARGB32,
+                         cairo_image_surface_get_stride (surface),
+                         cairo_image_surface_get_data (surface));
+
+  cairo_surface_mark_dirty (surface);
+
+  cogl_object_unref (texture);
+  cogl_object_unref (sub_texture);
+  cogl_object_unref (framebuffer);
+
+  return surface;
+}
+
+/**
+ * meta_shaped_texture_get_image:
+ * @stex: A #MetaShapedTexture
+ * @clip: A clipping rectangle, to help prevent extra processing.
+ * In the case that the clipping rectangle is partially or fully
+ * outside the bounds of the texture, the rectangle will be clipped.
+ *
+ * Flattens the two layers of the shaped texture into one ARGB32
+ * image by alpha blending the two images, and returns the flattened
+ * image.
+ *
+ * Returns: (transfer full): a new cairo surface to be freed with
+ * cairo_surface_destroy().
+ */
+cairo_surface_t *
+meta_shaped_texture_get_image (MetaShapedTexture     *stex,
+                               cairo_rectangle_int_t *clip)
+{
+  double tex_scale;
+
+  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
+
+  if (COGL_TEXTURE (stex->priv->texture) == NULL)
+    return NULL;
+
+  clutter_actor_get_scale (CLUTTER_ACTOR (stex), &tex_scale, NULL);
+
+  if (FALSE && tex_scale == 1.0 &&
+      stex->priv->transform == META_MONITOR_TRANSFORM_NORMAL)
+    {
+      return get_image_texture (stex, clip);
+    }
+  else
+    {
+      return get_image_offscreen (stex, clip);
+    }
 }
 
 void
