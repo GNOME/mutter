@@ -3393,6 +3393,15 @@ get_egl_device_display (MetaRendererNative  *renderer_native,
                                         error);
 }
 
+static int
+count_drm_devices (MetaRendererNative *renderer_native)
+{
+  MetaMonitorManager *monitor_manager =
+    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
+
+  return g_list_length (meta_monitor_manager_get_gpus (monitor_manager));
+}
+
 static MetaRendererNativeGpuData *
 create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
                                      MetaGpuKms          *gpu_kms,
@@ -3404,7 +3413,7 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
   EGLDisplay egl_display;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  if (gpu_kms != renderer_native->primary_gpu)
+  if (count_drm_devices (renderer_native) != 1)
     {
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
