@@ -1590,6 +1590,18 @@ get_view_at (ClutterStage *stage,
   return NULL;
 }
 
+float
+clutter_stage_get_view_scale_at (ClutterStage *stage,
+                                 int           x,
+                                 int           y)
+{
+  ClutterStageView *view;
+
+  view = get_view_at (stage, x, y);
+
+  return view ? clutter_stage_view_get_scale (view) : 1.f;
+}
+
 ClutterActor *
 _clutter_stage_do_pick (ClutterStage   *stage,
                         gint            x,
