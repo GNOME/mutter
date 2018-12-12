@@ -253,9 +253,15 @@ meta_stage_update_cursor_overlay (MetaStage   *stage,
                                   CoglTexture *texture,
                                   ClutterRect *rect)
 {
+  ClutterRect aligned_rect;
+
   g_assert (meta_is_wayland_compositor () || texture == NULL);
 
-  meta_overlay_set (overlay, texture, rect);
+  aligned_rect.origin.x = floorf (rect->origin.x);
+  aligned_rect.origin.y = floorf (rect->origin.y);
+  aligned_rect.size = rect->size;
+
+  meta_overlay_set (overlay, texture, &aligned_rect);
   queue_redraw_for_overlay (stage, overlay);
 }
 
