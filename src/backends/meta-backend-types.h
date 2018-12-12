@@ -59,4 +59,8 @@ typedef struct _MetaTileInfo MetaTileInfo;
 typedef struct _MetaRenderer MetaRenderer;
 typedef struct _MetaRendererView MetaRendererView;
 
+typedef struct _MetaScreenCast MetaScreenCast;
+typedef struct _MetaScreenCastSession MetaScreenCastSession;
+typedef struct _MetaScreenCastStream MetaScreenCastStream;
+
 #endif /* META_BACKEND_TYPE_H */

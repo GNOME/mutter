@@ -32,9 +32,10 @@ G_DECLARE_FINAL_TYPE (MetaScreenCastWindowStream,
                       META, SCREEN_CAST_WINDOW_STREAM,
                       MetaScreenCastStream)
 
-MetaScreenCastWindowStream * meta_screen_cast_window_stream_new (GDBusConnection  *connection,
-                                                                 MetaWindow       *window,
-                                                                 GError          **error);
+MetaScreenCastWindowStream * meta_screen_cast_window_stream_new (MetaScreenCastSession  *session,
+                                                                 GDBusConnection        *connection,
+                                                                 MetaWindow             *window,
+                                                                 GError                **error);
 
 MetaWindow  * meta_screen_cast_window_stream_get_window (MetaScreenCastWindowStream *window_stream);
 int           meta_screen_cast_window_stream_get_width  (MetaScreenCastWindowStream *window_stream);
