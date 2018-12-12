@@ -53,4 +53,7 @@ void meta_renderer_set_legacy_view (MetaRenderer     *renderer,
 
 GList * meta_renderer_get_views (MetaRenderer *renderer);
 
+MetaRendererView * meta_renderer_get_view_from_logical_monitor (MetaRenderer       *renderer,
+                                                                MetaLogicalMonitor *logical_monitor);
+
 #endif /* META_RENDERER_H */
