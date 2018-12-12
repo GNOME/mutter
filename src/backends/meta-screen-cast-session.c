@@ -301,7 +301,6 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
   monitor_stream = meta_screen_cast_monitor_stream_new (connection,
-                                                        monitor_manager,
                                                         monitor,
                                                         stage,
                                                         &error);
