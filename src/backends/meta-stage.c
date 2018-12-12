@@ -30,7 +30,8 @@
 #include "backends/meta-backend-private.h"
 #include "clutter/clutter-mutter.h"
 
-struct _MetaOverlay {
+struct _MetaOverlay
+{
   gboolean enabled;
 
   CoglPipeline *pipeline;
