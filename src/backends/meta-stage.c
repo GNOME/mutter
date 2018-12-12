@@ -248,14 +248,42 @@ meta_stage_remove_cursor_overlay (MetaStage   *stage,
 }
 
 void
-meta_stage_update_cursor_overlay (MetaStage   *stage,
-                                  MetaOverlay *overlay,
-                                  CoglTexture *texture,
-                                  ClutterRect *rect)
+meta_stage_update_cursor_overlay (MetaStage          *stage,
+                                  MetaOverlay        *overlay,
+                                  CoglTexture        *texture,
+                                  const ClutterRect  *rect,
+                                  const ClutterPoint *hotspot)
 {
+  ClutterRect aligned_rect;
+  float scale, whole, fraction;
+
   g_assert (meta_is_wayland_compositor () || texture == NULL);
 
-  meta_overlay_set (overlay, texture, rect);
+  if (!clutter_stage_get_view_scale_at (CLUTTER_STAGE (stage),
+                                        rect->origin.x + hotspot->x,
+                                        rect->origin.y + hotspot->y,
+                                        &scale))
+    {
+      scale = 1.f;
+    }
+
+  /* Align to physical pixels after the origin is scaled in future, but only
+   * for integer scales.
+   */
+  fraction = modff (scale, &whole);
+  if (fraction == 0.f)
+    {
+      aligned_rect.origin.x = floorf (rect->origin.x * whole) / whole;
+      aligned_rect.origin.y = floorf (rect->origin.y * whole) / whole;
+    }
+  else
+    {
+      aligned_rect.origin = rect->origin;
+    }
+
+  aligned_rect.size = rect->size;
+
+  meta_overlay_set (overlay, texture, &aligned_rect);
   queue_redraw_for_overlay (stage, overlay);
 }
 

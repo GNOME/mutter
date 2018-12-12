@@ -70,9 +70,20 @@ queue_redraw (MetaCursorRenderer *renderer,
   ClutterActor *stage = meta_backend_get_stage (backend);
   CoglTexture *texture;
   ClutterRect rect = CLUTTER_RECT_INIT_ZERO;
+  ClutterPoint hotspot = CLUTTER_POINT_INIT_ZERO;
 
   if (cursor_sprite)
-    rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
+    {
+      float scale;
+      int x, y;
+
+      rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
+
+      meta_cursor_sprite_get_hotspot (cursor_sprite, &x, &y);
+      scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
+      hotspot.x = scale * x;
+      hotspot.y = scale * y;
+    }
 
   /* During early initialization, we can have no stage */
   if (!stage)
@@ -86,8 +97,11 @@ queue_redraw (MetaCursorRenderer *renderer,
   else
     texture = NULL;
 
-  meta_stage_update_cursor_overlay (META_STAGE (stage), priv->stage_overlay,
-                                    texture, &rect);
+  meta_stage_update_cursor_overlay (META_STAGE (stage),
+                                    priv->stage_overlay,
+                                    texture,
+                                    &rect,
+                                    &hotspot);
 }
 
 static gboolean
