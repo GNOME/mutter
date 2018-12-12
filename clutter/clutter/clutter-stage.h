@@ -265,6 +265,12 @@ gboolean clutter_stage_capture (ClutterStage          *stage,
                                 ClutterCapture       **captures,
                                 int                   *n_captures);
 
+CLUTTER_EXPORT
+gboolean clutter_stage_get_view_scale_at (ClutterStage *stage,
+                                          float         x,
+                                          float         y,
+                                          float        *out_scale);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_H__ */

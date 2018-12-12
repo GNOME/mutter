@@ -72,7 +72,21 @@ queue_redraw (MetaCursorRenderer *renderer,
   ClutterRect rect = CLUTTER_RECT_INIT_ZERO;
 
   if (cursor_sprite)
-    rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
+    {
+      float view_scale;
+
+      rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
+
+      if (clutter_stage_get_view_scale_at (CLUTTER_STAGE (stage),
+                                           priv->current_x,
+                                           priv->current_y,
+                                           &view_scale))
+        {
+          /* Align to physical pixels after the origin is scaled in future */
+          rect.origin.x = floorf (rect.origin.x * view_scale) / view_scale;
+          rect.origin.y = floorf (rect.origin.y * view_scale) / view_scale;
+        }
+    }
 
   /* During early initialization, we can have no stage */
   if (!stage)
