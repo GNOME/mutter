@@ -24,12 +24,15 @@
 
 #include "backends/meta-screen-cast-stream.h"
 
+#include "backends/meta-screen-cast-session.h"
+
 #define META_SCREEN_CAST_STREAM_DBUS_PATH "/org/gnome/Mutter/ScreenCast/Stream"
 
 enum
 {
   PROP_0,
 
+  PROP_SESSION,
   PROP_CONNECTION,
 };
 
@@ -44,6 +47,8 @@ static guint signals[N_SIGNALS];
 
 typedef struct _MetaScreenCastStreamPrivate
 {
+  MetaScreenCastSession *session;
+
   GDBusConnection *connection;
   char *object_path;
 
@@ -95,6 +100,15 @@ on_stream_src_ready (MetaScreenCastStreamSrc *src,
   MetaDBusScreenCastStream *skeleton = META_DBUS_SCREEN_CAST_STREAM (stream);
 
   meta_dbus_screen_cast_stream_emit_pipewire_stream_added (skeleton, node_id);
+}
+
+MetaScreenCastSession *
+meta_screen_cast_stream_get_session (MetaScreenCastStream *stream)
+{
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+
+  return priv->session;
 }
 
 gboolean
@@ -162,6 +176,9 @@ meta_screen_cast_stream_set_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_SESSION:
+      priv->session = g_value_get_object (value);
+      break;
     case PROP_CONNECTION:
       priv->connection = g_value_get_object (value);
       break;
@@ -182,6 +199,9 @@ meta_screen_cast_stream_get_property (GObject    *object,
 
   switch (prop_id)
     {
+    case PROP_SESSION:
+      g_value_set_object (value, priv->session);
+      break;
     case PROP_CONNECTION:
       g_value_set_object (value, priv->connection);
       break;
@@ -255,6 +275,16 @@ meta_screen_cast_stream_class_init (MetaScreenCastStreamClass *klass)
   object_class->finalize = meta_screen_cast_stream_finalize;
   object_class->set_property = meta_screen_cast_stream_set_property;
   object_class->get_property = meta_screen_cast_stream_get_property;
+
+  g_object_class_install_property (object_class,
+                                   PROP_SESSION,
+                                   g_param_spec_object ("session",
+                                                        "session",
+                                                        "MetaScreenSession",
+                                                        META_TYPE_SCREEN_CAST_SESSION,
+                                                        G_PARAM_READWRITE |
+                                                        G_PARAM_CONSTRUCT_ONLY |
+                                                        G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (object_class,
                                    PROP_CONNECTION,

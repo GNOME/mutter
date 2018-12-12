@@ -71,9 +71,10 @@ meta_screen_cast_window_stream_get_height (MetaScreenCastWindowStream *window_st
 }
 
 MetaScreenCastWindowStream *
-meta_screen_cast_window_stream_new (GDBusConnection  *connection,
-                                    MetaWindow       *window,
-                                    GError          **error)
+meta_screen_cast_window_stream_new (MetaScreenCastSession  *session,
+                                    GDBusConnection        *connection,
+                                    MetaWindow             *window,
+                                    GError                **error)
 {
   MetaScreenCastWindowStream *window_stream;
   MetaLogicalMonitor *logical_monitor;
@@ -90,6 +91,7 @@ meta_screen_cast_window_stream_new (GDBusConnection  *connection,
   window_stream = g_initable_new (META_TYPE_SCREEN_CAST_WINDOW_STREAM,
                                   NULL,
                                   error,
+                                  "session", session,
                                   "connection", connection,
                                   "window", window,
                                   NULL);
