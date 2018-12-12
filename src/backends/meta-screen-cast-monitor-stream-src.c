@@ -35,7 +35,7 @@ struct _MetaScreenCastMonitorStreamSrc
 {
   MetaScreenCastStreamSrc parent;
 
-  gulong stage_painted_handler_id;
+  gulong actors_painted_handler_id;
 };
 
 G_DEFINE_TYPE (MetaScreenCastMonitorStreamSrc,
@@ -110,8 +110,8 @@ meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
   ClutterStage *stage;
 
   stage = get_stage (monitor_src);
-  monitor_src->stage_painted_handler_id =
-    g_signal_connect_after (stage, "paint",
+  monitor_src->actors_painted_handler_id =
+    g_signal_connect_after (stage, "actors-painted",
                             G_CALLBACK (stage_painted),
                             monitor_src);
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
@@ -125,8 +125,8 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
   ClutterStage *stage;
 
   stage = get_stage (monitor_src);
-  g_signal_handler_disconnect (stage, monitor_src->stage_painted_handler_id);
-  monitor_src->stage_painted_handler_id = 0;
+  g_signal_handler_disconnect (stage, monitor_src->actors_painted_handler_id);
+  monitor_src->actors_painted_handler_id = 0;
 }
 
 static void
