@@ -366,8 +366,8 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
                        scaled_crtc_rect.origin.y) * scale;
       drmModeMoveCursor (kms_fd,
                          crtc->crtc_id,
-                         roundf (crtc_cursor_x),
-                         roundf (crtc_cursor_y));
+                         floorf (crtc_cursor_x),
+                         floorf (crtc_cursor_y));
 
       data->out_painted = data->out_painted || TRUE;
     }
