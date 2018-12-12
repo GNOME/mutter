@@ -95,6 +95,24 @@ meta_renderer_get_views (MetaRenderer *renderer)
   return priv->views;
 }
 
+MetaRendererView *
+meta_renderer_get_view_from_logical_monitor (MetaRenderer       *renderer,
+                                             MetaLogicalMonitor *logical_monitor)
+{
+  GList *l;
+
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+    {
+      MetaRendererView *view = l->data;
+
+      if (meta_renderer_view_get_logical_monitor (view) ==
+          logical_monitor)
+        return view;
+    }
+
+  return NULL;
+}
+
 static void
 meta_renderer_finalize (GObject *object)
 {
