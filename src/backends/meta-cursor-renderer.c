@@ -181,8 +181,8 @@ meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
 
   return (ClutterRect) {
     .origin = {
-      .x = priv->current_x - (hot_x * texture_scale),
-      .y = priv->current_y - (hot_y * texture_scale)
+      .x = truncf (priv->current_x - (hot_x * texture_scale)),
+      .y = truncf (priv->current_y - (hot_y * texture_scale))
     },
     .size = {
       .width = width * texture_scale,
