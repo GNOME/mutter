@@ -30,6 +30,15 @@
 #include "meta/meta-monitor-manager.h"
 #include "meta/util.h"
 
+enum
+{
+  ACTORS_PAINTED,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 struct _MetaOverlay
 {
   gboolean enabled;
@@ -142,6 +151,8 @@ meta_stage_paint (ClutterActor *actor)
 
   CLUTTER_ACTOR_CLASS (meta_stage_parent_class)->paint (actor);
 
+  g_signal_emit (stage, signals[ACTORS_PAINTED], 0);
+
   for (l = stage->overlays; l; l = l->next)
     meta_overlay_paint (l->data);
 }
@@ -179,6 +190,13 @@ meta_stage_class_init (MetaStageClass *klass)
 
   stage_class->activate = meta_stage_activate;
   stage_class->deactivate = meta_stage_deactivate;
+
+  signals[ACTORS_PAINTED] = g_signal_new ("actors-painted",
+                                          G_TYPE_FROM_CLASS (klass),
+                                          G_SIGNAL_RUN_LAST,
+                                          0,
+                                          NULL, NULL, NULL,
+                                          G_TYPE_NONE, 0);
 }
 
 static void
