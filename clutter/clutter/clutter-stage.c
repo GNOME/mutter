@@ -1568,8 +1568,8 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
 
 static ClutterStageView *
 get_view_at (ClutterStage *stage,
-             int           x,
-             int           y)
+             float         x,
+             float         y)
 {
   ClutterStagePrivate *priv = stage->priv;
   GList *l;
@@ -1588,6 +1588,25 @@ get_view_at (ClutterStage *stage,
     }
 
   return NULL;
+}
+
+gboolean
+clutter_stage_get_view_scale_at (ClutterStage *stage,
+                                 float         x,
+                                 float         y,
+                                 float        *out_scale)
+{
+  ClutterStageView *view;
+
+  view = get_view_at (stage, x, y);
+
+  if (!view)
+    return FALSE;
+
+  if (out_scale)
+    *out_scale = clutter_stage_view_get_scale (view);
+
+  return TRUE;
 }
 
 ClutterActor *
