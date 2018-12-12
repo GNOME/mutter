@@ -26,7 +26,11 @@
 #include <glib-object.h>
 
 #include "backends/meta-screen-cast-stream-src.h"
+#include "backends/meta-screen-cast.h"
+
 #include "meta-dbus-screen-cast.h"
+
+typedef struct _MetaScreenCastSession MetaScreenCastSession;
 
 #define META_TYPE_SCREEN_CAST_STREAM (meta_screen_cast_stream_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaScreenCastStream, meta_screen_cast_stream,
@@ -47,6 +51,8 @@ struct _MetaScreenCastStreamClass
                                double               *x,
                                double               *y);
 };
+
+MetaScreenCastSession * meta_screen_cast_stream_get_session (MetaScreenCastStream *stream);
 
 gboolean meta_screen_cast_stream_start (MetaScreenCastStream *stream,
                                         GError              **error);
