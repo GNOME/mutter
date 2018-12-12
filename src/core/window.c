@@ -8531,3 +8531,17 @@ meta_window_get_id (MetaWindow *window)
 {
   return window->id;
 }
+
+/**
+ * meta_window_get_client_type:
+ * @window: a #MetaWindow
+ *
+ * Returns the #MetaWindowClientType of the window.
+ *
+ * Returns: (transfer none): The root ancestor window
+ */
+MetaWindowClientType
+meta_window_get_client_type (MetaWindow *window)
+{
+  return window->client_type;
+}
