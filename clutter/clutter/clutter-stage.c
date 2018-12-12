@@ -3729,6 +3729,17 @@ clutter_stage_ensure_redraw (ClutterStage *stage)
 }
 
 /**
+ * clutter_stage_is_redraw_queued: (skip)
+ */
+gboolean
+clutter_stage_is_redraw_queued (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  return priv->redraw_pending;
+}
+
+/**
  * clutter_stage_queue_redraw:
  * @stage: the #ClutterStage
  *
