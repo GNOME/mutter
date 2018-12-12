@@ -30,7 +30,8 @@
 #include "meta/meta-monitor-manager.h"
 #include "meta/util.h"
 
-struct _MetaOverlay {
+struct _MetaOverlay
+{
   gboolean enabled;
 
   CoglPipeline *pipeline;
