@@ -261,4 +261,6 @@ void     meta_window_shove_titlebar_onscreen (MetaWindow *window);
 
 uint64_t meta_window_get_id (MetaWindow *window);
 
+MetaWindowClientType meta_window_get_client_type (MetaWindow *window);
+
 #endif
