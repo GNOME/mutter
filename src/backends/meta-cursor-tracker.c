@@ -48,6 +48,7 @@ G_DEFINE_TYPE (MetaCursorTracker, meta_cursor_tracker, G_TYPE_OBJECT);
 
 enum {
   CURSOR_CHANGED,
+  CURSOR_MOVED,
   LAST_SIGNAL
 };
 
@@ -158,6 +159,15 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
                                           0,
                                           NULL, NULL, NULL,
                                           G_TYPE_NONE, 0);
+
+  signals[CURSOR_MOVED] = g_signal_new ("cursor-moved",
+                                        G_TYPE_FROM_CLASS (klass),
+                                        G_SIGNAL_RUN_LAST,
+                                        0,
+                                        NULL, NULL, NULL,
+                                        G_TYPE_NONE, 2,
+                                        G_TYPE_FLOAT,
+                                        G_TYPE_FLOAT);
 }
 
 /**
@@ -334,6 +344,8 @@ meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
   g_assert (meta_is_wayland_compositor ());
 
   meta_cursor_renderer_set_position (cursor_renderer, new_x, new_y);
+
+  g_signal_emit (tracker, signals[CURSOR_MOVED], 0, new_x, new_y);
 }
 
 static void
