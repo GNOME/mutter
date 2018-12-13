@@ -19,6 +19,8 @@
 #ifndef META_STARTUP_NOTIFICATION_H
 #define META_STARTUP_NOTIFICATION_H
 
+#include <meta/meta-launch-context.h>
+
 #define META_TYPE_STARTUP_SEQUENCE (meta_startup_sequence_get_type ())
 #define META_TYPE_STARTUP_NOTIFICATION (meta_startup_notification_get_type ())
 
@@ -31,6 +33,9 @@ GType         meta_startup_notification_get_type      (void);
  * meta_startup_notification_get_sequences: (skip)
  */
 GSList *      meta_startup_notification_get_sequences (MetaStartupNotification *sn);
+
+MetaLaunchContext *
+             meta_startup_notification_create_launcher (MetaStartupNotification *sn);
 
 GType         meta_startup_sequence_get_type          (void);
 
