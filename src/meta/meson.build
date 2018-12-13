@@ -18,6 +18,7 @@ mutter_public_headers = [
   'meta-dnd.h',
   'meta-idle-monitor.h',
   'meta-inhibit-shortcuts-dialog.h',
+  'meta-launch-context.h',
   'meta-memory-selection-source.h',
   'meta-monitor-manager.h',
   'meta-plugin.h',

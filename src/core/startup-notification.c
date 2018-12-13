@@ -631,3 +631,21 @@ meta_startup_notification_get_sequences (MetaStartupNotification *sn)
 {
   return sn->startup_sequences;
 }
+
+/**
+ * meta_startup_notification_create_launcher:
+ * @sn: a #MetaStartupNotification
+ *
+ * Creates an app launch context.
+ *
+ * Returns: (transfer full): a launch context.
+ **/
+MetaLaunchContext *
+meta_startup_notification_create_launcher (MetaStartupNotification *sn)
+{
+  MetaDisplay *display = sn->display;
+
+  return g_object_new (META_TYPE_LAUNCH_CONTEXT,
+                       "display", sn->display,
+                       NULL);
+}
