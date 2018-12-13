@@ -331,6 +331,7 @@ mutter_sources = [
   'core/meta-inhibit-shortcuts-dialog.c',
   'core/meta-inhibit-shortcuts-dialog-default.c',
   'core/meta-inhibit-shortcuts-dialog-default-private.h',
+  'core/meta-launch-context.c',
   'core/meta-workspace-manager.c',
   'core/meta-workspace-manager-private.h',
   'core/place.c',

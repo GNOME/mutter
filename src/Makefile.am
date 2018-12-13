@@ -291,6 +291,7 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	meta/meta-inhibit-shortcuts-dialog.h	\
 	core/meta-inhibit-shortcuts-dialog-default.c	\
 	core/meta-inhibit-shortcuts-dialog-default-private.h \
+	core/meta-launch-context.c		\
 	core/delete.c				\
 	core/display.c				\
 	core/display-private.h			\
@@ -571,6 +572,7 @@ libmutterinclude_headers =			\
 	meta/meta-cursor-tracker.h		\
 	meta/meta-dnd.h			\
 	meta/meta-idle-monitor.h		\
+	meta/meta-launch-context.h		\
 	meta/meta-plugin.h			\
 	meta/meta-monitor-manager.h		\
 	meta/meta-remote-access-controller.h	\
