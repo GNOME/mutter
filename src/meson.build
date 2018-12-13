@@ -333,6 +333,7 @@ mutter_sources = [
   'core/meta-inhibit-shortcuts-dialog.c',
   'core/meta-inhibit-shortcuts-dialog-default.c',
   'core/meta-inhibit-shortcuts-dialog-default-private.h',
+  'core/meta-launch-context.c',
   'core/meta-memory-selection-source.c',
   'core/meta-selection.c',
   'core/meta-selection-source.c',
