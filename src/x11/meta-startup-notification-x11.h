@@ -36,4 +36,9 @@ void     meta_x11_startup_notification_release (MetaX11Display *x11_display);
 gboolean meta_x11_startup_notification_handle_xevent (MetaX11Display *x11_display,
                                                       XEvent         *xevent);
 
+gchar *  meta_x11_startup_notification_launch (MetaX11Display *x11_display,
+                                               GAppInfo       *app_info,
+                                               uint32_t        timestamp,
+                                               int             workspace);
+
 #endif /* META_X11_STARTUP_NOTIFICATION_H */
