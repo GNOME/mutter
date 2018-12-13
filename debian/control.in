@@ -60,7 +60,7 @@ Vcs-Browser: https://salsa.debian.org/gnome-team/mutter
 
 Package: mutter
 Architecture: any
-Depends: gnome-settings-daemon,
+Depends: gnome-settings-daemon-common,
          gsettings-desktop-schemas (>= 3.21.4),
          mutter-common (>= ${source:Version}),
          zenity,
