@@ -1,3 +1,10 @@
+mutter (3.30.2-3) unstable; urgency=medium
+
+  * control: Depend on g-s-d-common instead of g-s-d. We only need the
+    schemas.
+
+ -- Iain Lane <laney@debian.org>  Thu, 13 Dec 2018 16:45:30 +0000
+
 mutter (3.30.2-2) unstable; urgency=medium
 
   [ Daniel van Vugt ]
