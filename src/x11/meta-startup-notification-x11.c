@@ -26,6 +26,8 @@
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
 
+#include <gio/gdesktopappinfo.h>
+
 #ifdef HAVE_STARTUP_NOTIFICATION
 
 enum
