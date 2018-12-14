@@ -65,4 +65,6 @@ void meta_screen_cast_stream_transform_position (MetaScreenCastStream *stream,
                                                  double               *x,
                                                  double               *y);
 
+MetaScreenCastCursorMode meta_screen_cast_stream_get_cursor_mode (MetaScreenCastStream *stream);
+
 #endif /* META_SCREEN_CAST_STREAM_H */
