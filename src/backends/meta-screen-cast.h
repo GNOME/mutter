@@ -30,6 +30,13 @@
 
 #include "meta-dbus-screen-cast.h"
 
+typedef enum _MetaScreenCastCursorMode
+{
+  META_SCREEN_CAST_CURSOR_MODE_HIDDEN = 0,
+  META_SCREEN_CAST_CURSOR_MODE_EMBEDDED = 1,
+  META_SCREEN_CAST_CURSOR_MODE_METADATA = 2,
+} MetaScreenCastCursorMode;
+
 #define META_TYPE_SCREEN_CAST (meta_screen_cast_get_type ())
 G_DECLARE_FINAL_TYPE (MetaScreenCast, meta_screen_cast,
                       META, SCREEN_CAST,
