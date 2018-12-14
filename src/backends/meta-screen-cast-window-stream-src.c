@@ -207,7 +207,7 @@ meta_screen_cast_window_stream_src_disable (MetaScreenCastStreamSrc *src)
   meta_screen_cast_window_stream_src_stop (window_src);
 }
 
-static void
+static gboolean
 meta_screen_cast_window_stream_src_record_frame (MetaScreenCastStreamSrc *src,
                                                  uint8_t                 *data)
 {
@@ -215,6 +215,8 @@ meta_screen_cast_window_stream_src_record_frame (MetaScreenCastStreamSrc *src,
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
 
   capture_into (window_src, data);
+
+  return TRUE;
 }
 
 MetaScreenCastWindowStreamSrc *

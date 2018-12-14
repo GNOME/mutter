@@ -71,7 +71,15 @@
 
 	Record a single monitor.
 
-	Available @properties include: (none)
+	Available @properties include:
+
+	* "cursor-mode" (u): Cursor mode. Default: 'hidden' (see below)
+
+	Available cursor mode values:
+
+	0: hidden - cursor is not included in the stream
+	1: embedded - cursor is included in the framebuffer
+	2: metadata - cursor is included as metadata in the PipeWire stream
     -->
     <method name="RecordMonitor">
       <arg name="connector" type="s" direction="in" />
@@ -84,7 +92,7 @@
 	@properties: Properties used determining what window to select
 	@stream_path: Path to the new stream object
 
-	Record a single window.
+	Record a single window. The cursor will not be included.
 
 	Available @properties include:
 
