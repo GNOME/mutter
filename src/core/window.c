@@ -8475,7 +8475,7 @@ meta_window_is_stackable (MetaWindow *window)
  *
  * Returns the window id associated with window.
  *
- * Returns: (transfer none): The window id
+ * Returns: The window id
  */
 uint64_t
 meta_window_get_id (MetaWindow *window)
@@ -8489,7 +8489,7 @@ meta_window_get_id (MetaWindow *window)
  *
  * Returns the #MetaWindowClientType of the window.
  *
- * Returns: (transfer none): The root ancestor window
+ * Returns: The root ancestor window
  */
 MetaWindowClientType
 meta_window_get_client_type (MetaWindow *window)
