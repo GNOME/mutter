@@ -43,7 +43,7 @@ libinput_req = '>= 1.4'
 gbm_req = '>= 10.3'
 
 # screen cast version requirements
-libpipewire_req = '>= 0.2.2'
+libpipewire_req = '>= 0.2.5'
 
 gnome = import('gnome')
 pkg = import('pkgconfig')
