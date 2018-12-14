@@ -105,11 +105,12 @@ meta_screen_cast_monitor_stream_get_monitor (MetaScreenCastMonitorStream *monito
 }
 
 MetaScreenCastMonitorStream *
-meta_screen_cast_monitor_stream_new (MetaScreenCastSession  *session,
-                                     GDBusConnection        *connection,
-                                     MetaMonitor            *monitor,
-                                     ClutterStage           *stage,
-                                     GError                **error)
+meta_screen_cast_monitor_stream_new (MetaScreenCastSession     *session,
+                                     GDBusConnection           *connection,
+                                     MetaMonitor               *monitor,
+                                     ClutterStage              *stage,
+                                     MetaScreenCastCursorMode   cursor_mode,
+                                     GError                   **error)
 {
   MetaGpu *gpu = meta_monitor_get_gpu (monitor);
   MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
@@ -126,6 +127,7 @@ meta_screen_cast_monitor_stream_new (MetaScreenCastSession  *session,
                                    error,
                                    "session", session,
                                    "connection", connection,
+                                   "cursor-mode", cursor_mode,
                                    "monitor", monitor,
                                    NULL);
   if (!monitor_stream)
