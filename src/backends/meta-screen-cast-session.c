@@ -263,6 +263,20 @@ on_stream_closed (MetaScreenCastStream  *stream,
 }
 
 static gboolean
+is_valid_cursor_mode (MetaScreenCastCursorMode cursor_mode)
+{
+  switch (cursor_mode)
+    {
+    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
+    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
+    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
 handle_record_monitor (MetaDBusScreenCastSession *skeleton,
                        GDBusMethodInvocation     *invocation,
                        const char                *connector,
@@ -275,6 +289,7 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitor *monitor;
+  MetaScreenCastCursorMode cursor_mode;
   ClutterStage *stage;
   GError *error = NULL;
   MetaScreenCastMonitorStream *monitor_stream;
@@ -306,12 +321,28 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
       return TRUE;
     }
 
+  if (!g_variant_lookup (properties_variant, "cursor-mode", "u", &cursor_mode))
+    {
+      cursor_mode = META_SCREEN_CAST_CURSOR_MODE_HIDDEN;
+    }
+  else
+    {
+      if (!is_valid_cursor_mode (cursor_mode))
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                                 G_DBUS_ERROR_FAILED,
+                                                 "Unknown cursor mode");
+          return TRUE;
+        }
+    }
+
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
   monitor_stream = meta_screen_cast_monitor_stream_new (session,
                                                         connection,
                                                         monitor,
                                                         stage,
+                                                        cursor_mode,
                                                         &error);
   if (!monitor_stream)
     {
