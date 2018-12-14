@@ -34,6 +34,7 @@ enum
 
   PROP_SESSION,
   PROP_CONNECTION,
+  PROP_CURSOR_MODE,
 };
 
 enum
@@ -51,6 +52,8 @@ typedef struct _MetaScreenCastStreamPrivate
 
   GDBusConnection *connection;
   char *object_path;
+
+  MetaScreenCastCursorMode cursor_mode;
 
   MetaScreenCastStreamSrc *src;
 } MetaScreenCastStreamPrivate;
@@ -164,6 +167,15 @@ meta_screen_cast_stream_transform_position (MetaScreenCastStream *stream,
                                                                   y);
 }
 
+MetaScreenCastCursorMode
+meta_screen_cast_stream_get_cursor_mode (MetaScreenCastStream *stream)
+{
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+
+  return priv->cursor_mode;
+}
+
 static void
 meta_screen_cast_stream_set_property (GObject      *object,
                                       guint         prop_id,
@@ -181,6 +193,9 @@ meta_screen_cast_stream_set_property (GObject      *object,
       break;
     case PROP_CONNECTION:
       priv->connection = g_value_get_object (value);
+      break;
+    case PROP_CURSOR_MODE:
+      priv->cursor_mode = g_value_get_uint (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -204,6 +219,9 @@ meta_screen_cast_stream_get_property (GObject    *object,
       break;
     case PROP_CONNECTION:
       g_value_set_object (value, priv->connection);
+      break;
+    case PROP_CURSOR_MODE:
+      g_value_set_uint (value, priv->cursor_mode);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -295,6 +313,18 @@ meta_screen_cast_stream_class_init (MetaScreenCastStreamClass *klass)
                                                         G_PARAM_READWRITE |
                                                         G_PARAM_CONSTRUCT_ONLY |
                                                         G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class,
+                                   PROP_CURSOR_MODE,
+                                   g_param_spec_uint ("cursor-mode",
+                                                      "cursor-mode",
+                                                      "Cursor mode",
+                                                      META_SCREEN_CAST_CURSOR_MODE_HIDDEN,
+                                                      META_SCREEN_CAST_CURSOR_MODE_METADATA,
+                                                      META_SCREEN_CAST_CURSOR_MODE_HIDDEN,
+                                                      G_PARAM_READWRITE |
+                                                      G_PARAM_CONSTRUCT_ONLY |
+                                                      G_PARAM_STATIC_STRINGS));
 
   signals[CLOSED] = g_signal_new ("closed",
                                   G_TYPE_FROM_CLASS (klass),
