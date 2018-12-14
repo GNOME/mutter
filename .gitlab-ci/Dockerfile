@@ -13,5 +13,8 @@ RUN dnf -y update && dnf -y upgrade && \
     # Unpackaged versions
     dnf install -y https://copr-be.cloud.fedoraproject.org/results/jadahl/mutter-ci/fedora-29-x86_64/00836095-gsettings-desktop-schemas/gsettings-desktop-schemas-3.30.1-1.20181206git918efdd69be53.fc29.x86_64.rpm https://copr-be.cloud.fedoraproject.org/results/jadahl/mutter-ci/fedora-29-x86_64/00836095-gsettings-desktop-schemas/gsettings-desktop-schemas-devel-3.30.1-1.20181206git918efdd69be53.fc29.x86_64.rpm && \
 
+    # Packages not yet in stable
+    dnf install -y https://kojipkgs.fedoraproject.org//packages/pipewire/0.2.5/1.fc29/x86_64/pipewire-0.2.5-1.fc29.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/pipewire/0.2.5/1.fc29/x86_64/pipewire-devel-0.2.5-1.fc29.x86_64.rpm https://kojipkgs.fedoraproject.org//packages/pipewire/0.2.5/1.fc29/x86_64/pipewire-libs-0.2.5-1.fc29.x86_64.rpm && \
+
     dnf install -y intltool redhat-rpm-config make && \
     dnf clean all
