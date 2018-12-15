@@ -21,7 +21,7 @@ environment.</description>
   -->
   <mailing-list rdf:resource="http://mail.gnome.org/mailman/listinfo/gnome-shell-list" />
   <download-page rdf:resource="http://download.gnome.org/sources/mutter/" />
-  <bug-database rdf:resource="http://bugzilla.gnome.org/browse.cgi?product=mutter" />
+  <bug-database rdf:resource="https://gitlab.gnome.org/GNOME/mutter/issues/" />
 
   <category rdf:resource="http://api.gnome.org/doap-extensions#core" />
   <programming-language>C</programming-language>
