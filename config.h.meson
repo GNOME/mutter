@@ -28,9 +28,6 @@
 /* Defined if EGLStream support is enabled */
 #mesondefine HAVE_WAYLAND_EGLSTREAM
 
-/* Building with libcanberra for playing sounds */
-#mesondefine HAVE_LIBCANBERRA
-
 /* Building with gudev for device type detection */
 #mesondefine HAVE_LIBGUDEV
 

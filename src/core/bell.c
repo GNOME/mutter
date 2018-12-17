@@ -51,9 +51,7 @@
 
 #include "core/bell.h"
 
-#ifdef HAVE_LIBCANBERRA
 #include <canberra-gtk.h>
-#endif
 
 #include "compositor/compositor-private.h"
 #include "core/util-private.h"
@@ -248,7 +246,6 @@ static gboolean
 bell_audible_notify (MetaDisplay *display,
                      MetaWindow  *window)
 {
-#ifdef HAVE_LIBCANBERRA
   ca_proplist *p;
   int res;
 
@@ -270,9 +267,6 @@ bell_audible_notify (MetaDisplay *display,
   ca_proplist_destroy (p);
 
   return res == CA_SUCCESS || res == CA_ERROR_DISABLED;
-#endif /* HAVE_LIBCANBERRA */
-
-  return FALSE;
 }
 
 gboolean

@@ -128,11 +128,6 @@ AC_ARG_ENABLE(startup-notification,
                  [disable mutter's startup notification support, for embedded/size-sensitive custom non-GNOME builds]),,
   enable_startup_notification=auto)
 
-AC_ARG_WITH(libcanberra,
-  AC_HELP_STRING([--without-libcanberra],
-                 [disable the use of libcanberra for playing sounds]),,
-  with_libcanberra=auto)
-
 AC_ARG_WITH(libwacom,
   AC_HELP_STRING([--without-libwacom],
                  [disable the use of libwacom for advanced tablet management]),,
@@ -186,22 +181,12 @@ else
   echo "Building without libstartup-notification"
 fi
 
-have_libcanberra=no
-AC_MSG_CHECKING([libcanberra-gtk])
-if test x$with_libcanberra = xno ; then
-  AC_MSG_RESULT([disabled])
+if $PKG_CONFIG --exists $CANBERRA_GTK '>=' $CANBERRA_GTK_VERSION; then
+  AC_MSG_RESULT(yes)
+  MUTTER_PC_MODULES="$MUTTER_PC_MODULES $CANBERRA_GTK"
 else
-  if $PKG_CONFIG --exists $CANBERRA_GTK '>=' $CANBERRA_GTK_VERSION; then
-    have_libcanberra=yes
-    AC_MSG_RESULT(yes)
-    MUTTER_PC_MODULES="$MUTTER_PC_MODULES $CANBERRA_GTK"
-    AC_DEFINE([HAVE_LIBCANBERRA], 1, [Building with libcanberra for playing sounds])
-  else
-    AC_MSG_RESULT(no)
-    if test x$with_libcanberra = xyes ; then
-      AC_MSG_ERROR([libcanberra forced and libcanberra-gtk was not found])
-    fi
-  fi
+  AC_MSG_RESULT(no)
+  AC_MSG_ERROR([libcanberra was not found])
 fi
 
 have_libwacom=no
@@ -544,7 +529,6 @@ mutter-$VERSION
 	compiler:		  ${CC}
 
 	Startup notification:     ${have_startup_notification}
-	libcanberra:              ${have_libcanberra}
 	libwacom:                 ${have_libwacom}
 	gudev                     ${have_gudev}
 	Introspection:            ${found_introspection}

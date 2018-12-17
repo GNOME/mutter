@@ -37,9 +37,7 @@
 
 #include <X11/Xatom.h>
 #include <string.h>
-#ifdef HAVE_LIBCANBERRA
 #include <canberra-gtk.h>
-#endif
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
@@ -441,7 +439,6 @@ static void
 workspace_switch_sound(MetaWorkspace *from,
                        MetaWorkspace *to)
 {
-#ifdef HAVE_LIBCANBERRA
   MetaWorkspaceLayout layout;
   int i, nw, x, y, fi, ti;
   const char *e;
@@ -497,7 +494,6 @@ workspace_switch_sound(MetaWorkspace *from,
 
  finish:
   meta_workspace_manager_free_workspace_layout (&layout);
-#endif /* HAVE_LIBCANBERRA */
 }
 
 /**

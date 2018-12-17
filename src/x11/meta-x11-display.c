@@ -488,13 +488,9 @@ static void
 set_x11_bell_is_audible (MetaX11Display *x11_display,
                          gboolean is_audible)
 {
-#ifdef HAVE_LIBCANBERRA
   /* When we are playing sounds using libcanberra support, we handle the
    * bell whether its an audible bell or a visible bell */
   gboolean enable_system_bell = FALSE;
-#else
-  gboolean enable_system_bell = is_audible;
-#endif /* HAVE_LIBCANBERRA */
 
   XkbChangeEnabledControls (x11_display->xdisplay,
                             XkbUseCoreKbd,
