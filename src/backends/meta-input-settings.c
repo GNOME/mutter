@@ -1326,7 +1326,9 @@ lookup_tool_settings (ClutterInputDeviceTool *tool,
 
   serial = clutter_input_device_tool_get_serial (tool);
 
-  if (serial == 0)
+  /* The Wacom driver uses serial 1 for serial-less devices but 1 is not a
+   * real serial, so let's custom-case this */
+  if (serial == 0 || serial == 1)
     {
       path = g_strdup_printf ("/org/gnome/desktop/peripherals/stylus/default-%s:%s/",
                               clutter_input_device_get_vendor_id (device),
