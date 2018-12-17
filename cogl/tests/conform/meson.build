@@ -69,6 +69,23 @@ cogl_test_conformance_includes = [
   cogl_test_fixtures_includepath,
 ]
 
+if have_installed_tests
+  cogl_installed_tests_datadir = join_paths(
+    datadir, 'installed-tests', libmutter_name)
+
+  cogl_installed_tests_cdata = configuration_data()
+  cogl_installed_tests_cdata.set('libexecdir', libexecdir)
+  cogl_installed_tests_cdata.set('apiversion', libmutter_api_version)
+
+  configure_file(
+    input: 'mutter-cogl.test.in',
+    output: 'mutter-cogl.test',
+    configuration: cogl_installed_tests_cdata,
+    install: true,
+    install_dir: cogl_installed_tests_datadir,
+  )
+endif
+
 libmutter_cogl_test_conformance = executable('test-conformance',
   sources: cogl_test_conformance_sources,
   c_args: cogl_debug_c_args + [
@@ -84,7 +101,9 @@ libmutter_cogl_test_conformance = executable('test-conformance',
     libmutter_cogl_path_dep,
     libmutter_cogl_test_fixtures_dep,
   ],
-  install: false,
+  install: have_installed_tests,
+  install_dir: cogl_installed_tests_dir,
+  install_rpath: pkglibdir,
 )
 
 find_unit_tests = find_program('meson/find-conform-unit-tests.sh')
@@ -92,7 +111,8 @@ cogl_conform_unit_tests = custom_target('cogl-tests-conform-unit-tests',
   output: 'unit-tests',
   input: 'test-conform-main.c',
   command: [find_unit_tests, '@INPUT@', '@OUTPUT@'],
-  install: false,
+  install: have_installed_tests,
+  install_dir: cogl_installed_tests_dir,
 )
 
 test('cogl/conform', cogl_run_tests,
