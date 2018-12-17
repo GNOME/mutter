@@ -74,7 +74,7 @@ get_status()
 
 run_test()
 {
-  $("$TEST_BINARY" "$1" &> "$LOG")
+  $("$TEST_BINARY" "$1" &>> "$LOG")
   TMP=$?
   var_name=$2_result
   eval "$var_name=$TMP"
