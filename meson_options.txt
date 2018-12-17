@@ -81,12 +81,6 @@ option('pango_ft2',
   description: 'Enable PangoFt2 support'
 )
 
-option('libcanberra',
-  type: 'boolean',
-  value: true,
-  description: 'Enable libcanberra support'
-)
-
 option('startup_notification',
   type: 'boolean',
   value: true,
