@@ -74,8 +74,8 @@ PKG_PROG_PKG_CONFIG([0.21])
 # Sets GLIB_GENMARSHAL and GLIB_MKENUMS
 AM_PATH_GLIB_2_0([2.53.2])
 
-CANBERRA_GTK=libcanberra-gtk3
-CANBERRA_GTK_VERSION=0.26
+CANBERRA=libcanberra
+CANBERRA_VERSION=0.26
 
 LIBWACOM_VERSION=0.13
 
@@ -127,11 +127,6 @@ AC_ARG_ENABLE(startup-notification,
   AC_HELP_STRING([--disable-startup-notification],
                  [disable mutter's startup notification support, for embedded/size-sensitive custom non-GNOME builds]),,
   enable_startup_notification=auto)
-
-AC_ARG_WITH(libcanberra,
-  AC_HELP_STRING([--without-libcanberra],
-                 [disable the use of libcanberra for playing sounds]),,
-  with_libcanberra=auto)
 
 AC_ARG_WITH(libwacom,
   AC_HELP_STRING([--without-libwacom],
@@ -186,22 +181,12 @@ else
   echo "Building without libstartup-notification"
 fi
 
-have_libcanberra=no
-AC_MSG_CHECKING([libcanberra-gtk])
-if test x$with_libcanberra = xno ; then
-  AC_MSG_RESULT([disabled])
+if $PKG_CONFIG --exists $CANBERRA '>=' $CANBERRA_VERSION; then
+  AC_MSG_RESULT(yes)
+  MUTTER_PC_MODULES="$MUTTER_PC_MODULES $CANBERRA"
 else
-  if $PKG_CONFIG --exists $CANBERRA_GTK '>=' $CANBERRA_GTK_VERSION; then
-    have_libcanberra=yes
-    AC_MSG_RESULT(yes)
-    MUTTER_PC_MODULES="$MUTTER_PC_MODULES $CANBERRA_GTK"
-    AC_DEFINE([HAVE_LIBCANBERRA], 1, [Building with libcanberra for playing sounds])
-  else
-    AC_MSG_RESULT(no)
-    if test x$with_libcanberra = xyes ; then
-      AC_MSG_ERROR([libcanberra forced and libcanberra-gtk was not found])
-    fi
-  fi
+  AC_MSG_RESULT(no)
+  AC_MSG_ERROR([libcanberra was not found])
 fi
 
 have_libwacom=no
@@ -544,7 +529,6 @@ mutter-$VERSION
 	compiler:		  ${CC}
 
 	Startup notification:     ${have_startup_notification}
-	libcanberra:              ${have_libcanberra}
 	libwacom:                 ${have_libwacom}
 	gudev                     ${have_gudev}
 	Introspection:            ${found_introspection}
