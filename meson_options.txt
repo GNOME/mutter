@@ -123,6 +123,12 @@ option('tests',
   description: 'Enable mutter tests'
 )
 
+option('installed_tests',
+  type: 'boolean',
+  value: true,
+  description: 'Enable mutter installed tests'
+)
+
 option('verbose',
   type: 'boolean',
   value: true,
