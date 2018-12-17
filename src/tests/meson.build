@@ -10,6 +10,29 @@ tests_deps = [
   libmutter_clutter_dep,
 ]
 
+installed_tests_dir_name = 'mutter-' + libmutter_api_version
+installed_tests_bindir = join_paths(libexecdir, 'installed-tests', installed_tests_dir_name)
+
+if have_installed_tests
+
+  installed_tests_datadir = join_paths(datadir, 'installed-tests', installed_tests_dir_name)
+  stacking_files_datadir = join_paths(pkgdatadir, 'tests')
+
+  installed_tests_cdata = configuration_data()
+  installed_tests_cdata.set('libexecdir', libexecdir)
+  installed_tests_cdata.set('apiversion', libmutter_api_version)
+
+  configure_file(
+    input: 'mutter-all.test.in',
+    output: 'mutter-all.test',
+    configuration: installed_tests_cdata,
+    install: true,
+    install_dir: installed_tests_datadir,
+  )
+
+  install_subdir('stacking', install_dir: stacking_files_datadir)
+endif
+
 test_env = environment()
 test_env.set('G_TEST_SRCDIR', join_paths(top_srcdir, 'src'))
 test_env.set('G_TEST_BUILDDIR', builddir)
@@ -24,7 +47,8 @@ test_client = executable('mutter-test-client',
     gio_unix_dep,
     xext_dep,
   ],
-  install: false,
+  install: have_installed_tests,
+  install_dir: installed_tests_bindir,
 )
 
 test_runner = executable('mutter-test-runner',
@@ -36,7 +60,8 @@ test_runner = executable('mutter-test-runner',
   include_directories: tests_includepath,
   c_args: tests_c_args,
   dependencies: [tests_deps],
-  install: false,
+  install: have_installed_tests,
+  install_dir: installed_tests_bindir,
 )
 
 unit_tests = executable('mutter-test-unit-tests',
@@ -62,7 +87,8 @@ unit_tests = executable('mutter-test-unit-tests',
   include_directories: tests_includepath,
   c_args: tests_c_args,
   dependencies: [tests_deps],
-  install: false,
+  install: have_installed_tests,
+  install_dir: installed_tests_bindir,
 )
 
 headless_start_test = executable('mutter-headless-start-test',
@@ -78,7 +104,8 @@ headless_start_test = executable('mutter-headless-start-test',
   include_directories: tests_includepath,
   c_args: tests_c_args,
   dependencies: [tests_deps],
-  install: false,
+  install: have_installed_tests,
+  install_dir: installed_tests_bindir,
 )
 
 stacking_tests = files([

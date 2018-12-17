@@ -1,0 +1,4 @@
+[Test]
+Type=session
+TestEnvironment=LD_LIBRARY_PATH=@pkglibdir@
+Exec=sh -c "cd @libexecdir@/installed-tests/mutter-cogl-@apiversion@/conform; ./run-tests.sh config.env test-conformance unit-tests"
