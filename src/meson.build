@@ -23,6 +23,7 @@ mutter_pkg_deps = [
   json_glib_dep,
   pango_dep,
   xkbcommon_dep,
+  libcanberra_dep,
 ]
 
 if have_gl
@@ -53,12 +54,6 @@ endif
 if have_startup_notification
   mutter_pkg_deps += [
     libstartup_notification_dep,
-  ]
-endif
-
-if have_libcanberra
-  mutter_pkg_deps += [
-    libcanberra_gtk3_dep,
   ]
 endif
 
