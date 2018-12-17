@@ -237,6 +237,7 @@ endif
 
 have_cogl_tests = get_option('cogl_tests')
 have_clutter_tests = get_option('clutter_tests')
+have_installed_tests = get_option('installed_tests')
 
 have_tests = get_option('tests')
 if have_tests
