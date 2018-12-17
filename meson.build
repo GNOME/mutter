@@ -73,6 +73,12 @@ builddir = meson.current_build_dir()
 
 libmutter_name = 'mutter-' + libmutter_api_version
 
+mutter_installed_tests_datadir = join_paths(
+  datadir, 'installed-tests', libmutter_name)
+
+mutter_installed_tests_libexecdir = join_paths(
+  libexecdir, 'installed-tests', libmutter_name)
+
 m_dep = cc.find_library('m', required: true)
 x11_dep = dependency('x11')
 gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
@@ -239,6 +245,7 @@ endif
 
 have_cogl_tests = get_option('cogl_tests')
 have_clutter_tests = get_option('clutter_tests')
+have_installed_tests = get_option('installed_tests')
 
 have_tests = get_option('tests')
 if have_tests
