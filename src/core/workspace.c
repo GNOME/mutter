@@ -37,7 +37,6 @@
 
 #include <X11/Xatom.h>
 #include <string.h>
-#include <canberra-gtk.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
@@ -439,6 +438,7 @@ static void
 workspace_switch_sound(MetaWorkspace *from,
                        MetaWorkspace *to)
 {
+  MetaSoundPlayer *player;
   MetaWorkspaceLayout layout;
   int i, nw, x, y, fi, ti;
   const char *e;
@@ -486,11 +486,8 @@ workspace_switch_sound(MetaWorkspace *from,
       goto finish;
     }
 
-  ca_context_play(ca_gtk_context_get(), 1,
-                  CA_PROP_EVENT_ID, e,
-                  CA_PROP_EVENT_DESCRIPTION, "Desktop switched",
-                  CA_PROP_CANBERRA_CACHE_CONTROL, "permanent",
-                  NULL);
+  player = meta_display_get_sound_player (from->display);
+  meta_sound_player_play_from_theme (player, e, "Desktop switched", NULL);
 
  finish:
   meta_workspace_manager_free_workspace_layout (&layout);
