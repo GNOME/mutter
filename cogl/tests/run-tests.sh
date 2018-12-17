@@ -21,6 +21,8 @@ shift
 
 set +m
 
+LOG=$(mktemp)
+
 trap "" ERR
 trap "" SIGABRT
 trap "" SIGFPE
@@ -65,17 +67,17 @@ get_status()
 
 run_test()
 {
-  $("$TEST_BINARY" "$1" &>.log)
+  $("$TEST_BINARY" "$1" &> "$LOG")
   TMP=$?
   var_name=$2_result
   eval "$var_name=$TMP"
-  if grep -q "$MISSING_FEATURE" .log; then
+  if grep -q "$MISSING_FEATURE" "$LOG"; then
     if test "$TMP" -ne 0; then
       eval "$var_name=500"
     else
       eval "$var_name=400"
     fi
-  elif grep -q "$KNOWN_FAILURE" .log; then
+  elif grep -q "$KNOWN_FAILURE" "$LOG"; then
     if test $TMP -ne 0; then
       eval "$var_name=300"
     else
@@ -155,5 +157,7 @@ do
   fi
   echo ""
 done
+
+rm "$LOG"
 
 exit "$EXIT"
