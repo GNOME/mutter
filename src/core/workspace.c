@@ -37,9 +37,6 @@
 
 #include <X11/Xatom.h>
 #include <string.h>
-#ifdef HAVE_LIBCANBERRA
-#include <canberra-gtk.h>
-#endif
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
@@ -441,7 +438,6 @@ static void
 workspace_switch_sound(MetaWorkspace *from,
                        MetaWorkspace *to)
 {
-#ifdef HAVE_LIBCANBERRA
   MetaWorkspaceLayout layout;
   int i, nw, x, y, fi, ti;
   const char *e;
@@ -489,15 +485,11 @@ workspace_switch_sound(MetaWorkspace *from,
       goto finish;
     }
 
-  ca_context_play(ca_gtk_context_get(), 1,
-                  CA_PROP_EVENT_ID, e,
-                  CA_PROP_EVENT_DESCRIPTION, "Desktop switched",
-                  CA_PROP_CANBERRA_CACHE_CONTROL, "permanent",
-                  NULL);
+  meta_sound_play_from_theme (meta_display_get_sound (from->display),
+                              e, "Desktop switched", NULL);
 
  finish:
   meta_workspace_manager_free_workspace_layout (&layout);
-#endif /* HAVE_LIBCANBERRA */
 }
 
 /**
