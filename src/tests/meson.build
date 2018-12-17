@@ -1,5 +1,3 @@
-#tests_srcdir = join_paths(top_srcdir, 'srcs')
-#tests_builddir = join_paths(builddir, 'src/tests')
 tests_includepath = mutter_includes
 tests_c_args = mutter_c_args
 
