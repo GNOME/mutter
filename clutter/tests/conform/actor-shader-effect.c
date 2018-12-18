@@ -230,13 +230,13 @@ paint_cb (ClutterStage *stage,
   gboolean *was_painted = data;
 
   /* old shader effect */
-  g_assert_cmpint (get_pixel (50, 50), ==, 0xff0000);
+  g_assert_cmpint (get_pixel (0, 25), ==, 0xff0000);
   /* new shader effect */
-  g_assert_cmpint (get_pixel (150, 50), ==, 0x00ffff);
+  g_assert_cmpint (get_pixel (100, 25), ==, 0x00ffff);
   /* another new shader effect */
-  g_assert_cmpint (get_pixel (250, 50), ==, 0xff00ff);
+  g_assert_cmpint (get_pixel (200, 25), ==, 0xff00ff);
   /* new shader effect */
-  g_assert_cmpint (get_pixel (350, 50), ==, 0x00ffff);
+  g_assert_cmpint (get_pixel (300, 25), ==, 0x00ffff);
 
   *was_painted = TRUE;
 }
