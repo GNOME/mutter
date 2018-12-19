@@ -92,6 +92,15 @@ _cogl_texture_2d_set_auto_mipmap (CoglTexture *tex,
   tex_2d->auto_mipmap = value;
 }
 
+static CoglBool
+_cogl_texture_2d_is_get_data_supported (CoglTexture *tex)
+{
+  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
+  CoglContext *ctx = tex->context;
+
+  return ctx->driver_vtable->texture_2d_is_get_data_supported (tex_2d);
+}
+
 CoglTexture2D *
 _cogl_texture_2d_create_base (CoglContext *ctx,
                               int width,
@@ -693,5 +702,6 @@ cogl_texture_2d_vtable =
     _cogl_texture_2d_get_gl_format,
     _cogl_texture_2d_get_type,
     _cogl_texture_2d_is_foreign,
-    _cogl_texture_2d_set_auto_mipmap
+    _cogl_texture_2d_set_auto_mipmap,
+    _cogl_texture_2d_is_get_data_supported
   };
