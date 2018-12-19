@@ -210,6 +210,9 @@ struct _CoglDriverVtable
                            int rowstride,
                            uint8_t *data);
 
+  CoglBool
+  (* texture_2d_is_get_data_supported) (CoglTexture2D *tex_2d);
+
   /* Prepares for drawing by flushing the journal, framebuffer state,
    * pipeline state and attribute state.
    */

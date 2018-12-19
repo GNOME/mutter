@@ -1041,5 +1041,6 @@ cogl_atlas_texture_vtable =
     _cogl_atlas_texture_get_gl_format,
     _cogl_atlas_texture_get_type,
     NULL, /* is_foreign */
-    NULL /* set_auto_mipmap */
+    NULL, /* set_auto_mipmap */
+    NULL  /* is_get_data_supported */
   };
