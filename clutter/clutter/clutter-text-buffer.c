@@ -50,7 +50,8 @@
 /* Initial size of buffer, in bytes */
 #define MIN_SIZE 16
 
-enum {
+enum
+{
   PROP_0,
   PROP_TEXT,
   PROP_LENGTH,
@@ -60,7 +61,8 @@ enum {
 
 static GParamSpec *obj_props[PROP_LAST] = { NULL, };
 
-enum {
+enum
+{
   INSERTED_TEXT,
   DELETED_TEXT,
   LAST_SIGNAL

@@ -36,7 +36,8 @@
 #include "xdg-output-unstable-v1-server-protocol.h"
 
 
-enum {
+enum
+{
   OUTPUT_DESTROYED,
 
   LAST_SIGNAL

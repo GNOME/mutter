@@ -46,7 +46,8 @@ void               meta_window_actor_sync_visibility      (MetaWindowActor *self
 META_EXPORT
 gboolean       meta_window_actor_is_destroyed (MetaWindowActor *self);
 
-typedef enum {
+typedef enum
+{
   META_SHADOW_MODE_AUTO,
   META_SHADOW_MODE_FORCED_OFF,
   META_SHADOW_MODE_FORCED_ON,
