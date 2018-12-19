@@ -86,7 +86,8 @@ typedef enum
  * @META_WINDOW_CLIENT_TYPE_WAYLAND: A Wayland based window
  * @META_WINDOW_CLIENT_TYPE_X11: An X11 based window
  */
-typedef enum {
+typedef enum
+{
   META_WINDOW_CLIENT_TYPE_WAYLAND,
   META_WINDOW_CLIENT_TYPE_X11
 } MetaWindowClientType;

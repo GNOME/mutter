@@ -68,7 +68,8 @@ G_DEFINE_TYPE_WITH_CODE (ClutterStageCogl,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_STAGE_WINDOW,
                                                 clutter_stage_window_iface_init));
 
-enum {
+enum
+{
   PROP_0,
   PROP_WRAPPER,
   PROP_BACKEND,

@@ -46,7 +46,8 @@ G_DEFINE_TYPE (ClutterInputDeviceEvdev,
                clutter_input_device_evdev,
                CLUTTER_TYPE_INPUT_DEVICE)
 
-enum {
+enum
+{
   PROP_0,
   PROP_DEVICE_MATRIX,
   PROP_OUTPUT_ASPECT_RATIO,

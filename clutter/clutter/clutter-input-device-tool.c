@@ -35,7 +35,8 @@ struct _ClutterInputDeviceToolPrivate
   guint64 id;
 };
 
-enum {
+enum
+{
   PROP_0,
   PROP_TYPE,
   PROP_SERIAL,
