@@ -373,46 +373,17 @@ set_cogl_texture (MetaShapedTexture *stex,
 }
 
 static void
-meta_shaped_texture_paint (ClutterActor *actor)
+do_paint (MetaShapedTexture *stex,
+          CoglFramebuffer   *fb,
+          CoglTexture       *paint_tex,
+          cairo_region_t    *clip_region)
 {
-  MetaShapedTexture *stex = (MetaShapedTexture *) actor;
   MetaShapedTexturePrivate *priv = stex->priv;
   guint tex_width, tex_height;
   guchar opacity;
   CoglContext *ctx;
-  CoglFramebuffer *fb;
-  CoglTexture *paint_tex;
   ClutterActorBox alloc;
   CoglPipelineFilter filter;
-
-  if (priv->clip_region && cairo_region_is_empty (priv->clip_region))
-    return;
-
-  if (!CLUTTER_ACTOR_IS_REALIZED (CLUTTER_ACTOR (stex)))
-    clutter_actor_realize (CLUTTER_ACTOR (stex));
-
-  /* The GL EXT_texture_from_pixmap extension does allow for it to be
-   * used together with SGIS_generate_mipmap, however this is very
-   * rarely supported. Also, even when it is supported there
-   * are distinct performance implications from:
-   *
-   *  - Updating mipmaps that we don't need
-   *  - Having to reallocate pixmaps on the server into larger buffers
-   *
-   * So, we just unconditionally use our mipmap emulation code. If we
-   * wanted to use SGIS_generate_mipmap, we'd have to  query COGL to
-   * see if it was supported (no API currently), and then if and only
-   * if that was the case, set the clutter texture quality to HIGH.
-   * Setting the texture quality to high without SGIS_generate_mipmap
-   * support for TFP textures will result in fallbacks to XGetImage.
-   */
-  if (priv->create_mipmaps)
-    paint_tex = meta_texture_tower_get_paint_texture (priv->paint_tower);
-  else
-    paint_tex = COGL_TEXTURE (priv->texture);
-
-  if (paint_tex == NULL)
-    return;
 
   tex_width = priv->tex_width;
   tex_height = priv->tex_height;
@@ -421,8 +392,6 @@ meta_shaped_texture_paint (ClutterActor *actor)
     return;
 
   cairo_rectangle_int_t tex_rect = { 0, 0, tex_width, tex_height };
-
-  fb = cogl_get_draw_framebuffer ();
 
   /* Use nearest-pixel interpolation if the texture is unscaled. This
    * improves performance, especially with software rendering.
@@ -437,8 +406,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
 
   ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
-  opacity = clutter_actor_get_paint_opacity (actor);
-  clutter_actor_get_allocation_box (actor, &alloc);
+  opacity = clutter_actor_get_paint_opacity (CLUTTER_ACTOR (stex));
+  clutter_actor_get_allocation_box (CLUTTER_ACTOR (stex), &alloc);
 
   cairo_region_t *blended_region;
   gboolean use_opaque_region = (priv->opaque_region != NULL && opacity == 255);
@@ -574,6 +543,52 @@ meta_shaped_texture_paint (ClutterActor *actor)
 
   if (blended_region != NULL)
     cairo_region_destroy (blended_region);
+}
+
+static void
+meta_shaped_texture_paint (ClutterActor *actor)
+{
+  MetaShapedTexture *stex = META_SHAPED_TEXTURE (actor);
+  MetaShapedTexturePrivate *priv = stex->priv;
+  CoglTexture *paint_tex = NULL;
+  CoglFramebuffer *fb;
+
+  if (!priv->texture)
+    return;
+
+  if (priv->clip_region && cairo_region_is_empty (priv->clip_region))
+    return;
+
+  if (!CLUTTER_ACTOR_IS_REALIZED (CLUTTER_ACTOR (stex)))
+    clutter_actor_realize (CLUTTER_ACTOR (stex));
+
+  /* The GL EXT_texture_from_pixmap extension does allow for it to be
+   * used together with SGIS_generate_mipmap, however this is very
+   * rarely supported. Also, even when it is supported there
+   * are distinct performance implications from:
+   *
+   *  - Updating mipmaps that we don't need
+   *  - Having to reallocate pixmaps on the server into larger buffers
+   *
+   * So, we just unconditionally use our mipmap emulation code. If we
+   * wanted to use SGIS_generate_mipmap, we'd have to  query COGL to
+   * see if it was supported (no API currently), and then if and only
+   * if that was the case, set the clutter texture quality to HIGH.
+   * Setting the texture quality to high without SGIS_generate_mipmap
+   * support for TFP textures will result in fallbacks to XGetImage.
+   */
+  if (priv->create_mipmaps)
+    paint_tex = meta_texture_tower_get_paint_texture (priv->paint_tower);
+
+  if (!paint_tex)
+    paint_tex = COGL_TEXTURE (priv->texture);
+
+  if (cogl_texture_get_width (paint_tex) == 0 ||
+      cogl_texture_get_height (paint_tex) == 0)
+    return;
+
+  fb = cogl_get_draw_framebuffer ();
+  do_paint (META_SHAPED_TEXTURE (actor), fb, paint_tex, priv->clip_region);
 }
 
 static void
