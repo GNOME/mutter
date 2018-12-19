@@ -1162,6 +1162,7 @@ cogl_texture_pixmap_x11_vtable =
     FALSE, /* not primitive */
     _cogl_texture_pixmap_x11_allocate,
     _cogl_texture_pixmap_x11_set_region,
+    NULL, /* is_get_data_supported */
     _cogl_texture_pixmap_x11_get_data,
     _cogl_texture_pixmap_x11_foreach_sub_texture_in_region,
     _cogl_texture_pixmap_x11_get_max_waste,

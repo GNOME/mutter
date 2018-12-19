@@ -630,6 +630,15 @@ _cogl_texture_2d_set_region (CoglTexture *tex,
 }
 
 static CoglBool
+_cogl_texture_2d_is_get_data_supported (CoglTexture *tex)
+{
+  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
+  CoglContext *ctx = tex->context;
+
+  return ctx->driver_vtable->texture_2d_is_get_data_supported (tex_2d);
+}
+
+static CoglBool
 _cogl_texture_2d_get_data (CoglTexture *tex,
                            CoglPixelFormat format,
                            int rowstride,
@@ -677,6 +686,7 @@ cogl_texture_2d_vtable =
     TRUE, /* primitive */
     _cogl_texture_2d_allocate,
     _cogl_texture_2d_set_region,
+    _cogl_texture_2d_is_get_data_supported,
     _cogl_texture_2d_get_data,
     NULL, /* foreach_sub_texture_in_region */
     _cogl_texture_2d_get_max_waste,

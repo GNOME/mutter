@@ -91,6 +91,8 @@ struct _CoglTextureVtable
                            CoglBitmap *bitmap,
                            CoglError **error);
 
+  CoglBool (* is_get_data_supported) (CoglTexture *texture);
+
   /* This should copy the image data of the texture into @data. The
      requested format will have been first passed through
      ctx->texture_driver->find_best_gl_get_data_format so it should

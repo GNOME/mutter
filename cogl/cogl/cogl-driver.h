@@ -199,6 +199,9 @@ struct _CoglDriverVtable
                                    int level,
                                    CoglError **error);
 
+  CoglBool
+  (* texture_2d_is_get_data_supported) (CoglTexture2D *tex_2d);
+
   /* Reads back the full contents of the given texture and write it to
    * @data in the given @format and with the given @rowstride.
    *
