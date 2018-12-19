@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <clutter/clutter.h>
 
-enum {
+enum
+{
   VERTICAL      = 0,
   HORIZONTAL    = 1,
   BOTH          = 2

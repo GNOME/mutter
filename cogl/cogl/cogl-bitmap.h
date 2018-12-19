@@ -289,7 +289,8 @@ cogl_is_bitmap (void *object);
  *
  * Since: 1.4
  */
-typedef enum {
+typedef enum
+{
   COGL_BITMAP_ERROR_FAILED,
   COGL_BITMAP_ERROR_UNKNOWN_TYPE,
   COGL_BITMAP_ERROR_CORRUPT_IMAGE
