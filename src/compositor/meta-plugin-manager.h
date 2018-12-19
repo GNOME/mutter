@@ -25,7 +25,8 @@
 #include "meta/meta-plugin.h"
 #include "meta/types.h"
 
-typedef enum {
+typedef enum
+{
   META_PLUGIN_NONE,
   META_PLUGIN_MINIMIZE,
   META_PLUGIN_MAP,

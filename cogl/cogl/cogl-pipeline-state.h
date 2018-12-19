@@ -325,7 +325,8 @@ cogl_pipeline_get_emission (CoglPipeline *pipeline,
  * incoming alpha value and a reference alpha value. The #CoglPipelineAlphaFunc
  * determines how the comparison is done.
  */
-typedef enum {
+typedef enum
+{
   COGL_PIPELINE_ALPHA_FUNC_NEVER    = 0x0200,
   COGL_PIPELINE_ALPHA_FUNC_LESS	    = 0x0201,
   COGL_PIPELINE_ALPHA_FUNC_EQUAL    = 0x0202,

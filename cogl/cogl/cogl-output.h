@@ -106,7 +106,8 @@ GType cogl_output_get_gtype (void);
  * Since: 1.14
  * Stability: unstable
  */
-typedef enum {
+typedef enum
+{
   COGL_SUBPIXEL_ORDER_UNKNOWN,
   COGL_SUBPIXEL_ORDER_NONE,
   COGL_SUBPIXEL_ORDER_HORIZONTAL_RGB,

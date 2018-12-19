@@ -50,7 +50,8 @@ typedef struct _MetaInputSettingsX11Private
 G_DEFINE_TYPE_WITH_PRIVATE (MetaInputSettingsX11, meta_input_settings_x11,
                             META_TYPE_INPUT_SETTINGS)
 
-enum {
+enum
+{
   SCROLL_METHOD_FIELD_2FG,
   SCROLL_METHOD_FIELD_EDGE,
   SCROLL_METHOD_FIELD_BUTTON,

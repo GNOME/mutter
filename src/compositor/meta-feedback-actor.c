@@ -30,7 +30,8 @@
 #include "compositor/meta-feedback-actor-private.h"
 #include "core/display-private.h"
 
-enum {
+enum
+{
   PROP_ANCHOR_X = 1,
   PROP_ANCHOR_Y
 };
