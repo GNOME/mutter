@@ -863,12 +863,12 @@ _cogl_texture_2d_gl_get_data (CoglTexture2D *tex_2d,
                                                     width,
                                                     bpp);
 
-  _cogl_bind_gl_texture_transient (GL_TEXTURE_2D,
+  _cogl_bind_gl_texture_transient (tex_2d->gl_target,
                                    tex_2d->gl_texture,
                                    tex_2d->is_foreign);
 
   ctx->texture_driver->gl_get_tex_image (ctx,
-                                         GL_TEXTURE_2D,
+                                         tex_2d->gl_target,
                                          gl_format,
                                          gl_type,
                                          data);
