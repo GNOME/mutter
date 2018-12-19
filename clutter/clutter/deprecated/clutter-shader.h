@@ -64,7 +64,8 @@ G_BEGIN_DECLS
  *
  * Deprecated: 1.8
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_SHADER_ERROR_NO_ASM,
   CLUTTER_SHADER_ERROR_NO_GLSL,
   CLUTTER_SHADER_ERROR_COMPILE

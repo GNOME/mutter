@@ -57,7 +57,8 @@
 #include "wayland/meta-xwayland-private.h"
 #include "wayland/meta-xwayland-private.h"
 
-enum {
+enum
+{
   PENDING_STATE_SIGNAL_APPLIED,
 
   PENDING_STATE_SIGNAL_LAST_SIGNAL
@@ -87,7 +88,8 @@ G_DEFINE_TYPE (MetaWaylandPendingState,
                meta_wayland_pending_state,
                G_TYPE_OBJECT);
 
-enum {
+enum
+{
   SURFACE_DESTROY,
   SURFACE_UNMAPPED,
   SURFACE_CONFIGURE,

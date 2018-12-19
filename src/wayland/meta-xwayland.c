@@ -36,7 +36,8 @@
 #include "meta/main.h"
 #include "wayland/meta-wayland-actor-surface.h"
 
-enum {
+enum
+{
   XWAYLAND_SURFACE_WINDOW_ASSOCIATED,
 
   XWAYLAND_SURFACE_LAST_SIGNAL
