@@ -110,6 +110,9 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
                                       int level,
                                       CoglError **error);
 
+CoglBool
+_cogl_texture_2d_gl_is_get_data_supported (CoglTexture2D *tex_2d);
+
 void
 _cogl_texture_2d_gl_get_data (CoglTexture2D *tex_2d,
                               CoglPixelFormat format,

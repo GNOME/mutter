@@ -838,6 +838,15 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
   return status;
 }
 
+CoglBool
+_cogl_texture_2d_gl_is_get_data_supported (CoglTexture2D *tex_2d)
+{
+  if (tex_2d->gl_target == GL_TEXTURE_EXTERNAL_OES)
+    return FALSE;
+  else
+    return TRUE;
+}
+
 void
 _cogl_texture_2d_gl_get_data (CoglTexture2D *tex_2d,
                               CoglPixelFormat format,
