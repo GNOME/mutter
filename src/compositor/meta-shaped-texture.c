@@ -1091,6 +1091,86 @@ meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
   invalidate_size (stex);
 }
 
+static gboolean
+should_get_via_offscreen (MetaShapedTexture *stex)
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+
+  return !cogl_texture_is_get_data_supported (priv->texture);
+}
+
+static cairo_surface_t *
+get_image_via_offscreen (MetaShapedTexture     *stex,
+                         cairo_rectangle_int_t *clip)
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglTexture2D *image_texture;
+  GError *error = NULL;
+  CoglOffscreen *offscreen;
+  CoglFramebuffer *fb;
+  CoglMatrix projection_matrix;
+  int width, height;
+  CoglColor clear_color;
+  cairo_surface_t *surface;
+
+  width = cogl_texture_get_width (priv->texture);
+  height = cogl_texture_get_height (priv->texture);
+
+  image_texture = cogl_texture_2d_new_with_size (cogl_context,
+                                                 width, height);
+  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (image_texture),
+                                          FALSE);
+  if (!cogl_texture_allocate (COGL_TEXTURE (image_texture), &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (image_texture);
+      return FALSE;
+    }
+
+  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (image_texture));
+  fb = COGL_FRAMEBUFFER (offscreen);
+  cogl_object_unref (image_texture);
+  if (!cogl_framebuffer_allocate (fb, &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (fb);
+      return FALSE;
+    }
+
+  cogl_framebuffer_push_matrix (fb);
+  cogl_matrix_init_identity (&projection_matrix);
+  cogl_matrix_scale (&projection_matrix,
+                     1.0 / (width / 2.0),
+                     -1.0 / (height / 2.0), 0);
+  cogl_matrix_translate (&projection_matrix,
+                         -(width / 2.0),
+                         -(height / 2.0), 0);
+
+  cogl_framebuffer_set_projection_matrix (fb, &projection_matrix);
+
+  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR, &clear_color);
+
+  do_paint (stex, fb, priv->texture, NULL);
+
+  cogl_framebuffer_pop_matrix (fb);
+
+  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
+  cogl_framebuffer_read_pixels (fb,
+                                0, 0,
+                                width, height,
+                                CLUTTER_CAIRO_FORMAT_ARGB32,
+                                cairo_image_surface_get_data (surface));
+  cogl_object_unref (fb);
+
+  cairo_surface_mark_dirty (surface);
+
+  return surface;
+}
+
 /**
  * meta_shaped_texture_get_image:
  * @stex: A #MetaShapedTexture
@@ -1122,6 +1202,12 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
 
   texture_rect.width = cogl_texture_get_width (texture);
   texture_rect.height = cogl_texture_get_height (texture);
+
+  if (texture_rect.width == 0 || texture_rect.height == 0)
+    return NULL;
+
+  if (should_get_via_offscreen (stex))
+    return get_image_via_offscreen (stex, clip);
 
   if (clip != NULL)
     {
