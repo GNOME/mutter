@@ -1091,12 +1091,31 @@ meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
   invalidate_size (stex);
 }
 
+
+
 static gboolean
 should_get_via_offscreen (MetaShapedTexture *stex)
 {
   MetaShapedTexturePrivate *priv = stex->priv;
 
-  return !cogl_texture_is_get_data_supported (priv->texture);
+  if (!cogl_texture_is_get_data_supported (priv->texture))
+    return TRUE;
+
+  switch (priv->transform)
+    {
+    case META_MONITOR_TRANSFORM_90:
+    case META_MONITOR_TRANSFORM_180:
+    case META_MONITOR_TRANSFORM_270:
+    case META_MONITOR_TRANSFORM_FLIPPED:
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      return TRUE;
+    case META_MONITOR_TRANSFORM_NORMAL:
+      break;
+    }
+
+  return FALSE;
 }
 
 static cairo_surface_t *
@@ -1116,8 +1135,9 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   CoglColor clear_color;
   cairo_surface_t *surface;
 
-  width = cogl_texture_get_width (priv->texture);
-  height = cogl_texture_get_height (priv->texture);
+  ensure_size_valid (stex);
+  width = priv->dst_width;
+  height = priv->dst_height;
 
   image_texture = cogl_texture_2d_new_with_size (cogl_context,
                                                  width, height);
