@@ -89,7 +89,8 @@ GType cogl_material_get_type (void);
  * possibly referring to multiple neighbouring texels and taking a weighted
  * average or simply using the nearest texel.
  */
-typedef enum {
+typedef enum
+{
   COGL_MATERIAL_FILTER_NEAREST = 0x2600,
   COGL_MATERIAL_FILTER_LINEAR = 0x2601,
   COGL_MATERIAL_FILTER_NEAREST_MIPMAP_NEAREST = 0x2700,
@@ -133,7 +134,8 @@ typedef enum {
  * XXX: keep the values in sync with the CoglMaterialWrapModeInternal
  * enum so no conversion is actually needed.
  */
-typedef enum {
+typedef enum
+{
   COGL_MATERIAL_WRAP_MODE_REPEAT = 0x2901,
   COGL_MATERIAL_WRAP_MODE_CLAMP_TO_EDGE = 0x812F,
   COGL_MATERIAL_WRAP_MODE_AUTOMATIC = 0x0207
@@ -517,7 +519,8 @@ cogl_material_get_emission (CoglMaterial *material,
  * incoming alpha value and a reference alpha value. The #CoglMaterialAlphaFunc
  * determines how the comparison is done.
  */
-typedef enum {
+typedef enum
+{
   COGL_MATERIAL_ALPHA_FUNC_NEVER    = 0x0200,
   COGL_MATERIAL_ALPHA_FUNC_LESS	    = 0x0201,
   COGL_MATERIAL_ALPHA_FUNC_EQUAL    = 0x0202,
@@ -992,7 +995,8 @@ cogl_material_get_n_layers (CoglMaterial *material);
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   COGL_MATERIAL_LAYER_TYPE_TEXTURE
 } CoglMaterialLayerType;
 

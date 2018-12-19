@@ -173,7 +173,8 @@ typedef struct _CoglMatrixEntryCache
 void
 _cogl_matrix_entry_identity_init (CoglMatrixEntry *entry);
 
-typedef enum {
+typedef enum
+{
   COGL_MATRIX_MODELVIEW,
   COGL_MATRIX_PROJECTION,
   COGL_MATRIX_TEXTURE

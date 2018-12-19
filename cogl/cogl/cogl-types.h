@@ -281,7 +281,8 @@ typedef struct _CoglTextureVertex       CoglTextureVertex;
  *
  * Since: 0.8
  */
-typedef enum { /*< prefix=COGL_PIXEL_FORMAT >*/
+typedef enum
+{ /*< prefix=COGL_PIXEL_FORMAT >*/
   COGL_PIXEL_FORMAT_ANY           = 0,
   COGL_PIXEL_FORMAT_A_8           = 1 | COGL_A_BIT,
 
@@ -479,7 +480,8 @@ COGL_STRUCT_SIZE_ASSERT (CoglTextureVertex, 36);
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   COGL_TEXTURE_NONE           = 0,
   COGL_TEXTURE_NO_AUTO_MIPMAP = 1 << 0,
   COGL_TEXTURE_NO_SLICING     = 1 << 1,
@@ -514,7 +516,8 @@ typedef enum {
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   COGL_FOG_MODE_LINEAR,
   COGL_FOG_MODE_EXPONENTIAL,
   COGL_FOG_MODE_EXPONENTIAL_SQUARED
@@ -541,7 +544,8 @@ typedef enum {
  *
  * Since: 1.0
  */
-typedef enum { /*< prefix=COGL_BLEND_STRING_ERROR >*/
+typedef enum
+{ /*< prefix=COGL_BLEND_STRING_ERROR >*/
   COGL_BLEND_STRING_ERROR_PARSE_ERROR,
   COGL_BLEND_STRING_ERROR_ARGUMENT_PARSE_ERROR,
   COGL_BLEND_STRING_ERROR_INVALID_ERROR,
@@ -583,7 +587,8 @@ cogl_blend_string_error_quark (void);
  * Since: 1.4
  * Stability: unstable
  */
-typedef enum { /*< prefix=COGL_ERROR >*/
+typedef enum
+{ /*< prefix=COGL_ERROR >*/
   COGL_SYSTEM_ERROR_UNSUPPORTED,
   COGL_SYSTEM_ERROR_NO_MEMORY
 } CoglSystemError;
@@ -605,7 +610,8 @@ _cogl_system_error_quark (void);
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   COGL_ATTRIBUTE_TYPE_BYTE           = 0x1400,
   COGL_ATTRIBUTE_TYPE_UNSIGNED_BYTE  = 0x1401,
   COGL_ATTRIBUTE_TYPE_SHORT          = 0x1402,
@@ -629,7 +635,8 @@ typedef enum {
  * be available if the GL_OES_element_index_uint extension is
  * advertized.
  */
-typedef enum {
+typedef enum
+{
   COGL_INDICES_TYPE_UNSIGNED_BYTE,
   COGL_INDICES_TYPE_UNSIGNED_SHORT,
   COGL_INDICES_TYPE_UNSIGNED_INT
@@ -654,7 +661,8 @@ typedef enum {
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   COGL_VERTICES_MODE_POINTS = 0x0000,
   COGL_VERTICES_MODE_LINES = 0x0001,
   COGL_VERTICES_MODE_LINE_LOOP = 0x0002,
@@ -696,7 +704,8 @@ typedef enum {
  * The test is only done when depth testing is explicitly enabled. (See
  * cogl_depth_state_set_test_enabled())
  */
-typedef enum {
+typedef enum
+{
   COGL_DEPTH_TEST_FUNCTION_NEVER    = 0x0200,
   COGL_DEPTH_TEST_FUNCTION_LESS     = 0x0201,
   COGL_DEPTH_TEST_FUNCTION_EQUAL    = 0x0202,
@@ -708,7 +717,8 @@ typedef enum {
 } CoglDepthTestFunction;
 /* NB: The above definitions are taken from gl.h equivalents */
 
-typedef enum { /*< prefix=COGL_RENDERER_ERROR >*/
+typedef enum
+{ /*< prefix=COGL_RENDERER_ERROR >*/
   COGL_RENDERER_ERROR_XLIB_DISPLAY_OPEN,
   COGL_RENDERER_ERROR_BAD_CONSTRAINT
 } CoglRendererError;
@@ -826,7 +836,8 @@ typedef enum
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   COGL_BUFFER_BIT_COLOR   = 1L<<0,
   COGL_BUFFER_BIT_DEPTH   = 1L<<1,
   COGL_BUFFER_BIT_STENCIL = 1L<<2
@@ -840,7 +851,8 @@ typedef enum {
  *
  * Since: 1.0
  */
-typedef enum { /*< prefix=COGL_READ_PIXELS >*/
+typedef enum
+{ /*< prefix=COGL_READ_PIXELS >*/
   COGL_READ_PIXELS_COLOR_BUFFER = 1L << 0
 } CoglReadPixelsFlags;
 
@@ -853,7 +865,8 @@ typedef enum { /*< prefix=COGL_READ_PIXELS >*/
  * Represents how draw should affect the two buffers
  * of a stereo framebuffer. See cogl_framebuffer_set_stereo_mode().
  */
-typedef enum {
+typedef enum
+{
   COGL_STEREO_BOTH,
   COGL_STEREO_LEFT,
   COGL_STEREO_RIGHT

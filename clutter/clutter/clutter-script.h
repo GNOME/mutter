@@ -79,7 +79,8 @@ typedef void (* ClutterScriptConnectFunc) (ClutterScript *script,
  *
  * Since: 0.6
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_SCRIPT_ERROR_INVALID_TYPE_FUNCTION,
   CLUTTER_SCRIPT_ERROR_INVALID_PROPERTY,
   CLUTTER_SCRIPT_ERROR_INVALID_VALUE

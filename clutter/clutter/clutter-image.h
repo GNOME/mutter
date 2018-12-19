@@ -63,7 +63,8 @@ typedef struct _ClutterImageClass      ClutterImageClass;
  *
  * Since: 1.10
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_IMAGE_ERROR_INVALID_DATA
 } ClutterImageError;
 

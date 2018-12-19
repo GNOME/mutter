@@ -58,7 +58,8 @@ G_BEGIN_DECLS
  *
  * Since: 0.6
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_X11_FILTER_CONTINUE,
   CLUTTER_X11_FILTER_TRANSLATE,
   CLUTTER_X11_FILTER_REMOVE

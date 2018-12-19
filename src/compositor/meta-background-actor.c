@@ -97,7 +97,8 @@ enum
   PROP_VIGNETTE_BRIGHTNESS
 };
 
-typedef enum {
+typedef enum
+{
   CHANGED_BACKGROUND = 1 << 0,
   CHANGED_EFFECTS = 1 << 2,
   CHANGED_VIGNETTE_PARAMETERS = 1 << 3,
@@ -147,7 +148,8 @@ typedef enum {
 
 typedef struct _MetaBackgroundLayer MetaBackgroundLayer;
 
-typedef enum {
+typedef enum
+{
   PIPELINE_VIGNETTE = (1 << 0),
   PIPELINE_BLEND = (1 << 1),
   PIPELINE_GRADIENT = (1 << 2),

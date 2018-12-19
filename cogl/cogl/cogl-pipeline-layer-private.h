@@ -333,7 +333,8 @@ _cogl_pipeline_get_layer_filters (CoglPipeline *pipeline,
                                   CoglPipelineFilter *min_filter,
                                   CoglPipelineFilter *mag_filter);
 
-typedef enum {
+typedef enum
+{
   COGL_PIPELINE_LAYER_TYPE_TEXTURE
 } CoglPipelineLayerType;
 

@@ -60,7 +60,8 @@ static void free_this                    (gpointer candidate,
 
 G_DEFINE_TYPE (MetaWorkspace, meta_workspace, G_TYPE_OBJECT);
 
-enum {
+enum
+{
   PROP_0,
 
   PROP_N_WINDOWS,

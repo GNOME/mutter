@@ -70,7 +70,8 @@ static gboolean meta_shaped_texture_get_paint_volume (ClutterActor *self, Clutte
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
-enum {
+enum
+{
   SIZE_CHANGED,
 
   LAST_SIGNAL,

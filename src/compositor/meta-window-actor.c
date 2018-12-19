@@ -41,7 +41,8 @@
 #include "wayland/meta-wayland-surface.h"
 #endif
 
-typedef enum {
+typedef enum
+{
   INITIALLY_FROZEN,
   DRAWING_FIRST_FRAME,
   EMITTED_FIRST_FRAME

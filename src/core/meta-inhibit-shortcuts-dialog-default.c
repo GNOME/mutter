@@ -33,7 +33,8 @@ struct _MetaInhibitShortcutsDialogDefault
   MetaWindow *window;
 };
 
-enum {
+enum
+{
   PROP_0,
   PROP_WINDOW,
   N_PROPS

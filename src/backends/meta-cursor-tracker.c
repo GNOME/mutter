@@ -46,7 +46,8 @@
 
 G_DEFINE_TYPE (MetaCursorTracker, meta_cursor_tracker, G_TYPE_OBJECT);
 
-enum {
+enum
+{
   CURSOR_CHANGED,
   LAST_SIGNAL
 };

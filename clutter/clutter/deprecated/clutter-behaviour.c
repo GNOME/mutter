@@ -101,7 +101,8 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
-enum {
+enum
+{
   APPLIED,
   REMOVED,
   LAST_SIGNAL
