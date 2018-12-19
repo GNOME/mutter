@@ -49,7 +49,8 @@ G_BEGIN_DECLS
    store the flags you would declare an array of unsigned longs sized
    using COGL_FLAGS_N_LONGS_FOR_SIZE, eg:
 
-   typedef enum { FEATURE_A, FEATURE_B, FEATURE_C, N_FEATURES } Features;
+   typedef enum
+{ FEATURE_A, FEATURE_B, FEATURE_C, N_FEATURES } Features;
 
    unsigned long feature_flags[COGL_FLAGS_N_LONGS_FOR_SIZE (N_FEATURES)];
 */

@@ -58,7 +58,8 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
-enum {
+enum
+{
   MONITORS_CHANGED_INTERNAL,
   CONFIRM_DISPLAY_CHANGE,
   SIGNALS_LAST

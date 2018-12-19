@@ -35,7 +35,8 @@
 
 #include "cogl-context.h"
 
-typedef enum {
+typedef enum
+{
   COGL_BOXED_NONE,
   COGL_BOXED_INT,
   COGL_BOXED_FLOAT,

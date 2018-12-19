@@ -51,7 +51,8 @@ G_BEGIN_DECLS
  *
  * Deprecated: 1.22: Use the normalized #ClutterActor pivot point instead
  */
-typedef enum { /*< prefix=CLUTTER_GRAVITY >*/
+typedef enum
+{ /*< prefix=CLUTTER_GRAVITY >*/
   CLUTTER_GRAVITY_NONE       = 0,
   CLUTTER_GRAVITY_NORTH,
   CLUTTER_GRAVITY_NORTH_EAST,
@@ -74,7 +75,8 @@ typedef enum { /*< prefix=CLUTTER_GRAVITY >*/
  *
  * Since: 0.4
  */
-typedef enum { /*< prefix=CLUTTER >*/
+typedef enum
+{ /*< prefix=CLUTTER >*/
   CLUTTER_X_AXIS,
   CLUTTER_Y_AXIS,
   CLUTTER_Z_AXIS
@@ -91,7 +93,8 @@ typedef enum { /*< prefix=CLUTTER >*/
  *
  * Deprecated: 1.22
  */
-typedef enum { /*< prefix=CLUTTER_ROTATE >*/
+typedef enum
+{ /*< prefix=CLUTTER_ROTATE >*/
   CLUTTER_ROTATE_CW,
   CLUTTER_ROTATE_CCW
 } ClutterRotateDirection;
@@ -107,7 +110,8 @@ typedef enum { /*< prefix=CLUTTER_ROTATE >*/
  *
  * Since: 0.8
  */
-typedef enum { /*< prefix=CLUTTER_REQUEST >*/
+typedef enum
+{ /*< prefix=CLUTTER_REQUEST >*/
   CLUTTER_REQUEST_HEIGHT_FOR_WIDTH,
   CLUTTER_REQUEST_WIDTH_FOR_HEIGHT,
   CLUTTER_REQUEST_CONTENT_SIZE
@@ -200,7 +204,8 @@ typedef enum { /*< prefix=CLUTTER_REQUEST >*/
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_CUSTOM_MODE = 0,
 
   /* linear */
@@ -284,7 +289,8 @@ typedef enum {
  *
  * Deprecated: 1.22: Use #cairo_font_options_t instead
  */
-typedef enum { /*< prefix=CLUTTER_FONT >*/
+typedef enum
+{ /*< prefix=CLUTTER_FONT >*/
   CLUTTER_FONT_MIPMAPPING = (1 << 0),
   CLUTTER_FONT_HINTING    = (1 << 1)
 } ClutterFontFlags;
@@ -300,7 +306,8 @@ typedef enum { /*< prefix=CLUTTER_FONT >*/
  *
  * Since: 1.2
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_TEXT_DIRECTION_DEFAULT,
   CLUTTER_TEXT_DIRECTION_LTR,
   CLUTTER_TEXT_DIRECTION_RTL
@@ -315,7 +322,8 @@ typedef enum {
  *
  * Since: 1.4
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_VERTEX_SHADER,
   CLUTTER_FRAGMENT_SHADER
 } ClutterShaderType;
@@ -350,7 +358,8 @@ typedef enum {
  *
  * Since: 0.4
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_SHIFT_MASK    = 1 << 0,
   CLUTTER_LOCK_MASK     = 1 << 1,
   CLUTTER_CONTROL_MASK  = 1 << 2,
@@ -416,7 +425,8 @@ typedef enum {
  * Keyboard accessibility features applied to a ClutterInputDevice keyboard.
  *
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_A11Y_KEYBOARD_ENABLED          = 1 << 0,
   CLUTTER_A11Y_TIMEOUT_ENABLED           = 1 << 1,
   CLUTTER_A11Y_MOUSE_KEYS_ENABLED        = 1 << 2,
@@ -448,7 +458,8 @@ typedef enum {
  *
  * Flags used to signal the state of an actor.
  */
-typedef enum { /*< prefix=CLUTTER_ACTOR >*/
+typedef enum
+{ /*< prefix=CLUTTER_ACTOR >*/
   CLUTTER_ACTOR_MAPPED    = 1 << 1,
   CLUTTER_ACTOR_REALIZED  = 1 << 2,
   CLUTTER_ACTOR_REACTIVE  = 1 << 3,
@@ -468,7 +479,8 @@ typedef enum { /*< prefix=CLUTTER_ACTOR >*/
  *
  * Since: 1.8
  */
-typedef enum { /*< prefix=CLUTTER_OFFSCREEN_REDIRECT >*/
+typedef enum
+{ /*< prefix=CLUTTER_OFFSCREEN_REDIRECT >*/
   CLUTTER_OFFSCREEN_REDIRECT_AUTOMATIC_FOR_OPACITY = 1<<0,
   CLUTTER_OFFSCREEN_REDIRECT_ALWAYS = 1<<1
 } ClutterOffscreenRedirect;
@@ -492,7 +504,8 @@ typedef enum { /*< prefix=CLUTTER_OFFSCREEN_REDIRECT >*/
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_ALLOCATION_NONE         = 0,
   CLUTTER_ABSOLUTE_ORIGIN_CHANGED = 1 << 1,
   CLUTTER_DELEGATE_LAYOUT         = 1 << 2
@@ -509,7 +522,8 @@ typedef enum {
  *
  * Since: 1.4
  */
-typedef enum { /*< prefix=CLUTTER_ALIGN >*/
+typedef enum
+{ /*< prefix=CLUTTER_ALIGN >*/
   CLUTTER_ALIGN_X_AXIS,
   CLUTTER_ALIGN_Y_AXIS,
   CLUTTER_ALIGN_BOTH
@@ -526,7 +540,8 @@ typedef enum { /*< prefix=CLUTTER_ALIGN >*/
  *
  * Deprecated: 1.22
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_INTERPOLATION_LINEAR,
   CLUTTER_INTERPOLATION_CUBIC
 } ClutterInterpolation;
@@ -551,7 +566,8 @@ typedef enum {
  * Deprecated: 1.12: Use #ClutterActorAlign and the #ClutterActor
  *   API instead
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_BIN_ALIGNMENT_FIXED,
   CLUTTER_BIN_ALIGNMENT_FILL,
   CLUTTER_BIN_ALIGNMENT_START,
@@ -576,7 +592,8 @@ typedef enum {
  *
  * Since: 1.4
  */
-typedef enum { /*< prefix=CLUTTER_BIND >*/
+typedef enum
+{ /*< prefix=CLUTTER_BIND >*/
   CLUTTER_BIND_X,
   CLUTTER_BIND_Y,
   CLUTTER_BIND_WIDTH,
@@ -595,7 +612,8 @@ typedef enum { /*< prefix=CLUTTER_BIND >*/
  *
  * Flags passed to the ‘paint’ or ‘pick’ method of #ClutterEffect.
  */
-typedef enum { /*< prefix=CLUTTER_EFFECT_PAINT >*/
+typedef enum
+{ /*< prefix=CLUTTER_EFFECT_PAINT >*/
   CLUTTER_EFFECT_PAINT_ACTOR_DIRTY = (1 << 0)
 } ClutterEffectPaintFlags;
 
@@ -611,7 +629,8 @@ typedef enum { /*< prefix=CLUTTER_EFFECT_PAINT >*/
  *
  * Since: 1.2
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_BOX_ALIGNMENT_START,
   CLUTTER_BOX_ALIGNMENT_END,
   CLUTTER_BOX_ALIGNMENT_CENTER
@@ -628,7 +647,8 @@ typedef enum {
  *
  * Since: 1.8
  */
-typedef enum { /*< prefix=CLUTTER_LONG_PRESS >*/
+typedef enum
+{ /*< prefix=CLUTTER_LONG_PRESS >*/
   CLUTTER_LONG_PRESS_QUERY,
   CLUTTER_LONG_PRESS_ACTIVATE,
   CLUTTER_LONG_PRESS_CANCEL
@@ -686,7 +706,8 @@ typedef enum { /*< prefix=CLUTTER_LONG_PRESS >*/
  *
  * Since: 1.6
  */
-typedef enum { /*< prefix=CLUTTER_COLOR >*/
+typedef enum
+{ /*< prefix=CLUTTER_COLOR >*/
   /* CGA/EGA-like palette */
   CLUTTER_COLOR_WHITE           = 0,
   CLUTTER_COLOR_BLACK,
@@ -750,7 +771,8 @@ typedef enum { /*< prefix=CLUTTER_COLOR >*/
  *
  * Since: 1.4
  */
-typedef enum { /*< prefix=CLUTTER_DRAG >*/
+typedef enum
+{ /*< prefix=CLUTTER_DRAG >*/
   CLUTTER_DRAG_AXIS_NONE = 0,
 
   CLUTTER_DRAG_X_AXIS,
@@ -767,7 +789,8 @@ typedef enum { /*< prefix=CLUTTER_DRAG >*/
  *
  * Since: 0.6
  */
-typedef enum { /*< flags prefix=CLUTTER_EVENT >*/
+typedef enum
+{ /*< flags prefix=CLUTTER_EVENT >*/
   CLUTTER_EVENT_NONE              = 0,
   CLUTTER_EVENT_FLAG_SYNTHETIC    = 1 << 0,
   CLUTTER_EVENT_FLAG_INPUT_METHOD = 1 << 1,
@@ -812,7 +835,8 @@ typedef enum { /*< flags prefix=CLUTTER_EVENT >*/
  *
  * Since: 0.4
  */
-typedef enum { /*< prefix=CLUTTER >*/
+typedef enum
+{ /*< prefix=CLUTTER >*/
   CLUTTER_NOTHING = 0,
   CLUTTER_KEY_PRESS,
   CLUTTER_KEY_RELEASE,
@@ -857,7 +881,8 @@ typedef enum { /*< prefix=CLUTTER >*/
  *
  * Since: 0.4
  */
-typedef enum { /*< prefix=CLUTTER_SCROLL >*/
+typedef enum
+{ /*< prefix=CLUTTER_SCROLL >*/
   CLUTTER_SCROLL_UP,
   CLUTTER_SCROLL_DOWN,
   CLUTTER_SCROLL_LEFT,
@@ -875,7 +900,8 @@ typedef enum { /*< prefix=CLUTTER_SCROLL >*/
  *
  * Since: 0.4
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_STAGE_STATE_FULLSCREEN       = (1 << 1),
   CLUTTER_STAGE_STATE_OFFSCREEN        = (1 << 2),
   CLUTTER_STAGE_STATE_ACTIVATED        = (1 << 3)
@@ -927,7 +953,8 @@ typedef enum
  *
  * Since: 1.2
  */
-typedef enum { /*< prefix=CLUTTER_FLOW >*/
+typedef enum
+{ /*< prefix=CLUTTER_FLOW >*/
   CLUTTER_FLOW_HORIZONTAL,
   CLUTTER_FLOW_VERTICAL
 } ClutterFlowOrientation;
@@ -954,7 +981,8 @@ typedef enum { /*< prefix=CLUTTER_FLOW >*/
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_POINTER_DEVICE,
   CLUTTER_KEYBOARD_DEVICE,
   CLUTTER_EXTENSION_DEVICE,
@@ -982,7 +1010,8 @@ typedef enum {
  *
  * Since: 1.6
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_INPUT_MODE_MASTER,
   CLUTTER_INPUT_MODE_SLAVE,
   CLUTTER_INPUT_MODE_FLOATING
@@ -1007,7 +1036,8 @@ typedef enum {
  *
  * Since: 1.6
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_INPUT_AXIS_IGNORE,
 
   CLUTTER_INPUT_AXIS_X,
@@ -1034,7 +1064,8 @@ typedef enum {
  *
  * Since: 1.6
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_SNAP_EDGE_TOP,
   CLUTTER_SNAP_EDGE_RIGHT,
   CLUTTER_SNAP_EDGE_BOTTOM,
@@ -1051,7 +1082,8 @@ typedef enum {
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_PICK_NONE = 0,
   CLUTTER_PICK_REACTIVE,
   CLUTTER_PICK_ALL
@@ -1068,7 +1100,8 @@ typedef enum {
  *
  * Since: 1.8
  */
-typedef enum { /*< prefix=CLUTTER_SWIPE_DIRECTION >*/
+typedef enum
+{ /*< prefix=CLUTTER_SWIPE_DIRECTION >*/
   CLUTTER_SWIPE_DIRECTION_UP    = 1 << 0,
   CLUTTER_SWIPE_DIRECTION_DOWN  = 1 << 1,
   CLUTTER_SWIPE_DIRECTION_LEFT  = 1 << 2,
@@ -1088,7 +1121,8 @@ typedef enum { /*< prefix=CLUTTER_SWIPE_DIRECTION >*/
  *
  * Since: 1.12
  */
-typedef enum { /*< prefix=CLUTTER_PAN >*/
+typedef enum
+{ /*< prefix=CLUTTER_PAN >*/
   CLUTTER_PAN_AXIS_NONE = 0,
 
   CLUTTER_PAN_X_AXIS,
@@ -1113,7 +1147,8 @@ typedef enum { /*< prefix=CLUTTER_PAN >*/
  *
  * Deprecated: 1.22: Use the alignment properties of #ClutterActor
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_TABLE_ALIGNMENT_START,
   CLUTTER_TABLE_ALIGNMENT_CENTER,
   CLUTTER_TABLE_ALIGNMENT_END
@@ -1134,7 +1169,8 @@ typedef enum {
  * Deprecated: 1.22: The #ClutterTexture class was the only user of
  *   this API
  */
-typedef enum { /*< prefix=CLUTTER_TEXTURE >*/
+typedef enum
+{ /*< prefix=CLUTTER_TEXTURE >*/
   CLUTTER_TEXTURE_NONE             = 0,
   CLUTTER_TEXTURE_RGB_FLAG_BGR     = 1 << 1,
   CLUTTER_TEXTURE_RGB_FLAG_PREMULT = 1 << 2, /* FIXME: not handled */
@@ -1158,7 +1194,8 @@ typedef enum { /*< prefix=CLUTTER_TEXTURE >*/
  *   this API; use #ClutterImage and clutter_actor_set_content_scaling_filters()
  *   instead.
  */
-typedef enum { /*< prefix=CLUTTER_TEXTURE_QUALITY >*/
+typedef enum
+{ /*< prefix=CLUTTER_TEXTURE_QUALITY >*/
   CLUTTER_TEXTURE_QUALITY_LOW,
   CLUTTER_TEXTURE_QUALITY_MEDIUM,
   CLUTTER_TEXTURE_QUALITY_HIGH
@@ -1173,7 +1210,8 @@ typedef enum { /*< prefix=CLUTTER_TEXTURE_QUALITY >*/
  *
  * Since: 0.6
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_TIMELINE_FORWARD,
   CLUTTER_TIMELINE_BACKWARD
 } ClutterTimelineDirection;
@@ -1192,7 +1230,8 @@ typedef enum {
  *
  * Since: 1.0
  */
-typedef enum { /*< prefix=CLUTTER_UNIT >*/
+typedef enum
+{ /*< prefix=CLUTTER_UNIT >*/
   CLUTTER_UNIT_PIXEL,
   CLUTTER_UNIT_EM,
   CLUTTER_UNIT_MM,
@@ -1222,7 +1261,8 @@ typedef enum { /*< prefix=CLUTTER_UNIT >*/
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_PATH_MOVE_TO      = 0,
   CLUTTER_PATH_LINE_TO      = 1,
   CLUTTER_PATH_CURVE_TO     = 2,
@@ -1253,7 +1293,8 @@ typedef enum {
  *
  * Since: 1.10
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_ACTOR_ALIGN_FILL,
   CLUTTER_ACTOR_ALIGN_START,
   CLUTTER_ACTOR_ALIGN_CENTER,
@@ -1273,7 +1314,8 @@ typedef enum {
  *
  * Since: 1.10
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_REPAINT_FLAGS_PRE_PAINT = 1 << 0,
   CLUTTER_REPAINT_FLAGS_POST_PAINT = 1 << 1,
   CLUTTER_REPAINT_FLAGS_QUEUE_REDRAW_ON_ADD = 1 << 2
@@ -1298,7 +1340,8 @@ typedef enum {
  *
  * Since: 1.10
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_CONTENT_GRAVITY_TOP_LEFT,
   CLUTTER_CONTENT_GRAVITY_TOP,
   CLUTTER_CONTENT_GRAVITY_TOP_RIGHT,
@@ -1328,7 +1371,8 @@ typedef enum {
  *
  * Since: 1.10
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_SCALING_FILTER_LINEAR,
   CLUTTER_SCALING_FILTER_NEAREST,
   CLUTTER_SCALING_FILTER_TRILINEAR
@@ -1343,7 +1387,8 @@ typedef enum {
  *
  * Since: 1.12
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_ORIENTATION_HORIZONTAL,
   CLUTTER_ORIENTATION_VERTICAL
 } ClutterOrientation;
@@ -1359,7 +1404,8 @@ typedef enum {
  *
  * Since: 1.12
  */
-typedef enum { /*< prefix=CLUTTER_SCROLL >*/
+typedef enum
+{ /*< prefix=CLUTTER_SCROLL >*/
   CLUTTER_SCROLL_NONE         = 0,
 
   CLUTTER_SCROLL_HORIZONTALLY = 1 << 0,
@@ -1379,7 +1425,8 @@ typedef enum { /*< prefix=CLUTTER_SCROLL >*/
  *
  * Since: 1.12
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_GRID_POSITION_LEFT,
   CLUTTER_GRID_POSITION_RIGHT,
   CLUTTER_GRID_POSITION_TOP,
@@ -1397,7 +1444,8 @@ typedef enum {
  *
  * Since: 1.12
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_REPEAT_NONE   = 0,
   CLUTTER_REPEAT_X_AXIS = 1 << 0,
   CLUTTER_REPEAT_Y_AXIS = 1 << 1,
@@ -1419,7 +1467,8 @@ typedef enum {
  *
  * Since: 1.12
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_STEP_MODE_START,
   CLUTTER_STEP_MODE_END
 } ClutterStepMode;
@@ -1435,7 +1484,8 @@ typedef enum {
  *
  * Since: 1.12
  */
-typedef enum { /*< prefix=CLUTTER_ZOOM >*/
+typedef enum
+{ /*< prefix=CLUTTER_ZOOM >*/
   CLUTTER_ZOOM_X_AXIS,
   CLUTTER_ZOOM_Y_AXIS,
   CLUTTER_ZOOM_BOTH
@@ -1458,7 +1508,8 @@ typedef enum { /*< prefix=CLUTTER_ZOOM >*/
  *
  * Since: 1.18
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_GESTURE_TRIGGER_EDGE_NONE  = 0,
   CLUTTER_GESTURE_TRIGGER_EDGE_AFTER,
   CLUTTER_GESTURE_TRIGGER_EDGE_BEFORE
@@ -1494,7 +1545,8 @@ typedef enum {
  *
  * Since: 1.24
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN,
   CLUTTER_TOUCHPAD_GESTURE_PHASE_UPDATE,
   CLUTTER_TOUCHPAD_GESTURE_PHASE_END,
@@ -1516,7 +1568,8 @@ typedef enum {
  *
  * Since: 1.26
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_SCROLL_SOURCE_UNKNOWN,
   CLUTTER_SCROLL_SOURCE_WHEEL,
   CLUTTER_SCROLL_SOURCE_FINGER,
@@ -1534,7 +1587,8 @@ typedef enum {
  *
  * Since: 1.26
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_SCROLL_FINISHED_NONE       = 0,
   CLUTTER_SCROLL_FINISHED_HORIZONTAL = 1 << 0,
   CLUTTER_SCROLL_FINISHED_VERTICAL   = 1 << 1
@@ -1555,7 +1609,8 @@ typedef enum {
  *
  * Since: 1.28
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_INPUT_DEVICE_TOOL_NONE,
   CLUTTER_INPUT_DEVICE_TOOL_PEN,
   CLUTTER_INPUT_DEVICE_TOOL_ERASER,
@@ -1566,17 +1621,20 @@ typedef enum {
   CLUTTER_INPUT_DEVICE_TOOL_LENS
 } ClutterInputDeviceToolType;
 
-typedef enum {
+typedef enum
+{
   CLUTTER_INPUT_DEVICE_PAD_SOURCE_UNKNOWN,
   CLUTTER_INPUT_DEVICE_PAD_SOURCE_FINGER,
 } ClutterInputDevicePadSource;
 
-typedef enum {
+typedef enum
+{
   CLUTTER_INPUT_DEVICE_MAPPING_ABSOLUTE,
   CLUTTER_INPUT_DEVICE_MAPPING_RELATIVE,
 } ClutterInputDeviceMapping;
 
-typedef enum {
+typedef enum
+{
   CLUTTER_INPUT_CONTENT_HINT_COMPLETION          = 1 << 0,
   CLUTTER_INPUT_CONTENT_HINT_SPELLCHECK          = 1 << 1,
   CLUTTER_INPUT_CONTENT_HINT_AUTO_CAPITALIZATION = 1 << 2,
@@ -1589,7 +1647,8 @@ typedef enum {
   CLUTTER_INPUT_CONTENT_HINT_MULTILINE           = 1 << 9,
 } ClutterInputContentHintFlags;
 
-typedef enum {
+typedef enum
+{
   CLUTTER_INPUT_CONTENT_PURPOSE_NORMAL,
   CLUTTER_INPUT_CONTENT_PURPOSE_ALPHA,
   CLUTTER_INPUT_CONTENT_PURPOSE_DIGITS,
@@ -1605,7 +1664,8 @@ typedef enum {
   CLUTTER_INPUT_CONTENT_PURPOSE_TERMINAL,
 } ClutterInputContentPurpose;
 
-typedef enum {
+typedef enum
+{
   CLUTTER_INPUT_PANEL_STATE_OFF,
   CLUTTER_INPUT_PANEL_STATE_ON,
   CLUTTER_INPUT_PANEL_STATE_TOGGLE,

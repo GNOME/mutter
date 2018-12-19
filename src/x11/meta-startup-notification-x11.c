@@ -26,7 +26,8 @@
 
 #ifdef HAVE_STARTUP_NOTIFICATION
 
-enum {
+enum
+{
   PROP_SEQ_X11_0,
   PROP_SEQ_X11_SEQ,
   N_SEQ_X11_PROPS

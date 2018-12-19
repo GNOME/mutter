@@ -48,14 +48,16 @@
 
 typedef struct _MetaWindowQueue MetaWindowQueue;
 
-typedef enum {
+typedef enum
+{
   META_CLIENT_TYPE_UNKNOWN = 0,
   META_CLIENT_TYPE_APPLICATION = 1,
   META_CLIENT_TYPE_PAGER = 2,
   META_CLIENT_TYPE_MAX_RECOGNIZED = 2
 } MetaClientType;
 
-typedef enum {
+typedef enum
+{
   META_QUEUE_CALC_SHOWING = 1 << 0,
   META_QUEUE_MOVE_RESIZE  = 1 << 1,
   META_QUEUE_UPDATE_ICON  = 1 << 2,
@@ -63,7 +65,8 @@ typedef enum {
 
 #define NUMBER_OF_QUEUES 3
 
-typedef enum {
+typedef enum
+{
   _NET_WM_BYPASS_COMPOSITOR_HINT_AUTO = 0,
   _NET_WM_BYPASS_COMPOSITOR_HINT_ON = 1,
   _NET_WM_BYPASS_COMPOSITOR_HINT_OFF = 2,

@@ -101,7 +101,8 @@ typedef enum
  *
  * Since: 1.10
  */
-typedef enum {
+typedef enum
+{
   COGL_TEXTURE_PIXMAP_X11_ERROR_X11,
 } CoglTexturePixmapX11Error;
 

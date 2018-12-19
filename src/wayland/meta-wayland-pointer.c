@@ -74,7 +74,8 @@
 
 #define DEFAULT_AXIS_STEP_DISTANCE wl_fixed_from_int (10)
 
-enum {
+enum
+{
   FOCUS_SURFACE_CHANGED,
 
   LAST_SIGNAL

@@ -153,7 +153,8 @@ static gboolean idle_update_icon (gpointer data);
 
 G_DEFINE_ABSTRACT_TYPE (MetaWindow, meta_window, G_TYPE_OBJECT);
 
-enum {
+enum
+{
   PROP_0,
 
   PROP_TITLE,

@@ -25,7 +25,8 @@
 #include "meta/meta-close-dialog.h"
 #include "meta/meta-enum-types.h"
 
-enum {
+enum
+{
   RESPONSE,
   N_SIGNALS
 };

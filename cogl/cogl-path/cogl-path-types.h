@@ -75,7 +75,8 @@ typedef struct _CoglPath CoglPath;
  *
  * Since: 1.4
  */
-typedef enum {
+typedef enum
+{
   COGL_PATH_FILL_RULE_NON_ZERO,
   COGL_PATH_FILL_RULE_EVEN_ODD
 } CoglPathFillRule;

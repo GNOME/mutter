@@ -199,7 +199,8 @@ struct _CoglFramebuffer
   CoglBool            depth_buffer_clear_needed;
 };
 
-typedef enum {
+typedef enum
+{
   COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH_STENCIL    = 1L<<0,
   COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH            = 1L<<1,
   COGL_OFFSCREEN_ALLOCATE_FLAG_STENCIL          = 1L<<2
