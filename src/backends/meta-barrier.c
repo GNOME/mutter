@@ -26,7 +26,8 @@
 G_DEFINE_TYPE_WITH_PRIVATE (MetaBarrier, meta_barrier, G_TYPE_OBJECT)
 G_DEFINE_TYPE (MetaBarrierImpl, meta_barrier_impl, G_TYPE_OBJECT)
 
-enum {
+enum
+{
   PROP_0,
 
   PROP_DISPLAY,
@@ -42,7 +43,8 @@ enum {
 
 static GParamSpec *obj_props[PROP_LAST];
 
-enum {
+enum
+{
   HIT,
   LEFT,
 

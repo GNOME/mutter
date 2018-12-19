@@ -46,7 +46,8 @@ struct _MetaCloseDialogDefault
   guint child_watch_id;
 };
 
-enum {
+enum
+{
   PROP_0,
   PROP_WINDOW,
   N_PROPS

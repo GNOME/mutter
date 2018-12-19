@@ -76,7 +76,8 @@ static const char *wacom_type_atoms[] = {
 };
 #define N_WACOM_TYPE_ATOMS G_N_ELEMENTS (wacom_type_atoms)
 
-enum {
+enum
+{
     WACOM_TYPE_STYLUS,
     WACOM_TYPE_CURSOR,
     WACOM_TYPE_ERASER,
@@ -84,7 +85,8 @@ enum {
     WACOM_TYPE_TOUCH,
 };
 
-enum {
+enum
+{
   PAD_AXIS_FIRST  = 3, /* First axes are always x/y/pressure, ignored in pads */
   PAD_AXIS_STRIP1 = PAD_AXIS_FIRST,
   PAD_AXIS_STRIP2,

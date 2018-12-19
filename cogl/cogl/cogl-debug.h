@@ -39,7 +39,8 @@
 
 G_BEGIN_DECLS
 
-typedef enum {
+typedef enum
+{
   COGL_DEBUG_SLICING,
   COGL_DEBUG_OFFSCREEN,
   COGL_DEBUG_DRAW,

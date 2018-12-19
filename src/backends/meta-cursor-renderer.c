@@ -51,7 +51,8 @@ struct _MetaCursorRendererPrivate
 };
 typedef struct _MetaCursorRendererPrivate MetaCursorRendererPrivate;
 
-enum {
+enum
+{
   CURSOR_PAINTED,
   LAST_SIGNAL
 };

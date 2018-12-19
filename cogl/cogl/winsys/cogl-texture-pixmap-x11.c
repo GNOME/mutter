@@ -135,7 +135,8 @@ process_damage_event (CoglTexturePixmapX11 *tex_pixmap,
 {
   CoglTexture *tex = COGL_TEXTURE (tex_pixmap);
   Display *display;
-  enum { DO_NOTHING, NEEDS_SUBTRACT, NEED_BOUNDING_BOX } handle_mode;
+  enum
+{ DO_NOTHING, NEEDS_SUBTRACT, NEED_BOUNDING_BOX } handle_mode;
   const CoglWinsysVtable *winsys;
 
   _COGL_GET_CONTEXT (ctxt, NO_RETVAL);

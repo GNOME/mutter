@@ -71,7 +71,8 @@ static MetaFrameControl get_control  (MetaUIFrame       *frame,
 
 G_DEFINE_TYPE (MetaFrames, meta_frames, GTK_TYPE_WINDOW);
 
-enum {
+enum
+{
   META_ACTION_CLICK,
   META_ACTION_RIGHT_CLICK,
   META_ACTION_MIDDLE_CLICK,
