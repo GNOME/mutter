@@ -329,6 +329,7 @@ setup_pipeline (MetaBackgroundActor   *self,
   PipelineFlags pipeline_flags = 0;
   guint8 opacity;
   float color_component;
+  CoglFramebuffer *fb;
   CoglPipelineFilter filter;
 
   opacity = clutter_actor_get_paint_opacity (CLUTTER_ACTOR (self));
@@ -422,8 +423,12 @@ setup_pipeline (MetaBackgroundActor   *self,
                              color_component,
                              opacity / 255.);
 
+  fb = cogl_get_draw_framebuffer ();
   if (!self->force_bilinear &&
-      meta_actor_painting_untransformed (actor_pixel_rect->width, actor_pixel_rect->height, NULL, NULL))
+      meta_actor_painting_untransformed (fb,
+                                         actor_pixel_rect->width,
+                                         actor_pixel_rect->height,
+                                         NULL, NULL))
     filter = COGL_PIPELINE_FILTER_NEAREST;
   else
     filter = COGL_PIPELINE_FILTER_LINEAR;
