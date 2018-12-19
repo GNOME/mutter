@@ -753,5 +753,6 @@ cogl_texture_3d_vtable =
     _cogl_texture_3d_get_gl_format,
     _cogl_texture_3d_get_type,
     NULL, /* is_foreign */
-    _cogl_texture_3d_set_auto_mipmap
+    _cogl_texture_3d_set_auto_mipmap,
+    NULL  /* is_get_data_supported */
   };

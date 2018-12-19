@@ -80,6 +80,7 @@ _cogl_driver_nop =
     _cogl_texture_2d_nop_generate_mipmap,
     _cogl_texture_2d_nop_copy_from_bitmap,
     NULL, /* texture_2d_get_data */
+    NULL, /* texture_2d_is_get_data_supported */
     _cogl_nop_flush_attributes_state,
     _cogl_clip_stack_nop_flush,
   };

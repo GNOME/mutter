@@ -116,4 +116,7 @@ _cogl_texture_2d_gl_get_data (CoglTexture2D *tex_2d,
                               int rowstride,
                               uint8_t *data);
 
+CoglBool
+_cogl_texture_2d_gl_is_get_data_supported (CoglTexture2D *tex_2d);
+
 #endif /* _COGL_TEXTURE_2D_GL_PRIVATE_H_ */
