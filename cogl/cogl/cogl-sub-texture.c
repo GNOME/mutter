@@ -428,6 +428,14 @@ _cogl_sub_texture_set_region (CoglTexture *tex,
                                                error);
 }
 
+static CoglBool
+_cogl_sub_texture_is_get_data_supported (CoglTexture *tex)
+{
+  CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
+
+  return cogl_texture_is_get_data_supported (sub_tex->full_texture);
+}
+
 static CoglPixelFormat
 _cogl_sub_texture_get_format (CoglTexture *tex)
 {
@@ -458,6 +466,7 @@ cogl_sub_texture_vtable =
     FALSE, /* not primitive */
     _cogl_sub_texture_allocate,
     _cogl_sub_texture_set_region,
+    _cogl_sub_texture_is_get_data_supported,
     NULL, /* get_data */
     _cogl_sub_texture_foreach_sub_texture_in_region,
     _cogl_sub_texture_get_max_waste,
