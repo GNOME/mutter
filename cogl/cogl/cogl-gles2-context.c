@@ -90,7 +90,8 @@ main_wrapper_function[] =
   "}\n"
   MAIN_WRAPPER_END;
 
-enum {
+enum
+{
   RESTORE_FB_NONE,
   RESTORE_FB_FROM_OFFSCREEN,
   RESTORE_FB_FROM_ONSCREEN,

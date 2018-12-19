@@ -112,7 +112,8 @@ typedef void (*ConfigUintFunc)   (MetaInputSettings  *input_settings,
                                   ClutterInputDevice *device,
                                   guint               value);
 
-typedef enum {
+typedef enum
+{
   META_PAD_DIRECTION_NONE = -1,
   META_PAD_DIRECTION_UP = 0,
   META_PAD_DIRECTION_DOWN,

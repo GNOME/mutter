@@ -54,7 +54,8 @@ typedef enum
   META_COMP_EFFECT_NONE
 } MetaCompEffect;
 
-typedef enum {
+typedef enum
+{
   META_SIZE_CHANGE_MAXIMIZE,
   META_SIZE_CHANGE_UNMAXIMIZE,
   META_SIZE_CHANGE_FULLSCREEN,

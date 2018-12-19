@@ -234,7 +234,8 @@ G_BEGIN_DECLS
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   COGL_SHADER_TYPE_VERTEX,
   COGL_SHADER_TYPE_FRAGMENT
 } CoglShaderType;

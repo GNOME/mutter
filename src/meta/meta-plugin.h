@@ -357,7 +357,8 @@ meta_plugin_complete_display_change (MetaPlugin *plugin,
  *
  * Options that can be provided when calling meta_plugin_begin_modal().
  */
-typedef enum {
+typedef enum
+{
   META_MODAL_POINTER_ALREADY_GRABBED = 1 << 0,
   META_MODAL_KEYBOARD_ALREADY_GRABBED = 1 << 1
 } MetaModalOptions;

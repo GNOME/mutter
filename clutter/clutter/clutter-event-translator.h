@@ -14,7 +14,8 @@ G_BEGIN_DECLS
 typedef struct _ClutterEventTranslator          ClutterEventTranslator;
 typedef struct _ClutterEventTranslatorIface     ClutterEventTranslatorIface;
 
-typedef enum {
+typedef enum
+{
   CLUTTER_TRANSLATE_CONTINUE,
   CLUTTER_TRANSLATE_REMOVE,
   CLUTTER_TRANSLATE_QUEUE

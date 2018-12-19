@@ -37,7 +37,8 @@ struct _ClutterInputMethodPrivate
   gboolean can_show_preedit;
 };
 
-enum {
+enum
+{
   COMMIT,
   DELETE_SURROUNDING,
   REQUEST_SURROUNDING,
@@ -46,7 +47,8 @@ enum {
   N_SIGNALS,
 };
 
-enum {
+enum
+{
   PROP_0,
   PROP_CONTENT_HINTS,
   PROP_CONTENT_PURPOSE,

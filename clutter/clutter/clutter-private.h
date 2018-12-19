@@ -91,7 +91,8 @@ typedef struct _ClutterVertex4          ClutterVertex4;
  * because it will break for negative numbers. */
 #define CLUTTER_NEARBYINT(x) ((int) ((x) < 0.0f ? (x) - 0.5f : (x) + 0.5f))
 
-typedef enum {
+typedef enum
+{
   CLUTTER_ACTOR_UNUSED_FLAG = 0,
 
   CLUTTER_IN_DESTRUCTION = 1 << 0,

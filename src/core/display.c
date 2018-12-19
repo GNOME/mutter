@@ -152,7 +152,8 @@ enum
   LAST_SIGNAL
 };
 
-enum {
+enum
+{
   PROP_0,
 
   PROP_FOCUS_WINDOW

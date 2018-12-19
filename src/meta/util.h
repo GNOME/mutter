@@ -166,7 +166,8 @@ GPid meta_show_dialog (const char *type,
  * @META_LATER_IDLE: call at a very low priority (can be blocked
  *    by running animations or redrawing applications)
  **/
-typedef enum {
+typedef enum
+{
   META_LATER_RESIZE,
   META_LATER_CALC_SHOWING,
   META_LATER_CHECK_FULLSCREEN,

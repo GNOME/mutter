@@ -59,7 +59,8 @@ typedef enum _TestFlags
  *
  * Flags to pass to the test_utils_texture_new_* family of functions.
  */
-typedef enum {
+typedef enum
+{
   TEST_UTILS_TEXTURE_NONE           = 0,
   TEST_UTILS_TEXTURE_NO_AUTO_MIPMAP = 1 << 0,
   TEST_UTILS_TEXTURE_NO_SLICING     = 1 << 1,

@@ -53,7 +53,8 @@ G_BEGIN_DECLS
  *
  * Since: 0.2
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_INIT_SUCCESS        =  1,
   CLUTTER_INIT_ERROR_UNKNOWN  =  0,
   CLUTTER_INIT_ERROR_THREADS  = -1,
