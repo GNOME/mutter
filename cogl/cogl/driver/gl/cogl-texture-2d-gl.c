@@ -470,7 +470,12 @@ allocate_custom_egl_image_external (CoglTexture2D *tex_2d,
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
   CoglContext *ctx = tex->context;
-  CoglPixelFormat internal_format = loader->src.egl_image_external.format;
+  CoglPixelFormat external_format;
+  CoglPixelFormat internal_format;
+
+  external_format = loader->src.egl_image_external.format;
+  internal_format = _cogl_texture_determine_internal_format (tex,
+                                                             external_format);
 
   _cogl_gl_util_clear_gl_errors (ctx);
 
