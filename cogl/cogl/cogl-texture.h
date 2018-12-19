@@ -511,6 +511,12 @@ CoglBool
 cogl_texture_allocate (CoglTexture *texture,
                        CoglError **error);
 
+/**
+ * cogl_texture_is_get_data_supported: (skip)
+ */
+CoglBool
+cogl_texture_is_get_data_supported (CoglTexture *texture);
+
 G_END_DECLS
 
 #endif /* __COGL_TEXTURE_H__ */

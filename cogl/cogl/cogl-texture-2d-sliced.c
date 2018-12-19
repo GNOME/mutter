@@ -1540,5 +1540,6 @@ cogl_texture_2d_sliced_vtable =
     _cogl_texture_2d_sliced_get_gl_format,
     _cogl_texture_2d_sliced_get_type,
     _cogl_texture_2d_sliced_is_foreign,
-    NULL /* set_auto_mipmap */
+    NULL, /* set_auto_mipmap */
+    NULL  /* is_get_data_supported */
   };
