@@ -80,7 +80,11 @@ meta_window_group_paint (ClutterActor *actor)
    */
   if (clutter_actor_is_in_clone_paint (actor))
     {
-      if (!meta_actor_painting_untransformed (screen_width,
+      CoglFramebuffer *fb;
+
+      fb = cogl_get_draw_framebuffer ();
+      if (!meta_actor_painting_untransformed (fb,
+                                              screen_width,
                                               screen_height,
                                               &paint_x_origin,
                                               &paint_y_origin) ||
