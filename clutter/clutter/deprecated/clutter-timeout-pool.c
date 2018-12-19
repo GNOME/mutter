@@ -41,7 +41,8 @@
 #include "clutter-timeout-interval.h"
 
 typedef struct _ClutterTimeout  ClutterTimeout;
-typedef enum {
+typedef enum
+{
   CLUTTER_TIMEOUT_NONE   = 0,
   CLUTTER_TIMEOUT_READY  = 1 << 1
 } ClutterTimeoutFlags;

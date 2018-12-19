@@ -74,7 +74,8 @@ static void cullable_iface_init (MetaCullableInterface *iface);
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_SHAPED_TEXTURE, \
                                 MetaShapedTexturePrivate))
 
-enum {
+enum
+{
   SIZE_CHANGED,
 
   LAST_SIGNAL,

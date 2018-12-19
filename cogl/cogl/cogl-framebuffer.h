@@ -1827,7 +1827,8 @@ cogl_framebuffer_error_quark (void);
  */
 #define COGL_FRAMEBUFFER_ERROR (cogl_framebuffer_error_quark ())
 
-typedef enum { /*< prefix=COGL_FRAMEBUFFER_ERROR >*/
+typedef enum
+{ /*< prefix=COGL_FRAMEBUFFER_ERROR >*/
   COGL_FRAMEBUFFER_ERROR_ALLOCATE
 } CoglFramebufferError;
 

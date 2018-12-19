@@ -462,7 +462,8 @@ destroy_entry (GNode                  *node,
   return FALSE;
 }
 
-typedef enum {
+typedef enum
+{
   FIND_BY_TIMELINE,
   FIND_BY_ID,
   REMOVE_BY_ID,

@@ -180,7 +180,8 @@ _cogl_gles2_context_error_quark (void);
  *
  * Error codes that relate to the cogl_gles2_context api.
  */
-typedef enum { /*< prefix=COGL_GLES2_CONTEXT_ERROR >*/
+typedef enum
+{ /*< prefix=COGL_GLES2_CONTEXT_ERROR >*/
   COGL_GLES2_CONTEXT_ERROR_UNSUPPORTED,
   COGL_GLES2_CONTEXT_ERROR_DRIVER
 } CoglGLES2ContextError;

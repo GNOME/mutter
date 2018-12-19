@@ -25,7 +25,8 @@
 
 CoglPipeline * meta_create_texture_pipeline (CoglTexture *texture);
 
-typedef enum {
+typedef enum
+{
   META_TEXTURE_FLAGS_NONE = 0,
   META_TEXTURE_ALLOW_SLICING = 1 << 1
 } MetaTextureFlags;

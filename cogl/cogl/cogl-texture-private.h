@@ -46,7 +46,8 @@
 typedef struct _CoglTextureVtable     CoglTextureVtable;
 
 /* Encodes three possibiloities result of transforming a quad */
-typedef enum {
+typedef enum
+{
   /* quad doesn't cross the boundaries of a texture */
   COGL_TRANSFORM_NO_REPEAT,
   /* quad crosses boundaries, hardware wrap mode can handle */
@@ -58,7 +59,8 @@ typedef enum {
 } CoglTransformResult;
 
 /* Flags given to the pre_paint method */
-typedef enum {
+typedef enum
+{
   /* The texture is going to be used with filters that require
      mipmapping. This gives the texture the opportunity to
      automatically update the mipmap tree */

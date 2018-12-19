@@ -35,7 +35,8 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaSurfaceActor, meta_surface_actor, CLUTTER_
                                   G_ADD_PRIVATE (MetaSurfaceActor)
                                   G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
 
-enum {
+enum
+{
   REPAINT_SCHEDULED,
   SIZE_CHANGED,
 

@@ -63,7 +63,8 @@ typedef void (* ReloadValueFunc) (MetaWindow    *window,
                                   MetaPropValue *value,
                                   gboolean       initial);
 
-typedef enum {
+typedef enum
+{
   NONE       = 0,
   LOAD_INIT  = (1 << 0),
   INCLUDE_OR = (1 << 1),

@@ -99,7 +99,8 @@ GType cogl_texture_get_gtype (void);
  * Since: 1.8
  * Stability: Unstable
  */
-typedef enum {
+typedef enum
+{
   COGL_TEXTURE_ERROR_SIZE,
   COGL_TEXTURE_ERROR_FORMAT,
   COGL_TEXTURE_ERROR_BAD_PARAMETER,
@@ -118,7 +119,8 @@ typedef enum {
  * Stability: unstable
  * Since: 1.10
  */
-typedef enum {
+typedef enum
+{
   COGL_TEXTURE_TYPE_2D,
   COGL_TEXTURE_TYPE_3D,
   COGL_TEXTURE_TYPE_RECTANGLE

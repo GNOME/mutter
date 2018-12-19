@@ -261,7 +261,8 @@ struct _CoglDriverVtable
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())
 
-typedef enum { /*< prefix=COGL_DRIVER_ERROR >*/
+typedef enum
+{ /*< prefix=COGL_DRIVER_ERROR >*/
   COGL_DRIVER_ERROR_UNKNOWN_VERSION,
   COGL_DRIVER_ERROR_INVALID_VERSION,
   COGL_DRIVER_ERROR_NO_SUITABLE_DRIVER_FOUND,

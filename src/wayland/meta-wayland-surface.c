@@ -56,7 +56,8 @@
 #include "wayland/meta-xwayland-private.h"
 #include "wayland/meta-xwayland-private.h"
 
-enum {
+enum
+{
   PENDING_STATE_SIGNAL_APPLIED,
 
   PENDING_STATE_SIGNAL_LAST_SIGNAL
@@ -100,7 +101,8 @@ G_DEFINE_TYPE (MetaWaylandSurfaceRoleDND,
                meta_wayland_surface_role_dnd,
                META_TYPE_WAYLAND_ACTOR_SURFACE);
 
-enum {
+enum
+{
   SURFACE_DESTROY,
   SURFACE_UNMAPPED,
   SURFACE_CONFIGURE,

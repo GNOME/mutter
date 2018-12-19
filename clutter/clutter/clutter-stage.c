@@ -87,7 +87,8 @@
  *
  * A series of hints that enable or disable behaviours on the stage
  */
-typedef enum { /*< prefix=CLUTTER_STAGE >*/
+typedef enum
+{ /*< prefix=CLUTTER_STAGE >*/
   CLUTTER_STAGE_HINT_NONE = 0,
 
   CLUTTER_STAGE_NO_CLEAR_ON_PAINT = 1 << 0

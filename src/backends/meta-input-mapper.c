@@ -41,7 +41,8 @@ struct _MetaInputMapper
   GHashTable *output_devices; /* MetaLogicalMonitor -> MetaMapperOutputInfo */
 };
 
-typedef enum {
+typedef enum
+{
   META_INPUT_CAP_TOUCH  = 1 << 0, /* touch device, either touchscreen or tablet */
   META_INPUT_CAP_STYLUS = 1 << 1, /* tablet pen */
   META_INPUT_CAP_ERASER = 1 << 2, /* tablet eraser */
@@ -49,7 +50,8 @@ typedef enum {
   META_INPUT_CAP_CURSOR = 1 << 4  /* pointer-like device in tablets */
 } MetaInputCapabilityFlags;
 
-typedef enum {
+typedef enum
+{
   META_MATCH_IS_BUILTIN,   /* Output is builtin, applies mainly to system-integrated devices */
   META_MATCH_SIZE,         /* Size from input device and output match */
   META_MATCH_EDID_FULL,    /* Full EDID model match, eg. "Cintiq 12WX" */
@@ -87,7 +89,8 @@ struct _DeviceCandidates
   MetaOutputMatchType best;
 };
 
-enum {
+enum
+{
   DEVICE_MAPPED,
   N_SIGNALS
 };

@@ -39,13 +39,15 @@
  */
 #define STARTUP_TIMEOUT 15000000
 
-enum {
+enum
+{
   PROP_0,
   PROP_DISPLAY,
   N_PROPS
 };
 
-enum {
+enum
+{
   PROP_SEQ_0,
   PROP_SEQ_ID,
   PROP_SEQ_TIMESTAMP,
@@ -57,7 +59,8 @@ enum {
   N_SEQ_PROPS
 };
 
-enum {
+enum
+{
   CHANGED,
   N_SIGNALS
 };

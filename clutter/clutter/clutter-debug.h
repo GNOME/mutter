@@ -6,7 +6,8 @@
 
 G_BEGIN_DECLS
 
-typedef enum {
+typedef enum
+{
   CLUTTER_DEBUG_MISC                = 1 << 0,
   CLUTTER_DEBUG_ACTOR               = 1 << 1,
   CLUTTER_DEBUG_TEXTURE             = 1 << 2,
@@ -26,12 +27,14 @@ typedef enum {
   CLUTTER_DEBUG_OOB_TRANSFORMS      = 1 << 16
 } ClutterDebugFlag;
 
-typedef enum {
+typedef enum
+{
   CLUTTER_DEBUG_NOP_PICKING         = 1 << 0,
   CLUTTER_DEBUG_DUMP_PICK_BUFFERS   = 1 << 1
 } ClutterPickDebugFlag;
 
-typedef enum {
+typedef enum
+{
   CLUTTER_DEBUG_DISABLE_SWAP_EVENTS     = 1 << 0,
   CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS = 1 << 1,
   CLUTTER_DEBUG_REDRAWS                 = 1 << 2,

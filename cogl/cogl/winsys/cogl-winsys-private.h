@@ -55,7 +55,8 @@ _cogl_winsys_error_quark (void);
 
 #define COGL_WINSYS_ERROR (_cogl_winsys_error_quark ())
 
-typedef enum { /*< prefix=COGL_WINSYS_ERROR >*/
+typedef enum
+{ /*< prefix=COGL_WINSYS_ERROR >*/
   COGL_WINSYS_ERROR_INIT,
   COGL_WINSYS_ERROR_CREATE_CONTEXT,
   COGL_WINSYS_ERROR_CREATE_ONSCREEN,

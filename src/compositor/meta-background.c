@@ -607,7 +607,8 @@ ensure_color_texture (MetaBackground *self)
     }
 }
 
-typedef enum {
+typedef enum
+{
   PIPELINE_REPLACE,
   PIPELINE_ADD,
   PIPELINE_OVER_REVERSE,
