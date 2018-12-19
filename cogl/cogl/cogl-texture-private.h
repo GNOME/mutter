@@ -149,6 +149,8 @@ struct _CoglTextureVtable
   /* Only needs to be implemented if is_primitive == TRUE */
   void (* set_auto_mipmap) (CoglTexture *texture,
                             CoglBool value);
+
+  CoglBool (* is_get_data_supported) (CoglTexture *texture);
 };
 
 typedef enum _CoglTextureSoureType {
