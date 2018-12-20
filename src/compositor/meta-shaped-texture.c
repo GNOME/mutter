@@ -1097,6 +1097,9 @@ should_get_via_offscreen (MetaShapedTexture *stex)
 {
   MetaShapedTexturePrivate *priv = stex->priv;
 
+  if (!cogl_texture_is_get_data_supported (priv->texture))
+    return TRUE;
+
   switch (priv->transform)
     {
     case META_MONITOR_TRANSFORM_90:
