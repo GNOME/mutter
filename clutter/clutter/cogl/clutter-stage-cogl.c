@@ -166,18 +166,6 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
       return;
     }
 
-  /* We only extrapolate presentation times for 150ms  - this is somewhat
-   * arbitrary. The reasons it might not be accurate for larger times are
-   * that the refresh interval might be wrong or the vertical refresh
-   * might be downclocked if nothing is going on onscreen.
-   */
-  if (stage_cogl->last_presentation_time == 0||
-      stage_cogl->last_presentation_time < now - 150000)
-    {
-      stage_cogl->update_time = now;
-      return;
-    }
-
   refresh_rate = stage_cogl->refresh_rate;
   if (refresh_rate <= 0.0)
     refresh_rate = clutter_get_default_frame_rate ();
@@ -197,10 +185,34 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
 
   target_presentation_time = stage_cogl->last_presentation_time + refresh_interval;
 
+  if (target_presentation_time < now)
+    {
+      /* If last_presentation_time is zero (unsupported) or just very old
+       * (system was idle) then we would like to avoid that triggering a large
+       * number of loop interations below. This will get us closer to the
+       * right answer without iterating:
+       */
+      int64_t last_virtual_presentation_time = now - now % refresh_interval;
+      int64_t hardware_clock_phase = stage_cogl->last_presentation_time %
+                                     refresh_interval;
+
+      target_presentation_time = last_virtual_presentation_time +
+                                 hardware_clock_phase;
+    }
+
   while (target_presentation_time - min_render_time_allowed < now)
     target_presentation_time += refresh_interval;
 
   stage_cogl->update_time = target_presentation_time - max_render_time_allowed;
+
+  /* Sanity check: If we've just calculated the same update_time as the last
+   * then throttle it to be the frame after that. This can happen now that
+   * we support old (or zero) values for last_presentation_time, when input
+   * events arrive without needing a stage redraw (e.g. moving the hardware
+   * cursor).
+   */
+  if (stage_cogl->update_time == stage_cogl->last_update_time)
+    stage_cogl->update_time = stage_cogl->last_update_time + refresh_interval;
 }
 
 static gint64
@@ -219,6 +231,7 @@ clutter_stage_cogl_clear_update_time (ClutterStageWindow *stage_window)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
 
+  stage_cogl->last_update_time = stage_cogl->update_time;
   stage_cogl->update_time = -1;
 }
 
