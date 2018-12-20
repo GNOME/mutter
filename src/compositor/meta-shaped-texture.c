@@ -1109,13 +1109,14 @@ cairo_surface_t *
 meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                cairo_rectangle_int_t *clip)
 {
+  MetaShapedTexturePrivate *priv = stex->priv;
   CoglTexture *texture, *mask_texture;
   cairo_rectangle_int_t texture_rect = { 0, 0, 0, 0 };
   cairo_surface_t *surface;
 
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
 
-  texture = COGL_TEXTURE (stex->priv->texture);
+  texture = COGL_TEXTURE (priv->texture);
 
   if (texture == NULL)
     return NULL;
@@ -1149,7 +1150,7 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
   if (clip != NULL)
     cogl_object_unref (texture);
 
-  mask_texture = stex->priv->mask_texture;
+  mask_texture = priv->mask_texture;
   if (mask_texture != NULL)
     {
       cairo_t *cr;
