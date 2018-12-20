@@ -1042,6 +1042,9 @@ meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
 static gboolean
 should_get_via_offscreen (MetaShapedTexture *stex)
 {
+  if (!cogl_texture_is_get_data_supported (stex->texture))
+    return TRUE;
+
   switch (stex->transform)
     {
     case META_MONITOR_TRANSFORM_90:
