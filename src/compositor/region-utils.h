@@ -26,12 +26,7 @@
 
 #include "backends/meta-backend-types.h"
 #include "clutter/clutter.h"
-
-typedef enum _MetaRoundingStrategy
-{
-  META_ROUNDING_STRATEGY_SHRINK,
-  META_ROUNDING_STRATEGY_GROW,
-} MetaRoundingStrategy;
+#include "core/boxes-private.h"
 
 /**
  * MetaRegionIterator:
