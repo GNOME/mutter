@@ -52,6 +52,7 @@ struct _ClutterStageCogl
   int pending_swaps;
 
   gint64 last_presentation_time;
+  gint64 last_update_time;
   gint64 update_time;
 
   /* We only enable clipped redraws after 2 frames, since we've seen
