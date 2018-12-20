@@ -36,6 +36,7 @@
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-texture-tower.h"
 #include "compositor/region-utils.h"
+#include "core/boxes-private.h"
 #include "meta/meta-shaped-texture.h"
 
 /* MAX_MIPMAPPING_FPS needs to be as small as possible for the best GPU
@@ -1091,6 +1092,132 @@ meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
   invalidate_size (stex);
 }
 
+static gboolean
+should_get_via_offscreen (MetaShapedTexture *stex)
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+
+  switch (priv->transform)
+    {
+    case META_MONITOR_TRANSFORM_90:
+    case META_MONITOR_TRANSFORM_180:
+    case META_MONITOR_TRANSFORM_270:
+    case META_MONITOR_TRANSFORM_FLIPPED:
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      return TRUE;
+    case META_MONITOR_TRANSFORM_NORMAL:
+      break;
+    }
+
+  return FALSE;
+}
+
+static cairo_surface_t *
+get_image_via_offscreen (MetaShapedTexture     *stex,
+                         cairo_rectangle_int_t *clip)
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglTexture *image_texture;
+  GError *error = NULL;
+  CoglOffscreen *offscreen;
+  CoglFramebuffer *fb;
+  CoglMatrix projection_matrix;
+  int fb_width, fb_height;
+  cairo_rectangle_int_t fallback_clip;
+  CoglColor clear_color;
+  cairo_surface_t *surface;
+
+  if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_NPOT))
+    {
+      fb_width = priv->dst_width;
+      fb_height = priv->dst_height;
+    }
+  else
+    {
+      fb_width = _cogl_util_next_p2 (priv->dst_width);
+      fb_height = _cogl_util_next_p2 (priv->dst_height);
+    }
+
+  if (!clip)
+    {
+      fallback_clip = (cairo_rectangle_int_t) {
+        .width = priv->dst_width,
+        .height = priv->dst_height,
+      };
+      clip = &fallback_clip;
+    }
+
+  image_texture =
+    COGL_TEXTURE (cogl_texture_2d_new_with_size (cogl_context,
+                                                 fb_width, fb_height));
+  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (image_texture),
+                                          FALSE);
+  if (!cogl_texture_allocate (COGL_TEXTURE (image_texture), &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (image_texture);
+      return FALSE;
+    }
+
+  if (fb_width != priv->dst_width || fb_height != priv->dst_height)
+    {
+      CoglSubTexture *sub_texture;
+
+      sub_texture = cogl_sub_texture_new (cogl_context,
+                                          image_texture,
+                                          0, 0,
+                                          priv->dst_width, priv->dst_height);
+      cogl_object_unref (image_texture);
+      image_texture = COGL_TEXTURE (sub_texture);
+    }
+
+  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (image_texture));
+  fb = COGL_FRAMEBUFFER (offscreen);
+  cogl_object_unref (image_texture);
+  if (!cogl_framebuffer_allocate (fb, &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (fb);
+      return FALSE;
+    }
+
+  cogl_framebuffer_push_matrix (fb);
+  cogl_matrix_init_identity (&projection_matrix);
+  cogl_matrix_scale (&projection_matrix,
+                     1.0 / (priv->dst_width / 2.0),
+                     -1.0 / (priv->dst_height / 2.0), 0);
+  cogl_matrix_translate (&projection_matrix,
+                         -(priv->dst_width / 2.0),
+                         -(priv->dst_height / 2.0), 0);
+
+  cogl_framebuffer_set_projection_matrix (fb, &projection_matrix);
+
+  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR, &clear_color);
+
+  do_paint (stex, fb, priv->texture, NULL);
+
+  cogl_framebuffer_pop_matrix (fb);
+
+  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
+                                        clip->width, clip->height);
+  cogl_framebuffer_read_pixels (fb,
+                                clip->x, clip->y,
+                                clip->width, clip->height,
+                                CLUTTER_CAIRO_FORMAT_ARGB32,
+                                cairo_image_surface_get_data (surface));
+  cogl_object_unref (fb);
+
+  cairo_surface_mark_dirty (surface);
+
+  return surface;
+}
+
 /**
  * meta_shaped_texture_get_image:
  * @stex: A #MetaShapedTexture
@@ -1112,7 +1239,6 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
   MetaShapedTexturePrivate *priv = stex->priv;
   cairo_rectangle_int_t *transformed_clip = NULL;
   CoglTexture *texture, *mask_texture;
-  cairo_rectangle_int_t texture_rect = { 0, 0, 0, 0 };
   cairo_surface_t *surface;
 
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
@@ -1122,16 +1248,35 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
   if (texture == NULL)
     return NULL;
 
+  ensure_size_valid (stex);
+
+  if (priv->dst_width == 0 || priv->dst_height == 0)
+    return NULL;
 
   if (clip != NULL)
     {
+      double tex_scale;
+      cairo_rectangle_int_t dst_rect;
+
       transformed_clip = alloca (sizeof (cairo_rectangle_int_t));
       *transformed_clip = *clip;
 
-      if (!meta_rectangle_intersect (&texture_rect, transformed_clip,
+      clutter_actor_get_scale (CLUTTER_ACTOR (stex), &tex_scale, NULL);
+      meta_rectangle_scale_double (transformed_clip, 1.0 / tex_scale,
+                                   META_ROUNDING_STRATEGY_GROW);
+
+      dst_rect = (cairo_rectangle_int_t) {
+        .width = priv->dst_width,
+        .height = priv->dst_height,
+      };
+
+      if (!meta_rectangle_intersect (&dst_rect, transformed_clip,
                                      transformed_clip))
         return NULL;
     }
+
+  if (should_get_via_offscreen (stex))
+    return get_image_via_offscreen (stex, transformed_clip);
 
   if (transformed_clip)
     texture = cogl_texture_new_from_sub_texture (texture,
