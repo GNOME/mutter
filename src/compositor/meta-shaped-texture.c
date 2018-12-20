@@ -1125,9 +1125,7 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
 
   if (clip != NULL)
     {
-      /* GdkRectangle is just a typedef of cairo_rectangle_int_t,
-       * so we can use the gdk_rectangle_* APIs on these. */
-      if (!gdk_rectangle_intersect (&texture_rect, clip, clip))
+      if (!meta_rectangle_intersect (&texture_rect, clip, clip))
         return NULL;
     }
 
