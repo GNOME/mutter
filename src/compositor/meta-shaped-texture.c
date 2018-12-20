@@ -33,9 +33,9 @@
 
 #include "cogl/cogl.h"
 #include "compositor/clutter-utils.h"
-#include "compositor/region-utils.h"
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-texture-tower.h"
+#include "compositor/region-utils.h"
 #include "meta/meta-shaped-texture.h"
 
 /* MAX_MIPMAPPING_FPS needs to be as small as possible for the best GPU
