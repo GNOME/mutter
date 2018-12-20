@@ -731,7 +731,6 @@ mutter_built_sources += mutter_marshal
 mutter_built_sources += mutter_enum_types
 mutter_built_sources += mutter_version
 
-libmutter_name = 'mutter-' + libmutter_api_version
 libmutter = shared_library(libmutter_name,
   sources: [
     mutter_sources,

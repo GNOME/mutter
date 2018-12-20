@@ -71,6 +71,8 @@ localedir = join_paths(datadir, 'locale')
 top_srcdir = meson.current_source_dir()
 builddir = meson.current_build_dir()
 
+libmutter_name = 'mutter-' + libmutter_api_version
+
 m_dep = cc.find_library('m', required: true)
 x11_dep = dependency('x11')
 gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
