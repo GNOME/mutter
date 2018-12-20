@@ -195,21 +195,7 @@ meta_region_scale_double (cairo_region_t       *region,
     {
       cairo_region_get_rectangle (region, i, &rects[i]);
 
-      switch (rounding_strategy)
-        {
-        case META_ROUNDING_STRATEGY_SHRINK:
-          rects[i].x = (int) ceil (rects[i].x * scale);
-          rects[i].y = (int) ceil (rects[i].y * scale);
-          rects[i].width = (int) floor (rects[i].width * scale);
-          rects[i].height = (int) floor (rects[i].height * scale);
-          break;
-        case META_ROUNDING_STRATEGY_GROW:
-          rects[i].x = (int) floor (rects[i].x * scale);
-          rects[i].y = (int) floor (rects[i].y * scale);
-          rects[i].width = (int) ceil (rects[i].width * scale);
-          rects[i].height = (int) ceil (rects[i].height * scale);
-          break;
-        }
+      meta_rectangle_scale_double (&rects[i], scale, rounding_strategy);
     }
 
   scaled_region = cairo_region_create_rectangles (rects, n_rects);

@@ -2044,3 +2044,25 @@ meta_rectangle_is_adjecent_to (MetaRectangle *rect,
   else
     return FALSE;
 }
+
+void
+meta_rectangle_scale_double (MetaRectangle        *rect,
+                             double                scale,
+                             MetaRoundingStrategy  rounding_strategy)
+{
+  switch (rounding_strategy)
+    {
+    case META_ROUNDING_STRATEGY_SHRINK:
+      rect->x = (int) ceil (rect->x * scale);
+      rect->y = (int) ceil (rect->y * scale);
+      rect->width = (int) floor (rect->width * scale);
+      rect->height = (int) floor (rect->height * scale);
+      break;
+    case META_ROUNDING_STRATEGY_GROW:
+      rect->x = (int) floor (rect->x * scale);
+      rect->y = (int) floor (rect->y * scale);
+      rect->width = (int) ceil (rect->width * scale);
+      rect->height = (int) ceil (rect->height * scale);
+      break;
+    }
+}
