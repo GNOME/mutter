@@ -166,18 +166,6 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
       return;
     }
 
-  /* We only extrapolate presentation times for 150ms  - this is somewhat
-   * arbitrary. The reasons it might not be accurate for larger times are
-   * that the refresh interval might be wrong or the vertical refresh
-   * might be downclocked if nothing is going on onscreen.
-   */
-  if (stage_cogl->last_presentation_time == 0||
-      stage_cogl->last_presentation_time < now - 150000)
-    {
-      stage_cogl->update_time = now;
-      return;
-    }
-
   refresh_rate = stage_cogl->refresh_rate;
   if (refresh_rate <= 0.0)
     refresh_rate = clutter_get_default_frame_rate ();
@@ -196,6 +184,21 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
     min_render_time_allowed = max_render_time_allowed;
 
   target_presentation_time = stage_cogl->last_presentation_time + refresh_interval;
+
+  if (target_presentation_time < now)
+    {
+      /* If last_presentation_time is zero (unsupported) or just very old
+       * (system was idle) then we would like to avoid that triggering a large
+       * number of loop interations below. This will get us closer to the
+       * right answer without iterating:
+       */
+      int64_t last_virtual_presentation_time = now - now % refresh_interval;
+      int64_t hardware_clock_phase = stage_cogl->last_presentation_time %
+                                     refresh_interval;
+
+      target_presentation_time = last_virtual_presentation_time +
+                                 hardware_clock_phase;
+    }
 
   while (target_presentation_time - min_render_time_allowed < now)
     target_presentation_time += refresh_interval;
