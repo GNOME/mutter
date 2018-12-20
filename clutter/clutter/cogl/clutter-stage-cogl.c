@@ -150,6 +150,7 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
   gint64 now;
   float refresh_rate;
   gint64 refresh_interval;
+  gint64 target_presentation_time;
 
   if (stage_cogl->update_time != -1)
     return;
@@ -157,18 +158,6 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
   now = g_get_monotonic_time ();
 
   if (sync_delay < 0)
-    {
-      stage_cogl->update_time = now;
-      return;
-    }
-
-  /* We only extrapolate presentation times for 150ms  - this is somewhat
-   * arbitrary. The reasons it might not be accurate for larger times are
-   * that the refresh interval might be wrong or the vertical refresh
-   * might be downclocked if nothing is going on onscreen.
-   */
-  if (stage_cogl->last_presentation_time == 0||
-      stage_cogl->last_presentation_time < now - 150000)
     {
       stage_cogl->update_time = now;
       return;
@@ -185,10 +174,69 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
       return;
     }
 
-  stage_cogl->update_time = stage_cogl->last_presentation_time + 1000 * sync_delay;
+  target_presentation_time = stage_cogl->last_presentation_time +
+                             refresh_interval;
 
-  while (stage_cogl->update_time < now)
+  /* Figuring out the target_presentation_time will take a few steps...
+   * It's not always as simple as
+   *    stage_cogl->last_presentation_time + refresh_interval
+   * because last_presentation_time might be very old (screen was idle), or
+   * zero (backend doesn't support it).
+   *
+   * First bring target_presentation_time in phase with last_presentation_time
+   * and within one frame of 'now'. This means out loop won't ever need to
+   * iterate an excessive number of times.
+   *
+   * Note that this works even for backends who don't populate
+   * last_presentation_time. In such a case we will still tick at the
+   * right frequency but just can't know the correct phase for optimal latency.
+   * Suboptimal, but still fine.
+   */
+  if (target_presentation_time < now)
+    {
+      target_presentation_time = now
+                               - now % refresh_interval
+                               + stage_cogl->last_presentation_time %
+                                 refresh_interval;
+    }
+
+  /* If there's very little render time left then intentionally skip the next
+   * frame and aim for the one after it. If we weren't to do this and instead
+   * missed the frame by spending too long rendering then that would be a
+   * bigger problem as the frame after it would have been rendered two
+   * intervals before being displayed instead of one. Hence it would spatially
+   * appear to stutter more despite the same number of frames being output.
+   */
+  for (;;)
+    {
+      gint64 available_render_time = target_presentation_time
+                                   - now
+                                   - 1000 * sync_delay;
+
+      if (available_render_time >= refresh_interval/2)
+        break;
+
+      target_presentation_time += refresh_interval;
+    }
+
+  stage_cogl->update_time = target_presentation_time
+                          - refresh_interval
+                          + 1000 * sync_delay;
+
+  /* Sanity check: If multiple updates are scheduled within one frame period,
+   * like input events without any redraws, then ensure they don't lead us
+   * to give the same answer twice...
+   */
+  if (stage_cogl->update_time == stage_cogl->last_update_time)
     stage_cogl->update_time += refresh_interval;
+
+  /* Note that update_time may be slightly in the past. This is normal and
+   * is not a bug. An update_time in the past just means that the
+   * last_presentation_time was more than sync_delay ago (we either have a
+   * busy main loop and/or a slow backend). The master clock can handle past
+   * timestamps just fine and will wake up immediately, which is better than
+   * skipping the next frame.
+   */
 }
 
 static gint64
@@ -207,6 +255,7 @@ clutter_stage_cogl_clear_update_time (ClutterStageWindow *stage_window)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
 
+  stage_cogl->last_update_time = stage_cogl->update_time;
   stage_cogl->update_time = -1;
 }
 
