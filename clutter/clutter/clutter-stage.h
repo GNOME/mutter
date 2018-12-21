@@ -250,6 +250,9 @@ void            clutter_stage_ensure_viewport                   (ClutterStage   
 CLUTTER_EXPORT
 void            clutter_stage_ensure_redraw                     (ClutterStage          *stage);
 
+CLUTTER_EXPORT
+gboolean        clutter_stage_is_redraw_queued                  (ClutterStage          *stage);
+
 #ifdef CLUTTER_ENABLE_EXPERIMENTAL_API
 CLUTTER_EXPORT
 void            clutter_stage_set_sync_delay                    (ClutterStage          *stage,
