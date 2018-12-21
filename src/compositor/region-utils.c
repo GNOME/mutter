@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include "compositor/region-utils.h"
+#include "meta/boxes.h"
 
 #include <math.h>
 
@@ -407,48 +408,12 @@ meta_region_transform (cairo_region_t       *region,
       cairo_rectangle_int_t rect;
 
       cairo_region_get_rectangle (region, i, &rects[i]);
-
-      rect = rects[i];
-
-      switch (transform)
-        {
-        case META_MONITOR_TRANSFORM_90:
-          rects[i].x = width - (rect.y + rect.height);
-          rects[i].y = rect.x;
-          rects[i].width = rect.height;
-          rects[i].height = rect.width;
-          break;
-        case META_MONITOR_TRANSFORM_180:
-          rects[i].x = width - (rect.x + rect.width);
-          rects[i].y = height - (rect.y + rect.height);
-          break;
-        case META_MONITOR_TRANSFORM_270:
-          rects[i].x = rect.y;
-          rects[i].y = height - (rect.x + rect.width);
-          rects[i].width = rect.height;
-          rects[i].height = rect.width;
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED:
-          rects[i].x = width - (rect.x + rect.width);
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED_90:
-          rects[i].x = width - (rect.y + rect.height);
-          rects[i].y = height - (rect.x + rect.width);
-          rects[i].width = rect.height;
-          rects[i].height = rect.width;
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED_180:
-          rects[i].y = height - (rect.y + rect.height);
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED_270:
-          rects[i].x = rect.y;
-          rects[i].y = rect.x;
-          rects[i].width = rect.height;
-          rects[i].height = rect.width;
-          break;
-        case META_MONITOR_TRANSFORM_NORMAL:
-          g_assert_not_reached ();
-        }
+      meta_rectangle_transform (&rects[i],
+                                transform,
+                                width,
+                                height,
+                                &rect);
+      rects[i] = rect;
     }
 
   transformed_region = cairo_region_create_rectangles (rects, n_rects);
