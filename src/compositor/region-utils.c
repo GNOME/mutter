@@ -404,51 +404,16 @@ meta_region_transform (cairo_region_t       *region,
   rects = g_new0 (cairo_rectangle_int_t, n_rects);
   for (i = 0; i < n_rects; i++)
     {
-      cairo_rectangle_int_t rect;
+      cairo_rectangle_int_t *rect;
 
       cairo_region_get_rectangle (region, i, &rects[i]);
-
-      rect = rects[i];
-
-      switch (transform)
-        {
-        case META_MONITOR_TRANSFORM_90:
-          rects[i].x = width - (rect.y + rect.height);
-          rects[i].y = rect.x;
-          rects[i].width = rect.height;
-          rects[i].height = rect.width;
-          break;
-        case META_MONITOR_TRANSFORM_180:
-          rects[i].x = width - (rect.x + rect.width);
-          rects[i].y = height - (rect.y + rect.height);
-          break;
-        case META_MONITOR_TRANSFORM_270:
-          rects[i].x = rect.y;
-          rects[i].y = height - (rect.x + rect.width);
-          rects[i].width = rect.height;
-          rects[i].height = rect.width;
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED:
-          rects[i].x = width - (rect.x + rect.width);
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED_90:
-          rects[i].x = width - (rect.y + rect.height);
-          rects[i].y = height - (rect.x + rect.width);
-          rects[i].width = rect.height;
-          rects[i].height = rect.width;
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED_180:
-          rects[i].y = height - (rect.y + rect.height);
-          break;
-        case META_MONITOR_TRANSFORM_FLIPPED_270:
-          rects[i].x = rect.y;
-          rects[i].y = rect.x;
-          rects[i].width = rect.height;
-          rects[i].height = rect.width;
-          break;
-        case META_MONITOR_TRANSFORM_NORMAL:
-          g_assert_not_reached ();
-        }
+      rect = meta_rectangle_transform (&rects[i],
+                                       transform,
+                                       width,
+                                       height,
+                                       FALSE);
+      rects[i] = *rect;
+      g_free (rect);
     }
 
   transformed_region = cairo_region_create_rectangles (rects, n_rects);
@@ -456,4 +421,75 @@ meta_region_transform (cairo_region_t       *region,
   g_free (rects);
 
   return transformed_region;
+}
+
+cairo_rectangle_int_t *
+meta_rectangle_transform (cairo_rectangle_int_t *rect,
+                          MetaMonitorTransform   transform,
+                          int                    width,
+                          int                    height,
+                          gboolean               inverted)
+{
+  cairo_rectangle_int_t *res = g_new0 (cairo_rectangle_int_t, 1);
+
+  *res = *rect;
+  if (transform == META_MONITOR_TRANSFORM_NORMAL)
+    return res;
+
+  switch (transform)
+    {
+    case META_MONITOR_TRANSFORM_90:
+      if (inverted)
+        {
+          res->x = rect->y;
+          res->y = height - (rect->x + rect->width);
+        }
+      else
+        {
+          res->x = width - (rect->y + rect->height);
+          res->y = rect->x;
+        }
+      res->width = rect->height;
+      res->height = rect->width;
+      break;
+    case META_MONITOR_TRANSFORM_180:
+      res->x = width - (rect->x + rect->width);
+      res->y = height - (rect->y + rect->height);
+      break;
+    case META_MONITOR_TRANSFORM_270:
+      if (inverted)
+        {
+          res->x = width - (rect->y + rect->height);
+          res->y = rect->x;
+        }
+      else
+        {
+          res->x = rect->y;
+          res->y = height - (rect->x + rect->width);
+        }
+      res->width = rect->height;
+      res->height = rect->width;
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED:
+      res->x = width - (rect->x + rect->width);
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+      res->x = width - (rect->y + rect->height);
+      res->y = height - (rect->x + rect->width);
+      res->width = rect->height;
+      res->height = rect->width;
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+      res->y = height - (rect->y + rect->height);
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      res->x = rect->y;
+      res->y = rect->x;
+      res->width = rect->height;
+      res->height = rect->width;
+      break;
+    case META_MONITOR_TRANSFORM_NORMAL:
+      g_assert_not_reached ();
+    }
+  return res;
 }

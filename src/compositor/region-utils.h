@@ -116,4 +116,10 @@ cairo_region_t * meta_region_transform (cairo_region_t       *region,
                                         int                   width,
                                         int                   height);
 
+cairo_rectangle_int_t * meta_rectangle_transform (cairo_rectangle_int_t *rect,
+                                                  MetaMonitorTransform   transform,
+                                                  int                    width,
+                                                  int                    height,
+                                                  gboolean               inverted);
+
 #endif /* __META_REGION_UTILS_H__ */
