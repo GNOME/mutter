@@ -2050,6 +2050,8 @@ meta_window_actor_pre_paint (MetaWindowActor *self)
 
   meta_window_actor_handle_updates (self);
 
+  META_WINDOW_ACTOR_GET_CLASS (self)->pre_paint (self);
+
   assign_frame_counter_to_frames (self);
 }
 
@@ -2089,6 +2091,8 @@ meta_window_actor_post_paint (MetaWindowActor *self)
     meta_window_actor_get_instance_private (self);
 
   priv->repaint_scheduled = FALSE;
+
+  META_WINDOW_ACTOR_GET_CLASS (self)->post_paint (self);
 
   if (meta_window_actor_is_destroyed (self))
     return;
@@ -2191,6 +2195,10 @@ meta_window_actor_frame_complete (MetaWindowActor  *self,
 
   if (meta_window_actor_is_destroyed (self))
     return;
+
+  META_WINDOW_ACTOR_GET_CLASS (self)->frame_complete (self,
+                                                      frame_info,
+                                                      presentation_time);
 
   for (l = priv->frames; l;)
     {
