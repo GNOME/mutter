@@ -30,6 +30,7 @@
 
 #include "config.h"
 
+#include "backends/meta-backend-types.h"
 #include "core/boxes-private.h"
 
 #include <X11/Xutil.h>
@@ -2043,4 +2044,57 @@ meta_rectangle_is_adjecent_to (MetaRectangle *rect,
     return TRUE;
   else
     return FALSE;
+}
+
+void
+meta_rectangle_transform (MetaRectangle        *rect,
+                          int32_t               transform_value,
+                          int                   width,
+                          int                   height)
+{
+  MetaRectangle temp;
+  MetaMonitorTransform transform;
+
+  temp = *rect;
+  transform = (MetaMonitorTransform) transform_value;
+
+  switch (transform)
+    {
+    case META_MONITOR_TRANSFORM_NORMAL:
+      break;
+    case META_MONITOR_TRANSFORM_90:
+      rect->x = width - (temp.y + temp.height);
+      rect->y = temp.x;
+      rect->width = temp.height;
+      rect->height = temp.width;
+      break;
+    case META_MONITOR_TRANSFORM_180:
+      rect->x = width - (temp.x + temp.width);
+      rect->y = height - (temp.y + temp.height);
+      break;
+    case META_MONITOR_TRANSFORM_270:
+      rect->x = temp.y;
+      rect->y = height - (temp.x + temp.width);
+      rect->width = temp.height;
+      rect->height = temp.width;
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED:
+      rect->x = width - (temp.x + temp.width);
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+      rect->x = width - (temp.y + temp.height);
+      rect->y = height - (temp.x + temp.width);
+      rect->width = temp.height;
+      rect->height = temp.width;
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+      rect->y = height - (temp.y + temp.height);
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      rect->x = temp.y;
+      rect->y = temp.x;
+      rect->width = temp.height;
+      rect->height = temp.width;
+      break;
+    }
 }

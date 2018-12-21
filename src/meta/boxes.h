@@ -138,4 +138,8 @@ gboolean meta_rectangle_could_fit_rect  (const MetaRectangle *outer_rect,
 gboolean meta_rectangle_contains_rect   (const MetaRectangle *outer_rect,
                                          const MetaRectangle *inner_rect);
 
+void meta_rectangle_transform (MetaRectangle *rect,
+                               int32_t        transform_value,
+                               int            width,
+                               int            height);
 #endif /* META_BOXES_H */
