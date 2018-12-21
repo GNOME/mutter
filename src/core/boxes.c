@@ -30,6 +30,7 @@
 
 #include "config.h"
 
+#include "backends/meta-monitor-transform.h"
 #include "core/boxes-private.h"
 
 #include <X11/Xutil.h>
@@ -2067,6 +2068,82 @@ meta_rectangle_scale_double (const MetaRectangle  *rect,
         .y = (int) floor (rect->y * scale),
         .width = (int) ceil (rect->width * scale),
         .height = (int) ceil (rect->height * scale),
+      };
+      break;
+    }
+}
+
+void
+meta_rectangle_transform (const MetaRectangle  *rect,
+                          MetaMonitorTransform  transform,
+                          int                   width,
+                          int                   height,
+                          MetaRectangle        *dest)
+{
+  switch (transform)
+    {
+    case META_MONITOR_TRANSFORM_NORMAL:
+      *dest = (MetaRectangle) {
+        .x = rect->x,
+        .y = rect->y,
+        .width = rect->width,
+        .height = rect->height,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_90:
+      *dest = (MetaRectangle) {
+        .x = width - (rect->y + rect->height),
+        .y = rect->x,
+        .width = rect->height,
+        .height = rect->width,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_180:
+      *dest = (MetaRectangle) {
+        .x = width - (rect->x + rect->width),
+        .y = height - (rect->y + rect->height),
+        .width = rect->width,
+        .height = rect->height,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_270:
+      *dest = (MetaRectangle) {
+        .x = rect->y,
+        .y = height - (rect->x + rect->width),
+        .width = rect->height,
+        .height = rect->width,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED:
+      *dest = (MetaRectangle) {
+        .x = width - (rect->x + rect->width),
+        .y = rect->y,
+        .width = rect->width,
+        .height = rect->height,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+      *dest = (MetaRectangle) {
+        .x = width - (rect->y + rect->height),
+        .y = height - (rect->x + rect->width),
+        .width = rect->height,
+        .height = rect->width,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+      *dest = (MetaRectangle) {
+        .x = rect->x,
+        .y = height - (rect->y + rect->height),
+        .width = rect->width,
+        .height = rect->height,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      *dest = (MetaRectangle) {
+        .x = rect->y,
+        .y = rect->x,
+        .width = rect->height,
+        .height = rect->width,
       };
       break;
     }
