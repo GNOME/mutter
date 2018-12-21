@@ -31,8 +31,30 @@ struct _MetaWindowActorX11
 G_DEFINE_TYPE (MetaWindowActorX11, meta_window_actor_x11, META_TYPE_WINDOW_ACTOR)
 
 static void
+meta_window_actor_x11_frame_complete (MetaWindowActor  *actor,
+                                      ClutterFrameInfo *frame_info,
+                                      gint64            presentation_time)
+{
+}
+
+static void
+meta_window_actor_x11_pre_paint (MetaWindowActor *actor)
+{
+}
+
+static void
+meta_window_actor_x11_post_paint (MetaWindowActor *actor)
+{
+}
+
+static void
 meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
 {
+  MetaWindowActorClass *window_actor_class = META_WINDOW_ACTOR_CLASS (klass);
+
+  window_actor_class->frame_complete = meta_window_actor_x11_frame_complete;
+  window_actor_class->pre_paint = meta_window_actor_x11_pre_paint;
+  window_actor_class->post_paint = meta_window_actor_x11_post_paint;
 }
 
 static void

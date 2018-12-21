@@ -12,6 +12,13 @@
 struct _MetaWindowActorClass
 {
   ClutterActorClass parent;
+
+  void (*frame_complete) (MetaWindowActor  *actor,
+                          ClutterFrameInfo *frame_info,
+                          gint64            presentation_time);
+
+  void (*pre_paint)      (MetaWindowActor *actor);
+  void (*post_paint)     (MetaWindowActor *actor);
 };
 
 MetaWindowActor *meta_window_actor_new (MetaWindow *window);
