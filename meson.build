@@ -348,7 +348,7 @@ output = [
   '    Options:',
   '',
   '        Wayland.................. ' + have_wayland.to_string(),
-  '        Wayland EGLStream........ ' + have_wayland.to_string(),
+  '        Wayland EGLStream........ ' + have_wayland_eglstream.to_string(),
   '        Native Backend........... ' + have_native_backend.to_string(),
   '        EGL Device............... ' + have_egl_device.to_string(),
   '        Remote desktop........... ' + have_remote_desktop.to_string(),
