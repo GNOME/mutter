@@ -22,6 +22,8 @@
 #ifndef META_BOXES_H
 #define META_BOXES_H
 
+#include "backends/meta-backend-types.h"
+
 #include <glib-object.h>
 #include <meta/common.h>
 
@@ -138,4 +140,9 @@ gboolean meta_rectangle_could_fit_rect  (const MetaRectangle *outer_rect,
 gboolean meta_rectangle_contains_rect   (const MetaRectangle *outer_rect,
                                          const MetaRectangle *inner_rect);
 
+void meta_rectangle_transform (const MetaRectangle  *rect,
+                               MetaMonitorTransform  transform,
+                               int                   width,
+                               int                   height,
+                               MetaRectangle        *dest);
 #endif /* META_BOXES_H */
