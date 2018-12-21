@@ -24,6 +24,7 @@
 
 #include <glib-object.h>
 
+#include "backends/meta-backend-types.h"
 #include "meta/boxes.h"
 #include "meta/common.h"
 
@@ -233,5 +234,11 @@ meta_rectangle_to_clutter_rect (MetaRectangle *rect)
     }
   };
 }
+
+void meta_rectangle_transform (const MetaRectangle  *rect,
+                               MetaMonitorTransform  transform,
+                               int                   width,
+                               int                   height,
+                               MetaRectangle        *dest);
 
 #endif /* META_BOXES_PRIVATE_H */
