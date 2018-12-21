@@ -27,7 +27,9 @@
 
 #include "config.h"
 
+#include "backends/meta-monitor-transform.h"
 #include "compositor/meta-shaped-texture-private.h"
+#include "core/boxes-private.h"
 
 #include <gdk/gdk.h>
 
@@ -865,12 +867,32 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
 				 int                height)
 {
   cairo_region_t *unobscured_region;
-  const cairo_rectangle_int_t clip = { x, y, width, height };
+  cairo_rectangle_int_t clip;
+  MetaMonitorTransform inverted_transform;
 
   if (stex->texture == NULL)
     return FALSE;
 
-  meta_texture_tower_update_area (stex->paint_tower, x, y, width, height);
+  clip = (cairo_rectangle_int_t) {
+    .x = x,
+    .y = y,
+    .width = width,
+    .height = height
+  };
+
+  inverted_transform = meta_monitor_transform_invert (stex->transform);
+  ensure_size_valid (stex);
+  meta_rectangle_transform (&clip,
+                            inverted_transform,
+                            stex->dst_width,
+                            stex->dst_height,
+                            &clip);
+
+  meta_texture_tower_update_area (stex->paint_tower,
+                                  clip.x,
+                                  clip.y,
+                                  clip.width,
+                                  clip.height);
 
   stex->prev_invalidation = stex->last_invalidation;
   stex->last_invalidation = g_get_monotonic_time ();
