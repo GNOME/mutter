@@ -897,21 +897,35 @@ meta_shaped_texture_is_obscured (MetaShapedTexture *self)
  */
 gboolean
 meta_shaped_texture_update_area (MetaShapedTexture *stex,
-				 int                x,
-				 int                y,
-				 int                width,
-				 int                height)
+                                 int                x,
+                                 int                y,
+                                 int                width,
+                                 int                height)
 {
   MetaShapedTexturePrivate *priv;
   cairo_region_t *unobscured_region;
-  const cairo_rectangle_int_t clip = { x, y, width, height };
+  cairo_rectangle_int_t *transformed_clip;
+  cairo_rectangle_int_t untransformed_clip;
 
   priv = stex->priv;
-
   if (priv->texture == NULL)
     return FALSE;
 
-  meta_texture_tower_update_area (priv->paint_tower, x, y, width, height);
+  ensure_size_valid (stex);
+  untransformed_clip = (cairo_rectangle_int_t) { x, y, width, height };
+  transformed_clip = meta_rectangle_transform (&untransformed_clip,
+                                               priv->transform,
+                                               priv->dst_width,
+                                               priv->dst_height,
+                                               TRUE);
+  const cairo_rectangle_int_t clip = *transformed_clip;
+  g_free (transformed_clip);
+
+  meta_texture_tower_update_area (priv->paint_tower,
+                                  clip.x,
+                                  clip.y,
+                                  clip.width,
+                                  clip.height);
 
   priv->prev_invalidation = priv->last_invalidation;
   priv->last_invalidation = g_get_monotonic_time ();
