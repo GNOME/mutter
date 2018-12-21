@@ -29,11 +29,10 @@
 #include "meta/compositor.h"
 
 #define META_TYPE_WINDOW_ACTOR (meta_window_actor_get_type ())
-G_DECLARE_FINAL_TYPE (MetaWindowActor,
-                      meta_window_actor,
-                      META, WINDOW_ACTOR,
-                      ClutterActor)
-
+G_DECLARE_DERIVABLE_TYPE (MetaWindowActor,
+                          meta_window_actor,
+                          META, WINDOW_ACTOR,
+                          ClutterActor)
 
 Window             meta_window_actor_get_x_window         (MetaWindowActor *self);
 MetaWindow *       meta_window_actor_get_meta_window      (MetaWindowActor *self);
