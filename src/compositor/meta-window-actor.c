@@ -27,6 +27,8 @@
 #include "compositor/meta-surface-actor.h"
 #include "compositor/meta-texture-rectangle.h"
 #include "compositor/meta-window-actor-private.h"
+#include "compositor/meta-window-actor-wayland.h"
+#include "compositor/meta-window-actor-x11.h"
 #include "compositor/region-utils.h"
 #include "meta/display.h"
 #include "meta/meta-enum-types.h"
@@ -1484,8 +1486,23 @@ meta_window_actor_new (MetaWindow *window)
   MetaCompositor *compositor = display->compositor;
   MetaWindowActor        *self;
   ClutterActor           *window_group;
+  GType window_type;
 
-  self = g_object_new (META_TYPE_WINDOW_ACTOR,
+  switch (window->client_type)
+    {
+    case META_WINDOW_CLIENT_TYPE_X11:
+      window_type = META_TYPE_WINDOW_ACTOR_X11;
+      break;
+
+    case META_WINDOW_CLIENT_TYPE_WAYLAND:
+      window_type = META_TYPE_WINDOW_ACTOR_WAYLAND;
+      break;
+
+    default:
+      g_assert_not_reached ();
+    }
+
+  self = g_object_new (window_type,
                        "meta-window", window,
                        NULL);
   priv = meta_window_actor_get_instance_private (self);
