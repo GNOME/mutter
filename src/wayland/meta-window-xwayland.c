@@ -71,6 +71,21 @@ meta_window_xwayland_shortcuts_inhibited (MetaWindow         *window,
   return meta_wayland_compositor_is_shortcuts_inhibited (compositor, source);
 }
 
+static gboolean
+meta_window_xwayland_has_pointer (MetaWindow *window)
+{
+  ClutterDeviceManager *dm;
+  ClutterInputDevice *dev;
+  ClutterActor *pointer_actor, *window_actor;
+
+  dm = clutter_device_manager_get_default ();
+  dev = clutter_device_manager_get_core_device (dm, CLUTTER_POINTER_DEVICE);
+  pointer_actor = clutter_input_device_get_pointer_actor (dev);
+  window_actor = CLUTTER_ACTOR (meta_window_get_compositor_private (window));
+
+  return pointer_actor && clutter_actor_contains (window_actor, pointer_actor);
+}
+
 static void
 meta_window_xwayland_get_property (GObject    *object,
                                    guint       prop_id,
@@ -117,6 +132,7 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
 
   window_class->force_restore_shortcuts = meta_window_xwayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_xwayland_shortcuts_inhibited;
+  window_class->has_pointer = meta_window_xwayland_has_pointer;
 
   gobject_class->get_property = meta_window_xwayland_get_property;
   gobject_class->set_property = meta_window_xwayland_set_property;
