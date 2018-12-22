@@ -521,6 +521,8 @@ struct _MetaWindowClass
 
   void (*manage)                 (MetaWindow *window);
   void (*unmanage)               (MetaWindow *window);
+  void (*map)                    (MetaWindow *window);
+  void (*unmap)                  (MetaWindow *window);
   void (*ping)                   (MetaWindow *window,
                                   guint32     serial);
   void (*delete)                 (MetaWindow *window,
