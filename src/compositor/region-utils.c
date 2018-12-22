@@ -20,6 +20,7 @@
 
 #include "config.h"
 
+#include "backends/meta-monitor-transform.h"
 #include "compositor/region-utils.h"
 
 #include <math.h>

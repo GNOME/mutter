@@ -33,17 +33,7 @@ typedef struct _MetaMonitorTiled MetaMonitorTiled;
 typedef struct _MetaMonitorSpec MetaMonitorSpec;
 typedef struct _MetaLogicalMonitor MetaLogicalMonitor;
 
-typedef enum _MetaMonitorTransform
-{
-  META_MONITOR_TRANSFORM_NORMAL,
-  META_MONITOR_TRANSFORM_90,
-  META_MONITOR_TRANSFORM_180,
-  META_MONITOR_TRANSFORM_270,
-  META_MONITOR_TRANSFORM_FLIPPED,
-  META_MONITOR_TRANSFORM_FLIPPED_90,
-  META_MONITOR_TRANSFORM_FLIPPED_180,
-  META_MONITOR_TRANSFORM_FLIPPED_270,
-} MetaMonitorTransform;
+typedef enum _MetaMonitorTransform MetaMonitorTransform;
 
 typedef struct _MetaMonitorMode MetaMonitorMode;
 
