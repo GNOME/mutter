@@ -1068,34 +1068,9 @@ reload_update_counter (MetaWindow    *window,
                        MetaPropValue *value,
                        gboolean       initial)
 {
-  if (value->type != META_PROP_VALUE_INVALID)
-    {
-      meta_window_x11_destroy_sync_request_alarm (window);
-      window->sync_request_counter = None;
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
 
-      if (value->v.xcounter_list.n_counters == 0)
-        {
-          meta_warning ("_NET_WM_SYNC_REQUEST_COUNTER is empty\n");
-          return;
-        }
-
-      if (value->v.xcounter_list.n_counters == 1)
-        {
-          window->sync_request_counter = value->v.xcounter_list.counters[0];
-          window->extended_sync_request_counter = FALSE;
-        }
-      else
-        {
-          window->sync_request_counter = value->v.xcounter_list.counters[1];
-          window->extended_sync_request_counter = TRUE;
-        }
-      meta_verbose ("Window has _NET_WM_SYNC_REQUEST_COUNTER 0x%lx (extended=%s)\n",
-                    window->sync_request_counter,
-                    window->extended_sync_request_counter ? "true" : "false");
-
-      if (window->extended_sync_request_counter)
-        meta_window_x11_create_sync_request_alarm (window);
-    }
+  meta_window_x11_setup_sync_request_counter (window_x11, value);
 }
 
 #define FLAG_TOGGLED_ON(old,new,flag) \

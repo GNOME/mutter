@@ -999,11 +999,6 @@ _meta_window_shared_new (MetaDisplay         *display,
 
   window->workspace = NULL;
 
-  window->sync_request_counter = None;
-  window->sync_request_serial = 0;
-  window->sync_request_timeout_id = 0;
-  window->sync_request_alarm = None;
-
   meta_window_update_sandboxed_app_id (window);
   meta_window_update_desc (window);
 
@@ -1083,7 +1078,6 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->calc_placement = FALSE;
   window->shaken_loose = FALSE;
   window->have_focus_click_grab = FALSE;
-  window->disable_sync = FALSE;
 
   window->unmaps_pending = 0;
 
@@ -1526,12 +1520,6 @@ meta_window_unmanage (MetaWindow  *window,
                   "Unmanaging window %s which has struts, so invalidating work areas\n",
                   window->desc);
       invalidate_work_areas (window);
-    }
-
-  if (window->sync_request_timeout_id)
-    {
-      g_source_remove (window->sync_request_timeout_id);
-      window->sync_request_timeout_id = 0;
     }
 
   if (window->display->grab_window == window)
@@ -5948,8 +5936,8 @@ check_moveresize_frequency (MetaWindow *window,
 
   /* If we are throttling via _NET_WM_SYNC_REQUEST, we don't need
    * an artificial timeout-based throttled */
-  if (!window->disable_sync &&
-      window->sync_request_alarm != None)
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      meta_window_x11_has_sync_request_alarm (META_WINDOW_X11 (window)))
     return TRUE;
 
   elapsed = time_diff (&current_time, &window->display->grab_last_moveresize_time);
@@ -6311,7 +6299,8 @@ update_resize (MetaWindow *window,
    * resize the window when the window responds, or when we time
    * the response out.
    */
-  if (window->sync_request_timeout_id != 0)
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      meta_window_x11_is_sync_request_scheduled (META_WINDOW_X11 (window)))
     return;
 
   if (!check_moveresize_frequency (window, &remaining) && !force)

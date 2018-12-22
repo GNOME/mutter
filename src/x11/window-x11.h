@@ -81,4 +81,10 @@ void     meta_window_x11_configure_notify        (MetaWindow      *window,
 
 Window   meta_window_x11_get_toplevel_xwindow    (MetaWindow *window);
 
+int64_t  meta_window_x11_get_sync_request_serial   (MetaWindowX11 *window_x11);
+gboolean meta_window_x11_is_sync_request_scheduled (MetaWindowX11 *window_x11);
+gboolean meta_window_x11_has_sync_request_alarm    (MetaWindowX11 *window_x11);
+
+gboolean meta_window_x11_has_extended_sync_request_counter (MetaWindowX11 *window_x11);
+
 #endif
