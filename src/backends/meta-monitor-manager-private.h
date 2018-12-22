@@ -41,6 +41,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor.h"
 #include "backends/meta-display-config-shared.h"
+#include "backends/meta-monitor-transform.h"
 #include "meta/display.h"
 #include "meta/meta-monitor-manager.h"
 
@@ -334,20 +335,5 @@ void meta_monitor_manager_rotate_monitor (MetaMonitorManager *manager);
 void meta_monitor_manager_clear_output (MetaOutput *output);
 void meta_monitor_manager_clear_mode (MetaCrtcMode *mode);
 void meta_monitor_manager_clear_crtc (MetaCrtc *crtc);
-
-/* Returns true if transform causes width and height to be inverted
-   This is true for the odd transforms in the enum */
-static inline gboolean
-meta_monitor_transform_is_rotated (MetaMonitorTransform transform)
-{
-  return (transform % 2);
-}
-
-/* Returns true if transform involves flipping */
-static inline gboolean
-meta_monitor_transform_is_flipped (MetaMonitorTransform transform)
-{
-  return (transform >= META_MONITOR_TRANSFORM_FLIPPED);
-}
 
 #endif /* META_MONITOR_MANAGER_PRIVATE_H */
