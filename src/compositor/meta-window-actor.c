@@ -870,6 +870,7 @@ void
 meta_window_actor_queue_frame_drawn (MetaWindowActor *self,
                                      gboolean         no_delay_frame)
 {
+  g_assert (META_IS_WINDOW_ACTOR_X11 (self));
 
   if (meta_window_actor_is_destroyed (self))
     return;
