@@ -609,6 +609,21 @@ meta_window_wayland_are_updates_frozen (MetaWindow *window)
   return !wl_window->has_been_shown;
 }
 
+static gboolean
+meta_window_wayland_has_pointer (MetaWindow *window)
+{
+  ClutterDeviceManager *dm;
+  ClutterInputDevice *dev;
+  ClutterActor *pointer_actor, *window_actor;
+
+  dm = clutter_device_manager_get_default ();
+  dev = clutter_device_manager_get_core_device (dm, CLUTTER_POINTER_DEVICE);
+  pointer_actor = clutter_input_device_get_pointer_actor (dev);
+  window_actor = CLUTTER_ACTOR (meta_window_get_compositor_private (window));
+
+  return pointer_actor && clutter_actor_contains (window_actor, pointer_actor);
+}
+
 static void
 meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
 {
@@ -632,6 +647,7 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->shortcuts_inhibited = meta_window_wayland_shortcuts_inhibited;
   window_class->is_stackable = meta_window_wayland_is_stackable;
   window_class->are_updates_frozen = meta_window_wayland_are_updates_frozen;
+  window_class->has_pointer = meta_window_wayland_has_pointer;
 }
 
 MetaWindow *
