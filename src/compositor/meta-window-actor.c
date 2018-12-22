@@ -425,6 +425,20 @@ meta_window_actor_constructed (GObject *object)
   /* Start off with an empty shape region to maintain the invariant
    * that it's always set */
   priv->shape_region = cairo_region_create ();
+
+  meta_window_actor_sync_updates_frozen (self);
+
+  if (is_frozen (self))
+    priv->first_frame_state = INITIALLY_FROZEN;
+  else
+    priv->first_frame_state = DRAWING_FIRST_FRAME;
+
+  META_WINDOW_ACTOR_GET_CLASS (self)->post_init (self);
+
+  meta_window_actor_sync_actor_geometry (self, priv->window->placed);
+
+  /* Hang our compositor window state off the MetaWindow for fast retrieval */
+  meta_window_set_compositor_private (window, object);
 }
 
 static void
@@ -1223,63 +1237,6 @@ meta_window_actor_size_change (MetaWindowActor    *self,
       priv->size_change_in_progress--;
       meta_window_actor_thaw (self);
     }
-}
-
-MetaWindowActor *
-meta_window_actor_new (MetaWindow *window)
-{
-  MetaWindowActorPrivate *priv;
-  MetaDisplay *display = meta_window_get_display (window);
-  MetaCompositor *compositor = display->compositor;
-  MetaWindowActor        *self;
-  ClutterActor           *window_group;
-  GType window_actor_type;
-
-  switch (window->client_type)
-    {
-    case META_WINDOW_CLIENT_TYPE_X11:
-      window_actor_type = META_TYPE_WINDOW_ACTOR_X11;
-      break;
-
-    case META_WINDOW_CLIENT_TYPE_WAYLAND:
-      window_actor_type = META_TYPE_WINDOW_ACTOR_WAYLAND;
-      break;
-    }
-
-  self = g_object_new (window_actor_type,
-                       "meta-window", window,
-                       NULL);
-  priv = meta_window_actor_get_instance_private (self);
-
-  meta_window_actor_sync_updates_frozen (self);
-
-  if (is_frozen (self))
-    priv->first_frame_state = INITIALLY_FROZEN;
-  else
-    priv->first_frame_state = DRAWING_FIRST_FRAME;
-
-  META_WINDOW_ACTOR_GET_CLASS (self)->post_init (self);
-
-  meta_window_actor_sync_actor_geometry (self, priv->window->placed);
-
-  /* Hang our compositor window state off the MetaWindow for fast retrieval */
-  meta_window_set_compositor_private (window, G_OBJECT (self));
-
-  if (window->layer == META_LAYER_OVERRIDE_REDIRECT)
-    window_group = compositor->top_window_group;
-  else
-    window_group = compositor->window_group;
-
-  clutter_actor_add_child (window_group, CLUTTER_ACTOR (self));
-
-  clutter_actor_hide (CLUTTER_ACTOR (self));
-
-  /* Initial position in the stack is arbitrary; stacking will be synced
-   * before we first paint.
-   */
-  compositor->windows = g_list_append (compositor->windows, self);
-
-  return self;
 }
 
 #if 0
