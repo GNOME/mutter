@@ -20,6 +20,7 @@
  *     Georges Basile Stavracas Neto <gbsneto@gnome.org>
  */
 
+#include "compositor/meta-surface-actor.h"
 #include "compositor/meta-window-actor-wayland.h"
 #include "meta/meta-window-actor.h"
 
@@ -38,6 +39,16 @@ meta_window_actor_wayland_frame_complete (MetaWindowActor  *actor,
 }
 
 static void
+meta_window_actor_wayland_set_surface (MetaWindowActor  *actor,
+                                       MetaSurfaceActor *surface)
+{
+  MetaWindowActorClass *parent_class =
+    META_WINDOW_ACTOR_CLASS (meta_window_actor_wayland_parent_class);
+
+  parent_class->set_surface (actor, surface);
+}
+
+static void
 meta_window_actor_wayland_pre_paint (MetaWindowActor *actor)
 {
 }
@@ -53,6 +64,7 @@ meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
   MetaWindowActorClass *window_actor_class = META_WINDOW_ACTOR_CLASS (klass);
 
   window_actor_class->frame_complete = meta_window_actor_wayland_frame_complete;
+  window_actor_class->set_surface = meta_window_actor_wayland_set_surface;
   window_actor_class->pre_paint = meta_window_actor_wayland_pre_paint;
   window_actor_class->post_paint = meta_window_actor_wayland_post_paint;
 }

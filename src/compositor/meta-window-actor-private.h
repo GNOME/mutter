@@ -17,6 +17,9 @@ struct _MetaWindowActorClass
                           ClutterFrameInfo *frame_info,
                           gint64            presentation_time);
 
+  void (*set_surface)    (MetaWindowActor  *actor,
+                          MetaSurfaceActor *surface);
+
   void (*pre_paint)      (MetaWindowActor *actor);
   void (*post_paint)     (MetaWindowActor *actor);
 };

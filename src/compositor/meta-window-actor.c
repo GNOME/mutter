@@ -175,7 +175,8 @@ static void meta_window_actor_paint (ClutterActor *actor);
 
 static gboolean meta_window_actor_get_paint_volume (ClutterActor       *actor,
                                                     ClutterPaintVolume *volume);
-
+static void set_surface (MetaWindowActor  *actor,
+                         MetaSurfaceActor *surface);
 
 static gboolean meta_window_actor_has_shadow (MetaWindowActor *self);
 
@@ -205,6 +206,13 @@ frame_data_free (FrameData *frame)
 }
 
 static void
+meta_window_actor_real_set_surface (MetaWindowActor  *actor,
+                                    MetaSurfaceActor *surface)
+{
+  set_surface (actor, surface);
+}
+
+static void
 meta_window_actor_class_init (MetaWindowActorClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -219,6 +227,8 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
 
   actor_class->paint = meta_window_actor_paint;
   actor_class->get_paint_volume = meta_window_actor_get_paint_volume;
+
+  klass->set_surface = meta_window_actor_real_set_surface;
 
   /**
    * MetaWindowActor::first-frame:
