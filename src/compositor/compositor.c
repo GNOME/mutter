@@ -62,6 +62,8 @@
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
 #include "compositor/meta-sync-ring.h"
+#include "compositor/meta-window-actor-x11.h"
+#include "compositor/meta-window-actor-wayland.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-window-group-private.h"
 #include "core/core.h"
@@ -660,11 +662,40 @@ void
 meta_compositor_add_window (MetaCompositor    *compositor,
                             MetaWindow        *window)
 {
+  MetaWindowActor *window_actor;
+  ClutterActor *window_group;
   MetaDisplay *display = compositor->display;
+  GType window_actor_type;
 
   meta_x11_error_trap_push (display->x11_display);
 
-  meta_window_actor_new (window);
+  switch (window->client_type)
+    {
+    case META_WINDOW_CLIENT_TYPE_X11:
+      window_actor_type = META_TYPE_WINDOW_ACTOR_X11;
+      break;
+
+    case META_WINDOW_CLIENT_TYPE_WAYLAND:
+      window_actor_type = META_TYPE_WINDOW_ACTOR_WAYLAND;
+      break;
+    }
+
+  window_actor = g_object_new (window_actor_type,
+                               "meta-window", window,
+                               "visible", FALSE,
+                               NULL);
+
+  if (window->layer == META_LAYER_OVERRIDE_REDIRECT)
+    window_group = compositor->top_window_group;
+  else
+    window_group = compositor->window_group;
+
+  clutter_actor_add_child (window_group, CLUTTER_ACTOR (window_actor));
+
+  /* Initial position in the stack is arbitrary; stacking will be synced
+   * before we first paint.
+   */
+  compositor->windows = g_list_append (compositor->windows, window_actor);
   sync_actor_stacking (compositor);
 
   meta_x11_error_trap_pop (display->x11_display);
