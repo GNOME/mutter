@@ -33,6 +33,9 @@ G_DECLARE_FINAL_TYPE (MetaWindowActorX11,
                       META, WINDOW_ACTOR_X11,
                       MetaWindowActor)
 
+void meta_window_actor_x11_queue_frame_drawn (MetaWindowActorX11 *actor_x11,
+                                              gboolean            no_delay_frame);
+
 G_END_DECLS
 
 #endif /* META_WINDOW_ACTOR_X11_H */
