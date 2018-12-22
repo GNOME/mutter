@@ -241,6 +241,11 @@ endif
 have_introspection = get_option('introspection')
 if have_introspection
   gobject_introspection_dep = dependency('gobject-introspection-1.0')
+
+  introspection_args = [
+    '--quiet',
+    '-U_GNU_SOURCE',
+  ]
 endif
 
 have_cogl_tests = get_option('cogl_tests')

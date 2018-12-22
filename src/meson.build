@@ -820,9 +820,7 @@ if have_introspection
       mutter_deps,
       libmutter_dep,
     ],
-    extra_args: mutter_c_args + [
-      '-U_GNU_SOURCE',
-    ],
+    extra_args: mutter_c_args + introspection_args,
     install_dir_gir: pkglibdir,
     install_dir_typelib: pkglibdir,
     install: true

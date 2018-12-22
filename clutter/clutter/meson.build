@@ -540,10 +540,7 @@ libmutter_clutter_dep = declare_dependency(
 )
 
 if have_introspection
-  clutter_introspection_args = clutter_c_args + [
-    '-U_GNU_SOURCE', # _GNU_SOURCE triggers warnings in g-ir-scanner
-    '--quiet',
-  ]
+  clutter_introspection_args = introspection_args + clutter_c_args
 
   libmutter_clutter_gir = gnome.generate_gir(libmutter_clutter,
     sources: [

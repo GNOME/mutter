@@ -488,14 +488,13 @@ if have_introspection
     namespace: 'Cogl',
     includes: ['GL-1.0', 'GObject-2.0'],
     dependencies: [cogl_deps],
-    extra_args: [
+    extra_args: introspection_args + [
       '-UCOGL_COMPILATION',
       '-D__COGL_H_INSIDE__',
       '-D__COGL_XLIB_H_INSIDE__',
       '-D__COGL_EGL_H_INSIDE__',
       '-D__COGL_GLX_H_INSIDE__',
       '-DCOGL_GIR_SCANNING',
-      '-U_GNU_SOURCE',
     ],
     install_dir_gir: pkglibdir,
     install_dir_typelib: pkglibdir,
