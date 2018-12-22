@@ -52,7 +52,6 @@
 #include "meta/group.h"
 #include "meta/meta-cursor-tracker.h"
 #include "meta/meta-enum-types.h"
-#include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
 #include "ui/ui.h"
 #include "x11/meta-x11-display-private.h"
@@ -6797,7 +6796,7 @@ meta_window_is_ancestor_of_transient (MetaWindow *window,
 /* Warp pointer to location appropriate for grab,
  * return root coordinates where pointer ended up.
  */
-static gboolean
+static void
 warp_grab_pointer (MetaWindow          *window,
                    MetaGrabOp           grab_op,
                    int                 *x,
@@ -6838,8 +6837,6 @@ warp_grab_pointer (MetaWindow          *window,
   *x = CLAMP (*x, 0, display_rect.width - 1);
   *y = CLAMP (*y, 0, display_rect.height - 1);
 
-  meta_x11_error_trap_push (display->x11_display);
-
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Warping pointer to %d,%d with window at %d,%d\n",
               *x, *y, rect.x, rect.y);
@@ -6855,19 +6852,8 @@ warp_grab_pointer (MetaWindow          *window,
   meta_window_get_frame_rect (window,
                               &display->grab_anchor_window_pos);
 
-  {
-    MetaBackend *backend = meta_get_backend ();
-    meta_backend_warp_pointer (backend, *x, *y);
-  }
 
-  if (meta_x11_error_trap_pop_with_return (display->x11_display) != Success)
-    {
-      meta_verbose ("Failed to warp pointer for window %s\n",
-                    window->desc);
-      return FALSE;
-    }
-
-  return TRUE;
+  meta_backend_warp_pointer (meta_get_backend (), *x, *y);
 }
 
 void
