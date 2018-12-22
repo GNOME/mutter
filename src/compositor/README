@@ -1,7 +1,38 @@
 Intro
 =====
 
-Fix me.
+In general, the compositor splits the window from the contents of
+the window from the shape of the window. In other words, a window
+has contents, and the contents of the window have a shape. This is
+represented by the actor hierarchy:
+
+ +--------------------------------------+
+ | MetaWindowActor                      |
+ | +----------------------------------+ |
+ | | MetaSurfaceActor                 | |
+ | | +------------------------------+ | |
+ | | | MetaShapedTexture            | | |
+ | | |                              | | |
+ | | |                              | | |
+ | | |                              | | |
+ | | |                              | | |
+ | | +------------------------------+ | |
+ | +----------------------------------+ |
+ +--------------------------------------+
+
+## Client and compositor
+
+MetaWindowActor and its subclasses represent the client window's
+type. A X11 client will have a MetaWindowActorX11 representing it,
+and a Wayland client will have a MetaWindowActorWayland.
+
+On the compositor side, the surface where the contents of the window
+are drawn into are represented by MetaSurfaceActor subclasses. On a
+Wayland session, windows are backed by a MetaSurfaceActorWayland
+surface, whereas on X11 sessions, by MetaSurfaceActorX11.
+
+XWayland windows are X11 client windows (MetaWindowActorX11) backed
+by Wayland surfaces (MetaWindowActorWayland).
 
 
 Env Vars
