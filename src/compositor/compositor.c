@@ -660,11 +660,25 @@ void
 meta_compositor_add_window (MetaCompositor    *compositor,
                             MetaWindow        *window)
 {
+  MetaWindowActor *window_actor;
+  ClutterActor *window_group;
   MetaDisplay *display = compositor->display;
 
   meta_x11_error_trap_push (display->x11_display);
 
-  meta_window_actor_new (window);
+  window_actor = meta_window_actor_new (window);
+
+  if (window->layer == META_LAYER_OVERRIDE_REDIRECT)
+    window_group = compositor->top_window_group;
+  else
+    window_group = compositor->window_group;
+
+  clutter_actor_add_child (window_group, CLUTTER_ACTOR (window_actor));
+
+  /* Initial position in the stack is arbitrary; stacking will be synced
+   * before we first paint.
+   */
+  compositor->windows = g_list_append (compositor->windows, window_actor);
   sync_actor_stacking (compositor);
 
   meta_x11_error_trap_pop (display->x11_display);
