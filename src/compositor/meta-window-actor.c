@@ -12,17 +12,10 @@
 #include <math.h>
 #include <string.h>
 
-#include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
-#include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-screen-cast-window.h"
-#include "clutter/clutter-mutter.h"
-#include "clutter/x11/clutter-x11.h"
-#include "cogl/winsys/cogl-texture-pixmap-x11.h"
 #include "core/frame.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-cullable.h"
-#include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-surface-actor-x11.h"
 #include "compositor/meta-surface-actor.h"
 #include "compositor/meta-texture-rectangle.h"
@@ -30,10 +23,8 @@
 #include "compositor/meta-window-actor-wayland.h"
 #include "compositor/meta-window-actor-x11.h"
 #include "compositor/region-utils.h"
-#include "meta/display.h"
 #include "meta/meta-enum-types.h"
 #include "meta/meta-shadow-factory.h"
-#include "meta/meta-shaped-texture.h"
 #include "meta/window.h"
 
 #ifdef HAVE_WAYLAND
