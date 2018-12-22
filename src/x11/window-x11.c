@@ -588,6 +588,12 @@ meta_window_x11_unmanage (MetaWindow *window)
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
+  if (priv->sync_request_timeout_id)
+    {
+      g_source_remove (priv->sync_request_timeout_id);
+      priv->sync_request_timeout_id = 0;
+    }
+
   meta_x11_error_trap_push (x11_display);
 
   meta_window_x11_destroy_sync_request_alarm (window);
@@ -858,7 +864,7 @@ meta_window_x11_grab_op_began (MetaWindow *window,
 
   if (meta_grab_op_is_resizing (op))
     {
-      if (window->sync_request_counter != None)
+      if (priv->sync_request_counter != None)
         meta_window_x11_create_sync_request_alarm (window);
 
       if (window->size_hints.width_inc > 2 || window->size_hints.height_inc > 2)
@@ -999,18 +1005,20 @@ static gboolean
 sync_request_timeout (gpointer data)
 {
   MetaWindow *window = data;
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (META_WINDOW_X11 (window));
 
-  window->sync_request_timeout_id = 0;
+  priv->sync_request_timeout_id = 0;
 
   /* We have now waited for more than a second for the
    * application to respond to the sync request
    */
-  window->disable_sync = TRUE;
+  priv->disable_sync = TRUE;
 
   /* Reset the wait serial, so we don't continue freezing
    * window updates
    */
-  window->sync_request_wait_serial = 0;
+  priv->sync_request_wait_serial = 0;
   meta_compositor_sync_updates_frozen (window->display->compositor, window);
 
   if (window == window->display->grab_window &&
@@ -1029,6 +1037,9 @@ sync_request_timeout (gpointer data)
 static void
 send_sync_request (MetaWindow *window)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
   MetaX11Display *x11_display = window->display->x11_display;
   XClientMessageEvent ev;
   gint64 wait_serial;
@@ -1040,9 +1051,9 @@ send_sync_request (MetaWindow *window)
    * for the old style. The increment of 240 is specified by the EWMH
    * and is (1 second) * (60fps) * (an increment of 4 per frame).
    */
-  wait_serial = window->sync_request_serial + 240;
+  wait_serial = priv->sync_request_serial + 240;
 
-  window->sync_request_wait_serial = wait_serial;
+  priv->sync_request_wait_serial = wait_serial;
 
   ev.type = ClientMessage;
   ev.window = window->xwindow;
@@ -1057,7 +1068,7 @@ send_sync_request (MetaWindow *window)
   ev.data.l[1] = meta_display_get_current_time (window->display);
   ev.data.l[2] = wait_serial & G_GUINT64_CONSTANT(0xffffffff);
   ev.data.l[3] = wait_serial >> 32;
-  ev.data.l[4] = window->extended_sync_request_counter ? 1 : 0;
+  ev.data.l[4] = priv->extended_sync_request_counter ? 1 : 0;
 
   /* We don't need to trap errors here as we are already
    * inside an error_trap_push()/pop() pair.
@@ -1069,10 +1080,10 @@ send_sync_request (MetaWindow *window)
    * if this time expires, we consider the window unresponsive
    * and resize it unsynchonized.
    */
-  window->sync_request_timeout_id = g_timeout_add (1000,
-                                                   sync_request_timeout,
-                                                   window);
-  g_source_set_name_by_id (window->sync_request_timeout_id,
+  priv->sync_request_timeout_id = g_timeout_add (1000,
+                                                 sync_request_timeout,
+                                                 window);
+  g_source_set_name_by_id (priv->sync_request_timeout_id,
                            "[mutter] sync_request_timeout");
 
   meta_compositor_sync_updates_frozen (window->display->compositor, window);
@@ -1290,7 +1301,7 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
    * will be left undisturbed for us to paint to the screen until
    * the client finishes redrawing.
    */
-  if (window->extended_sync_request_counter)
+  if (priv->extended_sync_request_counter)
     configure_frame_first = TRUE;
   else
     configure_frame_first = size_dx + size_dy >= 0;
@@ -1318,10 +1329,10 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
 
       if (window == window->display->grab_window &&
           meta_grab_op_is_resizing (window->display->grab_op) &&
-          !window->disable_sync &&
-          window->sync_request_counter != None &&
-          window->sync_request_alarm != None &&
-          window->sync_request_timeout_id == 0)
+          !priv->disable_sync &&
+          priv->sync_request_counter != None &&
+          priv->sync_request_alarm != None &&
+          priv->sync_request_timeout_id == 0)
         {
           send_sync_request (window);
         }
@@ -1636,11 +1647,15 @@ meta_window_x11_is_stackable (MetaWindow *window)
 static gboolean
 meta_window_x11_are_updates_frozen (MetaWindow *window)
 {
-  if (window->extended_sync_request_counter &&
-      window->sync_request_serial % 2 == 1)
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  if (priv->extended_sync_request_counter &&
+      priv->sync_request_serial % 2 == 1)
     return TRUE;
 
-  if (window->sync_request_serial < window->sync_request_wait_serial)
+  if (priv->sync_request_serial < priv->sync_request_wait_serial)
     return TRUE;
 
   return FALSE;
@@ -3499,12 +3514,15 @@ meta_window_x11_set_allowed_actions_hint (MetaWindow *window)
 void
 meta_window_x11_create_sync_request_alarm (MetaWindow *window)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
   MetaX11Display *x11_display = window->display->x11_display;
   XSyncAlarmAttributes values;
   XSyncValue init;
 
-  if (window->sync_request_counter == None ||
-      window->sync_request_alarm != None)
+  if (priv->sync_request_counter == None ||
+      priv->sync_request_alarm != None)
     return;
 
   meta_x11_error_trap_push (x11_display);
@@ -3513,29 +3531,29 @@ meta_window_x11_create_sync_request_alarm (MetaWindow *window)
    * the client before mapping the window. In the old style, we're
    * responsible for setting the initial value of the counter.
    */
-  if (window->extended_sync_request_counter)
+  if (priv->extended_sync_request_counter)
     {
       if (!XSyncQueryCounter(x11_display->xdisplay,
-                             window->sync_request_counter,
+                             priv->sync_request_counter,
                              &init))
         {
           meta_x11_error_trap_pop_with_return (x11_display);
-          window->sync_request_counter = None;
+          priv->sync_request_counter = None;
           return;
         }
 
-      window->sync_request_serial =
+      priv->sync_request_serial =
         XSyncValueLow32 (init) + ((gint64)XSyncValueHigh32 (init) << 32);
     }
   else
     {
       XSyncIntToValue (&init, 0);
       XSyncSetCounter (x11_display->xdisplay,
-                       window->sync_request_counter, init);
-      window->sync_request_serial = 0;
+                       priv->sync_request_counter, init);
+      priv->sync_request_serial = 0;
     }
 
-  values.trigger.counter = window->sync_request_counter;
+  values.trigger.counter = priv->sync_request_counter;
   values.trigger.test_type = XSyncPositiveComparison;
 
   /* Initialize to one greater than the current value */
@@ -3549,36 +3567,38 @@ meta_window_x11_create_sync_request_alarm (MetaWindow *window)
   /* we want events (on by default anyway) */
   values.events = True;
 
-  window->sync_request_alarm = XSyncCreateAlarm (x11_display->xdisplay,
-                                                 XSyncCACounter |
-                                                 XSyncCAValueType |
-                                                 XSyncCAValue |
-                                                 XSyncCATestType |
-                                                 XSyncCADelta |
-                                                 XSyncCAEvents,
-                                                 &values);
+  priv->sync_request_alarm = XSyncCreateAlarm (x11_display->xdisplay,
+                                               XSyncCACounter |
+                                               XSyncCAValueType |
+                                               XSyncCAValue |
+                                               XSyncCATestType |
+                                               XSyncCADelta |
+                                               XSyncCAEvents,
+                                               &values);
 
   if (meta_x11_error_trap_pop_with_return (x11_display) == Success)
-    meta_x11_display_register_sync_alarm (x11_display, &window->sync_request_alarm, window);
+    meta_x11_display_register_sync_alarm (x11_display, &priv->sync_request_alarm, window);
   else
     {
-      window->sync_request_alarm = None;
-      window->sync_request_counter = None;
+      priv->sync_request_alarm = None;
+      priv->sync_request_counter = None;
     }
 }
 
 void
 meta_window_x11_destroy_sync_request_alarm (MetaWindow *window)
 {
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (META_WINDOW_X11 (window));
   MetaX11Display *x11_display = window->display->x11_display;
 
-  if (window->sync_request_alarm != None)
+  if (priv->sync_request_alarm != None)
     {
       /* Has to be unregistered _before_ clearing the structure field */
-      meta_x11_display_unregister_sync_alarm (x11_display, window->sync_request_alarm);
+      meta_x11_display_unregister_sync_alarm (x11_display, priv->sync_request_alarm);
       XSyncDestroyAlarm (x11_display->xdisplay,
-                         window->sync_request_alarm);
-      window->sync_request_alarm = None;
+                         priv->sync_request_alarm);
+      priv->sync_request_alarm = None;
     }
 }
 
@@ -3586,31 +3606,34 @@ void
 meta_window_x11_update_sync_request_counter (MetaWindow *window,
                                              gint64      new_counter_value)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
   gboolean needs_frame_drawn = FALSE;
   gboolean no_delay_frame = FALSE;
 
-  if (window->extended_sync_request_counter && new_counter_value % 2 == 0)
+  if (priv->extended_sync_request_counter && new_counter_value % 2 == 0)
     {
       needs_frame_drawn = TRUE;
-      no_delay_frame = new_counter_value == window->sync_request_serial + 1;
+      no_delay_frame = new_counter_value == priv->sync_request_serial + 1;
     }
 
-  window->sync_request_serial = new_counter_value;
+  priv->sync_request_serial = new_counter_value;
   meta_compositor_sync_updates_frozen (window->display->compositor, window);
 
   if (window == window->display->grab_window &&
       meta_grab_op_is_resizing (window->display->grab_op) &&
-      new_counter_value >= window->sync_request_wait_serial &&
-      (!window->extended_sync_request_counter || new_counter_value % 2 == 0) &&
-      window->sync_request_timeout_id)
+      new_counter_value >= priv->sync_request_wait_serial &&
+      (!priv->extended_sync_request_counter || new_counter_value % 2 == 0) &&
+      priv->sync_request_timeout_id)
     {
       meta_topic (META_DEBUG_RESIZING,
                   "Alarm event received last motion x = %d y = %d\n",
                   window->display->grab_latest_motion_x,
                   window->display->grab_latest_motion_y);
 
-      g_source_remove (window->sync_request_timeout_id);
-      window->sync_request_timeout_id = 0;
+      g_source_remove (priv->sync_request_timeout_id);
+      priv->sync_request_timeout_id = 0;
 
       /* This means we are ready for another configure;
        * no pointer round trip here, to keep in sync */
@@ -3625,7 +3648,7 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
    * the application has come to its senses (maybe it was just
    * busy with a pagefault or a long computation).
    */
-  window->disable_sync = FALSE;
+  priv->disable_sync = FALSE;
 
   if (needs_frame_drawn)
     meta_compositor_queue_frame_drawn (window->display->compositor, window,
@@ -3636,4 +3659,87 @@ Window
 meta_window_x11_get_toplevel_xwindow (MetaWindow *window)
 {
   return window->frame ? window->frame->xwindow : window->xwindow;
+}
+
+int64_t
+meta_window_x11_get_sync_request_serial (MetaWindowX11 *window_x11)
+{
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  g_return_val_if_fail (META_IS_WINDOW_X11 (window_x11), -1);
+
+  return priv->sync_request_serial;
+}
+
+gboolean
+meta_window_x11_has_sync_request_alarm (MetaWindowX11 *window_x11)
+{
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  g_return_val_if_fail (META_IS_WINDOW_X11 (window_x11), FALSE);
+
+  return !priv->disable_sync &&
+          priv->sync_request_alarm != None;
+}
+
+gboolean
+meta_window_x11_is_sync_request_scheduled (MetaWindowX11 *window_x11)
+{
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  g_return_val_if_fail (META_IS_WINDOW_X11 (window_x11), FALSE);
+
+  return priv->sync_request_timeout_id != 0;
+}
+
+gboolean
+meta_window_x11_has_extended_sync_request_counter (MetaWindowX11 *window_x11)
+{
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  g_return_val_if_fail (META_IS_WINDOW_X11 (window_x11), FALSE);
+
+  return priv->extended_sync_request_counter;
+}
+
+void
+meta_window_x11_setup_sync_request_counter (MetaWindowX11 *window_x11,
+                                            MetaPropValue *value)
+{
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+  MetaWindow *window = META_WINDOW (window_x11);
+
+  if (value->type == META_PROP_VALUE_INVALID)
+    return;
+
+  meta_window_x11_destroy_sync_request_alarm (window);
+  priv->sync_request_counter = None;
+
+  if (value->v.xcounter_list.n_counters == 0)
+    {
+      meta_warning ("_NET_WM_SYNC_REQUEST_COUNTER is empty\n");
+      return;
+    }
+
+  if (value->v.xcounter_list.n_counters == 1)
+    {
+      priv->sync_request_counter = value->v.xcounter_list.counters[0];
+      priv->extended_sync_request_counter = FALSE;
+    }
+  else
+    {
+      priv->sync_request_counter = value->v.xcounter_list.counters[1];
+      priv->extended_sync_request_counter = TRUE;
+    }
+  meta_verbose ("Window has _NET_WM_SYNC_REQUEST_COUNTER 0x%lx (extended=%s)\n",
+                priv->sync_request_counter,
+                priv->extended_sync_request_counter ? "true" : "false");
+
+  if (priv->extended_sync_request_counter)
+    meta_window_x11_create_sync_request_alarm (window);
 }

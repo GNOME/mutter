@@ -30,6 +30,7 @@
 #include "meta/meta-x11-errors.h"
 #include "meta/window.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-x11.h"
 
 struct _MetaWindowActorX11
 {
@@ -362,9 +363,12 @@ meta_window_actor_x11_queue_frame_drawn (MetaWindowActor *actor,
     meta_window_actor_get_meta_window (actor);
   FrameData *frame;
 
+  g_assert (META_IS_WINDOW_X11 (window));
+
   frame = g_slice_new0 (FrameData);
   frame->frame_counter = -1;
-  frame->sync_request_serial = window->sync_request_serial;
+  frame->sync_request_serial =
+    meta_window_x11_get_sync_request_serial (META_WINDOW_X11 (window));
 
   actor_x11->frames = g_list_prepend (actor_x11->frames, frame);
 
@@ -413,11 +417,12 @@ static void
 meta_window_actor_x11_post_init (MetaWindowActor *actor)
 {
   MetaWindow *window = meta_window_actor_get_meta_window (actor);
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
 
   /* If a window doesn't start off with updates frozen, we should
    * we should send a _NET_WM_FRAME_DRAWN immediately after the first drawn.
    */
-  if (window->extended_sync_request_counter &&
+  if (meta_window_x11_has_extended_sync_request_counter (window_x11) &&
       !meta_window_updates_are_frozen (window))
     meta_window_actor_queue_frame_drawn (actor, FALSE);
 }
