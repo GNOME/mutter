@@ -25,6 +25,8 @@
 
 #include "core/window-private.h"
 #include "x11/iconcache.h"
+#include "x11/window-x11.h"
+#include "x11/xprops.h"
 
 G_BEGIN_DECLS
 
@@ -69,7 +71,27 @@ struct _MetaWindowX11Private
   MetaIconCache icon_cache;
   Pixmap wm_hints_pixmap;
   Pixmap wm_hints_mask;
+
+  /* alarm monitoring client's _NET_WM_SYNC_REQUEST_COUNTER */
+  XSyncAlarm sync_request_alarm;
+
+  /* XSync update counter */
+  XSyncCounter sync_request_counter;
+
+  int64_t sync_request_serial;
+  int64_t sync_request_wait_serial;
+  guint sync_request_timeout_id;
+
+  /* if TRUE, application is buggy and SYNC resizing is turned off */
+  guint disable_sync : 1;
+
+  /* if TRUE, the we have the new form of sync request counter which
+   * also handles application frames */
+  guint extended_sync_request_counter : 1;
 };
+
+void meta_window_x11_setup_sync_request_counter (MetaWindowX11 *window_x11,
+                                                 MetaPropValue *value);
 
 G_END_DECLS
 
