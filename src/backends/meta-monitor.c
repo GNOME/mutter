@@ -1782,3 +1782,22 @@ meta_monitor_mode_foreach_output (MetaMonitor        *monitor,
 
   return TRUE;
 }
+
+MetaMonitorTransform
+meta_monitor_transform_invert (MetaMonitorTransform transform)
+{
+  switch (transform)
+    {
+    case META_MONITOR_TRANSFORM_90:
+      return META_MONITOR_TRANSFORM_270;
+    case META_MONITOR_TRANSFORM_270:
+      return META_MONITOR_TRANSFORM_90;
+    case META_MONITOR_TRANSFORM_NORMAL:
+    case META_MONITOR_TRANSFORM_180:
+    case META_MONITOR_TRANSFORM_FLIPPED:
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      return transform;
+    }
+}
