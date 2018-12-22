@@ -34,9 +34,7 @@
 #include "meta/meta-enum-types.h"
 #include "meta/meta-shadow-factory.h"
 #include "meta/meta-shaped-texture.h"
-#include "meta/meta-x11-errors.h"
 #include "meta/window.h"
-#include "x11/meta-x11-display-private.h"
 
 #ifdef HAVE_WAYLAND
 #include "compositor/meta-surface-actor-wayland.h"
@@ -83,10 +81,6 @@ typedef struct
 
   MetaShadowMode    shadow_mode;
 
-  guint             send_frame_messages_timer;
-  gint64            frame_drawn_time;
-
-  guint             repaint_scheduled_id;
   guint             size_changed_id;
 
   /*
@@ -100,17 +94,10 @@ typedef struct
   gint              map_in_progress;
   gint              destroy_in_progress;
 
-  /* List of FrameData for recent frames */
-  GList            *frames;
   guint             freeze_count;
 
   guint		    visible                : 1;
   guint		    disposed               : 1;
-
-  /* If set, the client needs to be sent a _NET_WM_FRAME_DRAWN
-   * client message for one or more messages in ->frames */
-  guint             needs_frame_drawn      : 1;
-  guint             repaint_scheduled      : 1;
 
   guint             needs_reshape          : 1;
   guint             recompute_focused_shadow   : 1;
@@ -121,26 +108,6 @@ typedef struct
   guint             updates_frozen         : 1;
   guint             first_frame_state      : 2; /* FirstFrameState */
 } MetaWindowActorPrivate;
-
-typedef struct _FrameData FrameData;
-
-/* Each time the application updates the sync request counter to a new even value
- * value, we queue a frame into the windows list of frames. Once we're painting
- * an update "in response" to the window, we fill in frame_counter with the
- * Cogl counter for that frame, and send _NET_WM_FRAME_DRAWN at the end of the
- * frame. _NET_WM_FRAME_TIMINGS is sent when we get a frame_complete callback.
- *
- * As an exception, if a window is completely obscured, we try to throttle drawning
- * to a slower frame rate. In this case, frame_counter stays -1 until
- * send_frame_message_timeout() runs, at which point we send both the
- * _NET_WM_FRAME_DRAWN and _NET_WM_FRAME_TIMINGS messages.
- */
-struct _FrameData
-{
-  guint64 sync_request_serial;
-  int64_t frame_counter;
-  gint64 frame_drawn_time;
-};
 
 enum
 {
@@ -160,7 +127,6 @@ enum
 };
 
 static void meta_window_actor_dispose    (GObject *object);
-static void meta_window_actor_finalize   (GObject *object);
 static void meta_window_actor_constructed (GObject *object);
 static void meta_window_actor_set_property (GObject       *object,
                                             guint         prop_id,
@@ -184,12 +150,6 @@ static void meta_window_actor_handle_updates (MetaWindowActor *self);
 
 static void check_needs_reshape (MetaWindowActor *self);
 
-static void do_send_frame_drawn (MetaWindowActor *self, FrameData *frame);
-static void do_send_frame_timings (MetaWindowActor  *self,
-                                   FrameData        *frame,
-                                   gint             refresh_interval,
-                                   gint64           presentation_time);
-
 static void cullable_iface_init (MetaCullableInterface *iface);
 
 static void screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface);
@@ -198,12 +158,6 @@ G_DEFINE_TYPE_WITH_CODE (MetaWindowActor, meta_window_actor, CLUTTER_TYPE_ACTOR,
                          G_ADD_PRIVATE (MetaWindowActor)
                          G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init)
                          G_IMPLEMENT_INTERFACE (META_TYPE_SCREEN_CAST_WINDOW, screen_cast_window_iface_init));
-
-static void
-frame_data_free (FrameData *frame)
-{
-  g_slice_free (FrameData, frame);
-}
 
 static void
 meta_window_actor_real_set_surface (MetaWindowActor  *actor,
@@ -220,7 +174,6 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
   GParamSpec   *pspec;
 
   object_class->dispose      = meta_window_actor_dispose;
-  object_class->finalize     = meta_window_actor_finalize;
   object_class->set_property = meta_window_actor_set_property;
   object_class->get_property = meta_window_actor_get_property;
   object_class->constructed  = meta_window_actor_constructed;
@@ -328,17 +281,6 @@ surface_size_changed (MetaSurfaceActor *actor,
   meta_window_actor_update_shape (self);
 }
 
-static void
-surface_repaint_scheduled (MetaSurfaceActor *actor,
-                           gpointer          user_data)
-{
-  MetaWindowActor *self = META_WINDOW_ACTOR (user_data);
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
-
-  priv->repaint_scheduled = TRUE;
-}
-
 static gboolean
 is_argb32 (MetaWindowActor *self)
 {
@@ -435,9 +377,7 @@ set_surface (MetaWindowActor  *self,
 
   if (priv->surface)
     {
-      g_signal_handler_disconnect (priv->surface, priv->repaint_scheduled_id);
       g_signal_handler_disconnect (priv->surface, priv->size_changed_id);
-      priv->repaint_scheduled_id = 0;
       clutter_actor_remove_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->surface));
       g_object_unref (priv->surface);
     }
@@ -447,8 +387,6 @@ set_surface (MetaWindowActor  *self,
   if (priv->surface)
     {
       g_object_ref_sink (priv->surface);
-      priv->repaint_scheduled_id = g_signal_connect (priv->surface, "repaint-scheduled",
-                                                     G_CALLBACK (surface_repaint_scheduled), self);
       priv->size_changed_id = g_signal_connect (priv->surface, "size-changed",
                                                 G_CALLBACK (surface_size_changed), self);
       clutter_actor_add_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->surface));
@@ -515,12 +453,6 @@ meta_window_actor_dispose (GObject *object)
 
   priv->disposed = TRUE;
 
-  if (priv->send_frame_messages_timer != 0)
-    {
-      g_source_remove (priv->send_frame_messages_timer);
-      priv->send_frame_messages_timer = 0;
-    }
-
   g_clear_pointer (&priv->shape_region, cairo_region_destroy);
   g_clear_pointer (&priv->shadow_clip, cairo_region_destroy);
 
@@ -536,18 +468,6 @@ meta_window_actor_dispose (GObject *object)
   set_surface (self, NULL);
 
   G_OBJECT_CLASS (meta_window_actor_parent_class)->dispose (object);
-}
-
-static void
-meta_window_actor_finalize (GObject *object)
-{
-  MetaWindowActor *self = META_WINDOW_ACTOR (object);
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
-
-  g_list_free_full (priv->frames, (GDestroyNotify) frame_data_free);
-
-  G_OBJECT_CLASS (meta_window_actor_parent_class)->finalize (object);
 }
 
 static void
@@ -721,30 +641,6 @@ clip_shadow_under_window (MetaWindowActor *self)
 }
 
 static void
-assign_frame_counter_to_frames (MetaWindowActor *self)
-{
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
-  MetaCompositor *compositor = priv->compositor;
-  ClutterStage *stage = CLUTTER_STAGE (compositor->stage);
-  GList *l;
-
-  /* If the window is obscured, then we're expecting to deal with sending
-   * frame messages in a timeout, rather than in this paint cycle.
-   */
-  if (priv->send_frame_messages_timer != 0)
-    return;
-
-  for (l = priv->frames; l; l = l->next)
-    {
-      FrameData *frame = l->data;
-
-      if (frame->frame_counter == -1)
-        frame->frame_counter = clutter_stage_get_frame_counter (stage);
-    }
-}
-
-static void
 meta_window_actor_paint (ClutterActor *actor)
 {
   MetaWindowActor *self = META_WINDOW_ACTOR (actor);
@@ -755,18 +651,6 @@ meta_window_actor_paint (ClutterActor *actor)
   CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
 
   shadow = appears_focused ? priv->focused_shadow : priv->unfocused_shadow;
-
- /* This window got damage when obscured; we set up a timer
-  * to send frame completion events, but since we're drawing
-  * the window now (for some other reason) cancel the timer
-  * and send the completion events normally */
-  if (priv->send_frame_messages_timer != 0)
-    {
-      g_source_remove (priv->send_frame_messages_timer);
-      priv->send_frame_messages_timer = 0;
-
-      assign_frame_counter_to_frames (self);
-    }
 
   if (shadow != NULL)
     {
@@ -982,140 +866,16 @@ meta_window_actor_is_destroyed (MetaWindowActor *self)
   return priv->disposed || priv->needs_destroy;
 }
 
-static gboolean
-send_frame_messages_timeout (gpointer data)
-{
-  MetaWindowActor *self = (MetaWindowActor *) data;
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
-  GList *l;
-
-  for (l = priv->frames; l;)
-    {
-      GList *l_next = l->next;
-      FrameData *frame = l->data;
-
-      if (frame->frame_counter == -1)
-        {
-          do_send_frame_drawn (self, frame);
-          do_send_frame_timings (self, frame, 0, 0);
-
-          priv->frames = g_list_delete_link (priv->frames, l);
-          frame_data_free (frame);
-        }
-
-      l = l_next;
-    }
-
-  priv->needs_frame_drawn = FALSE;
-  priv->send_frame_messages_timer = 0;
-
-  return FALSE;
-}
-
-static void
-queue_send_frame_messages_timeout (MetaWindowActor *self)
-{
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
-  MetaWindow *window = priv->window;
-  MetaDisplay *display = meta_window_get_display (priv->window);
-  MetaLogicalMonitor *logical_monitor;
-  int64_t current_time;
-  float refresh_rate;
-  int interval, offset;
-
-  if (priv->send_frame_messages_timer != 0)
-    return;
-
-  logical_monitor = meta_window_get_main_logical_monitor (window);
-  if (logical_monitor)
-    {
-      GList *monitors = meta_logical_monitor_get_monitors (logical_monitor);
-      MetaMonitor *monitor;
-      MetaMonitorMode *mode;
-
-      monitor = g_list_first (monitors)->data;
-      mode = meta_monitor_get_current_mode (monitor);
-
-      refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
-    }
-  else
-    {
-      refresh_rate = 60.0f;
-    }
-
-  current_time =
-    meta_compositor_monotonic_time_to_server_time (display,
-                                                   g_get_monotonic_time ());
-  interval = (int)(1000000 / refresh_rate) * 6;
-  offset = MAX (0, priv->frame_drawn_time + interval - current_time) / 1000;
-
- /* The clutter master clock source has already been added with META_PRIORITY_REDRAW,
-  * so the timer will run *after* the clutter frame handling, if a frame is ready
-  * to be drawn when the timer expires.
-  */
-  priv->send_frame_messages_timer = g_timeout_add_full (META_PRIORITY_REDRAW, offset, send_frame_messages_timeout, self, NULL);
-  g_source_set_name_by_id (priv->send_frame_messages_timer, "[mutter] send_frame_messages_timeout");
-}
-
 void
 meta_window_actor_queue_frame_drawn (MetaWindowActor *self,
                                      gboolean         no_delay_frame)
 {
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
-  FrameData *frame;
 
   if (meta_window_actor_is_destroyed (self))
     return;
 
-  frame = g_slice_new0 (FrameData);
-  frame->frame_counter = -1;
-
-  priv->needs_frame_drawn = TRUE;
-
-  frame->sync_request_serial = priv->window->sync_request_serial;
-
-  priv->frames = g_list_prepend (priv->frames, frame);
-
-  if (no_delay_frame)
-    {
-      ClutterActor *stage = clutter_actor_get_stage (CLUTTER_ACTOR (self));
-      clutter_stage_skip_sync_delay (CLUTTER_STAGE (stage));
-    }
-
-  if (!priv->repaint_scheduled)
-    {
-      gboolean is_obscured;
-
-      if (priv->surface)
-        is_obscured = meta_surface_actor_is_obscured (priv->surface);
-      else
-        is_obscured = FALSE;
-
-      /* A frame was marked by the client without actually doing any
-       * damage or any unobscured, or while we had the window frozen
-       * (e.g. during an interactive resize.) We need to make sure that the
-       * pre_paint/post_paint functions get called, enabling us to
-       * send a _NET_WM_FRAME_DRAWN. We do a 1-pixel redraw to get
-       * consistent timing with non-empty frames. If the window
-       * is completely obscured we fire off the send_frame_messages timeout.
-       */
-      if (is_obscured)
-        {
-          queue_send_frame_messages_timeout (self);
-        }
-      else
-        {
-          if (priv->surface)
-            {
-              const cairo_rectangle_int_t clip = { 0, 0, 1, 1 };
-              clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (priv->surface), &clip);
-              priv->repaint_scheduled = TRUE;
-            }
-        }
-    }
+  meta_window_actor_x11_queue_frame_drawn (META_WINDOW_ACTOR_X11 (self),
+                                           no_delay_frame);
 }
 
 gboolean
@@ -1330,12 +1090,6 @@ meta_window_actor_queue_destroy (MetaWindowActor *self)
   MetaWindowType window_type = meta_window_get_window_type (window);
 
   meta_window_set_compositor_private (window, NULL);
-
-  if (priv->send_frame_messages_timer != 0)
-    {
-      g_source_remove (priv->send_frame_messages_timer);
-      priv->send_frame_messages_timer = 0;
-    }
 
   if (window_type == META_WINDOW_DROPDOWN_MENU ||
       window_type == META_WINDOW_POPUP_MENU ||
@@ -2061,37 +1815,6 @@ meta_window_actor_pre_paint (MetaWindowActor *self)
   meta_window_actor_handle_updates (self);
 
   META_WINDOW_ACTOR_GET_CLASS (self)->pre_paint (self);
-
-  assign_frame_counter_to_frames (self);
-}
-
-static void
-do_send_frame_drawn (MetaWindowActor *self, FrameData *frame)
-{
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
-  MetaDisplay *display = meta_window_get_display (priv->window);
-  Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
-
-  XClientMessageEvent ev = { 0, };
-
-  frame->frame_drawn_time = meta_compositor_monotonic_time_to_server_time (display,
-                                                                           g_get_monotonic_time ());
-  priv->frame_drawn_time = frame->frame_drawn_time;
-
-  ev.type = ClientMessage;
-  ev.window = meta_window_get_xwindow (priv->window);
-  ev.message_type = display->x11_display->atom__NET_WM_FRAME_DRAWN;
-  ev.format = 32;
-  ev.data.l[0] = frame->sync_request_serial & G_GUINT64_CONSTANT(0xffffffff);
-  ev.data.l[1] = frame->sync_request_serial >> 32;
-  ev.data.l[2] = frame->frame_drawn_time & G_GUINT64_CONSTANT(0xffffffff);
-  ev.data.l[3] = frame->frame_drawn_time >> 32;
-
-  meta_x11_error_trap_push (display->x11_display);
-  XSendEvent (xdisplay, ev.window, False, 0, (XEvent*) &ev);
-  XFlush (xdisplay);
-  meta_x11_error_trap_pop (display->x11_display);
 }
 
 void
@@ -2100,32 +1823,10 @@ meta_window_actor_post_paint (MetaWindowActor *self)
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
-  priv->repaint_scheduled = FALSE;
-
   META_WINDOW_ACTOR_GET_CLASS (self)->post_paint (self);
 
   if (meta_window_actor_is_destroyed (self))
     return;
-
-  /* If the window had damage, but wasn't actually redrawn because
-   * it is obscured, we should wait until timer expiration before
-   * sending _NET_WM_FRAME_* messages.
-   */
-  if (priv->send_frame_messages_timer == 0 &&
-      priv->needs_frame_drawn)
-    {
-      GList *l;
-
-      for (l = priv->frames; l; l = l->next)
-        {
-          FrameData *frame = l->data;
-
-          if (frame->frame_drawn_time == 0)
-            do_send_frame_drawn (self, frame);
-        }
-
-      priv->needs_frame_drawn = FALSE;
-    }
 
   if (priv->first_frame_state == DRAWING_FIRST_FRAME)
     {
@@ -2134,104 +1835,17 @@ meta_window_actor_post_paint (MetaWindowActor *self)
     }
 }
 
-static void
-do_send_frame_timings (MetaWindowActor  *self,
-                       FrameData        *frame,
-                       gint             refresh_interval,
-                       gint64           presentation_time)
-{
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
-  MetaDisplay *display = meta_window_get_display (priv->window);
-  Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
-
-  XClientMessageEvent ev = { 0, };
-
-  ev.type = ClientMessage;
-  ev.window = meta_window_get_xwindow (priv->window);
-  ev.message_type = display->x11_display->atom__NET_WM_FRAME_TIMINGS;
-  ev.format = 32;
-  ev.data.l[0] = frame->sync_request_serial & G_GUINT64_CONSTANT(0xffffffff);
-  ev.data.l[1] = frame->sync_request_serial >> 32;
-
-  if (presentation_time != 0)
-    {
-      gint64 presentation_time_server = meta_compositor_monotonic_time_to_server_time (display,
-                                                                                       presentation_time);
-      gint64 presentation_time_offset = presentation_time_server - frame->frame_drawn_time;
-      if (presentation_time_offset == 0)
-        presentation_time_offset = 1;
-
-      if ((gint32)presentation_time_offset == presentation_time_offset)
-        ev.data.l[2] = presentation_time_offset;
-    }
-
-  ev.data.l[3] = refresh_interval;
-  ev.data.l[4] = 1000 * META_SYNC_DELAY;
-
-  meta_x11_error_trap_push (display->x11_display);
-  XSendEvent (xdisplay, ev.window, False, 0, (XEvent*) &ev);
-  XFlush (xdisplay);
-  meta_x11_error_trap_pop (display->x11_display);
-}
-
-static void
-send_frame_timings (MetaWindowActor  *self,
-                    FrameData        *frame,
-                    ClutterFrameInfo *frame_info,
-                    gint64            presentation_time)
-{
-  float refresh_rate;
-  int refresh_interval;
-
-  refresh_rate = frame_info->refresh_rate;
-  /* 0.0 is a flag for not known, but sanity-check against other odd numbers */
-  if (refresh_rate >= 1.0)
-    refresh_interval = (int) (0.5 + 1000000 / refresh_rate);
-  else
-    refresh_interval = 0;
-
-  do_send_frame_timings (self, frame, refresh_interval, presentation_time);
-}
-
 void
 meta_window_actor_frame_complete (MetaWindowActor  *self,
                                   ClutterFrameInfo *frame_info,
                                   gint64            presentation_time)
 {
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
-  GList *l;
-
   if (meta_window_actor_is_destroyed (self))
     return;
 
   META_WINDOW_ACTOR_GET_CLASS (self)->frame_complete (self,
                                                       frame_info,
                                                       presentation_time);
-
-  for (l = priv->frames; l;)
-    {
-      GList *l_next = l->next;
-      FrameData *frame = l->data;
-      gint64 frame_counter = frame_info->frame_counter;
-
-      if (frame->frame_counter != -1 && frame->frame_counter <= frame_counter)
-        {
-          if (G_UNLIKELY (frame->frame_drawn_time == 0))
-            g_warning ("%s: Frame has assigned frame counter but no frame drawn time",
-                       priv->window->desc);
-          if (G_UNLIKELY (frame->frame_counter < frame_counter))
-            g_warning ("%s: frame_complete callback never occurred for frame %" G_GINT64_FORMAT,
-                       priv->window->desc, frame->frame_counter);
-
-          priv->frames = g_list_delete_link (priv->frames, l);
-          send_frame_timings (self, frame, frame_info, presentation_time);
-          frame_data_free (frame);
-        }
-
-      l = l_next;
-    }
 }
 
 void
