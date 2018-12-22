@@ -710,6 +710,28 @@ meta_window_x11_can_ping (MetaWindow *window)
 }
 
 static void
+meta_window_x11_map (MetaWindow *window)
+{
+  meta_x11_error_trap_push (window->display->x11_display);
+
+  XMapWindow (window->display->x11_display->xdisplay,
+              window->xwindow);
+
+  meta_x11_error_trap_pop (window->display->x11_display);
+}
+
+static void
+meta_window_x11_unmap (MetaWindow *window)
+{
+  meta_x11_error_trap_push (window->display->x11_display);
+
+  XUnmapWindow (window->display->x11_display->xdisplay,
+                window->xwindow);
+
+  meta_x11_error_trap_pop (window->display->x11_display);
+}
+
+static void
 meta_window_x11_ping (MetaWindow *window,
                       guint32     serial)
 {
@@ -1728,6 +1750,8 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
 
   window_class->manage = meta_window_x11_manage;
   window_class->unmanage = meta_window_x11_unmanage;
+  window_class->map = meta_window_x11_map;
+  window_class->unmap = meta_window_x11_unmap;
   window_class->ping = meta_window_x11_ping;
   window_class->delete = meta_window_x11_delete;
   window_class->kill = meta_window_x11_kill;

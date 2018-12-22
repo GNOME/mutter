@@ -799,6 +799,7 @@ client_window_should_be_mapped (MetaWindow *window)
 static void
 sync_client_window_mapped (MetaWindow *window)
 {
+  MetaWindowClass *window_class = META_WINDOW_GET_CLASS (window);
   gboolean should_be_mapped = client_window_should_be_mapped (window);
 
   g_return_if_fail (!window->override_redirect);
@@ -808,17 +809,15 @@ sync_client_window_mapped (MetaWindow *window)
 
   window->mapped = should_be_mapped;
 
-  meta_x11_error_trap_push (window->display->x11_display);
   if (should_be_mapped)
     {
-      XMapWindow (window->display->x11_display->xdisplay, window->xwindow);
+      window_class->map (window);
     }
   else
     {
-      XUnmapWindow (window->display->x11_display->xdisplay, window->xwindow);
+      window_class->unmap (window);
       window->unmaps_pending ++;
     }
-  meta_x11_error_trap_pop (window->display->x11_display);
 }
 
 static gboolean

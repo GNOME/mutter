@@ -112,6 +112,16 @@ meta_window_wayland_unmanage (MetaWindow *window)
 }
 
 static void
+meta_window_wayland_map (MetaWindow *window)
+{
+}
+
+static void
+meta_window_wayland_unmap (MetaWindow *window)
+{
+}
+
+static void
 meta_window_wayland_ping (MetaWindow *window,
                           guint32     serial)
 {
@@ -618,6 +628,8 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
 
   window_class->manage = meta_window_wayland_manage;
   window_class->unmanage = meta_window_wayland_unmanage;
+  window_class->map = meta_window_wayland_map;
+  window_class->unmap = meta_window_wayland_unmap;
   window_class->ping = meta_window_wayland_ping;
   window_class->delete = meta_window_wayland_delete;
   window_class->kill = meta_window_wayland_kill;
