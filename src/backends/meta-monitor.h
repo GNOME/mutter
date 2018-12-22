@@ -231,4 +231,6 @@ int meta_monitor_spec_compare (MetaMonitorSpec *monitor_spec_a,
 
 void meta_monitor_spec_free (MetaMonitorSpec *monitor_id);
 
+MetaMonitorTransform meta_monitor_transform_invert (MetaMonitorTransform transform);
+
 #endif /* META_MONITOR_H */
