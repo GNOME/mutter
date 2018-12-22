@@ -1238,10 +1238,7 @@ MetaWindowActor *
 meta_window_actor_new (MetaWindow *window)
 {
   MetaWindowActorPrivate *priv;
-  MetaDisplay *display = meta_window_get_display (window);
-  MetaCompositor *compositor = display->compositor;
   MetaWindowActor        *self;
-  ClutterActor           *window_group;
   GType window_type;
 
   switch (window->client_type)
@@ -1281,19 +1278,7 @@ meta_window_actor_new (MetaWindow *window)
   /* Hang our compositor window state off the MetaWindow for fast retrieval */
   meta_window_set_compositor_private (window, G_OBJECT (self));
 
-  if (window->layer == META_LAYER_OVERRIDE_REDIRECT)
-    window_group = compositor->top_window_group;
-  else
-    window_group = compositor->window_group;
-
-  clutter_actor_add_child (window_group, CLUTTER_ACTOR (self));
-
   clutter_actor_hide (CLUTTER_ACTOR (self));
-
-  /* Initial position in the stack is arbitrary; stacking will be synced
-   * before we first paint.
-   */
-  compositor->windows = g_list_append (compositor->windows, self);
 
   return self;
 }
