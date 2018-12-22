@@ -52,6 +52,7 @@
 #include "compositor/compositor-private.h"
 #include "core/display-private.h"
 #include "meta/meta-cursor-tracker.h"
+#include "meta/meta-x11-errors.h"
 #include "meta/util.h"
 
 struct _MetaBackendX11Private
@@ -598,6 +599,10 @@ meta_backend_x11_warp_pointer (MetaBackend *backend,
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+  MetaDisplay *display = meta_get_display ();
+
+  if (display)
+    meta_x11_error_trap_push (display->x11_display);
 
   XIWarpPointer (priv->xdisplay,
                  META_VIRTUAL_CORE_POINTER_ID,
@@ -605,6 +610,10 @@ meta_backend_x11_warp_pointer (MetaBackend *backend,
                  meta_backend_x11_get_xwindow (x11),
                  0, 0, 0, 0,
                  x, y);
+
+  if (display &&
+      meta_x11_error_trap_pop_with_return (display->x11_display) != Success)
+    meta_verbose ("Failed to warp pointer\n");
 }
 
 static MetaLogicalMonitor *
