@@ -559,6 +559,7 @@ struct _MetaWindowClass
                                    ClutterInputDevice *source);
   gboolean (*is_stackable)        (MetaWindow *window);
   gboolean (*are_updates_frozen)  (MetaWindow *window);
+  gboolean (*has_pointer)         (MetaWindow *window);
 };
 
 /* These differ from window->has_foo_func in that they consider
