@@ -511,6 +511,97 @@ meta_window_apply_session_info (MetaWindow *window,
 }
 
 static void
+meta_window_x11_create_sync_request_alarm (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+  MetaX11Display *x11_display = window->display->x11_display;
+  XSyncAlarmAttributes values;
+  XSyncValue init;
+
+  if (priv->sync_request_counter == None ||
+      priv->sync_request_alarm != None)
+    return;
+
+  meta_x11_error_trap_push (x11_display);
+
+  /* In the new (extended style), the counter value is initialized by
+   * the client before mapping the window. In the old style, we're
+   * responsible for setting the initial value of the counter.
+   */
+  if (priv->extended_sync_request_counter)
+    {
+      if (!XSyncQueryCounter(x11_display->xdisplay,
+                             priv->sync_request_counter,
+                             &init))
+        {
+          meta_x11_error_trap_pop_with_return (x11_display);
+          priv->sync_request_counter = None;
+          return;
+        }
+
+      priv->sync_request_serial =
+        XSyncValueLow32 (init) + ((gint64)XSyncValueHigh32 (init) << 32);
+    }
+  else
+    {
+      XSyncIntToValue (&init, 0);
+      XSyncSetCounter (x11_display->xdisplay,
+                       priv->sync_request_counter, init);
+      priv->sync_request_serial = 0;
+    }
+
+  values.trigger.counter = priv->sync_request_counter;
+  values.trigger.test_type = XSyncPositiveComparison;
+
+  /* Initialize to one greater than the current value */
+  values.trigger.value_type = XSyncRelative;
+  XSyncIntToValue (&values.trigger.wait_value, 1);
+
+  /* After triggering, increment test_value by this until
+   * until the test condition is false */
+  XSyncIntToValue (&values.delta, 1);
+
+  /* we want events (on by default anyway) */
+  values.events = True;
+
+  priv->sync_request_alarm = XSyncCreateAlarm (x11_display->xdisplay,
+                                               XSyncCACounter |
+                                               XSyncCAValueType |
+                                               XSyncCAValue |
+                                               XSyncCATestType |
+                                               XSyncCADelta |
+                                               XSyncCAEvents,
+                                               &values);
+
+  if (meta_x11_error_trap_pop_with_return (x11_display) == Success)
+    meta_x11_display_register_sync_alarm (x11_display, &priv->sync_request_alarm, window);
+  else
+    {
+      priv->sync_request_alarm = None;
+      priv->sync_request_counter = None;
+    }
+}
+
+static void
+meta_window_x11_destroy_sync_request_alarm (MetaWindow *window)
+{
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (META_WINDOW_X11 (window));
+  MetaX11Display *x11_display = window->display->x11_display;
+
+  if (priv->sync_request_alarm != None)
+    {
+      /* Has to be unregistered _before_ clearing the structure field */
+      meta_x11_display_unregister_sync_alarm (x11_display, priv->sync_request_alarm);
+      XSyncDestroyAlarm (x11_display->xdisplay,
+                         priv->sync_request_alarm);
+      priv->sync_request_alarm = None;
+    }
+}
+
+static void
 meta_window_x11_manage (MetaWindow *window)
 {
   MetaDisplay *display = window->display;
@@ -3557,97 +3648,6 @@ meta_window_x11_set_allowed_actions_hint (MetaWindow *window)
                    32, PropModeReplace, (guchar*) data, i);
   meta_x11_error_trap_pop (x11_display);
 #undef MAX_N_ACTIONS
-}
-
-void
-meta_window_x11_create_sync_request_alarm (MetaWindow *window)
-{
-  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
-  MetaWindowX11Private *priv =
-    meta_window_x11_get_instance_private (window_x11);
-  MetaX11Display *x11_display = window->display->x11_display;
-  XSyncAlarmAttributes values;
-  XSyncValue init;
-
-  if (priv->sync_request_counter == None ||
-      priv->sync_request_alarm != None)
-    return;
-
-  meta_x11_error_trap_push (x11_display);
-
-  /* In the new (extended style), the counter value is initialized by
-   * the client before mapping the window. In the old style, we're
-   * responsible for setting the initial value of the counter.
-   */
-  if (priv->extended_sync_request_counter)
-    {
-      if (!XSyncQueryCounter(x11_display->xdisplay,
-                             priv->sync_request_counter,
-                             &init))
-        {
-          meta_x11_error_trap_pop_with_return (x11_display);
-          priv->sync_request_counter = None;
-          return;
-        }
-
-      priv->sync_request_serial =
-        XSyncValueLow32 (init) + ((gint64)XSyncValueHigh32 (init) << 32);
-    }
-  else
-    {
-      XSyncIntToValue (&init, 0);
-      XSyncSetCounter (x11_display->xdisplay,
-                       priv->sync_request_counter, init);
-      priv->sync_request_serial = 0;
-    }
-
-  values.trigger.counter = priv->sync_request_counter;
-  values.trigger.test_type = XSyncPositiveComparison;
-
-  /* Initialize to one greater than the current value */
-  values.trigger.value_type = XSyncRelative;
-  XSyncIntToValue (&values.trigger.wait_value, 1);
-
-  /* After triggering, increment test_value by this until
-   * until the test condition is false */
-  XSyncIntToValue (&values.delta, 1);
-
-  /* we want events (on by default anyway) */
-  values.events = True;
-
-  priv->sync_request_alarm = XSyncCreateAlarm (x11_display->xdisplay,
-                                               XSyncCACounter |
-                                               XSyncCAValueType |
-                                               XSyncCAValue |
-                                               XSyncCATestType |
-                                               XSyncCADelta |
-                                               XSyncCAEvents,
-                                               &values);
-
-  if (meta_x11_error_trap_pop_with_return (x11_display) == Success)
-    meta_x11_display_register_sync_alarm (x11_display, &priv->sync_request_alarm, window);
-  else
-    {
-      priv->sync_request_alarm = None;
-      priv->sync_request_counter = None;
-    }
-}
-
-void
-meta_window_x11_destroy_sync_request_alarm (MetaWindow *window)
-{
-  MetaWindowX11Private *priv =
-    meta_window_x11_get_instance_private (META_WINDOW_X11 (window));
-  MetaX11Display *x11_display = window->display->x11_display;
-
-  if (priv->sync_request_alarm != None)
-    {
-      /* Has to be unregistered _before_ clearing the structure field */
-      meta_x11_display_unregister_sync_alarm (x11_display, priv->sync_request_alarm);
-      XSyncDestroyAlarm (x11_display->xdisplay,
-                         priv->sync_request_alarm);
-      priv->sync_request_alarm = None;
-    }
 }
 
 void
