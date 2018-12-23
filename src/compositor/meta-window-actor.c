@@ -33,6 +33,9 @@
 #include "compositor/meta-surface-actor.h"
 #include "compositor/meta-texture-rectangle.h"
 #include "compositor/meta-window-actor-private.h"
+#include "compositor/meta-window-actor-wayland.h"
+#include "compositor/meta-window-actor-x11.h"
+#include "compositor/meta-window-content-private.h"
 #include "compositor/region-utils.h"
 #include "meta/meta-enum-types.h"
 #include "meta/meta-shadow-factory.h"
@@ -57,6 +60,8 @@ typedef struct _MetaWindowActorPrivate
   MetaCompositor *compositor;
 
   MetaSurfaceActor *surface;
+
+  MetaWindowContent *content;
 
   /* MetaShadowFactory only caches shadows that are actually in use;
    * to avoid unnecessary recomputation we do two things: 1) we store
@@ -124,6 +129,7 @@ static guint signals[LAST_SIGNAL] = { 0 };
 enum
 {
   PROP_META_WINDOW = 1,
+  PROP_CONTENT,
   PROP_SHADOW_MODE,
   PROP_SHADOW_CLASS
 };
@@ -255,11 +261,19 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
   g_object_class_install_property (object_class,
                                    PROP_SHADOW_CLASS,
                                    pspec);
+
+  g_object_class_override_property (object_class,
+                                    PROP_CONTENT,
+                                    "content");
 }
 
 static void
 meta_window_actor_init (MetaWindowActor *self)
 {
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (self);
+
+  priv->content = meta_window_content_new (self);
 }
 
 static void
@@ -267,7 +281,11 @@ window_appears_focused_notify (MetaWindow *mw,
                                GParamSpec *arg1,
                                gpointer    data)
 {
-  clutter_actor_queue_redraw (CLUTTER_ACTOR (data));
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (data);
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  clutter_content_invalidate (CLUTTER_CONTENT (priv->content));
 }
 
 static void
@@ -396,6 +414,8 @@ set_surface (MetaWindowActor  *self,
       else
         meta_window_actor_sync_thawed_state (self);
     }
+
+  clutter_content_invalidate (CLUTTER_CONTENT (priv->content));
 }
 
 void
@@ -463,6 +483,7 @@ meta_window_actor_dispose (GObject *object)
 
   priv->disposed = TRUE;
 
+  g_clear_object (&priv->content);
   g_clear_pointer (&priv->shape_region, cairo_region_destroy);
   g_clear_pointer (&priv->shadow_clip, cairo_region_destroy);
 
@@ -492,6 +513,9 @@ meta_window_actor_set_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_CONTENT:
+      g_warning ("Overriding the content of MetaWindowActor is not allowed.");
+      break;
     case PROP_META_WINDOW:
       priv->window = g_value_dup_object (value);
       g_signal_connect_object (priv->window, "notify::appears-focused",
@@ -540,6 +564,9 @@ meta_window_actor_get_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_CONTENT:
+      g_value_set_object (value, priv->content);
+      break;
     case PROP_META_WINDOW:
       g_value_set_object (value, priv->window);
       break;
@@ -839,6 +866,25 @@ meta_window_actor_get_texture (MetaWindowActor *self)
     return meta_surface_actor_get_texture (priv->surface);
   else
     return NULL;
+}
+
+/**
+ * meta_window_actor_get_content:
+ * @window_actor: a #MetaWindowActor
+ *
+ * Gets the #ClutterContent that represents the visible contents of the
+ * window. This includes subsurfaces. It should be used as the content
+ * of a #ClutterActor, through clutter_actor_set_content().
+ *
+ * Return value: (transfer none): a #ClutterContent
+ */
+ClutterContent *
+meta_window_actor_get_content (MetaWindowActor *window_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  return CLUTTER_CONTENT (priv->content);
 }
 
 /**
@@ -1722,6 +1768,7 @@ meta_window_actor_update_shape (MetaWindowActor *self)
   if (is_frozen (self))
     return;
 
+  clutter_content_invalidate_size (CLUTTER_CONTENT (priv->content));
   clutter_actor_queue_redraw (CLUTTER_ACTOR (priv->surface));
 }
 
