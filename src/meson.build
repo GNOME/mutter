@@ -319,6 +319,8 @@ mutter_sources = [
   'compositor/meta-window-actor-private.h',
   'compositor/meta-window-actor-x11.c',
   'compositor/meta-window-actor-x11.h',
+  'compositor/meta-window-content.c',
+  'compositor/meta-window-content-private.h',
   'compositor/meta-window-group.c',
   'compositor/meta-window-group-private.h',
   'compositor/meta-window-shape.c',

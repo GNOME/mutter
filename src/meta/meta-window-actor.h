@@ -51,6 +51,9 @@ META_EXPORT
 cairo_surface_t * meta_window_actor_get_image (MetaWindowActor       *self,
                                                cairo_rectangle_int_t *clip);
 
+META_EXPORT
+ClutterContent *meta_window_actor_get_content (MetaWindowActor *self);
+
 typedef enum
 {
   META_SHADOW_MODE_AUTO,
