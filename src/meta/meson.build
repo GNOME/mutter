@@ -32,6 +32,7 @@ mutter_public_headers = [
   'meta-stage.h',
   'meta-startup-notification.h',
   'meta-window-actor.h',
+  'meta-window-content.h',
   'meta-window-group.h',
   'meta-window-shape.h',
   'meta-workspace-manager.h',
