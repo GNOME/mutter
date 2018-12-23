@@ -63,4 +63,9 @@ gboolean meta_shaped_texture_update_area (MetaShapedTexture     *stex,
                                           int                    height,
                                           cairo_rectangle_int_t *clip);
 
+void meta_shaped_texture_paint_node (MetaShapedTexture *stex,
+                                     ClutterPaintNode  *root_node,
+                                     ClutterActorBox   *box,
+                                     guchar             opacity);
+
 #endif

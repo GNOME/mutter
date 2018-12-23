@@ -1095,12 +1095,15 @@ meta_window_actor_x11_update_shape (MetaWindowActorX11 *actor_x11)
 {
   MetaSurfaceActor *surface =
     meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
+  ClutterContent *content =
+    meta_window_actor_get_content (META_WINDOW_ACTOR (actor_x11));
 
   actor_x11->needs_reshape = TRUE;
 
   if (meta_window_actor_is_frozen (META_WINDOW_ACTOR (actor_x11)))
     return;
 
+  clutter_content_invalidate_size (content);
   clutter_actor_queue_redraw (CLUTTER_ACTOR (surface));
 }
 
