@@ -44,5 +44,16 @@ gboolean meta_shaped_texture_is_obscured (MetaShapedTexture *self);
 cairo_region_t * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex);
 void meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
                                         MetaMonitorTransform  transform);
+void meta_shaped_texture_cull_out (MetaShapedTexture *stex,
+                                   cairo_region_t    *unobscured_region,
+                                   cairo_region_t    *clip_region,
+                                   uint8_t            opacity);
+void meta_shaped_texture_reset_culling (MetaShapedTexture *stex);
+void meta_shaped_texture_set_scale (MetaShapedTexture *stex,
+                                    double             scale_x,
+                                    double             scale_y);
+void meta_shaped_texture_get_scale (MetaShapedTexture *stex,
+                                    double            *scale_x,
+                                    double            *scale_y);
 
 #endif

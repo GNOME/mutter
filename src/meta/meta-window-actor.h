@@ -27,6 +27,7 @@
 
 #include "clutter/clutter.h"
 #include "meta/compositor.h"
+#include "meta/meta-shaped-texture.h"
 
 #define META_TYPE_WINDOW_ACTOR (meta_window_actor_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaWindowActor,
@@ -36,7 +37,7 @@ G_DECLARE_DERIVABLE_TYPE (MetaWindowActor,
 
 Window             meta_window_actor_get_x_window         (MetaWindowActor *self);
 MetaWindow *       meta_window_actor_get_meta_window      (MetaWindowActor *self);
-ClutterActor *     meta_window_actor_get_texture          (MetaWindowActor *self);
+MetaShapedTexture *meta_window_actor_get_texture          (MetaWindowActor *self);
 void               meta_window_actor_sync_visibility      (MetaWindowActor *self);
 gboolean       meta_window_actor_is_destroyed (MetaWindowActor *self);
 

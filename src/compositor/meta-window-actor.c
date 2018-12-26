@@ -810,14 +810,14 @@ meta_window_actor_get_meta_window (MetaWindowActor *self)
  *
  * Return value: (transfer none): the #ClutterActor for the contents
  */
-ClutterActor *
+MetaShapedTexture *
 meta_window_actor_get_texture (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
   if (priv->surface)
-    return CLUTTER_ACTOR (meta_surface_actor_get_texture (priv->surface));
+    return meta_surface_actor_get_texture (priv->surface);
   else
     return NULL;
 }
@@ -1905,7 +1905,7 @@ meta_window_actor_get_frame_bounds (MetaScreenCastWindow *screen_cast_window,
   double scale_x, scale_y;
 
   stex = meta_surface_actor_get_texture (priv->surface);
-  clutter_actor_get_scale (CLUTTER_ACTOR (stex), &scale_x, &scale_y);
+  meta_shaped_texture_get_scale (stex, &scale_x, &scale_y);
 
   window = priv->window;
   meta_window_get_buffer_rect (window, &buffer_rect);

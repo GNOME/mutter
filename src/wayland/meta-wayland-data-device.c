@@ -1122,7 +1122,7 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data
 
   surface_actor = meta_wayland_surface_get_actor (surface);
 
-  clutter_actor_transform_stage_point (CLUTTER_ACTOR (meta_surface_actor_get_texture (surface_actor)),
+  clutter_actor_transform_stage_point (CLUTTER_ACTOR (surface_actor),
                                        seat->pointer->grab_x,
                                        seat->pointer->grab_y,
                                        &surface_pos.x, &surface_pos.y);

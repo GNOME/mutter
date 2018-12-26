@@ -152,13 +152,22 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
                              cairo_region_t *unobscured_region,
                              cairo_region_t *clip_region)
 {
-  meta_cullable_cull_out_children (cullable, unobscured_region, clip_region);
+  MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (cullable);
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+  uint8_t opacity = clutter_actor_get_opacity (CLUTTER_ACTOR (cullable));
+
+  meta_shaped_texture_cull_out (priv->texture, unobscured_region, clip_region, opacity);
 }
 
 static void
 meta_surface_actor_reset_culling (MetaCullable *cullable)
 {
-  meta_cullable_reset_culling_children (cullable);
+  MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (cullable);
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+
+  meta_shaped_texture_reset_culling (priv->texture);
 }
 
 static void
@@ -185,7 +194,8 @@ meta_surface_actor_init (MetaSurfaceActor *self)
   priv->texture = META_SHAPED_TEXTURE (meta_shaped_texture_new ());
   g_signal_connect_object (priv->texture, "size-changed",
                            G_CALLBACK (texture_size_changed), self, 0);
-  clutter_actor_add_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->texture));
+  clutter_actor_set_content (CLUTTER_ACTOR (self), CLUTTER_CONTENT (priv->texture));
+  clutter_actor_set_request_mode (CLUTTER_ACTOR (self), CLUTTER_REQUEST_CONTENT_SIZE);
 }
 
 cairo_surface_t *

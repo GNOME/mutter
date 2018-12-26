@@ -54,21 +54,7 @@
 
 static void meta_shaped_texture_dispose  (GObject    *object);
 
-static void meta_shaped_texture_paint (ClutterActor       *actor);
-
-static void meta_shaped_texture_get_preferred_width (ClutterActor *self,
-                                                     gfloat        for_height,
-                                                     gfloat       *min_width_p,
-                                                     gfloat       *natural_width_p);
-
-static void meta_shaped_texture_get_preferred_height (ClutterActor *self,
-                                                      gfloat        for_width,
-                                                      gfloat       *min_height_p,
-                                                      gfloat       *natural_height_p);
-
-static gboolean meta_shaped_texture_get_paint_volume (ClutterActor *self, ClutterPaintVolume *volume);
-
-static void cullable_iface_init (MetaCullableInterface *iface);
+static void clutter_content_iface_init (ClutterContentIface *iface);
 
 enum {
   SIZE_CHANGED,
@@ -80,7 +66,7 @@ static guint signals[LAST_SIGNAL];
 
 struct _MetaShapedTexture
 {
-  ClutterActor parent;
+  GObject parent;
 
   MetaTextureTower *paint_tower;
 
@@ -113,24 +99,23 @@ struct _MetaShapedTexture
   guint remipmap_timeout_id;
   gint64 earliest_remipmap;
 
+  unsigned int attached_actors;
+
+  double scale_x;
+  double scale_y;
+
   guint create_mipmaps : 1;
 };
 
-G_DEFINE_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture, CLUTTER_TYPE_ACTOR,
-                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
+G_DEFINE_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture, G_TYPE_OBJECT,
+                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTENT, clutter_content_iface_init));
 
 static void
 meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
 {
   GObjectClass *gobject_class = (GObjectClass *) klass;
-  ClutterActorClass *actor_class = (ClutterActorClass *) klass;
 
   gobject_class->dispose = meta_shaped_texture_dispose;
-
-  actor_class->get_preferred_width = meta_shaped_texture_get_preferred_width;
-  actor_class->get_preferred_height = meta_shaped_texture_get_preferred_height;
-  actor_class->paint = meta_shaped_texture_paint;
-  actor_class->get_paint_volume = meta_shaped_texture_get_paint_volume;
 
   signals[SIZE_CHANGED] = g_signal_new ("size-changed",
                                         G_TYPE_FROM_CLASS (gobject_class),
@@ -151,16 +136,13 @@ meta_shaped_texture_init (MetaShapedTexture *stex)
 {
   stex->paint_tower = meta_texture_tower_new ();
 
+  stex->scale_x = 1.0;
+  stex->scale_y = 1.0;
   stex->texture = NULL;
   stex->mask_texture = NULL;
   stex->create_mipmaps = TRUE;
   stex->is_y_inverted = TRUE;
   stex->transform = META_MONITOR_TRANSFORM_NORMAL;
-
-  g_signal_connect (stex,
-                    "notify::scale-x",
-                    G_CALLBACK (invalidate_size),
-                    stex);
 }
 
 static void
@@ -204,7 +186,7 @@ update_size (MetaShapedTexture *stex)
       stex->dst_width = dst_width;
       stex->dst_height = dst_height;
       meta_shaped_texture_set_mask_texture (stex, NULL);
-      clutter_actor_queue_relayout (CLUTTER_ACTOR (stex));
+      clutter_content_invalidate_size (CLUTTER_CONTENT (stex));
       g_signal_emit (stex, signals[SIZE_CHANGED], 0);
     }
 }
@@ -405,18 +387,13 @@ get_unblended_pipeline (MetaShapedTexture *stex,
 }
 
 static void
-paint_clipped_rectangle (CoglFramebuffer       *fb,
-                         CoglPipeline          *pipeline,
-                         cairo_rectangle_int_t *rect,
-                         ClutterActorBox       *alloc)
+paint_clipped_rectangle_node (ClutterPaintNode      *root_node,
+                              CoglPipeline          *pipeline,
+                              cairo_rectangle_int_t *rect,
+                              ClutterActorBox       *alloc)
 {
+  g_autoptr(ClutterPaintNode) node = NULL;
   float coords[8];
-  float x1, y1, x2, y2;
-
-  x1 = rect->x;
-  y1 = rect->y;
-  x2 = rect->x + rect->width;
-  y2 = rect->y + rect->height;
 
   coords[0] = rect->x / (alloc->x2 - alloc->x1);
   coords[1] = rect->y / (alloc->y2 - alloc->y1);
@@ -428,9 +405,19 @@ paint_clipped_rectangle (CoglFramebuffer       *fb,
   coords[6] = coords[2];
   coords[7] = coords[3];
 
-  cogl_framebuffer_draw_multitextured_rectangle (fb, pipeline,
-                                                 x1, y1, x2, y2,
-                                                 &coords[0], 8);
+  node = clutter_pipeline_node_new (pipeline);
+  clutter_paint_node_set_name (node, "MetaShapedTexture (clipped)");
+  clutter_paint_node_add_child (root_node, node);
+
+  clutter_paint_node_add_multitexture_rectangle (node,
+                                                 &(ClutterActorBox)
+                                                   {
+                                                     .x1 = rect->x,
+                                                     .x2 = rect->x + rect->width,
+                                                     .y1 = rect->y,
+                                                     .y2 = rect->y + rect->height,
+                                                   },
+                                                 coords, 8);
 }
 
 static void
@@ -483,16 +470,37 @@ texture_is_idle_and_not_mipmapped (gpointer user_data)
   if ((g_get_monotonic_time () - stex->earliest_remipmap) < 0)
     return G_SOURCE_CONTINUE;
 
-  clutter_actor_queue_redraw (CLUTTER_ACTOR (stex));
+  clutter_content_invalidate (CLUTTER_CONTENT (stex));
   stex->remipmap_timeout_id = 0;
 
   return G_SOURCE_REMOVE;
 }
 
-static void
-meta_shaped_texture_paint (ClutterActor *actor)
+static cairo_region_t *
+effective_unobscured_region (MetaShapedTexture *stex)
 {
-  MetaShapedTexture *stex = (MetaShapedTexture *) actor;
+  /*
+  ClutterActor *actor;
+
+  actor = CLUTTER_ACTOR (stex);
+  do
+    {
+      if (clutter_actor_has_mapped_clones (actor))
+        return NULL;
+      actor = clutter_actor_get_parent (actor);
+    }
+  while (actor != NULL);
+   */
+
+  return stex->unobscured_region;
+}
+
+static void
+meta_shaped_texture_paint_content (ClutterContent   *content,
+                                   ClutterActor     *actor,
+                                   ClutterPaintNode *root_node)
+{
+  MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
   double tex_scale;
   int dst_width, dst_height;
   cairo_rectangle_int_t tex_rect;
@@ -502,7 +510,6 @@ meta_shaped_texture_paint (ClutterActor *actor)
   cairo_region_t *opaque_tex_region;
   cairo_region_t *blended_tex_region;
   CoglContext *ctx;
-  CoglFramebuffer *fb;
   CoglTexture *paint_tex = NULL;
   ClutterActorBox alloc;
   CoglPipelineFilter filter;
@@ -510,9 +517,6 @@ meta_shaped_texture_paint (ClutterActor *actor)
 
   if (stex->clip_region && cairo_region_is_empty (stex->clip_region))
     return;
-
-  if (!CLUTTER_ACTOR_IS_REALIZED (CLUTTER_ACTOR (stex)))
-    clutter_actor_realize (CLUTTER_ACTOR (stex));
 
   /* The GL EXT_texture_from_pixmap extension does allow for it to be
    * used together with SGIS_generate_mipmap, however this is very
@@ -560,9 +564,10 @@ meta_shaped_texture_paint (ClutterActor *actor)
 
   clutter_actor_get_scale (actor, &tex_scale, NULL);
   ensure_size_valid (stex);
-  dst_width = stex->dst_width;
 
+  dst_width = stex->dst_width;
   dst_height = stex->dst_height;
+
   if (dst_width == 0 || dst_height == 0) /* no contents yet */
     return;
 
@@ -578,7 +583,6 @@ meta_shaped_texture_paint (ClutterActor *actor)
     filter = COGL_PIPELINE_FILTER_NEAREST;
 
   ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
-  fb = cogl_get_draw_framebuffer ();
 
   opacity = clutter_actor_get_paint_opacity (actor);
   clutter_actor_get_allocation_box (actor, &alloc);
@@ -645,7 +649,6 @@ meta_shaped_texture_paint (ClutterActor *actor)
   /* First, paint the unblended parts, which are part of the opaque region. */
   if (use_opaque_region)
     {
-      CoglPipeline *opaque_pipeline;
       cairo_region_t *region;
       int n_rects;
       int i;
@@ -662,6 +665,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
 
       if (!cairo_region_is_empty (region))
         {
+          CoglPipeline *opaque_pipeline;
+
           opaque_pipeline = get_unblended_pipeline (stex, ctx);
           cogl_pipeline_set_layer_texture (opaque_pipeline, 0, paint_tex);
           cogl_pipeline_set_layer_filters (opaque_pipeline, 0, filter, filter);
@@ -671,7 +676,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
             {
               cairo_rectangle_int_t rect;
               cairo_region_get_rectangle (region, i, &rect);
-              paint_clipped_rectangle (fb, opaque_pipeline, &rect, &alloc);
+              paint_clipped_rectangle_node (root_node, opaque_pipeline, &rect, &alloc);
             }
         }
 
@@ -724,16 +729,26 @@ meta_shaped_texture_paint (ClutterActor *actor)
               if (!gdk_rectangle_intersect (&tex_rect, &rect, &rect))
                 continue;
 
-              paint_clipped_rectangle (fb, blended_pipeline, &rect, &alloc);
+              paint_clipped_rectangle_node (root_node, blended_pipeline, &rect, &alloc);
             }
         }
       else
         {
+          g_autoptr(ClutterPaintNode) node = NULL;
+
+          node = clutter_pipeline_node_new (blended_pipeline);
+          clutter_paint_node_set_name (node, "MetaShapedTexture (unclipped)");
+          clutter_paint_node_add_child (root_node, node);
+
           /* 3) blended_tex_region is NULL. Do a full paint. */
-          cogl_framebuffer_draw_rectangle (fb, blended_pipeline,
-                                           0, 0,
-                                           alloc.x2 - alloc.x1,
-                                           alloc.y2 - alloc.y1);
+          clutter_paint_node_add_rectangle (node,
+                                            &(ClutterActorBox)
+                                              {
+                                                .x1 = 0.0,
+                                                .y1 = 0.0,
+                                                .x2 = alloc.x2 - alloc.x1,
+                                                .y2 = alloc.y2 - alloc.y1
+                                              });
         }
     }
 
@@ -742,61 +757,53 @@ meta_shaped_texture_paint (ClutterActor *actor)
   g_clear_pointer (&blended_tex_region, cairo_region_destroy);
 }
 
-static void
-meta_shaped_texture_get_preferred_width (ClutterActor *self,
-                                         gfloat        for_height,
-                                         gfloat       *min_width_p,
-                                         gfloat       *natural_width_p)
-{
-  MetaShapedTexture *stex = META_SHAPED_TEXTURE (self);
-
-  ensure_size_valid (stex);
-
-  if (min_width_p)
-    *min_width_p = stex->dst_width;
-  if (natural_width_p)
-    *natural_width_p = stex->dst_width;
-}
-
-static void
-meta_shaped_texture_get_preferred_height (ClutterActor *self,
-                                          gfloat        for_width,
-                                          gfloat       *min_height_p,
-                                          gfloat       *natural_height_p)
-{
-  MetaShapedTexture *stex = META_SHAPED_TEXTURE (self);
-
-  ensure_size_valid (stex);
-
-  if (min_height_p)
-    *min_height_p = stex->dst_height;
-  if (natural_height_p)
-    *natural_height_p = stex->dst_height;
-}
-
-static cairo_region_t *
-effective_unobscured_region (MetaShapedTexture *stex)
-{
-  ClutterActor *actor;
-
-  /* Fail if we have any mapped clones. */
-  actor = CLUTTER_ACTOR (stex);
-  do
-    {
-      if (clutter_actor_has_mapped_clones (actor))
-        return NULL;
-      actor = clutter_actor_get_parent (actor);
-    }
-  while (actor != NULL);
-
-  return stex->unobscured_region;
-}
-
 static gboolean
-meta_shaped_texture_get_paint_volume (ClutterActor *actor,
-                                      ClutterPaintVolume *volume)
+meta_shaped_texture_get_preferred_size (ClutterContent *content,
+                                        float          *width,
+                                        float          *height)
 {
-  return clutter_paint_volume_set_from_allocation (volume, actor);
+  MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
+
+  ensure_size_valid (stex);
+
+  if (width)
+    *width = stex->dst_width * stex->scale_x;
+
+  if (height)
+    *height = stex->dst_height * stex->scale_y;
+
+  return TRUE;
+}
+
+static void
+meta_shaped_texture_attached (ClutterContent *content,
+                            ClutterActor   *actor)
+{
+  MetaShapedTexture *shaped_texture = META_SHAPED_TEXTURE (content);
+
+  shaped_texture->attached_actors++;
+
+  g_message ("%s: Attached! (%u)", G_STRFUNC, shaped_texture->attached_actors);
+}
+
+static void
+meta_shaped_texture_detached (ClutterContent *content,
+                            ClutterActor   *actor)
+{
+  MetaShapedTexture *shaped_texture = META_SHAPED_TEXTURE (content);
+
+  shaped_texture->attached_actors--;
+
+  g_message ("%s: Detached! (%u)", G_STRFUNC, shaped_texture->attached_actors);
+}
+
+static void
+clutter_content_iface_init (ClutterContentIface *iface)
+{
+  iface->paint_content = meta_shaped_texture_paint_content;
+  iface->get_preferred_size = meta_shaped_texture_get_preferred_size;
+  iface->attached = meta_shaped_texture_attached;
+  iface->detached = meta_shaped_texture_detached;
 }
 
 void
@@ -830,7 +837,7 @@ meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
       cogl_object_ref (stex->mask_texture);
     }
 
-  clutter_actor_queue_redraw (CLUTTER_ACTOR (stex));
+  clutter_content_invalidate (CLUTTER_CONTENT (stex));
 }
 
 gboolean
@@ -901,7 +908,8 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
         {
           cairo_rectangle_int_t damage_rect;
           cairo_region_get_extents (intersection, &damage_rect);
-          clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stex), &damage_rect);
+          clutter_content_invalidate (CLUTTER_CONTENT (stex));
+          //clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stex), &damage_rect);
           cairo_region_destroy (intersection);
           return TRUE;
         }
@@ -911,7 +919,8 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
     }
   else
     {
-      clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stex), &clip);
+      clutter_content_invalidate (CLUTTER_CONTENT (stex));
+      //clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stex), &clip);
       return TRUE;
     }
 }
@@ -1129,17 +1138,56 @@ meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
   invalidate_size (stex);
 }
 
-static void
-meta_shaped_texture_cull_out (MetaCullable   *cullable,
-                              cairo_region_t *unobscured_region,
-                              cairo_region_t *clip_region)
+ClutterActor *
+meta_shaped_texture_new (void)
 {
-  MetaShapedTexture *stex = META_SHAPED_TEXTURE (cullable);
+  return g_object_new (META_TYPE_SHAPED_TEXTURE, NULL);
+}
+
+void
+meta_shaped_texture_set_scale (MetaShapedTexture *stex,
+                               double             scale_x,
+                               double             scale_y)
+{
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
+
+  if (scale_x == stex->scale_x &&
+      scale_y == stex->scale_y)
+    return;
+
+  stex->scale_x = scale_x;
+  stex->scale_y = scale_y;
+
+  invalidate_size (stex);
+  clutter_content_invalidate_size (CLUTTER_CONTENT (stex));
+}
+
+void
+meta_shaped_texture_get_scale (MetaShapedTexture *stex,
+                               double            *scale_x,
+                               double            *scale_y)
+{
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
+
+  if (scale_x)
+    *scale_x = stex->scale_x;
+
+  if (scale_y)
+    *scale_y = stex->scale_y;
+}
+
+void
+meta_shaped_texture_cull_out (MetaShapedTexture *stex,
+                              cairo_region_t    *unobscured_region,
+                              cairo_region_t    *clip_region,
+                              uint8_t            opacity)
+{
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
 
   set_unobscured_region (stex, unobscured_region);
   set_clip_region (stex, clip_region);
 
-  if (clutter_actor_get_paint_opacity (CLUTTER_ACTOR (stex)) == 0xff)
+  if (opacity == 0xff)
     {
       if (stex->opaque_region)
         {
@@ -1151,22 +1199,10 @@ meta_shaped_texture_cull_out (MetaCullable   *cullable,
     }
 }
 
-static void
-meta_shaped_texture_reset_culling (MetaCullable *cullable)
+void
+meta_shaped_texture_reset_culling (MetaShapedTexture *stex)
 {
-  MetaShapedTexture *self = META_SHAPED_TEXTURE (cullable);
-  set_clip_region (self, NULL);
-}
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
 
-static void
-cullable_iface_init (MetaCullableInterface *iface)
-{
-  iface->cull_out = meta_shaped_texture_cull_out;
-  iface->reset_culling = meta_shaped_texture_reset_culling;
-}
-
-ClutterActor *
-meta_shaped_texture_new (void)
-{
-  return g_object_new (META_TYPE_SHAPED_TEXTURE, NULL);
+  set_clip_region (stex, NULL);
 }
