@@ -30,7 +30,7 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "meta/meta-shaped-texture.h"
 
-ClutterActor *meta_shaped_texture_new (void);
+MetaShapedTexture *meta_shaped_texture_new (void);
 void meta_shaped_texture_set_texture (MetaShapedTexture *stex,
                                       CoglTexture       *texture);
 void meta_shaped_texture_set_is_y_inverted (MetaShapedTexture *stex,
@@ -51,5 +51,13 @@ void meta_shaped_texture_set_viewport_dst_size (MetaShapedTexture *stex,
                                                 int                dst_width,
                                                 int                dst_height);
 void meta_shaped_texture_reset_viewport_dst_size (MetaShapedTexture *stex);
+void meta_shaped_texture_cull_out (MetaShapedTexture *stex,
+                                   cairo_region_t    *unobscured_region,
+                                   cairo_region_t    *clip_region,
+                                   uint8_t            opacity);
+void meta_shaped_texture_reset_culling (MetaShapedTexture *stex);
+void meta_shaped_texture_set_buffer_scale (MetaShapedTexture *stex,
+                                           double             buffer_scale);
+double meta_shaped_texture_get_buffer_scale (MetaShapedTexture *stex);
 
 #endif
