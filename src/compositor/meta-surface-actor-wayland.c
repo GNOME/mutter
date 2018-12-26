@@ -111,54 +111,6 @@ meta_surface_actor_wayland_get_window (MetaSurfaceActor *actor)
 }
 
 static void
-meta_surface_actor_wayland_get_preferred_width  (ClutterActor *actor,
-                                                 gfloat        for_height,
-                                                 gfloat       *min_width_p,
-                                                 gfloat       *natural_width_p)
-{
-  MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
-  MetaShapedTexture *stex;
-  double scale;
-
-  stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
-  clutter_actor_get_scale (CLUTTER_ACTOR (stex), &scale, NULL);
-  clutter_actor_get_preferred_width (CLUTTER_ACTOR (stex),
-                                     for_height,
-                                     min_width_p,
-                                     natural_width_p);
-
-  if (min_width_p)
-     *min_width_p *= scale;
-
-  if (natural_width_p)
-    *natural_width_p *= scale;
-}
-
-static void
-meta_surface_actor_wayland_get_preferred_height  (ClutterActor *actor,
-                                                  gfloat        for_width,
-                                                  gfloat       *min_height_p,
-                                                  gfloat       *natural_height_p)
-{
-  MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
-  MetaShapedTexture *stex;
-  double scale;
-
-  stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
-  clutter_actor_get_scale (CLUTTER_ACTOR (stex), NULL, &scale);
-  clutter_actor_get_preferred_height (CLUTTER_ACTOR (stex),
-                                      for_width,
-                                      min_height_p,
-                                      natural_height_p);
-
-  if (min_height_p)
-     *min_height_p *= scale;
-
-  if (natural_height_p)
-    *natural_height_p *= scale;
-}
-
-static void
 meta_surface_actor_wayland_paint (ClutterActor *actor)
 {
   MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
@@ -203,8 +155,6 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  actor_class->get_preferred_width = meta_surface_actor_wayland_get_preferred_width;
-  actor_class->get_preferred_height = meta_surface_actor_wayland_get_preferred_height;
   actor_class->paint = meta_surface_actor_wayland_paint;
 
   surface_actor_class->process_damage = meta_surface_actor_wayland_process_damage;
