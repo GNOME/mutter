@@ -387,18 +387,29 @@ get_unblended_pipeline (MetaShapedTexture *stex,
 }
 
 static void
-paint_clipped_rectangle_node (ClutterPaintNode      *root_node,
+paint_clipped_rectangle_node (MetaShapedTexture     *stex,
+                              ClutterPaintNode      *root_node,
                               CoglPipeline          *pipeline,
                               cairo_rectangle_int_t *rect,
                               ClutterActorBox       *alloc)
 {
   g_autoptr(ClutterPaintNode) node = NULL;
+  float ratio_h, ratio_v;
+  float x1, y1, x2, y2;
   float coords[8];
 
-  coords[0] = rect->x / (alloc->x2 - alloc->x1);
-  coords[1] = rect->y / (alloc->y2 - alloc->y1);
-  coords[2] = (rect->x + rect->width) / (alloc->x2 - alloc->x1);
-  coords[3] = (rect->y + rect->height) / (alloc->y2 - alloc->y1);
+  ratio_h = clutter_actor_box_get_width (alloc) / (float) stex->dst_width;
+  ratio_v = clutter_actor_box_get_height (alloc) / (float) stex->dst_height;
+
+  x1 = alloc->x1 + rect->x * ratio_h;
+  y1 = alloc->y1 + rect->y * ratio_v;
+  x2 = alloc->x1 + (rect->x + rect->width) * ratio_h;
+  y2 = alloc->y1 + (rect->y + rect->height) * ratio_v;
+
+  coords[0] = rect->x / (float) stex->dst_width;
+  coords[1] = rect->y / (float) stex->dst_height;
+  coords[2] = (rect->x + rect->width) / (float) stex->dst_width;
+  coords[3] = (rect->y + rect->height) / (float) stex->dst_height;
 
   coords[4] = coords[0];
   coords[5] = coords[1];
@@ -412,10 +423,10 @@ paint_clipped_rectangle_node (ClutterPaintNode      *root_node,
   clutter_paint_node_add_multitexture_rectangle (node,
                                                  &(ClutterActorBox)
                                                    {
-                                                     .x1 = rect->x,
-                                                     .x2 = rect->x + rect->width,
-                                                     .y1 = rect->y,
-                                                     .y2 = rect->y + rect->height,
+                                                     .x1 = x1,
+                                                     .y1 = y1,
+                                                     .x2 = x2,
+                                                     .y2 = y2,
                                                    },
                                                  coords, 8);
 }
@@ -660,7 +671,7 @@ do_paint_content (MetaShapedTexture *stex,
             {
               cairo_rectangle_int_t rect;
               cairo_region_get_rectangle (region, i, &rect);
-              paint_clipped_rectangle_node (root_node, opaque_pipeline, &rect, alloc);
+              paint_clipped_rectangle_node (stex, root_node, opaque_pipeline, &rect, alloc);
             }
         }
 
@@ -713,7 +724,7 @@ do_paint_content (MetaShapedTexture *stex,
               if (!gdk_rectangle_intersect (&tex_rect, &rect, &rect))
                 continue;
 
-              paint_clipped_rectangle_node (root_node, blended_pipeline, &rect, alloc);
+              paint_clipped_rectangle_node (stex, root_node, blended_pipeline, &rect, alloc);
             }
         }
       else
@@ -728,10 +739,10 @@ do_paint_content (MetaShapedTexture *stex,
           clutter_paint_node_add_rectangle (node,
                                             &(ClutterActorBox)
                                               {
-                                                .x1 = 0.0,
-                                                .y1 = 0.0,
-                                                .x2 = alloc->x2 - alloc->x1,
-                                                .y2 = alloc->y2 - alloc->y1
+                                                .x1 = alloc->x1,
+                                                .y1 = alloc->y1,
+                                                .x2 = alloc->x2,
+                                                .y2 = alloc->y2,
                                               });
         }
     }
@@ -776,7 +787,7 @@ meta_shaped_texture_paint_content (ClutterContent   *content,
 
   clutter_actor_get_scale (actor, &tex_scale, NULL);
   opacity = clutter_actor_get_paint_opacity (actor);
-  clutter_actor_get_allocation_box (actor, &alloc);
+  clutter_actor_get_content_box (actor, &alloc);
 
   do_paint_content (stex, root_node, paint_tex, &alloc, tex_scale, opacity);
 }
