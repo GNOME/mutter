@@ -448,17 +448,27 @@ paint_clipped_rectangle_node (MetaShapedTexture     *stex,
                               ClutterActorBox       *alloc)
 {
   g_autoptr (ClutterPaintNode) node = NULL;
+  float ratio_h, ratio_v;
+  float x1, y1, x2, y2;
   float coords[8];
   float alloc_width;
   float alloc_height;
 
+  ratio_h = clutter_actor_box_get_width (alloc) / (float) stex->dst_width;
+  ratio_v = clutter_actor_box_get_height (alloc) / (float) stex->dst_height;
+
+  x1 = alloc->x1 + rect->x * ratio_h;
+  y1 = alloc->y1 + rect->y * ratio_v;
+  x2 = alloc->x1 + (rect->x + rect->width) * ratio_h;
+  y2 = alloc->y1 + (rect->y + rect->height) * ratio_v;
+
   alloc_width = alloc->x2 - alloc->x1;
   alloc_height = alloc->y2 - alloc->y1;
 
-  coords[0] = rect->x / alloc_width;
-  coords[1] = rect->y / alloc_height;
-  coords[2] = (rect->x + rect->width) / alloc_width;
-  coords[3] = (rect->y + rect->height) / alloc_height;
+  coords[0] = rect->x / alloc_width * ratio_h;
+  coords[1] = rect->y / alloc_height * ratio_v;
+  coords[2] = (rect->x + rect->width) / alloc_width * ratio_h;
+  coords[3] = (rect->y + rect->height) / alloc_height * ratio_v;
 
   coords[4] = coords[0];
   coords[5] = coords[1];
@@ -471,10 +481,10 @@ paint_clipped_rectangle_node (MetaShapedTexture     *stex,
 
   clutter_paint_node_add_multitexture_rectangle (node,
                                                  &(ClutterActorBox) {
-                                                   .x1 = rect->x,
-                                                   .x2 = rect->x + rect->width,
-                                                   .y1 = rect->y,
-                                                   .y2 = rect->y + rect->height,
+                                                   .x1 = x1,
+                                                   .y1 = y1,
+                                                   .x2 = x2,
+                                                   .y2 = y2,
                                                  },
                                                  coords, 8);
 }
