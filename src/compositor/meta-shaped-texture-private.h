@@ -56,4 +56,10 @@ void meta_shaped_texture_get_scale (MetaShapedTexture *stex,
                                     double            *scale_x,
                                     double            *scale_y);
 
+void _meta_shaped_texture_paint_node (MetaShapedTexture *stex,
+                                      ClutterPaintNode  *root_node,
+                                      ClutterActorBox   *box,
+                                      double             tex_scale,
+                                      guchar             opacity);
+
 #endif

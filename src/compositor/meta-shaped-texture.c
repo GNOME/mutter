@@ -1241,3 +1241,18 @@ meta_shaped_texture_reset_culling (MetaShapedTexture *stex)
 
   set_clip_region (stex, NULL);
 }
+
+void
+_meta_shaped_texture_paint_node (MetaShapedTexture *stex,
+                                 ClutterPaintNode  *root_node,
+                                 ClutterActorBox   *box,
+                                 double             tex_scale,
+                                 guchar             opacity)
+{
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
+
+  if (!stex->texture)
+    return;
+
+  do_paint_content (stex, root_node, stex->texture, box, tex_scale, opacity);
+}
