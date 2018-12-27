@@ -761,6 +761,11 @@ clutter_paint_operation_clear (ClutterPaintOperation *op)
     case PAINT_OP_TEX_RECT:
       break;
 
+    case PAINT_OP_MULTITEX_RECT:
+      if (op->multitex_coords != NULL)
+        g_array_unref (op->multitex_coords);
+      break;
+
     case PAINT_OP_PATH:
       if (op->op.path != NULL)
         cogl_object_unref (op->op.path);
@@ -792,6 +797,27 @@ clutter_paint_op_init_tex_rect (ClutterPaintOperation *op,
   op->op.texrect[5] = y_1;
   op->op.texrect[6] = x_2;
   op->op.texrect[7] = y_2;
+}
+
+static inline void
+clutter_paint_op_init_multitex_rect (ClutterPaintOperation *op,
+                                     const ClutterActorBox *rect,
+                                     const float           *tex_coords,
+                                     unsigned int           tex_coords_len)
+{
+  clutter_paint_operation_clear (op);
+
+  op->opcode = PAINT_OP_MULTITEX_RECT;
+  op->multitex_coords = g_array_sized_new (FALSE, FALSE,
+                                           sizeof (float),
+                                           tex_coords_len);
+
+  g_array_append_vals (op->multitex_coords, tex_coords, tex_coords_len);
+
+  op->op.texrect[0] = rect->x1;
+  op->op.texrect[1] = rect->y1;
+  op->op.texrect[2] = rect->x2;
+  op->op.texrect[3] = rect->y2;
 }
 
 static inline void
@@ -878,6 +904,33 @@ clutter_paint_node_add_texture_rectangle (ClutterPaintNode      *node,
   clutter_paint_node_maybe_init_operations (node);
 
   clutter_paint_op_init_tex_rect (&operation, rect, x_1, y_1, x_2, y_2);
+  g_array_append_val (node->operations, operation);
+}
+
+
+/**
+ * clutter_paint_node_add_multitexture_rectangle:
+ * @node: a #ClutterPaintNode
+ * @rect: a #ClutterActorBox
+ * @text_coords: array of multitexture values
+ * @text_coords_len: number of items of @text_coords
+ *
+ * Adds a rectangle region to the @node, with multitexture coordinates.
+ */
+void
+clutter_paint_node_add_multitexture_rectangle (ClutterPaintNode      *node,
+                                               const ClutterActorBox *rect,
+                                               const float           *text_coords,
+                                               unsigned int           text_coords_len)
+{
+  ClutterPaintOperation operation = PAINT_OP_INIT;
+
+  g_return_if_fail (CLUTTER_IS_PAINT_NODE (node));
+  g_return_if_fail (rect != NULL);
+
+  clutter_paint_node_maybe_init_operations (node);
+
+  clutter_paint_op_init_multitex_rect (&operation, rect, text_coords, text_coords_len);
   g_array_append_val (node->operations, operation);
 }
 
@@ -1006,7 +1059,7 @@ clutter_paint_node_to_json (ClutterPaintNode *node)
 
   if (node->operations != NULL)
     {
-      guint i;
+      guint i, j;
 
       for (i = 0; i < node->operations->len; i++)
         {
@@ -1028,6 +1081,19 @@ clutter_paint_node_to_json (ClutterPaintNode *node)
               json_builder_add_double_value (builder, op->op.texrect[5]);
               json_builder_add_double_value (builder, op->op.texrect[6]);
               json_builder_add_double_value (builder, op->op.texrect[7]);
+              json_builder_end_array (builder);
+              break;
+
+            case PAINT_OP_MULTITEX_RECT:
+              json_builder_set_member_name (builder, "texrect");
+              json_builder_begin_array (builder);
+
+              for (j = 0; i < op->multitex_coords->len; j++)
+                {
+                  float coord = g_array_index (op->multitex_coords, float, j);
+                  json_builder_add_double_value (builder, coord);
+                }
+
               json_builder_end_array (builder);
               break;
 
