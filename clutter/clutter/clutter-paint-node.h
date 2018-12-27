@@ -68,6 +68,12 @@ void                    clutter_paint_node_add_texture_rectangle        (Clutter
                                                                          float                  y_2);
 
 CLUTTER_EXPORT
+void                   clutter_paint_node_add_multitexture_rectangle   (ClutterPaintNode       *node,
+                                                                        const ClutterActorBox  *rect,
+                                                                        const float            *text_coords,
+                                                                        unsigned int            text_coords_len);
+
+CLUTTER_EXPORT
 void                    clutter_paint_node_add_path                     (ClutterPaintNode      *node,
                                                                          CoglPath              *path);
 CLUTTER_EXPORT
