@@ -534,47 +534,22 @@ select_texture_for_paint (MetaShapedTexture *stex)
 }
 
 static void
-meta_shaped_texture_paint_content (ClutterContent   *content,
-                                   ClutterActor     *actor,
-                                   ClutterPaintNode *root_node)
+do_paint_content (MetaShapedTexture *stex,
+                  ClutterPaintNode  *root_node,
+                  CoglTexture       *paint_tex,
+                  ClutterActorBox   *alloc,
+                  double             tex_scale,
+                  guchar             opacity)
 {
-  MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
-  double tex_scale;
   int dst_width, dst_height;
   cairo_rectangle_int_t tex_rect;
-  guchar opacity;
   gboolean use_opaque_region;
   cairo_region_t *clip_tex_region;
   cairo_region_t *opaque_tex_region;
   cairo_region_t *blended_tex_region;
   CoglContext *ctx;
-  CoglTexture *paint_tex = NULL;
-  ClutterActorBox alloc;
   CoglPipelineFilter filter;
 
-  if (stex->clip_region && cairo_region_is_empty (stex->clip_region))
-    return;
-
-  /* The GL EXT_texture_from_pixmap extension does allow for it to be
-   * used together with SGIS_generate_mipmap, however this is very
-   * rarely supported. Also, even when it is supported there
-   * are distinct performance implications from:
-   *
-   *  - Updating mipmaps that we don't need
-   *  - Having to reallocate pixmaps on the server into larger buffers
-   *
-   * So, we just unconditionally use our mipmap emulation code. If we
-   * wanted to use SGIS_generate_mipmap, we'd have to  query COGL to
-   * see if it was supported (no API currently), and then if and only
-   * if that was the case, set the clutter texture quality to HIGH.
-   * Setting the texture quality to high without SGIS_generate_mipmap
-   * support for TFP textures will result in fallbacks to XGetImage.
-   */
-  paint_tex = select_texture_for_paint (stex);
-  if (!paint_tex)
-    return;
-
-  clutter_actor_get_scale (actor, &tex_scale, NULL);
   ensure_size_valid (stex);
 
   dst_width = stex->dst_width;
@@ -595,9 +570,6 @@ meta_shaped_texture_paint_content (ClutterContent   *content,
     filter = COGL_PIPELINE_FILTER_NEAREST;
 
   ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
-
-  opacity = clutter_actor_get_paint_opacity (actor);
-  clutter_actor_get_allocation_box (actor, &alloc);
 
   if (stex->opaque_region && opacity == 255)
     {
@@ -688,7 +660,7 @@ meta_shaped_texture_paint_content (ClutterContent   *content,
             {
               cairo_rectangle_int_t rect;
               cairo_region_get_rectangle (region, i, &rect);
-              paint_clipped_rectangle_node (root_node, opaque_pipeline, &rect, &alloc);
+              paint_clipped_rectangle_node (root_node, opaque_pipeline, &rect, alloc);
             }
         }
 
@@ -741,7 +713,7 @@ meta_shaped_texture_paint_content (ClutterContent   *content,
               if (!gdk_rectangle_intersect (&tex_rect, &rect, &rect))
                 continue;
 
-              paint_clipped_rectangle_node (root_node, blended_pipeline, &rect, &alloc);
+              paint_clipped_rectangle_node (root_node, blended_pipeline, &rect, alloc);
             }
         }
       else
@@ -758,8 +730,8 @@ meta_shaped_texture_paint_content (ClutterContent   *content,
                                               {
                                                 .x1 = 0.0,
                                                 .y1 = 0.0,
-                                                .x2 = alloc.x2 - alloc.x1,
-                                                .y2 = alloc.y2 - alloc.y1
+                                                .x2 = alloc->x2 - alloc->x1,
+                                                .y2 = alloc->y2 - alloc->y1
                                               });
         }
     }
@@ -767,6 +739,46 @@ meta_shaped_texture_paint_content (ClutterContent   *content,
   g_clear_pointer (&clip_tex_region, cairo_region_destroy);
   g_clear_pointer (&opaque_tex_region, cairo_region_destroy);
   g_clear_pointer (&blended_tex_region, cairo_region_destroy);
+}
+
+static void
+meta_shaped_texture_paint_content (ClutterContent   *content,
+                                   ClutterActor     *actor,
+                                   ClutterPaintNode *root_node)
+{
+  MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
+  ClutterActorBox alloc;
+  CoglTexture *paint_tex = NULL;
+  double tex_scale;
+  guchar opacity;
+
+  if (stex->clip_region && cairo_region_is_empty (stex->clip_region))
+    return;
+
+  /* The GL EXT_texture_from_pixmap extension does allow for it to be
+   * used together with SGIS_generate_mipmap, however this is very
+   * rarely supported. Also, even when it is supported there
+   * are distinct performance implications from:
+   *
+   *  - Updating mipmaps that we don't need
+   *  - Having to reallocate pixmaps on the server into larger buffers
+   *
+   * So, we just unconditionally use our mipmap emulation code. If we
+   * wanted to use SGIS_generate_mipmap, we'd have to  query COGL to
+   * see if it was supported (no API currently), and then if and only
+   * if that was the case, set the clutter texture quality to HIGH.
+   * Setting the texture quality to high without SGIS_generate_mipmap
+   * support for TFP textures will result in fallbacks to XGetImage.
+   */
+  paint_tex = select_texture_for_paint (stex);
+  if (!paint_tex)
+    return;
+
+  clutter_actor_get_scale (actor, &tex_scale, NULL);
+  opacity = clutter_actor_get_paint_opacity (actor);
+  clutter_actor_get_allocation_box (actor, &alloc);
+
+  do_paint_content (stex, root_node, paint_tex, &alloc, tex_scale, opacity);
 }
 
 static gboolean
