@@ -495,6 +495,44 @@ effective_unobscured_region (MetaShapedTexture *stex)
   return stex->unobscured_region;
 }
 
+static CoglTexture *
+select_texture_for_paint (MetaShapedTexture *stex)
+{
+  CoglTexture *texture = NULL;
+  gint64 now = g_get_monotonic_time ();
+
+  if (stex->create_mipmaps && stex->last_invalidation)
+    {
+      gint64 age = now - stex->last_invalidation;
+
+      if (age >= MIN_MIPMAP_AGE_USEC ||
+          stex->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
+        texture = meta_texture_tower_get_paint_texture (stex->paint_tower);
+    }
+
+  if (texture == NULL)
+    {
+      texture = COGL_TEXTURE (stex->texture);
+
+      if (texture == NULL)
+        return NULL;
+
+      if (stex->create_mipmaps)
+        {
+          /* Minus 1000 to ensure we don't fail the age test in timeout */
+          stex->earliest_remipmap = now + MIN_MIPMAP_AGE_USEC - 1000;
+
+          if (!stex->remipmap_timeout_id)
+            stex->remipmap_timeout_id =
+              g_timeout_add (MIN_MIPMAP_AGE_USEC / 1000,
+                             texture_is_idle_and_not_mipmapped,
+                             stex);
+        }
+    }
+
+  return texture;
+}
+
 static void
 meta_shaped_texture_paint_content (ClutterContent   *content,
                                    ClutterActor     *actor,
@@ -513,7 +551,6 @@ meta_shaped_texture_paint_content (ClutterContent   *content,
   CoglTexture *paint_tex = NULL;
   ClutterActorBox alloc;
   CoglPipelineFilter filter;
-  gint64 now = g_get_monotonic_time ();
 
   if (stex->clip_region && cairo_region_is_empty (stex->clip_region))
     return;
@@ -533,34 +570,9 @@ meta_shaped_texture_paint_content (ClutterContent   *content,
    * Setting the texture quality to high without SGIS_generate_mipmap
    * support for TFP textures will result in fallbacks to XGetImage.
    */
-  if (stex->create_mipmaps && stex->last_invalidation)
-    {
-      gint64 age = now - stex->last_invalidation;
-
-      if (age >= MIN_MIPMAP_AGE_USEC ||
-          stex->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
-        paint_tex = meta_texture_tower_get_paint_texture (stex->paint_tower);
-    }
-
-  if (paint_tex == NULL)
-    {
-      paint_tex = COGL_TEXTURE (stex->texture);
-
-      if (paint_tex == NULL)
-        return;
-
-      if (stex->create_mipmaps)
-        {
-          /* Minus 1000 to ensure we don't fail the age test in timeout */
-          stex->earliest_remipmap = now + MIN_MIPMAP_AGE_USEC - 1000;
-
-          if (!stex->remipmap_timeout_id)
-            stex->remipmap_timeout_id =
-              g_timeout_add (MIN_MIPMAP_AGE_USEC / 1000,
-                             texture_is_idle_and_not_mipmapped,
-                             stex);
-        }
-    }
+  paint_tex = select_texture_for_paint (stex);
+  if (!paint_tex)
+    return;
 
   clutter_actor_get_scale (actor, &tex_scale, NULL);
   ensure_size_valid (stex);
