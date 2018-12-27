@@ -77,6 +77,7 @@ struct _ClutterPaintNodeClass
 typedef enum {
   PAINT_OP_INVALID = 0,
   PAINT_OP_TEX_RECT,
+  PAINT_OP_MULTITEX_RECT,
   PAINT_OP_PATH,
   PAINT_OP_PRIMITIVE
 } PaintOpCode;
@@ -84,6 +85,8 @@ typedef enum {
 struct _ClutterPaintOperation
 {
   PaintOpCode opcode;
+
+  GArray *multitex_coords;
 
   union {
     float texrect[8];
