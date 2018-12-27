@@ -431,6 +431,17 @@ clutter_pipeline_node_draw (ClutterPaintNode *node)
                                               op->op.texrect[7]);
           break;
 
+        case PAINT_OP_MULTITEX_RECT:
+          cogl_framebuffer_draw_multitextured_rectangle (cogl_get_draw_framebuffer (),
+                                                         pnode->pipeline,
+                                                         op->op.texrect[0],
+                                                         op->op.texrect[1],
+                                                         op->op.texrect[2],
+                                                         op->op.texrect[3],
+                                                         (float*) op->multitex_coords->data,
+                                                         op->multitex_coords->len);
+          break;
+
         case PAINT_OP_PATH:
           cogl_path_fill (op->op.path);
           break;
@@ -827,6 +838,7 @@ clutter_text_node_draw (ClutterPaintNode *node)
             cogl_framebuffer_pop_clip (fb);
           break;
 
+        case PAINT_OP_MULTITEX_RECT:
         case PAINT_OP_PATH:
         case PAINT_OP_PRIMITIVE:
         case PAINT_OP_INVALID:
@@ -992,6 +1004,7 @@ clutter_clip_node_pre_draw (ClutterPaintNode *node)
           retval = TRUE;
           break;
 
+        case PAINT_OP_MULTITEX_RECT:
         case PAINT_OP_PRIMITIVE:
         case PAINT_OP_INVALID:
           break;
@@ -1025,6 +1038,7 @@ clutter_clip_node_post_draw (ClutterPaintNode *node)
           cogl_framebuffer_pop_clip (fb);
           break;
 
+        case PAINT_OP_MULTITEX_RECT:
         case PAINT_OP_PRIMITIVE:
         case PAINT_OP_INVALID:
           break;
@@ -1178,6 +1192,17 @@ clutter_layer_node_post_draw (ClutterPaintNode *node)
                                               op->op.texrect[6],
                                               op->op.texrect[7]);
           cogl_pop_source ();
+          break;
+
+        case PAINT_OP_MULTITEX_RECT:
+          cogl_framebuffer_draw_multitextured_rectangle (cogl_get_draw_framebuffer (),
+                                                         lnode->state,
+                                                         op->op.texrect[0],
+                                                         op->op.texrect[1],
+                                                         op->op.texrect[2],
+                                                         op->op.texrect[3],
+                                                         (float*) op->multitex_coords->data,
+                                                         op->multitex_coords->len);
           break;
 
         case PAINT_OP_PATH:
