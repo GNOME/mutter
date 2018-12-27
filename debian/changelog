@@ -1,3 +1,10 @@
+mutter (3.30.2-4) unstable; urgency=medium
+
+  * Add -Wl,-O1 to our LDFLAGS
+  * Bump Standards-Version to 4.3.0
+
+ -- Jeremy Bicha <jbicha@debian.org>  Thu, 27 Dec 2018 11:10:51 -0500
+
 mutter (3.30.2-3) unstable; urgency=medium
 
   * control: Depend on g-s-d-common instead of g-s-d. We only need the
@@ -2862,4 +2869,3 @@ metacity (2.3.34-1) unstable; urgency=low
   * Initial Release. (Closes: #107181)
 
  -- Thom May <thom@debian.org>  Sun, 10 Feb 2002 12:03:22 +0000
-
