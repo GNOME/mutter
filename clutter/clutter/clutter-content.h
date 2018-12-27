@@ -86,6 +86,8 @@ struct _ClutterContentIface
                                          ClutterActor     *actor);
 
   void          (* invalidate)          (ClutterContent   *content);
+
+  void          (* invalidate_size)     (ClutterContent   *content);
 };
 
 CLUTTER_EXPORT
@@ -97,6 +99,9 @@ gboolean        clutter_content_get_preferred_size      (ClutterContent *content
                                                          gfloat         *height);
 CLUTTER_EXPORT
 void            clutter_content_invalidate              (ClutterContent *content);
+
+CLUTTER_EXPORT
+void            clutter_content_invalidate_size         (ClutterContent *content);
 
 G_END_DECLS
 

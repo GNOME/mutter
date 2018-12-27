@@ -92,6 +92,11 @@ clutter_content_real_invalidate (ClutterContent *content)
 }
 
 static void
+clutter_content_real_invalidate_size (ClutterContent *content)
+{
+}
+
+static void
 clutter_content_real_paint_content (ClutterContent   *content,
                                     ClutterActor     *actor,
                                     ClutterPaintNode *context)
@@ -108,6 +113,7 @@ clutter_content_default_init (ClutterContentInterface *iface)
   iface->attached = clutter_content_real_attached;
   iface->detached = clutter_content_real_detached;
   iface->invalidate = clutter_content_real_invalidate;
+  iface->invalidate_size = clutter_content_real_invalidate_size;
 
   /**
    * ClutterContent::attached:
@@ -185,6 +191,48 @@ clutter_content_invalidate (ClutterContent *content)
       g_assert (actor != NULL);
 
       clutter_actor_queue_redraw (actor);
+    }
+}
+
+/**
+ * clutter_content_invalidate_size:
+ * @content: a #ClutterContent
+ *
+ * Signals that @content's size changed. Attached actors with request mode
+ * set to %CLUTTER_REQUEST_CONTENT_SIZE will have a relayout queued.
+ *
+ * Attached actors with other request modes are not redrawn. To redraw them
+ * too, use clutter_content_invalidate().
+ */
+void
+clutter_content_invalidate_size (ClutterContent *content)
+{
+  GHashTable *actors;
+  GHashTableIter iter;
+  gpointer key_p, value_p;
+
+  g_return_if_fail (CLUTTER_IS_CONTENT (content));
+
+  CLUTTER_CONTENT_GET_IFACE (content)->invalidate_size (content);
+
+  actors = g_object_get_qdata (G_OBJECT (content), quark_content_actors);
+  if (actors == NULL)
+    return;
+
+  g_hash_table_iter_init (&iter, actors);
+  while (g_hash_table_iter_next (&iter, &key_p, &value_p))
+    {
+      ClutterRequestMode request_mode;
+      ClutterActor *actor = key_p;
+
+      g_assert (actor != NULL);
+
+      request_mode = clutter_actor_get_request_mode (actor);
+
+      if (request_mode != CLUTTER_REQUEST_CONTENT_SIZE)
+        continue;
+
+      clutter_actor_queue_relayout (actor);
     }
 }
 
