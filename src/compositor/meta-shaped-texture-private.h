@@ -59,4 +59,12 @@ void _meta_shaped_texture_paint_node (MetaShapedTexture *stex,
                                       double             tex_scale,
                                       guchar             opacity);
 
+typedef void (*MetaShapedTextureInvalidateFunc) (MetaShapedTexture *stex,
+                                                 gboolean           size_changed,
+                                                 gpointer           user_data);
+
+void _meta_shaped_texture_set_invalidate_func (MetaShapedTexture               *stex,
+                                               MetaShapedTextureInvalidateFunc  func,
+                                               gpointer                         user_data);
+
 #endif

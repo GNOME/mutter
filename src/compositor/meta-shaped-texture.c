@@ -106,6 +106,9 @@ struct _MetaShapedTexture
 
   double scale;
 
+  MetaShapedTextureInvalidateFunc invalidate_func;
+  gpointer invalidate_user_data;
+
   guint create_mipmaps : 1;
 };
 
@@ -1065,10 +1068,34 @@ meta_shaped_texture_detached (ClutterContent *content,
 }
 
 static void
+meta_shaped_texture_invalidate (ClutterContent *content)
+{
+  MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
+
+  if (!stex->invalidate_func)
+    return;
+
+  stex->invalidate_func (stex, FALSE, stex->invalidate_user_data);
+}
+
+static void
+meta_shaped_texture_invalidate_size (ClutterContent *content)
+{
+  MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
+
+  if (!stex->invalidate_func)
+    return;
+
+  stex->invalidate_func (stex, TRUE, stex->invalidate_user_data);
+}
+
+static void
 clutter_content_iface_init (ClutterContentIface *iface)
 {
   iface->paint_content = meta_shaped_texture_paint_content;
   iface->get_preferred_size = meta_shaped_texture_get_preferred_size;
+  iface->invalidate = meta_shaped_texture_invalidate;
+  iface->invalidate_size = meta_shaped_texture_invalidate_size;
   iface->attached = meta_shaped_texture_attached;
   iface->detached = meta_shaped_texture_detached;
 }
@@ -1644,4 +1671,13 @@ _meta_shaped_texture_paint_node (MetaShapedTexture *stex,
     return;
 
   do_paint_content (stex, root_node, stex->texture, box, tex_scale, opacity);
+}
+
+void
+_meta_shaped_texture_set_invalidate_func (MetaShapedTexture               *stex,
+                                          MetaShapedTextureInvalidateFunc  func,
+                                          gpointer                         user_data)
+{
+  stex->invalidate_func = func;
+  stex->invalidate_user_data = user_data;
 }
