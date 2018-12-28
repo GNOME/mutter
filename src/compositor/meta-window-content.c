@@ -83,6 +83,53 @@ enum
 static GParamSpec *properties [N_PROPS];
 
 static void
+texture_invalidate_func (MetaShapedTexture *stex,
+                         gboolean           size_changed,
+                         gpointer           user_data)
+{
+  MetaWindowContent *window_content = (MetaWindowContent*) user_data;
+
+  if (window_content->attached_actors == 0)
+    return;
+
+  if (size_changed)
+    clutter_content_invalidate_size (CLUTTER_CONTENT (user_data));
+  else
+    clutter_content_invalidate (CLUTTER_CONTENT (user_data));
+}
+
+static void
+set_surface_invalidate_func (MetaWindowContent               *window_content,
+                             MetaShapedTextureInvalidateFunc  func)
+{
+  ClutterActor *window_actor = CLUTTER_ACTOR (window_content->window_actor);
+  ClutterActor *child;
+
+  for (child = clutter_actor_get_first_child (window_actor);
+       child != NULL;
+       child = clutter_actor_get_next_sibling (child))
+    {
+      MetaShapedTexture *stex;
+
+      if (!META_IS_SURFACE_ACTOR (child))
+        continue;
+
+      stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (child));
+
+      if (!stex)
+        continue;
+
+      meta_shaped_texture_set_invalidate_func (stex, func, window_content);
+    }
+}
+
+static void
+ensure_shaped_textures_invalidate_func (MetaWindowContent *window_content)
+{
+  set_surface_invalidate_func (window_content, texture_invalidate_func);
+}
+
+static void
 add_surface_paint_nodes (MetaSurfaceActor *surface_actor,
                          ClutterActor     *actor,
                          ClutterPaintNode *root_node,
@@ -136,6 +183,8 @@ meta_window_content_paint_content (ClutterContent   *content,
   g_assert (!META_IS_WINDOW_ACTOR (actor));
   g_assert (!META_IS_SURFACE_ACTOR (actor));
 
+  ensure_shaped_textures_invalidate_func (window_content);
+
   /* Horizontal and vertical scales */
   clutter_actor_get_size (window_actor, &width, &height);
   clutter_actor_get_size (actor, &dst_width, &dst_height);
@@ -162,6 +211,8 @@ meta_window_content_get_preferred_size (ClutterContent *content,
 {
   MetaWindowContent *window_content = META_WINDOW_CONTENT (content);
 
+  ensure_shaped_textures_invalidate_func (window_content);
+
   clutter_actor_get_size (CLUTTER_ACTOR (window_content->window_actor),
                           width, height);
   return TRUE;
@@ -174,6 +225,8 @@ meta_window_content_attached (ClutterContent *content,
   MetaWindowContent *window_content = META_WINDOW_CONTENT (content);
 
   window_content->attached_actors++;
+
+  ensure_shaped_textures_invalidate_func (window_content);
 }
 
 static void
@@ -236,10 +289,21 @@ meta_window_content_set_property (GObject      *object,
 }
 
 static void
+meta_window_content_dispose (GObject *object)
+{
+  MetaWindowContent *window_content = META_WINDOW_CONTENT (object);
+
+  set_surface_invalidate_func (window_content, surface_actor, NULL);
+
+  G_OBJECT_CLASS (meta_window_content_parent_class)->dispose (object);
+}
+
+static void
 meta_window_content_class_init (MetaWindowContentClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->dispose = meta_window_content_dispose;
   object_class->get_property = meta_window_content_get_property;
   object_class->set_property = meta_window_content_set_property;
 
