@@ -52,4 +52,18 @@ void meta_shaped_texture_set_scale (MetaShapedTexture *stex,
                                     double             scale);
 double meta_shaped_texture_get_scale (MetaShapedTexture *stex);
 
+void meta_shaped_texture_paint_node (MetaShapedTexture *stex,
+                                     ClutterPaintNode  *root_node,
+                                     ClutterActorBox   *box,
+                                     double             tex_scale,
+                                     guchar             opacity);
+
+typedef void (*MetaShapedTextureInvalidateFunc) (MetaShapedTexture *stex,
+                                                 gboolean           size_changed,
+                                                 gpointer           user_data);
+
+void meta_shaped_texture_set_invalidate_func (MetaShapedTexture               *stex,
+                                              MetaShapedTextureInvalidateFunc  func,
+                                              gpointer                         user_data);
+
 #endif
