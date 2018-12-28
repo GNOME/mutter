@@ -293,7 +293,7 @@ meta_window_content_dispose (GObject *object)
 {
   MetaWindowContent *window_content = META_WINDOW_CONTENT (object);
 
-  set_surface_invalidate_func (window_content, surface_actor, NULL);
+  set_surface_invalidate_func (window_content, NULL);
 
   G_OBJECT_CLASS (meta_window_content_parent_class)->dispose (object);
 }
