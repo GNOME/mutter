@@ -684,6 +684,24 @@ do_paint_content (MetaShapedTexture *stex,
   g_clear_pointer (&blended_tex_region, cairo_region_destroy);
 }
 
+static void
+update_invalidation_counters (MetaShapedTexture *stex)
+{
+  stex->prev_invalidation = stex->last_invalidation;
+  stex->last_invalidation = g_get_monotonic_time ();
+
+  if (stex->prev_invalidation)
+    {
+      gint64 interval = stex->last_invalidation - stex->prev_invalidation;
+      gboolean fast_update = interval < MIN_MIPMAP_AGE_USEC;
+
+      if (!fast_update)
+        stex->fast_updates = 0;
+      else if (stex->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
+        stex->fast_updates++;
+    }
+}
+
 static CoglTexture *
 select_texture_for_paint (MetaShapedTexture *stex)
 {
@@ -782,6 +800,8 @@ meta_shaped_texture_invalidate (ClutterContent *content)
 {
   MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
 
+  update_invalidation_counters (stex);
+
   if (!stex->invalidate_func)
     return;
 
@@ -792,6 +812,8 @@ static void
 meta_shaped_texture_invalidate_size (ClutterContent *content)
 {
   MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
+
+  update_invalidation_counters (stex);
 
   if (!stex->invalidate_func)
     return;
