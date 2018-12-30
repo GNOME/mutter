@@ -50,4 +50,6 @@ G_DECLARE_FINAL_TYPE (MetaWaylandXdgPopup,
 
 void meta_wayland_xdg_shell_init (MetaWaylandCompositor *compositor);
 
+MetaRectangle meta_wayland_xdg_surface_get_window_geometry (MetaWaylandXdgSurface *xdg_surface);
+
 #endif /* META_WAYLAND_XDG_SHELL_H */

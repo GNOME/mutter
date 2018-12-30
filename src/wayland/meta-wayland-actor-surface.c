@@ -173,6 +173,10 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
     .height = meta_wayland_surface_get_height (surface) * geometry_scale,
   };
 
+  meta_surface_actor_set_max_size (surface_actor,
+                                   surface_rect.width,
+                                   surface_rect.height);
+
   if (surface->input_region)
     {
       cairo_region_t *scaled_input_region;
