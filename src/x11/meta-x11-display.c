@@ -1803,6 +1803,22 @@ meta_x11_display_update_active_window_hint (MetaX11Display *x11_display)
   meta_x11_error_trap_pop (x11_display);
 }
 
+void
+meta_x11_display_update_focus_window (MetaX11Display *x11_display,
+                                      Window          xwindow,
+                                      gulong          serial,
+                                      gboolean        focused_by_us)
+{
+  x11_display->focus_serial = serial;
+  x11_display->focused_by_us = !!focused_by_us;
+
+  if (x11_display->focus_xwindow == xwindow)
+    return;
+
+  x11_display->focus_xwindow = xwindow;
+  meta_x11_display_update_active_window_hint (x11_display);
+}
+
 static void
 request_xserver_input_focus_change (MetaX11Display *x11_display,
                                     MetaWindow     *meta_window,
@@ -1841,11 +1857,8 @@ request_xserver_input_focus_change (MetaX11Display *x11_display,
   XUngrabServer (x11_display->xdisplay);
   XFlush (x11_display->xdisplay);
 
-  meta_display_update_focus_window (x11_display->display,
-                                    meta_window,
-                                    xwindow,
-                                    serial,
-                                    TRUE);
+  meta_display_update_focus_window (x11_display->display, meta_window);
+  meta_x11_display_update_focus_window (x11_display, xwindow, serial, TRUE);
 
   meta_x11_error_trap_pop (x11_display);
 
