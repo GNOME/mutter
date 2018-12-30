@@ -412,3 +412,14 @@ meta_surface_actor_set_transform (MetaSurfaceActor     *self,
 
   meta_shaped_texture_set_transform (priv->texture, transform);
 }
+
+void
+meta_surface_actor_set_max_size (MetaSurfaceActor *self,
+                                 int               width,
+                                 int               height)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
+  meta_shaped_texture_set_max_size (priv->texture, width, height);
+}

@@ -108,6 +108,9 @@ struct _MetaShapedTexture
   int fallback_width, fallback_height;
   int dst_width, dst_height;
 
+  gboolean has_max_size;
+  int max_width, max_height;
+
   gint64 prev_invalidation, last_invalidation;
   guint fast_updates;
   guint remipmap_timeout_id;
@@ -567,6 +570,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
     return;
 
   tex_rect = (cairo_rectangle_int_t) { 0, 0, dst_width, dst_height };
+  if (stex->has_max_size)
+    tex_rect = (cairo_rectangle_int_t) { 0, 0, stex->max_width / tex_scale, stex->max_height / tex_scale};
 
   /* Use nearest-pixel interpolation if the texture is unscaled. This
    * improves performance, especially with software rendering.
@@ -730,10 +735,7 @@ meta_shaped_texture_paint (ClutterActor *actor)
       else
         {
           /* 3) blended_tex_region is NULL. Do a full paint. */
-          cogl_framebuffer_draw_rectangle (fb, blended_pipeline,
-                                           0, 0,
-                                           alloc.x2 - alloc.x1,
-                                           alloc.y2 - alloc.y1);
+          paint_clipped_rectangle (fb, blended_pipeline, &tex_rect, &alloc);
         }
     }
 
@@ -1129,6 +1131,18 @@ meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
   invalidate_size (stex);
 }
 
+void
+meta_shaped_texture_set_max_size (MetaShapedTexture *stex,
+                                       int           width,
+                                       int           height)
+{
+  stex->has_max_size = TRUE;
+  stex->max_width = width;
+  stex->max_height = height;
+
+  invalidate_size (stex);
+}
+
 static void
 meta_shaped_texture_cull_out (MetaCullable   *cullable,
                               cairo_region_t *unobscured_region,
@@ -1138,6 +1152,21 @@ meta_shaped_texture_cull_out (MetaCullable   *cullable,
 
   set_unobscured_region (stex, unobscured_region);
   set_clip_region (stex, clip_region);
+
+  /*if (stex->has_max_size)
+    {
+      cairo_rectangle_int_t max_rect;
+
+      max_rect = (cairo_rectangle_int_t) {
+        .width = stex->max_width,
+        .height = stex->max_height
+      };]
+
+      if (unobscured_region)
+        cairo_region_intersect_rectangle (unobscured_region, max_region);
+      if (clip_region)
+        cairo_region_intersect_rectangle (clip_region, max_region);
+    }*/
 
   if (clutter_actor_get_paint_opacity (CLUTTER_ACTOR (stex)) == 0xff)
     {

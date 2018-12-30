@@ -45,4 +45,8 @@ cairo_region_t * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex)
 void meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
                                         MetaMonitorTransform  transform);
 
+void meta_shaped_texture_set_max_size (MetaShapedTexture *stex,
+                                       int                width,
+                                       int                height);
+
 #endif

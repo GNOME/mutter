@@ -65,6 +65,10 @@ gboolean meta_surface_actor_is_unredirected (MetaSurfaceActor *actor);
 
 void meta_surface_actor_set_transform (MetaSurfaceActor     *self,
                                        MetaMonitorTransform  transform);
+
+void meta_surface_actor_set_max_size (MetaSurfaceActor *self,
+                                      int               width,
+                                      int               height);
 G_END_DECLS
 
 #endif /* META_SURFACE_ACTOR_PRIVATE_H */
