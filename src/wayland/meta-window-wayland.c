@@ -142,10 +142,12 @@ meta_window_wayland_focus (MetaWindow *window,
                            guint32     timestamp)
 {
   if (window->input)
-    meta_x11_display_set_input_focus_window (window->display->x11_display,
-                                             window,
-                                             FALSE,
-                                             timestamp);
+    {
+      meta_display_set_input_focus (window->display,
+                                    window,
+                                    FALSE,
+                                    timestamp);
+    }
 }
 
 static void

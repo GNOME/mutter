@@ -1887,18 +1887,6 @@ request_xserver_input_focus_change (MetaX11Display *x11_display,
 }
 
 void
-meta_x11_display_set_input_focus_window (MetaX11Display *x11_display,
-                                         MetaWindow     *window,
-                                         gboolean        focus_frame,
-                                         guint32         timestamp)
-{
-  request_xserver_input_focus_change (x11_display,
-                                      window,
-                                      focus_frame ? window->frame->xwindow : window->xwindow,
-                                      timestamp);
-}
-
-void
 meta_x11_display_set_input_focus_xwindow (MetaX11Display *x11_display,
                                           Window          window,
                                           guint32         timestamp)
@@ -1906,16 +1894,6 @@ meta_x11_display_set_input_focus_xwindow (MetaX11Display *x11_display,
   request_xserver_input_focus_change (x11_display,
                                       NULL,
                                       window,
-                                      timestamp);
-}
-
-void
-meta_x11_display_focus_the_no_focus_window (MetaX11Display *x11_display,
-                                            guint32         timestamp)
-{
-  request_xserver_input_focus_change (x11_display,
-                                      NULL,
-                                      x11_display->no_focus_window,
                                       timestamp);
 }
 

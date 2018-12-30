@@ -757,10 +757,10 @@ meta_window_x11_focus (MetaWindow *window,
     {
       meta_topic (META_DEBUG_FOCUS,
                   "Focusing frame of %s\n", window->desc);
-      meta_x11_display_set_input_focus_window (window->display->x11_display,
-                                               window,
-                                               TRUE,
-                                               timestamp);
+      meta_display_set_input_focus (window->display,
+                                    window,
+                                    TRUE,
+                                    timestamp);
     }
   else
     {
@@ -769,10 +769,10 @@ meta_window_x11_focus (MetaWindow *window,
           meta_topic (META_DEBUG_FOCUS,
                       "Setting input focus on %s since input = true\n",
                       window->desc);
-          meta_x11_display_set_input_focus_window (window->display->x11_display,
-                                                   window,
-                                                   FALSE,
-                                                   timestamp);
+          meta_display_set_input_focus (window->display,
+                                        window,
+                                        FALSE,
+                                        timestamp);
         }
 
       if (window->take_focus)
@@ -795,8 +795,7 @@ meta_window_x11_focus (MetaWindow *window,
                */
               if (window->display->focus_window != NULL &&
                   window->display->focus_window->unmanaging)
-                meta_x11_display_focus_the_no_focus_window (window->display->x11_display,
-                                                            timestamp);
+                meta_display_unset_input_focus (window->display, timestamp);
             }
 
           request_take_focus (window, timestamp);
