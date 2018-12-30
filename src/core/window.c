@@ -5351,50 +5351,6 @@ redraw_icon (MetaWindow *window)
     meta_frame_queue_draw (window->frame);
 }
 
-static cairo_surface_t *
-load_default_window_icon (int size)
-{
-  GtkIconTheme *theme = gtk_icon_theme_get_default ();
-  g_autoptr (GdkPixbuf) pixbuf = NULL;
-  const char *icon_name;
-
-  if (gtk_icon_theme_has_icon (theme, META_DEFAULT_ICON_NAME))
-    icon_name = META_DEFAULT_ICON_NAME;
-  else
-    icon_name = "image-missing";
-
-  pixbuf = gtk_icon_theme_load_icon (theme, icon_name, size, 0, NULL);
-  return gdk_cairo_surface_create_from_pixbuf (pixbuf, 1, NULL);
-}
-
-static cairo_surface_t *
-get_default_window_icon (void)
-{
-  static cairo_surface_t *default_icon = NULL;
-
-  if (default_icon == NULL)
-    {
-      default_icon = load_default_window_icon (META_ICON_WIDTH);
-      g_assert (default_icon);
-    }
-
-  return cairo_surface_reference (default_icon);
-}
-
-static cairo_surface_t *
-get_default_mini_icon (void)
-{
-  static cairo_surface_t *default_icon = NULL;
-
-  if (default_icon == NULL)
-    {
-      default_icon = load_default_window_icon (META_MINI_ICON_WIDTH);
-      g_assert (default_icon);
-    }
-
-  return cairo_surface_reference (default_icon);
-}
-
 static void
 meta_window_update_icon_now (MetaWindow *window,
                              gboolean    force)
@@ -5411,17 +5367,11 @@ meta_window_update_icon_now (MetaWindow *window,
     {
       if (window->icon)
         cairo_surface_destroy (window->icon);
-      if (icon)
-        window->icon = icon;
-      else
-        window->icon = get_default_window_icon ();
+      window->icon = icon;
 
       if (window->mini_icon)
         cairo_surface_destroy (window->mini_icon);
-      if (mini_icon)
-        window->mini_icon = mini_icon;
-      else
-        window->mini_icon = get_default_mini_icon ();
+      window->mini_icon = mini_icon;
 
       g_object_freeze_notify (G_OBJECT (window));
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_ICON]);
@@ -5430,9 +5380,6 @@ meta_window_update_icon_now (MetaWindow *window,
 
       redraw_icon (window);
     }
-
-  g_assert (window->icon);
-  g_assert (window->mini_icon);
 }
 
 static gboolean
