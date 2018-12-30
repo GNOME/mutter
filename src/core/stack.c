@@ -1009,6 +1009,9 @@ stack_sync_to_xserver (MetaStack *stack)
   GList *tmp;
   GArray *hidden_stack_ids;
 
+  if (!stack->display->x11_display)
+    return;
+
   /* Bail out if frozen */
   if (stack->freeze_count > 0)
     return;
