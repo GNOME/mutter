@@ -137,6 +137,14 @@ struct _MetaX11Display
    */
   int sentinel_counter;
 
+  /* If true, server->focus_serial refers to us changing the focus; in
+   * this case, we can ignore focus events that have exactly focus_serial,
+   * since we take care to make another request immediately afterwards.
+   * But if focus is being changed by another client, we have to accept
+   * multiple events with the same serial.
+   */
+  guint focused_by_us : 1;
+
   guint keys_grabbed : 1;
 
   int composite_event_base;
@@ -229,5 +237,10 @@ void meta_x11_display_update_workspace_names  (MetaX11Display *x11_display);
 void meta_x11_display_increment_focus_sentinel (MetaX11Display *x11_display);
 void meta_x11_display_decrement_focus_sentinel (MetaX11Display *x11_display);
 gboolean meta_x11_display_focus_sentinel_clear (MetaX11Display *x11_display);
+
+void meta_x11_display_update_focus_window (MetaX11Display *x11_display,
+                                           Window          xwindow,
+                                           gulong          serial,
+                                           gboolean        focused_by_us);
 
 #endif /* META_X11_DISPLAY_PRIVATE_H */
