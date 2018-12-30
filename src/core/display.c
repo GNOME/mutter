@@ -681,7 +681,6 @@ meta_display_open (void)
     }
 
   display->current_time = META_CURRENT_TIME;
-  display->sentinel_counter = 0;
 
   display->grab_resize_timeout_id = 0;
   display->grab_have_keyboard = FALSE;
@@ -2478,37 +2477,6 @@ prefs_changed_callback (MetaPreference pref,
     {
       meta_display_reload_cursor (display);
     }
-}
-
-void
-meta_display_increment_focus_sentinel (MetaDisplay *display)
-{
-  unsigned long data[1];
-
-  data[0] = meta_display_get_current_time (display);
-
-  XChangeProperty (display->x11_display->xdisplay,
-                   display->x11_display->xroot,
-                   display->x11_display->atom__MUTTER_SENTINEL,
-                   XA_CARDINAL,
-                   32, PropModeReplace, (guchar*) data, 1);
-
-  display->sentinel_counter += 1;
-}
-
-void
-meta_display_decrement_focus_sentinel (MetaDisplay *display)
-{
-  display->sentinel_counter -= 1;
-
-  if (display->sentinel_counter < 0)
-    display->sentinel_counter = 0;
-}
-
-gboolean
-meta_display_focus_sentinel_clear (MetaDisplay *display)
-{
-  return (display->sentinel_counter == 0);
 }
 
 void
