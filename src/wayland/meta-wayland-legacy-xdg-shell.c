@@ -140,9 +140,6 @@ meta_wayland_zxdg_positioner_v6_to_placement (MetaWaylandZxdgPositionerV6 *xdg_p
 static struct wl_resource *
 meta_wayland_zxdg_surface_v6_get_shell_resource (MetaWaylandZxdgSurfaceV6 *xdg_surface);
 
-static MetaRectangle
-meta_wayland_zxdg_surface_v6_get_window_geometry (MetaWaylandZxdgSurfaceV6 *xdg_surface);
-
 static uint32_t
 meta_wayland_zxdg_surface_v6_send_configure (MetaWaylandZxdgSurfaceV6 *xdg_surface);
 
@@ -1179,7 +1176,7 @@ meta_wayland_zxdg_surface_v6_get_shell_resource (MetaWaylandZxdgSurfaceV6 *xdg_s
   return priv->shell_client->resource;
 }
 
-static MetaRectangle
+MetaRectangle
 meta_wayland_zxdg_surface_v6_get_window_geometry (MetaWaylandZxdgSurfaceV6 *xdg_surface)
 {
   MetaWaylandZxdgSurfaceV6Private *priv =

@@ -1850,7 +1850,7 @@ meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface)
 }
 
 int
-meta_wayland_surface_get_width (MetaWaylandSurface *surface)
+meta_wayland_surface_get_plain_width (MetaWaylandSurface *surface)
 {
   int width;
 
@@ -1863,7 +1863,7 @@ meta_wayland_surface_get_width (MetaWaylandSurface *surface)
 }
 
 int
-meta_wayland_surface_get_height (MetaWaylandSurface *surface)
+meta_wayland_surface_get_plain_height (MetaWaylandSurface *surface)
 {
   int height;
 
@@ -1873,4 +1873,62 @@ meta_wayland_surface_get_height (MetaWaylandSurface *surface)
     height = get_buffer_height (surface);
 
   return height / surface->scale;
+}
+
+int
+meta_wayland_surface_get_width (MetaWaylandSurface *surface)
+{
+  if (G_TYPE_FROM_INSTANCE(surface->role) == meta_wayland_xdg_toplevel_get_type ())
+    {
+      MetaWaylandXdgSurface *xdg_surface =
+        META_WAYLAND_XDG_SURFACE (surface->role);
+      MetaRectangle rect;
+
+      rect = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);
+
+      if (rect.width > 0)
+        return rect.width;
+    }
+  else if (G_TYPE_FROM_INSTANCE(surface->role) == meta_wayland_zxdg_toplevel_v6_get_type ())
+    {
+      MetaWaylandZxdgSurfaceV6 *xdg_surface =
+        META_WAYLAND_ZXDG_SURFACE_V6 (surface->role);
+      MetaRectangle rect;
+
+      rect = meta_wayland_zxdg_surface_v6_get_window_geometry (xdg_surface);
+
+      if (rect.width > 0)
+        return rect.width;
+    }
+
+  return meta_wayland_surface_get_plain_width (surface);
+}
+
+int
+meta_wayland_surface_get_height (MetaWaylandSurface *surface)
+{
+  if (G_TYPE_FROM_INSTANCE(surface->role) == meta_wayland_xdg_toplevel_get_type ())
+    {
+      MetaWaylandXdgSurface *xdg_surface =
+        META_WAYLAND_XDG_SURFACE (surface->role);
+      MetaRectangle rect;
+
+      rect = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);
+
+      if (rect.height > 0)
+        return rect.height;
+    }
+  else if (G_TYPE_FROM_INSTANCE(surface->role) == meta_wayland_zxdg_toplevel_v6_get_type ())
+    {
+      MetaWaylandZxdgSurfaceV6 *xdg_surface =
+        META_WAYLAND_ZXDG_SURFACE_V6 (surface->role);
+      MetaRectangle rect;
+
+      rect = meta_wayland_zxdg_surface_v6_get_window_geometry (xdg_surface);
+
+      if (rect.height > 0)
+        return rect.height;
+    }
+
+  return meta_wayland_surface_get_plain_height (surface);
 }

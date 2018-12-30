@@ -46,8 +46,8 @@ meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_su
   GList *l;
 
   geometry = (MetaRectangle) {
-    .width = meta_wayland_surface_get_width (surface),
-    .height = meta_wayland_surface_get_height (surface),
+    .width = meta_wayland_surface_get_plain_width (surface),
+    .height = meta_wayland_surface_get_plain_height (surface),
   };
 
   for (l = surface->subsurfaces; l; l = l->next)
