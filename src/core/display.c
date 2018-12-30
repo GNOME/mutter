@@ -49,6 +49,7 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "clutter/x11/clutter-x11.h"
 #include "core/bell.h"
 #include "core/boxes-private.h"
@@ -2597,10 +2598,12 @@ meta_display_supports_extended_barriers (MetaDisplay *display)
     return TRUE;
 #endif
 
-  if (META_IS_BACKEND_X11 (meta_get_backend ()))
+  if (META_IS_BACKEND_X11_CM (meta_get_backend ()))
     {
-      return (META_X11_DISPLAY_HAS_XINPUT_23 (display->x11_display) &&
-              !meta_is_wayland_compositor());
+      if (meta_is_wayland_compositor())
+        return FALSE;
+
+      return META_X11_DISPLAY_HAS_XINPUT_23 (display->x11_display);
     }
 
   g_assert_not_reached ();
