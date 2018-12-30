@@ -803,14 +803,15 @@ handle_window_focus_event (MetaX11Display *x11_display,
    * multiple focus events with the same serial.
    */
   if (x11_display->server_focus_serial > x11_display->focus_serial ||
-      (!display->focused_by_us &&
+      (!x11_display->focused_by_us &&
        x11_display->server_focus_serial == x11_display->focus_serial))
     {
-      meta_display_update_focus_window (display,
-                                        focus_window,
-                                        focus_window ? focus_window->xwindow : None,
-                                        x11_display->server_focus_serial,
-                                        FALSE);
+      meta_display_update_focus_window (display, focus_window);
+      meta_x11_display_update_focus_window (x11_display,
+                                            focus_window ?
+                                            focus_window->xwindow : None,
+                                            x11_display->server_focus_serial,
+                                            FALSE);
       return TRUE;
     }
   else
@@ -1792,7 +1793,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   if (META_IS_BACKEND_X11 (backend))
     meta_backend_x11_handle_event (META_BACKEND_X11 (backend), event);
 
-  if (display->focused_by_us &&
+  if (x11_display->focused_by_us &&
       event->xany.serial > x11_display->focus_serial &&
       display->focus_window &&
       !window_has_xwindow (display->focus_window, x11_display->server_focus_window))
@@ -1801,10 +1802,11 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
                   display->focus_window->desc);
       meta_display_update_focus_window (display,
                                         meta_x11_display_lookup_x_window (x11_display,
-                                                                          x11_display->server_focus_window),
-                                        x11_display->server_focus_window,
-                                        x11_display->server_focus_serial,
-                                        FALSE);
+                                                                          x11_display->server_focus_window));
+      meta_x11_display_update_focus_window (x11_display,
+                                            x11_display->server_focus_window,
+                                            x11_display->server_focus_serial,
+                                            FALSE);
     }
 
   if (event->xany.window == x11_display->xroot)
