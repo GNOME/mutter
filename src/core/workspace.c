@@ -1308,8 +1308,7 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
           meta_topic (META_DEBUG_FOCUS,
                       "Setting focus to no_focus_window, since no valid "
                       "window to focus found.\n");
-          meta_x11_display_focus_the_no_focus_window (workspace->display->x11_display,
-                                                      timestamp);
+          meta_display_unset_input_focus (workspace->display, timestamp);
         }
     }
 }
@@ -1381,8 +1380,7 @@ focus_ancestor_or_top_window (MetaWorkspace *workspace,
   else
     {
       meta_topic (META_DEBUG_FOCUS, "No MRU window to focus found; focusing no_focus_window.\n");
-      meta_x11_display_focus_the_no_focus_window (workspace->display->x11_display,
-                                                  timestamp);
+      meta_display_unset_input_focus (workspace->display, timestamp);
     }
 }
 
