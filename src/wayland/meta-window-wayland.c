@@ -612,6 +612,16 @@ meta_window_wayland_are_updates_frozen (MetaWindow *window)
 }
 
 static void
+meta_window_wayland_map (MetaWindow *window)
+{
+}
+
+static void
+meta_window_wayland_unmap (MetaWindow *window)
+{
+}
+
+static void
 meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
 {
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
@@ -634,6 +644,8 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->is_stackable = meta_window_wayland_is_stackable;
   window_class->can_ping = meta_window_wayland_can_ping;
   window_class->are_updates_frozen = meta_window_wayland_are_updates_frozen;
+  window_class->map = meta_window_wayland_map;
+  window_class->unmap = meta_window_wayland_unmap;
 }
 
 MetaWindow *
