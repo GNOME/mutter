@@ -1826,17 +1826,11 @@ meta_x11_display_update_focus_window (MetaX11Display *x11_display,
   meta_x11_display_update_active_window_hint (x11_display);
 }
 
-static void
-request_xserver_input_focus_change (MetaX11Display *x11_display,
-                                    MetaWindow     *meta_window,
-                                    Window          xwindow,
-                                    guint32         timestamp)
+void
+meta_x11_display_set_input_focus (MetaX11Display *x11_display,
+                                  Window          xwindow,
+                                  guint32         timestamp)
 {
-  gulong serial;
-
-  if (meta_display_timestamp_too_old (x11_display->display, &timestamp))
-    return;
-
   meta_x11_error_trap_push (x11_display);
 
   /* In order for mutter to know that the focus request succeeded, we track
@@ -1848,8 +1842,6 @@ request_xserver_input_focus_change (MetaX11Display *x11_display,
    * process at the same time.
    */
   XGrabServer (x11_display->xdisplay);
-
-  serial = XNextRequest (x11_display->xdisplay);
 
   XSetInputFocus (x11_display->xdisplay,
                   xwindow,
@@ -1864,6 +1856,25 @@ request_xserver_input_focus_change (MetaX11Display *x11_display,
   XUngrabServer (x11_display->xdisplay);
   XFlush (x11_display->xdisplay);
 
+  meta_x11_error_trap_pop (x11_display);
+}
+
+static void
+request_xserver_input_focus_change (MetaX11Display *x11_display,
+                                    MetaWindow     *meta_window,
+                                    Window          xwindow,
+                                    guint32         timestamp)
+{
+  gulong serial;
+
+  if (meta_display_timestamp_too_old (x11_display->display, &timestamp))
+    return;
+
+  meta_x11_error_trap_push (x11_display);
+
+  serial = XNextRequest (x11_display->xdisplay);
+
+  meta_x11_display_set_input_focus (x11_display, xwindow, timestamp);
   meta_display_update_focus_window (x11_display->display, meta_window);
   meta_x11_display_update_focus_window (x11_display, xwindow, serial, TRUE);
 
