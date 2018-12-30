@@ -1908,9 +1908,10 @@ idle_calc_showing (gpointer data)
       while (tmp != NULL)
         {
           MetaWindow *window = tmp->data;
+          MetaDisplay *display = window->display;
 
-          if (!window->display->mouse_mode)
-            meta_display_increment_focus_sentinel (window->display);
+          if (display->x11_display && !display->mouse_mode)
+            meta_x11_display_increment_focus_sentinel (display->x11_display);
 
           tmp = tmp->next;
         }
@@ -2380,6 +2381,7 @@ meta_window_show (MetaWindow *window)
   gboolean needs_stacking_adjustment;
   MetaWindow *focus_window;
   gboolean notify_demands_attention = FALSE;
+  MetaDisplay *display = window->display;
 
   meta_topic (META_DEBUG_WINDOW_STATE,
               "Showing window %s, shaded: %d iconic: %d placed: %d\n",
@@ -2546,7 +2548,7 @@ meta_window_show (MetaWindow *window)
 
           meta_window_focus (window, timestamp);
         }
-      else
+      else if (display->x11_display)
         {
           /* Prevent EnterNotify events in sloppy/mouse focus from
            * erroneously focusing the window that had been denied
@@ -2554,7 +2556,7 @@ meta_window_show (MetaWindow *window)
            * ideas for a better way to accomplish the same thing, but
            * they're more involved so do it this way for now.
            */
-          meta_display_increment_focus_sentinel (window->display);
+          meta_x11_display_increment_focus_sentinel (display->x11_display);
         }
     }
 
