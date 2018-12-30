@@ -356,6 +356,13 @@ void meta_display_sync_wayland_input_focus (MetaDisplay *display);
 void meta_display_update_focus_window (MetaDisplay *display,
                                        MetaWindow  *window);
 
+void meta_display_set_input_focus   (MetaDisplay *display,
+                                     MetaWindow  *window,
+                                     gboolean     focus_frame,
+                                     guint32      timestamp);
+void meta_display_unset_input_focus (MetaDisplay *display,
+                                     guint32      timestamp);
+
 void meta_display_sanity_check_timestamps (MetaDisplay *display,
                                            guint32      timestamp);
 gboolean meta_display_timestamp_too_old (MetaDisplay *display,
