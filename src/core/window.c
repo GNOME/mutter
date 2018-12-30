@@ -809,17 +809,10 @@ sync_client_window_mapped (MetaWindow *window)
 
   window->mapped = should_be_mapped;
 
-  meta_x11_error_trap_push (window->display->x11_display);
-  if (should_be_mapped)
-    {
-      XMapWindow (window->display->x11_display->xdisplay, window->xwindow);
-    }
+  if (window->mapped)
+    META_WINDOW_GET_CLASS (window)->map (window);
   else
-    {
-      XUnmapWindow (window->display->x11_display->xdisplay, window->xwindow);
-      window->unmaps_pending ++;
-    }
-  meta_x11_error_trap_pop (window->display->x11_display);
+    META_WINDOW_GET_CLASS (window)->unmap (window);
 }
 
 static gboolean
