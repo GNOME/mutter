@@ -2599,8 +2599,10 @@ meta_display_supports_extended_barriers (MetaDisplay *display)
 
   if (META_IS_BACKEND_X11 (meta_get_backend ()))
     {
-      return (META_X11_DISPLAY_HAS_XINPUT_23 (display->x11_display) &&
-              !meta_is_wayland_compositor());
+      if (meta_is_wayland_compositor())
+        return FALSE;
+
+      return META_X11_DISPLAY_HAS_XINPUT_23 (display->x11_display);
     }
 
   g_assert_not_reached ();
