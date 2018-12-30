@@ -302,6 +302,16 @@ meta_window_real_get_client_pid (MetaWindow *window)
 }
 
 static void
+meta_window_real_map (MetaWindow *window)
+{
+}
+
+static void
+meta_window_real_unmap (MetaWindow *window)
+{
+}
+
+static void
 meta_window_finalize (GObject *object)
 {
   MetaWindow *window = META_WINDOW (object);
@@ -470,6 +480,8 @@ meta_window_class_init (MetaWindowClass *klass)
   klass->get_default_skip_hints = meta_window_real_get_default_skip_hints;
   klass->update_icon = meta_window_real_update_icon;
   klass->get_client_pid = meta_window_real_get_client_pid;
+  klass->map = meta_window_real_map;
+  klass->unmap = meta_window_real_unmap;
 
   obj_props[PROP_TITLE] =
     g_param_spec_string ("title",
@@ -809,17 +821,10 @@ sync_client_window_mapped (MetaWindow *window)
 
   window->mapped = should_be_mapped;
 
-  meta_x11_error_trap_push (window->display->x11_display);
-  if (should_be_mapped)
-    {
-      XMapWindow (window->display->x11_display->xdisplay, window->xwindow);
-    }
+  if (window->mapped)
+    META_WINDOW_GET_CLASS (window)->map (window);
   else
-    {
-      XUnmapWindow (window->display->x11_display->xdisplay, window->xwindow);
-      window->unmaps_pending ++;
-    }
-  meta_x11_error_trap_pop (window->display->x11_display);
+    META_WINDOW_GET_CLASS (window)->unmap (window);
 }
 
 static gboolean
