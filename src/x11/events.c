@@ -882,7 +882,7 @@ handle_input_xevent (MetaX11Display *x11_display,
           enter_event->mode != XINotifyGrab &&
           enter_event->mode != XINotifyUngrab &&
           enter_event->detail != XINotifyInferior &&
-          meta_display_focus_sentinel_clear (display))
+          meta_x11_display_focus_sentinel_clear (x11_display))
         {
           meta_window_handle_enter (window,
                                     enter_event->time,
@@ -1525,7 +1525,7 @@ handle_other_xevent (MetaX11Display *x11_display,
             if (event->xproperty.atom ==
                 x11_display->atom__MUTTER_SENTINEL)
               {
-                meta_display_decrement_focus_sentinel (display);
+                meta_x11_display_decrement_focus_sentinel (x11_display);
               }
           }
       }
