@@ -1647,6 +1647,31 @@ meta_window_x11_are_updates_frozen (MetaWindow *window)
 }
 
 static void
+meta_window_x11_map (MetaWindow *window)
+{
+  MetaX11Display *x11_display = window->display->x11_display;
+
+  meta_x11_error_trap_push (x11_display);
+  XMapWindow (x11_display->xdisplay, window->xwindow);
+  meta_x11_error_trap_pop (x11_display);
+
+  META_WINDOW_CLASS (meta_window_x11_parent_class)->map (window);
+}
+
+static void
+meta_window_x11_unmap (MetaWindow *window)
+{
+  MetaX11Display *x11_display = window->display->x11_display;
+
+  meta_x11_error_trap_push (x11_display);
+  XUnmapWindow (x11_display->xdisplay, window->xwindow);
+  meta_x11_error_trap_pop (x11_display);
+  window->unmaps_pending ++;
+
+  META_WINDOW_CLASS (meta_window_x11_parent_class)->unmap (window);
+}
+
+static void
 meta_window_x11_class_init (MetaWindowX11Class *klass)
 {
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
@@ -1671,6 +1696,8 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->shortcuts_inhibited = meta_window_x11_shortcuts_inhibited;
   window_class->is_stackable = meta_window_x11_is_stackable;
   window_class->are_updates_frozen = meta_window_x11_are_updates_frozen;
+  window_class->map = meta_window_x11_map;
+  window_class->unmap = meta_window_x11_unmap;
 }
 
 void
