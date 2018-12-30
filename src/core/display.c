@@ -779,10 +779,12 @@ meta_display_open (void)
       if (old_active_window)
         meta_window_focus (old_active_window, timestamp);
       else
-        meta_x11_display_focus_the_no_focus_window (display->x11_display, timestamp);
+        meta_display_unset_input_focus (display, timestamp);
     }
-  else if (display->x11_display)
-    meta_x11_display_focus_the_no_focus_window (display->x11_display, timestamp);
+  else
+    {
+      meta_display_unset_input_focus (display, timestamp);
+    }
 
   meta_idle_monitor_init_dbus ();
 
@@ -1305,6 +1307,52 @@ meta_display_timestamp_too_old (MetaDisplay *display,
     }
 
   return FALSE;
+}
+
+void
+meta_display_set_input_focus (MetaDisplay *display,
+                              MetaWindow  *window,
+                              gboolean     focus_frame,
+                              guint32      timestamp)
+{
+  if (meta_display_timestamp_too_old (display, &timestamp))
+    return;
+
+  if (display->x11_display)
+    {
+      MetaX11Display *x11_display = display->x11_display;
+      Window xwindow;
+      gulong serial;
+
+      meta_x11_error_trap_push (x11_display);
+
+      if (window)
+        xwindow = focus_frame ? window->frame->xwindow : window->xwindow;
+      else
+        xwindow = x11_display->no_focus_window;
+
+      meta_x11_display_set_input_focus (x11_display, xwindow, timestamp);
+      serial = XNextRequest (x11_display->xdisplay);
+
+      meta_x11_display_update_focus_window (x11_display, xwindow, serial, TRUE);
+    }
+
+  meta_display_update_focus_window (display, window);
+
+  if (display->x11_display)
+    meta_x11_error_trap_pop (display->x11_display);
+
+  display->last_focus_time = timestamp;
+
+  if (window == NULL || window != display->autoraise_window)
+    meta_display_remove_autoraise_callback (display);
+}
+
+void
+meta_display_unset_input_focus (MetaDisplay *display,
+                                guint32      timestamp)
+{
+  meta_display_set_input_focus (display, NULL, FALSE, timestamp);
 }
 
 void
