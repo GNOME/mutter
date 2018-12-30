@@ -231,5 +231,8 @@ void meta_x11_display_update_focus_window (MetaX11Display *x11_display,
                                            Window          xwindow,
                                            gulong          serial,
                                            gboolean        focused_by_us);
+void meta_x11_display_set_input_focus (MetaX11Display *x11_display,
+                                       Window          xwindow,
+                                       guint32         timestamp);
 
 #endif /* META_X11_DISPLAY_PRIVATE_H */
