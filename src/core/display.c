@@ -1232,16 +1232,9 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
 
 void
 meta_display_update_focus_window (MetaDisplay *display,
-                                  MetaWindow  *window,
-                                  Window       xwindow,
-                                  gulong       serial,
-                                  gboolean     focused_by_us)
+                                  MetaWindow  *window)
 {
-  display->x11_display->focus_serial = serial;
-  display->focused_by_us = focused_by_us;
-
-  if (display->x11_display->focus_xwindow == xwindow &&
-      display->focus_window == window)
+  if (display->focus_window == window)
     return;
 
   if (display->focus_window)
@@ -1258,28 +1251,25 @@ meta_display_update_focus_window (MetaDisplay *display,
        */
       previous = display->focus_window;
       display->focus_window = NULL;
-      display->x11_display->focus_xwindow = None;
 
       meta_window_set_focused_internal (previous, FALSE);
     }
 
   display->focus_window = window;
-  display->x11_display->focus_xwindow = xwindow;
 
   if (display->focus_window)
     {
-      meta_topic (META_DEBUG_FOCUS, "* Focus --> %s with serial %lu\n",
-                  display->focus_window->desc, serial);
+      meta_topic (META_DEBUG_FOCUS, "* Focus --> %s\n",
+                  display->focus_window->desc);
       meta_window_set_focused_internal (display->focus_window, TRUE);
     }
   else
-    meta_topic (META_DEBUG_FOCUS, "* Focus --> NULL with serial %lu\n", serial);
+    meta_topic (META_DEBUG_FOCUS, "* Focus --> NULL\n");
 
   if (meta_is_wayland_compositor ())
     meta_display_sync_wayland_input_focus (display);
 
   g_object_notify (G_OBJECT (display), "focus-window");
-  meta_x11_display_update_active_window_hint (display->x11_display);
 }
 
 gboolean
