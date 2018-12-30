@@ -807,7 +807,7 @@ handle_window_focus_event (MetaX11Display *x11_display,
        x11_display->server_focus_serial == x11_display->focus_serial))
     {
       meta_display_update_focus_window (display, focus_window);
-      meta_x11_display_update_focus_window (display,
+      meta_x11_display_update_focus_window (x11_display,
                                             focus_window ?
                                             focus_window->xwindow : None,
                                             x11_display->server_focus_serial,
