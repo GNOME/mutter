@@ -200,10 +200,6 @@ struct _MetaDisplay
   MetaEdgeResistanceData *grab_edge_resistance_data;
   unsigned int grab_last_user_action_was_snap;
 
-  /* we use property updates as sentinels for certain window focus events
-   * to avoid some race conditions on EnterNotify events
-   */
-  int         sentinel_counter;
   int	      grab_resize_timeout_id;
 
   MetaKeyBindingManager key_binding_manager;
@@ -354,10 +350,6 @@ gboolean meta_grab_op_is_moving   (MetaGrabOp op);
 gboolean meta_grab_op_is_resizing (MetaGrabOp op);
 gboolean meta_grab_op_is_mouse    (MetaGrabOp op);
 gboolean meta_grab_op_is_keyboard (MetaGrabOp op);
-
-void meta_display_increment_focus_sentinel (MetaDisplay *display);
-void meta_display_decrement_focus_sentinel (MetaDisplay *display);
-gboolean meta_display_focus_sentinel_clear (MetaDisplay *display);
 
 void meta_display_queue_autoraise_callback  (MetaDisplay *display,
                                              MetaWindow  *window);

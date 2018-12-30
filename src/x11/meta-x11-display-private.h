@@ -132,6 +132,11 @@ struct _MetaX11Display
     GList *output_streams;
   } selection;
 
+  /* we use property updates as sentinels for certain window focus events
+   * to avoid some race conditions on EnterNotify events
+   */
+  int sentinel_counter;
+
   guint keys_grabbed : 1;
 
   int composite_event_base;
@@ -217,5 +222,9 @@ MetaLogicalMonitor *meta_x11_display_xinerama_index_to_logical_monitor (MetaX11D
 
 void meta_x11_display_update_workspace_layout (MetaX11Display *x11_display);
 void meta_x11_display_update_workspace_names  (MetaX11Display *x11_display);
+
+void meta_x11_display_increment_focus_sentinel (MetaX11Display *x11_display);
+void meta_x11_display_decrement_focus_sentinel (MetaX11Display *x11_display);
+gboolean meta_x11_display_focus_sentinel_clear (MetaX11Display *x11_display);
 
 #endif /* META_X11_DISPLAY_PRIVATE_H */
