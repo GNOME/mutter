@@ -778,6 +778,8 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
   MetaMonitorManager *monitor_manager =
     meta_gpu_get_monitor_manager (gpu);
+  MetaMonitorManagerKms *monitor_manager_kms =
+    META_MONITOR_MANAGER_KMS (monitor_manager);
   MetaKmsResources resources;
   g_autoptr (GError) local_error = NULL;
 
@@ -795,6 +797,8 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
   gpu_kms->max_buffer_width = resources.resources->max_width;
   gpu_kms->max_buffer_height = resources.resources->max_height;
 
+  meta_monitor_manager_kms_power_save_mode_changed (monitor_manager_kms,
+                                                    META_POWER_SAVE_ON);
   monitor_manager->power_save_mode = META_POWER_SAVE_ON;
 
   /* Note: we must not free the public structures (output, crtc, monitor

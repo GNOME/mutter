@@ -332,6 +332,9 @@ power_save_mode_changed (MetaMonitorManager *manager,
       return;
     }
 
+  if (manager->power_save_mode == mode)
+    return;
+
   klass = META_MONITOR_MANAGER_GET_CLASS (manager);
   if (klass->set_power_save_mode)
     klass->set_power_save_mode (manager, mode);

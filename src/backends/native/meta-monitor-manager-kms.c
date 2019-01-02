@@ -68,6 +68,10 @@ struct _MetaMonitorManagerKms
 
   GUdevClient *udev;
   guint uevent_handler_id;
+
+  struct {
+    gboolean frame_clock_inhibited;
+  } power_save;
 };
 
 struct _MetaMonitorManagerKmsClass
@@ -90,10 +94,33 @@ meta_monitor_manager_kms_read_edid (MetaMonitorManager *manager,
   return meta_output_kms_read_edid (output);
 }
 
+void
+meta_monitor_manager_kms_power_save_mode_changed (MetaMonitorManagerKms *manager_kms,
+                                                  MetaPowerSave          mode)
+{
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+
+  if (mode == META_POWER_SAVE_ON &&
+      manager_kms->power_save.frame_clock_inhibited)
+    {
+      meta_backend_native_thaw_frame_clock (backend_native);
+      manager_kms->power_save.frame_clock_inhibited = FALSE;
+    }
+  else if (mode != META_POWER_SAVE_ON &&
+           !manager_kms->power_save.frame_clock_inhibited)
+    {
+      meta_backend_native_freeze_frame_clock (backend_native);
+      manager_kms->power_save.frame_clock_inhibited = TRUE;
+    }
+}
+
 static void
 meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
                                               MetaPowerSave       mode)
 {
+  MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (manager);
   uint64_t state;
   GList *l;
 
@@ -120,6 +147,8 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
 
       meta_gpu_kms_set_power_save_mode (gpu_kms, state);
     }
+
+  meta_monitor_manager_kms_power_save_mode_changed (manager_kms, mode);
 }
 
 static void
