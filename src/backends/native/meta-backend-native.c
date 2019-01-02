@@ -60,6 +60,8 @@ struct _MetaBackendNativePrivate
 {
   MetaLauncher *launcher;
   MetaBarrierManagerNative *barrier_manager;
+
+  int frame_freeze_count;
 };
 typedef struct _MetaBackendNativePrivate MetaBackendNativePrivate;
 
@@ -624,6 +626,28 @@ meta_activate_session (void)
 }
 
 void
+meta_backend_native_freeze_frame_clock (MetaBackendNative *native)
+{
+  MetaBackendNativePrivate *priv =
+    meta_backend_native_get_instance_private (native);
+
+  priv->frame_freeze_count++;
+  if (priv->frame_freeze_count == 1)
+    clutter_egl_freeze_master_clock ();
+}
+
+void
+meta_backend_native_thaw_frame_clock (MetaBackendNative *native)
+{
+  MetaBackendNativePrivate *priv =
+    meta_backend_native_get_instance_private (native);
+
+  priv->frame_freeze_count--;
+  if (priv->frame_freeze_count == 0)
+    clutter_egl_thaw_master_clock ();
+}
+
+void
 meta_backend_native_pause (MetaBackendNative *native)
 {
   MetaBackend *backend = META_BACKEND (native);
@@ -633,7 +657,8 @@ meta_backend_native_pause (MetaBackendNative *native)
     META_MONITOR_MANAGER_KMS (monitor_manager);
 
   clutter_evdev_release_devices ();
-  clutter_egl_freeze_master_clock ();
+
+  meta_backend_native_freeze_frame_clock (native);
 
   meta_monitor_manager_kms_pause (monitor_manager_kms);
 }
@@ -651,7 +676,8 @@ void meta_backend_native_resume (MetaBackendNative *native)
   meta_monitor_manager_kms_resume (monitor_manager_kms);
 
   clutter_evdev_reclaim_devices ();
-  clutter_egl_thaw_master_clock ();
+
+  meta_backend_native_thaw_frame_clock (native);
 
   stage = meta_backend_get_stage (backend);
   clutter_actor_queue_redraw (stage);
