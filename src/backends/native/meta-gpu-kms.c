@@ -371,7 +371,7 @@ meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
     }
 
   memset (&evctx, 0, sizeof evctx);
-  evctx.version = DRM_EVENT_CONTEXT_VERSION;
+  evctx.version = 2;
   evctx.page_flip_handler = page_flip_handler;
 
   while (TRUE)
