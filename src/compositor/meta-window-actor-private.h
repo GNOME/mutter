@@ -23,8 +23,6 @@ struct _MetaWindowActorClass
   void (*queue_frame_drawn) (MetaWindowActor *actor,
                              gboolean         skip_sync_delay);
 
-  void (*post_init) (MetaWindowActor *actor);
-
   void (*pre_paint) (MetaWindowActor *actor);
   void (*post_paint) (MetaWindowActor *actor);
   void (*queue_destroy) (MetaWindowActor *actor);

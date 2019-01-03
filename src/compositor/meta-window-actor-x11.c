@@ -414,19 +414,6 @@ meta_window_actor_x11_queue_frame_drawn (MetaWindowActor *actor,
 }
 
 static void
-meta_window_actor_x11_post_init (MetaWindowActor *actor)
-{
-  MetaWindow *window = meta_window_actor_get_meta_window (actor);
-
-  /* If a window doesn't start off with updates frozen, we should
-   * we should send a _NET_WM_FRAME_DRAWN immediately after the first drawn.
-   */
-  if (window->extended_sync_request_counter &&
-      !meta_window_updates_are_frozen (window))
-    meta_window_actor_queue_frame_drawn (actor, FALSE);
-}
-
-static void
 meta_window_actor_x11_pre_paint (MetaWindowActor *actor)
 {
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (actor);
@@ -493,6 +480,23 @@ meta_window_actor_x11_paint (ClutterActor *actor)
 }
 
 static void
+meta_window_actor_x11_constructed (GObject *object)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (object);
+  MetaWindow *window =
+    meta_window_actor_get_meta_window (window_actor);
+
+  G_OBJECT_CLASS (meta_window_actor_x11_parent_class)->constructed (object);
+
+  /* If a window doesn't start off with updates frozen, we should
+   * we should send a _NET_WM_FRAME_DRAWN immediately after the first drawn.
+   */
+  if (window->extended_sync_request_counter &&
+      !meta_window_updates_are_frozen (window))
+    meta_window_actor_queue_frame_drawn (window_actor, FALSE);
+}
+
+static void
 meta_window_actor_x11_dispose (GObject *object)
 {
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (object);
@@ -523,13 +527,13 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
   window_actor_class->frame_complete = meta_window_actor_x11_frame_complete;
   window_actor_class->set_surface_actor = meta_window_actor_x11_set_surface_actor;
   window_actor_class->queue_frame_drawn = meta_window_actor_x11_queue_frame_drawn;
-  window_actor_class->post_init = meta_window_actor_x11_post_init;
   window_actor_class->pre_paint = meta_window_actor_x11_pre_paint;
   window_actor_class->post_paint = meta_window_actor_x11_post_paint;
   window_actor_class->queue_destroy = meta_window_actor_x11_queue_destroy;
 
   actor_class->paint = meta_window_actor_x11_paint;
 
+  object_class->constructed = meta_window_actor_x11_constructed;
   object_class->dispose = meta_window_actor_x11_dispose;
   object_class->finalize = meta_window_actor_x11_finalize;
 }
