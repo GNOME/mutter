@@ -598,6 +598,7 @@ set_supported_hint (MetaX11Display *x11_display)
 
     x11_display->atom__GTK_FRAME_EXTENTS,
     x11_display->atom__GTK_SHOW_WINDOW_MENU,
+    x11_display->atom__GTK_EDGE_CONSTRAINTS,
   };
 
   XChangeProperty (x11_display->xdisplay,
