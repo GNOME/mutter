@@ -433,8 +433,6 @@ meta_window_actor_constructed (GObject *object)
   else
     priv->first_frame_state = DRAWING_FIRST_FRAME;
 
-  META_WINDOW_ACTOR_GET_CLASS (self)->post_init (self);
-
   meta_window_actor_sync_actor_geometry (self, priv->window->placed);
 
   /* Hang our compositor window state off the MetaWindow for fast retrieval */

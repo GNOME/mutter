@@ -55,11 +55,6 @@ meta_window_actor_wayland_queue_frame_drawn (MetaWindowActor *actor,
 }
 
 static void
-meta_window_actor_wayland_post_init (MetaWindowActor *actor)
-{
-}
-
-static void
 meta_window_actor_wayland_pre_paint (MetaWindowActor *actor)
 {
 }
@@ -77,7 +72,6 @@ meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
   window_actor_class->frame_complete = meta_window_actor_wayland_frame_complete;
   window_actor_class->set_surface_actor = meta_window_actor_wayland_set_surface_actor;
   window_actor_class->queue_frame_drawn = meta_window_actor_wayland_queue_frame_drawn;
-  window_actor_class->post_init = meta_window_actor_wayland_post_init;
   window_actor_class->pre_paint = meta_window_actor_wayland_pre_paint;
   window_actor_class->post_paint = meta_window_actor_wayland_post_paint;
 }
