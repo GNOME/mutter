@@ -118,11 +118,15 @@ change_cursor_renderer (MetaCursorTracker *tracker)
 static void
 sync_cursor (MetaCursorTracker *tracker)
 {
-  if (update_displayed_cursor (tracker))
-    g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
+  gboolean cursor_changed = FALSE;
+
+  cursor_changed = update_displayed_cursor (tracker);
 
   if (update_effective_cursor (tracker))
     change_cursor_renderer (tracker);
+
+  if (cursor_changed)
+    g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
 }
 
 static void
