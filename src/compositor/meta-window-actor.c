@@ -145,10 +145,10 @@ static void cullable_iface_init (MetaCullableInterface *iface);
 
 static void screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaWindowActor, meta_window_actor, CLUTTER_TYPE_ACTOR,
-                         G_ADD_PRIVATE (MetaWindowActor)
-                         G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init)
-                         G_IMPLEMENT_INTERFACE (META_TYPE_SCREEN_CAST_WINDOW, screen_cast_window_iface_init));
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindowActor, meta_window_actor, CLUTTER_TYPE_ACTOR,
+                                  G_ADD_PRIVATE (MetaWindowActor)
+                                  G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init)
+                                  G_IMPLEMENT_INTERFACE (META_TYPE_SCREEN_CAST_WINDOW, screen_cast_window_iface_init));
 
 static void
 meta_window_actor_real_set_surface_actor (MetaWindowActor  *actor,
