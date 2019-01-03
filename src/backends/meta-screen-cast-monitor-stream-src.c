@@ -40,6 +40,8 @@ struct _MetaScreenCastMonitorStreamSrc
 {
   MetaScreenCastStreamSrc parent;
 
+  gboolean cursor_bitmap_invalid;
+
   gulong actors_painted_handler_id;
   gulong paint_handler_id;
   gulong cursor_moved_handler_id;
@@ -194,6 +196,7 @@ static void
 cursor_changed (MetaCursorTracker              *cursor_tracker,
                 MetaScreenCastMonitorStreamSrc *monitor_src)
 {
+  monitor_src->cursor_bitmap_invalid = TRUE;
   sync_cursor_state (monitor_src);
 }
 
@@ -452,6 +455,16 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   spa_meta_cursor->id = 1;
   spa_meta_cursor->position.x = (int32_t) roundf (cursor_position.x);
   spa_meta_cursor->position.y = (int32_t) roundf (cursor_position.y);
+
+  if (!monitor_src->cursor_bitmap_invalid)
+    {
+      spa_meta_cursor->hotspot.x = 0;
+      spa_meta_cursor->hotspot.y = 0;
+      spa_meta_cursor->bitmap_offset = 0;
+      return;
+    }
+  monitor_src->cursor_bitmap_invalid = FALSE;
+
   spa_meta_cursor->bitmap_offset = sizeof (struct spa_meta_cursor);
 
   spa_meta_bitmap = SPA_MEMBER (spa_meta_cursor,
@@ -551,6 +564,7 @@ meta_screen_cast_monitor_stream_src_new (MetaScreenCastMonitorStream  *monitor_s
 static void
 meta_screen_cast_monitor_stream_src_init (MetaScreenCastMonitorStreamSrc *monitor_src)
 {
+  monitor_src->cursor_bitmap_invalid = TRUE;
 }
 
 static void
