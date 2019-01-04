@@ -733,6 +733,8 @@ meta_shaped_texture_paint (ClutterActor *actor)
           stex->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
         {
           paint_tex = meta_texture_tower_get_paint_texture (stex->paint_tower);
+          if (!paint_tex)
+            paint_tex = stex->texture;
         }
       else
         {
