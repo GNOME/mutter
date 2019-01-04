@@ -1289,6 +1289,7 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
   MetaGpuKmsFlipClosureContainer *closure_container;
   EGLAttrib *acquire_attribs;
   GError *error = NULL;
+  gboolean was_busy_once = FALSE;
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
@@ -1306,22 +1307,39 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
   };
 
   egl_display = renderer_gpu_data->egl_display;
-  if (!meta_egl_stream_consumer_acquire_attrib (egl,
-                                                egl_display,
-                                                onscreen_native->egl.stream,
-                                                acquire_attribs,
-                                                &error))
+
+  while (TRUE)
     {
-      if (error->domain != META_EGL_ERROR ||
-          error->code != EGL_RESOURCE_BUSY_EXT)
+      if (!meta_egl_stream_consumer_acquire_attrib (egl,
+                                                    egl_display,
+                                                    onscreen_native->egl.stream,
+                                                    acquire_attribs,
+                                                    &error))
         {
-          g_warning ("Failed to flip EGL stream (%s), relying on clock from "
-                     "now on", error->message);
-          renderer_gpu_data->egl.no_egl_output_drm_flip_event = TRUE;
+          if (error->domain != META_EGL_ERROR ||
+              error->code != EGL_RESOURCE_BUSY_EXT ||
+              was_busy_once)
+            {
+              g_warning ("Failed to flip EGL stream (%s), inhibiting eglSwapBuffers()",
+                         error->message);
+              renderer_gpu_data->egl.no_egl_output_drm_flip_event = TRUE;
+
+              g_error_free (error);
+              meta_gpu_kms_flip_closure_container_free (closure_container);
+              return FALSE;
+            }
+          else
+            {
+              g_warning ("Failed to flip EGL stream (%s), retrying after 17ms",
+                         error->message);
+              was_busy_once = TRUE;
+              usleep(17000);
+              g_clear_error (&error);
+              continue;
+            }
+
         }
-      g_error_free (error);
-      meta_gpu_kms_flip_closure_container_free (closure_container);
-      return FALSE;
+      break;
     }
 
   g_closure_ref (flip_closure);
