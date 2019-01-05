@@ -33,6 +33,7 @@
 #include "backends/meta-monitor-transform.h"
 #include "core/boxes-private.h"
 
+#include <math.h>
 #include <X11/Xutil.h>
 
 #include "meta/util.h"
@@ -2148,4 +2149,19 @@ meta_rectangle_transform (const MetaRectangle  *rect,
       };
       break;
     }
+}
+
+void
+meta_rectangle_crop_and_scale (const MetaRectangle *rect,
+                               ClutterRect         *src_rect,
+                               int                  dst_width,
+                               int                  dst_height,
+                               MetaRectangle       *dest)
+{
+  dest->x = floorf (rect->x * (src_rect->size.width / dst_width) +
+                    src_rect->origin.x);
+  dest->y = floorf (rect->y * (src_rect->size.height / dst_height) +
+                    src_rect->origin.y);
+  dest->width  = ceilf (rect->width * (src_rect->size.width / dst_width));
+  dest->height = ceilf (rect->height * (src_rect->size.height / dst_height));
 }
