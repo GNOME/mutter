@@ -1,0 +1,47 @@
+<!DOCTYPE node PUBLIC
+'-//freedesktop//DTD D-BUS Object Introspection 1.0//EN'
+'http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd'>
+<node>
+  <!--
+      org.gnome.Mutter.Windowing:
+      @short_description: Windowing availability
+
+      This interface announces availability of the windowing
+      systems and their features.
+  -->
+  <interface name="org.gnome.Mutter.Windowing">
+    <!--
+        X11Available:
+
+        Says whether there is a X display server running for this
+	session.
+    -->
+    <property name="X11Available" type="b" access="read" />
+
+    <!--
+        X11Started:
+
+        The signal is emitted after a X11 display server has been
+	started for this session.
+    -->
+    <signal name="X11Started" />
+
+    <!--
+        X11PreShutdown:
+
+        The signal is emitted before the compositor intends to
+	shut the X11 display server down. Normally a grace period
+	would be given, applications might want to react to this
+	as quickly as possible.
+    -->
+    <signal name="X11PreShutdown" />
+
+    <!--
+        X11Shutdown:
+
+        The signal is emitted after the compositor did shut down
+	the X11 display server.
+    -->
+    <signal name="X11Shutdown" />
+  </interface>
+</node>
