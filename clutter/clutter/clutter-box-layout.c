@@ -624,7 +624,7 @@ get_preferred_size_for_opposite_orientation (ClutterBoxLayout   *self,
   else
     {
       /* Bring children up to size first */
-      size = distribute_natural_allocation (MAX (0, size), nvis_children, sizes);
+      size = distribute_natural_allocation (MAX (0, (gint) size), nvis_children, sizes);
 
       /* Calculate space which hasn't distributed yet,
        * and is available for expanding children.
