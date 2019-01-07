@@ -40,6 +40,7 @@
 #include "meta/main.h"
 #include "meta/meta-backend.h"
 #include "meta/util.h"
+#include "meta-dbus-windowing.h"
 
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-dbus-session-watcher.h"
@@ -101,6 +102,7 @@ struct _MetaBackendPrivate
   MetaScreenCast *screen_cast;
   MetaRemoteDesktop *remote_desktop;
 #endif
+  MetaDBusWindowing *windowing;
 
   ClutterBackend *clutter_backend;
   ClutterActor *stage;
@@ -482,6 +484,12 @@ meta_backend_real_post_init (MetaBackend *backend)
   priv->screen_cast = meta_screen_cast_new (priv->dbus_session_watcher);
   priv->remote_desktop = meta_remote_desktop_new (priv->dbus_session_watcher);
 #endif /* HAVE_REMOTE_DESKTOP */
+
+  priv->windowing = meta_dbus_windowing_skeleton_new ();
+  g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (priv->windowing),
+                                    g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL),
+                                    "/org/gnome/Mutter/Windowing",
+                                    NULL);
 
   if (!meta_monitor_manager_is_headless (priv->monitor_manager))
     {
@@ -1321,4 +1329,12 @@ meta_backend_notify_keymap_layout_group_changed (MetaBackend *backend,
 {
   g_signal_emit (backend, signals[KEYMAP_LAYOUT_GROUP_CHANGED], 0,
                  locked_group);
+}
+
+MetaDBusWindowing *
+meta_backend_get_windowing (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->windowing;
 }
