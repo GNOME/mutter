@@ -9619,7 +9619,7 @@ clutter_actor_get_preferred_width (ClutterActor *self,
        * on this, but just fix it.
        */
       if (natural_width < minimum_width)
-	natural_width = minimum_width;
+        natural_width = minimum_width;
 
       cached_size_request->min_size = minimum_width;
       cached_size_request->natural_size = natural_width;
@@ -9725,7 +9725,9 @@ clutter_actor_get_preferred_height (ClutterActor *self,
       cached_size_request = &priv->height_requests[0];
     }
 
-  if (!found_in_cache)
+  if (!found_in_cache ||
+      cached_size_request->min_size == 0 ||
+      cached_size_request->natural_size == 0)
     {
       gfloat minimum_height, natural_height;
       ClutterActorClass *klass;
@@ -9762,7 +9764,7 @@ clutter_actor_get_preferred_height (ClutterActor *self,
        * on this, but just fix it.
        */
       if (natural_height < minimum_height)
-	natural_height = minimum_height;
+        natural_height = minimum_height;
 
       cached_size_request->min_size = minimum_height;
       cached_size_request->natural_size = natural_height;
