@@ -150,9 +150,9 @@ typedef struct _RequestedSize
   gfloat natural_size;
 } RequestedSize;
 
-static gint distribute_natural_allocation (gint                  extra_space,
-					   guint                 n_requested_sizes,
-					   RequestedSize        *sizes);
+static float distribute_natural_allocation (float          extra_space,
+                                            unsigned int   n_requested_sizes,
+                                            RequestedSize *sizes);
 static void count_expand_children         (ClutterLayoutManager *layout,
 					   ClutterContainer     *container,
 					   gint                 *visible_children,
@@ -879,17 +879,18 @@ compare_gap (gconstpointer p1,
  *
  * Pulled from gtksizerequest.c from Gtk+
  */
-static gint
-distribute_natural_allocation (gint           extra_space,
-                               guint          n_requested_sizes,
+static float
+distribute_natural_allocation (float          extra_space,
+                               unsigned int   n_requested_sizes,
                                RequestedSize *sizes)
 {
-  guint *spreading;
-  gint   i;
+  unsigned int *spreading;
+  int i;
 
+  g_return_val_if_fail (isnormal (extra_space) || extra_space == 0, 0);
   g_return_val_if_fail (extra_space >= 0, 0);
 
-  spreading = g_newa (guint, n_requested_sizes);
+  spreading = g_newa (unsigned int, n_requested_sizes);
 
   for (i = 0; i < n_requested_sizes; i++)
     spreading[i] = i;
@@ -913,7 +914,7 @@ distribute_natural_allocation (gint           extra_space,
 
   /* Sort descending by gap and position. */
   g_qsort_with_data (spreading,
-                     n_requested_sizes, sizeof (guint),
+                     n_requested_sizes, sizeof (unsigned int),
                      compare_gap, sizes);
 
   /* Distribute available space.
@@ -925,11 +926,11 @@ distribute_natural_allocation (gint           extra_space,
        * Sort order and reducing remaining space by assigned space
        * ensures that space is distributed equally.
        */
-      gint glue = (extra_space + i) / (i + 1);
-      gint gap = sizes[(spreading[i])].natural_size
-               - sizes[(spreading[i])].minimum_size;
+      int glue = (extra_space + i) / (i + 1);
+      int gap = sizes[(spreading[i])].natural_size
+              - sizes[(spreading[i])].minimum_size;
 
-      gint extra = MIN (glue, gap);
+      int extra = MIN (glue, gap);
 
       sizes[spreading[i]].minimum_size += extra;
 
@@ -1056,7 +1057,9 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
   else
     {
       /* Bring children up to size first */
-      size = distribute_natural_allocation (MAX (0, size), nvis_children, sizes);
+      size = (gint) distribute_natural_allocation (MAX (0, size),
+                                                   nvis_children,
+                                                   sizes);
 
       /* Calculate space which hasn't distributed yet,
        * and is available for expanding children.
