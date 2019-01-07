@@ -30,10 +30,17 @@ typedef enum _MetaCompositorType
   META_COMPOSITOR_TYPE_X11,
 } MetaCompositorType;
 
+typedef enum _MetaDisplayPolicy
+{
+  META_DISPLAY_POLICY_MANDATORY,
+  META_DISPLAY_POLICY_ON_DEMAND,
+  META_DISPLAY_POLICY_DISABLED,
+} MetaDisplayPolicy;
+
 META_EXPORT_TEST
 void meta_override_compositor_configuration (MetaCompositorType compositor_type,
                                              GType              backend_gtype);
 
-gboolean meta_should_autostart_x11_display (void);
+MetaDisplayPolicy meta_get_x11_display_policy (void);
 
 #endif /* META_MAIN_PRIVATE_H */

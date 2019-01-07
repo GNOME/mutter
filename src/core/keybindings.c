@@ -1624,7 +1624,11 @@ meta_display_grab_accelerator (MetaDisplay         *display,
       return META_KEYBINDING_ACTION_NONE;
     }
 
-  meta_change_keygrab (keys, display->x11_display->xroot, TRUE, &resolved_combo);
+  if (display->x11_display)
+    {
+      meta_change_keygrab (keys, display->x11_display->xroot,
+                           TRUE, &resolved_combo);
+    }
 
   grab = g_new0 (MetaKeyGrab, 1);
   grab->action = next_dynamic_keybinding_action ();
@@ -1670,8 +1674,11 @@ meta_display_ungrab_accelerator (MetaDisplay *display,
     {
       int i;
 
-      meta_change_keygrab (keys, display->x11_display->xroot,
-                           FALSE, &binding->resolved_combo);
+      if (display->x11_display)
+        {
+          meta_change_keygrab (keys, display->x11_display->xroot,
+                               FALSE, &binding->resolved_combo);
+        }
 
       for (i = 0; i < binding->resolved_combo.len; i++)
         {

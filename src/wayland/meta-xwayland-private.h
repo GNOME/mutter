@@ -34,6 +34,9 @@ meta_xwayland_complete_init (MetaDisplay *display);
 void
 meta_xwayland_stop (MetaXWaylandManager *manager);
 
+void
+meta_xwayland_shutdown (MetaXWaylandManager *manager);
+
 /* wl_data_device/X11 selection interoperation */
 void     meta_xwayland_init_dnd         (void);
 void     meta_xwayland_shutdown_dnd     (void);
