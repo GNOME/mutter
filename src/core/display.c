@@ -50,6 +50,7 @@
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "clutter/x11/clutter-x11.h"
+#include "compositor/compositor-private.h"
 #include "core/bell.h"
 #include "core/boxes-private.h"
 #include "core/display-private.h"
@@ -643,8 +644,14 @@ meta_display_init_x11 (MetaDisplay  *display,
 
   display->x11_display = x11_display;
   g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
-  meta_x11_display_create_guard_window (x11_display);
-  meta_display_manage_all_windows (display);
+
+  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
+    {
+      meta_x11_display_create_guard_window (x11_display);
+      meta_display_manage_all_windows (display);
+      meta_compositor_redirect_x11_windows (display->compositor);
+    }
+
   return TRUE;
 }
 
@@ -674,7 +681,6 @@ meta_display_open (void)
 {
   GError *error = NULL;
   MetaDisplay *display;
-  MetaX11Display *x11_display;
   int i;
   guint32 timestamp;
   Window old_active_xwindow = None;
@@ -756,7 +762,7 @@ meta_display_open (void)
   display->selection = meta_selection_new (display);
   meta_clipboard_manager_init (display);
 
-  if (meta_should_autostart_x11_display ())
+  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_MANDATORY)
     {
       if (!meta_display_init_x11 (display, &error))
         g_error ("Failed to start Xwayland: %s", error->message);

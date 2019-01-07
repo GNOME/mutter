@@ -113,7 +113,8 @@ meta_launch_context_constructed (GObject *object)
   G_OBJECT_CLASS (meta_launch_context_parent_class)->constructed (object);
 
   g_app_launch_context_setenv (G_APP_LAUNCH_CONTEXT (context),
-                               "DISPLAY", getenv ("DISPLAY"));
+                               "DISPLAY",
+                               meta_x11_get_display_name ());
   g_app_launch_context_setenv (G_APP_LAUNCH_CONTEXT (context),
                                "WAYLAND_DISPLAY", getenv ("WAYLAND_DISPLAY"));
 }
