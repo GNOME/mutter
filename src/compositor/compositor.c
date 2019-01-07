@@ -665,7 +665,7 @@ meta_compositor_add_window (MetaCompositor    *compositor,
   MetaWindowActor *window_actor;
   ClutterActor *window_group;
   MetaDisplay *display = compositor->display;
-  GType window_actor_type;
+  GType window_actor_type = G_TYPE_INVALID;
 
   meta_x11_error_trap_push (display->x11_display);
 
