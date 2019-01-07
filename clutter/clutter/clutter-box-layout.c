@@ -150,9 +150,9 @@ typedef struct _RequestedSize
   gfloat natural_size;
 } RequestedSize;
 
-static gint distribute_natural_allocation (gint                  extra_space,
-					   guint                 n_requested_sizes,
-					   RequestedSize        *sizes);
+static gfloat distribute_natural_allocation (gfloat         extra_space,
+                                             guint          n_requested_sizes,
+                                             RequestedSize *sizes);
 static void count_expand_children         (ClutterLayoutManager *layout,
 					   ClutterContainer     *container,
 					   gint                 *visible_children,
@@ -879,14 +879,15 @@ compare_gap (gconstpointer p1,
  *
  * Pulled from gtksizerequest.c from Gtk+
  */
-static gint
-distribute_natural_allocation (gint           extra_space,
+static gfloat
+distribute_natural_allocation (gfloat         extra_space,
                                guint          n_requested_sizes,
                                RequestedSize *sizes)
 {
   guint *spreading;
   gint   i;
 
+  g_return_val_if_fail (isnormal (extra_space) || extra_space == 0, 0);
   g_return_val_if_fail (extra_space >= 0, 0);
 
   spreading = g_newa (guint, n_requested_sizes);
