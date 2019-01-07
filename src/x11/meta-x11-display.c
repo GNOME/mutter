@@ -236,8 +236,14 @@ meta_x11_display_dispose (GObject *object)
 
   if (x11_display->gdk_display)
     {
+      MetaDBusWindowing *windowing;
+
       gdk_display_close (x11_display->gdk_display);
       x11_display->gdk_display = NULL;
+
+      windowing = meta_backend_get_windowing (meta_get_backend ());
+      meta_dbus_windowing_set_x11_available (windowing, FALSE);
+      meta_dbus_windowing_emit_x11_shutdown (windowing);
     }
 
   if (x11_display->display_close_idle)
@@ -998,6 +1004,25 @@ meta_set_gnome_wm_keybindings (const char *wm_keybindings)
   gnome_wm_keybindings = wm_keybindings;
 }
 
+const gchar *
+meta_x11_get_display_name (void)
+{
+#ifdef HAVE_WAYLAND
+  if (meta_is_wayland_compositor ())
+    {
+      MetaWaylandCompositor *compositor;
+
+      compositor = meta_wayland_compositor_get_default ();
+
+      return meta_wayland_get_xwayland_display_name (compositor);
+    }
+  else
+#endif
+    {
+      return g_getenv ("DISPLAY");
+    }
+}
+
 gboolean
 meta_x11_init_gdk_display (GError **error)
 {
@@ -1006,7 +1031,7 @@ meta_x11_init_gdk_display (GError **error)
   const char *gdk_gl_env = NULL;
   Display *xdisplay;
 
-  xdisplay_name = g_getenv ("DISPLAY");
+  xdisplay_name = meta_x11_get_display_name ();
   if (!xdisplay_name)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -1100,6 +1125,7 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+  MetaDBusWindowing *windowing;
 
   /* A list of all atom names, so that we can intern them in one go. */
   const char *atom_names[] = {
@@ -1357,6 +1383,10 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
 
   meta_x11_startup_notification_init (x11_display);
   meta_x11_selection_init (x11_display);
+
+  windowing = meta_backend_get_windowing (meta_get_backend ());
+  meta_dbus_windowing_emit_x11_started (windowing);
+  meta_dbus_windowing_set_x11_available (windowing, TRUE);
 
   return x11_display;
 }
