@@ -86,6 +86,13 @@ MetaX11Display *meta_display_get_x11_display (MetaDisplay *display);
 
 MetaWindow *meta_display_get_focus_window (MetaDisplay *display);
 
+void meta_display_set_input_focus   (MetaDisplay *display,
+                                     MetaWindow  *window,
+                                     gboolean     focus_frame,
+                                     guint32      timestamp);
+void meta_display_unset_input_focus (MetaDisplay *display,
+                                     guint32      timestamp);
+
 gboolean meta_display_xserver_time_is_before (MetaDisplay *display,
                                               guint32      time1,
                                               guint32      time2);

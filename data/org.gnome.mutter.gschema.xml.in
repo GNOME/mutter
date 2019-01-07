@@ -120,6 +120,8 @@
                                         framebuffers instead of window content,
                                         to manage HiDPI monitors. Does not
                                         require a restart.
+        • “autostart-xwayland”        — initializes Xwayland lazily if there are
+                                        X11 clients. Requires restart.
       </description>
     </key>
 

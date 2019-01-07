@@ -31,6 +31,7 @@
 
 #include "meta/meta-backend.h"
 #include "meta/meta-idle-monitor.h"
+#include "meta-dbus-windowing.h"
 #include "backends/meta-backend-types.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-egl.h"
@@ -179,5 +180,7 @@ void meta_backend_notify_keymap_layout_group_changed (MetaBackend *backend,
                                                       unsigned int locked_group);
 
 void meta_backend_notify_ui_scaling_factor_changed (MetaBackend *backend);
+
+MetaDBusWindowing * meta_backend_get_windowing (MetaBackend *backend);
 
 #endif /* META_BACKEND_PRIVATE_H */
