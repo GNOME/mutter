@@ -60,7 +60,8 @@ typedef struct _ClutterStageViewCoglPrivate
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterStageViewCogl, clutter_stage_view_cogl,
                             CLUTTER_TYPE_STAGE_VIEW)
 
-static void clutter_stage_window_iface_init (ClutterStageWindowIface *iface);
+static void
+clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (ClutterStageCogl,
                          _clutter_stage_cogl,
@@ -994,7 +995,7 @@ clutter_stage_cogl_get_dirty_pixel (ClutterStageWindow *stage_window,
 }
 
 static void
-clutter_stage_window_iface_init (ClutterStageWindowIface *iface)
+clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
 {
   iface->realize = clutter_stage_cogl_realize;
   iface->unrealize = clutter_stage_cogl_unrealize;
