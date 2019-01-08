@@ -37,4 +37,5 @@ pkg.generate(libmutter_cogl_gles2,
   variables: [
     'apiversion=' + libmutter_api_version,
   ],
+  install_dir: pcdir,
 )

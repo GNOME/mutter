@@ -841,6 +841,7 @@ pkg.generate(libmutter,
     'girdir=${libdir}/mutter-' + libmutter_api_version,
     'typelibdir=${libdir}/mutter-' + libmutter_api_version,
   ],
+  install_dir: pcdir,
 )
 
 subdir('compositor/plugins')

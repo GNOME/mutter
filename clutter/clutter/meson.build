@@ -634,6 +634,7 @@ pkg.generate(libmutter_clutter,
   variables: [
     'apiversion=' + libmutter_api_version,
   ],
+  install_dir: pcdir,
 )
 
 pkg.generate(libmutter_clutter,
@@ -647,4 +648,5 @@ pkg.generate(libmutter_clutter,
   variables: [
     'apiversion=' + libmutter_api_version,
   ],
+  install_dir: pcdir,
 )

@@ -77,4 +77,5 @@ pkg.generate(libmutter_cogl_pango,
   variables: [
     'apiversion=' + libmutter_api_version,
   ],
+  install_dir: pcdir,
 )

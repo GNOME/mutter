@@ -528,4 +528,5 @@ pkg.generate(libmutter_cogl,
   variables: [
     'apiversion=' + libmutter_api_version,
   ],
+  install_dir: pcdir,
 )

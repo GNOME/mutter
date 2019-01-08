@@ -65,6 +65,8 @@ pkgdatadir = join_paths(datadir, pkgname)
 pkglibdir = join_paths(libdir, pkgname)
 pkgincludedir = join_paths(includedir, pkgname)
 
+pcdir = join_paths(libdir, 'pkgconfig')
+
 gettext_package = meson.project_name()
 localedir = join_paths(datadir, 'locale')
 
