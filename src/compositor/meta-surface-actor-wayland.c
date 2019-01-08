@@ -228,6 +228,8 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
 static void
 meta_surface_actor_wayland_init (MetaSurfaceActorWayland *self)
 {
+  MetaSurfaceActorWaylandPrivate *priv =
+    meta_surface_actor_wayland_get_instance_private (self);
 }
 
 MetaSurfaceActor *

@@ -54,6 +54,8 @@
 
 #include <clutter/x11/clutter-x11.h>
 
+#include <sys/timerfd.h>
+
 #include "core.h"
 #include <meta/screen.h>
 #include <meta/errors.h>
@@ -89,6 +91,9 @@ on_presented (ClutterStage     *stage,
               CoglFrameEvent    event,
               ClutterFrameInfo *frame_info,
               MetaCompositor   *compositor);
+static void
+on_resumed (MetaSuspendMonitor *monitor,
+            MetaCompositor     *compositor);
 
 static gboolean
 is_modal (MetaDisplay *display)
@@ -503,6 +508,12 @@ meta_compositor_manage (MetaCompositor *compositor)
                     G_CALLBACK (on_presented),
                     compositor);
 
+  compositor->suspend_monitor = meta_suspend_monitor_new ();
+
+  g_signal_connect (compositor->suspend_monitor, "resumed",
+		    G_CALLBACK (on_resumed),
+		    compositor);
+
   /* We use connect_after() here to accomodate code in GNOME Shell that,
    * when benchmarking drawing performance, connects to ::after-paint
    * and calls glFinish(). The timing information from that will be
@@ -580,6 +591,8 @@ meta_compositor_unmanage (MetaCompositor *compositor)
        * window manager won't be able to redirect subwindows */
       XCompositeUnredirectSubwindows (xdisplay, xroot, CompositeRedirectManual);
     }
+
+  g_clear_object (&compositor->suspend_monitor);
 }
 
 /**
@@ -1175,6 +1188,25 @@ meta_pre_paint_func (gpointer data)
   return TRUE;
 }
 
+static void
+purge_textures (MetaCompositor *compositor)
+{
+  clutter_clear_glyph_cache ();
+  g_signal_emit_by_name (compositor->display, "gl-video-memory-purged");
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (compositor->stage));
+}
+
+static void
+on_resumed (MetaSuspendMonitor *monitor,
+            MetaCompositor     *compositor)
+{
+  MetaDisplay *display = compositor->display;
+
+  purge_textures (compositor);
+
+  meta_screen_update_cursor (display->screen);
+}
+
 static gboolean
 meta_post_paint_func (gpointer data)
 {
@@ -1190,14 +1222,14 @@ meta_post_paint_func (gpointer data)
     }
 
   status = cogl_get_graphics_reset_status (compositor->context);
+
   switch (status)
     {
     case COGL_GRAPHICS_RESET_STATUS_NO_ERROR:
       break;
 
     case COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET:
-      g_signal_emit_by_name (compositor->display, "gl-video-memory-purged");
-      clutter_actor_queue_redraw (CLUTTER_ACTOR (compositor->stage));
+      purge_textures (compositor);
       break;
 
     default:

@@ -8,6 +8,7 @@
 #include <meta/compositor.h>
 #include <meta/display.h>
 #include "meta-plugin-manager.h"
+#include "meta-suspend-monitor.h"
 #include "meta-window-actor-private.h"
 #include <clutter/clutter.h>
 
@@ -40,6 +41,8 @@ struct _MetaCompositor
   gint                   switch_workspace_in_progress;
 
   MetaPluginManager *plugin_mgr;
+
+  MetaSuspendMonitor *suspend_monitor;
 
   gboolean frame_has_updated_xsurfaces;
   gboolean have_x11_sync_object;

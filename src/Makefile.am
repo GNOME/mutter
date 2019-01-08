@@ -252,6 +252,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	compositor/meta-surface-actor.h		\
 	compositor/meta-surface-actor-x11.c	\
 	compositor/meta-surface-actor-x11.h	\
+	compositor/meta-suspend-monitor.c	\
+	compositor/meta-suspend-monitor.h       \
 	compositor/meta-sync-ring.c		\
 	compositor/meta-sync-ring.h		\
 	compositor/meta-texture-rectangle.c	\
