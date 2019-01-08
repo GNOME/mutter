@@ -131,7 +131,7 @@ meta_renderer_set_legacy_view (MetaRenderer     *renderer,
  * Returns a list of #MetaRendererView objects, each dealing with a part of the
  * stage.
  *
- * Returns: (transfer-none) (element-type MetaRendererView): a list of
+ * Returns: (transfer none) (element-type MetaRendererView): a list of
  * #MetaRendererView objects.
  */
 GList *

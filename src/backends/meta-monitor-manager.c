@@ -2580,7 +2580,7 @@ meta_monitor_manager_get_monitors (MetaMonitorManager *manager)
 }
 
 /**
- * meta_monitor_manager_get_capabilities:
+ * meta_monitor_manager_add_gpu:
  * @manager: A #MetaMonitorManager object
  *
  * Should only be called by subclasses. Adds a #MetaGpu to the internal list of
