@@ -222,7 +222,7 @@ build_ca_proplist (ca_proplist  *props,
 
 /**
  * meta_sound_player_play_from_theme:
- * @sound: a #MetaSoundPlayer
+ * @player: a #MetaSoundPlayer
  * @name: sound theme name of the event
  * @description: description of the event
  * @cancellable: cancellable for the request
@@ -256,7 +256,7 @@ meta_sound_player_play_from_theme (MetaSoundPlayer *player,
 
 /**
  * meta_sound_player_play_from_file:
- * @sound: a #MetaSoundPlayer
+ * @player: a #MetaSoundPlayer
  * @file: file to play
  * @description: description of the played sound
  * @cancellable: cancellable for the request
