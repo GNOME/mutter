@@ -109,7 +109,8 @@ static GSourceFuncs clock_funcs = {
   NULL
 };
 
-static void clutter_master_clock_iface_init (ClutterMasterClockIface *iface);
+static void
+clutter_master_clock_iface_init (ClutterMasterClockInterface *iface);
 
 #define clutter_master_clock_default_get_type   _clutter_master_clock_default_get_type
 
@@ -689,7 +690,7 @@ clutter_master_clock_default_set_paused (ClutterMasterClock *clock,
 }
 
 static void
-clutter_master_clock_iface_init (ClutterMasterClockIface *iface)
+clutter_master_clock_iface_init (ClutterMasterClockInterface *iface)
 {
   iface->add_timeline = clutter_master_clock_default_add_timeline;
   iface->remove_timeline = clutter_master_clock_default_remove_timeline;
