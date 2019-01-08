@@ -35,7 +35,7 @@
 #include "backends/x11/nested/meta-renderer-x11-nested.h"
 #include "clutter/clutter-mutter.h"
 
-static ClutterStageWindowIface *clutter_stage_window_parent_iface = NULL;
+static ClutterStageWindowInterface *clutter_stage_window_parent_iface = NULL;
 
 struct _MetaStageX11Nested
 {
@@ -45,7 +45,7 @@ struct _MetaStageX11Nested
 };
 
 static void
-clutter_stage_window_iface_init (ClutterStageWindowIface *iface);
+clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaStageX11Nested, meta_stage_x11_nested,
                          CLUTTER_TYPE_STAGE_X11,
@@ -350,7 +350,7 @@ meta_stage_x11_nested_class_init (MetaStageX11NestedClass *klass)
 }
 
 static void
-clutter_stage_window_iface_init (ClutterStageWindowIface *iface)
+clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
 {
   clutter_stage_window_parent_iface = g_type_interface_peek_parent (iface);
 
