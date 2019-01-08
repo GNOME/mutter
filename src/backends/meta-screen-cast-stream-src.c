@@ -132,8 +132,8 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
-  uint32_t buffer_id;
-  struct spa_buffer *buffer;
+  struct pw_buffer *buffer;
+  struct spa_buffer *spa_buffer;
   uint8_t *map = NULL;
   uint8_t *data;
   uint64_t now_us;
@@ -148,22 +148,24 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
   if (!priv->pipewire_stream)
     return;
 
-  buffer_id = pw_stream_get_empty_buffer (priv->pipewire_stream);
-  if (buffer_id == SPA_ID_INVALID)
-    return;
-
-  buffer = pw_stream_peek_buffer (priv->pipewire_stream, buffer_id);
+  buffer = pw_stream_dequeue_buffer (priv->pipewire_stream);
   if (!buffer)
     {
-      g_warning ("Failed to peek at PipeWire buffer");
+      g_warning ("Failed to dequeue at PipeWire buffer");
       return;
     }
 
-  if (buffer->datas[0].type == priv->pipewire_type->data.MemFd)
+  spa_buffer = buffer->buffer;
+
+  if (spa_buffer->datas[0].data)
     {
-      map = mmap (NULL, buffer->datas[0].maxsize + buffer->datas[0].mapoffset,
+      data = spa_buffer->datas[0].data;
+    }
+  else if (spa_buffer->datas[0].type == priv->pipewire_type->data.MemFd)
+    {
+      map = mmap (NULL, spa_buffer->datas[0].maxsize + spa_buffer->datas[0].mapoffset,
                   PROT_READ | PROT_WRITE, MAP_SHARED,
-                  buffer->datas[0].fd, 0);
+                  spa_buffer->datas[0].fd, 0);
       if (map == MAP_FAILED)
         {
           g_warning ("Failed to mmap pipewire stream buffer: %s\n",
@@ -171,14 +173,11 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
           return;
         }
 
-      data = SPA_MEMBER (map, buffer->datas[0].mapoffset, uint8_t);
-    }
-  else if (buffer->datas[0].type == priv->pipewire_type->data.MemPtr)
-    {
-      data = buffer->datas[0].data;
+      data = SPA_MEMBER (map, spa_buffer->datas[0].mapoffset, uint8_t);
     }
   else
     {
+      g_warning ("Unhandled spa buffer type: %d", spa_buffer->datas[0].type);
       return;
     }
 
@@ -186,11 +185,11 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
   priv->last_frame_timestamp_us = now_us;
 
   if (map)
-    munmap (map, buffer->datas[0].maxsize + buffer->datas[0].mapoffset);
+    munmap (map, spa_buffer->datas[0].maxsize + spa_buffer->datas[0].mapoffset);
 
-  buffer->datas[0].chunk->size = buffer->datas[0].maxsize;
+  spa_buffer->datas[0].chunk->size = spa_buffer->datas[0].maxsize;
 
-  pw_stream_send_buffer (priv->pipewire_stream, buffer_id);
+  pw_stream_queue_buffer (priv->pipewire_stream, buffer);
 }
 
 static gboolean
@@ -266,8 +265,8 @@ on_stream_state_changed (void                 *data,
 }
 
 static void
-on_stream_format_changed (void           *data,
-                          struct spa_pod *format)
+on_stream_format_changed (void                 *data,
+                          const struct spa_pod *format)
 {
   MetaScreenCastStreamSrc *src = data;
   MetaScreenCastStreamSrcPrivate *priv =
@@ -276,7 +275,7 @@ on_stream_format_changed (void           *data,
   uint8_t params_buffer[1024];
   int32_t width, height, stride, size;
   struct spa_pod_builder pod_builder;
-  struct spa_pod *params[1];
+  const struct spa_pod *params[1];
   const int bpp = 4;
 
   if (!format)
@@ -372,7 +371,8 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
   result = pw_stream_connect (pipewire_stream,
                               PW_DIRECTION_OUTPUT,
                               NULL,
-                              PW_STREAM_FLAG_NONE,
+                              (PW_STREAM_FLAG_DRIVER |
+                               PW_STREAM_FLAG_MAP_BUFFERS),
                               params, G_N_ELEMENTS (params));
   if (result != 0)
     {
