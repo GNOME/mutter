@@ -419,12 +419,6 @@ meta_window_wayland_update_main_monitor (MetaWindow                   *window,
       return;
     }
 
-  if (!user_op)
-    {
-      window->monitor = to;
-      return;
-    }
-
   from_scale = meta_logical_monitor_get_scale (from);
   to_scale = meta_logical_monitor_get_scale (to);
 
