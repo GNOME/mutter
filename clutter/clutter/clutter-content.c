@@ -44,8 +44,6 @@
 #include "clutter-marshal.h"
 #include "clutter-private.h"
 
-typedef struct _ClutterContentIface     ClutterContentInterface;
-
 enum
 {
   ATTACHED,
@@ -123,7 +121,7 @@ clutter_content_default_init (ClutterContentInterface *iface)
     g_signal_new (I_("attached"),
                   G_TYPE_FROM_INTERFACE (iface),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (ClutterContentIface, attached),
+                  G_STRUCT_OFFSET (ClutterContentInterface, attached),
                   NULL, NULL,
                   _clutter_marshal_VOID__OBJECT,
                   G_TYPE_NONE, 1,
@@ -143,7 +141,7 @@ clutter_content_default_init (ClutterContentInterface *iface)
     g_signal_new (I_("detached"),
                   G_TYPE_FROM_INTERFACE (iface),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (ClutterContentIface, detached),
+                  G_STRUCT_OFFSET (ClutterContentInterface, detached),
                   NULL, NULL,
                   _clutter_marshal_VOID__OBJECT,
                   G_TYPE_NONE, 1,
@@ -199,7 +197,7 @@ clutter_content_invalidate (ClutterContent *content)
  * is associated to a #ClutterContent, to set up a backpointer from
  * the @content to the @actor.
  *
- * This function will invoke the #ClutterContentIface.attached() virtual
+ * This function will invoke the #ClutterContentInterface.attached() virtual
  * function.
  */
 void
@@ -233,7 +231,7 @@ _clutter_content_attached (ClutterContent *content,
  * This function should be used internally every time a #ClutterActor
  * removes the association with a #ClutterContent.
  *
- * This function will invoke the #ClutterContentIface.detached() virtual
+ * This function will invoke the #ClutterContentInterface.detached() virtual
  * function.
  */
 void
@@ -262,7 +260,7 @@ _clutter_content_detached (ClutterContent *content,
  *
  * Creates the render tree for the @content and @actor.
  *
- * This function will invoke the #ClutterContentIface.paint_content()
+ * This function will invoke the #ClutterContentInterface.paint_content()
  * virtual function.
  */
 void
