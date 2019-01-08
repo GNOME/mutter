@@ -114,6 +114,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/meta-cursor-tracker-private.h	\
 	backends/meta-cursor-renderer.c		\
 	backends/meta-cursor-renderer.h		\
+	backends/meta-cursor-sprite-xcursor.c	\
+	backends/meta-cursor-sprite-xcursor.h	\
 	backends/meta-dnd-private.h		\
 	backends/meta-egl.c			\
 	backends/meta-egl.h			\
@@ -176,6 +178,8 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES =	\
 	backends/x11/meta-gpu-xrandr.h			\
 	backends/x11/cm/meta-backend-x11-cm.c		\
 	backends/x11/cm/meta-backend-x11-cm.h		\
+	backends/x11/cm/meta-cursor-sprite-xfixes.c	\
+	backends/x11/cm/meta-cursor-sprite-xfixes.h	\
 	backends/x11/cm/meta-renderer-x11-cm.c		\
 	backends/x11/cm/meta-renderer-x11-cm.h		\
 	backends/x11/nested/meta-backend-x11-nested.c	\
@@ -370,6 +374,8 @@ if HAVE_WAYLAND
 libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	compositor/meta-surface-actor-wayland.c	\
 	compositor/meta-surface-actor-wayland.h	\
+	wayland/meta-cursor-sprite-wayland.c	\
+	wayland/meta-cursor-sprite-wayland.h	\
 	wayland/meta-wayland.c			\
 	wayland/meta-wayland.h			\
 	wayland/meta-wayland-private.h		\
@@ -431,10 +437,10 @@ libmutter_@LIBMUTTER_API_VERSION@_la_SOURCES +=	\
 	wayland/meta-wayland-touch.h		\
 	wayland/meta-wayland-surface.c		\
 	wayland/meta-wayland-surface.h		\
-	wayland/meta-wayland-surface-role-cursor.c	\
-	wayland/meta-wayland-surface-role-cursor.h	\
-	wayland/meta-wayland-surface-role-tablet-cursor.c	\
-	wayland/meta-wayland-surface-role-tablet-cursor.h	\
+	wayland/meta-wayland-cursor-surface.c	\
+	wayland/meta-wayland-cursor-surface.h	\
+	wayland/meta-wayland-tablet-cursor-surface.c	\
+	wayland/meta-wayland-tablet-cursor-surface.h	\
 	wayland/meta-wayland-actor-surface.c	\
 	wayland/meta-wayland-actor-surface.h	\
 	wayland/meta-wayland-subsurface.c	\
