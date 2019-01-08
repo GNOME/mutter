@@ -2742,7 +2742,7 @@ clutter_stage_set_fullscreen (ClutterStage *stage,
   if (priv->is_fullscreen != fullscreen)
     {
       ClutterStageWindow *impl = CLUTTER_STAGE_WINDOW (priv->impl);
-      ClutterStageWindowIface *iface;
+      ClutterStageWindowInterface *iface;
 
       iface = CLUTTER_STAGE_WINDOW_GET_IFACE (impl);
 
@@ -2807,7 +2807,7 @@ clutter_stage_set_user_resizable (ClutterStage *stage,
       && priv->is_user_resizable != resizable)
     {
       ClutterStageWindow *impl = CLUTTER_STAGE_WINDOW (priv->impl);
-      ClutterStageWindowIface *iface;
+      ClutterStageWindowInterface *iface;
 
       iface = CLUTTER_STAGE_WINDOW_GET_IFACE (impl);
       if (iface->set_user_resizable)
@@ -2856,7 +2856,7 @@ clutter_stage_show_cursor (ClutterStage *stage)
   if (!priv->is_cursor_visible)
     {
       ClutterStageWindow *impl = CLUTTER_STAGE_WINDOW (priv->impl);
-      ClutterStageWindowIface *iface;
+      ClutterStageWindowInterface *iface;
 
       iface = CLUTTER_STAGE_WINDOW_GET_IFACE (impl);
       if (iface->set_cursor_visible)
@@ -2889,7 +2889,7 @@ clutter_stage_hide_cursor (ClutterStage *stage)
   if (priv->is_cursor_visible)
     {
       ClutterStageWindow *impl = CLUTTER_STAGE_WINDOW (priv->impl);
-      ClutterStageWindowIface *iface;
+      ClutterStageWindowInterface *iface;
 
       iface = CLUTTER_STAGE_WINDOW_GET_IFACE (impl);
       if (iface->set_cursor_visible)

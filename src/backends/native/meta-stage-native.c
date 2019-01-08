@@ -45,7 +45,7 @@ struct _MetaStageNative
 };
 
 static void
-clutter_stage_window_iface_init (ClutterStageWindowIface *iface);
+clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaStageNative, meta_stage_native,
                          CLUTTER_TYPE_STAGE_COGL,
@@ -219,7 +219,7 @@ meta_stage_native_class_init (MetaStageNativeClass *klass)
 }
 
 static void
-clutter_stage_window_iface_init (ClutterStageWindowIface *iface)
+clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
 {
   iface->can_clip_redraws = meta_stage_native_can_clip_redraws;
   iface->get_geometry = meta_stage_native_get_geometry;
