@@ -27,11 +27,10 @@ cogl_gles2_includedir = join_paths(cogl_includedir, 'cogl-gles2/GLES2')
 install_headers(cogl_gles2_public_headers,
   subdir: cogl_gles2_includedir)
 
-pkg.generate(
+pkg.generate(libmutter_cogl_gles2,
   name: 'CoglGles2',
   filebase: 'mutter-cogl-gles2-' + libmutter_api_version,
   description: 'A cogl GLES2 helper library for mutter',
-  libraries: [libmutter_cogl_gles2],
   subdirs: join_paths(pkgname, 'cogl'),
   requires: [cogl_pkg_deps, libmutter_cogl_name],
   version: meson.project_version(),

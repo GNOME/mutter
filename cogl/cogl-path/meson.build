@@ -68,11 +68,10 @@ libmutter_cogl_path_dep = declare_dependency(
 install_headers(cogl_path_public_headers,
   subdir: cogl_path_includedir)
 
-pkg.generate(
+pkg.generate(libmutter_cogl_path,
   name: 'CoglPath',
   filebase: 'mutter-cogl-path-' + libmutter_api_version,
   description: 'A 2D path drawing library for Cogl in mutter',
-  libraries: [libmutter_cogl_path],
   subdirs: join_paths(pkgname, 'cogl'),
   requires: [cogl_pkg_deps, libmutter_cogl_name],
   version: meson.project_version(),

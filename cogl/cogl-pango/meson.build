@@ -67,11 +67,10 @@ endif
 cogl_pango_includedir = join_paths(cogl_includedir, 'cogl-pango')
 install_headers(cogl_pango_public_headers, subdir: cogl_pango_includedir)
 
-pkg.generate(
+pkg.generate(libmutter_cogl_pango,
   name: 'CoglPango',
   filebase: 'mutter-cogl-pango-' + libmutter_api_version,
   description: 'A text rendering for Cogl in mutter',
-  libraries: [libmutter_cogl_pango],
   subdirs: join_paths(pkgname, 'cogl'),
   requires: [cogl_pkg_deps, libmutter_cogl_name],
   version: meson.project_version(),

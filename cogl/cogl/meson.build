@@ -517,11 +517,11 @@ install_headers([
 install_headers(cogl_gl_prototype_headers,
   subdir: join_paths(cogl_cogl_includedir, 'gl-prototypes'))
 
-pkg.generate(
+pkg.generate(libmutter_cogl,
   name: 'Cogl',
   filebase: libmutter_cogl_name,
   description: 'An object oriented GL/GLES Abstraction/Utility Layer in mutter',
-  libraries: [libmutter_cogl, m_dep],
+  libraries: [m_dep],
   subdirs: join_paths(pkgname, 'cogl'),
   requires: [cogl_pkg_deps],
   version: meson.project_version(),

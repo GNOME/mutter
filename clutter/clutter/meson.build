@@ -625,11 +625,11 @@ install_headers(clutter_deprecated_headers,
 install_headers(clutter_x11_headers,
   subdir: join_paths(clutter_clutter_includedir, 'x11'))
 
-pkg.generate(
+pkg.generate(libmutter_clutter,
   name: 'Mutters Clutter',
   filebase: libmutter_clutter_name,
   description: 'Mutters Clutter Private Library',
-  libraries: [libmutter_clutter, m_dep],
+  libraries: [m_dep],
   subdirs: join_paths(pkgname, 'clutter'),
   requires: [clutter_pkg_deps, libmutter_cogl_name],
   version: meson.project_version(),
@@ -638,11 +638,11 @@ pkg.generate(
   ],
 )
 
-pkg.generate(
+pkg.generate(libmutter_clutter,
   name: 'Mutters ClutterX11',
   filebase: 'mutter-clutter-x11-' + libmutter_api_version,
   description: 'Mutters ClutterX11 Private Library',
-  libraries: [libmutter_clutter, m_dep],
+  libraries: [m_dep],
   subdirs: join_paths(pkgname, 'clutter'),
   requires: [clutter_pkg_deps, libmutter_cogl_name],
   version: meson.project_version(),

@@ -833,11 +833,10 @@ if have_introspection
   )
 endif
 
-pkg.generate(
+pkg.generate(libmutter,
   name: 'Meta',
   filebase: 'libmutter-' + libmutter_api_version,
   description: 'Mutter compositor and window manager library',
-  libraries: [libmutter],
   subdirs: pkgname,
   requires: [mutter_pkg_deps, libmutter_clutter_name],
   version: meson.project_version(),
