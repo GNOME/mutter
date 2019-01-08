@@ -49,10 +49,12 @@
 
 #define STAGE_X11_IS_MAPPED(s)  ((((ClutterStageX11 *) (s))->wm_state & STAGE_X11_WITHDRAWN) == 0)
 
-static ClutterStageWindowIface *clutter_stage_window_parent_iface = NULL;
+static ClutterStageWindowInterface *clutter_stage_window_parent_iface = NULL;
 
-static void clutter_stage_window_iface_init     (ClutterStageWindowIface     *iface);
-static void clutter_event_translator_iface_init (ClutterEventTranslatorIface *iface);
+static void
+clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
+static void
+clutter_event_translator_iface_init (ClutterEventTranslatorIface *iface);
 
 static ClutterStageCogl *clutter_x11_get_stage_window_from_window (Window win);
 
@@ -972,7 +974,7 @@ clutter_stage_x11_init (ClutterStageX11 *stage)
 }
 
 static void
-clutter_stage_window_iface_init (ClutterStageWindowIface *iface)
+clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
 {
   clutter_stage_window_parent_iface = g_type_interface_peek_parent (iface);
 
