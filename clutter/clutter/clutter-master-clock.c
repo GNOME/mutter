@@ -37,10 +37,6 @@
 #include "clutter-master-clock-default.h"
 #include "clutter-private.h"
 
-#define clutter_master_clock_get_type   _clutter_master_clock_get_type
-
-typedef ClutterMasterClockIface ClutterMasterClockInterface;
-
 G_DEFINE_INTERFACE (ClutterMasterClock, clutter_master_clock, G_TYPE_OBJECT)
 
 static void
