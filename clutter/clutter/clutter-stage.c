@@ -1511,7 +1511,6 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
    * are drawn offscreen (as we never swap buffers)
   */
   context->pick_mode = mode;
-
   clutter_stage_do_paint_view (stage, view, NULL);
   context->pick_mode = CLUTTER_PICK_NONE;
 
