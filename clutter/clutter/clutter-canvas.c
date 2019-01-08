@@ -97,7 +97,7 @@ enum
 
 static guint canvas_signals[LAST_SIGNAL] = { 0, };
 
-static void clutter_content_iface_init (ClutterContentIface *iface);
+static void clutter_content_iface_init (ClutterContentInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (ClutterCanvas, clutter_canvas, G_TYPE_OBJECT,
                          G_ADD_PRIVATE (ClutterCanvas)
@@ -457,7 +457,7 @@ clutter_canvas_get_preferred_size (ClutterContent *content,
 }
 
 static void
-clutter_content_iface_init (ClutterContentIface *iface)
+clutter_content_iface_init (ClutterContentInterface *iface)
 {
   iface->invalidate = clutter_canvas_invalidate;
   iface->paint_content = clutter_canvas_paint_content;
