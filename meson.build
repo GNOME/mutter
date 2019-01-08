@@ -26,7 +26,7 @@ xfixes_req = '>= 3'
 xi_req = '>= 1.6.99.1'
 xrandr_req = '>= 1.5.0'
 libstartup_notification_req = '>= 0.7'
-libcanberra_gtk3_req = '>= 0.26'
+libcanberra_req = '>= 0.26'
 libwacom_req = '>= 0.13'
 atk_req = '>= 2.5.3'
 
@@ -117,7 +117,7 @@ xcb_res_dep = dependency('xcb-res')
 xinerama_dep = dependency('xinerama')
 ice_dep = dependency('ice')
 atk_dep = dependency('atk', version: atk_req)
-libcanberra_gtk3_dep = dependency('libcanberra-gtk3', version: libcanberra_gtk3_req)
+libcanberra_dep = dependency('libcanberra', version: libcanberra_req)
 
 # For now always require X11 support
 have_x11 = true

@@ -23,7 +23,7 @@ mutter_pkg_deps = [
   json_glib_dep,
   pango_dep,
   xkbcommon_dep,
-  libcanberra_gtk3_dep,
+  libcanberra_dep,
 ]
 
 if have_gl
