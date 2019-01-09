@@ -73,4 +73,6 @@ MetaBackgroundImage *meta_background_image_cache_load  (MetaBackgroundImageCache
 void                 meta_background_image_cache_purge (MetaBackgroundImageCache *cache,
                                                         GFile                    *file);
 
+void                 meta_background_image_cache_unload_all (MetaBackgroundImageCache *cache);
+
 #endif /* __META_BACKGROUND_IMAGE_H__ */

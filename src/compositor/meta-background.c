@@ -318,6 +318,20 @@ meta_background_finalize (GObject *object)
 }
 
 static void
+free_textures (MetaBackground *self)
+{
+  MetaBackgroundPrivate *priv = self->priv;
+
+  free_color_texture (self);
+  free_wallpaper_texture (self);
+
+  set_file (self, &priv->file1, &priv->background_image1, NULL);
+  set_file (self, &priv->file2, &priv->background_image2, NULL);
+
+  mark_changed (self);
+}
+
+static void
 meta_background_constructed (GObject *object)
 {
   MetaBackground        *self = META_BACKGROUND (object);
@@ -326,7 +340,7 @@ meta_background_constructed (GObject *object)
   G_OBJECT_CLASS (meta_background_parent_class)->constructed (object);
 
   g_signal_connect_object (meta_screen_get_display (priv->screen), "gl-video-memory-purged",
-                           G_CALLBACK (mark_changed), object, G_CONNECT_SWAPPED);
+                           G_CALLBACK (free_textures), object, G_CONNECT_SWAPPED);
 }
 
 static void
@@ -960,7 +974,10 @@ meta_background_set_blend (MetaBackground          *self,
 void
 meta_background_refresh_all (void)
 {
+  MetaBackgroundImageCache *cache = meta_background_image_cache_get_default ();
   GSList *l;
+
+  meta_background_image_cache_unload_all (cache);
 
   for (l = all_backgrounds; l; l = l->next)
     mark_changed (l->data);
