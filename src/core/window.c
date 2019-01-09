@@ -2848,7 +2848,7 @@ meta_window_maximize_internal (MetaWindow        *window,
   meta_window_recalc_features (window);
   set_net_wm_state (window);
 
-  if (window->monitor->in_fullscreen)
+  if (window->monitor && window->monitor->in_fullscreen)
     meta_display_queue_check_fullscreen (window->display);
 
   g_object_freeze_notify (G_OBJECT (window));
