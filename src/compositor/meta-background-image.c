@@ -279,6 +279,34 @@ meta_background_image_cache_purge (MetaBackgroundImageCache *cache,
   image->in_cache = FALSE;
 }
 
+/**
+ * meta_background_image_cache_unload_all:
+ * @cache: a #MetaBackgroundImageCache
+ *
+ * Remove all entries from the cache and unloads them; this would be used
+ * if textures in video memory have been invalidated.
+ */
+void
+meta_background_image_cache_unload_all (MetaBackgroundImageCache *cache)
+{
+  GHashTableIter iter;
+  gpointer key, value;
+
+  g_return_if_fail (META_IS_BACKGROUND_IMAGE_CACHE (cache));
+
+  g_hash_table_iter_init (&iter, cache->images);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      MetaBackgroundImage *image = value;
+
+      g_clear_pointer (&image->texture, cogl_object_unref);
+      image->in_cache = FALSE;
+      image->loaded = FALSE;
+    }
+
+  g_hash_table_remove_all (cache->images);
+}
+
 G_DEFINE_TYPE (MetaBackgroundImage, meta_background_image, G_TYPE_OBJECT);
 
 static void
