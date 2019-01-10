@@ -104,6 +104,8 @@ struct _ClutterBackendClass
 
   void                  (* bell_notify)          (ClutterBackend   *backend);
 
+  ClutterKeymap *       (* get_keymap)           (ClutterBackend   *backend);
+
   /* signals */
   void (* resolution_changed) (ClutterBackend *backend);
   void (* font_changed)       (ClutterBackend *backend);

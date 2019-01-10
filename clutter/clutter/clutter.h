@@ -76,6 +76,7 @@
 #include "clutter-input-focus.h"
 #include "clutter-interval.h"
 #include "clutter-keyframe-transition.h"
+#include "clutter-keymap.h"
 #include "clutter-keysyms.h"
 #include "clutter-layout-manager.h"
 #include "clutter-layout-meta.h"
