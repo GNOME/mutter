@@ -279,7 +279,7 @@ static const ClutterColor default_selected_text_color = {   0,   0,   0, 255 };
 
 static CoglPipeline *default_color_pipeline = NULL;
 
-static ClutterAnimatableIface *parent_animatable_iface = NULL;
+static ClutterAnimatableInterface *parent_animatable_iface = NULL;
 static ClutterScriptableIface *parent_scriptable_iface = NULL;
 
 /* ClutterTextInputFocus */
@@ -389,7 +389,7 @@ clutter_text_input_focus_new (ClutterText *text)
 
 /* ClutterText */
 static void clutter_scriptable_iface_init (ClutterScriptableIface *iface);
-static void clutter_animatable_iface_init (ClutterAnimatableIface *iface);
+static void clutter_animatable_iface_init (ClutterAnimatableInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (ClutterText,
                          clutter_text,
@@ -3547,7 +3547,7 @@ clutter_text_set_final_state (ClutterAnimatable *animatable,
 }
 
 static void
-clutter_animatable_iface_init (ClutterAnimatableIface *iface)
+clutter_animatable_iface_init (ClutterAnimatableInterface *iface)
 {
   parent_animatable_iface = g_type_interface_peek_parent (iface);
 
