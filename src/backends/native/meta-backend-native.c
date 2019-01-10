@@ -514,7 +514,7 @@ meta_backend_native_initable_init (GInitable     *initable,
   if (!native->launcher)
     return FALSE;
 
-  native->udev = meta_udev_new ();
+  native->udev = meta_udev_new (native);
   native->barrier_manager = meta_barrier_manager_native_new ();
 
   return initable_parent_iface->init (initable, cancellable, error);
