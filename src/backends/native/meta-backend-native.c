@@ -510,7 +510,12 @@ meta_backend_native_initable_init (GInitable     *initable,
       return FALSE;
     }
 
+  native->launcher = meta_launcher_new (error);
+  if (!native->launcher)
+    return FALSE;
+
   native->udev = meta_udev_new ();
+  native->barrier_manager = meta_barrier_manager_native_new ();
 
   return initable_parent_iface->init (initable, cancellable, error);
 }
@@ -556,16 +561,6 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
 static void
 meta_backend_native_init (MetaBackendNative *native)
 {
-  GError *error = NULL;
-
-  native->launcher = meta_launcher_new (&error);
-  if (native->launcher == NULL)
-    {
-      g_warning ("Can't initialize KMS backend: %s\n", error->message);
-      exit (1);
-    }
-
-  native->barrier_manager = meta_barrier_manager_native_new ();
 }
 
 MetaLauncher *
