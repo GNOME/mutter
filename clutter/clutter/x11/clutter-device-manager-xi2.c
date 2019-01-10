@@ -1386,9 +1386,9 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
           _clutter_keymap_x11_get_is_modifier (backend_x11->keymap,
                                                event->key.hardware_keycode);
         event_x11->num_lock_set =
-          _clutter_keymap_x11_get_num_lock_state (backend_x11->keymap);
+          clutter_keymap_get_num_lock_state (CLUTTER_KEYMAP (backend_x11->keymap));
         event_x11->caps_lock_set =
-          _clutter_keymap_x11_get_caps_lock_state (backend_x11->keymap);
+          clutter_keymap_get_caps_lock_state (CLUTTER_KEYMAP (backend_x11->keymap));
 
         source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
                                              GINT_TO_POINTER (xev->sourceid));

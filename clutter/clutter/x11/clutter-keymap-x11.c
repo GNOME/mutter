@@ -53,7 +53,7 @@ struct _DirectionCacheEntry
 
 struct _ClutterKeymapX11
 {
-  GObject parent_instance;
+  ClutterKeymap parent_instance;
 
   ClutterBackend *backend;
 
@@ -86,7 +86,7 @@ struct _ClutterKeymapX11
 
 struct _ClutterKeymapX11Class
 {
-  GObjectClass parent_class;
+  ClutterKeymapClass parent_class;
 };
 
 enum
@@ -104,7 +104,8 @@ static void clutter_event_translator_iface_init (ClutterEventTranslatorIface *if
 
 #define clutter_keymap_x11_get_type     _clutter_keymap_x11_get_type
 
-G_DEFINE_TYPE_WITH_CODE (ClutterKeymapX11, clutter_keymap_x11, G_TYPE_OBJECT,
+G_DEFINE_TYPE_WITH_CODE (ClutterKeymapX11, clutter_keymap_x11,
+                         CLUTTER_TYPE_KEYMAP,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_EVENT_TRANSLATOR,
                                                 clutter_event_translator_iface_init));
 
@@ -215,12 +216,10 @@ static void
 update_locked_mods (ClutterKeymapX11 *keymap_x11,
                     gint              locked_mods)
 {
-#if 0
   gboolean old_caps_lock_state, old_num_lock_state;
 
   old_caps_lock_state = keymap_x11->caps_lock_state;
   old_num_lock_state  = keymap_x11->num_lock_state;
-#endif
 
   keymap_x11->caps_lock_state = (locked_mods & CLUTTER_LOCK_MASK) != 0;
   keymap_x11->num_lock_state  = (locked_mods & keymap_x11->num_lock_mask) != 0;
@@ -229,12 +228,9 @@ update_locked_mods (ClutterKeymapX11 *keymap_x11,
                 keymap_x11->num_lock_state ? "set" : "unset",
                 keymap_x11->caps_lock_state ? "set" : "unset");
 
-#if 0
-  /* Add signal to ClutterBackend? */
   if ((keymap_x11->caps_lock_state != old_caps_lock_state) ||
       (keymap_x11->num_lock_state != old_num_lock_state))
-    g_signal_emit_by_name (keymap_x11->backend, "key-lock-changed");
-#endif
+    g_signal_emit_by_name (keymap_x11, "state-changed");
 }
 
 /* the code to retrieve the keymap direction and cache it
@@ -524,10 +520,27 @@ clutter_keymap_x11_finalize (GObject *gobject)
   G_OBJECT_CLASS (clutter_keymap_x11_parent_class)->finalize (gobject);
 }
 
+static gboolean
+clutter_keymap_x11_get_num_lock_state (ClutterKeymap *keymap)
+{
+  ClutterKeymapX11 *keymap_x11 = CLUTTER_KEYMAP_X11 (keymap);
+
+  return keymap_x11->num_lock_state;
+}
+
+static gboolean
+clutter_keymap_x11_get_caps_lock_state (ClutterKeymap *keymap)
+{
+  ClutterKeymapX11 *keymap_x11 = CLUTTER_KEYMAP_X11 (keymap);
+
+  return keymap_x11->caps_lock_state;
+}
+
 static void
 clutter_keymap_x11_class_init (ClutterKeymapX11Class *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  ClutterKeymapClass *keymap_class = CLUTTER_KEYMAP_CLASS (klass);
 
   obj_props[PROP_BACKEND] =
     g_param_spec_object ("backend",
@@ -539,6 +552,10 @@ clutter_keymap_x11_class_init (ClutterKeymapX11Class *klass)
   gobject_class->constructed = clutter_keymap_x11_constructed;
   gobject_class->set_property = clutter_keymap_x11_set_property;
   gobject_class->finalize = clutter_keymap_x11_finalize;
+
+  keymap_class->get_num_lock_state = clutter_keymap_x11_get_num_lock_state;
+  keymap_class->get_caps_lock_state = clutter_keymap_x11_get_caps_lock_state;
+
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 }
 
@@ -610,22 +627,6 @@ _clutter_keymap_x11_get_key_group (ClutterKeymapX11    *keymap,
                                    ClutterModifierType  state)
 {
   return XkbGroupForCoreState (state);
-}
-
-gboolean
-_clutter_keymap_x11_get_num_lock_state (ClutterKeymapX11 *keymap)
-{
-  g_return_val_if_fail (CLUTTER_IS_KEYMAP_X11 (keymap), FALSE);
-
-  return keymap->num_lock_state;
-}
-
-gboolean
-_clutter_keymap_x11_get_caps_lock_state (ClutterKeymapX11 *keymap)
-{
-  g_return_val_if_fail (CLUTTER_IS_KEYMAP_X11 (keymap), FALSE);
-
-  return keymap->caps_lock_state;
 }
 
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
