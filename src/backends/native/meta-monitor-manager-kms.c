@@ -86,6 +86,7 @@ struct _MetaMonitorManagerKms
 
   GUdevClient *udev;
   guint uevent_handler_id;
+  guint hotplug_handler_id;
 };
 
 struct _MetaMonitorManagerKmsClass
@@ -445,6 +446,35 @@ handle_gpu_hotplug (MetaMonitorManagerKms *manager_kms,
 }
 
 static void
+on_udev_hotplug (MetaUdev           *udev,
+                 MetaMonitorManager *manager)
+{
+  handle_hotplug_event (manager);
+}
+
+static void
+meta_monitor_manager_kms_connect_hotplug_handler (MetaMonitorManagerKms *manager_kms)
+{
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  MetaUdev *udev = meta_backend_native_get_udev (META_BACKEND_NATIVE (backend));
+
+  manager_kms->hotplug_handler_id =
+    g_signal_connect (udev, "hotplug", G_CALLBACK (on_udev_hotplug), manager);
+}
+
+static void
+meta_monitor_manager_kms_disconnect_hotplug_handler (MetaMonitorManagerKms *manager_kms)
+{
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  MetaUdev *udev = meta_backend_native_get_udev (META_BACKEND_NATIVE (backend));
+
+  g_signal_handler_disconnect (udev, manager_kms->hotplug_handler_id);
+  manager_kms->hotplug_handler_id = 0;
+}
+
+static void
 on_uevent (GUdevClient *client,
            const char  *action,
            GUdevDevice *device,
@@ -471,11 +501,6 @@ on_uevent (GUdevClient *client,
       if (!g_strcmp0 (seat_id, device_seat))
         handle_gpu_hotplug (manager_kms, device);
     }
-
-  if (!g_udev_device_get_property_as_boolean (device, "HOTPLUG"))
-    return;
-
-  handle_hotplug_event (manager);
 }
 
 static void
@@ -499,6 +524,7 @@ void
 meta_monitor_manager_kms_pause (MetaMonitorManagerKms *manager_kms)
 {
   meta_monitor_manager_kms_disconnect_uevent_handler (manager_kms);
+  meta_monitor_manager_kms_disconnect_hotplug_handler (manager_kms);
 }
 
 void
@@ -507,6 +533,7 @@ meta_monitor_manager_kms_resume (MetaMonitorManagerKms *manager_kms)
   MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
 
   meta_monitor_manager_kms_connect_uevent_handler (manager_kms);
+  meta_monitor_manager_kms_connect_hotplug_handler (manager_kms);
   handle_hotplug_event (manager);
 }
 
@@ -713,6 +740,7 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
   manager_kms->udev = g_udev_client_new (subsystems);
 
   meta_monitor_manager_kms_connect_uevent_handler (manager_kms);
+  meta_monitor_manager_kms_connect_hotplug_handler (manager_kms);
 
   if (!init_gpus (manager_kms, error))
     {
