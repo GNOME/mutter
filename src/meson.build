@@ -577,6 +577,8 @@ if have_native_backend
     'backends/native/meta-renderer-native.h',
     'backends/native/meta-stage-native.c',
     'backends/native/meta-stage-native.h',
+    'backends/native/meta-udev.c',
+    'backends/native/meta-udev.h',
   ]
 endif
 
