@@ -807,6 +807,14 @@ clutter_backend_x11_get_keymap_direction (ClutterBackend *backend)
   return _clutter_keymap_x11_get_direction (backend_x11->keymap);
 }
 
+static ClutterKeymap *
+clutter_backend_x11_get_keymap (ClutterBackend *backend)
+{
+  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (backend);
+
+  return CLUTTER_KEYMAP (backend_x11->keymap);
+}
+
 static void
 clutter_backend_x11_class_init (ClutterBackendX11Class *klass)
 {
@@ -829,6 +837,7 @@ clutter_backend_x11_class_init (ClutterBackendX11Class *klass)
   backend_class->get_display = clutter_backend_x11_get_display;
 
   backend_class->get_keymap_direction = clutter_backend_x11_get_keymap_direction;
+  backend_class->get_keymap = clutter_backend_x11_get_keymap;
 }
 
 static void

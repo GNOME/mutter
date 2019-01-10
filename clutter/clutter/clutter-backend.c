@@ -1399,3 +1399,9 @@ clutter_backend_set_input_method (ClutterBackend     *backend,
 {
   g_set_object (&backend->input_method, method);
 }
+
+ClutterKeymap *
+clutter_backend_get_keymap (ClutterBackend *backend)
+{
+  return CLUTTER_BACKEND_GET_CLASS (backend)->get_keymap (backend);
+}

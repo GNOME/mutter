@@ -97,9 +97,9 @@ translate_key_event (ClutterBackendX11       *backend_x11,
     _clutter_keymap_x11_get_is_modifier (backend_x11->keymap,
                                          event->key.hardware_keycode);
   event_x11->num_lock_set =
-    _clutter_keymap_x11_get_num_lock_state (backend_x11->keymap);
+    clutter_keymap_get_num_lock_state (CLUTTER_KEYMAP (backend_x11->keymap));
   event_x11->caps_lock_set =
-    _clutter_keymap_x11_get_caps_lock_state (backend_x11->keymap);
+    clutter_keymap_get_caps_lock_state (CLUTTER_KEYMAP (backend_x11->keymap));
 
   /* unicode_value is the printable representation */
   n = XLookupString (&xevent->xkey, buffer, sizeof (buffer) - 1, NULL, NULL);
