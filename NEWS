@@ -1,3 +1,32 @@
+3.31.4
+======
+* keybindings: Limit corner move to current monitor [Jānis; #320]
+* xdg-output: Report rotated physical dimensions [Olivier; #369]
+* Add continuous integration pipeline [Jonas; #193]
+* Improve performance on secondary GPUs [Pekka; #323, !313]
+* Use the actual hardware refresh rate [Daniel; #781296]
+* Remove hide-titlebar-when-maximized support [Florian; !221]
+* wayland: Implement buffer transforms [Robert; !322]
+* Remove ability to externally set sync-to-vblank [Georges; !191]
+* Turn off touchscreens together with DPMS [Carlos; gnome-settings-daemon#29]
+* Mipmap the wallpaper when shrinking [Daniel; gnome-shell#254]
+* Implement RecordWindow method for screen-casts [Olivier; !306]
+* Fix EGLStream texture downloading [Jonas; !362]
+* Split out display-server-specific code from MetaWindowActor [Georges; !368]
+* Improve render performance on some KMS devices with software GL [Jonas; #106]
+* Fix damage area of transformed surfaces [Robert; !366]
+* Remove autotools support [George]
+* Misc. bug fixes and cleanups [Jonas, Alan, Olivier, Carlos, Javier, Peter,
+  Daniel, Robert, Florian; !309, #790207, #272, #393, #276, #404, #104, !343,
+  #765011, #786663, #342, !356, #414, #782344, #781034, #423, !374, !382, !383]
+
+Contributors:
+  Jonas Ådahl, Nikita Churaev, Alan Coopersmith, Jānis Džeriņš, Olivier Fourdan,
+  Carlos Garnacho, Niels De Graef, Peter Hutterer, Javier Jardón,
+  Abderrahim Kitouni, Andre Klapper, Ting-Wei Lan, Robert Mader,
+  Emilio Pozuelo Monfort, Florian Müllner, Georges Basile Stavracas Neto,
+  Pekka Paalanen, Daniel Stone, Marco Trevisan (Treviño), Daniel van Vugt
+
 3.31.2
 ======
 * Fix handling of non-UTF8 encodings [Florian; !227]
