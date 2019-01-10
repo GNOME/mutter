@@ -29,6 +29,7 @@
 
 enum
 {
+  HOTPLUG,
   DEVICE_ADDED,
 
   N_SIGNALS
@@ -162,6 +163,9 @@ on_uevent (GUdevClient *client,
 
   if (g_str_equal (action, "add"))
     g_signal_emit (udev, signals[DEVICE_ADDED], 0, device);
+
+  if (g_udev_device_get_property_as_boolean (device, "HOTPLUG"))
+    g_signal_emit (udev, signals[HOTPLUG], 0);
 }
 
 GUdevClient *
@@ -210,6 +214,13 @@ meta_udev_class_init (MetaUdevClass *klass)
 
   object_class->finalize = meta_udev_finalize;
 
+  signals[HOTPLUG] =
+    g_signal_new ("hotplug",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
   signals[DEVICE_ADDED] =
     g_signal_new ("device-added",
                   G_TYPE_FROM_CLASS (object_class),
