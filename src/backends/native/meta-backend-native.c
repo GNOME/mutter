@@ -64,6 +64,7 @@ struct _MetaBackendNative
   MetaBackend parent;
 
   MetaLauncher *launcher;
+  MetaUdev *udev;
   MetaBarrierManagerNative *barrier_manager;
 };
 
@@ -81,6 +82,7 @@ meta_backend_native_finalize (GObject *object)
 {
   MetaBackendNative *native = META_BACKEND_NATIVE (object);
 
+  g_clear_object (&native->udev);
   meta_launcher_free (native->launcher);
 
   G_OBJECT_CLASS (meta_backend_native_parent_class)->finalize (object);
@@ -516,12 +518,16 @@ meta_backend_native_initable_init (GInitable     *initable,
                                    GCancellable  *cancellable,
                                    GError       **error)
 {
+  MetaBackendNative *native = META_BACKEND_NATIVE (initable);
+
   if (!meta_is_stage_views_enabled ())
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "The native backend requires stage views");
       return FALSE;
     }
+
+  native->udev = meta_udev_new ();
 
   return initable_parent_iface->init (initable, cancellable, error);
 }
@@ -583,6 +589,12 @@ MetaLauncher *
 meta_backend_native_get_launcher (MetaBackendNative *native)
 {
   return native->launcher;
+}
+
+MetaUdev *
+meta_backend_native_get_udev (MetaBackendNative *native)
+{
+  return native->udev;
 }
 
 gboolean
