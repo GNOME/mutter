@@ -64,8 +64,6 @@ gint  _clutter_device_manager_evdev_acquire_device_id (ClutterDeviceManagerEvdev
 void  _clutter_device_manager_evdev_release_device_id (ClutterDeviceManagerEvdev *manager_evdev,
                                                        ClutterInputDevice        *device);
 
-struct xkb_keymap * _clutter_device_manager_evdev_get_keymap (ClutterDeviceManagerEvdev *manager_evdev);
-
 ClutterStage * _clutter_device_manager_evdev_get_stage (ClutterDeviceManagerEvdev *manager_evdev);
 
 void _clutter_device_manager_evdev_constrain_pointer (ClutterDeviceManagerEvdev *manager_evdev,
@@ -84,6 +82,8 @@ void _clutter_device_manager_evdev_filter_relative_motion (ClutterDeviceManagerE
                                                            float                     *dy);
 
 void _clutter_device_manager_evdev_dispatch (ClutterDeviceManagerEvdev *manager_evdev);
+
+struct xkb_state * _clutter_device_manager_evdev_get_xkb_state (ClutterDeviceManagerEvdev *manager_evdev);
 
 static inline guint64
 us (guint64 us)
