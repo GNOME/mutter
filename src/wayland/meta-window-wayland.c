@@ -36,6 +36,7 @@
 #include "core/boxes-private.h"
 #include "core/stack-tracker.h"
 #include "core/window-private.h"
+#include "meta/meta-window-actor.h"
 #include "meta/meta-x11-errors.h"
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-private.h"
@@ -952,4 +953,72 @@ meta_window_wayland_needs_move_resize (MetaWindow *window)
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
 
   return wl_window->has_pending_state_change || wl_window->has_pending_move;
+}
+
+static cairo_surface_t *
+meta_window_wayland_get_image_from_surface (MetaWaylandSurface    *surface,
+                                            cairo_rectangle_int_t *clip)
+{
+  cairo_rectangle_int_t sub_clip;
+  cairo_surface_t * cairo_surface;
+  cairo_surface_t * cairo_sub_surface;
+  GList *l;
+  MetaSurfaceActor *actor;
+  MetaShapedTexture *stex;
+
+  actor = meta_wayland_surface_get_actor (surface);
+
+  stex = META_SHAPED_TEXTURE (meta_surface_actor_get_texture (actor));
+  cairo_surface = meta_shaped_texture_get_image (stex, clip);
+
+  sub_clip = (cairo_rectangle_int_t) {
+    .width = clip->width,
+    .height = clip->height
+  };
+
+  for (l = surface->subsurfaces; l; l = l->next)
+    {
+      cairo_t *cr;
+      MetaWaylandSurface *subsurface_surface = l->data;
+
+      cairo_sub_surface = meta_window_wayland_get_image_from_surface (subsurface_surface,
+                                                                      &sub_clip);
+
+      cr = cairo_create (cairo_surface);
+      cairo_set_source_surface (cr,
+                                cairo_sub_surface,
+                                subsurface_surface->offset_x +
+                                subsurface_surface->sub.x - clip->x,
+                                subsurface_surface->offset_y +
+                                subsurface_surface->sub.y - clip->x);
+      cairo_paint (cr);
+      cairo_destroy (cr);
+      cairo_surface_destroy (cairo_sub_surface);
+    }
+  return cairo_surface;
+}
+
+cairo_surface_t *
+meta_window_wayland_get_image (MetaWindow *window,
+                               gboolean    include_frame)
+{
+  cairo_rectangle_int_t clip;
+  ClutterActor *window_actor;
+  gfloat actor_x, actor_y;
+  MetaRectangle rect;
+
+  window_actor = CLUTTER_ACTOR (meta_window_get_compositor_private (window));
+  clutter_actor_get_position (window_actor, &actor_x, &actor_y);
+
+  meta_window_get_frame_rect (window, &rect);
+
+  if (!include_frame)
+    meta_window_frame_rect_to_client_rect (window, &rect, &rect);
+
+  clip.x = rect.x - (gint) actor_x;
+  clip.y = rect.y - (gint) actor_y;
+  clip.width = rect.width;
+  clip.height = rect.height;
+
+  return meta_window_wayland_get_image_from_surface (window->surface, &clip);
 }

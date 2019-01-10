@@ -80,4 +80,7 @@ void meta_window_wayland_get_max_size (MetaWindow *window,
 
 gboolean meta_window_wayland_needs_move_resize (MetaWindow *window);
 
+cairo_surface_t * meta_window_wayland_get_image (MetaWindow *window,
+                                                 gboolean    include_frame);
+
 #endif

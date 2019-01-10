@@ -42,7 +42,9 @@
 #include "core/window-private.h"
 #include "core/workspace-private.h"
 #include "meta/common.h"
+#include <meta/meta-shaped-texture.h>
 #include "meta/meta-cursor-tracker.h"
+#include "meta/meta-window-actor.h"
 #include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
 #include "x11/meta-x11-display-private.h"
@@ -3636,4 +3638,32 @@ Window
 meta_window_x11_get_toplevel_xwindow (MetaWindow *window)
 {
   return window->frame ? window->frame->xwindow : window->xwindow;
+}
+
+cairo_surface_t *
+meta_window_x11_get_image (MetaWindow *window,
+                           gboolean    include_frame)
+{
+  cairo_rectangle_int_t clip;
+  ClutterActor *window_actor;
+  gfloat actor_x, actor_y;
+  MetaShapedTexture *stex;
+  MetaRectangle rect;
+
+  window_actor = CLUTTER_ACTOR (meta_window_get_compositor_private (window));
+  clutter_actor_get_position (window_actor, &actor_x, &actor_y);
+
+  meta_window_get_frame_rect (window, &rect);
+
+  if (!include_frame)
+    meta_window_frame_rect_to_client_rect (window, &rect, &rect);
+
+  clip.x = rect.x - (gint) actor_x;
+  clip.y = rect.y - (gint) actor_y;
+  clip.width = rect.width;
+  clip.height = rect.height;
+
+  stex = META_SHAPED_TEXTURE (meta_window_actor_get_texture (META_WINDOW_ACTOR (window_actor)));
+
+  return meta_shaped_texture_get_image (stex, &clip);
 }
