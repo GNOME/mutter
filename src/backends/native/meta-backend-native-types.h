@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Red Hat
+ * Copyright (C) 2019 Red Hat
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,25 +18,9 @@
  *
  */
 
-#ifndef META_UDEV_H
-#define META_UDEV_H
+#ifndef META_BACKEND_NATIVE_TYPES_H
+#define META_BACKEND_NATIVE_TYPES_H
 
-#include <gudev/gudev.h>
+typedef struct _MetaBackendNative MetaBackendNative;
 
-#include "backends/native/meta-backend-native-types.h"
-
-#define META_TYPE_UDEV (meta_udev_get_type ())
-G_DECLARE_FINAL_TYPE (MetaUdev, meta_udev, META, UDEV, GObject)
-
-GUdevClient * meta_udev_get_gudev_client (MetaUdev *udev);
-
-gboolean meta_is_udev_device_platform_device (GUdevDevice *device);
-
-gboolean meta_is_udev_device_boot_vga (GUdevDevice *device);
-
-GList * meta_udev_list_drm_devices (MetaUdev  *udev,
-                                    GError   **error);
-
-MetaUdev * meta_udev_new (MetaBackendNative *backend_native);
-
-#endif /* META_UDEV_H */
+#endif /* META_BACKEND_NATIVE_TYPES_H */
