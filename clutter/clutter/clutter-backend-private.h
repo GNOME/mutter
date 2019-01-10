@@ -24,6 +24,7 @@
 
 #include <clutter/clutter-backend.h>
 #include <clutter/clutter-device-manager.h>
+#include <clutter/clutter-keymap.h>
 #include <clutter/clutter-stage-window.h>
 
 #include "clutter-event-translator.h"
@@ -60,6 +61,8 @@ struct _ClutterBackend
   GList *event_translators;
 
   ClutterInputMethod *input_method;
+
+  ClutterKeymap *keymap;
 };
 
 struct _ClutterBackendClass

@@ -577,6 +577,18 @@ clutter_backend_real_get_device_manager (ClutterBackend *backend)
   return backend->device_manager;
 }
 
+static ClutterKeymap *
+clutter_backend_real_get_keymap (ClutterBackend *backend)
+{
+  if (G_UNLIKELY (backend->keymap == NULL))
+    {
+      g_critical ("No keymap available, expect broken keyboard input");
+      return NULL;
+    }
+
+  return backend->keymap;
+}
+
 static gboolean
 clutter_backend_real_translate_event (ClutterBackend *backend,
                                       gpointer        native,
@@ -675,6 +687,7 @@ clutter_backend_class_init (ClutterBackendClass *klass)
   klass->translate_event = clutter_backend_real_translate_event;
   klass->create_context = clutter_backend_real_create_context;
   klass->get_features = clutter_backend_real_get_features;
+  klass->get_keymap = clutter_backend_real_get_keymap;
 }
 
 static void
