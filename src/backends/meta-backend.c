@@ -60,7 +60,8 @@ enum
   KEYMAP_CHANGED,
   KEYMAP_LAYOUT_GROUP_CHANGED,
   LAST_DEVICE_CHANGED,
-
+  SUSPENDING,
+  RESUMING,
   N_SIGNALS
 };
 
@@ -550,6 +551,20 @@ meta_backend_class_init (MetaBackendClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1, G_TYPE_INT);
+  signals[SUSPENDING] =
+    g_signal_new ("suspending",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+  signals[RESUMING] =
+    g_signal_new ("resuming",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 
   mutter_stage_views = g_getenv ("MUTTER_STAGE_VIEWS");
   stage_views_disabled = g_strcmp0 (mutter_stage_views, "0") == 0;
@@ -585,14 +600,52 @@ lid_is_closed_changed_cb (UpClient   *client,
 }
 
 static void
+inhibit_sleep (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  g_autoptr (GVariant) fd_variant = NULL;
+  g_autoptr (GError) error = NULL;
+
+  if (priv->inhibit_sleep_fd >= 0)
+    return;
+
+  if (!login1_manager_call_inhibit_sync (priv->logind_proxy,
+                                         "sleep",
+                                         "Display Server",
+                                         "Prepare for suspend",
+                                         "delay",
+                                         &fd_variant,
+                                         priv->cancellable,
+                                         &error))
+    {
+      g_warning ("Failed to inhibit sleep: %s", error->message);
+      return;
+    }
+
+  priv->inhibit_sleep_fd = g_variant_get_handle (fd_variant);
+}
+
+static void
+uninhibit_sleep (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  close (priv->inhibit_sleep_fd);
+  priv->inhibit_sleep_fd = -1;
+}
+
+static void
 prepare_for_sleep_cb (MetaBackend *backend,
                       gboolean     suspending)
 {
-  gboolean suspending;
-
-  g_variant_get (parameters, "(b)", &suspending);
-  if (suspending)
+  if (suspending) {
+    g_signal_emit (backend, signals[SUSPENDING], 0);
+    uninhibit_sleep (backend);
     return;
+  }
+
+  inhibit_sleep (backend);
+  g_signal_emit (backend, signals[RESUMING], 0);
   meta_idle_monitor_reset_idletime (meta_idle_monitor_get_core ());
 }
 
@@ -619,6 +672,7 @@ system_bus_gotten_cb (GObject      *object,
                       GAsyncResult *res,
                       gpointer      user_data)
 {
+  MetaBackend *backend = META_BACKEND (user_data);
   MetaBackendPrivate *priv;
   g_autoptr (GError) error = NULL;
   GDBusConnection *bus;
@@ -630,15 +684,21 @@ system_bus_gotten_cb (GObject      *object,
   priv = meta_backend_get_instance_private (user_data);
   priv->system_bus = bus;
   priv->logind_proxy = get_logind_proxy (priv->cancellable, &error);
+  priv->inhibit_sleep_fd = -1;
 
   if (!priv->logind_proxy)
-    g_warning ("Failed to get logind proxy: %s", error->message);
-
-  g_signal_connect_object (priv->logind_proxy,
-                           "prepare-for-sleep",
-                           G_CALLBACK (prepare_for_sleep_cb),
-                           user_data,
-                           G_CONNECT_SWAPPED);
+    {
+      g_warning ("Failed to get logind proxy: %s", error->message);
+    }
+  else
+    {
+      inhibit_sleep (backend);
+      g_signal_connect_object (priv->logind_proxy,
+                               "prepare-for-sleep",
+                               G_CALLBACK (prepare_for_sleep_cb),
+                               user_data,
+                               G_CONNECT_SWAPPED);
+    }
 }
 
 static gboolean
