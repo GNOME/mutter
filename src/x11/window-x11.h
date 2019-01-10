@@ -75,4 +75,7 @@ void     meta_window_x11_configure_notify        (MetaWindow      *window,
 
 Window   meta_window_x11_get_toplevel_xwindow    (MetaWindow *window);
 
+cairo_surface_t * meta_window_x11_get_image (MetaWindow *window,
+                                             gboolean    include_frame);
+
 #endif

@@ -8575,3 +8575,15 @@ meta_window_get_client_type (MetaWindow *window)
 {
   return window->client_type;
 }
+
+cairo_surface_t *
+meta_window_get_image (MetaWindow *window,
+                       gboolean    include_frame)
+{
+#ifdef HAVE_WAYLAND
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
+    return meta_window_wayland_get_image (window, include_frame);
+  else
+#endif
+    return meta_window_x11_get_image (window, include_frame);
+}

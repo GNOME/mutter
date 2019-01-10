@@ -263,4 +263,7 @@ uint64_t meta_window_get_id (MetaWindow *window);
 
 MetaWindowClientType meta_window_get_client_type (MetaWindow *window);
 
+cairo_surface_t * meta_window_get_image (MetaWindow *window,
+                                         gboolean    include_frame);
+
 #endif
