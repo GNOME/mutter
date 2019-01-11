@@ -79,7 +79,7 @@ enum
 {
   PROP_0,
 
-  PROP_MONITOR_MANAGER,
+  PROP_BACKEND,
 
   PROP_LAST
 };
@@ -201,8 +201,9 @@ struct _MetaRendererNative
 {
   MetaRenderer parent;
 
-  MetaMonitorManagerKms *monitor_manager_kms;
   MetaGpuKms *primary_gpu_kms;
+
+  MetaBackend *backend;
   MetaGles3 *gles3;
 
   gboolean use_modifiers;
@@ -258,15 +259,6 @@ cogl_pixel_format_from_drm_format (uint32_t               drm_format,
                                    CoglPixelFormat       *out_format,
                                    CoglTextureComponents *out_components);
 
-static MetaBackend *
-backend_from_renderer_native (MetaRendererNative *renderer_native)
-{
-  MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
-
-  return meta_monitor_manager_get_backend (monitor_manager);
-}
-
 static void
 meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data)
 {
@@ -290,9 +282,7 @@ meta_renderer_native_get_gpu_data (MetaRendererNative *renderer_native,
 static MetaRendererNative *
 meta_renderer_native_from_gpu (MetaGpuKms *gpu_kms)
 {
-  MetaMonitorManager *monitor_manager =
-    meta_gpu_get_monitor_manager (META_GPU (gpu_kms));
-  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
+  MetaBackend *backend = meta_gpu_get_backend (META_GPU (gpu_kms));
 
   return META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
 }
@@ -336,11 +326,7 @@ get_secondary_gpu_state (CoglOnscreen *onscreen,
 static MetaEgl *
 meta_renderer_native_get_egl (MetaRendererNative *renderer_native)
 {
-  MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
-  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
-
-  return meta_backend_get_egl (backend);
+  return meta_backend_get_egl (renderer_native->backend);
 }
 
 static MetaEgl *
@@ -1611,7 +1597,7 @@ retry_page_flips (gpointer user_data)
   MetaOnscreenNative *onscreen_native = user_data;
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
+    meta_backend_get_monitor_manager (renderer_native->backend);
   uint64_t now_us;
   MetaPowerSave power_save_mode;
   GList *l;
@@ -1703,9 +1689,7 @@ retry_page_flips (gpointer user_data)
     }
   else
     {
-      MetaBackend *backend = backend_from_renderer_native (renderer_native);
-
-      meta_backend_thaw_updates (backend);
+      meta_backend_thaw_updates (renderer_native->backend);
       g_clear_pointer (&onscreen_native->retry_page_flips_source,
                        g_source_unref);
       return G_SOURCE_REMOVE;
@@ -1730,6 +1714,7 @@ schedule_retry_page_flip (MetaOnscreenNative *onscreen_native,
                           uint32_t            fb_id,
                           GClosure           *flip_closure)
 {
+  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   RetryPageFlipData *retry_page_flip_data;
   uint64_t now_us;
   uint64_t retry_time_us;
@@ -1746,8 +1731,6 @@ schedule_retry_page_flip (MetaOnscreenNative *onscreen_native,
 
   if (!onscreen_native->retry_page_flips_source)
     {
-      MetaBackend *backend =
-        backend_from_renderer_native (onscreen_native->renderer_native);
       GSource *source;
 
       source = g_source_new (&retry_page_flips_source_funcs, sizeof (GSource));
@@ -1756,7 +1739,7 @@ schedule_retry_page_flip (MetaOnscreenNative *onscreen_native,
       g_source_attach (source, NULL);
 
       onscreen_native->retry_page_flips_source = source;
-      meta_backend_freeze_updates (backend);
+      meta_backend_freeze_updates (renderer_native->backend);
     }
   else
     {
@@ -2042,7 +2025,7 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   MetaRendererView *view = onscreen_native->view;
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
+    meta_backend_get_monitor_manager (renderer_native->backend);
   GClosure *flip_closure;
   MetaPowerSave power_save_mode;
   MetaLogicalMonitor *logical_monitor;
@@ -2457,7 +2440,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
   MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
+    meta_backend_get_monitor_manager (renderer_native->backend);
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
@@ -3044,6 +3027,7 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native;
+  MetaRendererNative *renderer_native;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
   /* If we never successfully allocated then there's nothing to do */
@@ -3051,15 +3035,13 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
     return;
 
   onscreen_native = onscreen_egl->platform;
+  renderer_native = onscreen_native->renderer_native;
 
   g_list_free_full (onscreen_native->pending_page_flip_retries,
                     (GDestroyNotify) retry_page_flip_data_free);
   if (onscreen_native->retry_page_flips_source)
     {
-      MetaBackend *backend =
-        backend_from_renderer_native (onscreen_native->renderer_native);
-
-      meta_backend_thaw_updates (backend);
+      meta_backend_thaw_updates (renderer_native->backend);
       g_clear_pointer (&onscreen_native->retry_page_flips_source,
                        g_source_destroy);
     }
@@ -3076,7 +3058,7 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
     }
 
   renderer_gpu_data =
-    meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
+    meta_renderer_native_get_gpu_data (renderer_native,
                                        onscreen_native->render_gpu);
   switch (renderer_gpu_data->mode)
     {
@@ -3132,11 +3114,9 @@ _cogl_winsys_egl_vtable = {
 gboolean
 meta_renderer_native_supports_mirroring (MetaRendererNative *renderer_native)
 {
-  MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
   GList *l;
 
-  for (l = monitor_manager->gpus; l; l = l->next)
+  for (l = meta_backend_get_gpus (renderer_native->backend); l; l = l->next)
     {
       MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
       MetaRendererNativeGpuData *renderer_gpu_data;
@@ -3385,7 +3365,7 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
 static CoglContext *
 cogl_context_from_renderer_native (MetaRendererNative *renderer_native)
 {
-  MetaBackend *backend = backend_from_renderer_native (renderer_native);
+  MetaBackend *backend = renderer_native->backend;
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
 
   return clutter_backend_get_cogl_context (clutter_backend);
@@ -3439,8 +3419,9 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                                   MetaLogicalMonitor *logical_monitor)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  MetaBackend *backend = renderer_native->backend;
   MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
+    meta_backend_get_monitor_manager (backend);
   CoglContext *cogl_context =
     cogl_context_from_renderer_native (renderer_native);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
@@ -3530,11 +3511,9 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
 
   if (renderer_native->pending_unset_disabled_crtcs)
     {
-      MetaMonitorManager *monitor_manager =
-        META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
       GList *l;
 
-      for (l = meta_monitor_manager_get_gpus (monitor_manager); l; l = l->next)
+      for (l = meta_backend_get_gpus (renderer_native->backend); l; l = l->next)
         {
           MetaGpu *gpu = l->data;
           MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
@@ -3571,8 +3550,8 @@ meta_renderer_native_get_property (GObject    *object,
 
   switch (prop_id)
     {
-    case PROP_MONITOR_MANAGER:
-      g_value_set_object (value, renderer_native->monitor_manager_kms);
+    case PROP_BACKEND:
+      g_value_set_object (value, renderer_native->backend);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -3581,7 +3560,7 @@ meta_renderer_native_get_property (GObject    *object,
 }
 
 static void
-on_gpu_added (MetaMonitorManager *monitor_manager,
+on_gpu_added (MetaBackendNative  *backend_native,
               MetaGpuKms         *gpu_kms,
               MetaRendererNative *renderer_native);
 
@@ -3595,8 +3574,8 @@ meta_renderer_native_set_property (GObject      *object,
 
   switch (prop_id)
     {
-    case PROP_MONITOR_MANAGER:
-      renderer_native->monitor_manager_kms = g_value_get_object (value);
+    case PROP_BACKEND:
+      renderer_native->backend = g_value_get_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -3982,10 +3961,7 @@ get_egl_device_display (MetaRendererNative  *renderer_native,
 static int
 count_drm_devices (MetaRendererNative *renderer_native)
 {
-  MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
-
-  return g_list_length (meta_monitor_manager_get_gpus (monitor_manager));
+  return g_list_length (meta_backend_get_gpus (renderer_native->backend));
 }
 
 static MetaRendererNativeGpuData *
@@ -4131,11 +4107,11 @@ create_renderer_gpu_data (MetaRendererNative  *renderer_native,
 }
 
 static void
-on_gpu_added (MetaMonitorManager *monitor_manager,
+on_gpu_added (MetaBackendNative  *backend_native,
               MetaGpuKms         *gpu_kms,
               MetaRendererNative *renderer_native)
 {
-  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
+  MetaBackend *backend = META_BACKEND (backend_native);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
@@ -4152,10 +4128,10 @@ on_gpu_added (MetaMonitorManager *monitor_manager,
 }
 
 static MetaGpuKms *
-choose_primary_gpu_unchecked (MetaMonitorManager *manager,
+choose_primary_gpu_unchecked (MetaBackend        *backend,
                               MetaRendererNative *renderer_native)
 {
-  GList *gpus = meta_monitor_manager_get_gpus (manager);
+  GList *gpus = meta_backend_get_gpus (backend);
   GList *l;
   int allow_sw;
 
@@ -4203,14 +4179,14 @@ choose_primary_gpu_unchecked (MetaMonitorManager *manager,
 }
 
 static MetaGpuKms *
-choose_primary_gpu (MetaMonitorManager  *manager,
+choose_primary_gpu (MetaBackend         *backend,
                     MetaRendererNative  *renderer_native,
                     GError             **error)
 {
   MetaGpuKms *gpu_kms;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  gpu_kms = choose_primary_gpu_unchecked (manager, renderer_native);
+  gpu_kms = choose_primary_gpu_unchecked (backend, renderer_native);
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          gpu_kms);
   if (renderer_gpu_data->egl_display == EGL_NO_DISPLAY)
@@ -4230,14 +4206,11 @@ meta_renderer_native_initable_init (GInitable     *initable,
                                     GError       **error)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (initable);
-  MetaMonitorManagerKms *monitor_manager_kms =
-    renderer_native->monitor_manager_kms;
-  MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (monitor_manager_kms);
+  MetaBackend *backend = renderer_native->backend;
   GList *gpus;
   GList *l;
 
-  gpus = meta_monitor_manager_get_gpus (monitor_manager);
+  gpus = meta_backend_get_gpus (backend);
   for (l = gpus; l; l = l->next)
     {
       MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
@@ -4246,7 +4219,7 @@ meta_renderer_native_initable_init (GInitable     *initable,
         return FALSE;
     }
 
-  renderer_native->primary_gpu_kms = choose_primary_gpu (monitor_manager,
+  renderer_native->primary_gpu_kms = choose_primary_gpu (backend,
                                                          renderer_native,
                                                          error);
   if (!renderer_native->primary_gpu_kms)
@@ -4283,16 +4256,14 @@ static void
 meta_renderer_native_constructed (GObject *object)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (object);
-  MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
-  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
+  MetaBackend *backend = renderer_native->backend;
   MetaSettings *settings = meta_backend_get_settings (backend);
 
   if (meta_settings_is_experimental_feature_enabled (
         settings, META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS))
     renderer_native->use_modifiers = TRUE;
 
-  g_signal_connect (renderer_native->monitor_manager_kms, "gpu-added",
+  g_signal_connect (backend, "gpu-added",
                     G_CALLBACK (on_gpu_added), renderer_native);
 
   G_OBJECT_CLASS (meta_renderer_native_parent_class)->constructed (object);
@@ -4321,11 +4292,11 @@ meta_renderer_native_class_init (MetaRendererNativeClass *klass)
   renderer_class->create_cogl_renderer = meta_renderer_native_create_cogl_renderer;
   renderer_class->create_view = meta_renderer_native_create_view;
 
-  obj_props[PROP_MONITOR_MANAGER] =
-    g_param_spec_object ("monitor-manager",
-                         "monitor-manager",
-                         "MetaMonitorManagerKms",
-                         META_TYPE_MONITOR_MANAGER_KMS,
+  obj_props[PROP_BACKEND] =
+    g_param_spec_object ("backend",
+                         "backend",
+                         "MetaBackendNative",
+                         META_TYPE_BACKEND_NATIVE,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
@@ -4333,12 +4304,12 @@ meta_renderer_native_class_init (MetaRendererNativeClass *klass)
 }
 
 MetaRendererNative *
-meta_renderer_native_new (MetaMonitorManagerKms *monitor_manager_kms,
-                          GError               **error)
+meta_renderer_native_new (MetaBackendNative  *backend_native,
+                          GError            **error)
 {
   return g_initable_new (META_TYPE_RENDERER_NATIVE,
                          NULL,
                          error,
-                         "monitor-manager", monitor_manager_kms,
+                         "backend", backend_native,
                          NULL);
 }

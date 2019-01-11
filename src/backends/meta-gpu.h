@@ -46,7 +46,7 @@ META_EXPORT_TEST
 gboolean meta_gpu_has_hotplug_mode_update (MetaGpu *gpu);
 
 META_EXPORT_TEST
-MetaMonitorManager * meta_gpu_get_monitor_manager (MetaGpu *gpu);
+MetaBackend * meta_gpu_get_backend (MetaGpu *gpu);
 
 META_EXPORT_TEST
 GList * meta_gpu_get_outputs (MetaGpu *gpu);

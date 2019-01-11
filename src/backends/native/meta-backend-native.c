@@ -57,6 +57,15 @@
 #include "core/meta-border.h"
 #include "meta/main.h"
 
+enum
+{
+  GPU_ADDED,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 struct _MetaBackendNative
 {
   MetaBackend parent;
@@ -64,6 +73,8 @@ struct _MetaBackendNative
   MetaLauncher *launcher;
   MetaUdev *udev;
   MetaBarrierManagerNative *barrier_manager;
+
+  guint udev_device_added_handler_id;
 };
 
 static GInitableIface *initable_parent_iface;
@@ -76,9 +87,15 @@ G_DEFINE_TYPE_WITH_CODE (MetaBackendNative, meta_backend_native, META_TYPE_BACKE
                                                 initable_iface_init))
 
 static void
+disconnect_udev_device_added_handler (MetaBackendNative *native);
+
+static void
 meta_backend_native_finalize (GObject *object)
 {
   MetaBackendNative *native = META_BACKEND_NATIVE (object);
+
+  if (native->udev_device_added_handler_id)
+    disconnect_udev_device_added_handler (native);
 
   g_clear_object (&native->udev);
   meta_launcher_free (native->launcher);
@@ -353,13 +370,10 @@ static MetaRenderer *
 meta_backend_native_create_renderer (MetaBackend *backend,
                                      GError     **error)
 {
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaMonitorManagerKms *monitor_manager_kms =
-    META_MONITOR_MANAGER_KMS (monitor_manager);
+  MetaBackendNative *native = META_BACKEND_NATIVE (backend);
   MetaRendererNative *renderer_native;
 
-  renderer_native = meta_renderer_native_new (monitor_manager_kms, error);
+  renderer_native = meta_renderer_native_new (native, error);
   if (!renderer_native)
     return NULL;
 
@@ -496,6 +510,129 @@ meta_backend_native_update_screen_size (MetaBackend *backend,
   clutter_actor_set_size (stage, width, height);
 }
 
+static MetaGpuKms *
+create_gpu_from_udev_device (MetaBackendNative  *native,
+                             GUdevDevice        *device,
+                             GError            **error)
+{
+  MetaGpuKmsFlag flags = META_GPU_KMS_FLAG_NONE;
+  const char *device_path;
+
+  if (meta_is_udev_device_platform_device (device))
+    flags |= META_GPU_KMS_FLAG_PLATFORM_DEVICE;
+
+  if (meta_is_udev_device_boot_vga (device))
+    flags |= META_GPU_KMS_FLAG_BOOT_VGA;
+
+  device_path = g_udev_device_get_device_file (device);
+  return meta_gpu_kms_new (native, device_path, flags, error);
+}
+
+static void
+on_udev_device_added (MetaUdev          *udev,
+                      GUdevDevice       *device,
+                      MetaBackendNative *native)
+{
+  MetaBackend *backend = META_BACKEND (native);
+  g_autoptr (GError) error = NULL;
+  const char *device_path;
+  MetaGpuKms *new_gpu_kms;
+  GList *gpus, *l;
+
+  if (!meta_udev_is_drm_device (udev, device))
+    return;
+
+  device_path = g_udev_device_get_device_file (device);
+
+  gpus = meta_backend_get_gpus (backend);;
+  for (l = gpus; l; l = l->next)
+    {
+      MetaGpuKms *gpu_kms = l->data;
+
+      if (!g_strcmp0 (device_path, meta_gpu_kms_get_file_path (gpu_kms)))
+        {
+          g_warning ("Failed to hotplug secondary gpu '%s': %s",
+                     device_path, "device already present");
+          return;
+        }
+    }
+
+  new_gpu_kms = create_gpu_from_udev_device (native, device, &error);
+  if (!new_gpu_kms)
+    {
+      g_warning ("Failed to hotplug secondary gpu '%s': %s",
+                 device_path, error->message);
+      g_error_free (error);
+      return;
+    }
+
+  meta_backend_add_gpu (backend, META_GPU (new_gpu_kms));
+  g_signal_emit (native, signals[GPU_ADDED], 0, new_gpu_kms);
+}
+
+static void
+connect_udev_device_added_handler (MetaBackendNative *native)
+{
+  native->udev_device_added_handler_id =
+    g_signal_connect (native->udev, "device-added",
+                      G_CALLBACK (on_udev_device_added), native);
+}
+
+static void
+disconnect_udev_device_added_handler (MetaBackendNative *native)
+{
+  g_signal_handler_disconnect (native->udev,
+                               native->udev_device_added_handler_id);
+  native->udev_device_added_handler_id = 0;
+}
+
+static gboolean
+init_gpus (MetaBackendNative  *native,
+           GError            **error)
+{
+  MetaBackend *backend = META_BACKEND (native);
+  MetaUdev *udev = meta_backend_native_get_udev (native);
+  GList *devices;
+  GList *l;
+
+  devices = meta_udev_list_drm_devices (udev, error);
+  if (!devices)
+    return FALSE;
+
+  for (l = devices; l; l = l->next)
+    {
+      GUdevDevice *device = l->data;
+      MetaGpuKms *gpu_kms;
+      GError *local_error = NULL;
+
+      gpu_kms = create_gpu_from_udev_device (native, device, &local_error);
+
+      if (!gpu_kms)
+        {
+          g_warning ("Failed to open gpu '%s': %s",
+                     g_udev_device_get_device_file (device),
+                     local_error->message);
+          g_clear_error (&local_error);
+          continue;
+        }
+
+      meta_backend_add_gpu (backend, META_GPU (gpu_kms));
+    }
+
+  g_list_free_full (devices, g_object_unref);
+
+  if (g_list_length (meta_backend_get_gpus (backend)) == 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "No GPUs found");
+      return FALSE;
+    }
+
+  connect_udev_device_added_handler (native);
+
+  return TRUE;
+}
+
 static gboolean
 meta_backend_native_initable_init (GInitable     *initable,
                                    GCancellable  *cancellable,
@@ -516,6 +653,9 @@ meta_backend_native_initable_init (GInitable     *initable,
 
   native->udev = meta_udev_new (native);
   native->barrier_manager = meta_barrier_manager_native_new ();
+
+  if (!init_gpus (native, error))
+    return FALSE;
 
   return initable_parent_iface->init (initable, cancellable, error);
 }
@@ -556,6 +696,14 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->get_relative_motion_deltas = meta_backend_native_get_relative_motion_deltas;
   backend_class->update_screen_size = meta_backend_native_update_screen_size;
   backend_class->set_numlock = meta_backend_native_set_numlock;
+
+  signals[GPU_ADDED] =
+    g_signal_new ("gpu-added",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1, META_TYPE_GPU_KMS);
 }
 
 static void
@@ -633,6 +781,8 @@ meta_backend_native_pause (MetaBackendNative *native)
   clutter_evdev_release_devices ();
   clutter_stage_freeze_updates (stage);
 
+  disconnect_udev_device_added_handler (native);
+
   meta_monitor_manager_kms_pause (monitor_manager_kms);
 }
 
@@ -647,6 +797,8 @@ void meta_backend_native_resume (MetaBackendNative *native)
   MetaIdleMonitor *idle_monitor;
 
   meta_monitor_manager_kms_resume (monitor_manager_kms);
+
+  connect_udev_device_added_handler (native);
 
   clutter_evdev_reclaim_devices ();
   clutter_stage_thaw_updates (stage);

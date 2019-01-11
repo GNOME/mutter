@@ -130,6 +130,8 @@ struct _MetaBackendPrivate
   ClutterBackend *clutter_backend;
   ClutterActor *stage;
 
+  GList *gpus;
+
   gboolean is_pointer_position_initialized;
 
   guint device_update_idle_id;
@@ -166,6 +168,8 @@ meta_backend_finalize (GObject *object)
 {
   MetaBackend *backend = META_BACKEND (object);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  g_list_free_full (priv->gpus, g_object_unref);
 
   g_clear_object (&priv->monitor_manager);
   g_clear_object (&priv->orientation_manager);
@@ -1382,4 +1386,21 @@ meta_backend_notify_keymap_layout_group_changed (MetaBackend *backend,
 {
   g_signal_emit (backend, signals[KEYMAP_LAYOUT_GROUP_CHANGED], 0,
                  locked_group);
+}
+
+void
+meta_backend_add_gpu (MetaBackend *backend,
+                      MetaGpu     *gpu)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  priv->gpus = g_list_append (priv->gpus, gpu);
+}
+
+GList *
+meta_backend_get_gpus (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->gpus;
 }
