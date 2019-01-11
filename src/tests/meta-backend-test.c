@@ -21,11 +21,14 @@
 
 #include "tests/meta-backend-test.h"
 
+#include "tests/meta-gpu-test.h"
 #include "tests/meta-monitor-manager-test.h"
 
 struct _MetaBackendTest
 {
   MetaBackendX11Nested parent;
+
+  MetaGpu *gpu;
 
   gboolean is_lid_closed;
 };
@@ -39,12 +42,29 @@ meta_backend_test_set_is_lid_closed (MetaBackendTest *backend_test,
   backend_test->is_lid_closed = is_lid_closed;
 }
 
+MetaGpu *
+meta_backend_test_get_gpu (MetaBackendTest *backend_test)
+{
+  return backend_test->gpu;
+}
+
 static gboolean
 meta_backend_test_is_lid_closed (MetaBackend *backend)
 {
   MetaBackendTest *backend_test = META_BACKEND_TEST (backend);
 
   return backend_test->is_lid_closed;
+}
+
+static void
+meta_backend_test_init_gpus (MetaBackendX11Nested *backend_x11_nested)
+{
+  MetaBackendTest *backend_test = META_BACKEND_TEST (backend_x11_nested);
+
+  backend_test->gpu = g_object_new (META_TYPE_GPU_TEST,
+                                    "backend", backend_test,
+                                    NULL);
+  meta_backend_add_gpu (META_BACKEND (backend_test), backend_test->gpu);
 }
 
 static void
@@ -65,7 +85,11 @@ static void
 meta_backend_test_class_init (MetaBackendTestClass *klass)
 {
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
+  MetaBackendX11NestedClass *backend_x11_nested_class =
+    META_BACKEND_X11_NESTED_CLASS (klass);
 
   backend_class->create_monitor_manager = meta_backend_test_create_monitor_manager;
   backend_class->is_lid_closed = meta_backend_test_is_lid_closed;
+
+  backend_x11_nested_class->init_gpus = meta_backend_test_init_gpus;
 }

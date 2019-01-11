@@ -85,6 +85,7 @@ enum
   KEYMAP_LAYOUT_GROUP_CHANGED,
   LAST_DEVICE_CHANGED,
   LID_IS_CLOSED_CHANGED,
+  GPU_ADDED,
 
   N_SIGNALS
 };
@@ -130,6 +131,8 @@ struct _MetaBackendPrivate
   ClutterBackend *clutter_backend;
   ClutterActor *stage;
 
+  GList *gpus;
+
   gboolean is_pointer_position_initialized;
 
   guint device_update_idle_id;
@@ -166,6 +169,8 @@ meta_backend_finalize (GObject *object)
 {
   MetaBackend *backend = META_BACKEND (object);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  g_list_free_full (priv->gpus, g_object_unref);
 
   g_clear_object (&priv->monitor_manager);
   g_clear_object (&priv->orientation_manager);
@@ -740,6 +745,18 @@ meta_backend_class_init (MetaBackendClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1, G_TYPE_BOOLEAN);
+  /**
+   * MetaBackend::gpu-added: (skip)
+   * @backend: the #MetaBackend
+   * @gpu: the #MetaGpu
+   */
+  signals[GPU_ADDED] =
+    g_signal_new ("gpu-added",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1, META_TYPE_GPU);
 
   mutter_stage_views = g_getenv ("MUTTER_STAGE_VIEWS");
   stage_views_disabled = g_strcmp0 (mutter_stage_views, "0") == 0;
@@ -1382,4 +1399,23 @@ meta_backend_notify_keymap_layout_group_changed (MetaBackend *backend,
 {
   g_signal_emit (backend, signals[KEYMAP_LAYOUT_GROUP_CHANGED], 0,
                  locked_group);
+}
+
+void
+meta_backend_add_gpu (MetaBackend *backend,
+                      MetaGpu     *gpu)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  priv->gpus = g_list_append (priv->gpus, gpu);
+
+  g_signal_emit (backend, signals[GPU_ADDED], 0, gpu);
+}
+
+GList *
+meta_backend_get_gpus (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->gpus;
 }
