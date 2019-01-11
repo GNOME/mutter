@@ -9,7 +9,7 @@ mutter_plugin_api_version = '3'
 libmutter_api_version = '4'
 
 # generic version requirements
-glib_req = '>= 2.53.2'
+glib_req = '>= 2.56'
 gi_req = '>= 0.9.5'
 gtk3_req = '>= 3.19.8'
 gdk_pixbuf_req = '>= 2.0'
