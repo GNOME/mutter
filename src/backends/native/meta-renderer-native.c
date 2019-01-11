@@ -2122,7 +2122,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen       *onscreen,
   EGLOutputLayerEXT output_layer;
   EGLAttrib output_attribs[3];
   EGLint stream_attribs[] = {
-    EGL_STREAM_FIFO_LENGTH_KHR, 1,
+    EGL_STREAM_FIFO_LENGTH_KHR, 0,
     EGL_CONSUMER_AUTO_ACQUIRE_EXT, EGL_FALSE,
     EGL_NONE
   };
