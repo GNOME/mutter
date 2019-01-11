@@ -28,6 +28,9 @@
 #include <meta/window.h>
 #include <meta/workspace.h>
 
+#define META_TYPE_COMPOSITOR (meta_compositor_get_type ())
+G_DECLARE_FINAL_TYPE (MetaCompositor, meta_compositor, META, COMPOSITOR, GObject)
+
 /**
  * MetaCompEffect:
  * @META_COMP_EFFECT_CREATE: The window is newly created
