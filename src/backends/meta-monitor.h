@@ -96,8 +96,9 @@ G_DECLARE_FINAL_TYPE (MetaMonitorTiled, meta_monitor_tiled,
                       MetaMonitor)
 
 META_EXPORT_TEST
-MetaMonitorTiled * meta_monitor_tiled_new (MetaGpu    *gpu,
-                                           MetaOutput *output);
+MetaMonitorTiled * meta_monitor_tiled_new (MetaGpu            *gpu,
+                                           MetaMonitorManager *monitor_manager,
+                                           MetaOutput         *output);
 
 META_EXPORT_TEST
 MetaMonitorNormal * meta_monitor_normal_new (MetaGpu    *gpu,

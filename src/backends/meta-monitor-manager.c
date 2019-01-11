@@ -512,9 +512,11 @@ meta_monitor_manager_apply_monitors_config (MetaMonitorManager      *manager,
 gboolean
 meta_monitor_manager_has_hotplug_mode_update (MetaMonitorManager *manager)
 {
+  GList *gpus;
   GList *l;
 
-  for (l = manager->gpus; l; l = l->next)
+  gpus = meta_backend_get_gpus (manager->backend);
+  for (l = gpus; l; l = l->next)
     {
       MetaGpu *gpu = l->data;
 
@@ -795,7 +797,6 @@ meta_monitor_manager_finalize (GObject *object)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (object);
 
-  g_list_free_full (manager->gpus, g_object_unref);
   g_list_free_full (manager->logical_monitors, g_object_unref);
 
   g_signal_handler_disconnect (manager->backend,
@@ -1064,10 +1065,12 @@ static GList *
 combine_gpu_lists (MetaMonitorManager    *manager,
                    GList              * (*list_getter) (MetaGpu *gpu))
 {
+  GList *gpus;
   GList *list = NULL;
   GList *l;
 
-  for (l = manager->gpus; l; l = l->next)
+  gpus = meta_backend_get_gpus (manager->backend);
+  for (l = gpus; l; l = l->next)
     {
       MetaGpu *gpu = l->data;
 
@@ -2677,26 +2680,6 @@ meta_monitor_manager_get_monitors (MetaMonitorManager *manager)
   return manager->monitors;
 }
 
-/**
- * meta_monitor_manager_add_gpu:
- * @manager: A #MetaMonitorManager object
- *
- * Should only be called by subclasses. Adds a #MetaGpu to the internal list of
- * GPU's.
- */
-void
-meta_monitor_manager_add_gpu (MetaMonitorManager *manager,
-                              MetaGpu            *gpu)
-{
-  manager->gpus = g_list_append (manager->gpus, gpu);
-}
-
-GList *
-meta_monitor_manager_get_gpus (MetaMonitorManager *manager)
-{
-  return manager->gpus;
-}
-
 void
 meta_monitor_manager_get_screen_size (MetaMonitorManager *manager,
                                       int                *width,
@@ -2718,6 +2701,7 @@ meta_monitor_manager_get_power_save_mode (MetaMonitorManager *manager)
 static void
 rebuild_monitors (MetaMonitorManager *manager)
 {
+  GList *gpus;
   GList *l;
 
   if (manager->monitors)
@@ -2726,7 +2710,8 @@ rebuild_monitors (MetaMonitorManager *manager)
       manager->monitors = NULL;
     }
 
-  for (l = manager->gpus; l; l = l->next)
+  gpus = meta_backend_get_gpus (manager->backend);
+  for (l = gpus; l; l = l->next)
     {
       MetaGpu *gpu = l->data;
       GList *k;
@@ -2741,7 +2726,7 @@ rebuild_monitors (MetaMonitorManager *manager)
                 {
                   MetaMonitorTiled *monitor_tiled;
 
-                  monitor_tiled = meta_monitor_tiled_new (gpu, output);
+                  monitor_tiled = meta_monitor_tiled_new (gpu, manager, output);
                   manager->monitors = g_list_append (manager->monitors,
                                                      monitor_tiled);
                 }
@@ -2798,7 +2783,7 @@ meta_monitor_manager_real_read_current_state (MetaMonitorManager *manager)
 
   manager->serial++;
 
-  for (l = manager->gpus; l; l = l->next)
+  for (l = meta_backend_get_gpus (manager->backend); l; l = l->next)
     {
       MetaGpu *gpu = l->data;
       GError *error = NULL;

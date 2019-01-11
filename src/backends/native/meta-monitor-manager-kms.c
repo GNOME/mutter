@@ -61,17 +61,6 @@
 #include "meta/main.h"
 #include "meta/meta-x11-errors.h"
 
-#define DRM_CARD_UDEV_DEVICE_TYPE "drm_minor"
-
-enum
-{
-  GPU_ADDED,
-
-  LAST_SIGNAL
-};
-
-static guint signals[LAST_SIGNAL] = { 0 };
-
 typedef struct
 {
   GSource source;
@@ -84,8 +73,6 @@ struct _MetaMonitorManagerKms
 {
   MetaMonitorManager parent_instance;
 
-  GUdevClient *udev;
-  guint uevent_handler_id;
   guint hotplug_handler_id;
 };
 
@@ -148,7 +135,7 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
     return;
   }
 
-  for (l = manager->gpus; l; l = l->next)
+  for (l = meta_backend_get_gpus (manager->backend); l; l = l->next)
     {
       MetaGpuKms *gpu_kms = l->data;
 
@@ -173,7 +160,9 @@ apply_crtc_assignments (MetaMonitorManager *manager,
                         MetaOutputInfo     **outputs,
                         unsigned int         n_outputs)
 {
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   unsigned i;
+  GList *gpus;
   GList *l;
 
   for (i = 0; i < n_crtcs; i++)
@@ -230,7 +219,8 @@ apply_crtc_assignments (MetaMonitorManager *manager,
     }
   /* Disable CRTCs not mentioned in the list (they have is_dirty == FALSE,
      because they weren't seen in the first loop) */
-  for (l = manager->gpus; l; l = l->next)
+  gpus = meta_backend_get_gpus (backend);
+  for (l = gpus; l; l = l->next)
     {
       MetaGpu *gpu = l->data;
       GList *k;
@@ -268,7 +258,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
     }
 
   /* Disable outputs not mentioned in the list */
-  for (l = manager->gpus; l; l = l->next)
+  for (l = gpus; l; l = l->next)
     {
       MetaGpu *gpu = l->data;
       GList *k;
@@ -408,44 +398,6 @@ handle_hotplug_event (MetaMonitorManager *manager)
 }
 
 static void
-handle_gpu_hotplug (MetaMonitorManagerKms *manager_kms,
-                    GUdevDevice           *device)
-{
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
-  g_autoptr (GError) error = NULL;
-  const char *gpu_path;
-  MetaGpuKms *gpu_kms;
-  GList *gpus, *l;
-
-  gpu_path = g_udev_device_get_device_file (device);
-
-  gpus = meta_monitor_manager_get_gpus (manager);
-  for (l = gpus; l; l = l->next)
-    {
-      MetaGpuKms *gpu_kms = l->data;
-
-      if (!g_strcmp0 (gpu_path, meta_gpu_kms_get_file_path (gpu_kms)))
-        {
-          g_warning ("Failed to hotplug secondary gpu '%s': %s",
-                     gpu_path, "device already present");
-          return;
-        }
-    }
-
-  gpu_kms = meta_gpu_kms_new (manager_kms, gpu_path,
-                              META_GPU_KMS_FLAG_NONE, &error);
-  if (!gpu_kms)
-    {
-      g_warning ("Failed to hotplug secondary gpu '%s': %s",
-                 gpu_path, error->message);
-      return;
-    }
-  meta_monitor_manager_add_gpu (manager, META_GPU (gpu_kms));
-
-  g_signal_emit (manager_kms, signals[GPU_ADDED], 0, gpu_kms);
-}
-
-static void
 on_udev_hotplug (MetaUdev           *udev,
                  MetaMonitorManager *manager)
 {
@@ -474,67 +426,17 @@ meta_monitor_manager_kms_disconnect_hotplug_handler (MetaMonitorManagerKms *mana
   manager_kms->hotplug_handler_id = 0;
 }
 
-static void
-on_uevent (GUdevClient *client,
-           const char  *action,
-           GUdevDevice *device,
-           gpointer     user_data)
-{
-  MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (user_data);
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
-
-  if (g_str_equal (action, "add") &&
-      g_udev_device_get_device_file (device) != NULL)
-    {
-      MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-      MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-      MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
-      const char *device_seat;
-      const char *seat_id;
-
-      device_seat = g_udev_device_get_property (device, "ID_SEAT");
-      seat_id = meta_launcher_get_seat_id (launcher);
-
-      if (!device_seat)
-        device_seat = "seat0";
-
-      if (!g_strcmp0 (seat_id, device_seat))
-        handle_gpu_hotplug (manager_kms, device);
-    }
-}
-
-static void
-meta_monitor_manager_kms_connect_uevent_handler (MetaMonitorManagerKms *manager_kms)
-{
-  manager_kms->uevent_handler_id = g_signal_connect (manager_kms->udev,
-                                                     "uevent",
-                                                     G_CALLBACK (on_uevent),
-                                                     manager_kms);
-}
-
-static void
-meta_monitor_manager_kms_disconnect_uevent_handler (MetaMonitorManagerKms *manager_kms)
-{
-  g_signal_handler_disconnect (manager_kms->udev,
-                               manager_kms->uevent_handler_id);
-  manager_kms->uevent_handler_id = 0;
-}
-
 void
 meta_monitor_manager_kms_pause (MetaMonitorManagerKms *manager_kms)
 {
-  meta_monitor_manager_kms_disconnect_uevent_handler (manager_kms);
   meta_monitor_manager_kms_disconnect_hotplug_handler (manager_kms);
 }
 
 void
 meta_monitor_manager_kms_resume (MetaMonitorManagerKms *manager_kms)
 {
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
-
-  meta_monitor_manager_kms_connect_uevent_handler (manager_kms);
   meta_monitor_manager_kms_connect_hotplug_handler (manager_kms);
-  handle_hotplug_event (manager);
+  handle_hotplug_event (META_MONITOR_MANAGER (manager_kms));
 }
 
 static gboolean
@@ -621,134 +523,20 @@ meta_monitor_manager_kms_get_default_layout_mode (MetaMonitorManager *manager)
 }
 
 static gboolean
-init_gpus (MetaMonitorManagerKms  *manager_kms,
-           GError                **error)
-{
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
-  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
-  g_autoptr (GUdevEnumerator) enumerator = NULL;
-  const char *seat_id;
-  GList *devices;
-  GList *l;
-  MetaGpuKmsFlag flags = META_GPU_KMS_FLAG_NONE;
-
-  enumerator = g_udev_enumerator_new (manager_kms->udev);
-
-  g_udev_enumerator_add_match_name (enumerator, "card*");
-  g_udev_enumerator_add_match_tag (enumerator, "seat");
-
-  /*
-   * We need to explicitly match the subsystem for now.
-   * https://bugzilla.gnome.org/show_bug.cgi?id=773224
-   */
-  g_udev_enumerator_add_match_subsystem (enumerator, "drm");
-
-  devices = g_udev_enumerator_execute (enumerator);
-  if (!devices)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
-                   "No GPUs found with udev");
-      return FALSE;
-    }
-
-  seat_id = meta_launcher_get_seat_id (launcher);
-
-  for (l = devices; l; l = l->next)
-    {
-      GUdevDevice *dev = l->data;
-      MetaGpuKms *gpu_kms;
-      g_autoptr (GUdevDevice) platform_device = NULL;
-      g_autoptr (GUdevDevice) pci_device = NULL;
-      const char *device_path;
-      const char *device_type;
-      const char *device_seat;
-      GError *local_error = NULL;
-
-      /* Filter out devices that are not character device, like card0-VGA-1. */
-      if (g_udev_device_get_device_type (dev) != G_UDEV_DEVICE_TYPE_CHAR)
-        continue;
-
-      device_type = g_udev_device_get_property (dev, "DEVTYPE");
-      if (g_strcmp0 (device_type, DRM_CARD_UDEV_DEVICE_TYPE) != 0)
-        continue;
-
-      device_path = g_udev_device_get_device_file (dev);
-
-      device_seat = g_udev_device_get_property (dev, "ID_SEAT");
-      if (!device_seat)
-        {
-          /* When ID_SEAT is not set, it means seat0. */
-          device_seat = "seat0";
-        }
-
-      /* Skip devices that do not belong to our seat. */
-      if (g_strcmp0 (seat_id, device_seat))
-        continue;
-
-      platform_device = g_udev_device_get_parent_with_subsystem (dev,
-                                                                 "platform",
-                                                                 NULL);
-      if (platform_device != NULL)
-        flags |= META_GPU_KMS_FLAG_PLATFORM_DEVICE;
-
-      pci_device = g_udev_device_get_parent_with_subsystem (dev, "pci", NULL);
-      if (pci_device != NULL)
-        {
-          if (g_udev_device_get_sysfs_attr_as_int (pci_device,
-                                                   "boot_vga") == 1)
-            flags |= META_GPU_KMS_FLAG_BOOT_VGA;
-        }
-
-      gpu_kms = meta_gpu_kms_new (manager_kms, device_path, flags,
-                                  &local_error);
-      if (!gpu_kms)
-        {
-          g_warning ("Failed to open gpu '%s': %s",
-                     device_path, local_error->message);
-          g_clear_error (&local_error);
-          continue;
-        }
-
-      meta_monitor_manager_add_gpu (manager, META_GPU (gpu_kms));
-    }
-
-  g_list_free_full (devices, g_object_unref);
-
-  if (!meta_monitor_manager_get_gpus (manager))
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
-                   "No GPUs found");
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-static gboolean
 meta_monitor_manager_kms_initable_init (GInitable    *initable,
                                         GCancellable *cancellable,
                                         GError      **error)
 {
   MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (initable);
   MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
-  const char *subsystems[2] = { "drm", NULL };
-  GList *l;
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   gboolean can_have_outputs;
+  GList *l;
 
-  manager_kms->udev = g_udev_client_new (subsystems);
-
-  meta_monitor_manager_kms_connect_uevent_handler (manager_kms);
   meta_monitor_manager_kms_connect_hotplug_handler (manager_kms);
 
-  if (!init_gpus (manager_kms, error))
-    {
-      return FALSE;
-    }
-
   can_have_outputs = FALSE;
-  for (l = meta_monitor_manager_get_gpus (manager); l; l = l->next)
+  for (l = meta_backend_get_gpus (backend); l; l = l->next)
     {
       MetaGpuKms *gpu_kms = l->data;
 
@@ -775,16 +563,6 @@ initable_iface_init (GInitableIface *initable_iface)
 }
 
 static void
-meta_monitor_manager_kms_dispose (GObject *object)
-{
-  MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (object);
-
-  g_clear_object (&manager_kms->udev);
-
-  G_OBJECT_CLASS (meta_monitor_manager_kms_parent_class)->dispose (object);
-}
-
-static void
 meta_monitor_manager_kms_init (MetaMonitorManagerKms *manager_kms)
 {
 }
@@ -793,9 +571,6 @@ static void
 meta_monitor_manager_kms_class_init (MetaMonitorManagerKmsClass *klass)
 {
   MetaMonitorManagerClass *manager_class = META_MONITOR_MANAGER_CLASS (klass);
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  object_class->dispose = meta_monitor_manager_kms_dispose;
 
   manager_class->read_edid = meta_monitor_manager_kms_read_edid;
   manager_class->read_current_state = meta_monitor_manager_kms_read_current_state;
@@ -810,12 +585,4 @@ meta_monitor_manager_kms_class_init (MetaMonitorManagerKmsClass *klass)
   manager_class->get_capabilities = meta_monitor_manager_kms_get_capabilities;
   manager_class->get_max_screen_size = meta_monitor_manager_kms_get_max_screen_size;
   manager_class->get_default_layout_mode = meta_monitor_manager_kms_get_default_layout_mode;
-
-  signals[GPU_ADDED] =
-    g_signal_new ("gpu-added",
-                  G_TYPE_FROM_CLASS (object_class),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 1, META_TYPE_GPU_KMS);
 }
