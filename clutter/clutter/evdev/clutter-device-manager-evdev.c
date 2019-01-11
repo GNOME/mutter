@@ -108,6 +108,8 @@ struct _ClutterDeviceManagerEvdevPrivate
 
   gint device_id_next;
   GList *free_device_ids;
+
+  GSettings *privacy_settings;
 };
 
 static void clutter_device_manager_evdev_event_extender_init (ClutterEventExtenderInterface *iface);
@@ -1267,6 +1269,12 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
 	     seat_key_count != 0))
           break;
 
+        if (key == 10)
+          {
+            g_warning ("Woah, how dare you press this key!?");
+            //break;
+          }
+
         clutter_seat_evdev_notify_key (seat_from_device (device),
                                        device,
                                        time_us, key, key_state, TRUE);
@@ -1830,14 +1838,16 @@ open_restricted (const char *path,
           g_warning ("Could not open device %s: %s", path, error->message);
           g_error_free (error);
         }
+      else
+        ioctl(fd, EVIOCGRAB, (void *)1);
     }
   else
     {
       fd = open (path, O_RDWR | O_NONBLOCK);
       if (fd < 0)
-        {
-          g_warning ("Could not open device %s: %s", path, strerror (errno));
-        }
+        g_warning ("Could not open device %s: %s", path, strerror (errno));
+      else
+        ioctl(fd, EVIOCGRAB, (void *)0);
     }
 
   return fd;
@@ -1847,6 +1857,8 @@ static void
 close_restricted (int fd,
                   void *user_data)
 {
+  ioctl(fd, EVIOCGRAB, (void *)0);
+
   if (device_close_callback)
     device_close_callback (fd, device_callback_data);
   else
@@ -2101,6 +2113,15 @@ clutter_device_manager_evdev_stage_removed_cb (ClutterStageManager *manager,
 }
 
 static void
+settings_changed (GSettings           *settings,
+                  const char          *key,
+                  gpointer             data)
+{
+  //ClutterDeviceManagerEvdevPrivate *priv = data;
+  g_warning("SETTINGS CHANGED!! %s", key);
+}
+
+static void
 clutter_device_manager_evdev_init (ClutterDeviceManagerEvdev *self)
 {
   ClutterDeviceManagerEvdevPrivate *priv;
@@ -2129,6 +2150,10 @@ clutter_device_manager_evdev_init (ClutterDeviceManagerEvdev *self)
                       self);
 
   priv->device_id_next = INITIAL_DEVICE_ID;
+
+  priv->privacy_settings = g_settings_new ("org.gnome.desktop.privacy");
+  g_signal_connect (priv->privacy_settings, "changed",
+                    G_CALLBACK (settings_changed), priv);
 }
 
 void
