@@ -28,7 +28,7 @@
 #include <xf86drmMode.h>
 
 #include "backends/meta-gpu.h"
-#include "backends/native/meta-monitor-manager-kms.h"
+#include "backends/native/meta-backend-native.h"
 
 #define META_TYPE_GPU_KMS (meta_gpu_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaGpuKms, meta_gpu_kms, META, GPU_KMS, MetaGpu)
@@ -51,10 +51,10 @@ typedef enum _MetaGpuKmsFlag
   META_GPU_KMS_FLAG_PLATFORM_DEVICE = (1 << 1),
 } MetaGpuKmsFlag;
 
-MetaGpuKms * meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
-                               const char             *kms_file_path,
-                               MetaGpuKmsFlag          flags,
-                               GError                **error);
+MetaGpuKms * meta_gpu_kms_new (MetaBackendNative  *backend_native,
+                               const char         *kms_file_path,
+                               MetaGpuKmsFlag      flags,
+                               GError            **error);
 
 gboolean meta_gpu_kms_apply_crtc_mode (MetaGpuKms *gpu_kms,
                                        MetaCrtc   *crtc,

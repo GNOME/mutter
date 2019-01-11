@@ -33,6 +33,8 @@ G_DECLARE_DERIVABLE_TYPE (MetaBackendX11Nested, meta_backend_x11_nested,
 struct _MetaBackendX11NestedClass
 {
   MetaBackendX11Class parent_class;
+
+  void (* init_gpus) (MetaBackendX11Nested *backend_x11_nested);
 };
 
 #endif /* META_BACKEND_X11_NESTED_H */

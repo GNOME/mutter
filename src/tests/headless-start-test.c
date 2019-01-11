@@ -79,7 +79,7 @@ meta_test_headless_start (void)
   GList *gpus;
   MetaGpu *gpu;
 
-  gpus = meta_monitor_manager_get_gpus (monitor_manager);
+  gpus = meta_backend_get_gpus (backend);
   g_assert_cmpint ((int) g_list_length (gpus), ==, 1);
 
   gpu = gpus->data;

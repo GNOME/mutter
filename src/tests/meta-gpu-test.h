@@ -1,7 +1,5 @@
-/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
-
 /*
- * Copyright (C) 2016 Red Hat, Inc.
+ * Copyright (C) 2016-2018 Red Hat, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,18 +15,12 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_BACKEND_TEST_H
-#define META_BACKEND_TEST_H
+#ifndef META_GPU_TEST_H
+#define META_GPU_TEST_H
 
-#include "backends/x11/nested/meta-backend-x11-nested.h"
+#include "backends/meta-gpu.h"
 
-#define META_TYPE_BACKEND_TEST (meta_backend_test_get_type ())
-G_DECLARE_FINAL_TYPE (MetaBackendTest, meta_backend_test,
-                      META, BACKEND_TEST, MetaBackendX11Nested)
+#define META_TYPE_GPU_TEST (meta_gpu_test_get_type ())
+G_DECLARE_FINAL_TYPE (MetaGpuTest, meta_gpu_test, META, GPU_TEST, MetaGpu)
 
-void meta_backend_test_set_is_lid_closed (MetaBackendTest *backend_test,
-                                          gboolean         is_lid_closed);
-
-MetaGpu * meta_backend_test_get_gpu (MetaBackendTest *backend_test);
-
-#endif /* META_BACKEND_TEST_H */
+#endif /* META_GPU_TEST_H */
