@@ -28,11 +28,12 @@
 #define META_TYPE_UDEV (meta_udev_get_type ())
 G_DECLARE_FINAL_TYPE (MetaUdev, meta_udev, META, UDEV, GObject)
 
-GUdevClient * meta_udev_get_gudev_client (MetaUdev *udev);
-
 gboolean meta_is_udev_device_platform_device (GUdevDevice *device);
 
 gboolean meta_is_udev_device_boot_vga (GUdevDevice *device);
+
+gboolean meta_udev_is_drm_device (MetaUdev    *udev,
+                                  GUdevDevice *device);
 
 GList * meta_udev_list_drm_devices (MetaUdev  *udev,
                                     GError   **error);

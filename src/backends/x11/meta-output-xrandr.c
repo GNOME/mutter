@@ -41,6 +41,7 @@
 #include <X11/Xlib-xcb.h>
 #include <xcb/randr.h>
 
+#include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"
 #include "backends/x11/meta-monitor-manager-xrandr.h"
 #include "meta/util.h"
@@ -49,7 +50,9 @@ static Display *
 xdisplay_from_output (MetaOutput *output)
 {
   MetaGpu *gpu = meta_output_get_gpu (output);
-  MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerXrandr *monitor_manager_xrandr =
     META_MONITOR_MANAGER_XRANDR (monitor_manager);
 
@@ -643,7 +646,9 @@ static void
 output_get_tile_info (MetaOutput *output)
 {
   MetaGpu *gpu = meta_output_get_gpu (output);
-  MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerXrandr *monitor_manager_xrandr =
     META_MONITOR_MANAGER_XRANDR (monitor_manager);
   Display *xdisplay = xdisplay_from_output (output);

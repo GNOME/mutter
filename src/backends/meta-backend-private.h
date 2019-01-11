@@ -181,4 +181,11 @@ void meta_backend_notify_keymap_layout_group_changed (MetaBackend *backend,
 
 void meta_backend_notify_ui_scaling_factor_changed (MetaBackend *backend);
 
+META_EXPORT_TEST
+void meta_backend_add_gpu (MetaBackend *backend,
+                           MetaGpu     *gpu);
+
+META_EXPORT_TEST
+GList * meta_backend_get_gpus (MetaBackend *backend);
+
 #endif /* META_BACKEND_PRIVATE_H */

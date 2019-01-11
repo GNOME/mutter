@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <xcb/randr.h>
 
+#include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"
 #include "backends/x11/meta-crtc-xrandr.h"
 #include "backends/x11/meta-gpu-xrandr.h"
@@ -60,7 +61,9 @@ meta_crtc_xrandr_set_config (MetaCrtc            *crtc,
 {
   MetaGpu *gpu = meta_crtc_get_gpu (crtc);
   MetaGpuXrandr *gpu_xrandr = META_GPU_XRANDR (gpu);
-  MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerXrandr *monitor_manager_xrandr =
     META_MONITOR_MANAGER_XRANDR (monitor_manager);
   Display *xdisplay;

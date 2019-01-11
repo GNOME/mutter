@@ -73,7 +73,7 @@ meta_is_udev_device_boot_vga (GUdevDevice *device)
   return g_udev_device_get_sysfs_attr_as_int (pci_device, "boot_vga") == 1;
 }
 
-static gboolean
+gboolean
 meta_udev_is_drm_device (MetaUdev    *udev,
                          GUdevDevice *device)
 {
@@ -166,12 +166,6 @@ on_uevent (GUdevClient *client,
 
   if (g_udev_device_get_property_as_boolean (device, "HOTPLUG"))
     g_signal_emit (udev, signals[HOTPLUG], 0);
-}
-
-GUdevClient *
-meta_udev_get_gudev_client (MetaUdev *udev)
-{
-  return udev->gudev_client;
 }
 
 MetaUdev *
