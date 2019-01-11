@@ -26,7 +26,7 @@
 #include <X11/extensions/Xrandr.h>
 
 #include "backends/meta-gpu.h"
-#include "backends/x11/meta-monitor-manager-xrandr.h"
+#include "backends/x11/meta-backend-x11.h"
 
 #define META_TYPE_GPU_XRANDR (meta_gpu_xrandr_get_type ())
 G_DECLARE_FINAL_TYPE (MetaGpuXrandr, meta_gpu_xrandr, META, GPU_XRANDR, MetaGpu)
@@ -37,6 +37,6 @@ void meta_gpu_xrandr_get_max_screen_size (MetaGpuXrandr *gpu_xrandr,
                                           int           *max_width,
                                           int           *max_height);
 
-MetaGpuXrandr * meta_gpu_xrandr_new (MetaMonitorManagerXrandr *monitor_manager_xrandr);
+MetaGpuXrandr * meta_gpu_xrandr_new (MetaBackendX11 *backend_x11);
 
 #endif /* META_GPU_XRANDR_H */
