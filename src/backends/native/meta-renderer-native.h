@@ -46,8 +46,8 @@ typedef enum _MetaRendererNativeMode
 #endif
 } MetaRendererNativeMode;
 
-MetaRendererNative * meta_renderer_native_new (MetaMonitorManagerKms *monitor_manager_kms,
-                                               GError               **error);
+MetaRendererNative * meta_renderer_native_new (MetaBackendNative  *backend_native,
+                                               GError            **error);
 
 struct gbm_device * meta_gbm_device_from_gpu (MetaGpuKms *gpu_kms);
 

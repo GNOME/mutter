@@ -90,6 +90,8 @@ struct _MetaMonitorTiled
 {
   MetaMonitor parent;
 
+  MetaMonitorManager *monitor_manager;
+
   uint32_t tile_group_id;
 
   /* The tile (0, 0) output. */
@@ -1176,10 +1178,10 @@ meta_monitor_tiled_generate_modes (MetaMonitorTiled *monitor_tiled)
 }
 
 MetaMonitorTiled *
-meta_monitor_tiled_new (MetaGpu    *gpu,
-                        MetaOutput *output)
+meta_monitor_tiled_new (MetaGpu            *gpu,
+                        MetaMonitorManager *monitor_manager,
+                        MetaOutput         *output)
 {
-  MetaMonitorManager *monitor_manager;
   MetaMonitorTiled *monitor_tiled;
   MetaMonitor *monitor;
   MetaMonitorPrivate *monitor_priv;
@@ -1200,7 +1202,7 @@ meta_monitor_tiled_new (MetaGpu    *gpu,
 
   meta_monitor_generate_spec (monitor);
 
-  monitor_manager = meta_gpu_get_monitor_manager (gpu);
+  monitor_tiled->monitor_manager = monitor_manager;
   meta_monitor_manager_tiled_monitor_added (monitor_manager,
                                             META_MONITOR (monitor_tiled));
 
@@ -1286,14 +1288,10 @@ meta_monitor_tiled_calculate_crtc_pos (MetaMonitor          *monitor,
 static void
 meta_monitor_tiled_finalize (GObject *object)
 {
-  MetaMonitor *monitor = META_MONITOR (object);
-  MetaMonitorPrivate *monitor_priv =
-    meta_monitor_get_instance_private (monitor);
-  MetaMonitorManager *monitor_manager;
+  MetaMonitorTiled *monitor_tiled = META_MONITOR_TILED (object);
 
-  monitor_manager = meta_gpu_get_monitor_manager (monitor_priv->gpu);
-  meta_monitor_manager_tiled_monitor_removed (monitor_manager,
-                                              monitor);
+  meta_monitor_manager_tiled_monitor_removed (monitor_tiled->monitor_manager,
+                                              META_MONITOR (monitor_tiled));
 
   G_OBJECT_CLASS (meta_monitor_tiled_parent_class)->finalize (object);
 }

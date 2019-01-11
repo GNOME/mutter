@@ -204,7 +204,9 @@ meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
                              MetaCrtc   *crtc)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
-  MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   GList *l;
   gboolean connected_crtc_found;
 
@@ -265,7 +267,9 @@ meta_gpu_kms_flip_crtc (MetaGpuKms  *gpu_kms,
                         GError     **error)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
-  MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   MetaGpuKmsFlipClosureContainer *closure_container;
   int kms_fd = meta_gpu_kms_get_fd (gpu_kms);
   uint32_t *connectors;
@@ -273,6 +277,7 @@ meta_gpu_kms_flip_crtc (MetaGpuKms  *gpu_kms,
   int ret = -1;
 
   g_assert (meta_crtc_get_gpu (crtc) == gpu);
+  g_assert (monitor_manager);
   g_assert (meta_monitor_manager_get_power_save_mode (monitor_manager) ==
             META_POWER_SAVE_ON);
 
@@ -878,16 +883,12 @@ meta_gpu_kms_can_have_outputs (MetaGpuKms *gpu_kms)
 }
 
 MetaGpuKms *
-meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
-                  const char             *kms_file_path,
-                  MetaGpuKmsFlag          flags,
-                  GError                **error)
+meta_gpu_kms_new (MetaBackendNative  *backend_native,
+                  const char         *kms_file_path,
+                  MetaGpuKmsFlag      flags,
+                  GError            **error)
 {
-  MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (monitor_manager_kms);
-  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
-  MetaLauncher *launcher =
-    meta_backend_native_get_launcher (META_BACKEND_NATIVE (backend));
+  MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
   GSource *source;
   MetaKmsSource *kms_source;
   MetaGpuKms *gpu_kms;
@@ -898,7 +899,7 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
     return NULL;
 
   gpu_kms = g_object_new (META_TYPE_GPU_KMS,
-                          "monitor-manager", monitor_manager_kms,
+                          "backend", backend_native,
                           NULL);
 
   gpu_kms->flags = flags;
@@ -926,9 +927,7 @@ static void
 meta_gpu_kms_finalize (GObject *object)
 {
   MetaGpuKms *gpu_kms = META_GPU_KMS (object);
-  MetaMonitorManager *monitor_manager =
-    meta_gpu_get_monitor_manager (META_GPU (gpu_kms));
-  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
+  MetaBackend *backend = meta_gpu_get_backend (META_GPU (gpu_kms));
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
 
