@@ -103,8 +103,6 @@ typedef struct _MetaRendererNativeGpuData
 #ifdef HAVE_EGL_DEVICE
   struct {
     EGLDeviceEXT device;
-
-    gboolean no_egl_output_drm_flip_event;
   } egl;
 #endif
 
@@ -1485,8 +1483,6 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
                                        onscreen_native->render_gpu);
-  if (renderer_gpu_data->egl.no_egl_output_drm_flip_event)
-    return FALSE;
 
   closure_container =
     meta_gpu_kms_wrap_flip_closure (onscreen_native->render_gpu,
@@ -1509,9 +1505,7 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
       if (error->domain != META_EGL_ERROR ||
           error->code != EGL_RESOURCE_BUSY_EXT)
         {
-          g_warning ("Failed to flip EGL stream (%s), relying on clock from "
-                     "now on", error->message);
-          renderer_gpu_data->egl.no_egl_output_drm_flip_event = TRUE;
+          g_warning ("Failed to flip EGL stream: %s", error->message);
         }
       g_error_free (error);
       meta_gpu_kms_flip_closure_container_free (closure_container);
