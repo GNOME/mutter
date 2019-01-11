@@ -209,6 +209,7 @@ meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
   gboolean connected_crtc_found;
 
   g_assert (meta_crtc_get_gpu (crtc) == META_GPU (gpu_kms));
+  g_assert (monitor_manager);
 
   if (meta_monitor_manager_get_power_save_mode (monitor_manager))
     return FALSE;
