@@ -73,13 +73,6 @@ struct _MetaMonitorManagerXrandr
   int rr_error_base;
   gboolean has_randr15;
 
-  /*
-   * The X server deals with multiple GPUs for us, soe just see what the X
-   * server gives us as one single GPU, even though it may actually be backed
-   * by multiple.
-   */
-  MetaGpu *gpu;
-
   xcb_timestamp_t last_xrandr_set_timestamp;
 
   GHashTable *tiled_monitor_atoms;
@@ -344,6 +337,15 @@ is_output_assignment_changed (MetaOutput      *output,
   return TRUE;
 }
 
+static MetaGpu *
+meta_monitor_manager_xrandr_get_gpu (MetaMonitorManagerXrandr *manager_xrandr)
+{
+  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_xrandr);
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+
+  return META_GPU (meta_backend_get_gpus (backend)->data);
+}
+
 static gboolean
 is_assignments_changed (MetaMonitorManager *manager,
                         MetaCrtcInfo      **crtc_infos,
@@ -353,9 +355,10 @@ is_assignments_changed (MetaMonitorManager *manager,
 {
   MetaMonitorManagerXrandr *manager_xrandr =
     META_MONITOR_MANAGER_XRANDR (manager);
+  MetaGpu *gpu = meta_monitor_manager_xrandr_get_gpu (manager_xrandr);
   GList *l;
 
-  for (l = meta_gpu_get_crtcs (manager_xrandr->gpu); l; l = l->next)
+  for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
     {
       MetaCrtc *crtc = l->data;
 
@@ -363,7 +366,7 @@ is_assignments_changed (MetaMonitorManager *manager,
         return TRUE;
     }
 
-  for (l = meta_gpu_get_outputs (manager_xrandr->gpu); l; l = l->next)
+  for (l = meta_gpu_get_outputs (gpu); l; l = l->next)
     {
       MetaOutput *output = l->data;
 
@@ -387,6 +390,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
                         unsigned int        n_outputs)
 {
   MetaMonitorManagerXrandr *manager_xrandr = META_MONITOR_MANAGER_XRANDR (manager);
+  MetaGpu *gpu = meta_monitor_manager_xrandr_get_gpu (manager_xrandr);
   unsigned i;
   GList *l;
   int width, height, width_mm, height_mm;
@@ -448,7 +452,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
     }
 
   /* Disable CRTCs not mentioned in the list */
-  for (l = meta_gpu_get_crtcs (manager_xrandr->gpu); l; l = l->next)
+  for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
     {
       MetaCrtc *crtc = l->data;
 
@@ -568,7 +572,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
     }
 
   /* Disable outputs not mentioned in the list */
-  for (l = meta_gpu_get_outputs (manager_xrandr->gpu); l; l = l->next)
+  for (l = meta_gpu_get_outputs (gpu); l; l = l->next)
     {
       MetaOutput *output = l->data;
 
@@ -1003,8 +1007,9 @@ meta_monitor_manager_xrandr_get_max_screen_size (MetaMonitorManager *manager,
 {
   MetaMonitorManagerXrandr *manager_xrandr =
     META_MONITOR_MANAGER_XRANDR (manager);
+  MetaGpu *gpu = meta_monitor_manager_xrandr_get_gpu (manager_xrandr);
 
-  meta_gpu_xrandr_get_max_screen_size (META_GPU_XRANDR (manager_xrandr->gpu),
+  meta_gpu_xrandr_get_max_screen_size (META_GPU_XRANDR (gpu),
                                        max_width, max_height);
 
   return TRUE;
@@ -1022,13 +1027,10 @@ meta_monitor_manager_xrandr_constructed (GObject *object)
   MetaMonitorManagerXrandr *manager_xrandr =
     META_MONITOR_MANAGER_XRANDR (object);
   MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_xrandr);
-  MetaBackendX11 *backend =
-    META_BACKEND_X11 (meta_monitor_manager_get_backend (manager));
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
 
-  manager_xrandr->xdisplay = meta_backend_x11_get_xdisplay (backend);
-
-  manager_xrandr->gpu = META_GPU (meta_gpu_xrandr_new (manager_xrandr));
-  meta_monitor_manager_add_gpu (manager, manager_xrandr->gpu);
+  manager_xrandr->xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
 
   if (!XRRQueryExtension (manager_xrandr->xdisplay,
 			  &manager_xrandr->rr_event_base,
@@ -1068,7 +1070,6 @@ meta_monitor_manager_xrandr_finalize (GObject *object)
 {
   MetaMonitorManagerXrandr *manager_xrandr = META_MONITOR_MANAGER_XRANDR (object);
 
-  g_clear_object (&manager_xrandr->gpu);
   g_hash_table_destroy (manager_xrandr->tiled_monitor_atoms);
   g_free (manager_xrandr->supported_scales);
 
@@ -1115,6 +1116,7 @@ meta_monitor_manager_xrandr_handle_xevent (MetaMonitorManagerXrandr *manager_xra
 					   XEvent                   *event)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_xrandr);
+  MetaGpu *gpu = meta_monitor_manager_xrandr_get_gpu (manager_xrandr);
   MetaGpuXrandr *gpu_xrandr;
   XRRScreenResources *resources;
   gboolean is_hotplug;
@@ -1127,7 +1129,7 @@ meta_monitor_manager_xrandr_handle_xevent (MetaMonitorManagerXrandr *manager_xra
 
   meta_monitor_manager_read_current_state (manager);
 
-  gpu_xrandr = META_GPU_XRANDR (manager_xrandr->gpu);
+  gpu_xrandr = META_GPU_XRANDR (gpu);
   resources = meta_gpu_xrandr_get_resources (gpu_xrandr);
 
   is_hotplug = resources->timestamp < resources->configTimestamp;

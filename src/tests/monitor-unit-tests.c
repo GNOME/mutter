@@ -408,12 +408,10 @@ destroy_monitor_test_clients (void)
 }
 
 static MetaOutput *
-output_from_winsys_id (MetaMonitorManager *monitor_manager,
-                       uint64_t            winsys_id)
+output_from_winsys_id (MetaBackend *backend,
+                       uint64_t     winsys_id)
 {
-  MetaMonitorManagerTest *monitor_manager_test =
-    META_MONITOR_MANAGER_TEST (monitor_manager);
-  MetaGpu *gpu = meta_monitor_manager_test_get_gpu (monitor_manager_test);
+  MetaGpu *gpu = meta_backend_test_get_gpu (META_BACKEND_TEST (backend));
   GList *l;
 
   for (l = meta_gpu_get_outputs (gpu); l; l = l->next)
@@ -429,7 +427,7 @@ output_from_winsys_id (MetaMonitorManager *monitor_manager,
 
 typedef struct _CheckMonitorModeData
 {
-  MetaMonitorManager *monitor_manager;
+  MetaBackend *backend;
   MetaTestCaseMonitorCrtcMode *expect_crtc_mode_iter;
 } CheckMonitorModeData;
 
@@ -441,12 +439,12 @@ check_monitor_mode (MetaMonitor         *monitor,
                     GError             **error)
 {
   CheckMonitorModeData *data = user_data;
-  MetaMonitorManager *monitor_manager = data->monitor_manager;
+  MetaBackend *backend = data->backend;
   MetaOutput *output;
   MetaCrtcMode *crtc_mode;
   int expect_crtc_mode_index;
 
-  output = output_from_winsys_id (monitor_manager,
+  output = output_from_winsys_id (backend,
                                   data->expect_crtc_mode_iter->output);
   g_assert (monitor_crtc_mode->output == output);
 
@@ -489,11 +487,11 @@ check_current_monitor_mode (MetaMonitor         *monitor,
                             GError             **error)
 {
   CheckMonitorModeData *data = user_data;
-  MetaMonitorManager *monitor_manager = data->monitor_manager;
+  MetaBackend *backend = data->backend;
   MetaOutput *output;
   MetaCrtc *crtc;
 
-  output = output_from_winsys_id (monitor_manager,
+  output = output_from_winsys_id (backend,
                                   data->expect_crtc_mode_iter->output);
   crtc = meta_output_get_assigned_crtc (output);
 
@@ -661,7 +659,7 @@ check_monitor_configuration (MonitorTestCase *test_case)
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerTest *monitor_manager_test =
     META_MONITOR_MANAGER_TEST (monitor_manager);
-  MetaGpu *gpu = meta_monitor_manager_test_get_gpu (monitor_manager_test);
+  MetaGpu *gpu = meta_backend_test_get_gpu (META_BACKEND_TEST (backend));
   int tiled_monitor_count;
   GList *monitors;
   GList *crtcs;
@@ -716,8 +714,7 @@ check_monitor_configuration (MonitorTestCase *test_case)
           MetaOutput *output = l_output->data;
           uint64_t winsys_id = test_case->expect.monitors[i].outputs[j];
 
-          g_assert (output == output_from_winsys_id (monitor_manager,
-                                                     winsys_id));
+          g_assert (output == output_from_winsys_id (backend, winsys_id));
           g_assert_cmpint (test_case->expect.monitors[i].is_underscanning,
                            ==,
                            output->is_underscanning);
@@ -763,7 +760,7 @@ check_monitor_configuration (MonitorTestCase *test_case)
                            test_case->expect.monitors[i].modes[j].flags);
 
           data = (CheckMonitorModeData) {
-            .monitor_manager = monitor_manager,
+            .backend = backend,
             .expect_crtc_mode_iter =
               test_case->expect.monitors[i].modes[j].crtc_modes
           };
@@ -792,7 +789,7 @@ check_monitor_configuration (MonitorTestCase *test_case)
           CheckMonitorModeData data;
 
           data = (CheckMonitorModeData) {
-            .monitor_manager = monitor_manager,
+            .backend = backend,
             .expect_crtc_mode_iter =
               test_case->expect.monitors[i].modes[expected_current_mode_index].crtc_modes
           };
