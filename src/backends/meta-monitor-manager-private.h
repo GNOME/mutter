@@ -116,8 +116,6 @@ struct _MetaMonitorManager
   gboolean in_init;
   unsigned int serial;
 
-  MetaPowerSave power_save_mode;
-
   MetaLogicalMonitorLayoutMode layout_mode;
 
   int screen_width;
@@ -191,6 +189,8 @@ struct _MetaMonitorManagerClass
 
   GBytes* (*read_edid) (MetaMonitorManager *,
                         MetaOutput         *);
+
+  void (*read_current_state) (MetaMonitorManager *);
 
   void (*ensure_initial_config) (MetaMonitorManager *);
 
@@ -304,6 +304,11 @@ GList *             meta_monitor_manager_get_gpus (MetaMonitorManager *manager);
 void                meta_monitor_manager_get_screen_size   (MetaMonitorManager *manager,
                                                             int                *width,
                                                             int                *height);
+
+MetaPowerSave       meta_monitor_manager_get_power_save_mode (MetaMonitorManager *manager);
+
+void                meta_monitor_manager_power_save_mode_changed (MetaMonitorManager *manager,
+                                                                  MetaPowerSave       mode);
 
 void                meta_monitor_manager_confirm_configuration (MetaMonitorManager *manager,
                                                                 gboolean            ok);

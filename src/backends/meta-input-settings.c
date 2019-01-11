@@ -1766,9 +1766,11 @@ power_save_mode_changed_cb (MetaMonitorManager *manager,
   ClutterInputDevice *device;
   MetaLogicalMonitor *logical_monitor;
   MetaMonitor *builtin;
+  MetaPowerSave power_save_mode;
   gboolean on;
 
-  on = (manager->power_save_mode == META_POWER_SAVE_ON);
+  power_save_mode = meta_monitor_manager_get_power_save_mode (manager);
+  on = power_save_mode == META_POWER_SAVE_ON;
   priv = meta_input_settings_get_instance_private (user_data);
 
   builtin = meta_monitor_manager_get_laptop_panel (manager);
