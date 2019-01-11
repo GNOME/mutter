@@ -86,6 +86,8 @@
 #include "wayland/meta-wayland-private.h"
 #endif
 
+G_DEFINE_TYPE (MetaCompositor, meta_compositor, G_TYPE_OBJECT)
+
 static void
 on_presented (ClutterStage     *stage,
               CoglFrameEvent    event,
@@ -131,11 +133,7 @@ meta_switch_workspace_completed (MetaCompositor *compositor)
 void
 meta_compositor_destroy (MetaCompositor *compositor)
 {
-  clutter_threads_remove_repaint_func (compositor->pre_paint_func_id);
-  clutter_threads_remove_repaint_func (compositor->post_paint_func_id);
-
-  if (compositor->have_x11_sync_object)
-    meta_sync_ring_destroy ();
+  g_object_run_dispose (G_OBJECT (compositor));
 }
 
 static void
@@ -1274,12 +1272,20 @@ on_shadow_factory_changed (MetaShadowFactory *factory,
 MetaCompositor *
 meta_compositor_new (MetaDisplay *display)
 {
-  MetaBackend *backend = meta_get_backend ();
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaCompositor *compositor;
 
-  compositor = g_new0 (MetaCompositor, 1);
+  compositor = g_object_new (META_TYPE_COMPOSITOR, NULL);
   compositor->display = display;
+
+  return compositor;
+}
+
+static void
+meta_compositor_init (MetaCompositor *compositor)
+{
+  MetaBackend *backend = meta_get_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+
   compositor->context = clutter_backend->cogl_context;
 
   g_signal_connect (meta_shadow_factory_get_default (),
@@ -1297,7 +1303,39 @@ meta_compositor_new (MetaDisplay *display)
                                            meta_post_paint_func,
                                            compositor,
                                            NULL);
-  return compositor;
+}
+
+static void
+meta_compositor_dispose (GObject *gobject)
+{
+  MetaCompositor *compositor = META_COMPOSITOR (gobject);
+
+  g_clear_handle_id (&compositor->pre_paint_func_id,
+                     clutter_threads_remove_repaint_func);
+  g_clear_handle_id (&compositor->post_paint_func_id,
+                     clutter_threads_remove_repaint_func);
+
+ G_OBJECT_CLASS (meta_compositor_parent_class)->dispose (gobject);
+}
+
+static void
+meta_compositor_finalize (GObject *gobject)
+{
+  MetaCompositor *compositor = META_COMPOSITOR (gobject);
+
+  if (compositor->have_x11_sync_object)
+    meta_sync_ring_destroy ();
+
+  G_OBJECT_CLASS (meta_compositor_parent_class)->finalize (gobject);
+}
+
+static void
+meta_compositor_class_init (MetaCompositorClass *klass)
+{
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+  gobject_class->dispose = meta_compositor_dispose;
+  gobject_class->finalize = meta_compositor_finalize;
 }
 
 /**
