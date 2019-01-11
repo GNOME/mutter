@@ -47,8 +47,6 @@ struct _MetaMonitorManagerDummy
 {
   MetaMonitorManager parent_instance;
 
-  MetaGpu *gpu;
-
   gboolean is_transform_handled;
 };
 
@@ -98,6 +96,14 @@ create_mode (CrtcModeSpec *spec,
   return mode;
 }
 
+static MetaGpu *
+get_gpu (MetaMonitorManager *manager)
+{
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+
+  return META_GPU (meta_backend_get_gpus (backend)->data);
+}
+
 static void
 append_monitor (MetaMonitorManager *manager,
                 GList             **modes,
@@ -105,8 +111,7 @@ append_monitor (MetaMonitorManager *manager,
                 GList             **outputs,
                 float               scale)
 {
-  MetaMonitorManagerDummy *manager_dummy = META_MONITOR_MANAGER_DUMMY (manager);
-  MetaGpu *gpu = manager_dummy->gpu;
+  MetaGpu *gpu = get_gpu (manager);
   CrtcModeSpec default_specs[] = {
     {
       .width = 800,
@@ -246,8 +251,7 @@ append_tiled_monitor (MetaMonitorManager *manager,
                       GList             **outputs,
                       int                 scale)
 {
-  MetaMonitorManagerDummy *manager_dummy = META_MONITOR_MANAGER_DUMMY (manager);
-  MetaGpu *gpu = manager_dummy->gpu;
+  MetaGpu *gpu = get_gpu (manager);
   CrtcModeSpec mode_specs[] = {
     {
       .width = 800,
@@ -371,8 +375,7 @@ meta_output_dummy_notify_destroy (MetaOutput *output)
 static void
 meta_monitor_manager_dummy_read_current (MetaMonitorManager *manager)
 {
-  MetaMonitorManagerDummy *manager_dummy = META_MONITOR_MANAGER_DUMMY (manager);
-  MetaGpu *gpu = manager_dummy->gpu;
+  MetaGpu *gpu = get_gpu (manager);
   unsigned int num_monitors = 1;
   float *monitor_scales = NULL;
   const char *num_monitors_str;
@@ -495,7 +498,6 @@ apply_crtc_assignments (MetaMonitorManager *manager,
                         MetaOutputInfo    **outputs,
                         unsigned int        n_outputs)
 {
-  MetaMonitorManagerDummy *manager_dummy = META_MONITOR_MANAGER_DUMMY (manager);
   GList *l;
   unsigned i;
 
@@ -560,7 +562,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
     }
 
   /* Disable CRTCs not mentioned in the list */
-  for (l = meta_gpu_get_crtcs (manager_dummy->gpu); l; l = l->next)
+  for (l = meta_gpu_get_crtcs (get_gpu (manager)); l; l = l->next)
     {
       MetaCrtc *crtc = l->data;
 
@@ -580,7 +582,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
     }
 
   /* Disable outputs not mentioned in the list */
-  for (l = meta_gpu_get_outputs (manager_dummy->gpu); l; l = l->next)
+  for (l = meta_gpu_get_outputs (get_gpu (manager)); l; l = l->next)
     {
       MetaOutput *output = l->data;
 
@@ -773,9 +775,30 @@ meta_monitor_manager_dummy_get_default_layout_mode (MetaMonitorManager *manager)
 }
 
 static void
+meta_monitor_manager_dummy_constructed (GObject *object)
+{
+  MetaMonitorManagerDummy *manager_dummy = META_MONITOR_MANAGER_DUMMY (object);
+  const char *nested_offscreen_transform;
+  GObjectClass *parent_object_class =
+    G_OBJECT_CLASS (meta_monitor_manager_dummy_parent_class);
+
+  parent_object_class->constructed (object);
+
+  nested_offscreen_transform =
+    g_getenv ("MUTTER_DEBUG_NESTED_OFFSCREEN_TRANSFORM");
+  if (g_strcmp0 (nested_offscreen_transform, "1") == 0)
+    manager_dummy->is_transform_handled = FALSE;
+  else
+    manager_dummy->is_transform_handled = TRUE;
+}
+
+static void
 meta_monitor_manager_dummy_class_init (MetaMonitorManagerDummyClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaMonitorManagerClass *manager_class = META_MONITOR_MANAGER_CLASS (klass);
+
+  object_class->constructed = meta_monitor_manager_dummy_constructed;
 
   manager_class->ensure_initial_config = meta_monitor_manager_dummy_ensure_initial_config;
   manager_class->apply_monitors_config = meta_monitor_manager_dummy_apply_monitors_config;
@@ -790,27 +813,14 @@ meta_monitor_manager_dummy_class_init (MetaMonitorManagerDummyClass *klass)
 static void
 meta_monitor_manager_dummy_init (MetaMonitorManagerDummy *manager_dummy)
 {
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_dummy);
-  const char *nested_offscreen_transform;
-
-  nested_offscreen_transform =
-    g_getenv ("MUTTER_DEBUG_NESTED_OFFSCREEN_TRANSFORM");
-  if (g_strcmp0 (nested_offscreen_transform, "1") == 0)
-    manager_dummy->is_transform_handled = FALSE;
-  else
-    manager_dummy->is_transform_handled = TRUE;
-
-  manager_dummy->gpu = g_object_new (META_TYPE_GPU_DUMMY,
-                                     "monitor-manager", manager,
-                                     NULL);
-  meta_monitor_manager_add_gpu (manager, manager_dummy->gpu);
 }
 
 static gboolean
 meta_gpu_dummy_read_current (MetaGpu  *gpu,
                              GError  **error)
 {
-  MetaMonitorManager *manager = meta_gpu_get_monitor_manager (gpu);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaMonitorManager *manager = meta_backend_get_monitor_manager (backend);
 
   meta_monitor_manager_dummy_read_current (manager);
 
