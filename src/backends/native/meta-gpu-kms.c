@@ -210,7 +210,7 @@ meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
 
   g_assert (meta_crtc_get_gpu (crtc) == META_GPU (gpu_kms));
 
-  if (monitor_manager->power_save_mode != META_POWER_SAVE_ON)
+  if (meta_monitor_manager_get_power_save_mode (monitor_manager))
     return FALSE;
 
   connected_crtc_found = FALSE;
@@ -273,7 +273,8 @@ meta_gpu_kms_flip_crtc (MetaGpuKms  *gpu_kms,
   int ret = -1;
 
   g_assert (meta_crtc_get_gpu (crtc) == gpu);
-  g_assert (monitor_manager->power_save_mode == META_POWER_SAVE_ON);
+  g_assert (meta_monitor_manager_get_power_save_mode (monitor_manager) ==
+            META_POWER_SAVE_ON);
 
   get_crtc_drm_connectors (gpu, crtc, &connectors, &n_connectors);
   g_assert (n_connectors > 0);
@@ -836,8 +837,6 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
                            GError  **error)
 {
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
-  MetaMonitorManager *monitor_manager =
-    meta_gpu_get_monitor_manager (gpu);
   MetaKmsResources resources;
   g_autoptr (GError) local_error = NULL;
 
@@ -854,8 +853,6 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
 
   gpu_kms->max_buffer_width = resources.resources->max_width;
   gpu_kms->max_buffer_height = resources.resources->max_height;
-
-  monitor_manager->power_save_mode = META_POWER_SAVE_ON;
 
   /* Note: we must not free the public structures (output, crtc, monitor
      mode and monitor info) here, they must be kept alive until the API
