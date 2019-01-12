@@ -47,5 +47,6 @@ struct _MetaWaylandOutput
 };
 
 void meta_wayland_outputs_init (MetaWaylandCompositor *compositor);
+void meta_wayland_outputs_redraw (MetaWaylandCompositor *compositor);
 
 #endif /* META_WAYLAND_OUTPUTS_H */

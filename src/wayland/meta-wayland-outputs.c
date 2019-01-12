@@ -452,6 +452,53 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
   return new_table;
 }
 
+void
+meta_wayland_outputs_redraw (MetaWaylandCompositor *compositor)
+{
+  MetaMonitorManager *monitor_manager;
+  GList *logical_monitors, *l;
+
+  monitor_manager = meta_monitor_manager_get ();
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+
+  for (l = logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+      MetaWaylandOutput *wayland_output;
+      GList *iter;
+
+      if (logical_monitor->winsys_id == 0)
+        continue;
+
+      wayland_output =
+        g_hash_table_lookup (compositor->outputs,
+                             GSIZE_TO_POINTER (logical_monitor->winsys_id));
+
+      if (wayland_output == NULL)
+        continue;
+
+      /* Just output a "changes done" event for one of the outputs, with no actual changes.
+       * xwayland takes this as a cue to send expose events to all X clients.
+       */
+      for (iter = wayland_output->resources; iter; iter = iter->next)
+        {
+          struct wl_resource *resource = iter->data;
+          if (wl_resource_get_version (resource) >= WL_OUTPUT_DONE_SINCE_VERSION)
+            wl_output_send_done (resource);
+        }
+
+      for (iter = wayland_output->xdg_output_resources; iter; iter = iter->next)
+        {
+          struct wl_resource *xdg_output = iter->data;
+          zxdg_output_v1_send_done (xdg_output);
+        }
+
+      break;
+    }
+}
+
 static void
 on_monitors_changed (MetaMonitorManager    *monitors,
                      MetaWaylandCompositor *compositor)
