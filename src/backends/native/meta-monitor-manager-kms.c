@@ -34,6 +34,7 @@
 #include "meta-crtc-kms.h"
 #include "meta-gpu-kms.h"
 #include "meta-output-kms.h"
+#include "wayland/meta-wayland-outputs.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -415,9 +416,15 @@ void
 meta_monitor_manager_kms_resume (MetaMonitorManagerKms *manager_kms)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
 
   meta_monitor_manager_kms_connect_uevent_handler (manager_kms);
   handle_hotplug_event (manager);
+
+  if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_UNSTABLE_TEXTURES))
+    meta_wayland_outputs_redraw (meta_wayland_compositor_get_default ());
 }
 
 static gboolean
