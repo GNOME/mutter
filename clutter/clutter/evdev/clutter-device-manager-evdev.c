@@ -68,6 +68,31 @@
  */
 #define INITIAL_DEVICE_ID 2
 
+/* Keep this list ordered. */
+static const guint32 dangerous_keys[] = {
+  29,    /* KEY_LEFTCTRL */
+  56,    /* KEY_LEFTALT */
+  59,    /* KEY_F1 */
+  60,    /* KEY_F2 */
+  61,    /* KEY_F3 */
+  62,    /* KEY_F4 */
+  63,    /* KEY_F5 */
+  64,    /* KEY_F6 */
+  65,    /* KEY_F7 */
+  66,    /* KEY_F8 */
+  67,    /* KEY_F9 */
+  68,    /* KEY_F10 */
+  87,    /* KEY_F11 */
+  88,    /* KEY_F12 */
+  97,    /* KEY_RIGHTCTRL */
+  100,   /* KEY_RIGHTALT */
+  125,   /* KEY_LEFTMETA */
+  126,   /* KEY_RIGHTMETA */
+};
+
+static const gint dangerous_keys_size = sizeof (dangerous_keys) /
+                                        sizeof (dangerous_keys[0]);
+
 typedef struct _ClutterEventFilter ClutterEventFilter;
 
 struct _ClutterEventFilter
@@ -110,6 +135,7 @@ struct _ClutterDeviceManagerEvdevPrivate
   GList *free_device_ids;
 
   GSettings *privacy_settings;
+  gboolean keyboard_security;
 };
 
 static void clutter_device_manager_evdev_event_extender_init (ClutterEventExtenderInterface *iface);
@@ -1237,6 +1263,25 @@ process_tablet_axis (ClutterDeviceManagerEvdev *manager_evdev,
 }
 
 static gboolean
+is_dangerous_key (guint32 key)
+{
+  int middle;
+  int first = 0;
+  int last = dangerous_keys_size - 1;
+  while (first <= last)
+    {
+      middle = (first + last) / 2;
+      if (dangerous_keys[middle] < key)
+        first = middle + 1;
+      else if (dangerous_keys[middle] == key)
+        return TRUE;
+      else
+        last = middle - 1;
+    }
+  return FALSE;
+}
+
+static gboolean
 process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
                       struct libinput_event *event)
 {
@@ -1269,7 +1314,7 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
 	     seat_key_count != 0))
           break;
 
-        if (key == 10)
+        if (is_dangerous_key (key))
           {
             g_warning ("Woah, how dare you press this key!?");
             //break;
@@ -2117,8 +2162,14 @@ settings_changed (GSettings           *settings,
                   const char          *key,
                   gpointer             data)
 {
-  //ClutterDeviceManagerEvdevPrivate *priv = data;
-  g_warning("SETTINGS CHANGED!! %s", key);
+  ClutterDeviceManagerEvdevPrivate *priv = data;
+
+  /* We react only if the Keyboard protection property changed */
+  if (g_strcmp0 (key, "keyboard-protection") != 0)
+    return;
+
+  priv->keyboard_security = g_settings_get_boolean (settings, "keyboard-protection");
+  g_warning ("USB Keyboard protection is now %i", priv->keyboard_security);
 }
 
 static void
