@@ -491,7 +491,7 @@ clutter_marshal = gnome.genmarshal('clutter-marshal',
   prefix: '_clutter_marshal',
   sources: 'clutter-marshal.list',
   valist_marshallers: true,
-  extra_args: ['--prototypes'],
+  extra_args: ['--prototypes', '--quiet'],
   install_dir: clutter_clutter_includedir,
   install_header: true,
 )
