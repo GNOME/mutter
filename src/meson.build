@@ -726,6 +726,7 @@ subdir('meta')
 mutter_marshal = gnome.genmarshal('meta-marshal',
   sources: ['meta-marshal.list'],
   prefix: 'meta_marshal',
+  extra_args: ['--quiet'],
   internal: true,
 )
 mutter_built_sources += mutter_marshal
