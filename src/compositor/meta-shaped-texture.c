@@ -35,6 +35,7 @@
 
 #include "clutter-utils.h"
 #include "meta-texture-tower.h"
+#include "core/boxes-private.h"
 
 #include "meta-cullable.h"
 
@@ -373,46 +374,17 @@ set_cogl_texture (MetaShapedTexture *stex,
 }
 
 static void
-meta_shaped_texture_paint (ClutterActor *actor)
+do_paint (MetaShapedTexture *stex,
+          CoglFramebuffer   *fb,
+          CoglTexture       *paint_tex,
+          cairo_region_t    *clip_region)
 {
-  MetaShapedTexture *stex = (MetaShapedTexture *) actor;
   MetaShapedTexturePrivate *priv = stex->priv;
   guint tex_width, tex_height;
   guchar opacity;
   CoglContext *ctx;
-  CoglFramebuffer *fb;
-  CoglTexture *paint_tex;
   ClutterActorBox alloc;
   CoglPipelineFilter filter;
-
-  if (priv->clip_region && cairo_region_is_empty (priv->clip_region))
-    return;
-
-  if (!CLUTTER_ACTOR_IS_REALIZED (CLUTTER_ACTOR (stex)))
-    clutter_actor_realize (CLUTTER_ACTOR (stex));
-
-  /* The GL EXT_texture_from_pixmap extension does allow for it to be
-   * used together with SGIS_generate_mipmap, however this is very
-   * rarely supported. Also, even when it is supported there
-   * are distinct performance implications from:
-   *
-   *  - Updating mipmaps that we don't need
-   *  - Having to reallocate pixmaps on the server into larger buffers
-   *
-   * So, we just unconditionally use our mipmap emulation code. If we
-   * wanted to use SGIS_generate_mipmap, we'd have to  query COGL to
-   * see if it was supported (no API currently), and then if and only
-   * if that was the case, set the clutter texture quality to HIGH.
-   * Setting the texture quality to high without SGIS_generate_mipmap
-   * support for TFP textures will result in fallbacks to XGetImage.
-   */
-  if (priv->create_mipmaps)
-    paint_tex = meta_texture_tower_get_paint_texture (priv->paint_tower);
-  else
-    paint_tex = COGL_TEXTURE (priv->texture);
-
-  if (paint_tex == NULL)
-    return;
 
   tex_width = priv->tex_width;
   tex_height = priv->tex_height;
@@ -428,14 +400,15 @@ meta_shaped_texture_paint (ClutterActor *actor)
 
   filter = COGL_PIPELINE_FILTER_LINEAR;
 
-  if (meta_actor_painting_untransformed (tex_width, tex_height, NULL, NULL))
+  if (meta_actor_painting_untransformed (fb,
+                                         tex_width, tex_height,
+                                         NULL, NULL))
     filter = COGL_PIPELINE_FILTER_NEAREST;
 
   ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
-  fb = cogl_get_draw_framebuffer ();
 
-  opacity = clutter_actor_get_paint_opacity (actor);
-  clutter_actor_get_allocation_box (actor, &alloc);
+  opacity = clutter_actor_get_paint_opacity (CLUTTER_ACTOR (stex));
+  clutter_actor_get_allocation_box (CLUTTER_ACTOR (stex), &alloc);
 
   cairo_region_t *blended_region;
   gboolean use_opaque_region = (priv->opaque_region != NULL && opacity == 255);
@@ -571,6 +544,52 @@ meta_shaped_texture_paint (ClutterActor *actor)
 
   if (blended_region != NULL)
     cairo_region_destroy (blended_region);
+}
+
+static void
+meta_shaped_texture_paint (ClutterActor *actor)
+{
+  MetaShapedTexture *stex = META_SHAPED_TEXTURE (actor);
+  MetaShapedTexturePrivate *priv = stex->priv;
+  CoglTexture *paint_tex = NULL;
+  CoglFramebuffer *fb;
+
+  if (!priv->texture)
+    return;
+
+  if (priv->clip_region && cairo_region_is_empty (priv->clip_region))
+    return;
+
+  if (!CLUTTER_ACTOR_IS_REALIZED (CLUTTER_ACTOR (stex)))
+    clutter_actor_realize (CLUTTER_ACTOR (stex));
+
+  /* The GL EXT_texture_from_pixmap extension does allow for it to be
+   * used together with SGIS_generate_mipmap, however this is very
+   * rarely supported. Also, even when it is supported there
+   * are distinct performance implications from:
+   *
+   *  - Updating mipmaps that we don't need
+   *  - Having to reallocate pixmaps on the server into larger buffers
+   *
+   * So, we just unconditionally use our mipmap emulation code. If we
+   * wanted to use SGIS_generate_mipmap, we'd have to  query COGL to
+   * see if it was supported (no API currently), and then if and only
+   * if that was the case, set the clutter texture quality to HIGH.
+   * Setting the texture quality to high without SGIS_generate_mipmap
+   * support for TFP textures will result in fallbacks to XGetImage.
+   */
+  if (priv->create_mipmaps)
+    paint_tex = meta_texture_tower_get_paint_texture (priv->paint_tower);
+
+  if (!paint_tex)
+    paint_tex = COGL_TEXTURE (priv->texture);
+
+  if (cogl_texture_get_width (paint_tex) == 0 ||
+      cogl_texture_get_height (paint_tex) == 0)
+    return;
+
+  fb = cogl_get_draw_framebuffer ();
+  do_paint (META_SHAPED_TEXTURE (actor), fb, paint_tex, priv->clip_region);
 }
 
 static void
@@ -888,6 +907,121 @@ meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex)
   return priv->opaque_region;
 }
 
+static gboolean
+should_get_via_offscreen (MetaShapedTexture *stex)
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+
+  if (!cogl_texture_is_get_data_supported (priv->texture))
+    return TRUE;
+
+  return FALSE;
+}
+
+static cairo_surface_t *
+get_image_via_offscreen (MetaShapedTexture     *stex,
+                         cairo_rectangle_int_t *clip)
+{
+  MetaShapedTexturePrivate *priv = stex->priv;
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglTexture *image_texture;
+  GError *error = NULL;
+  CoglOffscreen *offscreen;
+  CoglFramebuffer *fb;
+  CoglMatrix projection_matrix;
+  unsigned int fb_width, fb_height;
+  cairo_rectangle_int_t fallback_clip;
+  CoglColor clear_color;
+  cairo_surface_t *surface;
+
+  if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_NPOT))
+    {
+      fb_width = priv->tex_width;
+      fb_height = priv->tex_height;
+    }
+  else
+    {
+      fb_width = clutter_util_next_p2 (priv->tex_width);
+      fb_height = clutter_util_next_p2 (priv->tex_height);
+    }
+
+  if (!clip)
+    {
+      fallback_clip = (cairo_rectangle_int_t) {
+        .width = priv->tex_width,
+        .height = priv->tex_height,
+      };
+      clip = &fallback_clip;
+    }
+
+  image_texture =
+    COGL_TEXTURE (cogl_texture_2d_new_with_size (cogl_context,
+                                                 fb_width, fb_height));
+  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (image_texture),
+                                          FALSE);
+  if (!cogl_texture_allocate (COGL_TEXTURE (image_texture), &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (image_texture);
+      return FALSE;
+    }
+
+  if (fb_width != priv->tex_width || fb_height != priv->tex_height)
+    {
+      CoglSubTexture *sub_texture;
+
+      sub_texture = cogl_sub_texture_new (cogl_context,
+                                          image_texture,
+                                          0, 0,
+                                          priv->tex_width, priv->tex_height);
+      cogl_object_unref (image_texture);
+      image_texture = COGL_TEXTURE (sub_texture);
+    }
+
+  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (image_texture));
+  fb = COGL_FRAMEBUFFER (offscreen);
+  cogl_object_unref (image_texture);
+  if (!cogl_framebuffer_allocate (fb, &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (fb);
+      return FALSE;
+    }
+
+  cogl_framebuffer_push_matrix (fb);
+  cogl_matrix_init_identity (&projection_matrix);
+  cogl_matrix_scale (&projection_matrix,
+                     1.0 / (priv->tex_width / 2.0),
+                     -1.0 / (priv->tex_height / 2.0), 0);
+  cogl_matrix_translate (&projection_matrix,
+                         -(priv->tex_width / 2.0),
+                         -(priv->tex_height / 2.0), 0);
+
+  cogl_framebuffer_set_projection_matrix (fb, &projection_matrix);
+
+  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR, &clear_color);
+
+  do_paint (stex, fb, priv->texture, NULL);
+
+  cogl_framebuffer_pop_matrix (fb);
+
+  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
+                                        clip->width, clip->height);
+  cogl_framebuffer_read_pixels (fb,
+                                clip->x, clip->y,
+                                clip->width, clip->height,
+                                CLUTTER_CAIRO_FORMAT_ARGB32,
+                                cairo_image_surface_get_data (surface));
+  cogl_object_unref (fb);
+
+  cairo_surface_mark_dirty (surface);
+
+  return surface;
+}
+
 /**
  * meta_shaped_texture_get_image:
  * @stex: A #MetaShapedTexture
@@ -906,34 +1040,52 @@ cairo_surface_t *
 meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                cairo_rectangle_int_t *clip)
 {
+  MetaShapedTexturePrivate *priv = stex->priv;
+  cairo_rectangle_int_t *transformed_clip = NULL;
   CoglTexture *texture, *mask_texture;
-  cairo_rectangle_int_t texture_rect = { 0, 0, 0, 0 };
   cairo_surface_t *surface;
 
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
 
-  texture = COGL_TEXTURE (stex->priv->texture);
+  texture = COGL_TEXTURE (priv->texture);
 
   if (texture == NULL)
     return NULL;
 
-  texture_rect.width = cogl_texture_get_width (texture);
-  texture_rect.height = cogl_texture_get_height (texture);
+  if (priv->tex_width == 0 || priv->tex_height == 0)
+    return NULL;
 
   if (clip != NULL)
     {
-      /* GdkRectangle is just a typedef of cairo_rectangle_int_t,
-       * so we can use the gdk_rectangle_* APIs on these. */
-      if (!gdk_rectangle_intersect (&texture_rect, clip, clip))
+      double tex_scale;
+      cairo_rectangle_int_t tex_rect;
+
+      transformed_clip = alloca (sizeof (cairo_rectangle_int_t));
+      *transformed_clip = *clip;
+
+      clutter_actor_get_scale (CLUTTER_ACTOR (stex), &tex_scale, NULL);
+      meta_rectangle_scale_double (transformed_clip, 1.0 / tex_scale,
+                                   META_ROUNDING_STRATEGY_GROW);
+
+      tex_rect = (cairo_rectangle_int_t) {
+        .width = priv->tex_width,
+        .height = priv->tex_height,
+      };
+
+      if (!meta_rectangle_intersect (&tex_rect, transformed_clip,
+                                     transformed_clip))
         return NULL;
     }
 
-  if (clip != NULL)
+  if (should_get_via_offscreen (stex))
+    return get_image_via_offscreen (stex, transformed_clip);
+
+  if (transformed_clip)
     texture = cogl_texture_new_from_sub_texture (texture,
-                                                 clip->x,
-                                                 clip->y,
-                                                 clip->width,
-                                                 clip->height);
+                                                 transformed_clip->x,
+                                                 transformed_clip->y,
+                                                 transformed_clip->width,
+                                                 transformed_clip->height);
 
   surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
                                         cogl_texture_get_width (texture),
@@ -945,21 +1097,22 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
 
   cairo_surface_mark_dirty (surface);
 
-  if (clip != NULL)
+  if (transformed_clip)
     cogl_object_unref (texture);
 
-  mask_texture = stex->priv->mask_texture;
+  mask_texture = priv->mask_texture;
   if (mask_texture != NULL)
     {
       cairo_t *cr;
       cairo_surface_t *mask_surface;
 
-      if (clip != NULL)
-        mask_texture = cogl_texture_new_from_sub_texture (mask_texture,
-                                                          clip->x,
-                                                          clip->y,
-                                                          clip->width,
-                                                          clip->height);
+      if (transformed_clip)
+        mask_texture =
+          cogl_texture_new_from_sub_texture (mask_texture,
+                                             transformed_clip->x,
+                                             transformed_clip->y,
+                                             transformed_clip->width,
+                                             transformed_clip->height);
 
       mask_surface = cairo_image_surface_create (CAIRO_FORMAT_A8,
                                                  cogl_texture_get_width (mask_texture),
@@ -979,7 +1132,7 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
 
       cairo_surface_destroy (mask_surface);
 
-      if (clip != NULL)
+      if (transformed_clip)
         cogl_object_unref (mask_texture);
     }
 

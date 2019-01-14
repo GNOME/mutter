@@ -470,7 +470,12 @@ allocate_custom_egl_image_external (CoglTexture2D *tex_2d,
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
   CoglContext *ctx = tex->context;
-  CoglPixelFormat internal_format = loader->src.egl_image_external.format;
+  CoglPixelFormat external_format;
+  CoglPixelFormat internal_format;
+
+  external_format = loader->src.egl_image_external.format;
+  internal_format = _cogl_texture_determine_internal_format (tex,
+                                                             external_format);
 
   _cogl_gl_util_clear_gl_errors (ctx);
 
@@ -854,13 +859,22 @@ _cogl_texture_2d_gl_get_data (CoglTexture2D *tex_2d,
                                                     width,
                                                     bpp);
 
-  _cogl_bind_gl_texture_transient (GL_TEXTURE_2D,
+  _cogl_bind_gl_texture_transient (tex_2d->gl_target,
                                    tex_2d->gl_texture,
                                    tex_2d->is_foreign);
 
   ctx->texture_driver->gl_get_tex_image (ctx,
-                                         GL_TEXTURE_2D,
+                                         tex_2d->gl_target,
                                          gl_format,
                                          gl_type,
                                          data);
+}
+
+CoglBool
+_cogl_texture_2d_gl_is_get_data_supported (CoglTexture2D *tex_2d)
+{
+  if (tex_2d->gl_target == GL_TEXTURE_EXTERNAL_OES)
+    return FALSE;
+  else
+    return TRUE;
 }
