@@ -43,4 +43,17 @@
       <arg name="vt" type="u"/>
     </method>
   </interface>
+
+  <interface name="org.freedesktop.login1.Manager">
+    <method name="Inhibit">
+      <arg name="what" type="s" direction="in"/>
+      <arg name="who" type="s" direction="in"/>
+      <arg name="why" type="s" direction="in"/>
+      <arg name="mode" type="s" direction="in"/>
+      <arg name="fd" type="h" direction="out"/>
+    </method>
+    <signal name="PrepareForSleep">
+      <arg name="active" type="b"/>
+    </signal>
+  </interface>
 </node>
