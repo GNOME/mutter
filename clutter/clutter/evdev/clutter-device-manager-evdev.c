@@ -1314,10 +1314,10 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
 	     seat_key_count != 0))
           break;
 
-        if (is_dangerous_key (key))
+        if (manager_evdev->priv->keyboard_security && is_dangerous_key (key))
           {
             g_warning ("Woah, how dare you press this key!?");
-            //break;
+            break;
           }
 
         clutter_seat_evdev_notify_key (seat_from_device (device),
