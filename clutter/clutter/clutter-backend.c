@@ -1412,3 +1412,17 @@ clutter_backend_set_input_method (ClutterBackend     *backend,
 {
   g_set_object (&backend->input_method, method);
 }
+
+/**
+ * clutter_backend_get_keymap:
+ * @backend: the #ClutterBackend
+ *
+ * Gets the keymap used by Clutter
+ *
+ * Returns: (transfer none): the keymap
+ **/
+ClutterKeymap *
+clutter_backend_get_keymap (ClutterBackend *backend)
+{
+  return CLUTTER_BACKEND_GET_CLASS (backend)->get_keymap (backend);
+}
