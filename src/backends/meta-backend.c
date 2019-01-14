@@ -35,6 +35,7 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "meta-cursor-tracker-private.h"
 #include "meta-stage-private.h"
+#include "meta-dbus-login1.h"
 
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-dbus-session-watcher.h"
@@ -114,14 +115,20 @@ struct _MetaBackendPrivate
   MetaDnd *dnd;
 
   UpClient *up_client;
-  guint sleep_signal_id;
   GCancellable *cancellable;
   GDBusConnection *system_bus;
+
+  Login1Manager *logind_proxy;
+  int            inhibit_sleep_fd;
 };
 typedef struct _MetaBackendPrivate MetaBackendPrivate;
 
 static void
 initable_iface_init (GInitableIface *initable_iface);
+
+
+static void prepare_for_sleep_cb (MetaBackend *backend,
+                                  gboolean     suspending);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaBackend, meta_backend, G_TYPE_OBJECT,
                                   G_ADD_PRIVATE (MetaBackend)
@@ -145,8 +152,6 @@ meta_backend_finalize (GObject *object)
 #endif
 
   g_object_unref (priv->up_client);
-  if (priv->sleep_signal_id)
-    g_dbus_connection_signal_unsubscribe (priv->system_bus, priv->sleep_signal_id);
   g_cancellable_cancel (priv->cancellable);
   g_clear_object (&priv->cancellable);
   g_clear_object (&priv->system_bus);
@@ -580,13 +585,8 @@ lid_is_closed_changed_cb (UpClient   *client,
 }
 
 static void
-prepare_for_sleep_cb (GDBusConnection *connection,
-                      const gchar     *sender_name,
-                      const gchar     *object_path,
-                      const gchar     *interface_name,
-                      const gchar     *signal_name,
-                      GVariant        *parameters,
-                      gpointer         user_data)
+prepare_for_sleep_cb (MetaBackend *backend,
+                      gboolean     suspending)
 {
   gboolean suspending;
 
@@ -596,12 +596,31 @@ prepare_for_sleep_cb (GDBusConnection *connection,
   meta_idle_monitor_reset_idletime (meta_idle_monitor_get_core ());
 }
 
+static Login1Manager *
+get_logind_proxy (GCancellable *cancellable,
+                  GError      **error)
+{
+  Login1Manager *proxy;
+
+  proxy =
+    login1_manager_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                           G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                           "org.freedesktop.login1",
+                                           "/org/freedesktop/login1",
+                                           cancellable, error);
+  if (!proxy)
+    g_prefix_error (error, "Could not get logind proxy: ");
+
+  return proxy;
+}
+
 static void
 system_bus_gotten_cb (GObject      *object,
                       GAsyncResult *res,
                       gpointer      user_data)
 {
   MetaBackendPrivate *priv;
+  g_autoptr (GError) error = NULL;
   GDBusConnection *bus;
 
   bus = g_bus_get_finish (res, NULL);
@@ -610,17 +629,16 @@ system_bus_gotten_cb (GObject      *object,
 
   priv = meta_backend_get_instance_private (user_data);
   priv->system_bus = bus;
-  priv->sleep_signal_id =
-    g_dbus_connection_signal_subscribe (priv->system_bus,
-                                        "org.freedesktop.login1",
-                                        "org.freedesktop.login1.Manager",
-                                        "PrepareForSleep",
-                                        "/org/freedesktop/login1",
-                                        NULL,
-                                        G_DBUS_SIGNAL_FLAGS_NONE,
-                                        prepare_for_sleep_cb,
-                                        NULL,
-                                        NULL);
+  priv->logind_proxy = get_logind_proxy (priv->cancellable, &error);
+
+  if (!priv->logind_proxy)
+    g_warning ("Failed to get logind proxy: %s", error->message);
+
+  g_signal_connect_object (priv->logind_proxy,
+                           "prepare-for-sleep",
+                           G_CALLBACK (prepare_for_sleep_cb),
+                           user_data,
+                           G_CONNECT_SWAPPED);
 }
 
 static gboolean
