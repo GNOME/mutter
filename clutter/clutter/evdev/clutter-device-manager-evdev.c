@@ -2203,6 +2203,8 @@ clutter_device_manager_evdev_init (ClutterDeviceManagerEvdev *self)
   priv->device_id_next = INITIAL_DEVICE_ID;
 
   priv->privacy_settings = g_settings_new ("org.gnome.desktop.privacy");
+  priv->keyboard_security = g_settings_get_boolean (priv->privacy_settings,
+                                                    "keyboard-protection");
   g_signal_connect (priv->privacy_settings, "changed",
                     G_CALLBACK (settings_changed), priv);
 }
