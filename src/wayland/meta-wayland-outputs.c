@@ -468,7 +468,6 @@ static void
 meta_wayland_output_finalize (GObject *object)
 {
   MetaWaylandOutput *wayland_output = META_WAYLAND_OUTPUT (object);
-  GList *l;
 
   wl_global_destroy (wayland_output->global);
 
