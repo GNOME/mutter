@@ -250,6 +250,9 @@ void            clutter_stage_ensure_viewport                   (ClutterStage   
 CLUTTER_AVAILABLE_IN_ALL
 void            clutter_stage_ensure_redraw                     (ClutterStage          *stage);
 
+CLUTTER_AVAILABLE_IN_ALL
+gboolean        clutter_stage_is_redraw_queued                  (ClutterStage          *stage);
+
 #ifdef CLUTTER_ENABLE_EXPERIMENTAL_API
 CLUTTER_AVAILABLE_IN_1_14
 void            clutter_stage_set_sync_delay                    (ClutterStage          *stage,

@@ -38,6 +38,8 @@ struct _MetaScreenCastSession
 {
   MetaDBusScreenCastSessionSkeleton parent;
 
+  MetaScreenCast *screen_cast;
+
   char *peer_name;
 
   MetaScreenCastSessionType session_type;
@@ -159,6 +161,12 @@ meta_screen_cast_session_get_stream (MetaScreenCastSession *session,
   return NULL;
 }
 
+MetaScreenCast *
+meta_screen_cast_session_get_screen_cast (MetaScreenCastSession *session)
+{
+  return session->screen_cast;
+}
+
 char *
 meta_screen_cast_session_get_object_path (MetaScreenCastSession *session)
 {
@@ -255,6 +263,20 @@ on_stream_closed (MetaScreenCastStream  *stream,
 }
 
 static gboolean
+is_valid_cursor_mode (MetaScreenCastCursorMode cursor_mode)
+{
+  switch (cursor_mode)
+    {
+    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
+    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
+    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
 handle_record_monitor (MetaDBusScreenCastSession *skeleton,
                        GDBusMethodInvocation     *invocation,
                        const char                *connector,
@@ -267,6 +289,7 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitor *monitor;
+  MetaScreenCastCursorMode cursor_mode;
   ClutterStage *stage;
   GError *error = NULL;
   MetaScreenCastMonitorStream *monitor_stream;
@@ -298,12 +321,28 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
       return TRUE;
     }
 
+  if (!g_variant_lookup (properties_variant, "cursor-mode", "u", &cursor_mode))
+    {
+      cursor_mode = META_SCREEN_CAST_CURSOR_MODE_HIDDEN;
+    }
+  else
+    {
+      if (!is_valid_cursor_mode (cursor_mode))
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                                 G_DBUS_ERROR_FAILED,
+                                                 "Unknown cursor mode");
+          return TRUE;
+        }
+    }
+
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-  monitor_stream = meta_screen_cast_monitor_stream_new (connection,
-                                                        monitor_manager,
+  monitor_stream = meta_screen_cast_monitor_stream_new (session,
+                                                        connection,
                                                         monitor,
                                                         stage,
+                                                        cursor_mode,
                                                         &error);
   if (!monitor_stream)
     {
@@ -382,7 +421,8 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
   interface_skeleton = G_DBUS_INTERFACE_SKELETON (skeleton);
   connection = g_dbus_interface_skeleton_get_connection (interface_skeleton);
 
-  window_stream = meta_screen_cast_window_stream_new (connection,
+  window_stream = meta_screen_cast_window_stream_new (session,
+                                                      connection,
                                                       window,
                                                       &error);
   if (!window_stream)
@@ -442,6 +482,7 @@ meta_screen_cast_session_new (MetaScreenCast             *screen_cast,
   static unsigned int global_session_number = 0;
 
   session = g_object_new (META_TYPE_SCREEN_CAST_SESSION, NULL);
+  session->screen_cast = screen_cast;
   session->session_type = session_type;
   session->peer_name = g_strdup (peer_name);
   session->object_path =
