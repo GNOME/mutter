@@ -34,6 +34,7 @@
 #include <cogl/cogl.h>
 
 #include <clutter/clutter-config.h>
+#include <clutter/clutter-keymap.h>
 #include <clutter/clutter-types.h>
 
 G_BEGIN_DECLS
@@ -83,6 +84,9 @@ ClutterInputMethod *            clutter_backend_get_input_method        (Clutter
 CLUTTER_EXPORT
 void                            clutter_backend_set_input_method        (ClutterBackend             *backend,
                                                                          ClutterInputMethod         *method);
+CLUTTER_EXPORT
+ClutterKeymap *                 clutter_backend_get_keymap              (ClutterBackend             *backend);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_BACKEND_H__ */
