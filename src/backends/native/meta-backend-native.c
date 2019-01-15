@@ -653,7 +653,10 @@ void meta_backend_native_resume (MetaBackendNative *native)
   MetaIdleMonitor *idle_monitor;
 
   if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_UNSTABLE_TEXTURES))
-    g_signal_emit_by_name (display, "gl-video-memory-purged");
+    {
+      clutter_clear_glyph_cache ();
+      g_signal_emit_by_name (display, "gl-video-memory-purged");
+    }
 
   meta_monitor_manager_kms_resume (monitor_manager_kms);
 
