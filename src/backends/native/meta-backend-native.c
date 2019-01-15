@@ -655,6 +655,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
   if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_UNSTABLE_TEXTURES))
     {
       clutter_clear_glyph_cache ();
+      meta_screen_update_cursor (display->screen);
       g_signal_emit_by_name (display, "gl-video-memory-purged");
     }
 
