@@ -645,8 +645,15 @@ void meta_backend_native_resume (MetaBackendNative *native)
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerKms *monitor_manager_kms =
     META_MONITOR_MANAGER_KMS (monitor_manager);
+  MetaDisplay *display = meta_get_display ();
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   ClutterActor *stage;
   MetaIdleMonitor *idle_monitor;
+
+  if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_UNSTABLE_TEXTURES))
+    g_signal_emit_by_name (display, "gl-video-memory-purged");
 
   meta_monitor_manager_kms_resume (monitor_manager_kms);
 
