@@ -832,11 +832,14 @@ update_winsys_features (CoglContext *context, CoglError **error)
 {
   CoglGLXDisplay *glx_display = context->display->winsys;
   CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
+  CoglGpuInfo *info;
 
   _COGL_RETURN_VAL_IF_FAIL (glx_display->glx_context, FALSE);
 
   if (!_cogl_context_update_features (context, error))
     return FALSE;
+
+  info = &context->gpu;
 
   memcpy (context->winsys_features,
           glx_renderer->base_winsys_features,
@@ -850,7 +853,6 @@ update_winsys_features (CoglContext *context, CoglError **error)
 
   if (glx_renderer->glXCopySubBuffer || context->glBlitFramebuffer)
     {
-      CoglGpuInfo *info = &context->gpu;
       CoglGpuInfoArchitecture arch = info->architecture;
 
       COGL_FLAGS_SET (context->winsys_features, COGL_WINSYS_FEATURE_SWAP_REGION, TRUE);
@@ -899,7 +901,6 @@ update_winsys_features (CoglContext *context, CoglError **error)
     }
   else
     {
-      CoglGpuInfo *info = &context->gpu;
       if (glx_display->have_vblank_counter &&
 	  context->display->renderer->xlib_enable_threaded_swap_wait &&
 	  info->vendor == COGL_GPU_INFO_VENDOR_NVIDIA)
@@ -919,6 +920,14 @@ update_winsys_features (CoglContext *context, CoglError **error)
                           COGL_PRIVATE_FEATURE_THREADED_SWAP_WAIT,
                           TRUE);
         }
+    }
+
+  if (info->vendor == COGL_GPU_INFO_VENDOR_NVIDIA)
+    {
+      context->feature_flags |= COGL_FEATURE_UNSTABLE_TEXTURES;
+      COGL_FLAGS_SET (context->features,
+                      COGL_FEATURE_ID_UNSTABLE_TEXTURES,
+                      TRUE);
     }
 
   /* We'll manually handle queueing dirty events in response to

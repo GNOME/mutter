@@ -502,6 +502,7 @@ _cogl_winsys_context_init (CoglContext *context, CoglError **error)
   CoglRenderer *renderer = context->display->renderer;
   CoglDisplayEGL *egl_display = context->display->winsys;
   CoglRendererEGL *egl_renderer = renderer->winsys;
+  CoglGpuInfo *info;
 
   context->winsys = g_new0 (CoglContextEGL, 1);
 
@@ -513,6 +514,16 @@ _cogl_winsys_context_init (CoglContext *context, CoglError **error)
 
   if (!_cogl_context_update_features (context, error))
     return FALSE;
+
+  info = &context->gpu;
+
+  if (info->vendor == COGL_GPU_INFO_VENDOR_NVIDIA)
+    {
+      context->feature_flags |= COGL_FEATURE_UNSTABLE_TEXTURES;
+      COGL_FLAGS_SET (context->features,
+                      COGL_FEATURE_ID_UNSTABLE_TEXTURES,
+                      TRUE);
+    }
 
   if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_SWAP_REGION)
     {
