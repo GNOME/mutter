@@ -1734,9 +1734,10 @@ primary_device_set_selection (struct wl_client   *client,
                               uint32_t            serial)
 {
   MetaWaylandDataDevice *data_device = wl_resource_get_user_data (resource);
-  MetaWaylandDataSource *source;
+  MetaWaylandDataSource *source = NULL;
 
-  source = wl_resource_get_user_data (source_resource);
+  if (source_resource)
+    source = wl_resource_get_user_data (source_resource);
   meta_wayland_data_device_set_primary (data_device, source, serial);
 }
 
