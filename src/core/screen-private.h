@@ -122,8 +122,6 @@ void          meta_screen_foreach_window      (MetaScreen                 *scree
                                                MetaScreenWindowFunc        func,
                                                gpointer                    data);
 
-void          meta_screen_update_cursor       (MetaScreen                 *screen);
-
 void          meta_screen_update_tile_preview          (MetaScreen    *screen,
                                                         gboolean       delay);
 void          meta_screen_hide_tile_preview            (MetaScreen    *screen);

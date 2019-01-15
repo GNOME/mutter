@@ -125,4 +125,7 @@ void meta_screen_override_workspace_layout (MetaScreen      *screen,
 void          meta_screen_set_cursor          (MetaScreen                 *screen,
                                                MetaCursor                  cursor);
 
+void          meta_screen_update_cursor       (MetaScreen                 *screen);
+
+
 #endif
