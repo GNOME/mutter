@@ -54,10 +54,16 @@ override_dh_auto_configure:
 # Don't run the tests on mips since they either time out or fail too much,
 # blocking migration to testing
 override_dh_auto_test:
+	glib-compile-schemas $(CURDIR)/obj-$(DEB_HOST_GNU_TYPE)/data
+	mkdir -m 700 $(CURDIR)/obj-$(DEB_HOST_GNU_TYPE)/xrd
 ifneq (,$(filter hurd-i386 kfreebsd-i386 kfreebsd-amd64,$(DEB_HOST_ARCH)))
-	-xvfb-run -a dh_auto_test
+	-env XDG_RUNTIME_DIR=$(CURDIR)/obj-$(DEB_HOST_GNU_TYPE)/xrd \
+	     GSETTINGS_SCHEMA_DIR=$(CURDIR)/obj-$(DEB_HOST_GNU_TYPE)/data \
+	     dbus-run-session -- xvfb-run -s '+iglx -noreset' -a dh_auto_test
 else ifeq (,$(filter mips mipsel,$(DEB_HOST_ARCH)))
-	xvfb-run -a dh_auto_test
+	env XDG_RUNTIME_DIR=$(CURDIR)/obj-$(DEB_HOST_GNU_TYPE)/xrd \
+	    GSETTINGS_SCHEMA_DIR=$(CURDIR)/obj-$(DEB_HOST_GNU_TYPE)/data \
+	    dbus-run-session -- xvfb-run -s '+iglx -noreset' -a dh_auto_test
 endif
 
 override_dh_install:
