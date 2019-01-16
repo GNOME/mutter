@@ -26,6 +26,8 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
     d/p/theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch,
     d/p/theme-use-gtk_render_icon_suface-to-paint-button-icon.patch:
     - refreshed
+  * d/p/meson-add-back-default_driver-option.patch:
+    - Add option to choose at build time the default cogl driver
 
  -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 20 Feb 2019 14:10:06 +0100
 

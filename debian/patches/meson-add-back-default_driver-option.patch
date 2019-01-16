@@ -1,0 +1,80 @@
+From: =?utf-8?b?Ik1hcmNvIFRyZXZpc2FuIChUcmV2acOxbyki?= <mail@3v1n0.net>
+Date: Wed, 16 Jan 2019 13:08:47 +0100
+Subject: meson: add back default_driver option
+
+In autotools it was possible to pass the --with-default-driver option
+to force the usage of a specific cogl driver at build time.
+
+Expose this functionality in meson as well
+
+Origin: https://gitlab.gnome.org/GNOME/mutter/merge_requests/392
+Forwarded: yes
+---
+ cogl/cogl-config.h.meson | 3 +++
+ cogl/meson.build         | 4 ++++
+ meson.build              | 3 +++
+ meson_options.txt        | 6 ++++++
+ 4 files changed, 16 insertions(+)
+
+diff --git a/cogl/cogl-config.h.meson b/cogl/cogl-config.h.meson
+index 56946b2..ae53310 100644
+--- a/cogl/cogl-config.h.meson
++++ b/cogl/cogl-config.h.meson
+@@ -7,4 +7,7 @@
+ /* Enable unit tests */
+ #mesondefine ENABLE_UNIT_TESTS
+ 
++/* Default COGL driver */
++#mesondefine COGL_DEFAULT_DRIVER
++
+ #define COGL_CONFIG_H_INCLUDED 1
+diff --git a/cogl/meson.build b/cogl/meson.build
+index d76b865..a6c22ff 100644
+--- a/cogl/meson.build
++++ b/cogl/meson.build
+@@ -9,6 +9,10 @@ cdata.set('HAVE_COGL_GL', have_gl)
+ cdata.set('HAVE_COGL_GLES2', have_gles2)
+ cdata.set('ENABLE_UNIT_TESTS', have_cogl_tests)
+ 
++if default_driver != 'auto'
++  cdata.set_quoted('COGL_DEFAULT_DRIVER', default_driver)
++endif
++
+ cogl_config_h = configure_file(
+   input: 'cogl-config.h.meson',
+   output: 'cogl-config.h',
+diff --git a/meson.build b/meson.build
+index c303946..a7ddf4a 100644
+--- a/meson.build
++++ b/meson.build
+@@ -210,6 +210,8 @@ if have_wayland_eglstream
+   endif
+ endif
+ 
++default_driver = get_option('default_driver')
++
+ have_sm = get_option('sm')
+ if have_sm
+   sm_dep = dependency('sm')
+@@ -395,6 +397,7 @@ output = [
+   '        Wayland EGLStream........ ' + have_wayland_eglstream.to_string(),
+   '        Native Backend........... ' + have_native_backend.to_string(),
+   '        EGL Device............... ' + have_egl_device.to_string(),
++  '        Default driver........... ' + default_driver,
+   '        Remote desktop........... ' + have_remote_desktop.to_string(),
+   '        gudev.................... ' + have_libgudev.to_string(),
+   '        Wacom.................... ' + have_libwacom.to_string(),
+diff --git a/meson_options.txt b/meson_options.txt
+index add49c8..7a4ca1d 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -140,3 +140,9 @@ option('xwayland_grab_default_access_rules',
+   value: 'gnome-boxes,remote-viewer,virt-viewer,virt-manager,vinagre,vncviewer,Xephyr',
+   description: 'Comma delimited list of applications ressources or class allowed to issue X11 grabs in Xwayland'
+ )
++
++option('default_driver',
++  type: 'combo',
++  choices: ['auto', 'gl', 'gl3', 'gles2', 'nop'],
++  value: 'auto'
++)
