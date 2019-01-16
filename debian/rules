@@ -4,48 +4,48 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,-O1 -Wl,--as-needed
 
 %:
-	dh $@ --with gir,gnome
+	dh $@ --with gir,gnome --buildsystem=meson
 
 override_dh_autoreconf:
 	dh_autoreconf --as-needed
 
 ifeq ($(DEB_HOST_ARCH_OS),linux)
 CONFFLAGS = \
-	--enable-egl-device \
-	--enable-wayland \
-	--enable-native-backend
+	-Degl_device=true \
+	-Dwayland=true \
+	-Dnative_backend=true
 else
 CONFFLAGS += \
-	--disable-wayland-egl-platform \
-	--disable-wayland-egl-server \
-	--disable-kms-egl-platform \
-	--disable-wayland \
-	--disable-native-backend
+	-Degl=false \
+	-Dwayland=false \
+	-Dnative_backend=false \
+	-Dremote_desktop=false
 endif
 
 ifeq ($(DEB_HOST_ARCH),$(findstring $(DEB_HOST_ARCH),armel armhf))
 CONFFLAGS += \
-	--with-default-driver=gles2
+	-Ddefault_driver=gles2
 else
 CONFFLAGS += \
-	--with-default-driver=gl
+	-Ddefault_driver=gl
 endif
 
 # pipewire is not in Ubuntu main yet
-ifneq ($(shell dpkg-vendor --query vendor),Ubuntu)
 ifeq ($(DEB_HOST_ARCH_OS),linux)
-	CONFFLAGS += --enable-remote-desktop
+ifeq ($(shell dpkg-vendor --query vendor),Ubuntu)
+	CONFFLAGS += -Dremote_desktop=false
+else
+	CONFFLAGS += -Dremote_desktop=true
 endif
 endif
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		--libexecdir="\$${prefix}/lib/mutter" \
-		--enable-startup-notification \
-		--enable-compile-warnings \
-		--disable-cogl-gles2 \
-		--enable-gles2 \
-		--with-gles2-libname=libGLESv2.so.2 \
+		--libexecdir="/usr/lib/mutter" \
+		-Dstartup_notification=true \
+		-Dgles2=true \
+		-Dgles2_libname=libGLESv2.so.2 \
+		-Dinstalled_tests=false \
 		$(CONFFLAGS)
 
 # Ignore test failures on hurd & kfreebsd. Although the test results

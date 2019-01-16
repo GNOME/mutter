@@ -5,6 +5,10 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
       LP: #1795774)
     - Fix regression causing one of the external displays to be off sometimes
       (LP: #1772811)
+  * debian/rules:
+    - Compile using meson, autotools has been removed upstream
+  * debian/control:
+    - Build depend on meson and pkg-config
   * d/p/Sync-to-the-hardware-refresh-rate-not-just-60.00Hz.patch,
     d/p/clutter-Avoid-rounding-compensation-when-invalidating-2D-.patch,
     d/p/clutter-Fix-offscreen-effect-painting-of-clones.patch,
