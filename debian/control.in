@@ -6,7 +6,7 @@ Uploaders: @GNOME_TEAM@
 Build-Depends: debhelper (>= 11),
                gnome-pkg-tools (>= 0.10),
                gobject-introspection (>= 1.41.3),
-               gsettings-desktop-schemas-dev (>= 3.21.4),
+               gsettings-desktop-schemas-dev (>= 3.31.0),
                gtk-doc-tools (>= 1.15),
                libcairo2-dev (>= 1.10.0),
                libcanberra-gtk3-dev,
@@ -63,7 +63,7 @@ Vcs-Browser: https://salsa.debian.org/gnome-team/mutter
 Package: mutter
 Architecture: any
 Depends: gnome-settings-daemon-common,
-         gsettings-desktop-schemas (>= 3.21.4),
+         gsettings-desktop-schemas (>= 3.31.0),
          mutter-common (>= ${source:Version}),
          zenity,
          ${misc:Depends},
