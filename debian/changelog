@@ -40,6 +40,8 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
     - refreshed
   * d/p/meson-add-back-default_driver-option.patch:
     - Add option to choose at build time the default cogl driver
+  * d/p/debian/tests-increase-conform-tests-timeout.patch:
+    - tests: increase conform tests timeout or they will fail in some archs
 
  -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 20 Feb 2019 14:10:06 +0100
 
