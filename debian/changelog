@@ -1,3 +1,12 @@
+mutter (3.30.2-5) UNRELEASED; urgency=medium
+
+  * d/p/clutter-Avoid-rounding-compensation-when-invalidating-2D-.patch,
+    d/p/clutter-Fix-offscreen-effect-painting-of-clones.patch:
+    - Fix offscreen-effect painting of clones in zoom mode (LP: #1767648,
+      LP: #1779615)
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 24 Jan 2019 03:44:07 +0100
+
 mutter (3.30.2-4) unstable; urgency=medium
 
   * Add -Wl,-O1 to our LDFLAGS
