@@ -53,6 +53,7 @@ Build-Depends: debhelper (>= 11),
                wayland-protocols (>= 1.16) [linux-any],
                xauth <!nocheck>,
                xkb-data,
+               xserver-xorg-core [linux-any],
                xvfb <!nocheck>,
                zenity
 Rules-Requires-Root: no
