@@ -7,6 +7,7 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
       (LP: #1772811)
   * debian/rules:
     - Compile using meson, autotools has been removed upstream
+    - Ignore test failures in s390x
   * debian/control:
     - Build depend on meson and pkg-config
     - Build depend on gsettings-desktop-schemas-dev (>= 3.31.0)
