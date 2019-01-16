@@ -1594,7 +1594,7 @@ constrain_titlebar_visible (MetaWindow         *window,
       MetaFrameBorders borders;
       meta_frame_calc_borders (window->frame, &borders);
 
-      bottom_amount = info->current.height + borders.visible.bottom;
+      bottom_amount = info->current.height - borders.visible.top;
       vert_amount_onscreen = borders.visible.top;
     }
   else
@@ -1673,7 +1673,7 @@ constrain_partially_onscreen (MetaWindow         *window,
       MetaFrameBorders borders;
       meta_frame_calc_borders (window->frame, &borders);
 
-      bottom_amount = info->current.height + borders.visible.bottom;
+      bottom_amount = info->current.height - borders.visible.top;
       vert_amount_onscreen = borders.visible.top;
     }
   else
