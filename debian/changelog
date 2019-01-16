@@ -18,6 +18,7 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
       + XWayland (in linux)
     - Set build dependency versions on libgbm-dev, libinput-dev, libxi-dev and
       libxcomposite-dev to match upstream required versions
+  * debian/*: SONAME 3 -> 4
   * d/p/Sync-to-the-hardware-refresh-rate-not-just-60.00Hz.patch,
     d/p/clutter-Avoid-rounding-compensation-when-invalidating-2D-.patch,
     d/p/clutter-Fix-offscreen-effect-painting-of-clones.patch,
