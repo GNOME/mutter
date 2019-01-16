@@ -96,7 +96,6 @@ Depends: libmutter-4-0 (= ${binary:Version}),
          ${gir:Depends},
          ${misc:Depends},
          ${shlibs:Depends}
-Breaks: gnome-shell (<< 3.13.92~)
 Description: GObject introspection data for Mutter
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
@@ -118,8 +117,7 @@ Depends: gsettings-desktop-schemas (>= 3.15.92),
          mutter-common (>= ${source:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
-Breaks: gnome-control-center (<< 1:3.25.2),
-        gnome-shell (= 3.29.4-1)
+Breaks: gnome-control-center (<< 1:3.25.2)
 Description: window manager library from the Mutter window manager
  Mutter is a small window manager, using GTK+ and Clutter to do
  everything.
