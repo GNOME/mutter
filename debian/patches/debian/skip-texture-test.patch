@@ -13,18 +13,18 @@ Bug: https://gitlab.gnome.org/GNOME/mutter/issues/324
 
 Applied-upstream: no
 ---
- clutter/tests/conform/Makefile.am | 1 -
+ clutter/tests/conform/meson.build | 1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/clutter/tests/conform/Makefile.am b/clutter/tests/conform/Makefile.am
-index afa9dad..7d585fa 100644
---- a/clutter/tests/conform/Makefile.am
-+++ b/clutter/tests/conform/Makefile.am
-@@ -54,7 +54,6 @@ deprecated_tests = \
- 	behaviours \
- 	group \
- 	rectangle \
--	texture \
- 	$(NULL)
+diff --git a/clutter/tests/conform/meson.build b/clutter/tests/conform/meson.build
+index acb73d4..fc5a617 100644
+--- a/clutter/tests/conform/meson.build
++++ b/clutter/tests/conform/meson.build
+@@ -44,7 +44,6 @@ clutter_conform_tests_deprecated_tests = [
+   'behaviours',
+   'group',
+   'rectangle',
+-  'texture',
+ ]
  
- test_programs = $(actor_tests) $(general_tests) $(classes_tests) $(deprecated_tests)
+ clutter_conform_tests = []

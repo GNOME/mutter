@@ -8,10 +8,10 @@ Forwarded: yes, https://gitlab.gnome.org/GNOME/mutter/merge_requests/62
  1 file changed, 28 insertions(+), 8 deletions(-)
 
 diff --git a/src/ui/theme.c b/src/ui/theme.c
-index c88ae54..7a77078 100644
+index bee217e..72aadb4 100644
 --- a/src/ui/theme.c
 +++ b/src/ui/theme.c
-@@ -878,14 +878,34 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
+@@ -863,14 +863,34 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
  
            if (icon_name)
              {

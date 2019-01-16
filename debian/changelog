@@ -5,6 +5,23 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
       LP: #1795774)
     - Fix regression causing one of the external displays to be off sometimes
       (LP: #1772811)
+  * d/p/Sync-to-the-hardware-refresh-rate-not-just-60.00Hz.patch,
+    d/p/clutter-Avoid-rounding-compensation-when-invalidating-2D-.patch,
+    d/p/clutter-Fix-offscreen-effect-painting-of-clones.patch,
+    d/p/clutter-offscreen-effect-Disable-if-no-texture.patch,
+    d/p/cogl-auto-texture-Avoid-a-double-free-crash.patch,
+    d/p/screen-cast-Fix-monitor-recording-on-HiDPI.patch,
+    d/p/tests-Don-t-check-pixels-outside-actor-allocation.patch:
+    - dropped as applied upstream
+  * d/p/bgo768531_workaround-startup-notifications.patch:
+    - not needed anymore as per startup notifications upstream refactory
+  * d/p/debian/skip-texture-test.patch:
+    - updated as per meson switch
+  * d/p/debian/synaptics-support.patch,
+    d/p/debian/skip-texture-test.patch,
+    d/p/theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch,
+    d/p/theme-use-gtk_render_icon_suface-to-paint-button-icon.patch:
+    - refreshed
 
  -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 20 Feb 2019 14:10:06 +0100
 
