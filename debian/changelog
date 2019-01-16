@@ -11,6 +11,8 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
     - Build depend on meson and pkg-config
     - Build depend on gsettings-desktop-schemas-dev (>= 3.31.0)
     - Build depend on xserver-xorg-core in linux (as it ships 'cvt')
+    - Set build dependency versions on libgbm-dev, libinput-dev, libxi-dev and
+      libxcomposite-dev to match upstream required versions
   * d/p/Sync-to-the-hardware-refresh-rate-not-just-60.00Hz.patch,
     d/p/clutter-Avoid-rounding-compensation-when-invalidating-2D-.patch,
     d/p/clutter-Fix-offscreen-effect-painting-of-clones.patch,
