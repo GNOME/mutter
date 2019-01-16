@@ -210,6 +210,8 @@ if have_wayland_eglstream
   endif
 endif
 
+default_driver = get_option('default_driver')
+
 have_sm = get_option('sm')
 if have_sm
   sm_dep = dependency('sm')
@@ -353,6 +355,7 @@ output = [
   '        Wayland EGLStream........ ' + have_wayland_eglstream.to_string(),
   '        Native Backend........... ' + have_native_backend.to_string(),
   '        EGL Device............... ' + have_egl_device.to_string(),
+  '        Default driver........... ' + default_driver,
   '        Remote desktop........... ' + have_remote_desktop.to_string(),
   '        gudev.................... ' + have_libgudev.to_string(),
   '        Wacom.................... ' + have_libwacom.to_string(),
