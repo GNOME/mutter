@@ -8,10 +8,12 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
   * debian/rules:
     - Compile using meson, autotools has been removed upstream
     - Ignore test failures in s390x
+    - Explicitly enable Wayland EGL stream
   * debian/control:
     - Build depend on meson and pkg-config
     - Build depend on gsettings-desktop-schemas-dev (>= 3.31.0)
     - Build depend on xserver-xorg-core in linux (as it ships 'cvt')
+    - Build depend on libnvidia-egl-wayland-dev in linux per EGL stream support
     - Build depend on packages needed for running tests:
       + adwaita-icon-theme
       + at-spi2-core
