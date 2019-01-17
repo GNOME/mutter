@@ -1,6 +1,4 @@
 {
-global:
-  gl*;
 local:
   *;
-}
+};
