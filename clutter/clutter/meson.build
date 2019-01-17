@@ -499,6 +499,11 @@ clutter_built_sources += clutter_marshal[0]
 clutter_built_headers += clutter_marshal[1]
 
 libmutter_clutter_name = 'mutter-clutter-' + libmutter_api_version
+libmutter_clutter_map = 'libmutter-clutter.map'
+libmutter_clutter_link_args = [
+  '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(),
+      libmutter_clutter_map),
+]
 libmutter_clutter = shared_library(libmutter_clutter_name,
   sources: [
     clutter_sources,
@@ -522,6 +527,8 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
   soversion: '0.0.0',
   c_args: clutter_c_args,
   include_directories: clutter_includes,
+  link_depends: libmutter_clutter_map,
+  link_args: libmutter_clutter_link_args,
   dependencies: [clutter_deps],
   link_with: [
     libmutter_cogl,

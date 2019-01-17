@@ -49,12 +49,18 @@ libmutter_cogl_path_enum_types_h = libmutter_cogl_path_enum_types[1]
 
 cogl_path_sources += libmutter_cogl_path_enum_types
 
+libmutter_cogl_path_map = 'libmutter-cogl-path.map'
+libmutter_cogl_path_link_args = [
+  '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(),
+      libmutter_cogl_path_map),
+]
 libmutter_cogl_path = shared_library('mutter-cogl-path-' + libmutter_api_version,
   sources: [cogl_path_sources, cogl_path_public_headers],
   soversion: '0.0.0',
   c_args: cogl_c_args,
   include_directories: [cogl_includepath, cogl_path_includepath],
-  link_depends: 'libmutter-cogl-path.map',
+  link_depends: libmutter_cogl_path_map,
+  link_args: libmutter_cogl_path_link_args,
   dependencies: [libmutter_cogl_dep, cogl_deps],
   install_rpath: pkglibdir,
   install_dir: pkglibdir,
