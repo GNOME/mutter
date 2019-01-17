@@ -328,7 +328,7 @@ subdir('clutter')
 subdir('data')
 subdir('src')
 subdir('po')
-subdir('doc/man')
+subdir('doc')
 
 output = [
   '',
