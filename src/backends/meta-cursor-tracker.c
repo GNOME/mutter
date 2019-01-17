@@ -20,7 +20,7 @@
  */
 
 /**
- * SECTION:cursor-tracker
+ * SECTION:meta-cursor-tracker
  * @title: MetaCursorTracker
  * @short_description: Mutter cursor tracking helper. Originally only
  *                     tracking the cursor image, now more of a "core
