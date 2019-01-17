@@ -14,4 +14,4 @@ global:
   cogl2_set_*;
 local:
   *;
-}
+};

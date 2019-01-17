@@ -733,6 +733,10 @@ mutter_built_sources += mutter_marshal
 mutter_built_sources += mutter_enum_types
 mutter_built_sources += mutter_version
 
+libmutter_map = 'libmutter.map'
+libmutter_link_args = [
+  '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(), libmutter_map),
+]
 libmutter = shared_library(libmutter_name,
   sources: [
     mutter_sources,
@@ -746,6 +750,8 @@ libmutter = shared_library(libmutter_name,
     libmutter_clutter_dep,
     mutter_deps,
   ],
+  link_depends: libmutter_map,
+  link_args: libmutter_link_args,
   install_rpath: pkglibdir,
   install_dir: libdir,
   install: true,
