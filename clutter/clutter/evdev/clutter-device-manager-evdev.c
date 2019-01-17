@@ -1316,6 +1316,12 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
 
         if (manager_evdev->priv->keyboard_security && is_dangerous_key (key))
           {
+            guint product_id, vendor_id;
+            gchar *dev_name;
+            product_id = libinput_device_get_id_product (libinput_device);
+            vendor_id = libinput_device_get_id_vendor (libinput_device);
+            dev_name = libinput_device_get_name (libinput_device);
+            g_warning("product: %i, vendor: %i, name %s", product_id, vendor_id, dev_name);
             g_warning ("Woah, how dare you press this key!?");
             break;
           }
