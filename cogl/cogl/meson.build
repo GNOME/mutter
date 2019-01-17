@@ -473,7 +473,8 @@ libmutter_cogl_link_args = [
 ]
 libmutter_cogl = shared_library(libmutter_cogl_name,
   sources: [cogl_sources, cogl_headers_all],
-  soversion: '0.0.0',
+  version: '0.0.0',
+  soversion: 0,
   c_args: cogl_c_args,
   include_directories: cogl_includepath,
   link_depends: libmutter_cogl_map,

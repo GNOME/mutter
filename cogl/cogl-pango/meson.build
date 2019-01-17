@@ -28,7 +28,8 @@ libmutter_cogl_pango_link_args = [
 ]
 libmutter_cogl_pango = shared_library('mutter-cogl-pango-' + libmutter_api_version,
   sources: [cogl_pango_sources, cogl_pango_public_headers],
-  soversion: '0.0.0',
+  version: '0.0.0',
+  soversion: 0,
   c_args: cogl_c_args,
   include_directories: [cogl_includepath, cogl_path_includepath],
   link_depends: libmutter_cogl_pango_map,
