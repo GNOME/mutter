@@ -485,6 +485,7 @@ libmutter_cogl = shared_library(libmutter_cogl_name,
   install: true,
 )
 libmutter_cogl_dep = declare_dependency(
+  dependencies: [cogl_deps],
   link_with: libmutter_cogl,
 )
 
