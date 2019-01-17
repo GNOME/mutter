@@ -16,7 +16,6 @@ libmutter_cogl_test_unit = executable('test-unit',
   ],
   include_directories: cogl_test_unit_includes,
   dependencies: [
-    cogl_deps,
     libmutter_cogl_dep,
     libmutter_cogl_path_dep,
     libmutter_cogl_test_fixtures_dep,
