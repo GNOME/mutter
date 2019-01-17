@@ -35,6 +35,9 @@
 
 typedef struct _MetaXWaylandSelection MetaXWaylandSelection;
 
+/**
+ * MetaWaylandFrameCallback: (skip)
+ */
 typedef struct
 {
   struct wl_list link;
