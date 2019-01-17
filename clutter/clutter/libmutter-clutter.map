@@ -1,0 +1,12 @@
+{
+global:
+  cally_*;
+  clutter_*;
+  _clutter_backend_add_event_translator;
+  _clutter_backend_reset_cogl_framebuffer;
+  _clutter_event_translator_get_type;
+  _clutter_stage_*_get_type;
+  _clutter_stage_cogl_presented;
+local:
+  *;
+};

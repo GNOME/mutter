@@ -1,6 +1,7 @@
 {
 global:
-  cogl_pango_*;
+  meta_*;
 local:
+  meta_dbus_*;
   *;
 };

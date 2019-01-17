@@ -8,12 +8,18 @@ cogl_gles2_sources = [
   'cogl-gles2-api.c',
 ]
 
+libmutter_cogl_gles2_map = 'libmutter-cogl-gles2.map'
+libmutter_cogl_gles2_link_args = [
+  '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(),
+      libmutter_cogl_gles2_map),
+]
 libmutter_cogl_gles2 = shared_library('mutter-cogl-gles2-' + libmutter_api_version,
   sources: [cogl_gles2_sources, cogl_gles2_public_headers],
   soversion: '0.0.0',
   c_args: cogl_c_args,
   include_directories: [cogl_includepath, cogl_path_includepath],
-  link_depends: 'libmutter-cogl-gles2.map',
+  link_depends: libmutter_cogl_gles2_map,
+  link_args: libmutter_cogl_gles2_link_args,
   dependencies: [
     cogl_deps,
     libmutter_cogl_dep
