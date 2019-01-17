@@ -21,10 +21,7 @@ libmutter_cogl_gles2 = shared_library('mutter-cogl-gles2-' + libmutter_api_versi
   include_directories: [cogl_includepath, cogl_path_includepath],
   link_depends: libmutter_cogl_gles2_map,
   link_args: libmutter_cogl_gles2_link_args,
-  dependencies: [
-    cogl_deps,
-    libmutter_cogl_dep
-  ],
+  dependencies: libmutter_cogl_dep,
   install_rpath: pkglibdir,
   install_dir: pkglibdir,
   install: true,
