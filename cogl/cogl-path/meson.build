@@ -62,7 +62,7 @@ libmutter_cogl_path = shared_library('mutter-cogl-path-' + libmutter_api_version
   include_directories: [cogl_includepath, cogl_path_includepath],
   link_depends: libmutter_cogl_path_map,
   link_args: libmutter_cogl_path_link_args,
-  dependencies: [libmutter_cogl_dep, cogl_deps],
+  dependencies: libmutter_cogl_dep,
   install_rpath: pkglibdir,
   install_dir: pkglibdir,
   install: true,
