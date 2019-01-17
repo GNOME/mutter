@@ -466,12 +466,18 @@ if have_cogl_tests
 endif
 
 libmutter_cogl_name = 'mutter-cogl-' + libmutter_api_version
+libmutter_cogl_map = 'libmutter-cogl.map'
+libmutter_cogl_link_args = [
+  '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(),
+      libmutter_cogl_map),
+]
 libmutter_cogl = shared_library(libmutter_cogl_name,
   sources: [cogl_sources, cogl_headers_all],
   soversion: '0.0.0',
   c_args: cogl_c_args,
   include_directories: cogl_includepath,
-  link_depends: 'libmutter-cogl.map',
+  link_depends: libmutter_cogl_map,
+  link_args: libmutter_cogl_link_args,
   dependencies: [cogl_deps, cogl_test_deps],
   install_rpath: pkglibdir,
   install_dir: pkglibdir,
