@@ -355,6 +355,26 @@ on_captured_event (ClutterActor       *stage,
 
   switch (clutter_event_type (event))
     {
+    case CLUTTER_TOUCH_CANCEL:
+      click_action_set_held (action, FALSE);
+      click_action_cancel_long_press (action);
+
+      click_action_set_pressed (action, FALSE);
+
+      /* disconnect the capture */
+      if (priv->capture_id != 0)
+        {
+          g_signal_handler_disconnect (priv->stage, priv->capture_id);
+          priv->capture_id = 0;
+        }
+
+      if (priv->long_press_id != 0)
+        {
+          g_source_remove (priv->long_press_id);
+          priv->long_press_id = 0;
+        }
+      break;
+
     case CLUTTER_TOUCH_END:
       has_button = FALSE;
     case CLUTTER_BUTTON_RELEASE:
