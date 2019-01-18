@@ -8,6 +8,8 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
   * debian/rules:
     - Compile using meson, autotools has been removed upstream
     - Ignore test failures in s390x
+    - tests: increase meson tests timeout or they will fail in some archs,
+      using meson test to run them
     - Explicitly enable Wayland EGL stream
   * debian/control:
     - Build depend on meson and pkg-config
@@ -45,8 +47,6 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
     - refreshed
   * d/p/meson-add-back-default_driver-option.patch:
     - Add option to choose at build time the default cogl driver
-  * d/p/debian/tests-increase-conform-tests-timeout.patch:
-    - tests: increase conform tests timeout or they will fail in some archs
 
  -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 20 Feb 2019 14:10:06 +0100
 
