@@ -37,7 +37,7 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
   * d/p/bgo768531_workaround-startup-notifications.patch:
     - not needed anymore as per startup notifications upstream refactory
   * d/p/debian/skip-texture-test.patch:
-    - updated as per meson switch
+    - removed since the test now passes in all tested archs
   * d/p/debian/synaptics-support.patch,
     d/p/debian/skip-texture-test.patch,
     d/p/theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch,
