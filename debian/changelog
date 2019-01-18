@@ -24,6 +24,8 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
     - removed breaks as per SONAME change
   * debian/*: SONAME 3 -> 4
   * debian/libmutter-4-0.symbols: Add new symbols, remove deprecated ones
+  * debian/libmutter-4-0.lintian-overrides:
+    - ignore library-not-linked-against-libc for libmutter-cogl-gles2
   * d/p/Sync-to-the-hardware-refresh-rate-not-just-60.00Hz.patch,
     d/p/clutter-Avoid-rounding-compensation-when-invalidating-2D-.patch,
     d/p/clutter-Fix-offscreen-effect-painting-of-clones.patch,
