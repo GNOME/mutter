@@ -643,8 +643,6 @@ meta_startup_notification_get_sequences (MetaStartupNotification *sn)
 MetaLaunchContext *
 meta_startup_notification_create_launcher (MetaStartupNotification *sn)
 {
-  MetaDisplay *display = sn->display;
-
   return g_object_new (META_TYPE_LAUNCH_CONTEXT,
                        "display", sn->display,
                        NULL);
