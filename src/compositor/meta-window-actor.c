@@ -1981,3 +1981,144 @@ screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
   iface->transform_relative_position = meta_window_actor_transform_relative_position;
   iface->capture_into = meta_window_actor_capture_into;
 }
+
+static void
+meta_window_actor_paint_actors (ClutterActor          *actor,
+                                CoglFramebuffer       *fb,
+                                cairo_rectangle_int_t *clip,
+                                gfloat                 parent_x,
+                                gfloat                 parent_y)
+{
+  ClutterActor *child;
+  ClutterActorIter iter;
+  gfloat actor_x, actor_y;
+
+  clutter_actor_get_position (actor, &actor_x, &actor_y);
+
+  if (META_IS_SHAPED_TEXTURE (actor))
+    {
+      gfloat offset_x, offset_y;
+
+      offset_x = MAX ((actor_x + parent_x) - clip->x, 0);
+      offset_y = MAX ((actor_y + parent_y) - clip->y, 0);
+
+      meta_shaped_texture_paint_to_offscreen (META_SHAPED_TEXTURE (actor),
+                                              fb,
+                                              offset_x,
+                                              offset_y);
+    }
+
+  clutter_actor_iter_init (&iter, actor);
+  while (clutter_actor_iter_prev (&iter, &child))
+    {
+      meta_window_actor_paint_actors (child,
+                                      fb,
+                                      clip,
+                                      actor_x + parent_x,
+                                      actor_y + parent_y);
+    }
+}
+
+ClutterContent *
+meta_window_actor_get_image (MetaWindowActor *self)
+{
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglOffscreen *offscreen;
+  CoglFramebuffer *fb;
+  CoglTexture *image_texture;
+  CoglColor clear_color;
+  cairo_rectangle_int_t clip;
+  GError *error = NULL;
+  gfloat actor_x, actor_y;
+  MetaWindow *window;
+  int fb_width, fb_height;
+  ClutterContent *image;
+  uint8_t *data;
+
+  clutter_actor_get_position (CLUTTER_ACTOR (self), &actor_x, &actor_y);
+
+  window = meta_window_actor_get_meta_window (self);
+  meta_window_get_frame_rect (window, &clip);
+
+  clip.x -= actor_x;
+  clip.y -= actor_y;
+
+  if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_NPOT))
+    {
+      fb_width = clip.width;
+      fb_height = clip.height;
+    }
+  else
+    {
+      fb_width = _cogl_util_next_p2 (clip.width);
+      fb_height = _cogl_util_next_p2 (clip.height);
+    }
+
+  image_texture =
+    COGL_TEXTURE (cogl_texture_2d_new_with_size (cogl_context,
+                                                 fb_width, fb_height));
+  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (image_texture),
+                                          FALSE);
+  if (!cogl_texture_allocate (COGL_TEXTURE (image_texture), &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (image_texture);
+      return NULL;
+    }
+
+  if (fb_width != clip.width || fb_height != clip.height)
+    {
+      CoglSubTexture *sub_texture;
+
+      sub_texture = cogl_sub_texture_new (cogl_context,
+                                          image_texture,
+                                          0, 0,
+                                          clip.width, clip.height);
+      cogl_object_unref (image_texture);
+      image_texture = COGL_TEXTURE (sub_texture);
+    }
+
+  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (image_texture));
+  fb = COGL_FRAMEBUFFER (offscreen);
+
+  if (!cogl_framebuffer_allocate (fb, &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (fb);
+      return NULL;
+    }
+
+  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR, &clear_color);
+
+
+  meta_window_actor_paint_actors (CLUTTER_ACTOR (self),
+                                  fb,
+                                  &clip,
+                                  -actor_x,
+                                  -actor_y);
+
+  data = g_malloc (clip.width * clip.height * 4);
+
+  cogl_texture_get_data (image_texture,
+                         CLUTTER_CAIRO_FORMAT_ARGB32,
+                         0,
+                         data);
+
+  image = clutter_image_new ();
+
+  clutter_image_set_data (CLUTTER_IMAGE (image),
+                          data,
+                          CLUTTER_CAIRO_FORMAT_ARGB32,
+                          clip.width,
+                          clip.height,
+                          clip.width * 4,
+                          NULL);
+
+  cogl_object_unref (image_texture);
+  cogl_object_unref (fb);
+
+  return image;
+}
