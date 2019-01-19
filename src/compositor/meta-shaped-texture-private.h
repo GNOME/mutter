@@ -44,5 +44,10 @@ gboolean meta_shaped_texture_is_obscured (MetaShapedTexture *self);
 cairo_region_t * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex);
 void meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
                                         MetaMonitorTransform  transform);
+void meta_shaped_texture_paint_to_offscreen (MetaShapedTexture     *stex,
+                                             CoglFramebuffer       *fb,
+                                             gfloat                 offset_x,
+                                             gfloat                 offset_y);
+gboolean should_get_via_offscreen (MetaShapedTexture *stex);
 
 #endif

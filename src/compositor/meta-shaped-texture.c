@@ -1063,7 +1063,7 @@ meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
   invalidate_size (stex);
 }
 
-static gboolean
+gboolean
 should_get_via_offscreen (MetaShapedTexture *stex)
 {
   if (!cogl_texture_is_get_data_supported (stex->texture))
@@ -1084,6 +1084,36 @@ should_get_via_offscreen (MetaShapedTexture *stex)
     }
 
   return FALSE;
+}
+
+void
+meta_shaped_texture_paint_to_offscreen (MetaShapedTexture     *stex,
+                                        CoglFramebuffer       *fb,
+                                        gfloat                 offset_x,
+                                        gfloat                 offset_y)
+{
+  CoglMatrix projection_matrix;
+  gfloat fb_width, fb_height;
+
+  fb_width = (gfloat) cogl_framebuffer_get_width (fb);
+  fb_height = (gfloat) cogl_framebuffer_get_height (fb);
+
+  cogl_framebuffer_push_matrix (fb);
+  cogl_matrix_init_identity (&projection_matrix);
+  cogl_matrix_scale (&projection_matrix,
+                     2.0 / fb_width,
+                     -(2.0 / fb_height),
+                     0);
+  cogl_matrix_translate (&projection_matrix,
+                         -(fb_width / 2.0) + offset_x,
+                         -(fb_height / 2.0) + offset_y,
+                         0);
+
+  cogl_framebuffer_set_projection_matrix (fb, &projection_matrix);
+
+  do_paint (stex, fb, stex->texture, NULL);
+
+  cogl_framebuffer_pop_matrix (fb);
 }
 
 static cairo_surface_t *
