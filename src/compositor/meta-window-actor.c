@@ -1981,3 +1981,81 @@ screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
   iface->transform_relative_position = meta_window_actor_transform_relative_position;
   iface->capture_into = meta_window_actor_capture_into;
 }
+
+static void
+meta_window_actor_get_image_from_actor (ClutterActor          *actor,
+                                        cairo_rectangle_int_t *clip,
+                                        gfloat                 parent_x,
+                                        gfloat                 parent_y,
+                                        cairo_surface_t       *surface)
+{
+  ClutterActor *child;
+  ClutterActorIter iter;
+  gfloat actor_x, actor_y;
+  clutter_actor_get_position (actor, &actor_x, &actor_y);
+
+  if (META_IS_SHAPED_TEXTURE (actor))
+    {
+      cairo_t *cr;
+      cairo_surface_t * sub_surface;
+      cairo_rectangle_int_t sub_clip;
+
+
+      sub_clip = (cairo_rectangle_int_t) {
+        .x = MAX (clip->x - (actor_x + parent_x), 0),
+        .y = MAX (clip->y - (actor_y + parent_y), 0),
+        .width = (clip->x + clip->width) - (actor_x + parent_x),
+        .height = (clip->y + clip->height) - (actor_y + parent_y)
+      };
+
+      sub_surface = meta_shaped_texture_get_image (META_SHAPED_TEXTURE (actor),
+                                                   &sub_clip);
+
+      cr = cairo_create (surface);
+      cairo_set_source_surface (cr,
+                                sub_surface,
+                                MAX ((actor_x + parent_x) - clip->x, 0),
+                                MAX ((actor_y + parent_y) - clip->y, 0));
+      cairo_paint (cr);
+      cairo_destroy (cr);
+      cairo_surface_destroy (sub_surface);
+    }
+
+  clutter_actor_iter_init (&iter, actor);
+  while (clutter_actor_iter_prev (&iter, &child))
+    {
+      meta_window_actor_get_image_from_actor (child,
+                                              clip,
+                                              actor_x + parent_x,
+                                              actor_y + parent_y,
+                                              surface);
+    }
+}
+
+cairo_surface_t *
+meta_window_actor_get_image (MetaWindowActor *self)
+{
+  cairo_rectangle_int_t clip;
+  gfloat actor_x, actor_y;
+  MetaWindow *window;
+  cairo_surface_t *surface;
+
+  clutter_actor_get_position (CLUTTER_ACTOR (self), &actor_x, &actor_y);
+
+  window = meta_window_actor_get_meta_window (self);
+  meta_window_get_frame_rect (window, &clip);
+
+  clip.x -= actor_x;
+  clip.y -= actor_y;
+
+  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
+                                        clip.width,
+                                        clip.height);
+
+  meta_window_actor_get_image_from_actor (CLUTTER_ACTOR (self),
+                                          &clip,
+                                          -actor_x, -actor_y,
+                                          surface);
+
+  return surface;
+}

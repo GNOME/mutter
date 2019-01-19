@@ -39,6 +39,8 @@ MetaWindow *       meta_window_actor_get_meta_window      (MetaWindowActor *self
 ClutterActor *     meta_window_actor_get_texture          (MetaWindowActor *self);
 void               meta_window_actor_sync_visibility      (MetaWindowActor *self);
 gboolean       meta_window_actor_is_destroyed (MetaWindowActor *self);
+cairo_surface_t * meta_window_actor_get_image (MetaWindowActor *self);
+MetaWindowActor * meta_window_actor_from_window (MetaWindow *window);
 
 typedef enum {
   META_SHADOW_MODE_AUTO,
