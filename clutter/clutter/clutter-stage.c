@@ -1460,14 +1460,6 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
 
   /* needed for when a context switch happens */
   _clutter_stage_maybe_setup_viewport (stage, view);
-
-  /* FIXME: For some reason leaving the cogl clip stack empty causes the
-   * picking to not work at all, so setting it the whole framebuffer content
-   * for now. */
-  cogl_framebuffer_push_scissor_clip (fb, 0, 0,
-                                      view_layout.width * fb_scale,
-                                      view_layout.height * fb_scale);
-
   _clutter_stage_window_get_dirty_pixel (priv->impl, view, &dirty_x, &dirty_y);
 
   if (G_LIKELY (!(clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS)))
@@ -1544,8 +1536,6 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
 
   if (G_LIKELY (!(clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS)))
     cogl_framebuffer_pop_clip (fb);
-
-  cogl_framebuffer_pop_clip (fb);
 
   _clutter_stage_dirty_viewport (stage);
 
