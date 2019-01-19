@@ -1086,6 +1086,34 @@ should_get_via_offscreen (MetaShapedTexture *stex)
   return FALSE;
 }
 
+void
+meta_shaped_texture_paint_to_offscreen (MetaShapedTexture     *stex,
+                                        CoglFramebuffer       *fb,
+                                        gfloat                 offset_x,
+                                        gfloat                 offset_y)
+{
+  CoglMatrix projection_matrix;
+  gfloat fb_width, fb_height;
+
+  fb_width = (gfloat) cogl_framebuffer_get_width (fb);
+  fb_height = (gfloat) cogl_framebuffer_get_height (fb);
+
+  cogl_framebuffer_push_matrix (fb);
+  cogl_matrix_init_identity (&projection_matrix);
+  cogl_matrix_scale (&projection_matrix,
+                     (stex->dst_width / fb_width) / (stex->dst_width / 2.0),
+                     -(stex->dst_height / fb_height) / (stex->dst_height / 2.0), 0);
+  cogl_matrix_translate (&projection_matrix,
+                         -(stex->dst_width / 2.0) + offset_x,
+                         -(stex->dst_height / 2.0) + offset_y, 0);
+
+  cogl_framebuffer_set_projection_matrix (fb, &projection_matrix);
+
+  do_paint (stex, fb, stex->texture, NULL);
+
+  cogl_framebuffer_pop_matrix (fb);
+}
+
 static cairo_surface_t *
 get_image_via_offscreen (MetaShapedTexture     *stex,
                          cairo_rectangle_int_t *clip)
