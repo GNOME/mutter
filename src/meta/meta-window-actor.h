@@ -51,6 +51,13 @@ void               meta_window_actor_sync_visibility      (MetaWindowActor *self
 META_EXPORT
 gboolean       meta_window_actor_is_destroyed (MetaWindowActor *self);
 
+META_EXPORT
+ClutterContent * meta_window_actor_get_image (MetaWindowActor *self,
+                                              gboolean         scale);
+
+META_EXPORT
+MetaWindowActor * meta_window_actor_from_window (MetaWindow *window);
+
 typedef enum {
   META_SHADOW_MODE_AUTO,
   META_SHADOW_MODE_FORCED_OFF,
