@@ -1981,3 +1981,161 @@ screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
   iface->transform_relative_position = meta_window_actor_transform_relative_position;
   iface->capture_into = meta_window_actor_capture_into;
 }
+
+ClutterContent *
+meta_window_actor_get_image (MetaWindowActor *self)
+{
+  ClutterActorIter iter;
+  ClutterActor *child;
+  ClutterBackend *clutter_backend;
+  ClutterContent *image;
+  CoglColor clear_color;
+  CoglContext *cogl_context;
+  CoglFramebuffer *fb;
+  CoglOffscreen *offscreen;
+  CoglTexture *image_texture;
+  GPtrArray *surface_actors;
+  GPtrArray *textures;
+  GArray *offset_actor_x;
+  GArray *offset_actor_y;
+  GArray *offset_surface_x;
+  GArray *offset_surface_y;
+  GError *error = NULL;
+  MetaWindow *window;
+  cairo_rectangle_int_t window_rect;
+  gfloat actor_x, actor_y;
+  int fb_width, fb_height;
+
+
+  clutter_backend = clutter_get_default_backend ();
+  cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+
+  window = meta_window_actor_get_meta_window (self);
+
+  clutter_actor_get_position (CLUTTER_ACTOR (self), &actor_x, &actor_y);
+  meta_window_get_frame_rect (window, &window_rect);
+  window_rect.x -= actor_x;
+  window_rect.y -= actor_y;
+
+  if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_NPOT))
+    {
+      fb_width = window_rect.width;
+      fb_height = window_rect.height;
+    }
+  else
+    {
+      fb_width = _cogl_util_next_p2 (window_rect.width);
+      fb_height = _cogl_util_next_p2 (window_rect.height);
+    }
+
+  image_texture =
+    COGL_TEXTURE (cogl_texture_2d_new_with_size (cogl_context,
+                                                 fb_width, fb_height));
+  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (image_texture),
+                                          FALSE);
+  if (!cogl_texture_allocate (COGL_TEXTURE (image_texture), &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (image_texture);
+      return NULL;
+    }
+
+  if (fb_width != window_rect.width || fb_height != window_rect.height)
+    {
+      CoglSubTexture *sub_texture;
+
+      sub_texture = cogl_sub_texture_new (cogl_context,
+                                          image_texture,
+                                          0, 0,
+                                          window_rect.width,
+                                          window_rect.height);
+      cogl_object_unref (image_texture);
+      image_texture = COGL_TEXTURE (sub_texture);
+    }
+
+  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (image_texture));
+  fb = COGL_FRAMEBUFFER (offscreen);
+
+  if (!cogl_framebuffer_allocate (fb, &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (fb);
+      return NULL;
+    }
+
+  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR, &clear_color);
+
+
+  surface_actors = g_ptr_array_new ();
+  textures = g_ptr_array_new ();
+  offset_actor_x = g_array_new (FALSE, FALSE, sizeof (gfloat));
+  offset_actor_y = g_array_new (FALSE, FALSE, sizeof (gfloat));
+  offset_surface_x = g_array_new (FALSE, FALSE, sizeof (gfloat));
+  offset_surface_y = g_array_new (FALSE, FALSE, sizeof (gfloat));
+
+  clutter_actor_iter_init (&iter, CLUTTER_ACTOR (self));
+  while (clutter_actor_iter_prev (&iter, &child))
+    {
+      if (META_IS_SURFACE_ACTOR (child))
+        {
+          gfloat offset_x = -((gfloat) window_rect.x);
+          gfloat offset_y = -((gfloat) window_rect.y);
+
+          g_ptr_array_add (surface_actors, child);
+          g_array_append_val (offset_actor_x, offset_x);
+          g_array_append_val (offset_actor_y, offset_y);
+        }
+    }
+
+  guint i;
+  for (i = 0; i < surface_actors->len; i++)
+    {
+      ClutterActor *actor = CLUTTER_ACTOR (surface_actors->pdata[i]);
+
+      clutter_actor_iter_init (&iter, actor);
+      while (clutter_actor_iter_prev (&iter, &child))
+        {
+          if (META_IS_SURFACE_ACTOR (child))
+            {
+              gfloat actor_x, actor_y;
+
+              g_ptr_array_add (surface_actors, child);
+
+              clutter_actor_get_position (child, &actor_x, &actor_y);
+              actor_x += g_array_index (offset_actor_x, gfloat, i);
+              actor_y += g_array_index (offset_actor_y, gfloat, i);
+
+              g_array_append_val (offset_actor_x, actor_x);
+              g_array_append_val (offset_actor_y, actor_y);
+            }
+          else if (META_IS_SHAPED_TEXTURE (child))
+            {
+              gfloat actor_x, actor_y;
+
+              g_ptr_array_add (textures, child);
+
+              clutter_actor_get_position (child, &actor_x, &actor_y);
+              actor_x += g_array_index (offset_actor_x, gfloat, i);
+              actor_y += g_array_index (offset_actor_y, gfloat, i);
+
+              g_array_append_val (offset_surface_x, actor_x);
+              g_array_append_val (offset_surface_y, actor_y);
+            }
+        }
+    }
+
+  for (i = 0; i < textures->len; i++)
+    {
+      meta_shaped_texture_paint_to_offscreen (META_SHAPED_TEXTURE (textures->pdata[i]),
+                                              fb,
+                                              g_array_index (offset_surface_x, gfloat, i),
+                                              g_array_index (offset_surface_y, gfloat, i));
+    }
+
+  image = clutter_image_texture_new_from_texture (image_texture);
+
+  cogl_object_unref (fb);
+
+  return image;
+}
