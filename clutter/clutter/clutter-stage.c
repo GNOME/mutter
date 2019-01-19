@@ -1437,7 +1437,6 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
   cairo_rectangle_int_t view_layout;
   ClutterMainContext *context;
   guchar pixel[4] = { 0xff, 0xff, 0xff, 0xff };
-  CoglColor stage_pick_id;
   gboolean dither_enabled_save;
   ClutterActor *retval;
   gint dirty_x;
@@ -1500,8 +1499,9 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                 view_layout.width, view_layout.height,
                 view_layout.x, view_layout.y, fb_scale);
 
-  cogl_color_init_from_4ub (&stage_pick_id, 255, 255, 255, 255);
-  cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH, &stage_pick_id);
+  cogl_framebuffer_clear4f (fb,
+                            COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
+                            1.0f, 1.0f, 1.0f, 1.0f);
 
   /* Disable dithering (if any) when doing the painting in pick mode */
   dither_enabled_save = cogl_framebuffer_get_dither_enabled (fb);
