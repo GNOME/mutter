@@ -177,7 +177,7 @@ paint (TestState *state)
 }
 
 static void
-validate_result ()
+validate_result (void)
 {
   check_block (0, 0, 0x8 /* bottom right */);
   check_block (1, 0, 0xf /* all of them */);
