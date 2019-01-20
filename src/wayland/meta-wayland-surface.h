@@ -70,10 +70,6 @@ struct _MetaWaylandSerial {
   uint32_t value;
 };
 
-#define META_TYPE_WAYLAND_SURFACE_ROLE_DND (meta_wayland_surface_role_dnd_get_type ())
-
-GType meta_wayland_surface_role_dnd_get_type (void);
-
 struct _MetaWaylandPendingState
 {
   GObject parent;

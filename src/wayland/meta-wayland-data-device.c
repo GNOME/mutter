@@ -35,6 +35,7 @@
 #include <unistd.h>
 
 #include "compositor/meta-dnd-actor-private.h"
+#include "wayland/meta-wayland-dnd-surface.h"
 #include "wayland/meta-wayland-pointer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
