@@ -86,20 +86,6 @@ G_DEFINE_TYPE (MetaWaylandPendingState,
                meta_wayland_pending_state,
                G_TYPE_OBJECT);
 
-struct _MetaWaylandSurfaceRoleDND
-{
-  MetaWaylandSurfaceRole parent;
-};
-
-G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleDND,
-                      meta_wayland_surface_role_dnd,
-                      META, WAYLAND_SURFACE_ROLE_DND,
-                      MetaWaylandActorSurface);
-
-G_DEFINE_TYPE (MetaWaylandSurfaceRoleDND,
-               meta_wayland_surface_role_dnd,
-               META_TYPE_WAYLAND_ACTOR_SURFACE);
-
 enum {
   SURFACE_DESTROY,
   SURFACE_UNMAPPED,
@@ -358,16 +344,6 @@ meta_wayland_surface_queue_pending_state_frame_callbacks (MetaWaylandSurface    
   wl_list_insert_list (&surface->compositor->frame_callbacks,
                        &pending->frame_callback_list);
   wl_list_init (&pending->frame_callback_list);
-}
-
-static void
-dnd_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                    MetaWaylandPendingState *pending)
-{
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
-
-  meta_wayland_surface_queue_pending_state_frame_callbacks (surface, pending);
 }
 
 void
@@ -1761,30 +1737,6 @@ meta_wayland_surface_queue_pending_frame_callbacks (MetaWaylandSurface *surface)
   wl_list_insert_list (&surface->compositor->frame_callbacks,
                        &surface->pending_frame_callback_list);
   wl_list_init (&surface->pending_frame_callback_list);
-}
-
-static void
-default_role_assigned (MetaWaylandSurfaceRole *surface_role)
-{
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
-
-  meta_wayland_surface_queue_pending_frame_callbacks (surface);
-}
-
-static void
-meta_wayland_surface_role_dnd_init (MetaWaylandSurfaceRoleDND *role)
-{
-}
-
-static void
-meta_wayland_surface_role_dnd_class_init (MetaWaylandSurfaceRoleDNDClass *klass)
-{
-  MetaWaylandSurfaceRoleClass *surface_role_class =
-    META_WAYLAND_SURFACE_ROLE_CLASS (klass);
-
-  surface_role_class->assigned = default_role_assigned;
-  surface_role_class->commit = dnd_surface_commit;
 }
 
 cairo_region_t *
