@@ -6,6 +6,13 @@
 static ClutterState    *state;
 static ClutterAnimator *animator;
 
+gint
+test_state_animator_main (gint    argc,
+                          gchar **argv);
+
+const char *
+test_state_animator_describe (void);
+
 static gboolean press_event (ClutterActor *actor,
                              ClutterEvent *event,
                              gpointer      user_data)

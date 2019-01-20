@@ -6,6 +6,9 @@
 
 #define TEST_STATE_SCRIPT_FILE  "test-script-signals.json"
 
+int
+test_state_script_main (int argc, char *argv[]);
+
 gboolean
 on_button_press (ClutterActor *actor,
                  ClutterEvent *event,

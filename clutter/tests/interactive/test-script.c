@@ -10,6 +10,9 @@
 static ClutterScript *script = NULL;
 static guint merge_id = 0;
 
+int
+test_script_main (int argc, char *argv[]);
+
 static const gchar *test_unmerge =
 "["
 "  {"

@@ -5,6 +5,10 @@
 
 static ClutterAnimator *animator;
 
+gint
+test_animator_main (gint    argc,
+                    gchar **argv);
+
 static ClutterActor *new_rect (gint r,
                                gint g,
                                gint b,

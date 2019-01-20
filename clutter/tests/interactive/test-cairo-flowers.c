@@ -25,6 +25,12 @@ Flower;
 
 static ClutterActor *stage = NULL;
 
+int
+test_cairo_flowers_main (int argc, char **argv);
+
+const char *
+test_cairo_flowers_describe (void);
+
 static gboolean
 draw_flower (ClutterCanvas *canvas,
              cairo_t       *cr,

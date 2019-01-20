@@ -23,6 +23,12 @@
 static gboolean disable_x11 = FALSE;
 static gboolean disable_animation = FALSE;
 
+int
+test_pixmap_main (int argc, char **argv);
+
+const char *
+test_pixmap_describe (void);
+
 static GOptionEntry g_options[] =
 {
   { "disable-x11",
@@ -131,7 +137,7 @@ stage_button_press_cb (ClutterActor    *actor,
   return CLUTTER_EVENT_STOP;
 }
 
-Pixmap
+static Pixmap
 create_pixmap (guint *width, guint *height, guint *depth)
 {
   Display *dpy = clutter_x11_get_default_display ();

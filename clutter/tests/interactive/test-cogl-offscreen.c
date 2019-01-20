@@ -56,6 +56,12 @@ struct _TestCoglboxClass
 
 static GType test_coglbox_get_type (void) G_GNUC_CONST;
 
+int
+test_cogl_offscreen_main (int argc, char *argv[]);
+
+const char *
+test_cogl_offscreen_describe (void);
+
 G_END_DECLS
 
 /* Coglbox private declaration
@@ -153,7 +159,7 @@ test_coglbox_dispose (GObject *object)
  * This sets up a Clutter like coordinate system for a Cogl
  * framebuffer
  */
-void
+static void
 setup_viewport (unsigned int width,
                 unsigned int height,
                 float fovy,

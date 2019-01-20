@@ -60,6 +60,9 @@ typedef struct _TestCoglbox        TestCoglbox;
 typedef struct _TestCoglboxClass   TestCoglboxClass;
 typedef struct _TestCoglboxPrivate TestCoglboxPrivate;
 
+const char *
+test_cogl_tex_foreign_describe (void);
+
 struct _TestCoglbox
 {
   ClutterActor           parent;
@@ -115,6 +118,9 @@ G_DEFINE_TYPE_WITH_PRIVATE (TestCoglbox, test_coglbox, CLUTTER_TYPE_ACTOR);
 
 #define TEST_COGLBOX_GET_PRIVATE(obj) \
 (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TEST_TYPE_COGLBOX, TestCoglboxPrivate))
+
+int
+test_cogl_tex_foreign_main (int argc, char *argv[]);
 
 /* Coglbox implementation
  *--------------------------------------------------*/

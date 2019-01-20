@@ -1,6 +1,12 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
 
+int
+test_grab_main (int argc, char *argv[]);
+
+const char *
+test_grab_describe (void);
+
 static void
 stage_state_cb (ClutterStage    *stage,
 		gpointer         data)

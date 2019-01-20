@@ -55,6 +55,12 @@ static ClutterActor *easing_mode_label = NULL;
 
 static ClutterAnimation *last_animation = NULL;
 
+int
+test_easing_main (int argc, char *argv[]);
+
+const char *
+test_easing_describe (void);
+
 /* recenter_bouncer:
  *
  * repositions (through an animation) the bouncer at the center of the stage
