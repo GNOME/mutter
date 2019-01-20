@@ -57,9 +57,6 @@ void
 _cogl_shader_compile_real (CoglHandle handle,
                            CoglPipeline *pipeline);
 
-CoglShaderLanguage
-_cogl_program_get_language (CoglHandle handle);
-
 void
 _cogl_shader_set_source_with_boilerplate (GLuint shader_gl_handle,
                                           GLenum shader_gl_type,

@@ -805,9 +805,6 @@ _cogl_pipeline_weak_copy (CoglPipeline *pipeline,
 void
 _cogl_pipeline_set_progend (CoglPipeline *pipeline, int progend);
 
-CoglPipeline *
-_cogl_pipeline_get_parent (CoglPipeline *pipeline);
-
 void
 _cogl_pipeline_get_colorubv (CoglPipeline *pipeline,
                              uint8_t       *color);
@@ -882,10 +879,6 @@ _cogl_pipeline_set_static_breadcrumb (CoglPipeline *pipeline,
 
 unsigned long
 _cogl_pipeline_get_age (CoglPipeline *pipeline);
-
-CoglPipeline *
-_cogl_pipeline_get_authority (CoglPipeline *pipeline,
-                              unsigned long difference);
 
 void
 _cogl_pipeline_add_layer_difference (CoglPipeline *pipeline,
