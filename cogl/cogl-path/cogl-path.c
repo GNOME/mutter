@@ -57,6 +57,8 @@
 
 #define _COGL_MAX_BEZ_RECURSE_DEPTH 16
 
+typedef void (* CoglGLUfuncptr) (void);
+
 static void _cogl_path_free (CoglPath *path);
 
 static void _cogl_path_build_fill_attribute_buffer (CoglPath *path);
@@ -1358,13 +1360,13 @@ _cogl_path_build_fill_attribute_buffer (CoglPath *path)
   gluTessNormal (tess.glu_tess, 0.0, 0.0, 1.0);
 
   gluTessCallback (tess.glu_tess, GLU_TESS_BEGIN_DATA,
-                   _cogl_path_tesselator_begin);
+                   (CoglGLUfuncptr) _cogl_path_tesselator_begin);
   gluTessCallback (tess.glu_tess, GLU_TESS_VERTEX_DATA,
-                   _cogl_path_tesselator_vertex);
+                   (CoglGLUfuncptr) _cogl_path_tesselator_vertex);
   gluTessCallback (tess.glu_tess, GLU_TESS_END_DATA,
-                   _cogl_path_tesselator_end);
+                   (CoglGLUfuncptr) _cogl_path_tesselator_end);
   gluTessCallback (tess.glu_tess, GLU_TESS_COMBINE_DATA,
-                   _cogl_path_tesselator_combine);
+                   (CoglGLUfuncptr) _cogl_path_tesselator_combine);
 
   gluTessBeginPolygon (tess.glu_tess, &tess);
 
