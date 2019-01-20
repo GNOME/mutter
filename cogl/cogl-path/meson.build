@@ -33,10 +33,9 @@ cogl_path_sources = [
   'tesselator/tesselator.h',
   'tesselator/tessmono.c',
   'tesselator/tessmono.h',
-  'tesselator/GL/glu.h',
 ]
 
-cogl_path_includepath = include_directories('.', 'tesselator')
+cogl_path_includepath = include_directories('.')
 
 libmutter_cogl_path_enum_types = gnome.mkenums('cogl-path-enum-types',
   sources: 'cogl-path-types.h',
@@ -49,10 +48,15 @@ libmutter_cogl_path_enum_types_h = libmutter_cogl_path_enum_types[1]
 
 cogl_path_sources += libmutter_cogl_path_enum_types
 
+cogl_path_c_args = [
+  cogl_c_args,
+  '-I@0@'.format(glu_dep.get_pkgconfig_variable('includedir')),
+]
+
 libmutter_cogl_path = shared_library('mutter-cogl-path-' + libmutter_api_version,
   sources: [cogl_path_sources, cogl_path_public_headers],
   soversion: '0.0.0',
-  c_args: cogl_c_args,
+  c_args: cogl_path_c_args,
   include_directories: [cogl_includepath, cogl_path_includepath],
   link_depends: 'libmutter-cogl-path.map',
   dependencies: [libmutter_cogl_dep, cogl_deps],
