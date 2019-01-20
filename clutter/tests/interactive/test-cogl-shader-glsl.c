@@ -51,22 +51,6 @@ static ShaderSource shaders[]=
     {"box-blur",
      FRAGMENT_SHADER_VARS
 
-#if GPU_SUPPORTS_DYNAMIC_BRANCHING
-     "uniform float radius;"
-     FRAGMENT_SHADER_BEGIN
-     "float u, v;"
-     "int count = 1;"
-     "for (u=-radius;u<radius;u++)"
-     "  for (v=-radius;v<radius;v++)"
-     "    {"
-     "      color += texture2D(tex, "
-     "          vec2(cogl_tex_coord_in[0].s + u * 2.0 * x_step, "
-     "               cogl_tex_coord_in[0].t + v * 2.0 * y_step));"
-     "      count ++;"
-     "    }"
-     "color = color / float(count);"
-     FRAGMENT_SHADER_END
-#else
      "vec4 get_rgba_rel(sampler2D tex, float dx, float dy)"
      "{"
      "  return texture2D (tex, cogl_tex_coord_in[0].st "
@@ -86,7 +70,6 @@ static ShaderSource shaders[]=
      "  color += get_rgba_rel (tex,  x_step,  y_step); count++;"
      "  color = color / count;"
      FRAGMENT_SHADER_END
-#endif
     },
 
     {"invert",
