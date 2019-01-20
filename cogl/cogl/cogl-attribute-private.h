@@ -52,7 +52,7 @@ typedef enum
 
 typedef struct _CoglAttributeNameState
 {
-  char *name;
+  const char *name;
   CoglAttributeNameID name_id;
   int name_index;
   CoglBool normalized_default;

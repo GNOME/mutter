@@ -389,7 +389,7 @@ strideof (CoglAttributeType type, int n_components)
 static char *
 canonize_attribute_name (const char *attribute_name)
 {
-  char *detail_seperator = NULL;
+  const char *detail_seperator = NULL;
   int name_len;
 
   if (strncmp (attribute_name, "gl_", 3) != 0)
