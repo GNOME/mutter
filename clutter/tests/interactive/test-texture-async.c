@@ -11,6 +11,12 @@ enum
 
 static ClutterActor *stage = NULL;
 
+const char *
+test_texture_async_describe (void);
+
+gint
+test_texture_async_main (int argc, char *argv[]);
+
 static void
 on_load_finished (ClutterTexture *texture,
                   const GError   *error,

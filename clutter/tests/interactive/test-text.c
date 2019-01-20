@@ -10,6 +10,13 @@ static const gchar *runes =
 "ᛋᚳᛖᚪᛚ᛫ᚦᛖᚪᚻ᛫ᛗᚪᚾᚾᚪ᛫ᚷᛖᚻᚹᛦᛚᚳ᛫ᛗᛁᚳᛚᚢᚾ᛫ᚻᛦᛏ᛫ᛞᚫᛚᚪᚾ\n"
 "ᚷᛁᚠ᛫ᚻᛖ᛫ᚹᛁᛚᛖ᛫ᚠᚩᚱ᛫ᛞᚱᛁᚻᛏᚾᛖ᛫ᛞᚩᛗᛖᛋ᛫ᚻᛚᛇᛏᚪᚾ᛬\n";
 
+gint
+test_text_main (gint    argc,
+                gchar **argv);
+
+const char *
+test_text_describe (void);
+
 G_MODULE_EXPORT gint
 test_text_main (gint    argc,
                 gchar **argv)

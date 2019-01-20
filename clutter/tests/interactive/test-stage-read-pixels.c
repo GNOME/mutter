@@ -16,6 +16,12 @@ struct _CallbackData
   guint idle_source;
 };
 
+int
+test_stage_read_pixels_main (int argc, char **argv);
+
+const char *
+test_stage_read_pixels_describe (void);
+
 static ClutterActor *
 make_label (void)
 {

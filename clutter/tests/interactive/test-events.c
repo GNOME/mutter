@@ -4,6 +4,12 @@
 
 gboolean IsFullScreen = FALSE, IsMotion = TRUE;
 
+int
+test_events_main (int argc, char *argv[]);
+
+const char *
+test_events_describe (void);
+
 static const gchar *
 get_event_type_name (const ClutterEvent *event)
 {
