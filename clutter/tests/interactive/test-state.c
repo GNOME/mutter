@@ -13,6 +13,12 @@
 #define ROWS  (STAGE_HEIGHT/ACTOR_HEIGHT)
 #define TOTAL (ROWS*COLS)
 
+gint
+test_state_main (gint    argc,
+                 gchar **argv);
+
+const char *
+test_state_describe (void);
 
 static gboolean press_event (ClutterActor *actor,
                              ClutterEvent *event,

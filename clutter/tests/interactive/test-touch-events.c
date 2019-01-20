@@ -45,6 +45,12 @@ static const ClutterColor static_colors[] = {
 };
 static GHashTable *sequence_to_color = NULL;
 
+int
+test_touch_events_main (int argc, char *argv[]);
+
+const char *
+test_touch_events_describe (void);
+
 static void
 canvas_paint (ClutterCairoTexture *canvas)
 {

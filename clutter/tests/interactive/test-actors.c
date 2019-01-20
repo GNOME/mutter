@@ -27,6 +27,9 @@ typedef struct SuperOH
 
 static gint n_hands = NHANDS;
 
+int
+test_actors_main (int argc, char *argv[]);
+
 static GOptionEntry super_oh_entries[] = {
   {
     "num-hands", 'n',

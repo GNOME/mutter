@@ -11,6 +11,9 @@ typedef struct
   char *source;
 } ShaderSource;
 
+int
+test_cogl_shader_glsl_main (int argc, char *argv[]);
+
 /* a couple of boilerplate defines that are common amongst all the
  * sample shaders
  */

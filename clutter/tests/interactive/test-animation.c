@@ -4,6 +4,12 @@
 
 static gboolean is_expanded = FALSE;
 
+int
+test_animation_main (int argc, char *argv[]);
+
+const char *
+test_animation_describe (void);
+
 static void
 on_rect_transitions_completed (ClutterActor *actor)
 {
