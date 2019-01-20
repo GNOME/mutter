@@ -36,7 +36,7 @@ cogl_path_sources = [
   'tesselator/GL/glu.h',
 ]
 
-cogl_path_includepath = include_directories('.', 'tesselator')
+cogl_path_includepath = include_directories('.')
 
 libmutter_cogl_path_enum_types = gnome.mkenums('cogl-path-enum-types',
   sources: 'cogl-path-types.h',
