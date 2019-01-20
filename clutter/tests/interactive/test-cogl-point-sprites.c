@@ -51,6 +51,12 @@ struct _Data
   CoglMaterial *material;
 };
 
+int
+test_cogl_point_sprites_main (int argc, char *argv[]);
+
+const char *
+test_cogl_point_sprites_describe (void);
+
 static CoglHandle
 generate_round_texture (void)
 {

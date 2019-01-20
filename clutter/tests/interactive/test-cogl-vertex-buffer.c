@@ -53,6 +53,12 @@ typedef struct _TestState
   guint            frame_id;
 } TestState;
 
+int
+test_cogl_vertex_buffer_main (int argc, char *argv[]);
+
+const char *
+test_cogl_vertex_buffer_describe (void);
+
 static void
 frame_cb (ClutterTimeline *timeline,
           gint             elapsed_msecs,
