@@ -1,5 +1,6 @@
 #include <cogl/cogl.h>
 
+#include "test-declarations.h"
 #include "test-utils.h"
 
 #define N_TEXTURES 128
