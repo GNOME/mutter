@@ -7,8 +7,8 @@
 
 typedef struct
 {
-  char *name;
-  char *source;
+  const char *name;
+  const char *source;
 } ShaderSource;
 
 int
