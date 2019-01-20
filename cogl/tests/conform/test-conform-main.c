@@ -7,12 +7,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "test-declarations.h"
 #include "test-utils.h"
 
 /* A bit of sugar for adding new conformance tests */
 #define ADD_TEST(FUNC, REQUIREMENTS, KNOWN_FAIL_REQUIREMENTS)           \
   G_STMT_START {                                                        \
-    extern void FUNC (void);                                            \
     if (strcmp (#FUNC, argv[1]) == 0)                                   \
       {                                                                 \
         test_utils_init (REQUIREMENTS, KNOWN_FAIL_REQUIREMENTS);        \

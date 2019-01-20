@@ -53,8 +53,8 @@ _cogl_profile_trace_message (const char *format, ...);
 
 #else
 
-#define COGL_STATIC_TIMER(A,B,C,D,E) extern void _cogl_dummy_decl (void)
-#define COGL_STATIC_COUNTER(A,B,C,D) extern void _cogl_dummy_decl (void)
+#define COGL_STATIC_TIMER(A,B,C,D,E) G_STMT_START{ (void)0; }G_STMT_END
+#define COGL_STATIC_COUNTER(A,B,C,D) G_STMT_START{ (void)0; }G_STMT_END
 #define COGL_COUNTER_INC(A,B) G_STMT_START{ (void)0; }G_STMT_END
 #define COGL_COUNTER_DEC(A,B) G_STMT_START{ (void)0; }G_STMT_END
 #define COGL_TIMER_START(A,B) G_STMT_START{ (void)0; }G_STMT_END

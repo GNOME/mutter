@@ -3,6 +3,7 @@
 
 #include <string.h>
 
+#include "test-declarations.h"
 #include "test-utils.h"
 
 #define BLOCK_SIZE 16
