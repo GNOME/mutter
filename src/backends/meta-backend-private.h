@@ -124,7 +124,6 @@ MetaCursorTracker * meta_backend_get_cursor_tracker (MetaBackend *backend);
 MetaCursorRenderer * meta_backend_get_cursor_renderer (MetaBackend *backend);
 MetaRenderer * meta_backend_get_renderer (MetaBackend *backend);
 MetaEgl * meta_backend_get_egl (MetaBackend *backend);
-MetaSettings * meta_backend_get_settings (MetaBackend *backend);
 
 #ifdef HAVE_REMOTE_DESKTOP
 MetaRemoteDesktop * meta_backend_get_remote_desktop (MetaBackend *backend);
@@ -162,8 +161,6 @@ gboolean meta_backend_get_relative_motion_deltas (MetaBackend *backend,
 MetaPointerConstraint * meta_backend_get_client_pointer_constraint (MetaBackend *backend);
 void meta_backend_set_client_pointer_constraint (MetaBackend *backend,
                                                  MetaPointerConstraint *constraint);
-
-ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
 
 void meta_backend_monitors_changed (MetaBackend *backend);
 
