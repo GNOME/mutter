@@ -7,7 +7,7 @@ stages:
 build-mutter:
   stage: build
   script:
-    - meson . build -Degl_device=true -Dwayland_eglstream=true
+    - meson . build -Degl_device=true -Dwayland_eglstream=true --werror
     - ninja -C build
     - ninja -C build install
 
