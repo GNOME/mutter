@@ -37,15 +37,15 @@ G_DECLARE_FINAL_TYPE (MetaEgl, meta_egl, META, EGL, GObject)
 GQuark meta_egl_error_quark (void);
 
 gboolean
-meta_extensions_string_has_extensions_valist (const char *extensions_str,
-                                              char     ***missing_extensions,
-                                              char       *first_extension,
-                                              va_list     var_args);
+meta_extensions_string_has_extensions_valist (const char   *extensions_str,
+                                              const char ***missing_extensions,
+                                              const char   *first_extension,
+                                              va_list       var_args);
 
-gboolean meta_egl_has_extensions (MetaEgl   *egl,
-                                  EGLDisplay display,
-                                  char    ***missing_extensions,
-                                  char      *first_extension,
+gboolean meta_egl_has_extensions (MetaEgl      *egl,
+                                  EGLDisplay    display,
+                                  const char ***missing_extensions,
+                                  const char   *first_extension,
                                   ...);
 
 gboolean meta_egl_initialize (MetaEgl   *egl,
@@ -158,10 +158,10 @@ const char * meta_egl_query_device_string (MetaEgl     *egl,
                                            EGLint       name,
                                            GError     **error);
 
-gboolean meta_egl_egl_device_has_extensions (MetaEgl      *egl,
-                                             EGLDeviceEXT device,
-                                             char      ***missing_extensions,
-                                             char        *first_extension,
+gboolean meta_egl_egl_device_has_extensions (MetaEgl        *egl,
+                                             EGLDeviceEXT    device,
+                                             const char   ***missing_extensions,
+                                             const char     *first_extension,
                                              ...);
 
 gboolean meta_egl_get_output_layers (MetaEgl           *egl,

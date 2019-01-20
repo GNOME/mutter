@@ -43,9 +43,9 @@ void meta_gles3_ensure_loaded (MetaGles3  *gles,
                                gpointer   *func,
                                const char *name);
 
-gboolean meta_gles3_has_extensions (MetaGles3 *gles3,
-                                    char    ***missing_extensions,
-                                    char      *first_extension,
+gboolean meta_gles3_has_extensions (MetaGles3    *gles3,
+                                    const char ***missing_extensions,
+                                    const char   *first_extension,
                                     ...);
 
 MetaGles3 * meta_gles3_new (MetaEgl *egl);
