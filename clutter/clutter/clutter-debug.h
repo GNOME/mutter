@@ -80,9 +80,9 @@ extern guint clutter_pick_debug_flags;
 extern guint clutter_paint_debug_flags;
 
 void    _clutter_debug_messagev         (const char *format,
-                                         va_list     var_args);
+                                         va_list     var_args) G_GNUC_PRINTF (1, 0);
 void    _clutter_debug_message          (const char *format,
-                                         ...);
+                                         ...) G_GNUC_PRINTF (1, 2);
 
 G_END_DECLS
 
