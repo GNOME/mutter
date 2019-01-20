@@ -202,7 +202,7 @@ gboolean      _clutter_feature_init (GError **error);
 
 /* Diagnostic mode */
 gboolean        _clutter_diagnostic_enabled     (void);
-void            _clutter_diagnostic_message     (const char *fmt, ...);
+void            _clutter_diagnostic_message     (const char *fmt, ...) G_GNUC_PRINTF (1, 2);
 
 /* Picking code */
 guint           _clutter_pixel_to_id            (guchar        pixel[4]);
