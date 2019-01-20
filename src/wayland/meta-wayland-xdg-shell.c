@@ -732,7 +732,7 @@ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
                                        window_geometry,
                                        pending->dx, pending->dy);
     }
-  else if (pending->dx != 0 || pending->dx != 0)
+  else if (pending->dx != 0 || pending->dy != 0)
     {
       g_warning ("XXX: Attach-initiated move without a new geometry. "
                  "This is unimplemented right now.");
