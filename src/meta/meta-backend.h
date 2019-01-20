@@ -34,8 +34,6 @@
 typedef struct _MetaBackend        MetaBackend;
 typedef struct _MetaBackendClass   MetaBackendClass;
 
-GType meta_backend_get_type (void);
-
 MetaBackend * meta_get_backend (void);
 
 void meta_backend_set_keymap (MetaBackend *backend,
