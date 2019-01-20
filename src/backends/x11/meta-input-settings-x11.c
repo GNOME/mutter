@@ -488,7 +488,14 @@ has_udev_property (MetaInputSettings  *settings,
   g_object_unref (parent_udev_device);
   return FALSE;
 #else
-  g_debug ("Failed to set acceleration profile: no udev support");
+  static gboolean warned_once = FALSE;
+
+  if (!warned_once)
+    {
+      g_warning ("Failed to set acceleration profile: no udev support");
+      warned_once = TRUE;
+    }
+
   return FALSE;
 #endif
 }
