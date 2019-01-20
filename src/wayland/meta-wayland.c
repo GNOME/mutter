@@ -356,7 +356,7 @@ meta_xwayland_global_filter (const struct wl_client *client,
 }
 
 void
-meta_wayland_override_display_name (char *display_name)
+meta_wayland_override_display_name (const char *display_name)
 {
   g_clear_pointer (&_display_name_override, g_free);
   _display_name_override = g_strdup (display_name);

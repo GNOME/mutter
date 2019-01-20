@@ -3207,7 +3207,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   EGLDisplay egl_display = renderer_gpu_data->egl_display;
   EGLConfig egl_config;
   EGLContext egl_context;
-  char **missing_gl_extensions;
+  const char **missing_gl_extensions;
   const char *renderer_str;
   gboolean is_hardware;
 
@@ -3247,7 +3247,8 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
     {
       char *missing_gl_extensions_str;
 
-      missing_gl_extensions_str = g_strjoinv (", ", missing_gl_extensions);
+      missing_gl_extensions_str = g_strjoinv (", ",
+                                              (char **) missing_gl_extensions);
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Missing OpenGL ES extensions: %s",
                    missing_gl_extensions_str);
@@ -3381,7 +3382,7 @@ find_egl_device (MetaRendererNative  *renderer_native,
                  GError             **error)
 {
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
-  char **missing_extensions;
+  const char **missing_extensions;
   EGLint num_devices;
   EGLDeviceEXT *devices;
   const char *kms_file_path;
@@ -3396,7 +3397,7 @@ find_egl_device (MetaRendererNative  *renderer_native,
     {
       char *missing_extensions_str;
 
-      missing_extensions_str = g_strjoinv (", ", missing_extensions);
+      missing_extensions_str = g_strjoinv (", ", (char **) missing_extensions);
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "Missing EGL extensions required for EGLDevice renderer: %s",
@@ -3484,7 +3485,7 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
                                      GError             **error)
 {
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
-  char **missing_extensions;
+  const char **missing_extensions;
   EGLDeviceEXT egl_device;
   EGLDisplay egl_display;
   MetaRendererNativeGpuData *renderer_gpu_data;
@@ -3523,7 +3524,7 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
     {
       char *missing_extensions_str;
 
-      missing_extensions_str = g_strjoinv (", ", missing_extensions);
+      missing_extensions_str = g_strjoinv (", ", (char **) missing_extensions);
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "Missing EGL extensions required for EGLDevice renderer: %s",
