@@ -114,9 +114,9 @@ meta_gles3_validate (MetaGles3 *gles3,
 }
 
 gboolean
-meta_gles3_has_extensions (MetaGles3 *gles3,
-                           char    ***missing_extensions,
-                           char      *first_extension,
+meta_gles3_has_extensions (MetaGles3    *gles3,
+                           const char ***missing_extensions,
+                           const char   *first_extension,
                            ...)
 {
   va_list var_args;
