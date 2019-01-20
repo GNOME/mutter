@@ -67,7 +67,7 @@ COGL_GTYPE_DEFINE_CLASS (Attribute, attribute);
 
 static CoglBool
 validate_cogl_attribute_name (const char *name,
-                              char **real_attribute_name,
+                              const char **real_attribute_name,
                               CoglAttributeNameID *name_id,
                               CoglBool *normalized,
                               int *layer_number)
