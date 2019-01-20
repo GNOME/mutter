@@ -1474,8 +1474,8 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
   if (G_LIKELY (!(clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS)))
     {
       CLUTTER_NOTE (PICK, "Pushing pick scissor clip x: %d, y: %d, 1x1",
-                    (int) dirty_x * fb_scale,
-                    (int) dirty_y * fb_scale);
+                    (int) (dirty_x * fb_scale),
+                    (int) (dirty_y * fb_scale));
       cogl_framebuffer_push_scissor_clip (fb, dirty_x * fb_scale, dirty_y * fb_scale, 1, 1);
     }
 
@@ -1495,7 +1495,7 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
   read_x = dirty_x * fb_scale;
   read_y = dirty_y * fb_scale;
 
-  CLUTTER_NOTE (PICK, "Performing pick at %i,%i on view %dx%d+%d+%d s: %d",
+  CLUTTER_NOTE (PICK, "Performing pick at %i,%i on view %dx%d+%d+%d s: %f",
                 x, y,
                 view_layout.width, view_layout.height,
                 view_layout.x, view_layout.y, fb_scale);
