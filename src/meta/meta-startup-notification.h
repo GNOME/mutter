@@ -27,7 +27,9 @@
 typedef struct _MetaStartupNotification MetaStartupNotification;
 typedef struct _MetaStartupSequence MetaStartupSequence;
 
+#ifdef __GI_SCANNER__
 GType         meta_startup_notification_get_type      (void);
+#endif
 
 /**
  * meta_startup_notification_get_sequences: (skip)
@@ -37,7 +39,9 @@ GSList *      meta_startup_notification_get_sequences (MetaStartupNotification *
 MetaLaunchContext *
              meta_startup_notification_create_launcher (MetaStartupNotification *sn);
 
+#ifdef __GI_SCANNER__
 GType         meta_startup_sequence_get_type          (void);
+#endif
 
 const char * meta_startup_sequence_get_id             (MetaStartupSequence *sequence);
 gboolean     meta_startup_sequence_get_completed      (MetaStartupSequence *sequence);
