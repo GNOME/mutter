@@ -1,6 +1,7 @@
 #include <cogl/cogl.h>
 #include <string.h>
 
+#include "test-declarations.h"
 #include "test-utils.h"
 
 #define BITMAP_SIZE 256

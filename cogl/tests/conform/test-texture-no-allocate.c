@@ -1,5 +1,6 @@
 #include <cogl/cogl.h>
 
+#include "test-declarations.h"
 #include "test-utils.h"
 
 /* Tests that the various texture types can be freed without being
