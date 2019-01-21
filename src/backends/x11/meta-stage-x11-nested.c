@@ -258,7 +258,7 @@ meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window)
     stage_nested->pipeline = cogl_pipeline_new (clutter_backend->cogl_context);
 
   cogl_framebuffer_clear4f (onscreen,
-                            COGL_BUFFER_BIT_COLOR,
+                            COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
                             0.0f, 0.0f, 0.0f, 1.0f);
 
   for (l = meta_renderer_get_views (renderer); l; l = l->next)
