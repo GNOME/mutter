@@ -36,9 +36,6 @@ struct _MetaScreenCastWindowInterface
 {
   GTypeInterface parent_iface;
 
-  void (*get_buffer_bounds) (MetaScreenCastWindow *screen_cast_window,
-                             MetaRectangle        *bounds);
-
   void (*get_frame_bounds) (MetaScreenCastWindow *screen_cast_window,
                             MetaRectangle        *bounds);
 
@@ -52,9 +49,6 @@ struct _MetaScreenCastWindowInterface
                         MetaRectangle        *bounds,
                         uint8_t              *data);
 };
-
-void meta_screen_cast_window_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
-                                                MetaRectangle        *bounds);
 
 void meta_screen_cast_window_get_frame_bounds (MetaScreenCastWindow *screen_cast_window,
                                                MetaRectangle        *bounds);
