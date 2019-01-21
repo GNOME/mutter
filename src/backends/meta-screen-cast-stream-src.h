@@ -76,4 +76,24 @@ MetaScreenCastStream * meta_screen_cast_stream_src_get_stream (MetaScreenCastStr
 
 MetaSpaType * meta_screen_cast_stream_src_get_spa_type (MetaScreenCastStreamSrc *src);
 
+void meta_screen_cast_stream_src_unset_cursor_metadata (MetaScreenCastStreamSrc *src,
+                                                        struct spa_meta_cursor  *spa_meta_cursor);
+
+void meta_screen_cast_stream_src_set_cursor_position_metadata (MetaScreenCastStreamSrc *src,
+                                                               struct spa_meta_cursor  *spa_meta_cursor,
+                                                               int                      x,
+                                                               int                      y);
+
+void meta_screen_cast_stream_src_set_empty_cursor_sprite_metadata (MetaScreenCastStreamSrc *src,
+                                                                   struct spa_meta_cursor  *spa_meta_cursor,
+                                                                   int                      x,
+                                                                   int                      y);
+
+void meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc *src,
+                                                             struct spa_meta_cursor  *spa_meta_cursor,
+                                                             MetaCursorSprite        *cursor_sprite,
+                                                             int                      x,
+                                                             int                      y,
+                                                             float                    scale);
+
 #endif /* META_SCREEN_CAST_STREAM_SRC_H */
