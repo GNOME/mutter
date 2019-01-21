@@ -29,26 +29,30 @@ endif
 clutter_c_args += clutter_debug_c_args
 
 clutter_pkg_deps = [
-  gdk_pixbuf_dep,
+  atk_dep,
   cairo_gobject_dep,
   glib_dep,
   gobject_dep,
   gio_dep,
+  json_glib_dep,
+  pango_dep,
+]
+
+clutter_pkg_private_deps = [
+  gdk_pixbuf_dep,
   gthread_dep,
   gmodule_no_export_dep,
-  atk_dep,
   pangocairo_dep,
-  json_glib_dep,
 ]
 
 if have_pango_ft2
-  clutter_pkg_deps += [
+  clutter_pkg_private_deps += [
     pangoft2_dep,
   ]
 endif
 
 if have_wayland
-  clutter_pkg_deps += [
+  clutter_pkg_private_deps += [
     wayland_egl_dep,
     wayland_server_dep,
   ]
@@ -57,6 +61,8 @@ endif
 if have_x11
   clutter_pkg_deps += [
     x11_dep,
+  ]
+  clutter_pkg_private_deps += [
     xext_dep,
     xdamage_dep,
     xcomposite_dep,
@@ -66,7 +72,7 @@ if have_x11
 endif
 
 if have_native_backend
-  clutter_pkg_deps += [
+  clutter_pkg_private_deps += [
     libudev_dep,
     libinput_dep,
     xkbcommon_dep,
@@ -74,13 +80,14 @@ if have_native_backend
 endif
 
 if have_libwacom
-  clutter_pkg_deps += [
+  clutter_pkg_private_deps += [
     libwacom_dep,
   ]
 endif
 
 clutter_deps = [
   clutter_pkg_deps,
+  clutter_pkg_private_deps,
   libmutter_cogl_dep,
   m_dep
 ]

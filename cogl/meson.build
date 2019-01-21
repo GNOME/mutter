@@ -21,12 +21,15 @@ cogl_mutter_config_h = configure_file(
   configuration: cdata)
 
 cogl_pkg_deps = [
-  cairo_dep,
-  #uprof_dep,
   glib_dep,
   gobject_dep,
+]
+
+cogl_pkg_private_deps = [
+  cairo_dep,
   gmodule_no_export_dep,
   gdk_pixbuf_dep,
+  #uprof_dep,
 ]
 
 if have_wayland
@@ -44,6 +47,8 @@ endif
 if have_x11
   cogl_pkg_deps += [
     x11_dep,
+  ]
+  cogl_pkg_private_deps += [
     xext_dep,
     xfixes_dep,
     xdamage_dep,
@@ -66,6 +71,7 @@ endif
 
 cogl_deps = [
   cogl_pkg_deps,
+  cogl_pkg_private_deps,
   m_dep,
 ]
 
