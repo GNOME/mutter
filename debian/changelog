@@ -23,6 +23,7 @@ mutter (3.31.90-1) UNRELEASED; urgency=medium
       + XWayland (in linux)
     - Set build dependency versions on libgbm-dev, libinput-dev, libxi-dev and
       libxcomposite-dev to match upstream required versions
+    - libmutter-4-dev depends on libgles2 development files,
     - removed breaks as per SONAME change
   * debian/*: SONAME 3 -> 4
   * debian/libmutter-4-0.symbols: Add new symbols, remove deprecated ones
