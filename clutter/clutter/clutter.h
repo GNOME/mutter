@@ -70,6 +70,7 @@
 #include "clutter-grid-layout.h"
 #include "clutter-group.h"
 #include "clutter-image.h"
+#include "clutter-image-texture.h"
 #include "clutter-input-device.h"
 #include "clutter-input-device-tool.h"
 #include "clutter-input-method.h"
