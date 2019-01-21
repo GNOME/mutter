@@ -1437,7 +1437,6 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
   cairo_rectangle_int_t view_layout;
   ClutterMainContext *context;
   guchar pixel[4] = { 0xff, 0xff, 0xff, 0xff };
-  gboolean dither_enabled_save;
   ClutterActor *retval;
   gint dirty_x;
   gint dirty_y;
@@ -1495,10 +1494,6 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                             COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
                             1.0f, 1.0f, 1.0f, 1.0f);
 
-  /* Disable dithering (if any) when doing the painting in pick mode */
-  dither_enabled_save = cogl_framebuffer_get_dither_enabled (fb);
-  cogl_framebuffer_set_dither_enabled (fb, FALSE);
-
   /* Render the entire scence in pick mode - just single colored silhouette's
    * are drawn offscreen (as we never swap buffers)
   */
@@ -1530,9 +1525,6 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
 
       g_free (file_name);
     }
-
-  /* Restore whether GL_DITHER was enabled */
-  cogl_framebuffer_set_dither_enabled (fb, dither_enabled_save);
 
   if (G_LIKELY (!(clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS)))
     cogl_framebuffer_pop_clip (fb);
