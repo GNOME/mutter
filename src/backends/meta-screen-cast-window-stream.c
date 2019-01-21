@@ -44,6 +44,8 @@ struct _MetaScreenCastWindowStream
 
   int stream_width;
   int stream_height;
+  int logical_width;
+  int logical_height;
 
   unsigned long window_unmanaged_handler_id;
 };
@@ -128,8 +130,8 @@ meta_screen_cast_window_stream_set_parameters (MetaScreenCastStream *stream,
   g_variant_builder_add (parameters_builder, "{sv}",
                          "size",
                          g_variant_new ("(ii)",
-                                        bounds.width,
-                                        bounds.height));
+                                        window_stream->logical_width,
+                                        window_stream->logical_height));
 }
 
 static void
@@ -237,6 +239,8 @@ meta_screen_cast_window_stream_initable_init (GInitable     *initable,
    * So we set a size equals to the size of the logical monitor for the window.
    */
   scale = (int) ceil (meta_logical_monitor_get_scale (logical_monitor));
+  window_stream->logical_width = logical_monitor->rect.width;
+  window_stream->logical_height = logical_monitor->rect.height;
   window_stream->stream_width = logical_monitor->rect.width * scale;
   window_stream->stream_height = logical_monitor->rect.height * scale;
 
