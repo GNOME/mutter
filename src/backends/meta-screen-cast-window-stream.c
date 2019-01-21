@@ -48,9 +48,16 @@ struct _MetaScreenCastWindowStream
   unsigned long window_unmanaged_handler_id;
 };
 
-G_DEFINE_TYPE (MetaScreenCastWindowStream,
-               meta_screen_cast_window_stream,
-               META_TYPE_SCREEN_CAST_STREAM)
+static GInitableIface *initable_parent_iface;
+
+static void
+meta_screen_cast_window_stream_init_initable_iface (GInitableIface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (MetaScreenCastWindowStream,
+                         meta_screen_cast_window_stream,
+                         META_TYPE_SCREEN_CAST_STREAM,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                meta_screen_cast_window_stream_init_initable_iface))
 
 MetaWindow *
 meta_screen_cast_window_stream_get_window (MetaScreenCastWindowStream *window_stream)
@@ -76,38 +83,13 @@ meta_screen_cast_window_stream_new (MetaScreenCastSession  *session,
                                     MetaWindow             *window,
                                     GError                **error)
 {
-  MetaScreenCastWindowStream *window_stream;
-  MetaLogicalMonitor *logical_monitor;
-  int scale;
-
-  logical_monitor = meta_window_get_main_logical_monitor (window);
-  if (!logical_monitor)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Main logical monitor not found");
-      return NULL;
-    }
-
-  window_stream = g_initable_new (META_TYPE_SCREEN_CAST_WINDOW_STREAM,
-                                  NULL,
-                                  error,
-                                  "session", session,
-                                  "connection", connection,
-                                  "window", window,
-                                  NULL);
-  if (!window_stream)
-    return NULL;
-
-  window_stream->window = window;
-  /* We cannot set the stream size to the exact size of the window, because
-   * windows can be resized, whereas streams cannot.
-   * So we set a size equals to the size of the logical monitor for the window.
-   */
-  scale = (int) ceil (meta_logical_monitor_get_scale (logical_monitor));
-  window_stream->stream_width = logical_monitor->rect.width * scale;
-  window_stream->stream_height = logical_monitor->rect.height * scale;
-
-  return window_stream;
+  return g_initable_new (META_TYPE_SCREEN_CAST_WINDOW_STREAM,
+                         NULL,
+                         error,
+                         "session", session,
+                         "connection", connection,
+                         "window", window,
+                         NULL);
 }
 
 static MetaScreenCastStreamSrc *
@@ -176,20 +158,6 @@ on_window_unmanaged (MetaScreenCastWindowStream *window_stream)
 }
 
 static void
-meta_screen_cast_window_stream_constructed (GObject *object)
-{
-  MetaScreenCastWindowStream *window_stream =
-    META_SCREEN_CAST_WINDOW_STREAM (object);
-
-  window_stream->window_unmanaged_handler_id =
-    g_signal_connect_swapped (window_stream->window, "unmanaged",
-                              G_CALLBACK (on_window_unmanaged),
-                              window_stream);
-
-  G_OBJECT_CLASS (meta_screen_cast_window_stream_parent_class)->constructed (object);
-}
-
-static void
 meta_screen_cast_window_stream_set_property (GObject      *object,
                                              guint         prop_id,
                                              const GValue *value,
@@ -233,10 +201,54 @@ meta_screen_cast_window_stream_finalize (GObject *object)
   MetaScreenCastWindowStream *window_stream =
     META_SCREEN_CAST_WINDOW_STREAM (object);
 
-  g_signal_handler_disconnect (window_stream->window,
-                               window_stream->window_unmanaged_handler_id);
+  if (window_stream->window_unmanaged_handler_id)
+    g_signal_handler_disconnect (window_stream->window,
+                                 window_stream->window_unmanaged_handler_id);
 
   G_OBJECT_CLASS (meta_screen_cast_window_stream_parent_class)->finalize (object);
+}
+
+static gboolean
+meta_screen_cast_window_stream_initable_init (GInitable     *initable,
+                                              GCancellable  *cancellable,
+                                              GError       **error)
+{
+  MetaScreenCastWindowStream *window_stream =
+    META_SCREEN_CAST_WINDOW_STREAM (initable);
+  MetaWindow *window = window_stream->window;
+  MetaLogicalMonitor *logical_monitor;
+  int scale;
+
+  logical_monitor = meta_window_get_main_logical_monitor (window);
+  if (!logical_monitor)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Main logical monitor not found");
+      return FALSE;
+    }
+
+  window_stream->window_unmanaged_handler_id =
+    g_signal_connect_swapped (window, "unmanaged",
+                              G_CALLBACK (on_window_unmanaged),
+                              window_stream);
+
+  /* We cannot set the stream size to the exact size of the window, because
+   * windows can be resized, whereas streams cannot.
+   * So we set a size equals to the size of the logical monitor for the window.
+   */
+  scale = (int) ceil (meta_logical_monitor_get_scale (logical_monitor));
+  window_stream->stream_width = logical_monitor->rect.width * scale;
+  window_stream->stream_height = logical_monitor->rect.height * scale;
+
+  return initable_parent_iface->init (initable, cancellable, error);
+}
+
+static void
+meta_screen_cast_window_stream_init_initable_iface (GInitableIface *iface)
+{
+  initable_parent_iface = g_type_interface_peek_parent (iface);
+
+  iface->init = meta_screen_cast_window_stream_initable_init;
 }
 
 static void
@@ -251,7 +263,6 @@ meta_screen_cast_window_stream_class_init (MetaScreenCastWindowStreamClass *klas
   MetaScreenCastStreamClass *stream_class =
     META_SCREEN_CAST_STREAM_CLASS (klass);
 
-  object_class->constructed = meta_screen_cast_window_stream_constructed;
   object_class->set_property = meta_screen_cast_window_stream_set_property;
   object_class->get_property = meta_screen_cast_window_stream_get_property;
   object_class->finalize = meta_screen_cast_window_stream_finalize;
