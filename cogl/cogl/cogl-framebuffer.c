@@ -267,6 +267,11 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
   int scissor_x1;
   int scissor_y1;
   CoglBool saved_viewport_scissor_workaround;
+  gboolean has_depth_and_color_buffer_bits;
+
+  has_depth_and_color_buffer_bits =
+      (buffers & COGL_BUFFER_BIT_DEPTH) &&
+      (buffers & COGL_BUFFER_BIT_COLOR);
 
   if (!framebuffer->depth_buffer_clear_needed &&
       (buffers & COGL_BUFFER_BIT_DEPTH))
@@ -313,8 +318,7 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
    * Note: Comparing without an epsilon is considered
    * appropriate here.
    */
-  if (buffers & COGL_BUFFER_BIT_COLOR &&
-      buffers & COGL_BUFFER_BIT_DEPTH &&
+  if (has_depth_and_color_buffer_bits &&
       !framebuffer->clear_clip_dirty &&
       framebuffer->clear_color_red == red &&
       framebuffer->clear_color_green == green &&
@@ -425,7 +429,7 @@ cleared:
   if (buffers & COGL_BUFFER_BIT_DEPTH)
     framebuffer->depth_buffer_clear_needed = FALSE;
 
-  if (buffers & COGL_BUFFER_BIT_COLOR && buffers & COGL_BUFFER_BIT_DEPTH)
+  if (has_depth_and_color_buffer_bits)
     {
       /* For our fast-path for reading back a single pixel of simple
        * scenes where the whole frame is in the journal we need to
