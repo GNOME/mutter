@@ -15,15 +15,18 @@ mutter_pkg_deps = [
   cairo_dep,
   gio_unix_dep,
   glib_dep,
+  gsettings_desktop_schemas_dep,
+  gtk3_dep,
+  pango_dep,
+]
+
+mutter_pkg_private_deps = [
   gmodule_no_export_dep,
   gnome_desktop_dep,
-  gsettings_desktop_schemas_dep,
   gnome_settings_daemon_dep,
-  gtk3_dep,
   json_glib_dep,
-  pango_dep,
-  xkbcommon_dep,
   libcanberra_dep,
+  xkbcommon_dep,
 ]
 
 if have_gl
@@ -33,7 +36,7 @@ if have_gl
 endif
 
 if have_gles2
-  mutter_pkg_deps += [
+  mutter_pkg_private_deps += [
     gles2_dep,
   ]
 endif
@@ -45,49 +48,51 @@ if have_egl
 endif
 
 if have_libgudev
-  mutter_pkg_deps += [
+  mutter_pkg_private_deps += [
     gudev_dep,
     libudev_dep,
   ]
 endif
 
 if have_startup_notification
-  mutter_pkg_deps += [
+  mutter_pkg_private_deps += [
     libstartup_notification_dep,
   ]
 endif
 
 if have_libwacom
-  mutter_pkg_deps += [
+  mutter_pkg_private_deps += [
     libwacom_dep,
   ]
 endif
 
 if have_remote_desktop
-  mutter_pkg_deps += [
+  mutter_pkg_private_deps += [
     libpipewire_dep,
   ]
 endif
 
 if have_introspection
-  mutter_pkg_deps += [
+  mutter_pkg_private_deps += [
     gobject_introspection_dep,
   ]
 endif
 
 if have_x11
   mutter_pkg_deps += [
-    xrandr_dep,
+    xfixes_dep,
+    xi_dep,
     x11_dep,
+  ]
+
+  mutter_pkg_private_deps += [
+    xrandr_dep,
     xinerama_dep,
     xext_dep,
     ice_dep,
     xcomposite_dep,
     xcursor_dep,
     xdamage_dep,
-    xext_dep,
-    xfixes_dep,
-    xi_dep,
     xkbfile_dep,
     xkeyboard_config_dep,
     xkbcommon_x11_dep,
@@ -98,7 +103,7 @@ if have_x11
   ]
 
   if have_sm
-    mutter_pkg_deps += [
+    mutter_pkg_private_deps += [
       sm_dep,
     ]
   endif
@@ -111,7 +116,7 @@ if have_wayland
 endif
 
 if have_native_backend
-  mutter_pkg_deps += [
+  mutter_pkg_private_deps += [
     libdrm_dep,
     libinput_dep,
     gudev_dep,
@@ -124,13 +129,14 @@ if have_wayland_eglstream
   mutter_lib_deps += [
     dl_dep,
   ]
-  mutter_pkg_deps += [
+  mutter_pkg_private_deps += [
     wayland_eglstream_protocols_dep,
   ]
 endif
 
 mutter_deps = [
   mutter_pkg_deps,
+  mutter_pkg_private_deps,
   mutter_lib_deps,
 ]
 
