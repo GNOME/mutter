@@ -116,16 +116,6 @@ meta_screen_cast_window_stream_set_parameters (MetaScreenCastStream *stream,
 {
   MetaScreenCastWindowStream *window_stream =
     META_SCREEN_CAST_WINDOW_STREAM (stream);
-  MetaScreenCastWindow *screen_cast_window =
-    META_SCREEN_CAST_WINDOW (meta_window_actor_from_window (window_stream->window));
-  MetaRectangle bounds;
-
-  meta_screen_cast_window_get_buffer_bounds (screen_cast_window, &bounds);
-
-  g_variant_builder_add (parameters_builder, "{sv}",
-                         "position",
-                         g_variant_new ("(ii)",
-                                        bounds.x, bounds.y));
 
   g_variant_builder_add (parameters_builder, "{sv}",
                          "size",

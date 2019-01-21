@@ -1851,20 +1851,6 @@ meta_window_actor_from_window (MetaWindow *window)
 }
 
 static void
-meta_window_actor_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
-                                     MetaRectangle        *bounds)
-{
-  MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
-  ClutterActor *clutter_actor;
-
-  clutter_actor = CLUTTER_ACTOR (meta_window_actor_get_texture (window_actor));
-  bounds->x = 0;
-  bounds->y = 0;
-  bounds->width = (int) clutter_actor_get_width (clutter_actor);
-  bounds->height = (int) clutter_actor_get_height (clutter_actor);
-}
-
-static void
 meta_window_actor_get_frame_bounds (MetaScreenCastWindow *screen_cast_window,
                                     MetaRectangle        *bounds)
 {
@@ -1978,7 +1964,6 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
 static void
 screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
 {
-  iface->get_buffer_bounds = meta_window_actor_get_buffer_bounds;
   iface->get_frame_bounds = meta_window_actor_get_frame_bounds;
   iface->transform_relative_position = meta_window_actor_transform_relative_position;
   iface->capture_into = meta_window_actor_capture_into;
