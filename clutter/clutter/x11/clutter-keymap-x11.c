@@ -838,6 +838,26 @@ clutter_keymap_x11_keycode_for_keyval (ClutterKeymapX11 *keymap_x11,
         }
     }
 
+  if (!found)
+    {
+      GHashTableIter iter;
+      gpointer key, value;
+
+      g_hash_table_iter_init (&iter, keymap_x11->reserved_keycodes);
+      while (!found && g_hash_table_iter_next (&iter, &key, &value))
+        {
+          guint reserved_keycode = GPOINTER_TO_UINT (key);
+          guint reserved_keysym = GPOINTER_TO_UINT (value);
+
+          if (keyval == reserved_keysym)
+            {
+              *keycode_out = reserved_keycode;
+              *level_out = 0;
+              found = TRUE;
+            }
+        }
+    }
+
   g_free (keys);
   return found;
 }
