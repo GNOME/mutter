@@ -1930,36 +1930,38 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (window_actor);
   cairo_surface_t *image;
-  MetaRectangle clip_rect;
   uint8_t *cr_data;
   int cr_stride;
+  int cr_width;
+  int cr_height;
   int bpp = 4;
 
   if (meta_window_actor_is_destroyed (window_actor))
     return;
 
-  clip_rect = *bounds;
-  image = meta_surface_actor_get_image (priv->surface, &clip_rect);
+  image = meta_surface_actor_get_image (priv->surface, bounds);
   cr_data = cairo_image_surface_get_data (image);
+  cr_width = cairo_image_surface_get_width (image);
+  cr_height = cairo_image_surface_get_height (image);
   cr_stride = cairo_image_surface_get_stride (image);
 
-  if (clip_rect.width < bounds->width || clip_rect.height < bounds->height)
+  if (cr_width < bounds->width || cr_height < bounds->height)
     {
       uint8_t *src, *dst;
       src = cr_data;
       dst = data;
 
-      for (int i = 0; i < clip_rect.height; i++)
+      for (int i = 0; i < cr_height; i++)
         {
           memcpy (dst, src, cr_stride);
-          if (clip_rect.width < bounds->width)
+          if (cr_width < bounds->width)
             memset (dst + cr_stride, 0, (bounds->width * bpp) - cr_stride);
 
           src += cr_stride;
           dst += bounds->width * bpp;
         }
 
-      for (int i = clip_rect.height; i < bounds->height; i++)
+      for (int i = cr_height; i < bounds->height; i++)
         {
           memset (dst, 0, bounds->width * bpp);
           dst += bounds->width * bpp;
@@ -1967,7 +1969,7 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
     }
   else
     {
-      memcpy (data, cr_data, clip_rect.height * cr_stride);
+      memcpy (data, cr_data, cr_height * cr_stride);
     }
 
   cairo_surface_destroy (image);
