@@ -524,6 +524,7 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
   c_args: clutter_c_args,
   include_directories: clutter_includes,
   dependencies: [clutter_deps],
+  gnu_symbol_visibility: 'hidden',
   link_with: [
     libmutter_cogl,
     libmutter_cogl_pango,
