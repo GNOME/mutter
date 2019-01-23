@@ -127,7 +127,7 @@ meta_launch_context_get_startup_notify_id (GAppLaunchContext *launch_context,
   MetaLaunchContext *context = META_LAUNCH_CONTEXT (launch_context);
   MetaDisplay *display = context->display;
   int workspace_idx = -1;
-  gchar *startup_id;
+  gchar *startup_id = NULL;
 
   if (context->workspace)
     workspace_idx = meta_workspace_index (context->workspace);
