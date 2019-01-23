@@ -28,21 +28,38 @@
 #include <meta/types.h>
 
 #define META_TYPE_X11_DISPLAY (meta_x11_display_get_type ())
+
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaX11Display, meta_x11_display, META, X11_DISPLAY, GObject)
 
+META_EXPORT
 gboolean meta_x11_init_gdk_display (GError **error);
 
+META_EXPORT
 int      meta_x11_display_get_screen_number (MetaX11Display *x11_display);
+
+META_EXPORT
 Display *meta_x11_display_get_xdisplay      (MetaX11Display *x11_display);
+
+META_EXPORT
 Window   meta_x11_display_get_xroot         (MetaX11Display *x11_display);
 
+META_EXPORT
 int      meta_x11_display_get_xinput_opcode     (MetaX11Display *x11_display);
+
+META_EXPORT
 int      meta_x11_display_get_damage_event_base (MetaX11Display *x11_display);
+
+META_EXPORT
 int      meta_x11_display_get_shape_event_base  (MetaX11Display *x11_display);
+
+META_EXPORT
 gboolean meta_x11_display_has_shape             (MetaX11Display *x11_display);
 
+META_EXPORT
 void meta_x11_display_set_cm_selection (MetaX11Display *x11_display);
 
+META_EXPORT
 gboolean meta_x11_display_xwindow_is_a_no_focus_window (MetaX11Display *x11_display,
                                                         Window xwindow);
 
@@ -55,6 +72,7 @@ gboolean meta_x11_display_xwindow_is_a_no_focus_window (MetaX11Display *x11_disp
  * whether a window should be allowed to be focused should depend
  * on user_time events (see bug 167358, comment 15 in particular)
  */
+META_EXPORT
 void meta_x11_display_set_input_focus_window (MetaX11Display *x11_display,
                                               MetaWindow     *window,
                                               gboolean        focus_frame,
@@ -64,6 +82,7 @@ void meta_x11_display_set_input_focus_window (MetaX11Display *x11_display,
  * designated no_focus_window should be focused, but is otherwise the
  * same as meta_display_set_input_focus_window
  */
+META_EXPORT
 void meta_x11_display_focus_the_no_focus_window (MetaX11Display *x11_display,
                                                  guint32         timestamp);
 

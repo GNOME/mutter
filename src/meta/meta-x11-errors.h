@@ -27,10 +27,14 @@
 #include <meta/util.h>
 #include <meta/meta-x11-display.h>
 
+META_EXPORT
 void      meta_x11_error_trap_push (MetaX11Display *x11_display);
+
+META_EXPORT
 void      meta_x11_error_trap_pop  (MetaX11Display *x11_display);
 
 /* returns X error code, or 0 for no error */
+META_EXPORT
 int       meta_x11_error_trap_pop_with_return  (MetaX11Display *x11_display);
 
 

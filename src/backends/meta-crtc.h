@@ -24,6 +24,7 @@
 
 #include "backends/meta-backend-types.h"
 #include "backends/meta-monitor-transform.h"
+#include "core/util-private.h"
 #include "meta/boxes.h"
 
 /* Same as KMS mode flags and X11 randr flags */
@@ -90,10 +91,10 @@ struct _MetaCrtcMode
 };
 
 #define META_TYPE_CRTC (meta_crtc_get_type ())
-G_DECLARE_FINAL_TYPE (MetaCrtc, meta_crtc, META, CRTC, GObject)
+META_EXPORT_TEST G_DECLARE_FINAL_TYPE (MetaCrtc, meta_crtc, META, CRTC, GObject)
 
 #define META_TYPE_CRTC_MODE (meta_crtc_mode_get_type ())
-G_DECLARE_FINAL_TYPE (MetaCrtcMode, meta_crtc_mode, META, CRTC_MODE, GObject)
+META_EXPORT_TEST G_DECLARE_FINAL_TYPE (MetaCrtcMode, meta_crtc_mode, META, CRTC_MODE, GObject)
 
 MetaGpu * meta_crtc_get_gpu (MetaCrtc *crtc);
 

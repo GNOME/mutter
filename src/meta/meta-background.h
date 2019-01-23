@@ -35,25 +35,36 @@
  */
 
 #define META_TYPE_BACKGROUND (meta_background_get_type ())
+
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaBackground,
                       meta_background,
                       META, BACKGROUND,
                       GObject)
 
 
+META_EXPORT
 void meta_background_refresh_all (void);
 
+META_EXPORT
 MetaBackground *meta_background_new (MetaDisplay *display);
 
+META_EXPORT
 void meta_background_set_color    (MetaBackground            *self,
                                    ClutterColor              *color);
+
+META_EXPORT
 void meta_background_set_gradient (MetaBackground            *self,
                                    GDesktopBackgroundShading  shading_direction,
                                    ClutterColor              *color,
                                    ClutterColor              *second_color);
+
+META_EXPORT
 void meta_background_set_file     (MetaBackground            *self,
                                    GFile                     *file,
                                    GDesktopBackgroundStyle    style);
+
+META_EXPORT
 void meta_background_set_blend    (MetaBackground            *self,
                                    GFile                     *file1,
                                    GFile                     *file2,

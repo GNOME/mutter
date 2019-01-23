@@ -30,26 +30,39 @@
 #include "meta/display.h"
 
 #define META_TYPE_BACKGROUND_IMAGE (meta_background_image_get_type ())
+
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaBackgroundImage,
                       meta_background_image,
                       META, BACKGROUND_IMAGE,
                       GObject)
 
+META_EXPORT
 gboolean     meta_background_image_is_loaded   (MetaBackgroundImage *image);
+
+META_EXPORT
 gboolean     meta_background_image_get_success (MetaBackgroundImage *image);
+
+META_EXPORT
 CoglTexture *meta_background_image_get_texture (MetaBackgroundImage *image);
 
 
 #define META_TYPE_BACKGROUND_IMAGE_CACHE (meta_background_image_cache_get_type ())
+
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaBackgroundImageCache,
                       meta_background_image_cache,
                       META, BACKGROUND_IMAGE_CACHE,
                       GObject)
 
+META_EXPORT
 MetaBackgroundImageCache *meta_background_image_cache_get_default (void);
 
+META_EXPORT
 MetaBackgroundImage *meta_background_image_cache_load  (MetaBackgroundImageCache *cache,
                                                         GFile                    *file);
+
+META_EXPORT
 void                 meta_background_image_cache_purge (MetaBackgroundImageCache *cache,
                                                         GFile                    *file);
 

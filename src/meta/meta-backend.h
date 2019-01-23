@@ -38,27 +38,36 @@ typedef struct _MetaBackendClass   MetaBackendClass;
 GType meta_backend_get_type (void);
 #endif
 
+META_EXPORT
 MetaBackend * meta_get_backend (void);
 
+META_EXPORT
 void meta_backend_set_keymap (MetaBackend *backend,
                               const char  *layouts,
                               const char  *variants,
                               const char  *options);
 
+META_EXPORT
 void meta_backend_lock_layout_group (MetaBackend *backend,
                                      guint        idx);
 
+META_EXPORT
 void meta_backend_set_numlock (MetaBackend *backend,
                                gboolean     numlock_state);
 
+META_EXPORT
 ClutterActor *meta_backend_get_stage (MetaBackend *backend);
 
+META_EXPORT
 MetaDnd      *meta_backend_get_dnd   (MetaBackend *backend);
 
+META_EXPORT
 MetaSettings *meta_backend_get_settings (MetaBackend *backend);
 
+META_EXPORT
 MetaRemoteAccessController * meta_backend_get_remote_access_controller (MetaBackend *backend);
 
+META_EXPORT
 void meta_clutter_init (void);
 
 #endif /* META_BACKEND_H */

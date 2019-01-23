@@ -50,6 +50,7 @@
 #define DEFAULT_XKB_MODEL "pc105+inet"
 
 #define META_TYPE_BACKEND (meta_backend_get_type ())
+META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaBackend, meta_backend, META, BACKEND, GObject)
 
 struct _MetaBackendClass
@@ -118,10 +119,12 @@ void meta_backend_foreach_device_monitor (MetaBackend *backend,
                                           GFunc        func,
                                           gpointer     user_data);
 
+META_EXPORT_TEST
 MetaMonitorManager * meta_backend_get_monitor_manager (MetaBackend *backend);
 MetaOrientationManager * meta_backend_get_orientation_manager (MetaBackend *backend);
 MetaCursorTracker * meta_backend_get_cursor_tracker (MetaBackend *backend);
 MetaCursorRenderer * meta_backend_get_cursor_renderer (MetaBackend *backend);
+META_EXPORT_TEST
 MetaRenderer * meta_backend_get_renderer (MetaBackend *backend);
 MetaEgl * meta_backend_get_egl (MetaBackend *backend);
 
@@ -164,6 +167,7 @@ void meta_backend_set_client_pointer_constraint (MetaBackend *backend,
 
 void meta_backend_monitors_changed (MetaBackend *backend);
 
+META_EXPORT_TEST
 gboolean meta_is_stage_views_enabled (void);
 
 gboolean meta_is_stage_views_scaled (void);
