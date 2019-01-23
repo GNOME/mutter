@@ -2007,6 +2007,12 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
   cairo_surface_destroy (image);
 }
 
+static gboolean
+meta_window_actor_has_damage (MetaScreenCastWindow *screen_cast_window)
+{
+  return clutter_actor_has_damage (CLUTTER_ACTOR (screen_cast_window));
+}
+
 static void
 screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
 {
@@ -2014,4 +2020,5 @@ screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
   iface->transform_relative_position = meta_window_actor_transform_relative_position;
   iface->transform_cursor_position = meta_window_actor_transform_cursor_position;
   iface->capture_into = meta_window_actor_capture_into;
+  iface->has_damage = meta_window_actor_has_damage;
 }
