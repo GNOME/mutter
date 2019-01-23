@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <glib-object.h>
 
+#include "backends/meta-cursor.h"
 #include "meta/boxes.h"
 
 G_BEGIN_DECLS
@@ -45,6 +46,12 @@ struct _MetaScreenCastWindowInterface
                                        double               *x_out,
                                        double               *y_out);
 
+  gboolean (*transform_cursor_position) (MetaScreenCastWindow *screen_cast_window,
+                                         MetaCursorSprite     *cursor_sprite,
+                                         ClutterPoint         *cursor_position,
+                                         float                *out_cursor_scale,
+                                         ClutterPoint         *out_relative_cursor_position);
+
   void (*capture_into) (MetaScreenCastWindow *screen_cast_window,
                         MetaRectangle        *bounds,
                         uint8_t              *data);
@@ -58,6 +65,12 @@ void meta_screen_cast_window_transform_relative_position (MetaScreenCastWindow *
                                                           double                y,
                                                           double               *x_out,
                                                           double               *y_out);
+
+gboolean meta_screen_cast_window_transform_cursor_position (MetaScreenCastWindow *screen_cast_window,
+                                                            MetaCursorSprite     *cursor_sprite,
+                                                            ClutterPoint         *cursor_position,
+                                                            float                *out_cursor_scale,
+                                                            ClutterPoint         *out_relative_cursor_position);
 
 void meta_screen_cast_window_capture_into (MetaScreenCastWindow *screen_cast_window,
                                            MetaRectangle        *bounds,
