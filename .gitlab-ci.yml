@@ -10,11 +10,22 @@ build-mutter:
     - meson . build -Degl_device=true -Dwayland_eglstream=true --werror
     - ninja -C build
     - ninja -C build install
+  artifacts:
+    expire_in: 2 hours
+    paths:
+      - build
 
 test-mutter:
   stage: test
+  dependencies:
+    - build-mutter
+  artifacts:
+    paths:
+      - build
   script:
-    - meson . build -Degl_device=true -Dwayland_eglstream=true
-    - ninja -C build
     - glib-compile-schemas $PWD/build/data
-    - env XDG_RUNTIME_DIR=/tmp/ GSETTINGS_SCHEMA_DIR=$PWD/build/data dbus-run-session -- xvfb-run -s '+iglx -noreset' meson test -C build -t 10 --verbose --no-stdsplit --wrap catchsegv
+    - mkdir -m 700 $PWD/runtime-dir
+    - env XDG_RUNTIME_DIR=$PWD/runtime-dir
+      GSETTINGS_SCHEMA_DIR=$PWD/build/data
+      dbus-run-session -- xvfb-run -s '+iglx -noreset'
+      meson test -C build --no-rebuild -t 10 --verbose --no-stdsplit --wrap catchsegv
