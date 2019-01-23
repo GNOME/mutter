@@ -31,10 +31,10 @@ struct _MetaScreenCastWindowStreamSrc
 {
   MetaScreenCastStreamSrc parent;
 
-  MetaWindowActor *window_actor;
+  MetaScreenCastWindow *screen_cast_window;
 
-  unsigned long actor_after_paint_handler_id;
-  unsigned long actor_destroyed_handler_id;
+  unsigned long screen_cast_window_after_paint_handler_id;
+  unsigned long screen_cast_window_destroyed_handler_id;
 };
 
 G_DEFINE_TYPE (MetaScreenCastWindowStreamSrc,
@@ -88,15 +88,14 @@ capture_into (MetaScreenCastWindowStreamSrc *window_src,
               uint8_t                       *data)
 {
   MetaRectangle stream_rect;
-  MetaScreenCastWindow *screen_cast_window;
 
   stream_rect.x = 0;
   stream_rect.y = 0;
   stream_rect.width = get_stream_width (window_src);
   stream_rect.height = get_stream_height (window_src);
 
-  screen_cast_window = META_SCREEN_CAST_WINDOW (window_src->window_actor);
-  meta_screen_cast_window_capture_into (screen_cast_window, &stream_rect, data);
+  meta_screen_cast_window_capture_into (window_src->screen_cast_window,
+                                        &stream_rect, data);
 
   return TRUE;
 }
@@ -121,11 +120,10 @@ meta_screen_cast_window_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
 {
   MetaScreenCastWindowStreamSrc *window_src =
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
-  MetaScreenCastWindow *screen_cast_window;
   MetaRectangle stream_rect;
 
-  screen_cast_window = META_SCREEN_CAST_WINDOW (window_src->window_actor);
-  meta_screen_cast_window_get_frame_bounds (screen_cast_window, crop_rect);
+  meta_screen_cast_window_get_frame_bounds (window_src->screen_cast_window,
+                                            crop_rect);
 
   stream_rect.x = 0;
   stream_rect.y = 0;
@@ -141,23 +139,24 @@ static void
 meta_screen_cast_window_stream_src_stop (MetaScreenCastWindowStreamSrc *window_src)
 
 {
-  if (!window_src->window_actor)
+  if (!window_src->screen_cast_window)
     return;
 
-  if (window_src->actor_after_paint_handler_id)
-    g_signal_handler_disconnect (window_src->window_actor,
-                                 window_src->actor_after_paint_handler_id);
-  window_src->actor_after_paint_handler_id = 0;
 
-  if (window_src->actor_destroyed_handler_id)
-    g_signal_handler_disconnect (window_src->window_actor,
-                                 window_src->actor_destroyed_handler_id);
-  window_src->actor_destroyed_handler_id = 0;
+  if (window_src->screen_cast_window_after_paint_handler_id)
+    g_signal_handler_disconnect (window_src->screen_cast_window,
+                                 window_src->screen_cast_window_after_paint_handler_id);
+  window_src->screen_cast_window_after_paint_handler_id = 0;
+
+  if (window_src->screen_cast_window_destroyed_handler_id)
+    g_signal_handler_disconnect (window_src->screen_cast_window,
+                                 window_src->screen_cast_window_destroyed_handler_id);
+  window_src->screen_cast_window_destroyed_handler_id = 0;
 }
 
 static void
-window_actor_after_paint (MetaWindowActor               *actor,
-                          MetaScreenCastWindowStreamSrc *window_src)
+screen_cast_window_after_paint (MetaScreenCastWindow          *screen_cast_window,
+                                MetaScreenCastWindowStreamSrc *window_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
 
@@ -165,11 +164,11 @@ window_actor_after_paint (MetaWindowActor               *actor,
 }
 
 static void
-window_actor_destroyed (MetaWindowActor               *actor,
-                        MetaScreenCastWindowStreamSrc *window_src)
+screen_cast_window_destroyed (MetaScreenCastWindow          *screen_cast_window,
+                              MetaScreenCastWindowStreamSrc *window_src)
 {
   meta_screen_cast_window_stream_src_stop (window_src);
-  window_src->window_actor = NULL;
+  window_src->screen_cast_window = NULL;
 }
 
 static void
@@ -183,18 +182,18 @@ meta_screen_cast_window_stream_src_enable (MetaScreenCastStreamSrc *src)
   if (!window_actor)
     return;
 
-  window_src->window_actor = window_actor;
+  window_src->screen_cast_window = META_SCREEN_CAST_WINDOW (window_actor);
 
-  window_src->actor_after_paint_handler_id =
-    g_signal_connect_after (window_src->window_actor,
+  window_src->screen_cast_window_after_paint_handler_id =
+    g_signal_connect_after (window_src->screen_cast_window,
                             "paint",
-                            G_CALLBACK (window_actor_after_paint),
+                            G_CALLBACK (screen_cast_window_after_paint),
                             window_src);
 
-  window_src->actor_destroyed_handler_id =
-    g_signal_connect (window_src->window_actor,
+  window_src->screen_cast_window_destroyed_handler_id =
+    g_signal_connect (window_src->screen_cast_window,
                       "destroy",
-                      G_CALLBACK (window_actor_destroyed),
+                      G_CALLBACK (screen_cast_window_destroyed),
                       window_src);
 }
 
