@@ -73,6 +73,7 @@ enum
 static GParamSpec *obj_props[PROP_LAST];
 
 enum {
+  MONITORS_CHANGED,
   MONITORS_CHANGED_INTERNAL,
   CONFIRM_DISPLAY_CHANGE,
   SIGNALS_LAST
@@ -92,12 +93,10 @@ static gfloat transform_matrices[][6] = {
 
 static int signals[SIGNALS_LAST];
 
-static void meta_monitor_manager_display_config_init (MetaDBusDisplayConfigIface *iface);
-
-G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaMonitorManager, meta_monitor_manager, META_DBUS_TYPE_DISPLAY_CONFIG_SKELETON,
-                                  G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_DISPLAY_CONFIG, meta_monitor_manager_display_config_init));
+G_DEFINE_TYPE (MetaMonitorManager, meta_monitor_manager, G_TYPE_OBJECT)
 
 static void initialize_dbus_interface (MetaMonitorManager *manager);
+static void monitor_manager_setup_dbus_config_handlers (MetaMonitorManager *manager);
 
 static gboolean
 meta_monitor_manager_is_config_complete (MetaMonitorManager *manager,
@@ -334,7 +333,7 @@ power_save_mode_changed (MetaMonitorManager *manager,
                          gpointer            user_data)
 {
   MetaMonitorManagerClass *klass;
-  int mode = meta_dbus_display_config_get_power_save_mode (META_DBUS_DISPLAY_CONFIG (manager));
+  int mode = meta_dbus_display_config_get_power_save_mode (manager->dbus_config);
 
   if (mode == META_POWER_SAVE_UNSUPPORTED)
     return;
@@ -342,7 +341,7 @@ power_save_mode_changed (MetaMonitorManager *manager,
   /* If DPMS is unsupported, force the property back. */
   if (manager->power_save_mode == META_POWER_SAVE_UNSUPPORTED)
     {
-      meta_dbus_display_config_set_power_save_mode (META_DBUS_DISPLAY_CONFIG (manager), META_POWER_SAVE_UNSUPPORTED);
+      meta_dbus_display_config_set_power_save_mode (manager->dbus_config, META_POWER_SAVE_UNSUPPORTED);
       return;
     }
 
@@ -737,14 +736,19 @@ meta_monitor_manager_constructed (GObject *object)
   MetaBackend *backend = manager->backend;
   MetaSettings *settings = meta_backend_get_settings (backend);
 
+  manager->dbus_config = meta_dbus_display_config_skeleton_new ();
+
   manager->experimental_features_changed_handler_id =
     g_signal_connect (settings,
                       "experimental-features-changed",
                       G_CALLBACK (experimental_features_changed),
                       manager);
 
-  g_signal_connect_object (manager, "notify::power-save-mode",
-                           G_CALLBACK (power_save_mode_changed), manager, 0);
+  monitor_manager_setup_dbus_config_handlers (manager);
+
+  g_signal_connect_object (manager->dbus_config, "notify::power-save-mode",
+                           G_CALLBACK (power_save_mode_changed), manager,
+                           G_CONNECT_SWAPPED);
 
   g_signal_connect_object (meta_backend_get_orientation_manager (backend),
                            "orientation-changed",
@@ -786,6 +790,7 @@ meta_monitor_manager_dispose (GObject *object)
       manager->dbus_name_id = 0;
     }
 
+  g_clear_object (&manager->dbus_config);
   g_clear_object (&manager->config_manager);
 
   G_OBJECT_CLASS (meta_monitor_manager_parent_class)->dispose (object);
@@ -846,6 +851,14 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
   object_class->set_property = meta_monitor_manager_set_property;
 
   klass->read_edid = meta_monitor_manager_real_read_edid;
+
+  signals[MONITORS_CHANGED] =
+    g_signal_new ("monitors-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 
   signals[MONITORS_CHANGED_INTERNAL] =
     g_signal_new ("monitors-changed-internal",
@@ -991,9 +1004,9 @@ combine_gpu_lists (MetaMonitorManager    *manager,
 
 static gboolean
 meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
-                                           GDBusMethodInvocation *invocation)
+                                           GDBusMethodInvocation *invocation,
+                                           MetaMonitorManager    *manager)
 {
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (skeleton);
   MetaMonitorManagerClass *manager_class = META_MONITOR_MANAGER_GET_CLASS (skeleton);
   GList *combined_modes;
   GList *combined_outputs;
@@ -1265,9 +1278,9 @@ request_persistent_confirmation (MetaMonitorManager *manager)
 
 static gboolean
 meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
-                                               GDBusMethodInvocation *invocation)
+                                               GDBusMethodInvocation *invocation,
+                                               MetaMonitorManager    *manager)
 {
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (skeleton);
   MetaSettings *settings = meta_backend_get_settings (manager->backend);
   GVariantBuilder monitors_builder;
   GVariantBuilder logical_monitors_builder;
@@ -1911,9 +1924,9 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
                                                    guint                  serial,
                                                    guint                  method,
                                                    GVariant              *logical_monitor_configs_variant,
-                                                   GVariant              *properties_variant)
+                                                   GVariant              *properties_variant,
+                                                   MetaMonitorManager    *manager)
 {
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (skeleton);
   MetaMonitorManagerCapability capabilities;
   GVariant *layout_mode_variant = NULL;
   MetaLogicalMonitorLayoutMode layout_mode;
@@ -2079,9 +2092,9 @@ meta_monitor_manager_handle_change_backlight  (MetaDBusDisplayConfig *skeleton,
                                                GDBusMethodInvocation *invocation,
                                                guint                  serial,
                                                guint                  output_index,
-                                               gint                   value)
+                                               gint                   value,
+                                               MetaMonitorManager    *manager)
 {
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (skeleton);
   GList *combined_outputs;
   MetaOutput *output;
 
@@ -2133,9 +2146,9 @@ static gboolean
 meta_monitor_manager_handle_get_crtc_gamma  (MetaDBusDisplayConfig *skeleton,
                                              GDBusMethodInvocation *invocation,
                                              guint                  serial,
-                                             guint                  crtc_id)
+                                             guint                  crtc_id,
+                                             MetaMonitorManager    *manager)
 {
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (skeleton);
   MetaMonitorManagerClass *klass;
   GList *combined_crtcs;
   MetaCrtc *crtc;
@@ -2201,9 +2214,9 @@ meta_monitor_manager_handle_set_crtc_gamma  (MetaDBusDisplayConfig *skeleton,
                                              guint                  crtc_id,
                                              GVariant              *red_v,
                                              GVariant              *green_v,
-                                             GVariant              *blue_v)
+                                             GVariant              *blue_v,
+                                             MetaMonitorManager    *manager)
 {
-  MetaMonitorManager *manager = META_MONITOR_MANAGER (skeleton);
   MetaMonitorManagerClass *klass;
   GList *combined_crtcs;
   MetaCrtc *crtc;
@@ -2257,14 +2270,26 @@ meta_monitor_manager_handle_set_crtc_gamma  (MetaDBusDisplayConfig *skeleton,
 }
 
 static void
-meta_monitor_manager_display_config_init (MetaDBusDisplayConfigIface *iface)
+monitor_manager_setup_dbus_config_handlers (MetaMonitorManager *manager)
 {
-  iface->handle_get_resources = meta_monitor_manager_handle_get_resources;
-  iface->handle_change_backlight = meta_monitor_manager_handle_change_backlight;
-  iface->handle_get_crtc_gamma = meta_monitor_manager_handle_get_crtc_gamma;
-  iface->handle_set_crtc_gamma = meta_monitor_manager_handle_set_crtc_gamma;
-  iface->handle_get_current_state = meta_monitor_manager_handle_get_current_state;
-  iface->handle_apply_monitors_config = meta_monitor_manager_handle_apply_monitors_config;
+  g_signal_connect_object (manager->dbus_config, "handle-get-resources",
+                           G_CALLBACK (meta_monitor_manager_handle_get_resources),
+                           manager, 0);
+  g_signal_connect_object (manager->dbus_config, "handle-change-backlight",
+                           G_CALLBACK (meta_monitor_manager_handle_change_backlight),
+                           manager, 0);
+  g_signal_connect_object (manager->dbus_config, "handle-get-crtc-gamma",
+                           G_CALLBACK (meta_monitor_manager_handle_get_crtc_gamma),
+                           manager, 0);
+  g_signal_connect_object (manager->dbus_config, "handle-set-crtc-gamma",
+                           G_CALLBACK (meta_monitor_manager_handle_set_crtc_gamma),
+                           manager, 0);
+  g_signal_connect_object (manager->dbus_config, "handle-get-current-state",
+                           G_CALLBACK (meta_monitor_manager_handle_get_current_state),
+                           manager, 0);
+  g_signal_connect_object (manager->dbus_config, "handle-apply-monitors-config",
+                           G_CALLBACK (meta_monitor_manager_handle_apply_monitors_config),
+                           manager, 0);
 }
 
 static void
@@ -2274,7 +2299,7 @@ on_bus_acquired (GDBusConnection *connection,
 {
   MetaMonitorManager *manager = user_data;
 
-  g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (manager),
+  g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (manager->dbus_config),
                                     connection,
                                     "/org/gnome/Mutter/DisplayConfig",
                                     NULL);
@@ -2712,7 +2737,9 @@ meta_monitor_manager_notify_monitors_changed (MetaMonitorManager *manager)
   meta_backend_monitors_changed (manager->backend);
 
   g_signal_emit (manager, signals[MONITORS_CHANGED_INTERNAL], 0);
-  g_signal_emit_by_name (manager, "monitors-changed");
+  g_signal_emit (manager, signals[MONITORS_CHANGED], 0);
+
+  meta_dbus_display_config_emit_monitors_changed (manager->dbus_config);
 }
 
 static void
