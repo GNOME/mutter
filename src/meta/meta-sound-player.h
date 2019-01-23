@@ -23,14 +23,21 @@
 
 #include <gio/gio.h>
 
+#include <meta/common.h>
+
 #define META_TYPE_SOUND_PLAYER (meta_sound_player_get_type ())
+
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaSoundPlayer, meta_sound_player,
                       META, SOUND_PLAYER, GObject)
 
+META_EXPORT
 void meta_sound_player_play_from_theme (MetaSoundPlayer *player,
                                         const char      *name,
                                         const char      *description,
                                         GCancellable    *cancellable);
+
+META_EXPORT
 void meta_sound_player_play_from_file  (MetaSoundPlayer *player,
                                         GFile           *file,
                                         const char      *description,

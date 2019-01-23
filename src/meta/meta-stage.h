@@ -25,6 +25,8 @@
 G_BEGIN_DECLS
 
 #define META_TYPE_STAGE (meta_stage_get_type ())
+
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaStage, meta_stage, META, STAGE, ClutterStage)
 
 G_END_DECLS

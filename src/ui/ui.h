@@ -28,7 +28,7 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <glib.h>
 
-#include "meta/common.h"
+#include "core/util-private.h"
 #include "meta/types.h"
 
 typedef struct _MetaUI MetaUI;
@@ -71,6 +71,8 @@ gboolean  meta_ui_window_should_not_cause_focus (Display *xdisplay,
 
 gboolean meta_ui_window_is_widget (MetaUI *ui,
                                    Window  xwindow);
+
+META_EXPORT_TEST
 gboolean meta_ui_window_is_dummy  (MetaUI *ui,
                                    Window  xwindow);
 

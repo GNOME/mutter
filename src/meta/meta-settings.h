@@ -22,10 +22,13 @@
 #ifndef META_SETTINGS_H
 #define META_SETTINGS_H
 
-#include "meta/types.h"
+#include <meta/common.h>
+#include <meta/types.h>
 
+META_EXPORT
 int meta_settings_get_ui_scaling_factor (MetaSettings *settings);
 
+META_EXPORT
 int meta_settings_get_font_dpi (MetaSettings *settings);
 
 #endif /* META_SETTINGS_H */

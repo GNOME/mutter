@@ -287,8 +287,9 @@ void        meta_display_unregister_stamp (MetaDisplay *display,
                                            guint64      stamp);
 
 /* A "stack id" is a XID or a stamp */
-
 #define META_STACK_ID_IS_X11(id) ((id) < G_GUINT64_CONSTANT(0x100000000))
+
+META_EXPORT_TEST
 MetaWindow* meta_display_lookup_stack_id   (MetaDisplay *display,
                                             guint64      stack_id);
 
@@ -306,10 +307,13 @@ void        meta_display_unregister_wayland_window (MetaDisplay *display,
 void        meta_display_notify_window_created (MetaDisplay  *display,
                                                 MetaWindow   *window);
 
+META_EXPORT_TEST
 GSList*     meta_display_list_windows        (MetaDisplay          *display,
                                               MetaListWindowsFlags  flags);
 
 MetaDisplay* meta_display_for_x_display  (Display     *xdisplay);
+
+META_EXPORT_TEST
 MetaDisplay* meta_get_display            (void);
 
 void meta_display_reload_cursor (MetaDisplay *display);

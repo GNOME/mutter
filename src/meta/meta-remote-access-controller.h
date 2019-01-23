@@ -23,7 +23,11 @@
 
 #include <glib-object.h>
 
+#include <meta/common.h>
+
 #define META_TYPE_REMOTE_ACCESS_HANDLE meta_remote_access_handle_get_type ()
+
+META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaRemoteAccessHandle,
                           meta_remote_access_handle,
                           META, REMOTE_ACCESS_HANDLE,
@@ -36,9 +40,12 @@ struct _MetaRemoteAccessHandleClass
   void (*stop) (MetaRemoteAccessHandle *handle);
 };
 
+META_EXPORT
 void meta_remote_access_handle_stop (MetaRemoteAccessHandle *handle);
 
 #define META_TYPE_REMOTE_ACCESS_CONTROLLER meta_remote_access_controller_get_type ()
+
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaRemoteAccessController,
                       meta_remote_access_controller,
                       META, REMOTE_ACCESS_CONTROLLER,

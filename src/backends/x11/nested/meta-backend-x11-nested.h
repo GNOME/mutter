@@ -23,8 +23,10 @@
 #include <glib-object.h>
 
 #include "backends/x11/meta-backend-x11.h"
+#include "core/util-private.h"
 
 #define META_TYPE_BACKEND_X11_NESTED (meta_backend_x11_nested_get_type ())
+META_EXPORT_TEST
 G_DECLARE_DERIVABLE_TYPE (MetaBackendX11Nested, meta_backend_x11_nested,
                           META, BACKEND_X11_NESTED, MetaBackendX11)
 
