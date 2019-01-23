@@ -102,7 +102,9 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaMonitorManager, g_object_unref)
 
 struct _MetaMonitorManager
 {
-  MetaDBusDisplayConfigSkeleton parent_instance;
+  GObject parent_instance;
+
+  MetaDBusDisplayConfig *dbus_config;
 
   MetaBackend *backend;
 
