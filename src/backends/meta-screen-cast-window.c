@@ -77,3 +77,12 @@ meta_screen_cast_window_capture_into (MetaScreenCastWindow *screen_cast_window,
                                                                         bounds,
                                                                         data);
 }
+
+gboolean
+meta_screen_cast_window_is_dirty (MetaScreenCastWindow *screen_cast_window)
+{
+  MetaScreenCastWindowInterface *iface =
+    META_SCREEN_CAST_WINDOW_GET_IFACE (screen_cast_window);
+
+  return iface->is_dirty (screen_cast_window);
+}
