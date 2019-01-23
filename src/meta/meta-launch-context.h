@@ -23,12 +23,16 @@
 
 #include <meta/workspace.h>
 
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaLaunchContext, meta_launch_context, META, LAUNCH_CONTEXT, GAppLaunchContext)
 
 #define META_TYPE_LAUNCH_CONTEXT (meta_launch_context_get_type ())
 
+META_EXPORT
 void meta_launch_context_set_timestamp (MetaLaunchContext *context,
                                         uint32_t           timestamp);
+
+META_EXPORT
 void meta_launch_context_set_workspace (MetaLaunchContext *context,
                                         MetaWorkspace     *workspace);
 

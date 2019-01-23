@@ -34,6 +34,7 @@
 #ifndef META_STACK_TRACKER_H
 #define META_STACK_TRACKER_H
 
+#include "core/util-private.h"
 #include "meta/display.h"
 #include "meta/window.h"
 
@@ -75,6 +76,7 @@ void meta_stack_tracker_reparent_event  (MetaStackTracker    *tracker,
 void meta_stack_tracker_configure_event (MetaStackTracker    *tracker,
 					 XConfigureEvent     *event);
 
+META_EXPORT_TEST
 void meta_stack_tracker_get_stack  (MetaStackTracker *tracker,
                                     guint64         **windows,
                                     int              *n_entries);

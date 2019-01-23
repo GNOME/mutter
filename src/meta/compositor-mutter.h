@@ -32,21 +32,42 @@
 #include "meta/types.h"
 
 /* Public compositor API */
+META_EXPORT
 ClutterActor *meta_get_stage_for_display            (MetaDisplay *display);
+
+META_EXPORT
 Window        meta_get_overlay_window               (MetaDisplay *display);
+
+META_EXPORT
 GList        *meta_get_window_actors                (MetaDisplay *display);
+
+META_EXPORT
 ClutterActor *meta_get_window_group_for_display     (MetaDisplay *display);
+
+META_EXPORT
 ClutterActor *meta_get_top_window_group_for_display (MetaDisplay *display);
+
+META_EXPORT
 ClutterActor *meta_get_feedback_group_for_display   (MetaDisplay *display);
 
+META_EXPORT
 void meta_disable_unredirect_for_display (MetaDisplay *display);
+
+META_EXPORT
 void meta_enable_unredirect_for_display  (MetaDisplay *display);
 
+META_EXPORT
 void meta_set_stage_input_region   (MetaDisplay  *display,
                                     XserverRegion region);
+
+META_EXPORT
 void meta_empty_stage_input_region (MetaDisplay  *display);
+
+META_EXPORT
 void meta_focus_stage_window       (MetaDisplay  *display,
                                     guint32       timestamp);
+
+META_EXPORT
 gboolean meta_stage_is_focused     (MetaDisplay  *display);
 
 #endif

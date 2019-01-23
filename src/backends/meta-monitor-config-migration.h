@@ -24,13 +24,16 @@
 
 #include "backends/meta-monitor-manager-private.h"
 
+META_EXPORT_TEST
 gboolean meta_migrate_old_monitors_config (MetaMonitorConfigStore *config_store,
                                            GFile                  *in_file,
                                            GError                **error);
 
+META_EXPORT_TEST
 gboolean meta_migrate_old_user_monitors_config (MetaMonitorConfigStore *config_store,
                                                 GError                **error);
 
+META_EXPORT_TEST
 gboolean meta_finish_monitors_config_migration (MetaMonitorManager *monitor_manager,
                                                 MetaMonitorsConfig *config,
                                                 GError            **error);

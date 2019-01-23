@@ -3,6 +3,7 @@
 #define __META_ENUM_TYPES_H__
 
 #include <glib-object.h>
+#include <meta/common.h>
 
 G_BEGIN_DECLS
 
@@ -19,7 +20,7 @@ G_END_DECLS
 /*** END file-tail ***/
 
 /*** BEGIN value-header ***/
-GType @enum_name@_get_type (void) G_GNUC_CONST;
+META_EXPORT GType @enum_name@_get_type (void) G_GNUC_CONST;
 #define META_TYPE_@ENUMSHORT@ (@enum_name@_get_type())
 
 /*** END value-header ***/

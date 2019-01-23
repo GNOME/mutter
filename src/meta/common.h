@@ -46,6 +46,8 @@
 /* Replacement for X11 CurrentTime */
 #define META_CURRENT_TIME 0L
 
+#define META_EXPORT __attribute__((visibility("default"))) extern
+
 /**
  * MetaFrameFlags:
  * @META_FRAME_ALLOWS_DELETE: frame allows delete
@@ -447,6 +449,7 @@ struct _MetaFrameBorders
 };
 
 /* sets all dimensions to zero */
+META_EXPORT
 void meta_frame_borders_clear (MetaFrameBorders *self);
 
 /* should investigate changing these to whatever most apps use */

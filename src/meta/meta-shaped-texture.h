@@ -27,32 +27,42 @@
 #include <X11/Xlib.h>
 
 #include "clutter/clutter.h"
+#include <meta/common.h>
 
 G_BEGIN_DECLS
 
 #define META_TYPE_SHAPED_TEXTURE (meta_shaped_texture_get_type ())
+
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaShapedTexture,
                       meta_shaped_texture,
                       META, SHAPED_TEXTURE,
                       ClutterActor)
 
 
+META_EXPORT
 void meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
 					     gboolean           create_mipmaps);
 
+META_EXPORT
 gboolean meta_shaped_texture_update_area (MetaShapedTexture *stex,
                                           int                x,
                                           int                y,
                                           int                width,
                                           int                height);
 
+META_EXPORT
 CoglTexture * meta_shaped_texture_get_texture (MetaShapedTexture *stex);
 
+META_EXPORT
 void meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
                                            CoglTexture       *mask_texture);
+
+META_EXPORT
 void meta_shaped_texture_set_opaque_region (MetaShapedTexture *stex,
                                             cairo_region_t    *opaque_region);
 
+META_EXPORT
 cairo_surface_t * meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                                  cairo_rectangle_int_t *clip);
 

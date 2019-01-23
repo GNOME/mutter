@@ -37,10 +37,13 @@ struct _MetaStartupSequenceClass
   void (* complete) (MetaStartupSequence *sequence);
 };
 
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaStartupNotification,
                       meta_startup_notification,
                       META, STARTUP_NOTIFICATION,
                       GObject)
+
+META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaStartupSequence,
                           meta_startup_sequence,
                           META, STARTUP_SEQUENCE,

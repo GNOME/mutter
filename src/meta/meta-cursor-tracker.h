@@ -30,23 +30,32 @@
 #include "meta/workspace.h"
 
 #define META_TYPE_CURSOR_TRACKER (meta_cursor_tracker_get_type ())
+
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaCursorTracker,
                       meta_cursor_tracker,
                       META, CURSOR_TRACKER,
                       GObject)
 
 
+META_EXPORT
 MetaCursorTracker *meta_cursor_tracker_get_for_display (MetaDisplay *display);
 
+META_EXPORT
 void           meta_cursor_tracker_get_hot    (MetaCursorTracker *tracker,
                                                int               *x,
                                                int               *y);
+
+META_EXPORT
 CoglTexture   *meta_cursor_tracker_get_sprite (MetaCursorTracker *tracker);
 
+META_EXPORT
 void           meta_cursor_tracker_get_pointer (MetaCursorTracker   *tracker,
                                                 int                 *x,
                                                 int                 *y,
                                                 ClutterModifierType *mods);
+
+META_EXPORT
 void           meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
                                                         gboolean           visible);
 
