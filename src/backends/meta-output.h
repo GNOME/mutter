@@ -24,6 +24,7 @@
 
 #include "backends/meta-backend-types.h"
 #include "backends/meta-gpu.h"
+#include "core/util-private.h"
 
 struct _MetaTileInfo
 {
@@ -116,15 +117,19 @@ struct _MetaOutput
 };
 
 #define META_TYPE_OUTPUT (meta_output_get_type ())
-G_DECLARE_FINAL_TYPE (MetaOutput, meta_output, META, OUTPUT, GObject)
+META_EXPORT_TEST G_DECLARE_FINAL_TYPE (MetaOutput, meta_output, META, OUTPUT, GObject)
 
+META_EXPORT_TEST
 MetaGpu * meta_output_get_gpu (MetaOutput *output);
 
+META_EXPORT_TEST
 void meta_output_assign_crtc (MetaOutput *output,
                               MetaCrtc   *crtc);
 
+META_EXPORT_TEST
 void meta_output_unassign_crtc (MetaOutput *output);
 
+META_EXPORT_TEST
 MetaCrtc * meta_output_get_assigned_crtc (MetaOutput *output);
 
 #endif /* META_OUTPUT_H */

@@ -184,6 +184,7 @@ void        meta_x11_display_unregister_sync_alarm (MetaX11Display *x11_display,
 gboolean meta_x11_display_process_barrier_xevent (MetaX11Display *x11_display,
                                                   XIEvent        *event);
 
+META_EXPORT
 void meta_x11_display_set_alarm_filter (MetaX11Display *x11_display,
                                         MetaAlarmFilter filter,
                                         gpointer        data);

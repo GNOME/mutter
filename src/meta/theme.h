@@ -30,8 +30,12 @@
  */
 typedef struct _MetaTheme MetaTheme;
 
+META_EXPORT
 MetaTheme* meta_theme_get_default (void);
 
+META_EXPORT
 MetaTheme* meta_theme_new      (void);
+
+META_EXPORT
 void       meta_theme_free     (MetaTheme *theme);
 #endif

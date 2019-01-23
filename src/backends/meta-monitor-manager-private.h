@@ -30,6 +30,7 @@
 #include "backends/meta-cursor.h"
 #include "backends/meta-display-config-shared.h"
 #include "backends/meta-monitor-transform.h"
+#include "core/util-private.h"
 #include "meta/display.h"
 #include "meta/meta-monitor-manager.h"
 
@@ -251,13 +252,18 @@ MetaBackend *       meta_monitor_manager_get_backend (MetaMonitorManager *manage
 
 void                meta_monitor_manager_setup (MetaMonitorManager *manager);
 
+META_EXPORT_TEST
 void                meta_monitor_manager_rebuild (MetaMonitorManager *manager,
                                                   MetaMonitorsConfig *config);
+
+META_EXPORT_TEST
 void                meta_monitor_manager_rebuild_derived (MetaMonitorManager *manager,
                                                           MetaMonitorsConfig *config);
 
+META_EXPORT_TEST
 int                 meta_monitor_manager_get_num_logical_monitors (MetaMonitorManager *manager);
 
+META_EXPORT_TEST
 GList *             meta_monitor_manager_get_logical_monitors (MetaMonitorManager *manager);
 
 MetaLogicalMonitor *meta_monitor_manager_get_logical_monitor_from_number (MetaMonitorManager *manager,
@@ -286,11 +292,13 @@ MetaMonitor *       meta_monitor_manager_get_monitor_from_spec (MetaMonitorManag
 MetaMonitor *       meta_monitor_manager_get_monitor_from_connector (MetaMonitorManager *manager,
                                                                      const char         *connector);
 
+META_EXPORT_TEST
 GList *             meta_monitor_manager_get_monitors      (MetaMonitorManager *manager);
 
+META_EXPORT_TEST
 void                meta_monitor_manager_add_gpu (MetaMonitorManager *manager,
                                                   MetaGpu            *gpu);
-
+META_EXPORT_TEST
 GList *             meta_monitor_manager_get_gpus (MetaMonitorManager *manager);
 
 void                meta_monitor_manager_get_screen_size   (MetaMonitorManager *manager,
@@ -305,7 +313,11 @@ void               meta_output_parse_edid (MetaOutput *output,
 gboolean           meta_output_is_laptop  (MetaOutput *output);
 
 gboolean           meta_monitor_manager_has_hotplug_mode_update (MetaMonitorManager *manager);
+
+META_EXPORT_TEST
 void               meta_monitor_manager_read_current_state (MetaMonitorManager *manager);
+
+META_EXPORT_TEST
 void               meta_monitor_manager_on_hotplug (MetaMonitorManager *manager);
 
 gboolean           meta_monitor_manager_get_monitor_matrix (MetaMonitorManager *manager,
@@ -322,13 +334,18 @@ gboolean           meta_monitor_manager_is_transform_handled (MetaMonitorManager
                                                               MetaCrtc            *crtc,
                                                               MetaMonitorTransform transform);
 
+META_EXPORT_TEST
 MetaMonitorsConfig * meta_monitor_manager_ensure_configured (MetaMonitorManager *manager);
 
+META_EXPORT_TEST
 void               meta_monitor_manager_update_logical_state (MetaMonitorManager *manager,
                                                               MetaMonitorsConfig *config);
+
+META_EXPORT_TEST
 void               meta_monitor_manager_update_logical_state_derived (MetaMonitorManager *manager,
                                                                       MetaMonitorsConfig *config);
 
+META_EXPORT_TEST
 void               meta_monitor_manager_lid_is_closed_changed (MetaMonitorManager *manager);
 
 gboolean           meta_monitor_manager_is_headless (MetaMonitorManager *manager);

@@ -35,26 +35,33 @@
  */
 
 #define META_TYPE_BACKGROUND_ACTOR (meta_background_actor_get_type ())
+
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaBackgroundActor,
                       meta_background_actor,
                       META, BACKGROUND_ACTOR,
                       ClutterActor)
 
 
+META_EXPORT
 ClutterActor *meta_background_actor_new    (MetaDisplay *display,
                                             int          monitor);
 
+META_EXPORT
 void meta_background_actor_set_background  (MetaBackgroundActor *self,
                                             MetaBackground      *background);
 
+META_EXPORT
 void meta_background_actor_set_gradient (MetaBackgroundActor *self,
                                          gboolean             enabled,
                                          int                  height,
                                          double               tone_start);
 
+META_EXPORT
 void meta_background_actor_set_monitor  (MetaBackgroundActor *self,
                                          int                  monitor);
 
+META_EXPORT
 void meta_background_actor_set_vignette (MetaBackgroundActor *self,
                                          gboolean             enabled,
                                          double               brightness,
