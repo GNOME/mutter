@@ -34,6 +34,8 @@
 #include "meta/types.h"
 
 #define META_TYPE_PLUGIN (meta_plugin_get_type ())
+
+META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaPlugin, meta_plugin, META, PLUGIN, GObject)
 
 typedef struct _MetaPluginVersion MetaPluginVersion;
@@ -256,6 +258,7 @@ struct _MetaPluginInfo
   const gchar *description;
 };
 
+META_EXPORT
 const MetaPluginInfo * meta_plugin_get_info (MetaPlugin *plugin);
 
 /**
@@ -321,29 +324,36 @@ struct _MetaPluginVersion
 #define META_PLUGIN_DECLARE(ObjectName, object_name)                    \
   META_PLUGIN_DECLARE_WITH_CODE(ObjectName, object_name, {})
 
+META_EXPORT
 void
 meta_plugin_switch_workspace_completed (MetaPlugin *plugin);
 
+META_EXPORT
 void
 meta_plugin_minimize_completed (MetaPlugin      *plugin,
                                 MetaWindowActor *actor);
 
+META_EXPORT
 void
 meta_plugin_unminimize_completed (MetaPlugin      *plugin,
                                   MetaWindowActor *actor);
 
+META_EXPORT
 void
 meta_plugin_size_change_completed (MetaPlugin      *plugin,
                                    MetaWindowActor *actor);
 
+META_EXPORT
 void
 meta_plugin_map_completed (MetaPlugin      *plugin,
                            MetaWindowActor *actor);
 
+META_EXPORT
 void
 meta_plugin_destroy_completed (MetaPlugin      *plugin,
                                MetaWindowActor *actor);
 
+META_EXPORT
 void
 meta_plugin_complete_display_change (MetaPlugin *plugin,
                                      gboolean    ok);
@@ -362,20 +372,24 @@ typedef enum {
   META_MODAL_KEYBOARD_ALREADY_GRABBED = 1 << 1
 } MetaModalOptions;
 
+META_EXPORT
 gboolean
 meta_plugin_begin_modal (MetaPlugin      *plugin,
                          MetaModalOptions options,
                          guint32          timestamp);
 
+META_EXPORT
 void
 meta_plugin_end_modal (MetaPlugin *plugin,
                        guint32     timestamp);
 
+META_EXPORT
 MetaDisplay *meta_plugin_get_display (MetaPlugin *plugin);
 
 void _meta_plugin_set_compositor (MetaPlugin *plugin, MetaCompositor *compositor);
 
 /* XXX: Putting this in here so it's in the public header. */
+META_EXPORT
 void     meta_plugin_manager_set_plugin_type (GType gtype);
 
 #endif /* META_PLUGIN_H_ */

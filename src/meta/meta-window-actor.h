@@ -29,15 +29,26 @@
 #include "meta/compositor.h"
 
 #define META_TYPE_WINDOW_ACTOR (meta_window_actor_get_type ())
+
+META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaWindowActor,
                           meta_window_actor,
                           META, WINDOW_ACTOR,
                           ClutterActor)
 
+META_EXPORT
 Window             meta_window_actor_get_x_window         (MetaWindowActor *self);
+
+META_EXPORT
 MetaWindow *       meta_window_actor_get_meta_window      (MetaWindowActor *self);
+
+META_EXPORT
 ClutterActor *     meta_window_actor_get_texture          (MetaWindowActor *self);
+
+META_EXPORT
 void               meta_window_actor_sync_visibility      (MetaWindowActor *self);
+
+META_EXPORT
 gboolean       meta_window_actor_is_destroyed (MetaWindowActor *self);
 
 typedef enum {

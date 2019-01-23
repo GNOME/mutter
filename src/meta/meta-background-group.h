@@ -5,12 +5,17 @@
 
 #include "clutter/clutter.h"
 
+#include <meta/common.h>
+
 #define META_TYPE_BACKGROUND_GROUP (meta_background_group_get_type ())
+
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaBackgroundGroup,
                       meta_background_group,
                       META, BACKGROUND_GROUP,
                       ClutterActor)
 
+META_EXPORT
 ClutterActor *meta_background_group_new (void);
 
 #endif /* META_BACKGROUND_GROUP_H */

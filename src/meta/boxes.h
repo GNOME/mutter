@@ -93,23 +93,34 @@ struct _MetaEdge
   MetaEdgeType  edge_type;
 };
 
+META_EXPORT
 GType meta_rectangle_get_type (void);
 
+META_EXPORT
 MetaRectangle *meta_rectangle_copy (const MetaRectangle *rect);
+
+META_EXPORT
 void           meta_rectangle_free (MetaRectangle       *rect);
 
 /* Function to make initializing a rect with a single line of code easy */
+META_EXPORT
 MetaRectangle                 meta_rect (int x, int y, int width, int height);
 
 /* Basic comparison functions */
+META_EXPORT
 int      meta_rectangle_area            (const MetaRectangle *rect);
+
+META_EXPORT
 gboolean meta_rectangle_intersect       (const MetaRectangle *src1,
                                          const MetaRectangle *src2,
                                          MetaRectangle       *dest);
+
+META_EXPORT
 gboolean meta_rectangle_equal           (const MetaRectangle *src1,
                                          const MetaRectangle *src2);
 
 /* Find the bounding box of the union of two rectangles */
+META_EXPORT
 void     meta_rectangle_union           (const MetaRectangle *rect1,
                                          const MetaRectangle *rect2,
                                          MetaRectangle       *dest);
@@ -117,6 +128,7 @@ void     meta_rectangle_union           (const MetaRectangle *rect1,
 /* overlap is similar to intersect but doesn't provide location of
  * intersection information.
  */
+META_EXPORT
 gboolean meta_rectangle_overlap         (const MetaRectangle *rect1,
                                          const MetaRectangle *rect2);
 
@@ -125,16 +137,22 @@ gboolean meta_rectangle_overlap         (const MetaRectangle *rect1,
  * exist a way to shift either rect horizontally so that the two rects
  * overlap?"  horiz_overlap is similar.
  */
+META_EXPORT
 gboolean meta_rectangle_vert_overlap    (const MetaRectangle *rect1,
                                          const MetaRectangle *rect2);
+
+META_EXPORT
 gboolean meta_rectangle_horiz_overlap   (const MetaRectangle *rect1,
                                          const MetaRectangle *rect2);
 
 /* could_fit_rect determines whether "outer_rect" is big enough to contain
  * inner_rect.  contains_rect checks whether it actually contains it.
  */
+META_EXPORT
 gboolean meta_rectangle_could_fit_rect  (const MetaRectangle *outer_rect,
                                          const MetaRectangle *inner_rect);
+
+META_EXPORT
 gboolean meta_rectangle_contains_rect   (const MetaRectangle *outer_rect,
                                          const MetaRectangle *inner_rect);
 

@@ -27,9 +27,11 @@
 
 #include <glib.h>
 
+#include "core/util-private.h"
 #include "meta/types.h"
 #include "wayland/meta-wayland-types.h"
 
+META_EXPORT_TEST
 void
 meta_xwayland_override_display_number (int number);
 

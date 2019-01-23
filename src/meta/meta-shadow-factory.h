@@ -29,6 +29,7 @@
 #include "cogl/cogl.h"
 #include "meta/meta-window-shape.h"
 
+META_EXPORT
 GType meta_shadow_get_type (void) G_GNUC_CONST;
 
 /**
@@ -58,6 +59,8 @@ struct _MetaShadowParams
 };
 
 #define META_TYPE_SHADOW_FACTORY (meta_shadow_factory_get_type ())
+
+META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaShadowFactory,
                       meta_shadow_factory,
                       META, SHADOW_FACTORY,
@@ -70,13 +73,16 @@ G_DECLARE_FINAL_TYPE (MetaShadowFactory,
  * so that multiple shadows created for the same shape with the same radius will
  * share the same MetaShadow.
  */
-
+META_EXPORT
 MetaShadowFactory *meta_shadow_factory_get_default (void);
 
+META_EXPORT
 void meta_shadow_factory_set_params (MetaShadowFactory *factory,
                                      const char        *class_name,
                                      gboolean           focused,
                                      MetaShadowParams  *params);
+
+META_EXPORT
 void meta_shadow_factory_get_params (MetaShadowFactory *factory,
                                      const char        *class_name,
                                      gboolean           focused,
@@ -90,8 +96,13 @@ void meta_shadow_factory_get_params (MetaShadowFactory *factory,
  */
 typedef struct _MetaShadow MetaShadow;
 
+META_EXPORT
 MetaShadow *meta_shadow_ref         (MetaShadow            *shadow);
+
+META_EXPORT
 void        meta_shadow_unref       (MetaShadow            *shadow);
+
+META_EXPORT
 void        meta_shadow_paint       (MetaShadow            *shadow,
                                      CoglFramebuffer       *framebuffer,
                                      int                    window_x,
@@ -101,6 +112,8 @@ void        meta_shadow_paint       (MetaShadow            *shadow,
                                      guint8                 opacity,
                                      cairo_region_t        *clip,
                                      gboolean               clip_strictly);
+
+META_EXPORT
 void        meta_shadow_get_bounds  (MetaShadow            *shadow,
                                      int                    window_x,
                                      int                    window_y,
@@ -108,8 +121,10 @@ void        meta_shadow_get_bounds  (MetaShadow            *shadow,
                                      int                    window_height,
                                      cairo_rectangle_int_t *bounds);
 
+META_EXPORT
 MetaShadowFactory *meta_shadow_factory_new (void);
 
+META_EXPORT
 MetaShadow *meta_shadow_factory_get_shadow (MetaShadowFactory *factory,
                                             MetaWindowShape   *shape,
                                             int                width,

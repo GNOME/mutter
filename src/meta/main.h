@@ -24,17 +24,36 @@
 
 #include <glib.h>
 
+#include <meta/common.h>
+
+META_EXPORT
 GOptionContext *meta_get_option_context     (void);
+
+META_EXPORT
 void            meta_init                   (void);
+
+META_EXPORT
 int             meta_run                    (void);
+
+META_EXPORT
 void            meta_register_with_session  (void);
+
+META_EXPORT
 gboolean        meta_activate_session       (void);  /* Actually defined in meta-backend.c */
+
+META_EXPORT
 gboolean        meta_get_replace_current_wm (void);  /* Actually defined in util.c */
 
+META_EXPORT
 void            meta_set_wm_name              (const char *wm_name);
+
+META_EXPORT
 void            meta_set_gnome_wm_keybindings (const char *wm_keybindings);
 
+META_EXPORT
 void            meta_restart                (const char *message);
+
+META_EXPORT
 gboolean        meta_is_restart             (void);
 
 /**
@@ -49,9 +68,11 @@ typedef enum
 } MetaExitCode;
 
 /* exit immediately */
+META_EXPORT
 void meta_exit (MetaExitCode code) G_GNUC_NORETURN;
 
 /* g_main_loop_quit() then fall out of main() */
+META_EXPORT
 void meta_quit (MetaExitCode code);
 
 #endif
