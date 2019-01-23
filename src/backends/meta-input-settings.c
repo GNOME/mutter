@@ -1759,7 +1759,6 @@ check_mappable_devices (MetaInputSettings *input_settings)
 
 static void
 power_save_mode_changed_cb (MetaMonitorManager *manager,
-                            GParamSpec         *pspec,
                             gpointer            user_data)
 {
   MetaInputSettingsPrivate *priv;
@@ -1869,7 +1868,7 @@ meta_input_settings_init (MetaInputSettings *settings)
   priv->monitor_manager = g_object_ref (meta_monitor_manager_get ());
   g_signal_connect (priv->monitor_manager, "monitors-changed-internal",
                     G_CALLBACK (monitors_changed_cb), settings);
-  g_signal_connect (priv->monitor_manager, "notify::power-save-mode",
+  g_signal_connect (priv->monitor_manager, "power-save-mode-changed",
                     G_CALLBACK (power_save_mode_changed_cb), settings);
 
 #ifdef HAVE_LIBWACOM
