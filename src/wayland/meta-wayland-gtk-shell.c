@@ -151,11 +151,50 @@ gtk_surface_present (struct wl_client   *client,
                              META_CLIENT_TYPE_APPLICATION, NULL);
 }
 
+static void
+gtk_surface_request_focus (struct wl_client   *client,
+                           struct wl_resource *resource,
+                           const char         *startup_id)
+{
+  MetaWaylandGtkSurface *gtk_surface = wl_resource_get_user_data (resource);
+  MetaWaylandSurface *surface = gtk_surface->surface;
+  MetaDisplay *display = meta_get_display ();
+  MetaStartupSequence *sequence = NULL;
+  MetaWindow *window;
+
+  window = surface->window;
+  if (!window)
+    return;
+
+  if (startup_id)
+    sequence = meta_startup_notification_lookup_sequence (display->startup_notification,
+                                                          startup_id);
+
+  if (sequence)
+    {
+      uint32_t timestamp;
+
+      timestamp = meta_startup_sequence_get_timestamp (sequence);
+
+      meta_startup_sequence_complete (sequence);
+      meta_startup_notification_remove_sequence (display->startup_notification,
+                                                 sequence);
+
+      meta_window_activate_full (window, timestamp,
+                                 META_CLIENT_TYPE_APPLICATION, NULL);
+    }
+  else
+    {
+      meta_window_set_demands_attention (window);
+    }
+}
+
 static const struct gtk_surface1_interface meta_wayland_gtk_surface_interface = {
   gtk_surface_set_dbus_properties,
   gtk_surface_set_modal,
   gtk_surface_unset_modal,
   gtk_surface_present,
+  gtk_surface_request_focus,
 };
 
 static void
@@ -329,11 +368,7 @@ gtk_shell_set_startup_id (struct wl_client   *client,
   sequence = meta_startup_notification_lookup_sequence (display->startup_notification,
                                                         startup_id);
   if (sequence)
-    {
-      meta_startup_sequence_complete (sequence);
-      meta_startup_notification_remove_sequence (display->startup_notification,
-                                                 sequence);
-    }
+    meta_startup_sequence_complete (sequence);
 }
 
 static void
@@ -360,10 +395,40 @@ gtk_shell_system_bell (struct wl_client   *client,
     }
 }
 
+static void
+gtk_shell_notify_launch (struct wl_client   *client,
+                         struct wl_resource *resource,
+                         const char         *startup_id)
+{
+  MetaDisplay *display = meta_get_display ();
+  MetaStartupSequence *sequence;
+  uint32_t timestamp;
+
+  sequence = meta_startup_notification_lookup_sequence (display->startup_notification,
+                                                        startup_id);
+  if (sequence)
+    {
+      g_warning ("Naughty client notified launch with duplicate startup_id '%s'",
+                 startup_id);
+      return;
+    }
+
+  timestamp = meta_display_get_current_time_roundtrip (display);
+  sequence = g_object_new (META_TYPE_STARTUP_SEQUENCE,
+                           "id", startup_id,
+                           "timestamp", timestamp,
+                           NULL);
+
+  meta_startup_notification_add_sequence (display->startup_notification,
+                                          sequence);
+  g_object_unref (sequence);
+}
+
 static const struct gtk_shell1_interface meta_wayland_gtk_shell_interface = {
   gtk_shell_get_gtk_surface,
   gtk_shell_set_startup_id,
   gtk_shell_system_bell,
+  gtk_shell_notify_launch,
 };
 
 static void
