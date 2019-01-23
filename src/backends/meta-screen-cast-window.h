@@ -55,6 +55,8 @@ struct _MetaScreenCastWindowInterface
   void (*capture_into) (MetaScreenCastWindow *screen_cast_window,
                         MetaRectangle        *bounds,
                         uint8_t              *data);
+
+  gboolean (*has_damage) (MetaScreenCastWindow *screen_cast_window);
 };
 
 void meta_screen_cast_window_get_frame_bounds (MetaScreenCastWindow *screen_cast_window,
@@ -75,6 +77,8 @@ gboolean meta_screen_cast_window_transform_cursor_position (MetaScreenCastWindow
 void meta_screen_cast_window_capture_into (MetaScreenCastWindow *screen_cast_window,
                                            MetaRectangle        *bounds,
                                            uint8_t              *data);
+
+gboolean meta_screen_cast_window_has_damage (MetaScreenCastWindow *screen_cast_window);
 
 G_END_DECLS
 

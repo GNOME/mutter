@@ -77,3 +77,12 @@ meta_screen_cast_window_capture_into (MetaScreenCastWindow *screen_cast_window,
                                                                         bounds,
                                                                         data);
 }
+
+gboolean
+meta_screen_cast_window_has_damage (MetaScreenCastWindow *screen_cast_window)
+{
+  MetaScreenCastWindowInterface *iface =
+    META_SCREEN_CAST_WINDOW_GET_IFACE (screen_cast_window);
+
+  return iface->has_damage (screen_cast_window);
+}
