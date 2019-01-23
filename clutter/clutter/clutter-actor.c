@@ -635,6 +635,7 @@
 #include "clutter-interval.h"
 #include "clutter-main.h"
 #include "clutter-marshal.h"
+#include "clutter-mutter.h"
 #include "clutter-paint-nodes.h"
 #include "clutter-paint-node-private.h"
 #include "clutter-paint-volume-private.h"
@@ -16465,6 +16466,12 @@ clutter_actor_is_in_clone_paint (ClutterActor *self)
     }
 
   return FALSE;
+}
+
+gboolean
+clutter_actor_has_damage (ClutterActor *actor)
+{
+  return actor->priv->is_dirty;
 }
 
 static gboolean
