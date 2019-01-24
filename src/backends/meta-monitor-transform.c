@@ -37,4 +37,5 @@ meta_monitor_transform_invert (MetaMonitorTransform transform)
       return transform;
     }
   g_assert_not_reached ();
+  return 0;
 }

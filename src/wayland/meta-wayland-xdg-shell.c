@@ -1832,6 +1832,7 @@ positioner_anchor_to_placement_anchor (uint32_t anchor)
       return (META_PLACEMENT_ANCHOR_BOTTOM | META_PLACEMENT_ANCHOR_RIGHT);
     default:
       g_assert_not_reached ();
+      return META_PLACEMENT_ANCHOR_NONE;
     }
 }
 
@@ -1860,6 +1861,7 @@ positioner_gravity_to_placement_gravity (uint32_t gravity)
       return (META_PLACEMENT_GRAVITY_BOTTOM | META_PLACEMENT_GRAVITY_RIGHT);
     default:
       g_assert_not_reached ();
+      return META_PLACEMENT_GRAVITY_NONE;
     }
 }
 

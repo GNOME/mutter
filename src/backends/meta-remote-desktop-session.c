@@ -479,6 +479,7 @@ discrete_steps_to_scroll_direction (unsigned int axis,
     return CLUTTER_SCROLL_RIGHT;
 
   g_assert_not_reached ();
+  return 0;
 }
 
 static gboolean

@@ -924,6 +924,7 @@ is_cursor_hw_state_valid (MetaCursorSprite *cursor_sprite,
     }
 
   g_assert_not_reached ();
+  return FALSE;
 }
 
 #ifdef HAVE_WAYLAND

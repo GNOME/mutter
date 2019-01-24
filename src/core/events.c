@@ -86,6 +86,7 @@ get_window_for_event (MetaDisplay        *display,
       return display->grab_window;
     default:
       g_assert_not_reached ();
+      return NULL;
     }
 }
 

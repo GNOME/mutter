@@ -302,6 +302,7 @@ standard_pict_format_for_depth (int depth)
     default:
       g_assert_not_reached ();
     }
+  return 0;
 }
 
 static XRenderPictFormat *

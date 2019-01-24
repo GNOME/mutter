@@ -308,6 +308,7 @@ movement_towards_edge (MetaSide side, int increment)
       return increment > 0;
     default:
       g_assert_not_reached ();
+      return FALSE;
     }
 }
 

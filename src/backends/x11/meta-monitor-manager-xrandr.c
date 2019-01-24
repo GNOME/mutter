@@ -173,6 +173,7 @@ meta_monitor_transform_to_xrandr (MetaMonitorTransform transform)
     }
 
   g_assert_not_reached ();
+  return 0;
 }
 
 static gboolean

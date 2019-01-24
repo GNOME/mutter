@@ -635,6 +635,7 @@ texture_has_alpha (CoglTexture *texture)
       return FALSE;
     default:
       g_assert_not_reached ();
+      return FALSE;
     }
 }
 
