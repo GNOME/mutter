@@ -28,26 +28,12 @@
 #include "core/display-private.h"
 #include "meta/meta-startup-notification.h"
 
-typedef struct _MetaStartupSequenceClass MetaStartupSequenceClass;
-
 struct _MetaStartupSequenceClass
 {
   GObjectClass parent_class;
 
   void (* complete) (MetaStartupSequence *sequence);
 };
-
-META_EXPORT
-G_DECLARE_FINAL_TYPE (MetaStartupNotification,
-                      meta_startup_notification,
-                      META, STARTUP_NOTIFICATION,
-                      GObject)
-
-META_EXPORT
-G_DECLARE_DERIVABLE_TYPE (MetaStartupSequence,
-                          meta_startup_sequence,
-                          META, STARTUP_SEQUENCE,
-                          GObject)
 
 MetaStartupNotification *
          meta_startup_notification_new             (MetaDisplay             *display);

@@ -24,12 +24,17 @@
 #define META_TYPE_STARTUP_SEQUENCE (meta_startup_sequence_get_type ())
 #define META_TYPE_STARTUP_NOTIFICATION (meta_startup_notification_get_type ())
 
-typedef struct _MetaStartupNotification MetaStartupNotification;
-typedef struct _MetaStartupSequence MetaStartupSequence;
+META_EXPORT
+G_DECLARE_FINAL_TYPE (MetaStartupNotification,
+                      meta_startup_notification,
+                      META, STARTUP_NOTIFICATION,
+                      GObject)
 
-#ifdef __GI_SCANNER__
-GType         meta_startup_notification_get_type      (void);
-#endif
+META_EXPORT
+G_DECLARE_DERIVABLE_TYPE (MetaStartupSequence,
+                          meta_startup_sequence,
+                          META, STARTUP_SEQUENCE,
+                          GObject)
 
 /**
  * meta_startup_notification_get_sequences: (skip)
@@ -40,10 +45,6 @@ GSList *      meta_startup_notification_get_sequences (MetaStartupNotification *
 META_EXPORT
 MetaLaunchContext *
              meta_startup_notification_create_launcher (MetaStartupNotification *sn);
-
-#ifdef __GI_SCANNER__
-GType         meta_startup_sequence_get_type          (void);
-#endif
 
 META_EXPORT
 const char * meta_startup_sequence_get_id             (MetaStartupSequence *sequence);
