@@ -766,6 +766,7 @@ discrete_to_direction (double discrete_dx,
     return CLUTTER_SCROLL_UP;
   else
     g_assert_not_reached ();
+  return 0;
 }
 
 void
