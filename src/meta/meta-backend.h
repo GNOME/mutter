@@ -31,12 +31,9 @@
 #include "meta/meta-dnd.h"
 #include "meta/meta-remote-access-controller.h"
 
-typedef struct _MetaBackend        MetaBackend;
-typedef struct _MetaBackendClass   MetaBackendClass;
-
-#ifdef __GI_SCANNER__
-GType meta_backend_get_type (void);
-#endif
+#define META_TYPE_BACKEND (meta_backend_get_type ())
+META_EXPORT
+G_DECLARE_DERIVABLE_TYPE (MetaBackend, meta_backend, META, BACKEND, GObject)
 
 META_EXPORT
 MetaBackend * meta_get_backend (void);

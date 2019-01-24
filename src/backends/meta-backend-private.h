@@ -49,10 +49,6 @@
 #define DEFAULT_XKB_RULES_FILE "evdev"
 #define DEFAULT_XKB_MODEL "pc105+inet"
 
-#define META_TYPE_BACKEND (meta_backend_get_type ())
-META_EXPORT
-G_DECLARE_DERIVABLE_TYPE (MetaBackend, meta_backend, META, BACKEND, GObject)
-
 struct _MetaBackendClass
 {
   GObjectClass parent_class;
