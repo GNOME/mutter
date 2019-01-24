@@ -992,6 +992,7 @@ meta_get_locale_direction (void)
       return META_LOCALE_DIRECTION_RTL;
     default:
       g_assert_not_reached ();
+      return 0;
     }
 }
 

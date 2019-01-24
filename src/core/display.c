@@ -1603,6 +1603,7 @@ get_event_route_from_grab_op (MetaGrabOp op)
 
     default:
       g_assert_not_reached ();
+      return 0;
     }
 }
 
@@ -2622,6 +2623,7 @@ meta_display_supports_extended_barriers (MetaDisplay *display)
     }
 
   g_assert_not_reached ();
+  return FALSE;
 }
 
 /**

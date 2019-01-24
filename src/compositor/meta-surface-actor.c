@@ -348,6 +348,7 @@ meta_surface_actor_is_argb32 (MetaSurfaceActor *self)
       return FALSE;
     default:
       g_assert_not_reached ();
+      return FALSE;
     }
 }
 

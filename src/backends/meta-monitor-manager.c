@@ -994,6 +994,7 @@ get_connector_type_name (MetaConnectorType connector_type)
     case META_CONNECTOR_TYPE_DSI: return "DSI";
     default: g_assert_not_reached ();
     }
+  return NULL;
 }
 
 static GList *

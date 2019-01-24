@@ -1246,6 +1246,7 @@ meta_rectangle_edge_aligns (const MetaRectangle *rect, const MetaEdge *edge)
              BOX_LEFT (edge->rect) <= BOX_RIGHT (*rect);
     default:
       g_assert_not_reached ();
+      return FALSE;
     }
 }
 

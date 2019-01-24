@@ -931,6 +931,7 @@ is_edge_constraint_resizable (MetaEdgeConstraint constraint)
     }
 
   g_assert_not_reached ();
+  return FALSE;
 }
 
 static gboolean
@@ -946,6 +947,7 @@ is_edge_constraint_tiled (MetaEdgeConstraint constraint)
     }
 
   g_assert_not_reached ();
+  return FALSE;
 }
 
 static unsigned long

@@ -373,6 +373,7 @@ meta_wayland_buffer_attach (MetaWaylandBuffer *buffer,
     }
 
   g_assert_not_reached ();
+  return FALSE;
 }
 
 CoglTexture *

@@ -94,6 +94,7 @@ cogl_subpixel_order_to_wl_output_subpixel (CoglSubpixelOrder subpixel_order)
     }
 
   g_assert_not_reached ();
+  return WL_OUTPUT_SUBPIXEL_UNKNOWN;
 }
 
 static enum wl_output_subpixel

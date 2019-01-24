@@ -955,6 +955,7 @@ grab_op_from_resize_control (MetaFrameControl control)
       return META_GRAB_OP_RESIZING_W;
     default:
       g_assert_not_reached ();
+      return META_GRAB_OP_NONE;
     }
 }
 
@@ -1003,6 +1004,7 @@ get_button_number (const ClutterEvent *event)
     return clutter_event_get_button (event);
 
   g_assert_not_reached ();
+  return -1;
 }
 
 static gboolean
@@ -1105,6 +1107,7 @@ meta_frame_left_click_event (MetaUIFrame        *frame,
       return FALSE;
     default:
       g_assert_not_reached ();
+      return FALSE;
     }
 }
 

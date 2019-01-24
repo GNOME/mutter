@@ -70,6 +70,7 @@ get_x11_cogl_winsys_vtable (CoglRenderer *renderer)
       break;
     }
   g_assert_not_reached ();
+  return NULL;
 }
 
 static CoglRenderer *

@@ -5498,6 +5498,7 @@ meta_window_get_workspaces (MetaWindow *window)
     return NULL;
   else
     g_assert_not_reached ();
+  return NULL;
 }
 
 static void
