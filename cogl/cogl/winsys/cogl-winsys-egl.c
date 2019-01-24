@@ -135,6 +135,7 @@ get_error_string (void)
      return "Invalid surface";
   default:
     g_assert_not_reached ();
+    return NULL;
   }
 }
 
@@ -219,6 +220,7 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
 {
   /* This function must be overridden by a platform winsys */
   g_assert_not_reached ();
+  return FALSE;
 }
 
 static void

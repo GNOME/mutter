@@ -112,6 +112,7 @@ update_hints_to_gl_enum (CoglBuffer *buffer)
     }
 
   g_assert_not_reached ();
+  return 0;
 }
 
 static GLenum

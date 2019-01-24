@@ -22,6 +22,7 @@ calc_coord_offset (int pos, int pos_index, int point_size)
     }
 
   g_assert_not_reached ();
+  return 0;
 }
 
 static void

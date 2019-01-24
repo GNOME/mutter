@@ -355,6 +355,7 @@ _cogl_bitmap_needs_short_temp_buffer (CoglPixelFormat format)
     }
 
   g_assert_not_reached ();
+  return FALSE;
 }
 
 CoglBool
