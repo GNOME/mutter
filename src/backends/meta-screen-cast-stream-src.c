@@ -222,6 +222,43 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
   return TRUE;
 }
 
+gboolean
+meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
+                                              CoglTexture              *cursor_texture,
+                                              float                     scale,
+                                              uint8_t                  *data,
+                                              GError                  **error)
+{
+  int texture_width, texture_height;
+  int width, height;
+
+  texture_width = cogl_texture_get_width (cursor_texture);
+  texture_height = cogl_texture_get_height (cursor_texture);
+  width = texture_width * scale;
+  height = texture_height * scale;
+
+  if (texture_width == width &&
+      texture_height == height)
+    {
+      cogl_texture_get_data (cursor_texture,
+                             COGL_PIXEL_FORMAT_RGBA_8888_PRE,
+                             texture_width * 4,
+                             data);
+    }
+  else
+    {
+      if (!draw_cursor_sprite_via_offscreen (src,
+                                             cursor_texture,
+                                             width,
+                                             height,
+                                             data,
+                                             error))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
 void
 meta_screen_cast_stream_src_unset_cursor_metadata (MetaScreenCastStreamSrc *src,
                                                    struct spa_meta_cursor  *spa_meta_cursor)
@@ -289,6 +326,7 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
   int texture_width, texture_height;
   int bitmap_width, bitmap_height;
   uint8_t *bitmap_data;
+  GError *error = NULL;
 
   cursor_texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
   if (!cursor_texture)
@@ -328,30 +366,15 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
                             spa_meta_bitmap->offset,
                             uint8_t);
 
-  if (texture_width == bitmap_width &&
-      texture_height == bitmap_height)
+  if (!meta_screen_cast_stream_src_draw_cursor_into (src,
+                                                     cursor_texture,
+                                                     scale,
+                                                     bitmap_data,
+                                                     &error))
     {
-      cogl_texture_get_data (cursor_texture,
-                             COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                             texture_width * 4,
-                             bitmap_data);
-    }
-  else
-    {
-      GError *error = NULL;
-
-      if (!draw_cursor_sprite_via_offscreen (src,
-                                             cursor_texture,
-                                             bitmap_width,
-                                             bitmap_height,
-                                             bitmap_data,
-                                             &error))
-        {
-          g_warning ("Failed to draw cursor via offscreen: %s",
-                     error->message);
-          g_error_free (error);
-          spa_meta_cursor->id = 0;
-        }
+      g_warning ("Failed to draw cursor: %s", error->message);
+      g_error_free (error);
+      spa_meta_cursor->id = 0;
     }
 }
 
