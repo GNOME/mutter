@@ -62,6 +62,15 @@ enum
 
 static guint signals[N_SIGNALS];
 
+typedef struct _MetaSpaType
+{
+  struct spa_type_media_type media_type;
+  struct spa_type_media_subtype media_subtype;
+  struct spa_type_format_video format_video;
+  struct spa_type_video_format video_format;
+  uint32_t meta_cursor;
+} MetaSpaType;
+
 typedef struct _MetaPipeWireSource
 {
   GSource base;
@@ -149,15 +158,6 @@ meta_screen_cast_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *src,
 
   if (klass->set_cursor_metadata)
     klass->set_cursor_metadata (src, spa_meta_cursor);
-}
-
-MetaSpaType *
-meta_screen_cast_stream_src_get_spa_type (MetaScreenCastStreamSrc *src)
-{
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-
-  return &priv->spa_type;
 }
 
 static gboolean
