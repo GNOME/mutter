@@ -1,5 +1,5 @@
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
-Date: Thu, 29 Nov 2018 16:31:58 +0000
+Date: Thu, 29 Nov 2018 17:31:58 +0100
 Subject: Sync to the hardware refresh rate, not just 60.00Hz
 
 The Clutter master clock supports three synchronization methods in order of

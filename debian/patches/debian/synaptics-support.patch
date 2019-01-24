@@ -1,5 +1,5 @@
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
-Date: Sun, 18 Mar 2018 12:56:36 -0400
+Date: Sun, 18 Mar 2018 17:56:36 +0100
 Subject: backends/x11: Support input-synaptics, if present.
 
 Add support for configuring the Xorg synaptics touchpad driver.

@@ -1,0 +1,47 @@
+From: Daniel van Vugt <daniel.van.vugt@canonical.com>
+Date: Thu, 11 Oct 2018 09:02:05 +0200
+Subject: clutter-offscreen-effect: Disable if no texture
+
+If texture allocation fails (e.g. on an old GPU with size limit 2048)
+then `update_fbo` would return `FALSE` but leaves `priv->offscreen`
+as non-NULL. So the next paint will try to use the offscreen with a
+`NULL` texture and crashes. The solution is simply to ensure that
+`priv->offscreen` is NULL if there is no `priv->texture`, so the default
+(non-offscreen) paint path gets used instead.
+
+Bug reported and fix provided by Gert van de Kraats.
+
+Origin: https://gitlab.gnome.org/GNOME/mutter/commit/f31cf0c3e
+Bug-Ubuntu: https://launchpad.net/bugs/1795774
+Applied-upstream: 3.30.3
+---
+ clutter/clutter/clutter-offscreen-effect.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/clutter/clutter/clutter-offscreen-effect.c b/clutter/clutter/clutter-offscreen-effect.c
+index 743020e..a26275e 100644
+--- a/clutter/clutter/clutter-offscreen-effect.c
++++ b/clutter/clutter/clutter-offscreen-effect.c
+@@ -180,6 +180,12 @@ update_fbo (ClutterEffect *effect, int fbo_width, int fbo_height)
+       priv->texture = NULL;
+     }
+ 
++  if (priv->offscreen != NULL)
++    {
++      cogl_handle_unref (priv->offscreen);
++      priv->offscreen = NULL;
++    }
++
+   priv->texture =
+     clutter_offscreen_effect_create_texture (self, fbo_width, fbo_height);
+   if (priv->texture == NULL)
+@@ -190,9 +196,6 @@ update_fbo (ClutterEffect *effect, int fbo_width, int fbo_height)
+   priv->fbo_width = fbo_width;
+   priv->fbo_height = fbo_height;
+ 
+-  if (priv->offscreen != NULL)
+-    cogl_handle_unref (priv->offscreen);
+-
+   priv->offscreen = cogl_offscreen_new_to_texture (priv->texture);
+   if (priv->offscreen == NULL)
+     {

@@ -3,6 +3,8 @@ theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 bgo768531_workaround-startup-notifications.patch
 clutter-Avoid-rounding-compensation-when-invalidating-2D-.patch
 clutter-Fix-offscreen-effect-painting-of-clones.patch
+cogl-auto-texture-Avoid-a-double-free-crash.patch
+clutter-offscreen-effect-Disable-if-no-texture.patch
 Sync-to-the-hardware-refresh-rate-not-just-60.00Hz.patch
 debian/synaptics-support.patch
 debian/skip-texture-test.patch
