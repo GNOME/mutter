@@ -165,7 +165,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
                                   CoglTexture              *cursor_texture,
                                   int                       bitmap_width,
                                   int                       bitmap_height,
-                                  uint32_t                 *bitmap_data,
+                                  uint8_t                  *bitmap_data,
                                   GError                  **error)
 {
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
@@ -216,7 +216,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
                                 0, 0,
                                 bitmap_width, bitmap_height,
                                 COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                                (uint8_t *) bitmap_data);
+                                bitmap_data);
   cogl_object_unref (fb);
 
   return TRUE;
@@ -288,7 +288,7 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
   int hotspot_x, hotspot_y;
   int texture_width, texture_height;
   int bitmap_width, bitmap_height;
-  uint32_t *bitmap_data;
+  uint8_t *bitmap_data;
 
   cursor_texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
   if (!cursor_texture)
@@ -326,7 +326,7 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
 
   bitmap_data = SPA_MEMBER (spa_meta_bitmap,
                             spa_meta_bitmap->offset,
-                            uint32_t);
+                            uint8_t);
 
   if (texture_width == bitmap_width &&
       texture_height == bitmap_height)
@@ -334,7 +334,7 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
       cogl_texture_get_data (cursor_texture,
                              COGL_PIXEL_FORMAT_RGBA_8888_PRE,
                              texture_width * 4,
-                             (uint8_t *) bitmap_data);
+                             bitmap_data);
     }
   else
     {
