@@ -157,6 +157,13 @@ CLUTTER_EXPORT
 void                   clutter_gesture_action_cancel               (ClutterGestureAction *action);
 
 CLUTTER_EXPORT
+void                   clutter_gesture_action_reset                (ClutterGestureAction *action);
+
+CLUTTER_EXPORT
+gboolean               clutter_gesture_action_eval_event           (ClutterGestureAction *action,
+														                                  			const ClutterEvent   *event);
+
+CLUTTER_EXPORT
 void                            clutter_gesture_action_set_threshold_trigger_edge       (ClutterGestureAction      *action,
                                                                                          ClutterGestureTriggerEdge  edge);
 CLUTTER_DEPRECATED_FOR(clutter_gesture_action_get_threshold_trigger_edge)
