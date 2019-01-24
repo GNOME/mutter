@@ -81,6 +81,8 @@ struct _ClutterGestureActionClass
   ClutterActionClass parent_class;
 
   /*< public >*/
+  gboolean (* gesture_prepare)  (ClutterGestureAction  *action,
+                                 ClutterActor          *actor);
   gboolean (* gesture_begin)    (ClutterGestureAction  *action,
                                  ClutterActor          *actor);
   gboolean (* gesture_progress) (ClutterGestureAction  *action,
@@ -88,8 +90,6 @@ struct _ClutterGestureActionClass
   void     (* gesture_end)      (ClutterGestureAction  *action,
                                  ClutterActor          *actor);
   void     (* gesture_cancel)   (ClutterGestureAction  *action,
-                                 ClutterActor          *actor);
-  gboolean (* gesture_prepare)  (ClutterGestureAction  *action,
                                  ClutterActor          *actor);
 
   /*< private >*/
@@ -155,6 +155,13 @@ const ClutterEvent *   clutter_gesture_action_get_last_event       (ClutterGestu
 
 CLUTTER_EXPORT
 void                   clutter_gesture_action_cancel               (ClutterGestureAction *action);
+
+CLUTTER_EXPORT
+void                   clutter_gesture_action_reset                (ClutterGestureAction *action);
+
+CLUTTER_EXPORT
+gboolean               clutter_gesture_action_eval_event           (ClutterGestureAction *action,
+														                                  			const ClutterEvent   *event);
 
 CLUTTER_EXPORT
 void                            clutter_gesture_action_set_threshold_trigger_edge       (ClutterGestureAction      *action,
