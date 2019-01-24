@@ -97,6 +97,7 @@
 	Available @properties include:
 
 	* "window-id" (t): Id of the window to record.
+	* "cursor-mode" (u): Cursor mode. Default: 'hidden' (see RecordMonitor)
 
     -->
     <method name="RecordWindow">
