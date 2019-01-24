@@ -65,6 +65,12 @@ void meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *sr
 
 MetaScreenCastStream * meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src);
 
+gboolean meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
+                                                       CoglTexture              *cursor_texture,
+                                                       float                     scale,
+                                                       uint8_t                  *data,
+                                                       GError                  **error);
+
 void meta_screen_cast_stream_src_unset_cursor_metadata (MetaScreenCastStreamSrc *src,
                                                         struct spa_meta_cursor  *spa_meta_cursor);
 
