@@ -87,7 +87,11 @@ meta_screen_cast_monitor_stream_src_get_specs (MetaScreenCastStreamSrc *src,
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
   mode = meta_monitor_get_current_mode (monitor);
 
-  scale = logical_monitor->scale;
+  if (meta_is_stage_views_scaled ())
+    scale = logical_monitor->scale;
+  else
+    scale = 1.0;
+
   *width = (int) roundf (logical_monitor->rect.width * scale);
   *height = (int) roundf (logical_monitor->rect.height * scale);
   *frame_rate = meta_monitor_mode_get_refresh_rate (mode);
