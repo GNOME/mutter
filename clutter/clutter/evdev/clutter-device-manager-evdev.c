@@ -37,6 +37,7 @@
 
 #include <glib.h>
 #include <libinput.h>
+#include <libudev.h>
 
 #include "clutter-backend.h"
 #include "clutter-debug.h"
@@ -1282,6 +1283,32 @@ is_dangerous_key (guint32 key)
 }
 
 static gboolean
+is_keyboard_forbidden (struct libinput_device *libinput_device)
+{
+  guint product_id, vendor_id;
+  gchar *dev_name, *dev_data, *digest_hex;
+  gchar *serial;
+  struct udev_device *udev_device;
+  udev_device = libinput_device_get_udev_device(libinput_device);
+  serial = udev_device_get_property_value (udev_device, "ID_SERIAL");
+  product_id = libinput_device_get_id_product (libinput_device);
+  vendor_id = libinput_device_get_id_vendor (libinput_device);
+  dev_name = libinput_device_get_name (libinput_device);
+  g_warning ("product: %i, vendor: %i, name: %s, serial: %s", product_id, vendor_id, dev_name, serial);
+  dev_data = g_strdup_printf ("%s%u%u%s", dev_name, vendor_id, product_id, serial);
+
+  digest_hex = g_compute_checksum_for_string (G_CHECKSUM_SHA256, dev_data, -1);
+  g_warning ("Digest hex: %s", digest_hex);
+
+  g_free (dev_data);
+  g_free (digest_hex);
+
+  //TODO check if this hash is whitelisted
+
+  return TRUE;
+}
+
+static gboolean
 process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
                       struct libinput_event *event)
 {
@@ -1314,14 +1341,9 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
 	     seat_key_count != 0))
           break;
 
-        if (manager_evdev->priv->keyboard_security && is_dangerous_key (key))
+        if (manager_evdev->priv->keyboard_security && is_dangerous_key (key) &&
+            is_keyboard_forbidden (libinput_device))
           {
-            guint product_id, vendor_id;
-            gchar *dev_name;
-            product_id = libinput_device_get_id_product (libinput_device);
-            vendor_id = libinput_device_get_id_vendor (libinput_device);
-            dev_name = libinput_device_get_name (libinput_device);
-            g_warning("product: %i, vendor: %i, name %s", product_id, vendor_id, dev_name);
             g_warning ("Woah, how dare you press this key!?");
             break;
           }
