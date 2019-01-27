@@ -218,6 +218,9 @@ meta_shadow_paint (MetaShadow      *shadow,
   int n_x, n_y;
   gboolean source_updated = FALSE;
 
+  if (clip && cairo_region_is_empty (clip))
+    return;
+
   if (shadow->scale_width)
     {
       n_x = 3;
