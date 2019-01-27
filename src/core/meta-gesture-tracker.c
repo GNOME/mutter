@@ -357,6 +357,11 @@ meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
 
   event_type = clutter_event_type (event);
 
+  if (priv->gesture_in_progress &&
+      (event_type == CLUTTER_ENTER ||
+       event_type == CLUTTER_LEAVE))
+    return TRUE;
+
   if (event_type != CLUTTER_TOUCH_BEGIN &&
       event_type != CLUTTER_TOUCH_UPDATE &&
       event_type != CLUTTER_TOUCH_END &&
