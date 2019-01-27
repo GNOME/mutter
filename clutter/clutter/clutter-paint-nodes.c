@@ -439,7 +439,7 @@ clutter_pipeline_node_draw (ClutterPaintNode *node)
                                                          op->op.texrect[2],
                                                          op->op.texrect[3],
                                                          (float*) op->multitex_coords->data,
-                                                         (int) op->multitex_coords->len);
+                                                         op->multitex_coords->len);
           break;
 
         case PAINT_OP_PATH:
@@ -1200,7 +1200,7 @@ clutter_layer_node_post_draw (ClutterPaintNode *node)
                                                          op->op.texrect[2],
                                                          op->op.texrect[3],
                                                          (float*) op->multitex_coords->data,
-                                                         (int) op->multitex_coords->len);
+                                                         op->multitex_coords->len);
           break;
 
         case PAINT_OP_PATH:
