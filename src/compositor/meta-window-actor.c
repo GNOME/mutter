@@ -647,7 +647,10 @@ clip_shadow_under_window (MetaWindowActor *self)
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
-  return is_non_opaque (self) && priv->window->frame;
+  if (priv->window->frame)
+    return TRUE;
+
+  return !is_non_opaque (self);
 }
 
 static void
