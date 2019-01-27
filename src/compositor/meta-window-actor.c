@@ -1370,9 +1370,27 @@ meta_window_actor_cull_out (MetaCullable   *cullable,
                             cairo_region_t *clip_region)
 {
   MetaWindowActor *self = META_WINDOW_ACTOR (cullable);
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (self);
 
   meta_cullable_cull_out_children (cullable, unobscured_region, clip_region);
   meta_window_actor_set_clip_region_beneath (self, clip_region);
+
+  if (unobscured_region && !is_non_opaque (self))
+    {
+      cairo_region_t *region = meta_window_get_frame_bounds (priv->window);
+
+      if (region)
+        {
+          cairo_region_subtract (unobscured_region, region);
+        }
+      else
+        {
+          cairo_rectangle_int_t rect;
+          meta_window_get_frame_rect (priv->window, &rect);
+          cairo_region_subtract_rectangle (unobscured_region, &rect);
+        }
+    }
 }
 
 static void
