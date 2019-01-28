@@ -989,15 +989,15 @@ clutter_paint_node_add_primitive (ClutterPaintNode *node,
   g_array_append_val (node->operations, operation);
 }
 
-/*< private >
- * _clutter_paint_node_paint:
+/**
+ * clutter_paint_node_paint:
  * @node: a #ClutterPaintNode
  *
  * Paints the @node using the class implementation, traversing
  * its children, if any.
  */
 void
-_clutter_paint_node_paint (ClutterPaintNode *node)
+clutter_paint_node_paint (ClutterPaintNode *node)
 {
   ClutterPaintNodeClass *klass = CLUTTER_PAINT_NODE_GET_CLASS (node);
   ClutterPaintNode *iter;
@@ -1014,7 +1014,7 @@ _clutter_paint_node_paint (ClutterPaintNode *node)
        iter != NULL;
        iter = iter->next_sibling)
     {
-      _clutter_paint_node_paint (iter);
+      clutter_paint_node_paint (iter);
     }
 
   if (res)
