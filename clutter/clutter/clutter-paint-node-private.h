@@ -116,7 +116,6 @@ ClutterPaintNode *      _clutter_root_node_new                          (CoglFra
 ClutterPaintNode *      _clutter_transform_node_new                     (const CoglMatrix            *matrix);
 ClutterPaintNode *      _clutter_dummy_node_new                         (ClutterActor                *actor);
 
-void                    _clutter_paint_node_paint                       (ClutterPaintNode            *root);
 void                    _clutter_paint_node_dump_tree                   (ClutterPaintNode            *root);
 
 G_GNUC_INTERNAL
