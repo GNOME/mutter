@@ -3391,17 +3391,10 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
       g_str_has_prefix (renderer_str, "softpipe") ||
       g_str_has_prefix (renderer_str, "swrast"))
     {
-      meta_egl_make_current (egl,
-                             egl_display,
-                             EGL_NO_SURFACE,
-                             EGL_NO_SURFACE,
-                             EGL_NO_CONTEXT,
-                             NULL);
-      meta_egl_destroy_context (egl, egl_display, egl_context, NULL);
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Do not want to use software renderer (%s), falling back to CPU copy path",
                    renderer_str);
-      return FALSE;
+      goto out_fail_with_context;
     }
 
   if (!meta_gles3_has_extensions (renderer_native->gles3,
@@ -3418,6 +3411,8 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
                    missing_gl_extensions_str);
       g_free (missing_gl_extensions_str);
       g_free (missing_gl_extensions);
+
+      goto out_fail_with_context;
     }
 
   renderer_gpu_data->secondary.is_hardware_rendering = TRUE;
@@ -3426,6 +3421,17 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_GPU;
 
   return TRUE;
+
+out_fail_with_context:
+  meta_egl_make_current (egl,
+                         egl_display,
+                         EGL_NO_SURFACE,
+                         EGL_NO_SURFACE,
+                         EGL_NO_CONTEXT,
+                         NULL);
+  meta_egl_destroy_context (egl, egl_display, egl_context, NULL);
+
+  return FALSE;
 }
 
 static void
