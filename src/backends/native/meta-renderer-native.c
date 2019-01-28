@@ -3254,6 +3254,8 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
                    missing_gl_extensions_str);
       g_free (missing_gl_extensions_str);
       g_free (missing_gl_extensions);
+
+      return FALSE;
     }
 
   renderer_gpu_data->secondary.is_hardware_rendering = is_hardware;
