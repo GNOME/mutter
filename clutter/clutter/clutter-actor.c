@@ -3740,7 +3740,7 @@ clutter_actor_paint_node (ClutterActor     *actor,
       if (!clutter_stage_get_no_clear_hint (CLUTTER_STAGE (actor)))
         clear_flags |= COGL_BUFFER_BIT_COLOR;
 
-      node = _clutter_root_node_new (fb, &bg_color, clear_flags);
+      node = clutter_root_node_new (fb, &bg_color, clear_flags);
       clutter_paint_node_set_name (node, "stageClear");
       clutter_paint_node_add_rectangle (node, &box);
       clutter_paint_node_add_child (root, node);

@@ -83,16 +83,13 @@ _clutter_paint_node_init_types (void)
 }
 
 /*
- * Root node, private
+ * Root node
  *
  * any frame can only have a since RootNode instance for each
  * top-level actor.
  */
 
-#define clutter_root_node_get_type      _clutter_root_node_get_type
-
-typedef struct _ClutterRootNode         ClutterRootNode;
-typedef struct _ClutterPaintNodeClass   ClutterRootNodeClass;
+#define clutter_root_node_get_type      clutter_root_node_get_type
 
 struct _ClutterRootNode
 {
@@ -158,13 +155,13 @@ clutter_root_node_init (ClutterRootNode *self)
 }
 
 ClutterPaintNode *
-_clutter_root_node_new (CoglFramebuffer    *framebuffer,
-                        const ClutterColor *clear_color,
-                        CoglBufferBit       clear_flags)
+clutter_root_node_new (CoglFramebuffer    *framebuffer,
+                       const ClutterColor *clear_color,
+                       CoglBufferBit       clear_flags)
 {
   ClutterRootNode *res;
 
-  res = _clutter_paint_node_create (_clutter_root_node_get_type ());
+  res = _clutter_paint_node_create (CLUTTER_TYPE_ROOT_NODE);
 
   cogl_color_init_from_4ub (&res->clear_color,
                             clear_color->red,
