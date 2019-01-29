@@ -33,6 +33,8 @@ G_DECLARE_FINAL_TYPE (MetaKmsImplDevice, meta_kms_impl_device,
 
 MetaKmsDevice * meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device);
 
+GList * meta_kms_impl_device_copy_crtcs (MetaKmsImplDevice *impl_device);
+
 int meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device);
 
 int meta_kms_impl_device_leak_fd (MetaKmsImplDevice *impl_device);
