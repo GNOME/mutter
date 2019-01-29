@@ -51,6 +51,8 @@
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-input-settings-native.h"
+#include "backends/native/meta-kms.h"
+#include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-launcher.h"
 #include "backends/native/meta-monitor-manager-kms.h"
 #include "backends/native/meta-renderer-native.h"
@@ -65,6 +67,7 @@ struct _MetaBackendNative
 
   MetaLauncher *launcher;
   MetaUdev *udev;
+  MetaKms *kms;
   MetaBarrierManagerNative *barrier_manager;
 
   guint udev_device_added_handler_id;
@@ -91,6 +94,7 @@ meta_backend_native_finalize (GObject *object)
     disconnect_udev_device_added_handler (native);
 
   g_clear_object (&native->udev);
+  g_clear_object (&native->kms);
   meta_launcher_free (native->launcher);
 
   G_OBJECT_CLASS (meta_backend_native_parent_class)->finalize (object);
@@ -523,17 +527,24 @@ create_gpu_from_udev_device (MetaBackendNative  *native,
                              GUdevDevice        *device,
                              GError            **error)
 {
-  MetaGpuKmsFlag flags = META_GPU_KMS_FLAG_NONE;
+  MetaKmsDeviceFlag flags = META_KMS_DEVICE_FLAG_NONE;
   const char *device_path;
+  MetaKmsDevice *kms_device;
 
   if (meta_is_udev_device_platform_device (device))
-    flags |= META_GPU_KMS_FLAG_PLATFORM_DEVICE;
+    flags |= META_KMS_DEVICE_FLAG_PLATFORM_DEVICE;
 
   if (meta_is_udev_device_boot_vga (device))
-    flags |= META_GPU_KMS_FLAG_BOOT_VGA;
+    flags |= META_KMS_DEVICE_FLAG_BOOT_VGA;
 
   device_path = g_udev_device_get_device_file (device);
-  return meta_gpu_kms_new (native, device_path, flags, error);
+
+  kms_device = meta_kms_create_device (native->kms, device_path, flags,
+                                       error);
+  if (!kms_device)
+    return NULL;
+
+  return meta_gpu_kms_new (native, kms_device, error);
 }
 
 static void
@@ -661,6 +672,10 @@ meta_backend_native_initable_init (GInitable     *initable,
   native->udev = meta_udev_new (native);
   native->barrier_manager = meta_barrier_manager_native_new ();
 
+  native->kms = meta_kms_new (META_BACKEND (native), error);
+  if (!native->kms)
+    return FALSE;
+
   if (!init_gpus (native, error))
     return FALSE;
 
@@ -720,6 +735,12 @@ MetaUdev *
 meta_backend_native_get_udev (MetaBackendNative *native)
 {
   return native->udev;
+}
+
+MetaKms *
+meta_backend_native_get_kms (MetaBackendNative *native)
+{
+  return native->kms;
 }
 
 gboolean
