@@ -706,21 +706,23 @@ init_crtcs (MetaGpuKms       *gpu_kms,
             MetaKmsResources *resources)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
+  MetaKmsDevice *kms_device = gpu_kms->kms_device;
+  GList *l;
   GList *crtcs;
-  unsigned int i;
 
   crtcs = NULL;
 
-  for (i = 0; i < (unsigned int) resources->resources->count_crtcs; i++)
+  for (l = meta_kms_device_get_crtcs (kms_device); l; l = l->next)
     {
+      MetaKmsCrtc *kms_crtc = l->data;
+      int crtc_idx;
       drmModeCrtc *drm_crtc;
       MetaCrtc *crtc;
 
+      crtc_idx = meta_kms_crtc_get_idx (kms_crtc);
       drm_crtc = drmModeGetCrtc (gpu_kms->fd,
-                                 resources->resources->crtcs[i]);
-
-      crtc = meta_create_kms_crtc (gpu_kms, drm_crtc, i);
-
+                                 resources->resources->crtcs[crtc_idx]);
+      crtc = meta_create_kms_crtc (gpu_kms, kms_crtc, drm_crtc);
       drmModeFreeCrtc (drm_crtc);
 
       crtcs = g_list_append (crtcs, crtc);
