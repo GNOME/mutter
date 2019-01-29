@@ -87,10 +87,6 @@ const char * meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms);
 
 int64_t meta_gpu_kms_get_current_time_ns (MetaGpuKms *gpu_kms);
 
-void meta_gpu_kms_get_max_buffer_size (MetaGpuKms *gpu_kms,
-                                       int        *max_width,
-                                       int        *max_height);
-
 void meta_gpu_kms_set_power_save_mode (MetaGpuKms *gpu_kms,
                                        uint64_t    state);
 
