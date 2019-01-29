@@ -108,6 +108,8 @@ clutter_root_node_pre_draw (ClutterPaintNode *node)
 {
   ClutterRootNode *rnode = (ClutterRootNode *) node;
 
+  cogl_push_framebuffer (rnode->framebuffer);
+
   cogl_framebuffer_clear (rnode->framebuffer,
                           rnode->clear_flags,
                           &rnode->clear_color);
@@ -118,6 +120,7 @@ clutter_root_node_pre_draw (ClutterPaintNode *node)
 static void
 clutter_root_node_post_draw (ClutterPaintNode *node)
 {
+  cogl_pop_framebuffer ();
 }
 
 static void
