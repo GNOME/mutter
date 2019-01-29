@@ -17,22 +17,24 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_IMPL_TYPES_H
-#define META_KMS_IMPL_TYPES_H
+#ifndef META_KMS_CRTC_H
+#define META_KMS_CRTC_H
 
-typedef struct _MetaKms MetaKms;
-typedef struct _MetaKmsDevice MetaKmsDevice;
+#include <glib-object.h>
+#include <stdint.h>
+#include <xf86drmMode.h>
 
-typedef struct _MetaKmsCrtc MetaKmsCrtc;
+#include "backends/native/meta-kms-types.h"
 
-typedef struct _MetaKmsImpl MetaKmsImpl;
-typedef struct _MetaKmsImplDevice MetaKmsImplDevice;
+#define META_TYPE_KMS_CRTC (meta_kms_crtc_get_type ())
+G_DECLARE_FINAL_TYPE (MetaKmsCrtc, meta_kms_crtc,
+                      META, KMS_CRTC,
+                      GObject)
 
-typedef enum _MetaKmsDeviceFlag
-{
-  META_KMS_DEVICE_FLAG_NONE = 0,
-  META_KMS_DEVICE_FLAG_BOOT_VGA = 1 << 0,
-  META_KMS_DEVICE_FLAG_PLATFORM_DEVICE = 1 << 1,
-} MetaKmsDeviceFlag;
+MetaKmsDevice * meta_kms_crtc_get_device (MetaKmsCrtc *crtc);
 
-#endif /* META_KMS_IMPL_TYPES_H */
+uint32_t meta_kms_crtc_get_id (MetaKmsCrtc *crtc);
+
+int meta_kms_crtc_get_idx (MetaKmsCrtc *crtc);
+
+#endif /* META_KMS_CRTC_H */
