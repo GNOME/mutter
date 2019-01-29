@@ -40,7 +40,6 @@ void meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
 void meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
                                             int                fallback_width,
                                             int                fallback_height);
-gboolean meta_shaped_texture_is_obscured (MetaShapedTexture *self);
 cairo_region_t * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex);
 void meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
                                         MetaMonitorTransform  transform);
@@ -51,11 +50,6 @@ void meta_shaped_texture_set_viewport_dst_size (MetaShapedTexture *stex,
                                                 int                dst_width,
                                                 int                dst_height);
 void meta_shaped_texture_reset_viewport_dst_size (MetaShapedTexture *stex);
-void meta_shaped_texture_cull_out (MetaShapedTexture *stex,
-                                   cairo_region_t    *unobscured_region,
-                                   cairo_region_t    *clip_region,
-                                   uint8_t            opacity);
-void meta_shaped_texture_reset_culling (MetaShapedTexture *stex);
 void meta_shaped_texture_set_scale (MetaShapedTexture *stex,
                                     double             scale);
 double meta_shaped_texture_get_scale (MetaShapedTexture *stex);
