@@ -91,6 +91,10 @@ struct _ClutterGestureActionClass
                                  ClutterActor          *actor);
   void     (* gesture_cancel)   (ClutterGestureAction  *action,
                                  ClutterActor          *actor);
+  gboolean (* touch_added)      (ClutterGestureAction  *action,
+                                 ClutterActor          *actor);
+  void     (* touch_removed)    (ClutterGestureAction  *action,
+                                 ClutterActor          *actor);
 
   /*< private >*/
   void (* _clutter_gesture_action1) (void);
@@ -111,6 +115,11 @@ CLUTTER_EXPORT
 gint                   clutter_gesture_action_get_n_touch_points   (ClutterGestureAction *action);
 CLUTTER_EXPORT
 void                   clutter_gesture_action_set_n_touch_points   (ClutterGestureAction *action,
+                                                                    gint                  nb_points);
+CLUTTER_EXPORT
+gboolean               clutter_gesture_action_get_exact_n_required (ClutterGestureAction *action);
+CLUTTER_EXPORT
+void                   clutter_gesture_action_set_exact_n_required (ClutterGestureAction *action,
                                                                     gint                  nb_points);
 CLUTTER_EXPORT
 void                   clutter_gesture_action_get_press_coords     (ClutterGestureAction *action,
