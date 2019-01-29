@@ -30,6 +30,10 @@ typedef struct _MetaSurfaceActorPrivate
 
   cairo_region_t *input_region;
 
+  /* MetaCullable regions, see that documentation for more details */
+  cairo_region_t *clip_region;
+  cairo_region_t *unobscured_region;
+
   /* Freeze/thaw accounting */
   cairo_region_t *pending_damage;
   guint frozen : 1;
@@ -49,6 +53,72 @@ enum {
 };
 
 static guint signals[LAST_SIGNAL];
+
+static cairo_region_t *
+effective_unobscured_region (MetaSurfaceActor *surface_actor)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+  ClutterActor *actor;
+
+  /* Fail if we have any mapped clones. */
+  actor = CLUTTER_ACTOR (surface_actor);
+  do
+    {
+      if (clutter_actor_has_mapped_clones (actor))
+        return NULL;
+      actor = clutter_actor_get_parent (actor);
+    }
+  while (actor != NULL);
+
+  return priv->unobscured_region;
+}
+
+
+static void
+set_unobscured_region (MetaSurfaceActor *surface_actor,
+                       cairo_region_t   *unobscured_region)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+
+  g_clear_pointer (&priv->unobscured_region, cairo_region_destroy);
+  if (unobscured_region)
+    {
+      float width, height;
+
+      clutter_content_get_preferred_size (CLUTTER_CONTENT (priv->texture), &width, &height);
+
+      cairo_rectangle_int_t bounds = { 0, 0, width, height };
+      priv->unobscured_region = cairo_region_copy (unobscured_region);
+      cairo_region_intersect_rectangle (priv->unobscured_region, &bounds);
+    }
+}
+
+static void
+set_clip_region (MetaSurfaceActor *surface_actor,
+                 cairo_region_t   *clip_region)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+
+  g_clear_pointer (&priv->clip_region, cairo_region_destroy);
+  if (clip_region)
+    priv->clip_region = cairo_region_copy (clip_region);
+}
+
+static void
+meta_surface_actor_paint (ClutterActor *actor)
+{
+  MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (actor);
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+
+  if (priv->clip_region && cairo_region_is_empty (priv->clip_region))
+    return;
+
+  CLUTTER_ACTOR_CLASS (meta_surface_actor_parent_class)->paint (actor);
+}
 
 static void
 meta_surface_actor_pick (ClutterActor       *actor,
@@ -125,6 +195,9 @@ meta_surface_actor_dispose (GObject *object)
 
   g_clear_pointer (&priv->input_region, cairo_region_destroy);
 
+  set_unobscured_region (self, NULL);
+  set_clip_region (self, NULL);
+
   G_OBJECT_CLASS (meta_surface_actor_parent_class)->dispose (object);
 }
 
@@ -135,6 +208,7 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
 
   object_class->dispose = meta_surface_actor_dispose;
+  actor_class->paint = meta_surface_actor_paint;
   actor_class->pick = meta_surface_actor_pick;
   actor_class->get_paint_volume = meta_surface_actor_get_paint_volume;
 
@@ -163,17 +237,31 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
     meta_surface_actor_get_instance_private (surface_actor);
   uint8_t opacity = clutter_actor_get_opacity (CLUTTER_ACTOR (cullable));
 
-  meta_shaped_texture_cull_out (priv->texture, unobscured_region, clip_region, opacity);
+  set_unobscured_region (surface_actor, unobscured_region);
+  set_clip_region (surface_actor, clip_region);
+
+  if (opacity == 0xff)
+    {
+      cairo_region_t *opaque_region;
+
+      opaque_region = meta_shaped_texture_get_opaque_region (priv->texture);
+
+      if (opaque_region)
+        {
+          if (unobscured_region)
+            cairo_region_subtract (unobscured_region, opaque_region);
+          if (clip_region)
+            cairo_region_subtract (clip_region, opaque_region);
+        }
+    }
 }
 
 static void
 meta_surface_actor_reset_culling (MetaCullable *cullable)
 {
   MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (cullable);
-  MetaSurfaceActorPrivate *priv =
-    meta_surface_actor_get_instance_private (surface_actor);
 
-  meta_shaped_texture_reset_culling (priv->texture);
+  set_clip_region (surface_actor, NULL);
 }
 
 static void
@@ -229,18 +317,58 @@ meta_surface_actor_update_area (MetaSurfaceActor *self,
 {
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
+  gboolean repaint_scheduled = FALSE;
+  cairo_rectangle_int_t clip;
 
-  if (meta_shaped_texture_update_area (priv->texture, x, y, width, height))
+  if (meta_shaped_texture_update_area (priv->texture, x, y, width, height, &clip))
+    {
+      cairo_region_t *unobscured_region;
+
+      unobscured_region = effective_unobscured_region (self);
+
+      if (unobscured_region)
+        {
+          cairo_region_t *intersection;
+
+          if (cairo_region_is_empty (unobscured_region))
+            return;
+
+          intersection = cairo_region_copy (unobscured_region);
+          cairo_region_intersect_rectangle (intersection, &clip);
+
+          if (!cairo_region_is_empty (intersection))
+            {
+              cairo_rectangle_int_t damage_rect;
+
+              cairo_region_get_extents (intersection, &damage_rect);
+              clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (self), &damage_rect);
+              repaint_scheduled = TRUE;
+            }
+
+          cairo_region_destroy (intersection);
+        }
+      else
+        {
+          clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (self), &clip);
+          repaint_scheduled = TRUE;
+        }
+    }
+
+  if (repaint_scheduled)
     g_signal_emit (self, signals[REPAINT_SCHEDULED], 0);
 }
 
 gboolean
 meta_surface_actor_is_obscured (MetaSurfaceActor *self)
 {
-  MetaSurfaceActorPrivate *priv =
-    meta_surface_actor_get_instance_private (self);
+  cairo_region_t *unobscured_region;
 
-  return meta_shaped_texture_is_obscured (priv->texture);
+  unobscured_region = effective_unobscured_region (self);
+
+  if (unobscured_region)
+    return cairo_region_is_empty (unobscured_region);
+  else
+    return FALSE;
 }
 
 void
