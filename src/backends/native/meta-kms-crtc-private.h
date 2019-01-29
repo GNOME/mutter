@@ -17,22 +17,15 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_IMPL_TYPES_H
-#define META_KMS_IMPL_TYPES_H
+#ifndef META_KMS_CRTC_PRIVATE_H
+#define META_KMS_CRTC_PRIVATE_H
 
-typedef struct _MetaKms MetaKms;
-typedef struct _MetaKmsDevice MetaKmsDevice;
+#include <xf86drmMode.h>
 
-typedef struct _MetaKmsCrtc MetaKmsCrtc;
+#include "backends/native/meta-kms-types.h"
 
-typedef struct _MetaKmsImpl MetaKmsImpl;
-typedef struct _MetaKmsImplDevice MetaKmsImplDevice;
+MetaKmsCrtc * meta_kms_crtc_new (MetaKmsImplDevice *impl_device,
+                                 drmModeCrtc       *drm_crtc,
+                                 int                idx);
 
-typedef enum _MetaKmsDeviceFlag
-{
-  META_KMS_DEVICE_FLAG_NONE = 0,
-  META_KMS_DEVICE_FLAG_BOOT_VGA = 1 << 0,
-  META_KMS_DEVICE_FLAG_PLATFORM_DEVICE = 1 << 1,
-} MetaKmsDeviceFlag;
-
-#endif /* META_KMS_IMPL_TYPES_H */
+#endif /* META_KMS_CRTC_PRIVATE_H */

@@ -58,6 +58,12 @@ meta_kms_device_get_flags (MetaKmsDevice *device)
   return device->flags;
 }
 
+GList *
+meta_kms_device_get_crtcs (MetaKmsDevice *device)
+{
+  return meta_kms_impl_device_get_crtcs (device->impl_device);
+}
+
 typedef struct _CreateImplDeviceData
 {
   MetaKmsDevice *device;

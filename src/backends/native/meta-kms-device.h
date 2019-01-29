@@ -35,6 +35,8 @@ const char * meta_kms_device_get_path (MetaKmsDevice *device);
 
 MetaKmsDeviceFlag meta_kms_device_get_flags (MetaKmsDevice *device);
 
+GList * meta_kms_device_get_crtcs (MetaKmsDevice *device);
+
 MetaKmsDevice * meta_kms_device_new (MetaKms            *kms,
                                      const char         *path,
                                      MetaKmsDeviceFlag   flags,
