@@ -580,15 +580,17 @@ meta_display_init (MetaDisplay *disp)
 void
 meta_display_cancel_touch (MetaDisplay *display)
 {
-#ifdef HAVE_WAYLAND
-  MetaWaylandCompositor *compositor;
+  MetaBackend *backend = meta_get_backend ();
 
-  if (!meta_is_wayland_compositor ())
-    return;
+  if (meta_is_wayland_compositor ())
+    {
+      MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+      meta_wayland_touch_cancel (compositor->seat->touch);
+    }
 
-  compositor = meta_wayland_compositor_get_default ();
-  meta_wayland_touch_cancel (compositor->seat->touch);
-#endif
+  ClutterEvent *event = clutter_event_new (CLUTTER_TOUCH_CANCEL);
+  clutter_actor_event (CLUTTER_ACTOR (meta_backend_get_stage (backend)), event, TRUE);
+  clutter_event_free (event);
 }
 
 static void
@@ -618,6 +620,9 @@ gesture_tracker_state_changed (MetaGestureTracker   *tracker,
                           META_VIRTUAL_CORE_POINTER_ID,
                           clutter_x11_event_sequence_get_touch_detail (sequence),
                           DefaultRootWindow (display->x11_display->xdisplay), event_mode);
+
+      if (state == META_SEQUENCE_ACCEPTED)
+        meta_display_cancel_touch (display);
     }
 }
 
