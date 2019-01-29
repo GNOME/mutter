@@ -29,6 +29,7 @@
 #include "backends/meta-backend-types.h"
 #include "backends/meta-crtc.h"
 #include "backends/native/meta-gpu-kms.h"
+#include "backends/native/meta-kms-crtc.h"
 
 typedef struct _MetaDrmFormatBuf
 {
@@ -55,7 +56,7 @@ meta_crtc_kms_supports_format (MetaCrtc *crtc,
                                uint32_t  drm_format);
 
 MetaCrtc * meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
-                                 drmModeCrtc  *drm_crtc,
-                                 unsigned int  crtc_index);
+                                 MetaKmsCrtc  *kms_crtc,
+                                 drmModeCrtc  *drm_crtc);
 
 #endif /* META_CRTC_KMS_H */
