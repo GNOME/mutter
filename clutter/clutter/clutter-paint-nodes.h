@@ -143,6 +143,26 @@ CLUTTER_EXPORT
 ClutterPaintNode *      clutter_text_node_new           (PangoLayout           *layout,
                                                          const ClutterColor    *color);
 
+#define CLUTTER_TYPE_ROOT_NODE                  (clutter_text_node_get_type ())
+#define CLUTTER_ROOT_NODE(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_ROOT_NODE, ClutterRootNode))
+#define CLUTTER_IS_ROOT_NODE(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_ROOT_NODE))
+
+/**
+ * ClutterRootNode:
+ *
+ * The #ClutterRootNode structure is an opaque
+ * type whose members cannot be directly accessed.
+ */
+typedef struct _ClutterRootNode                 ClutterRootNode;
+typedef struct _ClutterPaintNodeClass           ClutterRootNodeClass;
+
+CLUTTER_EXPORT
+GType clutter_root_node_get_type (void) G_GNUC_CONST;
+
+CLUTTER_EXPORT
+ClutterPaintNode *      clutter_root_node_new           (CoglFramebuffer       *framebuffer,
+                                                         const ClutterColor    *clear_color,
+                                                         CoglBufferBit          clear_flags);
 G_END_DECLS
 
 #endif /* __CLUTTER_PAINT_NODES_H__ */
