@@ -17,32 +17,24 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_IMPL_DEVICE_H
-#define META_KMS_IMPL_DEVICE_H
+#ifndef META_KMS_CRTC_H
+#define META_KMS_CRTC_H
 
 #include <glib-object.h>
 #include <stdint.h>
+#include <xf86drmMode.h>
 
-#include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-types.h"
 
-#define META_TYPE_KMS_IMPL_DEVICE (meta_kms_impl_device_get_type ())
-G_DECLARE_FINAL_TYPE (MetaKmsImplDevice, meta_kms_impl_device,
-                      META, KMS_IMPL_DEVICE,
+#define META_TYPE_KMS_CRTC (meta_kms_crtc_get_type ())
+G_DECLARE_FINAL_TYPE (MetaKmsCrtc, meta_kms_crtc,
+                      META, KMS_CRTC,
                       GObject)
 
-MetaKmsDevice * meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device);
+MetaKmsDevice * meta_kms_crtc_get_device (MetaKmsCrtc *crtc);
 
-GList * meta_kms_impl_device_get_crtcs (MetaKmsImplDevice *impl_device);
+uint32_t meta_kms_crtc_get_id (MetaKmsCrtc *crtc);
 
-int meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device);
+int meta_kms_crtc_get_idx (MetaKmsCrtc *crtc);
 
-int meta_kms_impl_device_leak_fd (MetaKmsImplDevice *impl_device);
-
-int meta_kms_impl_device_close (MetaKmsImplDevice *impl_device);
-
-MetaKmsImplDevice * meta_kms_impl_device_new (MetaKmsDevice *device,
-                                              MetaKmsImpl   *kms_impl,
-                                              int            fd);
-
-#endif /* META_KMS_IMPL_DEVICE_H */
+#endif /* META_KMS_CRTC_H */
