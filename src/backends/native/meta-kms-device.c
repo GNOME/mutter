@@ -36,6 +36,8 @@ struct _MetaKmsDevice
 
   MetaKmsDeviceFlag flags;
   char *path;
+
+  GList *crtcs;
 };
 
 G_DEFINE_TYPE (MetaKmsDevice, meta_kms_device, G_TYPE_OBJECT);
@@ -58,12 +60,19 @@ meta_kms_device_get_flags (MetaKmsDevice *device)
   return device->flags;
 }
 
+GList *
+meta_kms_device_get_crtcs (MetaKmsDevice *device)
+{
+  return device->crtcs;
+}
+
 typedef struct _CreateImplDeviceData
 {
   MetaKmsDevice *device;
   int fd;
 
   MetaKmsImplDevice *out_impl_device;
+  GList *out_crtcs;
 } CreateImplDeviceData;
 
 static gboolean
@@ -77,6 +86,7 @@ create_impl_device_in_impl (MetaKmsImpl  *impl,
   impl_device = meta_kms_impl_device_new (data->device, impl, data->fd);
 
   data->out_impl_device = impl_device;
+  data->out_crtcs = meta_kms_impl_device_copy_crtcs (impl_device);
 
   return TRUE;
 }
@@ -116,6 +126,7 @@ meta_kms_device_new (MetaKms            *kms,
   device->impl_device = data.out_impl_device;
   device->flags = flags;
   device->path = g_strdup (path);
+  device->crtcs = data.out_crtcs;
 
   return device;
 }
@@ -153,6 +164,8 @@ meta_kms_device_finalize (GObject *object)
   MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
   FreeImplDeviceData data;
   GError *error = NULL;
+
+  g_list_free (device->crtcs);
 
   data = (FreeImplDeviceData) {
     .impl_device = device->impl_device,

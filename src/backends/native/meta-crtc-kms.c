@@ -40,7 +40,8 @@
 
 typedef struct _MetaCrtcKms
 {
-  unsigned int index;
+  MetaKmsCrtc *kms_crtc;
+
   uint32_t primary_plane_id;
   uint32_t rotation_prop_id;
   uint32_t rotation_map[ALL_TRANSFORMS];
@@ -409,6 +410,7 @@ init_crtc_rotations (MetaCrtc *crtc,
   drmModePlaneRes *planes;
   drmModePlane *drm_plane;
   unsigned int i;
+  int crtc_idx;
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
@@ -416,6 +418,7 @@ init_crtc_rotations (MetaCrtc *crtc,
   if (planes == NULL)
     return;
 
+  crtc_idx = meta_kms_crtc_get_idx (crtc_kms->kms_crtc);
   for (i = 0; i < planes->count_planes; i++)
     {
       drmModePropertyPtr prop;
@@ -425,7 +428,7 @@ init_crtc_rotations (MetaCrtc *crtc,
       if (!drm_plane)
         continue;
 
-      if ((drm_plane->possible_crtcs & (1 << crtc_kms->index)))
+      if ((drm_plane->possible_crtcs & (1 << crtc_idx)))
         {
           props = drmModeObjectGetProperties (kms_fd,
                                               drm_plane->plane_id,
@@ -493,8 +496,8 @@ meta_crtc_destroy_notify (MetaCrtc *crtc)
 
 MetaCrtc *
 meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
-                      drmModeCrtc  *drm_crtc,
-                      unsigned int  crtc_index)
+                      MetaKmsCrtc  *kms_crtc,
+                      drmModeCrtc  *drm_crtc)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaCrtc *crtc;
@@ -503,7 +506,7 @@ meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
   crtc = g_object_new (META_TYPE_CRTC, NULL);
 
   crtc->gpu = gpu;
-  crtc->crtc_id = drm_crtc->crtc_id;
+  crtc->crtc_id = meta_kms_crtc_get_id (kms_crtc);
   crtc->rect.x = drm_crtc->x;
   crtc->rect.y = drm_crtc->y;
   crtc->rect.width = drm_crtc->width;
@@ -529,7 +532,7 @@ meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
     }
 
   crtc_kms = g_new0 (MetaCrtcKms, 1);
-  crtc_kms->index = crtc_index;
+  crtc_kms->kms_crtc = kms_crtc;
 
   crtc_kms->formats_modifiers =
     g_hash_table_new_full (g_direct_hash,
