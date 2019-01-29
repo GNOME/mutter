@@ -97,7 +97,6 @@ struct _ClutterPaintOperation
   } op;
 };
 
-GType _clutter_root_node_get_type (void) G_GNUC_CONST;
 GType _clutter_transform_node_get_type (void) G_GNUC_CONST;
 GType _clutter_dummy_node_get_type (void) G_GNUC_CONST;
 
@@ -110,9 +109,6 @@ void                    _clutter_paint_operation_paint_primitive        (const C
 void                    _clutter_paint_node_init_types                  (void);
 gpointer                _clutter_paint_node_create                      (GType gtype);
 
-ClutterPaintNode *      _clutter_root_node_new                          (CoglFramebuffer             *framebuffer,
-                                                                         const ClutterColor          *clear_color,
-                                                                         CoglBufferBit                clear_flags);
 ClutterPaintNode *      _clutter_transform_node_new                     (const CoglMatrix            *matrix);
 ClutterPaintNode *      _clutter_dummy_node_new                         (ClutterActor                *actor);
 
