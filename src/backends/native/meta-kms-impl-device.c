@@ -21,6 +21,10 @@
 
 #include "backends/native/meta-kms-impl-device.h"
 
+#include <xf86drm.h>
+
+#include "backends/native/meta-kms-crtc-private.h"
+#include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-impl.h"
 #include "backends/native/meta-kms-private.h"
 
@@ -32,6 +36,8 @@ struct _MetaKmsImplDevice
   MetaKmsImpl *impl;
 
   int fd;
+
+  GList *crtcs;
 };
 
 G_DEFINE_TYPE (MetaKmsImplDevice, meta_kms_impl_device, G_TYPE_OBJECT)
@@ -42,12 +48,39 @@ meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device)
   return impl_device->device;
 }
 
+GList *
+meta_kms_impl_device_get_crtcs (MetaKmsImplDevice *impl_device)
+{
+  return impl_device->crtcs;
+}
+
+static void
+init_crtcs (MetaKmsImplDevice *impl_device,
+            drmModeRes        *drm_resources)
+{
+  int idx;
+
+  for (idx = 0; idx < drm_resources->count_crtcs; idx++)
+    {
+      drmModeCrtc *drm_crtc;
+      MetaKmsCrtc *crtc;
+
+      drm_crtc = drmModeGetCrtc (impl_device->fd, drm_resources->crtcs[idx]);
+      crtc = meta_kms_crtc_new (impl_device, drm_crtc, idx);
+      drmModeFreeCrtc (drm_crtc);
+
+      impl_device->crtcs = g_list_prepend (impl_device->crtcs, crtc);
+    }
+  impl_device->crtcs = g_list_reverse (impl_device->crtcs);
+}
+
 MetaKmsImplDevice *
 meta_kms_impl_device_new (MetaKmsDevice *device,
                           MetaKmsImpl   *impl,
                           int            fd)
 {
   MetaKmsImplDevice *impl_device;
+  drmModeRes *drm_resources;
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
 
@@ -55,6 +88,12 @@ meta_kms_impl_device_new (MetaKmsDevice *device,
   impl_device->device = device;
   impl_device->impl = impl;
   impl_device->fd = fd;
+
+  drm_resources = drmModeGetResources (fd);
+
+  init_crtcs (impl_device, drm_resources);
+
+  drmModeFreeResources (drm_resources);
 
   return impl_device;
 }
@@ -87,6 +126,16 @@ meta_kms_impl_device_close (MetaKmsImplDevice *impl_device)
 }
 
 static void
+meta_kms_impl_device_finalize (GObject *object)
+{
+  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (object);
+
+  g_list_free_full (impl_device->crtcs, g_object_unref);
+
+  G_OBJECT_CLASS (meta_kms_impl_device_parent_class)->finalize (object);
+}
+
+static void
 meta_kms_impl_device_init (MetaKmsImplDevice *device)
 {
 }
@@ -94,5 +143,8 @@ meta_kms_impl_device_init (MetaKmsImplDevice *device)
 static void
 meta_kms_impl_device_class_init (MetaKmsImplDeviceClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_kms_impl_device_finalize;
 }
 
