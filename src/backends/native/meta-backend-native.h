@@ -27,6 +27,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-clutter-backend-native.h"
+#include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-launcher.h"
 #include "backends/native/meta-udev.h"
 
@@ -43,5 +44,7 @@ void meta_backend_native_resume (MetaBackendNative *backend_native);
 MetaLauncher * meta_backend_native_get_launcher (MetaBackendNative *native);
 
 MetaUdev * meta_backend_native_get_udev (MetaBackendNative *native);
+
+MetaKms * meta_backend_native_get_kms (MetaBackendNative *native);
 
 #endif /* META_BACKEND_NATIVE_H */
