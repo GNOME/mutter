@@ -71,9 +71,6 @@ struct _MetaGpuKms
   drmModeConnector **connectors;
   unsigned int n_connectors;
 
-  int max_buffer_width;
-  int max_buffer_height;
-
   gboolean resources_init_failed_before;
 
   MetaGpuKmsFlag flags;
@@ -384,15 +381,6 @@ meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
     }
 
   return TRUE;
-}
-
-void
-meta_gpu_kms_get_max_buffer_size (MetaGpuKms *gpu_kms,
-                                  int        *max_width,
-                                  int        *max_height)
-{
-  *max_width = gpu_kms->max_buffer_width;
-  *max_height = gpu_kms->max_buffer_height;
 }
 
 int
@@ -856,9 +844,6 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
         }
       return TRUE;
     }
-
-  gpu_kms->max_buffer_width = resources.resources->max_width;
-  gpu_kms->max_buffer_height = resources.resources->max_height;
 
   /* Note: we must not free the public structures (output, crtc, monitor
      mode and monitor info) here, they must be kept alive until the API
