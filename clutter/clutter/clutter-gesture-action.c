@@ -147,6 +147,7 @@ struct _ClutterGestureActionPrivate
   gboolean is_stage_gesture;
 
   gint requested_nb_points;
+  gboolean exact_n_required;
   GArray *points;
 
   guint actor_event_id;
@@ -163,6 +164,7 @@ enum
   PROP_0,
 
   PROP_N_TOUCH_POINTS,
+  PROP_EXACT_N_REQUIRED,
   PROP_THRESHOLD_TRIGGER_EDGE,
   PROP_THRESHOLD_TRIGGER_DISTANCE_X,
   PROP_THRESHOLD_TRIGGER_DISTANCE_Y,
@@ -176,6 +178,8 @@ enum
   GESTURE_PROGRESS,
   GESTURE_END,
   GESTURE_CANCEL,
+  TOUCH_ADDED,
+  TOUCH_REMOVED,
 
   LAST_SIGNAL
 };
@@ -449,12 +453,31 @@ clutter_gesture_action_eval_event (ClutterGestureAction *action,
           gesture_unregister_point (action, priv->points->len - 1);
 
         if (priv->state == CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
-          return CLUTTER_EVENT_STOP;
+          {
+            if (!priv->exact_n_required)
+              {
+                g_signal_emit (action, gesture_signals[TOUCH_ADDED], 0,
+                               clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action)), &return_value);
+
+                if (!return_value)
+                  {
+                    gesture_unregister_point (action, priv->points->len - 1);
+                    return CLUTTER_EVENT_PROPAGATE;
+                  }
+              }
+            else if (priv->points->len != priv->requested_nb_points)
+              {
+                cancel_gesture (action);
+                return CLUTTER_EVENT_PROPAGATE;
+              }
+
+            return CLUTTER_EVENT_STOP;
+          }
 
         if (priv->state == CLUTTER_GESTURE_ACTION_STATE_WAITING)
           {
             if (priv->edge != CLUTTER_GESTURE_TRIGGER_EDGE_AFTER &&
-                priv->points->len >= priv->requested_nb_points)
+                priv->points->len == priv->requested_nb_points)
               return begin_gesture (action);
           }
       }
@@ -474,7 +497,7 @@ clutter_gesture_action_eval_event (ClutterGestureAction *action,
           if (priv->state == CLUTTER_GESTURE_ACTION_STATE_WAITING)
             {
               if (priv->edge == CLUTTER_GESTURE_TRIGGER_EDGE_AFTER &&
-                  priv->points->len >= priv->requested_nb_points)
+                  priv->points->len == priv->requested_nb_points)
                 {
                   if ((point = gesture_find_point (action, event, &position)) == NULL)
                     return CLUTTER_EVENT_PROPAGATE;
@@ -525,8 +548,17 @@ clutter_gesture_action_eval_event (ClutterGestureAction *action,
 
         if (priv->state == CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
           {
-            if ((priv->points->len - 1) < priv->requested_nb_points)
-              end_gesture (action);
+            if (!priv->exact_n_required)
+              {
+                g_signal_emit (action, gesture_signals[TOUCH_REMOVED], 0,
+                               clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action)));
+
+                return CLUTTER_EVENT_STOP;
+              }
+            else if ((priv->points->len - 1) != priv->requested_nb_points)
+              {
+                end_gesture (action);
+              }
           }
 
         gesture_unregister_point (action, position);
@@ -627,6 +659,10 @@ clutter_gesture_action_set_property (GObject      *gobject,
       clutter_gesture_action_set_n_touch_points (self, g_value_get_int (value));
       break;
 
+    case PROP_EXACT_N_REQUIRED:
+      clutter_gesture_action_set_exact_n_required (self, g_value_get_boolean (value));
+      break;
+
     case PROP_THRESHOLD_TRIGGER_EDGE:
       clutter_gesture_action_set_threshold_trigger_edge (self, g_value_get_enum (value));
       break;
@@ -657,6 +693,10 @@ clutter_gesture_action_get_property (GObject    *gobject,
     {
     case PROP_N_TOUCH_POINTS:
       g_value_set_int (value, self->priv->requested_nb_points);
+      break;
+
+    case PROP_EXACT_N_REQUIRED:
+      g_value_set_boolean (value, self->priv->exact_n_required);
       break;
 
     case PROP_THRESHOLD_TRIGGER_EDGE:
@@ -708,6 +748,7 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
   klass->gesture_prepare = default_event_handler;
   klass->gesture_begin = default_event_handler;
   klass->gesture_progress = default_event_handler;
+  klass->touch_added = default_event_handler;
 
   /**
    * ClutterGestureAction:n-touch-points:
@@ -722,6 +763,20 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
                       P_("Number of touch points"),
                       1, G_MAXINT, 1,
                       CLUTTER_PARAM_READWRITE);
+
+  /**
+   * ClutterGestureAction:exact-n-required:
+   *
+   * Whether added or removed points should stop the gesture.
+   *
+   * Since: ?
+   */
+  gesture_props[PROP_EXACT_N_REQUIRED] =
+    g_param_spec_boolean ("exact-n-required",
+                          P_("Exact Number required"),
+                          P_("Added or removed points should stop the gesture"),
+                          TRUE,
+                          CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterGestureAction:threshold-trigger-edge:
@@ -874,6 +929,49 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
                   _clutter_marshal_VOID__OBJECT,
                   G_TYPE_NONE, 1,
                   CLUTTER_TYPE_ACTOR);
+
+  /**
+   * ClutterGestureAction::touch-added:
+   * @action: the #ClutterGestureAction that emitted the signal
+   * @actor: the #ClutterActor attached to the @action
+   *
+   * The ::touch-added signal is emitted when the ongoing gesture detects
+   * a new touchpoint being added.
+   *
+   * Return value: %TRUE if the gesture should use the touchpoint, and %FALSE if
+   *   the touchpoint should be ignored and its events propagated.
+   *
+   * Since: ?
+   */
+  gesture_signals[TOUCH_ADDED] =
+    g_signal_new (I_("touch-added"),
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (ClutterGestureActionClass, touch_added),
+                  _clutter_boolean_continue_accumulator, NULL,
+                  _clutter_marshal_BOOLEAN__OBJECT,
+                  G_TYPE_BOOLEAN, 1,
+                  CLUTTER_TYPE_ACTOR);
+
+  /**
+   * ClutterGestureAction::touch-removed:
+   * @action: the #ClutterGestureAction that emitted the signal
+   * @actor: the #ClutterActor attached to the @action
+   *
+   * The ::touch-removed signal is emitted when the ongoing gesture detects
+   * a touchpoint being removed.
+   *
+   * Since: ?
+   */
+  gesture_signals[TOUCH_REMOVED] =
+    g_signal_new (I_("touch-removed"),
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (ClutterGestureActionClass, touch_removed),
+                   NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_ACTOR);
 }
 
 static void
@@ -887,6 +985,7 @@ clutter_gesture_action_init (ClutterGestureAction *self)
   self->priv->mapped_changed_id = 0;
 
   self->priv->requested_nb_points = 1;
+  self->priv->exact_n_required = TRUE;
   self->priv->edge = CLUTTER_GESTURE_TRIGGER_EDGE_NONE;
   self->priv->state = CLUTTER_GESTURE_ACTION_STATE_WAITING;
 }
@@ -1144,13 +1243,14 @@ clutter_gesture_action_set_n_touch_points (ClutterGestureAction *action,
 
   if (priv->state == CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
     {
-      if (priv->points->len < priv->requested_nb_points)
+      if (priv->exact_n_required &&
+          priv->points->len != priv->requested_nb_points)
         cancel_gesture (action);
     }
   else if (priv->state == CLUTTER_GESTURE_ACTION_STATE_WAITING)
     {
       if (priv->edge == CLUTTER_GESTURE_TRIGGER_EDGE_AFTER &&
-          priv->points->len >= priv->requested_nb_points)
+          priv->points->len == priv->requested_nb_points)
         {
           gint i;
 
@@ -1169,6 +1269,61 @@ clutter_gesture_action_set_n_touch_points (ClutterGestureAction *action,
 
   g_object_notify_by_pspec (G_OBJECT (action),
                             gesture_props[PROP_N_TOUCH_POINTS]);
+}
+
+/**
+ * clutter_gesture_action_set_exact_n_required:
+ * @action: a #ClutterGestureAction
+ * @exact_n_required: a boolean
+ *
+ * Sets whether the gesture should be cancelled or ended when a
+ * point is added or removed.
+ *
+ * Since: ?
+ */
+void
+clutter_gesture_action_set_exact_n_required (ClutterGestureAction *action,
+                                             gboolean exact_n_required)
+{
+  ClutterGestureActionPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
+
+  priv = action->priv;
+
+  if (priv->exact_n_required == exact_n_required)
+    return;
+
+  priv->exact_n_required = exact_n_required;
+
+  if (priv->state == CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
+    {
+      if (priv->exact_n_required &&
+          priv->points->len != priv->requested_nb_points)
+        cancel_gesture (action);
+    }
+
+  g_object_notify_by_pspec (G_OBJECT (action), gesture_props[PROP_EXACT_N_REQUIRED]);
+}
+
+/**
+ * clutter_gesture_action_get_exact_n_required:
+ * @action: a #ClutterGestureAction
+ *
+ * Describes if the gesture should be cancelled or ended when
+ * a point is added or removed.
+ *
+ * Return value: %TRUE if the gesture should be stopped when the
+ *   amount of points changes.
+ *
+ * Since: ?
+ */
+gboolean
+clutter_gesture_action_get_exact_n_required (ClutterGestureAction *action)
+{
+  g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action), FALSE);
+
+  return action->priv->exact_n_required;
 }
 
 /**
