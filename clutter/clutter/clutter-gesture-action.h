@@ -113,6 +113,11 @@ CLUTTER_EXPORT
 void                   clutter_gesture_action_set_n_touch_points   (ClutterGestureAction *action,
                                                                     gint                  nb_points);
 CLUTTER_EXPORT
+gboolean               clutter_gesture_action_get_exact_n_required (ClutterGestureAction *action);
+CLUTTER_EXPORT
+void                   clutter_gesture_action_set_exact_n_required (ClutterGestureAction *action,
+                                                                    gint                  nb_points);
+CLUTTER_EXPORT
 void                   clutter_gesture_action_get_press_coords     (ClutterGestureAction *action,
                                                                     guint                 point,
                                                                     gfloat               *press_x,
