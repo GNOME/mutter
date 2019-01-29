@@ -1147,7 +1147,7 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
                          -(stex->dst_width / 2.0),
                          -(stex->dst_height / 2.0), 0);
 
-  clear_color = CLUTTER_COLOR_INIT (0, 0, 0, 0);
+  clear_color = (ClutterColor) { 0, 0, 0, 0 };
 
   root_node = clutter_root_node_new (fb, &clear_color, COGL_BUFFER_BIT_COLOR);
   clutter_paint_node_set_name (root_node, "MetaShapedTexture.offscreen");
