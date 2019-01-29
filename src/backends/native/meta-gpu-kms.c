@@ -37,6 +37,8 @@
 #include "backends/meta-output.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms.h"
 #include "backends/native/meta-launcher.h"
 #include "backends/native/meta-output-kms.h"
 
@@ -61,9 +63,10 @@ struct _MetaGpuKms
 {
   MetaGpu parent;
 
+  MetaKmsDevice *kms_device;
+
   uint32_t id;
   int fd;
-  char *file_path;
   GSource *source;
 
   clockid_t clock_id;
@@ -72,8 +75,6 @@ struct _MetaGpuKms
   unsigned int n_connectors;
 
   gboolean resources_init_failed_before;
-
-  MetaGpuKmsFlag flags;
 };
 
 G_DEFINE_TYPE (MetaGpuKms, meta_gpu_kms, META_TYPE_GPU)
@@ -397,7 +398,7 @@ meta_gpu_kms_get_id (MetaGpuKms *gpu_kms)
 const char *
 meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms)
 {
-  return gpu_kms->file_path;
+  return meta_kms_device_get_path (gpu_kms->kms_device);
 }
 
 int64_t
@@ -428,13 +429,19 @@ meta_gpu_kms_set_power_save_mode (MetaGpuKms *gpu_kms,
 gboolean
 meta_gpu_kms_is_boot_vga (MetaGpuKms *gpu_kms)
 {
-  return !!(gpu_kms->flags & META_GPU_KMS_FLAG_BOOT_VGA);
+  MetaKmsDeviceFlag flags;
+
+  flags = meta_kms_device_get_flags (gpu_kms->kms_device);
+  return !!(flags & META_KMS_DEVICE_FLAG_BOOT_VGA);
 }
 
 gboolean
 meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms)
 {
-  return !!(gpu_kms->flags & META_GPU_KMS_FLAG_PLATFORM_DEVICE);
+  MetaKmsDeviceFlag flags;
+
+  flags = meta_kms_device_get_flags (gpu_kms->kms_device);
+  return !!(flags & META_KMS_DEVICE_FLAG_PLATFORM_DEVICE);
 }
 
 static void
@@ -869,27 +876,22 @@ meta_gpu_kms_can_have_outputs (MetaGpuKms *gpu_kms)
 
 MetaGpuKms *
 meta_gpu_kms_new (MetaBackendNative  *backend_native,
-                  const char         *kms_file_path,
-                  MetaGpuKmsFlag      flags,
+                  MetaKmsDevice      *kms_device,
                   GError            **error)
 {
-  MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
   GSource *source;
   MetaKmsSource *kms_source;
   MetaGpuKms *gpu_kms;
   int kms_fd;
 
-  kms_fd = meta_launcher_open_restricted (launcher, kms_file_path, error);
-  if (kms_fd == -1)
-    return NULL;
+  kms_fd = meta_kms_device_leak_fd (kms_device);
 
   gpu_kms = g_object_new (META_TYPE_GPU_KMS,
                           "backend", backend_native,
                           NULL);
 
-  gpu_kms->flags = flags;
+  gpu_kms->kms_device = kms_device;
   gpu_kms->fd = kms_fd;
-  gpu_kms->file_path = g_strdup (kms_file_path);
 
   drmSetClientCap (gpu_kms->fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
 
@@ -912,13 +914,6 @@ static void
 meta_gpu_kms_finalize (GObject *object)
 {
   MetaGpuKms *gpu_kms = META_GPU_KMS (object);
-  MetaBackend *backend = meta_gpu_get_backend (META_GPU (gpu_kms));
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
-
-  if (gpu_kms->fd != -1)
-    meta_launcher_close_restricted (launcher, gpu_kms->fd);
-  g_clear_pointer (&gpu_kms->file_path, g_free);
 
   g_source_destroy (gpu_kms->source);
 
