@@ -385,10 +385,11 @@ meta_begin_modal_for_plugin (MetaCompositor   *compositor,
                          meta_plugin_get_display (plugin),
                          display->grab_window, display->grab_op);
 
+  meta_display_cancel_touch (display);
+
   if (meta_is_wayland_compositor ())
     {
       meta_display_sync_wayland_input_focus (display);
-      meta_display_cancel_touch (display);
 
 #ifdef HAVE_WAYLAND
       meta_dnd_wayland_handle_begin_modal (compositor);
