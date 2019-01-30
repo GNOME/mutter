@@ -1093,7 +1093,6 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->initial_timestamp_set = FALSE;
   window->net_wm_user_time_set = FALSE;
   window->user_time_window = None;
-  window->can_ping = FALSE;
   window->input = TRUE;
   window->calc_placement = FALSE;
   window->shaken_loose = FALSE;
@@ -8543,6 +8542,15 @@ meta_window_shortcuts_inhibited (MetaWindow         *window,
 
 gboolean
 meta_window_is_focusable (MetaWindow *window)
+{
+  if (window->unmanaging)
+    return FALSE;
+
+  return META_WINDOW_GET_CLASS (window)->is_focusable (window);
+}
+
+gboolean
+meta_window_can_ping (MetaWindow *window)
 {
   if (window->unmanaging)
     return FALSE;

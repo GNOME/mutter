@@ -48,6 +48,7 @@ struct _MetaWindowX11Private
   guint wm_state_skip_taskbar : 1;
   guint wm_state_skip_pager : 1;
   guint wm_take_focus : 1;
+  guint wm_ping : 1;
   guint wm_delete_window : 1;
 
   /* Weird "_NET_WM_STATE_MODAL" flag */
