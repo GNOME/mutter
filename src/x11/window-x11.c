@@ -682,6 +682,25 @@ meta_window_x11_unmanage (MetaWindow *window)
     }
 }
 
+void
+meta_window_x11_set_wm_ping (MetaWindow *window,
+                             gboolean    ping)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+
+  priv->wm_ping = ping;
+}
+
+static gboolean
+meta_window_x11_can_ping (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+
+  return priv->wm_ping;
+}
+
 static void
 meta_window_x11_ping (MetaWindow *window,
                       guint32     serial)
@@ -1705,6 +1724,7 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->shortcuts_inhibited = meta_window_x11_shortcuts_inhibited;
   window_class->is_focusable = meta_window_x11_is_focusable;
   window_class->is_stackable = meta_window_x11_is_stackable;
+  window_class->can_ping = meta_window_x11_can_ping;
   window_class->are_updates_frozen = meta_window_x11_are_updates_frozen;
 }
 

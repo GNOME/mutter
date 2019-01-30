@@ -326,8 +326,6 @@ struct _MetaWindow
   /* whether net_wm_icon_geometry has been set */
   guint icon_geometry_set : 1;
 
-  /* These are the flags from WM_PROTOCOLS */
-  guint can_ping : 1;
   /* Globally active / No input */
   guint input : 1;
 
@@ -570,6 +568,7 @@ struct _MetaWindowClass
                                    ClutterInputDevice *source);
   gboolean (*is_focusable)        (MetaWindow *window);
   gboolean (*is_stackable)        (MetaWindow *window);
+  gboolean (*can_ping)            (MetaWindow *window);
   gboolean (*are_updates_frozen)  (MetaWindow *window);
 };
 
@@ -664,6 +663,8 @@ void     meta_window_set_focused_internal (MetaWindow *window,
                                            gboolean    focused);
 
 gboolean meta_window_is_focusable (MetaWindow *window);
+
+gboolean meta_window_can_ping (MetaWindow *window);
 
 void     meta_window_current_workspace_changed (MetaWindow *window);
 
