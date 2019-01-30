@@ -691,14 +691,28 @@ meta_window_x11_ping (MetaWindow *window,
   send_icccm_message (window, display->x11_display->atom__NET_WM_PING, serial);
 }
 
+void
+meta_window_x11_set_wm_delete_window (MetaWindow *window,
+                                      gboolean    delete_window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  priv->wm_delete_window = delete_window;
+}
+
 static void
 meta_window_x11_delete (MetaWindow *window,
                         guint32     timestamp)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
   MetaX11Display *x11_display = window->display->x11_display;
 
   meta_x11_error_trap_push (x11_display);
-  if (window->delete_window)
+  if (priv->wm_delete_window)
     {
       meta_topic (META_DEBUG_WINDOW_OPS,
                   "Deleting %s with delete_window request\n",
