@@ -745,6 +745,9 @@ static void
 meta_window_x11_focus (MetaWindow *window,
                        guint32     timestamp)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
   /* For output-only or shaded windows, focus the frame.
    * This seems to result in the client window getting key events
    * though, so I don't know if it's icccm-compliant.
@@ -774,7 +777,7 @@ meta_window_x11_focus (MetaWindow *window,
                                                    timestamp);
         }
 
-      if (window->take_focus)
+      if (priv->wm_take_focus)
         {
           meta_topic (META_DEBUG_FOCUS,
                       "Sending WM_TAKE_FOCUS to %s since take_focus = true\n",
@@ -1628,10 +1631,25 @@ meta_window_x11_shortcuts_inhibited (MetaWindow         *window,
   return FALSE;
 }
 
+void
+meta_window_x11_set_wm_take_focus (MetaWindow *window,
+                                   gboolean    take_focus)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  priv->wm_take_focus = take_focus;
+}
+
 static gboolean
 meta_window_x11_is_focusable (MetaWindow *window)
 {
-  return window->input || window->take_focus;
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  return window->input || priv->wm_take_focus;
 }
 
 static gboolean
