@@ -1531,8 +1531,8 @@ reload_wm_protocols (MetaWindow    *window,
 {
   int i;
 
-  window->can_ping = FALSE;
   meta_window_x11_set_wm_take_focus (window, FALSE);
+  meta_window_x11_set_wm_ping (window, FALSE);
   meta_window_x11_set_wm_delete_window (window, FALSE);
 
   if (value->type == META_PROP_VALUE_INVALID)
@@ -1549,7 +1549,7 @@ reload_wm_protocols (MetaWindow    *window,
         meta_window_x11_set_wm_delete_window (window, TRUE);
       else if (value->v.atom_list.atoms[i] ==
                window->display->x11_display->atom__NET_WM_PING)
-        window->can_ping = TRUE;
+        meta_window_x11_set_wm_ping (window, TRUE);
       ++i;
     }
 
