@@ -27,5 +27,6 @@ test-mutter:
              GSETTINGS_SCHEMA_DIR=$PWD/build/data
     - mkdir -m 700 $XDG_RUNTIME_DIR
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
-    - dbus-run-session -- xvfb-run -s '+iglx -noreset'
+    - |
+      dbus-run-session -- xvfb-run -s '+iglx -noreset'
       meson test -C build --no-rebuild -t 10 --verbose --no-stdsplit --wrap catchsegv
