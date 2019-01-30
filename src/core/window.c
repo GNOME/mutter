@@ -1093,7 +1093,6 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->initial_timestamp_set = FALSE;
   window->net_wm_user_time_set = FALSE;
   window->user_time_window = None;
-  window->take_focus = FALSE;
   window->delete_window = FALSE;
   window->can_ping = FALSE;
   window->input = TRUE;
@@ -4703,8 +4702,8 @@ meta_window_focus (MetaWindow  *window,
   window->restore_focus_on_map = FALSE;
 
   meta_topic (META_DEBUG_FOCUS,
-              "Setting input focus to window %s, input: %d take_focus: %d\n",
-              window->desc, window->input, window->take_focus);
+              "Setting input focus to window %s, input: %d focusable: %d\n",
+              window->desc, window->input, meta_window_is_focusable (window));
 
   if (window->display->grab_window &&
       window->display->grab_window != window &&
