@@ -2136,10 +2136,10 @@ _clutter_events_evdev_init (ClutterBackend *backend)
 {
   CLUTTER_NOTE (EVENT, "Initializing evdev backend");
 
+  backend->keymap = g_object_new (CLUTTER_TYPE_KEYMAP_EVDEV, NULL);
   backend->device_manager = g_object_new (CLUTTER_TYPE_DEVICE_MANAGER_EVDEV,
                                           "backend", backend,
                                           NULL);
-  backend->keymap = g_object_new (CLUTTER_TYPE_KEYMAP_EVDEV, NULL);
 }
 
 void
