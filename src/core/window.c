@@ -1093,7 +1093,6 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->initial_timestamp_set = FALSE;
   window->net_wm_user_time_set = FALSE;
   window->user_time_window = None;
-  window->delete_window = FALSE;
   window->can_ping = FALSE;
   window->input = TRUE;
   window->calc_placement = FALSE;
