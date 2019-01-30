@@ -592,6 +592,12 @@ meta_window_wayland_is_focusable (MetaWindow *window)
 }
 
 static gboolean
+meta_window_wayland_can_ping (MetaWindow *window)
+{
+  return TRUE;
+}
+
+static gboolean
 meta_window_wayland_is_stackable (MetaWindow *window)
 {
   return meta_wayland_surface_get_buffer (window->surface) != NULL;
@@ -626,6 +632,7 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->shortcuts_inhibited = meta_window_wayland_shortcuts_inhibited;
   window_class->is_focusable = meta_window_wayland_is_focusable;
   window_class->is_stackable = meta_window_wayland_is_stackable;
+  window_class->can_ping = meta_window_wayland_can_ping;
   window_class->are_updates_frozen = meta_window_wayland_are_updates_frozen;
 }
 
@@ -665,7 +672,6 @@ meta_window_wayland_new (MetaDisplay        *display,
                                     WithdrawnState,
                                     META_COMP_EFFECT_CREATE,
                                     &attrs);
-  window->can_ping = TRUE;
 
   meta_x11_error_trap_pop (display->x11_display); /* pop the XSync()-reducing trap */
 

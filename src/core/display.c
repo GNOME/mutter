@@ -1992,7 +1992,7 @@ meta_display_ping_window (MetaWindow *window,
       return;
     }
 
-  if (!window->can_ping)
+  if (!meta_window_can_ping (window))
     return;
 
   ping_data = g_new (MetaPingData, 1);
