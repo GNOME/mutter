@@ -327,7 +327,6 @@ struct _MetaWindow
   guint icon_geometry_set : 1;
 
   /* These are the flags from WM_PROTOCOLS */
-  guint delete_window : 1;
   guint can_ping : 1;
   /* Globally active / No input */
   guint input : 1;

@@ -1531,9 +1531,9 @@ reload_wm_protocols (MetaWindow    *window,
 {
   int i;
 
-  window->delete_window = FALSE;
   window->can_ping = FALSE;
   meta_window_x11_set_wm_take_focus (window, FALSE);
+  meta_window_x11_set_wm_delete_window (window, FALSE);
 
   if (value->type == META_PROP_VALUE_INVALID)
     return;
@@ -1546,7 +1546,7 @@ reload_wm_protocols (MetaWindow    *window,
         meta_window_x11_set_wm_take_focus (window, TRUE);
       else if (value->v.atom_list.atoms[i] ==
                window->display->x11_display->atom_WM_DELETE_WINDOW)
-        window->delete_window = TRUE;
+        meta_window_x11_set_wm_delete_window (window, TRUE);
       else if (value->v.atom_list.atoms[i] ==
                window->display->x11_display->atom__NET_WM_PING)
         window->can_ping = TRUE;
