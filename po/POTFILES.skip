@@ -30,6 +30,7 @@ clutter/clutter/clutter-input-device.c
 clutter/clutter/clutter-input-device-tool.c
 clutter/clutter/clutter-input-method.c
 clutter/clutter/clutter-interval.c
+clutter/clutter/clutter-keymap.c
 clutter/clutter/clutter-layout-manager.c
 clutter/clutter/clutter-layout-meta.c
 clutter/clutter/clutter-main.c
