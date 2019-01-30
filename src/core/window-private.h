@@ -327,7 +327,6 @@ struct _MetaWindow
   guint icon_geometry_set : 1;
 
   /* These are the flags from WM_PROTOCOLS */
-  guint take_focus : 1;
   guint delete_window : 1;
   guint can_ping : 1;
   /* Globally active / No input */
@@ -699,11 +698,11 @@ gboolean meta_window_same_application (MetaWindow *window,
 #define META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE(w) \
   ((w)->type != META_WINDOW_DOCK && (w)->type != META_WINDOW_DESKTOP)
 #define META_WINDOW_IN_NORMAL_TAB_CHAIN(w) \
-  (((w)->input || (w)->take_focus ) && META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w) && (!(w)->skip_taskbar))
+  (meta_window_is_focusable (w) && META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w) && (!(w)->skip_taskbar))
 #define META_WINDOW_IN_DOCK_TAB_CHAIN(w) \
-  (((w)->input || (w)->take_focus) && (! META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w) || (w)->skip_taskbar))
+  (meta_window_is_focusable (w) && (! META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w) || (w)->skip_taskbar))
 #define META_WINDOW_IN_GROUP_TAB_CHAIN(w, g) \
-  (((w)->input || (w)->take_focus) && (!g || meta_window_get_group(w)==g))
+  (meta_window_is_focusable (w) && (!g || meta_window_get_group(w)==g))
 
 void meta_window_free_delete_dialog (MetaWindow *window);
 
