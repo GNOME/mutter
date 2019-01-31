@@ -995,6 +995,25 @@ meta_set_gnome_wm_keybindings (const char *wm_keybindings)
   gnome_wm_keybindings = wm_keybindings;
 }
 
+const gchar *
+meta_x11_get_display_name (void)
+{
+#ifdef HAVE_WAYLAND
+  if (meta_is_wayland_compositor ())
+    {
+      MetaWaylandCompositor *compositor;
+
+      compositor = meta_wayland_compositor_get_default ();
+
+      return meta_wayland_get_xwayland_display_name (compositor);
+    }
+  else
+#endif
+    {
+      return g_getenv ("DISPLAY");
+    }
+}
+
 gboolean
 meta_x11_init_gdk_display (GError **error)
 {
@@ -1003,7 +1022,7 @@ meta_x11_init_gdk_display (GError **error)
   const char *gdk_gl_env = NULL;
   Display *xdisplay;
 
-  xdisplay_name = g_getenv ("DISPLAY");
+  xdisplay_name = meta_x11_get_display_name ();
   if (!xdisplay_name)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
