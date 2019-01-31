@@ -38,6 +38,7 @@ struct _MetaKmsDevice
   char *path;
 
   GList *crtcs;
+  GList *planes;
 };
 
 G_DEFINE_TYPE (MetaKmsDevice, meta_kms_device, G_TYPE_OBJECT);
@@ -73,6 +74,7 @@ typedef struct _CreateImplDeviceData
 
   MetaKmsImplDevice *out_impl_device;
   GList *out_crtcs;
+  GList *out_planes;
 } CreateImplDeviceData;
 
 static gboolean
@@ -87,6 +89,7 @@ create_impl_device_in_impl (MetaKmsImpl  *impl,
 
   data->out_impl_device = impl_device;
   data->out_crtcs = meta_kms_impl_device_copy_crtcs (impl_device);
+  data->out_planes = meta_kms_impl_device_copy_planes (impl_device);
 
   return TRUE;
 }
@@ -127,6 +130,7 @@ meta_kms_device_new (MetaKms            *kms,
   device->flags = flags;
   device->path = g_strdup (path);
   device->crtcs = data.out_crtcs;
+  device->planes = data.out_planes;
 
   return device;
 }
@@ -166,6 +170,7 @@ meta_kms_device_finalize (GObject *object)
   GError *error = NULL;
 
   g_list_free (device->crtcs);
+  g_list_free (device->planes);
 
   data = (FreeImplDeviceData) {
     .impl_device = device->impl_device,
