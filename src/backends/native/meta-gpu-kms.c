@@ -895,8 +895,6 @@ meta_gpu_kms_new (MetaBackendNative  *backend_native,
   gpu_kms->kms_device = kms_device;
   gpu_kms->fd = kms_fd;
 
-  drmSetClientCap (gpu_kms->fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
-
   meta_gpu_kms_read_current (META_GPU (gpu_kms), NULL);
 
   source = g_source_new (&kms_event_funcs, sizeof (MetaKmsSource));
