@@ -22,6 +22,7 @@
 
 #include <glib-object.h>
 #include <stdint.h>
+#include <xf86drmMode.h>
 
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-types.h"
@@ -34,6 +35,13 @@ G_DECLARE_FINAL_TYPE (MetaKmsImplDevice, meta_kms_impl_device,
 MetaKmsDevice * meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device);
 
 GList * meta_kms_impl_device_get_crtcs (MetaKmsImplDevice *impl_device);
+
+GList * meta_kms_impl_device_get_planes (MetaKmsImplDevice *impl_device);
+
+drmModePropertyPtr meta_kms_impl_device_find_property (MetaKmsImplDevice       *impl_device,
+                                                       drmModeObjectProperties *props,
+                                                       const char              *prop_name,
+                                                       int                     *idx);
 
 int meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device);
 
