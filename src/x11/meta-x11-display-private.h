@@ -247,4 +247,6 @@ void meta_x11_display_set_input_focus (MetaX11Display *x11_display,
                                        Window          xwindow,
                                        guint32         timestamp);
 
+const char * meta_x11_get_display_name (void);
+
 #endif /* META_X11_DISPLAY_PRIVATE_H */
