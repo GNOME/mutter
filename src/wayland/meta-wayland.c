@@ -263,12 +263,14 @@ meta_wayland_compositor_destroy_frame_callbacks (MetaWaylandCompositor *composit
 
 static void
 set_gnome_env (const char *name,
-	       const char *value)
+	       const char *value,
+	       gboolean    set_env_on_self)
 {
   GDBusConnection *session_bus;
   GError *error = NULL;
 
-  setenv (name, value, TRUE);
+  if (set_env_on_self)
+    setenv (name, value, TRUE);
 
   session_bus = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
   g_assert (session_bus);
@@ -439,9 +441,9 @@ meta_wayland_init (void)
     }
 
   if (meta_should_autostart_x11_display ())
-    set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
+    set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor), FALSE);
 
-  set_gnome_env ("WAYLAND_DISPLAY", meta_wayland_get_wayland_display_name (compositor));
+  set_gnome_env ("WAYLAND_DISPLAY", meta_wayland_get_wayland_display_name (compositor), TRUE);
 }
 
 const char *
