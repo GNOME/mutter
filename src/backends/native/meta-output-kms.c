@@ -41,10 +41,6 @@ typedef struct _MetaOutputKms
 
   drmModeConnector *connector;
 
-  unsigned int n_encoders;
-  drmModeEncoderPtr *encoders;
-  drmModeEncoderPtr current_encoder;
-
   /*
    * Bitmasks of encoder position in the resources array (used during clone
    * setup).
@@ -409,13 +405,8 @@ static void
 meta_output_destroy_notify (MetaOutput *output)
 {
   MetaOutputKms *output_kms;
-  unsigned i;
 
   output_kms = output->driver_private;
-
-  for (i = 0; i < output_kms->n_encoders; i++)
-    drmModeFreeEncoder (output_kms->encoders[i]);
-  g_free (output_kms->encoders);
 
   g_slice_free (MetaOutputKms, output_kms);
 }
@@ -568,6 +559,9 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   unsigned int crtc_mask;
   int fd;
   uint32_t id;
+  unsigned int n_encoders;
+  drmModeEncoderPtr *encoders;
+  drmModeEncoderPtr current_encoder = NULL;
 
   output = g_object_new (META_TYPE_OUTPUT, NULL);
 
@@ -624,16 +618,16 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
       return NULL;
     }
 
-  output_kms->n_encoders = connector->count_encoders;
-  output_kms->encoders = g_new0 (drmModeEncoderPtr, output_kms->n_encoders);
+  n_encoders = connector->count_encoders;
+  encoders = g_new0 (drmModeEncoderPtr, n_encoders);
 
   fd = meta_gpu_kms_get_fd (gpu_kms);
 
   crtc_mask = ~(unsigned int) 0;
-  for (i = 0; i < output_kms->n_encoders; i++)
+  for (i = 0; i < n_encoders; i++)
     {
-      output_kms->encoders[i] = drmModeGetEncoder (fd, connector->encoders[i]);
-      if (!output_kms->encoders[i])
+      encoders[i] = drmModeGetEncoder (fd, connector->encoders[i]);
+      if (!encoders[i])
         continue;
 
       /* We only list CRTCs as supported if they are supported by all encoders
@@ -641,10 +635,10 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
 
          This is what xf86-video-modesetting does (see drmmode_output_init())
          */
-      crtc_mask &= output_kms->encoders[i]->possible_crtcs;
+      crtc_mask &= encoders[i]->possible_crtcs;
 
-      if (output_kms->encoders[i]->encoder_id == connector->encoder_id)
-        output_kms->current_encoder = output_kms->encoders[i];
+      if (encoders[i]->encoder_id == connector->encoder_id)
+        current_encoder = encoders[i];
     }
 
   crtcs = g_array_new (FALSE, FALSE, sizeof (MetaCrtc*));
@@ -662,13 +656,13 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   output->n_possible_crtcs = crtcs->len;
   output->possible_crtcs = (void*)g_array_free (crtcs, FALSE);
 
-  if (output_kms->current_encoder && output_kms->current_encoder->crtc_id != 0)
+  if (current_encoder && current_encoder->crtc_id != 0)
     {
       for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
         {
           MetaCrtc *crtc = l->data;
 
-          if (crtc->crtc_id == output_kms->current_encoder->crtc_id)
+          if (crtc->crtc_id == current_encoder->crtc_id)
             {
               meta_output_assign_crtc (output, crtc);
               break;
@@ -737,9 +731,9 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   output_kms->enc_clone_mask = 0xff;
   output_kms->encoder_mask = 0;
 
-  for (i = 0; i < output_kms->n_encoders; i++)
+  for (i = 0; i < n_encoders; i++)
     {
-      drmModeEncoder *output_encoder = output_kms->encoders[i];
+      drmModeEncoder *output_encoder = encoders[i];
       unsigned int j;
 
       for (j = 0; j < resources->n_encoders; j++)
@@ -756,6 +750,10 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
 
       output_kms->enc_clone_mask &= output_encoder->possible_clones;
     }
+
+  for (i = 0; i < n_encoders; i++)
+    drmModeFreeEncoder (encoders[i]);
+  g_free (encoders);
 
   return output;
 }
