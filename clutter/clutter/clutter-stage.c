@@ -210,7 +210,6 @@ static void capture_view_into (ClutterStage          *stage,
 
 static void clutter_container_iface_init (ClutterContainerIface *iface);
 
-
 G_DEFINE_TYPE_WITH_CODE (ClutterStage, clutter_stage, CLUTTER_TYPE_GROUP,
                          G_ADD_PRIVATE (ClutterStage)
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
