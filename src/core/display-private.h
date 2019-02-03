@@ -222,6 +222,8 @@ struct _MetaDisplay
   MetaGestureTracker *gesture_tracker;
   ClutterEventSequence *pointer_emulating_sequence;
 
+  guint touch_count;
+
   ClutterActor *current_pad_osd;
 
   MetaStartupNotification *startup_notification;

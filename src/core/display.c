@@ -755,6 +755,8 @@ meta_display_open (void)
   g_signal_connect (display->gesture_tracker, "state-changed",
                     G_CALLBACK (gesture_tracker_state_changed), display);
 
+  display->touch_count = 0;
+
   /* We know that if mutter is running as a Wayland compositor,
    * we start out with no windows.
    */
