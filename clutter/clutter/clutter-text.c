@@ -1919,7 +1919,7 @@ clutter_text_foreach_selection_rectangle_prescaled (ClutterText              *se
                                                     ClutterTextSelectionFunc  func,
                                                     gpointer                  user_data)
 {
-  clutter_text_foreach_selection_rectangle_prescaled (self, 1.0f, func, user_data);
+  clutter_text_foreach_selection_rectangle (self, 1.0f, func, user_data);
 }
 
 /* Draws the selected text, its background, and the cursor */
