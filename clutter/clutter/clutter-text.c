@@ -2796,8 +2796,10 @@ clutter_text_get_paint_volume_for_cursor (ClutterText        *text,
 
   if (priv->position == priv->selection_bound)
     {
-      float width = priv->cursor_rect.size.width / resource_scale;
-      float height = priv->cursor_rect.size.height / resource_scale;
+      float width, height;
+
+      width = priv->cursor_rect.size.width / resource_scale;
+      height = priv->cursor_rect.size.height / resource_scale;
       origin.x = priv->cursor_rect.origin.x / resource_scale;
       origin.y = priv->cursor_rect.origin.y / resource_scale;
       origin.z = 0;
