@@ -1914,6 +1914,14 @@ add_selection_rectangle_to_path (ClutterText           *text,
   cogl_path_rectangle (user_data, box->x1, box->y1, box->x2, box->y2);
 }
 
+static void
+clutter_text_foreach_selection_rectangle_prescaled (ClutterText              *self,
+                                                    ClutterTextSelectionFunc  func,
+                                                    gpointer                  user_data)
+{
+  clutter_text_foreach_selection_rectangle_prescaled (self, 1.0f, func, user_data);
+}
+
 /* Draws the selected text, its background, and the cursor */
 static void
 selection_paint (ClutterText     *self,
