@@ -6493,10 +6493,13 @@ meta_window_handle_mouse_grab_op_event  (MetaWindow         *window,
       }
 
     case CLUTTER_TOUCH_END:
-      if (meta_display_is_pointer_emulating_sequence (window->display, sequence))
-        end_grab_op (window, event);
+      {
+        if (!meta_display_is_pointer_emulating_sequence (window->display, sequence))
+          return FALSE;
 
-      return TRUE;
+        end_grab_op (window, event);
+        return TRUE;
+      }
 
     case CLUTTER_BUTTON_RELEASE:
       if (event->button.button == 1 ||
