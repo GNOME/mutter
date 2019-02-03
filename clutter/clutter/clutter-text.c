@@ -1969,10 +1969,9 @@ selection_paint (ClutterText     *self,
       else
         color = &priv->text_color;
 
-      clutter_text_foreach_selection_rectangle (self,
-                                                1.0f, /* we're in scaled coordinates */
-                                                add_selection_rectangle_to_path,
-                                                selection_path);
+      clutter_text_foreach_selection_rectangle_prescaled (self,
+                                                          add_selection_rectangle_to_path,
+                                                          selection_path);
 
       cogl_path_fill (selection_path);
 
