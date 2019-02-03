@@ -4821,14 +4821,16 @@ clutter_stage_capture (ClutterStage          *stage,
   for (l = views; l; l = l->next)
     {
       ClutterStageView *view = l->data;
-      ClutterCapture *capture = &captures[n_captures];
+      ClutterCapture *capture;
       cairo_rectangle_int_t view_layout;
       cairo_region_t *region;
 
       clutter_stage_view_get_layout (view, &view_layout);
       region = cairo_region_create_rectangle (&view_layout);
       cairo_region_intersect_rectangle (region, rect);
-      cairo_region_get_extents (region, &(capture->rect));
+
+      capture = &captures[n_captures];
+      cairo_region_get_extents (region, &capture->rect);
       cairo_region_destroy (region);
 
       if (capture->rect.width == 0 || capture->rect.height == 0)
@@ -4867,9 +4869,9 @@ init_rect_from_cairo_rect (ClutterRect           *rect,
 gboolean
 clutter_stage_get_capture_final_size (ClutterStage          *stage,
                                       cairo_rectangle_int_t *rect,
-                                      gint                  *out_width,
-                                      gint                  *out_height,
-                                      gfloat                *out_scale)
+                                      int                   *out_width,
+                                      int                   *out_height,
+                                      float                 *out_scale)
 {
   float max_scale;
 
