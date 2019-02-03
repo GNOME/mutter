@@ -6530,6 +6530,9 @@ meta_window_handle_mouse_grab_op_event  (MetaWindow         *window,
         }
       return TRUE;
 
+    case CLUTTER_TOUCH_CANCEL:
+      end_grab_op (window, event);
+
     default:
       return FALSE;
     }
