@@ -452,20 +452,28 @@ _clutter_device_manager_remove_device (ClutterDeviceManager *device_manager,
  * device
  */
 void
-_clutter_device_manager_update_devices (ClutterDeviceManager *device_manager)
+_clutter_device_manager_update_devices (ClutterDeviceManager *device_manager,
+                                        gboolean              use_clip,
+                                        cairo_rectangle_int_t clip)
 {
   const GSList *d;
+  ClutterInputDevice *device;
+  ClutterInputDeviceType device_type;
+  ClutterPoint point;
 
   for (d = clutter_device_manager_peek_devices (device_manager);
        d != NULL;
        d = d->next)
     {
-      ClutterInputDevice *device = d->data;
-      ClutterInputDeviceType device_type;
+      device = d->data;
 
-      /* we only care about pointer devices */
+      /* we only care about devices with a pointer */
       device_type = clutter_input_device_get_device_type (device);
-      if (device_type != CLUTTER_POINTER_DEVICE)
+      if (device_type != CLUTTER_POINTER_DEVICE &&
+          device_type != CLUTTER_TABLET_DEVICE &&
+          device_type != CLUTTER_PEN_DEVICE &&
+          device_type != CLUTTER_ERASER_DEVICE &&
+          device_type != CLUTTER_CURSOR_DEVICE)
         continue;
 
       /* out of stage */
@@ -478,6 +486,14 @@ _clutter_device_manager_update_devices (ClutterDeviceManager *device_manager)
        * the stage
        */
       if (!clutter_stage_get_motion_events_enabled (device->stage))
+        continue;
+
+      if (!clutter_input_device_get_coords (device, NULL, &point))
+        continue;
+
+      if (use_clip &&
+          (point.x < clip.x || point.x >= (clip.x + clip.width) ||
+           point.y < clip.y || point.y >= (clip.y + clip.height)))
         continue;
 
       _clutter_input_device_update (device, NULL, TRUE);
