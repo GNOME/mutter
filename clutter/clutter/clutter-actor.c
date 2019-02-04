@@ -8833,9 +8833,9 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
    *
    * later during _clutter_stage_do_update(), once relayouting is done
    * and the scenegraph has been updated we will call:
-   * _clutter_stage_finish_queue_redraws().
+   * clutter_stage_maybe_finish_queue_redraws().
    *
-   * _clutter_stage_finish_queue_redraws() will call
+   * clutter_stage_maybe_finish_queue_redraws() will call
    * _clutter_actor_finish_queue_redraw() for each listed actor.
    *
    * Note: actors *are* allowed to queue further redraws during this
