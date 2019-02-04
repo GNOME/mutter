@@ -1681,6 +1681,7 @@ static void
 clutter_actor_real_show (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
+  ClutterStage *stage;
 
   if (CLUTTER_ACTOR_IS_VISIBLE (self))
     return;
@@ -1710,6 +1711,11 @@ clutter_actor_real_show (ClutterActor *self)
 
       clutter_actor_queue_relayout (self);
     }
+
+  stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
+
+  if (stage != NULL)
+    _clutter_stage_queue_repick (stage);
 }
 
 static inline void
@@ -1853,6 +1859,7 @@ static void
 clutter_actor_real_hide (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
+  ClutterStage *stage;
 
   if (!CLUTTER_ACTOR_IS_VISIBLE (self))
     return;
@@ -1871,6 +1878,11 @@ clutter_actor_real_hide (ClutterActor *self)
   if (priv->parent != NULL &&
       (!(priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)))
     clutter_actor_queue_relayout (priv->parent);
+
+  stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
+
+  if (stage != NULL)
+    _clutter_stage_queue_repick (stage);
 }
 
 /**
@@ -2550,6 +2562,8 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
       x2_changed ||
       y2_changed)
     {
+      ClutterStage *stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
+
       CLUTTER_NOTE (LAYOUT, "Allocation for '%s' changed",
                     _clutter_actor_get_debug_name (self));
 
@@ -2563,6 +2577,8 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
           priv->content_box_valid = FALSE;
           g_object_notify_by_pspec (obj, obj_props[PROP_CONTENT_BOX]);
         }
+
+      _clutter_stage_queue_repick (stage);
 
       retval = TRUE;
     }
@@ -4368,7 +4384,12 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
    * for the removed child
    */
   if (was_mapped)
-    clutter_actor_queue_relayout (self);
+    {
+      ClutterStage *stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
+
+      _clutter_stage_queue_repick (stage);
+      clutter_actor_queue_relayout (self);
+    }
 
   /* we need to emit the signal before dropping the reference */
   if (emit_actor_removed)
@@ -13034,7 +13055,12 @@ clutter_actor_add_child_internal (ClutterActor              *self,
    * the actor is supposed to be visible when it's added
    */
   if (CLUTTER_ACTOR_IS_MAPPED (child))
-    clutter_actor_queue_redraw (child);
+    {
+      ClutterStage *stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
+
+      _clutter_stage_queue_repick (stage);
+      clutter_actor_queue_redraw (child);
+    }
 
   /* maintain the invariant that if an actor needs layout,
    * its parents do as well

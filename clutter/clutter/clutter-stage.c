@@ -151,6 +151,7 @@ struct _ClutterStagePrivate
 
   guint relayout_pending       : 1;
   guint redraw_pending         : 1;
+  guint needs_repick           : 1;
   guint is_fullscreen          : 1;
   guint is_cursor_visible      : 1;
   guint is_user_resizable      : 1;
@@ -161,7 +162,6 @@ struct _ClutterStagePrivate
   guint accept_focus           : 1;
   guint motion_events_enabled  : 1;
   guint has_custom_perspective : 1;
-  guint stage_was_relayout     : 1;
 };
 
 enum
@@ -1075,7 +1075,6 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
   if (!CLUTTER_ACTOR_IN_RELAYOUT (stage))
     {
       priv->relayout_pending = FALSE;
-      priv->stage_was_relayout = TRUE;
 
       CLUTTER_NOTE (ACTOR, "Recomputing layout");
 
@@ -1210,10 +1209,7 @@ gboolean
 _clutter_stage_do_update (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
-  gboolean stage_was_relayout = priv->stage_was_relayout;
   GSList *pointers = NULL;
-
-  priv->stage_was_relayout = FALSE;
 
   /* if the stage is being destroyed, or if the destruction already
    * happened and we don't have an StageWindow any more, then we
@@ -1226,18 +1222,33 @@ _clutter_stage_do_update (ClutterStage *stage)
     return FALSE;
 
   /* NB: We need to ensure we have an up to date layout *before* we
-   * check or clear the pending redraws flag since a relayout may
-   * queue a redraw.
+   * check or clear the pending redraws flag since a relayout or the
+   * repick afterwards may queue a redraw.
    */
   _clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
 
+  /* Finish the queued redraws now so the redraw clip is initialized
+   * when we do the repick. */
+  clutter_stage_maybe_finish_queue_redraws (stage);
+
+  if (priv->needs_repick)
+    {
+      pointers = _clutter_stage_check_updated_pointers (stage);
+      while (pointers)
+        {
+          _clutter_input_device_update (pointers->data, NULL, TRUE);
+          pointers = g_slist_delete_link (pointers, pointers);
+        }
+
+      /* Make sure any newly queued redraws are also handled in this
+       * paint cycle. */
+      clutter_stage_maybe_finish_queue_redraws (stage);
+
+      priv->needs_repick = FALSE;
+    }
+
   if (!priv->redraw_pending)
     return FALSE;
-
-  if (stage_was_relayout)
-    pointers = _clutter_stage_check_updated_pointers (stage);
-
-  clutter_stage_maybe_finish_queue_redraws (stage);
 
   clutter_stage_do_redraw (stage);
 
@@ -1254,13 +1265,16 @@ _clutter_stage_do_update (ClutterStage *stage)
     }
 #endif /* CLUTTER_ENABLE_DEBUG */
 
-  while (pointers)
-    {
-      _clutter_input_device_update (pointers->data, NULL, TRUE);
-      pointers = g_slist_delete_link (pointers, pointers);
-    }
-
   return TRUE;
+}
+
+void
+_clutter_stage_queue_repick (ClutterStage *self)
+{
+  ClutterStagePrivate *priv = self->priv;
+
+  if (!priv->needs_repick)
+    priv->needs_repick = TRUE;
 }
 
 static void
@@ -2368,6 +2382,7 @@ clutter_stage_init (ClutterStage *self)
   priv->fog.z_far  = 2.0;
 
   priv->relayout_pending = TRUE;
+  priv->needs_repick = FALSE;
 
   clutter_actor_set_reactive (CLUTTER_ACTOR (self), TRUE);
   clutter_stage_set_title (self, g_get_prgname ());

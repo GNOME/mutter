@@ -63,6 +63,7 @@ void                _clutter_stage_maybe_relayout        (ClutterActor          
 gboolean            _clutter_stage_needs_update          (ClutterStage          *stage);
 gboolean            _clutter_stage_do_update             (ClutterStage          *stage);
 
+void     _clutter_stage_queue_repick                      (ClutterStage *stage);
 void     _clutter_stage_queue_event                       (ClutterStage *stage,
                                                            ClutterEvent *event,
                                                            gboolean      copy_event);
