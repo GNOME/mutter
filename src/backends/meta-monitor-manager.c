@@ -990,18 +990,19 @@ make_display_name (MetaMonitorManager *manager,
 
   if (inches != NULL)
     {
-      /* TRANSLATORS: this is a monitor vendor name, followed by a
-       * size in inches, like 'Dell 15"'
-       */
-      return g_strdup_printf (_("%s %s"), vendor_name, inches);
+       /**/
+      return g_strdup_printf (C_("This is a monitor vendor name, followed by a "
+                                 "size in inches, like 'Dell 15\"'",
+                                 "%s %s"),
+                              vendor_name, inches);
     }
   else if (product_name != NULL)
     {
-      /* Translators: this is a monitor vendor name followed by
-       * product/model name where size in inches could not be calculated,
-       * e.g. Dell U2414H
-       */
-      return g_strdup_printf (_("%s %s"), vendor_name, product_name);
+      return g_strdup_printf (C_("This is a monitor vendor name followed by "
+                                 "product/model name where size in inches "
+                                 "could not be calculated, e.g. Dell U2414H",
+                                 "%s %s"),
+                              vendor_name, product_name);
     }
   else
     {
