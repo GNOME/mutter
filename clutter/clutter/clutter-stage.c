@@ -1203,7 +1203,6 @@ gboolean
 _clutter_stage_do_update (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
-  gboolean stage_was_relayout = priv->stage_was_relayout;
   GSList *pointers = NULL;
 
   priv->stage_was_relayout = FALSE;
@@ -1227,8 +1226,7 @@ _clutter_stage_do_update (ClutterStage *stage)
   if (!priv->redraw_pending)
     return FALSE;
 
-  if (stage_was_relayout)
-    pointers = _clutter_stage_check_updated_pointers (stage);
+  pointers = _clutter_stage_check_updated_pointers (stage);
 
   clutter_stage_maybe_finish_queue_redraws (stage);
 
