@@ -1036,9 +1036,10 @@ _clutter_input_device_update (ClutterInputDevice   *device,
   ClutterActor *new_cursor_actor;
   ClutterActor *old_cursor_actor;
   ClutterPoint point = { -1, -1 };
+  ClutterInputDeviceType device_type = device->device_type;
 
-  if (device->device_type == CLUTTER_KEYBOARD_DEVICE)
-    return NULL;
+  g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
+            device_type != CLUTTER_PAD_DEVICE);
 
   stage = device->stage;
   if (G_UNLIKELY (stage == NULL))
