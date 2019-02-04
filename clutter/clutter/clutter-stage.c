@@ -161,7 +161,6 @@ struct _ClutterStagePrivate
   guint accept_focus           : 1;
   guint motion_events_enabled  : 1;
   guint has_custom_perspective : 1;
-  guint stage_was_relayout     : 1;
 };
 
 enum
@@ -1075,7 +1074,6 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
   if (!CLUTTER_ACTOR_IN_RELAYOUT (stage))
     {
       priv->relayout_pending = FALSE;
-      priv->stage_was_relayout = TRUE;
 
       CLUTTER_NOTE (ACTOR, "Recomputing layout");
 
@@ -1210,10 +1208,7 @@ gboolean
 _clutter_stage_do_update (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
-  gboolean stage_was_relayout = priv->stage_was_relayout;
   GSList *pointers = NULL;
-
-  priv->stage_was_relayout = FALSE;
 
   /* if the stage is being destroyed, or if the destruction already
    * happened and we don't have an StageWindow any more, then we
@@ -1226,16 +1221,23 @@ _clutter_stage_do_update (ClutterStage *stage)
     return FALSE;
 
   /* NB: We need to ensure we have an up to date layout *before* we
-   * check or clear the pending redraws flag since a relayout may
-   * queue a redraw.
+   * check or clear the pending redraws flag since a relayout or the
+   * repick afterwards may queue a redraw.
    */
-  _clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
+  if (priv->relayout_pending)
+    {
+      _clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
+
+      pointers = _clutter_stage_check_updated_pointers (stage);
+      while (pointers)
+        {
+          _clutter_input_device_update (pointers->data, NULL, TRUE);
+          pointers = g_slist_delete_link (pointers, pointers);
+        }
+    }
 
   if (!priv->redraw_pending)
     return FALSE;
-
-  if (stage_was_relayout)
-    pointers = _clutter_stage_check_updated_pointers (stage);
 
   clutter_stage_maybe_finish_queue_redraws (stage);
 
@@ -1253,12 +1255,6 @@ _clutter_stage_do_update (ClutterStage *stage)
       priv->redraw_count = 0;
     }
 #endif /* CLUTTER_ENABLE_DEBUG */
-
-  while (pointers)
-    {
-      _clutter_input_device_update (pointers->data, NULL, TRUE);
-      pointers = g_slist_delete_link (pointers, pointers);
-    }
 
   return TRUE;
 }
