@@ -242,12 +242,6 @@ _cogl_framebuffer_mark_clear_clip_dirty (CoglFramebuffer *framebuffer)
 }
 
 void
-_cogl_framebuffer_mark_mid_scene (CoglFramebuffer *framebuffer)
-{
-  framebuffer->mid_scene = TRUE;
-}
-
-void
 cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
                           unsigned long buffers,
                           float red,
@@ -381,7 +375,6 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
 
 cleared:
 
-  _cogl_framebuffer_mark_mid_scene (framebuffer);
   _cogl_framebuffer_mark_clear_clip_dirty (framebuffer);
 
   if (buffers & COGL_BUFFER_BIT_DEPTH)
@@ -1062,12 +1055,7 @@ cogl_framebuffer_set_dither_enabled (CoglFramebuffer *framebuffer,
   if (framebuffer->dither_enabled == dither_enabled)
     return;
 
-  cogl_flush (); /* Currently dithering changes aren't tracked in the journal */
   framebuffer->dither_enabled = dither_enabled;
-
-  if (framebuffer->context->current_draw_buffer == framebuffer)
-    framebuffer->context->current_draw_buffer_changes |=
-      COGL_FRAMEBUFFER_STATE_DITHER;
 }
 
 void
