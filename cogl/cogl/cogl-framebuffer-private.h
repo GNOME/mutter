@@ -414,6 +414,11 @@ _cogl_framebuffer_try_creating_gl_fbo (CoglContext *ctx,
                                        CoglOffscreenAllocateFlags flags,
                                        CoglGLFramebuffer *gl_framebuffer);
 
+
+void
+cogl_framebuffer_set_viewport4fv (CoglFramebuffer *framebuffer,
+                                  float *viewport);
+
 unsigned long
 _cogl_framebuffer_compare (CoglFramebuffer *a,
                            CoglFramebuffer *b,
