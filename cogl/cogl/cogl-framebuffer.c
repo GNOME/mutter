@@ -524,14 +524,29 @@ _cogl_framebuffer_set_clip_stack (CoglFramebuffer *framebuffer,
 }
 
 void
+_cogl_framebuffer_set_viewport4fv (CoglFramebuffer *framebuffer,
+                                   float *viewport)
+{
+  if (framebuffer->viewport_x == viewport[0] &&
+      framebuffer->viewport_y == viewport[1] &&
+      framebuffer->viewport_width == viewport[2] &&
+      framebuffer->viewport_height == viewport[3])
+    return;
+
+  framebuffer->viewport_x = viewport[0];
+  framebuffer->viewport_y = viewport[1];
+  framebuffer->viewport_width = viewport[2];
+  framebuffer->viewport_height = viewport[3];
+  framebuffer->viewport_age++;
+}
+
+void
 cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
                                float x,
                                float y,
                                float width,
                                float height)
 {
-  CoglContext *context = framebuffer->context;
-
   _COGL_RETURN_IF_FAIL (width > 0 && height > 0);
 
   if (framebuffer->viewport_x == x &&
@@ -540,21 +555,10 @@ cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
       framebuffer->viewport_height == height)
     return;
 
-  _cogl_framebuffer_flush_journal (framebuffer);
-
   framebuffer->viewport_x = x;
   framebuffer->viewport_y = y;
   framebuffer->viewport_width = width;
   framebuffer->viewport_height = height;
-  framebuffer->viewport_age++;
-
-  if (context->current_draw_buffer == framebuffer)
-    {
-      context->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_VIEWPORT;
-
-      if (context->needs_viewport_scissor_workaround)
-        context->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_CLIP;
-    }
 }
 
 float
