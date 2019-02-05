@@ -1,8 +1,16 @@
 image: registry.gitlab.gnome.org/gnome/mutter/master:v1
 
 stages:
+ - review
  - build
  - test
+
+review-mutter:
+  stage: review
+  script:
+    - ./.gitlab-ci/check-commit-log.sh
+  only:
+    - merge_requests
 
 build-mutter:
   stage: build
@@ -14,6 +22,9 @@ build-mutter:
     expire_in: 1 day
     paths:
       - build
+  only:
+    - merge_requests
+    - /^.*$/
 
 test-mutter:
   stage: test
@@ -28,3 +39,6 @@ test-mutter:
     - >
       dbus-run-session -- xvfb-run -s '+iglx -noreset'
       meson test -C build --no-rebuild -t 10 --verbose --no-stdsplit --wrap catchsegv
+  only:
+    - merge_requests
+    - /^.*$/
