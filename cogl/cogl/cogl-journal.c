@@ -1044,6 +1044,55 @@ compare_entry_clip_stacks (CoglJournalEntry *entry0, CoglJournalEntry *entry1)
   return entry0->clip_stack == entry1->clip_stack;
 }
 
+static void
+_cogl_journal_flush_viewport_and_entries (CoglJournalEntry *batch_start,
+                                          int               batch_len,
+                                          void             *data)
+{
+  CoglJournalFlushState *state = data;
+  CoglFramebuffer *framebuffer = state->journal->framebuffer;
+  CoglContext *ctx = framebuffer->context;
+  float current_viewport[4];
+
+  COGL_STATIC_TIMER (time_flush_viewport_and_entries,
+                     "Journal Flush", /* parent */
+                     "flush: viewport+clip+vbo+texcoords+pipeline+entries",
+                     "The time spent flushing viewport + clip + vbo + texcoord offsets + "
+                     "pipeline + entries",
+                     0 /* no application private data */);
+
+  COGL_TIMER_START (_cogl_uprof_context, time_flush_viewport_and_entries);
+
+  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_BATCHING)))
+    g_print ("BATCHING:  viewport batch len = %d\n", batch_len);
+
+  ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_VIEWPORT;
+
+  cogl_framebuffer_get_viewport4fv (framebuffer, current_viewport);
+  cogl_framebuffer_set_viewport4fv (framebuffer, batch_start->viewport);
+
+  _cogl_framebuffer_flush_state (framebuffer,
+                                 framebuffer,
+                                 COGL_FRAMEBUFFER_STATE_VIEWPORT);
+
+  batch_and_call (batch_start,
+                  batch_len,
+                  compare_entry_clip_stacks,
+                  _cogl_journal_flush_clip_stacks_and_entries,
+                  state);
+
+  if (memcmp (batch_start->viewport, current_viewport, sizeof (float) * 4) != 0)
+    cogl_framebuffer_set_viewport4fv (framebuffer, current_viewport);
+
+  COGL_TIMER_STOP (_cogl_uprof_context, time_flush_viewport_and_entries);
+}
+
+static gboolean
+compare_entry_viewports (CoglJournalEntry *entry0, CoglJournalEntry *entry1)
+{
+  return memcmp (entry0->viewport, entry1->viewport, sizeof (float) * 4) == 0;
+}
+
 /* Gets a new vertex array from the pool. A reference is taken on the
    array so it can be treated as if it was just newly allocated */
 static CoglAttributeBuffer *
@@ -1331,12 +1380,13 @@ _cogl_journal_flush (CoglJournal *journal)
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_BATCHING)))
     g_print ("BATCHING: journal len = %d\n", journal->entries->len);
 
-  /* NB: the journal deals with flushing the modelview stack and clip
-     state manually */
+  /* NB: the journal deals with flushing the viewport, the modelview
+   * stack and clip state manually */
   _cogl_framebuffer_flush_state (framebuffer,
                                  framebuffer,
                                  COGL_FRAMEBUFFER_STATE_ALL &
-                                 ~(COGL_FRAMEBUFFER_STATE_MODELVIEW |
+                                 ~(COGL_FRAMEBUFFER_STATE_VIEWPORT |
+                                   COGL_FRAMEBUFFER_STATE_MODELVIEW |
                                    COGL_FRAMEBUFFER_STATE_CLIP));
 
   /* We need to mark the current modelview state of the framebuffer as
@@ -1395,11 +1445,11 @@ _cogl_journal_flush (CoglJournal *journal)
    *      Note: Splitting by modelview changes is skipped when are doing the
    *      vertex transformation in software at log time.
    */
-  batch_and_call ((CoglJournalEntry *)journal->entries->data, /* first entry */
-                  journal->entries->len, /* max number of entries to consider */
-                  compare_entry_clip_stacks,
-                  _cogl_journal_flush_clip_stacks_and_entries, /* callback */
-                  &state); /* data */
+  batch_and_call ((CoglJournalEntry *)journal->entries->data,
+                  journal->entries->len,
+                  compare_entry_viewports,
+                  _cogl_journal_flush_viewport_and_entries,
+                  &state);
 
   for (i = 0; i < state.attributes->len; i++)
     cogl_object_unref (g_array_index (state.attributes, CoglAttribute *, i));
@@ -1553,6 +1603,8 @@ _cogl_journal_log_quad (CoglJournal  *journal,
   clip_stack = _cogl_framebuffer_get_clip_stack (framebuffer);
   entry->clip_stack = _cogl_clip_stack_ref (clip_stack);
 
+  cogl_framebuffer_get_viewport4fv (framebuffer, entry->viewport);
+
   if (G_UNLIKELY (final_pipeline != pipeline))
     cogl_object_unref (final_pipeline);
 
@@ -1582,7 +1634,7 @@ entry_to_screen_polygon (CoglFramebuffer *framebuffer,
   CoglMatrix projection;
   CoglMatrix modelview;
   int i;
-  float viewport[4];
+  const float *viewport = entry->viewport;
 
   poly[0] = vertices[0];
   poly[1] = vertices[1];
@@ -1630,8 +1682,6 @@ entry_to_screen_polygon (CoglFramebuffer *framebuffer,
                               sizeof (float) * 4,
                               poly, /* points_out */
                               4 /* n_points */);
-
-  cogl_framebuffer_get_viewport4fv (framebuffer, viewport);
 
 /* Scale from OpenGL normalized device coordinates (ranging from -1 to 1)
  * to Cogl window/framebuffer coordinates (ranging from 0 to buffer-size) with
