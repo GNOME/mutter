@@ -79,6 +79,7 @@ typedef struct _CoglJournalEntry
   CoglMatrixEntry         *modelview_entry;
   CoglClipStack           *clip_stack;
   float                    viewport[4];
+  gboolean                 dither_enabled;
   /* Offset into ctx->logged_vertices */
   size_t                   array_offset;
   int                      n_layers;
