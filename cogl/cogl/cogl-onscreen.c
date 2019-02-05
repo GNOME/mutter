@@ -336,7 +336,6 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
     }
 
   onscreen->frame_counter++;
-  framebuffer->mid_scene = FALSE;
 }
 
 void
@@ -393,7 +392,6 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
     }
 
   onscreen->frame_counter++;
-  framebuffer->mid_scene = FALSE;
 }
 
 int
