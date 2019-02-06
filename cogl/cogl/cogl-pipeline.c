@@ -99,7 +99,6 @@ _cogl_pipeline_init_default_pipeline (void)
   CoglPipelineLightingState *lighting_state = &big_state->lighting_state;
   CoglPipelineAlphaFuncState *alpha_state = &big_state->alpha_state;
   CoglPipelineBlendState *blend_state = &big_state->blend_state;
-  CoglPipelineLogicOpsState *logic_ops_state = &big_state->logic_ops_state;
   CoglPipelineCullFaceState *cull_face_state = &big_state->cull_face_state;
   CoglPipelineUniformsState *uniforms_state = &big_state->uniforms_state;
 
@@ -188,8 +187,6 @@ _cogl_pipeline_init_default_pipeline (void)
   cogl_depth_state_init (&big_state->depth_state);
 
   big_state->point_size = 0.0f;
-
-  logic_ops_state->color_mask = COGL_COLOR_MASK_ALL;
 
   cull_face_state->mode = COGL_PIPELINE_CULL_FACE_MODE_NONE;
   cull_face_state->front_winding = COGL_WINDING_COUNTER_CLOCKWISE;
@@ -1030,13 +1027,6 @@ _cogl_pipeline_copy_differences (CoglPipeline *dest,
   if (differences & COGL_PIPELINE_STATE_PER_VERTEX_POINT_SIZE)
     big_state->per_vertex_point_size = src->big_state->per_vertex_point_size;
 
-  if (differences & COGL_PIPELINE_STATE_LOGIC_OPS)
-    {
-      memcpy (&big_state->logic_ops_state,
-              &src->big_state->logic_ops_state,
-              sizeof (CoglPipelineLogicOpsState));
-    }
-
   if (differences & COGL_PIPELINE_STATE_CULL_FACE)
     {
       memcpy (&big_state->cull_face_state,
@@ -1148,13 +1138,6 @@ _cogl_pipeline_init_multi_property_sparse_state (CoglPipeline *pipeline,
         memcpy (&pipeline->big_state->fog_state,
                 &authority->big_state->fog_state,
                 sizeof (CoglPipelineFogState));
-        break;
-      }
-    case COGL_PIPELINE_STATE_LOGIC_OPS:
-      {
-        memcpy (&pipeline->big_state->logic_ops_state,
-                &authority->big_state->logic_ops_state,
-                sizeof (CoglPipelineLogicOpsState));
         break;
       }
     case COGL_PIPELINE_STATE_CULL_FACE:
@@ -2323,11 +2306,6 @@ _cogl_pipeline_equal (CoglPipeline *pipeline0,
                                                            authorities1[bit]))
             goto done;
           break;
-        case COGL_PIPELINE_STATE_LOGIC_OPS_INDEX:
-          if (!_cogl_pipeline_logic_ops_state_equal (authorities0[bit],
-                                                     authorities1[bit]))
-            goto done;
-          break;
         case COGL_PIPELINE_STATE_USER_SHADER_INDEX:
           if (!_cogl_pipeline_user_shader_equal (authorities0[bit],
                                                  authorities1[bit]))
@@ -2776,8 +2754,6 @@ _cogl_pipeline_init_state_hash_functions (void)
     _cogl_pipeline_hash_point_size_state;
   state_hash_functions[COGL_PIPELINE_STATE_PER_VERTEX_POINT_SIZE_INDEX] =
     _cogl_pipeline_hash_per_vertex_point_size_state;
-  state_hash_functions[COGL_PIPELINE_STATE_LOGIC_OPS_INDEX] =
-    _cogl_pipeline_hash_logic_ops_state;
   state_hash_functions[COGL_PIPELINE_STATE_UNIFORMS_INDEX] =
     _cogl_pipeline_hash_uniforms_state;
   state_hash_functions[COGL_PIPELINE_STATE_VERTEX_SNIPPETS_INDEX] =
@@ -2787,7 +2763,7 @@ _cogl_pipeline_init_state_hash_functions (void)
 
   {
   /* So we get a big error if we forget to update this code! */
-  _COGL_STATIC_ASSERT (COGL_PIPELINE_STATE_SPARSE_COUNT == 18,
+  _COGL_STATIC_ASSERT (COGL_PIPELINE_STATE_SPARSE_COUNT == 17,
                        "Make sure to install a hash function for "
                        "newly added pipeline state and update assert "
                        "in _cogl_pipeline_init_state_hash_functions");
