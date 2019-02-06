@@ -22,6 +22,20 @@ by  Gala, elementary OS's window manager. It can also be run standalone, using
 the  command "mutter", but just running plain mutter is only intended for
 debugging purposes.
 
+## Contributing
+
+To contribute, open merge requests at https://gitlab.gnome.org/GNOME/mutter.
+
+The coding style used is primarily the GNU flavor of the [GNOME coding
+style](https://developer.gnome.org/programming-guidelines/stable/c-coding-style.html.en)
+with some minor additions such as preferring `stdint.h` types over GLib
+fundamental types, and a soft 80 character line limit. However, in general,
+look at the file you're editing for inspiration.
+
+Commit messages should follow the [GNOME commit message
+guidelines](https://wiki.gnome.org/Git/CommitMessages). We require an URL
+to either an issue or a merge request in each commit.
+
 ## License
 
 Mutter is distributed under the terms of the GNU General Public License,
