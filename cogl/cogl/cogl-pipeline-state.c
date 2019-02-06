@@ -170,7 +170,6 @@ _cogl_pipeline_depth_state_equal (CoglPipeline *authority0,
       CoglDepthState *s1 = &authority1->big_state->depth_state;
       return s0->test_enabled == s1->test_enabled &&
              s0->test_function == s1->test_function &&
-             s0->write_enabled == s1->write_enabled &&
              s0->range_near == s1->range_near &&
              s0->range_far == s1->range_far;
     }
@@ -1137,7 +1136,6 @@ cogl_pipeline_set_depth_state (CoglPipeline *pipeline,
 
   orig_state = &authority->big_state->depth_state;
   if (orig_state->test_enabled == depth_state->test_enabled &&
-      orig_state->write_enabled == depth_state->write_enabled &&
       orig_state->test_function == depth_state->test_function &&
       orig_state->range_near == depth_state->range_near &&
       orig_state->range_far == depth_state->range_far)
@@ -1762,6 +1760,11 @@ _cogl_pipeline_hash_depth_state (CoglPipeline *authority,
 {
   CoglDepthState *depth_state = &authority->big_state->depth_state;
   unsigned int hash = state->hash;
+  float near_val = depth_state->range_near;
+  float far_val = depth_state->range_far;
+
+  hash = _cogl_util_one_at_a_time_hash (hash, &near_val, sizeof (near_val));
+  hash = _cogl_util_one_at_a_time_hash (hash, &far_val, sizeof (far_val));
 
   if (depth_state->test_enabled)
     {
@@ -1769,16 +1772,6 @@ _cogl_pipeline_hash_depth_state (CoglPipeline *authority,
       CoglDepthTestFunction function = depth_state->test_function;
       hash = _cogl_util_one_at_a_time_hash (hash, &enabled, sizeof (enabled));
       hash = _cogl_util_one_at_a_time_hash (hash, &function, sizeof (function));
-    }
-
-  if (depth_state->write_enabled)
-    {
-      uint8_t enabled = depth_state->write_enabled;
-      float near_val = depth_state->range_near;
-      float far_val = depth_state->range_far;
-      hash = _cogl_util_one_at_a_time_hash (hash, &enabled, sizeof (enabled));
-      hash = _cogl_util_one_at_a_time_hash (hash, &near_val, sizeof (near_val));
-      hash = _cogl_util_one_at_a_time_hash (hash, &far_val, sizeof (far_val));
     }
 
   state->hash = hash;

@@ -421,10 +421,6 @@ _cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
         case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
           _cogl_framebuffer_gl_flush_front_face_winding_state (draw_buffer);
           break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_DEPTH_WRITE:
-          /* Nothing to do for depth write state change; the state will always
-           * be taken into account when flushing the pipeline's depth state. */
-          break;
         case COGL_FRAMEBUFFER_STATE_INDEX_STEREO_MODE:
           _cogl_framebuffer_gl_flush_stereo_mode_state (draw_buffer);
           break;
@@ -919,18 +915,6 @@ _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
   if (buffers & COGL_BUFFER_BIT_DEPTH)
     {
       gl_buffers |= GL_DEPTH_BUFFER_BIT;
-
-      if (ctx->depth_writing_enabled_cache != framebuffer->depth_writing_enabled)
-        {
-          GE( ctx, glDepthMask (framebuffer->depth_writing_enabled));
-
-          ctx->depth_writing_enabled_cache = framebuffer->depth_writing_enabled;
-
-          /* Make sure the DepthMask is updated when the next primitive is drawn */
-          ctx->current_pipeline_changes_since_flush |=
-            COGL_PIPELINE_STATE_DEPTH;
-          ctx->current_pipeline_age--;
-        }
     }
 
   if (buffers & COGL_BUFFER_BIT_STENCIL)

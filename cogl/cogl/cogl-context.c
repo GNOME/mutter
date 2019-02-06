@@ -313,7 +313,6 @@ cogl_context_new (CoglDisplay *display,
 
   context->depth_test_enabled_cache = FALSE;
   context->depth_test_function_cache = COGL_DEPTH_TEST_FUNCTION_LESS;
-  context->depth_writing_enabled_cache = TRUE;
   context->depth_range_near_cache = 0;
   context->depth_range_far_cache = 1;
 

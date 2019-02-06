@@ -176,12 +176,10 @@ cogl_debug_object_print_instances
 cogl_depth_state_get_range
 cogl_depth_state_get_test_enabled
 cogl_depth_state_get_test_function
-cogl_depth_state_get_write_enabled
 cogl_depth_state_init
 cogl_depth_state_set_test_enabled
 cogl_depth_state_set_test_function
 cogl_depth_state_set_range
-cogl_depth_state_set_write_enabled
 cogl_depth_test_function_get_type
 
 #ifdef COGL_HAS_GTYPE_SUPPORT
@@ -230,7 +228,6 @@ cogl_framebuffer_get_blue_bits
 cogl_framebuffer_get_color_format
 cogl_framebuffer_get_context
 cogl_framebuffer_get_depth_bits
-cogl_framebuffer_get_depth_write_enabled
 cogl_framebuffer_get_dither_enabled
 cogl_framebuffer_get_green_bits
 #ifdef COGL_HAS_GTYPE_SUPPORT
@@ -267,7 +264,6 @@ cogl_framebuffer_rotate_euler
 #endif
 
 cogl_framebuffer_scale
-cogl_framebuffer_set_depth_write_enabled
 cogl_framebuffer_set_dither_enabled
 cogl_framebuffer_set_modelview_matrix
 cogl_framebuffer_set_projection_matrix
