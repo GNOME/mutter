@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity 2.24\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-06-07 13:00+0000\n"
+"POT-Creation-Date: 2019-02-04 17:52+0000\n"
 "PO-Revision-Date: 2018-06-17 10:25+0200\n"
 "Last-Translator: Jordi Mas <jmas@softcatala.org>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
@@ -512,7 +512,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2325
+#: src/backends/meta-input-settings.c:2423
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Mode de commutació (grup %d)"
@@ -520,37 +520,44 @@ msgstr "Mode de commutació (grup %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2348
+#: src/backends/meta-input-settings.c:2446
 msgid "Switch monitor"
 msgstr "Commuta el monitor"
 
-#: src/backends/meta-input-settings.c:2350
+#: src/backends/meta-input-settings.c:2448
 msgid "Show on-screen help"
 msgstr "Mostra l'ajuda en pantalla"
 
-#: src/backends/meta-monitor-manager.c:903
+#: src/backends/meta-monitor-manager.c:954
 msgid "Built-in display"
 msgstr "Pantalla integrada"
 
-#: src/backends/meta-monitor-manager.c:926
+#: src/backends/meta-monitor-manager.c:986
 msgid "Unknown"
 msgstr "Desconeguda"
 
-#: src/backends/meta-monitor-manager.c:928
+#: src/backends/meta-monitor-manager.c:988
 msgid "Unknown Display"
 msgstr "Pantalla desconeguda"
 
-#. TRANSLATORS: this is a monitor vendor name, followed by a
-#. * size in inches, like 'Dell 15"'
-#.
-#: src/backends/meta-monitor-manager.c:936
+#: src/backends/meta-monitor-manager.c:996
+#,c-format
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/backends/meta-monitor-manager.c:1004
 #, c-format
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
 msgid "%s %s"
 msgstr "%s %s"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:481
+#: src/compositor/compositor.c:482
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -558,41 +565,35 @@ msgstr ""
 "Ja s'està executant un altre gestor de composició al monitor %i a la "
 "pantalla «%s»."
 
-#: src/core/bell.c:194
+#: src/core/bell.c:252
 msgid "Bell event"
 msgstr "Esdeveniment de campana"
 
-#: src/core/display.c:608
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr ""
-"S'ha produït un error en obrir la pantalla del sistema de finestres X «%s»\n"
-
-#: src/core/main.c:190
+#: src/core/main.c:185
 msgid "Disable connection to session manager"
 msgstr "Inhabilita la connexió al gestor de sessions"
 
-#: src/core/main.c:196
+#: src/core/main.c:191
 msgid "Replace the running window manager"
 msgstr "Reemplaça el gestor de finestres en execució"
 
-#: src/core/main.c:202
+#: src/core/main.c:197
 msgid "Specify session management ID"
 msgstr "Especifica l'ID de gestió de sessió"
 
-#: src/core/main.c:207
+#: src/core/main.c:202
 msgid "X Display to use"
 msgstr "Visualització X per usar"
 
-#: src/core/main.c:213
+#: src/core/main.c:208
 msgid "Initialize session from savefile"
 msgstr "Inicialitza la sessió des del fitxer desat"
 
-#: src/core/main.c:219
+#: src/core/main.c:214
 msgid "Make X calls synchronous"
 msgstr "Fes que les crides a l'X siguin síncrones"
 
-#: src/core/main.c:226
+#: src/core/main.c:221
 msgid "Run as a wayland compositor"
 msgstr "Funciona com a compositor de Wayland"
 
@@ -601,29 +602,33 @@ msgstr "Funciona com a compositor de Wayland"
 #
 # Camins:
 # ../src/core/main.c:223
-#: src/core/main.c:232
+#: src/core/main.c:227
 msgid "Run as a nested compositor"
 msgstr "Funciona com a compositor imbricat"
 
-#: src/core/main.c:240
+#: src/core/main.c:233
+msgid "Run wayland compositor without starting Xwayland"
+msgstr ""
+
+#: src/core/main.c:241
 msgid "Run as a full display server, rather than nested"
 msgstr "Funciona com a servidor de pantalla completa, en comptes d'imbricat"
 
-#: src/core/main.c:246
+#: src/core/main.c:247
 msgid "Run with X11 backend"
 msgstr "Executa amb un rerefons X11"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:147
+#: src/core/meta-close-dialog-default.c:150
 #, c-format
 msgid "“%s” is not responding."
 msgstr "«%s» no està responent."
 
-#: src/core/meta-close-dialog-default.c:149
+#: src/core/meta-close-dialog-default.c:152
 msgid "Application is not responding."
 msgstr "L'aplicació no està responent."
 
-#: src/core/meta-close-dialog-default.c:154
+#: src/core/meta-close-dialog-default.c:157
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -631,15 +636,15 @@ msgstr ""
 "Podeu esperar un moment perquè continuï o podeu forçar-ne la sortida "
 "completa."
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "_Força'n la sortida"
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "_Espera"
 
-#: src/core/mutter.c:39
+#: src/core/mutter.c:38
 #, c-format
 msgid ""
 "mutter %s\n"
@@ -655,34 +660,20 @@ msgstr ""
 "No hi ha CAP garantia; ni tan sols la garantia implícita de COMERCIABILITAT\n"
 "o ADEQUACIÓ A PER UN PROPÒSIT PARTICULAR.\n"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:52
 msgid "Print version"
 msgstr "Escriu versió"
 
-#: src/core/mutter.c:59
+#: src/core/mutter.c:58
 msgid "Mutter plugin to use"
 msgstr "Connector del Mutter a utilitzar"
 
-#: src/core/prefs.c:1997
+#: src/core/prefs.c:1786
 #, c-format
 msgid "Workspace %d"
 msgstr "Espai de treball %d"
 
-#: src/core/screen.c:583
-#, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"La pantalla «%s» ja té un gestor de finestres; proveu l'opció --replace per "
-"reemplaçar el gestor de finestres actual."
-
-#: src/core/screen.c:668
-#, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "El monitor %d en la pantalla '%s' no és vàlida\n"
-
-#: src/core/util.c:120
+#: src/core/util.c:121
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter es va compilar sense compatibilitat per al mode detallat\n"
 
@@ -691,7 +682,31 @@ msgstr "Mutter es va compilar sense compatibilitat per al mode detallat\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Mode de commutació: mode %d"
 
-#: src/x11/session.c:1818
+#: src/x11/meta-x11-display.c:666
+#, c-format
+msgid ""
+"Display “%s” already has a window manager; try using the --replace option to "
+"replace the current window manager."
+msgstr ""
+"La pantalla «%s» ja té un gestor de finestres; proveu l'opció --replace per "
+"reemplaçar el gestor de finestres actual."
+
+#: src/x11/meta-x11-display.c:1008
+msgid "Failed to initialize GDK\n"
+msgstr "S'ha produït un error en inicialitzar GDK\n"
+
+#: src/x11/meta-x11-display.c:1032
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr ""
+"S'ha produït un error en obrir la pantalla del sistema de finestres X «%s»\n"
+
+#: src/x11/meta-x11-display.c:1115
+#, c-format
+msgid "Screen %d on display “%s” is invalid\n"
+msgstr "El monitor %d en la pantalla '%s' no és vàlida\n"
+
+#: src/x11/session.c:1821
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -699,7 +714,7 @@ msgstr ""
 "Aquestes finestres no implementen «desa la configuració actual» i s'hauran "
 "de reiniciar manualment la pròxima vegada que entreu."
 
-#: src/x11/window-props.c:559
+#: src/x11/window-props.c:568
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (a %s)"
