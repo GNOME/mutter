@@ -817,38 +817,6 @@ cogl_framebuffer_set_depth_write_enabled (CoglFramebuffer *framebuffer,
                                           gboolean depth_write_enabled);
 
 /**
- * cogl_framebuffer_get_color_mask:
- * @framebuffer: a pointer to a #CoglFramebuffer
- *
- * Gets the current #CoglColorMask of which channels would be written to the
- * current framebuffer. Each bit set in the mask means that the
- * corresponding color would be written.
- *
- * Returns: A #CoglColorMask
- * Since: 1.8
- * Stability: unstable
- */
-CoglColorMask
-cogl_framebuffer_get_color_mask (CoglFramebuffer *framebuffer);
-
-/**
- * cogl_framebuffer_set_color_mask:
- * @framebuffer: a pointer to a #CoglFramebuffer
- * @color_mask: A #CoglColorMask of which color channels to write to
- *              the current framebuffer.
- *
- * Defines a bit mask of which color channels should be written to the
- * given @framebuffer. If a bit is set in @color_mask that means that
- * color will be written.
- *
- * Since: 1.8
- * Stability: unstable
- */
-void
-cogl_framebuffer_set_color_mask (CoglFramebuffer *framebuffer,
-                                 CoglColorMask color_mask);
-
-/**
  * cogl_framebuffer_get_stereo_mode:
  * @framebuffer: a pointer to a #CoglFramebuffer
  *

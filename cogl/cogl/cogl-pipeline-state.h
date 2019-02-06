@@ -572,38 +572,6 @@ gboolean
 cogl_pipeline_get_per_vertex_point_size (CoglPipeline *pipeline);
 
 /**
- * cogl_pipeline_get_color_mask:
- * @pipeline: a #CoglPipeline object.
- *
- * Gets the current #CoglColorMask of which channels would be written to the
- * current framebuffer. Each bit set in the mask means that the
- * corresponding color would be written.
- *
- * Returns: A #CoglColorMask
- * Since: 1.8
- * Stability: unstable
- */
-CoglColorMask
-cogl_pipeline_get_color_mask (CoglPipeline *pipeline);
-
-/**
- * cogl_pipeline_set_color_mask:
- * @pipeline: a #CoglPipeline object.
- * @color_mask: A #CoglColorMask of which color channels to write to
- *              the current framebuffer.
- *
- * Defines a bit mask of which color channels should be written to the
- * current framebuffer. If a bit is set in @color_mask that means that
- * color will be written.
- *
- * Since: 1.8
- * Stability: unstable
- */
-void
-cogl_pipeline_set_color_mask (CoglPipeline *pipeline,
-                              CoglColorMask color_mask);
-
-/**
  * cogl_pipeline_get_user_program:
  * @pipeline: a #CoglPipeline object.
  *
