@@ -1,12 +1,13 @@
-mutter (3.30.2-5.1) UNRELEASED; urgency=medium
+mutter (3.30.2-6) unstable; urgency=medium
 
+  * Team upload
   * Update to upstream gnome-3-30 branch at 3.30.2-8-g7260ba5db
     - Avoid rendering beyond the bounds of a 2D actor
     - Fix screencasting/monitor recording on HiDPI
     - Fix a regression in 3.30.1 that sometimes turned off secondary displays
     - Update translations: fr, eu
 
- -- Simon McVittie <smcv@debian.org>  Wed, 06 Feb 2019 09:58:37 +0000
+ -- Simon McVittie <smcv@debian.org>  Wed, 06 Feb 2019 10:02:14 +0000
 
 mutter (3.30.2-5) unstable; urgency=medium
 
