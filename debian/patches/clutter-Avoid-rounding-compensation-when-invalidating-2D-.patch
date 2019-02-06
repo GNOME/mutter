@@ -6,12 +6,11 @@ This allows the redraw clip to be more constrained, so MetaCullable doesn't
 end up rendering portions of window shadows, frame and background when a
 window invalidates (part of) its contents.
 
-https://bugzilla.gnome.org/show_bug.cgi?id=782344
+(cherry picked from commit a7df459416dc46321204c98197e4fd84724976e0)
 
-Origin: https://gitlab.gnome.org/GNOME/mutter/commit/a7df459416d
 Bug-Ubuntu: https://launchpad.net/bugs/1767648
-Bug-GNOME: https://bugzilla.gnome.org/show_bug.cgi?id=782344
-Applied-Upstream: 3.30.3
+Bug: https://bugzilla.gnome.org/show_bug.cgi?id=782344
+Applied-upstream: 3.30.3, commit:afc91f0804ad1350fa09aa141b93020f28143b48
 ---
  clutter/clutter/clutter-paint-volume.c | 15 +++++++++++++++
  1 file changed, 15 insertions(+)

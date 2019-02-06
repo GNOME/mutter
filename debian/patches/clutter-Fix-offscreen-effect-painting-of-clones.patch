@@ -137,7 +137,7 @@ index 2991066..319eec3 100644
                                 clutter_actor_box_copy,
                                 clutter_actor_box_free,
 diff --git a/clutter/clutter/clutter-offscreen-effect.c b/clutter/clutter/clutter-offscreen-effect.c
-index 1dbf29f..743020e 100644
+index 5db40b7..a26275e 100644
 --- a/clutter/clutter/clutter-offscreen-effect.c
 +++ b/clutter/clutter/clutter-offscreen-effect.c
 @@ -74,6 +74,8 @@
@@ -179,7 +179,7 @@ index 1dbf29f..743020e 100644
  };
  
  G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (ClutterOffscreenEffect,
-@@ -221,15 +215,15 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
+@@ -224,15 +218,15 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
  {
    ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
    ClutterOffscreenEffectPrivate *priv = self->priv;
@@ -200,7 +200,7 @@ index 1dbf29f..743020e 100644
  
    if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (effect)))
      return FALSE;
-@@ -240,92 +234,82 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
+@@ -243,92 +237,82 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
    stage = _clutter_actor_get_stage_internal (priv->actor);
    clutter_actor_get_size (stage, &stage_width, &stage_height);
  
@@ -344,7 +344,7 @@ index 1dbf29f..743020e 100644
  
    cogl_set_projection_matrix (&projection);
  
-@@ -382,13 +366,14 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect)
+@@ -385,13 +369,14 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect)
  
    cogl_push_matrix ();
  
@@ -366,7 +366,7 @@ index 1dbf29f..743020e 100644
    cogl_set_modelview_matrix (&modelview);
  
    /* paint the target material; this is virtualized for
-@@ -425,16 +410,11 @@ clutter_offscreen_effect_paint (ClutterEffect           *effect,
+@@ -428,16 +413,11 @@ clutter_offscreen_effect_paint (ClutterEffect           *effect,
  {
    ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
    ClutterOffscreenEffectPrivate *priv = self->priv;
@@ -387,7 +387,7 @@ index 1dbf29f..743020e 100644
      {
        /* Chain up to the parent paint method which will call the pre and
           post paint functions to update the image */
-@@ -660,8 +640,8 @@ clutter_offscreen_effect_get_target_rect (ClutterOffscreenEffect *effect,
+@@ -663,8 +643,8 @@ clutter_offscreen_effect_get_target_rect (ClutterOffscreenEffect *effect,
      return FALSE;
  
    clutter_rect_init (rect,

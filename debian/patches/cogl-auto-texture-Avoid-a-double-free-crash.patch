@@ -1,5 +1,5 @@
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
-Date: Thu, 11 Oct 2018 08:49:22 +0200
+Date: Thu, 11 Oct 2018 06:49:22 +0000
 Subject: cogl-auto-texture: Avoid a double-free crash
 
 If texture allocation fails (e.g. on an old GPU with size limit 2048)
@@ -8,9 +8,10 @@ twice. The second time was after it had already been freed.
 
 Bug reported and fix provided by Gert van de Kraats.
 
-Origin: https://gitlab.gnome.org/GNOME/mutter/commit/d21478b0f
+(cherry picked from commit d21478b0f0163b0688abe065a7009b33453d0d00)
+
 Bug-Ubuntu: https://launchpad.net/bugs/1790525
-Applied-upstream: 3.30.3
+Applied-upstream: 3.30.3, commit:1cb21877edd9c7c5bc991527ae70879b1e9fece0
 ---
  cogl/cogl/deprecated/cogl-auto-texture.c | 1 +
  1 file changed, 1 insertion(+)
