@@ -807,16 +807,6 @@ _cogl_framebuffer_compare_projection_state (CoglFramebuffer *a,
 }
 
 static unsigned long
-_cogl_framebuffer_compare_front_face_winding_state (CoglFramebuffer *a,
-                                                    CoglFramebuffer *b)
-{
-  if (a->type != b->type)
-    return COGL_FRAMEBUFFER_STATE_FRONT_FACE_WINDING;
-  else
-    return 0;
-}
-
-static unsigned long
 _cogl_framebuffer_compare_stereo_mode (CoglFramebuffer *a,
 				       CoglFramebuffer *b)
 {
@@ -863,10 +853,6 @@ _cogl_framebuffer_compare (CoglFramebuffer *a,
         case COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION:
           differences |=
             _cogl_framebuffer_compare_projection_state (a, b);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
-          differences |=
-            _cogl_framebuffer_compare_front_face_winding_state (a, b);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_STEREO_MODE:
           differences |=

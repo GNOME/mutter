@@ -215,8 +215,7 @@ _cogl_pipeline_cull_face_state_equal (CoglPipeline *authority0,
   if (cull_face_state0->mode == COGL_PIPELINE_CULL_FACE_MODE_NONE)
     return cull_face_state1->mode == COGL_PIPELINE_CULL_FACE_MODE_NONE;
 
-  return (cull_face_state0->mode == cull_face_state1->mode &&
-          cull_face_state0->front_winding == cull_face_state1->front_winding);
+  return (cull_face_state0->mode == cull_face_state1->mode);
 }
 
 gboolean
@@ -1199,36 +1198,6 @@ cogl_pipeline_set_cull_face_mode (CoglPipeline *pipeline,
                                    _cogl_pipeline_cull_face_state_equal);
 }
 
-void
-cogl_pipeline_set_front_face_winding (CoglPipeline *pipeline,
-                                      CoglWinding front_winding)
-{
-  CoglPipelineState state = COGL_PIPELINE_STATE_CULL_FACE;
-  CoglPipeline *authority;
-  CoglPipelineCullFaceState *cull_face_state;
-
-  g_return_if_fail (cogl_is_pipeline (pipeline));
-
-  authority = _cogl_pipeline_get_authority (pipeline, state);
-
-  cull_face_state = &authority->big_state->cull_face_state;
-
-  if (cull_face_state->front_winding == front_winding)
-    return;
-
-  /* - Flush journal primitives referencing the current state.
-   * - Make sure the pipeline has no dependants so it may be modified.
-   * - If the pipeline isn't currently an authority for the state being
-   *   changed, then initialize that state from the current authority.
-   */
-  _cogl_pipeline_pre_change_notify (pipeline, state, NULL, FALSE);
-
-  pipeline->big_state->cull_face_state.front_winding = front_winding;
-
-  _cogl_pipeline_update_authority (pipeline, authority, state,
-                                   _cogl_pipeline_cull_face_state_equal);
-}
-
 CoglPipelineCullFaceMode
 cogl_pipeline_get_cull_face_mode (CoglPipeline *pipeline)
 {
@@ -1241,20 +1210,6 @@ cogl_pipeline_get_cull_face_mode (CoglPipeline *pipeline)
   authority = _cogl_pipeline_get_authority (pipeline, state);
 
   return authority->big_state->cull_face_state.mode;
-}
-
-CoglWinding
-cogl_pipeline_get_front_face_winding (CoglPipeline *pipeline)
-{
-  CoglPipelineState state = COGL_PIPELINE_STATE_CULL_FACE;
-  CoglPipeline *authority;
-
-  g_return_val_if_fail (cogl_is_pipeline (pipeline),
-                        COGL_PIPELINE_CULL_FACE_MODE_NONE);
-
-  authority = _cogl_pipeline_get_authority (pipeline, state);
-
-  return authority->big_state->cull_face_state.front_winding;
 }
 
 float

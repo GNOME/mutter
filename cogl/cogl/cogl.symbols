@@ -569,7 +569,6 @@ cogl_pipeline_get_cull_face_mode
 cogl_pipeline_get_depth_state
 cogl_pipeline_get_diffuse
 cogl_pipeline_get_emission
-cogl_pipeline_get_front_face_winding
 #ifdef COGL_HAS_GTYPE_SUPPORT
 cogl_pipeline_get_gtype
 #endif
@@ -600,7 +599,6 @@ cogl_pipeline_set_cull_face_mode
 cogl_pipeline_set_depth_state
 cogl_pipeline_set_diffuse
 cogl_pipeline_set_emission
-cogl_pipeline_set_front_face_winding
 cogl_pipeline_set_layer_combine
 cogl_pipeline_set_layer_combine_constant
 cogl_pipeline_set_layer_filters

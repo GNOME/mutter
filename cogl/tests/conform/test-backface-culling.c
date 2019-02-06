@@ -86,7 +86,6 @@ paint_test_backface_culling (TestState *state,
       pipeline = cogl_pipeline_copy (base_pipeline);
 
       cogl_set_backface_culling_enabled (USE_LEGACY_STATE (draw_num));
-      cogl_pipeline_set_front_face_winding (pipeline, FRONT_WINDING (draw_num));
       cogl_pipeline_set_cull_face_mode (pipeline, CULL_FACE_MODE (draw_num));
 
       cogl_push_source (pipeline);
@@ -194,13 +193,6 @@ validate_result (CoglFramebuffer *framebuffer, int y_offset)
           cull_front = TRUE;
           cull_back = TRUE;
           break;
-        }
-
-      if (FRONT_WINDING (draw_num) == COGL_WINDING_CLOCKWISE)
-        {
-          gboolean tmp = cull_front;
-          cull_front = cull_back;
-          cull_back = tmp;
         }
 
       /* Front-facing texture */

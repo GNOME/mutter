@@ -188,7 +188,6 @@ _cogl_pipeline_init_default_pipeline (void)
   big_state->point_size = 0.0f;
 
   cull_face_state->mode = COGL_PIPELINE_CULL_FACE_MODE_NONE;
-  cull_face_state->front_winding = COGL_WINDING_COUNTER_CLOCKWISE;
 
   _cogl_bitmask_init (&uniforms_state->override_mask);
   _cogl_bitmask_init (&uniforms_state->changed_mask);

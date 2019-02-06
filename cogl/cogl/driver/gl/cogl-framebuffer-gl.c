@@ -196,38 +196,6 @@ _cogl_framebuffer_gl_flush_projection_state (CoglFramebuffer *framebuffer)
 }
 
 static void
-_cogl_framebuffer_gl_flush_front_face_winding_state (CoglFramebuffer *framebuffer)
-{
-  CoglContext *context = framebuffer->context;
-  CoglPipelineCullFaceMode mode;
-
-  /* NB: The face winding state is actually owned by the current
-   * CoglPipeline.
-   *
-   * If we don't have a current pipeline then we can just assume that
-   * when we later do flush a pipeline we will check the current
-   * framebuffer to know how to setup the winding */
-  if (!context->current_pipeline)
-    return;
-
-  mode = cogl_pipeline_get_cull_face_mode (context->current_pipeline);
-
-  /* If the current CoglPipeline has a culling mode that doesn't care
-   * about the winding we can avoid forcing an update of the state and
-   * bail out. */
-  if (mode == COGL_PIPELINE_CULL_FACE_MODE_NONE ||
-      mode == COGL_PIPELINE_CULL_FACE_MODE_BOTH)
-    return;
-
-  /* Since the winding state is really owned by the current pipeline
-   * the way we "flush" an updated winding is to dirty the pipeline
-   * state... */
-  context->current_pipeline_changes_since_flush |=
-    COGL_PIPELINE_STATE_CULL_FACE;
-  context->current_pipeline_age--;
-}
-
-static void
 _cogl_framebuffer_gl_flush_stereo_mode_state (CoglFramebuffer *framebuffer)
 {
   CoglContext *ctx = framebuffer->context;
@@ -417,9 +385,6 @@ _cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION:
           _cogl_framebuffer_gl_flush_projection_state (draw_buffer);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
-          _cogl_framebuffer_gl_flush_front_face_winding_state (draw_buffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_STEREO_MODE:
           _cogl_framebuffer_gl_flush_stereo_mode_state (draw_buffer);
