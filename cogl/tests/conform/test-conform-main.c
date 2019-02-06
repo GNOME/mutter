@@ -60,7 +60,6 @@ main (int argc, char **argv)
   ADD_TEST (test_path, 0, 0);
   ADD_TEST (test_path_clip, 0, 0);
   ADD_TEST (test_depth_test, 0, 0);
-  ADD_TEST (test_color_mask, 0, 0);
   ADD_TEST (test_backface_culling, 0, TEST_REQUIREMENT_NPOT);
   ADD_TEST (test_layer_remove, 0, 0);
 

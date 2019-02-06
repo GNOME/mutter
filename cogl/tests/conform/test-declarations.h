@@ -8,7 +8,6 @@ void test_premult (void);
 void test_path (void);
 void test_path_clip (void);
 void test_depth_test (void);
-void test_color_mask (void);
 void test_backface_culling (void);
 void test_layer_remove (void);
 void test_sparse_pipeline (void);

@@ -774,32 +774,6 @@ typedef enum _CoglWinsysFeature
 } CoglWinsysFeature;
 
 /**
- * CoglColorMask:
- * @COGL_COLOR_MASK_NONE: None of the color channels are masked
- * @COGL_COLOR_MASK_RED: Masks the red color channel
- * @COGL_COLOR_MASK_GREEN: Masks the green color channel
- * @COGL_COLOR_MASK_BLUE: Masks the blue color channel
- * @COGL_COLOR_MASK_ALPHA: Masks the alpha color channel
- * @COGL_COLOR_MASK_ALL: All of the color channels are masked
- *
- * Defines a bit mask of color channels. This can be used with
- * cogl_pipeline_set_color_mask() for example to define which color
- * channels should be written to the current framebuffer when
- * drawing something.
- */
-typedef enum
-{
-  COGL_COLOR_MASK_NONE = 0,
-  COGL_COLOR_MASK_RED = 1L<<0,
-  COGL_COLOR_MASK_GREEN = 1L<<1,
-  COGL_COLOR_MASK_BLUE = 1L<<2,
-  COGL_COLOR_MASK_ALPHA = 1L<<3,
-  /* XXX: glib-mkenums is a perl script that can't cope if we split
-   * this onto multiple lines! *sigh* */
-  COGL_COLOR_MASK_ALL = (COGL_COLOR_MASK_RED | COGL_COLOR_MASK_GREEN | COGL_COLOR_MASK_BLUE | COGL_COLOR_MASK_ALPHA)
-} CoglColorMask;
-
-/**
  * CoglWinding:
  * @COGL_WINDING_CLOCKWISE: Vertices are in a clockwise order
  * @COGL_WINDING_COUNTER_CLOCKWISE: Vertices are in a counter-clockwise order
