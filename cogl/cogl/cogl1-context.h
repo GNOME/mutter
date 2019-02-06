@@ -408,35 +408,6 @@ void
 cogl_get_viewport (float v[4]);
 
 /**
- * cogl_set_depth_test_enabled:
- * @setting: %TRUE to enable depth testing or %FALSE to disable.
- *
- * Sets whether depth testing is enabled. If it is disabled then the
- * order that actors are layered on the screen depends solely on the
- * order specified using clutter_actor_raise() and
- * clutter_actor_lower(), otherwise it will also take into account the
- * actor's depth. Depth testing is disabled by default.
- *
- * Deprecated: 1.16: Use cogl_pipeline_set_depth_state() instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_set_depth_state)
-void
-cogl_set_depth_test_enabled (gboolean setting);
-
-/**
- * cogl_get_depth_test_enabled:
- *
- * Queries if depth testing has been enabled via cogl_set_depth_test_enable()
- *
- * Return value: %TRUE if depth testing is enabled, and %FALSE otherwise
- *
- * Deprecated: 1.16: Use cogl_pipeline_set_depth_state() instead
- */
-COGL_DEPRECATED_FOR (cogl_pipeline_set_depth_state)
-gboolean
-cogl_get_depth_test_enabled (void);
-
-/**
  * cogl_set_backface_culling_enabled:
  * @setting: %TRUE to enable backface culling or %FALSE to disable.
  *

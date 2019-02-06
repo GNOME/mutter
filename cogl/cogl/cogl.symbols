@@ -291,7 +291,6 @@ cogl_frustum
 cogl_get_backface_culling_enabled
 cogl_get_bitmasks
 cogl_get_clock_time
-cogl_get_depth_test_enabled
 cogl_get_draw_framebuffer
 cogl_get_graphics_reset_status
 cogl_get_modelview_matrix
@@ -734,7 +733,6 @@ cogl_rotate
 cogl_scale
 
 cogl_set_backface_culling_enabled
-cogl_set_depth_test_enabled
 #ifndef COGL_DISABLE_DEPRECATED
 cogl_set_draw_buffer
 #endif

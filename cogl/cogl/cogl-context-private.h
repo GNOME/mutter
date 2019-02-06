@@ -186,8 +186,6 @@ struct _CoglContext
   float                 depth_range_near_cache;
   float                 depth_range_far_cache;
 
-  gboolean              legacy_depth_test_enabled;
-
   CoglBuffer       *current_buffer[COGL_BUFFER_BIND_TARGET_COUNT];
 
   /* Framebuffers */
