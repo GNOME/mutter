@@ -266,7 +266,6 @@ struct _CoglContext
   GLuint                  current_gl_program;
 
   gboolean current_gl_dither_enabled;
-  CoglColorMask current_gl_color_mask;
   GLenum current_gl_draw_buffer;
 
   /* Clipping */

@@ -219,16 +219,6 @@ _cogl_pipeline_per_vertex_point_size_equal (CoglPipeline *authority0,
 }
 
 gboolean
-_cogl_pipeline_logic_ops_state_equal (CoglPipeline *authority0,
-                                      CoglPipeline *authority1)
-{
-  CoglPipelineLogicOpsState *logic_ops_state0 = &authority0->big_state->logic_ops_state;
-  CoglPipelineLogicOpsState *logic_ops_state1 = &authority1->big_state->logic_ops_state;
-
-  return logic_ops_state0->color_mask == logic_ops_state1->color_mask;
-}
-
-gboolean
 _cogl_pipeline_cull_face_state_equal (CoglPipeline *authority0,
                                       CoglPipeline *authority1)
 {
@@ -1203,49 +1193,6 @@ cogl_pipeline_get_depth_state (CoglPipeline *pipeline,
   *state = authority->big_state->depth_state;
 }
 
-CoglColorMask
-cogl_pipeline_get_color_mask (CoglPipeline *pipeline)
-{
-  CoglPipeline *authority;
-
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), 0);
-
-  authority =
-    _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_LOGIC_OPS);
-
-  return authority->big_state->logic_ops_state.color_mask;
-}
-
-void
-cogl_pipeline_set_color_mask (CoglPipeline *pipeline,
-                              CoglColorMask color_mask)
-{
-  CoglPipelineState state = COGL_PIPELINE_STATE_LOGIC_OPS;
-  CoglPipeline *authority;
-  CoglPipelineLogicOpsState *logic_ops_state;
-
-  _COGL_RETURN_IF_FAIL (cogl_is_pipeline (pipeline));
-
-  authority = _cogl_pipeline_get_authority (pipeline, state);
-
-  logic_ops_state = &authority->big_state->logic_ops_state;
-  if (logic_ops_state->color_mask == color_mask)
-    return;
-
-  /* - Flush journal primitives referencing the current state.
-   * - Make sure the pipeline has no dependants so it may be modified.
-   * - If the pipeline isn't currently an authority for the state being
-   *   changed, then initialize that state from the current authority.
-   */
-  _cogl_pipeline_pre_change_notify (pipeline, state, NULL, FALSE);
-
-  logic_ops_state = &pipeline->big_state->logic_ops_state;
-  logic_ops_state->color_mask = color_mask;
-
-  _cogl_pipeline_update_authority (pipeline, authority, state,
-                                   _cogl_pipeline_logic_ops_state_equal);
-}
-
 void
 _cogl_pipeline_set_fog_state (CoglPipeline *pipeline,
                               const CoglPipelineFogState *fog_state)
@@ -1949,15 +1896,6 @@ _cogl_pipeline_hash_per_vertex_point_size_state (CoglPipeline *authority,
   state->hash = _cogl_util_one_at_a_time_hash (state->hash,
                                                &per_vertex_point_size,
                                                sizeof (per_vertex_point_size));
-}
-
-void
-_cogl_pipeline_hash_logic_ops_state (CoglPipeline *authority,
-                                     CoglPipelineHashState *state)
-{
-  CoglPipelineLogicOpsState *logic_ops_state = &authority->big_state->logic_ops_state;
-  state->hash = _cogl_util_one_at_a_time_hash (state->hash, &logic_ops_state->color_mask,
-                                               sizeof (CoglColorMask));
 }
 
 void

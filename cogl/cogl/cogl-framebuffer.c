@@ -123,8 +123,6 @@ _cogl_framebuffer_init (CoglFramebuffer *framebuffer,
 
   framebuffer->dirty_bitmasks = TRUE;
 
-  framebuffer->color_mask = COGL_COLOR_MASK_ALL;
-
   framebuffer->samples_per_pixel = 0;
 
   framebuffer->clip_stack = NULL;
@@ -830,17 +828,6 @@ _cogl_framebuffer_compare_projection_state (CoglFramebuffer *a,
 }
 
 static unsigned long
-_cogl_framebuffer_compare_color_mask_state (CoglFramebuffer *a,
-                                            CoglFramebuffer *b)
-{
-  if (cogl_framebuffer_get_color_mask (a) !=
-      cogl_framebuffer_get_color_mask (b))
-    return COGL_FRAMEBUFFER_STATE_COLOR_MASK;
-  else
-    return 0;
-}
-
-static unsigned long
 _cogl_framebuffer_compare_front_face_winding_state (CoglFramebuffer *a,
                                                     CoglFramebuffer *b)
 {
@@ -905,10 +892,6 @@ _cogl_framebuffer_compare (CoglFramebuffer *a,
         case COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION:
           differences |=
             _cogl_framebuffer_compare_projection_state (a, b);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_COLOR_MASK:
-          differences |=
-            _cogl_framebuffer_compare_color_mask_state (a, b);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
           differences |=
@@ -1013,29 +996,6 @@ gboolean
 cogl_framebuffer_get_is_stereo (CoglFramebuffer *framebuffer)
 {
   return framebuffer->config.stereo_enabled;
-}
-
-CoglColorMask
-cogl_framebuffer_get_color_mask (CoglFramebuffer *framebuffer)
-{
-  return framebuffer->color_mask;
-}
-
-void
-cogl_framebuffer_set_color_mask (CoglFramebuffer *framebuffer,
-                                 CoglColorMask color_mask)
-{
-  if (framebuffer->color_mask == color_mask)
-    return;
-
-  /* XXX: Currently color mask changes don't go through the journal */
-  _cogl_framebuffer_flush_journal (framebuffer);
-
-  framebuffer->color_mask = color_mask;
-
-  if (framebuffer->context->current_draw_buffer == framebuffer)
-    framebuffer->context->current_draw_buffer_changes |=
-      COGL_FRAMEBUFFER_STATE_COLOR_MASK;
 }
 
 CoglStereoMode
