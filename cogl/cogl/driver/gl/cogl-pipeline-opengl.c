@@ -370,11 +370,6 @@ static void
 flush_depth_state (CoglContext *ctx,
                    CoglDepthState *depth_state)
 {
-  gboolean depth_writing_enabled = depth_state->write_enabled;
-
-  if (ctx->current_draw_buffer)
-    depth_writing_enabled &= ctx->current_draw_buffer->depth_writing_enabled;
-
   if (ctx->depth_test_enabled_cache != depth_state->test_enabled)
     {
       if (depth_state->test_enabled == TRUE)
@@ -393,13 +388,6 @@ flush_depth_state (CoglContext *ctx,
     {
       GE (ctx, glDepthFunc (depth_state->test_function));
       ctx->depth_test_function_cache = depth_state->test_function;
-    }
-
-  if (ctx->depth_writing_enabled_cache != depth_writing_enabled)
-    {
-      GE (ctx, glDepthMask (depth_writing_enabled ?
-                            GL_TRUE : GL_FALSE));
-      ctx->depth_writing_enabled_cache = depth_writing_enabled;
     }
 
   if ((ctx->depth_range_near_cache != depth_state->range_near ||
