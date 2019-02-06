@@ -196,20 +196,6 @@ _cogl_framebuffer_gl_flush_projection_state (CoglFramebuffer *framebuffer)
 }
 
 static void
-_cogl_framebuffer_gl_flush_color_mask_state (CoglFramebuffer *framebuffer)
-{
-  CoglContext *context = framebuffer->context;
-
-  /* The color mask state is really owned by a CoglPipeline so to
-   * ensure the color mask is updated the next time we draw something
-   * we need to make sure the logic ops for the pipeline are
-   * re-flushed... */
-  context->current_pipeline_changes_since_flush |=
-    COGL_PIPELINE_STATE_LOGIC_OPS;
-  context->current_pipeline_age--;
-}
-
-static void
 _cogl_framebuffer_gl_flush_front_face_winding_state (CoglFramebuffer *framebuffer)
 {
   CoglContext *context = framebuffer->context;
@@ -436,9 +422,6 @@ _cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION:
           _cogl_framebuffer_gl_flush_projection_state (draw_buffer);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_COLOR_MASK:
-          _cogl_framebuffer_gl_flush_color_mask_state (draw_buffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
           _cogl_framebuffer_gl_flush_front_face_winding_state (draw_buffer);
@@ -968,20 +951,6 @@ _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
     {
       GE( ctx, glClearColor (red, green, blue, alpha) );
       gl_buffers |= GL_COLOR_BUFFER_BIT;
-
-      if (ctx->current_gl_color_mask != framebuffer->color_mask)
-        {
-          CoglColorMask color_mask = framebuffer->color_mask;
-          GE( ctx, glColorMask (!!(color_mask & COGL_COLOR_MASK_RED),
-                                !!(color_mask & COGL_COLOR_MASK_GREEN),
-                                !!(color_mask & COGL_COLOR_MASK_BLUE),
-                                !!(color_mask & COGL_COLOR_MASK_ALPHA)));
-          ctx->current_gl_color_mask = color_mask;
-          /* Make sure the ColorMask is updated when the next primitive is drawn */
-          ctx->current_pipeline_changes_since_flush |=
-            COGL_PIPELINE_STATE_LOGIC_OPS;
-          ctx->current_pipeline_age--;
-        }
     }
 
   if (buffers & COGL_BUFFER_BIT_DEPTH)
