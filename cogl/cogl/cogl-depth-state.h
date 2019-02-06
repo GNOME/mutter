@@ -56,7 +56,6 @@ typedef struct {
 
   gboolean COGL_PRIVATE (test_enabled);
   CoglDepthTestFunction COGL_PRIVATE (test_function);
-  gboolean COGL_PRIVATE (write_enabled);
   float COGL_PRIVATE (range_near);
   float COGL_PRIVATE (range_far);
 
@@ -100,8 +99,6 @@ cogl_depth_state_init (CoglDepthState *state);
  * the depth value of incoming fragments against the corresponding
  * value stored in the current depth buffer, and if the test passes
  * then the fragments depth value is used to update the depth buffer.
- * (unless you have disabled depth writing via
- * cogl_depth_state_set_write_enabled())
  *
  * By default depth testing is disabled.
  *
@@ -129,44 +126,6 @@ cogl_depth_state_set_test_enabled (CoglDepthState *state,
  */
 gboolean
 cogl_depth_state_get_test_enabled (CoglDepthState *state);
-
-/**
- * cogl_depth_state_set_write_enabled:
- * @state: A #CoglDepthState struct
- * @enable: The enable state you want
- *
- * Enables or disables depth buffer writing according to the value of
- * @enable. Normally when depth testing is enabled and the comparison
- * between a fragment's depth value and the corresponding depth buffer
- * value passes then the fragment's depth is written to the depth
- * buffer unless writing is disabled here.
- *
- * By default depth writing is enabled
- *
- * NB: this won't directly affect the state of the GPU. You have
- * to then set the state on a #CoglPipeline using
- * cogl_pipeline_set_depth_state()
- *
- * Since: 2.0
- * Stability: Unstable
- */
-void
-cogl_depth_state_set_write_enabled (CoglDepthState *state,
-                                    gboolean enable);
-
-/**
- * cogl_depth_state_get_write_enabled:
- * @state: A #CoglDepthState struct
- *
- * Gets the depth writing enable state as set by the corresponding
- * cogl_depth_state_set_write_enabled().
- *
- * Returns: The current depth writing enable state
- * Since: 2.0
- * Stability: Unstable
- */
-gboolean
-cogl_depth_state_get_write_enabled (CoglDepthState *state);
 
 /**
  * cogl_depth_state_set_test_function:
