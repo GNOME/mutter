@@ -263,7 +263,6 @@ typedef struct
 typedef struct
 {
   CoglPipelineCullFaceMode mode;
-  CoglWinding front_winding;
 } CoglPipelineCullFaceState;
 
 typedef struct
