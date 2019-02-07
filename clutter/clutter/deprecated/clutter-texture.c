@@ -66,7 +66,6 @@
 
 #include "deprecated/clutter-shader.h"
 #include "deprecated/clutter-texture.h"
-#include "deprecated/clutter-util.h"
 
 typedef struct _ClutterTextureAsyncData ClutterTextureAsyncData;
 

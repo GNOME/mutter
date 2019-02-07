@@ -250,7 +250,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-texture.h',
   'deprecated/clutter-timeline.h',
   'deprecated/clutter-timeout-pool.h',
-  'deprecated/clutter-util.h',
 ]
 
 clutter_deprecated_sources = [
