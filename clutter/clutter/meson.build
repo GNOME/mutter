@@ -248,7 +248,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-table-layout.h',
   'deprecated/clutter-texture.h',
   'deprecated/clutter-timeline.h',
-  'deprecated/clutter-timeout-pool.h',
 ]
 
 clutter_deprecated_sources = [
@@ -277,7 +276,6 @@ clutter_deprecated_sources = [
   'deprecated/clutter-state.c',
   'deprecated/clutter-table-layout.c',
   'deprecated/clutter-texture.c',
-  'deprecated/clutter-timeout-pool.c',
 ]
 
 clutter_deprecated_private_headers = [
