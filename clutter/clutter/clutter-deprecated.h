@@ -8,7 +8,6 @@
 #include "deprecated/clutter-animatable.h"
 #include "deprecated/clutter-animation.h"
 #include "deprecated/clutter-animator.h"
-#include "deprecated/clutter-backend.h"
 #include "deprecated/clutter-behaviour.h"
 #include "deprecated/clutter-behaviour-depth.h"
 #include "deprecated/clutter-behaviour-ellipse.h"
