@@ -65,6 +65,21 @@ void meta_background_set_file     (MetaBackground            *self,
                                    GDesktopBackgroundStyle    style);
 
 META_EXPORT
+gboolean
+meta_background_get_color_info    (MetaBackground            *self,
+                                   int                        monitor_index,
+                                   uint                       area_x,
+                                   uint                       area_y,
+                                   uint                       area_width,
+                                   uint                       area_height,
+                                   float                     *total_r,
+                                   float                     *total_g,
+                                   float                     *total_b,
+                                   float                     *mean_luminance,
+                                   float                     *luminance_variance,
+                                   float                     *mean_acutance);
+
+META_EXPORT
 void meta_background_set_blend    (MetaBackground            *self,
                                    GFile                     *file1,
                                    GFile                     *file2,

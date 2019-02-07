@@ -717,6 +717,191 @@ get_wrap_mode (GDesktopBackgroundStyle style)
     }
 }
 
+/**
+ * meta_background_get_color_info:
+ * @self: A #MetaBackground
+ * @monitor_index: Index of the monitor to use as #int
+ * @area_x: X-Axis starting point of the area as #uint
+ * @area_y: Y-Axis starting point of the area as #uint
+ * @area_width: Width of the area as #uint
+ * @area_height: Height of the area as #uint
+ * @total_r: (out): Proportion of red in the area as #float
+ * @total_g: (out): Proportion of green in the area as #float
+ * @total_b: (out): Proportion of blue in the area as #float
+ * @mean_luminance: (out): The mean luminance as #float
+ * @luminance_variance: (out): Variance of the luminance as #float
+ * @mean_acutance: (out): The mean acutance as #float
+ *
+ * Gets color information about a specified area of the texture
+ * of a background image. Calculates the percentage of red, green
+ * and blue pixels, the mean luminance, variance of the luminance
+ * and the mean acutance of the area.
+ * The calulation might be resource intensive if the requested
+ * area is large.
+ *
+ * Returns: %TRUE if the calculation was successful, and %FALSE
+ * if the given input was invalid.
+ **/
+gboolean
+meta_background_get_color_info (MetaBackground *self,
+                                int             monitor_index,
+                                uint            area_x,
+                                uint            area_y,
+                                uint            area_width,
+                                uint            area_height,
+                                float          *total_r,
+                                float          *total_g,
+                                float          *total_b,
+                                float          *mean_luminance,
+                                float          *luminance_variance,
+                                float          *mean_acutance)
+{
+  float SATURATION_WEIGHT = 1.5;
+  float WEIGHT_THRESHOLD = 1.0;
+
+  cairo_rectangle_int_t monitor_area;
+  uint texture_width, texture_height;
+  CoglTexture *texture;
+
+  g_return_val_if_fail (META_IS_BACKGROUND (self), FALSE);
+  g_return_val_if_fail (monitor_index >= 0 && monitor_index < self->n_monitors, FALSE);
+
+  texture = meta_background_get_texture (self, monitor_index, NULL, NULL);
+  texture_width = cogl_texture_get_width (texture);
+  texture_height = cogl_texture_get_height (texture);
+
+  monitor_area.x = area_x;
+  monitor_area.y = area_y;
+  monitor_area.width = area_width;
+  monitor_area.height = area_height;
+
+  /* Use the remaining size if the given size is invalid */
+  if (monitor_area.width == 0 || monitor_area.x + monitor_area.width > texture_width)
+    monitor_area.width = texture_width - monitor_area.x;
+
+  if (monitor_area.height == 0 || monitor_area.y + monitor_area.height > texture_height)
+    monitor_area.height = texture_height - monitor_area.y;
+
+  uint size = monitor_area.width * monitor_area.height;
+
+  uint8_t *pixels = g_malloc (sizeof(uint8_t) * texture_width * texture_height * 3);
+  float *pixel_lums = g_malloc (sizeof(float) * texture_width * texture_height);
+
+  cogl_texture_get_data (texture, COGL_PIXEL_FORMAT_RGB_888, 0, pixels);
+
+  float acutance_mean = 0, variance = 0, luminance_mean = 0, luminance_mean_squares = 0;
+  float pixel = 0, r_total = 0, g_total = 0, b_total = 0,  score_total = 0;
+  float max, min, score, delta;
+
+  /* Code to calculate weighted average color is copied from
+   * plank's lib/Drawing/DrawingService.vala average_color()
+   * http://bazaar.launchpad.net/~docky-core/plank/trunk/view/head:/lib/Drawing/DrawingService.vala
+   *
+   * Code for luminance and acutance is from elementary's wingpanel, see
+   * wingpanel-interface/Utils.vala - get_background_color_information():
+   * https://github.com/elementary/wingpanel/blob/master/wingpanel-interface/Utils.vala
+   */
+  for (uint y = monitor_area.y; y < (monitor_area.y + monitor_area.height); y++)
+    for (uint x = monitor_area.x; x < (monitor_area.x + monitor_area.width); x++)
+      {
+        uint i = y * monitor_area.width * 3 + x * 3;
+
+        uint8_t r = pixels[i];
+        uint8_t g = pixels[i + 1];
+        uint8_t b = pixels[i + 2];
+
+        pixel = (0.3 * r + 0.59 * g + 0.11 * b) ;
+
+        pixel_lums[y * monitor_area.width + x] = pixel;
+
+        min = MIN (r, MIN (g, b));
+        max = MAX (r, MAX (g, b));
+
+        delta = max - min;
+
+        /* prefer colored pixels over shades of grey */
+        score = SATURATION_WEIGHT * (delta == 0 ? 0.0 : delta / max);
+
+        /* weighted sums */
+        r_total += score * r;
+        g_total += score * g;
+        b_total += score * b;
+        score_total += score;
+
+        luminance_mean += pixel;
+        luminance_mean_squares += pixel * pixel;
+      }
+
+  for (uint y = monitor_area.y + 1; y < monitor_area.y + monitor_area.height - 1; y++)
+    for (uint x = monitor_area.x + 1; x < monitor_area.x + monitor_area.width - 1; x++)
+      {
+        float acutance =
+          (pixel_lums[y * monitor_area.width + x] * 4) -
+          (
+            pixel_lums[y * monitor_area.width + x - 1] +
+            pixel_lums[y * monitor_area.width + x + 1] +
+            pixel_lums[(y - 1) * monitor_area.width + x] +
+            pixel_lums[(y + 1) * monitor_area.width + x]
+          );
+
+        acutance_mean += acutance > 0 ? acutance : -acutance;
+      }
+
+  score_total /= size;
+  r_total /= size;
+  g_total /= size;
+  b_total /= size;
+
+  if (score_total > 0.0)
+    {
+      r_total /= score_total;
+      g_total /= score_total;
+      b_total /= score_total;
+    }
+
+  /* combine weighted and not weighted sum depending on the average "saturation"
+   * if saturation isn't reasonable enough
+   * s = 0.0 -> f = 0.0 ; s = WEIGHT_THRESHOLD -> f = 1.0
+   */
+  if (score_total <= WEIGHT_THRESHOLD)
+    {
+      float f = 1.0 / WEIGHT_THRESHOLD * score_total;
+
+      r_total = r_total * f;
+      g_total = g_total * f;
+      b_total = b_total * f;
+    }
+
+
+  /* there shouldn't be values larger then 1.0 */
+  float max_val = MAX (r_total, MAX (g_total, b_total));
+  if (max_val > 1.0)
+    {
+      r_total /= max_val;
+      g_total /= max_val;
+      b_total /= max_val;
+    }
+
+  luminance_mean /= size;
+  luminance_mean_squares = luminance_mean_squares / size;
+
+  variance = (luminance_mean_squares - (luminance_mean * luminance_mean));
+
+  acutance_mean /= (monitor_area.width - 2) * (monitor_area.height - 2);
+
+  g_free (pixels);
+  g_free (pixel_lums);
+
+  *total_r = r_total;
+  *total_g = g_total;
+  *total_b = b_total;
+  *mean_luminance = luminance_mean;
+  *luminance_variance = variance;
+  *mean_acutance = acutance_mean;
+
+  return TRUE;
+}
+
 CoglTexture *
 meta_background_get_texture (MetaBackground         *self,
                              int                     monitor_index,
