@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-
 #include "config.h"
 
 #include "compositor/meta-background-private.h"
@@ -478,6 +477,155 @@ get_texture_area (MetaBackground          *self,
 }
 
 static gboolean
+get_image_area_by_rect (MetaBackground        *self,
+                        CoglTexture           *texture,
+                        cairo_rectangle_int_t *monitor_area,
+                        float                  monitor_scale,
+                        cairo_rectangle_int_t *rect,
+                        cairo_rectangle_int_t *image_area)
+{
+  int screen_width, screen_height;
+  float texture_width, texture_height, texture_x_scale, texture_y_scale;
+  cairo_rectangle_int_t visible_area, texture_area;
+
+  if (rect->x < monitor_area->x ||
+      rect->y < monitor_area->y ||
+      rect->x + rect->width > monitor_area->x + monitor_area->width ||
+      rect->y + rect->height > monitor_area->y + monitor_area->height)
+    return FALSE;
+
+  meta_display_get_size (self->display, &screen_width, &screen_height);
+
+  texture_width = cogl_texture_get_width (texture);
+  texture_height = cogl_texture_get_height (texture);
+
+  switch (self->style)
+    {
+    case G_DESKTOP_BACKGROUND_STYLE_STRETCHED:
+      {
+        texture_x_scale = texture_width / monitor_area->width;
+        texture_y_scale = texture_height / monitor_area->height;
+
+        visible_area.x = (float) rect->x * texture_x_scale;
+        visible_area.y = (float) rect->y * texture_y_scale;
+        visible_area.width = (float) rect->width * texture_x_scale;
+        visible_area.height = (float) rect->height * texture_y_scale;
+        break;
+      }
+
+    case G_DESKTOP_BACKGROUND_STYLE_WALLPAPER:
+      visible_area.x = monitor_area->x + rect->x - (int) ((screen_width - texture_width) / 2.0);
+      visible_area.y = monitor_area->x + rect->x - (int) ((screen_height - texture_height) / 2.0);
+      visible_area.width = rect->width;
+      visible_area.height = rect->height;
+      break;
+
+    case G_DESKTOP_BACKGROUND_STYLE_CENTERED:
+      visible_area.x = rect->x - (int) ((monitor_area->width - texture_width) / 2.0);
+      visible_area.y = rect->y - (int) ((monitor_area->height - texture_height) / 2.0);
+      visible_area.width = rect->width;
+      visible_area.height = rect->height;
+      break;
+
+    case G_DESKTOP_BACKGROUND_STYLE_SCALED:
+    case G_DESKTOP_BACKGROUND_STYLE_ZOOM:
+      {
+        get_texture_area (self, monitor_area, monitor_scale, texture, &texture_area);
+
+        texture_x_scale = texture_width / texture_area.width;
+        texture_y_scale = texture_height / texture_area.height;
+
+        visible_area.x = (float) (rect->x - texture_area.x) * texture_x_scale;
+        visible_area.y = (float) (rect->y - texture_area.y) * texture_y_scale;
+        visible_area.width = (float) rect->width * texture_x_scale;
+        visible_area.height = (float) rect->height * texture_y_scale;
+        break;
+      }
+
+    case G_DESKTOP_BACKGROUND_STYLE_SPANNED:
+      {
+        texture_x_scale = texture_width / (screen_width * monitor_scale);
+        texture_y_scale = texture_height / (screen_height * monitor_scale);
+
+        visible_area.x = (float) rect->x * texture_x_scale;
+        visible_area.y = (float) rect->y * texture_y_scale;
+        visible_area.width = (float) rect->width * texture_x_scale;
+        visible_area.height = (float) rect->height * texture_y_scale;
+        break;
+      }
+
+    default:
+      return FALSE;
+    }
+
+  *image_area = visible_area;
+  return !texture_has_alpha (texture);
+}
+
+/**
+ * meta_background_get_color_info:
+ * @self: A #MetaBackground
+ * @monitor_index: Index of the monitor to use as #int
+ * @area_x: X-Axis starting point of the area as #uint
+ * @area_y: Y-Axis starting point of the area as #uint
+ * @area_width: Width of the area as #uint
+ * @area_height: Height of the area as #uint
+ * @mean_luminance: (out): The mean luminance as #float
+ * @luminance_variance: (out): Variance of the luminance as #float
+ * @mean_acutance: (out): The mean acutance as #float
+ *
+ * Gets color information for a given monitor-area and the background image
+ * that is shown in this area.
+ * Calculates the mean luminance, variance of the luminance and the mean acutance
+ * of the area.
+ *
+ * Return value: %TRUE if the calculation was successful, %FALSE if the area
+ *  is not inside the monitor or is not fully covered by a background image, if
+ *  the image has an alpha channel or is not fully visible, or if the required
+ *  color information is not completely present in the cache.
+ **/
+gboolean
+meta_background_get_color_info (MetaBackground *self,
+                                int             monitor_index,
+                                uint            area_x,
+                                uint            area_y,
+                                uint            area_width,
+                                uint            area_height,
+                                float          *mean_luminance,
+                                float          *luminance_variance,
+                                float          *mean_acutance)
+{
+  CoglTexture *texture;
+  MetaRectangle geometry;
+  cairo_rectangle_int_t monitor_area, rect, image_area;
+  float monitor_scale;
+
+  g_return_val_if_fail (META_IS_BACKGROUND (self), FALSE);
+  g_return_val_if_fail (monitor_index >= 0 && monitor_index < self->n_monitors, FALSE);
+  g_return_val_if_fail (META_IS_BACKGROUND_IMAGE (self->background_image1), FALSE);
+
+  texture = meta_background_image_get_texture (self->background_image1);
+
+  meta_display_get_monitor_geometry (self->display, monitor_index, &geometry);
+  monitor_scale = meta_display_get_monitor_scale (self->display, monitor_index);
+  monitor_area.x = geometry.x * monitor_scale;
+  monitor_area.y = geometry.y * monitor_scale;
+  monitor_area.width = geometry.width * monitor_scale;
+  monitor_area.height = geometry.height * monitor_scale;
+
+  rect.x = area_x * monitor_scale;
+  rect.y = area_y * monitor_scale;
+  rect.width = area_width * monitor_scale;
+  rect.height = area_height * monitor_scale;
+
+  if (!get_image_area_by_rect (self, texture, &monitor_area, monitor_scale, &rect, &image_area))
+    return FALSE;
+
+  return meta_background_image_get_color_info (self->background_image1, &image_area,
+                                               mean_luminance, luminance_variance, mean_acutance);
+}
+
+static gboolean
 draw_texture (MetaBackground        *self,
               CoglFramebuffer       *framebuffer,
               CoglPipeline          *pipeline,
@@ -689,7 +837,6 @@ ensure_wallpaper_texture (MetaBackground *self,
       if (texture_has_alpha (texture))
         {
           ensure_color_texture (self);
-
           pipeline = create_pipeline (PIPELINE_OVER_REVERSE);
           cogl_pipeline_set_layer_texture (pipeline, 0, self->color_texture);
           cogl_framebuffer_draw_rectangle (fbo, pipeline, 0, 0, width, height);
@@ -855,7 +1002,6 @@ meta_background_get_texture (MetaBackground         *self,
       if (bare_region_visible)
         {
           CoglPipeline *pipeline = create_pipeline (PIPELINE_OVER_REVERSE);
-
           ensure_color_texture (self);
           cogl_pipeline_set_layer_texture (pipeline, 0, self->color_texture);
           cogl_framebuffer_draw_rectangle (monitor->fbo,
