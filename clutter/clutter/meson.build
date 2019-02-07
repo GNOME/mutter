@@ -221,7 +221,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-animatable.h',
   'deprecated/clutter-animation.h',
   'deprecated/clutter-animator.h',
-  'deprecated/clutter-backend.h',
   'deprecated/clutter-behaviour.h',
   'deprecated/clutter-behaviour-depth.h',
   'deprecated/clutter-behaviour-ellipse.h',
