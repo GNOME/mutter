@@ -1,3 +1,28 @@
+3.31.90
+=======
+* Fix support of extended characters in on-screen keyboard [Andrea; #109]
+* Improve selection of the primary GPU [Pekka, Emilio; !271]
+* Screen-cast cursor updates as PipeWire stream metadata [Jonas; !357]
+* Fix rendering glitches in magnifier [Daniel; gnome-shell#387]
+* Fix monitor recording on HiDPI [Jonas; !415]
+* Honour secondary GPU supported pixel formats [Pekka; !341]
+* Fall back to CPU copy path when using a software renderer [Emilio; !325]
+* Remove fallback app menu [Florian; gnome-shell#624]
+* wayland: Add support for viewporter protocol [Robert; !323]
+* Misc. bug fixes and cleanups [Florian, Carlos, Olivier, Marco, Robert,
+  Daniel, Pekka, Jonas, Ole, Georges; !391, #335, #442, !406, !395, #447,
+  !375, gnome-shell#349, #451, !416, #784199, !408, !181, !405]
+
+Contributors:
+  Jonas Ådahl, Andrea Azzarone, Ole Jørgen Brønner, Piotr Drąg, Olivier Fourdan,
+  Dariusz Gadomski, Carlos Garnacho, Antoine Jacoutot, Iain Lane, Robert Mader,
+  Emilio Pozuelo Monfort, Florian Müllner, Georges Basile Stavracas Neto,
+  Pekka Paalanen, Marco Trevisan (Treviño), Josh Triplett, Daniel van Vugt
+
+Translators:
+  Fabio Tomat [fur], Balázs Úr [hu], Daniel Mustieles [es], Kukuh Syafaat [id],
+  Jordi Mas [ca], Piotr Drąg [pl]
+
 3.31.4
 ======
 * keybindings: Limit corner move to current monitor [Jānis; #320]
