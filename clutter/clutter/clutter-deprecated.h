@@ -35,7 +35,6 @@
 #include "deprecated/clutter-table-layout.h"
 #include "deprecated/clutter-texture.h"
 #include "deprecated/clutter-timeline.h"
-#include "deprecated/clutter-timeout-pool.h"
 
 #undef __CLUTTER_DEPRECATED_H_INSIDE__
 
