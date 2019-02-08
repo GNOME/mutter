@@ -51,19 +51,24 @@ struct _MetaWaylandBuffer
   struct wl_resource *resource;
   struct wl_listener destroy_listener;
 
-  CoglTexture *texture;
   gboolean is_y_inverted;
 
   MetaWaylandBufferType type;
 
+  struct {
+    CoglTexture *texture;
+  } egl_image;
+
 #ifdef HAVE_WAYLAND_EGLSTREAM
   struct {
     MetaWaylandEglStream *stream;
+    CoglTexture *texture;
   } egl_stream;
 #endif
 
   struct {
     MetaWaylandDmaBufBuffer *dma_buf;
+    CoglTexture *texture;
   } dma_buf;
 };
 
@@ -76,11 +81,13 @@ struct wl_resource *    meta_wayland_buffer_get_resource        (MetaWaylandBuff
 gboolean                meta_wayland_buffer_is_realized         (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_realize             (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_attach              (MetaWaylandBuffer     *buffer,
+                                                                 CoglTexture          **texture,
+                                                                 gboolean              *changed_texture,
                                                                  GError               **error);
-CoglTexture *           meta_wayland_buffer_get_texture         (MetaWaylandBuffer     *buffer);
 CoglSnippet *           meta_wayland_buffer_create_snippet      (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_is_y_inverted       (MetaWaylandBuffer     *buffer);
 void                    meta_wayland_buffer_process_damage      (MetaWaylandBuffer     *buffer,
+                                                                 CoglTexture           *texture,
                                                                  cairo_region_t        *region);
 
 #endif /* META_WAYLAND_BUFFER_H */
