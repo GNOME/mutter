@@ -175,7 +175,8 @@ clutter_input_focus_set_can_show_preedit (ClutterInputFocus *focus,
 }
 
 void
-clutter_input_focus_request_toggle_input_panel (ClutterInputFocus *focus)
+clutter_input_focus_set_input_panel_state (ClutterInputFocus      *focus,
+                                           ClutterInputPanelState  state)
 {
   ClutterInputFocusPrivate *priv;
 
@@ -184,7 +185,7 @@ clutter_input_focus_request_toggle_input_panel (ClutterInputFocus *focus)
 
   priv = clutter_input_focus_get_instance_private (focus);
 
-  clutter_input_method_toggle_input_panel (priv->im);
+  clutter_input_method_set_input_panel_state (priv->im, state);
 }
 
 void

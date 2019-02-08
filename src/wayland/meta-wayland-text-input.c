@@ -547,7 +547,7 @@ text_input_commit_state (struct wl_client   *client,
   text_input->pending_state = META_WAYLAND_PENDING_STATE_NONE;
 
   if (toggle_panel)
-    clutter_input_focus_request_toggle_input_panel (focus);
+    clutter_input_focus_set_input_panel_state (focus, CLUTTER_INPUT_PANEL_STATE_TOGGLE);
 }
 
 static struct zwp_text_input_v3_interface meta_text_input_interface = {
