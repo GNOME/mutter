@@ -57,18 +57,17 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (META_WAYLAND_SURFACE_ROLE (cursor_surface));
-  MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (priv->cursor_sprite);
-
-  g_return_if_fail (!buffer || buffer->texture);
+  CoglTexture *texture;
 
   if (!priv->cursor_renderer)
     return;
 
-  if (buffer)
+  texture = meta_wayland_surface_get_texture (surface);
+  if (texture)
     {
       meta_cursor_sprite_set_texture (cursor_sprite,
-                                      buffer->texture,
+                                      texture,
                                       priv->hot_x * surface->scale,
                                       priv->hot_y * surface->scale);
     }
@@ -170,7 +169,9 @@ meta_wayland_cursor_surface_commit (MetaWaylandSurfaceRole  *surface_role,
                        &pending->frame_callback_list);
   wl_list_init (&pending->frame_callback_list);
 
-  if (pending->newly_attached)
+  if (pending->newly_attached &&
+      (!cairo_region_is_empty (pending->surface_damage) ||
+       !cairo_region_is_empty (pending->buffer_damage)))
     update_cursor_sprite_texture (META_WAYLAND_CURSOR_SURFACE (surface_role));
 }
 
