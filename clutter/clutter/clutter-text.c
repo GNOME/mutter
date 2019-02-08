@@ -2186,7 +2186,8 @@ clutter_text_press (ClutterActor *actor,
     return CLUTTER_EVENT_PROPAGATE;
 
   clutter_actor_grab_key_focus (actor);
-  clutter_input_focus_request_toggle_input_panel (priv->input_focus);
+  clutter_input_focus_set_input_panel_state (priv->input_focus,
+                                             CLUTTER_INPUT_PANEL_STATE_TOGGLE);
 
   /* if the actor is empty we just reset everything and not
    * set up the dragging of the selection since there's nothing

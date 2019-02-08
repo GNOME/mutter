@@ -309,7 +309,7 @@ text_input_enable (struct wl_client   *client,
   clutter_input_focus_set_can_show_preedit (focus, show_preedit);
 
   if (flags & GTK_TEXT_INPUT_ENABLE_FLAGS_TOGGLE_INPUT_PANEL)
-    clutter_input_focus_request_toggle_input_panel (focus);
+    clutter_input_focus_set_input_panel_state (focus, CLUTTER_INPUT_PANEL_STATE_TOGGLE);
 }
 
 static void
