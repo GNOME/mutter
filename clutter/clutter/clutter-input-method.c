@@ -264,9 +264,6 @@ clutter_input_method_focus_out (ClutterInputMethod *im)
 
   klass = CLUTTER_INPUT_METHOD_GET_CLASS (im);
   klass->focus_out (im);
-
-  g_signal_emit (im, signals[INPUT_PANEL_STATE],
-                 0, CLUTTER_INPUT_PANEL_STATE_OFF);
 }
 
 ClutterInputFocus *
