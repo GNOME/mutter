@@ -245,14 +245,9 @@ get_buffer_width (MetaWaylandSurface *surface)
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
 
   if (buffer)
-    {
-      CoglTexture *texture = meta_wayland_buffer_get_texture (buffer);
-      return cogl_texture_get_width (texture);
-    }
+    return cogl_texture_get_width (surface->texture);
   else
-    {
-      return 0;
-    }
+    return 0;
 }
 
 static int
@@ -261,14 +256,9 @@ get_buffer_height (MetaWaylandSurface *surface)
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
 
   if (buffer)
-    {
-      CoglTexture *texture = meta_wayland_buffer_get_texture (buffer);
-      return cogl_texture_get_height (texture);
-    }
+    return cogl_texture_get_height (surface->texture);
   else
-    {
-      return 0;
-    }
+    return 0;
 }
 
 static void
@@ -341,8 +331,8 @@ surface_process_damage (MetaWaylandSurface *surface,
 
   cairo_region_intersect_rectangle (buffer_region, &buffer_rect);
 
-  /* First update the buffer. */
-  meta_wayland_buffer_process_damage (buffer, buffer_region);
+  /* First update the surface texture. */
+  meta_wayland_buffer_process_damage (buffer, surface->texture, buffer_region);
 
   if (meta_wayland_surface_get_actor (surface))
     {
@@ -717,11 +707,13 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
         {
           GError *error = NULL;
 
-          if (!meta_wayland_buffer_attach (pending->buffer, &error))
+          if (!meta_wayland_buffer_attach (pending->buffer,
+                                           &surface->texture,
+                                           &error))
             {
               g_warning ("Could not import pending buffer: %s", error->message);
               wl_resource_post_error (surface->resource, WL_DISPLAY_ERROR_NO_MEMORY,
-                                      "Failed to create a texture for surface %i: %s",
+                                      "Failed to attach buffer to surface %i: %s",
                                       wl_resource_get_id (surface->resource),
                                       error->message);
               g_error_free (error);
@@ -736,7 +728,7 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
               gboolean is_y_inverted;
 
               stex = meta_surface_actor_get_texture (meta_wayland_surface_get_actor (surface));
-              texture = meta_wayland_buffer_get_texture (pending->buffer);
+              texture = surface->texture;
               snippet = meta_wayland_buffer_create_snippet (pending->buffer);
               is_y_inverted = meta_wayland_buffer_is_y_inverted (pending->buffer);
 
@@ -1330,6 +1322,7 @@ wl_surface_destructor (struct wl_resource *resource)
 
   if (surface->buffer_held)
     meta_wayland_surface_unref_buffer_use_count (surface);
+  g_clear_pointer (&surface->texture, cogl_object_unref);
   g_clear_object (&surface->buffer_ref.buffer);
 
   g_clear_object (&surface->pending);
@@ -1849,6 +1842,12 @@ meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurface *surface,
     return FALSE;
 
   return g_hash_table_contains (surface->shortcut_inhibited_seats, seat);
+}
+
+CoglTexture *
+meta_wayland_surface_get_texture (MetaWaylandSurface *surface)
+{
+  return surface->texture;
 }
 
 MetaSurfaceActor *
