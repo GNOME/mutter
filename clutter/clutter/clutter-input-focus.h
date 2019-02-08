@@ -78,6 +78,7 @@ CLUTTER_EXPORT
 void clutter_input_focus_set_can_show_preedit (ClutterInputFocus *focus,
                                                gboolean           can_show_preedit);
 CLUTTER_EXPORT
-void clutter_input_focus_request_toggle_input_panel (ClutterInputFocus *focus);
+void clutter_input_focus_set_input_panel_state (ClutterInputFocus      *focus,
+                                                ClutterInputPanelState  state);
 
 #endif /* __CLUTTER_INPUT_FOCUS_H__ */

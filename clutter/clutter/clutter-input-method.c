@@ -363,12 +363,12 @@ clutter_input_method_notify_key_event (ClutterInputMethod *im,
 }
 
 void
-clutter_input_method_toggle_input_panel (ClutterInputMethod *im)
+clutter_input_method_set_input_panel_state (ClutterInputMethod     *im,
+                                            ClutterInputPanelState  state)
 {
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
-  g_signal_emit (im, signals[INPUT_PANEL_STATE], 0,
-                 CLUTTER_INPUT_PANEL_STATE_TOGGLE);
+  g_signal_emit (im, signals[INPUT_PANEL_STATE], 0, state);
 }
 
 void

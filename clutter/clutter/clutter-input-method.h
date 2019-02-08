@@ -83,7 +83,8 @@ void clutter_input_method_notify_key_event (ClutterInputMethod *im,
                                             const ClutterEvent *event,
                                             gboolean            filtered);
 CLUTTER_EXPORT
-void clutter_input_method_request_toggle_input_panel (ClutterInputMethod *im);
+void clutter_input_method_set_input_panel_state (ClutterInputMethod     *im,
+                                                 ClutterInputPanelState  state);
 
 CLUTTER_EXPORT
 void clutter_input_method_forward_key (ClutterInputMethod *im,
