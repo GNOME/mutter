@@ -283,7 +283,7 @@ surface_process_damage (MetaWaylandSurface *surface,
   cairo_region_t *transformed_region;
   cairo_region_t *viewport_region;
   ClutterRect src_rect;
-  int i, n_rectangles;
+  MetaSurfaceActor *actor;
 
   /* If the client destroyed the buffer it attached before committing, but
    * still posted damage, or posted damage without any buffer, don't try to
@@ -345,18 +345,21 @@ surface_process_damage (MetaWaylandSurface *surface,
   /* First update the buffer. */
   meta_wayland_buffer_process_damage (buffer, buffer_region);
 
-  /* Now damage the actor. The actor expects damage in the unscaled texture
-   * coordinate space, i.e. same as the buffer. */
-  /* XXX: Should this be a signal / callback on MetaWaylandBuffer instead? */
-  n_rectangles = cairo_region_num_rectangles (buffer_region);
-  for (i = 0; i < n_rectangles; i++)
+  actor = meta_wayland_surface_get_actor (surface);
+  if (actor)
     {
-      cairo_rectangle_int_t rect;
-      cairo_region_get_rectangle (buffer_region, i, &rect);
+      int i, n_rectangles;
 
-      meta_surface_actor_process_damage (meta_wayland_surface_get_actor (surface),
-                                         rect.x, rect.y,
-                                         rect.width, rect.height);
+      n_rectangles = cairo_region_num_rectangles (buffer_region);
+      for (i = 0; i < n_rectangles; i++)
+        {
+          cairo_rectangle_int_t rect;
+          cairo_region_get_rectangle (buffer_region, i, &rect);
+
+          meta_surface_actor_process_damage (actor,
+                                             rect.x, rect.y,
+                                             rect.width, rect.height);
+        }
     }
 
   cairo_region_destroy (viewport_region);
@@ -774,9 +777,8 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
       surface->viewport.has_dst_size = surface->viewport.dst_width > 0;
     }
 
-  if (meta_wayland_surface_get_actor (surface) &&
-      (!cairo_region_is_empty (pending->surface_damage) ||
-       !cairo_region_is_empty (pending->buffer_damage)))
+  if (!cairo_region_is_empty (pending->surface_damage) ||
+      !cairo_region_is_empty (pending->buffer_damage))
     surface_process_damage (surface,
                             pending->surface_damage,
                             pending->buffer_damage);
