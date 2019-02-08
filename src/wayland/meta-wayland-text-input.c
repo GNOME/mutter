@@ -494,9 +494,12 @@ text_input_commit_state (struct wl_client   *client,
               else
                 return;
             }
+          else
+            {
+              toggle_panel = TRUE;
+            }
 
           clutter_input_focus_set_can_show_preedit (focus, TRUE);
-          toggle_panel = TRUE;
         }
       else if (clutter_input_focus_is_focused (focus))
         {
