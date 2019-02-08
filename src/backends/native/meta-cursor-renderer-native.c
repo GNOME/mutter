@@ -104,6 +104,7 @@ typedef enum _MetaCursorGbmBoState
 
 typedef struct _MetaCursorNativeGpuState
 {
+  MetaGpu *gpu;
   guint active_bo;
   MetaCursorGbmBoState pending_bo_state;
   struct gbm_bo *bos[HW_CURSOR_BUFFER_COUNT];
@@ -747,9 +748,29 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *renderer,
 }
 
 static void
+unset_crtc_cursor_renderer_privates (MetaGpu       *gpu,
+                                     struct gbm_bo *bo)
+{
+  GList *l;
+
+  for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
+    {
+      MetaCrtc *crtc = l->data;
+
+      if (bo == crtc->cursor_renderer_private)
+        crtc->cursor_renderer_private = NULL;
+    }
+}
+
+static void
 cursor_gpu_state_free (MetaCursorNativeGpuState *cursor_gpu_state)
 {
   int i;
+  struct gbm_bo *active_bo;
+
+  active_bo = get_active_cursor_sprite_gbm_bo (cursor_gpu_state);
+  if (active_bo)
+    unset_crtc_cursor_renderer_privates (cursor_gpu_state->gpu, active_bo);
 
   for (i = 0; i < HW_CURSOR_BUFFER_COUNT; i++)
     g_clear_pointer (&cursor_gpu_state->bos[i], gbm_bo_destroy);
@@ -774,6 +795,7 @@ ensure_cursor_gpu_state (MetaCursorNativePrivate *cursor_priv,
     return cursor_gpu_state;
 
   cursor_gpu_state = g_new0 (MetaCursorNativeGpuState, 1);
+  cursor_gpu_state->gpu = META_GPU (gpu_kms);
   g_hash_table_insert (cursor_priv->gpu_states, gpu_kms, cursor_gpu_state);
 
   return cursor_gpu_state;
