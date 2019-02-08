@@ -65,9 +65,9 @@ struct _MetaWaylandDmaBufBuffer
 
 G_DEFINE_TYPE (MetaWaylandDmaBufBuffer, meta_wayland_dma_buf_buffer, G_TYPE_OBJECT);
 
-gboolean
-meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer *buffer,
-                                    GError           **error)
+static gboolean
+meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
+                                      GError            **error)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaEgl *egl = meta_backend_get_egl (backend);
@@ -200,6 +200,14 @@ meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer *buffer,
   buffer->is_y_inverted = dma_buf->is_y_inverted;
 
   return TRUE;
+}
+
+gboolean
+meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
+                                    CoglTexture       **texture,
+                                    GError            **error)
+{
+  return meta_wayland_dma_buf_realize_texture (buffer, error);
 }
 
 static void
@@ -374,7 +382,7 @@ buffer_params_create_common (struct wl_client   *client,
   buffer = meta_wayland_buffer_from_resource (buffer_resource);
 
   meta_wayland_buffer_realize (buffer);
-  if (!meta_wayland_buffer_attach (buffer, &error))
+  if (!meta_wayland_dma_buf_realize_texture (buffer, &error))
     {
       if (buffer_id == 0)
         {
