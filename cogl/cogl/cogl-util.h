@@ -35,6 +35,7 @@
 #include <math.h>
 
 #include <cogl/cogl-defines.h>
+#include "cogl-texture.h"
 #include "cogl-types.h"
 
 #include <stdio.h>
@@ -179,5 +180,22 @@ _cogl_util_scissor_intersect (int rect_x0,
   *scissor_x1 = MIN (*scissor_x1, rect_x1);
   *scissor_y1 = MIN (*scissor_y1, rect_y1);
 }
+
+CoglTexture *
+cogl_util_texture_new_with_size (CoglContext *ctx,
+                                 int width,
+                                 int height);
+
+CoglTexture *
+cogl_util_texture_new_from_data (CoglContext *ctx,
+                                 int width,
+                                 int height,
+                                 CoglPixelFormat format,
+                                 int rowstride,
+                                 const uint8_t *data,
+                                 CoglError **error);
+
+CoglTexture *
+cogl_util_texture_new_from_bitmap (CoglBitmap *bitmap);
 
 #endif /* __COGL_UTIL_H */

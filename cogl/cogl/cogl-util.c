@@ -31,7 +31,10 @@
 #include "cogl-config.h"
 
 #include <string.h>
-
+#include "cogl-bitmap.h"
+#include "cogl-driver.h"
+#include "cogl-texture-2d.h"
+#include "cogl-texture-2d-sliced.h"
 #include "cogl-util.h"
 #include "cogl-private.h"
 
@@ -196,3 +199,100 @@ _cogl_util_pixel_format_from_masks (unsigned long r_mask,
 }
 
 #endif /* _COGL_IN_TEST_BITMASK */
+
+static CoglBool
+needs_slicing (CoglContext *ctx,
+               int width,
+               int height)
+{
+  GLint max_size;
+
+  glGetIntegerv (GL_MAX_TEXTURE_SIZE, &max_size);
+
+  if ((width <= (int) max_size && height <= (int) max_size) &&
+      ((_cogl_util_is_pot (width) && _cogl_util_is_pot (height)) ||
+       (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC) &&
+        cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP))))
+    {
+      return FALSE;
+    }
+  return TRUE;
+}
+
+CoglTexture *
+cogl_util_texture_new_with_size (CoglContext *ctx,
+                                 int width,
+                                 int height)
+{
+  if (needs_slicing (ctx, width, height))
+    {
+      return COGL_TEXTURE (
+        cogl_texture_2d_sliced_new_with_size (ctx,
+                                              width,
+                                              height,
+                                              COGL_TEXTURE_MAX_WASTE));
+    }
+  else
+    {
+      return COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx,
+                                                          width,
+                                                          height));
+    }
+}
+
+CoglTexture *
+cogl_util_texture_new_from_data (CoglContext *ctx,
+                                 int width,
+                                 int height,
+                                 CoglPixelFormat format,
+                                 int rowstride,
+                                 const uint8_t *data,
+                                 CoglError **error)
+{
+  if (needs_slicing (ctx, width, height))
+    {
+      return COGL_TEXTURE (
+        cogl_texture_2d_sliced_new_from_data (ctx,
+                                              width,
+                                              height,
+                                              COGL_TEXTURE_MAX_WASTE,
+                                              format,
+                                              rowstride,
+                                              data,
+                                              error));
+
+    }
+  else
+    {
+      return COGL_TEXTURE (cogl_texture_2d_new_from_data (ctx,
+                                                          width,
+                                                          height,
+                                                          format,
+                                                          rowstride,
+                                                          data,
+                                                          error));
+    }
+}
+
+CoglTexture *
+cogl_util_texture_new_from_bitmap (CoglBitmap *bitmap)
+{
+  CoglContext *ctx;
+  int width;
+  int height;
+
+  ctx = _cogl_bitmap_get_context (bitmap);
+  width = cogl_bitmap_get_width (bitmap);
+  height = cogl_bitmap_get_height (bitmap);
+
+  if (needs_slicing (ctx, width, height))
+    {
+      return COGL_TEXTURE (
+        cogl_texture_2d_sliced_new_from_bitmap (bitmap,
+                                                COGL_TEXTURE_MAX_WASTE));
+    }
+  else
+    {
+      return COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
+    }
+}
