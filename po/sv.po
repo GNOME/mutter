@@ -1,24 +1,24 @@
 # Swedish messages for mutter.
-# Copyright © 2001-2018 Free Software Foundation, Inc.
+# Copyright © 2001-2019 Free Software Foundation, Inc.
 # Christian Rose <menthos@menthos.com>, 2001, 2002, 2003, 2004, 2005.
 # Daniel Nylander <po@danielnylander.se>, 2006, 2007, 2008, 2009, 2010, 2011, 2012.
 # Mattias Eriksson <snaggen@gmail.com>, 2014.
-# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018.
+# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019.
 # Sebastian Rasmussen <sebras@gmail.com>, 2016.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-07-07 09:58+0000\n"
-"PO-Revision-Date: 2018-08-28 00:39+0200\n"
+"POT-Creation-Date: 2019-02-04 17:52+0000\n"
+"PO-Revision-Date: 2019-02-09 22:14+0100\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.1.1\n"
+"X-Generator: Poedit 2.2.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -523,7 +523,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2325
+#: src/backends/meta-input-settings.c:2423
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Lägesväxel (grupp %d)"
@@ -531,101 +531,108 @@ msgstr "Lägesväxel (grupp %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2348
+#: src/backends/meta-input-settings.c:2446
 msgid "Switch monitor"
 msgstr "Växla skärm"
 
-#: src/backends/meta-input-settings.c:2350
+#: src/backends/meta-input-settings.c:2448
 msgid "Show on-screen help"
 msgstr "Visa hjälp på skärmen"
 
-#: src/backends/meta-monitor-manager.c:907
+#: src/backends/meta-monitor-manager.c:954
 msgid "Built-in display"
 msgstr "Inbyggd display"
 
-#: src/backends/meta-monitor-manager.c:930
+#: src/backends/meta-monitor-manager.c:986
 msgid "Unknown"
 msgstr "Okänd"
 
-#: src/backends/meta-monitor-manager.c:932
+#: src/backends/meta-monitor-manager.c:988
 msgid "Unknown Display"
 msgstr "Okänd display"
 
-#. TRANSLATORS: this is a monitor vendor name, followed by a
-#. * size in inches, like 'Dell 15"'
-#.
-#: src/backends/meta-monitor-manager.c:940
+#: src/backends/meta-monitor-manager.c:996
 #, c-format
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/backends/meta-monitor-manager.c:1004
+#, c-format
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
 msgid "%s %s"
 msgstr "%s %s"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:481
+#: src/compositor/compositor.c:482
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr "En annan kompositionshanterare körs redan på skärm %i på display ”%s”."
 
-#: src/core/bell.c:254
+#: src/core/bell.c:252
 msgid "Bell event"
 msgstr "Ljudsignalhändelse"
 
-#: src/core/main.c:191
+#: src/core/main.c:185
 msgid "Disable connection to session manager"
 msgstr "Inaktivera anslutning till sessionshanteraren"
 
-#: src/core/main.c:197
+#: src/core/main.c:191
 msgid "Replace the running window manager"
 msgstr "Ersätt körande fönsterhanteraren"
 
-#: src/core/main.c:203
+#: src/core/main.c:197
 msgid "Specify session management ID"
 msgstr "Ange sessionshanteringsid"
 
-#: src/core/main.c:208
+#: src/core/main.c:202
 msgid "X Display to use"
 msgstr "X-display att använda"
 
-#: src/core/main.c:214
+#: src/core/main.c:208
 msgid "Initialize session from savefile"
 msgstr "Initiera session från sparandefil"
 
-#: src/core/main.c:220
+#: src/core/main.c:214
 msgid "Make X calls synchronous"
 msgstr "Gör X-anrop synkrona"
 
-#: src/core/main.c:227
+#: src/core/main.c:221
 msgid "Run as a wayland compositor"
 msgstr "Kör som en wayland-kompositionshanterare"
 
-#: src/core/main.c:233
+#: src/core/main.c:227
 msgid "Run as a nested compositor"
 msgstr "Kör som en nästlad kompositionshanterare"
 
-#: src/core/main.c:239
+#: src/core/main.c:233
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Kör wayland-kompositionshanteraren utan att starta Xwayland"
 
-#: src/core/main.c:247
+#: src/core/main.c:241
 msgid "Run as a full display server, rather than nested"
 msgstr "Kör som en full display-tjänst, i stället för nästlad"
 
-#: src/core/main.c:253
+#: src/core/main.c:247
 msgid "Run with X11 backend"
 msgstr "Kör med X11-gränssnitt"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:148
+#: src/core/meta-close-dialog-default.c:150
 #, c-format
 msgid "“%s” is not responding."
 msgstr "”%s” svarar inte."
 
-#: src/core/meta-close-dialog-default.c:150
+#: src/core/meta-close-dialog-default.c:152
 msgid "Application is not responding."
 msgstr "Programmet svarar inte."
 
-#: src/core/meta-close-dialog-default.c:155
+#: src/core/meta-close-dialog-default.c:157
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -633,15 +640,15 @@ msgstr ""
 "Du kan välja att vänta en kort stund på det för att fortsätta eller tvinga "
 "programmet att helt avslutas."
 
-#: src/core/meta-close-dialog-default.c:162
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "_Tvinga avslut"
 
-#: src/core/meta-close-dialog-default.c:162
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "_Vänta"
 
-#: src/core/mutter.c:39
+#: src/core/mutter.c:38
 #, c-format
 msgid ""
 "mutter %s\n"
@@ -656,20 +663,20 @@ msgstr ""
 "Det finns INGA garantier; inte ens för SÄLJBARHET eller LÄMPLIGHET FÖR NÅGOT "
 "SPECIELLT ÄNDAMÅL.\n"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:52
 msgid "Print version"
 msgstr "Skriv ut version"
 
-#: src/core/mutter.c:59
+#: src/core/mutter.c:58
 msgid "Mutter plugin to use"
 msgstr "Mutter-insticksmodul att använda"
 
-#: src/core/prefs.c:1915
+#: src/core/prefs.c:1786
 #, c-format
 msgid "Workspace %d"
 msgstr "Arbetsyta %d"
 
-#: src/core/util.c:120
+#: src/core/util.c:121
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter kompilerades utan stöd för utförligt läge\n"
 
@@ -687,21 +694,21 @@ msgstr ""
 "Display ”%s” har redan en fönsterhanterare; försök med flaggan --replace för "
 "att ersätta den aktuella fönsterhanteraren."
 
-#: src/x11/meta-x11-display.c:1010
+#: src/x11/meta-x11-display.c:1008
 msgid "Failed to initialize GDK\n"
 msgstr "Misslyckades med att initiera GDK\n"
 
-#: src/x11/meta-x11-display.c:1034
+#: src/x11/meta-x11-display.c:1032
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Misslyckades med att öppna X Window System-displayen ”%s”\n"
 
-#: src/x11/meta-x11-display.c:1117
+#: src/x11/meta-x11-display.c:1115
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Skärm %d på display ”%s” är ogiltig\n"
 
-#: src/x11/session.c:1819
+#: src/x11/session.c:1821
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -709,7 +716,7 @@ msgstr ""
 "Dessa fönster saknar stöd för ”spara nuvarande inställningar” och kommer att "
 "behöva startas om manuellt nästa gång du loggar in."
 
-#: src/x11/window-props.c:565
+#: src/x11/window-props.c:568
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
