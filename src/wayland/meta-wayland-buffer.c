@@ -31,6 +31,7 @@
 #include "backends/meta-backend-private.h"
 #include "clutter/clutter.h"
 #include "cogl/cogl-egl.h"
+#include "cogl/cogl-util.h"
 #include "meta/util.h"
 #include "wayland/meta-wayland-dma-buf.h"
 
@@ -227,7 +228,7 @@ shm_buffer_attach (MetaWaylandBuffer *buffer,
                                      stride,
                                      wl_shm_buffer_get_data (shm_buffer));
 
-  texture = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
+  texture = cogl_util_texture_new_from_bitmap (bitmap);
   cogl_texture_set_components (COGL_TEXTURE (texture), components);
 
   cogl_object_unref (bitmap);
