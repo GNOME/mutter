@@ -250,11 +250,10 @@ match_edid (MetaMapperInputInfo  *input,
   else
     {
       char **split;
-      int i = 0;
 
       split = g_strsplit (meta_monitor_get_product (monitor), " ", -1);
 
-      while (split[i])
+      for (int i = 0; split[i]; ++i)
         {
           if (strcasestr (dev_name, split[i]) != NULL)
             {
