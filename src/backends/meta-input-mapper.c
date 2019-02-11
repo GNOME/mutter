@@ -250,7 +250,7 @@ match_edid (MetaMapperInputInfo  *input,
   else
     {
       int i;
-      char **split;
+      g_auto (GStrv) split = NULL;
 
       split = g_strsplit (meta_monitor_get_product (monitor), " ", -1);
 
@@ -262,8 +262,6 @@ match_edid (MetaMapperInputInfo  *input,
               break;
             }
         }
-
-      g_strfreev (split);
     }
 
   return TRUE;
