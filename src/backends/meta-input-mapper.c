@@ -261,6 +261,7 @@ match_edid (MetaMapperInputInfo  *input,
               *match_type = META_MATCH_EDID_PARTIAL;
               break;
             }
+          ++i;
         }
 
       g_strfreev (split);
