@@ -45,14 +45,6 @@ void meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
 					     gboolean           create_mipmaps);
 
 META_EXPORT
-gboolean meta_shaped_texture_update_area (MetaShapedTexture     *stex,
-                                          int                    x,
-                                          int                    y,
-                                          int                    width,
-                                          int                    height,
-                                          cairo_rectangle_int_t *clip);
-
-META_EXPORT
 CoglTexture * meta_shaped_texture_get_texture (MetaShapedTexture *stex);
 
 META_EXPORT
