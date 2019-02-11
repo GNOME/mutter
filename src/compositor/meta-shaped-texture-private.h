@@ -54,4 +54,11 @@ void meta_shaped_texture_set_scale (MetaShapedTexture *stex,
                                     double             scale);
 double meta_shaped_texture_get_scale (MetaShapedTexture *stex);
 
+gboolean meta_shaped_texture_update_area (MetaShapedTexture     *stex,
+                                          int                    x,
+                                          int                    y,
+                                          int                    width,
+                                          int                    height,
+                                          cairo_rectangle_int_t *clip);
+
 #endif
