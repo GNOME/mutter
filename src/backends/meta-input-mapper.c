@@ -249,12 +249,12 @@ match_edid (MetaMapperInputInfo  *input,
     }
   else
     {
+      int i;
       char **split;
-      int i = 0;
 
       split = g_strsplit (meta_monitor_get_product (monitor), " ", -1);
 
-      while (split[i])
+      for (i = 0; split[i]; i++)
         {
           if (strcasestr (dev_name, split[i]) != NULL)
             {
