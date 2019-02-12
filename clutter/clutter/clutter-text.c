@@ -1351,9 +1351,9 @@ clutter_text_set_property (GObject      *gobject,
       {
         const char *str = g_value_get_string (value);
         if (self->priv->use_markup)
-          clutter_text_set_markup_internal (self, str ? str : "");
+          clutter_text_set_markup (self, str);
         else
-          clutter_text_buffer_set_text (get_buffer (self), str ? str : "", -1);
+          clutter_text_set_text (self, str);
       }
       break;
 
@@ -5454,6 +5454,8 @@ clutter_text_set_text (ClutterText *self,
 
   clutter_text_set_use_markup_internal (self, FALSE);
   clutter_text_buffer_set_text (get_buffer (self), text ? text : "", -1);
+
+  clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
 }
 
 /**
@@ -5486,6 +5488,8 @@ clutter_text_set_markup (ClutterText *self,
     clutter_text_set_markup_internal (self, markup);
   else
     clutter_text_buffer_set_text (get_buffer (self), "", 0);
+
+  clutter_actor_queue_relayout (CLUTTER_ACTOR (self));
 }
 
 /**
