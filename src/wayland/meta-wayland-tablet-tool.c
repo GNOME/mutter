@@ -398,8 +398,20 @@ tool_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
 
   /* Reload the cursor texture if the scale has changed. */
   if (logical_monitor)
-    meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
-                                                logical_monitor->scale);
+    {
+      MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_xcursor);
+      float ceiled_scale;
+
+      ceiled_scale = ceilf (logical_monitor->scale);
+      meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
+                                                  (int) ceiled_scale);
+
+      if (meta_is_stage_views_scaled ())
+        meta_cursor_sprite_set_texture_scale (cursor_sprite,
+                                              1.0 / ceiled_scale);
+      else
+        meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0);
+    }
 }
 
 MetaWaylandTabletTool *
