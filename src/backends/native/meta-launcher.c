@@ -231,7 +231,9 @@ get_session_proxy (GCancellable *cancellable,
 
   if (!find_systemd_session (&session_id, &local_error))
     {
-      g_propagate_prefixed_error (error, local_error, "Could not get session ID: ");
+      g_propagate_prefixed_error (error,
+                                  g_steal_pointer (&local_error),
+                                  "Could not get session ID: ");
       return NULL;
     }
 
@@ -465,7 +467,9 @@ get_seat_id (GError **error)
 
   if (!find_systemd_session (&session_id, &local_error))
     {
-      g_propagate_prefixed_error (error, local_error, "Could not get session ID: ");
+      g_propagate_prefixed_error (error,
+                                  g_steal_pointer (&local_error),
+                                  "Could not get session ID: ");
       return NULL;
     }
 
