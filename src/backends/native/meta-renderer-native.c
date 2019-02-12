@@ -1704,7 +1704,6 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaRendererView *view = onscreen_native->view;
   GClosure *flip_closure;
   MetaLogicalMonitor *logical_monitor;
@@ -1728,32 +1727,12 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   /* Either flip the CRTC's of the monitor info, if we are drawing just part
    * of the stage, or all of the CRTC's if we are drawing the whole stage.
    */
+  FlipCrtcData data = {
+    .onscreen = onscreen,
+    .flip_closure = flip_closure,
+  };
   logical_monitor = meta_renderer_view_get_logical_monitor (view);
-  if (logical_monitor)
-    {
-      FlipCrtcData data = {
-        .onscreen = onscreen,
-        .flip_closure = flip_closure,
-      };
-
-      meta_logical_monitor_foreach_crtc (logical_monitor,
-                                         flip_crtc,
-                                         &data);
-      fb_in_use = data.out_fb_in_use;
-    }
-  else
-    {
-      GList *l;
-
-      for (l = meta_gpu_get_crtcs (META_GPU (render_gpu)); l; l = l->next)
-        {
-          MetaCrtc *crtc = l->data;
-
-          meta_onscreen_native_flip_crtc (onscreen, flip_closure,
-                                          crtc, crtc->rect.x, crtc->rect.y,
-                                          &fb_in_use);
-        }
-    }
+  meta_logical_monitor_foreach_crtc (logical_monitor, flip_crtc, &data);
 
   /*
    * If the framebuffer is in use, but we don't have any pending flips it means
