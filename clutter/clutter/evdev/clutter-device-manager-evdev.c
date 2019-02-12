@@ -91,8 +91,7 @@ static const guint32 dangerous_keys[] = {
   126,   /* KEY_RIGHTMETA */
 };
 
-static const gint dangerous_keys_size = sizeof (dangerous_keys) /
-                                        sizeof (dangerous_keys[0]);
+static const gint dangerous_keys_size = G_N_ELEMENTS (dangerous_keys);
 
 typedef struct _ClutterEventFilter ClutterEventFilter;
 
