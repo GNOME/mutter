@@ -60,6 +60,8 @@ struct _MetaBackendNativePrivate
 {
   MetaLauncher *launcher;
   MetaBarrierManagerNative *barrier_manager;
+
+  gboolean is_paused;
 };
 typedef struct _MetaBackendNativePrivate MetaBackendNativePrivate;
 
@@ -332,6 +334,15 @@ meta_backend_native_post_init (MetaBackend *backend)
                                                 NULL, NULL);
   clutter_evdev_set_relative_motion_filter (manager, relative_motion_filter,
                                             meta_backend_get_monitor_manager (backend));
+
+  g_signal_connect (G_OBJECT (backend),
+                    "suspending",
+                    G_CALLBACK (meta_backend_native_pause),
+                    NULL);
+  g_signal_connect (G_OBJECT (backend),
+                    "resuming",
+                    G_CALLBACK (meta_backend_native_resume),
+                    NULL);
 }
 
 static MetaMonitorManager *
@@ -631,11 +642,18 @@ meta_backend_native_pause (MetaBackendNative *native)
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerKms *monitor_manager_kms =
     META_MONITOR_MANAGER_KMS (monitor_manager);
+  MetaBackendNativePrivate *priv =
+    meta_backend_native_get_instance_private (native);
+
+  if (priv->is_paused)
+    return;
 
   clutter_evdev_release_devices ();
   clutter_egl_freeze_master_clock ();
 
   meta_monitor_manager_kms_pause (monitor_manager_kms);
+
+  priv->is_paused = TRUE;
 }
 
 void meta_backend_native_resume (MetaBackendNative *native)
@@ -645,12 +663,17 @@ void meta_backend_native_resume (MetaBackendNative *native)
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerKms *monitor_manager_kms =
     META_MONITOR_MANAGER_KMS (monitor_manager);
+  MetaBackendNativePrivate *priv =
+    meta_backend_native_get_instance_private (native);
   MetaDisplay *display = meta_get_display ();
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   ClutterActor *stage;
   MetaIdleMonitor *idle_monitor;
+
+  if (!priv->is_paused)
+    return;
 
   if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_UNSTABLE_TEXTURES))
     {
@@ -669,4 +692,6 @@ void meta_backend_native_resume (MetaBackendNative *native)
 
   idle_monitor = meta_backend_get_idle_monitor (backend, 0);
   meta_idle_monitor_reset_idletime (idle_monitor);
+
+  priv->is_paused = FALSE;
 }
