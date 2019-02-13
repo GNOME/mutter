@@ -103,21 +103,42 @@ libmutter_cogl_test_conformance = executable('test-conformance',
 )
 
 find_unit_tests = find_program('meson/find-conform-unit-tests.sh')
+test_conform_main = files(join_paths(meson.current_source_dir(), 'test-conform-main.c'))
 cogl_conform_unit_tests = custom_target('cogl-tests-conform-unit-tests',
   output: 'unit-tests',
-  input: 'test-conform-main.c',
+  input: test_conform_main,
   command: [find_unit_tests, '@INPUT@', '@OUTPUT@'],
   install: have_installed_tests,
   install_dir: cogl_installed_tests_libexecdir,
 )
 
-test('conform', cogl_run_tests,
-  suite: ['cogl'],
-  args: [
-    cogl_config_env,
-    libmutter_cogl_test_conformance,
-    cogl_conform_unit_tests
-  ],
-  is_parallel: false,
-  timeout: 120,
-)
+cogl_conformance_tests = run_command(
+  find_unit_tests, test_conform_main, '/dev/stdout'
+).stdout().strip().split('\n')
+
+foreach test_target: cogl_conformance_tests
+  name_parts = []
+  foreach part: test_target.split('_')
+    if part != 'test'
+      name_parts += [part]
+    endif
+  endforeach
+
+  test_name = '-'.join(name_parts)
+  test_file = custom_target(test_target,
+    command: ['echo', test_target],
+    capture: true,
+    output: 'testfile-' + test_name,
+    install: false,
+  )
+
+  test(test_name, cogl_run_tests,
+    suite: ['cogl', 'cogl/conform'],
+    args: [
+      cogl_config_env,
+      libmutter_cogl_test_conformance,
+      test_file
+    ],
+    is_parallel: false,
+  )
+endforeach
