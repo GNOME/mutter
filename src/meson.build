@@ -861,6 +861,6 @@ pkg.generate(libmutter,
 
 subdir('compositor/plugins')
 
-if have_tests 
+if have_core_tests
   subdir('tests')
 endif
