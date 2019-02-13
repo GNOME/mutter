@@ -37,9 +37,6 @@ G_DECLARE_DERIVABLE_TYPE (MetaWindowActor,
                           ClutterActor)
 
 META_EXPORT
-Window             meta_window_actor_get_x_window         (MetaWindowActor *self);
-
-META_EXPORT
 MetaWindow *       meta_window_actor_get_meta_window      (MetaWindowActor *self);
 
 META_EXPORT
