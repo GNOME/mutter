@@ -111,10 +111,16 @@ option('clutter_tests',
   description: 'Enable clutter tests'
 )
 
-option('tests',
+option('core_tests',
   type: 'boolean',
   value: true,
   description: 'Enable mutter tests'
+)
+
+option('tests',
+  type: 'boolean',
+  value: true,
+  description: 'Enable mutter, clutter and cogl tests'
 )
 
 option('installed_tests',
