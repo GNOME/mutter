@@ -1613,6 +1613,7 @@ get_closest_scale_factor_for_resolution (float width,
         {
           float current_scale;
           int offset = i * (j ? 1 : -1);
+
           scaled_w = base_scaled_w + offset;
           current_scale = width / scaled_w;
           scaled_h = height / current_scale;
