@@ -280,14 +280,25 @@ sync_active (MetaLauncher *self)
   gboolean active = login1_session_get_active (LOGIN1_SESSION (self->session_proxy));
 
   if (active == self->session_active)
-    return;
+    {
+      g_warning ("tried to sync activeness when already in sync");
+      return;
+    }
 
+  g_warning ("syncing activeness");
   self->session_active = active;
 
   if (active)
-    meta_backend_native_resume (backend_native);
+    {
+      g_warning ("inactive -> active");
+      meta_backend_native_resume (backend_native);
+    }
   else
-    meta_backend_native_pause (backend_native);
+    {
+      g_warning ("active -> inactive");
+      meta_backend_native_pause (backend_native);
+    }
+  g_warning ("activeness synced");
 }
 
 static void
@@ -296,6 +307,7 @@ on_active_changed (Login1Session *session,
                    gpointer       user_data)
 {
   MetaLauncher *self = user_data;
+  g_warning ("got active changed notification");
   sync_active (self);
 }
 

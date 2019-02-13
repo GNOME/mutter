@@ -611,7 +611,15 @@ inhibit_sleep (MetaBackend *backend)
   int handle, fd;
 
   if (priv->inhibit_sleep_fd >= 0)
-    return;
+    {
+      g_warning ("tried to inhibit suspend when already inhibited");
+
+      if (priv->inhibit_sleep_fd == 0)
+        g_warning ("but, really, something went wrong, the fd is 0");
+      return;
+    }
+
+  g_warning ("inhibiting suspend temporarily");
 
   if (!login1_manager_call_inhibit_sync (priv->logind_proxy,
                                          "sleep",
@@ -645,6 +653,16 @@ uninhibit_sleep (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
+  if (priv->inhibit_sleep_fd < 0)
+    {
+      g_warning ("tried to uninhibit suspend when not inhibited");
+      return;
+    }
+  else if (priv->inhibit_sleep_fd == 0)
+      g_warning ("uninhibiting suspend but suspend fd is 0!");
+  else
+      g_warning ("uninhibiting suspend");
+
   close (priv->inhibit_sleep_fd);
   priv->inhibit_sleep_fd = -1;
 }
@@ -654,14 +672,18 @@ prepare_for_sleep_cb (MetaBackend *backend,
                       gboolean     suspending)
 {
   if (suspending) {
+    g_warning ("preparing to suspend");
     g_signal_emit (backend, signals[SUSPENDING], 0);
+    g_warning ("suspending");
     uninhibit_sleep (backend);
     return;
   }
 
+  g_warning ("preparing to resume");
   inhibit_sleep (backend);
   g_signal_emit (backend, signals[RESUMING], 0);
   meta_idle_monitor_reset_idletime (meta_idle_monitor_get_core ());
+  g_warning ("resuming");
 }
 
 static Login1Manager *

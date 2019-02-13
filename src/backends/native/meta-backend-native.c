@@ -646,7 +646,12 @@ meta_backend_native_pause (MetaBackendNative *native)
     meta_backend_native_get_instance_private (native);
 
   if (priv->is_paused)
-    return;
+    {
+      g_warning ("tried to pause when already paused\n");
+      return;
+    }
+
+  g_warning ("pausing\n");
 
   clutter_evdev_release_devices ();
   clutter_egl_freeze_master_clock ();
@@ -673,13 +678,24 @@ void meta_backend_native_resume (MetaBackendNative *native)
   MetaIdleMonitor *idle_monitor;
 
   if (!priv->is_paused)
-    return;
+    {
+      g_warning ("tried to resume when not paused\n");
+      return;
+    }
+  g_warning ("resuming\n");
 
   if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_UNSTABLE_TEXTURES))
     {
+      g_warning ("purging glphy cache\n");
       clutter_clear_glyph_cache ();
+      g_warning ("refreshing cursor\n");
       meta_screen_update_cursor (display->screen);
+      g_warning ("redrawing window and background textures\n");
       g_signal_emit_by_name (display, "gl-video-memory-purged");
+    }
+  else
+    {
+      g_warning ("gpu doesn't have unstable textures problem, so we're good there\n");
     }
 
   meta_monitor_manager_kms_resume (monitor_manager_kms);
