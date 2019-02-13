@@ -246,15 +246,23 @@ if have_introspection
   ]
 endif
 
-have_cogl_tests = get_option('cogl_tests')
-have_clutter_tests = get_option('clutter_tests')
-have_installed_tests = get_option('installed_tests')
-
 have_tests = get_option('tests')
+have_core_tests = false
+have_cogl_tests = false
+have_clutter_tests = false
+have_installed_tests = false
+
 if have_tests
-  if not have_wayland
-    error('Tests require Wayland to be enabled')
+  have_core_tests = get_option('core_tests')
+  if have_core_tests
+    if not have_wayland
+      error('Tests require Wayland to be enabled')
+    endif
   endif
+
+  have_cogl_tests = get_option('cogl_tests')
+  have_clutter_tests = get_option('clutter_tests')
+  have_installed_tests = get_option('installed_tests')
 endif
 
 required_functions = [
@@ -405,6 +413,7 @@ output = [
   '    Tests:',
   '',
   '        Enabled.................. ' + have_tests.to_string(),
+  '        Core tests............... ' + have_core_tests.to_string(),
   '        Cogl tests............... ' + have_cogl_tests.to_string(),
   '        Clutter tests............ ' + have_clutter_tests.to_string(),
   '        Installed tests.......... ' + have_installed_tests.to_string(),
