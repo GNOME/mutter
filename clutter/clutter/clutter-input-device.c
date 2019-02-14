@@ -1474,6 +1474,25 @@ clutter_input_device_get_axis_value (ClutterInputDevice *device,
 }
 
 /**
+ * clutter_input_device_get_n_sequences:
+ * @device: a #ClutterInputDevice
+ *
+ * Retrieves the number of sequences that are active on the
+ * @device right now.
+ *
+ * Return value: the current number of sequences on the device
+ *
+ * Since: ?
+ */
+guint
+clutter_input_device_get_n_sequences (ClutterInputDevice *device)
+{
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
+
+  return g_hash_table_size (device->touch_sequences_info);
+}
+
+/**
  * clutter_input_device_get_n_axes:
  * @device: a #ClutterInputDevice
  *
