@@ -416,6 +416,7 @@ struct _ClutterTouchEvent
   ClutterModifierType modifier_state;
   gdouble *axes; /* reserved */
   ClutterInputDevice *device;
+  gboolean replayed;
 };
 
 /**
@@ -741,7 +742,8 @@ CLUTTER_EXPORT
 void                    clutter_event_get_scroll_delta          (const ClutterEvent     *event,
                                                                  gdouble                *dx,
                                                                  gdouble                *dy);
-
+CLUTTER_EXPORT
+gboolean                clutter_event_is_replayed               (const ClutterEvent     *event);
 CLUTTER_EXPORT
 ClutterEventSequence *  clutter_event_get_event_sequence        (const ClutterEvent     *event);
 

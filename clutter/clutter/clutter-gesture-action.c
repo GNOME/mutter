@@ -132,6 +132,8 @@ typedef struct
   gint64 last_delta_time;
   gfloat last_delta_x, last_delta_y;
   gfloat release_x, release_y;
+
+  gboolean begin_consumed;
 } GesturePoint;
 
 typedef enum {
@@ -145,6 +147,11 @@ struct _ClutterGestureActionPrivate
 {
   ClutterActor *stage;
   gboolean is_stage_gesture;
+
+  gboolean replay_events;
+  gint64 first_event_time;
+  guint max_replay_delay;
+  GList *event_list;
 
   gint requested_nb_points;
   gboolean exact_n_required;
@@ -162,6 +169,8 @@ enum
 
   PROP_N_TOUCH_POINTS,
   PROP_EXACT_N_REQUIRED,
+  PROP_MAX_REPLAY_DELAY,
+  PROP_REPLAY_EVENTS,
 
   PROP_LAST
 };
@@ -204,6 +213,8 @@ gesture_register_point (ClutterGestureAction *action,
   point->last_delta_x = point->last_delta_y = 0;
   point->last_delta_time = 0;
   point->sequence = clutter_event_get_event_sequence (event);
+
+  point->begin_consumed = FALSE;
 
   if (!priv->is_stage_gesture)
     {
@@ -317,6 +328,77 @@ gesture_point_unset (GesturePoint *point)
 }
 
 static void
+maybe_store_event (ClutterGestureAction *action,
+                   GesturePoint         *point,
+                   const ClutterEvent   *event)
+{
+  ClutterGestureActionPrivate *priv = action->priv;
+  gint64 current_time;
+
+  if (!priv->replay_events)
+    return;
+
+  /* We only want to replay sequences we consumed from the very start */
+  if (!point->begin_consumed)
+    return;
+
+  current_time = g_get_monotonic_time ();
+
+  if (priv->first_event_time == 0)
+    {
+      g_list_free_full (priv->event_list, (GDestroyNotify) clutter_event_free);
+      priv->event_list = NULL;
+
+      priv->first_event_time = current_time;
+    }
+
+  if (priv->first_event_time < (current_time - (priv->max_replay_delay * 1000)))
+    return;
+
+  priv->event_list = g_list_prepend (priv->event_list, clutter_event_copy (event));
+}
+
+static void
+maybe_replay_events (ClutterGestureAction *action)
+{
+  ClutterGestureActionPrivate *priv = action->priv;
+  GList *l;
+  ClutterEvent *event_to_replay;
+  gint64 current_time = g_get_monotonic_time ();
+
+  if (priv->event_list == NULL)
+    return;
+
+  if (priv->first_event_time < (current_time - (priv->max_replay_delay * 1000)))
+    return;
+
+  for (l = g_list_reverse (priv->event_list); l; l = l->next)
+    {
+      event_to_replay = l->data;
+
+      event_to_replay->touch.replayed = TRUE;
+
+      /* We need to use clutter_event_put here instead of putting the event
+       * directly into the stage queue because _clutter_stage_queue_event
+       * would update the input device right now, and if the event we're in
+       * right now is a TOUCH_END event, the sequence we want to replay and its
+       * coordinates will be removed from the input device just after the
+       * handling of this event is done.
+       *
+       * Instead we wait a bit longer using the clutter_event queue, this will
+       * make sure the input device is updated after the sequence is removed
+       * and the input device has valid coordinates while processing the event.
+       */
+      clutter_event_put (event_to_replay);
+    }
+
+  g_list_free (l);
+  g_list_free_full (priv->event_list, (GDestroyNotify) clutter_event_free);
+
+  priv->event_list = NULL;
+}
+
+static void
 cancel_gesture (ClutterGestureAction *action)
 {
   ClutterGestureActionPrivate *priv = action->priv;
@@ -326,6 +408,9 @@ cancel_gesture (ClutterGestureAction *action)
 
   actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
   g_signal_emit (action, gesture_signals[GESTURE_CANCEL], 0, actor);
+
+  if (priv->replay_events)
+    maybe_replay_events (action);
 }
 
 static gboolean
@@ -353,6 +438,7 @@ begin_gesture (ClutterGestureAction *action, gint point)
     }
 
   priv->state = CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED;
+  priv->first_event_time = 0;
 
   return TRUE;
 }
@@ -410,6 +496,12 @@ clutter_gesture_action_eval_event (ClutterGestureAction *action,
 
   event_type = clutter_event_type (event);
 
+  if ((event_type == CLUTTER_TOUCH_BEGIN ||
+       event_type == CLUTTER_TOUCH_UPDATE ||
+       event_type == CLUTTER_TOUCH_END) &&
+      clutter_event_is_replayed (event))
+    return CLUTTER_EVENT_PROPAGATE;
+
   switch (event_type)
     {
     case CLUTTER_BUTTON_PRESS:
@@ -439,6 +531,9 @@ clutter_gesture_action_eval_event (ClutterGestureAction *action,
                     gesture_unregister_point (action, priv->points->len - 1);
                     return CLUTTER_EVENT_PROPAGATE;
                   }
+
+                point->begin_consumed = TRUE;
+                maybe_store_event (action, point, event);
               }
             else
               {
@@ -454,6 +549,8 @@ clutter_gesture_action_eval_event (ClutterGestureAction *action,
             if (priv->points->len == priv->requested_nb_points &&
                 begin_gesture (action, priv->points->len - 1))
               {
+                point->begin_consumed = TRUE;
+                maybe_store_event (action, point, event);
                 return CLUTTER_EVENT_STOP;
               }
           }
@@ -482,6 +579,7 @@ clutter_gesture_action_eval_event (ClutterGestureAction *action,
 
                   if (begin_gesture (action, position))
                     {
+                      maybe_store_event (action, point, event);
                       return CLUTTER_EVENT_STOP;
                     }
                 }
@@ -493,6 +591,8 @@ clutter_gesture_action_eval_event (ClutterGestureAction *action,
                 return CLUTTER_EVENT_PROPAGATE;
 
               gesture_update_motion_point (point, event);
+
+              maybe_store_event (action, point, event);
 
               g_signal_emit (action, gesture_signals[GESTURE_PROGRESS], 0,
                              clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action)), position);
@@ -516,6 +616,8 @@ clutter_gesture_action_eval_event (ClutterGestureAction *action,
 
         if (priv->state == CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
           {
+            maybe_store_event (action, point, event);
+
             if (!priv->exact_n_required)
               {
                 g_signal_emit (action, gesture_signals[TOUCH_REMOVED], 0,
@@ -636,6 +738,14 @@ clutter_gesture_action_set_property (GObject      *gobject,
       clutter_gesture_action_set_exact_n_required (self, g_value_get_boolean (value));
       break;
 
+    case PROP_MAX_REPLAY_DELAY:
+      clutter_gesture_action_set_max_replay_delay (self, g_value_get_uint (value));
+      break;
+
+    case PROP_REPLAY_EVENTS:
+      clutter_gesture_action_set_replay_events (self, g_value_get_boolean (value));
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -658,6 +768,14 @@ clutter_gesture_action_get_property (GObject    *gobject,
 
     case PROP_EXACT_N_REQUIRED:
       g_value_set_boolean (value, self->priv->exact_n_required);
+      break;
+
+    case PROP_MAX_REPLAY_DELAY:
+      g_value_set_uint (value, self->priv->max_replay_delay);
+      break;
+
+    case PROP_REPLAY_EVENTS:
+      g_value_set_boolean (value, self->priv->replay_events);
       break;
 
     default:
@@ -718,6 +836,35 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
                           P_("Exact Number required"),
                           P_("Added or removed points should stop the gesture"),
                           TRUE,
+                          CLUTTER_PARAM_READWRITE);
+
+  /**
+   * ClutterGestureAction:max-replay-delay:
+   *
+   * The maximum delay which replayed events may be delayed by.
+   *
+   * Since: ?
+   */
+  gesture_props[PROP_MAX_REPLAY_DELAY] =
+    g_param_spec_uint ("max-replay-delay",
+                      P_("Maximum replay delay"),
+                      P_("Maximum delay to allow replaying events"),
+                      1, G_MAXUINT, 250,
+                      CLUTTER_PARAM_READWRITE);
+
+  /**
+   * ClutterGestureAction:replay-events:
+   *
+   * Whether the gesture should replay events when it gets
+   * cancelled before max-replay-delay is finished.
+   *
+   * Since: ?
+   */
+  gesture_props[PROP_REPLAY_EVENTS] =
+    g_param_spec_boolean ("replay-events",
+                          P_("Replay Events"),
+                          P_("Replay the consumed events on cancel"),
+                          FALSE,
                           CLUTTER_PARAM_READWRITE);
 
   g_object_class_install_properties (gobject_class,
@@ -879,6 +1026,10 @@ clutter_gesture_action_init (ClutterGestureAction *self)
 
   self->priv->requested_nb_points = 1;
   self->priv->exact_n_required = TRUE;
+
+  self->priv->replay_events = FALSE;
+  self->priv->max_replay_delay = 250;
+
   self->priv->state = CLUTTER_GESTURE_ACTION_STATE_WAITING;
 }
 
@@ -1290,6 +1441,95 @@ clutter_gesture_action_get_last_event (ClutterGestureAction *action,
   gesture_point = &g_array_index (action->priv->points, GesturePoint, point);
 
   return gesture_point->last_event;
+}
+
+/**
+ * clutter_gesture_action_get_max_replay_delay:
+ * @action: a #ClutterGestureAction
+ *
+ * Retrieves the maximum delay where replaying events is allowed.
+ *
+ * Return value: the maximum allowed delay of replayed events (ms).
+ *
+ * Since: ?
+ */
+guint
+clutter_gesture_action_get_max_replay_delay (ClutterGestureAction *action)
+{
+  g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action), 0);
+
+  return action->priv->max_replay_delay;
+}
+
+/**
+ * clutter_gesture_action_set_max_replay_delay:
+ * @action: a #ClutterGestureAction
+ * @delay: a uint
+ *
+ * Sets the maximum delay where replaying events is still allowed.
+ *
+ * Since: ?
+ */
+void
+clutter_gesture_action_set_max_replay_delay (ClutterGestureAction *action,
+                                             guint                 delay)
+{
+  ClutterGestureActionPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
+
+  priv = action->priv;
+
+  if (priv->max_replay_delay == delay)
+    return;
+
+  priv->max_replay_delay = delay;
+
+  g_object_notify_by_pspec (G_OBJECT (action),
+                            gesture_props[PROP_MAX_REPLAY_DELAY]);
+}
+
+/**
+ * clutter_gesture_action_get_replay_events:
+ * @action: a #ClutterGestureAction
+ *
+ * Retrieves if replaying events for cancelled gestures is enabled.
+ *
+ * Return value: %TRUE if the gesture will replay the consumed events after
+ *   it was cancelled.
+ *
+ * Since: ?
+ */
+gboolean
+clutter_gesture_action_get_replay_events (ClutterGestureAction *action)
+{
+  g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action), FALSE);
+
+  return action->priv->replay_events;
+}
+
+/**
+ * clutter_gesture_action_set_replay_events:
+ * @action: a #ClutterGestureAction
+ * @replay_events: a #boolean
+ *
+ * Sets if gestures which were cancelled should replay the consumed
+ * events if max-replay-delay is not over yet.
+ *
+ * Since: ?
+ */
+void
+clutter_gesture_action_set_replay_events (ClutterGestureAction *action,
+                                          gboolean              replay_events)
+{
+  g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
+
+  if (action->priv->replay_events == replay_events)
+    return;
+
+  action->priv->replay_events = replay_events;
+
+  g_object_notify_by_pspec (G_OBJECT (action), gesture_props[PROP_REPLAY_EVENTS]);
 }
 
 /**
