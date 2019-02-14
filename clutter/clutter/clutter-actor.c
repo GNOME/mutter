@@ -5851,6 +5851,18 @@ clutter_actor_get_property (GObject    *object,
       g_value_set_boolean (value, priv->has_pointer);
       break;
 
+    case PROP_ACTIONS:
+      g_value_set_object (value, priv->actions);
+      break;
+
+    case PROP_CONSTRAINTS:
+      g_value_set_object (value, priv->constraints);
+      break;
+
+    case PROP_EFFECT:
+      g_value_set_object (value, priv->effects);
+      break;
+
     case PROP_LAYOUT_MANAGER:
       g_value_set_object (value, priv->layout_manager);
       break;
@@ -7599,7 +7611,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          P_("Actions"),
                          P_("Adds an action to the actor"),
                          CLUTTER_TYPE_ACTION,
-                         CLUTTER_PARAM_WRITABLE);
+                         CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterActor:constraints:
@@ -7613,7 +7625,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          P_("Constraints"),
                          P_("Adds a constraint to the actor"),
                          CLUTTER_TYPE_CONSTRAINT,
-                         CLUTTER_PARAM_WRITABLE);
+                         CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterActor:effect:
@@ -7627,7 +7639,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          P_("Effect"),
                          P_("Add an effect to be applied on the actor"),
                          CLUTTER_TYPE_EFFECT,
-                         CLUTTER_PARAM_WRITABLE);
+                         CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterActor:layout-manager:
