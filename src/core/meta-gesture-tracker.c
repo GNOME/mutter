@@ -94,8 +94,10 @@ meta_gesture_tracker_finalize (GObject *object)
 
   priv = meta_gesture_tracker_get_instance_private (META_GESTURE_TRACKER (object));
 
-  g_hash_table_destroy (priv->sequences);
   g_array_free (priv->stage_gestures, TRUE);
+
+  if (!meta_is_wayland_compositor ())
+    g_hash_table_destroy (priv->sequences);
 
   G_OBJECT_CLASS (meta_gesture_tracker_parent_class)->finalize (object);
 }
@@ -229,8 +231,7 @@ meta_sequence_info_new (MetaGestureTracker *tracker,
   info->sequence = event->touch.sequence;
   info->source_actor = clutter_event_get_source (event);
   info->notified_x11 = FALSE;
-  if (!meta_is_wayland_compositor ())
-    info->autodeny_timeout_id = g_timeout_add (ms, autodeny_sequence, info);
+  info->autodeny_timeout_id = g_timeout_add (ms, autodeny_sequence, info);
 
   clutter_event_get_coords (event, &info->start_x, &info->start_y);
 
@@ -273,13 +274,15 @@ meta_gesture_tracker_init (MetaGestureTracker *tracker)
   MetaGestureTrackerPrivate *priv;
 
   priv = meta_gesture_tracker_get_instance_private (tracker);
-  priv->sequences = g_hash_table_new_full (NULL, NULL, NULL,
-                                           (GDestroyNotify) meta_sequence_info_free);
+
   priv->stage_gestures = g_array_new (FALSE, FALSE, sizeof (ClutterGestureAction*));
   priv->actions_changed_id = 0;
 
   if (!meta_is_wayland_compositor ())
     {
+      priv->sequences = g_hash_table_new_full (NULL, NULL, NULL,
+                                           (GDestroyNotify) meta_sequence_info_free);
+
       MetaDisplay *display = meta_get_display ();
       g_signal_connect_swapped (display, "grab-op-begin",
                       G_CALLBACK (on_grab_op), tracker);
@@ -383,39 +386,44 @@ meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
   if (!sequence)
     return event_is_gesture;
 
-  if (event_type == CLUTTER_TOUCH_BEGIN)
+  if (!meta_is_wayland_compositor ())
     {
-      info = meta_sequence_info_new (tracker, event);
-
-      g_hash_table_insert (priv->sequences, sequence, info);
-
-      if (priv->gesture_in_progress && !meta_is_wayland_compositor ())
-        set_sequence_accepted (info, TRUE);
-    }
-
-  /* On X11, reject the sequence right away if it exceeded the distance threshold. */
-  if ((event_type == CLUTTER_TOUCH_UPDATE) &&
-      !priv->gesture_in_progress &&
-      !meta_is_wayland_compositor ())
-    {
-      info = g_hash_table_lookup (priv->sequences, sequence);
-
-      if (info)
+      if (event_type == CLUTTER_TOUCH_BEGIN)
         {
-          clutter_event_get_coords (event, &x, &y);
+          info = meta_sequence_info_new (tracker, event);
 
-          if ((ABS (info->start_x - x) > DISTANCE_THRESHOLD) ||
-              (ABS (info->start_y - y) > DISTANCE_THRESHOLD))
-            set_sequence_accepted (info, FALSE);
+          g_hash_table_insert (priv->sequences, sequence, info);
+
+          if (priv->gesture_in_progress)
+            set_sequence_accepted (info, TRUE);
         }
-    }
 
-  if (event_type == CLUTTER_TOUCH_END)
-    {
-      info = g_hash_table_lookup (priv->sequences, sequence);
+      /* Reject the sequence right away if it exceeded the distance threshold. */
+      if ((event_type == CLUTTER_TOUCH_UPDATE) &&
+          !priv->gesture_in_progress)
+        {
+          info = g_hash_table_lookup (priv->sequences, sequence);
 
-      if (info)
-        g_hash_table_remove (priv->sequences, sequence);
+          if (info)
+            {
+              clutter_event_get_coords (event, &x, &y);
+
+              if ((ABS (info->start_x - x) > DISTANCE_THRESHOLD) ||
+                  (ABS (info->start_y - y) > DISTANCE_THRESHOLD))
+                set_sequence_accepted (info, FALSE);
+            }
+        }
+
+      if (event_type == CLUTTER_TOUCH_END)
+        {
+          info = g_hash_table_lookup (priv->sequences, sequence);
+
+          if (info)
+            g_hash_table_remove (priv->sequences, sequence);
+        }
+
+      if (event_type == CLUTTER_TOUCH_CANCEL)
+        g_hash_table_remove_all (priv->sequences);
     }
 
   /* Only accept sequences on the first state change.
@@ -443,15 +451,4 @@ meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
     }
 
   return event_is_gesture;
-}
-
-gint
-meta_gesture_tracker_get_n_current_touches (MetaGestureTracker *tracker)
-{
-  MetaGestureTrackerPrivate *priv;
-
-  g_return_val_if_fail (META_IS_GESTURE_TRACKER (tracker), 0);
-
-  priv = meta_gesture_tracker_get_instance_private (tracker);
-  return g_hash_table_size (priv->sequences);
 }

@@ -78,6 +78,8 @@ CLUTTER_EXPORT
 gboolean                clutter_input_device_get_enabled        (ClutterInputDevice  *device);
 
 CLUTTER_EXPORT
+guint                   clutter_input_device_get_n_sequences    (ClutterInputDevice  *device);
+CLUTTER_EXPORT
 guint                   clutter_input_device_get_n_axes         (ClutterInputDevice  *device);
 CLUTTER_EXPORT
 ClutterInputAxis        clutter_input_device_get_axis           (ClutterInputDevice  *device,
