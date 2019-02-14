@@ -33,40 +33,37 @@
 #include "core/meta-gesture-tracker-private.h"
 
 #include "compositor/meta-surface-actor.h"
+#include "meta/compositor-mutter.h"
+#include "meta/util.h"
+#include "core/display-private.h"
 
 #define DISTANCE_THRESHOLD 30
 
 typedef struct _MetaGestureTrackerPrivate MetaGestureTrackerPrivate;
-typedef struct _GestureActionData GestureActionData;
 typedef struct _MetaSequenceInfo MetaSequenceInfo;
 
 struct _MetaSequenceInfo
 {
   MetaGestureTracker *tracker;
   ClutterEventSequence *sequence;
-  MetaSequenceState state;
+  ClutterActor *source_actor;
+  gboolean notified_x11;
   guint autodeny_timeout_id;
   gfloat start_x;
   gfloat start_y;
 };
 
-struct _GestureActionData
-{
-  ClutterGestureAction *gesture;
-  MetaSequenceState state;
-  guint gesture_begin_id;
-  guint gesture_end_id;
-  guint gesture_cancel_id;
-};
-
 struct _MetaGestureTrackerPrivate
 {
   GHashTable *sequences; /* Hashtable of ClutterEventSequence->MetaSequenceInfo */
+  GArray *stage_gestures; /* Array of ClutterGestureAction* */
 
-  MetaSequenceState stage_state;
-  GArray *stage_gestures; /* Array of GestureActionData */
-  GList *listeners; /* List of ClutterGestureAction */
   guint autodeny_timeout;
+  gboolean gesture_in_progress;
+  guint actions_changed_id;
+
+  ClutterActor *window_group;
+  ClutterActor *top_window_group;
 };
 
 enum
@@ -88,8 +85,6 @@ static guint signals[N_SIGNALS] = { 0 };
 
 #define DEFAULT_AUTODENY_TIMEOUT 150
 
-static void meta_gesture_tracker_untrack_stage (MetaGestureTracker *tracker);
-
 G_DEFINE_TYPE_WITH_PRIVATE (MetaGestureTracker, meta_gesture_tracker, G_TYPE_OBJECT)
 
 static void
@@ -101,7 +96,6 @@ meta_gesture_tracker_finalize (GObject *object)
 
   g_hash_table_destroy (priv->sequences);
   g_array_free (priv->stage_gestures, TRUE);
-  g_list_free (priv->listeners);
 
   G_OBJECT_CLASS (meta_gesture_tracker_parent_class)->finalize (object);
 }
@@ -176,15 +170,44 @@ meta_gesture_tracker_class_init (MetaGestureTrackerClass *klass)
                   G_TYPE_NONE, 2, G_TYPE_POINTER, G_TYPE_UINT);
 }
 
+static void
+set_sequence_accepted (MetaSequenceInfo *info, gboolean accepted)
+{
+  MetaGestureTrackerPrivate *priv;
+  priv = meta_gesture_tracker_get_instance_private (info->tracker);
+
+  if (!info->notified_x11)
+    {
+      info->notified_x11 = TRUE;
+
+      /* Only reject sequences when their target actor actually is a window,
+       * all the other actors are part of the shell and get their events
+       * directly from Clutter.
+       */
+      if (!accepted &&
+          !clutter_actor_contains (priv->window_group, info->source_actor) &&
+          !clutter_actor_contains (priv->top_window_group, info->source_actor))
+        return;
+
+      g_signal_emit (info->tracker, signals[STATE_CHANGED], 0, info->sequence, accepted);
+    }
+}
+
 static gboolean
 autodeny_sequence (gpointer user_data)
 {
   MetaSequenceInfo *info = user_data;
+  MetaGestureTrackerPrivate *priv;
 
-  /* Deny the sequence automatically after the given timeout */
-  if (info->state == META_SEQUENCE_NONE)
-    meta_gesture_tracker_set_sequence_state (info->tracker, info->sequence,
-                                             META_SEQUENCE_REJECTED);
+  priv = meta_gesture_tracker_get_instance_private (info->tracker);
+
+  if (priv->gesture_in_progress)
+    {
+      info->autodeny_timeout_id = 0;
+      return G_SOURCE_REMOVE;
+    }
+
+  set_sequence_accepted (info, FALSE);
 
   info->autodeny_timeout_id = 0;
   return G_SOURCE_REMOVE;
@@ -204,8 +227,10 @@ meta_sequence_info_new (MetaGestureTracker *tracker,
   info = g_slice_new0 (MetaSequenceInfo);
   info->tracker = tracker;
   info->sequence = event->touch.sequence;
-  info->state = META_SEQUENCE_NONE;
-  info->autodeny_timeout_id = g_timeout_add (ms, autodeny_sequence, info);
+  info->source_actor = clutter_event_get_source (event);
+  info->notified_x11 = FALSE;
+  if (!meta_is_wayland_compositor ())
+    info->autodeny_timeout_id = g_timeout_add (ms, autodeny_sequence, info);
 
   clutter_event_get_coords (event, &info->start_x, &info->start_y);
 
@@ -218,128 +243,28 @@ meta_sequence_info_free (MetaSequenceInfo *info)
   if (info->autodeny_timeout_id)
     g_source_remove (info->autodeny_timeout_id);
 
-  if (info->state == META_SEQUENCE_NONE)
-    meta_gesture_tracker_set_sequence_state (info->tracker, info->sequence,
-                                             META_SEQUENCE_REJECTED);
+  set_sequence_accepted (info, FALSE);
+
   g_slice_free (MetaSequenceInfo, info);
 }
 
-static gboolean
-state_is_applicable (MetaSequenceState prev_state,
-                     MetaSequenceState state)
-{
-  if (prev_state == META_SEQUENCE_PENDING_END)
-    return FALSE;
-
-  /* Don't allow reverting to none */
-  if (state == META_SEQUENCE_NONE)
-    return FALSE;
-
-  /* PENDING_END state is final */
-  if (prev_state == META_SEQUENCE_PENDING_END)
-    return FALSE;
-
-  /* Sequences must be accepted/denied before PENDING_END */
-  if (prev_state == META_SEQUENCE_NONE &&
-      state == META_SEQUENCE_PENDING_END)
-    return FALSE;
-
-  /* Make sequences stick to their accepted/denied state */
-  if (state != META_SEQUENCE_PENDING_END &&
-      prev_state != META_SEQUENCE_NONE)
-    return FALSE;
-
-  return TRUE;
-}
-
-static gboolean
-meta_gesture_tracker_set_state (MetaGestureTracker *tracker,
-                                MetaSequenceState   state)
-{
-  MetaGestureTrackerPrivate *priv;
-  ClutterEventSequence *sequence;
-  GHashTableIter iter;
-
-  priv = meta_gesture_tracker_get_instance_private (tracker);
-
-  if (priv->stage_state != state &&
-      !state_is_applicable (priv->stage_state, state))
-    return FALSE;
-
-  g_hash_table_iter_init (&iter, priv->sequences);
-  priv->stage_state = state;
-
-  while (g_hash_table_iter_next (&iter, (gpointer*) &sequence, NULL))
-    meta_gesture_tracker_set_sequence_state (tracker, sequence, state);
-
-  return TRUE;
-}
-
-static gboolean
-gesture_begin_cb (ClutterGestureAction *gesture,
-                  ClutterActor         *actor,
-                  MetaGestureTracker   *tracker)
-{
-  MetaGestureTrackerPrivate *priv;
-
-  priv = meta_gesture_tracker_get_instance_private (tracker);
-
-  if (!g_list_find (priv->listeners, gesture) &&
-      meta_gesture_tracker_set_state (tracker, META_SEQUENCE_ACCEPTED))
-    priv->listeners = g_list_prepend (priv->listeners, gesture);
-
-  return TRUE;
-}
-
 static void
-gesture_end_cb (ClutterGestureAction *gesture,
-                ClutterActor         *actor,
-                MetaGestureTracker   *tracker)
+on_grab_op (MetaGestureTracker *tracker)
 {
   MetaGestureTrackerPrivate *priv;
-
-  priv = meta_gesture_tracker_get_instance_private (tracker);
-  priv->listeners = g_list_remove (priv->listeners, gesture);
-
-  if (!priv->listeners)
-    meta_gesture_tracker_untrack_stage (tracker);
-}
-
-static void
-gesture_cancel_cb (ClutterGestureAction *gesture,
-                   ClutterActor         *actor,
-                   MetaGestureTracker   *tracker)
-{
-  MetaGestureTrackerPrivate *priv;
+  gint i;
 
   priv = meta_gesture_tracker_get_instance_private (tracker);
 
-  if (g_list_find (priv->listeners, gesture))
+  for (i = 0; i < priv->stage_gestures->len; i++)
     {
-      priv->listeners = g_list_remove (priv->listeners, gesture);
-
-      if (!priv->listeners)
-        meta_gesture_tracker_set_state (tracker, META_SEQUENCE_PENDING_END);
+      ClutterGestureAction *gesture = g_array_index (priv->stage_gestures, ClutterGestureAction*, i);
+      clutter_gesture_action_reset (gesture);
     }
-}
 
-static gboolean
-cancel_and_unref_gesture_cb (ClutterGestureAction *action)
-{
-  clutter_gesture_action_cancel (action);
-  g_object_unref (action);
-  return G_SOURCE_REMOVE;
-}
+  g_hash_table_remove_all (priv->sequences);
 
-static void
-clear_gesture_data (GestureActionData *data)
-{
-  g_signal_handler_disconnect (data->gesture, data->gesture_begin_id);
-  g_signal_handler_disconnect (data->gesture, data->gesture_end_id);
-  g_signal_handler_disconnect (data->gesture, data->gesture_cancel_id);
-
-  /* Defer cancellation to an idle, as it may happen within event handling */
-  g_idle_add ((GSourceFunc) cancel_and_unref_gesture_cb, data->gesture);
+  priv->gesture_in_progress = FALSE;
 }
 
 static void
@@ -350,8 +275,21 @@ meta_gesture_tracker_init (MetaGestureTracker *tracker)
   priv = meta_gesture_tracker_get_instance_private (tracker);
   priv->sequences = g_hash_table_new_full (NULL, NULL, NULL,
                                            (GDestroyNotify) meta_sequence_info_free);
-  priv->stage_gestures = g_array_new (FALSE, FALSE, sizeof (GestureActionData));
-  g_array_set_clear_func (priv->stage_gestures, (GDestroyNotify) clear_gesture_data);
+  priv->stage_gestures = g_array_new (FALSE, FALSE, sizeof (ClutterGestureAction*));
+  priv->actions_changed_id = 0;
+
+  if (!meta_is_wayland_compositor ())
+    {
+      MetaDisplay *display = meta_get_display ();
+      g_signal_connect_swapped (display, "grab-op-begin",
+                      G_CALLBACK (on_grab_op), tracker);
+
+      g_signal_connect_swapped (display, "grab-op-end",
+                      G_CALLBACK (on_grab_op), tracker);
+
+      priv->window_group = meta_get_window_group_for_display (display);
+      priv->top_window_group = meta_get_top_window_group_for_display (display);
+    }
 }
 
 MetaGestureTracker *
@@ -361,8 +299,9 @@ meta_gesture_tracker_new (void)
 }
 
 static void
-meta_gesture_tracker_track_stage (MetaGestureTracker *tracker,
-                                  ClutterActor       *stage)
+on_actions_changed (ClutterActor       *stage,
+                    GParamSpec         *pspec,
+                    MetaGestureTracker *tracker)
 {
   MetaGestureTrackerPrivate *priv;
   GList *actions, *l;
@@ -370,208 +309,140 @@ meta_gesture_tracker_track_stage (MetaGestureTracker *tracker,
   priv = meta_gesture_tracker_get_instance_private (tracker);
   actions = clutter_actor_get_actions (stage);
 
+  if (priv->stage_gestures->len > 0)
+    g_array_remove_range (priv->stage_gestures, 0, priv->stage_gestures->len);
+
   for (l = actions; l; l = l->next)
     {
-      GestureActionData data;
-
       if (!CLUTTER_IS_GESTURE_ACTION (l->data))
         continue;
 
-      data.gesture = g_object_ref (l->data);
-      data.state = META_SEQUENCE_NONE;
-      data.gesture_begin_id =
-        g_signal_connect (data.gesture, "gesture-begin",
-                          G_CALLBACK (gesture_begin_cb), tracker);
-      data.gesture_end_id =
-        g_signal_connect (data.gesture, "gesture-end",
-                          G_CALLBACK (gesture_end_cb), tracker);
-      data.gesture_cancel_id =
-        g_signal_connect (data.gesture, "gesture-cancel",
-                          G_CALLBACK (gesture_cancel_cb), tracker);
-      g_array_append_val (priv->stage_gestures, data);
+      ClutterGestureAction *gesture = g_object_ref (l->data);
+
+      g_array_append_val (priv->stage_gestures, gesture);
     }
 
   g_list_free (actions);
 }
 
 static void
-meta_gesture_tracker_untrack_stage (MetaGestureTracker *tracker)
+meta_gesture_tracker_track_stage (MetaGestureTracker *tracker,
+                              ClutterActor       *stage)
 {
   MetaGestureTrackerPrivate *priv;
 
   priv = meta_gesture_tracker_get_instance_private (tracker);
-  priv->stage_state = META_SEQUENCE_NONE;
 
-  g_hash_table_remove_all (priv->sequences);
-
-  if (priv->stage_gestures->len > 0)
-    g_array_remove_range (priv->stage_gestures, 0, priv->stage_gestures->len);
-
-  g_list_free (priv->listeners);
-  priv->listeners = NULL;
+  priv->actions_changed_id = g_signal_connect (stage, "notify::actions",
+                                               G_CALLBACK (on_actions_changed), tracker);
+  on_actions_changed (stage, NULL, tracker);
 }
 
 gboolean
 meta_gesture_tracker_handle_event (MetaGestureTracker *tracker,
-				   const ClutterEvent *event)
+				                           const ClutterEvent *event)
 {
   MetaGestureTrackerPrivate *priv;
   ClutterEventSequence *sequence;
-  MetaSequenceState state;
+  gint i;
   MetaSequenceInfo *info;
-  ClutterActor *stage;
   gfloat x, y;
+  GHashTableIter iter;
+  ClutterEventType event_type;
+  gboolean event_is_gesture = FALSE;
+  priv = meta_gesture_tracker_get_instance_private (tracker);
+
+  gboolean gesture_was_in_progress = priv->gesture_in_progress;
+
+  if (priv->actions_changed_id == 0)
+    meta_gesture_tracker_track_stage (tracker, CLUTTER_ACTOR (clutter_event_get_stage (event)));
+
+  event_type = clutter_event_type (event);
+
+  if (event_type != CLUTTER_TOUCH_BEGIN &&
+      event_type != CLUTTER_TOUCH_UPDATE &&
+      event_type != CLUTTER_TOUCH_END &&
+      event_type != CLUTTER_TOUCH_CANCEL)
+    return FALSE;
+
+  for (i = 0; i < priv->stage_gestures->len; i++)
+    {
+      ClutterGestureAction *gesture = g_array_index (priv->stage_gestures, ClutterGestureAction*, i);
+
+      if (clutter_gesture_action_eval_event (gesture, event) == CLUTTER_EVENT_STOP)
+        event_is_gesture = TRUE;
+    }
+
+  priv->gesture_in_progress = event_is_gesture;
 
   sequence = clutter_event_get_event_sequence (event);
 
+  /* From here on it's mostly sequence tracking for X11 support,
+   * no need to do this with mouse events.
+   */
   if (!sequence)
-    return FALSE;
+    return event_is_gesture;
 
-  priv = meta_gesture_tracker_get_instance_private (tracker);
-  stage = CLUTTER_ACTOR (clutter_event_get_stage (event));
-
-  switch (event->type)
+  if (event_type == CLUTTER_TOUCH_BEGIN)
     {
-    case CLUTTER_TOUCH_BEGIN:
-      if (g_hash_table_size (priv->sequences) == 0)
-        meta_gesture_tracker_track_stage (tracker, stage);
-
       info = meta_sequence_info_new (tracker, event);
+
       g_hash_table_insert (priv->sequences, sequence, info);
 
-      if (priv->stage_gestures->len == 0)
-        {
-          /* If no gestures are attached, reject the sequence right away */
-          meta_gesture_tracker_set_sequence_state (tracker, sequence,
-                                                   META_SEQUENCE_REJECTED);
-        }
-      else if (priv->stage_state != META_SEQUENCE_NONE)
-        {
-          /* Make the sequence state match the general state */
-          meta_gesture_tracker_set_sequence_state (tracker, sequence,
-                                                   priv->stage_state);
-        }
-      state = info->state;
-      break;
-    case CLUTTER_TOUCH_END:
-      info = g_hash_table_lookup (priv->sequences, sequence);
-
-      if (!info)
-        return FALSE;
-
-      /* If nothing was done yet about the sequence, reject it so X11
-       * clients may see it
-       */
-      if (info->state == META_SEQUENCE_NONE)
-        meta_gesture_tracker_set_sequence_state (tracker, sequence,
-                                                 META_SEQUENCE_REJECTED);
-
-      state = info->state;
-      g_hash_table_remove (priv->sequences, sequence);
-
-      if (g_hash_table_size (priv->sequences) == 0)
-        meta_gesture_tracker_untrack_stage (tracker);
-      break;
-    case CLUTTER_TOUCH_UPDATE:
-      info = g_hash_table_lookup (priv->sequences, sequence);
-
-      if (!info)
-        return FALSE;
-
-      clutter_event_get_coords (event, &x, &y);
-
-      if (info->state == META_SEQUENCE_NONE &&
-          (ABS (info->start_x - x) > DISTANCE_THRESHOLD ||
-           ABS (info->start_y - y) > DISTANCE_THRESHOLD))
-        meta_gesture_tracker_set_sequence_state (tracker, sequence,
-                                                 META_SEQUENCE_REJECTED);
-      state = info->state;
-      break;
-    default:
-      return FALSE;
-      break;
+      if (priv->gesture_in_progress && !meta_is_wayland_compositor ())
+        set_sequence_accepted (info, TRUE);
     }
 
-  /* As soon as a sequence is accepted, we replay it to
-   * the stage as a captured event, and make sure it's never
-   * propagated anywhere else. Since ClutterGestureAction does
-   * all its event handling from a captured-event handler on
-   * the stage, this effectively acts as a "sequence grab" on
-   * gesture actions.
-   *
-   * Sequences that aren't (yet or never) in an accepted state
-   * will go through, these events will get processed through
-   * the compositor, and eventually through clutter, still
-   * triggering the gestures capturing events on the stage, and
-   * possibly resulting in MetaSequenceState changes.
+  /* On X11, reject the sequence right away if it exceeded the distance threshold. */
+  if ((event_type == CLUTTER_TOUCH_UPDATE) &&
+      !priv->gesture_in_progress &&
+      !meta_is_wayland_compositor ())
+    {
+      info = g_hash_table_lookup (priv->sequences, sequence);
+
+      if (info)
+        {
+          clutter_event_get_coords (event, &x, &y);
+
+          if ((ABS (info->start_x - x) > DISTANCE_THRESHOLD) ||
+              (ABS (info->start_y - y) > DISTANCE_THRESHOLD))
+            set_sequence_accepted (info, FALSE);
+        }
+    }
+
+  if (event_type == CLUTTER_TOUCH_END)
+    {
+      info = g_hash_table_lookup (priv->sequences, sequence);
+
+      if (info)
+        g_hash_table_remove (priv->sequences, sequence);
+    }
+
+  /* Only accept sequences on the first state change.
+   * We don't reject gestures here at all because we have to be able
+   * to handle a situation like this:
+   *  -> three-finger gesture was accepted
+   *  -> fourth finger is added, now three finger gesture is rejected
+   *     (together with the sequences)
+   *  -> four-finger gesture would be accepted after some movement,
+   *     but sequences are already gone
    */
-  if (state == META_SEQUENCE_ACCEPTED)
+  if ((gesture_was_in_progress != priv->gesture_in_progress) &&
+      priv->gesture_in_progress)
     {
-      clutter_actor_event (CLUTTER_ACTOR (clutter_event_get_stage (event)),
-                           event, TRUE);
-      return TRUE;
+      if (meta_is_wayland_compositor ())
+        {
+          g_signal_emit (tracker, signals[STATE_CHANGED], 0, NULL, 1);
+        }
+      else
+        {
+          g_hash_table_iter_init (&iter, priv->sequences);
+          while (g_hash_table_iter_next (&iter, (gpointer *) &sequence, (gpointer *) &info))
+            set_sequence_accepted (info, TRUE);
+        }
     }
 
-  return FALSE;
-}
-
-gboolean
-meta_gesture_tracker_set_sequence_state (MetaGestureTracker   *tracker,
-                                         ClutterEventSequence *sequence,
-                                         MetaSequenceState     state)
-{
-  MetaGestureTrackerPrivate *priv;
-  MetaSequenceInfo *info;
-
-  g_return_val_if_fail (META_IS_GESTURE_TRACKER (tracker), FALSE);
-
-  priv = meta_gesture_tracker_get_instance_private (tracker);
-  info = g_hash_table_lookup (priv->sequences, sequence);
-
-  if (!info)
-    return FALSE;
-  else if (state == info->state)
-    return TRUE;
-
-  if (!state_is_applicable (info->state, state))
-    return FALSE;
-
-  /* Unset autodeny timeout */
-  if (info->autodeny_timeout_id)
-    {
-      g_source_remove (info->autodeny_timeout_id);
-      info->autodeny_timeout_id = 0;
-    }
-
-  info->state = state;
-  g_signal_emit (tracker, signals[STATE_CHANGED], 0, sequence, info->state);
-
-  /* If the sequence was denied, set immediately to PENDING_END after emission */
-  if (state == META_SEQUENCE_REJECTED)
-    {
-      info->state = META_SEQUENCE_PENDING_END;
-      g_signal_emit (tracker, signals[STATE_CHANGED], 0, sequence, info->state);
-    }
-
-  return TRUE;
-}
-
-MetaSequenceState
-meta_gesture_tracker_get_sequence_state (MetaGestureTracker   *tracker,
-                                         ClutterEventSequence *sequence)
-{
-  MetaGestureTrackerPrivate *priv;
-  MetaSequenceInfo *info;
-
-  g_return_val_if_fail (META_IS_GESTURE_TRACKER (tracker), META_SEQUENCE_PENDING_END);
-
-  priv = meta_gesture_tracker_get_instance_private (tracker);
-  info = g_hash_table_lookup (priv->sequences, sequence);
-
-  if (!info)
-    return META_SEQUENCE_PENDING_END;
-
-  return info->state;
+  return event_is_gesture;
 }
 
 gint
