@@ -2251,7 +2251,7 @@ window_state_on_map (MetaWindow *window,
   /* don't initially focus windows that are intended to not accept
    * focus
    */
-  if (!meta_window_is_focusable (window))
+  if (!meta_window_is_focusable (window) || window->unmanaging)
     {
       *takes_focus = FALSE;
       return;
