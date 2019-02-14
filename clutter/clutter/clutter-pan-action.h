@@ -37,7 +37,7 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <clutter/clutter-gesture-action.h>
+#include <clutter/clutter-trigger-action.h>
 
 G_BEGIN_DECLS
 
@@ -63,7 +63,7 @@ typedef struct _ClutterPanActionClass         ClutterPanActionClass;
 struct _ClutterPanAction
 {
   /*< private >*/
-  ClutterGestureAction parent_instance;
+  ClutterTriggerAction parent_instance;
 
   ClutterPanActionPrivate *priv;
 };
@@ -81,7 +81,7 @@ struct _ClutterPanAction
 struct _ClutterPanActionClass
 {
   /*< private >*/
-  ClutterGestureActionClass parent_class;
+  ClutterTriggerActionClass parent_class;
 
   /*< public >*/
   gboolean (* pan)               (ClutterPanAction    *action,
