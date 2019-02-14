@@ -170,24 +170,6 @@ CLUTTER_EXPORT
 gboolean               clutter_gesture_action_eval_event           (ClutterGestureAction *action,
                                                                     const ClutterEvent   *event);
 
-CLUTTER_EXPORT
-void                            clutter_gesture_action_set_threshold_trigger_edge       (ClutterGestureAction      *action,
-                                                                                         ClutterGestureTriggerEdge  edge);
-CLUTTER_DEPRECATED_FOR(clutter_gesture_action_get_threshold_trigger_edge)
-ClutterGestureTriggerEdge       clutter_gesture_action_get_threshold_trigger_egde       (ClutterGestureAction      *action);
-CLUTTER_EXPORT
-ClutterGestureTriggerEdge       clutter_gesture_action_get_threshold_trigger_edge       (ClutterGestureAction      *action);
-
-CLUTTER_EXPORT
-void                            clutter_gesture_action_set_threshold_trigger_distance   (ClutterGestureAction      *action,
-                                                                                         float                      x,
-                                                                                         float                      y);
-
-CLUTTER_EXPORT
-void                            clutter_gesture_action_get_threshold_trigger_distance   (ClutterGestureAction *action,
-                                                                                         float                *x,
-                                                                                         float                *y);
-
 G_END_DECLS
 
 #endif /* __CLUTTER_GESTURE_ACTION_H__ */
