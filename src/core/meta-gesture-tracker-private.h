@@ -59,6 +59,5 @@ MetaGestureTracker * meta_gesture_tracker_new                (void);
 
 gboolean             meta_gesture_tracker_handle_event       (MetaGestureTracker   *tracker,
                                                               const ClutterEvent   *event);
-gint                 meta_gesture_tracker_get_n_current_touches (MetaGestureTracker *tracker);
 
 #endif /* META_GESTURE_TRACKER_PRIVATE_H */
