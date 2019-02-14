@@ -39,9 +39,6 @@ struct _MetaGpuClass
 };
 
 META_EXPORT_TEST
-const char * meta_gpu_get_kms_file_path (MetaGpu *gpu);
-
-META_EXPORT_TEST
 gboolean meta_gpu_read_current (MetaGpu  *gpu,
                                 GError  **error);
 
