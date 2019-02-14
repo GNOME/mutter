@@ -84,7 +84,8 @@ emit_tap (ClutterTapAction *self,
 
 static void
 gesture_end (ClutterGestureAction *gesture,
-             ClutterActor         *actor)
+             ClutterActor         *actor,
+             gint                  point)
 {
   emit_tap (CLUTTER_TAP_ACTION (gesture), actor);
 }

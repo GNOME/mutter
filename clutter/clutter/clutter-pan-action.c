@@ -224,7 +224,8 @@ on_deceleration_new_frame (ClutterTimeline     *timeline,
 
 static gboolean
 gesture_prepare (ClutterGestureAction  *gesture,
-                 ClutterActor          *actor)
+                 ClutterActor          *actor,
+                 gint                   point)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (gesture);
   ClutterPanActionPrivate *priv = self->priv;
@@ -237,7 +238,8 @@ gesture_prepare (ClutterGestureAction  *gesture,
 
 static gboolean
 gesture_begin (ClutterGestureAction  *gesture,
-               ClutterActor          *actor)
+               ClutterActor          *actor,
+               gint                   point)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (gesture);
   ClutterPanActionPrivate *priv = self->priv;
@@ -250,15 +252,14 @@ gesture_begin (ClutterGestureAction  *gesture,
   return TRUE;
 }
 
-static gboolean
+static void
 gesture_progress (ClutterGestureAction *gesture,
-                  ClutterActor         *actor)
+                  ClutterActor         *actor,
+                  gint                  point)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (gesture);
 
   emit_pan (self, actor, FALSE);
-
-  return TRUE;
 }
 
 static void
@@ -273,7 +274,8 @@ gesture_cancel (ClutterGestureAction *gesture,
 
 static void
 gesture_end (ClutterGestureAction *gesture,
-             ClutterActor         *actor)
+             ClutterActor         *actor,
+             gint                  point)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (gesture);
   ClutterPanActionPrivate *priv = self->priv;

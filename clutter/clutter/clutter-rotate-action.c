@@ -77,7 +77,8 @@ clutter_rotate_action_real_rotate (ClutterRotateAction *action,
 
 static gboolean
 clutter_rotate_action_gesture_begin (ClutterGestureAction  *action,
-                                     ClutterActor          *actor)
+                                     ClutterActor          *actor,
+                                     gint                   point)
 {
   ClutterRotateActionPrivate *priv = CLUTTER_ROTATE_ACTION (action)->priv;
   gfloat p1[2], p2[2];
@@ -98,9 +99,10 @@ clutter_rotate_action_gesture_begin (ClutterGestureAction  *action,
   return TRUE;
 }
 
-static gboolean
+static void
 clutter_rotate_action_gesture_progress (ClutterGestureAction *action,
-                                        ClutterActor         *actor)
+                                        ClutterActor         *actor,
+                                        gint                  point)
 {
   ClutterRotateActionPrivate *priv = CLUTTER_ROTATE_ACTION (action)->priv;
   gfloat p1[2], p2[2];
@@ -155,8 +157,6 @@ clutter_rotate_action_gesture_progress (ClutterGestureAction *action,
                      actor, angle,
                      &retval);
     }
-
-  return TRUE;
 }
 
 static void

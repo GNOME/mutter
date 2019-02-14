@@ -69,7 +69,8 @@ G_DEFINE_TYPE_WITH_PRIVATE (ClutterSwipeAction, clutter_swipe_action, CLUTTER_TY
 
 static gboolean
 gesture_begin (ClutterGestureAction  *action,
-               ClutterActor          *actor)
+               ClutterActor          *actor,
+               gint                   point)
 {
   ClutterSwipeActionPrivate *priv = CLUTTER_SWIPE_ACTION (action)->priv;
 
@@ -85,9 +86,10 @@ gesture_begin (ClutterGestureAction  *action,
   return TRUE;
 }
 
-static gboolean
+static void
 gesture_progress (ClutterGestureAction *action,
-                  ClutterActor         *actor)
+                  ClutterActor         *actor,
+                  gint                  point)
 {
   ClutterSwipeActionPrivate *priv = CLUTTER_SWIPE_ACTION (action)->priv;
   gfloat press_x, press_y;
@@ -126,17 +128,16 @@ gesture_progress (ClutterGestureAction *action,
     priv->v_direction = v_direction;
 
   if (priv->h_direction != h_direction)
-    return FALSE;
+    clutter_gesture_action_cancel (action);
 
   if (priv->v_direction != v_direction)
-    return FALSE;
-
-  return TRUE;
+    clutter_gesture_action_cancel (action);
 }
 
 static void
 gesture_end (ClutterGestureAction *action,
-             ClutterActor         *actor)
+             ClutterActor         *actor,
+             gint                  point)
 {
   ClutterSwipeActionPrivate *priv = CLUTTER_SWIPE_ACTION (action)->priv;
   gfloat press_x, press_y;
