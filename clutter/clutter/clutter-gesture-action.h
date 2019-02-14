@@ -128,6 +128,17 @@ CLUTTER_EXPORT
 void                   clutter_gesture_action_set_exact_n_required (ClutterGestureAction *action,
                                                                     gint                  exact_n_required);
 CLUTTER_EXPORT
+guint                  clutter_gesture_action_get_max_replay_delay (ClutterGestureAction *action);
+CLUTTER_EXPORT
+void                   clutter_gesture_action_set_max_replay_delay (ClutterGestureAction *action,
+                                                                    guint                 delay);
+CLUTTER_EXPORT
+gboolean               clutter_gesture_action_get_replay_events    (ClutterGestureAction *action);
+CLUTTER_EXPORT
+void                   clutter_gesture_action_set_replay_events    (ClutterGestureAction *action,
+                                                                    gboolean              replay_events);
+
+CLUTTER_EXPORT
 void                   clutter_gesture_action_get_press_coords     (ClutterGestureAction *action,
                                                                     guint                 point,
                                                                     gfloat               *press_x,
