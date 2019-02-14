@@ -8529,9 +8529,6 @@ meta_window_shortcuts_inhibited (MetaWindow         *window,
 gboolean
 meta_window_is_focusable (MetaWindow *window)
 {
-  if (window->unmanaging)
-    return FALSE;
-
   return META_WINDOW_GET_CLASS (window)->is_focusable (window);
 }
 
