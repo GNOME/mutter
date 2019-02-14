@@ -27,11 +27,11 @@
 /**
  * SECTION:clutter-gesture-action
  * @Title: ClutterGestureAction
- * @Short_Description: Action for gesture gestures
+ * @Short_Description: Action for touch and mouse gestures
  *
- * #ClutterGestureAction is a sub-class of #ClutterAction that implements
- * the logic for recognizing gesture gestures. It listens for low level events
- * such as #ClutterButtonEvent and #ClutterMotionEvent on the stage to raise
+ * #ClutterGestureAction is a sub-class of #ClutterAction that implements the
+ * logic for recognizing touch and mouse gestures. It listens for low level events
+ * such as #ClutterButtonEvent, #ClutterMotionEvent and #ClutterTouchEvent to raise
  * the #ClutterGestureAction::gesture-begin, #ClutterGestureAction::gesture-progress,
  * and #ClutterGestureAction::gesture-end signals.
  *
@@ -46,39 +46,62 @@
  *   g_signal_connect (action, "gesture-begin", G_CALLBACK (on_gesture_begin), NULL);
  *   g_signal_connect (action, "gesture-progress", G_CALLBACK (on_gesture_progress), NULL);
  *   g_signal_connect (action, "gesture-end", G_CALLBACK (on_gesture_end), NULL);
+ *   g_signal_connect (action, "gesture-cancel", G_CALLBACK (on_gesture_cancel), NULL);
  * ]|
  *
  * ## Creating Gesture actions
  *
- * A #ClutterGestureAction provides four separate states that can be
- * used to recognize or ignore gestures when writing a new action class:
+ * A #ClutterGestureAction uses four separate states to differentiate between the
+ * phases of gesture recognition. Those states also define whether to block or
+ * allow event delivery:
  *
- *  - Prepare -> Cancel
- *  - Prepare -> Begin -> Cancel
- *  - Prepare -> Begin -> End
- *  - Prepare -> Begin -> Progress -> Cancel
- *  - Prepare -> Begin -> Progress -> End
+ * - Waiting: In this state the gesture has not been recognized yet, all events
+ *   get propagated until the gesture has begun. Gesture detection always starts in
+ *   this state as soon as the first touchpoint or click is detected.
  *
- * Each #ClutterGestureAction starts in the "prepare" state, and calls
- * the #ClutterGestureActionClass.gesture_prepare() virtual function; this
- * state can be used to reset the internal state of a #ClutterGestureAction
- * subclass, but it can also immediately cancel a gesture without going
- * through the rest of the states.
+ * - Recognized: The gesture is being recognized, delivery of all touch and
+ *   pointer events is stopped.
  *
- * The "begin" state follows the "prepare" state, and calls the
- * #ClutterGestureActionClass.gesture_begin() virtual function. This state
- * signals the start of a gesture recognizing process. From the "begin" state
- * the gesture recognition process can successfully end, by going to the
- * "end" state; it can continue in the "progress" state, in case of a
- * continuous gesture; or it can be terminated, by moving to the "cancel"
- * state.
+ * - Ended: The gesture was sucessfully recognized and has ended, delivery of
+ *   events that belong to existing points is stopped, events that belong to points
+ *   added after the gesture has ended are propagated.
  *
- * In case of continuous gestures, the #ClutterGestureAction will use
- * the "progress" state, calling the #ClutterGestureActionClass.gesture_progress()
- * virtual function; the "progress" state will continue until the end of the
- * gesture, in which case the "end" state will be reached, or until the
- * gesture is cancelled, in which case the "cancel" gesture will be used
- * instead.
+ * - Cancelled: The gesture was either not started at all because preconditions
+ *   defined by the implementation were not fulfilled or it was cancelled while
+ *   being recognized. In this state, all events are propagated.
+ *
+ *
+ * The state can be set in the following sequences:
+ *
+ * - Waiting -> Recognized -> Ended
+ * - Waiting -> Recognized -> Cancelled
+ * - Waiting -> Cancelled
+ *
+ * Each #ClutterGestureAction starts in the "waiting" state and calls the
+ * #ClutterGestureActionClass.gesture_prepare() virtual function as soon as the
+ * required number of points is fulfilled; this function can be used to check
+ * if the gesture should be started at this exact moment or later during the
+ * user interaction. Returning FALSE will cause the gesture action to just ignore
+ * the event while remaining in the "waiting" state, so every following event
+ * will still call #ClutterGestureActionClass.gesture_prepare().
+ *
+ * If #ClutterGestureActionClass.gesture_prepare() returned TRUE, the "gesture-begin"
+ * signal gets emitted. Now a return value of FALSE will cancel the recognition
+ * process by setting the state to "cancelled" and only allow beginning the gesture
+ * again after all touchpoints or buttons have been released.
+ *
+ * If both virtual functions and signals returned TRUE, the #ClutterGestureAction
+ * will switch to the "recognized" state. In this state the "gesture-progress" signal
+ * gets emitted on every motion or touch-update event; a return value of FALSE
+ * for this signal means that gesture recognition is finished; the "gesture-end"
+ * signal gets emitted and the state is set to "ended".
+ *
+ * The "gesture-end" signal also gets emitted together with a state change to "ended"
+ * if the number of points drops below the required number.
+
+ * Gesture recognition can always be cancelled while it's in the "recognized" state
+ * using #clutter-gesture-action-cancel. This sets the state to "cancelled" and
+ * emits the "gesture-cancel" signal.
  *
  * Since: 1.8
  */
@@ -111,20 +134,28 @@ typedef struct
   gfloat release_x, release_y;
 } GesturePoint;
 
+typedef enum {
+  CLUTTER_GESTURE_ACTION_STATE_WAITING,
+  CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED,
+  CLUTTER_GESTURE_ACTION_STATE_ENDED,
+  CLUTTER_GESTURE_ACTION_STATE_CANCELLED
+} ClutterGestureActionState;
+
 struct _ClutterGestureActionPrivate
 {
   ClutterActor *stage;
+  gboolean is_stage_gesture;
 
   gint requested_nb_points;
   GArray *points;
 
-  guint actor_capture_id;
-  gulong stage_capture_id;
+  guint actor_event_id;
+  guint mapped_changed_id;
 
   ClutterGestureTriggerEdge edge;
   float distance_x, distance_y;
 
-  guint in_gesture : 1;
+  ClutterGestureActionState state;
 };
 
 enum
@@ -155,13 +186,11 @@ static guint gesture_signals[LAST_SIGNAL] = { 0, };
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterGestureAction, clutter_gesture_action, CLUTTER_TYPE_ACTION)
 
 static GesturePoint *
-gesture_register_point (ClutterGestureAction *action, ClutterEvent *event)
+gesture_register_point (ClutterGestureAction *action,
+                        const ClutterEvent *event)
 {
   ClutterGestureActionPrivate *priv = action->priv;
   GesturePoint *point = NULL;
-
-  if (priv->points->len >= MAX_GESTURE_POINTS)
-    return NULL;
 
   g_array_set_size (priv->points, priv->points->len + 1);
   point = &g_array_index (priv->points, GesturePoint, priv->points->len - 1);
@@ -176,31 +205,33 @@ gesture_register_point (ClutterGestureAction *action, ClutterEvent *event)
 
   point->last_delta_x = point->last_delta_y = 0;
   point->last_delta_time = 0;
+  point->sequence = clutter_event_get_event_sequence (event);
 
-  if (clutter_event_type (event) != CLUTTER_BUTTON_PRESS)
-    point->sequence = clutter_event_get_event_sequence (event);
-  else
-    point->sequence = NULL;
+  if (!priv->is_stage_gesture)
+    {
+      if (point->sequence != NULL)
+        clutter_input_device_sequence_grab (point->device, point->sequence,
+                                            clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action)));
+      else
+        clutter_input_device_grab (point->device,
+                                   clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action)));
+    }
 
   return point;
 }
 
 static GesturePoint *
 gesture_find_point (ClutterGestureAction *action,
-                    ClutterEvent *event,
+                    const ClutterEvent *event,
                     gint *position)
 {
   ClutterGestureActionPrivate *priv = action->priv;
   GesturePoint *point = NULL;
-  ClutterEventType type = clutter_event_type (event);
   ClutterInputDevice *device = clutter_event_get_device (event);
-  ClutterEventSequence *sequence = NULL;
+  ClutterEventSequence *sequence;
   gint i;
 
-  if ((type != CLUTTER_BUTTON_PRESS) &&
-      (type != CLUTTER_BUTTON_RELEASE) &&
-      (type != CLUTTER_MOTION))
-    sequence = clutter_event_get_event_sequence (event);
+  sequence = clutter_event_get_event_sequence (event);
 
   for (i = 0; i < priv->points->len; i++)
     {
@@ -222,21 +253,34 @@ gesture_unregister_point (ClutterGestureAction *action, gint position)
 {
   ClutterGestureActionPrivate *priv = action->priv;
 
-  if (action->priv->points->len == 0)
+  if (priv->points->len == 0)
     return;
 
+  GesturePoint *point = &g_array_index (priv->points, GesturePoint, position);
+
+  if (!priv->is_stage_gesture)
+    {
+      if (point->sequence != NULL)
+        clutter_input_device_sequence_ungrab (point->device, point->sequence);
+      else
+        clutter_input_device_ungrab (point->device);
+    }
+
   g_array_remove_index (priv->points, position);
+
+  /* No more fingers on screen, reset state and disconnect stage event handler. */
+  if (priv->points->len == 0)
+    priv->state = CLUTTER_GESTURE_ACTION_STATE_WAITING;
 }
 
 static void
 gesture_update_motion_point (GesturePoint *point,
-                             ClutterEvent *event)
+                             const ClutterEvent *event)
 {
   gfloat motion_x, motion_y;
   gint64 _time;
 
   clutter_event_get_coords (event, &motion_x, &motion_y);
-
   clutter_event_free (point->last_event);
   point->last_event = clutter_event_copy (event);
 
@@ -252,7 +296,7 @@ gesture_update_motion_point (GesturePoint *point,
 
 static void
 gesture_update_release_point (GesturePoint *point,
-                              ClutterEvent *event)
+                              const ClutterEvent *event)
 {
   gint64 _time;
 
@@ -264,8 +308,8 @@ gesture_update_release_point (GesturePoint *point,
   /* Treat the release event as the continuation of the last motion,
    * in case the user keeps the pointer still for a while before
    * releasing it. */
-   _time = clutter_event_get_time (event);
-   point->last_delta_time += _time - point->last_motion_time;
+  _time = clutter_event_get_time (event);
+  point->last_delta_time += _time - point->last_motion_time;
 }
 
 static gint
@@ -280,12 +324,13 @@ gesture_get_default_threshold (void)
 static gboolean
 gesture_point_pass_threshold (ClutterGestureAction *action,
                               GesturePoint         *point,
-                              ClutterEvent         *event)
+                              const ClutterEvent   *event)
 {
   float threshold_x, threshold_y;
   gfloat motion_x, motion_y;
 
   clutter_event_get_coords (event, &motion_x, &motion_y);
+
   clutter_gesture_action_get_threshold_trigger_distance (action, &threshold_x, &threshold_y);
 
   if ((fabsf (point->press_y - motion_y) < threshold_y) &&
@@ -306,41 +351,28 @@ cancel_gesture (ClutterGestureAction *action)
   ClutterGestureActionPrivate *priv = action->priv;
   ClutterActor *actor;
 
-  priv->in_gesture = FALSE;
-
-  if (priv->stage_capture_id != 0)
-    {
-      g_signal_handler_disconnect (priv->stage, priv->stage_capture_id);
-      priv->stage_capture_id = 0;
-    }
+  priv->state = CLUTTER_GESTURE_ACTION_STATE_CANCELLED;
 
   actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
   g_signal_emit (action, gesture_signals[GESTURE_CANCEL], 0, actor);
-
-  g_array_set_size (action->priv->points, 0);
 }
 
 static gboolean
-begin_gesture (ClutterGestureAction *action,
-               ClutterActor         *actor)
+begin_gesture (ClutterGestureAction *action, gint point)
 {
   ClutterGestureActionPrivate *priv = action->priv;
+  ClutterActor *actor;
   gboolean return_value;
 
-  priv->in_gesture = TRUE;
-
-  if (!CLUTTER_GESTURE_ACTION_GET_CLASS (action)->gesture_prepare (action, actor))
-    {
-      cancel_gesture (action);
-      return FALSE;
-    }
-
-  /* clutter_gesture_action_cancel() may have been called during
-   * gesture_prepare(), check that the gesture is still active. */
-  if (!priv->in_gesture)
+  if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (action)))
     return FALSE;
 
-  g_signal_emit (action, gesture_signals[GESTURE_BEGIN], 0, actor,
+  actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
+
+  if (!CLUTTER_GESTURE_ACTION_GET_CLASS (action)->gesture_prepare (action, actor, point))
+    return FALSE;
+
+  g_signal_emit (action, gesture_signals[GESTURE_BEGIN], 0, actor, point,
                  &return_value);
 
   if (!return_value)
@@ -349,114 +381,168 @@ begin_gesture (ClutterGestureAction *action,
       return FALSE;
     }
 
+  priv->state = CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED;
+
   return TRUE;
 }
 
-static gboolean
-stage_captured_event_cb (ClutterActor         *stage,
-                         ClutterEvent         *event,
-                         ClutterGestureAction *action)
+static void
+end_gesture (ClutterGestureAction *action, gint point)
 {
   ClutterGestureActionPrivate *priv = action->priv;
   ClutterActor *actor;
-  gint position;
-  float threshold_x, threshold_y;
-  gboolean return_value;
-  GesturePoint *point;
+
+  priv->state = CLUTTER_GESTURE_ACTION_STATE_ENDED;
+
+  actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
+  g_signal_emit (action, gesture_signals[GESTURE_END], 0, actor, point);
+
+  /* We might have been cancelled inside the event handler */
+  if (priv->state == CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
+    priv->state = CLUTTER_GESTURE_ACTION_STATE_ENDED;
+}
+
+static gboolean
+actor_event_cb (ClutterActor         *actor,
+                ClutterEvent         *event,
+                ClutterGestureAction *action)
+{
+  ClutterGestureActionPrivate *priv = action->priv;
   ClutterEventType event_type;
 
   event_type = clutter_event_type (event);
-  if (event_type != CLUTTER_TOUCH_CANCEL &&
+
+  if (event_type != CLUTTER_TOUCH_BEGIN &&
       event_type != CLUTTER_TOUCH_UPDATE &&
       event_type != CLUTTER_TOUCH_END &&
+      event_type != CLUTTER_TOUCH_CANCEL &&
+      event_type != CLUTTER_BUTTON_PRESS &&
       event_type != CLUTTER_MOTION &&
       event_type != CLUTTER_BUTTON_RELEASE)
     return CLUTTER_EVENT_PROPAGATE;
 
-  if ((point = gesture_find_point (action, event, &position)) == NULL)
-    return CLUTTER_EVENT_PROPAGATE;
+  if (priv->stage == NULL)
+    priv->stage = clutter_actor_get_stage (actor);
 
-  actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
+  return clutter_gesture_action_eval_event (action, event);
+}
 
-  switch (clutter_event_type (event))
+gboolean
+clutter_gesture_action_eval_event (ClutterGestureAction *action,
+                                   const ClutterEvent *event)
+{
+  ClutterGestureActionPrivate *priv = action->priv;
+  gint position;
+  GesturePoint *point;
+  ClutterEventType event_type;
+
+  event_type = clutter_event_type (event);
+
+  switch (event_type)
     {
-    case CLUTTER_MOTION:
+    case CLUTTER_BUTTON_PRESS:
+    case CLUTTER_TOUCH_BEGIN:
       {
-        ClutterModifierType mods = clutter_event_get_state (event);
+        if (priv->state == CLUTTER_GESTURE_ACTION_STATE_ENDED)
+          return CLUTTER_EVENT_PROPAGATE;
 
-        /* we might miss a button-release event in case of grabs,
-         * so we need to check whether the button is still down
-         * during a motion event
-         */
-        if (!(mods & CLUTTER_BUTTON1_MASK))
+        point = gesture_register_point (action, event);
+
+        if (priv->state == CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
           {
-            cancel_gesture (action);
-            return CLUTTER_EVENT_PROPAGATE;
+            if (priv->points->len > MAX_GESTURE_POINTS)
+              {
+                cancel_gesture (action);
+                return CLUTTER_EVENT_PROPAGATE;
+              }
+
+            return CLUTTER_EVENT_STOP;
+          }
+
+        if (priv->state == CLUTTER_GESTURE_ACTION_STATE_WAITING)
+          {
+            if (priv->edge != CLUTTER_GESTURE_TRIGGER_EDGE_AFTER &&
+                priv->points->len >= priv->requested_nb_points &&
+                begin_gesture (action, priv->points->len - 1))
+              {
+                return CLUTTER_EVENT_STOP;
+              }
           }
       }
-      /* Follow same code path as a touch event update */
-
-    case CLUTTER_TOUCH_UPDATE:
-      if (!priv->in_gesture)
-        {
-          if (priv->points->len < priv->requested_nb_points)
-            {
-              gesture_update_motion_point (point, event);
-              return CLUTTER_EVENT_PROPAGATE;
-            }
-
-          /* Wait until the drag threshold has been exceeded
-           * before starting _TRIGGER_EDGE_AFTER gestures. */
-          if (priv->edge == CLUTTER_GESTURE_TRIGGER_EDGE_AFTER &&
-              gesture_point_pass_threshold (action, point, event))
-            {
-              gesture_update_motion_point (point, event);
-              return CLUTTER_EVENT_PROPAGATE;
-            }
-
-          if (!begin_gesture (action, actor))
-            {
-              if ((point = gesture_find_point (action, event, &position)) != NULL)
-                gesture_update_motion_point (point, event);
-              return CLUTTER_EVENT_PROPAGATE;
-            }
-
-          if ((point = gesture_find_point (action, event, &position)) == NULL)
-            return CLUTTER_EVENT_PROPAGATE;
-        }
-
-      gesture_update_motion_point (point, event);
-
-      g_signal_emit (action, gesture_signals[GESTURE_PROGRESS], 0, actor,
-                     &return_value);
-      if (!return_value)
-        {
-          cancel_gesture (action);
-          return CLUTTER_EVENT_PROPAGATE;
-        }
-
-      /* Check if a _TRIGGER_EDGE_BEFORE gesture needs to be cancelled because
-       * the drag threshold has been exceeded. */
-      clutter_gesture_action_get_threshold_trigger_distance (action, &threshold_x, &threshold_y);
-      if (priv->edge == CLUTTER_GESTURE_TRIGGER_EDGE_BEFORE &&
-          ((fabsf (point->press_y - point->last_motion_y) > threshold_y) ||
-           (fabsf (point->press_x - point->last_motion_x) > threshold_x)))
-        {
-          cancel_gesture (action);
-          return CLUTTER_EVENT_PROPAGATE;
-        }
       break;
+
+    case CLUTTER_MOTION:
+    case CLUTTER_TOUCH_UPDATE:
+        {
+          if (priv->state == CLUTTER_GESTURE_ACTION_STATE_ENDED)
+            {
+              if (gesture_find_point (action, event, &position) == NULL)
+                return CLUTTER_EVENT_PROPAGATE;
+
+              return CLUTTER_EVENT_STOP;
+            }
+
+          if (priv->state == CLUTTER_GESTURE_ACTION_STATE_WAITING)
+            {
+              if (priv->edge == CLUTTER_GESTURE_TRIGGER_EDGE_AFTER &&
+                  priv->points->len >= priv->requested_nb_points)
+                {
+                  if ((point = gesture_find_point (action, event, &position)) == NULL)
+                    return CLUTTER_EVENT_PROPAGATE;
+
+                  gesture_update_motion_point (point, event);
+
+                  if (!gesture_point_pass_threshold (action, point, event) &&
+                      begin_gesture (action, position))
+                    {
+                      return CLUTTER_EVENT_STOP;
+                    }
+                }
+            }
+
+          if (priv->state == CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
+            {
+              if ((point = gesture_find_point (action, event, &position)) == NULL)
+                return CLUTTER_EVENT_PROPAGATE;
+
+              gesture_update_motion_point (point, event);
+
+              if (priv->edge == CLUTTER_GESTURE_TRIGGER_EDGE_BEFORE &&
+                  !gesture_point_pass_threshold (action, point, event))
+                {
+                  cancel_gesture (action);
+                  return CLUTTER_EVENT_PROPAGATE;
+                }
+
+              g_signal_emit (action, gesture_signals[GESTURE_PROGRESS], 0,
+                             clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action)), position);
+
+              /* We might have been cancelled inside the event handler */
+              if (priv->state == CLUTTER_GESTURE_ACTION_STATE_CANCELLED)
+                return CLUTTER_EVENT_PROPAGATE;
+
+              return CLUTTER_EVENT_STOP;
+            }
+        }
+        break;
 
     case CLUTTER_BUTTON_RELEASE:
     case CLUTTER_TOUCH_END:
       {
+        if ((point = gesture_find_point (action, event, &position)) == NULL)
+          return CLUTTER_EVENT_PROPAGATE;
+
         gesture_update_release_point (point, event);
 
-        if (priv->in_gesture &&
-            ((priv->points->len - 1) < priv->requested_nb_points))
+        if (priv->state == CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
           {
-            priv->in_gesture = FALSE;
-            g_signal_emit (action, gesture_signals[GESTURE_END], 0, actor);
+            if ((priv->points->len - 1) < priv->requested_nb_points)
+              {
+                end_gesture (action, position);
+
+                gesture_unregister_point (action, position);
+                return CLUTTER_EVENT_STOP;
+              }
           }
 
         gesture_unregister_point (action, position);
@@ -465,62 +551,13 @@ stage_captured_event_cb (ClutterActor         *stage,
 
     case CLUTTER_TOUCH_CANCEL:
       {
-        gesture_update_release_point (point, event);
-
-        if (priv->in_gesture)
-          {
-            priv->in_gesture = FALSE;
-            cancel_gesture (action);
-          }
-
-        gesture_unregister_point (action, position);
+        clutter_gesture_action_reset (action);
       }
       break;
 
     default:
       break;
     }
-
-  if (priv->points->len == 0 && priv->stage_capture_id)
-    {
-      g_signal_handler_disconnect (priv->stage, priv->stage_capture_id);
-      priv->stage_capture_id = 0;
-    }
-
-  return CLUTTER_EVENT_PROPAGATE;
-}
-
-static gboolean
-actor_captured_event_cb (ClutterActor *actor,
-                         ClutterEvent *event,
-                         ClutterGestureAction *action)
-{
-  ClutterGestureActionPrivate *priv = action->priv;
-  GesturePoint *point G_GNUC_UNUSED;
-
-  if ((clutter_event_type (event) != CLUTTER_BUTTON_PRESS) &&
-      (clutter_event_type (event) != CLUTTER_TOUCH_BEGIN))
-    return CLUTTER_EVENT_PROPAGATE;
-
-  if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (action)))
-    return CLUTTER_EVENT_PROPAGATE;
-
-  point = gesture_register_point (action, event);
-
-  if (priv->stage == NULL)
-    priv->stage = clutter_actor_get_stage (actor);
-
-  if (priv->stage_capture_id == 0)
-    priv->stage_capture_id =
-      g_signal_connect_after (priv->stage, "captured-event",
-                              G_CALLBACK (stage_captured_event_cb),
-                              action);
-
-  /* Start the gesture immediately if the gesture has no
-   * _TRIGGER_EDGE_AFTER drag threshold. */
-  if ((priv->points->len >= priv->requested_nb_points) &&
-      (priv->edge != CLUTTER_GESTURE_TRIGGER_EDGE_AFTER))
-    begin_gesture (action, actor);
 
   return CLUTTER_EVENT_PROPAGATE;
 }
@@ -529,35 +566,54 @@ static void
 clutter_gesture_action_set_actor (ClutterActorMeta *meta,
                                   ClutterActor     *actor)
 {
-  ClutterGestureActionPrivate *priv = CLUTTER_GESTURE_ACTION (meta)->priv;
+  ClutterGestureAction *action = CLUTTER_GESTURE_ACTION (meta);
+  ClutterGestureActionPrivate *priv = action->priv;
   ClutterActorMetaClass *meta_class =
     CLUTTER_ACTOR_META_CLASS (clutter_gesture_action_parent_class);
 
-  if (priv->actor_capture_id != 0)
+  ClutterActor *old_actor = clutter_actor_meta_get_actor (meta);
+
+  if (old_actor != NULL)
     {
-      ClutterActor *old_actor = clutter_actor_meta_get_actor (meta);
+      if (priv->actor_event_id != 0)
+        {
+          g_signal_handler_disconnect (old_actor, priv->actor_event_id);
+          priv->actor_event_id = 0;
+        }
 
-      if (old_actor != NULL)
-        g_signal_handler_disconnect (old_actor, priv->actor_capture_id);
-
-      priv->actor_capture_id = 0;
-    }
-
-  if (priv->stage_capture_id != 0)
-    {
-      if (priv->stage != NULL)
-        g_signal_handler_disconnect (priv->stage, priv->stage_capture_id);
-
-      priv->stage_capture_id = 0;
-      priv->stage = NULL;
+      if (priv->mapped_changed_id != 0)
+        {
+          g_signal_handler_disconnect (old_actor, priv->mapped_changed_id);
+          priv->mapped_changed_id = 0;
+        }
     }
 
   if (actor != NULL)
     {
-      priv->actor_capture_id =
-        g_signal_connect (actor, "captured-event",
-                          G_CALLBACK (actor_captured_event_cb),
-                          meta);
+      /* If the new actor is the stage, we don't want to connect to
+       * its captured-event signal. Mutter handles those events in the
+       * event filter and calls clutter_gesture_action_eval_event()
+       * directly from there.
+       */
+      if (CLUTTER_IS_STAGE (actor))
+        {
+          priv->is_stage_gesture = TRUE;
+        }
+      else
+        {
+          priv->is_stage_gesture = FALSE;
+          priv->actor_event_id =
+            g_signal_connect (actor, "event", G_CALLBACK (actor_event_cb), action);
+
+          /* As long as a device or sequence grab doesn't guarantee us that we receive
+           * every single event (X11 and filtering all events before delivering them to
+           * Clutter are the biggest problems here), we have to rely on the actors mapped
+           * property being toggled in those situations for now.
+           */
+          priv->mapped_changed_id =
+            g_signal_connect_swapped (actor, "notify::mapped",
+                                      G_CALLBACK (clutter_gesture_action_reset), action);
+        }
     }
 
   meta_class->set_actor (meta, actor);
@@ -565,7 +621,8 @@ clutter_gesture_action_set_actor (ClutterActorMeta *meta,
 
 static gboolean
 default_event_handler (ClutterGestureAction *action,
-                       ClutterActor *actor)
+                       ClutterActor *actor,
+                       gint point)
 {
   return TRUE;
 }
@@ -662,9 +719,8 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
 
   meta_class->set_actor = clutter_gesture_action_set_actor;
 
-  klass->gesture_begin = default_event_handler;
-  klass->gesture_progress = default_event_handler;
   klass->gesture_prepare = default_event_handler;
+  klass->gesture_begin = default_event_handler;
 
   /**
    * ClutterGestureAction:n-touch-points:
@@ -744,6 +800,7 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
    * ClutterGestureAction::gesture-begin:
    * @action: the #ClutterGestureAction that emitted the signal
    * @actor: the #ClutterActor attached to the @action
+   * @point: the #gint of the point that caused the signal
    *
    * The ::gesture_begin signal is emitted when the #ClutterActor to which
    * a #ClutterGestureAction has been applied starts receiving a gesture.
@@ -759,20 +816,19 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterGestureActionClass, gesture_begin),
                   _clutter_boolean_continue_accumulator, NULL,
-                  _clutter_marshal_BOOLEAN__OBJECT,
-                  G_TYPE_BOOLEAN, 1,
-                  CLUTTER_TYPE_ACTOR);
+                  _clutter_marshal_BOOLEAN__OBJECT_INT,
+                  G_TYPE_BOOLEAN, 2,
+                  CLUTTER_TYPE_ACTOR,
+                  G_TYPE_INT);
 
   /**
    * ClutterGestureAction::gesture-progress:
    * @action: the #ClutterGestureAction that emitted the signal
    * @actor: the #ClutterActor attached to the @action
+   * @point: the #gint of the point that caused the signal
    *
    * The ::gesture-progress signal is emitted for each motion event after
    * the #ClutterGestureAction::gesture-begin signal has been emitted.
-   *
-   * Return value: %TRUE if the gesture should continue, and %FALSE if
-   *   the gesture should be cancelled.
    *
    * Since: 1.8
    */
@@ -781,15 +837,17 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterGestureActionClass, gesture_progress),
-                  _clutter_boolean_continue_accumulator, NULL,
-                  _clutter_marshal_BOOLEAN__OBJECT,
-                  G_TYPE_BOOLEAN, 1,
-                  CLUTTER_TYPE_ACTOR);
+                  NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_INT,
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_ACTOR,
+                  G_TYPE_INT);
 
   /**
    * ClutterGestureAction::gesture-end:
    * @action: the #ClutterGestureAction that emitted the signal
    * @actor: the #ClutterActor attached to the @action
+   * @point: the #gint of the point that caused the signal
    *
    * The ::gesture-end signal is emitted at the end of the gesture gesture,
    * when the pointer's button is released
@@ -805,9 +863,10 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterGestureActionClass, gesture_end),
                   NULL, NULL,
-                  _clutter_marshal_VOID__OBJECT,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_ACTOR);
+                  _clutter_marshal_VOID__OBJECT_INT,
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_ACTOR,
+                  G_TYPE_INT);
 
   /**
    * ClutterGestureAction::gesture-cancel:
@@ -841,8 +900,11 @@ clutter_gesture_action_init (ClutterGestureAction *self)
   self->priv->points = g_array_sized_new (FALSE, TRUE, sizeof (GesturePoint), 3);
   g_array_set_clear_func (self->priv->points, (GDestroyNotify) gesture_point_unset);
 
+  self->priv->mapped_changed_id = 0;
+
   self->priv->requested_nb_points = 1;
   self->priv->edge = CLUTTER_GESTURE_TRIGGER_EDGE_NONE;
+  self->priv->state = CLUTTER_GESTURE_ACTION_STATE_WAITING;
 }
 
 /**
@@ -1088,6 +1150,7 @@ clutter_gesture_action_set_n_touch_points (ClutterGestureAction *action,
 
   g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
   g_return_if_fail (nb_points >= 1);
+  g_return_if_fail (nb_points <= MAX_GESTURE_POINTS);
 
   priv = action->priv;
 
@@ -1096,30 +1159,25 @@ clutter_gesture_action_set_n_touch_points (ClutterGestureAction *action,
 
   priv->requested_nb_points = nb_points;
 
-  if (priv->in_gesture)
+  if (priv->state == CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
     {
       if (priv->points->len < priv->requested_nb_points)
         cancel_gesture (action);
     }
-  else if (priv->edge == CLUTTER_GESTURE_TRIGGER_EDGE_AFTER)
+  else if (priv->state == CLUTTER_GESTURE_ACTION_STATE_WAITING)
     {
-      if (priv->points->len >= priv->requested_nb_points)
+      if (priv->edge == CLUTTER_GESTURE_TRIGGER_EDGE_AFTER &&
+          priv->points->len >= priv->requested_nb_points)
         {
-          ClutterActor *actor =
-            clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
           gint i;
-          float threshold_x, threshold_y;
-
-          clutter_gesture_action_get_threshold_trigger_distance (action, &threshold_x, &threshold_y);
 
           for (i = 0; i < priv->points->len; i++)
             {
               GesturePoint *point = &g_array_index (priv->points, GesturePoint, i);
 
-              if ((fabsf (point->press_y - point->last_motion_y) >= threshold_y) ||
-                  (fabsf (point->press_x - point->last_motion_x) >= threshold_x))
+              if (!gesture_point_pass_threshold (action, point, point->last_event))
                 {
-                  begin_gesture (action, actor);
+                  begin_gesture (action, -1);
                   break;
                 }
             }
@@ -1218,10 +1276,29 @@ clutter_gesture_action_get_last_event (ClutterGestureAction *action,
 }
 
 /**
+ * clutter_gesture_action_end:
+ * @action: a #ClutterGestureAction
+ *
+ * End a #ClutterGestureAction while it's being recognized.
+ *
+ * Since: ?
+ */
+void
+clutter_gesture_action_end (ClutterGestureAction *action)
+{
+  g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
+
+  if (action->priv->state != CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
+    return;
+
+  end_gesture (action, -1);
+}
+
+/**
  * clutter_gesture_action_cancel:
  * @action: a #ClutterGestureAction
  *
- * Cancel a #ClutterGestureAction before it begins
+ * Cancel a #ClutterGestureAction while it's being recognized.
  *
  * Since: 1.12
  */
@@ -1230,7 +1307,51 @@ clutter_gesture_action_cancel (ClutterGestureAction *action)
 {
   g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
 
+  if (action->priv->state != CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
+    return;
+
   cancel_gesture (action);
+}
+
+/**
+ * clutter_gesture_action_reset:
+ * @action: a #ClutterGestureAction
+ *
+ * Reset the gesture state by cancelling the gesture (if necessary)
+ * and removing all touchpoints.
+ *
+ * This function is not meant to be called from implementations, but
+ * only from the display server in case we won't get notified about the
+ * next events.
+ *
+ * Since: 3.32
+ */
+void
+clutter_gesture_action_reset (ClutterGestureAction *action)
+{
+  g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
+
+  ClutterGestureActionPrivate *priv = action->priv;
+  gint i;
+
+  if (priv->state == CLUTTER_GESTURE_ACTION_STATE_RECOGNIZED)
+    cancel_gesture (action);
+
+  if (!priv->is_stage_gesture)
+    {
+      for (i = 0; i < priv->points->len; i++)
+        {
+          GesturePoint *point = &g_array_index (priv->points, GesturePoint, i);
+
+          if (point->sequence != NULL)
+            clutter_input_device_sequence_ungrab (point->device, point->sequence);
+          else
+            clutter_input_device_ungrab (point->device);
+        }
+    }
+
+  g_array_set_size (priv->points, 0);
+  priv->state = CLUTTER_GESTURE_ACTION_STATE_WAITING;
 }
 
 /**

@@ -81,15 +81,19 @@ struct _ClutterGestureActionClass
   ClutterActionClass parent_class;
 
   /*< public >*/
-  gboolean (* gesture_begin)    (ClutterGestureAction  *action,
-                                 ClutterActor          *actor);
-  gboolean (* gesture_progress) (ClutterGestureAction  *action,
-                                 ClutterActor          *actor);
-  void     (* gesture_end)      (ClutterGestureAction  *action,
-                                 ClutterActor          *actor);
-  void     (* gesture_cancel)   (ClutterGestureAction  *action,
-                                 ClutterActor          *actor);
   gboolean (* gesture_prepare)  (ClutterGestureAction  *action,
+                                 ClutterActor          *actor,
+                                 gint                   point);
+  gboolean (* gesture_begin)    (ClutterGestureAction  *action,
+                                 ClutterActor          *actor,
+                                 gint                   point);
+  void     (* gesture_progress) (ClutterGestureAction  *action,
+                                 ClutterActor          *actor,
+                                 gint                   point);
+  void     (* gesture_end)      (ClutterGestureAction  *action,
+                                 ClutterActor          *actor,
+                                 gint                   point);
+  void     (* gesture_cancel)   (ClutterGestureAction  *action,
                                  ClutterActor          *actor);
 
   /*< private >*/
@@ -105,7 +109,7 @@ CLUTTER_EXPORT
 GType clutter_gesture_action_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
-ClutterAction *        clutter_gesture_action_new                      (void);
+ClutterAction *        clutter_gesture_action_new                  (void);
 
 CLUTTER_EXPORT
 gint                   clutter_gesture_action_get_n_touch_points   (ClutterGestureAction *action);
@@ -154,7 +158,17 @@ const ClutterEvent *   clutter_gesture_action_get_last_event       (ClutterGestu
                                                                     guint                 point);
 
 CLUTTER_EXPORT
+void                   clutter_gesture_action_end                  (ClutterGestureAction *action);
+
+CLUTTER_EXPORT
 void                   clutter_gesture_action_cancel               (ClutterGestureAction *action);
+
+CLUTTER_EXPORT
+void                   clutter_gesture_action_reset                (ClutterGestureAction *action);
+
+CLUTTER_EXPORT
+gboolean               clutter_gesture_action_eval_event           (ClutterGestureAction *action,
+                                                                    const ClutterEvent   *event);
 
 CLUTTER_EXPORT
 void                            clutter_gesture_action_set_threshold_trigger_edge       (ClutterGestureAction      *action,

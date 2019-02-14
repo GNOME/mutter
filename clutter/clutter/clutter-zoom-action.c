@@ -156,7 +156,8 @@ capture_point_update_position (ClutterGestureAction *action,
 
 static gboolean
 clutter_zoom_action_gesture_begin (ClutterGestureAction *action,
-                                   ClutterActor         *actor)
+                                   ClutterActor         *actor,
+                                   gint                  point)
 {
   ClutterZoomActionPrivate *priv = ((ClutterZoomAction *) action)->priv;
   gfloat dx, dy;
@@ -191,9 +192,10 @@ clutter_zoom_action_gesture_begin (ClutterGestureAction *action,
   return TRUE;
 }
 
-static gboolean
+static void
 clutter_zoom_action_gesture_progress (ClutterGestureAction *action,
-                                      ClutterActor         *actor)
+                                      ClutterActor         *actor,
+                                      gint                  point)
 {
   ClutterZoomActionPrivate *priv = ((ClutterZoomAction *) action)->priv;
   gdouble distance, new_scale;
@@ -208,7 +210,7 @@ clutter_zoom_action_gesture_progress (ClutterGestureAction *action,
   distance = sqrt (dx * dx + dy * dy);
 
   if (distance == 0)
-    return TRUE;
+    return;
 
   priv->focal_point.x = (priv->points[0].update_x + priv->points[1].update_x) / 2;
   priv->focal_point.y = (priv->points[0].update_y + priv->points[1].update_y) / 2;
@@ -218,8 +220,6 @@ clutter_zoom_action_gesture_progress (ClutterGestureAction *action,
   g_signal_emit (action, zoom_signals[ZOOM], 0,
                  actor, &priv->focal_point, new_scale,
                  &retval);
-
-  return TRUE;
 }
 
 static void
