@@ -56,10 +56,10 @@
 #include "clutter-build-config.h"
 
 #include "clutter-tap-action.h"
+#include "clutter-trigger-action.h"
 
 #include "clutter-debug.h"
 #include "clutter-enum-types.h"
-#include "clutter-gesture-action-private.h"
 #include "clutter-marshal.h"
 #include "clutter-private.h"
 
@@ -72,8 +72,7 @@ enum
 
 static guint tap_signals[LAST_SIGNAL] = { 0, };
 
-G_DEFINE_TYPE (ClutterTapAction, clutter_tap_action,
-               CLUTTER_TYPE_GESTURE_ACTION);
+G_DEFINE_TYPE (ClutterTapAction, clutter_tap_action, CLUTTER_TYPE_TRIGGER_ACTION);
 
 static void
 emit_tap (ClutterTapAction *self,
@@ -93,8 +92,8 @@ gesture_end (ClutterGestureAction *gesture,
 static void
 clutter_tap_action_constructed (GObject *object)
 {
-  clutter_gesture_action_set_threshold_trigger_edge (CLUTTER_GESTURE_ACTION (object),
-                                                     CLUTTER_GESTURE_TRIGGER_EDGE_BEFORE);
+  clutter_trigger_action_set_trigger_edge (CLUTTER_TRIGGER_ACTION (object),
+                                           CLUTTER_TRIGGER_EDGE_BEFORE);
 }
 
 static void

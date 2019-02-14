@@ -40,10 +40,10 @@
 #include "clutter-build-config.h"
 
 #include "clutter-swipe-action.h"
+#include "clutter-trigger-action.h"
 
 #include "clutter-debug.h"
 #include "clutter-enum-types.h"
-#include "clutter-gesture-action-private.h"
 #include "clutter-marshal.h"
 #include "clutter-private.h"
 
@@ -65,7 +65,7 @@ enum
 
 static guint swipe_signals[LAST_SIGNAL] = { 0, };
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterSwipeAction, clutter_swipe_action, CLUTTER_TYPE_GESTURE_ACTION)
+G_DEFINE_TYPE_WITH_PRIVATE (ClutterSwipeAction, clutter_swipe_action, CLUTTER_TYPE_TRIGGER_ACTION)
 
 static gboolean
 gesture_begin (ClutterGestureAction  *action,
@@ -78,9 +78,9 @@ gesture_begin (ClutterGestureAction  *action,
   priv->h_direction = 0;
   priv->v_direction = 0;
 
-  g_object_get (action,
-                "threshold-trigger-distance-x", &priv->distance_x,
-                "threshold-trigger-distance-y", &priv->distance_y,
+  g_object_get (CLUTTER_TRIGGER_ACTION (action),
+                "threshold-distance-x", &priv->distance_x,
+                "threshold-distance-y", &priv->distance_y,
                 NULL);
 
   return TRUE;
@@ -185,8 +185,8 @@ clutter_swipe_action_real_swipe (ClutterSwipeAction    *action,
 static void
 clutter_swipe_action_constructed (GObject *object)
 {
-  clutter_gesture_action_set_threshold_trigger_edge (CLUTTER_GESTURE_ACTION (object),
-                                                     CLUTTER_GESTURE_TRIGGER_EDGE_AFTER);
+  clutter_trigger_action_set_trigger_edge (CLUTTER_TRIGGER_ACTION (object),
+                                           CLUTTER_TRIGGER_EDGE_AFTER);
 }
 
 static void
