@@ -152,9 +152,6 @@ struct _ClutterGestureActionPrivate
   guint actor_event_id;
   guint mapped_changed_id;
 
-  ClutterGestureTriggerEdge edge;
-  float distance_x, distance_y;
-
   ClutterGestureActionState state;
 };
 
@@ -163,9 +160,6 @@ enum
   PROP_0,
 
   PROP_N_TOUCH_POINTS,
-  PROP_THRESHOLD_TRIGGER_EDGE,
-  PROP_THRESHOLD_TRIGGER_DISTANCE_X,
-  PROP_THRESHOLD_TRIGGER_DISTANCE_Y,
 
   PROP_LAST
 };
@@ -312,33 +306,6 @@ gesture_update_release_point (GesturePoint *point,
   point->last_delta_time += _time - point->last_motion_time;
 }
 
-static gint
-gesture_get_default_threshold (void)
-{
-  gint threshold;
-  ClutterSettings *settings = clutter_settings_get_default ();
-  g_object_get (settings, "dnd-drag-threshold", &threshold, NULL);
-  return threshold;
-}
-
-static gboolean
-gesture_point_pass_threshold (ClutterGestureAction *action,
-                              GesturePoint         *point,
-                              const ClutterEvent   *event)
-{
-  float threshold_x, threshold_y;
-  gfloat motion_x, motion_y;
-
-  clutter_event_get_coords (event, &motion_x, &motion_y);
-
-  clutter_gesture_action_get_threshold_trigger_distance (action, &threshold_x, &threshold_y);
-
-  if ((fabsf (point->press_y - motion_y) < threshold_y) &&
-      (fabsf (point->press_x - motion_x) < threshold_x))
-    return TRUE;
-  return FALSE;
-}
-
 static void
 gesture_point_unset (GesturePoint *point)
 {
@@ -461,8 +428,7 @@ clutter_gesture_action_eval_event (ClutterGestureAction *action,
 
         if (priv->state == CLUTTER_GESTURE_ACTION_STATE_WAITING)
           {
-            if (priv->edge != CLUTTER_GESTURE_TRIGGER_EDGE_AFTER &&
-                priv->points->len >= priv->requested_nb_points &&
+            if (priv->points->len >= priv->requested_nb_points &&
                 begin_gesture (action, priv->points->len - 1))
               {
                 return CLUTTER_EVENT_STOP;
@@ -484,16 +450,14 @@ clutter_gesture_action_eval_event (ClutterGestureAction *action,
 
           if (priv->state == CLUTTER_GESTURE_ACTION_STATE_WAITING)
             {
-              if (priv->edge == CLUTTER_GESTURE_TRIGGER_EDGE_AFTER &&
-                  priv->points->len >= priv->requested_nb_points)
+              if (priv->points->len >= priv->requested_nb_points)
                 {
                   if ((point = gesture_find_point (action, event, &position)) == NULL)
                     return CLUTTER_EVENT_PROPAGATE;
 
                   gesture_update_motion_point (point, event);
 
-                  if (!gesture_point_pass_threshold (action, point, event) &&
-                      begin_gesture (action, position))
+                  if (begin_gesture (action, position))
                     {
                       return CLUTTER_EVENT_STOP;
                     }
@@ -506,13 +470,6 @@ clutter_gesture_action_eval_event (ClutterGestureAction *action,
                 return CLUTTER_EVENT_PROPAGATE;
 
               gesture_update_motion_point (point, event);
-
-              if (priv->edge == CLUTTER_GESTURE_TRIGGER_EDGE_BEFORE &&
-                  !gesture_point_pass_threshold (action, point, event))
-                {
-                  cancel_gesture (action);
-                  return CLUTTER_EVENT_PROPAGATE;
-                }
 
               g_signal_emit (action, gesture_signals[GESTURE_PROGRESS], 0,
                              clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action)), position);
@@ -641,18 +598,6 @@ clutter_gesture_action_set_property (GObject      *gobject,
       clutter_gesture_action_set_n_touch_points (self, g_value_get_int (value));
       break;
 
-    case PROP_THRESHOLD_TRIGGER_EDGE:
-      clutter_gesture_action_set_threshold_trigger_edge (self, g_value_get_enum (value));
-      break;
-
-    case PROP_THRESHOLD_TRIGGER_DISTANCE_X:
-      clutter_gesture_action_set_threshold_trigger_distance (self, g_value_get_float (value), self->priv->distance_y);
-      break;
-
-    case PROP_THRESHOLD_TRIGGER_DISTANCE_Y:
-      clutter_gesture_action_set_threshold_trigger_distance (self, self->priv->distance_x, g_value_get_float (value));
-      break;
-
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -671,24 +616,6 @@ clutter_gesture_action_get_property (GObject    *gobject,
     {
     case PROP_N_TOUCH_POINTS:
       g_value_set_int (value, self->priv->requested_nb_points);
-      break;
-
-    case PROP_THRESHOLD_TRIGGER_EDGE:
-      g_value_set_enum (value, self->priv->edge);
-      break;
-
-    case PROP_THRESHOLD_TRIGGER_DISTANCE_X:
-      if (self->priv->distance_x > 0.0)
-        g_value_set_float (value, self->priv->distance_x);
-      else
-        g_value_set_float (value, gesture_get_default_threshold ());
-      break;
-
-    case PROP_THRESHOLD_TRIGGER_DISTANCE_Y:
-      if (self->priv->distance_y > 0.0)
-        g_value_set_float (value, self->priv->distance_y);
-      else
-        g_value_set_float (value, gesture_get_default_threshold ());
       break;
 
     default:
@@ -735,62 +662,6 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
                       P_("Number of touch points"),
                       1, G_MAXINT, 1,
                       CLUTTER_PARAM_READWRITE);
-
-  /**
-   * ClutterGestureAction:threshold-trigger-edge:
-   *
-   * The trigger edge to be used by the action to either emit the
-   * #ClutterGestureAction::gesture-begin signal or to emit the
-   * #ClutterGestureAction::gesture-cancel signal.
-   *
-   * Since: 1.18
-   */
-  gesture_props[PROP_THRESHOLD_TRIGGER_EDGE] =
-    g_param_spec_enum ("threshold-trigger-edge",
-                       P_("Threshold Trigger Edge"),
-                       P_("The trigger edge used by the action"),
-                       CLUTTER_TYPE_GESTURE_TRIGGER_EDGE,
-                       CLUTTER_GESTURE_TRIGGER_EDGE_NONE,
-                       CLUTTER_PARAM_READWRITE |
-                       G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterGestureAction:threshold-trigger-distance-x:
-   *
-   * The horizontal trigger distance to be used by the action to either
-   * emit the #ClutterGestureAction::gesture-begin signal or to emit
-   * the #ClutterGestureAction::gesture-cancel signal.
-   *
-   * A negative value will be interpreted as the default drag threshold.
-   *
-   * Since: 1.18
-   */
-  gesture_props[PROP_THRESHOLD_TRIGGER_DISTANCE_X] =
-    g_param_spec_float ("threshold-trigger-distance-x",
-                        P_("Threshold Trigger Horizontal Distance"),
-                        P_("The horizontal trigger distance used by the action"),
-                        -1.0, G_MAXFLOAT, -1.0,
-                        CLUTTER_PARAM_READWRITE |
-                        G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterGestureAction:threshold-trigger-distance-y:
-   *
-   * The vertical trigger distance to be used by the action to either
-   * emit the #ClutterGestureAction::gesture-begin signal or to emit
-   * the #ClutterGestureAction::gesture-cancel signal.
-   *
-   * A negative value will be interpreted as the default drag threshold.
-   *
-   * Since: 1.18
-   */
-  gesture_props[PROP_THRESHOLD_TRIGGER_DISTANCE_Y] =
-    g_param_spec_float ("threshold-trigger-distance-y",
-                        P_("Threshold Trigger Vertical Distance"),
-                        P_("The vertical trigger distance used by the action"),
-                        -1.0, G_MAXFLOAT, -1.0,
-                        CLUTTER_PARAM_READWRITE |
-                        G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (gobject_class,
                                      PROP_LAST,
@@ -903,7 +774,6 @@ clutter_gesture_action_init (ClutterGestureAction *self)
   self->priv->mapped_changed_id = 0;
 
   self->priv->requested_nb_points = 1;
-  self->priv->edge = CLUTTER_GESTURE_TRIGGER_EDGE_NONE;
   self->priv->state = CLUTTER_GESTURE_ACTION_STATE_WAITING;
 }
 
@@ -1166,22 +1036,8 @@ clutter_gesture_action_set_n_touch_points (ClutterGestureAction *action,
     }
   else if (priv->state == CLUTTER_GESTURE_ACTION_STATE_WAITING)
     {
-      if (priv->edge == CLUTTER_GESTURE_TRIGGER_EDGE_AFTER &&
-          priv->points->len >= priv->requested_nb_points)
-        {
-          gint i;
-
-          for (i = 0; i < priv->points->len; i++)
-            {
-              GesturePoint *point = &g_array_index (priv->points, GesturePoint, i);
-
-              if (!gesture_point_pass_threshold (action, point, point->last_event))
-                {
-                  begin_gesture (action, -1);
-                  break;
-                }
-            }
-        }
+      if (priv->points->len >= priv->requested_nb_points)
+        begin_gesture (action, -1);
     }
 
   g_object_notify_by_pspec (G_OBJECT (action),
@@ -1352,136 +1208,4 @@ clutter_gesture_action_reset (ClutterGestureAction *action)
 
   g_array_set_size (priv->points, 0);
   priv->state = CLUTTER_GESTURE_ACTION_STATE_WAITING;
-}
-
-/**
- * clutter_gesture_action_set_threshold_trigger_edge:
- * @action: a #ClutterGestureAction
- * @edge: the %ClutterGestureTriggerEdge
- *
- * Sets the edge trigger for the gesture drag threshold, if any.
- *
- * This function should only be called by sub-classes of
- * #ClutterGestureAction during their construction phase.
- *
- * Since: 1.18
- */
-void
-clutter_gesture_action_set_threshold_trigger_edge (ClutterGestureAction      *action,
-                                                   ClutterGestureTriggerEdge  edge)
-{
-  g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
-
-  if (action->priv->edge == edge)
-    return;
-
-  action->priv->edge = edge;
-
-  g_object_notify_by_pspec (G_OBJECT (action), gesture_props[PROP_THRESHOLD_TRIGGER_EDGE]);
-}
-
-/**
- * clutter_gesture_action_get_threshold_trigger_edge:
- * @action: a #ClutterGestureAction
- *
- * Retrieves the edge trigger of the gesture @action, as set using
- * clutter_gesture_action_set_threshold_trigger_edge().
- *
- * Return value: the edge trigger
- *
- * Since: 1.20
- */
-ClutterGestureTriggerEdge
-clutter_gesture_action_get_threshold_trigger_edge (ClutterGestureAction *action)
-{
-  g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action),
-                        CLUTTER_GESTURE_TRIGGER_EDGE_NONE);
-
-  return action->priv->edge;
-}
-
-/**
- * clutter_gesture_action_get_threshold_trigger_egde:
- * @action: a #ClutterGestureAction
- *
- * Retrieves the edge trigger of the gesture @action, as set using
- * clutter_gesture_action_set_threshold_trigger_edge().
- *
- * Return value: the edge trigger
- *
- * Since: 1.18
- *
- * Deprecated: 1.20: Use clutter_gesture_action_get_threshold_trigger_edge() instead.
- */
-ClutterGestureTriggerEdge
-clutter_gesture_action_get_threshold_trigger_egde (ClutterGestureAction *action)
-{
-  return clutter_gesture_action_get_threshold_trigger_edge (action);
-}
-
-/**
- * clutter_gesture_action_set_threshold_trigger_distance:
- * @action: a #ClutterGestureAction
- * @x: the distance on the horizontal axis
- * @y: the distance on the vertical axis
- *
- * Sets the threshold trigger distance for the gesture drag threshold, if any.
- *
- * This function should only be called by sub-classes of
- * #ClutterGestureAction during their construction phase.
- *
- * Since: 1.18
- */
-void
-clutter_gesture_action_set_threshold_trigger_distance (ClutterGestureAction      *action,
-                                                       float                      x,
-                                                       float                      y)
-{
-  g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
-
-  if (fabsf (x - action->priv->distance_x) > FLOAT_EPSILON)
-    {
-      action->priv->distance_x = x;
-      g_object_notify_by_pspec (G_OBJECT (action), gesture_props[PROP_THRESHOLD_TRIGGER_DISTANCE_X]);
-    }
-
-  if (fabsf (y - action->priv->distance_y) > FLOAT_EPSILON)
-    {
-      action->priv->distance_y = y;
-      g_object_notify_by_pspec (G_OBJECT (action), gesture_props[PROP_THRESHOLD_TRIGGER_DISTANCE_Y]);
-    }
-}
-
-/**
- * clutter_gesture_action_get_threshold_trigger_distance:
- * @action: a #ClutterGestureAction
- * @x: (out) (allow-none): The return location for the horizontal distance, or %NULL
- * @y: (out) (allow-none): The return location for the vertical distance, or %NULL
- *
- * Retrieves the threshold trigger distance of the gesture @action,
- * as set using clutter_gesture_action_set_threshold_trigger_distance().
- *
- * Since: 1.18
- */
-void
-clutter_gesture_action_get_threshold_trigger_distance (ClutterGestureAction *action,
-                                                       float                *x,
-                                                       float                *y)
-{
-  g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
-
-  if (x != NULL)
-    {
-      if (action->priv->distance_x > 0.0)
-        *x = action->priv->distance_x;
-      else
-        *x = gesture_get_default_threshold ();
-    }
-  if (y != NULL)
-    {
-      if (action->priv->distance_y > 0.0)
-        *y = action->priv->distance_y;
-      else
-        *y = gesture_get_default_threshold ();
-    }
 }
