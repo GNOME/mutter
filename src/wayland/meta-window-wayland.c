@@ -141,7 +141,7 @@ static void
 meta_window_wayland_focus (MetaWindow *window,
                            guint32     timestamp)
 {
-  if (meta_window_is_focusable (window))
+  if (!window->unmanaging && meta_window_is_focusable (window))
     meta_x11_display_set_input_focus_window (window->display->x11_display,
                                              window,
                                              FALSE,
