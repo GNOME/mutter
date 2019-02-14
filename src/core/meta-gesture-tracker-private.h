@@ -39,14 +39,6 @@
 typedef struct _MetaGestureTracker MetaGestureTracker;
 typedef struct _MetaGestureTrackerClass MetaGestureTrackerClass;
 
-typedef enum
-{
-  META_SEQUENCE_NONE,
-  META_SEQUENCE_ACCEPTED,
-  META_SEQUENCE_REJECTED,
-  META_SEQUENCE_PENDING_END
-} MetaSequenceState;
-
 struct _MetaGestureTracker
 {
   GObject parent_instance;
@@ -58,7 +50,7 @@ struct _MetaGestureTrackerClass
 
   void (* state_changed) (MetaGestureTracker   *tracker,
                           ClutterEventSequence *sequence,
-                          MetaSequenceState     state);
+                          gboolean              accepted);
 };
 
 GType                meta_gesture_tracker_get_type           (void) G_GNUC_CONST;
@@ -67,11 +59,6 @@ MetaGestureTracker * meta_gesture_tracker_new                (void);
 
 gboolean             meta_gesture_tracker_handle_event       (MetaGestureTracker   *tracker,
                                                               const ClutterEvent   *event);
-gboolean             meta_gesture_tracker_set_sequence_state (MetaGestureTracker   *tracker,
-                                                              ClutterEventSequence *sequence,
-                                                              MetaSequenceState     state);
-MetaSequenceState    meta_gesture_tracker_get_sequence_state (MetaGestureTracker   *tracker,
-                                                              ClutterEventSequence *sequence);
 gint                 meta_gesture_tracker_get_n_current_touches (MetaGestureTracker *tracker);
 
 #endif /* META_GESTURE_TRACKER_PRIVATE_H */

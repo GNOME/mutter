@@ -595,12 +595,12 @@ meta_display_cancel_touch (MetaDisplay *display)
 static void
 gesture_tracker_state_changed (MetaGestureTracker   *tracker,
                                ClutterEventSequence *sequence,
-                               MetaSequenceState     state,
+                               gboolean             accepted,
                                MetaDisplay          *display)
 {
   if (meta_is_wayland_compositor ())
     {
-      if (state == META_SEQUENCE_ACCEPTED)
+      if (accepted)
         meta_display_cancel_touch (display);
     }
   else
@@ -608,12 +608,10 @@ gesture_tracker_state_changed (MetaGestureTracker   *tracker,
       MetaBackendX11 *backend = META_BACKEND_X11 (meta_get_backend ());
       int event_mode;
 
-      if (state == META_SEQUENCE_ACCEPTED)
+      if (accepted)
         event_mode = XIAcceptTouch;
-      else if (state == META_SEQUENCE_REJECTED)
-        event_mode = XIRejectTouch;
       else
-        return;
+        event_mode = XIRejectTouch;
 
       XIAllowTouchEvents (meta_backend_x11_get_xdisplay (backend),
                           META_VIRTUAL_CORE_POINTER_ID,
