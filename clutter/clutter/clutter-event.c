@@ -1000,6 +1000,28 @@ clutter_event_set_key_unicode (ClutterEvent *event,
 }
 
 /**
+ * clutter_event_is_replayed:
+ * @event: a #ClutterEvent of type %CLUTTER_TOUCH_BEGIN,
+ *   %CLUTTER_TOUCH_UPDATE or %CLUTTER_TOUCH_END
+ *
+ * Whether the touch event @event is replayed.
+ *
+ * Return value: %TRUE if the event is replayed, %FALSE otherwise.
+ *
+ * Since: ?
+ */
+gboolean
+clutter_event_is_replayed (const ClutterEvent *event)
+{
+  g_return_val_if_fail (event != NULL, FALSE);
+  g_return_val_if_fail (event->type == CLUTTER_TOUCH_BEGIN ||
+                        event->type == CLUTTER_TOUCH_UPDATE ||
+                        event->type == CLUTTER_TOUCH_END, FALSE);
+
+  return event->touch.replayed;
+}
+
+/**
  * clutter_event_get_event_sequence:
  * @event: a #ClutterEvent of type %CLUTTER_TOUCH_BEGIN,
  *   %CLUTTER_TOUCH_UPDATE, %CLUTTER_TOUCH_END, or
