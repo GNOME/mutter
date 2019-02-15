@@ -57,6 +57,9 @@ void                    clutter_paint_node_set_name                     (Clutter
                                                                          const char            *name);
 
 CLUTTER_EXPORT
+CoglFramebuffer *       clutter_paint_node_get_framebuffer              (ClutterPaintNode      *node);
+
+CLUTTER_EXPORT
 void                    clutter_paint_node_add_child                    (ClutterPaintNode      *node,
                                                                          ClutterPaintNode      *child);
 CLUTTER_EXPORT
