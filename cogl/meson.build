@@ -29,6 +29,7 @@ cogl_pkg_private_deps = [
   cairo_dep,
   gmodule_no_export_dep,
   gdk_pixbuf_dep,
+  graphene_dep,
   #uprof_dep,
 ]
 
