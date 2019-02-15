@@ -494,7 +494,7 @@ if have_introspection
     sources: cogl_introspected_headers,
     nsversion: libmutter_api_version,
     namespace: 'Cogl',
-    includes: ['GL-1.0', 'GObject-2.0'],
+    includes: ['GL-1.0', 'GObject-2.0', 'Graphene-1.0'],
     dependencies: [cogl_deps],
     extra_args: introspection_args + [
       '-UCOGL_COMPILATION',
