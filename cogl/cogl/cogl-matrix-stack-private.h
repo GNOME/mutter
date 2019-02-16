@@ -90,11 +90,7 @@ typedef struct _CoglMatrixEntryRotateEuler
 {
   CoglMatrixEntry _parent_data;
 
-  /* This doesn't store an actual CoglEuler in order to avoid the
-   * padding */
-  float heading;
-  float pitch;
-  float roll;
+  graphene_euler_t euler;
 } CoglMatrixEntryRotateEuler;
 
 typedef struct _CoglMatrixEntryRotateQuaternion
