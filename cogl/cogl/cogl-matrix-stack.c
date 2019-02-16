@@ -196,17 +196,14 @@ cogl_matrix_stack_rotate_quaternion (CoglMatrixStack *stack,
 }
 
 void
-cogl_matrix_stack_rotate_euler (CoglMatrixStack *stack,
-                                 const CoglEuler *euler)
+cogl_matrix_stack_rotate_euler (CoglMatrixStack        *stack,
+                                const graphene_euler_t *euler)
 {
   CoglMatrixEntryRotateEuler *entry;
 
   entry = _cogl_matrix_stack_push_operation (stack,
                                              COGL_MATRIX_OP_ROTATE_EULER);
-
-  entry->heading = euler->heading;
-  entry->pitch = euler->pitch;
-  entry->roll = euler->roll;
+  graphene_euler_init_from_euler (&entry->euler, euler);
 }
 
 void
@@ -580,13 +577,8 @@ initialized:
           {
             CoglMatrixEntryRotateEuler *rotate =
               (CoglMatrixEntryRotateEuler *)children[i];
-            CoglEuler euler;
-            cogl_euler_init (&euler,
-                             rotate->heading,
-                             rotate->pitch,
-                             rotate->roll);
             cogl_matrix_rotate_euler (matrix,
-                                      &euler);
+                                      &rotate->euler);
             continue;
           }
         case COGL_MATRIX_OP_ROTATE_QUATERNION:
@@ -1008,9 +1000,7 @@ cogl_matrix_entry_equal (CoglMatrixEntry *entry0,
             CoglMatrixEntryRotateEuler *rotate1 =
               (CoglMatrixEntryRotateEuler *)entry1;
 
-            if (rotate0->heading != rotate1->heading ||
-                rotate0->pitch != rotate1->pitch ||
-                rotate0->roll != rotate1->roll)
+            if (!graphene_euler_equal (&rotate0->euler, &rotate1->euler))
               return FALSE;
           }
           break;
@@ -1118,9 +1108,9 @@ cogl_debug_matrix_entry_print (CoglMatrixEntry *entry)
             CoglMatrixEntryRotateEuler *rotate =
               (CoglMatrixEntryRotateEuler *)entry;
             g_print ("  ROTATE EULER heading=%f pitch=%f roll=%f\n",
-                     rotate->heading,
-                     rotate->pitch,
-                     rotate->roll);
+                     graphene_euler_get_y (&rotate->euler),
+                     graphene_euler_get_x (&rotate->euler),
+                     graphene_euler_get_z (&rotate->euler));
             continue;
           }
         case COGL_MATRIX_OP_SCALE:
