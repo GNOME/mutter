@@ -49,6 +49,7 @@ G_DEFINE_TYPE (MetaCursorTracker, meta_cursor_tracker, G_TYPE_OBJECT);
 enum {
   CURSOR_CHANGED,
   CURSOR_MOVED,
+  CURSOR_VISIBILITY_CHANGED,
   LAST_SIGNAL
 };
 
@@ -172,6 +173,13 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
                                         G_TYPE_NONE, 2,
                                         G_TYPE_FLOAT,
                                         G_TYPE_FLOAT);
+
+  signals[CURSOR_VISIBILITY_CHANGED] = g_signal_new ("cursor-visibility-changed",
+                                                     G_TYPE_FROM_CLASS (klass),
+                                                     G_SIGNAL_RUN_LAST,
+                                                     0,
+                                                     NULL, NULL, NULL,
+                                                     G_TYPE_NONE, 0);
 }
 
 /**
@@ -426,6 +434,8 @@ meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
   tracker->is_showing = visible;
 
   sync_cursor (tracker);
+
+  g_signal_emit (tracker, signals[CURSOR_VISIBILITY_CHANGED], 0);
 }
 
 MetaCursorSprite *
