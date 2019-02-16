@@ -208,6 +208,7 @@ shm_buffer_attach (MetaWaylandBuffer *buffer,
   CoglTextureComponents components;
   CoglBitmap *bitmap;
   CoglTexture *texture;
+  GLint texture_max_size;
 
   if (buffer->texture)
     return TRUE;
@@ -227,7 +228,17 @@ shm_buffer_attach (MetaWaylandBuffer *buffer,
                                      stride,
                                      wl_shm_buffer_get_data (shm_buffer));
 
-  texture = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
+  glGetIntegerv (GL_MAX_TEXTURE_SIZE, &texture_max_size);
+  if (width <= (int) texture_max_size && height <= (int) texture_max_size)
+    {
+      texture = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
+    }
+  else
+    {
+      texture = COGL_TEXTURE (
+                  cogl_texture_2d_sliced_new_from_bitmap (bitmap,
+                                                          COGL_TEXTURE_MAX_WASTE));
+    }
   cogl_texture_set_components (COGL_TEXTURE (texture), components);
 
   cogl_object_unref (bitmap);
