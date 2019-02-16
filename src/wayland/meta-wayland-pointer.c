@@ -225,28 +225,19 @@ static void
 sync_focus_surface (MetaWaylandPointer *pointer)
 {
   MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
-  switch (display->event_route)
+  if (!cursor_tracker->is_showing ||
+      display->event_route == META_EVENT_ROUTE_WINDOW_OP ||
+      display->event_route == META_EVENT_ROUTE_COMPOSITOR_GRAB ||
+      display->event_route == META_EVENT_ROUTE_FRAME_BUTTON)
+    meta_wayland_pointer_set_focus (pointer, NULL);
+  else
     {
-    case META_EVENT_ROUTE_WINDOW_OP:
-    case META_EVENT_ROUTE_COMPOSITOR_GRAB:
-    case META_EVENT_ROUTE_FRAME_BUTTON:
-      /* The compositor has a grab, so remove our focus... */
-      meta_wayland_pointer_set_focus (pointer, NULL);
-      break;
-
-    case META_EVENT_ROUTE_NORMAL:
-    case META_EVENT_ROUTE_WAYLAND_POPUP:
-      {
-        const MetaWaylandPointerGrabInterface *interface = pointer->grab->interface;
-        interface->focus (pointer->grab, pointer->current);
-      }
-      break;
-
-    default:
-      g_assert_not_reached ();
+      const MetaWaylandPointerGrabInterface *interface = pointer->grab->interface;
+      interface->focus (pointer->grab, pointer->current);
     }
-
 }
 
 static void
@@ -492,6 +483,11 @@ meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
                     "cursor-changed",
                     G_CALLBACK (meta_wayland_pointer_on_cursor_changed),
                     pointer);
+
+  g_signal_connect_swapped (cursor_tracker,
+                            "cursor-visibility-changed",
+                            G_CALLBACK (meta_wayland_pointer_repick),
+                            pointer);
 }
 
 void
@@ -502,6 +498,10 @@ meta_wayland_pointer_disable (MetaWaylandPointer *pointer)
 
   g_signal_handlers_disconnect_by_func (cursor_tracker,
                                         (gpointer) meta_wayland_pointer_on_cursor_changed,
+                                        pointer);
+
+  g_signal_handlers_disconnect_by_func (cursor_tracker,
+                                        (gpointer) meta_wayland_pointer_repick,
                                         pointer);
 
   if (pointer->cursor_surface && pointer->cursor_surface_destroy_id)
