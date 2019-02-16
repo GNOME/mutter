@@ -25,7 +25,7 @@ cogl_test_conformance_sources = [
   'test-point-sprite.c',
   'test-no-gl-header.c',
   'test-version.c',
-  'test-euler-quaternion.c',
+  'test-euler.c',
   'test-layer-remove.c',
   'test-alpha-test.c',
   'test-map-buffer-range.c',

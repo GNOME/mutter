@@ -308,18 +308,6 @@ cogl_matrix_stack_rotate (CoglMatrixStack *stack,
                           float z);
 
 /**
- * cogl_matrix_stack_rotate_quaternion:
- * @stack: A #CoglMatrixStack
- * @quaternion: A #CoglQuaternion
- *
- * Multiplies the current matrix by one that rotates according to the
- * rotation described by @quaternion.
- */
-void
-cogl_matrix_stack_rotate_quaternion (CoglMatrixStack *stack,
-                                     const CoglQuaternion *quaternion);
-
-/**
  * cogl_matrix_stack_rotate_euler:
  * @stack: A #CoglMatrixStack
  * @euler: A #graphene_euler_t
