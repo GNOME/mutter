@@ -40,7 +40,7 @@ test_atk_text (ClutterActor *actor)
   gchar           *text       = NULL;
   AtkObject       *object     = NULL;
   AtkText         *cally_text = NULL;
-  gboolean         bool       = FALSE;
+  gboolean         boolean    = FALSE;
   gunichar         unichar;
   gint             count      = -1;
   gint             start      = -1;
@@ -89,17 +89,17 @@ test_atk_text (ClutterActor *actor)
   g_print ("atk_text_get_selection: %s, %i, %i\n", text, start, end);
   g_free(text); text = NULL;
 
-  bool = atk_text_remove_selection (cally_text, 0);
-  g_print ("atk_text_remove_selection (0): %i\n", bool);
+  boolean = atk_text_remove_selection (cally_text, 0);
+  g_print ("atk_text_remove_selection (0): %i\n", boolean);
 
-  bool = atk_text_remove_selection (cally_text, 1);
-  g_print ("atk_text_remove_selection (1): %i\n", bool);
+  boolean = atk_text_remove_selection (cally_text, 1);
+  g_print ("atk_text_remove_selection (1): %i\n", boolean);
 
-  bool = atk_text_add_selection (cally_text, 5, 10);
-  g_print ("atk_text_add_selection: %i\n", bool);
+  boolean = atk_text_add_selection (cally_text, 5, 10);
+  g_print ("atk_text_add_selection: %i\n", boolean);
 
-  bool = atk_text_set_selection (cally_text, 0, 6, 10);
-  g_print ("atk_text_set_selection: %i\n", bool);
+  boolean = atk_text_set_selection (cally_text, 0, 6, 10);
+  g_print ("atk_text_set_selection: %i\n", boolean);
 
   at_set = atk_text_get_run_attributes (cally_text, 0,
                                         &start, &end);
