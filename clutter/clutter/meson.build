@@ -454,6 +454,7 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
 libmutter_clutter_dep = declare_dependency(
   sources: [clutter_enum_types[1]],
   link_with: libmutter_clutter,
+  dependencies: clutter_deps,
 )
 
 if have_introspection
