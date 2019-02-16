@@ -194,19 +194,6 @@ cogl_display_set_onscreen_template
 
 cogl_double_to_fixed
 
-cogl_euler_copy
-cogl_euler_equal
-cogl_euler_free
-#ifdef COGL_HAS_GTYPE_SUPPORT
-cogl_euler_get_gtype
-#endif
-cogl_euler_init
-cogl_euler_init_from_matrix
-#if 0
-/* not yet implemented */
-cogl_euler_init_from_quaternion
-#endif
-
 cogl_features_available
 cogl_feature_flags_get_type
 cogl_fence_closure_get_user_data
