@@ -46,7 +46,6 @@
 #include <cogl-quaternion-private.h>
 #include <cogl-matrix.h>
 #include <cogl-vector.h>
-#include <cogl-euler.h>
 #include "cogl-gtype-private.h"
 
 #include <string.h>
@@ -200,24 +199,24 @@ cogl_quaternion_init_from_z_rotation (CoglQuaternion *quaternion,
 
 void
 cogl_quaternion_init_from_euler (CoglQuaternion *quaternion,
-                                 const CoglEuler *euler)
+                                 const graphene_euler_t *euler)
 {
   /* NB: We are using quaternions to represent an axis (a), angle (𝜃) pair
    * in this form:
    * [w=cos(𝜃/2) ( x=sin(𝜃/2)*a.x, y=sin(𝜃/2)*a.y, z=sin(𝜃/2)*a.x )]
    */
   float sin_heading =
-    sinf (euler->heading * _COGL_QUATERNION_DEGREES_TO_RADIANS * 0.5f);
+    sinf (graphene_euler_get_y (euler) * _COGL_QUATERNION_DEGREES_TO_RADIANS * 0.5f);
   float sin_pitch =
-    sinf (euler->pitch * _COGL_QUATERNION_DEGREES_TO_RADIANS * 0.5f);
+    sinf (graphene_euler_get_x (euler) * _COGL_QUATERNION_DEGREES_TO_RADIANS * 0.5f);
   float sin_roll =
-    sinf (euler->roll * _COGL_QUATERNION_DEGREES_TO_RADIANS * 0.5f);
+    sinf (graphene_euler_get_z (euler) * _COGL_QUATERNION_DEGREES_TO_RADIANS * 0.5f);
   float cos_heading =
-    cosf (euler->heading * _COGL_QUATERNION_DEGREES_TO_RADIANS * 0.5f);
+    cosf (graphene_euler_get_y (euler) * _COGL_QUATERNION_DEGREES_TO_RADIANS * 0.5f);
   float cos_pitch =
-    cosf (euler->pitch * _COGL_QUATERNION_DEGREES_TO_RADIANS * 0.5f);
+    cosf (graphene_euler_get_x (euler) * _COGL_QUATERNION_DEGREES_TO_RADIANS * 0.5f);
   float cos_roll =
-    cosf (euler->roll * _COGL_QUATERNION_DEGREES_TO_RADIANS * 0.5f);
+    cosf (graphene_euler_get_z (euler) * _COGL_QUATERNION_DEGREES_TO_RADIANS * 0.5f);
 
   quaternion->w =
     cos_heading * cos_pitch * cos_roll +

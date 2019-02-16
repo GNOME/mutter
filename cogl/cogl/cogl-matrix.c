@@ -1370,7 +1370,7 @@ cogl_matrix_rotate_quaternion (CoglMatrix *matrix,
 
 void
 cogl_matrix_rotate_euler (CoglMatrix *matrix,
-                          const CoglEuler *euler)
+                          const graphene_euler_t *euler)
 {
   CoglMatrix rotation_transform;
 
@@ -1779,12 +1779,12 @@ cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
 
 void
 cogl_matrix_init_from_euler (CoglMatrix *matrix,
-                             const CoglEuler *euler)
+                             const graphene_euler_t *euler)
 {
   /* Convert angles to radians */
-  float heading_rad = euler->heading / 180.0f * G_PI;
-  float pitch_rad = euler->pitch / 180.0f * G_PI;
-  float roll_rad = euler->roll / 180.0f * G_PI;
+  float heading_rad = graphene_euler_get_y (euler) / 180.0f * G_PI;
+  float pitch_rad = graphene_euler_get_x (euler) / 180.0f * G_PI;
+  float roll_rad = graphene_euler_get_z (euler) / 180.0f * G_PI;
   /* Pre-calculate the sin and cos */
   float sin_heading = sinf (heading_rad);
   float cos_heading = cosf (heading_rad);

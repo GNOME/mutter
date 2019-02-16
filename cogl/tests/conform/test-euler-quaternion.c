@@ -38,7 +38,7 @@
 void
 test_euler_quaternion (void)
 {
-  CoglEuler euler;
+  graphene_euler_t euler;
   CoglQuaternion quaternion;
   CoglMatrix matrix_a, matrix_b;
 
@@ -49,7 +49,7 @@ test_euler_quaternion (void)
   cogl_matrix_rotate (&matrix_a, 50.0f, 0.0f, 0.0f, 1.0f);
 
   /* And try the same rotation with a euler */
-  cogl_euler_init (&euler, -30, 40, 50);
+  graphene_euler_init_with_order (&euler, 40, -30, 50, GRAPHENE_EULER_ORDER_YXZ);
   cogl_matrix_init_from_euler (&matrix_b, &euler);
 
   /* Verify that the matrices are approximately the same */

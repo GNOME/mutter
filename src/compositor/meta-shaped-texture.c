@@ -279,31 +279,38 @@ get_base_pipeline (MetaShapedTexture *stex,
 
   if (stex->transform != META_MONITOR_TRANSFORM_NORMAL)
     {
-      CoglEuler euler;
+      graphene_euler_t euler;
 
       cogl_matrix_translate (&matrix, 0.5, 0.5, 0.0);
       switch (stex->transform)
         {
         case META_MONITOR_TRANSFORM_90:
-          cogl_euler_init (&euler, 0.0, 0.0, 90.0);
+          graphene_euler_init_with_order (&euler, 0.0, 0.0, 90.0,
+                                          GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_180:
-          cogl_euler_init (&euler, 0.0, 0.0, 180.0);
+          graphene_euler_init_with_order (&euler, 0.0, 0.0, 180.0,
+                                          GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_270:
-          cogl_euler_init (&euler, 0.0, 0.0, 270.0);
+          graphene_euler_init_with_order (&euler, 0.0, 0.0, 270.0,
+                                          GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_FLIPPED:
-          cogl_euler_init (&euler, 180.0, 0.0, 0.0);
+          graphene_euler_init_with_order (&euler, 0.0, 180.0, 0.0,
+                                          GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_FLIPPED_90:
-          cogl_euler_init (&euler, 0.0, 180.0, 90.0);
+          graphene_euler_init_with_order (&euler, 180.0, 0.0, 90.0,
+                                          GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_FLIPPED_180:
-          cogl_euler_init (&euler, 180.0, 0.0, 180.0);
+          graphene_euler_init_with_order (&euler, 0.0, 180.0, 180.0,
+                                          GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_FLIPPED_270:
-          cogl_euler_init (&euler, 0.0, 180.0, 270.0);
+          graphene_euler_init_with_order (&euler, 180.0, 0.0, 270.0,
+                                          GRAPHENE_EULER_ORDER_SYXZ);
           break;
         case META_MONITOR_TRANSFORM_NORMAL:
           g_assert_not_reached ();
