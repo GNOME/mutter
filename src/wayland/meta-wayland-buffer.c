@@ -230,10 +230,22 @@ shm_buffer_attach (MetaWaylandBuffer *buffer,
   texture = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
   cogl_texture_set_components (COGL_TEXTURE (texture), components);
 
-  cogl_object_unref (bitmap);
-
   if (!cogl_texture_allocate (COGL_TEXTURE (texture), error))
-    g_clear_pointer (&texture, cogl_object_unref);
+    {
+      g_clear_pointer (&texture, cogl_object_unref);
+      if (g_error_matches (*error, COGL_TEXTURE_ERROR, COGL_TEXTURE_ERROR_SIZE))
+        {
+          g_clear_error (error);
+          texture =
+            COGL_TEXTURE (cogl_texture_2d_sliced_new_from_bitmap (bitmap,
+                                                                  COGL_TEXTURE_MAX_WASTE));
+          cogl_texture_set_components (COGL_TEXTURE (texture), components);
+          if (!cogl_texture_allocate (COGL_TEXTURE (texture), error))
+            g_clear_pointer (&texture, cogl_object_unref);
+        }
+    }
+
+  cogl_object_unref (bitmap);
 
   wl_shm_buffer_end_access (shm_buffer);
 
