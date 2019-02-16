@@ -209,7 +209,7 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
   CoglPixelFormat format;
   CoglTextureComponents components;
   CoglBitmap *bitmap;
-  CoglTexture2D *texture_2d;
+  CoglTexture *new_texture;
 
   shm_buffer = wl_shm_buffer_get (buffer->resource);
   stride = wl_shm_buffer_get_stride (shm_buffer);
@@ -238,20 +238,36 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
                                      stride,
                                      wl_shm_buffer_get_data (shm_buffer));
 
-  texture_2d = cogl_texture_2d_new_from_bitmap (bitmap);
-  cogl_texture_set_components (COGL_TEXTURE (texture_2d), components);
+  new_texture = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
+  cogl_texture_set_components (new_texture, components);
+
+  if (!cogl_texture_allocate (new_texture, error))
+    {
+      g_clear_pointer (&new_texture, cogl_object_unref);
+      if (g_error_matches (*error, COGL_TEXTURE_ERROR, COGL_TEXTURE_ERROR_SIZE))
+        {
+          CoglTexture2DSliced *texture_sliced;
+
+          g_clear_error (error);
+
+          texture_sliced =
+            cogl_texture_2d_sliced_new_from_bitmap (bitmap,
+                                                    COGL_TEXTURE_MAX_WASTE));
+          new_texture = COGL_TEXTURE (texture_sliced);
+          cogl_texture_set_components (new_texture, components);
+          if (!cogl_texture_allocate (new_texture, error))
+            g_clear_pointer (&new_texture, cogl_object_unref);
+        }
+    }
 
   cogl_object_unref (bitmap);
 
-  if (!cogl_texture_allocate (COGL_TEXTURE (texture_2d), error))
-    g_clear_pointer (&texture_2d, cogl_object_unref);
-
   wl_shm_buffer_end_access (shm_buffer);
 
-  if (!texture_2d)
+  if (!new_texture)
     return FALSE;
 
-  *texture = COGL_TEXTURE (texture_2d);
+  *texture = new_texture;
   *changed_texture = TRUE;
   buffer->is_y_inverted = TRUE;
 
