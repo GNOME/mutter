@@ -310,14 +310,14 @@ cogl_matrix_stack_rotate (CoglMatrixStack *stack,
 /**
  * cogl_matrix_stack_rotate_quaternion:
  * @stack: A #CoglMatrixStack
- * @quaternion: A #CoglQuaternion
+ * @quaternion: A #graphene_quaternion_t
  *
  * Multiplies the current matrix by one that rotates according to the
  * rotation described by @quaternion.
  */
 void
 cogl_matrix_stack_rotate_quaternion (CoglMatrixStack *stack,
-                                     const CoglQuaternion *quaternion);
+                                     const graphene_quaternion_t *quaternion);
 
 /**
  * cogl_matrix_stack_rotate_euler:
