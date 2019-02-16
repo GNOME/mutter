@@ -182,17 +182,13 @@ cogl_matrix_stack_rotate (CoglMatrixStack *stack,
 
 void
 cogl_matrix_stack_rotate_quaternion (CoglMatrixStack *stack,
-                                     const CoglQuaternion *quaternion)
+                                     const graphene_quaternion_t *quaternion)
 {
   CoglMatrixEntryRotateQuaternion *entry;
 
   entry = _cogl_matrix_stack_push_operation (stack,
                                              COGL_MATRIX_OP_ROTATE_QUATERNION);
-
-  entry->values[0] = quaternion->w;
-  entry->values[1] = quaternion->x;
-  entry->values[2] = quaternion->y;
-  entry->values[3] = quaternion->z;
+  graphene_quaternion_init_from_quaternion (&entry->quaternion, quaternion);
 }
 
 void
@@ -585,9 +581,7 @@ initialized:
           {
             CoglMatrixEntryRotateQuaternion *rotate =
               (CoglMatrixEntryRotateQuaternion *)children[i];
-            CoglQuaternion quaternion;
-            cogl_quaternion_init_from_array (&quaternion, rotate->values);
-            cogl_matrix_rotate_quaternion (matrix, &quaternion);
+            cogl_matrix_rotate_quaternion (matrix, &rotate->quaternion);
             continue;
           }
         case COGL_MATRIX_OP_SCALE:
@@ -987,10 +981,9 @@ cogl_matrix_entry_equal (CoglMatrixEntry *entry0,
               (CoglMatrixEntryRotateQuaternion *)entry0;
             CoglMatrixEntryRotateQuaternion *rotate1 =
               (CoglMatrixEntryRotateQuaternion *)entry1;
-            int i;
-            for (i = 0; i < 4; i++)
-              if (rotate0->values[i] != rotate1->values[i])
-                return FALSE;
+            if (!graphene_quaternion_equal (&rotate0->quaternion,
+                                            &rotate1->quaternion))
+              return FALSE;
           }
           break;
         case COGL_MATRIX_OP_ROTATE_EULER:
@@ -1096,11 +1089,13 @@ cogl_debug_matrix_entry_print (CoglMatrixEntry *entry)
           {
             CoglMatrixEntryRotateQuaternion *rotate =
               (CoglMatrixEntryRotateQuaternion *)entry;
+            graphene_vec4_t v;
+            graphene_quaternion_to_vec4 (&rotate->quaternion, &v);
             g_print ("  ROTATE QUATERNION w=%f x=%f y=%f z=%f\n",
-                     rotate->values[0],
-                     rotate->values[1],
-                     rotate->values[2],
-                     rotate->values[3]);
+                     graphene_vec4_get_w (&v),
+                     graphene_vec4_get_x (&v),
+                     graphene_vec4_get_y (&v),
+                     graphene_vec4_get_z (&v));
             continue;
           }
         case COGL_MATRIX_OP_ROTATE_EULER:

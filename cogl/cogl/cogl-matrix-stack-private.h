@@ -97,9 +97,7 @@ typedef struct _CoglMatrixEntryRotateQuaternion
 {
   CoglMatrixEntry _parent_data;
 
-  /* This doesn't store an actual CoglQuaternion in order to avoid the
-   * padding */
-  float values[4];
+  graphene_quaternion_t quaternion;
 } CoglMatrixEntryRotateQuaternion;
 
 typedef struct _CoglMatrixEntryScale
