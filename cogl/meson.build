@@ -23,13 +23,13 @@ cogl_mutter_config_h = configure_file(
 cogl_pkg_deps = [
   glib_dep,
   gobject_dep,
+  graphene_dep,
 ]
 
 cogl_pkg_private_deps = [
   cairo_dep,
   gmodule_no_export_dep,
   gdk_pixbuf_dep,
-  graphene_dep,
   #uprof_dep,
 ]
 
