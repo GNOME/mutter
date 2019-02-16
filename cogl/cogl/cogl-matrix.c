@@ -73,11 +73,9 @@
 
 #include <cogl-util.h>
 #include <cogl-debug.h>
-#include <cogl-quaternion.h>
-#include <cogl-quaternion-private.h>
 #include <cogl-matrix.h>
 #include <cogl-matrix-private.h>
-#include <cogl-quaternion-private.h>
+#include <cogl-vector.h>
 
 #include <glib.h>
 #include <math.h>
@@ -1360,7 +1358,7 @@ cogl_matrix_rotate (CoglMatrix *matrix,
 
 void
 cogl_matrix_rotate_quaternion (CoglMatrix *matrix,
-                               const CoglQuaternion *quaternion)
+                               const graphene_quaternion_t *quaternion)
 {
   CoglMatrix rotation_transform;
 
@@ -1737,22 +1735,25 @@ _cogl_matrix_init_from_matrix_without_inverse (CoglMatrix *matrix,
 
 static void
 _cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
-                                   const CoglQuaternion *quaternion)
+                                   const graphene_quaternion_t *quaternion)
 {
-  float qnorm = _COGL_QUATERNION_NORM (quaternion);
+  graphene_vec4_t quaternion_v;
+  graphene_quaternion_to_vec4 (quaternion, &quaternion_v);
+
+  float qnorm = graphene_quaternion_dot (quaternion, quaternion);
   float s = (qnorm > 0.0f) ? (2.0f / qnorm) : 0.0f;
-  float xs = quaternion->x * s;
-  float ys = quaternion->y * s;
-  float zs = quaternion->z * s;
-  float wx = quaternion->w * xs;
-  float wy = quaternion->w * ys;
-  float wz = quaternion->w * zs;
-  float xx = quaternion->x * xs;
-  float xy = quaternion->x * ys;
-  float xz = quaternion->x * zs;
-  float yy = quaternion->y * ys;
-  float yz = quaternion->y * zs;
-  float zz = quaternion->z * zs;
+  float xs = graphene_vec4_get_x (&quaternion_v) * s;
+  float ys = graphene_vec4_get_y (&quaternion_v) * s;
+  float zs = graphene_vec4_get_z (&quaternion_v) * s;
+  float wx = graphene_vec4_get_w (&quaternion_v) * xs;
+  float wy = graphene_vec4_get_w (&quaternion_v) * ys;
+  float wz = graphene_vec4_get_w (&quaternion_v) * zs;
+  float xx = graphene_vec4_get_x (&quaternion_v) * xs;
+  float xy = graphene_vec4_get_x (&quaternion_v) * ys;
+  float xz = graphene_vec4_get_x (&quaternion_v) * zs;
+  float yy = graphene_vec4_get_y (&quaternion_v) * ys;
+  float yz = graphene_vec4_get_y (&quaternion_v) * zs;
+  float zz = graphene_vec4_get_z (&quaternion_v) * zs;
 
   matrix->xx = 1.0f - (yy + zz);
   matrix->yx = xy + wz;
@@ -1772,7 +1773,7 @@ _cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
 
 void
 cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
-                                  const CoglQuaternion *quaternion)
+                                  const graphene_quaternion_t *quaternion)
 {
   _cogl_matrix_init_from_quaternion (matrix, quaternion);
 }
