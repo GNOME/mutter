@@ -88,10 +88,6 @@ cogl_handle_get_type (void) G_GNUC_CONST;
  * between cogl-matrix.h and cogl-quaterion.h */
 typedef struct _CoglMatrix      CoglMatrix;
 
-/* Same as above we forward declared CoglQuaternion to avoid
- * circular dependencies. */
-typedef struct _CoglQuaternion CoglQuaternion;
-
 /**
  * CoglAngle:
  *

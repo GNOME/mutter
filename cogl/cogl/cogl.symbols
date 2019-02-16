@@ -266,7 +266,6 @@ cogl_framebuffer_rotate
 
 #ifdef COGL_ENABLE_EXPERIMENTAL_API
 cogl_framebuffer_rotate_euler
-cogl_framebuffer_rotate_quaternion
 #endif
 
 cogl_framebuffer_scale
@@ -309,8 +308,6 @@ cogl_get_proc_address
 cogl_get_projection_matrix
 cogl_get_rectangle_indices
 cogl_get_source
-cogl_get_static_identity_quaternion
-cogl_get_static_zero_quaternion
 cogl_get_viewport
 
 #ifdef COGL_HAS_GLIB_SUPPORT
@@ -458,7 +455,6 @@ cogl_matrix_init_from_array
 cogl_matrix_init_translation
 cogl_matrix_is_identity
 cogl_matrix_init_from_euler
-cogl_matrix_init_from_quaternion
 cogl_matrix_init_identity
 cogl_matrix_look_at
 cogl_matrix_multiply
@@ -472,7 +468,6 @@ cogl_matrix_rotate
 
 #ifdef COGL_ENABLE_EXPERIMENTAL_API
 cogl_matrix_rotate_euler
-cogl_matrix_rotate_quaternion
 #endif
 
 cogl_matrix_scale
@@ -492,7 +487,6 @@ cogl_matrix_stack_pop
 cogl_matrix_stack_push
 cogl_matrix_stack_rotate
 cogl_matrix_stack_rotate_euler
-cogl_matrix_stack_rotate_quaternion
 cogl_matrix_stack_scale
 cogl_matrix_stack_set
 cogl_matrix_stack_translate
@@ -720,31 +714,6 @@ cogl_push_draw_buffer
 cogl_push_framebuffer
 cogl_push_matrix
 cogl_push_source
-
-cogl_quaternion_copy
-cogl_quaternion_dot_product
-cogl_quaternion_equal
-cogl_quaternion_free
-#ifdef COGL_HAS_GTYPE_SUPPORT
-cogl_quaternion_get_gtype
-#endif
-cogl_quaternion_get_rotation_angle
-cogl_quaternion_get_rotation_axis
-cogl_quaternion_init
-cogl_quaternion_init_from_angle_vector
-cogl_quaternion_init_from_array
-cogl_quaternion_init_from_euler
-cogl_quaternion_init_from_x_rotation
-cogl_quaternion_init_from_y_rotation
-cogl_quaternion_init_from_z_rotation
-cogl_quaternion_init_identity
-cogl_quaternion_invert
-cogl_quaternion_multiply
-cogl_quaternion_nlerp
-cogl_quaternion_normalize
-cogl_quaternion_pow
-cogl_quaternion_slerp
-cogl_quaternion_squad
 
 cogl_read_pixels
 cogl_read_pixels_flags_get_type

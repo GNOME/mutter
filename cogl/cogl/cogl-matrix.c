@@ -73,11 +73,9 @@
 
 #include <cogl-util.h>
 #include <cogl-debug.h>
-#include <cogl-quaternion.h>
-#include <cogl-quaternion-private.h>
 #include <cogl-matrix.h>
 #include <cogl-matrix-private.h>
-#include <cogl-quaternion-private.h>
+#include <cogl-vector.h>
 
 #include <glib.h>
 #include <math.h>
@@ -1359,16 +1357,6 @@ cogl_matrix_rotate (CoglMatrix *matrix,
 }
 
 void
-cogl_matrix_rotate_quaternion (CoglMatrix *matrix,
-                               const CoglQuaternion *quaternion)
-{
-  CoglMatrix rotation_transform;
-
-  cogl_matrix_init_from_quaternion (&rotation_transform, quaternion);
-  cogl_matrix_multiply (matrix, matrix, &rotation_transform);
-}
-
-void
 cogl_matrix_rotate_euler (CoglMatrix *matrix,
                           const graphene_euler_t *euler)
 {
@@ -1733,48 +1721,6 @@ _cogl_matrix_init_from_matrix_without_inverse (CoglMatrix *matrix,
   memcpy (matrix, src, 16 * sizeof (float));
   matrix->type = src->type;
   matrix->flags = src->flags | MAT_DIRTY_INVERSE;
-}
-
-static void
-_cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
-                                   const CoglQuaternion *quaternion)
-{
-  float qnorm = _COGL_QUATERNION_NORM (quaternion);
-  float s = (qnorm > 0.0f) ? (2.0f / qnorm) : 0.0f;
-  float xs = quaternion->x * s;
-  float ys = quaternion->y * s;
-  float zs = quaternion->z * s;
-  float wx = quaternion->w * xs;
-  float wy = quaternion->w * ys;
-  float wz = quaternion->w * zs;
-  float xx = quaternion->x * xs;
-  float xy = quaternion->x * ys;
-  float xz = quaternion->x * zs;
-  float yy = quaternion->y * ys;
-  float yz = quaternion->y * zs;
-  float zz = quaternion->z * zs;
-
-  matrix->xx = 1.0f - (yy + zz);
-  matrix->yx = xy + wz;
-  matrix->zx = xz - wy;
-  matrix->xy = xy - wz;
-  matrix->yy = 1.0f - (xx + zz);
-  matrix->zy = yz + wx;
-  matrix->xz = xz + wy;
-  matrix->yz = yz - wx;
-  matrix->zz = 1.0f - (xx + yy);
-  matrix->xw = matrix->yw = matrix->zw = 0.0f;
-  matrix->wx = matrix->wy = matrix->wz = 0.0f;
-  matrix->ww = 1.0f;
-
-  matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
-}
-
-void
-cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
-                                  const CoglQuaternion *quaternion)
-{
-  _cogl_matrix_init_from_quaternion (matrix, quaternion);
 }
 
 void
