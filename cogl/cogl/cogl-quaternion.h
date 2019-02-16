@@ -36,6 +36,8 @@
 #ifndef __COGL_QUATERNION_H__
 #define __COGL_QUATERNION_H__
 
+#include <graphene.h>
+
 #include <cogl/cogl-types.h>
 #include <cogl/cogl-vector.h>
 
@@ -57,7 +59,6 @@ G_BEGIN_DECLS
  * .
  */
 #include <cogl/cogl-vector.h>
-#include <cogl/cogl-euler.h>
 
 #include <glib-object.h>
 
@@ -269,13 +270,13 @@ cogl_quaternion_init_from_z_rotation (CoglQuaternion *quaternion,
 /**
  * cogl_quaternion_init_from_euler:
  * @quaternion: A #CoglQuaternion
- * @euler: A #CoglEuler with which to initialize the quaternion
+ * @euler: A #graphene_euler_t with which to initialize the quaternion
  *
  * Since: 2.0
  */
 void
 cogl_quaternion_init_from_euler (CoglQuaternion *quaternion,
-                                 const CoglEuler *euler);
+                                 const graphene_euler_t *euler);
 
 /**
  * cogl_quaternion_init_from_quaternion:
