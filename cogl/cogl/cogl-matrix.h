@@ -41,7 +41,6 @@
 #include <cogl/cogl-types.h>
 #include <cogl/cogl-macros.h>
 
-#include <cogl/cogl-quaternion.h>
 #include <glib-object.h>
 
 #include <graphene.h>
@@ -204,13 +203,13 @@ cogl_matrix_rotate (CoglMatrix *matrix,
  * @quaternion: A quaternion describing a rotation
  *
  * Multiplies @matrix with a rotation transformation described by the
- * given #CoglQuaternion.
+ * given #graphene_quaternion_t.
  *
  * Since: 2.0
  */
 void
 cogl_matrix_rotate_quaternion (CoglMatrix *matrix,
-                               const CoglQuaternion *quaternion);
+                               const graphene_quaternion_t *quaternion);
 
 /**
  * cogl_matrix_rotate_euler:
@@ -520,13 +519,13 @@ cogl_matrix_get_array (const CoglMatrix *matrix);
 /**
  * cogl_matrix_init_from_quaternion:
  * @matrix: A 4x4 transformation matrix
- * @quaternion: A #CoglQuaternion
+ * @quaternion: A #graphene_quaternion_t
  *
- * Initializes @matrix from a #CoglQuaternion rotation.
+ * Initializes @matrix from a #graphene_quaternion_t rotation.
  */
 void
 cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
-                                  const CoglQuaternion *quaternion);
+                                  const graphene_quaternion_t *quaternion);
 
 /**
  * cogl_matrix_init_from_euler:
