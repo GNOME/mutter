@@ -39,7 +39,7 @@ void
 test_euler_quaternion (void)
 {
   graphene_euler_t euler;
-  CoglQuaternion quaternion;
+  graphene_quaternion_t quaternion;
   CoglMatrix matrix_a, matrix_b;
 
   /* Try doing the rotation with three separate rotations */
@@ -56,7 +56,7 @@ test_euler_quaternion (void)
   COMPARE_MATRICES (&matrix_a, &matrix_b);
 
   /* Try converting the euler to a matrix via a quaternion */
-  cogl_quaternion_init_from_euler (&quaternion, &euler);
+  graphene_quaternion_init_from_euler (&quaternion, &euler);
   memset (&matrix_b, 0, sizeof (matrix_b));
   cogl_matrix_init_from_quaternion (&matrix_b, &quaternion);
   COMPARE_MATRICES (&matrix_a, &matrix_b);

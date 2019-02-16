@@ -51,7 +51,6 @@ typedef struct _CoglFramebuffer CoglFramebuffer;
 #include <cogl/cogl-pipeline.h>
 #include <cogl/cogl-indices.h>
 #include <cogl/cogl-bitmap.h>
-#include <cogl/cogl-quaternion.h>
 #include <cogl/cogl-texture.h>
 #include <glib-object.h>
 
@@ -365,7 +364,7 @@ cogl_framebuffer_rotate (CoglFramebuffer *framebuffer,
 /**
  * cogl_framebuffer_rotate_quaternion:
  * @framebuffer: A #CoglFramebuffer pointer
- * @quaternion: A #CoglQuaternion
+ * @quaternion: A #graphene_quaternion_t
  *
  * Multiplies the current model-view matrix by one that rotates
  * according to the rotation described by @quaternion.
@@ -375,7 +374,7 @@ cogl_framebuffer_rotate (CoglFramebuffer *framebuffer,
  */
 void
 cogl_framebuffer_rotate_quaternion (CoglFramebuffer *framebuffer,
-                                    const CoglQuaternion *quaternion);
+                                    const graphene_quaternion_t *quaternion);
 
 /**
  * cogl_framebuffer_rotate_euler:
