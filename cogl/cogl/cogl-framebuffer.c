@@ -1603,7 +1603,7 @@ cogl_framebuffer_rotate (CoglFramebuffer *framebuffer,
 
 void
 cogl_framebuffer_rotate_quaternion (CoglFramebuffer *framebuffer,
-                                    const CoglQuaternion *quaternion)
+                                    const graphene_quaternion_t *quaternion)
 {
   CoglMatrixStack *modelview_stack =
     _cogl_framebuffer_get_modelview_stack (framebuffer);
