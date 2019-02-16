@@ -45,7 +45,6 @@ typedef enum _CoglMatrixOp
   COGL_MATRIX_OP_LOAD_IDENTITY,
   COGL_MATRIX_OP_TRANSLATE,
   COGL_MATRIX_OP_ROTATE,
-  COGL_MATRIX_OP_ROTATE_QUATERNION,
   COGL_MATRIX_OP_ROTATE_EULER,
   COGL_MATRIX_OP_SCALE,
   COGL_MATRIX_OP_MULTIPLY,
@@ -93,15 +92,6 @@ typedef struct _CoglMatrixEntryRotateEuler
   graphene_euler_t euler;
 } CoglMatrixEntryRotateEuler;
 
-typedef struct _CoglMatrixEntryRotateQuaternion
-{
-  CoglMatrixEntry _parent_data;
-
-  /* This doesn't store an actual CoglQuaternion in order to avoid the
-   * padding */
-  float values[4];
-} CoglMatrixEntryRotateQuaternion;
-
 typedef struct _CoglMatrixEntryScale
 {
   CoglMatrixEntry _parent_data;
@@ -143,7 +133,6 @@ typedef union _CoglMatrixEntryFull
   CoglMatrixEntryTranslate translate;
   CoglMatrixEntryRotate rotate;
   CoglMatrixEntryRotateEuler rotate_euler;
-  CoglMatrixEntryRotateQuaternion rotate_quaternion;
   CoglMatrixEntryScale scale;
   CoglMatrixEntryMultiply multiply;
   CoglMatrixEntryLoad load;
