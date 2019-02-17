@@ -1,24 +1,25 @@
 # Chinese (Taiwan) translation of metacity.
 # Copyright (C) 2002-07 Free Software Foundation, Inc.
+#
 # Abel Cheung <abel@oaka.org>, 2002-2003.
 # Woodman Tuen <wmtuen@gmail.com>, 2004-07.
 # Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>, 2010.
 # Wei-Lun Chao <chaoweilun@gmail.com>, 2010.
-#
+# pan93412 <pan93412@gmail.com>, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity 3.3.4\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-08-06 14:19+0000\n"
-"PO-Revision-Date: 2018-08-12 16:35+0800\n"
+"POT-Creation-Date: 2019-02-04 17:52+0000\n"
+"PO-Revision-Date: 2019-02-17 23:15+0800\n"
 "Last-Translator: pan93412 <pan93412@gmail.com>\n"
-"Language-Team: Chinese (Taiwan) <zh-l10n@lists.linux.org.tw>\n"
+"Language-Team: Chinese <zh-l10n@linux.org.tw>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.8.4\n"
+"X-Generator: Lokalize 18.12.2\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -343,8 +344,7 @@ msgstr "可拖曳邊框寬度"
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
-msgstr ""
-"所有可拖曳邊框的總數。如果布景的可視邊框不夠，會加入隱形邊框來符合這個數值。"
+msgstr "所有可拖曳邊框的總數。如果布景的可視邊框不夠，會加入隱形邊框來符合這個數值。"
 
 #: data/org.gnome.mutter.gschema.xml.in:89
 msgid "Auto maximize nearly monitor sized windows"
@@ -499,7 +499,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2325
+#: src/backends/meta-input-settings.c:2423
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "模式切換( 群組 %d)"
@@ -507,116 +507,125 @@ msgstr "模式切換( 群組 %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2348
+#: src/backends/meta-input-settings.c:2446
 msgid "Switch monitor"
 msgstr "切換螢幕"
 
-#: src/backends/meta-input-settings.c:2350
+#: src/backends/meta-input-settings.c:2448
 msgid "Show on-screen help"
 msgstr "顯示螢幕求助"
 
-#: src/backends/meta-monitor-manager.c:886
+#: src/backends/meta-monitor-manager.c:954
 msgid "Built-in display"
 msgstr "內建顯示"
 
-#: src/backends/meta-monitor-manager.c:909
+#: src/backends/meta-monitor-manager.c:986
 msgid "Unknown"
 msgstr "不明"
 
-#: src/backends/meta-monitor-manager.c:911
+#: src/backends/meta-monitor-manager.c:988
 msgid "Unknown Display"
 msgstr "不明的顯示器"
 
-#. TRANSLATORS: this is a monitor vendor name, followed by a
-#. * size in inches, like 'Dell 15"'
-#.
-#: src/backends/meta-monitor-manager.c:919
+#: src/backends/meta-monitor-manager.c:996
 #, c-format
+#| msgid "%s %s"
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/backends/meta-monitor-manager.c:1004
+#, c-format
+#| msgid "%s %s"
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
 msgid "%s %s"
 msgstr "%s %s"
 
 # FIXME: I'm still unclear about the meaning of XGetSelectionOwner -- Abel
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:481
+#: src/compositor/compositor.c:482
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr "在畫面「%2$s」中的第 %1$i 個螢幕中已啟動另一個組合視窗管理員。"
 
-#: src/core/bell.c:254
+#: src/core/bell.c:252
 msgid "Bell event"
 msgstr "響鈴事件"
 
-#: src/core/main.c:191
+#: src/core/main.c:185
 msgid "Disable connection to session manager"
 msgstr "停用到作業階段管理員的連線"
 
-#: src/core/main.c:197
+#: src/core/main.c:191
 msgid "Replace the running window manager"
 msgstr "取代執行中的視窗管理員"
 
-#: src/core/main.c:203
+#: src/core/main.c:197
 msgid "Specify session management ID"
 msgstr "指定作業階段管理 ID"
 
-#: src/core/main.c:208
+#: src/core/main.c:202
 msgid "X Display to use"
 msgstr "使用的 X 畫面"
 
-#: src/core/main.c:214
+#: src/core/main.c:208
 msgid "Initialize session from savefile"
 msgstr "以 savefile 初始化作業階段"
 
-#: src/core/main.c:220
+#: src/core/main.c:214
 msgid "Make X calls synchronous"
 msgstr "使用同步方式調用 X 函式"
 
-#: src/core/main.c:227
+#: src/core/main.c:221
 msgid "Run as a wayland compositor"
 msgstr "以 wayland 組合器執行"
 
-#: src/core/main.c:233
+#: src/core/main.c:227
 msgid "Run as a nested compositor"
 msgstr "以巢狀組合器執行"
 
-#: src/core/main.c:239
+#: src/core/main.c:233
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "在不啟動 Xwayland 的情況下開啟 Wayland 合成器"
 
-#: src/core/main.c:247
+#: src/core/main.c:241
 msgid "Run as a full display server, rather than nested"
 msgstr "以完全顯示伺服器執行，而非巢狀"
 
-#: src/core/main.c:253
+#: src/core/main.c:247
 msgid "Run with X11 backend"
 msgstr "透過 X11 後端執行"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:148
+#: src/core/meta-close-dialog-default.c:150
 #, c-format
 msgid "“%s” is not responding."
 msgstr "「%s」沒有回應。"
 
-#: src/core/meta-close-dialog-default.c:150
+#: src/core/meta-close-dialog-default.c:152
 msgid "Application is not responding."
 msgstr "應用程式沒有回應。"
 
-#: src/core/meta-close-dialog-default.c:155
+#: src/core/meta-close-dialog-default.c:157
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
 msgstr "您可以選擇稍等一下讓它繼續，或者強制完全退出程式。"
 
-#: src/core/meta-close-dialog-default.c:162
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "強制退出(_F)"
 
-#: src/core/meta-close-dialog-default.c:162
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "等待(_W)"
 
-#: src/core/mutter.c:39
+#: src/core/mutter.c:38
 #, c-format
 msgid ""
 "mutter %s\n"
@@ -630,21 +639,21 @@ msgstr ""
 "本程式是自由軟體；有關著作權的詳情請參考源始程式碼。\n"
 "本程式不負任何擔保責任；亦無對適售性或特定目的適用性所為的默示性擔保。\n"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:52
 msgid "Print version"
 msgstr "顯示版本"
 
-#: src/core/mutter.c:59
+#: src/core/mutter.c:58
 msgid "Mutter plugin to use"
 msgstr "要使用的 Mutter 外掛程式"
 
 # (Abel) take care of the same string in libwnck
-#: src/core/prefs.c:1787
+#: src/core/prefs.c:1786
 #, c-format
 msgid "Workspace %d"
 msgstr "工作區 %d"
 
-#: src/core/util.c:120
+#: src/core/util.c:121
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "編譯 Mutter 時並沒有加入詳細偵錯模式的支援\n"
 
@@ -662,27 +671,27 @@ msgstr ""
 "畫面「%s」已經有了視窗管理員；請嘗試使用 --replace 選項來替換目前的視窗管理"
 "員。"
 
-#: src/x11/meta-x11-display.c:1010
+#: src/x11/meta-x11-display.c:1008
 msgid "Failed to initialize GDK\n"
 msgstr "無法初始化 GDK\n"
 
-#: src/x11/meta-x11-display.c:1034
+#: src/x11/meta-x11-display.c:1032
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "無法開啟 X Window 系統畫面「%s」\n"
 
-#: src/x11/meta-x11-display.c:1117
+#: src/x11/meta-x11-display.c:1115
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "畫面「%2$s」中的第 %1$d 個螢幕無效\n"
 
-#: src/x11/session.c:1819
+#: src/x11/session.c:1821
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
 msgstr "這些視窗不支援「儲存目前的設定」，必須在下次登入後自行啟動。"
 
-#: src/x11/window-props.c:565
+#: src/x11/window-props.c:568
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s（在 %s）"
