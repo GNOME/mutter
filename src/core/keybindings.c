@@ -3546,6 +3546,9 @@ handle_restore_shortcuts (MetaDisplay     *display,
 {
   ClutterInputDevice *source;
 
+  if (!display->focus_window)
+    return;
+
   source = clutter_event_get_source_device ((ClutterEvent *) event);
 
   meta_topic (META_DEBUG_KEYBINDINGS, "Restoring normal keyboard shortcuts\n");
