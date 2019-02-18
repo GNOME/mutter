@@ -265,40 +265,6 @@ clutter_backend_egl_native_new (void)
 }
 
 /**
- * clutter_eglx_display:
- *
- * Retrieves the EGL display used by Clutter.
- *
- * Return value: the EGL display, or 0
- *
- * Since: 0.6
- *
- * Deprecated: 1.6: Use clutter_egl_get_egl_display() instead.
- */
-EGLDisplay
-clutter_eglx_display (void)
-{
-  return clutter_egl_get_egl_display ();
-}
-
-/**
- * clutter_egl_display:
- *
- * Retrieves the EGL display used by Clutter.
- *
- * Return value: the EGL display used by Clutter, or 0
- *
- * Since: 0.6
- *
- * Deprecated: 1.6: Use clutter_egl_get_egl_display() instead.
- */
-EGLDisplay
-clutter_egl_display (void)
-{
-  return clutter_egl_get_egl_display ();
-}
-
-/**
  * clutter_egl_get_egl_display:
  *
  * Retrieves the EGL display used by Clutter, if it supports the
