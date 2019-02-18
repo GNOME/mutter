@@ -75,7 +75,6 @@
 #include <cogl-debug.h>
 #include <cogl-matrix.h>
 #include <cogl-matrix-private.h>
-#include <cogl-vector.h>
 
 #include <glib.h>
 #include <math.h>
@@ -2184,41 +2183,41 @@ cogl_matrix_look_at (CoglMatrix *matrix,
                      float world_up_z)
 {
   CoglMatrix tmp;
-  float forward[3];
-  float side[3];
-  float up[3];
+  graphene_vec3_t forward;
+  graphene_vec3_t side;
+  graphene_vec3_t up;
 
   /* Get a unit viewing direction vector */
-  cogl_vector3_init (forward,
-                     object_x - eye_position_x,
-                     object_y - eye_position_y,
-                     object_z - eye_position_z);
-  cogl_vector3_normalize (forward);
+  graphene_vec3_init (&forward,
+                      object_x - eye_position_x,
+                      object_y - eye_position_y,
+                      object_z - eye_position_z);
+  graphene_vec3_normalize (&forward, &forward);
 
-  cogl_vector3_init (up, world_up_x, world_up_y, world_up_z);
+  graphene_vec3_init (&up, world_up_x, world_up_y, world_up_z);
 
   /* Take the sideways direction as being perpendicular to the viewing
    * direction and the word up vector. */
-  cogl_vector3_cross_product (side, forward, up);
-  cogl_vector3_normalize (side);
+  graphene_vec3_cross (&forward, &up, &side);
+  graphene_vec3_normalize (&side, &side);
 
   /* Now we have unit sideways and forward-direction vectors calculate
    * a new mutually perpendicular up vector. */
-  cogl_vector3_cross_product (up, side, forward);
+  graphene_vec3_cross (&side, &forward, &up);
 
-  tmp.xx = side[0];
-  tmp.yx = side[1];
-  tmp.zx = side[2];
+  tmp.xx = graphene_vec3_get_x (&side);
+  tmp.yx = graphene_vec3_get_y (&side);
+  tmp.zx = graphene_vec3_get_z (&side);
   tmp.wx = 0;
 
-  tmp.xy = up[0];
-  tmp.yy = up[1];
-  tmp.zy = up[2];
+  tmp.xy = graphene_vec3_get_x (&up);
+  tmp.yy = graphene_vec3_get_y (&up);
+  tmp.zy = graphene_vec3_get_z (&up);
   tmp.wy = 0;
 
-  tmp.xz = -forward[0];
-  tmp.yz = -forward[1];
-  tmp.zz = -forward[2];
+  tmp.xz = -graphene_vec3_get_x (&forward);
+  tmp.yz = -graphene_vec3_get_y (&forward);
+  tmp.zz = -graphene_vec3_get_z (&forward);
   tmp.wz = 0;
 
   tmp.xw = 0;
