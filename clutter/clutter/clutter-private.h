@@ -305,8 +305,8 @@ gboolean        _clutter_util_matrix_decompose  (const ClutterMatrix *src,
 
 typedef struct _ClutterPlane
 {
-  float v0[3];
-  float n[3];
+  graphene_vec3_t v0;
+  graphene_vec3_t n;
 } ClutterPlane;
 
 typedef enum _ClutterCullResult
