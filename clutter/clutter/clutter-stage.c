@@ -715,8 +715,9 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
   Vector4 *tmp_poly;
   ClutterPlane *plane;
   int i;
-  float b[3];
-  float c[3];
+  Vector4 *poly;
+  graphene_vec3_t b;
+  graphene_vec3_t c;
   int count;
 
   tmp_poly = g_alloca (sizeof (Vector4) * n_vertices * 2);
@@ -783,23 +784,37 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
   for (i = 0; i < count; i++)
     {
       plane = &planes[i];
-      memcpy (plane->v0, tmp_poly + i, sizeof (float) * 3);
-      memcpy (b, tmp_poly + n_vertices + i, sizeof (float) * 3);
-      memcpy (c, tmp_poly + n_vertices + i + 1, sizeof (float) * 3);
-      cogl_vector3_subtract (b, b, plane->v0);
-      cogl_vector3_subtract (c, c, plane->v0);
-      cogl_vector3_cross_product (plane->n, b, c);
-      cogl_vector3_normalize (plane->n);
+
+      poly = &tmp_poly[i];
+      graphene_vec3_init (&plane->v0, poly->x, poly->y, poly->z);
+
+      poly = &tmp_poly[n_vertices + i];
+      graphene_vec3_init (&b, poly->x, poly->y, poly->z);
+
+      poly = &tmp_poly[n_vertices + i + 1];
+      graphene_vec3_init (&c, poly->x, poly->y, poly->z);
+
+      graphene_vec3_subtract (&b, &plane->v0, &b);
+      graphene_vec3_subtract (&c, &plane->v0, &c);
+      graphene_vec3_cross (&b, &c, &plane->n);
+      graphene_vec3_normalize (&plane->n, &plane->n);
     }
 
   plane = &planes[n_vertices - 1];
-  memcpy (plane->v0, tmp_poly + 0, sizeof (float) * 3);
-  memcpy (b, tmp_poly + (2 * n_vertices - 1), sizeof (float) * 3);
-  memcpy (c, tmp_poly + n_vertices, sizeof (float) * 3);
-  cogl_vector3_subtract (b, b, plane->v0);
-  cogl_vector3_subtract (c, c, plane->v0);
-  cogl_vector3_cross_product (plane->n, b, c);
-  cogl_vector3_normalize (plane->n);
+
+  poly = &tmp_poly[0];
+  graphene_vec3_init (&plane->v0, poly->x, poly->y, poly->z);
+
+  poly = &tmp_poly[2 * n_vertices - 1];
+  graphene_vec3_init (&b, poly->x, poly->y, poly->z);
+
+  poly = &tmp_poly[n_vertices];
+  graphene_vec3_init (&c, poly->x, poly->y, poly->z);
+
+  graphene_vec3_subtract (&b, &plane->v0, &b);
+  graphene_vec3_subtract (&c, &plane->v0, &c);
+  graphene_vec3_cross (&b, &c, &plane->n);
+  graphene_vec3_normalize (&plane->n, &plane->n);
 }
 
 static void

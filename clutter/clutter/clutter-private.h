@@ -292,8 +292,8 @@ PangoDirection _clutter_pango_find_base_dir     (const gchar *text,
 
 typedef struct _ClutterPlane
 {
-  float v0[3];
-  float n[3];
+  graphene_vec3_t v0;
+  graphene_vec3_t n;
 } ClutterPlane;
 
 typedef enum _ClutterCullResult
