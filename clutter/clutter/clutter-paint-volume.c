@@ -1097,24 +1097,18 @@ _clutter_paint_volume_cull (ClutterPaintVolume *pv,
 
   for (i = 0; i < 4; i++)
     {
+      const ClutterPlane *plane = &planes[i];
       int out = 0;
       for (j = 0; j < vertex_count; j++)
         {
-          ClutterVertex p;
-          float distance;
+          graphene_vec3_t v;
 
-          /* XXX: for perspective projections this can be optimized
-           * out because all the planes should pass through the origin
-           * so (0,0,0) is a valid v0. */
-          p.x = vertices[j].x - planes[i].v0[0];
-          p.y = vertices[j].y - planes[i].v0[1];
-          p.z = vertices[j].z - planes[i].v0[2];
+          graphene_vec3_init (&v,
+                              vertices[j].x - graphene_vec3_get_x (&plane->v0),
+                              vertices[j].y - graphene_vec3_get_y (&plane->v0),
+                              vertices[j].z - graphene_vec3_get_z (&plane->v0));
 
-          distance = (planes[i].n[0] * p.x +
-                      planes[i].n[1] * p.y +
-                      planes[i].n[2] * p.z);
-
-          if (distance < 0)
+          if (graphene_vec3_dot (&plane->n, &v) < 0)
             out++;
         }
 
