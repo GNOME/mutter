@@ -104,9 +104,6 @@ XVisualInfo *clutter_x11_get_visual_info (void);
 CLUTTER_EXPORT
 void     clutter_x11_set_display         (Display * xdpy);
 
-CLUTTER_DEPRECATED_FOR(clutter_x11_get_visual_info)
-XVisualInfo *clutter_x11_get_stage_visual  (ClutterStage *stage);
-
 CLUTTER_EXPORT
 Window       clutter_x11_get_stage_window  (ClutterStage *stage);
 CLUTTER_EXPORT
