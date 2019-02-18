@@ -128,11 +128,6 @@ gboolean clutter_x11_has_event_retrieval (void);
 CLUTTER_EXPORT
 ClutterStage *clutter_x11_get_stage_from_window (Window win);
 
-CLUTTER_DEPRECATED_FOR(clutter_device_manager_peek_devices)
-const GSList* clutter_x11_get_input_devices (void);
-
-CLUTTER_DEPRECATED
-void     clutter_x11_enable_xinput (void);
 CLUTTER_EXPORT
 gboolean clutter_x11_has_xinput (void);
 
