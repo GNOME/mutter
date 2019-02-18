@@ -949,30 +949,6 @@ clutter_x11_set_display (Display *xdpy)
 }
 
 /**
- * clutter_x11_enable_xinput:
- *
- * Enables the use of the XInput extension if present on connected
- * XServer and support built into Clutter. XInput allows for multiple
- * pointing devices to be used.
- *
- * This function must be called before clutter_init().
- *
- * Since XInput might not be supported by the X server, you might
- * want to use clutter_x11_has_xinput() to see if support was enabled.
- *
- * Since: 0.8
- *
- * Deprecated: 1.14: This function does not do anything; XInput support
- *   is enabled by default in Clutter. Use the CLUTTER_DISABLE_XINPUT
- *   environment variable to disable XInput support and use Xlib core
- *   events instead.
- */
-void
-clutter_x11_enable_xinput (void)
-{
-}
-
-/**
  * clutter_x11_disable_event_retrieval:
  *
  * Disables the internal polling of X11 events in the main loop.
@@ -1178,31 +1154,6 @@ clutter_x11_remove_filter (ClutterX11FilterFunc func,
           return;
         }
     }
-}
-
-/**
- * clutter_x11_get_input_devices:
- *
- * Retrieves a pointer to the list of input devices
- *
- * Deprecated: 1.2: Use clutter_device_manager_peek_devices() instead
- *
- * Since: 0.8
- *
- * Return value: (transfer none) (element-type Clutter.InputDevice): a
- *   pointer to the internal list of input devices; the returned list is
- *   owned by Clutter and should not be modified or freed
- */
-const GSList *
-clutter_x11_get_input_devices (void)
-{
-  ClutterDeviceManager *manager;
-
-  manager = clutter_device_manager_get_default ();
-  if (manager == NULL)
-    return NULL;
-
-  return clutter_device_manager_peek_devices (manager);
 }
 
 /**
