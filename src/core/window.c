@@ -8516,6 +8516,9 @@ void
 meta_window_force_restore_shortcuts (MetaWindow         *window,
                                      ClutterInputDevice *source)
 {
+  if (!window)
+    return;
+
   META_WINDOW_GET_CLASS (window)->force_restore_shortcuts (window, source);
 }
 
