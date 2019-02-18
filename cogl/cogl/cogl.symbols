@@ -885,23 +885,6 @@ cogl_texture_2d_sliced_new_with_size
 cogl_transform
 cogl_translate
 
-cogl_vector3_add
-cogl_vector3_copy
-cogl_vector3_cross_product
-cogl_vector3_distance
-cogl_vector3_divide_scalar
-cogl_vector3_dot_product
-cogl_vector3_equal
-cogl_vector3_equal_with_epsilon
-cogl_vector3_free
-cogl_vector3_init
-cogl_vector3_init_zero
-cogl_vector3_invert
-cogl_vector3_magnitude
-cogl_vector3_multiply_scalar
-cogl_vector3_normalize
-cogl_vector3_subtract
-
 cogl_vertex_buffer_add
 cogl_vertex_buffer_delete
 cogl_vertex_buffer_disable
