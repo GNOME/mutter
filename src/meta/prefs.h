@@ -103,6 +103,7 @@ typedef enum
   META_PREF_AUTO_MAXIMIZE,
   META_PREF_CENTER_NEW_WINDOWS,
   META_PREF_DRAG_THRESHOLD,
+  META_PREF_DISABLE_WINDOW_SHADOWS,
 } MetaPreference;
 
 typedef void (* MetaPrefsChangedFunc) (MetaPreference pref,
@@ -232,6 +233,9 @@ int      meta_prefs_get_draggable_border_width (void);
 
 META_EXPORT
 int      meta_prefs_get_drag_threshold (void);
+
+META_EXPORT
+gboolean    meta_prefs_get_disable_window_shadows (void);
 
 /**
  * MetaKeyBindingAction:

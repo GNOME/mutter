@@ -37,6 +37,7 @@
 #include "meta/meta-enum-types.h"
 #include "meta/meta-shadow-factory.h"
 #include "meta/window.h"
+#include "meta/prefs.h"
 
 #ifdef HAVE_WAYLAND
 #include "compositor/meta-surface-actor-wayland.h"
@@ -756,6 +757,9 @@ meta_window_actor_has_shadow (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
+
+  if (meta_prefs_get_disable_window_shadows ())
+    return FALSE;
 
   if (priv->shadow_mode == META_SHADOW_MODE_FORCED_OFF)
     return FALSE;

@@ -107,6 +107,7 @@ static char *cursor_theme = NULL;
 static int   cursor_size = 24;
 static int   draggable_border_width = 10;
 static int   drag_threshold;
+static gboolean disable_window_shadows = FALSE;
 static gboolean resize_with_right_button = FALSE;
 static gboolean edge_tiling = FALSE;
 static gboolean force_fullscreen = TRUE;
@@ -381,6 +382,13 @@ static MetaBoolPreference preferences_bool[] =
         META_PREF_AUTO_MAXIMIZE,
       },
       &auto_maximize,
+    },
+    {
+      { "disable-window-shadows",
+        SCHEMA_MUTTER,
+        META_PREF_DISABLE_WINDOW_SHADOWS,
+      },
+      &disable_window_shadows,
     },
     { { NULL, 0, 0 }, NULL },
   };
@@ -1640,6 +1648,9 @@ meta_preference_to_string (MetaPreference pref)
 
     case META_PREF_AUTO_MAXIMIZE:
       return "AUTO_MAXIMIZE";
+
+    case META_PREF_DISABLE_WINDOW_SHADOWS:
+      return "DISABLE_WINDOW_SHADOWS";
     }
 
   return "(unknown)";
@@ -2075,6 +2086,12 @@ int
 meta_prefs_get_drag_threshold (void)
 {
   return drag_threshold;
+}
+
+gboolean
+meta_prefs_get_disable_window_shadows (void)
+{
+  return disable_window_shadows;
 }
 
 void
