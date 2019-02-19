@@ -1284,27 +1284,15 @@ is_dangerous_key (guint32 key)
 static gboolean
 is_keyboard_forbidden (struct libinput_device *libinput_device)
 {
-  guint product_id, vendor_id;
-  gchar *dev_name, *dev_data, *digest_hex;
-  gchar *serial;
+  gchar *authorized;
   struct udev_device *udev_device;
-  udev_device = libinput_device_get_udev_device(libinput_device);
-  serial = udev_device_get_property_value (udev_device, "ID_SERIAL");
-  product_id = libinput_device_get_id_product (libinput_device);
-  vendor_id = libinput_device_get_id_vendor (libinput_device);
-  dev_name = libinput_device_get_name (libinput_device);
-  g_warning ("product: %i, vendor: %i, name: %s, serial: %s", product_id, vendor_id, dev_name, serial);
-  dev_data = g_strdup_printf ("%s%u%u%s", dev_name, vendor_id, product_id, serial);
 
-  digest_hex = g_compute_checksum_for_string (G_CHECKSUM_SHA256, dev_data, -1);
-  g_warning ("Digest hex: %s", digest_hex);
+  udev_device = libinput_device_get_udev_device (libinput_device);
+  authorized = udev_device_get_property_value (udev_device, "AUTHORIZED");
 
-  g_free (dev_data);
-  g_free (digest_hex);
-
-  //TODO check if this hash is whitelisted
-
-  return TRUE;
+  /* If the authorized property is not available, dangerous keys should be
+   * blocked for this device. */
+  return authorized == NULL;
 }
 
 static gboolean
@@ -1312,9 +1300,10 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
                       struct libinput_event *event)
 {
   gboolean handled = TRUE;
-  struct libinput_device *libinput_device = libinput_event_get_device(event);
+  struct libinput_device *libinput_device = libinput_event_get_device (event);
   ClutterInputDevice *device;
   ClutterInputDeviceEvdev *device_evdev;
+
 
   switch (libinput_event_get_type (event))
     {
@@ -1333,12 +1322,10 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
         seat_key_count =
           libinput_event_keyboard_get_seat_key_count (key_event);
 
-	/* Ignore key events that are not seat wide state changes. */
-	if ((key_state == LIBINPUT_KEY_STATE_PRESSED &&
-	     seat_key_count != 1) ||
-	    (key_state == LIBINPUT_KEY_STATE_RELEASED &&
-	     seat_key_count != 0))
-          break;
+        /* Ignore key events that are not seat wide state changes. */
+        if ((key_state == LIBINPUT_KEY_STATE_PRESSED && seat_key_count != 1) ||
+            (key_state == LIBINPUT_KEY_STATE_RELEASED && seat_key_count != 0))
+            break;
 
         if (manager_evdev->priv->keyboard_security && is_dangerous_key (key) &&
             is_keyboard_forbidden (libinput_device))
