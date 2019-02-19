@@ -243,6 +243,13 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
   if (!touch_info)
     return;
 
+  if (event->type != CLUTTER_TOUCH_BEGIN &&
+      !touch_info->begin_delivered)
+    {
+      g_hash_table_remove (touch->touches, sequence);
+      return;
+    }
+
   if (event->type == CLUTTER_TOUCH_BEGIN ||
       event->type == CLUTTER_TOUCH_END)
     {
@@ -302,7 +309,7 @@ handle_touch_update (MetaWaylandTouch   *touch,
   sequence = clutter_event_get_event_sequence (event);
   touch_info = touch_get_info (touch, sequence, FALSE);
 
-  if (!touch_info || !touch_info->begin_delivered)
+  if (!touch_info)
     return;
 
   l = &touch_info->touch_surface->resource_list;
@@ -333,15 +340,12 @@ handle_touch_end (MetaWaylandTouch   *touch,
   if (!touch_info)
     return;
 
-  if (touch_info->begin_delivered)
+  l = &touch_info->touch_surface->resource_list;
+  wl_resource_for_each (resource, l)
     {
-      l = &touch_info->touch_surface->resource_list;
-      wl_resource_for_each(resource, l)
-        {
-          wl_touch_send_up (resource, touch_info->slot_serial,
-                            clutter_event_get_time (event),
-                            touch_info->slot);
-        }
+      wl_touch_send_up (resource, touch_info->slot_serial,
+                        clutter_event_get_time (event),
+                        touch_info->slot);
     }
 
   g_hash_table_remove (touch->touches, sequence);
