@@ -44,7 +44,6 @@ G_BEGIN_DECLS
 #define CLUTTER_TYPE_MATRIX             (clutter_matrix_get_type ())
 #define CLUTTER_TYPE_PAINT_VOLUME       (clutter_paint_volume_get_type ())
 #define CLUTTER_TYPE_PERSPECTIVE        (clutter_perspective_get_type ())
-#define CLUTTER_TYPE_POINT              (clutter_point_get_type ())
 #define CLUTTER_TYPE_RECT               (clutter_rect_get_type ())
 
 typedef struct _ClutterActor                    ClutterActor;
@@ -82,7 +81,6 @@ typedef struct _ClutterGeometry                 ClutterGeometry; /* XXX:2.0 - re
 typedef struct _ClutterKnot                     ClutterKnot;
 typedef struct _ClutterMargin                   ClutterMargin;
 typedef struct _ClutterPerspective              ClutterPerspective;
-typedef struct _ClutterPoint                    ClutterPoint;
 typedef struct _ClutterRect                     ClutterRect;
 
 typedef struct _ClutterAlpha            	ClutterAlpha;
@@ -134,73 +132,6 @@ typedef struct _ClutterShader                   ClutterShader; /* deprecated */
 typedef struct _ClutterPaintVolume      ClutterPaintVolume;
 
 /**
- * ClutterPoint:
- * @x: X coordinate, in pixels
- * @y: Y coordinate, in pixels
- *
- * A point in 2D space.
- *
- * Since: 1.12
- */
-struct _ClutterPoint
-{
-  float x;
-  float y;
-};
-
-/**
- * CLUTTER_POINT_INIT:
- * @x: X coordinate
- * @y: Y coordinate
- *
- * A simple macro for initializing a #ClutterPoint when declaring it, e.g.:
- *
- * |[
- *   ClutterPoint p = CLUTTER_POINT_INIT (100, 100);
- * ]|
- *
- * Since: 1.12
- */
-#define CLUTTER_POINT_INIT(x,y)         { (x), (y) }
-
-/**
- * CLUTTER_POINT_INIT_ZERO:
- *
- * A simple macro for initializing a #ClutterPoint to (0, 0) when
- * declaring it.
- *
- * Since: 1.12
- */
-#define CLUTTER_POINT_INIT_ZERO         CLUTTER_POINT_INIT (0.f, 0.f)
-
-CLUTTER_EXPORT
-GType clutter_point_get_type (void) G_GNUC_CONST;
-
-CLUTTER_EXPORT
-const ClutterPoint *    clutter_point_zero      (void);
-CLUTTER_EXPORT
-ClutterPoint *          clutter_point_alloc     (void);
-CLUTTER_EXPORT
-ClutterPoint *          clutter_point_init      (ClutterPoint       *point,
-                                                 float               x,
-                                                 float               y);
-CLUTTER_EXPORT
-ClutterPoint *          clutter_point_copy      (const ClutterPoint *point);
-CLUTTER_EXPORT
-void                    clutter_point_free      (ClutterPoint       *point);
-CLUTTER_EXPORT
-gboolean                clutter_point_equals    (const ClutterPoint *a,
-                                                 const ClutterPoint *b);
-CLUTTER_EXPORT
-float                   clutter_point_distance  (const ClutterPoint *a,
-                                                 const ClutterPoint *b,
-                                                 float              *x_distance,
-                                                 float              *y_distance);
-CLUTTER_EXPORT
-gboolean clutter_point_inside_quadrilateral     (const ClutterPoint *point,
-                                                 const ClutterPoint *vertices);
-
-/**
  * ClutterRect:
  * @origin: the origin of the rectangle
  * @size: the size of the rectangle
@@ -223,7 +154,7 @@ gboolean clutter_point_inside_quadrilateral     (const ClutterPoint *point,
  */
 struct _ClutterRect
 {
-  ClutterPoint origin;
+  graphene_point_t origin;
   graphene_size_t size;
 };
 
@@ -279,10 +210,10 @@ CLUTTER_EXPORT
 ClutterRect *           clutter_rect_normalize          (ClutterRect       *rect);
 CLUTTER_EXPORT
 void                    clutter_rect_get_center         (ClutterRect       *rect,
-                                                         ClutterPoint      *center);
+                                                         graphene_point_t  *center);
 CLUTTER_EXPORT
 gboolean                clutter_rect_contains_point     (ClutterRect       *rect,
-                                                         ClutterPoint      *point);
+                                                         graphene_point_t  *point);
 CLUTTER_EXPORT
 gboolean                clutter_rect_contains_rect      (ClutterRect       *a,
                                                          ClutterRect       *b);

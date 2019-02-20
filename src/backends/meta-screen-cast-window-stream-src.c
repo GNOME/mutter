@@ -112,8 +112,8 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   MetaCursorSprite *cursor_sprite;
   CoglTexture *cursor_texture;
   MetaScreenCastWindow *screen_cast_window;
-  ClutterPoint cursor_position;
-  ClutterPoint relative_cursor_position;
+  graphene_point_t cursor_position;
+  graphene_point_t relative_cursor_position;
   cairo_surface_t *cursor_surface;
   uint8_t *cursor_surface_data;
   GError *error = NULL;
@@ -298,7 +298,7 @@ is_cursor_in_stream (MetaScreenCastWindowStreamSrc *window_src)
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
   MetaCursorSprite *cursor_sprite;
-  ClutterPoint cursor_position;
+  graphene_point_t cursor_position;
   MetaScreenCastWindow *screen_cast_window;
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
@@ -423,9 +423,9 @@ meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc 
     meta_backend_get_cursor_renderer (backend);
   MetaScreenCastWindow *screen_cast_window = window_src->screen_cast_window;
   MetaCursorSprite *cursor_sprite;
-  ClutterPoint cursor_position;
+  graphene_point_t cursor_position;
   float scale;
-  ClutterPoint relative_cursor_position;
+  graphene_point_t relative_cursor_position;
   int x, y;
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);

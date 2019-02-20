@@ -8,7 +8,7 @@ actor_basic_layout (void)
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterActor *vase;
   ClutterActor *flower[3];
-  ClutterPoint p;
+  graphene_point_t p;
 
   vase = clutter_actor_new ();
   clutter_actor_set_name (vase, "Vase");
@@ -33,13 +33,13 @@ actor_basic_layout (void)
   clutter_actor_set_name (flower[2], "Green Flower");
   clutter_actor_add_child (vase, flower[2]);
 
-  clutter_point_init (&p, 50, 50);
+  graphene_point_init (&p, 50, 50);
   clutter_test_assert_actor_at_point (stage, &p, flower[0]);
 
-  clutter_point_init (&p, 150, 50);
+  graphene_point_init (&p, 150, 50);
   clutter_test_assert_actor_at_point (stage, &p, flower[1]);
 
-  clutter_point_init (&p, 250, 50);
+  graphene_point_init (&p, 250, 50);
   clutter_test_assert_actor_at_point (stage, &p, flower[2]);
 }
 
@@ -49,7 +49,7 @@ actor_margin_layout (void)
   ClutterActor *stage = clutter_test_get_stage ();
   ClutterActor *vase;
   ClutterActor *flower[3];
-  ClutterPoint p;
+  graphene_point_t p;
 
   vase = clutter_actor_new ();
   clutter_actor_set_name (vase, "Vase");
@@ -78,13 +78,13 @@ actor_margin_layout (void)
   clutter_actor_set_margin_bottom (flower[2], 6);
   clutter_actor_add_child (vase, flower[2]);
 
-  clutter_point_init (&p, 0, 7);
+  graphene_point_init (&p, 0, 7);
   clutter_test_assert_actor_at_point (stage, &p, flower[0]);
 
-  clutter_point_init (&p, 106, 50);
+  graphene_point_init (&p, 106, 50);
   clutter_test_assert_actor_at_point (stage, &p, flower[1]);
 
-  clutter_point_init (&p, 212, 7);
+  graphene_point_init (&p, 212, 7);
   clutter_test_assert_actor_at_point (stage, &p, flower[2]);
 }
 

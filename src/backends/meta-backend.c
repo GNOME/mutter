@@ -258,7 +258,7 @@ meta_backend_monitors_changed (MetaBackend *backend)
     meta_backend_get_monitor_manager (backend);
   ClutterDeviceManager *manager = clutter_device_manager_get_default ();
   ClutterInputDevice *device = clutter_device_manager_get_core_device (manager, CLUTTER_POINTER_DEVICE);
-  ClutterPoint point;
+  graphene_point_t point;
 
   meta_backend_sync_screen_size (backend);
 
