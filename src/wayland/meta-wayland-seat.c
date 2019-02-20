@@ -21,12 +21,12 @@
 
 #include "config.h"
 
-#include "meta-wayland-seat.h"
+#include "wayland/meta-wayland-seat.h"
 
-#include "meta-wayland-private.h"
-#include "meta-wayland-versions.h"
-#include "meta-wayland-data-device.h"
-#include "meta-wayland-tablet-seat.h"
+#include "wayland/meta-wayland-data-device.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-tablet-seat.h"
+#include "wayland/meta-wayland-versions.h"
 
 #define CAPABILITY_ENABLED(prev, cur, capability) ((cur & (capability)) && !(prev & (capability)))
 #define CAPABILITY_DISABLED(prev, cur, capability) ((prev & (capability)) && !(cur & (capability)))

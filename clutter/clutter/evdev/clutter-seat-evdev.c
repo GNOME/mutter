@@ -34,6 +34,7 @@
 #include "clutter-event-private.h"
 #include "clutter-input-device-evdev.h"
 #include "clutter-input-device-tool-evdev.h"
+#include "clutter-keymap-evdev.h"
 #include "clutter-main.h"
 
 /* Try to keep the pointer inside the stage. Hopefully no one is using
@@ -152,7 +153,8 @@ clutter_seat_evdev_new (ClutterDeviceManagerEvdev *manager_evdev)
   ClutterSeatEvdev *seat;
   ClutterInputDevice *device;
   ClutterStage *stage;
-  struct xkb_keymap *keymap;
+  ClutterKeymap *keymap;
+  struct xkb_keymap *xkb_keymap;
 
   seat = g_new0 (ClutterSeatEvdev, 1);
   if (!seat)
@@ -183,17 +185,19 @@ clutter_seat_evdev_new (ClutterDeviceManagerEvdev *manager_evdev)
   seat->repeat_delay = 250;     /* ms */
   seat->repeat_interval = 33;   /* ms */
 
-  keymap = _clutter_device_manager_evdev_get_keymap (manager_evdev);
-  if (keymap)
+  keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
+  xkb_keymap = clutter_keymap_evdev_get_keyboard_map (CLUTTER_KEYMAP_EVDEV (keymap));
+
+  if (xkb_keymap)
     {
-      seat->xkb = xkb_state_new (keymap);
+      seat->xkb = xkb_state_new (xkb_keymap);
 
       seat->caps_lock_led =
-        xkb_keymap_led_get_index (keymap, XKB_LED_NAME_CAPS);
+        xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_CAPS);
       seat->num_lock_led =
-        xkb_keymap_led_get_index (keymap, XKB_LED_NAME_NUM);
+        xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_NUM);
       seat->scroll_lock_led =
-        xkb_keymap_led_get_index (keymap, XKB_LED_NAME_SCROLL);
+        xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_SCROLL);
     }
 
   return seat;
@@ -316,7 +320,13 @@ clutter_seat_evdev_notify_key (ClutterSeatEvdev   *seat,
   queue_event (event);
 
   if (update_keys && (changed_state & XKB_STATE_LEDS))
-    clutter_seat_evdev_sync_leds (seat);
+    {
+      ClutterBackend *backend;
+
+      backend = clutter_get_default_backend ();
+      g_signal_emit_by_name (clutter_backend_get_keymap (backend), "state-changed");
+      clutter_seat_evdev_sync_leds (seat);
+    }
 
   if (state == 0 ||             /* key release */
       !seat->repeat ||
@@ -385,7 +395,6 @@ new_absolute_motion_event (ClutterSeatEvdev   *seat,
   _clutter_evdev_event_set_time_usec (event, time_us);
   event->motion.time = us2ms (time_us);
   event->motion.stage = stage;
-  event->motion.device = seat->core_pointer;
   _clutter_xkb_translate_state (event, seat->xkb, seat->button_state);
   event->motion.x = x;
   event->motion.y = y;
@@ -631,7 +640,6 @@ notify_scroll (ClutterInputDevice       *input_device,
   _clutter_evdev_event_set_time_usec (event, time_us);
   event->scroll.time = us2ms (time_us);
   event->scroll.stage = CLUTTER_STAGE (stage);
-  event->scroll.device = seat->core_pointer;
   _clutter_xkb_translate_state (event, seat->xkb, seat->button_state);
 
   /* libinput pointer axis events are in pointer motion coordinate space.
@@ -684,7 +692,6 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
   _clutter_evdev_event_set_time_usec (event, time_us);
   event->scroll.time = us2ms (time_us);
   event->scroll.stage = CLUTTER_STAGE (stage);
-  event->scroll.device = seat->core_pointer;
   _clutter_xkb_translate_state (event, seat->xkb, seat->button_state);
 
   event->scroll.direction = direction;
@@ -769,6 +776,7 @@ discrete_to_direction (double discrete_dx,
     return CLUTTER_SCROLL_UP;
   else
     g_assert_not_reached ();
+  return 0;
 }
 
 void
@@ -813,7 +821,6 @@ clutter_seat_evdev_notify_touch_event (ClutterSeatEvdev   *seat,
   _clutter_evdev_event_set_time_usec (event, time_us);
   event->touch.time = us2ms (time_us);
   event->touch.stage = CLUTTER_STAGE (stage);
-  event->touch.device = seat->core_pointer;
   event->touch.x = x;
   event->touch.y = y;
   clutter_input_device_evdev_translate_coordinates (input_device, stage,

@@ -3,6 +3,7 @@
 /*
  * Copyright (C) 2016 Red Hat Inc.
  * Copyright (C) 2017 Intel Corporation
+ * Copyright (C) 2018 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,17 +29,17 @@
 
 #include "wayland/meta-wayland-dma-buf.h"
 
-#include "cogl/cogl.h"
-#include "cogl/cogl-egl.h"
+#include <drm_fourcc.h>
+
 #include "backends/meta-backend-private.h"
-#include "backends/meta-egl.h"
 #include "backends/meta-egl-ext.h"
+#include "backends/meta-egl.h"
+#include "cogl/cogl-egl.h"
+#include "cogl/cogl.h"
 #include "meta/meta-backend.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-versions.h"
-
-#include <drm_fourcc.h>
 
 #include "linux-dmabuf-unstable-v1-server-protocol.h"
 
@@ -85,6 +86,13 @@ meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer *buffer,
 
   switch (dma_buf->drm_format)
     {
+    /*
+     * NOTE: The cogl_format here is only used for texture color channel
+     * swizzling as compared to COGL_PIXEL_FORMAT_ARGB. It is *not* used
+     * for accessing the buffer memory. EGL will access the buffer
+     * memory according to the DRM fourcc code. Cogl will not mmap
+     * and access the buffer memory at all.
+     */
     case DRM_FORMAT_XRGB8888:
       cogl_format = COGL_PIXEL_FORMAT_RGB_888;
       break;

@@ -31,9 +31,7 @@
  *  Neil Roberts   <neil@linux.intel.com>
  */
 
-#ifdef HAVE_CONFIG_H
 #include "cogl-config.h"
-#endif
 
 #include "cogl-private.h"
 #include "cogl-util.h"
@@ -43,10 +41,10 @@
 #include "cogl-context-private.h"
 #include "cogl-object-private.h"
 #include "cogl-journal-private.h"
-#include "cogl-pipeline-opengl-private.h"
 #include "cogl-error-private.h"
-#include "cogl-util-gl-private.h"
 #include "cogl-gtype-private.h"
+#include "driver/gl/cogl-pipeline-opengl-private.h"
+#include "driver/gl/cogl-util-gl-private.h"
 
 #include <string.h>
 #include <math.h>
@@ -757,6 +755,7 @@ cogl_texture_rectangle_vtable =
     TRUE, /* primitive */
     _cogl_texture_rectangle_allocate,
     _cogl_texture_rectangle_set_region,
+    NULL, /* is_get_data_supported */
     _cogl_texture_rectangle_get_data,
     NULL, /* foreach_sub_texture_in_region */
     _cogl_texture_rectangle_get_max_waste,

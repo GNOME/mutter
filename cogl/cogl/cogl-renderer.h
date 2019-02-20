@@ -40,7 +40,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-renderer
@@ -333,7 +333,6 @@ cogl_renderer_remove_constraint (CoglRenderer *renderer,
  * @COGL_DRIVER_GL3: An OpenGL driver using the core GL 3.1 profile
  * @COGL_DRIVER_GLES1: An OpenGL ES 1.1 driver.
  * @COGL_DRIVER_GLES2: An OpenGL ES 2.0 driver.
- * @COGL_DRIVER_WEBGL: A WebGL driver.
  *
  * Identifiers for underlying hardware drivers that may be used by
  * Cogl for rendering.
@@ -347,9 +346,7 @@ typedef enum
   COGL_DRIVER_NOP,
   COGL_DRIVER_GL,
   COGL_DRIVER_GL3,
-  COGL_DRIVER_GLES1,
   COGL_DRIVER_GLES2,
-  COGL_DRIVER_WEBGL
 } CoglDriver;
 
 /**
@@ -421,7 +418,7 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
                               CoglOutputCallback callback,
                               void *user_data);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_RENDERER_H__ */
 

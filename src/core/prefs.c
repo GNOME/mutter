@@ -26,16 +26,18 @@
  * @short_description: Mutter preferences
  */
 
-#include <config.h>
-#include <meta/prefs.h>
-#include "util-private.h"
-#include "meta-plugin-manager.h"
+#include "config.h"
+
 #include <glib.h>
 #include <gio/gio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "keybindings-private.h"
-#include "meta-accel-parse.h"
+
+#include "compositor/meta-plugin-manager.h"
+#include "core/keybindings-private.h"
+#include "core/meta-accel-parse.h"
+#include "core/util-private.h"
+#include "meta/prefs.h"
 #include "x11/meta-x11-display-private.h"
 
 /* If you add a key, it needs updating in init() and in the gsettings
@@ -108,7 +110,6 @@ static int   drag_threshold;
 static gboolean resize_with_right_button = FALSE;
 static gboolean edge_tiling = FALSE;
 static gboolean force_fullscreen = TRUE;
-static gboolean ignore_request_hide_titlebar = FALSE;
 static gboolean auto_maximize = TRUE;
 static gboolean show_fallback_app_menu = FALSE;
 
@@ -1259,8 +1260,6 @@ button_function_from_string (const char *str)
 {
   if (strcmp (str, "menu") == 0)
     return META_BUTTON_FUNCTION_MENU;
-  else if (strcmp (str, "appmenu") == 0)
-    return META_BUTTON_FUNCTION_APPMENU;
   else if (strcmp (str, "minimize") == 0)
     return META_BUTTON_FUNCTION_MINIMIZE;
   else if (strcmp (str, "maximize") == 0)
@@ -2082,16 +2081,4 @@ void
 meta_prefs_set_force_fullscreen (gboolean whether)
 {
   force_fullscreen = whether;
-}
-
-gboolean
-meta_prefs_get_ignore_request_hide_titlebar (void)
-{
-  return ignore_request_hide_titlebar;
-}
-
-void
-meta_prefs_set_ignore_request_hide_titlebar (gboolean whether)
-{
-  ignore_request_hide_titlebar = whether;
 }

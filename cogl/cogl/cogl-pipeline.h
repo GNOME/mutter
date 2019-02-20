@@ -46,7 +46,7 @@ typedef struct _CoglPipeline CoglPipeline;
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-pipeline
@@ -72,7 +72,7 @@ COGL_BEGIN_DECLS
 GType cogl_pipeline_get_gtype (void);
 
 /**
- * cogl_pipeline_new:
+ * cogl_pipeline_new: (skip)
  * @context: a #CoglContext
  *
  * Allocates and initializes a default simple pipeline that will color
@@ -180,6 +180,6 @@ int
 cogl_pipeline_get_uniform_location (CoglPipeline *pipeline,
                                     const char *uniform_name);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_PIPELINE_H__ */

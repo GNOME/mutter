@@ -24,13 +24,18 @@
 
 #include "backends/meta-screen-cast-stream.h"
 
+#include "backends/meta-screen-cast-session.h"
+
+#define META_SCREEN_CAST_STREAM_DBUS_IFACE "org.gnome.Mutter.ScreenCast.Stream"
 #define META_SCREEN_CAST_STREAM_DBUS_PATH "/org/gnome/Mutter/ScreenCast/Stream"
 
 enum
 {
   PROP_0,
 
+  PROP_SESSION,
   PROP_CONNECTION,
+  PROP_CURSOR_MODE,
 };
 
 enum
@@ -44,8 +49,12 @@ static guint signals[N_SIGNALS];
 
 typedef struct _MetaScreenCastStreamPrivate
 {
+  MetaScreenCastSession *session;
+
   GDBusConnection *connection;
   char *object_path;
+
+  MetaScreenCastCursorMode cursor_mode;
 
   MetaScreenCastStreamSrc *src;
 } MetaScreenCastStreamPrivate;
@@ -92,9 +101,28 @@ on_stream_src_ready (MetaScreenCastStreamSrc *src,
                      uint32_t                 node_id,
                      MetaScreenCastStream    *stream)
 {
-  MetaDBusScreenCastStream *skeleton = META_DBUS_SCREEN_CAST_STREAM (stream);
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+  GDBusConnection *connection = priv->connection;
+  char *peer_name;
 
-  meta_dbus_screen_cast_stream_emit_pipewire_stream_added (skeleton, node_id);
+  peer_name = meta_screen_cast_session_get_peer_name (priv->session);
+  g_dbus_connection_emit_signal (connection,
+                                 peer_name,
+                                 priv->object_path,
+                                 META_SCREEN_CAST_STREAM_DBUS_IFACE,
+                                 "PipeWireStreamAdded",
+                                 g_variant_new ("(u)", node_id),
+                                 NULL);
+}
+
+MetaScreenCastSession *
+meta_screen_cast_stream_get_session (MetaScreenCastStream *stream)
+{
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+
+  return priv->session;
 }
 
 gboolean
@@ -150,6 +178,15 @@ meta_screen_cast_stream_transform_position (MetaScreenCastStream *stream,
                                                                   y);
 }
 
+MetaScreenCastCursorMode
+meta_screen_cast_stream_get_cursor_mode (MetaScreenCastStream *stream)
+{
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+
+  return priv->cursor_mode;
+}
+
 static void
 meta_screen_cast_stream_set_property (GObject      *object,
                                       guint         prop_id,
@@ -162,8 +199,14 @@ meta_screen_cast_stream_set_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_SESSION:
+      priv->session = g_value_get_object (value);
+      break;
     case PROP_CONNECTION:
       priv->connection = g_value_get_object (value);
+      break;
+    case PROP_CURSOR_MODE:
+      priv->cursor_mode = g_value_get_uint (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -182,8 +225,14 @@ meta_screen_cast_stream_get_property (GObject    *object,
 
   switch (prop_id)
     {
+    case PROP_SESSION:
+      g_value_set_object (value, priv->session);
+      break;
     case PROP_CONNECTION:
       g_value_set_object (value, priv->connection);
+      break;
+    case PROP_CURSOR_MODE:
+      g_value_set_uint (value, priv->cursor_mode);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -257,6 +306,16 @@ meta_screen_cast_stream_class_init (MetaScreenCastStreamClass *klass)
   object_class->get_property = meta_screen_cast_stream_get_property;
 
   g_object_class_install_property (object_class,
+                                   PROP_SESSION,
+                                   g_param_spec_object ("session",
+                                                        "session",
+                                                        "MetaScreenSession",
+                                                        META_TYPE_SCREEN_CAST_SESSION,
+                                                        G_PARAM_READWRITE |
+                                                        G_PARAM_CONSTRUCT_ONLY |
+                                                        G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class,
                                    PROP_CONNECTION,
                                    g_param_spec_object ("connection",
                                                         "connection",
@@ -265,6 +324,18 @@ meta_screen_cast_stream_class_init (MetaScreenCastStreamClass *klass)
                                                         G_PARAM_READWRITE |
                                                         G_PARAM_CONSTRUCT_ONLY |
                                                         G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class,
+                                   PROP_CURSOR_MODE,
+                                   g_param_spec_uint ("cursor-mode",
+                                                      "cursor-mode",
+                                                      "Cursor mode",
+                                                      META_SCREEN_CAST_CURSOR_MODE_HIDDEN,
+                                                      META_SCREEN_CAST_CURSOR_MODE_METADATA,
+                                                      META_SCREEN_CAST_CURSOR_MODE_HIDDEN,
+                                                      G_PARAM_READWRITE |
+                                                      G_PARAM_CONSTRUCT_ONLY |
+                                                      G_PARAM_STATIC_STRINGS));
 
   signals[CLOSED] = g_signal_new ("closed",
                                   G_TYPE_FROM_CLASS (klass),

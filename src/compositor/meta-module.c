@@ -19,11 +19,14 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <meta/meta-plugin.h>
-#include <meta/meta-version.h>
-#include "meta-module.h"
+#include "config.h"
+
+#include "compositor/meta-module.h"
 
 #include <gmodule.h>
+
+#include "meta/meta-plugin.h"
+#include "meta/meta-version.h"
 
 enum
 {

@@ -27,7 +27,8 @@
 #ifndef __META_SHAPED_TEXTURE_PRIVATE_H__
 #define __META_SHAPED_TEXTURE_PRIVATE_H__
 
-#include <meta/meta-shaped-texture.h>
+#include "backends/meta-monitor-manager-private.h"
+#include "meta/meta-shaped-texture.h"
 
 ClutterActor *meta_shaped_texture_new (void);
 void meta_shaped_texture_set_texture (MetaShapedTexture *stex,
@@ -41,5 +42,14 @@ void meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
                                             int                fallback_height);
 gboolean meta_shaped_texture_is_obscured (MetaShapedTexture *self);
 cairo_region_t * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex);
+void meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
+                                        MetaMonitorTransform  transform);
+void meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture *stex,
+                                                ClutterRect       *src_rect);
+void meta_shaped_texture_reset_viewport_src_rect (MetaShapedTexture *stex);
+void meta_shaped_texture_set_viewport_dst_size (MetaShapedTexture *stex,
+                                                int                dst_width,
+                                                int                dst_height);
+void meta_shaped_texture_reset_viewport_dst_size (MetaShapedTexture *stex);
 
 #endif

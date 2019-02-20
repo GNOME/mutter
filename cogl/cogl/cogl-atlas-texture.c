@@ -31,9 +31,7 @@
  *  Neil Roberts   <neil@linux.intel.com>
  */
 
-#ifdef HAVE_CONFIG_H
 #include "cogl-config.h"
-#endif
 
 #include "cogl-debug.h"
 #include "cogl-util.h"
@@ -46,13 +44,13 @@
 #include "cogl-texture-driver.h"
 #include "cogl-rectangle-map.h"
 #include "cogl-journal-private.h"
-#include "cogl-pipeline-opengl-private.h"
 #include "cogl-atlas.h"
 #include "cogl1-context.h"
 #include "cogl-sub-texture.h"
 #include "cogl-error-private.h"
-#include "cogl-texture-gl-private.h"
 #include "cogl-gtype-private.h"
+#include "driver/gl/cogl-pipeline-opengl-private.h"
+#include "driver/gl/cogl-texture-gl-private.h"
 
 #include <stdlib.h>
 
@@ -1027,6 +1025,7 @@ cogl_atlas_texture_vtable =
     FALSE, /* not primitive */
     _cogl_atlas_texture_allocate,
     _cogl_atlas_texture_set_region,
+    NULL, /* is_get_data_supported */
     NULL, /* get_data */
     _cogl_atlas_texture_foreach_sub_texture_in_region,
     _cogl_atlas_texture_get_max_waste,

@@ -27,29 +27,27 @@
 #define META_BACKEND_PRIVATE_H
 
 #include <glib-object.h>
-
 #include <xkbcommon/xkbcommon.h>
 
-#include <meta/meta-backend.h>
-#include <meta/meta-idle-monitor.h>
-#include "meta-cursor-renderer.h"
-#include "meta-monitor-manager-private.h"
-#include "meta-orientation-manager.h"
-#include "meta-input-settings-private.h"
+#include "meta/meta-backend.h"
+#include "meta/meta-idle-monitor.h"
+#include "backends/meta-backend-types.h"
+#include "backends/meta-cursor-renderer.h"
 #include "backends/meta-egl.h"
+#include "backends/meta-input-settings-private.h"
+#include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-orientation-manager.h"
 #include "backends/meta-pointer-constraint.h"
-#ifdef HAVE_REMOTE_DESKTOP
-#include "backends/meta-remote-desktop.h"
-#endif
 #include "backends/meta-renderer.h"
 #include "backends/meta-settings-private.h"
 #include "core/util-private.h"
 
+#ifdef HAVE_REMOTE_DESKTOP
+#include "backends/meta-remote-desktop.h"
+#endif
+
 #define DEFAULT_XKB_RULES_FILE "evdev"
 #define DEFAULT_XKB_MODEL "pc105+inet"
-
-#define META_TYPE_BACKEND (meta_backend_get_type ())
-G_DECLARE_DERIVABLE_TYPE (MetaBackend, meta_backend, META, BACKEND, GObject)
 
 struct _MetaBackendClass
 {
@@ -117,13 +115,14 @@ void meta_backend_foreach_device_monitor (MetaBackend *backend,
                                           GFunc        func,
                                           gpointer     user_data);
 
+META_EXPORT_TEST
 MetaMonitorManager * meta_backend_get_monitor_manager (MetaBackend *backend);
 MetaOrientationManager * meta_backend_get_orientation_manager (MetaBackend *backend);
 MetaCursorTracker * meta_backend_get_cursor_tracker (MetaBackend *backend);
 MetaCursorRenderer * meta_backend_get_cursor_renderer (MetaBackend *backend);
+META_EXPORT_TEST
 MetaRenderer * meta_backend_get_renderer (MetaBackend *backend);
 MetaEgl * meta_backend_get_egl (MetaBackend *backend);
-MetaSettings * meta_backend_get_settings (MetaBackend *backend);
 
 #ifdef HAVE_REMOTE_DESKTOP
 MetaRemoteDesktop * meta_backend_get_remote_desktop (MetaBackend *backend);
@@ -162,10 +161,9 @@ MetaPointerConstraint * meta_backend_get_client_pointer_constraint (MetaBackend 
 void meta_backend_set_client_pointer_constraint (MetaBackend *backend,
                                                  MetaPointerConstraint *constraint);
 
-ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
-
 void meta_backend_monitors_changed (MetaBackend *backend);
 
+META_EXPORT_TEST
 gboolean meta_is_stage_views_enabled (void);
 
 gboolean meta_is_stage_views_scaled (void);

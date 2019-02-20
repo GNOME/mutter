@@ -31,34 +31,33 @@
 
 #include "config.h"
 
-#ifdef HAVE_XI23
-
 #include <glib-object.h>
-
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/Xfixes.h>
-#include <meta/barrier.h>
+
 #include "backends/x11/meta-barrier-x11.h"
-#include "display-private.h"
+#include "core/display-private.h"
+#include "meta/barrier.h"
 #include "x11/meta-x11-display-private.h"
 
-struct _MetaBarrierImplX11Private
+struct _MetaBarrierImplX11
 {
+  MetaBarrierImpl parent;
+
   MetaBarrier *barrier;
   PointerBarrier xbarrier;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaBarrierImplX11, meta_barrier_impl_x11,
-                            META_TYPE_BARRIER_IMPL)
+G_DEFINE_TYPE (MetaBarrierImplX11,
+               meta_barrier_impl_x11,
+               META_TYPE_BARRIER_IMPL)
 
 static gboolean
 _meta_barrier_impl_x11_is_active (MetaBarrierImpl *impl)
 {
   MetaBarrierImplX11 *self = META_BARRIER_IMPL_X11 (impl);
-  MetaBarrierImplX11Private *priv =
-    meta_barrier_impl_x11_get_instance_private (self);
 
-  return priv->xbarrier != 0;
+  return self->xbarrier != 0;
 }
 
 static void
@@ -66,16 +65,14 @@ _meta_barrier_impl_x11_release (MetaBarrierImpl  *impl,
                                 MetaBarrierEvent *event)
 {
   MetaBarrierImplX11 *self = META_BARRIER_IMPL_X11 (impl);
-  MetaBarrierImplX11Private *priv =
-    meta_barrier_impl_x11_get_instance_private (self);
-  MetaDisplay *display = priv->barrier->priv->display;
+  MetaDisplay *display = self->barrier->priv->display;
   Display *dpy = meta_x11_display_get_xdisplay (display->x11_display);
 
   if (META_X11_DISPLAY_HAS_XINPUT_23 (display->x11_display))
     {
       XIBarrierReleasePointer (dpy,
                                META_VIRTUAL_CORE_POINTER_ID,
-                               priv->xbarrier, event->event_id);
+                               self->xbarrier, event->event_id);
     }
 }
 
@@ -83,9 +80,7 @@ static void
 _meta_barrier_impl_x11_destroy (MetaBarrierImpl *impl)
 {
   MetaBarrierImplX11 *self = META_BARRIER_IMPL_X11 (impl);
-  MetaBarrierImplX11Private *priv =
-    meta_barrier_impl_x11_get_instance_private (self);
-  MetaDisplay *display = priv->barrier->priv->display;
+  MetaDisplay *display = self->barrier->priv->display;
   Display *dpy;
 
   if (display == NULL)
@@ -93,19 +88,18 @@ _meta_barrier_impl_x11_destroy (MetaBarrierImpl *impl)
 
   dpy = meta_x11_display_get_xdisplay (display->x11_display);
 
-  if (!meta_barrier_is_active (priv->barrier))
+  if (!meta_barrier_is_active (self->barrier))
     return;
 
-  XFixesDestroyPointerBarrier (dpy, priv->xbarrier);
-  g_hash_table_remove (display->x11_display->xids, &priv->xbarrier);
-  priv->xbarrier = 0;
+  XFixesDestroyPointerBarrier (dpy, self->xbarrier);
+  g_hash_table_remove (display->x11_display->xids, &self->xbarrier);
+  self->xbarrier = 0;
 }
 
 MetaBarrierImpl *
 meta_barrier_impl_x11_new (MetaBarrier *barrier)
 {
   MetaBarrierImplX11 *self;
-  MetaBarrierImplX11Private *priv;
   MetaDisplay *display = barrier->priv->display;
   Display *dpy;
   Window root;
@@ -118,15 +112,14 @@ meta_barrier_impl_x11_new (MetaBarrier *barrier)
     }
 
   self = g_object_new (META_TYPE_BARRIER_IMPL_X11, NULL);
-  priv = meta_barrier_impl_x11_get_instance_private (self);
-  priv->barrier = barrier;
+  self->barrier = barrier;
 
   dpy = meta_x11_display_get_xdisplay (display->x11_display);
   root = DefaultRootWindow (dpy);
 
   allowed_motion_dirs =
     meta_border_get_allows_directions (&barrier->priv->border);
-  priv->xbarrier = XFixesCreatePointerBarrier (dpy, root,
+  self->xbarrier = XFixesCreatePointerBarrier (dpy, root,
                                                barrier->priv->border.line.a.x,
                                                barrier->priv->border.line.a.y,
                                                barrier->priv->border.line.b.x,
@@ -134,7 +127,7 @@ meta_barrier_impl_x11_new (MetaBarrier *barrier)
                                                allowed_motion_dirs,
                                                0, NULL);
 
-  g_hash_table_insert (display->x11_display->xids, &priv->xbarrier, barrier);
+  g_hash_table_insert (display->x11_display->xids, &self->xbarrier, barrier);
 
   return META_BARRIER_IMPL (self);
 }
@@ -217,5 +210,3 @@ static void
 meta_barrier_impl_x11_init (MetaBarrierImplX11 *self)
 {
 }
-
-#endif /* HAVE_XI23 */

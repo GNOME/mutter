@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright (C) 2016 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or
@@ -17,6 +19,10 @@
 
 import os
 import sys
+
+if len(sys.argv) != 2:
+  print("Usage: %s [output file]"%sys.argv[0])
+  exit(1)
 
 common_resolutions = [
     # 4:3
@@ -109,6 +115,13 @@ for resolution in common_resolutions:
     cvt.close()
 output_lines.append("};")
 
-for line in output_lines:
-    sys.stdout.write(line + "\n")
-sys.stdout.flush()
+try:
+  output_file = open(sys.argv[1], 'w')
+
+  for line in output_lines:
+      output_file.write(line + "\n")
+  output_file.flush()
+  output_file.close()
+except:
+  print("Failed to generate modelines:", sys.exc_info()[0])
+  exit(1)

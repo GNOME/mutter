@@ -45,7 +45,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 typedef struct _CoglOnscreen CoglOnscreen;
 #define COGL_ONSCREEN(X) ((CoglOnscreen *)(X))
@@ -58,7 +58,7 @@ typedef struct _CoglOnscreen CoglOnscreen;
 GType cogl_onscreen_get_gtype (void);
 
 /**
- * cogl_onscreen_new: (constructor)
+ * cogl_onscreen_new: (constructor) (skip)
  * @context: A #CoglContext
  * @width: The desired framebuffer width
  * @height: The desired framebuffer height
@@ -84,8 +84,8 @@ typedef void (*CoglOnscreenX11MaskCallback) (CoglOnscreen *onscreen,
  * @onscreen: The unallocated framebuffer to associated with an X
  *            window.
  * @xid: The XID of an existing X window
- * @update: A callback that notifies of updates to what Cogl requires
- *          to be in the core X protocol event mask.
+ * @update: (scope async): A callback that notifies of updates to what Cogl
+ *          requires to be in the core X protocol event mask.
  * @user_data: user data passed to @update
  *
  * Ideally we would recommend that you let Cogl be responsible for
@@ -161,23 +161,6 @@ cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen);
 uint32_t
 cogl_x11_onscreen_get_visual_xid (CoglOnscreen *onscreen);
 #endif /* COGL_HAS_X11 */
-
-/**
- * cogl_onscreen_set_swap_throttled:
- * @onscreen: A #CoglOnscreen framebuffer
- * @throttled: Whether swap throttling is wanted or not.
- *
- * Requests that the given @onscreen framebuffer should have swap buffer
- * requests (made using cogl_onscreen_swap_buffers()) throttled either by a
- * displays vblank period or perhaps some other mechanism in a composited
- * environment.
- *
- * Since: 1.8
- * Stability: unstable
- */
-void
-cogl_onscreen_set_swap_throttled (CoglOnscreen *onscreen,
-                                  CoglBool throttled);
 
 /**
  * cogl_onscreen_show:
@@ -554,9 +537,8 @@ typedef void (*CoglSwapBuffersNotify) (CoglFramebuffer *framebuffer,
  * registered callbacks will be called if this feature is not supported.</note>
  *
  * We recommend using this mechanism when available to manually throttle your
- * applications (in conjunction with  cogl_onscreen_set_swap_throttled()) so
- * your application will be able to avoid long blocks in the driver caused by
- * throttling when you request to swap buffers too quickly.
+ * applications so your application will be able to avoid long blocks in the
+ * driver caused by throttling when you request to swap buffers too quickly.
  *
  * Return value: a unique identifier that can be used to remove to remove
  *               the callback later.
@@ -564,7 +546,7 @@ typedef void (*CoglSwapBuffersNotify) (CoglFramebuffer *framebuffer,
  * Stability: unstable
  * Deprecated: 1.14: Use cogl_onscreen_add_frame_callback() instead
  */
-COGL_DEPRECATED_IN_1_14_FOR (cogl_onscreen_add_frame_callback)
+COGL_DEPRECATED_FOR (cogl_onscreen_add_frame_callback)
 unsigned int
 cogl_onscreen_add_swap_buffers_callback (CoglOnscreen *onscreen,
                                          CoglSwapBuffersNotify callback,
@@ -583,7 +565,7 @@ cogl_onscreen_add_swap_buffers_callback (CoglOnscreen *onscreen,
  * Deprecated: 1.14: Use cogl_onscreen_remove_frame_callback() instead
  */
 
-COGL_DEPRECATED_IN_1_14_FOR (cogl_onscreen_remove_frame_callback)
+COGL_DEPRECATED_FOR (cogl_onscreen_remove_frame_callback)
 void
 cogl_onscreen_remove_swap_buffers_callback (CoglOnscreen *onscreen,
                                             unsigned int id);
@@ -896,6 +878,6 @@ cogl_is_onscreen (void *object);
 int64_t
 cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_ONSCREEN_H */

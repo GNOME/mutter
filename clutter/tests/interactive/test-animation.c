@@ -4,6 +4,12 @@
 
 static gboolean is_expanded = FALSE;
 
+int
+test_animation_main (int argc, char *argv[]);
+
+const char *
+test_animation_describe (void);
+
 static void
 on_rect_transitions_completed (ClutterActor *actor)
 {
@@ -19,7 +25,6 @@ on_clicked (ClutterClickAction *action,
             ClutterActor       *actor,
             gpointer            dummy G_GNUC_UNUSED)
 {
-  ClutterAnimation *animation;
   gfloat old_x, old_y, new_x, new_y;
   gfloat old_width, old_height, new_width, new_height;
   gdouble new_angle;
@@ -82,7 +87,6 @@ G_MODULE_EXPORT int
 test_animation_main (int argc, char *argv[])
 {
   ClutterActor *stage, *rect;
-  ClutterColor rect_color = { 0x44, 0xdd, 0x44, 0xff };
   ClutterAction *action;
 
   if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)

@@ -25,14 +25,17 @@
  *
  */
 
-#include <config.h>
-#include <meta/util.h>
-#include "group-private.h"
-#include "group-props.h"
-#include "window-private.h"
-#include "x11/meta-x11-display-private.h"
-#include <meta/window.h>
+#include "config.h"
+
+#include "x11/group-private.h"
+
 #include <X11/Xlib-xcb.h>
+
+#include "core/window-private.h"
+#include "meta/util.h"
+#include "meta/window.h"
+#include "x11/group-props.h"
+#include "x11/meta-x11-display-private.h"
 
 static MetaGroup*
 meta_group_new (MetaX11Display *x11_display,

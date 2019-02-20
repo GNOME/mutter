@@ -35,7 +35,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 typedef struct _CoglObject      CoglObject;
 
@@ -74,6 +74,20 @@ cogl_object_ref (void *object);
  */
 void
 cogl_object_unref (void *object);
+
+/**
+ * cogl_clear_object: (skip)
+ * @object_ptr: a pointer to a #CoglObject reference
+ *
+ * Clears a reference to a #CoglObject.
+ *
+ * @object_ptr must not be %NULL.
+ *
+ * If the reference is %NULL then this function does nothing.
+ * Otherwise, the reference count of the object is decreased using
+ * cogl_object_unref() and the pointer is set to %NULL.
+ */
+#define cogl_clear_object(object_ptr) g_clear_pointer ((object_ptr), cogl_object_unref)
 
 /**
  * CoglUserDataKey:
@@ -230,7 +244,7 @@ cogl_debug_object_foreach_type (CoglDebugObjectForeachTypeCallback func,
 void
 cogl_debug_object_print_instances (void);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_OBJECT_H */
 

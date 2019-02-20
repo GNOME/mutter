@@ -21,7 +21,7 @@
 
 #include "config.h"
 
-#include "meta-wayland-tablet-cursor-surface.h"
+#include "wayland/meta-wayland-tablet-cursor-surface.h"
 
 struct _MetaWaylandTabletCursorSurface
 {

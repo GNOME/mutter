@@ -17,8 +17,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "display-private.h"
-#include "frame.h"
+#include "core/display-private.h"
+#include "core/frame.h"
 
 struct _MetaBell
 {

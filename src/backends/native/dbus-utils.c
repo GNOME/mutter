@@ -24,7 +24,7 @@
 
 #include "config.h"
 
-#include "dbus-utils.h"
+#include "backends/native/dbus-utils.h"
 
 #include <glib.h>
 

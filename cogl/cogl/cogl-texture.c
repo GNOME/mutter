@@ -34,9 +34,7 @@
  *  Robert Bragg   <robert@linux.intel.com>
  */
 
-#ifdef HAVE_CONFIG_H
 #include "cogl-config.h"
-#endif
 
 #include "cogl-util.h"
 #include "cogl-bitmap.h"
@@ -203,6 +201,15 @@ _cogl_texture_is_foreign (CoglTexture *texture)
     return texture->vtable->is_foreign (texture);
   else
     return FALSE;
+}
+
+CoglBool
+cogl_texture_is_get_data_supported (CoglTexture *texture)
+{
+  if (texture->vtable->is_get_data_supported)
+    return texture->vtable->is_get_data_supported (texture);
+  else
+    return TRUE;
 }
 
 unsigned int

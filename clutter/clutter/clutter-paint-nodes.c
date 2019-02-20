@@ -31,9 +31,7 @@
  * that cover all the state changes available.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "clutter-build-config.h"
-#endif
 
 #define CLUTTER_ENABLE_EXPERIMENTAL_API
 
@@ -85,16 +83,13 @@ _clutter_paint_node_init_types (void)
 }
 
 /*
- * Root node, private
+ * Root node
  *
  * any frame can only have a since RootNode instance for each
  * top-level actor.
  */
 
-#define clutter_root_node_get_type      _clutter_root_node_get_type
-
-typedef struct _ClutterRootNode         ClutterRootNode;
-typedef struct _ClutterPaintNodeClass   ClutterRootNodeClass;
+#define clutter_root_node_get_type      clutter_root_node_get_type
 
 struct _ClutterRootNode
 {
@@ -113,6 +108,8 @@ clutter_root_node_pre_draw (ClutterPaintNode *node)
 {
   ClutterRootNode *rnode = (ClutterRootNode *) node;
 
+  cogl_push_framebuffer (rnode->framebuffer);
+
   cogl_framebuffer_clear (rnode->framebuffer,
                           rnode->clear_flags,
                           &rnode->clear_color);
@@ -123,6 +120,7 @@ clutter_root_node_pre_draw (ClutterPaintNode *node)
 static void
 clutter_root_node_post_draw (ClutterPaintNode *node)
 {
+  cogl_pop_framebuffer ();
 }
 
 static void
@@ -160,13 +158,13 @@ clutter_root_node_init (ClutterRootNode *self)
 }
 
 ClutterPaintNode *
-_clutter_root_node_new (CoglFramebuffer    *framebuffer,
-                        const ClutterColor *clear_color,
-                        CoglBufferBit       clear_flags)
+clutter_root_node_new (CoglFramebuffer    *framebuffer,
+                       const ClutterColor *clear_color,
+                       CoglBufferBit       clear_flags)
 {
   ClutterRootNode *res;
 
-  res = _clutter_paint_node_create (_clutter_root_node_get_type ());
+  res = _clutter_paint_node_create (CLUTTER_TYPE_ROOT_NODE);
 
   cogl_color_init_from_4ub (&res->clear_color,
                             clear_color->red,
@@ -431,6 +429,17 @@ clutter_pipeline_node_draw (ClutterPaintNode *node)
                                               op->op.texrect[5],
                                               op->op.texrect[6],
                                               op->op.texrect[7]);
+          break;
+
+        case PAINT_OP_MULTITEX_RECT:
+          cogl_framebuffer_draw_multitextured_rectangle (cogl_get_draw_framebuffer (),
+                                                         pnode->pipeline,
+                                                         op->op.texrect[0],
+                                                         op->op.texrect[1],
+                                                         op->op.texrect[2],
+                                                         op->op.texrect[3],
+                                                         (float*) op->multitex_coords->data,
+                                                         op->multitex_coords->len);
           break;
 
         case PAINT_OP_PATH:
@@ -829,6 +838,7 @@ clutter_text_node_draw (ClutterPaintNode *node)
             cogl_framebuffer_pop_clip (fb);
           break;
 
+        case PAINT_OP_MULTITEX_RECT:
         case PAINT_OP_PATH:
         case PAINT_OP_PRIMITIVE:
         case PAINT_OP_INVALID:
@@ -994,6 +1004,7 @@ clutter_clip_node_pre_draw (ClutterPaintNode *node)
           retval = TRUE;
           break;
 
+        case PAINT_OP_MULTITEX_RECT:
         case PAINT_OP_PRIMITIVE:
         case PAINT_OP_INVALID:
           break;
@@ -1027,6 +1038,7 @@ clutter_clip_node_post_draw (ClutterPaintNode *node)
           cogl_framebuffer_pop_clip (fb);
           break;
 
+        case PAINT_OP_MULTITEX_RECT:
         case PAINT_OP_PRIMITIVE:
         case PAINT_OP_INVALID:
           break;
@@ -1180,6 +1192,17 @@ clutter_layer_node_post_draw (ClutterPaintNode *node)
                                               op->op.texrect[6],
                                               op->op.texrect[7]);
           cogl_pop_source ();
+          break;
+
+        case PAINT_OP_MULTITEX_RECT:
+          cogl_framebuffer_draw_multitextured_rectangle (cogl_get_draw_framebuffer (),
+                                                         lnode->state,
+                                                         op->op.texrect[0],
+                                                         op->op.texrect[1],
+                                                         op->op.texrect[2],
+                                                         op->op.texrect[3],
+                                                         (float*) op->multitex_coords->data,
+                                                         op->multitex_coords->len);
           break;
 
         case PAINT_OP_PATH:

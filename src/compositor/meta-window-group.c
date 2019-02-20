@@ -1,19 +1,17 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
-#include <config.h>
+#include "config.h"
 
-#define _ISOC99_SOURCE /* for roundf */
+#include <gdk/gdk.h>
 #include <math.h>
 
-#include <gdk/gdk.h> /* for gdk_rectangle_intersect() */
-
-#include "clutter-utils.h"
-#include "compositor-private.h"
-#include "meta-window-actor-private.h"
-#include "meta-window-group-private.h"
-#include "window-private.h"
-#include "meta-cullable.h"
-#include "display-private.h"
+#include "compositor/clutter-utils.h"
+#include "compositor/compositor-private.h"
+#include "compositor/meta-cullable.h"
+#include "compositor/meta-window-actor-private.h"
+#include "compositor/meta-window-group-private.h"
+#include "core/display-private.h"
+#include "core/window-private.h"
 
 struct _MetaWindowGroupClass
 {
@@ -82,7 +80,11 @@ meta_window_group_paint (ClutterActor *actor)
    */
   if (clutter_actor_is_in_clone_paint (actor))
     {
-      if (!meta_actor_painting_untransformed (screen_width,
+      CoglFramebuffer *fb;
+
+      fb = cogl_get_draw_framebuffer ();
+      if (!meta_actor_painting_untransformed (fb,
+                                              screen_width,
                                               screen_height,
                                               &paint_x_origin,
                                               &paint_y_origin) ||

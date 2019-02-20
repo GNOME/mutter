@@ -28,7 +28,7 @@ typedef struct _ClutterStageCoglClass    ClutterStageCoglClass;
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterStageCogl, g_object_unref)
 
 #define CLUTTER_TYPE_STAGE_VIEW_COGL (clutter_stage_view_cogl_get_type ())
-CLUTTER_AVAILABLE_IN_MUTTER
+CLUTTER_EXPORT
 G_DECLARE_DERIVABLE_TYPE (ClutterStageViewCogl, clutter_stage_view_cogl,
                           CLUTTER, STAGE_VIEW_COGL,
                           ClutterStageView)
@@ -73,10 +73,10 @@ struct _ClutterStageCoglClass
   GObjectClass parent_class;
 };
 
-CLUTTER_AVAILABLE_IN_MUTTER
+CLUTTER_EXPORT
 GType _clutter_stage_cogl_get_type (void) G_GNUC_CONST;
 
-CLUTTER_AVAILABLE_IN_MUTTER
+CLUTTER_EXPORT
 void _clutter_stage_cogl_presented (ClutterStageCogl *stage_cogl,
                                     CoglFrameEvent    frame_event,
                                     ClutterFrameInfo *frame_info);

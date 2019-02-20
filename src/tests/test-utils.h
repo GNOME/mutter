@@ -40,12 +40,12 @@ GQuark test_runner_error_quark (void);
 typedef struct _AsyncWaiter AsyncWaiter;
 typedef struct _TestClient TestClient;
 
-void test_init (int    argc,
-                char **argv);
+void test_init (int    *argc,
+                char ***argv);
 
-gboolean async_waiter_alarm_filter (AsyncWaiter           *waiter,
-                                    MetaX11Display        *x11_display,
-                                    XSyncAlarmNotifyEvent *event);
+gboolean async_waiter_alarm_filter (MetaX11Display        *display,
+                                    XSyncAlarmNotifyEvent *event,
+                                    gpointer               data);
 
 void async_waiter_set_and_wait (AsyncWaiter *waiter);
 
@@ -55,9 +55,9 @@ void async_waiter_destroy (AsyncWaiter *waiter);
 
 char * test_client_get_id (TestClient *client);
 
-gboolean test_client_alarm_filter (TestClient            *client,
-                                   MetaX11Display        *x11_display,
-                                   XSyncAlarmNotifyEvent *event);
+gboolean test_client_alarm_filter (MetaX11Display        *x11_display,
+                                   XSyncAlarmNotifyEvent *event,
+                                   gpointer               data);
 
 gboolean test_client_wait (TestClient *client,
                            GError    **error);
@@ -78,5 +78,7 @@ TestClient * test_client_new (const char          *id,
                               GError             **error);
 
 void test_client_destroy (TestClient *client);
+
+const char * test_get_plugin_name (void);
 
 #endif /* TEST_UTILS_H */

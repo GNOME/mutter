@@ -23,11 +23,11 @@
 #ifndef META_WAYLAND_DATA_DEVICE_H
 #define META_WAYLAND_DATA_DEVICE_H
 
-#include <wayland-server.h>
 #include <glib-object.h>
+#include <wayland-server.h>
 
-#include "meta-wayland-types.h"
 #include "clutter/clutter.h"
+#include "wayland/meta-wayland-types.h"
 
 typedef struct _MetaWaylandDragGrab MetaWaylandDragGrab;
 typedef struct _MetaWaylandDataSourceFuncs MetaWaylandDataSourceFuncs;

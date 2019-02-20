@@ -21,16 +21,17 @@
 
 #include "config.h"
 
-#include <cogl/cogl.h>
-#include <cogl/cogl-wayland-server.h>
-#include "meta-wayland-cursor-surface.h"
-#include "meta-wayland-buffer.h"
-#include "meta-xwayland.h"
-#include "meta-wayland-private.h"
+#include "wayland/meta-wayland-cursor-surface.h"
+
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "cogl/cogl-wayland-server.h"
+#include "cogl/cogl.h"
 #include "core/boxes-private.h"
 #include "wayland/meta-cursor-sprite-wayland.h"
+#include "wayland/meta-wayland-buffer.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-xwayland.h"
 
 typedef struct _MetaWaylandCursorSurfacePrivate MetaWaylandCursorSurfacePrivate;
 

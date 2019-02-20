@@ -19,6 +19,10 @@
 #ifndef META_INHIBIT_SHORTCUTS_DIALOG_DEFAULT_H
 #define META_INHIBIT_SHORTCUTS_DIALOG_DEFAULT_H
 
+#include <glib-object.h>
+
+#include "meta/meta-plugin.h"
+
 #define META_TYPE_INHIBIT_SHORTCUTS_DIALOG_DEFAULT (meta_inhibit_shortcuts_dialog_default_get_type ())
 G_DECLARE_FINAL_TYPE (MetaInhibitShortcutsDialogDefault,
                       meta_inhibit_shortcuts_dialog_default,

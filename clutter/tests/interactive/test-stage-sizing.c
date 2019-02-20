@@ -2,6 +2,12 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
 
+int
+test_stage_sizing_main (int argc, char *argv[]);
+
+const char *
+test_stage_sizing_describe (void);
+
 static gboolean
 fullscreen_clicked_cb (ClutterStage *stage)
 {

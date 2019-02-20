@@ -21,7 +21,7 @@
  */
 
 /**
- * SECTION:display
+ * SECTION:x11-display
  * @title: MetaX11Display
  * @short_description: Mutter X display handler
  *
@@ -34,24 +34,21 @@
 #include "x11/meta-x11-display-private.h"
 
 #include <gdk/gdk.h>
-
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
 #include <X11/Xatom.h>
 #include <X11/XKBlib.h>
-#ifdef HAVE_RANDR
-#include <X11/extensions/Xrandr.h>
-#endif
 #include <X11/extensions/shape.h>
 #include <X11/Xcursor/Xcursor.h>
 #include <X11/extensions/Xcomposite.h>
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/Xfixes.h>
 #include <X11/extensions/Xinerama.h>
+#include <X11/extensions/Xrandr.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-settings-private.h"
 #include "backends/x11/meta-backend-x11.h"
@@ -101,6 +98,8 @@ static void
 meta_x11_display_dispose (GObject *object)
 {
   MetaX11Display *x11_display = META_X11_DISPLAY (object);
+
+  meta_x11_startup_notification_release (x11_display);
 
   meta_prefs_remove_listener (prefs_changed_callback, x11_display);
 
@@ -411,10 +410,8 @@ query_xi_extension (MetaX11Display *x11_display)
           if (version >= 22)
             has_xi = TRUE;
 
-#ifdef HAVE_XI23
           if (version >= 23)
             x11_display->have_xinput_23 = TRUE;
-#endif /* HAVE_XI23 */
         }
     }
 
@@ -491,13 +488,9 @@ static void
 set_x11_bell_is_audible (MetaX11Display *x11_display,
                          gboolean is_audible)
 {
-#ifdef HAVE_LIBCANBERRA
   /* When we are playing sounds using libcanberra support, we handle the
    * bell whether its an audible bell or a visible bell */
   gboolean enable_system_bell = FALSE;
-#else
-  gboolean enable_system_bell = is_audible;
-#endif /* HAVE_LIBCANBERRA */
 
   XkbChangeEnabledControls (x11_display->xdisplay,
                             XkbUseCoreKbd,
@@ -601,6 +594,7 @@ set_supported_hint (MetaX11Display *x11_display)
 
     x11_display->atom__GTK_FRAME_EXTENTS,
     x11_display->atom__GTK_SHOW_WINDOW_MENU,
+    x11_display->atom__GTK_EDGE_CONSTRAINTS,
   };
 
   XChangeProperty (x11_display->xdisplay,
@@ -788,13 +782,11 @@ init_event_masks (MetaX11Display *x11_display)
   XISetMask (mask.mask, XI_Leave);
   XISetMask (mask.mask, XI_FocusIn);
   XISetMask (mask.mask, XI_FocusOut);
-#ifdef HAVE_XI23
   if (META_X11_DISPLAY_HAS_XINPUT_23 (x11_display))
     {
       XISetMask (mask.mask, XI_BarrierHit);
       XISetMask (mask.mask, XI_BarrierLeave);
     }
-#endif /* HAVE_XI23 */
   XISelectEvents (x11_display->xdisplay, x11_display->xroot, &mask, 1);
 
   event_mask = (SubstructureRedirectMask | SubstructureNotifyMask |
@@ -1358,6 +1350,8 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
                            x11_display, 0);
 
   set_x11_bell_is_audible (x11_display, meta_prefs_bell_is_audible ());
+
+  meta_x11_startup_notification_init (x11_display);
 
   return x11_display;
 }

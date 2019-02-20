@@ -37,9 +37,7 @@
 #define CLUTTER_IS_BLUR_EFFECT_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_BLUR_EFFECT))
 #define CLUTTER_BLUR_EFFECT_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_BLUR_EFFECT, ClutterBlurEffectClass))
 
-#ifdef HAVE_CONFIG_H
 #include "clutter-build-config.h"
-#endif
 
 #define CLUTTER_ENABLE_EXPERIMENTAL_API
 
@@ -162,6 +160,7 @@ static void
 clutter_blur_effect_paint_target (ClutterOffscreenEffect *effect)
 {
   ClutterBlurEffect *self = CLUTTER_BLUR_EFFECT (effect);
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
   guint8 paint_opacity;
 
   paint_opacity = clutter_actor_get_paint_opacity (self->actor);
@@ -171,11 +170,11 @@ clutter_blur_effect_paint_target (ClutterOffscreenEffect *effect)
                               paint_opacity,
                               paint_opacity,
                               paint_opacity);
-  cogl_push_source (self->pipeline);
 
-  cogl_rectangle (0, 0, self->tex_width, self->tex_height);
-
-  cogl_pop_source ();
+  cogl_framebuffer_draw_rectangle (framebuffer,
+                                   self->pipeline,
+                                   0, 0,
+                                   self->tex_width, self->tex_height);
 }
 
 static gboolean

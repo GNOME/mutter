@@ -24,19 +24,21 @@
 
 #include "config.h"
 
+#include "wayland/meta-wayland-data-device.h"
+#include "wayland/meta-wayland-data-device-private.h"
+
+#include <glib-unix.h>
+#include <glib.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <stdio.h>
-#include <glib.h>
-#include <glib-unix.h>
 
-#include "meta-wayland-data-device.h"
-#include "meta-wayland-data-device-private.h"
-#include "meta-wayland-seat.h"
-#include "meta-wayland-pointer.h"
-#include "meta-wayland-private.h"
-#include "meta-dnd-actor-private.h"
+#include "compositor/meta-dnd-actor-private.h"
+#include "wayland/meta-wayland-dnd-surface.h"
+#include "wayland/meta-wayland-pointer.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-seat.h"
 
 #include "gtk-primary-selection-server-protocol.h"
 
@@ -1142,7 +1144,7 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data
 
   if (icon_surface)
     {
-      ClutterActor *drag_origin_actor;
+      ClutterActor *drag_surface_actor;
 
       drag_grab->drag_surface = icon_surface;
 
@@ -1150,14 +1152,14 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data
       wl_resource_add_destroy_listener (icon_surface->resource,
                                         &drag_grab->drag_icon_listener);
 
-      drag_origin_actor = CLUTTER_ACTOR (meta_wayland_surface_get_actor (drag_grab->drag_origin));
+      drag_surface_actor = CLUTTER_ACTOR (meta_wayland_surface_get_actor (drag_grab->drag_surface));
 
-      drag_grab->feedback_actor = meta_dnd_actor_new (drag_origin_actor,
+      drag_grab->feedback_actor = meta_dnd_actor_new (CLUTTER_ACTOR (surface_actor),
                                                       drag_grab->drag_start_x,
                                                       drag_grab->drag_start_y);
       meta_feedback_actor_set_anchor (META_FEEDBACK_ACTOR (drag_grab->feedback_actor),
                                       0, 0);
-      clutter_actor_add_child (drag_grab->feedback_actor, drag_origin_actor);
+      clutter_actor_add_child (drag_grab->feedback_actor, drag_surface_actor);
 
       clutter_input_device_get_coords (seat->pointer->device, NULL, &pos);
       meta_feedback_actor_set_position (META_FEEDBACK_ACTOR (drag_grab->feedback_actor),
@@ -1733,9 +1735,10 @@ primary_device_set_selection (struct wl_client   *client,
                               uint32_t            serial)
 {
   MetaWaylandDataDevice *data_device = wl_resource_get_user_data (resource);
-  MetaWaylandDataSource *source;
+  MetaWaylandDataSource *source = NULL;
 
-  source = wl_resource_get_user_data (source_resource);
+  if (source_resource)
+    source = wl_resource_get_user_data (source_resource);
   meta_wayland_data_device_set_primary (data_device, source, serial);
 }
 

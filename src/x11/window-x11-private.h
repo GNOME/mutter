@@ -23,7 +23,7 @@
 #ifndef META_WINDOW_X11_PRIVATE_H
 #define META_WINDOW_X11_PRIVATE_H
 
-#include "window-private.h"
+#include "core/window-private.h"
 #include "x11/iconcache.h"
 
 G_BEGIN_DECLS

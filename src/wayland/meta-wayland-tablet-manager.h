@@ -22,11 +22,10 @@
 #ifndef META_WAYLAND_TABLET_MANAGER_H
 #define META_WAYLAND_TABLET_MANAGER_H
 
+#include <glib.h>
 #include <wayland-server.h>
 
-#include <glib.h>
-
-#include "meta-wayland-types.h"
+#include "wayland/meta-wayland-types.h"
 
 struct _MetaWaylandTabletManager
 {

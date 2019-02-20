@@ -27,7 +27,20 @@
 
 #include <glib-object.h>
 
-#include "meta-cursor.h"
+#include "backends/meta-backend-types.h"
+#include "backends/meta-cursor.h"
+
+#define META_TYPE_HW_CURSOR_INHIBITOR (meta_hw_cursor_inhibitor_get_type ())
+G_DECLARE_INTERFACE (MetaHwCursorInhibitor, meta_hw_cursor_inhibitor,
+                     META, HW_CURSOR_INHIBITOR, GObject)
+
+struct _MetaHwCursorInhibitorInterface
+{
+  GTypeInterface parent_iface;
+
+  gboolean (* is_cursor_sprite_inhibited) (MetaHwCursorInhibitor *inhibitor,
+                                           MetaCursorSprite      *cursor_sprite);
+};
 
 #define META_TYPE_CURSOR_RENDERER (meta_cursor_renderer_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaCursorRenderer, meta_cursor_renderer,
@@ -53,6 +66,15 @@ ClutterPoint meta_cursor_renderer_get_position (MetaCursorRenderer *renderer);
 void meta_cursor_renderer_force_update (MetaCursorRenderer *renderer);
 
 MetaCursorSprite * meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer);
+
+void meta_cursor_renderer_add_hw_cursor_inhibitor (MetaCursorRenderer    *renderer,
+                                                   MetaHwCursorInhibitor *inhibitor);
+
+void meta_cursor_renderer_remove_hw_cursor_inhibitor (MetaCursorRenderer    *renderer,
+                                                      MetaHwCursorInhibitor *inhibitor);
+
+gboolean meta_cursor_renderer_is_hw_cursors_inhibited (MetaCursorRenderer *renderer,
+                                                       MetaCursorSprite   *cursor_sprite);
 
 ClutterRect meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
                                                  MetaCursorSprite   *cursor_sprite);

@@ -47,6 +47,12 @@ static const gchar *desaturare_glsl_shader =
 
 static gboolean      is_expanded = FALSE;
 
+const char *
+test_bind_constraint_describe (void);
+
+int
+test_bind_constraint_main (int argc, char *argv[]);
+
 static gboolean
 on_button_release (ClutterActor *actor,
                    ClutterEvent *event,

@@ -23,9 +23,7 @@
  * Author: Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifdef HAVE_CONFIG_H
 #include "clutter-build-config.h"
-#endif
 
 #include <math.h>
 #include <float.h>
@@ -46,6 +44,7 @@
 #include "clutter-device-manager-private.h"
 #include "clutter-event-private.h"
 #include "clutter-input-device-evdev.h"
+#include "clutter-keymap-evdev.h"
 #include "clutter-seat-evdev.h"
 #include "clutter-virtual-input-device-evdev.h"
 #include "clutter-main.h"
@@ -93,7 +92,6 @@ struct _ClutterDeviceManagerEvdevPrivate
   GSList *seats;
 
   ClutterSeatEvdev *main_seat;
-  struct xkb_keymap *keymap;
 
   ClutterPointerConstrainCallback constrain_callback;
   gpointer                        constrain_data;
@@ -148,10 +146,6 @@ static const char *device_type_str[] = {
  * The device manager is responsible for managing the GSource when devices
  * appear and disappear from the system.
  */
-
-static const char *option_xkb_layout = "us";
-static const char *option_xkb_variant = "";
-static const char *option_xkb_options = "";
 
 static void
 clutter_device_manager_evdev_copy_event_data (ClutterEventExtender *event_extender,
@@ -259,8 +253,8 @@ _clutter_device_manager_evdev_constrain_pointer (ClutterDeviceManagerEvdev *mana
       float stage_width = clutter_actor_get_width (stage);
       float stage_height = clutter_actor_get_height (stage);
 
-      x = CLAMP (x, 0.f, stage_width - 1);
-      y = CLAMP (y, 0.f, stage_height - 1);
+      *new_x = CLAMP (x, 0.f, stage_width - 1);
+      *new_y = CLAMP (y, 0.f, stage_height - 1);
     }
 }
 
@@ -324,7 +318,6 @@ new_absolute_motion_event (ClutterInputDevice *input_device,
   _clutter_evdev_event_set_time_usec (event, time_us);
   event->motion.time = us2ms (time_us);
   event->motion.stage = stage;
-  event->motion.device = seat->core_pointer;
   _clutter_xkb_translate_state (event, seat->xkb, seat->button_state);
   event->motion.x = x;
   event->motion.y = y;
@@ -332,6 +325,7 @@ new_absolute_motion_event (ClutterInputDevice *input_device,
                                                     &event->motion.x,
                                                     &event->motion.y);
   event->motion.axes = axes;
+  clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
@@ -519,7 +513,6 @@ notify_proximity (ClutterInputDevice *input_device,
 
   event->proximity.time = us2ms (time_us);
   event->proximity.stage = CLUTTER_STAGE (stage);
-  event->proximity.device = seat->core_pointer;
   clutter_event_set_device_tool (event, device_evdev->last_tool);
   clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);
@@ -1936,8 +1929,6 @@ clutter_device_manager_evdev_constructed (GObject *gobject)
   ClutterDeviceManagerEvdevPrivate *priv;
   ClutterEventSource *source;
   struct udev *udev;
-  struct xkb_context *ctx;
-  struct xkb_rule_names names;
 
   udev = udev_new ();
   if (G_UNLIKELY (udev == NULL))
@@ -1968,17 +1959,6 @@ clutter_device_manager_evdev_constructed (GObject *gobject)
     }
 
   udev_unref (udev);
-
-  names.rules = "evdev";
-  names.model = "pc105";
-  names.layout = option_xkb_layout;
-  names.variant = option_xkb_variant;
-  names.options = option_xkb_options;
-
-  ctx = xkb_context_new (0);
-  g_assert (ctx);
-  priv->keymap = xkb_keymap_new_from_names (ctx, &names, 0);
-  xkb_context_unref (ctx);
 
   priv->main_seat = clutter_seat_evdev_new (manager_evdev);
   priv->seats = g_slist_append (priv->seats, priv->main_seat);
@@ -2032,9 +2012,6 @@ clutter_device_manager_evdev_finalize (GObject *object)
 
   g_slist_free_full (priv->seats, (GDestroyNotify) clutter_seat_evdev_free);
   g_slist_free (priv->devices);
-
-  if (priv->keymap)
-    xkb_keymap_unref (priv->keymap);
 
   if (priv->event_source != NULL)
     clutter_event_source_free (priv->event_source);
@@ -2159,6 +2136,7 @@ _clutter_events_evdev_init (ClutterBackend *backend)
 {
   CLUTTER_NOTE (EVENT, "Initializing evdev backend");
 
+  backend->keymap = g_object_new (CLUTTER_TYPE_KEYMAP_EVDEV, NULL);
   backend->device_manager = g_object_new (CLUTTER_TYPE_DEVICE_MANAGER_EVDEV,
                                           "backend", backend,
                                           NULL);
@@ -2219,14 +2197,6 @@ _clutter_device_manager_evdev_release_device_id (ClutterDeviceManagerEvdev *mana
   priv->free_device_ids = g_list_insert_sorted (priv->free_device_ids,
                                                 GINT_TO_POINTER (device_id),
                                                 compare_ids);
-}
-
-struct xkb_keymap *
-_clutter_device_manager_evdev_get_keymap (ClutterDeviceManagerEvdev *manager_evdev)
-{
-  ClutterDeviceManagerEvdevPrivate *priv = manager_evdev->priv;
-
-  return priv->keymap;
 }
 
 ClutterStage *
@@ -2291,6 +2261,11 @@ clutter_evdev_update_xkb_state (ClutterDeviceManagerEvdev *manager_evdev)
   ClutterSeatEvdev *seat;
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
+  struct xkb_keymap *xkb_keymap;
+  ClutterKeymap *keymap;
+
+  keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
+  xkb_keymap = clutter_keymap_evdev_get_keyboard_map (CLUTTER_KEYMAP_EVDEV (keymap));
 
   priv = manager_evdev->priv;
 
@@ -2303,7 +2278,7 @@ clutter_evdev_update_xkb_state (ClutterDeviceManagerEvdev *manager_evdev)
       locked_mods = xkb_state_serialize_mods (seat->xkb,
                                               XKB_STATE_MODS_LOCKED);
       xkb_state_unref (seat->xkb);
-      seat->xkb = xkb_state_new (priv->keymap);
+      seat->xkb = xkb_state_new (xkb_keymap);
 
       xkb_state_update_mask (seat->xkb,
                              0, /* depressed */
@@ -2311,9 +2286,9 @@ clutter_evdev_update_xkb_state (ClutterDeviceManagerEvdev *manager_evdev)
                              locked_mods,
                              0, 0, seat->layout_idx);
 
-      seat->caps_lock_led = xkb_keymap_led_get_index (priv->keymap, XKB_LED_NAME_CAPS);
-      seat->num_lock_led = xkb_keymap_led_get_index (priv->keymap, XKB_LED_NAME_NUM);
-      seat->scroll_lock_led = xkb_keymap_led_get_index (priv->keymap, XKB_LED_NAME_SCROLL);
+      seat->caps_lock_led = xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_CAPS);
+      seat->num_lock_led = xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_NUM);
+      seat->scroll_lock_led = xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_SCROLL);
 
       clutter_seat_evdev_sync_leds (seat);
     }
@@ -2398,20 +2373,18 @@ clutter_evdev_set_device_callbacks (ClutterOpenDeviceCallback  open_callback,
  */
 void
 clutter_evdev_set_keyboard_map (ClutterDeviceManager *evdev,
-				struct xkb_keymap    *keymap)
+				struct xkb_keymap    *xkb_keymap)
 {
   ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv;
+  ClutterKeymap *keymap;
 
   g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER_EVDEV (evdev));
 
+  keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
+  clutter_keymap_evdev_set_keyboard_map (CLUTTER_KEYMAP_EVDEV (keymap),
+                                         xkb_keymap);
+
   manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (evdev);
-  priv = manager_evdev->priv;
-
-  if (priv->keymap)
-    xkb_keymap_unref (priv->keymap);
-
-  priv->keymap = xkb_keymap_ref (keymap);
   clutter_evdev_update_xkb_state (manager_evdev);
 }
 
@@ -2506,12 +2479,18 @@ clutter_evdev_set_keyboard_numlock (ClutterDeviceManager *evdev,
   ClutterDeviceManagerEvdevPrivate *priv;
   GSList *iter;
   xkb_mod_mask_t numlock;
+  struct xkb_keymap *xkb_keymap;
+  ClutterKeymap *keymap;
 
   g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER_EVDEV (evdev));
 
   manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (evdev);
   priv = manager_evdev->priv;
-  numlock = (1 << xkb_keymap_mod_get_index(priv->keymap, "Mod2"));
+
+  keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
+  xkb_keymap = clutter_keymap_evdev_get_keyboard_map (CLUTTER_KEYMAP_EVDEV (keymap));
+
+  numlock = (1 << xkb_keymap_mod_get_index (xkb_keymap, "Mod2"));
 
   for (iter = priv->seats; iter; iter = iter->next)
     {
@@ -2761,4 +2740,10 @@ clutter_evdev_set_seat_id (const gchar *seat_id)
 {
   g_free (evdev_seat_id);
   evdev_seat_id = g_strdup (seat_id);
+}
+
+struct xkb_state *
+_clutter_device_manager_evdev_get_xkb_state (ClutterDeviceManagerEvdev *manager_evdev)
+{
+  return manager_evdev->priv->main_seat->xkb;
 }

@@ -27,6 +27,7 @@
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "wayland/meta-wayland.h"
+#include "wayland/meta-xwayland.h"
 #include "x11/meta-x11-display-private.h"
 
 struct _TestClient {
@@ -57,21 +58,44 @@ G_DEFINE_QUARK (test-runner-error-quark, test_runner_error)
 
 static char *test_client_path;
 
-void
-test_init (int    argc,
-           char **argv)
+static void
+ensure_test_client_path (int    argc,
+                         char **argv)
 {
-  char *basename = g_path_get_basename (argv[0]);
-  char *dirname = g_path_get_dirname (argv[0]);
+  test_client_path = g_test_build_filename (G_TEST_BUILT,
+                                            "src",
+                                            "tests",
+                                            "mutter-test-client",
+                                            NULL);
+  if (!g_file_test (test_client_path,
+                    G_FILE_TEST_EXISTS | G_FILE_TEST_IS_EXECUTABLE))
+    {
+      g_autofree char *basename;
+      g_autofree char *dirname = NULL;
 
-  if (g_str_has_prefix (basename, "lt-"))
-    test_client_path = g_build_filename (dirname,
-                                         "../mutter-test-client", NULL);
-  else
-    test_client_path = g_build_filename (dirname,
-                                         "mutter-test-client", NULL);
-  g_free (basename);
-  g_free (dirname);
+      basename = g_path_get_basename (argv[0]);
+
+      dirname = g_path_get_dirname (argv[0]);
+      test_client_path = g_build_filename (dirname,
+                                           "mutter-test-client", NULL);
+    }
+
+  if (!g_file_test (test_client_path,
+                    G_FILE_TEST_EXISTS | G_FILE_TEST_IS_EXECUTABLE))
+    g_error ("mutter-test-client executable not found");
+}
+
+void
+test_init (int    *argc,
+           char ***argv)
+{
+  g_test_init (argc, argv, NULL);
+  g_test_bug_base ("http://bugzilla.gnome.org/show_bug.cgi?id=");
+
+  ensure_test_client_path (*argc, *argv);
+
+  meta_wayland_override_display_name ("mutter-test-display");
+  meta_xwayland_override_display_number (512);
 }
 
 AsyncWaiter *
@@ -161,10 +185,12 @@ async_waiter_set_and_wait (AsyncWaiter *waiter)
 }
 
 gboolean
-async_waiter_alarm_filter (AsyncWaiter           *waiter,
-                           MetaX11Display        *x11_display,
-                           XSyncAlarmNotifyEvent *event)
+async_waiter_alarm_filter (MetaX11Display        *x11_display,
+                           XSyncAlarmNotifyEvent *event,
+                           gpointer               data)
 {
+  AsyncWaiter *waiter = data;
+
   if (event->alarm != waiter->alarm)
     return FALSE;
 
@@ -334,12 +360,14 @@ test_client_find_window (TestClient *client,
 }
 
 gboolean
-test_client_alarm_filter (TestClient            *client,
-                          MetaX11Display        *x11_display,
-                          XSyncAlarmNotifyEvent *event)
+test_client_alarm_filter (MetaX11Display        *x11_display,
+                          XSyncAlarmNotifyEvent *event,
+                          gpointer               data)
 {
+  TestClient *client = data;
+
   if (client->waiter)
-    return async_waiter_alarm_filter (client->waiter, x11_display, event);
+    return async_waiter_alarm_filter (x11_display, event, client->waiter);
   else
     return FALSE;
 }
@@ -442,4 +470,16 @@ test_client_destroy (TestClient *client)
   g_main_loop_unref (client->loop);
   g_free (client->id);
   g_free (client);
+}
+
+const char *
+test_get_plugin_name (void)
+{
+  const char *name;
+
+  name = g_getenv ("MUTTER_TEST_PLUGIN_PATH");
+  if (name)
+    return name;
+  else
+    return "libdefault";
 }

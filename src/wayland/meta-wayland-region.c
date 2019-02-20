@@ -24,7 +24,7 @@
 
 #include "config.h"
 
-#include "meta-wayland-region.h"
+#include "wayland/meta-wayland-region.h"
 
 struct _MetaWaylandRegion
 {

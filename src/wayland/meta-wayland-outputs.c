@@ -24,14 +24,17 @@
 
 #include "config.h"
 
-#include "meta-wayland-outputs.h"
-
-#include "meta-wayland-private.h"
-#include "backends/meta-logical-monitor.h"
-#include "meta-monitor-manager-private.h"
-#include "xdg-output-unstable-v1-server-protocol.h"
+#include "wayland/meta-wayland-outputs.h"
 
 #include <string.h>
+
+#include "backends/meta-logical-monitor.h"
+#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-manager-private.h"
+#include "wayland/meta-wayland-private.h"
+
+#include "xdg-output-unstable-v1-server-protocol.h"
+
 
 enum {
   OUTPUT_DESTROYED,
@@ -91,6 +94,7 @@ cogl_subpixel_order_to_wl_output_subpixel (CoglSubpixelOrder subpixel_order)
     }
 
   g_assert_not_reached ();
+  return WL_OUTPUT_SUBPIXEL_UNKNOWN;
 }
 
 static enum wl_output_subpixel
@@ -129,6 +133,39 @@ calculate_wayland_output_scale (MetaLogicalMonitor *logical_monitor)
 }
 
 static void
+get_rotated_physical_dimensions (MetaMonitor *monitor,
+                                 int         *width_mm,
+                                 int         *height_mm)
+{
+  int monitor_width_mm, monitor_height_mm;
+  MetaLogicalMonitor *logical_monitor;
+
+  meta_monitor_get_physical_dimensions (monitor,
+                                        &monitor_width_mm,
+                                        &monitor_height_mm);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+
+  if (meta_monitor_transform_is_rotated (logical_monitor->transform))
+    {
+      *width_mm = monitor_height_mm;
+      *height_mm = monitor_width_mm;
+    }
+  else
+    {
+      *width_mm = monitor_width_mm;
+      *height_mm = monitor_height_mm;
+    }
+}
+
+static gboolean
+is_different_rotation (MetaLogicalMonitor *a,
+                       MetaLogicalMonitor *b)
+{
+  return (meta_monitor_transform_is_rotated (a->transform) !=
+          meta_monitor_transform_is_rotated (b->transform));
+}
+
+static void
 send_output_events (struct wl_resource *resource,
                     MetaWaylandOutput  *wayland_output,
                     MetaLogicalMonitor *logical_monitor,
@@ -160,7 +197,8 @@ send_output_events (struct wl_resource *resource,
 
   if (need_all_events ||
       old_logical_monitor->rect.x != logical_monitor->rect.x ||
-      old_logical_monitor->rect.y != logical_monitor->rect.y)
+      old_logical_monitor->rect.y != logical_monitor->rect.y ||
+      is_different_rotation (old_logical_monitor, logical_monitor))
     {
       int width_mm, height_mm;
       const char *vendor;
@@ -175,7 +213,7 @@ send_output_events (struct wl_resource *resource,
        * Arbitrarily use whatever monitor is the first in the logical monitor
        * and use that for these details.
        */
-      meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
+      get_rotated_physical_dimensions (monitor, &width_mm, &height_mm);
       vendor = meta_monitor_get_vendor (monitor);
       product = meta_monitor_get_product (monitor);
 
@@ -251,7 +289,9 @@ bind_output (struct wl_client *client,
   MetaWaylandOutput *wayland_output = data;
   MetaLogicalMonitor *logical_monitor = wayland_output->logical_monitor;
   struct wl_resource *resource;
+#ifdef WITH_VERBOSE_MODE
   MetaMonitor *monitor;
+#endif
 
   resource = wl_resource_create (client, &wl_output_interface, version, id);
   wayland_output->resources = g_list_prepend (wayland_output->resources, resource);
@@ -262,6 +302,7 @@ bind_output (struct wl_client *client,
   if (!logical_monitor)
     return;
 
+#ifdef WITH_VERBOSE_MODE
   monitor = pick_main_monitor (logical_monitor);
 
   meta_verbose ("Binding monitor %p/%s (%u, %u, %u, %u) x %f\n",
@@ -270,6 +311,7 @@ bind_output (struct wl_client *client,
                 logical_monitor->rect.x, logical_monitor->rect.y,
                 logical_monitor->rect.width, logical_monitor->rect.height,
                 wayland_output->refresh_rate);
+#endif
 
   send_output_events (resource, wayland_output, logical_monitor, TRUE, NULL);
 }
@@ -302,6 +344,8 @@ meta_wayland_output_set_logical_monitor (MetaWaylandOutput  *wayland_output,
     wayland_output->mode_flags |= WL_OUTPUT_MODE_PREFERRED;
   wayland_output->scale = calculate_wayland_output_scale (logical_monitor);
   wayland_output->refresh_rate = meta_monitor_mode_get_refresh_rate (current_mode);
+
+  wayland_output->winsys_id = logical_monitor->winsys_id;
 }
 
 static void
@@ -415,25 +459,24 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
 
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
-  new_table = g_hash_table_new_full (NULL, NULL, NULL,
+  new_table = g_hash_table_new_full (g_int64_hash, g_int64_equal, NULL,
                                      wayland_output_destroy_notify);
 
   for (l = logical_monitors; l; l = l->next)
     {
       MetaLogicalMonitor *logical_monitor = l->data;
-      MetaWaylandOutput *wayland_output;
+      MetaWaylandOutput *wayland_output = NULL;
 
       if (logical_monitor->winsys_id == 0)
         continue;
 
-      wayland_output =
-        g_hash_table_lookup (compositor->outputs,
-                             GSIZE_TO_POINTER (logical_monitor->winsys_id));
+      wayland_output = g_hash_table_lookup (compositor->outputs,
+                                            &logical_monitor->winsys_id);
 
       if (wayland_output)
         {
           g_hash_table_steal (compositor->outputs,
-                              GSIZE_TO_POINTER (logical_monitor->winsys_id));
+                              &logical_monitor->winsys_id);
         }
       else
         {
@@ -442,7 +485,7 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
 
       wayland_output_update_for_output (wayland_output, logical_monitor);
       g_hash_table_insert (new_table,
-                           GSIZE_TO_POINTER (logical_monitor->winsys_id),
+                           &wayland_output->winsys_id,
                            wayland_output);
     }
 
@@ -639,7 +682,8 @@ meta_wayland_outputs_init (MetaWaylandCompositor *compositor)
   g_signal_connect (monitors, "monitors-changed-internal",
                     G_CALLBACK (on_monitors_changed), compositor);
 
-  compositor->outputs = g_hash_table_new_full (NULL, NULL, NULL, wayland_output_destroy_notify);
+  compositor->outputs = g_hash_table_new_full (g_int64_hash, g_int64_equal, NULL,
+                                               wayland_output_destroy_notify);
   compositor->outputs = meta_wayland_compositor_update_outputs (compositor, monitors);
 
   wl_global_create (compositor->wayland_display,

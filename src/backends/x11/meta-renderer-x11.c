@@ -26,16 +26,16 @@
 
 #include <glib-object.h>
 
-#include "clutter/x11/clutter-x11.h"
-#include "cogl/cogl.h"
-#include "cogl/cogl-xlib.h"
-#include "cogl/winsys/cogl-winsys-glx-private.h"
-#include "cogl/winsys/cogl-winsys-egl-x11-private.h"
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
-#include "backends/meta-renderer.h"
 #include "backends/meta-renderer-view.h"
+#include "backends/meta-renderer.h"
 #include "backends/x11/meta-renderer-x11.h"
+#include "clutter/x11/clutter-x11.h"
+#include "cogl/cogl-xlib.h"
+#include "cogl/cogl.h"
+#include "cogl/winsys/cogl-winsys-egl-x11-private.h"
+#include "cogl/winsys/cogl-winsys-glx-private.h"
 #include "core/boxes-private.h"
 #include "meta/meta-backend.h"
 #include "meta/util.h"
@@ -45,23 +45,32 @@ G_DEFINE_TYPE (MetaRendererX11, meta_renderer_x11, META_TYPE_RENDERER)
 static const CoglWinsysVtable *
 get_x11_cogl_winsys_vtable (CoglRenderer *renderer)
 {
+#ifdef COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
   if (meta_is_wayland_compositor ())
     return _cogl_winsys_egl_xlib_get_vtable ();
+#endif
 
   switch (renderer->driver)
     {
-    case COGL_DRIVER_GLES1:
     case COGL_DRIVER_GLES2:
+#ifdef COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
       return _cogl_winsys_egl_xlib_get_vtable ();
+#else
+      break;
+#endif
     case COGL_DRIVER_GL:
     case COGL_DRIVER_GL3:
+#ifdef COGL_HAS_GLX_SUPPORT
       return _cogl_winsys_glx_get_vtable ();
+#else
+      break;
+#endif
     case COGL_DRIVER_ANY:
     case COGL_DRIVER_NOP:
-    case COGL_DRIVER_WEBGL:
       break;
     }
   g_assert_not_reached ();
+  return NULL;
 }
 
 static CoglRenderer *

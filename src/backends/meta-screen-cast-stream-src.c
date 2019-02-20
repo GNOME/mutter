@@ -40,6 +40,10 @@
 #define PRIVATE_OWNER_FROM_FIELD(TypeName, field_ptr, field_name) \
   (TypeName *)((guint8 *)(field_ptr) - G_PRIVATE_OFFSET (TypeName, field_name))
 
+#define CURSOR_META_SIZE(width, height) \
+  (sizeof (struct spa_meta_cursor) + \
+   sizeof (struct spa_meta_bitmap) + width * height * 4)
+
 enum
 {
   PROP_0,
@@ -56,14 +60,6 @@ enum
 };
 
 static guint signals[N_SIGNALS];
-
-typedef struct _MetaSpaType
-{
-  struct spa_type_media_type media_type;
-  struct spa_type_media_subtype media_subtype;
-  struct spa_type_format_video format_video;
-  struct spa_type_video_format video_format;
-} MetaSpaType;
 
 typedef struct _MetaPipeWireSource
 {
@@ -91,6 +87,9 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   struct spa_video_info_raw video_format;
 
   uint64_t last_frame_timestamp_us;
+
+  int stream_width;
+  int stream_height;
 } MetaScreenCastStreamSrcPrivate;
 
 static void
@@ -117,14 +116,81 @@ meta_screen_cast_stream_src_get_specs (MetaScreenCastStreamSrc *src,
   klass->get_specs (src, width, height, frame_rate);
 }
 
-static void
+static gboolean
+meta_screen_cast_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
+                                           MetaRectangle           *crop_rect)
+{
+  MetaScreenCastStreamSrcClass *klass =
+    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+
+  if (klass->get_videocrop)
+    return klass->get_videocrop (src, crop_rect);
+
+  return FALSE;
+}
+
+static gboolean
 meta_screen_cast_stream_src_record_frame (MetaScreenCastStreamSrc *src,
                                           uint8_t                 *data)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  klass->record_frame (src, data);
+  return klass->record_frame (src, data);
+}
+
+static void
+meta_screen_cast_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *src,
+                                                 struct spa_meta_cursor  *spa_meta_cursor)
+{
+  MetaScreenCastStreamSrcClass *klass =
+    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+
+  if (klass->set_cursor_metadata)
+    klass->set_cursor_metadata (src, spa_meta_cursor);
+}
+
+MetaSpaType *
+meta_screen_cast_stream_src_get_spa_type (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  return &priv->spa_type;
+}
+
+static void
+add_cursor_metadata (MetaScreenCastStreamSrc *src,
+                     struct spa_buffer       *spa_buffer)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaSpaType *spa_type = &priv->spa_type;
+  struct spa_meta_cursor *spa_meta_cursor;
+
+  spa_meta_cursor = spa_buffer_find_meta (spa_buffer, spa_type->meta_cursor);
+  if (spa_meta_cursor)
+    meta_screen_cast_stream_src_set_cursor_metadata (src, spa_meta_cursor);
+}
+
+static void
+maybe_record_cursor (MetaScreenCastStreamSrc *src,
+                     struct spa_buffer       *spa_buffer,
+                     uint8_t                 *data)
+{
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+
+  switch (meta_screen_cast_stream_get_cursor_mode (stream))
+    {
+    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
+    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
+      return;
+    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
+      add_cursor_metadata (src, spa_buffer);
+      return;
+    }
+
+  g_assert_not_reached ();
 }
 
 void
@@ -132,6 +198,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  MetaRectangle crop_rect;
   struct pw_buffer *buffer;
   struct spa_buffer *spa_buffer;
   uint8_t *map = NULL;
@@ -181,13 +248,44 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
       return;
     }
 
-  meta_screen_cast_stream_src_record_frame (src, data);
+  if (meta_screen_cast_stream_src_record_frame (src, data))
+    {
+      struct spa_meta_video_crop *spa_meta_video_crop;
+
+      spa_buffer->datas[0].chunk->size = spa_buffer->datas[0].maxsize;
+
+      /* Update VideoCrop if needed */
+      spa_meta_video_crop =
+        spa_buffer_find_meta (spa_buffer, priv->pipewire_type->meta.VideoCrop);
+      if (spa_meta_video_crop)
+        {
+          if (meta_screen_cast_stream_src_get_videocrop (src, &crop_rect))
+            {
+              spa_meta_video_crop->x = crop_rect.x;
+              spa_meta_video_crop->y = crop_rect.y;
+              spa_meta_video_crop->width = crop_rect.width;
+              spa_meta_video_crop->height = crop_rect.height;
+            }
+          else
+            {
+              spa_meta_video_crop->x = 0;
+              spa_meta_video_crop->y = 0;
+              spa_meta_video_crop->width = priv->stream_width;
+              spa_meta_video_crop->height = priv->stream_height;
+            }
+        }
+    }
+  else
+    {
+      spa_buffer->datas[0].chunk->size = 0;
+    }
+
+  maybe_record_cursor (src, spa_buffer, data);
+
   priv->last_frame_timestamp_us = now_us;
 
   if (map)
     munmap (map, spa_buffer->datas[0].maxsize + spa_buffer->datas[0].mapoffset);
-
-  spa_buffer->datas[0].chunk->size = spa_buffer->datas[0].maxsize;
 
   pw_stream_queue_buffer (priv->pipewire_stream, buffer);
 }
@@ -275,7 +373,7 @@ on_stream_format_changed (void                 *data,
   uint8_t params_buffer[1024];
   int32_t width, height, stride, size;
   struct spa_pod_builder pod_builder;
-  const struct spa_pod *params[1];
+  const struct spa_pod *params[3];
   const int bpp = 4;
 
   if (!format)
@@ -303,6 +401,18 @@ on_stream_format_changed (void                 *data,
     ":", pipewire_type->param_buffers.buffers, "iru", 16, PROP_RANGE (2, 16),
     ":", pipewire_type->param_buffers.align, "i", 16);
 
+  params[1] = spa_pod_builder_object (
+    &pod_builder,
+    pipewire_type->param.idMeta, pipewire_type->param_meta.Meta,
+    ":", pipewire_type->param_meta.type, "I", pipewire_type->meta.VideoCrop,
+    ":", pipewire_type->param_meta.size, "i", sizeof (struct spa_meta_video_crop));
+
+  params[2] = spa_pod_builder_object (
+    &pod_builder,
+    pipewire_type->param.idMeta, pipewire_type->param_meta.Meta,
+    ":", pipewire_type->param_meta.type, "I", priv->spa_type.meta_cursor,
+    ":", pipewire_type->param_meta.size, "i", CURSOR_META_SIZE (64, 64));
+
   pw_stream_finish_format (priv->pipewire_stream, 0,
                            params, G_N_ELEMENTS (params));
 }
@@ -325,7 +435,6 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
     SPA_POD_BUILDER_INIT (buffer, sizeof (buffer));
   MetaSpaType *spa_type = &priv->spa_type;
   struct pw_type *pipewire_type = priv->pipewire_type;
-  int width, height;
   float frame_rate;
   MetaFraction frame_rate_fraction;
   struct spa_fraction max_framerate;
@@ -344,7 +453,10 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
       return NULL;
     }
 
-  meta_screen_cast_stream_src_get_specs (src, &width, &height, &frame_rate);
+  meta_screen_cast_stream_src_get_specs (src,
+                                         &priv->stream_width,
+                                         &priv->stream_height,
+                                         &frame_rate);
   frame_rate_fraction = meta_fraction_from_double (frame_rate);
 
   min_framerate = SPA_FRACTION (1, 1);
@@ -357,7 +469,8 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
     "I", spa_type->media_type.video,
     "I", spa_type->media_subtype.raw,
     ":", spa_type->format_video.format, "I", spa_type->video_format.BGRx,
-    ":", spa_type->format_video.size, "R", &SPA_RECTANGLE (width, height),
+    ":", spa_type->format_video.size, "R", &SPA_RECTANGLE (priv->stream_width,
+                                                           priv->stream_height),
     ":", spa_type->format_video.framerate, "F", &SPA_FRACTION (0, 1),
     ":", spa_type->format_video.max_framerate, "Fru", &max_framerate,
                                                       PROP_RANGE (&min_framerate,
@@ -469,6 +582,7 @@ init_spa_type (MetaSpaType         *type,
   spa_type_media_subtype_map (map, &type->media_subtype);
   spa_type_format_video_map (map, &type->format_video);
   spa_type_video_format_map (map, &type->video_format);
+  type->meta_cursor = spa_type_map_get_id(map, SPA_TYPE_META__Cursor);
 }
 
 static MetaPipeWireSource *

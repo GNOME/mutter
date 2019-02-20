@@ -21,16 +21,12 @@
 #ifndef __META_REGION_UTILS_H__
 #define __META_REGION_UTILS_H__
 
-#include <clutter/clutter.h>
-
 #include <cairo.h>
 #include <glib.h>
 
-typedef enum _MetaRoundingStrategy
-{
-  META_ROUNDING_STRATEGY_SHRINK,
-  META_ROUNDING_STRATEGY_GROW,
-} MetaRoundingStrategy;
+#include "backends/meta-backend-types.h"
+#include "clutter/clutter.h"
+#include "core/boxes-private.h"
 
 /**
  * MetaRegionIterator:
@@ -109,5 +105,15 @@ cairo_region_t * meta_make_border_region (cairo_region_t *region,
                                           int             x_amount,
                                           int             y_amount,
                                           gboolean        flip);
+
+cairo_region_t * meta_region_transform (cairo_region_t       *region,
+                                        MetaMonitorTransform  transform,
+                                        int                   width,
+                                        int                   height);
+
+cairo_region_t * meta_region_crop_and_scale (cairo_region_t *region,
+                                             ClutterRect    *src_rect,
+                                             int             dst_width,
+                                             int             dst_height);
 
 #endif /* __META_REGION_UTILS_H__ */

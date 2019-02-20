@@ -22,12 +22,10 @@
 #ifndef META_XPROPS_H
 #define META_XPROPS_H
 
-#include <config.h>
-
-#include <meta/display.h>
 #include <X11/Xutil.h>
-
 #include <X11/extensions/sync.h>
+
+#include "meta/display.h"
 
 /* Copied from Lesstif by way of GTK. Rudimentary docs can be
  * found in some Motif reference guides online.

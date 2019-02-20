@@ -25,7 +25,7 @@
 
 #include <X11/extensions/Xrandr.h>
 
-#include "meta-monitor-manager-private.h"
+#include "backends/meta-monitor-manager-private.h"
 
 #define META_TYPE_MONITOR_MANAGER_XRANDR (meta_monitor_manager_xrandr_get_type ())
 G_DECLARE_FINAL_TYPE (MetaMonitorManagerXrandr, meta_monitor_manager_xrandr,

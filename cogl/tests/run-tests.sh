@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if test -z "$G_DEBUG"; then
     G_DEBUG=fatal-warnings
@@ -14,9 +14,14 @@ shift
 TEST_BINARY=$1
 shift
 
-. $ENVIRONMENT_CONFIG
+UNIT_TESTS_FILE=$1
+shift
+
+. "$ENVIRONMENT_CONFIG"
 
 set +m
+
+LOG=$(mktemp)
 
 trap "" ERR
 trap "" SIGABRT
@@ -62,35 +67,35 @@ get_status()
 
 run_test()
 {
-  $($TEST_BINARY $1 &>.log)
+  $("$TEST_BINARY" "$1" &> "$LOG")
   TMP=$?
   var_name=$2_result
-  eval $var_name=$TMP
-  if grep -q "$MISSING_FEATURE" .log; then
-    if test $TMP -ne 0; then
-      eval $var_name=500
+  eval "$var_name=$TMP"
+  if grep -q "$MISSING_FEATURE" "$LOG"; then
+    if test "$TMP" -ne 0; then
+      eval "$var_name=500"
     else
-      eval $var_name=400
+      eval "$var_name=400"
     fi
-  elif grep -q "$KNOWN_FAILURE" .log; then
+  elif grep -q "$KNOWN_FAILURE" "$LOG"; then
     if test $TMP -ne 0; then
-      eval $var_name=300
+      eval "$var_name=300"
     else
-      eval $var_name=400
+      eval "$var_name=400"
     fi
   else
-    if test $TMP -ne 0; then EXIT=$TMP; fi
+    if test "$TMP" -ne 0; then EXIT=$TMP; fi
   fi
 }
 
 TITLE_FORMAT="%35s"
-printf $TITLE_FORMAT "Test"
+printf "$TITLE_FORMAT" "Test"
 
-if test $HAVE_GL -eq 1; then
+if test "$HAVE_GL" -eq 1; then
   GL_FORMAT=" %6s %8s %7s %6s %6s"
-  printf "$GL_FORMAT" "GL+FF" "GL+ARBFP" "GL+GLSL" "GL-NPT" "GL3"
+  printf "$GL_FORMAT" "GL+GLSL" "GL-NPT" "GL3"
 fi
-if test $HAVE_GLES2 -eq 1; then
+if test "$HAVE_GLES2" -eq 1; then
   GLES2_FORMAT=" %6s %7s"
   printf "$GLES2_FORMAT" "ES2" "ES2-NPT"
 fi
@@ -98,60 +103,61 @@ fi
 echo ""
 echo ""
 
-for test in `cat unit-tests`
+if [ ! -f "$UNIT_TESTS_FILE" ]; then
+  echo Missing unit-tests file
+  exit 1
+fi
+
+for test in $(cat "$UNIT_TESTS_FILE")
 do
   export COGL_DEBUG=
 
-  if test $HAVE_GL -eq 1; then
-    export COGL_DRIVER=gl
-    export COGL_DEBUG=disable-glsl,disable-arbfp
-    run_test $test gl_ff
-
+  if test "$HAVE_GL" -eq 1; then
     export COGL_DRIVER=gl
     # NB: we can't explicitly disable fixed + glsl in this case since
     # the arbfp code only supports fragment processing so we need either
     # the fixed or glsl vertends
     export COGL_DEBUG=
-    run_test $test gl_arbfp
+    run_test "$test" gl_arbfp
 
     export COGL_DRIVER=gl
     export COGL_DEBUG=disable-fixed,disable-arbfp
-    run_test $test gl_glsl
+    run_test "$test" gl_glsl
 
     export COGL_DRIVER=gl
     export COGL_DEBUG=disable-npot-textures
-    run_test $test gl_npot
+    run_test "$test" gl_npot
 
     export COGL_DRIVER=gl3
     export COGL_DEBUG=
-    run_test $test gl3
+    run_test "$test" gl3
   fi
 
-  if test $HAVE_GLES2 -eq 1; then
+  if test "$HAVE_GLES2" -eq 1; then
     export COGL_DRIVER=gles2
     export COGL_DEBUG=
-    run_test $test gles2
+    run_test "$test" gles2
 
     export COGL_DRIVER=gles2
     export COGL_DEBUG=disable-npot-textures
-    run_test $test gles2_npot
+    run_test "$test" gles2_npot
   fi
 
   printf $TITLE_FORMAT "$test:"
-  if test $HAVE_GL -eq 1; then
+  if test "$HAVE_GL" -eq 1; then
     printf "$GL_FORMAT" \
-      "`get_status $gl_ff_result`" \
-      "`get_status $gl_arbfp_result`" \
-      "`get_status $gl_glsl_result`" \
-      "`get_status $gl_npot_result`" \
-      "`get_status $gl3_result`"
+      "$(get_status "$gl_glsl_result")" \
+      "$(get_status "$gl_npot_result")" \
+      "$(get_status "$gl3_result")"
   fi
-  if test $HAVE_GLES2 -eq 1; then
+  if test "$HAVE_GLES2" -eq 1; then
     printf "$GLES2_FORMAT" \
-      "`get_status $gles2_result`" \
-      "`get_status $gles2_npot_result`"
+      "$(get_status "$gles2_result")" \
+      "$(get_status "$gles2_npot_result")"
   fi
   echo ""
 done
 
-exit $EXIT
+rm "$LOG"
+
+exit "$EXIT"

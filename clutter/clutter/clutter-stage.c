@@ -36,15 +36,13 @@
  * using clutter_actor_destroy(), which will take care of destroying all the
  * actors contained inside them.
  *
- * #ClutterStage is a proxy actor, wrapping the backend-specific
- * implementation of the windowing system. It is possible to subclass
- * #ClutterStage, as long as every overridden virtual function chains up to
- * the parent class corresponding function.
+ * #ClutterStage is a proxy actor, wrapping the backend-specific implementation
+ * (a #StageWindow) of the windowing system. It is possible to subclass
+ * #ClutterStage, as long as every overridden virtual function chains up to the
+ * parent class corresponding function.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "clutter-build-config.h"
-#endif
 
 #include <math.h>
 #include <cairo.h>
@@ -74,7 +72,6 @@
 #include "clutter-private.h"
 #include "clutter-stage-manager-private.h"
 #include "clutter-stage-private.h"
-#include "clutter-version.h" 	/* For flavour */
 #include "clutter-private.h"
 
 #include "cogl/cogl.h"
@@ -148,6 +145,8 @@ struct _ClutterStagePrivate
 
   gpointer paint_data;
   GDestroyNotify paint_notify;
+
+  int update_freeze_count;
 
   guint relayout_pending       : 1;
   guint redraw_pending         : 1;
@@ -1392,11 +1391,12 @@ clutter_stage_get_redraw_clip_bounds (ClutterStage          *stage,
 }
 
 static void
-read_pixels_to_file (char *filename_stem,
-                     int   x,
-                     int   y,
-                     int   width,
-                     int   height)
+read_pixels_to_file (CoglFramebuffer *fb,
+                     char            *filename_stem,
+                     int              x,
+                     int              y,
+                     int              width,
+                     int              height)
 {
   guint8 *data;
   cairo_surface_t *surface;
@@ -1406,10 +1406,10 @@ read_pixels_to_file (char *filename_stem,
                                     read_count);
 
   data = g_malloc (4 * width * height);
-  cogl_read_pixels (x, y, width, height,
-                    COGL_READ_PIXELS_COLOR_BUFFER,
-                    CLUTTER_CAIRO_FORMAT_ARGB32,
-                    data);
+  cogl_framebuffer_read_pixels (fb,
+                                x, y, width, height,
+                                CLUTTER_CAIRO_FORMAT_ARGB32,
+                                data);
 
   surface = cairo_image_surface_create_for_data (data, CAIRO_FORMAT_RGB24,
                                                  width, height,
@@ -1474,8 +1474,8 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
   if (G_LIKELY (!(clutter_pick_debug_flags & CLUTTER_DEBUG_DUMP_PICK_BUFFERS)))
     {
       CLUTTER_NOTE (PICK, "Pushing pick scissor clip x: %d, y: %d, 1x1",
-                    (int) dirty_x * fb_scale,
-                    (int) dirty_y * fb_scale);
+                    (int) (dirty_x * fb_scale),
+                    (int) (dirty_y * fb_scale));
       cogl_framebuffer_push_scissor_clip (fb, dirty_x * fb_scale, dirty_y * fb_scale, 1, 1);
     }
 
@@ -1495,13 +1495,13 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
   read_x = dirty_x * fb_scale;
   read_y = dirty_y * fb_scale;
 
-  CLUTTER_NOTE (PICK, "Performing pick at %i,%i on view %dx%d+%d+%d s: %d",
+  CLUTTER_NOTE (PICK, "Performing pick at %i,%i on view %dx%d+%d+%d s: %f",
                 x, y,
                 view_layout.width, view_layout.height,
                 view_layout.x, view_layout.y, fb_scale);
 
   cogl_color_init_from_4ub (&stage_pick_id, 255, 255, 255, 255);
-  cogl_clear (&stage_pick_id, COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH);
+  cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH, &stage_pick_id);
 
   /* Disable dithering (if any) when doing the painting in pick mode */
   dither_enabled_save = cogl_framebuffer_get_dither_enabled (fb);
@@ -1511,7 +1511,8 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
    * are drawn offscreen (as we never swap buffers)
   */
   context->pick_mode = mode;
-  _clutter_stage_paint_view (stage, view, NULL);
+
+  clutter_stage_do_paint_view (stage, view, NULL);
   context->pick_mode = CLUTTER_PICK_NONE;
 
   /* Read the color of the screen co-ords pixel. RGBA_8888_PRE is used
@@ -1533,7 +1534,7 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                          _clutter_actor_get_debug_name (actor),
                          view_layout.x);
 
-      read_pixels_to_file (file_name, 0, 0, fb_width, fb_height);
+      read_pixels_to_file (fb, file_name, 0, 0, fb_width, fb_height);
 
       g_free (file_name);
     }
@@ -2248,6 +2249,8 @@ clutter_stage_class_init (ClutterStageClass *klass)
    * @stage: the stage that received the event
    * @frame_event: a #CoglFrameEvent
    * @frame_info: a #ClutterFrameInfo
+   *
+   * Signals that the #ClutterStage was presented on the screen to the user.
    */
   stage_signals[PRESENTED] =
     g_signal_new (I_("presented"),
@@ -3627,6 +3630,10 @@ _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
       float fb_scale;
       float viewport_offset_x;
       float viewport_offset_y;
+      float viewport_x;
+      float viewport_y;
+      float viewport_width;
+      float viewport_height;
       float z_2d;
 
       CLUTTER_NOTE (PAINT,
@@ -3639,11 +3646,13 @@ _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
 
       viewport_offset_x = view_layout.x * fb_scale;
       viewport_offset_y = view_layout.y * fb_scale;
+      viewport_x = roundf (priv->viewport[0] * fb_scale - viewport_offset_x);
+      viewport_y = roundf (priv->viewport[1] * fb_scale - viewport_offset_y);
+      viewport_width = roundf (priv->viewport[2] * fb_scale);
+      viewport_height = roundf (priv->viewport[3] * fb_scale);
       cogl_framebuffer_set_viewport (fb,
-                                     priv->viewport[0] * fb_scale - viewport_offset_x,
-                                     priv->viewport[1] * fb_scale - viewport_offset_y,
-                                     priv->viewport[2] * fb_scale,
-                                     priv->viewport[3] * fb_scale);
+                                     viewport_x, viewport_y,
+                                     viewport_width, viewport_height);
 
       perspective = priv->perspective;
 
@@ -3720,6 +3729,17 @@ clutter_stage_ensure_redraw (ClutterStage *stage)
 
   master_clock = _clutter_master_clock_get_default ();
   _clutter_master_clock_start_running (master_clock);
+}
+
+/**
+ * clutter_stage_is_redraw_queued: (skip)
+ */
+gboolean
+clutter_stage_is_redraw_queued (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  return priv->redraw_pending;
 }
 
 /**
@@ -3982,6 +4002,12 @@ clutter_stage_get_minimum_size (ClutterStage *stage,
     *height_p = (guint) height;
 }
 
+/**
+ * _clutter_stage_schedule_update:
+ * @window: a #ClutterStage actor
+ *
+ * Schedules a redraw of the #ClutterStage at the next optimal timestamp.
+ */
 void
 _clutter_stage_schedule_update (ClutterStage *stage)
 {
@@ -3998,7 +4024,18 @@ _clutter_stage_schedule_update (ClutterStage *stage)
                                                 stage->priv->sync_delay);
 }
 
-/* Returns the earliest time the stage is ready to update */
+/**
+ * _clutter_stage_get_update_time:
+ * @stage: a #ClutterStage actor
+ *
+ * Returns the earliest time in which the stage is ready to update. The update
+ * time is set when _clutter_stage_schedule_update() is called. This can then
+ * be used by e.g. the #ClutterMasterClock to know when the stage needs to be
+ * redrawn.
+ *
+ * Returns: -1 if no redraw is needed; 0 if the backend doesn't know, or the
+ * timestamp (in microseconds) otherwise.
+ */
 gint64
 _clutter_stage_get_update_time (ClutterStage *stage)
 {
@@ -4014,6 +4051,13 @@ _clutter_stage_get_update_time (ClutterStage *stage)
   return _clutter_stage_window_get_update_time (stage_window);
 }
 
+/**
+ * _clutter_stage_clear_update_time:
+ * @stage: a #ClutterStage actor
+ *
+ * Resets the update time. Call this after a redraw, so that the update time
+ * can again be updated.
+ */
 void
 _clutter_stage_clear_update_time (ClutterStage *stage)
 {
@@ -4139,10 +4183,10 @@ _clutter_stage_get_clip (ClutterStage *stage)
  * didn't explicitly do so.
  */
 ClutterStageQueueRedrawEntry *
-_clutter_stage_queue_actor_redraw (ClutterStage *stage,
+_clutter_stage_queue_actor_redraw (ClutterStage                 *stage,
                                    ClutterStageQueueRedrawEntry *entry,
-                                   ClutterActor *actor,
-                                   ClutterPaintVolume *clip)
+                                   ClutterActor                 *actor,
+                                   const ClutterPaintVolume     *clip)
 {
   ClutterStagePrivate *priv = stage->priv;
 
@@ -4902,4 +4946,59 @@ clutter_stage_capture_into (ClutterStage          *stage,
 
   view = get_view_at_rect (stage, rect);
   capture_view_into (stage, paint, view, rect, data, rect->width * bpp);
+}
+
+/**
+ * clutter_stage_freeze_updates:
+ *
+ * Freezing updates makes Clutter stop processing events,
+ * redrawing, and advancing timelines, by pausing the master clock. This is
+ * necessary when implementing a display server, to ensure that Clutter doesn't
+ * keep trying to page flip when DRM master has been dropped, e.g. when VT
+ * switched away.
+ *
+ * The master clock starts out running, so if you are VT switched away on
+ * startup, you need to call this immediately.
+ *
+ * To thaw updates, use clutter_stage_thaw_updates().
+ */
+void
+clutter_stage_freeze_updates (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  priv->update_freeze_count++;
+  if (priv->update_freeze_count == 1)
+    {
+      ClutterMasterClock *master_clock;
+
+      master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_set_paused (master_clock, TRUE);
+    }
+}
+
+/**
+ * clutter_stage_thaw_updates:
+ *
+ * Resumes a master clock that has previously been frozen with
+ * clutter_stage_freeze_updates(), and start pumping the master clock
+ * again at the next iteration. Note that if you're switching back to your
+ * own VT, you should probably also queue a stage redraw with
+ * clutter_stage_ensure_redraw().
+ */
+void
+clutter_stage_thaw_updates (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  g_assert (priv->update_freeze_count > 0);
+
+  priv->update_freeze_count--;
+  if (priv->update_freeze_count == 0)
+    {
+      ClutterMasterClock *master_clock;
+
+      master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_set_paused (master_clock, FALSE);
+    }
 }

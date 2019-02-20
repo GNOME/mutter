@@ -24,10 +24,11 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
-#include <meta/common.h>
-#include <meta/types.h>
-#include "theme-private.h"
-#include "ui.h"
+
+#include "meta/common.h"
+#include "meta/types.h"
+#include "ui/theme-private.h"
+#include "ui/ui.h"
 
 typedef enum
 {
@@ -35,7 +36,6 @@ typedef enum
   META_FRAME_CONTROL_TITLE,
   META_FRAME_CONTROL_DELETE,
   META_FRAME_CONTROL_MENU,
-  META_FRAME_CONTROL_APPMENU,
   META_FRAME_CONTROL_MINIMIZE,
   META_FRAME_CONTROL_MAXIMIZE,
   META_FRAME_CONTROL_UNMAXIMIZE,

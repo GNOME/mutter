@@ -21,30 +21,28 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#define _GNU_SOURCE
-
 #include "config.h"
 
 #include <glib.h>
 #include <glib/gi18n-lib.h>
-
 #include <wayland-server.h>
-#include "tablet-unstable-v2-server-protocol.h"
-#include "backends/meta-input-settings-private.h"
 
-#include "meta-surface-actor-wayland.h"
-#include "meta-wayland-private.h"
-#include "meta-wayland-tablet-seat.h"
-#include "meta-wayland-tablet.h"
-#include "meta-wayland-tablet-pad.h"
-#include "meta-wayland-tablet-pad-group.h"
-#include "meta-wayland-tablet-pad-ring.h"
-#include "meta-wayland-tablet-pad-strip.h"
+#include "backends/meta-input-settings-private.h"
+#include "compositor/meta-surface-actor-wayland.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-tablet-pad-group.h"
+#include "wayland/meta-wayland-tablet-pad-ring.h"
+#include "wayland/meta-wayland-tablet-pad-strip.h"
+#include "wayland/meta-wayland-tablet-pad.h"
+#include "wayland/meta-wayland-tablet-seat.h"
+#include "wayland/meta-wayland-tablet.h"
 
 #ifdef HAVE_NATIVE_BACKEND
-#include <clutter/evdev/clutter-evdev.h>
 #include "backends/native/meta-backend-native.h"
+#include "clutter/evdev/clutter-evdev.h"
 #endif
+
+#include "tablet-unstable-v2-server-protocol.h"
 
 static void
 unbind_resource (struct wl_resource *resource)
@@ -133,7 +131,9 @@ MetaWaylandTabletPad *
 meta_wayland_tablet_pad_new (ClutterInputDevice    *device,
                              MetaWaylandTabletSeat *tablet_seat)
 {
+#ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_get_backend ();
+#endif
   MetaWaylandTabletPad *pad;
   guint n_elems, i;
 

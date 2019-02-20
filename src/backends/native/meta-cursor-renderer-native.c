@@ -24,15 +24,12 @@
 
 #include "config.h"
 
-#include "meta-cursor-renderer-native.h"
+#include "backends/native/meta-cursor-renderer-native.h"
 
 #include <string.h>
 #include <gbm.h>
 #include <xf86drm.h>
 #include <errno.h>
-
-#include <meta/util.h>
-#include <meta/meta-backend.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-sprite-xcursor.h"
@@ -43,6 +40,8 @@
 #include "backends/native/meta-renderer-native.h"
 #include "core/boxes-private.h"
 #include "meta/boxes.h"
+#include "meta/meta-backend.h"
+#include "meta/util.h"
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-cursor-sprite-wayland.h"
@@ -367,8 +366,8 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
                        scaled_crtc_rect.origin.y) * scale;
       drmModeMoveCursor (kms_fd,
                          crtc->crtc_id,
-                         roundf (crtc_cursor_x),
-                         roundf (crtc_cursor_y));
+                         floorf (crtc_cursor_x),
+                         floorf (crtc_cursor_y));
 
       data->out_painted = data->out_painted || TRUE;
     }
@@ -585,6 +584,10 @@ should_have_hw_cursor (MetaCursorRenderer *renderer,
   CoglTexture *texture;
 
   if (!cursor_sprite)
+    return FALSE;
+
+  if (meta_cursor_renderer_is_hw_cursors_inhibited (renderer,
+                                                    cursor_sprite))
     return FALSE;
 
   for (l = gpus; l; l = l->next)
@@ -921,6 +924,7 @@ is_cursor_hw_state_valid (MetaCursorSprite *cursor_sprite,
     }
 
   g_assert_not_reached ();
+  return FALSE;
 }
 
 #ifdef HAVE_WAYLAND

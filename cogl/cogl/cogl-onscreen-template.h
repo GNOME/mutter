@@ -41,7 +41,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 typedef struct _CoglOnscreenTemplate	      CoglOnscreenTemplate;
 
@@ -86,23 +86,6 @@ cogl_onscreen_template_set_samples_per_pixel (
                                           int n);
 
 /**
- * cogl_onscreen_template_set_swap_throttled:
- * @onscreen_template: A #CoglOnscreenTemplate template framebuffer
- * @throttled: Whether throttling should be enabled
- *
- * Requests that any future #CoglOnscreen framebuffers derived from this
- * template should enable or disable swap throttling according to the given
- * @throttled argument.
- *
- * Since: 1.10
- * Stability: unstable
- */
-void
-cogl_onscreen_template_set_swap_throttled (
-                                          CoglOnscreenTemplate *onscreen_template,
-                                          CoglBool throttled);
-
-/**
  * cogl_onscreen_template_set_stereo_enabled:
  * @onscreen_template: A #CoglOnscreenTemplate template framebuffer
  * @enabled: Whether framebuffers are created with stereo buffers
@@ -134,6 +117,6 @@ cogl_onscreen_template_set_stereo_enabled (
 CoglBool
 cogl_is_onscreen_template (void *object);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_ONSCREEN_TEMPLATE_H__ */

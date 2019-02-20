@@ -50,35 +50,36 @@
  * top window group.
  */
 
-#include <config.h>
+#include "config.h"
 
-#include <clutter/x11/clutter-x11.h>
+#include "compositor/compositor-private.h"
 
-#include "core.h"
-#include <meta/meta-x11-errors.h>
-#include <meta/window.h>
-#include "compositor-private.h"
-#include <meta/compositor-mutter.h>
-#include <meta/prefs.h>
-#include <meta/main.h>
-#include <meta/meta-backend.h>
-#include <meta/meta-background-actor.h>
-#include <meta/meta-background-group.h>
-#include <meta/meta-shadow-factory.h>
-#include "meta-window-actor-private.h"
-#include "meta-window-group-private.h"
-#include "window-private.h" /* to check window->hidden */
-#include "display-private.h" /* for meta_display_lookup_x_window() and meta_display_cancel_touch() */
-#include "util-private.h"
-#include "backends/meta-dnd-private.h"
-#include "frame.h"
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xcomposite.h>
-#include "meta-sync-ring.h"
 
+#include "backends/meta-dnd-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "clutter/clutter-mutter.h"
-
+#include "clutter/x11/clutter-x11.h"
+#include "compositor/meta-sync-ring.h"
+#include "compositor/meta-window-actor-x11.h"
+#include "compositor/meta-window-actor-wayland.h"
+#include "compositor/meta-window-actor-private.h"
+#include "compositor/meta-window-group-private.h"
+#include "core/core.h"
+#include "core/display-private.h"
+#include "core/frame.h"
+#include "core/util-private.h"
+#include "core/window-private.h"
+#include "meta/compositor-mutter.h"
+#include "meta/main.h"
+#include "meta/meta-backend.h"
+#include "meta/meta-background-actor.h"
+#include "meta/meta-background-group.h"
+#include "meta/meta-shadow-factory.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
+#include "meta/window.h"
 #include "x11/meta-x11-display-private.h"
 
 #ifdef HAVE_WAYLAND
@@ -661,11 +662,39 @@ void
 meta_compositor_add_window (MetaCompositor    *compositor,
                             MetaWindow        *window)
 {
+  MetaWindowActor *window_actor;
+  ClutterActor *window_group;
   MetaDisplay *display = compositor->display;
+  GType window_actor_type = G_TYPE_INVALID;
 
   meta_x11_error_trap_push (display->x11_display);
 
-  meta_window_actor_new (window);
+  switch (window->client_type)
+    {
+    case META_WINDOW_CLIENT_TYPE_X11:
+      window_actor_type = META_TYPE_WINDOW_ACTOR_X11;
+      break;
+
+    case META_WINDOW_CLIENT_TYPE_WAYLAND:
+      window_actor_type = META_TYPE_WINDOW_ACTOR_WAYLAND;
+      break;
+    }
+
+  window_actor = g_object_new (window_actor_type,
+                               "meta-window", window,
+                               NULL);
+
+  if (window->layer == META_LAYER_OVERRIDE_REDIRECT)
+    window_group = compositor->top_window_group;
+  else
+    window_group = compositor->window_group;
+
+  clutter_actor_add_child (window_group, CLUTTER_ACTOR (window_actor));
+
+  /* Initial position in the stack is arbitrary; stacking will be synced
+   * before we first paint.
+   */
+  compositor->windows = g_list_append (compositor->windows, window_actor);
   sync_actor_stacking (compositor);
 
   meta_x11_error_trap_pop (display->x11_display);

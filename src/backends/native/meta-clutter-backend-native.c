@@ -22,17 +22,32 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
+/**
+ * SECTION:meta-clutter-backend-native
+ * @title: MetaClutterBackendNatve
+ * @short_description: A native backend which renders using EGL.
+ *
+ * MetaClutterBackendNative is the #ClutterBackend which is used by the native
+ * (as opposed to the X) backend. It creates a stage with #MetaStageNative and
+ * renders using the #CoglRenderer.
+ *
+ * Note that MetaClutterBackendNative is something different than a
+ * #MetaBackendNative. The former is a #ClutterBackend implementation, while
+ * the latter is a #MetaBackend implementation.
+ */
+
 #include "config.h"
+
+#include "backends/native/meta-clutter-backend-native.h"
 
 #include <glib-object.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-renderer.h"
-#include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-stage-native.h"
 #include "clutter/clutter.h"
-#include "meta/meta-backend.h"
 #include "core/bell.h"
+#include "meta/meta-backend.h"
 
 struct _MetaClutterBackendNative
 {

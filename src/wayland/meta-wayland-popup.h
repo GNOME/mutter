@@ -24,8 +24,8 @@
 #include <glib.h>
 #include <wayland-server.h>
 
-#include "meta-wayland-types.h"
-#include "meta-wayland-pointer.h"
+#include "wayland/meta-wayland-types.h"
+#include "wayland/meta-wayland-pointer.h"
 
 #define META_TYPE_WAYLAND_POPUP_SURFACE (meta_wayland_popup_surface_get_type ())
 G_DECLARE_INTERFACE (MetaWaylandPopupSurface, meta_wayland_popup_surface,

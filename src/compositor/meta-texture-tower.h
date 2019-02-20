@@ -23,7 +23,7 @@
 #ifndef __META_TEXTURE_TOWER_H__
 #define __META_TEXTURE_TOWER_H__
 
-#include <clutter/clutter.h>
+#include "clutter/clutter.h"
 
 G_BEGIN_DECLS
 

@@ -21,9 +21,9 @@
 
 #include "config.h"
 
-#include <gio/gio.h>
-
 #include "backends/meta-orientation-manager.h"
+
+#include <gio/gio.h>
 
 enum
 {

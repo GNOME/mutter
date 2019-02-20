@@ -3,9 +3,8 @@
 #ifndef META_BACKGROUND_PRIVATE_H
 #define META_BACKGROUND_PRIVATE_H
 
-#include <config.h>
-
-#include "meta-background-private.h"
+#include "cogl/cogl.h"
+#include "meta/meta-background.h"
 
 CoglTexture *meta_background_get_texture (MetaBackground         *self,
                                           int                     monitor_index,

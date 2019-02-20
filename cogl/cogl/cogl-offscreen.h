@@ -40,7 +40,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-offscreen
@@ -118,7 +118,7 @@ cogl_offscreen_new_with_texture (CoglTexture *texture);
  *   buffer.
  * Deprecated: 1.16: Use cogl_offscreen_new_with_texture instead.
  */
-COGL_DEPRECATED_IN_1_16_FOR (cogl_offscreen_new_with_texture)
+COGL_DEPRECATED_FOR (cogl_offscreen_new_with_texture)
 CoglOffscreen *
 cogl_offscreen_new_to_texture (CoglTexture *texture);
 
@@ -169,6 +169,6 @@ cogl_offscreen_unref (void *offscreen);
 CoglTexture *
 cogl_offscreen_get_texture (CoglOffscreen *offscreen);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_OFFSCREEN_H__ */

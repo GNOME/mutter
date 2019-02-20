@@ -28,9 +28,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
 #include "cogl-config.h"
-#endif
 
 #include "cogl-private.h"
 #include "cogl-bitmap-private.h"
@@ -357,6 +355,7 @@ _cogl_bitmap_needs_short_temp_buffer (CoglPixelFormat format)
     }
 
   g_assert_not_reached ();
+  return FALSE;
 }
 
 CoglBool

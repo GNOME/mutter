@@ -22,36 +22,24 @@
 #ifndef META_PLUGIN_H_
 #define META_PLUGIN_H_
 
-#include <meta/types.h>
-#include <meta/compositor.h>
-#include <meta/compositor-mutter.h>
-#include <meta/meta-version.h>
-#include <meta/meta-close-dialog.h>
-#include <meta/meta-inhibit-shortcuts-dialog.h>
-
-#include <clutter/clutter.h>
 #include <X11/extensions/Xfixes.h>
 #include <gmodule.h>
 
-#define META_TYPE_PLUGIN            (meta_plugin_get_type ())
-#define META_PLUGIN(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_PLUGIN, MetaPlugin))
-#define META_PLUGIN_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_PLUGIN, MetaPluginClass))
-#define META_IS_PLUGIN(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_PLUGIN))
-#define META_IS_PLUGIN_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_PLUGIN))
-#define META_PLUGIN_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_PLUGIN, MetaPluginClass))
+#include "clutter/clutter.h"
+#include "meta/compositor-mutter.h"
+#include "meta/compositor.h"
+#include "meta/meta-close-dialog.h"
+#include "meta/meta-inhibit-shortcuts-dialog.h"
+#include "meta/meta-version.h"
+#include "meta/types.h"
 
-typedef struct _MetaPlugin        MetaPlugin;
-typedef struct _MetaPluginClass   MetaPluginClass;
+#define META_TYPE_PLUGIN (meta_plugin_get_type ())
+
+META_EXPORT
+G_DECLARE_DERIVABLE_TYPE (MetaPlugin, meta_plugin, META, PLUGIN, GObject)
+
 typedef struct _MetaPluginVersion MetaPluginVersion;
 typedef struct _MetaPluginInfo    MetaPluginInfo;
-typedef struct _MetaPluginPrivate MetaPluginPrivate;
-
-struct _MetaPlugin
-{
-  GObject parent;
-
-  MetaPluginPrivate *priv;
-};
 
 /**
  * MetaPluginClass:
@@ -270,8 +258,7 @@ struct _MetaPluginInfo
   const gchar *description;
 };
 
-GType meta_plugin_get_type (void);
-
+META_EXPORT
 const MetaPluginInfo * meta_plugin_get_info (MetaPlugin *plugin);
 
 /**
@@ -337,29 +324,36 @@ struct _MetaPluginVersion
 #define META_PLUGIN_DECLARE(ObjectName, object_name)                    \
   META_PLUGIN_DECLARE_WITH_CODE(ObjectName, object_name, {})
 
+META_EXPORT
 void
 meta_plugin_switch_workspace_completed (MetaPlugin *plugin);
 
+META_EXPORT
 void
 meta_plugin_minimize_completed (MetaPlugin      *plugin,
                                 MetaWindowActor *actor);
 
+META_EXPORT
 void
 meta_plugin_unminimize_completed (MetaPlugin      *plugin,
                                   MetaWindowActor *actor);
 
+META_EXPORT
 void
 meta_plugin_size_change_completed (MetaPlugin      *plugin,
                                    MetaWindowActor *actor);
 
+META_EXPORT
 void
 meta_plugin_map_completed (MetaPlugin      *plugin,
                            MetaWindowActor *actor);
 
+META_EXPORT
 void
 meta_plugin_destroy_completed (MetaPlugin      *plugin,
                                MetaWindowActor *actor);
 
+META_EXPORT
 void
 meta_plugin_complete_display_change (MetaPlugin *plugin,
                                      gboolean    ok);
@@ -378,20 +372,24 @@ typedef enum {
   META_MODAL_KEYBOARD_ALREADY_GRABBED = 1 << 1
 } MetaModalOptions;
 
+META_EXPORT
 gboolean
 meta_plugin_begin_modal (MetaPlugin      *plugin,
                          MetaModalOptions options,
                          guint32          timestamp);
 
+META_EXPORT
 void
 meta_plugin_end_modal (MetaPlugin *plugin,
                        guint32     timestamp);
 
+META_EXPORT
 MetaDisplay *meta_plugin_get_display (MetaPlugin *plugin);
 
 void _meta_plugin_set_compositor (MetaPlugin *plugin, MetaCompositor *compositor);
 
 /* XXX: Putting this in here so it's in the public header. */
+META_EXPORT
 void     meta_plugin_manager_set_plugin_type (GType gtype);
 
 #endif /* META_PLUGIN_H_ */

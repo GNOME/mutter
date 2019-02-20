@@ -31,26 +31,24 @@
  *  Neil Roberts   <neil@linux.intel.com>
  */
 
-#ifdef HAVE_CONFIG_H
 #include "cogl-config.h"
-#endif
 
 #include "cogl-private.h"
 #include "cogl-util.h"
 #include "cogl-texture-private.h"
 #include "cogl-texture-2d-private.h"
-#include "cogl-texture-2d-gl-private.h"
 #include "cogl-texture-driver.h"
 #include "cogl-context-private.h"
 #include "cogl-object-private.h"
 #include "cogl-journal-private.h"
-#include "cogl-pipeline-opengl-private.h"
 #include "cogl-framebuffer-private.h"
 #include "cogl-error-private.h"
-#ifdef COGL_HAS_EGL_SUPPORT
-#include "cogl-winsys-egl-private.h"
-#endif
 #include "cogl-gtype-private.h"
+#include "driver/gl/cogl-texture-2d-gl-private.h"
+#include "driver/gl/cogl-pipeline-opengl-private.h"
+#ifdef COGL_HAS_EGL_SUPPORT
+#include "winsys/cogl-winsys-egl-private.h"
+#endif
 
 #include <string.h>
 #include <math.h>
@@ -387,6 +385,7 @@ cogl_wayland_texture_2d_new_from_buffer (CoglContext *ctx,
       else
         return tex;
     }
+#ifdef COGL_HAS_EGL_SUPPORT
   else
     {
       int format, width, height;
@@ -441,6 +440,7 @@ cogl_wayland_texture_2d_new_from_buffer (CoglContext *ctx,
           return tex;
         }
     }
+#endif /* COGL_HAS_EGL_SUPPORT */
 
   _cogl_set_error (error,
                    COGL_SYSTEM_ERROR,
@@ -630,6 +630,15 @@ _cogl_texture_2d_set_region (CoglTexture *tex,
 }
 
 static CoglBool
+_cogl_texture_2d_is_get_data_supported (CoglTexture *tex)
+{
+  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
+  CoglContext *ctx = tex->context;
+
+  return ctx->driver_vtable->texture_2d_is_get_data_supported (tex_2d);
+}
+
+static CoglBool
 _cogl_texture_2d_get_data (CoglTexture *tex,
                            CoglPixelFormat format,
                            int rowstride,
@@ -677,6 +686,7 @@ cogl_texture_2d_vtable =
     TRUE, /* primitive */
     _cogl_texture_2d_allocate,
     _cogl_texture_2d_set_region,
+    _cogl_texture_2d_is_get_data_supported,
     _cogl_texture_2d_get_data,
     NULL, /* foreach_sub_texture_in_region */
     _cogl_texture_2d_get_max_waste,

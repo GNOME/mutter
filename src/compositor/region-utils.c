@@ -18,7 +18,11 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "region-utils.h"
+#include "config.h"
+
+#include "backends/meta-monitor-transform.h"
+#include "compositor/region-utils.h"
+#include "core/boxes-private.h"
 
 #include <math.h>
 
@@ -193,21 +197,8 @@ meta_region_scale_double (cairo_region_t       *region,
     {
       cairo_region_get_rectangle (region, i, &rects[i]);
 
-      switch (rounding_strategy)
-        {
-        case META_ROUNDING_STRATEGY_SHRINK:
-          rects[i].x = (int) ceil (rects[i].x * scale);
-          rects[i].y = (int) ceil (rects[i].y * scale);
-          rects[i].width = (int) floor (rects[i].width * scale);
-          rects[i].height = (int) floor (rects[i].height * scale);
-          break;
-        case META_ROUNDING_STRATEGY_GROW:
-          rects[i].x = (int) floor (rects[i].x * scale);
-          rects[i].y = (int) floor (rects[i].y * scale);
-          rects[i].width = (int) ceil (rects[i].width * scale);
-          rects[i].height = (int) ceil (rects[i].height * scale);
-          break;
-        }
+      meta_rectangle_scale_double (&rects[i], scale, rounding_strategy,
+                                   &rects[i]);
     }
 
   scaled_region = cairo_region_create_rectangles (rects, n_rects);
@@ -382,4 +373,86 @@ meta_make_border_region (cairo_region_t *region,
   cairo_region_destroy (inverse_region);
 
   return border_region;
+}
+
+cairo_region_t *
+meta_region_transform (cairo_region_t       *region,
+                       MetaMonitorTransform  transform,
+                       int                   width,
+                       int                   height)
+{
+  int n_rects, i;
+  cairo_rectangle_int_t *rects;
+  cairo_region_t *transformed_region;
+
+  if (transform == META_MONITOR_TRANSFORM_NORMAL)
+    return cairo_region_copy (region);
+
+  n_rects = cairo_region_num_rectangles (region);
+
+  rects = g_new0 (cairo_rectangle_int_t, n_rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      cairo_region_get_rectangle (region, i, &rects[i]);
+
+      meta_rectangle_transform (&rects[i],
+                                transform,
+                                width,
+                                height,
+                                &rects[i]);
+    }
+
+  transformed_region = cairo_region_create_rectangles (rects, n_rects);
+
+  g_free (rects);
+
+  return transformed_region;
+}
+
+cairo_region_t *
+meta_region_crop_and_scale (cairo_region_t *region,
+                            ClutterRect    *src_rect,
+                            int             dst_width,
+                            int             dst_height)
+{
+  int n_rects, i;
+  cairo_rectangle_int_t *rects;
+  cairo_region_t *viewport_region;
+
+  if (src_rect->size.width == dst_width &&
+      src_rect->size.height == dst_height &&
+      roundf (src_rect->origin.x) == src_rect->origin.x &&
+      roundf (src_rect->origin.y) == src_rect->origin.y)
+    {
+      viewport_region = cairo_region_copy (region);
+
+      if (src_rect->origin.x != 0 || src_rect->origin.y != 0)
+        {
+          cairo_region_translate (viewport_region,
+                                  (int) src_rect->origin.x,
+                                  (int) src_rect->origin.y);
+        }
+
+      return viewport_region;
+    }
+
+  n_rects = cairo_region_num_rectangles (region);
+
+  rects = g_new0 (cairo_rectangle_int_t, n_rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      cairo_region_get_rectangle (region, i, &rects[i]);
+
+      meta_rectangle_crop_and_scale (&rects[i],
+                                     src_rect,
+                                     dst_width,
+                                     dst_height,
+                                     &rects[i]);
+    }
+
+  viewport_region = cairo_region_create_rectangles (rects, n_rects);
+
+  g_free (rects);
+
+  return viewport_region;
 }

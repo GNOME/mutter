@@ -22,10 +22,10 @@
 #ifndef META_WAYLAND_POINTER_GESTURES_H
 #define META_WAYLAND_POINTER_GESTURES_H
 
-#include <wayland-server.h>
 #include <glib.h>
+#include <wayland-server.h>
 
-#include "meta-wayland-types.h"
+#include "wayland/meta-wayland-types.h"
 
 void meta_wayland_pointer_gestures_init (MetaWaylandCompositor *compositor);
 

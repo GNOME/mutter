@@ -37,9 +37,7 @@
 #define CLUTTER_IS_BRIGHTNESS_CONTRAST_EFFECT_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_BRIGHTNESS_CONTRAST_EFFECT))
 #define CLUTTER_BRIGHTNESS_CONTRAST_EFFECT_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_BRIGHTNESS_CONTRAST_EFFECT, ClutterBrightnessContrastEffectClass))
 
-#ifdef HAVE_CONFIG_H
 #include "clutter-build-config.h"
-#endif
 
 #include <math.h>
 
@@ -180,6 +178,7 @@ static void
 clutter_brightness_contrast_effect_paint_target (ClutterOffscreenEffect *effect)
 {
   ClutterBrightnessContrastEffect *self = CLUTTER_BRIGHTNESS_CONTRAST_EFFECT (effect);
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
   ClutterActor *actor;
   guint8 paint_opacity;
 
@@ -191,11 +190,11 @@ clutter_brightness_contrast_effect_paint_target (ClutterOffscreenEffect *effect)
                               paint_opacity,
                               paint_opacity,
                               paint_opacity);
-  cogl_push_source (self->pipeline);
 
-  cogl_rectangle (0, 0, self->tex_width, self->tex_height);
-
-  cogl_pop_source ();
+  cogl_framebuffer_draw_rectangle (framebuffer,
+                                   self->pipeline,
+                                   0, 0,
+                                   self->tex_width, self->tex_height);
 }
 
 static void

@@ -16,17 +16,23 @@ struct _CallbackData
   guint idle_source;
 };
 
+int
+test_stage_read_pixels_main (int argc, char **argv);
+
+const char *
+test_stage_read_pixels_describe (void);
+
 static ClutterActor *
 make_label (void)
 {
   ClutterActor *label;
   gchar *text;
-  gchar *argv[] = { "ls", "--help", NULL };
+  const char *argv[] = { "ls", "--help", NULL };
 
   label = clutter_text_new ();
   clutter_text_set_font_name (CLUTTER_TEXT (label), "Sans 10");
 
-  if (g_spawn_sync (NULL, argv, NULL,
+  if (g_spawn_sync (NULL, (char **) argv, NULL,
 		    G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_SEARCH_PATH,
 		    NULL, NULL, &text, NULL, NULL, NULL))
     {

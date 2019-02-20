@@ -22,11 +22,11 @@
 #ifndef META_WAYLAND_POINTER_GESTURE_SWIPE_H
 #define META_WAYLAND_POINTER_GESTURE_SWIPE_H
 
-#include <wayland-server.h>
-#include <clutter/clutter.h>
 #include <glib.h>
+#include <wayland-server.h>
 
-#include "meta-wayland-types.h"
+#include "clutter/clutter.h"
+#include "wayland/meta-wayland-types.h"
 
 gboolean meta_wayland_pointer_gesture_swipe_handle_event (MetaWaylandPointer *pointer,
                                                           const ClutterEvent *event);

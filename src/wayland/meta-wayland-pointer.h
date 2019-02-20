@@ -20,18 +20,16 @@
 #ifndef META_WAYLAND_POINTER_H
 #define META_WAYLAND_POINTER_H
 
+#include <glib.h>
 #include <wayland-server.h>
 
-#include <glib.h>
-
-#include "meta-wayland-types.h"
-#include "meta-wayland-seat.h"
-#include "meta-wayland-pointer-gesture-swipe.h"
-#include "meta-wayland-pointer-gesture-pinch.h"
-#include "meta-wayland-surface.h"
-#include "meta-wayland-pointer-constraints.h"
-
-#include <meta/meta-cursor-tracker.h>
+#include "meta/meta-cursor-tracker.h"
+#include "wayland/meta-wayland-pointer-constraints.h"
+#include "wayland/meta-wayland-pointer-gesture-pinch.h"
+#include "wayland/meta-wayland-pointer-gesture-swipe.h"
+#include "wayland/meta-wayland-seat.h"
+#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-wayland-types.h"
 
 #define META_TYPE_WAYLAND_POINTER (meta_wayland_pointer_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandPointer, meta_wayland_pointer,

@@ -39,9 +39,7 @@
 #define CLUTTER_IS_DESATURATE_EFFECT_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_DESATURATE_EFFECT))
 #define CLUTTER_DESATURATE_EFFECT_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_DESATURATE_EFFECT, ClutterDesaturateEffectClass))
 
-#ifdef HAVE_CONFIG_H
 #include "clutter-build-config.h"
-#endif
 
 #define CLUTTER_ENABLE_EXPERIMENTAL_API
 
@@ -157,6 +155,7 @@ static void
 clutter_desaturate_effect_paint_target (ClutterOffscreenEffect *effect)
 {
   ClutterDesaturateEffect *self = CLUTTER_DESATURATE_EFFECT (effect);
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
   ClutterActor *actor;
   CoglHandle texture;
   guint8 paint_opacity;
@@ -172,13 +171,12 @@ clutter_desaturate_effect_paint_target (ClutterOffscreenEffect *effect)
                               paint_opacity,
                               paint_opacity,
                               paint_opacity);
-  cogl_push_source (self->pipeline);
 
-  cogl_rectangle (0, 0,
-                  cogl_texture_get_width (texture),
-                  cogl_texture_get_height (texture));
-
-  cogl_pop_source ();
+  cogl_framebuffer_draw_rectangle (framebuffer,
+                                   self->pipeline,
+                                   0, 0,
+                                   cogl_texture_get_width (texture),
+                                   cogl_texture_get_height (texture));
 }
 
 static void

@@ -22,8 +22,8 @@
 #ifndef META_WAYLAND_CURSOR_SURFACE_H
 #define META_WAYLAND_CURSOR_SURFACE_H
 
-#include "meta-wayland-surface.h"
 #include "backends/meta-cursor-renderer.h"
+#include "wayland/meta-wayland-surface.h"
 
 struct _MetaWaylandCursorSurfaceClass
 {

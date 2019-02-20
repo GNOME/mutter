@@ -1358,13 +1358,13 @@ _cogl_path_build_fill_attribute_buffer (CoglPath *path)
   gluTessNormal (tess.glu_tess, 0.0, 0.0, 1.0);
 
   gluTessCallback (tess.glu_tess, GLU_TESS_BEGIN_DATA,
-                   _cogl_path_tesselator_begin);
+                   (GCallback) _cogl_path_tesselator_begin);
   gluTessCallback (tess.glu_tess, GLU_TESS_VERTEX_DATA,
-                   _cogl_path_tesselator_vertex);
+                   (GCallback) _cogl_path_tesselator_vertex);
   gluTessCallback (tess.glu_tess, GLU_TESS_END_DATA,
-                   _cogl_path_tesselator_end);
+                   (GCallback) _cogl_path_tesselator_end);
   gluTessCallback (tess.glu_tess, GLU_TESS_COMBINE_DATA,
-                   _cogl_path_tesselator_combine);
+                   (GCallback) _cogl_path_tesselator_combine);
 
   gluTessBeginPolygon (tess.glu_tess, &tess);
 

@@ -108,66 +108,130 @@ typedef enum
 typedef void (* MetaPrefsChangedFunc) (MetaPreference pref,
                                        gpointer       user_data);
 
+META_EXPORT
 void meta_prefs_add_listener    (MetaPrefsChangedFunc func,
                                  gpointer             user_data);
+
+META_EXPORT
 void meta_prefs_remove_listener (MetaPrefsChangedFunc func,
                                  gpointer             user_data);
 
+META_EXPORT
 void meta_prefs_init (void);
 
+META_EXPORT
 const char* meta_preference_to_string (MetaPreference pref);
 
+META_EXPORT
 MetaVirtualModifier         meta_prefs_get_mouse_button_mods  (void);
+
+META_EXPORT
 gint                        meta_prefs_get_mouse_button_resize (void);
+
+META_EXPORT
 gint                        meta_prefs_get_mouse_button_menu  (void);
+
+META_EXPORT
 GDesktopFocusMode           meta_prefs_get_focus_mode         (void);
+
+META_EXPORT
 GDesktopFocusNewWindows     meta_prefs_get_focus_new_windows  (void);
+
+META_EXPORT
 gboolean                    meta_prefs_get_attach_modal_dialogs (void);
+
+META_EXPORT
 gboolean                    meta_prefs_get_raise_on_click     (void);
+
 /* returns NULL if GTK default should be used */
+META_EXPORT
 const PangoFontDescription* meta_prefs_get_titlebar_font      (void);
+
+META_EXPORT
 int                         meta_prefs_get_num_workspaces     (void);
+
+META_EXPORT
 gboolean                    meta_prefs_get_dynamic_workspaces (void);
+
+META_EXPORT
 gboolean                    meta_prefs_get_disable_workarounds (void);
+
+META_EXPORT
 gboolean                    meta_prefs_get_auto_raise         (void);
+
+META_EXPORT
 int                         meta_prefs_get_auto_raise_delay   (void);
+
+META_EXPORT
 gboolean                    meta_prefs_get_focus_change_on_pointer_rest (void);
+
+META_EXPORT
 gboolean                    meta_prefs_get_gnome_accessibility (void);
+
+META_EXPORT
 gboolean                    meta_prefs_get_gnome_animations   (void);
+
+META_EXPORT
 gboolean                    meta_prefs_get_edge_tiling        (void);
+
+META_EXPORT
 gboolean                    meta_prefs_get_auto_maximize      (void);
+
+META_EXPORT
 gboolean                    meta_prefs_get_center_new_windows (void);
 
+META_EXPORT
 gboolean                    meta_prefs_get_show_fallback_app_menu (void);
+
+META_EXPORT
 void                        meta_prefs_set_show_fallback_app_menu (gboolean whether);
 
+META_EXPORT
 void                        meta_prefs_get_button_layout (MetaButtonLayout *button_layout);
 
 /* Double, right, middle click can be configured to any titlebar meta-action */
+META_EXPORT
 GDesktopTitlebarAction      meta_prefs_get_action_double_click_titlebar (void);
+
+META_EXPORT
 GDesktopTitlebarAction      meta_prefs_get_action_middle_click_titlebar (void);
+
+META_EXPORT
 GDesktopTitlebarAction      meta_prefs_get_action_right_click_titlebar (void);
 
+META_EXPORT
 void meta_prefs_set_num_workspaces (int n_workspaces);
 
+META_EXPORT
 const char* meta_prefs_get_workspace_name    (int         i);
+
+META_EXPORT
 void        meta_prefs_change_workspace_name (int         i,
                                               const char *name);
 
+META_EXPORT
 const char* meta_prefs_get_cursor_theme      (void);
+
+META_EXPORT
 int         meta_prefs_get_cursor_size       (void);
+
+META_EXPORT
 gboolean    meta_prefs_get_compositing_manager (void);
+
+META_EXPORT
 gboolean    meta_prefs_get_force_fullscreen  (void);
 
+META_EXPORT
 void meta_prefs_set_force_fullscreen (gboolean whether);
 
+META_EXPORT
 gboolean meta_prefs_get_workspaces_only_on_primary (void);
 
+META_EXPORT
 int      meta_prefs_get_draggable_border_width (void);
-int      meta_prefs_get_drag_threshold (void);
 
-gboolean meta_prefs_get_ignore_request_hide_titlebar (void);
-void     meta_prefs_set_ignore_request_hide_titlebar (gboolean whether);
+META_EXPORT
+int      meta_prefs_get_drag_threshold (void);
 
 /**
  * MetaKeyBindingAction:
@@ -396,12 +460,19 @@ typedef void (* MetaKeyHandlerFunc) (MetaDisplay     *display,
                                      MetaKeyBinding  *binding,
                                      gpointer         user_data);
 
+META_EXPORT
 GType meta_key_binding_get_type    (void);
 
+META_EXPORT
 MetaKeyBindingAction meta_prefs_get_keybinding_action (const char *name);
 
+META_EXPORT
 gboolean           meta_prefs_get_visual_bell      (void);
+
+META_EXPORT
 gboolean           meta_prefs_bell_is_audible      (void);
+
+META_EXPORT
 GDesktopVisualBellType meta_prefs_get_visual_bell_type (void);
 
 #endif

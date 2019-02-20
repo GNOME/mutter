@@ -23,64 +23,65 @@
 /**
  * SECTION:display
  * @title: MetaDisplay
- * @short_description: Mutter X display handler
+ * @short_description: Mutter display representation
  *
  * The display is represented as a #MetaDisplay struct.
  */
 
 #define _XOPEN_SOURCE 600 /* for gethostname() */
 
-#include <config.h>
-#include "display-private.h"
-#include "events.h"
-#include "util-private.h"
-#include <meta/main.h>
-#include "main-private.h"
-#include "window-private.h"
-#include "boxes-private.h"
-#include "frame.h"
-#include <meta/meta-x11-errors.h>
-#include "keybindings-private.h"
-#include <meta/prefs.h>
-#include "workspace-private.h"
-#include "meta-workspace-manager-private.h"
-#include "bell.h"
-#include <meta/compositor.h>
-#include <meta/compositor-mutter.h>
-#include <X11/Xatom.h>
-#include <meta/meta-enum-types.h>
-#include "meta-idle-monitor-dbus.h"
-#include "meta-cursor-tracker-private.h"
-#include <meta/meta-backend.h>
-#include "backends/meta-cursor-sprite-xcursor.h"
-#include "backends/meta-logical-monitor.h"
-#include "backends/native/meta-backend-native.h"
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/meta-stage-private.h"
-#include "backends/meta-input-settings-private.h"
-#include <clutter/x11/clutter-x11.h>
+#include "config.h"
 
-#ifdef HAVE_RANDR
-#include <X11/extensions/Xrandr.h>
-#endif
-#include <X11/extensions/shape.h>
-#include <X11/Xcursor/Xcursor.h>
-#include <X11/extensions/Xcomposite.h>
-#include <X11/extensions/Xdamage.h>
-#include <X11/extensions/Xfixes.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <X11/Xatom.h>
+#include <X11/Xcursor/Xcursor.h>
+#include <X11/extensions/shape.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
+#include <X11/extensions/Xfixes.h>
 
-#include "x11/events.h"
+#include "backends/meta-cursor-sprite-xcursor.h"
+#include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-idle-monitor-dbus.h"
+#include "backends/meta-input-settings-private.h"
+#include "backends/meta-logical-monitor.h"
+#include "backends/meta-stage-private.h"
+#include "backends/x11/meta-backend-x11.h"
+#include "clutter/x11/clutter-x11.h"
+#include "core/bell.h"
+#include "core/boxes-private.h"
+#include "core/display-private.h"
+#include "core/events.h"
+#include "core/frame.h"
+#include "core/keybindings-private.h"
+#include "core/main-private.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/util-private.h"
+#include "core/window-private.h"
+#include "core/workspace-private.h"
+#include "meta/compositor-mutter.h"
+#include "meta/compositor.h"
+#include "meta/main.h"
+#include "meta/meta-backend.h"
+#include "meta/meta-enum-types.h"
+#include "meta/meta-sound-player.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
+#include "x11/meta-startup-notification-x11.h"
+#include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
-#include "x11/meta-x11-display-private.h"
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-xwayland-private.h"
 #include "wayland/meta-wayland-tablet-seat.h"
 #include "wayland/meta-wayland-tablet-pad.h"
+#endif
+
+#ifdef HAVE_NATIVE_BACKEND
+#include "backends/native/meta-backend-native.h"
 #endif
 
 /*
@@ -146,7 +147,6 @@ enum
   ACTIVE_WORKSPACE_CHANGED,
   IN_FULLSCREEN_CHANGED,
   SHOWING_DESKTOP_CHANGED,
-  STARTUP_SEQUENCE_CHANGED,
   RESTACKED,
   WORKAREAS_CHANGED,
   LAST_SIGNAL
@@ -464,13 +464,6 @@ meta_display_class_init (MetaDisplayClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
-  display_signals[STARTUP_SEQUENCE_CHANGED] =
-    g_signal_new ("startup-sequence-changed",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0, NULL, NULL, NULL,
-                  G_TYPE_NONE, 1, G_TYPE_POINTER);
-
   display_signals[RESTACKED] =
     g_signal_new ("restacked",
                   G_TYPE_FROM_CLASS (klass),
@@ -554,9 +547,9 @@ enable_compositor (MetaDisplay *display)
       if (!META_X11_DISPLAY_HAS_COMPOSITE (x11_display) ||
           !META_X11_DISPLAY_HAS_DAMAGE (x11_display))
         {
-          meta_warning ("Missing %s extension required for compositing",
-                        !META_X11_DISPLAY_HAS_COMPOSITE (x11_display) ?
-                        "composite" : "damage");
+          meta_fatal ("Missing %s extension required for compositing",
+                      !META_X11_DISPLAY_HAS_COMPOSITE (x11_display) ?
+                      "composite" : "damage");
           return;
         }
 
@@ -564,7 +557,9 @@ enable_compositor (MetaDisplay *display)
                      x11_display->composite_minor_version;
       if (version < 3)
         {
-          meta_warning ("Your version of COMPOSITE is too old.");
+          meta_fatal ("Your version of COMPOSITE (%d.%d) is too old. Version 3.0 or later required.",
+                      x11_display->composite_major_version,
+                      x11_display->composite_minor_version);
           return;
         }
     }
@@ -624,17 +619,6 @@ gesture_tracker_state_changed (MetaGestureTracker   *tracker,
                           clutter_x11_event_sequence_get_touch_detail (sequence),
                           DefaultRootWindow (display->x11_display->xdisplay), event_mode);
     }
-}
-
-static void
-on_startup_notification_changed (MetaStartupNotification *sn,
-                                 gpointer                 sequence,
-                                 MetaDisplay             *display)
-{
-  g_slist_free (display->startup_sequences);
-  display->startup_sequences =
-    meta_startup_notification_get_sequences (display->startup_notification);
-  g_signal_emit_by_name (display, "startup-sequence-changed", sequence);
 }
 
 static void
@@ -735,9 +719,7 @@ meta_display_open (void)
 
   display->workspace_manager = meta_workspace_manager_new (display);
 
-  display->startup_notification = meta_startup_notification_get (display);
-  g_signal_connect (display->startup_notification, "changed",
-                    G_CALLBACK (on_startup_notification_changed), display);
+  display->startup_notification = meta_startup_notification_new (display);
 
   display->bell = meta_bell_new (display);
 
@@ -795,6 +777,8 @@ meta_display_open (void)
     meta_x11_display_focus_the_no_focus_window (display->x11_display, timestamp);
 
   meta_idle_monitor_init_dbus ();
+
+  display->sound_player = g_object_new (META_TYPE_SOUND_PLAYER, NULL);
 
   /* Done opening new display */
   display->display_opening = FALSE;
@@ -973,6 +957,7 @@ meta_display_close (MetaDisplay *display,
   g_clear_object (&display->bell);
   g_clear_object (&display->startup_notification);
   g_clear_object (&display->workspace_manager);
+  g_clear_object (&display->sound_player);
 
   g_object_unref (display);
   the_display = NULL;
@@ -1455,7 +1440,7 @@ meta_cursor_for_grab_op (MetaGrabOp op)
   return META_CURSOR_DEFAULT;
 }
 
-static int
+static float
 find_highest_logical_monitor_scale (MetaBackend      *backend,
                                     MetaCursorSprite *cursor_sprite)
 {
@@ -1466,7 +1451,7 @@ find_highest_logical_monitor_scale (MetaBackend      *backend,
   ClutterRect cursor_rect;
   GList *logical_monitors;
   GList *l;
-  int highest_scale = 0.0;
+  float highest_scale = 0.0;
 
   cursor_rect = meta_cursor_renderer_calculate_rect (cursor_renderer,
                                                      cursor_sprite);
@@ -1501,13 +1486,18 @@ root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
 
   if (meta_is_stage_views_scaled ())
     {
-      int scale;
+      float scale;
 
       scale = find_highest_logical_monitor_scale (backend, cursor_sprite);
       if (scale != 0.0)
         {
-          meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor, scale);
-          meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0 / scale);
+          float ceiled_scale;
+
+          ceiled_scale = ceilf (scale);
+          meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
+                                                      (int) ceiled_scale);
+          meta_cursor_sprite_set_texture_scale (cursor_sprite,
+                                                1.0 / ceiled_scale);
         }
     }
   else
@@ -1613,6 +1603,7 @@ get_event_route_from_grab_op (MetaGrabOp op)
 
     default:
       g_assert_not_reached ();
+      return 0;
     }
 }
 
@@ -2632,6 +2623,7 @@ meta_display_supports_extended_barriers (MetaDisplay *display)
     }
 
   g_assert_not_reached ();
+  return FALSE;
 }
 
 /**
@@ -3101,16 +3093,31 @@ meta_display_hide_tile_preview (MetaDisplay *display)
   meta_compositor_hide_tile_preview (display->compositor);
 }
 
-/**
- * meta_display_get_startup_sequences: (skip)
- * @display:
- *
- * Return value: (transfer none): Currently active #SnStartupSequence items
- */
-GSList *
-meta_display_get_startup_sequences (MetaDisplay *display)
+static MetaStartupSequence *
+find_startup_sequence_by_wmclass (MetaDisplay *display,
+                                  MetaWindow  *window)
 {
-  return display->startup_sequences;
+  GSList *startup_sequences, *l;
+
+  startup_sequences =
+    meta_startup_notification_get_sequences (display->startup_notification);
+
+  for (l = startup_sequences; l; l = l->next)
+    {
+      MetaStartupSequence *sequence = l->data;
+      const char *wmclass;
+
+      wmclass = meta_startup_sequence_get_wmclass (sequence);
+
+      if (wmclass != NULL &&
+          ((window->res_class &&
+            strcmp (wmclass, window->res_class) == 0) ||
+           (window->res_name &&
+            strcmp (wmclass, window->res_name) == 0)))
+        return sequence;
+    }
+
+  return NULL;
 }
 
 /* Sets the initial_timestamp and initial_workspace properties
@@ -3125,10 +3132,8 @@ gboolean
 meta_display_apply_startup_properties (MetaDisplay *display,
                                        MetaWindow  *window)
 {
-#ifdef HAVE_STARTUP_NOTIFICATION
   const char *startup_id;
-  GSList *l;
-  SnStartupSequence *sequence;
+  MetaStartupSequence *sequence = NULL;
 
   /* Does the window have a startup ID stored? */
   startup_id = meta_window_get_startup_id (window);
@@ -3138,40 +3143,26 @@ meta_display_apply_startup_properties (MetaDisplay *display,
               window->desc,
               startup_id ? startup_id : "(none)");
 
-  sequence = NULL;
   if (!startup_id)
     {
       /* No startup ID stored for the window. Let's ask the
        * startup-notification library whether there's anything
        * stored for the resource name or resource class hints.
        */
-      for (l = display->startup_sequences; l; l = l->next)
+      sequence = find_startup_sequence_by_wmclass (display, window);
+
+      if (sequence)
         {
-          const char *wmclass;
-          SnStartupSequence *seq = l->data;
+          g_assert (window->startup_id == NULL);
+          window->startup_id = g_strdup (meta_startup_sequence_get_id (sequence));
+          startup_id = window->startup_id;
 
-          wmclass = sn_startup_sequence_get_wmclass (seq);
+          meta_topic (META_DEBUG_STARTUP,
+                      "Ending legacy sequence %s due to window %s\n",
+                      meta_startup_sequence_get_id (sequence),
+                      window->desc);
 
-          if (wmclass != NULL &&
-              ((window->res_class &&
-                strcmp (wmclass, window->res_class) == 0) ||
-               (window->res_name &&
-                strcmp (wmclass, window->res_name) == 0)))
-            {
-              sequence = seq;
-
-              g_assert (window->startup_id == NULL);
-              window->startup_id = g_strdup (sn_startup_sequence_get_id (sequence));
-              startup_id = window->startup_id;
-
-              meta_topic (META_DEBUG_STARTUP,
-                          "Ending legacy sequence %s due to window %s\n",
-                          sn_startup_sequence_get_id (sequence),
-                          window->desc);
-
-              sn_startup_sequence_complete (sequence);
-              break;
-            }
+          meta_startup_sequence_complete (sequence);
         }
     }
 
@@ -3185,19 +3176,9 @@ meta_display_apply_startup_properties (MetaDisplay *display,
    */
   if (sequence == NULL)
     {
-      for (l = display->startup_sequences; l != NULL; l = l->next)
-        {
-          SnStartupSequence *seq = l->data;
-          const char *id;
-
-          id = sn_startup_sequence_get_id (seq);
-
-          if (strcmp (id, startup_id) == 0)
-            {
-              sequence = seq;
-              break;
-            }
-        }
+      sequence =
+        meta_startup_notification_lookup_sequence (display->startup_notification,
+                                                   startup_id);
     }
 
   if (sequence != NULL)
@@ -3210,7 +3191,7 @@ meta_display_apply_startup_properties (MetaDisplay *display,
 
       if (!window->initial_workspace_set)
         {
-          int space = sn_startup_sequence_get_workspace (sequence);
+          int space = meta_startup_sequence_get_workspace (sequence);
           if (space >= 0)
             {
               meta_topic (META_DEBUG_STARTUP,
@@ -3225,7 +3206,7 @@ meta_display_apply_startup_properties (MetaDisplay *display,
 
       if (!window->initial_timestamp_set)
         {
-          guint32 timestamp = sn_startup_sequence_get_timestamp (sequence);
+          guint32 timestamp = meta_startup_sequence_get_timestamp (sequence);
           meta_topic (META_DEBUG_STARTUP,
                       "Setting initial window timestamp to %u based on startup info\n",
                       timestamp);
@@ -3243,8 +3224,6 @@ meta_display_apply_startup_properties (MetaDisplay *display,
                   "Did not find startup sequence for window %s ID \"%s\"\n",
                   window->desc, startup_id);
     }
-
-#endif /* HAVE_STARTUP_NOTIFICATION */
 
   return FALSE;
 }
@@ -3507,7 +3486,7 @@ meta_display_get_primary_monitor (MetaDisplay *display)
  * @monitor: the monitor number
  * @geometry: (out): location to store the monitor geometry
  *
- * Stores the location and size of the indicated monitor in @geometry.
+ * Stores the location and size of the indicated @monitor in @geometry.
  */
 void
 meta_display_get_monitor_geometry (MetaDisplay   *display,
@@ -3611,10 +3590,60 @@ meta_display_focus_default_window (MetaDisplay *display,
  * meta_display_get_workspace_manager:
  * @display: a #MetaDisplay
  *
- * Returns: (transfer none) The workspace manager of the display
+ * Returns: (transfer none): The workspace manager of the display
  */
 MetaWorkspaceManager *
 meta_display_get_workspace_manager (MetaDisplay *display)
 {
   return display->workspace_manager;
+}
+
+MetaStartupNotification *
+meta_display_get_startup_notification (MetaDisplay *display)
+{
+  return display->startup_notification;
+}
+
+MetaWindow *
+meta_display_get_window_from_id (MetaDisplay *display,
+                                 uint64_t     window_id)
+{
+  g_autoptr (GSList) windows = NULL;
+  GSList *l;
+
+  windows = meta_display_list_windows (display, META_LIST_DEFAULT);
+  for (l = windows; l; l = l->next)
+    {
+      MetaWindow *window = l->data;
+
+      if (window->id == window_id)
+        return window;
+    }
+
+  return NULL;
+}
+
+uint64_t
+meta_display_generate_window_id (MetaDisplay *display)
+{
+  static uint64_t base_window_id;
+  static uint64_t last_window_id;
+
+  if (!base_window_id)
+    base_window_id = g_random_int () + 1;
+
+  /* We can overflow here, that's fine */
+  return (base_window_id + last_window_id++);
+}
+
+/**
+ * meta_display_get_sound_player:
+ * @display: a #MetaDisplay
+ *
+ * Returns: (transfer none): The sound player of the display
+ */
+MetaSoundPlayer *
+meta_display_get_sound_player (MetaDisplay *display)
+{
+  return display->sound_player;
 }

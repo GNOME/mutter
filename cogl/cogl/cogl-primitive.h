@@ -49,7 +49,7 @@ typedef struct _CoglPrimitive CoglPrimitive;
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-primitive
@@ -938,7 +938,7 @@ cogl_primitive_draw (CoglPrimitive *primitive,
                      CoglPipeline *pipeline);
 
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_PRIMITIVE_H__ */
 

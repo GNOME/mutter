@@ -35,7 +35,7 @@
 
 #include "cogl-types.h"
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-error
@@ -164,6 +164,6 @@ cogl_error_matches (CoglError *error,
  */
 #define COGL_GLIB_ERROR(COGL_ERROR) ((CoglError *)COGL_ERROR)
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_ERROR_H__ */

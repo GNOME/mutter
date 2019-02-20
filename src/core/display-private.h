@@ -25,28 +25,25 @@
 #ifndef META_DISPLAY_PRIVATE_H
 #define META_DISPLAY_PRIVATE_H
 
-#ifndef PACKAGE
-#error "config.h not included"
-#endif
+#include "meta/display.h"
 
 #include <glib.h>
+#include <X11/extensions/sync.h>
 #include <X11/Xlib.h>
-#include <meta/common.h>
-#include <meta/boxes.h>
-#include <meta/display.h>
-#include "keybindings-private.h"
-#include "startup-notification-private.h"
-#include "meta-gesture-tracker-private.h"
-#include "stack-tracker.h"
-#include <meta/prefs.h>
-#include <meta/barrier.h>
-#include <clutter/clutter.h>
 
 #ifdef HAVE_STARTUP_NOTIFICATION
 #include <libsn/sn.h>
 #endif
 
-#include <X11/extensions/sync.h>
+#include "clutter/clutter.h"
+#include "core/keybindings-private.h"
+#include "core/meta-gesture-tracker-private.h"
+#include "core/stack-tracker.h"
+#include "core/startup-notification-private.h"
+#include "meta/barrier.h"
+#include "meta/boxes.h"
+#include "meta/common.h"
+#include "meta/prefs.h"
 
 typedef struct _MetaBell       MetaBell;
 typedef struct _MetaStack      MetaStack;
@@ -244,6 +241,8 @@ struct _MetaDisplay
 
   MetaBell *bell;
   MetaWorkspaceManager *workspace_manager;
+
+  MetaSoundPlayer *sound_player;
 };
 
 struct _MetaDisplayClass
@@ -288,8 +287,9 @@ void        meta_display_unregister_stamp (MetaDisplay *display,
                                            guint64      stamp);
 
 /* A "stack id" is a XID or a stamp */
-
 #define META_STACK_ID_IS_X11(id) ((id) < G_GUINT64_CONSTANT(0x100000000))
+
+META_EXPORT_TEST
 MetaWindow* meta_display_lookup_stack_id   (MetaDisplay *display,
                                             guint64      stack_id);
 
@@ -307,10 +307,13 @@ void        meta_display_unregister_wayland_window (MetaDisplay *display,
 void        meta_display_notify_window_created (MetaDisplay  *display,
                                                 MetaWindow   *window);
 
+META_EXPORT_TEST
 GSList*     meta_display_list_windows        (MetaDisplay          *display,
                                               MetaListWindowsFlags  flags);
 
 MetaDisplay* meta_display_for_x_display  (Display     *xdisplay);
+
+META_EXPORT_TEST
 MetaDisplay* meta_get_display            (void);
 
 void meta_display_reload_cursor (MetaDisplay *display);
@@ -429,5 +432,9 @@ void meta_display_queue_check_fullscreen (MetaDisplay *display);
 
 MetaWindow *meta_display_get_pointer_window (MetaDisplay *display,
                                              MetaWindow  *not_this_one);
+
+MetaWindow *meta_display_get_window_from_id (MetaDisplay *display,
+                                             uint64_t     window_id);
+uint64_t    meta_display_generate_window_id (MetaDisplay *display);
 
 #endif

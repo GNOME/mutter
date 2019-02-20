@@ -53,9 +53,7 @@
  * Since: 1.12
  */
 
-#ifdef HAVE_CONFIG_H
 #include "clutter-build-config.h"
-#endif
 
 #include "clutter-pan-action.h"
 
@@ -963,6 +961,7 @@ clutter_pan_action_get_motion_delta (ClutterPanAction *self,
       return clutter_pan_action_get_interpolated_delta (self, delta_x, delta_y);
     default:
       g_assert_not_reached ();
+      return 0.0f;
     }
 }
 

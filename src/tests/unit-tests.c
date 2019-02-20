@@ -28,6 +28,7 @@
 #include "compositor/meta-plugin-manager.h"
 #include "core/boxes-private.h"
 #include "core/main-private.h"
+#include "tests/boxes-tests.h"
 #include "tests/meta-backend-test.h"
 #include "tests/monitor-config-migration-unit-tests.h"
 #include "tests/monitor-unit-tests.h"
@@ -240,9 +241,6 @@ run_tests (gpointer data)
 static void
 init_tests (int argc, char **argv)
 {
-  g_test_init (&argc, &argv, NULL);
-  g_test_bug_base ("http://bugzilla.gnome.org/show_bug.cgi?id=");
-
   g_test_add_func ("/util/meta-later/order", meta_test_util_later_order);
   g_test_add_func ("/util/meta-later/schedule-from-later",
                    meta_test_util_later_schedule_from_later);
@@ -252,19 +250,19 @@ init_tests (int argc, char **argv)
   init_monitor_store_tests ();
   init_monitor_config_migration_tests ();
   init_monitor_tests ();
+  init_boxes_tests ();
 }
 
 int
 main (int argc, char *argv[])
 {
-  test_init (argc, argv);
+  test_init (&argc, &argv);
   init_tests (argc, argv);
 
-  meta_plugin_manager_load ("default");
+  meta_plugin_manager_load (test_get_plugin_name ());
 
   meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
                                           META_TYPE_BACKEND_TEST);
-  meta_wayland_override_display_name ("mutter-test-display");
 
   meta_init ();
   meta_register_with_session ();

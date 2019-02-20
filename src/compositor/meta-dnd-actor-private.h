@@ -23,7 +23,7 @@
 #ifndef META_DND_ACTOR_PRIVATE_H
 #define META_DND_ACTOR_PRIVATE_H
 
-#include "meta-feedback-actor-private.h"
+#include "compositor/meta-feedback-actor-private.h"
 
 /**
  * MetaDnDActor:
@@ -31,28 +31,12 @@
  * This class handles the rendering of the DnD surface
  */
 
-#define META_TYPE_DND_ACTOR            (meta_dnd_actor_get_type ())
-#define META_DND_ACTOR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_DND_ACTOR, MetaDnDActor))
-#define META_DND_ACTOR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), META_TYPE_DND_ACTOR, MetaDnDActorClass))
-#define META_IS_DND_ACTOR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_DND_ACTOR))
-#define META_IS_DND_ACTOR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), META_TYPE_DND_ACTOR))
-#define META_DND_ACTOR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), META_TYPE_DND_ACTOR, MetaDnDActorClass))
+#define META_TYPE_DND_ACTOR (meta_dnd_actor_get_type ())
+G_DECLARE_FINAL_TYPE (MetaDnDActor,
+                      meta_dnd_actor,
+                      META, DND_ACTOR,
+                      MetaFeedbackActor)
 
-typedef struct _MetaDnDActor        MetaDnDActor;
-typedef struct _MetaDnDActorClass   MetaDnDActorClass;
-
-struct _MetaDnDActorClass
-{
-  /*< private >*/
-  MetaFeedbackActorClass parent_class;
-};
-
-struct _MetaDnDActor
-{
-  MetaFeedbackActor parent;
-};
-
-GType         meta_dnd_actor_get_type (void);
 
 ClutterActor *meta_dnd_actor_new (ClutterActor *drag_origin,
                                   int           start_x,

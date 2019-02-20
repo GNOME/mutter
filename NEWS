@@ -1,17 +1,73 @@
-3.30.2
+3.31.90
+=======
+* Fix support of extended characters in on-screen keyboard [Andrea; #109]
+* Improve selection of the primary GPU [Pekka, Emilio; !271]
+* Screen-cast cursor updates as PipeWire stream metadata [Jonas; !357]
+* Fix rendering glitches in magnifier [Daniel; gnome-shell#387]
+* Fix monitor recording on HiDPI [Jonas; !415]
+* Honour secondary GPU supported pixel formats [Pekka; !341]
+* Fall back to CPU copy path when using a software renderer [Emilio; !325]
+* Remove fallback app menu [Florian; gnome-shell#624]
+* wayland: Add support for viewporter protocol [Robert; !323]
+* Misc. bug fixes and cleanups [Florian, Carlos, Olivier, Marco, Robert,
+  Daniel, Pekka, Jonas, Ole, Georges; !391, #335, #442, !406, !395, #447,
+  !375, gnome-shell#349, #451, !416, #784199, !408, !181, !405]
+
+Contributors:
+  Jonas Ådahl, Andrea Azzarone, Ole Jørgen Brønner, Piotr Drąg, Olivier Fourdan,
+  Dariusz Gadomski, Carlos Garnacho, Antoine Jacoutot, Iain Lane, Robert Mader,
+  Emilio Pozuelo Monfort, Florian Müllner, Georges Basile Stavracas Neto,
+  Pekka Paalanen, Marco Trevisan (Treviño), Josh Triplett, Daniel van Vugt
+
+Translators:
+  Fabio Tomat [fur], Balázs Úr [hu], Daniel Mustieles [es], Kukuh Syafaat [id],
+  Jordi Mas [ca], Piotr Drąg [pl]
+
+3.31.4
+======
+* keybindings: Limit corner move to current monitor [Jānis; #320]
+* xdg-output: Report rotated physical dimensions [Olivier; #369]
+* Add continuous integration pipeline [Jonas; #193]
+* Improve performance on secondary GPUs [Pekka; #323, !313]
+* Use the actual hardware refresh rate [Daniel; #781296]
+* Remove hide-titlebar-when-maximized support [Florian; !221]
+* wayland: Implement buffer transforms [Robert; !322]
+* Remove ability to externally set sync-to-vblank [Georges; !191]
+* Turn off touchscreens together with DPMS [Carlos; gnome-settings-daemon#29]
+* Mipmap the wallpaper when shrinking [Daniel; gnome-shell#254]
+* Implement RecordWindow method for screen-casts [Olivier; !306]
+* Fix EGLStream texture downloading [Jonas; !362]
+* Split out display-server-specific code from MetaWindowActor [Georges; !368]
+* Improve render performance on some KMS devices with software GL [Jonas; #106]
+* Fix damage area of transformed surfaces [Robert; !366]
+* Remove autotools support [George]
+* Misc. bug fixes and cleanups [Jonas, Alan, Olivier, Carlos, Javier, Peter,
+  Daniel, Robert, Florian; !309, #790207, #272, #393, #276, #404, #104, !343,
+  #765011, #786663, #342, !356, #414, #782344, #781034, #423, !374, !382, !383]
+
+Contributors:
+  Jonas Ådahl, Nikita Churaev, Alan Coopersmith, Jānis Džeriņš, Olivier Fourdan,
+  Carlos Garnacho, Niels De Graef, Peter Hutterer, Javier Jardón,
+  Abderrahim Kitouni, Andre Klapper, Ting-Wei Lan, Robert Mader,
+  Emilio Pozuelo Monfort, Florian Müllner, Georges Basile Stavracas Neto,
+  Pekka Paalanen, Daniel Stone, Marco Trevisan (Treviño), Daniel van Vugt
+
+3.31.2
 ======
 * Fix handling of non-UTF8 encodings [Florian; !227]
 * Fix memory leaks introduced in 3.30.1 [Jonas; #653]
-* Work around hangul text input bug [Carlos; gtk#1365]
+* Fix regression when overriding workspace layout [Ron; #270]
 * Fix crash when restarting window manager [Andrea; gnome-shell#595]
+* Add meson build support [Jonas; !167]
+* Freeze clock when headless [Jonas; !170]
 * Fix crash on monitor hotplug [Olivier; #189]
+* Misc. bug fixes [Jonas; #353, !132, #382]
 
 Contributors:
-  Jonas Ådahl, Andrea Azzarone, Olivier Fourdan, Carlos Garnacho,
-  Florian Müllner, Akira Nakajima
-
-Translators:
-  Dušan Kazik [sk]
+  Jonas Ådahl, Andrea Azzarone, Olivier Fourdan, Niels De Graef,
+  Alexander Mikhaylenko, Florian Müllner, Akira Nakajima,
+  Georges Basile Stavracas Neto, Pekka Paalanen, Peter Uithoven,
+  Daniel van Vugt, Ron Yorston
 
 3.30.1
 ======

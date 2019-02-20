@@ -67,6 +67,23 @@ static const char *clutter_input_axis_atom_names[] = {
 
 #define N_AXIS_ATOMS    G_N_ELEMENTS (clutter_input_axis_atom_names)
 
+static const char *wacom_type_atoms[] = {
+    "STYLUS",
+    "CURSOR",
+    "ERASER",
+    "PAD",
+    "TOUCH"
+};
+#define N_WACOM_TYPE_ATOMS G_N_ELEMENTS (wacom_type_atoms)
+
+enum {
+    WACOM_TYPE_STYLUS,
+    WACOM_TYPE_CURSOR,
+    WACOM_TYPE_ERASER,
+    WACOM_TYPE_PAD,
+    WACOM_TYPE_TOUCH,
+};
+
 enum {
   PAD_AXIS_FIRST  = 3, /* First axes are always x/y/pressure, ignored in pads */
   PAD_AXIS_STRIP1 = PAD_AXIS_FIRST,
@@ -199,7 +216,6 @@ translate_device_classes (Display             *xdisplay,
                                     (XIValuatorClassInfo *) class_info);
           break;
 
-#ifdef HAVE_XINPUT_2_2
         case XIScrollClass:
           {
             XIScrollClassInfo *scroll_info = (XIScrollClassInfo *) class_info;
@@ -223,7 +239,6 @@ translate_device_classes (Display             *xdisplay,
                                                    scroll_info->increment);
           }
           break;
-#endif /* HAVE_XINPUT_2_2 */
 
         default:
           break;
@@ -237,7 +252,6 @@ is_touch_device (XIAnyClassInfo         **classes,
                  ClutterInputDeviceType  *device_type,
                  guint                   *n_touch_points)
 {
-#ifdef HAVE_XINPUT_2_2
   guint i;
 
   for (i = 0; i < n_classes; i++)
@@ -261,7 +275,6 @@ is_touch_device (XIAnyClassInfo         **classes,
           return TRUE;
         }
     }
-#endif
 
   return FALSE;
 }
@@ -398,6 +411,86 @@ get_pad_features (XIDeviceInfo *info,
   *n_strips = strips;
 }
 
+/* The Wacom driver exports the tool type as property. Use that over
+   guessing based on the device name */
+static gboolean
+guess_source_from_wacom_type (ClutterBackendX11       *backend_x11,
+                              XIDeviceInfo            *info,
+                              ClutterInputDeviceType  *source_out)
+{
+  gulong nitems, bytes_after;
+  guint32 *data = NULL;
+  int rc, format;
+  Atom type;
+  Atom prop;
+  Atom device_type;
+  Atom types[N_WACOM_TYPE_ATOMS];
+
+  prop = XInternAtom (backend_x11->xdpy, "Wacom Tool Type", True);
+  if (prop == None)
+    return FALSE;
+
+  clutter_x11_trap_x_errors ();
+  rc = XIGetProperty (backend_x11->xdpy,
+                      info->deviceid,
+                      prop,
+                      0, 1, False, XA_ATOM, &type, &format, &nitems, &bytes_after,
+                      (guchar **) &data);
+  clutter_x11_untrap_x_errors ();
+
+
+  if (rc != Success || type != XA_ATOM || format != 32 || nitems != 1)
+    {
+      XFree (data);
+      return FALSE;
+    }
+
+  device_type = *data;
+  XFree (data);
+
+  if (device_type == 0)
+      return FALSE;
+
+  rc = XInternAtoms (backend_x11->xdpy,
+                     (char **)wacom_type_atoms,
+                     N_WACOM_TYPE_ATOMS,
+                     False,
+                     types);
+  if (rc == 0)
+      return FALSE;
+
+  if (device_type == types[WACOM_TYPE_STYLUS])
+    {
+      *source_out = CLUTTER_PEN_DEVICE;
+    }
+  else if (device_type == types[WACOM_TYPE_CURSOR])
+    {
+      *source_out = CLUTTER_CURSOR_DEVICE;
+    }
+  else if (device_type == types[WACOM_TYPE_ERASER])
+    {
+      *source_out = CLUTTER_ERASER_DEVICE;
+    }
+  else if (device_type == types[WACOM_TYPE_PAD])
+    {
+      *source_out = CLUTTER_PAD_DEVICE;
+    }
+  else if (device_type == types[WACOM_TYPE_TOUCH])
+    {
+        guint num_touches = 0;
+
+        if (!is_touch_device (info->classes, info->num_classes,
+                              source_out, &num_touches))
+            *source_out = CLUTTER_TOUCHSCREEN_DEVICE;
+    }
+  else
+    {
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 static ClutterInputDevice *
 create_device (ClutterDeviceManagerXI2 *manager_xi2,
                ClutterBackendX11       *backend_x11,
@@ -425,7 +518,7 @@ create_device (ClutterDeviceManagerXI2 *manager_xi2,
     {
       source = touch_source;
     }
-  else
+  else if (!guess_source_from_wacom_type (backend_x11, info, &source))
     {
       gchar *name;
 
@@ -771,11 +864,9 @@ get_event_stage (ClutterEventTranslator *translator,
     case XI_ButtonPress:
     case XI_ButtonRelease:
     case XI_Motion:
-#ifdef HAVE_XINPUT_2_2
     case XI_TouchBegin:
     case XI_TouchUpdate:
     case XI_TouchEnd:
-#endif /* HAVE_XINPUT_2_2 */
       {
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
 
@@ -1037,7 +1128,6 @@ clutter_device_manager_xi2_select_stage_events (ClutterDeviceManager *manager,
   XISetMask (mask, XI_Enter);
   XISetMask (mask, XI_Leave);
 
-#ifdef HAVE_XINPUT_2_2
   /* enable touch event support if we're running on XInput 2.2 */
   if (backend_x11->xi_minor >= 2)
     {
@@ -1045,7 +1135,6 @@ clutter_device_manager_xi2_select_stage_events (ClutterDeviceManager *manager,
       XISetMask (mask, XI_TouchUpdate);
       XISetMask (mask, XI_TouchEnd);
     }
-#endif /* HAVE_XINPUT_2_2 */
 
   xi_event_mask.deviceid = XIAllMasterDevices;
   xi_event_mask.mask = mask;
@@ -1297,9 +1386,9 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
           _clutter_keymap_x11_get_is_modifier (backend_x11->keymap,
                                                event->key.hardware_keycode);
         event_x11->num_lock_set =
-          _clutter_keymap_x11_get_num_lock_state (backend_x11->keymap);
+          clutter_keymap_get_num_lock_state (CLUTTER_KEYMAP (backend_x11->keymap));
         event_x11->caps_lock_set =
-          _clutter_keymap_x11_get_caps_lock_state (backend_x11->keymap);
+          clutter_keymap_get_caps_lock_state (CLUTTER_KEYMAP (backend_x11->keymap));
 
         source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
                                              GINT_TO_POINTER (xev->sourceid));
@@ -1472,11 +1561,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
                           "invalid",
                           event->scroll.x,
                           event->scroll.y,
-#ifdef HAVE_XINPUT_2_2
                           (xev->flags & XIPointerEmulated) ? "yes" : "no"
-#else
-                          "no"
-#endif
                           );
             break;
 
@@ -1522,11 +1607,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
                           event->button.x,
                           event->button.y,
                           event->button.axes != NULL ? "yes" : "no",
-#ifdef HAVE_XINPUT_2_2
                           (xev->flags & XIPointerEmulated) ? "yes" : "no"
-#else
-                          "no"
-#endif
                           );
             break;
           }
@@ -1534,10 +1615,8 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
         if (source_device != NULL && device->stage != NULL)
           _clutter_input_device_set_stage (source_device, device->stage);
 
-#ifdef HAVE_XINPUT_2_2
         if (xev->flags & XIPointerEmulated)
           _clutter_event_set_pointer_emulated (event, TRUE);
-#endif /* HAVE_XINPUT_2_2 */
 
         if (xi_event->evtype == XI_ButtonPress)
           _clutter_stage_x11_set_user_time (stage_x11, event->button.time);
@@ -1627,10 +1706,8 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
         if (source_device != NULL && device->stage != NULL)
           _clutter_input_device_set_stage (source_device, device->stage);
 
-#ifdef HAVE_XINPUT_2_2
         if (xev->flags & XIPointerEmulated)
           _clutter_event_set_pointer_emulated (event, TRUE);
-#endif /* HAVE_XINPUT_2_2 */
 
         CLUTTER_NOTE (EVENT, "motion: win:0x%x device:%d '%s' (x:%.2f, y:%.2f, axes:%s)",
                       (unsigned int) stage_x11->xwin,
@@ -1644,7 +1721,6 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
       }
       break;
 
-#ifdef HAVE_XINPUT_2_2
     case XI_TouchBegin:
       {
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
@@ -1756,7 +1832,6 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
         retval = CLUTTER_TRANSLATE_QUEUE;
       }
       break;
-#endif /* HAVE_XINPUT_2_2 */
 
     case XI_Enter:
     case XI_Leave:

@@ -52,7 +52,7 @@
 #include <cogl/cogl-context.h>
 #include <cogl/cogl-texture-2d.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * cogl_wayland_display_set_compositor_display:
@@ -145,7 +145,7 @@ cogl_wayland_texture_set_region_from_shm_buffer (CoglTexture *texture,
                                                  int level,
                                                  CoglError **error);
 
-COGL_END_DECLS
+G_END_DECLS
 
 /* The gobject introspection scanner seems to parse public headers in
  * isolation which means we need to be extra careful about how we

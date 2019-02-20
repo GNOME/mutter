@@ -29,30 +29,14 @@
 
 G_BEGIN_DECLS
 
-#define META_TYPE_BARRIER_IMPL_NATIVE            (meta_barrier_impl_native_get_type ())
-#define META_BARRIER_IMPL_NATIVE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_BARRIER_IMPL_NATIVE, MetaBarrierImplNative))
-#define META_BARRIER_IMPL_NATIVE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_BARRIER_IMPL_NATIVE, MetaBarrierImplNativeClass))
-#define META_IS_BARRIER_IMPL_NATIVE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_BARRIER_IMPL_NATIVE))
-#define META_IS_BARRIER_IMPL_NATIVE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_BARRIER_IMPL_NATIVE))
-#define META_BARRIER_IMPL_NATIVE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_BARRIER_IMPL_NATIVE, MetaBarrierImplNativeClass))
-
-typedef struct _MetaBarrierImplNative        MetaBarrierImplNative;
-typedef struct _MetaBarrierImplNativeClass   MetaBarrierImplNativeClass;
-typedef struct _MetaBarrierImplNativePrivate MetaBarrierImplNativePrivate;
+#define META_TYPE_BARRIER_IMPL_NATIVE (meta_barrier_impl_native_get_type ())
+G_DECLARE_FINAL_TYPE (MetaBarrierImplNative,
+                      meta_barrier_impl_native,
+                      META, BARRIER_IMPL_NATIVE,
+                      MetaBarrierImpl)
 
 typedef struct _MetaBarrierManagerNative     MetaBarrierManagerNative;
 
-struct _MetaBarrierImplNative
-{
-  MetaBarrierImpl parent;
-};
-
-struct _MetaBarrierImplNativeClass
-{
-  MetaBarrierImplClass parent_class;
-};
-
-GType meta_barrier_impl_native_get_type (void) G_GNUC_CONST;
 
 MetaBarrierImpl *meta_barrier_impl_native_new (MetaBarrier *barrier);
 

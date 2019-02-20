@@ -34,15 +34,15 @@
  * This handles both of these.
  */
 
-#include <config.h>
+#include "config.h"
 
-#include <clutter/clutter.h>
 #include <gio/gunixinputstream.h>
 
-#include <meta/main.h>
-#include "ui.h"
-#include "util-private.h"
-#include "display-private.h"
+#include "clutter/clutter.h"
+#include "core/display-private.h"
+#include "core/util-private.h"
+#include "meta/main.h"
+#include "ui/ui.h"
 #include "x11/meta-x11-display-private.h"
 
 static gboolean restart_helper_started = FALSE;

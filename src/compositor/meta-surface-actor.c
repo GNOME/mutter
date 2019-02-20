@@ -5,20 +5,26 @@
  * @title: MetaSurfaceActor
  * @short_description: An actor representing a surface in the scene graph
  *
- * A surface can be either a shaped texture, or a group of shaped texture,
- * used to draw the content of a window.
+ * MetaSurfaceActor is an abstract class which represents a surface in the
+ * Clutter scene graph. A subclass can implement the specifics of a surface
+ * depending on the way it is handled by a display protocol.
+ *
+ * An important feature of #MetaSurfaceActor is that it allows you to set an
+ * "input region": all events that occur in the surface, but outside of the
+ * input region are to be explicitly ignored. By default, this region is to
+ * %NULL, which means events on the whole surface is allowed.
  */
 
-#include <config.h>
+#include "config.h"
 
-#include "meta-surface-actor.h"
+#include "compositor/meta-surface-actor.h"
 
-#include <clutter/clutter.h>
-#include <meta/meta-shaped-texture.h>
-#include "meta-cullable.h"
-#include "meta-shaped-texture-private.h"
+#include "clutter/clutter.h"
+#include "compositor/meta-cullable.h"
+#include "compositor/meta-shaped-texture-private.h"
+#include "meta/meta-shaped-texture.h"
 
-struct _MetaSurfaceActorPrivate
+typedef struct _MetaSurfaceActorPrivate
 {
   MetaShapedTexture *texture;
 
@@ -27,7 +33,7 @@ struct _MetaSurfaceActorPrivate
   /* Freeze/thaw accounting */
   cairo_region_t *pending_damage;
   guint frozen : 1;
-};
+} MetaSurfaceActorPrivate;
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
@@ -49,7 +55,8 @@ meta_surface_actor_pick (ClutterActor       *actor,
                          const ClutterColor *color)
 {
   MetaSurfaceActor *self = META_SURFACE_ACTOR (actor);
-  MetaSurfaceActorPrivate *priv = self->priv;
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
   ClutterActorIter iter;
   ClutterActor *child;
 
@@ -113,7 +120,8 @@ static void
 meta_surface_actor_dispose (GObject *object)
 {
   MetaSurfaceActor *self = META_SURFACE_ACTOR (object);
-  MetaSurfaceActorPrivate *priv = self->priv;
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
 
   g_clear_pointer (&priv->input_region, cairo_region_destroy);
 
@@ -177,11 +185,8 @@ texture_size_changed (MetaShapedTexture *texture,
 static void
 meta_surface_actor_init (MetaSurfaceActor *self)
 {
-  MetaSurfaceActorPrivate *priv;
-
-  priv = self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self,
-                                                   META_TYPE_SURFACE_ACTOR,
-                                                   MetaSurfaceActorPrivate);
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
 
   priv->texture = META_SHAPED_TEXTURE (meta_shaped_texture_new ());
   g_signal_connect_object (priv->texture, "size-changed",
@@ -193,20 +198,27 @@ cairo_surface_t *
 meta_surface_actor_get_image (MetaSurfaceActor      *self,
                               cairo_rectangle_int_t *clip)
 {
-  return meta_shaped_texture_get_image (self->priv->texture, clip);
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
+  return meta_shaped_texture_get_image (priv->texture, clip);
 }
 
 MetaShapedTexture *
 meta_surface_actor_get_texture (MetaSurfaceActor *self)
 {
-  return self->priv->texture;
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
+  return priv->texture;
 }
 
 static void
 meta_surface_actor_update_area (MetaSurfaceActor *self,
                                 int x, int y, int width, int height)
 {
-  MetaSurfaceActorPrivate *priv = self->priv;
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
 
   if (meta_shaped_texture_update_area (priv->texture, x, y, width, height))
     g_signal_emit (self, signals[REPAINT_SCHEDULED], 0);
@@ -215,7 +227,9 @@ meta_surface_actor_update_area (MetaSurfaceActor *self,
 gboolean
 meta_surface_actor_is_obscured (MetaSurfaceActor *self)
 {
-  MetaSurfaceActorPrivate *priv = self->priv;
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
   return meta_shaped_texture_is_obscured (priv->texture);
 }
 
@@ -223,7 +237,8 @@ void
 meta_surface_actor_set_input_region (MetaSurfaceActor *self,
                                      cairo_region_t   *region)
 {
-  MetaSurfaceActorPrivate *priv = self->priv;
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
 
   if (priv->input_region)
     cairo_region_destroy (priv->input_region);
@@ -238,21 +253,27 @@ void
 meta_surface_actor_set_opaque_region (MetaSurfaceActor *self,
                                       cairo_region_t   *region)
 {
-  MetaSurfaceActorPrivate *priv = self->priv;
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
   meta_shaped_texture_set_opaque_region (priv->texture, region);
 }
 
 cairo_region_t *
-meta_surface_actor_get_opaque_region (MetaSurfaceActor *actor)
+meta_surface_actor_get_opaque_region (MetaSurfaceActor *self)
 {
-  MetaSurfaceActorPrivate *priv = actor->priv;
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
   return meta_shaped_texture_get_opaque_region (priv->texture);
 }
 
 static gboolean
 is_frozen (MetaSurfaceActor *self)
 {
-  MetaSurfaceActorPrivate *priv = self->priv;
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
   return priv->frozen;
 }
 
@@ -260,7 +281,8 @@ void
 meta_surface_actor_process_damage (MetaSurfaceActor *self,
                                    int x, int y, int width, int height)
 {
-  MetaSurfaceActorPrivate *priv = self->priv;
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
 
   if (is_frozen (self))
     {
@@ -326,6 +348,7 @@ meta_surface_actor_is_argb32 (MetaSurfaceActor *self)
       return FALSE;
     default:
       g_assert_not_reached ();
+      return FALSE;
     }
 }
 
@@ -339,7 +362,8 @@ void
 meta_surface_actor_set_frozen (MetaSurfaceActor *self,
                                gboolean          frozen)
 {
-  MetaSurfaceActorPrivate *priv = self->priv;
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
 
   priv->frozen = frozen;
 
@@ -384,4 +408,55 @@ MetaWindow *
 meta_surface_actor_get_window (MetaSurfaceActor *self)
 {
   return META_SURFACE_ACTOR_GET_CLASS (self)->get_window (self);
+}
+
+void
+meta_surface_actor_set_transform (MetaSurfaceActor     *self,
+                                  MetaMonitorTransform  transform)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
+  meta_shaped_texture_set_transform (priv->texture, transform);
+}
+
+void
+meta_surface_actor_set_viewport_src_rect (MetaSurfaceActor  *self,
+                                          ClutterRect       *src_rect)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
+  meta_shaped_texture_set_viewport_src_rect (priv->texture, src_rect);
+}
+
+void
+meta_surface_actor_reset_viewport_src_rect (MetaSurfaceActor *self)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
+  meta_shaped_texture_reset_viewport_src_rect (priv->texture);
+}
+
+void
+meta_surface_actor_set_viewport_dst_size (MetaSurfaceActor *self,
+                                          int               dst_width,
+                                          int               dst_height)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
+  meta_shaped_texture_set_viewport_dst_size (priv->texture,
+                                             dst_width,
+                                             dst_height);
+}
+
+void
+meta_surface_actor_reset_viewport_dst_size (MetaSurfaceActor *self)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
+  meta_shaped_texture_reset_viewport_dst_size (priv->texture);
 }

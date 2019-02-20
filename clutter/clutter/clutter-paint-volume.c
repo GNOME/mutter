@@ -24,9 +24,7 @@
  *      Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#ifdef HAVE_CONFIG_H
 #include "clutter-build-config.h"
-#endif
 
 #include <string.h>
 
@@ -37,6 +35,7 @@
 #include "clutter-paint-volume-private.h"
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
+#include "clutter-actor-box-private.h"
 
 G_DEFINE_BOXED_TYPE (ClutterPaintVolume, clutter_paint_volume,
                      clutter_paint_volume_copy,
@@ -1140,8 +1139,6 @@ _clutter_paint_volume_get_stage_paint_box (ClutterPaintVolume *pv,
   CoglMatrix modelview;
   CoglMatrix projection;
   float viewport[4];
-  float width;
-  float height;
 
   _clutter_paint_volume_copy_static (pv, &projected_pv);
 
@@ -1166,50 +1163,22 @@ _clutter_paint_volume_get_stage_paint_box (ClutterPaintVolume *pv,
 
   _clutter_paint_volume_get_bounding_box (&projected_pv, box);
 
-  /* The aim here is that for a given rectangle defined with floating point
-   * coordinates we want to determine a stable quantized size in pixels
-   * that doesn't vary due to the original box's sub-pixel position.
-   *
-   * The reason this is important is because effects will use this
-   * API to determine the size of offscreen framebuffers and so for
-   * a fixed-size object that may be animated accross the screen we
-   * want to make sure that the stage paint-box has an equally stable
-   * size so that effects aren't made to continuously re-allocate
-   * a corresponding fbo.
-   *
-   * The other thing we consider is that the calculation of this box is
-   * subject to floating point precision issues that might be slightly
-   * different to the precision issues involved with actually painting the
-   * actor, which might result in painting slightly leaking outside the
-   * user's calculated paint-volume. For this we simply aim to pad out the
-   * paint-volume by at least half a pixel all the way around.
-   */
-  width = box->x2 - box->x1;
-  height = box->y2 - box->y1;
-  width = CLUTTER_NEARBYINT (width);
-  height = CLUTTER_NEARBYINT (height);
-  /* XXX: NB the width/height may now be up to 0.5px too small so we
-   * must also pad by 0.25px all around to account for this. In total we
-   * must padd by at least 0.75px around all sides. */
+  if (pv->is_2d && pv->actor &&
+      clutter_actor_get_z_position (pv->actor) == 0)
+    {
+      /* If the volume/actor are perfectly 2D, take the bounding box as
+       * good. We won't need to add any extra room for sub-pixel positioning
+       * in this case.
+       */
+      clutter_paint_volume_free (&projected_pv);
+      box->x1 = CLUTTER_NEARBYINT (box->x1);
+      box->y1 = CLUTTER_NEARBYINT (box->y1);
+      box->x2 = CLUTTER_NEARBYINT (box->x2);
+      box->y2 = CLUTTER_NEARBYINT (box->y2);
+      return;
+    }
 
-  /* XXX: The furthest that we can overshoot the bottom right corner by
-   * here is 1.75px in total if you consider that the 0.75 padding could
-   * just cross an integer boundary and so ceil will effectively add 1.
-   */
-  box->x2 = ceilf (box->x2 + 0.75);
-  box->y2 = ceilf (box->y2 + 0.75);
-
-  /* Now we redefine the top-left relative to the bottom right based on the
-   * rounded width/height determined above + a constant so that the overall
-   * size of the box will be stable and not dependant on the box's
-   * position.
-   *
-   * Adding 3px to the width/height will ensure we cover the maximum of
-   * 1.75px padding on the bottom/right and still ensure we have > 0.75px
-   * padding on the top/left.
-   */
-  box->x1 = box->x2 - width - 3;
-  box->y1 = box->y2 - height - 3;
+  _clutter_actor_box_enlarge_for_effects (box);
 
   clutter_paint_volume_free (&projected_pv);
 }

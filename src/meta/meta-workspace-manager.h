@@ -30,27 +30,40 @@
 #include <meta/types.h>
 
 #define META_TYPE_WORKSPACE_MANAGER (meta_workspace_manager_get_type ())
-G_DECLARE_FINAL_TYPE (MetaWorkspaceManager, meta_workspace_manager, META, WORKSPACE_MANAGER, GObject)
 
+META_EXPORT
+G_DECLARE_FINAL_TYPE (MetaWorkspaceManager,
+                      meta_workspace_manager,
+                      META, WORKSPACE_MANAGER,
+                      GObject)
+
+META_EXPORT
 GList *meta_workspace_manager_get_workspaces (MetaWorkspaceManager *workspace_manager);
 
+META_EXPORT
 int meta_workspace_manager_get_n_workspaces (MetaWorkspaceManager *workspace_manager);
 
+META_EXPORT
 MetaWorkspace* meta_workspace_manager_get_workspace_by_index (MetaWorkspaceManager *workspace_manager,
                                                               int                   index);
 
+META_EXPORT
 void meta_workspace_manager_remove_workspace (MetaWorkspaceManager *workspace_manager,
                                               MetaWorkspace        *workspace,
                                               guint32               timestamp);
 
+META_EXPORT
 MetaWorkspace *meta_workspace_manager_append_new_workspace (MetaWorkspaceManager *workspace_manager,
                                                             gboolean              activate,
                                                             guint32               timestamp);
 
+META_EXPORT
 int meta_workspace_manager_get_active_workspace_index (MetaWorkspaceManager *workspace_manager);
 
+META_EXPORT
 MetaWorkspace *meta_workspace_manager_get_active_workspace (MetaWorkspaceManager *workspace_manager);
 
+META_EXPORT
 void meta_workspace_manager_override_workspace_layout (MetaWorkspaceManager *workspace_manager,
                                                        MetaDisplayCorner     starting_corner,
                                                        gboolean              vertical_layout,

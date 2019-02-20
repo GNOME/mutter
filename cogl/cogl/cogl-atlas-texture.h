@@ -39,7 +39,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-atlas-texture
@@ -249,6 +249,6 @@ cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp);
 CoglBool
 cogl_is_atlas_texture (void *object);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* _COGL_ATLAS_TEXTURE_H_ */

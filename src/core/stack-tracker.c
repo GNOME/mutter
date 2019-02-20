@@ -32,18 +32,17 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#include "config.h"
+
+#include "core/stack-tracker.h"
 
 #include <string.h>
 
-#include "frame.h"
-#include "display-private.h"
-#include "stack-tracker.h"
-#include <meta/meta-x11-errors.h>
-#include <meta/util.h>
-
-#include <meta/compositor.h>
-
+#include "core/display-private.h"
+#include "core/frame.h"
+#include "meta/compositor.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/util.h"
 #include "x11/meta-x11-display-private.h"
 
 /* The complexity here comes from resolving two competing factors:
@@ -186,7 +185,9 @@ meta_stack_op_dump (MetaStackTracker *tracker,
 		    const char       *prefix,
 		    const char       *suffix)
 {
+#ifdef WITH_VERBOSE_MODE
   const char *window_desc = get_window_desc (tracker, op->any.window);
+#endif
 
   switch (op->any.type)
     {
@@ -221,6 +222,7 @@ meta_stack_op_dump (MetaStackTracker *tracker,
     }
 }
 
+#ifdef WITH_VERBOSE_MODE
 static void
 stack_dump (MetaStackTracker *tracker,
             GArray           *stack)
@@ -236,10 +238,12 @@ stack_dump (MetaStackTracker *tracker,
   meta_topic (META_DEBUG_STACK, "\n");
   meta_pop_no_msg_prefix ();
 }
+#endif /* WITH_VERBOSE_MODE */
 
 static void
 meta_stack_tracker_dump (MetaStackTracker *tracker)
 {
+#ifdef WITH_VERBOSE_MODE
   GList *l;
 
   meta_topic (META_DEBUG_STACK, "MetaStackTracker state\n");
@@ -260,6 +264,7 @@ meta_stack_tracker_dump (MetaStackTracker *tracker)
       stack_dump (tracker, tracker->predicted_stack);
     }
   meta_pop_no_msg_prefix ();
+#endif /* WITH_VERBOSE_MODE */
 }
 
 static void

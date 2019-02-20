@@ -26,6 +26,9 @@
 #include <cairo.h>
 #include <glib-object.h>
 
+#include <meta/common.h>
+
+META_EXPORT
 GType meta_window_shape_get_type (void) G_GNUC_CONST;
 
 /**
@@ -41,17 +44,30 @@ GType meta_window_shape_get_type (void) G_GNUC_CONST;
  */
 typedef struct _MetaWindowShape MetaWindowShape;
 
+META_EXPORT
 MetaWindowShape *  meta_window_shape_new         (cairo_region_t  *region);
+
+META_EXPORT
 MetaWindowShape *  meta_window_shape_ref         (MetaWindowShape *shape);
+
+META_EXPORT
 void               meta_window_shape_unref       (MetaWindowShape *shape);
+
+META_EXPORT
 guint              meta_window_shape_hash        (MetaWindowShape *shape);
+
+META_EXPORT
 gboolean           meta_window_shape_equal       (MetaWindowShape *shape_a,
                                                   MetaWindowShape *shape_b);
+
+META_EXPORT
 void               meta_window_shape_get_borders (MetaWindowShape *shape,
                                                   int             *border_top,
                                                   int             *border_right,
                                                   int             *border_bottom,
                                                   int             *border_left);
+
+META_EXPORT
 cairo_region_t    *meta_window_shape_to_region   (MetaWindowShape *shape,
                                                   int              center_width,
                                                   int              center_height);

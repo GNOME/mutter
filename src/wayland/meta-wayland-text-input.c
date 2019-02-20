@@ -21,13 +21,15 @@
 
 #include "config.h"
 
+#include "wayland/meta-wayland-text-input.h"
+
 #include <wayland-server.h>
 
-#include "text-input-unstable-v3-server-protocol.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
-#include "wayland/meta-wayland-text-input.h"
 #include "wayland/meta-wayland-versions.h"
+
+#include "text-input-unstable-v3-server-protocol.h"
 
 #define META_TYPE_WAYLAND_TEXT_INPUT_FOCUS (meta_wayland_text_input_focus_get_type ())
 
@@ -70,8 +72,6 @@ struct _MetaWaylandTextInput
   uint32_t content_type_purpose;
   uint32_t text_change_cause;
   gboolean enabled;
-
-  guint done_idle_id;
 };
 
 struct _MetaWaylandTextInputFocus
@@ -116,52 +116,6 @@ increment_serial (MetaWaylandTextInput *text_input,
                        GUINT_TO_POINTER (serial + 1));
 }
 
-static gboolean
-done_idle_cb (gpointer user_data)
-{
-  ClutterInputFocus *focus = user_data;
-  MetaWaylandTextInput *text_input;
-  struct wl_resource *resource;
-
-  text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
-
-  wl_resource_for_each (resource, &text_input->focus_resource_list)
-    {
-      zwp_text_input_v3_send_done (resource,
-                                   lookup_serial (text_input, resource));
-    }
-
-  text_input->done_idle_id = 0;
-  return G_SOURCE_REMOVE;
-}
-
-static void
-meta_wayland_text_input_focus_defer_done (ClutterInputFocus *focus)
-{
-  MetaWaylandTextInput *text_input;
-
-  text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
-
-  if (text_input->done_idle_id != 0)
-    return;
-
-  /* This operates on 3 principles:
-   * - GDBus uses G_PRIORITY_DEFAULT to put messages in the thread default main
-   *   context.
-   * - All relevant ClutterInputFocus methods are ultimately backed by
-   *   DBus methods inside IBus.
-   * - We want to run .done after them all. The slightly lower
-   *   G_PRIORITY_DEFAULT + 1 priority should ensure we at least group
-   *   all messages seen so far.
-   *
-   * FIXME: .done may be delayed indefinitely if there's a high enough
-   *        priority idle source in the main loop. It's unlikely that
-   *        recurring idles run at this high priority though.
-   */
-  text_input->done_idle_id = g_idle_add_full (G_PRIORITY_DEFAULT + 1,
-                                              done_idle_cb, focus, NULL);
-}
-
 static void
 meta_wayland_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
                                                   guint              cursor,
@@ -175,9 +129,9 @@ meta_wayland_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
   wl_resource_for_each (resource, &text_input->focus_resource_list)
     {
       zwp_text_input_v3_send_delete_surrounding_text (resource, cursor, len);
+      zwp_text_input_v3_send_done (resource,
+                                   lookup_serial (text_input, resource));
     }
-
-  meta_wayland_text_input_focus_defer_done (focus);
 }
 
 static void
@@ -193,9 +147,9 @@ meta_wayland_text_input_focus_commit_text (ClutterInputFocus *focus,
     {
       zwp_text_input_v3_send_preedit_string (resource, NULL, 0, 0);
       zwp_text_input_v3_send_commit_string (resource, text);
+      zwp_text_input_v3_send_done (resource,
+                                   lookup_serial (text_input, resource));
     }
-
-  meta_wayland_text_input_focus_defer_done (focus);
 }
 
 static void
@@ -211,9 +165,9 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
   wl_resource_for_each (resource, &text_input->focus_resource_list)
     {
       zwp_text_input_v3_send_preedit_string (resource, text, cursor, cursor);
+      zwp_text_input_v3_send_done (resource,
+                                   lookup_serial (text_input, resource));
     }
-
-  meta_wayland_text_input_focus_defer_done (focus);
 }
 
 static void
@@ -551,7 +505,8 @@ text_input_commit_state (struct wl_client   *client,
           clutter_input_method_focus_out (input_method);
         }
     }
-  else if (!clutter_input_focus_is_focused (focus))
+
+  if (!clutter_input_focus_is_focused (focus))
     return;
 
   if (text_input->pending_state & META_WAYLAND_PENDING_STATE_CONTENT_TYPE)

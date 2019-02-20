@@ -22,6 +22,10 @@
 #ifndef META_CLOSE_DIALOG_DEFAULT_H
 #define META_CLOSE_DIALOG_DEFAULT_H
 
+#include <glib-object.h>
+
+#include "meta/meta-plugin.h"
+
 #define META_TYPE_CLOSE_DIALOG_DEFAULT (meta_close_dialog_default_get_type ())
 G_DECLARE_FINAL_TYPE (MetaCloseDialogDefault,
                       meta_close_dialog_default,

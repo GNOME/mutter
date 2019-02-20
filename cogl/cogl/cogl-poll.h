@@ -40,7 +40,7 @@
 #include <cogl/cogl-defines.h>
 #include <cogl/cogl-context.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-poll
@@ -190,6 +190,6 @@ cogl_poll_renderer_dispatch (CoglRenderer *renderer,
                              const CoglPollFD *poll_fds,
                              int n_poll_fds);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_POLL_H__ */
