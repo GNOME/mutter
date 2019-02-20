@@ -431,7 +431,7 @@ void                            clutter_actor_get_allocation_box                
 CLUTTER_EXPORT
 void                            clutter_actor_get_allocation_vertices           (ClutterActor                *self,
                                                                                  ClutterActor                *ancestor,
-                                                                                 ClutterVertex                verts[]);
+                                                                                 graphene_point3d_t          *verts);
 CLUTTER_EXPORT
 gboolean                        clutter_actor_has_allocation                    (ClutterActor                *self);
 CLUTTER_EXPORT
@@ -817,16 +817,16 @@ gboolean                        clutter_actor_transform_stage_point             
                                                                                  gfloat                     *y_out);
 CLUTTER_EXPORT
 void                            clutter_actor_get_abs_allocation_vertices       (ClutterActor               *self,
-                                                                                 ClutterVertex               verts[]);
+                                                                                 graphene_point3d_t         *verts);
 CLUTTER_EXPORT
 void                            clutter_actor_apply_transform_to_point          (ClutterActor               *self,
-                                                                                 const ClutterVertex        *point,
-                                                                                 ClutterVertex              *vertex);
+                                                                                 const graphene_point3d_t   *point,
+                                                                                 graphene_point3d_t         *vertex);
 CLUTTER_EXPORT
 void                            clutter_actor_apply_relative_transform_to_point (ClutterActor               *self,
                                                                                  ClutterActor               *ancestor,
-                                                                                 const ClutterVertex        *point,
-                                                                                 ClutterVertex              *vertex);
+                                                                                 const graphene_point3d_t   *point,
+                                                                                 graphene_point3d_t         *vertex);
 
 /* Implicit animations */
 CLUTTER_EXPORT

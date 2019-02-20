@@ -1646,11 +1646,11 @@ meta_wayland_surface_get_absolute_coordinates (MetaWaylandSurface *surface,
 {
   ClutterActor *actor =
     CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface));
-  ClutterVertex sv = {
+  graphene_point3d_t sv = {
     .x = sx * surface->scale,
     .y = sy * surface->scale,
   };
-  ClutterVertex v = { 0 };
+  graphene_point3d_t v = { 0 };
 
   clutter_actor_apply_relative_transform_to_point (actor, NULL, &sv, &v);
 
