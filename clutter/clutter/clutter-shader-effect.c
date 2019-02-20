@@ -177,18 +177,18 @@ clutter_shader_effect_clear (ClutterShaderEffect *self,
 {
   ClutterShaderEffectPrivate *priv = self->priv;
 
-  if (priv->shader != COGL_INVALID_HANDLE)
+  if (priv->shader != NULL)
     {
       cogl_object_unref (priv->shader);
 
-      priv->shader = COGL_INVALID_HANDLE;
+      priv->shader = NULL;
     }
 
-  if (priv->program != COGL_INVALID_HANDLE)
+  if (priv->program != NULL)
     {
       cogl_object_unref (priv->program);
 
-      priv->program = COGL_INVALID_HANDLE;
+      priv->program = NULL;
     }
 
   if (reset_uniforms && priv->uniforms != NULL)
@@ -208,7 +208,7 @@ clutter_shader_effect_update_uniforms (ClutterShaderEffect *effect)
   gpointer key, value;
   gsize size;
 
-  if (priv->program == COGL_INVALID_HANDLE)
+  if (priv->program == NULL)
     return;
 
   if (priv->uniforms == NULL)
@@ -333,7 +333,7 @@ clutter_shader_effect_create_shader (ClutterShaderEffect *self)
 
     default:
       g_assert_not_reached ();
-      return COGL_INVALID_HANDLE;
+      return NULL;
     }
 }
 
@@ -353,7 +353,7 @@ clutter_shader_effect_try_static_source (ClutterShaderEffect *self)
                                   CLUTTER_TYPE_SHADER_EFFECT,
                                   ClutterShaderEffectClassPrivate);
 
-      if (class_priv->shader == COGL_INVALID_HANDLE)
+      if (class_priv->shader == NULL)
         {
           gchar *source;
 
@@ -389,7 +389,7 @@ clutter_shader_effect_try_static_source (ClutterShaderEffect *self)
 
       priv->shader = cogl_object_ref (class_priv->shader);
 
-      if (class_priv->program != COGL_INVALID_HANDLE)
+      if (class_priv->program != NULL)
         priv->program = cogl_object_ref (class_priv->program);
     }
 }
@@ -404,13 +404,13 @@ clutter_shader_effect_paint_target (ClutterOffscreenEffect *effect)
 
   /* If the source hasn't been set then we'll try to get it from the
      static source instead */
-  if (priv->shader == COGL_INVALID_HANDLE)
+  if (priv->shader == NULL)
     clutter_shader_effect_try_static_source (self);
 
   /* we haven't been prepared or we don't have support for
    * GLSL shaders in Clutter
    */
-  if (priv->program == COGL_INVALID_HANDLE)
+  if (priv->program == NULL)
     goto out;
 
   CLUTTER_NOTE (SHADER, "Applying the shader effect of type '%s'",
@@ -533,7 +533,7 @@ clutter_shader_effect_new (ClutterShaderType shader_type)
  * Retrieves a pointer to the shader's handle
  *
  * Return value: (transfer none): a pointer to the shader's handle,
- *   or %COGL_INVALID_HANDLE
+ *   or %NULL
  *
  * Since: 1.4
  */
@@ -541,7 +541,7 @@ CoglHandle
 clutter_shader_effect_get_shader (ClutterShaderEffect *effect)
 {
   g_return_val_if_fail (CLUTTER_IS_SHADER_EFFECT (effect),
-                        COGL_INVALID_HANDLE);
+                        NULL);
 
   return effect->priv->shader;
 }
@@ -553,7 +553,7 @@ clutter_shader_effect_get_shader (ClutterShaderEffect *effect)
  * Retrieves a pointer to the program's handle
  *
  * Return value: (transfer none): a pointer to the program's handle,
- *   or %COGL_INVALID_HANDLE
+ *   or %NULL
  *
  * Since: 1.4
  */
@@ -561,7 +561,7 @@ CoglHandle
 clutter_shader_effect_get_program (ClutterShaderEffect *effect)
 {
   g_return_val_if_fail (CLUTTER_IS_SHADER_EFFECT (effect),
-                        COGL_INVALID_HANDLE);
+                        NULL);
 
   return effect->priv->program;
 }
@@ -891,7 +891,7 @@ clutter_shader_effect_set_shader_source (ClutterShaderEffect *effect,
 
   priv = effect->priv;
 
-  if (priv->shader != COGL_INVALID_HANDLE)
+  if (priv->shader != NULL)
     return TRUE;
 
   priv->shader = clutter_shader_effect_create_shader (effect);

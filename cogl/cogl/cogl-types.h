@@ -80,14 +80,6 @@ typedef struct { \
  */
 typedef void * CoglHandle;
 
-/**
- * COGL_INVALID_HANDLE:
- *
- * A COGL handle that is not valid, used for unitialized handles as well as
- * error conditions.
- */
-#define COGL_INVALID_HANDLE NULL
-
 #define COGL_TYPE_HANDLE        (cogl_handle_get_type ())
 GType
 cogl_handle_get_type (void) G_GNUC_CONST;
