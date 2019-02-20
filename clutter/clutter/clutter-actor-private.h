@@ -133,7 +133,7 @@ struct _AnchorCoord
     } fraction;
 
     /* Use when is_fractional == FALSE */
-    ClutterVertex units;
+    graphene_point3d_t units;
   } v;
 };
 
@@ -201,7 +201,7 @@ struct _ClutterTransformInfo
   AnchorCoord anchor;
 
   /* translation */
-  ClutterVertex translation;
+  graphene_point3d_t translation;
 
   /* z_position */
   gfloat z_position;

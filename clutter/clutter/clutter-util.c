@@ -50,8 +50,8 @@ void
 _clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
                                         const CoglMatrix *projection,
                                         const float *viewport,
-                                        const ClutterVertex *vertices_in,
-                                        ClutterVertex *vertices_out,
+                                        const graphene_point3d_t *vertices_in,
+                                        graphene_point3d_t *vertices_out,
                                         int n_vertices)
 {
   CoglMatrix modelview_projection;
@@ -68,7 +68,7 @@ _clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
                             modelview);
       cogl_matrix_project_points (&modelview_projection,
                                   3,
-                                  sizeof (ClutterVertex),
+                                  sizeof (graphene_point3d_t),
                                   vertices_in,
                                   sizeof (ClutterVertex4),
                                   vertices_tmp,
@@ -78,7 +78,7 @@ _clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
     {
       cogl_matrix_transform_points (modelview,
                                     3,
-                                    sizeof (ClutterVertex),
+                                    sizeof (graphene_point3d_t),
                                     vertices_in,
                                     sizeof (ClutterVertex4),
                                     vertices_tmp,
@@ -96,7 +96,7 @@ _clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
   for (i = 0; i < n_vertices; i++)
     {
       ClutterVertex4 vertex_tmp = vertices_tmp[i];
-      ClutterVertex *vertex_out = &vertices_out[i];
+      graphene_point3d_t *vertex_out = &vertices_out[i];
       /* Finally translate from OpenGL coords to window coords */
       vertex_out->x = MTX_GL_SCALE_X (vertex_tmp.x, vertex_tmp.w,
                                       viewport[2], viewport[0]);
@@ -255,13 +255,13 @@ _clutter_util_matrix_skew_yz (ClutterMatrix *matrix,
 }
 
 static float
-_clutter_util_vertex_length (const ClutterVertex *vertex)
+_clutter_util_vertex_length (const graphene_point3d_t *vertex)
 {
   return sqrtf (vertex->x * vertex->x + vertex->y * vertex->y + vertex->z * vertex->z);
 }
 
 static void
-_clutter_util_vertex_normalize (ClutterVertex *vertex)
+_clutter_util_vertex_normalize (graphene_point3d_t *vertex)
 {
   float factor = _clutter_util_vertex_length (vertex);
 
@@ -274,16 +274,16 @@ _clutter_util_vertex_normalize (ClutterVertex *vertex)
 }
 
 static float
-_clutter_util_vertex_dot (const ClutterVertex *v1,
-                          const ClutterVertex *v2)
+_clutter_util_vertex_dot (const graphene_point3d_t *v1,
+                          const graphene_point3d_t *v2)
 {
   return v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
 }
 
 static void
-_clutter_util_vertex_cross (const ClutterVertex *v1,
-                            const ClutterVertex *v2,
-                            ClutterVertex       *res)
+_clutter_util_vertex_cross (const graphene_point3d_t *v1,
+                            const graphene_point3d_t *v2,
+                            graphene_point3d_t       *res)
 {
   res->x = v1->y * v2->z - v2->y * v1->z;
   res->y = v1->z * v2->x - v2->z * v1->x;
@@ -291,11 +291,11 @@ _clutter_util_vertex_cross (const ClutterVertex *v1,
 }
 
 static void
-_clutter_util_vertex_combine (const ClutterVertex *a,
-                              const ClutterVertex *b,
-                              double               ascl,
-                              double               bscl,
-                              ClutterVertex       *res)
+_clutter_util_vertex_combine (const graphene_point3d_t *a,
+                              const graphene_point3d_t *b,
+                              double                    ascl,
+                              double                    bscl,
+                              graphene_point3d_t       *res)
 {
   res->x = (ascl * a->x) + (bscl * b->x);
   res->y = (ascl * a->y) + (bscl * b->y);
@@ -343,16 +343,16 @@ _clutter_util_vertex4_interpolate (const ClutterVertex4 *a,
  */
 gboolean
 _clutter_util_matrix_decompose (const ClutterMatrix *src,
-                                ClutterVertex       *scale_p,
+                                graphene_point3d_t  *scale_p,
                                 float                shear_p[3],
-                                ClutterVertex       *rotate_p,
-                                ClutterVertex       *translate_p,
+                                graphene_point3d_t  *rotate_p,
+                                graphene_point3d_t  *translate_p,
                                 ClutterVertex4      *perspective_p)
 {
   CoglMatrix matrix = *src;
   CoglMatrix perspective;
   ClutterVertex4 vertex_tmp;
-  ClutterVertex row[3], pdum;
+  graphene_point3d_t row[3], pdum;
   int i, j;
 
 #define XY_SHEAR        0
