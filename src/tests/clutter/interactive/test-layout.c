@@ -334,7 +334,7 @@ my_thing_allocate (ClutterActor           *self,
           if (clutter_actor_is_scaled (child) ||
               clutter_actor_is_rotated (child))
             {
-              ClutterVertex v1 = { 0, }, v2 = { 0, };
+              graphene_point3d_t v1 = { 0, }, v2 = { 0, };
               ClutterActorBox transformed_box = { 0, };
 
               /* origin */

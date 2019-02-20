@@ -220,12 +220,12 @@ void _clutter_run_repaint_functions (ClutterRepaintFlags flags);
 
 GType _clutter_layout_manager_get_child_meta_type (ClutterLayoutManager *manager);
 
-void  _clutter_util_fully_transform_vertices (const CoglMatrix    *modelview,
-                                              const CoglMatrix    *projection,
-                                              const float         *viewport,
-                                              const ClutterVertex *vertices_in,
-                                              ClutterVertex       *vertices_out,
-                                              int                  n_vertices);
+void  _clutter_util_fully_transform_vertices (const CoglMatrix         *modelview,
+                                              const CoglMatrix         *projection,
+                                              const float              *viewport,
+                                              const graphene_point3d_t *vertices_in,
+                                              graphene_point3d_t       *vertices_out,
+                                              int                       n_vertices);
 
 void _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
                                         ClutterRect                 *dest);
@@ -278,10 +278,10 @@ void    _clutter_util_matrix_skew_yz            (ClutterMatrix *matrix,
                                                  float          factor);
 
 gboolean        _clutter_util_matrix_decompose  (const ClutterMatrix *src,
-                                                 ClutterVertex       *scale_p,
+                                                 graphene_point3d_t  *scale_p,
                                                  float                shear_p[3],
-                                                 ClutterVertex       *rotate_p,
-                                                 ClutterVertex       *translate_p,
+                                                 graphene_point3d_t  *rotate_p,
+                                                 graphene_point3d_t  *translate_p,
                                                  ClutterVertex4      *perspective_p);
 
 CLUTTER_EXPORT
