@@ -100,4 +100,6 @@ MetaInhibitShortcutsDialog *
   meta_plugin_manager_create_inhibit_shortcuts_dialog (MetaPluginManager *plugin_mgr,
                                                        MetaWindow        *window);
 
+void meta_plugin_manager_locate_pointer (MetaPluginManager *mgr);
+
 #endif
