@@ -417,10 +417,10 @@ clutter_scroll_actor_scroll_to_point (ClutterScrollActor     *actor,
  * Since: 1.12
  */
 void
-clutter_scroll_actor_scroll_to_rect (ClutterScrollActor *actor,
-                                     const ClutterRect  *rect)
+clutter_scroll_actor_scroll_to_rect (ClutterScrollActor    *actor,
+                                     const graphene_rect_t *rect)
 {
-  ClutterRect n_rect;
+  graphene_rect_t n_rect;
 
   g_return_if_fail (CLUTTER_IS_SCROLL_ACTOR (actor));
   g_return_if_fail (rect != NULL);
@@ -428,7 +428,7 @@ clutter_scroll_actor_scroll_to_rect (ClutterScrollActor *actor,
   n_rect = *rect;
 
   /* normalize, so that we have a valid origin */
-  clutter_rect_normalize (&n_rect);
+  graphene_rect_normalize (&n_rect);
 
   clutter_scroll_actor_scroll_to_point (actor, &n_rect.origin);
 }

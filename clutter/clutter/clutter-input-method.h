@@ -42,8 +42,8 @@ struct _ClutterInputMethodClass
 
   void (* reset) (ClutterInputMethod *im);
 
-  void (* set_cursor_location) (ClutterInputMethod          *im,
-                                const ClutterRect           *rect);
+  void (* set_cursor_location) (ClutterInputMethod    *im,
+                                const graphene_rect_t *rect);
   void (* set_surrounding) (ClutterInputMethod *im,
                             const gchar        *text,
                             guint               cursor,
