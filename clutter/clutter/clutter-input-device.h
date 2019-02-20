@@ -58,7 +58,7 @@ gint                    clutter_input_device_get_device_id      (ClutterInputDev
 CLUTTER_EXPORT
 gboolean                clutter_input_device_get_coords        (ClutterInputDevice   *device,
                                                                 ClutterEventSequence *sequence,
-                                                                ClutterPoint         *point);
+                                                                graphene_point_t     *point);
 CLUTTER_EXPORT
 ClutterModifierType     clutter_input_device_get_modifier_state (ClutterInputDevice  *device);
 CLUTTER_EXPORT
