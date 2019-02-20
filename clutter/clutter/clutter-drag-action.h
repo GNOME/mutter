@@ -141,11 +141,11 @@ void            clutter_drag_action_get_motion_coords  (ClutterDragAction *actio
 
 CLUTTER_EXPORT
 gboolean        clutter_drag_action_get_drag_area      (ClutterDragAction *action,
-                                                        ClutterRect       *drag_area);
+                                                        graphene_rect_t   *drag_area);
 
 CLUTTER_EXPORT
-void            clutter_drag_action_set_drag_area      (ClutterDragAction *action,
-                                                        const ClutterRect *drag_area);
+void            clutter_drag_action_set_drag_area      (ClutterDragAction     *action,
+                                                        const graphene_rect_t *drag_area);
 
 G_END_DECLS
 
