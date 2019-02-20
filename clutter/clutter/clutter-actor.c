@@ -902,7 +902,6 @@ enum
   PROP_DEPTH, /* XXX:2.0 remove */
   PROP_Z_POSITION,
 
-  PROP_CLIP, /* XXX:2.0 remove */
   PROP_CLIP_RECT,
   PROP_HAS_CLIP,
   PROP_CLIP_TO_ALLOCATION,
@@ -5110,7 +5109,6 @@ clutter_actor_set_clip_rect (ClutterActor      *self,
 
   clutter_actor_queue_redraw (self);
 
-  g_object_notify_by_pspec (obj, obj_props[PROP_CLIP]); /* XXX:2.0 - remove */
   g_object_notify_by_pspec (obj, obj_props[PROP_CLIP_RECT]);
   g_object_notify_by_pspec (obj, obj_props[PROP_HAS_CLIP]);
 }
@@ -5296,16 +5294,6 @@ clutter_actor_set_property (GObject      *object,
 
     case PROP_SCALE_GRAVITY: /* XXX:2.0 - remove */
       clutter_actor_set_scale_gravity (actor, g_value_get_enum (value));
-      break;
-
-    case PROP_CLIP: /* XXX:2.0 - remove */
-      {
-        const ClutterGeometry *geom = g_value_get_boxed (value);
-
-	clutter_actor_set_clip (actor,
-				geom->x, geom->y,
-				geom->width, geom->height);
-      }
       break;
 
     case PROP_CLIP_RECT:
@@ -5644,19 +5632,6 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_HAS_CLIP:
       g_value_set_boolean (value, priv->has_clip);
-      break;
-
-    case PROP_CLIP: /* XXX:2.0 - remove */
-      {
-        ClutterGeometry clip;
-
-        clip.x      = CLUTTER_NEARBYINT (priv->clip.origin.x);
-        clip.y      = CLUTTER_NEARBYINT (priv->clip.origin.y);
-        clip.width  = CLUTTER_NEARBYINT (priv->clip.size.width);
-        clip.height = CLUTTER_NEARBYINT (priv->clip.size.height);
-
-        g_value_set_boxed (value, &clip);
-      }
       break;
 
     case PROP_CLIP_RECT:
@@ -7025,20 +7000,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           P_("Whether the actor has a clip set"),
                           FALSE,
                           CLUTTER_PARAM_READABLE);
-
-  /**
-   * ClutterActor:clip:
-   *
-   * The visible region of the actor, in actor-relative coordinates
-   *
-   * Deprecated: 1.12: Use #ClutterActor:clip-rect instead.
-   */
-  obj_props[PROP_CLIP] = /* XXX:2.0 - remove */
-    g_param_spec_boxed ("clip",
-                        P_("Clip"),
-                        P_("The clip region for the actor"),
-                        CLUTTER_TYPE_GEOMETRY,
-                        CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterActor:clip-rect:
@@ -12589,7 +12550,6 @@ clutter_actor_set_clip (ClutterActor *self,
 
   clutter_actor_queue_redraw (self);
 
-  g_object_notify_by_pspec (obj, obj_props[PROP_CLIP]);
   g_object_notify_by_pspec (obj, obj_props[PROP_CLIP_RECT]);
   g_object_notify_by_pspec (obj, obj_props[PROP_HAS_CLIP]);
 }
