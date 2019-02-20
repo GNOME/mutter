@@ -91,7 +91,7 @@ paint_legacy (TestState *state)
   /* Draw it again using the program. It should look exactly the same */
   cogl_program_use (program);
   cogl_rectangle (50, 0, 100, 50);
-  cogl_program_use (COGL_INVALID_HANDLE);
+  cogl_program_use (NULL);
 
   cogl_object_unref (material);
   cogl_object_unref (program);
@@ -163,7 +163,7 @@ paint (TestState *state)
   cogl_object_unref (program);
 
   cogl_rectangle (50, 0, 100, 50);
-  cogl_pipeline_set_user_program (pipeline, COGL_INVALID_HANDLE);
+  cogl_pipeline_set_user_program (pipeline, NULL);
 
   cogl_object_unref (pipeline);
 }
