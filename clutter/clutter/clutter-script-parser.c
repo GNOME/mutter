@@ -546,8 +546,8 @@ _clutter_script_parse_point (ClutterScript *script,
 }
 
 static gboolean
-parse_size_from_array (JsonArray   *array,
-                       ClutterSize *size)
+parse_size_from_array (JsonArray       *array,
+                       graphene_size_t *size)
 {
   if (json_array_get_length (array) != 2)
     return FALSE;
@@ -559,8 +559,8 @@ parse_size_from_array (JsonArray   *array,
 }
 
 static gboolean
-parse_size_from_object (JsonObject  *object,
-                        ClutterSize *size)
+parse_size_from_object (JsonObject      *object,
+                        graphene_size_t *size)
 {
   if (json_object_has_member (object, "width"))
     size->width = json_object_get_double_member (object, "width");
@@ -576,9 +576,9 @@ parse_size_from_object (JsonObject  *object,
 }
 
 gboolean
-_clutter_script_parse_size (ClutterScript *script,
-                            JsonNode      *node,
-                            ClutterSize   *size)
+_clutter_script_parse_size (ClutterScript   *script,
+                            JsonNode        *node,
+                            graphene_size_t *size)
 {
   g_return_val_if_fail (CLUTTER_IS_SCRIPT (script), FALSE);
   g_return_val_if_fail (node != NULL, FALSE);
@@ -1374,9 +1374,9 @@ _clutter_script_parse_node (ClutterScript *script,
                   return TRUE;
                 }
             }
-          else if (p_type == CLUTTER_TYPE_SIZE)
+          else if (p_type == GRAPHENE_TYPE_SIZE)
             {
-              ClutterSize size = CLUTTER_SIZE_INIT_ZERO;
+              graphene_size_t size = GRAPHENE_SIZE_INIT_ZERO;
 
               if (_clutter_script_parse_size (script, node, &size))
                 {
@@ -1451,9 +1451,9 @@ _clutter_script_parse_node (ClutterScript *script,
                   return TRUE;
                 }
             }
-          else if (G_VALUE_HOLDS (value, CLUTTER_TYPE_SIZE))
+          else if (G_VALUE_HOLDS (value, GRAPHENE_TYPE_SIZE))
             {
-              ClutterSize size = CLUTTER_SIZE_INIT_ZERO;
+              graphene_size_t size = GRAPHENE_SIZE_INIT_ZERO;
 
               if (_clutter_script_parse_size (script, node, &size))
                 {
