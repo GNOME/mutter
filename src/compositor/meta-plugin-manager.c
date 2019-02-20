@@ -405,3 +405,13 @@ meta_plugin_manager_create_inhibit_shortcuts_dialog (MetaPluginManager *plugin_m
 
   return meta_inhibit_shortcuts_dialog_default_new (window);
 }
+
+void
+meta_plugin_manager_locate_pointer (MetaPluginManager *plugin_mgr)
+{
+  MetaPlugin *plugin = plugin_mgr->plugin;
+  MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
+
+  if (klass->locate_pointer)
+    klass->locate_pointer (plugin);
+}
