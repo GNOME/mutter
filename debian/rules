@@ -76,10 +76,6 @@ else ifeq (,$(filter mips mipsel,$(DEB_HOST_ARCH)))
 	$(TEST_COMMAND)
 endif
 
-override_dh_install:
-	find debian/tmp -name '*.la' -print -delete
-	dh_install
-
 override_dh_missing:
 	dh_missing --fail-missing
 
