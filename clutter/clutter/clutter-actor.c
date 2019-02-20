@@ -11458,8 +11458,7 @@ clutter_actor_set_y (ClutterActor *self,
  * the X coordinate of the origin of the allocation box.
  *
  * If the actor has any fixed coordinate set using clutter_actor_set_x(),
- * clutter_actor_set_position() or clutter_actor_set_geometry(), this
- * function will return that coordinate.
+ * clutter_actor_set_position(), this function will return that coordinate.
  *
  * If both the allocation and a fixed position are missing, this function
  * will return 0.
@@ -11506,8 +11505,7 @@ clutter_actor_get_x (ClutterActor *self)
  * the Y coordinate of the origin of the allocation box.
  *
  * If the actor has any fixed coordinate set using clutter_actor_set_y(),
- * clutter_actor_set_position() or clutter_actor_set_geometry(), this
- * function will return that coordinate.
+ * clutter_actor_set_position(), this function will return that coordinate.
  *
  * If both the allocation and a fixed position are missing, this function
  * will return 0.
