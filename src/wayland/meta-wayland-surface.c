@@ -274,7 +274,7 @@ surface_process_damage (MetaWaylandSurface *surface,
   cairo_region_t *scaled_region;
   cairo_region_t *transformed_region;
   cairo_region_t *viewport_region;
-  ClutterRect src_rect;
+  graphene_rect_t src_rect;
   MetaSurfaceActor *actor;
 
   /* If the client destroyed the buffer it attached before committing, but
@@ -303,7 +303,7 @@ surface_process_damage (MetaWaylandSurface *surface,
   scaled_region = meta_region_scale (surface_region, surface->scale);
   if (surface->viewport.has_src_rect)
     {
-      src_rect = (ClutterRect) {
+      src_rect = (graphene_rect_t) {
         .origin.x = surface->viewport.src_rect.origin.x * surface->scale,
         .origin.y = surface->viewport.src_rect.origin.y * surface->scale,
         .size.width = surface->viewport.src_rect.size.width * surface->scale,
@@ -312,7 +312,7 @@ surface_process_damage (MetaWaylandSurface *surface,
     }
   else
     {
-      src_rect = (ClutterRect) {
+      src_rect = (graphene_rect_t) {
         .size.width = surface_rect.width * surface->scale,
         .size.height = surface_rect.height * surface->scale,
       };
