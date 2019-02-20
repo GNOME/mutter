@@ -187,7 +187,7 @@ clutter_input_method_class_init (ClutterInputMethodClass *klass)
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
-                  G_TYPE_NONE, 1, CLUTTER_TYPE_RECT);
+                  G_TYPE_NONE, 1, GRAPHENE_TYPE_RECT);
 
   pspecs[PROP_CONTENT_HINTS] =
     g_param_spec_flags ("content-hints",
@@ -377,8 +377,8 @@ clutter_input_method_reset (ClutterInputMethod *im)
 }
 
 void
-clutter_input_method_set_cursor_location (ClutterInputMethod *im,
-                                          const ClutterRect  *rect)
+clutter_input_method_set_cursor_location (ClutterInputMethod    *im,
+                                          const graphene_rect_t *rect)
 {
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
