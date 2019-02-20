@@ -34,13 +34,6 @@
 G_BEGIN_DECLS
 
 CLUTTER_DEPRECATED
-void            clutter_actor_set_geometry                      (ClutterActor          *self,
-                                                                 const ClutterGeometry *geometry);
-
-CLUTTER_DEPRECATED_FOR(clutter_actor_get_allocation_geometry)
-void            clutter_actor_get_geometry                      (ClutterActor          *self,
-                                                                 ClutterGeometry       *geometry);
-CLUTTER_DEPRECATED
 guint32         clutter_actor_get_gid                           (ClutterActor          *self);
 
 CLUTTER_DEPRECATED
@@ -151,10 +144,6 @@ void            clutter_actor_move_anchor_point_from_gravity    (ClutterActor   
 CLUTTER_DEPRECATED
 void            clutter_actor_get_transformation_matrix         (ClutterActor          *self,
                                                                  ClutterMatrix         *matrix);
-
-CLUTTER_DEPRECATED_FOR (clutter_actor_get_allocation_box)
-void            clutter_actor_get_allocation_geometry           (ClutterActor          *self,
-                                                                 ClutterGeometry       *geom);
 
 G_END_DECLS
 
