@@ -370,7 +370,7 @@ clutter_event_get_coords (const ClutterEvent *event,
                           gfloat             *x,
                           gfloat             *y)
 {
-  ClutterPoint coords;
+  graphene_point_t coords;
 
   g_return_if_fail (event != NULL);
 
@@ -386,15 +386,15 @@ clutter_event_get_coords (const ClutterEvent *event,
 /**
  * clutter_event_get_position:
  * @event: a #ClutterEvent
- * @position: a #ClutterPoint
+ * @position: a #graphene_point_t
  *
- * Retrieves the event coordinates as a #ClutterPoint.
+ * Retrieves the event coordinates as a #graphene_point_t.
  *
  * Since: 1.12
  */
 void
 clutter_event_get_position (const ClutterEvent *event,
-                            ClutterPoint       *position)
+                            graphene_point_t   *position)
 {
   g_return_if_fail (event != NULL);
   g_return_if_fail (position != NULL);
@@ -415,42 +415,42 @@ clutter_event_get_position (const ClutterEvent *event,
     case CLUTTER_PAD_BUTTON_RELEASE:
     case CLUTTER_PAD_STRIP:
     case CLUTTER_PAD_RING:
-      clutter_point_init (position, 0.f, 0.f);
+      graphene_point_init (position, 0.f, 0.f);
       break;
 
     case CLUTTER_ENTER:
     case CLUTTER_LEAVE:
-      clutter_point_init (position, event->crossing.x, event->crossing.y);
+      graphene_point_init (position, event->crossing.x, event->crossing.y);
       break;
 
     case CLUTTER_BUTTON_PRESS:
     case CLUTTER_BUTTON_RELEASE:
-      clutter_point_init (position, event->button.x, event->button.y);
+      graphene_point_init (position, event->button.x, event->button.y);
       break;
 
     case CLUTTER_MOTION:
-      clutter_point_init (position, event->motion.x, event->motion.y);
+      graphene_point_init (position, event->motion.x, event->motion.y);
       break;
 
     case CLUTTER_TOUCH_BEGIN:
     case CLUTTER_TOUCH_UPDATE:
     case CLUTTER_TOUCH_END:
     case CLUTTER_TOUCH_CANCEL:
-      clutter_point_init (position, event->touch.x, event->touch.y);
+      graphene_point_init (position, event->touch.x, event->touch.y);
       break;
 
     case CLUTTER_SCROLL:
-      clutter_point_init (position, event->scroll.x, event->scroll.y);
+      graphene_point_init (position, event->scroll.x, event->scroll.y);
       break;
 
     case CLUTTER_TOUCHPAD_PINCH:
-      clutter_point_init (position, event->touchpad_pinch.x,
-                          event->touchpad_pinch.y);
+      graphene_point_init (position, event->touchpad_pinch.x,
+                           event->touchpad_pinch.y);
       break;
 
     case CLUTTER_TOUCHPAD_SWIPE:
-      clutter_point_init (position, event->touchpad_swipe.x,
-                          event->touchpad_swipe.y);
+      graphene_point_init (position, event->touchpad_swipe.x,
+                           event->touchpad_swipe.y);
       break;
     }
 
@@ -1796,12 +1796,12 @@ float
 clutter_event_get_distance (const ClutterEvent *source,
                             const ClutterEvent *target)
 {
-  ClutterPoint p0, p1;
+  graphene_point_t p0, p1;
 
   clutter_event_get_position (source, &p0);
   clutter_event_get_position (source, &p1);
 
-  return clutter_point_distance (&p0, &p1, NULL, NULL);
+  return graphene_point_distance (&p0, &p1, NULL, NULL);
 }
 
 /**
@@ -1822,17 +1822,17 @@ double
 clutter_event_get_angle (const ClutterEvent *source,
                          const ClutterEvent *target)
 {
-  ClutterPoint p0, p1;
+  graphene_point_t p0, p1;
   float x_distance, y_distance;
   double angle;
 
   clutter_event_get_position (source, &p0);
   clutter_event_get_position (target, &p1);
 
-  if (clutter_point_equals (&p0, &p1))
+  if (graphene_point_equal (&p0, &p1))
     return 0;
 
-  clutter_point_distance (&p0, &p1, &x_distance, &y_distance);
+  graphene_point_distance (&p0, &p1, &x_distance, &y_distance);
 
   angle = atan2 (x_distance, y_distance);
 
