@@ -5153,7 +5153,7 @@ clutter_actor_set_property (GObject      *object,
 
     case PROP_SIZE:
       {
-        const ClutterSize *size = g_value_get_boxed (value);
+        const graphene_size_t *size = g_value_get_boxed (value);
 
         if (size != NULL)
           clutter_actor_set_size (actor, size->width, size->height);
@@ -5507,11 +5507,11 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_SIZE:
       {
-        ClutterSize size;
+        graphene_size_t size;
 
-        clutter_size_init (&size,
-                           clutter_actor_get_width (actor),
-                           clutter_actor_get_height (actor));
+        graphene_size_init (&size,
+                            clutter_actor_get_width (actor),
+                            clutter_actor_get_height (actor));
         g_value_set_boxed (value, &size);
       }
       break;
@@ -6559,7 +6559,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("size",
                         P_("Size"),
                         P_("The size of the actor"),
-                        CLUTTER_TYPE_SIZE,
+                        GRAPHENE_TYPE_SIZE,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         CLUTTER_PARAM_ANIMATABLE);
@@ -10844,8 +10844,8 @@ clutter_actor_set_height_internal (ClutterActor *self,
 }
 
 static void
-clutter_actor_set_size_internal (ClutterActor      *self,
-                                 const ClutterSize *size)
+clutter_actor_set_size_internal (ClutterActor          *self,
+                                 const graphene_size_t *size)
 {
   if (size != NULL)
     {
@@ -10881,11 +10881,11 @@ clutter_actor_set_size (ClutterActor *self,
 			gfloat        width,
 			gfloat        height)
 {
-  ClutterSize new_size;
+  graphene_size_t new_size;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  clutter_size_init (&new_size, width, height);
+  graphene_size_init (&new_size, width, height);
 
   /* minor optimization: if we don't have a duration then we can
    * skip the get_size() below, to avoid the chance of going through
@@ -10904,11 +10904,11 @@ clutter_actor_set_size (ClutterActor *self,
     }
   else
     {
-      ClutterSize cur_size;
+      graphene_size_t cur_size;
 
-      clutter_size_init (&cur_size,
-                         clutter_actor_get_width (self),
-                         clutter_actor_get_height (self));
+      graphene_size_init (&cur_size,
+                          clutter_actor_get_width (self),
+                          clutter_actor_get_height (self));
 
       _clutter_actor_create_transition (self,
                                         obj_props[PROP_SIZE],
@@ -18382,8 +18382,8 @@ static const ClutterLayoutInfo default_layout_info = {
   CLUTTER_ACTOR_ALIGN_FILL,     /* x-align */
   CLUTTER_ACTOR_ALIGN_FILL,     /* y-align */
   FALSE, FALSE,                 /* expand */
-  CLUTTER_SIZE_INIT_ZERO,       /* minimum */
-  CLUTTER_SIZE_INIT_ZERO,       /* natural */
+  GRAPHENE_SIZE_INIT_ZERO,       /* minimum */
+  GRAPHENE_SIZE_INIT_ZERO,       /* natural */
 };
 
 static void
