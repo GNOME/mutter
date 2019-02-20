@@ -82,7 +82,7 @@ paint_legacy (TestState *state)
   cogl_program_attach_shader (program, shader);
   cogl_program_link (program);
 
-  cogl_handle_unref (shader);
+  cogl_object_unref (shader);
 
   /* Draw something using the material */
   cogl_set_source (material);
@@ -93,8 +93,8 @@ paint_legacy (TestState *state)
   cogl_rectangle (50, 0, 100, 50);
   cogl_program_use (COGL_INVALID_HANDLE);
 
-  cogl_handle_unref (material);
-  cogl_handle_unref (program);
+  cogl_object_unref (material);
+  cogl_object_unref (program);
 }
 
 static void
@@ -152,7 +152,7 @@ paint (TestState *state)
   cogl_program_attach_shader (program, shader);
   cogl_program_link (program);
 
-  cogl_handle_unref (shader);
+  cogl_object_unref (shader);
 
   /* Draw something without the program */
   cogl_set_source (pipeline);
@@ -160,7 +160,7 @@ paint (TestState *state)
 
   /* Draw it again using the program. It should look exactly the same */
   cogl_pipeline_set_user_program (pipeline, program);
-  cogl_handle_unref (program);
+  cogl_object_unref (program);
 
   cogl_rectangle (50, 0, 100, 50);
   cogl_pipeline_set_user_program (pipeline, COGL_INVALID_HANDLE);
