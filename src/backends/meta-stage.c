@@ -55,8 +55,8 @@ struct _MetaOverlay
   CoglPipeline *pipeline;
   CoglTexture *texture;
 
-  ClutterRect current_rect;
-  ClutterRect previous_rect;
+  graphene_rect_t current_rect;
+  graphene_rect_t previous_rect;
   gboolean previous_is_valid;
 };
 
@@ -95,9 +95,9 @@ meta_overlay_free (MetaOverlay *overlay)
 }
 
 static void
-meta_overlay_set (MetaOverlay *overlay,
-                  CoglTexture *texture,
-                  ClutterRect *rect)
+meta_overlay_set (MetaOverlay     *overlay,
+                  CoglTexture     *texture,
+                  graphene_rect_t *rect)
 {
   if (overlay->texture != texture)
     {
@@ -135,7 +135,7 @@ meta_overlay_paint (MetaOverlay *overlay)
                                    (overlay->current_rect.origin.y +
                                     overlay->current_rect.size.height));
 
-  if (!clutter_rect_equals (&overlay->previous_rect, &overlay->current_rect))
+  if (!graphene_rect_equal (&overlay->previous_rect, &overlay->current_rect))
     {
       overlay->previous_rect = overlay->current_rect;
       overlay->previous_is_valid = TRUE;
@@ -297,9 +297,9 @@ meta_stage_new (MetaBackend *backend)
 }
 
 static void
-queue_redraw_clutter_rect (MetaStage   *stage,
-                           MetaOverlay *overlay,
-                           ClutterRect *rect)
+queue_redraw_clutter_rect (MetaStage       *stage,
+                           MetaOverlay     *overlay,
+                           graphene_rect_t *rect)
 {
   cairo_rectangle_int_t clip = {
     .x = floorf (rect->origin.x),
@@ -358,10 +358,10 @@ meta_stage_remove_cursor_overlay (MetaStage   *stage,
 }
 
 void
-meta_stage_update_cursor_overlay (MetaStage   *stage,
-                                  MetaOverlay *overlay,
-                                  CoglTexture *texture,
-                                  ClutterRect *rect)
+meta_stage_update_cursor_overlay (MetaStage       *stage,
+                                  MetaOverlay     *overlay,
+                                  CoglTexture     *texture,
+                                  graphene_rect_t *rect)
 {
   g_assert (meta_is_wayland_compositor () || texture == NULL);
 

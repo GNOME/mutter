@@ -56,8 +56,8 @@ void meta_surface_actor_set_frozen (MetaSurfaceActor *actor,
 
 void meta_surface_actor_set_transform (MetaSurfaceActor     *self,
                                        MetaMonitorTransform  transform);
-void meta_surface_actor_set_viewport_src_rect (MetaSurfaceActor  *self,
-                                               ClutterRect       *src_rect);
+void meta_surface_actor_set_viewport_src_rect (MetaSurfaceActor *self,
+                                               graphene_rect_t  *src_rect);
 void meta_surface_actor_reset_viewport_src_rect (MetaSurfaceActor *self);
 void meta_surface_actor_set_viewport_dst_size (MetaSurfaceActor  *self,
                                                int                dst_width,

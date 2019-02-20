@@ -228,9 +228,9 @@ void  _clutter_util_fully_transform_vertices (const CoglMatrix         *modelvie
                                               int                       n_vertices);
 
 void _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
-                                        ClutterRect                 *dest);
+                                        graphene_rect_t             *dest);
 
-void _clutter_util_rectangle_int_extents (const ClutterRect     *src,
+void _clutter_util_rectangle_int_extents (const graphene_rect_t *src,
                                           cairo_rectangle_int_t *dest);
 
 void _clutter_util_rectangle_offset (const cairo_rectangle_int_t *src,

@@ -537,8 +537,8 @@ meta_surface_actor_set_transform (MetaSurfaceActor     *self,
 }
 
 void
-meta_surface_actor_set_viewport_src_rect (MetaSurfaceActor  *self,
-                                          ClutterRect       *src_rect)
+meta_surface_actor_set_viewport_src_rect (MetaSurfaceActor *self,
+                                          graphene_rect_t  *src_rect)
 {
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
