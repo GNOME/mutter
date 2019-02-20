@@ -68,7 +68,7 @@ test_material_with_primitives (TestState *state,
                            COGL_VERTICES_MODE_TRIANGLE_FAN,
                            0, /* first */
                            4); /* count */
-  cogl_handle_unref (vbo);
+  cogl_object_unref (vbo);
 
   cogl_pop_matrix ();
 
@@ -89,7 +89,7 @@ test_invalid_texture_layers (TestState *state, int x, int y)
 
   cogl_set_source (material);
 
-  cogl_handle_unref (material);
+  cogl_object_unref (material);
 
   /* We expect a white fallback material to be used */
   test_material_with_primitives (state, x, y, 0xffffffff);
@@ -156,9 +156,9 @@ test_using_all_layers (TestState *state, int x, int y)
 
   cogl_set_source (material);
 
-  cogl_handle_unref (material);
-  cogl_handle_unref (white_texture);
-  cogl_handle_unref (red_texture);
+  cogl_object_unref (material);
+  cogl_object_unref (white_texture);
+  cogl_object_unref (red_texture);
 
   /* We expect the final fragment to be red */
   test_material_with_primitives (state, x, y, 0xff0000ff);
@@ -184,7 +184,7 @@ test_invalid_texture_layers_with_constant_colors (TestState *state,
 
   cogl_set_source (material);
 
-  cogl_handle_unref (material);
+  cogl_object_unref (material);
 
   /* We expect the final fragments to be green */
   test_material_with_primitives (state, x, y, 0x0000ffff);

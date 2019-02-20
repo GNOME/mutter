@@ -209,7 +209,7 @@ paint_cb (ClutterActor *stage, Data *data)
   cogl_set_source (data->material);
   cogl_vertex_buffer_draw (vbo, COGL_VERTICES_MODE_POINTS, 0, N_SPARKS);
 
-  cogl_handle_unref (vbo);
+  cogl_object_unref (vbo);
 
   cogl_set_projection_matrix (&old_matrix);
   cogl_pop_matrix ();
@@ -242,7 +242,7 @@ test_cogl_point_sprites_main (int argc, char *argv[])
 
   tex = generate_round_texture ();
   cogl_material_set_layer (data.material, 0, tex);
-  cogl_handle_unref (tex);
+  cogl_object_unref (tex);
 
   if (!cogl_material_set_layer_point_sprite_coords_enabled (data.material,
                                                             0, TRUE,

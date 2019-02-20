@@ -52,12 +52,6 @@ cogl_object_ref (void *object)
   return object;
 }
 
-CoglHandle
-cogl_handle_ref (CoglHandle handle)
-{
-  return cogl_object_ref (handle);
-}
-
 void
 _cogl_object_default_unref (void *object)
 {
@@ -113,12 +107,6 @@ cogl_object_unref (void *obj)
 
   unref_func = ((CoglObject *) obj)->klass->virt_unref;
   unref_func (obj);
-}
-
-void
-cogl_handle_unref (CoglHandle handle)
-{
-  cogl_object_unref (handle);
 }
 
 GType

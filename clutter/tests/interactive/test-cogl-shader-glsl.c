@@ -197,7 +197,7 @@ set_shader_num (int new_no)
 
   program = cogl_create_program ();
   cogl_program_attach_shader (program, shader);
-  cogl_handle_unref (shader);
+  cogl_object_unref (shader);
   cogl_program_link (program);
 
   uniform_no = cogl_program_get_uniform_location (program, "tex");
@@ -215,7 +215,7 @@ set_shader_num (int new_no)
   cogl_program_set_uniform_1f (program, uniform_no, 1.0f / image_height);
 
   cogl_material_set_user_program (material, program);
-  cogl_handle_unref (program);
+  cogl_object_unref (program);
 
   shader_no = new_no;
 }

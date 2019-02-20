@@ -233,7 +233,7 @@ cogl_##type_name##_ref (void *object)                           \
                                                                 \
   _COGL_OBJECT_DEBUG_REF (TypeName, object);                    \
                                                                 \
-  cogl_handle_ref (object);                                     \
+  cogl_object_ref (object);                                     \
                                                                 \
   return object;                                                \
 }                                                               \
@@ -251,7 +251,7 @@ cogl_##type_name##_unref (void *object)                         \
                                                                 \
   _COGL_OBJECT_DEBUG_UNREF (TypeName, object);                  \
                                                                 \
-  cogl_handle_unref (object);                                   \
+  cogl_object_unref (object);                                   \
 }
 
 #define COGL_OBJECT_DEFINE(TypeName, type_name)                 \
