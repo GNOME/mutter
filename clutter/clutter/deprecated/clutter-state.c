@@ -649,7 +649,6 @@ clutter_state_change (ClutterState *state,
                       gboolean      animate)
 {
   ClutterStatePrivate *priv;
-  ClutterAnimator     *animator;
   State               *new_state;
   guint                duration;
   GList               *k;
@@ -718,55 +717,37 @@ clutter_state_change (ClutterState *state,
       return NULL;
     }
 
-  animator = clutter_state_get_animator (state,
-                                         priv->source_state_name,
-                                         priv->target_state_name);
-  priv->target_state = new_state;
-
-  if (animator == NULL && new_state->keys == NULL)
-    animator = clutter_state_get_animator (state, NULL,
-                                           priv->target_state_name);
-
-  if (animator != NULL)
+  for (k = new_state->keys; k != NULL; k = k->next)
     {
-      /* we've got an animator overriding the tweened animation */
-      priv->current_animator = animator;
-      clutter_animator_set_timeline (animator, priv->timeline);
-    }
-  else
-    {
-      for (k = new_state->keys; k != NULL; k = k->next)
+      ClutterStateKey *key = k->data;
+      GValue initial = G_VALUE_INIT;
+
+      /* Reset the pre-pre-delay - this is only used for setting keys
+       * during transitions.
+       */
+      key->pre_pre_delay = 0;
+
+      g_value_init (&initial, clutter_interval_get_value_type (key->interval));
+
+      if (key->is_animatable)
         {
-          ClutterStateKey *key = k->data;
-          GValue initial = G_VALUE_INIT;
+          ClutterAnimatable *animatable;
 
-          /* Reset the pre-pre-delay - this is only used for setting keys
-           * during transitions.
-           */
-          key->pre_pre_delay = 0;
-
-          g_value_init (&initial, clutter_interval_get_value_type (key->interval));
-
-          if (key->is_animatable)
-            {
-              ClutterAnimatable *animatable;
-
-              animatable = CLUTTER_ANIMATABLE (key->object);
-              clutter_animatable_get_initial_state (animatable,
-                                                    key->property_name,
-                                                    &initial);
-            }
-          else
-            g_object_get_property (key->object, key->property_name, &initial);
-
-          if (clutter_alpha_get_mode (key->alpha) != key->mode)
-            clutter_alpha_set_mode (key->alpha, key->mode);
-
-          clutter_interval_set_initial_value (key->interval, &initial);
-          clutter_interval_set_final_value (key->interval, &key->value);
-
-          g_value_unset (&initial);
+          animatable = CLUTTER_ANIMATABLE (key->object);
+          clutter_animatable_get_initial_state (animatable,
+                                                key->property_name,
+                                                &initial);
         }
+      else
+        g_object_get_property (key->object, key->property_name, &initial);
+
+      if (clutter_alpha_get_mode (key->alpha) != key->mode)
+        clutter_alpha_set_mode (key->alpha, key->mode);
+
+      clutter_interval_set_initial_value (key->interval, &initial);
+      clutter_interval_set_final_value (key->interval, &key->value);
+
+      g_value_unset (&initial);
     }
 
   if (!animate)
