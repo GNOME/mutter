@@ -780,6 +780,10 @@ reload_combos (MetaKeyBindingManager *keys)
                      &keys->overlay_key_combo,
                      &keys->overlay_resolved_key_combo);
 
+  resolve_key_combo (keys,
+                     &keys->locate_pointer_key_combo,
+                     &keys->locate_pointer_resolved_key_combo);
+
   reload_iso_next_group_combos (keys);
 
   g_hash_table_foreach (keys->key_bindings, binding_reload_combos_foreach, keys);
@@ -871,6 +875,9 @@ rebuild_special_bindings (MetaKeyBindingManager *keys)
 
   meta_prefs_get_overlay_binding (&combo);
   keys->overlay_key_combo = combo;
+
+  meta_prefs_get_locate_pointer_binding (&combo);
+  keys->locate_pointer_key_combo = combo;
 }
 
 static void
@@ -1061,6 +1068,10 @@ get_keybinding_action (MetaKeyBindingManager *keys,
   if (resolved_key_combo_intersect (resolved_combo,
                                     &keys->overlay_resolved_key_combo))
     return META_KEYBINDING_ACTION_OVERLAY_KEY;
+
+  if (resolved_key_combo_intersect (resolved_combo,
+                                    &keys->locate_pointer_resolved_key_combo))
+    return META_KEYBINDING_ACTION_LOCATE_POINTER_KEY;
 
   binding = get_keybinding (keys, resolved_combo);
   if (binding)
@@ -1486,6 +1497,10 @@ meta_x11_display_change_keygrabs (MetaX11Display *x11_display,
   if (keys->overlay_resolved_key_combo.len != 0)
     meta_change_keygrab (keys, x11_display->xroot,
                          grab, &keys->overlay_resolved_key_combo);
+
+  if (keys->locate_pointer_resolved_key_combo.len != 0)
+    meta_change_keygrab (keys, x11_display->xroot,
+                         grab, &keys->locate_pointer_resolved_key_combo);
 
   for (i = 0; i < keys->n_iso_next_group_combos; i++)
     meta_change_keygrab (keys, x11_display->xroot,
@@ -1952,37 +1967,31 @@ process_event (MetaDisplay          *display,
 }
 
 static gboolean
-process_overlay_key (MetaDisplay *display,
-                     ClutterKeyEvent *event,
-                     MetaWindow *window)
+process_special_modifier_key (MetaDisplay          *display,
+                              ClutterKeyEvent      *event,
+                              MetaWindow           *window,
+                              gboolean             *modifier_press_only,
+                              MetaResolvedKeyCombo *resolved_key_combo,
+                              GFunc                 trigger_callback)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
   MetaBackend *backend = keys->backend;
   Display *xdisplay;
-
-  if (display->focus_window && !keys->overlay_key_only_pressed)
-    {
-      ClutterInputDevice *source;
-
-      source = clutter_event_get_source_device ((ClutterEvent *) event);
-      if (meta_window_shortcuts_inhibited (display->focus_window, source))
-        return FALSE;
-    }
 
   if (META_IS_BACKEND_X11 (backend))
     xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
   else
     xdisplay = NULL;
 
-  if (keys->overlay_key_only_pressed)
+  if (*modifier_press_only)
     {
-      if (! resolved_key_combo_has_keycode (&keys->overlay_resolved_key_combo,
+      if (! resolved_key_combo_has_keycode (resolved_key_combo,
                                             event->hardware_keycode))
         {
-          keys->overlay_key_only_pressed = FALSE;
+          *modifier_press_only = FALSE;
 
           /* OK, the user hit modifier+key rather than pressing and
-           * releasing the ovelay key. We want to handle the key
+           * releasing the modifier key alone. We want to handle the key
            * sequence "normally". Unfortunately, using
            * XAllowEvents(..., ReplayKeyboard, ...) doesn't quite
            * work, since global keybindings won't be activated ("this
@@ -2021,7 +2030,7 @@ process_overlay_key (MetaDisplay *display,
         {
           MetaKeyBinding *binding;
 
-          keys->overlay_key_only_pressed = FALSE;
+          *modifier_press_only = FALSE;
 
           /* We want to unfreeze events, but keep the grab so that if the user
            * starts typing into the overlay we get all the keys */
@@ -2030,11 +2039,11 @@ process_overlay_key (MetaDisplay *display,
                            clutter_input_device_get_device_id (event->device),
                            XIAsyncDevice, event->time);
 
-          binding = get_keybinding (keys, &keys->overlay_resolved_key_combo);
+          binding = get_keybinding (keys, resolved_key_combo);
           if (binding &&
               meta_compositor_filter_keybinding (display->compositor, binding))
             return TRUE;
-          meta_display_overlay_key_activate (display);
+          trigger_callback (display, NULL);
         }
       else
         {
@@ -2044,7 +2053,7 @@ process_overlay_key (MetaDisplay *display,
            *   while the key is still down
            * - passive grabs are only activated on KeyPress and not KeyRelease.
            *
-           * In this case, keys->overlay_key_only_pressed might be wrong.
+           * In this case, modifier_press_only might be wrong.
            * Mutter still ought to acknowledge events, otherwise the X server
            * will not send the next events.
            *
@@ -2059,12 +2068,12 @@ process_overlay_key (MetaDisplay *display,
       return TRUE;
     }
   else if (event->type == CLUTTER_KEY_PRESS &&
-           resolved_key_combo_has_keycode (&keys->overlay_resolved_key_combo,
+           resolved_key_combo_has_keycode (resolved_key_combo,
                                            event->hardware_keycode))
     {
-      keys->overlay_key_only_pressed = TRUE;
+      *modifier_press_only = TRUE;
       /* We keep the keyboard frozen - this allows us to use ReplayKeyboard
-       * on the next event if it's not the release of the overlay key */
+       * on the next event if it's not the release of the modifier key */
       if (xdisplay)
         XIAllowEvents (xdisplay,
                        clutter_input_device_get_device_id (event->device),
@@ -2074,6 +2083,43 @@ process_overlay_key (MetaDisplay *display,
     }
   else
     return FALSE;
+}
+
+
+static gboolean
+process_overlay_key (MetaDisplay *display,
+                     ClutterKeyEvent *event,
+                     MetaWindow *window)
+{
+  MetaKeyBindingManager *keys = &display->key_binding_manager;
+
+  return process_special_modifier_key (display,
+                                       event,
+                                       window,
+                                       &keys->overlay_key_only_pressed,
+                                       &keys->overlay_resolved_key_combo,
+                                       (GFunc) meta_display_overlay_key_activate);
+}
+
+static void
+handle_locate_pointer (MetaDisplay *display)
+{
+  meta_compositor_locate_pointer (display->compositor);
+}
+
+static gboolean
+process_locate_pointer_key (MetaDisplay *display,
+                            ClutterKeyEvent *event,
+                            MetaWindow *window)
+{
+  MetaKeyBindingManager *keys = &display->key_binding_manager;
+
+  return process_special_modifier_key (display,
+                                       event,
+                                       window,
+                                       &keys->locate_pointer_key_only_pressed,
+                                       &keys->locate_pointer_resolved_key_combo,
+                                       (GFunc) handle_locate_pointer);
 }
 
 static gboolean
@@ -2128,6 +2174,10 @@ process_key_event (MetaDisplay     *display,
       handled = process_overlay_key (display, event, window);
       if (handled)
         return TRUE;
+
+      handled = process_locate_pointer_key (display, event, window);
+      if (handled) /* Continue with the event even if handled */
+        return FALSE;
 
       handled = process_iso_next_group (display, event);
       if (handled)
@@ -2215,6 +2265,7 @@ meta_keybindings_process_event (MetaDisplay        *display,
     case CLUTTER_BUTTON_PRESS:
     case CLUTTER_BUTTON_RELEASE:
       keys->overlay_key_only_pressed = FALSE;
+      keys->locate_pointer_key_only_pressed = FALSE;
       return FALSE;
 
     case CLUTTER_KEY_PRESS:
@@ -4402,6 +4453,12 @@ meta_display_init_keys (MetaDisplay *display)
   handler->flags = META_KEY_BINDING_BUILTIN;
 
   g_hash_table_insert (key_handlers, g_strdup ("overlay-key"), handler);
+
+  handler = g_new0 (MetaKeyHandler, 1);
+  handler->name = g_strdup ("locate-pointer-key");
+  handler->flags = META_KEY_BINDING_BUILTIN;
+
+  g_hash_table_insert (key_handlers, g_strdup ("locate-pointer-key"), handler);
 
   handler = g_new0 (MetaKeyHandler, 1);
   handler->name = g_strdup ("iso-next-group");
