@@ -622,7 +622,7 @@ meta_pointer_confinement_wayland_maybe_warp (MetaPointerConfinementWayland *self
 {
   MetaWaylandSeat *seat;
   MetaWaylandSurface *surface;
-  ClutterPoint point;
+  graphene_point_t point;
   float sx;
   float sy;
   cairo_region_t *region;
