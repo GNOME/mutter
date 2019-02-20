@@ -42,7 +42,7 @@
 
 static void _cogl_program_free (CoglProgram *program);
 
-COGL_HANDLE_DEFINE (Program, program);
+COGL_OBJECT_DEFINE (Program, program);
 COGL_OBJECT_DEFINE_DEPRECATED_REF_COUNTING (program);
 
 /* A CoglProgram is effectively just a list of shaders that will be
@@ -89,7 +89,7 @@ cogl_create_program (void)
     g_array_new (FALSE, FALSE, sizeof (CoglProgramUniform));
   program->age = 0;
 
-  return _cogl_program_handle_new (program);
+  return _cogl_program_object_new (program);
 }
 
 void
