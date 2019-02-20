@@ -1353,17 +1353,9 @@ clutter_text_ensure_cursor_position (ClutterText *self,
 
   if (!graphene_rect_equal (&priv->cursor_rect, &cursor_rect))
     {
-      ClutterGeometry cursor_pos;
-
       priv->cursor_rect = cursor_rect;
 
-      /* XXX:2.0 - remove */
-      cursor_pos.x = graphene_rect_get_x (&priv->cursor_rect);
-      cursor_pos.y = graphene_rect_get_y (&priv->cursor_rect);
-      cursor_pos.width = graphene_rect_get_width (&priv->cursor_rect);
-      cursor_pos.height = graphene_rect_get_height (&priv->cursor_rect);
-      g_signal_emit (self, text_signals[CURSOR_EVENT], 0, &cursor_pos);
-
+      g_signal_emit (self, text_signals[CURSOR_EVENT], 0, &cursor_rect);
       g_signal_emit (self, text_signals[CURSOR_CHANGED], 0);
 
       update_cursor_location (self);
@@ -4399,10 +4391,10 @@ clutter_text_class_init (ClutterTextClass *klass)
   /**
    * ClutterText::cursor-event:
    * @self: the #ClutterText that emitted the signal
-   * @geometry: the coordinates of the cursor
+   * @rect: the coordinates of the cursor
    *
    * The ::cursor-event signal is emitted whenever the cursor position
-   * changes inside a #ClutterText actor. Inside @geometry it is stored
+   * changes inside a #ClutterText actor. Inside @rect it is stored
    * the current position and size of the cursor, relative to the actor
    * itself.
    *
@@ -4417,7 +4409,7 @@ clutter_text_class_init (ClutterTextClass *klass)
 		  G_STRUCT_OFFSET (ClutterTextClass, cursor_event),
 		  NULL, NULL, NULL,
 		  G_TYPE_NONE, 1,
-		  CLUTTER_TYPE_GEOMETRY | G_SIGNAL_TYPE_STATIC_SCOPE);
+		  GRAPHENE_TYPE_RECT | G_SIGNAL_TYPE_STATIC_SCOPE);
 
   /**
    * ClutterText::cursor-changed:
