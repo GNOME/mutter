@@ -463,133 +463,6 @@ clutter_point_inside_quadrilateral (const ClutterPoint *point,
 
 
 /*
- * ClutterSize
- */
-
-/**
- * clutter_size_alloc: (constructor)
- *
- * Allocates a new #ClutterSize.
- *
- * Return value: (transfer full): the newly allocated #ClutterSize.
- *   Use clutter_size_free() to free its resources.
- *
- * Since: 1.12
- */
-ClutterSize *
-clutter_size_alloc (void)
-{
-  return g_slice_new0 (ClutterSize);
-}
-
-/**
- * clutter_size_init:
- * @size: a #ClutterSize
- * @width: the width
- * @height: the height
- *
- * Initializes a #ClutterSize with the given dimensions.
- *
- * Return value: (transfer none): the initialized #ClutterSize
- *
- * Since: 1.12
- */
-ClutterSize *
-clutter_size_init (ClutterSize *size,
-                   float        width,
-                   float        height)
-{
-  g_return_val_if_fail (size != NULL, NULL);
-
-  size->width = width;
-  size->height = height;
-
-  return size;
-}
-
-/**
- * clutter_size_copy:
- * @size: a #ClutterSize
- *
- * Creates a new #ClutterSize and duplicates @size.
- *
- * Return value: (transfer full): the newly allocated #ClutterSize.
- *   Use clutter_size_free() to free its resources.
- *
- * Since: 1.12
- */
-ClutterSize *
-clutter_size_copy (const ClutterSize *size)
-{
-  return g_slice_dup (ClutterSize, size);
-}
-
-/**
- * clutter_size_free:
- * @size: a #ClutterSize
- *
- * Frees the resources allocated for @size.
- *
- * Since: 1.12
- */
-void
-clutter_size_free (ClutterSize *size)
-{
-  if (size != NULL)
-    g_slice_free (ClutterSize, size);
-}
-
-/**
- * clutter_size_equals:
- * @a: a #ClutterSize to compare
- * @b: a #ClutterSize to compare
- *
- * Compares two #ClutterSize for equality.
- *
- * Return value: %TRUE if the two #ClutterSize are equal
- *
- * Since: 1.12
- */
-gboolean
-clutter_size_equals (const ClutterSize *a,
-                     const ClutterSize *b)
-{
-  if (a == b)
-    return TRUE;
-
-  if (a == NULL || b == NULL)
-    return FALSE;
-
-  return fabsf (a->width - b->width) < FLOAT_EPSILON &&
-         fabsf (a->height - b->height) < FLOAT_EPSILON;
-}
-
-static gboolean
-clutter_size_progress (const GValue *a,
-                       const GValue *b,
-                       gdouble       progress,
-                       GValue       *retval)
-{
-  const ClutterSize *as = g_value_get_boxed (a);
-  const ClutterSize *bs = g_value_get_boxed (b);
-  ClutterSize res = CLUTTER_SIZE_INIT (0, 0);
-
-  res.width = as->width + (bs->width - as->width) * progress;
-  res.height = as->height + (bs->height - as->height) * progress;
-
-  g_value_set_boxed (retval, &res);
-
-  return TRUE;
-}
-
-G_DEFINE_BOXED_TYPE_WITH_CODE (ClutterSize, clutter_size,
-                               clutter_size_copy,
-                               clutter_size_free,
-                               CLUTTER_REGISTER_INTERVAL_PROGRESS (clutter_size_progress))
-
-
-
-/*
  * ClutterRect
  */
 
@@ -773,7 +646,7 @@ clutter_rect_equals (ClutterRect *a,
   clutter_rect_normalize_internal (b);
 
   return clutter_point_equals (&a->origin, &b->origin) &&
-         clutter_size_equals (&a->size, &b->size);
+         graphene_size_equal (&a->size, &b->size);
 }
 
 /**

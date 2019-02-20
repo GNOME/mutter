@@ -45,7 +45,6 @@ G_BEGIN_DECLS
 #define CLUTTER_TYPE_PAINT_VOLUME       (clutter_paint_volume_get_type ())
 #define CLUTTER_TYPE_PERSPECTIVE        (clutter_perspective_get_type ())
 #define CLUTTER_TYPE_POINT              (clutter_point_get_type ())
-#define CLUTTER_TYPE_SIZE               (clutter_size_get_type ())
 #define CLUTTER_TYPE_RECT               (clutter_rect_get_type ())
 
 typedef struct _ClutterActor                    ClutterActor;
@@ -85,7 +84,6 @@ typedef struct _ClutterMargin                   ClutterMargin;
 typedef struct _ClutterPerspective              ClutterPerspective;
 typedef struct _ClutterPoint                    ClutterPoint;
 typedef struct _ClutterRect                     ClutterRect;
-typedef struct _ClutterSize                     ClutterSize;
 
 typedef struct _ClutterAlpha            	ClutterAlpha;
 typedef struct _ClutterAnimation                ClutterAnimation;
@@ -203,63 +201,6 @@ gboolean clutter_point_inside_quadrilateral     (const ClutterPoint *point,
                                                  const ClutterPoint *vertices);
 
 /**
- * ClutterSize:
- * @width: the width, in pixels
- * @height: the height, in pixels
- *
- * A size, in 2D space.
- *
- * Since: 1.12
- */
-struct _ClutterSize
-{
-  float width;
-  float height;
-};
-
-/**
- * CLUTTER_SIZE_INIT:
- * @width: the width
- * @height: the height
- *
- * A simple macro for initializing a #ClutterSize when declaring it, e.g.:
- *
- * |[
- *   ClutterSize s = CLUTTER_SIZE_INIT (200, 200);
- * ]|
- *
- * Since: 1.12
- */
-#define CLUTTER_SIZE_INIT(width,height) { (width), (height) }
-
-/**
- * CLUTTER_SIZE_INIT_ZERO:
- *
- * A simple macro for initializing a #ClutterSize to (0, 0) when
- * declaring it.
- *
- * Since: 1.12
- */
-#define CLUTTER_SIZE_INIT_ZERO          CLUTTER_SIZE_INIT (0.f, 0.f)
-
-CLUTTER_EXPORT
-GType clutter_size_get_type (void) G_GNUC_CONST;
-
-CLUTTER_EXPORT
-ClutterSize *   clutter_size_alloc      (void);
-CLUTTER_EXPORT
-ClutterSize *   clutter_size_init       (ClutterSize       *size,
-                                         float              width,
-                                         float              height);
-CLUTTER_EXPORT
-ClutterSize *   clutter_size_copy       (const ClutterSize *size);
-CLUTTER_EXPORT
-void            clutter_size_free       (ClutterSize       *size);
-CLUTTER_EXPORT
-gboolean        clutter_size_equals     (const ClutterSize *a,
-                                         const ClutterSize *b);
-
-/**
  * ClutterRect:
  * @origin: the origin of the rectangle
  * @size: the size of the rectangle
@@ -283,7 +224,7 @@ gboolean        clutter_size_equals     (const ClutterSize *a,
 struct _ClutterRect
 {
   ClutterPoint origin;
-  ClutterSize size;
+  graphene_size_t size;
 };
 
 /**
