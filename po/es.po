@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-02-04 17:52+0000\n"
-"PO-Revision-Date: 2019-02-06 11:33+0100\n"
+"POT-Creation-Date: 2019-02-17 07:40+0000\n"
+"PO-Revision-Date: 2019-02-20 15:33+0100\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: es <gnome-es-list@gnome.org>\n"
 "Language: es\n"
@@ -397,7 +397,6 @@ msgid "Enable experimental features"
 msgstr "Activar las características experimentales"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#, fuzzy
 #| msgid ""
 #| "To enable experimental features, add the feature keyword to the list. "
 #| "Whether the feature requires restarting the compositor depends on the "
@@ -429,9 +428,7 @@ msgstr ""
 "manera predeterminada de disponer monitores lógicos en un espacio lógico de "
 "coordenadas de píxeles, al escalar framebuffers de monitores framebuffers en "
 "lugar del contenido de ventana, para administrar monitores HiDPI. No "
-"requiere un reinicio. • \"remote-desktop\" — activa el escritorio remoto. "
-"Para soportarlo con compartición de pantalla es necesario activar \"screen-"
-"cast\" • \"screen-cast\" — activa el soporte de compartición de pantalla."
+"requiere un reinicio."
 
 #: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Select window from tab popup"
@@ -565,7 +562,6 @@ msgstr "Pantalla desconocida"
 
 #: src/backends/meta-monitor-manager.c:996
 #, c-format
-#| msgid "%s %s"
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
@@ -573,7 +569,6 @@ msgstr "%s %s"
 
 #: src/backends/meta-monitor-manager.c:1004
 #, c-format
-#| msgid "%s %s"
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
 "inches could not be calculated, e.g. Dell U2414H"
