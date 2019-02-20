@@ -84,7 +84,7 @@ clutter_rectangle_paint (ClutterActor *self)
   CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
   static CoglPipeline *default_color_pipeline = NULL;
   CoglPipeline *content_pipeline;
-  ClutterGeometry geom;
+  ClutterActorBox alloc;
   CoglColor color;
   guint8 tmp_alpha;
 
@@ -92,7 +92,7 @@ clutter_rectangle_paint (ClutterActor *self)
                 "painting rect '%s'",
 		clutter_actor_get_name (self) ? clutter_actor_get_name (self)
                                               : "unknown");
-  clutter_actor_get_allocation_geometry (self, &geom);
+  clutter_actor_get_allocation_box (self, &alloc);
 
   if (G_UNLIKELY (default_color_pipeline == NULL))
     {
@@ -140,40 +140,41 @@ clutter_rectangle_paint (ClutterActor *self)
       /* We paint the border and the content only if the rectangle
        * is big enough to show them
        */
-      if ((priv->border_width * 2) < geom.width &&
-          (priv->border_width * 2) < geom.height)
+      if ((priv->border_width * 2) < clutter_actor_box_get_width (&alloc) &&
+          (priv->border_width * 2) < clutter_actor_box_get_height (&alloc))
         {
           /* paint the border. this sucks, but it's the only way to make a border */
           cogl_framebuffer_draw_rectangle (framebuffer,
                                            border_pipeline,
                                            priv->border_width, 0,
-                                           geom.width,
+                                           clutter_actor_box_get_width (&alloc),
                                            priv->border_width);
 
           cogl_framebuffer_draw_rectangle (framebuffer,
                                            border_pipeline,
-                                           geom.width - priv->border_width,
+                                           clutter_actor_box_get_width (&alloc) - priv->border_width,
                                            priv->border_width,
-                                           geom.width, geom.height);
+                                           clutter_actor_box_get_width (&alloc),
+                                           clutter_actor_box_get_height (&alloc));
 
           cogl_framebuffer_draw_rectangle (framebuffer,
                                            border_pipeline,
-                                           0, geom.height - priv->border_width,
-                                           geom.width - priv->border_width,
-                                           geom.height);
+                                           0, clutter_actor_box_get_height (&alloc) - priv->border_width,
+                                           clutter_actor_box_get_width (&alloc) - priv->border_width,
+                                           clutter_actor_box_get_height (&alloc));
 
           cogl_framebuffer_draw_rectangle (framebuffer,
                                            border_pipeline,
                                            0, 0,
                                            priv->border_width,
-                                           geom.height - priv->border_width);
+                                           clutter_actor_box_get_height (&alloc) - priv->border_width);
 
           /* now paint the rectangle */
           cogl_framebuffer_draw_rectangle (framebuffer,
                                            content_pipeline,
                                            priv->border_width, priv->border_width,
-                                           geom.width - priv->border_width,
-                                           geom.height - priv->border_width);
+                                           clutter_actor_box_get_width (&alloc) - priv->border_width,
+                                           clutter_actor_box_get_height (&alloc) - priv->border_width);
         }
       else
         {
@@ -183,7 +184,9 @@ clutter_rectangle_paint (ClutterActor *self)
            */
           cogl_framebuffer_draw_rectangle (framebuffer,
                                            border_pipeline,
-                                           0, 0, geom.width, geom.height);
+                                           0, 0,
+                                           clutter_actor_box_get_width (&alloc),
+                                           clutter_actor_box_get_height (&alloc));
         }
 
       cogl_object_unref (border_pipeline);
@@ -192,7 +195,9 @@ clutter_rectangle_paint (ClutterActor *self)
     {
       cogl_framebuffer_draw_rectangle (framebuffer,
                                        content_pipeline,
-                                       0, 0, geom.width, geom.height);
+                                       0, 0,
+                                       clutter_actor_box_get_width (&alloc),
+                                       clutter_actor_box_get_height (&alloc));
     }
 
   cogl_object_unref (content_pipeline);
