@@ -230,7 +230,7 @@ CLUTTER_EXPORT
 guint                 clutter_text_get_cursor_size      (ClutterText          *self);
 CLUTTER_EXPORT
 void                  clutter_text_get_cursor_rect      (ClutterText          *self,
-                                                         ClutterRect          *rect);
+                                                         graphene_rect_t      *rect);
 CLUTTER_EXPORT
 void                  clutter_text_set_selectable       (ClutterText          *self,
                                                          gboolean              selectable);

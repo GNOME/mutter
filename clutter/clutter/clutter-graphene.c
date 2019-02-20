@@ -62,6 +62,31 @@ graphene_point3d_progress (const GValue *a,
 }
 
 static gboolean
+graphene_rect_progress (const GValue *a,
+                        const GValue *b,
+                        gdouble       progress,
+                        GValue       *retval)
+{
+  const graphene_rect_t *rect_a = g_value_get_boxed (a);
+  const graphene_rect_t *rect_b = g_value_get_boxed (b);
+  graphene_rect_t res = GRAPHENE_RECT_INIT (0, 0, 0, 0);
+
+#define INTERPOLATE(r_a,r_b,member,field,factor)     ((r_a)->member.field + (((r_b)->member.field - ((r_a)->member.field)) * (factor)))
+
+  res.origin.x = INTERPOLATE (rect_a, rect_b, origin, x, progress);
+  res.origin.y = INTERPOLATE (rect_a, rect_b, origin, y, progress);
+
+  res.size.width = INTERPOLATE (rect_a, rect_b, size, width, progress);
+  res.size.height = INTERPOLATE (rect_a, rect_b, size, height, progress);
+
+#undef INTERPOLATE
+
+  g_value_set_boxed (retval, &res);
+
+  return TRUE;
+}
+
+static gboolean
 graphene_size_progress (const GValue *a,
                         const GValue *b,
                         gdouble       progress,
@@ -86,6 +111,8 @@ clutter_graphene_init (void)
                                            graphene_point_progress);
   clutter_interval_register_progress_func (GRAPHENE_TYPE_POINT3D,
                                            graphene_point3d_progress);
+  clutter_interval_register_progress_func (GRAPHENE_TYPE_RECT,
+                                           graphene_rect_progress);
   clutter_interval_register_progress_func (GRAPHENE_TYPE_SIZE,
                                            graphene_size_progress);
 }
