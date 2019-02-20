@@ -185,7 +185,7 @@ meta_wayland_cursor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *role,
     META_WAYLAND_CURSOR_SURFACE (surface->role);
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
-  ClutterPoint point;
+  graphene_point_t point;
   ClutterRect logical_monitor_rect;
 
   logical_monitor_rect =

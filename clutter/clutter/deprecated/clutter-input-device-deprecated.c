@@ -24,7 +24,7 @@ clutter_input_device_get_device_coords (ClutterInputDevice *device,
                                         gint               *x,
                                         gint               *y)
 {
-  ClutterPoint point;
+  graphene_point_t point;
 
   clutter_input_device_get_coords (device, NULL, &point);
 

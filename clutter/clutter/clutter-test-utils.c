@@ -273,7 +273,7 @@ clutter_test_run (void)
 typedef struct {
   ClutterActor *stage;
 
-  ClutterPoint point;
+  graphene_point_t point;
 
   gpointer result;
 
@@ -348,10 +348,10 @@ on_key_press_event (ClutterActor *stage,
  * Since: 1.18
  */
 gboolean
-clutter_test_check_actor_at_point (ClutterActor        *stage,
-                                   const ClutterPoint  *point,
-                                   ClutterActor        *actor,
-                                   ClutterActor       **result)
+clutter_test_check_actor_at_point (ClutterActor            *stage,
+                                   const graphene_point_t  *point,
+                                   ClutterActor            *actor,
+                                   ClutterActor           **result)
 {
   ValidateData *data;
   guint press_id = 0;
@@ -410,10 +410,10 @@ clutter_test_check_actor_at_point (ClutterActor        *stage,
  * Since: 1.18
  */
 gboolean
-clutter_test_check_color_at_point (ClutterActor       *stage,
-                                   const ClutterPoint *point,
-                                   const ClutterColor *color,
-                                   ClutterColor       *result)
+clutter_test_check_color_at_point (ClutterActor           *stage,
+                                   const graphene_point_t *point,
+                                   const ClutterColor     *color,
+                                   ClutterColor           *result)
 {
   ValidateData *data;
   gboolean retval;
