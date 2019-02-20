@@ -497,53 +497,6 @@ gboolean
 cogl_get_backface_culling_enabled (void);
 
 /**
- * cogl_set_fog:
- * @fog_color: The color of the fog
- * @mode: A #CoglFogMode that determines the equation used to calculate the
- *   fogging blend factor.
- * @density: Used by %COGL_FOG_MODE_EXPONENTIAL and by
- *   %COGL_FOG_MODE_EXPONENTIAL_SQUARED equations.
- * @z_near: Position along Z axis where no fogging should be applied
- * @z_far: Position along Z axis where full fogging should be applied
- *
- * Enables fogging. Fogging causes vertices that are further away from the eye
- * to be rendered with a different color. The color is determined according to
- * the chosen fog mode; at it's simplest the color is linearly interpolated so
- * that vertices at @z_near are drawn fully with their original color and
- * vertices at @z_far are drawn fully with @fog_color. Fogging will remain
- * enabled until you call cogl_disable_fog().
- *
- * <note>The fogging functions only work correctly when primitives use
- * unmultiplied alpha colors. By default Cogl will premultiply textures
- * and cogl_set_source_color() will premultiply colors, so unless you
- * explicitly load your textures requesting an unmultiplied internal format
- * and use cogl_material_set_color() you can only use fogging with fully
- * opaque primitives. This might improve in the future when we can depend
- * on fragment shaders.</note>
- *
- * Deprecated: 1.16: Use #CoglSnippet shader api for fog
- */
-COGL_DEPRECATED_FOR (cogl_snippet_API)
-void
-cogl_set_fog (const CoglColor *fog_color,
-              CoglFogMode mode,
-              float density,
-              float z_near,
-              float z_far);
-
-/**
- * cogl_disable_fog:
- *
- * This function disables fogging, so primitives drawn afterwards will not be
- * blended with any previously set fog color.
- *
- * Deprecated: 1.16: Use #CoglSnippet shader api for fog
- */
-COGL_DEPRECATED_FOR (cogl_snippet_API)
-void
-cogl_disable_fog (void);
-
-/**
  * cogl_clear:
  * @color: Background color to clear to
  * @buffers: A mask of #CoglBufferBit<!-- -->'s identifying which auxiliary

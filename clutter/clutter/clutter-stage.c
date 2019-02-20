@@ -129,8 +129,6 @@ struct _ClutterStagePrivate
   CoglMatrix view;
   float viewport[4];
 
-  ClutterFog fog;
-
   gchar *title;
   ClutterActor *key_focused_actor;
 
@@ -173,7 +171,6 @@ struct _ClutterStagePrivate
   guint relayout_pending       : 1;
   guint redraw_pending         : 1;
   guint is_cursor_visible      : 1;
-  guint use_fog                : 1;
   guint throttle_motion_events : 1;
   guint use_alpha              : 1;
   guint min_size_changed       : 1;
@@ -191,8 +188,6 @@ enum
   PROP_CURSOR_VISIBLE,
   PROP_PERSPECTIVE,
   PROP_TITLE,
-  PROP_USE_FOG,
-  PROP_FOG,
   PROP_USE_ALPHA,
   PROP_KEY_FOCUS,
   PROP_NO_CLEAR_HINT,
@@ -1801,14 +1796,6 @@ clutter_stage_set_property (GObject      *object,
       clutter_stage_set_title (stage, g_value_get_string (value));
       break;
 
-    case PROP_USE_FOG:
-      clutter_stage_set_use_fog (stage, g_value_get_boolean (value));
-      break;
-
-    case PROP_FOG:
-      clutter_stage_set_fog (stage, g_value_get_boxed (value));
-      break;
-
     case PROP_USE_ALPHA:
       clutter_stage_set_use_alpha (stage, g_value_get_boolean (value));
       break;
@@ -1861,14 +1848,6 @@ clutter_stage_get_property (GObject    *gobject,
 
     case PROP_TITLE:
       g_value_set_string (value, priv->title);
-      break;
-
-    case PROP_USE_FOG:
-      g_value_set_boolean (value, priv->use_fog);
-      break;
-
-    case PROP_FOG:
-      g_value_set_boxed (value, &priv->fog);
       break;
 
     case PROP_USE_ALPHA:
@@ -2055,41 +2034,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
                            P_("Stage Title"),
                            NULL,
                            CLUTTER_PARAM_READWRITE);
-
-  /**
-   * ClutterStage:use-fog:
-   *
-   * Whether the stage should use a linear GL "fog" in creating the
-   * depth-cueing effect, to enhance the perception of depth by fading
-   * actors farther from the viewpoint.
-   *
-   * Since: 0.6
-   *
-   * Deprecated: 1.10: This property does not do anything.
-   */
-  obj_props[PROP_USE_FOG] =
-      g_param_spec_boolean ("use-fog",
-                            P_("Use Fog"),
-                            P_("Whether to enable depth cueing"),
-                            FALSE,
-                            CLUTTER_PARAM_READWRITE | G_PARAM_DEPRECATED);
-
-  /**
-   * ClutterStage:fog:
-   *
-   * The settings for the GL "fog", used only if #ClutterStage:use-fog
-   * is set to %TRUE
-   *
-   * Since: 1.0
-   *
-   * Deprecated: 1.10: This property does not do anything.
-   */
-  obj_props[PROP_FOG] =
-      g_param_spec_boxed ("fog",
-                          P_("Fog"),
-                          P_("Settings for the depth cueing"),
-                          CLUTTER_TYPE_FOG,
-                          CLUTTER_PARAM_READWRITE | G_PARAM_DEPRECATED);
 
   /**
    * ClutterStage:use-alpha:
@@ -2328,7 +2272,6 @@ clutter_stage_init (ClutterStage *self)
   priv->event_queue = g_queue_new ();
 
   priv->is_cursor_visible = TRUE;
-  priv->use_fog = FALSE;
   priv->throttle_motion_events = TRUE;
   priv->min_size_changed = FALSE;
   priv->sync_delay = -1;
@@ -2336,10 +2279,6 @@ clutter_stage_init (ClutterStage *self)
 
   clutter_actor_set_background_color (CLUTTER_ACTOR (self),
                                       &default_stage_color);
-
-  /* FIXME - remove for 2.0 */
-  priv->fog.z_near = 1.0;
-  priv->fog.z_far  = 2.0;
 
   priv->relayout_pending = TRUE;
 
@@ -3078,136 +3017,6 @@ clutter_stage_get_key_focus (ClutterStage *stage)
   return CLUTTER_ACTOR (stage);
 }
 
-/**
- * clutter_stage_get_use_fog:
- * @stage: the #ClutterStage
- *
- * Gets whether the depth cueing effect is enabled on @stage.
- *
- * Return value: %TRUE if the depth cueing effect is enabled
- *
- * Since: 0.6
- *
- * Deprecated: 1.10: This function will always return %FALSE
- */
-gboolean
-clutter_stage_get_use_fog (ClutterStage *stage)
-{
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-
-  return stage->priv->use_fog;
-}
-
-/**
- * clutter_stage_set_use_fog:
- * @stage: the #ClutterStage
- * @fog: %TRUE for enabling the depth cueing effect
- *
- * Sets whether the depth cueing effect on the stage should be enabled
- * or not.
- *
- * Depth cueing is a 3D effect that makes actors farther away from the
- * viewing point less opaque, by fading them with the stage color.
-
- * The parameters of the GL fog used can be changed using the
- * clutter_stage_set_fog() function.
- *
- * Since: 0.6
- *
- * Deprecated: 1.10: Calling this function produces no visible effect
- */
-void
-clutter_stage_set_use_fog (ClutterStage *stage,
-                           gboolean      fog)
-{
-}
-
-/**
- * clutter_stage_set_fog:
- * @stage: the #ClutterStage
- * @fog: a #ClutterFog structure
- *
- * Sets the fog (also known as "depth cueing") settings for the @stage.
- *
- * A #ClutterStage will only use a linear fog progression, which
- * depends solely on the distance from the viewer. The cogl_set_fog()
- * function in COGL exposes more of the underlying implementation,
- * and allows changing the for progression function. It can be directly
- * used by disabling the #ClutterStage:use-fog property and connecting
- * a signal handler to the #ClutterActor::paint signal on the @stage,
- * like:
- *
- * |[
- *   clutter_stage_set_use_fog (stage, FALSE);
- *   g_signal_connect (stage, "paint", G_CALLBACK (on_stage_paint), NULL);
- * ]|
- *
- * The paint signal handler will call cogl_set_fog() with the
- * desired settings:
- *
- * |[
- *   static void
- *   on_stage_paint (ClutterActor *actor)
- *   {
- *     ClutterColor stage_color = { 0, };
- *     CoglColor fog_color = { 0, };
- *
- *     // set the fog color to the stage background color
- *     clutter_stage_get_color (CLUTTER_STAGE (actor), &stage_color);
- *     cogl_color_init_from_4ub (&fog_color,
- *                               stage_color.red,
- *                               stage_color.green,
- *                               stage_color.blue,
- *                               stage_color.alpha);
- *
- *     // enable fog //
- *     cogl_set_fog (&fog_color,
- *                   COGL_FOG_MODE_EXPONENTIAL, // mode
- *                   0.5,                       // density
- *                   5.0, 30.0);                // z_near and z_far
- *   }
- * ]|
- *
- * The fogging functions only work correctly when the visible actors use
- * unmultiplied alpha colors. By default Cogl will premultiply textures and
- * cogl_set_source_color() will premultiply colors, so unless you explicitly
- * load your textures requesting an unmultiplied internal format and use
- * cogl_material_set_color() you can only use fogging with fully opaque actors.
- * Support for premultiplied colors will improve in the future when we can
- * depend on fragment shaders.
- *
- * Since: 0.6
- *
- * Deprecated: 1.10: Fog settings are ignored.
- */
-void
-clutter_stage_set_fog (ClutterStage *stage,
-                       ClutterFog   *fog)
-{
-}
-
-/**
- * clutter_stage_get_fog:
- * @stage: the #ClutterStage
- * @fog: (out): return location for a #ClutterFog structure
- *
- * Retrieves the current depth cueing settings from the stage.
- *
- * Since: 0.6
- *
- * Deprecated: 1.10: This function will always return the default
- *   values of #ClutterFog
- */
-void
-clutter_stage_get_fog (ClutterStage *stage,
-                        ClutterFog   *fog)
-{
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-  g_return_if_fail (fog != NULL);
-
-  *fog = stage->priv->fog;
-}
-
 /*** Perspective boxed type ******/
 
 static gpointer
@@ -3229,24 +3038,6 @@ clutter_perspective_free (gpointer data)
 G_DEFINE_BOXED_TYPE (ClutterPerspective, clutter_perspective,
                      clutter_perspective_copy,
                      clutter_perspective_free);
-
-static gpointer
-clutter_fog_copy (gpointer data)
-{
-  if (G_LIKELY (data))
-    return g_slice_dup (ClutterFog, data);
-
-  return NULL;
-}
-
-static void
-clutter_fog_free (gpointer data)
-{
-  if (G_LIKELY (data))
-    g_slice_free (ClutterFog, data);
-}
-
-G_DEFINE_BOXED_TYPE (ClutterFog, clutter_fog, clutter_fog_copy, clutter_fog_free);
 
 /**
  * clutter_stage_new:

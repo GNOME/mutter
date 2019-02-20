@@ -255,41 +255,6 @@ typedef enum
 } CoglTextureFlags;
 
 /**
- * CoglFogMode:
- * @COGL_FOG_MODE_LINEAR: Calculates the fog blend factor as:
- * |[
- *   f = end - eye_distance / end - start
- * ]|
- * @COGL_FOG_MODE_EXPONENTIAL: Calculates the fog blend factor as:
- * |[
- *   f = e ^ -(density * eye_distance)
- * ]|
- * @COGL_FOG_MODE_EXPONENTIAL_SQUARED: Calculates the fog blend factor as:
- * |[
- *   f = e ^ -(density * eye_distance)^2
- * ]|
- *
- * The fog mode determines the equation used to calculate the fogging blend
- * factor while fogging is enabled. The simplest %COGL_FOG_MODE_LINEAR mode
- * determines f as:
- *
- * |[
- *   f = end - eye_distance / end - start
- * ]|
- *
- * Where eye_distance is the distance of the current fragment in eye
- * coordinates from the origin.
- *
- * Since: 1.0
- */
-typedef enum
-{
-  COGL_FOG_MODE_LINEAR,
-  COGL_FOG_MODE_EXPONENTIAL,
-  COGL_FOG_MODE_EXPONENTIAL_SQUARED
-} CoglFogMode;
-
-/**
  * COGL_BLEND_STRING_ERROR:
  *
  * #GError domain for blend string parser errors
