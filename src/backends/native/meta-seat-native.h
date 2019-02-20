@@ -39,7 +39,7 @@ struct _MetaTouchState
 
   int device_slot;
   int seat_slot;
-  ClutterPoint coords;
+  graphene_point_t coords;
 };
 
 struct _MetaSeatNative

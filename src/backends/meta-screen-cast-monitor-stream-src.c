@@ -167,7 +167,7 @@ is_cursor_in_stream (MetaScreenCastMonitorStreamSrc *monitor_src)
     }
   else
     {
-      ClutterPoint cursor_position;
+      graphene_point_t cursor_position;
 
       cursor_position = meta_cursor_renderer_get_position (cursor_renderer);
       return clutter_rect_contains_point (&logical_monitor_rect,
@@ -384,7 +384,7 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   ClutterRect logical_monitor_rect;
   MetaRendererView *view;
   float view_scale;
-  ClutterPoint cursor_position;
+  graphene_point_t cursor_position;
   int x, y;
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);

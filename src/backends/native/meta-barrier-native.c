@@ -468,7 +468,7 @@ meta_barrier_manager_native_process (MetaBarrierManagerNative *manager,
                                      float                    *x,
                                      float                    *y)
 {
-  ClutterPoint prev_pos;
+  graphene_point_t prev_pos;
   float prev_x;
   float prev_y;
   float orig_x = *x;
