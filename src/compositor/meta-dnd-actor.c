@@ -207,7 +207,7 @@ meta_dnd_actor_drag_finish (MetaDnDActor *self,
       if (CLUTTER_ACTOR_IS_VISIBLE (self->drag_origin))
         {
           float anchor_x, anchor_y;
-          ClutterPoint dest;
+          graphene_point_t dest;
 
           clutter_actor_get_transformed_position (self->drag_origin,
                                                   &dest.x, &dest.y);
