@@ -244,7 +244,6 @@ clutter_deprecated_headers = [
 ]
 
 clutter_deprecated_sources = [
-  'deprecated/clutter-actor-deprecated.c',
   'deprecated/clutter-alpha.c',
   'deprecated/clutter-animation.c',
   'deprecated/clutter-behaviour.c',
