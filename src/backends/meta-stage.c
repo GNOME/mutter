@@ -46,8 +46,8 @@ struct _MetaOverlay
   CoglPipeline *pipeline;
   CoglTexture *texture;
 
-  ClutterRect current_rect;
-  ClutterRect previous_rect;
+  graphene_rect_t current_rect;
+  graphene_rect_t previous_rect;
   gboolean previous_is_valid;
 };
 
@@ -83,9 +83,9 @@ meta_overlay_free (MetaOverlay *overlay)
 }
 
 static void
-meta_overlay_set (MetaOverlay *overlay,
-                  CoglTexture *texture,
-                  ClutterRect *rect)
+meta_overlay_set (MetaOverlay     *overlay,
+                  CoglTexture     *texture,
+                  graphene_rect_t *rect)
 {
   if (overlay->texture != texture)
     {
@@ -267,10 +267,10 @@ meta_stage_remove_cursor_overlay (MetaStage   *stage,
 }
 
 void
-meta_stage_update_cursor_overlay (MetaStage   *stage,
-                                  MetaOverlay *overlay,
-                                  CoglTexture *texture,
-                                  ClutterRect *rect)
+meta_stage_update_cursor_overlay (MetaStage       *stage,
+                                  MetaOverlay     *overlay,
+                                  CoglTexture     *texture,
+                                  graphene_rect_t *rect)
 {
   g_assert (meta_is_wayland_compositor () || texture == NULL);
 
