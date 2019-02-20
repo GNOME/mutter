@@ -58,6 +58,7 @@
 #include "clutter-device-manager-private.h"
 #include "clutter-event-private.h"
 #include "clutter-feature.h"
+#include "clutter-graphene.h"
 #include "clutter-main.h"
 #include "clutter-master-clock.h"
 #include "clutter-mutter.h"
@@ -2574,6 +2575,8 @@ clutter_base_init (void)
 
       /* initialise the Big Clutter Lock™ if necessary */
       clutter_threads_init_default ();
+
+      clutter_graphene_init ();
     }
 }
 
