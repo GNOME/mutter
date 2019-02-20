@@ -407,7 +407,7 @@ get_pointer_position_clutter (int         *x,
 {
   ClutterDeviceManager *cmanager;
   ClutterInputDevice *cdevice;
-  ClutterPoint point;
+  graphene_point_t point;
 
   cmanager = clutter_device_manager_get_default ();
   cdevice = clutter_device_manager_get_core_device (cmanager, CLUTTER_POINTER_DEVICE);

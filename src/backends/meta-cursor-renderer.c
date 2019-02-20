@@ -315,13 +315,13 @@ meta_cursor_renderer_set_position (MetaCursorRenderer *renderer,
   meta_cursor_renderer_update_cursor (renderer, priv->displayed_cursor);
 }
 
-ClutterPoint
+graphene_point_t
 meta_cursor_renderer_get_position (MetaCursorRenderer *renderer)
 {
   MetaCursorRendererPrivate *priv =
     meta_cursor_renderer_get_instance_private (renderer);
 
-  return (ClutterPoint) {
+  return (graphene_point_t) {
     .x = priv->current_x,
     .y = priv->current_y
   };

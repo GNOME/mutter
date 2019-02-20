@@ -686,7 +686,7 @@ void                    clutter_event_get_coords                (const ClutterEv
                                                                  gfloat                 *y);
 CLUTTER_EXPORT
 void                    clutter_event_get_position              (const ClutterEvent     *event,
-                                                                 ClutterPoint           *position);
+                                                                 graphene_point_t       *position);
 CLUTTER_EXPORT
 float                   clutter_event_get_distance              (const ClutterEvent     *source,
                                                                  const ClutterEvent     *target);

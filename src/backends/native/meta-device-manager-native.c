@@ -380,7 +380,7 @@ notify_pinch_gesture_event (ClutterInputDevice          *input_device,
   MetaSeatNative *seat;
   ClutterStage *stage;
   ClutterEvent *event = NULL;
-  ClutterPoint pos;
+  graphene_point_t pos;
 
   /* We can drop the event on the floor if no stage has been
    * associated with the device yet. */
@@ -427,7 +427,7 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
   MetaSeatNative *seat;
   ClutterStage *stage;
   ClutterEvent *event = NULL;
-  ClutterPoint pos;
+  graphene_point_t pos;
 
   /* We can drop the event on the floor if no stage has been
    * associated with the device yet. */

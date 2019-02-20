@@ -218,7 +218,7 @@ input_cb (ClutterActor *actor,
 {
   ClutterActor *stage = clutter_actor_get_stage (actor); 
   ClutterActor *source_actor = clutter_event_get_source (event);
-  ClutterPoint position;
+  graphene_point_t position;
   gchar *state;
   gchar keybuf[128];
   gint device_id;
