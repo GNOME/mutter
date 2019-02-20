@@ -48,6 +48,18 @@
 typedef struct _CoglPipelineLayer     CoglPipelineLayer;
 #define COGL_PIPELINE_LAYER(OBJECT) ((CoglPipelineLayer *)OBJECT)
 
+/**
+ * cogl_is_pipeline_layer:
+ * @object: A #CoglObject
+ *
+ * Gets whether the given @object references an existing pipeline object.
+ *
+ * Returns: %TRUE if the @object references a #CoglPipelineLayer,
+ *   %FALSE otherwise
+ */
+gboolean
+cogl_is_pipeline_layer (void *object);
+
 /* XXX: should I rename these as
  * COGL_PIPELINE_LAYER_STATE_INDEX_XYZ... ?
  */
