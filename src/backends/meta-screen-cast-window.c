@@ -54,9 +54,9 @@ meta_screen_cast_window_transform_relative_position (MetaScreenCastWindow *scree
 gboolean
 meta_screen_cast_window_transform_cursor_position (MetaScreenCastWindow *screen_cast_window,
                                                    MetaCursorSprite     *cursor_sprite,
-                                                   ClutterPoint         *cursor_position,
+                                                   graphene_point_t     *cursor_position,
                                                    float                *out_cursor_scale,
-                                                   ClutterPoint         *out_relative_cursor_position)
+                                                   graphene_point_t     *out_relative_cursor_position)
 {
   MetaScreenCastWindowInterface *iface =
     META_SCREEN_CAST_WINDOW_GET_IFACE (screen_cast_window);
