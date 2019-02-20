@@ -89,7 +89,7 @@ queue_redraw (MetaCursorRenderer *renderer,
   MetaBackend *backend = meta_get_backend ();
   ClutterActor *stage = meta_backend_get_stage (backend);
   CoglTexture *texture;
-  ClutterRect rect = CLUTTER_RECT_INIT_ZERO;
+  graphene_rect_t rect = GRAPHENE_RECT_INIT (0, 0, 0, 0);
 
   if (cursor_sprite)
     rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
@@ -179,7 +179,7 @@ meta_cursor_renderer_init (MetaCursorRenderer *renderer)
                                            NULL);
 }
 
-ClutterRect
+graphene_rect_t
 meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
                                      MetaCursorSprite   *cursor_sprite)
 {
@@ -192,14 +192,14 @@ meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
 
   texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
   if (!texture)
-    return (ClutterRect) CLUTTER_RECT_INIT_ZERO;
+    return (graphene_rect_t) GRAPHENE_RECT_INIT (0, 0, 0, 0);
 
   meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
   texture_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
   width = cogl_texture_get_width (texture);
   height = cogl_texture_get_height (texture);
 
-  return (ClutterRect) {
+  return (graphene_rect_t) {
     .origin = {
       .x = priv->current_x - (hot_x * texture_scale),
       .y = priv->current_y - (hot_y * texture_scale)
