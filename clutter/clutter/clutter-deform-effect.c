@@ -177,7 +177,7 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect)
 
   if (priv->is_dirty)
     {
-      ClutterRect rect;
+      graphene_rect_t rect;
       gboolean mapped_buffer;
       CoglVertexP3T2C4 *verts;
       ClutterActor *actor;
@@ -193,8 +193,8 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect)
        */
       if (clutter_offscreen_effect_get_target_rect (effect, &rect))
         {
-          width = clutter_rect_get_width (&rect);
-          height = clutter_rect_get_height (&rect);
+          width = graphene_rect_get_width (&rect);
+          height = graphene_rect_get_height (&rect);
         }
       else
         clutter_actor_get_size (actor, &width, &height);

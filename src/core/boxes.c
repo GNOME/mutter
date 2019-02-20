@@ -2153,7 +2153,7 @@ meta_rectangle_transform (const MetaRectangle  *rect,
 
 void
 meta_rectangle_crop_and_scale (const MetaRectangle *rect,
-                               ClutterRect         *src_rect,
+                               graphene_rect_t     *src_rect,
                                int                  dst_width,
                                int                  dst_height,
                                MetaRectangle       *dest)
