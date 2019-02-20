@@ -126,6 +126,7 @@ enum
   OVERLAY_KEY,
   ACCELERATOR_ACTIVATED,
   MODIFIERS_ACCELERATOR_ACTIVATED,
+  LOCATE_POINTER,
   FOCUS_WINDOW,
   WINDOW_CREATED,
   WINDOW_DEMANDS_ATTENTION,
@@ -257,6 +258,14 @@ meta_display_class_init (MetaDisplayClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 3, G_TYPE_UINT, G_TYPE_UINT, G_TYPE_UINT);
+
+  display_signals[LOCATE_POINTER] =
+    g_signal_new ("locate-pointer",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 
   /**
    * MetaDisplay::modifiers-accelerator-activated:
@@ -2583,6 +2592,12 @@ meta_display_accelerator_activate (MetaDisplay     *display,
                  0, action,
                  clutter_input_device_get_device_id (event->device),
                  event->time);
+}
+
+void
+meta_display_locate_pointer (MetaDisplay *display)
+{
+  g_signal_emit (display, display_signals[LOCATE_POINTER], 0);
 }
 
 gboolean
