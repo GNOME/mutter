@@ -1528,3 +1528,9 @@ meta_compositor_create_inhibit_shortcuts_dialog (MetaCompositor *compositor,
   return meta_plugin_manager_create_inhibit_shortcuts_dialog (compositor->plugin_mgr,
                                                               window);
 }
+
+void
+meta_compositor_locate_pointer (MetaCompositor *compositor)
+{
+  meta_plugin_manager_locate_pointer (compositor->plugin_mgr);
+}
