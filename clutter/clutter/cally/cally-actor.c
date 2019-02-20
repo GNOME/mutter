@@ -657,7 +657,7 @@ cally_actor_get_extents (AtkComponent *component,
   ClutterActor *actor      = NULL;
   gint          top_level_x, top_level_y;
   gfloat        f_width, f_height;
-  ClutterVertex verts[4];
+  graphene_point3d_t verts[4];
   ClutterActor  *stage = NULL;
 
   g_return_if_fail (CALLY_IS_ACTOR (component));
