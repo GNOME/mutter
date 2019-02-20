@@ -65,10 +65,6 @@ COGL_EXT_BEGIN (fixed_function_core,
                 "\0")
 COGL_EXT_FUNCTION (void, glAlphaFunc,
                    (GLenum func, GLclampf ref))
-COGL_EXT_FUNCTION (void, glFogf,
-                   (GLenum pname, GLfloat param))
-COGL_EXT_FUNCTION (void, glFogfv,
-                   (GLenum pname, const GLfloat *params))
 COGL_EXT_FUNCTION (void, glLoadMatrixf,
                    (const GLfloat *m))
 COGL_EXT_FUNCTION (void, glMaterialfv,

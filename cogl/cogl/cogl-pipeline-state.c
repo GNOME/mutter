@@ -177,24 +177,6 @@ _cogl_pipeline_depth_state_equal (CoglPipeline *authority0,
 }
 
 gboolean
-_cogl_pipeline_fog_state_equal (CoglPipeline *authority0,
-                                CoglPipeline *authority1)
-{
-  CoglPipelineFogState *fog_state0 = &authority0->big_state->fog_state;
-  CoglPipelineFogState *fog_state1 = &authority1->big_state->fog_state;
-
-  if (fog_state0->enabled == fog_state1->enabled &&
-      cogl_color_equal (&fog_state0->color, &fog_state1->color) &&
-      fog_state0->mode == fog_state1->mode &&
-      fog_state0->density == fog_state1->density &&
-      fog_state0->z_near == fog_state1->z_near &&
-      fog_state0->z_far == fog_state1->z_far)
-    return TRUE;
-  else
-    return FALSE;
-}
-
-gboolean
 _cogl_pipeline_non_zero_point_size_equal (CoglPipeline *authority0,
                                           CoglPipeline *authority1)
 {
@@ -1193,41 +1175,6 @@ cogl_pipeline_get_depth_state (CoglPipeline *pipeline,
 }
 
 void
-_cogl_pipeline_set_fog_state (CoglPipeline *pipeline,
-                              const CoglPipelineFogState *fog_state)
-{
-  CoglPipelineState state = COGL_PIPELINE_STATE_FOG;
-  CoglPipeline *authority;
-  CoglPipelineFogState *current_fog_state;
-
-  g_return_if_fail (cogl_is_pipeline (pipeline));
-
-  authority = _cogl_pipeline_get_authority (pipeline, state);
-
-  current_fog_state = &authority->big_state->fog_state;
-
-  if (current_fog_state->enabled == fog_state->enabled &&
-      cogl_color_equal (&current_fog_state->color, &fog_state->color) &&
-      current_fog_state->mode == fog_state->mode &&
-      current_fog_state->density == fog_state->density &&
-      current_fog_state->z_near == fog_state->z_near &&
-      current_fog_state->z_far == fog_state->z_far)
-    return;
-
-  /* - Flush journal primitives referencing the current state.
-   * - Make sure the pipeline has no dependants so it may be modified.
-   * - If the pipeline isn't currently an authority for the state being
-   *   changed, then initialize that state from the current authority.
-   */
-  _cogl_pipeline_pre_change_notify (pipeline, state, NULL, FALSE);
-
-  pipeline->big_state->fog_state = *fog_state;
-
-  _cogl_pipeline_update_authority (pipeline, authority, state,
-                                   _cogl_pipeline_fog_state_equal);
-}
-
-void
 cogl_pipeline_set_cull_face_mode (CoglPipeline *pipeline,
                                   CoglPipelineCullFaceMode cull_face_mode)
 {
@@ -1846,23 +1793,6 @@ _cogl_pipeline_hash_depth_state (CoglPipeline *authority,
       hash = _cogl_util_one_at_a_time_hash (hash, &near_val, sizeof (near_val));
       hash = _cogl_util_one_at_a_time_hash (hash, &far_val, sizeof (far_val));
     }
-
-  state->hash = hash;
-}
-
-void
-_cogl_pipeline_hash_fog_state (CoglPipeline *authority,
-                               CoglPipelineHashState *state)
-{
-  CoglPipelineFogState *fog_state = &authority->big_state->fog_state;
-  unsigned long hash = state->hash;
-
-  if (!fog_state->enabled)
-    hash = _cogl_util_one_at_a_time_hash (hash, &fog_state->enabled,
-                                          sizeof (fog_state->enabled));
-  else
-    hash = _cogl_util_one_at_a_time_hash (hash, &fog_state,
-                                          sizeof (CoglPipelineFogState));
 
   state->hash = hash;
 }
