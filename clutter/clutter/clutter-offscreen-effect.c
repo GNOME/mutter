@@ -684,7 +684,7 @@ clutter_offscreen_effect_get_target_size (ClutterOffscreenEffect *effect,
  */
 gboolean
 clutter_offscreen_effect_get_target_rect (ClutterOffscreenEffect *effect,
-                                          ClutterRect            *rect)
+                                          graphene_rect_t        *rect)
 {
   ClutterOffscreenEffectPrivate *priv;
 
@@ -696,11 +696,11 @@ clutter_offscreen_effect_get_target_rect (ClutterOffscreenEffect *effect,
   if (priv->texture == NULL)
     return FALSE;
 
-  clutter_rect_init (rect,
-                     priv->position.x,
-                     priv->position.y,
-                     cogl_texture_get_width (priv->texture),
-                     cogl_texture_get_height (priv->texture));
+  graphene_rect_init (rect,
+                      priv->position.x,
+                      priv->position.y,
+                      cogl_texture_get_width (priv->texture),
+                      cogl_texture_get_height (priv->texture));
 
   return TRUE;
 }

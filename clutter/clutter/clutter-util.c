@@ -108,9 +108,9 @@ _clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
 
 void
 _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
-                                   ClutterRect                 *dest)
+                                   graphene_rect_t             *dest)
 {
-  *dest = (ClutterRect) {
+  *dest = (graphene_rect_t) {
     .origin = {
       .x = src->x,
       .y = src->y
@@ -123,12 +123,12 @@ _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
 }
 
 void
-_clutter_util_rectangle_int_extents (const  ClutterRect    *src,
+_clutter_util_rectangle_int_extents (const graphene_rect_t *src,
                                      cairo_rectangle_int_t *dest)
 {
-  ClutterRect tmp = *src;
+  graphene_rect_t tmp = *src;
 
-  clutter_rect_clamp_to_pixel (&tmp);
+  graphene_rect_round_extents (&tmp, &tmp);
 
   *dest = (cairo_rectangle_int_t) {
     .x = tmp.origin.x,

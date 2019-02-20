@@ -475,7 +475,7 @@ text_input_commit_state (struct wl_client   *client,
 
   if (text_input->pending_state & META_WAYLAND_PENDING_STATE_INPUT_RECT)
     {
-      ClutterRect cursor_rect;
+      graphene_rect_t cursor_rect;
       float x1, y1, x2, y2;
       cairo_rectangle_int_t rect;
 
@@ -487,7 +487,7 @@ text_input_commit_state (struct wl_client   *client,
                                                      rect.y + rect.height,
                                                      &x2, &y2);
 
-      clutter_rect_init (&cursor_rect, x1, y1, x2 - x1, y2 - y1);
+      graphene_rect_init (&cursor_rect, x1, y1, x2 - x1, y2 - y1);
       clutter_input_focus_set_cursor_location (text_input->input_focus,
                                                &cursor_rect);
     }
