@@ -485,7 +485,7 @@ clutter_offscreen_effect_init (ClutterOffscreenEffect *self)
  * used instead of clutter_offscreen_effect_get_target() when the
  * effect subclass wants to paint using its own material.
  *
- * Return value: (transfer none): a #CoglHandle or %COGL_INVALID_HANDLE. The
+ * Return value: (transfer none): a #CoglHandle or %NULL. The
  *   returned texture is owned by Clutter and it should not be
  *   modified or freed
  *
@@ -550,7 +550,7 @@ clutter_offscreen_effect_paint_target (ClutterOffscreenEffect *effect)
  * Calls the create_texture() virtual function of the @effect
  *
  * Return value: (transfer full): a handle to a Cogl texture, or
- *   %COGL_INVALID_HANDLE. The returned handle has its reference
+ *   %NULL. The returned handle has its reference
  *   count increased.
  *
  * Since: 1.4

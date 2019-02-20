@@ -183,7 +183,7 @@ _cogl_pipeline_init_default_pipeline (void)
   blend_state->blend_src_factor_rgb = GL_ONE;
   blend_state->blend_dst_factor_rgb = GL_ONE_MINUS_SRC_ALPHA;
 
-  big_state->user_program = COGL_INVALID_HANDLE;
+  big_state->user_program = NULL;
 
   cogl_depth_state_init (&big_state->depth_state);
 
@@ -756,7 +756,7 @@ _cogl_pipeline_change_implies_transparency (CoglPipeline *pipeline,
        *
        * TODO: check that it isn't just a vertex shader!
        */
-      if (_cogl_pipeline_get_user_program (pipeline) != COGL_INVALID_HANDLE)
+      if (_cogl_pipeline_get_user_program (pipeline) != NULL)
         return TRUE;
     }
 
@@ -1004,7 +1004,7 @@ _cogl_pipeline_copy_differences (CoglPipeline *dest,
         big_state->user_program =
           cogl_object_ref (src->big_state->user_program);
       else
-        big_state->user_program = COGL_INVALID_HANDLE;
+        big_state->user_program = NULL;
     }
 
   if (differences & COGL_PIPELINE_STATE_DEPTH)
@@ -2603,7 +2603,7 @@ _cogl_pipeline_apply_legacy_state (CoglPipeline *pipeline)
   /* A program explicitly set on the pipeline has higher precedence than
    * one associated with the context using cogl_program_use() */
   if (ctx->current_program &&
-      cogl_pipeline_get_user_program (pipeline) == COGL_INVALID_HANDLE)
+      cogl_pipeline_get_user_program (pipeline) == NULL)
     cogl_pipeline_set_user_program (pipeline, ctx->current_program);
 
   if (ctx->legacy_depth_test_enabled)
