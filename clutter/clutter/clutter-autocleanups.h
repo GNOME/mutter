@@ -96,7 +96,6 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPathNode, clutter_path_node_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPoint, clutter_point_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterRect, clutter_rect_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterSize, clutter_size_free)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterVertex, clutter_vertex_free)
 
 #endif /* __GI_SCANNER__ */
 
