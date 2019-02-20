@@ -101,13 +101,13 @@ clutter_shader_release_internal (ClutterShader *shader)
   g_assert (priv->program != COGL_INVALID_HANDLE);
 
   if (priv->vertex_shader != COGL_INVALID_HANDLE)
-    cogl_handle_unref (priv->vertex_shader);
+    cogl_object_unref (priv->vertex_shader);
 
   if (priv->fragment_shader != COGL_INVALID_HANDLE)
-    cogl_handle_unref (priv->fragment_shader);
+    cogl_object_unref (priv->fragment_shader);
 
   if (priv->program != COGL_INVALID_HANDLE)
-    cogl_handle_unref (priv->program);
+    cogl_object_unref (priv->program);
 
   priv->vertex_shader = COGL_INVALID_HANDLE;
   priv->fragment_shader = COGL_INVALID_HANDLE;

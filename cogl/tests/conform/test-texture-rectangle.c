@@ -149,12 +149,12 @@ draw_frame (TestState *state)
   /* Flush the rendering now so we can safely delete the texture */
   cogl_flush ();
 
-  cogl_handle_unref (material_rect);
+  cogl_object_unref (material_rect);
 
   /* Cogl doesn't destroy foreign textures so we have to do it manually */
   cogl_texture_get_gl_texture (tex_rect, &gl_tex, NULL);
   glDeleteTextures (1, &gl_tex);
-  cogl_handle_unref (tex_rect);
+  cogl_object_unref (tex_rect);
 }
 
 static void

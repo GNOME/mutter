@@ -134,7 +134,7 @@ test_coglbox_dispose (GObject *object)
   TestCoglboxPrivate *priv;
 
   priv = TEST_COGLBOX_GET_PRIVATE (object);
-  cogl_handle_unref (priv->cogl_tex_id);
+  cogl_object_unref (priv->cogl_tex_id);
 
   G_OBJECT_CLASS (test_coglbox_parent_class)->dispose (object);
 }

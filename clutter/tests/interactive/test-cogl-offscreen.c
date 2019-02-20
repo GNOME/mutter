@@ -133,8 +133,8 @@ test_coglbox_dispose (GObject *object)
 
   priv = TEST_COGLBOX_GET_PRIVATE (object);
 
-  cogl_handle_unref (priv->texture_id);
-  cogl_handle_unref (priv->offscreen_id);
+  cogl_object_unref (priv->texture_id);
+  cogl_object_unref (priv->offscreen_id);
 
   G_OBJECT_CLASS (test_coglbox_parent_class)->dispose (object);
 }

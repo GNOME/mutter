@@ -360,8 +360,6 @@ cogl_gtype_matrix_get_type
 #endif
 
 cogl_handle_get_type
-cogl_handle_ref
-cogl_handle_unref
 
 cogl_has_feature
 cogl_has_features
