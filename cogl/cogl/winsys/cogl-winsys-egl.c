@@ -71,6 +71,12 @@
 #define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR 0x00000002
 #endif
 
+#ifndef EGL_IMG_context_priority
+#define EGL_CONTEXT_PRIORITY_LEVEL_IMG          0x3100
+#define EGL_CONTEXT_PRIORITY_HIGH_IMG           0x3101
+#define EGL_CONTEXT_PRIORITY_MEDIUM_IMG         0x3102
+#define EGL_CONTEXT_PRIORITY_LOW_IMG            0x3103
+#endif
 
 #define MAX_EGL_CONFIG_ATTRIBS 30
 
@@ -347,7 +353,7 @@ try_create_context (CoglDisplay *display,
   CoglRendererEGL *egl_renderer = renderer->winsys;
   EGLDisplay edpy;
   EGLConfig config;
-  EGLint attribs[9];
+  EGLint attribs[11];
   EGLint cfg_attribs[MAX_EGL_CONFIG_ATTRIBS];
   GError *config_error = NULL;
   const char *error_message;
@@ -402,6 +408,13 @@ try_create_context (CoglDisplay *display,
     {
       attribs[i++] = EGL_CONTEXT_CLIENT_VERSION;
       attribs[i++] = 2;
+    }
+
+  if (egl_renderer->private_features &
+      COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY)
+    {
+      attribs[i++] = EGL_CONTEXT_PRIORITY_LEVEL_IMG;
+      attribs[i++] = EGL_CONTEXT_PRIORITY_HIGH_IMG;
     }
 
   attribs[i++] = EGL_NONE;
