@@ -71,7 +71,7 @@ cogl_create_shader (CoglShaderType type)
 {
   CoglShader *shader;
 
-  _COGL_GET_CONTEXT (ctx, COGL_INVALID_HANDLE);
+  _COGL_GET_CONTEXT (ctx, NULL);
 
   switch (type)
     {
@@ -81,7 +81,7 @@ cogl_create_shader (CoglShaderType type)
     default:
       g_warning ("Unexpected shader type (0x%08lX) given to "
                  "cogl_create_shader", (unsigned long) type);
-      return COGL_INVALID_HANDLE;
+      return NULL;
     }
 
   shader = g_slice_new (CoglShader);

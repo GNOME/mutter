@@ -259,7 +259,7 @@ test_coglbox_init (TestCoglbox *self)
                                  COGL_TEXTURE_NONE,
                                  COGL_PIXEL_FORMAT_ANY,
                                  &error);
-  if (priv->sliced_tex == COGL_INVALID_HANDLE)
+  if (priv->sliced_tex == NULL)
     {
       if (error)
         {
@@ -276,7 +276,7 @@ test_coglbox_init (TestCoglbox *self)
                                 COGL_TEXTURE_NO_SLICING,
                                 COGL_PIXEL_FORMAT_ANY,
                                 &error);
-  if (priv->not_sliced_tex == COGL_INVALID_HANDLE)
+  if (priv->not_sliced_tex == NULL)
     {
       if (error)
         {
