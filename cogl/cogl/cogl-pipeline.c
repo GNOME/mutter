@@ -438,7 +438,7 @@ _cogl_pipeline_free (CoglPipeline *pipeline)
 
   if (pipeline->differences & COGL_PIPELINE_STATE_USER_SHADER &&
       pipeline->big_state->user_program)
-    cogl_handle_unref (pipeline->big_state->user_program);
+    cogl_object_unref (pipeline->big_state->user_program);
 
   if (pipeline->differences & COGL_PIPELINE_STATE_UNIFORMS)
     {
@@ -1002,7 +1002,7 @@ _cogl_pipeline_copy_differences (CoglPipeline *dest,
     {
       if (src->big_state->user_program)
         big_state->user_program =
-          cogl_handle_ref (src->big_state->user_program);
+          cogl_object_ref (src->big_state->user_program);
       else
         big_state->user_program = COGL_INVALID_HANDLE;
     }

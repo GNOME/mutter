@@ -152,7 +152,7 @@ test_vertex_buffer_interleved (TestUtilsGTestFixture *fixture,
 
   clutter_main ();
 
-  cogl_handle_unref (state.buffer);
+  cogl_object_unref (state.buffer);
 
   g_source_remove (idle_source);
 

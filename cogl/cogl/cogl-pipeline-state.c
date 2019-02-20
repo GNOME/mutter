@@ -1142,10 +1142,10 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
     }
 
   if (program != COGL_INVALID_HANDLE)
-    cogl_handle_ref (program);
+    cogl_object_ref (program);
   if (authority == pipeline &&
       pipeline->big_state->user_program != COGL_INVALID_HANDLE)
-    cogl_handle_unref (pipeline->big_state->user_program);
+    cogl_object_unref (pipeline->big_state->user_program);
   pipeline->big_state->user_program = program;
 
   pipeline->dirty_real_blend_enable = TRUE;

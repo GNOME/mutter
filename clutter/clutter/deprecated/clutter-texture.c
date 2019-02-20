@@ -1336,7 +1336,7 @@ clutter_texture_get_cogl_material (ClutterTexture *texture)
  * Replaces the underlying Cogl material drawn by this actor with
  * @cogl_material. A reference to the material is taken so if the
  * handle is no longer needed it should be deref'd with
- * cogl_handle_unref. Texture data is attached to the material so
+ * cogl_object_unref. Texture data is attached to the material so
  * calling this function also replaces the Cogl
  * texture. #ClutterTexture requires that the material have a texture
  * layer so you should set one on the material before calling this
@@ -1409,7 +1409,7 @@ get_first_layer_index (CoglPipeline *pipeline, int *layer_index)
  *
  * Retrieves the handle to the underlying COGL texture used for drawing
  * the actor. No extra reference is taken so if you need to keep the
- * handle then you should call cogl_handle_ref() on it.
+ * handle then you should call cogl_object_ref() on it.
  *
  * The texture handle returned is the first layer of the material
  * handle used by the #ClutterTexture. If you need to access the other
@@ -1449,7 +1449,7 @@ clutter_texture_get_cogl_texture (ClutterTexture *texture)
  *
  * Replaces the underlying COGL texture drawn by this actor with
  * @cogl_tex. A reference to the texture is taken so if the handle is
- * no longer needed it should be deref'd with cogl_handle_unref.
+ * no longer needed it should be deref'd with cogl_object_unref.
  *
  * Since: 0.8
  *
