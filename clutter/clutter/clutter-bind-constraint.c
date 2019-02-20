@@ -152,7 +152,9 @@ clutter_bind_constraint_update_allocation (ClutterConstraint *constraint,
   ClutterBindConstraint *bind = CLUTTER_BIND_CONSTRAINT (constraint);
   gfloat source_width, source_height;
   gfloat actor_width, actor_height;
-  ClutterVertex source_position = { 0., };
+  graphene_point3d_t source_position;
+
+  source_position = GRAPHENE_POINT3D_INIT (0.f, 0.f, 0.f);
 
   if (bind->source == NULL)
     return;
