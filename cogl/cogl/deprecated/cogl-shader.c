@@ -43,7 +43,7 @@
 
 static void _cogl_shader_free (CoglShader *shader);
 
-COGL_HANDLE_DEFINE (Shader, shader);
+COGL_OBJECT_DEFINE (Shader, shader);
 COGL_OBJECT_DEFINE_DEPRECATED_REF_COUNTING (shader);
 
 #ifndef GL_FRAGMENT_SHADER
@@ -90,7 +90,7 @@ cogl_create_shader (CoglShaderType type)
   shader->compilation_pipeline = NULL;
   shader->type = type;
 
-  return _cogl_shader_handle_new (shader);
+  return _cogl_shader_object_new (shader);
 }
 
 static void
