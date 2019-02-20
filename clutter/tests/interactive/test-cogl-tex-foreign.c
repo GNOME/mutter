@@ -219,7 +219,7 @@ test_coglbox_init (TestCoglbox *self)
 				   2, 2, 0, 0,
 				   COGL_PIXEL_FORMAT_RGB_888);
   
-  if (priv->cogl_handle == COGL_INVALID_HANDLE)
+  if (priv->cogl_handle == NULL)
     {
       printf ("Failed creating texture from foreign!\n");
       return;

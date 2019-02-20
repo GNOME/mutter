@@ -294,7 +294,7 @@ clutter_cairo_texture_context_destroy (void *data)
   cogl_texture = clutter_texture_get_cogl_texture (CLUTTER_TEXTURE (cairo));
   if (cairo_width == 0 ||
       cairo_height == 0 ||
-      cogl_texture == COGL_INVALID_HANDLE)
+      cogl_texture == NULL)
     {
       draw_context_destroy (ctxt);
       return;
