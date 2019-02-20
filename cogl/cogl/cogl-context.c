@@ -437,7 +437,7 @@ _cogl_context_free (CoglContext *context)
   _cogl_free_framebuffer_stack (context->framebuffer_stack);
 
   if (context->current_path)
-    cogl_handle_unref (context->current_path);
+    cogl_object_unref (context->current_path);
 
   if (context->default_gl_texture_2d_tex)
     cogl_object_unref (context->default_gl_texture_2d_tex);

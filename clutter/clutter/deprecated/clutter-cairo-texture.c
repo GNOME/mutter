@@ -507,7 +507,7 @@ clutter_cairo_texture_create_surface (ClutterCairoTexture *self,
                                              cairo_stride,
                                              cairo_data);
   clutter_texture_set_cogl_texture (CLUTTER_TEXTURE (self), cogl_texture);
-  cogl_handle_unref (cogl_texture);
+  cogl_object_unref (cogl_texture);
 
   return surface;
 }
