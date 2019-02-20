@@ -244,7 +244,7 @@ clutter_zoom_action_real_zoom (ClutterZoomAction *action,
   ClutterZoomActionPrivate *priv = action->priv;
   gfloat x, y, z;
   gdouble scale_x, scale_y;
-  ClutterVertex out, in;
+  graphene_point3d_t out, in;
 
   in.x = priv->transformed_focal_point.x;
   in.y = priv->transformed_focal_point.y;
