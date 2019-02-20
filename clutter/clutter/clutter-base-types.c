@@ -213,256 +213,6 @@ G_DEFINE_BOXED_TYPE (ClutterMargin, clutter_margin,
 
 
 /*
- * ClutterPoint
- */
-
-static const ClutterPoint _clutter_point_zero = CLUTTER_POINT_INIT_ZERO;
-
-/**
- * clutter_point_zero:
- *
- * A point centered at (0, 0).
- *
- * The returned value can be used as a guard.
- *
- * Return value: a point centered in (0, 0); the returned #ClutterPoint
- *   is owned by Clutter and it should not be modified or freed.
- *
- * Since: 1.12
- */
-const ClutterPoint *
-clutter_point_zero (void)
-{
-  return &_clutter_point_zero;
-}
-
-/**
- * clutter_point_alloc: (constructor)
- *
- * Allocates a new #ClutterPoint.
- *
- * Return value: (transfer full): the newly allocated #ClutterPoint.
- *   Use clutter_point_free() to free its resources.
- *
- * Since: 1.12
- */
-ClutterPoint *
-clutter_point_alloc (void)
-{
-  return g_slice_new0 (ClutterPoint);
-}
-
-/**
- * clutter_point_init:
- * @point: a #ClutterPoint
- * @x: the X coordinate of the point
- * @y: the Y coordinate of the point
- *
- * Initializes @point with the given coordinates.
- *
- * Return value: (transfer none): the initialized #ClutterPoint
- *
- * Since: 1.12
- */
-ClutterPoint *
-clutter_point_init (ClutterPoint *point,
-                    float         x,
-                    float         y)
-{
-  g_return_val_if_fail (point != NULL, NULL);
-
-  point->x = x;
-  point->y = y;
-
-  return point;
-}
-
-/**
- * clutter_point_copy:
- * @point: a #ClutterPoint
- *
- * Creates a new #ClutterPoint with the same coordinates of @point.
- *
- * Return value: (transfer full): a newly allocated #ClutterPoint.
- *   Use clutter_point_free() to free its resources.
- *
- * Since: 1.12
- */
-ClutterPoint *
-clutter_point_copy (const ClutterPoint *point)
-{
-  return g_slice_dup (ClutterPoint, point);
-}
-
-/**
- * clutter_point_free:
- * @point: a #ClutterPoint
- *
- * Frees the resources allocated for @point.
- *
- * Since: 1.12
- */
-void
-clutter_point_free (ClutterPoint *point)
-{
-  if (point != NULL && point != &_clutter_point_zero)
-    g_slice_free (ClutterPoint, point);
-}
-
-/**
- * clutter_point_equals:
- * @a: the first #ClutterPoint to compare
- * @b: the second #ClutterPoint to compare
- *
- * Compares two #ClutterPoint for equality.
- *
- * Return value: %TRUE if the #ClutterPoints are equal
- *
- * Since: 1.12
- */
-gboolean
-clutter_point_equals (const ClutterPoint *a,
-                      const ClutterPoint *b)
-{
-  if (a == b)
-    return TRUE;
-
-  if (a == NULL || b == NULL)
-    return FALSE;
-
-  return fabsf (a->x - b->x) < FLOAT_EPSILON &&
-         fabsf (a->y - b->y) < FLOAT_EPSILON;
-}
-
-/**
- * clutter_point_distance:
- * @a: a #ClutterPoint
- * @b: a #ClutterPoint
- * @x_distance: (out) (allow-none): return location for the horizontal
- *   distance between the points
- * @y_distance: (out) (allow-none): return location for the vertical
- *   distance between the points
- *
- * Computes the distance between two #ClutterPoint.
- *
- * Return value: the distance between the points.
- *
- * Since: 1.12
- */
-float
-clutter_point_distance (const ClutterPoint *a,
-                        const ClutterPoint *b,
-                        float              *x_distance,
-                        float              *y_distance)
-{
-  float x_d, y_d;
-
-  g_return_val_if_fail (a != NULL, 0.f);
-  g_return_val_if_fail (b != NULL, 0.f);
-
-  if (clutter_point_equals (a, b))
-    return 0.f;
-
-  x_d = (a->x - b->x);
-  y_d = (a->y - b->y);
-
-  if (x_distance != NULL)
-    *x_distance = fabsf (x_d);
-
-  if (y_distance != NULL)
-    *y_distance = fabsf (y_d);
-
-  return sqrt ((x_d * x_d) + (y_d * y_d));
-}
-
-static gboolean
-clutter_point_progress (const GValue *a,
-                        const GValue *b,
-                        gdouble       progress,
-                        GValue       *retval)
-{
-  const ClutterPoint *ap = g_value_get_boxed (a);
-  const ClutterPoint *bp = g_value_get_boxed (b);
-  ClutterPoint res = CLUTTER_POINT_INIT (0, 0);
-
-  res.x = ap->x + (bp->x - ap->x) * progress;
-  res.y = ap->y + (bp->y - ap->y) * progress;
-
-  g_value_set_boxed (retval, &res);
-
-  return TRUE;
-}
-
-G_DEFINE_BOXED_TYPE_WITH_CODE (ClutterPoint, clutter_point,
-                               clutter_point_copy,
-                               clutter_point_free,
-                               CLUTTER_REGISTER_INTERVAL_PROGRESS (clutter_point_progress))
-
-static int
-clutter_point_compare_line (const ClutterPoint *p,
-                            const ClutterPoint *a,
-                            const ClutterPoint *b)
-{
-  float x1 = b->x - a->x;
-  float y1 = b->y - a->y;
-  float x2 = p->x - a->x;
-  float y2 = p->y - a->y;
-  float cross_z = x1 * y2 - y1 * x2;
-
-  if (cross_z > 0.f)
-    return 1;
-  else if (cross_z < 0.f)
-    return -1;
-  else
-    return 0;
-}
-
-/**
- * clutter_point_inside_quadrilateral:
- * @point: a #ClutterPoint to test
- * @vertices: array of vertices of the quadrilateral, in either clockwise or
- *            anticlockwise order.
- *
- * Determines whether a point is inside the convex quadrilateral provided,
- * or on any of its edges or vertices.
- *
- * Returns: %TRUE if @point is inside or touching the quadrilateral
- */
-gboolean
-clutter_point_inside_quadrilateral (const ClutterPoint *point,
-                                    const ClutterPoint *vertices)
-{
-  unsigned int i;
-  int first_side;
-
-  first_side = 0;
-
-  for (i = 0; i < 4; i++)
-    {
-      int side;
-
-      side = clutter_point_compare_line (point,
-                                         &vertices[i],
-                                         &vertices[(i + 1) % 4]);
-
-      if (side)
-        {
-          if (first_side == 0)
-            first_side = side;
-          else if (side != first_side)
-            return FALSE;
-        }
-    }
-
-  if (first_side == 0)
-    return FALSE;
-
-  return TRUE;
-}
-
-
-
-/*
  * ClutterRect
  */
 
@@ -645,7 +395,7 @@ clutter_rect_equals (ClutterRect *a,
   clutter_rect_normalize_internal (a);
   clutter_rect_normalize_internal (b);
 
-  return clutter_point_equals (&a->origin, &b->origin) &&
+  return graphene_point_equal (&a->origin, &b->origin) &&
          graphene_size_equal (&a->size, &b->size);
 }
 
@@ -678,7 +428,7 @@ clutter_rect_normalize (ClutterRect *rect)
 /**
  * clutter_rect_get_center:
  * @rect: a #ClutterRect
- * @center: (out caller-allocates): a #ClutterPoint
+ * @center: (out caller-allocates): a #graphene_point_t
  *
  * Retrieves the center of @rect, after normalizing the rectangle,
  * and updates @center with the correct coordinates.
@@ -686,8 +436,8 @@ clutter_rect_normalize (ClutterRect *rect)
  * Since: 1.12
  */
 void
-clutter_rect_get_center (ClutterRect  *rect,
-                         ClutterPoint *center)
+clutter_rect_get_center (ClutterRect      *rect,
+                         graphene_point_t *center)
 {
   g_return_if_fail (rect != NULL);
   g_return_if_fail (center != NULL);
@@ -711,8 +461,8 @@ clutter_rect_get_center (ClutterRect  *rect,
  * Since: 1.12
  */
 gboolean
-clutter_rect_contains_point (ClutterRect  *rect,
-                             ClutterPoint *point)
+clutter_rect_contains_point (ClutterRect      *rect,
+                             graphene_point_t *point)
 {
   g_return_val_if_fail (rect != NULL, FALSE);
   g_return_val_if_fail (point != NULL, FALSE);

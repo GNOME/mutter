@@ -107,7 +107,7 @@ struct _ClutterStageQueueRedrawEntry
 
 typedef struct _PickRecord
 {
-  ClutterPoint vertex[4];
+  graphene_point_t vertex[4];
   ClutterActor *actor;
   int clip_stack_top;
 } PickRecord;
@@ -115,7 +115,7 @@ typedef struct _PickRecord
 typedef struct _PickClipRecord
 {
   int prev;
-  ClutterPoint vertex[4];
+  graphene_point_t vertex[4];
 } PickClipRecord;
 
 struct _ClutterStagePrivate
@@ -376,9 +376,9 @@ _clutter_stage_clear_pick_stack (ClutterStage *stage)
 }
 
 void
-clutter_stage_log_pick (ClutterStage       *stage,
-                        const ClutterPoint *vertices,
-                        ClutterActor       *actor)
+clutter_stage_log_pick (ClutterStage           *stage,
+                        const graphene_point_t *vertices,
+                        ClutterActor           *actor)
 {
   ClutterStagePrivate *priv;
   PickRecord rec;
@@ -390,7 +390,7 @@ clutter_stage_log_pick (ClutterStage       *stage,
 
   g_assert (!priv->pick_stack_frozen);
 
-  memcpy (rec.vertex, vertices, 4 * sizeof (ClutterPoint));
+  memcpy (rec.vertex, vertices, 4 * sizeof (graphene_point_t));
   rec.actor = actor;
   rec.clip_stack_top = priv->pick_clip_stack_top;
 
@@ -398,8 +398,8 @@ clutter_stage_log_pick (ClutterStage       *stage,
 }
 
 void
-clutter_stage_push_pick_clip (ClutterStage       *stage,
-                              const ClutterPoint *vertices)
+clutter_stage_push_pick_clip (ClutterStage           *stage,
+                              const graphene_point_t *vertices)
 {
   ClutterStagePrivate *priv;
   PickClipRecord clip;
@@ -411,7 +411,7 @@ clutter_stage_push_pick_clip (ClutterStage       *stage,
   g_assert (!priv->pick_stack_frozen);
 
   clip.prev = priv->pick_clip_stack_top;
-  memcpy (clip.vertex, vertices, 4 * sizeof (ClutterPoint));
+  memcpy (clip.vertex, vertices, 4 * sizeof (graphene_point_t));
 
   g_array_append_val (priv->pick_clip_stack, clip);
   priv->pick_clip_stack_top = priv->pick_clip_stack->len - 1;
@@ -444,7 +444,7 @@ clutter_stage_pop_pick_clip (ClutterStage *stage)
 }
 
 static gboolean
-is_quadrilateral_axis_aligned_rectangle (const ClutterPoint *vertices)
+is_quadrilateral_axis_aligned_rectangle (const graphene_point_t *vertices)
 {
   int i;
 
@@ -462,8 +462,8 @@ is_quadrilateral_axis_aligned_rectangle (const ClutterPoint *vertices)
 }
 
 static gboolean
-is_inside_axis_aligned_rectangle (const ClutterPoint *point,
-                                  const ClutterPoint *vertices)
+is_inside_axis_aligned_rectangle (const graphene_point_t *point,
+                                  const graphene_point_t *vertices)
 {
   float min_x = FLT_MAX;
   float max_x = FLT_MIN;
@@ -485,15 +485,70 @@ is_inside_axis_aligned_rectangle (const ClutterPoint *point,
           point->y < max_y);
 }
 
+static int
+clutter_point_compare_line (const graphene_point_t *p,
+                            const graphene_point_t *a,
+                            const graphene_point_t *b)
+{
+  graphene_vec3_t vec_pa;
+  graphene_vec3_t vec_pb;
+  graphene_vec3_t cross;
+  float cross_z;
+
+  graphene_vec3_init (&vec_pa, p->x - a->x, p->y - a->y, 0.f);
+  graphene_vec3_init (&vec_pb, p->x - b->x, p->y - b->y, 0.f);
+  graphene_vec3_cross (&vec_pa, &vec_pb, &cross);
+  cross_z = graphene_vec3_get_z (&cross);
+
+  if (cross_z > 0.f)
+    return 1;
+  else if (cross_z < 0.f)
+    return -1;
+  else
+    return 0;
+}
+
 static gboolean
-is_inside_input_region (const ClutterPoint *point,
-                        const ClutterPoint *vertices)
+is_inside_unaligned_rectangle (const graphene_point_t *point,
+                               const graphene_point_t *vertices)
+{
+  unsigned int i;
+  int first_side;
+
+  first_side = 0;
+
+  for (i = 0; i < 4; i++)
+    {
+      int side;
+
+      side = clutter_point_compare_line (point,
+                                         &vertices[i],
+                                         &vertices[(i + 1) % 4]);
+
+      if (side)
+        {
+          if (first_side == 0)
+            first_side = side;
+          else if (side != first_side)
+            return FALSE;
+        }
+    }
+
+  if (first_side == 0)
+    return FALSE;
+
+  return TRUE;
+}
+
+static gboolean
+is_inside_input_region (const graphene_point_t *point,
+                        const graphene_point_t *vertices)
 {
 
   if (is_quadrilateral_axis_aligned_rectangle (vertices))
     return is_inside_axis_aligned_rectangle (point, vertices);
   else
-    return clutter_point_inside_quadrilateral (point, vertices);
+    return is_inside_unaligned_rectangle (point, vertices);
 }
 
 static gboolean
@@ -502,7 +557,7 @@ pick_record_contains_pixel (ClutterStage     *stage,
                             int               x,
                             int               y)
 {
-  const ClutterPoint point = CLUTTER_POINT_INIT (x, y);
+  const graphene_point_t point = GRAPHENE_POINT_INIT (x, y);
   ClutterStagePrivate *priv;
   int clip_index;
 
@@ -1367,7 +1422,7 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
   GSList *updating = NULL;
   const GSList *devices;
   cairo_rectangle_int_t clip;
-  ClutterPoint point;
+  graphene_point_t point;
   gboolean has_clip;
 
   has_clip = _clutter_stage_window_get_redraw_clip_bounds (priv->impl, &clip);

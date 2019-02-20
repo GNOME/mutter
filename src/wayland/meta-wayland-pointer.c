@@ -926,7 +926,7 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
   if (surface != NULL)
     {
       struct wl_client *client = wl_resource_get_client (surface->resource);
-      ClutterPoint pos;
+      graphene_point_t pos;
 
       pointer->focus_surface = surface;
 
@@ -1039,7 +1039,7 @@ meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
 					       wl_fixed_t         *sy)
 {
   float xf = 0.0f, yf = 0.0f;
-  ClutterPoint pos;
+  graphene_point_t pos;
 
   clutter_input_device_get_coords (pointer->device, NULL, &pos);
   meta_wayland_surface_get_relative_coordinates (surface, pos.x, pos.y, &xf, &yf);
