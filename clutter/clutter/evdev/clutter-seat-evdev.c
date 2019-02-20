@@ -568,7 +568,7 @@ clutter_seat_evdev_notify_button (ClutterSeatEvdev   *seat,
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
     {
-      ClutterPoint point;
+      graphene_point_t point;
 
       clutter_input_device_get_coords (input_device, NULL, &point);
       event->button.x = point.x;

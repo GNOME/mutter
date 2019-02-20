@@ -42,7 +42,7 @@ struct _ClutterTouchState
 
   int device_slot;
   int seat_slot;
-  ClutterPoint coords;
+  graphene_point_t coords;
 };
 
 struct _ClutterSeatEvdev
