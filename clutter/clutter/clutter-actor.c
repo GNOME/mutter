@@ -701,7 +701,7 @@ struct _ClutterActorPrivate
   ClutterAllocationFlags allocation_flags;
 
   /* clip, in actor coordinates */
-  ClutterRect clip;
+  graphene_rect_t clip;
 
   /* the cached transformation matrix; see apply_transform() */
   CoglMatrix transform;
@@ -5093,8 +5093,8 @@ clutter_actor_set_anchor_coord (ClutterActor      *self,
 }
 
 static void
-clutter_actor_set_clip_rect (ClutterActor      *self,
-                             const ClutterRect *clip)
+clutter_actor_set_clip_rect (ClutterActor          *self,
+                             const graphene_rect_t *clip)
 {
   ClutterActorPrivate *priv = self->priv;
   GObject *obj = G_OBJECT (self);
@@ -7005,7 +7005,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor:clip-rect:
    *
    * The visible region of the actor, in actor-relative coordinates,
-   * expressed as a #ClutterRect.
+   * expressed as a #graphene_rect_t.
    *
    * Setting this property to %NULL will unset the existing clip.
    *
@@ -7018,7 +7018,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("clip-rect",
                         P_("Clip Rectangle"),
                         P_("The visible region of the actor"),
-                        CLUTTER_TYPE_RECT,
+                        GRAPHENE_TYPE_RECT,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS);
 
@@ -17808,9 +17808,9 @@ clutter_actor_get_paint_box (ClutterActor    *self,
 }
 
 static gboolean
-_clutter_actor_get_resource_scale_for_rect (ClutterActor *self,
-                                            ClutterRect  *bounding_rect,
-                                            float        *resource_scale)
+_clutter_actor_get_resource_scale_for_rect (ClutterActor    *self,
+                                            graphene_rect_t *bounding_rect,
+                                            float           *resource_scale)
 {
   ClutterActor *stage;
   float max_scale = 0;
@@ -17833,7 +17833,7 @@ static gboolean
 _clutter_actor_compute_resource_scale (ClutterActor *self,
                                        float        *resource_scale)
 {
-  ClutterRect bounding_rect;
+  graphene_rect_t bounding_rect;
   ClutterActorPrivate *priv = self->priv;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (self) ||

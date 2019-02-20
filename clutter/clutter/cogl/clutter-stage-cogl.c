@@ -625,14 +625,14 @@ is_buffer_age_enabled (void)
 }
 
 static void
-scale_and_clamp_rect (const ClutterRect     *rect,
+scale_and_clamp_rect (const graphene_rect_t *rect,
                       float                  scale,
                       cairo_rectangle_int_t *dest)
 
 {
-  ClutterRect tmp = *rect;
+  graphene_rect_t tmp = *rect;
 
-  clutter_rect_scale (&tmp, scale, scale);
+  graphene_rect_scale (&tmp, scale, scale, &tmp);
   _clutter_util_rectangle_int_extents (&tmp, dest);
 }
 
@@ -699,12 +699,12 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
        * frames when starting up... */
       cogl_onscreen_get_frame_counter (COGL_ONSCREEN (fb)) > 3)
     {
-      ClutterRect rect;
+      graphene_rect_t rect;
 
       may_use_clipped_redraw = TRUE;
 
       _clutter_util_rect_from_rectangle (&redraw_clip, &rect);
-      clutter_rect_offset (&rect, -view_rect.x, -view_rect.y);
+      graphene_rect_offset (&rect, -view_rect.x, -view_rect.y);
       scale_and_clamp_rect (&rect, fb_scale, &fb_clip_region);
 
       if (fb_scale != floorf (fb_scale))
@@ -742,7 +742,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
 
           if (valid_buffer_age (view_cogl, age))
             {
-              ClutterRect rect;
+              graphene_rect_t rect;
               cairo_rectangle_int_t damage_region;
 
               *current_fb_damage = fb_clip_region;
@@ -802,7 +802,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     }
   else if (use_clipped_redraw)
     {
-      ClutterRect rect;
+      graphene_rect_t rect;
       cairo_rectangle_int_t scissor_rect;
       cairo_rectangle_int_t paint_rect;
 
@@ -848,7 +848,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
           may_use_clipped_redraw &&
           !clip_region_empty)
         {
-          ClutterRect rect;
+          graphene_rect_t rect;
           cairo_rectangle_int_t scissor_rect;
           cairo_rectangle_int_t paint_rect;
 
