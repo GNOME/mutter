@@ -138,7 +138,7 @@ cogl_vertex_buffer_new (unsigned int n_vertices)
   buffer->primitive = cogl_primitive_new (COGL_VERTICES_MODE_TRIANGLES,
                                           n_vertices, NULL);
 
-  /* return COGL_INVALID_HANDLE; */
+  /* return NULL; */
   return _cogl_vertex_buffer_object_new (buffer);
 }
 
@@ -1675,7 +1675,7 @@ cogl_vertex_buffer_indices_new (CoglIndicesType  indices_type,
 {
   CoglIndices *indices;
 
-  _COGL_GET_CONTEXT (ctx, COGL_INVALID_HANDLE);
+  _COGL_GET_CONTEXT (ctx, NULL);
 
   indices = cogl_indices_new (ctx, indices_type, indices_array, indices_len);
   return _cogl_vertex_buffer_indices_new_real (indices);
@@ -1749,11 +1749,11 @@ _cogl_vertex_buffer_free (CoglVertexBuffer *buffer)
 CoglHandle
 cogl_vertex_buffer_indices_get_for_quads (unsigned int n_indices)
 {
-  _COGL_GET_CONTEXT (ctx, COGL_INVALID_HANDLE);
+  _COGL_GET_CONTEXT (ctx, NULL);
 
   if (n_indices <= 256 / 4 * 6)
     {
-      if (ctx->quad_buffer_indices_byte == COGL_INVALID_HANDLE)
+      if (ctx->quad_buffer_indices_byte == NULL)
         {
           /* NB: cogl_get_quad_indices takes n_quads not n_indices... */
           CoglIndices *indices = cogl_get_rectangle_indices (ctx, 256 / 4);
@@ -1770,10 +1770,10 @@ cogl_vertex_buffer_indices_get_for_quads (unsigned int n_indices)
           ctx->quad_buffer_indices_len < n_indices)
         {
           cogl_object_unref (ctx->quad_buffer_indices);
-          ctx->quad_buffer_indices = COGL_INVALID_HANDLE;
+          ctx->quad_buffer_indices = NULL;
         }
 
-      if (ctx->quad_buffer_indices == COGL_INVALID_HANDLE)
+      if (ctx->quad_buffer_indices == NULL)
         {
           /* NB: cogl_get_quad_indices takes n_quads not n_indices... */
           CoglIndices *indices =
