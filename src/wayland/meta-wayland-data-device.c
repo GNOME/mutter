@@ -1161,7 +1161,7 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data
 {
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
   MetaWaylandDragGrab *drag_grab;
-  ClutterPoint pos, surface_pos;
+  graphene_point_t pos, surface_pos;
   ClutterModifierType modifiers;
   MetaSurfaceActor *surface_actor;
 

@@ -241,7 +241,7 @@ void
 meta_feedback_actor_update (MetaFeedbackActor  *self,
                             const ClutterEvent *event)
 {
-  ClutterPoint point;
+  graphene_point_t point;
 
   g_return_if_fail (META_IS_FEEDBACK_ACTOR (self));
   g_return_if_fail (event != NULL);

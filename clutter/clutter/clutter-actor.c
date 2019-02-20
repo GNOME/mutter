@@ -1290,7 +1290,7 @@ static gboolean
 _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
                                              ClutterStage          *stage,
                                              const ClutterActorBox *box,
-                                             ClutterPoint           vertices[4])
+                                             graphene_point_t       vertices[4])
 {
   CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
   CoglMatrix stage_transform, inv_stage_transform;
@@ -1346,7 +1346,7 @@ clutter_actor_pick_box (ClutterActor          *self,
                         const ClutterActorBox *box)
 {
   ClutterStage *stage;
-  ClutterPoint vertices[4];
+  graphene_point_t vertices[4];
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
   g_return_if_fail (box != NULL);
@@ -1365,7 +1365,7 @@ _clutter_actor_push_pick_clip (ClutterActor          *self,
                                const ClutterActorBox *clip)
 {
   ClutterStage *stage;
-  ClutterPoint vertices[4];
+  graphene_point_t vertices[4];
 
   stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
 
@@ -4475,7 +4475,7 @@ static const ClutterTransformInfo default_transform_info = {
 
   0.f,                          /* z-position */
 
-  CLUTTER_POINT_INIT_ZERO,      /* pivot */
+  GRAPHENE_POINT_INIT_ZERO,     /* pivot */
   0.f,                          /* pivot-z */
 
   CLUTTER_MATRIX_INIT_IDENTITY,
@@ -4554,8 +4554,8 @@ _clutter_actor_get_transform_info (ClutterActor *self)
 }
 
 static inline void
-clutter_actor_set_pivot_point_internal (ClutterActor       *self,
-                                        const ClutterPoint *pivot)
+clutter_actor_set_pivot_point_internal (ClutterActor           *self,
+                                        const graphene_point_t *pivot)
 {
   ClutterTransformInfo *info;
 
@@ -5132,7 +5132,7 @@ clutter_actor_set_property (GObject      *object,
 
     case PROP_POSITION:
       {
-        const ClutterPoint *pos = g_value_get_boxed (value);
+        const graphene_point_t *pos = g_value_get_boxed (value);
 
         if (pos != NULL)
           clutter_actor_set_position (actor, pos->x, pos->y);
@@ -5237,10 +5237,10 @@ clutter_actor_set_property (GObject      *object,
 
     case PROP_PIVOT_POINT:
       {
-        const ClutterPoint *pivot = g_value_get_boxed (value);
+        const graphene_point_t *pivot = g_value_get_boxed (value);
 
         if (pivot == NULL)
-          pivot = clutter_point_zero ();
+          pivot = graphene_point_zero ();
 
         clutter_actor_set_pivot_point (actor, pivot->x, pivot->y);
       }
@@ -5486,11 +5486,11 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_POSITION:
       {
-        ClutterPoint position;
+        graphene_point_t position;
 
-        clutter_point_init (&position,
-                            clutter_actor_get_x (actor),
-                            clutter_actor_get_y (actor));
+        graphene_point_init (&position,
+                             clutter_actor_get_x (actor),
+                             clutter_actor_get_y (actor));
         g_value_set_boxed (value, &position);
       }
       break;
@@ -6507,7 +6507,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("position",
                         P_("Position"),
                         P_("The position of the origin of the actor"),
-                        CLUTTER_TYPE_POINT,
+                        GRAPHENE_TYPE_POINT,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         CLUTTER_PARAM_ANIMATABLE);
@@ -7062,7 +7062,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("pivot-point",
                         P_("Pivot Point"),
                         P_("The point around which the scaling and rotation occur"),
-                        CLUTTER_TYPE_POINT,
+                        GRAPHENE_TYPE_POINT,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         CLUTTER_PARAM_ANIMATABLE);
@@ -10406,17 +10406,17 @@ clutter_actor_set_position (ClutterActor *self,
 			    gfloat        x,
 			    gfloat        y)
 {
-  ClutterPoint new_position;
-  ClutterPoint cur_position;
+  graphene_point_t new_position;
+  graphene_point_t cur_position;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  clutter_point_init (&new_position, x, y);
+  graphene_point_init (&new_position, x, y);
 
   cur_position.x = clutter_actor_get_x (self);
   cur_position.y = clutter_actor_get_y (self);
 
-  if (!clutter_point_equals (&cur_position, &new_position))
+  if (!graphene_point_equal (&cur_position, &new_position))
     _clutter_actor_create_transition (self, obj_props[PROP_POSITION],
                                       &cur_position,
                                       &new_position);
@@ -11370,8 +11370,8 @@ clutter_actor_set_y_internal (ClutterActor *self,
 }
 
 static void
-clutter_actor_set_position_internal (ClutterActor       *self,
-                                     const ClutterPoint *position)
+clutter_actor_set_position_internal (ClutterActor           *self,
+                                     const graphene_point_t *position)
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterLayoutInfo *linfo;
@@ -11380,7 +11380,7 @@ clutter_actor_set_position_internal (ClutterActor       *self,
   linfo = _clutter_actor_get_layout_info (self);
 
   if (priv->position_set &&
-      clutter_point_equals (position, &linfo->fixed_pos))
+      graphene_point_equal (position, &linfo->fixed_pos))
     return;
 
   clutter_actor_store_old_geometry (self, &old);
@@ -12199,7 +12199,7 @@ clutter_actor_set_pivot_point (ClutterActor *self,
                                gfloat        pivot_x,
                                gfloat        pivot_y)
 {
-  ClutterPoint pivot = CLUTTER_POINT_INIT (pivot_x, pivot_y);
+  graphene_point_t pivot = GRAPHENE_POINT_INIT (pivot_x, pivot_y);
   const ClutterTransformInfo *info;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
@@ -18487,7 +18487,7 @@ clutter_actor_get_layout_manager (ClutterActor *self)
 }
 
 static const ClutterLayoutInfo default_layout_info = {
-  CLUTTER_POINT_INIT_ZERO,      /* fixed-pos */
+  GRAPHENE_POINT_INIT_ZERO,     /* fixed-pos */
   { 0, 0, 0, 0 },               /* margin */
   CLUTTER_ACTOR_ALIGN_FILL,     /* x-align */
   CLUTTER_ACTOR_ALIGN_FILL,     /* y-align */
