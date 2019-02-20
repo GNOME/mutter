@@ -351,6 +351,7 @@ try_create_context (CoglDisplay *display,
   EGLint cfg_attribs[MAX_EGL_CONFIG_ATTRIBS];
   GError *config_error = NULL;
   const char *error_message;
+  int i = 0;
 
   _COGL_RETURN_VAL_IF_FAIL (egl_display->egl_context == NULL, TRUE);
 
@@ -388,24 +389,22 @@ try_create_context (CoglDisplay *display,
         }
 
       /* Try to get a core profile 3.1 context with no deprecated features */
-      attribs[0] = EGL_CONTEXT_MAJOR_VERSION_KHR;
-      attribs[1] = 3;
-      attribs[2] = EGL_CONTEXT_MINOR_VERSION_KHR;
-      attribs[3] = 1;
-      attribs[4] = EGL_CONTEXT_FLAGS_KHR;
-      attribs[5] = EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR;
-      attribs[6] = EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR;
-      attribs[7] = EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR;
-      attribs[8] = EGL_NONE;
+      attribs[i++] = EGL_CONTEXT_MAJOR_VERSION_KHR;
+      attribs[i++] = 3;
+      attribs[i++] = EGL_CONTEXT_MINOR_VERSION_KHR;
+      attribs[i++] = 1;
+      attribs[i++] = EGL_CONTEXT_FLAGS_KHR;
+      attribs[i++] = EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR;
+      attribs[i++] = EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR;
+      attribs[i++] = EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR;
     }
   else if (display->renderer->driver == COGL_DRIVER_GLES2)
     {
-      attribs[0] = EGL_CONTEXT_CLIENT_VERSION;
-      attribs[1] = 2;
-      attribs[2] = EGL_NONE;
+      attribs[i++] = EGL_CONTEXT_CLIENT_VERSION;
+      attribs[i++] = 2;
     }
-  else
-    attribs[0] = EGL_NONE;
+
+  attribs[i++] = EGL_NONE;
 
   egl_display->egl_context = eglCreateContext (edpy,
                                                config,
