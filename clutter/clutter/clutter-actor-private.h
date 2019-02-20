@@ -163,7 +163,7 @@ struct _SizeRequest
 struct _ClutterLayoutInfo
 {
   /* fixed position coordinates */
-  ClutterPoint fixed_pos;
+  graphene_point_t fixed_pos;
 
   ClutterMargin margin;
 
@@ -209,7 +209,7 @@ struct _ClutterTransformInfo
   gfloat z_position;
 
   /* transformation center */
-  ClutterPoint pivot;
+  graphene_point_t pivot;
   gfloat pivot_z;
 
   CoglMatrix transform;
