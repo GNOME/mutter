@@ -1438,7 +1438,7 @@ static void cally_text_get_character_extents (AtkText *text,
   PangoLayout *layout;
   PangoRectangle extents;
   const gchar *text_value;
-  ClutterVertex verts[4];
+  graphene_point3d_t verts[4];
 
   actor = CALLY_GET_CLUTTER_ACTOR (text);
   if (actor == NULL) /* State is defunct */
@@ -2294,7 +2294,7 @@ _cally_misc_get_index_at_point (ClutterText *clutter_text,
   gint index, x_window, y_window, x_toplevel, y_toplevel;
   gint x_temp, y_temp;
   gboolean ret;
-  ClutterVertex verts[4];
+  graphene_point3d_t verts[4];
   PangoLayout *layout;
   gint x_layout, y_layout;
 

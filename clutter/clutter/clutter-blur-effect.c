@@ -182,7 +182,7 @@ clutter_blur_effect_modify_paint_volume (ClutterEffect      *effect,
                                          ClutterPaintVolume *volume)
 {
   gfloat cur_width, cur_height;
-  ClutterVertex origin;
+  graphene_point3d_t origin;
 
   clutter_paint_volume_get_origin (volume, &origin);
   cur_width = clutter_paint_volume_get_width (volume);

@@ -2220,7 +2220,7 @@ clutter_actor_animate_with_timeline (ClutterActor    *actor,
  *
  * Will animate the "rotation-angle-z" property between the current value
  * and 360 degrees, and set the "rotation-center-z" property to the fixed
- * value of the #ClutterVertex "center".
+ * value of the #graphene_point3d_t "center".
  *
  * This function will implicitly create a #ClutterAnimation object which
  * will be assigned to the @actor and will be returned to the developer
