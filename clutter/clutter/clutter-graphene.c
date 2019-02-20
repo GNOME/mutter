@@ -46,9 +46,28 @@ graphene_point3d_progress (const GValue *a,
   return TRUE;
 }
 
+static gboolean
+graphene_size_progress (const GValue *a,
+                        const GValue *b,
+                        double        progress,
+                        GValue       *retval)
+{
+  const graphene_size_t *as = g_value_get_boxed (a);
+  const graphene_size_t *bs = g_value_get_boxed (b);
+  graphene_size_t res;
+
+  graphene_size_interpolate (as, bs, progress, &res);
+
+  g_value_set_boxed (retval, &res);
+
+  return TRUE;
+}
+
 void
 clutter_graphene_init (void)
 {
   clutter_interval_register_progress_func (GRAPHENE_TYPE_POINT3D,
                                            graphene_point3d_progress);
+  clutter_interval_register_progress_func (GRAPHENE_TYPE_SIZE,
+                                           graphene_size_progress);
 }
