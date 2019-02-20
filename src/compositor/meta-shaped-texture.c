@@ -1041,7 +1041,7 @@ meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
 
 void
 meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture *stex,
-                                           graphene_rect_t       *src_rect)
+                                           graphene_rect_t   *src_rect)
 {
   if (!stex->has_viewport_src_rect ||
       stex->viewport_src_rect.origin.x != src_rect->origin.x ||

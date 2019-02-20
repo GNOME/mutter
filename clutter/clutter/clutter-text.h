@@ -82,7 +82,7 @@ struct _ClutterTextClass
   void (* text_changed)   (ClutterText           *self);
   void (* activate)       (ClutterText           *self);
   void (* cursor_event)   (ClutterText           *self,
-                           const ClutterGeometry *geometry);
+                           const graphene_rect_t *rect);
   void (* cursor_changed) (ClutterText           *self);
 
   /*< private >*/
