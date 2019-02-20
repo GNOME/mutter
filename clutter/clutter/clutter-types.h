@@ -44,7 +44,6 @@ G_BEGIN_DECLS
 #define CLUTTER_TYPE_MATRIX             (clutter_matrix_get_type ())
 #define CLUTTER_TYPE_PAINT_VOLUME       (clutter_paint_volume_get_type ())
 #define CLUTTER_TYPE_PERSPECTIVE        (clutter_perspective_get_type ())
-#define CLUTTER_TYPE_RECT               (clutter_rect_get_type ())
 
 typedef struct _ClutterActor                    ClutterActor;
 
@@ -81,7 +80,6 @@ typedef struct _ClutterGeometry                 ClutterGeometry; /* XXX:2.0 - re
 typedef struct _ClutterKnot                     ClutterKnot;
 typedef struct _ClutterMargin                   ClutterMargin;
 typedef struct _ClutterPerspective              ClutterPerspective;
-typedef struct _ClutterRect                     ClutterRect;
 
 typedef struct _ClutterAlpha            	ClutterAlpha;
 typedef struct _ClutterAnimation                ClutterAnimation;
@@ -130,123 +128,6 @@ typedef struct _ClutterShader                   ClutterShader; /* deprecated */
  * Since: 1.4
  */
 typedef struct _ClutterPaintVolume      ClutterPaintVolume;
-
-/**
- * ClutterRect:
- * @origin: the origin of the rectangle
- * @size: the size of the rectangle
- *
- * The location and size of a rectangle.
- *
- * The width and height of a #ClutterRect can be negative; Clutter considers
- * a rectangle with an origin of [ 0.0, 0.0 ] and a size of [ 10.0, 10.0 ] to
- * be equivalent to a rectangle with origin of [ 10.0, 10.0 ] and size of
- * [ -10.0, -10.0 ].
- *
- * Application code can normalize rectangles using clutter_rect_normalize():
- * this function will ensure that the width and height of a #ClutterRect are
- * positive values. All functions taking a #ClutterRect as an argument will
- * implicitly normalize it before computing eventual results. For this reason
- * it is safer to access the contents of a #ClutterRect by using the provided
- * API at all times, instead of directly accessing the structure members.
- *
- * Since: 1.12
- */
-struct _ClutterRect
-{
-  graphene_point_t origin;
-  graphene_size_t size;
-};
-
-/**
- * CLUTTER_RECT_INIT:
- * @x: the X coordinate
- * @y: the Y coordinate
- * @width: the width
- * @height: the height
- *
- * A simple macro for initializing a #ClutterRect when declaring it, e.g.:
- *
- * |[
- *   ClutterRect r = CLUTTER_RECT_INIT (100, 100, 200, 200);
- * ]|
- *
- * Since: 1.12
- */
-#define CLUTTER_RECT_INIT(x,y,width,height)     { { (x), (y) }, { (width), (height) } }
-
-/**
- * CLUTTER_RECT_INIT_ZERO:
- *
- * A simple macro for initializing a #ClutterRect to (0, 0, 0, 0) when
- * declaring it.
- *
- * Since: 1.12
- */
-#define CLUTTER_RECT_INIT_ZERO                  CLUTTER_RECT_INIT (0.f, 0.f, 0.f, 0.f)
-
-CLUTTER_EXPORT
-GType clutter_rect_get_type (void) G_GNUC_CONST;
-
-CLUTTER_EXPORT
-const ClutterRect *     clutter_rect_zero               (void);
-CLUTTER_EXPORT
-ClutterRect *           clutter_rect_alloc              (void);
-CLUTTER_EXPORT
-ClutterRect *           clutter_rect_init               (ClutterRect       *rect,
-                                                         float              x,
-                                                         float              y,
-                                                         float              width,
-                                                         float              height);
-CLUTTER_EXPORT
-ClutterRect *           clutter_rect_copy               (const ClutterRect *rect);
-CLUTTER_EXPORT
-void                    clutter_rect_free               (ClutterRect       *rect);
-CLUTTER_EXPORT
-gboolean                clutter_rect_equals             (ClutterRect       *a,
-                                                         ClutterRect       *b);
-
-CLUTTER_EXPORT
-ClutterRect *           clutter_rect_normalize          (ClutterRect       *rect);
-CLUTTER_EXPORT
-void                    clutter_rect_get_center         (ClutterRect       *rect,
-                                                         graphene_point_t  *center);
-CLUTTER_EXPORT
-gboolean                clutter_rect_contains_point     (ClutterRect       *rect,
-                                                         graphene_point_t  *point);
-CLUTTER_EXPORT
-gboolean                clutter_rect_contains_rect      (ClutterRect       *a,
-                                                         ClutterRect       *b);
-CLUTTER_EXPORT
-void                    clutter_rect_union              (ClutterRect       *a,
-                                                         ClutterRect       *b,
-                                                         ClutterRect       *res);
-CLUTTER_EXPORT
-gboolean                clutter_rect_intersection       (ClutterRect       *a,
-                                                         ClutterRect       *b,
-                                                         ClutterRect       *res);
-CLUTTER_EXPORT
-void                    clutter_rect_offset             (ClutterRect       *rect,
-                                                         float              d_x,
-                                                         float              d_y);
-CLUTTER_EXPORT
-void                    clutter_rect_inset              (ClutterRect       *rect,
-                                                         float              d_x,
-                                                         float              d_y);
-CLUTTER_EXPORT
-void                    clutter_rect_scale              (ClutterRect       *rect,
-                                                         float              s_x,
-                                                         float              s_y);
-CLUTTER_EXPORT
-void                    clutter_rect_clamp_to_pixel     (ClutterRect       *rect);
-CLUTTER_EXPORT
-float                   clutter_rect_get_x              (ClutterRect       *rect);
-CLUTTER_EXPORT
-float                   clutter_rect_get_y              (ClutterRect       *rect);
-CLUTTER_EXPORT
-float                   clutter_rect_get_width          (ClutterRect       *rect);
-CLUTTER_EXPORT
-float                   clutter_rect_get_height         (ClutterRect       *rect);
 
 /**
  * ClutterActorBox:
@@ -388,7 +269,7 @@ void             clutter_actor_box_scale          (ClutterActorBox       *box,
  * The rectangle containing an actor's bounding box, measured in pixels.
  *
  * You should not use #ClutterGeometry, or operate on its fields
- * directly; you should use #cairo_rectangle_int_t or #ClutterRect if you
+ * directly; you should use #cairo_rectangle_int_t or #graphene_rect_t  if you
  * need a rectangle type, depending on the precision required.
  *
  * Deprecated: 1.16
