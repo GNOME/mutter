@@ -1174,9 +1174,9 @@ meta_window_actor_transform_relative_position (MetaScreenCastWindow *screen_cast
 static gboolean
 meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_window,
                                              MetaCursorSprite     *cursor_sprite,
-                                             ClutterPoint         *cursor_position,
+                                             graphene_point_t     *cursor_position,
                                              float                *out_cursor_scale,
-                                             ClutterPoint         *out_relative_cursor_position)
+                                             graphene_point_t     *out_relative_cursor_position)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
   MetaWindowActorPrivate *priv =

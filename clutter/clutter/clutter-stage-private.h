@@ -79,12 +79,12 @@ gint64    _clutter_stage_get_update_time                  (ClutterStage *stage);
 void     _clutter_stage_clear_update_time                 (ClutterStage *stage);
 gboolean _clutter_stage_has_full_redraw_queued            (ClutterStage *stage);
 
-void clutter_stage_log_pick (ClutterStage       *stage,
-                             const ClutterPoint *vertices,
-                             ClutterActor       *actor);
+void clutter_stage_log_pick (ClutterStage           *stage,
+                             const graphene_point_t *vertices,
+                             ClutterActor           *actor);
 
-void clutter_stage_push_pick_clip (ClutterStage       *stage,
-                                   const ClutterPoint *vertices);
+void clutter_stage_push_pick_clip (ClutterStage           *stage,
+                                   const graphene_point_t *vertices);
 
 void clutter_stage_pop_pick_clip (ClutterStage *stage);
 
