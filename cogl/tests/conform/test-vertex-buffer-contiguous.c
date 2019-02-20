@@ -245,9 +245,9 @@ test_vertex_buffer_contiguous (TestUtilsGTestFixture *fixture,
 
   clutter_main ();
 
-  cogl_handle_unref (state.buffer);
-  cogl_handle_unref (state.material);
-  cogl_handle_unref (state.texture);
+  cogl_object_unref (state.buffer);
+  cogl_object_unref (state.material);
+  cogl_object_unref (state.texture);
 
   g_source_remove (idle_source);
 

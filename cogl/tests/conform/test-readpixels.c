@@ -81,7 +81,7 @@ on_paint (ClutterActor *actor, void *state)
   g_free (pixels);
 
   cogl_pop_framebuffer ();
-  cogl_handle_unref (offscreen);
+  cogl_object_unref (offscreen);
 
   /* Now verify reading back from an onscreen framebuffer...
    */
@@ -122,7 +122,7 @@ on_paint (ClutterActor *actor, void *state)
 
   g_free (pixelsc);
 
-  cogl_handle_unref (tex);
+  cogl_object_unref (tex);
 
   /* Restore the viewport and matrices state */
   cogl_set_viewport (saved_viewport[0],

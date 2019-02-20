@@ -179,14 +179,14 @@ clutter_shader_effect_clear (ClutterShaderEffect *self,
 
   if (priv->shader != COGL_INVALID_HANDLE)
     {
-      cogl_handle_unref (priv->shader);
+      cogl_object_unref (priv->shader);
 
       priv->shader = COGL_INVALID_HANDLE;
     }
 
   if (priv->program != COGL_INVALID_HANDLE)
     {
-      cogl_handle_unref (priv->program);
+      cogl_object_unref (priv->program);
 
       priv->program = COGL_INVALID_HANDLE;
     }
@@ -387,10 +387,10 @@ clutter_shader_effect_try_static_source (ClutterShaderEffect *self)
             }
         }
 
-      priv->shader = cogl_handle_ref (class_priv->shader);
+      priv->shader = cogl_object_ref (class_priv->shader);
 
       if (class_priv->program != COGL_INVALID_HANDLE)
-        priv->program = cogl_handle_ref (class_priv->program);
+        priv->program = cogl_object_ref (class_priv->program);
     }
 }
 

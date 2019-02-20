@@ -92,27 +92,6 @@ typedef void * CoglHandle;
 GType
 cogl_handle_get_type (void) G_GNUC_CONST;
 
-/**
- * cogl_handle_ref:
- * @handle: a #CoglHandle
- *
- * Increases the reference count of @handle by 1
- *
- * Return value: (transfer none): the handle, with its reference count increased
- */
-CoglHandle
-cogl_handle_ref (CoglHandle handle);
-
-/**
- * cogl_handle_unref:
- * @handle: a #CoglHandle
- *
- * Drecreases the reference count of @handle by 1; if the reference
- * count reaches 0, the resources allocated by @handle will be freed
- */
-void
-cogl_handle_unref (CoglHandle handle);
-
 /* We forward declare this in cogl-types to avoid circular dependencies
  * between cogl-matrix.h, cogl-euler.h and cogl-quaterion.h */
 typedef struct _CoglMatrix      CoglMatrix;

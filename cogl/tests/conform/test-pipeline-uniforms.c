@@ -101,8 +101,8 @@ create_pipeline_for_shader (TestState *state, const char *shader_source)
 
   cogl_pipeline_set_user_program (pipeline, program);
 
-  cogl_handle_unref (shader);
-  cogl_handle_unref (program);
+  cogl_object_unref (shader);
+  cogl_object_unref (program);
 
   return pipeline;
 }
