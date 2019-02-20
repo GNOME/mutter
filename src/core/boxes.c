@@ -2042,11 +2042,11 @@ meta_rectangle_scale_double (const MetaRectangle  *rect,
                              MetaRoundingStrategy  rounding_strategy,
                              MetaRectangle        *dest)
 {
-  ClutterRect tmp = CLUTTER_RECT_INIT (rect->x, rect->y,
-                                       rect->width, rect->height);
+  graphene_rect_t tmp = GRAPHENE_RECT_INIT (rect->x, rect->y,
+                                            rect->width, rect->height);
 
-  clutter_rect_scale (&tmp, scale, scale);
-  meta_rectangle_from_clutter_rect (&tmp, rounding_strategy, dest);
+  graphene_rect_scale (&tmp, scale, scale, &tmp);
+  meta_rectangle_from_graphene_rect (&tmp, rounding_strategy, dest);
 }
 
 void
@@ -2121,9 +2121,9 @@ meta_rectangle_transform (const MetaRectangle  *rect,
 }
 
 void
-meta_rectangle_from_clutter_rect (ClutterRect          *rect,
-                                  MetaRoundingStrategy  rounding_strategy,
-                                  MetaRectangle        *dest)
+meta_rectangle_from_graphene_rect (const graphene_rect_t *rect,
+                                   MetaRoundingStrategy   rounding_strategy,
+                                   MetaRectangle         *dest)
 {
   switch (rounding_strategy)
     {
@@ -2139,8 +2139,9 @@ meta_rectangle_from_clutter_rect (ClutterRect          *rect,
       break;
     case META_ROUNDING_STRATEGY_GROW:
       {
-        ClutterRect clamped = *rect;
-        clutter_rect_clamp_to_pixel (&clamped);
+        graphene_rect_t clamped = *rect;
+
+        graphene_rect_round_extents (&clamped, &clamped);
 
         *dest = (MetaRectangle) {
           .x = clamped.origin.x,
@@ -2155,18 +2156,19 @@ meta_rectangle_from_clutter_rect (ClutterRect          *rect,
 
 void
 meta_rectangle_crop_and_scale (const MetaRectangle *rect,
-                               ClutterRect         *src_rect,
+                               graphene_rect_t     *src_rect,
                                int                  dst_width,
                                int                  dst_height,
                                MetaRectangle       *dest)
 {
-  ClutterRect tmp = CLUTTER_RECT_INIT (rect->x, rect->y,
-                                       rect->width, rect->height);
+  graphene_rect_t tmp = GRAPHENE_RECT_INIT (rect->x, rect->y,
+                                            rect->width, rect->height);
 
-  clutter_rect_scale (&tmp,
-                      src_rect->size.width / dst_width,
-                      src_rect->size.height / dst_height);
-  clutter_rect_offset (&tmp, src_rect->origin.x, src_rect->origin.y);
+  graphene_rect_scale (&tmp,
+                       src_rect->size.width / dst_width,
+                       src_rect->size.height / dst_height,
+                       &tmp);
+  graphene_rect_offset (&tmp, src_rect->origin.x, src_rect->origin.y);
 
-  meta_rectangle_from_clutter_rect (&tmp, META_ROUNDING_STRATEGY_GROW, dest);
+  meta_rectangle_from_graphene_rect (&tmp, META_ROUNDING_STRATEGY_GROW, dest);
 }

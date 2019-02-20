@@ -110,7 +110,7 @@ struct _MetaWaylandPendingState
   gboolean has_new_buffer_transform;
   MetaMonitorTransform buffer_transform;
   gboolean has_new_viewport_src_rect;
-  ClutterRect viewport_src_rect;
+  graphene_rect_t viewport_src_rect;
   gboolean has_new_viewport_dst_size;
   int viewport_dst_width;
   int viewport_dst_height;
@@ -212,7 +212,7 @@ struct _MetaWaylandSurface
     gulong destroy_handler_id;
 
     gboolean has_src_rect;
-    ClutterRect src_rect;
+    graphene_rect_t src_rect;
 
     gboolean has_dst_size;
     int dst_width;

@@ -114,7 +114,7 @@ gboolean        clutter_offscreen_effect_get_target_size        (ClutterOffscree
 
 CLUTTER_EXPORT
 gboolean        clutter_offscreen_effect_get_target_rect        (ClutterOffscreenEffect *effect,
-                                                                 ClutterRect            *rect);
+                                                                 graphene_rect_t        *rect);
 
 G_END_DECLS
 
