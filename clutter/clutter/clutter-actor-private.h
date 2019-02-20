@@ -173,8 +173,8 @@ struct _ClutterLayoutInfo
   guint x_expand : 1;
   guint y_expand : 1;
 
-  ClutterSize minimum;
-  ClutterSize natural;
+  graphene_size_t minimum;
+  graphene_size_t natural;
 };
 
 const ClutterLayoutInfo *       _clutter_actor_get_layout_info_or_defaults      (ClutterActor *self);
