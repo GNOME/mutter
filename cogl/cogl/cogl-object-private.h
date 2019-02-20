@@ -193,6 +193,17 @@ _cogl_##type_name##_object_new (Cogl##TypeName *new_obj)                \
   _cogl_object_##type_name##_inc ();                                    \
   _COGL_OBJECT_DEBUG_NEW (TypeName, obj);                               \
   return new_obj;                                                       \
+}                                                                       \
+                                                                        \
+gboolean                                                                \
+cogl_is_##type_name (void *object)                                      \
+{                                                                       \
+  CoglObject *obj = object;                                             \
+                                                                        \
+  if (object == NULL)                                                   \
+    return FALSE;                                                       \
+                                                                        \
+  return obj->klass == &_cogl_##type_name##_class;                      \
 }
 
 #define COGL_OBJECT_DEFINE_WITH_CODE_GTYPE(TypeName, type_name, code)   \
@@ -200,48 +211,15 @@ _cogl_##type_name##_object_new (Cogl##TypeName *new_obj)                \
 COGL_OBJECT_COMMON_DEFINE_WITH_CODE(TypeName,                           \
                                     type_name,                          \
                                     do { code; } while (0);             \
-                                    _COGL_GTYPE_INIT_CLASS (type_name)) \
-                                                                        \
-gboolean                                                                \
-cogl_is_##type_name (void *object)                                      \
-{                                                                       \
-  CoglObject *obj = object;                                             \
-                                                                        \
-  if (object == NULL)                                                   \
-    return FALSE;                                                       \
-                                                                        \
-  return obj->klass == &_cogl_##type_name##_class;                      \
-}
+                                    _COGL_GTYPE_INIT_CLASS (type_name))
 
 #define COGL_OBJECT_DEFINE_WITH_CODE(TypeName, type_name, code)         \
                                                                         \
-COGL_OBJECT_COMMON_DEFINE_WITH_CODE(TypeName, type_name, code)          \
-                                                                        \
-gboolean                                                                \
-cogl_is_##type_name (void *object)                                      \
-{                                                                       \
-  CoglObject *obj = object;                                             \
-                                                                        \
-  if (object == NULL)                                                   \
-    return FALSE;                                                       \
-                                                                        \
-  return obj->klass == &_cogl_##type_name##_class;                      \
-}
+COGL_OBJECT_COMMON_DEFINE_WITH_CODE(TypeName, type_name, code)
 
 #define COGL_OBJECT_INTERNAL_DEFINE_WITH_CODE(TypeName, type_name, code) \
                                                                         \
-COGL_OBJECT_COMMON_DEFINE_WITH_CODE(TypeName, type_name, code)          \
-                                                                        \
-gboolean                                                                \
-_cogl_is_##type_name (void *object)                                     \
-{                                                                       \
-  CoglObject *obj = object;                                             \
-                                                                        \
-  if (object == NULL)                                                   \
-    return FALSE;                                                       \
-                                                                        \
-  return obj->klass == &_cogl_##type_name##_class;                      \
-}
+COGL_OBJECT_COMMON_DEFINE_WITH_CODE(TypeName, type_name, code)
 
 #define COGL_OBJECT_DEFINE_DEPRECATED_REF_COUNTING(type_name)   \
                                                                 \
