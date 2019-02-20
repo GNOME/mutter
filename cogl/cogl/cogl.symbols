@@ -184,8 +184,6 @@ cogl_depth_state_set_range
 cogl_depth_state_set_write_enabled
 cogl_depth_test_function_get_type
 
-cogl_disable_fog
-
 #ifdef COGL_HAS_GTYPE_SUPPORT
 cogl_display_get_gtype
 #endif
@@ -222,8 +220,6 @@ cogl_fixed_pow2
 cogl_fixed_sin
 cogl_fixed_sqrt
 cogl_fixed_tan
-
-cogl_fog_mode_get_type
 
 cogl_foreach_feature
 
@@ -797,7 +793,6 @@ cogl_set_depth_test_enabled
 #ifndef COGL_DISABLE_DEPRECATED
 cogl_set_draw_buffer
 #endif
-cogl_set_fog
 #ifdef COGL_HAS_SDL_SUPPORT
 cogl_sdl_context_new
 cogl_sdl_handle_event
