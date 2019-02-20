@@ -1,3 +1,13 @@
+mutter (3.31.90-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+    - Fix crash in dual monitor setup and gdm activation (LP: #1790525,
+      LP: #1795774)
+    - Fix regression causing one of the external displays to be off sometimes
+      (LP: #1772811)
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 20 Feb 2019 14:10:06 +0100
+
 mutter (3.30.2-6) unstable; urgency=medium
 
   * Team upload
