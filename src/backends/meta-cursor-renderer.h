@@ -76,8 +76,8 @@ void meta_cursor_renderer_remove_hw_cursor_inhibitor (MetaCursorRenderer    *ren
 gboolean meta_cursor_renderer_is_hw_cursors_inhibited (MetaCursorRenderer *renderer,
                                                        MetaCursorSprite   *cursor_sprite);
 
-ClutterRect meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
-                                                 MetaCursorSprite   *cursor_sprite);
+graphene_rect_t meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
+                                                     MetaCursorSprite   *cursor_sprite);
 
 void meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
                                         MetaCursorSprite   *cursor_sprite);
