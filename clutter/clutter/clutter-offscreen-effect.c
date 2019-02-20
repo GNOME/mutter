@@ -119,7 +119,7 @@ clutter_offscreen_effect_set_actor (ClutterActorMeta *meta,
   /* clear out the previous state */
   if (priv->offscreen != NULL)
     {
-      cogl_handle_unref (priv->offscreen);
+      cogl_object_unref (priv->offscreen);
       priv->offscreen = NULL;
     }
 
@@ -199,13 +199,13 @@ update_fbo (ClutterEffect *effect,
 
   if (priv->texture != NULL)
     {
-      cogl_handle_unref (priv->texture);
+      cogl_object_unref (priv->texture);
       priv->texture = NULL;
     }
 
   if (priv->offscreen != NULL)
     {
-      cogl_handle_unref (priv->offscreen);
+      cogl_object_unref (priv->offscreen);
       priv->offscreen = NULL;
     }
 
@@ -224,7 +224,7 @@ update_fbo (ClutterEffect *effect,
     {
       g_warning ("%s: Unable to create an Offscreen buffer", G_STRLOC);
 
-      cogl_handle_unref (priv->target);
+      cogl_object_unref (priv->target);
       priv->target = NULL;
 
       priv->target_width = 0;
@@ -487,13 +487,13 @@ clutter_offscreen_effect_finalize (GObject *gobject)
   ClutterOffscreenEffectPrivate *priv = self->priv;
 
   if (priv->offscreen)
-    cogl_handle_unref (priv->offscreen);
+    cogl_object_unref (priv->offscreen);
 
   if (priv->target)
-    cogl_handle_unref (priv->target);
+    cogl_object_unref (priv->target);
 
   if (priv->texture)
-    cogl_handle_unref (priv->texture);
+    cogl_object_unref (priv->texture);
 
   G_OBJECT_CLASS (clutter_offscreen_effect_parent_class)->finalize (gobject);
 }
