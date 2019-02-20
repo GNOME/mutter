@@ -81,7 +81,7 @@ struct _ClutterDragActionPrivate
   gint y_drag_threshold;
   ClutterActor *drag_handle;
   ClutterDragAxis drag_axis;
-  ClutterRect drag_area;
+  graphene_rect_t drag_area;
 
   ClutterInputDevice *device;
   ClutterEventSequence *sequence;
@@ -542,7 +542,7 @@ clutter_drag_action_real_drag_motion (ClutterDragAction *action,
 
   if (action->priv->drag_area_set)
     {
-      ClutterRect *drag_area = &action->priv->drag_area;
+      graphene_rect_t *drag_area = &action->priv->drag_area;
 
       x = CLAMP (x, drag_area->origin.x, drag_area->origin.x + drag_area->size.width);
       y = CLAMP (y, drag_area->origin.y, drag_area->origin.y + drag_area->size.height);
@@ -811,7 +811,7 @@ clutter_drag_action_class_init (ClutterDragActionClass *klass)
     g_param_spec_boxed ("drag-area",
 			P_("Drag Area"),
 			P_("Constrains the dragging to a rectangle"),
-			CLUTTER_TYPE_RECT,
+			GRAPHENE_TYPE_RECT,
 			CLUTTER_PARAM_READWRITE);
 
   /**
@@ -1267,10 +1267,10 @@ clutter_drag_action_get_motion_coords (ClutterDragAction *action,
 /**
  * clutter_drag_action_get_drag_area:
  * @action: a #ClutterDragAction
- * @drag_area: (out caller-allocates): a #ClutterRect to be filled
+ * @drag_area: (out caller-allocates): a #graphene_rect_t to be filled
  *
  * Retrieves the "drag area" associated with @action, that
- * is a #ClutterRect that constrains the actor movements,
+ * is a #graphene_rect_t that constrains the actor movements,
  * in parents coordinates.
  *
  * Returns: %TRUE if the actor is actually constrained (and thus
@@ -1278,7 +1278,7 @@ clutter_drag_action_get_motion_coords (ClutterDragAction *action,
  */
 gboolean
 clutter_drag_action_get_drag_area (ClutterDragAction *action,
-				   ClutterRect       *drag_area)
+                                   graphene_rect_t   *drag_area)
 {
   g_return_val_if_fail (CLUTTER_IS_DRAG_ACTION (action), FALSE);
 
@@ -1298,8 +1298,8 @@ clutter_drag_action_get_drag_area (ClutterDragAction *action,
  * If @drag_area is %NULL, the actor is not constrained.
  */
 void
-clutter_drag_action_set_drag_area (ClutterDragAction *action,
-				   const ClutterRect *drag_area)
+clutter_drag_action_set_drag_area (ClutterDragAction     *action,
+                                   const graphene_rect_t *drag_area)
 {
   ClutterDragActionPrivate *priv;
 

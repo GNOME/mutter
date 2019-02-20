@@ -93,7 +93,6 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterMatrix, clutter_matrix_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPaintNode, clutter_paint_node_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPaintVolume, clutter_paint_volume_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterPathNode, clutter_path_node_free)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterRect, clutter_rect_free)
 
 #endif /* __GI_SCANNER__ */
 

@@ -91,7 +91,7 @@ struct _MetaShapedTexture
   gboolean size_invalid;
   MetaMonitorTransform transform;
   gboolean has_viewport_src_rect;
-  ClutterRect viewport_src_rect;
+  graphene_rect_t viewport_src_rect;
   gboolean has_viewport_dst_size;
   int viewport_dst_width;
   int viewport_dst_height;
@@ -864,8 +864,8 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
 
   if (stex->has_viewport_src_rect || stex->has_viewport_dst_size)
     {
-      ClutterRect viewport;
-      ClutterRect inverted_viewport;
+      graphene_rect_t viewport;
+      graphene_rect_t inverted_viewport;
       float dst_width;
       float dst_height;
       int inverted_dst_width;
@@ -877,7 +877,7 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
         }
       else
         {
-          viewport = (ClutterRect) {
+          viewport = (graphene_rect_t) {
             .origin.x = 0,
             .origin.y = 0,
             .size.width = stex->tex_width,
@@ -896,7 +896,7 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
           dst_height = (float) stex->tex_height;
         }
 
-      inverted_viewport = (ClutterRect) {
+      inverted_viewport = (graphene_rect_t) {
         .origin.x = -(viewport.origin.x * (dst_width / viewport.size.width)),
         .origin.y = -(viewport.origin.y * (dst_height / viewport.size.height)),
         .size.width = dst_width,
@@ -1041,7 +1041,7 @@ meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
 
 void
 meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture *stex,
-                                           ClutterRect       *src_rect)
+                                           graphene_rect_t       *src_rect)
 {
   if (!stex->has_viewport_src_rect ||
       stex->viewport_src_rect.origin.x != src_rect->origin.x ||

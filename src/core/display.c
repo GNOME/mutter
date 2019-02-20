@@ -1540,7 +1540,7 @@ find_highest_logical_monitor_scale (MetaBackend      *backend,
     meta_backend_get_monitor_manager (backend);
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
-  ClutterRect cursor_rect;
+  graphene_rect_t cursor_rect;
   GList *logical_monitors;
   GList *l;
   float highest_scale = 0.0;
@@ -1553,12 +1553,12 @@ find_highest_logical_monitor_scale (MetaBackend      *backend,
   for (l = logical_monitors; l; l = l->next)
     {
       MetaLogicalMonitor *logical_monitor = l->data;
-      ClutterRect logical_monitor_rect =
-        meta_rectangle_to_clutter_rect (&logical_monitor->rect);
+      graphene_rect_t logical_monitor_rect =
+        meta_rectangle_to_graphene_rect (&logical_monitor->rect);
 
-      if (!clutter_rect_intersection (&cursor_rect,
-                                      &logical_monitor_rect,
-                                      NULL))
+      if (!graphene_rect_intersection (&cursor_rect,
+                                       &logical_monitor_rect,
+                                       NULL))
         continue;
 
       highest_scale = MAX (highest_scale, logical_monitor->scale);
