@@ -2580,7 +2580,7 @@ add_selection_to_paint_volume (ClutterText           *text,
 {
   ClutterPaintVolume *total_volume = user_data;
   ClutterPaintVolume rect_volume;
-  ClutterVertex vertex;
+  graphene_point3d_t vertex;
 
   _clutter_paint_volume_init_static (&rect_volume, CLUTTER_ACTOR (text));
 
@@ -2601,7 +2601,7 @@ clutter_text_get_paint_volume_for_cursor (ClutterText        *text,
                                           ClutterPaintVolume *volume)
 {
   ClutterTextPrivate *priv = text->priv;
-  ClutterVertex origin;
+  graphene_point3d_t origin;
 
   clutter_text_ensure_cursor_position (text);
 
@@ -2639,7 +2639,7 @@ clutter_text_get_paint_volume (ClutterActor       *self,
     {
       PangoLayout *layout;
       PangoRectangle ink_rect;
-      ClutterVertex origin;
+      graphene_point3d_t origin;
 
       /* If the text is single line editable then it gets clipped to
          the allocation anyway so we can just use that */
