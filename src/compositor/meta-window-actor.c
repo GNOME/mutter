@@ -1989,7 +1989,7 @@ meta_window_actor_transform_relative_position (MetaScreenCastWindow *screen_cast
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (window_actor);
   MetaRectangle bounds;
-  ClutterVertex v1 = { 0.f, }, v2 = { 0.f, };
+  graphene_point3d_t v1 = { 0.f, }, v2 = { 0.f, };
 
   meta_window_actor_get_frame_bounds (screen_cast_window, &bounds);
 

@@ -101,7 +101,7 @@ notify_cb (GObject *object, GParamSpec *pspec, TestState *state)
    macro so that the assertion failure will report the right line
    number */
 #define assert_coords(state, x_1, y_1, x_2, y_2)        G_STMT_START {  \
-  ClutterVertex verts[4];                                               \
+  graphene_point3d_t verts[4];                                          \
   clutter_actor_get_abs_allocation_vertices ((state)->rect, verts);     \
   check_coords ((state), (x_1), (y_1), (x_2), (y_2), verts);            \
   g_assert (approx_equal ((x_1), verts[0].x));                          \
@@ -116,7 +116,7 @@ notify_cb (GObject *object, GParamSpec *pspec, TestState *state)
   g_assert (approx_equal (v->x, xc) &&                          \
             approx_equal (v->y, yc) &&                          \
             approx_equal (v->z, zc));                           \
-  g_boxed_free (CLUTTER_TYPE_VERTEX, v);        } G_STMT_END
+  g_boxed_free (GRAPHENE_TYPE_POINT3D, v);        } G_STMT_END
 
 static inline gboolean
 approx_equal (int a, int b)
@@ -130,7 +130,7 @@ check_coords (TestState *state,
               gint y_1,
               gint x_2,
               gint y_2,
-              const ClutterVertex *verts)
+              const graphene_point3d_t *verts)
 {
   if (g_test_verbose ())
     g_print ("checking that (%i,%i,%i,%i) \xe2\x89\x88 (%i,%i,%i,%i): %s\n",
@@ -426,7 +426,7 @@ test_rotate_center (TestState *state)
 {
   ClutterActor *rect = state->rect;
   gdouble angle_x, angle_y, angle_z;
-  ClutterVertex *center_x, *center_y, *center_z;
+  graphene_point3d_t *center_x, *center_y, *center_z;
   ClutterGravity z_center_gravity;
   gfloat stage_width, stage_height;
   gfloat rect_x, rect_y;
