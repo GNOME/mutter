@@ -145,33 +145,33 @@ is_cursor_in_stream (MetaScreenCastMonitorStreamSrc *monitor_src)
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
   MetaRectangle logical_monitor_layout;
-  ClutterRect logical_monitor_rect;
+  graphene_rect_t logical_monitor_rect;
   MetaCursorSprite *cursor_sprite;
 
   monitor = get_monitor (monitor_src);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
   logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
   logical_monitor_rect =
-    meta_rectangle_to_clutter_rect (&logical_monitor_layout);
+    meta_rectangle_to_graphene_rect (&logical_monitor_layout);
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
   if (cursor_sprite)
     {
-      ClutterRect cursor_rect;
+      graphene_rect_t cursor_rect;
 
       cursor_rect = meta_cursor_renderer_calculate_rect (cursor_renderer,
                                                          cursor_sprite);
-      return clutter_rect_intersection (&cursor_rect,
-                                        &logical_monitor_rect,
-                                        NULL);
+      return graphene_rect_intersection (&cursor_rect,
+                                         &logical_monitor_rect,
+                                         NULL);
     }
   else
     {
       graphene_point_t cursor_position;
 
       cursor_position = meta_cursor_renderer_get_position (cursor_renderer);
-      return clutter_rect_contains_point (&logical_monitor_rect,
-                                          &cursor_position);
+      return graphene_rect_contains_point (&logical_monitor_rect,
+                                           &cursor_position);
     }
 }
 
@@ -381,7 +381,7 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
   MetaRectangle logical_monitor_layout;
-  ClutterRect logical_monitor_rect;
+  graphene_rect_t logical_monitor_rect;
   MetaRendererView *view;
   float view_scale;
   graphene_point_t cursor_position;
@@ -400,7 +400,7 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
   logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
   logical_monitor_rect =
-    meta_rectangle_to_clutter_rect (&logical_monitor_layout);
+    meta_rectangle_to_graphene_rect (&logical_monitor_layout);
 
   view = meta_renderer_get_view_from_logical_monitor (renderer,
                                                       logical_monitor);

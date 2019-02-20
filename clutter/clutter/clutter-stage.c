@@ -4512,7 +4512,7 @@ clutter_stage_get_capture_final_size (ClutterStage          *stage,
 
   if (rect)
     {
-      ClutterRect capture_rect;
+      graphene_rect_t capture_rect;
 
       _clutter_util_rect_from_rectangle (rect, &capture_rect);
       if (!_clutter_stage_get_max_view_scale_factor_for_rect (stage,
@@ -4719,9 +4719,9 @@ clutter_stage_update_resource_scales (ClutterStage *stage)
 }
 
 gboolean
-_clutter_stage_get_max_view_scale_factor_for_rect (ClutterStage *stage,
-                                                   ClutterRect  *rect,
-                                                   float        *view_scale)
+_clutter_stage_get_max_view_scale_factor_for_rect (ClutterStage    *stage,
+                                                   graphene_rect_t *rect,
+                                                   float           *view_scale)
 {
   ClutterStagePrivate *priv = stage->priv;
   float scale = 0.0f;
@@ -4731,12 +4731,12 @@ _clutter_stage_get_max_view_scale_factor_for_rect (ClutterStage *stage,
     {
       ClutterStageView *view = l->data;
       cairo_rectangle_int_t view_layout;
-      ClutterRect view_rect;
+      graphene_rect_t view_rect;
 
       clutter_stage_view_get_layout (view, &view_layout);
       _clutter_util_rect_from_rectangle (&view_layout, &view_rect);
 
-      if (clutter_rect_intersection (&view_rect, rect, NULL))
+      if (graphene_rect_intersection (&view_rect, rect, NULL))
         scale = MAX (clutter_stage_view_get_scale (view), scale);
     }
 
