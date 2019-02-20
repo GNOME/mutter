@@ -453,10 +453,10 @@ cogl_program_link (CoglHandle handle);
 
 /**
  * cogl_program_use:
- * @handle: a #CoglHandle for a shader program or %COGL_INVALID_HANDLE.
+ * @handle: a #CoglHandle for a shader program or %NULL.
  *
  * Activate a specific shader program replacing that part of the GL
- * rendering pipeline, if passed in %COGL_INVALID_HANDLE the default
+ * rendering pipeline, if passed in %NULL the default
  * behavior of GL is reinstated.
  *
  * This function affects the global state of the current Cogl

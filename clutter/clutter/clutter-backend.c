@@ -693,7 +693,7 @@ clutter_backend_init (ClutterBackend *self)
   self->units_per_em = -1.0;
   self->units_serial = 1;
 
-  self->dummy_onscreen = COGL_INVALID_HANDLE;
+  self->dummy_onscreen = NULL;
 }
 
 void
@@ -1109,7 +1109,7 @@ _clutter_backend_get_keymap_direction (ClutterBackend *backend)
 void
 _clutter_backend_reset_cogl_framebuffer (ClutterBackend *backend)
 {
-  if (backend->dummy_onscreen == COGL_INVALID_HANDLE)
+  if (backend->dummy_onscreen == NULL)
     {
       CoglError *internal_error = NULL;
 

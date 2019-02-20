@@ -707,7 +707,7 @@ cogl_material_get_point_size (CoglMaterial *material);
  * @material using cogl_material_set_user_program().
  *
  * Return value: (transfer none): The current user program
- *   or %COGL_INVALID_HANDLE.
+ *   or %NULL.
  *
  * Since: 1.4
  * Deprecated: 1.16: Use #CoglSnippet api instead instead
@@ -1022,7 +1022,7 @@ cogl_material_layer_get_type (CoglMaterialLayer *layer);
  * Extracts a texture handle for a specific layer.
  *
  * <note>In the future Cogl may support purely GLSL based layers; for those
- * layers this function which will likely return %COGL_INVALID_HANDLE if you
+ * layers this function which will likely return %NULL if you
  * try to get the texture handle from them. Considering this scenario, you
  * should call cogl_material_layer_get_type() first in order check it is of
  * type %COGL_MATERIAL_LAYER_TYPE_TEXTURE before calling this function.</note>

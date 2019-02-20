@@ -1071,7 +1071,7 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), COGL_INVALID_HANDLE);
+  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), NULL);
 
   authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_USER_SHADER);
@@ -1106,7 +1106,7 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
    */
   _cogl_pipeline_pre_change_notify (pipeline, state, NULL, FALSE);
 
-  if (program != COGL_INVALID_HANDLE)
+  if (program != NULL)
     _cogl_pipeline_set_progend (pipeline, COGL_PIPELINE_PROGEND_UNDEFINED);
 
   /* If we are the current authority see if we can revert to one of our
@@ -1131,10 +1131,10 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
       _cogl_pipeline_prune_redundant_ancestry (pipeline);
     }
 
-  if (program != COGL_INVALID_HANDLE)
+  if (program != NULL)
     cogl_object_ref (program);
   if (authority == pipeline &&
-      pipeline->big_state->user_program != COGL_INVALID_HANDLE)
+      pipeline->big_state->user_program != NULL)
     cogl_object_unref (pipeline->big_state->user_program);
   pipeline->big_state->user_program = program;
 

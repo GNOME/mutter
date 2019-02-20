@@ -578,7 +578,7 @@ cogl_pipeline_get_per_vertex_point_size (CoglPipeline *pipeline);
  * Queries what user program has been associated with the given
  * @pipeline using cogl_pipeline_set_user_program().
  *
- * Return value: (transfer none): The current user program or %COGL_INVALID_HANDLE.
+ * Return value: (transfer none): The current user program or %NULL.
  *
  * Since: 2.0
  * Stability: Unstable

@@ -320,7 +320,7 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
                                         COGL_TEXTURE_NO_ATLAS,
                                         COGL_PIXEL_FORMAT_ANY,
                                         &error);
-  if (redhand == COGL_INVALID_HANDLE)
+  if (redhand == NULL)
     g_error ("image load failed: %s", error->message);
 
   material = cogl_material_new ();

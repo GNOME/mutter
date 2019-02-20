@@ -131,7 +131,7 @@ cogl_program_use (CoglHandle handle)
 {
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  _COGL_RETURN_IF_FAIL (handle == COGL_INVALID_HANDLE ||
+  _COGL_RETURN_IF_FAIL (handle == NULL ||
                     cogl_is_program (handle));
 
   if (ctx->current_program == 0 && handle != 0)
@@ -139,9 +139,9 @@ cogl_program_use (CoglHandle handle)
   else if (handle == 0 && ctx->current_program != 0)
     ctx->legacy_state_set--;
 
-  if (handle != COGL_INVALID_HANDLE)
+  if (handle != NULL)
     cogl_object_ref (handle);
-  if (ctx->current_program != COGL_INVALID_HANDLE)
+  if (ctx->current_program != NULL)
     cogl_object_unref (ctx->current_program);
   ctx->current_program = handle;
 }
