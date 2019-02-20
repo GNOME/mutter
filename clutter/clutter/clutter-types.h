@@ -36,7 +36,6 @@
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_ACTOR_BOX          (clutter_actor_box_get_type ())
-#define CLUTTER_TYPE_FOG                (clutter_fog_get_type ())
 #define CLUTTER_TYPE_GEOMETRY           (clutter_geometry_get_type ())
 #define CLUTTER_TYPE_KNOT               (clutter_knot_get_type ())
 #define CLUTTER_TYPE_MARGIN             (clutter_margin_get_type ())
@@ -113,7 +112,6 @@ typedef union _ClutterEvent                     ClutterEvent;
  */
 typedef struct _ClutterEventSequence            ClutterEventSequence;
 
-typedef struct _ClutterFog                      ClutterFog; /* deprecated */
 typedef struct _ClutterBehaviour                ClutterBehaviour; /* deprecated */
 typedef struct _ClutterShader                   ClutterShader; /* deprecated */
 
