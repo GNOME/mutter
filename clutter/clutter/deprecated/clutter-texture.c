@@ -438,7 +438,7 @@ set_viewport_with_buffer_under_fbo_source (ClutterActor *fbo_source,
        * falling back to a stage sized fbo with an offset of (0,0)
        */
 
-      ClutterVertex verts[4];
+      graphene_point3d_t verts[4];
       float x_min = G_MAXFLOAT, y_min = G_MAXFLOAT;
       int i;
 

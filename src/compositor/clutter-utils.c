@@ -66,11 +66,11 @@ round_to_fixed (float x)
  * in @x_origin and @y_origin.
  */
 gboolean
-meta_actor_vertices_are_untransformed (ClutterVertex *verts,
-                                       float          widthf,
-                                       float          heightf,
-                                       int           *x_origin,
-                                       int           *y_origin)
+meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
+                                       float               widthf,
+                                       float               heightf,
+                                       int                *x_origin,
+                                       int                *y_origin)
 {
   int width, height;
   int v0x, v0y, v1x, v1y, v2x, v2y, v3x, v3y;
@@ -119,7 +119,7 @@ meta_actor_is_untransformed (ClutterActor *actor,
                              int          *y_origin)
 {
   gfloat widthf, heightf;
-  ClutterVertex verts[4];
+  graphene_point3d_t verts[4];
 
   clutter_actor_get_size (actor, &widthf, &heightf);
   clutter_actor_get_abs_allocation_vertices (actor, verts);
@@ -153,7 +153,7 @@ meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                    int             *y_origin)
 {
   CoglMatrix modelview, projection, modelview_projection;
-  ClutterVertex vertices[4];
+  graphene_point3d_t vertices[4];
   float viewport[4];
   int i;
 
