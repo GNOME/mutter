@@ -135,7 +135,7 @@ gboolean _clutter_script_parse_point       (ClutterScript   *script,
                                             ClutterPoint    *point);
 gboolean _clutter_script_parse_size        (ClutterScript   *script,
                                             JsonNode        *node,
-                                            ClutterSize     *size);
+                                            graphene_size_t *size);
 
 gboolean _clutter_script_parse_translatable_string (ClutterScript *script,
                                                     JsonNode      *node,
