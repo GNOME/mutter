@@ -150,178 +150,6 @@ G_DEFINE_BOXED_TYPE_WITH_CODE (ClutterGeometry, clutter_geometry,
 
 
 /*
- * ClutterVertices
- */
-
-/**
- * clutter_vertex_new:
- * @x: X coordinate
- * @y: Y coordinate
- * @z: Z coordinate
- *
- * Creates a new #ClutterVertex for the point in 3D space
- * identified by the 3 coordinates @x, @y, @z.
- *
- * This function is the logical equivalent of:
- *
- * |[
- *   clutter_vertex_init (clutter_vertex_alloc (), x, y, z);
- * ]|
- *
- * Return value: (transfer full): the newly allocated #ClutterVertex.
- *   Use clutter_vertex_free() to free the resources
- *
- * Since: 1.0
- */
-ClutterVertex *
-clutter_vertex_new (gfloat x,
-                    gfloat y,
-                    gfloat z)
-{
-  return clutter_vertex_init (clutter_vertex_alloc (), x, y, z);
-}
-
-/**
- * clutter_vertex_alloc: (constructor)
- *
- * Allocates a new, empty #ClutterVertex.
- *
- * Return value: (transfer full): the newly allocated #ClutterVertex.
- *   Use clutter_vertex_free() to free its resources
- *
- * Since: 1.12
- */
-ClutterVertex *
-clutter_vertex_alloc (void)
-{
-  return g_slice_new0 (ClutterVertex);
-}
-
-/**
- * clutter_vertex_init:
- * @vertex: a #ClutterVertex
- * @x: X coordinate
- * @y: Y coordinate
- * @z: Z coordinate
- *
- * Initializes @vertex with the given coordinates.
- *
- * Return value: (transfer none): the initialized #ClutterVertex
- *
- * Since: 1.10
- */
-ClutterVertex *
-clutter_vertex_init (ClutterVertex *vertex,
-                     gfloat         x,
-                     gfloat         y,
-                     gfloat         z)
-{
-  g_return_val_if_fail (vertex != NULL, NULL);
-
-  vertex->x = x;
-  vertex->y = y;
-  vertex->z = z;
-
-  return vertex;
-}
-
-/**
- * clutter_vertex_copy:
- * @vertex: a #ClutterVertex
- *
- * Copies @vertex
- *
- * Return value: (transfer full): a newly allocated copy of #ClutterVertex.
- *   Use clutter_vertex_free() to free the allocated resources
- *
- * Since: 1.0
- */
-ClutterVertex *
-clutter_vertex_copy (const ClutterVertex *vertex)
-{
-  if (G_LIKELY (vertex != NULL))
-    return g_slice_dup (ClutterVertex, vertex);
-
-  return NULL;
-}
-
-/**
- * clutter_vertex_free:
- * @vertex: a #ClutterVertex
- *
- * Frees a #ClutterVertex allocated using clutter_vertex_alloc() or
- * clutter_vertex_copy().
- *
- * Since: 1.0
- */
-void
-clutter_vertex_free (ClutterVertex *vertex)
-{
-  if (G_UNLIKELY (vertex != NULL))
-    g_slice_free (ClutterVertex, vertex);
-}
-
-/**
- * clutter_vertex_equal:
- * @vertex_a: a #ClutterVertex
- * @vertex_b: a #ClutterVertex
- *
- * Compares @vertex_a and @vertex_b for equality
- *
- * Return value: %TRUE if the passed #ClutterVertex are equal
- *
- * Since: 1.0
- */
-gboolean
-clutter_vertex_equal (const ClutterVertex *vertex_a,
-                      const ClutterVertex *vertex_b)
-{
-  g_return_val_if_fail (vertex_a != NULL && vertex_b != NULL, FALSE);
-
-  if (vertex_a == vertex_b)
-    return TRUE;
-
-  return fabsf (vertex_a->x - vertex_b->x) < FLOAT_EPSILON &&
-         fabsf (vertex_a->y - vertex_b->y) < FLOAT_EPSILON &&
-         fabsf (vertex_a->z - vertex_b->z) < FLOAT_EPSILON;
-}
-
-static void
-clutter_vertex_interpolate (const ClutterVertex *a,
-                            const ClutterVertex *b,
-                            double               progress,
-                            ClutterVertex       *res)
-{
-  res->x = a->x + (b->x - a->x) * progress;
-  res->y = a->y + (b->y - a->y) * progress;
-  res->z = a->z + (b->z - a->z) * progress;
-}
-
-static gboolean
-clutter_vertex_progress (const GValue *a,
-                         const GValue *b,
-                         gdouble       progress,
-                         GValue       *retval)
-{
-  const ClutterVertex *av = g_value_get_boxed (a);
-  const ClutterVertex *bv = g_value_get_boxed (b);
-  ClutterVertex res;
-
-  clutter_vertex_interpolate (av, bv, progress, &res);
-
-  g_value_set_boxed (retval, &res);
-
-  return TRUE;
-}
-
-G_DEFINE_BOXED_TYPE_WITH_CODE (ClutterVertex, clutter_vertex,
-                               clutter_vertex_copy,
-                               clutter_vertex_free,
-                               CLUTTER_REGISTER_INTERVAL_PROGRESS (clutter_vertex_progress));
-
-
-
-/*
  * ClutterMargin
  */
 
@@ -1393,20 +1221,20 @@ clutter_matrix_progress (const GValue *a,
 {
   const ClutterMatrix *matrix1 = g_value_get_boxed (a);
   const ClutterMatrix *matrix2 = g_value_get_boxed (b);
-  ClutterVertex scale1 = CLUTTER_VERTEX_INIT (1.f, 1.f, 1.f);
+  graphene_point3d_t scale1 = GRAPHENE_POINT3D_INIT (1.f, 1.f, 1.f);
   float shear1[3] = { 0.f, 0.f, 0.f };
-  ClutterVertex rotate1 = CLUTTER_VERTEX_INIT_ZERO;
-  ClutterVertex translate1 = CLUTTER_VERTEX_INIT_ZERO;
+  graphene_point3d_t rotate1 = GRAPHENE_POINT3D_INIT_ZERO;
+  graphene_point3d_t translate1 = GRAPHENE_POINT3D_INIT_ZERO;
   ClutterVertex4 perspective1 = { 0.f, 0.f, 0.f, 0.f };
-  ClutterVertex scale2 = CLUTTER_VERTEX_INIT (1.f, 1.f, 1.f);
+  graphene_point3d_t scale2 = GRAPHENE_POINT3D_INIT (1.f, 1.f, 1.f);
   float shear2[3] = { 0.f, 0.f, 0.f };
-  ClutterVertex rotate2 = CLUTTER_VERTEX_INIT_ZERO;
-  ClutterVertex translate2 = CLUTTER_VERTEX_INIT_ZERO;
+  graphene_point3d_t rotate2 = GRAPHENE_POINT3D_INIT_ZERO;
+  graphene_point3d_t translate2 = GRAPHENE_POINT3D_INIT_ZERO;
   ClutterVertex4 perspective2 = { 0.f, 0.f, 0.f, 0.f };
-  ClutterVertex scale_res = CLUTTER_VERTEX_INIT (1.f, 1.f, 1.f);
+  graphene_point3d_t scale_res = GRAPHENE_POINT3D_INIT (1.f, 1.f, 1.f);
   float shear_res = 0.f;
-  ClutterVertex rotate_res = CLUTTER_VERTEX_INIT_ZERO;
-  ClutterVertex translate_res = CLUTTER_VERTEX_INIT_ZERO;
+  graphene_point3d_t rotate_res = GRAPHENE_POINT3D_INIT_ZERO;
+  graphene_point3d_t translate_res = GRAPHENE_POINT3D_INIT_ZERO;
   ClutterVertex4 perspective_res = { 0.f, 0.f, 0.f, 0.f };
   ClutterMatrix res;
 
@@ -1427,11 +1255,11 @@ clutter_matrix_progress (const GValue *a,
   res.ww = perspective_res.w;
 
   /* translation */
-  clutter_vertex_interpolate (&translate1, &translate2, progress, &translate_res);
+  graphene_point3d_interpolate (&translate1, &translate2, progress, &translate_res);
   cogl_matrix_translate (&res, translate_res.x, translate_res.y, translate_res.z);
 
   /* rotation */
-  clutter_vertex_interpolate (&rotate1, &rotate2, progress, &rotate_res);
+  graphene_point3d_interpolate (&rotate1, &rotate2, progress, &rotate_res);
   cogl_matrix_rotate (&res, rotate_res.x, 1.0f, 0.0f, 0.0f);
   cogl_matrix_rotate (&res, rotate_res.y, 0.0f, 1.0f, 0.0f);
   cogl_matrix_rotate (&res, rotate_res.z, 0.0f, 0.0f, 1.0f);
@@ -1450,7 +1278,7 @@ clutter_matrix_progress (const GValue *a,
     _clutter_util_matrix_skew_xy (&res, shear_res);
 
   /* scale */
-  clutter_vertex_interpolate (&scale1, &scale2, progress, &scale_res);
+  graphene_point3d_interpolate (&scale1, &scale2, progress, &scale_res);
   cogl_matrix_scale (&res, scale_res.x, scale_res.y, scale_res.z);
 
   g_value_set_boxed (retval, &res);

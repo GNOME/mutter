@@ -33,6 +33,8 @@
 #include <clutter/clutter-macros.h>
 #include <clutter/clutter-enums.h>
 
+#include <graphene-gobject.h>
+
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_ACTOR_BOX          (clutter_actor_box_get_type ())
@@ -42,7 +44,6 @@ G_BEGIN_DECLS
 #define CLUTTER_TYPE_MATRIX             (clutter_matrix_get_type ())
 #define CLUTTER_TYPE_PAINT_VOLUME       (clutter_paint_volume_get_type ())
 #define CLUTTER_TYPE_PERSPECTIVE        (clutter_perspective_get_type ())
-#define CLUTTER_TYPE_VERTEX             (clutter_vertex_get_type ())
 #define CLUTTER_TYPE_POINT              (clutter_point_get_type ())
 #define CLUTTER_TYPE_SIZE               (clutter_size_get_type ())
 #define CLUTTER_TYPE_RECT               (clutter_rect_get_type ())
@@ -85,7 +86,6 @@ typedef struct _ClutterPerspective              ClutterPerspective;
 typedef struct _ClutterPoint                    ClutterPoint;
 typedef struct _ClutterRect                     ClutterRect;
 typedef struct _ClutterSize                     ClutterSize;
-typedef struct _ClutterVertex                   ClutterVertex;
 
 typedef struct _ClutterAlpha            	ClutterAlpha;
 typedef struct _ClutterAnimation                ClutterAnimation;
@@ -377,69 +377,6 @@ CLUTTER_EXPORT
 float                   clutter_rect_get_height         (ClutterRect       *rect);
 
 /**
- * ClutterVertex:
- * @x: X coordinate of the vertex
- * @y: Y coordinate of the vertex
- * @z: Z coordinate of the vertex
- *
- * A point in 3D space, expressed in pixels
- *
- * Since: 0.4
- */
-struct _ClutterVertex
-{
-  gfloat x;
-  gfloat y;
-  gfloat z;
-};
-
-/**
- * CLUTTER_VERTEX_INIT:
- * @x: the X coordinate of the vertex
- * @y: the Y coordinate of the vertex
- * @z: the Z coordinate of the vertex
- *
- * A simple macro for initializing a #ClutterVertex when declaring it, e.g.:
- *
- * |[
- *   ClutterVertex v = CLUTTER_VERTEX_INIT (x, y, z);
- * ]|
- *
- * Since: 1.10
- */
-#define CLUTTER_VERTEX_INIT(x,y,z)      { (x), (y), (z) }
-
-/**
- * CLUTTER_VERTEX_INIT_ZERO:
- *
- * A simple macro for initializing a #ClutterVertex to (0, 0, 0).
- *
- * Since: 1.12
- */
-#define CLUTTER_VERTEX_INIT_ZERO        CLUTTER_VERTEX_INIT (0.f, 0.f, 0.f)
-
-CLUTTER_EXPORT
-GType          clutter_vertex_get_type (void) G_GNUC_CONST;
-CLUTTER_EXPORT
-ClutterVertex *clutter_vertex_new      (gfloat               x,
-                                        gfloat               y,
-                                        gfloat               z);
-CLUTTER_EXPORT
-ClutterVertex *clutter_vertex_alloc    (void);
-CLUTTER_EXPORT
-ClutterVertex *clutter_vertex_init     (ClutterVertex       *vertex,
-                                        gfloat               x,
-                                        gfloat               y,
-                                        gfloat               z);
-CLUTTER_EXPORT
-ClutterVertex *clutter_vertex_copy     (const ClutterVertex *vertex);
-CLUTTER_EXPORT
-void           clutter_vertex_free     (ClutterVertex       *vertex);
-CLUTTER_EXPORT
-gboolean       clutter_vertex_equal    (const ClutterVertex *vertex_a,
-                                        const ClutterVertex *vertex_b);
-
-/**
  * ClutterActorBox:
  * @x1: X coordinate of the top left corner
  * @y1: Y coordinate of the top left corner
@@ -543,7 +480,7 @@ gboolean         clutter_actor_box_contains      (const ClutterActorBox *box,
                                                   gfloat                 y);
 CLUTTER_EXPORT
 void             clutter_actor_box_from_vertices (ClutterActorBox       *box,
-                                                  const ClutterVertex    verts[]);
+                                                  const graphene_point3d_t verts[]);
 CLUTTER_EXPORT
 void             clutter_actor_box_interpolate   (const ClutterActorBox *initial,
                                                   const ClutterActorBox *final,
@@ -675,10 +612,10 @@ void                clutter_paint_volume_free                (ClutterPaintVolume
 
 CLUTTER_EXPORT
 void                clutter_paint_volume_set_origin          (ClutterPaintVolume       *pv,
-                                                              const ClutterVertex      *origin);
+                                                              const graphene_point3d_t *origin);
 CLUTTER_EXPORT
 void                clutter_paint_volume_get_origin          (const ClutterPaintVolume *pv,
-                                                              ClutterVertex            *vertex);
+                                                              graphene_point3d_t       *vertex);
 CLUTTER_EXPORT
 void                clutter_paint_volume_set_width           (ClutterPaintVolume       *pv,
                                                               gfloat                    width);
