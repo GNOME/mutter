@@ -81,6 +81,7 @@ static gboolean use_system_font = FALSE;
 static PangoFontDescription *titlebar_font = NULL;
 static MetaVirtualModifier mouse_button_mods = Mod1Mask;
 static MetaKeyCombo overlay_key_combo = { 0, 0, 0 };
+static MetaKeyCombo locate_pointer_key_combo = { 0, 0, 0 };
 static GDesktopFocusMode focus_mode = G_DESKTOP_FOCUS_MODE_CLICK;
 static GDesktopFocusNewWindows focus_new_windows = G_DESKTOP_FOCUS_NEW_WINDOWS_SMART;
 static gboolean raise_on_click = TRUE;
@@ -145,6 +146,7 @@ static gboolean titlebar_handler (GVariant*, gpointer*, gpointer);
 static gboolean mouse_button_mods_handler (GVariant*, gpointer*, gpointer);
 static gboolean button_layout_handler (GVariant*, gpointer*, gpointer);
 static gboolean overlay_key_handler (GVariant*, gpointer*, gpointer);
+static gboolean locate_pointer_key_handler (GVariant*, gpointer*, gpointer);
 static gboolean iso_next_group_handler (GVariant*, gpointer*, gpointer);
 
 static void     init_bindings             (void);
@@ -425,6 +427,14 @@ static MetaStringPreference preferences_string[] =
         META_PREF_KEYBINDINGS,
       },
       overlay_key_handler,
+      NULL,
+    },
+    {
+      { "locate-pointer-key",
+        SCHEMA_MUTTER,
+        META_PREF_KEYBINDINGS,
+      },
+      locate_pointer_key_handler,
       NULL,
     },
     { { NULL, 0, 0 }, NULL },
@@ -1476,6 +1486,36 @@ overlay_key_handler (GVariant *value,
 }
 
 static gboolean
+locate_pointer_key_handler (GVariant *value,
+                            gpointer *result,
+                            gpointer  data)
+{
+  MetaKeyCombo combo;
+  const gchar *string_value;
+
+  *result = NULL; /* ignored */
+  string_value = g_variant_get_string (value, NULL);
+
+  if (!string_value || !meta_parse_accelerator (string_value, &combo))
+    {
+      meta_topic (META_DEBUG_KEYBINDINGS,
+                  "Failed to parse value for locate-pointer-key\n");
+      return FALSE;
+    }
+
+  combo.modifiers = 0;
+
+  if (locate_pointer_key_combo.keysym != combo.keysym ||
+      locate_pointer_key_combo.keycode != combo.keycode)
+    {
+      locate_pointer_key_combo = combo;
+      queue_changed (META_PREF_KEYBINDINGS);
+    }
+
+  return TRUE;
+}
+
+static gboolean
 iso_next_group_handler (GVariant *value,
                         gpointer *result,
                         gpointer  data)
@@ -1689,6 +1729,14 @@ init_bindings (void)
   pref->builtin = 1;
 
   g_hash_table_insert (key_bindings, g_strdup ("overlay-key"), pref);
+
+  pref = g_new0 (MetaKeyPref, 1);
+  pref->name = g_strdup ("locate-pointer-key");
+  pref->action = META_KEYBINDING_ACTION_LOCATE_POINTER_KEY;
+  pref->combos = g_slist_prepend (pref->combos, &locate_pointer_key_combo);
+  pref->builtin = 1;
+
+  g_hash_table_insert (key_bindings, g_strdup ("locate-pointer-key"), pref);
 }
 
 static gboolean
@@ -1964,6 +2012,12 @@ void
 meta_prefs_get_overlay_binding (MetaKeyCombo *combo)
 {
   *combo = overlay_key_combo;
+}
+
+void
+meta_prefs_get_locate_pointer_binding (MetaKeyCombo *combo)
+{
+  *combo = locate_pointer_key_combo;
 }
 
 const char *
