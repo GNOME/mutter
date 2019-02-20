@@ -42,7 +42,7 @@
 #include <cogl/cogl-types.h>
 #include <cogl/cogl-error.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-buffer
@@ -320,6 +320,6 @@ cogl_buffer_set_data (CoglBuffer *buffer,
                       const void *data,
                       size_t size);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_BUFFER_H__ */

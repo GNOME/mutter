@@ -28,18 +28,18 @@
  * Authors: James Jones <jajones@nvidia.com>
  */
 
-#include <string.h>
+#include "config.h"
 
+#include "compositor/meta-sync-ring.h"
+
+#include <string.h>
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <X11/extensions/sync.h>
 
-#include <cogl/cogl.h>
-#include <clutter/clutter.h>
-
-#include <meta/util.h>
-
-#include "meta-sync-ring.h"
+#include "clutter/clutter.h"
+#include "cogl/cogl.h"
+#include "meta/util.h"
 
 /* Theory of operation:
  *

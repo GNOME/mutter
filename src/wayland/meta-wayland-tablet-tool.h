@@ -22,13 +22,12 @@
 #ifndef META_WAYLAND_TABLET_TOOL_H
 #define META_WAYLAND_TABLET_TOOL_H
 
+#include <glib.h>
 #include <wayland-server.h>
 
-#include <glib.h>
-
-#include "meta-wayland-types.h"
-#include "meta-cursor-renderer.h"
+#include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-sprite-xcursor.h"
+#include "wayland/meta-wayland-types.h"
 
 struct _MetaWaylandTabletTool
 {

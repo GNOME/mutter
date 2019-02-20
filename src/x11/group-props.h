@@ -22,8 +22,8 @@
 #ifndef META_GROUP_PROPS_H
 #define META_GROUP_PROPS_H
 
-#include <meta/group.h>
-#include "window-private.h"
+#include "core/window-private.h"
+#include "meta/group.h"
 
 void meta_group_reload_property         (MetaGroup   *group,
                                          Atom         property);

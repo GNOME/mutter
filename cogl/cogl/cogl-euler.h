@@ -40,7 +40,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-euler
@@ -259,7 +259,7 @@ cogl_euler_copy (const CoglEuler *src);
 void
 cogl_euler_free (CoglEuler *euler);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_EULER_H */
 

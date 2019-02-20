@@ -47,15 +47,14 @@
  * things with bells; some others are entirely no-ops in that case.
  */
 
-#include <config.h>
-#include "bell.h"
-#include "window-private.h"
-#include "util-private.h"
+#include "config.h"
+
+#include "core/bell.h"
+
 #include "compositor/compositor-private.h"
-#include <meta/compositor.h>
-#ifdef HAVE_LIBCANBERRA
-#include <canberra-gtk.h>
-#endif
+#include "core/util-private.h"
+#include "core/window-private.h"
+#include "meta/compositor.h"
 
 G_DEFINE_TYPE (MetaBell, meta_bell, G_TYPE_OBJECT)
 
@@ -245,31 +244,14 @@ static gboolean
 bell_audible_notify (MetaDisplay *display,
                      MetaWindow  *window)
 {
-#ifdef HAVE_LIBCANBERRA
-  ca_proplist *p;
-  int res;
+  MetaSoundPlayer *player;
 
-  ca_proplist_create (&p);
-  ca_proplist_sets (p, CA_PROP_EVENT_ID, "bell-window-system");
-  ca_proplist_sets (p, CA_PROP_EVENT_DESCRIPTION, _("Bell event"));
-  ca_proplist_sets (p, CA_PROP_CANBERRA_CACHE_CONTROL, "permanent");
-
-  if (window)
-    {
-      ca_proplist_sets (p, CA_PROP_WINDOW_NAME, window->title);
-      ca_proplist_setf (p, CA_PROP_WINDOW_X11_XID, "%lu", (unsigned long)window->xwindow);
-      ca_proplist_sets (p, CA_PROP_APPLICATION_NAME, window->res_name);
-      ca_proplist_setf (p, CA_PROP_APPLICATION_PROCESS_ID, "%d", window->net_wm_pid);
-    }
-
-  res = ca_context_play_full (ca_gtk_context_get (), 1, p, NULL, NULL);
-
-  ca_proplist_destroy (p);
-
-  return res == CA_SUCCESS || res == CA_ERROR_DISABLED;
-#endif /* HAVE_LIBCANBERRA */
-
-  return FALSE;
+  player = meta_display_get_sound_player (display);
+  meta_sound_player_play_from_theme (player,
+                                     "bell-window-system",
+                                     _("Bell event"),
+                                     NULL);
+  return TRUE;
 }
 
 gboolean

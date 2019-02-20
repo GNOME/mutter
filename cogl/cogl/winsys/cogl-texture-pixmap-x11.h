@@ -52,7 +52,7 @@
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-texture-pixmap-x11
@@ -268,7 +268,7 @@ cogl_texture_pixmap_x11_set_damage_object (CoglTexturePixmapX11 *texture,
 CoglBool
 cogl_is_texture_pixmap_x11 (void *object);
 
-COGL_END_DECLS
+G_END_DECLS
 
 /* The gobject introspection scanner seems to parse public headers in
  * isolation which means we need to be extra careful about how we

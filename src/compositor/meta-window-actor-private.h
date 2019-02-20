@@ -3,14 +3,30 @@
 #ifndef META_WINDOW_ACTOR_PRIVATE_H
 #define META_WINDOW_ACTOR_PRIVATE_H
 
-#include <config.h>
-
 #include <X11/extensions/Xdamage.h>
-#include <meta/compositor-mutter.h>
-#include "meta-surface-actor.h"
-#include "meta-plugin-manager.h"
 
-MetaWindowActor *meta_window_actor_new (MetaWindow *window);
+#include "compositor/meta-plugin-manager.h"
+#include "compositor/meta-surface-actor.h"
+#include "meta/compositor-mutter.h"
+
+struct _MetaWindowActorClass
+{
+  ClutterActorClass parent;
+
+  void (*frame_complete) (MetaWindowActor  *actor,
+                          ClutterFrameInfo *frame_info,
+                          int64_t           presentation_time);
+
+  void (*set_surface_actor) (MetaWindowActor  *actor,
+                             MetaSurfaceActor *surface);
+
+  void (*queue_frame_drawn) (MetaWindowActor *actor,
+                             gboolean         skip_sync_delay);
+
+  void (*pre_paint) (MetaWindowActor *actor);
+  void (*post_paint) (MetaWindowActor *actor);
+  void (*queue_destroy) (MetaWindowActor *actor);
+};
 
 void meta_window_actor_queue_destroy   (MetaWindowActor *self);
 

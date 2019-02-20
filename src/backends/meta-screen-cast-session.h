@@ -47,6 +47,8 @@ G_DECLARE_FINAL_TYPE (MetaScreenCastSessionHandle,
 
 char * meta_screen_cast_session_get_object_path (MetaScreenCastSession *session);
 
+char * meta_screen_cast_session_get_peer_name (MetaScreenCastSession *session);
+
 MetaScreenCastSession * meta_screen_cast_session_new (MetaScreenCast             *screen_cast,
                                                       MetaScreenCastSessionType   session_type,
                                                       const char                 *peer_name,
@@ -59,5 +61,7 @@ void meta_screen_cast_session_close (MetaScreenCastSession *session);
 
 MetaScreenCastStream * meta_screen_cast_session_get_stream (MetaScreenCastSession *session,
                                                             const char            *path);
+
+MetaScreenCast * meta_screen_cast_session_get_screen_cast (MetaScreenCastSession *session);
 
 #endif /* META_SCREEN_CAST_SESSION_H */

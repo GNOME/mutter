@@ -1,12 +1,18 @@
-#ifdef HAVE_CONFIG_H
 #include "clutter-build-config.h"
-#endif
 
 #include <glib-object.h>
 
 #include "clutter-actor.h"
 #include "clutter-stage-window.h"
 #include "clutter-private.h"
+
+/**
+ * SECTION:clutter-stage-window
+ * @short_description: Handles the implementation for ClutterStage
+ *
+ * #ClutterStageWindow is an interface that provides the implementation for the
+ * #ClutterStage actor, abstracting away the specifics of the windowing system.
+ */
 
 #define clutter_stage_window_get_type   _clutter_stage_window_get_type
 
@@ -38,6 +44,12 @@ clutter_stage_window_default_init (ClutterStageWindowInterface *iface)
   g_object_interface_install_property (iface, pspec);
 }
 
+/**
+ * _clutter_stage_window_get_wrapper:
+ * @window: a #ClutterStageWindow object
+ *
+ * Returns the pointer to the #ClutterStage it's part of.
+ */
 ClutterActor *
 _clutter_stage_window_get_wrapper (ClutterStageWindow *window)
 {
@@ -140,6 +152,14 @@ _clutter_stage_window_schedule_update  (ClutterStageWindow *window,
   iface->schedule_update (window, sync_delay);
 }
 
+/**
+ * _clutter_stage_window_get_update_time:
+ * @window: a #ClutterStageWindow object
+ *
+ * See _clutter_stage_get_update_time() for more info.
+ *
+ * Returns: The timestamp of the update time
+ */
 gint64
 _clutter_stage_window_get_update_time (ClutterStageWindow *window)
 {
@@ -157,6 +177,12 @@ _clutter_stage_window_get_update_time (ClutterStageWindow *window)
   return iface->get_update_time (window);
 }
 
+/**
+ * _clutter_stage_window_clear_update_time:
+ * @window: a #ClutterStageWindow object
+ *
+ * Clears the update time. See _clutter_stage_clear_update_time() for more info.
+ */
 void
 _clutter_stage_window_clear_update_time (ClutterStageWindow *window)
 {

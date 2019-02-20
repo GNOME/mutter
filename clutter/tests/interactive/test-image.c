@@ -20,6 +20,14 @@ typedef struct _SolidContentClass {
 
 static void clutter_content_iface_init (ClutterContentIface *iface);
 
+GType solid_content_get_type (void);
+
+const char *
+test_image_describe (void);
+
+int
+test_image_main (int argc, char *argv[]);
+
 G_DEFINE_TYPE_WITH_CODE (SolidContent, solid_content, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTENT,
                                                 clutter_content_iface_init))

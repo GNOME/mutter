@@ -54,7 +54,7 @@
 #include "cogl/cogl-macros.h"
 #endif
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /* It's too difficult to actually subclass the pango cairo font
  * map. Instead we just make a fake set of macros that actually just
@@ -244,7 +244,7 @@ GType cogl_pango_renderer_get_type (void) G_GNUC_CONST;
  * Since: 1.0
  * Deprecated: 1.16: Use cogl_pango_show_layout() instead
  */
-COGL_DEPRECATED_IN_1_16_FOR (cogl_pango_show_layout)
+COGL_DEPRECATED_FOR (cogl_pango_show_layout)
 void
 cogl_pango_render_layout_subpixel (PangoLayout *layout,
                                    int x,
@@ -267,7 +267,7 @@ cogl_pango_render_layout_subpixel (PangoLayout *layout,
  * Since: 1.0
  * Deprecated: 1.16: Use cogl_pango_show_layout() instead
  */
-COGL_DEPRECATED_IN_1_16_FOR (cogl_pango_show_layout)
+COGL_DEPRECATED_FOR (cogl_pango_show_layout)
 void
 cogl_pango_render_layout (PangoLayout *layout,
                           int x,
@@ -287,13 +287,13 @@ cogl_pango_render_layout (PangoLayout *layout,
  * Since: 1.0
  * Deprecated: 1.16: Use cogl_pango_show_layout() instead
  */
-COGL_DEPRECATED_IN_1_16_FOR (cogl_pango_show_layout_line)
+COGL_DEPRECATED_FOR (cogl_pango_show_layout_line)
 void
 cogl_pango_render_layout_line (PangoLayoutLine *line,
                                int x,
                                int y,
                                const CoglColor *color);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_PANGO_H__ */

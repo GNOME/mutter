@@ -11,6 +11,12 @@ static const ClutterColor colors[] = {
 #define PADDING         (64.0f)
 #define SIZE            (64.0f)
 
+const char *
+test_keyframe_transition_describe (void);
+
+int
+test_keyframe_transition_main (int argc, char *argv[]);
+
 static void
 on_transition_stopped (ClutterActor *actor,
                        const gchar  *transition_name,

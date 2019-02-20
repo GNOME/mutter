@@ -21,52 +21,81 @@
  */
 
 /**
- * SECTION:window
+ * SECTION:meta-window
  * @title: MetaWindow
- * @short_description: Mutter X managed windows
+ * @short_description: A display-agnostic abstraction for a window.
+ *
+ * #MetaWindow is the core abstraction in Mutter of a window. It has the
+ * properties you'd expect, such as a title, an icon, whether it's fullscreen,
+ * has decorations, etc.
+ *
+ * Since a lot of different kinds of windows exist, each window also a
+ * #MetaWindowType which denotes which kind of window we're exactly dealing
+ * with. For example, one expects slightly different behaviour from a dialog
+ * than a "normal" window. The type of a window can be queried with
+ * meta_window_get_type().
+ *
+ * Common API for windows include:
+ * - Minimizing: meta_window_minimize() / meta_window_unminimize()
+ * - Maximizing: meta_window_maximize() / meta_window_unmaximize()
+ * - Fullscreen: meta_window_make_fullscreen() / meta_window_unmake_fullscreen()
+ *               / meta_window_is_fullscreen()
+ *
+ * Each #MetaWindow is part of either one or all #MetaWorkspace<!-- -->s of the
+ * desktop. You can activate a window on a certain workspace using
+ * meta_window_activate_with_workspace(), and query on which workspace it is
+ * located using meta_window_located_on_workspace(). The workspace it is part
+ * of can be obtained using meta_window_get_workspace().
+ *
+ * Each display protocol should make a subclass to be compatible with that
+ * protocols' specifics, for example #MetaWindowX11 and #MetaWindowWayland.
+ * This is independent of the protocol that the client uses, which is modeled
+ * using the #MetaWindowClientType enum.
+ *
+ * To integrate within the Clutter scene graph, which deals with the actual
+ * rendering, each #MetaWindow will be part of a #MetaWindowActor.
  */
 
-#include <config.h>
-#include "window-private.h"
-#include "boxes-private.h"
-#include "edge-resistance.h"
-#include "util-private.h"
-#include "frame.h"
-#include <meta/meta-x11-errors.h>
-#include "meta-workspace-manager-private.h"
-#include "workspace-private.h"
-#include "stack.h"
-#include "keybindings-private.h"
-#include "ui.h"
-#include "place.h"
-#include <meta/prefs.h>
-#include <meta/group.h>
-#include "constraints.h"
-#include <meta/meta-enum-types.h>
-#include "core.h"
+#include "config.h"
 
-#include <X11/Xatom.h>
+#include "core/window-private.h"
+
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
-
-#include <meta/meta-cursor-tracker.h>
-#include "meta/compositor-mutter.h"
-
-#include "x11/meta-x11-display-private.h"
-#include "x11/window-x11.h"
-#include "x11/window-props.h"
-#include "x11/xprops.h"
-
-#ifdef HAVE_WAYLAND
-#include "wayland/meta-window-wayland.h"
-#include "wayland/meta-window-xwayland.h"
-#include "wayland/meta-wayland-surface.h"
-#include "wayland/meta-wayland-private.h"
-#endif
+#include <X11/Xatom.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "core/boxes-private.h"
+#include "core/constraints.h"
+#include "core/core.h"
+#include "core/edge-resistance.h"
+#include "core/frame.h"
+#include "core/keybindings-private.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/place.h"
+#include "core/stack.h"
+#include "core/util-private.h"
+#include "core/workspace-private.h"
+#include "meta/compositor-mutter.h"
+#include "meta/group.h"
+#include "meta/meta-cursor-tracker.h"
+#include "meta/meta-enum-types.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
+#include "ui/ui.h"
+#include "x11/meta-x11-display-private.h"
+#include "x11/window-props.h"
+#include "x11/window-x11.h"
+#include "x11/xprops.h"
+
+#ifdef HAVE_WAYLAND
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-window-wayland.h"
+#include "wayland/meta-window-xwayland.h"
+#endif
 
 /* Windows that unmaximize to a size bigger than that fraction of the workarea
  * will be scaled down to that size (while maintaining aspect ratio).
@@ -885,29 +914,15 @@ meta_window_update_sandboxed_app_id (MetaWindow *window)
 static void
 meta_window_update_desc (MetaWindow *window)
 {
-  g_autofree gchar *title = NULL;
-
   g_clear_pointer (&window->desc, g_free);
 
-  if (window->title)
-    title = g_utf8_substring (window->title, 0,
-                              MIN (10, g_utf8_strlen (window->title, -1)));
-
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-    {
-      if (title)
-        window->desc = g_strdup_printf ("0x%lx (%s)", window->xwindow, title);
-      else
-        window->desc = g_strdup_printf ("0x%lx", window->xwindow);
-    }
+    window->desc = g_strdup_printf ("0x%lx", window->xwindow);
   else
     {
       guint64 small_stamp = window->stamp - G_GUINT64_CONSTANT(0x100000000);
 
-      if (title)
-        window->desc = g_strdup_printf ("W%" G_GUINT64_FORMAT " (%s)", small_stamp, title);
-      else
-        window->desc = g_strdup_printf ("W%" G_GUINT64_FORMAT , small_stamp);
+      window->desc = g_strdup_printf ("W%" G_GUINT64_FORMAT , small_stamp);
     }
 }
 
@@ -1161,6 +1176,8 @@ _meta_window_shared_new (MetaDisplay         *display,
       window->has_move_func = FALSE;
       window->has_resize_func = FALSE;
     }
+
+  window->id = meta_display_generate_window_id (display);
 
   META_WINDOW_GET_CLASS (window)->manage (window);
 
@@ -2817,7 +2834,7 @@ meta_window_maximize_internal (MetaWindow        *window,
   meta_window_recalc_features (window);
   set_net_wm_state (window);
 
-  if (window->monitor->in_fullscreen)
+  if (window->monitor && window->monitor->in_fullscreen)
     meta_display_queue_check_fullscreen (window->display);
 
   g_object_freeze_notify (G_OBJECT (window));
@@ -3076,54 +3093,54 @@ update_edge_constraints (MetaWindow *window)
   switch (window->tile_mode)
     {
     case META_TILE_NONE:
-      window->edge_constraints[0] = META_EDGE_CONSTRAINT_NONE;
-      window->edge_constraints[1] = META_EDGE_CONSTRAINT_NONE;
-      window->edge_constraints[2] = META_EDGE_CONSTRAINT_NONE;
-      window->edge_constraints[3] = META_EDGE_CONSTRAINT_NONE;
+      window->edge_constraints.top = META_EDGE_CONSTRAINT_NONE;
+      window->edge_constraints.right = META_EDGE_CONSTRAINT_NONE;
+      window->edge_constraints.bottom = META_EDGE_CONSTRAINT_NONE;
+      window->edge_constraints.left = META_EDGE_CONSTRAINT_NONE;
       break;
 
     case META_TILE_MAXIMIZED:
-      window->edge_constraints[0] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[1] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[2] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[3] = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.top = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.right = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.bottom = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.left = META_EDGE_CONSTRAINT_MONITOR;
       break;
 
     case META_TILE_LEFT:
-      window->edge_constraints[0] = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.top = META_EDGE_CONSTRAINT_MONITOR;
 
       if (window->tile_match)
-        window->edge_constraints[1] = META_EDGE_CONSTRAINT_WINDOW;
+        window->edge_constraints.right = META_EDGE_CONSTRAINT_WINDOW;
       else
-        window->edge_constraints[1] = META_EDGE_CONSTRAINT_NONE;
+        window->edge_constraints.right = META_EDGE_CONSTRAINT_NONE;
 
-      window->edge_constraints[2] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[3] = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.bottom = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.left = META_EDGE_CONSTRAINT_MONITOR;
       break;
 
     case META_TILE_RIGHT:
-      window->edge_constraints[0] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[1] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[2] = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.top = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.right = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.bottom = META_EDGE_CONSTRAINT_MONITOR;
 
       if (window->tile_match)
-        window->edge_constraints[3] = META_EDGE_CONSTRAINT_WINDOW;
+        window->edge_constraints.left = META_EDGE_CONSTRAINT_WINDOW;
       else
-        window->edge_constraints[3] = META_EDGE_CONSTRAINT_NONE;
+        window->edge_constraints.left = META_EDGE_CONSTRAINT_NONE;
       break;
     }
 
   /* h/vmaximize also modify the edge constraints */
   if (window->maximized_vertically)
     {
-      window->edge_constraints[0] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[2] = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.top = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.bottom = META_EDGE_CONSTRAINT_MONITOR;
     }
 
   if (window->maximized_horizontally)
     {
-      window->edge_constraints[1] = META_EDGE_CONSTRAINT_MONITOR;
-      window->edge_constraints[3] = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.right = META_EDGE_CONSTRAINT_MONITOR;
+      window->edge_constraints.left = META_EDGE_CONSTRAINT_MONITOR;
     }
 }
 
@@ -3799,7 +3816,7 @@ meta_window_get_main_logical_monitor (MetaWindow *window)
 
 static MetaLogicalMonitor *
 find_monitor_by_winsys_id (MetaWindow *window,
-                           guint       winsys_id)
+                           uint64_t    winsys_id)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -4053,7 +4070,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   if (window->monitor)
     {
-      guint old_output_winsys_id;
+      uint64_t old_output_winsys_id;
 
       old_output_winsys_id = window->monitor->winsys_id;
 
@@ -5467,6 +5484,7 @@ meta_window_get_workspaces (MetaWindow *window)
     return NULL;
   else
     g_assert_not_reached ();
+  return NULL;
 }
 
 static void
@@ -7709,9 +7727,7 @@ meta_window_get_frame_type (MetaWindow *window)
       /* can't add border if undecorated */
       return META_FRAME_TYPE_LAST;
     }
-  else if (window->border_only ||
-           (window->hide_titlebar_when_maximized && META_WINDOW_MAXIMIZED (window)) ||
-           (window->hide_titlebar_when_maximized && META_WINDOW_TILED_SIDE_BY_SIDE (window)))
+  else if (window->border_only)
     {
       /* override base frame type */
       return META_FRAME_TYPE_BORDER;
@@ -8517,4 +8533,32 @@ gboolean
 meta_window_is_stackable (MetaWindow *window)
 {
   return META_WINDOW_GET_CLASS (window)->is_stackable (window);
+}
+
+/**
+ * meta_window_get_id:
+ * @window: a #MetaWindow
+ *
+ * Returns the window id associated with window.
+ *
+ * Returns: The window id
+ */
+uint64_t
+meta_window_get_id (MetaWindow *window)
+{
+  return window->id;
+}
+
+/**
+ * meta_window_get_client_type:
+ * @window: a #MetaWindow
+ *
+ * Returns the #MetaWindowClientType of the window.
+ *
+ * Returns: The root ancestor window
+ */
+MetaWindowClientType
+meta_window_get_client_type (MetaWindow *window)
+{
+  return window->client_type;
 }

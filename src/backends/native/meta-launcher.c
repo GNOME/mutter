@@ -19,13 +19,9 @@
 
 #include "config.h"
 
-#include "meta-launcher.h"
+#include "backends/native/meta-launcher.h"
 
 #include <gio/gunixfdlist.h>
-
-#include <clutter/clutter.h>
-#include <clutter/evdev/clutter-evdev.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <malloc.h>
@@ -34,17 +30,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
 #include <systemd/sd-login.h>
 #include <gudev/gudev.h>
 
-#include "dbus-utils.h"
-#include "meta-dbus-login1.h"
-
 #include "backends/meta-backend-private.h"
+#include "backends/native/dbus-utils.h"
 #include "backends/native/meta-backend-native.h"
-#include "meta-cursor-renderer-native.h"
-#include "meta-renderer-native.h"
+#include "backends/native/meta-cursor-renderer-native.h"
+#include "backends/native/meta-renderer-native.h"
+#include "clutter/clutter.h"
+#include "clutter/evdev/clutter-evdev.h"
+
+#include "meta-dbus-login1.h"
 
 struct _MetaLauncher
 {

@@ -23,8 +23,9 @@
 #define META_WAYLAND_TEXT_INPUT_H
 
 #include <wayland-server.h>
-#include "wayland/meta-wayland-types.h"
+
 #include "meta/window.h"
+#include "wayland/meta-wayland-types.h"
 
 #define META_TYPE_WAYLAND_TEXT_INPUT (meta_wayland_text_input_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandTextInput,

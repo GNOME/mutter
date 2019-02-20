@@ -19,7 +19,7 @@
 #ifndef META_WAYLAND_INHIBIT_SHORTCUTS_DIALOG_H
 #define META_WAYLAND_INHIBIT_SHORTCUTS_DIALOG_H
 
-#include "meta-wayland-private.h"
+#include "wayland/meta-wayland-private.h"
 
 void     meta_wayland_surface_show_inhibit_shortcuts_dialog (MetaWaylandSurface *surface,
                                                              MetaWaylandSeat    *seat);

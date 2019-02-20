@@ -26,7 +26,8 @@
 #define META_POINTER_CONSTRAINT_H
 
 #include <glib-object.h>
-#include <clutter/clutter.h>
+
+#include "clutter/clutter.h"
 
 G_BEGIN_DECLS
 
@@ -34,6 +35,11 @@ G_BEGIN_DECLS
 G_DECLARE_DERIVABLE_TYPE (MetaPointerConstraint, meta_pointer_constraint,
                           META, POINTER_CONSTRAINT, GObject);
 
+/**
+ * MetaPointerConstraintClass:
+ * @constrain: the virtual function pointer for
+ *             meta_pointer_constraint_constrain().
+ */
 struct _MetaPointerConstraintClass
 {
   GObjectClass parent_class;

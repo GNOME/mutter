@@ -21,19 +21,21 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include "boxes-private.h"
-#include "constraints.h"
-#include "meta-workspace-manager-private.h"
-#include "workspace-private.h"
-#include "place.h"
-#include <meta/prefs.h>
-#include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
-#include "backends/meta-monitor-manager-private.h"
+#include "config.h"
+
+#include "core/constraints.h"
 
 #include <stdlib.h>
 #include <math.h>
+
+#include "backends/meta-backend-private.h"
+#include "backends/meta-logical-monitor.h"
+#include "backends/meta-monitor-manager-private.h"
+#include "core/boxes-private.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/place.h"
+#include "core/workspace-private.h"
+#include "meta/prefs.h"
 
 #if 0
  // This is the short and sweet version of how to hack on this file; see
@@ -1592,7 +1594,7 @@ constrain_titlebar_visible (MetaWindow         *window,
       MetaFrameBorders borders;
       meta_frame_calc_borders (window->frame, &borders);
 
-      bottom_amount = info->current.height + borders.visible.bottom;
+      bottom_amount = info->current.height - borders.visible.top;
       vert_amount_onscreen = borders.visible.top;
     }
   else
@@ -1671,7 +1673,7 @@ constrain_partially_onscreen (MetaWindow         *window,
       MetaFrameBorders borders;
       meta_frame_calc_borders (window->frame, &borders);
 
-      bottom_amount = info->current.height + borders.visible.bottom;
+      bottom_amount = info->current.height - borders.visible.top;
       vert_amount_onscreen = borders.visible.top;
     }
   else

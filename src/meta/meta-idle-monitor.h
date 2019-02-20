@@ -33,28 +33,37 @@
 typedef struct _MetaIdleMonitor        MetaIdleMonitor;
 typedef struct _MetaIdleMonitorClass   MetaIdleMonitorClass;
 
+META_EXPORT
 GType meta_idle_monitor_get_type (void);
 
 typedef void (*MetaIdleMonitorWatchFunc) (MetaIdleMonitor *monitor,
                                           guint            watch_id,
                                           gpointer         user_data);
 
+META_EXPORT
 MetaIdleMonitor *meta_idle_monitor_get_core (void);
+
+META_EXPORT
 MetaIdleMonitor *meta_idle_monitor_get_for_device (int device_id);
 
+META_EXPORT
 guint         meta_idle_monitor_add_idle_watch        (MetaIdleMonitor          *monitor,
 						       guint64                   interval_msec,
 						       MetaIdleMonitorWatchFunc  callback,
 						       gpointer                  user_data,
 						       GDestroyNotify            notify);
 
+META_EXPORT
 guint         meta_idle_monitor_add_user_active_watch (MetaIdleMonitor          *monitor,
 						       MetaIdleMonitorWatchFunc  callback,
 						       gpointer                  user_data,
 						       GDestroyNotify            notify);
 
+META_EXPORT
 void          meta_idle_monitor_remove_watch          (MetaIdleMonitor          *monitor,
 						       guint                     id);
+
+META_EXPORT
 gint64        meta_idle_monitor_get_idletime          (MetaIdleMonitor          *monitor);
 
 #endif

@@ -31,6 +31,14 @@ struct _KeyGroupClass
                      ClutterActor *child);
 };
 
+GType key_group_get_type (void);
+
+int
+test_binding_pool_main (int argc, char *argv[]);
+
+const char *
+test_binding_pool_describe (void);
+
 G_DEFINE_TYPE (KeyGroup, key_group, CLUTTER_TYPE_ACTOR)
 
 enum

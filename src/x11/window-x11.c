@@ -22,38 +22,45 @@
 
 #include "config.h"
 
-#include "meta-x11-display-private.h"
-#include "window-x11.h"
-#include "window-x11-private.h"
+#include "x11/window-x11.h"
+#include "x11/window-x11-private.h"
 
 #include <string.h>
 #include <X11/Xatom.h>
-#include <X11/Xlibint.h> /* For display->resource_mask */
+#include <X11/Xlibint.h>
 #include <X11/Xlib-xcb.h>
-
-#include <xcb/res.h>
-
 #include <X11/extensions/shape.h>
-
 #include <X11/extensions/Xcomposite.h>
-#include "core.h"
-
-#include <meta/common.h>
-#include <meta/meta-x11-errors.h>
-#include <meta/prefs.h>
-#include <meta/meta-cursor-tracker.h>
-
-#include "frame.h"
-#include "boxes-private.h"
-#include "window-private.h"
-#include "window-props.h"
-#include "xprops.h"
-#include "session.h"
-#include "workspace-private.h"
-#include "meta-workspace-manager-private.h"
+#include <xcb/res.h>
 
 #include "backends/meta-logical-monitor.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "core/boxes-private.h"
+#include "core/core.h"
+#include "core/frame.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/window-private.h"
+#include "core/workspace-private.h"
+#include "meta/common.h"
+#include "meta/meta-cursor-tracker.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
+#include "x11/meta-x11-display-private.h"
+#include "x11/session.h"
+#include "x11/window-props.h"
+#include "x11/xprops.h"
+
+enum _MetaGtkEdgeConstraints
+{
+  META_GTK_EDGE_CONSTRAINT_TOP_TILED = 1 << 0,
+  META_GTK_EDGE_CONSTRAINT_TOP_RESIZABLE = 1 << 1,
+  META_GTK_EDGE_CONSTRAINT_RIGHT_TILED = 1 << 2,
+  META_GTK_EDGE_CONSTRAINT_RIGHT_RESIZABLE = 1 << 3,
+  META_GTK_EDGE_CONSTRAINT_BOTTOM_TILED = 1 << 4,
+  META_GTK_EDGE_CONSTRAINT_BOTTOM_RESIZABLE = 1 << 5,
+  META_GTK_EDGE_CONSTRAINT_LEFT_TILED = 1 << 6,
+  META_GTK_EDGE_CONSTRAINT_LEFT_RESIZABLE = 1 << 7
+} MetaGtkEdgeConstraints;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaWindowX11, meta_window_x11, META_TYPE_WINDOW)
 
@@ -911,22 +918,73 @@ update_net_frame_extents (MetaWindow *window)
   meta_x11_error_trap_pop (x11_display);
 }
 
+static gboolean
+is_edge_constraint_resizable (MetaEdgeConstraint constraint)
+{
+  switch (constraint)
+    {
+    case META_EDGE_CONSTRAINT_NONE:
+    case META_EDGE_CONSTRAINT_WINDOW:
+      return TRUE;
+    case META_EDGE_CONSTRAINT_MONITOR:
+      return FALSE;
+    }
+
+  g_assert_not_reached ();
+  return FALSE;
+}
+
+static gboolean
+is_edge_constraint_tiled (MetaEdgeConstraint constraint)
+{
+  switch (constraint)
+    {
+    case META_EDGE_CONSTRAINT_NONE:
+      return FALSE;
+    case META_EDGE_CONSTRAINT_WINDOW:
+    case META_EDGE_CONSTRAINT_MONITOR:
+      return TRUE;
+    }
+
+  g_assert_not_reached ();
+  return FALSE;
+}
+
+static unsigned long
+edge_constraints_to_gtk_edge_constraints (MetaWindow *window)
+{
+  unsigned long gtk_edge_constraints = 0;
+
+  if (is_edge_constraint_tiled (window->edge_constraints.top))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_TOP_TILED;
+  if (is_edge_constraint_resizable (window->edge_constraints.top))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_TOP_RESIZABLE;
+
+  if (is_edge_constraint_tiled (window->edge_constraints.right))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_RIGHT_TILED;
+  if (is_edge_constraint_resizable (window->edge_constraints.right))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_RIGHT_RESIZABLE;
+
+  if (is_edge_constraint_tiled (window->edge_constraints.bottom))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_BOTTOM_TILED;
+  if (is_edge_constraint_resizable (window->edge_constraints.bottom))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_BOTTOM_RESIZABLE;
+
+  if (is_edge_constraint_tiled (window->edge_constraints.left))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_LEFT_TILED;
+  if (is_edge_constraint_resizable (window->edge_constraints.left))
+    gtk_edge_constraints |= META_GTK_EDGE_CONSTRAINT_LEFT_RESIZABLE;
+
+  return gtk_edge_constraints;
+}
+
 static void
 update_gtk_edge_constraints (MetaWindow *window)
 {
   MetaX11Display *x11_display = window->display->x11_display;
-  MetaEdgeConstraint *constraints = window->edge_constraints;
   unsigned long data[1];
 
-  /* Edge constraints */
-  data[0] = (constraints[0] != META_EDGE_CONSTRAINT_NONE ? 1 : 0)    << 0 |
-            (constraints[0] != META_EDGE_CONSTRAINT_MONITOR ? 1 : 0) << 1 |
-            (constraints[1] != META_EDGE_CONSTRAINT_NONE ? 1 : 0)    << 2 |
-            (constraints[1] != META_EDGE_CONSTRAINT_MONITOR ? 1 : 0) << 3 |
-            (constraints[2] != META_EDGE_CONSTRAINT_NONE ? 1 : 0)    << 4 |
-            (constraints[2] != META_EDGE_CONSTRAINT_MONITOR ? 1 : 0) << 5 |
-            (constraints[3] != META_EDGE_CONSTRAINT_NONE ? 1 : 0)    << 6 |
-            (constraints[3] != META_EDGE_CONSTRAINT_MONITOR ? 1 : 0) << 7;
+  data[0] = edge_constraints_to_gtk_edge_constraints (window);
 
   meta_verbose ("Setting _GTK_EDGE_CONSTRAINTS to %lu\n", data[0]);
 
@@ -2126,7 +2184,7 @@ meta_window_move_resize_request (MetaWindow *window,
 
   if (flags & (META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION))
     {
-      MetaRectangle rect, monitor_rect;
+      MetaRectangle rect;
 
       rect.x = x;
       rect.y = y;
@@ -2135,6 +2193,8 @@ meta_window_move_resize_request (MetaWindow *window,
 
       if (window->monitor)
         {
+          MetaRectangle monitor_rect;
+
           meta_display_get_monitor_geometry (window->display,
                                              window->monitor->number,
                                              &monitor_rect);
@@ -2147,7 +2207,6 @@ meta_window_move_resize_request (MetaWindow *window,
            * the monitor.
            */
           if (meta_prefs_get_force_fullscreen() &&
-              !window->hide_titlebar_when_maximized &&
               (window->decorated || !meta_window_is_client_decorated (window)) &&
               meta_rectangle_equal (&rect, &monitor_rect) &&
               window->has_fullscreen_func &&

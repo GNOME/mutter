@@ -24,24 +24,24 @@
 
 #include "config.h"
 
-#include "meta-wayland-pointer-constraints.h"
+#include "wayland/meta-wayland-pointer-constraints.h"
 
 #include <glib.h>
 
-#include "meta/meta-backend.h"
-#include "meta-wayland-private.h"
-#include "meta-wayland-seat.h"
-#include "meta-wayland-pointer.h"
-#include "meta-wayland-surface.h"
-#include "meta-wayland-region.h"
-#include "meta-xwayland.h"
-#include "meta-pointer-lock-wayland.h"
-#include "meta-pointer-confinement-wayland.h"
-#include "window-private.h"
 #include "backends/meta-backend-private.h"
-#include "backends/native/meta-backend-native.h"
 #include "backends/meta-pointer-constraint.h"
+#include "backends/native/meta-backend-native.h"
 #include "core/frame.h"
+#include "core/window-private.h"
+#include "meta/meta-backend.h"
+#include "wayland/meta-pointer-confinement-wayland.h"
+#include "wayland/meta-pointer-lock-wayland.h"
+#include "wayland/meta-wayland-pointer.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-region.h"
+#include "wayland/meta-wayland-seat.h"
+#include "wayland/meta-wayland-surface.h"
+#include "wayland/meta-xwayland.h"
 
 #include "pointer-constraints-unstable-v1-server-protocol.h"
 

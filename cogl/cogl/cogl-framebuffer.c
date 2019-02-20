@@ -28,9 +28,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
 #include "cogl-config.h"
-#endif
 
 #include <string.h>
 
@@ -45,7 +43,6 @@
 #include "cogl-onscreen-template-private.h"
 #include "cogl-clip-stack.h"
 #include "cogl-journal-private.h"
-#include "cogl-winsys-private.h"
 #include "cogl-pipeline-state-private.h"
 #include "cogl-matrix-private.h"
 #include "cogl-primitive-private.h"
@@ -54,8 +51,9 @@
 #include "cogl-private.h"
 #include "cogl-primitives-private.h"
 #include "cogl-error-private.h"
-#include "cogl-texture-gl-private.h"
 #include "cogl-gtype-private.h"
+#include "driver/gl/cogl-texture-gl-private.h"
+#include "winsys/cogl-winsys-private.h"
 
 extern CoglObjectClass _cogl_onscreen_class;
 
@@ -68,7 +66,8 @@ static void _cogl_offscreen_free (CoglOffscreen *offscreen);
 COGL_OBJECT_DEFINE_WITH_CODE_GTYPE (Offscreen, offscreen,
                                     _cogl_offscreen_class.virt_unref =
                                     _cogl_framebuffer_unref);
-COGL_GTYPE_DEFINE_CLASS (Offscreen, offscreen);
+COGL_GTYPE_DEFINE_CLASS (Offscreen, offscreen,
+                         COGL_GTYPE_IMPLEMENT_INTERFACE (framebuffer));
 COGL_OBJECT_DEFINE_DEPRECATED_REF_COUNTING (offscreen);
 COGL_GTYPE_DEFINE_INTERFACE (Framebuffer, framebuffer);
 
@@ -117,6 +116,7 @@ _cogl_framebuffer_init (CoglFramebuffer *framebuffer,
   framebuffer->viewport_age_for_scissor_workaround = -1;
   framebuffer->dither_enabled = TRUE;
   framebuffer->depth_writing_enabled = TRUE;
+  framebuffer->depth_buffer_clear_needed = TRUE;
 
   framebuffer->modelview_stack = cogl_matrix_stack_new (ctx);
   framebuffer->projection_stack = cogl_matrix_stack_new (ctx);
@@ -268,6 +268,13 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
   int scissor_y1;
   CoglBool saved_viewport_scissor_workaround;
 
+  if (!framebuffer->depth_buffer_clear_needed &&
+      (buffers & COGL_BUFFER_BIT_DEPTH))
+    buffers &= ~(COGL_BUFFER_BIT_DEPTH);
+
+  if (buffers == 0)
+    return;
+
   _cogl_clip_stack_get_bounds (clip_stack,
                                &scissor_x0, &scissor_y0,
                                &scissor_x1, &scissor_y1);
@@ -414,6 +421,9 @@ cleared:
 
   _cogl_framebuffer_mark_mid_scene (framebuffer);
   _cogl_framebuffer_mark_clear_clip_dirty (framebuffer);
+
+  if (buffers & COGL_BUFFER_BIT_DEPTH)
+    framebuffer->depth_buffer_clear_needed = FALSE;
 
   if (buffers & COGL_BUFFER_BIT_COLOR && buffers & COGL_BUFFER_BIT_DEPTH)
     {

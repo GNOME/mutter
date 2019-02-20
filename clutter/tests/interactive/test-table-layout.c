@@ -9,6 +9,12 @@
 
 #define FONT "Sans 12"
 
+int
+test_table_layout_main (int argc, char *argv[]);
+
+const char *
+test_table_layout_describe (void);
+
 static void
 set_text (ClutterActor *actor, const gchar *text)
 {

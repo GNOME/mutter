@@ -22,18 +22,20 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#include "config.h"
 
-#include "boxes-private.h"
-#include "place.h"
-#include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
-#include <meta/meta-backend.h>
-#include <meta/workspace.h>
-#include <meta/prefs.h>
+#include "core/place.h"
+
 #include <gdk/gdk.h>
 #include <math.h>
 #include <stdlib.h>
+
+#include "backends/meta-backend-private.h"
+#include "backends/meta-logical-monitor.h"
+#include "core/boxes-private.h"
+#include "meta/meta-backend.h"
+#include "meta/prefs.h"
+#include "meta/workspace.h"
 
 typedef enum
 {

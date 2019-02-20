@@ -6,15 +6,8 @@
 
 #define TEST_STATE_SCRIPT_FILE  "test-script-signals.json"
 
-gboolean
-on_button_press (ClutterActor *actor,
-                 ClutterEvent *event,
-                 gpointer      dummy G_GNUC_UNUSED)
-{
-  g_print ("Button pressed!\n");
-
-  return FALSE;
-}
+int
+test_state_script_main (int argc, char *argv[]);
 
 G_MODULE_EXPORT int
 test_state_script_main (int argc, char *argv[])

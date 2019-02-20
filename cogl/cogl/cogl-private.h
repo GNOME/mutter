@@ -36,7 +36,7 @@
 #include "cogl-context.h"
 #include "cogl-flags.h"
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 typedef enum
 {
@@ -62,7 +62,6 @@ typedef enum
   COGL_PRIVATE_FEATURE_ALPHA_TEXTURES,
   COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE,
   COGL_PRIVATE_FEATURE_TEXTURE_MAX_LEVEL,
-  COGL_PRIVATE_FEATURE_ARBFP,
   COGL_PRIVATE_FEATURE_OES_EGL_SYNC,
   /* If this is set then the winsys is responsible for queueing dirty
    * events. Otherwise a dirty event will be queued when the onscreen
@@ -168,6 +167,6 @@ _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format);
 #define COGL_PIXEL_FORMAT_CAN_HAVE_PREMULT(format) \
   (((format) & COGL_A_BIT) && (format) != COGL_PIXEL_FORMAT_A_8)
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_PRIVATE_H__ */

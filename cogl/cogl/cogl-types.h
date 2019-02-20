@@ -43,16 +43,7 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/* Guard C code in headers, while including them from C++ */
-#ifdef  __cplusplus
-#define COGL_BEGIN_DECLS  extern "C" {
-#define COGL_END_DECLS    }
-#else
-#define COGL_BEGIN_DECLS
-#define COGL_END_DECLS
-#endif
-
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-types
@@ -72,20 +63,6 @@ COGL_BEGIN_DECLS
  * Stability: stable
  */
 typedef int CoglBool;
-
-#if __GNUC__ >= 4
-#define COGL_GNUC_NULL_TERMINATED __attribute__((__sentinel__))
-#else
-#define COGL_GNUC_NULL_TERMINATED
-#endif
-
-#if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1)) && \
-  !defined (COGL_COMPILATION)
-#define COGL_GNUC_DEPRECATED                       \
-  __attribute__((__deprecated__))
-#else
-#define COGL_GNUC_DEPRECATED
-#endif /* __GNUC__ */
 
 /* Some structures are meant to be opaque but they have public
    definitions because we want the size to be public so they can be
@@ -147,15 +124,6 @@ cogl_handle_ref (CoglHandle handle);
  */
 void
 cogl_handle_unref (CoglHandle handle);
-
-/**
- * CoglFuncPtr:
- *
- * The type used by cogl for function pointers, note that this type
- * is used as a generic catch-all cast for function pointers and the
- * actual arguments and return type may be different.
- */
-typedef void (* CoglFuncPtr) (void);
 
 /* We forward declare this in cogl-types to avoid circular dependencies
  * between cogl-matrix.h, cogl-euler.h and cogl-quaterion.h */
@@ -366,7 +334,6 @@ typedef enum { /*< prefix=COGL_PIXEL_FORMAT >*/
  * @COGL_FEATURE_TEXTURE_YUV: ycbcr conversion support
  * @COGL_FEATURE_TEXTURE_READ_PIXELS: glReadPixels() support
  * @COGL_FEATURE_SHADERS_GLSL: GLSL support
- * @COGL_FEATURE_SHADERS_ARBFP: ARBFP support
  * @COGL_FEATURE_OFFSCREEN: FBO support
  * @COGL_FEATURE_OFFSCREEN_MULTISAMPLE: Multisample support on FBOs
  * @COGL_FEATURE_OFFSCREEN_BLIT: Blit support on FBOs
@@ -424,7 +391,6 @@ typedef enum
   COGL_FEATURE_TEXTURE_NPOT_REPEAT    = (1 << 17),
   COGL_FEATURE_POINT_SPRITE           = (1 << 18),
   COGL_FEATURE_TEXTURE_3D             = (1 << 19),
-  COGL_FEATURE_SHADERS_ARBFP          = (1 << 20),
   COGL_FEATURE_MAP_BUFFER_FOR_READ    = (1 << 21),
   COGL_FEATURE_MAP_BUFFER_FOR_WRITE   = (1 << 22),
   COGL_FEATURE_ONSCREEN_MULTIPLE      = (1 << 23),
@@ -893,6 +859,6 @@ typedef enum {
   COGL_STEREO_RIGHT
 } CoglStereoMode;
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_TYPES_H__ */

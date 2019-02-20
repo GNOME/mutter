@@ -19,18 +19,19 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include <meta/prefs.h>
-#include "ui.h"
-#include "frames.h"
-#include <meta/util.h>
-#include "core.h"
-#include "theme-private.h"
-#include "x11/meta-x11-display-private.h"
+#include "config.h"
 
-#include <string.h>
-#include <stdlib.h>
 #include <cairo-xlib.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "core/core.h"
+#include "meta/prefs.h"
+#include "meta/util.h"
+#include "ui/frames.h"
+#include "ui/theme-private.h"
+#include "ui/ui.h"
+#include "x11/meta-x11-display-private.h"
 
 struct _MetaUI
 {

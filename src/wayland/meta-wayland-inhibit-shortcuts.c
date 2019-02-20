@@ -24,11 +24,12 @@
 
 #include <wayland-server.h>
 
-#include "keyboard-shortcuts-inhibit-unstable-v1-server-protocol.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland-inhibit-shortcuts.h"
 #include "wayland/meta-wayland-inhibit-shortcuts-dialog.h"
+
+#include "keyboard-shortcuts-inhibit-unstable-v1-server-protocol.h"
 
 struct _MetaWaylandKeyboardShotscutsInhibit
 {

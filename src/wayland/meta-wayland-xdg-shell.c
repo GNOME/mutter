@@ -27,7 +27,6 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "core/window-private.h"
-#include "wayland/meta-wayland.h"
 #include "wayland/meta-wayland-outputs.h"
 #include "wayland/meta-wayland-popup.h"
 #include "wayland/meta-wayland-private.h"
@@ -35,6 +34,7 @@
 #include "wayland/meta-wayland-shell-surface.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-wayland-versions.h"
+#include "wayland/meta-wayland.h"
 #include "wayland/meta-window-wayland.h"
 
 #include "xdg-shell-server-protocol.h"
@@ -573,30 +573,45 @@ on_parent_surface_unmapped (MetaWaylandSurface  *parent_surface,
 }
 
 static void
-fill_states (struct wl_array *states,
-             MetaWindow      *window)
+add_state_value (struct wl_array         *states,
+                 enum xdg_toplevel_state  state)
 {
   uint32_t *s;
 
+  s = wl_array_add (states, sizeof *s);
+  *s = state;
+}
+
+static void
+fill_states (MetaWaylandXdgToplevel *xdg_toplevel,
+             struct wl_array        *states)
+{
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (xdg_toplevel);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWindow *window = surface->window;
+
   if (META_WINDOW_MAXIMIZED (window))
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = XDG_TOPLEVEL_STATE_MAXIMIZED;
-    }
+    add_state_value (states, XDG_TOPLEVEL_STATE_MAXIMIZED);
   if (meta_window_is_fullscreen (window))
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = XDG_TOPLEVEL_STATE_FULLSCREEN;
-    }
+    add_state_value (states, XDG_TOPLEVEL_STATE_FULLSCREEN);
   if (meta_grab_op_is_resizing (window->display->grab_op))
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = XDG_TOPLEVEL_STATE_RESIZING;
-    }
+    add_state_value (states, XDG_TOPLEVEL_STATE_RESIZING);
   if (meta_window_appears_focused (window))
+    add_state_value (states, XDG_TOPLEVEL_STATE_ACTIVATED);
+
+  if (wl_resource_get_version (xdg_toplevel->resource) >=
+      XDG_TOPLEVEL_STATE_TILED_LEFT_SINCE_VERSION)
     {
-      s = wl_array_add (states, sizeof *s);
-      *s = XDG_TOPLEVEL_STATE_ACTIVATED;
+      if (window->edge_constraints.top != META_EDGE_CONSTRAINT_NONE)
+        add_state_value (states, XDG_TOPLEVEL_STATE_TILED_TOP);
+      if (window->edge_constraints.right != META_EDGE_CONSTRAINT_NONE)
+        add_state_value (states, XDG_TOPLEVEL_STATE_TILED_RIGHT);
+      if (window->edge_constraints.bottom != META_EDGE_CONSTRAINT_NONE)
+        add_state_value (states, XDG_TOPLEVEL_STATE_TILED_BOTTOM);
+      if (window->edge_constraints.left != META_EDGE_CONSTRAINT_NONE)
+        add_state_value (states, XDG_TOPLEVEL_STATE_TILED_LEFT);
     }
 }
 
@@ -607,15 +622,11 @@ meta_wayland_xdg_toplevel_send_configure (MetaWaylandXdgToplevel *xdg_toplevel,
                                           MetaWaylandSerial      *sent_serial)
 {
   MetaWaylandXdgSurface *xdg_surface = META_WAYLAND_XDG_SURFACE (xdg_toplevel);
-  MetaWaylandSurfaceRole *surface_role =
-    META_WAYLAND_SURFACE_ROLE (xdg_toplevel);
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
   struct wl_array states;
   uint32_t serial;
 
   wl_array_init (&states);
-  fill_states (&states, surface->window);
+  fill_states (xdg_toplevel, &states);
 
   xdg_toplevel_send_configure (xdg_toplevel->resource,
                                new_width, new_height,
@@ -721,7 +732,7 @@ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
                                        window_geometry,
                                        pending->dx, pending->dy);
     }
-  else if (pending->dx != 0 || pending->dx != 0)
+  else if (pending->dx != 0 || pending->dy != 0)
     {
       g_warning ("XXX: Attach-initiated move without a new geometry. "
                  "This is unimplemented right now.");
@@ -1821,6 +1832,7 @@ positioner_anchor_to_placement_anchor (uint32_t anchor)
       return (META_PLACEMENT_ANCHOR_BOTTOM | META_PLACEMENT_ANCHOR_RIGHT);
     default:
       g_assert_not_reached ();
+      return META_PLACEMENT_ANCHOR_NONE;
     }
 }
 
@@ -1849,6 +1861,7 @@ positioner_gravity_to_placement_gravity (uint32_t gravity)
       return (META_PLACEMENT_GRAVITY_BOTTOM | META_PLACEMENT_GRAVITY_RIGHT);
     default:
       g_assert_not_reached ();
+      return META_PLACEMENT_GRAVITY_NONE;
     }
 }
 

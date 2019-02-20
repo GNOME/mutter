@@ -48,7 +48,7 @@ typedef struct _CoglContext CoglContext;
 
 #include <glib-object.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-context
@@ -201,7 +201,6 @@ cogl_is_context (void *object);
  * @COGL_FEATURE_ID_ONSCREEN_MULTIPLE: Multiple onscreen framebuffers
  *    supported.
  * @COGL_FEATURE_ID_GLSL: GLSL support
- * @COGL_FEATURE_ID_ARBFP: ARBFP support
  * @COGL_FEATURE_ID_UNSIGNED_INT_INDICES: Set if
  *     %COGL_INDICES_TYPE_UNSIGNED_INT is supported in
  *     cogl_indices_new().
@@ -244,7 +243,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_TEXTURE_RECTANGLE,
   COGL_FEATURE_ID_TEXTURE_3D,
   COGL_FEATURE_ID_GLSL,
-  COGL_FEATURE_ID_ARBFP,
   COGL_FEATURE_ID_OFFSCREEN,
   COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE,
   COGL_FEATURE_ID_ONSCREEN_MULTIPLE,
@@ -406,7 +404,7 @@ typedef enum _CoglGraphicsResetStatus
 CoglGraphicsResetStatus
 cogl_get_graphics_reset_status (CoglContext *context);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_CONTEXT_H__ */
 

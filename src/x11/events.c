@@ -21,6 +21,7 @@
  */
 
 #include "config.h"
+
 #include "x11/events.h"
 
 #include <X11/Xatom.h>
@@ -28,23 +29,24 @@
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/shape.h>
 
-#include <meta/meta-x11-errors.h>
-#include "meta/meta-backend.h"
-#include "bell.h"
-#include "display-private.h"
-#include "meta-workspace-manager-private.h"
-#include "window-private.h"
-#include "workspace-private.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "core/bell.h"
+#include "core/display-private.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/window-private.h"
+#include "core/workspace-private.h"
+#include "meta/meta-backend.h"
+#include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/meta-startup-notification-x11.h"
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
 
 #ifdef HAVE_WAYLAND
-#include "wayland/meta-xwayland.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-xwayland-private.h"
+#include "wayland/meta-xwayland.h"
 #endif
 
 static XIEvent *
@@ -84,13 +86,11 @@ get_input_event (MetaX11Display *x11_display,
           if (((XIEnterEvent *) input_event)->deviceid == META_VIRTUAL_CORE_POINTER_ID)
             return input_event;
           break;
-#ifdef HAVE_XI23
         case XI_BarrierHit:
         case XI_BarrierLeave:
           if (((XIBarrierEvent *) input_event)->deviceid == META_VIRTUAL_CORE_POINTER_ID)
             return input_event;
           break;
-#endif /* HAVE_XI23 */
         default:
           break;
         }
@@ -116,11 +116,9 @@ xievent_get_modified_window (MetaX11Display *x11_display,
     case XI_Enter:
     case XI_Leave:
       return ((XIEnterEvent *) input_event)->event;
-#ifdef HAVE_XI23
     case XI_BarrierHit:
     case XI_BarrierLeave:
       return ((XIBarrierEvent *) input_event)->event;
-#endif /* HAVE_XI23 */
     }
 
   return None;
@@ -379,14 +377,12 @@ meta_spew_xi2_event (MetaX11Display *x11_display,
     case XI_Leave:
       name = "XI_Leave";
       break;
-#ifdef HAVE_XI23
     case XI_BarrierHit:
       name = "XI_BarrierHit";
       break;
     case XI_BarrierLeave:
       name = "XI_BarrierLeave";
       break;
-#endif /* HAVE_XI23 */
     }
 
   switch (input_event->evtype)
@@ -1749,8 +1745,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   meta_spew_event_print (x11_display, event);
 #endif
 
-  if (meta_startup_notification_handle_xevent (display->startup_notification,
-                                               event))
+  if (meta_x11_startup_notification_handle_xevent (x11_display, event))
     {
       bypass_gtk = bypass_compositor = TRUE;
       goto out;
@@ -1811,13 +1806,11 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
         }
     }
 
-#ifdef HAVE_XI23
   if (meta_x11_display_process_barrier_xevent (x11_display, input_event))
     {
       bypass_gtk = bypass_compositor = TRUE;
       goto out;
     }
-#endif /* HAVE_XI23 */
 
   if (handle_input_xevent (x11_display, input_event, event->xany.serial))
     {

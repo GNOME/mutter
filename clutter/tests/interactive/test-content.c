@@ -19,6 +19,14 @@ typedef struct _ColorContentClass {
 
 static void clutter_content_iface_init (ClutterContentIface *iface);
 
+GType color_content_get_type (void);
+
+int
+test_content_main (int argc, char *argv[]);
+
+const char *
+test_content_describe (void);
+
 G_DEFINE_TYPE_WITH_CODE (ColorContent, color_content, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTENT,
                                                 clutter_content_iface_init))

@@ -22,31 +22,37 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
+/**
+ * SECTION:meta-backend-x11
+ * @title: MetaBackendX11
+ * @short_description: A X11 MetaBackend
+ *
+ * MetaBackendX11 is an implementation of #MetaBackend using X and X
+ * extensions, like XInput and XKB.
+ */
+
 #include "config.h"
 
-#include <string.h>
-#include <stdlib.h>
+#include "backends/x11/meta-backend-x11.h"
 
-#include "meta-backend-x11.h"
-
-#include <clutter.h>
-#include <clutter/x11/clutter-x11.h>
-
-#include <X11/extensions/sync.h>
 #include <X11/XKBlib.h>
 #include <X11/Xlib-xcb.h>
+#include <X11/extensions/sync.h>
+#include <stdlib.h>
+#include <string.h>
 #include <xkbcommon/xkbcommon-x11.h>
 
+#include "backends/meta-dnd-private.h"
+#include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
-#include "meta/meta-cursor-tracker.h"
-
-#include <meta/util.h>
-#include "display-private.h"
+#include "clutter/clutter.h"
+#include "clutter/x11/clutter-x11.h"
 #include "compositor/compositor-private.h"
-#include "backends/meta-dnd-private.h"
-#include "backends/meta-idle-monitor-private.h"
+#include "core/display-private.h"
+#include "meta/meta-cursor-tracker.h"
+#include "meta/util.h"
 
 struct _MetaBackendX11Private
 {
@@ -580,6 +586,7 @@ meta_backend_x11_ungrab_device (MetaBackend *backend,
   int ret;
 
   ret = XIUngrabDevice (priv->xdisplay, device_id, timestamp);
+  XFlush (priv->xdisplay);
 
   return (ret == Success);
 }

@@ -20,9 +20,9 @@
 #ifndef META_XWAYLAND_PRIVATE_H
 #define META_XWAYLAND_PRIVATE_H
 
-#include "meta-wayland-private.h"
-
 #include <glib.h>
+
+#include "wayland/meta-wayland-private.h"
 
 gboolean
 meta_xwayland_start (MetaXWaylandManager *manager,

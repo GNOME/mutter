@@ -20,18 +20,18 @@
 #ifndef META_WAYLAND_SURFACE_H
 #define META_WAYLAND_SURFACE_H
 
+#include <cairo.h>
+#include <glib.h>
 #include <wayland-server.h>
 #include <xkbcommon/xkbcommon.h>
-#include <clutter/clutter.h>
 
-#include <glib.h>
-#include <cairo.h>
-
-#include <meta/meta-cursor-tracker.h>
-#include "meta-wayland-types.h"
-#include "meta-surface-actor.h"
 #include "backends/meta-monitor-manager-private.h"
-#include "meta-wayland-pointer-constraints.h"
+#include "clutter/clutter.h"
+#include "compositor/meta-shaped-texture-private.h"
+#include "compositor/meta-surface-actor.h"
+#include "meta/meta-cursor-tracker.h"
+#include "wayland/meta-wayland-pointer-constraints.h"
+#include "wayland/meta-wayland-types.h"
 
 typedef struct _MetaWaylandPendingState MetaWaylandPendingState;
 
@@ -70,12 +70,6 @@ struct _MetaWaylandSerial {
   uint32_t value;
 };
 
-#define META_TYPE_WAYLAND_SURFACE_ROLE_DND (meta_wayland_surface_role_dnd_get_type ())
-G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleDND,
-                      meta_wayland_surface_role_dnd,
-                      META, WAYLAND_SURFACE_ROLE_DND,
-                      MetaWaylandSurfaceRole);
-
 struct _MetaWaylandPendingState
 {
   GObject parent;
@@ -112,6 +106,14 @@ struct _MetaWaylandPendingState
   gboolean has_new_max_size;
   int new_max_width;
   int new_max_height;
+
+  gboolean has_new_buffer_transform;
+  MetaMonitorTransform buffer_transform;
+  gboolean has_new_viewport_src_rect;
+  ClutterRect viewport_src_rect;
+  gboolean has_new_viewport_dst_size;
+  int viewport_dst_width;
+  int viewport_dst_height;
 };
 
 struct _MetaWaylandDragDestFuncs
@@ -145,6 +147,7 @@ struct _MetaWaylandSurface
   int32_t offset_x, offset_y;
   GList *subsurfaces;
   GHashTable *outputs_to_destroy_notify_id;
+  MetaMonitorTransform buffer_transform;
 
   /* Buffer reference state. */
   struct {
@@ -199,6 +202,19 @@ struct _MetaWaylandSurface
     gboolean pending_pos;
     GSList *pending_placement_ops;
   } sub;
+
+  /* wp_viewport */
+  struct {
+    struct wl_resource *resource;
+    gulong destroy_handler_id;
+
+    gboolean has_src_rect;
+    ClutterRect src_rect;
+
+    gboolean has_dst_size;
+    int dst_width;
+    int dst_height;
+  } viewport;
 
   /* table of seats for which shortcuts are inhibited */
   GHashTable *shortcut_inhibited_seats;

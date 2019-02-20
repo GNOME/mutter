@@ -10,6 +10,9 @@
 static ClutterScript *script = NULL;
 static guint merge_id = 0;
 
+int
+test_script_main (int argc, char *argv[]);
+
 static const gchar *test_unmerge =
 "["
 "  {"
@@ -74,28 +77,6 @@ static const gchar *test_behaviour =
 "    }"
 "  }"
 "]";
-
-gdouble
-sine_alpha (ClutterAlpha *alpha,
-            gpointer      dummy G_GNUC_UNUSED)
-{
-  ClutterTimeline *timeline = clutter_alpha_get_timeline (alpha);
-
-  return sin (clutter_timeline_get_progress (timeline) * G_PI);
-}
-
-gdouble
-double_ramp_alpha (ClutterAlpha *alpha,
-                   gpointer      dummy G_GNUC_UNUSED)
-{
-  ClutterTimeline *timeline = clutter_alpha_get_timeline (alpha);
-  gdouble progress = clutter_timeline_get_progress (timeline);
-
-  if (progress >= 0.5)
-    return 1.0 - progress;
-
-  return progress;
-}
 
 static gboolean
 blue_button_press (ClutterActor       *actor,

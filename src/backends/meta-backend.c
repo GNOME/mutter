@@ -22,35 +22,60 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
+/**
+ * SECTION:meta-backend
+ * @title: MetaBackend
+ * @short_description: Handles monitor config, modesetting, cursor sprites, ...
+ *
+ * MetaBackend is the abstraction that deals with several things like:
+ * - Modesetting (depending on the backend, this can be done either by X or KMS)
+ * - Initializing the #MetaSettings
+ * - Setting up Monitor configuration
+ * - Input device configuration (using the #ClutterDeviceManager)
+ * - Creating the #MetaRenderer
+ * - Setting up the stage of the scene graph (using #MetaStage)
+ * - Creating the object that deals wih the cursor (using #MetaCursorTracker)
+ *     and its possible pointer constraint (using #MetaPointerConstraint)
+ * - Setting the cursor sprite (using #MetaCursorRenderer)
+ * - Interacting with logind (using the appropriate D-Bus interface)
+ * - Querying UPower (over D-Bus) to know when the lid is closed
+ * - Setup Remote Desktop / Screencasting (#MetaRemoteDesktop)
+ * - Setup the #MetaEgl object
+ *
+ * Note that the #MetaBackend is not a subclass of #ClutterBackend. It is
+ * responsible for creating the correct one, based on the backend that is
+ * used (#MetaBackendNative or #MetaBackendX11).
+ */
+
 #include "config.h"
+
+#include "backends/meta-backend-private.h"
 
 #include <stdlib.h>
 
-#include <clutter/clutter-mutter.h>
-#include <meta/meta-backend.h>
-#include <meta/main.h>
-#include <meta/util.h>
-#include "meta-backend-private.h"
-#include "meta-input-settings-private.h"
+#include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-idle-monitor-private.h"
+#include "backends/meta-input-settings-private.h"
+#include "backends/meta-logical-monitor.h"
+#include "backends/meta-monitor-manager-dummy.h"
+#include "backends/meta-settings-private.h"
+#include "backends/meta-stage-private.h"
 #include "backends/x11/meta-backend-x11.h"
-#include "meta-cursor-tracker-private.h"
-#include "meta-stage-private.h"
+#include "clutter/clutter-mutter.h"
+#include "meta/main.h"
+#include "meta/meta-backend.h"
+#include "meta/util.h"
 
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-dbus-session-watcher.h"
-#include "backends/meta-screen-cast.h"
 #include "backends/meta-remote-access-controller-private.h"
 #include "backends/meta-remote-desktop.h"
+#include "backends/meta-screen-cast.h"
 #endif
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #endif
-
-#include "backends/meta-idle-monitor-private.h"
-#include "backends/meta-logical-monitor.h"
-#include "backends/meta-monitor-manager-dummy.h"
-#include "backends/meta-settings-private.h"
 
 #define META_IDLE_MONITOR_CORE_DEVICE 0
 
@@ -91,7 +116,9 @@ struct _MetaBackendPrivate
   MetaCursorRenderer *cursor_renderer;
   MetaInputSettings *input_settings;
   MetaRenderer *renderer;
+#ifdef HAVE_EGL
   MetaEgl *egl;
+#endif
   MetaSettings *settings;
 #ifdef HAVE_REMOTE_DESKTOP
   MetaRemoteAccessController *remote_access_controller;
@@ -121,6 +148,8 @@ struct _MetaBackendPrivate
   guint sleep_signal_id;
   GCancellable *cancellable;
   GDBusConnection *system_bus;
+
+  gboolean was_headless;
 };
 typedef struct _MetaBackendPrivate MetaBackendPrivate;
 
@@ -221,6 +250,19 @@ meta_backend_monitors_changed (MetaBackend *backend)
     }
 
   meta_cursor_renderer_force_update (priv->cursor_renderer);
+
+  if (meta_monitor_manager_is_headless (priv->monitor_manager) &&
+      !priv->was_headless)
+    {
+      clutter_stage_freeze_updates (CLUTTER_STAGE (priv->stage));
+      priv->was_headless = TRUE;
+    }
+  else if (!meta_monitor_manager_is_headless (priv->monitor_manager) &&
+           priv->was_headless)
+    {
+      clutter_stage_thaw_updates (CLUTTER_STAGE (priv->stage));
+      priv->was_headless = FALSE;
+    }
 }
 
 void
@@ -462,7 +504,8 @@ meta_backend_real_post_init (MetaBackend *backend)
   priv->remote_access_controller =
     g_object_new (META_TYPE_REMOTE_ACCESS_CONTROLLER, NULL);
   priv->dbus_session_watcher = g_object_new (META_TYPE_DBUS_SESSION_WATCHER, NULL);
-  priv->screen_cast = meta_screen_cast_new (priv->dbus_session_watcher);
+  priv->screen_cast = meta_screen_cast_new (backend,
+                                            priv->dbus_session_watcher);
   priv->remote_desktop = meta_remote_desktop_new (priv->dbus_session_watcher);
 #endif /* HAVE_REMOTE_DESKTOP */
 
@@ -774,7 +817,9 @@ meta_backend_initable_init (GInitable     *initable,
 
   priv->settings = meta_settings_new (backend);
 
+#ifdef HAVE_EGL
   priv->egl = g_object_new (META_TYPE_EGL, NULL);
+#endif
 
   priv->orientation_manager = g_object_new (META_TYPE_ORIENTATION_MANAGER, NULL);
 
@@ -885,6 +930,7 @@ meta_backend_get_renderer (MetaBackend *backend)
   return priv->renderer;
 }
 
+#ifdef HAVE_EGL
 /**
  * meta_backend_get_egl: (skip)
  */
@@ -895,6 +941,7 @@ meta_backend_get_egl (MetaBackend *backend)
 
   return priv->egl;
 }
+#endif /* HAVE_EGL */
 
 /**
  * meta_backend_get_settings: (skip)
@@ -1117,6 +1164,15 @@ meta_backend_get_client_pointer_constraint (MetaBackend *backend)
   return priv->client_pointer_constraint;
 }
 
+/**
+ * meta_backend_set_client_pointer_constraint:
+ * @backend: a #MetaBackend object.
+ * @constraint: (nullable): the client constraint to follow.
+ *
+ * Sets the current pointer constraint and removes (and unrefs) the previous
+ * one. If @constrant is %NULL, this means that there is no
+ * #MetaPointerConstraint active.
+ */
 void
 meta_backend_set_client_pointer_constraint (MetaBackend           *backend,
                                             MetaPointerConstraint *constraint)
@@ -1239,6 +1295,14 @@ meta_clutter_init (void)
   meta_backend_post_init (_backend);
 }
 
+/**
+ * meta_is_stage_views_enabled:
+ *
+ * Returns whether the #ClutterStage can be rendered using multiple stage views.
+ * In practice, this means we can define a separate framebuffer for each
+ * #MetaLogicalMonitor, rather than rendering everything into a single
+ * framebuffer. For example: in X11, onle one single framebuffer is allowed.
+ */
 gboolean
 meta_is_stage_views_enabled (void)
 {

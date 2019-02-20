@@ -28,9 +28,7 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
 #include "cogl-config.h"
-#endif
 
 #include "cogl-util.h"
 #include "cogl-onscreen-private.h"
@@ -557,20 +555,6 @@ cogl_onscreen_remove_swap_buffers_callback (CoglOnscreen *onscreen,
   _COGL_RETURN_IF_FAIL (closure);
 
   cogl_onscreen_remove_frame_callback (onscreen, closure);
-}
-
-void
-cogl_onscreen_set_swap_throttled (CoglOnscreen *onscreen,
-                                  CoglBool throttled)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  framebuffer->config.swap_throttled = throttled;
-  if (framebuffer->allocated)
-    {
-      const CoglWinsysVtable *winsys =
-        _cogl_framebuffer_get_winsys (framebuffer);
-      winsys->onscreen_update_swap_throttled (onscreen);
-    }
 }
 
 void

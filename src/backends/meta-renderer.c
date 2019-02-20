@@ -22,12 +22,31 @@
  *     Jonas Ådahl <jadahl@gmail.com>
  */
 
+/**
+ * SECTION:meta-renderer
+ * @title: MetaRenderer
+ * @short_description: Keeps track of the different renderer views.
+ *
+ * A MetaRenderer object has 2 functions:
+ *
+ * 1) Keeping a list of #MetaRendererView<!-- -->s, each responsible for
+ * rendering a part of the stage, corresponding to each #MetaLogicalMonitor. It
+ * keeps track of this list by querying the list of logical monitors in the
+ * #MetaBackend's #MetaMonitorManager, and creating a renderer view for each
+ * logical monitor it encounters.
+ *
+ * 2) Creating and setting up an appropriate #CoglRenderer. For example, a
+ * #MetaRenderer might call cogl_renderer_set_custom_winsys() to tie the
+ * backend-specific mechanisms into Cogl.
+ */
+
 #include "config.h"
+
+#include "backends/meta-renderer.h"
 
 #include <glib-object.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-renderer.h"
 
 typedef struct _MetaRendererPrivate
 {
@@ -36,6 +55,16 @@ typedef struct _MetaRendererPrivate
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaRenderer, meta_renderer, G_TYPE_OBJECT)
 
+/**
+ * meta_renderer_create_cogl_renderer:
+ * @renderer: a #MetaRenderer object
+ *
+ * Creates a #CoglRenderer that is appropriate for a certain backend. For
+ * example, a #MetaRenderer might call cogl_renderer_set_custom_winsys() to tie
+ * the backend-specific mechanisms (such as swapBuffers and vsync) into Cogl.
+ *
+ * Returns: (transfer full): a newly made #CoglRenderer.
+ */
 CoglRenderer *
 meta_renderer_create_cogl_renderer (MetaRenderer *renderer)
 {
@@ -50,6 +79,15 @@ meta_renderer_create_view (MetaRenderer       *renderer,
                                                           logical_monitor);
 }
 
+/**
+ * meta_renderer_rebuild_views:
+ * @renderer: a #MetaRenderer object
+ *
+ * Rebuilds the internal list of #MetaRendererView objects by querying the
+ * current #MetaBackend's #MetaMonitorManager.
+ *
+ * This also leads to the original list of monitors being unconditionally freed.
+ */
 void
 meta_renderer_rebuild_views (MetaRenderer *renderer)
 {
@@ -86,12 +124,40 @@ meta_renderer_set_legacy_view (MetaRenderer     *renderer,
   priv->views = g_list_append (priv->views, legacy_view);
 }
 
+/**
+ * meta_renderer_get_views:
+ * @renderer: a #MetaRenderer object
+ *
+ * Returns a list of #MetaRendererView objects, each dealing with a part of the
+ * stage.
+ *
+ * Returns: (transfer none) (element-type MetaRendererView): a list of
+ * #MetaRendererView objects.
+ */
 GList *
 meta_renderer_get_views (MetaRenderer *renderer)
 {
   MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
 
   return priv->views;
+}
+
+MetaRendererView *
+meta_renderer_get_view_from_logical_monitor (MetaRenderer       *renderer,
+                                             MetaLogicalMonitor *logical_monitor)
+{
+  GList *l;
+
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+    {
+      MetaRendererView *view = l->data;
+
+      if (meta_renderer_view_get_logical_monitor (view) ==
+          logical_monitor)
+        return view;
+    }
+
+  return NULL;
 }
 
 static void

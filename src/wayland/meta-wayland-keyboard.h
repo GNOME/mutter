@@ -45,10 +45,10 @@
 #ifndef META_WAYLAND_KEYBOARD_H
 #define META_WAYLAND_KEYBOARD_H
 
-#include <clutter/clutter.h>
 #include <wayland-server.h>
 #include <xkbcommon/xkbcommon.h>
 
+#include "clutter/clutter.h"
 #include "wayland/meta-wayland-types.h"
 
 #define META_TYPE_WAYLAND_KEYBOARD (meta_wayland_keyboard_get_type ())

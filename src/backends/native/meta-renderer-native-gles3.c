@@ -27,10 +27,10 @@
 
 #include "backends/native/meta-renderer-native-gles3.h"
 
+#include <GLES3/gl3.h>
 #include <drm_fourcc.h>
 #include <errno.h>
 #include <gio/gio.h>
-#include <GLES3/gl3.h>
 #include <string.h>
 
 #include "backends/meta-egl-ext.h"
@@ -237,26 +237,4 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
   meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
 
   return TRUE;
-}
-
-void
-meta_renderer_native_gles3_read_pixels (MetaEgl   *egl,
-                                        MetaGles3 *gles3,
-                                        int        width,
-                                        int        height,
-                                        uint8_t   *target_data,
-                                        int        target_stride_bytes)
-{
-  int y;
-
-  g_assert (target_stride_bytes >= 0);
-
-  GLBAS (gles3, glFinish, ());
-
-  for (y = 0; y < height; y++)
-    {
-      GLBAS (gles3, glReadPixels, (0, height - y, width, 1,
-                                   GL_RGBA, GL_UNSIGNED_BYTE,
-                                   target_data + y * target_stride_bytes));
-    }
 }

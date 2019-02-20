@@ -3,9 +3,8 @@
 #ifndef META_WINDOW_GROUP_PRIVATE_H
 #define META_WINDOW_GROUP_PRIVATE_H
 
-#include <meta/meta-window-group.h>
-
-#include <meta/display.h>
+#include "meta/display.h"
+#include "meta/meta-window-group.h"
 
 /**
  * MetaWindowGroup:

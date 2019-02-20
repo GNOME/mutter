@@ -34,7 +34,7 @@
 
 #include "cogl/cogl-texture.h"
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 typedef struct _CoglPangoGlyphCache      CoglPangoGlyphCache;
 typedef struct _CoglPangoGlyphCacheValue CoglPangoGlyphCacheValue;
@@ -95,6 +95,6 @@ void
 _cogl_pango_glyph_cache_set_dirty_glyphs (CoglPangoGlyphCache *cache,
                                           CoglPangoGlyphCacheDirtyFunc func);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_PANGO_GLYPH_CACHE_H__ */

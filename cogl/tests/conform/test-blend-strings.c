@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "test-declarations.h"
 #include "test-utils.h"
 
 #define QUAD_WIDTH 20
@@ -26,14 +27,14 @@ typedef struct _TestState
 
 
 static void
-test_blend (TestState *state,
-            int x,
-            int y,
-            uint32_t src_color,
-            uint32_t dst_color,
-            const char *blend_string,
-            uint32_t blend_constant,
-            uint32_t expected_result)
+test_blend_paint (TestState  *state,
+                  int         x,
+                  int         y,
+                  uint32_t    src_color,
+                  uint32_t    dst_color,
+                  const char *blend_string,
+                  uint32_t    blend_constant,
+                  uint32_t    expected_result)
 {
   /* src color */
   uint8_t Sr = MASK_RED (src_color);
@@ -294,34 +295,34 @@ test_tex_combine (TestState *state,
 static void
 paint (TestState *state)
 {
-  test_blend (state, 0, 0, /* position */
-              0xff0000ff, /* src */
-              0xffffffff, /* dst */
-              "RGBA = ADD (SRC_COLOR, 0)",
-              BLEND_CONSTANT_UNUSED,
-              0xff0000ff); /* expected */
+  test_blend_paint (state, 0, 0, /* position */
+                    0xff0000ff, /* src */
+                    0xffffffff, /* dst */
+                    "RGBA = ADD (SRC_COLOR, 0)",
+                    BLEND_CONSTANT_UNUSED,
+                    0xff0000ff); /* expected */
 
-  test_blend (state, 1, 0, /* position */
-              0x11223344, /* src */
-              0x11223344, /* dst */
-              "RGBA = ADD (SRC_COLOR, DST_COLOR)",
-              BLEND_CONSTANT_UNUSED,
-              0x22446688); /* expected */
+  test_blend_paint (state, 1, 0, /* position */
+                    0x11223344, /* src */
+                    0x11223344, /* dst */
+                    "RGBA = ADD (SRC_COLOR, DST_COLOR)",
+                    BLEND_CONSTANT_UNUSED,
+                    0x22446688); /* expected */
 
-  test_blend (state, 2, 0, /* position */
-              0x80808080, /* src */
-              0xffffffff, /* dst */
-              "RGBA = ADD (SRC_COLOR * (CONSTANT), 0)",
-              0x80808080, /* constant (RGBA all = 0.5 when normalized) */
-              0x40404040); /* expected */
+  test_blend_paint (state, 2, 0, /* position */
+                    0x80808080, /* src */
+                    0xffffffff, /* dst */
+                    "RGBA = ADD (SRC_COLOR * (CONSTANT), 0)",
+                    0x80808080, /* constant (RGBA all = 0.5 when normalized) */
+                    0x40404040); /* expected */
 
-  test_blend (state, 3, 0, /* position */
-              0x80000080, /* src (alpha = 0.5 when normalized) */
-              0x40000000, /* dst */
-              "RGBA = ADD (SRC_COLOR * (SRC_COLOR[A]),"
-              "            DST_COLOR * (1-SRC_COLOR[A]))",
-              BLEND_CONSTANT_UNUSED,
-              0x60000040); /* expected */
+  test_blend_paint (state, 3, 0, /* position */
+                    0x80000080, /* src (alpha = 0.5 when normalized) */
+                    0x40000000, /* dst */
+                    "RGBA = ADD (SRC_COLOR * (SRC_COLOR[A]),"
+                    "            DST_COLOR * (1-SRC_COLOR[A]))",
+                    BLEND_CONSTANT_UNUSED,
+                    0x60000040); /* expected */
 
   /* XXX:
    * For all texture combine tests tex0 will use a combine mode of

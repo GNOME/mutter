@@ -25,8 +25,14 @@
 #ifndef META_UTIL_PRIVATE_H
 #define META_UTIL_PRIVATE_H
 
-#include <meta/util.h>
 #include <glib/gi18n-lib.h>
+
+#include "meta/util.h"
+#include "meta/common.h"
+
+/* META_EXPORT_TEST should be used to export symbols that are exported only
+ * for testability purposes */
+#define META_EXPORT_TEST META_EXPORT
 
 void     meta_set_verbose (gboolean setting);
 void     meta_set_debugging (gboolean setting);

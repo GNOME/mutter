@@ -34,7 +34,7 @@
 #include "cogl-object-private.h"
 #include "cogl-matrix-stack-private.h"
 #include "cogl-journal-private.h"
-#include "cogl-winsys-private.h"
+#include "winsys/cogl-winsys-private.h"
 #include "cogl-attribute-private.h"
 #include "cogl-offscreen.h"
 #include "cogl-gl-header.h"
@@ -59,7 +59,6 @@ typedef struct
   CoglSwapChain *swap_chain;
   CoglBool need_stencil;
   int samples_per_pixel;
-  CoglBool swap_throttled;
   CoglBool depth_texture_enabled;
   CoglBool stereo_enabled;
 } CoglFramebufferConfig;
@@ -193,6 +192,11 @@ struct _CoglFramebuffer
   CoglFramebufferBits bits;
 
   int                 samples_per_pixel;
+
+  /* Whether the depth buffer was enabled for this framebuffer,
+   * usually means it needs to be cleared before being reused next.
+   */
+  CoglBool            depth_buffer_clear_needed;
 };
 
 typedef enum {

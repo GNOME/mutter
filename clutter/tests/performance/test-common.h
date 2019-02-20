@@ -7,7 +7,8 @@ static gint testframes = 0;
 static float testmaxtime = 1.0;
 
 /* initialize environment to be suitable for fps testing */
-void clutter_perf_fps_init (void)
+static inline void
+clutter_perf_fps_init (void)
 {
   /* Force not syncing to vblank, we want free-running maximum FPS */
   g_setenv ("vblank_mode", "0", FALSE);
@@ -27,17 +28,20 @@ void clutter_perf_fps_init (void)
 static void perf_stage_paint_cb (ClutterStage *stage, gpointer *data);
 static gboolean perf_fake_mouse_cb (gpointer stage);
 
-void clutter_perf_fps_start (ClutterStage *stage)
+static inline void
+clutter_perf_fps_start (ClutterStage *stage)
 {
   g_signal_connect (stage, "paint", G_CALLBACK (perf_stage_paint_cb), NULL);
 }
 
-void clutter_perf_fake_mouse (ClutterStage *stage)
+static inline void
+clutter_perf_fake_mouse (ClutterStage *stage)
 {
   clutter_threads_add_timeout (1000/60, perf_fake_mouse_cb, stage);
 }
 
-void clutter_perf_fps_report (const gchar *id)
+static inline void
+clutter_perf_fps_report (const gchar *id)
 {
   g_print ("\n@ %s: %.2f fps \n",
        id, testframes / g_timer_elapsed (testtimer, NULL));
@@ -92,9 +96,9 @@ static gboolean perf_fake_mouse_cb (gpointer stage)
       event2->crossing.source = stage;
       event2->crossing.x = 10;
       event2->crossing.y = 10;
-      event2->crossing.device = device;
       event2->crossing.related = NULL;
 
+      clutter_event_set_device (event2, device);
       clutter_input_device_update_from_event (device, event2, TRUE);
 
       clutter_event_put (event2);
@@ -104,7 +108,7 @@ static gboolean perf_fake_mouse_cb (gpointer stage)
 
   clutter_actor_get_size (stage, &w, &h);
   event->motion.stage = stage;
-  event->motion.device = device;
+  clutter_event_set_device (event, device);
 
   /* called about every 60fps, and do 10 picks per stage */
   for (i = 0; i < 10; i++)

@@ -20,19 +20,13 @@
 #ifndef META_STAGE_PRIVATE_H
 #define META_STAGE_PRIVATE_H
 
-#include <meta/meta-stage.h>
-
-#include "meta-cursor.h"
-#include <meta/boxes.h>
+#include "backends/meta-cursor.h"
+#include "meta/boxes.h"
+#include "meta/meta-stage.h"
 
 G_BEGIN_DECLS
 
 typedef struct _MetaOverlay    MetaOverlay;
-
-struct _MetaStage
-{
-  ClutterStage parent;
-};
 
 ClutterActor     *meta_stage_new                     (void);
 
@@ -47,8 +41,6 @@ void              meta_stage_update_cursor_overlay   (MetaStage   *stage,
 
 void meta_stage_set_active (MetaStage *stage,
                             gboolean   is_active);
-
-void meta_stage_update_view_layout (MetaStage *stage);
 
 G_END_DECLS
 

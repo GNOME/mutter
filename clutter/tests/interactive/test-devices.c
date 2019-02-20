@@ -12,6 +12,9 @@ typedef struct {
   GHashTable *devices;
 } TestDevicesApp;
 
+int
+test_devices_main (int argc, char **argv);
+
 static const gchar *
 device_type_name (ClutterInputDevice *device)
 {

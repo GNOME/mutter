@@ -35,7 +35,7 @@
 
 #include <X11/Xutil.h>
 
-COGL_BEGIN_DECLS
+G_BEGIN_DECLS
 
 #define cogl_clutter_winsys_xlib_get_visual_info cogl_clutter_winsys_xlib_get_visual_info_CLUTTER
 
@@ -45,6 +45,6 @@ COGL_BEGIN_DECLS
 XVisualInfo *
 cogl_clutter_winsys_xlib_get_visual_info (void);
 
-COGL_END_DECLS
+G_END_DECLS
 
 #endif /* __COGL_CLUTTER_XLIB_H__ */

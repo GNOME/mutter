@@ -66,24 +66,11 @@ test_atk_text (ClutterActor *actor)
   g_free (text); text = NULL;
   g_free (buf); buf = NULL;
 
-  text = atk_text_get_text_before_offset (cally_text,
-                                          5, ATK_TEXT_BOUNDARY_WORD_END,
-                                          &start, &end);
-  g_print ("atk_text_get_text_before_offset: %s, %i, %i\n",
-           text, start, end);
-  g_free (text); text = NULL;
-
-  text = atk_text_get_text_at_offset (cally_text,
-                                      5, ATK_TEXT_BOUNDARY_WORD_END,
-                                      &start, &end);
-  g_print ("atk_text_get_text_at_offset: %s, %i, %i\n",
-           text, start, end);
-  g_free (text); text = NULL;
-
-  text = atk_text_get_text_after_offset (cally_text,
-                                         5, ATK_TEXT_BOUNDARY_WORD_END,
-                                         &start, &end);
-  g_print ("atk_text_get_text_after_offset: %s, %i, %i\n",
+  text = atk_text_get_string_at_offset (cally_text,
+                                        5,
+                                        ATK_TEXT_GRANULARITY_WORD,
+                                        &start, &end);
+  g_print ("atk_text_get_string_at_offset: %s, %i, %i\n",
            text, start, end);
   g_free (text); text = NULL;
 

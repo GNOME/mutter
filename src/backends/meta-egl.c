@@ -24,16 +24,16 @@
 
 #include "config.h"
 
-#include "backends/meta-backend-private.h"
-#include "backends/meta-egl.h"
-#include "backends/meta-egl-ext.h"
-#include "meta/util.h"
-
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <gio/gio.h>
 #include <glib.h>
 #include <glib-object.h>
+
+#include "backends/meta-backend-private.h"
+#include "backends/meta-egl.h"
+#include "backends/meta-egl-ext.h"
+#include "meta/util.h"
 
 struct _MetaEgl
 {
@@ -161,13 +161,13 @@ set_egl_error (GError **error)
 }
 
 gboolean
-meta_extensions_string_has_extensions_valist (const char *extensions_str,
-                                              char     ***missing_extensions,
-                                              char       *first_extension,
-                                              va_list     var_args)
+meta_extensions_string_has_extensions_valist (const char   *extensions_str,
+                                              const char ***missing_extensions,
+                                              const char   *first_extension,
+                                              va_list       var_args)
 {
   char **extensions;
-  char *extension;
+  const char *extension;
   size_t num_missing_extensions = 0;
 
   if (missing_extensions)
@@ -203,10 +203,10 @@ meta_extensions_string_has_extensions_valist (const char *extensions_str,
 }
 
 gboolean
-meta_egl_has_extensions (MetaEgl   *egl,
-                         EGLDisplay display,
-                         char    ***missing_extensions,
-                         char      *first_extension,
+meta_egl_has_extensions (MetaEgl      *egl,
+                         EGLDisplay    display,
+                         const char ***missing_extensions,
+                         const char   *first_extension,
                          ...)
 {
   va_list var_args;
@@ -669,10 +669,10 @@ meta_egl_query_device_string (MetaEgl     *egl,
 }
 
 gboolean
-meta_egl_egl_device_has_extensions (MetaEgl     *egl,
-                                    EGLDeviceEXT device,
-                                    char      ***missing_extensions,
-                                    char        *first_extension,
+meta_egl_egl_device_has_extensions (MetaEgl        *egl,
+                                    EGLDeviceEXT    device,
+                                    const char   ***missing_extensions,
+                                    const char     *first_extension,
                                     ...)
 {
   va_list var_args;

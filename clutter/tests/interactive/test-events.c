@@ -4,6 +4,12 @@
 
 gboolean IsFullScreen = FALSE, IsMotion = TRUE;
 
+int
+test_events_main (int argc, char *argv[]);
+
+const char *
+test_events_describe (void);
+
 static const gchar *
 get_event_type_name (const ClutterEvent *event)
 {
@@ -53,7 +59,7 @@ get_event_type_name (const ClutterEvent *event)
 static gchar *
 get_event_state_string (const ClutterEvent *event)
 {
-  gchar *mods[18];
+  const char *mods[18];
   int i = 0;
   ClutterModifierType state = clutter_event_get_state (event);
 
@@ -96,7 +102,7 @@ get_event_state_string (const ClutterEvent *event)
     mods[i++] = "-";
 
   mods[i] = NULL;
-  return g_strjoinv (",", mods);
+  return g_strjoinv (",", (char **) mods);
 }
 
 static void
@@ -371,7 +377,32 @@ input_cb (ClutterActor *actor,
     case CLUTTER_DELETE:
       g_print ("[%s] DELETE", clutter_actor_get_name (source_actor));
       break;
+    case CLUTTER_TOUCHPAD_PINCH:
+      g_print ("[%s] TOUCHPAD PINCH", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_TOUCHPAD_SWIPE:
+      g_print ("[%s] TOUCHPAD SWIPE", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_PROXIMITY_IN:
+      g_print ("[%s] PROXIMITY IN", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_PROXIMITY_OUT:
+      g_print ("[%s] PROXIMITY OUT", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_PAD_BUTTON_PRESS:
+      g_print ("[%s] PAD BUTTON PRESS", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_PAD_BUTTON_RELEASE:
+      g_print ("[%s] PAD BUTTON RELEASE", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_PAD_STRIP:
+      g_print ("[%s] PAD STRIP", clutter_actor_get_name (source_actor));
+      break;
+    case CLUTTER_PAD_RING:
+      g_print ("[%s] PAD RING", clutter_actor_get_name (source_actor));
+      break;
     case CLUTTER_NOTHING:
+    default:
       return FALSE;
     }
 
@@ -397,15 +428,15 @@ test_events_main (int argc, char *argv[])
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Events");
   clutter_actor_set_name (stage, "Stage");
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
-  g_signal_connect (stage, "event", G_CALLBACK (input_cb), "stage");
+  g_signal_connect (stage, "event", G_CALLBACK (input_cb), (char *) "stage");
   g_signal_connect (stage, "fullscreen", 
-		    G_CALLBACK (stage_state_cb), "fullscreen");
+		    G_CALLBACK (stage_state_cb), (char *) "fullscreen");
   g_signal_connect (stage, "unfullscreen", 
-		    G_CALLBACK (stage_state_cb), "unfullscreen");
+		    G_CALLBACK (stage_state_cb), (char *) "unfullscreen");
   g_signal_connect (stage, "activate", 
-		    G_CALLBACK (stage_state_cb), "activate");
+		    G_CALLBACK (stage_state_cb), (char *) "activate");
   g_signal_connect (stage, "deactivate", 
-		    G_CALLBACK (stage_state_cb), "deactivate");
+		    G_CALLBACK (stage_state_cb), (char *) "deactivate");
 
   focus_box = clutter_rectangle_new_with_color (CLUTTER_COLOR_Black);
   clutter_actor_set_name (focus_box, "Focus Box");
@@ -417,7 +448,7 @@ test_events_main (int argc, char *argv[])
   clutter_actor_set_position (actor, 100, 100);
   clutter_actor_set_reactive (actor, TRUE);
   clutter_container_add (CLUTTER_CONTAINER (stage), actor, NULL);
-  g_signal_connect (actor, "event", G_CALLBACK (input_cb), "red box");
+  g_signal_connect (actor, "event", G_CALLBACK (input_cb), (char *) "red box");
   g_signal_connect (actor, "key-focus-in", G_CALLBACK (key_focus_in_cb),
 		    focus_box);
   /* Toggle motion - enter/leave capture */
@@ -432,7 +463,7 @@ test_events_main (int argc, char *argv[])
   clutter_actor_set_position (actor, 250, 100);
   clutter_actor_set_reactive (actor, TRUE);
   clutter_container_add (CLUTTER_CONTAINER (stage), actor, NULL);
-  g_signal_connect (actor, "event", G_CALLBACK (input_cb), "green box");
+  g_signal_connect (actor, "event", G_CALLBACK (input_cb), (char *) "green box");
   g_signal_connect (actor, "key-focus-in", G_CALLBACK (key_focus_in_cb),
 		    focus_box);
   g_signal_connect (actor, "captured-event", G_CALLBACK (capture_cb), NULL);
@@ -443,7 +474,7 @@ test_events_main (int argc, char *argv[])
   clutter_actor_set_position (actor, 400, 100);
   clutter_actor_set_reactive (actor, TRUE);
   clutter_container_add (CLUTTER_CONTAINER(stage), actor, NULL);
-  g_signal_connect (actor, "event", G_CALLBACK (input_cb), "blue box");
+  g_signal_connect (actor, "event", G_CALLBACK (input_cb), (char *) "blue box");
   g_signal_connect (actor, "key-focus-in", G_CALLBACK (key_focus_in_cb),
 		    focus_box);
   /* Fullscreen */
@@ -456,7 +487,7 @@ test_events_main (int argc, char *argv[])
   clutter_actor_set_size (actor, 400, 50);
   clutter_actor_set_position (actor, 100, 250);
   clutter_container_add (CLUTTER_CONTAINER(stage), actor, NULL);
-  g_signal_connect (actor, "event", G_CALLBACK (input_cb), "blue box");
+  g_signal_connect (actor, "event", G_CALLBACK (input_cb), (char *) "blue box");
   g_signal_connect (actor, "key-focus-in", G_CALLBACK (key_focus_in_cb),
 		    focus_box);
   g_signal_connect (stage, "key-focus-in", G_CALLBACK (key_focus_in_cb),
@@ -468,7 +499,7 @@ test_events_main (int argc, char *argv[])
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_reactive (actor, TRUE);
 
-  g_signal_connect (actor, "event", G_CALLBACK (input_cb), "yellow box");
+  g_signal_connect (actor, "event", G_CALLBACK (input_cb), (char *) "yellow box");
 
   /* note group not reactive */
   group = clutter_group_new ();

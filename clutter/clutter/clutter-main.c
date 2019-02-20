@@ -47,9 +47,7 @@
  * [threads.c](https://git.gnome.org/browse/clutter/tree/examples/threads.c?h=clutter-1.18)
  */
 
-#ifdef HAVE_CONFIG_H
 #include "clutter-build-config.h"
-#endif
 
 #include <stdlib.h>
 
@@ -67,7 +65,6 @@
 #include "clutter-settings-private.h"
 #include "clutter-stage-manager.h"
 #include "clutter-stage-private.h"
-#include "clutter-version.h" 	/* For flavour define */
 
 #ifdef CLUTTER_WINDOWING_X11
 #include "x11/clutter-backend-x11.h"
@@ -79,7 +76,7 @@
 #include <cogl/cogl.h>
 #include <cogl-pango/cogl-pango.h>
 
-#include "cally.h" /* For accessibility support */
+#include "cally/cally.h" /* For accessibility support */
 
 /* main context */
 static ClutterMainContext *ClutterCntx       = NULL;
@@ -110,10 +107,6 @@ static GSList *main_loops                    = NULL;
 guint clutter_debug_flags       = 0;
 guint clutter_paint_debug_flags = 0;
 guint clutter_pick_debug_flags  = 0;
-
-const guint clutter_major_version = CLUTTER_MAJOR_VERSION;
-const guint clutter_minor_version = CLUTTER_MINOR_VERSION;
-const guint clutter_micro_version = CLUTTER_MICRO_VERSION;
 
 #ifdef CLUTTER_ENABLE_DEBUG
 static const GDebugKey clutter_debug_keys[] = {
@@ -149,6 +142,7 @@ static const GDebugKey clutter_paint_debug_keys[] = {
   { "disable-offscreen-redirect", CLUTTER_DEBUG_DISABLE_OFFSCREEN_REDIRECT },
   { "continuous-redraw", CLUTTER_DEBUG_CONTINUOUS_REDRAW },
   { "paint-deform-tiles", CLUTTER_DEBUG_PAINT_DEFORM_TILES },
+  { "damage-region", CLUTTER_DEBUG_PAINT_DAMAGE_REGION },
 };
 
 static void
@@ -260,16 +254,6 @@ clutter_config_read_from_key_file (GKeyFile *keyfile)
     g_clear_error (&key_error);
   else
     clutter_enable_accessibility = bool_value;
-
-  bool_value =
-    g_key_file_get_boolean (keyfile, ENVIRONMENT_GROUP,
-                            "SyncToVblank",
-                            &key_error);
-
-  if (key_error != NULL)
-    g_clear_error (&key_error);
-  else
-    clutter_sync_to_vblank = bool_value;
 
   int_value =
     g_key_file_get_integer (keyfile, ENVIRONMENT_GROUP,
@@ -1372,6 +1356,9 @@ clutter_init_real (GError **error)
         CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS | CLUTTER_DEBUG_DISABLE_CULLING;
     }
 
+  if (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)
+    g_message ("Enabling damaged region");
+
   /* this will take care of initializing Cogl's state and
    * query the GL machinery for features
    */
@@ -1493,10 +1480,6 @@ pre_parse_hook (GOptionContext  *context,
   env_string = g_getenv ("CLUTTER_FUZZY_PICK");
   if (env_string)
     clutter_use_fuzzy_picking = TRUE;
-
-  env_string = g_getenv ("CLUTTER_VBLANK");
-  if (g_strcmp0 (env_string, "none") == 0)
-    clutter_sync_to_vblank = FALSE;
 
   return _clutter_backend_pre_parse (backend, error);
 }
@@ -3472,36 +3455,6 @@ _clutter_run_repaint_functions (ClutterRepaintFlags flags)
 }
 
 /**
- * clutter_check_version:
- * @major: major version, like 1 in 1.2.3
- * @minor: minor version, like 2 in 1.2.3
- * @micro: micro version, like 3 in 1.2.3
- *
- * Run-time version check, to check the version the Clutter library
- * that an application is currently linked against
- *
- * This is the run-time equivalent of the compile-time %CLUTTER_CHECK_VERSION
- * pre-processor macro
- *
- * Return value: %TRUE if the version of the Clutter library is
- *   greater than (@major, @minor, @micro), and %FALSE otherwise
- *
- * Since: 1.2
- */
-gboolean
-clutter_check_version (guint major,
-                       guint minor,
-                       guint micro)
-{
-  return (clutter_major_version > major ||
-          (clutter_major_version == major &&
-           clutter_minor_version > minor) ||
-          (clutter_major_version == major &&
-           clutter_minor_version == minor &&
-           clutter_micro_version >= micro));
-}
-
-/**
  * clutter_get_default_text_direction:
  *
  * Retrieves the default direction for the text. The text direction is
@@ -3666,12 +3619,6 @@ void
 _clutter_set_sync_to_vblank (gboolean sync_to_vblank)
 {
   clutter_sync_to_vblank = !!sync_to_vblank;
-}
-
-gboolean
-_clutter_get_sync_to_vblank (void)
-{
-  return clutter_sync_to_vblank;
 }
 
 void

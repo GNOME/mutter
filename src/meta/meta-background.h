@@ -21,8 +21,10 @@
 #ifndef META_BACKGROUND_H
 #define META_BACKGROUND_H
 
-#include <clutter/clutter.h>
 #include <gsettings-desktop-schemas/gdesktop-enums.h>
+
+#include "clutter/clutter.h"
+#include "meta/display.h"
 
 /**
  * MetaBackground:
@@ -32,45 +34,37 @@
  * the background that are obscured by other windows.
  */
 
-#define META_TYPE_BACKGROUND            (meta_background_get_type ())
-#define META_BACKGROUND(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_BACKGROUND, MetaBackground))
-#define META_BACKGROUND_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), META_TYPE_BACKGROUND, MetaBackgroundClass))
-#define META_IS_BACKGROUND(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_BACKGROUND))
-#define META_IS_BACKGROUND_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), META_TYPE_BACKGROUND))
-#define META_BACKGROUND_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), META_TYPE_BACKGROUND, MetaBackgroundClass))
+#define META_TYPE_BACKGROUND (meta_background_get_type ())
 
-typedef struct _MetaBackground        MetaBackground;
-typedef struct _MetaBackgroundClass   MetaBackgroundClass;
-typedef struct _MetaBackgroundPrivate MetaBackgroundPrivate;
+META_EXPORT
+G_DECLARE_FINAL_TYPE (MetaBackground,
+                      meta_background,
+                      META, BACKGROUND,
+                      GObject)
 
-struct _MetaBackgroundClass
-{
-  /*< private >*/
-  GObjectClass parent_class;
-};
 
-struct _MetaBackground
-{
-  GObject parent;
-
-  MetaBackgroundPrivate *priv;
-};
-
+META_EXPORT
 void meta_background_refresh_all (void);
 
-GType meta_background_get_type (void);
-
+META_EXPORT
 MetaBackground *meta_background_new (MetaDisplay *display);
 
+META_EXPORT
 void meta_background_set_color    (MetaBackground            *self,
                                    ClutterColor              *color);
+
+META_EXPORT
 void meta_background_set_gradient (MetaBackground            *self,
                                    GDesktopBackgroundShading  shading_direction,
                                    ClutterColor              *color,
                                    ClutterColor              *second_color);
+
+META_EXPORT
 void meta_background_set_file     (MetaBackground            *self,
                                    GFile                     *file,
                                    GDesktopBackgroundStyle    style);
+
+META_EXPORT
 void meta_background_set_blend    (MetaBackground            *self,
                                    GFile                     *file1,
                                    GFile                     *file2,

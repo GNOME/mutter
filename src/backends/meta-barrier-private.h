@@ -27,23 +27,15 @@
 #define META_BARRIER_PRIVATE_H
 
 #include "core/meta-border.h"
+#include "meta/barrier.h"
 
 G_BEGIN_DECLS
 
-#define META_TYPE_BARRIER_IMPL            (meta_barrier_impl_get_type ())
-#define META_BARRIER_IMPL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_BARRIER_IMPL, MetaBarrierImpl))
-#define META_BARRIER_IMPL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_BARRIER_IMPL, MetaBarrierImplClass))
-#define META_IS_BARRIER_IMPL(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_BARRIER_IMPL))
-#define META_IS_BARRIER_IMPL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_BARRIER_IMPL))
-#define META_BARRIER_IMPL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_BARRIER_IMPL, MetaBarrierImplClass))
-
-typedef struct _MetaBarrierImpl        MetaBarrierImpl;
-typedef struct _MetaBarrierImplClass   MetaBarrierImplClass;
-
-struct _MetaBarrierImpl
-{
-  GObject parent;
-};
+#define META_TYPE_BARRIER_IMPL (meta_barrier_impl_get_type ())
+G_DECLARE_DERIVABLE_TYPE (MetaBarrierImpl,
+                          meta_barrier_impl,
+                          META, BARRIER_IMPL,
+                          GObject)
 
 struct _MetaBarrierImplClass
 {
@@ -54,8 +46,6 @@ struct _MetaBarrierImplClass
                    MetaBarrierEvent *event);
   void (*destroy) (MetaBarrierImpl *barrier);
 };
-
-GType meta_barrier_impl_get_type (void) G_GNUC_CONST;
 
 void _meta_barrier_emit_hit_signal (MetaBarrier      *barrier,
                                     MetaBarrierEvent *event);

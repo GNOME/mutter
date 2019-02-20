@@ -27,10 +27,11 @@
 
 #include <glib-object.h>
 
-#include "cogl/cogl.h"
-#include "clutter/clutter-mutter.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-renderer-view.h"
+#include "core/util-private.h"
+#include "clutter/clutter-mutter.h"
+#include "cogl/cogl.h"
 
 #define META_TYPE_RENDERER (meta_renderer_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaRenderer, meta_renderer, META, RENDERER, GObject)
@@ -51,6 +52,10 @@ void meta_renderer_rebuild_views (MetaRenderer *renderer);
 void meta_renderer_set_legacy_view (MetaRenderer     *renderer,
                                     MetaRendererView *legacy_view);
 
+META_EXPORT_TEST
 GList * meta_renderer_get_views (MetaRenderer *renderer);
+
+MetaRendererView * meta_renderer_get_view_from_logical_monitor (MetaRenderer       *renderer,
+                                                                MetaLogicalMonitor *logical_monitor);
 
 #endif /* META_RENDERER_H */

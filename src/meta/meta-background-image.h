@@ -23,53 +23,46 @@
 #ifndef __META_BACKGROUND_IMAGE_H__
 #define __META_BACKGROUND_IMAGE_H__
 
+#include <gio/gio.h>
 #include <glib-object.h>
-#include <cogl/cogl.h>
 
-#define META_TYPE_BACKGROUND_IMAGE            (meta_background_image_get_type ())
-#define META_BACKGROUND_IMAGE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_BACKGROUND_IMAGE, MetaBackgroundImage))
-#define META_BACKGROUND_IMAGE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_BACKGROUND_IMAGE, MetaBackgroundImageClass))
-#define META_IS_BACKGROUND_IMAGE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_BACKGROUND_IMAGE))
-#define META_IS_BACKGROUND_IMAGE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_BACKGROUND_IMAGE))
-#define META_BACKGROUND_IMAGE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_BACKGROUND_IMAGE, MetaBackgroundImageClass))
+#include "cogl/cogl.h"
+#include "meta/display.h"
 
-/**
- * MetaBackgroundImage:
- *
- * #MetaBackgroundImage is an object that represents a loaded or loading background image.
- */
-typedef struct _MetaBackgroundImage      MetaBackgroundImage;
-typedef struct _MetaBackgroundImageClass MetaBackgroundImageClass;
+#define META_TYPE_BACKGROUND_IMAGE (meta_background_image_get_type ())
 
-GType meta_background_image_get_type (void);
+META_EXPORT
+G_DECLARE_FINAL_TYPE (MetaBackgroundImage,
+                      meta_background_image,
+                      META, BACKGROUND_IMAGE,
+                      GObject)
 
+META_EXPORT
 gboolean     meta_background_image_is_loaded   (MetaBackgroundImage *image);
+
+META_EXPORT
 gboolean     meta_background_image_get_success (MetaBackgroundImage *image);
+
+META_EXPORT
 CoglTexture *meta_background_image_get_texture (MetaBackgroundImage *image);
 
-#define META_TYPE_BACKGROUND_IMAGE_CACHE            (meta_background_image_cache_get_type ())
-#define META_BACKGROUND_IMAGE_CACHE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_BACKGROUND_IMAGE_CACHE, MetaBackgroundImageCache))
-#define META_BACKGROUND_IMAGE_CACHE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_BACKGROUND_IMAGE_CACHE, MetaBackgroundImageCacheClass))
-#define META_IS_BACKGROUND_IMAGE_CACHE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_BACKGROUND_IMAGE_CACHE))
-#define META_IS_BACKGROUND_IMAGE_CACHE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_BACKGROUND_IMAGE_CACHE))
-#define META_BACKGROUND_IMAGE_CACHE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_BACKGROUND_IMAGE_CACHE, MetaBackgroundImageCacheClass))
 
-/**
- * MetaBackgroundImageCache:
- *
- * #MetaBackgroundImageCache caches loading of textures for backgrounds; there's actually
- * nothing background specific about it, other than it is tuned to work well for
- * large images as typically are used for backgrounds.
- */
-typedef struct _MetaBackgroundImageCache      MetaBackgroundImageCache;
-typedef struct _MetaBackgroundImageCacheClass MetaBackgroundImageCacheClass;
+#define META_TYPE_BACKGROUND_IMAGE_CACHE (meta_background_image_cache_get_type ())
 
+META_EXPORT
+G_DECLARE_FINAL_TYPE (MetaBackgroundImageCache,
+                      meta_background_image_cache,
+                      META, BACKGROUND_IMAGE_CACHE,
+                      GObject)
+
+META_EXPORT
 MetaBackgroundImageCache *meta_background_image_cache_get_default (void);
 
-GType meta_background_image_cache_get_type (void);
-
+META_EXPORT
 MetaBackgroundImage *meta_background_image_cache_load  (MetaBackgroundImageCache *cache,
                                                         GFile                    *file);
+
+META_EXPORT
 void                 meta_background_image_cache_purge (MetaBackgroundImageCache *cache,
                                                         GFile                    *file);
 

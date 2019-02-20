@@ -27,7 +27,6 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "core/window-private.h"
-#include "wayland/meta-wayland.h"
 #include "wayland/meta-wayland-outputs.h"
 #include "wayland/meta-wayland-popup.h"
 #include "wayland/meta-wayland-private.h"
@@ -35,6 +34,7 @@
 #include "wayland/meta-wayland-shell-surface.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-wayland-versions.h"
+#include "wayland/meta-wayland.h"
 #include "wayland/meta-window-wayland.h"
 
 #include "xdg-shell-unstable-v6-server-protocol.h"
@@ -560,31 +560,27 @@ handle_popup_parent_destroyed (struct wl_listener *listener,
 }
 
 static void
-fill_states (struct wl_array *states,
-             MetaWindow      *window)
+add_state_value (struct wl_array             *states,
+                 enum zxdg_toplevel_v6_state  state)
 {
   uint32_t *s;
 
+  s = wl_array_add (states, sizeof *s);
+  *s = state;
+}
+
+static void
+fill_states (struct wl_array *states,
+             MetaWindow      *window)
+{
   if (META_WINDOW_MAXIMIZED (window))
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = ZXDG_TOPLEVEL_V6_STATE_MAXIMIZED;
-    }
+    add_state_value (states, ZXDG_TOPLEVEL_V6_STATE_MAXIMIZED);
   if (meta_window_is_fullscreen (window))
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = ZXDG_TOPLEVEL_V6_STATE_FULLSCREEN;
-    }
+    add_state_value (states, ZXDG_TOPLEVEL_V6_STATE_FULLSCREEN);
   if (meta_grab_op_is_resizing (window->display->grab_op))
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = ZXDG_TOPLEVEL_V6_STATE_RESIZING;
-    }
+    add_state_value (states, ZXDG_TOPLEVEL_V6_STATE_RESIZING);
   if (meta_window_appears_focused (window))
-    {
-      s = wl_array_add (states, sizeof *s);
-      *s = ZXDG_TOPLEVEL_V6_STATE_ACTIVATED;
-    }
+    add_state_value (states, ZXDG_TOPLEVEL_V6_STATE_ACTIVATED);
 }
 
 static void
@@ -705,7 +701,7 @@ meta_wayland_zxdg_toplevel_v6_commit (MetaWaylandSurfaceRole  *surface_role,
                                        window_geometry,
                                        pending->dx, pending->dy);
     }
-  else if (pending->dx != 0 || pending->dx != 0)
+  else if (pending->dx != 0 || pending->dy != 0)
     {
       g_warning ("XXX: Attach-initiated move without a new geometry. "
                  "This is unimplemented right now.");

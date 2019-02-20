@@ -19,12 +19,15 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include "group-props.h"
-#include "group-private.h"
-#include "xprops.h"
-#include "x11/meta-x11-display-private.h"
+#include "config.h"
+
+#include "x11/group-props.h"
+
 #include <X11/Xatom.h>
+
+#include "x11/group-private.h"
+#include "x11/meta-x11-display-private.h"
+#include "x11/xprops.h"
 
 typedef void (* InitValueFunc)   (MetaX11Display *x11_display,
                                   Atom            property,

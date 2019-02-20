@@ -1,0 +1,17 @@
+{
+global:
+  cogl_framebuffer_*;
+  cogl_path_*;
+  cogl_is_*;
+  cogl_clip_*;
+  cogl_get_*;
+  cogl_set_*;
+  cogl2_framebuffer_*;
+  cogl2_path_*;
+  cogl2_is_*;
+  cogl2_clip_*;
+  cogl2_get_*;
+  cogl2_set_*;
+local:
+  *;
+};

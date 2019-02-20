@@ -23,8 +23,11 @@
 #define META_BOXES_PRIVATE_H
 
 #include <glib-object.h>
-#include <meta/common.h>
-#include <meta/boxes.h>
+
+#include "backends/meta-backend-types.h"
+#include "core/util-private.h"
+#include "meta/boxes.h"
+#include "meta/common.h"
 
 #define BOX_LEFT(box)    ((box).x)                /* Leftmost pixel of rect */
 #define BOX_RIGHT(box)   ((box).x + (box).width)  /* One pixel past right   */
@@ -37,6 +40,12 @@ typedef enum
   FIXED_DIRECTION_X    = 1 << 0,
   FIXED_DIRECTION_Y    = 1 << 1,
 } FixedDirections;
+
+typedef enum _MetaRoundingStrategy
+{
+  META_ROUNDING_STRATEGY_SHRINK,
+  META_ROUNDING_STRATEGY_GROW,
+} MetaRoundingStrategy;
 
 /* Output functions -- note that the output buffer had better be big enough:
  *   rect_to_string:   RECT_LENGTH
@@ -67,6 +76,7 @@ char* meta_rectangle_edge_list_to_string (
  * Also, I lied a little bit--technically, you could use it in a MoveResize
  * operation if you muck with old_rect just right).
  */
+META_EXPORT_TEST
 void meta_rectangle_resize_with_gravity (const MetaRectangle *old_rect,
                                          MetaRectangle       *rect,
                                          int                  gravity,
@@ -84,6 +94,7 @@ void meta_rectangle_resize_with_gravity (const MetaRectangle *old_rect,
  *
  * See boxes.c for more details.
  */
+META_EXPORT_TEST
 GList*   meta_rectangle_get_minimal_spanning_set_for_region (
                                          const MetaRectangle *basic_rect,
                                          const GSList        *all_struts);
@@ -110,6 +121,7 @@ GList*   meta_rectangle_expand_region_conditionally (
  * overlapping struts oriented orthognal to the expansion direction.  (Think
  * horizontal or vertical maximization)
  */
+META_EXPORT_TEST
 void     meta_rectangle_expand_to_avoiding_struts (
                                          MetaRectangle       *rect,
                                          const MetaRectangle *expand_to,
@@ -123,18 +135,24 @@ void     meta_rectangle_expand_to_avoiding_struts (
  * or
  *   meta_rectangle_find_nonintersected_monitor_edges()
  */
+META_EXPORT_TEST
 void     meta_rectangle_free_list_and_elements (GList *filled_list);
 
 /* could_fit_in_region determines whether one of the spanning_rects is
  * big enough to contain rect.  contained_in_region checks whether one
  * actually contains it.
  */
+META_EXPORT_TEST
 gboolean meta_rectangle_could_fit_in_region (
                                          const GList         *spanning_rects,
                                          const MetaRectangle *rect);
+
+META_EXPORT_TEST
 gboolean meta_rectangle_contained_in_region (
                                          const GList         *spanning_rects,
                                          const MetaRectangle *rect);
+
+META_EXPORT_TEST
 gboolean meta_rectangle_overlaps_with_region (
                                          const GList         *spanning_rects,
                                          const MetaRectangle *rect);
@@ -142,6 +160,7 @@ gboolean meta_rectangle_overlaps_with_region (
 /* Make the rectangle small enough to fit into one of the spanning_rects,
  * but make it no smaller than min_size.
  */
+META_EXPORT_TEST
 void     meta_rectangle_clamp_to_fit_into_region (
                                          const GList         *spanning_rects,
                                          FixedDirections      fixed_directions,
@@ -151,6 +170,7 @@ void     meta_rectangle_clamp_to_fit_into_region (
 /* Clip the rectangle so that it fits into one of the spanning_rects, assuming
  * it overlaps with at least one of them
  */
+META_EXPORT_TEST
 void     meta_rectangle_clip_to_region  (const GList         *spanning_rects,
                                          FixedDirections      fixed_directions,
                                          MetaRectangle       *rect);
@@ -158,6 +178,7 @@ void     meta_rectangle_clip_to_region  (const GList         *spanning_rects,
 /* Shove the rectangle into one of the spanning_rects, assuming it fits in
  * one of them.
  */
+META_EXPORT_TEST
 void     meta_rectangle_shove_into_region(
                                          const GList         *spanning_rects,
                                          FixedDirections      fixed_directions,
@@ -167,6 +188,7 @@ void     meta_rectangle_shove_into_region(
  * to (px, py).  Useful for finding an optimal rectangle size when given a
  * range between two sizes that are all candidates.
  */
+META_EXPORT_TEST
 void meta_rectangle_find_linepoint_closest_to_point (double x1,    double y1,
                                                      double x2,    double y2,
                                                      double px,    double py,
@@ -181,18 +203,21 @@ void meta_rectangle_find_linepoint_closest_to_point (double x1,    double y1,
 /* Return whether an edge overlaps or is adjacent to the rectangle in the
  * nonzero-width dimension of the edge.
  */
+META_EXPORT_TEST
 gboolean meta_rectangle_edge_aligns (const MetaRectangle *rect,
                                      const MetaEdge      *edge);
 
 /* Compare two edges, so that sorting functions can put a list of edges in
  * canonical order.
  */
+META_EXPORT_TEST
 gint   meta_rectangle_edge_cmp (gconstpointer a, gconstpointer b);
 
 /* Compare two edges, so that sorting functions can put a list of edges in
  * order.  This function doesn't separate left edges first, then right edges,
  * etc., but rather compares only upon location.
  */
+META_EXPORT_TEST
 gint   meta_rectangle_edge_cmp_ignore_type (gconstpointer a, gconstpointer b);
 
 /* Removes an parts of edges in the given list that intersect any box in the
@@ -205,18 +230,27 @@ GList* meta_rectangle_remove_intersections_with_boxes_from_edges (
 /* Finds all the edges of an onscreen region, returning a GList* of
  * MetaEdgeRect's.
  */
+META_EXPORT_TEST
 GList* meta_rectangle_find_onscreen_edges (const MetaRectangle *basic_rect,
                                            const GSList        *all_struts);
 
 /* Finds edges between adjacent monitors which are not covered by the given
  * struts.
  */
+META_EXPORT_TEST
 GList* meta_rectangle_find_nonintersected_monitor_edges (
                                            const GList         *monitor_rects,
                                            const GSList        *all_struts);
 
+META_EXPORT_TEST
 gboolean meta_rectangle_is_adjecent_to (MetaRectangle *rect,
                                         MetaRectangle *other);
+
+META_EXPORT_TEST
+void meta_rectangle_scale_double (const MetaRectangle  *rect,
+                                  double                scale,
+                                  MetaRoundingStrategy  rounding_strategy,
+                                  MetaRectangle        *dest);
 
 static inline ClutterRect
 meta_rectangle_to_clutter_rect (MetaRectangle *rect)
@@ -232,5 +266,18 @@ meta_rectangle_to_clutter_rect (MetaRectangle *rect)
     }
   };
 }
+
+META_EXPORT_TEST
+void meta_rectangle_transform (const MetaRectangle  *rect,
+                               MetaMonitorTransform  transform,
+                               int                   width,
+                               int                   height,
+                               MetaRectangle        *dest);
+
+void meta_rectangle_crop_and_scale (const MetaRectangle *rect,
+                                    ClutterRect         *src_rect,
+                                    int                  dst_width,
+                                    int                  dst_height,
+                                    MetaRectangle       *dest);
 
 #endif /* META_BOXES_PRIVATE_H */

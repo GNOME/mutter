@@ -22,15 +22,15 @@
  * @short_description: Create and cache shadow textures for abritrary window shapes
  */
 
-#include <config.h>
+#include "config.h"
+
 #include <math.h>
 #include <string.h>
 
-#include <meta/meta-shadow-factory.h>
-#include <meta/util.h>
-
-#include "cogl-utils.h"
-#include "region-utils.h"
+#include "compositor/cogl-utils.h"
+#include "compositor/region-utils.h"
+#include "meta/meta-shadow-factory.h"
+#include "meta/util.h"
 
 /* This file implements blurring the shape of a window to produce a
  * shadow texture. The details are discussed below; a quick summary
@@ -104,11 +104,6 @@ struct _MetaShadowFactory
 
   /* class name => MetaShadowClassInfo */
   GHashTable *shadow_classes;
-};
-
-struct _MetaShadowFactoryClass
-{
-  GObjectClass parent_class;
 };
 
 enum
@@ -203,14 +198,15 @@ meta_shadow_unref (MetaShadow *shadow)
  * size needs to be passed in here.)
  */
 void
-meta_shadow_paint (MetaShadow     *shadow,
-                   int             window_x,
-                   int             window_y,
-                   int             window_width,
-                   int             window_height,
-                   guint8          opacity,
-                   cairo_region_t *clip,
-                   gboolean        clip_strictly)
+meta_shadow_paint (MetaShadow      *shadow,
+                   CoglFramebuffer *framebuffer,
+                   int              window_x,
+                   int              window_y,
+                   int              window_width,
+                   int              window_height,
+                   guint8           opacity,
+                   cairo_region_t  *clip,
+                   gboolean         clip_strictly)
 {
   float texture_width = cogl_texture_get_width (shadow->texture);
   float texture_height = cogl_texture_get_height (shadow->texture);
@@ -220,11 +216,7 @@ meta_shadow_paint (MetaShadow     *shadow,
   int dest_x[4];
   int dest_y[4];
   int n_x, n_y;
-
-  cogl_pipeline_set_color4ub (shadow->pipeline,
-                              opacity, opacity, opacity, opacity);
-
-  cogl_set_source (shadow->pipeline);
+  gboolean source_updated = FALSE;
 
   if (shadow->scale_width)
     {
@@ -300,6 +292,17 @@ meta_shadow_paint (MetaShadow     *shadow,
           else
             overlap = CAIRO_REGION_OVERLAP_IN;
 
+          if (overlap == CAIRO_REGION_OVERLAP_OUT)
+            continue;
+
+          if (!source_updated)
+            {
+              cogl_pipeline_set_color4ub (shadow->pipeline,
+                                          opacity, opacity, opacity, opacity);
+              cogl_set_source (shadow->pipeline);
+              source_updated = TRUE;
+            }
+
           /* There's quite a bit of overhead from allocating a new
            * region in order to find an exact intersection and
            * generating more geometry - we make the assumption that
@@ -309,10 +312,12 @@ meta_shadow_paint (MetaShadow     *shadow,
           if (overlap == CAIRO_REGION_OVERLAP_IN ||
               (overlap == CAIRO_REGION_OVERLAP_PART && !clip_strictly))
             {
-              cogl_rectangle_with_texture_coords (dest_x[i], dest_y[j],
-                                                  dest_x[i + 1], dest_y[j + 1],
-                                                  src_x[i], src_y[j],
-                                                  src_x[i + 1], src_y[j + 1]);
+              cogl_framebuffer_draw_textured_rectangle (framebuffer,
+                                                        shadow->pipeline,
+                                                        dest_x[i], dest_y[j],
+                                                        dest_x[i + 1], dest_y[j + 1],
+                                                        src_x[i], src_y[j],
+                                                        src_x[i + 1], src_y[j + 1]);
             }
           else if (overlap == CAIRO_REGION_OVERLAP_PART)
             {
@@ -343,9 +348,11 @@ meta_shadow_paint (MetaShadow     *shadow,
                   src_y2 = (src_y[j] * (dest_rect.y + dest_rect.height - (rect.y + rect.height)) +
                             src_y[j + 1] * (rect.y + rect.height - dest_rect.y)) / dest_rect.height;
 
-                  cogl_rectangle_with_texture_coords (rect.x, rect.y,
-                                                      rect.x + rect.width, rect.y + rect.height,
-                                                      src_x1, src_y1, src_x2, src_y2);
+                  cogl_framebuffer_draw_textured_rectangle (framebuffer,
+                                                            shadow->pipeline,
+                                                            rect.x, rect.y,
+                                                            rect.x + rect.width, rect.y + rect.height,
+                                                            src_x1, src_y1, src_x2, src_y2);
                 }
 
               cairo_region_destroy (intersection);

@@ -32,21 +32,19 @@
 #ifndef META_WINDOW_PRIVATE_H
 #define META_WINDOW_PRIVATE_H
 
-#include <config.h>
-#include <meta/compositor.h>
-#include <meta/window.h>
-#include <meta/meta-close-dialog.h>
-#include "backends/meta-logical-monitor.h"
-#include <meta/util.h>
-#include "stack.h"
 #include <X11/Xutil.h>
 #include <cairo.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
-#include <clutter/clutter.h>
 
-#include "x11/group-private.h"
-
+#include "backends/meta-logical-monitor.h"
+#include "clutter/clutter.h"
+#include "core/stack.h"
+#include "meta/compositor.h"
+#include "meta/meta-close-dialog.h"
+#include "meta/util.h"
+#include "meta/window.h"
 #include "wayland/meta-wayland-types.h"
+#include "x11/group-private.h"
 
 typedef struct _MetaWindowQueue MetaWindowQueue;
 
@@ -153,6 +151,7 @@ struct _MetaWindow
   GObject parent_instance;
 
   MetaDisplay *display;
+  uint64_t id;
   guint64 stamp;
   MetaLogicalMonitor *monitor;
   MetaWorkspace *workspace;
@@ -191,7 +190,6 @@ struct _MetaWindow
   char *gtk_app_menu_object_path;
   char *gtk_menubar_object_path;
 
-  int hide_titlebar_when_maximized;
   int net_wm_pid;
 
   Window xtransient_for;
@@ -218,21 +216,23 @@ struct _MetaWindow
   guint minimize_after_placement : 1;
 
   /* The current tile mode */
-  guint tile_mode : 2;
+  MetaTileMode tile_mode;
+
   /* The last "full" maximized/unmaximized state. We need to keep track of
    * that to toggle between normal/tiled or maximized/tiled states. */
   guint saved_maximize : 1;
   int tile_monitor_number;
 
-  /* 0 - top
-   * 1 - right
-   * 2 - bottom
-   * 3 - left */
-  MetaEdgeConstraint edge_constraints[4];
+  struct {
+    MetaEdgeConstraint top;
+    MetaEdgeConstraint right;
+    MetaEdgeConstraint bottom;
+    MetaEdgeConstraint left;
+  } edge_constraints;
 
   double tile_hfraction;
 
-  int preferred_output_winsys_id;
+  uint64_t preferred_output_winsys_id;
 
   /* Whether we're shaded */
   guint shaded : 1;

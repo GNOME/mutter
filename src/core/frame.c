@@ -21,12 +21,14 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
-#include "frame.h"
-#include "bell.h"
-#include <meta/meta-x11-errors.h>
-#include "keybindings-private.h"
+#include "config.h"
+
+#include "core/frame.h"
+
 #include "backends/x11/meta-backend-x11.h"
+#include "core/bell.h"
+#include "core/keybindings-private.h"
+#include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
 
 #define EVENT_MASK (SubstructureRedirectMask |                     \
@@ -249,10 +251,6 @@ meta_frame_get_flags (MetaFrame *frame)
   else
     {
       flags |= META_FRAME_ALLOWS_MENU;
-
-      if (meta_prefs_get_show_fallback_app_menu () &&
-          frame->window->gtk_app_menu_object_path)
-        flags |= META_FRAME_ALLOWS_APPMENU;
 
       if (frame->window->has_close_func)
         flags |= META_FRAME_ALLOWS_DELETE;

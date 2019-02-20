@@ -25,17 +25,12 @@
 #ifndef __META_CULLABLE_H__
 #define __META_CULLABLE_H__
 
-#include <clutter/clutter.h>
+#include "clutter/clutter.h"
 
 G_BEGIN_DECLS
 
-#define META_TYPE_CULLABLE             (meta_cullable_get_type ())
-#define META_CULLABLE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_CULLABLE, MetaCullable))
-#define META_IS_CULLABLE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_CULLABLE))
-#define META_CULLABLE_GET_IFACE(obj)   (G_TYPE_INSTANCE_GET_INTERFACE ((obj),  META_TYPE_CULLABLE, MetaCullableInterface))
-
-typedef struct _MetaCullable MetaCullable;
-typedef struct _MetaCullableInterface MetaCullableInterface;
+#define META_TYPE_CULLABLE (meta_cullable_get_type ())
+G_DECLARE_INTERFACE (MetaCullable, meta_cullable, META, CULLABLE, ClutterActor)
 
 struct _MetaCullableInterface
 {
@@ -46,8 +41,6 @@ struct _MetaCullableInterface
                           cairo_region_t *clip_region);
   void (* reset_culling) (MetaCullable  *cullable);
 };
-
-GType meta_cullable_get_type (void);
 
 void meta_cullable_cull_out (MetaCullable   *cullable,
                              cairo_region_t *unobscured_region,

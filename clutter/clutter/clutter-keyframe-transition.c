@@ -62,9 +62,7 @@
  * #ClutterKeyframeTransition is available since Clutter 1.12.
  */
 
-#ifdef HAVE_CONFIG_H
 #include "clutter-build-config.h"
-#endif
 
 #include "clutter-keyframe-transition.h"
 
@@ -121,7 +119,7 @@ sort_by_key (gconstpointer a,
   if (fabs (k_a->key - k_b->key) < 0.0001)
     return 0;
 
-  if (k_a->key > k_a->key)
+  if (k_a->key > k_b->key)
     return 1;
 
   return -1;

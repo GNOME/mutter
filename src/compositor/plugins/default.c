@@ -19,20 +19,21 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#include "config.h"
 
-#include <meta/display.h>
-#include <meta/meta-plugin.h>
-#include <meta/window.h>
-#include <meta/meta-background-group.h>
-#include <meta/meta-background-actor.h>
-#include <meta/meta-monitor-manager.h>
-#include <meta/util.h>
+#include "meta/display.h"
+
 #include <glib/gi18n-lib.h>
-
-#include <clutter/clutter.h>
 #include <gmodule.h>
 #include <string.h>
+
+#include "clutter/clutter.h"
+#include "meta/meta-background-actor.h"
+#include "meta/meta-background-group.h"
+#include "meta/meta-monitor-manager.h"
+#include "meta/meta-plugin.h"
+#include "meta/util.h"
+#include "meta/window.h"
 
 #define DESTROY_TIMEOUT   100
 #define MINIMIZE_TIMEOUT  250

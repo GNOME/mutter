@@ -19,14 +19,13 @@
 
 #include "config.h"
 
+#include <glib.h>
+#include <glib/gi18n-lib.h>
 #include <stdlib.h>
 
-#include <meta/main.h>
-#include <meta/util.h>
-#include <glib/gi18n-lib.h>
-#include "meta-plugin-manager.h"
-
-#include <glib.h>
+#include "compositor/meta-plugin-manager.h"
+#include "meta/main.h"
+#include "meta/util.h"
 
 static gboolean
 print_version (const gchar    *option_name,
@@ -44,7 +43,7 @@ print_version (const gchar    *option_name,
   exit (0);
 }
 
-static const char *plugin = "default";
+static const char *plugin = "libdefault";
 
 GOptionEntry mutter_options[] = {
   {

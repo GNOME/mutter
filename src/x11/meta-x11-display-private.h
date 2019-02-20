@@ -33,6 +33,7 @@
 #include "meta/common.h"
 #include "meta/types.h"
 #include "meta/meta-x11-display.h"
+#include "meta-startup-notification-x11.h"
 #include "ui/ui.h"
 
 typedef struct _MetaGroupPropHooks  MetaGroupPropHooks;
@@ -147,12 +148,10 @@ struct _MetaX11Display
   unsigned int have_damage : 1;
 #define META_X11_DISPLAY_HAS_COMPOSITE(x11_display) ((x11_display)->have_composite)
 #define META_X11_DISPLAY_HAS_DAMAGE(x11_display) ((x11_display)->have_damage)
-#ifdef HAVE_XI23
   gboolean have_xinput_23 : 1;
 #define META_X11_DISPLAY_HAS_XINPUT_23(x11_display) ((x11_display)->have_xinput_23)
-#else
-#define META_X11_DISPLAY_HAS_XINPUT_23(x11_display) FALSE
-#endif /* HAVE_XI23 */
+
+  MetaX11StartupNotification *startup_notification;
 };
 
 MetaX11Display *meta_x11_display_new (MetaDisplay *display, GError **error);
@@ -182,11 +181,10 @@ void        meta_x11_display_register_sync_alarm   (MetaX11Display *x11_display,
 void        meta_x11_display_unregister_sync_alarm (MetaX11Display *x11_display,
                                                     XSyncAlarm      alarm);
 
-#ifdef HAVE_XI23
 gboolean meta_x11_display_process_barrier_xevent (MetaX11Display *x11_display,
                                                   XIEvent        *event);
-#endif /* HAVE_XI23 */
 
+META_EXPORT
 void meta_x11_display_set_alarm_filter (MetaX11Display *x11_display,
                                         MetaAlarmFilter filter,
                                         gpointer        data);

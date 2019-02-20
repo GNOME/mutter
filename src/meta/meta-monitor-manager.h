@@ -36,25 +36,30 @@ typedef enum
 typedef struct _MetaMonitorManagerClass    MetaMonitorManagerClass;
 typedef struct _MetaMonitorManager         MetaMonitorManager;
 
+META_EXPORT
 GType meta_monitor_manager_get_type (void);
 
+META_EXPORT
 MetaMonitorManager *meta_monitor_manager_get  (void);
 
+META_EXPORT
 gint meta_monitor_manager_get_monitor_for_connector (MetaMonitorManager *manager,
                                                      const char         *connector);
 
+META_EXPORT
 gboolean meta_monitor_manager_get_is_builtin_display_on (MetaMonitorManager *manager);
 
+META_EXPORT
 void meta_monitor_manager_switch_config (MetaMonitorManager          *manager,
                                          MetaMonitorSwitchConfigType  config_type);
 
+META_EXPORT
 gboolean meta_monitor_manager_can_switch_config (MetaMonitorManager *manager);
 
+META_EXPORT
 MetaMonitorSwitchConfigType meta_monitor_manager_get_switch_config (MetaMonitorManager *manager);
 
+META_EXPORT
 gint meta_monitor_manager_get_display_configuration_timeout (void);
-
-/* Re-declaration of parent type for introspection */
-GType meta_dbus_display_config_skeleton_get_type (void) G_GNUC_CONST;
 
 #endif /* META_MONITOR_MANAGER_H */

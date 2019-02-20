@@ -28,9 +28,15 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "boxes-private.h"
-#include <meta/util.h>
-#include <X11/Xutil.h>  /* Just for the definition of the various gravities */
+#include "config.h"
+
+#include "backends/meta-monitor-transform.h"
+#include "core/boxes-private.h"
+
+#include <math.h>
+#include <X11/Xutil.h>
+
+#include "meta/util.h"
 
 /* It would make sense to use GSlice here, but until we clean up the
  * rest of this file and the internal API to use these functions, we
@@ -437,8 +443,8 @@ merge_spanning_rects_in_region (GList *region)
 
   if (region == NULL)
     {
-      meta_warning ("Region to merge was empty!  Either you have a some "
-                    "pathological STRUT list or there's a bug somewhere!\n");
+      g_warning ("Region to merge was empty!  Either you have a some "
+                 "pathological STRUT list or there's a bug somewhere!\n");
       return NULL;
     }
 
@@ -961,7 +967,7 @@ meta_rectangle_clamp_to_fit_into_region (const GList         *spanning_rects,
   /* Clamp rect appropriately */
   if (best_rect == NULL)
     {
-      meta_warning ("No rect whose size to clamp to found!\n");
+      g_warning ("No rect whose size to clamp to found!\n");
 
       /* If it doesn't fit, at least make it no bigger than it has to be */
       if (!(fixed_directions & FIXED_DIRECTION_X))
@@ -1024,7 +1030,9 @@ meta_rectangle_clip_to_region (const GList         *spanning_rects,
 
   /* Clip rect appropriately */
   if (best_rect == NULL)
-    meta_warning ("No rect to clip to found!\n");
+    {
+      g_warning ("No rect to clip to found!\n");
+    }
   else
     {
       /* Extra precaution with checking fixed direction shouldn't be needed
@@ -1120,7 +1128,9 @@ meta_rectangle_shove_into_region (const GList         *spanning_rects,
 
   /* Shove rect appropriately */
   if (best_rect == NULL)
-    meta_warning ("No rect to shove into found!\n");
+    {
+      g_warning ("No rect to shove into found!\n");
+    }
   else
     {
       /* Extra precaution with checking fixed direction shouldn't be needed
@@ -1237,6 +1247,7 @@ meta_rectangle_edge_aligns (const MetaRectangle *rect, const MetaEdge *edge)
              BOX_LEFT (edge->rect) <= BOX_RIGHT (*rect);
     default:
       g_assert_not_reached ();
+      return FALSE;
     }
 }
 
@@ -2035,4 +2046,122 @@ meta_rectangle_is_adjecent_to (MetaRectangle *rect,
     return TRUE;
   else
     return FALSE;
+}
+
+void
+meta_rectangle_scale_double (const MetaRectangle  *rect,
+                             double                scale,
+                             MetaRoundingStrategy  rounding_strategy,
+                             MetaRectangle        *dest)
+{
+  switch (rounding_strategy)
+    {
+    case META_ROUNDING_STRATEGY_SHRINK:
+      *dest = (MetaRectangle) {
+        .x = (int) ceil (rect->x * scale),
+        .y = (int) ceil (rect->y * scale),
+        .width = (int) floor (rect->width * scale),
+        .height = (int) floor (rect->height * scale),
+      };
+      break;
+    case META_ROUNDING_STRATEGY_GROW:
+      *dest = (MetaRectangle) {
+        .x = (int) floor (rect->x * scale),
+        .y = (int) floor (rect->y * scale),
+        .width = (int) ceil (rect->width * scale),
+        .height = (int) ceil (rect->height * scale),
+      };
+      break;
+    }
+}
+
+void
+meta_rectangle_transform (const MetaRectangle  *rect,
+                          MetaMonitorTransform  transform,
+                          int                   width,
+                          int                   height,
+                          MetaRectangle        *dest)
+{
+  switch (transform)
+    {
+    case META_MONITOR_TRANSFORM_NORMAL:
+      *dest = (MetaRectangle) {
+        .x = rect->x,
+        .y = rect->y,
+        .width = rect->width,
+        .height = rect->height,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_90:
+      *dest = (MetaRectangle) {
+        .x = width - (rect->y + rect->height),
+        .y = rect->x,
+        .width = rect->height,
+        .height = rect->width,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_180:
+      *dest = (MetaRectangle) {
+        .x = width - (rect->x + rect->width),
+        .y = height - (rect->y + rect->height),
+        .width = rect->width,
+        .height = rect->height,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_270:
+      *dest = (MetaRectangle) {
+        .x = rect->y,
+        .y = height - (rect->x + rect->width),
+        .width = rect->height,
+        .height = rect->width,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED:
+      *dest = (MetaRectangle) {
+        .x = width - (rect->x + rect->width),
+        .y = rect->y,
+        .width = rect->width,
+        .height = rect->height,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+      *dest = (MetaRectangle) {
+        .x = width - (rect->y + rect->height),
+        .y = height - (rect->x + rect->width),
+        .width = rect->height,
+        .height = rect->width,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+      *dest = (MetaRectangle) {
+        .x = rect->x,
+        .y = height - (rect->y + rect->height),
+        .width = rect->width,
+        .height = rect->height,
+      };
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      *dest = (MetaRectangle) {
+        .x = rect->y,
+        .y = rect->x,
+        .width = rect->height,
+        .height = rect->width,
+      };
+      break;
+    }
+}
+
+void
+meta_rectangle_crop_and_scale (const MetaRectangle *rect,
+                               ClutterRect         *src_rect,
+                               int                  dst_width,
+                               int                  dst_height,
+                               MetaRectangle       *dest)
+{
+  dest->x = floorf (rect->x * (src_rect->size.width / dst_width) +
+                    src_rect->origin.x);
+  dest->y = floorf (rect->y * (src_rect->size.height / dst_height) +
+                    src_rect->origin.y);
+  dest->width  = ceilf (rect->width * (src_rect->size.width / dst_width));
+  dest->height = ceilf (rect->height * (src_rect->size.height / dst_height));
 }

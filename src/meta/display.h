@@ -27,6 +27,8 @@
 #include <meta/prefs.h>
 #include <meta/common.h>
 #include <meta/workspace.h>
+#include <meta/meta-sound-player.h>
+#include <meta/meta-startup-notification.h>
 
 /**
  * MetaTabList:
@@ -70,42 +72,59 @@ typedef struct _MetaDisplayClass MetaDisplayClass;
 #define META_IS_DISPLAY_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE ((klass), META_TYPE_DISPLAY))
 #define META_DISPLAY_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS ((obj), META_TYPE_DISPLAY, MetaDisplayClass))
 
+META_EXPORT
 GType meta_display_get_type (void) G_GNUC_CONST;
 
 #define meta_XFree(p) do { if ((p)) XFree ((p)); } while (0)
 
+META_EXPORT
 gboolean meta_display_supports_extended_barriers (MetaDisplay *display);
 
+META_EXPORT
 void meta_display_close (MetaDisplay *display,
                          guint32      timestamp);
 
+META_EXPORT
 MetaCompositor *meta_display_get_compositor  (MetaDisplay *display);
+
+META_EXPORT
 MetaX11Display *meta_display_get_x11_display (MetaDisplay *display);
 
+META_EXPORT
 MetaWindow *meta_display_get_focus_window (MetaDisplay *display);
 
+META_EXPORT
 gboolean meta_display_xserver_time_is_before (MetaDisplay *display,
                                               guint32      time1,
                                               guint32      time2);
 
+META_EXPORT
 guint32 meta_display_get_last_user_time (MetaDisplay *display);
+
+META_EXPORT
 guint32 meta_display_get_current_time (MetaDisplay *display);
+
+META_EXPORT
 guint32 meta_display_get_current_time_roundtrip (MetaDisplay *display);
 
+META_EXPORT
 GList* meta_display_get_tab_list (MetaDisplay   *display,
                                   MetaTabList    type,
                                   MetaWorkspace *workspace);
 
+META_EXPORT
 MetaWindow* meta_display_get_tab_next (MetaDisplay   *display,
                                        MetaTabList    type,
                                        MetaWorkspace *workspace,
                                        MetaWindow    *window,
                                        gboolean       backward);
 
+META_EXPORT
 MetaWindow* meta_display_get_tab_current (MetaDisplay   *display,
                                           MetaTabList    type,
                                           MetaWorkspace *workspace);
 
+META_EXPORT
 gboolean meta_display_begin_grab_op (MetaDisplay *display,
                                      MetaWindow  *window,
                                      MetaGrabOp   op,
@@ -116,11 +135,15 @@ gboolean meta_display_begin_grab_op (MetaDisplay *display,
                                      guint32      timestamp,
                                      int          root_x,
                                      int          root_y);
+
+META_EXPORT
 void     meta_display_end_grab_op   (MetaDisplay *display,
                                      guint32      timestamp);
 
+META_EXPORT
 MetaGrabOp meta_display_get_grab_op (MetaDisplay *display);
 
+META_EXPORT
 guint meta_display_add_keybinding    (MetaDisplay         *display,
                                       const char          *name,
                                       GSettings           *settings,
@@ -128,51 +151,70 @@ guint meta_display_add_keybinding    (MetaDisplay         *display,
                                       MetaKeyHandlerFunc   handler,
                                       gpointer             user_data,
                                       GDestroyNotify       free_data);
+
+META_EXPORT
 gboolean meta_display_remove_keybinding (MetaDisplay         *display,
                                          const char          *name);
 
+META_EXPORT
 guint    meta_display_grab_accelerator   (MetaDisplay *display,
                                           const char  *accelerator);
+
+META_EXPORT
 gboolean meta_display_ungrab_accelerator (MetaDisplay *display,
                                           guint        action_id);
 
+META_EXPORT
 guint meta_display_get_keybinding_action (MetaDisplay  *display,
                                           unsigned int  keycode,
                                           unsigned long mask);
 
+META_EXPORT
 GSList *meta_display_sort_windows_by_stacking (MetaDisplay *display,
                                                GSList      *windows);
 
+META_EXPORT
 void meta_display_add_ignored_crossing_serial (MetaDisplay  *display,
                                                unsigned long serial);
 
+META_EXPORT
 void meta_display_clear_mouse_mode (MetaDisplay *display);
 
+META_EXPORT
 void meta_display_freeze_keyboard (MetaDisplay *display,
                                    guint32      timestamp);
+
+META_EXPORT
 void meta_display_ungrab_keyboard (MetaDisplay *display,
                                    guint32      timestamp);
+
+META_EXPORT
 void meta_display_unfreeze_keyboard (MetaDisplay *display,
                                      guint32      timestamp);
+
+META_EXPORT
 gboolean meta_display_is_pointer_emulating_sequence (MetaDisplay          *display,
                                                      ClutterEventSequence *sequence);
 
+META_EXPORT
 void    meta_display_request_pad_osd      (MetaDisplay        *display,
                                            ClutterInputDevice *pad,
                                            gboolean            edition_mode);
+
+META_EXPORT
 gchar * meta_display_get_pad_action_label (MetaDisplay        *display,
                                            ClutterInputDevice *pad,
                                            MetaPadActionType   action_type,
                                            guint               action_number);
 
+META_EXPORT
 void meta_display_get_size (MetaDisplay *display,
                             int         *width,
                             int         *height);
 
+META_EXPORT
 void meta_display_set_cursor (MetaDisplay *display,
                               MetaCursor   cursor);
-
-GSList *meta_display_get_startup_sequences (MetaDisplay *display);
 
 /**
  * MetaDisplayDirection:
@@ -189,23 +231,34 @@ typedef enum
   META_DISPLAY_RIGHT
 } MetaDisplayDirection;
 
+META_EXPORT
 int  meta_display_get_n_monitors       (MetaDisplay   *display);
+
+META_EXPORT
 int  meta_display_get_primary_monitor  (MetaDisplay   *display);
+
+META_EXPORT
 int  meta_display_get_current_monitor  (MetaDisplay   *display);
+
+META_EXPORT
 void meta_display_get_monitor_geometry (MetaDisplay   *display,
                                         int            monitor,
                                         MetaRectangle *geometry);
 
+META_EXPORT
 gboolean meta_display_get_monitor_in_fullscreen (MetaDisplay *display,
                                                  int          monitor);
 
+META_EXPORT
 int meta_display_get_monitor_index_for_rect (MetaDisplay   *display,
                                              MetaRectangle *rect);
 
+META_EXPORT
 int meta_display_get_monitor_neighbor_index (MetaDisplay         *display,
                                              int                  which_monitor,
                                              MetaDisplayDirection dir);
 
+META_EXPORT
 void meta_display_focus_default_window (MetaDisplay *display,
                                         guint32      timestamp);
 
@@ -224,6 +277,16 @@ typedef enum
   META_DISPLAY_BOTTOMRIGHT
 } MetaDisplayCorner;
 
+META_EXPORT
 MetaWorkspaceManager *meta_display_get_workspace_manager (MetaDisplay *display);
+
+/**
+ * meta_display_get_startup_notification: (skip)
+ */
+META_EXPORT
+MetaStartupNotification * meta_display_get_startup_notification (MetaDisplay *display);
+
+META_EXPORT
+MetaSoundPlayer * meta_display_get_sound_player (MetaDisplay *display);
 
 #endif

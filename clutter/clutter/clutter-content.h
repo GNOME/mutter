@@ -86,17 +86,22 @@ struct _ClutterContentIface
                                          ClutterActor     *actor);
 
   void          (* invalidate)          (ClutterContent   *content);
+
+  void          (* invalidate_size)     (ClutterContent   *content);
 };
 
-CLUTTER_AVAILABLE_IN_1_10
+CLUTTER_EXPORT
 GType clutter_content_get_type (void) G_GNUC_CONST;
 
-CLUTTER_AVAILABLE_IN_1_10
+CLUTTER_EXPORT
 gboolean        clutter_content_get_preferred_size      (ClutterContent *content,
                                                          gfloat         *width,
                                                          gfloat         *height);
-CLUTTER_AVAILABLE_IN_1_10
+CLUTTER_EXPORT
 void            clutter_content_invalidate              (ClutterContent *content);
+
+CLUTTER_EXPORT
+void            clutter_content_invalidate_size         (ClutterContent *content);
 
 G_END_DECLS
 

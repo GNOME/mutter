@@ -22,7 +22,7 @@
 #ifndef META_GROUP_PRIVATE_H
 #define META_GROUP_PRIVATE_H
 
-#include <meta/group.h>
+#include "meta/group.h"
 
 struct _MetaGroup
 {

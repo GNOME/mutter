@@ -18,12 +18,12 @@
  *
  */
 
-#include <config.h>
+#include "config.h"
 
-#include "util-private.h"
-#include "window-private.h"
+#include "core/meta-inhibit-shortcuts-dialog-default-private.h"
+#include "core/util-private.h"
+#include "core/window-private.h"
 #include "meta/meta-inhibit-shortcuts-dialog.h"
-#include "meta-inhibit-shortcuts-dialog-default-private.h"
 
 typedef struct _MetaInhibitShortcutsDialogDefaultPrivate MetaInhibitShortcutsDialogDefaultPrivate;
 

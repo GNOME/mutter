@@ -39,7 +39,8 @@ typedef enum {
   CLUTTER_DEBUG_DISABLE_CULLING         = 1 << 4,
   CLUTTER_DEBUG_DISABLE_OFFSCREEN_REDIRECT = 1 << 5,
   CLUTTER_DEBUG_CONTINUOUS_REDRAW       = 1 << 6,
-  CLUTTER_DEBUG_PAINT_DEFORM_TILES      = 1 << 7
+  CLUTTER_DEBUG_PAINT_DEFORM_TILES      = 1 << 7,
+  CLUTTER_DEBUG_PAINT_DAMAGE_REGION     = 1 << 8,
 } ClutterDrawDebugFlag;
 
 #ifdef CLUTTER_ENABLE_DEBUG
@@ -79,9 +80,9 @@ extern guint clutter_pick_debug_flags;
 extern guint clutter_paint_debug_flags;
 
 void    _clutter_debug_messagev         (const char *format,
-                                         va_list     var_args);
+                                         va_list     var_args) G_GNUC_PRINTF (1, 0);
 void    _clutter_debug_message          (const char *format,
-                                         ...);
+                                         ...) G_GNUC_PRINTF (1, 2);
 
 G_END_DECLS
 

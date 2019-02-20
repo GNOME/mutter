@@ -2,6 +2,12 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
 
+gint
+test_texture_quality_main (int argc, char *argv[]);
+
+const char *
+test_texture_quality_describe (void);
+
 /* each time the timeline animating the label completes, swap the direction */
 static void
 timeline_completed (ClutterTimeline *timeline,

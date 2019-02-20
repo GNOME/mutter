@@ -23,11 +23,14 @@
 
 #include "config.h"
 
+#include "wayland/meta-wayland-pointer-gestures.h"
+
 #include <glib.h>
-#include "meta-wayland-pointer-gestures.h"
+
+#include "wayland/meta-wayland-versions.h"
+#include "wayland/meta-wayland-private.h"
+
 #include "pointer-gestures-unstable-v1-server-protocol.h"
-#include "meta-wayland-versions.h"
-#include "meta-wayland-private.h"
 
 static void
 gestures_get_swipe (struct wl_client   *client,

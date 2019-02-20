@@ -22,8 +22,9 @@
 #ifndef META_PLUGIN_MANAGER_H_
 #define META_PLUGIN_MANAGER_H_
 
-#include <meta/types.h>
-#include <meta/meta-plugin.h>
+#include "core/util-private.h"
+#include "meta/meta-plugin.h"
+#include "meta/types.h"
 
 typedef enum {
   META_PLUGIN_NONE,
@@ -43,6 +44,7 @@ typedef struct MetaPluginManager MetaPluginManager;
 
 MetaPluginManager * meta_plugin_manager_new (MetaCompositor *compositor);
 
+META_EXPORT_TEST
 void     meta_plugin_manager_load         (const gchar       *plugin_name);
 
 gboolean meta_plugin_manager_event_simple (MetaPluginManager *mgr,

@@ -37,6 +37,7 @@
 
 #include "config.h"
 
+#include <drm_fourcc.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <gbm.h>
@@ -47,26 +48,31 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <xf86drm.h>
-#include <drm_fourcc.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"
-#include "backends/meta-gles3.h"
-#include "backends/meta-egl.h"
 #include "backends/meta-egl-ext.h"
+#include "backends/meta-egl.h"
+#include "backends/meta-gles3.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-output.h"
 #include "backends/meta-renderer-view.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-monitor-manager-kms.h"
-#include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-renderer-native-gles3.h"
+#include "backends/native/meta-renderer-native.h"
+#include "meta-marshal.h"
 #include "cogl/cogl.h"
 #include "core/boxes-private.h"
 
 #ifndef EGL_DRM_MASTER_FD_EXT
 #define EGL_DRM_MASTER_FD_EXT 0x333C
+#endif
+
+/* added in libdrm 2.4.95 */
+#ifndef DRM_FORMAT_INVALID
+#define DRM_FORMAT_INVALID 0
 #endif
 
 enum
@@ -111,6 +117,7 @@ typedef struct _MetaRendererNativeGpuData
    */
   struct {
     MetaSharedFramebufferCopyMode copy_mode;
+    gboolean is_hardware_rendering;
 
     /* For GPU blit mode */
     EGLContext egl_context;
@@ -127,6 +134,7 @@ typedef struct _MetaDumbBuffer
   int width;
   int height;
   int stride_bytes;
+  uint32_t drm_format;
 } MetaDumbBuffer;
 
 typedef struct _MetaOnscreenNativeSecondaryGpuState
@@ -193,6 +201,7 @@ struct _MetaRendererNative
   MetaRenderer parent;
 
   MetaMonitorManagerKms *monitor_manager_kms;
+  MetaGpuKms *primary_gpu_kms;
   MetaGles3 *gles3;
 
   gboolean use_modifiers;
@@ -239,6 +248,11 @@ free_current_secondary_bo (MetaGpuKms                          *gpu_kms,
 static void
 free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
                         MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state);
+
+static gboolean
+cogl_pixel_format_from_drm_format (uint32_t               drm_format,
+                                   CoglPixelFormat       *out_format,
+                                   CoglTextureComponents *out_components);
 
 static void
 meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data)
@@ -555,6 +569,72 @@ get_supported_modifiers (CoglOnscreen *onscreen,
   return modifiers;
 }
 
+typedef struct _GetSupportedKmsFormatsData
+{
+  GArray *formats;
+  MetaGpu *gpu;
+} GetSupportedKmsFormatsData;
+
+static void
+get_supported_kms_formats_crtc_func (MetaLogicalMonitor *logical_monitor,
+                                     MetaCrtc           *crtc,
+                                     gpointer            user_data)
+{
+  GetSupportedKmsFormatsData *data = user_data;
+  gboolean supported = TRUE;
+  unsigned int i;
+
+  if (crtc->gpu != data->gpu)
+    return;
+
+  if (!data->formats)
+    {
+      /* MetaCrtcKms guarantees a non-empty list. */
+      data->formats = meta_crtc_kms_copy_drm_format_list (crtc);
+
+      return;
+    }
+
+  /* formats must be supported by all other CRTCs too */
+  for (i = 0; i < data->formats->len; i++)
+    {
+      uint32_t drm_format = g_array_index (data->formats, uint32_t, i);
+
+      if (!meta_crtc_kms_supports_format (crtc, drm_format))
+        {
+          supported = FALSE;
+          break;
+        }
+    }
+
+  if (!supported)
+    g_array_remove_index_fast (data->formats, i--);
+}
+
+static GArray *
+get_supported_kms_formats (CoglOnscreen *onscreen,
+                           MetaGpu      *gpu)
+{
+  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+  MetaLogicalMonitor *logical_monitor = onscreen_native->logical_monitor;
+  GetSupportedKmsFormatsData data = {
+    .formats = NULL,
+    .gpu = gpu
+  };
+
+  meta_logical_monitor_foreach_crtc (logical_monitor,
+                                     get_supported_kms_formats_crtc_func,
+                                     &data);
+  if (data.formats->len == 0)
+    {
+      g_array_free (data.formats, TRUE);
+      data.formats = NULL;
+    }
+
+  return data.formats;
+}
+
 static gboolean
 init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_native,
                                         CoglOnscreen               *onscreen,
@@ -647,6 +727,68 @@ secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_sta
   g_free (secondary_gpu_state);
 }
 
+static uint32_t
+pick_secondary_gpu_framebuffer_format_for_cpu (CoglOnscreen *onscreen,
+                                               MetaGpu      *gpu)
+{
+  /*
+   * cogl_framebuffer_read_pixels_into_bitmap () supported formats in
+   * preference order. Ideally these should depend on the render buffer
+   * format copy_shared_framebuffer_cpu () will be reading from but
+   * alpha channel ignored.
+   */
+  static const uint32_t preferred_formats[] =
+    {
+      /*
+       * DRM_FORMAT_XBGR8888 a.k.a GL_RGBA, GL_UNSIGNED_BYTE on
+       * little-endian is possibly the most optimized glReadPixels
+       * output format. glReadPixels cannot avoid manufacturing an alpha
+       * channel if the render buffer does not have one and converting
+       * to ABGR8888 may be more optimized than ARGB8888.
+       */
+      DRM_FORMAT_XBGR8888,
+      /* The rest are other fairly commonly used formats in OpenGL. */
+      DRM_FORMAT_XRGB8888,
+    };
+  g_autoptr (GArray) formats;
+  size_t k;
+  unsigned int i;
+  uint32_t drm_format;
+
+  formats = get_supported_kms_formats (onscreen, gpu);
+
+  /* Check if any of our preferred formats are supported. */
+  for (k = 0; k < G_N_ELEMENTS (preferred_formats); k++)
+    {
+      g_assert (cogl_pixel_format_from_drm_format (preferred_formats[k],
+                                                   NULL,
+                                                   NULL));
+
+      for (i = 0; i < formats->len; i++)
+        {
+          drm_format = g_array_index (formats, uint32_t, i);
+
+          if (drm_format == preferred_formats[k])
+            return drm_format;
+        }
+    }
+
+  /*
+   * Otherwise just pick an arbitrary format we recognize. The formats
+   * list is not in any specific order and we don't know any better
+   * either.
+   */
+  for (i = 0; i < formats->len; i++)
+    {
+      drm_format = g_array_index (formats, uint32_t, i);
+
+      if (cogl_pixel_format_from_drm_format (drm_format, NULL, NULL))
+        return drm_format;
+    }
+
+  return DRM_FORMAT_INVALID;
+}
+
 static gboolean
 init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_native,
                                         CoglOnscreen               *onscreen,
@@ -660,9 +802,26 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
   int width, height;
   unsigned int i;
+  uint32_t drm_format;
+  MetaDrmFormatBuf tmp;
+
+  drm_format = pick_secondary_gpu_framebuffer_format_for_cpu (onscreen,
+                                                              META_GPU (gpu_kms));
+  if (drm_format == DRM_FORMAT_INVALID)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Could not find a suitable pixel format in CPU copy mode");
+      return FALSE;
+    }
 
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
+
+  g_debug ("Secondary GPU %s using DRM format '%s' (0x%x) for a %dx%d output.",
+           meta_gpu_kms_get_file_path (gpu_kms),
+           meta_drm_format_to_string (&tmp, drm_format),
+           drm_format,
+           width, height);
 
   secondary_gpu_state = g_new0 (MetaOnscreenNativeSecondaryGpuState, 1);
   secondary_gpu_state->renderer_gpu_data = renderer_gpu_data;
@@ -676,7 +835,7 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
       if (!init_dumb_fb (dumb_fb,
                          gpu_kms,
                          width, height,
-                         GBM_FORMAT_XBGR8888,
+                         drm_format,
                          error))
         {
           secondary_gpu_state_free (secondary_gpu_state);
@@ -1159,6 +1318,8 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
 static void
 on_crtc_flipped (GClosure         *closure,
                  MetaGpuKms       *gpu_kms,
+                 MetaCrtc         *crtc,
+                 int64_t           page_flip_time_ns,
                  MetaRendererView *view)
 {
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
@@ -1169,6 +1330,24 @@ on_crtc_flipped (GClosure         *closure,
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
+  CoglFrameInfo *frame_info;
+  float refresh_rate;
+
+  frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
+  refresh_rate = crtc && crtc->current_mode ?
+                 crtc->current_mode->refresh_rate :
+                 0.0f;
+
+  /* Only keep the frame info for the fastest CRTC in use, which may not be
+   * the first one to complete a flip. By only telling the compositor about the
+   * fastest monitor(s) we direct it to produce new frames fast enough to
+   * satisfy all monitors.
+   */
+  if (refresh_rate >= frame_info->refresh_rate)
+    {
+      frame_info->presentation_time = page_flip_time_ns;
+      frame_info->refresh_rate = refresh_rate;
+    }
 
   if (gpu_kms != render_gpu)
     {
@@ -1299,7 +1478,9 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
     return FALSE;
 
   closure_container =
-    meta_gpu_kms_wrap_flip_closure (onscreen_native->render_gpu, flip_closure);
+    meta_gpu_kms_wrap_flip_closure (onscreen_native->render_gpu,
+                                    NULL,
+                                    flip_closure);
 
   acquire_attribs = (EGLAttrib[]) {
     EGL_DRM_FLIP_EVENT_DATA_NV,
@@ -1542,7 +1723,7 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   flip_closure = g_cclosure_new (G_CALLBACK (on_crtc_flipped),
                                  g_object_ref (view),
                                  (GClosureNotify) flip_closure_destroyed);
-  g_closure_set_marshal (flip_closure, g_cclosure_marshal_VOID__OBJECT);
+  g_closure_set_marshal (flip_closure, meta_marshal_VOID__OBJECT_OBJECT_INT64);
 
   /* Either flip the CRTC's of the monitor info, if we are drawing just part
    * of the stage, or all of the CRTC's if we are drawing the whole stage.
@@ -1775,22 +1956,82 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
                       &secondary_gpu_state->gbm.next_fb_id);
 }
 
+typedef struct _PixelFormatMap {
+  uint32_t drm_format;
+  CoglPixelFormat cogl_format;
+  CoglTextureComponents cogl_components;
+} PixelFormatMap;
+
+static const PixelFormatMap pixel_format_map[] = {
+/* DRM formats are defined as little-endian, not machine endian. */
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+  { DRM_FORMAT_RGB565,   COGL_PIXEL_FORMAT_RGB_565,       COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_ABGR8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_XBGR8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_ARGB8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_XRGB8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_BGRA8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_BGRX8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_RGBA8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_RGBX8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+#elif G_BYTE_ORDER == G_BIG_ENDIAN
+  /* DRM_FORMAT_RGB565 cannot be expressed. */
+  { DRM_FORMAT_ABGR8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_XBGR8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_ARGB8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_XRGB8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_BGRA8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_BGRX8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+  { DRM_FORMAT_RGBA8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
+  { DRM_FORMAT_RGBX8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
+#else
+#error "unexpected G_BYTE_ORDER"
+#endif
+};
+
+static gboolean
+cogl_pixel_format_from_drm_format (uint32_t               drm_format,
+                                   CoglPixelFormat       *out_format,
+                                   CoglTextureComponents *out_components)
+{
+  const size_t n = G_N_ELEMENTS (pixel_format_map);
+  size_t i;
+
+  for (i = 0; i < n; i++)
+    {
+      if (pixel_format_map[i].drm_format == drm_format)
+        break;
+    }
+
+  if (i == n)
+    return FALSE;
+
+  if (out_format)
+    *out_format = pixel_format_map[i].cogl_format;
+
+  if (out_components)
+    *out_components = pixel_format_map[i].cogl_components;
+
+  return TRUE;
+}
+
 static void
 copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
                              MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
                              MetaRendererNativeGpuData           *renderer_gpu_data)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
-  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-  MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
+  CoglContext *cogl_context = framebuffer->context;
   int width, height;
   uint8_t *target_data;
   int target_stride_bytes;
   uint32_t target_fb_id;
+  uint32_t target_drm_format;
   MetaDumbBuffer *next_dumb_fb;
   MetaDumbBuffer *current_dumb_fb;
+  CoglBitmap *dumb_bitmap;
+  CoglPixelFormat cogl_format;
+  gboolean ret;
 
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
@@ -1808,12 +2049,28 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   target_data = secondary_gpu_state->cpu.dumb_fb->map;
   target_stride_bytes = secondary_gpu_state->cpu.dumb_fb->stride_bytes;
   target_fb_id = secondary_gpu_state->cpu.dumb_fb->fb_id;
+  target_drm_format = secondary_gpu_state->cpu.dumb_fb->drm_format;
 
-  meta_renderer_native_gles3_read_pixels (egl,
-                                          renderer_native->gles3,
-                                          width, height,
-                                          target_data,
-                                          target_stride_bytes);
+  ret = cogl_pixel_format_from_drm_format (target_drm_format,
+                                           &cogl_format,
+                                           NULL);
+  g_assert (ret);
+
+  dumb_bitmap = cogl_bitmap_new_for_data (cogl_context,
+                                          width,
+                                          height,
+                                          cogl_format,
+                                          target_stride_bytes,
+                                          target_data);
+
+  if (!cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
+                                                 0 /* x */,
+                                                 0 /* y */,
+                                                 COGL_READ_PIXELS_COLOR_BUFFER,
+                                                 dumb_bitmap))
+    g_warning ("Failed to CPU-copy to a secondary GPU output");
+
+  cogl_object_unref (dumb_bitmap);
 
   secondary_gpu_state->gbm.next_fb_id = target_fb_id;
 }
@@ -1900,6 +2157,12 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   CoglFrameInfo *frame_info;
   gboolean egl_context_changed = FALSE;
 
+  /*
+   * Wait for the flip callback before continuing, as we might have started the
+   * animation earlier due to the animation being driven by some other monitor.
+   */
+  wait_for_pending_flips (onscreen);
+
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
   frame_info->global_frame_counter = renderer_native->frame_counter;
 
@@ -1908,12 +2171,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   parent_vtable->onscreen_swap_buffers_with_damage (onscreen,
                                                     rectangles,
                                                     n_rectangles);
-
-  /*
-   * Wait for the flip callback before continuing, as we might have started the
-   * animation earlier due to the animation being driven by some other monitor.
-   */
-  wait_for_pending_flips (onscreen);
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
@@ -1970,6 +2227,8 @@ meta_renderer_native_init_egl_context (CoglContext *cogl_context,
 #endif
 
   COGL_FLAGS_SET (cogl_context->features,
+                  COGL_FEATURE_ID_PRESENTATION_TIME, TRUE);
+  COGL_FLAGS_SET (cogl_context->features,
                   COGL_FEATURE_ID_SWAP_BUFFERS_EVENT, TRUE);
   /* TODO: remove this deprecated feature */
   COGL_FLAGS_SET (cogl_context->winsys_features,
@@ -1980,6 +2239,13 @@ meta_renderer_native_init_egl_context (CoglContext *cogl_context,
                   TRUE);
   COGL_FLAGS_SET (cogl_context->winsys_features,
                   COGL_WINSYS_FEATURE_MULTIPLE_ONSCREEN,
+                  TRUE);
+
+  /* COGL_WINSYS_FEATURE_SWAP_THROTTLE is always true for this renderer
+   * because we have the call to wait_for_pending_flips on every frame.
+   */
+  COGL_FLAGS_SET (cogl_context->winsys_features,
+                  COGL_WINSYS_FEATURE_SWAP_THROTTLE,
                   TRUE);
 
 #ifdef HAVE_EGL_DEVICE
@@ -2311,6 +2577,7 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
   dumb_fb->width = width;
   dumb_fb->height = height;
   dumb_fb->stride_bytes = create_arg.pitch;
+  dumb_fb->drm_format = format;
 
   return TRUE;
 
@@ -2434,7 +2701,7 @@ meta_onscreen_native_allocate (CoglOnscreen *onscreen,
       if (!init_dumb_fb (&onscreen_native->egl.dumb_fb,
                          onscreen_native->render_gpu,
                          width, height,
-                         GBM_FORMAT_XRGB8888,
+                         DRM_FORMAT_XRGB8888,
                          error))
         return FALSE;
 
@@ -2616,8 +2883,6 @@ meta_renderer_native_create_onscreen (MetaRendererNative   *renderer_native,
     }
 
   onscreen = cogl_onscreen_new (context, width, height);
-  cogl_onscreen_set_swap_throttled (onscreen,
-                                    _clutter_get_sync_to_vblank ());
 
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (onscreen), error))
     {
@@ -2687,6 +2952,15 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer,
   return fb;
 }
 
+static int64_t
+meta_renderer_native_get_clock_time (CoglContext *context)
+{
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (context);
+  MetaGpuKms *gpu_kms = cogl_renderer->custom_winsys_user_data;
+
+  return meta_gpu_kms_get_current_time_ns (gpu_kms);
+}
+
 static const CoglWinsysVtable *
 get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
 {
@@ -2715,6 +2989,8 @@ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
       vtable.onscreen_swap_buffers_with_damage =
         meta_onscreen_native_swap_buffers_with_damage;
 
+      vtable.context_get_clock_time = meta_renderer_native_get_clock_time;
+
       vtable_inited = TRUE;
     }
 
@@ -2738,12 +3014,8 @@ static CoglRenderer *
 meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-  MetaMonitorManagerKms *monitor_manager_kms =
-    renderer_native->monitor_manager_kms;
-  MetaGpuKms *primary_gpu =
-    meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
 
-  return create_cogl_renderer_for_gpu (primary_gpu);
+  return create_cogl_renderer_for_gpu (renderer_native->primary_gpu_kms);
 }
 
 static void
@@ -2787,21 +3059,70 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
     return crtc_transform;
 }
 
+static CoglContext *
+cogl_context_from_renderer_native (MetaRendererNative *renderer_native)
+{
+  MetaMonitorManager *monitor_manager =
+    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
+  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+
+  return clutter_backend_get_cogl_context (clutter_backend);
+}
+
+static gboolean
+should_force_shadow_fb (MetaRendererNative *renderer_native,
+                        MetaGpuKms         *primary_gpu)
+{
+  CoglContext *cogl_context =
+    cogl_context_from_renderer_native (renderer_native);
+  CoglGpuInfo *info = &cogl_context->gpu;
+  int kms_fd;
+  uint64_t prefer_shadow = 0;
+
+  switch (info->architecture)
+    {
+    case COGL_GPU_INFO_ARCHITECTURE_UNKNOWN:
+    case COGL_GPU_INFO_ARCHITECTURE_SANDYBRIDGE:
+    case COGL_GPU_INFO_ARCHITECTURE_SGX:
+    case COGL_GPU_INFO_ARCHITECTURE_MALI:
+      return FALSE;
+    case COGL_GPU_INFO_ARCHITECTURE_LLVMPIPE:
+    case COGL_GPU_INFO_ARCHITECTURE_SOFTPIPE:
+    case COGL_GPU_INFO_ARCHITECTURE_SWRAST:
+      break;
+    }
+
+  kms_fd = meta_gpu_kms_get_fd (primary_gpu);
+  if (drmGetCap (kms_fd, DRM_CAP_DUMB_PREFER_SHADOW, &prefer_shadow) == 0)
+    {
+      if (prefer_shadow)
+        {
+          static gboolean logged_once = FALSE;
+
+          if (!logged_once)
+            {
+              g_message ("Forcing shadow framebuffer");
+              logged_once = TRUE;
+            }
+
+          return TRUE;
+        }
+    }
+
+  return FALSE;
+}
+
 static MetaRendererView *
 meta_renderer_native_create_view (MetaRenderer       *renderer,
                                   MetaLogicalMonitor *logical_monitor)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-  MetaMonitorManagerKms *monitor_manager_kms =
-    renderer_native->monitor_manager_kms;
   MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (monitor_manager_kms);
-  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
   CoglContext *cogl_context =
-    clutter_backend_get_cogl_context (clutter_backend);
+    cogl_context_from_renderer_native (renderer_native);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
-  MetaGpuKms *primary_gpu;
   CoglDisplayEGL *cogl_display_egl;
   CoglOnscreenEGL *onscreen_egl;
   MetaMonitorTransform view_transform;
@@ -2822,9 +3143,8 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   width = roundf (logical_monitor->rect.width * scale);
   height = roundf (logical_monitor->rect.height * scale);
 
-  primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
   onscreen = meta_renderer_native_create_onscreen (renderer_native,
-                                                   primary_gpu,
+                                                   renderer_native->primary_gpu_kms,
                                                    logical_monitor,
                                                    cogl_context,
                                                    view_transform,
@@ -2834,7 +3154,9 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   if (!onscreen)
     g_error ("Failed to allocate onscreen framebuffer: %s", error->message);
 
-  if (view_transform != META_MONITOR_TRANSFORM_NORMAL)
+  if (view_transform != META_MONITOR_TRANSFORM_NORMAL ||
+      should_force_shadow_fb (renderer_native,
+                              renderer_native->primary_gpu_kms))
     {
       offscreen = meta_renderer_native_create_offscreen (renderer_native,
                                                          cogl_context,
@@ -2938,6 +3260,11 @@ meta_renderer_native_get_property (GObject    *object,
 }
 
 static void
+on_gpu_added (MetaMonitorManager *monitor_manager,
+              MetaGpuKms         *gpu_kms,
+              MetaRendererNative *renderer_native);
+
+static void
 meta_renderer_native_set_property (GObject      *object,
                                    guint         prop_id,
                                    const GValue *value,
@@ -3035,7 +3362,8 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
   EGLDisplay egl_display = renderer_gpu_data->egl_display;
   EGLConfig egl_config;
   EGLContext egl_context;
-  char **missing_gl_extensions;
+  const char **missing_gl_extensions;
+  const char *renderer_str;
 
   if (!create_secondary_egl_config (egl, renderer_gpu_data->mode, egl_display,
                                     &egl_config, error))
@@ -3058,6 +3386,17 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
       return FALSE;
     }
 
+  renderer_str = (const char *) glGetString (GL_RENDERER);
+  if (g_str_has_prefix (renderer_str, "llvmpipe") ||
+      g_str_has_prefix (renderer_str, "softpipe") ||
+      g_str_has_prefix (renderer_str, "swrast"))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Do not want to use software renderer (%s), falling back to CPU copy path",
+                   renderer_str);
+      goto out_fail_with_context;
+    }
+
   if (!meta_gles3_has_extensions (renderer_native->gles3,
                                   &missing_gl_extensions,
                                   "GL_OES_EGL_image_external",
@@ -3065,24 +3404,40 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
     {
       char *missing_gl_extensions_str;
 
-      missing_gl_extensions_str = g_strjoinv (", ", missing_gl_extensions);
+      missing_gl_extensions_str = g_strjoinv (", ",
+                                              (char **) missing_gl_extensions);
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Missing OpenGL ES extensions: %s",
                    missing_gl_extensions_str);
       g_free (missing_gl_extensions_str);
       g_free (missing_gl_extensions);
+
+      goto out_fail_with_context;
     }
 
+  renderer_gpu_data->secondary.is_hardware_rendering = TRUE;
   renderer_gpu_data->secondary.egl_context = egl_context;
   renderer_gpu_data->secondary.egl_config = egl_config;
   renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_GPU;
 
   return TRUE;
+
+out_fail_with_context:
+  meta_egl_make_current (egl,
+                         egl_display,
+                         EGL_NO_SURFACE,
+                         EGL_NO_SURFACE,
+                         EGL_NO_CONTEXT,
+                         NULL);
+  meta_egl_destroy_context (egl, egl_display, egl_context, NULL);
+
+  return FALSE;
 }
 
 static void
 init_secondary_gpu_data_cpu (MetaRendererNativeGpuData *renderer_gpu_data)
 {
+  renderer_gpu_data->secondary.is_hardware_rendering = FALSE;
   renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_CPU;
 }
 
@@ -3101,18 +3456,26 @@ init_secondary_gpu_data (MetaRendererNativeGpuData *renderer_gpu_data)
   init_secondary_gpu_data_cpu (renderer_gpu_data);
 }
 
+static gboolean
+gpu_kms_is_hardware_rendering (MetaRendererNative *renderer_native,
+                               MetaGpuKms         *gpu_kms)
+{
+  MetaRendererNativeGpuData *data;
+
+  data = meta_renderer_native_get_gpu_data (renderer_native, gpu_kms);
+  return data->secondary.is_hardware_rendering;
+}
+
 static MetaRendererNativeGpuData *
 create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
                               MetaGpuKms          *gpu_kms,
                               GError             **error)
 {
-  MetaMonitorManagerKms *monitor_manager_kms;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
   struct gbm_device *gbm_device;
   EGLDisplay egl_display;
   int kms_fd;
   MetaRendererNativeGpuData *renderer_gpu_data;
-  MetaGpuKms *primary_gpu;
 
   if (!meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
                                 "EGL_MESA_platform_gbm",
@@ -3156,10 +3519,7 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
   renderer_gpu_data->egl_display = egl_display;
 
-  monitor_manager_kms = renderer_native->monitor_manager_kms;
-  primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
-  if (gpu_kms != primary_gpu)
-    init_secondary_gpu_data (renderer_gpu_data);
+  init_secondary_gpu_data (renderer_gpu_data);
 
   return renderer_gpu_data;
 }
@@ -3192,7 +3552,7 @@ find_egl_device (MetaRendererNative  *renderer_native,
                  GError             **error)
 {
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
-  char **missing_extensions;
+  const char **missing_extensions;
   EGLint num_devices;
   EGLDeviceEXT *devices;
   const char *kms_file_path;
@@ -3207,7 +3567,7 @@ find_egl_device (MetaRendererNative  *renderer_native,
     {
       char *missing_extensions_str;
 
-      missing_extensions_str = g_strjoinv (", ", missing_extensions);
+      missing_extensions_str = g_strjoinv (", ", (char **) missing_extensions);
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "Missing EGL extensions required for EGLDevice renderer: %s",
@@ -3280,30 +3640,27 @@ get_egl_device_display (MetaRendererNative  *renderer_native,
                                         error);
 }
 
+static int
+count_drm_devices (MetaRendererNative *renderer_native)
+{
+  MetaMonitorManager *monitor_manager =
+    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
+
+  return g_list_length (meta_monitor_manager_get_gpus (monitor_manager));
+}
+
 static MetaRendererNativeGpuData *
 create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
                                      MetaGpuKms          *gpu_kms,
                                      GError             **error)
 {
-  MetaMonitorManagerKms *monitor_manager_kms =
-    renderer_native->monitor_manager_kms;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
-  MetaGpuKms *primary_gpu;
-  char **missing_extensions;
+  const char **missing_extensions;
   EGLDeviceEXT egl_device;
   EGLDisplay egl_display;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  if (!meta_is_stage_views_enabled())
-    {
-      g_set_error (error, G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "EGLDevice requires stage views enabled");
-      return NULL;
-    }
-
-  primary_gpu = meta_monitor_manager_kms_get_primary_gpu (monitor_manager_kms);
-  if (gpu_kms != primary_gpu)
+  if (count_drm_devices (renderer_native) != 1)
     {
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
@@ -3337,7 +3694,7 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
     {
       char *missing_extensions_str;
 
-      missing_extensions_str = g_strjoinv (", ", missing_extensions);
+      missing_extensions_str = g_strjoinv (", ", (char **) missing_extensions);
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "Missing EGL extensions required for EGLDevice renderer: %s",
@@ -3414,6 +3771,99 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
 }
 
 static gboolean
+create_renderer_gpu_data (MetaRendererNative  *renderer_native,
+                          MetaGpuKms          *gpu_kms,
+                          GError             **error)
+{
+  MetaRendererNativeGpuData *renderer_gpu_data;
+
+  renderer_gpu_data =
+    meta_renderer_native_create_renderer_gpu_data (renderer_native,
+                                                   gpu_kms,
+                                                   error);
+  if (!renderer_gpu_data)
+    return FALSE;
+
+  g_hash_table_insert (renderer_native->gpu_datas,
+                       gpu_kms,
+                       renderer_gpu_data);
+
+  return TRUE;
+}
+
+static void
+on_gpu_added (MetaMonitorManager *monitor_manager,
+              MetaGpuKms         *gpu_kms,
+              MetaRendererNative *renderer_native)
+{
+  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
+  GError *error = NULL;
+
+  if (!create_renderer_gpu_data (renderer_native, gpu_kms, &error))
+    {
+      g_warning ("on_gpu_added: could not create gpu_data for gpu %s: %s",
+                 meta_gpu_kms_get_file_path (gpu_kms), error->message);
+      g_clear_error (&error);
+    }
+
+  _cogl_winsys_egl_ensure_current (cogl_display);
+}
+
+static MetaGpuKms *
+choose_primary_gpu (MetaMonitorManager *manager,
+                    MetaRendererNative *renderer_native)
+{
+  GList *gpus = meta_monitor_manager_get_gpus (manager);
+  GList *l;
+  int allow_sw;
+
+  /*
+   * Check first hardware rendering devices, and if none found,
+   * then software rendering devices.
+   */
+  for (allow_sw = 0; allow_sw < 2; allow_sw++)
+  {
+    /* Prefer a platform device */
+    for (l = gpus; l; l = l->next)
+      {
+        MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
+
+        if (meta_gpu_kms_is_platform_device (gpu_kms) &&
+            (allow_sw == 1 ||
+             gpu_kms_is_hardware_rendering (renderer_native, gpu_kms)))
+          return gpu_kms;
+      }
+
+    /* Otherwise a device we booted with */
+    for (l = gpus; l; l = l->next)
+      {
+        MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
+
+        if (meta_gpu_kms_is_boot_vga (gpu_kms) &&
+            (allow_sw == 1 ||
+             gpu_kms_is_hardware_rendering (renderer_native, gpu_kms)))
+          return gpu_kms;
+      }
+
+    /* Fall back to any device */
+    for (l = gpus; l; l = l->next)
+      {
+        MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
+
+        if (allow_sw == 1 ||
+            gpu_kms_is_hardware_rendering (renderer_native, gpu_kms))
+          return gpu_kms;
+      }
+  }
+
+  g_assert_not_reached ();
+  return NULL;
+}
+
+static gboolean
 meta_renderer_native_initable_init (GInitable     *initable,
                                     GCancellable  *cancellable,
                                     GError       **error)
@@ -3430,19 +3880,13 @@ meta_renderer_native_initable_init (GInitable     *initable,
   for (l = gpus; l; l = l->next)
     {
       MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
-      MetaRendererNativeGpuData *renderer_gpu_data;
 
-      renderer_gpu_data =
-        meta_renderer_native_create_renderer_gpu_data (renderer_native,
-                                                       gpu_kms,
-                                                       error);
-      if (!renderer_gpu_data)
+      if (!create_renderer_gpu_data (renderer_native, gpu_kms, error))
         return FALSE;
-
-      g_hash_table_insert (renderer_native->gpu_datas,
-                           gpu_kms,
-                           renderer_gpu_data);
     }
+
+  renderer_native->primary_gpu_kms = choose_primary_gpu (monitor_manager,
+                                                         renderer_native);
 
   return TRUE;
 }
@@ -3476,6 +3920,9 @@ meta_renderer_native_constructed (GObject *object)
   if (meta_settings_is_experimental_feature_enabled (
         settings, META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS))
     renderer_native->use_modifiers = TRUE;
+
+  g_signal_connect (renderer_native->monitor_manager_kms, "gpu-added",
+                    G_CALLBACK (on_gpu_added), renderer_native);
 
   G_OBJECT_CLASS (meta_renderer_native_parent_class)->constructed (object);
 }

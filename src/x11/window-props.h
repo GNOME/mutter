@@ -31,7 +31,7 @@
 #ifndef META_WINDOW_PROPS_H
 #define META_WINDOW_PROPS_H
 
-#include "window-private.h"
+#include "core/window-private.h"
 
 /**
  * meta_window_reload_property_from_xwindow:

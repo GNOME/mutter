@@ -26,7 +26,7 @@
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
-#include "meta-monitor-manager-private.h"
+#include "backends/meta-monitor-manager-private.h"
 
 typedef struct _MetaGpuKms MetaGpuKms;
 
@@ -34,8 +34,6 @@ typedef struct _MetaGpuKms MetaGpuKms;
 G_DECLARE_FINAL_TYPE (MetaMonitorManagerKms, meta_monitor_manager_kms,
                       META, MONITOR_MANAGER_KMS,
                       MetaMonitorManager)
-
-MetaGpuKms * meta_monitor_manager_kms_get_primary_gpu (MetaMonitorManagerKms *manager_kms);
 
 void meta_monitor_manager_kms_pause (MetaMonitorManagerKms *manager_kms);
 

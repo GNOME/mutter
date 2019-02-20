@@ -33,9 +33,7 @@
  *  Robert Bragg   <robert@linux.intel.com>
  */
 
-#ifdef HAVE_CONFIG_H
 #include "cogl-config.h"
-#endif
 
 #include "cogl-debug.h"
 #include "cogl-private.h"
@@ -46,17 +44,17 @@
 #include "cogl-texture-2d-gl.h"
 #include "cogl-texture-2d-private.h"
 #include "cogl-texture-2d-sliced-private.h"
-#include "cogl-texture-gl-private.h"
 #include "cogl-texture-driver.h"
 #include "cogl-context-private.h"
 #include "cogl-object-private.h"
 #include "cogl-spans.h"
 #include "cogl-journal-private.h"
-#include "cogl-pipeline-opengl-private.h"
 #include "cogl-primitive-texture.h"
 #include "cogl-error-private.h"
-#include "cogl-texture-gl-private.h"
 #include "cogl-gtype-private.h"
+#include "driver/gl/cogl-texture-gl-private.h"
+#include "driver/gl/cogl-pipeline-opengl-private.h"
+#include "driver/gl/cogl-texture-gl-private.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -1526,6 +1524,7 @@ cogl_texture_2d_sliced_vtable =
     FALSE, /* not primitive */
     _cogl_texture_2d_sliced_allocate,
     _cogl_texture_2d_sliced_set_region,
+    NULL, /* is_get_data_supported */
     NULL, /* get_data */
     _cogl_texture_2d_sliced_foreach_sub_texture_in_region,
     _cogl_texture_2d_sliced_get_max_waste,

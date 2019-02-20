@@ -30,7 +30,6 @@
 
 #include "core/window-private.h"
 #include "core/workspace-private.h"
-
 #include "meta/meta-enum-types.h"
 #include "meta/prefs.h"
 #include "meta/util.h"
@@ -496,6 +495,8 @@ meta_workspace_manager_override_workspace_layout (MetaWorkspaceManager *workspac
                                                   int                   n_rows,
                                                   int                   n_columns)
 {
+  workspace_manager->workspace_layout_overridden = FALSE;
+
   meta_workspace_manager_update_workspace_layout (workspace_manager,
                                                   starting_corner,
                                                   vertical_layout,

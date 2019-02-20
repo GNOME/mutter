@@ -21,9 +21,7 @@
  * Author: Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifdef HAVE_CONFIG_H
 #include "clutter-build-config.h"
-#endif
 
 #include <glib-object.h>
 #include <linux/input.h>
@@ -31,6 +29,7 @@
 #include "clutter-private.h"
 #include "clutter-virtual-input-device.h"
 #include "evdev/clutter-input-device-evdev.h"
+#include "evdev/clutter-keymap-evdev.h"
 #include "evdev/clutter-seat-evdev.h"
 #include "evdev/clutter-virtual-input-device-evdev.h"
 
@@ -288,14 +287,14 @@ pick_keycode_for_keyval_in_current_group (ClutterVirtualInputDevice *virtual_dev
 {
   ClutterVirtualInputDeviceEvdev *virtual_evdev =
     CLUTTER_VIRTUAL_INPUT_DEVICE_EVDEV (virtual_device);
-  ClutterDeviceManager *manager;
+  ClutterKeymap *keymap;
   struct xkb_keymap *xkb_keymap;
   struct xkb_state  *state;
   guint keycode, layout;
   xkb_keycode_t min_keycode, max_keycode;
 
-  manager = clutter_virtual_input_device_get_manager (virtual_device);
-  xkb_keymap = _clutter_device_manager_evdev_get_keymap (CLUTTER_DEVICE_MANAGER_EVDEV (manager));
+  keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
+  xkb_keymap = clutter_keymap_evdev_get_keyboard_map (CLUTTER_KEYMAP_EVDEV (keymap));
   state = virtual_evdev->seat->xkb;
 
   layout = xkb_state_serialize_layout (state, XKB_STATE_LAYOUT_EFFECTIVE);

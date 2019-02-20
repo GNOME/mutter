@@ -7,6 +7,9 @@
 
 #include <clutter/clutter.h>
 
+int
+test_shader_effects_main (int argc, char *argv[]);
+
 G_MODULE_EXPORT int
 test_shader_effects_main (int argc, char *argv[])
 {

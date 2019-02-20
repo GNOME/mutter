@@ -22,14 +22,15 @@
 
 #include "config.h"
 
-#include "meta-idle-monitor-dbus.h"
-#include <meta/meta-idle-monitor.h>
-#include <backends/meta-idle-monitor-private.h>
-#include "meta-dbus-idle-monitor.h"
+#include "backends/meta-idle-monitor-dbus.h"
 
-#include <clutter/clutter.h>
-#include <meta/util.h>
-#include <meta/main.h> /* for meta_get_replace_current_wm () */
+#include "backends/meta-idle-monitor-private.h"
+#include "clutter/clutter.h"
+#include "meta/main.h"
+#include "meta/meta-idle-monitor.h"
+#include "meta/util.h"
+
+#include "meta-dbus-idle-monitor.h"
 
 static gboolean
 handle_get_idletime (MetaDBusIdleMonitor   *skeleton,

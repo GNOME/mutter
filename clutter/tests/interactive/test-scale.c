@@ -18,6 +18,12 @@ static const ClutterGravity gravities[] = {
 static gint gindex = 0;
 static ClutterActor *label;
 
+int
+test_scale_main (int argc, char *argv[]);
+
+const char *
+test_scale_describe (void);
+
 static void
 set_next_gravity (ClutterActor *actor)
 {

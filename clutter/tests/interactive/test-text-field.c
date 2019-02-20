@@ -2,6 +2,13 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
 
+gint
+test_text_field_main (gint    argc,
+                      gchar **argv);
+
+const char *
+test_text_field_describe (void);
+
 static void
 on_entry_activate (ClutterText *text,
                    gpointer     data)

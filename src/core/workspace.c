@@ -31,24 +31,22 @@
  * are unmapped.
  */
 
-#include <config.h>
-#include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
-#include "x11/meta-x11-display-private.h"
-#include <meta/workspace.h>
-#include "meta-workspace-manager-private.h"
-#include "workspace-private.h"
-#include "boxes-private.h"
-#include <meta/meta-x11-errors.h>
-#include <meta/prefs.h>
+#include "config.h"
 
-#include <meta/compositor.h>
+#include "meta/workspace.h"
 
 #include <X11/Xatom.h>
 #include <string.h>
-#ifdef HAVE_LIBCANBERRA
-#include <canberra-gtk.h>
-#endif
+
+#include "backends/meta-backend-private.h"
+#include "backends/meta-logical-monitor.h"
+#include "core/boxes-private.h"
+#include "core/meta-workspace-manager-private.h"
+#include "core/workspace-private.h"
+#include "meta/compositor.h"
+#include "meta/meta-x11-errors.h"
+#include "meta/prefs.h"
+#include "x11/meta-x11-display-private.h"
 
 void meta_workspace_queue_calc_showing   (MetaWorkspace *workspace);
 static void focus_ancestor_or_top_window (MetaWorkspace *workspace,
@@ -440,7 +438,7 @@ static void
 workspace_switch_sound(MetaWorkspace *from,
                        MetaWorkspace *to)
 {
-#ifdef HAVE_LIBCANBERRA
+  MetaSoundPlayer *player;
   MetaWorkspaceLayout layout;
   int i, nw, x, y, fi, ti;
   const char *e;
@@ -488,15 +486,11 @@ workspace_switch_sound(MetaWorkspace *from,
       goto finish;
     }
 
-  ca_context_play(ca_gtk_context_get(), 1,
-                  CA_PROP_EVENT_ID, e,
-                  CA_PROP_EVENT_DESCRIPTION, "Desktop switched",
-                  CA_PROP_CANBERRA_CACHE_CONTROL, "permanent",
-                  NULL);
+  player = meta_display_get_sound_player (from->display);
+  meta_sound_player_play_from_theme (player, e, "Desktop switched", NULL);
 
  finish:
   meta_workspace_manager_free_workspace_layout (&layout);
-#endif /* HAVE_LIBCANBERRA */
 }
 
 /**

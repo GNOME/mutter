@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017 Red Hat
+ * Copyright (C) 2018 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,8 +44,16 @@ typedef struct _MetaKmsResources
 
 typedef void (*MetaKmsFlipCallback) (void *user_data);
 
+typedef enum _MetaGpuKmsFlag
+{
+  META_GPU_KMS_FLAG_NONE =                  0,
+  META_GPU_KMS_FLAG_BOOT_VGA =        (1 << 0),
+  META_GPU_KMS_FLAG_PLATFORM_DEVICE = (1 << 1),
+} MetaGpuKmsFlag;
+
 MetaGpuKms * meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
                                const char             *kms_file_path,
+                               MetaGpuKmsFlag          flags,
                                GError                **error);
 
 gboolean meta_gpu_kms_apply_crtc_mode (MetaGpuKms *gpu_kms,
@@ -57,6 +66,9 @@ gboolean meta_gpu_kms_can_have_outputs (MetaGpuKms *gpu_kms);
 
 gboolean meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
                                       MetaCrtc   *crtc);
+
+gboolean meta_gpu_kms_is_boot_vga (MetaGpuKms *gpu_kms);
+gboolean meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms);
 
 gboolean meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
                                  MetaCrtc   *crtc,
@@ -71,7 +83,11 @@ gboolean meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
 
 int meta_gpu_kms_get_fd (MetaGpuKms *gpu_kms);
 
+uint32_t meta_gpu_kms_get_id (MetaGpuKms *gpu_kms);
+
 const char * meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms);
+
+int64_t meta_gpu_kms_get_current_time_ns (MetaGpuKms *gpu_kms);
 
 void meta_gpu_kms_get_max_buffer_size (MetaGpuKms *gpu_kms,
                                        int        *max_width,
@@ -89,6 +105,7 @@ gboolean meta_drm_mode_equal (const drmModeModeInfo *one,
 float meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *mode);
 
 MetaGpuKmsFlipClosureContainer * meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
+                                                                 MetaCrtc   *crtc,
                                                                  GClosure   *flip_closure);
 
 void meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container);

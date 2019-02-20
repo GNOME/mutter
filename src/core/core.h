@@ -23,10 +23,10 @@
 #ifndef META_CORE_H
 #define META_CORE_H
 
-/* Don't include core headers here */
 #include <gdk/gdkx.h>
-#include <meta/common.h>
-#include <meta/boxes.h>
+
+#include "meta/boxes.h"
+#include "meta/common.h"
 
 void meta_core_queue_frame_resize (Display *xdisplay,
                                    Window frame_xwindow);

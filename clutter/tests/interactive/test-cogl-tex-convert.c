@@ -56,6 +56,12 @@ struct _TestCoglboxClass
 
 static GType test_coglbox_get_type (void) G_GNUC_CONST;
 
+int
+test_cogl_tex_convert_main (int argc, char *argv[]);
+
+const char *
+test_cogl_tex_convert_describe (void);
+
 G_END_DECLS
 
 /* Coglbox private declaration

@@ -17,6 +17,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config.h"
+
 #include <gio/gunixinputstream.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
@@ -236,6 +238,22 @@ process_line (const char *line)
         goto out;
 
       gtk_window_present (GTK_WINDOW (window));
+    }
+  else if (strcmp (argv[0], "resize") == 0)
+    {
+      if (argc != 4)
+        {
+          g_print ("usage: resize <id> <width> <height>");
+          goto out;
+        }
+
+      GtkWidget *window = lookup_window (argv[1]);
+      if (!window)
+        goto out;
+
+      int width = atoi (argv[2]);
+      int height = atoi (argv[3]);
+      gtk_window_resize (GTK_WINDOW (window), width, height);
     }
   else if (strcmp (argv[0], "raise") == 0)
     {

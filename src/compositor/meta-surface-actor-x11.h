@@ -28,36 +28,19 @@
 
 #include <glib-object.h>
 
-#include "meta-surface-actor.h"
-
 #include <X11/extensions/Xdamage.h>
 
-#include <meta/display.h>
-#include <meta/window.h>
+#include "compositor/meta-surface-actor.h"
+#include "meta/display.h"
+#include "meta/window.h"
 
 G_BEGIN_DECLS
 
-#define META_TYPE_SURFACE_ACTOR_X11            (meta_surface_actor_x11_get_type ())
-#define META_SURFACE_ACTOR_X11(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_SURFACE_ACTOR_X11, MetaSurfaceActorX11))
-#define META_SURFACE_ACTOR_X11_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_SURFACE_ACTOR_X11, MetaSurfaceActorX11Class))
-#define META_IS_SURFACE_ACTOR_X11(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_SURFACE_ACTOR_X11))
-#define META_IS_SURFACE_ACTOR_X11_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_SURFACE_ACTOR_X11))
-#define META_SURFACE_ACTOR_X11_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_SURFACE_ACTOR_X11, MetaSurfaceActorX11Class))
-
-typedef struct _MetaSurfaceActorX11      MetaSurfaceActorX11;
-typedef struct _MetaSurfaceActorX11Class MetaSurfaceActorX11Class;
-
-struct _MetaSurfaceActorX11
-{
-  MetaSurfaceActor parent;
-};
-
-struct _MetaSurfaceActorX11Class
-{
-  MetaSurfaceActorClass parent_class;
-};
-
-GType meta_surface_actor_x11_get_type (void);
+#define META_TYPE_SURFACE_ACTOR_X11 (meta_surface_actor_x11_get_type ())
+G_DECLARE_FINAL_TYPE (MetaSurfaceActorX11,
+                      meta_surface_actor_x11,
+                      META, SURFACE_ACTOR_X11,
+                      MetaSurfaceActor)
 
 MetaSurfaceActor * meta_surface_actor_x11_new (MetaWindow *window);
 

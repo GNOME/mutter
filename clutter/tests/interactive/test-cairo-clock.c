@@ -3,6 +3,12 @@
 #include <cairo.h>
 #include <clutter/clutter.h>
 
+int
+test_cairo_clock_main (int argc, char *argv[]);
+
+const char *
+test_cairo_clock_describe (void);
+
 static gboolean
 draw_clock (ClutterCanvas *canvas,
             cairo_t       *cr,

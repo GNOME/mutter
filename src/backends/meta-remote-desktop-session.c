@@ -35,6 +35,7 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "cogl/cogl.h"
 #include "meta/meta-backend.h"
+
 #include "meta-dbus-remote-desktop.h"
 
 #define META_REMOTE_DESKTOP_SESSION_DBUS_PATH "/org/gnome/Mutter/RemoteDesktop/Session"
@@ -159,6 +160,7 @@ meta_remote_desktop_session_close (MetaRemoteDesktopSession *session)
 
   g_clear_object (&session->virtual_pointer);
   g_clear_object (&session->virtual_keyboard);
+  g_clear_object (&session->virtual_touchscreen);
 
   meta_dbus_session_notify_closed (META_DBUS_SESSION (session));
   meta_dbus_remote_desktop_session_emit_closed (skeleton);
@@ -477,6 +479,7 @@ discrete_steps_to_scroll_direction (unsigned int axis,
     return CLUTTER_SCROLL_RIGHT;
 
   g_assert_not_reached ();
+  return 0;
 }
 
 static gboolean

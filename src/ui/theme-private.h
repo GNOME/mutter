@@ -22,10 +22,11 @@
 #ifndef META_THEME_PRIVATE_H
 #define META_THEME_PRIVATE_H
 
-#include <meta/boxes.h>
-#include <meta/theme.h>
-#include <meta/common.h>
 #include <gtk/gtk.h>
+
+#include "meta/boxes.h"
+#include "meta/common.h"
+#include "meta/theme.h"
 
 /**
  * MetaStyleInfo: (skip)
@@ -127,14 +128,13 @@ struct _MetaFrameGeometry
 
   /* used for a memset hack */
 #define ADDRESS_OF_BUTTON_RECTS(fgeom) (((char*)(fgeom)) + G_STRUCT_OFFSET (MetaFrameGeometry, close_rect))
-#define LENGTH_OF_BUTTON_RECTS (G_STRUCT_OFFSET (MetaFrameGeometry, appmenu_rect) + sizeof (MetaButtonSpace) - G_STRUCT_OFFSET (MetaFrameGeometry, close_rect))
+#define LENGTH_OF_BUTTON_RECTS (G_STRUCT_OFFSET (MetaFrameGeometry, menu_rect) + sizeof (MetaButtonSpace) - G_STRUCT_OFFSET (MetaFrameGeometry, close_rect))
 
   /* The button rects (if changed adjust memset hack) */
   MetaButtonSpace close_rect;
   MetaButtonSpace max_rect;
   MetaButtonSpace min_rect;
   MetaButtonSpace menu_rect;
-  MetaButtonSpace appmenu_rect;
   /* End of button rects (if changed adjust memset hack) */
 
   /* Saved button layout */
@@ -163,7 +163,6 @@ typedef enum
   META_BUTTON_TYPE_MAXIMIZE,
   META_BUTTON_TYPE_MINIMIZE,
   META_BUTTON_TYPE_MENU,
-  META_BUTTON_TYPE_APPMENU,
   META_BUTTON_TYPE_LAST
 } MetaButtonType;
 

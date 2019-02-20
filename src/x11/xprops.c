@@ -80,19 +80,19 @@ from The Open Group.
 
 #include "config.h"
 
+#include "x11/xprops.h"
+
 #include <string.h>
 #include <stdlib.h>
-
-#include "xprops.h"
-#include <meta/meta-x11-errors.h>
-#include "util-private.h"
-#include "ui.h"
-#include "mutter-Xatomtype.h"
-#include "window-private.h"
-#include "x11/meta-x11-display-private.h"
-
 #include <X11/Xatom.h>
 #include <X11/Xlib-xcb.h>
+
+#include "core/util-private.h"
+#include "core/window-private.h"
+#include "meta/meta-x11-errors.h"
+#include "ui/ui.h"
+#include "x11/meta-x11-display-private.h"
+#include "x11/mutter-Xatomtype.h"
 
 typedef struct
 {

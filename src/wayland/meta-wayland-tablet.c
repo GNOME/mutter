@@ -21,18 +21,17 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#define _GNU_SOURCE
-
 #include "config.h"
 
+#include "wayland/meta-wayland-tablet.h"
+
 #include <glib.h>
-
 #include <wayland-server.h>
-#include "tablet-unstable-v2-server-protocol.h"
 
-#include "meta-surface-actor-wayland.h"
-#include "meta-wayland-private.h"
-#include "meta-wayland-tablet.h"
+#include "compositor/meta-surface-actor-wayland.h"
+#include "wayland/meta-wayland-private.h"
+
+#include "tablet-unstable-v2-server-protocol.h"
 
 static void
 unbind_resource (struct wl_resource *resource)
