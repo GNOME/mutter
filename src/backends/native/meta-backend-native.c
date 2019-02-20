@@ -148,7 +148,7 @@ constrain_all_screen_monitors (ClutterInputDevice *device,
                                float              *x,
                                float              *y)
 {
-  ClutterPoint current;
+  graphene_point_t current;
   float cx, cy;
   GList *logical_monitors, *l;
 
