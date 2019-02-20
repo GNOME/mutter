@@ -173,7 +173,7 @@ draw_tests_vbo (TestState *state)
       cogl_pop_matrix ();
     }
 
-  cogl_handle_unref (vbo);
+  cogl_object_unref (vbo);
 }
 
 static void

@@ -383,8 +383,8 @@ test_cogl_vertex_buffer_main (int argc, char *argv[])
 
   clutter_main ();
 
-  cogl_handle_unref (state.buffer);
-  cogl_handle_unref (state.indices);
+  cogl_object_unref (state.buffer);
+  cogl_object_unref (state.indices);
 
   return 0;
 }
