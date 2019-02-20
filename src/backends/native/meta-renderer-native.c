@@ -2017,7 +2017,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   CoglFrameInfo *frame_info;
   gboolean egl_context_changed = FALSE;
-  g_autoptr(GError) error = NULL;
+  g_autoptr (GError) error = NULL;
 
   /*
    * Wait for the flip callback before continuing, as we might have started the
