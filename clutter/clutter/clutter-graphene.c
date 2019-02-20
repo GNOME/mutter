@@ -27,6 +27,24 @@
 #include "clutter-types.h"
 
 static gboolean
+graphene_point_progress (const GValue *a,
+                         const GValue *b,
+                         gdouble       progress,
+                         GValue       *retval)
+{
+  const graphene_point_t *ap = g_value_get_boxed (a);
+  const graphene_point_t *bp = g_value_get_boxed (b);
+  graphene_point_t res = GRAPHENE_POINT_INIT_ZERO;
+
+  res.x = ap->x + (bp->x - ap->x) * progress;
+  res.y = ap->y + (bp->y - ap->y) * progress;
+
+  g_value_set_boxed (retval, &res);
+
+  return TRUE;
+}
+
+static gboolean
 graphene_point3d_progress (const GValue *a,
                            const GValue *b,
                            gdouble       progress,
@@ -64,6 +82,8 @@ graphene_size_progress (const GValue *a,
 void
 clutter_graphene_init (void)
 {
+  clutter_interval_register_progress_func (GRAPHENE_TYPE_POINT,
+                                           graphene_point_progress);
   clutter_interval_register_progress_func (GRAPHENE_TYPE_POINT3D,
                                            graphene_point3d_progress);
   clutter_interval_register_progress_func (GRAPHENE_TYPE_SIZE,

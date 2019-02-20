@@ -1157,7 +1157,7 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
   GSList *updating = NULL;
   const GSList *devices;
   cairo_rectangle_int_t clip;
-  ClutterPoint point;
+  graphene_point_t point;
   gboolean has_clip;
 
   has_clip = _clutter_stage_window_get_redraw_clip_bounds (priv->impl, &clip);
