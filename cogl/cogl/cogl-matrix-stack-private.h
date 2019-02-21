@@ -69,9 +69,7 @@ typedef struct _CoglMatrixEntryTranslate
 {
   CoglMatrixEntry _parent_data;
 
-  float x;
-  float y;
-  float z;
+  graphene_point3d_t t;
 
 } CoglMatrixEntryTranslate;
 
@@ -80,9 +78,7 @@ typedef struct _CoglMatrixEntryRotate
   CoglMatrixEntry _parent_data;
 
   float angle;
-  float x;
-  float y;
-  float z;
+  graphene_vec3_t axis;
 
 } CoglMatrixEntryRotate;
 
