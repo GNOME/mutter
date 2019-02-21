@@ -158,9 +158,7 @@ cogl_matrix_stack_translate (CoglMatrixStack *stack,
 
   entry = _cogl_matrix_stack_push_operation (stack, COGL_MATRIX_OP_TRANSLATE);
 
-  entry->x = x;
-  entry->y = y;
-  entry->z = z;
+  graphene_point3d_init (&entry->t, x, y, z);
 }
 
 void
@@ -175,9 +173,7 @@ cogl_matrix_stack_rotate (CoglMatrixStack *stack,
   entry = _cogl_matrix_stack_push_operation (stack, COGL_MATRIX_OP_ROTATE);
 
   entry->angle = angle;
-  entry->x = x;
-  entry->y = y;
-  entry->z = z;
+  graphene_vec3_init (&entry->axis, x, y, z);
 }
 
 void
@@ -540,9 +536,9 @@ initialized:
             CoglMatrixEntryTranslate *translate =
               (CoglMatrixEntryTranslate *)children[i];
             cogl_matrix_translate (matrix,
-                                   translate->x,
-                                   translate->y,
-                                   translate->z);
+                                   translate->t.x,
+                                   translate->t.y,
+                                   translate->t.z);
             continue;
           }
         case COGL_MATRIX_OP_ROTATE:
@@ -551,9 +547,9 @@ initialized:
               (CoglMatrixEntryRotate *)children[i];
             cogl_matrix_rotate (matrix,
                                 rotate->angle,
-                                rotate->x,
-                                rotate->y,
-                                rotate->z);
+                                graphene_vec3_get_x (&rotate->axis),
+                                graphene_vec3_get_y (&rotate->axis),
+                                graphene_vec3_get_z (&rotate->axis));
             continue;
           }
         case COGL_MATRIX_OP_ROTATE_EULER:
@@ -756,9 +752,9 @@ cogl_matrix_entry_calculate_translation (CoglMatrixEntry *entry0,
 
       translate = (CoglMatrixEntryTranslate *)node0;
 
-      *x = *x - translate->x;
-      *y = *y - translate->y;
-      *z = *z - translate->z;
+      *x = *x - translate->t.x;
+      *y = *y - translate->t.y;
+      *z = *z - translate->t.z;
     }
   for (head1 = common_ancestor1->next; head1; head1 = head1->next)
     {
@@ -771,9 +767,9 @@ cogl_matrix_entry_calculate_translation (CoglMatrixEntry *entry0,
 
       translate = (CoglMatrixEntryTranslate *)node1;
 
-      *x = *x + translate->x;
-      *y = *y + translate->y;
-      *z = *z + translate->z;
+      *x = *x + translate->t.x;
+      *y = *y + translate->t.y;
+      *z = *z + translate->t.z;
     }
 
   return TRUE;
@@ -936,9 +932,7 @@ cogl_matrix_entry_equal (CoglMatrixEntry *entry0,
             /* We could perhaps use an epsilon to compare here?
              * I expect the false negatives are probaly never going to
              * be a problem and this is a bit cheaper. */
-            if (translate0->x != translate1->x ||
-                translate0->y != translate1->y ||
-                translate0->z != translate1->z)
+            if (!graphene_point3d_equal (&translate0->t, &translate1->t))
               return FALSE;
           }
           break;
@@ -949,9 +943,7 @@ cogl_matrix_entry_equal (CoglMatrixEntry *entry0,
             CoglMatrixEntryRotate *rotate1 =
               (CoglMatrixEntryRotate *)entry1;
             if (rotate0->angle != rotate1->angle ||
-                rotate0->x != rotate1->x ||
-                rotate0->y != rotate1->y ||
-                rotate0->z != rotate1->z)
+                !graphene_vec3_equal (&rotate0->axis, &rotate1->axis))
               return FALSE;
           }
           break;
@@ -1038,9 +1030,9 @@ cogl_debug_matrix_entry_print (CoglMatrixEntry *entry)
             CoglMatrixEntryTranslate *translate =
               (CoglMatrixEntryTranslate *)entry;
             g_print ("  TRANSLATE X=%f Y=%f Z=%f\n",
-                     translate->x,
-                     translate->y,
-                     translate->z);
+                     translate->t.x,
+                     translate->t.y,
+                     translate->t.z);
             continue;
           }
         case COGL_MATRIX_OP_ROTATE:
@@ -1049,9 +1041,9 @@ cogl_debug_matrix_entry_print (CoglMatrixEntry *entry)
               (CoglMatrixEntryRotate *)entry;
             g_print ("  ROTATE ANGLE=%f X=%f Y=%f Z=%f\n",
                      rotate->angle,
-                     rotate->x,
-                     rotate->y,
-                     rotate->z);
+                     graphene_vec3_get_x (&rotate->axis),
+                     graphene_vec3_get_y (&rotate->axis),
+                     graphene_vec3_get_z (&rotate->axis));
             continue;
           }
         case COGL_MATRIX_OP_ROTATE_EULER:
