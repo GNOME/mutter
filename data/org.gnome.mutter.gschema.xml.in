@@ -35,6 +35,15 @@
       </description>
     </key>
 
+    <key name="edge-resistance" type="b">
+      <default>false</default>
+      <summary>Enable snapping windows to edges of other windows</summary>
+      <description>
+        If enabled, windows being moved or resized near the edges of other windows or
+        the edges of the screen will snap to those edges.
+      </description>
+    </key>
+
     <key name="dynamic-workspaces" type="b">
       <default>false</default>
       <summary>Workspaces are managed dynamically</summary>
