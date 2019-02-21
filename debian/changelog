@@ -1,3 +1,10 @@
+mutter (3.31.90-2) experimental; urgency=medium
+
+  * control: BD on dmz-cursor-theme instead of adwaita-icon-theme for tests.
+    We actually only need *a* cursor theme, not the full icon theme.
+
+ -- Iain Lane <laney@debian.org>  Thu, 21 Feb 2019 13:52:05 +0000
+
 mutter (3.31.90-1) experimental; urgency=medium
 
   [ Marco Trevisan (Treviño) ]
