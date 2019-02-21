@@ -55,8 +55,8 @@ handle_reset_idletime (MetaDBusIdleMonitor   *skeleton,
       g_dbus_method_invocation_return_error_literal (invocation,
                                                      G_DBUS_ERROR,
                                                      G_DBUS_ERROR_UNKNOWN_METHOD,
-                                                     "No such method");
-      return FALSE;
+                                                     "This method is for testing purposes only. MUTTER_DEBUG_RESET_IDLETIME must be set to use it");
+      return TRUE;
     }
 
   meta_idle_monitor_reset_idletime (meta_idle_monitor_get_core ());
