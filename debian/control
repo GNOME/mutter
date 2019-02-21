@@ -8,8 +8,8 @@ Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
 Uploaders: Iain Lane <laney@debian.org>, Jeremy Bicha <jbicha@debian.org>, Laurent Bigonville <bigon@debian.org>
 Build-Depends: debhelper (>= 11),
-               adwaita-icon-theme <!nocheck>,
                at-spi2-core <!nocheck>,
+               dmz-cursor-theme <!nocheck>,
                gnome-pkg-tools (>= 0.10),
                gnome-settings-daemon-common <!nocheck>,
                gnome-settings-daemon-dev,
