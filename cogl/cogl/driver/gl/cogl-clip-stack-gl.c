@@ -84,9 +84,15 @@ flush_matrix_to_gl_builtin (CoglContext    *ctx,
     }
 
   if (is_identity)
-    GE (ctx, glLoadIdentity ());
+    {
+      GE (ctx, glLoadIdentity ());
+    }
   else
-    GE (ctx, glLoadMatrixf (cogl_matrix_get_array (matrix)));
+    {
+      float array[16];
+      cogl_matrix_get_array (matrix, array);
+      GE (ctx, glLoadMatrixf (array));
+    }
 #endif
 }
 

@@ -508,13 +508,13 @@ cogl_matrix_init_from_array (CoglMatrix *matrix,
 /**
  * cogl_matrix_get_array:
  * @matrix: A 4x4 transformation matrix
+ * @array: the array to copy the contents of @matrix to.
  *
  * Casts @matrix to a float array which can be directly passed to OpenGL.
- *
- * Return value: a pointer to the float array
  */
-const float *
-cogl_matrix_get_array (const CoglMatrix *matrix);
+void
+cogl_matrix_get_array (const CoglMatrix *matrix,
+                       float *array);
 
 /**
  * cogl_matrix_init_from_quaternion:

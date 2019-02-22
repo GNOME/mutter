@@ -1996,10 +1996,11 @@ cogl_matrix_free (CoglMatrix *matrix)
   g_slice_free (CoglMatrix, matrix);
 }
 
-const float *
-cogl_matrix_get_array (const CoglMatrix *matrix)
+void
+cogl_matrix_get_array (const CoglMatrix *matrix,
+                       float *array)
 {
-  return (float *)matrix;
+  memcpy (array, matrix, sizeof (float) * 16);
 }
 
 void
@@ -2291,13 +2292,15 @@ void
 cogl_matrix_transpose (CoglMatrix *matrix)
 {
   float new_values[16];
+  float values[16];
 
   /* We don't need to do anything if the matrix is the identity matrix */
   if (!(matrix->flags & MAT_DIRTY_TYPE) &&
       matrix->type == COGL_MATRIX_TYPE_IDENTITY)
     return;
 
-  _cogl_matrix_util_transposef (new_values, cogl_matrix_get_array (matrix));
+  cogl_matrix_get_array (matrix, values);
+  _cogl_matrix_util_transposef (new_values, values);
 
   cogl_matrix_init_from_array (matrix, new_values);
 }
