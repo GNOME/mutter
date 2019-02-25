@@ -19,34 +19,26 @@ typedef struct _TestState
 static void
 paint (TestState *state)
 {
+  CoglPipeline *pipeline;
   CoglColor bg;
   int i;
 
-  cogl_set_source_color4ub (255, 255, 255, 255);
+  pipeline = cogl_pipeline_new (test_ctx);
+  cogl_pipeline_set_color4ub (pipeline, 255, 255, 255, 255);
 
-  /* We push the third framebuffer first so that later we can switch
-     back to it by popping to test that that works */
-  cogl_push_framebuffer (state->fbo[2]);
-
-  cogl_push_framebuffer (state->fbo[0]);
-  cogl_rectangle (-1.0, -1.0, 1.0, 1.0);
-  cogl_pop_framebuffer ();
-
-  cogl_push_framebuffer (state->fbo[1]);
-  cogl_rectangle (-1.0, -1.0, 1.0, 1.0);
-  cogl_pop_framebuffer ();
-
-  /* We should now be back on the third framebuffer */
-  cogl_rectangle (-1.0, -1.0, 1.0, 1.0);
-  cogl_pop_framebuffer ();
+  cogl_framebuffer_draw_rectangle (state->fbo[0], pipeline, -1.0, -1.0, 1.0, 1.0);
+  cogl_framebuffer_draw_rectangle (state->fbo[1], pipeline, -1.0, -1.0, 1.0, 1.0);
+  cogl_framebuffer_draw_rectangle (state->fbo[2], pipeline, -1.0, -1.0, 1.0, 1.0);
 
   cogl_color_init_from_4ub (&bg, 128, 128, 128, 255);
-  cogl_clear (&bg, COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH);
+  cogl_framebuffer_clear (test_fb, COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH, &bg);
+
+  cogl_object_unref (pipeline);
 
   /* Render all of the textures to the screen */
   for (i = 0; i < NUM_FBOS; i++)
     {
-      CoglPipeline *pipeline = cogl_pipeline_new (test_ctx);
+      pipeline = cogl_pipeline_new (test_ctx);
       cogl_pipeline_set_layer_texture (pipeline, 0, state->tex[i]);
       cogl_framebuffer_draw_rectangle (test_fb, pipeline,
                                        2.0f / NUM_FBOS * i - 1.0f, -1.0f,
@@ -99,11 +91,7 @@ test_color_mask (void)
                                        COGL_COLOR_MASK_BLUE);
     }
 
-  /* XXX: we have to push/pop a framebuffer since this test currently
-   * uses the legacy cogl_rectangle() api. */
-  cogl_push_framebuffer (test_fb);
   paint (&state);
-  cogl_pop_framebuffer ();
 
   if (cogl_test_verbose ())
     g_print ("OK\n");
