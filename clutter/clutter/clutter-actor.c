@@ -8014,6 +8014,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    * ClutterActor::queue-redraw:
    * @actor: the actor we're bubbling the redraw request through
    * @origin: the actor which initiated the redraw request
+   * @volume: paint volume to redraw
    *
    * The ::queue_redraw signal is emitted when clutter_actor_queue_redraw()
    * is called on @origin.
