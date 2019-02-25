@@ -643,7 +643,6 @@ meta_window_wayland_new (MetaDisplay        *display,
                          MetaWaylandSurface *surface)
 {
   XWindowAttributes attrs = { 0 };
-  MetaWindow *window;
 
   /*
    * Set attributes used by _meta_window_shared_new, don't bother trying to fake
@@ -658,26 +657,13 @@ meta_window_wayland_new (MetaDisplay        *display,
   attrs.map_state = IsUnmapped;
   attrs.override_redirect = False;
 
-  /* XXX: Note: In the Wayland case we currently still trap X errors while
-   * creating a MetaWindow because we will still be making various redundant
-   * X requests (passing a window xid of None) until we thoroughly audit all
-   * the code to make sure it knows about non X based clients...
-   */
-  meta_x11_error_trap_push (display->x11_display); /* Push a trap over all of window
-                                                * creation, to reduce XSync() calls
-                                                */
-
-  window = _meta_window_shared_new (display,
-                                    META_WINDOW_CLIENT_TYPE_WAYLAND,
-                                    surface,
-                                    None,
-                                    WithdrawnState,
-                                    META_COMP_EFFECT_CREATE,
-                                    &attrs);
-
-  meta_x11_error_trap_pop (display->x11_display); /* pop the XSync()-reducing trap */
-
-  return window;
+  return _meta_window_shared_new (display,
+                                  META_WINDOW_CLIENT_TYPE_WAYLAND,
+                                  surface,
+                                  None,
+                                  WithdrawnState,
+                                  META_COMP_EFFECT_CREATE,
+                                  &attrs);
 }
 
 static gboolean
