@@ -472,31 +472,24 @@ text_input_commit_state (struct wl_client   *client,
   MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
   ClutterInputFocus *focus = text_input->input_focus;
   gboolean enable_panel = FALSE;
+  ClutterInputMethod *input_method;
 
   increment_serial (text_input, resource);
 
   if (text_input->surface == NULL)
     return;
 
-  if (text_input->pending_state & META_WAYLAND_PENDING_STATE_ENABLED)
+  input_method = clutter_backend_get_input_method (clutter_get_default_backend ());
+
+  if (input_method &&
+      text_input->pending_state & META_WAYLAND_PENDING_STATE_ENABLED)
     {
-      ClutterInputMethod *input_method;
-
-      input_method = clutter_backend_get_input_method (clutter_get_default_backend ());
-
       if (text_input->enabled)
         {
           if (!clutter_input_focus_is_focused (focus))
-            {
-              if (input_method)
-                clutter_input_method_focus_in (input_method, focus);
-              else
-                return;
-            }
+            clutter_input_method_focus_in (input_method, focus);
           else
-            {
-              enable_panel = TRUE;
-            }
+            enable_panel = TRUE;
 
           clutter_input_focus_set_can_show_preedit (focus, TRUE);
         }
