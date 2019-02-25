@@ -249,7 +249,14 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
           g_clear_error (error);
           new_texture =
             COGL_TEXTURE (cogl_texture_2d_sliced_new_from_bitmap (bitmap,
-                                                                  COGL_TEXTURE_MAX_WASTE));
+          CoglTexture2DSliced *texture_sliced;
+
+          g_clear_error (error);
+
+          texture_sliced =
+            cogl_texture_2d_sliced_new_from_bitmap (bitmap,
+                                                    COGL_TEXTURE_MAX_WASTE));
+          new_texture = COGL_TEXTURE (texture_sliced);
           cogl_texture_set_components (new_texture, components);
           if (!cogl_texture_allocate (new_texture, error))
             g_clear_pointer (&new_texture, cogl_object_unref);
