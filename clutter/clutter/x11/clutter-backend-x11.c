@@ -34,7 +34,6 @@
 #include <errno.h>
 
 #include "clutter-backend-x11.h"
-#include "clutter-device-manager-core-x11.h"
 #include "clutter-device-manager-xi2.h"
 #include "clutter-settings-x11.h"
 #include "clutter-stage-x11.h"
@@ -265,13 +264,8 @@ clutter_backend_x11_create_device_manager (ClutterBackendX11 *backend_x11)
 
   if (backend_x11->device_manager == NULL)
     {
-      CLUTTER_NOTE (BACKEND, "Creating Core device manager");
+      g_critical ("XI2 extension is missing.");
       backend_x11->has_xinput = FALSE;
-      backend_x11->device_manager =
-        g_object_new (CLUTTER_TYPE_DEVICE_MANAGER_X11,
-                      "backend", backend_x11,
-                      NULL);
-
       backend_x11->xi_minor = -1;
     }
 
@@ -480,9 +474,7 @@ _clutter_backend_x11_events_init (ClutterBackend *backend)
       backend_x11->event_source = source;
     }
 
-  /* create the device manager; we need this because we can effectively
-   * choose between core+XI1 and XI2 input events
-   */
+  /* create the device manager */
   clutter_backend_x11_create_device_manager (backend_x11);
 
   /* register keymap; unless we create a generic Keymap object, I'm
