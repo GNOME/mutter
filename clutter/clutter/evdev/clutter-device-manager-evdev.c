@@ -1291,8 +1291,9 @@ is_keyboard_forbidden (struct libinput_device *libinput_device)
   authorized = udev_device_get_property_value (udev_device, "AUTHORIZED");
 
   /* If the authorized property is not available, dangerous keys should be
-   * blocked for this device. */
-  return authorized == NULL;
+   * blocked for this device.
+   * If we have the property and it is equal to 1 the device is authorized. */
+  return (authorized == NULL) || (strcmp (authorized, "1") != 0);
 }
 
 static gboolean
