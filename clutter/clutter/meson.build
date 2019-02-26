@@ -293,10 +293,8 @@ clutter_backend_private_headers = [
 if have_x11
   clutter_x11_sources = [
     'x11/clutter-backend-x11.c',
-    'x11/clutter-device-manager-core-x11.c',
     'x11/clutter-device-manager-xi2.c',
     'x11/clutter-event-x11.c',
-    'x11/clutter-input-device-core-x11.c',
     'x11/clutter-input-device-tool-xi2.c',
     'x11/clutter-input-device-xi2.c',
     'x11/clutter-keymap-x11.c',
@@ -319,9 +317,7 @@ if have_x11
 
   clutter_x11_private_headers = [
     'x11/clutter-backend-x11.h',
-    'x11/clutter-device-manager-core-x11.h',
     'x11/clutter-device-manager-xi2.h',
-    'x11/clutter-input-device-core-x11.h',
     'x11/clutter-input-device-tool-xi2.h',
     'x11/clutter-input-device-xi2.h',
     'x11/clutter-keymap-x11.h',
