@@ -11,7 +11,7 @@ RUN dnf -y update && dnf -y upgrade && \
     dnf install -y xorg-x11-server-Xvfb mesa-dri-drivers dbus dbus-x11 && \
 
     # Unpackaged versions
-    dnf install -y https://copr-be.cloud.fedoraproject.org/results/jadahl/mutter-ci/fedora-29-x86_64/00848426-gsettings-desktop-schemas/gsettings-desktop-schemas-3.30.1-1.20181206git918efdd69be53.fc29.x86_64.rpm https://copr-be.cloud.fedoraproject.org/results/jadahl/mutter-ci/fedora-29-x86_64/00848426-gsettings-desktop-schemas/gsettings-desktop-schemas-devel-3.30.1-1.20181206git918efdd69be53.fc29.x86_64.rpm && \
+    dnf install -y https://copr-be.cloud.fedoraproject.org/results/jadahl/mutter-ci/fedora-29-x86_64/00834984-gsettings-desktop-schemas/gsettings-desktop-schemas-3.30.1-1.20181206git918efdd69be53.fc29.x86_64.rpm https://copr-be.cloud.fedoraproject.org/results/jadahl/mutter-ci/fedora-29-x86_64/00834984-gsettings-desktop-schemas/gsettings-desktop-schemas-devel-3.30.1-1.20181206git918efdd69be53.fc29.x86_64.rpm && \
 
     dnf install -y intltool redhat-rpm-config make && \
     dnf clean all
