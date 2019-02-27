@@ -739,31 +739,33 @@ get_button_index (gint button)
 }
 
 static void
-emulate_button_press (ClutterInputDeviceEvdev *device)
+emulate_button_press (ClutterInputDeviceEvdev *device_evdev)
 {
-  gint btn = device->mousekeys_btn;
+  ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (device_evdev);
+  gint btn = device_evdev->mousekeys_btn;
 
-  if (device->mousekeys_btn_states[get_button_index (btn)])
+  if (device_evdev->mousekeys_btn_states[get_button_index (btn)])
     return;
 
-  clutter_virtual_input_device_notify_button (device->mousekeys_virtual_device,
+  clutter_virtual_input_device_notify_button (device->accessibility_virtual_device,
                                               g_get_monotonic_time (), btn,
                                               CLUTTER_BUTTON_STATE_PRESSED);
-  device->mousekeys_btn_states[get_button_index (btn)] = CLUTTER_BUTTON_STATE_PRESSED;
+  device_evdev->mousekeys_btn_states[get_button_index (btn)] = CLUTTER_BUTTON_STATE_PRESSED;
 }
 
 static void
-emulate_button_release (ClutterInputDeviceEvdev *device)
+emulate_button_release (ClutterInputDeviceEvdev *device_evdev)
 {
-  gint btn = device->mousekeys_btn;
+  ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (device_evdev);
+  gint btn = device_evdev->mousekeys_btn;
 
-  if (device->mousekeys_btn_states[get_button_index (btn)] == CLUTTER_BUTTON_STATE_RELEASED)
+  if (device_evdev->mousekeys_btn_states[get_button_index (btn)] == CLUTTER_BUTTON_STATE_RELEASED)
     return;
 
-  clutter_virtual_input_device_notify_button (device->mousekeys_virtual_device,
+  clutter_virtual_input_device_notify_button (device->accessibility_virtual_device,
                                               g_get_monotonic_time (), btn,
                                               CLUTTER_BUTTON_STATE_RELEASED);
-  device->mousekeys_btn_states[get_button_index (btn)] = CLUTTER_BUTTON_STATE_RELEASED;
+  device_evdev->mousekeys_btn_states[get_button_index (btn)] = CLUTTER_BUTTON_STATE_RELEASED;
 }
 
 static void
@@ -830,17 +832,18 @@ mousekeys_get_speed_factor (ClutterInputDeviceEvdev *device,
 #undef MOUSEKEYS_CURVE
 
 static void
-emulate_pointer_motion (ClutterInputDeviceEvdev *device,
+emulate_pointer_motion (ClutterInputDeviceEvdev *device_evdev,
                         gint                     dx,
                         gint                     dy)
 {
+  ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (device_evdev);
   gdouble dx_motion;
   gdouble dy_motion;
   gdouble speed;
   gint64 time_us;
 
   time_us = g_get_monotonic_time ();
-  speed = mousekeys_get_speed_factor (device, time_us);
+  speed = mousekeys_get_speed_factor (device_evdev, time_us);
 
   if (dx < 0)
     dx_motion = floor (((gdouble) dx) * speed);
@@ -852,56 +855,58 @@ emulate_pointer_motion (ClutterInputDeviceEvdev *device,
   else
     dy_motion = ceil (((gdouble) dy) * speed);
 
-  clutter_virtual_input_device_notify_relative_motion (device->mousekeys_virtual_device,
+  clutter_virtual_input_device_notify_relative_motion (device->accessibility_virtual_device,
                                                        time_us, dx_motion, dy_motion);
 }
 
 static void
-enable_mousekeys (ClutterInputDeviceEvdev *device)
+enable_mousekeys (ClutterInputDeviceEvdev *device_evdev)
 {
-  ClutterDeviceManager *manager;
+  ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (device_evdev);
+  ClutterDeviceManager *manager = device->device_manager;
 
-  device->mousekeys_btn = CLUTTER_BUTTON_PRIMARY;
-  device->move_mousekeys_timer = 0;
-  device->mousekeys_first_motion_time = 0;
-  device->mousekeys_last_motion_time = 0;
-  device->last_mousekeys_key = 0;
+  device_evdev->mousekeys_btn = CLUTTER_BUTTON_PRIMARY;
+  device_evdev->move_mousekeys_timer = 0;
+  device_evdev->mousekeys_first_motion_time = 0;
+  device_evdev->mousekeys_last_motion_time = 0;
+  device_evdev->last_mousekeys_key = 0;
 
-  if (device->mousekeys_virtual_device)
+  if (device->accessibility_virtual_device)
     return;
 
-  manager = CLUTTER_INPUT_DEVICE (device)->device_manager;
-  device->mousekeys_virtual_device =
+  device->accessibility_virtual_device =
     clutter_device_manager_create_virtual_device (manager,
                                                   CLUTTER_POINTER_DEVICE);
 }
 
 static void
-disable_mousekeys (ClutterInputDeviceEvdev *device)
+disable_mousekeys (ClutterInputDeviceEvdev *device_evdev)
 {
-  stop_mousekeys_move (device);
+  ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (device_evdev);
+
+  stop_mousekeys_move (device_evdev);
 
   /* Make sure we don't leave button pressed behind... */
-  if (device->mousekeys_btn_states[get_button_index (CLUTTER_BUTTON_PRIMARY)])
+  if (device_evdev->mousekeys_btn_states[get_button_index (CLUTTER_BUTTON_PRIMARY)])
     {
-      device->mousekeys_btn = CLUTTER_BUTTON_PRIMARY;
-      emulate_button_release (device);
+      device_evdev->mousekeys_btn = CLUTTER_BUTTON_PRIMARY;
+      emulate_button_release (device_evdev);
     }
 
-  if (device->mousekeys_btn_states[get_button_index (CLUTTER_BUTTON_MIDDLE)])
+  if (device_evdev->mousekeys_btn_states[get_button_index (CLUTTER_BUTTON_MIDDLE)])
     {
-      device->mousekeys_btn = CLUTTER_BUTTON_MIDDLE;
-      emulate_button_release (device);
+      device_evdev->mousekeys_btn = CLUTTER_BUTTON_MIDDLE;
+      emulate_button_release (device_evdev);
     }
 
-  if (device->mousekeys_btn_states[get_button_index (CLUTTER_BUTTON_SECONDARY)])
+  if (device_evdev->mousekeys_btn_states[get_button_index (CLUTTER_BUTTON_SECONDARY)])
     {
-      device->mousekeys_btn = CLUTTER_BUTTON_SECONDARY;
-      emulate_button_release (device);
+      device_evdev->mousekeys_btn = CLUTTER_BUTTON_SECONDARY;
+      emulate_button_release (device_evdev);
     }
 
-  if (device->mousekeys_virtual_device)
-    g_clear_object (&device->mousekeys_virtual_device);
+  if (device->accessibility_virtual_device)
+    g_clear_object (&device->accessibility_virtual_device);
 }
 
 static gboolean
