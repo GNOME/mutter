@@ -18,6 +18,7 @@ mutter_pkg_deps = [
   gsettings_desktop_schemas_dep,
   gtk3_dep,
   pango_dep,
+  libcapng_dep,
 ]
 
 mutter_pkg_private_deps = [
