@@ -75,6 +75,7 @@
 #include <cogl-debug.h>
 #include <cogl-matrix.h>
 #include <cogl-matrix-private.h>
+#include <cogl-graphene-utils.h>
 
 #include <glib.h>
 #include <math.h>
@@ -1855,30 +1856,6 @@ cogl_matrix_init_from_euler (CoglMatrix *matrix,
   matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
 }
 
-/*
- * Transpose a float matrix.
- */
-static void
-_cogl_matrix_util_transposef (float to[16], const float from[16])
-{
-  to[0] = from[0];
-  to[1] = from[4];
-  to[2] = from[8];
-  to[3] = from[12];
-  to[4] = from[1];
-  to[5] = from[5];
-  to[6] = from[9];
-  to[7] = from[13];
-  to[8] = from[2];
-  to[9] = from[6];
-  to[10] = from[10];
-  to[11] = from[14];
-  to[12] = from[3];
-  to[13] = from[7];
-  to[14] = from[11];
-  to[15] = from[15];
-}
-
 void
 cogl_matrix_view_2d_in_frustum (CoglMatrix *matrix,
                                 float left,
@@ -2291,18 +2268,11 @@ cogl_matrix_look_at (CoglMatrix *matrix,
 void
 cogl_matrix_transpose (CoglMatrix *matrix)
 {
-  float new_values[16];
-  float values[16];
+  graphene_matrix_t transposed;
 
-  /* We don't need to do anything if the matrix is the identity matrix */
-  if (!(matrix->flags & MAT_DIRTY_TYPE) &&
-      matrix->type == COGL_MATRIX_TYPE_IDENTITY)
-    return;
-
-  cogl_matrix_get_array (matrix, values);
-  _cogl_matrix_util_transposef (new_values, values);
-
-  cogl_matrix_init_from_array (matrix, new_values);
+  cogl_matrix_to_graphene_matrix (matrix, &transposed);
+  graphene_matrix_transpose (&transposed, &transposed);
+  graphene_matrix_to_cogl_matrix (&transposed, matrix);
 }
 
 GType
