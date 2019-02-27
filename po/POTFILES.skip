@@ -60,7 +60,6 @@ clutter/clutter/deprecated/clutter-animation.c
 clutter/clutter/deprecated/clutter-behaviour.c
 clutter/clutter/deprecated/clutter-behaviour-depth.c
 clutter/clutter/deprecated/clutter-behaviour-opacity.c
-clutter/clutter/deprecated/clutter-behaviour-path.c
 clutter/clutter/deprecated/clutter-behaviour-rotate.c
 clutter/clutter/deprecated/clutter-behaviour-scale.c
 clutter/clutter/deprecated/clutter-box.c
