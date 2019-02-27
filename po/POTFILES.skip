@@ -59,7 +59,6 @@ clutter/clutter/deprecated/clutter-alpha.c
 clutter/clutter/deprecated/clutter-animation.c
 clutter/clutter/deprecated/clutter-behaviour.c
 clutter/clutter/deprecated/clutter-behaviour-depth.c
-clutter/clutter/deprecated/clutter-behaviour-ellipse.c
 clutter/clutter/deprecated/clutter-behaviour-opacity.c
 clutter/clutter/deprecated/clutter-behaviour-path.c
 clutter/clutter/deprecated/clutter-behaviour-rotate.c
