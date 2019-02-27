@@ -5357,7 +5357,11 @@ load_default_window_icon (int size)
     icon_name = "image-missing";
 
   pixbuf = gtk_icon_theme_load_icon (theme, icon_name, size, 0, NULL);
-  return gdk_cairo_surface_create_from_pixbuf (pixbuf, 1, NULL);
+
+  if (pixbuf != NULL)
+    return gdk_cairo_surface_create_from_pixbuf (pixbuf, 1, NULL);
+
+  return cairo_image_surface_create (CAIRO_FORMAT_ARGB32, size, size);
 }
 
 static cairo_surface_t *
