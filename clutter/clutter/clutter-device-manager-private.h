@@ -143,6 +143,9 @@ struct _ClutterInputDevice
 
   guint has_cursor : 1;
   guint is_enabled : 1;
+
+  /* Accessiblity */
+  ClutterVirtualInputDevice *accessibility_virtual_device;
 };
 
 typedef void (*ClutterEmitInputDeviceEvent) (ClutterEvent       *event,
