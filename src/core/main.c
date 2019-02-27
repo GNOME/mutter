@@ -521,6 +521,23 @@ meta_override_compositor_configuration (MetaCompositorType compositor_type,
   _backend_gtype_override = backend_gtype;
 }
 
+static void
+meta_set_scheduler (GType backend_gtype)
+{
+  if (backend_gtype == META_TYPE_BACKEND_NATIVE)
+    {
+      int retval;
+      struct sched_param sp = {
+        .sched_priority = sched_get_priority_min (SCHED_RR)
+      };
+
+      retval = sched_setscheduler (0, SCHED_RR | SCHED_RESET_ON_FORK, &sp);
+
+      if (retval != 0)
+        g_warning ("Failed to set RT scheduler: %m");
+    }
+}
+
 /**
  * meta_init: (skip)
  *
@@ -583,6 +600,8 @@ meta_init (void)
   if (meta_is_wayland_compositor ())
     meta_wayland_pre_clutter_init ();
 #endif
+
+  meta_set_scheduler (backend_gtype);
 
   /* NB: When running as a hybrid wayland compositor we run our own headless X
    * server so the user can't control the X display to connect too. */
