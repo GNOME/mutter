@@ -50,6 +50,121 @@
 #define GL_CLIP_PLANE5 0x3005
 #endif
 
+
+static void
+flush_matrix_to_gl_builtin (CoglContext    *ctx,
+                            gboolean        is_identity,
+                            CoglMatrix     *matrix,
+                            CoglMatrixMode  mode)
+{
+  g_assert (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_GL_FIXED));
+
+#ifdef HAVE_COGL_GL
+  if (ctx->flushed_matrix_mode != mode)
+    {
+      GLenum gl_mode = 0;
+
+      switch (mode)
+        {
+        case COGL_MATRIX_MODELVIEW:
+          gl_mode = GL_MODELVIEW;
+          break;
+
+        case COGL_MATRIX_PROJECTION:
+          gl_mode = GL_PROJECTION;
+          break;
+
+        case COGL_MATRIX_TEXTURE:
+          gl_mode = GL_TEXTURE;
+          break;
+        }
+
+      GE (ctx, glMatrixMode (gl_mode));
+      ctx->flushed_matrix_mode = mode;
+    }
+
+  if (is_identity)
+    GE (ctx, glLoadIdentity ());
+  else
+    GE (ctx, glLoadMatrixf (cogl_matrix_get_array (matrix)));
+#endif
+}
+
+static void
+flush_matrix_entry_to_gl_builtins (CoglContext     *ctx,
+                                   CoglMatrixEntry *entry,
+                                   CoglMatrixMode   mode,
+                                   CoglFramebuffer *framebuffer,
+                                   gboolean         disable_flip)
+{
+  g_assert (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_GL_FIXED));
+
+#ifdef HAVE_COGL_GL
+  {
+    gboolean needs_flip;
+    CoglMatrixEntryCache *cache;
+
+    if (mode == COGL_MATRIX_PROJECTION)
+      {
+        /* Because Cogl defines texture coordinates to have a top left
+         * origin and because offscreen framebuffers may be used for
+         * rendering to textures we always render upside down to
+         * offscreen buffers. Also for some backends we need to render
+         * onscreen buffers upside-down too.
+         */
+        if (disable_flip)
+          needs_flip = FALSE;
+        else
+          needs_flip = cogl_is_offscreen (framebuffer);
+
+        cache = &ctx->builtin_flushed_projection;
+      }
+    else
+      {
+        needs_flip = FALSE;
+
+        if (mode == COGL_MATRIX_MODELVIEW)
+          cache = &ctx->builtin_flushed_modelview;
+        else
+          cache = NULL;
+      }
+
+    /* We don't need to do anything if the state is the same */
+    if (!cache ||
+        _cogl_matrix_entry_cache_maybe_update (cache, entry, needs_flip))
+      {
+        gboolean is_identity;
+        CoglMatrix matrix;
+
+        if (entry->op == COGL_MATRIX_OP_LOAD_IDENTITY)
+          is_identity = TRUE;
+        else
+          {
+            is_identity = FALSE;
+            cogl_matrix_entry_get (entry, &matrix);
+          }
+
+        if (needs_flip)
+          {
+            CoglMatrix flipped_matrix;
+
+            cogl_matrix_multiply (&flipped_matrix,
+                                  &ctx->y_flip_matrix,
+                                  is_identity ?
+                                  &ctx->identity_matrix :
+                                  &matrix);
+
+            flush_matrix_to_gl_builtin (ctx, FALSE, &flipped_matrix, mode);
+          }
+        else
+          {
+            flush_matrix_to_gl_builtin (ctx, is_identity, &matrix, mode);
+          }
+      }
+  }
+#endif
+}
+
 static void
 project_vertex (const CoglMatrix *modelview_projection,
 		float *vertex)
@@ -106,11 +221,11 @@ set_clip_plane (CoglFramebuffer *framebuffer,
   /* Clip planes can only be used when a fixed function backend is in
      use so we know we can directly push this matrix to the builtin
      state */
-  _cogl_matrix_entry_flush_to_gl_builtins (ctx,
-                                           modelview_stack->last_entry,
-                                           COGL_MATRIX_MODELVIEW,
-                                           framebuffer,
-                                           FALSE /* don't disable flip */);
+  flush_matrix_entry_to_gl_builtins (ctx,
+                                     modelview_stack->last_entry,
+                                     COGL_MATRIX_MODELVIEW,
+                                     framebuffer,
+                                     FALSE /* don't disable flip */);
 
   planef[0] = 0;
   planef[1] = -1.0;
