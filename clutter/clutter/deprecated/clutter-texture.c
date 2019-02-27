@@ -64,7 +64,6 @@
 #include "clutter-stage-private.h"
 #include "clutter-backend.h"
 
-#include "deprecated/clutter-shader.h"
 #include "deprecated/clutter-texture.h"
 
 typedef struct _ClutterTextureAsyncData ClutterTextureAsyncData;
