@@ -367,123 +367,24 @@ _cogl_matrix_init_from_matrix_without_inverse (CoglMatrix *matrix,
   memcpy (matrix, src, 16 * sizeof (float));
 }
 
-static void
-_cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
-                                   const graphene_quaternion_t *quaternion)
-{
-  graphene_vec4_t quaternion_v;
-  graphene_quaternion_to_vec4 (quaternion, &quaternion_v);
-
-  float qnorm = graphene_quaternion_dot (quaternion, quaternion);
-  float s = (qnorm > 0.0f) ? (2.0f / qnorm) : 0.0f;
-  float xs = graphene_vec4_get_x (&quaternion_v) * s;
-  float ys = graphene_vec4_get_y (&quaternion_v) * s;
-  float zs = graphene_vec4_get_z (&quaternion_v) * s;
-  float wx = graphene_vec4_get_w (&quaternion_v) * xs;
-  float wy = graphene_vec4_get_w (&quaternion_v) * ys;
-  float wz = graphene_vec4_get_w (&quaternion_v) * zs;
-  float xx = graphene_vec4_get_x (&quaternion_v) * xs;
-  float xy = graphene_vec4_get_x (&quaternion_v) * ys;
-  float xz = graphene_vec4_get_x (&quaternion_v) * zs;
-  float yy = graphene_vec4_get_y (&quaternion_v) * ys;
-  float yz = graphene_vec4_get_y (&quaternion_v) * zs;
-  float zz = graphene_vec4_get_z (&quaternion_v) * zs;
-
-  matrix->xx = 1.0f - (yy + zz);
-  matrix->yx = xy + wz;
-  matrix->zx = xz - wy;
-  matrix->xy = xy - wz;
-  matrix->yy = 1.0f - (xx + zz);
-  matrix->zy = yz + wx;
-  matrix->xz = xz + wy;
-  matrix->yz = yz - wx;
-  matrix->zz = 1.0f - (xx + yy);
-  matrix->xw = matrix->yw = matrix->zw = 0.0f;
-  matrix->wx = matrix->wy = matrix->wz = 0.0f;
-  matrix->ww = 1.0f;
-}
-
 void
 cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
                                   const graphene_quaternion_t *quaternion)
 {
-  _cogl_matrix_init_from_quaternion (matrix, quaternion);
+  graphene_matrix_t m;
+
+  graphene_quaternion_to_matrix (quaternion, &m);
+  graphene_matrix_to_cogl_matrix (&m, matrix);
 }
 
 void
 cogl_matrix_init_from_euler (CoglMatrix *matrix,
                              const graphene_euler_t *euler)
 {
-  /* Convert angles to radians */
-  float heading_rad = graphene_euler_get_y (euler) / 180.0f * G_PI;
-  float pitch_rad = graphene_euler_get_x (euler) / 180.0f * G_PI;
-  float roll_rad = graphene_euler_get_z (euler) / 180.0f * G_PI;
-  /* Pre-calculate the sin and cos */
-  float sin_heading = sinf (heading_rad);
-  float cos_heading = cosf (heading_rad);
-  float sin_pitch = sinf (pitch_rad);
-  float cos_pitch = cosf (pitch_rad);
-  float sin_roll = sinf (roll_rad);
-  float cos_roll = cosf (roll_rad);
+  graphene_matrix_t m;
 
-  /* These calculations are based on the following website but they
-   * use a different order for the rotations so it has been modified
-   * slightly.
-   * http://www.euclideanspace.com/maths/geometry/
-   *        rotations/conversions/eulerToMatrix/index.htm
-   */
-
-  /* Heading rotation x=0, y=1, z=0 gives:
-   *
-   * [ ch   0   sh   0 ]
-   * [ 0    1   0    0 ]
-   * [ -sh  0   ch   0 ]
-   * [ 0    0   0    1 ]
-   *
-   * Pitch rotation x=1, y=0, z=0 gives:
-   * [ 1    0   0    0 ]
-   * [ 0    cp  -sp  0 ]
-   * [ 0    sp  cp   0 ]
-   * [ 0    0   0    1 ]
-   *
-   * Roll rotation x=0, y=0, z=1 gives:
-   * [ cr   -sr 0    0 ]
-   * [ sr   cr  0    0 ]
-   * [ 0    0   1    0 ]
-   * [ 0    0   0    1 ]
-   *
-   * Heading matrix * pitch matrix =
-   * [ ch   sh*sp    cp*sh   0  ]
-   * [ 0    cp       -sp     0  ]
-   * [ -sh  ch*sp    ch*cp   0  ]
-   * [ 0    0        0       1  ]
-   *
-   * That matrix * roll matrix =
-   * [ ch*cr + sh*sp*sr   sh*sp*cr - ch*sr       sh*cp       0 ]
-   * [     cp*sr                cp*cr             -sp        0 ]
-   * [ ch*sp*sr - sh*cr   sh*sr + ch*sp*cr       ch*cp       0 ]
-   * [       0                    0                0         1 ]
-   */
-
-  matrix->xx = cos_heading * cos_roll + sin_heading * sin_pitch * sin_roll;
-  matrix->yx = cos_pitch * sin_roll;
-  matrix->zx = cos_heading * sin_pitch * sin_roll - sin_heading * cos_roll;
-  matrix->wx = 0.0f;
-
-  matrix->xy = sin_heading * sin_pitch * cos_roll - cos_heading * sin_roll;
-  matrix->yy = cos_pitch * cos_roll;
-  matrix->zy = sin_heading * sin_roll + cos_heading * sin_pitch * cos_roll;
-  matrix->wy = 0.0f;
-
-  matrix->xz = sin_heading * cos_pitch;
-  matrix->yz = -sin_pitch;
-  matrix->zz = cos_heading * cos_pitch;
-  matrix->wz = 0;
-
-  matrix->xw = 0;
-  matrix->yw = 0;
-  matrix->zw = 0;
-  matrix->ww = 1;
+  graphene_euler_to_matrix (euler, &m);
+  graphene_matrix_to_cogl_matrix (&m, matrix);
 }
 
 void
