@@ -433,48 +433,6 @@ cogl_matrix_perspective (CoglMatrix *matrix,
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
-/*
- * Apply an orthographic projection matrix.
- *
- * Creates the projection matrix and multiplies it with matrix, marking the
- * MAT_FLAG_GENERAL_SCALE and MAT_FLAG_TRANSLATION flags.
- */
-static void
-_cogl_matrix_orthographic (CoglMatrix *matrix,
-                           float x_1,
-                           float y_1,
-                           float x_2,
-                           float y_2,
-                           float nearval,
-                           float farval)
-{
-  float m[16];
-
-#define M(row, col)  m[col * 4 + row]
-  M (0,0) = 2.0f / (x_2 - x_1);
-  M (0,1) = 0.0f;
-  M (0,2) = 0.0f;
-  M (0,3) = -(x_2 + x_1) / (x_2 - x_1);
-
-  M (1,0) = 0.0f;
-  M (1,1) = 2.0f / (y_1 - y_2);
-  M (1,2) = 0.0f;
-  M (1,3) = -(y_1 + y_2) / (y_1 - y_2);
-
-  M (2,0) = 0.0f;
-  M (2,1) = 0.0f;
-  M (2,2) = -2.0f / (farval - nearval);
-  M (2,3) = -(farval + nearval) / (farval - nearval);
-
-  M (3,0) = 0.0f;
-  M (3,1) = 0.0f;
-  M (3,2) = 0.0f;
-  M (3,3) = 1.0f;
-#undef M
-
-  matrix_multiply_array_with_flags (matrix, m);
-}
-
 void
 cogl_matrix_orthographic (CoglMatrix *matrix,
                           float x_1,
@@ -484,7 +442,16 @@ cogl_matrix_orthographic (CoglMatrix *matrix,
                           float near,
                           float far)
 {
-  _cogl_matrix_orthographic (matrix, x_1, y_1, x_2, y_2, near, far);
+  graphene_matrix_t ortho, m;
+
+  graphene_matrix_init_ortho (&ortho, x_1, x_2, y_2, y_1, near, far);
+
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_transpose (&m, &m);
+
+  graphene_matrix_multiply (&m, &ortho, &m);
+  graphene_matrix_to_cogl_matrix (&m, matrix);
+
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
