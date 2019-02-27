@@ -9,7 +9,6 @@
 #include "deprecated/clutter-animation.h"
 #include "deprecated/clutter-behaviour.h"
 #include "deprecated/clutter-behaviour-depth.h"
-#include "deprecated/clutter-behaviour-ellipse.h"
 #include "deprecated/clutter-behaviour-opacity.h"
 #include "deprecated/clutter-behaviour-path.h"
 #include "deprecated/clutter-behaviour-rotate.h"
