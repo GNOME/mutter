@@ -37,6 +37,7 @@
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-backend-native-private.h"
 
+#include <sched.h>
 #include <stdlib.h>
 
 #include "backends/meta-cursor-tracker-private.h"
@@ -44,6 +45,7 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-pointer-constraint.h"
+#include "backends/meta-settings-private.h"
 #include "backends/meta-stage-private.h"
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-clutter-backend-native.h"
@@ -331,6 +333,7 @@ static void
 meta_backend_native_post_init (MetaBackend *backend)
 {
   ClutterDeviceManager *manager = clutter_device_manager_get_default ();
+  MetaSettings *settings = meta_backend_get_settings (backend);
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
 
@@ -338,6 +341,20 @@ meta_backend_native_post_init (MetaBackend *backend)
                                                 NULL, NULL);
   clutter_evdev_set_relative_motion_filter (manager, relative_motion_filter,
                                             meta_backend_get_monitor_manager (backend));
+
+  if (meta_settings_is_experimental_feature_enabled (settings,
+                                                     META_EXPERIMENTAL_FEATURE_RT_SCHEDULER))
+    {
+      int retval;
+      struct sched_param sp = {
+        .sched_priority = sched_get_priority_min (SCHED_RR)
+      };
+
+      retval = sched_setscheduler (0, SCHED_RR | SCHED_RESET_ON_FORK, &sp);
+
+      if (retval != 0)
+        g_warning ("Failed to set RT scheduler: %m");
+    }
 }
 
 static MetaMonitorManager *
