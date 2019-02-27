@@ -94,7 +94,6 @@ struct _ClutterInputDeviceEvdev
   gdouble mousekeys_curve_factor;
   guint move_mousekeys_timer;
   guint16 last_mousekeys_key;
-  ClutterVirtualInputDevice *mousekeys_virtual_device;
 };
 
 GType                     _clutter_input_device_evdev_get_type        (void) G_GNUC_CONST;
