@@ -60,3 +60,6 @@
 
 /* Default rules for allowing Xwayland grabs */
 #mesondefine XWAYLAND_GRAB_DEFAULT_ACCESS_RULES
+
+/* Defined if libcap-ng is available */
+#mesondefine HAVE_LIBCAPNG
