@@ -191,21 +191,6 @@ do { \
 			    MAT_DIRTY_FLAGS | \
 			    MAT_DIRTY_INVERSE)
 
-
-/*
- * Test geometry related matrix flags.
- *
- * @mat a pointer to a CoglMatrix structure.
- * @a flags mask.
- *
- * Returns: non-zero if all geometry related matrix flags are contained within
- * the mask, or zero otherwise.
- */
-#define TEST_MAT_FLAGS(mat, a)  \
-    ((MAT_FLAGS_GEOMETRY & (~(a)) & ((mat)->flags) ) == 0)
-
-
-
 /*
  * Names of the corresponding CoglMatrixType values.
  */
@@ -230,62 +215,6 @@ static float identity[16] = {
    0.0, 0.0, 0.0, 1.0
 };
 
-
-#define A(row,col)  a[(col<<2)+row]
-#define B(row,col)  b[(col<<2)+row]
-#define R(row,col)  result[(col<<2)+row]
-
-/*
- * Perform a full 4x4 matrix multiplication.
- *
- * <note>It's assumed that @result != @b. @product == @a is allowed.</note>
- *
- * <note>KW: 4*16 = 64 multiplications</note>
- */
-static void
-matrix_multiply4x4 (float *result, const float *a, const float *b)
-{
-  int i;
-  for (i = 0; i < 4; i++)
-    {
-      const float ai0 = A(i,0),  ai1=A(i,1),  ai2=A(i,2),  ai3=A(i,3);
-      R(i,0) = ai0 * B(0,0) + ai1 * B(1,0) + ai2 * B(2,0) + ai3 * B(3,0);
-      R(i,1) = ai0 * B(0,1) + ai1 * B(1,1) + ai2 * B(2,1) + ai3 * B(3,1);
-      R(i,2) = ai0 * B(0,2) + ai1 * B(1,2) + ai2 * B(2,2) + ai3 * B(3,2);
-      R(i,3) = ai0 * B(0,3) + ai1 * B(1,3) + ai2 * B(2,3) + ai3 * B(3,3);
-    }
-}
-
-/*
- * Multiply two matrices known to occupy only the top three rows, such
- * as typical model matrices, and orthogonal matrices.
- *
- * @a matrix.
- * @b matrix.
- * @product will receive the product of \p a and \p b.
- */
-static void
-matrix_multiply3x4 (float *result, const float *a, const float *b)
-{
-  int i;
-  for (i = 0; i < 3; i++)
-    {
-      const float ai0 = A(i,0), ai1 = A(i,1), ai2 = A(i,2), ai3 = A(i,3);
-      R(i,0) = ai0 * B(0,0) + ai1 * B(1,0) + ai2 * B(2,0);
-      R(i,1) = ai0 * B(0,1) + ai1 * B(1,1) + ai2 * B(2,1);
-      R(i,2) = ai0 * B(0,2) + ai1 * B(1,2) + ai2 * B(2,2);
-      R(i,3) = ai0 * B(0,3) + ai1 * B(1,3) + ai2 * B(2,3) + ai3;
-    }
-  R(3,0) = 0;
-  R(3,1) = 0;
-  R(3,2) = 0;
-  R(3,3) = 1;
-}
-
-#undef A
-#undef B
-#undef R
-
 /*
  * Multiply a matrix by an array of floats with known properties.
  *
@@ -303,40 +232,32 @@ matrix_multiply_array_with_flags (CoglMatrix *result,
                                   const float *array,
                                   unsigned int flags)
 {
-  result->flags |= (flags | MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE);
+  graphene_matrix_t m1, m2, res;
 
-  if (TEST_MAT_FLAGS (result, MAT_FLAGS_3D))
-    matrix_multiply3x4 ((float *)result, (float *)result, array);
-  else
-    matrix_multiply4x4 ((float *)result, (float *)result, array);
+  cogl_matrix_to_graphene_matrix (result, &m1);
+  graphene_matrix_init_from_float (&m2, array);
+
+  graphene_matrix_multiply (&m2, &m1, &res);
+  graphene_matrix_to_cogl_matrix (&res, result);
 }
 
-/* Joins both flags and marks the type and inverse as dirty.  Calls
- * matrix_multiply3x4() if both matrices are 3D, or matrix_multiply4x4()
- * otherwise.
- */
-static void
-_cogl_matrix_multiply (CoglMatrix *result,
-                       const CoglMatrix *a,
-                       const CoglMatrix *b)
-{
-  result->flags = (a->flags |
-                   b->flags |
-                   MAT_DIRTY_TYPE |
-                   MAT_DIRTY_INVERSE);
-
-  if (TEST_MAT_FLAGS(result, MAT_FLAGS_3D))
-    matrix_multiply3x4 ((float *)result, (float *)a, (float *)b);
-  else
-    matrix_multiply4x4 ((float *)result, (float *)a, (float *)b);
-}
 
 void
 cogl_matrix_multiply (CoglMatrix *result,
 		      const CoglMatrix *a,
 		      const CoglMatrix *b)
 {
-  _cogl_matrix_multiply (result, a, b);
+  graphene_matrix_t m1, m2, res;
+
+  cogl_matrix_to_graphene_matrix (a, &m1);
+  cogl_matrix_to_graphene_matrix (b, &m2);
+
+  /* AxB on a column-major matrix (CoglMatrix) is equal
+   * to BxA on a row-major matrix (graphene_matrix_t)
+   */
+  graphene_matrix_multiply (&m2, &m1, &res);
+  graphene_matrix_to_cogl_matrix (&res, result);
+
   _COGL_MATRIX_DEBUG_PRINT (result);
 }
 
