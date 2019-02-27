@@ -36,6 +36,7 @@ libstartup_notification_req = '>= 0.7'
 libcanberra_req = '>= 0.26'
 libwacom_req = '>= 0.13'
 atk_req = '>= 2.5.3'
+libcapng_req = '>= 0.7.9'
 
 # optional version requirements
 udev_req = '>= 228'
@@ -127,6 +128,7 @@ xau_dep = dependency('xau')
 ice_dep = dependency('ice')
 atk_dep = dependency('atk', version: atk_req)
 libcanberra_dep = dependency('libcanberra', version: libcanberra_req)
+libcapng_dep = dependency('libcap-ng', required: get_option('libcapng'))
 
 # For now always require X11 support
 have_x11 = true
@@ -258,6 +260,7 @@ have_core_tests = false
 have_cogl_tests = false
 have_clutter_tests = false
 have_installed_tests = false
+have_libcapng = libcapng_dep.found()
 
 if have_tests
   have_core_tests = get_option('core_tests')
@@ -364,6 +367,7 @@ cdata.set('HAVE_SM', have_sm)
 cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
 cdata.set('HAVE_PROFILER', have_profiler)
+cdata.set('HAVE_LIBCAPNG', have_libcapng)
 
 xkb_base = xkeyboard_config_dep.get_pkgconfig_variable('xkb_base')
 cdata.set_quoted('XKB_BASE', xkb_base)
@@ -445,6 +449,7 @@ output = [
   '        Startup notification..... ' + have_startup_notification.to_string(),
   '        Introspection............ ' + have_introspection.to_string(),
   '        Profiler................. ' + have_profiler.to_string(),
+  '        libcap-ng................ ' + have_libcapng.to_string(),
   '',
   '    Tests:',
   '',

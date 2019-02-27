@@ -16,7 +16,7 @@ RUN dnf -y update && dnf -y upgrade && \
     dnf builddep -y mutter && \
 
     # Until Fedora catches up with new build-deps
-    dnf install -y 'pkgconfig(graphene-gobject-1.0)' 'pkgconfig(sysprof-capture-3)' && \
+    dnf install -y 'pkgconfig(graphene-gobject-1.0)' 'pkgconfig(sysprof-capture-3)' 'pkgconfig(libcap-ng)' && \
 
     # For running unit tests
     dnf install -y xorg-x11-server-Xvfb mesa-dri-drivers dbus dbus-x11 '*/xvfb-run' gdm-lib accountsservice-libs gnome-control-center && \
