@@ -7,7 +7,6 @@
 
 #include "clutter-actor-private.h"
 #include "clutter-private.h"
-#include "clutter-shader.h"
 
 /**
  * clutter_actor_get_allocation_geometry:
