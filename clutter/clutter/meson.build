@@ -270,11 +270,6 @@ clutter_deprecated_sources = [
 
 clutter_deprecated_private_headers = [
   'deprecated/clutter-model-private.h',
-  'deprecated/clutter-timeout-interval.h',
-]
-
-clutter_deprecated_nonintrospected_sources = [
-  'deprecated/clutter-timeout-interval.c',
 ]
 
 clutter_backend_sources = []
@@ -492,7 +487,6 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
     clutter_private_headers,
     clutter_nonintrospected_sources,
     clutter_deprecated_sources,
-    clutter_deprecated_nonintrospected_sources,
     clutter_deprecated_headers,
     clutter_deprecated_private_headers,
     clutter_backend_sources,
