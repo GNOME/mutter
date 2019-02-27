@@ -66,6 +66,10 @@
 #include <girepository.h>
 #endif
 
+#ifdef HAVE_LIBCAPNG
+#include <cap-ng.h>
+#endif
+
 #if defined(HAVE_NATIVE_BACKEND) && defined(HAVE_WAYLAND)
 #include <systemd/sd-login.h>
 #endif /* HAVE_WAYLAND && HAVE_NATIVE_BACKEND */
@@ -588,6 +592,11 @@ meta_init (void)
   meta_init_backend (backend_gtype);
 
   meta_clutter_init ();
+
+#ifdef HAVE_LIBCAPNG
+  capng_clear (CAPNG_SELECT_BOTH);
+  capng_apply (CAPNG_SELECT_BOTH);
+#endif
 
   meta_backend_post_init (meta_get_backend ());
 
