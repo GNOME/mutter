@@ -522,6 +522,22 @@ meta_override_compositor_configuration (MetaCompositorType compositor_type,
   _backend_gtype_override = backend_gtype;
 }
 
+#ifdef HAVE_NATIVE_BACKEND
+static void
+meta_set_scheduler (void)
+{
+  int retval;
+  struct sched_param sp = {
+    .sched_priority = sched_get_priority_min (SCHED_RR)
+  };
+
+  retval = sched_setscheduler (0, SCHED_RR | SCHED_RESET_ON_FORK, &sp);
+
+  if (retval != 0)
+    g_warning ("Failed to set RT scheduler: %m");
+}
+#endif /* HAVE_NATIVE_BACKEND */
+
 /**
  * meta_init: (skip)
  *
@@ -571,6 +587,11 @@ meta_init (void)
 #ifdef HAVE_WAYLAND
   if (compositor_type == META_COMPOSITOR_TYPE_WAYLAND)
     meta_set_is_wayland_compositor (TRUE);
+#endif
+
+#ifdef HAVE_NATIVE_BACKEND
+  if (backend_gtype == META_TYPE_BACKEND_NATIVE)
+    meta_set_scheduler ();
 #endif
 
   g_unix_signal_add (SIGTERM, on_sigterm, NULL);
