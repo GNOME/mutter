@@ -107,6 +107,9 @@ clutter_input_device_dispose (GObject *gobject)
       device->associated = NULL;
     }
 
+  if (device->accessibility_virtual_device)
+    g_clear_object (&device->accessibility_virtual_device);
+
   g_clear_pointer (&device->axes, g_array_unref);
   g_clear_pointer (&device->keys, g_array_unref);
   g_clear_pointer (&device->scroll_info, g_array_unref);
