@@ -86,124 +86,7 @@ COGL_GTYPE_DEFINE_BOXED (Matrix, matrix,
                          cogl_matrix_copy,
                          cogl_matrix_free);
 
-/*
- * Symbolic names to some of the entries in the matrix
- *
- * These are handy for the viewport mapping, which is expressed as a matrix.
- */
-#define MAT_SX 0
-#define MAT_SY 5
-#define MAT_SZ 10
-#define MAT_TX 12
-#define MAT_TY 13
-#define MAT_TZ 14
-
-/*
- * These identify different kinds of 4x4 transformation matrices and we use
- * this information to find fast-paths when available.
- */
-enum CoglMatrixType {
-   COGL_MATRIX_TYPE_GENERAL,	/**< general 4x4 matrix */
-   COGL_MATRIX_TYPE_IDENTITY,	/**< identity matrix */
-   COGL_MATRIX_TYPE_3D_NO_ROT,	/**< orthogonal projection and others... */
-   COGL_MATRIX_TYPE_PERSPECTIVE,	/**< perspective projection matrix */
-   COGL_MATRIX_TYPE_2D,		/**< 2-D transformation */
-   COGL_MATRIX_TYPE_2D_NO_ROT,	/**< 2-D scale & translate only */
-   COGL_MATRIX_TYPE_3D,		/**< 3-D transformation */
-   COGL_MATRIX_N_TYPES
-} ;
-
 #define DEG2RAD (G_PI/180.0)
-
-/* Dot product of two 2-element vectors */
-#define DOT2(A,B)  ( (A)[0]*(B)[0] + (A)[1]*(B)[1] )
-
-/* Dot product of two 3-element vectors */
-#define DOT3(A,B)  ( (A)[0]*(B)[0] + (A)[1]*(B)[1] + (A)[2]*(B)[2] )
-
-#define CROSS3(N, U, V) \
-do { \
-    (N)[0] = (U)[1]*(V)[2] - (U)[2]*(V)[1]; \
-    (N)[1] = (U)[2]*(V)[0] - (U)[0]*(V)[2]; \
-    (N)[2] = (U)[0]*(V)[1] - (U)[1]*(V)[0]; \
-} while (0)
-
-#define SUB_3V(DST, SRCA, SRCB) \
-do { \
-    (DST)[0] = (SRCA)[0] - (SRCB)[0]; \
-    (DST)[1] = (SRCA)[1] - (SRCB)[1]; \
-    (DST)[2] = (SRCA)[2] - (SRCB)[2]; \
-} while (0)
-
-#define LEN_SQUARED_3FV( V ) ((V)[0]*(V)[0]+(V)[1]*(V)[1]+(V)[2]*(V)[2])
-
-/*
- * \defgroup MatFlags MAT_FLAG_XXX-flags
- *
- * Bitmasks to indicate different kinds of 4x4 matrices in CoglMatrix::flags
- */
-#define MAT_FLAG_IDENTITY       0     /*< is an identity matrix flag.
-                                       *   (Not actually used - the identity
-                                       *   matrix is identified by the absense
-                                       *   of all other flags.)
-                                       */
-#define MAT_FLAG_GENERAL        0x1   /*< is a general matrix flag */
-#define MAT_FLAG_ROTATION       0x2   /*< is a rotation matrix flag */
-#define MAT_FLAG_TRANSLATION    0x4   /*< is a translation matrix flag */
-#define MAT_FLAG_UNIFORM_SCALE  0x8   /*< is an uniform scaling matrix flag */
-#define MAT_FLAG_GENERAL_SCALE  0x10  /*< is a general scaling matrix flag */
-#define MAT_FLAG_GENERAL_3D     0x20  /*< general 3D matrix flag */
-#define MAT_FLAG_PERSPECTIVE    0x40  /*< is a perspective proj matrix flag */
-#define MAT_FLAG_SINGULAR       0x80  /*< is a singular matrix flag */
-#define MAT_DIRTY_TYPE          0x100  /*< matrix type is dirty */
-#define MAT_DIRTY_FLAGS         0x200  /*< matrix flags are dirty */
-#define MAT_DIRTY_INVERSE       0x400  /*< matrix inverse is dirty */
-
-/* angle preserving matrix flags mask */
-#define MAT_FLAGS_ANGLE_PRESERVING (MAT_FLAG_ROTATION | \
-				    MAT_FLAG_TRANSLATION | \
-				    MAT_FLAG_UNIFORM_SCALE)
-
-/* geometry related matrix flags mask */
-#define MAT_FLAGS_GEOMETRY (MAT_FLAG_GENERAL | \
-			    MAT_FLAG_ROTATION | \
-			    MAT_FLAG_TRANSLATION | \
-			    MAT_FLAG_UNIFORM_SCALE | \
-			    MAT_FLAG_GENERAL_SCALE | \
-			    MAT_FLAG_GENERAL_3D | \
-			    MAT_FLAG_PERSPECTIVE | \
-	                    MAT_FLAG_SINGULAR)
-
-/* length preserving matrix flags mask */
-#define MAT_FLAGS_LENGTH_PRESERVING (MAT_FLAG_ROTATION | \
-				     MAT_FLAG_TRANSLATION)
-
-
-/* 3D (non-perspective) matrix flags mask */
-#define MAT_FLAGS_3D (MAT_FLAG_ROTATION | \
-		      MAT_FLAG_TRANSLATION | \
-		      MAT_FLAG_UNIFORM_SCALE | \
-		      MAT_FLAG_GENERAL_SCALE | \
-		      MAT_FLAG_GENERAL_3D)
-
-/* dirty matrix flags mask */
-#define MAT_DIRTY_ALL      (MAT_DIRTY_TYPE | \
-			    MAT_DIRTY_FLAGS | \
-			    MAT_DIRTY_INVERSE)
-
-/*
- * Names of the corresponding CoglMatrixType values.
- */
-static const char *types[] = {
-   "COGL_MATRIX_TYPE_GENERAL",
-   "COGL_MATRIX_TYPE_IDENTITY",
-   "COGL_MATRIX_TYPE_3D_NO_ROT",
-   "COGL_MATRIX_TYPE_PERSPECTIVE",
-   "COGL_MATRIX_TYPE_2D",
-   "COGL_MATRIX_TYPE_2D_NO_ROT",
-   "COGL_MATRIX_TYPE_3D"
-};
-
 
 /*
  * Identity matrix.
@@ -229,8 +112,7 @@ static float identity[16] = {
  */
 static void
 matrix_multiply_array_with_flags (CoglMatrix *result,
-                                  const float *array,
-                                  unsigned int flags)
+                                  const float *array)
 {
   graphene_matrix_t m1, m2, res;
 
@@ -277,44 +159,14 @@ _cogl_matrix_multiply_array (CoglMatrix *result, const float *array)
 }
 #endif
 
-/*
- * Print a matrix array.
- *
- * Called by _cogl_matrix_print() to print a matrix or its inverse.
- */
-static void
-print_matrix_floats (const char *prefix, const float m[16])
-{
-  int i;
-  for (i = 0;i < 4; i++)
-    g_print ("%s\t%f %f %f %f\n", prefix, m[i], m[4+i], m[8+i], m[12+i] );
-}
-
 void
 _cogl_matrix_prefix_print (const char *prefix, const CoglMatrix *matrix)
 {
-  if (!(matrix->flags & MAT_DIRTY_TYPE))
-    {
-      _COGL_RETURN_IF_FAIL (matrix->type < COGL_MATRIX_N_TYPES);
-      g_print ("%sMatrix type: %s, flags: %x\n",
-               prefix, types[matrix->type], (int)matrix->flags);
-    }
-  else
-    g_print ("%sMatrix type: DIRTY, flags: %x\n",
-             prefix, (int)matrix->flags);
+  float *m = (float *) matrix;
+  int i;
 
-  print_matrix_floats (prefix, (float *)matrix);
-  g_print ("%sInverse: \n", prefix);
-  if (!(matrix->flags & MAT_DIRTY_INVERSE))
-    {
-      float prod[16];
-      print_matrix_floats (prefix, matrix->inv);
-      matrix_multiply4x4 (prod, (float *)matrix, matrix->inv);
-      g_print ("%sMat * Inverse:\n", prefix);
-      print_matrix_floats (prefix, prod);
-    }
-  else
-    g_print ("%s  - not available\n", prefix);
+  for (i = 0;i < 4; i++)
+    g_print ("%s\t%f %f %f %f\n", prefix, m[i], m[4+i], m[8+i], m[12+i] );
 }
 
 /*
@@ -534,7 +386,7 @@ _cogl_matrix_rotate (CoglMatrix *matrix,
     }
 #undef M
 
-  matrix_multiply_array_with_flags (matrix, m, MAT_FLAG_ROTATION);
+  matrix_multiply_array_with_flags (matrix, m);
 }
 
 void
@@ -600,7 +452,7 @@ _cogl_matrix_frustum (CoglMatrix *matrix,
   M (3,0) = 0.0f;  M (3,1) = 0.0f;  M (3,2) = -1.0f;  M (3,3) = 0.0f;
 #undef M
 
-  matrix_multiply_array_with_flags (matrix, m, MAT_FLAG_PERSPECTIVE);
+  matrix_multiply_array_with_flags (matrix, m);
 }
 
 void
@@ -674,9 +526,7 @@ _cogl_matrix_orthographic (CoglMatrix *matrix,
   M (3,3) = 1.0f;
 #undef M
 
-  matrix_multiply_array_with_flags (matrix, m,
-                                    (MAT_FLAG_GENERAL_SCALE |
-                                     MAT_FLAG_TRANSLATION));
+  matrix_multiply_array_with_flags (matrix, m);
 }
 
 void
@@ -721,13 +571,6 @@ _cogl_matrix_scale (CoglMatrix *matrix, float x, float y, float z)
   m[1] *= x;   m[5] *= y;   m[9]  *= z;
   m[2] *= x;   m[6] *= y;   m[10] *= z;
   m[3] *= x;   m[7] *= y;   m[11] *= z;
-
-  if (fabsf (x - y) < 1e-8 && fabsf (x - z) < 1e-8)
-    matrix->flags |= MAT_FLAG_UNIFORM_SCALE;
-  else
-    matrix->flags |= MAT_FLAG_GENERAL_SCALE;
-
-  matrix->flags |= (MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE);
 }
 
 void
@@ -755,10 +598,6 @@ _cogl_matrix_translate (CoglMatrix *matrix, float x, float y, float z)
   m[13] = m[1] * x + m[5] * y + m[9]  * z + m[13];
   m[14] = m[2] * x + m[6] * y + m[10] * z + m[14];
   m[15] = m[3] * x + m[7] * y + m[11] * z + m[15];
-
-  matrix->flags |= (MAT_FLAG_TRANSLATION |
-                    MAT_DIRTY_TYPE |
-                    MAT_DIRTY_INVERSE);
 }
 
 void
@@ -770,29 +609,6 @@ cogl_matrix_translate (CoglMatrix *matrix,
   _cogl_matrix_translate (matrix, x, y, z);
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
-
-#if 0
-/*
- * Set matrix to do viewport and depthrange mapping.
- * Transforms Normalized Device Coords to window/Z values.
- */
-static void
-_cogl_matrix_viewport (CoglMatrix *matrix,
-                       float x, float y,
-                       float width, float height,
-                       float zNear, float zFar, float depthMax)
-{
-  float *m = (float *)matrix;
-  m[MAT_SX] = width / 2.0f;
-  m[MAT_TX] = m[MAT_SX] + x;
-  m[MAT_SY] = height / 2.0f;
-  m[MAT_TY] = m[MAT_SY] + y;
-  m[MAT_SZ] = depthMax * ((zFar - zNear) / 2.0f);
-  m[MAT_TZ] = depthMax * ((zFar - zNear) / 2.0f + zNear);
-  matrix->flags = MAT_FLAG_GENERAL_SCALE | MAT_FLAG_TRANSLATION;
-  matrix->type = COGL_MATRIX_TYPE_3D_NO_ROT;
-}
-#endif
 
 /*
  * Set a matrix to the identity matrix.
@@ -807,9 +623,6 @@ static void
 _cogl_matrix_init_identity (CoglMatrix *matrix)
 {
   memcpy (matrix, identity, 16 * sizeof (float));
-
-  matrix->type = COGL_MATRIX_TYPE_IDENTITY;
-  matrix->flags = MAT_DIRTY_INVERSE;
 }
 
 void
@@ -830,50 +643,8 @@ cogl_matrix_init_translation (CoglMatrix *matrix,
   graphene_matrix_init_translate (&m, &GRAPHENE_POINT3D_INIT (tx, ty, tz));
   graphene_matrix_to_cogl_matrix (&m, matrix);
 
-  matrix->type = COGL_MATRIX_TYPE_3D;
-  matrix->flags = MAT_FLAG_TRANSLATION | MAT_DIRTY_INVERSE;
-
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
-
-#if 0
-/*
- * Test if the given matrix preserves vector lengths.
- */
-static gboolean
-_cogl_matrix_is_length_preserving (const CoglMatrix *m)
-{
-  return TEST_MAT_FLAGS (m, MAT_FLAGS_LENGTH_PRESERVING);
-}
-
-/*
- * Test if the given matrix does any rotation.
- * (or perhaps if the upper-left 3x3 is non-identity)
- */
-static gboolean
-_cogl_matrix_has_rotation (const CoglMatrix *matrix)
-{
-  if (matrix->flags & (MAT_FLAG_GENERAL |
-                       MAT_FLAG_ROTATION |
-                       MAT_FLAG_GENERAL_3D |
-                       MAT_FLAG_PERSPECTIVE))
-    return TRUE;
-  else
-    return FALSE;
-}
-
-static gboolean
-_cogl_matrix_is_general_scale (const CoglMatrix *matrix)
-{
-  return (matrix->flags & MAT_FLAG_GENERAL_SCALE) ? TRUE : FALSE;
-}
-
-static gboolean
-_cogl_matrix_is_dirty (const CoglMatrix *matrix)
-{
-  return (matrix->flags & MAT_DIRTY_ALL) ? TRUE : FALSE;
-}
-#endif
 
 /*
  * Loads a matrix array into CoglMatrix.
@@ -881,15 +652,12 @@ _cogl_matrix_is_dirty (const CoglMatrix *matrix)
  * @m matrix array.
  * @mat matrix.
  *
- * Copies \p m into CoglMatrix::m and marks the MAT_FLAG_GENERAL and
- * MAT_DIRTY_ALL
- * flags.
+ * Copies \p m into CoglMatrix::m.
  */
 static void
 _cogl_matrix_init_from_array (CoglMatrix *matrix, const float *array)
 {
   memcpy (matrix, array, 16 * sizeof (float));
-  matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
 }
 
 void
@@ -904,8 +672,6 @@ _cogl_matrix_init_from_matrix_without_inverse (CoglMatrix *matrix,
                                                const CoglMatrix *src)
 {
   memcpy (matrix, src, 16 * sizeof (float));
-  matrix->type = src->type;
-  matrix->flags = src->flags | MAT_DIRTY_INVERSE;
 }
 
 static void
@@ -942,8 +708,6 @@ _cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
   matrix->xw = matrix->yw = matrix->zw = 0.0f;
   matrix->wx = matrix->wy = matrix->wz = 0.0f;
   matrix->ww = 1.0f;
-
-  matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
 }
 
 void
@@ -1027,8 +791,6 @@ cogl_matrix_init_from_euler (CoglMatrix *matrix,
   matrix->yw = 0;
   matrix->zw = 0;
   matrix->ww = 1;
-
-  matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
 }
 
 void
@@ -1342,11 +1104,7 @@ cogl_matrix_project_points (const CoglMatrix *matrix,
 gboolean
 cogl_matrix_is_identity (const CoglMatrix *matrix)
 {
-  if (!(matrix->flags & MAT_DIRTY_TYPE) &&
-      matrix->type == COGL_MATRIX_TYPE_IDENTITY)
-    return TRUE;
-  else
-    return memcmp (matrix, identity, sizeof (float) * 16) == 0;
+  return memcmp (matrix, identity, sizeof (float) * 16) == 0;
 }
 
 void
@@ -1403,8 +1161,6 @@ cogl_matrix_look_at (CoglMatrix *matrix,
   tmp.yw = 0;
   tmp.zw = 0;
   tmp.ww = 1;
-
-  tmp.flags = (MAT_FLAG_GENERAL_3D | MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE);
 
   cogl_matrix_translate (&tmp, -eye_position_x, -eye_position_y, -eye_position_z);
 
