@@ -421,15 +421,16 @@ cogl_matrix_perspective (CoglMatrix *matrix,
                          float       z_near,
                          float       z_far)
 {
-  float ymax = z_near * tan (fov_y * G_PI / 360.0);
+  graphene_matrix_t perspective, m;
 
-  cogl_matrix_frustum (matrix,
-                       -ymax * aspect,  /* left */
-                       ymax * aspect,   /* right */
-                       -ymax,           /* bottom */
-                       ymax,            /* top */
-                       z_near,
-                       z_far);
+  graphene_matrix_init_perspective (&perspective, fov_y, aspect, z_near, z_far);
+
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_transpose (&m, &m);
+
+  graphene_matrix_multiply (&m, &perspective, &m);
+  graphene_matrix_to_cogl_matrix (&m, matrix);
+
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
