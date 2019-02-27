@@ -98,18 +98,6 @@ static float identity[16] = {
    0.0, 0.0, 0.0, 1.0
 };
 
-/*
- * Multiply a matrix by an array of floats with known properties.
- *
- * @mat pointer to a CoglMatrix structure containing the left multiplication
- * matrix, and that will receive the product result.
- * @m right multiplication matrix array.
- * @flags flags of the matrix \p m.
- *
- * Joins both flags and marks the type and inverse as dirty.  Calls
- * matrix_multiply3x4() if both matrices are 3D, or matrix_multiply4x4()
- * otherwise.
- */
 static void
 matrix_multiply_array_with_flags (CoglMatrix *result,
                                   const float *array)
@@ -142,22 +130,6 @@ cogl_matrix_multiply (CoglMatrix *result,
 
   _COGL_MATRIX_DEBUG_PRINT (result);
 }
-
-#if 0
-/* Marks the matrix flags with general flag, and type and inverse dirty flags.
- * Calls matrix_multiply4x4() for the multiplication.
- */
-static void
-_cogl_matrix_multiply_array (CoglMatrix *result, const float *array)
-{
-  result->flags |= (MAT_FLAG_GENERAL |
-                  MAT_DIRTY_TYPE |
-                  MAT_DIRTY_INVERSE |
-                  MAT_DIRTY_FLAGS);
-
-  matrix_multiply4x4 ((float *)result, (float *)result, (float *)array);
-}
-#endif
 
 void
 _cogl_matrix_prefix_print (const char *prefix, const CoglMatrix *matrix)
