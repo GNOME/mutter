@@ -520,6 +520,7 @@ cogl_matrix_stack_rotate_quaternion
 cogl_matrix_stack_scale
 cogl_matrix_stack_set
 cogl_matrix_stack_translate
+cogl_matrix_to_graphene_matrix
 cogl_matrix_transform_point
 cogl_matrix_transform_points
 cogl_matrix_translate
@@ -1016,3 +1017,5 @@ _cogl_texture_get_format
 cogl_fence_closure_get_user_data
 cogl_framebuffer_add_fence_callback
 cogl_framebuffer_cancel_fence_callback
+
+graphene_matrix_to_cogl_matrix

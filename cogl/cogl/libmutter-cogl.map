@@ -48,6 +48,7 @@ global:
   _cogl_pixel_format_get_bytes_per_pixel*;
   _cogl_system_error_quark;
   _cogl_util_next_p2;
+  graphene_matrix_to_cogl_matrix;
 local:
   *;
 };

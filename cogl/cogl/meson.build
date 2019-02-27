@@ -98,6 +98,7 @@ cogl_headers = [
 
 cogl_nonintrospected_headers = [
   'cogl-deprecated.h',
+  'cogl-graphene-utils.h',
   'cogl-pango.h',
   'cogl-renderer.h',
   'cogl-swap-chain.h',
@@ -214,6 +215,7 @@ cogl_sources = [
   'cogl-i18n-private.h',
   'cogl-debug.h',
   'cogl-debug-options.h',
+  'cogl-graphene-utils.c',
   'cogl-gpu-info.c',
   'cogl-gpu-info-private.h',
   'cogl-context-private.h',
