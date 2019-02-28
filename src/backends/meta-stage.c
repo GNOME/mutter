@@ -123,8 +123,11 @@ meta_overlay_paint (MetaOverlay *overlay)
                                    (overlay->current_rect.origin.y +
                                     overlay->current_rect.size.height));
 
-  overlay->previous_rect = overlay->current_rect;
-  overlay->previous_is_valid = TRUE;
+  if (!clutter_rect_equals (&overlay->previous_rect, &overlay->current_rect))
+    {
+      overlay->previous_rect = overlay->current_rect;
+      overlay->previous_is_valid = TRUE;
+    }
 }
 
 static void
