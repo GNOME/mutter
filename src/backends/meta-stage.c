@@ -214,31 +214,34 @@ meta_stage_new (void)
 }
 
 static void
+queue_redraw_clutter_rect (MetaStage   *stage,
+                           MetaOverlay *overlay,
+                           ClutterRect *rect)
+{
+  cairo_rectangle_int_t clip = {
+    .x = floorf (rect->origin.x),
+    .y = floorf (rect->origin.y),
+    .width = ceilf (rect->size.width),
+    .height = ceilf (rect->size.height)
+  };
+
+  clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage), &clip);
+}
+
+static void
 queue_redraw_for_overlay (MetaStage   *stage,
                           MetaOverlay *overlay)
 {
-  cairo_rectangle_int_t clip;
-
   /* Clear the location the overlay was at before, if we need to. */
   if (overlay->previous_is_valid)
     {
-      clip.x = floorf (overlay->previous_rect.origin.x),
-      clip.y = floorf (overlay->previous_rect.origin.y),
-      clip.width = ceilf (overlay->previous_rect.size.width),
-      clip.height = ceilf (overlay->previous_rect.size.height),
-      clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage), &clip);
+      queue_redraw_clutter_rect (stage, overlay, &overlay->previous_rect);
       overlay->previous_is_valid = FALSE;
     }
 
   /* Draw the overlay at the new position */
   if (overlay->enabled)
-    {
-      clip.x = floorf (overlay->current_rect.origin.x),
-      clip.y = floorf (overlay->current_rect.origin.y),
-      clip.width = ceilf (overlay->current_rect.size.width),
-      clip.height = ceilf (overlay->current_rect.size.height),
-      clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage), &clip);
-    }
+    queue_redraw_clutter_rect (stage, overlay, &overlay->current_rect);
 }
 
 MetaOverlay *
