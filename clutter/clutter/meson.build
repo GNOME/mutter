@@ -231,9 +231,7 @@ clutter_deprecated_headers = [
   'deprecated/clutter-group.h',
   'deprecated/clutter-input-device.h',
   'deprecated/clutter-keysyms.h',
-  'deprecated/clutter-list-model.h',
   'deprecated/clutter-main.h',
-  'deprecated/clutter-model.h',
   'deprecated/clutter-rectangle.h',
   'deprecated/clutter-stage-manager.h',
   'deprecated/clutter-stage.h',
@@ -256,16 +254,10 @@ clutter_deprecated_sources = [
   'deprecated/clutter-group.c',
   'deprecated/clutter-input-device-deprecated.c',
   'deprecated/clutter-layout-manager-deprecated.c',
-  'deprecated/clutter-list-model.c',
-  'deprecated/clutter-model.c',
   'deprecated/clutter-rectangle.c',
   'deprecated/clutter-state.c',
   'deprecated/clutter-table-layout.c',
   'deprecated/clutter-texture.c',
-]
-
-clutter_deprecated_private_headers = [
-  'deprecated/clutter-model-private.h',
 ]
 
 clutter_backend_sources = []
@@ -484,7 +476,6 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
     clutter_nonintrospected_sources,
     clutter_deprecated_sources,
     clutter_deprecated_headers,
-    clutter_deprecated_private_headers,
     clutter_backend_sources,
     clutter_backend_nonintrospected_sources,
     clutter_backend_headers,
