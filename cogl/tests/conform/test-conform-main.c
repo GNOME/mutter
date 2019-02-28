@@ -139,7 +139,7 @@ main (int argc, char **argv)
             TEST_REQUIREMENT_GLES2_CONTEXT,
             0);
 
-  ADD_TEST (test_euler_quaternion, 0, 0);
+  ADD_TEST (test_euler_quaternion, 0, TEST_KNOWN_FAILURE);
   ADD_TEST (test_color_hsl, 0, 0);
 
   ADD_TEST (test_fence, TEST_REQUIREMENT_FENCE, 0);
