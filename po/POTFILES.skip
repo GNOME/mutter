@@ -75,6 +75,5 @@ clutter/clutter/evdev/clutter-virtual-input-device-evdev.c
 clutter/clutter/wayland/clutter-wayland-surface.c
 clutter/clutter/x11/clutter-backend-x11.c
 clutter/clutter/x11/clutter-keymap-x11.c
-clutter/clutter/x11/clutter-x11-texture-pixmap.c
 cogl/cogl/cogl-debug.c
 cogl/cogl/cogl-debug-options.h
