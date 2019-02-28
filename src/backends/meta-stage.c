@@ -225,6 +225,11 @@ queue_redraw_clutter_rect (MetaStage   *stage,
     .height = ceilf (rect->size.height)
   };
 
+  /* Since we're flooring the coordinates, we need to enlarge the clip by the
+   * difference between the actual coordinate and the floored value */
+  clip.width += ceilf (rect->origin.x - clip.x) * 2;
+  clip.height += ceilf (rect->origin.y - clip.y) * 2;
+
   clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage), &clip);
 }
 
