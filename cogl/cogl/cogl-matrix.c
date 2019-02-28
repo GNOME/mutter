@@ -713,52 +713,22 @@ cogl_matrix_look_at (CoglMatrix *matrix,
                      float world_up_y,
                      float world_up_z)
 {
-  CoglMatrix tmp;
-  graphene_vec3_t forward;
-  graphene_vec3_t side;
-  graphene_vec3_t up;
+  graphene_matrix_t look_at, m;
+  graphene_vec3_t eye, center, up;
 
-  /* Get a unit viewing direction vector */
-  graphene_vec3_init (&forward,
-                      object_x - eye_position_x,
-                      object_y - eye_position_y,
-                      object_z - eye_position_z);
-  graphene_vec3_normalize (&forward, &forward);
-
+  graphene_vec3_init (&eye, eye_position_x, eye_position_y, eye_position_z);
+  graphene_vec3_init (&center, object_x, object_y, object_z);
   graphene_vec3_init (&up, world_up_x, world_up_y, world_up_z);
+  graphene_matrix_init_look_at (&look_at, &eye, &center, &up);
 
-  /* Take the sideways direction as being perpendicular to the viewing
-   * direction and the word up vector. */
-  graphene_vec3_cross (&forward, &up, &side);
-  graphene_vec3_normalize (&side, &side);
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_transpose (&m, &m);
 
-  /* Now we have unit sideways and forward-direction vectors calculate
-   * a new mutually perpendicular up vector. */
-  graphene_vec3_cross (&side, &forward, &up);
-
-  tmp.xx = graphene_vec3_get_x (&side);
-  tmp.yx = graphene_vec3_get_y (&side);
-  tmp.zx = graphene_vec3_get_z (&side);
-  tmp.wx = 0;
-
-  tmp.xy = graphene_vec3_get_x (&up);
-  tmp.yy = graphene_vec3_get_y (&up);
-  tmp.zy = graphene_vec3_get_z (&up);
-  tmp.wy = 0;
-
-  tmp.xz = -graphene_vec3_get_x (&forward);
-  tmp.yz = -graphene_vec3_get_y (&forward);
-  tmp.zz = -graphene_vec3_get_z (&forward);
-  tmp.wz = 0;
-
-  tmp.xw = 0;
-  tmp.yw = 0;
-  tmp.zw = 0;
-  tmp.ww = 1;
-
-  cogl_matrix_translate (&tmp, -eye_position_x, -eye_position_y, -eye_position_z);
-
-  cogl_matrix_multiply (matrix, matrix, &tmp);
+  graphene_matrix_translate (&m, &GRAPHENE_POINT3D_INIT (-eye_position_x,
+                                                         -eye_position_y,
+                                                         -eye_position_z));
+  graphene_matrix_multiply (&m, &look_at, &m);
+  graphene_matrix_to_cogl_matrix (&m, matrix);
 }
 
 void
