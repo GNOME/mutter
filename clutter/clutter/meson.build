@@ -287,7 +287,6 @@ if have_x11
     'x11/clutter-keymap-x11.c',
     'x11/clutter-stage-x11.c',
     'x11/clutter-virtual-input-device-x11.c',
-    'x11/clutter-x11-texture-pixmap.c',
   ]
   clutter_backend_sources += clutter_x11_sources
 
@@ -298,7 +297,6 @@ if have_x11
 
   clutter_x11_headers = [
     'x11/clutter-x11.h',
-    'x11/clutter-x11-texture-pixmap.h',
   ]
   clutter_backend_headers += clutter_x11_headers
 
