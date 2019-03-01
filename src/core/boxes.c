@@ -2158,10 +2158,15 @@ meta_rectangle_crop_and_scale (const MetaRectangle *rect,
                                int                  dst_height,
                                MetaRectangle       *dest)
 {
-  dest->x = floorf (rect->x * (src_rect->size.width / dst_width) +
-                    src_rect->origin.x);
-  dest->y = floorf (rect->y * (src_rect->size.height / dst_height) +
-                    src_rect->origin.y);
-  dest->width  = ceilf (rect->width * (src_rect->size.width / dst_width));
-  dest->height = ceilf (rect->height * (src_rect->size.height / dst_height));
+  float x_scale = src_rect->size.width / dst_width;
+  float y_scale = src_rect->size.height / dst_height;
+  float x1 = rect->x * x_scale + src_rect->origin.x;
+  float y1 = rect->y * y_scale + src_rect->origin.y;
+  float x2 = x1 + rect->width * x_scale;
+  float y2 = y1 + rect->height * y_scale;
+
+  dest->x = floorf (x1);
+  dest->y = floorf (y1);
+  dest->width  = ceilf (x2) - dest->x;
+  dest->height = ceilf (y2) - dest->y;
 }
