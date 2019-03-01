@@ -2152,6 +2152,39 @@ meta_rectangle_transform (const MetaRectangle  *rect,
 }
 
 void
+meta_rectangle_from_clutter_rect (ClutterRect          *rect,
+                                  MetaRoundingStrategy  rounding_strategy,
+                                  MetaRectangle        *dest)
+{
+  switch (rounding_strategy)
+    {
+    case META_ROUNDING_STRATEGY_SHRINK:
+      {
+        *dest = (MetaRectangle) {
+          .x = ceilf (rect->origin.x),
+          .y = ceilf (rect->origin.y),
+          .width = floorf (rect->origin.x + rect->size.width) - dest->x,
+          .height = floorf (rect->origin.y + rect->size.height) - dest->x,
+        };
+      }
+      break;
+    case META_ROUNDING_STRATEGY_GROW:
+      {
+        ClutterRect clamped = *rect;
+        clutter_rect_clamp_to_pixel (&clamped);
+
+        *dest = (MetaRectangle) {
+          .x = clamped.origin.x,
+          .y = clamped.origin.y,
+          .width = clamped.size.width,
+          .height = clamped.size.height,
+        };
+      }
+      break;
+    }
+}
+
+void
 meta_rectangle_crop_and_scale (const MetaRectangle *rect,
                                ClutterRect         *src_rect,
                                int                  dst_width,
