@@ -199,44 +199,6 @@ script_single (void)
 }
 
 static void
-script_implicit_alpha (void)
-{
-  ClutterScript *script = clutter_script_new ();
-  ClutterTimeline *timeline;
-  GObject *behaviour = NULL;
-  GError *error = NULL;
-  ClutterAlpha *alpha;
-  gchar *test_file;
-
-  test_file = g_test_build_filename (G_TEST_DIST, "scripts", "test-script-implicit-alpha.json", NULL);
-  clutter_script_load_from_file (script, test_file, &error);
-  if (g_test_verbose () && error)
-    g_print ("Error: %s", error->message);
-
-#if GLIB_CHECK_VERSION (2, 20, 0)
-  g_assert_no_error (error);
-#else
-  g_assert (error == NULL);
-#endif
-
-  behaviour = clutter_script_get_object (script, "test");
-  g_assert (CLUTTER_IS_BEHAVIOUR (behaviour));
-
-  alpha = clutter_behaviour_get_alpha (CLUTTER_BEHAVIOUR (behaviour));
-  g_assert (CLUTTER_IS_ALPHA (alpha));
-
-  g_assert_cmpint (clutter_alpha_get_mode (alpha), ==, CLUTTER_EASE_OUT_CIRC);
-
-  timeline = clutter_alpha_get_timeline (alpha);
-  g_assert (CLUTTER_IS_TIMELINE (timeline));
-
-  g_assert_cmpint (clutter_timeline_get_duration (timeline), ==, 500);
-
-  g_object_unref (script);
-  g_free (test_file);
-}
-
-static void
 script_object_property (void)
 {
   ClutterScript *script = clutter_script_new ();
@@ -422,7 +384,6 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/script/container-child", script_child)
   CLUTTER_TEST_UNIT ("/script/named-object", script_named_object)
   CLUTTER_TEST_UNIT ("/script/animation", script_animation)
-  CLUTTER_TEST_UNIT ("/script/implicit-alpha", script_implicit_alpha)
   CLUTTER_TEST_UNIT ("/script/object-property", script_object_property)
   CLUTTER_TEST_UNIT ("/script/layout-property", script_layout_property)
   CLUTTER_TEST_UNIT ("/script/actor-margin", script_margin)
