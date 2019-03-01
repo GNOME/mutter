@@ -2191,10 +2191,13 @@ meta_rectangle_crop_and_scale (const MetaRectangle *rect,
                                int                  dst_height,
                                MetaRectangle       *dest)
 {
-  dest->x = floorf (rect->x * (src_rect->size.width / dst_width) +
-                    src_rect->origin.x);
-  dest->y = floorf (rect->y * (src_rect->size.height / dst_height) +
-                    src_rect->origin.y);
-  dest->width  = ceilf (rect->width * (src_rect->size.width / dst_width));
-  dest->height = ceilf (rect->height * (src_rect->size.height / dst_height));
+  ClutterRect tmp = CLUTTER_RECT_INIT (rect->x, rect->y,
+                                       rect->width, rect->height);
+
+  clutter_rect_scale (&tmp,
+                      src_rect->size.width / dst_width,
+                      src_rect->size.height / dst_height);
+  clutter_rect_offset (&tmp, src_rect->origin.x, src_rect->origin.y);
+
+  meta_rectangle_from_clutter_rect (&tmp, META_ROUNDING_STRATEGY_GROW, dest);
 }
