@@ -578,6 +578,20 @@ is_buffer_age_enabled (void)
          cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
 }
 
+static void
+fill_rectangle_clamping_to_pixels (cairo_rectangle_int_t *rect,
+                                   float                  x,
+                                   float                  y,
+                                   float                  width,
+                                   float                  height,
+                                   float                  scale)
+{
+  rect->x = floorf (x * scale);
+  rect->y = floorf (y * scale);
+  rect->width = ceilf ((x + width) * scale) - rect->x;
+  rect->height = ceilf ((y + height) * scale) - rect->y;
+}
+
 static gboolean
 clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                                 ClutterStageView   *view)
@@ -643,19 +657,21 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     {
       may_use_clipped_redraw = TRUE;
 
-      if (fb_scale != floorf (fb_scale))
-        subpixel_compensation = ceilf (fb_scale);
+      fill_rectangle_clamping_to_pixels (&fb_clip_region,
+                                         redraw_clip.x - view_rect.x,
+                                         redraw_clip.y - view_rect.y,
+                                         redraw_clip.width,
+                                         redraw_clip.height,
+                                         fb_scale);
 
-      fb_clip_region = (cairo_rectangle_int_t) {
-        .x = (floorf ((redraw_clip.x - view_rect.x) * fb_scale) -
-              subpixel_compensation),
-        .y = (floorf ((redraw_clip.y - view_rect.y) * fb_scale) -
-              subpixel_compensation),
-        .width = (ceilf (redraw_clip.width * fb_scale) +
-                  (2 * subpixel_compensation)),
-        .height = (ceilf (redraw_clip.height * fb_scale) +
-                   (2 * subpixel_compensation))
-      };
+      if (fb_scale != floorf (fb_scale))
+        {
+          subpixel_compensation = ceilf (fb_scale);
+          fb_clip_region.x -= subpixel_compensation;
+          fb_clip_region.y -= subpixel_compensation;
+          fb_clip_region.width += 2 * subpixel_compensation;
+          fb_clip_region.height += 2 * subpixel_compensation;
+        }
     }
   else
     {
@@ -698,12 +714,12 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                 }
 
               /* Update the bounding redraw clip state with the extra damage. */
-              damage_region = (cairo_rectangle_int_t) {
-                .x = view_rect.x + floorf (fb_clip_region.x / fb_scale),
-                .y = view_rect.y + floorf (fb_clip_region.y / fb_scale),
-                .width = ceilf (fb_clip_region.width / fb_scale),
-                .height = ceilf (fb_clip_region.height / fb_scale)
-              };
+              fill_rectangle_clamping_to_pixels (&damage_region,
+                                                 fb_clip_region.x + view_rect.x * fb_scale,
+                                                 fb_clip_region.y + view_rect.y * fb_scale,
+                                                 fb_clip_region.width,
+                                                 fb_clip_region.height,
+                                                 1.0f / fb_scale);
               _clutter_util_rectangle_union (&stage_cogl->bounding_redraw_clip,
                                              &damage_region,
                                              &stage_cogl->bounding_redraw_clip);
@@ -743,6 +759,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   else if (use_clipped_redraw)
     {
       cairo_rectangle_int_t scissor_rect;
+      cairo_rectangle_int_t paint_rect;
 
       calculate_scissor_region (&fb_clip_region,
                                 subpixel_compensation,
@@ -763,13 +780,14 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                                           scissor_rect.y,
                                           scissor_rect.width,
                                           scissor_rect.height);
-      paint_stage (stage_cogl, view,
-                   &(cairo_rectangle_int_t) {
-                     .x = view_rect.x + floorf ((fb_clip_region.x - 0) / fb_scale),
-                     .y = view_rect.y + floorf ((fb_clip_region.y - 0) / fb_scale),
-                     .width = ceilf ((fb_clip_region.width + 0) / fb_scale),
-                     .height = ceilf ((fb_clip_region.height + 0) / fb_scale)
-                   });
+
+      fill_rectangle_clamping_to_pixels (&paint_rect,
+                                         fb_clip_region.x + view_rect.x * fb_scale,
+                                         fb_clip_region.y + view_rect.y * fb_scale,
+                                         fb_clip_region.width,
+                                         fb_clip_region.height,
+                                         1.0f / fb_scale);
+      paint_stage (stage_cogl, view, &paint_rect);
       cogl_framebuffer_pop_clip (fb);
 
       stage_cogl->using_clipped_redraw = FALSE;
@@ -785,6 +803,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
           !clip_region_empty)
         {
           cairo_rectangle_int_t scissor_rect;
+          cairo_rectangle_int_t paint_rect;
 
           calculate_scissor_region (&fb_clip_region,
                                     subpixel_compensation,
@@ -796,13 +815,13 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                                               scissor_rect.y,
                                               scissor_rect.width,
                                               scissor_rect.height);
-          paint_stage (stage_cogl, view,
-                       &(cairo_rectangle_int_t) {
-                         .x = view_rect.x + floorf (fb_clip_region.x / fb_scale),
-                         .y = view_rect.y + floorf (fb_clip_region.y / fb_scale),
-                         .width = ceilf (fb_clip_region.width / fb_scale),
-                         .height = ceilf (fb_clip_region.height / fb_scale)
-                       });
+          fill_rectangle_clamping_to_pixels (&paint_rect,
+                                             fb_clip_region.x + view_rect.x * fb_scale,
+                                             fb_clip_region.y + view_rect.y * fb_scale,
+                                             fb_clip_region.width,
+                                             fb_clip_region.height,
+                                             1.0f / fb_scale);
+          paint_stage (stage_cogl, view, &paint_rect);
           cogl_framebuffer_pop_clip (fb);
         }
       else
