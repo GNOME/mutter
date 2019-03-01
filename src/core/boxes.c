@@ -2054,25 +2054,11 @@ meta_rectangle_scale_double (const MetaRectangle  *rect,
                              MetaRoundingStrategy  rounding_strategy,
                              MetaRectangle        *dest)
 {
-  switch (rounding_strategy)
-    {
-    case META_ROUNDING_STRATEGY_SHRINK:
-      *dest = (MetaRectangle) {
-        .x = (int) ceil (rect->x * scale),
-        .y = (int) ceil (rect->y * scale),
-        .width = (int) floor (rect->width * scale),
-        .height = (int) floor (rect->height * scale),
-      };
-      break;
-    case META_ROUNDING_STRATEGY_GROW:
-      *dest = (MetaRectangle) {
-        .x = (int) floor (rect->x * scale),
-        .y = (int) floor (rect->y * scale),
-        .width = (int) ceil (rect->width * scale),
-        .height = (int) ceil (rect->height * scale),
-      };
-      break;
-    }
+  ClutterRect tmp = CLUTTER_RECT_INIT (rect->x, rect->y,
+                                       rect->width, rect->height);
+
+  clutter_rect_scale (&tmp, scale, scale);
+  meta_rectangle_from_clutter_rect (&tmp, rounding_strategy, dest);
 }
 
 void
