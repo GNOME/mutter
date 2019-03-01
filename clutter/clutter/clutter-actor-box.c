@@ -314,30 +314,6 @@ clutter_actor_box_get_area (const ClutterActorBox *box)
 }
 
 /**
- * clutter_actor_box_contains:
- * @box: a #ClutterActorBox
- * @x: X coordinate of the point
- * @y: Y coordinate of the point
- *
- * Checks whether a point with @x, @y coordinates is contained
- * withing @box
- *
- * Return value: %TRUE if the point is contained by the #ClutterActorBox
- *
- * Since: 1.0
- */
-gboolean
-clutter_actor_box_contains (const ClutterActorBox *box,
-                            gfloat                 x,
-                            gfloat                 y)
-{
-  g_return_val_if_fail (box != NULL, FALSE);
-
-  return (x > box->x1 && x < box->x2) &&
-         (y > box->y1 && y < box->y2);
-}
-
-/**
  * clutter_actor_box_from_vertices:
  * @box: a #ClutterActorBox
  * @verts: (array fixed-size=4): array of four #ClutterVertex
