@@ -1147,13 +1147,39 @@ clutter_rect_inset (ClutterRect *rect,
 }
 
 /**
+ * clutter_rect_scale:
+ * @rect: a #ClutterRect
+ * @s_x: an horizontal scale value
+ * @s_y: a vertical scale value
+ *
+ * Scale the rectangle coordinates and size by @s_x horizontally and
+ * @s_y vertically.
+ */
+void
+clutter_rect_scale (ClutterRect *rect,
+                    float        s_x,
+                    float        s_y)
+{
+  g_return_if_fail (rect != NULL);
+  g_return_if_fail (s_x > 0.f);
+  g_return_if_fail (s_y > 0.f);
+
+  clutter_rect_normalize_internal (rect);
+
+  rect->origin.x *= s_x;
+  rect->origin.y *= s_y;
+  rect->size.width *= s_x;
+  rect->size.height *= s_y;
+}
+
+/**
  * clutter_rect_clamp_to_pixel:
  * @rect: a #ClutterRect
  *
- * Rounds the origin of @rect downwards to the nearest integer, and rounds
- * the size of @rect upwards to the nearest integer, so that @rect is
- * updated to the smallest rectangle capable of fully containing the
- * original, fractional rectangle.
+ * Rounds the origin of @rect downwards to the nearest integer, and recompute the
+ * the size using the @rect origin and size rounded upwards to the nearest integer,
+ * so that @rect is updated to the smallest rectangle capable of fully containing
+ * the original, fractional rectangle in the coordinates space.
  *
  * Since: 1.12
  */

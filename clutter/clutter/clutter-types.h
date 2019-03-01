@@ -361,6 +361,10 @@ void                    clutter_rect_inset              (ClutterRect       *rect
                                                          float              d_x,
                                                          float              d_y);
 CLUTTER_EXPORT
+void                    clutter_rect_scale              (ClutterRect       *rect,
+                                                         float              s_x,
+                                                         float              s_y);
+CLUTTER_EXPORT
 void                    clutter_rect_clamp_to_pixel     (ClutterRect       *rect);
 CLUTTER_EXPORT
 float                   clutter_rect_get_x              (ClutterRect       *rect);
