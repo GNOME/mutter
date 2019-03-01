@@ -1094,61 +1094,6 @@ clutter_wayland_set_compositor_display (void *display)
 }
 #endif
 
-/**
- * clutter_set_windowing_backend:
- * @backend_type: a comma separated list of windowing backends
- *
- * Restricts Clutter to only use the specified backend or list of backends.
- *
- * You can use one of the `CLUTTER_WINDOWING_*` symbols, e.g.
- *
- * |[<!-- language="C" -->
- *   clutter_set_windowing_backend (CLUTTER_WINDOWING_X11);
- * ]|
- *
- * Will force Clutter to use the X11 windowing and input backend, and terminate
- * if the X11 backend could not be initialized successfully.
- *
- * Since Clutter 1.26, you can also use a comma-separated list of windowing
- * system backends to provide a fallback in case backends are not available or
- * enabled, e.g.:
- *
- * |[<!-- language="C" -->
- *   clutter_set_windowing_backend ("gdk,wayland,x11");
- * ]|
- *
- * Will make Clutter test for the GDK, Wayland, and X11 backends in that order.
- *
- * You can use the `*` special value to ask Clutter to use the internally
- * defined list of backends. For instance:
- *
- * |[<!-- language="C" -->
- *   clutter_set_windowing_backend ("x11,wayland,*");
- * ]|
- *
- * Will make Clutter test the X11 and Wayland backends, and then fall back
- * to the internal list of available backends.
- *
- * This function must be called before the first API call to Clutter, including
- * clutter_get_option_context()
- *
- * Since: 1.16
- */
-void
-clutter_set_windowing_backend (const char *backend_type)
-{
-  g_return_if_fail (backend_type != NULL);
-
-  allowed_backends = g_strdup (backend_type);
-}
-
-void
-clutter_try_set_windowing_backend (const char *backend_type)
-{
-  if (allowed_backends == NULL)
-    clutter_set_windowing_backend (backend_type);
-}
-
 PangoDirection
 _clutter_backend_get_keymap_direction (ClutterBackend *backend)
 {
