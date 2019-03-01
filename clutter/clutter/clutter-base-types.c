@@ -1160,15 +1160,20 @@ clutter_rect_inset (ClutterRect *rect,
 void
 clutter_rect_clamp_to_pixel (ClutterRect *rect)
 {
+  float x2, y2;
+
   g_return_if_fail (rect != NULL);
 
   clutter_rect_normalize_internal (rect);
 
+  x2 = rect->origin.x + rect->size.width;
+  y2 = rect->origin.y + rect->size.height;
+
   rect->origin.x = floorf (rect->origin.x);
   rect->origin.y = floorf (rect->origin.y);
 
-  rect->size.width = ceilf (rect->size.width);
-  rect->size.height = ceilf (rect->size.height);
+  rect->size.width = ceilf (x2) - rect->origin.x;
+  rect->size.height = ceilf (y2) - rect->origin.y;
 }
 
 /**
