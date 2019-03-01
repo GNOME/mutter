@@ -105,6 +105,21 @@ _clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
     }
 }
 
+void _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
+                                        ClutterRect                 *dest)
+{
+  *dest = (ClutterRect) {
+    .origin = {
+      .x = src->x,
+      .y = src->y
+    },
+    .size = {
+      .width = src->width,
+      .height = src->height
+    }
+  };
+}
+
 /*< private >
  * _clutter_util_rectangle_union:
  * @src1: first rectangle to union
