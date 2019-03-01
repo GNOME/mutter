@@ -47,18 +47,6 @@ static const gchar *test_behaviour =
 "    \"function\" : \"sine_alpha\","
 "    \"timeline\" : \"main-timeline\""
 "  },"
-"  {"
-"    \"id\"            : \"fade-behaviour\","
-"    \"type\"          : \"ClutterBehaviourOpacity\","
-"    \"opacity-start\" : 255,"
-"    \"opacity-end\"   : 0,"
-"    \"alpha\"         : {"
-"      \"id\"       : \"fade-alpha\","
-"      \"type\"     : \"ClutterAlpha\","
-"      \"timeline\" : \"main-timeline\","
-"      \"mode\"     : \"linear\""
-"    }"
-"  }"
 "]";
 
 static gboolean
