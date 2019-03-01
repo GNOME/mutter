@@ -551,31 +551,22 @@ calculate_scissor_region (cairo_rectangle_int_t *fb_clip_region,
                           int                    fb_height,
                           cairo_rectangle_int_t *out_scissor_rect)
 {
-  int scissor_x;
-  int scissor_y;
-  int scissor_width;
-  int scissor_height;
+  out_scissor_rect->x = fb_clip_region->x;
+  out_scissor_rect->y = fb_clip_region->y;
+  out_scissor_rect->width = fb_clip_region->width;
+  out_scissor_rect->height = fb_clip_region->height;
 
-  scissor_x = fb_clip_region->x;
-  scissor_y = fb_clip_region->y;
-  scissor_width = fb_clip_region->width;
-  scissor_height = fb_clip_region->height;
+  if (subpixel_compensation == 0)
+    return;
 
   if (fb_clip_region->x > 0)
-    scissor_x += subpixel_compensation;
+    out_scissor_rect->x += subpixel_compensation;
   if (fb_clip_region->y > 0)
-    scissor_y += subpixel_compensation;
+    out_scissor_rect->y += subpixel_compensation;
   if (fb_clip_region->x + fb_clip_region->width < fb_width)
-    scissor_width -= 2 * subpixel_compensation;
+    out_scissor_rect->width -= 2 * subpixel_compensation;
   if (fb_clip_region->y + fb_clip_region->height < fb_height)
-    scissor_height -= 2 * subpixel_compensation;
-
-  *out_scissor_rect = (cairo_rectangle_int_t) {
-    .x = scissor_x,
-    .y = scissor_y,
-    .width = scissor_width,
-    .height = scissor_height
-  };
+    out_scissor_rect->height -= 2 * subpixel_compensation;
 }
 
 static inline gboolean
