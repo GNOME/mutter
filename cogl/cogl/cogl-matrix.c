@@ -276,30 +276,18 @@ cogl_matrix_scale (CoglMatrix *matrix,
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
-/*
- * Multiply a matrix with a translation matrix.
- *
- * Adds the translation coordinates to the elements of matrix in-place.  Marks
- * the MAT_FLAG_TRANSLATION flag, and the MAT_DIRTY_TYPE and MAT_DIRTY_INVERSE
- * dirty flags.
- */
-static void
-_cogl_matrix_translate (CoglMatrix *matrix, float x, float y, float z)
-{
-  float *m = (float *)matrix;
-  m[12] = m[0] * x + m[4] * y + m[8]  * z + m[12];
-  m[13] = m[1] * x + m[5] * y + m[9]  * z + m[13];
-  m[14] = m[2] * x + m[6] * y + m[10] * z + m[14];
-  m[15] = m[3] * x + m[7] * y + m[11] * z + m[15];
-}
-
 void
 cogl_matrix_translate (CoglMatrix *matrix,
 		       float x,
 		       float y,
 		       float z)
 {
-  _cogl_matrix_translate (matrix, x, y, z);
+  graphene_matrix_t m;
+
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_translate (&m, &GRAPHENE_POINT3D_INIT (x, y, z));
+  graphene_matrix_to_cogl_matrix (&m, matrix);
+
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
