@@ -241,6 +241,9 @@ void  _clutter_util_fully_transform_vertices (const CoglMatrix    *modelview,
                                               ClutterVertex       *vertices_out,
                                               int                  n_vertices);
 
+void _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
+                                        ClutterRect                 *dest);
+
 void _clutter_util_rectangle_union (const cairo_rectangle_int_t *src1,
                                     const cairo_rectangle_int_t *src2,
                                     cairo_rectangle_int_t       *dest);
