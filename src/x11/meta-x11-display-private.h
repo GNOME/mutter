@@ -156,6 +156,8 @@ struct _MetaX11Display
 
 MetaX11Display *meta_x11_display_new (MetaDisplay *display, GError **error);
 
+void meta_x11_display_restore_active_workspace (MetaX11Display *x11_display);
+
 Window meta_x11_display_create_offscreen_window (MetaX11Display *x11_display,
                                                  Window          parent,
                                                  long            valuemask);
