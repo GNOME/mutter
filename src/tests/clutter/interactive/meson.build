@@ -34,7 +34,6 @@ clutter_tests_interactive_test_sources = [
   'test-cogl-multitexture.c',
   'test-stage-read-pixels.c',
   'test-paint-wrapper.c',
-  'test-texture-quality.c',
   'test-layout.c',
   'test-animation.c',
   'test-easing.c',
