@@ -1068,8 +1068,6 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   Atom wm_sn_atom;
   char buf[128];
   guint32 timestamp;
-  MetaWorkspace *current_workspace;
-  uint32_t current_workspace_index = 0;
   Atom atom_restart_helper;
   Window restart_helper_window = None;
   GdkDisplay *gdk_display;
@@ -1275,27 +1273,6 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
 
   meta_x11_display_update_workspace_layout (x11_display);
 
-  /* Get current workspace */
-  if (meta_prop_get_cardinal (x11_display,
-                              x11_display->xroot,
-                              x11_display->atom__NET_CURRENT_DESKTOP,
-                              &current_workspace_index))
-    {
-      meta_verbose ("Read existing _NET_CURRENT_DESKTOP = %d\n",
-                    (int) current_workspace_index);
-
-      /* Switch to the _NET_CURRENT_DESKTOP workspace */
-      current_workspace = meta_workspace_manager_get_workspace_by_index (display->workspace_manager,
-                                                                         current_workspace_index);
-
-      if (current_workspace != NULL)
-        meta_workspace_activate (current_workspace, timestamp);
-    }
-  else
-    {
-      meta_verbose ("No _NET_CURRENT_DESKTOP present\n");
-    }
-
   if (meta_prefs_get_dynamic_workspaces ())
     {
       int num = 0;
@@ -1314,8 +1291,6 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
         if (num > meta_workspace_manager_get_n_workspaces (display->workspace_manager))
           meta_workspace_manager_update_num_workspaces (display->workspace_manager, timestamp, num);
     }
-
-  set_active_workspace_hint (display->workspace_manager, x11_display);
 
   g_signal_connect_object (display->workspace_manager, "active-workspace-changed",
                            G_CALLBACK (set_active_workspace_hint),
@@ -1354,6 +1329,43 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   meta_x11_startup_notification_init (x11_display);
 
   return x11_display;
+}
+
+void
+meta_x11_display_restore_active_workspace (MetaX11Display *x11_display)
+{
+  MetaDisplay *display;
+  MetaWorkspace *current_workspace;
+  uint32_t current_workspace_index = 0;
+  guint32 timestamp;
+
+  g_return_if_fail (META_IS_X11_DISPLAY (x11_display));
+
+  display = x11_display->display;
+  timestamp = x11_display->timestamp;
+
+  /* Get current workspace */
+  if (meta_prop_get_cardinal (x11_display,
+                              x11_display->xroot,
+                              x11_display->atom__NET_CURRENT_DESKTOP,
+                              &current_workspace_index))
+    {
+      meta_verbose ("Read existing _NET_CURRENT_DESKTOP = %d\n",
+                    (int) current_workspace_index);
+
+      /* Switch to the _NET_CURRENT_DESKTOP workspace */
+      current_workspace = meta_workspace_manager_get_workspace_by_index (display->workspace_manager,
+                                                                         current_workspace_index);
+
+      if (current_workspace != NULL)
+        meta_workspace_activate (current_workspace, timestamp);
+    }
+  else
+    {
+      meta_verbose ("No _NET_CURRENT_DESKTOP present\n");
+    }
+
+  set_active_workspace_hint (display->workspace_manager, x11_display);
 }
 
 int
