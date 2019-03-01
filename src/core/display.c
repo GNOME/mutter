@@ -751,7 +751,10 @@ meta_display_open (void)
   enable_compositor (display);
 
   if (display->x11_display)
-    meta_x11_display_create_guard_window (display->x11_display);
+    {
+      meta_x11_display_restore_active_workspace (display->x11_display);
+      meta_x11_display_create_guard_window (display->x11_display);
+    }
 
   /* Set up touch support */
   display->gesture_tracker = meta_gesture_tracker_new ();
