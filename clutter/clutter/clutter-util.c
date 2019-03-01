@@ -105,6 +105,47 @@ _clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
     }
 }
 
+void _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
+                                        ClutterRect                 *dest)
+{
+  *dest = (ClutterRect) {
+    .origin = {
+      .x = src->x,
+      .y = src->y
+    },
+    .size = {
+      .width = src->width,
+      .height = src->height
+    }
+  };
+}
+
+void _clutter_util_rectangle_clamp (const  ClutterRect    *src,
+                                    cairo_rectangle_int_t *dest)
+{
+  ClutterRect tmp = *src;
+
+  clutter_rect_clamp_to_pixel (&tmp);
+
+  *dest = (cairo_rectangle_int_t) {
+    .x = tmp.origin.x,
+    .y = tmp.origin.y,
+    .width = tmp.size.width,
+    .height = tmp.size.height,
+  };
+}
+
+void _clutter_util_rectangle_offset (const cairo_rectangle_int_t *src,
+                                     int                          x,
+                                     int                          y,
+                                     cairo_rectangle_int_t       *dest)
+{
+  *dest = *src;
+
+  dest->x += x;
+  dest->y += y;
+}
+
 /*< private >
  * _clutter_util_rectangle_union:
  * @src1: first rectangle to union
