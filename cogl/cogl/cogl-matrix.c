@@ -108,9 +108,6 @@ cogl_matrix_multiply (CoglMatrix *result,
   cogl_matrix_to_graphene_matrix (a, &m1);
   cogl_matrix_to_graphene_matrix (b, &m2);
 
-  /* AxB on a column-major matrix (CoglMatrix) is equal
-   * to BxA on a row-major matrix (graphene_matrix_t)
-   */
   graphene_matrix_multiply (&m2, &m1, &res);
   graphene_matrix_to_cogl_matrix (&res, result);
 
@@ -124,7 +121,7 @@ _cogl_matrix_prefix_print (const char *prefix, const CoglMatrix *matrix)
   int i;
 
   for (i = 0;i < 4; i++)
-    g_print ("%s\t%f %f %f %f\n", prefix, m[i], m[4+i], m[8+i], m[12+i] );
+    g_print ("%s\t%f %f %f %f\n", prefix, m[i*4], m[i*4+1], m[i*4+2], m[i*4+3] );
 }
 
 /*
@@ -163,7 +160,6 @@ cogl_matrix_rotate (CoglMatrix *matrix,
   graphene_vec3_t r;
 
   cogl_matrix_to_graphene_matrix (matrix, &m);
-  graphene_matrix_transpose (&m, &m);
 
   graphene_matrix_init_rotate (&rotation, angle, graphene_vec3_init (&r, x, y, z));
   graphene_matrix_multiply (&rotation, &m, &m);
@@ -207,8 +203,6 @@ cogl_matrix_frustum (CoglMatrix *matrix,
   graphene_matrix_init_frustum (&frustum, left, right, bottom, top, z_near, z_far);
 
   cogl_matrix_to_graphene_matrix (matrix, &m);
-  graphene_matrix_transpose (&m, &m);
-
   graphene_matrix_multiply (&m, &frustum, &m);
   graphene_matrix_to_cogl_matrix (&m, matrix);
 
@@ -227,8 +221,6 @@ cogl_matrix_perspective (CoglMatrix *matrix,
   graphene_matrix_init_perspective (&perspective, fov_y, aspect, z_near, z_far);
 
   cogl_matrix_to_graphene_matrix (matrix, &m);
-  graphene_matrix_transpose (&m, &m);
-
   graphene_matrix_multiply (&m, &perspective, &m);
   graphene_matrix_to_cogl_matrix (&m, matrix);
 
@@ -249,8 +241,6 @@ cogl_matrix_orthographic (CoglMatrix *matrix,
   graphene_matrix_init_ortho (&ortho, x_1, x_2, y_2, y_1, near, far);
 
   cogl_matrix_to_graphene_matrix (matrix, &m);
-  graphene_matrix_transpose (&m, &m);
-
   graphene_matrix_multiply (&m, &ortho, &m);
   graphene_matrix_to_cogl_matrix (&m, matrix);
 
@@ -264,14 +254,23 @@ cogl_matrix_scale (CoglMatrix *matrix,
 		   float sz)
 {
   graphene_matrix_t m;
+  CoglMatrix old;
 
   cogl_matrix_to_graphene_matrix (matrix, &m);
 
-  graphene_matrix_transpose (&m, &m);
-  graphene_matrix_scale (&m, sx, sy, sz);
-  graphene_matrix_transpose (&m, &m);
+  /* Cogl moves the matrix to 0, scales it, then moves back
+   * to the previous transform point. To ease transition,
+   * preserve that behavior.
+   */
+  old = *matrix;
 
+  graphene_matrix_scale (&m, sx, sy, sz);
   graphene_matrix_to_cogl_matrix (&m, matrix);
+
+  matrix->wx = old.wx;
+  matrix->wy = old.wy;
+  matrix->wz = old.wz;
+  matrix->ww = old.ww;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -399,10 +398,9 @@ cogl_matrix_view_2d_in_frustum (CoglMatrix *matrix,
   float width_scale = width_2d_start / width_2d;
   float height_scale = height_2d_start / height_2d;
 
+  cogl_matrix_scale (matrix, width_scale, -height_scale, width_scale);
   cogl_matrix_translate (matrix,
                          left_2d_plane, top_2d_plane, -z_2d);
-
-  cogl_matrix_scale (matrix, width_scale, -height_scale, width_scale);
 }
 
 /* Assuming a symmetric perspective matrix is being used for your
@@ -479,10 +477,10 @@ cogl_matrix_transform_point (const CoglMatrix *matrix,
 {
   float _x = *x, _y = *y, _z = *z, _w = *w;
 
-  *x = matrix->xx * _x + matrix->xy * _y + matrix->xz * _z + matrix->xw * _w;
-  *y = matrix->yx * _x + matrix->yy * _y + matrix->yz * _z + matrix->yw * _w;
-  *z = matrix->zx * _x + matrix->zy * _y + matrix->zz * _z + matrix->zw * _w;
-  *w = matrix->wx * _x + matrix->wy * _y + matrix->wz * _z + matrix->ww * _w;
+  *x = matrix->xx * _x + matrix->yx * _y + matrix->zx * _z + matrix->wx * _w;
+  *y = matrix->xy * _x + matrix->yy * _y + matrix->zy * _z + matrix->wy * _w;
+  *z = matrix->xz * _x + matrix->yz * _y + matrix->zz * _z + matrix->wz * _w;
+  *w = matrix->xw * _x + matrix->yw * _y + matrix->zw * _z + matrix->ww * _w;
 }
 
 typedef struct _Point2f
@@ -521,9 +519,9 @@ _cogl_matrix_transform_points_f2 (const CoglMatrix *matrix,
       Point2f p = *(Point2f *)((uint8_t *)points_in + i * stride_in);
       Point3f *o = (Point3f *)((uint8_t *)points_out + i * stride_out);
 
-      o->x = matrix->xx * p.x + matrix->xy * p.y + matrix->xw;
-      o->y = matrix->yx * p.x + matrix->yy * p.y + matrix->yw;
-      o->z = matrix->zx * p.x + matrix->zy * p.y + matrix->zw;
+      o->x = matrix->xx * p.x + matrix->yx * p.y + matrix->wx;
+      o->y = matrix->xy * p.x + matrix->yy * p.y + matrix->wy;
+      o->z = matrix->xz * p.x + matrix->yz * p.y + matrix->wz;
     }
 }
 
@@ -542,10 +540,10 @@ _cogl_matrix_project_points_f2 (const CoglMatrix *matrix,
       Point2f p = *(Point2f *)((uint8_t *)points_in + i * stride_in);
       Point4f *o = (Point4f *)((uint8_t *)points_out + i * stride_out);
 
-      o->x = matrix->xx * p.x + matrix->xy * p.y + matrix->xw;
-      o->y = matrix->yx * p.x + matrix->yy * p.y + matrix->yw;
-      o->z = matrix->zx * p.x + matrix->zy * p.y + matrix->zw;
-      o->w = matrix->wx * p.x + matrix->wy * p.y + matrix->ww;
+      o->x = matrix->xx * p.x + matrix->yx * p.y + matrix->wx;
+      o->y = matrix->xy * p.x + matrix->yy * p.y + matrix->wy;
+      o->z = matrix->xz * p.x + matrix->yz * p.y + matrix->wz;
+      o->w = matrix->xw * p.x + matrix->yw * p.y + matrix->ww;
     }
 }
 
@@ -564,12 +562,12 @@ _cogl_matrix_transform_points_f3 (const CoglMatrix *matrix,
       Point3f p = *(Point3f *)((uint8_t *)points_in + i * stride_in);
       Point3f *o = (Point3f *)((uint8_t *)points_out + i * stride_out);
 
-      o->x = matrix->xx * p.x + matrix->xy * p.y +
-             matrix->xz * p.z + matrix->xw;
-      o->y = matrix->yx * p.x + matrix->yy * p.y +
-             matrix->yz * p.z + matrix->yw;
-      o->z = matrix->zx * p.x + matrix->zy * p.y +
-             matrix->zz * p.z + matrix->zw;
+      o->x = matrix->xx * p.x + matrix->yx * p.y +
+             matrix->zx * p.z + matrix->wx;
+      o->y = matrix->xy * p.x + matrix->yy * p.y +
+             matrix->zy * p.z + matrix->wy;
+      o->z = matrix->xz * p.x + matrix->yz * p.y +
+             matrix->zz * p.z + matrix->wz;
     }
 }
 
@@ -588,14 +586,14 @@ _cogl_matrix_project_points_f3 (const CoglMatrix *matrix,
       Point3f p = *(Point3f *)((uint8_t *)points_in + i * stride_in);
       Point4f *o = (Point4f *)((uint8_t *)points_out + i * stride_out);
 
-      o->x = matrix->xx * p.x + matrix->xy * p.y +
-             matrix->xz * p.z + matrix->xw;
-      o->y = matrix->yx * p.x + matrix->yy * p.y +
-             matrix->yz * p.z + matrix->yw;
-      o->z = matrix->zx * p.x + matrix->zy * p.y +
-             matrix->zz * p.z + matrix->zw;
-      o->w = matrix->wx * p.x + matrix->wy * p.y +
-             matrix->wz * p.z + matrix->ww;
+      o->x = matrix->xx * p.x + matrix->yx * p.y +
+             matrix->zx * p.z + matrix->wx;
+      o->y = matrix->xy * p.x + matrix->yy * p.y +
+             matrix->zy * p.z + matrix->wy;
+      o->z = matrix->xz * p.x + matrix->yz * p.y +
+             matrix->zz * p.z + matrix->wz;
+      o->w = matrix->xw * p.x + matrix->yw * p.y +
+             matrix->zw * p.z + matrix->ww;
     }
 }
 
@@ -614,14 +612,14 @@ _cogl_matrix_project_points_f4 (const CoglMatrix *matrix,
       Point4f p = *(Point4f *)((uint8_t *)points_in + i * stride_in);
       Point4f *o = (Point4f *)((uint8_t *)points_out + i * stride_out);
 
-      o->x = matrix->xx * p.x + matrix->xy * p.y +
-             matrix->xz * p.z + matrix->xw * p.w;
-      o->y = matrix->yx * p.x + matrix->yy * p.y +
-             matrix->yz * p.z + matrix->yw * p.w;
-      o->z = matrix->zx * p.x + matrix->zy * p.y +
-             matrix->zz * p.z + matrix->zw * p.w;
-      o->w = matrix->wx * p.x + matrix->wy * p.y +
-             matrix->wz * p.z + matrix->ww * p.w;
+      o->x = matrix->xx * p.x + matrix->yx * p.y +
+             matrix->zx * p.z + matrix->wx * p.w;
+      o->y = matrix->xy * p.x + matrix->yy * p.y +
+             matrix->zy * p.z + matrix->wy * p.w;
+      o->z = matrix->xz * p.x + matrix->yz * p.y +
+             matrix->zz * p.z + matrix->wz * p.w;
+      o->w = matrix->xw * p.x + matrix->yw * p.y +
+             matrix->zw * p.z + matrix->ww * p.w;
     }
 }
 
@@ -710,8 +708,6 @@ cogl_matrix_look_at (CoglMatrix *matrix,
   graphene_matrix_init_look_at (&look_at, &eye, &center, &up);
 
   cogl_matrix_to_graphene_matrix (matrix, &m);
-  graphene_matrix_transpose (&m, &m);
-
   graphene_matrix_translate (&m, &GRAPHENE_POINT3D_INIT (-eye_position_x,
                                                          -eye_position_y,
                                                          -eye_position_z));

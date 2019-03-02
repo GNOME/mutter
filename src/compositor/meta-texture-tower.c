@@ -284,9 +284,9 @@ get_paint_level (int width, int height)
   u0 = width / 2.;
   v0 = height / 2.;
 
-  xc = pm.xx * u0 + pm.xy * v0 + pm.xw;
-  yc = pm.yx * u0 + pm.yy * v0 + pm.yw;
-  wc = pm.wx * u0 + pm.wy * v0 + pm.ww;
+  xc = pm.xx * u0 + pm.yx * v0 + pm.wx;
+  yc = pm.xy * u0 + pm.yy * v0 + pm.wy;
+  wc = pm.xw * u0 + pm.yw * v0 + pm.ww;
 
   /* We'll simplify the equations below for a bit of micro-optimization.
    * The commented out code is the unsimplified version.
@@ -321,10 +321,10 @@ get_paint_level (int width, int height)
   */
 
   /* dxdu * wc, etc */
-  dxdu_ = 0.5 * viewport_width * (pm.xx - pm.wx * (xc/wc));
-  dxdv_ = 0.5 * viewport_width * (pm.xy - pm.wy * (xc/wc));
-  dydu_ = 0.5 * viewport_height * (pm.yx - pm.wx * (yc/wc));
-  dydv_ = 0.5 * viewport_height * (pm.yy - pm.wy * (yc/wc));
+  dxdu_ = 0.5 * viewport_width * (pm.xx - pm.xw * (xc/wc));
+  dxdv_ = 0.5 * viewport_width * (pm.yx - pm.yw * (xc/wc));
+  dydu_ = 0.5 * viewport_height * (pm.xy - pm.xw * (yc/wc));
+  dydv_ = 0.5 * viewport_height * (pm.yy - pm.yw * (yc/wc));
 
   /* det * wc^2 */
   det_ = dxdu_ * dydv_ - dxdv_ * dydu_;

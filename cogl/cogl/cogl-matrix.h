@@ -60,7 +60,7 @@ G_BEGIN_DECLS
  * CoglMatrix:
  *
  * A CoglMatrix holds a 4x4 transform matrix. This is a single precision,
- * column-major matrix which means it is compatible with what OpenGL expects.
+ * row-major matrix.
  *
  * A CoglMatrix can represent transforms such as, rotations, scaling,
  * translation, sheering, and linear projections. You can combine these
@@ -86,28 +86,28 @@ G_BEGIN_DECLS
  */
 struct _CoglMatrix
 {
-  /* column 0 */
+  /* row 0 */
   float xx;
-  float yx;
-  float zx;
-  float wx;
-
-  /* column 1 */
   float xy;
-  float yy;
-  float zy;
-  float wy;
-
-  /* column 2 */
   float xz;
-  float yz;
-  float zz;
-  float wz;
-
-  /* column 3 */
   float xw;
+
+  /* row 1 */
+  float yx;
+  float yy;
+  float yz;
   float yw;
+
+  /* row 2 */
+  float zx;
+  float zy;
+  float zz;
   float zw;
+
+  /* row 3 */
+  float wx;
+  float wy;
+  float wz;
   float ww;
 };
 COGL_STRUCT_SIZE_ASSERT (CoglMatrix, 64);
@@ -139,10 +139,10 @@ cogl_matrix_init_identity (CoglMatrix *matrix);
  * Resets matrix to the (tx, ty, tz) translation matrix:
  *
  * |[
- *   .xx=1; .xy=0; .xz=0; .xw=tx;
- *   .yx=0; .yy=1; .yz=0; .yw=ty;
- *   .zx=0; .zy=0; .zz=1; .zw=tz;
- *   .wx=0; .wy=0; .wz=0; .ww=1;
+ *   .xx=1; .xy=0; .xz=0; .xw=0;
+ *   .yx=0; .yy=1; .yz=0; .yw=0;
+ *   .zx=0; .zy=0; .zz=1; .zw=0;
+ *   .wx=tx; .wy=ty; .wz=tz; .ww=1;
  * ]|
  *
  * Since: 2.0
