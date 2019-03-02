@@ -33,4 +33,6 @@ G_DECLARE_FINAL_TYPE (MetaMonitorManagerDummy, meta_monitor_manager_dummy,
 #define META_TYPE_GPU_DUMMY (meta_gpu_dummy_get_type ())
 G_DECLARE_FINAL_TYPE (MetaGpuDummy, meta_gpu_dummy, META, GPU_DUMMY, MetaGpu)
 
+gboolean meta_monitor_manager_dummy_use_scaled_views (MetaMonitorManagerDummy *manager);
+
 #endif /* META_MONITOR_MANAGER_DUMMY_H */

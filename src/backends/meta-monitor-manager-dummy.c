@@ -50,6 +50,7 @@ struct _MetaMonitorManagerDummy
   MetaGpu *gpu;
 
   gboolean is_transform_handled;
+  gboolean use_scaled_views;
 };
 
 struct _MetaMonitorManagerDummyClass
@@ -797,10 +798,21 @@ meta_monitor_manager_dummy_init (MetaMonitorManagerDummy *manager_dummy)
   else
     manager_dummy->is_transform_handled = TRUE;
 
+  if (g_strcmp0 (g_getenv ("MUTTER_DEBUG_NESTED_USE_UNSCALED_VIEWS"), "1") == 0)
+    manager_dummy->use_scaled_views = FALSE;
+  else
+    manager_dummy->use_scaled_views = TRUE;
+
   manager_dummy->gpu = g_object_new (META_TYPE_GPU_DUMMY,
                                      "monitor-manager", manager,
                                      NULL);
   meta_monitor_manager_add_gpu (manager, manager_dummy->gpu);
+}
+
+gboolean
+meta_monitor_manager_dummy_use_scaled_views (MetaMonitorManagerDummy *manager)
+{
+  return manager->use_scaled_views;
 }
 
 static gboolean
