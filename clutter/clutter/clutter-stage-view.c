@@ -133,8 +133,8 @@ clutter_stage_view_blit_offscreen (ClutterStageView            *view,
    * the bottom right corner.
    */
   cogl_matrix_init_identity (&matrix);
-  cogl_matrix_translate (&matrix, -1, 1, 0);
   cogl_matrix_scale (&matrix, 2, -2, 0);
+  cogl_matrix_translate (&matrix, -1, 1, 0);
   cogl_framebuffer_set_projection_matrix (priv->framebuffer, &matrix);
 
   cogl_framebuffer_draw_rectangle (priv->framebuffer,

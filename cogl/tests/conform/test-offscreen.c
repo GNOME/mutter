@@ -63,8 +63,8 @@ test_paint (TestState *state)
    * window.
    */
   cogl_push_matrix ();
-  cogl_translate (0.5, 0.5, 0);
   cogl_scale (-0.5, 0.5, 1);
+  cogl_translate (0.5, 0.5, 0);
 
   cogl_push_framebuffer (offscreen);
 

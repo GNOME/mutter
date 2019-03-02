@@ -105,14 +105,14 @@ paint (TestState *state)
 
   /* Set a matrix on the first layer so that it will mirror about the y-axis */
   cogl_matrix_init_identity (&matrix);
-  cogl_matrix_translate (&matrix, 0.0f, 1.0f, 0.0f);
   cogl_matrix_scale (&matrix, 1.0f, -1.0f, 1.0f);
+  cogl_matrix_translate (&matrix, 0.0f, 1.0f, 0.0f);
   cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
 
   /* Set a matrix on the second layer so that it will mirror about the x-axis */
   cogl_matrix_init_identity (&matrix);
-  cogl_matrix_translate (&matrix, 1.0f, 0.0f, 0.0f);
   cogl_matrix_scale (&matrix, -1.0f, 1.0f, 1.0f);
+  cogl_matrix_translate (&matrix, 1.0f, 0.0f, 0.0f);
   cogl_pipeline_set_layer_matrix (pipeline, 1, &matrix);
 
   cogl_framebuffer_draw_rectangle (test_fb,
