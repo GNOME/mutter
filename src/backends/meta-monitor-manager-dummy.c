@@ -791,11 +791,8 @@ static void
 meta_monitor_manager_dummy_init (MetaMonitorManagerDummy *manager_dummy)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_dummy);
-  const char *nested_offscreen_transform;
 
-  nested_offscreen_transform =
-    g_getenv ("MUTTER_DEBUG_NESTED_OFFSCREEN_TRANSFORM");
-  if (g_strcmp0 (nested_offscreen_transform, "1") == 0)
+  if (g_strcmp0 (g_getenv ("MUTTER_DEBUG_NESTED_OFFSCREEN_TRANSFORM"), "1") == 0)
     manager_dummy->is_transform_handled = FALSE;
   else
     manager_dummy->is_transform_handled = TRUE;
