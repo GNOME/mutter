@@ -1288,7 +1288,7 @@ is_keyboard_forbidden (struct libinput_device *libinput_device)
   struct udev_device *udev_device;
 
   udev_device = libinput_device_get_udev_device (libinput_device);
-  authorized = udev_device_get_property_value (udev_device, "AUTHORIZED");
+  authorized = udev_device_get_property_value (udev_device, "GNOME_KB_AUTHORIZED");
 
   /* If the authorized property is not available, dangerous keys should be
    * blocked for this device.
