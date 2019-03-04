@@ -44,6 +44,7 @@ struct _MetaPlayRequest
   ca_proplist *props;
   uint32_t id;
   guint cancel_id;
+  guint cancel_idle_id;
   GCancellable *cancellable;
   MetaSoundPlayer *player;
 };
@@ -77,6 +78,9 @@ meta_play_request_new (MetaSoundPlayer *player,
 static void
 meta_play_request_free (MetaPlayRequest *req)
 {
+  if (req->cancel_idle_id != 0)
+    g_source_remove (req->cancel_idle_id);
+
   g_clear_object (&req->cancellable);
   ca_proplist_destroy (req->props);
   g_free (req);
@@ -102,11 +106,23 @@ meta_sound_player_class_init (MetaSoundPlayerClass *klass)
   object_class->finalize = meta_sound_player_finalize;
 }
 
+static gboolean
+handle_cancelled_in_idle (gpointer user_data)
+{
+  MetaPlayRequest *req = user_data;
+
+  ca_context_cancel (req->player->context, req->id);
+  req->cancel_idle_id = 0;
+
+  return FALSE;
+}
+
 static void
 cancelled_cb (GCancellable    *cancellable,
               MetaPlayRequest *req)
 {
-  ca_context_cancel (req->player->context, req->id);
+  req->cancel_idle_id = g_idle_add (handle_cancelled_in_idle, req);
+  g_source_set_name_by_id (req->cancel_idle_id, "[mutter] handle_cancelled_in_idle");
 }
 
 static void
