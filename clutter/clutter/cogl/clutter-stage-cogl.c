@@ -513,8 +513,8 @@ fill_current_damage_history_and_step (ClutterStageView *view)
   *current_fb_damage = (cairo_rectangle_int_t) {
     .x = 0,
     .y = 0,
-    .width = view_rect.width * fb_scale,
-    .height = view_rect.height * fb_scale
+    .width = ceilf (view_rect.width * fb_scale),
+    .height = ceilf (view_rect.height * fb_scale)
   };
   view_priv->damage_index++;
 }
