@@ -589,12 +589,7 @@ meta_monitor_normal_derive_layout (MetaMonitor   *monitor,
 
   output = meta_monitor_get_main_output (monitor);
   crtc = meta_output_get_assigned_crtc (output);
-  *layout = (MetaRectangle) {
-    .x = crtc->rect.x,
-    .y = crtc->rect.y,
-    .width = crtc->rect.width,
-    .height = crtc->rect.height
-  };
+  *layout = crtc->rect;
 }
 
 static gboolean
