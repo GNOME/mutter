@@ -2071,12 +2071,7 @@ meta_rectangle_transform (const MetaRectangle  *rect,
   switch (transform)
     {
     case META_MONITOR_TRANSFORM_NORMAL:
-      *dest = (MetaRectangle) {
-        .x = rect->x,
-        .y = rect->y,
-        .width = rect->width,
-        .height = rect->height,
-      };
+      *dest = *rect;
       break;
     case META_MONITOR_TRANSFORM_90:
       *dest = (MetaRectangle) {
