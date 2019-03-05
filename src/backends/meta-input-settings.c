@@ -76,7 +76,7 @@ struct _MetaInputSettingsPrivate
   GSettings *trackball_settings;
   GSettings *keyboard_settings;
   GSettings *gsd_settings;
-  GSettings *a11y_settings;
+  GSettings *keyboard_a11y_settings;
 
   GHashTable *mappable_devices;
 
@@ -161,7 +161,7 @@ meta_input_settings_dispose (GObject *object)
   g_clear_object (&priv->trackball_settings);
   g_clear_object (&priv->keyboard_settings);
   g_clear_object (&priv->gsd_settings);
-  g_clear_object (&priv->a11y_settings);
+  g_clear_object (&priv->keyboard_a11y_settings);
   g_clear_object (&priv->input_mapper);
   g_clear_pointer (&priv->mappable_devices, g_hash_table_unref);
   g_clear_pointer (&priv->current_tools, g_hash_table_unref);
@@ -1191,10 +1191,10 @@ apply_mappable_device_settings (MetaInputSettings *input_settings,
     }
 }
 
-struct _a11y_settings_flags_pair {
+struct _keyboard_a11y_settings_flags_pair {
   const char *name;
   ClutterKeyboardA11yFlags flag;
-} settings_flags_pair[] = {
+} keyboard_a11y_settings_flags_pair[] = {
   { "enable",                    CLUTTER_A11Y_KEYBOARD_ENABLED },
   { "timeout-enable",            CLUTTER_A11Y_TIMEOUT_ENABLED },
   { "mousekeys-enable",          CLUTTER_A11Y_MOUSE_KEYS_ENABLED },
@@ -1225,23 +1225,23 @@ load_keyboard_a11y_settings (MetaInputSettings  *input_settings,
     return;
 
   kbd_a11y_settings.controls = 0;
-  for (i = 0; i < G_N_ELEMENTS (settings_flags_pair); i++)
+  for (i = 0; i < G_N_ELEMENTS (keyboard_a11y_settings_flags_pair); i++)
     {
-      if (g_settings_get_boolean (priv->a11y_settings, settings_flags_pair[i].name))
-        kbd_a11y_settings.controls |= settings_flags_pair[i].flag;
+      if (g_settings_get_boolean (priv->keyboard_a11y_settings, keyboard_a11y_settings_flags_pair[i].name))
+        kbd_a11y_settings.controls |= keyboard_a11y_settings_flags_pair[i].flag;
     }
 
-  kbd_a11y_settings.timeout_delay = g_settings_get_int (priv->a11y_settings,
+  kbd_a11y_settings.timeout_delay = g_settings_get_int (priv->keyboard_a11y_settings,
                                                         "disable-timeout");
-  kbd_a11y_settings.slowkeys_delay = g_settings_get_int (priv->a11y_settings,
+  kbd_a11y_settings.slowkeys_delay = g_settings_get_int (priv->keyboard_a11y_settings,
                                                          "slowkeys-delay");
-  kbd_a11y_settings.debounce_delay = g_settings_get_int (priv->a11y_settings,
+  kbd_a11y_settings.debounce_delay = g_settings_get_int (priv->keyboard_a11y_settings,
                                                          "bouncekeys-delay");
-  kbd_a11y_settings.mousekeys_init_delay = g_settings_get_int (priv->a11y_settings,
+  kbd_a11y_settings.mousekeys_init_delay = g_settings_get_int (priv->keyboard_a11y_settings,
                                                                "mousekeys-init-delay");
-  kbd_a11y_settings.mousekeys_max_speed = g_settings_get_int (priv->a11y_settings,
+  kbd_a11y_settings.mousekeys_max_speed = g_settings_get_int (priv->keyboard_a11y_settings,
                                                               "mousekeys-max-speed");
-  kbd_a11y_settings.mousekeys_accel_time = g_settings_get_int (priv->a11y_settings,
+  kbd_a11y_settings.mousekeys_accel_time = g_settings_get_int (priv->keyboard_a11y_settings,
                                                                "mousekeys-accel-time");
 
   clutter_device_manager_set_kbd_a11y_settings (priv->device_manager, &kbd_a11y_settings);
@@ -1256,19 +1256,19 @@ on_keyboard_a11y_settings_changed (ClutterDeviceManager    *device_manager,
   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
   guint i;
 
-  for (i = 0; i < G_N_ELEMENTS (settings_flags_pair); i++)
+  for (i = 0; i < G_N_ELEMENTS (keyboard_a11y_settings_flags_pair); i++)
     {
-      if (settings_flags_pair[i].flag & what_changed)
-        g_settings_set_boolean (priv->a11y_settings,
-                                settings_flags_pair[i].name,
-                                (new_flags & settings_flags_pair[i].flag) ? TRUE : FALSE);
+      if (keyboard_a11y_settings_flags_pair[i].flag & what_changed)
+        g_settings_set_boolean (priv->keyboard_a11y_settings,
+                                keyboard_a11y_settings_flags_pair[i].name,
+                                (new_flags & keyboard_a11y_settings_flags_pair[i].flag) ? TRUE : FALSE);
     }
 }
 
 static void
-meta_input_a11y_settings_changed (GSettings  *settings,
-                                  const char *key,
-                                  gpointer    user_data)
+meta_input_keyboard_a11y_settings_changed (GSettings  *settings,
+                                           const char *key,
+                                           gpointer    user_data)
 {
   MetaInputSettings *input_settings = META_INPUT_SETTINGS (user_data);
 
@@ -1856,9 +1856,9 @@ meta_input_settings_init (MetaInputSettings *settings)
                    clutter_settings_get_default(), "double-click-time",
                    G_SETTINGS_BIND_GET);
 
-  priv->a11y_settings = g_settings_new ("org.gnome.desktop.a11y.keyboard");
-  g_signal_connect (priv->a11y_settings, "changed",
-                    G_CALLBACK (meta_input_a11y_settings_changed), settings);
+  priv->keyboard_a11y_settings = g_settings_new ("org.gnome.desktop.a11y.keyboard");
+  g_signal_connect (priv->keyboard_a11y_settings, "changed",
+                    G_CALLBACK (meta_input_keyboard_a11y_settings_changed), settings);
   g_signal_connect (priv->device_manager, "kbd-a11y-flags-changed",
                     G_CALLBACK (on_keyboard_a11y_settings_changed), settings);
 
