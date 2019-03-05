@@ -1587,7 +1587,6 @@ get_closest_scale_factor_for_resolution (float width,
   float scaled_w;
   float best_scale;
   int base_scaled_w;
-  gboolean limit_exceeded;
   gboolean found_one;
 
   best_scale = 0;
@@ -1604,7 +1603,6 @@ get_closest_scale_factor_for_resolution (float width,
 
   i = 0;
   found_one = FALSE;
-  limit_exceeded = FALSE;
   base_scaled_w = floorf (scaled_w);
 
   do
@@ -1637,7 +1635,7 @@ get_closest_scale_factor_for_resolution (float width,
 
       i++;
     }
-  while (!found_one && !limit_exceeded);
+  while (!found_one);
 
 out:
   return best_scale;
