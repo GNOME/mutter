@@ -119,14 +119,6 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
       return TRUE;
     }
 
-  if (meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
-                                     EGL_TEXTURE_FORMAT, &format,
-                                     NULL))
-    {
-      buffer->type = META_WAYLAND_BUFFER_TYPE_EGL_IMAGE;
-      return TRUE;
-    }
-
 #ifdef HAVE_WAYLAND_EGLSTREAM
   stream = meta_wayland_egl_stream_new (buffer, NULL);
   if (stream)
@@ -145,6 +137,14 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
       return TRUE;
     }
 #endif /* HAVE_WAYLAND_EGLSTREAM */
+
+  if (meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
+                                     EGL_TEXTURE_FORMAT, &format,
+                                     NULL))
+    {
+      buffer->type = META_WAYLAND_BUFFER_TYPE_EGL_IMAGE;
+      return TRUE;
+    }
 
   dma_buf = meta_wayland_dma_buf_from_buffer (buffer);
   if (dma_buf)
