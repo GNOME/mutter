@@ -1,3 +1,27 @@
+3.31.92
+=======
+* Fix flicker of apps that use multiple SHM buffers [Jonas Å.; #199]
+* Don't disable page flips after temporary failues [Jonas Å.; #460]
+* Improve redraw performance [Carlos; !196]
+* Add cursor-mode support to window screencasting [Jonas Å.; !413]
+* Add back support for system-wide monitor configurations [Jonas Å.; !253]
+* Add fractional scaling support [Marco, Jonas Å.; !3]
+* Consider remapped keys when guessing keycode from keysym [Andrea; #443]
+* Stop turning on-screen-keyboard off on focus changes [Carlos; !432]
+* Fix crashes [Robert, Carlos, Jonas D., Florian; !447, #361, !426, #479]
+* Misc. bug fixes and cleanups [Benjamin, Adam, Olivier, Niels, Piotr; !457,
+  !452, !459, !380, !361, !461, !464, !471, !473, !463]
+
+Contributors:
+  Jonas Ådahl, Andrea Azzarone, Benjamin Berg, Piotr Drąg, Jonas Dreßler,
+  Olivier Fourdan, Carlos Garnacho, Niels De Graef, Adam Jackson, Robert Mader,
+  Florian Müllner, Marco Trevisan (Treviño)
+
+Translators:
+  Milo Casagrande [it], Tim Sabsch [de], Trần Ngọc Quân [vi],
+  Gwan-gyeong Mun [ko], Марко Костић [sr], Daniel Mustieles [es],
+  Rūdolfs Mazurs [lv], Nathan Follens [nl]
+
 3.31.91
 =======
 * Fix infinite loop in EDID matching [Marco; #459]
