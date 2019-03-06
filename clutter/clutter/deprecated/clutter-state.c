@@ -131,7 +131,6 @@
  *       "source" : "source-state",
  *       "target" : "target-state",
  *       "duration" : milliseconds,
- *       "animator" : "animator-definition"
  *     },
  *     ...
  *   ]
@@ -142,7 +141,7 @@
  * as clutter_state_set_key() function arguments.
  *
  * The source and target values control the source and target state of the
- * transition. The key and animator properties are mutually exclusive.
+ * transition.
  *
  * The pre-delay and post-delay values are optional.
  *
@@ -189,18 +188,12 @@
 
 #include "clutter-alpha.h"
 #include "clutter-animatable.h"
-#include "clutter-animator.h"
 #include "clutter-enum-types.h"
 #include "clutter-interval.h"
 #include "clutter-marshal.h"
 #include "clutter-private.h"
 #include "clutter-scriptable.h"
 #include "clutter-script-private.h"
-
-typedef struct StateAnimator {
-  const gchar     *source_state_name; /* interned string identifying entry */
-  ClutterAnimator *animator;          /* pointer to animator itself */
-} StateAnimator;
 
 typedef struct State
 { 
@@ -209,8 +202,6 @@ typedef struct State
                                   names */
   GList        *keys;          /* list of all keys pertaining to transitions
                                   from other states to this one */
-  GArray       *animators;     /* list of animators for transitioning from
-                                * specific source states */
   ClutterState *clutter_state; /* the ClutterState object this state belongs to
                                 */
 } State;
@@ -227,8 +218,6 @@ struct _ClutterStatePrivate
   State           *source_state;      /* current source_state */
   const gchar     *target_state_name; /* current target state */
   State           *target_state;      /* target state name */
-  ClutterAnimator *current_animator;  /* !NULL if the current transition is
-                                         overriden by an animator */
 };
 
 #define SLAVE_TIMELINE_LENGTH 10000
@@ -496,7 +485,6 @@ state_free (gpointer data)
        state->keys = g_list_remove (state->keys, state->keys->data))
     clutter_state_key_free (state->keys->data);
 
-  g_array_free (state->animators, TRUE);
   g_hash_table_destroy (state->durations);
   g_free (state);
 }
@@ -510,7 +498,6 @@ state_new (ClutterState *clutter_state,
   state = g_new0 (State, 1);
   state->clutter_state = clutter_state;
   state->name = name;
-  state->animators = g_array_new (TRUE, TRUE, sizeof (StateAnimator));
   state->durations = g_hash_table_new (g_direct_hash, g_direct_equal);
 
   return state;
@@ -533,14 +520,6 @@ static void
 clutter_state_completed (ClutterTimeline *timeline,
                          ClutterState    *state)
 {
-  ClutterStatePrivate *priv = state->priv;
-
-  if (priv->current_animator)
-    {
-      clutter_animator_set_timeline (priv->current_animator, NULL);
-      priv->current_animator = NULL;
-    }
-
   g_signal_emit (state, state_signals[COMPLETED], 0);
 }
 
@@ -555,9 +534,6 @@ clutter_state_new_frame (ClutterTimeline *timeline,
   const gchar *curprop = NULL;
   GObject *curobj = NULL;
   gboolean found_specific = FALSE;
-
-  if (priv->current_animator)
-    return;
 
   progress = clutter_timeline_get_progress (timeline);
 
@@ -649,7 +625,6 @@ clutter_state_change (ClutterState *state,
                       gboolean      animate)
 {
   ClutterStatePrivate *priv;
-  ClutterAnimator     *animator;
   State               *new_state;
   guint                duration;
   GList               *k;
@@ -673,12 +648,6 @@ clutter_state_change (ClutterState *state,
       clutter_timeline_stop (priv->timeline);
       clutter_timeline_rewind (priv->timeline);
 
-      if (priv->current_animator)
-        {
-          clutter_animator_set_timeline (priv->current_animator, NULL);
-          priv->current_animator = NULL;
-        }
-
       return NULL;
     }
 
@@ -692,12 +661,6 @@ clutter_state_change (ClutterState *state,
        */
       if (!clutter_timeline_is_playing (priv->timeline) || animate)
         return priv->timeline;
-    }
-
-  if (priv->current_animator != NULL)
-    {
-      clutter_animator_set_timeline (priv->current_animator, NULL);
-      priv->current_animator = NULL;
     }
 
   priv->source_state_name = priv->target_state_name;
@@ -718,55 +681,37 @@ clutter_state_change (ClutterState *state,
       return NULL;
     }
 
-  animator = clutter_state_get_animator (state,
-                                         priv->source_state_name,
-                                         priv->target_state_name);
-  priv->target_state = new_state;
-
-  if (animator == NULL && new_state->keys == NULL)
-    animator = clutter_state_get_animator (state, NULL,
-                                           priv->target_state_name);
-
-  if (animator != NULL)
+  for (k = new_state->keys; k != NULL; k = k->next)
     {
-      /* we've got an animator overriding the tweened animation */
-      priv->current_animator = animator;
-      clutter_animator_set_timeline (animator, priv->timeline);
-    }
-  else
-    {
-      for (k = new_state->keys; k != NULL; k = k->next)
+      ClutterStateKey *key = k->data;
+      GValue initial = G_VALUE_INIT;
+
+      /* Reset the pre-pre-delay - this is only used for setting keys
+       * during transitions.
+       */
+      key->pre_pre_delay = 0;
+
+      g_value_init (&initial, clutter_interval_get_value_type (key->interval));
+
+      if (key->is_animatable)
         {
-          ClutterStateKey *key = k->data;
-          GValue initial = G_VALUE_INIT;
+          ClutterAnimatable *animatable;
 
-          /* Reset the pre-pre-delay - this is only used for setting keys
-           * during transitions.
-           */
-          key->pre_pre_delay = 0;
-
-          g_value_init (&initial, clutter_interval_get_value_type (key->interval));
-
-          if (key->is_animatable)
-            {
-              ClutterAnimatable *animatable;
-
-              animatable = CLUTTER_ANIMATABLE (key->object);
-              clutter_animatable_get_initial_state (animatable,
-                                                    key->property_name,
-                                                    &initial);
-            }
-          else
-            g_object_get_property (key->object, key->property_name, &initial);
-
-          if (clutter_alpha_get_mode (key->alpha) != key->mode)
-            clutter_alpha_set_mode (key->alpha, key->mode);
-
-          clutter_interval_set_initial_value (key->interval, &initial);
-          clutter_interval_set_final_value (key->interval, &key->value);
-
-          g_value_unset (&initial);
+          animatable = CLUTTER_ANIMATABLE (key->object);
+          clutter_animatable_get_initial_state (animatable,
+                                                key->property_name,
+                                                &initial);
         }
+      else
+        g_object_get_property (key->object, key->property_name, &initial);
+
+      if (clutter_alpha_get_mode (key->alpha) != key->mode)
+        clutter_alpha_set_mode (key->alpha, key->mode);
+
+      clutter_interval_set_initial_value (key->interval, &initial);
+      clutter_interval_set_final_value (key->interval, &key->value);
+
+      g_value_unset (&initial);
     }
 
   if (!animate)
@@ -1549,126 +1494,6 @@ clutter_state_init (ClutterState *self)
 }
 
 
-/**
- * clutter_state_get_animator:
- * @state: a #ClutterState instance.
- * @source_state_name: the name of a source state
- * @target_state_name: the name of a target state
- *
- * Retrieves the #ClutterAnimator that is being used for transitioning
- * between the two states, if any has been set
- *
- * Return value: (transfer none): a #ClutterAnimator instance, or %NULL
- *
- * Since: 1.4
- * Deprecated: 1.12: Use #ClutterKeyframeTransition and
- *   #ClutterTransitionGroup instead
- */
-ClutterAnimator *
-clutter_state_get_animator (ClutterState *state,
-                            const gchar  *source_state_name,
-                            const gchar  *target_state_name)
-{
-  State *target_state;
-  guint i;
-
-  g_return_val_if_fail (CLUTTER_IS_STATE (state), NULL);
-
-  source_state_name = g_intern_string (source_state_name);
-  if (source_state_name == g_intern_static_string (""))
-    source_state_name = NULL;
-
-  target_state_name = g_intern_string (target_state_name);
-
-  target_state = clutter_state_fetch_state (state, target_state_name, FALSE);
-  if (target_state == NULL)
-    return NULL;
-
-  for (i = 0; i < target_state->animators->len; i++)
-    {
-      const StateAnimator *animator;
-
-      animator = &g_array_index (target_state->animators, StateAnimator, i);
-      if (animator->source_state_name == source_state_name)
-        return animator->animator;
-    }
-
-  return NULL;
-}
-
-/**
- * clutter_state_set_animator:
- * @state: a #ClutterState instance.
- * @source_state_name: the name of a source state
- * @target_state_name: the name of a target state
- * @animator: (allow-none): a #ClutterAnimator instance, or %NULL to
- *   unset an existing #ClutterAnimator
- *
- * Specifies a #ClutterAnimator to be used when transitioning between
- * the two named states.
- *
- * The @animator allows specifying a transition between the state that is
- * more elaborate than the basic transitions allowed by the tweening of
- * properties defined in the #ClutterState keys.
- *
- * If @animator is %NULL it will unset an existing animator.
- *
- * #ClutterState will take a reference on the passed @animator, if any
- *
- * Since: 1.4
- * Deprecated: 1.12: Use #ClutterKeyframeTransition and
- *   #ClutterTransitionGroup instead
- */
-void
-clutter_state_set_animator (ClutterState    *state,
-                            const gchar     *source_state_name,
-                            const gchar     *target_state_name,
-                            ClutterAnimator *animator)
-{
-  State *target_state;
-  guint i;
-
-  g_return_if_fail (CLUTTER_IS_STATE (state));
-
-  source_state_name = g_intern_string (source_state_name);
-  target_state_name = g_intern_string (target_state_name);
-
-  target_state = clutter_state_fetch_state (state, target_state_name, TRUE);
-  if (target_state == NULL)
-    return;
-  
-  for (i = 0; target_state->animators->len; i++)
-    {
-      StateAnimator *a;
-
-      a = &g_array_index (target_state->animators, StateAnimator, i);
-      if (a->source_state_name == source_state_name)
-        {
-          g_object_unref (a->animator);
-
-          if (animator != NULL)
-            a->animator = g_object_ref (animator);
-          else
-            {
-              /* remove the matched animator if passed NULL */
-              g_array_remove_index (target_state->animators, i);
-            }
-
-          return;
-        }
-    }
-
-  if (animator != NULL)
-    {
-      StateAnimator state_animator = {
-        source_state_name,
-        g_object_ref (animator)
-      };
-
-      g_array_append_val (target_state->animators, state_animator);
-    }
-}
-
 static gpointer
 clutter_state_key_copy (gpointer boxed)
 {
@@ -2107,12 +1932,10 @@ parse_state_transition (JsonArray *array,
 
   if (!json_object_has_member (object, "source") ||
       !json_object_has_member (object, "target") ||
-      !(json_object_has_member (object, "keys") ||
-        json_object_has_member (object, "animator")))
+      !(json_object_has_member (object, "keys")))
     {
       g_warning ("The transition description at index %d is missing one "
-                 "of the mandatory members: source, target and keys or "
-                 "animator", index_);
+                 "of the mandatory members: source, target and keys", index_);
       return;
     }
 
@@ -2131,29 +1954,11 @@ parse_state_transition (JsonArray *array,
                                   duration);
     }
 
-  if (json_object_has_member (object, "animator"))
-    {
-      const gchar *id_ = json_object_get_string_member (object, "animator");
-      GObject *animator;
-
-      animator = clutter_script_get_object (clos->script, id_);
-      if (animator == NULL)
-        {
-          g_warning ("No object with id '%s' has been defined.", id_);
-          return;
-        }
-
-      clutter_state_set_animator (clos->state,
-                                  source_name,
-                                  target_name,
-                                  CLUTTER_ANIMATOR (animator));
-    }
-
   if (!json_object_has_member (object, "keys"))
     return;
 
   keys = json_object_get_array_member (object, "keys");
-  if (keys == NULL && !json_object_has_member (object, "animator"))
+  if (keys == NULL)
     {
       g_warning ("The transition description at index %d has an invalid "
                  "key member of type '%s' when an array was expected.",

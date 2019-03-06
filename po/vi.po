@@ -3,14 +3,14 @@
 # This file is distributed under the same license as the Metacity package.
 # Nguyễn Thái Ngọc Duy <pclouds@gmail.com>, 2002-2004, 2007, 2008, 2011-2013.
 # Clytie Siddall <clytie@riverland.net.au>, 2005-2009.
-# Trần Ngọc Quân <vnwildman@gmail.com>, 2014, 2015, 2016, 2017, 2018.
+# Trần Ngọc Quân <vnwildman@gmail.com>, 2014, 2015, 2016, 2017, 2018, 2019.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-08-31 17:56+0000\n"
-"PO-Revision-Date: 2018-09-01 08:26+0700\n"
+"POT-Creation-Date: 2019-02-27 22:24+0000\n"
+"PO-Revision-Date: 2019-02-28 07:45+0700\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: Vietnamese <gnome-vi-list@gnome.org>\n"
 "Language: vi\n"
@@ -517,7 +517,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2325
+#: src/backends/meta-input-settings.c:2423
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Chuyển chế độ (Nhóm %d)"
@@ -525,118 +525,124 @@ msgstr "Chuyển chế độ (Nhóm %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2348
+#: src/backends/meta-input-settings.c:2446
 msgid "Switch monitor"
 msgstr "Chuyển màn hình"
 
-#: src/backends/meta-input-settings.c:2350
+#: src/backends/meta-input-settings.c:2448
 msgid "Show on-screen help"
 msgstr "Hiển thị trợ giúp trên-màn-hình"
 
-#: src/backends/meta-monitor-manager.c:886
+#: src/backends/meta-monitor-manager.c:954
 msgid "Built-in display"
 msgstr "Màn hình tích hợp"
 
-#: src/backends/meta-monitor-manager.c:909
+#: src/backends/meta-monitor-manager.c:986
 msgid "Unknown"
 msgstr "Không rõ"
 
-#: src/backends/meta-monitor-manager.c:911
+#: src/backends/meta-monitor-manager.c:988
 msgid "Unknown Display"
 msgstr "Không hiểu màn hình"
 
-#. TRANSLATORS: this is a monitor vendor name, followed by a
-#. * size in inches, like 'Dell 15"'
-#.
-#: src/backends/meta-monitor-manager.c:919
+#: src/backends/meta-monitor-manager.c:996
 #, c-format
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/backends/meta-monitor-manager.c:1004
+#, c-format
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
 msgid "%s %s"
 msgstr "%s %s"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:481
+#: src/compositor/compositor.c:482
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
-msgstr ""
-"Bộ quản lý cửa sổ đã đang chạy trên màn hình %i trên bộ trình bày “%s”."
+msgstr "Bộ quản lý cửa sổ đã đang chạy trên màn hình %i trên bộ hiển thị “%s”."
 
-#: src/core/bell.c:254
+#: src/core/bell.c:252
 msgid "Bell event"
 msgstr "Sự kiện chuông"
 
-#: src/core/main.c:191
+#: src/core/main.c:185
 msgid "Disable connection to session manager"
 msgstr "Vô hiệu hóa kết nối với bộ quản lý phiên làm việc"
 
-#: src/core/main.c:197
+#: src/core/main.c:191
 msgid "Replace the running window manager"
 msgstr "Thay thế bộ quản lý cửa sổ đang chạy"
 
-#: src/core/main.c:203
+#: src/core/main.c:197
 msgid "Specify session management ID"
 msgstr "Ghi rõ mã số quản lý phiên làm việc"
 
-#: src/core/main.c:208
+#: src/core/main.c:202
 msgid "X Display to use"
-msgstr "Bộ trình bày X cần dùng"
+msgstr "Màn hình X cần dùng"
 
-#: src/core/main.c:214
+#: src/core/main.c:208
 msgid "Initialize session from savefile"
 msgstr "Khởi động phiên làm việc từ tập tin lưu"
 
-#: src/core/main.c:220
+#: src/core/main.c:214
 msgid "Make X calls synchronous"
 msgstr "Khiến các cú gọi X đồng bộ với nhau"
 
-#: src/core/main.c:227
+#: src/core/main.c:221
 msgid "Run as a wayland compositor"
 msgstr "Chạy như là một “wayland compositor”"
 
-#: src/core/main.c:233
+#: src/core/main.c:227
 msgid "Run as a nested compositor"
 msgstr "Chạy như là một “nested compositor”"
 
-#: src/core/main.c:239
+#: src/core/main.c:233
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Chạy bộ sắp xếp wayland mà không khởi chạy Xwayland"
 
-#: src/core/main.c:247
+#: src/core/main.c:241
 msgid "Run as a full display server, rather than nested"
 msgstr "Chạy như là một dịch vụ hiển thị đầy đủ, thay cho lồng nhau"
 
-#: src/core/main.c:253
+#: src/core/main.c:247
 msgid "Run with X11 backend"
 msgstr "Chạy với ứng dụng chạy phía sau X11"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:148
+#: src/core/meta-close-dialog-default.c:150
 #, c-format
 msgid "“%s” is not responding."
-msgstr "“%s” không trả lời."
+msgstr "“%s” không phản ứng."
 
-#: src/core/meta-close-dialog-default.c:150
+#: src/core/meta-close-dialog-default.c:152
 msgid "Application is not responding."
-msgstr "Ứng dụng không trả lời."
+msgstr "Ứng dụng không phản ứng gì."
 
-#: src/core/meta-close-dialog-default.c:155
+#: src/core/meta-close-dialog-default.c:157
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
 msgstr ""
-"Bạn có thể chọn chờ một lúc để nó có thể tiếp tục chạy hoặc buộc chấm dứt "
+"Bạn có thể chọn chờ một lát để nó có thể tiếp tục chạy hoặc buộc chấm dứt "
 "hoàn toàn ứng dụng."
 
-#: src/core/meta-close-dialog-default.c:162
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "_Buộc thoát"
 
-#: src/core/meta-close-dialog-default.c:162
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "_Chờ"
 
-#: src/core/mutter.c:39
+#: src/core/mutter.c:38
 #, c-format
 msgid ""
 "mutter %s\n"
@@ -652,20 +658,20 @@ msgstr ""
 "KHÔNG CÓ BẢO HÀNH GÌ CẢ, THẬM CHÍ KHÔNG CÓ BẢO ĐẢM ĐƯỢC NGỤ Ý KHẢ NĂNG BÁN "
 "HAY KHẢ NĂNG LÀM ĐƯỢC VIỆC DỨT KHOÁT.\n"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:52
 msgid "Print version"
 msgstr "Hiển thị phiên bản"
 
-#: src/core/mutter.c:59
+#: src/core/mutter.c:58
 msgid "Mutter plugin to use"
 msgstr "Phần bổ sung Mutter cần dùng"
 
-#: src/core/prefs.c:1787
+#: src/core/prefs.c:1786
 #, c-format
 msgid "Workspace %d"
 msgstr "Không gian làm việc %d"
 
-#: src/core/util.c:120
+#: src/core/util.c:121
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter đã được biên dịch không hỗ trợ chế độ chi tiết\n"
 
@@ -683,21 +689,21 @@ msgstr ""
 "Màn hình “%s” đã có bộ quản lý cửa sổ rồi; hãy thử dùng tùy chọn --replace "
 "để thay thế bộ quản lý cửa sổ đang dùng."
 
-#: src/x11/meta-x11-display.c:1010
+#: src/x11/meta-x11-display.c:1008
 msgid "Failed to initialize GDK\n"
 msgstr "Gặp lỗi khi khởi tạo GDK\n"
 
-#: src/x11/meta-x11-display.c:1034
+#: src/x11/meta-x11-display.c:1032
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
-msgstr "Gặp lỗi khi mở bộ trình bày Hệ thống Cửa sổ X “%s”\n"
+msgstr "Gặp lỗi khi mở bộ hiển thị Hệ thống Cửa sổ X “%s”\n"
 
-#: src/x11/meta-x11-display.c:1117
+#: src/x11/meta-x11-display.c:1115
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
-msgstr "Màn hình %d trên bộ trình bày “%s” không hợp lệ.\n"
+msgstr "Màn hình %d trên bộ hiển thị “%s” không hợp lệ.\n"
 
-#: src/x11/session.c:1819
+#: src/x11/session.c:1821
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -705,7 +711,7 @@ msgstr ""
 "Những cửa sổ này không hỗ trợ “lưu cài đặt hiện tại” và sẽ phải khởi động "
 "lại bằng tay lần kế bạn đăng nhập."
 
-#: src/x11/window-props.c:565
+#: src/x11/window-props.c:568
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (trên %s)"

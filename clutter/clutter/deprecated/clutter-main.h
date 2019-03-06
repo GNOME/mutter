@@ -40,17 +40,6 @@ void                    clutter_threads_enter                   (void);
 CLUTTER_DEPRECATED
 void                    clutter_threads_leave                   (void);
 
-CLUTTER_DEPRECATED
-guint                   clutter_threads_add_frame_source        (guint             fps,
-                                                                 GSourceFunc       func,
-                                                                 gpointer          data);
-CLUTTER_DEPRECATED
-guint                   clutter_threads_add_frame_source_full   (gint              priority,
-                                                                 guint             fps,
-                                                                 GSourceFunc       func,
-                                                                 gpointer          data,
-                                                                 GDestroyNotify    notify);
-
 CLUTTER_DEPRECATED_FOR(clutter_stage_set_motion_events_enabled)
 void                    clutter_set_motion_events_enabled       (gboolean          enable);
 

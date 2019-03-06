@@ -462,6 +462,7 @@ meta_wayland_text_input_reset (MetaWaylandTextInput *text_input)
   text_input->content_type_purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL;
   text_input->text_change_cause = ZWP_TEXT_INPUT_V3_CHANGE_CAUSE_INPUT_METHOD;
   text_input->cursor_rect = (cairo_rectangle_int_t) { 0, 0, 0, 0 };
+  text_input->pending_state = META_WAYLAND_PENDING_STATE_NONE;
 }
 
 static void
@@ -470,33 +471,27 @@ text_input_commit_state (struct wl_client   *client,
 {
   MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
   ClutterInputFocus *focus = text_input->input_focus;
-  gboolean toggle_panel = FALSE;
+  gboolean enable_panel = FALSE;
+  ClutterInputMethod *input_method;
 
   increment_serial (text_input, resource);
 
   if (text_input->surface == NULL)
     return;
 
-  if (text_input->pending_state & META_WAYLAND_PENDING_STATE_ENABLED)
+  input_method = clutter_backend_get_input_method (clutter_get_default_backend ());
+
+  if (input_method &&
+      text_input->pending_state & META_WAYLAND_PENDING_STATE_ENABLED)
     {
-      ClutterInputMethod *input_method;
-
-      input_method = clutter_backend_get_input_method (clutter_get_default_backend ());
-
       if (text_input->enabled)
         {
-          meta_wayland_text_input_reset (text_input);
-
           if (!clutter_input_focus_is_focused (focus))
-            {
-              if (input_method)
-                clutter_input_method_focus_in (input_method, focus);
-              else
-                return;
-            }
+            clutter_input_method_focus_in (input_method, focus);
+          else
+            enable_panel = TRUE;
 
           clutter_input_focus_set_can_show_preedit (focus, TRUE);
-          toggle_panel = TRUE;
         }
       else if (clutter_input_focus_is_focused (focus))
         {
@@ -507,7 +502,10 @@ text_input_commit_state (struct wl_client   *client,
     }
 
   if (!clutter_input_focus_is_focused (focus))
-    return;
+    {
+      meta_wayland_text_input_reset (text_input);
+      return;
+    }
 
   if (text_input->pending_state & META_WAYLAND_PENDING_STATE_CONTENT_TYPE)
     {
@@ -544,10 +542,10 @@ text_input_commit_state (struct wl_client   *client,
                                                &cursor_rect);
     }
 
-  text_input->pending_state = META_WAYLAND_PENDING_STATE_NONE;
+  meta_wayland_text_input_reset (text_input);
 
-  if (toggle_panel)
-    clutter_input_focus_request_toggle_input_panel (focus);
+  if (enable_panel)
+    clutter_input_focus_set_input_panel_state (focus, CLUTTER_INPUT_PANEL_STATE_ON);
 }
 
 static struct zwp_text_input_v3_interface meta_text_input_interface = {

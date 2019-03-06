@@ -53,7 +53,8 @@ typedef enum
  * Controls some options for how clutter_actor_traverse() iterates
  * through the graph.
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST   = 1L<<0,
   CLUTTER_ACTOR_TRAVERSE_BREADTH_FIRST = 1L<<1
 } ClutterActorTraverseFlags;
@@ -74,7 +75,8 @@ typedef enum {
  * the continuing traversal. It may stop traversal completely, just
  * skip over children for the current actor or continue as normal.
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE       = 1L<<0,
   CLUTTER_ACTOR_TRAVERSE_VISIT_SKIP_CHILDREN  = 1L<<1,
   CLUTTER_ACTOR_TRAVERSE_VISIT_BREAK          = 1L<<2
@@ -283,9 +285,6 @@ void                            _clutter_actor_queue_redraw_full                
                                                                                          const ClutterPaintVolume *volume,
                                                                                          ClutterEffect            *effect);
 
-ClutterPaintVolume *            _clutter_actor_get_queue_redraw_clip                    (ClutterActor       *self);
-void                            _clutter_actor_set_queue_redraw_clip                    (ClutterActor       *self,
-                                                                                         ClutterPaintVolume *clip_volume);
 void                            _clutter_actor_finish_queue_redraw                      (ClutterActor       *self,
                                                                                          ClutterPaintVolume *clip);
 
@@ -316,8 +315,11 @@ void                            _clutter_actor_detach_clone                     
 void                            _clutter_actor_queue_redraw_on_clones                   (ClutterActor *actor);
 void                            _clutter_actor_queue_relayout_on_clones                 (ClutterActor *actor);
 void                            _clutter_actor_queue_only_relayout                      (ClutterActor *actor);
+void                            _clutter_actor_queue_update_resource_scale_recursive    (ClutterActor *actor);
 
 CoglFramebuffer *               _clutter_actor_get_active_framebuffer                   (ClutterActor *actor);
+gboolean                        _clutter_actor_get_real_resource_scale                  (ClutterActor *actor,
+                                                                                         float        *resource_scale);
 
 ClutterPaintNode *              clutter_actor_create_texture_paint_node                 (ClutterActor *self,
                                                                                          CoglTexture  *texture);

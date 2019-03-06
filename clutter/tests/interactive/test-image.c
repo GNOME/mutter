@@ -18,7 +18,7 @@ typedef struct _SolidContentClass {
   GObjectClass parent_class;
 } SolidContentClass;
 
-static void clutter_content_iface_init (ClutterContentIface *iface);
+static void clutter_content_iface_init (ClutterContentInterface *iface);
 
 GType solid_content_get_type (void);
 
@@ -136,7 +136,7 @@ solid_content_paint_content (ClutterContent   *content,
 }
 
 static void
-clutter_content_iface_init (ClutterContentIface *iface)
+clutter_content_iface_init (ClutterContentInterface *iface)
 {
   iface->paint_content = solid_content_paint_content;
 }

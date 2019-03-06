@@ -70,13 +70,11 @@ gboolean meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
 gboolean meta_gpu_kms_is_boot_vga (MetaGpuKms *gpu_kms);
 gboolean meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms);
 
-gboolean meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
-                                 MetaCrtc   *crtc,
-                                 int         x,
-                                 int         y,
-                                 uint32_t    fb_id,
-                                 GClosure   *flip_closure,
-                                 gboolean   *fb_in_use);
+gboolean meta_gpu_kms_flip_crtc (MetaGpuKms  *gpu_kms,
+                                 MetaCrtc    *crtc,
+                                 uint32_t     fb_id,
+                                 GClosure    *flip_closure,
+                                 GError     **error);
 
 gboolean meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
                                      GError    **error);

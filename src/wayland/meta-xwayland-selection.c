@@ -98,7 +98,8 @@ struct _MetaXWaylandSelection {
   MetaDndBridge dnd;
 };
 
-enum {
+enum
+{
   ATOM_DND_SELECTION,
   ATOM_DND_AWARE,
   ATOM_DND_STATUS,

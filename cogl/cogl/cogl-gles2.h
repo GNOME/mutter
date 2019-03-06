@@ -180,7 +180,8 @@ _cogl_gles2_context_error_quark (void);
  *
  * Error codes that relate to the cogl_gles2_context api.
  */
-typedef enum { /*< prefix=COGL_GLES2_CONTEXT_ERROR >*/
+typedef enum /*< prefix=COGL_GLES2_CONTEXT_ERROR >*/
+{
   COGL_GLES2_CONTEXT_ERROR_UNSUPPORTED,
   COGL_GLES2_CONTEXT_ERROR_DRIVER
 } CoglGLES2ContextError;
@@ -266,7 +267,7 @@ cogl_gles2_context_get_vtable (CoglGLES2Context *gles2_ctx);
  *               otherwise and @error will be updated.
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_push_gles2_context (CoglContext *ctx,
                          CoglGLES2Context *gles2_ctx,
                          CoglFramebuffer *read_buffer,
@@ -378,7 +379,7 @@ cogl_gles2_texture_2d_new_from_handle (CoglContext *ctx,
  * Since: 2.0
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_gles2_texture_get_handle (CoglTexture *texture,
                                unsigned int *handle,
                                unsigned int *target);
@@ -394,7 +395,7 @@ cogl_gles2_texture_get_handle (CoglTexture *texture,
  * Since: 2.0
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_is_gles2_context (void *object);
 
 G_END_DECLS

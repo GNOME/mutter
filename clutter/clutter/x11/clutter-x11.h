@@ -42,7 +42,6 @@
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
 #include <clutter/clutter.h>
-#include <clutter/x11/clutter-x11-texture-pixmap.h>
 
 G_BEGIN_DECLS
 
@@ -58,7 +57,8 @@ G_BEGIN_DECLS
  *
  * Since: 0.6
  */
-typedef enum {
+typedef enum
+{
   CLUTTER_X11_FILTER_CONTINUE,
   CLUTTER_X11_FILTER_TRANSLATE,
   CLUTTER_X11_FILTER_REMOVE
@@ -104,9 +104,6 @@ XVisualInfo *clutter_x11_get_visual_info (void);
 CLUTTER_EXPORT
 void     clutter_x11_set_display         (Display * xdpy);
 
-CLUTTER_DEPRECATED_FOR(clutter_x11_get_visual_info)
-XVisualInfo *clutter_x11_get_stage_visual  (ClutterStage *stage);
-
 CLUTTER_EXPORT
 Window       clutter_x11_get_stage_window  (ClutterStage *stage);
 CLUTTER_EXPORT
@@ -131,11 +128,6 @@ gboolean clutter_x11_has_event_retrieval (void);
 CLUTTER_EXPORT
 ClutterStage *clutter_x11_get_stage_from_window (Window win);
 
-CLUTTER_DEPRECATED_FOR(clutter_device_manager_peek_devices)
-const GSList* clutter_x11_get_input_devices (void);
-
-CLUTTER_DEPRECATED
-void     clutter_x11_enable_xinput (void);
 CLUTTER_EXPORT
 gboolean clutter_x11_has_xinput (void);
 

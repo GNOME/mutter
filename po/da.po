@@ -20,14 +20,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-07-07 09:58+0000\n"
-"PO-Revision-Date: 2018-08-30 20:57+0200\n"
-"Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
+"POT-Creation-Date: 2019-02-04 17:52+0000\n"
+"PO-Revision-Date: 2019-02-12 19:50+0100\n"
+"Last-Translator: Alan Mortensen <alanmortensen.am@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.6\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -404,7 +405,16 @@ msgid ""
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart."
-msgstr "For at slå eksperimentelle funktioner til, skal du tilføje funktionsnøgleordet til listen. Om funktionen kræver genstart af kompositoren afhænger af den givne funktion. Der er ingen garanti for at eksperimentelle funktion forbliver tilgængelige eller mulige at konfigurere. Forvent ikke at noget i denne indstilling nødvendigvis fungerer i fremtiden. Mulige nøgleord i øjeblikket: • “scale-monitor-framebuffer” — får mutter til som standard at arrangere logiske skærme i et logisk pixelkoordinatrum, mens skærmes framebuffere skaleres frem for vinduesindholdet for at håndtere HiDPI-skærme. Kræver ikke genstart."
+msgstr ""
+"For at slå eksperimentelle funktioner til, skal du tilføje "
+"funktionsnøgleordet til listen. Om funktionen kræver genstart af "
+"kompositoren afhænger af den givne funktion. Der er ingen garanti for at "
+"eksperimentelle funktion forbliver tilgængelige eller mulige at konfigurere. "
+"Forvent ikke at noget i denne indstilling nødvendigvis fungerer i fremtiden. "
+"Mulige nøgleord i øjeblikket: • “scale-monitor-framebuffer” — får mutter til "
+"som standard at arrangere logiske skærme i et logisk pixelkoordinatrum, mens "
+"skærmes framebuffere skaleres frem for vinduesindholdet for at håndtere "
+"HiDPI-skærme. Kræver ikke genstart."
 
 #: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Select window from tab popup"
@@ -523,7 +533,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2325
+#: src/backends/meta-input-settings.c:2423
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Tilstandsskift (Gruppe %d)"
@@ -531,102 +541,110 @@ msgstr "Tilstandsskift (Gruppe %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2348
+#: src/backends/meta-input-settings.c:2446
 msgid "Switch monitor"
 msgstr "Skift skærm"
 
-#: src/backends/meta-input-settings.c:2350
+#: src/backends/meta-input-settings.c:2448
 msgid "Show on-screen help"
 msgstr "Vis integreret hjælp"
 
-#: src/backends/meta-monitor-manager.c:907
+#: src/backends/meta-monitor-manager.c:954
 msgid "Built-in display"
 msgstr "Indbygget terminal"
 
-#: src/backends/meta-monitor-manager.c:930
+#: src/backends/meta-monitor-manager.c:986
 msgid "Unknown"
 msgstr "Ukendt"
 
-#: src/backends/meta-monitor-manager.c:932
+#: src/backends/meta-monitor-manager.c:988
 msgid "Unknown Display"
 msgstr "Ukendt terminal"
 
-#. TRANSLATORS: this is a monitor vendor name, followed by a
-#. * size in inches, like 'Dell 15"'
-#.
-#: src/backends/meta-monitor-manager.c:940
+#: src/backends/meta-monitor-manager.c:996
 #, c-format
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/backends/meta-monitor-manager.c:1004
+#, c-format
+#| msgid "%s %s"
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
 msgid "%s %s"
 msgstr "%s %s"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:481
+#: src/compositor/compositor.c:482
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr ""
 "En anden komposithåndtering kører allerede på skærm %i på terminal “%s”."
 
-#: src/core/bell.c:254
+#: src/core/bell.c:252
 msgid "Bell event"
 msgstr "Bip-hændelse"
 
-#: src/core/main.c:191
+#: src/core/main.c:185
 msgid "Disable connection to session manager"
 msgstr "Deaktivér forbindelse til sessionshåndtering"
 
-#: src/core/main.c:197
+#: src/core/main.c:191
 msgid "Replace the running window manager"
 msgstr "Erstat den kørende vindueshåndtering"
 
-#: src/core/main.c:203
+#: src/core/main.c:197
 msgid "Specify session management ID"
 msgstr "Angiv sessionhåndterings-id"
 
-#: src/core/main.c:208
+#: src/core/main.c:202
 msgid "X Display to use"
 msgstr "X-terminal som bruges"
 
-#: src/core/main.c:214
+#: src/core/main.c:208
 msgid "Initialize session from savefile"
 msgstr "Initialisér session fra gemt fil"
 
-#: src/core/main.c:220
+#: src/core/main.c:214
 msgid "Make X calls synchronous"
 msgstr "Gør kald til X synkrone"
 
-#: src/core/main.c:227
+#: src/core/main.c:221
 msgid "Run as a wayland compositor"
 msgstr "Kør som en wayland-kompositor"
 
-#: src/core/main.c:233
+#: src/core/main.c:227
 msgid "Run as a nested compositor"
 msgstr "Kør som en indlejret kompositor"
 
-#: src/core/main.c:239
+#: src/core/main.c:233
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Kør wayland-kompositoren uden at starte Xwayland"
 
-#: src/core/main.c:247
+#: src/core/main.c:241
 msgid "Run as a full display server, rather than nested"
 msgstr "Kør som fuld terminalserver, frem for indlejret"
 
-#: src/core/main.c:253
+#: src/core/main.c:247
 msgid "Run with X11 backend"
 msgstr "Kør med X11-motor"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:148
+#: src/core/meta-close-dialog-default.c:150
 #, c-format
 msgid "“%s” is not responding."
 msgstr "“%s” svarer ikke."
 
-#: src/core/meta-close-dialog-default.c:150
+#: src/core/meta-close-dialog-default.c:152
 msgid "Application is not responding."
 msgstr "Program svarer ikke."
 
-#: src/core/meta-close-dialog-default.c:155
+#: src/core/meta-close-dialog-default.c:157
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -634,15 +652,15 @@ msgstr ""
 "Du kan vælge at vente et lille stykke tid på at programmet fortsætter, eller "
 "du kan tvinge programmet til at afslutte fuldstændigt."
 
-#: src/core/meta-close-dialog-default.c:162
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "_Tving til at afslutte"
 
-#: src/core/meta-close-dialog-default.c:162
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "_Vent"
 
-#: src/core/mutter.c:39
+#: src/core/mutter.c:38
 #, c-format
 msgid ""
 "mutter %s\n"
@@ -657,20 +675,20 @@ msgstr ""
 "Der er INGEN garanti; ikke engang for SALGBARHED eller EGNETHED TIL ET "
 "BESTEMT FORMÅL.\n"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:52
 msgid "Print version"
 msgstr "Vis version"
 
-#: src/core/mutter.c:59
+#: src/core/mutter.c:58
 msgid "Mutter plugin to use"
 msgstr "Mutter-udvidelsesmodul der skal bruges"
 
-#: src/core/prefs.c:1915
+#: src/core/prefs.c:1786
 #, c-format
 msgid "Workspace %d"
 msgstr "Arbejdsområde %d"
 
-#: src/core/util.c:120
+#: src/core/util.c:121
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter blev kompileret uden understøttelse for uddybende tilstand\n"
 
@@ -688,21 +706,21 @@ msgstr ""
 "Terminalen “%s” har allerede en vindueshåndtering; prøv tilvalget --replace "
 "for at erstatte den aktuelle vindueshåndtering."
 
-#: src/x11/meta-x11-display.c:1010
+#: src/x11/meta-x11-display.c:1008
 msgid "Failed to initialize GDK\n"
 msgstr "Kunne ikke klargøre GDK\n"
 
-#: src/x11/meta-x11-display.c:1034
+#: src/x11/meta-x11-display.c:1032
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Kunne ikke åbne X Window System-terminalen “%s”\n"
 
-#: src/x11/meta-x11-display.c:1117
+#: src/x11/meta-x11-display.c:1115
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Skærm %d på terminal “%s” er ugyldig\n"
 
-#: src/x11/session.c:1819
+#: src/x11/session.c:1821
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -711,7 +729,7 @@ msgstr ""
 "manuelt næste gang, du logger på."
 
 # Lad os håbe dette er rigtigt
-#: src/x11/window-props.c:565
+#: src/x11/window-props.c:568
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"

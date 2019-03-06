@@ -152,7 +152,8 @@ enum
   LAST_SIGNAL
 };
 
-enum {
+enum
+{
   PROP_0,
 
   PROP_FOCUS_WINDOW
@@ -750,7 +751,10 @@ meta_display_open (void)
   enable_compositor (display);
 
   if (display->x11_display)
-    meta_x11_display_create_guard_window (display->x11_display);
+    {
+      meta_x11_display_restore_active_workspace (display->x11_display);
+      meta_x11_display_create_guard_window (display->x11_display);
+    }
 
   /* Set up touch support */
   display->gesture_tracker = meta_gesture_tracker_new ();
@@ -1992,7 +1996,7 @@ meta_display_ping_window (MetaWindow *window,
       return;
     }
 
-  if (!window->can_ping)
+  if (!meta_window_can_ping (window))
     return;
 
   ping_data = g_new (MetaPingData, 1);
@@ -3510,6 +3514,37 @@ meta_display_get_monitor_geometry (MetaDisplay   *display,
     meta_monitor_manager_get_logical_monitor_from_number (monitor_manager,
                                                           monitor);
   *geometry = logical_monitor->rect;
+}
+
+/**
+ * meta_display_get_monitor_scale:
+ * @display: a #MetaDisplay
+ * @monitor: the monitor number
+ *
+ * Gets the monitor scaling value for the given @monitor.
+ *
+ * Return value: the monitor scaling value
+ */
+float
+meta_display_get_monitor_scale (MetaDisplay *display,
+                                int          monitor)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaLogicalMonitor *logical_monitor;
+#ifndef G_DISABLE_CHECKS
+  int n_logical_monitors =
+    meta_monitor_manager_get_num_logical_monitors (monitor_manager);
+#endif
+
+  g_return_val_if_fail (META_IS_DISPLAY (display), 1.0f);
+  g_return_val_if_fail (monitor >= 0 && monitor < n_logical_monitors, 1.0f);
+
+  logical_monitor =
+    meta_monitor_manager_get_logical_monitor_from_number (monitor_manager,
+                                                          monitor);
+  return logical_monitor->scale;
 }
 
 /**

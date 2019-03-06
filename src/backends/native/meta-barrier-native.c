@@ -46,7 +46,8 @@ struct _MetaBarrierManagerNative
   GHashTable *barriers;
 };
 
-typedef enum {
+typedef enum
+{
   /* The barrier is active and responsive to pointer motion. */
   META_BARRIER_STATE_ACTIVE,
 

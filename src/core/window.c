@@ -183,7 +183,8 @@ static gboolean idle_update_icon (gpointer data);
 
 G_DEFINE_ABSTRACT_TYPE (MetaWindow, meta_window, G_TYPE_OBJECT);
 
-enum {
+enum
+{
   PROP_0,
 
   PROP_TITLE,
@@ -1079,9 +1080,6 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->initial_timestamp_set = FALSE;
   window->net_wm_user_time_set = FALSE;
   window->user_time_window = None;
-  window->take_focus = FALSE;
-  window->delete_window = FALSE;
-  window->can_ping = FALSE;
   window->input = TRUE;
   window->calc_placement = FALSE;
   window->shaken_loose = FALSE;
@@ -2223,7 +2221,7 @@ window_state_on_map (MetaWindow *window,
   /* don't initially focus windows that are intended to not accept
    * focus
    */
-  if (!(window->input || window->take_focus))
+  if (!meta_window_is_focusable (window))
     {
       *takes_focus = FALSE;
       return;
@@ -4689,8 +4687,8 @@ meta_window_focus (MetaWindow  *window,
   window->restore_focus_on_map = FALSE;
 
   meta_topic (META_DEBUG_FOCUS,
-              "Setting input focus to window %s, input: %d take_focus: %d\n",
-              window->desc, window->input, window->take_focus);
+              "Setting input focus to window %s, input: %d focusable: %d\n",
+              window->desc, window->input, meta_window_is_focusable (window));
 
   if (window->display->grab_window &&
       window->display->grab_window != window &&
@@ -8527,6 +8525,18 @@ meta_window_shortcuts_inhibited (MetaWindow         *window,
                                  ClutterInputDevice *source)
 {
   return META_WINDOW_GET_CLASS (window)->shortcuts_inhibited (window, source);
+}
+
+gboolean
+meta_window_is_focusable (MetaWindow *window)
+{
+  return META_WINDOW_GET_CLASS (window)->is_focusable (window);
+}
+
+gboolean
+meta_window_can_ping (MetaWindow *window)
+{
+  return META_WINDOW_GET_CLASS (window)->can_ping (window);
 }
 
 gboolean

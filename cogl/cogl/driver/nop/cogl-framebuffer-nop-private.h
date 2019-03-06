@@ -37,7 +37,7 @@
 #include "cogl-types.h"
 #include "cogl-context-private.h"
 
-CoglBool
+gboolean
 _cogl_offscreen_nop_allocate (CoglOffscreen *offscreen,
                              CoglError **error);
 
@@ -89,7 +89,7 @@ _cogl_framebuffer_nop_draw_indexed_attributes (CoglFramebuffer *framebuffer,
                                                int n_attributes,
                                                CoglDrawFlags flags);
 
-CoglBool
+gboolean
 _cogl_framebuffer_nop_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                                int x,
                                                int y,

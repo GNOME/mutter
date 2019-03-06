@@ -87,7 +87,8 @@
  *
  * A series of hints that enable or disable behaviours on the stage
  */
-typedef enum { /*< prefix=CLUTTER_STAGE >*/
+typedef enum /*< prefix=CLUTTER_STAGE >*/
+{
   CLUTTER_STAGE_HINT_NONE = 0,
 
   CLUTTER_STAGE_NO_CLEAR_ON_PAINT = 1 << 0
@@ -201,6 +202,12 @@ static const ClutterColor default_stage_color = { 255, 255, 255, 255 };
 
 static void clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage);
 static void free_queue_redraw_entry (ClutterStageQueueRedrawEntry *entry);
+static void capture_view_into (ClutterStage          *stage,
+                               gboolean               paint,
+                               ClutterStageView      *view,
+                               cairo_rectangle_int_t *rect,
+                               uint8_t               *data,
+                               int                    stride);
 
 static void clutter_container_iface_init (ClutterContainerIface *iface);
 
@@ -1274,45 +1281,44 @@ clutter_stage_real_queue_relayout (ClutterActor *self)
   parent_class->queue_relayout (self);
 }
 
-static void
-clutter_stage_real_queue_redraw (ClutterActor *actor,
-                                 ClutterActor *leaf)
+static gboolean
+clutter_stage_real_queue_redraw (ClutterActor       *actor,
+                                 ClutterActor       *leaf,
+                                 ClutterPaintVolume *redraw_clip)
 {
   ClutterStage *stage = CLUTTER_STAGE (actor);
   ClutterStageWindow *stage_window;
-  ClutterPaintVolume *redraw_clip;
   ClutterActorBox bounding_box;
   ClutterActorBox intersection_box;
   cairo_rectangle_int_t geom, stage_clip;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (actor))
-    return;
+    return TRUE;
 
   /* If the backend can't do anything with redraw clips (e.g. it already knows
    * it needs to redraw everything anyway) then don't spend time transforming
    * any clip volume into stage coordinates... */
   stage_window = _clutter_stage_get_window (stage);
   if (stage_window == NULL)
-    return;
+    return TRUE;
 
   if (_clutter_stage_window_ignoring_redraw_clips (stage_window))
     {
       _clutter_stage_window_add_redraw_clip (stage_window, NULL);
-      return;
+      return FALSE;
     }
 
   /* Convert the clip volume into stage coordinates and then into an
    * axis aligned stage coordinates bounding box...
    */
-  redraw_clip = _clutter_actor_get_queue_redraw_clip (leaf);
   if (redraw_clip == NULL)
     {
       _clutter_stage_window_add_redraw_clip (stage_window, NULL);
-      return;
+      return FALSE;
     }
 
   if (redraw_clip->is_empty)
-    return;
+    return TRUE;
 
   _clutter_paint_volume_get_stage_paint_box (redraw_clip,
                                              stage,
@@ -1328,7 +1334,7 @@ clutter_stage_real_queue_redraw (ClutterActor *actor,
   /* There is no need to track degenerate/empty redraw clips */
   if (intersection_box.x2 <= intersection_box.x1 ||
       intersection_box.y2 <= intersection_box.y1)
-    return;
+    return TRUE;
 
   /* when converting to integer coordinates make sure we round the edges of the
    * clip rectangle outwards... */
@@ -1338,6 +1344,7 @@ clutter_stage_real_queue_redraw (ClutterActor *actor,
   stage_clip.height = intersection_box.y2 - stage_clip.y;
 
   _clutter_stage_window_add_redraw_clip (stage_window, &stage_clip);
+  return FALSE;
 }
 
 gboolean
@@ -2742,7 +2749,7 @@ clutter_stage_set_fullscreen (ClutterStage *stage,
   if (priv->is_fullscreen != fullscreen)
     {
       ClutterStageWindow *impl = CLUTTER_STAGE_WINDOW (priv->impl);
-      ClutterStageWindowIface *iface;
+      ClutterStageWindowInterface *iface;
 
       iface = CLUTTER_STAGE_WINDOW_GET_IFACE (impl);
 
@@ -2807,7 +2814,7 @@ clutter_stage_set_user_resizable (ClutterStage *stage,
       && priv->is_user_resizable != resizable)
     {
       ClutterStageWindow *impl = CLUTTER_STAGE_WINDOW (priv->impl);
-      ClutterStageWindowIface *iface;
+      ClutterStageWindowInterface *iface;
 
       iface = CLUTTER_STAGE_WINDOW_GET_IFACE (impl);
       if (iface->set_user_resizable)
@@ -2856,7 +2863,7 @@ clutter_stage_show_cursor (ClutterStage *stage)
   if (!priv->is_cursor_visible)
     {
       ClutterStageWindow *impl = CLUTTER_STAGE_WINDOW (priv->impl);
-      ClutterStageWindowIface *iface;
+      ClutterStageWindowInterface *iface;
 
       iface = CLUTTER_STAGE_WINDOW_GET_IFACE (impl);
       if (iface->set_cursor_visible)
@@ -2889,7 +2896,7 @@ clutter_stage_hide_cursor (ClutterStage *stage)
   if (priv->is_cursor_visible)
     {
       ClutterStageWindow *impl = CLUTTER_STAGE_WINDOW (priv->impl);
-      ClutterStageWindowIface *iface;
+      ClutterStageWindowInterface *iface;
 
       iface = CLUTTER_STAGE_WINDOW_GET_IFACE (impl);
       if (iface->set_cursor_visible)
@@ -2937,6 +2944,9 @@ clutter_stage_read_pixels (ClutterStage *stage,
   cairo_region_t *clip;
   cairo_rectangle_int_t clip_rect;
   CoglFramebuffer *framebuffer;
+  float view_scale;
+  float pixel_width;
+  float pixel_height;
   uint8_t *pixels;
 
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
@@ -2979,10 +2989,15 @@ clutter_stage_read_pixels (ClutterStage *stage,
   cogl_push_framebuffer (framebuffer);
   clutter_stage_do_paint_view (stage, view, &clip_rect);
 
-  pixels = g_malloc0 (clip_rect.width * clip_rect.height * 4);
+  view_scale = clutter_stage_view_get_scale (view);
+  pixel_width = roundf (clip_rect.width * view_scale);
+  pixel_height = roundf (clip_rect.height * view_scale);
+
+  pixels = g_malloc0 (pixel_width * pixel_height * 4);
   cogl_framebuffer_read_pixels (framebuffer,
-                                clip_rect.x, clip_rect.y,
-                                clip_rect.width, clip_rect.height,
+                                clip_rect.x * view_scale,
+                                clip_rect.y * view_scale,
+                                pixel_width, pixel_height,
                                 COGL_PIXEL_FORMAT_RGBA_8888,
                                 pixels);
 
@@ -4756,62 +4771,33 @@ static void
 capture_view (ClutterStage          *stage,
               gboolean               paint,
               ClutterStageView      *view,
-              cairo_rectangle_int_t *rect,
               ClutterCapture        *capture)
 {
-  CoglFramebuffer *framebuffer;
-  ClutterBackend *backend;
-  CoglContext *context;
   cairo_surface_t *image;
   uint8_t *data;
   int stride;
-  CoglBitmap *bitmap;
-  cairo_rectangle_int_t view_layout;
+  cairo_rectangle_int_t *rect;
   float view_scale;
+  float texture_width;
+  float texture_height;
 
-  framebuffer = clutter_stage_view_get_framebuffer (view);
-
-  if (paint)
-    {
-      cogl_push_framebuffer (framebuffer);
-      _clutter_stage_maybe_setup_viewport (stage, view);
-      clutter_stage_do_paint_view (stage, view, rect);
-    }
+  rect = &capture->rect;
 
   view_scale = clutter_stage_view_get_scale (view);
+  texture_width = roundf (rect->width * view_scale);
+  texture_height = roundf (rect->height * view_scale);
   image = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                      rect->width * view_scale,
-                                      rect->height * view_scale);
+                                      texture_width, texture_height);
   cairo_surface_set_device_scale (image, view_scale, view_scale);
+
 
   data = cairo_image_surface_get_data (image);
   stride = cairo_image_surface_get_stride (image);
 
-  backend = clutter_get_default_backend ();
-  context = clutter_backend_get_cogl_context (backend);
-  bitmap = cogl_bitmap_new_for_data (context,
-                                     rect->width * view_scale,
-                                     rect->height * view_scale,
-                                     CLUTTER_CAIRO_FORMAT_ARGB32,
-                                     stride,
-                                     data);
-
-  clutter_stage_view_get_layout (view, &view_layout);
-
-  cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
-                                            (rect->x - view_layout.x) * view_scale,
-                                            (rect->y - view_layout.y) * view_scale,
-                                            COGL_READ_PIXELS_COLOR_BUFFER,
-                                            bitmap);
-
-  if (paint)
-    cogl_pop_framebuffer ();
-
-  capture->rect = *rect;
+  capture_view_into (stage, paint, view, rect, data, stride);
   capture->image = image;
 
   cairo_surface_mark_dirty (capture->image);
-  cogl_object_unref (bitmap);
 }
 
 gboolean
@@ -4827,33 +4813,90 @@ clutter_stage_capture (ClutterStage          *stage,
   ClutterCapture *captures;
   int n_captures;
 
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
+
   captures = g_new0 (ClutterCapture, g_list_length (views));
   n_captures = 0;
 
   for (l = views; l; l = l->next)
     {
       ClutterStageView *view = l->data;
+      ClutterCapture *capture;
       cairo_rectangle_int_t view_layout;
       cairo_region_t *region;
-      cairo_rectangle_int_t view_capture_rect;
 
       clutter_stage_view_get_layout (view, &view_layout);
       region = cairo_region_create_rectangle (&view_layout);
       cairo_region_intersect_rectangle (region, rect);
-      cairo_region_get_extents (region, &view_capture_rect);
+
+      capture = &captures[n_captures];
+      cairo_region_get_extents (region, &capture->rect);
       cairo_region_destroy (region);
 
-      if (view_capture_rect.width == 0 || view_capture_rect.height == 0)
+      if (capture->rect.width == 0 || capture->rect.height == 0)
         continue;
 
-      capture_view (stage, paint, view, &view_capture_rect,
-                    &captures[n_captures]);
+      capture_view (stage, paint, view, capture);
 
       n_captures++;
     }
 
+  if (n_captures == 0)
+    g_clear_pointer (&captures, g_free);
+
   *out_captures = captures;
   *out_n_captures = n_captures;
+
+  return n_captures > 0;
+}
+
+gboolean
+clutter_stage_get_capture_final_size (ClutterStage          *stage,
+                                      cairo_rectangle_int_t *rect,
+                                      int                   *out_width,
+                                      int                   *out_height,
+                                      float                 *out_scale)
+{
+  float max_scale;
+
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
+
+  if (rect)
+    {
+      ClutterRect capture_rect;
+
+      _clutter_util_rect_from_rectangle (rect, &capture_rect);
+      if (!_clutter_stage_get_max_view_scale_factor_for_rect (stage,
+                                                              &capture_rect,
+                                                              &max_scale))
+        return FALSE;
+
+      if (out_width)
+        *out_width = (gint) roundf (rect->width * max_scale);
+
+      if (out_height)
+        *out_height = (gint) roundf (rect->height * max_scale);
+    }
+  else
+    {
+      ClutterActorBox alloc;
+      float stage_width, stage_height;
+
+      clutter_actor_get_allocation_box (CLUTTER_ACTOR (stage), &alloc);
+      clutter_actor_box_get_size (&alloc, &stage_width, &stage_height);
+      if (!_clutter_actor_get_real_resource_scale (CLUTTER_ACTOR (stage),
+                                                   &max_scale))
+        return FALSE;
+
+      if (out_width)
+        *out_width = (gint) roundf (stage_width * max_scale);
+
+      if (out_height)
+        *out_height = (gint) roundf (stage_height * max_scale);
+    }
+
+  if (out_scale)
+    *out_scale = max_scale;
 
   return TRUE;
 }
@@ -4871,6 +4914,11 @@ capture_view_into (ClutterStage          *stage,
   CoglContext *context;
   CoglBitmap *bitmap;
   cairo_rectangle_int_t view_layout;
+  float view_scale;
+  float texture_width;
+  float texture_height;
+
+  g_return_if_fail (CLUTTER_IS_STAGE (stage));
 
   framebuffer = clutter_stage_view_get_framebuffer (view);
 
@@ -4881,10 +4929,14 @@ capture_view_into (ClutterStage          *stage,
       clutter_stage_do_paint_view (stage, view, rect);
     }
 
+  view_scale = clutter_stage_view_get_scale (view);
+  texture_width = roundf (rect->width * view_scale);
+  texture_height = roundf (rect->height * view_scale);
+
   backend = clutter_get_default_backend ();
   context = clutter_backend_get_cogl_context (backend);
   bitmap = cogl_bitmap_new_for_data (context,
-                                     rect->width, rect->height,
+                                     texture_width, texture_height,
                                      CLUTTER_CAIRO_FORMAT_ARGB32,
                                      stride,
                                      data);
@@ -4892,8 +4944,8 @@ capture_view_into (ClutterStage          *stage,
   clutter_stage_view_get_layout (view, &view_layout);
 
   cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
-                                            rect->x - view_layout.x,
-                                            rect->y - view_layout.y,
+                                            roundf ((rect->x - view_layout.x) * view_scale),
+                                            roundf ((rect->y - view_layout.y) * view_scale),
                                             COGL_READ_PIXELS_COLOR_BUFFER,
                                             bitmap);
 
@@ -5001,4 +5053,47 @@ clutter_stage_thaw_updates (ClutterStage *stage)
       master_clock = _clutter_master_clock_get_default ();
       _clutter_master_clock_set_paused (master_clock, FALSE);
     }
+}
+
+GList *
+_clutter_stage_peek_stage_views (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  return _clutter_stage_window_get_views (priv->impl);
+}
+
+void
+clutter_stage_update_resource_scales (ClutterStage *stage)
+{
+  _clutter_actor_queue_update_resource_scale_recursive (CLUTTER_ACTOR (stage));
+}
+
+gboolean
+_clutter_stage_get_max_view_scale_factor_for_rect (ClutterStage *stage,
+                                                   ClutterRect  *rect,
+                                                   float        *view_scale)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  float scale = 0.0f;
+  GList *l;
+
+  for (l = _clutter_stage_window_get_views (priv->impl); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+      cairo_rectangle_int_t view_layout;
+      ClutterRect view_rect;
+
+      clutter_stage_view_get_layout (view, &view_layout);
+      _clutter_util_rect_from_rectangle (&view_layout, &view_rect);
+
+      if (clutter_rect_intersection (&view_rect, rect, NULL))
+        scale = MAX (clutter_stage_view_get_scale (view), scale);
+    }
+
+  if (scale == 0.0)
+    return FALSE;
+
+  *view_scale = scale;
+  return TRUE;
 }

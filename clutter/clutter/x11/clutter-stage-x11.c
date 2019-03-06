@@ -49,10 +49,12 @@
 
 #define STAGE_X11_IS_MAPPED(s)  ((((ClutterStageX11 *) (s))->wm_state & STAGE_X11_WITHDRAWN) == 0)
 
-static ClutterStageWindowIface *clutter_stage_window_parent_iface = NULL;
+static ClutterStageWindowInterface *clutter_stage_window_parent_iface = NULL;
 
-static void clutter_stage_window_iface_init     (ClutterStageWindowIface     *iface);
-static void clutter_event_translator_iface_init (ClutterEventTranslatorIface *iface);
+static void
+clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
+static void
+clutter_event_translator_iface_init (ClutterEventTranslatorIface *iface);
 
 static ClutterStageCogl *clutter_x11_get_stage_window_from_window (Window win);
 
@@ -972,7 +974,7 @@ clutter_stage_x11_init (ClutterStageX11 *stage)
 }
 
 static void
-clutter_stage_window_iface_init (ClutterStageWindowIface *iface)
+clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
 {
   clutter_stage_window_parent_iface = g_type_interface_peek_parent (iface);
 
@@ -1388,37 +1390,6 @@ clutter_x11_get_stage_from_window (Window win)
     return stage_cogl->wrapper;
 
   return NULL;
-}
-
-/**
- * clutter_x11_get_stage_visual: (skip)
- * @stage: a #ClutterStage
- *
- * Returns an XVisualInfo suitable for creating a foreign window for the given
- * stage. NOTE: It doesn't do as the name may suggest, which is return the
- * XVisualInfo that was used to create an existing window for the given stage.
- *
- * XXX: It might be best to deprecate this function and replace with something
- * along the lines of clutter_backend_x11_get_foreign_visual () or perhaps
- * clutter_stage_x11_get_foreign_visual ()
- *
- * Return value: (transfer full): An XVisualInfo suitable for creating a
- *   foreign stage. Use XFree() to free the returned value instead
- *
- * Deprecated: 1.2: Use clutter_x11_get_visual_info() instead
- *
- * Since: 0.4
- */
-XVisualInfo *
-clutter_x11_get_stage_visual (ClutterStage *stage)
-{
-  ClutterBackend *backend = clutter_get_default_backend ();
-  ClutterBackendX11 *backend_x11;
-
-  g_return_val_if_fail (CLUTTER_IS_BACKEND_X11 (backend), NULL);
-  backend_x11 = CLUTTER_BACKEND_X11 (backend);
-
-  return _clutter_backend_x11_get_visual_info (backend_x11);
 }
 
 typedef struct {

@@ -69,6 +69,9 @@ typedef struct _ClutterVertex4          ClutterVertex4;
 #define CLUTTER_ACTOR_IN_REPARENT(a)            ((CLUTTER_PRIVATE_FLAGS (a) & CLUTTER_IN_REPARENT) != FALSE)
 #define CLUTTER_ACTOR_IN_PAINT(a)               ((CLUTTER_PRIVATE_FLAGS (a) & CLUTTER_IN_PAINT) != FALSE)
 #define CLUTTER_ACTOR_IN_RELAYOUT(a)            ((CLUTTER_PRIVATE_FLAGS (a) & CLUTTER_IN_RELAYOUT) != FALSE)
+#define CLUTTER_ACTOR_IN_PREF_WIDTH(a)          ((CLUTTER_PRIVATE_FLAGS (a) & CLUTTER_IN_PREF_WIDTH) != FALSE)
+#define CLUTTER_ACTOR_IN_PREF_HEIGHT(a)         ((CLUTTER_PRIVATE_FLAGS (a) & CLUTTER_IN_PREF_HEIGHT) != FALSE)
+#define CLUTTER_ACTOR_IN_PREF_SIZE(a)           ((CLUTTER_PRIVATE_FLAGS (a) & (CLUTTER_IN_PREF_HEIGHT|CLUTTER_IN_PREF_WIDTH)) != FALSE)
 
 #define CLUTTER_PARAM_READABLE  (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)
 #define CLUTTER_PARAM_WRITABLE  (G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS)
@@ -91,21 +94,24 @@ typedef struct _ClutterVertex4          ClutterVertex4;
  * because it will break for negative numbers. */
 #define CLUTTER_NEARBYINT(x) ((int) ((x) < 0.0f ? (x) - 0.5f : (x) + 0.5f))
 
-typedef enum {
+typedef enum
+{
   CLUTTER_ACTOR_UNUSED_FLAG = 0,
 
   CLUTTER_IN_DESTRUCTION = 1 << 0,
   CLUTTER_IS_TOPLEVEL    = 1 << 1,
   CLUTTER_IN_REPARENT    = 1 << 2,
+  CLUTTER_IN_PREF_WIDTH  = 1 << 3,
+  CLUTTER_IN_PREF_HEIGHT = 1 << 4,
 
   /* Used to avoid recursion */
-  CLUTTER_IN_PAINT       = 1 << 3,
+  CLUTTER_IN_PAINT       = 1 << 5,
 
   /* Used to avoid recursion */
-  CLUTTER_IN_RELAYOUT    = 1 << 4,
+  CLUTTER_IN_RELAYOUT    = 1 << 6,
 
   /* a flag for internal children of Containers (DEPRECATED) */
-  CLUTTER_INTERNAL_CHILD = 1 << 5
+  CLUTTER_INTERNAL_CHILD = 1 << 7
 } ClutterPrivateFlags;
 
 /*
@@ -239,6 +245,17 @@ void  _clutter_util_fully_transform_vertices (const CoglMatrix    *modelview,
                                               const ClutterVertex *vertices_in,
                                               ClutterVertex       *vertices_out,
                                               int                  n_vertices);
+
+void _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
+                                        ClutterRect                 *dest);
+
+void _clutter_util_rectangle_int_extents (const ClutterRect     *src,
+                                          cairo_rectangle_int_t *dest);
+
+void _clutter_util_rectangle_offset (const cairo_rectangle_int_t *src,
+                                     int                          x,
+                                     int                          y,
+                                     cairo_rectangle_int_t       *dest);
 
 void _clutter_util_rectangle_union (const cairo_rectangle_int_t *src1,
                                     const cairo_rectangle_int_t *src2,

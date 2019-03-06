@@ -77,7 +77,7 @@ entry_hash (const void *data)
   return entry->hash_value;
 }
 
-static CoglBool
+static gboolean
 entry_equal (const void *a,
              const void *b)
 {

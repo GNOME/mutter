@@ -45,7 +45,7 @@ struct _MetaStageNative
 };
 
 static void
-clutter_stage_window_iface_init (ClutterStageWindowIface *iface);
+clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaStageNative, meta_stage_native,
                          CLUTTER_TYPE_STAGE_COGL,
@@ -137,9 +137,11 @@ meta_stage_native_rebuild_views (MetaStageNative *stage_native)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  ClutterActor *stage = meta_backend_get_stage (backend);
 
   meta_renderer_rebuild_views (renderer);
   meta_renderer_native_queue_modes_reset (META_RENDERER_NATIVE (renderer));
+  clutter_stage_update_resource_scales (CLUTTER_STAGE (stage));
   ensure_frame_callbacks (stage_native);
 }
 
@@ -219,7 +221,7 @@ meta_stage_native_class_init (MetaStageNativeClass *klass)
 }
 
 static void
-clutter_stage_window_iface_init (ClutterStageWindowIface *iface)
+clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
 {
   iface->can_clip_redraws = meta_stage_native_can_clip_redraws;
   iface->get_geometry = meta_stage_native_get_geometry;

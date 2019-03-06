@@ -126,7 +126,7 @@ cogl_sub_texture_get_parent (CoglSubTexture *sub_texture);
  * Since: 1.10
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_is_sub_texture (void *object);
 
 G_END_DECLS

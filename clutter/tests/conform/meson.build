@@ -34,13 +34,11 @@ clutter_conform_tests_general_tests = [
   'binding-pool',
   'color',
   'interval',
-  'model',
   'script-parser',
   'units',
 ]
 
 clutter_conform_tests_deprecated_tests = [
-  'animator',
   'behaviours',
   'group',
   'rectangle',

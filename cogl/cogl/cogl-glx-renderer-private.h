@@ -48,7 +48,8 @@ typedef struct _CoglGLXRenderer
 
   /* enumeration with relatioship between OML_sync_control
    * UST (unadjusted-system-time) and the system clock */
-  enum {
+  enum
+{
     COGL_GLX_UST_IS_UNKNOWN,
     COGL_GLX_UST_IS_GETTIMEOFDAY,
     COGL_GLX_UST_IS_MONOTONIC_TIME,

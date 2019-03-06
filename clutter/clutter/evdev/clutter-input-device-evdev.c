@@ -46,7 +46,8 @@ G_DEFINE_TYPE (ClutterInputDeviceEvdev,
                clutter_input_device_evdev,
                CLUTTER_TYPE_INPUT_DEVICE)
 
-enum {
+enum
+{
   PROP_0,
   PROP_DEVICE_MATRIX,
   PROP_OUTPUT_ASPECT_RATIO,
@@ -723,11 +724,11 @@ get_button_index (gint button)
 {
   switch (button)
     {
-    case BTN_LEFT:
+    case CLUTTER_BUTTON_PRIMARY:
       return 0;
-    case BTN_MIDDLE:
+    case CLUTTER_BUTTON_MIDDLE:
       return 1;
-    case BTN_RIGHT:
+    case CLUTTER_BUTTON_SECONDARY:
       return 2;
     default:
       break;
@@ -860,7 +861,7 @@ enable_mousekeys (ClutterInputDeviceEvdev *device)
 {
   ClutterDeviceManager *manager;
 
-  device->mousekeys_btn = BTN_LEFT;
+  device->mousekeys_btn = CLUTTER_BUTTON_PRIMARY;
   device->move_mousekeys_timer = 0;
   device->mousekeys_first_motion_time = 0;
   device->mousekeys_last_motion_time = 0;
@@ -881,21 +882,21 @@ disable_mousekeys (ClutterInputDeviceEvdev *device)
   stop_mousekeys_move (device);
 
   /* Make sure we don't leave button pressed behind... */
-  if (device->mousekeys_btn_states[get_button_index (BTN_LEFT)])
+  if (device->mousekeys_btn_states[get_button_index (CLUTTER_BUTTON_PRIMARY)])
     {
-      device->mousekeys_btn = BTN_LEFT;
+      device->mousekeys_btn = CLUTTER_BUTTON_PRIMARY;
       emulate_button_release (device);
     }
 
-  if (device->mousekeys_btn_states[get_button_index (BTN_MIDDLE)])
+  if (device->mousekeys_btn_states[get_button_index (CLUTTER_BUTTON_MIDDLE)])
     {
-      device->mousekeys_btn = BTN_MIDDLE;
+      device->mousekeys_btn = CLUTTER_BUTTON_MIDDLE;
       emulate_button_release (device);
     }
 
-  if (device->mousekeys_btn_states[get_button_index (BTN_RIGHT)])
+  if (device->mousekeys_btn_states[get_button_index (CLUTTER_BUTTON_SECONDARY)])
     {
-      device->mousekeys_btn = BTN_RIGHT;
+      device->mousekeys_btn = CLUTTER_BUTTON_SECONDARY;
       emulate_button_release (device);
     }
 
@@ -1016,13 +1017,13 @@ handle_mousekeys_press (ClutterEvent            *event,
   switch (event->key.keyval)
     {
     case XKB_KEY_KP_Divide:
-      device->mousekeys_btn = BTN_LEFT;
+      device->mousekeys_btn = CLUTTER_BUTTON_PRIMARY;
       return TRUE;
     case XKB_KEY_KP_Multiply:
-      device->mousekeys_btn = BTN_MIDDLE;
+      device->mousekeys_btn = CLUTTER_BUTTON_MIDDLE;
       return TRUE;
     case XKB_KEY_KP_Subtract:
-      device->mousekeys_btn = BTN_RIGHT;
+      device->mousekeys_btn = CLUTTER_BUTTON_SECONDARY;
       return TRUE;
     default:
       break;

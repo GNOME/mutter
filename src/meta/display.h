@@ -157,8 +157,9 @@ gboolean meta_display_remove_keybinding (MetaDisplay         *display,
                                          const char          *name);
 
 META_EXPORT
-guint    meta_display_grab_accelerator   (MetaDisplay *display,
-                                          const char  *accelerator);
+guint    meta_display_grab_accelerator   (MetaDisplay         *display,
+                                          const char          *accelerator,
+                                          MetaKeyBindingFlags  flags);
 
 META_EXPORT
 gboolean meta_display_ungrab_accelerator (MetaDisplay *display,
@@ -244,6 +245,10 @@ META_EXPORT
 void meta_display_get_monitor_geometry (MetaDisplay   *display,
                                         int            monitor,
                                         MetaRectangle *geometry);
+
+META_EXPORT
+float meta_display_get_monitor_scale (MetaDisplay *display,
+                                      int          monitor);
 
 META_EXPORT
 gboolean meta_display_get_monitor_in_fullscreen (MetaDisplay *display,

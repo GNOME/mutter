@@ -7,13 +7,13 @@
 # Raivis Dejus <orvils@gmail.com>, 2006, 2007, 2009.
 # Rudolfs <rudolfs.mazurs@gmail.com>, 2011.
 # Rūdofls Mazurs <rudolfs.mazurs@gmail.com>, 2011, 2012.
-# Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>, 2012, 2013, 2014, 2015, 2016, 2017, 2018.
+# Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: lv\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-07-07 09:58+0000\n"
-"PO-Revision-Date: 2018-08-31 20:55+0200\n"
+"POT-Creation-Date: 2019-02-04 17:52+0000\n"
+"PO-Revision-Date: 2019-03-03 12:49+0200\n"
 "Last-Translator: Rūdolfs Mazurs <rudolfs.mazurs@gmail.com>\n"
 "Language-Team: Latvian <lata-l10n@googlegroups.com>\n"
 "Language: lv\n"
@@ -388,18 +388,6 @@ msgid "Enable experimental features"
 msgstr "Ieslēgt eksperimentālās iespējas"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “remote-desktop” — enables remote desktop support. To support "
-#| "remote desktop with screen sharing, “screen-cast” must also be enabled. • "
-#| "“screen-cast” — enables screen cast support."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -410,15 +398,14 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart."
 msgstr ""
-"Lai ieslēgtu eksperimentālās iespējas, pievienojiet iespējas atslēgvārdu"
-" sarakstam. Vai iespējai būs nepieciešama kompozitora pārstartēšana, būs"
-" atkarīga no dotās iespējas. Jebkura eksperimentāla iespēja var būt"
-" nepieejama vai nekonfigurējama. Negaidiet, ka jebkura no šīm iespējām"
-" nākotnē strādās. Pašlaik pieejamie atslēgvārdi: •"
-" “scale-monitor-framebuffer” — liek mutter pēc noklusējuma izkārtot loģiskos"
-" monitorus loģisko pikseļu koordināšu telpā, kamēr mērogo monitora kadru"
-" buferus, nevis loga saturu, lai pārvaldītu HiDPI monitorus. Pārstartēšana"
-" nav nepieciešama."
+"Lai ieslēgtu eksperimentālās iespējas, pievienojiet iespējas atslēgvārdu "
+"sarakstam. Vai iespējai būs nepieciešama kompozitora pārstartēšana, būs "
+"atkarīga no dotās iespējas. Jebkura eksperimentāla iespēja var būt "
+"nepieejama vai nekonfigurējama. Negaidiet, ka jebkura no šīm iespējām "
+"nākotnē strādās. Pašlaik pieejamie atslēgvārdi: • “scale-monitor-"
+"framebuffer” — liek mutter pēc noklusējuma izkārtot loģiskos monitorus "
+"loģisko pikseļu koordināšu telpā, kamēr mērogo monitora kadru buferus, nevis "
+"loga saturu, lai pārvaldītu HiDPI monitorus. Pārstartēšana nav nepieciešama."
 
 #: data/org.gnome.mutter.gschema.xml.in:141
 msgid "Select window from tab popup"
@@ -536,7 +523,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2325
+#: src/backends/meta-input-settings.c:2423
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Režīma slēdzis (grupa %d)"
@@ -544,101 +531,110 @@ msgstr "Režīma slēdzis (grupa %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2348
+#: src/backends/meta-input-settings.c:2446
 msgid "Switch monitor"
 msgstr "Pārslēgt monitoru"
 
-#: src/backends/meta-input-settings.c:2350
+#: src/backends/meta-input-settings.c:2448
 msgid "Show on-screen help"
 msgstr "Rādīt palīdzību uz ekrāna"
 
-#: src/backends/meta-monitor-manager.c:907
+#: src/backends/meta-monitor-manager.c:954
 msgid "Built-in display"
 msgstr "Iebūvēts displejs"
 
-#: src/backends/meta-monitor-manager.c:930
+#: src/backends/meta-monitor-manager.c:986
 msgid "Unknown"
 msgstr "Nezināms"
 
-#: src/backends/meta-monitor-manager.c:932
+#: src/backends/meta-monitor-manager.c:988
 msgid "Unknown Display"
 msgstr "Nezināms displejs"
 
-#. TRANSLATORS: this is a monitor vendor name, followed by a
-#. * size in inches, like 'Dell 15"'
-#.
-#: src/backends/meta-monitor-manager.c:940
+#: src/backends/meta-monitor-manager.c:996
 #, c-format
+#| msgid "%s %s"
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/backends/meta-monitor-manager.c:1004
+#, c-format
+#| msgid "%s %s"
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
 msgid "%s %s"
 msgstr "%s %s"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:481
+#: src/compositor/compositor.c:482
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr "Cits kompozīcijas pārvaldnieks jau darbojas ekrānā %d displejā “%s”."
 
-#: src/core/bell.c:254
+#: src/core/bell.c:252
 msgid "Bell event"
 msgstr "Zvana notikums"
 
-#: src/core/main.c:191
+#: src/core/main.c:185
 msgid "Disable connection to session manager"
 msgstr "Deaktivēt savienojumu ar sesiju pārvaldnieku"
 
-#: src/core/main.c:197
+#: src/core/main.c:191
 msgid "Replace the running window manager"
 msgstr "Aizvietot darbojošos logu pārvaldnieku"
 
-#: src/core/main.c:203
+#: src/core/main.c:197
 msgid "Specify session management ID"
 msgstr "Norādiet sesiju pārvaldības ID"
 
-#: src/core/main.c:208
+#: src/core/main.c:202
 msgid "X Display to use"
 msgstr "Lietojamais X displejs"
 
-#: src/core/main.c:214
+#: src/core/main.c:208
 msgid "Initialize session from savefile"
 msgstr "Inicializēt sesiju no saglabātās datnes"
 
-#: src/core/main.c:220
+#: src/core/main.c:214
 msgid "Make X calls synchronous"
 msgstr "Padarīt X izsaukumus sinhronus"
 
-#: src/core/main.c:227
+#: src/core/main.c:221
 msgid "Run as a wayland compositor"
 msgstr "Palaist kā wayland kompozitoru"
 
-#: src/core/main.c:233
+#: src/core/main.c:227
 msgid "Run as a nested compositor"
 msgstr "Palaist kā ligzdotu kompozitoru"
 
-#: src/core/main.c:239
+#: src/core/main.c:233
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Palaist wayland kompozitoru nestartējot Xwayland"
 
-#: src/core/main.c:247
+#: src/core/main.c:241
 msgid "Run as a full display server, rather than nested"
 msgstr "Palaist kā pilnu attēlošanas serveri, nevis iegultu"
 
-#: src/core/main.c:253
+#: src/core/main.c:247
 msgid "Run with X11 backend"
 msgstr "Palaist ar X11 aizmuguri"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:148
+#: src/core/meta-close-dialog-default.c:150
 #, c-format
 msgid "“%s” is not responding."
 msgstr "“%s” nereaģē."
 
-#: src/core/meta-close-dialog-default.c:150
+#: src/core/meta-close-dialog-default.c:152
 msgid "Application is not responding."
 msgstr "Lietotne nereaģē."
 
-#: src/core/meta-close-dialog-default.c:155
+#: src/core/meta-close-dialog-default.c:157
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -646,15 +642,15 @@ msgstr ""
 "Var uzgaidīt neilgu brīdi, līdz tā atgūstas, vai arī aizvērt to piespiedu "
 "kārtā."
 
-#: src/core/meta-close-dialog-default.c:162
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Force Quit"
 msgstr "Aizvērt _piespiedu kārtā"
 
-#: src/core/meta-close-dialog-default.c:162
+#: src/core/meta-close-dialog-default.c:164
 msgid "_Wait"
 msgstr "_Gaidīt"
 
-#: src/core/mutter.c:39
+#: src/core/mutter.c:38
 #, c-format
 msgid ""
 "mutter %s\n"
@@ -669,20 +665,20 @@ msgstr ""
 "Netiek dota NEKĀDA garantija; pat ne KOMERCIĀLAS VĒRTĪBAS vai DERĪGUMA "
 "NOTEIKTAM NOLŪKAM.\n"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:52
 msgid "Print version"
 msgstr "Parādīt versiju"
 
-#: src/core/mutter.c:59
+#: src/core/mutter.c:58
 msgid "Mutter plugin to use"
 msgstr "Izmantojamais mutter spraudnis"
 
-#: src/core/prefs.c:1915
+#: src/core/prefs.c:1786
 #, c-format
 msgid "Workspace %d"
 msgstr "Darbvieta %d"
 
-#: src/core/util.c:120
+#: src/core/util.c:121
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter tika kompilēts bez detalizētas izvades režīma atbalsta\n"
 
@@ -700,21 +696,21 @@ msgstr ""
 "Displejam “%s” jau ir logu pārvaldnieks; mēģiniet lietot --replace iespēju, "
 "lai aizvietotu pašreizējo logu pārvaldnieku."
 
-#: src/x11/meta-x11-display.c:1010
+#: src/x11/meta-x11-display.c:1008
 msgid "Failed to initialize GDK\n"
 msgstr "Neizdevās inicializēt GDK\n"
 
-#: src/x11/meta-x11-display.c:1034
+#: src/x11/meta-x11-display.c:1032
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Neizdevās atvērt X logu sistēmas displeju “%s”\n"
 
-#: src/x11/meta-x11-display.c:1117
+#: src/x11/meta-x11-display.c:1115
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Ekrāna %d displejs “%s“ nav derīgs\n"
 
-#: src/x11/session.c:1819
+#: src/x11/session.c:1821
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -722,7 +718,7 @@ msgstr ""
 "Šie logi neatbalsta “saglabāt pašreizējos iestatījumus” un būs jāpārstartē "
 "pašrocīgi nākamreiz, kad ierakstīsities."
 
-#: src/x11/window-props.c:565
+#: src/x11/window-props.c:568
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (uz %s)"

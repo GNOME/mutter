@@ -7,30 +7,21 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_STAGE_WINDOW               (_clutter_stage_window_get_type ())
-#define CLUTTER_STAGE_WINDOW(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_STAGE_WINDOW, ClutterStageWindow))
-#define CLUTTER_IS_STAGE_WINDOW(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_STAGE_WINDOW))
-#define CLUTTER_STAGE_WINDOW_GET_IFACE(obj)     (G_TYPE_INSTANCE_GET_INTERFACE ((obj), CLUTTER_TYPE_STAGE_WINDOW, ClutterStageWindowIface))
+#define CLUTTER_TYPE_STAGE_WINDOW (clutter_stage_window_get_type ())
+
+CLUTTER_EXPORT
+G_DECLARE_INTERFACE (ClutterStageWindow, clutter_stage_window,
+                     CLUTTER, STAGE_WINDOW,
+                     GObject)
 
 /*
- * ClutterStageWindow: (skip)
- *
- * #ClutterStageWindow is an opaque structure
- * whose members should not be accessed directly
- *
- * Since: 0.8
- */
-typedef struct _ClutterStageWindow      ClutterStageWindow; /* dummy */
-typedef struct _ClutterStageWindowIface ClutterStageWindowIface;
-
-/*
- * ClutterStageWindowIface: (skip)
+ * ClutterStageWindowInterface: (skip)
  *
  * The interface implemented by backends for stage windows
  *
  * Since: 0.8
  */
-struct _ClutterStageWindowIface
+struct _ClutterStageWindowInterface
 {
   /*< private >*/
   GTypeInterface parent_iface;
@@ -87,9 +78,6 @@ struct _ClutterStageWindowIface
   int64_t           (* get_frame_counter)       (ClutterStageWindow *stage_window);
   void              (* finish_frame)            (ClutterStageWindow *stage_window);
 };
-
-CLUTTER_EXPORT
-GType _clutter_stage_window_get_type (void) G_GNUC_CONST;
 
 ClutterActor *    _clutter_stage_window_get_wrapper        (ClutterStageWindow *window);
 

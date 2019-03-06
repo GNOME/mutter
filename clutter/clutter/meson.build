@@ -220,75 +220,42 @@ clutter_deprecated_headers = [
   'deprecated/clutter-alpha.h',
   'deprecated/clutter-animatable.h',
   'deprecated/clutter-animation.h',
-  'deprecated/clutter-animator.h',
-  'deprecated/clutter-backend.h',
   'deprecated/clutter-behaviour.h',
   'deprecated/clutter-behaviour-depth.h',
-  'deprecated/clutter-behaviour-ellipse.h',
   'deprecated/clutter-behaviour-opacity.h',
-  'deprecated/clutter-behaviour-path.h',
-  'deprecated/clutter-behaviour-rotate.h',
   'deprecated/clutter-behaviour-scale.h',
   'deprecated/clutter-bin-layout.h',
   'deprecated/clutter-box.h',
   'deprecated/clutter-cairo-texture.h',
   'deprecated/clutter-container.h',
-  'deprecated/clutter-frame-source.h',
   'deprecated/clutter-group.h',
-  'deprecated/clutter-input-device.h',
   'deprecated/clutter-keysyms.h',
-  'deprecated/clutter-list-model.h',
   'deprecated/clutter-main.h',
-  'deprecated/clutter-model.h',
   'deprecated/clutter-rectangle.h',
-  'deprecated/clutter-score.h',
-  'deprecated/clutter-shader.h',
   'deprecated/clutter-stage-manager.h',
   'deprecated/clutter-stage.h',
   'deprecated/clutter-state.h',
   'deprecated/clutter-table-layout.h',
   'deprecated/clutter-texture.h',
   'deprecated/clutter-timeline.h',
-  'deprecated/clutter-timeout-pool.h',
-  'deprecated/clutter-util.h',
 ]
 
 clutter_deprecated_sources = [
   'deprecated/clutter-actor-deprecated.c',
   'deprecated/clutter-alpha.c',
   'deprecated/clutter-animation.c',
-  'deprecated/clutter-animator.c',
   'deprecated/clutter-behaviour.c',
   'deprecated/clutter-behaviour-depth.c',
-  'deprecated/clutter-behaviour-ellipse.c',
   'deprecated/clutter-behaviour-opacity.c',
-  'deprecated/clutter-behaviour-path.c',
-  'deprecated/clutter-behaviour-rotate.c',
   'deprecated/clutter-behaviour-scale.c',
   'deprecated/clutter-box.c',
   'deprecated/clutter-cairo-texture.c',
-  'deprecated/clutter-frame-source.c',
   'deprecated/clutter-group.c',
-  'deprecated/clutter-input-device-deprecated.c',
   'deprecated/clutter-layout-manager-deprecated.c',
-  'deprecated/clutter-list-model.c',
-  'deprecated/clutter-model.c',
   'deprecated/clutter-rectangle.c',
-  'deprecated/clutter-score.c',
-  'deprecated/clutter-shader.c',
   'deprecated/clutter-state.c',
   'deprecated/clutter-table-layout.c',
   'deprecated/clutter-texture.c',
-  'deprecated/clutter-timeout-pool.c',
-]
-
-clutter_deprecated_private_headers = [
-  'deprecated/clutter-model-private.h',
-  'deprecated/clutter-timeout-interval.h',
-]
-
-clutter_deprecated_nonintrospected_sources = [
-  'deprecated/clutter-timeout-interval.c',
 ]
 
 clutter_backend_sources = []
@@ -303,16 +270,13 @@ clutter_backend_private_headers = [
 if have_x11
   clutter_x11_sources = [
     'x11/clutter-backend-x11.c',
-    'x11/clutter-device-manager-core-x11.c',
     'x11/clutter-device-manager-xi2.c',
     'x11/clutter-event-x11.c',
-    'x11/clutter-input-device-core-x11.c',
     'x11/clutter-input-device-tool-xi2.c',
     'x11/clutter-input-device-xi2.c',
     'x11/clutter-keymap-x11.c',
     'x11/clutter-stage-x11.c',
     'x11/clutter-virtual-input-device-x11.c',
-    'x11/clutter-x11-texture-pixmap.c',
   ]
   clutter_backend_sources += clutter_x11_sources
 
@@ -323,15 +287,12 @@ if have_x11
 
   clutter_x11_headers = [
     'x11/clutter-x11.h',
-    'x11/clutter-x11-texture-pixmap.h',
   ]
   clutter_backend_headers += clutter_x11_headers
 
   clutter_x11_private_headers = [
     'x11/clutter-backend-x11.h',
-    'x11/clutter-device-manager-core-x11.h',
     'x11/clutter-device-manager-xi2.h',
-    'x11/clutter-input-device-core-x11.h',
     'x11/clutter-input-device-tool-xi2.h',
     'x11/clutter-input-device-xi2.h',
     'x11/clutter-keymap-x11.h',
@@ -510,9 +471,7 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
     clutter_private_headers,
     clutter_nonintrospected_sources,
     clutter_deprecated_sources,
-    clutter_deprecated_nonintrospected_sources,
     clutter_deprecated_headers,
-    clutter_deprecated_private_headers,
     clutter_backend_sources,
     clutter_backend_nonintrospected_sources,
     clutter_backend_headers,

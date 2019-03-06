@@ -655,7 +655,8 @@ GType cogl_snippet_get_gtype (void);
  * Since: 1.10
  * Stability: Unstable
  */
-typedef enum {
+typedef enum
+{
   /* Per pipeline vertex hooks */
   COGL_SNIPPET_HOOK_VERTEX = 0,
   COGL_SNIPPET_HOOK_VERTEX_TRANSFORM,
@@ -719,7 +720,7 @@ cogl_snippet_get_hook (CoglSnippet *snippet);
  * Since: 1.10
  * Stability: Unstable
  */
-CoglBool
+gboolean
 cogl_is_snippet (void *object);
 
 /**

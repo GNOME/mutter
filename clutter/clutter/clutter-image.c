@@ -57,7 +57,7 @@ struct _ClutterImagePrivate
   gint height;
 };
 
-static void clutter_content_iface_init (ClutterContentIface *iface);
+static void clutter_content_iface_init (ClutterContentInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (ClutterImage, clutter_image, G_TYPE_OBJECT,
                          G_ADD_PRIVATE (ClutterImage)
@@ -154,7 +154,7 @@ clutter_image_get_preferred_size (ClutterContent *content,
 }
 
 static void
-clutter_content_iface_init (ClutterContentIface *iface)
+clutter_content_iface_init (ClutterContentInterface *iface)
 {
   iface->get_preferred_size = clutter_image_get_preferred_size;
   iface->paint_content = clutter_image_paint_content;

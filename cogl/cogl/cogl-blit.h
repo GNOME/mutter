@@ -41,7 +41,7 @@
 
 typedef struct _CoglBlitData CoglBlitData;
 
-typedef CoglBool (* CoglBlitBeginFunc) (CoglBlitData *data);
+typedef gboolean (* CoglBlitBeginFunc) (CoglBlitData *data);
 typedef void (* CoglBlitEndFunc) (CoglBlitData *data);
 
 typedef void (* CoglBlitFunc) (CoglBlitData *data,

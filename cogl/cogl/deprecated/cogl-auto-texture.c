@@ -58,7 +58,7 @@ static CoglTexture *
 _cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
                                CoglTextureFlags flags,
                                CoglPixelFormat internal_format,
-                               CoglBool can_convert_in_place,
+                               gboolean can_convert_in_place,
                                CoglError **error);
 
 static void
@@ -207,7 +207,7 @@ static CoglTexture *
 _cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
                                CoglTextureFlags flags,
                                CoglPixelFormat internal_format,
-                               CoglBool can_convert_in_place,
+                               gboolean can_convert_in_place,
                                CoglError **error)
 {
   CoglContext *ctx = _cogl_bitmap_get_context (bitmap);

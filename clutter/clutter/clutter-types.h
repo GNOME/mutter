@@ -90,7 +90,6 @@ typedef struct _ClutterVertex                   ClutterVertex;
 
 typedef struct _ClutterAlpha            	ClutterAlpha;
 typedef struct _ClutterAnimation                ClutterAnimation;
-typedef struct _ClutterAnimator         	ClutterAnimator;
 typedef struct _ClutterState            	ClutterState;
 
 typedef struct _ClutterInputDeviceTool          ClutterInputDeviceTool;
@@ -362,6 +361,10 @@ void                    clutter_rect_inset              (ClutterRect       *rect
                                                          float              d_x,
                                                          float              d_y);
 CLUTTER_EXPORT
+void                    clutter_rect_scale              (ClutterRect       *rect,
+                                                         float              s_x,
+                                                         float              s_y);
+CLUTTER_EXPORT
 void                    clutter_rect_clamp_to_pixel     (ClutterRect       *rect);
 CLUTTER_EXPORT
 float                   clutter_rect_get_x              (ClutterRect       *rect);
@@ -560,6 +563,10 @@ CLUTTER_EXPORT
 void             clutter_actor_box_set_size       (ClutterActorBox       *box,
                                                    gfloat                 width,
                                                    gfloat                 height);
+
+CLUTTER_EXPORT
+void             clutter_actor_box_scale          (ClutterActorBox       *box,
+                                                   gfloat                 scale);
 
 /**
  * ClutterGeometry:

@@ -34,7 +34,6 @@
 #include <errno.h>
 
 #include "clutter-backend-x11.h"
-#include "clutter-device-manager-core-x11.h"
 #include "clutter-device-manager-xi2.h"
 #include "clutter-settings-x11.h"
 #include "clutter-stage-x11.h"
@@ -265,13 +264,8 @@ clutter_backend_x11_create_device_manager (ClutterBackendX11 *backend_x11)
 
   if (backend_x11->device_manager == NULL)
     {
-      CLUTTER_NOTE (BACKEND, "Creating Core device manager");
+      g_critical ("XI2 extension is missing.");
       backend_x11->has_xinput = FALSE;
-      backend_x11->device_manager =
-        g_object_new (CLUTTER_TYPE_DEVICE_MANAGER_X11,
-                      "backend", backend_x11,
-                      NULL);
-
       backend_x11->xi_minor = -1;
     }
 
@@ -480,9 +474,6 @@ _clutter_backend_x11_events_init (ClutterBackend *backend)
       backend_x11->event_source = source;
     }
 
-  /* create the device manager; we need this because we can effectively
-   * choose between core+XI1 and XI2 input events
-   */
   clutter_backend_x11_create_device_manager (backend_x11);
 
   /* register keymap; unless we create a generic Keymap object, I'm
@@ -678,8 +669,8 @@ static gboolean
 check_onscreen_template (CoglRenderer         *renderer,
                          CoglSwapChain        *swap_chain,
                          CoglOnscreenTemplate *onscreen_template,
-                         CoglBool              enable_argb,
-                         CoglBool              enable_stereo,
+                         gboolean              enable_argb,
+                         gboolean              enable_stereo,
                          GError              **error)
 {
   GError *internal_error = NULL;
@@ -949,30 +940,6 @@ clutter_x11_set_display (Display *xdpy)
 }
 
 /**
- * clutter_x11_enable_xinput:
- *
- * Enables the use of the XInput extension if present on connected
- * XServer and support built into Clutter. XInput allows for multiple
- * pointing devices to be used.
- *
- * This function must be called before clutter_init().
- *
- * Since XInput might not be supported by the X server, you might
- * want to use clutter_x11_has_xinput() to see if support was enabled.
- *
- * Since: 0.8
- *
- * Deprecated: 1.14: This function does not do anything; XInput support
- *   is enabled by default in Clutter. Use the CLUTTER_DISABLE_XINPUT
- *   environment variable to disable XInput support and use Xlib core
- *   events instead.
- */
-void
-clutter_x11_enable_xinput (void)
-{
-}
-
-/**
  * clutter_x11_disable_event_retrieval:
  *
  * Disables the internal polling of X11 events in the main loop.
@@ -1178,31 +1145,6 @@ clutter_x11_remove_filter (ClutterX11FilterFunc func,
           return;
         }
     }
-}
-
-/**
- * clutter_x11_get_input_devices:
- *
- * Retrieves a pointer to the list of input devices
- *
- * Deprecated: 1.2: Use clutter_device_manager_peek_devices() instead
- *
- * Since: 0.8
- *
- * Return value: (transfer none) (element-type Clutter.InputDevice): a
- *   pointer to the internal list of input devices; the returned list is
- *   owned by Clutter and should not be modified or freed
- */
-const GSList *
-clutter_x11_get_input_devices (void)
-{
-  ClutterDeviceManager *manager;
-
-  manager = clutter_device_manager_get_default ();
-  if (manager == NULL)
-    return NULL;
-
-  return clutter_device_manager_peek_devices (manager);
 }
 
 /**

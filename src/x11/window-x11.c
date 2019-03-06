@@ -682,6 +682,27 @@ meta_window_x11_unmanage (MetaWindow *window)
     }
 }
 
+void
+meta_window_x11_set_wm_ping (MetaWindow *window,
+                             gboolean    ping)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  priv->wm_ping = ping;
+}
+
+static gboolean
+meta_window_x11_can_ping (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  return priv->wm_ping;
+}
+
 static void
 meta_window_x11_ping (MetaWindow *window,
                       guint32     serial)
@@ -691,14 +712,28 @@ meta_window_x11_ping (MetaWindow *window,
   send_icccm_message (window, display->x11_display->atom__NET_WM_PING, serial);
 }
 
+void
+meta_window_x11_set_wm_delete_window (MetaWindow *window,
+                                      gboolean    delete_window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  priv->wm_delete_window = delete_window;
+}
+
 static void
 meta_window_x11_delete (MetaWindow *window,
                         guint32     timestamp)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
   MetaX11Display *x11_display = window->display->x11_display;
 
   meta_x11_error_trap_push (x11_display);
-  if (window->delete_window)
+  if (priv->wm_delete_window)
     {
       meta_topic (META_DEBUG_WINDOW_OPS,
                   "Deleting %s with delete_window request\n",
@@ -745,6 +780,9 @@ static void
 meta_window_x11_focus (MetaWindow *window,
                        guint32     timestamp)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
   /* For output-only or shaded windows, focus the frame.
    * This seems to result in the client window getting key events
    * though, so I don't know if it's icccm-compliant.
@@ -752,8 +790,7 @@ meta_window_x11_focus (MetaWindow *window,
    * Still, we have to do this or keynav breaks for these windows.
    */
   if (window->frame &&
-      (window->shaded ||
-       !(window->input || window->take_focus)))
+      (window->shaded || !meta_window_is_focusable (window)))
     {
       meta_topic (META_DEBUG_FOCUS,
                   "Focusing frame of %s\n", window->desc);
@@ -775,7 +812,7 @@ meta_window_x11_focus (MetaWindow *window,
                                                    timestamp);
         }
 
-      if (window->take_focus)
+      if (priv->wm_take_focus)
         {
           meta_topic (META_DEBUG_FOCUS,
                       "Sending WM_TAKE_FOCUS to %s since take_focus = true\n",
@@ -1629,6 +1666,27 @@ meta_window_x11_shortcuts_inhibited (MetaWindow         *window,
   return FALSE;
 }
 
+void
+meta_window_x11_set_wm_take_focus (MetaWindow *window,
+                                   gboolean    take_focus)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  priv->wm_take_focus = take_focus;
+}
+
+static gboolean
+meta_window_x11_is_focusable (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv =
+    meta_window_x11_get_instance_private (window_x11);
+
+  return window->input || priv->wm_take_focus;
+}
+
 static gboolean
 meta_window_x11_is_stackable (MetaWindow *window)
 {
@@ -1671,7 +1729,9 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->get_client_pid = meta_window_x11_get_client_pid;
   window_class->force_restore_shortcuts = meta_window_x11_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_x11_shortcuts_inhibited;
+  window_class->is_focusable = meta_window_x11_is_focusable;
   window_class->is_stackable = meta_window_x11_is_stackable;
+  window_class->can_ping = meta_window_x11_can_ping;
   window_class->are_updates_frozen = meta_window_x11_are_updates_frozen;
 }
 

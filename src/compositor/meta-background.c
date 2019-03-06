@@ -370,6 +370,7 @@ set_texture_area_from_monitor_area (cairo_rectangle_int_t *monitor_area,
 static void
 get_texture_area (MetaBackground          *self,
                   cairo_rectangle_int_t   *monitor_rect,
+                  float                    monitor_scale,
                   CoglTexture             *texture,
                   cairo_rectangle_int_t   *texture_area)
 {
@@ -394,7 +395,7 @@ get_texture_area (MetaBackground          *self,
       meta_display_get_size (self->display, &screen_width, &screen_height);
 
       /* Start off by centering a tile in the middle of the
-       * total screen area.
+       * total screen area taking care of the monitor scaling.
        */
       image_area.x = (screen_width - texture_width) / 2.0;
       image_area.y = (screen_height - texture_height) / 2.0;
@@ -462,9 +463,9 @@ get_texture_area (MetaBackground          *self,
          */
         meta_display_get_size (self->display, &screen_width, &screen_height);
 
-        /* unclipped texture area is whole screen */
-        image_area.width = screen_width;
-        image_area.height = screen_height;
+        /* unclipped texture area is whole screen, scaled depending on monitor */
+        image_area.width = screen_width * monitor_scale;
+        image_area.height = screen_height * monitor_scale;
 
         /* But make (0,0) line up with the appropriate monitor */
         image_area.x = -monitor_rect->x;
@@ -481,12 +482,13 @@ draw_texture (MetaBackground        *self,
               CoglFramebuffer       *framebuffer,
               CoglPipeline          *pipeline,
               CoglTexture           *texture,
-              cairo_rectangle_int_t *monitor_area)
+              cairo_rectangle_int_t *monitor_area,
+              float                  monitor_scale)
 {
   cairo_rectangle_int_t texture_area;
   gboolean bare_region_visible;
 
-  get_texture_area (self, monitor_area, texture, &texture_area);
+  get_texture_area (self, monitor_area, monitor_scale, texture, &texture_area);
 
   switch (self->style)
     {
@@ -588,7 +590,8 @@ ensure_color_texture (MetaBackground *self)
     }
 }
 
-typedef enum {
+typedef enum
+{
   PIPELINE_REPLACE,
   PIPELINE_ADD,
   PIPELINE_OVER_REVERSE,
@@ -727,6 +730,7 @@ meta_background_get_texture (MetaBackground         *self,
   MetaRectangle geometry;
   cairo_rectangle_int_t monitor_area;
   CoglTexture *texture1, *texture2;
+  float monitor_scale;
 
   g_return_val_if_fail (META_IS_BACKGROUND (self), NULL);
   g_return_val_if_fail (monitor_index >= 0 && monitor_index < self->n_monitors, NULL);
@@ -734,6 +738,7 @@ meta_background_get_texture (MetaBackground         *self,
   monitor = &self->monitors[monitor_index];
 
   meta_display_get_monitor_geometry (self->display, monitor_index, &geometry);
+  monitor_scale = meta_display_get_monitor_scale (self->display, monitor_index);
   monitor_area.x = geometry.x;
   monitor_area.y = geometry.y;
   monitor_area.width = geometry.width;
@@ -757,8 +762,8 @@ meta_background_get_texture (MetaBackground         *self,
       ensure_wallpaper_texture (self, texture1))
     {
       if (texture_area)
-        get_texture_area (self, &monitor_area, self->wallpaper_texture,
-                          texture_area);
+        get_texture_area (self, &monitor_area, monitor_scale,
+                          self->wallpaper_texture, texture_area);
       if (wrap_mode)
         *wrap_mode = COGL_PIPELINE_WRAP_MODE_REPEAT;
       return self->wallpaper_texture;
@@ -768,6 +773,14 @@ meta_background_get_texture (MetaBackground         *self,
     {
       CoglError *catch_error = NULL;
       gboolean bare_region_visible = FALSE;
+
+      if (self->style != G_DESKTOP_BACKGROUND_STYLE_WALLPAPER)
+        {
+          monitor_area.x *= monitor_scale;
+          monitor_area.y *= monitor_scale;
+          monitor_area.width *= monitor_scale;
+          monitor_area.height *= monitor_scale;
+        }
 
       if (monitor->texture == NULL)
         {
@@ -808,7 +821,8 @@ meta_background_get_texture (MetaBackground         *self,
 
           bare_region_visible = draw_texture (self,
                                               monitor->fbo, pipeline,
-                                              texture2, &monitor_area);
+                                              texture2, &monitor_area,
+                                              monitor_scale);
 
           cogl_object_unref (pipeline);
         }
@@ -832,7 +846,8 @@ meta_background_get_texture (MetaBackground         *self,
 
           bare_region_visible = bare_region_visible || draw_texture (self,
                                                                      monitor->fbo, pipeline,
-                                                                     texture1, &monitor_area);
+                                                                     texture1, &monitor_area,
+                                                                     monitor_scale);
 
           cogl_object_unref (pipeline);
         }
@@ -854,7 +869,7 @@ meta_background_get_texture (MetaBackground         *self,
     }
 
   if (texture_area)
-    set_texture_area_from_monitor_area (&monitor_area, texture_area);
+    set_texture_area_from_monitor_area (&geometry, texture_area);
 
   if (wrap_mode)
     *wrap_mode = COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE;

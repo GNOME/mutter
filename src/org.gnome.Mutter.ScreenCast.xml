@@ -74,6 +74,7 @@
 	Available @properties include:
 
 	* "cursor-mode" (u): Cursor mode. Default: 'hidden' (see below)
+	                     Available since API version 2.
 
 	Available cursor mode values:
 
@@ -92,11 +93,14 @@
 	@properties: Properties used determining what window to select
 	@stream_path: Path to the new stream object
 
+	Supported since API version 2.
+
 	Record a single window. The cursor will not be included.
 
 	Available @properties include:
 
 	* "window-id" (t): Id of the window to record.
+	* "cursor-mode" (u): Cursor mode. Default: 'hidden' (see RecordMonitor).
 
     -->
     <method name="RecordWindow">

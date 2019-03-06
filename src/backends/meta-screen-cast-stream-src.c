@@ -32,6 +32,7 @@
 #include <stdint.h>
 #include <sys/mman.h>
 
+#include "backends/meta-screen-cast-session.h"
 #include "backends/meta-screen-cast-stream.h"
 #include "clutter/clutter-mutter.h"
 #include "core/meta-fraction.h"
@@ -60,6 +61,15 @@ enum
 };
 
 static guint signals[N_SIGNALS];
+
+typedef struct _MetaSpaType
+{
+  struct spa_type_media_type media_type;
+  struct spa_type_media_subtype media_subtype;
+  struct spa_type_format_video format_video;
+  struct spa_type_video_format video_format;
+  uint32_t meta_cursor;
+} MetaSpaType;
 
 typedef struct _MetaPipeWireSource
 {
@@ -150,13 +160,222 @@ meta_screen_cast_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *src,
     klass->set_cursor_metadata (src, spa_meta_cursor);
 }
 
-MetaSpaType *
-meta_screen_cast_stream_src_get_spa_type (MetaScreenCastStreamSrc *src)
+static gboolean
+draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
+                                  CoglTexture              *cursor_texture,
+                                  int                       bitmap_width,
+                                  int                       bitmap_height,
+                                  uint8_t                  *bitmap_data,
+                                  GError                  **error)
+{
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
+  MetaScreenCast *screen_cast =
+    meta_screen_cast_session_get_screen_cast (session);
+  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglTexture2D *bitmap_texture;
+  CoglOffscreen *offscreen;
+  CoglFramebuffer *fb;
+  CoglPipeline *pipeline;
+  CoglColor clear_color;
+
+  bitmap_texture = cogl_texture_2d_new_with_size (cogl_context,
+                                                  bitmap_width, bitmap_height);
+  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (bitmap_texture),
+                                          FALSE);
+  if (!cogl_texture_allocate (COGL_TEXTURE (bitmap_texture), error))
+    {
+      cogl_object_unref (bitmap_texture);
+      return FALSE;
+    }
+
+  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (bitmap_texture));
+  fb = COGL_FRAMEBUFFER (offscreen);
+  cogl_object_unref (bitmap_texture);
+  if (!cogl_framebuffer_allocate (fb, error))
+    {
+      cogl_object_unref (fb);
+      return FALSE;
+    }
+
+  pipeline = cogl_pipeline_new (cogl_context);
+  cogl_pipeline_set_layer_texture (pipeline, 0, cursor_texture);
+  cogl_pipeline_set_layer_filters (pipeline, 0,
+                                   COGL_PIPELINE_FILTER_LINEAR,
+                                   COGL_PIPELINE_FILTER_LINEAR);
+  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR, &clear_color);
+  cogl_framebuffer_draw_rectangle (fb, pipeline,
+                                   -1, 1, 1, -1);
+  cogl_object_unref (pipeline);
+
+  cogl_framebuffer_read_pixels (fb,
+                                0, 0,
+                                bitmap_width, bitmap_height,
+                                COGL_PIXEL_FORMAT_RGBA_8888_PRE,
+                                bitmap_data);
+  cogl_object_unref (fb);
+
+  return TRUE;
+}
+
+gboolean
+meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
+                                              CoglTexture              *cursor_texture,
+                                              float                     scale,
+                                              uint8_t                  *data,
+                                              GError                  **error)
+{
+  int texture_width, texture_height;
+  int width, height;
+
+  texture_width = cogl_texture_get_width (cursor_texture);
+  texture_height = cogl_texture_get_height (cursor_texture);
+  width = texture_width * scale;
+  height = texture_height * scale;
+
+  if (texture_width == width &&
+      texture_height == height)
+    {
+      cogl_texture_get_data (cursor_texture,
+                             COGL_PIXEL_FORMAT_RGBA_8888_PRE,
+                             texture_width * 4,
+                             data);
+    }
+  else
+    {
+      if (!draw_cursor_sprite_via_offscreen (src,
+                                             cursor_texture,
+                                             width,
+                                             height,
+                                             data,
+                                             error))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+void
+meta_screen_cast_stream_src_unset_cursor_metadata (MetaScreenCastStreamSrc *src,
+                                                   struct spa_meta_cursor  *spa_meta_cursor)
+{
+  spa_meta_cursor->id = 1;
+}
+
+void
+meta_screen_cast_stream_src_set_cursor_position_metadata (MetaScreenCastStreamSrc *src,
+                                                          struct spa_meta_cursor  *spa_meta_cursor,
+                                                          int                      x,
+                                                          int                      y)
+{
+  spa_meta_cursor->id = 1;
+  spa_meta_cursor->position.x = x;
+  spa_meta_cursor->position.y = y;
+  spa_meta_cursor->hotspot.x = 0;
+  spa_meta_cursor->hotspot.y = 0;
+  spa_meta_cursor->bitmap_offset = 0;
+}
+
+void
+meta_screen_cast_stream_src_set_empty_cursor_sprite_metadata (MetaScreenCastStreamSrc *src,
+                                                              struct spa_meta_cursor  *spa_meta_cursor,
+                                                              int                      x,
+                                                              int                      y)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  MetaSpaType *spa_type = &priv->spa_type;
+  struct spa_meta_bitmap *spa_meta_bitmap;
 
-  return &priv->spa_type;
+  spa_meta_cursor->id = 1;
+  spa_meta_cursor->position.x = x;
+  spa_meta_cursor->position.y = y;
+
+  spa_meta_cursor->bitmap_offset = sizeof (struct spa_meta_cursor);
+
+  spa_meta_bitmap = SPA_MEMBER (spa_meta_cursor,
+                                spa_meta_cursor->bitmap_offset,
+                                struct spa_meta_bitmap);
+  spa_meta_bitmap->format = spa_type->video_format.RGBA;
+  spa_meta_bitmap->offset = sizeof (struct spa_meta_bitmap);
+
+  spa_meta_cursor->hotspot.x = 0;
+  spa_meta_cursor->hotspot.y = 0;
+
+  *spa_meta_bitmap = (struct spa_meta_bitmap) { 0 };
+}
+
+void
+meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc *src,
+                                                        struct spa_meta_cursor  *spa_meta_cursor,
+                                                        MetaCursorSprite        *cursor_sprite,
+                                                        int                      x,
+                                                        int                      y,
+                                                        float                    scale)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaSpaType *spa_type = &priv->spa_type;
+  CoglTexture *cursor_texture;
+  struct spa_meta_bitmap *spa_meta_bitmap;
+  int hotspot_x, hotspot_y;
+  int texture_width, texture_height;
+  int bitmap_width, bitmap_height;
+  uint8_t *bitmap_data;
+  GError *error = NULL;
+
+  cursor_texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
+  if (!cursor_texture)
+    {
+      meta_screen_cast_stream_src_set_empty_cursor_sprite_metadata (src,
+                                                                    spa_meta_cursor,
+                                                                    x, y);
+      return;
+    }
+
+  spa_meta_cursor->id = 1;
+  spa_meta_cursor->position.x = x;
+  spa_meta_cursor->position.y = y;
+
+  spa_meta_cursor->bitmap_offset = sizeof (struct spa_meta_cursor);
+
+  spa_meta_bitmap = SPA_MEMBER (spa_meta_cursor,
+                                spa_meta_cursor->bitmap_offset,
+                                struct spa_meta_bitmap);
+  spa_meta_bitmap->format = spa_type->video_format.RGBA;
+  spa_meta_bitmap->offset = sizeof (struct spa_meta_bitmap);
+
+  meta_cursor_sprite_get_hotspot (cursor_sprite, &hotspot_x, &hotspot_y);
+  spa_meta_cursor->hotspot.x = (int32_t) roundf (hotspot_x * scale);
+  spa_meta_cursor->hotspot.y = (int32_t) roundf (hotspot_y * scale);
+
+  texture_width = cogl_texture_get_width (cursor_texture);
+  texture_height = cogl_texture_get_height (cursor_texture);
+  bitmap_width = texture_width * scale;
+  bitmap_height = texture_height * scale;
+
+  spa_meta_bitmap->size.width = bitmap_width;
+  spa_meta_bitmap->size.height = bitmap_height;
+  spa_meta_bitmap->stride = bitmap_width * 4;
+
+  bitmap_data = SPA_MEMBER (spa_meta_bitmap,
+                            spa_meta_bitmap->offset,
+                            uint8_t);
+
+  if (!meta_screen_cast_stream_src_draw_cursor_into (src,
+                                                     cursor_texture,
+                                                     scale,
+                                                     bitmap_data,
+                                                     &error))
+    {
+      g_warning ("Failed to draw cursor: %s", error->message);
+      g_error_free (error);
+      spa_meta_cursor->id = 0;
+    }
 }
 
 static void

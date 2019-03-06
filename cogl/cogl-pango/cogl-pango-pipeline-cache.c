@@ -74,7 +74,7 @@ _cogl_pango_pipeline_cache_value_destroy (void *data)
 
 CoglPangoPipelineCache *
 _cogl_pango_pipeline_cache_new (CoglContext *ctx,
-                                CoglBool use_mipmapping)
+                                gboolean use_mipmapping)
 {
   CoglPangoPipelineCache *cache = g_new (CoglPangoPipelineCache, 1);
 
