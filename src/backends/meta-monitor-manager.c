@@ -72,7 +72,8 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
-enum {
+enum
+{
   MONITORS_CHANGED,
   MONITORS_CHANGED_INTERNAL,
   POWER_SAVE_MODE_CHANGED,

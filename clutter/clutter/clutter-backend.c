@@ -53,9 +53,6 @@
 #include "clutter-stage-window.h"
 #include "clutter-device-manager-private.h"
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-#include "deprecated/clutter-backend.h"
-
 #ifdef CLUTTER_HAS_WAYLAND_COMPOSITOR_SUPPORT
 #include "wayland/clutter-wayland-compositor.h"
 #endif
@@ -904,129 +901,6 @@ clutter_get_default_backend (void)
 }
 
 /**
- * clutter_backend_set_double_click_time:
- * @backend: a #ClutterBackend
- * @msec: milliseconds between two button press events
- *
- * Sets the maximum time between two button press events, used to
- * verify whether it's a double click event or not.
- *
- * Since: 0.4
- *
- * Deprecated: 1.4: Use #ClutterSettings:double-click-time instead
- */
-void
-clutter_backend_set_double_click_time (ClutterBackend *backend,
-                                       guint           msec)
-{
-  ClutterSettings *settings = clutter_settings_get_default ();
-
-  g_object_set (settings, "double-click-time", msec, NULL);
-}
-
-/**
- * clutter_backend_get_double_click_time:
- * @backend: a #ClutterBackend
- *
- * Gets the maximum time between two button press events, as set
- * by clutter_backend_set_double_click_time().
- *
- * Return value: a time in milliseconds
- *
- * Since: 0.4
- *
- * Deprecated: 1.4: Use #ClutterSettings:double-click-time instead
- */
-guint
-clutter_backend_get_double_click_time (ClutterBackend *backend)
-{
-  ClutterSettings *settings = clutter_settings_get_default ();
-  gint retval;
-
-  g_object_get (settings, "double-click-time", &retval, NULL);
-
-  return retval;
-}
-
-/**
- * clutter_backend_set_double_click_distance:
- * @backend: a #ClutterBackend
- * @distance: a distance, in pixels
- *
- * Sets the maximum distance used to verify a double click event.
- *
- * Since: 0.4
- *
- * Deprecated: 1.4: Use #ClutterSettings:double-click-distance instead
- */
-void
-clutter_backend_set_double_click_distance (ClutterBackend *backend,
-                                           guint           distance)
-{
-  ClutterSettings *settings = clutter_settings_get_default ();
-
-  g_object_set (settings, "double-click-distance", distance, NULL);
-}
-
-/**
- * clutter_backend_get_double_click_distance:
- * @backend: a #ClutterBackend
- *
- * Retrieves the distance used to verify a double click event
- *
- * Return value: a distance, in pixels.
- *
- * Since: 0.4
- *
- * Deprecated: 1.4: Use #ClutterSettings:double-click-distance instead
- */
-guint
-clutter_backend_get_double_click_distance (ClutterBackend *backend)
-{
-  ClutterSettings *settings = clutter_settings_get_default ();
-  gint retval;
-
-  g_object_get (settings, "double-click-distance", &retval, NULL);
-
-  return retval;
-}
-
-/**
- * clutter_backend_set_resolution:
- * @backend: a #ClutterBackend
- * @dpi: the resolution in "dots per inch" (Physical inches aren't
- *   actually involved; the terminology is conventional).
- *
- * Sets the resolution for font handling on the screen. This is a
- * scale factor between points specified in a #PangoFontDescription
- * and cairo units. The default value is 96, meaning that a 10 point
- * font will be 13 units high. (10 * 96. / 72. = 13.3).
- *
- * Applications should never need to call this function.
- *
- * Since: 0.4
- *
- * Deprecated: 1.4: Use #ClutterSettings:font-dpi instead
- */
-void
-clutter_backend_set_resolution (ClutterBackend *backend,
-                                gdouble         dpi)
-{
-  ClutterSettings *settings;
-  gint resolution;
-
-  g_return_if_fail (CLUTTER_IS_BACKEND (backend));
-
-  if (dpi < 0)
-    resolution = -1;
-  else
-    resolution = dpi * 1024;
-
-  settings = clutter_settings_get_default ();
-  g_object_set (settings, "font-dpi", resolution, NULL);
-}
-
-/**
  * clutter_backend_get_resolution:
  * @backend: a #ClutterBackend
  *
@@ -1131,61 +1005,6 @@ clutter_backend_get_font_options (ClutterBackend *backend)
   return backend->font_options;
 }
 
-/**
- * clutter_backend_set_font_name:
- * @backend: a #ClutterBackend
- * @font_name: the name of the font
- *
- * Sets the default font to be used by Clutter. The @font_name string
- * must either be %NULL, which means that the font name from the
- * default #ClutterBackend will be used; or be something that can
- * be parsed by the pango_font_description_from_string() function.
- *
- * Since: 1.0
- *
- * Deprecated: 1.4: Use #ClutterSettings:font-name instead
- */
-void
-clutter_backend_set_font_name (ClutterBackend *backend,
-                               const gchar    *font_name)
-{
-  ClutterSettings *settings = clutter_settings_get_default ();
-
-  g_object_set (settings, "font-name", font_name, NULL);
-}
-
-/**
- * clutter_backend_get_font_name:
- * @backend: a #ClutterBackend
- *
- * Retrieves the default font name as set by
- * clutter_backend_set_font_name().
- *
- * Return value: the font name for the backend. The returned string is
- *   owned by the #ClutterBackend and should never be modified or freed
- *
- * Since: 1.0
- *
- * Deprecated: 1.4: Use #ClutterSettings:font-name instead
- */
-const gchar *
-clutter_backend_get_font_name (ClutterBackend *backend)
-{
-  ClutterSettings *settings;
-
-  g_return_val_if_fail (CLUTTER_IS_BACKEND (backend), NULL);
-
-  settings = clutter_settings_get_default ();
-
-  /* XXX yuck. but we return a const pointer, so we need to
-   * store it in the backend
-   */
-  g_free (backend->font_name);
-  g_object_get (settings, "font-name", &backend->font_name, NULL);
-
-  return backend->font_name;
-}
-
 gint32
 _clutter_backend_get_units_serial (ClutterBackend *backend)
 {
@@ -1274,61 +1093,6 @@ clutter_wayland_set_compositor_display (void *display)
   _wayland_compositor_display = display;
 }
 #endif
-
-/**
- * clutter_set_windowing_backend:
- * @backend_type: a comma separated list of windowing backends
- *
- * Restricts Clutter to only use the specified backend or list of backends.
- *
- * You can use one of the `CLUTTER_WINDOWING_*` symbols, e.g.
- *
- * |[<!-- language="C" -->
- *   clutter_set_windowing_backend (CLUTTER_WINDOWING_X11);
- * ]|
- *
- * Will force Clutter to use the X11 windowing and input backend, and terminate
- * if the X11 backend could not be initialized successfully.
- *
- * Since Clutter 1.26, you can also use a comma-separated list of windowing
- * system backends to provide a fallback in case backends are not available or
- * enabled, e.g.:
- *
- * |[<!-- language="C" -->
- *   clutter_set_windowing_backend ("gdk,wayland,x11");
- * ]|
- *
- * Will make Clutter test for the GDK, Wayland, and X11 backends in that order.
- *
- * You can use the `*` special value to ask Clutter to use the internally
- * defined list of backends. For instance:
- *
- * |[<!-- language="C" -->
- *   clutter_set_windowing_backend ("x11,wayland,*");
- * ]|
- *
- * Will make Clutter test the X11 and Wayland backends, and then fall back
- * to the internal list of available backends.
- *
- * This function must be called before the first API call to Clutter, including
- * clutter_get_option_context()
- *
- * Since: 1.16
- */
-void
-clutter_set_windowing_backend (const char *backend_type)
-{
-  g_return_if_fail (backend_type != NULL);
-
-  allowed_backends = g_strdup (backend_type);
-}
-
-void
-clutter_try_set_windowing_backend (const char *backend_type)
-{
-  if (allowed_backends == NULL)
-    clutter_set_windowing_backend (backend_type);
-}
 
 PangoDirection
 _clutter_backend_get_keymap_direction (ClutterBackend *backend)

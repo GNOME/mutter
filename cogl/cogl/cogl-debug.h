@@ -39,7 +39,8 @@
 
 G_BEGIN_DECLS
 
-typedef enum {
+typedef enum
+{
   COGL_DEBUG_SLICING,
   COGL_DEBUG_OFFSCREEN,
   COGL_DEBUG_DRAW,
@@ -112,8 +113,8 @@ _cogl_debug_check_environment (void);
 
 void
 _cogl_parse_debug_string (const char *value,
-                          CoglBool enable,
-                          CoglBool ignore_help);
+                          gboolean enable,
+                          gboolean ignore_help);
 
 G_END_DECLS
 

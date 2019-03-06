@@ -39,29 +39,6 @@
 #include "clutter-interval.h"
 #include "clutter-private.h"
 
-#include "deprecated/clutter-util.h"
-
-/**
- * clutter_util_next_p2:
- * @a: Value to get the next power
- *
- * Calculates the nearest power of two, greater than or equal to @a.
- *
- * Return value: The nearest power of two, greater or equal to @a.
- *
- * Deprecated: 1.2
- */
-gint
-clutter_util_next_p2 (gint a)
-{
-  int rval = 1;
-
-  while (rval < a)
-    rval <<= 1;
-
-  return rval;
-}
-
 /* Help macros to scale from OpenGL <-1,1> coordinates system to
  * window coordinates ranging [0,window-size]
  */
@@ -126,6 +103,47 @@ _clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
       vertex_out->y = MTX_GL_SCALE_Y (vertex_tmp.y, vertex_tmp.w,
                                       viewport[3], viewport[1]);
     }
+}
+
+void _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
+                                        ClutterRect                 *dest)
+{
+  *dest = (ClutterRect) {
+    .origin = {
+      .x = src->x,
+      .y = src->y
+    },
+    .size = {
+      .width = src->width,
+      .height = src->height
+    }
+  };
+}
+
+void _clutter_util_rectangle_int_extents (const  ClutterRect    *src,
+                                          cairo_rectangle_int_t *dest)
+{
+  ClutterRect tmp = *src;
+
+  clutter_rect_clamp_to_pixel (&tmp);
+
+  *dest = (cairo_rectangle_int_t) {
+    .x = tmp.origin.x,
+    .y = tmp.origin.y,
+    .width = tmp.size.width,
+    .height = tmp.size.height,
+  };
+}
+
+void _clutter_util_rectangle_offset (const cairo_rectangle_int_t *src,
+                                     int                          x,
+                                     int                          y,
+                                     cairo_rectangle_int_t       *dest)
+{
+  *dest = *src;
+
+  dest->x += x;
+  dest->y += y;
 }
 
 /*< private >

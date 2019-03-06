@@ -206,7 +206,7 @@ test_paint (TestState *state)
   cogl_object_unref (pipeline);
 }
 
-static CoglBool
+static gboolean
 get_attributes_cb (CoglPrimitive *prim,
                    CoglAttribute *attrib,
                    void *user_data)

@@ -133,7 +133,7 @@ convert_bind_target_to_gl_target (CoglBufferBindTarget target)
     }
 }
 
-static CoglBool
+static gboolean
 recreate_store (CoglBuffer *buffer,
                 CoglError **error)
 {
@@ -241,7 +241,7 @@ _cogl_buffer_gl_map_range (CoglBuffer *buffer,
   if (ctx->glMapBufferRange)
     {
       GLbitfield gl_access = 0;
-      CoglBool should_recreate_store = !buffer->store_created;
+      gboolean should_recreate_store = !buffer->store_created;
 
       if ((access & COGL_BUFFER_ACCESS_READ))
         gl_access |= GL_MAP_READ_BIT;
@@ -346,7 +346,7 @@ _cogl_buffer_gl_unmap (CoglBuffer *buffer)
   _cogl_buffer_gl_unbind (buffer);
 }
 
-CoglBool
+gboolean
 _cogl_buffer_gl_set_data (CoglBuffer *buffer,
                           unsigned int offset,
                           const void *data,
@@ -356,7 +356,7 @@ _cogl_buffer_gl_set_data (CoglBuffer *buffer,
   CoglBufferBindTarget target;
   GLenum gl_target;
   CoglContext *ctx = buffer->context;
-  CoglBool status = TRUE;
+  gboolean status = TRUE;
   CoglError *internal_error = NULL;
 
   target = buffer->last_target;

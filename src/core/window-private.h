@@ -48,14 +48,16 @@
 
 typedef struct _MetaWindowQueue MetaWindowQueue;
 
-typedef enum {
+typedef enum
+{
   META_CLIENT_TYPE_UNKNOWN = 0,
   META_CLIENT_TYPE_APPLICATION = 1,
   META_CLIENT_TYPE_PAGER = 2,
   META_CLIENT_TYPE_MAX_RECOGNIZED = 2
 } MetaClientType;
 
-typedef enum {
+typedef enum
+{
   META_QUEUE_CALC_SHOWING = 1 << 0,
   META_QUEUE_MOVE_RESIZE  = 1 << 1,
   META_QUEUE_UPDATE_ICON  = 1 << 2,
@@ -63,7 +65,8 @@ typedef enum {
 
 #define NUMBER_OF_QUEUES 3
 
-typedef enum {
+typedef enum
+{
   _NET_WM_BYPASS_COMPOSITOR_HINT_AUTO = 0,
   _NET_WM_BYPASS_COMPOSITOR_HINT_ON = 1,
   _NET_WM_BYPASS_COMPOSITOR_HINT_OFF = 2,
@@ -326,10 +329,6 @@ struct _MetaWindow
   /* whether net_wm_icon_geometry has been set */
   guint icon_geometry_set : 1;
 
-  /* These are the flags from WM_PROTOCOLS */
-  guint take_focus : 1;
-  guint delete_window : 1;
-  guint can_ping : 1;
   /* Globally active / No input */
   guint input : 1;
 
@@ -570,7 +569,9 @@ struct _MetaWindowClass
                                    ClutterInputDevice *source);
   gboolean (*shortcuts_inhibited) (MetaWindow         *window,
                                    ClutterInputDevice *source);
+  gboolean (*is_focusable)        (MetaWindow *window);
   gboolean (*is_stackable)        (MetaWindow *window);
+  gboolean (*can_ping)            (MetaWindow *window);
   gboolean (*are_updates_frozen)  (MetaWindow *window);
 };
 
@@ -664,6 +665,10 @@ void        meta_window_update_unfocused_button_grabs (MetaWindow *window);
 void     meta_window_set_focused_internal (MetaWindow *window,
                                            gboolean    focused);
 
+gboolean meta_window_is_focusable (MetaWindow *window);
+
+gboolean meta_window_can_ping (MetaWindow *window);
+
 void     meta_window_current_workspace_changed (MetaWindow *window);
 
 void meta_window_show_menu (MetaWindow         *window,
@@ -696,11 +701,11 @@ gboolean meta_window_same_application (MetaWindow *window,
 #define META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE(w) \
   ((w)->type != META_WINDOW_DOCK && (w)->type != META_WINDOW_DESKTOP)
 #define META_WINDOW_IN_NORMAL_TAB_CHAIN(w) \
-  (((w)->input || (w)->take_focus ) && META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w) && (!(w)->skip_taskbar))
+  (meta_window_is_focusable (w) && META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w) && (!(w)->skip_taskbar))
 #define META_WINDOW_IN_DOCK_TAB_CHAIN(w) \
-  (((w)->input || (w)->take_focus) && (! META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w) || (w)->skip_taskbar))
+  (meta_window_is_focusable (w) && (! META_WINDOW_IN_NORMAL_TAB_CHAIN_TYPE (w) || (w)->skip_taskbar))
 #define META_WINDOW_IN_GROUP_TAB_CHAIN(w, g) \
-  (((w)->input || (w)->take_focus) && (!g || meta_window_get_group(w)==g))
+  (meta_window_is_focusable (w) && (!g || meta_window_get_group(w)==g))
 
 void meta_window_free_delete_dialog (MetaWindow *window);
 

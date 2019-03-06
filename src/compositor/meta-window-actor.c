@@ -43,7 +43,8 @@
 #include "wayland/meta-wayland-surface.h"
 #endif
 
-typedef enum {
+typedef enum
+{
   INITIALLY_FROZEN,
   DRAWING_FIRST_FRAME,
   EMITTED_FIRST_FRAME
@@ -1851,20 +1852,6 @@ meta_window_actor_from_window (MetaWindow *window)
 }
 
 static void
-meta_window_actor_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
-                                     MetaRectangle        *bounds)
-{
-  MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
-  ClutterActor *clutter_actor;
-
-  clutter_actor = CLUTTER_ACTOR (meta_window_actor_get_texture (window_actor));
-  bounds->x = 0;
-  bounds->y = 0;
-  bounds->width = (int) clutter_actor_get_width (clutter_actor);
-  bounds->height = (int) clutter_actor_get_height (clutter_actor);
-}
-
-static void
 meta_window_actor_get_frame_bounds (MetaScreenCastWindow *screen_cast_window,
                                     MetaRectangle        *bounds)
 {
@@ -1921,6 +1908,52 @@ meta_window_actor_transform_relative_position (MetaScreenCastWindow *screen_cast
   *y_out = (double) v2.y;
 }
 
+static gboolean
+meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_window,
+                                             MetaCursorSprite     *cursor_sprite,
+                                             ClutterPoint         *cursor_position,
+                                             float                *out_cursor_scale,
+                                             ClutterPoint         *out_relative_cursor_position)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+  MetaWindow *window;
+
+  window = priv->window;
+  if (!meta_window_has_pointer (window))
+    return FALSE;
+
+  if (cursor_sprite &&
+      meta_cursor_sprite_get_cogl_texture (cursor_sprite) &&
+      out_cursor_scale)
+    {
+      MetaShapedTexture *stex;
+      double actor_scale;
+      float cursor_texture_scale;
+
+      stex = meta_surface_actor_get_texture (priv->surface);
+      clutter_actor_get_scale (CLUTTER_ACTOR (stex), &actor_scale, NULL);
+      cursor_texture_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
+
+      *out_cursor_scale = actor_scale / cursor_texture_scale;
+    }
+
+  if (out_relative_cursor_position)
+    {
+      MetaShapedTexture *stex;
+
+      stex = meta_surface_actor_get_texture (priv->surface);
+      clutter_actor_transform_stage_point (CLUTTER_ACTOR (stex),
+                                           cursor_position->x,
+                                           cursor_position->y,
+                                           &out_relative_cursor_position->x,
+                                           &out_relative_cursor_position->y);
+    }
+
+  return TRUE;
+}
+
 static void
 meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
                                 MetaRectangle        *bounds,
@@ -1975,11 +2008,18 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
   cairo_surface_destroy (image);
 }
 
+static gboolean
+meta_window_actor_has_damage (MetaScreenCastWindow *screen_cast_window)
+{
+  return clutter_actor_has_damage (CLUTTER_ACTOR (screen_cast_window));
+}
+
 static void
 screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
 {
-  iface->get_buffer_bounds = meta_window_actor_get_buffer_bounds;
   iface->get_frame_bounds = meta_window_actor_get_frame_bounds;
   iface->transform_relative_position = meta_window_actor_transform_relative_position;
+  iface->transform_cursor_position = meta_window_actor_transform_cursor_position;
   iface->capture_into = meta_window_actor_capture_into;
+  iface->has_damage = meta_window_actor_has_damage;
 }

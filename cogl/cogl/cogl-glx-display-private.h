@@ -37,10 +37,10 @@ typedef struct _CoglGLXCachedConfig
 {
   /* This will be -1 if there is no cached config in this slot */
   int depth;
-  CoglBool found;
+  gboolean found;
   GLXFBConfig fb_config;
-  CoglBool stereo;
-  CoglBool can_mipmap;
+  gboolean stereo;
+  gboolean can_mipmap;
 } CoglGLXCachedConfig;
 
 #define COGL_GLX_N_CACHED_CONFIGS 6
@@ -49,11 +49,11 @@ typedef struct _CoglGLXDisplay
 {
   CoglGLXCachedConfig glx_cached_configs[COGL_GLX_N_CACHED_CONFIGS];
 
-  CoglBool found_fbconfig;
-  CoglBool fbconfig_has_rgba_visual;
-  CoglBool is_direct;
-  CoglBool have_vblank_counter;
-  CoglBool can_vblank_wait;
+  gboolean found_fbconfig;
+  gboolean fbconfig_has_rgba_visual;
+  gboolean is_direct;
+  gboolean have_vblank_counter;
+  gboolean can_vblank_wait;
   GLXFBConfig fbconfig;
 
   /* Single context for all wins */

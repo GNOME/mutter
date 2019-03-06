@@ -69,7 +69,8 @@ G_BEGIN_DECLS
  * possibly referring to multiple neighbouring texels and taking a weighted
  * average or simply using the nearest texel.
  */
-typedef enum {
+typedef enum
+{
   COGL_PIPELINE_FILTER_NEAREST = 0x2600,
   COGL_PIPELINE_FILTER_LINEAR = 0x2601,
   COGL_PIPELINE_FILTER_NEAREST_MIPMAP_NEAREST = 0x2700,
@@ -113,7 +114,8 @@ typedef enum {
  * XXX: keep the values in sync with the CoglPipelineWrapModeInternal
  * enum so no conversion is actually needed.
  */
-typedef enum {
+typedef enum
+{
   COGL_PIPELINE_WRAP_MODE_REPEAT = 0x2901,
   COGL_PIPELINE_WRAP_MODE_MIRRORED_REPEAT = 0x8370,
   COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE = 0x812F,
@@ -300,7 +302,7 @@ cogl_pipeline_remove_layer (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_pipeline_set_layer_combine (CoglPipeline *pipeline,
 				 int           layer_index,
 				 const char   *blend_string,
@@ -443,10 +445,10 @@ cogl_pipeline_get_layer_mag_filter (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_pipeline_set_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
                                                      int           layer_index,
-                                                     CoglBool      enable,
+                                                     gboolean      enable,
                                                      CoglError      **error);
 
 /**
@@ -463,7 +465,7 @@ cogl_pipeline_set_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: unstable
  */
-CoglBool
+gboolean
 cogl_pipeline_get_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
                                                      int           layer_index);
 

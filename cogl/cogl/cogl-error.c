@@ -49,7 +49,7 @@ cogl_error_copy (CoglError *error)
   return (CoglError *)g_error_copy ((GError *)error);
 }
 
-CoglBool
+gboolean
 cogl_error_matches (CoglError *error,
                     uint32_t domain,
                     int code)

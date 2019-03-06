@@ -5291,6 +5291,7 @@ meta_test_monitor_custom_lid_switch_config (void)
       .n_modes = 1,
       .outputs = {
         {
+          .crtc = -1,
           .modes = { 0 },
           .n_modes = 1,
           .preferred_mode = 0,
@@ -5301,6 +5302,7 @@ meta_test_monitor_custom_lid_switch_config (void)
           .is_laptop_panel = TRUE
         },
         {
+          .crtc = -1,
           .modes = { 0 },
           .n_modes = 1,
           .preferred_mode = 0,

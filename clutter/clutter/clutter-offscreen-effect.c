@@ -66,6 +66,8 @@
 
 #include "clutter-offscreen-effect.h"
 
+#include <math.h>
+
 #include "cogl/cogl.h"
 
 #include "clutter-actor-private.h"
@@ -93,8 +95,8 @@ struct _ClutterOffscreenEffectPrivate
      through create_texture(). This needs to be tracked separately so
      that we can detect when a different size is calculated and
      regenerate the fbo */
-  int fbo_width;
-  int fbo_height;
+  int target_width;
+  int target_height;
 
   gint old_opacity_override;
 };
@@ -135,8 +137,35 @@ clutter_offscreen_effect_real_create_texture (ClutterOffscreenEffect *effect,
                                      COGL_PIXEL_FORMAT_RGBA_8888_PRE);
 }
 
+static void
+ensure_pipeline_filter_for_scale (ClutterOffscreenEffect *self,
+                                  float                   resource_scale)
+{
+  CoglPipelineFilter filter;
+
+  if (!self->priv->target)
+    return;
+
+  /* If no fractional scaling is set, we're always going to render the texture
+     at a 1:1 texel:pixel ratio so, in such case we can use 'nearest' filtering
+     to decrease the effects of rounding errors in the geometry calculation;
+     if instead we we're using a global fractional scaling we need to make sure
+     that we're using the default linear effect, not to create artifacts when
+     scaling down the texture */
+  if (fmodf (resource_scale, 1.0f) == 0)
+    filter = COGL_PIPELINE_FILTER_NEAREST;
+  else
+    filter = COGL_PIPELINE_FILTER_LINEAR;
+
+  cogl_pipeline_set_layer_filters (self->priv->target, 0 /* layer_index */,
+                                   filter, filter);
+}
+
 static gboolean
-update_fbo (ClutterEffect *effect, int fbo_width, int fbo_height)
+update_fbo (ClutterEffect *effect,
+            int            target_width,
+            int            target_height,
+            float          resource_scale)
 {
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
   ClutterOffscreenEffectPrivate *priv = self->priv;
@@ -151,10 +180,13 @@ update_fbo (ClutterEffect *effect, int fbo_width, int fbo_height)
       return FALSE;
     }
 
-  if (priv->fbo_width == fbo_width &&
-      priv->fbo_height == fbo_height &&
+  if (priv->target_width == target_width &&
+      priv->target_height == target_height &&
       priv->offscreen != NULL)
+  {
+    ensure_pipeline_filter_for_scale (self, resource_scale);
     return TRUE;
+  }
 
   if (priv->target == NULL)
     {
@@ -162,14 +194,7 @@ update_fbo (ClutterEffect *effect, int fbo_width, int fbo_height)
         clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
       priv->target = cogl_pipeline_new (ctx);
-
-      /* We're always going to render the texture at a 1:1 texel:pixel
-         ratio so we can use 'nearest' filtering to decrease the
-         effects of rounding errors in the geometry calculation */
-      cogl_pipeline_set_layer_filters (priv->target,
-                                       0, /* layer_index */
-                                       COGL_PIPELINE_FILTER_NEAREST,
-                                       COGL_PIPELINE_FILTER_NEAREST);
+      ensure_pipeline_filter_for_scale (self, resource_scale);
     }
 
   if (priv->texture != NULL)
@@ -185,14 +210,14 @@ update_fbo (ClutterEffect *effect, int fbo_width, int fbo_height)
     }
 
   priv->texture =
-    clutter_offscreen_effect_create_texture (self, fbo_width, fbo_height);
+    clutter_offscreen_effect_create_texture (self, target_width, target_height);
   if (priv->texture == NULL)
     return FALSE;
 
   cogl_pipeline_set_layer_texture (priv->target, 0, priv->texture);
 
-  priv->fbo_width = fbo_width;
-  priv->fbo_height = fbo_height;
+  priv->target_width = target_width;
+  priv->target_height = target_height;
 
   priv->offscreen = cogl_offscreen_new_to_texture (priv->texture);
   if (priv->offscreen == NULL)
@@ -202,8 +227,8 @@ update_fbo (ClutterEffect *effect, int fbo_width, int fbo_height)
       cogl_handle_unref (priv->target);
       priv->target = NULL;
 
-      priv->fbo_width = 0;
-      priv->fbo_height = 0;
+      priv->target_width = 0;
+      priv->target_height = 0;
 
       return FALSE;
     }
@@ -222,7 +247,9 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
   const ClutterPaintVolume *volume;
   CoglColor transparent;
   gfloat stage_width, stage_height;
-  gfloat fbo_width = -1, fbo_height = -1;
+  gfloat target_width = -1, target_height = -1;
+  gfloat resource_scale;
+  gfloat ceiled_resource_scale;
   ClutterVertex local_offset = { 0.f, 0.f, 0.f };
   gfloat old_viewport[4];
 
@@ -234,6 +261,18 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
 
   stage = _clutter_actor_get_stage_internal (priv->actor);
   clutter_actor_get_size (stage, &stage_width, &stage_height);
+
+  if (_clutter_actor_get_real_resource_scale (priv->actor, &resource_scale))
+    {
+      ceiled_resource_scale = ceilf (resource_scale);
+      stage_width *= ceiled_resource_scale;
+      stage_height *= ceiled_resource_scale;
+    }
+  else
+    {
+      /* We are sure we have a resource scale set to a good value at paint */
+      g_assert_not_reached ();
+    }
 
   /* Get the minimal bounding box for what we want to paint, relative to the
    * parent of priv->actor. Note that we may actually be painting a clone of
@@ -261,10 +300,14 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
   priv->fbo_offset_x = box.x1 - raw_box.x1;
   priv->fbo_offset_y = box.y1 - raw_box.y1;
 
-  clutter_actor_box_get_size (&box, &fbo_width, &fbo_height);
+  clutter_actor_box_scale (&box, ceiled_resource_scale);
+  clutter_actor_box_get_size (&box, &target_width, &target_height);
+
+  target_width = ceilf (target_width);
+  target_height = ceilf (target_height);
 
   /* First assert that the framebuffer is the right size... */
-  if (!update_fbo (effect, fbo_width, fbo_height))
+  if (!update_fbo (effect, target_width, target_height, resource_scale))
     return FALSE;
 
   cogl_get_modelview_matrix (&old_modelview);
@@ -366,6 +409,7 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect)
 {
   ClutterOffscreenEffectPrivate *priv = effect->priv;
   CoglMatrix modelview;
+  float resource_scale;
 
   cogl_push_matrix ();
 
@@ -373,6 +417,14 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect)
    * missing a correction for the expanded FBO and offset rendering within...
    */
   cogl_get_modelview_matrix (&modelview);
+
+  if (clutter_actor_get_resource_scale (priv->actor, &resource_scale) &&
+      resource_scale != 1.0f)
+    {
+      float paint_scale = 1.0f / resource_scale;
+      cogl_matrix_scale (&modelview, paint_scale, paint_scale, 1);
+    }
+
   cogl_matrix_translate (&modelview,
                          priv->fbo_offset_x,
                          priv->fbo_offset_y,

@@ -74,8 +74,6 @@ struct _MetaGpuKms
   int max_buffer_width;
   int max_buffer_height;
 
-  gboolean page_flips_not_supported;
-
   gboolean resources_init_failed_before;
 
   MetaGpuKmsFlag flags;
@@ -199,7 +197,6 @@ invoke_flip_closure (GClosure   *flip_closure,
   g_value_init (&params[3], G_TYPE_INT64);
   g_value_set_int64 (&params[3], page_flip_time_ns);
   g_closure_invoke (flip_closure, NULL, 4, params, NULL);
-  g_closure_unref (flip_closure);
 }
 
 gboolean
@@ -245,7 +242,7 @@ meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
 
   closure_container = g_new0 (MetaGpuKmsFlipClosureContainer, 1);
   *closure_container = (MetaGpuKmsFlipClosureContainer) {
-    .flip_closure = flip_closure,
+    .flip_closure = g_closure_ref (flip_closure),
     .gpu_kms = gpu_kms,
     .crtc = crtc
   };
@@ -256,20 +253,21 @@ meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
 void
 meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container)
 {
+  g_closure_unref (closure_container->flip_closure);
   g_free (closure_container);
 }
 
 gboolean
-meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
-                        MetaCrtc   *crtc,
-                        int         x,
-                        int         y,
-                        uint32_t    fb_id,
-                        GClosure   *flip_closure,
-                        gboolean   *fb_in_use)
+meta_gpu_kms_flip_crtc (MetaGpuKms  *gpu_kms,
+                        MetaCrtc    *crtc,
+                        uint32_t     fb_id,
+                        GClosure    *flip_closure,
+                        GError     **error)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
+  MetaGpuKmsFlipClosureContainer *closure_container;
+  int kms_fd = meta_gpu_kms_get_fd (gpu_kms);
   uint32_t *connectors;
   unsigned int n_connectors;
   int ret = -1;
@@ -283,42 +281,23 @@ meta_gpu_kms_flip_crtc (MetaGpuKms *gpu_kms,
 
   g_assert (fb_id != 0);
 
-  if (!gpu_kms->page_flips_not_supported)
-    {
-      MetaGpuKmsFlipClosureContainer *closure_container;
-      int kms_fd = meta_gpu_kms_get_fd (gpu_kms);
+  closure_container = meta_gpu_kms_wrap_flip_closure (gpu_kms,
+                                                      crtc,
+                                                      flip_closure);
 
-      closure_container = meta_gpu_kms_wrap_flip_closure (gpu_kms,
-                                                          crtc,
-                                                          flip_closure);
-
-      ret = drmModePageFlip (kms_fd,
-                             crtc->crtc_id,
-                             fb_id,
-                             DRM_MODE_PAGE_FLIP_EVENT,
-                             closure_container);
-      if (ret != 0 && ret != -EACCES)
-        {
-          meta_gpu_kms_flip_closure_container_free (closure_container);
-          g_warning ("Failed to flip: %s", strerror (-ret));
-          gpu_kms->page_flips_not_supported = TRUE;
-        }
-    }
-
-  if (gpu_kms->page_flips_not_supported)
-    {
-      if (meta_gpu_kms_apply_crtc_mode (gpu_kms, crtc, x, y, fb_id))
-        {
-          *fb_in_use = TRUE;
-          return FALSE;
-        }
-    }
-
+  ret = drmModePageFlip (kms_fd,
+                         crtc->crtc_id,
+                         fb_id,
+                         DRM_MODE_PAGE_FLIP_EVENT,
+                         closure_container);
   if (ret != 0)
-    return FALSE;
-
-  *fb_in_use = TRUE;
-  g_closure_ref (flip_closure);
+    {
+      meta_gpu_kms_flip_closure_container_free (closure_container);
+      g_set_error (error, G_IO_ERROR,
+                   g_io_error_from_errno (-ret),
+                   "drmModePageFlip failed: %s", g_strerror (-ret));
+      return FALSE;
+    }
 
   return TRUE;
 }
@@ -364,13 +343,6 @@ meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
                             GError    **error)
 {
   drmEventContext evctx;
-
-  if (gpu_kms->page_flips_not_supported)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Page flips not supported");
-      return FALSE;
-    }
 
   memset (&evctx, 0, sizeof evctx);
   evctx.version = 2;

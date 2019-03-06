@@ -74,7 +74,8 @@ static gboolean meta_shaped_texture_get_paint_volume (ClutterActor *self, Clutte
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
-enum {
+enum
+{
   SIZE_CHANGED,
 
   LAST_SIGNAL,
@@ -1278,21 +1279,9 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   CoglOffscreen *offscreen;
   CoglFramebuffer *fb;
   CoglMatrix projection_matrix;
-  int fb_width, fb_height;
   cairo_rectangle_int_t fallback_clip;
   CoglColor clear_color;
   cairo_surface_t *surface;
-
-  if (cogl_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_NPOT))
-    {
-      fb_width = stex->dst_width;
-      fb_height = stex->dst_height;
-    }
-  else
-    {
-      fb_width = _cogl_util_next_p2 (stex->dst_width);
-      fb_height = _cogl_util_next_p2 (stex->dst_height);
-    }
 
   if (!clip)
     {
@@ -1305,7 +1294,8 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
 
   image_texture =
     COGL_TEXTURE (cogl_texture_2d_new_with_size (cogl_context,
-                                                 fb_width, fb_height));
+                                                 stex->dst_width,
+                                                 stex->dst_height));
   cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (image_texture),
                                           FALSE);
   if (!cogl_texture_allocate (COGL_TEXTURE (image_texture), &error))
@@ -1313,18 +1303,6 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
       g_error_free (error);
       cogl_object_unref (image_texture);
       return FALSE;
-    }
-
-  if (fb_width != stex->dst_width || fb_height != stex->dst_height)
-    {
-      CoglSubTexture *sub_texture;
-
-      sub_texture = cogl_sub_texture_new (cogl_context,
-                                          image_texture,
-                                          0, 0,
-                                          stex->dst_width, stex->dst_height);
-      cogl_object_unref (image_texture);
-      image_texture = COGL_TEXTURE (sub_texture);
     }
 
   offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (image_texture));

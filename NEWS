@@ -1,3 +1,50 @@
+3.31.92
+=======
+* Fix flicker of apps that use multiple SHM buffers [Jonas Å.; #199]
+* Don't disable page flips after temporary failues [Jonas Å.; #460]
+* Improve redraw performance [Carlos; !196]
+* Add cursor-mode support to window screencasting [Jonas Å.; !413]
+* Add back support for system-wide monitor configurations [Jonas Å.; !253]
+* Add fractional scaling support [Marco, Jonas Å.; !3]
+* Consider remapped keys when guessing keycode from keysym [Andrea; #443]
+* Stop turning on-screen-keyboard off on focus changes [Carlos; !432]
+* Fix crashes [Robert, Carlos, Jonas D., Florian; !447, #361, !426, #479]
+* Misc. bug fixes and cleanups [Benjamin, Adam, Olivier, Niels, Piotr; !457,
+  !452, !459, !380, !361, !461, !464, !471, !473, !463]
+
+Contributors:
+  Jonas Ådahl, Andrea Azzarone, Benjamin Berg, Piotr Drąg, Jonas Dreßler,
+  Olivier Fourdan, Carlos Garnacho, Niels De Graef, Adam Jackson, Robert Mader,
+  Florian Müllner, Marco Trevisan (Treviño)
+
+Translators:
+  Milo Casagrande [it], Tim Sabsch [de], Trần Ngọc Quân [vi],
+  Gwan-gyeong Mun [ko], Марко Костић [sr], Daniel Mustieles [es],
+  Rūdolfs Mazurs [lv], Nathan Follens [nl]
+
+3.31.91
+=======
+* Fix infinite loop in EDID matching [Marco; #459]
+* wayland: Don't resetin text-input state prematurely [Carlos; !410]
+* wayland: Don't maximize windows if minimum size is too big [Olivier; #463]
+* Fix crash when using "restore shortcuts" without focus window [Olivier; #464]
+* Add flag parameter to grab accelerator API [Andrea; !169]
+* Reuse old CRTC if possible to avoid flicker on hotplug [Pekka, Emilio; #373]
+* Misc. bug fixes and cleanups [Marco, Jonas, Niels, Adam, Olivier; !436,
+  !421, #462, !439, !440, !444, !321, !445, !456]
+
+Contributors:
+  Jonas Ådahl, Andrea Azzarone, Olivier Fourdan, Carlos Garnacho,
+  Niels De Graef, Adam Jackson, Emilio Pozuelo Monfort, Pekka Paalanen,
+  Marco Trevisan (Treviño)
+
+Translators:
+  Jiri Grönroos [fi], Charles Monzat [fr], Claude Paroz [fr], Fran Dieguez [gl],
+  Emin Tufan Çetin [tr], Aurimas Černius [lt], Anders Jonsson [sv],
+  Matej Urbančič [sl], Marek Cernocky [cs], Daniel Șerbănescu [ro],
+  Alan Mortensen [da], Baurzhan Muftakhidinov [kk], Yi-Jyun Pan [zh_TW],
+  Daniel Mustieles [es], Rafael Fontenelle [pt_BR]
+
 3.31.90
 =======
 * Fix support of extended characters in on-screen keyboard [Andrea; #109]

@@ -59,7 +59,8 @@ typedef enum _TestFlags
  *
  * Flags to pass to the test_utils_texture_new_* family of functions.
  */
-typedef enum {
+typedef enum
+{
   TEST_UTILS_TEXTURE_NONE           = 0,
   TEST_UTILS_TEXTURE_NO_AUTO_MIPMAP = 1 << 0,
   TEST_UTILS_TEXTURE_NO_SLICING     = 1 << 1,
@@ -152,7 +153,7 @@ test_utils_texture_new_from_data (CoglContext *ctx,
 CoglTexture *
 test_utils_texture_new_from_bitmap (CoglBitmap *bitmap,
                                     TestUtilsTextureFlags flags,
-                                    CoglBool premultiplied);
+                                    gboolean premultiplied);
 
 /*
  * test_utils_check_pixel:
@@ -269,7 +270,7 @@ test_utils_create_color_texture (CoglContext *context,
  *
  * Queries if the user asked for verbose output or not.
  */
-CoglBool
+gboolean
 cogl_test_verbose (void);
 
 /* test_util_is_pot:
@@ -277,7 +278,7 @@ cogl_test_verbose (void);
  *
  * Returns whether the given integer is a power of two
  */
-static inline CoglBool
+static inline gboolean
 test_utils_is_pot (unsigned int number)
 {
   /* Make sure there is only one bit set */

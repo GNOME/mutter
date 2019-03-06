@@ -299,9 +299,9 @@ meta_plugin_manager_confirm_display_change (MetaPluginManager *plugin_mgr)
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
 
   if (klass->confirm_display_change)
-    return klass->confirm_display_change (plugin);
+    klass->confirm_display_change (plugin);
   else
-    return meta_plugin_complete_display_change (plugin, TRUE);
+    meta_plugin_complete_display_change (plugin, TRUE);
 }
 
 gboolean

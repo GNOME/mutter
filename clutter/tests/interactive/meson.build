@@ -27,11 +27,8 @@ clutter_tests_interactive_test_sources = [
   'test-script.c',
   'test-grab.c',
   'test-cogl-shader-glsl.c',
-  'test-animator.c',
   'test-state.c',
-  'test-state-animator.c',
   'test-fbo.c',
-  'test-multistage.c',
   'test-cogl-tex-tile.c',
   'test-cogl-tex-convert.c',
   'test-cogl-tex-foreign.c',
@@ -65,12 +62,6 @@ clutter_tests_interactive_test_sources = [
   'test-rotate-zoom.c',
   'test-image.c',
 ]
-
-if have_x11
-  clutter_tests_interactive_test_sources += [
-    'test-pixmap.c',
-  ]
-endif
 
 gen_test_unit_names = find_program('meson/gen-test-unit-names.sh')
 clutter_interactive_test_unit_names_h = custom_target('gen-test-unit-names',

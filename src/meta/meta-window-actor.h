@@ -23,8 +23,6 @@
 #ifndef META_WINDOW_ACTOR_H_
 #define META_WINDOW_ACTOR_H_
 
-#include <X11/Xlib.h>
-
 #include "clutter/clutter.h"
 #include "meta/compositor.h"
 
@@ -35,9 +33,6 @@ G_DECLARE_DERIVABLE_TYPE (MetaWindowActor,
                           meta_window_actor,
                           META, WINDOW_ACTOR,
                           ClutterActor)
-
-META_EXPORT
-Window             meta_window_actor_get_x_window         (MetaWindowActor *self);
 
 META_EXPORT
 MetaWindow *       meta_window_actor_get_meta_window      (MetaWindowActor *self);
@@ -51,7 +46,8 @@ void               meta_window_actor_sync_visibility      (MetaWindowActor *self
 META_EXPORT
 gboolean       meta_window_actor_is_destroyed (MetaWindowActor *self);
 
-typedef enum {
+typedef enum
+{
   META_SHADOW_MODE_AUTO,
   META_SHADOW_MODE_FORCED_OFF,
   META_SHADOW_MODE_FORCED_ON,

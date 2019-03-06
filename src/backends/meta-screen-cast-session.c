@@ -383,6 +383,7 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
   GDBusInterfaceSkeleton *interface_skeleton;
   GDBusConnection *connection;
   MetaWindow *window;
+  MetaScreenCastCursorMode cursor_mode;
   GError *error = NULL;
   MetaDisplay *display;
   GVariant *window_id_variant = NULL;
@@ -424,12 +425,28 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
       return TRUE;
     }
 
+  if (!g_variant_lookup (properties_variant, "cursor-mode", "u", &cursor_mode))
+    {
+      cursor_mode = META_SCREEN_CAST_CURSOR_MODE_HIDDEN;
+    }
+  else
+    {
+      if (!is_valid_cursor_mode (cursor_mode))
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                                 G_DBUS_ERROR_FAILED,
+                                                 "Unknown cursor mode");
+          return TRUE;
+        }
+    }
+
   interface_skeleton = G_DBUS_INTERFACE_SKELETON (skeleton);
   connection = g_dbus_interface_skeleton_get_connection (interface_skeleton);
 
   window_stream = meta_screen_cast_window_stream_new (session,
                                                       connection,
                                                       window,
+                                                      cursor_mode,
                                                       &error);
   if (!window_stream)
     {

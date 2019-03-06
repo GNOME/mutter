@@ -30,14 +30,6 @@ meta_screen_cast_window_default_init (MetaScreenCastWindowInterface *iface)
 }
 
 void
-meta_screen_cast_window_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
-                                           MetaRectangle        *bounds)
-{
-  META_SCREEN_CAST_WINDOW_GET_IFACE (screen_cast_window)->get_buffer_bounds (screen_cast_window,
-                                                                             bounds);
-}
-
-void
 meta_screen_cast_window_get_frame_bounds (MetaScreenCastWindow *screen_cast_window,
                                           MetaRectangle        *bounds)
 {
@@ -59,6 +51,22 @@ meta_screen_cast_window_transform_relative_position (MetaScreenCastWindow *scree
                                                                                        y_out);
 }
 
+gboolean
+meta_screen_cast_window_transform_cursor_position (MetaScreenCastWindow *screen_cast_window,
+                                                   MetaCursorSprite     *cursor_sprite,
+                                                   ClutterPoint         *cursor_position,
+                                                   float                *out_cursor_scale,
+                                                   ClutterPoint         *out_relative_cursor_position)
+{
+  MetaScreenCastWindowInterface *iface =
+    META_SCREEN_CAST_WINDOW_GET_IFACE (screen_cast_window);
+
+  return iface->transform_cursor_position (screen_cast_window,
+                                           cursor_sprite,
+                                           cursor_position,
+                                           out_cursor_scale,
+                                           out_relative_cursor_position);
+}
 
 void
 meta_screen_cast_window_capture_into (MetaScreenCastWindow *screen_cast_window,
@@ -68,4 +76,13 @@ meta_screen_cast_window_capture_into (MetaScreenCastWindow *screen_cast_window,
   META_SCREEN_CAST_WINDOW_GET_IFACE (screen_cast_window)->capture_into (screen_cast_window,
                                                                         bounds,
                                                                         data);
+}
+
+gboolean
+meta_screen_cast_window_has_damage (MetaScreenCastWindow *screen_cast_window)
+{
+  MetaScreenCastWindowInterface *iface =
+    META_SCREEN_CAST_WINDOW_GET_IFACE (screen_cast_window);
+
+  return iface->has_damage (screen_cast_window);
 }

@@ -81,14 +81,16 @@
 
 typedef union _MetaStackOp MetaStackOp;
 
-typedef enum {
+typedef enum
+{
   STACK_OP_ADD,
   STACK_OP_REMOVE,
   STACK_OP_RAISE_ABOVE,
   STACK_OP_LOWER_BELOW
 } MetaStackOpType;
 
-typedef enum {
+typedef enum
+{
   APPLY_DEFAULT = 0,
   /* Only do restacking that we can do locally without changing
    * the order of X windows. After we've received any stack

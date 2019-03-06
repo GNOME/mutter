@@ -33,7 +33,8 @@
 
 #define DRAG_FAILED_DURATION 500
 
-enum {
+enum
+{
   PROP_DRAG_ORIGIN = 1,
   PROP_DRAG_START_X,
   PROP_DRAG_START_Y

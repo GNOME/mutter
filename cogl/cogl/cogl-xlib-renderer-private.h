@@ -54,7 +54,7 @@ typedef struct _CoglXlibRenderer
   XVisualInfo *xvisinfo;
 } CoglXlibRenderer;
 
-CoglBool
+gboolean
 _cogl_xlib_renderer_connect (CoglRenderer *renderer, CoglError **error);
 
 void

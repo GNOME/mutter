@@ -90,7 +90,8 @@ main_wrapper_function[] =
   "}\n"
   MAIN_WRAPPER_END;
 
-enum {
+enum
+{
   RESTORE_FB_NONE,
   RESTORE_FB_FROM_OFFSCREEN,
   RESTORE_FB_FROM_ONSCREEN,
@@ -139,7 +140,7 @@ detach_shader (CoglGLES2ProgramData *program_data,
     }
 }
 
-static CoglBool
+static gboolean
 is_symbol_character (char ch)
 {
   return g_ascii_isalnum (ch) || ch == '_';
@@ -1775,7 +1776,7 @@ _cogl_gles2_offscreen_allocate (CoglOffscreen *offscreen,
   return gles2_offscreen;
 }
 
-CoglBool
+gboolean
 cogl_push_gles2_context (CoglContext *ctx,
                          CoglGLES2Context *gles2_ctx,
                          CoglFramebuffer *read_buffer,
@@ -1955,7 +1956,7 @@ cogl_gles2_texture_2d_new_from_handle (CoglContext *ctx,
                                               format);
 }
 
-CoglBool
+gboolean
 cogl_gles2_texture_get_handle (CoglTexture *texture,
                                unsigned int *handle,
                                unsigned int *target)

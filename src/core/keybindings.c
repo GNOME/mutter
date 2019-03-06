@@ -203,6 +203,7 @@ struct _MetaKeyGrab {
   char *name;
   guint action;
   MetaKeyCombo combo;
+  gint flags;
 };
 
 static void
@@ -834,7 +835,7 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
           b = g_slice_new0 (MetaKeyBinding);
           b->name = grab->name;
           b->handler = handler;
-          b->flags = handler->flags;
+          b->flags = grab->flags;
           b->combo = grab->combo;
 
           g_hash_table_add (keys->key_bindings, b);
@@ -1593,8 +1594,9 @@ handle_external_grab (MetaDisplay     *display,
 
 
 guint
-meta_display_grab_accelerator (MetaDisplay *display,
-                               const char  *accelerator)
+meta_display_grab_accelerator (MetaDisplay         *display,
+                               const char          *accelerator,
+                               MetaKeyBindingFlags  flags)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
   MetaKeyBinding *binding;
@@ -1628,6 +1630,7 @@ meta_display_grab_accelerator (MetaDisplay *display,
   grab->action = next_dynamic_keybinding_action ();
   grab->name = meta_external_binding_name_for_action (grab->action);
   grab->combo = combo;
+  grab->flags = flags;
 
   g_hash_table_insert (external_grabs, grab->name, grab);
 
@@ -1636,6 +1639,7 @@ meta_display_grab_accelerator (MetaDisplay *display,
   binding->handler = HANDLER ("external-grab");
   binding->combo = combo;
   binding->resolved_combo = resolved_combo;
+  binding->flags = flags;
 
   g_hash_table_add (keys->key_bindings, binding);
   index_binding (keys, binding);
@@ -3545,6 +3549,9 @@ handle_restore_shortcuts (MetaDisplay     *display,
                           gpointer         dummy)
 {
   ClutterInputDevice *source;
+
+  if (!display->focus_window)
+    return;
 
   source = clutter_event_get_source_device ((ClutterEvent *) event);
 

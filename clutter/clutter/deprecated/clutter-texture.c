@@ -64,9 +64,7 @@
 #include "clutter-stage-private.h"
 #include "clutter-backend.h"
 
-#include "deprecated/clutter-shader.h"
 #include "deprecated/clutter-texture.h"
-#include "deprecated/clutter-util.h"
 
 typedef struct _ClutterTextureAsyncData ClutterTextureAsyncData;
 
@@ -480,21 +478,9 @@ update_fbo (ClutterActor *self)
 {
   ClutterTexture        *texture = CLUTTER_TEXTURE (self);
   ClutterTexturePrivate *priv = texture->priv;
-  ClutterActor          *head;
-  ClutterShader         *shader = NULL;
   ClutterActor          *stage = NULL;
   CoglMatrix             projection;
   CoglColor              transparent_col;
-
-  head = _clutter_context_peek_shader_stack ();
-  if (head != NULL)
-    shader = clutter_actor_get_shader (head);
-
-  /* Temporarily turn off the shader on the top of the context's
-   * shader stack, to restore the GL pipeline to it's natural state.
-   */
-  if (shader != NULL)
-    clutter_shader_set_is_enabled (shader, FALSE);
 
   /* Redirect drawing to the fbo */
   cogl_push_framebuffer (priv->fbo_handle);
@@ -554,10 +540,6 @@ update_fbo (ClutterActor *self)
 
   /* Restore drawing to the previous framebuffer */
   cogl_pop_framebuffer ();
-
-  /* If there is a shader on top of the shader stack, turn it back on. */
-  if (shader != NULL)
-    clutter_shader_set_is_enabled (shader, TRUE);
 }
 
 static void

@@ -84,9 +84,9 @@ enum
 static GParamSpec *obj_props[PROP_LAST] = { NULL, };
 static GParamSpec *animatable_props[ANIM_PROP_LAST] = { NULL, };
 
-static ClutterAnimatableIface *parent_animatable_iface = NULL;
+static ClutterAnimatableInterface *parent_animatable_iface = NULL;
 
-static void     clutter_animatable_iface_init   (ClutterAnimatableIface *iface);
+static void clutter_animatable_iface_init (ClutterAnimatableInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (ClutterScrollActor, clutter_scroll_actor, CLUTTER_TYPE_ACTOR,
                          G_ADD_PRIVATE (ClutterScrollActor)
@@ -240,7 +240,7 @@ clutter_scroll_actor_get_initial_state (ClutterAnimatable *animatable,
 }
 
 static void
-clutter_animatable_iface_init (ClutterAnimatableIface *iface)
+clutter_animatable_iface_init (ClutterAnimatableInterface *iface)
 {
   parent_animatable_iface = g_type_interface_peek_parent (iface);
 

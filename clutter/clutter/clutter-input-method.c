@@ -37,7 +37,8 @@ struct _ClutterInputMethodPrivate
   gboolean can_show_preedit;
 };
 
-enum {
+enum
+{
   COMMIT,
   DELETE_SURROUNDING,
   REQUEST_SURROUNDING,
@@ -46,7 +47,8 @@ enum {
   N_SIGNALS,
 };
 
-enum {
+enum
+{
   PROP_0,
   PROP_CONTENT_HINTS,
   PROP_CONTENT_PURPOSE,
@@ -264,9 +266,6 @@ clutter_input_method_focus_out (ClutterInputMethod *im)
 
   klass = CLUTTER_INPUT_METHOD_GET_CLASS (im);
   klass->focus_out (im);
-
-  g_signal_emit (im, signals[INPUT_PANEL_STATE],
-                 0, CLUTTER_INPUT_PANEL_STATE_OFF);
 }
 
 ClutterInputFocus *
@@ -361,12 +360,12 @@ clutter_input_method_notify_key_event (ClutterInputMethod *im,
 }
 
 void
-clutter_input_method_toggle_input_panel (ClutterInputMethod *im)
+clutter_input_method_set_input_panel_state (ClutterInputMethod     *im,
+                                            ClutterInputPanelState  state)
 {
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
-  g_signal_emit (im, signals[INPUT_PANEL_STATE], 0,
-                 CLUTTER_INPUT_PANEL_STATE_TOGGLE);
+  g_signal_emit (im, signals[INPUT_PANEL_STATE], 0, state);
 }
 
 void

@@ -67,7 +67,7 @@ struct _CoglOnscreen
 
   CoglList frame_closures;
 
-  CoglBool resizable;
+  gboolean resizable;
   CoglList resize_closures;
 
   CoglList dirty_closures;

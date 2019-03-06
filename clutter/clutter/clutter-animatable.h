@@ -33,24 +33,15 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_ANIMATABLE                 (clutter_animatable_get_type ())
-#define CLUTTER_ANIMATABLE(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_ANIMATABLE, ClutterAnimatable))
-#define CLUTTER_IS_ANIMATABLE(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_ANIMATABLE))
-#define CLUTTER_ANIMATABLE_GET_IFACE(obj)       (G_TYPE_INSTANCE_GET_INTERFACE ((obj), CLUTTER_TYPE_ANIMATABLE, ClutterAnimatableIface))
+#define CLUTTER_TYPE_ANIMATABLE (clutter_animatable_get_type ())
 
-typedef struct _ClutterAnimatableIface          ClutterAnimatableIface;
-
-/**
- * ClutterAnimatable:
- *
- * #ClutterAnimatable is an opaque structure whose members cannot be directly
- * accessed
- *
- * Since: 1.0
- */
+CLUTTER_EXPORT
+G_DECLARE_INTERFACE (ClutterAnimatable, clutter_animatable,
+                     CLUTTER, ANIMATABLE,
+                     GObject)
 
 /**
- * ClutterAnimatableIface:
+ * ClutterAnimatableInterface:
  * @animate_property: virtual function for custom interpolation of a
  *   property. This virtual function is deprecated
  * @find_property: virtual function for retrieving the #GParamSpec of
@@ -67,7 +58,7 @@ typedef struct _ClutterAnimatableIface          ClutterAnimatableIface;
  *
  * Since: 1.0
  */
-struct _ClutterAnimatableIface
+struct _ClutterAnimatableInterface
 {
   /*< private >*/
   GTypeInterface parent_iface;
@@ -94,9 +85,6 @@ struct _ClutterAnimatableIface
                                      gdouble            progress,
                                      GValue            *value);
 };
-
-CLUTTER_EXPORT
-GType clutter_animatable_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 GParamSpec *clutter_animatable_find_property     (ClutterAnimatable *animatable,

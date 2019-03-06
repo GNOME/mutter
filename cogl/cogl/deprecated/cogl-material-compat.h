@@ -89,7 +89,8 @@ GType cogl_material_get_type (void);
  * possibly referring to multiple neighbouring texels and taking a weighted
  * average or simply using the nearest texel.
  */
-typedef enum {
+typedef enum
+{
   COGL_MATERIAL_FILTER_NEAREST = 0x2600,
   COGL_MATERIAL_FILTER_LINEAR = 0x2601,
   COGL_MATERIAL_FILTER_NEAREST_MIPMAP_NEAREST = 0x2700,
@@ -133,7 +134,8 @@ typedef enum {
  * XXX: keep the values in sync with the CoglMaterialWrapModeInternal
  * enum so no conversion is actually needed.
  */
-typedef enum {
+typedef enum
+{
   COGL_MATERIAL_WRAP_MODE_REPEAT = 0x2901,
   COGL_MATERIAL_WRAP_MODE_CLAMP_TO_EDGE = 0x812F,
   COGL_MATERIAL_WRAP_MODE_AUTOMATIC = 0x0207
@@ -215,7 +217,7 @@ cogl_material_unref (CoglHandle material);
  * Deprecated: 1.16: Use cogl_is_pipeline() instead
  */
 COGL_DEPRECATED_FOR (cogl_is_pipeline)
-CoglBool
+gboolean
 cogl_is_material (CoglHandle handle);
 
 /**
@@ -517,7 +519,8 @@ cogl_material_get_emission (CoglMaterial *material,
  * incoming alpha value and a reference alpha value. The #CoglMaterialAlphaFunc
  * determines how the comparison is done.
  */
-typedef enum {
+typedef enum
+{
   COGL_MATERIAL_ALPHA_FUNC_NEVER    = 0x0200,
   COGL_MATERIAL_ALPHA_FUNC_LESS	    = 0x0201,
   COGL_MATERIAL_ALPHA_FUNC_EQUAL    = 0x0202,
@@ -638,7 +641,7 @@ cogl_material_set_alpha_test_function (CoglMaterial         *material,
  * Deprecated: 1.16: Use cogl_pipeline_set_blend() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_blend)
-CoglBool
+gboolean
 cogl_material_set_blend (CoglMaterial *material,
                          const char   *blend_string,
                          CoglError   **error);
@@ -899,7 +902,7 @@ cogl_material_remove_layer (CoglMaterial *material,
  * Deprecated: 1.16: Use cogl_pipeline_set_layer_combine() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_combine)
-CoglBool
+gboolean
 cogl_material_set_layer_combine (CoglMaterial *material,
 				 int           layer_index,
 				 const char   *blend_string,
@@ -992,7 +995,8 @@ cogl_material_get_n_layers (CoglMaterial *material);
  *
  * Since: 1.0
  */
-typedef enum {
+typedef enum
+{
   COGL_MATERIAL_LAYER_TYPE_TEXTURE
 } CoglMaterialLayerType;
 
@@ -1102,10 +1106,10 @@ cogl_material_set_layer_filters (CoglMaterial      *material,
  *                  instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_point_sprite_coords_enabled)
-CoglBool
+gboolean
 cogl_material_set_layer_point_sprite_coords_enabled (CoglMaterial *material,
                                                      int           layer_index,
-                                                     CoglBool      enable,
+                                                     gboolean      enable,
                                                      CoglError   **error);
 
 /**
@@ -1124,7 +1128,7 @@ cogl_material_set_layer_point_sprite_coords_enabled (CoglMaterial *material,
  *                  instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_get_layer_point_sprite_coords_enabled)
-CoglBool
+gboolean
 cogl_material_get_layer_point_sprite_coords_enabled (CoglMaterial *material,
                                                      int           layer_index);
 
@@ -1328,7 +1332,7 @@ cogl_material_layer_get_wrap_mode_p (CoglMaterialLayer *layer);
  * Deprecated: 1.16: Use cogl_pipeline_set_depth_state() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_depth_state)
-CoglBool
+gboolean
 cogl_material_set_depth_state (CoglMaterial *material,
                                const CoglDepthState *state,
                                CoglError **error);
@@ -1363,7 +1367,7 @@ cogl_material_get_depth_state (CoglMaterial *material,
  * Stability: Unstable
  * Deprecated: 1.16
  */
-typedef CoglBool (*CoglMaterialLayerCallback) (CoglMaterial *material,
+typedef gboolean (*CoglMaterialLayerCallback) (CoglMaterial *material,
                                                int layer_index,
                                                void *user_data);
 

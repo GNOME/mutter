@@ -101,7 +101,8 @@ typedef enum
  *
  * Since: 1.10
  */
-typedef enum {
+typedef enum
+{
   COGL_TEXTURE_PIXMAP_X11_ERROR_X11,
 } CoglTexturePixmapX11Error;
 
@@ -128,7 +129,7 @@ uint32_t cogl_texture_pixmap_x11_error_quark (void);
 CoglTexturePixmapX11 *
 cogl_texture_pixmap_x11_new (CoglContext *context,
                              uint32_t pixmap,
-                             CoglBool automatic_updates,
+                             gboolean automatic_updates,
                              CoglError **error);
 
 /**
@@ -167,7 +168,7 @@ cogl_texture_pixmap_x11_new (CoglContext *context,
 CoglTexturePixmapX11 *
 cogl_texture_pixmap_x11_new_left (CoglContext *context,
                                   uint32_t pixmap,
-                                  CoglBool automatic_updates,
+                                  gboolean automatic_updates,
                                   CoglError **error);
 
 /**
@@ -225,7 +226,7 @@ cogl_texture_pixmap_x11_update_area (CoglTexturePixmapX11 *texture,
  * Since: 1.4
  * Stability: Unstable
  */
-CoglBool
+gboolean
 cogl_texture_pixmap_x11_is_using_tfp_extension (CoglTexturePixmapX11 *texture);
 
 /**
@@ -265,7 +266,7 @@ cogl_texture_pixmap_x11_set_damage_object (CoglTexturePixmapX11 *texture,
  * Since: 1.4
  * Stability: Unstable
  */
-CoglBool
+gboolean
 cogl_is_texture_pixmap_x11 (void *object);
 
 G_END_DECLS

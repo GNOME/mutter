@@ -145,15 +145,6 @@ void              clutter_state_remove_key    (ClutterState    *state,
 CLUTTER_DEPRECATED
 ClutterTimeline * clutter_state_get_timeline  (ClutterState    *state);
 CLUTTER_DEPRECATED
-void              clutter_state_set_animator  (ClutterState    *state,
-                                               const gchar     *source_state_name,
-                                               const gchar     *target_state_name,
-                                               ClutterAnimator *animator);
-CLUTTER_DEPRECATED
-ClutterAnimator * clutter_state_get_animator  (ClutterState    *state,
-                                               const gchar     *source_state_name,
-                                               const gchar     *target_state_name);
-CLUTTER_DEPRECATED
 const gchar *     clutter_state_get_state     (ClutterState    *state);
 
 /*

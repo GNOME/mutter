@@ -51,7 +51,8 @@ typedef struct _MetaUISlave    MetaUISlave;
 
 typedef struct MetaEdgeResistanceData MetaEdgeResistanceData;
 
-typedef enum {
+typedef enum
+{
   META_LIST_DEFAULT                   = 0,      /* normal windows */
   META_LIST_INCLUDE_OVERRIDE_REDIRECT = 1 << 0, /* normal and O-R */
   META_LIST_SORTED                    = 1 << 1, /* sort list by mru */
@@ -70,14 +71,16 @@ typedef enum {
  */
 #define N_IGNORED_CROSSING_SERIALS  10
 
-typedef enum {
+typedef enum
+{
   META_TILE_NONE,
   META_TILE_LEFT,
   META_TILE_RIGHT,
   META_TILE_MAXIMIZED
 } MetaTileMode;
 
-typedef enum {
+typedef enum
+{
   /* Normal interaction where you're interacting with windows.
    * Events go to windows normally. */
   META_EVENT_ROUTE_NORMAL,

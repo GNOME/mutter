@@ -2152,16 +2152,52 @@ meta_rectangle_transform (const MetaRectangle  *rect,
 }
 
 void
+meta_rectangle_from_clutter_rect (ClutterRect          *rect,
+                                  MetaRoundingStrategy  rounding_strategy,
+                                  MetaRectangle        *dest)
+{
+  switch (rounding_strategy)
+    {
+    case META_ROUNDING_STRATEGY_SHRINK:
+      {
+        *dest = (MetaRectangle) {
+          .x = ceilf (rect->origin.x),
+          .y = ceilf (rect->origin.y),
+          .width = floorf (rect->origin.x + rect->size.width) - dest->x,
+          .height = floorf (rect->origin.y + rect->size.height) - dest->x,
+        };
+      }
+      break;
+    case META_ROUNDING_STRATEGY_GROW:
+      {
+        ClutterRect clamped = *rect;
+        clutter_rect_clamp_to_pixel (&clamped);
+
+        *dest = (MetaRectangle) {
+          .x = clamped.origin.x,
+          .y = clamped.origin.y,
+          .width = clamped.size.width,
+          .height = clamped.size.height,
+        };
+      }
+      break;
+    }
+}
+
+void
 meta_rectangle_crop_and_scale (const MetaRectangle *rect,
                                ClutterRect         *src_rect,
                                int                  dst_width,
                                int                  dst_height,
                                MetaRectangle       *dest)
 {
-  dest->x = floorf (rect->x * (src_rect->size.width / dst_width) +
-                    src_rect->origin.x);
-  dest->y = floorf (rect->y * (src_rect->size.height / dst_height) +
-                    src_rect->origin.y);
-  dest->width  = ceilf (rect->width * (src_rect->size.width / dst_width));
-  dest->height = ceilf (rect->height * (src_rect->size.height / dst_height));
+  ClutterRect tmp = CLUTTER_RECT_INIT (rect->x, rect->y,
+                                       rect->width, rect->height);
+
+  clutter_rect_scale (&tmp,
+                      src_rect->size.width / dst_width,
+                      src_rect->size.height / dst_height);
+  clutter_rect_offset (&tmp, src_rect->origin.x, src_rect->origin.y);
+
+  meta_rectangle_from_clutter_rect (&tmp, META_ROUNDING_STRATEGY_GROW, dest);
 }
