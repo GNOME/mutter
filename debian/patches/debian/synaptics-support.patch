@@ -17,10 +17,10 @@ Last-Update: 2018-03-16
  2 files changed, 148 insertions(+), 17 deletions(-)
 
 diff --git a/clutter/clutter/x11/clutter-device-manager-xi2.c b/clutter/clutter/x11/clutter-device-manager-xi2.c
-index 09d7522..46bf60f 100644
+index 87da4b0..6626b7b 100644
 --- a/clutter/clutter/x11/clutter-device-manager-xi2.c
 +++ b/clutter/clutter/x11/clutter-device-manager-xi2.c
-@@ -280,8 +280,9 @@ is_touch_device (XIAnyClassInfo         **classes,
+@@ -282,8 +282,9 @@ is_touch_device (XIAnyClassInfo         **classes,
  }
  
  static gboolean
@@ -32,7 +32,7 @@ index 09d7522..46bf60f 100644
  {
    gulong nitems, bytes_after;
    guint32 *data = NULL;
-@@ -289,7 +290,7 @@ is_touchpad_device (ClutterBackendX11 *backend_x11,
+@@ -291,7 +292,7 @@ is_touchpad_device (ClutterBackendX11 *backend_x11,
    Atom type;
    Atom prop;
  
@@ -41,7 +41,7 @@ index 09d7522..46bf60f 100644
    if (prop == None)
      return FALSE;
  
-@@ -310,6 +311,14 @@ is_touchpad_device (ClutterBackendX11 *backend_x11,
+@@ -312,6 +313,14 @@ is_touchpad_device (ClutterBackendX11 *backend_x11,
    return TRUE;
  }
  
@@ -57,10 +57,10 @@ index 09d7522..46bf60f 100644
  get_device_ids (ClutterBackendX11  *backend_x11,
                  XIDeviceInfo       *info,
 diff --git a/src/backends/x11/meta-input-settings-x11.c b/src/backends/x11/meta-input-settings-x11.c
-index 5b6087d..8e554bc 100644
+index 89f07ee..5e3f242 100644
 --- a/src/backends/x11/meta-input-settings-x11.c
 +++ b/src/backends/x11/meta-input-settings-x11.c
-@@ -171,8 +171,6 @@ meta_input_settings_x11_set_send_events (MetaInputSettings        *settings,
+@@ -172,8 +172,6 @@ meta_input_settings_x11_set_send_events (MetaInputSettings        *settings,
  
    available = get_property (device, "libinput Send Events Modes Available",
                              XA_INTEGER, 8, 2);
@@ -69,7 +69,7 @@ index 5b6087d..8e554bc 100644
  
    switch (mode)
      {
-@@ -186,6 +184,11 @@ meta_input_settings_x11_set_send_events (MetaInputSettings        *settings,
+@@ -187,6 +185,11 @@ meta_input_settings_x11_set_send_events (MetaInputSettings        *settings,
        break;
      }
  
@@ -81,7 +81,7 @@ index 5b6087d..8e554bc 100644
    if ((values[0] && !available[0]) || (values[1] && !available[1]))
      g_warning ("Device '%s' does not support sendevents mode %d\n",
                 clutter_input_device_get_device_name (device), mode);
-@@ -219,11 +222,23 @@ meta_input_settings_x11_set_speed (MetaInputSettings  *settings,
+@@ -220,11 +223,23 @@ meta_input_settings_x11_set_speed (MetaInputSettings  *settings,
  {
    MetaBackend *backend = meta_get_backend ();
    Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
@@ -109,7 +109,7 @@ index 5b6087d..8e554bc 100644
  }
  
  static void
-@@ -261,6 +276,9 @@ meta_input_settings_x11_set_disable_while_typing (MetaInputSettings  *settings,
+@@ -262,6 +277,9 @@ meta_input_settings_x11_set_disable_while_typing (MetaInputSettings  *settings,
  
    change_property (device, "libinput Disable While Typing Enabled",
                     XA_INTEGER, 8, &value, 1);
@@ -119,7 +119,7 @@ index 5b6087d..8e554bc 100644
  }
  
  static void
-@@ -269,9 +287,13 @@ meta_input_settings_x11_set_tap_enabled (MetaInputSettings  *settings,
+@@ -270,9 +288,13 @@ meta_input_settings_x11_set_tap_enabled (MetaInputSettings  *settings,
                                           gboolean            enabled)
  {
    guchar value = (enabled) ? 1 : 0;
@@ -133,7 +133,7 @@ index 5b6087d..8e554bc 100644
  }
  
  static void
-@@ -283,6 +305,9 @@ meta_input_settings_x11_set_tap_and_drag_enabled (MetaInputSettings  *settings,
+@@ -284,6 +306,9 @@ meta_input_settings_x11_set_tap_and_drag_enabled (MetaInputSettings  *settings,
  
    change_property (device, "libinput Tapping Drag Enabled",
                     XA_INTEGER, 8, &value, 1);
@@ -143,7 +143,7 @@ index 5b6087d..8e554bc 100644
  }
  
  static void
-@@ -290,10 +315,22 @@ meta_input_settings_x11_set_invert_scroll (MetaInputSettings  *settings,
+@@ -291,10 +316,22 @@ meta_input_settings_x11_set_invert_scroll (MetaInputSettings  *settings,
                                             ClutterInputDevice *device,
                                             gboolean            inverted)
  {
@@ -169,7 +169,7 @@ index 5b6087d..8e554bc 100644
  }
  
  static void
-@@ -305,6 +342,16 @@ meta_input_settings_x11_set_edge_scroll (MetaInputSettings            *settings,
+@@ -306,6 +343,16 @@ meta_input_settings_x11_set_edge_scroll (MetaInputSettings            *settings,
    guchar *current = NULL;
    guchar *available = NULL;
  
@@ -186,7 +186,7 @@ index 5b6087d..8e554bc 100644
    available = get_property (device, "libinput Scroll Methods Available",
                              XA_INTEGER, 8, SCROLL_METHOD_NUM_FIELDS);
    if (!available || !available[SCROLL_METHOD_FIELD_EDGE])
-@@ -334,6 +381,16 @@ meta_input_settings_x11_set_two_finger_scroll (MetaInputSettings            *set
+@@ -335,6 +382,16 @@ meta_input_settings_x11_set_two_finger_scroll (MetaInputSettings            *set
    guchar *current = NULL;
    guchar *available = NULL;
  
@@ -203,7 +203,7 @@ index 5b6087d..8e554bc 100644
    available = get_property (device, "libinput Scroll Methods Available",
                              XA_INTEGER, 8, SCROLL_METHOD_NUM_FIELDS);
    if (!available || !available[SCROLL_METHOD_FIELD_2FG])
-@@ -361,10 +418,19 @@ meta_input_settings_x11_has_two_finger_scroll (MetaInputSettings  *settings,
+@@ -362,10 +419,19 @@ meta_input_settings_x11_has_two_finger_scroll (MetaInputSettings  *settings,
    guchar *available = NULL;
    gboolean has_two_finger = TRUE;
  
@@ -227,7 +227,7 @@ index 5b6087d..8e554bc 100644
  
    meta_XFree (available);
    return has_two_finger;
-@@ -379,6 +445,58 @@ meta_input_settings_x11_set_scroll_button (MetaInputSettings  *settings,
+@@ -380,6 +446,58 @@ meta_input_settings_x11_set_scroll_button (MetaInputSettings  *settings,
                     XA_INTEGER, 32, &button, 1);
  }
  
@@ -286,7 +286,7 @@ index 5b6087d..8e554bc 100644
  static void
  meta_input_settings_x11_set_click_method (MetaInputSettings           *settings,
                                            ClutterInputDevice          *device,
-@@ -390,7 +508,11 @@ meta_input_settings_x11_set_click_method (MetaInputSettings           *settings,
+@@ -391,7 +509,11 @@ meta_input_settings_x11_set_click_method (MetaInputSettings           *settings,
    available = get_property (device, "libinput Click Methods Available",
                              XA_INTEGER, 8, 2);
    if (!available)
