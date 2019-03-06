@@ -75,6 +75,9 @@ enum
   TOOL_CHANGED,
   KBD_A11Y_MASK_CHANGED,
   KBD_A11Y_FLAGS_CHANGED,
+  PTR_A11Y_DWELL_CLICK_TYPE_CHANGED,
+  PTR_A11Y_TIMEOUT_STARTED,
+  PTR_A11Y_TIMEOUT_STOPPED,
 
   LAST_SIGNAL
 };
@@ -239,6 +242,67 @@ clutter_device_manager_class_init (ClutterDeviceManagerClass *klass)
                   G_TYPE_NONE, 2,
                   G_TYPE_UINT,
                   G_TYPE_UINT);
+
+  /**
+   * ClutterDeviceManager::ptr-a11y-dwell-click-type-changed:
+   * @manager: the #ClutterDeviceManager that emitted the signal
+   * @click_type: the new #ClutterPointerA11yDwellClickType mode
+   *
+   * The ::ptr-a11y-dwell-click-type-changed signal is emitted each time
+   * the ClutterPointerA11yDwellClickType mode is changed as the result
+   * of pointer accessibility operations.
+   */
+  manager_signals[PTR_A11Y_DWELL_CLICK_TYPE_CHANGED] =
+    g_signal_new (I_("ptr-a11y-dwell-click-type-changed"),
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__FLAGS,
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_POINTER_A11Y_DWELL_CLICK_TYPE);
+
+  /**
+   * ClutterDeviceManager::ptr-a11y-timeout-started:
+   * @manager: the #ClutterDeviceManager that emitted the signal
+   * @device: the core pointer #ClutterInputDevice
+   * @timeout_type: the type of timeout #ClutterPointerA11yTimeoutType
+   * @delay: the delay in ms before secondary-click is triggered.
+   *
+   * The ::ptr-a11y-timeout-started signal is emitted when a
+   * pointer accessibility timeout delay is started, so that upper
+   * layers can notify the user with some visual feedback.
+   */
+  manager_signals[PTR_A11Y_TIMEOUT_STARTED] =
+    g_signal_new (I_("ptr-a11y-timeout-started"),
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_FLAGS_UINT,
+                  G_TYPE_NONE, 3,
+                  CLUTTER_TYPE_INPUT_DEVICE,
+                  CLUTTER_TYPE_POINTER_A11Y_TIMEOUT_TYPE,
+                  G_TYPE_UINT);
+
+  /**
+   * ClutterDeviceManager::ptr-a11y-timeout-stopped:
+   * @manager: the #ClutterDeviceManager that emitted the signal
+   * @device: the core pointer #ClutterInputDevice
+   * @timeout_type: the type of timeout #ClutterPointerA11yTimeoutType
+   *
+   * The ::ptr-a11y-timeout-stopped signal is emitted when a running
+   * pointer accessibility timeout delay is stopped, either because
+   * it's triggered at the end of the delay or cancelled, so that
+   * upper layers can notify the user with some visual feedback.
+   */
+  manager_signals[PTR_A11Y_TIMEOUT_STOPPED] =
+    g_signal_new (I_("ptr-a11y-timeout-stopped"),
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_FLAGS,
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_INPUT_DEVICE,
+                  CLUTTER_TYPE_POINTER_A11Y_TIMEOUT_TYPE);
 }
 
 static void
