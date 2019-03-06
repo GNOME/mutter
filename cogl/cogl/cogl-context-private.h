@@ -103,9 +103,6 @@ struct _CoglContext
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)];
 
-  gboolean needs_viewport_scissor_workaround;
-  CoglFramebuffer *viewport_scissor_workaround_framebuffer;
-
   CoglPipeline *default_pipeline;
   CoglPipelineLayer *default_layer_0;
   CoglPipelineLayer *default_layer_n;
