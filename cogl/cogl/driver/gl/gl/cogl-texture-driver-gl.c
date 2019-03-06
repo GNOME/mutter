@@ -485,19 +485,6 @@ _cogl_texture_driver_size_supported (CoglContext *ctx,
   return new_width != 0;
 }
 
-static void
-_cogl_texture_driver_try_setting_gl_border_color
-                                       (CoglContext *ctx,
-                                        GLuint gl_target,
-                                        const GLfloat *transparent_color)
-{
-  /* Use a transparent border color so that we can leave the
-     color buffer alone when using texture co-ordinates
-     outside of the texture */
-  GE( ctx, glTexParameterfv (gl_target, GL_TEXTURE_BORDER_COLOR,
-                             transparent_color) );
-}
-
 static gboolean
 _cogl_texture_driver_allows_foreign_gl_target (CoglContext *ctx,
                                                GLenum gl_target)
@@ -541,7 +528,6 @@ _cogl_texture_driver_gl =
     _cogl_texture_driver_gl_get_tex_image,
     _cogl_texture_driver_size_supported,
     _cogl_texture_driver_size_supported_3d,
-    _cogl_texture_driver_try_setting_gl_border_color,
     _cogl_texture_driver_allows_foreign_gl_target,
     _cogl_texture_driver_find_best_gl_get_data_format
   };
