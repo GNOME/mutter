@@ -63,7 +63,6 @@
  * @META_FRAME_ALLOWS_SHADE: frame allows shade
  * @META_FRAME_ALLOWS_MOVE: frame allows move
  * @META_FRAME_FULLSCREEN: frame allows fullscreen
- * @META_FRAME_IS_FLASHING: frame is flashing
  * @META_FRAME_ABOVE: frame is above
  * @META_FRAME_TILED_LEFT: frame is tiled to the left
  * @META_FRAME_TILED_RIGHT: frame is tiled to the right
@@ -83,10 +82,9 @@ typedef enum
   META_FRAME_ALLOWS_SHADE             = 1 << 10,
   META_FRAME_ALLOWS_MOVE              = 1 << 11,
   META_FRAME_FULLSCREEN               = 1 << 12,
-  META_FRAME_IS_FLASHING              = 1 << 13,
-  META_FRAME_ABOVE                    = 1 << 14,
-  META_FRAME_TILED_LEFT               = 1 << 15,
-  META_FRAME_TILED_RIGHT              = 1 << 16
+  META_FRAME_ABOVE                    = 1 << 13,
+  META_FRAME_TILED_LEFT               = 1 << 14,
+  META_FRAME_TILED_RIGHT              = 1 << 15
 } MetaFrameFlags;
 
 /**
