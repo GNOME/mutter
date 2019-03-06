@@ -4,7 +4,6 @@
  * A Low Level GPU Graphics and Utilities API
  *
  * Copyright (C) 2007,2008,2009,2012 Intel Corporation.
- * Copyright (C) 2018 DisplayLink (UK) Ltd.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -1274,12 +1273,9 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
   if (!cogl_is_offscreen (framebuffer))
     y = framebuffer_height - y - height;
 
-  /* Use target format ANY, because GL texture_swizzle extension cannot
-   * ever apply for glReadPixels.
-   */
   required_format = ctx->driver_vtable->pixel_format_to_gl_with_target (ctx,
+                                                                        framebuffer->internal_format,
                                                                         format,
-                                                                        COGL_PIXEL_FORMAT_ANY,
                                                                         &gl_intformat,
                                                                         &gl_format,
                                                                         &gl_type);
