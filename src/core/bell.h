@@ -41,14 +41,3 @@ MetaBell * meta_bell_new (MetaDisplay *display);
  */
 gboolean meta_bell_notify (MetaDisplay *display,
                            MetaWindow  *window);
-
-/**
- * meta_bell_notify_frame_destroy:
- * @frame: The frame which is being destroyed
- *
- * Deals with a frame being destroyed. This is important because if we're
- * using a visual bell, we might be flashing the edges of the frame, and
- * so we'd have a timeout function waiting ready to un-flash them. If the
- * frame's going away, we can tell the timeout not to bother.
- */
-void meta_bell_notify_frame_destroy (MetaFrame *frame);
