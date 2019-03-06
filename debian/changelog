@@ -1,4 +1,4 @@
-mutter (3.31.92-1) UNRELEASED; urgency=medium
+mutter (3.31.92-1) experimental; urgency=medium
 
   * New upstream release
     + Add back support for system-wide monitor configurations
@@ -29,7 +29,7 @@ mutter (3.31.92-1) UNRELEASED; urgency=medium
     deprecated functions. This obviously is an ABI break, but we don't
     consider the ABI stable until the final release. Also some additions.
 
- -- Iain Lane <laney@debian.org>  Wed, 06 Mar 2019 09:42:41 +0000
+ -- Iain Lane <laney@debian.org>  Wed, 06 Mar 2019 13:44:08 +0000
 
 mutter (3.31.90-2) experimental; urgency=medium
 
