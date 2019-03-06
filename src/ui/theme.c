@@ -1186,8 +1186,6 @@ meta_style_info_set_flags (MetaStyleInfo  *style_info,
   int i;
 
   backdrop = !(flags & META_FRAME_HAS_FOCUS);
-  if (flags & META_FRAME_IS_FLASHING)
-    backdrop = !backdrop;
 
   if (flags & META_FRAME_MAXIMIZED)
     class_name = "maximized";

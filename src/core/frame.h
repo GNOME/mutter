@@ -49,7 +49,6 @@ struct _MetaFrame
   int bottom_height;
 
   guint need_reapply_frame_shape : 1;
-  guint is_flashing : 1; /* used by the visual bell flash */
   guint borders_cached : 1;
 
   MetaUIFrame *ui_frame;
