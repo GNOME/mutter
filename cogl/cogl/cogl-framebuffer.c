@@ -191,9 +191,6 @@ _cogl_framebuffer_free (CoglFramebuffer *framebuffer)
 
   cogl_object_unref (framebuffer->journal);
 
-  if (ctx->viewport_scissor_workaround_framebuffer == framebuffer)
-    ctx->viewport_scissor_workaround_framebuffer = NULL;
-
   ctx->framebuffers = g_list_remove (ctx->framebuffers, framebuffer);
 
   if (ctx->current_draw_buffer == framebuffer)
@@ -260,13 +257,11 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
                           float blue,
                           float alpha)
 {
-  CoglContext *ctx = framebuffer->context;
   CoglClipStack *clip_stack = _cogl_framebuffer_get_clip_stack (framebuffer);
   int scissor_x0;
   int scissor_y0;
   int scissor_x1;
   int scissor_y1;
-  gboolean saved_viewport_scissor_workaround;
 
   if (!framebuffer->depth_buffer_clear_needed &&
       (buffers & COGL_BUFFER_BIT_DEPTH))
@@ -361,31 +356,6 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
-  /* XXX: ONGOING BUG: Intel viewport scissor
-   *
-   * The semantics of cogl_framebuffer_clear() are that it should not
-   * be affected by the current viewport and so if we are currently
-   * applying a workaround for viewport scissoring we need to
-   * temporarily disable the workaround before clearing so any
-   * special scissoring for the workaround will be removed first.
-   *
-   * Note: we only need to disable the workaround if the current
-   * viewport doesn't match the framebuffer's size since otherwise
-   * the workaround wont affect clearing anyway.
-   */
-  if (ctx->needs_viewport_scissor_workaround &&
-      (framebuffer->viewport_x != 0 ||
-       framebuffer->viewport_y != 0 ||
-       framebuffer->viewport_width != framebuffer->width ||
-       framebuffer->viewport_height != framebuffer->height))
-    {
-      saved_viewport_scissor_workaround = TRUE;
-      ctx->needs_viewport_scissor_workaround = FALSE;
-      ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_CLIP;
-    }
-  else
-    saved_viewport_scissor_workaround = FALSE;
-
   /* NB: _cogl_framebuffer_flush_state may disrupt various state (such
    * as the pipeline state) when flushing the clip stack, so should
    * always be done first when preparing to draw. */
@@ -394,16 +364,6 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
 
   _cogl_framebuffer_clear_without_flush4f (framebuffer, buffers,
                                            red, green, blue, alpha);
-
-  /* XXX: ONGOING BUG: Intel viewport scissor
-   *
-   * See comment about temporarily disabling this workaround above
-   */
-  if (saved_viewport_scissor_workaround)
-    {
-      ctx->needs_viewport_scissor_workaround = TRUE;
-      ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_CLIP;
-    }
 
   /* This is a debugging variable used to visually display the quad
    * batches from the journal. It is reset here to increase the
@@ -552,12 +512,7 @@ cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
   framebuffer->viewport_age++;
 
   if (context->current_draw_buffer == framebuffer)
-    {
-      context->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_VIEWPORT;
-
-      if (context->needs_viewport_scissor_workaround)
-        context->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_CLIP;
-    }
+    context->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_VIEWPORT;
 }
 
 float
@@ -831,27 +786,7 @@ _cogl_framebuffer_compare_viewport_state (CoglFramebuffer *a,
       /* NB: we render upside down to offscreen framebuffers and that
        * can affect how we setup the GL viewport... */
       a->type != b->type)
-    {
-      unsigned long differences = COGL_FRAMEBUFFER_STATE_VIEWPORT;
-      CoglContext *context = a->context;
-
-      /* XXX: ONGOING BUG: Intel viewport scissor
-       *
-       * Intel gen6 drivers don't currently correctly handle offset
-       * viewports, since primitives aren't clipped within the bounds of
-       * the viewport.  To workaround this we push our own clip for the
-       * viewport that will use scissoring to ensure we clip as expected.
-       *
-       * This workaround implies that a change in viewport state is
-       * effectively also a change in the clipping state.
-       *
-       * TODO: file a bug upstream!
-       */
-      if (G_UNLIKELY (context->needs_viewport_scissor_workaround))
-          differences |= COGL_FRAMEBUFFER_STATE_CLIP;
-
-      return differences;
-    }
+    return COGL_FRAMEBUFFER_STATE_VIEWPORT;
   else
     return 0;
 }
