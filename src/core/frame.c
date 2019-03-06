@@ -60,7 +60,6 @@ meta_window_ensure_frame (MetaWindow *window)
   frame->right_width = 0;
   frame->current_cursor = 0;
 
-  frame->is_flashing = FALSE;
   frame->borders_cached = FALSE;
 
   meta_verbose ("Frame geometry %d,%d  %dx%d\n",
@@ -176,8 +175,6 @@ meta_window_destroy_frame (MetaWindow *window)
   frame = window->frame;
 
   meta_frame_calc_borders (frame, &borders);
-
-  meta_bell_notify_frame_destroy (frame);
 
   /* Unparent the client window; it may be destroyed,
    * thus the error trap.
@@ -297,9 +294,6 @@ meta_frame_get_flags (MetaFrame *frame)
 
   if (frame->window->fullscreen)
     flags |= META_FRAME_FULLSCREEN;
-
-  if (frame->is_flashing)
-    flags |= META_FRAME_IS_FLASHING;
 
   if (frame->window->wm_state_above)
     flags |= META_FRAME_ABOVE;
