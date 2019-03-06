@@ -1,3 +1,9 @@
+mutter (3.31.92-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Iain Lane <laney@debian.org>  Wed, 06 Mar 2019 09:22:20 +0000
+
 mutter (3.31.90-2) experimental; urgency=medium
 
   * control: BD on dmz-cursor-theme instead of adwaita-icon-theme for tests.
