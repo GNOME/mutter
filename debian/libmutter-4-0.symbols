@@ -125,7 +125,7 @@ libmutter-4.so.0 libmutter-4-0 #MINVER#
  meta_display_get_type@Base 3.28.2
  meta_display_get_workspace_manager@Base 3.29.4
  meta_display_get_x11_display@Base 3.29.4
- meta_display_grab_accelerator@Base 3.28.2
+ meta_display_grab_accelerator@Base 3.29.91
  meta_display_is_pointer_emulating_sequence@Base 3.28.2
  meta_display_list_windows@Base 3.28.2
  meta_display_lookup_stack_id@Base 3.28.2
