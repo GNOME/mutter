@@ -47,6 +47,7 @@
 #include "clutter-stage-private.h"
 #include "clutter-virtual-input-device.h"
 #include "clutter-input-device-tool.h"
+#include "clutter-input-pointer-a11y-private.h"
 
 struct _ClutterDeviceManagerPrivate
 {
@@ -55,6 +56,8 @@ struct _ClutterDeviceManagerPrivate
 
   /* Keyboard a11y */
   ClutterKbdA11ySettings kbd_a11y_settings;
+  /* Pointer a11y */
+  ClutterPointerA11ySettings pointer_a11y_settings;
 };
 
 enum
@@ -642,4 +645,59 @@ clutter_device_manager_get_kbd_a11y_settings (ClutterDeviceManager   *device_man
   g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
 
   *settings = device_manager->priv->kbd_a11y_settings;
+}
+
+static gboolean
+are_pointer_a11y_settings_equal (ClutterPointerA11ySettings *a,
+                                 ClutterPointerA11ySettings *b)
+{
+  return (memcmp (a, b, sizeof (ClutterPointerA11ySettings)) == 0);
+}
+
+static void
+clutter_device_manager_enable_pointer_a11y (ClutterDeviceManager *device_manager)
+{
+  ClutterInputDevice *core_pointer;
+
+  core_pointer = clutter_device_manager_get_core_device (device_manager,
+                                                         CLUTTER_POINTER_DEVICE);
+
+  _clutter_input_pointer_a11y_add_device (core_pointer);
+}
+
+static void
+clutter_device_manager_disable_pointer_a11y (ClutterDeviceManager *device_manager)
+{
+  ClutterInputDevice *core_pointer;
+
+  core_pointer = clutter_device_manager_get_core_device (device_manager,
+                                                         CLUTTER_POINTER_DEVICE);
+
+  _clutter_input_pointer_a11y_remove_device (core_pointer);
+}
+
+void
+clutter_device_manager_set_pointer_a11y_settings (ClutterDeviceManager       *device_manager,
+                                                  ClutterPointerA11ySettings *settings)
+{
+  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
+
+  if (are_pointer_a11y_settings_equal (&device_manager->priv->pointer_a11y_settings, settings))
+    return;
+
+  if (device_manager->priv->pointer_a11y_settings.controls == 0 && settings->controls != 0)
+    clutter_device_manager_enable_pointer_a11y (device_manager);
+  else if (device_manager->priv->pointer_a11y_settings.controls != 0 && settings->controls == 0)
+    clutter_device_manager_disable_pointer_a11y (device_manager);
+
+  device_manager->priv->pointer_a11y_settings = *settings;
+}
+
+void
+clutter_device_manager_get_pointer_a11y_settings (ClutterDeviceManager       *device_manager,
+                                                  ClutterPointerA11ySettings *settings)
+{
+  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
+
+  *settings = device_manager->priv->pointer_a11y_settings;
 }
