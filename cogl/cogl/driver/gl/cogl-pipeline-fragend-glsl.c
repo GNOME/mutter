@@ -1119,7 +1119,6 @@ const CoglPipelineFragend _cogl_pipeline_glsl_fragend =
 {
   _cogl_pipeline_fragend_glsl_start,
   _cogl_pipeline_fragend_glsl_add_layer,
-  NULL, /* passthrough */
   _cogl_pipeline_fragend_glsl_end,
   _cogl_pipeline_fragend_glsl_pre_change_notify,
   _cogl_pipeline_fragend_glsl_layer_pre_change_notify
