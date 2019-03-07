@@ -47,7 +47,6 @@
 #include "cogl-texture-2d-sliced-private.h"
 #include "cogl-texture-2d-private.h"
 #include "cogl-texture-2d-gl.h"
-#include "cogl-texture-3d-private.h"
 #include "cogl-texture-rectangle-private.h"
 #include "cogl-sub-texture-private.h"
 #include "cogl-atlas-texture-private.h"
@@ -245,12 +244,6 @@ _cogl_texture_get_n_levels (CoglTexture *texture)
   int height = cogl_texture_get_height (texture);
   int max_dimension = MAX (width, height);
 
-  if (cogl_is_texture_3d (texture))
-    {
-      CoglTexture3D *tex_3d = COGL_TEXTURE_3D (texture);
-      max_dimension = MAX (max_dimension, tex_3d->depth);
-    }
-
   return _cogl_util_fls (max_dimension);
 }
 
@@ -263,16 +256,8 @@ _cogl_texture_get_level_size (CoglTexture *texture,
 {
   int current_width = cogl_texture_get_width (texture);
   int current_height = cogl_texture_get_height (texture);
-  int current_depth;
+  int current_depth = 0;
   int i;
-
-  if (cogl_is_texture_3d (texture))
-    {
-      CoglTexture3D *tex_3d = COGL_TEXTURE_3D (texture);
-      current_depth = tex_3d->depth;
-    }
-  else
-    current_depth = 0;
 
   /* NB: The OpenGL spec (like D3D) uses a floor() convention to
    * round down the size of a mipmap level when dividing the size
