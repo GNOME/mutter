@@ -4,6 +4,7 @@
  * A Low Level GPU Graphics and Utilities API
  *
  * Copyright (C) 2007,2008,2009,2012 Intel Corporation.
+ * Copyright (C) 2018 DisplayLink (UK) Ltd.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -1274,7 +1275,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
     y = framebuffer_height - y - height;
 
   required_format = ctx->driver_vtable->pixel_format_to_gl (ctx,
-							    framebuffer->internal_format,
+							    format,
 							    &gl_intformat,
 							    &gl_format,
 							    &gl_type);
