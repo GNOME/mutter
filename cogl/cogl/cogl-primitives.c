@@ -427,7 +427,7 @@ validate_tex_coords_cb (CoglPipeline *pipeline,
  * - CoglTexture2DSliced: if only comprised of a single slice with optional
  *   waste, assuming the users given texture coordinates don't require
  *   repeating.
- * - CoglTexture{1D,2D,3D}: always.
+ * - CoglTexture{1D,2D}: always.
  * - CoglTexture2DAtlas: assuming the users given texture coordinates don't
  *   require repeating.
  * - CoglTextureRectangle: assuming the users given texture coordinates don't

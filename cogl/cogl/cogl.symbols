@@ -410,7 +410,6 @@ cogl_is_texture_pixmap_x11
 #endif
 cogl_is_texture_rectangle
 cogl_is_texture_2d
-cogl_is_texture_3d
 
 cogl_material_alpha_func_get_type
 cogl_material_copy
@@ -954,12 +953,6 @@ cogl_texture_2d_sliced_new_from_bitmap
 cogl_texture_2d_sliced_new_from_data
 cogl_texture_2d_sliced_new_from_file
 cogl_texture_2d_sliced_new_with_size
-#ifdef COGL_HAS_GTYPE_SUPPORT
-cogl_texture_3d_get_gtype
-#endif
-cogl_texture_3d_new_from_bitmap
-cogl_texture_3d_new_from_data
-cogl_texture_3d_new_with_size
 
 cogl_transform
 cogl_translate

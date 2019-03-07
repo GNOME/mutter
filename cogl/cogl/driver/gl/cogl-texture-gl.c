@@ -32,7 +32,6 @@
 #include <strings.h>
 
 #include "cogl-context-private.h"
-#include "cogl-texture-3d-private.h"
 #include "cogl-util.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"

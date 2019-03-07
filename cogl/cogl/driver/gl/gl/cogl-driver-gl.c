@@ -475,12 +475,6 @@ _cogl_driver_update_features (CoglContext *ctx,
                       COGL_FEATURE_ID_TEXTURE_RECTANGLE, TRUE);
     }
 
-  if (ctx->glTexImage3D)
-    {
-      flags |= COGL_FEATURE_TEXTURE_3D;
-      COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_3D, TRUE);
-    }
-
   if (ctx->glEGLImageTargetTexture2D)
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE, TRUE);

@@ -17,7 +17,6 @@ cogl_test_conformance_sources = [
   'test-custom-attributes.c',
   'test-offscreen.c',
   'test-primitive.c',
-  'test-texture-3d.c',
   'test-sparse-pipeline.c',
   'test-read-texture-formats.c',
   'test-write-texture-formats.c',
