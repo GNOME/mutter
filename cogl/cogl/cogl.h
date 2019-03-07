@@ -106,7 +106,6 @@
 #include <cogl/cogl-texture-2d.h>
 #include <cogl/cogl-texture-2d-gl.h>
 #include <cogl/cogl-texture-rectangle.h>
-#include <cogl/cogl-texture-3d.h>
 #include <cogl/cogl-texture-2d-sliced.h>
 #include <cogl/cogl-sub-texture.h>
 #include <cogl/cogl-atlas-texture.h>
