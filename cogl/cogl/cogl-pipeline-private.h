@@ -481,11 +481,6 @@ typedef struct
   void (* pre_paint) (CoglPipeline *pipeline, CoglFramebuffer *framebuffer);
 } CoglPipelineProgend;
 
-typedef enum
-{
-  COGL_PIPELINE_PROGRAM_TYPE_GLSL = 1,
-} CoglPipelineProgramType;
-
 extern const CoglPipelineFragend *
 _cogl_pipeline_fragends[COGL_PIPELINE_N_FRAGENDS];
 extern const CoglPipelineVertend *
@@ -618,10 +613,7 @@ typedef struct _CoglPipelineFlushOptions
 } CoglPipelineFlushOptions;
 
 void
-_cogl_use_fragment_program (GLuint gl_program, CoglPipelineProgramType type);
-
-void
-_cogl_use_vertex_program (GLuint gl_program, CoglPipelineProgramType type);
+cogl_use_program (GLuint gl_program);
 
 unsigned int
 _cogl_get_n_args_for_combine_func (CoglPipelineCombineFunc func);

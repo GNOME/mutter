@@ -773,8 +773,7 @@ _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
 
   gl_program = program_state->program;
 
-  _cogl_use_fragment_program (gl_program, COGL_PIPELINE_PROGRAM_TYPE_GLSL);
-  _cogl_use_vertex_program (gl_program, COGL_PIPELINE_PROGRAM_TYPE_GLSL);
+  cogl_use_program (gl_program);
 
   state.unit = 0;
   state.gl_program = gl_program;
