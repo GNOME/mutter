@@ -1273,12 +1273,11 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
   if (!cogl_is_offscreen (framebuffer))
     y = framebuffer_height - y - height;
 
-  required_format = ctx->driver_vtable->pixel_format_to_gl_with_target (ctx,
-                                                                        framebuffer->internal_format,
-                                                                        format,
-                                                                        &gl_intformat,
-                                                                        &gl_format,
-                                                                        &gl_type);
+  required_format = ctx->driver_vtable->pixel_format_to_gl (ctx,
+							    framebuffer->internal_format,
+							    &gl_intformat,
+							    &gl_format,
+							    &gl_type);
 
   /* NB: All offscreen rendering is done upside down so there is no need
    * to flip in this case... */
