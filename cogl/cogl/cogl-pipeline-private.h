@@ -455,7 +455,6 @@ typedef struct _CoglPipelineFragend
   gboolean (*add_layer) (CoglPipeline *pipeline,
                          CoglPipelineLayer *layer,
                          unsigned long layers_difference);
-  gboolean (*passthrough) (CoglPipeline *pipeline);
   gboolean (*end) (CoglPipeline *pipeline,
                    unsigned long pipelines_difference);
 
