@@ -613,7 +613,6 @@ static CoglPixelFormat
 _cogl_texture_driver_find_best_gl_get_data_format
                                             (CoglContext *context,
                                              CoglPixelFormat format,
-                                             CoglPixelFormat target_format,
                                              GLenum *closest_gl_format,
                                              GLenum *closest_gl_type)
 {
