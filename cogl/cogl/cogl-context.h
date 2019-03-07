@@ -194,7 +194,6 @@ cogl_is_context (void *object);
  * @COGL_FEATURE_ID_TEXTURE_RG: Support for
  *    %COGL_TEXTURE_COMPONENTS_RG as the internal components of a
  *    texture.
- * @COGL_FEATURE_ID_TEXTURE_3D: 3D texture support
  * @COGL_FEATURE_ID_OFFSCREEN: Offscreen rendering support
  * @COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE: Multisample support for
  *    offscreen framebuffers
@@ -241,7 +240,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT,
   COGL_FEATURE_ID_TEXTURE_NPOT,
   COGL_FEATURE_ID_TEXTURE_RECTANGLE,
-  COGL_FEATURE_ID_TEXTURE_3D,
   COGL_FEATURE_ID_GLSL,
   COGL_FEATURE_ID_OFFSCREEN,
   COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE,

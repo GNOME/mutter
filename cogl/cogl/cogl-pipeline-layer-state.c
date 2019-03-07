@@ -343,16 +343,6 @@ cogl_pipeline_set_layer_null_texture (CoglPipeline *pipeline,
     case COGL_TEXTURE_TYPE_2D:
       break;
 
-    case COGL_TEXTURE_TYPE_3D:
-      if (ctx->default_gl_texture_3d_tex == NULL)
-        {
-          g_warning ("The default 3D texture was set on a pipeline but "
-                     "3D textures are not supported");
-          texture_type = COGL_TEXTURE_TYPE_2D;
-          return;
-        }
-      break;
-
     case COGL_TEXTURE_TYPE_RECTANGLE:
       if (ctx->default_gl_texture_rect_tex == NULL)
         {
