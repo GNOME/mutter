@@ -61,15 +61,6 @@ test_texture_no_allocate (void)
                                               64, 64);
   cogl_object_unref (texture_2d);
 
-  /* 3D texture */
-  if (cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_3D))
-    {
-      CoglTexture3D *texture_3d =
-        cogl_texture_3d_new_with_size (test_ctx,
-                                       64, 64, 64);
-      cogl_object_unref (texture_3d);
-    }
-
   /* Rectangle texture */
   if (cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_RECTANGLE))
     {

@@ -110,7 +110,6 @@ typedef enum
 /**
  * CoglTextureType:
  * @COGL_TEXTURE_TYPE_2D: A #CoglTexture2D
- * @COGL_TEXTURE_TYPE_3D: A #CoglTexture3D
  * @COGL_TEXTURE_TYPE_RECTANGLE: A #CoglTextureRectangle
  *
  * Constants representing the underlying hardware texture type of a
@@ -122,7 +121,6 @@ typedef enum
 typedef enum
 {
   COGL_TEXTURE_TYPE_2D,
-  COGL_TEXTURE_TYPE_3D,
   COGL_TEXTURE_TYPE_RECTANGLE
 } CoglTextureType;
 

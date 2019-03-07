@@ -40,7 +40,6 @@
 #include "cogl-journal-private.h"
 #include "cogl-texture-private.h"
 #include "cogl-texture-2d-private.h"
-#include "cogl-texture-3d-private.h"
 #include "cogl-texture-rectangle-private.h"
 #include "cogl-pipeline-private.h"
 #include "cogl-framebuffer-private.h"
@@ -323,7 +322,6 @@ cogl_context_new (CoglDisplay *display,
   context->legacy_state_set = 0;
 
   context->default_gl_texture_2d_tex = NULL;
-  context->default_gl_texture_3d_tex = NULL;
   context->default_gl_texture_rect_tex = NULL;
 
   context->framebuffers = NULL;
@@ -453,20 +451,6 @@ cogl_context_new (CoglDisplay *display,
                                    white_pixel,
                                    NULL); /* abort on error */
 
-  /* If 3D or rectangle textures aren't supported then these will
-   * return errors that we can simply ignore. */
-  internal_error = NULL;
-  context->default_gl_texture_3d_tex =
-    cogl_texture_3d_new_from_data (context,
-                                   1, 1, 1, /* width, height, depth */
-                                   COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                                   0, /* rowstride */
-                                   0, /* image stride */
-                                   white_pixel,
-                                   &internal_error);
-  if (internal_error)
-    cogl_error_free (internal_error);
-
   /* TODO: add cogl_texture_rectangle_new_from_data() */
   white_pixel_bitmap =
     cogl_bitmap_new_for_data (context,
@@ -526,8 +510,6 @@ _cogl_context_free (CoglContext *context)
 
   if (context->default_gl_texture_2d_tex)
     cogl_object_unref (context->default_gl_texture_2d_tex);
-  if (context->default_gl_texture_3d_tex)
-    cogl_object_unref (context->default_gl_texture_3d_tex);
   if (context->default_gl_texture_rect_tex)
     cogl_object_unref (context->default_gl_texture_rect_tex);
 

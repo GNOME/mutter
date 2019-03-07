@@ -30,12 +30,6 @@ check_flags (TestFlags flags,
       return FALSE;
     }
 
-  if (flags & TEST_REQUIREMENT_TEXTURE_3D &&
-      !cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_3D))
-    {
-      return FALSE;
-    }
-
   if (flags & TEST_REQUIREMENT_TEXTURE_RECTANGLE &&
       !cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_RECTANGLE))
     {

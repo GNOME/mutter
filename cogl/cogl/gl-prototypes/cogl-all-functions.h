@@ -109,27 +109,6 @@ COGL_EXT_FUNCTION (GLboolean, glUnmapBuffer,
                    (GLenum		 target))
 COGL_EXT_END ()
 
-COGL_EXT_BEGIN (texture_3d, 1, 2,
-                0, /* not in either GLES */
-                "OES\0",
-                "texture_3D\0")
-COGL_EXT_FUNCTION (void, glTexImage3D,
-                   (GLenum target, GLint level,
-                    GLint internalFormat,
-                    GLsizei width, GLsizei height,
-                    GLsizei depth, GLint border,
-                    GLenum format, GLenum type,
-                    const GLvoid *pixels))
-COGL_EXT_FUNCTION (void, glTexSubImage3D,
-                   (GLenum target, GLint level,
-                    GLint xoffset, GLint yoffset,
-                    GLint zoffset, GLsizei width,
-                    GLsizei height, GLsizei depth,
-                    GLenum format,
-                    GLenum type, const GLvoid *pixels))
-COGL_EXT_END ()
-
-
 
 COGL_EXT_BEGIN (offscreen_blit, 3, 0,
                 0, /* not in either GLES */
