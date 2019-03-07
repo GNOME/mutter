@@ -254,23 +254,10 @@ cogl_matrix_scale (CoglMatrix *matrix,
 		   float sz)
 {
   graphene_matrix_t m;
-  CoglMatrix old;
 
   cogl_matrix_to_graphene_matrix (matrix, &m);
-
-  /* Cogl moves the matrix to 0, scales it, then moves back
-   * to the previous transform point. To ease transition,
-   * preserve that behavior.
-   */
-  old = *matrix;
-
   graphene_matrix_scale (&m, sx, sy, sz);
   graphene_matrix_to_cogl_matrix (&m, matrix);
-
-  matrix->wx = old.wx;
-  matrix->wy = old.wy;
-  matrix->wz = old.wz;
-  matrix->ww = old.ww;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
