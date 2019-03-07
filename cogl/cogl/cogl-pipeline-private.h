@@ -462,7 +462,6 @@ typedef struct _CoglPipelineFragend
   void (*pipeline_pre_change_notify) (CoglPipeline *pipeline,
                                       CoglPipelineState change,
                                       const CoglColor *new_color);
-  void (*pipeline_set_parent_notify) (CoglPipeline *pipeline);
   void (*layer_pre_change_notify) (CoglPipeline *owner,
                                    CoglPipelineLayer *layer,
                                    CoglPipelineLayerState change);
