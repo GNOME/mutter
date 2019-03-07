@@ -132,14 +132,6 @@ prep_gl_for_pixels_upload_full (CoglContext *ctx,
   _cogl_texture_gl_prep_alignment_for_pixels_upload (ctx, pixels_rowstride);
 }
 
-static void
-_cogl_texture_driver_prep_gl_for_pixels_upload (CoglContext *ctx,
-                                                int pixels_rowstride,
-                                                int pixels_bpp)
-{
-  prep_gl_for_pixels_upload_full (ctx, pixels_rowstride, 0, 0, 0, pixels_bpp);
-}
-
 /* OpenGL - unlike GLES - can download pixel data into a sub region of
  * a larger destination buffer */
 static void
@@ -430,7 +422,6 @@ const CoglTextureDriver
 _cogl_texture_driver_gl =
   {
     _cogl_texture_driver_gen,
-    _cogl_texture_driver_prep_gl_for_pixels_upload,
     _cogl_texture_driver_upload_subregion_to_gl,
     _cogl_texture_driver_upload_to_gl,
     _cogl_texture_driver_prep_gl_for_pixels_download,

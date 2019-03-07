@@ -453,7 +453,6 @@ const CoglTextureDriver
 _cogl_texture_driver_gles =
   {
     _cogl_texture_driver_gen,
-    _cogl_texture_driver_prep_gl_for_pixels_upload,
     _cogl_texture_driver_upload_subregion_to_gl,
     _cogl_texture_driver_upload_to_gl,
     _cogl_texture_driver_prep_gl_for_pixels_download,
