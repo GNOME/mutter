@@ -227,23 +227,6 @@ _cogl_pipeline_set_parent (CoglPipeline *pipeline,
    * layers could now be invalid so free it... */
   if (pipeline->differences & COGL_PIPELINE_STATE_LAYERS)
     recursively_free_layer_caches (pipeline);
-
-  /* If the backends are also caching state along with the pipeline
-   * that depends on the pipeline's ancestry then it may be notified
-   * here...
-   */
-  if (pipeline->progend != COGL_PIPELINE_PROGEND_UNDEFINED)
-    {
-      const CoglPipelineProgend *progend =
-        _cogl_pipeline_progends[pipeline->progend];
-      const CoglPipelineFragend *fragend =
-        _cogl_pipeline_fragends[progend->fragend];
-
-      /* Currently only the fragends ever care about reparenting of
-       * pipelines... */
-      if (fragend->pipeline_set_parent_notify)
-        fragend->pipeline_set_parent_notify (pipeline);
-    }
 }
 
 static void
