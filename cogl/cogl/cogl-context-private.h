@@ -250,8 +250,6 @@ struct _CoglContext
   /* Fragment processing programs */
   CoglHandle              current_program;
 
-  CoglPipelineProgramType current_fragment_program_type;
-  CoglPipelineProgramType current_vertex_program_type;
   GLuint                  current_gl_program;
 
   gboolean current_gl_dither_enabled;
