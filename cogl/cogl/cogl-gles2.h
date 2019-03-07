@@ -366,9 +366,8 @@ cogl_gles2_texture_2d_new_from_handle (CoglContext *ctx,
  * GLES2 context.</note>
  *
  * <note>This function will only return %TRUE for low-level
- * #CoglTexture<!-- -->s such as #CoglTexture2D or #CoglTexture3D but
- * not for high level meta textures such as
- * #CoglTexture2DSliced</note>
+ * #CoglTexture<!-- -->s such as #CoglTexture2D but not for high level
+ * meta textures such as #CoglTexture2DSliced</note>
  *
  * <note>The handle returned should not be passed directly to a system
  * OpenGL ES 2.0 library, the handle is only intended to be used via

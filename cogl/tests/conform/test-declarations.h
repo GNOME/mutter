@@ -17,7 +17,6 @@ void test_sub_texture (void);
 void test_pixel_buffer_map (void);
 void test_pixel_buffer_set_data (void);
 void test_pixel_buffer_sub_region (void);
-void test_texture_3d (void);
 void test_wrap_modes (void);
 void test_texture_get_set_data (void);
 void test_atlas_migration (void);

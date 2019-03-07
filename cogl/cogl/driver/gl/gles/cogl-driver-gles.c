@@ -381,12 +381,6 @@ _cogl_driver_update_features (CoglContext *context,
                       COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP, TRUE);
     }
 
-  if (context->glTexImage3D)
-    {
-      flags |= COGL_FEATURE_TEXTURE_3D;
-      COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_TEXTURE_3D, TRUE);
-    }
-
   if (context->glMapBuffer)
     {
       /* The GL_OES_mapbuffer extension doesn't support mapping for
