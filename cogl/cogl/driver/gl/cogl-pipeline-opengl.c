@@ -246,8 +246,8 @@ _cogl_pipeline_texture_storage_change_notify (CoglTexture *texture)
     }
 }
 
-static void
-set_glsl_program (GLuint gl_program)
+void
+_cogl_use_program (GLuint gl_program)
 {
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
@@ -263,94 +263,6 @@ set_glsl_program (GLuint gl_program)
           ctx->current_gl_program = 0;
         }
     }
-}
-
-void
-_cogl_use_fragment_program (GLuint gl_program, CoglPipelineProgramType type)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  /* If we're changing program type... */
-  if (type != ctx->current_fragment_program_type)
-    {
-      /* ... disable the old type */
-      switch (ctx->current_fragment_program_type)
-        {
-        case COGL_PIPELINE_PROGRAM_TYPE_GLSL:
-          /* If the program contains a vertex shader then we shouldn't
-             disable it */
-          if (ctx->current_vertex_program_type !=
-              COGL_PIPELINE_PROGRAM_TYPE_GLSL)
-            set_glsl_program (0);
-          break;
-        }
-
-      /* ... and enable the new type */
-      switch (type)
-        {
-        case COGL_PIPELINE_PROGRAM_TYPE_GLSL:
-          /* don't need to to anything */
-          break;
-        }
-    }
-
-  if (type == COGL_PIPELINE_PROGRAM_TYPE_GLSL)
-    {
-#ifdef COGL_PIPELINE_FRAGEND_GLSL
-      set_glsl_program (gl_program);
-
-#else
-
-      g_warning ("Unexpected use of GLSL fragend!");
-
-#endif /* COGL_PIPELINE_FRAGEND_GLSL */
-    }
-
-  ctx->current_fragment_program_type = type;
-}
-
-void
-_cogl_use_vertex_program (GLuint gl_program, CoglPipelineProgramType type)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  /* If we're changing program type... */
-  if (type != ctx->current_vertex_program_type)
-    {
-      /* ... disable the old type */
-      switch (ctx->current_vertex_program_type)
-        {
-        case COGL_PIPELINE_PROGRAM_TYPE_GLSL:
-          /* If the program contains a fragment shader then we shouldn't
-             disable it */
-          if (ctx->current_fragment_program_type !=
-              COGL_PIPELINE_PROGRAM_TYPE_GLSL)
-            set_glsl_program (0);
-          break;
-        }
-
-      /* ... and enable the new type */
-      switch (type)
-        {
-        case COGL_PIPELINE_PROGRAM_TYPE_GLSL:
-          /* don't need to to anything */
-          break;
-        }
-    }
-
-  if (type == COGL_PIPELINE_PROGRAM_TYPE_GLSL)
-    {
-#ifdef COGL_PIPELINE_VERTEND_GLSL
-      set_glsl_program (gl_program);
-
-#else
-
-      g_warning ("Unexpected use of GLSL vertend!");
-
-#endif /* COGL_PIPELINE_VERTEND_GLSL */
-    }
-
-  ctx->current_vertex_program_type = type;
 }
 
 #if defined(HAVE_COGL_GLES2) || defined(HAVE_COGL_GL)
