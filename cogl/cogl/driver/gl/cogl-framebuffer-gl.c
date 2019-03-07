@@ -1277,12 +1277,11 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
   /* Use target format ANY, because GL texture_swizzle extension cannot
    * ever apply for glReadPixels.
    */
-  required_format = ctx->driver_vtable->pixel_format_to_gl_with_target (ctx,
-                                                                        format,
-                                                                        COGL_PIXEL_FORMAT_ANY,
-                                                                        &gl_intformat,
-                                                                        &gl_format,
-                                                                        &gl_type);
+  required_format = ctx->driver_vtable->pixel_format_to_gl (ctx,
+                                                            format,
+                                                            &gl_intformat,
+                                                            &gl_format,
+                                                            &gl_type);
 
   /* NB: All offscreen rendering is done upside down so there is no need
    * to flip in this case... */

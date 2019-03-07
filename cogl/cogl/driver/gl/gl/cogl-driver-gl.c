@@ -94,12 +94,11 @@ _cogl_driver_pixel_format_from_gl_internal (CoglContext *context,
 }
 
 static CoglPixelFormat
-_cogl_driver_pixel_format_to_gl_with_target (CoglContext *context,
-                                             CoglPixelFormat format,
-                                             CoglPixelFormat target_format,
-                                             GLenum *out_glintformat,
-                                             GLenum *out_glformat,
-                                             GLenum *out_gltype)
+_cogl_driver_pixel_format_to_gl (CoglContext     *context,
+                                 CoglPixelFormat  format,
+                                 GLenum          *out_glintformat,
+                                 GLenum          *out_glformat,
+                                 GLenum          *out_gltype)
 {
   CoglPixelFormat required_format;
   GLenum glintformat = 0;
@@ -173,16 +172,7 @@ _cogl_driver_pixel_format_to_gl_with_target (CoglContext *context,
     case COGL_PIXEL_FORMAT_BGRA_8888:
     case COGL_PIXEL_FORMAT_BGRA_8888_PRE:
       glintformat = GL_RGBA;
-      /* If the driver has texture_swizzle, pretend internal
-       * and buffer format are the same here, the pixels
-       * will be flipped through this extension.
-       */
-      if (target_format == format &&
-          _cogl_has_private_feature
-          (context, COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE))
-        glformat = GL_RGBA;
-      else
-        glformat = GL_BGRA;
+      glformat = GL_BGRA;
       gltype = GL_UNSIGNED_BYTE;
       break;
 
@@ -295,20 +285,6 @@ _cogl_driver_pixel_format_to_gl_with_target (CoglContext *context,
     *out_gltype = gltype;
 
   return required_format;
-}
-
-static CoglPixelFormat
-_cogl_driver_pixel_format_to_gl (CoglContext *context,
-                                 CoglPixelFormat  format,
-                                 GLenum *out_glintformat,
-                                 GLenum *out_glformat,
-                                 GLenum *out_gltype)
-{
-  return _cogl_driver_pixel_format_to_gl_with_target (context,
-                                                      format, format,
-                                                      out_glintformat,
-                                                      out_glformat,
-                                                      out_gltype);
 }
 
 static gboolean
@@ -685,7 +661,6 @@ _cogl_driver_gl =
   {
     _cogl_driver_pixel_format_from_gl_internal,
     _cogl_driver_pixel_format_to_gl,
-    _cogl_driver_pixel_format_to_gl_with_target,
     _cogl_driver_update_features,
     _cogl_offscreen_gl_allocate,
     _cogl_offscreen_gl_free,
