@@ -1220,13 +1220,6 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
       if (G_UNLIKELY (state.error_adding_layer))
         continue;
 
-      if (!state.added_layer)
-        {
-          if (fragend->passthrough &&
-              G_UNLIKELY (!fragend->passthrough (pipeline)))
-            continue;
-        }
-
       if (G_UNLIKELY (!fragend->end (pipeline, pipelines_difference)))
         continue;
 
