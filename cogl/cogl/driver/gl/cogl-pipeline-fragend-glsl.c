@@ -1122,7 +1122,6 @@ const CoglPipelineFragend _cogl_pipeline_glsl_fragend =
   NULL, /* passthrough */
   _cogl_pipeline_fragend_glsl_end,
   _cogl_pipeline_fragend_glsl_pre_change_notify,
-  NULL, /* pipeline_set_parent_notify */
   _cogl_pipeline_fragend_glsl_layer_pre_change_notify
 };
 
