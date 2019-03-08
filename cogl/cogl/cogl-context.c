@@ -172,9 +172,6 @@ cogl_context_new (CoglDisplay *display,
   memset (context->features, 0, sizeof (context->features));
   context->feature_flags = 0;
   memset (context->private_features, 0, sizeof (context->private_features));
-
-  context->rectangle_state = COGL_WINSYS_RECTANGLE_STATE_UNKNOWN;
-
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
 
   if (!display)

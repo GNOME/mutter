@@ -64,13 +64,6 @@ typedef enum /*< prefix=COGL_WINSYS_ERROR >*/
   COGL_WINSYS_ERROR_CREATE_GLES2_CONTEXT,
 } CoglWinsysError;
 
-typedef enum
-{
-  COGL_WINSYS_RECTANGLE_STATE_UNKNOWN,
-  COGL_WINSYS_RECTANGLE_STATE_DISABLE,
-  COGL_WINSYS_RECTANGLE_STATE_ENABLE
-} CoglWinsysRectangleState;
-
 typedef struct _CoglWinsysVtable
 {
   CoglWinsysID id;
