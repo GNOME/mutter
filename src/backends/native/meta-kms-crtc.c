@@ -22,6 +22,7 @@
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-crtc-private.h"
 
+#include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl-device.h"
 
 struct _MetaKmsCrtc
@@ -32,6 +33,8 @@ struct _MetaKmsCrtc
 
   uint32_t id;
   int idx;
+
+  MetaKmsCrtcState current_state;
 };
 
 G_DEFINE_TYPE (MetaKmsCrtc, meta_kms_crtc, G_TYPE_OBJECT)
@@ -40,6 +43,12 @@ MetaKmsDevice *
 meta_kms_crtc_get_device (MetaKmsCrtc *crtc)
 {
   return crtc->device;
+}
+
+const MetaKmsCrtcState *
+meta_kms_crtc_get_current_state (MetaKmsCrtc *crtc)
+{
+  return &crtc->current_state;
 }
 
 uint32_t
@@ -52,6 +61,36 @@ int
 meta_kms_crtc_get_idx (MetaKmsCrtc *crtc)
 {
   return crtc->idx;
+}
+
+static void
+meta_kms_crtc_read_state (MetaKmsCrtc       *crtc,
+                          MetaKmsImplDevice *impl_device,
+                          drmModeCrtc       *drm_crtc)
+{
+  crtc->current_state = (MetaKmsCrtcState) {
+    .rect = {
+      .x = drm_crtc->x,
+      .y = drm_crtc->y,
+      .width = drm_crtc->width,
+      .height = drm_crtc->height,
+    },
+    .is_drm_mode_valid = drm_crtc->mode_valid,
+    .drm_mode = drm_crtc->mode,
+  };
+}
+
+void
+meta_kms_crtc_update_state (MetaKmsCrtc *crtc)
+{
+  MetaKmsImplDevice *impl_device;
+  drmModeCrtc *drm_crtc;
+
+  impl_device = meta_kms_device_get_impl_device (crtc->device);
+  drm_crtc = drmModeGetCrtc (meta_kms_impl_device_get_fd (impl_device),
+                             crtc->id);
+  meta_kms_crtc_read_state (crtc, impl_device, drm_crtc);
+  drmModeFreeCrtc (drm_crtc);
 }
 
 MetaKmsCrtc *
