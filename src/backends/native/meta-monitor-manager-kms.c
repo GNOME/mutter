@@ -412,7 +412,8 @@ meta_monitor_manager_kms_connect_hotplug_handler (MetaMonitorManagerKms *manager
   MetaUdev *udev = meta_backend_native_get_udev (META_BACKEND_NATIVE (backend));
 
   manager_kms->hotplug_handler_id =
-    g_signal_connect (udev, "hotplug", G_CALLBACK (on_udev_hotplug), manager);
+    g_signal_connect_after (udev, "hotplug",
+                            G_CALLBACK (on_udev_hotplug), manager);
 }
 
 static void
