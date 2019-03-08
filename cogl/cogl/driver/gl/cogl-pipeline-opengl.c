@@ -764,15 +764,7 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
       GLenum gl_target;
 
       if (texture == NULL)
-        switch (_cogl_pipeline_layer_get_texture_type (layer))
-          {
-          case COGL_TEXTURE_TYPE_2D:
-            texture = COGL_TEXTURE (ctx->default_gl_texture_2d_tex);
-            break;
-          case COGL_TEXTURE_TYPE_RECTANGLE:
-            texture = COGL_TEXTURE (ctx->default_gl_texture_rect_tex);
-            break;
-          }
+        texture = COGL_TEXTURE (ctx->default_gl_texture_2d_tex);
 
       cogl_texture_get_gl_texture (texture,
                                    &gl_texture,

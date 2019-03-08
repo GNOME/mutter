@@ -45,11 +45,10 @@ G_BEGIN_DECLS
  *                     #CoglTexture2D.
  *
  * A #CoglPrimitiveTexture is a texture that is directly represented
- * by a single texture on the GPU. For example these could be a
- * #CoglTexture2D or #CoglTextureRectangle. This is opposed to high level
- * meta textures which may be composed of multiple primitive textures or a
- * sub-region of another texture such as #CoglAtlasTexture and
- * #CoglTexture2DSliced.
+ * by a single texture on the GPU. For example this could be a
+ * #CoglTexture2D. This is opposed to high level meta textures which
+ * may be composed of multiple primitive textures or a sub-region of
+ * another texture such as #CoglAtlasTexture and #CoglTexture2DSliced.
  *
  * A texture that implements this interface can be directly used with
  * the low level cogl_primitive_draw() API. Other types of textures

@@ -44,7 +44,6 @@
 #include "cogl-texture-driver.h"
 #include "cogl-texture-2d-private.h"
 #include "cogl-texture-2d-sliced.h"
-#include "cogl-texture-rectangle-private.h"
 #include "cogl-context-private.h"
 #include "cogl-display-private.h"
 #include "cogl-renderer-private.h"
@@ -871,33 +870,6 @@ _cogl_texture_pixmap_x11_get_data (CoglTexture *tex,
   return cogl_texture_get_data (child_tex, format, rowstride, data);
 }
 
-typedef struct _NormalizeCoordsWrapperData
-{
-  int width;
-  int height;
-  CoglMetaTextureCallback callback;
-  void *user_data;
-} NormalizeCoordsWrapperData;
-
-static void
-normalize_coords_wrapper_cb (CoglTexture *child_texture,
-                             const float *child_texture_coords,
-                             const float *meta_coords,
-                             void *user_data)
-{
-  NormalizeCoordsWrapperData *data = user_data;
-  float normalized_coords[4];
-
-  normalized_coords[0] = meta_coords[0] / data->width;
-  normalized_coords[1] = meta_coords[1] / data->height;
-  normalized_coords[2] = meta_coords[2] / data->width;
-  normalized_coords[3] = meta_coords[3] / data->height;
-
-  data->callback (child_texture,
-                  child_texture_coords, normalized_coords,
-                  data->user_data);
-}
-
 static void
 _cogl_texture_pixmap_x11_foreach_sub_texture_in_region
                                   (CoglTexture              *tex,
@@ -912,47 +884,15 @@ _cogl_texture_pixmap_x11_foreach_sub_texture_in_region
   CoglTexture *child_tex = _cogl_texture_pixmap_x11_get_texture (tex_pixmap);
 
   /* Forward on to the child texture */
-
-  /* tfp textures may be implemented in terms of a
-   * CoglTextureRectangle texture which uses un-normalized texture
-   * coordinates but we want to consistently deal with normalized
-   * texture coordinates with CoglTexturePixmapX11... */
-  if (cogl_is_texture_rectangle (child_tex))
-    {
-      NormalizeCoordsWrapperData data;
-      int width = tex->width;
-      int height = tex->height;
-
-      virtual_tx_1 *= width;
-      virtual_ty_1 *= height;
-      virtual_tx_2 *= width;
-      virtual_ty_2 *= height;
-
-      data.width = width;
-      data.height = height;
-      data.callback = callback;
-      data.user_data = user_data;
-
-      cogl_meta_texture_foreach_in_region (COGL_META_TEXTURE (child_tex),
-                                           virtual_tx_1,
-                                           virtual_ty_1,
-                                           virtual_tx_2,
-                                           virtual_ty_2,
-                                           COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                           COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                           normalize_coords_wrapper_cb,
-                                           &data);
-    }
-  else
-    cogl_meta_texture_foreach_in_region (COGL_META_TEXTURE (child_tex),
-                                         virtual_tx_1,
-                                         virtual_ty_1,
-                                         virtual_tx_2,
-                                         virtual_ty_2,
-                                         COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                         COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                         callback,
-                                         user_data);
+  cogl_meta_texture_foreach_in_region (COGL_META_TEXTURE (child_tex),
+                                       virtual_tx_1,
+                                       virtual_ty_1,
+                                       virtual_tx_2,
+                                       virtual_ty_2,
+                                       COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                       COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                       callback,
+                                       user_data);
 }
 
 static int

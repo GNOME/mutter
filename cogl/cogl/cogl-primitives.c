@@ -187,8 +187,6 @@ validate_first_layer_cb (CoglPipeline *pipeline,
  *   texture coordinates require repeating,
  * - CoglTexture2DAtlas: if the users given texture coordinates require
  *   repeating,
- * - CoglTextureRectangle: if the users given texture coordinates require
- *   repeating,
  * - CoglTexturePixmap: if the users given texture coordinates require
  *   repeating
  */
@@ -429,8 +427,6 @@ validate_tex_coords_cb (CoglPipeline *pipeline,
  *   repeating.
  * - CoglTexture{1D,2D}: always.
  * - CoglTexture2DAtlas: assuming the users given texture coordinates don't
- *   require repeating.
- * - CoglTextureRectangle: assuming the users given texture coordinates don't
  *   require repeating.
  * - CoglTexturePixmap: assuming the users given texture coordinates don't
  *   require repeating.

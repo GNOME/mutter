@@ -50,7 +50,6 @@
 #include "cogl-texture-driver.h"
 #include "cogl-pipeline-cache.h"
 #include "cogl-texture-2d.h"
-#include "cogl-texture-rectangle.h"
 #include "cogl-sampler-cache-private.h"
 #include "cogl-gpu-info-private.h"
 #include "cogl-gl-header.h"
@@ -165,7 +164,6 @@ struct _CoglContext
 
   /* Textures */
   CoglTexture2D *default_gl_texture_2d_tex;
-  CoglTextureRectangle *default_gl_texture_rect_tex;
 
   /* Central list of all framebuffers so all journals can be flushed
    * at any time. */

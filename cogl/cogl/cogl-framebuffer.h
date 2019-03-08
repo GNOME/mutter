@@ -1129,8 +1129,8 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
  * This drawing api doesn't support high-level meta texture types such
  * as #CoglTexture2DSliced so it is the user's responsibility to
  * ensure that only low-level textures that can be directly sampled by
- * a GPU such as #CoglTexture2D or #CoglTextureRectangle are associated with
- * layers of the given @pipeline.
+ * a GPU such as #CoglTexture2D are associated with layers of the given
+ * @pipeline.
  *
  * <note>This api doesn't support any of the legacy global state options such
  * as cogl_set_depth_test_enabled(), cogl_set_backface_culling_enabled() or
@@ -1171,8 +1171,8 @@ cogl_framebuffer_draw_primitive (CoglFramebuffer *framebuffer,
  * This drawing api doesn't support high-level meta texture types such
  * as #CoglTexture2DSliced so it is the user's responsibility to
  * ensure that only low-level textures that can be directly sampled by
- * a GPU such as #CoglTexture2D or #CoglTextureRectangle are associated with
- * layers of the given @pipeline.
+ * a GPU such as #CoglTexture2D are associated with layers of the given
+ * @pipeline.
  *
  * Stability: unstable
  * Since: 1.10
@@ -1214,8 +1214,8 @@ cogl_framebuffer_vdraw_attributes (CoglFramebuffer *framebuffer,
  * This drawing api doesn't support high-level meta texture types such
  * as #CoglTexture2DSliced so it is the user's responsibility to
  * ensure that only low-level textures that can be directly sampled by
- * a GPU such as #CoglTexture2D or #CoglTextureRectangle are associated with
- * layers of the given @pipeline.
+ * a GPU such as #CoglTexture2D are associated with layers of the given
+ * @pipeline.
  *
  * <note>This api doesn't support any of the legacy global state options such
  * as cogl_set_depth_test_enabled(), cogl_set_backface_culling_enabled() or
@@ -1280,8 +1280,8 @@ cogl_framebuffer_draw_attributes (CoglFramebuffer *framebuffer,
  * This drawing api doesn't support high-level meta texture types such
  * as #CoglTexture2DSliced so it is the user's responsibility to
  * ensure that only low-level textures that can be directly sampled by
- * a GPU such as #CoglTexture2D or #CoglTextureRectangle are associated with
- * layers of the given @pipeline.
+ * a GPU such as #CoglTexture2D are associated with layers of the given
+ * @pipeline.
  *
  * <note>This api doesn't support any of the legacy global state
  * options such as cogl_set_depth_test_enabled(),
@@ -1348,8 +1348,8 @@ cogl_framebuffer_vdraw_indexed_attributes (CoglFramebuffer *framebuffer,
  * This drawing api doesn't support high-level meta texture types such
  * as #CoglTexture2DSliced so it is the user's responsibility to
  * ensure that only low-level textures that can be directly sampled by
- * a GPU such as #CoglTexture2D or #CoglTextureRectangle are associated with
- * layers of the given @pipeline.
+ * a GPU such as #CoglTexture2D are associated with layers of the given
+ * @pipeline.
  *
  * <note>This api doesn't support any of the legacy global state
  * options such as cogl_set_depth_test_enabled(),
@@ -1443,11 +1443,6 @@ cogl_framebuffer_draw_rectangle (CoglFramebuffer *framebuffer,
  * bottom right. To map an entire texture across the rectangle pass
  * in @s_1=0, @t_1=0, @s_2=1, @t_2=1.
  *
- * <note>Even if you have associated a #CoglTextureRectangle texture
- * with one of your @pipeline layers which normally implies working
- * with non-normalized texture coordinates this api should still be
- * passed normalized texture coordinates.</note>
- *
  * Since: 1.10
  * Stability: unstable
  */
@@ -1500,9 +1495,7 @@ cogl_framebuffer_draw_textured_rectangle (CoglFramebuffer *framebuffer,
  * <note>This api can not currently handle multiple high-level meta
  * texture layers. The first layer may be a high level meta texture
  * such as #CoglTexture2DSliced but all other layers much be low
- * level textures such as #CoglTexture2D and additionally they
- * should be textures that can be sampled using normalized coordinates
- * (so not #CoglTextureRectangle textures).</note>
+ * level textures such as #CoglTexture2D.
  *
  * The top left texture coordinate for layer 0 of any pipeline will be
  * (tex_coords[0], tex_coords[1]) and the bottom right coordinate will
@@ -1515,11 +1508,6 @@ cogl_framebuffer_draw_textured_rectangle (CoglFramebuffer *framebuffer,
  * bottom right. To map an entire texture across the rectangle pass
  * in tex_coords[0]=0, tex_coords[1]=0, tex_coords[2]=1,
  * tex_coords[3]=1.
- *
- * <note>Even if you have associated a #CoglTextureRectangle texture
- * which normally implies working with non-normalized texture
- * coordinates this api should still be passed normalized texture
- * coordinates.</note>
  *
  * The first pair of coordinates are for the first layer (with the
  * smallest layer index) and if you supply less texture coordinates
@@ -1623,11 +1611,6 @@ cogl_framebuffer_draw_rectangles (CoglFramebuffer *framebuffer,
  * bottom right. To map an entire texture across the rectangle pass
  * in tex_coords[0]=0, tex_coords[1]=0, tex_coords[2]=1,
  * tex_coords[3]=1.
- *
- * <note>Even if you have associated a #CoglTextureRectangle texture
- * which normally implies working with non-normalized texture
- * coordinates this api should still be passed normalized texture
- * coordinates.</note>
  *
  * Since: 1.10
  * Stability: unstable

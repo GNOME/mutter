@@ -148,11 +148,6 @@ _cogl_gl_util_get_texture_target_string (CoglTextureType texture_type,
       tex_coord_swizzle = "st";
       break;
 
-    case COGL_TEXTURE_TYPE_RECTANGLE:
-      target_string = "2DRect";
-      tex_coord_swizzle = "st";
-      break;
-
     default:
       target_string = "Unknown";
       tex_coord_swizzle = NULL;
