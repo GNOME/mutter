@@ -162,10 +162,7 @@ cogl_pipeline_set_layer_texture (CoglPipeline *pipeline,
  * @texture_type: The type of the default texture to use
  *
  * Sets the texture for this layer to be the default texture for the
- * given type. This is equivalent to calling
- * cogl_pipeline_set_layer_texture() with %NULL for the texture
- * argument except that you can also specify the type of default
- * texture to use. The default texture is a 1x1 pixel white texture.
+ * given type. The default texture is a 1x1 pixel white texture.
  *
  * This function is mostly useful if you want to create a base
  * pipeline that you want to create multiple copies from using
@@ -178,8 +175,7 @@ cogl_pipeline_set_layer_texture (CoglPipeline *pipeline,
  */
 void
 cogl_pipeline_set_layer_null_texture (CoglPipeline *pipeline,
-                                      int layer_index,
-                                      CoglTextureType texture_type);
+                                      int layer_index);
 
 /**
  * cogl_pipeline_get_layer_texture:

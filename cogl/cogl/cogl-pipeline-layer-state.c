@@ -225,8 +225,7 @@ cogl_pipeline_set_layer_texture (CoglPipeline *pipeline,
 
 void
 cogl_pipeline_set_layer_null_texture (CoglPipeline *pipeline,
-                                      int layer_index,
-                                      CoglTextureType texture_type)
+                                      int layer_index)
 {
   _cogl_pipeline_set_layer_texture_data (pipeline, layer_index, NULL);
 }

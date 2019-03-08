@@ -249,9 +249,7 @@ clutter_blur_effect_init (ClutterBlurEffect *self)
       cogl_pipeline_add_layer_snippet (klass->base_pipeline, 0, snippet);
       cogl_object_unref (snippet);
 
-      cogl_pipeline_set_layer_null_texture (klass->base_pipeline,
-                                            0, /* layer number */
-                                            COGL_TEXTURE_TYPE_2D);
+      cogl_pipeline_set_layer_null_texture (klass->base_pipeline, 0);
     }
 
   self->pipeline = cogl_pipeline_copy (klass->base_pipeline);

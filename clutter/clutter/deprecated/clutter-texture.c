@@ -1277,9 +1277,7 @@ clutter_texture_init (ClutterTexture *self)
 
       texture_template_pipeline = cogl_pipeline_new (ctx);
       pipeline = COGL_PIPELINE (texture_template_pipeline);
-      cogl_pipeline_set_layer_null_texture (pipeline,
-                                            0, /* layer_index */
-                                            COGL_TEXTURE_TYPE_2D);
+      cogl_pipeline_set_layer_null_texture (pipeline, 0);
     }
 
   g_assert (texture_template_pipeline != NULL);
