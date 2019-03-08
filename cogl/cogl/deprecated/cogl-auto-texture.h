@@ -126,44 +126,6 @@ cogl_texture_new_from_data (int width,
                             const uint8_t *data);
 
 /**
- * cogl_texture_new_from_foreign:
- * @gl_handle: opengl handle of foreign texture.
- * @gl_target: opengl target type of foreign texture
- * @width: width of foreign texture
- * @height: height of foreign texture.
- * @x_pot_waste: horizontal waste on the right hand edge of the texture.
- * @y_pot_waste: vertical waste on the bottom edge of the texture.
- * @format: format of the foreign texture.
- *
- * Creates a #CoglTexture based on an existing OpenGL texture; the
- * width, height and format are passed along since it is not always
- * possible to query these from OpenGL.
- *
- * The waste arguments allow you to create a Cogl texture that maps to
- * a region smaller than the real OpenGL texture. For instance if your
- * hardware only supports power-of-two textures you may load a
- * non-power-of-two image into a larger power-of-two texture and use
- * the waste arguments to tell Cogl which region should be mapped to
- * the texture coordinate range [0:1].
- *
- * Return value: (transfer full): A newly created #CoglTexture or
- *               %NULL on failure
- *
- * Since: 0.8
- * Deprecated: 1.18: Use specific constructors such as
- *                   cogl_texture_2d_new_from_foreign()
- */
-COGL_DEPRECATED_FOR (cogl_texture_2d_new_from_foreign)
-CoglTexture *
-cogl_texture_new_from_foreign (unsigned int gl_handle,
-                               unsigned int gl_target,
-                               unsigned int width,
-                               unsigned int height,
-                               unsigned int x_pot_waste,
-                               unsigned int y_pot_waste,
-                               CoglPixelFormat format);
-
-/**
  * cogl_texture_new_from_bitmap:
  * @bitmap: A #CoglBitmap pointer
  * @flags: Optional flags for the texture, or %COGL_TEXTURE_NONE
