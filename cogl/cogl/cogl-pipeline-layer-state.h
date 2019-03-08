@@ -159,7 +159,6 @@ cogl_pipeline_set_layer_texture (CoglPipeline *pipeline,
  * cogl_pipeline_set_layer_null_texture:
  * @pipeline: A #CoglPipeline
  * @layer_index: The layer number to modify
- * @texture_type: The type of the default texture to use
  *
  * Sets the texture for this layer to be the default texture for the
  * given type. The default texture is a 1x1 pixel white texture.
