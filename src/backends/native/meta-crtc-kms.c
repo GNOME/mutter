@@ -494,27 +494,25 @@ meta_crtc_destroy_notify (MetaCrtc *crtc)
 }
 
 MetaCrtc *
-meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
-                      MetaKmsCrtc  *kms_crtc,
-                      drmModeCrtc  *drm_crtc)
+meta_create_kms_crtc (MetaGpuKms  *gpu_kms,
+                      MetaKmsCrtc *kms_crtc)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaCrtc *crtc;
   MetaCrtcKms *crtc_kms;
+  const MetaKmsCrtcState *crtc_state;
+
+  crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
 
   crtc = g_object_new (META_TYPE_CRTC, NULL);
-
   crtc->gpu = gpu;
   crtc->crtc_id = meta_kms_crtc_get_id (kms_crtc);
-  crtc->rect.x = drm_crtc->x;
-  crtc->rect.y = drm_crtc->y;
-  crtc->rect.width = drm_crtc->width;
-  crtc->rect.height = drm_crtc->height;
+  crtc->rect = crtc_state->rect;
   crtc->is_dirty = FALSE;
   crtc->transform = META_MONITOR_TRANSFORM_NORMAL;
   crtc->all_transforms = ALL_TRANSFORMS_MASK;
 
-  if (drm_crtc->mode_valid)
+  if (crtc_state->is_drm_mode_valid)
     {
       GList *l;
 
@@ -522,7 +520,7 @@ meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
         {
           MetaCrtcMode *mode = l->data;
 
-          if (meta_drm_mode_equal (&drm_crtc->mode, mode->driver_private))
+          if (meta_drm_mode_equal (&crtc_state->drm_mode, mode->driver_private))
             {
               crtc->current_mode = mode;
               break;

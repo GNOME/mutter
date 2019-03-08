@@ -17,17 +17,11 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_CRTC_PRIVATE_H
-#define META_KMS_CRTC_PRIVATE_H
-
-#include <xf86drmMode.h>
+#ifndef META_KMS_DEVICE_PRIVATE_H
+#define META_KMS_DEVICE_PRIVATE_H
 
 #include "backends/native/meta-kms-types.h"
 
-MetaKmsCrtc * meta_kms_crtc_new (MetaKmsImplDevice *impl_device,
-                                 drmModeCrtc       *drm_crtc,
-                                 int                idx);
+MetaKmsImplDevice * meta_kms_device_get_impl_device (MetaKmsDevice *device);
 
-void meta_kms_crtc_update_state (MetaKmsCrtc *crtc);
-
-#endif /* META_KMS_CRTC_PRIVATE_H */
+#endif /* META_KMS_DEVICE_PRIVATE_H */
