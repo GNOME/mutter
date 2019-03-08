@@ -130,22 +130,11 @@ OPT (DISABLE_TEXTURING,
      "disable-texturing",
      N_("Disable texturing"),
      N_("Disable texturing any primitives"))
-OPT (DISABLE_GLSL,
-     N_("Root Cause"),
-     "disable-glsl",
-     N_("Disable GLSL"),
-     N_("Disable use of GLSL"))
 OPT (DISABLE_BLENDING,
      N_("Root Cause"),
      "disable-blending",
      N_("Disable blending"),
      N_("Disable use of blending"))
-OPT (DISABLE_NPOT_TEXTURES,
-     N_("Root Cause"),
-     "disable-npot-textures",
-     N_("Disable non-power-of-two textures"),
-     N_("Makes Cogl think that the GL driver doesn't support NPOT textures "
-        "so that it will create sliced textures or textures with waste instead."))
 OPT (DISABLE_SOFTWARE_CLIP,
      N_("Root Cause"),
      "disable-software-clip",
