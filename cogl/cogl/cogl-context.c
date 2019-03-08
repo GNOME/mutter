@@ -105,30 +105,6 @@ _cogl_init_feature_overrides (CoglContext *ctx)
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_PBOS)))
     COGL_FLAGS_SET (ctx->private_features, COGL_PRIVATE_FEATURE_PBOS, FALSE);
-
-  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_GLSL)))
-    {
-      ctx->feature_flags &= ~COGL_FEATURE_SHADERS_GLSL;
-      COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_GLSL, FALSE);
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE,
-                      FALSE);
-    }
-
-  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_NPOT_TEXTURES)))
-    {
-      ctx->feature_flags &= ~(COGL_FEATURE_TEXTURE_NPOT |
-                              COGL_FEATURE_TEXTURE_NPOT_BASIC |
-                              COGL_FEATURE_TEXTURE_NPOT_MIPMAP |
-                              COGL_FEATURE_TEXTURE_NPOT_REPEAT);
-      COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_NPOT, FALSE);
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_TEXTURE_NPOT_BASIC, FALSE);
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP, FALSE);
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT, FALSE);
-    }
 }
 
 const CoglWinsysVtable *
