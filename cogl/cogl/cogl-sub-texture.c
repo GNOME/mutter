@@ -415,14 +415,6 @@ _cogl_sub_texture_get_gl_format (CoglTexture *tex)
   return _cogl_texture_gl_get_format (sub_tex->full_texture);
 }
 
-static CoglTextureType
-_cogl_sub_texture_get_type (CoglTexture *tex)
-{
-  CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
-
-  return _cogl_texture_get_type (sub_tex->full_texture);
-}
-
 static const CoglTextureVtable
 cogl_sub_texture_vtable =
   {
@@ -444,7 +436,6 @@ cogl_sub_texture_vtable =
     _cogl_sub_texture_gl_flush_legacy_texobj_wrap_modes,
     _cogl_sub_texture_get_format,
     _cogl_sub_texture_get_gl_format,
-    _cogl_sub_texture_get_type,
     NULL, /* is_foreign */
     NULL /* set_auto_mipmap */
   };

@@ -327,12 +327,6 @@ cogl_texture_get_gl_texture (CoglTexture *texture,
                                           out_gl_handle, out_gl_target);
 }
 
-CoglTextureType
-_cogl_texture_get_type (CoglTexture *texture)
-{
-  return texture->vtable->get_type (texture);
-}
-
 void
 _cogl_texture_pre_paint (CoglTexture *texture, CoglTexturePrePaintFlags flags)
 {
