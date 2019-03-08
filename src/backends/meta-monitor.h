@@ -249,18 +249,18 @@ META_EXPORT_TEST
 MetaCrtcModeFlag meta_monitor_mode_get_flags (MetaMonitorMode *monitor_mode);
 
 META_EXPORT_TEST
-gboolean meta_monitor_mode_foreach_crtc (MetaMonitor        *monitor,
-                                         MetaMonitorMode    *mode,
-                                         MetaMonitorModeFunc func,
-                                         gpointer            user_data,
-                                         GError            **error);
+gboolean meta_monitor_mode_foreach_crtc (MetaMonitor          *monitor,
+                                         MetaMonitorMode      *mode,
+                                         MetaMonitorModeFunc   func,
+                                         gpointer              user_data,
+                                         GError              **error);
 
 META_EXPORT_TEST
-gboolean meta_monitor_mode_foreach_output (MetaMonitor        *monitor,
-                                           MetaMonitorMode    *mode,
-                                           MetaMonitorModeFunc func,
-                                           gpointer            user_data,
-                                           GError            **error);
+gboolean meta_monitor_mode_foreach_output (MetaMonitor          *monitor,
+                                           MetaMonitorMode      *mode,
+                                           MetaMonitorModeFunc   func,
+                                           gpointer              user_data,
+                                           GError              **error);
 
 META_EXPORT_TEST
 gboolean meta_monitor_mode_should_be_advertised (MetaMonitorMode *monitor_mode);
