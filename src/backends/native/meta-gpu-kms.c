@@ -37,6 +37,7 @@
 #include "backends/meta-output.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-launcher.h"
@@ -751,37 +752,43 @@ init_outputs (MetaGpuKms       *gpu_kms,
   GList *old_outputs;
   GList *outputs;
   unsigned int i;
+  GList *l;
 
   old_outputs = meta_gpu_get_outputs (gpu);
 
   outputs = NULL;
 
-  for (i = 0; i < gpu_kms->n_connectors; i++)
+  i = 0;
+  for (l = meta_kms_device_get_connectors (gpu_kms->kms_device); l; l = l->next)
     {
+      MetaKmsConnector *kms_connector = l->data;
+      MetaOutput *output;
+      MetaOutput *old_output;
+      GError *error = NULL;
       drmModeConnector *connector;
 
-      connector = gpu_kms->connectors[i];
+      connector = gpu_kms->connectors[i++];
 
-      if (connector && connector->connection == DRM_MODE_CONNECTED)
+      if (!connector || connector->connection != DRM_MODE_CONNECTED)
+        continue;
+
+      old_output =
+        find_output_by_connector_id (old_outputs,
+                                     meta_kms_connector_get_id (kms_connector));
+      output = meta_create_kms_output (gpu_kms,
+                                       kms_connector,
+                                       connector,
+                                       resources,
+                                       old_output,
+                                       &error);
+      if (!output)
         {
-          MetaOutput *output;
-          MetaOutput *old_output;
-          GError *error = NULL;
-
-          old_output = find_output_by_connector_id (old_outputs,
-                                                    connector->connector_id);
-          output = meta_create_kms_output (gpu_kms, connector, resources,
-                                           old_output,
-                                           &error);
-          if (!output)
-            {
-              g_warning ("Failed to create KMS output: %s", error->message);
-              g_error_free (error);
-            }
-          else
-            {
-              outputs = g_list_prepend (outputs, output);
-            }
+          g_warning ("Failed to create KMS output: %s", error->message);
+          g_error_free (error);
+        }
+      else
+        {
+          outputs = g_list_prepend (outputs, output);
         }
     }
 
