@@ -21,14 +21,19 @@
 
 #include "backends/native/meta-kms-private.h"
 
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl.h"
 #include "backends/native/meta-kms-impl-simple.h"
+#include "backends/native/meta-udev.h"
 
 struct _MetaKms
 {
   GObject parent;
 
   MetaBackend *backend;
+
+  guint hotplug_handler_id;
 
   MetaKmsImpl *impl;
   gboolean in_impl_task;
@@ -59,6 +64,45 @@ meta_kms_in_impl_task (MetaKms *kms)
   return kms->in_impl_task;
 }
 
+static gboolean
+update_states_in_impl (MetaKmsImpl  *impl,
+                       gpointer      user_data,
+                       GError      **error)
+{
+  MetaKms *kms = user_data;
+  GList *l;
+
+  for (l = kms->devices; l; l = l->next)
+    {
+      MetaKmsDevice *device = l->data;
+      MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+
+      meta_kms_impl_device_update_states (impl_device);
+    }
+
+  return TRUE;
+}
+
+static gboolean
+meta_kms_update_states_sync (MetaKms  *kms,
+                             GError  **error)
+{
+  return meta_kms_run_impl_task_sync (kms,
+                                      update_states_in_impl,
+                                      kms,
+                                      error);
+}
+
+static void
+on_udev_hotplug (MetaUdev *udev,
+                 MetaKms  *kms)
+{
+  g_autoptr (GError) error = NULL;
+
+  if (!meta_kms_update_states_sync (kms, &error))
+    g_warning ("Updating KMS state failed: %s", error->message);
+}
+
 MetaBackend *
 meta_kms_get_backend (MetaKms *kms)
 {
@@ -86,6 +130,8 @@ MetaKms *
 meta_kms_new (MetaBackend  *backend,
               GError      **error)
 {
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaUdev *udev = meta_backend_native_get_udev (backend_native);
   MetaKms *kms;
 
   kms = g_object_new (META_TYPE_KMS, NULL);
@@ -97,6 +143,9 @@ meta_kms_new (MetaBackend  *backend,
       return NULL;
     }
 
+  kms->hotplug_handler_id =
+    g_signal_connect (udev, "hotplug", G_CALLBACK (on_udev_hotplug), kms);
+
   return kms;
 }
 
@@ -104,8 +153,13 @@ static void
 meta_kms_finalize (GObject *object)
 {
   MetaKms *kms = META_KMS (object);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (kms->backend);
+  MetaUdev *udev = meta_backend_native_get_udev (backend_native);
 
   g_list_free_full (kms->devices, g_object_unref);
+
+  if (kms->hotplug_handler_id)
+    g_signal_handler_disconnect (udev, kms->hotplug_handler_id);
 
   G_OBJECT_CLASS (meta_kms_parent_class)->finalize (object);
 }
