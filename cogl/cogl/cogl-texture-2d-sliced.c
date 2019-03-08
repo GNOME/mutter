@@ -931,9 +931,7 @@ _cogl_texture_2d_sliced_new_from_foreign (CoglContext *ctx,
    * in GLES, hence such a function prototype.
    */
 
-  /* This should only be called when the texture target is 2D. If a
-     rectangle texture is used then _cogl_texture_new_from_foreign
-     will create a cogl_texture_rectangle instead */
+  /* This should only be called when the texture target is 2D. */
   _COGL_RETURN_VAL_IF_FAIL (gl_target == GL_TEXTURE_2D, NULL);
 
   /* Assert it is a valid GL texture object */
