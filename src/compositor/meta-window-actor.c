@@ -31,7 +31,6 @@
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-surface-actor-x11.h"
 #include "compositor/meta-surface-actor.h"
-#include "compositor/meta-texture-rectangle.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/region-utils.h"
 #include "meta/meta-enum-types.h"
@@ -1507,6 +1506,7 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
   int stride;
   cairo_t *cr;
   cairo_surface_t *surface;
+  CoglError *error = NULL;
 
   stex = meta_surface_actor_get_texture (priv->surface);
   g_return_if_fail (stex);
@@ -1559,31 +1559,14 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
   cairo_destroy (cr);
   cairo_surface_destroy (surface);
 
-  if (meta_texture_rectangle_check (paint_tex))
-    {
-      mask_texture = COGL_TEXTURE (cogl_texture_rectangle_new_with_size (ctx, tex_width, tex_height));
-      cogl_texture_set_components (mask_texture, COGL_TEXTURE_COMPONENTS_A);
-      cogl_texture_set_region (mask_texture,
-                               0, 0, /* src_x/y */
-                               0, 0, /* dst_x/y */
-                               tex_width, tex_height, /* dst_width/height */
-                               tex_width, tex_height, /* width/height */
-                               COGL_PIXEL_FORMAT_A_8,
-                               stride, mask_data);
-    }
-  else
-    {
-      CoglError *error = NULL;
+  mask_texture = COGL_TEXTURE (cogl_texture_2d_new_from_data (ctx, tex_width, tex_height,
+                                                              COGL_PIXEL_FORMAT_A_8,
+                                                              stride, mask_data, &error));
 
-      mask_texture = COGL_TEXTURE (cogl_texture_2d_new_from_data (ctx, tex_width, tex_height,
-                                                                  COGL_PIXEL_FORMAT_A_8,
-                                                                  stride, mask_data, &error));
-
-      if (error)
-        {
-          g_warning ("Failed to allocate mask texture: %s", error->message);
-          cogl_error_free (error);
-        }
+  if (error)
+    {
+      g_warning ("Failed to allocate mask texture: %s", error->message);
+      cogl_error_free (error);
     }
 
   meta_shaped_texture_set_mask_texture (stex, mask_texture);

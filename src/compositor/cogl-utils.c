@@ -77,13 +77,6 @@ meta_create_texture_pipeline (CoglTexture *src_texture)
  * Creates a texture of the given size with the specified components
  * for use as a frame buffer object.
  *
- * If non-power-of-two textures are not supported on the system, then
- * the texture will be created as a texture rectangle; in this case,
- * hardware repeating isn't possible, and texture coordinates are also
- * different, but Cogl hides these issues from the application, except from
- * GLSL shaders. Since GLSL is never (or at least almost never)
- * present on such a system, this is not typically an issue.
- *
  * If %META_TEXTURE_ALLOW_SLICING is present in @flags, and the texture
  * is larger than the texture size limits of the system, then the texture
  * will be created as a sliced texture. This also will cause problems
@@ -101,12 +94,7 @@ meta_create_texture (int                   width,
   CoglContext *ctx = clutter_backend_get_cogl_context (backend);
   CoglTexture *texture;
 
-  gboolean should_use_rectangle = FALSE;
-
-  if (should_use_rectangle)
-    texture = COGL_TEXTURE (cogl_texture_rectangle_new_with_size (ctx, width, height));
-  else
-    texture = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
+  texture = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
   cogl_texture_set_components (texture, components);
 
   if ((flags & META_TEXTURE_ALLOW_SLICING) != 0)
