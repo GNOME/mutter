@@ -1727,11 +1727,11 @@ meta_monitor_mode_get_flags (MetaMonitorMode *monitor_mode)
 }
 
 gboolean
-meta_monitor_mode_foreach_crtc (MetaMonitor        *monitor,
-                                MetaMonitorMode    *mode,
-                                MetaMonitorModeFunc func,
-                                gpointer            user_data,
-                                GError            **error)
+meta_monitor_mode_foreach_crtc (MetaMonitor          *monitor,
+                                MetaMonitorMode      *mode,
+                                MetaMonitorModeFunc   func,
+                                gpointer              user_data,
+                                GError              **error)
 {
   MetaMonitorPrivate *monitor_priv =
     meta_monitor_get_instance_private (monitor);
@@ -1753,11 +1753,11 @@ meta_monitor_mode_foreach_crtc (MetaMonitor        *monitor,
 }
 
 gboolean
-meta_monitor_mode_foreach_output (MetaMonitor        *monitor,
-                                  MetaMonitorMode    *mode,
-                                  MetaMonitorModeFunc func,
-                                  gpointer            user_data,
-                                  GError            **error)
+meta_monitor_mode_foreach_output (MetaMonitor          *monitor,
+                                  MetaMonitorMode      *mode,
+                                  MetaMonitorModeFunc   func,
+                                  gpointer              user_data,
+                                  GError              **error)
 {
   MetaMonitorPrivate *monitor_priv =
     meta_monitor_get_instance_private (monitor);
