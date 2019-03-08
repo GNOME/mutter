@@ -17,31 +17,26 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_DEVICE_H
-#define META_KMS_DEVICE_H
+#ifndef META_KMS_CONNECTOR_H
+#define META_KMS_CONNECTOR_H
 
 #include <glib-object.h>
+#include <stdint.h>
+#include <xf86drmMode.h>
 
 #include "backends/native/meta-kms-types.h"
+#include "backends/meta-output.h"
 
-#define META_TYPE_KMS_DEVICE (meta_kms_device_get_type ())
-G_DECLARE_FINAL_TYPE (MetaKmsDevice, meta_kms_device,
-                      META, KMS_DEVICE,
-                      GObject)
+#define META_TYPE_KMS_CONNECTOR (meta_kms_connector_get_type ())
+G_DECLARE_FINAL_TYPE (MetaKmsConnector, meta_kms_connector,
+                      META, KMS_CONNECTOR, GObject)
 
-int meta_kms_device_leak_fd (MetaKmsDevice *device);
+MetaKmsDevice * meta_kms_connector_get_device (MetaKmsConnector *connector);
 
-const char * meta_kms_device_get_path (MetaKmsDevice *device);
+MetaConnectorType meta_kms_connector_get_connector_type (MetaKmsConnector *connector);
 
-MetaKmsDeviceFlag meta_kms_device_get_flags (MetaKmsDevice *device);
+uint32_t meta_kms_connector_get_id (MetaKmsConnector *connector);
 
-GList * meta_kms_device_get_connectors (MetaKmsDevice *device);
+const char * meta_kms_connector_get_name (MetaKmsConnector *connector);
 
-GList * meta_kms_device_get_crtcs (MetaKmsDevice *device);
-
-MetaKmsDevice * meta_kms_device_new (MetaKms            *kms,
-                                     const char         *path,
-                                     MetaKmsDeviceFlag   flags,
-                                     GError            **error);
-
-#endif /* META_KMS_DEVICE_H */
+#endif /* META_KMS_CONNECTOR_H */
