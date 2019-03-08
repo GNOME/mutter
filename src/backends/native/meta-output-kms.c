@@ -29,6 +29,7 @@
 #include <string.h>
 
 #include "backends/meta-crtc.h"
+#include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-crtc-kms.h"
 
 #include "meta-default-modes.h"
@@ -38,6 +39,8 @@
 typedef struct _MetaOutputKms
 {
   MetaOutput parent;
+
+  MetaKmsConnector *kms_connector;
 
   drmModeConnector *connector;
 
@@ -122,7 +125,7 @@ meta_output_kms_get_connector_id (MetaOutput *output)
 {
   MetaOutputKms *output_kms = output->driver_private;
 
-  return output_kms->connector->connector_id;
+  return meta_kms_connector_get_id (output_kms->kms_connector);
 }
 
 void
@@ -368,39 +371,6 @@ find_connector_properties (MetaGpuKms    *gpu_kms,
     }
 }
 
-static char *
-make_output_name (drmModeConnector *connector)
-{
-  static const char * const connector_type_names[] = {
-    "None",
-    "VGA",
-    "DVI-I",
-    "DVI-D",
-    "DVI-A",
-    "Composite",
-    "SVIDEO",
-    "LVDS",
-    "Component",
-    "DIN",
-    "DP",
-    "HDMI",
-    "HDMI-B",
-    "TV",
-    "eDP",
-    "Virtual",
-    "DSI",
-  };
-
-  if (connector->connector_type < G_N_ELEMENTS (connector_type_names))
-    return g_strdup_printf ("%s-%d",
-                            connector_type_names[connector->connector_type],
-                            connector->connector_type_id);
-  else
-    return g_strdup_printf ("Unknown%d-%d",
-                            connector->connector_type,
-                            connector->connector_type_id);
-}
-
 static void
 meta_output_destroy_notify (MetaOutput *output)
 {
@@ -544,6 +514,7 @@ init_output_modes (MetaOutput  *output,
 
 MetaOutput *
 meta_create_kms_output (MetaGpuKms        *gpu_kms,
+                        MetaKmsConnector  *kms_connector,
                         drmModeConnector  *connector,
                         MetaKmsResources  *resources,
                         MetaOutput        *old_output,
@@ -552,13 +523,14 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaOutput *output;
   MetaOutputKms *output_kms;
+  uint32_t connector_id;
   GArray *crtcs;
   GBytes *edid;
   GList *l;
   unsigned int i;
   unsigned int crtc_mask;
   int fd;
-  uint32_t id;
+  uint32_t gpu_id;
   unsigned int n_encoders;
   drmModeEncoderPtr *encoders;
   drmModeEncoderPtr current_encoder = NULL;
@@ -570,10 +542,11 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   output->driver_notify = (GDestroyNotify) meta_output_destroy_notify;
 
   output->gpu = gpu;
-  output->name = make_output_name (connector);
+  output->name = g_strdup (meta_kms_connector_get_name (kms_connector));
 
-  id = meta_gpu_kms_get_id (gpu_kms);
-  output->winsys_id = ((uint64_t) id << 32) | connector->connector_id;
+  gpu_id = meta_gpu_kms_get_id (gpu_kms);
+  connector_id = meta_kms_connector_get_id (kms_connector);
+  output->winsys_id = ((uint64_t) gpu_id << 32) | connector_id;
 
   switch (connector->subpixel)
     {
@@ -597,6 +570,8 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
       output->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
       break;
     }
+
+  output_kms->kms_connector = kms_connector;
 
   output_kms->connector = connector;
   find_connector_properties (gpu_kms, output);
@@ -710,8 +685,7 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   meta_output_parse_edid (output, edid);
   g_bytes_unref (edid);
 
-  /* MetaConnectorType matches DRM's connector types */
-  output->connector_type = (MetaConnectorType) connector->connector_type;
+  output->connector_type = meta_kms_connector_get_connector_type (kms_connector);
 
   output_get_tile_info (gpu_kms, output);
 
