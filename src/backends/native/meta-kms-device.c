@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-device.h"
 
 #include "backends/native/meta-backend-native.h"
@@ -39,6 +40,12 @@ struct _MetaKmsDevice
 };
 
 G_DEFINE_TYPE (MetaKmsDevice, meta_kms_device, G_TYPE_OBJECT);
+
+MetaKmsImplDevice *
+meta_kms_device_get_impl_device (MetaKmsDevice *device)
+{
+  return device->impl_device;
+}
 
 int
 meta_kms_device_leak_fd (MetaKmsDevice *device)
