@@ -295,8 +295,6 @@ struct _CoglContext
   gboolean          buffer_map_fallback_in_use;
   size_t            buffer_map_fallback_offset;
 
-  CoglWinsysRectangleState rectangle_state;
-
   CoglSamplerCache *sampler_cache;
 
   /* FIXME: remove these when we remove the last xlib based clutter
