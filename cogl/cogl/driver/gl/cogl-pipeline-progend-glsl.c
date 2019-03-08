@@ -644,9 +644,6 @@ _cogl_pipeline_progend_glsl_start (CoglPipeline *pipeline)
 
   _COGL_GET_CONTEXT (ctx, FALSE);
 
-  if (!cogl_has_feature (ctx, COGL_FEATURE_ID_GLSL))
-    return FALSE;
-
   user_program = cogl_pipeline_get_user_program (pipeline);
   if (user_program &&
       _cogl_program_get_language (user_program) != COGL_SHADER_LANGUAGE_GLSL)

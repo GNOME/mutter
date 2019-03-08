@@ -322,7 +322,6 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
  *    and %COGL_FEATURE_TEXTURE_NPOT_REPEAT features combined.
  * @COGL_FEATURE_TEXTURE_YUV: ycbcr conversion support
  * @COGL_FEATURE_TEXTURE_READ_PIXELS: glReadPixels() support
- * @COGL_FEATURE_SHADERS_GLSL: GLSL support
  * @COGL_FEATURE_OFFSCREEN: FBO support
  * @COGL_FEATURE_OFFSCREEN_MULTISAMPLE: Multisample support on FBOs
  * @COGL_FEATURE_OFFSCREEN_BLIT: Blit support on FBOs
@@ -364,7 +363,6 @@ typedef enum
   COGL_FEATURE_TEXTURE_NPOT           = (1 << 2),
   COGL_FEATURE_TEXTURE_YUV            = (1 << 3),
   COGL_FEATURE_TEXTURE_READ_PIXELS    = (1 << 4),
-  COGL_FEATURE_SHADERS_GLSL           = (1 << 5),
   COGL_FEATURE_OFFSCREEN              = (1 << 6),
   COGL_FEATURE_OFFSCREEN_MULTISAMPLE  = (1 << 7),
   COGL_FEATURE_OFFSCREEN_BLIT         = (1 << 8),

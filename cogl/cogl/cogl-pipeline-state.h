@@ -626,10 +626,6 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline);
  * meantime we hope this will handle most practical GLSL and ARBfp
  * requirements.
  *
- * Also remember you need to check for either the
- * %COGL_FEATURE_SHADERS_GLSL or %COGL_FEATURE_SHADERS_ARBFP before
- * using the cogl_program or cogl_shader API.
- *
  * Since: 2.0
  * Stability: Unstable
  */

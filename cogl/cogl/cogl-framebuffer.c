@@ -1992,15 +1992,6 @@ get_wire_line_indices (CoglContext *ctx,
   return ret;
 }
 
-static gboolean
-remove_layer_cb (CoglPipeline *pipeline,
-                 int layer_index,
-                 void *user_data)
-{
-  cogl_pipeline_remove_layer (pipeline, layer_index);
-  return TRUE;
-}
-
 static void
 pipeline_destroyed_cb (CoglPipeline *weak_pipeline, void *user_data)
 {
@@ -2052,6 +2043,8 @@ draw_wireframe (CoglContext *ctx,
 
   if (!wire_pipeline)
     {
+      static CoglSnippet *snippet = NULL;
+
       wire_pipeline =
         _cogl_pipeline_weak_copy (pipeline, pipeline_destroyed_cb, NULL);
 
@@ -2063,29 +2056,20 @@ draw_wireframe (CoglContext *ctx,
        * vertex program and since we'd like to see the results of the
        * vertex program in the wireframe we just add a final clobber
        * of the wire color leaving the rest of the state untouched. */
-      if (cogl_has_feature (framebuffer->context, COGL_FEATURE_ID_GLSL))
-        {
-          static CoglSnippet *snippet = NULL;
 
-          /* The snippet is cached so that it will reuse the program
-           * from the pipeline cache if possible */
-          if (snippet == NULL)
-            {
-              snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
-                                          NULL,
-                                          NULL);
-              cogl_snippet_set_replace (snippet,
-                                        "cogl_color_out = "
-                                        "vec4 (0.0, 1.0, 0.0, 1.0);\n");
-            }
-
-          cogl_pipeline_add_snippet (wire_pipeline, snippet);
-        }
-      else
+      /* The snippet is cached so that it will reuse the program
+       * from the pipeline cache if possible */
+      if (snippet == NULL)
         {
-          cogl_pipeline_foreach_layer (wire_pipeline, remove_layer_cb, NULL);
-          cogl_pipeline_set_color4f (wire_pipeline, 0, 1, 0, 1);
+          snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
+                                      NULL,
+                                      NULL);
+          cogl_snippet_set_replace (snippet,
+                                    "cogl_color_out = "
+                                    "vec4 (0.0, 1.0, 0.0, 1.0);\n");
         }
+
+      cogl_pipeline_add_snippet (wire_pipeline, snippet);
     }
 
   /* temporarily disable the wireframe to avoid recursion! */

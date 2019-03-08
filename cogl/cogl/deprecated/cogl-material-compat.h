@@ -756,10 +756,6 @@ cogl_material_get_user_program (CoglMaterial *material);
  * meantime we hope this will handle most practical GLSL and ARBfp
  * requirements.
  *
- * Also remember you need to check for either the
- * %COGL_FEATURE_SHADERS_GLSL or %COGL_FEATURE_SHADERS_ARBFP before
- * using the cogl_program or cogl_shader API.
- *
  * Since: 1.4
  * Deprecated: 1.16: Use #CoglSnippet api instead instead
  */

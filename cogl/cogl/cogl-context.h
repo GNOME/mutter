@@ -199,7 +199,6 @@ cogl_is_context (void *object);
  *    offscreen framebuffers
  * @COGL_FEATURE_ID_ONSCREEN_MULTIPLE: Multiple onscreen framebuffers
  *    supported.
- * @COGL_FEATURE_ID_GLSL: GLSL support
  * @COGL_FEATURE_ID_UNSIGNED_INT_INDICES: Set if
  *     %COGL_INDICES_TYPE_UNSIGNED_INT is supported in
  *     cogl_indices_new().
@@ -240,7 +239,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT,
   COGL_FEATURE_ID_TEXTURE_NPOT,
   COGL_FEATURE_ID_TEXTURE_RECTANGLE,
-  COGL_FEATURE_ID_GLSL,
   COGL_FEATURE_ID_OFFSCREEN,
   COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE,
   COGL_FEATURE_ID_ONSCREEN_MULTIPLE,
