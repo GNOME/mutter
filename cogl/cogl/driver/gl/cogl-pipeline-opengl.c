@@ -673,22 +673,13 @@ get_max_activateable_texture_units (void)
 #ifdef HAVE_COGL_GL
       if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_GL_EMBEDDED))
         {
-          /* GL_MAX_TEXTURE_COORDS is provided for both GLSL and ARBfp. It
-             defines the number of texture coordinates that can be
-             uploaded (but doesn't necessarily relate to how many texture
-             images can be sampled) */
-          if (cogl_has_feature (ctx, COGL_FEATURE_ID_GLSL))
-            /* Previously this code subtracted the value by one but there
-               was no explanation for why it did this and it doesn't seem
-               to make sense so it has been removed */
-            GE (ctx, glGetIntegerv (GL_MAX_TEXTURE_COORDS,
-                                    values + n_values++));
+          /* GL_MAX_TEXTURE_COORDS defines the number of texture coordinates
+           * that can be uploaded (but doesn't necessarily relate to how many
+           * texture images can be sampled) */
+          GE (ctx, glGetIntegerv (GL_MAX_TEXTURE_COORDS, values + n_values++));
 
-          /* GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS is defined for GLSL but
-             not ARBfp */
-          if (cogl_has_feature (ctx, COGL_FEATURE_ID_GLSL))
-            GE (ctx, glGetIntegerv (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
-                                    values + n_values++));
+          GE (ctx, glGetIntegerv (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+                                  values + n_values++));
         }
 #endif /* HAVE_COGL_GL */
 

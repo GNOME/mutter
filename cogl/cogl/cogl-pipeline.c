@@ -3054,11 +3054,10 @@ _cogl_pipeline_get_layer_state_for_fragment_codegen (CoglContext *context)
      COGL_PIPELINE_LAYER_STATE_UNIT |
      COGL_PIPELINE_LAYER_STATE_FRAGMENT_SNIPPETS);
 
-  /* If the driver supports GLSL then we might be using gl_PointCoord
+  /* Since the driver supports GLSL then we might be using gl_PointCoord
    * to implement the sprite coords. In that case the generated code
    * depends on the point sprite state */
-  if (cogl_has_feature (context, COGL_FEATURE_ID_GLSL))
-    state |= COGL_PIPELINE_LAYER_STATE_POINT_SPRITE_COORDS;
+  state |= COGL_PIPELINE_LAYER_STATE_POINT_SPRITE_COORDS;
 
   return state;
 }

@@ -66,12 +66,6 @@ check_flags (TestFlags flags,
       return FALSE;
     }
 
-  if (flags & TEST_REQUIREMENT_GLSL &&
-      !cogl_has_feature (test_ctx, COGL_FEATURE_ID_GLSL))
-    {
-      return FALSE;
-    }
-
   if (flags & TEST_REQUIREMENT_OFFSCREEN &&
       !cogl_has_feature (test_ctx, COGL_FEATURE_ID_OFFSCREEN))
     {
