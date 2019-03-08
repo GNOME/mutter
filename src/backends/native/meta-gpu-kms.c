@@ -704,8 +704,7 @@ init_modes (MetaGpuKms *gpu_kms,
 }
 
 static void
-init_crtcs (MetaGpuKms       *gpu_kms,
-            MetaKmsResources *resources)
+init_crtcs (MetaGpuKms *gpu_kms)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaKmsDevice *kms_device = gpu_kms->kms_device;
@@ -717,15 +716,9 @@ init_crtcs (MetaGpuKms       *gpu_kms,
   for (l = meta_kms_device_get_crtcs (kms_device); l; l = l->next)
     {
       MetaKmsCrtc *kms_crtc = l->data;
-      int crtc_idx;
-      drmModeCrtc *drm_crtc;
       MetaCrtc *crtc;
 
-      crtc_idx = meta_kms_crtc_get_idx (kms_crtc);
-      drm_crtc = drmModeGetCrtc (gpu_kms->fd,
-                                 resources->resources->crtcs[crtc_idx]);
-      crtc = meta_create_kms_crtc (gpu_kms, kms_crtc, drm_crtc);
-      drmModeFreeCrtc (drm_crtc);
+      crtc = meta_create_kms_crtc (gpu_kms, kms_crtc);
 
       crtcs = g_list_append (crtcs, crtc);
     }
@@ -869,7 +862,7 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
 
   init_connectors (gpu_kms, resources.resources);
   init_modes (gpu_kms, resources.resources);
-  init_crtcs (gpu_kms, &resources);
+  init_crtcs (gpu_kms);
   init_outputs (gpu_kms, &resources);
   init_frame_clock (gpu_kms);
 
