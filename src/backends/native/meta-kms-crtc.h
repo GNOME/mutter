@@ -25,6 +25,18 @@
 #include <xf86drmMode.h>
 
 #include "backends/native/meta-kms-types.h"
+#include "meta/boxes.h"
+
+typedef struct _MetaKmsCrtcState
+{
+  MetaRectangle rect;
+  gboolean is_drm_mode_valid;
+  drmModeModeInfo drm_mode;
+
+  uint32_t common_possible_crtcs;
+  uint32_t common_possible_clones;
+  uint32_t encoder_device_idxs;
+} MetaKmsCrtcState;
 
 #define META_TYPE_KMS_CRTC (meta_kms_crtc_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKmsCrtc, meta_kms_crtc,
@@ -32,6 +44,8 @@ G_DECLARE_FINAL_TYPE (MetaKmsCrtc, meta_kms_crtc,
                       GObject)
 
 MetaKmsDevice * meta_kms_crtc_get_device (MetaKmsCrtc *crtc);
+
+const MetaKmsCrtcState * meta_kms_crtc_get_current_state (MetaKmsCrtc *crtc);
 
 uint32_t meta_kms_crtc_get_id (MetaKmsCrtc *crtc);
 
