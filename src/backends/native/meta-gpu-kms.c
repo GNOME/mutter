@@ -569,8 +569,8 @@ create_mode (const drmModeModeInfo *drm_mode,
 }
 
 static MetaOutput *
-find_output_by_connector_id (GList *outputs,
-                             glong  id)
+find_output_by_connector_id (GList    *outputs,
+                             uint32_t  connector_id)
 {
   GList *l;
 
@@ -578,7 +578,7 @@ find_output_by_connector_id (GList *outputs,
     {
       MetaOutput *output = l->data;
 
-      if (meta_output_kms_get_connector_id (output) == id)
+      if (meta_output_kms_get_connector_id (output) == connector_id)
         return output;
     }
 
