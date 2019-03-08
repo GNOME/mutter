@@ -216,6 +216,15 @@ init_planes (MetaKmsImplDevice *impl_device)
   impl_device->planes = g_list_reverse (impl_device->planes);
 }
 
+void
+meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
+{
+  meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl_device->impl));
+
+  g_list_foreach (impl_device->crtcs, (GFunc) meta_kms_crtc_update_state,
+                  NULL);
+}
+
 MetaKmsImplDevice *
 meta_kms_impl_device_new (MetaKmsDevice *device,
                           MetaKmsImpl   *impl,

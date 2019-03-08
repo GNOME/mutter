@@ -55,8 +55,7 @@ gboolean
 meta_crtc_kms_supports_format (MetaCrtc *crtc,
                                uint32_t  drm_format);
 
-MetaCrtc * meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
-                                 MetaKmsCrtc  *kms_crtc,
-                                 drmModeCrtc  *drm_crtc);
+MetaCrtc * meta_create_kms_crtc (MetaGpuKms  *gpu_kms,
+                                 MetaKmsCrtc *kms_crtc);
 
 #endif /* META_CRTC_KMS_H */
