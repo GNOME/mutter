@@ -44,7 +44,6 @@
 #include "cogl-glx-display-private.h"
 #include "cogl-private.h"
 #include "cogl-texture-2d-private.h"
-#include "cogl-texture-rectangle-private.h"
 #include "cogl-frame-info-private.h"
 #include "cogl-framebuffer-private.h"
 #include "cogl-onscreen-private.h"

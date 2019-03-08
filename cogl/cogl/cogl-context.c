@@ -40,7 +40,6 @@
 #include "cogl-journal-private.h"
 #include "cogl-texture-private.h"
 #include "cogl-texture-2d-private.h"
-#include "cogl-texture-rectangle-private.h"
 #include "cogl-pipeline-private.h"
 #include "cogl-framebuffer-private.h"
 #include "cogl-onscreen-private.h"
@@ -128,10 +127,8 @@ cogl_context_new (CoglDisplay *display,
 {
   CoglContext *context;
   uint8_t white_pixel[] = { 0xff, 0xff, 0xff, 0xff };
-  CoglBitmap *white_pixel_bitmap;
   const CoglWinsysVtable *winsys;
   int i;
-  CoglError *internal_error = NULL;
 
   _cogl_init ();
 
@@ -279,7 +276,6 @@ cogl_context_new (CoglDisplay *display,
   context->legacy_state_set = 0;
 
   context->default_gl_texture_2d_tex = NULL;
-  context->default_gl_texture_rect_tex = NULL;
 
   context->framebuffers = NULL;
   context->current_draw_buffer = NULL;
@@ -407,27 +403,6 @@ cogl_context_new (CoglDisplay *display,
                                    white_pixel,
                                    NULL); /* abort on error */
 
-  /* TODO: add cogl_texture_rectangle_new_from_data() */
-  white_pixel_bitmap =
-    cogl_bitmap_new_for_data (context,
-                              1, 1, /* width/height */
-                              COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                              4, /* rowstride */
-                              white_pixel);
-
-  internal_error = NULL;
-  context->default_gl_texture_rect_tex =
-    cogl_texture_rectangle_new_from_bitmap (white_pixel_bitmap);
-
-  /* XXX: we need to allocate the texture now because the white_pixel
-   * data is on the stack */
-  cogl_texture_allocate (COGL_TEXTURE (context->default_gl_texture_rect_tex),
-                         &internal_error);
-  if (internal_error)
-    cogl_error_free (internal_error);
-
-  cogl_object_unref (white_pixel_bitmap);
-
   cogl_push_source (context->opaque_color_pipeline);
 
   context->atlases = NULL;
@@ -466,8 +441,6 @@ _cogl_context_free (CoglContext *context)
 
   if (context->default_gl_texture_2d_tex)
     cogl_object_unref (context->default_gl_texture_2d_tex);
-  if (context->default_gl_texture_rect_tex)
-    cogl_object_unref (context->default_gl_texture_rect_tex);
 
   if (context->opaque_color_pipeline)
     cogl_object_unref (context->opaque_color_pipeline);

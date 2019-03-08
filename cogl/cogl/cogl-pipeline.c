@@ -1904,7 +1904,6 @@ fallback_layer_cb (CoglPipelineLayer *layer, void *user_data)
 {
   CoglPipelineFallbackState *state = user_data;
   CoglPipeline *pipeline = state->pipeline;
-  CoglTextureType texture_type = _cogl_pipeline_layer_get_texture_type (layer);
   CoglTexture *texture = NULL;
   COGL_STATIC_COUNTER (layer_fallback_counter,
                        "layer fallback counter",
@@ -1919,16 +1918,7 @@ fallback_layer_cb (CoglPipelineLayer *layer, void *user_data)
 
   COGL_COUNTER_INC (_cogl_uprof_context, layer_fallback_counter);
 
-  switch (texture_type)
-    {
-    case COGL_TEXTURE_TYPE_2D:
-      texture = COGL_TEXTURE (ctx->default_gl_texture_2d_tex);
-      break;
-
-    case COGL_TEXTURE_TYPE_RECTANGLE:
-      texture = COGL_TEXTURE (ctx->default_gl_texture_rect_tex);
-      break;
-    }
+  texture = COGL_TEXTURE (ctx->default_gl_texture_2d_tex);
 
   if (texture == NULL)
     {

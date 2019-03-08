@@ -48,7 +48,6 @@
 #include "cogl-bitmap-private.h"
 #include "cogl-atlas-texture-private.h"
 #include "cogl-error-private.h"
-#include "cogl-texture-rectangle.h"
 #include "cogl-sub-texture.h"
 #include "cogl-texture-2d-gl.h"
 

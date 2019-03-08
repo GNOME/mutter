@@ -40,7 +40,6 @@
 #include "cogl-context-private.h"
 #include "cogl-object.h"
 #include "cogl-texture-driver.h"
-#include "cogl-texture-rectangle-private.h"
 #include "cogl-texture-2d.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
@@ -60,30 +59,13 @@ _cogl_sub_texture_unmap_quad (CoglSubTexture *sub_tex,
                               float *coords)
 {
   CoglTexture *tex = COGL_TEXTURE (sub_tex);
+  float width = cogl_texture_get_width (sub_tex->full_texture);
+  float height = cogl_texture_get_height (sub_tex->full_texture);
 
-  /* NB: coords[] come in as non-normalized if sub_tex->full_texture
-   * is a CoglTextureRectangle otherwhise they are normalized. The
-   * coordinates we write out though must always be normalized.
-   *
-   * NB: sub_tex->sub_x/y/width/height are in non-normalized
-   * coordinates.
-   */
-  if (cogl_is_texture_rectangle (sub_tex->full_texture))
-    {
-      coords[0] = (coords[0] - sub_tex->sub_x) / tex->width;
-      coords[1] = (coords[1] - sub_tex->sub_y) / tex->height;
-      coords[2] = (coords[2] - sub_tex->sub_x) / tex->width;
-      coords[3] = (coords[3] - sub_tex->sub_y) / tex->height;
-    }
-  else
-    {
-      float width = cogl_texture_get_width (sub_tex->full_texture);
-      float height = cogl_texture_get_height (sub_tex->full_texture);
-      coords[0] = (coords[0] * width - sub_tex->sub_x) / tex->width;
-      coords[1] = (coords[1] * height - sub_tex->sub_y) / tex->height;
-      coords[2] = (coords[2] * width - sub_tex->sub_x) / tex->width;
-      coords[3] = (coords[3] * height - sub_tex->sub_y) / tex->height;
-    }
+  coords[0] = (coords[0] * width - sub_tex->sub_x) / tex->width;
+  coords[1] = (coords[1] * height - sub_tex->sub_y) / tex->height;
+  coords[2] = (coords[2] * width - sub_tex->sub_x) / tex->width;
+  coords[3] = (coords[3] * height - sub_tex->sub_y) / tex->height;
 }
 
 static void
@@ -91,31 +73,13 @@ _cogl_sub_texture_map_quad (CoglSubTexture *sub_tex,
                             float *coords)
 {
   CoglTexture *tex = COGL_TEXTURE (sub_tex);
+  float width = cogl_texture_get_width (sub_tex->full_texture);
+  float height = cogl_texture_get_height (sub_tex->full_texture);
 
-  /* NB: coords[] always come in as normalized coordinates but may go
-   * out as non-normalized if sub_tex->full_texture is a
-   * CoglTextureRectangle.
-   *
-   * NB: sub_tex->sub_x/y/width/height are in non-normalized
-   * coordinates.
-   */
-
-  if (cogl_is_texture_rectangle (sub_tex->full_texture))
-    {
-      coords[0] = coords[0] * tex->width + sub_tex->sub_x;
-      coords[1] = coords[1] * tex->height + sub_tex->sub_y;
-      coords[2] = coords[2] * tex->width + sub_tex->sub_x;
-      coords[3] = coords[3] * tex->height + sub_tex->sub_y;
-    }
-  else
-    {
-      float width = cogl_texture_get_width (sub_tex->full_texture);
-      float height = cogl_texture_get_height (sub_tex->full_texture);
-      coords[0] = (coords[0] * tex->width + sub_tex->sub_x) / width;
-      coords[1] = (coords[1] * tex->height + sub_tex->sub_y) / height;
-      coords[2] = (coords[2] * tex->width + sub_tex->sub_x) / width;
-      coords[3] = (coords[3] * tex->height + sub_tex->sub_y) / height;
-    }
+  coords[0] = (coords[0] * tex->width + sub_tex->sub_x) / width;
+  coords[1] = (coords[1] * tex->height + sub_tex->sub_y) / height;
+  coords[2] = (coords[2] * tex->width + sub_tex->sub_x) / width;
+  coords[3] = (coords[3] * tex->height + sub_tex->sub_y) / height;
 }
 
 typedef struct _CoglSubTextureForeachData
@@ -165,8 +129,7 @@ _cogl_sub_texture_foreach_sub_texture_in_region (
   _cogl_sub_texture_map_quad (sub_tex, mapped_coords);
 
   /* TODO: Add something like cogl_is_low_level_texture() */
-  if (cogl_is_texture_2d (full_texture) ||
-      cogl_is_texture_rectangle (full_texture))
+  if (cogl_is_texture_2d (full_texture))
     {
       callback (sub_tex->full_texture,
                 mapped_coords,
