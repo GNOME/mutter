@@ -373,11 +373,11 @@ meta_monitor_manager_test_calculate_monitor_mode_scale (MetaMonitorManager *mana
 }
 
 static float *
-meta_monitor_manager_test_calculate_supported_scales (MetaMonitorManager          *manager,
-                                                      MetaLogicalMonitorLayoutMode layout_mode,
-                                                      MetaMonitor                 *monitor,
-                                                      MetaMonitorMode             *monitor_mode,
-                                                      int                         *n_supported_scales)
+meta_monitor_manager_test_calculate_supported_scales (MetaMonitorManager           *manager,
+                                                      MetaLogicalMonitorLayoutMode  layout_mode,
+                                                      MetaMonitor                  *monitor,
+                                                      MetaMonitorMode              *monitor_mode,
+                                                      int                          *n_supported_scales)
 {
   MetaMonitorScalesConstraint constraints =
     META_MONITOR_SCALES_CONSTRAINT_NONE;

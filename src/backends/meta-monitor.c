@@ -1642,10 +1642,10 @@ out:
 }
 
 float *
-meta_monitor_calculate_supported_scales (MetaMonitor                *monitor,
-                                         MetaMonitorMode            *monitor_mode,
-                                         MetaMonitorScalesConstraint constraints,
-                                         int                        *n_supported_scales)
+meta_monitor_calculate_supported_scales (MetaMonitor                 *monitor,
+                                         MetaMonitorMode             *monitor_mode,
+                                         MetaMonitorScalesConstraint  constraints,
+                                         int                         *n_supported_scales)
 {
   unsigned int i, j;
   int width, height;
