@@ -169,14 +169,9 @@ add_layer_declaration_cb (CoglPipelineLayer *layer,
                           void *user_data)
 {
   CoglPipelineShaderState *shader_state = user_data;
-  const char *target_string;
-
-  _cogl_gl_util_get_texture_target_string (COGL_TEXTURE_TYPE_2D,
-                                           &target_string, NULL);
 
   g_string_append_printf (shader_state->header,
-                          "uniform sampler%s cogl_sampler%i;\n",
-                          target_string,
+                          "uniform sampler2D cogl_sampler%i;\n",
                           layer->index);
 
   return TRUE;
