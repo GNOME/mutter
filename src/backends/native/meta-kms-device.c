@@ -59,6 +59,12 @@ meta_kms_device_get_flags (MetaKmsDevice *device)
 }
 
 GList *
+meta_kms_device_get_connectors (MetaKmsDevice *device)
+{
+  return meta_kms_impl_device_get_connectors (device->impl_device);
+}
+
+GList *
 meta_kms_device_get_crtcs (MetaKmsDevice *device)
 {
   return meta_kms_impl_device_get_crtcs (device->impl_device);

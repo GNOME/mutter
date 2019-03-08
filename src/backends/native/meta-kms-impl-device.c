@@ -23,6 +23,8 @@
 
 #include <xf86drm.h>
 
+#include "backends/native/meta-kms-connector-private.h"
+#include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-crtc-private.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-impl.h"
@@ -39,6 +41,7 @@ struct _MetaKmsImplDevice
   int fd;
 
   GList *crtcs;
+  GList *connectors;
   GList *planes;
 };
 
@@ -48,6 +51,12 @@ MetaKmsDevice *
 meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device)
 {
   return impl_device->device;
+}
+
+GList *
+meta_kms_impl_device_get_connectors (MetaKmsImplDevice *impl_device)
+{
+  return impl_device->connectors;
 }
 
 GList *
@@ -108,6 +117,28 @@ init_crtcs (MetaKmsImplDevice *impl_device,
       drmModeFreeCrtc (drm_crtc);
 
       impl_device->crtcs = g_list_append (impl_device->crtcs, crtc);
+    }
+}
+
+static void
+init_connectors (MetaKmsImplDevice *impl_device,
+                 drmModeRes        *drm_resources)
+{
+  unsigned int i;
+
+  for (i = 0; i < drm_resources->count_connectors; i++)
+    {
+      drmModeConnector *drm_connector;
+      MetaKmsConnector *connector;
+
+      drm_connector = drmModeGetConnector (impl_device->fd,
+                                           drm_resources->connectors[i]);
+      connector = meta_kms_connector_new (impl_device, drm_connector,
+                                          drm_resources);
+      drmModeFreeConnector (drm_connector);
+
+      impl_device->connectors = g_list_append (impl_device->connectors,
+                                                connector);
     }
 }
 
@@ -202,6 +233,7 @@ meta_kms_impl_device_new (MetaKmsDevice *device,
   drm_resources = drmModeGetResources (fd);
 
   init_crtcs (impl_device, drm_resources);
+  init_connectors (impl_device, drm_resources);
   init_planes (impl_device);
 
   drmModeFreeResources (drm_resources);
@@ -243,6 +275,7 @@ meta_kms_impl_device_finalize (GObject *object)
 
   g_list_free_full (impl_device->planes, g_object_unref);
   g_list_free_full (impl_device->crtcs, g_object_unref);
+  g_list_free_full (impl_device->connectors, g_object_unref);
 
   G_OBJECT_CLASS (meta_kms_impl_device_parent_class)->finalize (object);
 }

@@ -34,6 +34,8 @@ G_DECLARE_FINAL_TYPE (MetaKmsImplDevice, meta_kms_impl_device,
 
 MetaKmsDevice * meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device);
 
+GList * meta_kms_impl_device_get_connectors (MetaKmsImplDevice *impl_device);
+
 GList * meta_kms_impl_device_get_crtcs (MetaKmsImplDevice *impl_device);
 
 GList * meta_kms_impl_device_get_planes (MetaKmsImplDevice *impl_device);
