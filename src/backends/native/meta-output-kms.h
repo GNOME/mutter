@@ -25,6 +25,7 @@
 
 #include "backends/meta-output.h"
 #include "backends/native/meta-gpu-kms.h"
+#include "backends/native/meta-kms-types.h"
 
 void meta_output_kms_set_underscan (MetaOutput *output);
 
@@ -39,6 +40,7 @@ uint32_t meta_output_kms_get_connector_id (MetaOutput *output);
 GBytes * meta_output_kms_read_edid (MetaOutput *output);
 
 MetaOutput * meta_create_kms_output (MetaGpuKms        *gpu_kms,
+                                     MetaKmsConnector  *kms_connector,
                                      drmModeConnector  *connector,
                                      MetaKmsResources  *resources,
                                      MetaOutput        *old_output,
