@@ -74,12 +74,12 @@ struct _MetaMonitorClass
   MetaOutput * (* get_main_output) (MetaMonitor *monitor);
   void (* derive_layout) (MetaMonitor   *monitor,
                           MetaRectangle *layout);
-  void (* calculate_crtc_pos) (MetaMonitor         *monitor,
-                               MetaMonitorMode     *monitor_mode,
-                               MetaOutput          *output,
-                               MetaMonitorTransform crtc_transform,
-                               int                 *out_x,
-                               int                 *out_y);
+  void (* calculate_crtc_pos) (MetaMonitor          *monitor,
+                               MetaMonitorMode      *monitor_mode,
+                               MetaOutput           *output,
+                               MetaMonitorTransform  crtc_transform,
+                               int                  *out_x,
+                               int                  *out_y);
   gboolean (* get_suggested_position) (MetaMonitor *monitor,
                                        int         *width,
                                        int         *height);
@@ -214,12 +214,12 @@ META_EXPORT_TEST
 GList * meta_monitor_get_modes (MetaMonitor *monitor);
 
 META_EXPORT_TEST
-void meta_monitor_calculate_crtc_pos (MetaMonitor         *monitor,
-                                      MetaMonitorMode     *monitor_mode,
-                                      MetaOutput          *output,
-                                      MetaMonitorTransform crtc_transform,
-                                      int                 *out_x,
-                                      int                 *out_y);
+void meta_monitor_calculate_crtc_pos (MetaMonitor          *monitor,
+                                      MetaMonitorMode      *monitor_mode,
+                                      MetaOutput           *output,
+                                      MetaMonitorTransform  crtc_transform,
+                                      int                  *out_x,
+                                      int                  *out_y);
 
 META_EXPORT_TEST
 float meta_monitor_calculate_mode_scale (MetaMonitor     *monitor,
