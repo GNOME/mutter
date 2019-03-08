@@ -929,11 +929,11 @@ ensure_supported_monitor_scales (MetaMonitorManager *manager)
 }
 
 static float *
-meta_monitor_manager_xrandr_calculate_supported_scales (MetaMonitorManager          *manager,
-                                                        MetaLogicalMonitorLayoutMode layout_mode,
-                                                        MetaMonitor                 *monitor,
-                                                        MetaMonitorMode             *monitor_mode,
-                                                        int                         *n_supported_scales)
+meta_monitor_manager_xrandr_calculate_supported_scales (MetaMonitorManager           *manager,
+                                                        MetaLogicalMonitorLayoutMode  layout_mode,
+                                                        MetaMonitor                  *monitor,
+                                                        MetaMonitorMode              *monitor_mode,
+                                                        int                          *n_supported_scales)
 {
   MetaMonitorManagerXrandr *manager_xrandr =
     META_MONITOR_MANAGER_XRANDR (manager);
