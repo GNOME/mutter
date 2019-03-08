@@ -35,8 +35,7 @@
 #define DRM_FORMAT_INVALID 0
 #endif
 
-#define ALL_TRANSFORMS (META_MONITOR_TRANSFORM_FLIPPED_270 + 1)
-#define ALL_TRANSFORMS_MASK ((1 << ALL_TRANSFORMS) - 1)
+#define ALL_TRANSFORMS_MASK ((1 << META_MONITOR_N_TRANSFORMS) - 1)
 
 typedef struct _MetaCrtcKms
 {
@@ -44,7 +43,7 @@ typedef struct _MetaCrtcKms
 
   uint32_t primary_plane_id;
   uint32_t rotation_prop_id;
-  uint32_t rotation_map[ALL_TRANSFORMS];
+  uint32_t rotation_map[META_MONITOR_N_TRANSFORMS];
   uint32_t all_hw_transforms;
 
   /*
