@@ -400,11 +400,11 @@ meta_monitor_manager_calculate_monitor_mode_scale (MetaMonitorManager *manager,
 }
 
 float *
-meta_monitor_manager_calculate_supported_scales (MetaMonitorManager          *manager,
-                                                 MetaLogicalMonitorLayoutMode layout_mode,
-                                                 MetaMonitor                 *monitor,
-                                                 MetaMonitorMode             *monitor_mode,
-                                                 int                         *n_supported_scales)
+meta_monitor_manager_calculate_supported_scales (MetaMonitorManager           *manager,
+                                                 MetaLogicalMonitorLayoutMode  layout_mode,
+                                                 MetaMonitor                  *monitor,
+                                                 MetaMonitorMode              *monitor_mode,
+                                                 int                          *n_supported_scales)
 {
   MetaMonitorManagerClass *manager_class =
     META_MONITOR_MANAGER_GET_CLASS (manager);

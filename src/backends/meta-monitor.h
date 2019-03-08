@@ -226,10 +226,10 @@ float meta_monitor_calculate_mode_scale (MetaMonitor     *monitor,
                                          MetaMonitorMode *monitor_mode);
 
 META_EXPORT_TEST
-float * meta_monitor_calculate_supported_scales (MetaMonitor                *monitor,
-                                                 MetaMonitorMode            *monitor_mode,
-                                                 MetaMonitorScalesConstraint constraints,
-                                                 int                        *n_supported_scales);
+float * meta_monitor_calculate_supported_scales (MetaMonitor                 *monitor,
+                                                 MetaMonitorMode             *monitor_mode,
+                                                 MetaMonitorScalesConstraint  constraints,
+                                                 int                         *n_supported_scales);
 
 META_EXPORT_TEST
 const char * meta_monitor_mode_get_id (MetaMonitorMode *monitor_mode);
