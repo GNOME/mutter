@@ -1013,12 +1013,6 @@ _cogl_atlas_texture_remove_reorganize_callback (CoglContext *ctx,
     g_hook_destroy_link (&ctx->atlas_reorganize_callbacks, hook);
 }
 
-static CoglTextureType
-_cogl_atlas_texture_get_type (CoglTexture *tex)
-{
-  return COGL_TEXTURE_TYPE_2D;
-}
-
 static const CoglTextureVtable
 cogl_atlas_texture_vtable =
   {
@@ -1040,7 +1034,6 @@ cogl_atlas_texture_vtable =
     _cogl_atlas_texture_gl_flush_legacy_texobj_wrap_modes,
     _cogl_atlas_texture_get_format,
     _cogl_atlas_texture_get_gl_format,
-    _cogl_atlas_texture_get_type,
     NULL, /* is_foreign */
     NULL /* set_auto_mipmap */
   };

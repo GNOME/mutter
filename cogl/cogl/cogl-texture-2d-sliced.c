@@ -1442,12 +1442,6 @@ _cogl_texture_2d_sliced_get_gl_format (CoglTexture *tex)
   return _cogl_texture_gl_get_format (COGL_TEXTURE (slice_tex));
 }
 
-static CoglTextureType
-_cogl_texture_2d_sliced_get_type (CoglTexture *tex)
-{
-  return COGL_TEXTURE_TYPE_2D;
-}
-
 static const CoglTextureVtable
 cogl_texture_2d_sliced_vtable =
   {
@@ -1469,7 +1463,6 @@ cogl_texture_2d_sliced_vtable =
     _cogl_texture_2d_sliced_gl_flush_legacy_texobj_wrap_modes,
     _cogl_texture_2d_sliced_get_format,
     _cogl_texture_2d_sliced_get_gl_format,
-    _cogl_texture_2d_sliced_get_type,
     _cogl_texture_2d_sliced_is_foreign,
     NULL /* set_auto_mipmap */
   };
