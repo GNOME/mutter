@@ -233,11 +233,10 @@ add_layer_declaration_cb (CoglPipelineLayer *layer,
                           void *user_data)
 {
   CoglPipelineShaderState *shader_state = user_data;
-  CoglTextureType texture_type =
-    _cogl_pipeline_layer_get_texture_type (layer);
   const char *target_string;
 
-  _cogl_gl_util_get_texture_target_string (texture_type, &target_string, NULL);
+  _cogl_gl_util_get_texture_target_string (COGL_TEXTURE_TYPE_2D,
+                                           &target_string, NULL);
 
   g_string_append_printf (shader_state->header,
                           "uniform sampler%s cogl_sampler%i;\n",
@@ -411,7 +410,6 @@ ensure_texture_lookup_generated (CoglPipelineShaderState *shader_state,
 {
   int unit_index = _cogl_pipeline_layer_get_unit_index (layer);
   CoglPipelineSnippetData snippet_data;
-  CoglTextureType texture_type;
   const char *target_string, *tex_coord_swizzle;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
@@ -419,9 +417,7 @@ ensure_texture_lookup_generated (CoglPipelineShaderState *shader_state,
   if (shader_state->unit_state[unit_index].sampled)
     return;
 
-  texture_type =
-    _cogl_pipeline_layer_get_texture_type (layer);
-  _cogl_gl_util_get_texture_target_string (texture_type,
+  _cogl_gl_util_get_texture_target_string (COGL_TEXTURE_TYPE_2D,
                                            &target_string,
                                            &tex_coord_swizzle);
 
