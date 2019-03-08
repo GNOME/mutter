@@ -51,11 +51,6 @@ _cogl_pipeline_get_layer_mag_filter (CoglPipeline *pipeline,
                                      int layer_index);
 
 gboolean
-_cogl_pipeline_layer_texture_type_equal (CoglPipelineLayer *authority0,
-                                         CoglPipelineLayer *authority1,
-                                         CoglPipelineEvalFlags flags);
-
-gboolean
 _cogl_pipeline_layer_texture_data_equal (CoglPipelineLayer *authority0,
                                          CoglPipelineLayer *authority1,
                                          CoglPipelineEvalFlags flags);
@@ -92,11 +87,6 @@ void
 _cogl_pipeline_layer_hash_unit_state (CoglPipelineLayer *authority,
                                       CoglPipelineLayer **authorities,
                                       CoglPipelineHashState *state);
-
-void
-_cogl_pipeline_layer_hash_texture_type_state (CoglPipelineLayer *authority,
-                                              CoglPipelineLayer **authorities,
-                                              CoglPipelineHashState *state);
 
 void
 _cogl_pipeline_layer_hash_texture_data_state (CoglPipelineLayer *authority,

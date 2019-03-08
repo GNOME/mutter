@@ -2611,8 +2611,6 @@ _cogl_pipeline_init_layer_state_hash_functions (void)
   CoglPipelineLayerStateIndex _index;
   layer_state_hash_functions[COGL_PIPELINE_LAYER_STATE_UNIT_INDEX] =
     _cogl_pipeline_layer_hash_unit_state;
-  layer_state_hash_functions[COGL_PIPELINE_LAYER_STATE_TEXTURE_TYPE_INDEX] =
-    _cogl_pipeline_layer_hash_texture_type_state;
   layer_state_hash_functions[COGL_PIPELINE_LAYER_STATE_TEXTURE_DATA_INDEX] =
     _cogl_pipeline_layer_hash_texture_data_state;
   layer_state_hash_functions[COGL_PIPELINE_LAYER_STATE_SAMPLER_INDEX] =
@@ -2635,7 +2633,7 @@ _cogl_pipeline_init_layer_state_hash_functions (void)
 
   {
   /* So we get a big error if we forget to update this code! */
-  _COGL_STATIC_ASSERT (COGL_PIPELINE_LAYER_STATE_SPARSE_COUNT == 10,
+  _COGL_STATIC_ASSERT (COGL_PIPELINE_LAYER_STATE_SPARSE_COUNT == 9,
                        "Don't forget to install a hash function for new "
                        "pipeline state and update assert at end of "
                        "_cogl_pipeline_init_state_hash_functions");
@@ -3040,7 +3038,6 @@ _cogl_pipeline_get_layer_state_for_fragment_codegen (CoglContext *context)
 {
   CoglPipelineLayerState state =
     (COGL_PIPELINE_LAYER_STATE_COMBINE |
-     COGL_PIPELINE_LAYER_STATE_TEXTURE_TYPE |
      COGL_PIPELINE_LAYER_STATE_UNIT |
      COGL_PIPELINE_LAYER_STATE_FRAGMENT_SNIPPETS);
 

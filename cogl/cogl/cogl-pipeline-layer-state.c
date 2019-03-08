@@ -136,87 +136,6 @@ cogl_pipeline_get_layer_texture (CoglPipeline *pipeline,
   return _cogl_pipeline_layer_get_texture (layer);
 }
 
-CoglTextureType
-_cogl_pipeline_layer_get_texture_type (CoglPipelineLayer *layer)
-{
-  CoglPipelineLayer *authority =
-    _cogl_pipeline_layer_get_authority (layer,
-                                        COGL_PIPELINE_LAYER_STATE_TEXTURE_TYPE);
-
-  return authority->texture_type;
-}
-
-static void
-_cogl_pipeline_set_layer_texture_type (CoglPipeline *pipeline,
-                                       int layer_index,
-                                       CoglTextureType texture_type)
-{
-  CoglPipelineLayerState change = COGL_PIPELINE_LAYER_STATE_TEXTURE_TYPE;
-  CoglPipelineLayer *layer;
-  CoglPipelineLayer *authority;
-  CoglPipelineLayer *new;
-
-  /* Note: this will ensure that the layer exists, creating one if it
-   * doesn't already.
-   *
-   * Note: If the layer already existed it's possibly owned by another
-   * pipeline. If the layer is created then it will be owned by
-   * pipeline. */
-  layer = _cogl_pipeline_get_layer (pipeline, layer_index);
-
-  /* Now find the ancestor of the layer that is the authority for the
-   * state we want to change */
-  authority = _cogl_pipeline_layer_get_authority (layer, change);
-
-  if (texture_type == authority->texture_type)
-    return;
-
-  new = _cogl_pipeline_layer_pre_change_notify (pipeline, layer, change);
-  if (new != layer)
-    layer = new;
-  else
-    {
-      /* If the original layer we found is currently the authority on
-       * the state we are changing see if we can revert to one of our
-       * ancestors being the authority. */
-      if (layer == authority &&
-          _cogl_pipeline_layer_get_parent (authority) != NULL)
-        {
-          CoglPipelineLayer *parent =
-            _cogl_pipeline_layer_get_parent (authority);
-          CoglPipelineLayer *old_authority =
-            _cogl_pipeline_layer_get_authority (parent, change);
-
-          if (old_authority->texture_type == texture_type)
-            {
-              layer->differences &= ~change;
-
-              g_assert (layer->owner == pipeline);
-              if (layer->differences == 0)
-                _cogl_pipeline_prune_empty_layer_difference (pipeline,
-                                                             layer);
-              goto changed;
-            }
-        }
-    }
-
-  layer->texture_type = texture_type;
-
-  /* If we weren't previously the authority on this state then we need
-   * to extended our differences mask and so it's possible that some
-   * of our ancestry will now become redundant, so we aim to reparent
-   * ourselves if that's true... */
-  if (layer != authority)
-    {
-      layer->differences |= change;
-      _cogl_pipeline_layer_prune_redundant_ancestry (layer);
-    }
-
-changed:
-
-  pipeline->dirty_real_blend_enable = TRUE;
-}
-
 static void
 _cogl_pipeline_set_layer_texture_data (CoglPipeline *pipeline,
                                        int layer_index,
@@ -301,32 +220,6 @@ cogl_pipeline_set_layer_texture (CoglPipeline *pipeline,
                                  int layer_index,
                                  CoglTexture *texture)
 {
-  /* For the convenience of fragend code we separate texture state
-   * into the "type" and the "data", and setting a layer texture
-   * updates both of these properties.
-   *
-   * One example for why this is helpful is that the fragends may
-   * cache programs they generate and want to re-use those programs
-   * with all pipelines having equivalent fragment processing state.
-   * For the sake of determining if pipelines have equivalent fragment
-   * processing state we don't need to compare that the same
-   * underlying texture objects are referenced by the pipelines but we
-   * do need to see if they use the same texture types. Making this
-   * distinction is much simpler if they are in different state
-   * groups.
-   *
-   * Note: if a NULL texture is set then we leave the type unchanged
-   * so we can avoid needlessly invalidating any associated fragment
-   * program.
-   */
-  if (texture)
-    {
-      CoglTextureType texture_type =
-        _cogl_texture_get_type (texture);
-      _cogl_pipeline_set_layer_texture_type (pipeline,
-                                             layer_index,
-                                             texture_type);
-    }
   _cogl_pipeline_set_layer_texture_data (pipeline, layer_index, texture);
 }
 
@@ -335,7 +228,6 @@ cogl_pipeline_set_layer_null_texture (CoglPipeline *pipeline,
                                       int layer_index,
                                       CoglTextureType texture_type)
 {
-  _cogl_pipeline_set_layer_texture_type (pipeline, layer_index, texture_type);
   _cogl_pipeline_set_layer_texture_data (pipeline, layer_index, NULL);
 }
 
@@ -923,14 +815,6 @@ cogl_pipeline_add_layer_snippet (CoglPipeline *pipeline,
 }
 
 gboolean
-_cogl_pipeline_layer_texture_type_equal (CoglPipelineLayer *authority0,
-                                         CoglPipelineLayer *authority1,
-                                         CoglPipelineEvalFlags flags)
-{
-  return authority0->texture_type == authority1->texture_type;
-}
-
-gboolean
 _cogl_pipeline_layer_texture_data_equal (CoglPipelineLayer *authority0,
                                          CoglPipelineLayer *authority1,
                                          CoglPipelineEvalFlags flags)
@@ -938,8 +822,7 @@ _cogl_pipeline_layer_texture_data_equal (CoglPipelineLayer *authority0,
   if (authority0->texture == NULL)
     {
       if (authority1->texture == NULL)
-        return (_cogl_pipeline_layer_get_texture_type (authority0) ==
-                _cogl_pipeline_layer_get_texture_type (authority1));
+        return TRUE;
       else
         return FALSE;
     }
@@ -1617,18 +1500,6 @@ _cogl_pipeline_layer_hash_unit_state (CoglPipelineLayer *authority,
   int unit = authority->unit_index;
   state->hash =
     _cogl_util_one_at_a_time_hash (state->hash, &unit, sizeof (unit));
-}
-
-void
-_cogl_pipeline_layer_hash_texture_type_state (CoglPipelineLayer *authority,
-                                              CoglPipelineLayer **authorities,
-                                              CoglPipelineHashState *state)
-{
-  CoglTextureType texture_type = authority->texture_type;
-
-  state->hash = _cogl_util_one_at_a_time_hash (state->hash,
-                                               &texture_type,
-                                               sizeof (texture_type));
 }
 
 void
