@@ -107,21 +107,6 @@ typedef enum
   COGL_TEXTURE_ERROR_TYPE
 } CoglTextureError;
 
-/**
- * CoglTextureType:
- * @COGL_TEXTURE_TYPE_2D: A #CoglTexture2D
- *
- * Constants representing the underlying hardware texture type of a
- * #CoglTexture.
- *
- * Stability: unstable
- * Since: 1.10
- */
-typedef enum
-{
-  COGL_TEXTURE_TYPE_2D,
-} CoglTextureType;
-
 uint32_t cogl_texture_error_quark (void);
 
 /**
