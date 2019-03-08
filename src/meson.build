@@ -291,8 +291,6 @@ mutter_sources = [
   'compositor/meta-surface-actor-x11.h',
   'compositor/meta-sync-ring.c',
   'compositor/meta-sync-ring.h',
-  'compositor/meta-texture-rectangle.c',
-  'compositor/meta-texture-rectangle.h',
   'compositor/meta-texture-tower.c',
   'compositor/meta-texture-tower.h',
   'compositor/meta-window-actor.c',
