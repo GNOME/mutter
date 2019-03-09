@@ -41,10 +41,23 @@ struct _MetaKmsPlane
   uint32_t rotation_map[META_MONITOR_N_TRANSFORMS];
   uint32_t all_hw_transforms;
 
+  /*
+   * primary plane's supported formats and maybe modifiers
+   * key: GUINT_TO_POINTER (format)
+   * value: owned GArray* (uint64_t modifier), or NULL
+   */
+  GHashTable *formats_modifiers;
+
   MetaKmsDevice *device;
 };
 
 G_DEFINE_TYPE (MetaKmsPlane, meta_kms_plane, G_TYPE_OBJECT)
+
+uint32_t
+meta_kms_plane_get_id (MetaKmsPlane *plane)
+{
+  return plane->id;
+}
 
 MetaKmsPlaneType
 meta_kms_plane_get_plane_type (MetaKmsPlane *plane)
@@ -75,8 +88,47 @@ meta_kms_plane_is_transform_handled (MetaKmsPlane         *plane,
        */
       return FALSE;
     }
-
   return plane->all_hw_transforms & (1 << transform);
+}
+
+GArray *
+meta_kms_plane_get_modifiers_for_format (MetaKmsPlane *plane,
+                                         uint32_t      format)
+{
+  return g_hash_table_lookup (plane->formats_modifiers,
+                              GUINT_TO_POINTER (format));
+}
+
+GArray *
+meta_kms_plane_copy_drm_format_list (MetaKmsPlane *plane)
+{
+  GArray *formats;
+  GHashTableIter it;
+  gpointer key;
+  unsigned int n_formats_modifiers;
+
+  n_formats_modifiers = g_hash_table_size (plane->formats_modifiers);
+  formats = g_array_sized_new (FALSE, FALSE,
+                               sizeof (uint32_t),
+                               n_formats_modifiers);
+  g_hash_table_iter_init (&it, plane->formats_modifiers);
+  while (g_hash_table_iter_next (&it, &key, NULL))
+    {
+      uint32_t drm_format = GPOINTER_TO_UINT (key);
+
+      g_array_append_val (formats, drm_format);
+    }
+
+  return formats;
+}
+
+gboolean
+meta_kms_plane_is_format_supported (MetaKmsPlane *plane,
+                                    uint32_t      drm_format)
+{
+  return g_hash_table_lookup_extended (plane->formats_modifiers,
+                                       GUINT_TO_POINTER (drm_format),
+                                       NULL, NULL);
 }
 
 gboolean
@@ -132,6 +184,122 @@ init_rotations (MetaKmsPlane            *plane,
     }
 }
 
+static inline uint32_t *
+drm_formats_ptr (struct drm_format_modifier_blob *blob)
+{
+  return (uint32_t *) (((char *) blob) + blob->formats_offset);
+}
+
+static inline struct drm_format_modifier *
+drm_modifiers_ptr (struct drm_format_modifier_blob *blob)
+{
+  return (struct drm_format_modifier *) (((char *) blob) +
+                                         blob->modifiers_offset);
+}
+
+static void
+free_modifier_array (GArray *array)
+{
+  if (!array)
+    return;
+
+  g_array_free (array, TRUE);
+}
+
+static void
+parse_formats (MetaKmsPlane      *plane,
+               MetaKmsImplDevice *impl_device,
+               uint32_t           blob_id)
+{
+  int fd;
+  drmModePropertyBlobPtr blob;
+  struct drm_format_modifier_blob *blob_fmt;
+  uint32_t *formats;
+  struct drm_format_modifier *drm_modifiers;
+  unsigned int fmt_i, mod_i;
+
+  g_return_if_fail (g_hash_table_size (plane->formats_modifiers) == 0);
+
+  if (blob_id == 0)
+    return;
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+  blob = drmModeGetPropertyBlob (fd, blob_id);
+  if (!blob)
+    return;
+
+  if (blob->length < sizeof (struct drm_format_modifier_blob))
+    {
+      drmModeFreePropertyBlob (blob);
+      return;
+    }
+
+  blob_fmt = blob->data;
+
+  formats = drm_formats_ptr (blob_fmt);
+  drm_modifiers = drm_modifiers_ptr (blob_fmt);
+
+  for (fmt_i = 0; fmt_i < blob_fmt->count_formats; fmt_i++)
+    {
+      GArray *modifiers = g_array_new (FALSE, FALSE, sizeof (uint64_t));
+
+      for (mod_i = 0; mod_i < blob_fmt->count_modifiers; mod_i++)
+        {
+          struct drm_format_modifier *drm_modifier = &drm_modifiers[mod_i];
+
+          /*
+           * The modifier advertisement blob is partitioned into groups of
+           * 64 formats.
+           */
+          if (fmt_i < drm_modifier->offset || fmt_i > drm_modifier->offset + 63)
+            continue;
+
+          if (!(drm_modifier->formats & (1 << (fmt_i - drm_modifier->offset))))
+            continue;
+
+          g_array_append_val (modifiers, drm_modifier->modifier);
+        }
+
+      if (modifiers->len == 0)
+        {
+          free_modifier_array (modifiers);
+          modifiers = NULL;
+        }
+
+      g_hash_table_insert (plane->formats_modifiers,
+                           GUINT_TO_POINTER (formats[fmt_i]),
+                           modifiers);
+    }
+
+  drmModeFreePropertyBlob (blob);
+}
+
+static void
+init_formats (MetaKmsPlane            *plane,
+              MetaKmsImplDevice       *impl_device,
+              drmModeObjectProperties *drm_plane_props)
+{
+  drmModePropertyPtr prop;
+  int idx;
+
+  plane->formats_modifiers =
+    g_hash_table_new_full (g_direct_hash,
+                           g_direct_equal,
+                           NULL,
+                           (GDestroyNotify) free_modifier_array);
+
+  prop = meta_kms_impl_device_find_property (impl_device, drm_plane_props,
+                                             "IN_FORMATS", &idx);
+  if (prop)
+    {
+      uint32_t blob_id;
+
+      blob_id = drm_plane_props->prop_values[idx];
+      parse_formats (plane, impl_device, blob_id);
+      drmModeFreeProperty (prop);
+    }
+}
+
 MetaKmsPlane *
 meta_kms_plane_new (MetaKmsPlaneType         type,
                     MetaKmsImplDevice       *impl_device,
@@ -147,8 +315,19 @@ meta_kms_plane_new (MetaKmsPlaneType         type,
   plane->device = meta_kms_impl_device_get_device (impl_device);
 
   init_rotations (plane, impl_device, drm_plane_props);
+  init_formats (plane, impl_device, drm_plane_props);
 
   return plane;
+}
+
+static void
+meta_kms_plane_finalize (GObject *object)
+{
+  MetaKmsPlane *plane = META_KMS_PLANE (object);
+
+  g_hash_table_destroy (plane->formats_modifiers);
+
+  G_OBJECT_CLASS (meta_kms_plane_parent_class)->finalize (object);
 }
 
 static void
@@ -159,4 +338,7 @@ meta_kms_plane_init (MetaKmsPlane *plane)
 static void
 meta_kms_plane_class_init (MetaKmsPlaneClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_kms_plane_finalize;
 }
