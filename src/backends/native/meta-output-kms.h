@@ -42,7 +42,6 @@ GBytes * meta_output_kms_read_edid (MetaOutput *output);
 MetaOutput * meta_create_kms_output (MetaGpuKms        *gpu_kms,
                                      MetaKmsConnector  *kms_connector,
                                      drmModeConnector  *connector,
-                                     MetaKmsResources  *resources,
                                      MetaOutput        *old_output,
                                      GError           **error);
 

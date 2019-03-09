@@ -22,6 +22,9 @@
 
 #include "backends/native/meta-kms-types.h"
 
+void meta_kms_connector_update_state (MetaKmsConnector *connector,
+                                      drmModeRes       *drm_resources);
+
 MetaKmsConnector * meta_kms_connector_new (MetaKmsImplDevice *impl_device,
                                            drmModeConnector  *drm_connector,
                                            drmModeRes        *drm_resources);
