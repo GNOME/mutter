@@ -29,6 +29,8 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-gpu-kms.h"
+#include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-plane.h"
 
 /* added in libdrm 2.4.95 */
 #ifndef DRM_FORMAT_INVALID
@@ -41,17 +43,10 @@ typedef struct _MetaCrtcKms
 {
   MetaKmsCrtc *kms_crtc;
 
-  uint32_t primary_plane_id;
   uint32_t rotation_prop_id;
   uint32_t rotation_map[META_MONITOR_N_TRANSFORMS];
-  uint32_t all_hw_transforms;
 
-  /*
-   * primary plane's supported formats and maybe modifiers
-   * key: GUINT_TO_POINTER (format)
-   * value: owned GArray* (uint64_t modifier), or NULL
-   */
-  GHashTable *formats_modifiers;
+  MetaKmsPlane *primary_plane;
 } MetaCrtcKms;
 
 /**
@@ -93,10 +88,11 @@ meta_crtc_kms_is_transform_handled (MetaCrtc             *crtc,
 {
   MetaCrtcKms *crtc_kms = crtc->driver_private;
 
-  if ((1 << transform) & crtc_kms->all_hw_transforms)
-    return TRUE;
-  else
+  if (!crtc_kms->primary_plane)
     return FALSE;
+
+  return meta_kms_plane_is_transform_handled (crtc_kms->primary_plane,
+                                              transform);
 }
 
 void
@@ -110,28 +106,18 @@ meta_crtc_kms_apply_transform (MetaCrtc *crtc)
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
-  if (crtc_kms->all_hw_transforms & (1 << crtc->transform))
-    hw_transform = crtc->transform;
-  else
+  hw_transform = crtc->transform;
+  if (!meta_crtc_kms_is_transform_handled (crtc, hw_transform))
     hw_transform = META_MONITOR_TRANSFORM_NORMAL;
-
-  if (!meta_crtc_kms_is_transform_handled (crtc, META_MONITOR_TRANSFORM_NORMAL))
+  if (!meta_crtc_kms_is_transform_handled (crtc, hw_transform))
     return;
 
   if (drmModeObjectSetProperty (kms_fd,
-                                crtc_kms->primary_plane_id,
+                                meta_kms_plane_get_id (crtc_kms->primary_plane),
                                 DRM_MODE_OBJECT_PLANE,
                                 crtc_kms->rotation_prop_id,
                                 crtc_kms->rotation_map[hw_transform]) != 0)
-    {
-      g_warning ("Failed to apply DRM plane transform %d: %m", hw_transform);
-
-      /*
-       * Blacklist this HW transform, we want to fallback to our
-       * fallbacks in this case.
-       */
-      crtc_kms->all_hw_transforms &= ~(1 << hw_transform);
-    }
+    g_warning ("Failed to apply DRM plane transform %d: %m", hw_transform);
 }
 
 static int
@@ -194,8 +180,8 @@ meta_crtc_kms_get_modifiers (MetaCrtc *crtc,
 {
   MetaCrtcKms *crtc_kms = crtc->driver_private;
 
-  return g_hash_table_lookup (crtc_kms->formats_modifiers,
-                              GUINT_TO_POINTER (format));
+  return meta_kms_plane_get_modifiers_for_format (crtc_kms->primary_plane,
+                                                  format);
 }
 
 /**
@@ -210,24 +196,8 @@ GArray *
 meta_crtc_kms_copy_drm_format_list (MetaCrtc *crtc)
 {
   MetaCrtcKms *crtc_kms = crtc->driver_private;
-  GArray *formats;
-  GHashTableIter it;
-  gpointer key;
-  unsigned int n_formats_modifiers;
 
-  n_formats_modifiers = g_hash_table_size (crtc_kms->formats_modifiers);
-  formats = g_array_sized_new (FALSE,
-                               FALSE,
-                               sizeof (uint32_t),
-                               n_formats_modifiers);
-  g_hash_table_iter_init (&it, crtc_kms->formats_modifiers);
-  while (g_hash_table_iter_next (&it, &key, NULL))
-    {
-      uint32_t drm_format = GPOINTER_TO_UINT (key);
-      g_array_append_val (formats, drm_format);
-    }
-
-  return formats;
+  return meta_kms_plane_copy_drm_format_list (crtc_kms->primary_plane);
 }
 
 /**
@@ -243,124 +213,8 @@ meta_crtc_kms_supports_format (MetaCrtc *crtc,
 {
   MetaCrtcKms *crtc_kms = crtc->driver_private;
 
-  return g_hash_table_lookup_extended (crtc_kms->formats_modifiers,
-                                       GUINT_TO_POINTER (drm_format),
-                                       NULL,
-                                       NULL);
-}
-
-static inline uint32_t *
-formats_ptr (struct drm_format_modifier_blob *blob)
-{
-  return (uint32_t *) (((char *) blob) + blob->formats_offset);
-}
-
-static inline struct drm_format_modifier *
-modifiers_ptr (struct drm_format_modifier_blob *blob)
-{
-  return (struct drm_format_modifier *) (((char *) blob) +
-                                         blob->modifiers_offset);
-}
-
-static void
-free_modifier_array (GArray *array)
-{
-  if (!array)
-    return;
-
-  g_array_free (array, TRUE);
-}
-
-/*
- * In case the DRM driver does not expose a format list for the
- * primary plane (does not support universal planes nor
- * IN_FORMATS property), hardcode something that is probably supported.
- */
-static const uint32_t drm_default_formats[] =
-  {
-    DRM_FORMAT_XRGB8888 /* The format everything should always support by convention */,
-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
-    DRM_FORMAT_XBGR8888 /* OpenGL GL_RGBA, GL_UNSIGNED_BYTE format, hopefully supported */
-#endif
-  };
-
-static void
-set_formats_from_array (MetaCrtc       *crtc,
-                        const uint32_t *formats,
-                        size_t          n_formats)
-{
-  MetaCrtcKms *crtc_kms = crtc->driver_private;
-  size_t i;
-
-  for (i = 0; i < n_formats; i++)
-    {
-      g_hash_table_insert (crtc_kms->formats_modifiers,
-                           GUINT_TO_POINTER (formats[i]), NULL);
-    }
-}
-
-static void
-parse_formats (MetaCrtc *crtc,
-               int       kms_fd,
-               uint32_t  blob_id)
-{
-  MetaCrtcKms *crtc_kms = crtc->driver_private;
-  drmModePropertyBlobPtr blob;
-  struct drm_format_modifier_blob *blob_fmt;
-  uint32_t *formats;
-  struct drm_format_modifier *modifiers;
-  unsigned int fmt_i, mod_i;
-
-  g_return_if_fail (g_hash_table_size (crtc_kms->formats_modifiers) == 0);
-
-  if (blob_id == 0)
-    return;
-
-  blob = drmModeGetPropertyBlob (kms_fd, blob_id);
-  if (!blob)
-    return;
-
-  if (blob->length < sizeof (struct drm_format_modifier_blob))
-    {
-      drmModeFreePropertyBlob (blob);
-      return;
-    }
-
-  blob_fmt = blob->data;
-
-  formats = formats_ptr (blob_fmt);
-  modifiers = modifiers_ptr (blob_fmt);
-
-  for (fmt_i = 0; fmt_i < blob_fmt->count_formats; fmt_i++)
-    {
-      GArray *mod_tmp = g_array_new (FALSE, FALSE, sizeof (uint64_t));
-
-      for (mod_i = 0; mod_i < blob_fmt->count_modifiers; mod_i++)
-        {
-          struct drm_format_modifier *modifier = &modifiers[mod_i];
-
-          /* The modifier advertisement blob is partitioned into groups of
-           * 64 formats. */
-          if (fmt_i < modifier->offset || fmt_i > modifier->offset + 63)
-            continue;
-
-          if (!(modifier->formats & (1 << (fmt_i - modifier->offset))))
-            continue;
-
-          g_array_append_val (mod_tmp, modifier->modifier);
-        }
-
-      if (mod_tmp->len == 0)
-        {
-          free_modifier_array (mod_tmp);
-          mod_tmp = NULL;
-        }
-
-      g_hash_table_insert (crtc_kms->formats_modifiers,
-                           GUINT_TO_POINTER (formats[fmt_i]), mod_tmp);
-    }
-
-  drmModeFreePropertyBlob (blob);
+  return meta_kms_plane_is_format_supported (crtc_kms->primary_plane,
+                                             drm_format);
 }
 
 static void
@@ -384,26 +238,8 @@ parse_transforms (MetaCrtc          *crtc,
         transform = META_MONITOR_TRANSFORM_270;
 
       if (transform != -1)
-        {
-          crtc_kms->all_hw_transforms |= 1 << transform;
-          crtc_kms->rotation_map[transform] = 1 << prop->enums[i].value;
-        }
+        crtc_kms->rotation_map[transform] = 1 << prop->enums[i].value;
     }
-}
-
-static gboolean
-is_primary_plane (MetaGpu                   *gpu,
-                  drmModeObjectPropertiesPtr props)
-{
-  drmModePropertyPtr prop;
-  int idx;
-
-  idx = find_property_index (gpu, props, "type", &prop);
-  if (idx < 0)
-    return FALSE;
-
-  drmModeFreeProperty (prop);
-  return props->prop_values[idx] == DRM_PLANE_TYPE_PRIMARY;
 }
 
 static void
@@ -413,91 +249,35 @@ init_crtc_rotations (MetaCrtc *crtc,
   MetaCrtcKms *crtc_kms = crtc->driver_private;
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
   int kms_fd;
-  drmModeObjectPropertiesPtr props;
-  drmModePlaneRes *planes;
+  uint32_t primary_plane_id;
   drmModePlane *drm_plane;
-  unsigned int i;
-  int crtc_idx;
+  drmModeObjectPropertiesPtr props;
+  drmModePropertyPtr prop;
+  int rotation_idx;
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
+  primary_plane_id = meta_kms_plane_get_id (crtc_kms->primary_plane);
+  drm_plane = drmModeGetPlane (kms_fd, primary_plane_id);
+  props = drmModeObjectGetProperties (kms_fd,
+                                      primary_plane_id,
+                                      DRM_MODE_OBJECT_PLANE);
 
-  planes = drmModeGetPlaneResources (kms_fd);
-  if (planes == NULL)
-    return;
-
-  crtc_idx = meta_kms_crtc_get_idx (crtc_kms->kms_crtc);
-  for (i = 0; i < planes->count_planes; i++)
+  rotation_idx = find_property_index (gpu, props,
+                                      "rotation", &prop);
+  if (rotation_idx >= 0)
     {
-      drmModePropertyPtr prop;
-
-      drm_plane = drmModeGetPlane (kms_fd, planes->planes[i]);
-
-      if (!drm_plane)
-        continue;
-
-      if ((drm_plane->possible_crtcs & (1 << crtc_idx)))
-        {
-          props = drmModeObjectGetProperties (kms_fd,
-                                              drm_plane->plane_id,
-                                              DRM_MODE_OBJECT_PLANE);
-
-          if (props && is_primary_plane (gpu, props))
-            {
-              int rotation_idx, fmts_idx;
-
-              crtc_kms->primary_plane_id = drm_plane->plane_id;
-              rotation_idx = find_property_index (gpu, props,
-                                                  "rotation", &prop);
-              if (rotation_idx >= 0)
-                {
-                  crtc_kms->rotation_prop_id = props->props[rotation_idx];
-                  parse_transforms (crtc, prop);
-                  drmModeFreeProperty (prop);
-                }
-
-              fmts_idx = find_property_index (gpu, props,
-                                              "IN_FORMATS", &prop);
-              if (fmts_idx >= 0)
-                {
-                  parse_formats (crtc, kms_fd, props->prop_values[fmts_idx]);
-                  drmModeFreeProperty (prop);
-                }
-
-              /* fall back to universal plane formats without modifiers */
-              if (g_hash_table_size (crtc_kms->formats_modifiers) == 0)
-                {
-                  set_formats_from_array (crtc,
-                                          drm_plane->formats,
-                                          drm_plane->count_formats);
-                }
-            }
-
-          if (props)
-            drmModeFreeObjectProperties (props);
-        }
-
-      drmModeFreePlane (drm_plane);
+      crtc_kms->rotation_prop_id = props->props[rotation_idx];
+      parse_transforms (crtc, prop);
+      drmModeFreeProperty (prop);
     }
 
-  crtc->all_transforms |= crtc_kms->all_hw_transforms;
-
-  drmModeFreePlaneResources (planes);
-
-  /* final formats fallback to something hardcoded */
-  if (g_hash_table_size (crtc_kms->formats_modifiers) == 0)
-    {
-      set_formats_from_array (crtc,
-                              drm_default_formats,
-                              G_N_ELEMENTS (drm_default_formats));
-    }
+  drmModeFreeObjectProperties (props);
+  drmModeFreePlane (drm_plane);
 }
 
 static void
 meta_crtc_destroy_notify (MetaCrtc *crtc)
 {
-  MetaCrtcKms *crtc_kms = crtc->driver_private;
-
-  g_hash_table_destroy (crtc_kms->formats_modifiers);
   g_free (crtc->driver_private);
 }
 
@@ -506,10 +286,15 @@ meta_create_kms_crtc (MetaGpuKms  *gpu_kms,
                       MetaKmsCrtc *kms_crtc)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
+  MetaKmsDevice *kms_device;
   MetaCrtc *crtc;
   MetaCrtcKms *crtc_kms;
+  MetaKmsPlane *primary_plane;
   const MetaKmsCrtcState *crtc_state;
 
+  kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+  primary_plane = meta_kms_device_get_primary_plane_for (kms_device,
+                                                         kms_crtc);
   crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
 
   crtc = g_object_new (META_TYPE_CRTC, NULL);
@@ -538,12 +323,7 @@ meta_create_kms_crtc (MetaGpuKms  *gpu_kms,
 
   crtc_kms = g_new0 (MetaCrtcKms, 1);
   crtc_kms->kms_crtc = kms_crtc;
-
-  crtc_kms->formats_modifiers =
-    g_hash_table_new_full (g_direct_hash,
-                           g_direct_equal,
-                           NULL,
-                           (GDestroyNotify) free_modifier_array);
+  crtc_kms->primary_plane = primary_plane;
 
   crtc->driver_private = crtc_kms;
   crtc->driver_notify = (GDestroyNotify) meta_crtc_destroy_notify;
