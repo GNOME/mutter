@@ -64,6 +64,8 @@ gboolean meta_gpu_kms_flip_crtc (MetaGpuKms  *gpu_kms,
 gboolean meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
                                      GError    **error);
 
+MetaKmsDevice * meta_gpu_kms_get_kms_device (MetaGpuKms *gpu_kms);
+
 int meta_gpu_kms_get_fd (MetaGpuKms *gpu_kms);
 
 uint32_t meta_gpu_kms_get_id (MetaGpuKms *gpu_kms);
