@@ -381,6 +381,12 @@ meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
   return TRUE;
 }
 
+MetaKmsDevice *
+meta_gpu_kms_get_kms_device (MetaGpuKms *gpu_kms)
+{
+  return gpu_kms->kms_device;
+}
+
 int
 meta_gpu_kms_get_fd (MetaGpuKms *gpu_kms)
 {
