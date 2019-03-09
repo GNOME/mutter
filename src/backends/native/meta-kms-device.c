@@ -25,6 +25,7 @@
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-impl.h"
+#include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-private.h"
 
 struct _MetaKmsDevice
@@ -75,6 +76,32 @@ GList *
 meta_kms_device_get_crtcs (MetaKmsDevice *device)
 {
   return meta_kms_impl_device_get_crtcs (device->impl_device);
+}
+
+static GList *
+meta_kms_device_get_planes (MetaKmsDevice *device)
+{
+  return meta_kms_impl_device_get_planes (device->impl_device);
+}
+
+MetaKmsPlane *
+meta_kms_device_get_primary_plane_for (MetaKmsDevice *device,
+                                       MetaKmsCrtc   *crtc)
+{
+  GList *l;
+
+  for (l = meta_kms_device_get_planes (device); l; l = l->next)
+    {
+      MetaKmsPlane *plane = l->data;
+
+      if (meta_kms_plane_get_plane_type (plane) != META_KMS_PLANE_TYPE_PRIMARY)
+        continue;
+
+      if (meta_kms_plane_is_usable_with (plane, crtc))
+        return plane;
+    }
+
+  return NULL;
 }
 
 typedef struct _CreateImplDeviceData
