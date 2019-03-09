@@ -39,6 +39,9 @@ GList * meta_kms_device_get_connectors (MetaKmsDevice *device);
 
 GList * meta_kms_device_get_crtcs (MetaKmsDevice *device);
 
+MetaKmsPlane * meta_kms_device_get_primary_plane_for (MetaKmsDevice *device,
+                                                      MetaKmsCrtc   *crtc);
+
 MetaKmsDevice * meta_kms_device_new (MetaKms            *kms,
                                      const char         *path,
                                      MetaKmsDeviceFlag   flags,
