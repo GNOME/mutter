@@ -738,8 +738,7 @@ init_frame_clock (MetaGpuKms *gpu_kms)
 }
 
 static void
-init_outputs (MetaGpuKms       *gpu_kms,
-              MetaKmsResources *resources)
+init_outputs (MetaGpuKms *gpu_kms)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   GList *old_outputs;
@@ -771,7 +770,6 @@ init_outputs (MetaGpuKms       *gpu_kms,
       output = meta_create_kms_output (gpu_kms,
                                        kms_connector,
                                        connector,
-                                       resources,
                                        old_output,
                                        &error);
       if (!output)
@@ -863,7 +861,7 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
   init_connectors (gpu_kms, resources.resources);
   init_modes (gpu_kms, resources.resources);
   init_crtcs (gpu_kms);
-  init_outputs (gpu_kms, &resources);
+  init_outputs (gpu_kms);
   init_frame_clock (gpu_kms);
 
   meta_kms_resources_release (&resources);
