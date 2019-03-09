@@ -219,10 +219,16 @@ init_planes (MetaKmsImplDevice *impl_device)
 void
 meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
 {
+  drmModeRes *drm_resources;
+
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl_device->impl));
 
+  drm_resources = drmModeGetResources (impl_device->fd);
   g_list_foreach (impl_device->crtcs, (GFunc) meta_kms_crtc_update_state,
                   NULL);
+  g_list_foreach (impl_device->connectors, (GFunc) meta_kms_connector_update_state,
+                  drm_resources);
+  drmModeFreeResources (drm_resources);
 }
 
 MetaKmsImplDevice *
