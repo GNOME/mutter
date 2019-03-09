@@ -24,12 +24,40 @@
 #include <stdint.h>
 #include <xf86drmMode.h>
 
-#include "backends/native/meta-kms-types.h"
 #include "backends/meta-output.h"
+#include "backends/native/meta-kms-types.h"
 
 #define META_TYPE_KMS_CONNECTOR (meta_kms_connector_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKmsConnector, meta_kms_connector,
                       META, KMS_CONNECTOR, GObject)
+
+typedef struct _MetaKmsConnectorState
+{
+  uint32_t current_crtc_id;
+
+  uint32_t common_possible_crtcs;
+  uint32_t common_possible_clones;
+  uint32_t encoder_device_idxs;
+
+  drmModeModeInfo *modes;
+  int n_modes;
+
+  uint32_t width_mm;
+  uint32_t height_mm;
+
+  MetaTileInfo tile_info;
+  GBytes *edid_data;
+
+  gboolean has_scaling;
+
+  CoglSubpixelOrder subpixel_order;
+
+  int suggested_x;
+  int suggested_y;
+  gboolean hotplug_mode_update;
+
+  MetaMonitorTransform panel_orientation_transform;
+} MetaKmsConnectorState;
 
 MetaKmsDevice * meta_kms_connector_get_device (MetaKmsConnector *connector);
 
@@ -38,5 +66,10 @@ MetaConnectorType meta_kms_connector_get_connector_type (MetaKmsConnector *conne
 uint32_t meta_kms_connector_get_id (MetaKmsConnector *connector);
 
 const char * meta_kms_connector_get_name (MetaKmsConnector *connector);
+
+gboolean meta_kms_connector_can_clone (MetaKmsConnector *connector,
+                                       MetaKmsConnector *other_connector);
+
+const MetaKmsConnectorState * meta_kms_connector_get_current_state (MetaKmsConnector *connector);
 
 #endif /* META_KMS_CONNECTOR_H */
