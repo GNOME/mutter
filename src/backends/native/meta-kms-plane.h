@@ -43,10 +43,20 @@ MetaKmsPlane * meta_kms_plane_new (MetaKmsPlaneType         type,
                                    drmModePlane            *drm_plane,
                                    drmModeObjectProperties *drm_plane_props);
 
+uint32_t meta_kms_plane_get_id (MetaKmsPlane *plane);
+
 MetaKmsPlaneType meta_kms_plane_get_plane_type (MetaKmsPlane *plane);
 
 gboolean meta_kms_plane_is_transform_handled (MetaKmsPlane         *plane,
                                               MetaMonitorTransform  transform);
+
+GArray * meta_kms_plane_get_modifiers_for_format (MetaKmsPlane *plane,
+                                                  uint32_t      format);
+
+GArray * meta_kms_plane_copy_drm_format_list (MetaKmsPlane *plane);
+
+gboolean meta_kms_plane_is_format_supported (MetaKmsPlane *plane,
+                                             uint32_t      format);
 
 gboolean meta_kms_plane_is_usable_with (MetaKmsPlane *plane,
                                         MetaKmsCrtc  *crtc);
