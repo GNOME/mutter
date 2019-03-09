@@ -166,6 +166,14 @@ find_property_index (MetaGpu                    *gpu,
   return -1;
 }
 
+MetaKmsCrtc *
+meta_crtc_kms_get_kms_crtc (MetaCrtc *crtc)
+{
+  MetaCrtcKms *crtc_kms = crtc->driver_private;
+
+  return crtc_kms->kms_crtc;
+}
+
 /**
  * meta_crtc_kms_get_modifiers:
  * @crtc: a #MetaCrtc object that has to be a #MetaCrtcKms
