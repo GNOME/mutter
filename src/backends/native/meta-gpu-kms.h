@@ -35,8 +35,6 @@ G_DECLARE_FINAL_TYPE (MetaGpuKms, meta_gpu_kms, META, GPU_KMS, MetaGpu)
 
 typedef struct _MetaGpuKmsFlipClosureContainer MetaGpuKmsFlipClosureContainer;
 
-typedef void (*MetaKmsFlipCallback) (void *user_data);
-
 MetaGpuKms * meta_gpu_kms_new (MetaBackendNative  *backend_native,
                                MetaKmsDevice      *kms_device,
                                GError            **error);
