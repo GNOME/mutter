@@ -45,6 +45,8 @@ gboolean meta_crtc_kms_is_transform_handled (MetaCrtc             *crtc,
 
 void meta_crtc_kms_apply_transform (MetaCrtc *crtc);
 
+MetaKmsCrtc * meta_crtc_kms_get_kms_crtc (MetaCrtc *crtc);
+
 GArray * meta_crtc_kms_get_modifiers (MetaCrtc *crtc,
                                       uint32_t  format);
 
