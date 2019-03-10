@@ -27,6 +27,13 @@
 #include "backends/native/meta-kms-impl-simple.h"
 #include "backends/native/meta-udev.h"
 
+typedef struct _MetaKmsCallbackData
+{
+  MetaKmsCallback callback;
+  gpointer user_data;
+  GDestroyNotify user_data_destroy;
+} MetaKmsCallbackData;
+
 struct _MetaKms
 {
   GObject parent;
@@ -39,9 +46,61 @@ struct _MetaKms
   gboolean in_impl_task;
 
   GList *devices;
+
+  GList *pending_callbacks;
+  guint callback_source_id;
 };
 
 G_DEFINE_TYPE (MetaKms, meta_kms, G_TYPE_OBJECT)
+
+static void
+meta_kms_callback_data_free (MetaKmsCallbackData *callback_data)
+{
+  if (callback_data->user_data_destroy)
+    callback_data->user_data_destroy (callback_data->user_data);
+  g_slice_free (MetaKmsCallbackData, callback_data);
+}
+
+static gboolean
+callback_idle (gpointer user_data)
+{
+  MetaKms *kms = user_data;
+  GList *l;
+
+  for (l = kms->pending_callbacks; l; l = l->next)
+    {
+      MetaKmsCallbackData *callback_data = l->data;
+
+      callback_data->callback (kms, callback_data->user_data);
+      meta_kms_callback_data_free (callback_data);
+    }
+
+  g_list_free (kms->pending_callbacks);
+  kms->pending_callbacks = NULL;
+
+  kms->callback_source_id = 0;
+  return G_SOURCE_REMOVE;
+}
+
+void
+meta_kms_queue_callback (MetaKms         *kms,
+                         MetaKmsCallback  callback,
+                         gpointer         user_data,
+                         GDestroyNotify   user_data_destroy)
+{
+  MetaKmsCallbackData *callback_data;
+
+  callback_data = g_slice_new0 (MetaKmsCallbackData);
+  *callback_data = (MetaKmsCallbackData) {
+    .callback = callback,
+    .user_data = user_data,
+    .user_data_destroy = user_data_destroy,
+  };
+  kms->pending_callbacks = g_list_append (kms->pending_callbacks,
+                                          callback_data);
+  if (!kms->callback_source_id)
+    kms->callback_source_id = g_idle_add (callback_idle, kms);
+}
 
 gboolean
 meta_kms_run_impl_task_sync (MetaKms              *kms,
@@ -155,6 +214,13 @@ meta_kms_finalize (GObject *object)
   MetaKms *kms = META_KMS (object);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (kms->backend);
   MetaUdev *udev = meta_backend_native_get_udev (backend_native);
+  GList *l;
+
+  for (l = kms->pending_callbacks; l; l = l->next)
+    meta_kms_callback_data_free (l->data);
+  g_list_free (kms->pending_callbacks);
+
+  g_clear_handle_id (&kms->callback_source_id, g_source_remove);
 
   g_list_free_full (kms->devices, g_object_unref);
 
