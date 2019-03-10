@@ -34,6 +34,12 @@ typedef struct _MetaKmsCallbackData
   GDestroyNotify user_data_destroy;
 } MetaKmsCallbackData;
 
+typedef struct _MetaKmsSimpleImplSource
+{
+  GSource source;
+  MetaKms *kms;
+} MetaKmsSimpleImplSource;
+
 struct _MetaKms
 {
   GObject parent;
@@ -115,6 +121,48 @@ meta_kms_run_impl_task_sync (MetaKms              *kms,
   kms->in_impl_task = FALSE;
 
   return ret;
+}
+
+static gboolean
+simple_impl_source_dispatch (GSource     *source,
+                             GSourceFunc  callback,
+                             gpointer     user_data)
+{
+  MetaKmsSimpleImplSource *simple_impl_source =
+    (MetaKmsSimpleImplSource *) source;
+  MetaKms *kms = simple_impl_source->kms;
+  gboolean ret;
+
+  kms->in_impl_task = TRUE;
+  ret = callback (user_data);
+  kms->in_impl_task = FALSE;
+
+  return ret;
+}
+
+static GSourceFuncs simple_impl_source_funcs = {
+  .dispatch = simple_impl_source_dispatch,
+};
+
+GSource *
+meta_kms_add_source_in_impl (MetaKms     *kms,
+                             GSourceFunc  func,
+                             gpointer     user_data)
+{
+  GSource *source;
+  MetaKmsSimpleImplSource *simple_impl_source;
+
+  meta_assert_in_kms_impl (kms);
+
+  source = g_source_new (&simple_impl_source_funcs,
+                         sizeof (MetaKmsSimpleImplSource));
+  simple_impl_source = (MetaKmsSimpleImplSource *) source;
+  simple_impl_source->kms = kms;
+
+  g_source_set_callback (source, func, user_data, NULL);
+  g_source_attach (source, NULL);
+
+  return source;
 }
 
 gboolean
