@@ -40,6 +40,17 @@ typedef struct _MetaKmsSimpleImplSource
   MetaKms *kms;
 } MetaKmsSimpleImplSource;
 
+typedef struct _MetaKmsFdImplSource
+{
+  GSource source;
+
+  gpointer fd_tag;
+  MetaKms *kms;
+
+  MetaKmsImplTaskFunc dispatch;
+  gpointer user_data;
+} MetaKmsFdImplSource;
+
 struct _MetaKms
 {
   GObject parent;
@@ -160,6 +171,69 @@ meta_kms_add_source_in_impl (MetaKms     *kms,
   simple_impl_source->kms = kms;
 
   g_source_set_callback (source, func, user_data, NULL);
+  g_source_attach (source, g_main_context_get_thread_default ());
+
+  return source;
+}
+
+static gboolean
+meta_kms_fd_impl_source_check (GSource *source)
+{
+  MetaKmsFdImplSource *fd_impl_source = (MetaKmsFdImplSource *) source;
+
+  return g_source_query_unix_fd (source, fd_impl_source->fd_tag) & G_IO_IN;
+}
+
+static gboolean
+meta_kms_fd_impl_source_dispatch (GSource     *source,
+                                  GSourceFunc  callback,
+                                  gpointer     user_data)
+{
+  MetaKmsFdImplSource *fd_impl_source = (MetaKmsFdImplSource *) source;
+  MetaKms *kms = fd_impl_source->kms;
+  gboolean ret;
+  GError *error = NULL;
+
+  kms->in_impl_task = TRUE;
+  ret = fd_impl_source->dispatch (kms->impl,
+                                  fd_impl_source->user_data,
+                                  &error);
+  kms->in_impl_task = FALSE;
+
+  if (!ret)
+    {
+      g_warning ("Failed to dispatch fd source: %s", error->message);
+      g_error_free (error);
+    }
+
+  return G_SOURCE_CONTINUE;
+}
+
+static GSourceFuncs fd_impl_source_funcs = {
+  NULL,
+  meta_kms_fd_impl_source_check,
+  meta_kms_fd_impl_source_dispatch
+};
+
+GSource *
+meta_kms_register_fd_in_impl (MetaKms             *kms,
+                              int                  fd,
+                              MetaKmsImplTaskFunc  dispatch,
+                              gpointer             user_data)
+{
+  GSource *source;
+  MetaKmsFdImplSource *fd_impl_source;
+
+  meta_assert_in_kms_impl (kms);
+
+  source = g_source_new (&fd_impl_source_funcs, sizeof (MetaKmsFdImplSource));
+  fd_impl_source = (MetaKmsFdImplSource *) source;
+  fd_impl_source->dispatch = dispatch;
+  fd_impl_source->user_data = user_data;
+  fd_impl_source->kms = kms;
+  fd_impl_source->fd_tag = g_source_add_unix_fd (source, fd,
+                                                 G_IO_IN | G_IO_ERR);
+
   g_source_attach (source, g_main_context_get_thread_default ());
 
   return source;
