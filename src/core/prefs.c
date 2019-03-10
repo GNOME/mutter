@@ -111,7 +111,7 @@ static gboolean resize_with_right_button = FALSE;
 static gboolean edge_tiling = FALSE;
 static gboolean force_fullscreen = TRUE;
 static gboolean auto_maximize = TRUE;
-static gboolean show_fallback_app_menu = FALSE;
+static gboolean show_fallback_app_menu = TRUE;
 
 static GDesktopVisualBellType visual_bell_type = G_DESKTOP_VISUAL_BELL_FULLSCREEN_FLASH;
 static MetaButtonLayout button_layout;
