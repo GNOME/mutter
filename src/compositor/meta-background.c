@@ -987,7 +987,7 @@ meta_background_get_texture (MetaBackground         *self,
                                      (1 - self->blend_factor),
                                      (1 - self->blend_factor),
                                      (1 - self->blend_factor),
-                                     (1 - self->blend_factor));;
+                                     (1 - self->blend_factor));
           cogl_pipeline_set_layer_texture (pipeline, 0, texture1);
           cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (self->style));
 
