@@ -24,9 +24,17 @@
 
 #include "backends/native/meta-kms-types.h"
 
+typedef void (* MetaKmsCallback) (MetaKms  *kms,
+                                  gpointer  user_data);
+
 typedef gboolean (* MetaKmsImplTaskFunc) (MetaKmsImpl  *impl,
                                           gpointer      user_data,
                                           GError      **error);
+
+void meta_kms_queue_callback (MetaKms         *kms,
+                              MetaKmsCallback  callback,
+                              gpointer         user_data,
+                              GDestroyNotify   user_data_destroy);
 
 gboolean meta_kms_run_impl_task_sync (MetaKms              *kms,
                                       MetaKmsImplTaskFunc   func,
