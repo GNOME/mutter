@@ -45,6 +45,11 @@ GSource * meta_kms_add_source_in_impl (MetaKms     *kms,
                                        GSourceFunc  func,
                                        gpointer     user_data);
 
+GSource * meta_kms_register_fd_in_impl (MetaKms             *kms,
+                                        int                  fd,
+                                        MetaKmsImplTaskFunc  dispatch,
+                                        gpointer             user_data);
+
 gboolean meta_kms_in_impl_task (MetaKms *kms);
 
 #define meta_assert_in_kms_impl(kms) \
