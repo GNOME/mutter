@@ -41,6 +41,10 @@ gboolean meta_kms_run_impl_task_sync (MetaKms              *kms,
                                       gpointer              user_data,
                                       GError              **error);
 
+GSource * meta_kms_add_source_in_impl (MetaKms     *kms,
+                                       GSourceFunc  func,
+                                       gpointer     user_data);
+
 gboolean meta_kms_in_impl_task (MetaKms *kms);
 
 #define meta_assert_in_kms_impl(kms) \
