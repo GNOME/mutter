@@ -81,8 +81,6 @@ MetaCrtcMode * meta_gpu_kms_get_mode_from_drm_mode (MetaGpuKms            *gpu_k
 gboolean meta_drm_mode_equal (const drmModeModeInfo *one,
                               const drmModeModeInfo *two);
 
-float meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *mode);
-
 MetaGpuKmsFlipClosureContainer * meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
                                                                  MetaCrtc   *crtc,
                                                                  GClosure   *flip_closure);
