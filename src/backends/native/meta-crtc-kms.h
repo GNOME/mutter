@@ -31,15 +31,6 @@
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-kms-crtc.h"
 
-typedef struct _MetaDrmFormatBuf
-{
-  char s[5];
-} MetaDrmFormatBuf;
-
-const char *
-meta_drm_format_to_string (MetaDrmFormatBuf *tmp,
-                           uint32_t          format);
-
 gboolean meta_crtc_kms_is_transform_handled (MetaCrtc             *crtc,
                                              MetaMonitorTransform  transform);
 
