@@ -71,8 +71,5 @@ void
 graphene_matrix_to_cogl_matrix (const graphene_matrix_t *matrix,
                                 CoglMatrix              *res)
 {
-  float data[16];
-
-  graphene_matrix_to_float (matrix, data);
-  cogl_matrix_init_from_array (res, data);
+  graphene_matrix_to_float (matrix, (float *)res);
 }
