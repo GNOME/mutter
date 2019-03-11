@@ -605,6 +605,8 @@ if have_native_backend
     'backends/native/meta-kms-plane.h',
     'backends/native/meta-kms-private.h',
     'backends/native/meta-kms-types.h',
+    'backends/native/meta-kms-utils.c',
+    'backends/native/meta-kms-utils.h',
     'backends/native/meta-kms.c',
     'backends/native/meta-kms.h',
     'backends/native/meta-renderer-native-gles3.c',
