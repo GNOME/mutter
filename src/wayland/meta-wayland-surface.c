@@ -1072,10 +1072,17 @@ wl_surface_set_buffer_scale (struct wl_client *client,
                              int scale)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
-  if (scale > 0)
-    surface->pending->scale = scale;
-  else
-    g_warning ("Trying to set invalid buffer_scale of %d\n", scale);
+
+  if (scale <= 0)
+    {
+      wl_resource_post_error (resource,
+                              WL_SURFACE_ERROR_INVALID_SCALE,
+                              "Trying to set invalid buffer_scale of %d\n",
+                              scale);
+      return;
+    }
+
+  surface->pending->scale = scale;
 }
 
 static void
