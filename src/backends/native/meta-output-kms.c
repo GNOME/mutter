@@ -30,6 +30,7 @@
 
 #include "backends/meta-crtc.h"
 #include "backends/native/meta-kms-connector.h"
+#include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-crtc-kms.h"
 
 #include "meta-default-modes.h"
