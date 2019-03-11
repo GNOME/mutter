@@ -39,6 +39,7 @@
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-launcher.h"
 #include "backends/native/meta-output-kms.h"
@@ -522,24 +523,6 @@ meta_gpu_kms_get_mode_from_drm_mode (MetaGpuKms            *gpu_kms,
 
   g_assert_not_reached ();
   return NULL;
-}
-
-float
-meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *mode)
-{
-  float refresh = 0.0;
-
-  if (mode->htotal > 0 && mode->vtotal > 0)
-    {
-      /* Calculate refresh rate in milliHz first for extra precision. */
-      refresh = (mode->clock * 1000000LL) / mode->htotal;
-      refresh += (mode->vtotal / 2);
-      refresh /= mode->vtotal;
-      if (mode->vscan > 1)
-        refresh /= mode->vscan;
-      refresh /= 1000.0;
-    }
-  return refresh;
 }
 
 static MetaCrtcMode *
