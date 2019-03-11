@@ -178,7 +178,7 @@ if have_native_backend
   libgbm_dep = dependency('gbm', version: gbm_req)
   libinput_dep = dependency('libinput', version: libinput_req)
 
-  libsystemd_dep = dependency('libsystemd')
+  libsystemd_dep = dependency('libsystemd', required: false)
   if libsystemd_dep.found()
     logind_provider_dep = libsystemd_dep
   else
