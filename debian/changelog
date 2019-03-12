@@ -1,8 +1,17 @@
 mutter (3.32.0-1) UNRELEASED; urgency=medium
 
   * New upstream release
+    + Fix deadlock when cancelling a theme sound
+    + Stop swizzling BGRA buffers (bye-bye inverted colors in screenshots and
+      animations)
+  * debian/patches/*: Update to master at
+    318164779c07c12c5acfcddde7834980c7521aac. These are patches which will go
+    into 3.32.1. Also refresh all other patches.
+  * debian/control: Build-Depend on dbus for tests. We run the tests under
+    `dbus-run-session`. Apparently whatever waas pulling this in before
+    stopped doing that, so BD on it directly.
 
- -- Iain Lane <laney@debian.org>  Tue, 12 Mar 2019 10:22:18 +0000
+ -- Iain Lane <laney@debian.org>  Tue, 12 Mar 2019 10:42:28 +0000
 
 mutter (3.31.92-1) experimental; urgency=medium
 
