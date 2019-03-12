@@ -5087,6 +5087,11 @@ clutter_stage_update_resource_scales (ClutterStage *stage)
       if (scale != 1.0f)
         context->scaled_stage_views = TRUE;
 
+      /* Resource scale is always ceiled, so we apply the same here in order
+       * to avoid repainting of actors at different scaling level in the same
+       * integer fraction. */
+      scale = ceilf (scale);
+
       if (context->global_resource_scale < 0.0f)
         {
           context->global_resource_scale = scale;

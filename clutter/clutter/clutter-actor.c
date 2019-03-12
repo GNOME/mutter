@@ -847,6 +847,7 @@ struct _ClutterActorPrivate
   guint needs_paint_volume_update   : 1;
   guint had_effects_on_last_paint_volume_update : 1;
   guint needs_compute_resource_scale : 1;
+  guint needs_update_resource_scale : 1;
 };
 
 enum
@@ -1099,7 +1100,6 @@ static void clutter_actor_set_child_transform_internal (ClutterActor        *sel
 
 static void     clutter_actor_realize_internal          (ClutterActor *self);
 static void     clutter_actor_unrealize_internal        (ClutterActor *self);
-static gboolean clutter_actor_update_resource_scale     (ClutterActor *self);
 static void     clutter_actor_ensure_resource_scale     (ClutterActor *self);
 
 static void clutter_actor_push_in_cloned_branch (ClutterActor *self,
@@ -5688,13 +5688,14 @@ clutter_actor_get_property (GObject    *object,
       break;
 
     case PROP_RESOURCE_SCALE:
-      if (priv->needs_compute_resource_scale)
-        {
-          if (!clutter_actor_update_resource_scale (actor))
-            g_warning ("Getting invalid resource scale property");
-        }
+      {
+        float resource_scale;
 
-      g_value_set_float (value, ceilf (priv->resource_scale));
+        if (!clutter_actor_get_resource_scale (actor, &resource_scale))
+          g_warning ("Getting invalid resource scale property");
+
+        g_value_set_float (value, resource_scale);
+      }
       break;
 
     case PROP_REACTIVE:
@@ -17808,9 +17809,6 @@ _clutter_actor_compute_resource_scale (ClutterActor *self,
   ClutterRect bounding_rect;
   ClutterActorPrivate *priv = self->priv;
 
-  if (_clutter_context_get_global_resource_scale (resource_scale))
-    return TRUE;
-
   if (CLUTTER_ACTOR_IN_DESTRUCTION (self) ||
       CLUTTER_ACTOR_IN_PREF_SIZE (self) ||
       !clutter_actor_is_mapped (self))
@@ -17846,7 +17844,11 @@ queue_update_resource_scale_cb (ClutterActor *actor,
                                 int           depth,
                                 void         *user_data)
 {
-  actor->priv->needs_compute_resource_scale = TRUE;
+  if (_clutter_context_get_global_resource_scale (NULL))
+    actor->priv->needs_update_resource_scale = TRUE;
+  else
+    actor->priv->needs_compute_resource_scale = TRUE;
+
   return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
 }
 
@@ -17885,7 +17887,7 @@ clutter_actor_update_resource_scale (ClutterActor *self)
 }
 
 static void
-clutter_actor_ensure_resource_scale (ClutterActor *self)
+clutter_actor_ensure_real_resource_scale (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
 
@@ -17896,13 +17898,30 @@ clutter_actor_ensure_resource_scale (ClutterActor *self)
     g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_RESOURCE_SCALE]);
 }
 
+static void
+clutter_actor_ensure_resource_scale (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+
+  if (_clutter_context_get_global_resource_scale (NULL))
+    {
+      if (priv->needs_update_resource_scale)
+        {
+          priv->needs_update_resource_scale = FALSE;
+          g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_RESOURCE_SCALE]);
+        }
+    }
+  else
+    clutter_actor_ensure_real_resource_scale (self);
+}
+
 gboolean
 _clutter_actor_get_real_resource_scale (ClutterActor *self,
                                         gfloat       *resource_scale)
 {
   ClutterActorPrivate *priv = self->priv;
 
-  clutter_actor_ensure_resource_scale (self);
+  clutter_actor_ensure_real_resource_scale (self);
 
   if (!priv->needs_compute_resource_scale)
     {
@@ -17937,6 +17956,9 @@ clutter_actor_get_resource_scale (ClutterActor *self,
 {
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
   g_return_val_if_fail (resource_scale != NULL, FALSE);
+
+  if (_clutter_context_get_global_resource_scale (resource_scale))
+    return TRUE;
 
   if (_clutter_actor_get_real_resource_scale (self, resource_scale))
     {
