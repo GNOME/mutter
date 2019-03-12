@@ -5066,7 +5066,27 @@ _clutter_stage_peek_stage_views (ClutterStage *stage)
 void
 clutter_stage_update_resource_scales (ClutterStage *stage)
 {
-  _clutter_actor_queue_update_resource_scale_recursive (CLUTTER_ACTOR (stage));
+  ClutterStagePrivate *priv = stage->priv;
+  ClutterMainContext *context = _clutter_context_get_default ();
+  gboolean was_scaled;
+  GList *l;
+
+  was_scaled = context->scaled_stage_views;
+  context->scaled_stage_views = FALSE;
+
+  for (l = _clutter_stage_window_get_views (priv->impl); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+
+      if (clutter_stage_view_get_scale (view) != 1.0f)
+        {
+          context->scaled_stage_views = TRUE;
+          break;
+        }
+    }
+
+  if (context->scaled_stage_views != was_scaled)
+    _clutter_actor_queue_update_resource_scale_recursive (CLUTTER_ACTOR (stage));
 }
 
 gboolean

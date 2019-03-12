@@ -412,6 +412,14 @@ _clutter_context_get_show_fps (void)
   return context->show_fps;
 }
 
+gboolean
+_clutter_context_has_scaled_stage_views (void)
+{
+  ClutterMainContext *context = _clutter_context_get_default ();
+
+  return context->scaled_stage_views;
+}
+
 /**
  * clutter_get_accessibility_enabled:
  *
