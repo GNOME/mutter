@@ -1,3 +1,12 @@
+3.32.0
+======
+* Fix deadlock when cancelling a theme sound [Andrea; !474]
+* Stop swizzling BGRA buffers (bye-bye inverted colors in screenshots
+  and animations) [Carlos; !486]
+
+Contributors:
+  Andrea Azzarone, Carlos Garnacho, Robert Mader
+
 3.31.92
 =======
 * Fix flicker of apps that use multiple SHM buffers [Jonas Å.; #199]

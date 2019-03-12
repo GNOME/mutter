@@ -117,7 +117,11 @@ finish_cb (ca_context *context,
 {
   MetaPlayRequest *req = user_data;
 
-  g_cancellable_disconnect (req->cancellable, req->cancel_id);
+  if (error_code != CA_ERROR_CANCELED)
+    g_cancellable_disconnect (req->cancellable, req->cancel_id);
+  else if (req->cancellable != NULL && req->cancel_id != 0)
+    g_signal_handler_disconnect (req->cancellable, req->cancel_id);
+
   meta_play_request_free (req);
 }
 
