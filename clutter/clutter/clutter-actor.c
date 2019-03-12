@@ -36,15 +36,15 @@
  * or clutter_actor_set_rotation(). The order in which the transformations are
  * applied is decided by Clutter and it is the following:
  *
- *  1. translation by the origin of the #ClutterActor:allocation property
- *  2. translation by the actor's #ClutterActor:z-position property
- *  3. translation by the actor's #ClutterActor:pivot-point property
- *  4. scaling by the #ClutterActor:scale-x and #ClutterActor:scale-y factors
+ *  1. negative translation by the actor's #ClutterActor:pivot-point
+ *  2. negative translation by the #ClutterActor:anchor-x and #ClutterActor:anchor-y point.
+ *  3. rotation around the #ClutterActor:rotation-angle-z and #ClutterActor:rotation-center-z
+ *  4. rotation around the #ClutterActor:rotation-angle-y and #ClutterActor:rotation-center-y
  *  5. rotation around the #ClutterActor:rotation-angle-x and #ClutterActor:rotation-center-x
- *  6. rotation around the #ClutterActor:rotation-angle-y and #ClutterActor:rotation-center-y
- *  7. rotation around the #ClutterActor:rotation-angle-z and #ClutterActor:rotation-center-z
- *  8. negative translation by the #ClutterActor:anchor-x and #ClutterActor:anchor-y point.
- *  9. negative translation by the actor's #ClutterActor:pivot-point
+ *  6. scaling by the #ClutterActor:scale-x and #ClutterActor:scale-y factors
+ *  7. translation by the actor's #ClutterActor:pivot-point property
+ *  8. translation by the actor's #ClutterActor:z-position property
+ *  9. translation by the origin of the #ClutterActor:allocation property
  *
  * ## Modifying an actor's geometry ## {#clutter-actor-geometry}
  *
@@ -1069,8 +1069,6 @@ static ClutterGravity clutter_anchor_coord_get_gravity (const AnchorCoord *coord
 static void           clutter_anchor_coord_set_gravity (AnchorCoord       *coord,
                                                         ClutterGravity     gravity);
 
-static gboolean clutter_anchor_coord_is_zero (const AnchorCoord *coord);
-
 static void _clutter_actor_get_relative_transformation_matrix (ClutterActor *self,
                                                                ClutterActor *ancestor,
                                                                CoglMatrix *matrix);
@@ -1111,9 +1109,9 @@ static void clutter_actor_pop_in_cloned_branch (ClutterActor *self,
 #define TRANSFORM_ABOUT_ANCHOR_COORD(a,m,c,_transform)  G_STMT_START { \
   gfloat _tx, _ty, _tz;                                                \
   clutter_anchor_coord_get_units ((a), (c), &_tx, &_ty, &_tz);         \
-  cogl_matrix_translate ((m), _tx, _ty, _tz);                          \
+  cogl_matrix_translate ((m), -_tx, -_ty, -_tz);                       \
   { _transform; }                                                      \
-  cogl_matrix_translate ((m), -_tx, -_ty, -_tz);        } G_STMT_END
+  cogl_matrix_translate ((m), _tx, _ty, _tz);        } G_STMT_END
 
 static GQuark quark_actor_layout_info = 0;
 static GQuark quark_actor_transform_info = 0;
@@ -3150,6 +3148,7 @@ clutter_actor_real_apply_transform (ClutterActor  *self,
   CoglMatrix *transform = &priv->transform;
   const ClutterTransformInfo *info;
   float pivot_x = 0.f, pivot_y = 0.f;
+  float tx, ty, tz;
 
   /* we already have a cached transformation */
   if (priv->transform_valid)
@@ -3193,42 +3192,45 @@ clutter_actor_real_apply_transform (ClutterActor  *self,
        * space, and to the pivot point
        */
       cogl_matrix_translate (transform,
-                             priv->allocation.x1 + pivot_x,
-                             priv->allocation.y1 + pivot_y,
-                             info->pivot_z);
-      cogl_matrix_multiply (transform, transform, &info->transform);
+                             -pivot_x,
+                             -pivot_y,
+                             -info->pivot_z);
+      cogl_matrix_multiply (transform, &info->transform, transform);
+      cogl_matrix_translate (transform,
+                             priv->allocation.x1,
+                             priv->allocation.y1,
+                             0.0f);
       goto roll_back_pivot;
     }
 
-  /* basic translation: :allocation's origin and :z-position; instead
-   * of decomposing the pivot and translation info separate operations,
-   * we just compose everything into a single translation
-   */
-  cogl_matrix_translate (transform,
-                         priv->allocation.x1 + pivot_x + info->translation.x,
-                         priv->allocation.y1 + pivot_y + info->translation.y,
-                         info->z_position + info->pivot_z + info->translation.z);
+  /* XXX:2.0 remove anchor point translation */
+  clutter_anchor_coord_get_units (self, &info->anchor, &tx, &ty, &tz);
+  tx += pivot_x;
+  ty += pivot_y;
+  tz += info->pivot_z;
 
-  /* because the rotation involves translations, we must scale
-   * before applying the rotations (if we apply the scale after
-   * the rotations, the translations included in the rotation are
-   * not scaled and so the entire object will move on the screen
-   * as a result of rotating it).
-   *
-   * XXX:2.0 the comment has to be reworded once we remove the
-   * per-transformation centers; we also may want to apply rotation
-   * first and scaling after, to match the matrix decomposition
-   * code we use when interpolating transformations
-   */
-  if (info->scale_x != 1.0 || info->scale_y != 1.0 || info->scale_z != 1.0)
+  if (tx != 0.f || ty != 0.f || tz != 0.f)
+    cogl_matrix_translate (transform, -tx, -ty, -tz);
+
+  if (info->rx_angle)
     {
       /* XXX:2.0 remove anchor coord */
       TRANSFORM_ABOUT_ANCHOR_COORD (self, transform,
-                                    &info->scale_center,
-                                    cogl_matrix_scale (transform,
-                                                       info->scale_x,
-                                                       info->scale_y,
-                                                       info->scale_z));
+                                    &info->rx_center,
+                                    cogl_matrix_rotate (transform,
+                                                        info->rx_angle,
+                                                        1.0, 0, 0));
+    }
+
+
+  if (info->ry_angle)
+    {
+      /* XXX:2.0 remove anchor coord */
+      TRANSFORM_ABOUT_ANCHOR_COORD (self, transform,
+                                    &info->ry_center,
+                                    cogl_matrix_rotate (transform,
+                                                        info->ry_angle,
+                                                        0, 1.0, 0));
     }
 
   if (info->rz_angle)
@@ -3241,39 +3243,26 @@ clutter_actor_real_apply_transform (ClutterActor  *self,
                                                         0, 0, 1.0));
     }
 
-  if (info->ry_angle)
+  if (info->scale_x != 1.0 || info->scale_y != 1.0 || info->scale_z != 1.0)
     {
       /* XXX:2.0 remove anchor coord */
       TRANSFORM_ABOUT_ANCHOR_COORD (self, transform,
-                                    &info->ry_center,
-                                    cogl_matrix_rotate (transform,
-                                                        info->ry_angle,
-                                                        0, 1.0, 0));
+                                    &info->scale_center,
+                                    cogl_matrix_scale (transform,
+                                                       info->scale_x,
+                                                       info->scale_y,
+                                                       info->scale_z));
     }
 
-  if (info->rx_angle)
-    {
-      /* XXX:2.0 remove anchor coord */
-      TRANSFORM_ABOUT_ANCHOR_COORD (self, transform,
-                                    &info->rx_center,
-                                    cogl_matrix_rotate (transform,
-                                                        info->rx_angle,
-                                                        1.0, 0, 0));
-    }
-
-  /* XXX:2.0 remove anchor point translation */
-  if (!clutter_anchor_coord_is_zero (&info->anchor))
-    {
-      gfloat x, y, z;
-
-      clutter_anchor_coord_get_units (self, &info->anchor, &x, &y, &z);
-      cogl_matrix_translate (transform, -x, -y, -z);
-    }
+  cogl_matrix_translate (transform,
+                         priv->allocation.x1 + info->translation.x,
+                         priv->allocation.y1 + info->translation.y,
+                         info->z_position + info->translation.z);
 
 roll_back_pivot:
   /* roll back the pivot translation */
   if (pivot_x != 0.f || pivot_y != 0.f || info->pivot_z != 0.f)
-    cogl_matrix_translate (transform, -pivot_x, -pivot_y, -info->pivot_z);
+    cogl_matrix_translate (transform, pivot_x, pivot_y, info->pivot_z);
 
   /* we have a valid modelview */
   priv->transform_valid = TRUE;
@@ -16165,17 +16154,6 @@ clutter_anchor_coord_set_gravity (AnchorCoord    *coord,
     }
 
   coord->is_fractional = TRUE;
-}
-
-static gboolean
-clutter_anchor_coord_is_zero (const AnchorCoord *coord)
-{
-  if (coord->is_fractional)
-    return coord->v.fraction.x == 0.0 && coord->v.fraction.y == 0.0;
-  else
-    return (coord->v.units.x == 0.0
-            && coord->v.units.y == 0.0
-            && coord->v.units.z == 0.0);
 }
 
 /**
