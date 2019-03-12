@@ -17875,7 +17875,7 @@ clutter_actor_update_resource_scale (ClutterActor *self)
       priv->resource_scale = resource_scale;
       priv->needs_compute_resource_scale = FALSE;
 
-      return fabsf (old_resource_scale - resource_scale) > FLT_EPSILON;
+      return ceilf (old_resource_scale) != ceilf (resource_scale);
     }
 
   return FALSE;
