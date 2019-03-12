@@ -156,14 +156,11 @@ cogl_matrix_rotate (CoglMatrix *matrix,
 		    float y,
 		    float z)
 {
-  graphene_matrix_t rotation, m;
+  graphene_matrix_t m;
   graphene_vec3_t r;
 
   cogl_matrix_to_graphene_matrix (matrix, &m);
-
-  graphene_matrix_init_rotate (&rotation, angle, graphene_vec3_init (&r, x, y, z));
-  graphene_matrix_multiply (&rotation, &m, &m);
-
+  graphene_matrix_rotate (&m, angle, graphene_vec3_init (&r, x, y, z));
   graphene_matrix_to_cogl_matrix (&m, matrix);
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
