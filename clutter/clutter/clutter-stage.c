@@ -5068,24 +5068,37 @@ clutter_stage_update_resource_scales (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
   ClutterMainContext *context = _clutter_context_get_default ();
-  gboolean was_scaled;
+  float old_uniform_scale;
   GList *l;
 
-  was_scaled = context->scaled_stage_views;
+  old_uniform_scale = context->global_resource_scale;
+
   context->scaled_stage_views = FALSE;
+  context->global_resource_scale = -1.0f;
 
   for (l = _clutter_stage_window_get_views (priv->impl); l; l = l->next)
     {
+      float scale;
       ClutterStageView *view = l->data;
 
-      if (clutter_stage_view_get_scale (view) != 1.0f)
+      scale = clutter_stage_view_get_scale (view);
+
+      if (scale != 1.0f)
+        context->scaled_stage_views = TRUE;
+
+      if (context->global_resource_scale < 0.0f)
         {
-          context->scaled_stage_views = TRUE;
+          context->global_resource_scale = scale;
+        }
+      else if (scale != context->global_resource_scale)
+        {
+          context->global_resource_scale = -1.0f;
           break;
         }
     }
 
-  if (context->scaled_stage_views != was_scaled)
+  if (context->global_resource_scale < 0.0f ||
+      context->global_resource_scale != old_uniform_scale)
     _clutter_actor_queue_update_resource_scale_recursive (CLUTTER_ACTOR (stage));
 }
 
