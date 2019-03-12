@@ -17808,11 +17808,8 @@ _clutter_actor_compute_resource_scale (ClutterActor *self,
   ClutterRect bounding_rect;
   ClutterActorPrivate *priv = self->priv;
 
-  if (!_clutter_context_has_scaled_stage_views ())
-    {
-      *resource_scale = 1.0f;
-      return TRUE;
-    }
+  if (_clutter_context_get_global_resource_scale (resource_scale))
+    return TRUE;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (self) ||
       CLUTTER_ACTOR_IN_PREF_SIZE (self) ||

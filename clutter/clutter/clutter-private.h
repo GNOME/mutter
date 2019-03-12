@@ -168,6 +168,11 @@ struct _ClutterMainContext
   GList *repaint_funcs;
   guint last_repaint_id;
 
+  /* If all the stage views have the same resource-scale applied we can avoid
+   * computing it multiple times.
+   * This is set to -1 if no uniform scaling is present. */
+  float global_resource_scale;
+
   /* main settings singleton */
   ClutterSettings *settings;
 
@@ -204,6 +209,7 @@ ClutterActor *          _clutter_context_pop_shader_stack               (Clutter
 ClutterActor *          _clutter_context_peek_shader_stack              (void);
 gboolean                _clutter_context_get_motion_events_enabled      (void);
 gboolean                _clutter_context_get_show_fps                   (void);
+gboolean                _clutter_context_get_global_resource_scale      (float *global_scale);
 gboolean                _clutter_context_has_scaled_stage_views         (void);
 
 gboolean      _clutter_feature_init (GError **error);
