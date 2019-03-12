@@ -1,4 +1,4 @@
-mutter (3.32.0-1) UNRELEASED; urgency=medium
+mutter (3.32.0-1) experimental; urgency=medium
 
   * New upstream release
     + Fix deadlock when cancelling a theme sound
@@ -11,7 +11,7 @@ mutter (3.32.0-1) UNRELEASED; urgency=medium
     `dbus-run-session`. Apparently whatever waas pulling this in before
     stopped doing that, so BD on it directly.
 
- -- Iain Lane <laney@debian.org>  Tue, 12 Mar 2019 10:42:28 +0000
+ -- Iain Lane <laney@debian.org>  Tue, 12 Mar 2019 12:45:14 +0000
 
 mutter (3.31.92-1) experimental; urgency=medium
 
