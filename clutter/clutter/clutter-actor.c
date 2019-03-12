@@ -5694,7 +5694,7 @@ clutter_actor_get_property (GObject    *object,
             g_warning ("Getting invalid resource scale property");
         }
 
-      g_value_set_float (value, priv->resource_scale);
+      g_value_set_float (value, ceilf (priv->resource_scale));
       break;
 
     case PROP_REACTIVE:
