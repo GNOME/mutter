@@ -5068,10 +5068,10 @@ clutter_stage_update_resource_scales (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
   ClutterMainContext *context = _clutter_context_get_default ();
-  float old_uniform_scale;
+  float old_global_scale;
   GList *l;
 
-  old_uniform_scale = context->global_resource_scale;
+  old_global_scale = context->global_resource_scale;
 
   context->scaled_stage_views = FALSE;
   context->global_resource_scale = -1.0f;
@@ -5086,6 +5086,11 @@ clutter_stage_update_resource_scales (ClutterStage *stage)
       if (scale != 1.0f)
         context->scaled_stage_views = TRUE;
 
+      /* Resource scale is always ceiled, so we apply the same here in order
+       * to avoid repainting of actors at different scaling level in the same
+       * integer fraction. */
+      scale = ceilf (scale);
+
       if (context->global_resource_scale < 0.0f)
         {
           context->global_resource_scale = scale;
@@ -5098,7 +5103,7 @@ clutter_stage_update_resource_scales (ClutterStage *stage)
     }
 
   if (context->global_resource_scale < 0.0f ||
-      context->global_resource_scale != old_uniform_scale)
+      context->global_resource_scale != old_global_scale)
     _clutter_actor_queue_update_resource_scale_recursive (CLUTTER_ACTOR (stage));
 }
 
