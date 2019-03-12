@@ -177,6 +177,7 @@ struct _ClutterMainContext
   guint defer_display_setup     : 1;
   guint options_parsed          : 1;
   guint show_fps                : 1;
+  guint scaled_stage_views      : 1;
 };
 
 /* shared between clutter-main.c and clutter-frame-source.c */
@@ -203,6 +204,7 @@ ClutterActor *          _clutter_context_pop_shader_stack               (Clutter
 ClutterActor *          _clutter_context_peek_shader_stack              (void);
 gboolean                _clutter_context_get_motion_events_enabled      (void);
 gboolean                _clutter_context_get_show_fps                   (void);
+gboolean                _clutter_context_has_scaled_stage_views         (void);
 
 gboolean      _clutter_feature_init (GError **error);
 
