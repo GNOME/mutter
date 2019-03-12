@@ -1,3 +1,4 @@
+clutter_clutter_includesubdir = join_paths(clutter_includesubdir, 'clutter')
 clutter_clutter_includedir = join_paths(clutter_includedir, 'clutter')
 
 clutter_headers = [
@@ -577,16 +578,16 @@ if have_introspection
 endif
 
 install_headers(clutter_headers,
-  subdir: clutter_clutter_includedir)
+  subdir: clutter_clutter_includesubdir)
 
 install_headers(cally_headers,
-  subdir: join_paths(clutter_includedir, 'cally'))
+  subdir: join_paths(clutter_includesubdir, 'cally'))
 
 install_headers(clutter_deprecated_headers,
-  subdir: join_paths(clutter_clutter_includedir, 'deprecated'))
+  subdir: join_paths(clutter_clutter_includesubdir, 'deprecated'))
 
 install_headers(clutter_x11_headers,
-  subdir: join_paths(clutter_clutter_includedir, 'x11'))
+  subdir: join_paths(clutter_clutter_includesubdir, 'x11'))
 
 pkg.generate(libmutter_clutter,
   name: 'Mutters Clutter',

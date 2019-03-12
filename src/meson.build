@@ -1,4 +1,5 @@
-mutter_includedir = join_paths(pkgincludedir, 'meta')
+mutter_includesubdir = join_paths(pkgname, 'meta')
+mutter_includedir = join_paths(includedir, mutter_includesubdir)
 
 mutter_includes = [
   include_directories('.'),

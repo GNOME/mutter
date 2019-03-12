@@ -1,3 +1,4 @@
+cogl_cogl_includesubdir = join_paths(cogl_includesubdir, 'cogl')
 cogl_cogl_includedir = join_paths(cogl_includedir, 'cogl')
 
 cdata = configuration_data()
@@ -514,16 +515,16 @@ install_headers([
     cogl_headers,
     cogl_nonintrospected_headers,
   ],
-  subdir: cogl_cogl_includedir)
+  subdir: cogl_cogl_includesubdir)
 
 install_headers([
     cogl_deprecated_headers,
     cogl_deprecated_nonintrospected_headers,
   ],
-  subdir: join_paths(cogl_cogl_includedir, 'deprecated'))
+  subdir: join_paths(cogl_cogl_includesubdir, 'deprecated'))
 
 install_headers(cogl_gl_prototype_headers,
-  subdir: join_paths(cogl_cogl_includedir, 'gl-prototypes'))
+  subdir: join_paths(cogl_cogl_includesubdir, 'gl-prototypes'))
 
 pkg.generate(libmutter_cogl,
   name: 'Cogl',
