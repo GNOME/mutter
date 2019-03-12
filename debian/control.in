@@ -5,6 +5,7 @@ Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.
 Uploaders: @GNOME_TEAM@
 Build-Depends: debhelper (>= 11),
                at-spi2-core <!nocheck>,
+               dbus <!nocheck>,
                dmz-cursor-theme <!nocheck>,
                gnome-pkg-tools (>= 0.10),
                gnome-settings-daemon-common <!nocheck>,
