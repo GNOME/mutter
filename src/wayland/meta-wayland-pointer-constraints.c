@@ -670,10 +670,11 @@ get_pending_constraint_state_container (MetaWaylandPendingState *pending)
 static MetaWaylandPendingConstraintState *
 get_pending_constraint_state (MetaWaylandPointerConstraint *constraint)
 {
-  MetaWaylandPendingState *pending = constraint->surface->pending;
+  MetaWaylandPendingState *pending;
   MetaWaylandPendingConstraintStateContainer *container;
   GList *l;
 
+  pending = meta_wayland_surface_get_pending_state (constraint->surface);
   container = get_pending_constraint_state_container (pending);
   for (l = container->pending_constraint_states; l; l = l->next)
     {
@@ -765,10 +766,11 @@ pending_constraint_state_applied (MetaWaylandPendingState           *pending,
 static MetaWaylandPendingConstraintState *
 ensure_pending_constraint_state (MetaWaylandPointerConstraint *constraint)
 {
-  MetaWaylandPendingState *pending = constraint->surface->pending;
+  MetaWaylandPendingState *pending;
   MetaWaylandPendingConstraintStateContainer *container;
   MetaWaylandPendingConstraintState *constraint_pending;
 
+  pending = meta_wayland_surface_get_pending_state (constraint->surface);
   container = ensure_pending_constraint_state_container (pending);
   constraint_pending = get_pending_constraint_state (constraint);
   if (!constraint_pending)

@@ -346,6 +346,7 @@ xdg_toplevel_set_max_size (struct wl_client   *client,
                            int32_t             height)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+  MetaWaylandPendingState *pending;
 
   if (width < 0 || height < 0)
     {
@@ -356,9 +357,11 @@ xdg_toplevel_set_max_size (struct wl_client   *client,
       return;
     }
 
-  surface->pending->has_new_max_size = TRUE;
-  surface->pending->new_max_width = width;
-  surface->pending->new_max_height = height;
+
+  pending = meta_wayland_surface_get_pending_state (surface);
+  pending->has_new_max_size = TRUE;
+  pending->new_max_width = width;
+  pending->new_max_height = height;
 }
 
 static void
@@ -368,6 +371,7 @@ xdg_toplevel_set_min_size (struct wl_client   *client,
                            int32_t             height)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+  MetaWaylandPendingState *pending;
 
   if (width < 0 || height < 0)
     {
@@ -378,9 +382,11 @@ xdg_toplevel_set_min_size (struct wl_client   *client,
       return;
     }
 
-  surface->pending->has_new_min_size = TRUE;
-  surface->pending->new_min_width = width;
-  surface->pending->new_min_height = height;
+
+  pending = meta_wayland_surface_get_pending_state (surface);
+  pending->has_new_min_size = TRUE;
+  pending->new_min_width = width;
+  pending->new_min_height = height;
 }
 
 static void
@@ -1377,12 +1383,14 @@ xdg_surface_set_window_geometry (struct wl_client   *client,
                                  int32_t             height)
 {
   MetaWaylandSurface *surface = surface_from_xdg_surface_resource (resource);
+  MetaWaylandPendingState *pending;
 
-  surface->pending->has_new_geometry = TRUE;
-  surface->pending->new_geometry.x = x;
-  surface->pending->new_geometry.y = y;
-  surface->pending->new_geometry.width = width;
-  surface->pending->new_geometry.height = height;
+  pending = meta_wayland_surface_get_pending_state (surface);
+  pending->has_new_geometry = TRUE;
+  pending->new_geometry.x = x;
+  pending->new_geometry.y = y;
+  pending->new_geometry.width = width;
+  pending->new_geometry.height = height;
 }
 
 static void

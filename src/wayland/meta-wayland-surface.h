@@ -177,7 +177,7 @@ struct _MetaWaylandSurface
   } dnd;
 
   /* All the pending state that wl_surface.commit will apply. */
-  MetaWaylandPendingState *pending;
+  MetaWaylandPendingState *pending_state;
 
   /* Extension resources. */
   struct wl_resource *wl_subsurface;
@@ -230,6 +230,9 @@ MetaWaylandSurface *meta_wayland_surface_create (MetaWaylandCompositor *composit
                                                  struct wl_client      *client,
                                                  struct wl_resource    *compositor_resource,
                                                  guint32                id);
+
+MetaWaylandPendingState *
+                    meta_wayland_surface_get_pending_state (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
                                                               MetaWaylandPendingState *pending);
