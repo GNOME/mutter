@@ -563,7 +563,7 @@ bind_wl_shell (struct wl_client *client,
 
 static void
 wl_shell_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
-                              MetaWaylandPendingState *pending)
+                              MetaWaylandSurfaceState *pending)
 {
   MetaWaylandWlShellSurface *wl_shell_surface =
     META_WAYLAND_WL_SHELL_SURFACE (surface_role);
