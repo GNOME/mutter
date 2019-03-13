@@ -144,7 +144,7 @@ meta_wayland_subsurface_parent_state_applied (MetaWaylandSubsurface *subsurface)
     }
 
   if (is_surface_effectively_synchronized (surface))
-    meta_wayland_surface_apply_state (surface, surface->sub.pending);
+    meta_wayland_surface_apply_cached_state (surface);
 
   meta_wayland_actor_surface_sync_actor_state (actor_surface);
 }
@@ -277,7 +277,6 @@ wl_subsurface_destructor (struct wl_resource *resource)
       surface->sub.parent = NULL;
     }
 
-  g_clear_object (&surface->sub.pending);
   surface->wl_subsurface = NULL;
 }
 
@@ -406,7 +405,7 @@ wl_subsurface_set_desync (struct wl_client   *client,
 
   if (was_effectively_synchronized &&
       !is_surface_effectively_synchronized (surface))
-    meta_wayland_surface_apply_state (surface, surface->sub.pending);
+    meta_wayland_surface_apply_cached_state (surface);
 }
 
 static const struct wl_subsurface_interface meta_wayland_wl_subsurface_interface = {
@@ -481,7 +480,6 @@ wl_subcompositor_get_subsurface (struct wl_client   *client,
                                   surface,
                                   wl_subsurface_destructor);
 
-  surface->sub.pending = g_object_new (META_TYPE_WAYLAND_SURFACE_STATE, NULL);
   surface->sub.synchronous = TRUE;
   surface->sub.parent = parent;
   surface->sub.parent_destroy_listener.notify =
