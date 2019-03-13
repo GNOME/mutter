@@ -17879,6 +17879,12 @@ clutter_actor_update_resource_scale (ClutterActor *self)
       priv->resource_scale = resource_scale;
       priv->needs_compute_resource_scale = FALSE;
 
+      /* If the global resource scale is set, we don't want to notify actors
+       * (again) that the resource-scale has changed, since in such case this
+       * function will only compute the real one for pure internal usage */
+      if (!_clutter_context_get_global_resource_scale (NULL))
+        return FALSE;
+
       return ceilf (old_resource_scale) != ceilf (resource_scale);
     }
 
