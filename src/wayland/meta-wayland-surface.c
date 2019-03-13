@@ -593,35 +593,6 @@ meta_wayland_pending_state_class_init (MetaWaylandPendingStateClass *klass)
                   G_TYPE_NONE, 0);
 }
 
-/* A non-subsurface is always desynchronized.
- *
- * A subsurface is effectively synchronized if either its parent is
- * synchronized or itself is in synchronized mode. */
-gboolean
-meta_wayland_surface_is_effectively_synchronized (MetaWaylandSurface *surface)
-{
-  if (surface->wl_subsurface == NULL)
-    {
-      return FALSE;
-    }
-  else
-    {
-      if (surface->sub.synchronous)
-        {
-          return TRUE;
-        }
-      else
-        {
-          MetaWaylandSurface *parent = surface->sub.parent;
-
-          if (parent)
-            return meta_wayland_surface_is_effectively_synchronized (parent);
-
-          return TRUE;
-        }
-    }
-}
-
 static void
 parent_surface_state_applied (GNode    *subsurface_node,
                               gpointer  user_data)
@@ -864,7 +835,7 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
    *  2) Its mode changes from synchronized to desynchronized and its parent
    *     surface is in effective desynchronized mode.
    */
-  if (meta_wayland_surface_is_effectively_synchronized (surface))
+  if (meta_wayland_surface_should_cache_state (surface))
     merge_pending_state (surface->pending, surface->sub.pending);
   else
     meta_wayland_surface_apply_pending_state (surface, surface->pending);
@@ -1844,6 +1815,27 @@ meta_wayland_surface_role_get_toplevel (MetaWaylandSurfaceRole *surface_role)
     return klass->get_toplevel (surface_role);
   else
     return NULL;
+}
+
+static gboolean
+meta_wayland_surface_role_should_cache_state (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurfaceRoleClass *klass;
+
+  klass = META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface_role);
+  if (klass->should_cache_state)
+    return klass->should_cache_state (surface_role);
+  else
+    return FALSE;
+}
+
+gboolean
+meta_wayland_surface_should_cache_state (MetaWaylandSurface *surface)
+{
+  if (!surface->role)
+    return FALSE;
+
+  return meta_wayland_surface_role_should_cache_state (surface->role);
 }
 
 MetaWaylandSurface *

@@ -63,6 +63,7 @@ struct _MetaWaylandSurfaceRoleClass
   gboolean (*is_on_logical_monitor) (MetaWaylandSurfaceRole *surface_role,
                                      MetaLogicalMonitor     *logical_monitor);
   MetaWaylandSurface * (*get_toplevel) (MetaWaylandSurfaceRole *surface_role);
+  gboolean (*should_cache_state) (MetaWaylandSurfaceRole *surface_role);
 };
 
 struct _MetaWaylandSerial {
@@ -272,6 +273,8 @@ void                meta_wayland_surface_drag_dest_update    (MetaWaylandSurface
 void                meta_wayland_surface_update_outputs (MetaWaylandSurface *surface);
 
 MetaWaylandSurface *meta_wayland_surface_get_toplevel (MetaWaylandSurface *surface);
+
+gboolean            meta_wayland_surface_should_cache_state (MetaWaylandSurface *surface);
 
 MetaWindow *        meta_wayland_surface_get_toplevel_window (MetaWaylandSurface *surface);
 

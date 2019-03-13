@@ -112,6 +112,12 @@ is_sibling (MetaWaylandSurface *surface,
     return FALSE;
 }
 
+static gboolean
+is_surface_effectively_synchronized (MetaWaylandSurface *surface)
+{
+  return meta_wayland_surface_should_cache_state (surface);
+}
+
 void
 meta_wayland_subsurface_parent_state_applied (MetaWaylandSubsurface *subsurface)
 {
@@ -182,7 +188,7 @@ meta_wayland_subsurface_parent_state_applied (MetaWaylandSubsurface *subsurface)
         meta_window_actor_wayland_rebuild_surface_tree (window_actor);
     }
 
-  if (meta_wayland_surface_is_effectively_synchronized (surface))
+  if (is_surface_effectively_synchronized (surface))
     meta_wayland_surface_apply_pending_state (surface, surface->sub.pending);
 
   meta_wayland_actor_surface_sync_actor_state (actor_surface);
@@ -240,6 +246,23 @@ meta_wayland_subsurface_get_toplevel (MetaWaylandSurfaceRole *surface_role)
     return NULL;
 }
 
+static gboolean
+meta_wayland_subsurface_should_cache_state (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandSurface *parent;
+
+  if (surface->sub.synchronous)
+    return TRUE;
+
+  parent = surface->sub.parent;
+  if (parent)
+    return meta_wayland_surface_should_cache_state (parent);
+
+  return TRUE;
+}
+
 static double
 meta_wayland_subsurface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
 {
@@ -294,6 +317,7 @@ meta_wayland_subsurface_class_init (MetaWaylandSubsurfaceClass *klass)
     META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
 
   surface_role_class->get_toplevel = meta_wayland_subsurface_get_toplevel;
+  surface_role_class->should_cache_state = meta_wayland_subsurface_should_cache_state;
 
   actor_surface_class->get_geometry_scale =
     meta_wayland_subsurface_get_geometry_scale;
@@ -456,12 +480,11 @@ wl_subsurface_set_desync (struct wl_client   *client,
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
   gboolean was_effectively_synchronized;
 
-  was_effectively_synchronized =
-    meta_wayland_surface_is_effectively_synchronized (surface);
+  was_effectively_synchronized = is_surface_effectively_synchronized (surface);
   surface->sub.synchronous = FALSE;
 
   if (was_effectively_synchronized &&
-      !meta_wayland_surface_is_effectively_synchronized (surface))
+      !is_surface_effectively_synchronized (surface))
     meta_wayland_surface_apply_pending_state (surface, surface->sub.pending);
 }
 
