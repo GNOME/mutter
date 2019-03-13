@@ -109,7 +109,7 @@ meta_wayland_actor_surface_assigned (MetaWaylandSurfaceRole *surface_role)
 
 void
 meta_wayland_actor_surface_queue_frame_callbacks (MetaWaylandActorSurface *actor_surface,
-                                                  MetaWaylandPendingState *pending)
+                                                  MetaWaylandSurfaceState *pending)
 {
   MetaWaylandActorSurfacePrivate *priv =
     meta_wayland_actor_surface_get_instance_private (actor_surface);
@@ -240,7 +240,7 @@ meta_wayland_actor_surface_sync_actor_state (MetaWaylandActorSurface *actor_surf
 
 static void
 meta_wayland_actor_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                                   MetaWaylandPendingState *pending)
+                                   MetaWaylandSurfaceState *pending)
 {
   MetaWaylandActorSurface *actor_surface =
     META_WAYLAND_ACTOR_SURFACE (surface_role);

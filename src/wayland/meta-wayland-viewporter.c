@@ -37,7 +37,7 @@ static void
 wp_viewport_destructor (struct wl_resource *resource)
 {
   MetaWaylandSurface *surface;
-  MetaWaylandPendingState *pending;
+  MetaWaylandSurfaceState *pending;
 
   surface = wl_resource_get_user_data (resource);
   if (!surface)
@@ -100,7 +100,7 @@ wp_viewport_set_source (struct wl_client   *client,
       (new_x == -1 && new_y == -1 &&
        new_width == -1 && new_height == -1))
     {
-      MetaWaylandPendingState *pending;
+      MetaWaylandSurfaceState *pending;
 
       pending = meta_wayland_surface_get_pending_state (surface);
       pending->viewport_src_rect.origin.x = new_x;
@@ -139,7 +139,7 @@ wp_viewport_set_destination (struct wl_client   *client,
   if ((dst_width > 0 && dst_height > 0) ||
       (dst_width == -1 && dst_height == -1))
     {
-      MetaWaylandPendingState *pending;
+      MetaWaylandSurfaceState *pending;
 
       pending = meta_wayland_surface_get_pending_state (surface);
       pending->viewport_dst_width = dst_width;

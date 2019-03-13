@@ -149,7 +149,7 @@ meta_wayland_shell_surface_managed (MetaWaylandShellSurface *shell_surface,
 
 static void
 meta_wayland_shell_surface_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                                           MetaWaylandPendingState *pending)
+                                           MetaWaylandSurfaceState *pending)
 {
   MetaWaylandActorSurface *actor_surface =
     META_WAYLAND_ACTOR_SURFACE (surface_role);

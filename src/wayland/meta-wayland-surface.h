@@ -33,8 +33,6 @@
 #include "wayland/meta-wayland-pointer-constraints.h"
 #include "wayland/meta-wayland-types.h"
 
-typedef struct _MetaWaylandPendingState MetaWaylandPendingState;
-
 #define META_TYPE_WAYLAND_SURFACE (meta_wayland_surface_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandSurface,
                       meta_wayland_surface,
@@ -45,11 +43,11 @@ G_DECLARE_FINAL_TYPE (MetaWaylandSurface,
 G_DECLARE_DERIVABLE_TYPE (MetaWaylandSurfaceRole, meta_wayland_surface_role,
                           META, WAYLAND_SURFACE_ROLE, GObject);
 
-#define META_TYPE_WAYLAND_PENDING_STATE (meta_wayland_pending_state_get_type ())
-G_DECLARE_FINAL_TYPE (MetaWaylandPendingState,
-                      meta_wayland_pending_state,
-                      META, WAYLAND_PENDING_STATE,
-                      GObject);
+#define META_TYPE_WAYLAND_SURFACE_STATE (meta_wayland_surface_state_get_type ())
+G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceState,
+                      meta_wayland_surface_state,
+                      META, WAYLAND_SURFACE_STATE,
+                      GObject)
 
 struct _MetaWaylandSurfaceRoleClass
 {
@@ -57,9 +55,9 @@ struct _MetaWaylandSurfaceRoleClass
 
   void (*assigned) (MetaWaylandSurfaceRole *surface_role);
   void (*pre_commit) (MetaWaylandSurfaceRole  *surface_role,
-                      MetaWaylandPendingState *pending);
+                      MetaWaylandSurfaceState *pending);
   void (*commit) (MetaWaylandSurfaceRole  *surface_role,
-                  MetaWaylandPendingState *pending);
+                  MetaWaylandSurfaceState *pending);
   gboolean (*is_on_logical_monitor) (MetaWaylandSurfaceRole *surface_role,
                                      MetaLogicalMonitor     *logical_monitor);
   MetaWaylandSurface * (*get_toplevel) (MetaWaylandSurfaceRole *surface_role);
@@ -71,7 +69,7 @@ struct _MetaWaylandSerial {
   uint32_t value;
 };
 
-struct _MetaWaylandPendingState
+struct _MetaWaylandSurfaceState
 {
   GObject parent;
 
@@ -177,7 +175,7 @@ struct _MetaWaylandSurface
   } dnd;
 
   /* All the pending state that wl_surface.commit will apply. */
-  MetaWaylandPendingState *pending_state;
+  MetaWaylandSurfaceState *pending_state;
 
   /* Extension resources. */
   struct wl_resource *wl_subsurface;
@@ -199,7 +197,7 @@ struct _MetaWaylandSurface
      * state here.
      */
     gboolean synchronous;
-    MetaWaylandPendingState *pending;
+    MetaWaylandSurfaceState *pending;
 
     int32_t pending_x;
     int32_t pending_y;
@@ -231,11 +229,11 @@ MetaWaylandSurface *meta_wayland_surface_create (MetaWaylandCompositor *composit
                                                  struct wl_resource    *compositor_resource,
                                                  guint32                id);
 
-MetaWaylandPendingState *
+MetaWaylandSurfaceState *
                     meta_wayland_surface_get_pending_state (MetaWaylandSurface *surface);
 
-void                meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
-                                                              MetaWaylandPendingState *pending);
+void                meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
+                                                      MetaWaylandSurfaceState *state);
 
 gboolean            meta_wayland_surface_is_effectively_synchronized (MetaWaylandSurface *surface);
 
@@ -282,12 +280,12 @@ gboolean            meta_wayland_surface_should_cache_state (MetaWaylandSurface 
 MetaWindow *        meta_wayland_surface_get_toplevel_window (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_cache_pending_frame_callbacks (MetaWaylandSurface      *surface,
-                                                                        MetaWaylandPendingState *pending);
+                                                                        MetaWaylandSurfaceState *pending);
 
 void                meta_wayland_surface_queue_pending_frame_callbacks (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_queue_pending_state_frame_callbacks (MetaWaylandSurface      *surface,
-                                                                              MetaWaylandPendingState *pending);
+                                                                              MetaWaylandSurfaceState *pending);
 
 void                meta_wayland_surface_get_relative_coordinates (MetaWaylandSurface *surface,
                                                                    float               abs_x,

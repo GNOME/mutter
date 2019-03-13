@@ -346,7 +346,7 @@ xdg_toplevel_set_max_size (struct wl_client   *client,
                            int32_t             height)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
-  MetaWaylandPendingState *pending;
+  MetaWaylandSurfaceState *pending;
 
   if (width < 0 || height < 0)
     {
@@ -371,7 +371,7 @@ xdg_toplevel_set_min_size (struct wl_client   *client,
                            int32_t             height)
 {
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
-  MetaWaylandPendingState *pending;
+  MetaWaylandSurfaceState *pending;
 
   if (width < 0 || height < 0)
     {
@@ -650,7 +650,7 @@ meta_wayland_xdg_toplevel_send_configure (MetaWaylandXdgToplevel *xdg_toplevel,
 
 static gboolean
 is_new_size_hints_valid (MetaWindow              *window,
-                         MetaWaylandPendingState *pending)
+                         MetaWaylandSurfaceState *pending)
 {
   int new_min_width, new_min_height;
   int new_max_width, new_max_height;
@@ -681,7 +681,7 @@ is_new_size_hints_valid (MetaWindow              *window,
 
 static void
 meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
-                                  MetaWaylandPendingState *pending)
+                                  MetaWaylandSurfaceState *pending)
 {
   MetaWaylandXdgToplevel *xdg_toplevel = META_WAYLAND_XDG_TOPLEVEL (surface_role);
   MetaWaylandXdgSurface *xdg_surface = META_WAYLAND_XDG_SURFACE (xdg_toplevel);
@@ -1037,7 +1037,7 @@ finish_popup_setup (MetaWaylandXdgPopup *xdg_popup)
 
 static void
 meta_wayland_xdg_popup_commit (MetaWaylandSurfaceRole  *surface_role,
-                               MetaWaylandPendingState *pending)
+                               MetaWaylandSurfaceState *pending)
 {
   MetaWaylandXdgPopup *xdg_popup = META_WAYLAND_XDG_POPUP (surface_role);
   MetaWaylandXdgSurface *xdg_surface = META_WAYLAND_XDG_SURFACE (surface_role);
@@ -1383,7 +1383,7 @@ xdg_surface_set_window_geometry (struct wl_client   *client,
                                  int32_t             height)
 {
   MetaWaylandSurface *surface = surface_from_xdg_surface_resource (resource);
-  MetaWaylandPendingState *pending;
+  MetaWaylandSurfaceState *pending;
 
   pending = meta_wayland_surface_get_pending_state (surface);
   pending->has_new_geometry = TRUE;
@@ -1440,7 +1440,7 @@ meta_wayland_xdg_surface_real_reset (MetaWaylandXdgSurface *xdg_surface)
 
 static void
 meta_wayland_xdg_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                                 MetaWaylandPendingState *pending)
+                                 MetaWaylandSurfaceState *pending)
 {
   MetaWaylandXdgSurface *xdg_surface = META_WAYLAND_XDG_SURFACE (surface_role);
   MetaWaylandShellSurface *shell_surface =

@@ -661,7 +661,7 @@ pending_constraint_state_free (MetaWaylandPendingConstraintState *constraint_pen
 }
 
 static MetaWaylandPendingConstraintStateContainer *
-get_pending_constraint_state_container (MetaWaylandPendingState *pending)
+get_pending_constraint_state_container (MetaWaylandSurfaceState *pending)
 {
   return g_object_get_qdata (G_OBJECT (pending),
                              quark_pending_constraint_state);
@@ -670,7 +670,7 @@ get_pending_constraint_state_container (MetaWaylandPendingState *pending)
 static MetaWaylandPendingConstraintState *
 get_pending_constraint_state (MetaWaylandPointerConstraint *constraint)
 {
-  MetaWaylandPendingState *pending;
+  MetaWaylandSurfaceState *pending;
   MetaWaylandPendingConstraintStateContainer *container;
   GList *l;
 
@@ -696,7 +696,7 @@ pending_constraint_state_container_free (MetaWaylandPendingConstraintStateContai
 }
 
 static MetaWaylandPendingConstraintStateContainer *
-ensure_pending_constraint_state_container (MetaWaylandPendingState *pending)
+ensure_pending_constraint_state_container (MetaWaylandSurfaceState *pending)
 {
   MetaWaylandPendingConstraintStateContainer *container;
 
@@ -716,7 +716,7 @@ ensure_pending_constraint_state_container (MetaWaylandPendingState *pending)
 
 static void
 remove_pending_constraint_state (MetaWaylandPointerConstraint *constraint,
-                                 MetaWaylandPendingState      *pending)
+                                 MetaWaylandSurfaceState      *pending)
 {
   MetaWaylandPendingConstraintStateContainer *container;
   GList *l;
@@ -736,7 +736,7 @@ remove_pending_constraint_state (MetaWaylandPointerConstraint *constraint,
 }
 
 static void
-pending_constraint_state_applied (MetaWaylandPendingState           *pending,
+pending_constraint_state_applied (MetaWaylandSurfaceState           *pending,
                                   MetaWaylandPendingConstraintState *constraint_pending)
 {
   MetaWaylandPointerConstraint *constraint = constraint_pending->constraint;
@@ -766,7 +766,7 @@ pending_constraint_state_applied (MetaWaylandPendingState           *pending,
 static MetaWaylandPendingConstraintState *
 ensure_pending_constraint_state (MetaWaylandPointerConstraint *constraint)
 {
-  MetaWaylandPendingState *pending;
+  MetaWaylandSurfaceState *pending;
   MetaWaylandPendingConstraintStateContainer *container;
   MetaWaylandPendingConstraintState *constraint_pending;
 
