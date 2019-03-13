@@ -701,7 +701,7 @@ xwayland_surface_assigned (MetaWaylandSurfaceRole *surface_role)
 
 static void
 xwayland_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                         MetaWaylandPendingState *pending)
+                         MetaWaylandSurfaceState *pending)
 {
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);

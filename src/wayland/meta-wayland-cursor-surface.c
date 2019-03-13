@@ -130,7 +130,7 @@ meta_wayland_cursor_surface_assigned (MetaWaylandSurfaceRole *surface_role)
 
 static void
 meta_wayland_cursor_surface_pre_commit (MetaWaylandSurfaceRole  *surface_role,
-                                        MetaWaylandPendingState *pending)
+                                        MetaWaylandSurfaceState *pending)
 {
   MetaWaylandCursorSurface *cursor_surface =
     META_WAYLAND_CURSOR_SURFACE (surface_role);
@@ -148,7 +148,7 @@ meta_wayland_cursor_surface_pre_commit (MetaWaylandSurfaceRole  *surface_role,
 
 static void
 meta_wayland_cursor_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                                    MetaWaylandPendingState *pending)
+                                    MetaWaylandSurfaceState *pending)
 {
   MetaWaylandCursorSurface *cursor_surface =
     META_WAYLAND_CURSOR_SURFACE (surface_role);
