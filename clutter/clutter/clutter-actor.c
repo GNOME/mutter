@@ -847,7 +847,6 @@ struct _ClutterActorPrivate
   guint needs_paint_volume_update   : 1;
   guint had_effects_on_last_paint_volume_update : 1;
   guint needs_compute_resource_scale : 1;
-  guint needs_update_resource_scale : 1;
 };
 
 enum
@@ -17845,7 +17844,7 @@ queue_update_resource_scale_cb (ClutterActor *actor,
                                 void         *user_data)
 {
   if (_clutter_context_get_global_resource_scale (NULL))
-    actor->priv->needs_update_resource_scale = TRUE;
+    g_object_notify_by_pspec (G_OBJECT (actor), obj_props[PROP_RESOURCE_SCALE]);
   else
     actor->priv->needs_compute_resource_scale = TRUE;
 
@@ -17901,17 +17900,7 @@ clutter_actor_ensure_real_resource_scale (ClutterActor *self)
 static void
 clutter_actor_ensure_resource_scale (ClutterActor *self)
 {
-  ClutterActorPrivate *priv = self->priv;
-
-  if (_clutter_context_get_global_resource_scale (NULL))
-    {
-      if (priv->needs_update_resource_scale)
-        {
-          priv->needs_update_resource_scale = FALSE;
-          g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_RESOURCE_SCALE]);
-        }
-    }
-  else
+  if (!_clutter_context_get_global_resource_scale (NULL))
     clutter_actor_ensure_real_resource_scale (self);
 }
 
