@@ -176,6 +176,8 @@ struct _MetaWaylandSurface
 
   /* All the pending state that wl_surface.commit will apply. */
   MetaWaylandSurfaceState *pending_state;
+  /* State cached due to inter-surface synchronization such. */
+  MetaWaylandSurfaceState *cached_state;
 
   /* Extension resources. */
   struct wl_resource *wl_subsurface;
@@ -197,7 +199,6 @@ struct _MetaWaylandSurface
      * state here.
      */
     gboolean synchronous;
-    MetaWaylandSurfaceState *pending;
 
     int32_t pending_x;
     int32_t pending_y;
@@ -232,8 +233,10 @@ MetaWaylandSurface *meta_wayland_surface_create (MetaWaylandCompositor *composit
 MetaWaylandSurfaceState *
                     meta_wayland_surface_get_pending_state (MetaWaylandSurface *surface);
 
-void                meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
-                                                      MetaWaylandSurfaceState *state);
+MetaWaylandSurfaceState *
+                    meta_wayland_surface_ensure_cached_state (MetaWaylandSurface *surface);
+
+void                meta_wayland_surface_apply_cached_state (MetaWaylandSurface *surface);
 
 gboolean            meta_wayland_surface_is_effectively_synchronized (MetaWaylandSurface *surface);
 

@@ -616,7 +616,7 @@ meta_wayland_surface_cache_pending_frame_callbacks (MetaWaylandSurface      *sur
   wl_list_init (&pending->frame_callback_list);
 }
 
-void
+static void
 meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                                   MetaWaylandSurfaceState *state)
 {
@@ -817,10 +817,28 @@ cleanup:
     }
 }
 
+void
+meta_wayland_surface_apply_cached_state (MetaWaylandSurface *surface)
+{
+  if (!surface->cached_state)
+    return;
+
+  meta_wayland_surface_apply_state (surface, surface->cached_state);
+}
+
 MetaWaylandSurfaceState *
 meta_wayland_surface_get_pending_state (MetaWaylandSurface *surface)
 {
   return surface->pending_state;
+}
+
+MetaWaylandSurfaceState *
+meta_wayland_surface_ensure_cached_state (MetaWaylandSurface *surface)
+{
+  if (!surface->cached_state)
+    surface->cached_state = g_object_new (META_TYPE_WAYLAND_SURFACE_STATE,
+                                          NULL);
+  return surface->cached_state;
 }
 
 static void
@@ -844,9 +862,16 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
    *     surface is in effective desynchronized mode.
    */
   if (meta_wayland_surface_should_cache_state (surface))
-    meta_wayland_surface_state_merge_into (pending, surface->sub.pending);
+    {
+      MetaWaylandSurfaceState *cached_state;
+
+      cached_state = meta_wayland_surface_ensure_cached_state (surface);
+      meta_wayland_surface_state_merge_into (pending, cached_state);
+    }
   else
-    meta_wayland_surface_apply_state (surface, surface->pending_state);
+    {
+      meta_wayland_surface_apply_state (surface, surface->pending_state);
+    }
 }
 
 static void
@@ -1344,6 +1369,7 @@ wl_surface_destructor (struct wl_resource *resource)
   g_clear_pointer (&surface->texture, cogl_object_unref);
   g_clear_object (&surface->buffer_ref.buffer);
 
+  g_clear_object (&surface->cached_state);
   g_clear_object (&surface->pending_state);
 
   if (surface->opaque_region)
